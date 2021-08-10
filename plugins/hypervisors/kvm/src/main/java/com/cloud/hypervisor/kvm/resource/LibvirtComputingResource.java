@@ -2794,13 +2794,16 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 setDiskIoDriver(disk);
 
                 if (pool.getType() == StoragePoolType.RBD) {
+                    if (data instanceof VolumeObjectTO) {
+                        final VolumeObjectTO cache = (VolumeObjectTO) volume.getData();
+                        final String cacheMode = cache.getCacheMode() == null ? "NONE" : cache.getCacheMode().toString().toUpperCase();
                     /*
                             For RBD pools we use the secret mechanism in libvirt.
                             We store the secret under the UUID of the pool, that's why
                             we pass the pool's UUID as the authSecret
                      */
-                    disk.defNetworkBasedDisk(physicalDisk.getPath().replace("rbd:", ""), pool.getSourceHost(), pool.getSourcePort(), pool.getAuthUserName(),
-                            pool.getUuid(), devId, diskBusType, DiskProtocol.RBD, DiskDef.DiskFmtType.RAW);
+                    disk.defNetworkBasedDiskCache(physicalDisk.getPath().replace("rbd:", ""), pool.getSourceHost(), pool.getSourcePort(), pool.getAuthUserName(),
+                            pool.getUuid(), devId, diskBusType, DiskProtocol.RBD, DiskDef.DiskFmtType.RAW, DiskDef.DiskCacheMode.valueOf(cacheMode));
                 } else if (pool.getType() == StoragePoolType.PowerFlex) {
                     disk.defBlockBasedDisk(physicalDisk.getPath(), devId, diskBusTypeData);
                 } else if (pool.getType() == StoragePoolType.Gluster) {

@@ -895,6 +895,22 @@ public class LibvirtVMDef {
             _diskProtocol = protocol;
         }
 
+        public void defNetworkBasedDiskCache(String diskName, String sourceHost, int sourcePort, String authUserName, String authSecretUUID, int devId, DiskBus bus,
+                                             DiskProtocol protocol, DiskFmtType diskFmtType, DiskCacheMode cacheMode) {
+            _diskType = DiskType.NETWORK;
+            _deviceType = DeviceType.DISK;
+            _diskFmtType = diskFmtType;
+            _diskCacheMode = cacheMode;
+            _sourcePath = diskName;
+            _sourceHost = sourceHost;
+            _sourcePort = sourcePort;
+            _authUserName = authUserName;
+            _authSecretUUID = authSecretUUID;
+            _diskLabel = getDevLabel(devId, bus, false);
+            _bus = bus;
+            _diskProtocol = protocol;
+        }
+
         public void defNetworkBasedDisk(String diskName, String sourceHost, int sourcePort, String authUserName, String authSecretUUID, String diskLabel, DiskBus bus,
                 DiskProtocol protocol, DiskFmtType diskFmtType) {
             _diskType = DiskType.NETWORK;

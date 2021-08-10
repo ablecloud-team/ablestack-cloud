@@ -1288,8 +1288,8 @@ public class KVMStorageProcessor implements StorageProcessor {
                             throw new InternalErrorException("Error while mapping disk "+attachingDisk.getPath()+" on host");
                         }
                     } else {
-                        diskdef.defNetworkBasedDisk(attachingDisk.getPath(), attachingPool.getSourceHost(), attachingPool.getSourcePort(), attachingPool.getAuthUserName(),
-                                attachingPool.getUuid(), devId, busT, DiskProtocol.RBD, DiskDef.DiskFmtType.RAW);
+                        diskdef.defNetworkBasedDiskCache(attachingDisk.getPath(), attachingPool.getSourceHost(), attachingPool.getSourcePort(), attachingPool.getAuthUserName(),
+                                attachingPool.getUuid(), devId, busT, DiskProtocol.RBD, DiskDef.DiskFmtType.RAW, DiskDef.DiskCacheMode.valueOf(cacheMode.toUpperCase()));
                     }
                 } else if (attachingPool.getType() == StoragePoolType.Gluster) {
                     final String mountpoint = attachingPool.getLocalPath();
