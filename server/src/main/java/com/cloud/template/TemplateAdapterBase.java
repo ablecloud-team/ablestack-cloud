@@ -277,9 +277,6 @@ public abstract class TemplateAdapterBase extends AdapterBase implements Templat
 
         boolean isRouting = (cmd.isRoutingType() == null) ? false : cmd.isRoutingType();
 
-        //Desktop template checking
-        boolean isDesktop = (cmd.isDesktop() == null) ? false : cmd.isDesktop();
-
         List<Long> zoneId = cmd.getZoneIds();
         // ignore passed zoneId if we are using region wide image store
         List<ImageStoreVO> stores = _imgStoreDao.findRegionImageStores();
@@ -308,7 +305,7 @@ public abstract class TemplateAdapterBase extends AdapterBase implements Templat
         }
         return prepare(false, CallContext.current().getCallingUserId(), cmd.getTemplateName(), cmd.getDisplayText(), cmd.getBits(), cmd.isPasswordEnabled(), cmd.getRequiresHvm(),
                 cmd.getUrl(), cmd.isPublic(), cmd.isFeatured(), cmd.isExtractable(), cmd.getFormat(), cmd.getOsTypeId(), zoneId, hypervisorType, cmd.getChecksum(), true,
-                cmd.getTemplateTag(), owner, details, cmd.isSshKeyEnabled(), null, cmd.isDynamicallyScalable(), isRouting ? TemplateType.ROUTING : isDesktop ? TemplateType.SYSTEM : TemplateType.USER,
+                cmd.getTemplateTag(), owner, details, cmd.isSshKeyEnabled(), null, cmd.isDynamicallyScalable(), isRouting ? TemplateType.ROUTING : TemplateType.USER,
                 cmd.isDirectDownload(), cmd.isDeployAsIs());
 
     }

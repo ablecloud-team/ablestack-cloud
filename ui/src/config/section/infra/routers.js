@@ -32,9 +32,6 @@ export default {
     name: 'nics',
     component: () => import('@/views/network/NicsTable.vue')
   }, {
-    name: 'desktopnics',
-    component: () => import('@/views/network/DesktopNicsTable.vue')
-  }, {
     name: 'router.health.checks',
     show: (record, route, user) => { return ['Running'].includes(record.state) && ['Admin'].includes(user.roletype) },
     component: () => import('@views/infra/routers/RouterHealthCheck.vue')

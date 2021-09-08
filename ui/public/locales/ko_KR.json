@@ -3359,6 +3359,8 @@
     "label.desktopvm": "데스크톱 VM",
     "label.desktop.cluster.deploy": "데스크톱 클러스터 배포",
     "label.desktop.cluster.delete": "데스크톱 클러스터 삭제",
+    "label.desktop.cluster.start": "데스크톱 클러스터 시작",
+    "label.desktop.cluster.stop": "데스크톱 클러스터 정지",
     "label.desktop.controller.template.version": "컨트롤러 템플릿 버전",
     "label.desktop.controller.template.version.create": "컨트롤러 템플릿 버전 생성",
     "label.desktop.controller.version.manage": "컨트롤러 템플릿 버전 사용여부",
@@ -3434,8 +3436,11 @@
     "message.success.register.contoller.template.version": "신규 컨트롤러 템플릿 버전이 등록되었습니다.",
     "message.success.update.desktop.controller.template.version": "데스크톱 컨트롤러 템플릿 버전의 상태값을 업데이트했습니다.",
     "message.success.add.desktop.ip": "데스크톱 클러스터의 IP 범위가 추가되었습니다.",
+    "message.success.create.desktop.cluter": "데스크톱 클러스터가 성공적으로 배포되었습니다.",
     "message.add.desktop.ip.failed": "데스크톱 클러스터의 IP 범위 추가에 실패하였습니다.",
     "message.add.desktop.ip.processing": "데스크톱 클러스터의 IP 범위 추가중...",
     "message.success.register.master.template.version":"신규 마스터 템플릿 버전이 등록되었습니다.",
-    "message.success.update.desktop.master.template.version": "데스크톱 마스터 템플릿 버전의 상태값을 업데이트했습니다."
+    "message.success.update.desktop.master.template.version": "데스크톱 마스터 템플릿 버전의 상태값을 업데이트했습니다.",
+    "message.desktop.cluster.start": "해당 클러스터를 시작하시겠습니까?",
+    "message.desktop.cluster.stop": "해당 클러스터를 정지하시겠습니까?"
 }

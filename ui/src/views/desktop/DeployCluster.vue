@@ -101,14 +101,13 @@
             </a-tooltip>
           </span>
           <a-select
-            showSearch
-            v-decorator="['timezone', {
+            v-decorator="['templateversion', {
               rules: [{ required: true, message: $t('message.error.required.input') }]
             }]"
-            :loading="timeZoneLoading"
+            :loading="templateVersionLoading"
             :placeholder="$t('placeholder.desktop.controller.template.version')">
-            <a-select-option v-for="opt in timeZoneMap" :key="opt.id">
-              {{ opt.name || opt.description }}
+            <a-select-option v-for="(opt, optIndex) in this.templateVersions" :key="optIndex">
+              {{ opt.version }}
             </a-select-option>
           </a-select>
         </a-form-item>
@@ -120,7 +119,6 @@
             </a-tooltip>
           </span>
           <a-select
-            id="offering-selection"
             v-decorator="['serviceofferingid', {
               rules: [{ required: true, message: $t('message.error.required.input') }]
             }]"
@@ -161,7 +159,7 @@
             </a-radio-button>
           </a-radio-group>
         </a-form-item>
-        <a-form-item v-if="this.isAdminOrDomainAdmin()">
+        <a-form-item>
           <span slot="label">
             {{ $t('label.network') }}
             <a-tooltip :title="$t('placeholder.network')">
@@ -169,13 +167,18 @@
             </a-tooltip>
           </span>
           <a-select
-            :loading="domainLoading"
-            v-decorator="['domainid', {
-              initialValue: selectedDomain,
+            :loading="networkLoading"
+            v-decorator="['networkid', {
+              initialValue: this.networks,
               rules: [{ required: true, message: $t('message.error.select') }] }]"
-            :placeholder="$t('placeholder.network')">
-            <a-select-option v-for="domain in domainsList" :key="domain.id">
-              {{ domain.path || domain.name || domain.description }}
+            :placeholder="$t('placeholder.network')"
+            showSearch
+            @change="val => { this.handleNetworkChange(this.networks[val]) }">
+            <a-select-option v-for="(opt, optIndex) in this.networks" :key="optIndex">
+              <span v-if="opt.type!=='L2'">
+                {{ opt.name || opt.description }} ({{ `${$t('label.cidr')}: ${opt.cidr}` }})
+              </span>
+              <span v-else>{{ opt.name || opt.description }}</span>
             </a-select-option>
           </a-select>
         </a-form-item>
@@ -189,7 +192,7 @@
                 </a-tooltip>
               </span>
               <a-input
-                v-decorator="['account', {
+                v-decorator="['gateway', {
                   rules: [{ required: true, message: $t('message.error.required.input') }]
                 }]"
                 :placeholder="$t('label.gateway')" />
@@ -204,7 +207,7 @@
                 </a-tooltip>
               </span>
               <a-input
-                v-decorator="['account', {
+                v-decorator="['netmask', {
                   rules: [{ required: true, message: $t('message.error.required.input') }]
                 }]"
                 :placeholder="$t('placeholder.netmask')" />
@@ -249,7 +252,7 @@
             </a-tooltip>
           </span>
           <a-input
-            v-decorator="['email', {
+            v-decorator="['worksip', {
               rules: [{ message: $t('message.error.required.input') }]
             }]"
             :placeholder="$t('placeholder.worksvmip')" />
@@ -262,7 +265,7 @@
             </a-tooltip>
           </span>
           <a-input
-            v-decorator="['email', {
+            v-decorator="['dcip', {
               rules: [{ message: $t('message.error.required.input') }]
             }]"
             :placeholder="$t('placeholder.dcvmip')" />
@@ -277,69 +280,48 @@
 </template>
 <script>
 import { api } from '@/api'
-import { timeZone } from '@/utils/timezone'
-import debounce from 'lodash/debounce'
+import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
-  name: 'AddAccountForm',
+  name: 'CreateDesktopCluster',
+  components: {
+    TooltipLabel
+  },
+  props: {},
   data () {
-    this.fetchTimeZone = debounce(this.fetchTimeZone, 800)
     return {
       loading: false,
-      domainLoading: false,
-      domainsList: [],
-      selectedDomain: '',
-      roleLoading: false,
-      roles: [],
       accessType: 'internal',
-      selectedRole: '',
-      timeZoneLoading: false,
-      timeZoneMap: [],
-      externalEnabled: false,
+      networks: [],
+      networkLoading: false,
+      templateVersions: [],
+      templateVersionLoading: false,
       serviceOfferings: [],
       serviceOfferingLoading: false
     }
   },
   beforeCreate () {
     this.form = this.$form.createForm(this)
-    this.apiConfig = this.$store.getters.apis.createAccount || {}
-    this.apiParams = {}
-    if (this.apiConfig.params) {
-      this.apiConfig.params.forEach(param => {
-        this.apiParams[param.name] = param
-      })
-    }
-    this.apiConfig = this.$store.getters.apis.authorizeSamlSso || {}
-    if (this.apiConfig.params) {
-      this.apiConfig.params.forEach(param => {
-        this.apiParams[param.name] = param
-      })
-    }
+    this.apiParams = this.$getApiParams('createDesktopCluster')
   },
   created () {
     this.fetchData()
   },
   methods: {
     fetchData () {
-      this.fetchDomains()
-      this.fetchRoles()
-      this.fetchTimeZone()
+      this.fetchNetworkData()
+      this.fetchTemplateVersionData()
       this.fetchServiceOfferingData()
-      if ('listIdps' in this.$store.getters.apis) {
-        this.fetchIdps()
-      }
-    },
-    isAdminOrDomainAdmin () {
-      return ['Admin', 'DomainAdmin'].includes(this.$store.getters.userInfo.roletype)
-    },
-    isDomainAdmin () {
-      return this.$store.getters.userInfo.roletype === 'DomainAdmin'
     },
     isValidValueForKey (obj, key) {
       return key in obj && obj[key] != null
     },
+    arrayHasItems (array) {
+      return array !== null && array !== undefined && Array.isArray(array) && array.length > 0
+    },
     handleAccessTypeChange (pvlan) {
       this.accessType = pvlan
+      this.fetchNetworkData()
     },
     validateConfirmPassword (rule, value, callback) {
       if (!value || value.length === 0) {
@@ -357,54 +339,26 @@ export default {
         callback()
       }
     },
-    fetchDomains () {
-      this.domainLoading = true
-      api('listDomains', {
-        listAll: true,
-        details: 'min'
-      }).then(response => {
-        this.domainsList = response.listdomainsresponse.domain || []
-        this.selectedDomain = this.domainsList[0].id || ''
-      }).catch(error => {
-        this.$notification.error({
-          message: `${this.$t('label.error')} ${error.response.status}`,
-          description: error.response.data.errorresponse.errortext
-        })
-      }).finally(() => {
-        this.domainLoading = false
-      })
-    },
-    fetchRoles () {
-      this.roleLoading = true
-      api('listRoles').then(response => {
-        this.roles = response.listrolesresponse.role || []
-        this.selectedRole = this.roles[0].id
-        if (this.isDomainAdmin()) {
-          const userRole = this.roles.filter(role => role.type === 'User')
-          if (userRole.length > 0) {
-            this.selectedRole = userRole[0].id
+    fetchTemplateVersionData () {
+      this.templateVersions = []
+      const params = {}
+      this.templateVersionLoading = true
+      api('listDesktopControllerVersions', params).then(json => {
+        var items = json.listdesktopcontrollerversionsresponse.desktopcontrollerversion
+        if (items != null) {
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].state === 'Enabled') {
+              this.templateVersions.push(items[i])
+            }
           }
         }
       }).finally(() => {
-        this.roleLoading = false
-      })
-    },
-    fetchTimeZone (value) {
-      this.timeZoneMap = []
-      this.timeZoneLoading = true
-
-      timeZone(value).then(json => {
-        this.timeZoneMap = json
-        this.timeZoneLoading = false
-      })
-    },
-    fetchIdps () {
-      this.idpLoading = true
-      api('listIdps').then(response => {
-        this.idps = response.listidpsresponse.idp || []
-        this.selectedIdp = this.idps[0].id || ''
-      }).finally(() => {
-        this.idpLoading = false
+        this.templateVersionLoading = false
+        if (this.arrayHasItems(this.templateVersions)) {
+          this.form.setFieldsValue({
+            templateversion: 0
+          })
+        }
       })
     },
     fetchServiceOfferingData () {
@@ -415,8 +369,7 @@ export default {
         var items = json.listserviceofferingsresponse.serviceoffering
         if (items != null) {
           for (var i = 0; i < items.length; i++) {
-            if (items[i].iscustomized === false &&
-                items[i].cpunumber >= this.minCpu && items[i].memory >= this.minMemory) {
+            if (items[i].iscustomized === false) {
               this.serviceOfferings.push(items[i])
             }
           }
@@ -424,16 +377,50 @@ export default {
       }).finally(() => {
         this.serviceOfferingLoading = false
         if (this.arrayHasItems(this.serviceOfferings)) {
-          for (var i = 0; i < this.serviceOfferings.length; i++) {
-            if (this.serviceOfferings[i].id === this.resource.serviceofferingid) {
-              this.form.setFieldsValue({
-                serviceofferingid: i
-              })
-              break
+          this.form.setFieldsValue({
+            serviceofferingid: 0
+          })
+        }
+      })
+    },
+    fetchNetworkData () {
+      this.networks = []
+      const params = {}
+      this.networkLoading = true
+      this.handleNetworkChange(null)
+      api('listNetworks', params).then(json => {
+        var items = json.listnetworksresponse.network
+        if (items != null) {
+          for (var i = 0; i < items.length; i++) {
+            if (this.accessType === 'internal' && items[i].type === 'L2') {
+              this.networks.push(items[i])
+              this.handleNetworkChange(this.networks[0])
+            }
+            if (this.accessType === 'external' && items[i].type === 'Isolated') {
+              this.networks.push(items[i])
+              this.handleNetworkChange(this.networks[0])
+            }
+            if (this.accessType === 'mixed' && items[i].type === 'Shared') {
+              this.networks.push(items[i])
+              this.handleNetworkChange(this.networks[0])
             }
           }
         }
+      }).finally(() => {
+        this.networkLoading = false
+        if (this.arrayHasItems(this.networks)) {
+          this.form.setFieldsValue({
+            networkid: 0
+          })
+        } else {
+          this.form.setFieldsValue({
+            networkid: null
+          })
+        }
       })
+    },
+    handleNetworkChange (network) {
+      this.selectedNetwork = network
     },
     handleSubmit (e) {
       e.preventDefault()
@@ -443,34 +430,46 @@ export default {
         }
         this.loading = true
         const params = {
-          roleid: values.roleid,
-          username: values.username,
-          password: values.password,
-          email: values.email,
-          domainid: values.domainid
+          name: values.name,
+          description: values.description,
+          addomainname: values.addomainname,
+          desktoppassword: values.password,
+          controllerversion: this.templateVersions[values.templateversion].id,
+          serviceofferingid: this.serviceOfferings[values.serviceofferingid].id,
+          networkid: this.selectedNetwork.id,
+          clustertype: this.accessType
         }
-        if (this.isValidValueForKey(values, 'account') && values.account.length > 0) {
-          params.account = values.account
+        if (this.isValidValueForKey(values, 'gateway')) {
+          params.gateway = values.gateway
         }
-        if (this.isValidValueForKey(values, 'timezone') && values.timezone.length > 0) {
-          params.timezone = values.timezone
+        if (this.isValidValueForKey(values, 'netmask')) {
+          params.netmask = values.netmask
         }
-        if (this.isValidValueForKey(values, 'serviceofferingid') && this.arrayHasItems(this.serviceOfferings)) {
-          params.serviceofferingid = this.serviceOfferings[values.serviceofferingid].id
+        if (this.isValidValueForKey(values, 'startip')) {
+          params.startip = values.startip
         }
-        api('createAccount', {}, 'POST', params).then(response => {
-          this.$emit('refresh-data')
-          this.$notification.success({
-            message: this.$t('label.create.account'),
-            description: `${this.$t('message.success.create.account')} ${params.username}`
+        if (this.isValidValueForKey(values, 'endip')) {
+          params.endip = values.endip
+        }
+        if (this.isValidValueForKey(values, 'worksip')) {
+          params.worksip = values.worksip
+        }
+        if (this.isValidValueForKey(values, 'dcip')) {
+          params.dcip = values.dcip
+        }
+        api('createDesktopCluster', params).then(json => {
+          const jobId = json.createdesktopclusterresponse.jobid
+          this.$pollJob({
+            jobId,
+            title: this.$t('label.desktop.cluster.deploy'),
+            description: values.name,
+            loadingMessage: `${this.$t('label.desktop.cluster.deploy')} ${values.name} ${this.$t('label.in.progress')}`,
+            catchMessage: this.$t('error.fetching.async.job.result'),
+            successMessage: this.$t('message.success.create.desktop.cluter') + ' ' + values.name
           })
           this.closeAction()
         }).catch(error => {
-          this.$notification.error({
-            message: this.$t('message.request.failed'),
-            description: (error.response && error.response.headers && error.response.headers['x-description']) || error.message,
-            duration: 0
-          })
+          this.$notifyError(error)
         }).finally(() => {
           this.loading = false
         })

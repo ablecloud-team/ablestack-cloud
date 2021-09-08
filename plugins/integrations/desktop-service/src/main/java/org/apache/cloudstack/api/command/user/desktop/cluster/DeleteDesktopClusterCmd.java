@@ -14,7 +14,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 package org.apache.cloudstack.api.command.user.desktop.cluster;
 
 import javax.inject.Inject;
@@ -26,36 +25,38 @@ import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
-import org.apache.cloudstack.api.response.DesktopClusterIpRangeResponse;
+import org.apache.cloudstack.api.response.DesktopClusterResponse;
 import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.log4j.Logger;
 
 import com.cloud.exception.ConcurrentOperationException;
-import com.cloud.desktop.cluster.DesktopClusterIpRange;
+import com.cloud.desktop.cluster.DesktopCluster;
 import com.cloud.desktop.cluster.DesktopClusterEventTypes;
 import com.cloud.desktop.cluster.DesktopClusterService;
 import com.cloud.utils.exception.CloudRuntimeException;
 
-@APICommand(name = DeleteDesktopClusterIpRangeCmd.APINAME,
-        description = "Delete a Desktop Cluster Ip Range",
+@APICommand(name = DeleteDesktopClusterCmd.APINAME,
+        description = "Deletes a Desktop cluster",
         responseObject = SuccessResponse.class,
-        entityType = {DesktopClusterIpRange.class},
+        entityType = {DesktopCluster.class},
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
-public class DeleteDesktopClusterIpRangeCmd extends BaseAsyncCmd {
-    public static final Logger LOGGER = Logger.getLogger(DeleteDesktopClusterIpRangeCmd.class.getName());
-    public static final String APINAME = "deleteDesktopClusterIpRanges";
+public class DeleteDesktopClusterCmd extends BaseAsyncCmd {
+    public static final Logger LOGGER = Logger.getLogger(DeleteDesktopClusterCmd.class.getName());
+    public static final String APINAME = "deleteDesktopCluster";
 
     @Inject
-    private DesktopClusterService desktopService;
+    public DesktopClusterService desktopClusterService;
 
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
-    @Parameter(name = ApiConstants.ID, type = CommandType.UUID,
-            entityType = DesktopClusterIpRangeResponse.class,
-            description = "the ID of the Desktop cluster ip range",
-            required = true)
+
+    @Parameter(name = ApiConstants.ID,
+            type = CommandType.UUID,
+            entityType = DesktopClusterResponse.class,
+            required = true,
+            description = "the ID of the Desktop cluster")
     private Long id;
 
     /////////////////////////////////////////////////////
@@ -66,26 +67,6 @@ public class DeleteDesktopClusterIpRangeCmd extends BaseAsyncCmd {
         return id;
     }
 
-    @Override
-    public String getCommandName() {
-        return APINAME.toLowerCase() + "response";
-    }
-
-    @Override
-    public long getEntityOwnerId() {
-        return CallContext.current().getCallingAccountId();
-    }
-
-    @Override
-    public String getEventType() {
-        return DesktopClusterEventTypes.EVENT_DESKTOP_CLUSTER_IP_RANGE_DELETE;
-    }
-
-    @Override
-    public String getEventDescription() {
-        return "Deleting Desktop cluster ip range. Ip range Id: " + getId();
-    }
-
     /////////////////////////////////////////////////////
     /////////////// API Implementation///////////////////
     /////////////////////////////////////////////////////
@@ -93,13 +74,42 @@ public class DeleteDesktopClusterIpRangeCmd extends BaseAsyncCmd {
     @Override
     public void execute() throws ServerApiException, ConcurrentOperationException {
         try {
-            if (!desktopService.deleteDesktopClusterIpRange(this)) {
-                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, String.format("Failed to delete Desktop cluster Ip range ID: %d", getId()));
+            if (!desktopClusterService.deleteDesktopCluster(id)) {
+                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, String.format("Failed to delete Desktop cluster ID: %d", getId()));
             }
             SuccessResponse response = new SuccessResponse(getCommandName());
             setResponseObject(response);
-        } catch (CloudRuntimeException ex) {
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, ex.getMessage());
+        } catch (CloudRuntimeException e) {
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
         }
     }
+
+    @Override
+    public String getCommandName() {
+        return APINAME.toLowerCase() + "response";
+    }
+
+    @Override
+    public long getEntityOwnerId() {
+        return CallContext.current().getCallingAccount().getId();
+    }
+
+
+    @Override
+    public String getEventType() {
+        return DesktopClusterEventTypes.EVENT_DESKTOP_CLUSTER_DELETE;
+    }
+
+    @Override
+    public String getEventDescription() {
+        String description = "Deleting Desktop cluster";
+        DesktopCluster cluster = _entityMgr.findById(DesktopCluster.class, getId());
+        if (cluster != null) {
+            description += String.format(" ID: %s", cluster.getUuid());
+        } else {
+            description += String.format(" ID: %d", getId());
+        }
+        return description;
+    }
+
 }

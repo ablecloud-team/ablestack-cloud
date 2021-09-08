@@ -41,33 +41,48 @@ export default {
           component: () => import('@/views/desktop/DeployCluster.vue')
         },
         {
-          api: 'startVirtualMachine',
+          api: 'startDesktopCluster',
           icon: 'caret-right',
-          label: 'label.action.enable.cluster',
-          message: 'message.desktop.cluster.enable',
+          label: 'label.desktop.cluster.start',
+          message: 'message.desktop.cluster.start',
           docHelp: '',
           dataView: true,
-          show: (record) => { return ['Stopped'].includes(record.state) }
+          show: (record) => { return ['Stopped'].includes(record.state) },
+          groupAction: true,
+          popup: true,
+          groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
         },
         {
-          api: 'stopVirtualMachine',
+          api: 'stopDesktopCluster',
           icon: 'poweroff',
-          label: 'label.action.disable.cluster',
-          message: 'message.desktop.cluster.disable',
+          label: 'label.desktop.cluster.stop',
+          message: 'message.desktop.cluster.stop',
           docHelp: '',
           dataView: true,
-          show: (record) => { return ['Running'].includes(record.state) }
+          show: (record) => { return !['Stopped', 'Destroyed', 'Destroying'].includes(record.state) },
+          groupAction: true,
+          popup: true,
+          groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
         },
         {
-          api: 'destroyVirtualMachine',
+          api: 'listDesktopClusters',
+          icon: 'link',
+          label: 'label.works.portal.url',
+          docHelp: '',
+          dataView: true,
+          show: (record) => { return !['Stopped', 'Destroyed', 'Destroying'].includes(record.state) }
+        },
+        {
+          api: 'deleteDesktopCluster',
           icon: 'delete',
           label: 'label.desktop.cluster.delete',
           message: 'message.desktop.cluster.delete',
-          docHelp: '',
           dataView: true,
+          docHelp: '',
+          show: (record) => { return !['Destroyed', 'Destroying'].includes(record.state) },
+          groupAction: true,
           popup: true,
-          show: (record) => { return ['Running', 'Stopped'].includes(record.state) },
-          component: () => import('@/views/desktop/DestroyCluster.vue')
+          groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
         }
       ]
     },

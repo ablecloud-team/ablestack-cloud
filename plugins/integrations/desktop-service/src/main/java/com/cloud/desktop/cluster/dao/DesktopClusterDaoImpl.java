@@ -42,6 +42,7 @@ public class DesktopClusterDaoImpl extends GenericDaoBase<DesktopClusterVO, Long
         AccountIdSearch.done();
 
         GarbageCollectedSearch = createSearchBuilder();
+        GarbageCollectedSearch.and("gc", GarbageCollectedSearch.entity().isCheckForGc(), SearchCriteria.Op.EQ);
         GarbageCollectedSearch.and("state", GarbageCollectedSearch.entity().getState(), SearchCriteria.Op.EQ);
         GarbageCollectedSearch.done();
 
@@ -66,9 +67,17 @@ public class DesktopClusterDaoImpl extends GenericDaoBase<DesktopClusterVO, Long
     }
 
     @Override
-    public List<DesktopClusterVO> findDesktopToGarbageCollect() {
+    public List<DesktopClusterVO> findDesktopClustersToGarbageCollect() {
         SearchCriteria<DesktopClusterVO> sc = GarbageCollectedSearch.create();
+        sc.setParameters("gc", true);
         sc.setParameters("state", DesktopCluster.State.Destroying);
+        return listBy(sc);
+    }
+
+    @Override
+    public List<DesktopClusterVO> findDesktopClustersInState(DesktopCluster.State state) {
+        SearchCriteria<DesktopClusterVO> sc = StateSearch.create();
+        sc.setParameters("state", state);
         return listBy(sc);
     }
 
@@ -85,13 +94,6 @@ public class DesktopClusterDaoImpl extends GenericDaoBase<DesktopClusterVO, Long
 
         txn.commit();
         return true;
-    }
-
-    @Override
-    public List<DesktopClusterVO> findDesktopInState(DesktopClusterVO.State state) {
-        SearchCriteria<DesktopClusterVO> sc = StateSearch.create();
-        sc.setParameters("state", state);
-        return listBy(sc);
     }
 
     @Override

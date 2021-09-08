@@ -45,8 +45,9 @@ public class DesktopClusterVmMapVO implements DesktopClusterVmMap {
     public DesktopClusterVmMapVO() {
     }
 
-    public DesktopClusterVmMapVO(long desktopClusterId, String type) {
+    public DesktopClusterVmMapVO(long desktopClusterId, long vmId, String type) {
         this.desktopClusterId = desktopClusterId;
+        this.vmId = vmId;
         this.type = type;
     }
 
@@ -60,7 +61,7 @@ public class DesktopClusterVmMapVO implements DesktopClusterVmMap {
         return desktopClusterId;
     }
 
-    public void setdesktopClusterId(long desktopClusterId) {
+    public void setDesktopClusterId(long desktopClusterId) {
         this.desktopClusterId = desktopClusterId;
     }
 

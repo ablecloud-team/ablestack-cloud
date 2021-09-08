@@ -16,6 +16,7 @@
 // under the License.
 package com.cloud.desktop.cluster;
 
+import org.apache.cloudstack.api.command.user.desktop.cluster.CreateDesktopClusterCmd;
 import org.apache.cloudstack.api.command.user.desktop.cluster.AddDesktopClusterIpRangeCmd;
 import org.apache.cloudstack.api.command.user.desktop.cluster.DeleteDesktopClusterIpRangeCmd;
 import org.apache.cloudstack.api.command.user.desktop.cluster.ListDesktopClusterCmd;
@@ -45,11 +46,15 @@ public interface DesktopClusterService extends PluggableService, Configurable {
 
     DesktopCluster findById(final Long id);
 
+    DesktopCluster createDesktopCluster(CreateDesktopClusterCmd cmd) throws CloudRuntimeException;
+    boolean startDesktopCluster(long desktopClusterId, boolean onCreate) throws CloudRuntimeException;
+    boolean stopDesktopCluster(long desktopClusterId) throws CloudRuntimeException;
+    boolean deleteDesktopCluster(Long desktopClusterId) throws CloudRuntimeException;
     ListResponse<DesktopClusterResponse> listDesktopCluster(ListDesktopClusterCmd cmd);
     ListResponse<DesktopClusterIpRangeResponse> listDesktopClusterIpRanges(ListDesktopClusterIpRangeCmd cmd);
     DesktopClusterIpRange addDesktopClusterIpRange(AddDesktopClusterIpRangeCmd cmd);
     boolean deleteDesktopClusterIpRange(DeleteDesktopClusterIpRangeCmd cmd) throws CloudRuntimeException;
 
     DesktopClusterResponse createDesktopClusterResponse(long desktopClusterId);
-    DesktopClusterIpRangeResponse createDesktopClusterIpRangeResponse(long ipRangeId);
+    DesktopClusterIpRangeResponse addDesktopClusterIpRangeResponse(long ipRangeId);
 }

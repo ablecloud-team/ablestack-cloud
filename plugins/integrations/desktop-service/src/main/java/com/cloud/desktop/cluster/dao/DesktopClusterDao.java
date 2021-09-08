@@ -27,8 +27,8 @@ public interface DesktopClusterDao extends GenericDao<DesktopClusterVO, Long>,
         StateDao<DesktopCluster.State, DesktopCluster.Event, DesktopCluster> {
 
     List<DesktopClusterVO> listByAccount(long accountId);
-    List<DesktopClusterVO> findDesktopToGarbageCollect();
-    List<DesktopClusterVO> findDesktopInState(DesktopCluster.State state);
+    List<DesktopClusterVO> findDesktopClustersToGarbageCollect();
+    List<DesktopClusterVO> findDesktopClustersInState(DesktopCluster.State state);
     List<DesktopClusterVO> listByNetworkId(long networkId);
     List<DesktopClusterVO> listAllByDesktopVersion(long desktopVersionId);
 }

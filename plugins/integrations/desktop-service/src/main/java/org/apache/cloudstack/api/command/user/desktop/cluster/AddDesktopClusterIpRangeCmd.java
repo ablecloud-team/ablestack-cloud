@@ -141,7 +141,7 @@ public class AddDesktopClusterIpRangeCmd extends BaseAsyncCreateCmd {
     @Override
     public void execute() {
         try {
-            DesktopClusterIpRangeResponse response = desktopService.createDesktopClusterIpRangeResponse(getEntityId());
+            DesktopClusterIpRangeResponse response = desktopService.addDesktopClusterIpRangeResponse(getEntityId());
             response.setResponseName(getCommandName());
             setResponseObject(response);
         } catch (CloudRuntimeException e) {

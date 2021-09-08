@@ -55,7 +55,7 @@
 import { api } from '@/api'
 
 export default {
-  name: 'updateDesktopMasterVersion',
+  name: 'UpdateDesktopMasterVersion',
   props: {
     resource: {
       type: Object,

@@ -52,17 +52,20 @@
       <template slot="action" slot-scope="text, record">
         <tooltip-button
           style="margin-right: 5px"
-          :disabled="!('copyTemplate' in $store.getters.apis && record.isready)"
+          :dataSource="templates"
+          :disabled="!('copyTemplate' in $store.getters.apis && record.isready) || templates.includes(record.id)"
           :title="$t('label.action.copy.template')"
           icon="copy"
-          :loading="copyLoading"
+          :loading="copyLoading || fetchLoading"
           @click="showCopyTemplate(record)" />
         <tooltip-button
           style="margin-right: 5px"
-          :disabled="!('deleteTemplate' in $store.getters.apis)"
+          :dataSource="templates"
+          :disabled="!('deleteTemplate' in $store.getters.apis) || templates.includes(record.id)"
           :title="$t('label.action.delete.template')"
           type="danger"
           icon="delete"
+          :loading="fetchLoading"
           @click="onShowDeleteModal(record)"/>
       </template>
     </a-table>
@@ -212,6 +215,7 @@ export default {
     return {
       columns: [],
       dataSource: [],
+      templates: [],
       page: 1,
       pageSize: 10,
       itemCount: 0,
@@ -313,7 +317,29 @@ export default {
       }).catch(error => {
         this.$notifyError(error)
       }).finally(() => {
+      })
+      this.templates = []
+      api('listDesktopControllerVersions').then(json => {
+        var items = json.listdesktopcontrollerversionsresponse.desktopcontrollerversion
+        if (items != null) {
+          for (var i = 0; i < items.length; i++) {
+            for (var j = 0; j < items[i].templates.length; j++) {
+              this.templates.push(items[i].templates[j].id)
+            }
+          }
+        }
+      }).finally(() => {
+      })
+      api('listDesktopMasterVersions').then(json => {
+        var items = json.listdesktopmasterversionsresponse.desktopmasterversion
+        if (items != null) {
+          for (var i = 0; i < items.length; i++) {
+            this.templates.push(items[i].templateid)
+          }
+        }
+      }).finally(() => {
         this.fetchLoading = false
+        this.$set(this.resource, 'templates', this.templates)
       })
     },
     handleChangePage (page, pageSize) {
