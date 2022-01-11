@@ -981,6 +981,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         Object isoId = cmd.getIsoId();
         Object vpcId = cmd.getVpcId();
         Object affinityGroupId = cmd.getAffinityGroupId();
+        Object keyPairName = cmd.getKeyPairName();
         Object keyPairId = cmd.getKeyPairId();
         Object serviceOffId = cmd.getServiceOfferingId();
         Object securityGroupId = cmd.getSecurityGroupId();
@@ -1054,8 +1055,12 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             sb.and("affinityGroupId", sb.entity().getAffinityGroupId(), SearchCriteria.Op.EQ);
         }
 
+        if (keyPairName != null) {
+            sb.and("keyPairName", sb.entity().getKeypairName(), SearchCriteria.Op.EQ);
+        }
+
         if (keyPairId != null) {
-            sb.and("keyPairId", sb.entity().getKeyPairId(), SearchCriteria.Op.EQ);
+            sb.and("keyPairId", sb.entity().getKeypairId(), SearchCriteria.Op.EQ);
         }
 
         if (!isRootAdmin) {
@@ -1165,6 +1170,10 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
 
         if (affinityGroupId != null) {
             sc.setParameters("affinityGroupId", affinityGroupId);
+        }
+
+        if (keyPairName != null) {
+            sc.setParameters("keyPairName", keyPairName);
         }
 
         if (keyPairId != null) {
