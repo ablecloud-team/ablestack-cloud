@@ -125,7 +125,7 @@ if [ $? -gt 0 ]; then
     if [[ $latestUpdateTime -gt $SuspectTime ]]; then
         echo "=====> ALIVE <====="
     else
-        echo "=====> Considering host as DEAD due to file [RBD pool] does not exists and condition [latestUpdateTime -gt SuspectTime] has not been satisfied. <======"
+        echo "=====> Considering host as DEAD due to file [RBD '$PoolName' pool] does not exists and condition [latestUpdateTime -gt SuspectTime] has not been satisfied. <======"
     fi
 else
     acTime=$(rados -p $PoolName get ac-$HostIP - --id $PoolAuthUserName)
@@ -138,13 +138,13 @@ else
         if [[ $latestUpdateTime -gt $SuspectTime ]]; then
             echo "=====> ALIVE <====="
         else
-            echo "=====> Considering host as DEAD due to file [RBD pool] exist, condition [suspectTimeDiff -lt 0] was satisfied and [latestUpdateTime -gt SuspectTime] has not been satisfied. <======"
+            echo "=====> Considering host as DEAD due to file [RBD '$PoolName' pool] exist, condition [suspectTimeDiff -lt 0] was satisfied and [latestUpdateTime -gt SuspectTime] has not been satisfied. <======"
         fi
     else
         if [[ $latestUpdateTime -gt $lastUpdateTime ]]; then
             echo "=====> ALIVE <====="
         else
-            echo "=====> Considering host as DEAD due to file [RBD pool] exist and conditions [suspectTimeDiff -lt 0] and [latestUpdateTime -gt SuspectTime] have not been satisfied. <======"
+            echo "=====> Considering host as DEAD due to file [RBD '$PoolName' pool] exist and conditions [suspectTimeDiff -lt 0] and [latestUpdateTime -gt SuspectTime] have not been satisfied. <======"
         fi
     fi
 fi
