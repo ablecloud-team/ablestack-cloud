@@ -133,7 +133,7 @@ if [ "$rflag" == "1" ]; then
   if [ $diff == 0 ]; then
     echo "=====> ALIVE <====="
   else
-    echo "=====> Considering host as DEAD because last write on [RBD pool] was [$diff] seconds ago, but the max interval is [$interval] <======"
+    echo "=====> Considering host as DEAD because last write on [RBD '$PoolName' pool] was [$diff] seconds ago, but the max interval is [$interval] <======"
   fi
   delete_cephConf
   exit 0
