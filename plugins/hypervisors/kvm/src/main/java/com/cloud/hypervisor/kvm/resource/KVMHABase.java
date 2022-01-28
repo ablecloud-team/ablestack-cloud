@@ -221,7 +221,7 @@ public class KVMHABase {
             }
             return sourceHostIP;
         } catch (UnknownHostException e) {
-            s_logger.debug("Failed to get connection: " + e.getMessage());
+            s_logger.warn("Failed to get connection: " + e);
             return null;
         }
     }
