@@ -174,12 +174,13 @@ public class DesktopClusterStartWorker extends DesktopClusterResourceModifierAct
             logAndThrow(Level.ERROR, "Failed to read Desktop Cluster Userdata configuration file", e);
         }
         String base64UserData = Base64.encodeBase64String(desktopClusterDcConfig.getBytes(StringUtils.getPreferredCharset()));
+        List<String> keypairs = new ArrayList<String>(); // 키페어 파라메타 임시 생성
         if (dcIp == null || network.getGuestType() == Network.GuestType.L2) {
             Network.IpAddresses addrs = new Network.IpAddresses(null, null, null);
             dcControlVm = userVmService.createAdvancedVirtualMachine(zone, serviceOffering, dcTemplate, networkIds, owner,
                 hostName, hostName, null, null, null,
-                dcTemplate.getHypervisorType(), BaseCmd.HTTPMethod.POST, base64UserData, null,
-                null, addrs, null, null, null, customParameterMap, null, null, null, null, true, null);
+                dcTemplate.getHypervisorType(), BaseCmd.HTTPMethod.POST, base64UserData, keypairs,
+                null, addrs, null, null, null, customParameterMap, null, null, null, null, true, null, null);
         } else {
             ipToNetworkMap = new LinkedHashMap<Long, IpAddresses>();
             Network.IpAddresses addrs = new Network.IpAddresses(null, null, null);
@@ -187,8 +188,8 @@ public class DesktopClusterStartWorker extends DesktopClusterResourceModifierAct
             ipToNetworkMap.put(desktopCluster.getNetworkId(), dcAddrs);
             dcControlVm = userVmService.createAdvancedVirtualMachine(zone, serviceOffering, dcTemplate, networkIds, owner,
                 hostName, hostName, null, null, null,
-                dcTemplate.getHypervisorType(), BaseCmd.HTTPMethod.POST, base64UserData, null,
-                ipToNetworkMap, addrs, null, null, null, customParameterMap, null, null, null, null, true, null);
+                dcTemplate.getHypervisorType(), BaseCmd.HTTPMethod.POST, base64UserData, keypairs,
+                ipToNetworkMap, addrs, null, null, null, customParameterMap, null, null, null, null, true, null, null);
         }
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info(String.format("Created Control VM ID: %s, %s in the desktop cluster : %s", dcControlVm.getUuid(), hostName, desktopCluster.getName()));
@@ -239,12 +240,13 @@ public class DesktopClusterStartWorker extends DesktopClusterResourceModifierAct
             logAndThrow(Level.ERROR, "Failed to read Desktop Cluster Userdata configuration file", e);
         }
         String base64UserData = Base64.encodeBase64String(desktopClusterWorksConfig.getBytes(StringUtils.getPreferredCharset()));
+        List<String> keypairs = new ArrayList<String>(); // 키페어 파라메타 임시 생성
         if (worksIp == null || network.getGuestType() == Network.GuestType.L2) {
             Network.IpAddresses addrs = new Network.IpAddresses(null, null, null);
             worksControlVm = userVmService.createAdvancedVirtualMachine(zone, serviceOffering, worksTemplate, networkIds, owner,
                 hostName, hostName, null, null, null,
-                worksTemplate.getHypervisorType(), BaseCmd.HTTPMethod.POST, base64UserData, null,
-                null, addrs, null, null, null, customParameterMap, null, null, null, null, true, null);
+                worksTemplate.getHypervisorType(), BaseCmd.HTTPMethod.POST, base64UserData, keypairs,
+                null, addrs, null, null, null, customParameterMap, null, null, null, null, true, null, null);
         } else {
             ipToNetworkMap = new LinkedHashMap<Long, IpAddresses>();
             Network.IpAddresses addrs = new Network.IpAddresses(null, null, null);
@@ -252,8 +254,8 @@ public class DesktopClusterStartWorker extends DesktopClusterResourceModifierAct
             ipToNetworkMap.put(desktopCluster.getNetworkId(), worksAddrs);
             worksControlVm = userVmService.createAdvancedVirtualMachine(zone, serviceOffering, worksTemplate, networkIds, owner,
                 hostName, hostName, null, null, null,
-                worksTemplate.getHypervisorType(), BaseCmd.HTTPMethod.POST, base64UserData, null,
-                ipToNetworkMap, addrs, null, null, null, customParameterMap, null, null, null, null, true, null);
+                worksTemplate.getHypervisorType(), BaseCmd.HTTPMethod.POST, base64UserData, keypairs,
+                ipToNetworkMap, addrs, null, null, null, customParameterMap, null, null, null, null, true, null, null);
         }
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info(String.format("Created Control VM ID : %s, %s in the desktop cluster : %s", worksControlVm.getUuid(), hostName, desktopCluster.getName()));

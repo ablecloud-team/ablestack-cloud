@@ -14,35 +14,37 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import { shallowRef, defineAsyncComponent } from 'vue'
+
 export default {
   name: 'desktop',
   title: 'label.desktop.service',
-  icon: 'cloud-server',
+  icon: 'cloud-server-outlined',
   children: [
     {
       name: 'desktopcluster',
       title: 'title.desktop.cluster',
-      icon: 'block',
+      icon: 'block-outlined',
       docHelp: '',
       permission: ['listDesktopClusters'],
       columns: ['name', 'state', 'addomainname', 'account', 'zonename'],
       details: ['name', 'id', 'description', 'controllerversion', 'account', 'addomainname', 'zonename', 'associatednetworkname', 'adminurl', 'userurl', 'created'],
       tabs: [{
-        component: () => import('@/views/desktop/DesktopTab.vue')
+        component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/DesktopTab.vue')))
       }],
       actions: [
         {
           api: 'createDesktopCluster',
-          icon: 'plus',
+          icon: 'plus-outlined',
           label: 'label.desktop.cluster.deploy',
           docHelp: '',
           listView: true,
           popup: true,
-          component: () => import('@/views/desktop/DeployCluster.vue')
+          component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/DeployCluster.vue')))
         },
         {
           api: 'startDesktopCluster',
-          icon: 'caret-right',
+          icon: 'caret-right-outlined',
           label: 'label.desktop.cluster.start',
           message: 'message.desktop.cluster.start',
           docHelp: '',
@@ -54,7 +56,7 @@ export default {
         },
         {
           api: 'stopDesktopCluster',
-          icon: 'poweroff',
+          icon: 'poweroff-outlined',
           label: 'label.desktop.cluster.stop',
           message: 'message.desktop.cluster.stop',
           docHelp: '',
@@ -66,7 +68,7 @@ export default {
         },
         {
           api: 'deleteDesktopCluster',
-          icon: 'delete',
+          icon: 'delete-outlined',
           label: 'label.desktop.cluster.delete',
           message: 'message.desktop.cluster.delete',
           dataView: true,
@@ -81,7 +83,7 @@ export default {
     {
       name: 'controllertemplate',
       title: 'title.desktop.controller',
-      icon: 'shop',
+      icon: 'shop-outlined',
       docHelp: '',
       permission: ['listDesktopControllerVersions'],
       columns: ['name', 'state', 'version', 'zonename', 'controlleruploadtype'],
@@ -89,24 +91,24 @@ export default {
       actions: [
         {
           api: 'addDesktopControllerVersion',
-          icon: 'plus',
+          icon: 'plus-outlined',
           label: 'label.desktop.controller.template.version.create',
           docHelp: '',
           listView: true,
           popup: true,
-          component: () => import('@/views/desktop/AddDesktopControllerVersion.vue')
+          component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/AddDesktopControllerVersion.vue')))
         },
         {
           api: 'updateDesktopControllerVersion',
-          icon: 'edit',
+          icon: 'edit-outlined',
           label: 'label.desktop.controller.version.manage',
           dataView: true,
           popup: true,
-          component: () => import('@/views/desktop/UpdateDesktopControllerVersion.vue')
+          component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/UpdateDesktopControllerVersion.vue')))
         },
         {
           api: 'deleteDesktopControllerVersion',
-          icon: 'delete',
+          icon: 'delete-outlined',
           label: 'label.desktop.controller.version.delete',
           message: 'message.desktop.controller.version.delete',
           dataView: true
@@ -116,7 +118,7 @@ export default {
     {
       name: 'mastertemplate',
       title: 'title.desktop.master',
-      icon: 'hdd',
+      icon: 'hdd-outlined',
       docHelp: '',
       permission: ['listDesktopMasterVersions'],
       columns: ['name', 'state', 'version', 'zonename', 'masteruploadtype', 'mastertemplatetype'],
@@ -124,24 +126,24 @@ export default {
       actions: [
         {
           api: 'addDesktopMasterVersion',
-          icon: 'plus',
-          label: 'label.desktop.master.template.version',
+          icon: 'plus-outlined',
+          label: 'label.desktop.master.template.version.create',
           docHelp: '',
           listView: true,
           popup: true,
-          component: () => import('@/views/desktop/AddDesktopMasterVersion.vue')
+          component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/AddDesktopMasterVersion.vue')))
         },
         {
           api: 'updateDesktopMasterVersion',
-          icon: 'edit',
+          icon: 'edit-outlined',
           label: 'label.desktop.master.version.manage',
           dataView: true,
           popup: true,
-          component: () => import('@/views/desktop/UpdateDesktopMasterVersion.vue')
+          component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/UpdateDesktopMasterVersion.vue')))
         },
         {
           api: 'deleteDesktopMasterVersion',
-          icon: 'delete',
+          icon: 'delete-outlined',
           label: 'label.desktop.master.version.delete',
           message: 'message.desktop.master.veresion.delete',
           dataView: true

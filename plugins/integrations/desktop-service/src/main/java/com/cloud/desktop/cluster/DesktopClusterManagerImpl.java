@@ -220,7 +220,7 @@ public class DesktopClusterManagerImpl extends ManagerBase implements DesktopClu
         }
 
         Account account = ApiDBUtils.findAccountById(desktop.getAccountId());
-        if (account.getType() == Account.ACCOUNT_TYPE_PROJECT) {
+        if (account.getType() == Account.Type.PROJECT) {
             Project project = ApiDBUtils.findProjectByProjectAccountId(account.getId());
             response.setProjectId(project.getUuid());
             response.setProjectName(project.getName());

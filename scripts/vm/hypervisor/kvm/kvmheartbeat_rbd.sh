@@ -14,7 +14,6 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
-# under the License.
 
 help() {
   printf "Usage: $0 
@@ -23,7 +22,7 @@ help() {
                     -s pool auth secret
                     -h host
                     -i source host ip
-                    -r cretae/read hb watcher
+                    -r create/read hb watcher
                     -c cleanup"
   exit 1
 }

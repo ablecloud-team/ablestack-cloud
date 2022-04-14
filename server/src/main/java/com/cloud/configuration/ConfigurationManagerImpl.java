@@ -43,7 +43,6 @@ import java.util.Vector;
 import javax.inject.Inject;
 import javax.naming.ConfigurationException;
 
-import com.googlecode.ipv6.IPv6Address;
 import org.apache.cloudstack.acl.SecurityChecker;
 import org.apache.cloudstack.affinity.AffinityGroup;
 import org.apache.cloudstack.affinity.AffinityGroupService;
@@ -85,6 +84,7 @@ import org.apache.cloudstack.config.ApiServiceConfiguration;
 import org.apache.cloudstack.config.Configuration;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.engine.orchestration.service.NetworkOrchestrationService;
+import org.apache.cloudstack.engine.orchestration.service.VolumeOrchestrationService;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStoreManager;
 import org.apache.cloudstack.engine.subsystem.api.storage.ZoneScope;
 import org.apache.cloudstack.framework.config.ConfigDepot;
@@ -270,6 +270,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import com.google.common.collect.Sets;
+import com.googlecode.ipv6.IPv6Address;
 
 public class ConfigurationManagerImpl extends ManagerBase implements ConfigurationManager, ConfigurationService, Configurable {
     public static final Logger s_logger = Logger.getLogger(ConfigurationManagerImpl.class);
@@ -421,7 +422,6 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     @Inject
     protected DataCenterLinkLocalIpAddressDao _linkLocalIpAllocDao;
 
-    private int _maxVolumeSizeInGb = Integer.parseInt(Config.MaxVolumeSize.getDefaultValue());
     private long _defaultPageSize = Long.parseLong(Config.DefaultPageSize.getDefaultValue());
     private static final String DOMAIN_NAME_PATTERN = "^((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{1,63}$";
     protected Set<String> configValuesForValidation;
@@ -477,9 +477,6 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
 
     @Override
     public boolean configure(final String name, final Map<String, Object> params) throws ConfigurationException {
-        final String maxVolumeSizeInGbString = _configDao.getValue(Config.MaxVolumeSize.key());
-        _maxVolumeSizeInGb = NumbersUtil.parseInt(maxVolumeSizeInGbString, Integer.parseInt(Config.MaxVolumeSize.getDefaultValue()));
-
         final String defaultPageSizeString = _configDao.getValue(Config.DefaultPageSize.key());
         _defaultPageSize = NumbersUtil.parseLong(defaultPageSizeString, Long.parseLong(Config.DefaultPageSize.getDefaultValue()));
 
@@ -813,13 +810,24 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         final Long zoneId = cmd.getZoneId();
         final Long clusterId = cmd.getClusterId();
         final Long storagepoolId = cmd.getStoragepoolId();
-        final Long accountId = cmd.getAccountId();
         final Long imageStoreId = cmd.getImageStoreId();
-        final Long domainId = cmd.getDomainId();
+        Long accountId = cmd.getAccountId();
+        Long domainId = cmd.getDomainId();
         CallContext.current().setEventDetails(" Name: " + name + " New Value: " + (name.toLowerCase().contains("password") ? "*****" : value == null ? "" : value));
         // check if config value exists
         final ConfigurationVO config = _configDao.findByName(name);
         String catergory = null;
+
+        final Account caller = CallContext.current().getCallingAccount();
+        if (_accountMgr.isDomainAdmin(caller.getId())) {
+            if (accountId == null && domainId == null) {
+                domainId = caller.getDomainId();
+            }
+        } else if (_accountMgr.isNormalUser(caller.getId())) {
+            if (accountId == null) {
+                accountId = caller.getAccountId();
+            }
+        }
 
         // FIX ME - All configuration parameters are not moved from config.java to configKey
         if (config == null) {
@@ -851,11 +859,14 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             paramCountCheck++;
         }
         if (accountId != null) {
+            Account account = _accountMgr.getAccount(accountId);
+            _accountMgr.checkAccess(caller, null, false, account);
             scope = ConfigKey.Scope.Account.toString();
             id = accountId;
             paramCountCheck++;
         }
         if (domainId != null) {
+            _accountMgr.checkAccess(caller, _domainDao.findById(domainId));
             scope = ConfigKey.Scope.Domain.toString();
             id = domainId;
             paramCountCheck++;
@@ -916,15 +927,26 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         final Long accountId = cmd.getAccountId();
         final Long domainId = cmd.getDomainId();
         final Long imageStoreId = cmd.getImageStoreId();
+        ConfigKey<?> configKey = null;
         Optional optionalValue;
-        final ConfigKey<?> configKey = _configDepot.get(name);
-        if (configKey == null) {
-            s_logger.warn("Probably the component manager where configuration variable " + name + " is defined needs to implement Configurable interface");
-            throw new InvalidParameterValueException("Config parameter with name " + name + " doesn't exist");
+        String defaultValue;
+        String category;
+        String configScope;
+        final ConfigurationVO config = _configDao.findByName(name);
+        if (config == null) {
+            configKey = _configDepot.get(name);
+            if (configKey == null) {
+                s_logger.warn("Probably the component manager where configuration variable " + name + " is defined needs to implement Configurable interface");
+                throw new InvalidParameterValueException("Config parameter with name " + name + " doesn't exist");
+            }
+            defaultValue = configKey.defaultValue();
+            category = configKey.category();
+            configScope = configKey.scope().toString();
+        } else {
+            defaultValue = config.getDefaultValue();
+            category = config.getCategory();
+            configScope = config.getScope();
         }
-        String defaultValue = configKey.defaultValue();
-        String category = configKey.category();
-        String configScope = configKey.scope().toString();
 
         String scope = "";
         Map<String, Long> scopeMap = new LinkedHashMap<>();
@@ -960,7 +982,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                     throw new InvalidParameterValueException("unable to find zone by id " + id);
                 }
                 _dcDetailsDao.removeDetail(id, name);
-                optionalValue = Optional.ofNullable(configKey.valueIn(id));
+                optionalValue = Optional.ofNullable(configKey != null ? configKey.valueIn(id): config.getValue());
                 newValue = optionalValue.isPresent() ? optionalValue.get().toString() : defaultValue;
                 break;
 
@@ -970,13 +992,13 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                     throw new InvalidParameterValueException("unable to find cluster by id " + id);
                 }
                 ClusterDetailsVO clusterDetailsVO = _clusterDetailsDao.findDetail(id, name);
-                newValue = configKey.value().toString();
+                newValue = configKey != null ? configKey.value().toString() : config.getValue();
                 if (name.equalsIgnoreCase("cpu.overprovisioning.factor") || name.equalsIgnoreCase("mem.overprovisioning.factor")) {
                     _clusterDetailsDao.persist(id, name, newValue);
                 } else if (clusterDetailsVO != null) {
                     _clusterDetailsDao.remove(clusterDetailsVO.getId());
                 }
-                optionalValue = Optional.ofNullable(configKey.valueIn(id));
+                optionalValue = Optional.ofNullable(configKey != null ? configKey.valueIn(id): config.getValue());
                 newValue = optionalValue.isPresent() ? optionalValue.get().toString() : defaultValue;
                 break;
 
@@ -986,7 +1008,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                     throw new InvalidParameterValueException("unable to find storage pool by id " + id);
                 }
                 _storagePoolDetailsDao.removeDetail(id, name);
-                optionalValue = Optional.ofNullable(configKey.valueIn(id));
+                optionalValue = Optional.ofNullable(configKey != null ? configKey.valueIn(id) : config.getValue());
                 newValue = optionalValue.isPresent() ? optionalValue.get().toString() : defaultValue;
                 break;
 
@@ -999,7 +1021,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                 if (domainDetailVO != null) {
                     _domainDetailsDao.remove(domainDetailVO.getId());
                 }
-                optionalValue = Optional.ofNullable(configKey.valueIn(id));
+                optionalValue = Optional.ofNullable(configKey != null ? configKey.valueIn(id) : config.getValue());
                 newValue = optionalValue.isPresent() ? optionalValue.get().toString() : defaultValue;
                 break;
 
@@ -1012,7 +1034,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                 if (accountDetailVO != null) {
                     _accountDetailsDao.remove(accountDetailVO.getId());
                 }
-                optionalValue = Optional.ofNullable(configKey.valueIn(id));
+                optionalValue = Optional.ofNullable(configKey != null ? configKey.valueIn(id) : config.getValue());
                 newValue = optionalValue.isPresent() ? optionalValue.get().toString() : defaultValue;
                 break;
 
@@ -1025,7 +1047,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                 if (imageStoreDetailVO != null) {
                     _imageStoreDetailsDao.remove(imageStoreDetailVO.getId());
                 }
-                optionalValue = Optional.ofNullable(configKey.valueIn(id));
+                optionalValue = Optional.ofNullable(configKey != null ? configKey.valueIn(id) : config.getValue());
                 newValue = optionalValue.isPresent() ? optionalValue.get().toString() : defaultValue;
                 break;
 
@@ -1034,7 +1056,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                     s_logger.error("Failed to reset configuration option, name: " + name + ", defaultValue:" + defaultValue);
                     throw new CloudRuntimeException("Failed to reset configuration value. Please contact Cloud Support.");
                 }
-                optionalValue = Optional.ofNullable(configKey.value());
+                optionalValue = Optional.ofNullable(configKey != null ? configKey.value() : config.getValue());
                 newValue = optionalValue.isPresent() ? optionalValue.get().toString() : defaultValue;
         }
 
@@ -1106,8 +1128,8 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
 
         value = value.trim();
         try {
-            if (overprovisioningFactorsForValidation.contains(name) && Float.parseFloat(value) < 1f) {
-                final String msg = name + " should be greater than or equal to 1";
+            if (overprovisioningFactorsForValidation.contains(name) && Float.parseFloat(value) <= 0f) {
+                final String msg = name + " should be greater than 0";
                 s_logger.error(msg);
                 throw new InvalidParameterValueException(msg);
             }
@@ -2901,7 +2923,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException("Unable to find active user by id " + userId);
         }
         final Account account = _accountDao.findById(user.getAccountId());
-        if (account.getType() == Account.ACCOUNT_TYPE_DOMAIN_ADMIN) {
+        if (account.getType() == Account.Type.DOMAIN_ADMIN) {
             if (filteredDomainIds.isEmpty()) {
                 throw new InvalidParameterValueException(String.format("Unable to create public service offering by admin: %s because it is domain-admin", user.getUuid()));
             }
@@ -2913,7 +2935,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                     throw new InvalidParameterValueException(String.format("Unable to create service offering by another domain-admin: %s for domain: %s", user.getUuid(), _entityMgr.findById(Domain.class, domainId).getUuid()));
                 }
             }
-        } else if (account.getType() != Account.ACCOUNT_TYPE_ADMIN) {
+        } else if (account.getType() != Account.Type.ADMIN) {
             throw new InvalidParameterValueException(String.format("Unable to create service offering by user: %s because it is not root-admin or domain-admin", user.getUuid()));
         }
 
@@ -3048,6 +3070,10 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         if (rootDiskSizeInGiB != null && rootDiskSizeInGiB <= 0L) {
             throw new InvalidParameterValueException(String.format("The Root disk size is of %s GB but it must be greater than 0.", rootDiskSizeInGiB));
         } else if (rootDiskSizeInGiB != null) {
+            long maxVolumeSizeInGb = VolumeOrchestrationService.MaxVolumeSize.value();
+            if (rootDiskSizeInGiB > maxVolumeSizeInGb) {
+                throw new InvalidParameterValueException(String.format("The maximum size for a disk is %d GB.", maxVolumeSizeInGb));
+            }
             long rootDiskSizeInBytes = rootDiskSizeInGiB * GiB_TO_BYTES;
             diskOffering.setDiskSize(rootDiskSizeInBytes);
         }
@@ -3193,7 +3219,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         }
         Collections.sort(filteredZoneIds);
 
-        if (account.getType() == Account.ACCOUNT_TYPE_DOMAIN_ADMIN) {
+        if (account.getType() == Account.Type.DOMAIN_ADMIN) {
             if (!filteredZoneIds.equals(existingZoneIds)) { // Domain-admins cannot update zone(s) for offerings
                 throw new InvalidParameterValueException(String.format("Unable to update zone(s) for service offering: %s by admin: %s as it is domain-admin", offeringHandle.getUuid(), user.getUuid()));
             }
@@ -3220,7 +3246,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                 }
             }
             filteredDomainIds.addAll(nonChildDomains); // Final list must include domains which were not child domain for domain-admin but specified for this offering prior to update
-        } else if (account.getType() != Account.ACCOUNT_TYPE_ADMIN) {
+        } else if (account.getType() != Account.Type.ADMIN) {
             throw new InvalidParameterValueException(String.format("Unable to update service offering: %s by id user: %s because it is not root-admin or domain-admin", offeringHandle.getUuid(), user.getUuid()));
         }
 
@@ -3313,10 +3339,11 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                                                 Long iopsWriteRate, Long iopsWriteRateMax, Long iopsWriteRateMaxLength,
                                                 final Integer hypervisorSnapshotReserve, String cacheMode, final Map<String, String> details, final Long storagePolicyID, final boolean diskSizeStrictness) {
         long diskSize = 0;// special case for custom disk offerings
+        long maxVolumeSizeInGb = VolumeOrchestrationService.MaxVolumeSize.value();
         if (numGibibytes != null && numGibibytes <= 0) {
-            throw new InvalidParameterValueException("Please specify a disk size of at least 1 Gb.");
-        } else if (numGibibytes != null && numGibibytes > _maxVolumeSizeInGb) {
-            throw new InvalidParameterValueException("The maximum size for a disk is " + _maxVolumeSizeInGb + " Gb.");
+            throw new InvalidParameterValueException("Please specify a disk size of at least 1 GB.");
+        } else if (numGibibytes != null && numGibibytes > maxVolumeSizeInGb) {
+            throw new InvalidParameterValueException(String.format("The maximum size for a disk is %d GB.", maxVolumeSizeInGb));
         }
         final ProvisioningType typedProvisioningType = ProvisioningType.getProvisioningType(provisioningType);
 
@@ -3359,7 +3386,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException("Unable to find active user by id " + userId);
         }
         final Account account = _accountDao.findById(user.getAccountId());
-        if (account.getType() == Account.ACCOUNT_TYPE_DOMAIN_ADMIN) {
+        if (account.getType() == Account.Type.DOMAIN_ADMIN) {
             if (filteredDomainIds.isEmpty()) {
                 throw new InvalidParameterValueException(String.format("Unable to create public disk offering by admin: %s because it is domain-admin", user.getUuid()));
             }
@@ -3371,7 +3398,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                     throw new InvalidParameterValueException(String.format("Unable to create disk offering by another domain-admin: %s for domain: %s", user.getUuid(), _entityMgr.findById(Domain.class, domainId).getUuid()));
                 }
             }
-        } else if (account.getType() != Account.ACCOUNT_TYPE_ADMIN) {
+        } else if (account.getType() != Account.Type.ADMIN) {
             throw new InvalidParameterValueException(String.format("Unable to create disk offering by user: %s because it is not root-admin or domain-admin", user.getUuid()));
         }
 
@@ -3647,7 +3674,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         }
         Collections.sort(filteredZoneIds);
 
-        if (account.getType() == Account.ACCOUNT_TYPE_DOMAIN_ADMIN) {
+        if (account.getType() == Account.Type.DOMAIN_ADMIN) {
             if (!filteredZoneIds.equals(existingZoneIds)) { // Domain-admins cannot update zone(s) for offerings
                 throw new InvalidParameterValueException(String.format("Unable to update zone(s) for disk offering: %s by admin: %s as it is domain-admin", diskOfferingHandle.getUuid(), user.getUuid()));
             }
@@ -3674,7 +3701,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                 }
             }
             filteredDomainIds.addAll(nonChildDomains); // Final list must include domains which were not child domain for domain-admin but specified for this offering prior to update
-        } else if (account.getType() != Account.ACCOUNT_TYPE_ADMIN) {
+        } else if (account.getType() != Account.Type.ADMIN) {
             throw new InvalidParameterValueException(String.format("Unable to update disk offering: %s by id user: %s because it is not root-admin or domain-admin", diskOfferingHandle.getUuid(), user.getUuid()));
         }
 
@@ -3851,7 +3878,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException("Unable to find active user by id " + userId);
         }
         final Account account = _accountDao.findById(user.getAccountId());
-        if (account.getType() == Account.ACCOUNT_TYPE_DOMAIN_ADMIN) {
+        if (account.getType() == Account.Type.DOMAIN_ADMIN) {
             List<Long> existingDomainIds = diskOfferingDetailsDao.findDomainIds(diskOfferingId);
             if (existingDomainIds.isEmpty()) {
                 throw new InvalidParameterValueException(String.format("Unable to delete public disk offering: %s by admin: %s because it is domain-admin", offering.getUuid(), user.getUuid()));
@@ -3861,7 +3888,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                     throw new InvalidParameterValueException(String.format("Unable to delete disk offering: %s as it has linked domain(s) which are not child domain for domain-admin: %s", offering.getUuid(), user.getUuid()));
                 }
             }
-        } else if (account.getType() != Account.ACCOUNT_TYPE_ADMIN) {
+        } else if (account.getType() != Account.Type.ADMIN) {
             throw new InvalidParameterValueException(String.format("Unable to delete disk offering: %s by user: %s because it is not root-admin or domain-admin", offering.getUuid(), user.getUuid()));
         }
 
@@ -3925,7 +3952,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException("Unable to find active user by id " + userId);
         }
         final Account account = _accountDao.findById(user.getAccountId());
-        if (account.getType() == Account.ACCOUNT_TYPE_DOMAIN_ADMIN) {
+        if (account.getType() == Account.Type.DOMAIN_ADMIN) {
             List<Long> existingDomainIds = _serviceOfferingDetailsDao.findDomainIds(offeringId);
             if (existingDomainIds.isEmpty()) {
                 throw new InvalidParameterValueException(String.format("Unable to delete public service offering: %s by admin: %s because it is domain-admin", offering.getUuid(), user.getUuid()));
@@ -3935,7 +3962,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                     throw new InvalidParameterValueException(String.format("Unable to delete service offering: %s as it has linked domain(s) which are not child domain for domain-admin: %s", offering.getUuid(), user.getUuid()));
                 }
             }
-        } else if (account.getType() != Account.ACCOUNT_TYPE_ADMIN) {
+        } else if (account.getType() != Account.Type.ADMIN) {
             throw new InvalidParameterValueException(String.format("Unable to delete service offering: %s by user: %s because it is not root-admin or domain-admin", offering.getUuid(), user.getUuid()));
         }
 
@@ -6450,7 +6477,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
 
         final List<NetworkOfferingJoinVO> offerings = networkOfferingJoinDao.search(sc, searchFilter);
         // Remove offerings that are not associated with caller's domain or domainId passed
-        if ((caller.getType() != Account.ACCOUNT_TYPE_ADMIN || domainId != null) && CollectionUtils.isNotEmpty(offerings)) {
+        if ((caller.getType() != Account.Type.ADMIN || domainId != null) && CollectionUtils.isNotEmpty(offerings)) {
             ListIterator<NetworkOfferingJoinVO> it = offerings.listIterator();
             while (it.hasNext()) {
                 NetworkOfferingJoinVO offering = it.next();
@@ -6459,7 +6486,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                     String[] domainIdsArray = offering.getDomainId().split(",");
                     for (String domainIdString : domainIdsArray) {
                         Long dId = Long.valueOf(domainIdString.trim());
-                        if (caller.getType() != Account.ACCOUNT_TYPE_ADMIN &&
+                        if (caller.getType() != Account.Type.ADMIN &&
                                 !_domainDao.isChildDomain(dId, caller.getDomainId())) {
                             toRemove = true;
                             break;

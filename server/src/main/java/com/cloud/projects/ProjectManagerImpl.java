@@ -17,10 +17,10 @@
 package com.cloud.projects;
 
 import java.io.UnsupportedEncodingException;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -105,6 +105,8 @@ import org.apache.commons.lang3.BooleanUtils;
 @Component
 public class ProjectManagerImpl extends ManagerBase implements ProjectManager, Configurable {
     public static final Logger s_logger = Logger.getLogger(ProjectManagerImpl.class);
+
+    private static final SecureRandom secureRandom = new SecureRandom();
 
     @Inject
     private DomainDao _domainDao;
@@ -265,7 +267,7 @@ public class ProjectManagerImpl extends ManagerBase implements ProjectManager, C
                 StringBuilder acctNm = new StringBuilder("PrjAcct-");
                 acctNm.append(name).append("-").append(ownerFinal.getDomainId());
 
-                Account projectAccount = _accountMgr.createAccount(acctNm.toString(), Account.ACCOUNT_TYPE_PROJECT, null, domainId, null, null, UUID.randomUUID().toString());
+                Account projectAccount = _accountMgr.createAccount(acctNm.toString(), Account.Type.PROJECT, null, domainId, null, null, UUID.randomUUID().toString());
 
                 Project project = _projectDao.persist(new ProjectVO(name, displayText, ownerFinal.getDomainId(), projectAccount.getId()));
 
@@ -1208,50 +1210,58 @@ public class ProjectManagerImpl extends ManagerBase implements ProjectManager, C
                 throw new InvalidParameterValueException("Invitation is expired for account id=" + accountName + " to the project id=" + projectId);
             } else {
                 final ProjectInvitationVO inviteFinal = invite;
-                final Long accountIdFinal = accountId;
+                final Long accountIdFinal = invite.getAccountId() != -1 ? invite.getAccountId() : accountId;
                 final String accountNameFinal = accountName;
-                final User finalUser = user;
-                ProjectInvitationVO finalInvite = invite;
+                final User finalUser = getFinalUser(user, invite);
                 result = Transaction.execute(new TransactionCallback<Boolean>() {
                     @Override
                     public Boolean doInTransaction(TransactionStatus status) {
                         boolean result = true;
 
-                ProjectInvitation.State newState = accept ? ProjectInvitation.State.Completed : ProjectInvitation.State.Declined;
+                        ProjectInvitation.State newState = accept ? ProjectInvitation.State.Completed : ProjectInvitation.State.Declined;
 
-                //update invitation
-                s_logger.debug("Marking invitation " + inviteFinal + " with state " + newState);
-                inviteFinal.setState(newState);
-                result = _projectInvitationDao.update(inviteFinal.getId(), inviteFinal);
+                        //update invitation
+                        s_logger.debug("Marking invitation " + inviteFinal + " with state " + newState);
+                        inviteFinal.setState(newState);
+                        result = _projectInvitationDao.update(inviteFinal.getId(), inviteFinal);
 
-                if (result && accept) {
-                    //check if account already exists for the project (was added before invitation got accepted)
-                    if (finalInvite.getForUserId() == -1) {
-                        ProjectAccount projectAccount = _projectAccountDao.findByProjectIdAccountId(projectId, accountIdFinal);
-                        if (projectAccount != null) {
-                            s_logger.debug("Account " + accountNameFinal + " already added to the project id=" + projectId);
+                        if (result && accept) {
+                            //check if account already exists for the project (was added before invitation got accepted)
+                            if (inviteFinal.getForUserId() == -1) {
+                                ProjectAccount projectAccount = _projectAccountDao.findByProjectIdAccountId(projectId, accountIdFinal);
+                                if (projectAccount != null) {
+                                    s_logger.debug("Account " + accountNameFinal + " already added to the project id=" + projectId);
+                                } else {
+                                    assignAccountToProject(project, accountIdFinal, inviteFinal.getAccountRole(), null, inviteFinal.getProjectRoleId());
+                                }
+                            } else {
+                                ProjectAccount projectAccount = _projectAccountDao.findByProjectIdUserId(projectId, finalUser.getAccountId(), finalUser.getId());
+                                if (projectAccount != null) {
+                                    s_logger.debug("User " + finalUser.getId() + "has already been added to the project id=" + projectId);
+                                } else {
+                                    assignUserToProject(project, inviteFinal.getForUserId(), finalUser.getAccountId(), inviteFinal.getAccountRole(), inviteFinal.getProjectRoleId());
+                                }
+                            }
                         } else {
-                            assignAccountToProject(project, accountIdFinal, finalInvite.getAccountRole(), null, finalInvite.getProjectRoleId());
+                            s_logger.warn("Failed to update project invitation " + inviteFinal + " with state " + newState);
                         }
-                    } else {
-                        ProjectAccount projectAccount = _projectAccountDao.findByProjectIdUserId(projectId, finalUser.getAccountId(), finalUser.getId());
-                        if (projectAccount != null) {
-                            s_logger.debug("User " + finalUser.getId() + "has already been added to the project id=" + projectId);
-                        } else {
-                            assignUserToProject(project, finalInvite.getForUserId(), finalUser.getAccountId(), finalInvite.getAccountRole(), finalInvite.getProjectRoleId());
-                        }
+                        return result;
                     }
-                } else {
-                    s_logger.warn("Failed to update project invitation " + inviteFinal + " with state " + newState);
-                }
-                return result;
-             }});
+                });
             }
         } else {
             throw new InvalidParameterValueException("Unable to find invitation for account name=" + accountName + " to the project id=" + projectId);
         }
 
         return result;
+    }
+
+    private User getFinalUser(User user, ProjectInvitationVO invite) {
+        User returnedUser = user;
+        if (invite.getForUserId() != -1 && invite.getForUserId() != user.getId()) {
+            returnedUser = userDao.getUser(invite.getForUserId());
+        }
+        return returnedUser;
     }
 
     @Override
@@ -1349,10 +1359,9 @@ public class ProjectManagerImpl extends ManagerBase implements ProjectManager, C
 
     public static String generateToken(int length) {
         String charset = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        Random rand = new Random(System.currentTimeMillis());
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < length; i++) {
-            int pos = rand.nextInt(charset.length());
+            int pos = secureRandom.nextInt(charset.length());
             sb.append(charset.charAt(pos));
         }
         return sb.toString();

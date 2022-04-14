@@ -25,8 +25,8 @@
       <a-tab-pane :tab="$t('label.details')" key="details">
         <DetailsTab :resource="resource" :loading="loading" />
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.networks')" key="desktopnetworks">
-        <DesktopNicsTable :resource="vm" :loading="loading" />
+      <a-tab-pane :tab="$t('label.networks')" key="desktopnetworks" >
+        <DesktopNicsTable :resource="desktopnetworks" :loading="loading"/>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.iprange')" key="iprange" v-if="'listDesktopClusterIpRanges' in $store.getters.apis && resource.networktype =='L2'">
         <a-button
@@ -35,7 +35,7 @@
           @click="showAddModal"
           :loading="loadingNic"
           :disabled="!('addDesktopClusterIpRanges' in $store.getters.apis)">
-          <a-icon type="plus"></a-icon> {{ $t('label.add.ip.range') }}
+          <PlusOutlined /> {{ $t('label.add.ip.range') }}
         </a-button>
         <a-table
           class="table"
@@ -44,7 +44,7 @@
           :dataSource="iprange"
           :rowKey="item => item.id"
           :pagination="false">
-          <template slot="action" slot-scope="text, record">
+          <template #action="{record}">
             <a-popconfirm
               :title="$t('message.confirm.remove.ip.range')"
               @confirm="removeIpRange(record.id)"
@@ -68,16 +68,16 @@
           :rowKey="item => item.id"
           :pagination="false"
         >
-          <template slot="name" slot-scope="text, record">
+          <template #name="{record}">
             <router-link :to="{ path: '/vm/' + record.id }">{{ record.name }}</router-link>
           </template>
-          <template slot="state" slot-scope="text">
+          <template #state="{text}">
             <status :text="text ? text : ''" displayText />
           </template>
-          <template slot="instancename" slot-scope="text">
+          <template #instancename="{text}">
             <status :text="text ? text : ''" />{{ text }}
           </template>
-          <template slot="hostname" slot-scope="text, record">
+          <template #hostname="{record}">
             <router-link :to="{ path: '/host/' + record.hostid }">{{ record.hostname }}</router-link>
           </template>
         </a-table>
@@ -90,20 +90,19 @@
           :dataSource="this.desktopvms"
           :rowKey="item => item.id"
           :pagination="false"
-        >
-          <template slot="name" slot-scope="text, record">
+        ><template #name="{record}">
             <router-link :to="{ path: '/vm/' + record.id }">{{ record.name }}</router-link>
           </template>
-          <template slot="state" slot-scope="text">
+          <template #state="{text}">
             <status :text="text ? text : ''" displayText />
           </template>
-          <template slot="instancename" slot-scope="text">
+          <template #instancename="{text}">
             <status :text="text ? text : ''" />{{ text }}
           </template>
-          <template slot="ipaddress" slot-scope="text">
+          <template #ipaddress="{text}">
             <status :text="text ? text : ''" />{{ text }}
           </template>
-          <template slot="hostname" slot-scope="text, record">
+          <template #hostname="{record}">
             <router-link :to="{ path: '/host/' + record.hostid }">{{ record.hostname }}</router-link>
           </template>
         </a-table>
@@ -120,14 +119,11 @@
       @cancel="closeModals"
       @ok="submitAddIp">
       <a-spin :spinning="loadingNic">
-        <a-form :form="form" @submit="submitAddIp" layout="vertical">
+        <!-- <a-form :form="form" @submit="submitAddIp" layout="vertical">
           <a-form-item>
-            <span slot="label">
-              {{ $t('label.gateway') }}
-              <a-tooltip :title="$t('label.desktop.gateway')">
-                <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-              </a-tooltip>
-            </span>
+            <template #label>
+              <tooltip-label :title="$t('label.gateway')" :tooltip="$t('placeholder.gateway')"/>
+            </template>
             <a-input
               v-decorator="['gateway', {
                 rules: [{ required: true, message: $t('message.error.required.input') }]
@@ -135,12 +131,9 @@
               :placeholder="$t('placeholder.gateway')" />
           </a-form-item>
           <a-form-item>
-            <span slot="label">
-              {{ $t('label.netmask') }}
-              <a-tooltip :title="$t('label.desktop.netmask')">
-                <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-              </a-tooltip>
-            </span>
+            <template #label>
+              <tooltip-label :title="$t('label.netmask')" :tooltip="$t('placeholder.netmask')"/>
+            </template>
             <a-input
               v-decorator="['netmask', {
                 rules: [{ required: true, message: $t('message.error.required.input') }]
@@ -148,12 +141,9 @@
               :placeholder="$t('placeholder.netmask')" />
           </a-form-item>
           <a-form-item>
-            <span slot="label">
-              {{ $t('label.startip') }}
-              <a-tooltip :title="$t('label.desktop.startip')">
-                <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-              </a-tooltip>
-            </span>
+            <template #label>
+              <tooltip-label :title="$t('label.startip')" :tooltip="$t('placeholder.startip')"/>
+            </template>
             <a-input
               v-decorator="['startip', {
                 rules: [{ required: true, message: $t('message.error.required.input') }]
@@ -161,26 +151,23 @@
               :placeholder="$t('placeholder.startip')" />
           </a-form-item>
           <a-form-item>
-            <span slot="label">
-              {{ $t('label.endip') }}
-              <a-tooltip :title="$t('label.desktop.endip')">
-                <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-              </a-tooltip>
-            </span>
+            <template #label>
+              <tooltip-label :title="$t('label.endip')" :tooltip="$t('placeholder.endip')"/>
+            </template>
             <a-input
               v-decorator="['endip', {
                 rules: [{ required: true, message: $t('message.error.required.input') }]
               }]"
               :placeholder="$t('placeholder.endip')" />
           </a-form-item>
-        </a-form>
+        </a-form> -->
       </a-spin>
     </a-modal>
   </a-spin>
 </template>
 
 <script>
-
+import { ref } from 'vue'
 import { api } from '@/api'
 import { mixinDevice } from '@/utils/mixin.js'
 import ResourceLayout from '@/layouts/ResourceLayout'
@@ -214,7 +201,7 @@ export default {
   inject: ['parentFetchData'],
   data () {
     return {
-      vm: {},
+      vm: ref({}),
       desktopnetworks: [],
       instances: [],
       desktops: [],
@@ -229,12 +216,12 @@ export default {
         {
           title: this.$t('label.name'),
           dataIndex: 'name',
-          scopedSlots: { customRender: 'name' }
+          slots: { customRender: 'name' }
         },
         {
           title: this.$t('label.state'),
           dataIndex: 'state',
-          scopedSlots: { customRender: 'state' }
+          slots: { customRender: 'state' }
         },
         {
           title: this.$t('label.instancename'),
@@ -247,7 +234,7 @@ export default {
         {
           title: this.$t('label.hostid'),
           dataIndex: 'hostname',
-          scopedSlots: { customRender: 'hostname' }
+          slots: { customRender: 'hostname' }
         }
       ],
       editNicResource: {},
@@ -255,12 +242,12 @@ export default {
         {
           title: this.$t('label.name'),
           dataIndex: 'name',
-          scopedSlots: { customRender: 'name' }
+          slots: { customRender: 'name' }
         },
         {
           title: this.$t('label.state'),
           dataIndex: 'state',
-          scopedSlots: { customRender: 'state' }
+          slots: { customRender: 'state' }
         },
         {
           title: this.$t('label.instancename'),
@@ -273,14 +260,14 @@ export default {
         {
           title: this.$t('label.hostid'),
           dataIndex: 'hostname',
-          scopedSlots: { customRender: 'hostname' }
+          slots: { customRender: 'hostname' }
         }
       ],
       iprangeColumns: [
         {
           title: this.$t('label.gateway'),
           dataIndex: 'gateway',
-          scopedSlots: { customRender: 'gateway' }
+          slots: { customRender: 'gateway' }
         },
         {
           title: this.$t('label.netmask'),
@@ -296,13 +283,13 @@ export default {
         },
         {
           title: '',
-          scopedSlots: { customRender: 'action' }
+          slots: { customRender: 'action' }
         }
       ]
     }
   },
   beforeCreate () {
-    this.form = this.$form.createForm(this)
+    // this.form = this.$form.createForm(this)
     this.apiParams = this.$getApiParams('addDesktopClusterIpRanges')
   },
   created () {
@@ -346,30 +333,29 @@ export default {
       )
     },
     fetchData () {
-      this.instanceLoading = true
       this.desktopvms = this.resource.desktopvms || []
       this.desktopvms.map(x => { x.ipaddress = x.nic[0].ipaddress })
       this.controlvms = this.resource.controlvms || []
       this.controlvms.map(x => { x.ipaddress = x.nic[0].ipaddress })
-      this.instanceLoading = false
       this.desktopnetworks = []
       this.iprange = []
       if (!this.vm || !this.vm.id) {
         return
       }
-      api('listNetworks', { listall: true, networkid: this.resource.networkid }).then(json => {
+      api('listNetworks', { id: this.resource.networkid }).then(json => {
         this.desktopnetworks = json.listnetworksresponse.network
         if (this.desktopnetworks) {
           this.desktopnetworks.sort((a, b) => { return a.deviceid - b.deviceid })
         }
-        this.$set(this.resource, 'desktopnetworks', this.desktopnetworks)
+        // this.$set(this.resource, 'desktopnetworks', this.desktopnetworks)
+      }).finally(() => {
       })
       api('listDesktopClusterIpRanges', { listall: true, desktopclusterid: this.resource.id }).then(json => {
         this.iprange = json.listdesktopclusteriprangesresponse.desktopclusteriprange
         if (this.iprange) {
           this.iprange.sort((a, b) => { return a.deviceid - b.deviceid })
         }
-        this.$set(this.resource, 'iprange', this.iprange)
+        // this.$set(this.resource, 'iprange', this.iprange)
       })
     },
     removeIpRange (id) {

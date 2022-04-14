@@ -101,10 +101,6 @@ public class KubernetesClusterResponse extends BaseResponseWithAnnotations imple
     @Param(description = "keypair details")
     private String keypair;
 
-    @SerializedName(ApiConstants.SSH_KEYPAIR_ID)
-    @Param(description = "keypair id")
-    private String keypairId;
-
     @Deprecated(since = "4.16")
     @SerializedName(ApiConstants.MASTER_NODES)
     @Param(description = "the master nodes count for the Kubernetes cluster. This parameter is deprecated, please use 'controlnodes' parameter.")
@@ -280,14 +276,6 @@ public class KubernetesClusterResponse extends BaseResponseWithAnnotations imple
 
     public void setKeypair(String keypair) {
         this.keypair = keypair;
-    }
-
-    public String getKeypairId() {
-        return keypairId;
-    }
-
-    public void setKeypairId(String keypairId) {
-        this.keypairId = keypairId;
     }
 
     public Long getMasterNodes() {

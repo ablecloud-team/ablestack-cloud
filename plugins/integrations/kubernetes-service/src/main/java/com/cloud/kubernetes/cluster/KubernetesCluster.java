@@ -125,7 +125,6 @@ public interface KubernetesCluster extends ControlledEntity, com.cloud.utils.fsm
     long getNodeCount();
     long getTotalNodeCount();
     String getKeyPair();
-    Long getKeyPairId();
     long getCores();
     long getMemory();
     long getNodeRootDiskSize();
@@ -137,4 +136,5 @@ public interface KubernetesCluster extends ControlledEntity, com.cloud.utils.fsm
     boolean getAutoscalingEnabled();
     Long getMinSize();
     Long getMaxSize();
+    Long getSecurityGroupId();
 }

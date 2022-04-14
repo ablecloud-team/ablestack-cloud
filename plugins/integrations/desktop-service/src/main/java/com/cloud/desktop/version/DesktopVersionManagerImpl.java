@@ -518,10 +518,10 @@ public class DesktopVersionManagerImpl extends ManagerBase implements DesktopVer
         if (version == null) {
             throw new InvalidParameterValueException("Invalid desktop master version id specified");
         }
-        List<DesktopClusterVO> clusters = desktopClusterDao.listAllByDesktopVersion(versionId);
-        if (clusters.size() > 0) {
-            throw new CloudRuntimeException(String.format("Unable to delete desktop master version ID: %s. Existing clusters currently using the version.", version.getUuid()));
-        }
+        // List<DesktopClusterVO> clusters = desktopClusterDao.listAllByDesktopVersion(versionId);
+        // if (clusters.size() > 0) {
+        //     throw new CloudRuntimeException(String.format("Unable to delete desktop master version ID: %s. Existing clusters currently using the version.", version.getUuid()));
+        // }
 
         VMTemplateVO template = null;
         Long templateId = version.getTemplateId();

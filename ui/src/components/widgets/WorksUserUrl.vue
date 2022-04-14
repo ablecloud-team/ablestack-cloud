@@ -21,7 +21,7 @@
     :href="'http://'+resource.worksvmip+':'+$store.getters.features.desktopworksuserportalport"
     target="_blank">
     <a-button style="margin-left: 5px" shape="circle" type="" :size="size" :disabled="['Stopping', 'Stopped', 'Error', 'Destroyed', 'Destroying'].includes(resource.state)" >
-      <a-icon type="laptop" />
+      <LaptopOutlined />
     </a-button>
   </a>
 </template>

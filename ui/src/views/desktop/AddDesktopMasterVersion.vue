@@ -1,4 +1,7 @@
-// Licensed to the Apache Software Foundation (ASF) under one
+import { api } from '@/api'
+import TooltipLabel from '@/components/widgets/TooltipLabel'
+import store from '@/store'
+import { reactive, ref, toRaw } from 'vue'
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
@@ -17,207 +20,128 @@
 
 <template>
   <div class="form-layout">
-    <span v-if="uploadPercentage > 0">
-      <a-icon type="loading" />
-      {{ $t('message.upload.file.processing') }}
-      <a-progress :percent="uploadPercentage" />
-    </span>
-    <a-spin :spinning="loading" v-else>
+    <a-spin :spinning="loading">
       <a-form
-        :form="form"
+        :ref="formRef"
+        :model="form"
+        :rules="rules"
         @submit="handleSubmit"
         layout="vertical">
         <a-row :gutter="12">
           <a-col :md="24" :lg="24">
-            <a-form-item :label="$t('label.name')">
+            <a-form-item ref="masterversionname" name="masterversionname" :label="$t('label.masterversionname')">
+              <template #label>
+                <tooltip-label :title="$t('label.masterversionname')" :tooltip="$t('placeholder.name')"/>
+              </template>
               <a-input
-                v-decorator="['masterversionname', {
-                  rules: [{ required: true, message: `${this.$t('message.error.required.input')}` }]
-                }]"
-                :placeholder="$t('placeholder.name')"
-                :autoFocus="currentForm !== 'Create'"/>
+                v-model:value="form.masterversionname"
+                :placeholder="$t('placeholder.name')"/>
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="12">
           <a-col :md="24" :lg="24">
-            <a-form-item :label="$t('label.description')">
+            <a-form-item ref="description" name="description" :label="$t('label.description')">
+              <template #label>
+                <tooltip-label :title="$t('label.description')" :tooltip="$t('placeholder.description')"/>
+              </template>
               <a-input
-                v-decorator="['description', {
-                  rules: [{ required: true, message: `${this.$t('message.error.required.input')}` }]
-                }]"
-                :placeholder="$t('placeholder.description')"
-                :autoFocus="currentForm !== 'Create'"/>
+                v-model:value="form.description"
+                :placeholder="$t('placeholder.description')"/>
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="12">
           <a-col :md="24" :lg="24">
-            <a-form-item>
-              <span slot="label">
-                {{ $t('label.version') }}
-                <a-tooltip :title="$t('placeholder.version')">
-                  <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-                </a-tooltip>
-              </span>
+            <a-form-item ref="masterversion" name="masterversion" :label="$t('label.masterversion')">
+              <template #label>
+                <tooltip-label :title="$t('label.masterversion')" :tooltip="$t('placeholder.version')"/>
+              </template>
               <a-input
-                v-decorator="['masterversion', {
-                  rules: [{ required: true, message: `${this.$t('message.error.required.input')}` }]
-                }]"
-                :placeholder="$t('placeholder.version')" />
+                v-model:value="form.masterversion"
+                :placeholder="$t('placeholder.version')"/>
             </a-form-item>
           </a-col>
         </a-row>
-        <div v-if="currentForm === 'Create'">
-          <a-row :gutter="12">
-            <a-col :md="24" :lg="24">
-              <a-form-item>
-                <span slot="label">
-                  {{ $t('label.mastertemplatetype') }}
-                  <a-tooltip :title="$t('placeholder.mastertemplatetype')">
-                    <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-                  </a-tooltip>
-                </span>
-                <a-radio-group
-                  v-decorator="['mastertemplatetype', {
-                    initialValue: this.masterTemplateType,
-                    rules: [{ required: true, message: $t('message.error.select') }]
-                  }]"
-                  buttonStyle="solid">
-                  <a-radio-button value="DESKTOP">
-                    {{ $t('label.desktop.mastertemplate.type.desktop') }}
-                  </a-radio-button>
-                  <a-radio-button value="APP">
-                    {{ $t('label.desktop.mastertemplate.type.app') }}
-                  </a-radio-button>
-                </a-radio-group>
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </div>
-        <div v-if="currentForm === 'Create'">
-          <a-row :gutter="12">
-            <a-col :md="24" :lg="24">
-              <a-form-item>
-                <span slot="label">
-                  {{ $t('label.masteruploadtype') }}
-                  <a-tooltip :title="$t('placeholder.masteruploadtype')">
-                    <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-                  </a-tooltip>
-                </span>
-                <a-radio-group
-                  v-decorator="['masteruploadtype', {
-                    initialValue: this.uploadType,
-                    rules: [{ required: true, message: $t('message.error.select') }]
-                  }]"
-                  buttonStyle="solid"
-                  @change="selected => { this.handleUploadTypeChange(selected.target.value) }">
-                  <a-radio-button value="template">
-                    {{ $t('label.templatename') }}
-                  </a-radio-button>
-                  <a-radio-button value="url">
-                    {{ $t('label.url') }}
-                  </a-radio-button>
-                </a-radio-group>
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </div>
-        <div v-if="currentForm === 'Create'">
-          <a-row :gutter="12" v-if="this.uploadType=='url'">
-            <a-col :md="24" :lg="24">
-              <a-form-item :label="$t('label.url')">
-                <a-input
-                  :autoFocus="currentForm === 'Create'"
-                  v-decorator="['masterurl', {
-                    rules: [{ required: true, message: `${this.$t('message.error.required.input')}` }]
-                  }]"
-                  :placeholder="$t('placeholder.url')" />
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </div>
-        <!-- <div v-if="currentForm === 'Create'">
-          <a-row :gutter="12" v-if="this.uploadType=='url'">
-            <a-col :md="24" :lg="24">
-              <a-form-item
-                :label="$t('label.zone')"
-                :validate-status="zoneError"
-                :help="zoneErrorMessage">
-                <a-select
-                  v-decorator="['zoneids', {
-                    rules: [
-                      {
-                        required: true,
-                        message: `${this.$t('message.error.select')}`,
-                        type: 'array'
-                      }
-                    ]
-                  }]"
-                  :loading="zones.loading"
-                  mode="multiple"
-                  optionFilterProp="children"
-                  :filterOption="(input, option) => {
-                    return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }"
-                  :placeholder="$t('placeholder.zones')"
-                  @change="handlerSelectZone">
-                  <a-select-option v-for="opt in zones.opts" :key="opt.id">
-                    {{ opt.name || opt.description }}
-                  </a-select-option>
-                </a-select>
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </div> -->
-        <div v-if="currentForm === 'Create'">
-          <a-row :gutter="12" v-if="this.uploadType=='url'">
-            <a-col :md="24" :lg="24">
-              <a-form-item
-                :label="$t('label.zones')"
-                :validate-status="zoneError"
-                :help="zoneErrorMessage">
-                <a-select
-                  v-decorator="['zoneid', {
-                    initialValue: this.zoneSelected,
-                    rules: [
-                      {
-                        required: true,
-                        message: `${this.$t('message.error.select')}`
-                      }
-                    ]
-                  }]"
-                  showSearch
-                  optionFilterProp="children"
-                  :filterOption="(input, option) => {
-                    return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }"
-                  @change="handlerSelectZone"
-                  :placeholder="$t('placeholder.zones')"
-                  :loading="zones.loading">
-                  <a-select-option :value="zone.id" v-for="zone in zones.opts" :key="zone.id">
-                    {{ zone.name || zone.description }}
-                  </a-select-option>
-                </a-select>
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </div>
-        <a-row :gutter="12" v-if="this.uploadType=='url'">
-          <a-col :md="24" :lg="12">
-            <a-form-item :label="$t('label.hypervisor')">
+        <a-row :gutter="12">
+          <a-col :md="24" :lg="24">
+            <a-form-item ref="mastertemplatetype" name="mastertemplatetype" :label="$t('label.mastertemplatetype')">
+              <template #label>
+                <tooltip-label :title="$t('label.mastertemplatetype')" :tooltip="$t('placeholder.mastertemplatetype')"/>
+              </template>
+              <a-radio-group
+                v-model:value="form.mastertemplatetype"
+                buttonStyle="solid">
+                <a-radio-button value="DESKTOP">
+                  {{ $t('label.desktop.mastertemplate.type.desktop') }}
+                </a-radio-button>
+                <a-radio-button value="APP">
+                  {{ $t('label.desktop.mastertemplate.type.app') }}
+                </a-radio-button>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="12">
+          <a-col :md="24" :lg="24">
+            <a-form-item ref="masteruploadtype" name="masteruploadtype" :label="$t('label.masteruploadtype')">
+              <template #label>
+                <tooltip-label :title="$t('label.masteruploadtype')" :tooltip="$t('placeholder.masteruploadtype')"/>
+              </template>
+              <a-radio-group
+                v-model:value="form.masteruploadtype"
+                buttonStyle="solid"
+                @change="selected => { handleUploadTypeChange(selected.target.value) }">
+                <a-radio-button value="template">
+                  {{ $t('label.templatename') }}
+                </a-radio-button>
+                <a-radio-button value="url">
+                  {{ $t('label.url') }}
+                </a-radio-button>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="12" v-if="form.masteruploadtype=='url'">
+          <a-col :md="24" :lg="24">
+            <a-form-item
+              :label="$t('label.zoneid')"
+              ref="zoneid"
+              name="zoneid">
               <a-select
-                v-decorator="['hypervisor', {
-                  rules: [
-                    {
-                      required: true,
-                      message: `${this.$t('message.error.select')}`
-                    }
-                  ]
-                }]"
+                v-model:value="form.zoneid"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="(input, option) => {
+                  return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }"
+                @change="handlerSelectZone"
+                :placeholder="$t('placeholder.zones')"
+                :loading="zones.loading">
+                <a-select-option :value="zone.id" v-for="zone in zones.opts" :key="zone.id" :label="zone.name || zone.description">
+                  <span>
+                    <resource-icon v-if="zone.icon" :image="zone.icon.base64image" size="1x" style="margin-right: 5px"/>
+                    <global-outlined v-else style="margin-right: 5px" />
+                    {{ zone.name || zone.description }}
+                  </span>
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="12" v-if="form.masteruploadtype=='url'">
+          <a-col :md="24" :lg="12">
+            <a-form-item ref="hypervisor" name="hypervisor" :label="$t('label.hypervisor')">
+              <a-select
+                v-model:value="form.hypervisor"
                 :loading="hyperVisor.loading"
                 :placeholder="$t('placeholder.hypervisor')"
-                @change="handlerSelectHyperVisor">
+                @change="handlerSelectHyperVisor"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="(input, option) => {
+                  return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }" >
                 <a-select-option v-for="(opt, optIndex) in hyperVisor.opts" :key="optIndex">
                   {{ opt.name || opt.description }}
                 </a-select-option>
@@ -225,18 +149,16 @@
             </a-form-item>
           </a-col>
           <a-col :md="24" :lg="12">
-            <a-form-item :label="$t('label.format')">
+           <a-form-item ref="format" name="format" :label="$t('label.format')">
               <a-select
-                v-decorator="['format', {
-                  rules: [
-                    {
-                      required: true,
-                      message: `${this.$t('message.error.select')}`
-                    }
-                  ]
-                }]"
+                v-model:value="form.format"
                 :placeholder="$t('placeholder.format')"
-                @change="val => { selectedFormat = val }">
+                @change="val => { selectedFormat = val }"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="(input, option) => {
+                  return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }" >
                 <a-select-option v-for="opt in format.opts" :key="opt.id">
                   {{ opt.name || opt.description }}
                 </a-select-option>
@@ -244,24 +166,19 @@
             </a-form-item>
           </a-col>
         </a-row>
-        <a-row :gutter="12" v-if="this.uploadType=='url'">
+        <a-row :gutter="12" v-if="form.masteruploadtype=='url'">
           <a-col :md="24" :lg="24">
-            <a-form-item :label="$t('label.templateostype')">
+            <a-form-item
+              name="masterostype"
+              ref="masterostype"
+              :label="$t('label.masterostype')">
               <a-select
                 showSearch
-                optionFilterProp="children"
+                optionFilterProp="label"
                 :filterOption="(input, option) => {
-                  return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                 }"
-                v-decorator="['masterostype', {
-                  initialValue: defaultOsId,
-                  rules: [
-                    {
-                      required: true,
-                      message: `${this.$t('message.error.select')}`
-                    }
-                  ]
-                }]"
+                v-model:value="form.masterostype"
                 :loading="osTypes.loading"
                 :placeholder="$t('placeholder.ostype')">
                 <a-select-option v-for="opt in osTypes.opts" :key="opt.id">
@@ -271,23 +188,28 @@
             </a-form-item>
           </a-col>
         </a-row>
-        <a-row :gutter="12" v-if="this.uploadType=='template'">
+        <a-row :gutter="12" v-if="form.masteruploadtype=='url'">
           <a-col :md="24" :lg="24">
-            <a-form-item :label="$t('label.templatename')">
+            <a-form-item ref="masterurl" name="masterurl"  :label="$t('label.masterurl')" >
+              <a-input
+                v-model:value="form.masterurl"
+                :placeholder="$t('placeholder.url')" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="12" v-if="form.masteruploadtype=='template'">
+          <a-col :md="24" :lg="24">
+            <a-form-item
+              name="mastertemplate"
+              ref="mastertemplate"
+              :label="$t('label.templatename')">
               <a-select
                 showSearch
-                optionFilterProp="children"
+                optionFilterProp="label"
                 :filterOption="(input, option) => {
-                  return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                 }"
-                v-decorator="['templateid', {
-                  rules: [
-                    {
-                      required: true,
-                      message: `${this.$t('message.error.select')}`
-                    }
-                  ]
-                }]"
+                v-model:value="form.mastertemplate"
                 :loading="template.loading"
                 :placeholder="$t('placeholder.template')">
                 <a-select-option v-for="opt in template.opts" :key="opt.id">
@@ -307,12 +229,16 @@
 </template>
 
 <script>
+import { ref, reactive, toRaw } from 'vue'
 import { api } from '@/api'
 import store from '@/store'
-import { axios } from '../../utils/request'
+import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
-  name: 'RegisterOrUploadTemplate',
+  name: 'AddDesktopMasterVersion',
+  components: {
+    TooltipLabel
+  },
   props: {
     resource: {
       type: Object,
@@ -325,131 +251,71 @@ export default {
   },
   data () {
     return {
-      uploadPercentage: 0,
-      uploading: false,
-      fileList: [],
-      zones: {},
+      zones: [],
       defaultZone: '',
       zoneSelected: '',
       hyperVisor: {},
-      rootDisk: {},
-      nicAdapterType: {},
-      keyboardType: {},
-      format: {},
       template: {},
+      format: {},
       osTypes: {},
-      masterTemplateType: 'DESKTOP',
-      uploadType: 'template',
       defaultOsType: '',
       defaultOsId: null,
-      xenServerProvider: false,
-      hyperKVMShow: false,
-      hyperXenServerShow: false,
-      hyperVMWShow: false,
       selectedFormat: '',
-      deployasis: false,
       zoneError: '',
       zoneErrorMessage: '',
       loading: false,
       rootAdmin: 'Admin',
-      allowed: false,
-      allowDirectDownload: false,
-      uploadParams: null,
-      currentForm: this.action.currentAction.icon === 'plus' ? 'Create' : 'Upload'
+      osTypeLoading: false
     }
   },
-  beforeCreate () {
-    this.form = this.$form.createForm(this)
-    this.apiConfig = this.$store.getters.apis.registerTemplate || {}
-    this.apiParams = {}
-    this.apiConfig.params.forEach(param => {
-      this.apiParams[param.name] = param
-    })
-  },
   created () {
-    this.$set(this.zones, 'loading', false)
-    this.$set(this.zones, 'opts', [])
-    this.$set(this.hyperVisor, 'loading', false)
-    this.$set(this.hyperVisor, 'opts', [])
-    this.$set(this.format, 'loading', false)
-    this.$set(this.format, 'opts', [])
-    this.$set(this.osTypes, 'loading', false)
-    this.$set(this.osTypes, 'opts', [])
-    this.$set(this.template, 'loading', false)
-    this.$set(this.template, 'opts', [])
+    this.zones = [
+      {
+        id: null,
+        name: this.$t('label.all.zone')
+      }
+    ]
+    this.initForm()
     this.fetchData()
   },
   computed: {
   },
   methods: {
+    initForm () {
+      this.formRef = ref()
+      this.form = reactive({
+        masteruploadtype: 'template',
+        mastertemplatetype: 'DESKTOP'
+      })
+      this.rules = reactive({
+        masterversionname: [{ required: true, message: this.$t('message.error.required.input') }],
+        description: [{ required: true, message: this.$t('message.error.required.input') }],
+        masterversion: [{ required: true, message: this.$t('message.error.required.input') }],
+        mastertemplatetype: [{ required: true, message: this.$t('message.error.select') }],
+        masteruploadtype: [{ required: true, message: this.$t('message.error.select') }],
+        zoneid: [{ required: true, message: this.$t('message.error.select') }],
+        hypervisor: [{ required: true, message: this.$t('message.error.select') }],
+        format: [{ required: true, message: this.$t('message.error.select') }],
+        masterurl: [{ required: true, message: this.$t('message.error.required.input') }],
+        masterostype: [{ required: true, message: this.$t('message.error.select') }],
+        mastertemplate: [{ required: true, message: this.$t('message.error.select') }]
+      })
+    },
     fetchData () {
       this.fetchZone()
       this.fetchOsTypes()
       this.fetchTemplateData()
-      if (Object.prototype.hasOwnProperty.call(store.getters.apis, 'listConfigurations')) {
-        this.fetchXenServerProvider()
-      }
-    },
-    handleFormChange (e) {
-      this.currentForm = e.target.value
-    },
-    handleRemove (file) {
-      const index = this.fileList.indexOf(file)
-      const newFileList = this.fileList.slice()
-      newFileList.splice(index, 1)
-      this.fileList = newFileList
-    },
-    beforeUpload (file) {
-      this.fileList = [file]
-      return false
-    },
-    handleUpload () {
-      const { fileList } = this
-      const formData = new FormData()
-      fileList.forEach(file => {
-        formData.append('files[]', file)
-      })
-      this.uploadPercentage = 0
-      axios.post(this.uploadParams.postURL,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'X-signature': this.uploadParams.signature,
-            'X-expires': this.uploadParams.expires,
-            'X-metadata': this.uploadParams.metadata
-          },
-          onUploadProgress: (progressEvent) => {
-            this.uploadPercentage = Number(parseFloat(100 * progressEvent.loaded / progressEvent.total).toFixed(1))
-          },
-          timeout: 86400000
-        }).then((json) => {
-        this.$notification.success({
-          message: this.$t('message.success.upload'),
-          description: this.$t('message.success.upload.template.description')
-        })
-        this.$emit('refresh-data')
-        this.closeAction()
-      }).catch(e => {
-        this.$notification.error({
-          message: this.$t('message.upload.failed'),
-          description: `${this.$t('message.upload.template.failed.description')} -  ${e}`,
-          duration: 0
-        })
-      })
     },
     fetchZone () {
       const params = {}
       let listZones = []
       params.listAll = true
+      params.showicon = true
 
-      this.allowed = false
-
-      if (store.getters.userInfo.roletype === this.rootAdmin && this.currentForm === 'Create') {
-        this.allowed = true
+      if (store.getters.userInfo.roletype === this.rootAdmin) {
         listZones.push({
-        // id: this.$t('label.all.zone'),
-        // name: this.$t('label.all.zone')
+          id: this.$t('label.all.zone'),
+          name: this.$t('label.all.zone')
         })
       }
 
@@ -459,29 +325,24 @@ export default {
       api('listZones', params).then(json => {
         const listZonesResponse = json.listzonesresponse.zone
         listZones = listZones.concat(listZonesResponse)
-
-        this.$set(this.zones, 'opts', listZones)
+        this.zones.opts = listZones
       }).finally(() => {
-        this.zoneSelected = (this.zones.opts && this.zones.opts[1]) ? this.zones.opts[1].id : ''
+        this.form.zoneid = (this.zones.opts && this.zones.opts[1]) ? this.zones.opts[1].id : ''
         this.zones.loading = false
-        this.fetchHyperVisor({ zoneid: this.zoneSelected })
+        this.fetchHyperVisor({ zoneid: this.form.zoneid })
       })
     },
     fetchHyperVisor (params) {
       this.hyperVisor.loading = true
-      let listhyperVisors = this.hyperVisor.opts
+      let listhyperVisors = this.hyperVisor.opts || []
 
       api('listHypervisors', params).then(json => {
-        const listResponse = json.listhypervisorsresponse.hypervisor
+        const listResponse = json.listhypervisorsresponse.hypervisor || []
         if (listResponse) {
           listhyperVisors = listhyperVisors.concat(listResponse)
         }
-        if (this.currentForm !== 'Upload') {
-          listhyperVisors.push({
-            name: 'Any'
-          })
-        }
-        this.$set(this.hyperVisor, 'opts', listhyperVisors)
+        this.hyperVisor.opts = listhyperVisors
+        console.log(this.hyperVisor.opts)
       }).finally(() => {
         this.hyperVisor.loading = false
       })
@@ -495,7 +356,7 @@ export default {
 
       api('listOsTypes', params).then(json => {
         const listOsTypes = json.listostypesresponse.ostype
-        this.$set(this.osTypes, 'opts', listOsTypes)
+        this.osTypes.opts = listOsTypes
         this.defaultOsType = this.osTypes.opts[1].description
         this.defaultOsId = this.osTypes.opts[1].id
       }).finally(() => {
@@ -512,127 +373,11 @@ export default {
       api('listTemplates', params).then(json => {
         const listTemplatesResponse = json.listtemplatesresponse.template
         listTemplates = listTemplates.concat(listTemplatesResponse)
-        this.$set(this.template, 'opts', listTemplates)
+        this.template.opts = listTemplates
       }).finally(() => {
         // this.zoneSelected = (this.template.opts && this.template.opts[1]) ? this.template.opts[1].id : ''
         this.template.loading = false
       })
-    },
-    fetchXenServerProvider () {
-      const params = {}
-      params.name = 'xenserver.pvdriver.version'
-
-      this.xenServerProvider = true
-
-      api('listConfigurations', params).then(json => {
-        if (json.listconfigurationsresponse.configuration !== null && json.listconfigurationsresponse.configuration[0].value !== 'xenserver61') {
-          this.xenServerProvider = false
-        }
-      })
-    },
-    fetchRootDisk (hyperVisor) {
-      const controller = []
-      this.rootDisk.opts = []
-
-      if (hyperVisor === 'KVM') {
-        controller.push({
-          id: '',
-          description: ''
-        })
-        controller.push({
-          id: 'ide',
-          description: 'ide'
-        })
-        controller.push({
-          id: 'osdefault',
-          description: 'osdefault'
-        })
-        controller.push({
-          id: 'scsi',
-          description: 'scsi'
-        })
-        controller.push({
-          id: 'virtio',
-          description: 'virtio'
-        })
-      } else if (hyperVisor === 'VMware') {
-        controller.push({
-          id: '',
-          description: ''
-        })
-        controller.push({
-          id: 'scsi',
-          description: 'scsi'
-        })
-        controller.push({
-          id: 'ide',
-          description: 'ide'
-        })
-        controller.push({
-          id: 'osdefault',
-          description: 'osdefault'
-        })
-        controller.push({
-          id: 'pvscsi',
-          description: 'pvscsi'
-        })
-        controller.push({
-          id: 'lsilogic',
-          description: 'lsilogic'
-        })
-        controller.push({
-          id: 'lsisas1068',
-          description: 'lsilogicsas'
-        })
-        controller.push({
-          id: 'buslogic',
-          description: 'buslogic'
-        })
-      }
-
-      this.$set(this.rootDisk, 'opts', controller)
-    },
-    fetchNicAdapterType () {
-      const nicAdapterType = []
-      nicAdapterType.push({
-        id: '',
-        description: ''
-      })
-      nicAdapterType.push({
-        id: 'E1000',
-        description: 'E1000'
-      })
-      nicAdapterType.push({
-        id: 'PCNet32',
-        description: 'PCNet32'
-      })
-      nicAdapterType.push({
-        id: 'Vmxnet2',
-        description: 'Vmxnet2'
-      })
-      nicAdapterType.push({
-        id: 'Vmxnet3',
-        description: 'Vmxnet3'
-      })
-
-      this.$set(this.nicAdapterType, 'opts', nicAdapterType)
-    },
-    fetchKeyboardType () {
-      const keyboardType = []
-      const keyboardOpts = this.$config.keyboardOptions || {}
-      keyboardType.push({
-        id: '',
-        description: ''
-      })
-
-      Object.keys(keyboardOpts).forEach(keyboard => {
-        keyboardType.push({
-          id: keyboard,
-          description: this.$t(keyboardOpts[keyboard])
-        })
-      })
-
-      this.$set(this.keyboardType, 'opts', keyboardType)
     },
     fetchFormat (hyperVisor) {
       const format = []
@@ -712,28 +457,28 @@ export default {
         default:
           break
       }
-      this.$set(this.format, 'opts', format)
+      this.format.opts = format
     },
     handlerSelectZone (value) {
       if (!Array.isArray(value)) {
         value = [value]
       }
-      this.validZone(value)
       this.hyperVisor.opts = []
 
       if (this.zoneError !== '') {
         return
       }
 
-      this.resetSelect()
+      const arrSelectReset = ['hypervisor', 'format']
+      this.resetSelect(arrSelectReset)
 
       const params = {}
 
-      // if (value.includes(this.$t('label.all.zone'))) {
-      //   params.listAll = true
-      //   this.fetchHyperVisor(params)
-      //   return
-      // }
+      if (value.includes(this.$t('label.all.zone'))) {
+        params.listAll = true
+        this.fetchHyperVisor(params)
+        return
+      }
 
       for (let i = 0; i < value.length; i++) {
         const zoneSelected = this.zones.opts.filter(zone => zone.id === value[i])
@@ -746,116 +491,62 @@ export default {
     },
     handlerSelectHyperVisor (value) {
       const hyperVisor = this.hyperVisor.opts[value].name
+      console.log(hyperVisor)
+      const arrSelectReset = ['format']
 
       this.hyperXenServerShow = false
       this.hyperVMWShow = false
       this.hyperKVMShow = false
-      this.deployasis = false
-      this.allowDirectDownload = false
 
-      this.resetSelect()
+      this.resetSelect(arrSelectReset)
       this.fetchFormat(hyperVisor)
-      this.fetchRootDisk(hyperVisor)
-      this.fetchNicAdapterType()
-      this.fetchKeyboardType()
     },
+
     handleSubmit (e) {
       e.preventDefault()
-      this.form.validateFields((err, values) => {
-        if (err || this.zoneError !== '') {
-          return
+      if (this.loading) return
+      this.formRef.value.validate().then(() => {
+        const values = toRaw(this.form)
+        this.loading = true
+        const params = {
+          masterversionname: values.masterversionname,
+          description: values.description,
+          masterversion: values.masterversion,
+          mastertemplatetype: values.mastertemplatetype,
+          masteruploadtype: values.masteruploadtype
         }
-        let params = {}
-        for (const key in values) {
-          const input = values[key]
-
-          if (input === undefined) {
-            continue
-          }
-          if (key === 'file') {
-            continue
-          }
-
-          if (key === 'zoneids') {
-            if (input.length === 1 && input[0] === this.$t('label.all.zone')) {
-              params.zoneids = '-1'
-              continue
-            }
-            params[key] = input.join()
-          } else if (key === 'hypervisor') {
-            params[key] = this.hyperVisor.opts[input].name
-          } else if (key === 'groupenabled') {
-            for (const index in input) {
-              const name = input[index]
-              params[name] = true
-            }
+        if (values.masteruploadtype === 'url') {
+          if (values.zoneid === this.$t('label.all.zone')) {
+            delete params.zoneid
           } else {
-            const formattedDetailData = {}
-            switch (key) {
-              case 'rootDiskControllerType':
-                formattedDetailData['details[0].rootDiskController'] = input
-                break
-              case 'nicAdapterType':
-                formattedDetailData['details[0].nicAdapter'] = input
-                break
-              case 'keyboardType':
-                formattedDetailData['details[0].keyboard'] = input
-                break
-              case 'xenserverToolsVersion61plus':
-                formattedDetailData['details[0].hypervisortoolsversion'] = input
-                break
-            }
-
-            if (Object.keys(formattedDetailData).length > 0) {
-              params = Object.assign({}, params, formattedDetailData)
-            } else {
-              params[key] = input
-            }
+            params.zoneid = values.zoneid
           }
-        }
-        if (!('requireshvm' in params)) { // handled as default true by API
-          params.requireshvm = false
-        }
-        params.uploadType = this.uploadType
-        if (this.currentForm === 'Create') {
-          this.loading = true
-          api('addDesktopMasterVersion', params).then(json => {
-            this.$notification.success({
-              message: this.$t('label.register.template'),
-              description: `${this.$t('message.success.register.master.template.version')}`
-            })
-            this.$emit('refresh-data')
-            this.closeAction()
-          }).catch(error => {
-            this.$notifyError(error)
-          }).finally(() => {
-            this.loading = false
-          })
+          params.hypervisor = this.hyperVisor.opts[values.hypervisor].name
+          params.format = values.format
+          params.masterurl = values.masterurl
+          params.masterostype = values.masterostype
         } else {
-          this.loading = true
-          if (this.fileList.length > 1) {
-            this.$notification.error({
-              message: this.$t('message.error.upload.template'),
-              description: this.$t('message.error.upload.template.description'),
-              duration: 0
-            })
-          }
-          api('getUploadParamsForTemplate', params).then(json => {
-            this.uploadParams = (json.postuploadtemplateresponse && json.postuploadtemplateresponse.getuploadparams) ? json.postuploadtemplateresponse.getuploadparams : ''
-            this.handleUpload()
-          }).catch(error => {
-            this.$notifyError(error)
-          }).finally(() => {
-            this.loading = false
-          })
+          params.templateid = values.mastertemplate
         }
+
+        api('addDesktopMasterVersion', params).then(json => {
+          this.$notification.success({
+            message: this.$t('label.register.template'),
+            description: `${this.$t('message.success.register.master.template.version')}`
+          })
+          this.$emit('refresh-data')
+          this.closeAction()
+        }).catch(error => {
+          this.$notifyError(error)
+        }).finally(() => {
+          this.loading = false
+        })
+      }).catch(error => {
+        this.formRef.value.scrollToField(error.errorFields[0].name)
       })
     },
-    handleChangeDirect (checked) {
-      this.allowDirectDownload = checked
-    },
-    handleUploadTypeChange (pvlan) {
-      this.uploadType = pvlan
+    handleUploadTypeChange (val) {
+      this.form.masteruploadtype = val
     },
     validZone (zones) {
       const allZoneExists = zones.filter(zone => zone === this.$t('label.all.zone'))
@@ -871,13 +562,9 @@ export default {
     closeAction () {
       this.$emit('close-action')
     },
-    resetSelect () {
-      this.form.setFieldsValue({
-        hypervisor: undefined,
-        format: undefined,
-        rootDiskControllerType: undefined,
-        nicAdapterType: undefined,
-        keyboardType: undefined
+    resetSelect (arrSelectReset) {
+      arrSelectReset.forEach(name => {
+        this.form[name] = undefined
       })
     }
   }

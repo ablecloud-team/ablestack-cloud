@@ -9,7 +9,9 @@
   ],
   "docBase": "http://docs.ablecloud.io",
   "appTitle": "Mold-ABLESTACK",
-  "footer": "Copyright (c) 2021, ABLECLOUD.Co.Ltd",
+  "footer": "Copyright (c) 2021-2022, ABLECLOUD.Co.Ltd",
+  "buildDate": "20220412",
+  "buildDev": true,
   "loginFooter": "",
   "logo": "assets/ablestack-logo.png",
   "banner": "assets/ablestack-logo.png",
@@ -19,6 +21,7 @@
     "500": "assets/500.png"
   },
   "theme": {
+    "@layout-mode": "light",
     "@logo-background-color": "#ffffff",
     "@navigation-background-color": "#ffffff",
     "@project-nav-background-color": "#001529",

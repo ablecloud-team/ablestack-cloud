@@ -21,7 +21,7 @@
     :href="'http://' + $store.getters.features.host + ':' +$store.getters.features.wallportalport + $store.getters.features.wallportalvmuri +'?kiosk&orgId=2&var-vm_uuid='+resource.id"
     target="_blank" >
     <a-button style="margin-left: 5px" shape="circle" type="" :size="size" :disabled="['Stopped', 'Error', 'Destroyed'].includes(resource.state)" >
-      <a-icon type="area-chart" />
+      <AreaChartOutlined />
     </a-button>
   </a>
 </template>

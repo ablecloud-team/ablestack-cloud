@@ -21,7 +21,7 @@
     :href="'http://'+resource.worksvmip+':'+$store.getters.features.desktopworksadminportalport+'/login'"
     target="_blank">
     <a-button style="margin-left: 5px" shape="circle" type="" :size="size" :disabled="['Stopping', 'Stopped', 'Error', 'Destroyed', 'Destroying'].includes(resource.state)" >
-      <a-icon type="solution" />
+      <SolutionOutlined />
     </a-button>
   </a>
 </template>

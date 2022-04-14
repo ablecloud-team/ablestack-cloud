@@ -87,7 +87,6 @@ public class Criteria {
     public static final String SERVICE_OFFERING_ID = "serviceofferingid";
     public static final String DISPLAY = "display";
     public static final String SSH_KEYPAIR = "keypair";
-    public static final String SSH_KEYPAIR_ID = "keypairid";
 
     public Criteria(String orderBy, Boolean ascending, Long offset, Long limit) {
         this.offset = offset;

@@ -21,7 +21,7 @@
     <translation-menu class="action"/>
     <header-notice class="action"/>
     <label class="user-menu-server-info action" v-if="$config.multipleServer">
-      <a-icon slot="prefix" type="database" />
+      <database-outlined />
       {{ server.name || server.apiBase || 'Local-Server' }}
     </label>
     <a-dropdown>
@@ -29,50 +29,55 @@
         <span v-if="image">
           <resource-icon :image="image" size="2x" style="margin-right: 5px"/>
         </span>
-        <a-avatar v-else class="user-menu-avatar avatar" size="small" :src="avatar()"/>
+        <a-avatar v-else-if="userInitials" class="user-menu-avatar avatar" size="small" :style="{ backgroundColor: '#1890ff', color: 'white' }">
+          {{ userInitials }}
+        </a-avatar>
+        <a-avatar v-else class="user-menu-avatar avatar" size="small" :style="{ backgroundColor: '#1890ff', color: 'white' }">
+          <template #icon><user-outlined /></template>
+        </a-avatar>
         <span>{{ nickname() }}</span>
       </span>
-      <a-menu slot="overlay" class="user-menu-wrapper">
-        <a-menu-item class="user-menu-item" key="0">
+      <template #overlay>
+        <a-menu class="user-menu-wrapper">
           <router-link :to="{ path: '/accountuser/' + $store.getters.userInfo.id }">
-            <a-icon class="user-menu-item-icon" type="user"/>
-            <span class="user-menu-item-name">{{ $t('label.profilename') }}</span>
+            <a-menu-item class="user-menu-item" key="0">
+                <UserOutlined class="user-menu-item-icon" />
+                <span class="user-menu-item-name">{{ $t('label.profilename') }}</span>
+            </a-menu-item>
           </router-link>
-        </a-menu-item>
-        <a-menu-item class="user-menu-item" key="1">
-          <a :href="'http://' + $store.getters.features.host + ':' + $store.getters.features.wallportalport + '/login?orgId=1'" target="_blank" v-if="$store.getters.userInfo.roletype === 'Admin'">
-            <a-icon class="user-menu-item-icon" type="area-chart"/>
-            <span class="user-menu-item-name">{{ $t('label.wall.portal.url') }}</span>
+          <a v-if="$store.getters.userInfo.roletype === 'Admin'" @click="wallPortalLink" >
+            <a-menu-item class="user-menu-item" key="1">
+                <AreaChartOutlined class="user-menu-item-icon" />
+                <span class="user-menu-item-name">{{ $t('label.wall.portal.url') }}</span>
+            </a-menu-item>
           </a>
-        </a-menu-item>
-        <a-menu-item class="user-menu-item" key="2">
-          <a @click="toggleUseBrowserTimezone" >
-            <a-icon class="user-menu-item-icon" type="clock-circle"/>
-            <span class="user-menu-item-name" style="margin-right: 5px">{{ $t('label.use.local.timezone') }}</span>
-            <a-switch
-              :checked="$store.getters.usebrowsertimezone" />
+          <a @click="toggleUseBrowserTimezone">
+            <a-menu-item class="user-menu-item" key="2">
+                <ClockCircleOutlined class="user-menu-item-icon" />
+                <span class="user-menu-item-name" style="margin-right: 5px">{{ $t('label.use.local.timezone') }}</span>
+                <a-switch :checked="$store.getters.usebrowsertimezone" />
+            </a-menu-item>
           </a>
-        </a-menu-item>
-        <a-menu-item class="user-menu-item" key="3" disabled>
           <a :href="$config.docBase" target="_blank">
-            <a-icon class="user-menu-item-icon" type="question-circle-o"></a-icon>
-            <span class="user-menu-item-name">{{ $t('label.help') }}</span>
+            <a-menu-item class="user-menu-item" key="3">
+              <QuestionCircleOutlined class="user-menu-item-icon" />
+              <span class="user-menu-item-name">{{ $t('label.help') }}</span>
+            </a-menu-item>
           </a>
-        </a-menu-item>
-        <a-menu-divider/>
-        <a-menu-item class="user-menu-item" key="4">
+          <a-menu-divider/>
           <a href="javascript:;" @click="handleLogout">
-            <a-icon class="user-menu-item-icon" type="logout"/>
-            <span class="user-menu-item-name">{{ $t('label.logout') }}</span>
+            <a-menu-item class="user-menu-item" key="4">
+              <LogoutOutlined class="user-menu-item-icon" />
+              <span class="user-menu-item-name">{{ $t('label.logout') }}</span>
+            </a-menu-item>
           </a>
-        </a-menu-item>
-      </a-menu>
+        </a-menu>
+      </template>
     </a-dropdown>
   </div>
 </template>
 
 <script>
-import Vue from 'vue'
 import { api } from '@/api'
 import HeaderNotice from './HeaderNotice'
 import TranslationMenu from './TranslationMenu'
@@ -91,12 +96,15 @@ export default {
   data () {
     return {
       image: '',
+      userInitials: '',
       countNotify: 0
     }
   },
   created () {
+    this.userInitials = (this.$store.getters.userInfo.firstname.toUpperCase().charAt(0) || '') +
+      (this.$store.getters.userInfo.lastname.toUpperCase().charAt(0) || '')
     this.getIcon()
-    eventBus.$on('refresh-header', () => {
+    eventBus.on('refresh-header', () => {
       this.getIcon()
     })
     this.$store.watch(
@@ -113,7 +121,7 @@ export default {
   },
   computed: {
     server () {
-      return Vue.ls.get(SERVER_MANAGER) || this.$config.servers[0]
+      return this.$localStorage.get(SERVER_MANAGER) || this.$config.servers[0]
     }
   },
   methods: {
@@ -154,6 +162,10 @@ export default {
     clearAllNotify () {
       this.$store.commit('SET_COUNT_NOTIFY', 0)
       this.$notification.destroy()
+    },
+    wallPortalLink () {
+      const url = 'http://' + this.$store.getters.features.host + ':' + this.$store.getters.features.wallportalport + '/login?orgId=1'
+      window.open(url, '_blank')
     }
   }
 }

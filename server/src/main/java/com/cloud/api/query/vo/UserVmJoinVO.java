@@ -34,6 +34,7 @@ import com.cloud.network.Network.GuestType;
 import com.cloud.network.Networks.TrafficType;
 import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.Volume;
+import com.cloud.user.Account;
 import com.cloud.utils.db.GenericDao;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.VirtualMachine.State;
@@ -66,7 +67,8 @@ public class UserVmJoinVO extends BaseViewWithTagInformationVO implements Contro
     private String accountName = null;
 
     @Column(name = "account_type")
-    private short accountType;
+    @Enumerated(value = EnumType.ORDINAL)
+    private Account.Type accountType;
 
     @Column(name = "domain_id")
     private long domainId;
@@ -353,14 +355,8 @@ public class UserVmJoinVO extends BaseViewWithTagInformationVO implements Contro
     @Column(name = "project_name")
     private String projectName;
 
-    @Column(name = "keypair_name")
-    private String keyPairName;
-
-    @Column(name = "keypair_id")
-    private long keyPairId;
-
-    @Column(name = "keypair_uuid")
-    private String keyPairUuid;
+    @Column(name = "keypair_names")
+    private String keypairNames;
 
     @Column(name = "job_id")
     private Long jobId;
@@ -451,7 +447,7 @@ public class UserVmJoinVO extends BaseViewWithTagInformationVO implements Contro
     }
 
     @Override
-    public short getAccountType() {
+    public Account.Type getAccountType() {
         return accountType;
     }
 
@@ -785,16 +781,8 @@ public class UserVmJoinVO extends BaseViewWithTagInformationVO implements Contro
         return projectName;
     }
 
-    public String getKeyPairName() {
-        return keyPairName;
-    }
-
-    public long getKeyPairId() {
-        return keyPairId;
-    }
-
-    public String getKeyPairUuid() {
-        return keyPairUuid;
+    public String getKeypairNames() {
+        return keypairNames;
     }
 
     public boolean isLimitCpuUse() {

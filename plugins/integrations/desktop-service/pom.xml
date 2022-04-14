@@ -88,7 +88,7 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>${cs.log4j.version}</version>
+            <version>${cs.log4j.extras.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
