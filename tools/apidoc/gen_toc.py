@@ -201,6 +201,7 @@ known_categories = {
     'DesktopCluster': 'Desktop Service',
     'DesktopControllerVersion': 'Desktop Service',
     'DesktopMasterVersion' : 'Desktop Service',
+    'AutomationControllerVersion': 'Automation Service',
     'UnmanagedInstance': 'Virtual Machine',
     'Rolling': 'Rolling Maintenance',
     'importVsphereStoragePolicies' : 'vSphere storage policies',

@@ -67,6 +67,7 @@ public class ListCapabilitiesCmd extends BaseCmd {
         response.setDesktopServiceEnabled((Boolean)capabilities.get("desktopServiceEnabled"));
         response.setDesktopWorksAdminPortalPort((String)capabilities.get("desktopWorksAdminPortalPort"));
         response.setDesktopWorksUserPortalPort((String)capabilities.get("desktopWorksUserPortalPort"));
+        response.setAutomationServiceEnabled((Boolean)capabilities.get("automationServiceEnabled"));
         response.setWallPortalPort((String)capabilities.get("wallPortalPort"));
         response.setWallPortalVmUri((String)capabilities.get("wallPortalVmUri"));
         response.setHost((String)capabilities.get("host"));

@@ -4022,6 +4022,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         final boolean desktopServiceEnabled = Boolean.parseBoolean(_configDao.getValue("cloud.desktop.service.enabled"));
         final String desktopWorksAdminPortalPort = _configDao.getValue("cloud.desktop.service.works.adminportal.port");
         final String desktopWorksUserPortalPort = _configDao.getValue("cloud.desktop.service.works.userportal.port");
+        final boolean automationServiceEnabled = Boolean.parseBoolean(_configDao.getValue("cloud.automation.service.enabled"));
         final String wallPortalPort = _configDao.getValue("monitoring.wall.portal.port");
         final String wallPortalVmUri = _configDao.getValue("monitoring.wall.portal.vm.uri");
         final String host = _configDao.getValue("host");
@@ -4052,6 +4053,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         capabilities.put("desktopServiceEnabled", desktopServiceEnabled);
         capabilities.put("desktopWorksAdminPortalPort", desktopWorksAdminPortalPort);
         capabilities.put("desktopWorksUserPortalPort", desktopWorksUserPortalPort);
+        capabilities.put("automationServiceEnabled", automationServiceEnabled);
         capabilities.put("wallPortalPort", wallPortalPort);
         capabilities.put("wallPortalVmUri", wallPortalVmUri);
         capabilities.put("host", host);

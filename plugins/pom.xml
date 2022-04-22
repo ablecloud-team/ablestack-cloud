@@ -90,6 +90,7 @@
         <module>integrations/prometheus</module>
         <module>integrations/kubernetes-service</module>
         <module>integrations/desktop-service</module>
+        <module>integrations/automation-service</module>
 
         <module>metrics</module>
 

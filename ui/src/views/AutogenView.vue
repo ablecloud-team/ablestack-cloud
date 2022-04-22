@@ -518,6 +518,7 @@ export default {
     eventBus.off('async-job-complete')
     eventBus.off('exec-action')
     eventBus.off('desktop-refresh-data')
+    eventBus.off('automation-refresh-data')
   },
   mounted () {
     eventBus.on('exec-action', (args) => {
@@ -536,6 +537,11 @@ export default {
     })
     eventBus.on('desktop-refresh-data', () => {
       if (this.$route.path === '/desktopcluster' || this.$route.path.includes('/desktopcluster/')) {
+        this.fetchData()
+      }
+    })
+    eventBus.on('automation-refresh-data', () => {
+      if (this.$route.path === '/automationtemplate' || this.$route.path.includes('/automationtemplate/')) {
         this.fetchData()
       }
     })

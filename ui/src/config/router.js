@@ -28,6 +28,7 @@ import storage from '@/config/section/storage'
 import network from '@/config/section/network'
 import image from '@/config/section/image'
 import desktop from '@/config/section/desktop'
+import automation from '@/config/section/automation'
 import project from '@/config/section/project'
 import event from '@/config/section/event'
 import user from '@/config/section/user'
@@ -230,6 +231,7 @@ export function asyncRouterMap () {
       generateRouterMap(network),
       generateRouterMap(image),
       generateRouterMap(desktop),
+      generateRouterMap(automation),
       generateRouterMap(event),
       generateRouterMap(project),
       generateRouterMap(user),
