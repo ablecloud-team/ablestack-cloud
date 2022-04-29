@@ -50,11 +50,11 @@ public class VmStatsEntryBase implements VmStats {
      * @param targetMemoryKBs the target memory (in KBs).
      * @param intusablememoryKBs the usable memory (in KBs).
      * @param cpuUtilization the CPU utilization.
-     * @param networkReadKBs the network read (in KBs).
-     * @param networkWriteKBs the network write (in KBs).
+     * @param networkReadKBs the network read (in KiBs).
+     * @param networkWriteKBs the network write (in KiBs).
      * @param numCPUs the number of CPUs.
-     * @param diskReadKBs the disk read (in KBs).
-     * @param diskWriteKBs the disk write (in KBs).
+     * @param diskReadKBs the disk read (in KiBs).
+     * @param diskWriteKBs the disk write (in KiBs).
      * @param diskReadIOs the disk read I/O.
      * @param diskWriteIOs the disk write I/O.
      * @param entityType the entity type.

@@ -53,8 +53,7 @@ export default {
               return record.memorykbs && record.memoryintusablekbs ? parseFloat(100.0 * (record.memorykbs - record.memoryintusablekbs) / record.memorykbs).toFixed(2) + '%' : '0.0%'
             }
           },
-          'memorytotal', 'networkread', 'networkwrite', 'diskkbsread', 'diskkbswrite', 'diskiopstotal'
-        ]
+          'memorytotal', 'networkread', 'networkwrite', 'diskread', 'diskwrite', 'diskiopstotal']
 
         if (store.getters.userInfo.roletype === 'Admin') {
           metricsFields.splice(4, 0, {

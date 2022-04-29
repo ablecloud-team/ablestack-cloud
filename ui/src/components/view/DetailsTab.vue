@@ -34,23 +34,30 @@
               <router-link :to="{ path: '/volume/' + volume.uuid }">{{ volume.type }} - {{ volume.path }}</router-link> ({{ parseFloat(volume.size / (1024.0 * 1024.0 * 1024.0)).toFixed(1) }} GB)
             </div>
           </div>
-        <div v-else-if="$route.meta.name === 'controllertemplate' && item === 'dctemplate'">
-          <div v-for="(dctemplate, idx) in dataResource[item]" :key="idx">
-            <router-link :to="{ path: '/template/' + dctemplate.id }">{{ dctemplate.name }}</router-link>
+          <div v-else-if="$route.meta.name === 'controllertemplate' && item === 'dctemplate'">
+            <div v-for="(dctemplate, idx) in dataResource[item]" :key="idx">
+              <router-link :to="{ path: '/template/' + dctemplate.id }">{{ dctemplate.name }}</router-link>
+            </div>
           </div>
-        </div>
-        <div v-else-if="$route.meta.name === 'controllertemplate' && item === 'workstemplate'">
-          <div v-for="(workstemplate, idx) in dataResource[item]" :key="idx">
-            <router-link :to="{ path: '/template/' + workstemplate.id }">{{ workstemplate.name }}</router-link>
+          <div v-else-if="$route.meta.name === 'controllertemplate' && item === 'workstemplate'">
+            <div v-for="(workstemplate, idx) in dataResource[item]" :key="idx">
+              <router-link :to="{ path: '/template/' + workstemplate.id }">{{ workstemplate.name }}</router-link>
+            </div>
           </div>
-        </div>
-        <div v-else-if="$route.meta.name === 'mastertemplate' && item === 'templatename'">
-          <router-link :to="{ path: '/template/' + dataResource.templateid }">{{ dataResource.templatename }} </router-link>
-        </div>
-        <div v-else-if="$route.meta.name === 'computeoffering' && item === 'rootdisksize'">
-          <div>
-            {{ dataResource.rootdisksize }} GB
+          <div v-else-if="$route.meta.name === 'mastertemplate' && item === 'templatename'">
+            <router-link :to="{ path: '/template/' + dataResource.templateid }">{{ dataResource.templatename }} </router-link>
           </div>
+          <div v-else-if="$route.meta.name === 'computeoffering' && item === 'rootdisksize'">
+            <div>
+              {{ dataResource.rootdisksize }} GB
+            </div>
+          </div>
+          <div v-else-if="['name', 'type'].includes(item)">
+            <span v-if="['USER.LOGIN', 'USER.LOGOUT', 'ROUTER.HEALTH.CHECKS', 'FIREWALL.CLOSE', 'ALERT.SERVICE.DOMAINROUTER'].includes(dataResource[item])">{{ $t(dataResource[item].toLowerCase()) }}</span>
+            <span v-else>{{ dataResource[item] }}</span>
+          </div>
+          <div v-else-if="['created', 'sent', 'lastannotated', 'collectiontime', 'lastboottime', 'lastserverstart', 'lastserverstop'].includes(item)">
+            {{ $toLocaleDate(dataResource[item]) }}
           </div>
           <div v-else-if="$route.meta.name === 'guestnetwork' && item === 'egressdefaultpolicy'">
             {{ dataResource[item]? $t('message.egress.rules.allow') : $t('message.egress.rules.deny') }}
