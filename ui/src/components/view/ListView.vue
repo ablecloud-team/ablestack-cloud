@@ -512,7 +512,7 @@ export default {
       return new RegExp(['/vm', '/desktop', '/kubernetes', '/ssh', '/vmgroup', '/affinitygroup',
         '/volume', '/snapshot', '/vmsnapshot', '/backup',
         '/guestnetwork', '/vpc', '/vpncustomergateway',
-        '/template', '/controllertemplate', '/mastertemplate', '/automationtemplate', '/iso',
+        '/template', '/controllertemplate', '/mastertemplate', '/iso',
         '/project', '/account',
         '/zone', '/pod', '/cluster', '/host', '/storagepool', '/imagestore', '/systemvm', '/router', '/ilbvm', '/annotation',
         '/computeoffering', '/systemoffering', '/diskoffering', '/backupoffering', '/networkoffering', '/vpcoffering'].join('|'))

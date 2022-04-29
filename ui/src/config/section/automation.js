@@ -28,55 +28,31 @@ export default {
       docHelp: '',
       permission: ['listAutomationControllerVersion'],
       columns: ['name', 'state', 'version', 'zonename', 'controlleruploadtype'],
-      details: ['name', 'description', 'version', 'controlleruploadtype', 'dctemplate', 'workstemplate', 'created'],
-      tabs: [{
-        component: shallowRef(defineAsyncComponent(() => import('@/views/automation/AutomationTab.vue')))
-      }],
+      details: ['name', 'description', 'version', 'controlleruploadtype', 'created'],
       actions: [
         {
-          api: 'createDesktopCluster',
+          api: 'addDesktopControllerVersion',
           icon: 'plus-outlined',
-          label: 'label.desktop.cluster.deploy',
+          label: 'label.automation.controller.template.version.create',
           docHelp: '',
           listView: true,
           popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/automation/DeployCluster.vue')))
+          component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/AddDesktopControllerVersion.vue')))
         },
         {
-          api: 'startDesktopCluster',
-          icon: 'caret-right-outlined',
-          label: 'label.desktop.cluster.start',
-          message: 'message.desktop.cluster.start',
-          docHelp: '',
+          api: 'updateDesktopControllerVersion',
+          icon: 'edit-outlined',
+          label: 'label.desktop.controller.version.manage',
           dataView: true,
-          show: (record) => { return ['Stopped'].includes(record.state) },
-          groupAction: true,
           popup: true,
-          groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
+          component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/UpdateDesktopControllerVersion.vue')))
         },
         {
-          api: 'stopDesktopCluster',
-          icon: 'poweroff-outlined',
-          label: 'label.desktop.cluster.stop',
-          message: 'message.desktop.cluster.stop',
-          docHelp: '',
-          dataView: true,
-          show: (record) => { return !['Stopped', 'Destroyed', 'Destroying'].includes(record.state) },
-          groupAction: true,
-          popup: true,
-          groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
-        },
-        {
-          api: 'deleteDesktopCluster',
+          api: 'deleteDesktopControllerVersion',
           icon: 'delete-outlined',
-          label: 'label.desktop.cluster.delete',
-          message: 'message.desktop.cluster.delete',
-          dataView: true,
-          docHelp: '',
-          show: (record) => { return !['Destroyed', 'Destroying'].includes(record.state) },
-          groupAction: true,
-          popup: true,
-          groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
+          label: 'label.desktop.controller.version.delete',
+          message: 'message.desktop.controller.version.delete',
+          dataView: true
         }
       ]
     }

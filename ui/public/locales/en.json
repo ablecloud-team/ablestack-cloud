@@ -3695,6 +3695,6 @@
 "message.desktop.cluster.start": "Please confirm that you want to start the cluster",
 "message.desktop.cluster.stop": "Please confirm that you want to stop the cluster",
 "label.automation.service": "Automation Service",
-"title.automation.controller": "Controller Template",
-"label.automation.cluster.deploy": "Automation Cluster Deployment"
+"title.automation.controller": "Controller Templates",
+"label.automation.controller.template.version.create": "Create Controller Template Version"
 }

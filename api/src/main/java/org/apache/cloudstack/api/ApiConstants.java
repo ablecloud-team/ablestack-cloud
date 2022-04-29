@@ -913,7 +913,7 @@ public class ApiConstants {
     public static final String DESKTOP_CONTROLLER_DC_IP = "dcip";
     public static final String DESKTOP_CONTROLLER_WORKS_IP = "worksip";
     public static final String AUTOMATION_TEMPLATES = "templates";
-    public static final String AUTOMATION_CONTROLLER_VERSION_UPLOADTYPE = "templateuploadtype";
+    public static final String AUTOMATION_CONTROLLER_VERSION_UPLOADTYPE = "controlleruploadtype";
     public static final String AUTOMATION_CONTROLLER_VERSION_NAME = "controllerversionname";
     public static final String AUTOMATION_CONTROLLER_VERSION = "controllerversion";
 
