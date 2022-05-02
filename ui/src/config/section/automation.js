@@ -23,12 +23,47 @@ export default {
   children: [
     {
       name: 'automationtemplate',
-      title: 'title.automation.controller',
+      title: 'title.automation.template',
       icon: 'block-outlined',
       docHelp: '',
       permission: ['listAutomationControllerVersion'],
       columns: ['name', 'state', 'version', 'zonename', 'controlleruploadtype'],
       details: ['name', 'description', 'version', 'controlleruploadtype', 'created'],
+      actions: [
+        {
+          api: 'addDesktopControllerVersion',
+          icon: 'plus-outlined',
+          label: 'label.automation.controller.template.version.create',
+          docHelp: '',
+          listView: true,
+          popup: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/AddDesktopControllerVersion.vue')))
+        },
+        {
+          api: 'updateDesktopControllerVersion',
+          icon: 'edit-outlined',
+          label: 'label.desktop.controller.version.manage',
+          dataView: true,
+          popup: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/UpdateDesktopControllerVersion.vue')))
+        },
+        {
+          api: 'deleteDesktopControllerVersion',
+          icon: 'delete-outlined',
+          label: 'label.desktop.controller.version.delete',
+          message: 'message.desktop.controller.version.delete',
+          dataView: true
+        }
+      ]
+    },
+    {
+      name: 'automationcontroller',
+      title: 'title.automation.controller',
+      icon: 'block-outlined',
+      docHelp: '',
+      permission: ['listAutomationController'],
+      columns: ['name', 'state', 'ipaddress', 'account', 'hostname', 'zonename'],
+      details: ['displayname', 'name', 'awxurl', 'state', 'ipaddress', 'automationtemplate', 'ostypename', 'serviceofferingname', 'isdynamicallyscalable'],
       actions: [
         {
           api: 'addDesktopControllerVersion',

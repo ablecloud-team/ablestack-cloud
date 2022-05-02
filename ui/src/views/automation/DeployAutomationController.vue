@@ -101,6 +101,24 @@
             </a-select-option>
           </a-select>
         </a-form-item>
+                <a-form-item
+          ref="automationcontroller"
+          name="automationcontroller"
+          :label="$t('label.desktop.controller.template.version')">
+          <a-select
+            v-model:value="form.automationcontroller"
+            showSearch
+            optionFilterProp="label"
+            :filterOption="(input, option) => {
+              return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }"
+            :placeholder="$t('placeholder.desktop.controller')"
+            :loading="automationcontrollerLoading">
+            <a-select-option v-for="(opt, optIndex) in this.automationcontroller" :key="optIndex">
+              {{ opt.name }} {{ opt.version }}
+            </a-select-option>
+          </a-select>
+        </a-form-item>
         <a-form-item
           ref="serviceoffering"
           name="serviceoffering"
@@ -341,7 +359,7 @@ export default {
       this.controllerVersions = []
       const params = {}
       this.controllerVersionLoading = true
-      api('listAutomationControllerVersion', params).then(json => {
+      api('listAutomationController', params).then(json => {
         var items = json.listdesktopcontrollerversionsresponse.desktopcontrollerversion
         if (items != null) {
           this.controllerVersions = items.filter(it => it.state === 'Enabled')
@@ -350,22 +368,6 @@ export default {
         this.controllerVersionLoading = false
         if (this.arrayHasItems(this.controllerVersions)) {
           this.form.controllerversion = 0
-        }
-      })
-    },
-    fetchAutomationControllerData () {
-      this.automationControllers = []
-      const params = {}
-      this.automationcontrollerLoading = true
-      api('listAutomationController', params).then(json => {
-        var items = json.listautomationcontrollersresponse.automationcontroller
-        if (items != null) {
-          this.automationControllers = items.filter(it => it.state === 'Enabled')
-        }
-      }).finally(() => {
-        this.automationcontrollerLoading = false
-        if (this.arrayHasItems(this.automationControllers)) {
-          this.form.automationcontroller = 0
         }
       })
     },
