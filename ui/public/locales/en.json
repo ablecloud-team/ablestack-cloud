@@ -3697,5 +3697,6 @@
 "label.automation.service": "Automation Service",
 "title.automation.template": "Controller Templates",
 "label.automation.controller.template.version.create": "Create Controller Template Version",
-"title.automation.controller": "Automation Conroller"
+"title.automation.controller": "Automation Conroller",
+"label.automation.controller.deploy": "Create Controller"
 }

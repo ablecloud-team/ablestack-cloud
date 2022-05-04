@@ -15,23 +15,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package com.cloud.automation.contorller;
+package com.cloud.automation.controller;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 
-import org.apache.cloudstack.api.command.user.automation.version.ListAutomationControllerVersionCmd;
+import org.apache.cloudstack.api.command.user.automation.controller.ListAutomationControllerCmd;
 // import org.apache.cloudstack.api.command.admin.automation.AddAutomationControllerVersionCmd;
 // import org.apache.cloudstack.api.command.admin.automation.DeleteAutomationControllerVersionCmd;
-import org.apache.cloudstack.api.response.AutomationControllerVersionResponse;
+import org.apache.cloudstack.api.response.AutomationControllerResponse;
 import org.apache.cloudstack.api.response.ListResponse;
-import org.apache.cloudstack.framework.config.ConfigKey;
+// import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.log4j.Logger;
 
 import com.cloud.api.query.dao.TemplateJoinDao;
 import com.cloud.dc.dao.DataCenterDao;
-import com.cloud.automation.version.dao.AutomationControllerVersionDao;
+import com.cloud.automation.controller.dao.AutomationControllerDao;
+import com.cloud.automation.version.AutomationVersionService;
 import com.cloud.utils.component.ManagerBase;
 import com.cloud.user.AccountService;
 import com.cloud.user.AccountManager;
@@ -46,11 +47,11 @@ import com.cloud.template.TemplateApiService;
 
 import com.cloud.dc.DataCenterVO;
 
-public class AutomationControllerManagerImpl extends ManagerBase implements AutomationVersionService {
+public class AutomationControllerManagerImpl extends ManagerBase implements AutomationControllerService {
     public static final Logger LOGGER = Logger.getLogger(AutomationControllerManagerImpl.class.getName());
 
     @Inject
-    private AutomationControllerVersionDao automationControllerVersionDao;
+    private AutomationControllerDao automationControllerDao;
     @Inject
     private TemplateJoinDao templateJoinDao;
     @Inject
@@ -66,19 +67,20 @@ public class AutomationControllerManagerImpl extends ManagerBase implements Auto
     @Inject
     private AccountManager accountManager;
 
-    private AutomationControllerVersionResponse createAutomationControllerVersionResponse(final AutomationControllerVersion automationControllerVersion) {
-        AutomationControllerVersionResponse response = new AutomationControllerVersionResponse();
-        response.setObjectName("automationcontrollerversion");
-        response.setId(automationControllerVersion.getUuid());
-        response.setName(automationControllerVersion.getName());
-        response.setDescription(automationControllerVersion.getDescription());
-        response.setVersion(automationControllerVersion.getVersion());
-        response.setCreated(automationControllerVersion.getCreated());
-        response.setUploadType(automationControllerVersion.getUploadType());
-        if (automationControllerVersion.getState() != null) {
-            response.setState(automationControllerVersion.getState().toString());
+    private AutomationControllerResponse createAutomationControllerResponse(final AutomationController automationController) {
+        AutomationControllerResponse response = new AutomationControllerResponse();
+        response.setObjectName("automationcontroller");
+        response.setId(automationController.getUuid());
+        response.setName(automationController.getName());
+        response.setDescription(automationController.getDescription());
+        response.getServiceIp(automationController.getServiceIp());
+        response.getDomainId(automationController.getDomainId());
+        response.setCreated(automationController.getCreated());
+        response.getRemoved(automationController.getRemoved());
+        if (automationController.getState() != null) {
+            response.setState(automationController.getState().toString());
         }
-        DataCenterVO zone = dataCenterDao.findById(automationControllerVersion.getZoneId());
+        DataCenterVO zone = dataCenterDao.findById(automationController.getZoneId());
         if (zone != null) {
             response.setZoneId(zone.getUuid());
             response.setZoneName(zone.getName());
@@ -87,23 +89,23 @@ public class AutomationControllerManagerImpl extends ManagerBase implements Auto
     }
 
     @Override
-    public ListResponse<AutomationControllerVersionResponse> listAutomationControllerVersion(final ListAutomationControllerVersionCmd cmd) {
+    public ListResponse<AutomationControllerResponse> listAutomationController(final ListAutomationControllerCmd cmd) {
         if (!AutomationVersionService.AutomationServiceEnabled.value()) {
             throw new CloudRuntimeException("Automation Service plugin is disabled");
         }
         final Long versionId = cmd.getId();
         final Long zoneId = cmd.getZoneId();
-        Filter searchFilter = new Filter(AutomationControllerVersionVO.class, "id", true, cmd.getStartIndex(), cmd.getPageSizeVal());
-        SearchBuilder<AutomationControllerVersionVO> sb = automationControllerVersionDao.createSearchBuilder();
+        Filter searchFilter = new Filter(AutomationControllerVO.class, "id", true, cmd.getStartIndex(), cmd.getPageSizeVal());
+        SearchBuilder<AutomationControllerVO> sb = automationControllerDao.createSearchBuilder();
         sb.and("id", sb.entity().getId(), SearchCriteria.Op.EQ);
         sb.and("keyword", sb.entity().getName(), SearchCriteria.Op.LIKE);
-        SearchCriteria<AutomationControllerVersionVO> sc = sb.create();
+        SearchCriteria<AutomationControllerVO> sc = sb.create();
         String keyword = cmd.getKeyword();
         if (versionId != null) {
             sc.setParameters("id", versionId);
         }
         if (zoneId != null) {
-            SearchCriteria<AutomationControllerVersionVO> scc = automationControllerVersionDao.createSearchCriteria();
+            SearchCriteria<AutomationControllerVO> scc = automationControllerDao.createSearchCriteria();
             scc.addOr("zoneId", SearchCriteria.Op.EQ, zoneId);
             scc.addOr("zoneId", SearchCriteria.Op.NULL);
             sc.addAnd("zoneId", SearchCriteria.Op.SC, scc);
@@ -111,17 +113,18 @@ public class AutomationControllerManagerImpl extends ManagerBase implements Auto
         if(keyword != null){
             sc.setParameters("keyword", "%" + keyword + "%");
         }
-        List <AutomationControllerVersionVO> versions = automationControllerVersionDao.search(sc, searchFilter);
+        List <AutomationControllerVO> controllers = automationControllerDao.search(sc, searchFilter);
 
-        return createAutomationControllerVersionListResponse(versions);
+        return createAutomationControllerListResponse(controllers);
     }
 
-    private ListResponse<AutomationControllerVersionResponse> createAutomationControllerVersionListResponse(List<AutomationControllerVersionVO> versions) {
-        List<AutomationControllerVersionResponse> responseList = new ArrayList<>();
-        for (AutomationControllerVersionVO version : versions) {
-            responseList.add(createAutomationControllerVersionResponse(version));
+
+    private ListResponse<AutomationControllerResponse> createAutomationControllerListResponse(List<AutomationControllerVO> controllers) {
+        List<AutomationControllerResponse> responseList = new ArrayList<>();
+        for (AutomationControllerVO name : controllers) {
+            responseList.add(createAutomationControllerResponse(name));
         }
-        ListResponse<AutomationControllerVersionResponse> response = new ListResponse<>();
+        ListResponse<AutomationControllerResponse> response = new ListResponse<>();
         response.setResponses(responseList);
         return response;
     }
@@ -132,19 +135,20 @@ public class AutomationControllerManagerImpl extends ManagerBase implements Auto
         if (!AutomationVersionService.AutomationServiceEnabled.value()) {
             return cmdList;
         }
-        cmdList.add(ListAutomationControllerVersionCmd.class);
+        cmdList.add(ListAutomationControllerCmd.class);
         return cmdList;
     }
 
-    @Override
-    public String getConfigComponentName() {
-        return AutomationVersionService.class.getSimpleName();
-    }
 
-    @Override
-    public ConfigKey<?>[] getConfigKeys() {
-        return new ConfigKey<?>[] {
-                AutomationServiceEnabled
-        };
-    }
+    // @Override
+    // public String getConfigComponentName() {
+    //     return AutomationControllerService.class.getSimpleName();
+    // }
+
+    // @Override
+    // public ConfigKey<?>[] getConfigKeys() {
+    //     return new ConfigKey<?>[] {
+    //             AutomationServiceEnabled
+    //     };
+    // }
 }

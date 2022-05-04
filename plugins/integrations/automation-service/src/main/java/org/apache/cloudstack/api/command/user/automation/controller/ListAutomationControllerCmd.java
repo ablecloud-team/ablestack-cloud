@@ -41,10 +41,10 @@ import com.cloud.automation.controller.AutomationControllerService;
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class ListAutomationControllerCmd extends BaseListCmd {
     public static final Logger LOGGER = Logger.getLogger(ListAutomationControllerCmd.class.getName());
-    public static final String APINAME = "listAutomationControllerVersion";
+    public static final String APINAME = "listAutomationController";
 
     @Inject
-    private AutomationContollerService automationControllerService;
+    private AutomationControllerService automationControllerService;
 
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////

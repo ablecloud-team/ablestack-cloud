@@ -916,7 +916,7 @@ public class ApiConstants {
     public static final String AUTOMATION_CONTROLLER_VERSION_UPLOADTYPE = "controlleruploadtype";
     public static final String AUTOMATION_CONTROLLER_VERSION_NAME = "controllerversionname";
     public static final String AUTOMATION_CONTROLLER_VERSION = "controllerversion";
-
+    public static final String OS_TYPE = "ostype";
     public static final String BOOT_TYPE = "boottype";
     public static final String BOOT_MODE = "bootmode";
     public static final String BOOT_INTO_SETUP = "bootintosetup";
@@ -931,6 +931,8 @@ public class ApiConstants {
 
     public static final String ADMINS_ONLY = "adminsonly";
     public static final String ANNOTATION_FILTER = "annotationfilter";
+    public static final String AUTOMATION_TEMPLATE_ID = "automationtemplateid";
+    public static final String SERVICE_IP = "serviceip";
 
     public enum BootType {
         UEFI, BIOS;

@@ -49,25 +49,25 @@ public class AutomationControllerVO implements AutomationController {
     private String description;
 
     @Column(name = "zone_id")
-    private Long zoneId;
+    private long zoneId;
 
     @Column(name = "automation_template_id")
-    private Long automationTemplateId;
+    private long automationTemplateId;
 
     @Column(name = "service_offering_id")
-    private Long serviceOfferingId;
+    private long serviceOfferingId;
 
     @Column(name = "instance_id")
-    private Long instanceId;
+    private long instanceId;
 
     @Column(name = "network_id")
-    private Long networkId;
+    private long networkId;
 
     @Column(name = "account_id")
-    private Long accountId;
+    private long accountId;
 
     @Column(name = "domain_id")
-    private Long domainId;
+    private long domainId;
 
     @Column(name = "state")
     @Enumerated(value = EnumType.STRING)
@@ -82,22 +82,17 @@ public class AutomationControllerVO implements AutomationController {
     @Column(name = GenericDao.REMOVED_COLUMN)
     Date removed;
 
-
-    
-
     public AutomationControllerVO() {
         this.uuid = UUID.randomUUID().toString();
     }
 
-    public AutomationControllerVO(String name, String description, Long zoneId) {
+    public AutomationControllerVO(String name, String description, long zoneId, long automationTemplateId) {
         this.uuid = UUID.randomUUID().toString();
         this.name = name;
         this.description = description;
         this.zoneId = zoneId;
+        this.automationTemplateId = automationTemplateId;
     }
-
-    
-
 
     @Override
     public long getId() {
@@ -128,62 +123,69 @@ public class AutomationControllerVO implements AutomationController {
     }
 
     @Override
-    public Long getZoneId() {
+    public long getZoneId() {
         return zoneId;
     }
 
-    public void setZoneId(Long zoneId) {
+    public void setZoneId(long zoneId) {
         this.zoneId = zoneId;
     }
 
-    public Long getAutomationTemplateId() {
+    @Override
+    public long getAutomationTemplateId() {
         return automationTemplateId;
     }
 
-    public void setAutomationTemplateId(Long automationTemplateId) {
+    public void setAutomationTemplateId(long automationTemplateId) {
         this.automationTemplateId = automationTemplateId;
     }
 
-    public Long getServiceOfferingId() {
+    @Override
+    public long getServiceOfferingId() {
         return serviceOfferingId;
     }
 
-    public void setServiceOfferingId(Long serviceOfferingId) {
+    public void setServiceOfferingId(long serviceOfferingId) {
         this.serviceOfferingId = serviceOfferingId;
     }
 
-    public Long getInstanceId() {
+    @Override
+    public long getInstanceId() {
         return instanceId;
     }
 
-    public void setInstanceId(Long instanceId) {
+    public void setInstanceId(long instanceId) {
         this.instanceId = instanceId;
     }
 
-    public Long getNetworkId() {
+    @Override
+    public long getNetworkId() {
         return networkId;
     }
 
-    public void setNetworkId(Long networkId) {
+    public void setNetworkId(long networkId) {
         this.networkId = networkId;
     }
 
-    public Long getAccountId() {
+    @Override
+    public long getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(Long accountId) {
+    public void setAccountId(long accountId) {
         this.accountId = accountId;
     }
 
-    public Long getDomainId() {
+    @Override
+    public long getDomainId() {
         return domainId;
     }
 
-    public void setDomainId(Long domainId) {
+    public void setDomainId(long domainId) {
         this.domainId = domainId;
     }
 
+    @Override
     public String getServiceIp() {
         return serviceIp;
     }
@@ -201,6 +203,7 @@ public class AutomationControllerVO implements AutomationController {
         this.state = state;
     }
 
+    @Override
     public Date getCreated() {
         return created;
     }

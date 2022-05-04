@@ -3638,5 +3638,6 @@
 "label.automation.service": "오토메이션서비스",
 "title.automation.template": "컨트롤러템플릿",
 "label.automation.controller.template.version.create": "컨트롤러 템플릿 버전 생성",
-"title.automation.controller": "오토메이션 컨트롤러"
+"title.automation.controller": "오토메이션 컨트롤러",
+"label.automation.controller.create": "오토메이션 컨트롤러 배포"
 }

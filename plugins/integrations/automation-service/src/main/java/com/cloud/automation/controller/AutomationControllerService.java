@@ -17,7 +17,6 @@
 
 package com.cloud.automation.controller;
 
-
 import org.apache.cloudstack.api.command.user.automation.controller.ListAutomationControllerCmd;
 
 // import org.apache.cloudstack.api.command.admin.automation.version.DeleteAutomationControllerVersionCmd;
@@ -28,20 +27,6 @@ import org.apache.cloudstack.api.response.ListResponse;
 import com.cloud.utils.component.PluggableService;
 // import com.cloud.utils.exception.CloudRuntimeException;
 
-import org.apache.cloudstack.framework.config.ConfigKey;
-import org.apache.cloudstack.framework.config.Configurable;
-
-public interface AutomationControllerService extends PluggableService, Configurable {
-
-    static final ConfigKey<Boolean> AutomationServiceEnabled = new ConfigKey<Boolean>("Advanced", Boolean.class,
-            "cloud.automation.service.enabled",
-            "false",
-            "Indicates whether Automation Service plugin is enabled or not. Management server restart needed on change",
-            false);
-
-    static final String MIN_AUTOMATION_CONTOLLER_VERSION = "1.0.0";
-    static final String MIN_AUTOMATION_MASTER_VERSION = "1.0.0";
+public interface AutomationControllerService extends PluggableService{
     ListResponse<AutomationControllerResponse> listAutomationController(ListAutomationControllerCmd cmd);
-    // boolean deleteAutomationContollerVersion(DeleteAutomationControllerVersionCmd cmd) throws CloudRuntimeException;
-    // AutomationControllerVersionResponse addAutomationControllerVersion(AddAutomationControllerVersionCmd cmd);
 }

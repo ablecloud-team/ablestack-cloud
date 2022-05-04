@@ -27,7 +27,7 @@ export default {
       icon: 'block-outlined',
       docHelp: '',
       permission: ['listAutomationControllerVersion'],
-      columns: ['name', 'state', 'version', 'zonename', 'controlleruploadtype'],
+      columns: ['name', 'state', 'version', 'zonename', 'controllerversionname'],
       details: ['name', 'description', 'version', 'controlleruploadtype', 'created'],
       actions: [
         {
@@ -62,33 +62,37 @@ export default {
       icon: 'block-outlined',
       docHelp: '',
       permission: ['listAutomationController'],
-      columns: ['name', 'state', 'ipaddress', 'account', 'hostname', 'zonename'],
-      details: ['displayname', 'name', 'awxurl', 'state', 'ipaddress', 'automationtemplate', 'ostypename', 'serviceofferingname', 'isdynamicallyscalable'],
+      columns: ['name', 'state', 'networkid', 'account', 'hostname', 'zonename'],
+      details: ['displayname', 'name', 'serviceip', 'state', 'ipaddress', 'automationtemplateid', 'ostypename', 'serviceofferingname', 'isdynamicallyscalable'],
+      tabs: [{
+        component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/DesktopTab.vue')))
+      }],
       actions: [
         {
-          api: 'addDesktopControllerVersion',
+          api: 'deplyAutomationController',
           icon: 'plus-outlined',
-          label: 'label.automation.controller.template.version.create',
+          label: 'label.automation.controller.deploy',
           docHelp: '',
           listView: true,
           popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/AddDesktopControllerVersion.vue')))
-        },
-        {
-          api: 'updateDesktopControllerVersion',
-          icon: 'edit-outlined',
-          label: 'label.desktop.controller.version.manage',
-          dataView: true,
-          popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/UpdateDesktopControllerVersion.vue')))
-        },
-        {
-          api: 'deleteDesktopControllerVersion',
-          icon: 'delete-outlined',
-          label: 'label.desktop.controller.version.delete',
-          message: 'message.desktop.controller.version.delete',
-          dataView: true
+          component: shallowRef(defineAsyncComponent(() => import('@/views/automation/DeployAutomationController.vue')))
         }
+        // ,
+        // {
+        //   api: 'updateDesktopControllerVersion',
+        //   icon: 'edit-outlined',
+        //   label: 'label.desktop.controller.version.manage',
+        //   dataView: true,
+        //   popup: true,
+        //   component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/UpdateDesktopControllerVersion.vue')))
+        // },
+        // {
+        //   api: 'deleteDesktopControllerVersion',
+        //   icon: 'delete-outlined',
+        //   label: 'label.desktop.controller.version.delete',
+        //   message: 'message.desktop.controller.version.delete',
+        //   dataView: true
+        // }
       ]
     }
   ]

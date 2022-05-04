@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div class="form-layout">
+  <div class="form-layout" v-ctrl-enter="handleSubmit">
     <a-spin :spinning="loading">
       <a-form
         :ref="formRef"
@@ -24,438 +24,440 @@
         :rules="rules"
         @submit="handleSubmit"
         layout="vertical">
-        <a-form-item ref="name" name="name" :label="$t('label.name')">
-          <template #label>
-            <tooltip-label :title="$t('label.name')" :tooltip="$t('placeholder.name')"/>
-          </template>
-          <a-input
-            v-model:value="form.name"
-            :placeholder="$t('placeholder.name')"/>
-        </a-form-item>
-        <a-form-item ref="description" name="description" :label="$t('label.description')">
-          <template #label>
-            <tooltip-label :title="$t('label.description')" :tooltip="$t('placeholder.description')"/>
-          </template>
-          <a-input
-            v-model:value="form.description"
-            :placeholder="$t('placeholder.description')"/>
-        </a-form-item>
-        <a-form-item ref="addomainname" name="addomainname" :label="$t('label.addomainname')">
-          <template #label>
-            <tooltip-label :title="$t('label.addomainname')" :tooltip="$t('placeholder.addomainname')"/>
-          </template>
-          <a-input
-            v-model:value="form.addomainname"
-            :placeholder="$t('placeholder.addomainname')"/>
-        </a-form-item>
-        <!-- <a-row :gutter="12">
-          <a-col :md="24" :lg="12">
-            <a-form-item>
-              <span slot="label">
-                {{ $t('label.password') }}
-                <a-tooltip :title="$t('placeholder.password')">
-                  <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-                </a-tooltip>
-              </span>
-              <a-input-password
-                v-decorator="['password', {
-                  rules: [{ required: true, message: $t('message.error.required.input') }]
-                }]"
-                :placeholder="$t('placeholder.password')"/>
-            </a-form-item>
-          </a-col>
-          <a-col :md="24" :lg="12">
-            <a-form-item>
-              <span slot="label">
-                {{ $t('label.confirmpassword') }}
-                <a-tooltip :title="$t('placeholder.confirmpassword')">
-                  <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-                </a-tooltip>
-              </span>
-              <a-input-password
-                v-decorator="['confirmpassword', {
-                  rules: [
-                    { required: true, message: $t('message.error.required.input') },
-                    { validator: validateConfirmPassword }
-                  ]
-                }]"
-                :placeholder="$t('placeholder.confirmpassword')"/>
-            </a-form-item>
-          </a-col>
-        </a-row> -->
-        <a-form-item
-          ref="controllerversion"
-          name="controllerversion"
-          :label="$t('label.desktop.controller.template.version')">
-          <a-select
-            v-model:value="form.controllerversion"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }"
-            :placeholder="$t('placeholder.desktop.controller.template.version')"
-            :loading="controllerVersionLoading">
-            <a-select-option v-for="(opt, optIndex) in this.controllerVersions" :key="optIndex">
-              {{ opt.name }} {{ opt.version }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-                <a-form-item
-          ref="automationcontroller"
-          name="automationcontroller"
-          :label="$t('label.desktop.controller.template.version')">
-          <a-select
-            v-model:value="form.automationcontroller"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }"
-            :placeholder="$t('placeholder.desktop.controller')"
-            :loading="automationcontrollerLoading">
-            <a-select-option v-for="(opt, optIndex) in this.automationcontroller" :key="optIndex">
-              {{ opt.name }} {{ opt.version }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item
-          ref="serviceoffering"
-          name="serviceoffering"
-          :label="$t('label.compute.offerings')">
-          <a-select
-            v-model:value="form.serviceoffering"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }"
-            :placeholder="$t('placeholder.compute.offering')"
-            :loading="templateVersionLoading">
-            <a-select-option v-for="(opt, optIndex) in this.serviceOfferings" :key="optIndex">
-              {{ opt.name }} {{ opt.version }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <!-- <a-form-item>
-          <span slot="label">
-            {{ $t('label.access.type') }}
-            <a-tooltip :title="$t('placeholder.accesstype')">
-              <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-            </a-tooltip>
-          </span>
-          <a-radio-group
-            v-decorator="['accesstype', {
-              initialValue: this.accessType,
-              rules: [{ required: true, message: $t('message.error.select') }]
-            }]"
-            buttonStyle="solid"
-            @change="selected => { this.handleAccessTypeChange(selected.target.value) }">
-            <a-radio-button value="external">
-              {{ $t('label.access.external') }}
-            </a-radio-button>
-            <a-radio-button value="internal">
-              {{ $t('label.access.internal') }}
-            </a-radio-button>
-            <a-radio-button value="mixed">
-              {{ $t('label.access.mixed') }}
-            </a-radio-button>
-          </a-radio-group>
-        </a-form-item> -->
-        <a-form-item
-          ref="networkid"
-          name="networkid"
-          :label="$t('label.network')">
-          <a-select
-            v-model:value="form.networkid"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }"
-            :placeholder="$t('placeholder.network')"
-            :loading="networkLoading"
-            @change="val => { this.handleNetworkChange(this.networks[val]) }">
-            >
-            <a-select-option v-for="(opt, optIndex) in this.networks" :key="optIndex">
-              <span v-if="opt.type!=='L2'">
-                {{ opt.name || opt.description }} ({{ `${$t('label.cidr')}: ${opt.cidr}` }})
-              </span>
-              <span v-else>{{ opt.name || opt.description }}</span>
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <!-- <a-row :gutter="12">
-          <a-col :md="24" :lg="12">
-            <a-form-item v-if="this.accessType=='internal'">
-              <span slot="label">
-                {{ $t('label.gateway') }}
-                <a-tooltip :title="$t('label.gateway')">
-                  <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-                </a-tooltip>
-              </span>
+        <a-row :gutter="12">
+          <a-col :md="24" :lg="24">
+            <a-form-item ref="controllername" name="controllername" :label="$t('label.name')">
+              <template #label>
+                <tooltip-label :title="$t('label.name')" :tooltip="$t('placeholder.name')"/>
+              </template>
               <a-input
-                v-decorator="['gateway', {
-                  rules: [{ required: true, message: $t('message.error.required.input') }]
-                }]"
-                :placeholder="$t('label.gateway')" />
+                v-model="form.controllername"
+                :placeholder="$t('placeholder.name')"/>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="12">
+          <a-col :md="24" :lg="24">
+            <a-form-item ref="description" name="description" :label="$t('label.description')">
+              <template #label>
+                <tooltip-label :title="$t('label.description')" :tooltip="$t('placeholder.description')"/>
+              </template>
+              <a-input
+                v-model="form.description"
+                :placeholder="$t('placeholder.description')"/>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="12">
+          <a-col :md="24" :lg="24">
+            <a-form-item ref="controller" name="controller" :label="$t('label.controllerversion')">
+              <template #label>
+                <tooltip-label :title="$t('label.version')" :tooltip="$t('placeholder.version')"/>
+              </template>
+              <a-input
+                v-model="form.controllerversion"
+                :placeholder="$t('placeholder.version')"/>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="12">
+          <a-col :md="24" :lg="24">
+            <a-form-item ref="controlleruploadtype" name="controlleruploadtype" :label="$t('label.controlleruploadtype')">
+              <template #label>
+                <tooltip-label :title="$t('label.controlleruploadtype')" :tooltip="$t('placeholder.controlleruploadtype')"/>
+              </template>
+              <a-radio-group
+                v-model="form.controlleruploadtype"
+                buttonStyle="solid"
+                @change="selected => { handleUploadTypeChange(selected.target.value) }">
+                <a-radio-button value="template">
+                  {{ $t('label.templatename') }}
+                </a-radio-button>
+                <a-radio-button value="url">
+                  {{ $t('label.url') }}
+                </a-radio-button>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="12" v-if="form.controlleruploadtype =='url'">
+          <a-col :md="24" :lg="24">
+            <a-form-item
+              :label="$t('label.zones')"
+              ref="zoneid"
+              name="zoneid">
+              <a-select
+                v-model="form.zoneid"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="(input, option) => {
+                  return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }"
+                @change="handlerSelectZone"
+                :placeholder="$t('placeholder.zones')"
+                :loading="zones.loading">
+                <a-select-option :value="zone.id" v-for="zone in zones.opts" :key="zone.id" :label="zone.name || zone.description">
+                  <span>
+                    <resource-icon v-if="zone.icon" :image="zone.icon.base64image" size="1x" style="margin-right: 5px"/>
+                    <global-outlined v-else style="margin-right: 5px" />
+                    {{ zone.name || zone.description }}
+                  </span>
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="12" v-if="form.controlleruploadtype =='url'">
+          <a-col :md="24" :lg="12">
+            <a-form-item ref="hypervisor" name="hypervisor" :label="$t('label.hypervisor')">
+              <a-select
+                v-model="form.hypervisor"
+                :loading="hyperVisor.loading"
+                :placeholder="$t('placeholder.hypervisor')"
+                @change="handlerSelectHyperVisor"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="(input, option) => {
+                  return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }" >
+                <a-select-option v-for="(opt, optIndex) in hyperVisor.opts" :key="optIndex">
+                  {{ opt.name || opt.description }}
+                </a-select-option>
+              </a-select>
             </a-form-item>
           </a-col>
           <a-col :md="24" :lg="12">
-            <a-form-item v-if="this.accessType=='internal'">
-              <span slot="label">
-                {{ $t('label.netmask') }}
-                <a-tooltip :title="$t('placeholder.netmask')">
-                  <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-                </a-tooltip>
-              </span>
-              <a-input
-                v-decorator="['netmask', {
-                  rules: [{ required: true, message: $t('message.error.required.input') }]
-                }]"
-                :placeholder="$t('placeholder.netmask')" />
+            <a-form-item ref="format" name="format" :label="$t('label.format')">
+              <a-select
+                v-model="form.format"
+                :placeholder="$t('placeholder.format')"
+                @change="val => { selectedFormat = val }"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="(input, option) => {
+                  return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }" >
+                <a-select-option v-for="opt in format.opts" :key="opt.id">
+                  {{ opt.name || opt.description }}
+                </a-select-option>
+              </a-select>
             </a-form-item>
           </a-col>
-          <a-col :md="24" :lg="12">
-            <a-form-item v-if="this.accessType=='internal'">
-              <span slot="label">
-                {{ $t('label.startip') }}
-                <a-tooltip :title="$t('placeholder.startip')">
-                  <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-                </a-tooltip>
-              </span>
+        </a-row>
+        <a-row :gutter="12" v-if="form.controlleruploadtype =='url'">
+          <a-col :md="24" :lg="24">
+            <a-form-item ref="url" name="url"  :label="$t('label.url')" >
               <a-input
-                v-decorator="['startip', {
-                  rules: [{ required: true, message: $t('message.error.required.input') }]
-                }]"
-                :placeholder="$t('placeholder.startip')" />
+                v-model="form.url"
+                :placeholder="$t('placeholder.url')" />
             </a-form-item>
           </a-col>
-          <a-col :md="24" :lg="12">
-            <a-form-item v-if="this.accessType=='internal'">
-              <span slot="label">
-                {{ $t('label.endip') }}
-                <a-tooltip :title="$t('placeholder.endip')">
-                  <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-                </a-tooltip>
-              </span>
-              <a-input
-                v-decorator="['endip', {
-                  rules: [{ required: true, message: $t('message.error.required.input') }]
-                }]"
-                :placeholder="$t('placeholder.endip')" />
+        </a-row>
+        <a-row :gutter="12" v-if="form.controlleruploadtype =='url'">
+          <a-col :md="24" :lg="24">
+            <a-form-item
+              name="ostype"
+              ref="ostype"
+              :label="$t('label.ostypeid')">
+              <a-select
+                showSearch
+                optionFilterProp="label"
+                :filterOption="(input, option) => {
+                  return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }"
+                v-model="form.ostype"
+                :loading="osTypes.loading"
+                :placeholder="$t('placeholder.ostype')">
+                <a-select-option v-for="opt in osTypes.opts" :key="opt.id">
+                  {{ opt.name || opt.description }}
+                </a-select-option>
+              </a-select>
             </a-form-item>
           </a-col>
-        </a-row> -->
-        <a-form-item
-          ref="worksvmip"
-          name="worksvmip"
-          :label="$t('label.worksvmip')">
-          <template #label>
-            <tooltip-label :title="$t('label.worksvmip')" :tooltip="$t('placeholder.worksvmip')"/>
-          </template>
-          <a-input
-            v-model:value="form.worksvmip"
-            :placeholder="$t('placeholder.worksvmip')"/>
-        </a-form-item>
-        <a-form-item
-          ref="dcvmip"
-          name="dcvmip"
-          :label="$t('label.dcvmip')">
-          <template #label>
-            <tooltip-label :title="$t('label.dcvmip')" :tooltip="$t('placeholder.dcvmip')"/>
-          </template>
-          <a-input
-            v-model:value="form.dcvmip"
-            :placeholder="$t('placeholder.dcvmip')"/>
-        </a-form-item>
+        </a-row>
+        <a-row :gutter="12" v-if="form.controlleruploadtype =='template'">
+          <a-col :md="24" :lg="24">
+            <a-form-item
+              name="template"
+              ref="template"
+              :label="$t('label.templatename')">
+              <a-select
+                showSearch
+                optionFilterProp="label"
+                :filterOption="(input, option) => {
+                  return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }"
+                v-model="form.template"
+                :loading="template.loading"
+                :placeholder="$t('placeholder.template')">
+                <a-select-option v-for="opt in template.opts" :key="opt.id">
+                  {{ opt.name || opt.description }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
         <div :span="24" class="action-button">
-          <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-          <a-button :loading="loading" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+          <a-button @click="closeAction">{{ this.$t('label.cancel') }}</a-button>
+          <a-button :loading="loading" type="primary" @click="handleSubmit">{{ this.$t('label.ok') }}</a-button>
         </div>
       </a-form>
     </a-spin>
   </div>
 </template>
+
 <script>
 import { ref, reactive, toRaw } from 'vue'
 import { api } from '@/api'
 import store from '@/store'
-import eventBus from '@/config/eventBus'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
-
 export default {
-  name: 'CreateDesktopCluster',
+  name: 'AddAutomationController',
   components: {
     TooltipLabel
   },
-  props: {},
+  props: {
+    resource: {
+      type: Object,
+      required: true
+    },
+    action: {
+      type: Object,
+      required: true
+    }
+  },
   data () {
     return {
+      zones: [],
+      defaultZone: '',
+      zoneSelected: '',
+      hyperVisor: {},
+      template: {},
+      format: {},
+      osTypes: {},
+      defaultOsType: '',
+      defaultOsId: null,
+      selectedFormat: '',
+      zoneError: '',
+      zoneErrorMessage: '',
       loading: false,
-      accessType: 'external',
-      clusters: [],
-      networks: [],
-      networkLoading: false,
-      controllerVersions: [],
-      controllerVersionLoading: false,
-      serviceOfferings: [],
-      serviceOfferingLoading: false
+      rootAdmin: 'Admin',
+      osTypeLoading: false
     }
   },
   created () {
+    this.zones = [
+      {
+        id: null,
+        name: this.$t('label.all.zone')
+      }
+    ]
     this.initForm()
     this.fetchData()
+  },
+  computed: {
   },
   methods: {
     initForm () {
       this.formRef = ref()
       this.form = reactive({
-        networkid: this.selectedNetwork
+        controlleruploadtype: 'template'
       })
       this.rules = reactive({
-        name: [{ required: true, message: this.$t('message.error.required.input') }],
+        controllerversionname: [{ required: true, message: this.$t('message.error.required.input') }],
         description: [{ required: true, message: this.$t('message.error.required.input') }],
-        addomainname: [{ required: true, message: this.$t('message.error.required.input') }],
-        controllerversion: [{ required: true, message: this.$t('message.error.select') }],
-        serviceoffering: [{ required: true, message: this.$t('message.error.select') }],
-        networkid: [{ required: true, message: this.$t('message.error.select') }],
-        worksvmip: [{ required: true, message: this.$t('message.error.required.input') }],
-        dcvmip: [{ required: true, message: this.$t('message.error.required.input') }]
+        controllerversion: [{ required: true, message: this.$t('message.error.required.input') }],
+        controlleruploadtype: [{ required: true, message: this.$t('message.error.select') }],
+        zoneid: [{ required: true, message: this.$t('message.error.select') }],
+        hypervisor: [{ required: true, message: this.$t('message.error.select') }],
+        format: [{ required: true, message: this.$t('message.error.select') }],
+        url: [{ required: true, message: this.$t('message.error.required.input') }],
+        ostype: [{ required: true, message: this.$t('message.error.select') }],
+        template: [{ required: true, message: this.$t('message.error.select') }]
       })
     },
     fetchData () {
-      this.fetchClusterData()
-      this.fetchTemplateVersionData()
-      this.fetchServiceOfferingData()
+      this.fetchZone()
+      this.fetchOsTypes()
+      this.fetchTemplateData()
     },
-    isValidValueForKey (obj, key) {
-      return key in obj && obj[key] != null
-    },
-    arrayHasItems (array) {
-      return array !== null && array !== undefined && Array.isArray(array) && array.length > 0
-    },
-    handleAccessTypeChange (pvlan) {
-      this.accessType = pvlan
-      this.fetchNetworkData()
-    },
-    // validateConfirmPassword (rule, value, callback) {
-    //   if (!value || value.length === 0) {
-    //     callback()
-    //   } else if (rule.field === 'confirmpassword') {
-    //     const form = this.form
-    //     const messageConfirm = this.$t('error.password.not.match')
-    //     const passwordVal = form.getFieldValue('password')
-    //     if (passwordVal && passwordVal !== value) {
-    //       callback(messageConfirm)
-    //     } else {
-    //       callback()
-    //     }
-    //   } else {
-    //     callback()
-    //   }
-    // },
-    fetchTemplateVersionData () {
-      this.controllerVersions = []
+    fetchZone () {
       const params = {}
-      this.controllerVersionLoading = true
+      let listZones = []
+      params.listAll = true
+      params.showicon = true
+      if (store.getters.userInfo.roletype === this.rootAdmin) {
+        listZones.push({
+          id: this.$t('label.all.zone'),
+          name: this.$t('label.all.zone')
+        })
+      }
+      this.zones.loading = true
+      this.zones.opts = []
+      api('listZones', params).then(json => {
+        const listZonesResponse = json.listzonesresponse.zone
+        listZones = listZones.concat(listZonesResponse)
+        this.zones.opts = listZones
+      }).finally(() => {
+        this.form.zoneid = (this.zones.opts && this.zones.opts[1]) ? this.zones.opts[1].id : ''
+        this.zones.loading = false
+        this.fetchHyperVisor({ zoneid: this.form.zoneid })
+      })
+    },
+    fetchHyperVisor (params) {
+      this.hyperVisor.loading = true
+      let listhyperVisors = this.hyperVisor.opts || []
+      api('listHypervisors', params).then(json => {
+        const listResponse = json.listhypervisorsresponse.hypervisor || []
+        if (listResponse) {
+          listhyperVisors = listhyperVisors.concat(listResponse)
+        }
+        this.hyperVisor.opts = listhyperVisors
+      }).finally(() => {
+        this.hyperVisor.loading = false
+      })
+    },
+    fetchOsTypes () {
+      const params = {}
+      params.listAll = true
+      this.osTypes.opts = []
+      this.osTypes.loading = true
+      api('listOsTypes', params).then(json => {
+        const listOsTypes = json.listostypesresponse.ostype
+        this.osTypes.opts = listOsTypes
+        this.defaultOsType = this.osTypes.opts[1].description
+        this.defaultOsId = this.osTypes.opts[1].id
+      }).finally(() => {
+        this.osTypes.loading = false
+      })
+    },
+    fetchAutomationControllerData () {
+      let listTemplates = []
+      const params = {}
+      params.templatefilter = 'executable'
+      params.listall = true
+      this.template.loading = true
+      this.template.opts = []
       api('listAutomationController', params).then(json => {
-        var items = json.listdesktopcontrollerversionsresponse.desktopcontrollerversion
-        if (items != null) {
-          this.controllerVersions = items.filter(it => it.state === 'Enabled')
-        }
+        const listTemplatesResponse = json.listtemplatesresponse.template
+        listTemplates = listTemplates.concat(listTemplatesResponse)
+        this.template.opts = listTemplates
       }).finally(() => {
-        this.controllerVersionLoading = false
-        if (this.arrayHasItems(this.controllerVersions)) {
-          this.form.controllerversion = 0
-        }
+        // this.zoneSelected = (this.template.opts && this.template.opts[1]) ? this.template.opts[1].id : ''
+        this.template.loading = false
       })
     },
-    fetchServiceOfferingData () {
-      this.serviceOfferings = []
+    fetchFormat (hyperVisor) {
+      const format = []
+      switch (hyperVisor) {
+        case 'Hyperv':
+          format.push({
+            id: 'VHD',
+            description: 'VHD'
+          })
+          format.push({
+            id: 'VHDX',
+            description: 'VHDX'
+          })
+          break
+        case 'KVM':
+          this.hyperKVMShow = true
+          format.push({
+            id: 'QCOW2',
+            description: 'QCOW2'
+          })
+          format.push({
+            id: 'RAW',
+            description: 'RAW'
+          })
+          format.push({
+            id: 'VHD',
+            description: 'VHD'
+          })
+          format.push({
+            id: 'VMDK',
+            description: 'VMDK'
+          })
+          break
+        case 'XenServer':
+          this.hyperXenServerShow = true
+          format.push({
+            id: 'VHD',
+            description: 'VHD'
+          })
+          break
+        case 'Simulator':
+          format.push({
+            id: 'VHD',
+            description: 'VHD'
+          })
+          format.push({
+            id: 'QCOW2',
+            description: 'QCOW2'
+          })
+          break
+        case 'VMware':
+          this.hyperVMWShow = true
+          format.push({
+            id: 'OVA',
+            description: 'OVA'
+          })
+          break
+        case 'BareMetal':
+          format.push({
+            id: 'BareMetal',
+            description: 'BareMetal'
+          })
+          break
+        case 'Ovm':
+          format.push({
+            id: 'RAW',
+            description: 'RAW'
+          })
+          break
+        case 'LXC':
+          format.push({
+            id: 'TAR',
+            description: 'TAR'
+          })
+          break
+        default:
+          break
+      }
+      this.format.opts = format
+    },
+    handlerSelectZone (value) {
+      if (!Array.isArray(value)) {
+        value = [value]
+      }
+      this.hyperVisor.opts = []
+      if (this.zoneError !== '') {
+        return
+      }
+      const arrSelectReset = ['hypervisor', 'format']
+      this.resetSelect(arrSelectReset)
       const params = {}
-      this.serviceOfferingLoading = true
-      api('listServiceOfferings', params).then(json => {
-        var items = json.listserviceofferingsresponse.serviceoffering
-        if (items != null) {
-          this.serviceOfferings = items.filter(it => it.iscustomized === false)
-        }
-      }).finally(() => {
-        this.serviceOfferingLoading = false
-        if (this.arrayHasItems(this.serviceOfferings)) {
-          this.form.serviceofferingid = 0
-        }
-      })
-    },
-    fetchClusterData () {
-      this.clusters = []
-      const params = {
-        domainid: store.getters.project && store.getters.project.id ? null : store.getters.userInfo.domainid,
-        account: store.getters.project && store.getters.project.id ? null : store.getters.userInfo.account,
-        listall: true
+      if (value.includes(this.$t('label.all.zone'))) {
+        params.listAll = true
+        this.fetchHyperVisor(params)
+        return
       }
-      api('listDesktopClusters', params).then(json => {
-        var items = json.listdesktopclustersresponse.desktopcluster
-        if (items != null) {
-          this.clusters.push(items)
+      for (let i = 0; i < value.length; i++) {
+        const zoneSelected = this.zones.opts.filter(zone => zone.id === value[i])
+        if (zoneSelected.length > 0) {
+          params.zoneid = zoneSelected[0].id
+          this.fetchHyperVisor(params)
         }
-      }).finally(() => {
-        this.fetchNetworkData()
-      })
-    },
-    fetchNetworkData () {
-      this.networks = []
-      const params = {
-        domainid: store.getters.project && store.getters.project.id ? null : store.getters.userInfo.domainid,
-        account: store.getters.project && store.getters.project.id ? null : store.getters.userInfo.account
       }
-      this.networkLoading = true
-      this.handleNetworkChange(null)
-      api('listNetworks', params).then(json => {
-        var items = json.listnetworksresponse.network
-        if (items !== null) {
-          if (this.accessType === 'internal') this.networks = items.filter(it => it.type.includes('L2'))
-          if (this.accessType === 'external') this.networks = items.filter(it => it.type.includes('Isolated'))
-          if (this.accessType === 'mixed') this.networks = items.filter(it => it.type.includes('Shared'))
-
-          // console.log(this.accessType, this.networks)
-          this.handleNetworkChange(this.networks[0])
-
-          // for (var i = 0; i < items.length; i++) {
-          //   if (this.accessType === 'internal' && items[i].type === 'L2') {
-          //     this.networks.push(items[i])
-          //     this.handleNetworkChange(this.networks[0])
-          //   }
-          //   if (this.accessType === 'external' && items[i].type === 'Isolated') {
-          //     this.networks.push(items[i])
-          //     if (this.clusters.length !== 0) {
-          //       for (var j = 0; j < this.clusters[0].length; j++) {
-          //         if ([this.clusters[0][j].networkid].includes(items[i].id)) {
-          //           this.networks.pop(items[i])
-          //         }
-          //         this.handleNetworkChange(this.networks[0])
-          //       }
-          //     } else {
-          //       this.handleNetworkChange(this.networks[0])
-          //     }
-          //   }
-          //   if (this.accessType === 'mixed' && items[i].type === 'Shared') {
-          //     this.networks.push(items[i])
-          //     this.handleNetworkChange(this.networks[0])
-          //   }
-          // }
-        }
-      }).finally(() => {
-        this.networkLoading = false
-        if (this.arrayHasItems(this.networks)) {
-          this.form.networkid = 0
-        } else {
-          this.form.networkid = null
-        }
-      })
     },
-    handleNetworkChange (network) {
-      this.selectedNetwork = network
+    handlerSelectHyperVisor (value) {
+      const hyperVisor = this.hyperVisor.opts[value].name
+      const arrSelectReset = ['format']
+      this.hyperXenServerShow = false
+      this.hyperVMWShow = false
+      this.hyperKVMShow = false
+      this.resetSelect(arrSelectReset)
+      this.fetchFormat(hyperVisor)
     },
     handleSubmit (e) {
       e.preventDefault()
@@ -464,18 +466,12 @@ export default {
         const values = toRaw(this.form)
         this.loading = true
         const params = {
-          name: values.name,
+          controllerversionname: values.controllerversionname,
           description: values.description,
-          addomainname: values.addomainname,
-          // desktoppassword: values.password,
-          controllerversion: this.controllerVersions[values.controllerversion].id,
-          serviceofferingid: this.serviceOfferings[values.serviceofferingid].id,
-          networkid: this.selectedNetwork.id,
-          clustertype: this.accessType,
-          worksip: values.worksvmip,
-          dcip: values.dcvmip
+          controllerversion: values.controllerversion,
+          controlleruploadtype: values.controlleruploadtype
         }
-        if (values.masteruploadtype === 'url') {
+        if (values.controlleruploadtype === 'url') {
           if (values.zoneid === this.$t('label.all.zone')) {
             delete params.zoneid
           } else {
@@ -483,34 +479,17 @@ export default {
           }
           params.hypervisor = this.hyperVisor.opts[values.hypervisor].name
           params.format = values.format
-          params.masterurl = values.masterurl
-          params.masterostype = values.masterostype
+          params.url = values.url
+          params.ostype = values.ostype
         } else {
-          params.templateid = values.mastertemplate
+          params.templateid = values.template
         }
-
-        api('createDesktopCluster', params).then(json => {
-          const jobId = json.createdesktopclusterresponse.jobid
-          this.$pollJob({
-            jobId,
-            title: this.$t('label.desktop.cluster.deploy'),
-            description: values.name,
-            successMethod: () => {
-              this.$notification.success({
-                message: this.$t('message.success.create.desktop.cluter'),
-                duration: 0
-              })
-              eventBus.emit('automation-refresh-data')
-            },
-            loadingMessage: `${this.$t('label.desktop.cluster.deploy')} ${values.name} ${this.$t('label.in.progress')}`,
-            catchMessage: this.$t('error.fetching.async.job.result'),
-            catchMethod: () => {
-              eventBus.emit('automation-refresh-data')
-            },
-            action: {
-              isFetchData: false
-            }
+        api('deployAutomationController', params).then(json => {
+          this.$notification.success({
+            message: this.$t('label.register.template'),
+            description: `${this.$t('message.success.deploy.automation.contoller')}`
           })
+          this.$emit('refresh-data')
           this.closeAction()
         }).catch(error => {
           this.$notifyError(error)
@@ -520,37 +499,36 @@ export default {
       }).catch(error => {
         this.formRef.value.scrollToField(error.errorFields[0].name)
       })
-
-      // if (this.isValidValueForKey(values, 'gateway')) {
-      //   params.gateway = values.gateway
-      // }
-      // if (this.isValidValueForKey(values, 'netmask')) {
-      //   params.netmask = values.netmask
-      // }
-      // if (this.isValidValueForKey(values, 'startip')) {
-      //   params.startip = values.startip
-      // }
-      // if (this.isValidValueForKey(values, 'endip')) {
-      //   params.endip = values.endip
-      // }
-      // if (this.isValidValueForKey(values, 'worksip')) {
-      //   params.worksip = values.worksip
-      // }
-      // if (this.isValidValueForKey(values, 'dcip')) {
-      //   params.dcip = values.dcip
-      // }
+    },
+    handleUploadTypeChange (val) {
+      this.form.controlleruploadtype = val
+    },
+    validZone (zones) {
+      const allZoneExists = zones.filter(zone => zone === this.$t('label.all.zone'))
+      this.zoneError = ''
+      this.zoneErrorMessage = ''
+      if (allZoneExists.length > 0 && zones.length > 1) {
+        this.zoneError = 'error'
+        this.zoneErrorMessage = this.$t('message.error.zone.combined')
+      }
     },
     closeAction () {
       this.$emit('close-action')
+    },
+    resetSelect (arrSelectReset) {
+      arrSelectReset.forEach(name => {
+        this.form[name] = undefined
+      })
     }
   }
 }
 </script>
+
 <style scoped lang="less">
   .form-layout {
     width: 80vw;
-    @media (min-width: 600px) {
-      width: 450px;
+    @media (min-width: 700px) {
+      width: 550px;
     }
   }
   .action-button {

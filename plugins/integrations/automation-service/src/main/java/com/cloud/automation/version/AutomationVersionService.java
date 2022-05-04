@@ -41,6 +41,4 @@ public interface AutomationVersionService extends PluggableService, Configurable
     static final String MIN_AUTOMATION_CONTOLLER_VERSION = "1.0.0";
     static final String MIN_AUTOMATION_MASTER_VERSION = "1.0.0";
     ListResponse<AutomationControllerVersionResponse> listAutomationControllerVersion(ListAutomationControllerVersionCmd cmd);
-    // boolean deleteAutomationContollerVersion(DeleteAutomationControllerVersionCmd cmd) throws CloudRuntimeException;
-    // AutomationControllerVersionResponse addAutomationControllerVersion(AddAutomationControllerVersionCmd cmd);
 }
