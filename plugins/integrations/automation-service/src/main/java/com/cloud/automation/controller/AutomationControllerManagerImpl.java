@@ -21,6 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 
+import com.cloud.api.ApiDBUtils;
+import com.cloud.network.Network;
+import com.cloud.network.PhysicalNetwork;
+import com.cloud.network.dao.IPAddressDao;
+import com.cloud.network.dao.IPAddressVO;
+import com.cloud.network.dao.NetworkDao;
+import com.cloud.network.dao.NetworkVO;
+import com.cloud.projects.Project;
+import com.cloud.service.ServiceOfferingVO;
+import com.cloud.service.dao.ServiceOfferingDao;
+import com.cloud.user.Account;
 import org.apache.cloudstack.api.command.user.automation.controller.ListAutomationControllerCmd;
 // import org.apache.cloudstack.api.command.admin.automation.AddAutomationControllerVersionCmd;
 // import org.apache.cloudstack.api.command.admin.automation.DeleteAutomationControllerVersionCmd;
@@ -66,16 +77,27 @@ public class AutomationControllerManagerImpl extends ManagerBase implements Auto
     private VMTemplateZoneDao templateZoneDao;
     @Inject
     private AccountManager accountManager;
+    @Inject
+    protected ServiceOfferingDao serviceOfferingDao;
+    @Inject
+    protected NetworkDao networkDao;
+    @Inject
+    protected IPAddressDao ipAddressDao;
 
     private AutomationControllerResponse createAutomationControllerResponse(final AutomationController automationController) {
+//        AutomationControllerVO automationcontroller = automationControllerDao.findById(automationController);
         AutomationControllerResponse response = new AutomationControllerResponse();
         response.setObjectName("automationcontroller");
         response.setId(automationController.getUuid());
         response.setName(automationController.getName());
         response.setDescription(automationController.getDescription());
-        response.getServiceIp(automationController.getServiceIp());
-        response.getDomainId(automationController.getDomainId());
         response.setCreated(automationController.getCreated());
+        response.setServiceIp(automationController.getServiceIp());
+
+        NetworkVO ntwk = networkDao.findByIdIncludingRemoved(automationController.getNetworkId());
+        response.setNetworkId(ntwk.getUuid());
+
+        response.getServiceIp(automationController.getServiceIp());
         response.getRemoved(automationController.getRemoved());
         if (automationController.getState() != null) {
             response.setState(automationController.getState().toString());
@@ -85,6 +107,29 @@ public class AutomationControllerManagerImpl extends ManagerBase implements Auto
             response.setZoneId(zone.getUuid());
             response.setZoneName(zone.getName());
         }
+
+        if (ntwk.getGuestType() == Network.GuestType.Isolated) {
+            List<IPAddressVO> ipAddresses = ipAddressDao.listByAssociatedNetwork(ntwk.getId(), true);
+            if (ipAddresses != null && ipAddresses.size() == 1) {
+                response.setIpAddress(ipAddresses.get(0).getAddress().addr());
+                response.setIpAddressId(ipAddresses.get(0).getUuid());
+            }
+        }
+
+        ServiceOfferingVO offering = serviceOfferingDao.findById(automationController.getServiceOfferingId());
+        response.setServiceOfferingId(offering.getUuid());
+        response.setServiceOfferingName(offering.getName());
+
+
+        Account account = ApiDBUtils.findAccountById(automationController.getAccountId());
+        if (account.getType() == Account.Type.PROJECT) {
+            Project project = ApiDBUtils.findProjectByProjectAccountId(account.getId());
+            response.setProjectId(project.getUuid());
+            response.setProjectName(project.getName());
+        } else {
+            response.setAccountName(account.getAccountName());
+        }
+
         return response;
     }
 

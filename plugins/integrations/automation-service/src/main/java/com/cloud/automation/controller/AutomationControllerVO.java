@@ -86,12 +86,26 @@ public class AutomationControllerVO implements AutomationController {
         this.uuid = UUID.randomUUID().toString();
     }
 
-    public AutomationControllerVO(String name, String description, long zoneId, long automationTemplateId) {
+    public AutomationControllerVO(long id, String name, String description, long automationTemplateId, long zoneId, long serviceOfferingId,
+                                  long networkId, long domainId, long accountId, String serviceIp) {
         this.uuid = UUID.randomUUID().toString();
+        this.id = id;
         this.name = name;
         this.description = description;
-        this.zoneId = zoneId;
         this.automationTemplateId = automationTemplateId;
+        this.serviceOfferingId = serviceOfferingId;
+//        this.instanceId = instanceId;
+        this.networkId = networkId;
+        this.accountId = accountId;
+        this.domainId = domainId;
+        this.serviceIp = serviceIp;
+//        this.zoneId = zoneId;
+//        this.state = state;
+
+
+
+
+        this.zoneId = zoneId;
     }
 
     @Override

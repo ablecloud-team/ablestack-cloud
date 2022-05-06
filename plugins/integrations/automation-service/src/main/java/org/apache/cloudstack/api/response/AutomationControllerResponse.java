@@ -90,6 +90,30 @@ public class AutomationControllerResponse extends BaseResponse {
     @Param(description = "the date this template was created")
     private Date removed;
 
+    @SerializedName(ApiConstants.IP_ADDRESS)
+    @Param(description = "Public IP Address of the cluster")
+    private String ipAddress;
+
+    @SerializedName(ApiConstants.IP_ADDRESS_ID)
+    @Param(description = "Public IP Address ID of the cluster")
+    private String ipAddressId;
+
+    @SerializedName("serviceofferingname")
+    @Param(description = "the name of the service offering of the Desktop Cluster")
+    private String serviceOfferingName;
+
+    @SerializedName(ApiConstants.ACCOUNT)
+    @Param(description = "the account associated with the Desktop Cluster")
+    private String accountName;
+
+    @SerializedName(ApiConstants.PROJECT_ID)
+    @Param(description = "the project id of the Desktop Cluster")
+    private String projectId;
+
+    @SerializedName(ApiConstants.PROJECT)
+    @Param(description = "the project name of the Desktop Cluster")
+    private String projectName;
+
     public String getId() {
         return id;
     }
@@ -174,16 +198,14 @@ public class AutomationControllerResponse extends BaseResponse {
         this.networkId = networkId;
     }
 
-    public String getAccountId(long accountId) {
-        return this.accountId;
-    }
+    public String getAccountId(String accountId) { return accountId; }
 
     public void setAccountId(String accountId) {
         this.accountId = accountId;
     }
 
-    public String getDomainId(long domainId) {
-        return this.domainId;
+    public String getDomainId(String domainId) {
+        return domainId;
     }
 
     public void setDomainId(String domainId) {
@@ -191,13 +213,45 @@ public class AutomationControllerResponse extends BaseResponse {
     }
 
     public String getServiceIp(String serviceIp) {
-        return this.serviceIp;
+        return serviceIp;
     }
 
     public void setServiceIp(String serviceIp) {
         this.serviceIp = serviceIp;
     }
-
     public void getRemoved(Date removed) {
     }
+
+    public String getIpAddress(String ipAddress) {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    public void setIpAddressId(String ipAddressId) {
+        this.ipAddressId = ipAddressId;
+    }
+
+    public void setServiceOfferingName(String serviceOfferingName) {
+        this.serviceOfferingName = serviceOfferingName;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
 }

@@ -178,7 +178,7 @@ import ListResourceTable from '@/components/view/ListResourceTable'
 import TooltipButton from '@/components/widgets/TooltipButton'
 
 export default {
-  name: 'AutomationTab',
+  name: 'AutomationControllerTab',
   components: {
     ResourceLayout,
     DetailsTab,
