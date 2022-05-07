@@ -18,6 +18,7 @@
 package org.apache.cloudstack.api.response;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseResponse;
@@ -113,6 +114,10 @@ public class AutomationControllerResponse extends BaseResponse {
     @SerializedName(ApiConstants.PROJECT)
     @Param(description = "the project name of the Desktop Cluster")
     private String projectName;
+
+    @SerializedName(ApiConstants.AUTOMATION_USER_VIRTUAL_MACHINES)
+    @Param(description = "the list of virtualmachine associated with this Automation Controller")
+    private List<UserVmResponse> automationControllerVms;
 
     public String getId() {
         return id;
@@ -252,6 +257,12 @@ public class AutomationControllerResponse extends BaseResponse {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public List<UserVmResponse> getAutomationControllerVms() { return automationControllerVms; }
+
+    public void setAutomationControllerVms(List<UserVmResponse> automationControllerVms) {
+        this.automationControllerVms = automationControllerVms;
     }
 
 }

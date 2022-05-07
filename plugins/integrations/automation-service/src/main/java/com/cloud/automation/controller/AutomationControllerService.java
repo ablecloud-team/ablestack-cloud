@@ -23,10 +23,12 @@ import org.apache.cloudstack.api.command.user.automation.controller.ListAutomati
 // import org.apache.cloudstack.api.command.admin.automation.version.AddAutomationControllerVersionCmd;
 import org.apache.cloudstack.api.response.AutomationControllerResponse;
 import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.command.user.automation.controller.AddAutomationControllerCmd;
 
 import com.cloud.utils.component.PluggableService;
 // import com.cloud.utils.exception.CloudRuntimeException;
 
 public interface AutomationControllerService extends PluggableService{
     ListResponse<AutomationControllerResponse> listAutomationController(ListAutomationControllerCmd cmd);
+    AutomationControllerResponse AddAutomationControllerResponse(AddAutomationControllerCmd cmd);
 }

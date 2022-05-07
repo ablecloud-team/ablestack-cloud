@@ -64,7 +64,7 @@
           class="table"
           size="small"
           :columns="controlVmColumns"
-          :dataSource="this.controlvms"
+          :dataSource="this.automationuservirtualmachines"
           :rowKey="item => item.id"
           :pagination="false"
         >
@@ -87,7 +87,7 @@
           class="table"
           size="small"
           :columns="desktopVmColumns"
-          :dataSource="this.desktopvms"
+          :dataSource="this.automationuservirtualmachines"
           :rowKey="item => item.id"
           :pagination="false"
         ><template #name="{record}">
@@ -202,7 +202,7 @@ export default {
   data () {
     return {
       vm: ref({}),
-      desktopnetworks: [],
+      automationuservirtualmachines: [],
       instances: [],
       desktops: [],
       iprange: [],
@@ -333,8 +333,8 @@ export default {
       )
     },
     fetchData () {
-      this.desktopvms = this.resource.desktopvms || []
-      this.desktopvms.map(x => { x.ipaddress = x.nic[0].ipaddress })
+      this.automationuservirtualmachines = this.resource.automationuservirtualmachines || []
+      this.automationuservirtualmachines.map(x => { x.ipaddress = x.nic[0].ipaddress })
       this.controlvms = this.resource.controlvms || []
       this.controlvms.map(x => { x.ipaddress = x.nic[0].ipaddress })
       this.desktopnetworks = []

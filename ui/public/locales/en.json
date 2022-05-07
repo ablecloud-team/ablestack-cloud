@@ -3698,5 +3698,6 @@
 "title.automation.template": "Controller Templates",
 "label.automation.controller.template.version.create": "Create Controller Template Version",
 "title.automation.controller": "Automation Conroller",
-"label.automation.controller.deploy": "Create Controller"
+"label.automation.controller.deploy": "Create Controller",
+"label.serviceip": "Automation Service IP"
 }

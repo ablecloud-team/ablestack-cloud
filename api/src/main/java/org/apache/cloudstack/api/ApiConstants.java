@@ -933,6 +933,7 @@ public class ApiConstants {
     public static final String ANNOTATION_FILTER = "annotationfilter";
     public static final String AUTOMATION_TEMPLATE_ID = "automationtemplateid";
     public static final String SERVICE_IP = "serviceip";
+    public static final String AUTOMATION_USER_VIRTUAL_MACHINES = "automationuservirtualmachines";
 
     public enum BootType {
         UEFI, BIOS;

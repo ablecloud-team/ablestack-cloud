@@ -63,19 +63,19 @@ export default {
       docHelp: '',
       permission: ['listAutomationController'],
       columns: ['name', 'state', 'account', 'hostname', 'zonename'],
-      details: ['displayname', 'name', 'serviceip', 'state', 'ipaddress', 'automationtemplateid', 'ostypename', 'serviceofferingname', 'isdynamicallyscalable'],
+      details: ['description', 'name', 'serviceip', 'state', 'ipaddress', 'automationtemplateid', 'ostypename', 'serviceofferingname', 'isdynamicallyscalable'],
       tabs: [{
         component: shallowRef(defineAsyncComponent(() => import('@/views/automation/AutomationControllerTab.vue')))
       }],
       actions: [
         {
-          api: 'createDesktopCluster',
+          api: 'createNetwork',
           icon: 'plus-outlined',
-          label: 'label.desktop.cluster.deploy',
+          label: 'label.automationController.add',
           docHelp: '',
+          // popup: true,
           listView: true,
-          popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/DeployCluster.vue')))
+          component: () => import('@/views/network/CreateNetwork.vue')
         }
         // ,
         // {

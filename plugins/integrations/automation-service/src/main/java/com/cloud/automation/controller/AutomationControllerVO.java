@@ -108,6 +108,9 @@ public class AutomationControllerVO implements AutomationController {
         this.zoneId = zoneId;
     }
 
+    public AutomationControllerVO(String name, String description, Long zoneId, long id, long id1, String name1, Long networkId, String accountName, long domainId, long accountId, State created) {
+    }
+
     @Override
     public long getId() {
         return id;

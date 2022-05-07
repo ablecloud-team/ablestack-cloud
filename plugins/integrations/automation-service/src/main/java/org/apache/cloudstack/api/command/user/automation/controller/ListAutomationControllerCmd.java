@@ -59,6 +59,10 @@ public class ListAutomationControllerCmd extends BaseListCmd {
             description = "the ID of the zone in which Automation Controller will be available")
     private Long zoneId;
 
+    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "name of the Automation Controller" +
+            " (a substring match is made against the parameter value, data for all matching Automation Controller will be returned)")
+    private String name;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -68,6 +72,10 @@ public class ListAutomationControllerCmd extends BaseListCmd {
 
     public Long getZoneId() {
         return zoneId;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override
