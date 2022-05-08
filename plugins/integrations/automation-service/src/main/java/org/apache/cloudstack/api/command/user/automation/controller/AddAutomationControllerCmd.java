@@ -61,8 +61,14 @@ public class AddAutomationControllerCmd extends BaseCmd implements AdminCmd {
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
+    @Parameter(name = ApiConstants.ID, type = CommandType.STRING, required = true, description = "id for the Automation Controller")
+    private String id;
+
     @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, required = true, description = "name for the Automation Controller")
     private String name;
+
+    @Parameter(name = ApiConstants.ZONE_ID, type = CommandType.STRING, required = true, description = "zone id for the Automation Controller ")
+    private String zoneId;
 
     @Parameter(name = ApiConstants.DESCRIPTION, type = CommandType.STRING, required = true, description = "description for the Automation Controller")
     private String description;
@@ -93,7 +99,7 @@ public class AddAutomationControllerCmd extends BaseCmd implements AdminCmd {
 
     @ACL(accessType = SecurityChecker.AccessType.UseEntry)
     @Parameter(name = ApiConstants.NETWORK_ID, type = CommandType.UUID, entityType = NetworkResponse.class, required = true,
-            description = "Network in whichAutomation Controller is to be launched")
+            description = "Network in which Automation Controller is to be launched")
     private Long networkId;
 
     public AddAutomationControllerCmd() {
@@ -103,8 +109,16 @@ public class AddAutomationControllerCmd extends BaseCmd implements AdminCmd {
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
+    public String getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public String getZoneId() {
+        return zoneId;
     }
 
     public String getDescription() {
@@ -153,9 +167,9 @@ public class AddAutomationControllerCmd extends BaseCmd implements AdminCmd {
     @Override
     public void execute() throws ServerApiException, ConcurrentOperationException {
         try {
-            AutomationControllerResponse response = automationControllerService.AddAutomationControllerResponse(this);
+            AutomationControllerResponse response = automationControllerService.addAutomationController(this);
             if (response == null) {
-                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to Add Automation Controller Version.");
+                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to Add Automation Controller.");
             }
             response.setResponseName(getCommandName());
             setResponseObject(response);

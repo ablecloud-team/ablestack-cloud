@@ -62,20 +62,20 @@ export default {
       icon: 'block-outlined',
       docHelp: '',
       permission: ['listAutomationController'],
-      columns: ['name', 'state', 'account', 'hostname', 'zonename'],
-      details: ['description', 'name', 'serviceip', 'state', 'ipaddress', 'automationtemplateid', 'ostypename', 'serviceofferingname', 'isdynamicallyscalable'],
+      columns: ['name', 'state', 'account', 'zonename'],
+      details: ['description', 'name', 'serviceip', 'state', 'ipaddress', 'automationtemplatename', 'ostypename', 'serviceofferingname', 'isdynamicallyscalable'],
       tabs: [{
         component: shallowRef(defineAsyncComponent(() => import('@/views/automation/AutomationControllerTab.vue')))
       }],
       actions: [
         {
-          api: 'createNetwork',
+          api: 'addAutomationController',
           icon: 'plus-outlined',
-          label: 'label.automationController.add',
+          label: 'label.automation.controller.add',
           docHelp: '',
-          // popup: true,
           listView: true,
-          component: () => import('@/views/network/CreateNetwork.vue')
+          // popup: true,
+          component: () => import('@/views/automation/AddAutomationController.vue')
         }
         // ,
         // {

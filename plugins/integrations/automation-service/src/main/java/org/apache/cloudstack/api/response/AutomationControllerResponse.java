@@ -47,6 +47,10 @@ public class AutomationControllerResponse extends BaseResponse {
     @Param(description = "the template's id associated with this Automation")
     private String automationTemplateId;
 
+    @SerializedName(ApiConstants.AUTOMATION_TEMPLATE_NAME)
+    @Param(description = "the template's name associated with this Automation")
+    private String automationTemplateName;
+
     @SerializedName(ApiConstants.SERVICE_OFFERING_ID)
     @Param(description = "the service offering's id associated with this Automation")
     private String serviceOfferingId;
@@ -115,6 +119,10 @@ public class AutomationControllerResponse extends BaseResponse {
     @Param(description = "the project name of the Desktop Cluster")
     private String projectName;
 
+    @SerializedName("hostname")
+    @Param(description = "the name of the host for the virtual machine")
+    private String hostName;
+
     @SerializedName(ApiConstants.AUTOMATION_USER_VIRTUAL_MACHINES)
     @Param(description = "the list of virtualmachine associated with this Automation Controller")
     private List<UserVmResponse> automationControllerVms;
@@ -177,6 +185,14 @@ public class AutomationControllerResponse extends BaseResponse {
 
     public void setAutomationTemplateId(String automationTemplateId) {
         this.automationTemplateId = automationTemplateId;
+    }
+
+    public String getTemplateName() {
+        return automationTemplateName;
+    }
+
+    public void setAutomationTemplateName(String automationTemplateName) {
+        this.automationTemplateName = automationTemplateName;
     }
 
     public String getServiceOfferingId() {
@@ -257,6 +273,14 @@ public class AutomationControllerResponse extends BaseResponse {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
     }
 
     public List<UserVmResponse> getAutomationControllerVms() { return automationControllerVms; }

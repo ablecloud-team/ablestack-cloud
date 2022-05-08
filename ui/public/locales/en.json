@@ -3699,5 +3699,12 @@
 "label.automation.controller.template.version.create": "Create Controller Template Version",
 "title.automation.controller": "Automation Conroller",
 "label.automation.controller.deploy": "Create Controller",
-"label.serviceip": "Automation Service IP"
+"label.serviceip": "Automation Service IP",
+"label.automationtemplatename": "Automation Controller Template",
+"label.automation.controller.template.name": "Automation Controller Template",
+"label.automation.controller.add": "Add Automation Controller",
+"label.automation.controller.template.version": "Automation Controller Template Version",
+"placeholder.automation.controller.template.version": "Input Automation Controller Template Version",
+"placeholder.automation.controller.ip": "Select a Automation Controller IP",
+"label.automation.controller.ip": "Automation Controller IP"
 }

@@ -30,5 +30,5 @@ import com.cloud.utils.component.PluggableService;
 
 public interface AutomationControllerService extends PluggableService{
     ListResponse<AutomationControllerResponse> listAutomationController(ListAutomationControllerCmd cmd);
-    AutomationControllerResponse AddAutomationControllerResponse(AddAutomationControllerCmd cmd);
+    AutomationControllerResponse addAutomationController(AddAutomationControllerCmd cmd);
 }

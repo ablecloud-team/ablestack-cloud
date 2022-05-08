@@ -28,7 +28,7 @@
       <a-tab-pane :tab="$t('label.networks')" key="desktopnetworks" >
         <DesktopNicsTable :resource="desktopnetworks" :loading="loading"/>
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.iprange')" key="iprange" v-if="'listDesktopClusterIpRanges' in $store.getters.apis && resource.networktype =='L2'">
+      <a-tab-pane :tab="$t('label.resource')" key="iprange" v-if="'listDesktopClusterIpRanges' in $store.getters.apis && resource.networktype =='L2'">
         <a-button
           type="dashed"
           style="width: 100%; margin-bottom: 10px"
@@ -59,7 +59,7 @@
           </template>
         </a-table>
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.controlvm')" key="instances">
+      <a-tab-pane :tab="$t('label.resource')" key="instances">
         <a-table
           class="table"
           size="small"
@@ -75,31 +75,6 @@
             <status :text="text ? text : ''" displayText />
           </template>
           <template #instancename="{text}">
-            <status :text="text ? text : ''" />{{ text }}
-          </template>
-          <template #hostname="{record}">
-            <router-link :to="{ path: '/host/' + record.hostid }">{{ record.hostname }}</router-link>
-          </template>
-        </a-table>
-      </a-tab-pane>
-      <a-tab-pane :tab="$t('label.desktopvm')" key="desktops">
-        <a-table
-          class="table"
-          size="small"
-          :columns="desktopVmColumns"
-          :dataSource="this.automationuservirtualmachines"
-          :rowKey="item => item.id"
-          :pagination="false"
-        ><template #name="{record}">
-            <router-link :to="{ path: '/vm/' + record.id }">{{ record.name }}</router-link>
-          </template>
-          <template #state="{text}">
-            <status :text="text ? text : ''" displayText />
-          </template>
-          <template #instancename="{text}">
-            <status :text="text ? text : ''" />{{ text }}
-          </template>
-          <template #ipaddress="{text}">
             <status :text="text ? text : ''" />{{ text }}
           </template>
           <template #hostname="{record}">

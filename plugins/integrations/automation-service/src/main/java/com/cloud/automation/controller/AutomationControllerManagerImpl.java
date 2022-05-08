@@ -22,7 +22,10 @@ import java.util.List;
 import javax.inject.Inject;
 
 import com.cloud.api.ApiDBUtils;
+import com.cloud.api.query.dao.UserVmJoinDao;
 import com.cloud.automation.controller.dao.AutomationControllerDao;
+import com.cloud.automation.version.AutomationControllerVersionVO;
+import com.cloud.automation.version.dao.AutomationControllerVersionDao;
 import com.cloud.network.Network;
 import com.cloud.network.dao.IPAddressDao;
 import com.cloud.network.dao.IPAddressVO;
@@ -31,6 +34,7 @@ import com.cloud.network.dao.NetworkVO;
 import com.cloud.projects.Project;
 import com.cloud.service.ServiceOfferingVO;
 import com.cloud.service.dao.ServiceOfferingDao;
+import com.cloud.tags.dao.ResourceTagDao;
 import com.cloud.user.Account;
 import com.cloud.utils.db.Filter;
 import com.cloud.utils.db.SearchBuilder;
@@ -39,11 +43,8 @@ import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.dao.VMInstanceDao;
 import org.apache.cloudstack.api.command.user.automation.controller.AddAutomationControllerCmd;
 import org.apache.cloudstack.api.command.user.automation.controller.ListAutomationControllerCmd;
-// import org.apache.cloudstack.api.command.admin.automation.AddAutomationControllerCmd;
-// import org.apache.cloudstack.api.command.admin.automation.DeleteAutomationControllerCmd;
 import org.apache.cloudstack.api.response.AutomationControllerResponse;
 import org.apache.cloudstack.api.response.ListResponse;
-// import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.api.response.UserVmResponse;
 import org.apache.log4j.Logger;
 
@@ -64,6 +65,8 @@ import com.cloud.dc.DataCenterVO;
 public class AutomationControllerManagerImpl extends ManagerBase implements AutomationControllerService {
     public static final Logger LOGGER = Logger.getLogger(AutomationControllerManagerImpl.class.getName());
 
+    @Inject
+    private AutomationControllerVersionDao automationControllerVersionDao;
     @Inject
     private AutomationControllerDao automationControllerDao;
     @Inject
@@ -88,16 +91,30 @@ public class AutomationControllerManagerImpl extends ManagerBase implements Auto
     protected IPAddressDao ipAddressDao;
     @Inject
     protected VMInstanceDao vmInstanceDao;
+    @Inject
+    protected ResourceTagDao resourceTagDao;
+    @Inject
+    protected UserVmJoinDao userVmJoinDao;
 
     private AutomationControllerResponse createAutomationControllerResponse(final AutomationController automationController) {
 //        AutomationControllerVO automationcontroller = automationControllerDao.findById(automationController);
         AutomationControllerResponse response = new AutomationControllerResponse();
+        AutomationControllerVO controller = automationControllerDao.findById(automationController.getId());
         response.setObjectName("automationcontroller");
         response.setId(automationController.getUuid());
         response.setName(automationController.getName());
         response.setDescription(automationController.getDescription());
         response.setCreated(automationController.getCreated());
         response.setServiceIp(automationController.getServiceIp());
+        response.setAutomationTemplateId(String.valueOf(automationController.getAutomationTemplateId()));
+
+        AutomationControllerVersionVO acTemplate = automationControllerVersionDao.findById(automationController.getAutomationTemplateId());
+        if (acTemplate != null) {
+//            response.setTemplateId(template.getUuid());
+            response.setAutomationTemplateName(acTemplate.getName());
+//            response.setTemplateState(template.getState().toString());
+//            response.setTemplateOSType(template.getGuestOSName());
+        }
 
         NetworkVO ntwk = networkDao.findByIdIncludingRemoved(automationController.getNetworkId());
         response.setNetworkId(ntwk.getUuid());
@@ -136,19 +153,28 @@ public class AutomationControllerManagerImpl extends ManagerBase implements Auto
             response.setAccountName(account.getAccountName());
         }
 
+//        VMInstanceVO vmname = vmInstanceDao.findVMByInstanceName(automationController.getV());
+
         List<UserVmResponse> automationControllerVmResponses = new ArrayList<UserVmResponse>();
         List<VMInstanceVO> vmList = vmInstanceDao.listByZoneId(automationController.getZoneId());
-//        responseName = "desktopvmlist";
-//        String resourceKey = "ClusterName";
+
+//        ResponseObject.ResponseView respView = ResponseObject.ResponseView.Restricted;
+//        Account caller = CallContext.current().getCallingAccount();
+//        if (accountService.isRootAdmin(caller.getId())) {
+//            respView = ResponseObject.ResponseView.Full;
+//        }
+//
+//        String responseName = "controllervmlist";
+//        String resourceKey = "ControllerName";
 //        if (vmList != null && !vmList.isEmpty()) {
 //            for (VMInstanceVO vmVO : vmList) {
-//                ResourceTag desktopvm = resourceTagDao.findByKey(vmVO.getId(), ResourceTag.ResourceObjectType.UserVm, resourceKey);
-//                if (desktopvm != null) {
-//                    if (desktopvm.getValue().equals(desktop.getName())) {
+//                ResourceTag controllervm = resourceTagDao.findByKey(vmVO.getId(), ResourceTag.ResourceObjectType.UserVm, resourceKey);
+//                if (controllervm != null) {
+//                    if (controllervm.getValue().equals(controller.getName())) {
 //                        UserVmJoinVO userVM = userVmJoinDao.findById(vmVO.getId());
 //                        if (userVM != null) {
 //                            UserVmResponse dvmResponse = ApiDBUtils.newUserVmResponse(respView, responseName, userVM, EnumSet.of(ApiConstants.VMDetails.nics), caller);
-//                            desktopVmResponses.add(dvmResponse);
+//                            AutomationControllerResponse.add(dvmResponse);
 //                        }
 //                    }
 //                }
@@ -190,36 +216,27 @@ public class AutomationControllerManagerImpl extends ManagerBase implements Auto
         return createAutomationControllerListResponse(controllers);
     }
 
-
     @Override
-//    @ActionEvent(eventType = AutomationControllerEventTypes.EVENT_AUTOMATION_CONTROLLER_VERSION_ADD, eventDescription = "Adding automation controller template version")
-    public AutomationControllerResponse AddAutomationControllerResponse(AddAutomationControllerCmd cmd) {
+//    @ActionEvent(eventType = AutomationVersionEventTypes.EVENT_AUTOMATION_CONTROLLER_VERSION_ADD, eventDescription = "Adding automation controller template version")
+    public AutomationControllerResponse addAutomationController(final AddAutomationControllerCmd cmd) {
         if (!AutomationVersionService.AutomationServiceEnabled.value()) {
             throw new CloudRuntimeException("Automation Service plugin is disabled");
         }
-//        final String format = cmd.getFormat();
-//        final String hypervisor = cmd.getHypervisor();
-//        final String versionName = cmd.getControllerVersionName();
-//        final String description = cmd.getDescription();
-//        final String controllerVersion = cmd.getControllerVersion();
-//        final Long zoneId = cmd.getZoneId();
-//        final String uploadType = cmd.getUploadType();
-//        final String url = cmd.getUrl();
-//        final Long osTypeId = cmd.getOsType();
-//        final Long templateId =cmd.getTemplateId();
-//        String templateName = "";
-//
-//        final List<AutomationControllerVO> versions = automationControllerDao.listAll();
-//        for (final AutomationControllerVO version : versions) {
-//            final String otherVersion = version.getVersion();
-//            if (otherVersion.equals(controllerVersion)) {
-//                throw new InvalidParameterValueException("version '" + controllerVersion + "' already exists.");
-//            }
+
+        final String vmName = cmd.getName();
+        final String zoneId = cmd.getZoneId();
+        final String description = cmd.getDescription();
+        final String id = cmd.getId();
+        final Long templateId =cmd.getAutomationTemplateId();
+
+        final List<AutomationControllerVO> controllers = automationControllerDao.listAll();
+        for (final AutomationControllerVO controller : controllers) {
+            final String otherController = controller.getName();
+        }
+
+//        if (compareVersions(controllerVersion, MIN_AUTOMATION_CONTOLLER_VERSION) < 0) {
+//            throw new InvalidParameterValueException(String.format("New automation controller version cannot be added as %s is minimum version supported by Automation Service", MIN_AUTOMATION_CONTOLLER_VERSION));
 //        }
-//
-////        if (compareVersions(controllerVersion, MIN_AUTOMATION_CONTOLLER_VERSION) < 0) {
-////            throw new InvalidParameterValueException(String.format("New automation controller version cannot be added as %s is minimum version supported by Desktop Service", MIN_AUTOMATION_CONTOLLER_VERSION));
-////        }
 //        if (zoneId != null && dataCenterDao.findById(zoneId) == null) {
 //            throw new InvalidParameterValueException("Invalid zone specified");
 //        }
@@ -230,22 +247,20 @@ public class AutomationControllerManagerImpl extends ManagerBase implements Auto
 //        if (StringUtils.isEmpty(versionName)) {
 //            throw new InvalidParameterValueException(String.format("Invalid VersionName for template specified, %s", versionName));
 //        }
-//
-//        Long zone = null;
-//        VMTemplateVO template = null;
+
+        Long zone = null;
+        VMInstanceVO vm = null;
         AutomationControllerVO automationControllerVO = null;
-//        VirtualMachineTemplate vmTemplate = null;
-//        try {
+        try {
 //            if ("url".equals(uploadType)) {
-//                vm_template 테이블에 automation 템플릿 추가
-//                templateName = String.format("%s(Automation Controller Template)", versionName);
-//                vmTemplate = registerAutomationTemplateVersion(zoneId, templateName, url, hypervisor, osTypeId, format);
+                //vm_template 테이블에 automation 템플릿 추가
+//                vmName = String.format("%s(Automation Controller)", versionName);
 //                template = templateDao.findById(vmTemplate.getId());
-//
-//                //automation_controller_version 테이블에 버전 추가
-//                automationControllerVO = new AutomationControllerVO(versionName, controllerVersion, description, zoneId, template.getId(), uploadType);
+
+//                //vm instance 테이블에 버전 추가
+//                automationControllerVO = new AutomationControllerVO(vmName, description);
 //                automationControllerVO = automationControllerDao.persist(automationControllerVO);
-//
+
 //                //템플릿에 세팅 추가
 //                Map<String, String> details = new HashMap<String, String>();
 //                details.put("rootDiskController", "virtio");
@@ -261,16 +276,15 @@ public class AutomationControllerManagerImpl extends ManagerBase implements Auto
 //                        zone = templateZone.getZoneId();
 //                    }
 //                }
-//
-//                //automation_controller_version 테이블에 버전 추가
-//                automationControllerVO = new AutomationControllerVO(versionName, controllerVersion, description, zone, template.getId(), uploadType);
-//                automationControllerVO = automationControllerDao.persist(automationControllerVO);
+
+                //automation_controller 테이블에 버전 추가
+                automationControllerVO = new AutomationControllerVO(vmName, description);
+                automationControllerVO = automationControllerDao.persist(automationControllerVO);
 //            }
-//        } catch (URISyntaxException | IllegalAccessException | NoSuchFieldException | IllegalArgumentException |
-//                 ResourceAllocationException ex) {
-//            LOGGER.error(String.format("Unable to register template for desktop controller version, %s, with url: %s", templateName, url), ex);
-//            throw new CloudRuntimeException(String.format("Unable to register template for desktop controller version, %s, with url: %s", templateName, url));
-//        }
+        } catch (IllegalArgumentException ex) {
+            LOGGER.error(String.format("Unable to register template for automation controller version, %s, with url: %s", vmName), ex);
+            throw new CloudRuntimeException(String.format("Unable to register template for automation controller version, %s, with url: %s", vmName));
+        }
         return createAutomationControllerResponse(automationControllerVO);
     }
 
@@ -291,6 +305,7 @@ public class AutomationControllerManagerImpl extends ManagerBase implements Auto
             return cmdList;
         }
         cmdList.add(ListAutomationControllerCmd.class);
+        cmdList.add(AddAutomationControllerCmd.class);
         return cmdList;
     }
 
