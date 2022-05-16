@@ -104,19 +104,19 @@ public class AutomationControllerResponse extends BaseResponse {
     private String ipAddressId;
 
     @SerializedName("serviceofferingname")
-    @Param(description = "the name of the service offering of the Desktop Cluster")
+    @Param(description = "the name of the service offering of the Automation Controller")
     private String serviceOfferingName;
 
     @SerializedName(ApiConstants.ACCOUNT)
-    @Param(description = "the account associated with the Desktop Cluster")
+    @Param(description = "the account associated with the Automation Controller")
     private String accountName;
 
     @SerializedName(ApiConstants.PROJECT_ID)
-    @Param(description = "the project id of the Desktop Cluster")
+    @Param(description = "the project id of the Automation Controller")
     private String projectId;
 
     @SerializedName(ApiConstants.PROJECT)
-    @Param(description = "the project name of the Desktop Cluster")
+    @Param(description = "the project name of the Automation Controller")
     private String projectName;
 
     @SerializedName("hostname")

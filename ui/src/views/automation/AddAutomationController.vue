@@ -158,10 +158,11 @@ export default {
         name: [{ required: true, message: this.$t('message.error.required.input') }],
         description: [{ required: true, message: this.$t('message.error.required.input') }],
         addomainname: [{ required: true, message: this.$t('message.error.required.input') }],
-        automationcontroller: [{ required: true, message: this.$t('message.error.select') }],
+        // automationcontroller: [{ required: true, message: this.$t('message.error.select') }],
         serviceoffering: [{ required: true, message: this.$t('message.error.select') }],
         networkid: [{ required: true, message: this.$t('message.error.select') }],
         automationcontrollerip: [{ required: true, message: this.$t('message.error.required.input') }],
+        serviceip: [{ required: true, message: this.$t('message.error.required.input') }]
       })
     },
     fetchData () {
@@ -245,30 +246,6 @@ export default {
 
           // console.log(this.accessType, this.networks)
           this.handleNetworkChange(this.networks[0])
-
-          // for (var i = 0; i < items.length; i++) {
-          //   if (this.accessType === 'internal' && items[i].type === 'L2') {
-          //     this.networks.push(items[i])
-          //     this.handleNetworkChange(this.networks[0])
-          //   }
-          //   if (this.accessType === 'external' && items[i].type === 'Isolated') {
-          //     this.networks.push(items[i])
-          //     if (this.clusters.length !== 0) {
-          //       for (var j = 0; j < this.clusters[0].length; j++) {
-          //         if ([this.clusters[0][j].networkid].includes(items[i].id)) {
-          //           this.networks.pop(items[i])
-          //         }
-          //         this.handleNetworkChange(this.networks[0])
-          //       }
-          //     } else {
-          //       this.handleNetworkChange(this.networks[0])
-          //     }
-          //   }
-          //   if (this.accessType === 'mixed' && items[i].type === 'Shared') {
-          //     this.networks.push(items[i])
-          //     this.handleNetworkChange(this.networks[0])
-          //   }
-          // }
         }
       }).finally(() => {
         this.networkLoading = false
@@ -298,6 +275,7 @@ export default {
           networkid: this.selectedNetwork.id,
           clustertype: this.accessType,
           worksip: values.worksvmip,
+          serviceip: values.serviceip,
           dcip: values.dcvmip
         }
         if (values.masteruploadtype === 'url') {
@@ -325,12 +303,12 @@ export default {
                 message: this.$t('message.success.create.desktop.cluter'),
                 duration: 0
               })
-              eventBus.emit('desktop-refresh-data')
+              eventBus.emit('automation-refresh-data')
             },
             loadingMessage: `${this.$t('label.desktop.cluster.deploy')} ${values.name} ${this.$t('label.in.progress')}`,
             catchMessage: this.$t('error.fetching.async.job.result'),
             catchMethod: () => {
-              eventBus.emit('desktop-refresh-data')
+              eventBus.emit('automation-refresh-data')
             },
             action: {
               isFetchData: false

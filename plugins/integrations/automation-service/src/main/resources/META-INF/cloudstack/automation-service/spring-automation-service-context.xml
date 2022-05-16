@@ -30,6 +30,6 @@
     <bean id="automationControllerVersionDaoImpl" class="com.cloud.automation.version.dao.AutomationControllerVersionDaoImpl" />
     <bean id="automationVersionManagerImpl" class="com.cloud.automation.version.AutomationVersionManagerImpl" />
     <bean id="automationControllerDaoImpl" class="com.cloud.automation.controller.dao.AutomationControllerDaoImpl" />
+    <bean id="automationControllerVmMapDaoImpl" class="com.cloud.automation.controller.dao.AutomationControllerVmMapDaoImpl" />
     <bean id="automationControllerManagerImpl" class="com.cloud.automation.controller.AutomationControllerManagerImpl" />
-
 </beans>

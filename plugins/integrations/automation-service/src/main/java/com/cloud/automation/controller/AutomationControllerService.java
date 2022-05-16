@@ -17,18 +17,26 @@
 
 package com.cloud.automation.controller;
 
+import com.cloud.utils.exception.CloudRuntimeException;
 import org.apache.cloudstack.api.command.user.automation.controller.ListAutomationControllerCmd;
 
-// import org.apache.cloudstack.api.command.admin.automation.version.DeleteAutomationControllerVersionCmd;
-// import org.apache.cloudstack.api.command.admin.automation.version.AddAutomationControllerVersionCmd;
 import org.apache.cloudstack.api.response.AutomationControllerResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.command.user.automation.controller.AddAutomationControllerCmd;
 
 import com.cloud.utils.component.PluggableService;
-// import com.cloud.utils.exception.CloudRuntimeException;
 
 public interface AutomationControllerService extends PluggableService{
+
+    AutomationController findById(final Long id);
+
+    AutomationControllerResponse addAutomationControllerResponse(AutomationController automationController);
+
     ListResponse<AutomationControllerResponse> listAutomationController(ListAutomationControllerCmd cmd);
-    AutomationControllerResponse addAutomationController(AddAutomationControllerCmd cmd);
+
+    boolean startAutomationController(long automationControllerId, boolean onCreate) throws CloudRuntimeException;
+    AutomationController addAutomationController(AddAutomationControllerCmd cmd) throws CloudRuntimeException;
+    boolean stopAutomationController(long automationControllerId) throws CloudRuntimeException;
+    boolean deleteAutomationController(Long automationControllerId) throws CloudRuntimeException;
+
 }

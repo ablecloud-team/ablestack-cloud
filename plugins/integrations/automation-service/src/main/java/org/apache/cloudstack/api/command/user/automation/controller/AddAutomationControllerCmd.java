@@ -19,17 +19,18 @@ package org.apache.cloudstack.api.command.user.automation.controller;
 
 import javax.inject.Inject;
 
+import com.cloud.automation.controller.AutomationControllerEventTypes;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.acl.SecurityChecker;
 import org.apache.cloudstack.api.ACL;
 import org.apache.cloudstack.api.APICommand;
+import org.apache.cloudstack.api.ApiCommandJobType;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.ApiErrorCode;
-import org.apache.cloudstack.api.BaseCmd;
+import org.apache.cloudstack.api.BaseAsyncCreateCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ResponseObject;
 import org.apache.cloudstack.api.ServerApiException;
-import org.apache.cloudstack.api.command.admin.AdminCmd;
 import org.apache.cloudstack.api.response.AutomationControllerResponse;
 import org.apache.cloudstack.api.response.AutomationControllerVersionResponse;
 import org.apache.cloudstack.api.response.DomainResponse;
@@ -39,7 +40,6 @@ import org.apache.cloudstack.api.response.ServiceOfferingResponse;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.log4j.Logger;
 
-import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.automation.controller.AutomationController;
 import com.cloud.automation.controller.AutomationControllerService;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -51,7 +51,7 @@ import com.cloud.utils.exception.CloudRuntimeException;
         responseView = ResponseObject.ResponseView.Full,
         entityType = {AutomationController.class},
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
-public class AddAutomationControllerCmd extends BaseCmd implements AdminCmd {
+public class AddAutomationControllerCmd extends BaseAsyncCreateCmd {
     public static final Logger LOGGER = Logger.getLogger(AddAutomationControllerCmd.class.getName());
     public static final String APINAME = "addAutomationController";
 
@@ -62,7 +62,7 @@ public class AddAutomationControllerCmd extends BaseCmd implements AdminCmd {
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
     @Parameter(name = ApiConstants.ID, type = CommandType.STRING, required = true, description = "id for the Automation Controller")
-    private String id;
+    private Long id;
 
     @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, required = true, description = "name for the Automation Controller")
     private String name;
@@ -74,7 +74,7 @@ public class AddAutomationControllerCmd extends BaseCmd implements AdminCmd {
     private String description;
 
     @Parameter(name = ApiConstants.AUTOMATION_TEMPLATE_ID, type = CommandType.UUID, entityType = AutomationControllerVersionResponse.class, required = true,
-            description = "Desktop version with which cluster to be launched")
+            description = "Automation Controller version with which cluster to be launched")
     private Long automationTemplateId;
 
     @ACL(accessType = SecurityChecker.AccessType.UseEntry)
@@ -105,11 +105,10 @@ public class AddAutomationControllerCmd extends BaseCmd implements AdminCmd {
     public AddAutomationControllerCmd() {
     }
 
-
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
@@ -141,40 +140,90 @@ public class AddAutomationControllerCmd extends BaseCmd implements AdminCmd {
         return domainId;
     }
 
+    /////////////////////////////////////////////////////
+    /////////////// API Implementation///////////////////
+    /////////////////////////////////////////////////////
+
     @Override
     public String getCommandName() {
         return APINAME.toLowerCase() + "response";
     }
+
     public static String getResultObjectName() {
         return "automationcontroller";
-    }
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public Long getNetworkId() {
-        return networkId;
     }
 
     @Override
     public long getEntityOwnerId() {
-        return CallContext.current().getCallingAccountId();
+        Long accountId = _accountService.finalyzeAccountId(accountName, domainId, projectId, true);
+        if (accountId == null) {
+            return CallContext.current().getCallingAccount().getId();
+        }
+
+        return accountId;
     }
 
-    /////////////////////////////////////////////////////
-    /////////////// API Implementation///////////////////
-    /////////////////////////////////////////////////////
     @Override
-    public void execute() throws ServerApiException, ConcurrentOperationException {
+    public String getEventType() {
+        return AutomationControllerEventTypes.EVENT_AUTOMATION_CONTROLLER_ADD;
+    }
+
+    @Override
+    public String getCreateEventType() {
+        return AutomationControllerEventTypes.EVENT_AUTOMATION_CONTROLLER_ADD;
+    }
+
+    @Override
+    public String getCreateEventDescription() {
+        return "creating Automation Controller";
+    }
+
+    @Override
+    public String getEventDescription() {
+        return "Creating Automation Controller. Controller Id: " + getEntityId();
+    }
+
+    @Override
+    public ApiCommandJobType getInstanceType() {
+        return ApiCommandJobType.VirtualMachine;
+    }
+
+    public AutomationController validateRequest() {
+        if (getId() == null || getId() < 1L) {
+            throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "Invalid Automation Controller ID provided");
+        }
+        final AutomationController automationController = automationControllerService.findById(getId());
+        if (automationController == null) {
+            throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "Given Automation Controller was not found");
+        }
+        return automationController;
+    }
+
+    @Override
+    public void execute() {
+        final AutomationController automationController = validateRequest();
         try {
-            AutomationControllerResponse response = automationControllerService.addAutomationController(this);
-            if (response == null) {
-                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to Add Automation Controller.");
+            if (!automationControllerService.startAutomationController(automationController.getId(), true)) {
+                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to start Automation Controller");
             }
+            AutomationControllerResponse response = automationControllerService.addAutomationControllerResponse(automationController);
             response.setResponseName(getCommandName());
             setResponseObject(response);
-        } catch (CloudRuntimeException ex) {
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, ex.getMessage());
+        } catch (CloudRuntimeException e) {
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
+        }
+    }
+    @Override
+    public void create() throws CloudRuntimeException {
+        try {
+            AutomationController automationController = automationControllerService.addAutomationController(this);
+            if (automationController == null) {
+                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to create Automation Controller");
+            }
+            setEntityId(automationController.getId());
+            setEntityUuid(automationController.getUuid());
+        } catch (CloudRuntimeException e) {
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
         }
     }
 }

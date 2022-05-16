@@ -82,6 +82,9 @@ public class AutomationControllerVO implements AutomationController {
     @Column(name = GenericDao.REMOVED_COLUMN)
     Date removed;
 
+//    @Column(name = "gc")
+//    private boolean checkForGc;
+
     public AutomationControllerVO() {
         this.uuid = UUID.randomUUID().toString();
     }
@@ -100,7 +103,7 @@ public class AutomationControllerVO implements AutomationController {
         this.domainId = domainId;
         this.serviceIp = serviceIp;
 //        this.zoneId = zoneId;
-//        this.state = state;
+        this.state = state;
 
 
 
@@ -111,6 +114,22 @@ public class AutomationControllerVO implements AutomationController {
     public AutomationControllerVO(String name, String description) {
     }
 
+    public AutomationControllerVO(String name, String description, Long zoneId, long id, long automationTemplateId, long domainId, long accountId, State state) {
+        this.uuid = UUID.randomUUID().toString();
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.automationTemplateId = automationTemplateId;
+        this.serviceOfferingId = serviceOfferingId;
+//        this.instanceId = instanceId;
+        this.networkId = networkId;
+        this.accountId = accountId;
+        this.domainId = domainId;
+        this.serviceIp = serviceIp;
+        this.zoneId = zoneId;
+        this.state = state;
+    }
+
     @Override
     public long getId() {
         return id;
@@ -119,6 +138,11 @@ public class AutomationControllerVO implements AutomationController {
     @Override
     public String getUuid() {
         return uuid;
+    }
+
+    @Override
+    public Class<?> getEntityType() {
+        return AutomationController.class;
     }
 
     @Override
@@ -228,4 +252,14 @@ public class AutomationControllerVO implements AutomationController {
     public Date getRemoved() {
         return removed;
     }
+
+    @Override
+    public boolean isDisplay() {
+        return false;
+    }
+
+//    @Override
+//    public boolean isCheckForGc() {
+//        return checkForGc;
+//    }
 }

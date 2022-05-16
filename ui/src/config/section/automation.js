@@ -63,7 +63,7 @@ export default {
       docHelp: '',
       permission: ['listAutomationController'],
       columns: ['name', 'state', 'account', 'zonename'],
-      details: ['description', 'name', 'serviceip', 'state', 'ipaddress', 'automationtemplatename', 'ostypename', 'serviceofferingname', 'isdynamicallyscalable'],
+      details: ['description', 'name', 'serviceip', 'state', 'ipaddress', 'automationtemplatename', 'ostypename', 'serviceofferingname', 'isdynamicallyscalable', 'userurl'],
       tabs: [{
         component: shallowRef(defineAsyncComponent(() => import('@/views/automation/AutomationControllerTab.vue')))
       }],
@@ -74,25 +74,45 @@ export default {
           label: 'label.automation.controller.add',
           docHelp: '',
           listView: true,
-          // popup: true,
-          component: () => import('@/views/automation/AddAutomationController.vue')
+          popup: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/automation/AddAutomationController.vue')))
+        },
+        {
+          api: 'startAutomationController',
+          icon: 'caret-right-outlined',
+          label: 'label.automation.controller.start',
+          message: 'message.automation.controller.start',
+          docHelp: '',
+          dataView: true,
+          show: (record) => { return ['Stopped'].includes(record.state) },
+          groupAction: true,
+          popup: true,
+          groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
+        },
+        {
+          api: 'stopAutomationController',
+          icon: 'poweroff-outlined',
+          label: 'label.automation.controller.stop',
+          message: 'message.automation.controller.stop',
+          docHelp: '',
+          dataView: true,
+          show: (record) => { return !['Stopped', 'Destroyed', 'Destroying'].includes(record.state) },
+          groupAction: true,
+          popup: true,
+          groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
+        },
+        {
+          api: 'deleteAutomationController',
+          icon: 'delete-outlined',
+          label: 'label.automation.controller.delete',
+          message: 'message.automation.controller.delete',
+          dataView: true,
+          docHelp: '',
+          show: (record) => { return !['Destroyed', 'Destroying'].includes(record.state) },
+          groupAction: true,
+          popup: true,
+          groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
         }
-        // ,
-        // {
-        //   api: 'updateDesktopControllerVersion',
-        //   icon: 'edit-outlined',
-        //   label: 'label.desktop.controller.version.manage',
-        //   dataView: true,
-        //   popup: true,
-        //   component: shallowRef(defineAsyncComponent(() => import('@/views/desktop/UpdateDesktopControllerVersion.vue')))
-        // },
-        // {
-        //   api: 'deleteDesktopControllerVersion',
-        //   icon: 'delete-outlined',
-        //   label: 'label.desktop.controller.version.delete',
-        //   message: 'message.desktop.controller.version.delete',
-        //   dataView: true
-        // }
       ]
     }
   ]

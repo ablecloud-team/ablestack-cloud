@@ -540,11 +540,11 @@ export default {
         this.fetchData()
       }
     })
-    // eventBus.on('automation-refresh-data', () => {
-    //   if (this.$route.path === '/automationtemplate' || this.$route.path.includes('/automationtemplate/')) {
-    //     this.fetchData()
-    //   }
-    // })
+    eventBus.on('automation-refresh-data', () => {
+      if (this.$route.path === '/automationcontroller' || this.$route.path.includes('/automationcontroller/')) {
+        this.fetchData()
+      }
+    })
     eventBus.on('refresh-icon', () => {
       if (this.$showIcon()) {
         this.fetchData()
