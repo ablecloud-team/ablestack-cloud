@@ -19,6 +19,8 @@ package com.cloud.automation.controller.dao;
 
 import java.util.List;
 
+import com.cloud.automation.controller.AutomationController;
+import com.cloud.utils.db.SearchBuilder;
 import org.springframework.stereotype.Component;
 
 import com.cloud.automation.controller.AutomationControllerVO;
@@ -27,7 +29,19 @@ import com.cloud.utils.db.SearchCriteria;
 
 @Component
 public class AutomationControllerDaoImpl extends GenericDaoBase<AutomationControllerVO, Long> implements AutomationControllerDao {
+    private final SearchBuilder<AutomationControllerVO> StateSearch;
+
     public AutomationControllerDaoImpl() {
+        StateSearch = createSearchBuilder();
+        StateSearch.and("state", StateSearch.entity().getState(), SearchCriteria.Op.EQ);
+        StateSearch.done();
+    }
+
+    @Override
+    public List<AutomationControllerVO> findAutomationControllersInState(AutomationControllerVO.State state) {
+        SearchCriteria<AutomationControllerVO> sc = StateSearch.create();
+        sc.setParameters("state", state);
+        return listBy(sc);
     }
 
     @Override
@@ -38,6 +52,11 @@ public class AutomationControllerDaoImpl extends GenericDaoBase<AutomationContro
         scc.addOr("zoneId", SearchCriteria.Op.NULL);
         sc.addAnd("zoneId", SearchCriteria.Op.SC, scc);
         return listBy(sc);
+    }
+
+    @Override
+    public boolean updateState(AutomationController.State currentState, AutomationController.Event event, AutomationController.State nextState, AutomationController vo, Object data) {
+        return false;
     }
 }
 

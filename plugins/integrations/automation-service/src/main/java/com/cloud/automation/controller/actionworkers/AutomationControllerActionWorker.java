@@ -68,7 +68,6 @@ import com.cloud.utils.db.TransactionCallback;
 import com.cloud.utils.db.TransactionStatus;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.fsm.NoTransitionException;
-import com.cloud.utils.fsm.StateDao;
 import com.cloud.utils.fsm.StateMachine2;
 import com.cloud.vm.UserVmManager;
 import com.cloud.vm.UserVmService;
@@ -284,7 +283,7 @@ public class AutomationControllerActionWorker {
     protected boolean stateTransitTo(long automationControllerId, AutomationController.Event e) {
         AutomationControllerVO automationController = automationControllerDao.findById(automationControllerId);
         try {
-            return _stateMachine.transitTo(automationController, e, null, (StateDao<AutomationController.State, AutomationController.Event, AutomationController>) automationControllerDao);
+            return _stateMachine.transitTo(automationController, e, null, automationControllerDao);
         } catch (NoTransitionException nte) {
             LOGGER.warn(String.format("Failed to transition state of the automation automation : %s in state %s on event %s",
             automationController.getName(), automationController.getState().toString(), e.toString()), nte);

@@ -19,9 +19,13 @@ package com.cloud.automation.controller.dao;
 
 import java.util.List;
 
+import com.cloud.automation.controller.AutomationController;
 import com.cloud.automation.controller.AutomationControllerVO;
 import com.cloud.utils.db.GenericDao;
+import com.cloud.utils.fsm.StateDao;
 
-public interface AutomationControllerDao extends GenericDao<AutomationControllerVO, Long> {
+public interface AutomationControllerDao extends GenericDao<AutomationControllerVO, Long>,
+        StateDao<AutomationController.State, AutomationController.Event, AutomationController> {
     List<AutomationControllerVO> listAllInZone(long dataCenterId);
+    List<AutomationControllerVO> findAutomationControllersInState(AutomationController.State state);
 }

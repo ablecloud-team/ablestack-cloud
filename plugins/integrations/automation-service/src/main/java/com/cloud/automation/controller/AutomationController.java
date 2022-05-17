@@ -51,7 +51,7 @@ public interface AutomationController extends ControlledEntity, com.cloud.utils.
         Enabled("State of Automation Controller. At this state its just a logical/DB entry with no resources consumed"),
         Created("Initial State of Automation Controller. At this state its just a logical/DB entry with no resources consumed"),
         Starting("Resources needed for Automation Controller are being provisioned"),
-        Running("Necessary resources are provisioned and Automation Controller is in operational ready state to launch Desktop"),
+        Running("Necessary resources are provisioned and Automation Controller is in operational ready state to launch Automation Controller"),
         Stopping("Resources for the Automation Controller are being destroyed"),
         Stopped("All resources for the Automation Controller are destroyed, Automation Controller may still have ephemeral resource like persistent volumes provisioned"),
         Scaling("Transient state in which resources are either getting scaled up/down"),
