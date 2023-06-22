@@ -250,6 +250,7 @@ known_categories = {
     'AutomationControllerVersion': 'Automation Service',
     'AutomationController': 'Automation Service',
     'AutomationDeployedResource' : 'Automation Service',
+    'SSV': 'Shared Storage VM Service',
     'addDeployedResourceGroup' : 'Automation Service',
     'addDeployedUnitResource' : 'Automation Service',
     'deleteDeployedResource' : 'Automation Service',

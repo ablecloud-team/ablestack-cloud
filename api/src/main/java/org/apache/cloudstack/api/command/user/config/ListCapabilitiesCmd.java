@@ -61,6 +61,7 @@ public class ListCapabilitiesCmd extends BaseCmd {
         response.setKubernetesClusterExperimentalFeaturesEnabled((Boolean)capabilities.get("kubernetesClusterExperimentalFeaturesEnabled"));
         response.setDesktopServiceEnabled((Boolean)capabilities.get("desktopServiceEnabled"));
         response.setAutomationServiceEnabled((Boolean)capabilities.get("automationServiceEnabled"));
+        response.setSSVEnabled((Boolean)capabilities.get("SSVEnabled"));
         response.setDesktopWorksPortalPort((String)capabilities.get("desktopWorksPortalPort"));
         response.setWallPortalProtocol((String)capabilities.get("wallPortalProtocol"));
         response.setWallPortalDomain((String)capabilities.get("wallPortalDomain"));

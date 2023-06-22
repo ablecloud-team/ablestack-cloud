@@ -258,7 +258,8 @@ public class ListVMsCmd extends BaseListTaggedResourcesCmd implements UserCmd {
         if (display != null) {
             return display;
         }
-        return super.getDisplay();
+        return null;
+        // return super.getDisplay();
     }
 
     public Boolean getShowIcon() {

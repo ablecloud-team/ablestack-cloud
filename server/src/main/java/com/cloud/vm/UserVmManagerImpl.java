@@ -3684,7 +3684,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         // Verify that owner can use the service offering
         _accountMgr.checkAccess(owner, serviceOffering, zone);
         _accountMgr.checkAccess(owner, _diskOfferingDao.findById(diskOfferingId), zone);
-
+        s_logger.info(":::::::::::::1:::::::::::");
         List<HypervisorType> vpcSupportedHTypes = _vpcMgr.getSupportedVpcHypervisors();
         if (networkIdList == null || networkIdList.isEmpty()) {
             NetworkVO defaultNetwork = getDefaultNetwork(zone, owner, false);
@@ -3720,6 +3720,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 networkList.add(network);
             }
         }
+        s_logger.info(":::::::::::::2:::::::::::");
         verifyExtraDhcpOptionsNetwork(dhcpOptionsMap, networkList);
         return createVirtualMachine(zone, serviceOffering, template, hostName, displayName, owner, diskOfferingId, diskSize, networkList, null, group, httpmethod, userData,
                 userDataId, userDataDetails, sshKeyPairs, hypervisor, caller, requestedIps, defaultIps, displayvm, keyboard, affinityGroupIdList, customParametrs, customId, dhcpOptionsMap,
@@ -3844,6 +3845,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                                         Map<Long, DiskOffering> datadiskTemplateToDiskOfferringMap,
                                         Map<String, String> userVmOVFPropertiesMap, boolean dynamicScalingEnabled, String vmType, Long overrideDiskOfferingId) throws InsufficientCapacityException, ResourceUnavailableException,
     ConcurrentOperationException, StorageUnavailableException, ResourceAllocationException {
+        s_logger.info(":::::::::::::3:::::::::::");
 
         _accountMgr.checkAccess(caller, null, true, owner);
 
@@ -3867,7 +3869,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             }
             hypervisorType = template.getHypervisorType();
         }
-
+        s_logger.info(":::::::::::::3- 2:::::::::::");
         long accountId = owner.getId();
 
         assert !(requestedIps != null && (defaultIps.getIp4Address() != null || defaultIps.getIp6Address() != null)) : "requestedIp list and defaultNetworkIp should never be specified together";
@@ -3934,7 +3936,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             DiskOfferingVO diskOffering = _diskOfferingDao.findById(diskOfferingId);
             volumesSize += verifyAndGetDiskSize(diskOffering, diskSize);
         }
+        s_logger.info(":::::::::::::5:::::::::::");
         UserVm vm = getCheckedUserVmResource(zone, hostName, displayName, owner, diskOfferingId, diskSize, networkList, securityGroupIdList, group, httpmethod, userData, userDataId, userDataDetails, sshKeyPairs, caller, requestedIps, defaultIps, isDisplayVm, keyboard, affinityGroupIdList, customParameters, customId, dhcpOptionMap, datadiskTemplateToDiskOfferringMap, userVmOVFPropertiesMap, dynamicScalingEnabled, vmType, template, hypervisorType, accountId, offering, isIso, rootDiskOfferingId, volumesSize);
+        s_logger.info(":::::::::::::6:::::::::::" + vm);
         if (! VirtualMachineManager.ResourceCountRunningVMsonly.value()) {
             resourceLimitCheck(owner, isDisplayVm, offering.getCpu().longValue(), offering.getRamSize().longValue());
         }
@@ -3946,6 +3950,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
 
         CallContext.current().putContextParameter(VirtualMachine.class, vm.getUuid());
+        s_logger.info(":::::::::::::7:::::::::::");
         return vm;
     }
     private UserVm getCheckedUserVmResource(DataCenter zone, String hostName, String displayName, Account owner, Long diskOfferingId, Long diskSize, List<NetworkVO> networkList, List<Long> securityGroupIdList, String group, HTTPMethod httpmethod, String userData, Long userDataId, String userDataDetails, List<String> sshKeyPairs, Account caller, Map<Long, IpAddresses> requestedIps, IpAddresses defaultIps, Boolean isDisplayVm, String keyboard, List<Long> affinityGroupIdList, Map<String, String> customParameters, String customId, Map<String, Map<Integer, String>> dhcpOptionMap, Map<Long, DiskOffering> datadiskTemplateToDiskOfferringMap, Map<String, String> userVmOVFPropertiesMap, boolean dynamicScalingEnabled, String vmType, VMTemplateVO template, HypervisorType hypervisorType, long accountId, ServiceOfferingVO offering, boolean isIso, Long rootDiskOfferingId, long volumesSize) throws ResourceAllocationException, StorageUnavailableException, InsufficientCapacityException {
@@ -4077,6 +4082,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
             // check if the user data is correct
             userData = validateUserData(userData, httpmethod);
+            s_logger.info(":::::::::::::7::userData:::::::::" + userData);
 
             // Find an SSH public key corresponding to the key pair name, if one is
             // given
@@ -4091,6 +4097,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 sshPublicKeys = pairs.stream().map(p -> p.getPublicKey()).collect(Collectors.joining("\n"));
                 keypairnames = String.join(",", sshKeyPairs);
             }
+            s_logger.info("::::::::::11111111:::::::::");
 
             LinkedHashMap<String, List<NicProfile>> networkNicMap = new LinkedHashMap<>();
 
@@ -4099,6 +4106,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             int networkIndex = 0;
             for (NetworkVO network : networkList) {
                 if ((network.getDataCenterId() != zone.getId())) {
+                    s_logger.info("::::::::::222222:::::::::");
+
                     if (!network.isStrechedL2Network()) {
                         throw new InvalidParameterValueException("Network id=" + network.getId() +
                                 " doesn't belong to zone " + zone.getId());
@@ -4113,6 +4122,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                                 " streched to the zone, as we could not find a valid physical network");
                     }
                 }
+                s_logger.info("::::::::::333333:::::::::");
 
                 _accountMgr.checkAccess(owner, AccessType.UseEntry, false, network);
 
@@ -4126,6 +4136,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 } else {
                     _networkModel.checkRequestedIpAddresses(network.getId(), requestedIpPair);
                 }
+                s_logger.info("::::::::::4444444:::::::::");
 
                 NicProfile profile = new NicProfile(requestedIpPair.getIp4Address(), requestedIpPair.getIp6Address(), requestedIpPair.getMacAddress());
                 profile.setOrderIndex(networkIndex);
@@ -4138,22 +4149,28 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                     } else if (defaultIps.getMacAddress() != null) {
                         profile = new NicProfile(null, null, defaultIps.getMacAddress());
                     }
+                    s_logger.info("::::::::::66666666:::::::::");
 
                     profile.setDefaultNic(true);
                     if (!_networkModel.areServicesSupportedInNetwork(network.getId(), new Service[]{Service.UserData})) {
+                        s_logger.info("::::::::::61:::::::::");
                         if ((userData != null) && (!userData.isEmpty())) {
+                            s_logger.info("::::::::::66:::::::::" + userData);
                             throw new InvalidParameterValueException(String.format("Unable to deploy VM as UserData is provided while deploying the VM, but there is no support for %s service in the default network %s/%s.", Service.UserData.getName(), network.getName(), network.getUuid()));
                         }
 
                         if ((sshPublicKeys != null) && (!sshPublicKeys.isEmpty())) {
+                            s_logger.info("::::::::::62:::::::::");
                             throw new InvalidParameterValueException(String.format("Unable to deploy VM as SSH keypair is provided while deploying the VM, but there is no support for %s service in the default network %s/%s", Service.UserData.getName(), network.getName(), network.getUuid()));
                         }
 
                         if (template.isEnablePassword()) {
+                            s_logger.info("::::::::::63:::::::::");
                             throw new InvalidParameterValueException(String.format("Unable to deploy VM as template %s is password enabled, but there is no support for %s service in the default network %s/%s", template.getId(), Service.UserData.getName(), network.getName(), network.getUuid()));
                         }
                     }
                 }
+                s_logger.info("::::::::::77777777:::::::::");
 
                 if (_networkModel.isSecurityGroupSupportedInNetwork(network)) {
                     securityGroupEnabled = true;
@@ -4166,6 +4183,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 networkNicMap.put(network.getUuid(), profiles);
                 networkIndex++;
             }
+            s_logger.info("::::::::::8888888:::::::::");
 
             if (securityGroupIdList != null && !securityGroupIdList.isEmpty() && !securityGroupEnabled) {
                 throw new InvalidParameterValueException("Unable to deploy vm with security groups as SecurityGroup service is not enabled for the vm's network");
@@ -4188,7 +4206,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 // Check is hostName is RFC compliant
                 checkNameForRFCCompliance(hostName);
             }
-
+            s_logger.info("::::::::::33332444:::::::::");
             String instanceName = null;
             String instanceSuffix = _instance;
             String uuidName = _uuidMgr.generateUuid(UserVm.class, customId);
@@ -4215,11 +4233,12 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                     hostName = generateHostName(uuidName);
                 }
             }
-
+            s_logger.info("::::::::::::6444:::::::::");
             if (hostName != null) {
                 // Check is hostName is RFC compliant
                 checkNameForRFCCompliance(hostName);
             }
+            s_logger.info(":::::::::::::666:::::::::");
             instanceName = VirtualMachineName.getVmName(id, owner.getId(), instanceSuffix);
             if (_instanceNameFlag && HypervisorType.VMware.equals(hypervisorType) && !instanceSuffix.equals(_instance)) {
                 customParameters.put(VmDetailConstants.NAME_ON_HYPERVISOR, instanceName);
@@ -4242,12 +4261,14 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             }
 
             dynamicScalingEnabled = dynamicScalingEnabled && checkIfDynamicScalingCanBeEnabled(null, offering, template, zone.getId());
+            s_logger.info(":::::::::::::8::commitUserVm:::::::::");
 
             UserVmVO vm = commitUserVm(zone, template, hostName, displayName, owner, diskOfferingId, diskSize, userData, userDataId, userDataDetails, caller, isDisplayVm, keyboard, accountId, userId, offering,
                     isIso, sshPublicKeys, networkNicMap, id, instanceName, uuidName, hypervisorType, customParameters, dhcpOptionMap,
                     datadiskTemplateToDiskOfferringMap, userVmOVFPropertiesMap, dynamicScalingEnabled, vmType, rootDiskOfferingId, keypairnames);
-
+            s_logger.info(":::::::::::::9::vm:::::::::"+ vm);
             assignInstanceToGroup(group, id);
+            s_logger.info(":::::::::::::10::vm:::::::::"+ id);
             return vm;
         } catch (ResourceAllocationException | CloudRuntimeException  e) {
             throw e;

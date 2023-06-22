@@ -27,7 +27,7 @@ http.enable=true
 http.port=8080
 
 # Max inactivity time in minutes for the session
-session.timeout=30
+session.timeout=30000
 
 # Options to configure and enable HTTPS on management server
 #

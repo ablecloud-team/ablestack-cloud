@@ -29,7 +29,7 @@ under the License.
    <!-- A regular appender FIXME implement code that will close/reopen logs on SIGHUP by logrotate FIXME make the paths configurable using the build system -->
    <appender name="FILE" class="org.apache.log4j.rolling.RollingFileAppender">
       <param name="Append" value="true"/>
-      <param name="Threshold" value="TRACE"/>
+      <param name="Threshold" value="DEBUG"/>
       <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
         <param name="FileNamePattern" value="@MSLOG@.%d{yyyy-MM-dd}.gz"/>
         <param name="ActiveFileName" value="@MSLOG@"/>
@@ -56,7 +56,7 @@ under the License.
    <!-- ============================== -->
 
    <appender name="SYSLOG" class="org.apache.log4j.net.SyslogAppender">
-      <param name="Threshold" value="WARN"/>
+      <param name="Threshold" value="DEBUG"/>
       <param name="SyslogHost" value="localhost"/>
       <param name="Facility" value="LOCAL6"/>
       <layout class="org.apache.log4j.PatternLayout">
@@ -69,7 +69,7 @@ under the License.
    <!-- ============================== -->
 
    <appender name="ALERTSYSLOG" class="org.apache.cloudstack.syslog.AlertsSyslogAppender">
-      <param name="Threshold" value="WARN"/>
+      <param name="Threshold" value="DEBUG"/>
       <param name="SyslogHosts" value=""/>
       <param name="Facility" value="LOCAL6"/>
       <layout class="org.apache.log4j.PatternLayout">
@@ -82,7 +82,7 @@ under the License.
    <!-- ============================== -->
 
    <appender name="SNMP" class="org.apache.cloudstack.alert.snmp.SnmpTrapAppender">
-      <param name="Threshold" value="WARN"/>
+      <param name="Threshold" value="DEBUG"/>
       <param name="SnmpManagerIpAddresses" value=""/>
       <param name="SnmpManagerPorts" value=""/>
       <param name="SnmpManagerCommunities" value=""/>
@@ -98,7 +98,7 @@ under the License.
 
    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
       <param name="Target" value="System.out"/>
-      <param name="Threshold" value="INFO"/>
+      <param name="Threshold" value="DEBUG"/>
       <layout class="org.apache.log4j.EnhancedPatternLayout">
          <param name="ConversionPattern" value="%-5p [%c{1.}] (%t:%x) (logid:%X{logcontextid}) %m%n"/>
       </layout>
@@ -121,12 +121,12 @@ under the License.
    </category>
 
    <category name="com.cloud.utils.nio">
-     <priority value="INFO"/>
+     <priority value="DEBUG"/>
    </category>
 
    <!-- Limit the org.apache category to INFO as its DEBUG is verbose -->
    <category name="org.apache">
-      <priority value="INFO"/>
+      <priority value="DEBUG"/>
    </category>
 
    <category name="org.apache.cloudstack">
@@ -134,23 +134,23 @@ under the License.
    </category>
 
    <category name="org.apache.cloudstack.api.command">
-      <priority value="TRACE"/>
+      <priority value="DEBUG"/>
    </category>
 
    <category name="org">
-      <priority value="INFO"/>
+      <priority value="DEBUG"/>
    </category>
 
    <category name="org.springframework">
-      <priority value="WARN"/>
+      <priority value="DEBUG"/>
    </category>
 
    <category name="org.apache.cloudstack.spring.module.context.ResourceApplicationContext">
-      <priority value="WARN"/>
+      <priority value="DEBUG"/>
    </category>
 
    <category name="net">
-     <priority value="INFO"/>
+     <priority value="DEBUG"/>
    </category>
 
    <category name="apiserver.com.cloud">
@@ -164,12 +164,12 @@ under the License.
 
    <!-- Limit the com.amazonaws category to INFO as its DEBUG is verbose -->
    <category name="com.amazonaws">
-      <priority value="INFO"/>
+      <priority value="DEBUG"/>
    </category>
 
    <!-- Limit the httpclient.wire category to INFO as its DEBUG is verbose -->
    <category name="httpclient.wire">
-      <priority value="INFO"/>
+      <priority value="DEBUG"/>
    </category>
 
    <!-- ============================== -->
@@ -177,7 +177,7 @@ under the License.
    <!-- ============================== -->
 
    <logger name="org.apache.cloudstack.alerts" additivity="false">
-      <level value="WARN"/>
+      <level value="DEBUG"/>
       <appender-ref ref="SYSLOG"/>
       <appender-ref ref="CONSOLE"/>
       <appender-ref ref="FILE"/>
@@ -190,7 +190,7 @@ under the License.
    <!-- ======================= -->
 
    <root>
-      <level value="INFO"/>
+      <level value="DEBUG"/>
       <appender-ref ref="SYSLOG"/>
       <appender-ref ref="CONSOLE"/>
       <appender-ref ref="FILE"/>

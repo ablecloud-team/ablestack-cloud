@@ -29,6 +29,7 @@ import com.cloud.vm.VirtualMachine;
  */
 public interface ServiceOfferingDao extends GenericDao<ServiceOfferingVO, Long> {
     ServiceOfferingVO findByName(String name);
+    ServiceOfferingVO findByNameNotSystemUse(String name);
 
     List<ServiceOfferingVO> createSystemServiceOfferings(String name, String uniqueName, int cpuCount, int ramSize, int cpuSpeed,
             Integer rateMbps, Integer multicastRateMbps, boolean offerHA, String displayText, ProvisioningType provisioningType,

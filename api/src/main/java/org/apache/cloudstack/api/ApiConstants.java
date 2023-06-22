@@ -1049,6 +1049,9 @@ public class ApiConstants {
     public static final String DEPLOYED_VM_ID = "deployedvmid";
     public static final String DEPLOYED_VIRTUAL_MACHINES = "deployedvms";
     public static final String ACCESS_INFO = "accessinfo";
+    public static final String SHARED_STORAGE_VM = "sharedstoragevm";
+    public static final String SHARED_STORAGE_VM_TYPE = "sharedstoragevmtype";
+    public static final String SHARED_STORAGE_VM_IP = "sharedstoragevmip";
 
     public static final String BOOT_TYPE = "boottype";
     public static final String BOOT_MODE = "bootmode";

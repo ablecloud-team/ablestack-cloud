@@ -94,6 +94,7 @@
         <module>integrations/kubernetes-service</module>
         <module>integrations/desktop-service</module>
         <module>integrations/automation-service</module>
+        <module>integrations/ssv-service</module>
         <module>metrics</module>
 
         <module>network-elements/bigswitch</module>

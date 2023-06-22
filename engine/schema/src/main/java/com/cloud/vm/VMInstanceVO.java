@@ -252,6 +252,10 @@ public class VMInstanceVO implements VirtualMachine, FiniteStateObject<State, Vi
         return accountId;
     }
 
+    public void setAccountId(long accountId) {
+        this.accountId = accountId;
+    }
+
     @Override
     public Type getType() {
         return type;

@@ -204,6 +204,7 @@ public class DiskOfferingVO implements DiskOffering {
         this.useLocalStorage = useLocalStorage;
         this.customized = customized;
         uuid = UUID.randomUUID().toString();
+        this.cacheMode = DiskCacheMode.WRITEBACK;
         state = State.Active;
     }
 

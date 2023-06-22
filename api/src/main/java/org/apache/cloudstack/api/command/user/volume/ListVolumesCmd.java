@@ -148,7 +148,8 @@ public class ListVolumesCmd extends BaseListTaggedResourcesCmd implements UserCm
         if (display != null) {
             return display;
         }
-        return super.getDisplay();
+        return null;
+        // return super.getDisplay();
     }
 
     public String getState() {

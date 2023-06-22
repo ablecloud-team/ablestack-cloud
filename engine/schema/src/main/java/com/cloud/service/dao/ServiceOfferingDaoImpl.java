@@ -96,6 +96,19 @@ public class ServiceOfferingDaoImpl extends GenericDaoBase<ServiceOfferingVO, Lo
     }
 
     @Override
+    public ServiceOfferingVO findByNameNotSystemUse(String name) {
+        SearchCriteria<ServiceOfferingVO> sc = UniqueNameSearch.create();
+        sc.setParameters("name", name);
+        sc.setParameters("system_use", false);
+        List<ServiceOfferingVO> vos = search(sc, null, null, false);
+        if (vos.size() == 0) {
+            return null;
+        }
+
+        return vos.get(0);
+    }
+
+    @Override
     @DB
     public ServiceOfferingVO persistSystemServiceOffering(ServiceOfferingVO offering) {
         assert offering.getUniqueName() != null : "how are you going to find this later if you don't set it?";
