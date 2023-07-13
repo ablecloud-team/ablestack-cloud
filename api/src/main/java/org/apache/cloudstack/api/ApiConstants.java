@@ -1096,6 +1096,9 @@ public class ApiConstants {
     public static final String SOURCE_NAT_IP_ID = "sourcenatipaddressid";
     public static final String HAS_RULES = "hasrules";
 
+    public static final String SECURITY_CHECKS = "securitychecks";
+    public static final String SECURITY_CHECK_NAME = "checkname";
+
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.
      * Qemu guests support "threads" and "native" options Since 0.8.8 ; "io_uring" is supported Since 6.3.0 (QEMU 5.0).

@@ -384,6 +384,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                 ///////////////////// Ablestack 업그레이드 //////////////////////////
                 beforeUpgradeAblestack("Bronto");
                 beforeUpgradeAblestack("Cerato");
+                // beforeUpgradeAblestack("Diplo");
                 ///////////////////// Ablestack 업그레이드 //////////////////////////
 
                 if (StringUtils.isBlank(currentVersionValue)) {
@@ -412,6 +413,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                 ///////////////////// Ablestack 업그레이드 //////////////////////////
                 afterUpgradeAblestack("Bronto");
                 afterUpgradeAblestack("Cerato");
+                // afterUpgradeAblestack("Diplo");
                 ///////////////////// Ablestack 업그레이드 //////////////////////////
                 lock.unlock();
             }

@@ -239,6 +239,8 @@ known_categories = {
     'Sioc' : 'Sioc',
     'Diagnostics': 'Diagnostics',
     'Management': 'Management',
+    'getSecurityCheckResult': 'Management',
+    'runSecurityCheck': 'Management',
     'Backup' : 'Backup and Recovery',
     'Restore' : 'Backup and Recovery',
     'UnmanagedInstance': 'Virtual Machine',

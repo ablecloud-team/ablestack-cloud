@@ -135,6 +135,7 @@ import org.apache.cloudstack.api.response.RollingMaintenanceHostUpdatedResponse;
 import org.apache.cloudstack.api.response.RollingMaintenanceResponse;
 import org.apache.cloudstack.api.response.RouterHealthCheckResultResponse;
 import org.apache.cloudstack.api.response.SSHKeyPairResponse;
+import org.apache.cloudstack.api.response.SecurityCheckResultResponse;
 import org.apache.cloudstack.api.response.SecurityGroupResponse;
 import org.apache.cloudstack.api.response.SecurityGroupRuleResponse;
 import org.apache.cloudstack.api.response.ServiceOfferingResponse;
@@ -191,6 +192,7 @@ import org.apache.cloudstack.network.lb.ApplicationLoadBalancerRule;
 import org.apache.cloudstack.region.PortableIp;
 import org.apache.cloudstack.region.PortableIpRange;
 import org.apache.cloudstack.region.Region;
+import org.apache.cloudstack.security.SecurityCheckResult;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreVO;
@@ -5004,5 +5006,20 @@ public class ApiResponseHelper implements ResponseGenerator {
         response.setState(stateToSet);
         response.setObjectName("firewallrule");
         return response;
+    }
+
+    @Override
+    public List<SecurityCheckResultResponse> createSecurityCheckResponse(ManagementServerHost mshostId, List<SecurityCheckResult> securityCheckResults) {
+        List<SecurityCheckResultResponse> responses = new ArrayList<>(securityCheckResults.size());
+        for (SecurityCheckResult scResult : securityCheckResults) {
+            SecurityCheckResultResponse securityCheckResponse = new SecurityCheckResultResponse();
+            securityCheckResponse.setObjectName("securitychecks");
+            securityCheckResponse.setCheckName(scResult.getCheckName());
+            securityCheckResponse.setResult(scResult.getCheckResult());
+            securityCheckResponse.setLastUpdated(scResult.getLastUpdateTime());
+            securityCheckResponse.setDetails(scResult.getParsedCheckDetails());
+            responses.add(securityCheckResponse);
+        }
+        return responses;
     }
 }

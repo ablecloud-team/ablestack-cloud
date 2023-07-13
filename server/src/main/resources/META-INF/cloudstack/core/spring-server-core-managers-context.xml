@@ -347,4 +347,6 @@
 
     <bean id="resourceIconManager" class="com.cloud.resourceicon.ResourceIconManagerImpl" />
 
+    <bean id="SecurityCheckService" class="org.apache.cloudstack.security.SecurityCheckServiceImpl" />
+
 </beans>

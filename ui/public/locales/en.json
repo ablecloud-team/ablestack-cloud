@@ -3431,5 +3431,10 @@
 "label.action.enableBalancing.cluster": "Enable Cluster dynamic resource distribution",
 "message.action.enableBalancing.cluster": "Enable dynamic resource allocation for this cluster. Enabling this feature allows migration of a running virtual machine to another host.",
 "label.action.disableBalancing.cluster": "Disable Cluster dynamic resource distribution",
-"message.action.disableBalancing.cluster": "Disable dynamic resource allocation for this cluster."
+"message.action.disableBalancing.cluster": "Disable dynamic resource allocation for this cluster.",
+"label.security.check" : "Security Check",
+"label.security.check.name" : "Check name",
+"label.security.check.success" : "Success",
+"label.security.check.last.updated" : "Last updated",
+"message.confirm.security.check" : "Please confirm that you want to proceed with the security check."
 }

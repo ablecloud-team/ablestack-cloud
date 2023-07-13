@@ -209,6 +209,8 @@ import org.apache.cloudstack.api.command.admin.router.StartRouterCmd;
 import org.apache.cloudstack.api.command.admin.router.StopRouterCmd;
 import org.apache.cloudstack.api.command.admin.router.UpgradeRouterCmd;
 import org.apache.cloudstack.api.command.admin.router.UpgradeRouterTemplateCmd;
+import org.apache.cloudstack.api.command.admin.security.GetSecurityCheckResultCmd;
+import org.apache.cloudstack.api.command.admin.security.RunSecurityCheckCmd;
 import org.apache.cloudstack.api.command.admin.storage.AddImageStoreCmd;
 import org.apache.cloudstack.api.command.admin.storage.AddImageStoreS3CMD;
 import org.apache.cloudstack.api.command.admin.storage.CancelPrimaryStorageMaintenanceCmd;
@@ -3846,6 +3848,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(DeleteUserDataCmd.class);
         cmdList.add(ListUserDataCmd.class);
         cmdList.add(LinkUserDataToTemplateCmd.class);
+
+        //ablestack APIs
+        cmdList.add(GetSecurityCheckResultCmd.class);
+        cmdList.add(RunSecurityCheckCmd.class);
         return cmdList;
     }
 

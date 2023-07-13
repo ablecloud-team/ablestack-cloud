@@ -3382,5 +3382,10 @@
 "label.action.enableBalancing.cluster": "\ud074\ub7ec\uc2a4\ud130 \ub3d9\uc801 \uc790\uc6d0\ubd84\ubc30 \ud65c\uc131\ud654",
 "message.action.enableBalancing.cluster": "\uc774 \ud074\ub7ec\uc2a4\ud130\uc5d0 \ub300\ud574 \ub3d9\uc801 \ub9ac\uc18c\uc2a4 \ud560\ub2f9\uc744 \ud65c\uc131\ud654\ud569\ub2c8\ub2e4. \uc774 \uae30\ub2a5\uc744 \ud65c\uc131\ud654\ud558\uba74 \uc2e4\ud589 \uc911\uc778 \uac00\uc0c1 \uba38\uc2e0\uc744 \ub2e4\ub978 \ud638\uc2a4\ud2b8\ub85c \ub9c8\uc774\uadf8\ub808\uc774\uc158\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.",
 "label.action.disableBalancing.cluster": "\ud074\ub7ec\uc2a4\ud130 \ub3d9\uc801 \uc790\uc6d0\ubd84\ubc30 \ube44\ud65c\uc131\ud654",
-"message.action.disableBalancing.cluster": "\uc774 \ud074\ub7ec\uc2a4\ud130\uc5d0 \ub300\ud574 \ub3d9\uc801 \ub9ac\uc18c\uc2a4 \ud560\ub2f9\uc744 \ube44\ud65c\uc131\ud654\ud569\ub2c8\ub2e4."
+"message.action.disableBalancing.cluster": "\uc774 \ud074\ub7ec\uc2a4\ud130\uc5d0 \ub300\ud574 \ub3d9\uc801 \ub9ac\uc18c\uc2a4 \ud560\ub2f9\uc744 \ube44\ud65c\uc131\ud654\ud569\ub2c8\ub2e4.",
+"label.run.security.check" : "보안 기능 점검",
+"label.security.check.name" : "이름",
+"label.security.check.success" : "성공",
+"label.security.check.last.updated" : "마지막 업데이트",
+"message.confirm.run.security.check" : "보안 기능 점검을 진행할 것인지 확인하십시오."
 }
