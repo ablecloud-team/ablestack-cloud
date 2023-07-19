@@ -811,7 +811,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
     protected boolean handleDisconnectWithoutInvestigation(final AgentAttache attache, final Status.Event event, final boolean transitState, final boolean removeAgent) {
         final long hostId = attache.getId();
-
+        s_logger.info("mold: AgentManagerImpl.java handleDisconnectWithoutInvestigation");
         s_logger.info("Host " + hostId + " is disconnecting with event " + event);
         Status nextStatus = null;
         final HostVO host = _hostDao.findById(hostId);
@@ -1568,7 +1568,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
     private void disconnectInternal(final long hostId, final Status.Event event, final boolean invstigate) {
         final AgentAttache attache = findAttache(hostId);
-
+        s_logger.info("mold: AgentManagerImpl.java disconnectInternal attach : "+attache);
         if (attache != null) {
             if (!invstigate) {
                 disconnectWithoutInvestigation(attache, event);
@@ -1576,6 +1576,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                 disconnectWithInvestigation(attache, event);
             }
         } else {
+            s_logger.info("mold: AgentManagerImpl.java disconnectInternal else");
             /* Agent is still in connecting process, don't allow to disconnect right away */
             if (tapLoadingAgents(hostId, TapAgentsAction.Contains)) {
                 s_logger.info("Host " + hostId + " is being loaded so no disconnects needed.");
@@ -1584,6 +1585,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
             final HostVO host = _hostDao.findById(hostId);
             if (host != null && host.getRemoved() == null) {
+                s_logger.info("mold: AgentManagerImpl.java disconnectInternal else2");
                 disconnectAgent(host, event, _nodeId);
             }
         }
