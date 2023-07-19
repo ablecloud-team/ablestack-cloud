@@ -527,7 +527,9 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
         boolean conflict = false;
         synchronized (_agents) {
             removed = _agents.remove(hostId);
+            s_logger.info("mold: AgentManagerImpl.java removeAgent removed : "+removed);
             if (removed != null && removed != attache) {
+                s_logger.info("mold: AgentManagerImpl.java removeAgent removed if");
                 conflict = true;
                 _agents.put(hostId, removed);
                 removed = attache;
@@ -537,10 +539,12 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             s_logger.debug("Agent for host " + hostId + " is created when it is being disconnected");
         }
         if (removed != null) {
+            s_logger.info("mold: AgentManagerImpl.java removeAgent removed != null");
             removed.disconnect(nextState);
         }
 
         for (final Pair<Integer, Listener> monitor : _hostMonitors) {
+             s_logger.info("mold: AgentManagerImpl.java removeAgent monitor : "+monitor);
             if (s_logger.isDebugEnabled()) {
                 s_logger.debug("Sending Disconnect to listener: " + monitor.second().getClass().getName());
             }
@@ -831,7 +835,6 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                     nextStatus = currentStatus.getNextStatus(event);
                     s_logger.info("mold: AgentManagerImpl.java handleDisconnectWithoutInvestigation nextStatus : "+nextStatus);
                 } catch (final NoTransitionException e) {
-                    s_logger.info("mold: AgentManagerImpl.java handleDisconnectWithoutInvestigation nextStatus err : "+e);
                     final String err = "Cannot find next status for " + event + " as current status is " + currentStatus + " for agent " + hostId;
                     s_logger.debug(err);
                     throw new CloudRuntimeException(err);
@@ -851,6 +854,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
         removeAgent(attache, nextStatus);
         // update the DB
         if (host != null && transitState) {
+            s_logger.info("mold: AgentManagerImpl.java handleDisconnectWithoutInvestigation transitState : "+transitState);
             disconnectAgent(host, event, _nodeId);
         }
 
@@ -1579,7 +1583,6 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                 disconnectWithInvestigation(attache, event);
             }
         } else {
-            s_logger.info("mold: AgentManagerImpl.java disconnectInternal else");
             /* Agent is still in connecting process, don't allow to disconnect right away */
             if (tapLoadingAgents(hostId, TapAgentsAction.Contains)) {
                 s_logger.info("Host " + hostId + " is being loaded so no disconnects needed.");
@@ -1588,7 +1591,6 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
             final HostVO host = _hostDao.findById(hostId);
             if (host != null && host.getRemoved() == null) {
-                s_logger.info("mold: AgentManagerImpl.java disconnectInternal else2");
                 disconnectAgent(host, event, _nodeId);
             }
         }
