@@ -820,6 +820,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             nextStatus = Status.Removed;
         } else {
             final Status currentStatus = host.getStatus();
+            s_logger.info("mold: AgentManagerImpl.java handleDisconnectWithoutInvestigation currentStatus : "+currentStatus);
             if (currentStatus == Status.Down || currentStatus == Status.Alert || currentStatus == Status.Removed) {
                 if (s_logger.isDebugEnabled()) {
                     s_logger.debug("Host " + hostId + " is already " + currentStatus);
@@ -828,7 +829,9 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             } else {
                 try {
                     nextStatus = currentStatus.getNextStatus(event);
+                    s_logger.info("mold: AgentManagerImpl.java handleDisconnectWithoutInvestigation nextStatus : "+nextStatus);
                 } catch (final NoTransitionException e) {
+                    s_logger.info("mold: AgentManagerImpl.java handleDisconnectWithoutInvestigation nextStatus err : "+e);
                     final String err = "Cannot find next status for " + event + " as current status is " + currentStatus + " for agent " + hostId;
                     s_logger.debug(err);
                     throw new CloudRuntimeException(err);
