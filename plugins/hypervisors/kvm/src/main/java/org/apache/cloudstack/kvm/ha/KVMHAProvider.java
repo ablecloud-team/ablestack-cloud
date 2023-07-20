@@ -19,8 +19,13 @@
 
 package org.apache.cloudstack.kvm.ha;
 
+import com.cloud.exception.DiscoveredWithErrorException;
 import com.cloud.host.Host;
+import com.cloud.host.HostVO;
 import com.cloud.hypervisor.Hypervisor;
+import com.cloud.utils.exception.CloudRuntimeException;
+import com.cloud.utils.ssh.SSHCmdHelper;
+import com.trilead.ssh2.Connection;
 
 import org.apache.cloudstack.api.response.OutOfBandManagementResponse;
 import org.apache.cloudstack.framework.config.ConfigKey;
@@ -40,7 +45,13 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
+
+import static com.cloud.utils.component.ComponentLifecycleBase.s_logger;
+
+import java.net.InetAddress;
 import java.security.InvalidParameterException;
+import java.util.List;
+import java.util.UUID;
 
 public final class KVMHAProvider extends HAAbstractHostProvider implements HAProvider<Host>, Configurable {
     private final static Logger LOG = Logger.getLogger(KVMHAProvider.class);
@@ -95,7 +106,15 @@ public final class KVMHAProvider extends HAAbstractHostProvider implements HAPro
             if (outOfBandManagementService.isOutOfBandManagementEnabled(r)){
                 final OutOfBandManagement oobm = outOfBandManagementDao.findByHost(r.getId());
                 if (oobm.getPowerState() == PowerState.Unknown){
-                    return true;
+                    // return true;
+                    Connection sshConnection = null;
+                    String agentIp = null;
+                    InetAddress ia = InetAddress.getByName(r.getName());
+                    agentIp = ia.getHostAddress();
+                    LOG.info(agentIp);
+                    sshConnection = new Connection(agentIp, 22);
+                    sshConnection.connect(null, 60000, 60000);
+                    return SSHCmdHelper.sshExecuteCmd(sshConnection, "shutdown");
                 } else {
                     final OutOfBandManagementResponse resp = outOfBandManagementService.executePowerOperation(r, PowerOperation.OFF, null);
                     return resp.getSuccess();
