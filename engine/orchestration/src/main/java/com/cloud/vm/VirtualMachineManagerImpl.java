@@ -1885,6 +1885,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
 
         final AsyncJobExecutionContext jobContext = AsyncJobExecutionContext.getCurrentExecutionContext();
         if (jobContext.isJobDispatchedBy(VmWorkConstants.VM_WORK_JOB_DISPATCHER)) {
+            s_logger.info("mold: HighAvailabilityManagerImpl.java advanceStop if");
 
             VmWorkJobVO placeHolder = null;
             final VirtualMachine vm = _vmDao.findByUuid(vmUuid);
@@ -1898,6 +1899,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
             }
 
         } else {
+            s_logger.info("mold: HighAvailabilityManagerImpl.java advanceStop else");
             final Outcome<VirtualMachine> outcome = stopVmThroughJobQueue(vmUuid, cleanUpEvenIfUnableToStop);
 
             retrieveVmFromJobOutcome(outcome, vmUuid, "stopVm");
@@ -2044,6 +2046,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
             }
 
             if (doCleanup) {
+                s_logger.info("mold:VirtualMachineManagerImpl.java advanceStop doCleanup :"+doCleanup);
                 if (cleanup(vmGuru, new VirtualMachineProfileImpl(vm), work, Event.StopRequested, cleanUpEvenIfUnableToStop)) {
                     try {
                         if (s_logger.isDebugEnabled() && work != null) {
@@ -2113,6 +2116,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
             s_logger.warn(String.format("Unable to stop %s due to [%s].", profile.toString(), e.toString()), e);
         } finally {
             if (!stopped) {
+                s_logger.info("mold:VirtualMachineManagerImpl.java advanceStop if stopped");
                 if (!cleanUpEvenIfUnableToStop) {
                     s_logger.warn("Unable to stop vm " + vm);
                     try {
