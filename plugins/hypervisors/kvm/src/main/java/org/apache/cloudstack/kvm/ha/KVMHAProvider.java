@@ -40,9 +40,7 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
-
 import java.security.InvalidParameterException;
-
 
 public final class KVMHAProvider extends HAAbstractHostProvider implements HAProvider<Host>, Configurable {
     private final static Logger LOG = Logger.getLogger(KVMHAProvider.class);
