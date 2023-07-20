@@ -811,6 +811,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
     protected boolean handleDisconnectWithoutInvestigation(final AgentAttache attache, final Status.Event event, final boolean transitState, final boolean removeAgent) {
         final long hostId = attache.getId();
+
         s_logger.info("Host " + hostId + " is disconnecting with event " + event);
         Status nextStatus = null;
         final HostVO host = _hostDao.findById(hostId);
@@ -1567,6 +1568,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
     private void disconnectInternal(final long hostId, final Status.Event event, final boolean invstigate) {
         final AgentAttache attache = findAttache(hostId);
+
         if (attache != null) {
             if (!invstigate) {
                 disconnectWithoutInvestigation(attache, event);
