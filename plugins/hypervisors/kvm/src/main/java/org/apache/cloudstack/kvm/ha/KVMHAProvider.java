@@ -114,7 +114,7 @@ public final class KVMHAProvider extends HAAbstractHostProvider implements HAPro
                     LOG.info(agentIp);
                     sshConnection = new Connection(agentIp, 22);
                     sshConnection.connect(null, 60000, 60000);
-                    return SSHCmdHelper.sshExecuteCmd(sshConnection, "shutdown");
+                    return SSHCmdHelper.sshExecuteCmd(sshConnection, "poweroff");
                 } else {
                     final OutOfBandManagementResponse resp = outOfBandManagementService.executePowerOperation(r, PowerOperation.OFF, null);
                     return resp.getSuccess();
