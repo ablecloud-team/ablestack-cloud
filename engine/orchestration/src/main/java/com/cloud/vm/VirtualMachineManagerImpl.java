@@ -78,6 +78,10 @@ import org.apache.cloudstack.framework.messagebus.MessageDispatcher;
 import org.apache.cloudstack.framework.messagebus.MessageHandler;
 import org.apache.cloudstack.jobs.JobInfo;
 import org.apache.cloudstack.managed.context.ManagedContextRunnable;
+import org.apache.cloudstack.outofbandmanagement.OutOfBandManagement;
+import org.apache.cloudstack.outofbandmanagement.OutOfBandManagementService;
+import org.apache.cloudstack.outofbandmanagement.OutOfBandManagement.PowerState;
+import org.apache.cloudstack.outofbandmanagement.dao.OutOfBandManagementDao;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
@@ -259,6 +263,7 @@ import com.cloud.vm.ItWorkVO.Step;
 import com.cloud.vm.VirtualMachine.Event;
 import com.cloud.vm.VirtualMachine.PowerState;
 import com.cloud.vm.VirtualMachine.State;
+import com.cloud.vm.VirtualMachineManagerImpl.TransitionTask;
 import com.cloud.vm.dao.NicDao;
 import com.cloud.vm.dao.UserVmDao;
 import com.cloud.vm.dao.UserVmDetailsDao;
@@ -382,6 +387,10 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
     private DomainRouterJoinDao domainRouterJoinDao;
     @Inject
     private AnnotationDao annotationDao;
+    @Inject
+    private OutOfBandManagementService outOfBandManagementService;
+    @Inject
+    private OutOfBandManagementDao outOfBandManagementDao;
 
     VmWorkJobHandlerProxy _jobHandlerProxy = new VmWorkJobHandlerProxy(this);
 
@@ -2082,62 +2091,68 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
             stop.setVlanToPersistenceMap(vlanToPersistenceMap);
         }
 
-        boolean stopped = false;
-        Answer answer = null;
-        try {
-            answer = _agentMgr.send(vm.getHostId(), stop);
-            if (answer != null) {
-                if (answer instanceof StopAnswer) {
-                    final StopAnswer stopAns = (StopAnswer)answer;
-                    if (vm.getType() == VirtualMachine.Type.User) {
-                        final String platform = stopAns.getPlatform();
-                        if (platform != null) {
-                            final UserVmVO userVm = _userVmDao.findById(vm.getId());
-                            _userVmDao.loadDetails(userVm);
-                            userVm.setDetail(VmDetailConstants.PLATFORM, platform);
-                            _userVmDao.saveDetails(userVm);
+        final OutOfBandManagement oobm = outOfBandManagementDao.findByHost(r.getId());
+        if (oobm.getPowerState() != PowerState.Unknown){
+            boolean stopped = false;
+            Answer answer = null;
+            try {
+                answer = _agentMgr.send(vm.getHostId(), stop);
+                if (answer != null) {
+                    if (answer instanceof StopAnswer) {
+                        final StopAnswer stopAns = (StopAnswer)answer;
+                        if (vm.getType() == VirtualMachine.Type.User) {
+                            final String platform = stopAns.getPlatform();
+                            if (platform != null) {
+                                final UserVmVO userVm = _userVmDao.findById(vm.getId());
+                                _userVmDao.loadDetails(userVm);
+                                userVm.setDetail(VmDetailConstants.PLATFORM, platform);
+                                _userVmDao.saveDetails(userVm);
+                            }
+                        }
+                    }
+                    stopped = answer.getResult();
+                    if (!stopped) {
+                        throw new CloudRuntimeException("Unable to stop the virtual machine due to " + answer.getDetails());
+                    }
+                    vmGuru.finalizeStop(profile, answer);
+                    final GPUDeviceTO gpuDevice = stop.getGpuDevice();
+                    if (gpuDevice != null) {
+                        _resourceMgr.updateGPUDetails(vm.getHostId(), gpuDevice.getGroupDetails());
+                    }
+                } else {
+                    throw new CloudRuntimeException("Invalid answer received in response to a StopCommand on " + vm.instanceName);
+                }
+
+            } catch (AgentUnavailableException | OperationTimedoutException e) {
+                s_logger.warn(String.format("Unable to stop %s due to [%s].", profile.toString(), e.toString()), e);
+            } finally {
+                if (!stopped) {
+                    s_logger.info("mold:VirtualMachineManagerImpl.java advanceStop if stopped");
+                    if (!cleanUpEvenIfUnableToStop) {
+                        s_logger.warn("Unable to stop vm " + vm);
+                        try {
+                            stateTransitTo(vm, Event.OperationFailed, vm.getHostId());
+                        } catch (final NoTransitionException e) {
+                            s_logger.warn("Unable to transition the state " + vm, e);
+                        }
+                        throw new CloudRuntimeException("Unable to stop " + vm);
+                    } else {
+                        s_logger.warn("Unable to actually stop " + vm + " but continue with release because it's a force stop");
+                        vmGuru.finalizeStop(profile, answer);
+                    }
+                } else {
+                    if (VirtualMachine.systemVMs.contains(vm.getType())) {
+                        HostVO systemVmHost = ApiDBUtils.findHostByTypeNameAndZoneId(vm.getDataCenterId(), vm.getHostName(),
+                                VirtualMachine.Type.SecondaryStorageVm.equals(vm.getType()) ? Host.Type.SecondaryStorageVM : Host.Type.ConsoleProxy);
+                        if (systemVmHost != null) {
+                            _agentMgr.agentStatusTransitTo(systemVmHost, Status.Event.ShutdownRequested, _nodeId);
                         }
                     }
                 }
-                stopped = answer.getResult();
-                if (!stopped) {
-                    throw new CloudRuntimeException("Unable to stop the virtual machine due to " + answer.getDetails());
-                }
-                vmGuru.finalizeStop(profile, answer);
-                final GPUDeviceTO gpuDevice = stop.getGpuDevice();
-                if (gpuDevice != null) {
-                    _resourceMgr.updateGPUDetails(vm.getHostId(), gpuDevice.getGroupDetails());
-                }
-            } else {
-                throw new CloudRuntimeException("Invalid answer received in response to a StopCommand on " + vm.instanceName);
             }
-
-        } catch (AgentUnavailableException | OperationTimedoutException e) {
-            s_logger.warn(String.format("Unable to stop %s due to [%s].", profile.toString(), e.toString()), e);
-        } finally {
-            if (!stopped) {
-                s_logger.info("mold:VirtualMachineManagerImpl.java advanceStop if stopped");
-                if (!cleanUpEvenIfUnableToStop) {
-                    s_logger.warn("Unable to stop vm " + vm);
-                    try {
-                        stateTransitTo(vm, Event.OperationFailed, vm.getHostId());
-                    } catch (final NoTransitionException e) {
-                        s_logger.warn("Unable to transition the state " + vm, e);
-                    }
-                    throw new CloudRuntimeException("Unable to stop " + vm);
-                } else {
-                    s_logger.warn("Unable to actually stop " + vm + " but continue with release because it's a force stop");
-                    vmGuru.finalizeStop(profile, answer);
-                }
-            } else {
-                if (VirtualMachine.systemVMs.contains(vm.getType())) {
-                    HostVO systemVmHost = ApiDBUtils.findHostByTypeNameAndZoneId(vm.getDataCenterId(), vm.getHostName(),
-                            VirtualMachine.Type.SecondaryStorageVm.equals(vm.getType()) ? Host.Type.SecondaryStorageVM : Host.Type.ConsoleProxy);
-                    if (systemVmHost != null) {
-                        _agentMgr.agentStatusTransitTo(systemVmHost, Status.Event.ShutdownRequested, _nodeId);
-                    }
-                }
-            }
+        } else {
+            s_logger.warn("Unable to actually stop " + vm + " but continue with release because it's a force stop");
+            vmGuru.finalizeStop(profile, null);
         }
 
         if (s_logger.isDebugEnabled()) {
