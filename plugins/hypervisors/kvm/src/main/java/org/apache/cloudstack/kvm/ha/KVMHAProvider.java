@@ -19,11 +19,8 @@
 
 package org.apache.cloudstack.kvm.ha;
 
-import com.cloud.exception.DiscoveredWithErrorException;
 import com.cloud.host.Host;
-import com.cloud.host.HostVO;
 import com.cloud.hypervisor.Hypervisor;
-import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.ssh.SSHCmdHelper;
 import com.trilead.ssh2.Connection;
 
@@ -46,12 +43,9 @@ import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 
-import static com.cloud.utils.component.ComponentLifecycleBase.s_logger;
-
 import java.net.InetAddress;
 import java.security.InvalidParameterException;
-import java.util.List;
-import java.util.UUID;
+
 
 public final class KVMHAProvider extends HAAbstractHostProvider implements HAProvider<Host>, Configurable {
     private final static Logger LOG = Logger.getLogger(KVMHAProvider.class);
