@@ -2091,8 +2091,9 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
             stop.setVlanToPersistenceMap(vlanToPersistenceMap);
         }
 
-        final OutOfBandManagement oobm = outOfBandManagementDao.findByHost(r.getId());
+        final OutOfBandManagement oobm = outOfBandManagementDao.findByHost(hostId);
         if (oobm.getPowerState() != PowerState.Unknown){
+            s_logger.info("mold: VirtualMachineManagerImpl advancestop: !Unknown");
             boolean stopped = false;
             Answer answer = null;
             try {
@@ -2151,6 +2152,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
                 }
             }
         } else {
+            s_logger.info("mold: VirtualMachineManagerImpl advancestop: Unknown");
             s_logger.warn("Unable to actually stop " + vm + " but continue with release because it's a force stop");
             vmGuru.finalizeStop(profile, null);
         }
