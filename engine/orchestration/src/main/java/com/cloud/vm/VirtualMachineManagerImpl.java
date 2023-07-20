@@ -80,7 +80,6 @@ import org.apache.cloudstack.jobs.JobInfo;
 import org.apache.cloudstack.managed.context.ManagedContextRunnable;
 import org.apache.cloudstack.outofbandmanagement.OutOfBandManagement;
 import org.apache.cloudstack.outofbandmanagement.OutOfBandManagementService;
-import org.apache.cloudstack.outofbandmanagement.OutOfBandManagement.PowerState;
 import org.apache.cloudstack.outofbandmanagement.dao.OutOfBandManagementDao;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
@@ -261,6 +260,7 @@ import com.cloud.utils.fsm.NoTransitionException;
 import com.cloud.utils.fsm.StateMachine2;
 import com.cloud.vm.ItWorkVO.Step;
 import com.cloud.vm.VirtualMachine.Event;
+import com.cloud.vm.VirtualMachine.PowerState;
 import com.cloud.vm.VirtualMachine.State;
 import com.cloud.vm.VirtualMachineManagerImpl.TransitionTask;
 import com.cloud.vm.dao.NicDao;
@@ -386,8 +386,6 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
     private DomainRouterJoinDao domainRouterJoinDao;
     @Inject
     private AnnotationDao annotationDao;
-    @Inject
-    private OutOfBandManagementService outOfBandManagementService;
     @Inject
     private OutOfBandManagementDao outOfBandManagementDao;
 
@@ -2091,7 +2089,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
         }
 
         final OutOfBandManagement oobm = outOfBandManagementDao.findByHost(hostId);
-        if (oobm.getPowerState() != PowerState.Unknown){
+        if (oobm.getPowerState() != OutOfBandManagement.PowerState.Unknown){
             s_logger.info("mold: VirtualMachineManagerImpl advancestop: !Unknown");
             boolean stopped = false;
             Answer answer = null;
