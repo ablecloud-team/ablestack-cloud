@@ -31,7 +31,6 @@ import org.apache.cloudstack.annotation.AnnotationService;
 import org.apache.cloudstack.annotation.dao.AnnotationDao;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.commons.collections.MapUtils;
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 import org.apache.cloudstack.api.command.user.vmsnapshot.ListVMSnapshotCmd;
 import org.apache.cloudstack.context.CallContext;
@@ -131,7 +130,6 @@ import com.cloud.vm.snapshot.dao.VMSnapshotDetailsDao;
 
 @Component
 public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase implements VMSnapshotManager, VMSnapshotService, VmWorkJobHandler, Configurable {
-    private static final Logger s_logger = Logger.getLogger(VMSnapshotManagerImpl.class);
 
     public static final String VM_WORK_JOB_HANDLER = VMSnapshotManagerImpl.class.getSimpleName();
 
@@ -386,7 +384,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
 
             if (snapshotStrategy == null) {
                 String message = "KVM does not support the type of snapshot requested";
-                s_logger.debug(message);
+                logger.debug(message);
                 throw new CloudRuntimeException(message);
             }
 
@@ -432,7 +430,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
             return createAndPersistVMSnapshot(userVmVo, vsDescription, vmSnapshotName, vsDisplayName, vmSnapshotType);
         } catch (Exception e) {
             String msg = e.getMessage();
-            s_logger.error("Create vm snapshot record failed for vm: " + vmId + " due to: " + msg);
+            logger.error("Create vm snapshot record failed for vm: " + vmId + " due to: " + msg);
         }
         return null;
     }
@@ -589,7 +587,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
             return snapshot;
         } catch (Exception e) {
             String errMsg = String.format("Failed to create vm snapshot: [%s] due to: %s", vmSnapshotId, e.getMessage());
-            s_logger.debug(errMsg, e);
+            logger.debug(errMsg, e);
             throw new CloudRuntimeException(errMsg, e);
         }
     }
@@ -626,7 +624,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
         if (hasActiveVMSnapshotTasks(vmSnapshot.getVmId())) {
             List<VMSnapshotVO> expungingSnapshots = _vmSnapshotDao.listByInstanceId(vmSnapshot.getVmId(), VMSnapshot.State.Expunging);
             if (expungingSnapshots.size() > 0 && expungingSnapshots.get(0).getId() == vmSnapshot.getId())
-                s_logger.debug("Target VM snapshot already in expunging state, go on deleting it: " + vmSnapshot.getDisplayName());
+                logger.debug("Target VM snapshot already in expunging state, go on deleting it: " + vmSnapshot.getDisplayName());
             else
                 throw new InvalidParameterValueException("There is other active vm snapshot tasks on the instance, please try again later");
         }
@@ -691,7 +689,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
         if (hasActiveVMSnapshotTasks(vmSnapshot.getVmId())) {
             List<VMSnapshotVO> expungingSnapshots = _vmSnapshotDao.listByInstanceId(vmSnapshot.getVmId(), VMSnapshot.State.Expunging);
             if (expungingSnapshots.size() > 0 && expungingSnapshots.get(0).getId() == vmSnapshot.getId())
-                s_logger.debug("Target VM snapshot already in expunging state, go on deleting it: " + vmSnapshot.getDisplayName());
+                logger.debug("Target VM snapshot already in expunging state, go on deleting it: " + vmSnapshot.getDisplayName());
             else
                 throw new InvalidParameterValueException("There is other active vm snapshot tasks on the instance, please try again later");
         }
@@ -704,7 +702,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
                 VMSnapshotStrategy strategy = findVMSnapshotStrategy(vmSnapshot);
                 return strategy.deleteVMSnapshot(vmSnapshot);
             } catch (Exception e) {
-                s_logger.debug("Failed to delete vm snapshot: " + vmSnapshotId, e);
+                logger.debug("Failed to delete vm snapshot: " + vmSnapshotId, e);
                 return false;
             }
         }
@@ -833,7 +831,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
         if (! result){
             throw new CloudRuntimeException("VM Snapshot reverting failed due to vm service offering couldn't be changed to the one used when snapshot was taken");
         }
-        s_logger.debug("Successfully changed service offering to " + vmSnapshotVo.getServiceOfferingId() + " for vm " + userVm.getId());
+        logger.debug("Successfully changed service offering to " + vmSnapshotVo.getServiceOfferingId() + " for vm " + userVm.getId());
     }
 
     /**
@@ -848,11 +846,11 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
         try {
             result = _userVmManager.upgradeVirtualMachine(vmId, serviceOfferingId, details);
             if (! result){
-                s_logger.error("Couldn't change service offering for vm " + vmId + " to " + serviceOfferingId);
+                logger.error("Couldn't change service offering for vm " + vmId + " to " + serviceOfferingId);
             }
             return result;
         } catch (ConcurrentOperationException | ResourceUnavailableException | ManagementServerException | VirtualMachineMigrationException e) {
-            s_logger.error("Couldn't change service offering for vm " + vmId + " to " + serviceOfferingId + " due to: " + e.getMessage());
+            logger.error("Couldn't change service offering for vm " + vmId + " to " + serviceOfferingId + " due to: " + e.getMessage());
             return false;
         }
     }
@@ -902,7 +900,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
                 vm = _userVMDao.findById(userVm.getId());
                 hostId = vm.getHostId();
             } catch (Exception e) {
-                s_logger.error("Start VM " + userVm.getInstanceName() + " before reverting failed due to " + e.getMessage());
+                logger.error("Start VM " + userVm.getInstanceName() + " before reverting failed due to " + e.getMessage());
                 throw new CloudRuntimeException(e.getMessage());
             }
         } else {
@@ -910,7 +908,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
                 try {
                     _itMgr.advanceStop(userVm.getUuid(), true);
                 } catch (Exception e) {
-                    s_logger.error("Stop VM " + userVm.getInstanceName() + " before reverting failed due to " + e.getMessage());
+                    logger.error("Stop VM " + userVm.getInstanceName() + " before reverting failed due to " + e.getMessage());
                     throw new CloudRuntimeException(e.getMessage());
                 }
             }
@@ -933,7 +931,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
             });
             return userVm;
         } catch (Exception e) {
-            s_logger.debug("Failed to revert vmsnapshot: " + vmSnapshotId, e);
+            logger.debug("Failed to revert vmsnapshot: " + vmSnapshotId, e);
             throw new CloudRuntimeException(e.getMessage());
         }
     }
@@ -1090,7 +1088,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
                 }
             }
         } catch (Exception e) {
-            s_logger.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             if (_vmSnapshotDao.listByInstanceId(vm.getId(), VMSnapshot.State.Expunging).size() == 0)
                 return true;
             else
@@ -1373,12 +1371,12 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
             try {
                 VMSnapshotStrategy strategy = findVMSnapshotStrategy(snapshot);
                 if (! strategy.deleteVMSnapshotFromDB(snapshot, unmanage)) {
-                    s_logger.error("Couldn't delete vm snapshot with id " + snapshot.getId());
+                    logger.error("Couldn't delete vm snapshot with id " + snapshot.getId());
                     return false;
                 }
             }
             catch (CloudRuntimeException e) {
-                s_logger.error("Couldn't delete vm snapshot due to: " + e.getMessage());
+                logger.error("Couldn't delete vm snapshot due to: " + e.getMessage());
             }
         }
         return true;

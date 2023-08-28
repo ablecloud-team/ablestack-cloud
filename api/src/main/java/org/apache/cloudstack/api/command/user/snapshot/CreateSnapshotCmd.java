@@ -33,7 +33,6 @@ import org.apache.cloudstack.api.response.SnapshotPolicyResponse;
 import org.apache.cloudstack.api.response.SnapshotResponse;
 import org.apache.cloudstack.api.response.VolumeResponse;
 import org.apache.commons.collections.MapUtils;
-import org.apache.log4j.Logger;
 
 import com.cloud.event.EventTypes;
 import com.cloud.exception.InvalidParameterValueException;
@@ -48,7 +47,6 @@ import com.cloud.utils.exception.CloudRuntimeException;
 @APICommand(name = "createSnapshot", description = "Creates an instant snapshot of a volume.", responseObject = SnapshotResponse.class, entityType = {Snapshot.class},
         requestHasSensitiveInfo = false, responseHasSensitiveInfo = false)
 public class CreateSnapshotCmd extends BaseAsyncCreateCmd {
-    public static final Logger s_logger = Logger.getLogger(CreateSnapshotCmd.class.getName());
 
     // ///////////////////////////////////////////////////
     // ////////////// API parameters /////////////////////
@@ -62,7 +60,7 @@ public class CreateSnapshotCmd extends BaseAsyncCreateCmd {
     @Parameter(name = ApiConstants.DOMAIN_ID,
                type = CommandType.UUID,
                entityType = DomainResponse.class,
-            description = "The domain ID of the snapshot. If used with the account parameter, specifies a domain for the account associated with the disk volume.")
+            description = "The domain ID of the snapshot. If used with the account parameter, specifies a domain for the account associated with the disk volume. If account is NOT provided then snapshot will be assigned to the caller account and domain.")
     private Long domainId;
 
     @Parameter(name = ApiConstants.VOLUME_ID, type = CommandType.UUID, entityType = VolumeResponse.class, required = true, description = "The ID of the disk volume")
@@ -225,7 +223,7 @@ public class CreateSnapshotCmd extends BaseAsyncCreateCmd {
             }
 
             String errorMessage = "Failed to create snapshot due to an internal error creating snapshot for volume " + getVolumeUuid();
-            s_logger.error(errorMessage, e);
+            logger.error(errorMessage, e);
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, errorMessage);
         }
     }
@@ -242,7 +240,7 @@ public class CreateSnapshotCmd extends BaseAsyncCreateCmd {
         } catch (IllegalArgumentException e) {
             String errMesg = "Invalid locationType " + locationType + "Specified for volume " + getVolumeId()
                         + " Valid values are: primary,secondary ";
-            s_logger.warn(errMesg);
+            logger.warn(errMesg);
             throw  new CloudRuntimeException(errMesg);
         }
     }

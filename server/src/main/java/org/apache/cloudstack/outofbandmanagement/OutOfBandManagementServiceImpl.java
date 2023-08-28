@@ -43,7 +43,6 @@ import org.apache.cloudstack.poll.BackgroundPollManager;
 import org.apache.cloudstack.poll.BackgroundPollTask;
 import org.apache.cloudstack.utils.identity.ManagementServerNode;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.cloud.alert.AlertManager;
@@ -75,7 +74,6 @@ import com.google.common.collect.ImmutableMap;
 
 @Component
 public class OutOfBandManagementServiceImpl extends ManagerBase implements OutOfBandManagementService, Manager, Configurable {
-    public static final Logger LOG = Logger.getLogger(OutOfBandManagementServiceImpl.class);
 
     @Inject
     private ClusterDetailsDao clusterDetailsDao;
@@ -112,7 +110,7 @@ public class OutOfBandManagementServiceImpl extends ManagerBase implements OutOf
             for (final OutOfBandManagementDriver driver : outOfBandManagementDrivers) {
                 outOfBandManagementDriversMap.put(driver.getName().toLowerCase(), driver);
             }
-            LOG.debug("Discovered out-of-band management drivers configured in the OutOfBandManagementService");
+            logger.debug("Discovered out-of-band management drivers configured in the OutOfBandManagementService");
         }
     }
 
@@ -198,7 +196,7 @@ public class OutOfBandManagementServiceImpl extends ManagerBase implements OutOf
                 boolean concurrentUpdateResult = hostAlertCache.asMap().replace(host.getId(), sentCount, sentCount+1L);
                 if (concurrentUpdateResult) {
                     final String subject = String.format("Out-of-band management auth-error detected for %s in cluster [id: %d] and zone [id: %d].", host, host.getClusterId(), host.getDataCenterId());
-                    LOG.error(subject + ": " + message);
+                    logger.error(subject + ": " + message);
                     alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_OOBM_AUTH_ERROR, host.getDataCenterId(), host.getPodId(), subject, message);
                 }
             }
@@ -217,7 +215,7 @@ public class OutOfBandManagementServiceImpl extends ManagerBase implements OutOf
             boolean result = OutOfBandManagement.PowerState.getStateMachine().transitTo(outOfBandManagementHost, event, null, outOfBandManagementDao);
             if (result) {
                 final String message = String.format("Transitioned out-of-band management power state from %s to %s due to event: %s for %s", currentPowerState, newPowerState, event, host);
-                LOG.debug(message);
+                logger.debug(message);
                 if (newPowerState == OutOfBandManagement.PowerState.Unknown) {
                     ActionEventUtils.onActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(), Domain.ROOT_DOMAIN,
                             EventTypes.EVENT_HOST_OUTOFBAND_MANAGEMENT_POWERSTATE_TRANSITION, message, host.getId(), ApiCommandResourceType.Host.toString());
@@ -226,7 +224,7 @@ public class OutOfBandManagementServiceImpl extends ManagerBase implements OutOf
             return result;
         } catch (NoTransitionException ignored) {
             if(currentPowerState.toEvent() == OutOfBandManagement.PowerState.Event.Off)   return true;
-            LOG.trace(String.format("Unable to transition out-of-band management power state for %s for the event: %s and current power state: %s", host, event, currentPowerState));
+            logger.trace(String.format("Unable to transition out-of-band management power state for %s for the event: %s and current power state: %s", host, event, currentPowerState));
         }
         return false;
     }
@@ -261,7 +259,7 @@ public class OutOfBandManagementServiceImpl extends ManagerBase implements OutOf
         Host host = hostDao.findById(hostId);
         if (host == null || host.getResourceState() == ResourceState.Degraded) {
             String state = host != null ? String.valueOf(host.getResourceState()) : null;
-            LOG.debug(String.format("Host [id=%s, state=%s] was removed or placed in Degraded state by the Admin.", hostId, state));
+            logger.debug(String.format("Host [id=%s, state=%s] was removed or placed in Degraded state by the Admin.", hostId, state));
             return false;
         }
 
@@ -420,7 +418,7 @@ public class OutOfBandManagementServiceImpl extends ManagerBase implements OutOf
         }
 
         String result = String.format("Out-of-band management successfully configured for %s.", host);
-        LOG.debug(result);
+        logger.debug(result);
 
         final OutOfBandManagementResponse response = new OutOfBandManagementResponse(outOfBandManagementDao.findByHost(host.getId()));
         response.setResultDescription(result);
@@ -460,7 +458,7 @@ public class OutOfBandManagementServiceImpl extends ManagerBase implements OutOf
                 throw new CloudRuntimeException(errorMessage);
             }
             if (!powerOperation.equals(OutOfBandManagement.PowerOperation.STATUS)) {
-                LOG.debug(errorMessage);
+                logger.debug(errorMessage);
             }
             throw new CloudRuntimeException(errorMessage);
         }
@@ -504,7 +502,7 @@ public class OutOfBandManagementServiceImpl extends ManagerBase implements OutOf
                 try {
                     driverResponse = driver.execute(changePasswordCmd);
                 } catch (Exception e) {
-                    LOG.error("Out-of-band management change password failed due to driver error: " + e.getMessage());
+                    logger.error("Out-of-band management change password failed due to driver error: " + e.getMessage());
                     throw new CloudRuntimeException(String.format("Failed to change out-of-band management password for %s due to driver error: %s", host, e.getMessage()));
                 }
 
@@ -552,7 +550,7 @@ public class OutOfBandManagementServiceImpl extends ManagerBase implements OutOf
 
         backgroundPollManager.submitTask(new OutOfBandManagementPowerStatePollTask());
 
-        LOG.info("Starting out-of-band management background sync executor with thread pool-size=" + poolSize);
+        logger.info("Starting out-of-band management background sync executor with thread pool-size=" + poolSize);
         return true;
     }
 
@@ -591,8 +589,8 @@ public class OutOfBandManagementServiceImpl extends ManagerBase implements OutOf
         @Override
         protected void runInContext() {
             try {
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("Host out-of-band management power state poll task is running...");
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Host out-of-band management power state poll task is running...");
                 }
                 final List<OutOfBandManagementVO> outOfBandManagementHosts = outOfBandManagementDao.findAllByManagementServer(ManagementServerNode.getManagementServerId());
                 if (outOfBandManagementHosts == null || outOfBandManagementHosts.isEmpty()) {
@@ -607,14 +605,14 @@ public class OutOfBandManagementServiceImpl extends ManagerBase implements OutOf
                         submitBackgroundPowerSyncTask(host);
                     } else if (outOfBandManagementHost.getPowerState() != OutOfBandManagement.PowerState.Disabled) {
                         if (transitionPowerStateToDisabled(Collections.singletonList(host))) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug(String.format("Out-of-band management was disabled in zone/cluster/host, disabled power state for %s", host));
+                            if (logger.isDebugEnabled()) {
+                                logger.debug(String.format("Out-of-band management was disabled in zone/cluster/host, disabled power state for %s", host));
                             }
                         }
                     }
                 }
             } catch (Throwable t) {
-                LOG.error("Error trying to retrieve host out-of-band management stats", t);
+                logger.error("Error trying to retrieve host out-of-band management stats", t);
             }
         }
 

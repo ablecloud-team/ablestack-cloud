@@ -37,7 +37,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.joda.time.Duration;
 
 import com.cloud.network.NetworkModel;
@@ -49,7 +50,7 @@ import com.google.gson.JsonObject;
 
 public class ConfigDriveBuilder {
 
-    public static final Logger LOG = Logger.getLogger(ConfigDriveBuilder.class);
+    protected static Logger LOGGER = LogManager.getLogger(ConfigDriveBuilder.class);
 
     /**
      * Writes a content {@link String} to a file that is going to be created in a folder. We will not append to the file if it already exists. Therefore, its content will be overwritten.
@@ -85,7 +86,7 @@ public class ConfigDriveBuilder {
         try {
             Files.createDirectories(destPath.getParent());
         } catch (final IOException e) {
-            LOG.warn("Exception hit while trying to recreate directory: " + destPath.getParent().toString());
+            LOGGER.warn("Exception hit while trying to recreate directory: " + destPath.getParent().toString());
         }
         return Files.write(destPath, decoded).toFile();
     }
@@ -126,7 +127,7 @@ public class ConfigDriveBuilder {
                 FileUtils.deleteDirectory(tempDir.toFile());
             }
         } catch (IOException ioe) {
-            LOG.warn("Failed to delete ConfigDrive temporary directory: " + tempDir.toString(), ioe);
+            LOGGER.warn("Failed to delete ConfigDrive temporary directory: " + tempDir.toString(), ioe);
         }
     }
 
@@ -138,7 +139,7 @@ public class ConfigDriveBuilder {
      */
     static String generateAndRetrieveIsoAsBase64Iso(String isoFileName, String driveLabel, String tempDirName) throws IOException {
         File tmpIsoStore = new File(tempDirName, isoFileName);
-        Script command = new Script(getProgramToGenerateIso(), Duration.standardSeconds(300), LOG);
+        Script command = new Script(getProgramToGenerateIso(), Duration.standardSeconds(300), LOGGER);
         command.add("-o", tmpIsoStore.getAbsolutePath());
         command.add("-ldots");
         command.add("-allow-lowercase");
@@ -150,11 +151,11 @@ public class ConfigDriveBuilder {
         command.add("-r");
         command.add("-V", driveLabel);
         command.add(tempDirName);
-        LOG.debug("Executing config drive creation command: " + command.toString());
+        LOGGER.debug("Executing config drive creation command: " + command.toString());
         String result = command.execute();
         if (StringUtils.isNotBlank(result)) {
             String errMsg = "Unable to create iso file: " + isoFileName + " due to ge" + result;
-            LOG.warn(errMsg);
+            LOGGER.warn(errMsg);
             throw new CloudRuntimeException(errMsg);
         }
         File tmpIsoFile = new File(tmpIsoStore.getAbsolutePath());
@@ -229,7 +230,7 @@ public class ConfigDriveBuilder {
             String dataType = item[CONFIGDATA_DIR];
             String fileName = item[CONFIGDATA_FILE];
             String content = item[CONFIGDATA_CONTENT];
-            LOG.debug(String.format("[createConfigDriveIsoForVM] dataType=%s, filename=%s, content=%s", dataType, fileName, (PASSWORD_FILE.equals(fileName) ? "********" : content)));
+            LOGGER.debug(String.format("[createConfigDriveIsoForVM] dataType=%s, filename=%s, content=%s", dataType, fileName, (PASSWORD_FILE.equals(fileName) ? "********" : content)));
 
             createFileInTempDirAnAppendOpenStackMetadataToJsonObject(tempDirName, metaData, dataType, fileName, content, customUserdataParams);
         }
@@ -286,10 +287,10 @@ public class ConfigDriveBuilder {
         String userDataFilePath = tempDirName + ConfigDrive.cloudStackConfigDriveName + "userdata/user_data.txt";
         File file = new File(userDataFilePath);
         if (file.exists()) {
-            Script hardLink = new Script("ln", Duration.standardSeconds(300), LOG);
+            Script hardLink = new Script("ln", Duration.standardSeconds(300), LOGGER);
             hardLink.add(userDataFilePath);
             hardLink.add(tempDirName + ConfigDrive.openStackConfigDriveName + "user_data");
-            LOG.debug("execute command: " + hardLink.toString());
+            LOGGER.debug("execute command: " + hardLink.toString());
 
             String executionResult = hardLink.execute();
             if (StringUtils.isNotBlank(executionResult)) {

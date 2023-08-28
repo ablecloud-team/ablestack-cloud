@@ -27,7 +27,7 @@
     <a-dropdown>
       <span class="user-menu-dropdown action">
         <span v-if="image">
-          <resource-icon :image="image" size="2x" style="margin-right: 5px"/>
+          <resource-icon :image="image" size="4x" style="margin-right: 5px; margin-top: -3px"/>
         </span>
         <a-avatar v-else-if="userInitials" class="user-menu-avatar avatar" size="small" :style="{ backgroundColor: $config.theme['@primary-color'], color: 'white' }">
           {{ userInitials }}
@@ -46,7 +46,11 @@
             </a-menu-item>
           </router-link>
           <a v-if="$store.getters.userInfo.roletype === 'Admin'" @click="wallPortalLink" >
-            <a-menu-item class="user-menu-item" key="1">
+            <a-menu-item class="user-menu-item" key="limits">
+            <ControlOutlined class="user-menu-item-icon" />
+            <span class="user-menu-item-name">{{ $t('label.limits') }}</span>
+          </a-menu-item>
+          <a-menu-item class="user-menu-item" key="1">
                 <AreaChartOutlined class="user-menu-item-icon" />
                 <span class="user-menu-item-name">{{ $t('label.wall.portal.url') }}</span>
             </a-menu-item>
@@ -164,6 +168,9 @@ export default {
       switch (item.key) {
         case 'profile':
           this.$router.push(`/accountuser/${this.$store.getters.userInfo.id}`)
+          break
+        case 'limits':
+          this.$router.push(`/account/${this.$store.getters.userInfo.accountid}?tab=limits`)
           break
         case 'timezone':
           this.toggleUseBrowserTimezone()

@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 
 import com.cloud.hypervisor.Hypervisor;
 import com.cloud.kubernetes.cluster.KubernetesCluster;
@@ -85,8 +85,8 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
                 hostName = hostName.toLowerCase();
             }
             result = null;
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info(String.format("Upgrading node on VM %s in Kubernetes cluster %s with Kubernetes version(%s) ID: %s",
+            if (logger.isInfoEnabled()) {
+                logger.info(String.format("Upgrading node on VM %s in Kubernetes cluster %s with Kubernetes version(%s) ID: %s",
                         vm.getDisplayName(), kubernetesCluster.getName(), upgradeVersion.getSemanticVersion(), upgradeVersion.getUuid()));
             }
             try {
@@ -125,8 +125,8 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
             if (!KubernetesClusterUtil.clusterNodeVersionMatches(upgradeVersion.getSemanticVersion(), publicIpAddress, sshPort, getControlNodeLoginUser(), getManagementServerSshPublicKeyFile(), hostName, upgradeTimeoutTime, 15000)) {
                 logTransitStateDetachIsoAndThrow(Level.ERROR, String.format("Failed to upgrade Kubernetes cluster : %s, unable to get Kubernetes node on VM : %s upgraded to version %s", kubernetesCluster.getName(), vm.getDisplayName(), upgradeVersion.getSemanticVersion()), kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
             }
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info(String.format("Successfully upgraded node on VM %s in Kubernetes cluster %s with Kubernetes version(%s) ID: %s",
+            if (logger.isInfoEnabled()) {
+                logger.info(String.format("Successfully upgraded node on VM %s in Kubernetes cluster %s with Kubernetes version(%s) ID: %s",
                         vm.getDisplayName(), kubernetesCluster.getName(), upgradeVersion.getSemanticVersion(), upgradeVersion.getUuid()));
             }
         }
@@ -134,8 +134,8 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
 
     public boolean upgradeCluster() throws CloudRuntimeException {
         init();
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(String.format("Upgrading Kubernetes cluster : %s", kubernetesCluster.getName()));
+        if (logger.isInfoEnabled()) {
+            logger.info(String.format("Upgrading Kubernetes cluster : %s", kubernetesCluster.getName()));
         }
         upgradeTimeoutTime = System.currentTimeMillis() + KubernetesClusterService.KubernetesClusterUpgradeTimeout.value() * 1000;
         Pair<String, Integer> publicIpSshPort = getKubernetesClusterServerIpSshPort(null);

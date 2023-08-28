@@ -56,7 +56,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 
 import com.cloud.agent.api.LogLevel;
 import com.cloud.event.EventTypes;
@@ -80,7 +79,6 @@ import com.cloud.vm.VmDetailConstants;
 @APICommand(name = "deployVirtualMachine", description = "Creates and automatically starts a virtual machine based on a service offering, disk offering, and template.", responseObject = UserVmResponse.class, responseView = ResponseView.Restricted, entityType = {VirtualMachine.class},
         requestHasSensitiveInfo = false, responseHasSensitiveInfo = true)
 public class DeployVMCmd extends BaseAsyncCreateCustomIdCmd implements SecurityGroupAction, UserCmd {
-    public static final Logger s_logger = Logger.getLogger(DeployVMCmd.class.getName());
 
     private static final String s_name = "deployvirtualmachineresponse";
 
@@ -109,7 +107,7 @@ public class DeployVMCmd extends BaseAsyncCreateCustomIdCmd implements SecurityG
     @Parameter(name = ApiConstants.ACCOUNT, type = CommandType.STRING, description = "an optional account for the virtual machine. Must be used with domainId.")
     private String accountName;
 
-    @Parameter(name = ApiConstants.DOMAIN_ID, type = CommandType.UUID, entityType = DomainResponse.class, description = "an optional domainId for the virtual machine. If the account parameter is used, domainId must also be used.")
+    @Parameter(name = ApiConstants.DOMAIN_ID, type = CommandType.UUID, entityType = DomainResponse.class, description = "an optional domainId for the virtual machine. If the account parameter is used, domainId must also be used. If account is NOT provided then virtual machine will be assigned to the caller account and domain.")
     private Long domainId;
 
     //Network information
@@ -313,7 +311,7 @@ public class DeployVMCmd extends BaseAsyncCreateCustomIdCmd implements SecurityG
             } catch (IllegalArgumentException e) {
                 String errMesg = "Invalid bootType " + bootType + "Specified for vm " + getName()
                         + " Valid values are: " + Arrays.toString(ApiConstants.BootType.values());
-                s_logger.warn(errMesg);
+                logger.warn(errMesg);
                 throw new InvalidParameterValueException(errMesg);
             }
         }
@@ -336,17 +334,8 @@ public class DeployVMCmd extends BaseAsyncCreateCustomIdCmd implements SecurityG
     }
 
     public Map<String, String> getDetails() {
-        Map<String, String> customparameterMap = new HashMap<String, String>();
-        if (details != null && details.size() != 0) {
-            Collection parameterCollection = details.values();
-            Iterator iter = parameterCollection.iterator();
-            while (iter.hasNext()) {
-                HashMap<String, String> value = (HashMap<String, String>)iter.next();
-                for (Map.Entry<String,String> entry: value.entrySet()) {
-                    customparameterMap.put(entry.getKey(),entry.getValue());
-                }
-            }
-        }
+        Map<String, String> customparameterMap = convertDetailsToMap(details);
+
         if (getBootType() != null) {
             customparameterMap.put(getBootType().toString(), getBootMode().toString());
         }
@@ -396,14 +385,14 @@ public class DeployVMCmd extends BaseAsyncCreateCustomIdCmd implements SecurityG
             } catch (IllegalArgumentException e) {
                 String msg = String.format("Invalid %s: %s specified for VM: %s. Valid values are: %s",
                         ApiConstants.BOOT_MODE, bootMode, getName(), Arrays.toString(ApiConstants.BootMode.values()));
-                s_logger.error(msg);
+                logger.error(msg);
                 throw new InvalidParameterValueException(msg);
             }
         }
         if (ApiConstants.BootType.UEFI.equals(getBootType())) {
             String msg = String.format("%s must be specified for the VM with boot type: %s. Valid values are: %s",
                     ApiConstants.BOOT_MODE, getBootType(), Arrays.toString(ApiConstants.BootMode.values()));
-            s_logger.error(msg);
+            logger.error(msg);
             throw new InvalidParameterValueException(msg);
         }
         return null;
@@ -437,8 +426,8 @@ public class DeployVMCmd extends BaseAsyncCreateCustomIdCmd implements SecurityG
                     nic = null;
                 }
                 String networkUuid = entry.get(VmDetailConstants.NETWORK);
-                if (s_logger.isTraceEnabled()) {
-                    s_logger.trace(String.format("nic, '%s', goes on net, '%s'", nic, networkUuid));
+                if (logger.isTraceEnabled()) {
+                    logger.trace(String.format("nic, '%s', goes on net, '%s'", nic, networkUuid));
                 }
                 if (nic == null || StringUtils.isEmpty(networkUuid) || _entityMgr.findByUuid(Network.class, networkUuid) == null) {
                     throw new InvalidParameterValueException(String.format("Network ID: %s for NIC ID: %s is invalid", networkUuid, nic));
@@ -498,18 +487,7 @@ public class DeployVMCmd extends BaseAsyncCreateCustomIdCmd implements SecurityG
     }
 
     public Map<String, String> getUserdataDetails() {
-        Map<String, String> userdataDetailsMap = new HashMap<String, String>();
-        if (userdataDetails != null && userdataDetails.size() != 0) {
-            Collection parameterCollection = userdataDetails.values();
-            Iterator iter = parameterCollection.iterator();
-            while (iter.hasNext()) {
-                HashMap<String, String> value = (HashMap<String, String>)iter.next();
-                for (Map.Entry<String,String> entry: value.entrySet()) {
-                    userdataDetailsMap.put(entry.getKey(),entry.getValue());
-                }
-            }
-        }
-        return userdataDetailsMap;
+        return convertDetailsToMap(userdataDetails);
     }
 
     public Long getZoneId() {
@@ -755,7 +733,7 @@ public class DeployVMCmd extends BaseAsyncCreateCustomIdCmd implements SecurityG
                 return ApiConstants.IoDriverPolicy.valueOf(policyType);
             } catch (IllegalArgumentException e) {
                 String errMesg = String.format("Invalid io policy %s specified for vm %s. Valid values are: %s", ioDriverPolicy, getName(), Arrays.toString(ApiConstants.IoDriverPolicy.values()));
-                s_logger.warn(errMesg);
+                logger.warn(errMesg);
                 throw new InvalidParameterValueException(errMesg);
             }
         }
@@ -801,7 +779,10 @@ public class DeployVMCmd extends BaseAsyncCreateCustomIdCmd implements SecurityG
 
     @Override
     public String getEventDescription() {
-        return "starting Vm. Vm Id: " + getEntityUuid();
+        if(getStartVm()) {
+            return "starting Vm. Vm Id: " + getEntityUuid();
+        }
+        return "deploying Vm. Vm Id: " + getEntityUuid();
     }
 
     @Override
@@ -813,28 +794,33 @@ public class DeployVMCmd extends BaseAsyncCreateCustomIdCmd implements SecurityG
     public void execute() {
         UserVm result;
 
-        try {
-            CallContext.current().setEventDetails("Vm Id: " + getEntityUuid());
-            result = _userVmService.startVirtualMachine(this);
-        } catch (ResourceUnavailableException ex) {
-            s_logger.warn("Exception: ", ex);
-            throw new ServerApiException(ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR, ex.getMessage());
-        } catch (ResourceAllocationException ex) {
-            s_logger.warn("Exception: ", ex);
-            throw new ServerApiException(ApiErrorCode.RESOURCE_ALLOCATION_ERROR, ex.getMessage());
-        } catch (ConcurrentOperationException ex) {
-            s_logger.warn("Exception: ", ex);
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, ex.getMessage());
-        } catch (InsufficientCapacityException ex) {
-            StringBuilder message = new StringBuilder(ex.getMessage());
-            if (ex instanceof InsufficientServerCapacityException) {
-                if (((InsufficientServerCapacityException)ex).isAffinityApplied()) {
-                    message.append(", Please check the affinity groups provided, there may not be sufficient capacity to follow them");
+        CallContext.current().setEventDetails("Vm Id: " + getEntityUuid());
+        if (getStartVm()) {
+            try {
+                result = _userVmService.startVirtualMachine(this);
+            } catch (ResourceUnavailableException ex) {
+                logger.warn("Exception: ", ex);
+                throw new ServerApiException(ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR, ex.getMessage());
+            } catch (ResourceAllocationException ex) {
+                logger.warn("Exception: ", ex);
+                throw new ServerApiException(ApiErrorCode.RESOURCE_ALLOCATION_ERROR, ex.getMessage());
+            } catch (ConcurrentOperationException ex) {
+                logger.warn("Exception: ", ex);
+                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, ex.getMessage());
+            } catch (InsufficientCapacityException ex) {
+                StringBuilder message = new StringBuilder(ex.getMessage());
+                if (ex instanceof InsufficientServerCapacityException) {
+                    if (((InsufficientServerCapacityException)ex).isAffinityApplied()) {
+                        message.append(", Please check the affinity groups provided, there may not be sufficient capacity to follow them");
+                    }
                 }
+                logger.info(String.format("%s: %s", message.toString(), ex.getLocalizedMessage()));
+                logger.debug(message.toString(), ex);
+                throw new ServerApiException(ApiErrorCode.INSUFFICIENT_CAPACITY_ERROR, message.toString());
             }
-            s_logger.info(ex);
-            s_logger.info(message.toString(), ex);
-            throw new ServerApiException(ApiErrorCode.INSUFFICIENT_CAPACITY_ERROR, message.toString());
+        } else {
+            logger.info("VM " + getEntityUuid() + " already created, load UserVm from DB");
+            result = _userVmService.finalizeCreateVirtualMachine(getEntityId());
         }
 
         if (result != null) {
@@ -859,17 +845,17 @@ public class DeployVMCmd extends BaseAsyncCreateCustomIdCmd implements SecurityG
                 throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to deploy vm");
             }
         } catch (InsufficientCapacityException ex) {
-            s_logger.info(ex);
-            s_logger.trace(ex.getMessage(), ex);
+            logger.info(ex);
+            logger.trace(ex.getMessage(), ex);
             throw new ServerApiException(ApiErrorCode.INSUFFICIENT_CAPACITY_ERROR, ex.getMessage());
         } catch (ResourceUnavailableException ex) {
-            s_logger.warn("Exception: ", ex);
+            logger.warn("Exception: ", ex);
             throw new ServerApiException(ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR, ex.getMessage());
         }  catch (ConcurrentOperationException ex) {
-            s_logger.warn("Exception: ", ex);
+            logger.warn("Exception: ", ex);
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, ex.getMessage());
         } catch (ResourceAllocationException ex) {
-            s_logger.warn("Exception: ", ex);
+            logger.warn("Exception: ", ex);
             throw new ServerApiException(ApiErrorCode.RESOURCE_ALLOCATION_ERROR, ex.getMessage());
         }
     }

@@ -284,6 +284,10 @@ export default {
         this.$notifyError(error)
       }).finally(() => { this.groups.loading = false })
     },
+    decodeUserData (userdata) {
+      const decodedData = Buffer.from(userdata, 'base64')
+      return decodedData.toString('utf-8')
+    },
     fetchUserData () {
       const params = {
         id: this.resource.id,
@@ -291,7 +295,7 @@ export default {
       }
 
       api('listVirtualMachines', params).then(json => {
-        this.form.userdata = atob(json.listvirtualmachinesresponse.virtualmachine[0].userdata || '')
+        this.form.userdata = this.decodeUserData(json.listvirtualmachinesresponse.virtualmachine[0].userdata || '')
       })
     },
     handleSubmit () {

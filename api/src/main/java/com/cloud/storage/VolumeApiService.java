@@ -169,6 +169,8 @@ public interface VolumeApiService {
 
     Volume destroyVolume(long volumeId, Account caller, boolean expunge, boolean forceExpunge);
 
+    void destroyVolume(long volumeId);
+
     Volume recoverVolume(long volumeId);
 
     void validateCustomDiskOfferingSizeRange(Long sizeInGB);

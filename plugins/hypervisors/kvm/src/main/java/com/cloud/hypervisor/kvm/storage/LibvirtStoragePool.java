@@ -20,7 +20,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.libvirt.StoragePool;
 
 import org.apache.cloudstack.utils.qemu.QemuImg.PhysicalDiskFormat;
@@ -32,7 +33,7 @@ import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.utils.exception.CloudRuntimeException;
 
 public class LibvirtStoragePool implements KVMStoragePool {
-    private static final Logger s_logger = Logger.getLogger(LibvirtStoragePool.class);
+    protected Logger logger = LogManager.getLogger(getClass());
     protected String uuid;
     protected long capacity;
     protected long used;
@@ -142,19 +143,19 @@ public class LibvirtStoragePool implements KVMStoragePool {
         if (disk != null) {
             return disk;
         }
-        s_logger.debug("find volume bypass libvirt volumeUid " + volumeUid);
+        logger.debug("find volume bypass libvirt volumeUid " + volumeUid);
         //For network file system or file system, try to use java file to find the volume, instead of through libvirt. BUG:CLOUDSTACK-4459
         String localPoolPath = this.getLocalPath();
         File f = new File(localPoolPath + File.separator + volumeUuid);
         if (!f.exists()) {
-            s_logger.debug("volume: " + volumeUuid + " not exist on storage pool");
+            logger.debug("volume: " + volumeUuid + " not exist on storage pool");
             throw new CloudRuntimeException("Can't find volume:" + volumeUuid);
         }
         disk = new KVMPhysicalDisk(f.getPath(), volumeUuid, this);
         disk.setFormat(PhysicalDiskFormat.QCOW2);
         disk.setSize(f.length());
         disk.setVirtualSize(f.length());
-        s_logger.debug("find volume bypass libvirt disk " + disk.toString());
+        logger.debug("find volume bypass libvirt disk " + disk.toString());
         return disk;
     }
 
@@ -264,7 +265,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
         try {
             return this._storageAdaptor.deleteStoragePool(this);
         } catch (Exception e) {
-            s_logger.debug("Failed to delete storage pool", e);
+            logger.debug("Failed to delete storage pool", e);
         }
         return false;
     }

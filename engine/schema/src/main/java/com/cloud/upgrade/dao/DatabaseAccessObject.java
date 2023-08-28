@@ -20,20 +20,21 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class DatabaseAccessObject {
 
-    private static Logger s_logger = Logger.getLogger(DatabaseAccessObject.class);
+    protected Logger logger = LogManager.getLogger(DatabaseAccessObject.class);
 
     public void addForeignKey(Connection conn, String tableName, String tableColumn, String foreignTableName, String foreignColumnName) {
         String addForeignKeyStmt = String.format("ALTER TABLE `cloud`.`%s` ADD CONSTRAINT `fk_%s__%s` FOREIGN KEY `fk_%s__%s`(`%s`) REFERENCES `%s`(`%s`)", tableName, tableName, tableColumn, tableName, tableColumn, tableColumn, foreignTableName, foreignColumnName);
         try(PreparedStatement pstmt = conn.prepareStatement(addForeignKeyStmt);)
         {
             pstmt.executeUpdate();
-            s_logger.debug(String.format("Foreign key is added successfully from the table %s", tableName));
+            logger.debug(String.format("Foreign key is added successfully from the table %s", tableName));
         } catch (SQLException e) {
-            s_logger.error("Ignored SQL Exception when trying to add foreign key on table "  + tableName + " exception: " + e.getMessage());
+            logger.error("Ignored SQL Exception when trying to add foreign key on table "  + tableName + " exception: " + e.getMessage());
         }
     }
 
@@ -48,9 +49,9 @@ public class DatabaseAccessObject {
         try(PreparedStatement pstmt = conn.prepareStatement(alter_sql_str);)
         {
             pstmt.executeUpdate();
-            s_logger.debug("Key " + key + " is dropped successfully from the table " + tableName);
+            logger.debug("Key " + key + " is dropped successfully from the table " + tableName);
         } catch (SQLException e) {
-            s_logger.debug("Ignored SQL Exception when trying to drop " + (isForeignKey ? "foreign " : "") + "key " + key + " on table "  + tableName + " exception: " + e.getMessage());
+            logger.debug("Ignored SQL Exception when trying to drop " + (isForeignKey ? "foreign " : "") + "key " + key + " on table "  + tableName + " exception: " + e.getMessage());
 
         }
     }
@@ -58,18 +59,18 @@ public class DatabaseAccessObject {
     public void dropPrimaryKey(Connection conn, String tableName) {
         try(PreparedStatement pstmt = conn.prepareStatement("ALTER TABLE " + tableName + " DROP PRIMARY KEY ");) {
             pstmt.executeUpdate();
-            s_logger.debug("Primary key is dropped successfully from the table " + tableName);
+            logger.debug("Primary key is dropped successfully from the table " + tableName);
         } catch (SQLException e) {
-            s_logger.debug("Ignored SQL Exception when trying to drop primary key on table " + tableName + " exception: " + e.getMessage());
+            logger.debug("Ignored SQL Exception when trying to drop primary key on table " + tableName + " exception: " + e.getMessage());
         }
     }
 
     public void dropColumn(Connection conn, String tableName, String columnName) {
         try (PreparedStatement pstmt = conn.prepareStatement("ALTER TABLE " + tableName + " DROP COLUMN " + columnName);){
             pstmt.executeUpdate();
-            s_logger.debug("Column " + columnName + " is dropped successfully from the table " + tableName);
+            logger.debug("Column " + columnName + " is dropped successfully from the table " + tableName);
         } catch (SQLException e) {
-            s_logger.warn("Unable to drop column " + columnName + " due to exception", e);
+            logger.warn("Unable to drop column " + columnName + " due to exception", e);
         }
     }
 
@@ -79,18 +80,18 @@ public class DatabaseAccessObject {
             pstmt.executeQuery();
             columnExists = true;
         } catch (SQLException e) {
-            s_logger.debug("Field " + columnName + " doesn't exist in " + tableName + " ignoring exception: " + e.getMessage());
+            logger.debug("Field " + columnName + " doesn't exist in " + tableName + " ignoring exception: " + e.getMessage());
         }
         return columnExists;
     }
 
-    protected static void closePreparedStatement(PreparedStatement pstmt, String errorMessage) {
+    protected void closePreparedStatement(PreparedStatement pstmt, String errorMessage) {
         try {
             if (pstmt != null) {
                 pstmt.close();
             }
         } catch (SQLException e) {
-            s_logger.warn(errorMessage, e);
+            logger.warn(errorMessage, e);
         }
     }
 

@@ -66,7 +66,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.cloud.agent.api.Answer;
@@ -155,7 +154,6 @@ import com.cloud.vm.snapshot.dao.VMSnapshotDao;
 
 @Component
 public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implements SnapshotManager, SnapshotApiService, Configurable {
-    private static final Logger s_logger = Logger.getLogger(SnapshotManagerImpl.class);
     @Inject
     VMTemplateDao _templateDao;
     @Inject
@@ -265,25 +263,25 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                 if (result.second().getResult()) {
                     return result.second();
                 }
-                if (s_logger.isDebugEnabled()) {
-                    s_logger.debug("The result for " + cmd.getClass().getName() + " is " + result.second().getDetails() + " through " + result.first());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("The result for " + cmd.getClass().getName() + " is " + result.second().getDetails() + " through " + result.first());
                 }
                 hostIdsToAvoid.add(result.first());
             } catch (StorageUnavailableException e1) {
-                s_logger.warn("Storage unavailable ", e1);
+                logger.warn("Storage unavailable ", e1);
                 return null;
             }
 
             try {
                 Thread.sleep(_pauseInterval * 1000);
             } catch (InterruptedException e) {
-                s_logger.debug("[ignored] interrupted while retry cmd.");
+                logger.debug("[ignored] interrupted while retry cmd.");
             }
 
-            s_logger.debug("Retrying...");
+            logger.debug("Retrying...");
         }
 
-        s_logger.warn("After " + _totalRetries + " retries, the command " + cmd.getClass().getName() + " did not succeed.");
+        logger.warn("After " + _totalRetries + " retries, the command " + cmd.getClass().getName() + " did not succeed.");
 
         return null;
     }
@@ -343,7 +341,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         SnapshotStrategy snapshotStrategy = _storageStrategyFactory.getSnapshotStrategy(snapshot, SnapshotOperation.REVERT);
 
         if (snapshotStrategy == null) {
-            s_logger.error("Unable to find snapshot strategy to handle snapshot with id '" + snapshotId + "'");
+            logger.error("Unable to find snapshot strategy to handle snapshot with id '" + snapshotId + "'");
             String errorMsg = String.format("Revert snapshot command failed for snapshot with id %d, because this command is supported only for KVM hypervisor", snapshotId);
             throw new CloudRuntimeException(errorMsg);
         }
@@ -409,7 +407,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
         SnapshotInfo snapshot = snapshotFactory.getSnapshot(snapshotId, DataStoreRole.Primary);
         if (snapshot == null) {
-            s_logger.debug("Failed to create snapshot");
+            logger.debug("Failed to create snapshot");
             throw new CloudRuntimeException("Failed to create snapshot");
         }
         try {
@@ -423,7 +421,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             _resourceLimitMgr.incrementResourceCount(snapshotOwner.getId(), ResourceType.snapshot);
 
         } catch (Exception e) {
-            s_logger.debug("Failed to create snapshot", e);
+            logger.debug("Failed to create snapshot", e);
             throw new CloudRuntimeException("Failed to create snapshot", e);
         }
 
@@ -515,7 +513,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             snapshotInfo = snapshotStrategy.backupSnapshot(snapshotInfo);
 
         } catch (Exception e) {
-            s_logger.debug("Failed to backup snapshot from vm snapshot", e);
+            logger.debug("Failed to backup snapshot from vm snapshot", e);
             _resourceLimitMgr.decrementResourceCount(snapshotOwnerId, ResourceType.snapshot);
             _resourceLimitMgr.decrementResourceCount(snapshotOwnerId, ResourceType.secondary_storage, volume.getSize());
             throw new CloudRuntimeException("Failed to backup snapshot from vm snapshot", e);
@@ -574,7 +572,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             SnapshotVO oldestSnapshot = snaps.get(0);
             long oldSnapId = oldestSnapshot.getId();
             if (policy != null) {
-                s_logger.debug("Max snaps: " + policy.getMaxSnaps() + " exceeded for snapshot policy with Id: " + policyId + ". Deleting oldest snapshot: " + oldSnapId);
+                logger.debug("Max snaps: " + policy.getMaxSnaps() + " exceeded for snapshot policy with Id: " + policyId + ". Deleting oldest snapshot: " + oldSnapId);
             }
             if (deleteSnapshot(oldSnapId)) {
                 //log Snapshot delete event
@@ -611,7 +609,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         SnapshotStrategy snapshotStrategy = _storageStrategyFactory.getSnapshotStrategy(snapshotCheck, SnapshotOperation.DELETE);
 
         if (snapshotStrategy == null) {
-            s_logger.error("Unable to find snapshot strategy to handle snapshot with id '" + snapshotId + "'");
+            logger.error("Unable to find snapshot strategy to handle snapshot with id '" + snapshotId + "'");
 
             return false;
         }
@@ -647,7 +645,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
             return result;
         } catch (Exception e) {
-            s_logger.debug("Failed to delete snapshot: " + snapshotCheck.getId() + ":" + e.toString());
+            logger.debug("Failed to delete snapshot: " + snapshotCheck.getId() + ":" + e.toString());
 
             throw new CloudRuntimeException("Failed to delete snapshot:" + e.toString());
         }
@@ -811,18 +809,18 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                 Answer answer = null;
                 if (ep == null) {
                     String errMsg = "No remote endpoint to send command, check if host or ssvm is down?";
-                    s_logger.error(errMsg);
+                    logger.error(errMsg);
                     answer = new Answer(cmd, false, errMsg);
                 } else {
                     answer = ep.sendMessage(cmd);
                 }
                 if ((answer != null) && answer.getResult()) {
-                    s_logger.debug("Deleted all snapshots for volume: " + volumeId + " under account: " + accountId);
+                    logger.debug("Deleted all snapshots for volume: " + volumeId + " under account: " + accountId);
                 } else {
                     success = false;
                     if (answer != null) {
-                        s_logger.warn("Failed to delete all snapshot for volume " + volumeId + " on secondary storage " + ssHost.getUri());
-                        s_logger.error(answer.getDetails());
+                        logger.warn("Failed to delete all snapshot for volume " + volumeId + " on secondary storage " + ssHost.getUri());
+                        logger.error(answer.getDetails());
                     }
                 }
             }
@@ -832,7 +830,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             for (SnapshotVO snapshot : snapshots) {
                 SnapshotStrategy snapshotStrategy = _storageStrategyFactory.getSnapshotStrategy(snapshot, SnapshotOperation.DELETE);
                 if (snapshotStrategy == null) {
-                    s_logger.error("Unable to find snapshot strategy to handle snapshot with id '" + snapshot.getId() + "'");
+                    logger.error("Unable to find snapshot strategy to handle snapshot with id '" + snapshot.getId() + "'");
                     continue;
                 }
                 SnapshotDataStoreVO snapshotStoreRef = _snapshotStoreDao.findBySnapshot(snapshot.getId(), DataStoreRole.Image);
@@ -917,7 +915,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         TimeZone timeZone = TimeZone.getTimeZone(cmdTimezone);
         String timezoneId = timeZone.getID();
         if (!timezoneId.equals(cmdTimezone)) {
-            s_logger.warn(String.format("Using timezone [%s] for running the snapshot policy [%s] for volume %s, as an equivalent of [%s].", timezoneId, intervalType, volumeDescription,
+            logger.warn(String.format("Using timezone [%s] for running the snapshot policy [%s] for volume %s, as an equivalent of [%s].", timezoneId, intervalType, volumeDescription,
               cmdTimezone));
         }
 
@@ -973,7 +971,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             throw new CloudRuntimeException(String.format("Unable to aquire lock for creating snapshot policy [%s] for %s.", intervalType, volumeDescription));
         }
 
-        s_logger.debug(String.format("Acquired lock for creating snapshot policy [%s] for volume %s.", intervalType, volumeDescription));
+        logger.debug(String.format("Acquired lock for creating snapshot policy [%s] for volume %s.", intervalType, volumeDescription));
 
         try {
             SnapshotPolicyVO policy = _snapshotPolicyDao.findOneByVolumeInterval(volumeId, intervalType);
@@ -997,7 +995,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         SnapshotPolicyVO policy = new SnapshotPolicyVO(volumeId, schedule, timezone, intervalType, maxSnaps, display);
         policy = _snapshotPolicyDao.persist(policy);
         _snapSchedMgr.scheduleNextSnapshotJob(policy);
-        s_logger.debug(String.format("Created snapshot policy %s.", new ReflectionToStringBuilder(policy, ToStringStyle.JSON_STYLE).setExcludeFieldNames("id", "uuid", "active")));
+        logger.debug(String.format("Created snapshot policy %s.", new ReflectionToStringBuilder(policy, ToStringStyle.JSON_STYLE).setExcludeFieldNames("id", "uuid", "active")));
         return policy;
     }
 
@@ -1013,7 +1011,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         _snapshotPolicyDao.update(policy.getId(), policy);
         _snapSchedMgr.scheduleOrCancelNextSnapshotJobOnDisplayChange(policy, previousDisplay);
         taggedResourceService.deleteTags(Collections.singletonList(policy.getUuid()), ResourceObjectType.SnapshotPolicy, null);
-        s_logger.debug(String.format("Updated snapshot policy %s to %s.", previousPolicy, new ReflectionToStringBuilder(policy, ToStringStyle.JSON_STYLE)
+        logger.debug(String.format("Updated snapshot policy %s to %s.", previousPolicy, new ReflectionToStringBuilder(policy, ToStringStyle.JSON_STYLE)
           .setExcludeFieldNames("id", "uuid")));
     }
 
@@ -1028,7 +1026,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         IntervalType[] intervalTypes = IntervalType.values();
         List<SnapshotPolicyVO> policies = listPoliciesforVolume(srcVolume.getId());
 
-        s_logger.debug(String.format("Copying snapshot policies %s from volume %s to volume %s.", ReflectionToStringBuilderUtils.reflectOnlySelectedFields(policies,
+        logger.debug(String.format("Copying snapshot policies %s from volume %s to volume %s.", ReflectionToStringBuilderUtils.reflectOnlySelectedFields(policies,
           "id", "uuid"), srcVolume.getVolumeDescription(), destVolume.getVolumeDescription()));
 
         policies.forEach(policy ->
@@ -1175,7 +1173,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             if (vm.getState() != VirtualMachine.State.Stopped && vm.getState() != VirtualMachine.State.Destroyed) {
                 boolean snapshotEnabled = Boolean.parseBoolean(_configDao.getValue("kvm.snapshot.enabled"));
                 if (!snapshotEnabled && !isFromVmSnapshot) {
-                    s_logger.debug("Snapshot is not supported on host " + host + " for the volume " + volume + " attached to the vm " + vm);
+                    logger.debug("Snapshot is not supported on host " + host + " for the volume " + volume + " attached to the vm " + vm);
                     return false;
                 }
             }
@@ -1278,7 +1276,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             if (backupSnapToSecondary) {
                 backupSnapshotToSecondary(payload.getAsyncBackup(), snapshotStrategy, snapshotOnPrimary);
             } else {
-                s_logger.debug("skipping backup of snapshot [uuid=" + snapshot.getUuid() + "] to secondary due to configuration");
+                logger.debug("skipping backup of snapshot [uuid=" + snapshot.getUuid() + "] to secondary due to configuration");
                 snapshotOnPrimary.markBackedUp();
             }
 
@@ -1300,18 +1298,18 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                 // Correct the resource count of snapshot in case of delta snapshots.
                 _resourceLimitMgr.decrementResourceCount(snapshotOwner.getId(), ResourceType.secondary_storage, volume.getSize() - snapshotStoreRef.getPhysicalSize());
             } catch (Exception e) {
-                s_logger.debug("post process snapshot failed", e);
+                logger.debug("post process snapshot failed", e);
             }
         } catch (CloudRuntimeException cre) {
-            if (s_logger.isDebugEnabled()) {
-                s_logger.debug("Failed to create snapshot" + cre.getLocalizedMessage());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Failed to create snapshot" + cre.getLocalizedMessage());
             }
             _resourceLimitMgr.decrementResourceCount(snapshotOwner.getId(), ResourceType.snapshot);
             _resourceLimitMgr.decrementResourceCount(snapshotOwner.getId(), ResourceType.secondary_storage, volume.getSize());
             throw cre;
         } catch (Exception e) {
-            if (s_logger.isDebugEnabled()) {
-                s_logger.debug("Failed to create snapshot", e);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Failed to create snapshot", e);
             }
             _resourceLimitMgr.decrementResourceCount(snapshotOwner.getId(), ResourceType.snapshot);
             _resourceLimitMgr.decrementResourceCount(snapshotOwner.getId(), ResourceType.secondary_storage, volume.getSize());
@@ -1345,7 +1343,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         @Override
         protected void runInContext() {
             try {
-                s_logger.debug("Value of attempts is " + (snapshotBackupRetries - attempts));
+                logger.debug("Value of attempts is " + (snapshotBackupRetries - attempts));
 
                 SnapshotInfo backupedSnapshot = snapshotStrategy.backupSnapshot(snapshot);
 
@@ -1354,10 +1352,10 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                 }
             } catch (final Exception e) {
                 if (attempts >= 0) {
-                    s_logger.debug("Backing up of snapshot failed, for snapshot with ID " + snapshot.getSnapshotId() + ", left with " + attempts + " more attempts");
+                    logger.debug("Backing up of snapshot failed, for snapshot with ID " + snapshot.getSnapshotId() + ", left with " + attempts + " more attempts");
                     backupSnapshotExecutor.schedule(new BackupSnapshotTask(snapshot, --attempts, snapshotStrategy), snapshotBackupRetryInterval, TimeUnit.SECONDS);
                 } else {
-                    s_logger.debug("Done with " + snapshotBackupRetries + " attempts in  backing up of snapshot with ID " + snapshot.getSnapshotId());
+                    logger.debug("Done with " + snapshotBackupRetries + " attempts in  backing up of snapshot with ID " + snapshot.getSnapshotId());
                     snapshotSrv.cleanupOnSnapshotBackupFailure(snapshot);
                 }
             }
@@ -1393,7 +1391,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         snapshotBackupRetries = BackupRetryAttempts.value();
         snapshotBackupRetryInterval = BackupRetryInterval.value();
         backupSnapshotExecutor = Executors.newScheduledThreadPool(10, new NamedThreadFactory("BackupSnapshotTask"));
-        s_logger.info("Snapshot Manager is configured.");
+        logger.info("Snapshot Manager is configured.");
 
         return true;
     }
@@ -1405,10 +1403,10 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         for (SnapshotVO snapshotVO : snapshots) {
             try {
                 if (!deleteSnapshot(snapshotVO.getId())) {
-                    s_logger.debug("Failed to delete snapshot in destroying state with id " + snapshotVO.getUuid());
+                    logger.debug("Failed to delete snapshot in destroying state with id " + snapshotVO.getUuid());
                 }
             } catch (Exception e) {
-                s_logger.debug("Failed to delete snapshot in destroying state with id " + snapshotVO.getUuid());
+                logger.debug("Failed to delete snapshot in destroying state with id " + snapshotVO.getUuid());
             }
         }
         return true;
@@ -1456,7 +1454,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
         for (Long pId : policyIds) {
             if (!deletePolicy(pId)) {
-                s_logger.warn("Failed to delete snapshot policy with Id: " + policyId);
+                logger.warn("Failed to delete snapshot policy with Id: " + policyId);
                 return false;
             }
         }
@@ -1492,7 +1490,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                 }
             } catch (CloudRuntimeException e) {
                 String msg = "Cleanup of Snapshot with uuid " + info.getUuid() + " in primary storage is failed. Ignoring";
-                s_logger.warn(msg);
+                logger.warn(msg);
             }
         }
     }
@@ -1519,7 +1517,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         } catch (ResourceAllocationException e) {
             if (snapshotType != Type.MANUAL) {
                 String msg = "Snapshot resource limit exceeded for account id : " + owner.getId() + ". Failed to create recurring snapshots";
-                s_logger.warn(msg);
+                logger.warn(msg);
                 _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_UPDATE_RESOURCE_COUNT, 0L, 0L, msg, "Snapshot resource limit exceeded for account id : " + owner.getId()
                         + ". Failed to create recurring snapshots; please use updateResourceLimit to increase the limit");
             }

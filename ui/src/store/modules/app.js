@@ -32,7 +32,8 @@ import {
   VUE_VERSION,
   CUSTOM_COLUMNS,
   FAVICON_STATE_INTERVAL,
-  FAVICON_STATE_CAPACITY
+  FAVICON_STATE_CAPACITY,
+  RELOAD_ALL_PROJECTS
 } from '@/store/mutation-types'
 
 const app = {
@@ -54,7 +55,8 @@ const app = {
     server: '',
     vueVersion: '',
     faviconStateInterval: '',
-    faviconStateCapacity: ''
+    faviconStateCapacity: '',
+    allProjects: []
   },
   mutations: {
     SET_SIDEBAR_TYPE: (state, type) => {
@@ -134,6 +136,10 @@ const app = {
       vueProps.$localStorage.set(FAVICON_STATE_CAPACITY, faviconStateCapacity)
       state.faviconStateCapacity = faviconStateCapacity
     },
+    RELOAD_ALL_PROJECTS: (state, allProjects = []) => {
+      vueProps.$localStorage.set(RELOAD_ALL_PROJECTS, allProjects)
+      state.allProjects = allProjects
+    },
     SET_SHUTDOWN_TRIGGERED: (state, shutdownTriggered) => {
       state.shutdownTriggered = shutdownTriggered
     }
@@ -198,6 +204,9 @@ const app = {
     },
     SetFaviconStateCapacity ({ commit }, faviconStateCapacity) {
       commit('SET_FAVICON_STATE_CAPACITY', faviconStateCapacity)
+    },
+    ReloadAllProjects ({ commit, allProjects }) {
+      commit('RELOAD_ALL_PROJECTS', allProjects)
     },
     SetShutdownTriggered ({ commit }, bool) {
       commit('SET_SHUTDOWN_TRIGGERED', bool)

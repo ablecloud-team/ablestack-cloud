@@ -20,7 +20,6 @@ package org.apache.cloudstack.api.command.user.autoscale;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.acl.SecurityChecker.AccessType;
@@ -35,6 +34,7 @@ import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.AutoScaleVmProfileResponse;
 import org.apache.cloudstack.api.response.ServiceOfferingResponse;
 import org.apache.cloudstack.api.response.TemplateResponse;
+import org.apache.cloudstack.api.response.UserDataResponse;
 import org.apache.cloudstack.api.response.UserResponse;
 import org.apache.cloudstack.context.CallContext;
 
@@ -45,7 +45,6 @@ import com.cloud.user.Account;
 @APICommand(name = "updateAutoScaleVmProfile", description = "Updates an existing autoscale vm profile.", responseObject = AutoScaleVmProfileResponse.class, entityType = {AutoScaleVmProfile.class},
         requestHasSensitiveInfo = false, responseHasSensitiveInfo = false)
 public class UpdateAutoScaleVmProfileCmd extends BaseAsyncCustomIdCmd {
-    public static final Logger s_logger = Logger.getLogger(UpdateAutoScaleVmProfileCmd.class.getName());
 
 
     // ///////////////////////////////////////////////////
@@ -102,6 +101,14 @@ public class UpdateAutoScaleVmProfileCmd extends BaseAsyncCustomIdCmd {
             since = "4.18.0")
     private String userData;
 
+    @Parameter(name = ApiConstants.USER_DATA_ID, type = CommandType.UUID, entityType = UserDataResponse.class, description = "the ID of the userdata",
+            since = "4.18.1")
+    private Long userDataId;
+
+    @Parameter(name = ApiConstants.USER_DATA_DETAILS, type = CommandType.MAP, description = "used to specify the parameters values for the variables in userdata.",
+            since = "4.18.1")
+    private Map userDataDetails;
+
     @Parameter(name = ApiConstants.AUTOSCALE_USER_ID,
                type = CommandType.UUID,
                entityType = UserResponse.class,
@@ -154,6 +161,14 @@ public class UpdateAutoScaleVmProfileCmd extends BaseAsyncCustomIdCmd {
 
     public String getUserData() {
         return userData;
+    }
+
+    public Long getUserDataId() {
+        return userDataId;
+    }
+
+    public Map<String, String> getUserDataDetails() {
+        return convertDetailsToMap(userDataDetails);
     }
 
     public Long getAutoscaleUserId() {

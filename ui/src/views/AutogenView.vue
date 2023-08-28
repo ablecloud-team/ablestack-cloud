@@ -1014,8 +1014,10 @@ export default {
       }
       api('listProjects', { id: projectId, listall: true, details: 'min' }).then(json => {
         if (!json || !json.listprojectsresponse || !json.listprojectsresponse.project) return
+        const projects = json.listprojectsresponse.project
         const project = json.listprojectsresponse.project[0]
         this.$store.dispatch('SetProject', project)
+        this.$store.commit('RELOAD_ALL_PROJECTS', projects)
         this.$store.dispatch('ToggleTheme', project.id === undefined ? 'light' : 'dark')
         this.$message.success(`${this.$t('message.switch.to')} "${project.name}"`)
         const query = Object.assign({}, this.$route.query)
@@ -1131,6 +1133,7 @@ export default {
         })
       }
 
+      const customRender = {}
       for (var columnKey of this.columnKeys) {
         let key = columnKey
         let title = columnKey === 'cidr' && this.columnKeys.includes('ip6cidr') ? 'ipv4.cidr' : columnKey
@@ -1138,9 +1141,11 @@ export default {
           if ('customTitle' in columnKey && 'field' in columnKey) {
             key = columnKey.field
             title = columnKey.customTitle
+            customRender[key] = columnKey[key]
           } else {
             key = Object.keys(columnKey)[0]
             title = Object.keys(columnKey)[0]
+            customRender[key] = columnKey[key]
           }
         }
         this.columns.push({
@@ -1258,6 +1263,7 @@ export default {
         }
 
         if (this.apiName === 'listProjects' && this.items.length > 0) {
+          this.$store.commit('RELOAD_ALL_PROJECTS', this.items)
           this.columns.map(col => {
             if (col.title === 'Account') {
               col.title = this.$t('label.project.owner')
@@ -1279,6 +1285,12 @@ export default {
 
         for (let idx = 0; idx < this.items.length; idx++) {
           this.items[idx].key = idx
+          for (const key in customRender) {
+            const func = customRender[key]
+            if (func && typeof func === 'function') {
+              this.items[idx][key] = func(this.items[idx])
+            }
+          }
           if (this.$route.path.startsWith('/ldapsetting')) {
             this.items[idx].id = this.items[idx].hostname
           }

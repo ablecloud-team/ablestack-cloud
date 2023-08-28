@@ -29,13 +29,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.powermock.reflect.Whitebox;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DatabaseAccessObjectTest {
@@ -53,7 +52,7 @@ public class DatabaseAccessObjectTest {
 
     @Before
     public void setup() {
-        Whitebox.setInternalState(dao.getClass(), "s_logger", loggerMock);
+        dao.logger = loggerMock;
     }
 
     @Test

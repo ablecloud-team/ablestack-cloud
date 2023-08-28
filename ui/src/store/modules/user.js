@@ -65,7 +65,8 @@ const user = {
     twoFaEnabled: false,
     twoFaProvider: '',
     twoFaIssuer: '',
-    firstLogin: ''
+    firstLogin: '',
+    customHypervisorName: 'Custom'
   },
 
   mutations: {
@@ -155,6 +156,9 @@ const user = {
     },
     SET_FIRST_LOGIN: (state, flag) => {
       state.firstLogin = flag
+    },
+    SET_CUSTOM_HYPERVISOR_NAME (state, name) {
+      state.customHypervisorName = name
     }
   },
 
@@ -304,6 +308,15 @@ const user = {
           commit('SET_CLOUDIAN', cloudian)
         }).catch(ignored => {
         })
+
+        api('listConfigurations', { name: 'hypervisor.custom.display.name' }).then(json => {
+          if (json.listconfigurationsresponse.configuration !== null) {
+            const config = json.listconfigurationsresponse.configuration[0]
+            commit('SET_CUSTOM_HYPERVISOR_NAME', config.value)
+          }
+        }).catch(error => {
+          reject(error)
+        })
       })
     },
 
@@ -359,9 +372,13 @@ const user = {
       if (noticeIdx === -1) {
         noticeArray.push(noticeJson)
       } else {
+        const existingNotice = noticeArray[noticeIdx]
+        noticeJson.timestamp = existingNotice.timestamp
         noticeArray[noticeIdx] = noticeJson
       }
-
+      noticeArray.sort(function (a, b) {
+        return new Date(b.timestamp) - new Date(a.timestamp)
+      })
       commit('SET_HEADER_NOTICES', noticeArray)
     },
     ProjectView ({ commit }, projectid) {
@@ -398,6 +415,15 @@ const user = {
         }).catch(error => {
           reject(error)
         })
+
+        api('listConfigurations', { name: 'hypervisor.custom.display.name' }).then(json => {
+          if (json.listconfigurationsresponse.configuration !== null) {
+            const config = json.listconfigurationsresponse.configuration[0]
+            commit('SET_CUSTOM_HYPERVISOR_NAME', config.value)
+          }
+        }).catch(error => {
+          reject(error)
+        })
       })
     },
     UpdateConfiguration ({ commit }) {
@@ -418,6 +444,9 @@ const user = {
     },
     SetLoginFlag ({ commit }, loggedIn) {
       commit('SET_LOGIN_FLAG', loggedIn)
+    },
+    SetCustomHypervisorName ({ commit }, name) {
+      commit('SET_CUSTOM_HYPERVISOR_NAME', name)
     }
   }
 }

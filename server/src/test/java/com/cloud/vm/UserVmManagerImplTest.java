@@ -163,7 +163,7 @@ public class UserVmManagerImplTest {
     private EntityManager entityManager;
 
     @Mock
-    private UserVmDetailsDao userVmDetailVO;
+    private UserVmDetailsDao userVmDetailsDao;
 
     @Mock
     private UserVmVO userVmVoMock;
@@ -225,6 +225,9 @@ public class UserVmManagerImplTest {
     @Mock
     UserDataManager userDataManager;
 
+    @Mock
+    VirtualMachineProfile virtualMachineProfile;
+
     private static final long vmId = 1l;
     private static final long zoneId = 2L;
     private static final long accountId = 3L;
@@ -252,6 +255,8 @@ public class UserVmManagerImplTest {
         customParameters.put(VmDetailConstants.ROOT_DISK_SIZE, "123");
         lenient().doNothing().when(resourceLimitMgr).incrementResourceCount(anyLong(), any(Resource.ResourceType.class));
         lenient().doNothing().when(resourceLimitMgr).decrementResourceCount(anyLong(), any(Resource.ResourceType.class), anyLong());
+
+        Mockito.when(virtualMachineProfile.getId()).thenReturn(vmId);
     }
 
     @After
@@ -332,7 +337,7 @@ public class UserVmManagerImplTest {
         verifyMethodsThatAreAlwaysExecuted();
 
         Mockito.verify(userVmManagerImpl).updateDisplayVmFlag(false, vmId, userVmVoMock);
-        Mockito.verify(userVmDetailVO, Mockito.times(0)).removeDetails(vmId);
+        Mockito.verify(userVmDetailsDao, Mockito.times(0)).removeDetail(anyLong(), anyString());
     }
 
     @Test
@@ -342,12 +347,15 @@ public class UserVmManagerImplTest {
         Mockito.when(_serviceOfferingDao.findById(Mockito.anyLong(), Mockito.anyLong())).thenReturn((ServiceOfferingVO) offering);
         Mockito.when(updateVmCommand.isCleanupDetails()).thenReturn(true);
         Mockito.lenient().doNothing().when(userVmManagerImpl).updateDisplayVmFlag(false, vmId, userVmVoMock);
-        Mockito.doNothing().when(userVmDetailVO).removeDetails(vmId);
+
         Mockito.when(updateVmCommand.getUserdataId()).thenReturn(null);
+
+        prepareExistingDetails(vmId, "userdetail");
 
         userVmManagerImpl.updateVirtualMachine(updateVmCommand);
         verifyMethodsThatAreAlwaysExecuted();
-        Mockito.verify(userVmDetailVO).removeDetails(vmId);
+        Mockito.verify(userVmDetailsDao).removeDetail(vmId, "userdetail");
+        Mockito.verify(userVmDetailsDao, Mockito.times(0)).removeDetail(vmId, "systemdetail");
         Mockito.verify(userVmManagerImpl, Mockito.times(0)).updateDisplayVmFlag(false, vmId, userVmVoMock);
     }
 
@@ -372,6 +380,16 @@ public class UserVmManagerImplTest {
         prepareAndExecuteMethodDealingWithDetails(false, false);
     }
 
+    private List<UserVmDetailVO> prepareExistingDetails(Long vmId, String... existingDetailKeys) {
+        List<UserVmDetailVO> existingDetails = new ArrayList<>();
+        for (String detail : existingDetailKeys) {
+            existingDetails.add(new UserVmDetailVO(vmId, detail, "foo", true));
+        }
+        existingDetails.add(new UserVmDetailVO(vmId, "systemdetail", "bar", false));
+        Mockito.when(userVmDetailsDao.listDetails(vmId)).thenReturn(existingDetails);
+        return existingDetails;
+    }
+
     private void prepareAndExecuteMethodDealingWithDetails(boolean cleanUpDetails, boolean isDetailsEmpty) throws ResourceUnavailableException, InsufficientCapacityException {
         configureDoNothingForMethodsThatWeDoNotWantToTest();
 
@@ -392,8 +410,9 @@ public class UserVmManagerImplTest {
         lenient().doNothing().when(_networkMgr).saveExtraDhcpOptions(anyString(), anyLong(), anyMap());
         HashMap<String, String> details = new HashMap<>();
         if(!isDetailsEmpty) {
-            details.put("", "");
+            details.put("newdetail", "foo");
         }
+        prepareExistingDetails(vmId, "existingdetail");
         Mockito.when(updateVmCommand.getUserdataId()).thenReturn(null);
         Mockito.when(updateVmCommand.getDetails()).thenReturn(details);
         Mockito.when(updateVmCommand.isCleanupDetails()).thenReturn(cleanUpDetails);
@@ -403,14 +422,15 @@ public class UserVmManagerImplTest {
         verifyMethodsThatAreAlwaysExecuted();
 
         Mockito.verify(userVmVoMock, Mockito.times(cleanUpDetails || isDetailsEmpty ? 0 : 1)).setDetails(details);
-        Mockito.verify(userVmDetailVO, Mockito.times(cleanUpDetails ? 1: 0)).removeDetails(vmId);
+        Mockito.verify(userVmDetailsDao, Mockito.times(cleanUpDetails ? 1 : 0)).removeDetail(vmId, "existingdetail");
+        Mockito.verify(userVmDetailsDao, Mockito.times(0)).removeDetail(vmId, "systemdetail");
         Mockito.verify(userVmDao, Mockito.times(cleanUpDetails || isDetailsEmpty ? 0 : 1)).saveDetails(userVmVoMock);
         Mockito.verify(userVmManagerImpl, Mockito.times(0)).updateDisplayVmFlag(false, vmId, userVmVoMock);
     }
 
     private void configureDoNothingForDetailsMethod() {
         Mockito.lenient().doNothing().when(userVmManagerImpl).updateDisplayVmFlag(false, vmId, userVmVoMock);
-        Mockito.doNothing().when(userVmDetailVO).removeDetails(vmId);
+        Mockito.doNothing().when(userVmDetailsDao).removeDetail(anyLong(), anyString());
         Mockito.doNothing().when(userVmDao).saveDetails(userVmVoMock);
     }
 
@@ -565,13 +585,10 @@ public class UserVmManagerImplTest {
     public void verifyIfHypervisorSupportRootdiskSizeOverrideTest() {
         Hypervisor.HypervisorType[] hypervisorTypeArray = Hypervisor.HypervisorType.values();
         int exceptionCounter = 0;
-        int expectedExceptionCounter = hypervisorTypeArray.length - 4;
+        int expectedExceptionCounter = hypervisorTypeArray.length - 5;
 
         for(int i = 0; i < hypervisorTypeArray.length; i++) {
-            if (Hypervisor.HypervisorType.KVM == hypervisorTypeArray[i]
-                    || Hypervisor.HypervisorType.XenServer == hypervisorTypeArray[i]
-                    || Hypervisor.HypervisorType.VMware == hypervisorTypeArray[i]
-                    || Hypervisor.HypervisorType.Simulator == hypervisorTypeArray[i]) {
+            if (UserVmManagerImpl.ROOT_DISK_SIZE_OVERRIDE_SUPPORTING_HYPERVISORS.contains(hypervisorTypeArray[i])) {
                 userVmManagerImpl.verifyIfHypervisorSupportsRootdiskSizeOverride(hypervisorTypeArray[i]);
             } else {
                 try {
@@ -1056,5 +1073,22 @@ public class UserVmManagerImplTest {
         Host destinationHost = Mockito.mock(Host.class);
         Pair<VMInstanceVO, Host> pair = mockObjectsForChooseVmMigrationDestinationUsingVolumePoolMapTest(false, destinationHost);
         Assert.assertEquals(destinationHost, userVmManagerImpl.chooseVmMigrationDestinationUsingVolumePoolMap(pair.first(), pair.second(), null));
+    }
+
+    @Test
+    public void testUpdateVncPasswordIfItHasChanged() {
+        String vncPassword = "12345678";
+        userVmManagerImpl.updateVncPasswordIfItHasChanged(vncPassword, vncPassword, virtualMachineProfile);
+        Mockito.verify(userVmDao, Mockito.never()).update(vmId, userVmVoMock);
+    }
+
+    @Test
+    public void testUpdateVncPasswordIfItHasChangedNewPassword() {
+        String vncPassword = "12345678";
+        String newPassword = "87654321";
+        Mockito.when(userVmVoMock.getId()).thenReturn(vmId);
+        userVmManagerImpl.updateVncPasswordIfItHasChanged(vncPassword, newPassword, virtualMachineProfile);
+        Mockito.verify(userVmDao).findById(vmId);
+        Mockito.verify(userVmDao).update(vmId, userVmVoMock);
     }
 }
