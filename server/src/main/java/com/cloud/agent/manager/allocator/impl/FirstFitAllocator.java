@@ -130,7 +130,7 @@ public class FirstFitAllocator extends AdapterBase implements HostAllocator {
                 isVMDeployedWithTpm = true;
             }
         }
-        s_logger.info(" Guest VM is requested with Custom[TPM] version "+ isVMDeployedWithTpm);
+        logger.info(" Guest VM is requested with Custom[TPM] version "+ isVMDeployedWithTpm);
         if (type == Host.Type.Storage) {
             // FirstFitAllocator should be used for user VMs only since it won't care whether the host is capable of routing or not
             return new ArrayList<Host>();
@@ -160,8 +160,8 @@ public class FirstFitAllocator extends AdapterBase implements HostAllocator {
         List<HostVO> hostsMatchingTpmTag = new ArrayList<HostVO>();
         if(isVMDeployedWithTpm){
             hostsMatchingTpmTag = _hostDao.listByHostCapability(type, clusterId, podId, dcId, Host.HOST_TPM_ENABLE);
-            if (s_logger.isDebugEnabled()) {
-                s_logger.debug("Hosts with tag '" + hostTagTpm + "' are:" + hostsMatchingTpmTag);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Hosts with tag '" + hostTagTpm + "' are:" + hostsMatchingTpmTag);
             }
         }
 

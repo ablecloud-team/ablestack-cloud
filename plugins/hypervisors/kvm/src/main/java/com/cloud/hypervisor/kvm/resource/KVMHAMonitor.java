@@ -188,7 +188,7 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
             if (nfsStoragePool != null) {
                 Script cmd = createHeartBeatCommand(nfsStoragePool, hostPrivateIp, true);
                 result = cmd.execute();
-                s_logger.debug(String.format("The command [%s], to the pool [%s], had the result [%s].", cmd.toString(), uuid, result));
+                logger.debug(String.format("The command [%s], to the pool [%s], had the result [%s].", cmd.toString(), uuid, result));
             } else if (rbdStoragePool != null) {
                 ProcessBuilder processBuilder = createRbdHeartBeatCommand(rbdStoragePool, hostPrivateIp, true);
                 try {
@@ -198,7 +198,7 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                s_logger.debug(String.format("The command [%s], to the pool [%s], had the result [%s].", processBuilder.command().toString(), uuid, result));
+                logger.debug(String.format("The command [%s], to the pool [%s], had the result [%s].", processBuilder.command().toString(), uuid, result));
             } else if (clvmStoragePool != null) {
                 Script cmd = createClvmHeartBeatCommand(clvmStoragePool, hostPrivateIp, true);
                 result = cmd.execute();
@@ -277,7 +277,7 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
     }
 
     private Script createClvmHeartBeatCommand(ClvmStoragePool clvmStoragePool, String hostPrivateIp, boolean hostValidation) {
-        Script cmd = new Script(s_heartBeatPathClvm, _heartBeatUpdateTimeout, s_logger);
+        Script cmd = new Script(s_heartBeatPathClvm, _heartBeatUpdateTimeout, logger);
         cmd.add("-p", clvmStoragePool._poolMountSourcePath);
 
         if (hostValidation) {

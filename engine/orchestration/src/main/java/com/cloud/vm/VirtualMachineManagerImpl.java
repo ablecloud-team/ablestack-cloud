@@ -1154,7 +1154,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
                 if (reuseVolume) {
                     final List<VolumeVO> vols = _volsDao.findReadyRootVolumesByInstance(vm.getId());
                     for (final VolumeVO vol : vols) {
-                        s_logger.info("vol :::: " + vol);
+                        logger.info("vol :::: " + vol);
                         final Long volTemplateId = vol.getTemplateId();
                         if (volTemplateId != null && volTemplateId != template.getId()) {
                             if (logger.isDebugEnabled()) {

@@ -109,7 +109,7 @@ public final class LibvirtPrepareForMigrationCommandWrapper extends CommandWrapp
                         if(store.getProvider() != null && !store.getProvider().isEmpty() && "ABLESTACK".equals(store.getProvider())){
                             String device = libvirtComputingResource.mapRbdDevice(physicalDisk);
                             if (device != null) {
-                                s_logger.debug("RBD device on host is: " + device);
+                                logger.debug("RBD device on host is: " + device);
                             } else {
                                 throw new InternalErrorException("Error while mapping RBD device on host");
                             }

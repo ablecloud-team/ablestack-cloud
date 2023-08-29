@@ -55,7 +55,7 @@ public class KVMHAVMActivityChecker extends KVMHABase implements Callable<Boolea
         String command = "";
 
         if (poolType == StoragePoolType.CLVM) {
-            Script cmd = new Script(vmActivityCheckPath, activityScriptTimeout.getStandardSeconds(), LOG);
+            Script cmd = new Script(vmActivityCheckPath, activityScriptTimeout.getStandardSeconds(), logger);
             cmd.add("-h", hostIp);
             cmd.add("-u", volumeUuidList);
             cmd.add("-t", String.valueOf(String.valueOf(System.currentTimeMillis() / 1000)));
@@ -67,7 +67,7 @@ public class KVMHAVMActivityChecker extends KVMHABase implements Callable<Boolea
             parsedLine = parser.getLine();
             command = cmd.toString();
 
-            LOG.debug(String.format("Checking heart beat with KVMHAVMActivityChecker [{command=\"%s\", result: \"%s\", log: \"%s\", pool: \"%s\"}].", cmd.toString(), result, parsedLine, clvmStoragePool._poolIp));
+            logger.debug(String.format("Checking heart beat with KVMHAVMActivityChecker [{command=\"%s\", result: \"%s\", log: \"%s\", pool: \"%s\"}].", cmd.toString(), result, parsedLine, clvmStoragePool._poolIp));
 
         } else if (poolType == StoragePoolType.NetworkFilesystem) {
             Script cmd = new Script(vmActivityCheckPath, activityScriptTimeout.getStandardSeconds(), logger);
@@ -114,7 +114,7 @@ public class KVMHAVMActivityChecker extends KVMHABase implements Callable<Boolea
                 e.printStackTrace();
             }
 
-            LOG.debug(String.format("Checking heart beat with KVMHAVMActivityChecker [{command=\"%s\", log: \"%s\", pool: \"%s\"}].", command, parsedLine, rbdStoragePool._monHost));
+            logger.debug(String.format("Checking heart beat with KVMHAVMActivityChecker [{command=\"%s\", log: \"%s\", pool: \"%s\"}].", command, parsedLine, rbdStoragePool._monHost));
 
         }
         if (parsedLine.contains("DEAD")) {

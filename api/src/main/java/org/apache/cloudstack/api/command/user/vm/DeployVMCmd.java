@@ -326,7 +326,7 @@ public class DeployVMCmd extends BaseAsyncCreateCustomIdCmd implements SecurityG
             } catch (IllegalArgumentException e) {
                 String errMesg = "Invalid TpmVersion " + tpmversion + "Specified for vm " + getName()
                         + " Valid values are: " + Arrays.toString(ApiConstants.BootType.values());
-                s_logger.warn(errMesg);
+                logger.warn(errMesg);
                 throw new InvalidParameterValueException(errMesg);
             }
         }

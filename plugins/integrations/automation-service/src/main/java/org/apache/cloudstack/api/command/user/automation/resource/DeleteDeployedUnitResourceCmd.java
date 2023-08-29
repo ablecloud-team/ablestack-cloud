@@ -45,7 +45,7 @@ import com.cloud.automation.resource.AutomationResourceService;
         entityType = {AutomationDeployedUnitResource.class},
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class DeleteDeployedUnitResourceCmd extends BaseCmd implements AdminCmd {
-    public static final Logger s_logger = Logger.getLogger(DeleteDeployedUnitResourceCmd.class.getName());
+    public static final Logger logger = Logger.getLogger(DeleteDeployedUnitResourceCmd.class.getName());
     public static final String APINAME = "deleteDeployedUnitResource";
 
     @Inject

@@ -62,9 +62,9 @@ public final class LibvirtReadyCommandWrapper extends CommandWrapper<ReadyComman
 
     private boolean hostSupportsTpm() {
         String cmd = "rpm -qa | grep -i swtpm";
-        s_logger.debug("Running command : " + cmd);
+        logger.debug("Running command : " + cmd);
         int result = Script.runSimpleBashScriptForExitValue(cmd);
-        s_logger.debug("Got result : " + result);
+        logger.debug("Got result : " + result);
         return result == 0;
     }
 }

@@ -60,7 +60,7 @@ namespace ServerResource.Tests
 
         protected static WmiCallsV2 wmiCallsV2 = new WmiCallsV2();
 
-        private static ILog s_logger = LogManager.GetLogger(typeof(HypervResourceControllerTest));
+        private static ILog logger = LogManager.GetLogger(typeof(HypervResourceControllerTest));
 
         /// <summary>
         /// Test WmiCalls to which incoming HTTP POST requests are dispatched.
@@ -85,7 +85,7 @@ namespace ServerResource.Tests
 
             // Make sure secondary store is available.
             string fullPath = Path.GetFullPath(testSecondaryStoreLocalPath);
-            s_logger.Info("Test secondary storage in " + fullPath);
+            logger.Info("Test secondary storage in " + fullPath);
             DirectoryInfo testSecondarStoreDir = new DirectoryInfo(fullPath);
             if (!testSecondarStoreDir.Exists)
             {
@@ -130,16 +130,16 @@ namespace ServerResource.Tests
 
             // Recreate starting point files for test, and record JSON encoded paths for each ...
             testSampleVolumeTempURIJSON = CreateTestDiskImageFromExistingImage(testVolWorks, testLocalStorePath, testSampleVolumeTempUUID);
-            s_logger.Info("Created " + testSampleVolumeTempURIJSON);
+            logger.Info("Created " + testSampleVolumeTempURIJSON);
             testSampleVolumeCorruptURIJSON = CreateTestDiskImageFromExistingImage(testVolWorks, testLocalStorePath, testSampleVolumeCorruptUUID);
-            s_logger.Info("Created " + testSampleVolumeCorruptURIJSON);
+            logger.Info("Created " + testSampleVolumeCorruptURIJSON);
             CreateTestDiskImageFromExistingImage(testVolWorks, testLocalStorePath, testSampleTemplateUUID);
             testSampleTemplateURLJSON = JsonConvert.SerializeObject(testSampleTemplateUUID);
-            s_logger.Info("Created " + testSampleTemplateURLJSON + " in local storage.");
+            logger.Info("Created " + testSampleTemplateURLJSON + " in local storage.");
 
             // ... including a secondary storage template:
             CreateTestDiskImageFromExistingImage(testVolWorks, testSecondarStoreDir.FullName, "af39aa7f-2b12-37e1-86d3-e23f2f005101.vhdx");
-            s_logger.Info("Created " + "af39aa7f-2b12-37e1-86d3-e23f2f005101.vhdx" + " in secondary (NFS) storage.");
+            logger.Info("Created " + "af39aa7f-2b12-37e1-86d3-e23f2f005101.vhdx" + " in secondary (NFS) storage.");
 
 
             // Capture other JSON encoded paths
@@ -150,7 +150,7 @@ namespace ServerResource.Tests
             //    s_hypervresource.initialize();
 
             // Verify sample template is in place storage pool
-            s_logger.Info("setUp complete, sample StoragePool at " + testLocalStorePathJSON
+            logger.Info("setUp complete, sample StoragePool at " + testLocalStorePathJSON
                       + " sample template at " + testSampleTemplateURLJSON);
         }
 
@@ -272,7 +272,7 @@ namespace ServerResource.Tests
             string filePath = Path.Combine(testLocalStorePath, (string)JsonConvert.DeserializeObject(testSampleTemplateURLJSON));
             Assert.True(File.Exists(filePath), "The template we make volumes from is missing from path " + filePath);
             int fileCount = Directory.GetFiles(testLocalStorePath).Length;
-            s_logger.Debug(" test local store has " + fileCount + "files");
+            logger.Debug(" test local store has " + fileCount + "files");
 
             // Act
             // Test requires there to be a template at the tempalteUrl, which is its location in the local file system.

@@ -62,7 +62,7 @@ namespace ServerResource.Tests
         protected static IWmiCallsV2 wmiCallsV2;
 
 
-        private static ILog s_logger = LogManager.GetLogger(typeof(HypervResourceController1Test));
+        private static ILog logger = LogManager.GetLogger(typeof(HypervResourceController1Test));
 
         /// <summary>
         /// Test WmiCalls to which incoming HTTP POST requests are dispatched.
@@ -89,7 +89,7 @@ namespace ServerResource.Tests
 
             // Make sure secondary store is available.
             string fullPath = Path.GetFullPath(testSecondaryStoreLocalPath);
-            s_logger.Info("Test secondary storage in " + fullPath);
+            logger.Info("Test secondary storage in " + fullPath);
             DirectoryInfo testSecondarStoreDir = new DirectoryInfo(fullPath);
             if (!testSecondarStoreDir.Exists)
             {
@@ -120,7 +120,7 @@ namespace ServerResource.Tests
             // Assert.True(testVolWorks.Exists, "Create a working virtual disk at " + testVolWorks.FullName);           
             
             testSampleTemplateURLJSON = JsonConvert.SerializeObject(testSampleTemplateUUID);
-            s_logger.Info("Created " + testSampleTemplateURLJSON + " in local storage.");           
+            logger.Info("Created " + testSampleTemplateURLJSON + " in local storage.");
 
 
             // Capture other JSON encoded paths
@@ -131,7 +131,7 @@ namespace ServerResource.Tests
             //    s_hypervresource.initialize();
 
             // Verify sample template is in place storage pool
-            s_logger.Info("setUp complete, sample StoragePool at " + testLocalStorePathJSON
+            logger.Info("setUp complete, sample StoragePool at " + testLocalStorePathJSON
                       + " sample template at " + testSampleTemplateURLJSON);
         }
 
@@ -192,12 +192,12 @@ namespace ServerResource.Tests
             string filePath = Path.Combine(testLocalStorePath, (string)JsonConvert.DeserializeObject(testSampleTemplateURLJSON));
             Assert.True(File.Exists(filePath), "The template we make volumes from is missing from path " + filePath);
             int fileCount = Directory.GetFiles(testLocalStorePath).Length;
-            s_logger.Debug(" test local store has " + fileCount + "files");
+            logger.Debug(" test local store has " + fileCount + "files");
 
             // Act
             // Test requires there to be a template at the tempalteUrl, which is its location in the local file system.
             dynamic jsonResult = rsrcServer.CreateCommand(jsonCreateCmd);
-            s_logger.Debug("CreateDynamicVirtualHardDisk method is called " + counter + " times");
+            logger.Debug("CreateDynamicVirtualHardDisk method is called " + counter + " times");
 
             //Assert.Equal(counter, 1);
 

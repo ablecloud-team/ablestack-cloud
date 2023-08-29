@@ -56,7 +56,7 @@ public class KVMHAChecker extends KVMHABase implements Callable<Boolean> {
             hostAndPools = String.format("host IP [%s] in pools [%s]", hostIp, clvmStoragePools.stream().map(pool -> pool._poolIp).collect(Collectors.joining(", ")));
             logger.debug(String.format("Checking heart beat with KVMHAChecker for %s", hostAndPools));
 
-            Script cmd = new Script(s_heartBeatPathClvm, heartBeatCheckerTimeout, s_logger);
+            Script cmd = new Script(s_heartBeatPathClvm, heartBeatCheckerTimeout, logger);
             cmd.add("-h", hostIp);
             cmd.add("-p", clvmpools._poolMountSourcePath);
             cmd.add("-r");

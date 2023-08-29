@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @WebListener
 public class ApiSessionListener implements HttpSessionListener {
-    protected Logger logger = LogManager.getLogger(getClass());
+    protected static Logger logger = LogManager.getLogger(ApiSessionListener.class.getName());
     private static Map<String, HttpSession> sessions = new ConcurrentHashMap<>();
 
     /**
@@ -71,8 +71,8 @@ public class ApiSessionListener implements HttpSessionListener {
                 sessions.remove(id);
             }
         }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Sessions count: " + getSessionCount());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Sessions count: " + getSessionCount());
         }
     }
 

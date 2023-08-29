@@ -3402,7 +3402,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
                     }
                 });
             } catch (Exception e) {
-                s_logger.error("Failed to automatically activate a disabled user. UserId : " + _user.getId());
+                logger.error("Failed to automatically activate a disabled user. UserId : " + _user.getId());
             }
         }
     }

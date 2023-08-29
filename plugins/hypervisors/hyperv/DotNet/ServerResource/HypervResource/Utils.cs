@@ -31,7 +31,7 @@ namespace HypervResource
 {
     public class Utils
     {
-        private static ILog s_logger = LogManager.GetLogger(typeof(Utils));
+        private static ILog logger = LogManager.GetLogger(typeof(Utils));
 
         private const string TASK_PREFIX = "cloudstack-heartbeat-";
         private const string BATCH_FILE = "heartbeat.bat";
@@ -107,7 +107,7 @@ namespace HypervResource
                 }
             }
 
-            s_logger.Info(CloudStackTypes.CopyCommand + ": copy " + Path.Combine(cifsShareDetails.UncPath, filePathRelativeToShare) + " to " + destFile);
+            logger.Info(CloudStackTypes.CopyCommand + ": copy " + Path.Combine(cifsShareDetails.UncPath, filePathRelativeToShare) + " to " + destFile);
             File.Copy(dest, destFile, true);
         }
 
@@ -170,7 +170,7 @@ namespace HypervResource
             }
             catch (Exception e)
             {
-                s_logger.Error("Error occurred in deleting or adding a scheduled task " + e.Message);
+                logger.Error("Error occurred in deleting or adding a scheduled task " + e.Message);
             }
         }
 

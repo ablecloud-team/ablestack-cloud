@@ -240,9 +240,9 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
             try {
                 logger.warn("Refreshing storage pool " + pool.getName());
                 if (pool.getXMLDesc(0).contains("lvm2")) {
-                    s_logger.warn("pool.getName(): " + pool.getName());
+                    logger.warn("pool.getName(): " + pool.getName());
                     var outout = Script.runSimpleBashScript("lvchange " + "-ay " + pool.getName() + "/" + volName);
-                    s_logger.warn("lvchange output: " + outout);
+                    logger.warn("lvchange output: " + outout);
                 }
                 refreshPool(pool);
             } catch (LibvirtException e) {
@@ -309,17 +309,17 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
         String mountPoint = _mountPoint + File.separator + path;
 
         if (!_storageLayer.exists(mountPoint)) {
-            s_logger.error(mountPoint + " does not exists. Check local.storage.path in agent.properties.");
+            logger.error(mountPoint + " does not exists. Check local.storage.path in agent.properties.");
             return null;
         }
         LibvirtStoragePoolDef spd = new LibvirtStoragePoolDef(PoolType.DIR, uuid, uuid, host, mountPoint, mountPoint);
         StoragePool sp = null;
         try {
-            s_logger.debug(spd.toString());
+            logger.debug(spd.toString());
             sp = conn.storagePoolCreateXML(spd.toString(), 0);
             return sp;
         } catch (LibvirtException e) {
-            s_logger.error(e.toString());
+            logger.error(e.toString());
             if (sp != null) {
                 try {
                     if (sp.isPersistent() == 1) {
@@ -330,7 +330,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                     }
                     sp.free();
                 } catch (LibvirtException l) {
-                    s_logger.debug("Failed to define shared mount point storage pool with: " + l.toString());
+                    logger.debug("Failed to define shared mount point storage pool with: " + l.toString());
                 }
             }
             return null;
@@ -632,10 +632,10 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
 
         // gluefs mount script call
         if (type == StoragePoolType.SharedMountPoint && details != null && !details.isEmpty() && !details.get("provider").isEmpty() && "ABLESTACK".equals(details.get("provider"))) {
-            s_logger.info("Run the command to create the gluefs mount.");
+            logger.info("Run the command to create the gluefs mount.");
             Boolean gluefs = createGluefsMount(host, path, userInfo, details);
             if (!gluefs) {
-                s_logger.warn("Failed to fire mount event while creating gluefs.");
+                logger.warn("Failed to fire mount event while creating gluefs.");
                 throw new CloudRuntimeException("Failed to fire mount event while creating gluefs.");
             }
         }
@@ -1559,24 +1559,24 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
         int mountpointResult = Script.runSimpleBashScriptForExitValue("mountpoint -q " + _mountPoint + File.separator + path);
         // if the pool is mounted, try to unmount it
         if(mountpointResult == 0) {
-            s_logger.info("Attempting to unmount old mount at " + targetPath);
+            logger.info("Attempting to unmount old mount at " + targetPath);
             String result = Script.runSimpleBashScript("umount -l " + targetPath);
             if (result == null) {
-                s_logger.info("Succeeded in unmounting " + targetPath);
+                logger.info("Succeeded in unmounting " + targetPath);
             } else {
-                s_logger.error("Failed in unmounting storage");
+                logger.error("Failed in unmounting storage");
             }
         }
         if (createPathFolder(path)) {
-            s_logger.debug("mkdir path [" + targetPath + "]");
+            logger.debug("mkdir path [" + targetPath + "]");
         }
         String kernelVer = Script.runSimpleBashScript("uname -r | cut -d - -f 1 ");
-        s_logger.info("[" + kernelVer + "]" + kernelVer.length());
+        logger.info("[" + kernelVer + "]" + kernelVer.length());
         if (kernelVer != null) {
             String mainVer = Script.runSimpleBashScript("uname -r | cut -d - -f 1 | cut -d . -f 1");
             String majorVer = Script.runSimpleBashScript("uname -r | cut -d - -f 1 | cut -d . -f 2");
-            s_logger.info(mainVer);
-            s_logger.info(majorVer);
+            logger.info(mainVer);
+            logger.info(majorVer);
             String nowsync = "";
             if (Integer.parseInt(mainVer) >= 5 && Integer.parseInt(majorVer) >= 7) {
                 nowsync = ",nowsync";
@@ -1585,7 +1585,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
             String user_fsname = userInfo.split(":")[0] + "@." + details.get("gluefsname") + "=/ ";
             String secret = " -o secret=" + userInfo.split(":")[1];
             String mon_addr = ",mon_addr=" + host.replaceAll(",", "/");
-            s_logger.debug("mount info ::: " + cmd + user_fsname + targetPath + secret + mon_addr + nowsync);
+            logger.debug("mount info ::: " + cmd + user_fsname + targetPath + secret + mon_addr + nowsync);
             String mount = Script.runSimpleBashScript(cmd + user_fsname + targetPath + secret + mon_addr + nowsync);
 
             if (mount == null) {
