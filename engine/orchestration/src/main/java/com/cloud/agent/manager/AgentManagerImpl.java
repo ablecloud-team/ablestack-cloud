@@ -613,16 +613,6 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                         _hostDao.saveDetails(host);
                     }
                 }
-
-                String tpmEnabled = detailsMap.get(Host.HOST_TPM_ENABLE);
-                logger.debug(String.format("Got HOST_TPM_ENABLE [%s] for hostId [%s]:", tpmEnabled, host.getUuid()));
-                if (tpmEnabled != null) {
-                    _hostDao.loadDetails(host);
-                    if (!tpmEnabled.equals(host.getDetails().get(Host.HOST_TPM_ENABLE))) {
-                        host.getDetails().put(Host.HOST_TPM_ENABLE, tpmEnabled);
-                        _hostDao.saveDetails(host);
-                    }
-                }
             }
         }
 
