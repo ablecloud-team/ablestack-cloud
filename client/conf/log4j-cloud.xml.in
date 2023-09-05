@@ -29,11 +29,17 @@ under the License.
       <!-- ================================= -->
 
       <!-- A regular appender -->
-      <RollingFile name="FILE" append="true" fileName="@MSLOG@" filePattern="@MSLOG@.%d{yyyy-MM-dd}.gz">
+      <RollingFile name="FILE" append="true" fileName="@MSLOG@" filePattern="@MSLOG@.%d{yyyy-MM-dd-mm}.gz">
          <ThresholdFilter level="TRACE" onMatch="ACCEPT" onMismatch="DENY"/>
          <Policies>
             <TimeBasedTriggeringPolicy/>
+            <SizeBasedTriggeringPolicy size="100MB" />
          </Policies>
+         <DefaultRolloverStrategy max="31">
+            <Delete basePath="./" maxDepth="1">
+                <IfAccumulatedFileCount exceeds="45"/>
+            </Delete>
+         </DefaultRolloverStrategy>
          <PatternLayout pattern="%d{ISO8601} %-5p [%c{1.}] (%t:%x) (logid:%X{logcontextid}) %m%ex{filters(${filters})}%n"/>
       </RollingFile>
 
@@ -42,7 +48,13 @@ under the License.
          <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
          <Policies>
             <TimeBasedTriggeringPolicy/>
+            <SizeBasedTriggeringPolicy size="100MB" />
          </Policies>
+         <DefaultRolloverStrategy max="31">
+            <Delete basePath="./" maxDepth="1">
+                <IfAccumulatedFileCount exceeds="45"/>
+            </Delete>
+         </DefaultRolloverStrategy>
          <PatternLayout pattern="%d{ISO8601} %-5p [%c{1.}] (%t:%x) (logid:%X{logcontextid}) %m%ex{filters(${filters})}%n"/>
       </RollingFile>
 

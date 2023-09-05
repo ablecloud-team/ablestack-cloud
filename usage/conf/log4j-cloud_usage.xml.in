@@ -38,7 +38,13 @@ under the License.
          <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
          <Policies>
             <TimeBasedTriggeringPolicy/>
+            <SizeBasedTriggeringPolicy size="100MB" />
          </Policies>
+         <DefaultRolloverStrategy max="31">
+            <Delete basePath="./" maxDepth="1">
+                <IfAccumulatedFileCount exceeds="45"/>
+            </Delete>
+         </DefaultRolloverStrategy>
          <PatternLayout pattern="%d{ISO8601} %-5p [%c{3}] (%t:%x) (logid:%X{logcontextid}) %m%ex%n"/>
       </RollingFile>
    </Appenders>
