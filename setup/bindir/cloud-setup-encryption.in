@@ -64,7 +64,7 @@ class DBDeployer(object):
     dbDotPropertiesIndex = 0
     encryptionKeyFile = '@MSCONF@/key'
     encryptionJarPath = '@COMMONLIBDIR@/lib/cloudstack-utils.jar'
-    log4j2JarPath = ':@COMMONLIBDIR@/lib/log4j-api-2.19.0.jar:@COMMONLIBDIR@/lib/log4j-api-2.19.0.jar'
+    log4j2JarPath = ':@COMMONLIBDIR@/lib/log4j-api-2.20.0.jar:@COMMONLIBDIR@/lib/log4j-api-2.20.0.jar'
     success = False
     magicString = 'This_is_a_magic_string_i_think_no_one_will_duplicate'
 
