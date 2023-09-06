@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `integrity_verification_initial_hash_final_result` (
     `verification_failed_list` mediumtext NULL COMMENT 'the failed verification failed list',
     `type` varchar(30) NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `i_integrity_verify__mshost_id__final_result` (`mshost_id`),
+    UNIQUE KEY `i_integrity_verify__mshost_id__final_result` (`uuid`,`mshost_id`),
     KEY `i_integrity_verify__mshost_id` (`mshost_id`),
     CONSTRAINT `i_integrity_verify__mshost_id__file_path_final_result` FOREIGN KEY (`mshost_id`) REFERENCES `mshost` (`id`) ON DELETE CASCADE
     ) ENGINE=InnoDB CHARSET=utf8mb3;
