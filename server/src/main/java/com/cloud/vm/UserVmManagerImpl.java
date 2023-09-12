@@ -4816,56 +4816,6 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     }
 
     @Override
-    public String validateUserData(String userData, HTTPMethod httpmethod) {
-        byte[] decodedUserData = null;
-        if (userData != null) {
-
-            if (userData.contains("%")) {
-                try {
-                    userData = URLDecoder.decode(userData, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    throw new InvalidParameterValueException("Url decoding of userdata failed.");
-                }
-            }
-
-            if (!Base64.isBase64(userData)) {
-                throw new InvalidParameterValueException("User data is not base64 encoded");
-            }
-            // If GET, use 4K. If POST, support up to 1M.
-            if (httpmethod.equals(HTTPMethod.GET)) {
-                if (userData.length() >= MAX_HTTP_GET_LENGTH) {
-                    throw new InvalidParameterValueException("User data is too long for an http GET request");
-                }
-                if (userData.length() > VM_USERDATA_MAX_LENGTH.value()) {
-                    throw new InvalidParameterValueException("User data has exceeded configurable max length : " + VM_USERDATA_MAX_LENGTH.value());
-                }
-                decodedUserData = Base64.decodeBase64(userData.getBytes());
-                if (decodedUserData.length > MAX_HTTP_GET_LENGTH) {
-                    throw new InvalidParameterValueException("User data is too long for GET request");
-                }
-            } else if (httpmethod.equals(HTTPMethod.POST)) {
-                if (userData.length() >= MAX_HTTP_POST_LENGTH) {
-                    throw new InvalidParameterValueException("User data is too long for an http POST request");
-                }
-                if (userData.length() > VM_USERDATA_MAX_LENGTH.value()) {
-                    throw new InvalidParameterValueException("User data has exceeded configurable max length : " + VM_USERDATA_MAX_LENGTH.value());
-                }
-                decodedUserData = Base64.decodeBase64(userData.getBytes());
-                if (decodedUserData.length > MAX_HTTP_POST_LENGTH) {
-                    throw new InvalidParameterValueException("User data is too long for POST request");
-                }
-            }
-
-            if (decodedUserData == null || decodedUserData.length < 1) {
-                throw new InvalidParameterValueException("User data is too short");
-            }
-            // Re-encode so that the '=' paddings are added if necessary since 'isBase64' does not require it, but python does on the VR.
-            return Base64.encodeBase64String(decodedUserData);
-        }
-        return null;
-    }
-
-    @Override
     public void validateCloneCondition(CloneVMCmd cmd) throws InvalidParameterValueException, ResourceUnavailableException, CloudRuntimeException, ResourceAllocationException {
 
         if (cmd.getAccountName() != null && cmd.getDomainId() == null) {
