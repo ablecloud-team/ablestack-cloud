@@ -3455,7 +3455,6 @@
 "label.automation.controller.delete": "Delete Automation Controller",
 "message.automation.controller.delete": "Delete Automation Controller",
 "message.success.create.automation.controller": "Successfully deployed Automation Controller. It may take some time to access the portal due to internal work for normal service provision.",
-"label.osdisplayname": "OS type",
 "label.genie.portal.url": "Genie Dashboard",
 "label.automation.controller.access.genie.dashboard": "Access Genie Dashboard",
 "label.automation.controller.access.genie.dashboard.info": "Click the 'Connect Genie Dashboard' button or <br> Enter the URL address <b><a href=\"#\" target='_blank'>http://[AUTOMATION_CONTROLLER_PUBLIC_IP]:80</a></b> to access. <br><br> <i> The automation controller public ip </i> information can be found in the 'Details' tab. ",

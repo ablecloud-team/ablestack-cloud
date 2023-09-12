@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `integrity_verification_initial_hash` (
     `file_path` varchar(255) NOT NULL COMMENT 'the file path for integrity verification',
     `initial_hash_value` varchar(255) COMMENT 'the initial hash value of the file',
     `comparison_hash_value` varchar(255) COMMENT 'the hash value for file comparison',
-    `verification_result` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'check executions success or failure',
+    `verification_result` tinyint(1) DEFAULT 1 COMMENT 'check executions success or failure',
     `verification_date` datetime DEFAULT NULL COMMENT 'the last verification time',
     `verification_details` blob COMMENT 'verification result detailed message',
     PRIMARY KEY (`id`),

@@ -292,6 +292,9 @@ const user = {
           if (result && result.defaultuipagesize) {
             commit('SET_DEFAULT_LISTVIEW_PAGE_SIZE', result.defaultuipagesize)
           }
+          if (result && result.customhypervisordisplayname) {
+            commit('SET_CUSTOM_HYPERVISOR_NAME', result.customhypervisordisplayname)
+          }
         }).catch(error => {
           reject(error)
         })
@@ -307,15 +310,6 @@ const user = {
           const cloudian = response.cloudianisenabledresponse.cloudianisenabled || {}
           commit('SET_CLOUDIAN', cloudian)
         }).catch(ignored => {
-        })
-
-        api('listConfigurations', { name: 'hypervisor.custom.display.name' }).then(json => {
-          if (json.listconfigurationsresponse.configuration !== null) {
-            const config = json.listconfigurationsresponse.configuration[0]
-            commit('SET_CUSTOM_HYPERVISOR_NAME', config.value)
-          }
-        }).catch(error => {
-          reject(error)
         })
       })
     },

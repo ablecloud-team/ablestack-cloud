@@ -100,6 +100,10 @@ public class CapabilitiesResponse extends BaseResponse {
     @Param(description = "true if experimental features for Kubernetes cluster such as Docker private registry are enabled, false otherwise")
     private boolean kubernetesClusterExperimentalFeaturesEnabled;
 
+    @SerializedName("customhypervisordisplayname")
+    @Param(description = "Display name for custom hypervisor")
+    private String customHypervisorDisplayName;
+
     @SerializedName("desktopserviceenabled")
     @Param(description = "true if Desktop Service plugin is enabled, false otherwise")
     private boolean desktopServiceEnabled;
@@ -301,5 +305,9 @@ public class CapabilitiesResponse extends BaseResponse {
 
     public void setInstancesDisksStatsRetentionTime(Integer instancesDisksStatsRetentionTime) {
         this.instancesDisksStatsRetentionTime = instancesDisksStatsRetentionTime;
+    }
+
+    public void setCustomHypervisorDisplayName(String customHypervisorDisplayName) {
+        this.customHypervisorDisplayName = customHypervisorDisplayName;
     }
 }

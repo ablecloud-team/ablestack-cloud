@@ -302,7 +302,7 @@ ln -sf log4j-cloud.xml  ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/management/log4j
 
 install python/bindir/cloud-external-ipallocator.py ${RPM_BUILD_ROOT}%{_bindir}/%{name}-external-ipallocator.py
 install -D client/target/pythonlibs/jasypt-1.9.3.jar ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/lib/jasypt-1.9.3.jar
-install -D utils/target/cloud-utils-%{_maventag}.jar ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/lib/%{name}-utils.jar
+install -D utils/target/cloud-utils-new-%{_maventag}-SHADED.jar ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/lib/%{name}-utils.jar
 install -D agent/target/dependencies/log4j-core-2.20.0.jar ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/lib/log4j-core-2.20.0.jar
 install -D agent/target/dependencies/log4j-api-2.20.0.jar ${RPM_BUILD_ROOT}%{_datadir}/%{name}-common/lib/log4j-api-2.20.0.jar
 

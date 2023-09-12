@@ -26,6 +26,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
@@ -37,7 +40,6 @@ import org.apache.logging.log4j.LogManager;
 
 import com.cloud.utils.db.DbProperties;
 import com.cloud.utils.exception.CloudRuntimeException;
-//import com.cloud.utils.script.Script;
 
 public class EncryptionSecretKeyChecker {
 
@@ -73,13 +75,7 @@ public class EncryptionSecretKeyChecker {
 
         String secretKey = null;
         InputStream isEncKey = null;
-        InputStream isKek = null;
         if (encryptionType.equals("file")) {
-            isEncKey = this.getClass().getClassLoader().getResourceAsStream("key.enc");
-            isKek = this.getClass().getClassLoader().getResourceAsStream("kek");
-            if (isEncKey != null  && isKek != null) {
-                Runtime.getRuntime().exec("openssl enc -d -aria-256-ctr -a -k kek -in key.enc -out key");
-            }
             InputStream is = this.getClass().getClassLoader().getResourceAsStream(s_keyFile);
             if (is == null) {
               is = this.getClass().getClassLoader().getResourceAsStream(s_altKeyFile);
@@ -98,9 +94,11 @@ public class EncryptionSecretKeyChecker {
             if (secretKey == null || secretKey.isEmpty()) {
                 throw new CloudRuntimeException("Secret key is null or empty in file " + s_keyFile);
             }
-            if (isEncKey != null  && isKek != null) {
-                // key 파일 삭제
-                Runtime.getRuntime().exec("rm -rf kek key");
+            isEncKey = this.getClass().getClassLoader().getResourceAsStream("key.enc");
+            if (isEncKey != null) {
+                Path filePath = Paths.get("/etc/cloudstack/management/key");
+                // 파일 삭제
+                Files.deleteIfExists(filePath);
             }
         } else if (encryptionType.equals("env")) {
             secretKey = System.getenv(s_envKey);
@@ -136,7 +134,7 @@ public class EncryptionSecretKeyChecker {
 
         initEncryptor(secretKey);
 
-        if (isEncKey != null  && isKek != null) {
+        if (isEncKey != null) {
             Random random;
             //secretKey 지우기 (0, 1 로 덮어쓰기 5회)
             for (int i = 0; i < 5; i++) {

@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.cloud.storage.VolumeApiService;
-import com.cloud.storage.snapshot.SnapshotApiService;
 import org.apache.cloudstack.api.BaseCmd.HTTPMethod;
 import org.apache.cloudstack.api.command.admin.vm.AssignVMCmd;
 import org.apache.cloudstack.api.command.admin.vm.RecoverVMCmd;
@@ -58,6 +56,8 @@ import com.cloud.network.Network.IpAddresses;
 import com.cloud.offering.DiskOffering;
 import com.cloud.offering.ServiceOffering;
 import com.cloud.storage.StoragePool;
+import com.cloud.storage.VolumeApiService;
+import com.cloud.storage.snapshot.SnapshotApiService;
 import com.cloud.template.VirtualMachineTemplate;
 import com.cloud.user.Account;
 import com.cloud.uservm.UserVm;
@@ -447,7 +447,6 @@ public interface UserVmService {
 
     UserVm recordVirtualMachineToDB(CloneVMCmd cmd, long templateId) throws InsufficientCapacityException, ResourceUnavailableException, ConcurrentOperationException,
             StorageUnavailableException, ResourceAllocationException;
-
     /**
      * This API is mostly to trigger VM.CREATE event for deployVirtualMachine with startvm=false, because there is no code in "execute" part of VM creation.
      * However, it can be used for additional VM customization in the future.

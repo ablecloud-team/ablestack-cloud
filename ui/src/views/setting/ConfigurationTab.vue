@@ -208,7 +208,20 @@ export default {
 
       api('listConfigurations', params).then(response => {
         this.config = []
-        let config = response.listconfigurationsresponse.configuration || []
+        // let config = response.listconfigurationsresponse.configuration || []
+        const configArr = []
+        const configAll = response.listconfigurationsresponse.configuration || []
+        for (var i = 0; i < configAll.length; i++) {
+          if (!['api.source.cidr.checks.enabled', 'password.policy.allowUseOfLastUsedPassword',
+            'password.policy.allowContinuousLettersAndNumbersInputOnKeyboard', 'password.policy.allowConsecutiveRepetitionsOfSameLettersAndNumbers',
+            'password.policy.allowPasswordToContainUsername', 'password.policy.minimum.digits', 'password.policy.minimum.lowercase.letters',
+            'password.policy.minimum.special.characters', 'password.policy.minimum.uppercase.letters', 'password.policy.minimum.length',
+            'password.policy.maximum.length', 'incorrect.login.attempts.allowed', 'incorrect.login.enable.time', 'block.connected.session',
+            'allow.concurrent.connect.session', 'event.delete.enabled', 'event.purge.delay'].includes(configAll[i].name)) {
+            configArr.push(configAll[i])
+          }
+        }
+        let config = configArr
         this.count = response.listconfigurationsresponse.count || 0
         if (this.group.length > 0) {
           config = this.convertConfigToHierarchy(config)

@@ -32,10 +32,23 @@ then
     cd /etc/cloudstack/management
 
     # Create kek
+    rm -rf kek, key
     kek=$(openssl kdf -keylen 16 -kdfopt digest:SHA2-256 -kdfopt pass:$kek_pass -kdfopt salt:$(cat kek.salt) -kdfopt iter:100000 PBKDF2 | base64)
     echo $kek >> kek
-    # echo "kek >> "$kek
 
+    # Generate key by decrypting key.enc
+    openssl enc -d -aria-256-ctr -a -k kek -in key.enc -out key
+
+    # Change key execution permission
+    chmod 777 key
+
+# Delete kek file, override kek to 0 and 1
+rm -rf kek
+kek=010101010101010101
+kek=100110101011010101
+kek=010010101001000110
+kek=111101011101101001
+kek=001001001111001110
 
     /usr/bin/systemctl start cloudstack-management
 else

@@ -24,7 +24,7 @@ public interface PasswordPolicy {
             "Advanced",
             Integer.class,
             "password.policy.minimum.special.characters",
-            "0",
+            "1",
             "Minimum number of special characters that the user's password must have. The value 0 means the user's password does not require any special characters.",
             true,
             ConfigKey.Scope.Domain);
@@ -33,7 +33,7 @@ public interface PasswordPolicy {
             "Advanced",
             Integer.class,
             "password.policy.minimum.length",
-            "0",
+            "9",
             "Minimum length that the user's password must have. The value 0 means the user's password can have any length.",
             true,
             ConfigKey.Scope.Domain);
@@ -51,7 +51,7 @@ public interface PasswordPolicy {
             "Advanced",
             Integer.class,
             "password.policy.minimum.uppercase.letters",
-            "0",
+            "1",
             "Minimum number of uppercase letters that the user's password must have. The value 0 means the user's password does not require any uppercase letters.",
             true,
             ConfigKey.Scope.Domain);
@@ -60,7 +60,7 @@ public interface PasswordPolicy {
             "Advanced",
             Integer.class,
             "password.policy.minimum.lowercase.letters",
-            "0",
+            "1",
             "Minimum number of lowercase letters that the user's password must have. The value 0 means the user's password does not require any lowercase letters.",
             true,
             ConfigKey.Scope.Domain);
@@ -69,7 +69,7 @@ public interface PasswordPolicy {
             "Advanced",
             Integer.class,
             "password.policy.minimum.digits",
-            "0",
+            "1",
             "Minimum number of digits that the user's password must have. The value 0 means the user's password does not require any digits.",
             true,
             ConfigKey.Scope.Domain);
@@ -78,7 +78,7 @@ public interface PasswordPolicy {
             "Advanced",
             Boolean.class,
             "password.policy.allowPasswordToContainUsername",
-            "true",
+            "false",
             "Indicates if the user's password may contain their username. Set 'true' (default) if it is allowed, otherwise set 'false'.",
             true,
             ConfigKey.Scope.Domain);
@@ -96,7 +96,7 @@ public interface PasswordPolicy {
             "Advanced",
             Boolean.class,
             "password.policy.allowUseOfLastUsedPassword",
-            "true",
+            "false",
             "Indicates whether the password used immediately before can be used for the user password. Set 'true' (default) if it is allowed, otherwise set 'false'.",
             true,
             ConfigKey.Scope.Domain);
@@ -105,7 +105,7 @@ public interface PasswordPolicy {
             "Advanced",
             Boolean.class,
             "password.policy.allowConsecutiveRepetitionsOfSameLettersAndNumbers",
-            "true",
+            "false",
             "Indicates whether consecutive repetition of the same letter and number can be used in the user password. Set 'true' (default) if it is allowed, otherwise set 'false'.",
             true,
             ConfigKey.Scope.Domain);
@@ -114,7 +114,7 @@ public interface PasswordPolicy {
             "Advanced",
             Boolean.class,
             "password.policy.allowContinuousLettersAndNumbersInputOnKeyboard",
-            "true",
+            "false",
             "Indicates whether or not the user's password can contain consecutive letters and numbers on the keypad. Set 'true' (default) if it is allowed, otherwise set 'false'.",
             true,
             ConfigKey.Scope.Domain);

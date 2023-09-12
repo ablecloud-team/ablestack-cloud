@@ -266,7 +266,6 @@ export default {
       this.fetchLoading = true
       api('getIntegrityVerificationFinalResult', params).then(json => {
         this.integrityVerificationFinalResult = json.getintegrityverificationfinalresultresponse.integrityverificationsfinalresults || []
-        this.itemCount = json.getintegrityverificationfinalresultresponse.integrityverificationsfinalresults.length || 0
       }).catch(error => {
         this.$notifyError(error)
       }).finally(f => {

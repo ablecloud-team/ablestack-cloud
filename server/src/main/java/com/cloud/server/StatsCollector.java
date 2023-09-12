@@ -23,6 +23,8 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,6 +46,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import com.cloud.event.ActionEventUtils;
+import com.cloud.event.EventTypes;
+import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStore;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStoreManager;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStoreProvider;
@@ -1008,8 +1013,19 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
                         logger.debug("Management server is low on local storage, Threshold ("+dfThreshold+"%) reached");
                     }
                     _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "Management server is low on local storage, Threshold ("+dfThreshold+"%) reached", "");
+                    // When local storage capacity reaches the threshold, compressed log files are deleted.
+                    if (fileName.equalsIgnoreCase("vmops.log")) {
+                        Script.runSimpleBashScript("find ./ -name \"*log.*.gz\" -type f -mtime +30 -delete");
+                    }else {
+                        Path path = Paths.get(fileName);
+                        String parentPath = path.getParent().getParent().toString();
+                        Script.runSimpleBashScript("find "+parentPath+ " -name \"*.gz\" -type f -mtime +30 -delete");
+                    }
+                    ActionEventUtils.onStartedActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(), EventTypes.EVENT_LOG_AUTO_DELETED,
+                    "The management server is running out of local storage. So, log files that were created more than a month ago were deleted.", new Long(0), null, true, 0);
                 }
             }
+
             newEntry.setLogInfo(logInfoBuilder.toString());
             if (logger.isTraceEnabled()) {
                 logger.trace("log stats:\n" + newEntry.getLogInfo());

@@ -1717,8 +1717,6 @@ export default {
         this.form.bootmode = this.defaultBootMode ? this.defaultBootMode : this.options.bootModes && this.options.bootModes.length > 0 ? this.options.bootModes[0].id : undefined
         this.form.tpmversion = this.defaultTPM ? this.defaultTPM : this.options.tpmversion && this.options.tpmversion.length > 0 ? this.options.tpmversion[0].id : undefined
         this.instanceConfig = toRaw(this.form)
-        this.form.iothreadsenabled = true
-        this.form.iodriverpolicy = 'storage_specific'
       })
     },
     isDynamicallyScalable () {

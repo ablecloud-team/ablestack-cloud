@@ -619,7 +619,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
             return false;  //account is deleted or does not exist
         }
         if (isRootAdmin(accountId) || (account.getType() == Account.Type.ADMIN)) {
-            return true;
+            return false;
         }
         return false;
     }

@@ -134,7 +134,6 @@ public class IntegrityVerificationServiceImpl extends ManagerBase implements Plu
                     } else {
                         verificationResults.add(false);
                         verificationResult = false;
-                        alertManager.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "Management server node " + msHost.getServiceIP() + " integrity verification failed: "+ filePath + " could not be verified. at last verification.", "");
                         verificationMessage = "The integrity of the file could not be verified. at last verification.";
                         verificationFailedList.add(filePath);
                     }
@@ -291,7 +290,6 @@ public class IntegrityVerificationServiceImpl extends ManagerBase implements Plu
                 } else {
                     verificationResults.add(false);
                     verificationResult = false;
-                    alertManager.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "Management server node " + msHost.getServiceIP() + " integrity verification failed: "+ filePath + " could not be verified. at last verification.", "");
                     verificationMessage = "The integrity of the file could not be verified. at last verification.";
                     verificationFailedList.add(filePath);
                 }
@@ -339,6 +337,9 @@ public class IntegrityVerificationServiceImpl extends ManagerBase implements Plu
     }
 
     private void updateIntegrityVerificationFinalResult(final long msHostId, String uuid, boolean verificationFinalResult, String verificationFailedListToString, String type) {
+        if (verificationFinalResult == false) {
+            alertManager.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), " integrity verification failed.(uuid:"+uuid+") could not be verified. at last verification.", "");
+        }
         IntegrityVerificationFinalResultVO connectivityVO = new IntegrityVerificationFinalResultVO(msHostId, verificationFinalResult, verificationFailedListToString, type);
         connectivityVO.setUuid(uuid);
         connectivityVO.setVerificationFinalResult(verificationFinalResult);
