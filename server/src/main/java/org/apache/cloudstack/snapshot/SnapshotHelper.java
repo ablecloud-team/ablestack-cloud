@@ -55,10 +55,11 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class SnapshotHelper {
-    private final Logger logger = Logger.getLogger(this.getClass());
+    protected Logger logger = LogManager.getLogger(getClass());
 
     @Inject
     protected SnapshotDataStoreDao snapshotDataStoreDao;

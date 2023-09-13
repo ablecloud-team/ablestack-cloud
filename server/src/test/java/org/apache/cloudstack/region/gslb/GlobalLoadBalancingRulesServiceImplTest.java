@@ -29,7 +29,8 @@ import com.cloud.user.User;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,7 +65,7 @@ import com.cloud.utils.net.Ip;
 
 public class GlobalLoadBalancingRulesServiceImplTest extends TestCase {
 
-    private static final Logger s_logger = Logger.getLogger(GlobalLoadBalancingRulesServiceImplTest.class);
+    private Logger logger = LogManager.getLogger(GlobalLoadBalancingRulesServiceImplTest.class);
 
     @Override
     @Before
@@ -85,7 +86,7 @@ public class GlobalLoadBalancingRulesServiceImplTest extends TestCase {
     @Test
     public void testCreateGlobalLoadBalancerRule() throws Exception {
 
-        s_logger.info("Running tests for CreateGlobalLoadBalancerRule() service API");
+        logger.info("Running tests for CreateGlobalLoadBalancerRule() service API");
 
         /*
          * TEST 1: given valid parameters CreateGlobalLoadBalancerRule should succeed
@@ -116,7 +117,7 @@ public class GlobalLoadBalancingRulesServiceImplTest extends TestCase {
     @Test
     public void testAssignToGlobalLoadBalancerRule() throws Exception {
 
-        s_logger.info("Running tests for AssignToGlobalLoadBalancerRule() service API");
+        logger.info("Running tests for AssignToGlobalLoadBalancerRule() service API");
 
         /*
          * TEST 1: given valid gslb rule id, valid lb rule id, and  caller has access to both the rules
@@ -139,7 +140,7 @@ public class GlobalLoadBalancingRulesServiceImplTest extends TestCase {
     @Test
     public void testRemoveFromGlobalLoadBalancerRule() throws Exception {
 
-        s_logger.info("Running tests for RemoveFromGlobalLoadBalancerRule() service API");
+        logger.info("Running tests for RemoveFromGlobalLoadBalancerRule() service API");
 
         /*
          * TEST 1: given valid gslb rule id, valid lb rule id and is assigned to given gslb rule id
@@ -163,7 +164,7 @@ public class GlobalLoadBalancingRulesServiceImplTest extends TestCase {
     @Test
     public void testDeleteGlobalLoadBalancerRule() throws Exception {
 
-        s_logger.info("Running tests for DeleteGlobalLoadBalancerRule() service API");
+        logger.info("Running tests for DeleteGlobalLoadBalancerRule() service API");
 
         /*
          * TEST 1: given valid gslb rule id with assigned Lb rules, DeleteGlobalLoadBalancerRule()
@@ -239,7 +240,7 @@ public class GlobalLoadBalancingRulesServiceImplTest extends TestCase {
         try {
             gslbServiceImpl.createGlobalLoadBalancerRule(createCmd);
         } catch (Exception e) {
-            s_logger.info("exception in testing runCreateGlobalLoadBalancerRulePostiveTest message: " + e.toString());
+            logger.info("exception in testing runCreateGlobalLoadBalancerRulePostiveTest message: " + e.toString());
         }
     }
 
@@ -559,7 +560,7 @@ public class GlobalLoadBalancingRulesServiceImplTest extends TestCase {
         try {
             gslbServiceImpl.assignToGlobalLoadBalancerRule(assignCmd);
         } catch (Exception e) {
-            s_logger.info("exception in testing runAssignToGlobalLoadBalancerRuleTest message: " + e.toString());
+            logger.info("exception in testing runAssignToGlobalLoadBalancerRuleTest message: " + e.toString());
         }
     }
 
@@ -643,7 +644,7 @@ public class GlobalLoadBalancingRulesServiceImplTest extends TestCase {
         try {
             gslbServiceImpl.assignToGlobalLoadBalancerRule(assignCmd);
         } catch (InvalidParameterValueException e) {
-            s_logger.info(e.getMessage());
+            logger.info(e.getMessage());
             Assert.assertTrue(e.getMessage().contains("Load balancer rule specified should be in unique zone"));
         }
     }
@@ -927,7 +928,7 @@ public class GlobalLoadBalancingRulesServiceImplTest extends TestCase {
             gslbServiceImpl.deleteGlobalLoadBalancerRule(deleteCmd);
             Assert.assertTrue(gslbRule.getState() == GlobalLoadBalancerRule.State.Revoke);
         } catch (Exception e) {
-            s_logger.info("exception in testing runDeleteGlobalLoadBalancerRuleTestWithNoLbRules. " + e.toString());
+            logger.info("exception in testing runDeleteGlobalLoadBalancerRuleTestWithNoLbRules. " + e.toString());
         }
     }
 
@@ -972,7 +973,7 @@ public class GlobalLoadBalancingRulesServiceImplTest extends TestCase {
             Assert.assertTrue(gslbRule.getState() == GlobalLoadBalancerRule.State.Revoke);
             Assert.assertTrue(gslbLmMap.isRevoke() == true);
         } catch (Exception e) {
-            s_logger.info("exception in testing runDeleteGlobalLoadBalancerRuleTestWithLbRules. " + e.toString());
+            logger.info("exception in testing runDeleteGlobalLoadBalancerRuleTestWithLbRules. " + e.toString());
         }
     }
 

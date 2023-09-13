@@ -19,7 +19,6 @@ package com.cloud.hypervisor.kvm.resource;
 import com.cloud.utils.script.OutputInterpreter;
 import com.cloud.utils.script.Script;
 import com.cloud.storage.Storage.StoragePoolType;
-import org.apache.log4j.Logger;
 import org.joda.time.Duration;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,7 +27,6 @@ import java.io.InputStreamReader;
 import java.util.concurrent.Callable;
 
 public class KVMHAVMActivityChecker extends KVMHABase implements Callable<Boolean> {
-    private static final Logger LOG = Logger.getLogger(KVMHAVMActivityChecker.class);
 
     final private NfsStoragePool nfsStoragePool;
     final private RbdStoragePool rbdStoragePool;
@@ -87,7 +85,7 @@ public class KVMHAVMActivityChecker extends KVMHABase implements Callable<Boolea
             parsedLine = parser.getLine();
             command = cmd.toString();
 
-            LOG.debug(String.format("Checking heart beat with KVMHAVMActivityChecker [{command=\"%s\", result: \"%s\", log: \"%s\", pool: \"%s\"}].", cmd.toString(), result, parsedLine, nfsStoragePool._poolIp));
+            logger.debug(String.format("Checking heart beat with KVMHAVMActivityChecker [{command=\"%s\", result: \"%s\", log: \"%s\", pool: \"%s\"}].", cmd.toString(), result, parsedLine, nfsStoragePool._poolIp));
 
         } else if (poolType == StoragePoolType.RBD) {
             ProcessBuilder processBuilder = new ProcessBuilder();
@@ -116,11 +114,11 @@ public class KVMHAVMActivityChecker extends KVMHABase implements Callable<Boolea
                 e.printStackTrace();
             }
 
-            LOG.debug(String.format("Checking heart beat with KVMHAVMActivityChecker [{command=\"%s\", log: \"%s\", pool: \"%s\"}].", command, parsedLine, rbdStoragePool._monHost));
+            logger.debug(String.format("Checking heart beat with KVMHAVMActivityChecker [{command=\"%s\", log: \"%s\", pool: \"%s\"}].", command, parsedLine, rbdStoragePool._monHost));
 
         }
         if (parsedLine.contains("DEAD")) {
-            LOG.warn(String.format("Checking heart beat with KVMHAVMActivityChecker command [%s]. It is [%s]. It may cause a shutdown of host IP [%s].", command, parsedLine, hostIp));
+            logger.warn(String.format("Checking heart beat with KVMHAVMActivityChecker command [%s]. It is [%s]. It may cause a shutdown of host IP [%s].", command, parsedLine, hostIp));
             return false;
         } else {
             return true;

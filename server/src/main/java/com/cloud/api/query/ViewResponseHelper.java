@@ -58,8 +58,9 @@ import org.apache.cloudstack.api.response.UserVmResponse;
 import org.apache.cloudstack.api.response.VolumeResponse;
 import org.apache.cloudstack.api.response.ZoneResponse;
 import org.apache.cloudstack.context.CallContext;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.cloudstack.outofbandmanagement.OutOfBandManagement;
-import org.apache.log4j.Logger;
 
 import com.cloud.api.ApiDBUtils;
 import com.cloud.api.query.vo.AccountJoinVO;
@@ -98,7 +99,7 @@ import com.cloud.user.Account;
  */
 public class ViewResponseHelper {
 
-    public static final Logger s_logger = Logger.getLogger(ViewResponseHelper.class);
+    protected Logger logger = LogManager.getLogger(getClass());
 
     public static List<UserResponse> createUserResponse(UserAccountJoinVO... users) {
         return createUserResponse(null, users);

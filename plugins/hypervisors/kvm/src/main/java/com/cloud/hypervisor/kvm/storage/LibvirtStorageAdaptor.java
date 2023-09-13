@@ -32,7 +32,8 @@ import org.apache.cloudstack.utils.qemu.QemuImgException;
 import org.apache.cloudstack.utils.qemu.QemuImgFile;
 import org.apache.cloudstack.utils.qemu.QemuObject;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.libvirt.Connect;
 import org.libvirt.LibvirtException;
 import org.libvirt.Secret;
@@ -73,7 +74,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class LibvirtStorageAdaptor implements StorageAdaptor {
-    private static final Logger s_logger = Logger.getLogger(LibvirtStorageAdaptor.class);
+    protected Logger logger = LogManager.getLogger(getClass());
     private StorageLayer _storageLayer;
     private String _mountPoint = "/mnt";
     private String _manageSnapshotPath;
@@ -105,7 +106,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
         String mountPoint = _mountPoint + File.separator + uuid;
 
         if (localPath != null) {
-            s_logger.debug(String.format("Pool [%s] is of type local or shared mount point; therefore, we will use the local path [%s] to create the folder [%s] (if it does not"
+            logger.debug(String.format("Pool [%s] is of type local or shared mount point; therefore, we will use the local path [%s] to create the folder [%s] (if it does not"
                     + " exist).", uuid, localPath, path));
 
             mountPoint = localPath;
@@ -125,18 +126,18 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
           destPool.getType(), size, passphrase != null && passphrase.length > 0);
 
         if (!poolTypesThatEnableCreateDiskFromTemplateBacking.contains(destPool.getType())) {
-            s_logger.info(String.format("Skipping creation of %s due to pool type is none of the following types %s.", volumeDesc, poolTypesThatEnableCreateDiskFromTemplateBacking.stream()
+            logger.info(String.format("Skipping creation of %s due to pool type is none of the following types %s.", volumeDesc, poolTypesThatEnableCreateDiskFromTemplateBacking.stream()
               .map(type -> type.toString()).collect(Collectors.joining(", "))));
 
             return null;
         }
 
         if (format != PhysicalDiskFormat.QCOW2) {
-            s_logger.info(String.format("Skipping creation of %s due to format [%s] is not [%s].", volumeDesc, format, PhysicalDiskFormat.QCOW2));
+            logger.info(String.format("Skipping creation of %s due to format [%s] is not [%s].", volumeDesc, format, PhysicalDiskFormat.QCOW2));
             return null;
         }
 
-        s_logger.info(String.format("Creating %s.", volumeDesc));
+        logger.info(String.format("Creating %s.", volumeDesc));
 
         String destPoolLocalPath = destPool.getLocalPath();
         String destPath = String.format("%s%s%s", destPoolLocalPath, destPoolLocalPath.endsWith("/") ? "" : "/", name);
@@ -151,13 +152,13 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
             if (keyFile.isSet()) {
                 passphraseObjects.add(QemuObject.prepareSecretForQemuImg(format, QemuObject.EncryptFormat.LUKS, keyFile.toString(), "sec0", options));
             }
-            s_logger.debug(String.format("Passphrase is staged to keyFile: %s", keyFile.isSet()));
+            logger.debug(String.format("Passphrase is staged to keyFile: %s", keyFile.isSet()));
 
             QemuImg qemu = new QemuImg(timeout);
             qemu.create(destFile, backingFile, options, passphraseObjects);
         } catch (QemuImgException | LibvirtException | IOException e) {
             // why don't we throw an exception here? I guess we fail to find the volume later and that results in a failure returned?
-            s_logger.error(String.format("Failed to create %s in [%s] due to [%s].", volumeDesc, destPath, e.getMessage()), e);
+            logger.error(String.format("Failed to create %s in [%s] due to [%s].", volumeDesc, destPath, e.getMessage()), e);
         }
 
         return null;
@@ -227,7 +228,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
         try {
             vol = pool.storageVolLookupByName(volName);
         } catch (LibvirtException e) {
-            s_logger.debug("Could not find volume " + volName + ": " + e.getMessage());
+            logger.debug("Could not find volume " + volName + ": " + e.getMessage());
         }
 
         /**
@@ -237,21 +238,21 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
          */
         if (vol == null) {
             try {
-                s_logger.warn("Refreshing storage pool " + pool.getName());
+                logger.warn("Refreshing storage pool " + pool.getName());
                 if (pool.getXMLDesc(0).contains("lvm2")) {
-                    s_logger.warn("pool.getName(): " + pool.getName());
+                    logger.warn("pool.getName(): " + pool.getName());
                     var outout = Script.runSimpleBashScript("lvchange " + "-ay " + pool.getName() + "/" + volName);
-                    s_logger.warn("lvchange output: " + outout);
+                    logger.warn("lvchange output: " + outout);
                 }
 
                 refreshPool(pool);
             } catch (LibvirtException e) {
-                s_logger.debug("Failed to refresh storage pool: " + e.getMessage());
+                logger.debug("Failed to refresh storage pool: " + e.getMessage());
             }
 
             try {
                 vol = pool.storageVolLookupByName(volName);
-                s_logger.debug("Found volume " + volName + " in storage pool " + pool.getName() + " after refreshing the pool");
+                logger.debug("Found volume " + volName + " in storage pool " + pool.getName() + " after refreshing the pool");
             } catch (LibvirtException e) {
                 throw new CloudRuntimeException("Could not find volume " + volName + ": " + e.getMessage());
             }
@@ -262,7 +263,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
 
     public StorageVol createVolume(Connect conn, StoragePool pool, String uuid, long size, VolumeFormat format) throws LibvirtException {
         LibvirtStorageVolumeDef volDef = new LibvirtStorageVolumeDef(UUID.randomUUID().toString(), size, format, null, null);
-        s_logger.debug(volDef.toString());
+        logger.debug(volDef.toString());
 
         return pool.storageVolCreateXML(volDef.toString(), 0);
     }
@@ -273,7 +274,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                 refreshPool(pool);
             }
         } catch (LibvirtException e) {
-            s_logger.debug("refresh storage pool failed: " + e.toString());
+            logger.debug("refresh storage pool failed: " + e.toString());
         }
     }
 
@@ -283,24 +284,24 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
         _storageLayer.mkdir(targetPath);
         StoragePool sp = null;
         try {
-            s_logger.debug(spd.toString());
+            logger.debug(spd.toString());
             // check whether the pool is already mounted
             int mountpointResult = Script.runSimpleBashScriptForExitValue("mountpoint -q " + targetPath);
             // if the pool is mounted, try to unmount it
             if(mountpointResult == 0) {
-                s_logger.info("Attempting to unmount old mount at " + targetPath);
+                logger.info("Attempting to unmount old mount at " + targetPath);
                 String result = Script.runSimpleBashScript("umount -l " + targetPath);
                 if (result == null) {
-                    s_logger.info("Succeeded in unmounting " + targetPath);
+                    logger.info("Succeeded in unmounting " + targetPath);
                 } else {
-                    s_logger.error("Failed in unmounting storage");
+                    logger.error("Failed in unmounting storage");
                 }
             }
 
             sp = conn.storagePoolCreateXML(spd.toString(), 0);
             return sp;
         } catch (LibvirtException e) {
-            s_logger.error(e.toString());
+            logger.error(e.toString());
             throw e;
         }
     }
@@ -309,17 +310,17 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
         String mountPoint = _mountPoint + File.separator + path;
 
         if (!_storageLayer.exists(mountPoint)) {
-            s_logger.error(mountPoint + " does not exists. Check local.storage.path in agent.properties.");
+            logger.error(mountPoint + " does not exists. Check local.storage.path in agent.properties.");
             return null;
         }
         LibvirtStoragePoolDef spd = new LibvirtStoragePoolDef(PoolType.DIR, uuid, uuid, host, mountPoint, mountPoint);
         StoragePool sp = null;
         try {
-            s_logger.debug(spd.toString());
+            logger.debug(spd.toString());
             sp = conn.storagePoolCreateXML(spd.toString(), 0);
             return sp;
         } catch (LibvirtException e) {
-            s_logger.error(e.toString());
+            logger.error(e.toString());
             if (sp != null) {
                 try {
                     if (sp.isPersistent() == 1) {
@@ -330,7 +331,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                     }
                     sp.free();
                 } catch (LibvirtException l) {
-                    s_logger.debug("Failed to define shared mount point storage pool with: " + l.toString());
+                    logger.debug("Failed to define shared mount point storage pool with: " + l.toString());
                 }
             }
             return null;
@@ -340,17 +341,17 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
     private StoragePool createSharedStoragePool(Connect conn, String uuid, String host, String path) {
         String mountPoint = path;
         if (!_storageLayer.exists(mountPoint)) {
-            s_logger.error(mountPoint + " does not exists. Check local.storage.path in agent.properties.");
+            logger.error(mountPoint + " does not exists. Check local.storage.path in agent.properties.");
             return null;
         }
         LibvirtStoragePoolDef spd = new LibvirtStoragePoolDef(PoolType.DIR, uuid, uuid, host, path, path);
         StoragePool sp = null;
         try {
-            s_logger.debug(spd.toString());
+            logger.debug(spd.toString());
             sp = conn.storagePoolCreateXML(spd.toString(), 0);
             return sp;
         } catch (LibvirtException e) {
-            s_logger.error(e.toString());
+            logger.error(e.toString());
             if (sp != null) {
                 try {
                     if (sp.isPersistent() == 1) {
@@ -361,7 +362,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                     }
                     sp.free();
                 } catch (LibvirtException l) {
-                    s_logger.debug("Failed to define shared mount point storage pool with: " + l.toString());
+                    logger.debug("Failed to define shared mount point storage pool with: " + l.toString());
                 }
             }
             return null;
@@ -374,14 +375,14 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
         String volgroupName = path;
         volgroupName = volgroupName.replaceFirst("/", "");
 
-        LibvirtStoragePoolDef spd = new LibvirtStoragePoolDef(PoolType.LOGICAL, volgroupName, uuid, host, volgroupPath, volgroupPath);
+        LibvirtStoragePoolDef spd = new LibvirtStoragePoolDef(PoolType.loggerICAL, volgroupName, uuid, host, volgroupPath, volgroupPath);
         StoragePool sp = null;
         try {
-            s_logger.debug(spd.toString());
+            logger.debug(spd.toString());
             sp = conn.storagePoolCreateXML(spd.toString(), 0);
             return sp;
         } catch (LibvirtException e) {
-            s_logger.error(e.toString());
+            logger.error(e.toString());
             if (sp != null) {
                 try {
                     if (sp.isPersistent() == 1) {
@@ -392,7 +393,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                     }
                     sp.free();
                 } catch (LibvirtException l) {
-                    s_logger.debug("Failed to define clvm storage pool with: " + l.toString());
+                    logger.debug("Failed to define clvm storage pool with: " + l.toString());
                 }
             }
             return null;
@@ -413,17 +414,17 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
             sd.setCephName(userInfoTemp[0] + "@" + host + ":" + port + "/" + path);
 
             try {
-                s_logger.debug(sd.toString());
+                logger.debug(sd.toString());
                 s = conn.secretDefineXML(sd.toString());
                 s.setValue(Base64.decodeBase64(userInfoTemp[1]));
             } catch (LibvirtException e) {
-                s_logger.error("Failed to define the libvirt secret: " + e.toString());
+                logger.error("Failed to define the libvirt secret: " + e.toString());
                 if (s != null) {
                     try {
                         s.undefine();
                         s.free();
                     } catch (LibvirtException l) {
-                        s_logger.error("Failed to undefine the libvirt secret: " + l.toString());
+                        logger.error("Failed to undefine the libvirt secret: " + l.toString());
                     }
                 }
                 return null;
@@ -434,11 +435,11 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
         }
 
         try {
-            s_logger.debug(spd.toString());
+            logger.debug(spd.toString());
             sp = conn.storagePoolCreateXML(spd.toString(), 0);
             return sp;
         } catch (LibvirtException e) {
-            s_logger.error("Failed to create RBD storage pool: " + e.toString());
+            logger.error("Failed to create RBD storage pool: " + e.toString());
             if (sp != null) {
                 try {
                     if (sp.isPersistent() == 1) {
@@ -449,17 +450,17 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                     }
                     sp.free();
                 } catch (LibvirtException l) {
-                    s_logger.error("Failed to undefine RBD storage pool: " + l.toString());
+                    logger.error("Failed to undefine RBD storage pool: " + l.toString());
                 }
             }
 
             if (s != null) {
                 try {
-                    s_logger.error("Failed to create the RBD storage pool, cleaning up the libvirt secret");
+                    logger.error("Failed to create the RBD storage pool, cleaning up the libvirt secret");
                     s.undefine();
                     s.free();
                 } catch (LibvirtException se) {
-                    s_logger.error("Failed to remove the libvirt secret: " + se.toString());
+                    logger.error("Failed to remove the libvirt secret: " + se.toString());
                 }
             }
 
@@ -503,14 +504,14 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
 
     @Override
     public KVMStoragePool getStoragePool(String uuid, boolean refreshInfo) {
-        s_logger.info("Trying to fetch storage pool " + uuid + " from libvirt");
+        logger.info("Trying to fetch storage pool " + uuid + " from libvirt");
         StoragePool storage = null;
         try {
             Connect conn = LibvirtConnection.getConnection();
             storage = conn.storagePoolLookupByUUIDString(uuid);
 
             if (storage.getInfo().state != StoragePoolState.VIR_STORAGE_POOL_RUNNING) {
-                s_logger.warn("Storage pool " + uuid + " is not in running state. Attempting to start it.");
+                logger.warn("Storage pool " + uuid + " is not in running state. Attempting to start it.");
                 storage.create(0);
             }
             LibvirtStoragePoolDef spd = getStoragePoolDef(conn, storage);
@@ -524,7 +525,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                 type = StoragePoolType.Filesystem;
             } else if (spd.getPoolType() == LibvirtStoragePoolDef.PoolType.RBD) {
                 type = StoragePoolType.RBD;
-            } else if (spd.getPoolType() == LibvirtStoragePoolDef.PoolType.LOGICAL) {
+            } else if (spd.getPoolType() == LibvirtStoragePoolDef.PoolType.loggerICAL) {
                 type = StoragePoolType.CLVM;
             } else if (spd.getPoolType() == LibvirtStoragePoolDef.PoolType.GLUSTERFS) {
                 type = StoragePoolType.Gluster;
@@ -566,21 +567,21 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
              * refresh the pool
              */
             if (refreshInfo) {
-                s_logger.info("Asking libvirt to refresh storage pool " + uuid);
+                logger.info("Asking libvirt to refresh storage pool " + uuid);
                 pool.refresh();
             }
             pool.setCapacity(storage.getInfo().capacity);
             pool.setUsed(storage.getInfo().allocation);
             pool.setAvailable(storage.getInfo().available);
 
-            s_logger.debug("Successfully refreshed pool " + uuid +
+            logger.debug("Successfully refreshed pool " + uuid +
                            " Capacity: " + toHumanReadableSize(storage.getInfo().capacity) +
                            " Used: " + toHumanReadableSize(storage.getInfo().allocation) +
                            " Available: " + toHumanReadableSize(storage.getInfo().available));
 
             return pool;
         } catch (LibvirtException e) {
-            s_logger.debug("Could not find storage pool " + uuid + " in libvirt");
+            logger.debug("Could not find storage pool " + uuid + " in libvirt");
             throw new CloudRuntimeException(e.toString(), e);
         }
     }
@@ -621,21 +622,21 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
             }
             return disk;
         } catch (LibvirtException e) {
-            s_logger.debug("Failed to get physical disk:", e);
+            logger.debug("Failed to get physical disk:", e);
             throw new CloudRuntimeException(e.toString());
         }
     }
 
     @Override
     public KVMStoragePool createStoragePool(String name, String host, int port, String path, String userInfo, StoragePoolType type, Map<String, String> details) {
-        s_logger.info("Attempting to create storage pool " + name + " (" + type.toString() + ") in libvirt");
+        logger.info("Attempting to create storage pool " + name + " (" + type.toString() + ") in libvirt");
 
         // gluefs mount script call
         if (type == StoragePoolType.SharedMountPoint && details != null && !details.isEmpty() && !details.get("provider").isEmpty() && "ABLESTACK".equals(details.get("provider"))) {
-            s_logger.info("Run the command to create the gluefs mount.");
+            logger.info("Run the command to create the gluefs mount.");
             Boolean gluefs = createGluefsMount(host, path, userInfo, details);
             if (!gluefs) {
-                s_logger.warn("Failed to fire mount event while creating gluefs.");
+                logger.warn("Failed to fire mount event while creating gluefs.");
                 throw new CloudRuntimeException("Failed to fire mount event while creating gluefs.");
             }
         }
@@ -653,14 +654,14 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
             if (sp != null && sp.isActive() == 0) {
                 sp.undefine();
                 sp = null;
-                s_logger.info("Found existing defined storage pool " + name + ". It wasn't running, so we undefined it.");
+                logger.info("Found existing defined storage pool " + name + ". It wasn't running, so we undefined it.");
             }
             if (sp != null) {
-                s_logger.info("Found existing defined storage pool " + name + ", using it.");
+                logger.info("Found existing defined storage pool " + name + ", using it.");
             }
         } catch (LibvirtException e) {
             sp = null;
-            s_logger.warn("Storage pool " + name + " was not found running in libvirt. Need to create it.");
+            logger.warn("Storage pool " + name + " was not found running in libvirt. Need to create it.");
         }
 
         // libvirt strips trailing slashes off of path, we will too in order to match
@@ -674,12 +675,12 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
             // if anyone is, undefine the pool so we can define it as requested.
             // This should be safe since a pool in use can't be removed, and no
             // volumes are affected by unregistering the pool with libvirt.
-            s_logger.info("Didn't find an existing storage pool " + name + " by UUID, checking for pools with duplicate paths");
+            logger.info("Didn't find an existing storage pool " + name + " by UUID, checking for pools with duplicate paths");
 
             try {
                 String[] poolnames = conn.listStoragePools();
                 for (String poolname : poolnames) {
-                    s_logger.debug("Checking path of existing pool " + poolname + " against pool we want to create");
+                    logger.debug("Checking path of existing pool " + poolname + " against pool we want to create");
                     StoragePool p = conn.storagePoolLookupByName(poolname);
                     LibvirtStoragePoolDef pdef = getStoragePoolDef(conn, p);
                     if (pdef == null) {
@@ -688,7 +689,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
 
                     String targetPath = pdef.getTargetPath();
                     if (targetPath != null && targetPath.equals(path)) {
-                        s_logger.debug("Storage pool utilizing path '" + path + "' already exists as pool " + poolname +
+                        logger.debug("Storage pool utilizing path '" + path + "' already exists as pool " + poolname +
                                 ", undefining so we can re-define with correct name " + name);
                         if (p.isPersistent() == 1) {
                             p.destroy();
@@ -699,25 +700,25 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                     }
                 }
             } catch (LibvirtException e) {
-                s_logger.error("Failure in attempting to see if an existing storage pool might be using the path of the pool to be created:" + e);
+                logger.error("Failure in attempting to see if an existing storage pool might be using the path of the pool to be created:" + e);
             }
 
-            s_logger.debug("Attempting to create storage pool " + name);
+            logger.debug("Attempting to create storage pool " + name);
 
             if (type == StoragePoolType.NetworkFilesystem) {
                 try {
                     sp = createNetfsStoragePool(PoolType.NETFS, conn, name, host, path);
                 } catch (LibvirtException e) {
-                    s_logger.error("Failed to create netfs mount: " + host + ":" + path , e);
-                    s_logger.error(e.getStackTrace());
+                    logger.error("Failed to create netfs mount: " + host + ":" + path , e);
+                    logger.error(e.getStackTrace());
                     throw new CloudRuntimeException(e.toString());
                 }
             } else if (type == StoragePoolType.Gluster) {
                 try {
                     sp = createNetfsStoragePool(PoolType.GLUSTERFS, conn, name, host, path);
                 } catch (LibvirtException e) {
-                    s_logger.error("Failed to create glusterfs mount: " + host + ":" + path , e);
-                    s_logger.error(e.getStackTrace());
+                    logger.error("Failed to create glusterfs mount: " + host + ":" + path , e);
+                    logger.error(e.getStackTrace());
                     throw new CloudRuntimeException(e.toString());
                 }
             } else if (type == StoragePoolType.SharedMountPoint || type == StoragePoolType.Filesystem) {
@@ -739,7 +740,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
 
         try {
             if (sp.isActive() == 0) {
-                s_logger.debug("Attempting to activate pool " + name);
+                logger.debug("Attempting to activate pool " + name);
                 sp.create(0);
             }
 
@@ -758,7 +759,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
 
     @Override
     public boolean deleteStoragePool(String uuid) {
-        s_logger.info("Attempting to remove storage pool " + uuid + " from libvirt");
+        logger.info("Attempting to remove storage pool " + uuid + " from libvirt");
         Connect conn = null;
         try {
             conn = LibvirtConnection.getConnection();
@@ -772,7 +773,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
         try {
             sp = conn.storagePoolLookupByUUIDString(uuid);
         } catch (LibvirtException e) {
-            s_logger.warn("Storage pool " + uuid + " doesn't exist in libvirt. Assuming it is already removed");
+            logger.warn("Storage pool " + uuid + " doesn't exist in libvirt. Assuming it is already removed");
             return true;
         }
 
@@ -783,7 +784,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
         try {
             s = conn.secretLookupByUUIDString(uuid);
         } catch (LibvirtException e) {
-            s_logger.info("Storage pool " + uuid + " has no corresponding secret. Not removing any secret.");
+            logger.info("Storage pool " + uuid + " has no corresponding secret. Not removing any secret.");
         }
 
         try {
@@ -799,21 +800,21 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                 s.free();
             }
 
-            s_logger.info("Storage pool " + uuid + " was successfully removed from libvirt.");
+            logger.info("Storage pool " + uuid + " was successfully removed from libvirt.");
 
             return true;
         } catch (LibvirtException e) {
             // handle ebusy error when pool is quickly destroyed
             if (e.toString().contains("exit status 16")) {
                 String targetPath = _mountPoint + File.separator + uuid;
-                s_logger.error("deleteStoragePool removed pool from libvirt, but libvirt had trouble unmounting the pool. Trying umount location " + targetPath +
+                logger.error("deleteStoragePool removed pool from libvirt, but libvirt had trouble unmounting the pool. Trying umount location " + targetPath +
                         "again in a few seconds");
                 String result = Script.runSimpleBashScript("sleep 5 && umount " + targetPath);
                 if (result == null) {
-                    s_logger.error("Succeeded in unmounting " + targetPath);
+                    logger.error("Succeeded in unmounting " + targetPath);
                     return true;
                 }
-                s_logger.error("Failed to unmount " + targetPath);
+                logger.error("Failed to unmount " + targetPath);
             }
             throw new CloudRuntimeException(e.toString(), e);
         }
@@ -823,7 +824,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
     public KVMPhysicalDisk createPhysicalDisk(String name, KVMStoragePool pool,
             PhysicalDiskFormat format, Storage.ProvisioningType provisioningType, long size, byte[] passphrase) {
 
-        s_logger.info("Attempting to create volume " + name + " (" + pool.getType().toString() + ") in pool "
+        logger.info("Attempting to create volume " + name + " (" + pool.getType().toString() + ") in pool "
                 + pool.getUuid() + " with size " + toHumanReadableSize(size));
 
         switch (pool.getType()) {
@@ -859,7 +860,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
 
         LibvirtStorageVolumeDef volDef = new LibvirtStorageVolumeDef(name,
                 size, libvirtformat, null, null);
-        s_logger.debug(volDef.toString());
+        logger.debug(volDef.toString());
         try {
             StorageVol vol = virtPool.storageVolCreateXML(volDef.toString(), 0);
             volPath = vol.getPath();
@@ -980,7 +981,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
     @Override
     public boolean deletePhysicalDisk(String uuid, KVMStoragePool pool, Storage.ImageFormat format) {
 
-        s_logger.info("Attempting to remove volume " + uuid + " from pool " + pool.getUuid());
+        logger.info("Attempting to remove volume " + uuid + " from pool " + pool.getUuid());
 
         /**
          * RBD volume can have snapshots and while they exist libvirt
@@ -990,48 +991,48 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
          */
         if (pool.getType() == StoragePoolType.RBD) {
             try {
-                s_logger.info("Unprotecting and Removing RBD snapshots of image " + pool.getSourceDir() + "/" + uuid + " prior to removing the image");
+                logger.info("Unprotecting and Removing RBD snapshots of image " + pool.getSourceDir() + "/" + uuid + " prior to removing the image");
 
                 Rados r = new Rados(pool.getAuthUserName());
                 r.confSet("mon_host", pool.getSourceHost() + ":" + pool.getSourcePort());
                 r.confSet("key", pool.getAuthSecret());
                 r.confSet("client_mount_timeout", "30");
                 r.connect();
-                s_logger.debug("Successfully connected to Ceph cluster at " + r.confGet("mon_host"));
+                logger.debug("Successfully connected to Ceph cluster at " + r.confGet("mon_host"));
 
                 IoCTX io = r.ioCtxCreate(pool.getSourceDir());
                 Rbd rbd = new Rbd(io);
                 RbdImage image = rbd.open(uuid);
-                s_logger.debug("Fetching list of snapshots of RBD image " + pool.getSourceDir() + "/" + uuid);
+                logger.debug("Fetching list of snapshots of RBD image " + pool.getSourceDir() + "/" + uuid);
                 List<RbdSnapInfo> snaps = image.snapList();
                 try {
                     for (RbdSnapInfo snap : snaps) {
                         if (image.snapIsProtected(snap.name)) {
-                            s_logger.debug("Unprotecting snapshot " + pool.getSourceDir() + "/" + uuid + "@" + snap.name);
+                            logger.debug("Unprotecting snapshot " + pool.getSourceDir() + "/" + uuid + "@" + snap.name);
                             image.snapUnprotect(snap.name);
                         } else {
-                            s_logger.debug("Snapshot " + pool.getSourceDir() + "/" + uuid + "@" + snap.name + " is not protected.");
+                            logger.debug("Snapshot " + pool.getSourceDir() + "/" + uuid + "@" + snap.name + " is not protected.");
                         }
-                        s_logger.debug("Removing snapshot " + pool.getSourceDir() + "/" + uuid + "@" + snap.name);
+                        logger.debug("Removing snapshot " + pool.getSourceDir() + "/" + uuid + "@" + snap.name);
                         image.snapRemove(snap.name);
                     }
-                    s_logger.info("Successfully unprotected and removed any remaining snapshots (" + snaps.size() + ") of "
+                    logger.info("Successfully unprotected and removed any remaining snapshots (" + snaps.size() + ") of "
                         + pool.getSourceDir() + "/" + uuid + " Continuing to remove the RBD image");
                 } catch (RbdException e) {
-                    s_logger.error("Failed to remove snapshot with exception: " + e.toString() +
+                    logger.error("Failed to remove snapshot with exception: " + e.toString() +
                         ", RBD error: " + ErrorCode.getErrorMessage(e.getReturnValue()));
                     throw new CloudRuntimeException(e.toString() + " - " + ErrorCode.getErrorMessage(e.getReturnValue()));
                 } finally {
-                    s_logger.debug("Closing image and destroying context");
+                    logger.debug("Closing image and destroying context");
                     rbd.close(image);
                     r.ioCtxDestroy(io);
                 }
             } catch (RadosException e) {
-                s_logger.error("Failed to remove snapshot with exception: " + e.toString() +
+                logger.error("Failed to remove snapshot with exception: " + e.toString() +
                     ", RBD error: " + ErrorCode.getErrorMessage(e.getReturnValue()));
                 throw new CloudRuntimeException(e.toString() + " - " + ErrorCode.getErrorMessage(e.getReturnValue()));
             } catch (RbdException e) {
-                s_logger.error("Failed to remove snapshot with exception: " + e.toString() +
+                logger.error("Failed to remove snapshot with exception: " + e.toString() +
                     ", RBD error: " + ErrorCode.getErrorMessage(e.getReturnValue()));
                 throw new CloudRuntimeException(e.toString() + " - " + ErrorCode.getErrorMessage(e.getReturnValue()));
             }
@@ -1047,7 +1048,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
         LibvirtStoragePool libvirtPool = (LibvirtStoragePool)pool;
         try {
             StorageVol vol = getVolume(libvirtPool.getPool(), uuid);
-            s_logger.debug("Instructing libvirt to remove volume " + uuid + " from pool " + pool.getUuid());
+            logger.debug("Instructing libvirt to remove volume " + uuid + " from pool " + pool.getUuid());
             if(Storage.ImageFormat.DIR.equals(format)){
                 deleteDirVol(libvirtPool, vol);
             } else {
@@ -1073,7 +1074,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
     public KVMPhysicalDisk createDiskFromTemplate(KVMPhysicalDisk template,
             String name, PhysicalDiskFormat format, Storage.ProvisioningType provisioningType, long size, KVMStoragePool destPool, int timeout, byte[] passphrase) {
 
-        s_logger.info("Creating volume " + name + " from template " + template.getName() + " in pool " + destPool.getUuid() +
+        logger.info("Creating volume " + name + " from template " + template.getName() + " in pool " + destPool.getUuid() +
                 " (" + destPool.getType().toString() + ") with size " + toHumanReadableSize(size));
 
         KVMPhysicalDisk disk = null;
@@ -1192,7 +1193,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                 QemuImg qemu = new QemuImg(timeout);
                 qemu.convert(srcFile, destFile);
             } catch (QemuImgException | LibvirtException e) {
-                s_logger.error("Failed to create " + disk.getPath() +
+                logger.error("Failed to create " + disk.getPath() +
                         " due to a failed executing of qemu-img: " + e.getMessage());
             }
         } else {
@@ -1208,14 +1209,14 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
             try {
                 if ((srcPool.getSourceHost().equals(destPool.getSourceHost())) && (srcPool.getSourceDir().equals(destPool.getSourceDir()))) {
                     /* We are on the same Ceph cluster, but we require RBD format 2 on the source image */
-                    s_logger.debug("Trying to perform a RBD clone (layering) since we are operating in the same storage pool");
+                    logger.debug("Trying to perform a RBD clone (layering) since we are operating in the same storage pool");
 
                     Rados r = new Rados(srcPool.getAuthUserName());
                     r.confSet("mon_host", srcPool.getSourceHost() + ":" + srcPool.getSourcePort());
                     r.confSet("key", srcPool.getAuthSecret());
                     r.confSet("client_mount_timeout", "30");
                     r.connect();
-                    s_logger.debug("Successfully connected to Ceph cluster at " + r.confGet("mon_host"));
+                    logger.debug("Successfully connected to Ceph cluster at " + r.confGet("mon_host"));
 
                     IoCTX io = r.ioCtxCreate(srcPool.getSourceDir());
                     Rbd rbd = new Rbd(io);
@@ -1223,33 +1224,33 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
 
                     if (srcImage.isOldFormat()) {
                         /* The source image is RBD format 1, we have to do a regular copy */
-                        s_logger.debug("The source image " + srcPool.getSourceDir() + "/" + template.getName() +
+                        logger.debug("The source image " + srcPool.getSourceDir() + "/" + template.getName() +
                                 " is RBD format 1. We have to perform a regular copy (" + toHumanReadableSize(disk.getVirtualSize()) + " bytes)");
 
                         rbd.create(disk.getName(), disk.getVirtualSize(), RBD_FEATURES, rbdOrder);
                         RbdImage destImage = rbd.open(disk.getName());
 
-                        s_logger.debug("Starting to copy " + srcImage.getName() +  " to " + destImage.getName() + " in Ceph pool " + srcPool.getSourceDir());
+                        logger.debug("Starting to copy " + srcImage.getName() +  " to " + destImage.getName() + " in Ceph pool " + srcPool.getSourceDir());
                         rbd.copy(srcImage, destImage);
 
-                        s_logger.debug("Finished copying " + srcImage.getName() +  " to " + destImage.getName() + " in Ceph pool " + srcPool.getSourceDir());
+                        logger.debug("Finished copying " + srcImage.getName() +  " to " + destImage.getName() + " in Ceph pool " + srcPool.getSourceDir());
                         rbd.close(destImage);
                     } else {
-                        s_logger.debug("The source image " + srcPool.getSourceDir() + "/" + template.getName()
+                        logger.debug("The source image " + srcPool.getSourceDir() + "/" + template.getName()
                                 + " is RBD format 2. We will perform a RBD clone using snapshot "
                                 + rbdTemplateSnapName);
                         /* The source image is format 2, we can do a RBD snapshot+clone (layering) */
 
 
-                        s_logger.debug("Checking if RBD snapshot " + srcPool.getSourceDir() + "/" + template.getName()
+                        logger.debug("Checking if RBD snapshot " + srcPool.getSourceDir() + "/" + template.getName()
                                 + "@" + rbdTemplateSnapName + " exists prior to attempting a clone operation.");
 
                         List<RbdSnapInfo> snaps = srcImage.snapList();
-                        s_logger.debug("Found " + snaps.size() +  " snapshots on RBD image " + srcPool.getSourceDir() + "/" + template.getName());
+                        logger.debug("Found " + snaps.size() +  " snapshots on RBD image " + srcPool.getSourceDir() + "/" + template.getName());
                         boolean snapFound = false;
                         for (RbdSnapInfo snap : snaps) {
                             if (rbdTemplateSnapName.equals(snap.name)) {
-                                s_logger.debug("RBD snapshot " + srcPool.getSourceDir() + "/" + template.getName()
+                                logger.debug("RBD snapshot " + srcPool.getSourceDir() + "/" + template.getName()
                                         + "@" + rbdTemplateSnapName + " already exists.");
                                 snapFound = true;
                                 break;
@@ -1257,20 +1258,20 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                         }
 
                         if (!snapFound) {
-                            s_logger.debug("Creating RBD snapshot " + rbdTemplateSnapName + " on image " + name);
+                            logger.debug("Creating RBD snapshot " + rbdTemplateSnapName + " on image " + name);
                             srcImage.snapCreate(rbdTemplateSnapName);
-                            s_logger.debug("Protecting RBD snapshot " + rbdTemplateSnapName + " on image " + name);
+                            logger.debug("Protecting RBD snapshot " + rbdTemplateSnapName + " on image " + name);
                             srcImage.snapProtect(rbdTemplateSnapName);
                         }
 
                         rbd.clone(template.getName(), rbdTemplateSnapName, io, disk.getName(), RBD_FEATURES, rbdOrder);
-                        s_logger.debug("Successfully cloned " + template.getName() + "@" + rbdTemplateSnapName + " to " + disk.getName());
+                        logger.debug("Successfully cloned " + template.getName() + "@" + rbdTemplateSnapName + " to " + disk.getName());
                         /* We also need to resize the image if the VM was deployed with a larger root disk size */
                         if (disk.getVirtualSize() > template.getVirtualSize()) {
                             RbdImage diskImage = rbd.open(disk.getName());
                             diskImage.resize(disk.getVirtualSize());
                             rbd.close(diskImage);
-                            s_logger.debug("Resized " + disk.getName() + " to " + toHumanReadableSize(disk.getVirtualSize()));
+                            logger.debug("Resized " + disk.getName() + " to " + toHumanReadableSize(disk.getVirtualSize()));
                         }
 
                     }
@@ -1279,21 +1280,21 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                     r.ioCtxDestroy(io);
                 } else {
                     /* The source pool or host is not the same Ceph cluster, we do a simple copy with Qemu-Img */
-                    s_logger.debug("Both the source and destination are RBD, but not the same Ceph cluster. Performing a copy");
+                    logger.debug("Both the source and destination are RBD, but not the same Ceph cluster. Performing a copy");
 
                     Rados rSrc = new Rados(srcPool.getAuthUserName());
                     rSrc.confSet("mon_host", srcPool.getSourceHost() + ":" + srcPool.getSourcePort());
                     rSrc.confSet("key", srcPool.getAuthSecret());
                     rSrc.confSet("client_mount_timeout", "30");
                     rSrc.connect();
-                    s_logger.debug("Successfully connected to source Ceph cluster at " + rSrc.confGet("mon_host"));
+                    logger.debug("Successfully connected to source Ceph cluster at " + rSrc.confGet("mon_host"));
 
                     Rados rDest = new Rados(destPool.getAuthUserName());
                     rDest.confSet("mon_host", destPool.getSourceHost() + ":" + destPool.getSourcePort());
                     rDest.confSet("key", destPool.getAuthSecret());
                     rDest.confSet("client_mount_timeout", "30");
                     rDest.connect();
-                    s_logger.debug("Successfully connected to source Ceph cluster at " + rDest.confGet("mon_host"));
+                    logger.debug("Successfully connected to source Ceph cluster at " + rDest.confGet("mon_host"));
 
                     IoCTX sIO = rSrc.ioCtxCreate(srcPool.getSourceDir());
                     Rbd sRbd = new Rbd(sIO);
@@ -1301,14 +1302,14 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                     IoCTX dIO = rDest.ioCtxCreate(destPool.getSourceDir());
                     Rbd dRbd = new Rbd(dIO);
 
-                    s_logger.debug("Creating " + disk.getName() + " on the destination cluster " + rDest.confGet("mon_host") + " in pool " +
+                    logger.debug("Creating " + disk.getName() + " on the destination cluster " + rDest.confGet("mon_host") + " in pool " +
                             destPool.getSourceDir());
                     dRbd.create(disk.getName(), disk.getVirtualSize(), RBD_FEATURES, rbdOrder);
 
                     RbdImage srcImage = sRbd.open(template.getName());
                     RbdImage destImage = dRbd.open(disk.getName());
 
-                    s_logger.debug("Copying " + template.getName() + " from Ceph cluster " + rSrc.confGet("mon_host") + " to " + disk.getName()
+                    logger.debug("Copying " + template.getName() + " from Ceph cluster " + rSrc.confGet("mon_host") + " to " + disk.getName()
                             + " on cluster " + rDest.confGet("mon_host"));
                     sRbd.copy(srcImage, destImage);
 
@@ -1319,10 +1320,10 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                     rDest.ioCtxDestroy(dIO);
                 }
             } catch (RadosException e) {
-                s_logger.error("Failed to perform a RADOS action on the Ceph cluster, the error was: " + e.getMessage());
+                logger.error("Failed to perform a RADOS action on the Ceph cluster, the error was: " + e.getMessage());
                 disk = null;
             } catch (RbdException e) {
-                s_logger.error("Failed to perform a RBD action on the Ceph cluster, the error was: " + e.getMessage());
+                logger.error("Failed to perform a RBD action on the Ceph cluster, the error was: " + e.getMessage());
                 disk = null;
             }
         }
@@ -1381,7 +1382,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
         String sourcePath = disk.getPath();
 
         KVMPhysicalDisk newDisk;
-        s_logger.debug("copyPhysicalDisk: disk size:" + toHumanReadableSize(disk.getSize()) + ", virtualsize:" + toHumanReadableSize(disk.getVirtualSize())+" format:"+disk.getFormat());
+        logger.debug("copyPhysicalDisk: disk size:" + toHumanReadableSize(disk.getSize()) + ", virtualsize:" + toHumanReadableSize(disk.getVirtualSize())+" format:"+disk.getFormat());
         if (destPool.getType() != StoragePoolType.RBD) {
             if (disk.getFormat() == PhysicalDiskFormat.TAR) {
                 newDisk = destPool.createPhysicalDisk(name, PhysicalDiskFormat.DIR, Storage.ProvisioningType.THIN, disk.getVirtualSize(), null);
@@ -1437,12 +1438,12 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                             newDisk.setVirtualSize(virtualSize);
                             newDisk.setSize(virtualSize);
                         } catch (QemuImgException | LibvirtException e) {
-                            s_logger.error("Failed to convert " + srcFile.getFileName() + " to " + destFile.getFileName() + " the error was: " + e.getMessage());
+                            logger.error("Failed to convert " + srcFile.getFileName() + " to " + destFile.getFileName() + " the error was: " + e.getMessage());
                             newDisk = null;
                         }
                     }
                 } catch (QemuImgException e) {
-                    s_logger.error("Failed to fetch the information of file " + srcFile.getFileName() + " the error was: " + e.getMessage());
+                    logger.error("Failed to fetch the information of file " + srcFile.getFileName() + " the error was: " + e.getMessage());
                     newDisk = null;
                 }
             }
@@ -1451,7 +1452,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
              * Using qemu-img we copy the QCOW2 disk to RAW (on RBD) directly.
              * To do so it's mandatory that librbd on the system is at least 0.67.7 (Ceph Dumpling)
              */
-            s_logger.debug("The source image is not RBD, but the destination is. We will convert into RBD format 2");
+            logger.debug("The source image is not RBD, but the destination is. We will convert into RBD format 2");
             try {
                 srcFile = new QemuImgFile(sourcePath, sourceFormat);
                 String rbdDestPath = destPool.getSourceDir() + "/" + name;
@@ -1462,9 +1463,9 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                         rbdDestPath);
                 destFile = new QemuImgFile(rbdDestFile, destFormat);
 
-                s_logger.debug("Starting copy from source image " + srcFile.getFileName() + " to RBD image " + rbdDestPath);
+                logger.debug("Starting copy from source image " + srcFile.getFileName() + " to RBD image " + rbdDestPath);
                 qemu.convert(srcFile, destFile);
-                s_logger.debug("Successfully converted source image " + srcFile.getFileName() + " to RBD image " + rbdDestPath);
+                logger.debug("Successfully converted source image " + srcFile.getFileName() + " to RBD image " + rbdDestPath);
 
                 /* We have to stat the RBD image to see how big it became afterwards */
                 Rados r = new Rados(destPool.getAuthUserName());
@@ -1472,7 +1473,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                 r.confSet("key", destPool.getAuthSecret());
                 r.confSet("client_mount_timeout", "30");
                 r.connect();
-                s_logger.debug("Successfully connected to Ceph cluster at " + r.confGet("mon_host"));
+                logger.debug("Successfully connected to Ceph cluster at " + r.confGet("mon_host"));
 
                 IoCTX io = r.ioCtxCreate(destPool.getSourceDir());
                 Rbd rbd = new Rbd(io);
@@ -1481,20 +1482,20 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                 RbdImageInfo rbdInfo = image.stat();
                 newDisk.setSize(rbdInfo.size);
                 newDisk.setVirtualSize(rbdInfo.size);
-                s_logger.debug("After copy the resulting RBD image " + rbdDestPath + " is " + toHumanReadableSize(rbdInfo.size) + " bytes long");
+                logger.debug("After copy the resulting RBD image " + rbdDestPath + " is " + toHumanReadableSize(rbdInfo.size) + " bytes long");
                 rbd.close(image);
 
                 r.ioCtxDestroy(io);
             } catch (QemuImgException | LibvirtException e) {
                 String srcFilename = srcFile != null ? srcFile.getFileName() : null;
                 String destFilename = destFile != null ? destFile.getFileName() : null;
-                s_logger.error(String.format("Failed to convert from %s to %s the error was: %s", srcFilename, destFilename, e.getMessage()));
+                logger.error(String.format("Failed to convert from %s to %s the error was: %s", srcFilename, destFilename, e.getMessage()));
                 newDisk = null;
             } catch (RadosException e) {
-                s_logger.error("A Ceph RADOS operation failed (" + e.getReturnValue() + "). The error was: " + e.getMessage());
+                logger.error("A Ceph RADOS operation failed (" + e.getReturnValue() + "). The error was: " + e.getMessage());
                 newDisk = null;
             } catch (RbdException e) {
-                s_logger.error("A Ceph RBD operation failed (" + e.getReturnValue() + "). The error was: " + e.getMessage());
+                logger.error("A Ceph RBD operation failed (" + e.getReturnValue() + "). The error was: " + e.getMessage());
                 newDisk = null;
             }
         } else {
@@ -1512,7 +1513,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
             try {
                 qemu.convert(srcFile, destFile);
             } catch (QemuImgException | LibvirtException e) {
-                s_logger.error("Failed to convert " + srcFile.getFileName() + " to " + destFile.getFileName() + " the error was: " + e.getMessage());
+                logger.error("Failed to convert " + srcFile.getFileName() + " to " + destFile.getFileName() + " the error was: " + e.getMessage());
                 newDisk = null;
             }
         }
@@ -1559,24 +1560,24 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
         int mountpointResult = Script.runSimpleBashScriptForExitValue("mountpoint -q " + _mountPoint + File.separator + path);
         // if the pool is mounted, try to unmount it
         if(mountpointResult == 0) {
-            s_logger.info("Attempting to unmount old mount at " + targetPath);
+            logger.info("Attempting to unmount old mount at " + targetPath);
             String result = Script.runSimpleBashScript("umount -l " + targetPath);
             if (result == null) {
-                s_logger.info("Succeeded in unmounting " + targetPath);
+                logger.info("Succeeded in unmounting " + targetPath);
             } else {
-                s_logger.error("Failed in unmounting storage");
+                logger.error("Failed in unmounting storage");
             }
         }
         if (createPathFolder(path)) {
-            s_logger.debug("mkdir path [" + targetPath + "]");
+            logger.debug("mkdir path [" + targetPath + "]");
         }
         String kernelVer = Script.runSimpleBashScript("uname -r | cut -d - -f 1 ");
-        s_logger.info("[" + kernelVer + "]" + kernelVer.length());
+        logger.info("[" + kernelVer + "]" + kernelVer.length());
         if (kernelVer != null) {
             String mainVer = Script.runSimpleBashScript("uname -r | cut -d - -f 1 | cut -d . -f 1");
             String majorVer = Script.runSimpleBashScript("uname -r | cut -d - -f 1 | cut -d . -f 2");
-            s_logger.info(mainVer);
-            s_logger.info(majorVer);
+            logger.info(mainVer);
+            logger.info(majorVer);
             String nowsync = "";
             if (Integer.parseInt(mainVer) >= 5 && Integer.parseInt(majorVer) >= 7) {
                 nowsync = ",nowsync";
@@ -1585,7 +1586,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
             String user_fsname = userInfo.split(":")[0] + "@." + details.get("gluefsname") + "=/ ";
             String secret = " -o secret=" + userInfo.split(":")[1];
             String mon_addr = ",mon_addr=" + host.replaceAll(",", "/");
-            s_logger.debug("mount info ::: " + cmd + user_fsname + targetPath + secret + mon_addr + nowsync);
+            logger.debug("mount info ::: " + cmd + user_fsname + targetPath + secret + mon_addr + nowsync);
             String mount = Script.runSimpleBashScript(cmd + user_fsname + targetPath + secret + mon_addr + nowsync);
 
             if (mount == null) {
