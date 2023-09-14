@@ -615,7 +615,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                 }
 
                 String tpmEnabled = detailsMap.get(Host.HOST_TPM_ENABLE);
-                s_logger.debug(String.format("Got HOST_TPM_ENABLE [%s] for hostId [%s]:", tpmEnabled, host.getUuid()));
+                logger.debug(String.format("Got HOST_TPM_ENABLE [%s] for hostId [%s]:", tpmEnabled, host.getUuid()));
                 if (tpmEnabled != null) {
                     _hostDao.loadDetails(host);
                     if (!tpmEnabled.equals(host.getDetails().get(Host.HOST_TPM_ENABLE))) {

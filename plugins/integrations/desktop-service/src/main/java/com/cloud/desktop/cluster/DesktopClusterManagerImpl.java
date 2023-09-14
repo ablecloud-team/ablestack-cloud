@@ -48,7 +48,8 @@ import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.managed.context.ManagedContextRunnable;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.cloud.api.ApiDBUtils;
 import org.apache.cloudstack.api.ApiConstants.VMDetails;
@@ -116,7 +117,7 @@ import com.cloud.exception.InvalidParameterValueException;
 
 public class DesktopClusterManagerImpl extends ManagerBase implements DesktopClusterService {
 
-    private static final Logger LOGGER = Logger.getLogger(DesktopClusterManagerImpl.class);
+    protected Logger LOGGER = LogManager.getLogger(getClass());
 
     protected StateMachine2<DesktopCluster.State, DesktopCluster.Event, DesktopCluster> _stateMachine = DesktopCluster.State.getStateMachine();
 

@@ -515,8 +515,8 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
 
         /* Using Runnable Interface */
         Thread.State state = thread.getState();
-        LOG.info("===1.cluster balancing===");
-        LOG.info("===cluster balancing thread state : " + state);
+        logger.info("===1.cluster balancing===");
+        logger.info("===cluster balancing thread state : " + state);
         if (state == Thread.State.NEW) {
             thread = new Thread(new BalancingThread(cluster.getId()));
             thread.start();
@@ -560,7 +560,7 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
     }
 
     public void balancingCheck (long clusterId) {
-        LOG.info("===2-1.cluster balancing check===");
+        logger.info("===2-1.cluster balancing check===");
         // 클러스터의 각 호스트 메모리used 조회(mold 재시작시 hostResponse 바로 못가져오는 현상으로 인해 while문 추가)
         HashMap<Long, Long> hostMemMap = new HashMap<Long, Long>();
         for (final HostVO host: hostDao.findByClusterId(clusterId)) {
@@ -569,8 +569,8 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
             while (retry > 0) {
                 hostResponse = _responseGenerator.createHostResponse(host);
                 retry--;
-                LOG.info("retry : " + retry);
-                LOG.info("hostId : " + hostResponse.getId() + ", MemoryUsed : " + hostResponse.getMemoryUsed() + ", MemoryTotal : " + hostResponse.getMemoryTotal());
+                logger.info("retry : " + retry);
+                logger.info("hostId : " + hostResponse.getId() + ", MemoryUsed : " + hostResponse.getMemoryUsed() + ", MemoryTotal : " + hostResponse.getMemoryTotal());
                 if (hostResponse.getMemoryUsed() != null) {
                     break;
                 }
@@ -580,7 +580,7 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
                     e.printStackTrace();
                 }
             }
-            LOG.info("hostID : "+hostResponse.getId() + ", hostMemPersent : "+hostResponse.getMemoryUsed()*100/hostResponse.getMemoryTotal());
+            logger.info("hostID : "+hostResponse.getId() + ", hostMemPersent : "+hostResponse.getMemoryUsed()*100/hostResponse.getMemoryTotal());
 
             hostMemMap.put(host.getId(), hostResponse.getMemoryUsed()*100/hostResponse.getMemoryTotal());
         }
@@ -598,8 +598,8 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
         // Min Value의 key, value
         Entry<Long, Long> minEntry = Collections.min(hostMemMap.entrySet(), comparator);
 
-        LOG.info("===2-2.host max/min memoryUsed===");
-        LOG.info("maxEntry : " + maxEntry.getValue() + ", minEntry : " + minEntry.getValue() + ", persent : " + (maxEntry.getValue() - minEntry.getValue()));
+        logger.info("===2-2.host max/min memoryUsed===");
+        logger.info("maxEntry : " + maxEntry.getValue() + ", minEntry : " + minEntry.getValue() + ", persent : " + (maxEntry.getValue() - minEntry.getValue()));
 
         //메모리used 값이 10% 이상 차이나면 메모리used가 가장 작은 호스트로 vm migration
         if ((maxEntry.getValue() - minEntry.getValue()) > 10 ) {
@@ -622,18 +622,18 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
     }
 
     private void balancingMonitor(Long minHostId, Long maxHostId) {
-        LOG.info("===3.cluster balancing monitor===");
-        LOG.info("minHostId : " + minHostId + ", maxHostId : " + maxHostId);
+        logger.info("===3.cluster balancing monitor===");
+        logger.info("minHostId : " + minHostId + ", maxHostId : " + maxHostId);
         Map<Long, Integer> vmMemMap = new ConcurrentHashMap<Long, Integer>();
 
         // 메모리used가 가장 큰 호스트의 vm 조회(ramsize조회를 위해 user_vm_view 테이블을 사용하므로 vm type=user로 지정)
         for (final VMInstanceVO vm: vmInstanceDao.listByHostId(maxHostId)) {
             if (vm.getType().toString() == "User") {
                 UserVmJoinVO userVM = userVmJoinDao.findById(vm.getId());
-                LOG.info("vmID : " + vm.getId() + ", vmRamSize : " + userVM.getRamSize());
+                logger.info("vmID : " + vm.getId() + ", vmRamSize : " + userVM.getRamSize());
                 vmMemMap.put(vm.getId(), userVM.getRamSize());
             } else {
-                LOG.info("===The virtual machine to migrate does not exist.===");
+                logger.info("===The virtual machine to migrate does not exist.===");
             }
             /*Hashtable<Long, UserVmResponse> vmDataList = new Hashtable<Long, UserVmResponse>();
             String responseName = "virtualmachine";
@@ -645,10 +645,10 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
             }
             UserVmResponse cvmResponse = ApiDBUtils.newUserVmResponse(respView, responseName, userVM, EnumSet.of(ApiConstants.VMDetails.nics), caller);
 
-            LOG.info("cvmResponse = "+cvmResponse);
+            logger.info("cvmResponse = "+cvmResponse);
             // userVmData = ApiDBUtils.fillVmDetails(ResponseView.Full, userVmData, userVmJoinVOs.get(0));
-            LOG.info("cvmResponse.getMemory() = "+cvmResponse.getMemory());
-            LOG.info("cvmResponse.getMemory() = "+cvmResponse.getId());*/
+            logger.info("cvmResponse.getMemory() = "+cvmResponse.getMemory());
+            logger.info("cvmResponse.getMemory() = "+cvmResponse.getId());*/
         }
 
         // vm의 ramsize 비교
@@ -664,15 +664,15 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
 
         //가장 작은 ramsize의 vm을 가장 작은 메모리used의 호스트로 migration
         try {
-            LOG.info("===4.vm migration===");
+            logger.info("===4.vm migration===");
             Host destinationHost = resourceService.getHost(minHostId);
-            LOG.info("minEntry.getKey() : " + minEntry.getKey() + ", destinationHost : " + destinationHost);
+            logger.info("minEntry.getKey() : " + minEntry.getKey() + ", destinationHost : " + destinationHost);
             userVmService.migrateVirtualMachine(minEntry.getKey(), destinationHost);
         } catch (ResourceUnavailableException ex) {
-            LOG.warn("Exception: ", ex);
+            logger.warn("Exception: ", ex);
             throw new ServerApiException(ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR, ex.getMessage());
         } catch (VirtualMachineMigrationException | ConcurrentOperationException | ManagementServerException e) {
-            LOG.warn("Exception: ", e);
+            logger.warn("Exception: ", e);
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
         }
     }

@@ -32,7 +32,6 @@ import org.apache.cloudstack.api.response.AutomationDeployedUnitResourceResponse
 import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.api.response.ZoneResponse;
 import org.apache.cloudstack.context.CallContext;
-import org.apache.log4j.Logger;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.automation.resource.AutomationDeployedUnitResource;
@@ -45,7 +44,6 @@ import com.cloud.automation.resource.AutomationResourceService;
         entityType = {AutomationDeployedUnitResource.class},
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class DeleteDeployedResourceGroupCmd extends BaseCmd implements AdminCmd {
-    public static final Logger s_logger = Logger.getLogger(DeleteDeployedResourceGroupCmd.class.getName());
     public static final String APINAME = "deleteDeployedResourceGroup";
 
     @Inject

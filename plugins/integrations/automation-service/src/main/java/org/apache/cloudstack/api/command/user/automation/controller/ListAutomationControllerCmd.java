@@ -29,7 +29,6 @@ import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.AutomationControllerResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.ZoneResponse;
-import org.apache.log4j.Logger;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.automation.controller.AutomationControllerService;
@@ -40,7 +39,6 @@ import com.cloud.automation.controller.AutomationControllerService;
         responseView = ResponseObject.ResponseView.Restricted,
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class ListAutomationControllerCmd extends BaseListProjectAndAccountResourcesCmd {
-    public static final Logger LOGGER = Logger.getLogger(ListAutomationControllerCmd.class.getName());
     public static final String APINAME = "listAutomationController";
 
     @Inject

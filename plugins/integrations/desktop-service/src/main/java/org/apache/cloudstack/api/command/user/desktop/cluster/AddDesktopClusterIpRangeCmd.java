@@ -30,7 +30,6 @@ import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.DesktopClusterIpRangeResponse;
 import org.apache.cloudstack.api.response.DesktopClusterResponse;
 import org.apache.cloudstack.context.CallContext;
-import org.apache.log4j.Logger;
 
 import com.cloud.desktop.cluster.DesktopClusterIpRange;
 import com.cloud.desktop.cluster.DesktopClusterEventTypes;
@@ -46,7 +45,6 @@ import com.cloud.utils.exception.CloudRuntimeException;
         responseHasSensitiveInfo = true,
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class AddDesktopClusterIpRangeCmd extends BaseAsyncCreateCmd {
-    public static final Logger LOGGER = Logger.getLogger(AddDesktopClusterIpRangeCmd.class.getName());
     public static final String APINAME = "addDesktopClusterIpRanges";
 
     @Inject

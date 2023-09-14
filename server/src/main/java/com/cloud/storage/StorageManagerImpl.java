@@ -917,7 +917,7 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
 
         String ipaddress = cmd.getIpaddress();
         if(StringUtils.isNotBlank(ipaddress)) {
-            s_logger.debug("Updating Storage Pool Ipaddress to: " + ipaddress);
+            logger.debug("Updating Storage Pool Ipaddress to: " + ipaddress);
             pool.setHostAddress(ipaddress);
             _storagePoolDao.update(pool.getId(), pool);
         }

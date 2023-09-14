@@ -32,7 +32,6 @@ import org.apache.cloudstack.api.command.admin.automation.version.ListAutomation
 import org.apache.cloudstack.api.response.AutomationControllerVersionResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.framework.config.ConfigKey;
-import org.apache.log4j.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cloudstack.api.command.user.template.RegisterTemplateCmd;
 import org.apache.cloudstack.api.command.user.template.DeleteTemplateCmd;
@@ -63,7 +62,6 @@ import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.dc.DataCenterVO;
 
 public class AutomationVersionManagerImpl extends ManagerBase implements AutomationVersionService {
-    public static final Logger LOGGER = Logger.getLogger(AutomationVersionManagerImpl.class.getName());
 
     @Inject
     private AutomationControllerVersionDao automationControllerVersionDao;
@@ -227,7 +225,7 @@ public class AutomationVersionManagerImpl extends ManagerBase implements Automat
                 automationControllerVersionVO = automationControllerVersionDao.persist(automationControllerVersionVO);
             }
         } catch (URISyntaxException | IllegalAccessException | NoSuchFieldException | IllegalArgumentException | ResourceAllocationException ex) {
-            LOGGER.error(String.format("Unable to register template for automation controller version, %s, with url: %s", templateName, url), ex);
+            logger.error(String.format("Unable to register template for automation controller version, %s, with url: %s", templateName, url), ex);
             throw new CloudRuntimeException(String.format("Unable to register template for automation controller version, %s, with url: %s", templateName, url));
         }
         return createAutomationControllerVersionResponse(automationControllerVersionVO);
@@ -342,13 +340,13 @@ public class AutomationVersionManagerImpl extends ManagerBase implements Automat
         }
 
         if (templateId == null) {
-            LOGGER.warn(String.format("Unable to find template associated with supported automation controller version ID: %s", version.getUuid()));
+            logger.warn(String.format("Unable to find template associated with supported automation controller version ID: %s", version.getUuid()));
         }
         if ("url".equals(uploadType) && templateId != null) {// upload type이 'url' 타입일 경우 템플릿까지 삭제, 'template' 타입 일 경우 템플릿은 삭제 안됨.
             try {
                 deleteAutomationVersionTemplate(templateId);
             } catch (IllegalAccessException | NoSuchFieldException | IllegalArgumentException ex) {
-                LOGGER.error(String.format("Unable to delete ID: %s associated with supported automation controller version ID: %s", templateId, version.getUuid()), ex);
+                logger.error(String.format("Unable to delete ID: %s associated with supported automation controller version ID: %s", templateId, version.getUuid()), ex);
                 throw new CloudRuntimeException(String.format("Unable to delete ID: %s associated with supported automation controller version ID: %s", templateId, version.getUuid()));
             }
         }

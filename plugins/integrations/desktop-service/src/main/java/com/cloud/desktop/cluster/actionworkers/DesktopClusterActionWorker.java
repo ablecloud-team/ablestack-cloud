@@ -31,7 +31,8 @@ import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.cloud.dc.dao.DataCenterDao;
 import com.cloud.dc.dao.VlanDao;
@@ -79,7 +80,7 @@ public class DesktopClusterActionWorker {
     public static final int CLUSTER_API_PORT = 8082;
     public static final int CLUSTER_SAMBA_PORT = 9017;
 
-    protected static final Logger LOGGER = Logger.getLogger(DesktopClusterActionWorker.class);
+    protected Logger LOGGER = LogManager.getLogger(getClass());
 
     protected StateMachine2<DesktopCluster.State, DesktopCluster.Event, DesktopCluster> _stateMachine = DesktopCluster.State.getStateMachine();
 

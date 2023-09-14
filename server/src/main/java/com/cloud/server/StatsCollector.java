@@ -1009,8 +1009,8 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
                 String dfThreshold = (Script.runSimpleBashScript(String.format("df -h %s | grep -v Filesystem | awk '{print $5}'", fileName)).replace("%", ""));
                 int intDfThreshold = Integer.parseInt(dfThreshold);
                 if (intDfThreshold > intMngtServerThreshold) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Management server is low on local storage, Threshold ("+dfThreshold+"%) reached");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Management server is low on local storage, Threshold ("+dfThreshold+"%) reached");
                     }
                     _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "Management server is low on local storage, Threshold ("+dfThreshold+"%) reached", "");
                     // When local storage capacity reaches the threshold, compressed log files are deleted.

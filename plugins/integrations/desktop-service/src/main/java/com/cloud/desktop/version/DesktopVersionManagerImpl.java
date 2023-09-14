@@ -40,7 +40,6 @@ import org.apache.cloudstack.api.response.DesktopMasterVersionResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.TemplateResponse;
 import org.apache.cloudstack.context.CallContext;
-import org.apache.log4j.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cloudstack.api.ApiConstants.DomainDetails;
 import org.apache.cloudstack.api.command.user.template.RegisterTemplateCmd;
@@ -77,7 +76,6 @@ import com.cloud.exception.ResourceAllocationException;
 import com.cloud.exception.InvalidParameterValueException;
 
 public class DesktopVersionManagerImpl extends ManagerBase implements DesktopVersionService {
-    public static final Logger LOGGER = Logger.getLogger(DesktopVersionManagerImpl.class.getName());
 
     @Inject
     private DesktopControllerVersionDao desktopControllerVersionDao;
@@ -223,7 +221,7 @@ public class DesktopVersionManagerImpl extends ManagerBase implements DesktopVer
             desktopMasterVersionVO = new DesktopMasterVersionVO(versionName, masterVersion, description, template.getId() ,zoneId, masterUploadType, masterTemplateType);
             desktopMasterVersionVO = desktopMasterVersionDao.persist(desktopMasterVersionVO);
         } catch (URISyntaxException | IllegalAccessException | NoSuchFieldException | IllegalArgumentException | ResourceAllocationException ex) {
-            LOGGER.error(String.format("Unable to register template for desktop master version, %s, with url: %s", templateName, masterUrl), ex);
+            logger.error(String.format("Unable to register template for desktop master version, %s, with url: %s", templateName, masterUrl), ex);
             throw new CloudRuntimeException(String.format("Unable to register template for desktop master version, %s, with url: %s", templateName, masterUrl));
         }
         return createDesktopMasterVersionResponse(desktopMasterVersionVO);
@@ -341,7 +339,7 @@ public class DesktopVersionManagerImpl extends ManagerBase implements DesktopVer
                 desktopTemplateMapDao.persist(new DesktopTemplateMapVO(desktopControllerVersionVO.getId(), worksTemplate.getId(), "works"));
             }
         } catch (URISyntaxException | IllegalAccessException | NoSuchFieldException | IllegalArgumentException | ResourceAllocationException ex) {
-            LOGGER.error(String.format("Unable to register template for desktop controller version, %s, with url: %s", templateName, dcUrl), ex);
+            logger.error(String.format("Unable to register template for desktop controller version, %s, with url: %s", templateName, dcUrl), ex);
             throw new CloudRuntimeException(String.format("Unable to register template for desktop controller version, %s, with url: %s", templateName, dcUrl));
         }
         return createDesktopControllerVersionResponse(desktopControllerVersionVO);
@@ -531,13 +529,13 @@ public class DesktopVersionManagerImpl extends ManagerBase implements DesktopVer
 
         template = templateDao.findByIdIncludingRemoved(templateId);
         if (template == null) {
-            LOGGER.warn(String.format("Unable to find template associated with supported desktop master version ID: %s", version.getUuid()));
+            logger.warn(String.format("Unable to find template associated with supported desktop master version ID: %s", version.getUuid()));
         }
         if ("url".equals(uploadType) && template != null && template.getRemoved() == null) {// upload type이 'url' 타입일 경우 템플릿까지 삭제, 'template' 타입 일 경우 템플릿은 삭제 안됨.
             try {
                 deleteDesktopVersionTemplate(template.getId());
             } catch (IllegalAccessException | NoSuchFieldException | IllegalArgumentException ex) {
-                LOGGER.error(String.format("Unable to delete ID: %s associated with supported desktop master version ID: %s", template.getUuid(), version.getUuid()), ex);
+                logger.error(String.format("Unable to delete ID: %s associated with supported desktop master version ID: %s", template.getUuid(), version.getUuid()), ex);
                 throw new CloudRuntimeException(String.format("Unable to delete ID: %s associated with supported desktop master version ID: %s", template.getUuid(), version.getUuid()));
             }
         }
@@ -569,20 +567,20 @@ public class DesktopVersionManagerImpl extends ManagerBase implements DesktopVer
             for (DesktopTemplateMapVO templateMapVO : templateList) {
                 template = templateDao.findByIdIncludingRemoved(templateMapVO.getTemplateId());
                 if (template == null) {
-                    LOGGER.warn(String.format("Unable to find template associated with supported desktop controller version ID: %s", version.getUuid()));
+                    logger.warn(String.format("Unable to find template associated with supported desktop controller version ID: %s", version.getUuid()));
                 }
                 if ("url".equals(uploadType) && template != null && template.getRemoved() == null) {// upload type이 'url' 타입일 경우 템플릿까지 삭제, 'template' 타입 일 경우 템플릿은 삭제 안됨.
                     try {
                         deleteDesktopVersionTemplate(template.getId());
                     } catch (IllegalAccessException | NoSuchFieldException | IllegalArgumentException ex) {
-                        LOGGER.error(String.format("Unable to delete ID: %s associated with supported desktop controller version ID: %s", template.getUuid(), version.getUuid()), ex);
+                        logger.error(String.format("Unable to delete ID: %s associated with supported desktop controller version ID: %s", template.getUuid(), version.getUuid()), ex);
                         throw new CloudRuntimeException(String.format("Unable to delete ID: %s associated with supported desktop controller version ID: %s", template.getUuid(), version.getUuid()));
                     }
                 }
                 desktopTemplateMapDao.remove(templateMapVO.getId());
             }
         }else{
-            LOGGER.info("There are no registered templates for that desktop controller version.");
+            logger.info("There are no registered templates for that desktop controller version.");
             //throw new CloudRuntimeException(String.format("There are no registered templates for that desktop controller version.", version.getUuid()));
         }
         return desktopControllerVersionDao.remove(version.getId());

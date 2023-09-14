@@ -1151,12 +1151,12 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
         if (userAcct != null) {
             List<String> sessionJoined = new ArrayList<>();
             List<String> sessionIds = new ArrayList<>();
-            s_logger.debug("possibleUserAccounts ::: " + userAcct.getType());
+            logger.debug("possibleUserAccounts ::: " + userAcct.getType());
             //동일 권한을 가진 user 목록조회
             List<UserAccountVO> possibleUserAccounts = userAccountDao.getAllUsersByAccountType(userAcct.getType());
             if (!possibleUserAccounts.isEmpty()) {
                 for (int i = 0; i < possibleUserAccounts.size(); i++) {
-                    s_logger.debug("possibleUserAccounts ::: " + possibleUserAccounts.get(i).getUsername());
+                    logger.debug("possibleUserAccounts ::: " + possibleUserAccounts.get(i).getUsername());
                     sessionIds = ApiSessionListener.listExistSessionIds(possibleUserAccounts.get(i).getUsername(), session.getId());
                     if (!sessionIds.isEmpty()) {
                         sessionJoined.addAll(sessionIds);
@@ -1268,11 +1268,11 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
         for (UserAuthenticator userAuthenticator : _userPasswordEncoders) {
             Pair<Boolean, ActionOnFailedAuthentication> authenticationResult = userAuthenticator.authenticate(user.getUsername(), password, userAccount.getDomainId(), null);
             if (authenticationResult == null) {
-                s_logger.trace(String.format("Authenticator [%s] is returning null for the authenticate mehtod.", userAuthenticator.getClass()));
+                logger.trace(String.format("Authenticator [%s] is returning null for the authenticate mehtod.", userAuthenticator.getClass()));
                 continue;
             }
             if (BooleanUtils.toBoolean(authenticationResult.first())) {
-                s_logger.debug(String.format("User [id=%s] re-authenticated [authenticator=%s] during password update.", user.getUuid(), userAuthenticator.getName()));
+                logger.debug(String.format("User [id=%s] re-authenticated [authenticator=%s] during password update.", user.getUuid(), userAuthenticator.getName()));
                 passwordMatchesFirstLogin = true;
                 break;
             }

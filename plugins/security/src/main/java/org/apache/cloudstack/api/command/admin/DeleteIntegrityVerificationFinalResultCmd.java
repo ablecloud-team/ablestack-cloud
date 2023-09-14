@@ -32,7 +32,8 @@ import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.context.CallContext;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
 
@@ -42,7 +43,7 @@ import javax.inject.Inject;
         entityType = {IntegrityVerificationFinalResult.class},
         authorized = {RoleType.Admin})
 public class DeleteIntegrityVerificationFinalResultCmd extends BaseAsyncCmd {
-    public static final Logger LOG = Logger.getLogger(DeleteIntegrityVerificationFinalResultCmd.class);
+    public static final Logger LOG = LogManager.getLogger(DeleteIntegrityVerificationFinalResultCmd.class);
     public static final String APINAME = "deleteIntegrityVerificationFinalResult";
 
     @Inject

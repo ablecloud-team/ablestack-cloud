@@ -29,7 +29,6 @@ import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.DesktopMasterVersionResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.ZoneResponse;
-import org.apache.log4j.Logger;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.desktop.version.DesktopVersionService;
@@ -40,7 +39,6 @@ import com.cloud.desktop.version.DesktopVersionService;
         responseView = ResponseObject.ResponseView.Restricted,
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class ListDesktopMasterVersionsCmd extends BaseListCmd {
-    public static final Logger LOGGER = Logger.getLogger(ListDesktopMasterVersionsCmd.class.getName());
     public static final String APINAME = "listDesktopMasterVersions";
 
     @Inject

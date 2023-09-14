@@ -28,7 +28,6 @@ import org.apache.cloudstack.api.ResponseObject.ResponseView;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.DesktopClusterResponse;
 import org.apache.cloudstack.api.response.ListResponse;
-import org.apache.log4j.Logger;
 
 import com.cloud.desktop.cluster.DesktopClusterService;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -41,7 +40,6 @@ import com.cloud.utils.exception.CloudRuntimeException;
         responseHasSensitiveInfo = true,
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class ListDesktopClusterCmd extends BaseListProjectAndAccountResourcesCmd {
-    public static final Logger LOGGER = Logger.getLogger(ListDesktopClusterCmd.class.getName());
     public static final String APINAME = "listDesktopClusters";
 
     @Inject

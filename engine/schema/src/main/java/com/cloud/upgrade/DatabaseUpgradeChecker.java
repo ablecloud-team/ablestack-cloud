@@ -432,7 +432,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                 conn = txn.getConnection();
             } catch (SQLException e) {
                 String errorMessage = "Unable to upgrade the database [beforeUpgradeAblestack : " + ablestackVersion + "]";
-                s_logger.error(errorMessage, e);
+                LOGGER.error(errorMessage, e);
                 throw new CloudRuntimeException(errorMessage, e);
             }
             final String scriptFile = "META-INF/db/schema-" + ablestackVersion +"-Before.sql";
@@ -440,7 +440,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
             if (script == null) {
                 throw new CloudRuntimeException("Unable to find " + scriptFile);
             }
-            s_logger.info("Ablestack Upgrade [Method : beforeUpgradeAblestack , version :  " + ablestackVersion + "]");
+            LOGGER.info("Ablestack Upgrade [Method : beforeUpgradeAblestack , version :  " + ablestackVersion + "]");
             InputStream[] scripts = {script};
             if (scripts != null) {
                 for (InputStream scrip : scripts) {
@@ -450,7 +450,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
             txn.commit();
         } catch (CloudRuntimeException e) {
             String errorMessage = "Unable to upgrade the database ablestack [beforeUpgradeAblestack : " + ablestackVersion + "]";
-            s_logger.error(errorMessage, e);
+            LOGGER.error(errorMessage, e);
             throw new CloudRuntimeException(errorMessage, e);
         } finally {
             txn.close();
@@ -467,7 +467,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                 conn = txn.getConnection();
             } catch (SQLException e) {
                 String errorMessage = "Unable to upgrade the database [afterUpgradeAblestack : " + ablestackVersion + "]";
-                s_logger.error(errorMessage, e);
+                LOGGER.error(errorMessage, e);
                 throw new CloudRuntimeException(errorMessage, e);
             }
             final String scriptFile = "META-INF/db/schema-" + ablestackVersion +"-After.sql";
@@ -475,7 +475,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
             if (script == null) {
                 throw new CloudRuntimeException("Unable to find " + scriptFile);
             }
-            s_logger.info("Ablestack Upgrade [Method : afterUpgradeAblestack , version :  " + ablestackVersion + "]");
+            LOGGER.info("Ablestack Upgrade [Method : afterUpgradeAblestack , version :  " + ablestackVersion + "]");
             InputStream[] scripts = {script};
             if (scripts != null) {
                 for (InputStream scrip : scripts) {
@@ -485,7 +485,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
             txn.commit();
         } catch (CloudRuntimeException e) {
             String errorMessage = "Unable to upgrade the database ablestack [afterUpgradeAblestack : " + ablestackVersion + "]";
-            s_logger.error(errorMessage, e);
+            LOGGER.error(errorMessage, e);
             throw new CloudRuntimeException(errorMessage, e);
         } finally {
             txn.close();

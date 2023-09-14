@@ -160,8 +160,8 @@ public class FirstFitAllocator extends AdapterBase implements HostAllocator {
         List<HostVO> hostsMatchingTpmTag = new ArrayList<HostVO>();
         if(isVMDeployedWithTpm){
             hostsMatchingTpmTag = _hostDao.listByHostCapability(type, clusterId, podId, dcId, Host.HOST_TPM_ENABLE);
-            if (s_logger.isDebugEnabled()) {
-                s_logger.debug("Hosts with tag '" + hostTagTpm + "' are:" + hostsMatchingTpmTag);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Hosts with tag '" + hostTagTpm + "' are:" + hostsMatchingTpmTag);
             }
         }
 

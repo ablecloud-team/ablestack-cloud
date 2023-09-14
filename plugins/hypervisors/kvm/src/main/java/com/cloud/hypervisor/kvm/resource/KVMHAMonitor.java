@@ -277,7 +277,7 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
     }
 
     private Script createClvmHeartBeatCommand(ClvmStoragePool clvmStoragePool, String hostPrivateIp, boolean hostValidation) {
-        Script cmd = new Script(s_heartBeatPathClvm, _heartBeatUpdateTimeout, s_logger);
+        Script cmd = new Script(s_heartBeatPathClvm, _heartBeatUpdateTimeout, logger);
         cmd.add("-p", clvmStoragePool._poolMountSourcePath);
 
         if (hostValidation) {

@@ -54,9 +54,9 @@ public class KVMHAChecker extends KVMHABase implements Callable<Boolean> {
         for (ClvmStoragePool clvmpools : clvmStoragePools) {
             storageType = "clvm";
             hostAndPools = String.format("host IP [%s] in pools [%s]", hostIp, clvmStoragePools.stream().map(pool -> pool._poolIp).collect(Collectors.joining(", ")));
-            s_logger.debug(String.format("Checking heart beat with KVMHAChecker for %s", hostAndPools));
+            logger.debug(String.format("Checking heart beat with KVMHAChecker for %s", hostAndPools));
 
-            Script cmd = new Script(s_heartBeatPathClvm, heartBeatCheckerTimeout, s_logger);
+            Script cmd = new Script(s_heartBeatPathClvm, heartBeatCheckerTimeout, logger);
             cmd.add("-h", hostIp);
             cmd.add("-p", clvmpools._poolMountSourcePath);
             cmd.add("-r");
@@ -69,7 +69,7 @@ public class KVMHAChecker extends KVMHABase implements Callable<Boolean> {
             clvmpools._poolIp));
 
             if (result == null && parsedLine.contains("DEAD")) {
-                s_logger.warn(String.format("Checking heart beat with KVMHAChecker command [%s] returned [%s]. [%s]. It may cause a shutdown of host IP [%s].", cmd.toString(),
+                logger.warn(String.format("Checking heart beat with KVMHAChecker command [%s] returned [%s]. [%s]. It may cause a shutdown of host IP [%s].", cmd.toString(),
                         result, parsedLine, hostIp));
             } else {
                 validResult = true;
@@ -79,7 +79,7 @@ public class KVMHAChecker extends KVMHABase implements Callable<Boolean> {
         for (NfsStoragePool nfspools : nfsStoragePools) {
             storageType = "nfs";
             hostAndPools = String.format("host IP [%s] in pools [%s]", hostIp, nfsStoragePools.stream().map(pool -> pool._poolIp).collect(Collectors.joining(", ")));
-            s_logger.debug(String.format("Checking heart beat with KVMHAChecker for %s", hostAndPools));
+            logger.debug(String.format("Checking heart beat with KVMHAChecker for %s", hostAndPools));
 
             Script cmd = new Script(s_heartBeatPath, heartBeatCheckerTimeout, logger);
             cmd.add("-i", nfspools._poolIp);

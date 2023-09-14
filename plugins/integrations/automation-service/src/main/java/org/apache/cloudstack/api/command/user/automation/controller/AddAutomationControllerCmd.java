@@ -39,7 +39,6 @@ import org.apache.cloudstack.api.response.NetworkResponse;
 import org.apache.cloudstack.api.response.ServiceOfferingResponse;
 import org.apache.cloudstack.api.response.ZoneResponse;
 import org.apache.cloudstack.context.CallContext;
-import org.apache.log4j.Logger;
 
 import com.cloud.automation.controller.AutomationController;
 import com.cloud.automation.controller.AutomationControllerService;
@@ -53,7 +52,6 @@ import com.cloud.utils.exception.CloudRuntimeException;
         entityType = {AutomationController.class},
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class AddAutomationControllerCmd extends BaseAsyncCreateCmd {
-    public static final Logger LOGGER = Logger.getLogger(AddAutomationControllerCmd.class.getName());
     public static final String APINAME = "addAutomationController";
 
     @Inject

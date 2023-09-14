@@ -84,7 +84,8 @@ import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -104,7 +105,7 @@ public class AutomationControllerActionWorker {
     public static final int CLUSTER_SAMBA_PORT = 9017;
     public static final Integer AUTOMATION_CONTROLLER_PORT = null;
 
-    protected static final Logger LOGGER = Logger.getLogger(AutomationControllerActionWorker.class);
+    protected static final Logger LOGGER = LogManager.getLogger(AutomationControllerActionWorker.class);
 
     protected StateMachine2<AutomationController.State, AutomationController.Event, AutomationController> _stateMachine = AutomationController.State.getStateMachine();
 

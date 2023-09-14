@@ -141,7 +141,7 @@ public class EncryptionSecretKeyChecker {
                 random = new Random(System.currentTimeMillis());
                 secretKey = Integer.toString(random.nextInt(899)+100, 2); //100~999사이의 정수를 2진수(0과 1)로 변환한 값을 변수에 5회 덮어쓰기
             }
-            s_logger.info("Overwritten final secretKey value : " + secretKey);
+            logger.info("Overwritten final secretKey value : " + secretKey);
         }
     }
 

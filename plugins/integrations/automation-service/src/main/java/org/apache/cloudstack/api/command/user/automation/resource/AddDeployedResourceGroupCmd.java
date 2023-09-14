@@ -32,7 +32,6 @@ import org.apache.cloudstack.api.response.AutomationDeployedResourceResponse;
 import org.apache.cloudstack.api.response.ZoneResponse;
 import org.apache.cloudstack.api.response.AutomationControllerResponse;
 import org.apache.cloudstack.context.CallContext;
-import org.apache.log4j.Logger;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.automation.resource.AutomationDeployedUnitResource;
@@ -47,7 +46,6 @@ import com.cloud.utils.exception.CloudRuntimeException;
         entityType = {AutomationDeployedUnitResource.class},
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class AddDeployedResourceGroupCmd extends BaseCmd implements AdminCmd {
-    public static final Logger LOGGER = Logger.getLogger(AddDeployedResourceGroupCmd.class.getName());
     public static final String APINAME = "addDeployedResourceGroup";
 
     @Inject

@@ -32,7 +32,6 @@ import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.AutomationControllerResponse;
 import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.context.CallContext;
-import org.apache.log4j.Logger;
 
 import javax.inject.Inject;
 
@@ -44,7 +43,6 @@ import javax.inject.Inject;
         responseHasSensitiveInfo = true,
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class StopAutomationControllerCmd extends BaseAsyncCmd {
-    public static final Logger LOGGER = Logger.getLogger(StopAutomationControllerCmd.class.getName());
     public static final String APINAME = "stopAutomationController";
 
     @Inject

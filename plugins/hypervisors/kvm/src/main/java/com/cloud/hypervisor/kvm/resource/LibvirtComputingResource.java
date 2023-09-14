@@ -1328,21 +1328,21 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     dm = conn.domainLookupByID(dmi);
                     if("ccvm".equals(dm.getName()) || "scvm".equals(dm.getName())) {
                         removedVmIds = ArrayUtils.removeElement(removedVmIds, dmi);
-                        s_logger.info(String.format("Remove [%s]", dm.getName()));
+                        logger.info(String.format("Remove [%s]", dm.getName()));
                     }
                 } catch (final LibvirtException e) {
-                    s_logger.warn("Unable to get vms(domainLookupByID)", e);
+                    logger.warn("Unable to get vms(domainLookupByID)", e);
                 } finally {
                     try {
                         if (dm != null) {
                             dm.free();
                         }
                     } catch (final LibvirtException e) {
-                        s_logger.trace("Ignoring libvirt error.", e);
+                        logger.trace("Ignoring libvirt error.", e);
                     }
                 }
             }
-            s_logger.info("::: (ABLECLOUD) Removed SCVM, CCVM for DomainList :::");
+            logger.info("::: (ABLECLOUD) Removed SCVM, CCVM for DomainList :::");
             vmIds = ArrayUtils.toObject(removedVmIds);
         } catch (final LibvirtException e) {
             LOGGER.error("Unable to get the list of Libvirt domains on this host.", e);
@@ -1558,15 +1558,15 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             throw new FileNotFoundException("Unable to find file tpm.properties.");
         }
 
-        s_logger.info("tpm.properties file found at " + file.getAbsolutePath());
+        logger.info("tpm.properties file found at " + file.getAbsolutePath());
         try {
             PropertiesUtil.loadFromFile(_tpmProperties, file);
             /*
-            s_logger.info("guest.nvram.template.legacy = " + _uefiProperties.getProperty("guest.nvram.template.legacy"));
-            s_logger.info("guest.loader.legacy = " + _uefiProperties.getProperty("guest.loader.legacy"));
-            s_logger.info("guest.nvram.template.secure = " + _uefiProperties.getProperty("guest.nvram.template.secure"));
-            s_logger.info("guest.loader.secure =" + _uefiProperties.getProperty("guest.loader.secure"));
-            s_logger.info("guest.nvram.path = " + _uefiProperties.getProperty("guest.nvram.path"));
+            logger.info("guest.nvram.template.legacy = " + _uefiProperties.getProperty("guest.nvram.template.legacy"));
+            logger.info("guest.loader.legacy = " + _uefiProperties.getProperty("guest.loader.legacy"));
+            logger.info("guest.nvram.template.secure = " + _uefiProperties.getProperty("guest.nvram.template.secure"));
+            logger.info("guest.loader.secure =" + _uefiProperties.getProperty("guest.loader.secure"));
+            logger.info("guest.nvram.path = " + _uefiProperties.getProperty("guest.nvram.path"));
              */
         } catch (final FileNotFoundException ex) {
             throw new CloudRuntimeException("Cannot find the file: " + file.getAbsolutePath(), ex);
@@ -2603,7 +2603,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 customParams.containsKey(GuestDef.TpmVersion.V1_2.toString())
         )) {
             isTpmEnabled = true;
-            s_logger.debug(String.format("Enabled TPM for VM UUID [%s].", uuid));
+            logger.debug(String.format("Enabled TPM for VM UUID [%s].", uuid));
 
             if(customParams.containsKey(GuestDef.TpmVersion.V2_0.toString())) {
                 tpmversion = customParams.get(GuestDef.TpmVersion.V2_0.toString());

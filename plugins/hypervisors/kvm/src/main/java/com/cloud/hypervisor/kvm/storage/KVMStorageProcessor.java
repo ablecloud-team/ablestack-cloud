@@ -1400,7 +1400,7 @@ public class KVMStorageProcessor implements StorageProcessor {
                         if(provider != null && !provider.isEmpty() && "ABLESTACK".equals(provider)){
                             final String device = resource.mapRbdDevice(attachingDisk);
                             if (device != null) {
-                                s_logger.debug("RBD device on host is: " + device);
+                                logger.debug("RBD device on host is: " + device);
                                 diskdef.defBlockBasedDisk(krbdpath + "/" + attachingDisk.getPath(), devId);
                             } else {
                                 throw new InternalErrorException("Error while mapping RBD device on host");
@@ -1488,7 +1488,7 @@ public class KVMStorageProcessor implements StorageProcessor {
                 final String unmap = resource.unmapRbdDevice(attachingDisk);
                 if (unmap == null) {
                     attachingDisk.setPath(krbdpath + "/" + attachingDisk.getPath());
-                    s_logger.debug("Glue Block unmap device on host is: " + attachingDisk.getPath());
+                    logger.debug("Glue Block unmap device on host is: " + attachingDisk.getPath());
                 } else {
                     throw new InternalErrorException("Error while Glue Block unmapping disk "+attachingDisk.getPath()+" on host");
                 }

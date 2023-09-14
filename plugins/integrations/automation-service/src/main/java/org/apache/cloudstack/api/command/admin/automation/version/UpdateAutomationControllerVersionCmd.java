@@ -29,7 +29,6 @@ import org.apache.cloudstack.api.ResponseObject;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.command.admin.AdminCmd;
 import org.apache.cloudstack.api.response.AutomationControllerVersionResponse;
-import org.apache.log4j.Logger;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -43,7 +42,6 @@ import com.cloud.automation.version.AutomationVersionService;
         entityType = {AutomationControllerVersion.class},
         authorized = {RoleType.Admin})
 public class UpdateAutomationControllerVersionCmd extends BaseCmd implements AdminCmd {
-    public static final Logger LOGGER = Logger.getLogger(UpdateAutomationControllerVersionCmd.class.getName());
     public static final String APINAME = "updateAutomationControllerVersion";
 
     @Inject

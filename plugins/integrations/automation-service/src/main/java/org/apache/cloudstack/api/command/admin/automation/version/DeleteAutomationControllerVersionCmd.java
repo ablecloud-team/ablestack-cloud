@@ -30,7 +30,6 @@ import org.apache.cloudstack.api.command.admin.AdminCmd;
 import org.apache.cloudstack.api.response.AutomationControllerVersionResponse;
 import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.context.CallContext;
-import org.apache.log4j.Logger;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.automation.version.AutomationControllerVersion;
@@ -44,7 +43,6 @@ import com.cloud.utils.exception.CloudRuntimeException;
         entityType = {AutomationControllerVersion.class},
         authorized = {RoleType.Admin})
 public class DeleteAutomationControllerVersionCmd extends BaseAsyncCmd implements AdminCmd {
-    public static final Logger LOGGER = Logger.getLogger(DeleteAutomationControllerVersionCmd.class.getName());
     public static final String APINAME = "deleteAutomationControllerVersion";
 
     @Inject

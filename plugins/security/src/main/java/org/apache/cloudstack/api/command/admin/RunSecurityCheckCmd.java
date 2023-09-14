@@ -29,7 +29,8 @@ import org.apache.cloudstack.api.ResponseObject;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.ManagementServerResponse;
 import org.apache.cloudstack.api.response.SuccessResponse;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.cloud.user.Account;
 import com.cloud.security.SecurityCheck;
@@ -42,7 +43,7 @@ import com.cloud.security.SecurityCheckService;
         entityType = {SecurityCheck.class},
         authorized = {RoleType.Admin})
 public class RunSecurityCheckCmd extends BaseCmd {
-    public static final Logger LOG = Logger.getLogger(RunSecurityCheckCmd.class);
+    public static final Logger LOG = LogManager.getLogger(RunSecurityCheckCmd.class);
     public static final String APINAME = "runSecurityCheck";
 
     @Inject

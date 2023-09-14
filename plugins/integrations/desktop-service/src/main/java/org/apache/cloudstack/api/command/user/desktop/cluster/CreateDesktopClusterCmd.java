@@ -36,7 +36,6 @@ import org.apache.cloudstack.api.response.NetworkResponse;
 import org.apache.cloudstack.api.response.ProjectResponse;
 import org.apache.cloudstack.api.response.ServiceOfferingResponse;
 import org.apache.cloudstack.context.CallContext;
-import org.apache.log4j.Logger;
 
 import com.cloud.desktop.cluster.DesktopCluster;
 import com.cloud.desktop.cluster.DesktopClusterEventTypes;
@@ -52,7 +51,6 @@ import com.cloud.utils.exception.CloudRuntimeException;
         responseHasSensitiveInfo = true,
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class CreateDesktopClusterCmd extends BaseAsyncCreateCmd {
-    public static final Logger LOGGER = Logger.getLogger(CreateDesktopClusterCmd.class.getName());
     public static final String APINAME = "createDesktopCluster";
 
     @Inject

@@ -222,7 +222,7 @@ public class QuotaAlertManagerImpl extends ManagerBase implements QuotaAlertMana
             final String body = bodySubstitutor.replace(emailTemplate.getTemplateBody());
 
             try {
-                sendQuotaAlert(account.getUuid(), emailRecipients, subject, body);
+                sendQuotaAlert(account, emailRecipients, subject, body);
                 emailToBeSent.sentSuccessfully(_quotaAcc);
             } catch (Exception e) {
                 logger.error(String.format("Unable to send quota alert email (subject=%s; body=%s) to account %s (%s) recipients (%s) due to error (%s)", subject, body, account.getAccountName(),
@@ -353,7 +353,7 @@ public class QuotaAlertManagerImpl extends ManagerBase implements QuotaAlertMana
         }
     };
 
-    protected void sendQuotaAlert(String accountUuid, List<String> emails, String subject, String body) {
+    protected void sendQuotaAlert(Account account, List<String> emails, String subject, String body) {
         SMTPMailProperties mailProperties = new SMTPMailProperties();
 
         mailProperties.setSender(new MailAddress(senderAddress));
@@ -366,7 +366,7 @@ public class QuotaAlertManagerImpl extends ManagerBase implements QuotaAlertMana
 
         if (CollectionUtils.isEmpty(emails)) {
             logger.warn(String.format("Account [%s] does not have users with email registered, "
-                    + "therefore we are unable to send quota alert email with subject [%s] and content [%s].", accountUuid, subject, body));
+                    + "therefore we are unable to send quota alert email with subject [%s] and content [%s].", account.getUuid(), subject, body));
             return;
         }
 

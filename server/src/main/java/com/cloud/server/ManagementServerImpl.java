@@ -1120,11 +1120,11 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
     @Override
     public boolean stop() {
-        s_logger.info("Shutdown CloudStack management server...");
+        logger.info("Shutdown CloudStack management server...");
         ManagementServerHostVO msHost = _msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
         if (_msHostDao.increaseAlertCount(msHost.getId()) > 0) {
-            if (s_logger.isDebugEnabled()) {
-                s_logger.debug("Detected management server node " + msHost.getServiceIP() + " is down, send alert");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Detected management server node " + msHost.getServiceIP() + " is down, send alert");
             }
             _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "Management server node " + msHost.getServiceIP() + " is down",
                 "");
@@ -1432,7 +1432,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         // UEFI 관련된 주석 시작
 //        UserVmDetailVO userVmDetailVO = _UserVmDetailsDao.findDetail(vm.getId(), ApiConstants.BootType.UEFI.toString());
 //        if (userVmDetailVO != null) {
-//            s_logger.info(" Live Migration of UEFI enabled VM : " + vm.getInstanceName() + " is not supported");
+//            logger.info(" Live Migration of UEFI enabled VM : " + vm.getInstanceName() + " is not supported");
 //            if ("legacy".equalsIgnoreCase(userVmDetailVO.getValue()) || "secure".equalsIgnoreCase(userVmDetailVO.getValue())) {
 //                // Return empty list.
 //                return new Ternary<Pair<List<? extends Host>, Integer>, List<? extends Host>, Map<Host, Boolean>>(new Pair<List<? extends Host>,
@@ -5372,13 +5372,13 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
         if (sshdEnabled) {
             Script.runSimpleBashScript("systemctl start sshd");
-            s_logger.info("Management server sshd service has started");
+            logger.info("Management server sshd service has started");
         }else{
             Script.runSimpleBashScript("systemctl stop sshd");
-            s_logger.info("Management server sshd service has stopped");
+            logger.info("Management server sshd service has stopped");
         }
         if (StringUtils.isNotBlank(sshdStatus)) {
-            s_logger.info("Management server sshd service is running");
+            logger.info("Management server sshd service is running");
         }
     }
 

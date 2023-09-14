@@ -29,7 +29,6 @@ import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.DesktopClusterIpRangeResponse;
 import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.context.CallContext;
-import org.apache.log4j.Logger;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.desktop.cluster.DesktopClusterIpRange;
@@ -43,7 +42,6 @@ import com.cloud.utils.exception.CloudRuntimeException;
         entityType = {DesktopClusterIpRange.class},
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class DeleteDesktopClusterIpRangeCmd extends BaseAsyncCmd {
-    public static final Logger LOGGER = Logger.getLogger(DeleteDesktopClusterIpRangeCmd.class.getName());
     public static final String APINAME = "deleteDesktopClusterIpRanges";
 
     @Inject

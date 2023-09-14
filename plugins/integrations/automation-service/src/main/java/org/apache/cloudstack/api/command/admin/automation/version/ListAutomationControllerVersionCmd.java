@@ -29,7 +29,6 @@ import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.AutomationControllerVersionResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.ZoneResponse;
-import org.apache.log4j.Logger;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.automation.version.AutomationVersionService;
@@ -40,7 +39,6 @@ import com.cloud.automation.version.AutomationVersionService;
         responseView = ResponseObject.ResponseView.Restricted,
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class ListAutomationControllerVersionCmd extends BaseListCmd {
-    public static final Logger LOGGER = Logger.getLogger(ListAutomationControllerVersionCmd.class.getName());
     public static final String APINAME = "listAutomationControllerVersion";
 
     @Inject

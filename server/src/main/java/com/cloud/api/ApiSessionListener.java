@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @WebListener
 public class ApiSessionListener implements HttpSessionListener {
     protected Logger logger = LogManager.getLogger(getClass());
+    protected static Logger LOGGER = LogManager.getLogger(ApiSessionListener.class);
     private static Map<String, HttpSession> sessions = new ConcurrentHashMap<>();
 
     /**

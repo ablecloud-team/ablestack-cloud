@@ -52,7 +52,8 @@ import org.apache.cloudstack.engine.subsystem.api.storage.ZoneScope;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.apache.cloudstack.storage.volume.datastore.PrimaryDataStoreHelper;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
@@ -64,7 +65,7 @@ import java.util.UUID;
 
 
 public class AblestackPrimaryDataStoreLifeCycleImpl implements PrimaryDataStoreLifeCycle {
-    private static final Logger s_logger = Logger.getLogger(AblestackPrimaryDataStoreLifeCycleImpl.class);
+    private static final Logger logger = LogManager.getLogger(AblestackPrimaryDataStoreLifeCycleImpl.class);
     @Inject
     protected ResourceManager _resourceMgr;
     @Inject
@@ -132,15 +133,15 @@ public class AblestackPrimaryDataStoreLifeCycleImpl implements PrimaryDataStoreL
         try {
             hostPath = URLDecoder.decode(storagePath, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            s_logger.error("[ignored] we are on a platform not supporting \"UTF-8\"!?!", e);
+            logger.error("[ignored] we are on a platform not supporting \"UTF-8\"!?!", e);
         }
         if (hostPath == null) { // if decoding fails, use getPath() anyway
             hostPath = storagePath;
         }
         String userInfo = uriInfo.getUserInfo();
         int port = uriInfo.getPort();
-        if (s_logger.isDebugEnabled()) {
-            s_logger.debug("createPool Params @ scheme - " + scheme + " storageHost - " + storageHost + " hostPath - " + hostPath + " port - " + port);
+        if (logger.isDebugEnabled()) {
+            logger.debug("createPool Params @ scheme - " + scheme + " storageHost - " + storageHost + " hostPath - " + hostPath + " port - " + port);
         }
         if (scheme.equalsIgnoreCase("rbd")) {
             if (port == -1) {
@@ -172,8 +173,8 @@ public class AblestackPrimaryDataStoreLifeCycleImpl implements PrimaryDataStoreL
 
         List<StoragePoolVO> spHandles = primaryDataStoreDao.findIfDuplicatePoolsExistByUUID(uuid);
         if ((spHandles != null) && (spHandles.size() > 0)) {
-            if (s_logger.isDebugEnabled()) {
-                s_logger.debug("Another active pool with the same uuid already exists");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Another active pool with the same uuid already exists");
             }
             throw new CloudRuntimeException("Another active pool with the same uuid already exists");
         }
@@ -189,10 +190,10 @@ public class AblestackPrimaryDataStoreLifeCycleImpl implements PrimaryDataStoreL
     }
 
     protected boolean createStoragePool(long hostId, StoragePool pool) {
-        s_logger.debug("creating pool " + pool.getName() + " on  host " + hostId);
+        logger.debug("creating pool " + pool.getName() + " on  host " + hostId);
 
         if (pool.getPoolType() != StoragePoolType.RBD) {
-            s_logger.warn(" Doesn't support storage pool type " + pool.getPoolType());
+            logger.warn(" Doesn't support storage pool type " + pool.getPoolType());
             return false;
         }
         CreateStoragePoolCommand cmd = new CreateStoragePoolCommand(true, pool);
@@ -204,7 +205,7 @@ public class AblestackPrimaryDataStoreLifeCycleImpl implements PrimaryDataStoreL
             String msg = answer != null
                     ? "Can not create storage pool through host " + hostId + " due to " + answer.getDetails()
                     : "Can not create storage pool through host " + hostId + " due to CreateStoragePoolCommand returns null";
-            s_logger.warn(msg);
+            logger.warn(msg);
             throw new CloudRuntimeException(msg);
         }
     }
@@ -228,7 +229,7 @@ public class AblestackPrimaryDataStoreLifeCycleImpl implements PrimaryDataStoreL
             }
         }
 
-        s_logger.debug("In createPool Adding the pool to each of the hosts");
+        logger.debug("In createPool Adding the pool to each of the hosts");
         List<HostVO> poolHosts = new ArrayList<HostVO>();
         for (HostVO h : allHosts) {
             try {
@@ -238,12 +239,12 @@ public class AblestackPrimaryDataStoreLifeCycleImpl implements PrimaryDataStoreL
                 primaryDataStoreDao.expunge(primarystore.getId());
                 throw new CloudRuntimeException("Storage has already been added as local storage");
             } catch (Exception e) {
-                s_logger.warn("Unable to establish a connection between " + h + " and " + primarystore, e);
+                logger.warn("Unable to establish a connection between " + h + " and " + primarystore, e);
             }
         }
 
         if (poolHosts.isEmpty()) {
-            s_logger.warn("No host can access storage pool " + primarystore + " on cluster " + primarystore.getClusterId());
+            logger.warn("No host can access storage pool " + primarystore + " on cluster " + primarystore.getClusterId());
             primaryDataStoreDao.expunge(primarystore.getId());
             throw new CloudRuntimeException("Failed to access storage pool");
         }
@@ -255,7 +256,7 @@ public class AblestackPrimaryDataStoreLifeCycleImpl implements PrimaryDataStoreL
     @Override
     public boolean attachZone(DataStore dataStore, ZoneScope scope, HypervisorType hypervisorType) {
         List<HostVO> hosts = _resourceMgr.listAllUpAndEnabledHostsInOneZoneByHypervisor(hypervisorType, scope.getScopeId());
-        s_logger.debug("In createPool. Attaching the pool to each of the hosts.");
+        logger.debug("In createPool. Attaching the pool to each of the hosts.");
         List<HostVO> poolHosts = new ArrayList<HostVO>();
         for (HostVO host : hosts) {
             try {
@@ -265,11 +266,11 @@ public class AblestackPrimaryDataStoreLifeCycleImpl implements PrimaryDataStoreL
                     primaryDataStoreDao.expunge(dataStore.getId());
                     throw new CloudRuntimeException("Storage has already been added as local storage to host: " + host.getName());
             } catch (Exception e) {
-                s_logger.warn("Unable to establish a connection between " + host + " and " + dataStore, e);
+                logger.warn("Unable to establish a connection between " + host + " and " + dataStore, e);
             }
         }
         if (poolHosts.isEmpty()) {
-            s_logger.warn("No host can access storage pool " + dataStore + " in this zone.");
+            logger.warn("No host can access storage pool " + dataStore + " in this zone.");
             primaryDataStoreDao.expunge(dataStore.getId());
             throw new CloudRuntimeException("Failed to create storage pool as it is not accessible to hosts.");
         }
@@ -316,7 +317,7 @@ public class AblestackPrimaryDataStoreLifeCycleImpl implements PrimaryDataStoreL
                 }
             } else {
                 if (answer != null) {
-                    s_logger.debug("Failed to delete storage pool: " + answer.getResult());
+                    logger.debug("Failed to delete storage pool: " + answer.getResult());
                 }
             }
         }

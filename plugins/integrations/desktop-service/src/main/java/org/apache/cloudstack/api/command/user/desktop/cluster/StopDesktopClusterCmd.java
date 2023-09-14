@@ -29,7 +29,6 @@ import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.DesktopClusterResponse;
 import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.context.CallContext;
-import org.apache.log4j.Logger;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.desktop.cluster.DesktopCluster;
@@ -45,7 +44,6 @@ import com.cloud.utils.exception.CloudRuntimeException;
         responseHasSensitiveInfo = true,
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class StopDesktopClusterCmd extends BaseAsyncCmd {
-    public static final Logger LOGGER = Logger.getLogger(StopDesktopClusterCmd.class.getName());
     public static final String APINAME = "stopDesktopCluster";
 
     @Inject

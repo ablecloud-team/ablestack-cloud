@@ -1799,7 +1799,7 @@ public class TemplateManagerImpl extends ManagerBase implements TemplateManager,
 
                 if (result.isFailed()) {
                     finalTmpProduct = null;
-                    s_logger.warn("Failed to create template: " + result.getResult());
+                    logger.warn("Failed to create template: " + result.getResult());
                     throw new CloudRuntimeException("Failed to create template: " + result.getResult());
                 }
                 if (_dataStoreMgr.isRegionStore(store)) {
@@ -1809,7 +1809,7 @@ public class TemplateManagerImpl extends ManagerBase implements TemplateManager,
                     VMTemplateZoneVO templateZone = new VMTemplateZoneVO(zoneId, templateId, new Date());
                     _tmpltZoneDao.persist(templateZone);
                 }
-                s_logger.info("successfully created the template with Id: " + templateId);
+                logger.info("successfully created the template with Id: " + templateId);
                 finalTmpProduct = _tmpltDao.findById(templateId);
                 TemplateDataStoreVO srcTmpltStore = _tmplStoreDao.findByStoreTemplate(store.getId(), templateId);
                 try {
@@ -1823,10 +1823,10 @@ public class TemplateManagerImpl extends ManagerBase implements TemplateManager,
                                 finalTmpProduct.getSourceTemplateId(), srcTmpltStore.getPhysicalSize(), finalTmpProduct.getSize());
                 _usageEventDao.persist(usageEvent);
             } catch (InterruptedException e) {
-                s_logger.debug("Failed to create template for id: " + templateId, e);
+                logger.debug("Failed to create template for id: " + templateId, e);
                 throw new CloudRuntimeException("Failed to create template" , e);
             } catch (ExecutionException e) {
-                s_logger.debug("Failed to create template for id: " + templateId, e);
+                logger.debug("Failed to create template for id: " + templateId, e);
                 throw new CloudRuntimeException("Failed to create template ", e);
             }
 
@@ -1877,7 +1877,7 @@ public class TemplateManagerImpl extends ManagerBase implements TemplateManager,
 
         // check permissions
         _accountMgr.checkAccess(caller, null, true, volume);
-        s_logger.info("Creating snapshot for the tempalte creation");
+        logger.info("Creating snapshot for the tempalte creation");
         SnapshotVO snapshot = (SnapshotVO) volumeService.allocSnapshot(volumeId, Snapshot.INTERNAL_POLICY_ID, curVm.getDisplayName() + "-Clone-" + nextSnapId, null);
         if (snapshot == null) {
             throw new CloudRuntimeException("Unable to create a snapshot during the template creation recording");
