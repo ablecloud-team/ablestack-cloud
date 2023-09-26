@@ -148,10 +148,6 @@ public class CapabilitiesResponse extends BaseResponse {
     @Param(description = "true if Event Delete Button is enabled, false otherwise")
     private boolean eventDeleteEnabled;
 
-    @SerializedName("managementserversshdenabled")
-    @Param(description = "true if Management server sshd service is enabled, false otherwise")
-    private boolean managementServerSSHDEnabled;
-
     @SerializedName(ApiConstants.INSTANCES_STATS_RETENTION_TIME)
     @Param(description = "the retention time for Instances stats", since = "4.18.0")
     private Integer instancesStatsRetentionTime;
@@ -285,10 +281,6 @@ public class CapabilitiesResponse extends BaseResponse {
 
     public void setEventDeleteEnabled(boolean eventDeleteEnabled) {
         this.eventDeleteEnabled = eventDeleteEnabled;
-    }
-
-    public void setManagementServerSSHDEnabled(boolean managementServerSSHDEnabled) {
-        this.managementServerSSHDEnabled = managementServerSSHDEnabled;
     }
 
     public void setInstancesStatsRetentionTime(Integer instancesStatsRetentionTime) {

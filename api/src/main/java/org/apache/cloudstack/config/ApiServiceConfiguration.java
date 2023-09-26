@@ -40,8 +40,6 @@ public class ApiServiceConfiguration implements Configurable {public static fina
             "/d/ldwEyoKnz/gasangmeosin-sangse-hyeonhwang", "Monitoring Service Wall Portal Uri.(ex:/d/ldwEyoKnz/gasangmeosin-sangse-hyeonhwang)", true);
     public static final ConfigKey<Boolean> EventDeleteEnabled = new ConfigKey<>("Advanced", Boolean.class, "event.delete.enabled",
             "false", "true if Event Delete Button is enabled, false otherwise)", false);
-    public static final ConfigKey<Boolean> ManagementServerSSHDEnabled = new ConfigKey<>("Advanced", Boolean.class, "management.server.secure.sshdaemon.enabled",
-            "true", "true if Management server sshd service is enabled, false otherwise)", false);
 
     @Override
     public String getConfigComponentName() {
@@ -50,7 +48,7 @@ public class ApiServiceConfiguration implements Configurable {public static fina
 
     @Override
     public ConfigKey<?>[] getConfigKeys() {
-        return new ConfigKey<?>[] {ManagementServerAddresses, ApiServletPath, DefaultUIPageSize, ApiSourceCidrChecksEnabled, ApiAllowedSourceIp, ApiAllowedSourceCidr, MonitoringWallPortalProtocol, MonitoringWallPortalDomain, MonitoringWallPortalPort, MonitoringWallPortalVmUri, EventDeleteEnabled, ManagementServerSSHDEnabled};
+        return new ConfigKey<?>[] {ManagementServerAddresses, ApiServletPath, DefaultUIPageSize, ApiSourceCidrChecksEnabled, ApiAllowedSourceIp, ApiAllowedSourceCidr, MonitoringWallPortalProtocol, MonitoringWallPortalDomain, MonitoringWallPortalPort, MonitoringWallPortalVmUri, EventDeleteEnabled};
     }
 
 }
