@@ -1892,13 +1892,13 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
         final Script command = new Script("/bin/sh", timeout);
         command.add("-c");
-        command.add("ablestack_vbmc.sh");
+        command.add(ablestackVbmcPath);
         command.add(action);
         command.add(domid);
         command.add(port);
+        s_logger.debug(command);
         String result = command.execute();
         if (result != null) {
-            s_logger.error("VbmcPortCmdLine failed : " + result);
             return false;
         }
         return true;

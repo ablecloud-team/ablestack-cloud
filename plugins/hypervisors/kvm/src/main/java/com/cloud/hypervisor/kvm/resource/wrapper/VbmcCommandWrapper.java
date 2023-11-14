@@ -36,12 +36,13 @@ public final class VbmcCommandWrapper extends CommandWrapper<VbmcCommand, Answer
 
     @Override
     public Answer execute(final VbmcCommand command, final LibvirtComputingResource libvirtComputingResource) {
-        boolean result;
         try {
-            result = libvirtComputingResource.ablestackVbmcCmdLine(command.getAction(), command.getVmName(), command.getPort());
-            if (result) {
+            s_logger.info("VbmcCommand Action Call [ instanceName : " +command.getVmName()+ ", Port : " + command.getPort() + " ]");
+            if (libvirtComputingResource.ablestackVbmcCmdLine(command.getAction(), command.getVmName(), command.getPort())) {
+                s_logger.info("VbmcCommand Action >>> Success");
                 return new VbmcAnswer(command, "", true);
             } else {
+                s_logger.info("VbmcCommand Action >>> Fail");
                 return new VbmcAnswer(command, "", false);
             }
         } catch (InternalErrorException e) {
