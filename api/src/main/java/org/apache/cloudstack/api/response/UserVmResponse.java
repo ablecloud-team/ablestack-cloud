@@ -383,6 +383,10 @@ public class UserVmResponse extends BaseResponseWithTagInformation implements Co
     @Param(description = "VNF details", since = "4.19.0")
     private Map<String, String> vnfDetails;
 
+    @SerializedName(ApiConstants.VBMC_PORT)
+    @Param(description = "vbmc port")
+    private String vbmcPort;
+
     public UserVmResponse() {
         securityGroupList = new LinkedHashSet<>();
         nics = new TreeSet<>(Comparator.comparingInt(x -> Integer.parseInt(x.getDeviceId())));
@@ -1125,5 +1129,13 @@ public class UserVmResponse extends BaseResponseWithTagInformation implements Co
             this.vnfDetails = new LinkedHashMap<>();
         }
         this.vnfDetails.put(key,value);
+    }
+
+    public void setVbmcPort(String vbmcPort) {
+        this.vbmcPort = vbmcPort;
+    }
+
+    public String getVbmcPort(){
+        return this.vbmcPort;
     }
 }

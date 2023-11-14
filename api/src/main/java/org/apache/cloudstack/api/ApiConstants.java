@@ -1132,6 +1132,7 @@ public class ApiConstants {
     public static final String REDIRECT_URI = "redirecturi";
 
     public static final String SHAREABLE = "shareable";
+    public static final String VBMC_PORT = "vbmcport";
 
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.

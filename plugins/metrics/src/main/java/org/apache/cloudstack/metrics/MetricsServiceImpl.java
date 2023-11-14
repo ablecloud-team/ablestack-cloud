@@ -126,8 +126,6 @@ import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
 import com.cloud.utils.db.TransactionLegacy;
 import com.cloud.utils.script.Script;
-import com.cloud.vm.VbmcVO;
-import com.cloud.vm.dao.VbmcDao;
 import com.cloud.vm.UserVmVO;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
@@ -177,8 +175,6 @@ public class MetricsServiceImpl extends MutualExclusiveIdsManagerBase implements
     private VolumeDao volumeDao;
     @Inject
     private VolumeStatsDao volumeStatsDao;
-    @Inject
-    private VbmcDao vbmcDao;
 
     private static Gson gson = new Gson();
 
@@ -623,8 +619,6 @@ public class MetricsServiceImpl extends MutualExclusiveIdsManagerBase implements
             metricsResponse.setDiskWrite(vmResponse.getDiskKbsWrite());
             metricsResponse.setDiskIopsTotal(vmResponse.getDiskIORead(), vmResponse.getDiskIOWrite());
             metricsResponse.setLastUpdated(vmResponse.getLastUpdated());
-            List<VbmcVO> vbmc = vbmcDao.listByVmId(Long.parseLong(vmResponse.getId()));
-            metricsResponse.setVbmcPort(vbmc.get(0).getPort());
             metricsResponses.add(metricsResponse);
         }
         return metricsResponses;

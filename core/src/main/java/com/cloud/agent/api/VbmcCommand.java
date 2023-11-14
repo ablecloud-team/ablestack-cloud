@@ -1,3 +1,4 @@
+//
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -14,16 +15,36 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package com.cloud.vm;
+//
 
-import org.apache.cloudstack.acl.ControlledEntity;
-import org.apache.cloudstack.api.Identity;
-import org.apache.cloudstack.api.InternalIdentity;
+package com.cloud.agent.api;
 
-public interface Vbmc extends ControlledEntity, Identity, InternalIdentity {
+public class VbmcCommand extends Command {
 
-    Long getVmId();
+    String action;
+    String vmName;
+    String port;
 
-    int getPort();
+    public VbmcCommand(String action, String vmName, String port) {
+        this.action = action;
+        this.vmName = vmName;
+        this.port = port;
+    }
 
+    @Override
+    public boolean executeInSequence() {
+        return false;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public String getVmName() {
+        return vmName;
+    }
+
+    public String getPort() {
+        return port;
+    }
 }

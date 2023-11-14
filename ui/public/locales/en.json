@@ -4075,5 +4075,10 @@
 "message.success.update.volume": "Successfully updated volume",
 "message.update.volume.failed": "Failed to update volume",
 "message.update.volume.processing": "Updating volume...",
-"message.action.destroy.instance.shareable": "If you select a shared volume, the images will not be deleted and must be deleted manually."
+"message.action.destroy.instance.shareable": "If you select a shared volume, the images will not be deleted and must be deleted manually.",
+"label.vbmcport":"VBMC Port",
+"label.vbmcport.allocate": "Allocation VBMC port ",
+"message.action.vbmcport.allocate.instance": "Do you want to allocate a VBMC port to this virtual machine?",
+"label.vbmcport.remove": "Remove VBMC port",
+"message.action.vbmcport.remove.instance": "Do you want to remove the VBMC port for this virtual machine?"
 }

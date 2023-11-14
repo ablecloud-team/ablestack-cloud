@@ -21,44 +21,44 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "vbmc_port")
-@PrimaryKeyJoinColumn(name = "id")
-public class VbmcVO extends VMInstanceVO implements Vbmc {
+public class VbmcVO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     Long id;
 
-    @Column(name = "vm_id", updatable = true, nullable = true)
+    @Column(name = "vm_id", updatable = true, nullable = false)
     private Long vmId;
 
-    @Column(name = "port", updatable = true, nullable = false)
+    @Column(name = "port", updatable = false, nullable = false)
     private int port;
+
+    public VbmcVO() {
+    }
 
     public VbmcVO(Long vmId, int port) {
         this.vmId = vmId;
         this.port = port;
     }
 
-    @Override
+    public Long getId() {
+        return id;
+    }
+
     public Long getVmId() {
         return vmId;
     }
 
-    @Override
     public int getPort() {
         return port;
     }
 
-    public void setVmId(Long vmId) {
+    public void setVmId(long vmId) {
         this.vmId = vmId;
     }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
 }

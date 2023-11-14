@@ -85,7 +85,7 @@ export default {
       details: () => {
         var fields = ['name', 'displayname', 'id', 'state', 'ipaddress', 'ip6address', 'templatename', 'ostypename',
           'serviceofferingname', 'isdynamicallyscalable', 'haenable', 'hypervisor', 'boottype', 'bootmode', 'account',
-          'domain', 'zonename', 'userdataid', 'userdataname', 'userdataparams', 'userdatadetails', 'userdatapolicy', 'hostcontrolstate']
+          'domain', 'zonename', 'userdataid', 'userdataname', 'userdataparams', 'userdatadetails', 'userdatapolicy', 'hostcontrolstate', 'vbmcport']
         const listZoneHaveSGEnabled = store.getters.zones.filter(zone => zone.securitygroupsenabled === true)
         if (!listZoneHaveSGEnabled || listZoneHaveSGEnabled.length === 0) {
           return fields
@@ -456,6 +456,36 @@ export default {
           docHelp: 'adminguide/virtual_machines.html#deleting-vms',
           dataView: true,
           show: (record, store) => { return ['Destroyed', 'Expunging'].includes(record.state) && store.features.allowuserexpungerecovervm }
+        },
+        {
+          api: 'allocateVbmcToVM',
+          icon: 'heart-filled',
+          label: 'label.vbmcport.allocate',
+          message: 'message.action.vbmcport.allocate.instance',
+          dataView: true,
+          popup: true,
+          args: ['virtualmachineid'],
+          show: (record) => { return record.vbmcport === 'None' },
+          mapping: {
+            virtualmachineid: {
+              value: (record, params) => { return record.id }
+            }
+          }
+        },
+        {
+          api: 'removeVbmcToVM',
+          icon: 'heart-filled',
+          label: 'label.vbmcport.remove',
+          message: 'message.action.vbmcport.remove.instance',
+          dataView: true,
+          popup: true,
+          args: ['virtualmachineid'],
+          show: (record) => { return record.vbmcport !== 'None' },
+          mapping: {
+            virtualmachineid: {
+              value: (record, params) => { return record.id }
+            }
+          }
         },
         {
           api: 'destroyVirtualMachine',

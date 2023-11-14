@@ -174,7 +174,9 @@ import {
   WifiOutlined,
   ShopOutlined,
   AreaChartOutlined,
-  SolutionOutlined
+  SolutionOutlined,
+  RocketFilled,
+  HeartFilled
 } from '@ant-design/icons-vue'
 import renderIcon from '@/utils/renderIcon'
 
@@ -340,7 +342,8 @@ export default {
     app.component('LaptopOutlined', LaptopOutlined)
     app.component('AreaChartOutlined', AreaChartOutlined)
     app.component('SolutionOutlined', SolutionOutlined)
+    app.component('RocketFilled', RocketFilled)
+    app.component('HeartFilled', HeartFilled)
     app.component('renderIcon', renderIcon)
-    app.component('SolutionOutlined', SolutionOutlined)
   }
 }

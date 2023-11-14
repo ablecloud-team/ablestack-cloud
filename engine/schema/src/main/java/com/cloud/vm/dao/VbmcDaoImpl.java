@@ -17,34 +17,41 @@
 package com.cloud.vm.dao;
 
 import java.util.List;
+import org.springframework.stereotype.Component;
 
 import com.cloud.vm.VbmcVO;
 import com.cloud.utils.db.GenericDaoBase;
 import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
-import javax.annotation.PostConstruct;
 
-import org.apache.log4j.Logger;
-
+@Component(value = "VbmcDao")
 public class VbmcDaoImpl extends GenericDaoBase<VbmcVO, Long> implements VbmcDao {
-    public static final Logger s_logger = Logger.getLogger(VbmcDaoImpl.class);
 
-    protected SearchBuilder<VbmcVO> VbmcSearch;
+    protected final SearchBuilder<VbmcVO> VbmcSearch;
+    protected final SearchBuilder<VbmcVO> VbmcAblePortSearch;
 
-    public VbmcDaoImpl() {
-    }
-
-    @PostConstruct
-    void init() {
+    protected VbmcDaoImpl() {
+        super();
         VbmcSearch = createSearchBuilder();
         VbmcSearch.and("vmId", VbmcSearch.entity().getVmId(), SearchCriteria.Op.EQ);
         VbmcSearch.done();
+
+        VbmcAblePortSearch = createSearchBuilder();
+        VbmcAblePortSearch.and("vmId", VbmcAblePortSearch.entity().getVmId(), SearchCriteria.Op.EQ);
+        VbmcAblePortSearch.done();
     }
 
     @Override
     public List<VbmcVO> listByVmId(long vmId) {
         SearchCriteria<VbmcVO> sc = VbmcSearch.create();
         sc.setParameters("vmId", vmId);
+        return listBy(sc);
+    }
+
+    @Override
+    public List<VbmcVO> findAblePort() {
+        SearchCriteria<VbmcVO> sc = VbmcAblePortSearch.create();
+        sc.setParameters("vmId", 0);
         return listBy(sc);
     }
 }

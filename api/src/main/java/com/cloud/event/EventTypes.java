@@ -112,6 +112,8 @@ public class EventTypes {
     public static final String EVENT_VM_UNMANAGE = "VM.UNMANAGE";
     public static final String EVENT_VM_RECOVER = "VM.RECOVER";
     public static final String EVENT_VM_CLONE = "VM.CLONE";
+    public static final String EVENT_VM_VBMC_ALLOCATE = "VM.VBMC.PORT.ALLOCATE";
+    public static final String EVENT_VM_VBMC_REMOVE = "VM.VBMC.PORT.REMOVE";
 
     // VM Schedule
     public static final String EVENT_VM_SCHEDULE_CREATE = "VM.SCHEDULE.CREATE";
