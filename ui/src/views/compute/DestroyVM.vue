@@ -62,7 +62,13 @@
             </a-select>
           </a-form-item>
           <p v-else v-html="$t('label.volume.empty')" />
-
+          <div v-for="offering in diskOffering" :key="offering.id">
+              <a-alert v-if="offering.shareable===true"  type="error">
+                <template #message>
+                  <span v-html="$t('message.action.destroy.instance.shareable')"></span>
+                </template>
+              </a-alert>
+          </div>
           <div :span="24" class="action-button">
             <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
             <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
@@ -177,6 +183,7 @@ export default {
   data () {
     return {
       volumes: [],
+      diskOffering: [],
       loading: false,
       volumeIds: {},
       listVolumes: {},
@@ -222,6 +229,10 @@ export default {
     async fetchVolumes () {
       this.loading = true
       const data = await this.callListVolume(this.resource.id)
+      if (data != null) {
+        const data2 = await this.callListDiskOffering(data.volumes)
+        this.diskOffering = data2.diskOffering || []
+      }
       this.volumes = data.volumes || []
       this.loading = false
     },
@@ -239,6 +250,22 @@ export default {
             id: vmId,
             volumes
           })
+        })
+      })
+    },
+    callListDiskOffering (volumes) {
+      return new Promise((resolve) => {
+        this.diskOffering = []
+        for (var i = 0; i < volumes.length; i++) {
+          api('listDiskOfferings', {
+            id: volumes[i].diskofferingid
+          }).then((response) => {
+            this.diskOffering.push(response.listdiskofferingsresponse.diskoffering[0])
+          })
+        }
+        const diskOffering = this.diskOffering
+        resolve({
+          diskOffering
         })
       })
     },

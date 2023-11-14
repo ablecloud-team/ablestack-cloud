@@ -146,15 +146,8 @@ export default {
           icon: 'edit-outlined',
           label: 'label.edit',
           dataView: true,
-          args: ['name'],
-          mapping: {
-            account: {
-              value: (record) => { return record.account }
-            },
-            domainid: {
-              value: (record) => { return record.domainid }
-            }
-          }
+          popup: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/UpdateVolume.vue')))
         },
         {
           api: 'createSnapshot',

@@ -811,4 +811,11 @@ public class VolumeDaoImpl extends GenericDaoBase<VolumeVO, Long> implements Vol
         sc.setParameters("idIN", ids.toArray());
         return listBy(sc, null);
     }
+
+    @Override
+    public VolumeVO findByPath(String path) {
+        SearchCriteria<VolumeVO> sc = AllFieldsSearch.create();
+        sc.setParameters("path", path);
+        return findOneBy(sc);
+    }
 }

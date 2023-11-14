@@ -2406,13 +2406,13 @@
 "message.action.delete.system.service.offering": "현재 시스템 서비스 오퍼링을 삭제하시겠습니까?",
 "message.action.delete.template": "현재 템플릿을 삭제하시겠습니까?",
 "message.action.delete.tungsten.router.table": "이 네트워크에서 라우팅 테이블을 제거할 것인지 확인하십시오.",
-"message.action.delete.volume": "현재 볼륨을 삭제하시겠습니까?",
+"message.action.delete.volume": "현재 볼륨을 삭제하시겠습니까? 참고 : 공유 볼륨인 경우 이미지는 삭제되지 않으며, 반드시 수동으로 삭제해야합니다.",
 "message.action.delete.vpn.user": "VPN 사용자를 삭제할 것인지 확인하십시오.",
 "message.action.delete.zone": "현재 Zone을 삭제하시겠습니까?",
 "message.action.destroy.instance": "현재 가상머신을 파기하시겠습니까?",
 "message.action.destroy.instance.with.backups": "인스턴스를 삭제할 것인지 확인하십시오. 해당 인스턴스와 연결된 백업이 있을 수 있습니다.",
 "message.action.destroy.systemvm": "현재 시스템 VM를 파기하시겠습니까?",
-"message.action.destroy.volume": "이 볼륨을 제거 할 것인지 확인하십시오.",
+"message.action.destroy.volume": "이 볼륨을 제거 할 것인지 확인하십시오. 참고 : 공유 볼륨인 경우 이미지는 삭제되지 않으며, 반드시 수동으로 삭제해야합니다.",
 "message.action.disable.2FA.user.auth": "사용자 이중 인증을 비활성화할 것인지 확인하십시오.",
 "message.action.about.mandate.and.disable.2FA.user.auth": "사용자에게 2단계 인증이 필수입니다. 이 기능을 비활성화하면 이제 사용자는 다음 로그인 시 2단계 인증을 다시 설정해야 합니다. <br ><br>비활성화할 것인지 확인하십시오.",
 "message.action.disable.cluster": "현재 클러스터를 비활성화 하시겠습니까?",
@@ -4070,5 +4070,10 @@
 "alert.vr.public.iface.mtu":"VR.공인인터페이스.MTU",
 "alert.vr.private.iface.mtu":"VR.사설인터페이스.MTU",
 "alert.login":"로그인",
-"label.shareable": "공유 볼륨"
+"label.shareable": "공유 볼륨",
+"label.action.update.volume": "볼륨 업데이트",
+"message.success.update.volume": "볼륨을 업데이트 했습니다.",
+"message.update.volume.failed": "볼륨 업데이트에 실패하였습니다.",
+"message.update.volume.processing": "볼륨을 업데이트중...",
+"message.action.destroy.instance.shareable": "공유 볼륨을 선택한 경우 이미지는 삭제되지 않으며, 반드시 수동으로 삭제해야합니다."
 }

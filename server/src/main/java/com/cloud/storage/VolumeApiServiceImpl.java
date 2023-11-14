@@ -1718,6 +1718,12 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         } else if (volume.getState() == Volume.State.Allocated || volume.getState() == Volume.State.Uploaded) {
             throw new InvalidParameterValueException("The volume in Allocated/Uploaded state can only be expunged not destroyed/recovered");
         }
+        // check if Shared Disk
+        DiskOffering offering = _diskOfferingDao.findById(volume.getDiskOfferingId());
+        if (volume.getVolumeType() == Volume.Type.DATADISK && offering.getShareable()) {
+            volume.setPath("");
+            _volsDao.update(volume.getId(), volume);
+        }
 
         destroyVolumeIfPossible(volume);
 
@@ -2584,6 +2590,17 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         _accountMgr.checkAccess(caller, null, true, volume);
 
         if (path != null) {
+            DiskOffering offering = _diskOfferingDao.findById(volume.getDiskOfferingId());
+            if (offering.getShareable()) {
+                VolumeVO sha_vol = _volsDao.findByPath(path);
+                if (sha_vol != null) {
+                    volume.setPoolId(sha_vol.getPoolId());
+                    volume.setFormat(sha_vol.getFormat());
+                    volume.setState(Volume.State.Ready);
+                }
+            }
+            volume.setPath(path);
+        } else {
             volume.setPath(path);
         }
 

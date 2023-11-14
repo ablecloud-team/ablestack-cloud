@@ -2406,13 +2406,13 @@
 "message.action.delete.system.service.offering": "Please confirm that you want to delete this system service offering.",
 "message.action.delete.template": "Please confirm that you want to delete this Template.",
 "message.action.delete.tungsten.router.table": "Please confirm that you want to remove Route Table from this Network?",
-"message.action.delete.volume": "Please confirm that you want to delete this volume. Note: this will not delete any Snapshots of this volume.",
+"message.action.delete.volume": "Please confirm that you want to delete this volume. Note: this will not delete any Snapshots of this volume. Note: If it is a shared volume, images will not be deleted and must be deleted manually.",
 "message.action.delete.vpn.user": "Please confirm that you want to delete the VPN user.",
 "message.action.delete.zone": "Please confirm that you want to delete this zone.",
 "message.action.destroy.instance": "Please confirm that you want to destroy the Instance.",
 "message.action.destroy.instance.with.backups": "Please confirm that you want to destroy the Instance. There may be backups associated with the Instance which will not be deleted.",
 "message.action.destroy.systemvm": "Please confirm that you want to destroy the System VM.",
-"message.action.destroy.volume": "Please confirm that you want to destroy the volume.",
+"message.action.destroy.volume": "Confirm that you want to delete this volume. Note: If it is a shared volume, images will not be deleted and must be deleted manually.",
 "message.action.disable.2FA.user.auth": "Please confirm that you want to disable User two factor authentication.",
 "message.action.about.mandate.and.disable.2FA.user.auth": "Two factor authentication is mandated for the User, if this is disabled now User will need to setup two factor authentication again during next login. <br><br>Please confirm that you want to disable.",
 "message.action.disable.cluster": "Please confirm that you want to disable this cluster.",
@@ -4070,5 +4070,10 @@
 "alert.vr.public.iface.mtu":"VR.PUBLIC.IFACE.MTU",
 "alert.vr.private.iface.mtu":"VR.PRIVATE.IFACE.MTU",
 "alert.login":"LOGIN",
-"label.shareable": "Shareable Volume"
+"label.shareable": "Shareable Volume",
+"label.action.update.volume": "Update Volume",
+"message.success.update.volume": "Successfully updated volume",
+"message.update.volume.failed": "Failed to update volume",
+"message.update.volume.processing": "Updating volume...",
+"message.action.destroy.instance.shareable": "If you select a shared volume, the images will not be deleted and must be deleted manually."
 }

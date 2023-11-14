@@ -3314,6 +3314,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
         List<VolumeVO> volumesToBeDeleted = getVolumesFromIds(cmd);
 
+        // check if Shared Disk
+        checkForSharedVolumes(vmId, volumesToBeDeleted);
         checkForUnattachedVolumes(vmId, volumesToBeDeleted);
         validateVolumes(volumesToBeDeleted);
 
@@ -8440,6 +8442,16 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             }
         }
         return false;
+    }
+
+    private void checkForSharedVolumes(long vmId, List<VolumeVO> volumes) {
+        for (VolumeVO volume : volumes) {
+            DiskOffering offering = _diskOfferingDao.findById(volume.getDiskOfferingId());
+            if (volume.getVolumeType() == Volume.Type.DATADISK && offering.getShareable()) {
+                volume.setPath("");
+                _volsDao.update(volume.getId(), volume);
+            }
+        }
     }
 
     private void checkForUnattachedVolumes(long vmId, List<VolumeVO> volumes) {

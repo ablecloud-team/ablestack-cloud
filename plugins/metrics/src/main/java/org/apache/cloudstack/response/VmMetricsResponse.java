@@ -59,6 +59,11 @@ public class VmMetricsResponse extends UserVmResponse {
     @Param(description = "the total disk iops")
     private Long diskIopsTotal;
 
+    @SerializedName("vbmcport")
+    @Param(description = "vbmc port")
+    private int vbmcport;
+
+
     public void setIpAddress(final Set<NicResponse> nics) {
         if (nics != null && nics.size() > 0) {
             this.ipAddress = nics.iterator().next().getIpaddress();
@@ -105,5 +110,9 @@ public class VmMetricsResponse extends UserVmResponse {
         if (diskIoRead != null && diskIoWrite != null) {
             this.diskIopsTotal = diskIoRead + diskIoWrite;
         }
+    }
+
+    public void setVbmcPort (final int vbmcport) {
+        this.vbmcport = vbmcport;
     }
 }
