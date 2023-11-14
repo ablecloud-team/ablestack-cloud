@@ -1891,12 +1891,11 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         }
 
         final Script command = new Script("/bin/sh", timeout);
-        command.add("-c");
         command.add(ablestackVbmcPath);
         command.add(action);
         command.add(domid);
         command.add(port);
-        s_logger.debug(command);
+        s_logger.info(command);
         String result = command.execute();
         if (result != null) {
             return false;
