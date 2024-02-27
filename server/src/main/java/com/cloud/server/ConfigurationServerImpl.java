@@ -1029,8 +1029,8 @@ public class ConfigurationServerImpl extends ManagerBase implements Configuratio
             @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 // Offering #1
-                NetworkOfferingVO defaultSharedSGNetworkOffering =
-                        new NetworkOfferingVO(NetworkOffering.DefaultSharedNetworkOfferingWithSGService, "기본 공유 보안그룹 네트워크오퍼링",
+                /*NetworkOfferingVO defaultSharedSGNetworkOffering =
+                        new NetworkOfferingVO(NetworkOffering.DefaultSharedNetworkOfferingWithSGService, "Offering for Shared Security group enabled networks",
                                 TrafficType.Guest, false, true, null, null, true, Availability.Optional, null, Network.GuestType.Shared, true, true, false, false, false, false);
 
                 defaultSharedSGNetworkOffering.setState(NetworkOffering.State.Enabled);
@@ -1041,7 +1041,7 @@ public class ConfigurationServerImpl extends ManagerBase implements Configuratio
                             new NetworkOfferingServiceMapVO(defaultSharedSGNetworkOffering.getId(), service, defaultSharedSGNetworkOfferingProviders.get(service));
                     _ntwkOfferingServiceMapDao.persist(offService);
                     logger.trace("Added service for the network offering: " + offService);
-                }
+                }*/
 
                 // Offering #2
                 NetworkOfferingVO defaultSharedNetworkOffering =
