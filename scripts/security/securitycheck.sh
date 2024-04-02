@@ -17,8 +17,10 @@
 # under the License.
 
 # Security Check 
-# JAVA로 작성된 Test 코드를 실행하는 Junit.jar 파일을 사용하여 보안 기능과 관련된 Utils, API, Framework 모듈이 정상적으로 작동하는지 확인하는 스크립트
-# return : {테스트 파일의 클래스 명, 결과}
+# JAVA로 작성된 Test 코드를 실행하는 Junit.jar 파일을 사용하여 Utils, API, Framework 모듈이 정상적으로 작동하는지 확인
+# 저장된 scripts 파일이 정상적으로 동작하는지 확인
+# 실행되는 프로세스가 정상적으로 동작하는지 확인
+# return : {테스트 파일의 클래스 명 또는 파일 명 또는 프로세스 명, 결과}
 
 jarfile='/usr/share/cloudstack-common/lib/'
 
@@ -92,3 +94,24 @@ do
     esac
 
 done
+
+systemctl status mysqld | grep -i running &> /dev/null
+if [[ $? == 0 ]]; then
+    echo "mysql service,true"
+else
+    echo "mysql service,false"
+fi
+
+systemctl status firewalld | grep -i running &> /dev/null
+if [[ $? == 0 ]]; then
+    echo "firewalld service,true"
+else
+    echo "firewalld service,false"
+fi
+
+systemctl status cloudstack-management | grep -i running &> /dev/null
+if [[ $? == 0 ]]; then
+    echo "management service,true"
+else
+    echo "management service,false"
+fi
