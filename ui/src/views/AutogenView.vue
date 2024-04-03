@@ -608,7 +608,7 @@
                   v-focus="fieldIndex === firstIndex"
                 />
                 <a-input
-                  v-else-if="field.name==='newname'"
+                  v-else-if="field.name==='newname' && ['updateAccount'].includes(currentAction.api)"
                   :maxlength="maxIntro"
                   v-focus="fieldIndex === firstIndex"
                   v-model:value="form[field.name]"
