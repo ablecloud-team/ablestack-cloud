@@ -608,10 +608,16 @@
                   v-focus="fieldIndex === firstIndex"
                 />
                 <a-input
-                  v-else
+                  v-else-if="field.name==='newname'"
+                  :maxlength="maxIntro"
                   v-focus="fieldIndex === firstIndex"
                   v-model:value="form[field.name]"
                   :placeholder="field.description" />
+                <a-input
+                  v-else
+                  v-focus="fieldIndex === firstIndex"
+                  v-model:value="form[field.name]"
+                  :placeholder="field.description "/>
               </a-form-item>
             </div>
 
