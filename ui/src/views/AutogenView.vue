@@ -354,6 +354,7 @@
                   v-else-if="field.name==='password' || field.name==='currentpassword' || field.name==='confirmpassword'"
                   v-model:value="form[field.name]"
                   :placeholder="field.description"
+                  :maxlength="maxIntro"
                   @blur="($event) => handleConfirmBlur($event, field.name)"
                   v-focus="fieldIndex === firstIndex"
                 />
@@ -755,7 +756,8 @@ export default {
       firstIndex: 0,
       modalWidth: '30vw',
       promises: [],
-      securityfeatures: false
+      securityfeatures: false,
+      maxIntro: 15
     }
   },
   beforeUnmount () {

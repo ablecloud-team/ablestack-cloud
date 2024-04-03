@@ -65,6 +65,7 @@
             type="text"
             v-focus="true"
             :placeholder="$t('label.username')"
+            :maxlength="maxIntro"
             v-model:value="form.username"
           >
             <template #prefix>
@@ -78,6 +79,7 @@
             type="password"
             autocomplete="false"
             :placeholder="$t('label.password')"
+            :maxlength="maxIntro"
             v-model:value="form.password"
           >
             <template #prefix>
@@ -224,7 +226,8 @@ export default {
         loginBtn: false,
         loginType: 0
       },
-      server: ''
+      server: '',
+      maxIntro: 15
     }
   },
   created () {

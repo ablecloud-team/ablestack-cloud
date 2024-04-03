@@ -31,6 +31,7 @@
           <a-input-password
             v-model:value="form.currentpassword"
             :placeholder="$t('message.error.current.password')"
+            :maxlength="maxIntro"
             v-focus="true" />
         </a-form-item>
         <a-form-item name="password" ref="password">
@@ -39,7 +40,8 @@
           </template>
           <a-input-password
             v-model:value="form.password"
-            :placeholder="$t('label.new.password')"/>
+            :placeholder="$t('label.new.password')"
+            :maxlength="maxIntro"/>
         </a-form-item>
         <a-form-item name="confirmpassword" ref="confirmpassword">
           <template #label>
@@ -47,7 +49,8 @@
           </template>
           <a-input-password
             v-model:value="form.confirmpassword"
-            :placeholder="$t('label.confirmpassword.description')"/>
+            :placeholder="$t('label.confirmpassword.description')"
+            :maxlength="maxIntro"/>
         </a-form-item>
 
         <div :span="24" class="action-button">
@@ -77,7 +80,8 @@ export default {
   },
   data () {
     return {
-      loading: false
+      loading: false,
+      maxIntro: 15
     }
   },
   beforeCreate () {

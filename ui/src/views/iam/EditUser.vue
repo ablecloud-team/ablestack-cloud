@@ -32,6 +32,7 @@
           <a-input
             v-model:value="form.username"
             :placeholder="apiParams.username.description"
+            :maxlength="maxIntro"
             v-focus="true" />
         </a-form-item>
         <a-form-item name="email" ref="email">
@@ -50,7 +51,8 @@
               </template>
               <a-input
                 v-model:value="form.firstname"
-                :placeholder="apiParams.firstname.description" />
+                :placeholder="apiParams.firstname.description"
+                :maxlength="maxIntro" />
             </a-form-item>
           </a-col>
           <a-col :md="24" :lg="12">
@@ -60,7 +62,8 @@
               </template>
               <a-input
                 v-model:value="form.lastname"
-                :placeholder="apiParams.lastname.description" />
+                :placeholder="apiParams.lastname.description"
+                :maxlength="maxIntro" />
             </a-form-item>
           </a-col>
         </a-row>
@@ -118,7 +121,8 @@ export default {
       loading: false,
       timeZoneLoading: false,
       timeZoneMap: [],
-      userId: null
+      userId: null,
+      maxIntro: 15
     }
   },
   beforeCreate () {

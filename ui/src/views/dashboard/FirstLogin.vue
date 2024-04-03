@@ -57,6 +57,7 @@
                 type="password"
                 autocomplete="false"
                 :placeholder="$t('label.password')"
+                :maxlength="maxIntro"
                 v-model:value="form.password"
               >
                 <template #prefix>
@@ -70,6 +71,7 @@
                 type="password"
                 autocomplete="false"
                 :placeholder="$t('label.confirmpassword.description')"
+                :maxlength="maxIntro"
                 v-model:value="form.confirmpassword"
               >
                 <template #prefix>
@@ -108,7 +110,8 @@ export default {
   data () {
     return {
       buttonstate: false,
-      firstLoginresponse: false
+      firstLoginresponse: false,
+      maxIntro: 15
     }
   },
   beforeCreate () {
