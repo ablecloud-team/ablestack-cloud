@@ -143,7 +143,7 @@
             </template>
             <a-input-password
               v-model:value="form.password"
-              :placeholder="placeholder.password"/>
+              :placeholder="placeholder.password" />
           </a-form-item>
           <a-form-item name="agentusername" ref="agentusername" v-if="selectedClusterHyperVisorType === 'Ovm3'">
             <template #label>
