@@ -112,8 +112,7 @@
             </template>
             <a-input
               v-model:value="form.username"
-              :placeholder="placeholder.username"
-              :maxlength="maxIntro"></a-input>
+              :placeholder="placeholder.username"></a-input>
           </a-form-item>
           <a-form-item name="authmethod" ref="authmethod" v-if="selectedClusterHyperVisorType !== 'VMware'">
             <template #label>
@@ -144,8 +143,7 @@
             </template>
             <a-input-password
               v-model:value="form.password"
-              :placeholder="placeholder.password"
-              :maxlength="maxIntro" />
+              :placeholder="placeholder.password"/>
           </a-form-item>
           <a-form-item name="agentusername" ref="agentusername" v-if="selectedClusterHyperVisorType === 'Ovm3'">
             <template #label>
@@ -292,8 +290,7 @@ export default {
         password: null,
         hosttags: null,
         isdedicated: null
-      },
-      maxIntro: 15
+      }
     }
   },
   computed: {
