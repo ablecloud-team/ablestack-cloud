@@ -140,6 +140,7 @@
             <status class="status" :text="resource.resourcestate" displayText/>
           </div>
         </div>
+
         <div class="resource-detail-item" v-if="resource.id">
           <div class="resource-detail-item__label">{{ $t('label.id') }}</div>
           <div class="resource-detail-item__details">
