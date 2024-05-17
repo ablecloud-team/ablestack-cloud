@@ -704,8 +704,7 @@ export default {
           SECONDARY_STORAGE: 'Secondary Storage',
           VR: 'Virtual Router',
           SYSTEM_VM: 'System VM',
-          KUBERNETES_CLUSTER: 'Kubernetes Cluster',
-          DISASTER_RECOVERY: 'Disaster Recovery'
+          KUBERNETES_CLUSTER: 'Kubernetes Cluster'
         }
         for (var key in allowedTypes) {
           entityType.push({

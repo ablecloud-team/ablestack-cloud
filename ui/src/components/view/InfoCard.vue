@@ -140,18 +140,6 @@
             <status class="status" :text="resource.resourcestate" displayText/>
           </div>
         </div>
-        <div class="resource-detail-item" v-if="resource.drclusterstatus">
-          <div class="resource-detail-item__label">{{ $t('label.drclusterstatus') }}</div>
-          <div class="resource-detail-item__details">
-            <status class="status" :text="resource.drclusterstatus" displayText/>
-          </div>
-        </div>
-        <div class="resource-detail-item" v-if="resource.mirroringagentstatus">
-          <div class="resource-detail-item__label">{{ $t('label.mirroringagentstatus') }}</div>
-          <div class="resource-detail-item__details">
-            <status class="status" :text="resource.mirroringagentstatus" displayText/>
-          </div>
-        </div>
         <div class="resource-detail-item" v-if="resource.id">
           <div class="resource-detail-item__label">{{ $t('label.id') }}</div>
           <div class="resource-detail-item__details">
@@ -860,7 +848,6 @@ export default {
   data () {
     return {
       ipaddress: '',
-      drclusterip: '',
       resourceType: '',
       inputVisible: false,
       inputKey: '',
