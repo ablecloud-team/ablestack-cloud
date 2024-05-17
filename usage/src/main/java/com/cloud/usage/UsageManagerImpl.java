@@ -2310,17 +2310,4 @@ public class UsageManagerImpl extends ManagerBase implements UsageManager, Runna
             }
         }
     }
-    private class AbandonJob extends Thread {
-        @Override
-        public void run() {
-            s_logger.info("exitting Usage Manager");
-            deleteOpenjob();
-        }
-        private void deleteOpenjob() {
-            UsageJobVO job = _usageJobDao.isOwner(_hostname, _pid);
-            if (job != null) {
-                _usageJobDao.remove(job.getId());
-            }
-        }
-    }
 }

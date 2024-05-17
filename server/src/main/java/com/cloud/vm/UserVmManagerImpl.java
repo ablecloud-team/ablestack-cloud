@@ -57,7 +57,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import com.cloud.kubernetes.cluster.KubernetesClusterHelper;
 import com.cloud.network.dao.NsxProviderDao;
 import com.cloud.network.element.NsxProviderVO;
-import com.cloud.user.AccountVO;
 import com.cloud.utils.exception.ExceptionProxyObject;
 import org.apache.cloudstack.acl.ControlledEntity;
 import org.apache.cloudstack.acl.ControlledEntity.ACLType;

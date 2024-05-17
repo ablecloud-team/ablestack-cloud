@@ -1691,8 +1691,9 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         // check if Shared Disk
         DiskOffering offering = _diskOfferingDao.findById(volume.getDiskOfferingId());
         if (volume.getVolumeType() == Volume.Type.DATADISK && offering.getShareable()) {
-            volume.setPath("");
-            _volsDao.update(volume.getId(), volume);
+            final VolumeVO volumeVO = _volsDao.findById(volume.getId());
+            volumeVO.setPath("");
+            _volsDao.update(volume.getId(), volumeVO);
         }
     }
 
