@@ -601,7 +601,7 @@ export default {
       return new RegExp(['/vm', '/desktop', '/kubernetes', '/ssh', '/userdata', '/vmgroup', '/affinitygroup', '/autoscalevmgroup',
         '/volume', '/snapshot', '/vmsnapshot', '/backup',
         '/guestnetwork', '/vpc', '/vpncustomergateway', '/vnfapp',
-        '/template', '/controllertemplate', '/mastertemplate', '/automationtemplate', '/automationcontroller', '/iso',
+        '/template', '/controllertemplate', '/mastertemplate', 'automationtemplate', 'automationcontroller', '/iso',
         '/project', '/account', 'buckets', 'objectstore',
         '/zone', '/pod', '/cluster', '/host', '/storagepool', '/imagestore', '/systemvm', '/router', '/ilbvm', '/annotation',
         '/computeoffering', '/systemoffering', '/diskoffering', '/backupoffering', '/networkoffering', '/vpcoffering',
