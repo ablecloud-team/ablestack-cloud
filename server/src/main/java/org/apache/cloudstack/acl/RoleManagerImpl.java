@@ -420,7 +420,7 @@ public class RoleManagerImpl extends ManagerBase implements RoleService, Configu
         final Filter searchFilter = new Filter(RoleVO.class, "uuid", false,startIndex,limit );
         if (StringUtils.isNotBlank(keyword)) {
             Pair<List<RoleVO>, Integer> data = roleDao.findAllByName(null, keyword, startIndex, limit, isCallerRootAdmin());
-            int removed = removeRootAdminRolesIfNeeded(data.first());
+            int removed = removeRolesIfNeeded(data.first());
             final SearchCriteria<RoleVO> sc = roleDao.createSearchCriteria();
             if (keyword != null) {
                 SearchCriteria<RoleVO> ssc = roleDao.createSearchCriteria();
