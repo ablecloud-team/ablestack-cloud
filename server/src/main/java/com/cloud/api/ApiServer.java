@@ -1630,7 +1630,10 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
                 JSONDefaultContentType,
                 proxyForwardList,
                 useForwardHeader,
-                listOfForwardHeaders
+                listOfForwardHeaders,
+                ConcurrentConnectEnabled,
+                BlockExistConnection,
+                SecurityFeaturesEnabled
         };
     }
 }
