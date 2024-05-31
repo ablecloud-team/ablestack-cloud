@@ -73,9 +73,6 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
     @Parameter(name = ApiConstants.START_VM, type = CommandType.BOOLEAN, description = "true if start vm after creating; defaulted to false if not specified")
     private Boolean startVm;
 
-    @Parameter(name = ApiConstants.TYPE, type = CommandType.STRING, description = "select fast(linked) clone type or full clone type(default is fast clone)", required = true)
-    private String type;
-
     @Parameter(name = ApiConstants.ZONE_ID_LIST,
             type=CommandType.LIST,
             collectionType = CommandType.UUID,
