@@ -130,6 +130,8 @@ public class VnfTemplateManagerImpl extends ManagerBase implements VnfTemplateMa
         cmdList.add(DeleteVnfTemplateCmd.class);
         cmdList.add(DeployVnfApplianceCmd.class);
         cmdList.add(DeployVnfApplianceCmdByAdmin.class);
+        cmdList.add(ListVnfAppliancesCmd.class);
+        cmdList.add(ListVnfAppliancesCmdByAdmin.class);
         return cmdList;
     }
 
