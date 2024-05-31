@@ -94,6 +94,9 @@ public class ListVolumesCmd extends BaseListRetrieveOnlyResourceCountCmd impleme
     @Parameter(name = ApiConstants.STATE, type = CommandType.STRING, description = "state of the volume. Possible values are: Ready, Allocated, Destroy, Expunging, Expunged.")
     private String state;
 
+    @Parameter(name = ApiConstants.CUSTOMIMAGES, type = CommandType.BOOLEAN, description = "state of the volume. Possible values are: Ready, Allocated, Destroy, Expunging, Expunged.")
+    private Boolean customimages;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -149,6 +152,9 @@ public class ListVolumesCmd extends BaseListRetrieveOnlyResourceCountCmd impleme
 
     public String getState() {
         return state;
+    }
+    public Boolean getCustomImages() {
+        return BooleanUtils.toBooleanDefaultIfNull(customimages, false);
     }
 
     /////////////////////////////////////////////////////

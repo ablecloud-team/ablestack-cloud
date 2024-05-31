@@ -167,7 +167,7 @@ public abstract class ServerResourceBase implements ServerResource {
             logger.debug(cmdout);
         }else{
         }
-        return new ListRbdObjectsAnswer(true,"이미지가 생성되었습니다.", names);
+        return new ListRbdObjectsAnswer(true, names);
     }
 
     protected Answer deleteImageRbd(String name, String poolPath) {
@@ -177,7 +177,7 @@ public abstract class ServerResourceBase implements ServerResource {
             logger.debug(cmdout);
         }else{
         }
-        return new ListRbdObjectsAnswer(true,"이미지가 삭제되었습니다.", name);
+        return new ListRbdObjectsAnswer(true, name);
     }
 
     protected Answer listRbdFilesAtPath(int startIndex, int pageSize, String poolPath, String keyword) {

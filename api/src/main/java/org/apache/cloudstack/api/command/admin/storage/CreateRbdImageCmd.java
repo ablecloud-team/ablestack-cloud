@@ -25,11 +25,7 @@ import org.apache.cloudstack.api.response.StoragePoolResponse;
 import org.apache.cloudstack.api.response.ZoneResponse;
 import org.apache.cloudstack.storage.browser.DataStoreObjectResponse;
 import org.apache.cloudstack.storage.browser.StorageBrowser;
-import org.apache.commons.collections.CollectionUtils;
-
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import org.apache.cloudstack.context.CallContext;
 
 import javax.inject.Inject;
 
@@ -58,13 +54,17 @@ public class CreateRbdImageCmd extends BaseListCmd {
     @Parameter(name = ApiConstants.SIZE, type = CommandType.LONG, required = true, description = "path to list on storage pool")
     private long RbdSize;
 
-    @Parameter(name = ApiConstants.ZONE_ID, type = CommandType.LIST, collectionType = CommandType.UUID,
-            entityType = ZoneResponse.class, description = "the ID of the containing zone(s), null for public offerings", since = "4.13")
-    private List<Long> zoneIds;
+    @Parameter(name = ApiConstants.ZONE_ID, type = CommandType.UUID, entityType = ZoneResponse.class,
+            description = "the zone where certificates are uploaded")
+    private Long zoneId;
 
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
+
+    public Long getZoneId() {
+        return zoneId;
+    }
 
     public Long getStoreId() {
         return storeId;
@@ -78,13 +78,9 @@ public class CreateRbdImageCmd extends BaseListCmd {
         return RbdSize;
     }
 
-    public List<Long> getZoneIds() {
-        if (CollectionUtils.isNotEmpty(zoneIds)) {
-            Set<Long> set = new LinkedHashSet<>(zoneIds);
-            zoneIds.clear();
-            zoneIds.addAll(set);
-        }
-        return zoneIds;
+    @Override
+    public long getEntityOwnerId() {
+        return CallContext.current().getCallingAccount().getId();
     }
 
     /////////////////////////////////////////////////////

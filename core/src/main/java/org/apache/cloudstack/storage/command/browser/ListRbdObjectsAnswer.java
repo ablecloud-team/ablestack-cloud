@@ -30,11 +30,10 @@ public class ListRbdObjectsAnswer extends Answer {
 
     private String names;
 
-    public ListRbdObjectsAnswer(boolean successMessage, String message, String names) {
+    public ListRbdObjectsAnswer(boolean successMessage, String names) {
         super();
         this.successMessage = successMessage;
         this.names = names;
-        this.message = message;
     }
     public boolean successMessage() {
         return successMessage;
@@ -43,6 +42,9 @@ public class ListRbdObjectsAnswer extends Answer {
         return message;
     }
     public String names() {
+        return names;
+    }
+    public String getNames() {
         return names;
     }
 }

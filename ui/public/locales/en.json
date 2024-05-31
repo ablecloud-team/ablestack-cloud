@@ -4255,5 +4255,6 @@
 "message.alert.qemuagentversion": "The agent is not installed on this virtual machine.",
 "label.state.qemuagentversion.notinstalled": "Not installed",
 "label.deploy.vm.number": "Number of virtual machines to deploy",
-"message.deploy.vm.number": "If you enter a network IP or Mac address, only one virtual machine can be created."
+"message.deploy.vm.number": "If you enter a network IP or Mac address, only one virtual machine can be created.",
+"label.create.type.rbd.image": "Create Volume"
 }
