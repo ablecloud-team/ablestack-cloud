@@ -16,7 +16,7 @@
   "minilogo": "assets/mini-ablestack-logo.png",
   "banner": "assets/ablestack-logo.png",
   "loginPageTitle": "ABLESTACK",
-  "loginPageFavicon": "assets/ablestack-logo.png",
+  "loginPageFavicon": "ablestack.png",
   "error": {
     "403": "assets/403.png",
     "404": "assets/404.png",
