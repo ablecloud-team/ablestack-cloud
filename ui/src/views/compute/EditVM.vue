@@ -175,7 +175,6 @@ export default {
         displayname: this.resource.displayname,
         ostypeid: this.resource.ostypeid,
         isdynamicallyscalable: this.resource.isdynamicallyscalable,
-        haenable: this.resource.haenable,
         group: this.resource.group,
         securitygroupids: this.resource.securitygroup.map(x => x.id),
         userdata: ''

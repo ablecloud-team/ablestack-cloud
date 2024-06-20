@@ -169,7 +169,6 @@ import com.cloud.network.dao.PhysicalNetworkServiceProviderVO;
 import com.cloud.network.dao.PhysicalNetworkTrafficTypeDao;
 import com.cloud.network.dao.PhysicalNetworkTrafficTypeVO;
 import com.cloud.network.dao.PhysicalNetworkVO;
-import com.cloud.network.dao.PublicIpQuarantineDao;
 import com.cloud.network.element.NetworkElement;
 import com.cloud.network.element.OvsProviderVO;
 import com.cloud.network.element.VirtualRouterElement;
@@ -196,7 +195,6 @@ import com.cloud.network.vpc.dao.VpcDao;
 import com.cloud.network.vpc.dao.VpcGatewayDao;
 import com.cloud.network.vpc.dao.VpcOfferingDao;
 import com.cloud.offering.NetworkOffering;
-import com.cloud.offering.ServiceOffering;
 import com.cloud.offerings.NetworkOfferingVO;
 import com.cloud.offerings.dao.NetworkOfferingDao;
 import com.cloud.offerings.dao.NetworkOfferingServiceMapDao;
@@ -5868,7 +5866,7 @@ public class NetworkServiceImpl extends ManagerBase implements NetworkService, C
             vlanSearch.addAnd("takenAt", Op.NNULL);
         }
         if (keyword != null) {
-           vlanSearch.addAnd("vnet", Op.LIKE, "%" + keyword + "%");
+            vlanSearch.addAnd("vnet", Op.LIKE, "%" + keyword + "%");
         }
         Long pageSizeVal = cmd.getPageSizeVal();
         Long startIndex = cmd.getStartIndex();
