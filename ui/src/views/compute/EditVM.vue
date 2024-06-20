@@ -178,8 +178,7 @@ export default {
         haenable: this.resource.haenable,
         group: this.resource.group,
         securitygroupids: this.resource.securitygroup.map(x => x.id),
-        userdata: '',
-        haenable: this.resource.haenable
+        userdata: ''
       })
       this.rules = reactive({})
     },

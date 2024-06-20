@@ -480,7 +480,7 @@ export default {
         this.fields[managementServerIdIndex].loading = true
         promises.push(await this.fetchManagementServers(searchKeyword))
       }
-      
+
       if (arrayField.includes('serviceofferingid')) {
         serviceOfferingIndex = this.fields.findIndex(item => item.name === 'serviceofferingid')
         this.fields[serviceOfferingIndex].loading = true
