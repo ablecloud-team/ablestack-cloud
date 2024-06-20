@@ -210,8 +210,6 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
     @Inject
     private ApiDispatcher dispatcher;
     @Inject
-    private AsyncJobManager asyncMgr;
-    @Inject
     private DispatchChainFactory dispatchChainFactory;
     @Inject
     private DomainManager domainMgr;

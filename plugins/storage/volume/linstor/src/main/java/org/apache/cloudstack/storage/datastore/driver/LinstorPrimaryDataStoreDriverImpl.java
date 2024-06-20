@@ -449,7 +449,7 @@ public class LinstorPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriver
             applyQoSSettings(storagePoolVO, linstorApi, rscName, vol.getMaxIops());
 
             return LinstorUtil.getDevicePath(linstorApi, rscName);
-        } catch (ApiException apiEx)
+        } catch (ApiException apiEx) {
             logger.error("Linstor: ApiEx - " + apiEx.getMessage());
             throw new CloudRuntimeException(apiEx.getBestMessage(), apiEx);
         }

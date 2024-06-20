@@ -59,7 +59,7 @@ public class OAuth2UserAuthenticator extends AdapterBase implements UserAuthenti
 
         final UserAccount userAccount = userAccountDao.getUserAccount(username, domainId);
         if (userAccount == null) {
-            s_logger.debug("Unable to find user with " + username + " in domain " + domainId + ", or user source is not OAUTH2");
+            logger.debug("Unable to find user with " + username + " in domain " + domainId + ", or user source is not OAUTH2");
             return new Pair<Boolean, ActionOnFailedAuthentication>(false, null);
         } else {
             User user = userDao.getUser(userAccount.getId());

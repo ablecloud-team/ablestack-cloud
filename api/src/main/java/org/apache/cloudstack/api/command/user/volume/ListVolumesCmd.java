@@ -175,10 +175,6 @@ public class ListVolumesCmd extends BaseListRetrieveOnlyResourceCountCmd impleme
         return encrypted;
     }
 
-    public Boolean isEncrypted() {
-        return encrypted;
-    }
-
     /////////////////////////////////////////////////////
     /////////////// API Implementation///////////////////
     /////////////////////////////////////////////////////

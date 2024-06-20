@@ -45,11 +45,9 @@ import javax.naming.ConfigurationException;
 import com.cloud.dc.VlanDetailsVO;
 import com.cloud.dc.dao.VlanDetailsDao;
 import com.cloud.network.dao.NsxProviderDao;
-import com.cloud.network.dao.PublicIpQuarantineDao;
 import com.cloud.network.dao.VirtualRouterProviderDao;
 import com.cloud.network.element.NsxProviderVO;
 import com.cloud.network.element.VirtualRouterProviderVO;
-import com.cloud.offering.ServiceOffering;
 import com.cloud.service.dao.ServiceOfferingDao;
 import org.apache.cloudstack.acl.ControlledEntity.ACLType;
 import org.apache.cloudstack.acl.SecurityChecker.AccessType;
@@ -1756,18 +1754,6 @@ public class NetworkServiceImpl extends ManagerBase implements NetworkService, C
                     String.format("Creation of %s networks is not supported in NSX enabled zone %s", guestType.name(), zoneName)
             );
         }
-    }
-    
-    @Override
-    @DB
-    @ActionEvent(eventType = EventTypes.EVENT_NETWORK_CREATE, eventDescription = "creating network")
-    public Network createGuestNetwork(long networkOfferingId, String name, String displayText, Account owner,
-              PhysicalNetwork physicalNetwork, long zoneId, ACLType aclType) throws
-            InsufficientCapacityException, ConcurrentOperationException, ResourceAllocationException {
-        return _networkMgr.createGuestNetwork(networkOfferingId, name, displayText,
-                null, null, null, false, null, owner, null, physicalNetwork, zoneId,
-                aclType, null, null, null, null, true, null,
-                null, null, null, null, null, null, null, null, null);
     }
 
     @Override
