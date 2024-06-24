@@ -182,6 +182,8 @@ public class VolumeVO implements Volume {
     @Column(name = "encrypt_format")
     private String encryptFormat;
 
+    @Column(name = "clone_type")
+    private String cloneType;
 
     // Real Constructor
     public VolumeVO(Type type, String name, long dcId, long domainId,
@@ -678,4 +680,8 @@ public class VolumeVO implements Volume {
     public String getEncryptFormat() { return encryptFormat; }
 
     public void setEncryptFormat(String encryptFormat) { this.encryptFormat = encryptFormat; }
+
+    public String getCloneType() { return cloneType; }
+
+    public void setCloneType(String cloneType) { this.cloneType = cloneType; }
 }

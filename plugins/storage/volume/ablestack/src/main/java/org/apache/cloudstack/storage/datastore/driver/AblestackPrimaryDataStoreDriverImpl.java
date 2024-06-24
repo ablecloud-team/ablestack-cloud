@@ -48,6 +48,7 @@ import org.apache.cloudstack.storage.command.CopyCmdAnswer;
 import org.apache.cloudstack.storage.command.CopyCommand;
 import org.apache.cloudstack.storage.command.CreateObjectCommand;
 import org.apache.cloudstack.storage.command.DeleteCommand;
+import org.apache.cloudstack.storage.command.FlattenCommand;
 import org.apache.cloudstack.storage.command.RevertSnapshotCommand;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
@@ -538,6 +539,54 @@ public class AblestackPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriv
 
     @Override
     public void detachVolumeFromAllStorageNodes(Volume volume) {
+    }
+
+    public Answer flattenVolume(DataObject srcdata) throws StorageUnavailableException {
+        SnapshotObjectTO srcTO = (SnapshotObjectTO) srcdata.getTO();
+
+        FlattenCommand cmd = new FlattenCommand(srcTO);
+        EndPoint ep = epSelector.select(srcdata);
+        Answer answer = null;
+        if (ep == null) {
+            String errMsg = "No remote endpoint to send FlattenCommand, check if host or ssvm is down?";
+            logger.error(errMsg);
+            answer = new Answer(cmd, false, errMsg);
+        } else {
+            answer = ep.sendMessage(cmd);
+        }
+        return answer;
+    }
+
+    @Override
+    public void flattenAsync(DataStore store, DataObject srcData, AsyncCompletionCallback<CreateCmdResult> callback) {
+        String errMsg = null;
+        Answer answer = null;
+        CreateCmdResult result = new CreateCmdResult(null, null);
+        try {
+            answer = flattenVolume(srcData);
+            if ((answer == null) || (!answer.getResult())) {
+                result.setSuccess(false);
+                if (answer != null) {
+                    result.setResult(answer.getDetails());
+                }
+            } else {
+                result.setAnswer(answer);
+            }
+        } catch (StorageUnavailableException e) {
+            logger.debug("failed to flatten volume", e);
+            errMsg = e.toString();
+        } catch (Exception e) {
+            logger.debug("failed to flatten volume", e);
+            errMsg = e.toString();
+        }
+
+        if (errMsg != null) {
+            result.setResult(errMsg);
+        }
+
+        if (callback != null) {
+            callback.complete(result);
+        }
     }
 
 }

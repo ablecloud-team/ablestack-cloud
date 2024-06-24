@@ -45,4 +45,7 @@ public interface DataStoreDriver {
     boolean canCopy(DataObject srcData, DataObject destData);
 
     void resize(DataObject data, AsyncCompletionCallback<CreateCmdResult> callback);
+
+    void flattenAsync(DataStore store, DataObject data, AsyncCompletionCallback<CreateCmdResult> callback);
+
 }

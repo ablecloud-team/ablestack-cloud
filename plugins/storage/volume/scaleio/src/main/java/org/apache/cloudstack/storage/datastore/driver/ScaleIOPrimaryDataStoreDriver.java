@@ -1510,4 +1510,8 @@ public class ScaleIOPrimaryDataStoreDriver implements PrimaryDataStoreDriver {
     public boolean zoneWideVolumesAvailableWithoutClusterMotion() {
         return true;
     }
+
+    @Override
+    public void flattenAsync(DataStore dataStore, DataObject data, AsyncCompletionCallback<CreateCmdResult> callback) {
+    }
 }

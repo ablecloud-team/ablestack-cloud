@@ -1194,4 +1194,8 @@ public class StorPoolPrimaryDataStoreDriver implements PrimaryDataStoreDriver {
             StorPoolUtil.spLog("The volume [%s] is detach from all clusters [%s]", volName, resp);
         }
     }
+
+    @Override
+    public void flattenAsync(DataStore store, DataObject data, AsyncCompletionCallback<CreateCmdResult> callback) {
+    }
 }

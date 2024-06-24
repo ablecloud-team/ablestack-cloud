@@ -1309,4 +1309,8 @@ public class LinstorPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriver
     @Override
     public void detachVolumeFromAllStorageNodes(Volume volume) {
     }
+
+    @Override
+    public void flattenAsync(DataStore store, DataObject data, AsyncCompletionCallback<CreateCmdResult> callback) {
+    }
 }

@@ -73,6 +73,9 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
     @Parameter(name = ApiConstants.START_VM, type = CommandType.BOOLEAN, description = "true if start vm after creating; defaulted to false if not specified")
     private Boolean startVm;
 
+    @Parameter(name = ApiConstants.CLONE_TYPE, type = CommandType.STRING, description = "select fast(linked) clone type or full clone type(default is fast clone)", required = true)
+    private String type;
+
     @Parameter(name = ApiConstants.ZONE_ID_LIST,
             type=CommandType.LIST,
             collectionType = CommandType.UUID,
@@ -116,6 +119,10 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
 
     public boolean getStartVm() {
         return startVm == null ? false : startVm;
+    }
+
+    public String getType() {
+        return type;
     }
 
     @Override
@@ -163,7 +170,7 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
         try {
             CallContext.current().setEventDetails("Vm Id for full clone: " + getEntityId());
             logger.info("starting actual VM id: " + getEntityId());
-            result = _userVmService.cloneVirtualMachine(this, _volumeService, _snapshotService);
+            result = _userVmService.cloneVirtualMachine(this);
         } catch (ResourceUnavailableException ex) {
             logger.warn("Exception: ", ex);
             throw new ServerApiException(ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR, ex.getMessage());

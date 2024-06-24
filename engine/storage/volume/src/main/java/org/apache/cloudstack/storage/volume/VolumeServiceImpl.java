@@ -2786,6 +2786,32 @@ public class VolumeServiceImpl implements VolumeService {
     }
 
     @Override
+    public AsyncCallFuture<VolumeApiResult> flattenVolumeAsync(SnapshotInfo snapshot, DataStore dataStore) {
+        AsyncCallFuture<VolumeApiResult> future = new AsyncCallFuture<VolumeApiResult>();
+        DataObject volumeOnStore = dataStore.create(snapshot);
+        volumeOnStore.processEvent(Event.FlattenRequested);
+
+        try {
+            CreateVolumeContext<VolumeApiResult> context = new CreateVolumeContext<VolumeApiResult>(null, volumeOnStore, future);
+            AsyncCallbackDispatcher<VolumeServiceImpl, CreateCmdResult> caller = AsyncCallbackDispatcher.create(this);
+            caller.setCallback(caller.getTarget().createVolumeCallback(null, null)).setContext(context);
+
+            dataStore.getDriver().flattenAsync(dataStore, volumeOnStore, caller);
+        } catch (CloudRuntimeException ex) {
+            // clean up already persisted volume_store_ref entry in case of createVolumeCallback is never called
+            // VolumeDataStoreVO volStoreVO = _volumeStoreDao.findByStoreVolume(dataStore.getId(), volume.getId());
+            // if (volStoreVO != null) {
+            //     VolumeInfo volObj = volFactory.getVolume(volume, dataStore);
+            //     volObj.processEvent(ObjectInDataStoreStateMachine.Event.OperationFailed);
+            // }
+            VolumeApiResult volResult = new VolumeApiResult((VolumeObject)volumeOnStore);
+            volResult.setResult(ex.getMessage());
+            future.complete(volResult);
+        }
+        return future;
+    }
+
+    @Override
     public void checkAndRepairVolumeBasedOnConfig(DataObject dataObject, Host host) {
         if (HypervisorType.KVM.equals(host.getHypervisorType()) && DataObjectType.VOLUME.equals(dataObject.getType())) {
             VolumeInfo volumeInfo = volFactory.getVolume(dataObject.getId());

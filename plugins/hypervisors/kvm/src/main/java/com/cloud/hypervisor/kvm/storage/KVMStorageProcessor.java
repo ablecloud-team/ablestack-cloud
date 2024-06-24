@@ -56,6 +56,7 @@ import org.apache.cloudstack.storage.command.CreateObjectCommand;
 import org.apache.cloudstack.storage.command.DeleteCommand;
 import org.apache.cloudstack.storage.command.DettachAnswer;
 import org.apache.cloudstack.storage.command.DettachCommand;
+import org.apache.cloudstack.storage.command.FlattenCommand;
 import org.apache.cloudstack.storage.command.ForgetObjectCmd;
 import org.apache.cloudstack.storage.command.IntroduceObjectCmd;
 import org.apache.cloudstack.storage.command.ResignatureAnswer;
@@ -2312,10 +2313,11 @@ public class KVMStorageProcessor implements StorageProcessor {
                 diskImage.resize(disk.getVirtualSize());
             }
 
-            diskImage.flatten();
+            // 스냅샷으로 볼륨 생성시 linked clone형식으로 변경
+            // diskImage.flatten();
             rbd.close(diskImage);
 
-            srcImage.snapUnprotect(snapshotName);
+            // srcImage.snapUnprotect(snapshotName);
             rbd.close(srcImage);
             r.ioCtxDestroy(io);
         } catch (RadosException | RbdException e) {
@@ -2324,6 +2326,80 @@ public class KVMStorageProcessor implements StorageProcessor {
         }
 
         return disk;
+    }
+
+    @Override
+    public Answer flattenFromRBDSnapshot(final FlattenCommand cmd) {
+        logger.info("11 :::::::::: " + cmd.getSrcTO());
+        final DataTO srcData = cmd.getSrcTO();
+        final SnapshotObjectTO snapshot = (SnapshotObjectTO)srcData;
+        final VolumeObjectTO volume = snapshot.getVolume();
+        logger.info("22 :::::::::: " + volume);
+        try {
+            final DataStoreTO imageStore = srcData.getDataStore();
+
+            logger.info("33 :::::::::: " + volume.getPath());
+            final String snapshotFullPath = snapshot.getPath();
+            final int index = snapshotFullPath.lastIndexOf("/");
+            final String snapshotName = snapshotFullPath.substring(index + 1);
+
+            PrimaryDataStoreTO primaryStore = (PrimaryDataStoreTO) imageStore;
+
+            KVMStoragePool srcPool = storagePoolMgr.getStoragePool(primaryStore.getPoolType(), primaryStore.getUuid());
+            KVMPhysicalDisk disk = new KVMPhysicalDisk(srcPool.getSourceDir() + "/" + volume.getUuid(), volume.getUuid(), srcPool);
+            logger.info("44 :::::::::: " + disk);
+            logger.info("44 :::::::::: " + volume.getUuid());
+            logger.info("44 :::::::::: " + volume.getName());
+
+            try {
+                Rados r = new Rados(srcPool.getAuthUserName());
+                r.confSet("mon_host", srcPool.getSourceHost() + ":" + srcPool.getSourcePort());
+                r.confSet("key", srcPool.getAuthSecret());
+                r.confSet("client_mount_timeout", "30");
+                r.connect();
+
+                IoCTX io = r.ioCtxCreate(srcPool.getSourceDir());
+                Rbd rbd = new Rbd(io);
+                RbdImage srcImage = rbd.open(volume.getName());
+
+                List<RbdSnapInfo> snaps = srcImage.snapList();
+                boolean snapFound = false;
+                for (RbdSnapInfo snap : snaps) {
+                    if (snapshotName.equals(snap.name)) {
+                        snapFound = true;
+                        break;
+                    }
+                }
+                if (!snapFound) {
+                    logger.debug(String.format("Could not find snapshot %s on RBD", snapshotName));
+                    return null;
+                }
+
+                List<String> listChildren = srcImage.listChildren(snapshotName);
+                if(listChildren.size() > 0) {
+                    String[] volumeToFlatten = listChildren.get(0).split(File.separator);
+                    logger.debug(String.format("Try to flatten snapshot %s on RBD", snapshotName));
+                    RbdImage diskImage = rbd.open(volumeToFlatten[1]);
+
+                    diskImage.flatten();
+                    rbd.close(diskImage);
+
+                    logger.debug(String.format("Try to unprotect snapshot %s on RBD", snapshotName));
+                    srcImage.snapUnprotect(snapshotName);
+                    srcImage.snapRemove(snapshotName);
+                }
+                rbd.close(srcImage);
+                r.ioCtxDestroy(io);
+            } catch (RadosException | RbdException e) {
+                logger.error(String.format("Failed due to %s", e.getMessage()), e);
+                disk = null;
+            }
+
+            return new Answer(null);
+        } catch (final CloudRuntimeException e) {
+            logger.debug("Failed to Flatten Rbd Volume From Snapshot: ", e);
+            return new Answer(null, false, e.toString());
+        }
     }
 
     @Override

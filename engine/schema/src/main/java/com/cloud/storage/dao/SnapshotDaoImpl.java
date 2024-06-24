@@ -43,6 +43,7 @@ import com.cloud.utils.db.JoinBuilder.JoinType;
 import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
 import com.cloud.utils.db.SearchCriteria.Func;
+import com.cloud.utils.db.SearchCriteria.Op;
 import com.cloud.utils.db.TransactionLegacy;
 import com.cloud.utils.db.UpdateBuilder;
 import com.cloud.vm.VMInstanceVO;
@@ -64,6 +65,8 @@ public class SnapshotDaoImpl extends GenericDaoBase<SnapshotVO, Long> implements
     private SearchBuilder<SnapshotVO> StatusSearch;
     private SearchBuilder<SnapshotVO> notInStatusSearch;
     private GenericSearchBuilder<SnapshotVO, Long> CountSnapshotsByAccount;
+    private SearchBuilder<SnapshotVO> volumesToFlattenSearch;
+
     @Inject
     ResourceTagDao _tagsDao;
     @Inject
@@ -179,6 +182,11 @@ public class SnapshotDaoImpl extends GenericDaoBase<SnapshotVO, Long> implements
 
         InstanceIdSearch.join("instanceSnapshots", volumeSearch, volumeSearch.entity().getId(), InstanceIdSearch.entity().getVolumeId(), JoinType.INNER);
         InstanceIdSearch.done();
+
+        volumesToFlattenSearch = createSearchBuilder();
+        volumesToFlattenSearch.and("cloneStatus", volumesToFlattenSearch.entity().getCloneStatus(), Op.EQ);
+        volumesToFlattenSearch.and("removed", volumesToFlattenSearch.entity().getRemoved(), Op.NULL);
+        volumesToFlattenSearch.done();
     }
 
     @Override
@@ -284,5 +292,11 @@ public class SnapshotDaoImpl extends GenericDaoBase<SnapshotVO, Long> implements
         sc.setParameters("volumeId", volumeId);
         sc.setParameters("status", (Object[]) status);
         return listBy(sc, null);
+    }
+
+    public List<SnapshotVO> listFullCloneVolumesToFlatten() {
+        SearchCriteria<SnapshotVO> sc = volumesToFlattenSearch.create();
+        sc.setParameters("cloneStatus", "full");
+        return listBy(sc);
     }
 }

@@ -1896,4 +1896,8 @@ public class DateraPrimaryDataStoreDriver implements PrimaryDataStoreDriver {
     public boolean volumesRequireGrantAccessWhenUsed() {
         return true;
     }
+
+    @Override
+    public void flattenAsync(DataStore dataStore, DataObject data, AsyncCompletionCallback<CreateCmdResult> callback) {
+    }
 }
