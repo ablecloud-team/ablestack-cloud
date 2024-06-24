@@ -1710,6 +1710,13 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         } else if (volume.getState() == Volume.State.Allocated || volume.getState() == Volume.State.Uploaded) {
             throw new InvalidParameterValueException("The volume in Allocated/Uploaded state can only be expunged not destroyed/recovered");
         }
+        // check if Shared Disk
+        DiskOffering offering = _diskOfferingDao.findById(volume.getDiskOfferingId());
+        if (volume.getVolumeType() == Volume.Type.DATADISK && offering.getShareable()) {
+            final VolumeVO volumeVO = _volsDao.findById(volume.getId());
+            volumeVO.setPath("");
+            _volsDao.update(volume.getId(), volumeVO);
+        }
     }
 
     @Override

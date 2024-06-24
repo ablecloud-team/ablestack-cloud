@@ -184,7 +184,11 @@ import {
   AreaChartOutlined,
   SolutionOutlined,
   RocketFilled,
-  HeartFilled
+  HeartFilled,
+  SubnodeOutlined,
+  UpSquareOutlined,
+  DownSquareOutlined,
+  ExperimentOutlined
 } from '@ant-design/icons-vue'
 import renderIcon from '@/utils/renderIcon'
 
@@ -361,5 +365,9 @@ export default {
     app.component('RocketFilled', RocketFilled)
     app.component('HeartFilled', HeartFilled)
     app.component('renderIcon', renderIcon)
+    app.component('SubnodeOutlined', SubnodeOutlined)
+    app.component('UpSquareOutlined', UpSquareOutlined)
+    app.component('DownSquareOutlined', DownSquareOutlined)
+    app.component('ExperimentOutlined', ExperimentOutlined)
   }
 }

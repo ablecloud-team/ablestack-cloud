@@ -764,6 +764,7 @@ export default {
     eventBus.off('desktop-refresh-data')
     eventBus.off('resource-request-refresh-data')
     eventBus.off('automation-refresh-data')
+    eventBus.off('dr-refresh-data')
   },
   mounted () {
     eventBus.on('exec-action', (args) => {
@@ -797,6 +798,11 @@ export default {
     // })
     eventBus.on('automation-controller-refresh-data', () => {
       if (this.$route.path === '/automationcontroller' || this.$route.path.includes('/automationcontroller/')) {
+        this.fetchData()
+      }
+    })
+    eventBus.on('dr-refresh-data', () => {
+      if (this.$route.path === '/disasterrecoverycluster' || this.$route.path.includes('/disasterrecoverycluster/')) {
         this.fetchData()
       }
     })

@@ -388,7 +388,8 @@ export default {
           { value: 'User' },
           { value: 'VirtualMachine' },
           { value: 'Volume' },
-          { value: 'QuotaTariff' }
+          { value: 'QuotaTariff' },
+          { value: 'DisasterRecoveryCluster' }
         ]
         this.fields[resourceTypeIndex].loading = false
       }
@@ -1129,7 +1130,8 @@ export default {
           SECONDARY_STORAGE: 'Secondary Storage',
           VR: 'Virtual Router',
           SYSTEM_VM: 'System VM',
-          KUBERNETES_CLUSTER: 'Kubernetes Cluster'
+          KUBERNETES_CLUSTER: 'Kubernetes Cluster',
+          DISASTER_RECOVERY: 'Disaster Recovery'
         }
         for (var key in allowedTypes) {
           entityType.push({
