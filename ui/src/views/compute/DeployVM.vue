@@ -2289,48 +2289,40 @@ export default {
               } else {
                 jobId = await this.deployVM(args, httpMethod, data)
               }
-              await this.$pollJob({
-                jobId,
-                title,
-                description,
-                successMethod: result => {
-                  const vm = result.jobresult.virtualmachine
-                  const name = vm.displayname || vm.name || vm.id
-                  if (vm.password) {
-                    this.$notification.success({
-                      message: password + ` ${this.$t('label.for')} ` + name,
-                      description: vm.password,
-                      btn: () => h(
-                        Button,
-                        {
-                          type: 'primary',
-                          size: 'small',
-                          onClick: () => this.copyToClipboard(vm.password)
-                        },
-                        () => [this.$t('label.copy.password')]
-                      ),
-                      duration: 0
-                    })
+              if (num === 0) {
+                this.$pollJob({
+                  jobId,
+                  title,
+                  description,
+                  successMethod: result => {
+                    const vm = result.jobresult.virtualmachine
+                    const name = vm.displayname || vm.name || vm.id
+                    if (vm.password) {
+                      this.$notification.success({
+                        message: password + ` ${this.$t('label.for')} ` + name,
+                        description: vm.password,
+                        btn: () => h(
+                          Button,
+                          {
+                            type: 'primary',
+                            size: 'small',
+                            onClick: () => this.copyToClipboard(vm.password)
+                          },
+                          () => [this.$t('label.copy.password')]
+                        ),
+                        duration: 0
+                      })
+                    }
+                    if (!values.stayonpage) {
+                      eventBus.emit('vm-refresh-data')
+                    }
+                  },
+                  loadingMessage: `${title} ${this.$t('label.in.progress')}`,
+                  catchMessage: this.$t('error.fetching.async.job.result'),
+                  action: {
+                    isFetchData: false
                   }
-                  if (!values.stayonpage) {
-                    eventBus.emit('vm-refresh-data')
-                  }
-                },
-                loadingMessage: `${title} ${this.$t('label.in.progress')}`,
-                catchMessage: this.$t('error.fetching.async.job.result'),
-                action: {
-                  isFetchData: false
-                }
-              })
-
-              // Sending a refresh in case it hasn't picked up the new VM
-              if (values.vmNumber === 1 || !values.stayonpage) {
-                await new Promise(resolve => setTimeout(resolve, 3000)).then(() => {
-                  eventBus.emit('vm-refresh-data')
                 })
-              }
-              if (!values.stayonpage) {
-                await this.$router.back()
               }
             } catch (error) {
               if (error.message !== undefined) {
@@ -2338,6 +2330,12 @@ export default {
               }
               this.loading.deploy = false
             }
+          }
+          await new Promise(resolve => setTimeout(resolve, 3000)).then(() => {
+            eventBus.emit('vm-refresh-data')
+          })
+          if (!values.stayonpage) {
+            await this.$router.back()
           }
           this.form.stayonpage = false
           this.loading.deploy = false
@@ -2352,7 +2350,6 @@ export default {
             })
             return
           }
-
           this.$notification.error({
             message: this.$t('message.request.failed'),
             description: this.$t('error.form.message')
