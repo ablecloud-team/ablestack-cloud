@@ -1,0 +1,143 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+<template>
+  <a-spin :spinning="fetchLoading">
+    <a-list size="small">
+      <a-list-item v-if="host.outofbandmanagement">
+        <div>
+          <strong>{{ $t('label.outofbandmanagement.enable') }}</strong>
+          <div>
+            {{ host.outofbandmanagement.enabled }}
+          </div>
+        </div>
+      </a-list-item>
+      <a-list-item v-if="host.outofbandmanagement">
+        <div>
+          <strong>{{ $t('label.powerstate') }}</strong>
+          <div>
+            {{ host.outofbandmanagement.powerstate }}
+          </div>
+        </div>
+      </a-list-item>
+      <a-list-item v-if="host.outofbandmanagement && host.outofbandmanagement.driver">
+        <div>
+          <strong>{{ $t('label.driver') }}</strong>
+          <div>
+            {{ host.outofbandmanagement.driver }}
+          </div>
+        </div>
+      </a-list-item>
+      <a-list-item v-if="host.outofbandmanagement && host.outofbandmanagement.address">
+        <div>
+          <strong>{{ $t('label.address') }}</strong>
+          <div>
+            {{ host.outofbandmanagement.address }}
+          </div>
+        </div>
+      </a-list-item>
+      <a-list-item v-if="host.outofbandmanagement && host.outofbandmanagement.port">
+        <div>
+          <strong>{{ $t('label.port') }}</strong>
+          <div>
+            {{ host.outofbandmanagement.port }}
+          </div>
+        </div>
+      </a-list-item>
+      <a-list-item v-if="host.outofbandmanagement && host.outofbandmanagement.username">
+        <div>
+          <strong>{{ $t('label.username') }}</strong>
+          <div>
+            {{ host.outofbandmanagement.username }}
+          </div>
+        </div>
+      </a-list-item>
+      <a-list-item v-if="host.outofbandmanagement && host.details.manageconsoleprotocol">
+        <div>
+          <strong>{{ $t('label.manageconsoleprotocol') }}</strong>
+          <div>
+            {{ host.details.manageconsoleprotocol }}
+          </div>
+        </div>
+      </a-list-item>
+      <a-list-item v-if="host.outofbandmanagement && host.details.manageconsoleport">
+        <div>
+          <strong>{{ $t('label.manageconsoleport') }}</strong>
+          <div>
+            {{ host.details.manageconsoleport }}
+          </div>
+        </div>
+      </a-list-item>
+    </a-list>
+  </a-spin>
+</template>
+
+<script>
+import { api } from '@/api'
+
+export default {
+  name: 'HostInfo',
+  props: {
+    resource: {
+      type: Object,
+      required: true
+    },
+    loading: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data () {
+    return {
+      host: {},
+      fetchLoading: false
+    }
+  },
+  created () {
+    this.fetchData()
+  },
+  watch: {
+    resource: {
+      deep: true,
+      handler (newItem, oldItem) {
+        if (this.resource) {
+          this.host = this.resource
+          if (this.resource.id && newItem && newItem.id !== oldItem.id) {
+            this.fetchData()
+          }
+        }
+      }
+    }
+  },
+  methods: {
+    fetchData () {
+      this.fetchLoading = true
+      api('listHosts', { id: this.resource.id }).then(json => {
+        this.host = json.listhostsresponse.host[0]
+      }).catch(error => {
+        this.$notifyError(error)
+      }).finally(() => {
+        this.fetchLoading = false
+      })
+    }
+  }
+}
+</script>
+
+<style lang="less" scoped>
+
+</style>
