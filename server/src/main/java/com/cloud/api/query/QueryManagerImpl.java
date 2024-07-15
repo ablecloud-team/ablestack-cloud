@@ -56,7 +56,6 @@ import org.apache.cloudstack.api.command.admin.domain.ListDomainsCmd;
 import org.apache.cloudstack.api.command.admin.domain.ListDomainsCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.host.ListHostTagsCmd;
 import org.apache.cloudstack.api.command.admin.host.ListHostsCmd;
-import org.apache.cloudstack.api.command.admin.host.VMPciCmd;
 import org.apache.cloudstack.api.command.admin.internallb.ListInternalLBVMsCmd;
 import org.apache.cloudstack.api.command.admin.iso.ListIsosCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.management.ListMgmtsCmd;
