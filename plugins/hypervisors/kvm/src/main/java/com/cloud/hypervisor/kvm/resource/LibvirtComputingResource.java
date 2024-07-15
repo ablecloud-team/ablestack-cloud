@@ -54,6 +54,7 @@ import org.apache.cloudstack.engine.orchestration.service.NetworkOrchestrationSe
 import org.apache.cloudstack.storage.command.browser.CreateRbdObjectsCommand;
 import org.apache.cloudstack.storage.command.browser.DeleteRbdObjectsCommand;
 import org.apache.cloudstack.storage.command.browser.ListDataStoreObjectsCommand;
+import org.apache.cloudstack.storage.command.browser.ListVMPciCommand;
 import org.apache.cloudstack.storage.configdrive.ConfigDrive;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
@@ -215,6 +216,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.cloud.vm.dao.VMInstanceDao;
+import com.cloud.vm.VMInstanceVO;
+import com.cloud.agent.AgentManager;
+import com.cloud.host.dao.HostDao;
+import com.cloud.host.HostVO;
 
 /**
  * LibvirtComputingResource execute requests on the computing/routing host using
@@ -5095,6 +5101,28 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         }
         return true;
     }
+
+    @Inject
+    private VMInstanceDao _vmDao;
+
+    @Inject
+    private HostDao _hostDao;
+
+    // @Inject
+    // private AgentManager _agentMgr;
+
+    public Answer listVMPci(ListVMPciCommand command) {
+        VMInstanceVO vm = _vmDao.findByUuid(command.getVmUuid());
+        Long hostId = vm.getHostId() != null ? vm.getHostId() : vm.getLastHostId();
+        HostVO hostVO = _hostDao.findById(hostId);
+        logger.info("sdfajsdf4"+hostId);
+        if (hostVO != null) {
+            logger.info("sdfajsdf5"+hostId);
+            return listVMPci(command.getPciName(), command.getPciText(), hostId);
+        }
+        return null;
+    }
+
     public Answer listFilesAtPath(ListDataStoreObjectsCommand command) {
         DataStoreTO store = command.getStore();
         if(command.getPoolType().equals("RBD")) {

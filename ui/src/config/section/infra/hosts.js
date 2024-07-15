@@ -49,6 +49,9 @@ export default {
     name: 'outofbandmanagement',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/OobmTab.vue')))
   }, {
+    name: 'vmpci',
+    component: shallowRef(defineAsyncComponent(() => import('@/views/infra/VMPciTab.vue')))
+  }, {
     name: 'events',
     resourceType: 'Host',
     component: shallowRef(defineAsyncComponent(() => import('@/components/view/EventsTab.vue'))),

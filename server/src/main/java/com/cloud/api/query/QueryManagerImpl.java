@@ -56,9 +56,11 @@ import org.apache.cloudstack.api.command.admin.domain.ListDomainsCmd;
 import org.apache.cloudstack.api.command.admin.domain.ListDomainsCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.host.ListHostTagsCmd;
 import org.apache.cloudstack.api.command.admin.host.ListHostsCmd;
+import org.apache.cloudstack.api.command.admin.host.VMPciCmd;
 import org.apache.cloudstack.api.command.admin.internallb.ListInternalLBVMsCmd;
 import org.apache.cloudstack.api.command.admin.iso.ListIsosCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.management.ListMgmtsCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.VMPciCmd;
 import org.apache.cloudstack.api.command.admin.resource.icon.ListResourceIconCmd;
 import org.apache.cloudstack.api.command.admin.router.GetRouterHealthCheckResultsCmd;
 import org.apache.cloudstack.api.command.admin.router.ListRoutersCmd;
@@ -3094,6 +3096,58 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         List<StoragePoolTagVO> vrs = _storageTagDao.searchByIds(vrIds);
 
         return new Pair<List<StoragePoolTagVO>, Integer>(vrs, count);
+    }
+
+    // @Override
+    // public ListResponse<HostResponse> listvmPci(VMPciCmd cmd) {
+    //     Pair<List<HostTagVO>, Integer> result = searchForListvmPci(cmd);
+    //     ListResponse<HostResponse> responses = new ListResponse<HostResponse>();
+    //     List<HostTagResponse> tagResponses = ViewResponseHelper.createHostTagResponse(result.first().toArray(new HostTagVO[result.first().size()]));
+
+    //     responses.setResponsess(tagResponses, result.second());
+
+    //     return responses;
+    // }
+
+    @Override
+    public ListResponse<HostTagResponse> listvmPci(VMPciCmd cmd) {
+        Pair<List<HostTagVO>, Integer> result = searchForListvmPci(cmd);
+        ListResponse<HostTagResponse> response = new ListResponse<HostTagResponse>();
+        List<HostTagResponse> tagResponses = ViewResponseHelper.createHostTagResponse(result.first().toArray(new HostTagVO[result.first().size()]));
+
+        response.setResponses(tagResponses, result.second());
+
+        return response;
+    }
+
+    private Pair<List<HostTagVO>, Integer> searchForListvmPci(VMPciCmd cmd) {
+        Filter searchFilter = new Filter(HostTagVO.class, "id", Boolean.TRUE, null, null);
+
+        SearchBuilder<HostTagVO> sb = _hostTagDao.createSearchBuilder();
+
+        sb.select(null, Func.DISTINCT, sb.entity().getId()); // select distinct
+
+        SearchCriteria<HostTagVO> sc = sb.create();
+
+        // search host tag details by ids
+        Pair<List<HostTagVO>, Integer> uniqueTagPair = _hostTagDao.searchAndCount(sc, searchFilter);
+        Integer count = uniqueTagPair.second();
+
+        if (count.intValue() == 0) {
+            return uniqueTagPair;
+        }
+
+        List<HostTagVO> uniqueTags = uniqueTagPair.first();
+        Long[] vrIds = new Long[uniqueTags.size()];
+        int i = 0;
+
+        for (HostTagVO v : uniqueTags) {
+            vrIds[i++] = v.getId();
+        }
+
+        List<HostTagVO> vrs = _hostTagDao.searchByIds(vrIds);
+
+        return new Pair<List<HostTagVO>, Integer>(vrs, count);
     }
 
     @Override

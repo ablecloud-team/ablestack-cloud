@@ -16,117 +16,75 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="fetchLoading">
-    <a-list size="small">
-      <a-list-item v-if="host.outofbandmanagement">
-        <div>
-          <strong>{{ $t('label.outofbandmanagement.enable') }}</strong>
-          <div>
-            {{ host.outofbandmanagement.enabled }}
-          </div>
-        </div>
-      </a-list-item>
-      <a-list-item v-if="host.outofbandmanagement">
-        <div>
-          <strong>{{ $t('label.powerstate') }}</strong>
-          <div>
-            {{ host.outofbandmanagement.powerstate }}
-          </div>
-        </div>
-      </a-list-item>
-      <a-list-item v-if="host.outofbandmanagement && host.outofbandmanagement.driver">
-        <div>
-          <strong>{{ $t('label.driver') }}</strong>
-          <div>
-            {{ host.outofbandmanagement.driver }}
-          </div>
-        </div>
-      </a-list-item>
-      <a-list-item v-if="host.outofbandmanagement && host.outofbandmanagement.address">
-        <div>
-          <strong>{{ $t('label.address') }}</strong>
-          <div>
-            {{ host.outofbandmanagement.address }}
-          </div>
-        </div>
-      </a-list-item>
-      <a-list-item v-if="host.outofbandmanagement && host.outofbandmanagement.port">
-        <div>
-          <strong>{{ $t('label.port') }}</strong>
-          <div>
-            {{ host.outofbandmanagement.port }}
-          </div>
-        </div>
-      </a-list-item>
-      <a-list-item v-if="host.outofbandmanagement && host.outofbandmanagement.username">
-        <div>
-          <strong>{{ $t('label.username') }}</strong>
-          <div>
-            {{ host.outofbandmanagement.username }}
-          </div>
-        </div>
-      </a-list-item>
-      <a-list-item v-if="host.outofbandmanagement && host.details.manageconsoleprotocol">
-        <div>
-          <strong>{{ $t('label.manageconsoleprotocol') }}</strong>
-          <div>
-            {{ host.details.manageconsoleprotocol }}
-          </div>
-        </div>
-      </a-list-item>
-      <a-list-item v-if="host.outofbandmanagement && host.details.manageconsoleport">
-        <div>
-          <strong>{{ $t('label.manageconsoleport') }}</strong>
-          <div>
-            {{ host.details.manageconsoleport }}
-          </div>
-        </div>
-      </a-list-item>
-    </a-list>
-  </a-spin>
+  <div>
+    <a-table
+      :columns="columns"
+      :dataSource="tableSource"
+      :pagination="false"
+      size="middle"
+      :scroll="{ y: 225 }">
+      <template #headerCell="{ column }">
+        <template v-if="column.key === 'pciText'"><IdcardOutlined /> {{ $t('label.pcitext') }}</template>
+      </template>
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'pciName'">{{ record.pciName }}</template>
+        <template v-if="column.key === 'pciText'">{{ record.pciText }}</template>
+      </template>
+    </a-table>
+  </div>
 </template>
 
 <script>
 import { api } from '@/api'
-
 export default {
-  name: 'HostInfo',
+  name: 'VMPciTab',
   props: {
+    pciNames: {
+      type: Array,
+      default: () => []
+    },
+    pciTexts: {
+      type: Array,
+      default: () => []
+    },
     resource: {
       type: Object,
       required: true
-    },
-    loading: {
-      type: Boolean,
-      default: false
+    }
+  },
+  computed: {
+    tableSource () {
+      return this.pciNames.map((pciName, index) => {
+        return {
+          key: index,
+          pciName: pciName,
+          pciText: this.pciTexts[index]
+        }
+      })
     }
   },
   data () {
     return {
-      host: {},
-      fetchLoading: false
-    }
-  },
-  created () {
-    this.fetchData()
-  },
-  watch: {
-    resource: {
-      deep: true,
-      handler (newItem, oldItem) {
-        if (this.resource) {
-          this.host = this.resource
-          if (this.resource.id && newItem && newItem.id !== oldItem.id) {
-            this.fetchData()
-          }
+      columns: [
+        {
+          key: 'pciName',
+          dataIndex: 'pciName',
+          title: this.$t('label.name'),
+          width: '30%'
+        },
+        {
+          key: 'pciText',
+          dataIndex: 'pciText',
+          title: this.$t('label.pcitext'),
+          width: '70%'
         }
-      }
+      ]
     }
   },
   methods: {
     fetchData () {
       this.fetchLoading = true
-      api('listHosts', { id: this.resource.id }).then(json => {
+      api('listvmPci', { id: this.resource.id }).then(json => {
         this.host = json.listhostsresponse.host[0]
       }).catch(error => {
         this.$notifyError(error)
@@ -139,5 +97,17 @@ export default {
 </script>
 
 <style lang="less" scoped>
+  .ant-table-wrapper {
+    margin: 2rem 0;
+  }
+    @media (max-width: 600px) {
+      position: relative;
+      width: 100%;
+      top: 0;
+      right: 0;
+    }
 
+  :deep(.ant-table-tbody) > tr > td {
+    cursor: pointer;
+  }
 </style>

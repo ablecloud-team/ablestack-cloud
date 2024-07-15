@@ -348,6 +348,7 @@ public class ApiConstants {
     public static final String OS_MAPPING_CHECK_ENABLED = "osmappingcheckenabled";
     public static final String OUTOFBANDMANAGEMENT_POWERSTATE = "outofbandmanagementpowerstate";
     public static final String OUTOFBANDMANAGEMENT_ENABLED = "outofbandmanagementenabled";
+    public static final String LIST_VM_PCI = "listvmpci";
     public static final String OUTPUT = "output";
     public static final String PROPERTIES = "properties";
     public static final String PARAMS = "params";

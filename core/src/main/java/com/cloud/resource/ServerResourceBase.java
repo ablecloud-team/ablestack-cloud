@@ -38,6 +38,7 @@ import java.util.Map;
 import javax.naming.ConfigurationException;
 
 import org.apache.cloudstack.storage.command.browser.ListRbdObjectsAnswer;
+import org.apache.cloudstack.storage.command.browser.ListVMPciAnswer;
 import org.apache.cloudstack.storage.command.browser.ListDataStoreObjectsAnswer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,7 +49,6 @@ import com.cloud.agent.IAgentControl;
 import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.Command;
 import com.cloud.agent.api.StartupCommand;
-
 import com.cloud.utils.net.NetUtils;
 import com.cloud.utils.script.OutputInterpreter;
 import com.cloud.utils.script.Script;
@@ -160,12 +160,39 @@ public abstract class ServerResourceBase implements ServerResource {
         return true;
     }
 
+
+    protected Answer listVMPci(String pciName, String pciText, Long hostId) {
+        List<String> pciname = new ArrayList<>();
+        List<String> pcitext = new ArrayList<>();
+        Script listCommand = new Script("lspci");
+        OutputInterpreter.OneLineParser parser = new OutputInterpreter.OneLineParser();
+        String result = listCommand.execute(parser);
+
+        if (result != null && !result.isEmpty()) {
+            String[] lines = result.split("\n");
+            for (String line : lines) {
+                if (!line.contains("System peripheral") && !line.contains("PIC") && !line.contains("Performance counters")) {
+                    int colonIndex = line.indexOf(':');
+                    if (colonIndex != -1) {
+                        logger.info("sdfajsdf1"+colonIndex);
+                        pciname.add(line.substring(0, colonIndex).trim());
+                        logger.info("sdfajsdf2"+pciname);
+                        logger.info("sdfajsdf3"+pciname.add(line.substring(0, colonIndex).trim()));
+                    }
+                    if (colonIndex != -1 && colonIndex + 1 < line.length()) {
+                        pcitext.add(line.substring(colonIndex + 1).trim());
+                    }
+                }
+            }
+        }
+        return new ListVMPciAnswer(true, "PCI 정보가 성공적으로 수집되었습니다.", pciname, pcitext);
+    }
+
     protected Answer createImageRbd(String names, long sizes, String poolPath) {
         sizes = (sizes * 1024);
         String cmdout = Script.runSimpleBashScript("rbd -p " + poolPath + " create -s " + sizes + " " + names);
         if (cmdout == null) {
             logger.debug(cmdout);
-        }else{
         }
         return new ListRbdObjectsAnswer(true, names);
     }
@@ -175,7 +202,6 @@ public abstract class ServerResourceBase implements ServerResource {
         String cmdout = Script.runSimpleBashScript("rbd -p " + poolPath + " rm " + name);
         if (cmdout == null) {
             logger.debug(cmdout);
-        }else{
         }
         return new ListRbdObjectsAnswer(true, name);
     }

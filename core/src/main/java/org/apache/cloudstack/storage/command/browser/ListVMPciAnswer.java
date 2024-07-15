@@ -19,23 +19,27 @@
 
 package org.apache.cloudstack.storage.command.browser;
 
+import java.util.List;
+
 import com.cloud.agent.api.Answer;
 
 
 public class ListVMPciAnswer extends Answer {
+    private List<String> pciNames;
+    private List<String> pciTexts;
 
-    private boolean successMessage;
-
-    private String message;
-
-    public ListVMPciAnswer(boolean successMessage, String message) {
-        super();
-        this.successMessage = successMessage;
+    public ListVMPciAnswer(boolean success, String details, List<String> pciNames, List<String> pciTexts) {
+        super(null, success, details);
+        this.pciNames = pciNames;
+        this.pciTexts = pciTexts;
     }
-    public boolean successMessage() {
-        return successMessage;
+
+    public List<String> getPciNames() {
+        return pciNames;
     }
-    public String getMessage() {
-        return message;
+
+    public List<String> getPciTexts() {
+        return pciTexts;
     }
 }
+
