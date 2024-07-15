@@ -218,7 +218,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.cloud.vm.dao.VMInstanceDao;
 import com.cloud.vm.VMInstanceVO;
-import com.cloud.agent.AgentManager;
+// import com.cloud.agent.AgentManager;
 import com.cloud.host.dao.HostDao;
 import com.cloud.host.HostVO;
 
