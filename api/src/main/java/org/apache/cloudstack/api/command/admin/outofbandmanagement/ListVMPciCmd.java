@@ -16,7 +16,6 @@
 // under the License.
 package org.apache.cloudstack.api.command.admin.outofbandmanagement;
 
-import com.cloud.event.EventTypes;
 
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.ApiArgValidator;
@@ -29,7 +28,6 @@ import org.apache.cloudstack.api.BaseListCmd;
 import org.apache.cloudstack.api.Parameter;
 
 import org.apache.cloudstack.api.response.HostResponse;
-import org.apache.cloudstack.api.response.HostTagResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.context.CallContext;
 
