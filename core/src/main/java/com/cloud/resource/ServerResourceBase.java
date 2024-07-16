@@ -135,7 +135,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 return;
             }
         }
-
+l
         throw new ConfigurationException("It was not possible to define a private NIC for this resource.");
     }
 
@@ -185,7 +185,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
         }
-        return new ListVMPciAnswer(true, "PCI 정보가 성공적으로 수집되었습니다.", pciname, pcitext);
+        return new ListVMPciAnswer("Successfully collected VMPCI information.",true , pciname, pcitext);
     }
 
     protected Answer createImageRbd(String names, long sizes, String poolPath) {
