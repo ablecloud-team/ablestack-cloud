@@ -24,11 +24,13 @@
       size="middle"
       :scroll="{ y: 225 }">
       <template #headerCell="{ column }">
-        <template v-if="column.key === 'pciText'"><IdcardOutlined /> {{ $t('label.pcitext') }}</template>
+        <template v-if="column.key === 'pcitext'">
+          <IdcardOutlined /> {{ $t('label.pcitext') }}
+        </template>
       </template>
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'pciName'">{{ record.pciName }}</template>
-        <template v-if="column.key === 'pciText'">{{ record.pciText }}</template>
+        <template v-if="column.key === 'pciname'">{{ record.pciname }}</template>
+        <template v-if="column.key === 'pcitext'">{{ record.pcitext }}</template>
       </template>
     </a-table>
   </div>
@@ -39,58 +41,68 @@ import { api } from '@/api'
 export default {
   name: 'VMPciTab',
   props: {
-    pciNames: {
-      type: Array,
-      default: () => []
-    },
-    pciTexts: {
-      type: Array,
-      default: () => []
-    },
     resource: {
       type: Object,
       required: true
-    }
-  },
-  computed: {
-    tableSource () {
-      return this.pciNames.map((pciName, index) => {
-        return {
-          key: index,
-          pciName: pciName,
-          pciText: this.pciTexts[index]
-        }
-      })
     }
   },
   data () {
     return {
       columns: [
         {
-          key: 'pciName',
-          dataIndex: 'pciName',
+          key: 'pciname',
+          dataIndex: 'pciname',
           title: this.$t('label.name'),
           width: '30%'
         },
         {
-          key: 'pciText',
-          dataIndex: 'pciText',
-          title: this.$t('label.pcitext'),
+          key: 'pcitext',
+          dataIndex: 'pcitext',
+          title: this.$t('label.text'),
           width: '70%'
         }
-      ]
+      ],
+      dataItems: [],
+      loading: false
     }
   },
-  methods: {
-    fetchData () {
-      this.fetchLoading = true
-      api('listvmPci', { id: this.resource.id }).then(json => {
-        this.host = json.listhostsresponse.host[0]
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(() => {
-        this.fetchLoading = false
+  computed: {
+    tableSource () {
+      return this.dataItems.map((item) => {
+        return {
+          key: item.id,
+          pciname: item.pciname,
+          pcitext: item.pcitext
+        }
       })
+    }
+  },
+  created () {
+    this.fetchData()
+  },
+  methods: {
+    fetchData (pciname, pcitext) {
+      this.loading = true
+      api('listvmPci', {
+        id: this.resource.id
+        // pciname: pciname,
+        // pcitext: pcitext
+      })
+        .then(response => {
+          this.$pollJob({
+            jobId: response.listvmpciresponse.jobid
+          }).then(jobResponse => {
+            this.dataItems = jobResponse.dataItems || []
+            this.loading = false
+          }).catch(error => {
+            this.$notifyError(error)
+            this.loading = false
+          })
+        })
+        .catch(error => {
+          this.$notifyError(error)
+          this.loading = false
+        })
     }
   }
 }

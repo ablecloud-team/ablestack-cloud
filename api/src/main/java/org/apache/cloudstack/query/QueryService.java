@@ -24,7 +24,7 @@ import org.apache.cloudstack.api.command.admin.host.ListHostTagsCmd;
 import org.apache.cloudstack.api.command.admin.host.ListHostsCmd;
 import org.apache.cloudstack.api.command.admin.internallb.ListInternalLBVMsCmd;
 import org.apache.cloudstack.api.command.admin.management.ListMgmtsCmd;
-import org.apache.cloudstack.api.command.admin.outofbandmanagement.VMPciCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListVMPciCmd;
 import org.apache.cloudstack.api.command.admin.resource.icon.ListResourceIconCmd;
 import org.apache.cloudstack.api.command.admin.router.GetRouterHealthCheckResultsCmd;
 import org.apache.cloudstack.api.command.admin.router.ListRoutersCmd;
@@ -207,5 +207,5 @@ public interface QueryService {
 
     ListResponse<BucketResponse> searchForBuckets(ListBucketsCmd listBucketsCmd);
 
-    ListResponse<HostTagResponse> listvmPci(VMPciCmd vmPciCmd);
+    ListResponse<HostTagResponse> listvmPci(ListVMPciCmd listvmPciCmd);
 }

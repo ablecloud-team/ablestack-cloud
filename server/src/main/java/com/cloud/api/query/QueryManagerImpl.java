@@ -59,7 +59,6 @@ import org.apache.cloudstack.api.command.admin.host.ListHostsCmd;
 import org.apache.cloudstack.api.command.admin.internallb.ListInternalLBVMsCmd;
 import org.apache.cloudstack.api.command.admin.iso.ListIsosCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.management.ListMgmtsCmd;
-import org.apache.cloudstack.api.command.admin.outofbandmanagement.VMPciCmd;
 import org.apache.cloudstack.api.command.admin.resource.icon.ListResourceIconCmd;
 import org.apache.cloudstack.api.command.admin.router.GetRouterHealthCheckResultsCmd;
 import org.apache.cloudstack.api.command.admin.router.ListRoutersCmd;
@@ -338,6 +337,7 @@ import com.cloud.vm.dao.NicDao;
 import com.cloud.vm.dao.UserVmDao;
 import com.cloud.vm.dao.UserVmDetailsDao;
 import com.cloud.vm.dao.VMInstanceDao;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListVMPciCmd;
 
 @Component
 public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements QueryService, Configurable {
@@ -3098,7 +3098,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
     }
 
     // @Override
-    // public ListResponse<HostResponse> listvmPci(VMPciCmd cmd) {
+    // public ListResponse<HostResponse> listvmPci(ListVMPciCmd cmd) {
     //     Pair<List<HostTagVO>, Integer> result = searchForListvmPci(cmd);
     //     ListResponse<HostResponse> responses = new ListResponse<HostResponse>();
     //     List<HostTagResponse> tagResponses = ViewResponseHelper.createHostTagResponse(result.first().toArray(new HostTagVO[result.first().size()]));
@@ -3109,7 +3109,10 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
     // }
 
     @Override
-    public ListResponse<HostTagResponse> listvmPci(VMPciCmd cmd) {
+    public ListResponse<HostTagResponse> listvmPci(ListVMPciCmd cmd) {
+    logger.info("sadf"+ cmd.getId());
+        Long id = cmd.getId();
+        logger.info("sadf1"+ cmd.getId());
         Pair<List<HostTagVO>, Integer> result = searchForListvmPci(cmd);
         ListResponse<HostTagResponse> response = new ListResponse<HostTagResponse>();
         List<HostTagResponse> tagResponses = ViewResponseHelper.createHostTagResponse(result.first().toArray(new HostTagVO[result.first().size()]));
@@ -3119,7 +3122,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         return response;
     }
 
-    private Pair<List<HostTagVO>, Integer> searchForListvmPci(VMPciCmd cmd) {
+    private Pair<List<HostTagVO>, Integer> searchForListvmPci(ListVMPciCmd cmd) {
         Filter searchFilter = new Filter(HostTagVO.class, "id", Boolean.TRUE, null, null);
 
         SearchBuilder<HostTagVO> sb = _hostTagDao.createSearchBuilder();
