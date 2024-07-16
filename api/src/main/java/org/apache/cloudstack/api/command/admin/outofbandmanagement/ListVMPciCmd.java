@@ -25,7 +25,7 @@ import org.apache.cloudstack.api.ApiCommandResourceType;
 import org.apache.cloudstack.api.ApiConstants;
 
 import org.apache.cloudstack.api.BaseCmd;
-import org.apache.cloudstack.api.BaseAsyncCmd;
+import org.apache.cloudstack.api.BaseListCmd;
 import org.apache.cloudstack.api.Parameter;
 
 import org.apache.cloudstack.api.response.HostResponse;
@@ -35,12 +35,12 @@ import org.apache.cloudstack.context.CallContext;
 
 @APICommand(name = "listvmPci",
         description = "list vmPci'.",
-        since = "4.16.0.0",
+        since = "4.20.0.0",
         responseObject = HostResponse.class,
         requestHasSensitiveInfo = false,
         responseHasSensitiveInfo = false,
         authorized = {RoleType.Admin})
-    public class ListVMPciCmd extends BaseAsyncCmd {
+    public class ListVMPciCmd extends BaseListCmd {
 
     // private static final String LIST_VM_PCI = "listvmpci";
 
@@ -72,15 +72,15 @@ import org.apache.cloudstack.context.CallContext;
         return CallContext.current().getCallingAccountId();
     }
 
-    @Override
-    public String getEventType() {
-        return EventTypes.EVENT_CANCEL_HOST_DEGRADED;
-    }
+    // @Override
+    // public String getEventType() {
+    //     return EventTypes.EVENT_CANCEL_HOST_DEGRADED;
+    // }
 
-    @Override
-    public String getEventDescription() {
-        return "declaring host: " + getId() + " as Degraded";
-    }
+    // @Override
+    // public String getEventDescription() {
+    //     return "declaring host: " + getId() + " as Degraded";
+    // }
 
     @Override
     public ApiCommandResourceType getApiResourceType() {
@@ -94,7 +94,7 @@ import org.apache.cloudstack.context.CallContext;
 
     @Override
     public void execute() {
-        ListResponse<HostTagResponse> response = _queryService.listvmPci (this);
+        ListResponse<HostResponse> response = _queryService.listvmPci (this);
         response.setResponseName(getCommandName());
         response.setObjectName(getCommandName());
         this.setResponseObject(response);

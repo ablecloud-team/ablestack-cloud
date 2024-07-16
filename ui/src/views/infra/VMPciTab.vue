@@ -68,6 +68,7 @@ export default {
   },
   computed: {
     tableSource () {
+      console.log(1111)
       return this.dataItems.map((item) => {
         return {
           key: item.id,
@@ -85,24 +86,12 @@ export default {
       this.loading = true
       api('listvmPci', {
         id: this.resource.id
-        // pciname: pciname,
-        // pcitext: pcitext
+      }).then(response => {
+        console.log(response)
+      }).catch(error => {
+        this.$notifyError(error)
+        this.loading = false
       })
-        .then(response => {
-          this.$pollJob({
-            jobId: response.listvmpciresponse.jobid
-          }).then(jobResponse => {
-            this.dataItems = jobResponse.dataItems || []
-            this.loading = false
-          }).catch(error => {
-            this.$notifyError(error)
-            this.loading = false
-          })
-        })
-        .catch(error => {
-          this.$notifyError(error)
-          this.loading = false
-        })
     }
   }
 }

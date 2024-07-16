@@ -25,11 +25,13 @@ import com.cloud.agent.api.Answer;
 
 
 public class ListVMPciAnswer extends Answer {
+    private boolean successMessage;
     private List<String> pciNames;
     private List<String> pciTexts;
 
-    public ListVMPciAnswer(boolean success, String details, List<String> pciNames, List<String> pciTexts) {
-        super(null, success, details);
+    public ListVMPciAnswer(String details,boolean successMessage, List<String> pciNames, List<String> pciTexts) {
+        super();
+        this.successMessage = successMessage;
         this.pciNames = pciNames;
         this.pciTexts = pciTexts;
     }
@@ -40,6 +42,10 @@ public class ListVMPciAnswer extends Answer {
 
     public List<String> getPciTexts() {
         return pciTexts;
+    }
+
+    public boolean successMessage() {
+        return successMessage;
     }
 }
 

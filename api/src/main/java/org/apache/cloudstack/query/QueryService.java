@@ -207,5 +207,5 @@ public interface QueryService {
 
     ListResponse<BucketResponse> searchForBuckets(ListBucketsCmd listBucketsCmd);
 
-    ListResponse<HostTagResponse> listvmPci(ListVMPciCmd listvmPciCmd);
+    ListResponse<HostResponse> listvmPci(ListVMPciCmd listvmPciCmd);
 }

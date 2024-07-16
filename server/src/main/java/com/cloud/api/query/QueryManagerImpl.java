@@ -149,6 +149,8 @@ import org.apache.cloudstack.resourcedetail.dao.DiskOfferingDetailsDao;
 import org.apache.cloudstack.secstorage.HeuristicVO;
 import org.apache.cloudstack.secstorage.dao.SecondaryStorageHeuristicDao;
 import org.apache.cloudstack.secstorage.heuristics.Heuristic;
+import org.apache.cloudstack.storage.command.browser.ListVMPciAnswer;
+import org.apache.cloudstack.storage.command.browser.ListVMPciCommand;
 import org.apache.cloudstack.storage.datastore.db.ObjectStoreDao;
 import org.apache.cloudstack.storage.datastore.db.ObjectStoreVO;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
@@ -164,6 +166,7 @@ import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import com.cloud.agent.api.Answer;
 import com.cloud.api.query.dao.AccountJoinDao;
 import com.cloud.api.query.dao.AffinityGroupJoinDao;
 import com.cloud.api.query.dao.AsyncJobJoinDao;
@@ -3097,59 +3100,43 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         return new Pair<List<StoragePoolTagVO>, Integer>(vrs, count);
     }
 
-    // @Override
-    // public ListResponse<HostResponse> listvmPci(ListVMPciCmd cmd) {
-    //     Pair<List<HostTagVO>, Integer> result = searchForListvmPci(cmd);
-    //     ListResponse<HostResponse> responses = new ListResponse<HostResponse>();
-    //     List<HostTagResponse> tagResponses = ViewResponseHelper.createHostTagResponse(result.first().toArray(new HostTagVO[result.first().size()]));
-
-    //     responses.setResponsess(tagResponses, result.second());
-
-    //     return responses;
-    // }
-
     @Override
-    public ListResponse<HostTagResponse> listvmPci(ListVMPciCmd cmd) {
-    logger.info("sadf"+ cmd.getId());
+    public ListResponse<HostResponse> listvmPci(ListVMPciCmd cmd) {
         Long id = cmd.getId();
-        logger.info("sadf1"+ cmd.getId());
-        Pair<List<HostTagVO>, Integer> result = searchForListvmPci(cmd);
-        ListResponse<HostTagResponse> response = new ListResponse<HostTagResponse>();
-        List<HostTagResponse> tagResponses = ViewResponseHelper.createHostTagResponse(result.first().toArray(new HostTagVO[result.first().size()]));
+        // DataStore dataStore = dataStoreMgr.getDataStore(storeId, DataStoreRole.Primary);
+        ListVMPciAnswer answer = listVMPciObjectsInStore(cmd.getId());
 
-        response.setResponses(tagResponses, result.second());
-
-        return response;
+        return getResponses(answer, cmd);
     }
 
-    private Pair<List<HostTagVO>, Integer> searchForListvmPci(ListVMPciCmd cmd) {
-        Filter searchFilter = new Filter(HostTagVO.class, "id", Boolean.TRUE, null, null);
+    private ListResponse<HostResponse> getResponses(ListVMPciAnswer answer, ListVMPciCmd cmd) {
+        List<HostResponse> responses = new ArrayList<>();
+        ListResponse<HostResponse> listResponse = new ListResponse<>();
+        if (answer == null || !answer.getResult() || !answer.successMessage()) {
+            logger.error("Failed to list vm pci objects");
+            throw new CloudRuntimeException("Failed to list vm pci objects.");
+        }
+        HostResponse response = new HostResponse();
+        responses.add(response);
+        listResponse.setResponses(responses);
+        return listResponse;
+    }
 
-        SearchBuilder<HostTagVO> sb = _hostTagDao.createSearchBuilder();
+ 
 
-        sb.select(null, Func.DISTINCT, sb.entity().getId()); // select distinct
+    ListVMPciAnswer listVMPciObjectsInStore(long id) {
 
-        SearchCriteria<HostTagVO> sc = sb.create();
+        Answer answer = null;
 
-        // search host tag details by ids
-        Pair<List<HostTagVO>, Integer> uniqueTagPair = _hostTagDao.searchAndCount(sc, searchFilter);
-        Integer count = uniqueTagPair.second();
-
-        if (count.intValue() == 0) {
-            return uniqueTagPair;
+        if (answer == null || !answer.getResult() || !(answer instanceof ListVMPciAnswer)) {
+            throw new CloudRuntimeException("Failed to list vm pci objects");
         }
 
-        List<HostTagVO> uniqueTags = uniqueTagPair.first();
-        Long[] vrIds = new Long[uniqueTags.size()];
-        int i = 0;
-
-        for (HostTagVO v : uniqueTags) {
-            vrIds[i++] = v.getId();
+        ListVMPciAnswer dsAnswer = (ListVMPciAnswer) answer;
+        if (!dsAnswer.successMessage()) {
+            throw new IllegalArgumentException("Failed to list vm pci objects");
         }
-
-        List<HostTagVO> vrs = _hostTagDao.searchByIds(vrIds);
-
-        return new Pair<List<HostTagVO>, Integer>(vrs, count);
+        return dsAnswer;
     }
 
     @Override
