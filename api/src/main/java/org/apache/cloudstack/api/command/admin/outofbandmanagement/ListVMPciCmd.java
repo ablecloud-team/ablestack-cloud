@@ -99,5 +99,4 @@ import org.apache.cloudstack.context.CallContext;
         response.setObjectName(getCommandName());
         this.setResponseObject(response);
     }
-
 }
