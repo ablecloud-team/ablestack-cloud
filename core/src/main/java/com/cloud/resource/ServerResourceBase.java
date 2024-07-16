@@ -135,7 +135,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 return;
             }
         }
-l
         throw new ConfigurationException("It was not possible to define a private NIC for this resource.");
     }
 
