@@ -29,11 +29,14 @@ public class ListVMPciCommand extends StorageCommand {
 
     private Long id;
 
+    private String vmUuid;
+
     public ListVMPciCommand() {
     }
 
     public ListVMPciCommand( String vmUuid, String pciName, String pciText, Long id) {
         super();
+        this.vmUuid = vmUuid;
         this.pciName = pciName;
         this.pciText = pciText;
         this.id = id;
@@ -42,6 +45,10 @@ public class ListVMPciCommand extends StorageCommand {
     @Override
     public boolean executeInSequence() {
         return false;
+    }
+
+    public String getVmUuid() {
+        return vmUuid;
     }
 
     public String getPciName() {

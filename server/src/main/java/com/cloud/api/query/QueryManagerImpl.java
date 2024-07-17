@@ -150,7 +150,6 @@ import org.apache.cloudstack.secstorage.HeuristicVO;
 import org.apache.cloudstack.secstorage.dao.SecondaryStorageHeuristicDao;
 import org.apache.cloudstack.secstorage.heuristics.Heuristic;
 import org.apache.cloudstack.storage.command.browser.ListVMPciAnswer;
-import org.apache.cloudstack.storage.command.browser.ListVMPciCommand;
 import org.apache.cloudstack.storage.datastore.db.ObjectStoreDao;
 import org.apache.cloudstack.storage.datastore.db.ObjectStoreVO;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
@@ -3121,8 +3120,6 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         listResponse.setResponses(responses);
         return listResponse;
     }
-
- 
 
     ListVMPciAnswer listVMPciObjectsInStore(long id) {
 
