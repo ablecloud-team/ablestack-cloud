@@ -293,7 +293,7 @@ known_categories = {
     'importVm': 'Virtual Machine',
     'Webhook': 'Webhook',
     'Webhooks': 'Webhook',
-    'listvmPci': 'listvmPci'
+    'listVMPci': 'listVMPci'
 }
 
 

@@ -608,6 +608,8 @@ import org.apache.cloudstack.api.command.user.vpn.UpdateVpnConnectionCmd;
 import org.apache.cloudstack.api.command.user.vpn.UpdateVpnCustomerGatewayCmd;
 import org.apache.cloudstack.api.command.user.vpn.UpdateVpnGatewayCmd;
 import org.apache.cloudstack.api.command.user.zone.ListZonesCmd;
+import org.apache.cloudstack.api.response.HostResponse;
+import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.auth.UserAuthenticator;
 import org.apache.cloudstack.auth.UserTwoFactorAuthenticator;
 import org.apache.cloudstack.config.ApiServiceConfiguration;
@@ -632,6 +634,8 @@ import org.apache.cloudstack.framework.security.keystore.KeystoreManager;
 import org.apache.cloudstack.managed.context.ManagedContextRunnable;
 import org.apache.cloudstack.query.QueryService;
 import org.apache.cloudstack.resourcedetail.dao.GuestOsDetailsDao;
+import org.apache.cloudstack.storage.command.browser.ListVMPciAnswer;
+import org.apache.cloudstack.storage.command.browser.ListVMPciCommand;
 import org.apache.cloudstack.storage.datastore.db.ImageStoreDao;
 import org.apache.cloudstack.storage.datastore.db.ImageStoreVO;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
@@ -3181,6 +3185,41 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         }
         return new Pair<>(result, details);
     }
+
+    @Override
+public ListResponse<HostResponse> listVMPci(ListVMPciCmd cmd) {
+    Long id = cmd.getId();
+    HostVO hostVO = _hostDao.findById(id);
+    if (hostVO == null) {
+        throw new CloudRuntimeException("Host not found with ID: " + id);
+    }
+
+    ListVMPciCommand pciCmd = new ListVMPciCommand(id);
+    Answer answer;
+    try {
+        answer = _agentMgr.send(hostVO.getId(), pciCmd);
+    } catch (Exception e) {
+        String errorMsg = "Error sending ListVMPciCommand: " + e.getMessage();
+        logger.error(errorMsg, e);
+        throw new CloudRuntimeException(errorMsg, e);
+    }
+
+    if (answer == null || !answer.getResult() || !(answer instanceof ListVMPciAnswer)) {
+        throw new CloudRuntimeException("Failed to list VM PCI objects");
+    }
+
+    ListVMPciAnswer pciAnswer = (ListVMPciAnswer) answer;
+    if (!pciAnswer.successMessage()) {
+        throw new IllegalArgumentException("Failed to list VM PCI objects");
+    }
+
+    List<HostResponse> responses = new ArrayList<>();
+    ListResponse<HostResponse> listResponse = new ListResponse<>();
+    HostResponse response = new HostResponse();
+    responses.add(response);
+    listResponse.setResponses(responses);
+    return listResponse;
+}
 
     @Override
     public String getConsoleAccessAddress(long vmId) {

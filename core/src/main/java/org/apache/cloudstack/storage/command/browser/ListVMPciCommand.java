@@ -34,11 +34,11 @@ public class ListVMPciCommand extends StorageCommand {
     public ListVMPciCommand() {
     }
 
-    public ListVMPciCommand( String vmUuid, String pciName, String pciText, Long id) {
+    public ListVMPciCommand(Long id) {
         super();
-        this.vmUuid = vmUuid;
-        this.pciName = pciName;
-        this.pciText = pciText;
+        // this.vmUuid = vmUuid;
+        // this.pciName = pciName;
+        // this.pciText = pciText;
         this.id = id;
     }
 

@@ -84,7 +84,7 @@ export default {
   methods: {
     fetchData (pciname, pcitext) {
       this.loading = true
-      api('listvmPci', {
+      api('listVMPci', {
         id: this.resource.id
       }).then(response => {
         console.log(response)

@@ -149,7 +149,6 @@ import org.apache.cloudstack.resourcedetail.dao.DiskOfferingDetailsDao;
 import org.apache.cloudstack.secstorage.HeuristicVO;
 import org.apache.cloudstack.secstorage.dao.SecondaryStorageHeuristicDao;
 import org.apache.cloudstack.secstorage.heuristics.Heuristic;
-import org.apache.cloudstack.storage.command.browser.ListVMPciAnswer;
 import org.apache.cloudstack.storage.datastore.db.ObjectStoreDao;
 import org.apache.cloudstack.storage.datastore.db.ObjectStoreVO;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
@@ -165,7 +164,6 @@ import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.cloud.agent.api.Answer;
 import com.cloud.api.query.dao.AccountJoinDao;
 import com.cloud.api.query.dao.AffinityGroupJoinDao;
 import com.cloud.api.query.dao.AsyncJobJoinDao;
@@ -339,7 +337,6 @@ import com.cloud.vm.dao.NicDao;
 import com.cloud.vm.dao.UserVmDao;
 import com.cloud.vm.dao.UserVmDetailsDao;
 import com.cloud.vm.dao.VMInstanceDao;
-import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListVMPciCmd;
 
 @Component
 public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements QueryService, Configurable {
@@ -3097,43 +3094,6 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         List<StoragePoolTagVO> vrs = _storageTagDao.searchByIds(vrIds);
 
         return new Pair<List<StoragePoolTagVO>, Integer>(vrs, count);
-    }
-
-    @Override
-    public ListResponse<HostResponse> listvmPci(ListVMPciCmd cmd) {
-        Long id = cmd.getId();
-        // DataStore dataStore = dataStoreMgr.getDataStore(storeId, DataStoreRole.Primary);
-        ListVMPciAnswer answer = listVMPciObjectsInStore(cmd.getId());
-
-        return getResponses(answer, cmd);
-    }
-
-    private ListResponse<HostResponse> getResponses(ListVMPciAnswer answer, ListVMPciCmd cmd) {
-        List<HostResponse> responses = new ArrayList<>();
-        ListResponse<HostResponse> listResponse = new ListResponse<>();
-        if (answer == null || !answer.getResult() || !answer.successMessage()) {
-            logger.error("Failed to list vm pci objects");
-            throw new CloudRuntimeException("Failed to list vm pci objects.");
-        }
-        HostResponse response = new HostResponse();
-        responses.add(response);
-        listResponse.setResponses(responses);
-        return listResponse;
-    }
-
-    ListVMPciAnswer listVMPciObjectsInStore(long id) {
-
-        Answer answer = null;
-
-        if (answer == null || !answer.getResult() || !(answer instanceof ListVMPciAnswer)) {
-            throw new CloudRuntimeException("Failed to list vm pci objects");
-        }
-
-        ListVMPciAnswer dsAnswer = (ListVMPciAnswer) answer;
-        if (!dsAnswer.successMessage()) {
-            throw new IllegalArgumentException("Failed to list vm pci objects");
-        }
-        return dsAnswer;
     }
 
     @Override

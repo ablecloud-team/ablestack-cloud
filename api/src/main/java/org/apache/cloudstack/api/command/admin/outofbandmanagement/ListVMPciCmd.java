@@ -31,7 +31,7 @@ import org.apache.cloudstack.api.response.HostResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.context.CallContext;
 
-@APICommand(name = "listvmPci",
+@APICommand(name = "listVMPci",
         description = "list vmPci'.",
         since = "4.20.0.0",
         responseObject = HostResponse.class,
@@ -92,7 +92,7 @@ import org.apache.cloudstack.context.CallContext;
 
     @Override
     public void execute() {
-        ListResponse<HostResponse> response = _queryService.listvmPci (this);
+        ListResponse<HostResponse> response = _mgr.listVMPci (this);
         response.setResponseName(getCommandName());
         response.setObjectName(getCommandName());
         this.setResponseObject(response);
