@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.cloud.agent.api.proxy;
+package com.cloud.agent.api;
 
 import com.cloud.agent.api.storage.StorageCommand;
 

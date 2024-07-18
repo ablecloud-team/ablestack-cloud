@@ -17,9 +17,9 @@
  * under the License.
  */
 
-package com.cloud.agent.api.proxy;
+package com.cloud.agent.api;
 
-import com.cloud.agent.api.Answer;
+// import com.cloud.agent.api.Answer;
 import java.util.List;
 
 public class ListVMPciAnswer extends Answer {
@@ -28,7 +28,7 @@ public class ListVMPciAnswer extends Answer {
     private List<String> pciTexts;
 
     public ListVMPciAnswer(String details, boolean successMessage, List<String> pciNames, List<String> pciTexts) {
-        super(null, successMessage, details);  // null for the cmd field, add if necessary
+        super(null, successMessage, details);
         this.successMessage = successMessage;
         this.pciNames = pciNames;
         this.pciTexts = pciTexts;
