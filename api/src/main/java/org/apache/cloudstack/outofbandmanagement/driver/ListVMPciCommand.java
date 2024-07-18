@@ -17,32 +17,43 @@
  * under the License.
  */
 
-package com.cloud.agent.api;
+package org.apache.cloudstack.outofbandmanagement.driver;
 
-// import com.cloud.agent.api.Answer;
-import java.util.List;
+import com.cloud.agent.api.Command;
 
-public class ListVMPciAnswer extends Answer {
-    private boolean successMessage;
-    private List<String> pciNames;
-    private List<String> pciTexts;
+public class ListVMPciCommand extends Command {
 
-    public ListVMPciAnswer(String details, boolean successMessage, List<String> pciNames, List<String> pciTexts) {
-        super(null, successMessage, details);
-        this.successMessage = successMessage;
-        this.pciNames = pciNames;
-        this.pciTexts = pciTexts;
+    private String pciName;
+    private String pciText;
+    private Long id;
+    private String vmUuid;
+
+    public ListVMPciCommand() {
     }
 
-    public List<String> getPciNames() {
-        return pciNames;
+    public ListVMPciCommand(Long id) {
+        super();
+        this.id = id;
     }
 
-    public List<String> getPciTexts() {
-        return pciTexts;
+    @Override
+    public boolean executeInSequence() {
+        return false;
     }
 
-    public boolean isSuccessMessage() {
-        return successMessage;
+    public String getVmUuid() {
+        return vmUuid;
+    }
+
+    public String getPciName() {
+        return pciName;
+    }
+
+    public String getPciText() {
+        return pciText;
+    }
+
+    public Long getId() {
+        return id;
     }
 }
