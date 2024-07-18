@@ -17,35 +17,43 @@
  * under the License.
  */
 
-package org.apache.cloudstack.storage.command.browser;
+package com.cloud.agent.api.proxy;
 
-import java.util.List;
+import com.cloud.agent.api.storage.StorageCommand;
 
-import com.cloud.agent.api.Answer;
+public class ListVMPciCommand extends StorageCommand {
 
+    private String pciName;
+    private String pciText;
+    private Long id;
+    private String vmUuid;
 
-public class ListVMPciAnswer extends Answer {
-    private boolean successMessage;
-    private List<String> pciNames;
-    private List<String> pciTexts;
+    public ListVMPciCommand() {
+    }
 
-    public ListVMPciAnswer(String details,boolean successMessage, List<String> pciNames, List<String> pciTexts) {
+    public ListVMPciCommand(Long id) {
         super();
-        this.successMessage = successMessage;
-        this.pciNames = pciNames;
-        this.pciTexts = pciTexts;
+        this.id = id;
     }
 
-    public List<String> getPciNames() {
-        return pciNames;
+    @Override
+    public boolean executeInSequence() {
+        return false;
     }
 
-    public List<String> getPciTexts() {
-        return pciTexts;
+    public String getVmUuid() {
+        return vmUuid;
     }
 
-    public boolean successMessage() {
-        return successMessage;
+    public String getPciName() {
+        return pciName;
+    }
+
+    public String getPciText() {
+        return pciText;
+    }
+
+    public Long getId() {
+        return id;
     }
 }
-
