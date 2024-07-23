@@ -41,6 +41,7 @@ import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.apache.cloudstack.storage.datastore.util.NexentaStorAppliance;
 import org.apache.cloudstack.storage.datastore.util.NexentaStorAppliance.NexentaStorZvol;
 import org.apache.cloudstack.storage.datastore.util.NexentaUtil;
+import org.apache.cloudstack.storage.datastore.util.NexentaUtil.NexentaPluginParameters;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -273,5 +274,9 @@ public class NexentaPrimaryDataStoreDriver implements PrimaryDataStoreDriver {
     @Override
     public boolean volumesRequireGrantAccessWhenUsed() {
         return true;
+    }
+
+    @Override
+    public void flattenAsync(DataStore dataStore, DataObject data, AsyncCompletionCallback<CommandResult> callback) {
     }
 }

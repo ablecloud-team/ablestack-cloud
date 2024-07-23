@@ -559,6 +559,15 @@ public enum Config {
             "The interval (in seconds) to wait before running the expunge thread.",
             null),
     ExpungeWorkers("Advanced", UserVmManager.class, Integer.class, "expunge.workers", "1", "Number of workers performing expunge ", null),
+    FlattenInterval(
+            "Advanced",
+            UserVmManager.class,
+            Integer.class,
+            "flatten.interval",
+            "60",
+            "The interval (in seconds) to wait before running the flatten thread.",
+            null),
+    FlattenWorkers("Advanced", UserVmManager.class, Integer.class, "flatten.workers", "3", "Number of workers performing flatten ", null),
     ExtractURLCleanUpInterval(
             "Advanced",
             ManagementServer.class,

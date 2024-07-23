@@ -403,6 +403,9 @@ public class VolumeObject implements VolumeInfo {
                 return;
             }
         }
+        if (event == ObjectInDataStoreStateMachine.Event.FlattenRequested) {
+            return;
+        }
 
         stateTransit(getMapOfEvents().get(event));
     }

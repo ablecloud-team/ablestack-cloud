@@ -27,6 +27,7 @@ import org.apache.cloudstack.storage.command.CreateObjectAnswer;
 import org.apache.cloudstack.storage.command.CreateObjectCommand;
 import org.apache.cloudstack.storage.command.DeleteCommand;
 import org.apache.cloudstack.storage.command.DettachCommand;
+import org.apache.cloudstack.storage.command.FlattenCommand;
 import org.apache.cloudstack.storage.command.IntroduceObjectCmd;
 import org.apache.cloudstack.storage.command.QuerySnapshotZoneCopyAnswer;
 import org.apache.cloudstack.storage.command.QuerySnapshotZoneCopyCommand;
@@ -85,6 +86,8 @@ public class StorageSubsystemCommandHandlerBase implements StorageSubsystemComma
             return processor.syncVolumePath((SyncVolumePathCommand) command);
         } else if (command instanceof QuerySnapshotZoneCopyCommand) {
             return execute((QuerySnapshotZoneCopyCommand)command);
+        } else if (command instanceof FlattenCommand) {
+            return execute((FlattenCommand)command);
         }
 
         return new Answer((Command)command, false, "not implemented yet");
@@ -130,6 +133,10 @@ public class StorageSubsystemCommandHandlerBase implements StorageSubsystemComma
         }
 
         return new Answer(cmd, false, "not implemented yet");
+    }
+
+    protected Answer execute(FlattenCommand cmd) {
+        return processor.flattenFromRBDSnapshot(cmd);
     }
 
     protected Answer execute(CreateObjectCommand cmd) {

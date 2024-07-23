@@ -190,49 +190,49 @@
               @onClick="openMigrationModal(record)" />
             </template>
             <template v-else-if="column.key == 'deleteactions' && (record.templateid || record.volumeid) == null && !['MOLD-AC', 'MOLD-HB','ccvm'].some(forbiddenName => record.name.includes(forbiddenName))">
-                <a-col flex="auto">
-                  <a-button
-                    type="primary"
-                    size="medium"
-                    shape="circle"
-                    :tooltip="$t('label.create')"
-                    @click="showAddTyModal"
-                    :loading="loading"
-                    >
-                    <template #icon><plus-outlined /></template>
-                  </a-button>
-                <a-popconfirm
-                :title="`${$t('label.delete.rbd.image')}?`"
-                @confirm="deleteRbdImage(record.name)"
-                :okText="$t('label.yes')"
-                :cancelText="$t('label.no')"
-                placement="left">
-                <tooltip-button
-                  tooltipPlacement="bottom"
+              <a-col flex="auto">
+                <a-button
                   type="primary"
                   size="medium"
-                  icon="delete-outlined"
-                  :tooltip="$t('label.delete')"
-                  :danger="true"
-                />
-                  </a-popconfirm>
+                  shape="circle"
+                  :tooltip="$t('label.create')"
+                  @click="showAddTyModal(record.name, record.size)"
+                  :loading="loading"
+                  >
+                    <template #icon><plus-outlined /></template>
+                </a-button>
+                <a-popconfirm
+                  :title="`${$t('label.delete.rbd.image')}?`"
+                  @confirm="deleteRbdImage(record.name)"
+                  :okText="$t('label.yes')"
+                  :cancelText="$t('label.no')"
+                  placement="left">
+                  <tooltip-button
+                    tooltipPlacement="bottom"
+                    type="primary"
+                    size="medium"
+                    icon="delete-outlined"
+                    :tooltip="$t('label.delete')"
+                    :danger="true"
+                  />
+                </a-popconfirm>
               </a-col>
-              <a-modal
-              :visible="showAddTypeModal"
-              :title="$t('label.volumetype')"
-              @cancel="closeModals"
-              @ok="createVolume(record.name, record.size)">
-              <div class="title">{{ $t('label.create.type.rbd.image') }}</div>
-              <a-form-item ref="volumetype" name="volumetype">
-                <a-select v-model:value="volumetype" @change="volumeTypeChange">
-                  <a-select-option value='ROOT'>{{ $t('label.rootdisk') }}</a-select-option>
-                  <a-select-option value='DATADISK'>{{ $t('label.data.disk') }}</a-select-option>
-                </a-select>
-              </a-form-item>
-            </a-modal>
+            </template>
           </template>
-        </template>
       </a-table>
+      <a-modal
+        :visible="showAddTypeModal"
+        :title="$t('label.volumetype')"
+        @cancel="closeModals"
+        @ok="createVolume()">
+        <div class="title">{{ $t('label.create.type.rbd.image') }}</div>
+        <a-form-item ref="volumetype" name="volumetype">
+          <a-select v-model:value="volumetype" @change="volumeTypeChange">
+            <a-select-option value='ROOT'>{{ $t('label.rootdisk') }}</a-select-option>
+            <a-select-option value='DATADISK'>{{ $t('label.data.disk') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+      </a-modal>
     </div>
   </div>
 
@@ -245,7 +245,6 @@ import InfoCard from '@/components/view/InfoCard'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import MigrateImageStoreResource from '@/views/storage/MigrateImageStoreResource'
 import CreateRbdImage from '@/views/storage/CreateRbdImage'
-import CreateVolType from '@/views/storage/CreateVolType'
 
 export default {
   name: 'StorageBrowser',
@@ -253,8 +252,7 @@ export default {
     InfoCard,
     MigrateImageStoreResource,
     TooltipButton,
-    CreateRbdImage,
-    CreateVolType
+    CreateRbdImage
   },
   props: {
     resource: {
@@ -314,7 +312,9 @@ export default {
       rootSwitch: true,
       dataDiskSwitch: false,
       volumetype: 'ROOT',
-      keyword: ''
+      keyword: '',
+      targetName: '',
+      targetSize: ''
     }
   },
   created () {
@@ -344,14 +344,14 @@ export default {
     volumeTypeChange (val) {
       this.volumetype = val
     },
-    createVolume (name, size) {
+    createVolume () {
       api('listDiskOfferings', { listall: true }).then(json => {
         this.offerings = json.listdiskofferingsresponse.diskoffering || []
         this.customDiskOffering = this.offerings.filter(x => x.iscustomized === true)
         api('createVolume', {
           diskofferingid: this.customDiskOffering[0].id,
-          size: size / (1024 * 1024 * 1024),
-          name: name,
+          size: this.targetSize / (1024 * 1024 * 1024),
+          name: this.targetName,
           zoneid: this.resource.zoneid
         }).then(response => {
           this.$pollJob({
@@ -361,7 +361,7 @@ export default {
             successMethod: (result) => {
               api('updateVolume', {
                 id: result.jobresult.volume.id,
-                path: name,
+                path: this.targetName,
                 storageid: this.resource.id,
                 state: 'Ready',
                 type: this.volumetype
@@ -432,8 +432,10 @@ export default {
     showAddVolModal () {
       this.showAddVolumeModal = true
     },
-    showAddTyModal () {
+    showAddTyModal (name, size) {
       this.showAddTypeModal = true
+      this.targetName = name
+      this.targetSize = size
     },
     closeModals () {
       this.showAddVolumeModal = false

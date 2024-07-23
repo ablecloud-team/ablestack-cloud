@@ -437,4 +437,8 @@ public class ElastistorPrimaryDataStoreDriver extends CloudStackPrimaryDataStore
     public boolean canHostAccessStoragePool(Host host, StoragePool pool) {
         return true;
     }
+
+    @Override
+    public void flattenAsync(DataStore dataStore, DataObject data, AsyncCompletionCallback<CommandResult> callback) {
+    }
 }

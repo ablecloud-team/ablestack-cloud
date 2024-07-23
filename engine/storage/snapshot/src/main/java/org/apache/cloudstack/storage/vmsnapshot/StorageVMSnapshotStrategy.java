@@ -358,7 +358,7 @@ public class StorageVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
     public StrategyPriority canHandle(Long vmId, Long rootPoolId, boolean snapshotMemory) {
         if (SnapshotManager.VmStorageSnapshotKvm.value() && !snapshotMemory) {
             UserVmVO vm = userVmDao.findById(vmId);
-            if (vm.getState() == VirtualMachine.State.Running) {
+            if (vm.getState() == VirtualMachine.State.Running || vm.getState() == VirtualMachine.State.Stopped) {
                 return StrategyPriority.HYPERVISOR;
             }
         }

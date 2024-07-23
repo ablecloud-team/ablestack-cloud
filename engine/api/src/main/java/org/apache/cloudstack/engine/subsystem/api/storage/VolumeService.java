@@ -122,5 +122,7 @@ public interface VolumeService {
 
     void checkAndRepairVolumeBasedOnConfig(DataObject dataObject, Host host);
 
+    // AsyncCallFuture<VolumeApiResult> flattenVolumeAsync(SnapshotInfo snapshot, DataStore store);
+
     void validateChangeDiskOfferingEncryptionType(long existingDiskOfferingId, long newDiskOfferingId);
 }

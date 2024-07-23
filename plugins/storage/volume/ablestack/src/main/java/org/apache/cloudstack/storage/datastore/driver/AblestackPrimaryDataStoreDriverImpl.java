@@ -24,8 +24,6 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import com.cloud.agent.api.to.DiskTO;
-import com.cloud.storage.VolumeVO;
 import org.apache.cloudstack.engine.subsystem.api.storage.ChapInfo;
 import org.apache.cloudstack.engine.subsystem.api.storage.CopyCommandResult;
 import org.apache.cloudstack.engine.subsystem.api.storage.CreateCmdResult;
@@ -48,6 +46,7 @@ import org.apache.cloudstack.storage.command.CopyCmdAnswer;
 import org.apache.cloudstack.storage.command.CopyCommand;
 import org.apache.cloudstack.storage.command.CreateObjectCommand;
 import org.apache.cloudstack.storage.command.DeleteCommand;
+import org.apache.cloudstack.storage.command.FlattenCommand;
 import org.apache.cloudstack.storage.command.RevertSnapshotCommand;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
@@ -63,6 +62,7 @@ import com.cloud.agent.api.storage.ResizeVolumeCommand;
 import com.cloud.agent.api.to.DataObjectType;
 import com.cloud.agent.api.to.DataStoreTO;
 import com.cloud.agent.api.to.DataTO;
+import com.cloud.agent.api.to.DiskTO;
 import com.cloud.agent.api.to.StorageFilerTO;
 import com.cloud.exception.StorageUnavailableException;
 import com.cloud.host.Host;
@@ -75,6 +75,7 @@ import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.StorageManager;
 import com.cloud.storage.StoragePool;
 import com.cloud.storage.Volume;
+import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.DiskOfferingDao;
 import com.cloud.storage.dao.SnapshotDao;
 import com.cloud.storage.dao.VMTemplateDao;
@@ -540,4 +541,29 @@ public class AblestackPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriv
     public void detachVolumeFromAllStorageNodes(Volume volume) {
     }
 
+    @Override
+    public void flattenAsync(DataStore store, DataObject srcData, AsyncCompletionCallback<CommandResult> callback) {
+        SnapshotObjectTO srcTO = (SnapshotObjectTO) srcData.getTO();
+        FlattenCommand cmd = new FlattenCommand(srcTO);
+        CommandResult result = new CommandResult();
+        try {
+            EndPoint ep = epSelector.select(srcData);
+            if (ep == null) {
+                String errMsg = "No remote endpoint to send FlattenCommand, check if host or ssvm is down?";
+                logger.error(errMsg);
+                result.setResult(errMsg);
+            } else {
+                Answer answer = ep.sendMessage(cmd);
+                if (answer != null) {
+                    result.setSuccess(answer.getResult());
+                } else {
+                    result.setResult("[flattenAsync] Fail to flatten command");
+                }
+            }
+        } catch (Exception ex) {
+            logger.debug("Unable to flatten volume" + srcData.getId(), ex);
+            result.setResult(ex.toString());
+        }
+        callback.complete(result);
+    }
 }

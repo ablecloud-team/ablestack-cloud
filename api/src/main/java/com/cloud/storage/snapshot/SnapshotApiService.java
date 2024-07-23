@@ -93,7 +93,6 @@ public interface SnapshotApiService {
     Snapshot allocSnapshot(Long volumeId, Long policyId, String snapshotName, Snapshot.LocationType locationType, Boolean isFromVmSnapshot, List<Long> zoneIds)
             throws ResourceAllocationException;
 
-
     /**
      * Create a snapshot of a volume
      *

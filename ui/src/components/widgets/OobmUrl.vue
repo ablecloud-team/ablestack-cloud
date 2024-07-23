@@ -18,9 +18,9 @@
 <template>
   <a
     v-if="['host'].includes($route.meta.name) && 'listHostsMetrics' in $store.getters.apis"
-    :href="resource.details.manageconsoleprotocol+'://'+resource.outofbandmanagement.address+':'+resource.details.manageconsoleport"
+    :href="resource.details?.manageconsoleprotocol+'://'+resource.outofbandmanagement?.address+':'+resource.details?.manageconsoleport"
     target="_blank">
-    <a-button style="margin-left: 5px" shape="circle" type="" :size="size" :disabled="resource.details.manageconsoleport == undefined" >
+    <a-button style="margin-left: 5px" shape="circle" type="" :size="size" :disabled="resource.details?.manageconsoleport == undefined" >
       <LaptopOutlined />
     </a-button>
   </a>
@@ -31,7 +31,8 @@ export default {
   props: {
     resource: {
       type: Object,
-      required: true
+      required: true,
+      default: () => ({})
     },
     size: {
       type: String,

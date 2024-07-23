@@ -107,6 +107,9 @@ public class SnapshotVO implements Snapshot {
     @Column(name = "max_iops")
     Long maxIops;
 
+    @Column(name = "clone_type")
+    private String cloneType;
+
     public SnapshotVO() {
         uuid = UUID.randomUUID().toString();
     }
@@ -274,6 +277,14 @@ public class SnapshotVO implements Snapshot {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public String getCloneType() {
+        return cloneType;
+    }
+
+    public void setCloneType(String cloneType) {
+        this.cloneType = cloneType;
     }
 
     @Override

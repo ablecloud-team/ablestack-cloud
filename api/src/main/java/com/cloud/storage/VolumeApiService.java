@@ -107,8 +107,6 @@ public interface VolumeApiService {
 
     Volume detachVolumeViaDestroyVM(long vmId, long volumeId);
 
-    Volume cloneDataVolume(long vmId, long snapshotId, Volume volume) throws StorageUnavailableException;
-
     Volume detachVolumeFromVM(DetachVolumeCmd cmd);
 
     Snapshot takeSnapshot(Long volumeId, Long policyId, Long snapshotId, Account account, boolean quiescevm, Snapshot.LocationType locationType, boolean asyncBackup, Map<String, String> tags, List<Long> zoneIds)
@@ -189,4 +187,6 @@ public interface VolumeApiService {
     boolean stateTransitTo(Volume vol, Volume.Event event) throws NoTransitionException;
 
     Pair<String, String> checkAndRepairVolume(CheckAndRepairVolumeCmd cmd) throws ResourceAllocationException;
+
+    Volume cloneRootOrDataVolume(long vmId, long snapshotId, Volume volume) throws StorageUnavailableException;
 }

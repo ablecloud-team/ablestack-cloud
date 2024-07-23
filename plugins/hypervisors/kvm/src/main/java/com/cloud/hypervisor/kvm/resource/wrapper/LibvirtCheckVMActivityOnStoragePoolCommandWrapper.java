@@ -54,6 +54,9 @@ public final class LibvirtCheckVMActivityOnStoragePoolCommandWrapper extends Com
             if (Storage.StoragePoolType.NetworkFilesystem == pool.getType()) {
                 haStoragePool = monitor.getStoragePool(pool.getUuid());
                 vmActivityCheckPath = libvirtComputingResource.getVmActivityCheckPath();
+            } else if (Storage.StoragePoolType.SharedMountPoint == pool.getType()) {
+                haStoragePool = monitor.getGfsStoragePool(pool.getUuid());
+                vmActivityCheckPath = libvirtComputingResource.getVmActivityCheckPathGfs();
             } else if (Storage.StoragePoolType.RBD == pool.getType()) {
                 haStoragePool = monitor.getRbdStoragePool(pool.getUuid());
                 vmActivityCheckPath = libvirtComputingResource.getVmActivityCheckPathRbd();

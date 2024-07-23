@@ -556,7 +556,7 @@
                   </span>
                   <div style="margin-top: 15px" v-if="showDetails">
                     <div
-                      v-if="vm.templateid && ['KVM', 'VMware', 'XenServer'].includes(hypervisor) && !template.deployasis">
+                      v-if="(vm.templateid && ['KVM', 'VMware', 'XenServer'].includes(hypervisor) && !template.deployasis) || tabKey == 'volumeId'">
                       <a-form-item :label="$t('label.boottype')" name="boottype" ref="boottype">
                         <a-select
                           v-model:value="form.boottype"
@@ -743,7 +743,7 @@
                         @select-affinity-group-item="($event) => updateAffinityGroups($event)"
                         @handle-search-filter="($event) => handleSearchFilter('affinityGroups', $event)"/>
                     </a-form-item>
-                    <a-form-item name="nicmultiqueuenumber" ref="nicmultiqueuenumber" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
+                    <a-form-item name="nicmultiqueuenumber" ref="nicmultiqueuenumber" v-if="vm.templateid && ['KVM'].includes(hypervisor) || tabKey == 'volumeId'">
                       <template #label>
                         <tooltip-label :title="$t('label.nicmultiqueuenumber')" :tooltip="$t('label.nicmultiqueuenumber.tooltip')"/>
                       </template>
@@ -751,7 +751,7 @@
                         style="width: 100%;"
                         v-model:value="form.nicmultiqueuenumber" />
                     </a-form-item>
-                    <a-form-item name="nicpackedvirtqueuesenabled" ref="nicpackedvirtqueuesenabled" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
+                    <a-form-item name="nicpackedvirtqueuesenabled" ref="nicpackedvirtqueuesenabled" v-if="vm.templateid && ['KVM'].includes(hypervisor) || tabKey == 'volumeId'">
                       <template #label>
                         <tooltip-label :title="$t('label.nicpackedvirtqueuesenabled')" :tooltip="$t('label.nicpackedvirtqueuesenabled.tooltip')"/>
                       </template>
@@ -760,7 +760,7 @@
                         :checked="nicpackedvirtqueuesenabled"
                         @change="val => { nicpackedvirtqueuesenabled = val }"/>
                     </a-form-item>
-                    <a-form-item name="iothreadsenabled" ref="iothreadsenabled" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
+                    <a-form-item name="iothreadsenabled" ref="iothreadsenabled" v-if="vm.templateid && ['KVM'].includes(hypervisor) || tabKey == 'volumeId'">
                       <template #label>
                         <tooltip-label :title="$t('label.iothreadsenabled')" :tooltip="$t('label.iothreadsenabled.tooltip')"/>
                       </template>
@@ -771,7 +771,7 @@
                           @change="val => { iothreadsenabled = val }"/>
                       </a-form-item>
                     </a-form-item>
-                    <a-form-item name="iodriverpolicy" ref="iodriverpolicy" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
+                    <a-form-item name="iodriverpolicy" ref="iodriverpolicy" v-if="vm.templateid && ['KVM'].includes(hypervisor) || tabKey == 'volumeId'">
                       <template #label>
                         <tooltip-label :title="$t('label.iodriverpolicy')" :tooltip="$t('label.iodriverpolicy.tooltip')"/>
                       </template>
@@ -863,13 +863,13 @@
               </a-button>
               <a-dropdown-button style="margin-left: 10px" type="primary" ref="submit" @click="handleSubmit" :loading="loading.deploy">
                 <rocket-outlined />
-                {{ $t('label.launch.vm') }}
+                {{ this.form.startvm ? $t('label.launch.vm') : $t('label.create.vm') }}
                 <template #icon><down-outlined /></template>
                 <template #overlay>
                   <a-menu type="primary" @click="handleSubmitAndStay" theme="dark" class="btn-stay-on-page">
                     <a-menu-item type="primary" key="1">
                       <rocket-outlined />
-                      {{ $t('label.launch.vm.and.stay') }}
+                      {{ this.form.startvm ? $t('label.launch.vm.and.stay') : $t('label.create.vm.and.stay') }}
                     </a-menu-item>
                   </a-menu>
                 </template>
@@ -2259,7 +2259,7 @@ export default {
         const httpMethod = deployVmData.userdata ? 'POST' : 'GET'
 
         if (values.vmNumber) {
-          for (var num = 0; num < Number(values.vmNumber); num++) {
+          for (var num = 1; num <= Number(values.vmNumber); num++) {
             let args = ''
             let data = ''
             if (values.name) {
@@ -2275,9 +2275,8 @@ export default {
                   this.loading.deploy = false
                   return
                 }
-                var numP = num + 1
-                deployVmData.name = values.name + '-' + numP
-                deployVmData.displayname = values.name + '-' + numP
+                deployVmData.name = values.name + '-' + num
+                deployVmData.displayname = values.name + '-' + num
               }
             }
             args = httpMethod === 'POST' ? {} : deployVmData
@@ -2289,48 +2288,40 @@ export default {
               } else {
                 jobId = await this.deployVM(args, httpMethod, data)
               }
-              await this.$pollJob({
-                jobId,
-                title,
-                description,
-                successMethod: result => {
-                  const vm = result.jobresult.virtualmachine
-                  const name = vm.displayname || vm.name || vm.id
-                  if (vm.password) {
-                    this.$notification.success({
-                      message: password + ` ${this.$t('label.for')} ` + name,
-                      description: vm.password,
-                      btn: () => h(
-                        Button,
-                        {
-                          type: 'primary',
-                          size: 'small',
-                          onClick: () => this.copyToClipboard(vm.password)
-                        },
-                        () => [this.$t('label.copy.password')]
-                      ),
-                      duration: 0
-                    })
+              if (num === 1) {
+                this.$pollJob({
+                  jobId,
+                  title,
+                  description,
+                  successMethod: result => {
+                    const vm = result.jobresult.virtualmachine
+                    const name = vm.displayname || vm.name || vm.id
+                    if (vm.password) {
+                      this.$notification.success({
+                        message: password + ` ${this.$t('label.for')} ` + name,
+                        description: vm.password,
+                        btn: () => h(
+                          Button,
+                          {
+                            type: 'primary',
+                            size: 'small',
+                            onClick: () => this.copyToClipboard(vm.password)
+                          },
+                          () => [this.$t('label.copy.password')]
+                        ),
+                        duration: 0
+                      })
+                    }
+                    if (!values.stayonpage) {
+                      eventBus.emit('vm-refresh-data')
+                    }
+                  },
+                  loadingMessage: `${title} ${this.$t('label.in.progress')}`,
+                  catchMessage: this.$t('error.fetching.async.job.result'),
+                  action: {
+                    isFetchData: false
                   }
-                  if (!values.stayonpage) {
-                    eventBus.emit('vm-refresh-data')
-                  }
-                },
-                loadingMessage: `${title} ${this.$t('label.in.progress')}`,
-                catchMessage: this.$t('error.fetching.async.job.result'),
-                action: {
-                  isFetchData: false
-                }
-              })
-
-              // Sending a refresh in case it hasn't picked up the new VM
-              if (values.vmNumber === 1 || !values.stayonpage) {
-                await new Promise(resolve => setTimeout(resolve, 3000)).then(() => {
-                  eventBus.emit('vm-refresh-data')
                 })
-              }
-              if (!values.stayonpage) {
-                await this.$router.back()
               }
             } catch (error) {
               if (error.message !== undefined) {
@@ -2338,6 +2329,12 @@ export default {
               }
               this.loading.deploy = false
             }
+          }
+          await new Promise(resolve => setTimeout(resolve, 3000)).then(() => {
+            eventBus.emit('vm-refresh-data')
+          })
+          if (!values.stayonpage) {
+            await this.$router.back()
           }
           this.form.stayonpage = false
           this.loading.deploy = false
@@ -2352,7 +2349,6 @@ export default {
             })
             return
           }
-
           this.$notification.error({
             message: this.$t('message.request.failed'),
             description: this.$t('error.form.message')

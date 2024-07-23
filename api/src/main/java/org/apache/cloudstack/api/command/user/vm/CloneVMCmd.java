@@ -60,7 +60,7 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
             required = true, description = "The ID of the virtual machine to clone")
     private Long virtualmachineid;
 
-    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "name of the cloned virtual machine")
+    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, required = true, description = "name of the cloned virtual machine")
     private String name;
 
     //Owner information
@@ -70,8 +70,14 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
     @Parameter(name = ApiConstants.DOMAIN_ID, type = CommandType.UUID, entityType = DomainResponse.class, description = "an optional domainId for the virtual machine. If the account parameter is used, domainId must also be used.")
     private Long domainId;
 
-    @Parameter(name = ApiConstants.START_VM, type = CommandType.BOOLEAN, description = "true if start vm after creating; defaulted to false if not specified")
+    @Parameter(name = ApiConstants.START_VM, type = CommandType.BOOLEAN, required = true, description = "true if start vm after creating; defaulted to false if not specified")
     private Boolean startVm;
+
+    @Parameter(name = ApiConstants.CLONE_TYPE, type = CommandType.STRING, required = true, description = "select fast(linked) clone type or full clone type(default is fast clone)")
+    private String type;
+
+    @Parameter(name=ApiConstants.COUNT, type=CommandType.INTEGER, description="count of clone vm")
+    private Integer count;
 
     @Parameter(name = ApiConstants.ZONE_ID_LIST,
             type=CommandType.LIST,
@@ -118,6 +124,14 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
         return startVm == null ? false : startVm;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public Integer getCount() {
+        return count;
+    }
+
     @Override
     public String getEventDescription() {
         return "Cloning user VM: " + this._uuidMgr.getUuid(VirtualMachine.class, getId());
@@ -127,9 +141,8 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
     public void create() throws ResourceAllocationException {
         try {
             _userVmService.validateCloneCondition(this);
-            _userVmService.prepareCloneVirtualMachine(this);
         }
-        catch (ResourceUnavailableException | InsufficientCapacityException e) {
+        catch (ResourceUnavailableException e) {
             logger.warn("Exception: ", e);
             throw new ServerApiException(ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR, e.getMessage());
         } catch (InvalidParameterValueException e) {
@@ -161,9 +174,9 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
     public void execute() {
         Optional<UserVm> result;
         try {
-            CallContext.current().setEventDetails("Vm Id for full clone: " + getEntityId());
-            logger.info("starting actual VM id: " + getEntityId());
-            result = _userVmService.cloneVirtualMachine(this, _volumeService, _snapshotService);
+            CallContext.current().setEventDetails("Vm Id for clone: " + getEntityId());
+            logger.info("Cloning actual VM id: " + getEntityId());
+            result = _userVmService.cloneVirtualMachine(this);
         } catch (ResourceUnavailableException ex) {
             logger.warn("Exception: ", ex);
             throw new ServerApiException(ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR, ex.getMessage());
@@ -177,7 +190,7 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
         }
         result.ifPresentOrElse((userVm)-> {
             UserVmResponse response = _responseGenerator.createUserVmResponse(getResponseView(), "virtualmachine", result.get()).get(0);
-            response.setResponseName("full_clone");
+            response.setResponseName(this.getType() + "_clone");
             setResponseObject(response);
         }, ()-> {
             throw new ServerApiException(ApiErrorCode.INSUFFICIENT_CAPACITY_ERROR, "failed to clone VM: " + getId());

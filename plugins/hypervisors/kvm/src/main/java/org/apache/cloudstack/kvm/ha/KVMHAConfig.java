@@ -27,7 +27,7 @@ public class KVMHAConfig {
     public static final ConfigKey<Long> KvmHAActivityCheckTimeout = new ConfigKey<>("Advanced", Long.class, "kvm.ha.activity.check.timeout", "60",
             "The maximum length of time, in seconds, expected for an activity check to complete.", true, ConfigKey.Scope.Cluster);
 
-    public static final ConfigKey<Long> KvmHAActivityCheckInterval = new ConfigKey<>("Advanced", Long.class, "kvm.ha.activity.check.interval", "10",
+    public static final ConfigKey<Long> KvmHAActivityCheckInterval = new ConfigKey<>("Advanced", Long.class, "kvm.ha.activity.check.interval", "15",
             "The interval, in seconds, between activity checks.", true, ConfigKey.Scope.Cluster);
 
     public static final ConfigKey<Long> KvmHAActivityCheckMaxAttempts = new ConfigKey<>("Advanced", Long.class, "kvm.ha.activity.check.max.attempts", "5",

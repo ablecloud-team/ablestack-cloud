@@ -455,6 +455,7 @@ public class EventTypes {
     public static final String EVENT_ENABLE_PRIMARY_STORAGE = "ENABLE.PS";
     public static final String EVENT_DISABLE_PRIMARY_STORAGE = "DISABLE.PS";
     public static final String EVENT_SYNC_STORAGE_POOL = "SYNC.STORAGE.POOL";
+    public static final String EVENT_CHANGE_STORAGE_POOL_SCOPE = "CHANGE.STORAGE.POOL.SCOPE";
 
     // VPN
     public static final String EVENT_REMOTE_ACCESS_VPN_CREATE = "VPN.REMOTE.ACCESS.CREATE";
@@ -725,6 +726,8 @@ public class EventTypes {
 
     // SystemVM
     public static final String EVENT_LIVE_PATCH_SYSTEMVM = "LIVE.PATCH.SYSTEM.VM";
+    //Purge resources
+    public static final String EVENT_PURGE_EXPUNGED_RESOURCES = "PURGE.EXPUNGED.RESOURCES";
 
     // Security
     public static final String EVENT_SECURITY_CHECK = "SECURITY.CHECK";
@@ -1010,6 +1013,7 @@ public class EventTypes {
         // Primary storage pool
         entityEventDetails.put(EVENT_ENABLE_PRIMARY_STORAGE, StoragePool.class);
         entityEventDetails.put(EVENT_DISABLE_PRIMARY_STORAGE, StoragePool.class);
+        entityEventDetails.put(EVENT_CHANGE_STORAGE_POOL_SCOPE, StoragePool.class);
 
         // VPN
         entityEventDetails.put(EVENT_REMOTE_ACCESS_VPN_CREATE, RemoteAccessVpn.class);

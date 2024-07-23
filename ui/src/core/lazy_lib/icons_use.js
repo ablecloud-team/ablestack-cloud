@@ -22,6 +22,7 @@ import {
   AppstoreAddOutlined,
   AppstoreOutlined,
   ArrowDownOutlined,
+  ArrowRightOutlined,
   ArrowUpOutlined,
   ArrowsAltOutlined,
   AuditOutlined,
@@ -196,6 +197,7 @@ export default {
     app.component('AppstoreAddOutlined', AppstoreAddOutlined)
     app.component('AppstoreOutlined', AppstoreOutlined)
     app.component('ArrowDownOutlined', ArrowDownOutlined)
+    app.component('ArrowRightOutlined', ArrowRightOutlined)
     app.component('ArrowUpOutlined', ArrowUpOutlined)
     app.component('ArrowsAltOutlined', ArrowsAltOutlined)
     app.component('AuditOutlined', AuditOutlined)

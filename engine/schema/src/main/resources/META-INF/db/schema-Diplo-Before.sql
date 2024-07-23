@@ -69,3 +69,5 @@ CALL `cloud`.`ADD_COL`('disk_offering', 'shareable', 'tinyint(1) unsigned NOT NU
 CALL `cloud`.`ADD_COL`('nics', 'link_state', 'tinyint(1) unsigned NOT NULL DEFAULT 1');
 
 CALL `cloud`.`ADD_COL`('vm_instance', 'qemu_agent_version', 'varchar(16)');
+
+CALL `cloud`.`ADD_COL`('snapshots', 'clone_type', 'varchar(32)');

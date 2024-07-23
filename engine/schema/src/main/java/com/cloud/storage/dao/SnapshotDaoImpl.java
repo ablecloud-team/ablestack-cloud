@@ -18,11 +18,13 @@ package com.cloud.storage.dao;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import com.cloud.server.ResourceTag.ResourceObjectType;
@@ -43,6 +45,7 @@ import com.cloud.utils.db.JoinBuilder.JoinType;
 import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
 import com.cloud.utils.db.SearchCriteria.Func;
+import com.cloud.utils.db.SearchCriteria.Op;
 import com.cloud.utils.db.TransactionLegacy;
 import com.cloud.utils.db.UpdateBuilder;
 import com.cloud.vm.VMInstanceVO;
@@ -64,6 +67,8 @@ public class SnapshotDaoImpl extends GenericDaoBase<SnapshotVO, Long> implements
     private SearchBuilder<SnapshotVO> StatusSearch;
     private SearchBuilder<SnapshotVO> notInStatusSearch;
     private GenericSearchBuilder<SnapshotVO, Long> CountSnapshotsByAccount;
+    private SearchBuilder<SnapshotVO> volumesToFlattenSearch;
+
     @Inject
     ResourceTagDao _tagsDao;
     @Inject
@@ -179,6 +184,11 @@ public class SnapshotDaoImpl extends GenericDaoBase<SnapshotVO, Long> implements
 
         InstanceIdSearch.join("instanceSnapshots", volumeSearch, volumeSearch.entity().getId(), InstanceIdSearch.entity().getVolumeId(), JoinType.INNER);
         InstanceIdSearch.done();
+
+        volumesToFlattenSearch = createSearchBuilder();
+        volumesToFlattenSearch.and("cloneType", volumesToFlattenSearch.entity().getCloneType(), Op.EQ);
+        volumesToFlattenSearch.and("removed", volumesToFlattenSearch.entity().getRemoved(), Op.NULL);
+        volumesToFlattenSearch.done();
     }
 
     @Override
@@ -284,5 +294,24 @@ public class SnapshotDaoImpl extends GenericDaoBase<SnapshotVO, Long> implements
         sc.setParameters("volumeId", volumeId);
         sc.setParameters("status", (Object[]) status);
         return listBy(sc, null);
+    }
+
+    @Override
+    public List<SnapshotVO> listFullCloneVolumesToFlatten() {
+        SearchCriteria<SnapshotVO> sc = volumesToFlattenSearch.create();
+        sc.setParameters("cloneType", "full");
+        return listBy(sc);
+    }
+
+    @Override
+    public List<SnapshotVO> searchByVolumes(List<Long> volumeIds) {
+        if (CollectionUtils.isEmpty(volumeIds)) {
+            return new ArrayList<>();
+        }
+        SearchBuilder<SnapshotVO> sb = createSearchBuilder();
+        sb.and("volumeIds", sb.entity().getVolumeId(), SearchCriteria.Op.IN);
+        SearchCriteria<SnapshotVO> sc = sb.create();
+        sc.setParameters("volumeIds", volumeIds.toArray());
+        return search(sc, null);
     }
 }

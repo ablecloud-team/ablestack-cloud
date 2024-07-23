@@ -93,7 +93,9 @@ public class SnapshotHelper {
      */
     public void expungeTemporarySnapshot(boolean kvmSnapshotOnlyInPrimaryStorage, SnapshotInfo snapInfo) {
         if (!kvmSnapshotOnlyInPrimaryStorage) {
-            logger.trace(String.format("Snapshot [%s] is not a temporary backup to create a volume from snapshot. Not expunging it.", snapInfo.getId()));
+            if (snapInfo != null) {
+                logger.trace(String.format("Snapshot [%s] is not a temporary backup to create a volume from snapshot. Not expunging it.", snapInfo.getId()));
+            }
             return;
         }
 
@@ -166,7 +168,7 @@ public class SnapshotHelper {
      * @return true if snapInfo is null and dataStoreRole is {@link DataStoreRole#Image} or is a KVM snapshot that is only kept in primary storage, else false.
      */
     protected boolean isSnapshotBackupable(SnapshotInfo snapInfo, DataStoreRole dataStoreRole, boolean kvmSnapshotOnlyInPrimaryStorage) {
-        return (snapInfo == null && dataStoreRole == DataStoreRole.Image) || kvmSnapshotOnlyInPrimaryStorage;
+        return (snapInfo == null && dataStoreRole == DataStoreRole.Image) || !kvmSnapshotOnlyInPrimaryStorage;
     }
 
     /**

@@ -494,10 +494,12 @@
           </div>
         </div>
         <div class="resource-detail-item" v-if="resource.publicip">
-          <div class="resource-detail-item__label">{{ $t('label.publicip') }}</div>
+          <div class="resource-detail-item__label">{{ $t('label.public.ip') }}</div>
           <div class="resource-detail-item__details">
             <gateway-outlined />
             <router-link v-if="resource.publicipid" :to="{ path: '/publicip/' + resource.publicipid }">{{ resource.publicip }} </router-link>
+            <copy-label v-if="resource.publicipid" :copyValue="resource.publicip" :showIcon=true />
+            <copy-label v-else :label="resource.publicip" />
           </div>
         </div>
         <div class="resource-detail-item" v-if="resource.vpcid">
@@ -534,7 +536,7 @@
           </span>
         </div>
         <div class="resource-detail-item" v-if="resource.templateid">
-          <div class="resource-detail-item__label">{{ $t('label.templatename') }}</div>
+          <div class="resource-detail-item__label">{{ resource.templateformat === 'ISO'? $t('label.iso') : $t('label.templatename') }}</div>
           <div class="resource-detail-item__details">
             <resource-icon v-if="resource.icon" :image="getImage(resource.icon.base64image)" size="1x" style="margin-right: 5px"/>
             <SaveOutlined v-else />
@@ -542,7 +544,7 @@
           </div>
         </div>
         <div class="resource-detail-item" v-if="resource.isoid">
-          <div class="resource-detail-item__label">{{ $t('label.iso') }}</div>
+          <div class="resource-detail-item__label">{{ $t('label.isoname') }}</div>
           <div class="resource-detail-item__details">
             <resource-icon v-if="resource.icon" :image="getImage(resource.icon.base64image)" size="1x" style="margin-right: 5px"/>
             <UsbOutlined v-else />

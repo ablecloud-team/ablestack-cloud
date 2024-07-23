@@ -55,7 +55,7 @@ const user = {
     cloudian: {},
     zones: {},
     timezoneoffset: 0.0,
-    usebrowsertimezone: false,
+    usebrowsertimezone: true,
     domainStore: {},
     darkMode: false,
     defaultListViewPageSize: 20,
@@ -195,7 +195,7 @@ const user = {
           commit('SET_TOKEN', result.sessionkey)
           commit('SET_TIMEZONE_OFFSET', result.timezoneoffset)
 
-          const cachedUseBrowserTimezone = vueProps.$localStorage.get(USE_BROWSER_TIMEZONE, false)
+          const cachedUseBrowserTimezone = vueProps.$localStorage.get(USE_BROWSER_TIMEZONE, true)
           commit('SET_USE_BROWSER_TIMEZONE', cachedUseBrowserTimezone)
           const darkMode = vueProps.$localStorage.get(DARK_MODE, false)
           commit('SET_DARK_MODE', darkMode)
@@ -243,7 +243,7 @@ const user = {
           commit('SET_TOKEN', result.sessionkey)
           commit('SET_TIMEZONE_OFFSET', result.timezoneoffset)
 
-          const cachedUseBrowserTimezone = vueProps.$localStorage.get(USE_BROWSER_TIMEZONE, false)
+          const cachedUseBrowserTimezone = vueProps.$localStorage.get(USE_BROWSER_TIMEZONE, true)
           commit('SET_USE_BROWSER_TIMEZONE', cachedUseBrowserTimezone)
           const darkMode = vueProps.$localStorage.get(DARK_MODE, false)
           commit('SET_DARK_MODE', darkMode)
@@ -279,7 +279,7 @@ const user = {
         const cachedApis = switchDomain ? {} : vueProps.$localStorage.get(APIS, {})
         const cachedZones = vueProps.$localStorage.get(ZONES, [])
         const cachedTimezoneOffset = vueProps.$localStorage.get(TIMEZONE_OFFSET, 0.0)
-        const cachedUseBrowserTimezone = vueProps.$localStorage.get(USE_BROWSER_TIMEZONE, false)
+        const cachedUseBrowserTimezone = vueProps.$localStorage.get(USE_BROWSER_TIMEZONE, true)
         const cachedCustomColumns = vueProps.$localStorage.get(CUSTOM_COLUMNS, {})
         const domainStore = vueProps.$localStorage.get(DOMAIN_STORE, {})
         const darkMode = vueProps.$localStorage.get(DARK_MODE, false)

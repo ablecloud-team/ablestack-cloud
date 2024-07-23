@@ -25,7 +25,11 @@ import com.cloud.agent.api.to.DataStoreTO;
 import org.apache.cloudstack.storage.object.Bucket;
 import com.cloud.storage.BucketVO;
 import com.cloud.storage.dao.BucketDao;
+
+import org.apache.cloudstack.engine.subsystem.api.storage.DataObject;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStore;
+import org.apache.cloudstack.framework.async.AsyncCompletionCallback;
+import org.apache.cloudstack.storage.command.CommandResult;
 import org.apache.cloudstack.storage.datastore.db.ObjectStoreDao;
 import org.apache.cloudstack.storage.datastore.db.ObjectStoreVO;
 import org.apache.cloudstack.storage.object.BaseObjectStoreDriverImpl;
@@ -134,5 +138,9 @@ public class SimulatorObjectStoreDriverImpl extends BaseObjectStoreDriverImpl {
     @Override
     public Map<String, Long> getAllBucketsUsage(long storeId) {
         return new HashMap<String, Long>();
+    }
+
+    @Override
+    public void flattenAsync(DataStore store, DataObject data, AsyncCompletionCallback<CommandResult> callback) {
     }
 }

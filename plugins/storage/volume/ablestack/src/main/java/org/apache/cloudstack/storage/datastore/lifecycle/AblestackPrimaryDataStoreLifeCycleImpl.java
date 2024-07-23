@@ -63,7 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class AblestackPrimaryDataStoreLifeCycleImpl implements PrimaryDataStoreLifeCycle {
+public class AblestackPrimaryDataStoreLifeCycleImpl extends BasePrimaryDataStoreLifeCycleImpl implements PrimaryDataStoreLifeCycle {
 
     protected Logger logger = LogManager.getLogger(getClass());
 

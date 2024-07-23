@@ -43,6 +43,7 @@ import org.apache.cloudstack.storage.command.CreateObjectCommand;
 import org.apache.cloudstack.storage.command.DeleteCommand;
 import org.apache.cloudstack.storage.command.DettachAnswer;
 import org.apache.cloudstack.storage.command.DettachCommand;
+import org.apache.cloudstack.storage.command.FlattenCommand;
 import org.apache.cloudstack.storage.command.ForgetObjectCmd;
 import org.apache.cloudstack.storage.command.IntroduceObjectAnswer;
 import org.apache.cloudstack.storage.command.IntroduceObjectCmd;
@@ -1809,5 +1810,10 @@ public class XenServerStorageProcessor implements StorageProcessor {
             logger.debug("Failed to forget object", e);
             return new Answer(cmd, false, e.toString());
         }
+    }
+
+    @Override
+    public Answer flattenFromRBDSnapshot(final FlattenCommand cmd) {
+        return null;
     }
 }

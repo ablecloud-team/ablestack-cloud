@@ -1403,7 +1403,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
             SnapshotInfo snapshotOnPrimary = snapshotStrategy.takeSnapshot(snapshot);
             boolean backupSnapToSecondary = isBackupSnapshotToSecondaryForZone(snapshot.getDataCenterId());
-
+            logger.info("backupSnapToSecondary :::::::::::::: " + backupSnapToSecondary);
             if (backupSnapToSecondary) {
                 backupSnapshotToSecondary(payload.getAsyncBackup(), snapshotStrategy, snapshotOnPrimary, payload.getZoneIds());
             } else {
@@ -1654,7 +1654,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
         try {
             _resourceLimitMgr.checkResourceLimit(owner, ResourceType.snapshot);
-            _resourceLimitMgr.checkResourceLimit(owner, ResourceType.secondary_storage, volume.getSize().longValue());
+            _resourceLimitMgr.checkResourceLimit(owner, ResourceType.secondary_storage, new Long(volume.getSize()).longValue());
         } catch (ResourceAllocationException e) {
             if (snapshotType != Type.MANUAL) {
                 String msg = "Snapshot resource limit exceeded for account id : " + owner.getId() + ". Failed to create recurring snapshots";
@@ -1705,7 +1705,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         }
         CallContext.current().putContextParameter(Snapshot.class, snapshot.getUuid());
         _resourceLimitMgr.incrementResourceCount(volume.getAccountId(), ResourceType.snapshot);
-        _resourceLimitMgr.incrementResourceCount(volume.getAccountId(), ResourceType.secondary_storage, volume.getSize());
+        _resourceLimitMgr.incrementResourceCount(volume.getAccountId(), ResourceType.secondary_storage, new Long(volume.getSize()));
         return snapshot;
     }
 

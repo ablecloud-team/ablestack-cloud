@@ -36,6 +36,7 @@ public class KVMHABase {
     protected Logger logger = LogManager.getLogger(getClass());
     private long _timeout = 60000; /* 1 minutes */
     protected static String s_heartBeatPath;
+    protected static String s_heartBeatPathGfs;
     protected static String s_heartBeatPathRbd;
     protected static String s_heartBeatPathClvm;
     protected long _heartBeatUpdateTimeout = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.HEARTBEAT_UPDATE_TIMEOUT);

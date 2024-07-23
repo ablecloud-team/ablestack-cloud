@@ -173,13 +173,10 @@ export default {
           message: 'message.action.clone.instance',
           docHelp: 'adminguide/virtual_machines.html#cloning-vms',
           dataView: true,
+          popup: true,
           show: (record) => { return true },
-          args: ['name', 'virtualmachineid', 'startvm'],
-          mapping: {
-            virtualmachineid: {
-              value: (record, params) => { return record.id }
-            }
-          }
+          disabled: (record) => { return record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM' },
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/CloneVM.vue')))
         },
         {
           api: 'restoreVirtualMachine',
@@ -201,8 +198,9 @@ export default {
           args: ['virtualmachineid', 'name', 'description', 'snapshotmemory', 'quiescevm'],
           show: (record) => {
             return ((['Running'].includes(record.state) && record.hypervisor !== 'LXC') ||
-              (['Stopped'].includes(record.state) && ((record.hypervisor !== 'KVM' && record.hypervisor !== 'LXC') ||
-              (record.hypervisor === 'KVM' && record.pooltype === 'PowerFlex'))))
+              (['Stopped'].includes(record.state) &&
+              ((record.hypervisor !== 'KVM' && record.hypervisor !== 'LXC') ||
+              (record.hypervisor === 'KVM' && (record.pooltype === 'PowerFlex' || record.pooltype === 'RBD')))))
           },
           disabled: (record) => { return record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM' },
           mapping: {

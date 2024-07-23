@@ -132,7 +132,7 @@
           </a-form-item>
           <a-form-item v-if="form.isolatedpvlantype=='community' || form.isolatedpvlantype=='isolated'" name="isolatedpvlan" ref="isolatedpvlan">
             <template #label>
-              <tooltip-label :title="$t('label.isolatedpvlanid')" :tooltip="apiParams.isolatedpvlan.description"/>
+              <tooltip-label :title="$t('label.isolatedpvlan')" :tooltip="apiParams.isolatedpvlan.description"/>
             </template>
             <a-input
               v-model:value="form.isolatedpvlan"

@@ -47,12 +47,12 @@ public class LibvirtFreezeThawVMCommandWrapper extends CommandWrapper<FreezeThaw
             Connect connect = libvirtUtilitiesHelper.getConnection();
             domain = serverResource.getDomain(connect, vmName);
             if (domain == null) {
-                return new FreezeThawVMAnswer(command, false, String.format("Failed to %s due to %s was not found",
+                return new FreezeThawVMAnswer(command, true, String.format("Failed to %s due to %s was not found",
                         command.getOption(), vmName));
             }
             DomainState domainState = domain.getInfo().state ;
             if (domainState != DomainState.VIR_DOMAIN_RUNNING) {
-                return new FreezeThawVMAnswer(command, false,
+                return new FreezeThawVMAnswer(command, true,
                         String.format("%s of VM failed due to vm %s is in %s state", command.getOption(),
                                 vmName, domainState));
             }
@@ -74,8 +74,13 @@ public class LibvirtFreezeThawVMCommandWrapper extends CommandWrapper<FreezeThaw
             return new FreezeThawVMAnswer(command, false, String.format("Failed to %s vm %s due to result status is: %s",
                     command.getOption(), vmName, status));
         } catch (LibvirtException libvirtException) {
-            return new FreezeThawVMAnswer(command, false,  String.format("Failed to %s VM - %s due to %s",
-                    command.getOption(), vmName, libvirtException.getMessage()));
+            if(libvirtException.getMessage().contains("Domain not found")){
+                return new FreezeThawVMAnswer(command, true,  String.format("Failed to %s VM - %s due to %s",
+                command.getOption(), vmName, libvirtException.getMessage()));
+            } else {
+                return new FreezeThawVMAnswer(command, false,  String.format("Failed to %s VM - %s due to %s",
+                command.getOption(), vmName, libvirtException.getMessage()));
+            }
         } finally {
             if (domain != null) {
                 try {

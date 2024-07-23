@@ -45,6 +45,8 @@ import com.cloud.storage.Storage;
 import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.StorageLayer;
 import com.cloud.storage.Volume;
+import com.cloud.utils.Pair;
+import com.cloud.utils.Ternary;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.VirtualMachine;
 
@@ -393,12 +395,15 @@ public class KVMStoragePoolManager {
         if (type == StoragePoolType.NetworkFilesystem && primaryStorage) {
             KVMHABase.HAStoragePool storagePool = new KVMHABase.HAStoragePool(pool, host, path, PoolType.PrimaryStorage);
             _haMonitor.addStoragePool(storagePool);
+        } else if (type == StoragePoolType.SharedMountPoint && primaryStorage) {
+            KVMHABase.HAStoragePool gfsPool = new KVMHABase.HAStoragePool(pool, host, path, PoolType.PrimaryStorage);
+            _haMonitor.addGfsStoragePool(gfsPool);
         } else if (type == StoragePoolType.RBD && primaryStorage) {
-            KVMHABase.HAStoragePool rbdpool = new KVMHABase.HAStoragePool(pool, host, path, pool.getLocalPath(), PoolType.PrimaryStorage, pool.getAuthUserName(), pool.getAuthSecret(), pool.getSourceHost());
-            _haMonitor.addRbdStoragePool(rbdpool);
+            KVMHABase.HAStoragePool rbdPool = new KVMHABase.HAStoragePool(pool, host, path, pool.getLocalPath(), PoolType.PrimaryStorage, pool.getAuthUserName(), pool.getAuthSecret(), pool.getSourceHost());
+            _haMonitor.addRbdStoragePool(rbdPool);
         } else if (type == StoragePoolType.CLVM && primaryStorage) {
-            KVMHABase.HAStoragePool clvmpool = new KVMHABase.HAStoragePool(pool, host, path, PoolType.PrimaryStorage);
-            _haMonitor.addClvmStoragePool(clvmpool);
+            KVMHABase.HAStoragePool clvmPool = new KVMHABase.HAStoragePool(pool, host, path, PoolType.PrimaryStorage);
+            _haMonitor.addClvmStoragePool(clvmPool);
         }
         StoragePoolInformation info = new StoragePoolInformation(name, host, port, path, userInfo, type, details, primaryStorage);
         addStoragePool(pool.getUuid(), info);
@@ -481,4 +486,13 @@ public class KVMStoragePoolManager {
         return adaptor.createTemplateFromDirectDownloadFile(templateFilePath, destTemplatePath, destPool, format, timeout);
     }
 
+    public Ternary<Boolean, Map<String, String>, String> prepareStorageClient(StoragePoolType type, String uuid, Map<String, String> details) {
+        StorageAdaptor adaptor = getStorageAdaptor(type);
+        return adaptor.prepareStorageClient(type, uuid, details);
+    }
+
+    public Pair<Boolean, String> unprepareStorageClient(StoragePoolType type, String uuid) {
+        StorageAdaptor adaptor = getStorageAdaptor(type);
+        return adaptor.unprepareStorageClient(type, uuid);
+    }
 }

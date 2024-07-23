@@ -552,4 +552,8 @@ public abstract class BaseImageStoreDriverImpl implements ImageStoreDriver {
         }
         return result;
     }
+
+    @Override
+    public void flattenAsync(DataStore dataStore, DataObject data, AsyncCompletionCallback<CommandResult> callback) {
+    }
 }

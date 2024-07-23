@@ -357,6 +357,7 @@ public class CloudStackPrimaryDataStoreDriverImpl implements PrimaryDataStoreDri
                 CreateSnapshotPayload snapshotPayload = (CreateSnapshotPayload) payload;
                 snapshotTO.setQuiescevm(snapshotPayload.getQuiescevm());
             }
+            snapshotTO.setVmSnapshotName(snapshot.getVmSnapshotName());
 
             boolean encryptionRequired = anyVolumeRequiresEncryption(snapshot);
             CreateObjectCommand cmd = new CreateObjectCommand(snapshotTO);
@@ -561,5 +562,9 @@ public class CloudStackPrimaryDataStoreDriverImpl implements PrimaryDataStoreDri
 
     @Override
     public void detachVolumeFromAllStorageNodes(Volume volume) {
+    }
+
+    @Override
+    public void flattenAsync(DataStore dataStore, DataObject data, AsyncCompletionCallback<CommandResult> callback) {
     }
 }

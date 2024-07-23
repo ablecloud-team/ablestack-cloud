@@ -25,14 +25,16 @@ import com.cloud.agent.api.to.HostTO;
 
 public class KVMHAChecker extends KVMHABase implements Callable<Boolean> {
     private List<HAStoragePool> storagePools;
+    private List<HAStoragePool> gfsStoragePools;
     private List<HAStoragePool> rbdStoragePools;
     private List<HAStoragePool> clvmStoragePools;
     private HostTO host;
     private boolean reportFailureIfOneStorageIsDown;
     private String volumeList;
 
-    public KVMHAChecker(List<HAStoragePool> pools, List<HAStoragePool> rbdpools, List<HAStoragePool> clvmpools, HostTO host, boolean reportFailureIfOneStorageIsDown, String volumeList) {
+    public KVMHAChecker(List<HAStoragePool> pools, List<HAStoragePool> gfspools, List<HAStoragePool> rbdpools, List<HAStoragePool> clvmpools, HostTO host, boolean reportFailureIfOneStorageIsDown, String volumeList) {
         this.storagePools = pools;
+        this.gfsStoragePools = gfspools;
         this.rbdStoragePools = rbdpools;
         this.clvmStoragePools = clvmpools;
         this.host = host;
@@ -49,25 +51,34 @@ public class KVMHAChecker extends KVMHABase implements Callable<Boolean> {
         boolean validResult = false;
         String hostAndPools = String.format("host IP [%s] in pools [%s]", host.getPrivateNetwork().getIp(), storagePools.stream().map(pool -> pool.getPoolUUID()).collect(Collectors.joining(", ")));
 
-        logger.debug(String.format("Checking heart beat with KVMHAChecker NFS for %s", hostAndPools));
-
         for (HAStoragePool pool : storagePools) {
+            logger.debug(String.format("Checking heart beat with KVMHAChecker NFS for %s", hostAndPools));
             validResult = pool.getPool().checkingHeartBeat(pool, host);
             if (reportFailureIfOneStorageIsDown && !validResult) {
                 break;
             }
         }
+
+        hostAndPools = String.format("host IP [%s] in Glue GFS pools [%s]", host.getPrivateNetwork().getIp(), gfsStoragePools.stream().map(pool -> pool.getPoolUUID()).collect(Collectors.joining(", ")));
+        for (HAStoragePool gfspool : gfsStoragePools) {
+            logger.debug(String.format("Checking heart beat with KVMHAChecker Glue GFS for %s", hostAndPools));
+            validResult = gfspool.getPool().checkingHeartBeat(gfspool, host);
+            if (reportFailureIfOneStorageIsDown && !validResult) {
+                break;
+            }
+        }
+
         hostAndPools = String.format("host IP [%s] in RBD pools [%s]", host.getPrivateNetwork().getIp(), rbdStoragePools.stream().map(pool -> pool.monHost).collect(Collectors.joining(", ")));
-        logger.debug(String.format("Checking heart beat with KVMHAChecker RBD for %s", hostAndPools));
         for (HAStoragePool rbdpool : rbdStoragePools) {
+            logger.debug(String.format("Checking heart beat with KVMHAChecker RBD for %s", hostAndPools));
             validResult = rbdpool.getPool().checkingHeartBeatRBD(rbdpool, host, volumeList);
             if (reportFailureIfOneStorageIsDown && !validResult) {
                 break;
             }
         }
         hostAndPools = String.format("host IP [%s] in CLVM pools [%s]", host.getPrivateNetwork().getIp(), clvmStoragePools.stream().map(pool -> pool.poolIp).collect(Collectors.joining(", ")));
-        logger.debug(String.format("Checking heart beat with KVMHAChecker CLVM for %s", hostAndPools));
         for (HAStoragePool clvmpool : clvmStoragePools) {
+            logger.debug(String.format("Checking heart beat with KVMHAChecker CLVM for %s", hostAndPools));
             validResult = clvmpool.getPool().checkingHeartBeat(clvmpool, host);
             if (reportFailureIfOneStorageIsDown && !validResult) {
                 break;

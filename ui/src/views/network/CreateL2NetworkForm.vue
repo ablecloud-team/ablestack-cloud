@@ -146,7 +146,7 @@
               <tooltip-label :title="$t('label.isolatedpvlanid')" :tooltip="apiParams.isolatedpvlan.description"/>
             </template>
             <a-input
-              v-model:value="form.isolatedpvlan"
+              v-model:value="form.isolatedpvlanid"
               :placeholder="apiParams.isolatedpvlan.description"/>
           </a-form-item>
           <div :span="24" class="action-button">
@@ -394,8 +394,8 @@ export default {
 
         if (this.isValidValueForKey(values, 'isolatedpvlantype') && values.isolatedpvlantype !== 'none') {
           params.isolatedpvlantype = values.isolatedpvlantype
-          if (this.isValidValueForKey(values, 'isolatedpvlan')) {
-            params.isolatedpvlan = values.isolatedpvlan
+          if (this.isValidValueForKey(values, 'isolatedpvlanid')) {
+            params.isolatedpvlan = values.isolatedpvlanid
           }
         }
         api('createNetwork', params).then(json => {

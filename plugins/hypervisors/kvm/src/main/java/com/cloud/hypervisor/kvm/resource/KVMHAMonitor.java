@@ -35,28 +35,34 @@ import java.util.concurrent.ConcurrentHashMap;
 public class KVMHAMonitor extends KVMHABase implements Runnable {
 
     private final Map<String, HAStoragePool> storagePool = new ConcurrentHashMap<>();
+    private final Map<String, HAStoragePool> storageGfsPool = new ConcurrentHashMap<>();
     private final Map<String, HAStoragePool> storageRbdPool = new ConcurrentHashMap<>();
     private final Map<String, HAStoragePool> storageClvmPool = new ConcurrentHashMap<>();
     private final boolean rebootHostAndAlertManagementOnHeartbeatTimeout;
 
     private final String hostPrivateIp;
 
-    public KVMHAMonitor(HAStoragePool pool, String host, String scriptPath, String scriptPathRbd, String scriptPathClvm) {
+    public KVMHAMonitor(HAStoragePool pool, String host, String scriptPath, String scriptPathGfs, String scriptPathRbd, String scriptPathClvm) {
         if (pool != null) {
             storagePool.put(pool.getPoolUUID(), pool);
         }
         hostPrivateIp = host;
-        configureHeartBeatPath(scriptPath, scriptPathRbd, scriptPathClvm);
+        configureHeartBeatPath(scriptPath, scriptPathGfs, scriptPathRbd, scriptPathClvm);
         rebootHostAndAlertManagementOnHeartbeatTimeout = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.REBOOT_HOST_AND_ALERT_MANAGEMENT_ON_HEARTBEAT_TIMEOUT);
     }
 
-    private static synchronized void configureHeartBeatPath(String scriptPath, String scriptPathRbd, String scriptPathClvm) {
+    private static synchronized void configureHeartBeatPath(String scriptPath, String scriptPathGfs, String scriptPathRbd, String scriptPathClvm) {
         KVMHABase.s_heartBeatPath = scriptPath;
+        KVMHABase.s_heartBeatPathGfs = scriptPathGfs;
         KVMHABase.s_heartBeatPathRbd = scriptPathRbd;
         KVMHABase.s_heartBeatPathClvm = scriptPathClvm;
     }
     public void addStoragePool(HAStoragePool pool) {
         storagePool.put(pool.getPoolUUID(), pool);
+    }
+
+    public void addGfsStoragePool(HAStoragePool pool) {
+        storageGfsPool.put(pool.getPoolUUID(), pool);
     }
 
     public void addRbdStoragePool(HAStoragePool pool) {
@@ -73,7 +79,6 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
             Script.runSimpleBashScript("umount " + pool.getMountDestPath());
             storagePool.remove(uuid);
         }
-
     }
 
     public void removeRbdStoragePool(String uuid) {
@@ -95,6 +100,10 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
         return new ArrayList<>(storagePool.values());
     }
 
+    public List<HAStoragePool> getGfsStoragePools() {
+        return new ArrayList<>(storageGfsPool.values());
+    }
+
     public List<HAStoragePool> getRbdStoragePools() {
         return new ArrayList<>(storageRbdPool.values());
     }
@@ -105,6 +114,10 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
 
     public HAStoragePool getStoragePool(String uuid) {
         return storagePool.get(uuid);
+    }
+
+    public HAStoragePool getGfsStoragePool(String uuid) {
+        return storageGfsPool.get(uuid);
     }
 
     public HAStoragePool getRbdStoragePool(String uuid) {
@@ -119,7 +132,7 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
         Set<String> removedPools = new HashSet<>();
         for (String uuid : storagePool.keySet()) {
             HAStoragePool primaryStoragePool = storagePool.get(uuid);
-            if (primaryStoragePool.getPool().getType() == StoragePoolType.NetworkFilesystem || primaryStoragePool.getPool().getType() == StoragePoolType.RBD || primaryStoragePool.getPool().getType() == StoragePoolType.CLVM) {
+            if (primaryStoragePool.getPool().getType() == StoragePoolType.NetworkFilesystem || primaryStoragePool.getPool().getType() == StoragePoolType.SharedMountPoint || primaryStoragePool.getPool().getType() == StoragePoolType.RBD || primaryStoragePool.getPool().getType() == StoragePoolType.CLVM) {
                 checkForNotExistingPools(removedPools, uuid);
                 if (removedPools.contains(uuid)) {
                     continue;
@@ -191,6 +204,7 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
         while (true) {
 
             runHeartBeat(storagePool);
+            runHeartBeat(storageGfsPool);
             runHeartBeat(storageRbdPool);
             runHeartBeat(storageClvmPool);
 

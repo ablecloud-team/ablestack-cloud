@@ -60,7 +60,7 @@ public class Upgrade41000to41100 extends DbUpgradeAbstractImpl {
 
     @Override
     public void performDataMigration(Connection conn) {
-        checkAndEnableDynamicRoles(conn);
+        // checkAndEnableDynamicRoles(conn);
         validateUserDataInBase64(conn);
     }
 

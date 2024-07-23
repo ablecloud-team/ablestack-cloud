@@ -36,6 +36,7 @@ import org.apache.cloudstack.storage.command.CheckDataStoreStoragePolicyComplain
 import org.apache.cloudstack.storage.command.DeleteCommand;
 import org.apache.cloudstack.storage.command.DettachAnswer;
 import org.apache.cloudstack.storage.command.DettachCommand;
+import org.apache.cloudstack.storage.command.FlattenCommand;
 import org.apache.cloudstack.storage.command.ForgetObjectCmd;
 import org.apache.cloudstack.storage.command.IntroduceObjectCmd;
 import org.apache.cloudstack.storage.command.ResignatureAnswer;
@@ -281,5 +282,10 @@ public class SimulatorStorageProcessor implements StorageProcessor {
     @Override
     public Answer syncVolumePath(SyncVolumePathCommand cmd) {
         return new Answer(cmd, true, null);
+    }
+
+    @Override
+    public Answer flattenFromRBDSnapshot(FlattenCommand cmd) {
+        return null;
     }
 }
