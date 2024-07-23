@@ -23,7 +23,7 @@ import com.cloud.agent.api.Answer;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.resource.CommandWrapper;
 import com.cloud.resource.ResourceWrapper;
-import org.apache.cloudstack.storage.command.browser.ListVMPciCommand;
+import com.cloud.agent.api.ListVMPciCommand;
 
 @ResourceWrapper(handles = ListVMPciCommand.class)
 public final class LibvirtListVMPciCommandWrapper extends CommandWrapper<ListVMPciCommand, Answer, LibvirtComputingResource> {

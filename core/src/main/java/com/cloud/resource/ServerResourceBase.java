@@ -38,7 +38,7 @@ import java.util.Map;
 import javax.naming.ConfigurationException;
 
 import org.apache.cloudstack.storage.command.browser.ListRbdObjectsAnswer;
-import org.apache.cloudstack.storage.command.browser.ListVMPciAnswer;
+
 import org.apache.cloudstack.storage.command.browser.ListDataStoreObjectsAnswer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,6 +52,7 @@ import com.cloud.agent.api.StartupCommand;
 import com.cloud.utils.net.NetUtils;
 import com.cloud.utils.script.OutputInterpreter;
 import com.cloud.utils.script.Script;
+import com.cloud.agent.api.ListVMPciAnswer;
 
 
 public abstract class ServerResourceBase implements ServerResource {
@@ -160,7 +161,7 @@ public abstract class ServerResourceBase implements ServerResource {
     }
 
 
-    protected Answer listVMPci(String pciName, String pciText, Long hostId) {
+    protected Answer listVMPci() {
         List<String> pciname = new ArrayList<>();
         List<String> pcitext = new ArrayList<>();
         Script listCommand = new Script("lspci");

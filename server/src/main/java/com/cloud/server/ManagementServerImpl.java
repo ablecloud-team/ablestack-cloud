@@ -634,8 +634,6 @@ import org.apache.cloudstack.framework.security.keystore.KeystoreManager;
 import org.apache.cloudstack.managed.context.ManagedContextRunnable;
 import org.apache.cloudstack.query.QueryService;
 import org.apache.cloudstack.resourcedetail.dao.GuestOsDetailsDao;
-import org.apache.cloudstack.storage.command.browser.ListVMPciAnswer;
-import org.apache.cloudstack.storage.command.browser.ListVMPciCommand;
 import org.apache.cloudstack.storage.datastore.db.ImageStoreDao;
 import org.apache.cloudstack.storage.datastore.db.ImageStoreVO;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
@@ -854,6 +852,8 @@ import com.cloud.vm.dao.SecondaryStorageVmDao;
 import com.cloud.vm.dao.UserVmDao;
 import com.cloud.vm.dao.UserVmDetailsDao;
 import com.cloud.vm.dao.VMInstanceDao;
+import com.cloud.agent.api.ListVMPciCommand;
+import com.cloud.agent.api.ListVMPciAnswer;
 
 public class ManagementServerImpl extends ManagerBase implements ManagementServer, Configurable {
     protected StateMachine2<State, VirtualMachine.Event, VirtualMachine> _stateMachine;
@@ -3187,7 +3187,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     }
 
     @Override
-public ListResponse<HostResponse> listVMPci(ListVMPciCmd cmd) {
+    public ListResponse<HostResponse> listVMPci(ListVMPciCmd cmd) {
     Long id = cmd.getId();
     HostVO hostVO = _hostDao.findById(id);
     if (hostVO == null) {
@@ -3204,13 +3204,22 @@ public ListResponse<HostResponse> listVMPci(ListVMPciCmd cmd) {
         throw new CloudRuntimeException(errorMsg, e);
     }
 
-    if (answer == null || !answer.getResult() || !(answer instanceof ListVMPciAnswer)) {
-        throw new CloudRuntimeException("Failed to list VM PCI objects");
+    if (answer == null) {
+        throw new CloudRuntimeException("Answer is null");
+    }
+    if (!answer.getResult()) {
+        String errorDetails = (answer.getDetails() != null) ? answer.getDetails() : "No additional details available";
+        String errorMsg = "Answer result is false. Details: " + errorDetails;
+        logger.error(errorMsg);
+        throw new CloudRuntimeException(errorMsg);
+    }
+    if (!(answer instanceof ListVMPciAnswer)) {
+        throw new CloudRuntimeException("Answer is not an instance of ListVMPciAnswer");
     }
 
     ListVMPciAnswer pciAnswer = (ListVMPciAnswer) answer;
-    if (!pciAnswer.successMessage()) {
-        throw new IllegalArgumentException("Failed to list VM PCI objects");
+    if (!pciAnswer.isSuccessMessage()) {
+        throw new IllegalArgumentException("Failed to list VM PCI objects.");
     }
 
     List<HostResponse> responses = new ArrayList<>();
@@ -3220,6 +3229,7 @@ public ListResponse<HostResponse> listVMPci(ListVMPciCmd cmd) {
     listResponse.setResponses(responses);
     return listResponse;
 }
+
 
     @Override
     public String getConsoleAccessAddress(long vmId) {

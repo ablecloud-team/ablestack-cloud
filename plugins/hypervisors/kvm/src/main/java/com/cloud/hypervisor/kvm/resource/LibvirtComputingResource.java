@@ -54,7 +54,7 @@ import org.apache.cloudstack.engine.orchestration.service.NetworkOrchestrationSe
 import org.apache.cloudstack.storage.command.browser.CreateRbdObjectsCommand;
 import org.apache.cloudstack.storage.command.browser.DeleteRbdObjectsCommand;
 import org.apache.cloudstack.storage.command.browser.ListDataStoreObjectsCommand;
-import org.apache.cloudstack.storage.command.browser.ListVMPciCommand;
+import com.cloud.agent.api.ListVMPciCommand;
 import org.apache.cloudstack.storage.configdrive.ConfigDrive;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
@@ -5118,7 +5118,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         logger.info("sdfajsdf4"+hostId);
         if (hostVO != null) {
             logger.info("sdfajsdf5"+hostId);
-            return listVMPci(command.getPciName(), command.getPciText(), hostId);
+            return listVMPci();
         }
         return null;
     }
