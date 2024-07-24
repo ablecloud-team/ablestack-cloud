@@ -16,29 +16,22 @@
 // under the License.
 package org.apache.cloudstack.api.command.admin.outofbandmanagement;
 
-
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.ApiArgValidator;
 import org.apache.cloudstack.api.APICommand;
-import org.apache.cloudstack.api.ApiCommandResourceType;
 import org.apache.cloudstack.api.ApiConstants;
 
 import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.BaseListCmd;
 import org.apache.cloudstack.api.Parameter;
 
-import org.apache.cloudstack.api.response.HostResponse;
 import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.ListVMPciResponse;
 import org.apache.cloudstack.context.CallContext;
 
-@APICommand(name = "listVMPci",
-        description = "list vmPci'.",
-        since = "4.20.0.0",
-        responseObject = HostResponse.class,
-        requestHasSensitiveInfo = false,
-        responseHasSensitiveInfo = false,
-        authorized = {RoleType.Admin})
-    public class ListVMPciCmd extends BaseListCmd {
+@APICommand(name = "listVMPci", description = "list vmPci'.", since = "4.20.0.0", responseObject = ListVMPciResponse.class, requestHasSensitiveInfo = false, responseHasSensitiveInfo = false, authorized = {
+        RoleType.Admin })
+public class ListVMPciCmd extends BaseListCmd {
 
     // private static final String LIST_VM_PCI = "listvmpci";
 
@@ -46,7 +39,8 @@ import org.apache.cloudstack.context.CallContext;
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
 
-    @Parameter(name = ApiConstants.ID, type = BaseCmd.CommandType.UUID, entityType = HostResponse.class, description = "host ID", required = true, validations = {ApiArgValidator.PositiveNumber})
+    @Parameter(name = ApiConstants.ID, type = BaseCmd.CommandType.UUID, entityType = ListVMPciResponse.class, description = "host ID", required = true, validations = {
+            ApiArgValidator.PositiveNumber })
     private Long id;
 
     /////////////////////////////////////////////////////
@@ -70,29 +64,9 @@ import org.apache.cloudstack.context.CallContext;
         return CallContext.current().getCallingAccountId();
     }
 
-    // @Override
-    // public String getEventType() {
-    //     return EventTypes.EVENT_CANCEL_HOST_DEGRADED;
-    // }
-
-    // @Override
-    // public String getEventDescription() {
-    //     return "declaring host: " + getId() + " as Degraded";
-    // }
-
-    @Override
-    public ApiCommandResourceType getApiResourceType() {
-        return ApiCommandResourceType.Host;
-    }
-
-    @Override
-    public Long getApiResourceId() {
-        return getId();
-    }
-
     @Override
     public void execute() {
-        ListResponse<HostResponse> response = _mgr.listVMPci (this);
+        ListResponse<ListVMPciResponse> response = _mgr.listVMPci(this);
         response.setResponseName(getCommandName());
         response.setObjectName(getCommandName());
         this.setResponseObject(response);

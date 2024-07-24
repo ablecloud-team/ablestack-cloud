@@ -24,13 +24,13 @@
       size="middle"
       :scroll="{ y: 225 }">
       <template #headerCell="{ column }">
-        <template v-if="column.key === 'pcitext'">
-          <IdcardOutlined /> {{ $t('label.pcitext') }}
+        <template v-if="column.key === 'pciTexts'">
+          <IdcardOutlined /> {{ $t('label.pciTexts') }}
         </template>
       </template>
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'pciname'">{{ record.pciname }}</template>
-        <template v-if="column.key === 'pcitext'">{{ record.pcitext }}</template>
+        <template v-if="column.key === 'pciNames'">{{ record.pciNames }}</template>
+        <template v-if="column.key === 'pciTexts'">{{ record.pciTexts }}</template>
       </template>
     </a-table>
   </div>
@@ -38,8 +38,13 @@
 
 <script>
 import { api } from '@/api'
+import { IdcardOutlined } from '@ant-design/icons-vue'
+
 export default {
   name: 'VMPciTab',
+  components: {
+    IdcardOutlined
+  },
   props: {
     resource: {
       type: Object,
@@ -50,14 +55,14 @@ export default {
     return {
       columns: [
         {
-          key: 'pciname',
-          dataIndex: 'pciname',
+          key: 'pciNames',
+          dataIndex: 'pciNames',
           title: this.$t('label.name'),
           width: '30%'
         },
         {
-          key: 'pcitext',
-          dataIndex: 'pcitext',
+          key: 'pciTexts',
+          dataIndex: 'pciTexts',
           title: this.$t('label.text'),
           width: '70%'
         }
@@ -68,12 +73,11 @@ export default {
   },
   computed: {
     tableSource () {
-      console.log(1111)
-      return this.dataItems.map((item) => {
+      return this.dataItems.map((item, index) => {
         return {
-          key: item.id,
-          pciname: item.pciname,
-          pcitext: item.pcitext
+          key: index,
+          pciNames: item.pciNames,
+          pciTexts: item.pciTexts
         }
       })
     }
@@ -82,14 +86,15 @@ export default {
     this.fetchData()
   },
   methods: {
-    fetchData (pciname, pcitext) {
+    fetchData () {
       this.loading = true
       api('listVMPci', {
         id: this.resource.id
-      }).then(response => {
-        console.log(response)
+      }).then(json => {
+        this.dataSource = json.listvmpciresponse.listvmpci
       }).catch(error => {
         this.$notifyError(error)
+      }).finally(() => {
         this.loading = false
       })
     }

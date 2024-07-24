@@ -54,7 +54,6 @@ import com.cloud.utils.script.OutputInterpreter;
 import com.cloud.utils.script.Script;
 import com.cloud.agent.api.ListVMPciAnswer;
 
-
 public abstract class ServerResourceBase implements ServerResource {
     protected Logger logger = LogManager.getLogger(getClass());
     protected String name;
@@ -124,13 +123,15 @@ public abstract class ServerResourceBase implements ServerResource {
                 throw new ConfigurationException("This resource has no NICs. Unable to configure it.");
             }
         } catch (SocketException e) {
-            throw new ConfigurationException(String.format("Could not retrieve the environment NICs due to [%s].", e.getMessage()));
+            throw new ConfigurationException(
+                    String.format("Could not retrieve the environment NICs due to [%s].", e.getMessage()));
         }
 
-        logger.debug(String.format("Searching the private NIC along the environment NICs [%s].", Arrays.toString(nics.toArray())));
+        logger.debug(String.format("Searching the private NIC along the environment NICs [%s].",
+                Arrays.toString(nics.toArray())));
 
         for (NetworkInterface nic : nics) {
-            if (isValidNicToUseAsPrivateNic(nic))  {
+            if (isValidNicToUseAsPrivateNic(nic)) {
                 logger.info(String.format("Using NIC [%s] as private NIC.", nic));
                 privateNic = nic;
                 return;
@@ -144,48 +145,41 @@ public abstract class ServerResourceBase implements ServerResource {
 
         logger.debug(String.format("Verifying if NIC [%s] can be used as private NIC.", nic));
 
-        String[] nicNameStartsToAvoid = {"vnif", "vnbr", "peth", "vif", "virbr"};
+        String[] nicNameStartsToAvoid = { "vnif", "vnbr", "peth", "vif", "virbr" };
         if (nic.isVirtual() || StringUtils.startsWithAny(nicName, nicNameStartsToAvoid) || nicName.contains(":")) {
-            logger.debug(String.format("Not using NIC [%s] because it is either virtual, starts with %s, or contains \":\"" +
-             " in its name.", Arrays.toString(nicNameStartsToAvoid), nic));
+            logger.debug(
+                    String.format("Not using NIC [%s] because it is either virtual, starts with %s, or contains \":\"" +
+                            " in its name.", Arrays.toString(nicNameStartsToAvoid), nic));
             return false;
         }
 
         String[] info = NetUtils.getNicParams(nicName);
         if (info == null || info[0] == null) {
-            logger.debug(String.format("Not using NIC [%s] because it does not have a valid IP to use as the private IP.", nic));
+            logger.debug(String
+                    .format("Not using NIC [%s] because it does not have a valid IP to use as the private IP.", nic));
             return false;
         }
 
         return true;
     }
 
-
     protected Answer listVMPci() {
-        List<String> pciname = new ArrayList<>();
-        List<String> pcitext = new ArrayList<>();
+        List<String> pciTexts = new ArrayList<>();
         Script listCommand = new Script("lspci");
-        OutputInterpreter.OneLineParser parser = new OutputInterpreter.OneLineParser();
+        OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
         String result = listCommand.execute(parser);
-
-        if (result != null && !result.isEmpty()) {
-            String[] lines = result.split("\n");
+        logger.info("result:" + result);
+        if (result == null && parser.getLines() != null) {
+            String[] lines = parser.getLines().split("\\n");
             for (String line : lines) {
-                if (!line.contains("System peripheral") && !line.contains("PIC") && !line.contains("Performance counters")) {
-                    int colonIndex = line.indexOf(':');
-                    if (colonIndex != -1) {
-                        logger.info("sdfajsdf1"+colonIndex);
-                        pciname.add(line.substring(0, colonIndex).trim());
-                        logger.info("sdfajsdf2"+pciname);
-                        logger.info("sdfajsdf3"+pciname.add(line.substring(0, colonIndex).trim()));
-                    }
-                    if (colonIndex != -1 && colonIndex + 1 < line.length()) {
-                        pcitext.add(line.substring(colonIndex + 1).trim());
-                    }
+                if (!line.contains("System peripheral") && !line.contains("PIC")
+                        && !line.contains("Performance counters")) {
+                    String pciText = line;
+                    pciTexts.add(pciText);
                 }
             }
         }
-        return new ListVMPciAnswer("Successfully collected VMPCI information.",true , pciname, pcitext);
+        return new ListVMPciAnswer(true, pciTexts);
     }
 
     protected Answer createImageRbd(String names, long sizes, String poolPath) {
@@ -219,7 +213,7 @@ public abstract class ServerResourceBase implements ServerResource {
         listCommand.add("-c");
 
         if (keyword != null && !keyword.isEmpty()) {
-            listCommand.add("rbd -p " + poolPath + " ls | grep " + keyword );
+            listCommand.add("rbd -p " + poolPath + " ls | grep " + keyword);
         } else {
             listCommand.add("rbd -p " + poolPath + " ls");
         }
@@ -256,7 +250,8 @@ public abstract class ServerResourceBase implements ServerResource {
                                 String[] parts = infoLine.split(": ");
                                 try {
                                     String modifyTimestamp = parts[1].trim();
-                                    SimpleDateFormat inputDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.US);
+                                    SimpleDateFormat inputDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy",
+                                            Locale.US);
                                     Date modifyDate = inputDateFormat.parse(modifyTimestamp);
                                     lastModified = modifyDate.getTime();
                                     modifiedList.add(lastModified);
@@ -273,49 +268,51 @@ public abstract class ServerResourceBase implements ServerResource {
         return new ListDataStoreObjectsAnswer(true, count, names, paths, absPaths, isDirs, sizes, modifiedList);
     }
 
-
-protected Answer listFilesAtPath(String nfsMountPoint, String relativePath, int startIndex, int pageSize, String keyword) {
-    int count = 0;
-    File file = new File(nfsMountPoint, relativePath);
-    List<String> names = new ArrayList<>();
-    List<String> paths = new ArrayList<>();
-    List<String> absPaths = new ArrayList<>();
-    List<Boolean> isDirs = new ArrayList<>();
-    List<Long> sizes = new ArrayList<>();
-    List<Long> modifiedList = new ArrayList<>();
-    if (file.isFile()) {
-        count = 1;
-        names.add(file.getName());
-        paths.add(file.getPath().replace(nfsMountPoint, ""));
-        absPaths.add(file.getPath());
-        isDirs.add(file.isDirectory());
-        sizes.add(file.length());
-        modifiedList.add(file.lastModified());
-    } else if (file.isDirectory()) {
-        String[] files = file.list();
-        List<String> filteredFiles = new ArrayList<>();
-        if (keyword != null && !"".equals(keyword)) {
-            for (String fileName : files) {
-                if (fileName.contains(keyword)) {
-                    filteredFiles.add(fileName);
+    protected Answer listFilesAtPath(String nfsMountPoint, String relativePath, int startIndex, int pageSize,
+            String keyword) {
+        int count = 0;
+        File file = new File(nfsMountPoint, relativePath);
+        List<String> names = new ArrayList<>();
+        List<String> paths = new ArrayList<>();
+        List<String> absPaths = new ArrayList<>();
+        List<Boolean> isDirs = new ArrayList<>();
+        List<Long> sizes = new ArrayList<>();
+        List<Long> modifiedList = new ArrayList<>();
+        if (file.isFile()) {
+            count = 1;
+            names.add(file.getName());
+            paths.add(file.getPath().replace(nfsMountPoint, ""));
+            absPaths.add(file.getPath());
+            isDirs.add(file.isDirectory());
+            sizes.add(file.length());
+            modifiedList.add(file.lastModified());
+        } else if (file.isDirectory()) {
+            String[] files = file.list();
+            List<String> filteredFiles = new ArrayList<>();
+            if (keyword != null && !"".equals(keyword)) {
+                for (String fileName : files) {
+                    if (fileName.contains(keyword)) {
+                        filteredFiles.add(fileName);
+                    }
                 }
+            } else {
+                filteredFiles.addAll(Arrays.asList(files));
             }
-        } else {
-            filteredFiles.addAll(Arrays.asList(files));
+            count = filteredFiles.size();
+            for (int i = startIndex; i < startIndex + pageSize && i < count; i++) {
+                File f = new File(nfsMountPoint, relativePath + '/' + filteredFiles.get(i));
+                names.add(f.getName());
+                paths.add(f.getPath().replace(nfsMountPoint, ""));
+                absPaths.add(f.getPath());
+                isDirs.add(f.isDirectory());
+                sizes.add(f.length());
+                modifiedList.add(f.lastModified());
+            }
         }
-        count = filteredFiles.size();
-        for (int i = startIndex; i < startIndex + pageSize && i < count; i++) {
-            File f = new File(nfsMountPoint, relativePath + '/' + filteredFiles.get(i));
-            names.add(f.getName());
-            paths.add(f.getPath().replace(nfsMountPoint, ""));
-            absPaths.add(f.getPath());
-            isDirs.add(f.isDirectory());
-            sizes.add(f.length());
-            modifiedList.add(f.lastModified());
-        }
+        return new ListDataStoreObjectsAnswer(file.exists(), count, names, paths, absPaths, isDirs, sizes,
+                modifiedList);
     }
-    return new ListDataStoreObjectsAnswer(file.exists(), count, names, paths, absPaths, isDirs, sizes, modifiedList);
-}
+
     protected Answer listFilesAtPath(String nfsMountPoint, String relativePath, int startIndex, int pageSize) {
         int count = 0;
         File file = new File(nfsMountPoint, relativePath);
@@ -346,8 +343,10 @@ protected Answer listFilesAtPath(String nfsMountPoint, String relativePath, int 
                 modifiedList.add(f.lastModified());
             }
         }
-        return new ListDataStoreObjectsAnswer(file.exists(), count, names, paths, absPaths, isDirs, sizes, modifiedList);
+        return new ListDataStoreObjectsAnswer(file.exists(), count, names, paths, absPaths, isDirs, sizes,
+                modifiedList);
     }
+
     protected void fillNetworkInformation(final StartupCommand cmd) {
         String[] info = null;
         if (privateNic != null) {
@@ -496,4 +495,3 @@ protected Answer listFilesAtPath(String nfsMountPoint, String relativePath, int 
         return true;
     }
 }
-

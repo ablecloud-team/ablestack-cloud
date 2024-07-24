@@ -807,7 +807,8 @@ public class ApiConstants {
     public static final String EXTERNAL_SWITCH_MGMT_DEVICE_ID = "vsmdeviceid";
     public static final String EXTERNAL_SWITCH_MGMT_DEVICE_NAME = "vsmdevicename";
     public static final String EXTERNAL_SWITCH_MGMT_DEVICE_STATE = "vsmdevicestate";
-    // Would we need to have a capacity field for Cisco N1KV VSM? Max hosts managed by it perhaps? May remove this
+    // Would we need to have a capacity field for Cisco N1KV VSM? Max hosts managed
+    // by it perhaps? May remove this
     // later.
     public static final String EXTERNAL_SWITCH_MGMT_DEVICE_CAPACITY = "vsmdevicecapacity";
     public static final String CISCO_NEXUS_VSM_NAME = "vsmname";
@@ -1020,7 +1021,8 @@ public class ApiConstants {
             + " and just a plain ascii/utf8 representation of a hexadecimal string. If it is required to\n"
             + " use another algorithm the hexadecimal string is to be prefixed with a string of the form,\n"
             + " \"{<algorithm>}\", not including the double quotes. In this <algorithm> is the exact string\n"
-            + " representing the java supported algorithm, i.e. MD5 or SHA-256. Note that java does not\n" + " contain an algorithm called SHA256 or one called sha-256, only SHA-256.";
+            + " representing the java supported algorithm, i.e. MD5 or SHA-256. Note that java does not\n"
+            + " contain an algorithm called SHA256 or one called sha-256, only SHA-256.";
 
     public static final String HAS_ANNOTATIONS = "hasannotations";
     public static final String LAST_ANNOTATED = "lastannotated";
@@ -1218,10 +1220,14 @@ public class ApiConstants {
     public static final String WEBHOOK_NAME = "webhookname";
 
     public static final String NFS_MOUNT_OPTIONS = "nfsmountopts";
+    public static final String PCI_NAME = "pciname";
+    public static final String PCI_TEXT = "pcitext";
 
     /**
-     * This enum specifies IO Drivers, each option controls specific policies on I/O.
-     * Qemu guests support "threads" and "native" options Since 0.8.8 ; "io_uring" is supported Since 6.3.0 (QEMU 5.0).
+     * This enum specifies IO Drivers, each option controls specific policies on
+     * I/O.
+     * Qemu guests support "threads" and "native" options Since 0.8.8 ; "io_uring"
+     * is supported Since 6.3.0 (QEMU 5.0).
      */
     public enum IoDriverPolicy {
         NATIVE("native"),
@@ -1241,12 +1247,16 @@ public class ApiConstants {
         }
     }
 
-    public static final String PARAMETER_DESCRIPTION_START_DATE_POSSIBLE_FORMATS = "The recommended format is \"yyyy-MM-dd'T'HH:mm:ssZ\" (e.g.: \"2023-01-01T12:00:00+0100\"); " +
-            "however, the following formats are also accepted: \"yyyy-MM-dd HH:mm:ss\" (e.g.: \"2023-01-01 12:00:00\") and \"yyyy-MM-dd\" (e.g.: \"2023-01-01\" - if the time is not " +
+    public static final String PARAMETER_DESCRIPTION_START_DATE_POSSIBLE_FORMATS = "The recommended format is \"yyyy-MM-dd'T'HH:mm:ssZ\" (e.g.: \"2023-01-01T12:00:00+0100\"); "
+            +
+            "however, the following formats are also accepted: \"yyyy-MM-dd HH:mm:ss\" (e.g.: \"2023-01-01 12:00:00\") and \"yyyy-MM-dd\" (e.g.: \"2023-01-01\" - if the time is not "
+            +
             "added, it will be interpreted as \"00:00:00\"). If the recommended format is not used, the date will be considered in the server timezone.";
 
-    public static final String PARAMETER_DESCRIPTION_END_DATE_POSSIBLE_FORMATS = "The recommended format is \"yyyy-MM-dd'T'HH:mm:ssZ\" (e.g.: \"2023-01-01T12:00:00+0100\"); " +
-            "however, the following formats are also accepted: \"yyyy-MM-dd HH:mm:ss\" (e.g.: \"2023-01-01 12:00:00\") and \"yyyy-MM-dd\" (e.g.: \"2023-01-01\" - if the time is not " +
+    public static final String PARAMETER_DESCRIPTION_END_DATE_POSSIBLE_FORMATS = "The recommended format is \"yyyy-MM-dd'T'HH:mm:ssZ\" (e.g.: \"2023-01-01T12:00:00+0100\"); "
+            +
+            "however, the following formats are also accepted: \"yyyy-MM-dd HH:mm:ss\" (e.g.: \"2023-01-01 12:00:00\") and \"yyyy-MM-dd\" (e.g.: \"2023-01-01\" - if the time is not "
+            +
             "added, it will be interpreted as \"23:59:59\"). If the recommended format is not used, the date will be considered in the server timezone.";
 
     public enum BootType {
@@ -1269,7 +1279,6 @@ public class ApiConstants {
 
     public enum TpmVersion {
         V2_0, V1_2, TPM, NONE;
-
 
         @Override
         public String toString() {

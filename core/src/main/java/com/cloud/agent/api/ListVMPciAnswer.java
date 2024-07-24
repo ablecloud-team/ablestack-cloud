@@ -19,25 +19,27 @@
 
 package com.cloud.agent.api;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ListVMPciAnswer extends Answer {
     private boolean successMessage;
-    private List<String> pciNames;
     private List<String> pciTexts;
 
-    public ListVMPciAnswer(String details, boolean successMessage, List<String> pciNames, List<String> pciTexts) {
-        super(null, successMessage, details);
+    public ListVMPciAnswer() {
+        super();
+    }
+
+    public ListVMPciAnswer(boolean successMessage, List<String> pciTexts) {
+        super();
         this.successMessage = successMessage;
-        this.pciNames = pciNames;
         this.pciTexts = pciTexts;
     }
 
-    public List<String> getPciNames() {
-        return pciNames;
-    }
-
     public List<String> getPciTexts() {
+        if (pciTexts == null) {
+            return Collections.emptyList();
+        }
         return pciTexts;
     }
 

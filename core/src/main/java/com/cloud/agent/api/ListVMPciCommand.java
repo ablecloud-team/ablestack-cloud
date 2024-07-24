@@ -19,12 +19,13 @@
 
 package com.cloud.agent.api;
 
+import java.util.List;
+
 public class ListVMPciCommand extends Command {
 
-    private String pciName;
-    private String pciText;
+    private List<String> pciNames;
+    private List<String> pciTexts;
     private Long id;
-    private String vmUuid;
 
     public ListVMPciCommand() {
     }
@@ -39,16 +40,12 @@ public class ListVMPciCommand extends Command {
         return false;
     }
 
-    public String getVmUuid() {
-        return vmUuid;
+    public List<String> getPciNames() {
+        return pciNames;
     }
 
-    public String getPciName() {
-        return pciName;
-    }
-
-    public String getPciText() {
-        return pciText;
+    public List<String> getPciTexts() {
+        return pciTexts;
     }
 
     public Long getId() {
