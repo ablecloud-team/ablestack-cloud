@@ -18,14 +18,15 @@
 package org.apache.cloudstack.api.response;
 
 import com.google.gson.annotations.SerializedName;
-
+import org.apache.cloudstack.api.EntityReference;
 import java.util.List;
-
+import com.cloud.host.Host;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseResponse;
 
 import com.cloud.serializer.Param;
 
+@EntityReference(value = Host.class)
 public class ListVMPciResponse extends BaseResponse {
 
     @SerializedName(ApiConstants.PCI_NAME)
