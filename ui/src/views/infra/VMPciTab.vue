@@ -22,15 +22,15 @@
       :dataSource="tableSource"
       :pagination="false"
       size="middle"
-      :scroll="{ y: 225 }">
+      :scroll="{ y: 1000 }">
       <template #headerCell="{ column }">
-        <template v-if="column.key === 'pciTexts'">
+        <template v-if="column.key === 'pcitext'">
           <IdcardOutlined /> {{ $t('label.pciTexts') }}
         </template>
       </template>
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'pciNames'">{{ record.pciNames }}</template>
-        <template v-if="column.key === 'pciTexts'">{{ record.pciTexts }}</template>
+        <template v-if="column.key === 'pciname'">{{ record.pciname }}</template>
+        <template v-if="column.key === 'pcitext'">{{ record.pcitext }}</template>
       </template>
     </a-table>
   </div>
@@ -55,14 +55,14 @@ export default {
     return {
       columns: [
         {
-          key: 'pciNames',
-          dataIndex: 'pciNames',
+          key: 'pciname',
+          dataIndex: 'pciname',
           title: this.$t('label.name'),
           width: '30%'
         },
         {
-          key: 'pciTexts',
-          dataIndex: 'pciTexts',
+          key: 'pcitext',
+          dataIndex: 'pcitext',
           title: this.$t('label.text'),
           width: '70%'
         }
@@ -76,8 +76,8 @@ export default {
       return this.dataItems.map((item, index) => {
         return {
           key: index,
-          pciNames: item.pciNames,
-          pciTexts: item.pciTexts
+          pciname: item.pciname,
+          pcitext: item.pcitext
         }
       })
     }
@@ -91,7 +91,18 @@ export default {
       api('listVMPci', {
         id: this.resource.id
       }).then(json => {
-        this.dataSource = json.listvmpciresponse.listvmpci
+        const response = json.listvmpciresponse
+        if (response && response.listvmpci && response.listvmpci.length > 0) {
+          const data = response.listvmpci[0]
+          const pcinames = data.pciname || []
+          const pcitexts = data.pcitext || []
+          this.dataItems = pcinames.map((pciname, index) => ({
+            pciname: pciname,
+            pcitext: pcitexts[index] || ''
+          }))
+        } else {
+          this.dataItems = []
+        }
       }).catch(error => {
         this.$notifyError(error)
       }).finally(() => {

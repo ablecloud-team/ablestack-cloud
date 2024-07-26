@@ -168,7 +168,6 @@ public abstract class ServerResourceBase implements ServerResource {
         Script listCommand = new Script("lspci");
         OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
         String result = listCommand.execute(parser);
-        logger.info("result:" + result);
         if (result == null && parser.getLines() != null) {
             String[] lines = parser.getLines().split("\\n");
             for (String line : lines) {

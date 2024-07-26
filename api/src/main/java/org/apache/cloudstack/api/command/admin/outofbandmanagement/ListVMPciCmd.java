@@ -33,7 +33,7 @@ import org.apache.cloudstack.context.CallContext;
         RoleType.Admin })
 public class ListVMPciCmd extends BaseListCmd {
 
-    // private static final String LIST_VM_PCI = "listvmpci";
+    private static final String LIST_VM_PCI = "listvmpci";
 
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////
@@ -56,7 +56,7 @@ public class ListVMPciCmd extends BaseListCmd {
     /////////////////////////////////////////////////////
 
     public static String getResultObjectName() {
-        return "host";
+        return "listvmpci";
     }
 
     @Override

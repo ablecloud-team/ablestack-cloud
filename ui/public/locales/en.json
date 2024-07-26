@@ -4348,5 +4348,7 @@
 "label.override.root.no ": "If you have selected a Glue image as your virtual machine image, please select the Compute offering to match the image size",
 "label.gule.images": "Glue Images",
 "label.clonetype": "Clone Type",
-"message.clone.vm": "For the Full type, image flattening occurs in the process background. For the Linked type, image flattening does not occur."
+"message.clone.vm": "For the Full type, image flattening occurs in the process background. For the Linked type, image flattening does not occur.",
+"label.vmpci": "PCI",
+"label.pciTexts":"Descriptions"
 }

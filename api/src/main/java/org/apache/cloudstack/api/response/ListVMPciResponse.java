@@ -37,6 +37,16 @@ public class ListVMPciResponse extends BaseResponse {
     @Param(description = "the ID of the pod the  IP address belongs to")
     private List<String> pciTexts;
 
+    public ListVMPciResponse(List<String> pciNames, List<String> pciTexts) {
+        this.pciNames = pciNames;
+        this.pciTexts = pciTexts;
+    }
+
+    public ListVMPciResponse() {
+        super();
+        this.setObjectName("listvmpci");
+    }
+
     public List<String> getPciNames() {
         return pciNames;
     }
