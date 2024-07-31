@@ -88,7 +88,7 @@ export default {
   methods: {
     fetchData () {
       this.loading = true
-      api('listVMPci', {
+      api('listHostDevices', {
         id: this.resource.id
       }).then(json => {
         const response = json.listvmpciresponse
