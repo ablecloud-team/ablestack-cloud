@@ -55,7 +55,7 @@ import org.apache.cloudstack.engine.orchestration.service.NetworkOrchestrationSe
 import org.apache.cloudstack.storage.command.browser.CreateRbdObjectsCommand;
 import org.apache.cloudstack.storage.command.browser.DeleteRbdObjectsCommand;
 import org.apache.cloudstack.storage.command.browser.ListDataStoreObjectsCommand;
-import com.cloud.agent.api.ListVMPciCommand;
+import com.cloud.agent.api.ListHostDeviceCommand;
 import org.apache.cloudstack.storage.configdrive.ConfigDrive;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
@@ -5343,10 +5343,10 @@ public class LibvirtComputingResource extends ServerResourceBase
         return true;
     }
 
-    public Answer listVMPci(ListVMPciCommand command) {
+    public Answer listHostDevices(ListHostDeviceCommand command) {
         logger.info("listpci: " + command.getId());
         if (command.getId() != null) {
-            return listVMPci();
+            return listHostDevices();
         } else {
             throw new IllegalArgumentException("Host ID cannot be null");
         }

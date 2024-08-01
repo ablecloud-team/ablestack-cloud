@@ -295,7 +295,7 @@ known_categories = {
     'Webhook': 'Webhook',
     'Webhooks': 'Webhook',
     'purgeExpungedResources': 'Resource',
-    'listVMPci': 'listVMPci'
+    'listHostDevices': 'listHostDevices'
 }
 
 

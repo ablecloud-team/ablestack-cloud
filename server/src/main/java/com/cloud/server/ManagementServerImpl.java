@@ -172,7 +172,7 @@ import org.apache.cloudstack.api.command.admin.outofbandmanagement.EnableOutOfBa
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.EnableOutOfBandManagementForHostCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.EnableOutOfBandManagementForZoneCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.IssueOutOfBandManagementPowerActionCmd;
-import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListVMPciCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostDevicesCmd;
 import org.apache.cloudstack.api.command.admin.pod.CreatePodCmd;
 import org.apache.cloudstack.api.command.admin.pod.DeletePodCmd;
 import org.apache.cloudstack.api.command.admin.pod.ListPodsByCmd;
@@ -611,7 +611,7 @@ import org.apache.cloudstack.api.command.user.vpn.UpdateVpnCustomerGatewayCmd;
 import org.apache.cloudstack.api.command.user.vpn.UpdateVpnGatewayCmd;
 import org.apache.cloudstack.api.command.user.zone.ListZonesCmd;
 import org.apache.cloudstack.api.response.ListResponse;
-import org.apache.cloudstack.api.response.ListVMPciResponse;
+import org.apache.cloudstack.api.response.ListHostDevicesResponse;
 import org.apache.cloudstack.auth.UserAuthenticator;
 import org.apache.cloudstack.auth.UserTwoFactorAuthenticator;
 import org.apache.cloudstack.config.ApiServiceConfiguration;
@@ -854,8 +854,8 @@ import com.cloud.vm.dao.SecondaryStorageVmDao;
 import com.cloud.vm.dao.UserVmDao;
 import com.cloud.vm.dao.UserVmDetailsDao;
 import com.cloud.vm.dao.VMInstanceDao;
-import com.cloud.agent.api.ListVMPciCommand;
-import com.cloud.agent.api.ListVMPciAnswer;
+import com.cloud.agent.api.ListHostDeviceCommand;
+import com.cloud.agent.api.ListHostDeviceAnswer;
 
 public class ManagementServerImpl extends ManagerBase implements ManagementServer, Configurable {
     protected StateMachine2<State, VirtualMachine.Event, VirtualMachine> _stateMachine;
@@ -3353,19 +3353,19 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     }
 
     @Override
-    public ListResponse<ListVMPciResponse> listVMPci(ListVMPciCmd cmd) {
+    public ListResponse<ListHostDevicesResponse> listHostDevices(ListHostDevicesCmd cmd) {
         Long id = cmd.getId();
         HostVO hostVO = _hostDao.findById(id);
         if (hostVO == null) {
             throw new CloudRuntimeException("Host not found with ID: " + id);
         }
 
-        ListVMPciCommand pciCmd = new ListVMPciCommand(id);
+        ListHostDeviceCommand pciCmd = new ListHostDeviceCommand(id);
         Answer answer;
         try {
             answer = _agentMgr.send(hostVO.getId(), pciCmd);
         } catch (Exception e) {
-            String errorMsg = "Error sending ListVMPciCommand: " + e.getMessage();
+            String errorMsg = "Error sending ListHostDevicesCommand: " + e.getMessage();
             logger.error(errorMsg, e);
             throw new CloudRuntimeException(errorMsg, e);
         }
@@ -3380,17 +3380,17 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             logger.error(errorMsg);
             throw new CloudRuntimeException(errorMsg);
         }
-        if (!(answer instanceof ListVMPciAnswer)) {
-            throw new CloudRuntimeException("Answer is not an instance of ListVMPciAnswer");
+        if (!(answer instanceof ListHostDeviceAnswer)) {
+            throw new CloudRuntimeException("Answer is not an instance of listHostDeviceAnswer");
         }
 
-        ListVMPciAnswer pciAnswer = (ListVMPciAnswer) answer;
+        ListHostDeviceAnswer pciAnswer = (ListHostDeviceAnswer) answer;
         if (!pciAnswer.isSuccessMessage()) {
             throw new IllegalArgumentException("Failed to list VM PCI objects.");
         }
 
-        List<ListVMPciResponse> responses = new ArrayList<>();
-        ListResponse<ListVMPciResponse> listResponse = new ListResponse<>();
+        List<ListHostDevicesResponse> responses = new ArrayList<>();
+        ListResponse<ListHostDevicesResponse> listResponse = new ListResponse<>();
 
         List<String> pciTexts = pciAnswer.getPciTexts();
 
@@ -3407,7 +3407,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             }
         }
 
-        ListVMPciResponse response = new ListVMPciResponse();
+        ListHostDevicesResponse response = new ListHostDevicesResponse();
         response.setPciNames(pciNames);
         response.setPciTexts(pciDescriptions);
         responses.add(response);
@@ -4350,7 +4350,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(DeleteBucketCmd.class);
         cmdList.add(ListBucketsCmd.class);
 
-        cmdList.add(ListVMPciCmd.class);
+        cmdList.add(ListHostDevicesCmd.class);
         return cmdList;
     }
 

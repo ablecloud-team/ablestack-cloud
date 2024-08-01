@@ -52,7 +52,7 @@ import com.cloud.agent.api.StartupCommand;
 import com.cloud.utils.net.NetUtils;
 import com.cloud.utils.script.OutputInterpreter;
 import com.cloud.utils.script.Script;
-import com.cloud.agent.api.ListVMPciAnswer;
+import com.cloud.agent.api.ListHostDeviceAnswer;
 
 public abstract class ServerResourceBase implements ServerResource {
     protected Logger logger = LogManager.getLogger(getClass());
@@ -163,7 +163,7 @@ public abstract class ServerResourceBase implements ServerResource {
         return true;
     }
 
-    protected Answer listVMPci() {
+    protected Answer listHostDevices() {
         List<String> pciTexts = new ArrayList<>();
         Script listCommand = new Script("lspci");
         OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
@@ -178,7 +178,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
         }
-        return new ListVMPciAnswer(true, pciTexts);
+        return new ListHostDeviceAnswer(true, pciTexts);
     }
 
     protected Answer createImageRbd(String names, long sizes, String poolPath) {
