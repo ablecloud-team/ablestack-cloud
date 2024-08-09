@@ -248,6 +248,7 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
     protected DataObject cacheSnapshotChain(SnapshotInfo snapshot, Scope scope) {
         DataObject leafData = null;
         DataStore store = cacheMgr.getCacheStorage(snapshot, scope);
+        logger.info("store::::::"+store);
         while (snapshot != null) {
             DataObject cacheData = cacheMgr.createCacheObject(snapshot, store);
             if (leafData == null) {
@@ -281,6 +282,7 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
         DataStore store = snapObj.getDataStore();
         DataStoreTO storTO = store.getTO();
         DataObject srcData = snapObj;
+        logger.info("storTO::::::"+ storTO);
         try {
             if (!(storTO instanceof NfsTO)) {
                 // cache snapshot to zone-wide staging store for the volume to be created
@@ -552,6 +554,49 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
         callback.complete(result);
     }
 
+    @Override
+    public void cloneAsync(DataObject srcData, DataObject destData, Host destHost, AsyncCompletionCallback<CopyCommandResult> callback) {
+        Answer answer = null;
+        String errMsg = null;
+        try {
+            if (logger.isDebugEnabled()) logger.debug("cloneAsync inspecting src type " + srcData.getType().toString() + " cloneAsync inspecting dest type " + destData.getType().toString());
+            if (srcData.getType() == DataObjectType.SNAPSHOT && destData.getType() == DataObjectType.VOLUME) {
+                answer = cloneVolumeFromSnapshot(srcData, destData);
+            } else if (srcData.getType() == DataObjectType.SNAPSHOT && destData.getType() == DataObjectType.TEMPLATE) {
+                answer = createTemplateFromSnapshot(srcData, destData);
+            } else if (srcData.getType() == DataObjectType.TEMPLATE && destData.getType() == DataObjectType.VOLUME) {
+                answer = cloneVolume(srcData, destData);
+            } else if (destData.getType() == DataObjectType.VOLUME && srcData.getType() == DataObjectType.VOLUME &&
+                srcData.getDataStore().getRole() == DataStoreRole.Primary && destData.getDataStore().getRole() == DataStoreRole.Primary) {
+                if (logger.isDebugEnabled()) logger.debug("About to MIGRATE copy between datasources");
+                if (srcData.getId() == destData.getId()) {
+                    // The volume has to be migrated across storage pools.
+                    if (logger.isDebugEnabled()) logger.debug("MIGRATE copy using migrateVolumeToPool STARTING");
+                    answer = migrateVolumeToPool(srcData, destData);
+                    if (logger.isDebugEnabled()) logger.debug("MIGRATE copy using migrateVolumeToPool DONE: " + answer.getResult());
+                } else {
+                    if (logger.isDebugEnabled()) logger.debug("MIGRATE copy using copyVolumeBetweenPools STARTING");
+                    answer = copyVolumeBetweenPools(srcData, destData);
+                    if (logger.isDebugEnabled()) logger.debug("MIGRATE copy using copyVolumeBetweenPools DONE: " + answer.getResult());
+                }
+            } else if (srcData.getType() == DataObjectType.SNAPSHOT && destData.getType() == DataObjectType.SNAPSHOT) {
+                answer = copySnapshot(srcData, destData);
+            } else {
+                answer = copyObject(srcData, destData, destHost);
+            }
+
+            if (answer != null && !answer.getResult()) {
+                errMsg = answer.getDetails();
+            }
+        } catch (Exception e) {
+            if (logger.isDebugEnabled()) logger.debug("copy failed", e);
+            errMsg = e.toString();
+        }
+        CopyCommandResult result = new CopyCommandResult(null, answer);
+        result.setResult(errMsg);
+        callback.complete(result);
+    }
+
     @DB
     protected Answer createTemplateFromSnapshot(DataObject srcData, DataObject destData) {
 
@@ -677,5 +722,46 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
             }
         }
         return false;
+    }
+
+    protected Answer cloneVolumeFromSnapshot(DataObject snapObj, DataObject volObj) {
+        SnapshotInfo snapshot = (SnapshotInfo)snapObj;
+        StoragePool pool = (StoragePool)volObj.getDataStore();
+
+        String basicErrMsg = "Failed to create volume from " + snapshot.getName() + " on pool " + pool;
+        DataStore store = snapObj.getDataStore();
+        DataStoreTO storTO = store.getTO();
+        DataObject srcData = snapObj;
+        try {
+            String value = configDao.getValue(Config.CreateVolumeFromSnapshotWait.toString());
+            int _createVolumeFromSnapshotWait = NumbersUtil.parseInt(value, Integer.parseInt(Config.CreateVolumeFromSnapshotWait.getDefaultValue()));
+
+            EndPoint ep = null;
+            if (srcData.getDataStore().getRole() == DataStoreRole.Primary) {
+                ep = selector.select(volObj);
+            } else {
+                ep = selector.select(srcData, volObj);
+            }
+
+            CopyCommand cmd = new CopyCommand(srcData.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnVMwareDest(volObj.getTO()), _createVolumeFromSnapshotWait, VirtualMachineManager.ExecuteInSequence.value());
+
+            Answer answer = null;
+            if (ep == null) {
+                logger.error(NO_REMOTE_ENDPOINT_SSVM);
+                answer = new Answer(cmd, false, NO_REMOTE_ENDPOINT_SSVM);
+            } else {
+                answer = ep.sendMessage(cmd);
+            }
+
+            return answer;
+        } catch (Exception e) {
+            logger.error(basicErrMsg, e);
+            throw new CloudRuntimeException(basicErrMsg);
+        } finally {
+            if (!(storTO instanceof NfsTO)) {
+                // still keep snapshot on cache which may be migrated from previous secondary storage
+                releaseSnapshotCacheChain((SnapshotInfo)srcData);
+            }
+        }
     }
 }

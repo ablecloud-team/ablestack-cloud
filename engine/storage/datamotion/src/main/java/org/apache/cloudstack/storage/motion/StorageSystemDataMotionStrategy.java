@@ -3088,4 +3088,9 @@ public class StorageSystemDataMotionStrategy implements DataMotionStrategy {
 
         return supportedTypes.contains(storagePoolTypeToValidate);
     };
+
+    @Override
+    public void cloneAsync(DataObject srcData, DataObject destData, Host destHost, AsyncCompletionCallback<CopyCommandResult> callback) {
+        return;
+    }
 }

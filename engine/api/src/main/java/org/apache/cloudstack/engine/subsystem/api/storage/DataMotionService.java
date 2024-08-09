@@ -32,4 +32,6 @@ public interface DataMotionService {
 
     void copyAsync(Map<VolumeInfo, DataStore> volumeMap, VirtualMachineTO vmTo, Host srcHost, Host destHost, AsyncCompletionCallback<CopyCommandResult> callback);
 
+    void cloneAsync(DataObject srcData, DataObject destData, AsyncCompletionCallback<CopyCommandResult> callback);
+
 }

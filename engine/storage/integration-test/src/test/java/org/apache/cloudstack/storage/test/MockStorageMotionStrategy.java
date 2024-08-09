@@ -59,4 +59,9 @@ public class MockStorageMotionStrategy implements DataMotionStrategy {
         CopyCommandResult result = new CopyCommandResult("something", null);
         callback.complete(result);
     }
+
+    @Override
+    public void cloneAsync(DataObject srcData, DataObject destData, Host destHost, AsyncCompletionCallback<CopyCommandResult> callback) {
+        return;
+    }
 }

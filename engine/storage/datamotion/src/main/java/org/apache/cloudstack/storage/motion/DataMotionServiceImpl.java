@@ -88,6 +88,36 @@ public class DataMotionServiceImpl implements DataMotionService {
         strategy.copyAsync(srcData, destData, destHost, callback);
     }
 
+    public void cloneAsync(DataObject srcData, DataObject destData, Host destHost, AsyncCompletionCallback<CopyCommandResult> callback) {
+        if (srcData.getDataStore() == null || destData.getDataStore() == null) {
+            String errMsg = "can't find data store";
+            invokeCallback(errMsg, callback);
+            return;
+        }
+
+        if (srcData.getDataStore().getDriver().canCopy(srcData, destData)) {
+            srcData.getDataStore().getDriver().copyAsync(srcData, destData, destHost, callback);
+            return;
+        } else if (destData.getDataStore().getDriver().canCopy(srcData, destData)) {
+            destData.getDataStore().getDriver().copyAsync(srcData, destData, destHost, callback);
+            return;
+        }
+
+        DataMotionStrategy strategy = storageStrategyFactory.getDataMotionStrategy(srcData, destData);
+        if (strategy == null) {
+            // OfflineVmware volume migration
+            // Cleanup volumes from target and reset the state of volume at source
+            cleanUpVolumesForFailedMigrations(srcData, destData);
+            String errMsg = "Can't find strategy to move data. " + "Source: " + srcData.getType().name() + " '" + srcData.getUuid() + ", Destination: " +
+                    destData.getType().name() + " '" + destData.getUuid() + "'";
+            invokeCallback(errMsg, callback);
+            return;
+        }
+
+        strategy.cloneAsync(srcData, destData, destHost, callback);
+    }
+
+
     /**
      * Offline Vmware volume migration
      * Cleanup volumes after failed migrations and reset state of source volume
@@ -115,6 +145,11 @@ public class DataMotionServiceImpl implements DataMotionService {
     @Override
     public void copyAsync(DataObject srcData, DataObject destData, AsyncCompletionCallback<CopyCommandResult> callback) {
         copyAsync(srcData, destData, null, callback);
+    }
+
+    @Override
+    public void cloneAsync(DataObject srcData, DataObject destData, AsyncCompletionCallback<CopyCommandResult> callback) {
+        cloneAsync(srcData, destData, null, callback);
     }
 
     @Override

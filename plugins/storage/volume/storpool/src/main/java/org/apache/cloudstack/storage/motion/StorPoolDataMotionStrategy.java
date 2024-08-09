@@ -579,4 +579,9 @@ public class StorPoolDataMotionStrategy implements DataMotionStrategy {
                 MigrateCommand.MigrateDiskInfo.DiskType.BLOCK, MigrateCommand.MigrateDiskInfo.DriverType.RAW,
                 MigrateCommand.MigrateDiskInfo.Source.DEV, destPath);
     }
+
+    @Override
+    public void cloneAsync(DataObject srcData, DataObject destData, Host destHost, AsyncCompletionCallback<CopyCommandResult> callback) {
+        return;
+    }
 }

@@ -9330,9 +9330,6 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if (CollectionUtils.isEmpty(volumes)) {
             throw new CloudRuntimeException("The VM to copy does not have a Volume attached!");
         }
-        if ("".equals(cmd.getType()) || cmd.getType() == null) {
-            throw new CloudRuntimeException("the Clone type doesn't exist");
-        }
 
         // verify that the VM doesn't expire
         Map<String, String> details = curVm.getDetails();
@@ -9396,7 +9393,6 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         Account curVmAccount = _accountDao.findById(curVm.getAccountId());
         long zoneId = cmd.getTargetVM().getDataCenterId();
         String clone_type = cmd.getType();
-        SnapshotVO snapshot = null;
         String orgName = cmd.getName();
 
         Account owner = _accountService.getAccount(cmd.getEntityOwnerId());
@@ -9447,8 +9443,10 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 Storage.ProvisioningType provisioningType = diskOffering.getProvisioningType();
                 String rootVolumeName = cmd.getName() + "-" + parentRootVolume.getName();
                 if (parentRootVolume.getVolumeType() == Volume.Type.ROOT) {
-                    snapVO.setCloneType(clone_type);
-                    _snapshotDao.update(snapVO.getId(), snapVO);
+                    if (StringUtils.isNotBlank(clone_type)){
+                        snapVO.setCloneType(clone_type);
+                        _snapshotDao.update(snapVO.getId(), snapVO);
+                    }
                     VolumeVO newVol = cloneVolumeFromSnapToDB(curVmAccount, true, zoneId, diskOfferingId, provisioningType, size, minIops, maxIops, parentRootVolume, rootVolumeName,
                                                                         _uuidMgr.generateUuid(Volume.class, null), new HashMap<>(), Volume.Type.ROOT);
                     VolumeVO rootVolume = (VolumeVO) _volumeService.cloneVolumeFromSnapshot(newVol, snapVO.getId(), curVm.getId());
@@ -9486,9 +9484,10 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 String dataVolumeName = cmd.getName() + "-" + parentDataDiskVolume.getName();
 
                 if (parentDataDiskVolume.getVolumeType() == Volume.Type.DATADISK) {
-                    snapVO.setCloneType(clone_type);
-                    _snapshotDao.update(snapVO.getId(), snapVO);
-
+                    if(StringUtils.isNotBlank(clone_type)){
+                        snapVO.setCloneType(clone_type);
+                        _snapshotDao.update(snapVO.getId(), snapVO);
+                    }
                     VolumeVO newDataDiskVol = null;
                     try {
                         newDataDiskVol = cloneVolumeFromSnapToDB(curVmAccount, true, zoneId, diskOfferingId, provisioningType, size, minIops, maxIops, parentDataDiskVolume, dataVolumeName,

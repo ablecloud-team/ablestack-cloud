@@ -1674,6 +1674,29 @@ public class VolumeServiceImpl implements VolumeService {
         return future;
     }
 
+    @Override
+    public AsyncCallFuture<VolumeApiResult> cloneVolumeFromSnapshot(VolumeInfo volume, DataStore store, SnapshotInfo snapshot) {
+        AsyncCallFuture<VolumeApiResult> future = new AsyncCallFuture<>();
+
+        try {
+            DataObject volumeOnStore = store.create(volume);
+            volumeOnStore.processEvent(Event.CreateOnlyRequested);
+            _volumeDetailsDao.addDetail(volume.getId(), SNAPSHOT_ID, Long.toString(snapshot.getId()), false);
+
+            CreateVolumeFromBaseImageContext<VolumeApiResult> context = new CreateVolumeFromBaseImageContext<>(null, volume, store, volumeOnStore, future, snapshot, null);
+            AsyncCallbackDispatcher<VolumeServiceImpl, CopyCommandResult> caller = AsyncCallbackDispatcher.create(this);
+            caller.setCallback(caller.getTarget().createVolumeFromSnapshotCallback(null, null)).setContext(context);
+            motionSrv.cloneAsync(snapshot, volumeOnStore, caller);
+        } catch (Exception e) {
+            logger.debug("create volume from snapshot failed", e);
+            VolumeApiResult result = new VolumeApiResult(volume);
+            result.setResult(e.toString());
+            future.complete(result);
+        }
+
+        return future;
+    }
+
     protected Void createVolumeFromSnapshotCallback(AsyncCallbackDispatcher<VolumeServiceImpl, CopyCommandResult> callback, CreateVolumeFromBaseImageContext<VolumeApiResult> context) {
         CopyCommandResult result = callback.getResult();
         VolumeInfo volume = (VolumeInfo)context.templateOnStore;
