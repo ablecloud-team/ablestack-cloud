@@ -113,6 +113,7 @@
 
     <bean id="userVmManagerImpl" class="com.cloud.vm.UserVmManagerImpl">
         <property name="kubernetesServiceHelpers" value="#{kubernetesServiceHelperRegistry.registered}" />
+        <property name="disasterRecoveryHelpers" value="#{disasterRecoveryHelperRegistry.registered}" />
     </bean>
 
     <bean id="consoleProxyManagerImpl" class="com.cloud.consoleproxy.ConsoleProxyManagerImpl">

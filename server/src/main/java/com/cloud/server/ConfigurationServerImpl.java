@@ -1205,7 +1205,7 @@ public class ConfigurationServerImpl extends ManagerBase implements Configuratio
 
                 _networkOfferingDao.persistDefaultL2NetworkOfferings();
 
-                // Offering #9 - network offering for NSX provider - NATTED mode
+                // Offering #9 - network offering for NSX provider - NATTED mode;
                 //createAndPersistDefaultNsxOffering(NetworkOffering.DEFAULT_NAT_NSX_OFFERING, "Offering for NSX enabled networks - NAT mode",
                 //        NetworkOffering.NsxMode.NATTED, false, true);
 

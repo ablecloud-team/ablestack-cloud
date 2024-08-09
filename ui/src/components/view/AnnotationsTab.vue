@@ -194,6 +194,7 @@ export default {
         case 'AutoScaleVmGroup': return 'AUTOSCALE_VM_GROUP'
         case 'ManagementServer': return 'MANAGEMENT_SERVER'
         case 'ObjectStorage': return 'OBJECT_STORAGE'
+        case 'DisasterRecoveryCluster': return 'DISASTER_RECOVERY_CLUSTER'
         default: return ''
       }
     },
