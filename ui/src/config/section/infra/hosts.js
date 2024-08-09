@@ -49,6 +49,9 @@ export default {
     name: 'outofbandmanagement',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/OobmTab.vue')))
   }, {
+    name: 'listhostdevices',
+    component: shallowRef(defineAsyncComponent(() => import('@/views/infra/ListHostDevicesTab.vue')))
+  }, {
     name: 'events',
     resourceType: 'Host',
     component: shallowRef(defineAsyncComponent(() => import('@/components/view/EventsTab.vue'))),

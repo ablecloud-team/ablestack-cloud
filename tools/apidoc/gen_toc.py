@@ -294,7 +294,8 @@ known_categories = {
     'importVm': 'Virtual Machine',
     'Webhook': 'Webhook',
     'Webhooks': 'Webhook',
-    'purgeExpungedResources': 'Resource'
+    'purgeExpungedResources': 'Resource',
+    'listHostDevices': 'listHostDevices'
 }
 
 

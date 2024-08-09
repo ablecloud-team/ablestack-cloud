@@ -209,4 +209,5 @@ public interface QueryService {
     ListResponse<ObjectStoreResponse> searchForObjectStores(ListObjectStoragePoolsCmd listObjectStoragePoolsCmd);
 
     ListResponse<BucketResponse> searchForBuckets(ListBucketsCmd listBucketsCmd);
+
 }

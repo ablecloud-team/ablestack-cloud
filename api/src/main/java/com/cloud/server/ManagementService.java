@@ -35,6 +35,7 @@ import org.apache.cloudstack.api.command.admin.guest.UpdateGuestOsCmd;
 import org.apache.cloudstack.api.command.admin.guest.UpdateGuestOsMappingCmd;
 import org.apache.cloudstack.api.command.admin.host.ListHostsCmd;
 import org.apache.cloudstack.api.command.admin.host.UpdateHostPasswordCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostDevicesCmd;
 import org.apache.cloudstack.api.command.admin.pod.ListPodsByCmd;
 import org.apache.cloudstack.api.command.admin.resource.ArchiveAlertsCmd;
 import org.apache.cloudstack.api.command.admin.resource.DeleteAlertsCmd;
@@ -65,6 +66,8 @@ import org.apache.cloudstack.api.command.user.userdata.ListUserDataCmd;
 import org.apache.cloudstack.api.command.user.userdata.RegisterUserDataCmd;
 import org.apache.cloudstack.api.command.user.vm.GetVMPasswordCmd;
 import org.apache.cloudstack.api.command.user.vmgroup.UpdateVMGroupCmd;
+import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.ListHostDevicesResponse;
 import org.apache.cloudstack.config.Configuration;
 import org.apache.cloudstack.config.ConfigurationGroup;
 
@@ -97,396 +100,439 @@ import com.cloud.vm.VirtualMachine.Type;
  *
  */
 public interface ManagementService {
-    static final String Name = "management-server";
+        static final String Name = "management-server";
 
-    /**
-     * returns the a map of the names/values in the configuration table
-     *
-     * @return map of configuration name/values
-     */
-    Pair<List<? extends Configuration>, Integer> searchForConfigurations(ListCfgsByCmd c);
+        /**
+         * returns the a map of the names/values in the configuration table
+         *
+         * @return map of configuration name/values
+         */
+        Pair<List<? extends Configuration>, Integer> searchForConfigurations(ListCfgsByCmd c);
 
-    /**
-     * returns the configuration groups
-     *
-     * @return list of configuration groups
-     */
-    Pair<List<? extends ConfigurationGroup>, Integer> listConfigurationGroups(ListCfgGroupsByCmd cmd);
+        /**
+         * returns the configuration groups
+         *
+         * @return list of configuration groups
+         */
+        Pair<List<? extends ConfigurationGroup>, Integer> listConfigurationGroups(ListCfgGroupsByCmd cmd);
 
-    /**
-     * Searches for Clusters by the specified search criteria
-     *
-     * @param c
-     * @return
-     */
-    Pair<List<? extends Cluster>, Integer> searchForClusters(ListClustersCmd c);
+        /**
+         * Searches for Clusters by the specified search criteria
+         *
+         * @param c
+         * @return
+         */
+        Pair<List<? extends Cluster>, Integer> searchForClusters(ListClustersCmd c);
 
-    /**
-     * Searches for Clusters by the specified zone Id.
-     * @param zoneId
-     * @return
-     */
-    List<? extends Cluster> searchForClusters(long zoneId, Long startIndex, Long pageSizeVal, String hypervisorType);
+        /**
+         * Searches for Clusters by the specified zone Id.
+         *
+         * @param zoneId
+         * @return
+         */
+        List<? extends Cluster> searchForClusters(long zoneId, Long startIndex, Long pageSizeVal,
+                        String hypervisorType);
 
-    /**
-     * Searches for Pods by the specified search criteria Can search by: pod name and/or zone name
-     *
-     * @param cmd
-     * @return List of Pods
-     */
-    Pair<List<? extends Pod>, Integer> searchForPods(ListPodsByCmd cmd);
+        /**
+         * Searches for Pods by the specified search criteria Can search by: pod name
+         * and/or zone name
+         *
+         * @param cmd
+         * @return List of Pods
+         */
+        Pair<List<? extends Pod>, Integer> searchForPods(ListPodsByCmd cmd);
 
-    /**
-     * Searches for servers by the specified search criteria Can search by: "name", "type", "state", "dataCenterId",
-     * "podId"
-     *
-     * @param cmd
-     * @return List of Hosts
-     */
-    Pair<List<? extends Host>, Integer> searchForServers(ListHostsCmd cmd);
+        /**
+         * Searches for servers by the specified search criteria Can search by: "name",
+         * "type", "state", "dataCenterId",
+         * "podId"
+         *
+         * @param cmd
+         * @return List of Hosts
+         */
+        Pair<List<? extends Host>, Integer> searchForServers(ListHostsCmd cmd);
 
-    /**
-     * Obtains a list of IP Addresses by the specified search criteria. Can search by: "userId", "dataCenterId",
-     * "address"
-     *
-     * @param cmd
-     *            the command that wraps the search criteria
-     * @return List of IPAddresses
-     */
-    Pair<List<? extends IpAddress>, Integer> searchForIPAddresses(ListPublicIpAddressesCmd cmd);
+        /**
+         * Obtains a list of IP Addresses by the specified search criteria. Can search
+         * by: "userId", "dataCenterId",
+         * "address"
+         *
+         * @param cmd
+         *            the command that wraps the search criteria
+         * @return List of IPAddresses
+         */
+        Pair<List<? extends IpAddress>, Integer> searchForIPAddresses(ListPublicIpAddressesCmd cmd);
 
-    /**
-     * Obtains a list of all guest OS.
-     *
-     * @return list of GuestOS
-     */
-    Pair<List<? extends GuestOS>, Integer> listGuestOSByCriteria(ListGuestOsCmd cmd);
+        /**
+         * Obtains a list of all guest OS.
+         *
+         * @return list of GuestOS
+         */
+        Pair<List<? extends GuestOS>, Integer> listGuestOSByCriteria(ListGuestOsCmd cmd);
 
-    /**
-     * Obtains a list of all guest OS categories.
-     *
-     * @return list of GuestOSCategories
-     */
-    Pair<List<? extends GuestOsCategory>, Integer> listGuestOSCategoriesByCriteria(ListGuestOsCategoriesCmd cmd);
+        /**
+         * Obtains a list of all guest OS categories.
+         *
+         * @return list of GuestOSCategories
+         */
+        Pair<List<? extends GuestOsCategory>, Integer> listGuestOSCategoriesByCriteria(ListGuestOsCategoriesCmd cmd);
 
-    /**
-     * Obtains a list of all guest OS mappings
-     *
-     * @return list of GuestOSHypervisor
-     */
-    Pair<List<? extends GuestOSHypervisor>, Integer> listGuestOSMappingByCriteria(ListGuestOsMappingCmd cmd);
+        /**
+         * Obtains a list of all guest OS mappings
+         *
+         * @return list of GuestOSHypervisor
+         */
+        Pair<List<? extends GuestOSHypervisor>, Integer> listGuestOSMappingByCriteria(ListGuestOsMappingCmd cmd);
 
-    /**
-     * Adds a new guest OS mapping
-     *
-     * @return A VO containing the new mapping, with its hypervisor, hypervisor type, guest OS name, and the name of guest OS specific to hypervisor
-     */
-    GuestOSHypervisor addGuestOsMapping(AddGuestOsMappingCmd addGuestOsMappingCmd);
+        /**
+         * Adds a new guest OS mapping
+         *
+         * @return A VO containing the new mapping, with its hypervisor, hypervisor
+         *         type, guest OS name, and the name of guest OS specific to hypervisor
+         */
+        GuestOSHypervisor addGuestOsMapping(AddGuestOsMappingCmd addGuestOsMappingCmd);
 
-    /**
-     * Find newly added guest OS mapping by ID
-     *
-     * @return A VO containing the guest OS mapping specified by ID, with its hypervisor, hypervisor type, guest OS name, and the name of guest OS specific to hypervisor
-     */
-    GuestOSHypervisor getAddedGuestOsMapping(Long guestOsHypervisorId);
+        /**
+         * Find newly added guest OS mapping by ID
+         *
+         * @return A VO containing the guest OS mapping specified by ID, with its
+         *         hypervisor, hypervisor type, guest OS name, and the name of guest OS
+         *         specific to hypervisor
+         */
+        GuestOSHypervisor getAddedGuestOsMapping(Long guestOsHypervisorId);
 
-    /**
-     * Get hypervisor guest OS names
-     *
-     * @return the hypervisor guest OS name that can be used for mapping, with guest OS name, and the name of guest OS specific to hypervisor
-     */
-    List<Pair<String, String>> getHypervisorGuestOsNames(GetHypervisorGuestOsNamesCmd getHypervisorGuestOsNamesCmd);
-    /**
-     * Adds a new guest OS
-     *
-     * @return A VO containing the new guest OS, with its category ID, name and display name
-     */
-    GuestOS addGuestOs(AddGuestOsCmd addGuestOsCmd);
+        /**
+         * Get hypervisor guest OS names
+         *
+         * @return the hypervisor guest OS name that can be used for mapping, with guest
+         *         OS name, and the name of guest OS specific to hypervisor
+         */
+        List<Pair<String, String>> getHypervisorGuestOsNames(GetHypervisorGuestOsNamesCmd getHypervisorGuestOsNamesCmd);
 
-    /**
-     * Find newly added guest OS by ID
-     *
-     * @return A VO containing the guest OS specified by ID, with its category ID, name and display name
-     */
-    GuestOS getAddedGuestOs(Long guestOsId);
+        /**
+         * Adds a new guest OS
+         *
+         * @return A VO containing the new guest OS, with its category ID, name and
+         *         display name
+         */
+        GuestOS addGuestOs(AddGuestOsCmd addGuestOsCmd);
 
-    /**
-     * Updates an existing guest OS
-     *
-     * @return A VO containing the updated display name
-     */
-    GuestOS updateGuestOs(UpdateGuestOsCmd updateGuestOsCmd);
+        /**
+         * Find newly added guest OS by ID
+         *
+         * @return A VO containing the guest OS specified by ID, with its category ID,
+         *         name and display name
+         */
+        GuestOS getAddedGuestOs(Long guestOsId);
 
-    /**
-     * Updates an existing guest OS mapping
-     *
-     * @return A VO containing the updated OS name for hypervisor
-     */
-    GuestOSHypervisor updateGuestOsMapping(UpdateGuestOsMappingCmd updateGuestOsMappingCmd);
+        /**
+         * Updates an existing guest OS
+         *
+         * @return A VO containing the updated display name
+         */
+        GuestOS updateGuestOs(UpdateGuestOsCmd updateGuestOsCmd);
 
-    /**
-     * Removes an existing guest OS
-     *
-     * @return True is successfully marked for delete, false otherwise
-     */
-    boolean removeGuestOs(RemoveGuestOsCmd removeGuestOsCmd);
+        /**
+         * Updates an existing guest OS mapping
+         *
+         * @return A VO containing the updated OS name for hypervisor
+         */
+        GuestOSHypervisor updateGuestOsMapping(UpdateGuestOsMappingCmd updateGuestOsMappingCmd);
 
-    /**
-     * Removes an existing guest OS mapping
-     *
-     * @return True is successfully marked for delete, false otherwise
-     */
-    boolean removeGuestOsMapping(RemoveGuestOsMappingCmd removeGuestOsMappingCmd);
+        /**
+         * Removes an existing guest OS
+         *
+         * @return True is successfully marked for delete, false otherwise
+         */
+        boolean removeGuestOs(RemoveGuestOsCmd removeGuestOsCmd);
 
-    VirtualMachine stopSystemVM(StopSystemVmCmd cmd) throws ResourceUnavailableException, ConcurrentOperationException;
+        /**
+         * Removes an existing guest OS mapping
+         *
+         * @return True is successfully marked for delete, false otherwise
+         */
+        boolean removeGuestOsMapping(RemoveGuestOsMappingCmd removeGuestOsMappingCmd);
 
-    VirtualMachine startSystemVM(long vmId);
+        VirtualMachine stopSystemVM(StopSystemVmCmd cmd)
+                        throws ResourceUnavailableException, ConcurrentOperationException;
 
-    VirtualMachine rebootSystemVM(RebootSystemVmCmd cmd);
+        VirtualMachine startSystemVM(long vmId);
 
-    VirtualMachine destroySystemVM(DestroySystemVmCmd cmd);
+        VirtualMachine rebootSystemVM(RebootSystemVmCmd cmd);
 
-    VirtualMachine upgradeSystemVM(UpgradeSystemVMCmd cmd);
+        VirtualMachine destroySystemVM(DestroySystemVmCmd cmd);
 
-    /**
-     * Searches for alerts
-     *
-     * @param c
-     * @return List of Alerts
-     */
-    Pair<List<? extends Alert>, Integer> searchForAlerts(ListAlertsCmd cmd);
+        VirtualMachine upgradeSystemVM(UpgradeSystemVMCmd cmd);
 
-    /**
-     * Archive alerts
-     * @param cmd
-     * @return True on success. False otherwise.
-     */
-    boolean archiveAlerts(ArchiveAlertsCmd cmd);
+        /**
+         * Searches for alerts
+         *
+         * @param c
+         * @return List of Alerts
+         */
+        Pair<List<? extends Alert>, Integer> searchForAlerts(ListAlertsCmd cmd);
 
-    /**
-     * Delete alerts
-     * @param cmd
-     * @return True on success. False otherwise.
-     */
-    boolean deleteAlerts(DeleteAlertsCmd cmd);
+        /**
+         * Archive alerts
+         *
+         * @param cmd
+         * @return True on success. False otherwise.
+         */
+        boolean archiveAlerts(ArchiveAlertsCmd cmd);
 
-    /**
-     * Archive events
-     * @param cmd
-     * @return True on success. False otherwise.
-     */
-    boolean archiveEvents(ArchiveEventsCmd cmd);
+        /**
+         * Delete alerts
+         *
+         * @param cmd
+         * @return True on success. False otherwise.
+         */
+        boolean deleteAlerts(DeleteAlertsCmd cmd);
 
-    /**
-     * Download events
-     * @param cmd
-     * @return True on success. False otherwise.
-     */
-    boolean downloadEvents(DownloadEventsCmd cmd);
+        /**
+         * Archive events
+         *
+         * @param cmd
+         * @return True on success. False otherwise.
+         */
+        boolean archiveEvents(ArchiveEventsCmd cmd);
 
-    /**
-     * Delete events
-     * @param cmd
-     * @return True on success. False otherwise.
-     */
-    boolean deleteEvents(DeleteEventsCmd cmd);
+        /**
+         * Download events
+         *
+         * @param cmd
+         * @return True on success. False otherwise.
+         */
+        boolean downloadEvents(DownloadEventsCmd cmd);
 
-    /**
-     * list all the capacity rows in capacity operations table
-     *
-     * @param cmd
-     * @return List of capacities
-     */
-    List<? extends Capacity> listCapacities(ListCapacityCmd cmd);
+        /**
+         * Delete events
+         *
+         * @param cmd
+         * @return True on success. False otherwise.
+         */
+        boolean deleteEvents(DeleteEventsCmd cmd);
 
-    /**
-     * List system VMs by the given search criteria
-     *
-     * @param cmd
-     *            the command that wraps the search criteria (host, name, state, type, zone, pod, and/or id)
-     * @return the list of system vms that match the given criteria
-     */
-    Pair<List<? extends VirtualMachine>, Integer> searchForSystemVm(ListSystemVMsCmd cmd);
+        /**
+         * list all the capacity rows in capacity operations table
+         *
+         * @param cmd
+         * @return List of capacities
+         */
+        List<? extends Capacity> listCapacities(ListCapacityCmd cmd);
 
-    /**
-     * Returns back a SHA1 signed response
-     *
-     * @param userId
-     *            -- id for the user
-     * @return -- ArrayList of <CloudId+Signature>
-     */
-    ArrayList<String> getCloudIdentifierResponse(long userId);
+        /**
+         * List system VMs by the given search criteria
+         *
+         * @param cmd
+         *            the command that wraps the search criteria (host, name, state,
+         *            type, zone, pod, and/or id)
+         * @return the list of system vms that match the given criteria
+         */
+        Pair<List<? extends VirtualMachine>, Integer> searchForSystemVm(ListSystemVMsCmd cmd);
 
-    boolean updateHostPassword(UpdateHostPasswordCmd cmd);
+        /**
+         * Returns back a SHA1 signed response
+         *
+         * @param userId
+         *               -- id for the user
+         * @return -- ArrayList of <CloudId+Signature>
+         */
+        ArrayList<String> getCloudIdentifierResponse(long userId);
 
-    boolean updateClusterPassword(UpdateHostPasswordCmd cmd);
+        boolean updateHostPassword(UpdateHostPasswordCmd cmd);
 
-    InstanceGroup updateVmGroup(UpdateVMGroupCmd cmd);
+        boolean updateClusterPassword(UpdateHostPasswordCmd cmd);
 
-    Map<String, Object> listCapabilities(ListCapabilitiesCmd cmd);
+        InstanceGroup updateVmGroup(UpdateVMGroupCmd cmd);
 
-    /**
-     * return an array of available hypervisors
-     *
-     * @param zoneId
-     *            TODO
-     *
-     * @return an array of available hypervisors in the cloud
-     */
-    List<String> getHypervisors(Long zoneId);
+        Map<String, Object> listCapabilities(ListCapabilitiesCmd cmd);
 
-    /**
-     * This method uploads a custom cert to the db, and patches every cpvm with it on the current ms
-     *
-     * @param cmd
-     *            -- upload certificate cmd
-     * @return -- returns a string on success
-     */
-    String uploadCertificate(UploadCustomCertificateCmd cmd);
+        /**
+         * return an array of available hypervisors
+         *
+         * @param zoneId
+         *               TODO
+         *
+         * @return an array of available hypervisors in the cloud
+         */
+        List<String> getHypervisors(Long zoneId);
 
-    String getVersion();
+        /**
+         * This method uploads a custom cert to the db, and patches every cpvm with it
+         * on the current ms
+         *
+         * @param cmd
+         *            -- upload certificate cmd
+         * @return -- returns a string on success
+         */
+        String uploadCertificate(UploadCustomCertificateCmd cmd);
 
-    /**
-     * Searches for vlan by the specified search criteria Can search by: "id", "vlan", "name", "zoneID"
-     *
-     * @param cmd
-     * @return List of Vlans
-     */
-    Pair<List<? extends Vlan>, Integer> searchForVlans(ListVlanIpRangesCmd cmd);
+        String getVersion();
 
-    /**
-     * Generates a random password that will be used (initially) by newly created and started virtual machines
-     *
-     * @return a random password
-     */
-    String generateRandomPassword();
+        /**
+         * Searches for vlan by the specified search criteria Can search by: "id",
+         * "vlan", "name", "zoneID"
+         *
+         * @param cmd
+         * @return List of Vlans
+         */
+        Pair<List<? extends Vlan>, Integer> searchForVlans(ListVlanIpRangesCmd cmd);
 
-    /**
-     * Search registered userdatas for the logged in user.
-     *
-     * @param cmd
-     *            The api command class.
-     * @return The list of userdatas found.
-     */
-    Pair<List<? extends UserData>, Integer> listUserDatas(ListUserDataCmd cmd);
+        /**
+         * Generates a random password that will be used (initially) by newly created
+         * and started virtual machines
+         *
+         * @return a random password
+         */
+        String generateRandomPassword();
 
-    /**
-     * Registers a userdata.
-     *
-     * @param cmd
-     *            The api command class.
-     * @return A VO with the registered userdata.
-     */
-    UserData registerUserData(RegisterUserDataCmd cmd);
+        /**
+         * Search registered userdatas for the logged in user.
+         *
+         * @param cmd
+         *            The api command class.
+         * @return The list of userdatas found.
+         */
+        Pair<List<? extends UserData>, Integer> listUserDatas(ListUserDataCmd cmd);
 
-    /**
-     * Deletes a userdata.
-     *
-     * @param cmd
-     *            The api command class.
-     * @return True on success. False otherwise.
-     */
-    boolean deleteUserData(DeleteUserDataCmd cmd);
+        /**
+         * Registers a userdata.
+         *
+         * @param cmd
+         *            The api command class.
+         * @return A VO with the registered userdata.
+         */
+        UserData registerUserData(RegisterUserDataCmd cmd);
 
-    /**
-     * Search registered key pairs for the logged in user.
-     *
-     * @param cmd
-     *            The api command class.
-     * @return The list of key pairs found.
-     */
-    Pair<List<? extends SSHKeyPair>, Integer> listSSHKeyPairs(ListSSHKeyPairsCmd cmd);
+        /**
+         * Deletes a userdata.
+         *
+         * @param cmd
+         *            The api command class.
+         * @return True on success. False otherwise.
+         */
+        boolean deleteUserData(DeleteUserDataCmd cmd);
 
-    /**
-     * Registers a key pair for a given public key.
-     *
-     * @param cmd
-     *            The api command class.
-     * @return A VO with the key pair name and a finger print for the public key.
-     */
-    SSHKeyPair registerSSHKeyPair(RegisterSSHKeyPairCmd cmd);
+        /**
+         * Search registered key pairs for the logged in user.
+         *
+         * @param cmd
+         *            The api command class.
+         * @return The list of key pairs found.
+         */
+        Pair<List<? extends SSHKeyPair>, Integer> listSSHKeyPairs(ListSSHKeyPairsCmd cmd);
 
-    /**
-     * Creates a new
-     *
-     * @param cmd
-     *            The api command class.
-     * @return A VO containing the key pair name, finger print for the public key and the private key material of the
-     *         key pair.
-     */
-    SSHKeyPair createSSHKeyPair(CreateSSHKeyPairCmd cmd);
+        /**
+         * Registers a key pair for a given public key.
+         *
+         * @param cmd
+         *            The api command class.
+         * @return A VO with the key pair name and a finger print for the public key.
+         */
+        SSHKeyPair registerSSHKeyPair(RegisterSSHKeyPairCmd cmd);
 
-    /**
-     * Deletes a key pair by name.
-     *
-     * @param cmd
-     *            The api command class.
-     * @return True on success. False otherwise.
-     */
-    boolean deleteSSHKeyPair(DeleteSSHKeyPairCmd cmd);
+        /**
+         * Creates a new
+         *
+         * @param cmd
+         *            The api command class.
+         * @return A VO containing the key pair name, finger print for the public key
+         *         and the private key material of the
+         *         key pair.
+         */
+        SSHKeyPair createSSHKeyPair(CreateSSHKeyPairCmd cmd);
 
-    /**
-     * Finds and returns an encrypted password for a VM.
-     *
-     * @param cmd
-     *            The api command class.
-     * @return The encrypted password.
-     */
-    String getVMPassword(GetVMPasswordCmd cmd);
+        /**
+         * Deletes a key pair by name.
+         *
+         * @param cmd
+         *            The api command class.
+         * @return True on success. False otherwise.
+         */
+        boolean deleteSSHKeyPair(DeleteSSHKeyPairCmd cmd);
 
-    Type findSystemVMTypeById(long instanceId);
+        /**
+         * Finds and returns an encrypted password for a VM.
+         *
+         * @param cmd
+         *            The api command class.
+         * @return The encrypted password.
+         */
+        String getVMPassword(GetVMPasswordCmd cmd);
 
-    /**
-     * List hosts for migrating the given VM. The API returns list of all hosts in the VM's cluster minus the current
-     * host and
-     * also a list of hosts that seem to have enough CPU and RAM capacity to host this VM.
-     *
-     * @param Long
-     *            vmId
-     *            Id of The VM to migrate
-     * @return Ternary<List<? extends Host>, List<? extends Host>, Map<Host, Boolean>> List of all Hosts to which a VM
-     *         can be migrated, list of Hosts with enough capacity and hosts requiring storage motion for migration.
-     */
-    Ternary<Pair<List<? extends Host>, Integer>, List<? extends Host>, Map<Host, Boolean>> listHostsForMigrationOfVM(Long vmId, Long startIndex, Long pageSize, String keyword);
+        Type findSystemVMTypeById(long instanceId);
 
-    Ternary<Pair<List<? extends Host>, Integer>, List<? extends Host>, Map<Host, Boolean>> listHostsForMigrationOfVM(VirtualMachine vm, Long startIndex, Long pageSize, String keyword, List<VirtualMachine> vmList);
+        /**
+         * List hosts for migrating the given VM. The API returns list of all hosts in
+         * the VM's cluster minus the current
+         * host and
+         * also a list of hosts that seem to have enough CPU and RAM capacity to host
+         * this VM.
+         *
+         * @param Long
+         *             vmId
+         *             Id of The VM to migrate
+         * @return Ternary<List<? extends Host>, List<? extends Host>, Map<Host,
+         *         Boolean>> List of all Hosts to which a VM
+         *         can be migrated, list of Hosts with enough capacity and hosts
+         *         requiring storage motion for migration.
+         */
+        Ternary<Pair<List<? extends Host>, Integer>, List<? extends Host>, Map<Host, Boolean>> listHostsForMigrationOfVM(
+                        Long vmId, Long startIndex, Long pageSize, String keyword);
 
-    /**
-     * List storage pools for live migrating of a volume. The API returns list of all pools in the cluster to which the
-     * volume can be migrated. Current pool is not included in the list. In case of vSphere datastore cluster storage pools,
-     * this method removes the child storage pools and adds the corresponding parent datastore cluster for API response listing
-     *
-     * @param Long volumeId
-     * @param String keyword if passed, will only return storage pools that contain this keyword in the name
-     * @return Pair<List<? extends StoragePool>, List<? extends StoragePool>> List of storage pools in cluster and list
-     *         of pools with enough capacity.
-     */
-    Pair<List<? extends StoragePool>, List<? extends StoragePool>> listStoragePoolsForMigrationOfVolume(Long volumeId, String keyword);
+        Ternary<Pair<List<? extends Host>, Integer>, List<? extends Host>, Map<Host, Boolean>> listHostsForMigrationOfVM(
+                        VirtualMachine vm, Long startIndex, Long pageSize, String keyword, List<VirtualMachine> vmList);
 
-    Pair<List<? extends StoragePool>, List<? extends StoragePool>> listStoragePoolsForSystemMigrationOfVolume(Long volumeId, Long newDiskOfferingId, Long newSize, Long newMinIops, Long newMaxIops, boolean keepSourceStoragePool, boolean bypassStorageTypeCheck);
+        /**
+         * List storage pools for live migrating of a volume. The API returns list of
+         * all pools in the cluster to which the
+         * volume can be migrated. Current pool is not included in the list. In case of
+         * vSphere datastore cluster storage pools,
+         * this method removes the child storage pools and adds the corresponding parent
+         * datastore cluster for API response listing
+         *
+         * @param Long   volumeId
+         * @param String keyword if passed, will only return storage pools that contain
+         *               this keyword in the name
+         * @return Pair<List<? extends StoragePool>, List<? extends StoragePool>> List
+         *         of storage pools in cluster and list
+         *         of pools with enough capacity.
+         */
+        Pair<List<? extends StoragePool>, List<? extends StoragePool>> listStoragePoolsForMigrationOfVolume(
+                        Long volumeId,
+                        String keyword);
 
-    String[] listEventTypes();
+        Pair<List<? extends StoragePool>, List<? extends StoragePool>> listStoragePoolsForSystemMigrationOfVolume(
+                        Long volumeId, Long newDiskOfferingId, Long newSize, Long newMinIops, Long newMaxIops,
+                        boolean keepSourceStoragePool, boolean bypassStorageTypeCheck);
 
-    Pair<List<? extends HypervisorCapabilities>, Integer> listHypervisorCapabilities(Long id, HypervisorType hypervisorType, String keyword, Long startIndex,
-            Long pageSizeVal);
+        String[] listEventTypes();
 
-    HypervisorCapabilities updateHypervisorCapabilities(UpdateHypervisorCapabilitiesCmd cmd);
+        Pair<List<? extends HypervisorCapabilities>, Integer> listHypervisorCapabilities(Long id,
+                        HypervisorType hypervisorType, String keyword, Long startIndex,
+                        Long pageSizeVal);
 
-    /**
-     * list all the top consumed resources across different capacity types
-     *
-     * @param cmd
-     * @return List of capacities
-     */
-    List<? extends Capacity> listTopConsumedResources(ListCapacityCmd cmd);
+        HypervisorCapabilities updateHypervisorCapabilities(UpdateHypervisorCapabilitiesCmd cmd);
 
-    List<String> listDeploymentPlanners();
+        /**
+         * list all the top consumed resources across different capacity types
+         *
+         * @param cmd
+         * @return List of capacities
+         */
+        List<? extends Capacity> listTopConsumedResources(ListCapacityCmd cmd);
 
-    VirtualMachine upgradeSystemVM(ScaleSystemVMCmd cmd) throws ResourceUnavailableException, ManagementServerException, VirtualMachineMigrationException,
-    ConcurrentOperationException;
+        List<String> listDeploymentPlanners();
 
-    void cleanupVMReservations();
+        VirtualMachine upgradeSystemVM(ScaleSystemVMCmd cmd)
+                        throws ResourceUnavailableException, ManagementServerException,
+                        VirtualMachineMigrationException,
+                        ConcurrentOperationException;
 
-    Pair<Boolean, String> patchSystemVM(PatchSystemVMCmd cmd);
+        void cleanupVMReservations();
+
+        Pair<Boolean, String> patchSystemVM(PatchSystemVMCmd cmd);
+
+        ListResponse<ListHostDevicesResponse> listHostDevices(ListHostDevicesCmd cmd);
 
 }
