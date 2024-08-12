@@ -558,7 +558,11 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
             pools.addAll(primaryDataStoreDao.listByDataCenterId(zone.getId()));
             for (StoragePool pool : pools) {
                 String searchPoolParam = StringUtils.isNotBlank(dsPath) ? dsPath : dsName;
+                logger.info("pool.getPath() === "+pool.getPath());
+                logger.info("searchPoolParam === "+searchPoolParam);
+                if (searchPoolParam.equals("/dev/rbd/rbd")) searchPoolParam = "rbd";
                 if (StringUtils.contains(pool.getPath(), searchPoolParam)) {
+                    logger.info("searchPoolParam2 === "+searchPoolParam);
                     storagePool = pool;
                     break;
                 }
