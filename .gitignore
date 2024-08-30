@@ -76,6 +76,9 @@ engine/storage/integration-test/test-output
 git-remote-https.exe.stackdump
 node_modules
 override/
+packaging/centos8
+packaging/suse15
+packaging/el9
 plugins/hypervisors/kvm/.pydevproject
 plugins/network-elements/juniper-contrail/logs/
 replace.properties.override
