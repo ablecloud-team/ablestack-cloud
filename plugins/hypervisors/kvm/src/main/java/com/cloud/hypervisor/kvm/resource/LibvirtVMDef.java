@@ -1977,7 +1977,6 @@ public class LibvirtVMDef {
         @Override
         public String toString() {
             StringBuilder soundBuilder = new StringBuilder();
-            LOGGER.info("ddd"+_soundModel);
             if (_soundModel != null && !_soundModel.isEmpty()) {
                 soundBuilder.append("<sound model='" + _soundModel + "'/>\n");
             }

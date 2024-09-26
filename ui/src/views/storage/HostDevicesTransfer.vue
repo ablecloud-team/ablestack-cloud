@@ -77,7 +77,7 @@ export default {
   methods: {
     fetchVMs () {
       this.loading = true
-      const params = { hostid: this.resource.id }
+      const params = { hostid: this.resource.id, details: 'min' }
       const vmStates = ['Running']
 
       vmStates.forEach((state) => {
