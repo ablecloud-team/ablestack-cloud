@@ -57,6 +57,40 @@
           :columns="['displayname', 'state', 'type', 'created']"
           :routerlinks="(record) => { return { displayname: '/vmsnapshot/' + record.id } }"/>
       </a-tab-pane>
+      <a-tab-pane :tab="$t('label.dr')" key="disasterrecoverycluster" v-if="'createDisasterRecoveryClusterVm' in $store.getters.apis">
+        <a-button
+          type="primary"
+          style="width: 100%; margin-bottom: 10px"
+          @click="showAddMirVMModal"
+          :loading="loadingMirror"
+          :disabled="!('createDisasterRecoveryClusterVm' in $store.getters.apis)">
+          <template #icon><plus-outlined /></template> {{ $t('label.add.dr.mirroring.vm') }}
+        </a-button>
+        <DRTable :resource="vm" :loading="loading">
+          <template #actions="record">
+            <tooltip-button
+              tooltipPlacement="bottom"
+              :tooltip="$t('label.dr.simulation.test')"
+              icon="ExperimentOutlined"
+              :disabled="!('connectivityTestsDisasterRecovery' in $store.getters.apis)"
+              @onClick="DrSimulationTest(record)" />
+            <a-popconfirm
+              :title="$t('message.dr.mirrored.vm.remove')"
+              @confirm="removeMirror(record.dr)"
+              :okText="$t('label.yes')"
+              :cancelText="$t('label.no')"
+            >
+              <tooltip-button
+                tooltipPlacement="bottom"
+                :tooltip="$t('label.dr.remove.mirroring')"
+                :disabled="!('deleteDisasterRecoveryClusterVm' in $store.getters.apis)"
+                type="primary"
+                :danger="true"
+                icon="link-outlined" />
+            </a-popconfirm>
+          </template>
+        </DRTable>
+      </a-tab-pane>
       <a-tab-pane :tab="$t('label.backup')" key="backups" v-if="'listBackups' in $store.getters.apis">
         <ListResourceTable
           apiName="listBackups"
@@ -124,6 +158,15 @@
       <CreateVolume :resource="resource" @close-action="closeModals" />
     </a-modal>
 
+    <a-modal
+      :visible="showAddMirrorVMModal"
+      :title="$t('label.add.dr.mirroring.vm')"
+      :maskClosable="false"
+      :closable="true"
+      :footer="null"
+      @cancel="closeModals">
+      <DRMirroringVMAdd :resource="resource" @close-action="closeModals" />
+    </a-modal>
   </a-spin>
 </template>
 
@@ -145,6 +188,9 @@ import ResourceIcon from '@/components/view/ResourceIcon'
 import AnnotationsTab from '@/components/view/AnnotationsTab'
 import VolumesTab from '@/components/view/VolumesTab.vue'
 import SecurityGroupSelection from '@views/compute/wizard/SecurityGroupSelection'
+import DRTable from '@/views/compute/dr/DRTable.vue'
+import DRsimulationTestModal from '@/views/compute/dr/DRsimulationTestModal.vue'
+import DRMirroringVMAdd from '@/views/compute/dr/DRMirroringVMAdd'
 
 export default {
   name: 'InstanceTab',
@@ -156,6 +202,9 @@ export default {
     DetailSettings,
     CreateVolume,
     NicsTab,
+    DRTable,
+    DRsimulationTestModal,
+    DRMirroringVMAdd,
     InstanceSchedules,
     ListResourceTable,
     SecurityGroupSelection,
@@ -183,6 +232,9 @@ export default {
       currentTab: 'details',
       showAddVolumeModal: false,
       diskOfferings: [],
+      showAddMirrorVMModal: false,
+      showDrSimulationTestModal: false,
+      loadingMirror: false,
       annotations: [],
       dataResource: {},
       editeNic: '',
@@ -271,9 +323,14 @@ export default {
       this.showUpdateSecurityGroupsModal = true
       this.loadingSG = false
     },
+    showAddMirVMModal () {
+      this.showAddMirrorVMModal = true
+    },
     closeModals () {
       this.showAddVolumeModal = false
       this.showUpdateSecurityGroupsModal = false
+      this.showAddMirrorVMModal = false
+      this.showDrSimulationTestModal = false
     },
     updateSecurityGroupsSelection (securitygroupids) {
       this.securitygroupids = securitygroupids || []
@@ -285,6 +342,39 @@ export default {
         this.closeModals()
         this.parentFetchData()
       })
+    },
+    removeMirror (item) {
+      this.loadingMirror = true
+      api('deleteDisasterRecoveryClusterVm', {
+        drclustername: item.drName,
+        virtualmachineid: this.vm.id
+      }).then(response => {
+        this.$pollJob({
+          jobId: response.deletedisasterrecoveryclustervmresponse.jobid,
+          successMessage: this.$t('message.success.remove.disaster.recovery.cluster.vm'),
+          successMethod: () => {
+            this.loadingMirror = false
+            this.parentFetchData()
+          },
+          errorMessage: this.$t('message.error.remove.disaster.recovery.cluster.vm'),
+          errorMethod: () => {
+            this.loadingMirror = false
+            this.parentFetchData()
+          },
+          loadingMessage: this.$t('message.remove.disaster.recovery.cluster.vm.processing'),
+          catchMessage: this.$t('error.fetching.async.job.result'),
+          catchMethod: () => {
+            this.loadingMirror = false
+            this.parentFetchData()
+          }
+        })
+      }).catch(error => {
+        this.$notifyError(error)
+        this.loadingMirror = false
+      })
+    },
+    DrSimulationTest () {
+      this.showDrSimulationTestModal = true
     }
   }
 }
@@ -392,6 +482,9 @@ export default {
       margin-left: 10px;
     }
 
+  }
+  .dr-simulation-modal {
+    width: 100%;
   }
 
   .ant-list-item-meta-title {

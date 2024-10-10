@@ -46,6 +46,7 @@ import {
   CheckCircleTwoTone,
   CheckOutlined,
   CheckSquareOutlined,
+  ClearOutlined,
   CloseSquareOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
@@ -190,7 +191,11 @@ import {
   AreaChartOutlined,
   SolutionOutlined,
   RocketFilled,
-  HeartFilled
+  HeartFilled,
+  SubnodeOutlined,
+  UpSquareOutlined,
+  DownSquareOutlined,
+  ExperimentOutlined
 } from '@ant-design/icons-vue'
 import renderIcon from '@/utils/renderIcon'
 
@@ -226,6 +231,7 @@ export default {
     app.component('CheckCircleTwoTone', CheckCircleTwoTone)
     app.component('CheckOutlined', CheckOutlined)
     app.component('CheckSquareOutlined', CheckSquareOutlined)
+    app.component('ClearOutlined', ClearOutlined)
     app.component('CloseSquareOutlined', CloseSquareOutlined)
     app.component('ClockCircleOutlined', ClockCircleOutlined)
     app.component('CloseCircleOutlined', CloseCircleOutlined)
@@ -373,5 +379,9 @@ export default {
     app.component('RocketFilled', RocketFilled)
     app.component('HeartFilled', HeartFilled)
     app.component('renderIcon', renderIcon)
+    app.component('SubnodeOutlined', SubnodeOutlined)
+    app.component('UpSquareOutlined', UpSquareOutlined)
+    app.component('DownSquareOutlined', DownSquareOutlined)
+    app.component('ExperimentOutlined', ExperimentOutlined)
   }
 }

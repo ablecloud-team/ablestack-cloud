@@ -224,6 +224,7 @@ import com.cloud.deployasis.dao.UserVmDeployAsIsDetailsDao;
 import com.cloud.domain.Domain;
 import com.cloud.domain.DomainVO;
 import com.cloud.domain.dao.DomainDao;
+import com.cloud.dr.cluster.DisasterRecoveryHelper;
 import com.cloud.event.ActionEvent;
 import com.cloud.event.ActionEventUtils;
 import com.cloud.event.EventTypes;
@@ -635,7 +636,6 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     @Inject
     VMSnapshotDetailsDao vmSnapshotDetailsDao;
 
-
     private ScheduledExecutorService _executor = null;
     private ScheduledExecutorService _flattenExecutor = null;
     private ScheduledExecutorService _vmIpFetchExecutor = null;
@@ -646,6 +646,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     private int capacityReleaseInterval;
     private ExecutorService _vmIpFetchThreadExecutor;
     private List<KubernetesServiceHelper> kubernetesServiceHelpers;
+    private List<DisasterRecoveryHelper> disasterRecoveryHelpers;
 
 
     private String _instance;
@@ -666,6 +667,15 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     public void setKubernetesServiceHelpers(final List<KubernetesServiceHelper> kubernetesServiceHelpers) {
         this.kubernetesServiceHelpers = kubernetesServiceHelpers;
     }
+
+    public List<DisasterRecoveryHelper> getDisasterRecoveryHelpers() {
+        return disasterRecoveryHelpers;
+    }
+
+    public void setDisasterRecoveryHelpers(final List<DisasterRecoveryHelper> disasterRecoveryHelpers) {
+        this.disasterRecoveryHelpers = disasterRecoveryHelpers;
+    }
+
 
     @Inject
     private OrchestrationService _orchSrvc;
@@ -3484,6 +3494,16 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
     }
 
+    protected void checkDisasterRecoveryIfVmCanBeDestroyed(long vmId) {
+        try {
+            DisasterRecoveryHelper disasterRecoveryHelper =
+                    ComponentContext.getDelegateComponentOfType(DisasterRecoveryHelper.class);
+                    disasterRecoveryHelper.checkVmCanBeDestroyed(vmId);
+        } catch (NoSuchBeanDefinitionException ignored) {
+            logger.debug("No DisasterRecoveryHelper bean found");
+        }
+    }
+
     protected void checkPluginsIfVmCanBeDestroyed(UserVm vm) {
         try {
             KubernetesServiceHelper kubernetesServiceHelper =
@@ -3528,6 +3548,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
         // check if vm belongs to AutoScale vm group in Disabled state
         autoScaleManager.checkIfVmActionAllowed(vmId);
+
+        // Check if there is a mirroring virtual machine
+        checkDisasterRecoveryIfVmCanBeDestroyed(vmId);
 
         // check if vm belongs to any plugin resources
         checkPluginsIfVmCanBeDestroyed(vm);
