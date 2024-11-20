@@ -52,6 +52,9 @@ export default {
     name: 'listhostdevices',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/ListHostDevicesTab.vue')))
   }, {
+    name: 'LicensesHost',
+    component: shallowRef(defineAsyncComponent(() => import('@/views/infra/LicensesHostTab.vue')))
+  }, {
     name: 'events',
     resourceType: 'Host',
     component: shallowRef(defineAsyncComponent(() => import('@/components/view/EventsTab.vue'))),

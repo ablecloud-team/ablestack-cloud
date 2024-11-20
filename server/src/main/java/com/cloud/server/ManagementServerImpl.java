@@ -25,6 +25,8 @@ import com.cloud.agent.api.GetHypervisorGuestOsNamesAnswer;
 import com.cloud.agent.api.GetHypervisorGuestOsNamesCommand;
 import com.cloud.agent.api.GetVncPortAnswer;
 import com.cloud.agent.api.GetVncPortCommand;
+import com.cloud.agent.api.LicenseHostAnswer;
+import com.cloud.agent.api.LicenseHostCommand;
 import com.cloud.agent.api.ListHostDeviceAnswer;
 import com.cloud.agent.api.ListHostDeviceCommand;
 import com.cloud.agent.api.PatchSystemVmAnswer;
@@ -197,6 +199,7 @@ import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.fsm.StateMachine2;
 import com.cloud.utils.net.MacAddress;
 import com.cloud.utils.net.NetUtils;
+import com.cloud.utils.security.CertificateHelper;
 import com.cloud.utils.ssh.SSHKeysHelper;
 import com.cloud.vm.ConsoleProxyVO;
 import com.cloud.vm.DiskProfile;
@@ -247,8 +250,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import javax.naming.ConfigurationException;
-
-import com.cloud.utils.security.CertificateHelper;
 import org.apache.cloudstack.acl.ControlledEntity;
 import org.apache.cloudstack.acl.SecurityChecker;
 import org.apache.cloudstack.affinity.AffinityGroupProcessor;
@@ -275,7 +276,6 @@ import org.apache.cloudstack.api.command.admin.autoscale.DeleteCounterCmd;
 import org.apache.cloudstack.api.command.admin.bgp.CreateASNRangeCmd;
 import org.apache.cloudstack.api.command.admin.bgp.DeleteASNRangeCmd;
 import org.apache.cloudstack.api.command.admin.bgp.ListASNRangesCmd;
-import org.apache.cloudstack.api.command.user.bgp.ListASNumbersCmd;
 import org.apache.cloudstack.api.command.admin.bgp.ReleaseASNumberCmd;
 import org.apache.cloudstack.api.command.admin.cluster.AddClusterCmd;
 import org.apache.cloudstack.api.command.admin.cluster.DeleteClusterCmd;
@@ -383,6 +383,7 @@ import org.apache.cloudstack.api.command.admin.outofbandmanagement.EnableOutOfBa
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.EnableOutOfBandManagementForHostCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.EnableOutOfBandManagementForZoneCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.IssueOutOfBandManagementPowerActionCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.LicenseHostCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostDevicesCmd;
 import org.apache.cloudstack.api.command.admin.pod.CreatePodCmd;
 import org.apache.cloudstack.api.command.admin.pod.DeletePodCmd;
@@ -583,6 +584,7 @@ import org.apache.cloudstack.api.command.user.autoscale.UpdateAutoScalePolicyCmd
 import org.apache.cloudstack.api.command.user.autoscale.UpdateAutoScaleVmGroupCmd;
 import org.apache.cloudstack.api.command.user.autoscale.UpdateAutoScaleVmProfileCmd;
 import org.apache.cloudstack.api.command.user.autoscale.UpdateConditionCmd;
+import org.apache.cloudstack.api.command.user.bgp.ListASNumbersCmd;
 import org.apache.cloudstack.api.command.user.bucket.CreateBucketCmd;
 import org.apache.cloudstack.api.command.user.bucket.DeleteBucketCmd;
 import org.apache.cloudstack.api.command.user.bucket.ListBucketsCmd;
@@ -821,6 +823,7 @@ import org.apache.cloudstack.api.command.user.vpn.UpdateVpnConnectionCmd;
 import org.apache.cloudstack.api.command.user.vpn.UpdateVpnCustomerGatewayCmd;
 import org.apache.cloudstack.api.command.user.vpn.UpdateVpnGatewayCmd;
 import org.apache.cloudstack.api.command.user.zone.ListZonesCmd;
+import org.apache.cloudstack.api.response.LicenseHostResponse;
 import org.apache.cloudstack.api.response.ListHostDevicesResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.auth.UserAuthenticator;
@@ -3198,6 +3201,50 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         return new Pair<>(result, details);
     }
 
+    @Override
+    public ListResponse<LicenseHostResponse> LicenseHost(LicenseHostCmd cmd) {
+        Long id = cmd.getId();
+        String hostIp = cmd.getIp();
+        HostVO hostVO = _hostDao.findById(id);
+        if (hostVO == null) {
+            throw new CloudRuntimeException("Host not found with ID: " + id);
+        }
+        if (hostIp == null) {
+            hostIp = hostVO.getPrivateIpAddress();
+            if (hostIp == null) {
+                throw new CloudRuntimeException("Host IP is null for host ID: " + id);
+            }
+        }
+
+        LicenseHostCommand licenseCmd = new LicenseHostCommand(id, hostIp);
+        Answer answer;
+        try {
+            answer = _agentMgr.send(hostVO.getId(), licenseCmd);
+        } catch (Exception e) {
+            String errorMsg = "Error sending LicenseHostCommand: " + e.getMessage();
+            logger.error(errorMsg, e);
+            throw new CloudRuntimeException(errorMsg, e);
+        }
+
+        if (answer == null || !answer.getResult()) {
+            String errorMsg = "Answer result is false. Details: " + (answer != null ? answer.getDetails() : "Answer is null");
+            logger.error(errorMsg);
+            throw new CloudRuntimeException(errorMsg);
+        }
+        if (!(answer instanceof LicenseHostAnswer)) {
+            throw new CloudRuntimeException("Answer is not an instance of LicenseHostAnswer");
+        }
+        LicenseHostAnswer licenseAnswer = (LicenseHostAnswer) answer;
+        List<LicenseHostResponse> responses = new ArrayList<>();
+        LicenseHostResponse response = new LicenseHostResponse();
+        response.setLicenseHostValue(licenseAnswer.getLicenseHostValue());
+        responses.add(response);
+
+        ListResponse<LicenseHostResponse> listResponse = new ListResponse<>();
+        listResponse.setResponses(responses);
+        return listResponse;
+    }
+
      @Override
     public ListResponse<ListHostDevicesResponse> listHostDevices(ListHostDevicesCmd cmd) {
         Long id = cmd.getId();
@@ -4174,6 +4221,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(AllocateVbmcToVMCmd.class);
         cmdList.add(RemoveVbmcToVMCmd.class);
         cmdList.add(ListHostDevicesCmd.class);
+        cmdList.add(LicenseHostCmd.class);
 
         //object store APIs
         cmdList.add(AddObjectStoragePoolCmd.class);
@@ -5662,4 +5710,5 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     public void setLockControllerListener(final LockControllerListener lockControllerListener) {
         _lockControllerListener = lockControllerListener;
     }
+
 }

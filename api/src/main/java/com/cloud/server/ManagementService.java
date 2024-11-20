@@ -19,8 +19,6 @@ package com.cloud.server;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import com.cloud.user.UserData;
 import org.apache.cloudstack.api.command.admin.cluster.ListClustersCmd;
 import org.apache.cloudstack.api.command.admin.config.ListCfgGroupsByCmd;
 import org.apache.cloudstack.api.command.admin.config.ListCfgsByCmd;
@@ -35,6 +33,7 @@ import org.apache.cloudstack.api.command.admin.guest.UpdateGuestOsCmd;
 import org.apache.cloudstack.api.command.admin.guest.UpdateGuestOsMappingCmd;
 import org.apache.cloudstack.api.command.admin.host.ListHostsCmd;
 import org.apache.cloudstack.api.command.admin.host.UpdateHostPasswordCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.LicenseHostCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostDevicesCmd;
 import org.apache.cloudstack.api.command.admin.pod.ListPodsByCmd;
 import org.apache.cloudstack.api.command.admin.resource.ArchiveAlertsCmd;
@@ -66,8 +65,9 @@ import org.apache.cloudstack.api.command.user.userdata.ListUserDataCmd;
 import org.apache.cloudstack.api.command.user.userdata.RegisterUserDataCmd;
 import org.apache.cloudstack.api.command.user.vm.GetVMPasswordCmd;
 import org.apache.cloudstack.api.command.user.vmgroup.UpdateVMGroupCmd;
-import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.LicenseHostResponse;
 import org.apache.cloudstack.api.response.ListHostDevicesResponse;
+import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.config.Configuration;
 import org.apache.cloudstack.config.ConfigurationGroup;
 
@@ -89,6 +89,7 @@ import com.cloud.storage.GuestOSHypervisor;
 import com.cloud.storage.GuestOsCategory;
 import com.cloud.storage.StoragePool;
 import com.cloud.user.SSHKeyPair;
+import com.cloud.user.UserData;
 import com.cloud.utils.Pair;
 import com.cloud.utils.Ternary;
 import com.cloud.vm.InstanceGroup;
@@ -493,5 +494,7 @@ public interface ManagementService {
     Pair<Boolean, String> patchSystemVM(PatchSystemVMCmd cmd);
 
     ListResponse<ListHostDevicesResponse> listHostDevices(ListHostDevicesCmd cmd);
+
+    ListResponse<LicenseHostResponse> LicenseHost(LicenseHostCmd cmd);
 
 }
