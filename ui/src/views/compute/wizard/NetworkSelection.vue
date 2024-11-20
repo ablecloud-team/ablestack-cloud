@@ -17,15 +17,15 @@
 
 <template>
   <div>
-    <a-input-search
+    <!-- <a-input-search
       style="width: 25vw; float: right; margin-bottom: 10px; z-index: 8"
       :placeholder="$t('label.search')"
       :maxlength="20"
       v-model:value="filter"
-      @search="handleSearch" />
-    <a-button type="primary" @click="onCreateNetworkClick" style="float: right; margin-right: 5px; z-index: 8" v-if="showCreateButton && !this.vnf">
+      @search="handleSearch" /> -->
+    <!-- <a-button type="primary" @click="onCreateNetworkClick" style="float: right; margin-right: 5px; z-index: 8" v-if="showCreateButton && !this.vnf">
       {{ $t('label.create.network') }}
-    </a-button>
+    </a-button> -->
     <a-table
       :loading="loading"
       :columns="columns"
@@ -204,14 +204,14 @@ export default {
           key: 'type',
           dataIndex: 'type',
           title: this.$t('label.guestiptype'),
-          width: '15%'
-        },
-        vpcCol,
-        {
-          key: 'supportsvmautoscaling',
-          dataIndex: 'supportsvmautoscaling',
-          title: this.$t('label.supportsvmautoscaling'),
-          width: '25%'
+          width: '40%'
+        // },
+        // vpcCol,
+        // {
+        //   key: 'supportsvmautoscaling',
+        //   dataIndex: 'supportsvmautoscaling',
+        //   title: this.$t('label.supportsvmautoscaling'),
+        //   width: '25%'
         }
       ]
     },

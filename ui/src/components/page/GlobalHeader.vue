@@ -57,7 +57,7 @@
 <script>
 import Logo from '../header/Logo'
 import SMenu from '../menu/'
-import ProjectMenu from '../header/ProjectMenu'
+// import ProjectMenu from '../header/ProjectMenu'
 import SamlDomainSwitcher from '../header/SamlDomainSwitcher'
 import UserMenu from '../header/UserMenu'
 
@@ -68,7 +68,7 @@ export default {
   components: {
     Logo,
     SMenu,
-    ProjectMenu,
+    // ProjectMenu,
     SamlDomainSwitcher,
     UserMenu
   },

@@ -419,7 +419,7 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_HA_RESOURCE_CONFIGURE, eventDescription = "configuring HA for resource")
+    @ActionEvent(eventType = EventTypes.EVENT_HA_RESOURCE_CONFIGURE, eventDescription = "리소스에 대한 HA 구성")
     public boolean configureHA(final Long resourceId, final HAResource.ResourceType resourceType, final String haProvider) {
         Preconditions.checkArgument(resourceId != null && resourceId > 0L);
         Preconditions.checkArgument(resourceType != null);
@@ -433,7 +433,7 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_HA_RESOURCE_ENABLE, eventDescription = "enabling HA for resource")
+    @ActionEvent(eventType = EventTypes.EVENT_HA_RESOURCE_ENABLE, eventDescription = "리소스에 대한 HA 활성화")
     public boolean enableHA(final Long resourceId, final HAResource.ResourceType resourceType) {
         Preconditions.checkArgument(resourceId != null && resourceId > 0L);
         Preconditions.checkArgument(resourceType != null);
@@ -441,7 +441,7 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_HA_RESOURCE_DISABLE, eventDescription = "disabling HA for resource")
+    @ActionEvent(eventType = EventTypes.EVENT_HA_RESOURCE_DISABLE, eventDescription = "리소스에 대한 HA 비활성화")
     public boolean disableHA(final Long resourceId, final HAResource.ResourceType resourceType) {
         Preconditions.checkArgument(resourceId != null && resourceId > 0L);
         Preconditions.checkArgument(resourceType != null);
@@ -454,7 +454,7 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_HA_RESOURCE_ENABLE, eventDescription = "enabling HA for a cluster")
+    @ActionEvent(eventType = EventTypes.EVENT_HA_RESOURCE_ENABLE, eventDescription = "리소스에 대한 HA 활성화")
     public boolean enableHA(final Cluster cluster, Boolean includeHost) {
         clusterDetailsDao.persist(cluster.getId(), HA_ENABLED_DETAIL, String.valueOf(true));
 
@@ -474,7 +474,7 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_HA_RESOURCE_DISABLE, eventDescription = "disabling HA for a cluster")
+    @ActionEvent(eventType = EventTypes.EVENT_HA_RESOURCE_DISABLE, eventDescription = "리소스에 대한 HA 비활성화")
     public boolean disableHA(final Cluster cluster, Boolean includeHost) {
         clusterDetailsDao.persist(cluster.getId(), HA_ENABLED_DETAIL, String.valueOf(false));
 
@@ -492,14 +492,14 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_HA_RESOURCE_ENABLE, eventDescription = "enabling HA for a zone")
+    @ActionEvent(eventType = EventTypes.EVENT_HA_RESOURCE_ENABLE, eventDescription = "zone에 대한 HA 활성화")
     public boolean enableHA(final DataCenter zone) {
         dataCenterDetailsDao.persist(zone.getId(), HA_ENABLED_DETAIL, String.valueOf(true));
         return true;
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_HA_RESOURCE_DISABLE, eventDescription = "disabling HA for a zone")
+    @ActionEvent(eventType = EventTypes.EVENT_HA_RESOURCE_DISABLE, eventDescription = "zone에 대한 HA 비활성화")
     public boolean disableHA(final DataCenter zone) {
         dataCenterDetailsDao.persist(zone.getId(), HA_ENABLED_DETAIL, String.valueOf(false));
         return transitionResourceStateToDisabled(zone);

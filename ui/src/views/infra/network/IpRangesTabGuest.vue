@@ -17,14 +17,14 @@
 
 <template>
   <a-spin :spinning="componentLoading">
-    <a-button
+    <!-- <a-button
       :disabled="!('createGuestNetworkIpv6Prefix' in $store.getters.apis)"
       type="dashed"
       style="margin-bottom: 20px; width: 100%"
       @click="handleOpenAddIpv6PrefixForm()">
       <template #icon><plus-outlined /></template>
       {{ $t('label.add.ip.v6.prefix') }}
-    </a-button>
+    </a-button> -->
     <a-table
       style="overflow-y: auto"
       size="small"
@@ -54,14 +54,14 @@
     <br>
     <br>
 
-    <a-button
+    <!-- <a-button
       :disabled="!('createNetwork' in $store.getters.apis)"
       type="dashed"
       style="margin-bottom: 20px; width: 100%"
       @click="handleOpenShowCreateForm">
       <template #icon><plus-outlined /></template>
       {{ $t('label.add.guest.network') }}
-    </a-button>
+    </a-button> -->
 
     <a-table
       size="small"

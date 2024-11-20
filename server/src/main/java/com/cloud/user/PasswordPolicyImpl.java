@@ -77,82 +77,95 @@ public class PasswordPolicyImpl implements PasswordPolicy, Configurable {
             }
         }
 
-        validateIfPasswordContainsTheMinimumNumberOfSpecialCharacters(numberOfSpecialCharactersInPassword, username, domainId);
-        validateIfPasswordContainsTheMinimumNumberOfUpperCaseLetters(numberOfUppercaseLettersInPassword, username, domainId);
-        validateIfPasswordContainsTheMinimumNumberOfLowerCaseLetters(numberOfLowercaseLettersInPassword, username, domainId);
+        verifyUserNameLabel(username, true); //사용자이름
+
+        validateIfPasswordContainsTheMinimumNumberOfSpecialCharacters(numberOfSpecialCharactersInPassword, username, domainId); //최소 특수문자 포함 수(1개이상)
+        validateIfPasswordContainsTheMinimumNumberOfUpperCaseLetters(numberOfUppercaseLettersInPassword, username, domainId);   //최소 대문자 포함 수(1개이상)
+        validateIfPasswordContainsTheMinimumNumberOfLowerCaseLetters(numberOfLowercaseLettersInPassword, username, domainId);   //최소 소문자 포함 수(1개이상)
         validateIfPasswordContainsTheMinimumNumberOfDigits(numberOfDigitsInPassword, username, domainId);
-        validateIfPasswordContainsTheMinimumLength(password, username, domainId);
-        validateIfPasswordContainsTheMaximumLength(password, username, domainId);
+        validateIfPasswordContainsTheMinimumLength(password, username, domainId);   //9자 이상
+        validateIfPasswordContainsTheMaximumLength(password, username, domainId);   //15자 미만
         validateIfPasswordContainsTheUsername(password, username, domainId);
         validateIfPasswordMatchesRegex(password, username, domainId);
         validateIfPasswordContainsThePreviousPassword(password, username, domainId);
-        validateIfPasswordContainsConsecutiveRepetitionOfTheSameLetterAndNumber(password, username, domainId);
+        validateIfPasswordContainsConsecutiveRepetitionOfTheSameLetterAndNumber(password, username, domainId);//동일한 문자/숫자 4개이상 사용못함
         validateIfPasswordContainsContinuousLettersAndNumbersInputOnTheKeyboard(password, username, domainId);
+    }
+
+    public static boolean verifyUserNameLabel(final String username, final boolean isUserName) {
+        if (username.length() > 15 || username.length() < 9) {
+            throw new InvalidParameterValueException("사용자 이름은 9~14자 사이여야 합니다.");
+        } else if (!username.toLowerCase().matches("[a-z0-9-]*")) {
+            throw new InvalidParameterValueException("사용자 이름에는 ASCII 문자 'a'부터 'z'까지만 포함될 수 있습니다(대소문자를 구분하지 않음).");
+        } else if (username.startsWith("-") || username.endsWith("-")) {
+            throw new InvalidParameterValueException("사용자 이름은 하이픈과 숫자로 시작할 수 없으며 하이픈으로 끝나서는 안 됩니다.");
+        } else if (isUserName && username.matches("^[0-9-].*")) {
+            throw new InvalidParameterValueException("사용자 이름은 숫자로 시작할 수 없습니다.");
+        }
+
+        return true;
     }
 
     protected void validateIfPasswordContainsTheMinimumNumberOfSpecialCharacters(int numberOfSpecialCharactersInPassword, String username, Long domainId) {
         Integer passwordPolicyMinimumSpecialCharacters = getPasswordPolicyMinimumSpecialCharacters(domainId);
 
-        logger.trace(String.format("Validating if the new password for user [%s] contains the minimum number of special characters [%s] defined in the configuration [%s].",
+        logger.trace(String.format("사용자 [%s]의 새 암호에 구성 [%s]에 정의된 최소 특수 문자 수 [%s]가 포함되어 있는지 확인하는 중입니다.",
                 username, passwordPolicyMinimumSpecialCharacters, PasswordPolicyMinimumSpecialCharacters.key()));
 
         if (passwordPolicyMinimumSpecialCharacters == 0) {
-            logger.trace(String.format("The minimum number of special characters for a user's password is 0; therefore, we will not validate the number of special characters for"
-                    + " the new password of user [%s].", username));
+            logger.trace(String.format("사용자 비밀번호의 최소 특수 문자 수는 0입니다. 따라서 사용자 [%s]의 새 암호에 대한 특수 문자 수를 확인하지 않습니다.", username));
             return;
         }
 
         if (numberOfSpecialCharactersInPassword < passwordPolicyMinimumSpecialCharacters) {
             logger.error(String.format("User [%s] informed [%d] special characters for their new password; however, the minimum number of special characters is [%d]. "
                             + "Refusing the user's new password.", username, numberOfSpecialCharactersInPassword, passwordPolicyMinimumSpecialCharacters));
-            throw new InvalidParameterValueException(String.format("User password should contain at least [%d] special characters.", passwordPolicyMinimumSpecialCharacters));
+            throw new InvalidParameterValueException(String.format("사용자 비밀번호에는 최소한 [%d]개의 특수 문자가 포함되어야 합니다.", passwordPolicyMinimumSpecialCharacters));
         }
 
-        logger.trace(String.format("The new password for user [%s] complies with the policy of minimum special characters [%s].", username,
+        logger.trace(String.format("사용자 [%s]의 새 암호는 최소 특수 문자 [%s] 정책을 준수합니다.", username,
                 PasswordPolicyMinimumSpecialCharacters.key()));
     }
 
     protected void validateIfPasswordContainsTheMinimumNumberOfUpperCaseLetters(int numberOfUppercaseLettersInPassword, String username, Long domainId) {
         Integer passwordPolicyMinimumUpperCaseLetters = getPasswordPolicyMinimumUpperCaseLetters(domainId);
 
-        logger.trace(String.format("Validating if the new password for user [%s] contains the minimum number of upper case letters [%s] defined in the configuration [%s].",
+        logger.trace(String.format("사용자 [%s]의 새 암호에 구성 [%s]에 정의된 최소 대문자 수 [%s]가 포함되어 있는지 확인하는 중입니다.",
                 username, passwordPolicyMinimumUpperCaseLetters, PasswordPolicyMinimumUppercaseLetters.key()));
 
         if (passwordPolicyMinimumUpperCaseLetters == 0) {
-            logger.trace(String.format("The minimum number of upper case letters for a user's password is 0; therefore, we will not validate the number of upper case letters for"
-                    + " the new password of user [%s].", username));
+            logger.trace(String.format("사용자 비밀번호의 최소 대문자 수는 0입니다. 따라서 사용자 [%s]의 새 암호에 대한 대문자 수를 확인하지 않습니다.", username));
             return;
         }
 
         if (numberOfUppercaseLettersInPassword < passwordPolicyMinimumUpperCaseLetters) {
-            logger.error(String.format("User [%s] informed [%d] upper case letters for their new password; however, the minimum number of upper case letters is [%d]. "
-                            + "Refusing the user's new password.", username, numberOfUppercaseLettersInPassword, passwordPolicyMinimumUpperCaseLetters));
-            throw new InvalidParameterValueException(String.format("User password should contain at least [%d] upper case letters.", passwordPolicyMinimumUpperCaseLetters));
+            logger.error(String.format("사용자 [%s]이(가) [%d]개의 대문자로 새 비밀번호를 알렸습니다.; 단, 최소 대문자 수는 [%d]개입니다. "
+                            + "사용자의 새 비밀번호를 거부합니다.", username, numberOfUppercaseLettersInPassword, passwordPolicyMinimumUpperCaseLetters));
+            throw new InvalidParameterValueException(String.format("사용자 비밀번호에는 최소 [%d]개의 대문자가 포함되어야 합니다.", passwordPolicyMinimumUpperCaseLetters));
         }
 
-        logger.trace(String.format("The new password for user [%s] complies with the policy of minimum upper case letters [%s].", username,
+        logger.trace(String.format("사용자 [%s]의 새 암호는 최소 대문자 [%s] 정책을 준수합니다.", username,
                 PasswordPolicyMinimumUppercaseLetters.key()));
     }
 
     protected void validateIfPasswordContainsTheMinimumNumberOfLowerCaseLetters(int numberOfLowercaseLettersInPassword, String username, Long domainId) {
         Integer passwordPolicyMinimumLowerCaseLetters = getPasswordPolicyMinimumLowerCaseLetters(domainId);
 
-        logger.trace(String.format("Validating if the new password for user [%s] contains the minimum number of lower case letters [%s] defined in the configuration [%s].",
+        logger.trace(String.format("사용자 [%s]의 새 암호에 구성 [%s]에 정의된 최소 소문자 수 [%s]가 포함되어 있는지 확인하는 중입니다.",
                 username, passwordPolicyMinimumLowerCaseLetters, PasswordPolicyMinimumLowercaseLetters.key()));
 
         if (passwordPolicyMinimumLowerCaseLetters == 0) {
-            logger.trace(String.format("The minimum number of lower case letters for a user's password is 0; therefore, we will not validate the number of lower case letters for"
-                    + " the new password of user [%s].", username));
+            logger.trace(String.format("사용자 비밀번호의 최소 소문자 수는 0입니다. 따라서 사용자 [%s]의 새 암호에 대한 소문자 수를 확인하지 않습니다", username));
             return;
         }
 
         if (numberOfLowercaseLettersInPassword < passwordPolicyMinimumLowerCaseLetters) {
             logger.error(String.format("User [%s] informed [%d] lower case letters for their new password; however, the minimum number of lower case letters is [%d]. "
                             + "Refusing the user's new password.", username, numberOfLowercaseLettersInPassword, passwordPolicyMinimumLowerCaseLetters));
-            throw new InvalidParameterValueException(String.format("User password should contain at least [%d] lower case letters.", passwordPolicyMinimumLowerCaseLetters));
+            throw new InvalidParameterValueException(String.format("사용자 비밀번호에는 최소 [%d]개의 소문자가 포함되어야 합니다", passwordPolicyMinimumLowerCaseLetters));
         }
 
-        logger.trace(String.format("The new password for user [%s] complies with the policy of minimum lower case letters [%s].", username,
+        logger.trace(String.format("사용자 [%s]의 새 암호는 최소 소문자 [%s] 정책을 준수합니다.", username,
                 PasswordPolicyMinimumLowercaseLetters.key()));
     }
 
@@ -192,7 +205,7 @@ public class PasswordPolicyImpl implements PasswordPolicy, Configurable {
         if (passwordLength < passwordPolicyMinimumLength) {
             logger.error(String.format("User [%s] informed [%d] characters for their new password; however, the minimum password length is [%d]. Refusing the user's new password.",
                     username, passwordLength, passwordPolicyMinimumLength));
-            throw new InvalidParameterValueException(String.format("User password should contain at least [%d] characters.", passwordPolicyMinimumLength));
+                    throw new InvalidParameterValueException(String.format("사용자 비밀번호는 최소한 [%d]자를 포함해야 합니다.", passwordPolicyMinimumLength));
         }
 
         logger.trace(String.format("The new password for user [%s] complies with the policy of minimum length [%s].", username, PasswordPolicyMinimumLength.key()));
@@ -208,7 +221,7 @@ public class PasswordPolicyImpl implements PasswordPolicy, Configurable {
         if (passwordLength > passwordPolicyMaximumLength) {
             logger.error(String.format("User [%s] informed [%d] characters for their new password; however, the maximum password length is [%d]. Refusing the user's new password.",
                     username, passwordLength, passwordPolicyMaximumLength));
-            throw new InvalidParameterValueException(String.format("User password must be less than [%d] characters.", passwordPolicyMaximumLength));
+                    throw new InvalidParameterValueException(String.format("사용자 암호는 [%d]자 미만이어야 합니다.", passwordPolicyMaximumLength));
         }
 
         logger.trace(String.format("The new password for user [%s] complies with the policy of maximum length [%s].", username, PasswordPolicyMaximumLength.key()));
@@ -225,7 +238,7 @@ public class PasswordPolicyImpl implements PasswordPolicy, Configurable {
         if (StringUtils.containsIgnoreCase(password, username)) {
             logger.error(String.format("User [%s] informed a new password that contains their username; however, the this is not allowed as configured in [%s]. "
                     + "Refusing the user's new password.", username, PasswordPolicyAllowPasswordToContainUsername.key()));
-            throw new InvalidParameterValueException("User password should not contain their username.");
+            throw new InvalidParameterValueException("사용자 비밀번호에는 사용자 이름이 포함되어서는 안됩니다.");
         }
 
         logger.trace(String.format("The new password for user [%s] complies with the policy of allowing passwords to contain username [%s].", username,
@@ -245,7 +258,7 @@ public class PasswordPolicyImpl implements PasswordPolicy, Configurable {
 
         if (!password.matches(passwordPolicyRegex)){
             logger.error(String.format("User [%s] informed a new password that does not match with regex [%s]. Refusing the user's new password.", username, passwordPolicyRegex));
-            throw new InvalidParameterValueException("User password does not match with password policy regex.");
+            throw new InvalidParameterValueException("사용자 비밀번호가 비밀번호 정책 정규식과 일치하지 않습니다.");
         }
 
         logger.trace(String.format("The new password for user [%s] complies with the policy of matching regex [%s].", username,
@@ -265,7 +278,7 @@ public class PasswordPolicyImpl implements PasswordPolicy, Configurable {
             if (validateCurrentPassword(user, password)) {
             logger.error(String.format("User [%s] informed a new password that contains of the last used password; however, the this is not allowed as configured in [%s]. "
                     + "Refusing the user's new password.", username, PasswordPolicyAllowUseOfLastUsedPassword.key()));
-            throw new InvalidParameterValueException("User password should not contain of the last used password.");
+            throw new InvalidParameterValueException("사용자 비밀번호에는 마지막으로 사용한 비밀번호가 포함되어서는 안 됩니다.");
         }
 
         logger.trace(String.format("The new password for user [%s] complies with the policy of allowing passwords to contain of last used password.", username,
@@ -284,7 +297,7 @@ public class PasswordPolicyImpl implements PasswordPolicy, Configurable {
         if (samePassword(password)) {
             logger.error(String.format("User [%s] informed a new password that contains more than 3 consecutive repetition of the same letter and number, special character.; however, the this is not allowed as configured in [%s]. "
                     + "Refusing the user's new password.", username, PasswordPolicyAllowConsecutiveRepetitionsOfSameLettersAndNumbers.key()));
-            throw new InvalidParameterValueException("User password should not contain more than 3 consecutive digits of the same letter and number, special character.");
+            throw new InvalidParameterValueException("사용자 비밀번호에는 동일한 문자, 숫자, 특수문자가 연속 3자리 이상 포함될 수 없습니다.");
         }
 
         logger.trace(String.format("The new password for user [%s] complies with the policy of allowing passwords to contain more than 3 consecutive repetition of the same letter and number, special character.", username,
@@ -302,7 +315,7 @@ public class PasswordPolicyImpl implements PasswordPolicy, Configurable {
         if (continuousPassword(password)) {
             logger.error(String.format("User [%s] informed a new password that contains more than 4 consecutive keyboard letters and numbers.; however, the this is not allowed as configured in [%s]. "
                     + "Refusing the user's new password.", username, PasswordPolicyAllowContinuousLettersAndNumbersInputOnKeyboard.key()));
-            throw new InvalidParameterValueException("User password should not contain more than 4 consecutive keyboard letters and numbers.");
+            throw new InvalidParameterValueException("사용자 비밀번호는 연속된 키보드 문자와 숫자를 4개 이상 포함할 수 없습니다.");
         }
 
         logger.trace(String.format("The new password for user [%s] complies with the policy of allowing passwords to contain more than 4 consecutive keyboard letters and numbers.", username,

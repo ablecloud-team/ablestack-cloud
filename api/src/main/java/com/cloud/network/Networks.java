@@ -264,7 +264,7 @@ public class Networks {
          */
         private static URI getVlanUriWhenNumberFormatException(String candidate) {
             if(StringUtils.isBlank(candidate)) {
-                throw new CloudRuntimeException("Expected VLAN or VXLAN but got a null isolation method");
+                throw new CloudRuntimeException("VLAN 또는 VXLAN이 필요하지만 Null 격리 방법이 있습니다");
             }
             if (com.cloud.dc.Vlan.UNTAGGED.equalsIgnoreCase(candidate)) {
                 return Native.toUri(candidate);
@@ -275,10 +275,10 @@ public class Networks {
                 if (tiep.scheme != null && tiep.scheme.equals(uri.getScheme())) {
                     return uri;
                 } else {
-                    throw new CloudRuntimeException("string '" + candidate + "' has an unknown BroadcastDomainType.");
+                    throw new CloudRuntimeException("문자열 '" + candidate + "'에 알 수 없는 BroadcastDomainType이 있습니다.");
                 }
             } catch (URISyntaxException e) {
-                throw new CloudRuntimeException("string is not a broadcast URI: " + candidate);
+                throw new CloudRuntimeException("문자열은 브로드캐스트 URI가 아닙니다.: " + candidate);
             }
         }
 

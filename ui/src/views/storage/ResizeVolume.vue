@@ -25,10 +25,7 @@
       @finish="handleSubmit"
      >
       <a-form-item name="size" ref="size" :label="$t('label.sizegb')">
-        <a-input
-          v-model:value="form.size"
-          :maxlength="20"
-          :placeholder="$t('label.disksize')"/>
+        <a-input v-model:value="form.size" oninput="this.value=this.value.replace(/[^0-9.]/g,'')" maxlength="4" :placeholder="$t('label.disksize')" />
       </a-form-item>
       <div v-if="customDiskOfferingIops">
         <a-form-item name="miniops" ref="miniops" :label="$t('label.miniops')">
@@ -44,12 +41,12 @@
             :placeholder="$t('label.maxiops')"/>
         </a-form-item>
       </div>
-      <a-form-item name="shrinkOk" ref="shrinkOk" :label="$t('label.shrinkok')" v-if="!['XenServer'].includes(resource.hypervisor)">
+      <!-- <a-form-item name="shrinkOk" ref="shrinkOk" :label="$t('label.shrinkok')" v-if="!['XenServer'].includes(resource.hypervisor)">
         <a-switch
           v-model:checked="form.shrinkOk"
           :checked="shrinkOk"
           @change="val => { shrinkOk = val }"/>
-      </a-form-item>
+      </a-form-item> -->
       <div :span="24" class="action-button">
         <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
         <a-button :loading="loading" type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>

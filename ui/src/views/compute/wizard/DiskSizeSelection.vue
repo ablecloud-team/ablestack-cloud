@@ -25,7 +25,7 @@
           <a-input-number
             v-focus="true"
             v-model:value="inputValue"
-            :maxlength="10"
+            :maxlength="4"
             @change="($event) => updateDiskSize($event)"
           />
           <span style="padding-top: 6px; margin-left: 5px">GB</span>

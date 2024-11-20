@@ -117,7 +117,7 @@ public class EventJoinDaoImpl extends GenericDaoBase<EventJoinVO, Long> implemen
         if (!securityFeaturesEnabled) {
             responseEvent.setUsername(event.getUserName());
         } else {
-            if ("admin".equalsIgnoreCase(event.getUserName())) {
+            if ("cloud".equalsIgnoreCase(event.getUserName())) {
                 responseEvent.setUsername(event.getUserName());
             } else {
                 responseEvent.setUsername("system");

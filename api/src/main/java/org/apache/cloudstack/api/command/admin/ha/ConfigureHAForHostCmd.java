@@ -59,7 +59,7 @@ public final class ConfigureHAForHostCmd extends BaseAsyncCmd {
     private Long hostId;
 
     @Parameter(name = ApiConstants.PROVIDER, type = CommandType.STRING,
-            description = "HA provider", required = true)
+            description = "HA 제공자", required = true)
     private String haProvider;
 
     /////////////////////////////////////////////////////
@@ -115,6 +115,6 @@ public final class ConfigureHAForHostCmd extends BaseAsyncCmd {
 
     @Override
     public String getEventDescription() {
-        return "configure HA for host: " + getHostId();
+        return "호스트에 대한 HA 구성: " + getHostId();
     }
 }

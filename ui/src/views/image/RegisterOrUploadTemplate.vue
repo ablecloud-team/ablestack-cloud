@@ -40,7 +40,7 @@
               v-focus="currentForm === 'Create'"
               v-model:value="form.url"
               :placeholder="apiParams.url.description"
-              :maxlength="500" />
+              :maxlength="255" />
           </a-form-item>
         </div>
         <div v-if="currentForm === 'Upload'">
@@ -67,7 +67,6 @@
           <a-input
             v-model:value="form.name"
             :placeholder="apiParams.name.description"
-            :maxlength="20"
             v-focus="currentForm !== 'Create'"/>
         </a-form-item>
         <a-form-item ref="displaytext" name="displaytext">
@@ -76,8 +75,7 @@
           </template>
           <a-input
             v-model:value="form.displaytext"
-            :placeholder="apiParams.displaytext.description"
-            :maxlength="100" />
+            :placeholder="apiParams.displaytext.description"/>
         </a-form-item>
         <div v-if="currentForm === 'Create'">
           <a-form-item
@@ -133,7 +131,7 @@
             </a-select>
           </a-form-item>
         </div>
-        <a-form-item name="domainid" ref="domainid" v-if="'listDomains' in $store.getters.apis">
+        <!-- <a-form-item name="domainid" ref="domainid" v-if="'listDomains' in $store.getters.apis">
           <template #label>
             <tooltip-label :title="$t('label.domainid')" :tooltip="apiParams.domainid.description"/>
           </template>
@@ -155,8 +153,8 @@
               </span>
             </a-select-option>
           </a-select>
-        </a-form-item>
-        <a-form-item name="account" ref="account" v-if="domainid">
+        </a-form-item> -->
+        <!-- <a-form-item name="account" ref="account" v-if="domainid">
           <template #label>
             <tooltip-label :title="$t('label.account')" :tooltip="apiParams.account.description"/>
           </template>
@@ -173,7 +171,7 @@
               {{ acc.name }}
             </a-select-option>
           </a-select>
-        </a-form-item>
+        </a-form-item> -->
         <a-row :gutter="12">
           <a-col :md="24" :lg="12">
             <a-form-item ref="hypervisor" name="hypervisor">
@@ -217,7 +215,7 @@
             </a-form-item>
           </a-col>
         </a-row>
-        <a-row :gutter="12" v-if="allowed && (hyperKVMShow || hyperCustomShow) && currentForm !== 'Upload'">
+        <!-- <a-row :gutter="12" v-if="allowed && (hyperKVMShow || hyperCustomShow) && currentForm !== 'Upload'">
           <a-col :md="24" :lg="12">
             <a-form-item ref="directdownload" name="directdownload">
               <template #label>
@@ -236,7 +234,7 @@
                 :placeholder="apiParams.checksum.description" />
             </a-form-item>
           </a-col>
-        </a-row>
+        </a-row> -->
         <a-row :gutter="12" v-if="allowed && hyperXenServerShow">
           <a-form-item ref="xenserverToolsVersion61plus" name="xenserverToolsVersion61plus" v-if="hyperXenServerShow" :label="$t('label.xenservertoolsversion61plus')">
             <a-switch v-model:checked="form.xenserverToolsVersion61plus" />
@@ -253,7 +251,7 @@
             @change="val => deployasis = val"/>
         </a-form-item>
 
-        <a-row :gutter="12" v-if="hyperKVMShow || hyperVMWShow">
+        <!-- <a-row :gutter="12" v-if="hyperKVMShow || hyperVMWShow">
           <a-col :md="24" :lg="hyperKVMShow ? 24 : 12" v-if="hyperKVMShow || (hyperVMWShow && !deployasis)">
             <a-form-item ref="rootDiskControllerType" name="rootDiskControllerType" :label="$t('label.rootdiskcontrollertype')">
               <a-select
@@ -287,7 +285,7 @@
               </a-select>
             </a-form-item>
           </a-col>
-        </a-row>
+        </a-row> -->
         <a-form-item
           :label="$t('label.keyboardtype')"
           v-if="hyperVMWShow && !deployasis"
@@ -322,12 +320,12 @@
             v-model:value="form.ostypeid"
             :loading="osTypes.loading"
             :placeholder="apiParams.ostypeid.description">
-            <a-select-option v-for="opt in osTypes.opts" :key="opt.id" :label="opt.name || opt.description">
+            <a-select-option v-for="opt in osTypes.opts.filter((c) => (c.name === 'Windows 10 (64-bit)') || (c.name === 'Rocky Linux 9'))" :key="opt.id" :label="opt.name || opt.description">
               {{ opt.name || opt.description }}
             </a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item
+        <!-- <a-form-item
           name="templatetype"
           ref="templatetype">
           <template #label>
@@ -345,8 +343,8 @@
               {{ opt.name || opt.description }}
             </a-select-option>
           </a-select>
-        </a-form-item>
-        <a-row :gutter="12">
+        </a-form-item> -->
+        <!-- <a-row :gutter="12">
           <a-col :md="24" :lg="12">
             <a-form-item
               name="userdataid"
@@ -388,7 +386,7 @@
               </a-select>
             </a-form-item>
           </a-col>
-        </a-row>
+        </a-row> -->
         <a-row :gutter="12">
           <a-col :md="24" :lg="24">
             <a-form-item ref="groupenabled" name="groupenabled">
@@ -397,26 +395,6 @@
                 style="width: 100%;"
               >
                 <a-row>
-                  <a-col :span="12">
-                    <a-checkbox value="isextractable">
-                      {{ $t('label.isextractable') }}
-                    </a-checkbox>
-                  </a-col>
-                  <a-col :span="12">
-                    <a-checkbox value="passwordenabled">
-                      {{ $t('label.passwordenabled') }}
-                    </a-checkbox>
-                  </a-col>
-                  <a-col :span="12">
-                    <a-checkbox value="isdynamicallyscalable">
-                      {{ $t('label.isdynamicallyscalable') }}
-                    </a-checkbox>
-                  </a-col>
-                  <a-col :span="12">
-                    <a-checkbox value="requireshvm">
-                      {{ $t('label.requireshvm') }}
-                    </a-checkbox>
-                  </a-col>
                   <a-col :span="12" v-if="isAdminRole">
                     <a-checkbox value="isfeatured">
                       {{ $t('label.isfeatured') }}
@@ -645,10 +623,10 @@ export default {
 
       if (store.getters.userInfo.roletype === this.rootAdmin && this.currentForm === 'Create') {
         this.allowed = true
-        listZones.push({
-          id: this.$t('label.all.zone'),
-          name: this.$t('label.all.zone')
-        })
+        // listZones.push({
+        //   id: this.$t('label.all.zone'),
+        //   name: this.$t('label.all.zone')
+        // })
       }
 
       this.zones.loading = true
@@ -678,11 +656,11 @@ export default {
         if (listResponse) {
           listhyperVisors = listhyperVisors.concat(listResponse)
         }
-        if (this.currentForm !== 'Upload') {
-          listhyperVisors.push({
-            name: 'Simulator'
-          })
-        }
+        // if (this.currentForm !== 'Upload') {
+        //   listhyperVisors.push({
+        //     name: 'Simulator'
+        //   })
+        // }
         this.hyperVisor.opts = listhyperVisors
       }).finally(() => {
         this.hyperVisor.loading = false
@@ -763,22 +741,22 @@ export default {
           id: '',
           description: ''
         })
-        controller.push({
-          id: 'ide',
-          description: 'ide'
-        })
+        // controller.push({
+        //   id: 'ide',
+        //   description: 'ide'
+        // })
         controller.push({
           id: 'osdefault',
           description: 'osdefault'
         })
-        controller.push({
-          id: 'scsi',
-          description: 'scsi'
-        })
-        controller.push({
-          id: 'virtio',
-          description: 'virtio'
-        })
+        // controller.push({
+        //   id: 'scsi',
+        //   description: 'scsi'
+        // })
+        // controller.push({
+        //   id: 'virtio',
+        //   description: 'virtio'
+        // })
       } else if (hyperVisor === 'VMware') {
         controller.push({
           id: '',
@@ -878,18 +856,18 @@ export default {
             id: 'QCOW2',
             description: 'QCOW2'
           })
-          format.push({
-            id: 'RAW',
-            description: 'RAW'
-          })
-          format.push({
-            id: 'VHD',
-            description: 'VHD'
-          })
-          format.push({
-            id: 'VMDK',
-            description: 'VMDK'
-          })
+          // format.push({
+          //   id: 'RAW',
+          //   description: 'RAW'
+          // })
+          // format.push({
+          //   id: 'VHD',
+          //   description: 'VHD'
+          // })
+          // format.push({
+          //   id: 'VMDK',
+          //   description: 'VMDK'
+          // })
           break
         case 'XenServer':
           this.hyperXenServerShow = true
@@ -1071,9 +1049,9 @@ export default {
             }
           }
         }
-        if (!('requireshvm' in params)) { // handled as default true by API
-          params.requireshvm = false
-        }
+        // if (!('requireshvm' in params)) { // handled as default true by API
+        //   params.requireshvm = true
+        // }
         if (this.currentForm === 'Create') {
           this.loading = true
           api('registerTemplate', params).then(json => {

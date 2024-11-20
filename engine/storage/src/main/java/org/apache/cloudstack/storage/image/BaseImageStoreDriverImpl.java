@@ -306,7 +306,7 @@ public abstract class BaseImageStoreDriverImpl implements ImageStoreDriver {
             result.setSuccess(false);
             result.setResult(answer.getErrorString());
             caller.complete(result);
-            String msg = "Failed to upload volume: " + obj.getUuid() + " with error: " + answer.getErrorString();
+            String msg = "볼륨 업로드 실패: " + obj.getUuid() + " 오류: " + answer.getErrorString();
             _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_UPLOAD_FAILED,
                     (volStoreVO == null ? -1L : volStoreVO.getZoneId()), null, msg, msg);
             LOGGER.error(msg);

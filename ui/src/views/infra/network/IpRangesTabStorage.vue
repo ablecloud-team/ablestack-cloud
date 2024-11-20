@@ -17,14 +17,14 @@
 
 <template>
   <a-spin :spinning="componentLoading">
-    <a-button
+    <!-- <a-button
       :disabled="!('createStorageNetworkIpRange' in $store.getters.apis)"
       type="dashed"
       style="margin-bottom: 20px; width: 100%"
       @click="handleOpenAddIpRangeModal">
       <template #icon><plus-outlined /></template>
       {{ $t('label.add.ip.range') }}
-    </a-button>
+    </a-button> -->
 
     <a-table
       style="overflow-y: auto"
@@ -175,10 +175,10 @@ export default {
         {
           title: this.$t('label.endip'),
           dataIndex: 'endip'
-        },
-        {
-          key: 'actions',
-          title: this.$t('label.actions')
+        // },
+        // {
+        //   key: 'actions',
+        //   title: this.$t('label.actions')
         }
       ],
       page: 1,

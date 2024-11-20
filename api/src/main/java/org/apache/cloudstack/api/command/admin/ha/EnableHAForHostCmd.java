@@ -104,6 +104,6 @@ public final class EnableHAForHostCmd extends BaseAsyncCmd {
 
     @Override
     public String getEventDescription() {
-        return "enable HA for host: " + getHostId();
+        return "호스트에 HA 활성화: " + getHostId();
     }
 }

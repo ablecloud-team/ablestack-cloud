@@ -56,25 +56,25 @@ public class ConfigureOutOfBandManagementCmd extends BaseCmd {
             validations = {ApiArgValidator.PositiveNumber}, description = "the ID of the host")
     private Long hostId;
 
-    @Parameter(name = ApiConstants.DRIVER, type = CommandType.STRING, required = true, description = "the host management interface driver, for example: ipmitool")
+    @Parameter(name = ApiConstants.DRIVER, type = CommandType.STRING, required = true, description = "호스트 관리 인터페이스 드라이버")
     private String driver;
 
-    @Parameter(name = ApiConstants.ADDRESS, type = CommandType.STRING, required = true, description = "the host management interface IP address")
+    @Parameter(name = ApiConstants.ADDRESS, type = CommandType.STRING, required = true, description = "호스트 관리 인터페이스 IP 주소")
     private String address;
 
-    @Parameter(name = ApiConstants.PORT, type = CommandType.STRING, required = true, description = "the host management interface port")
+    @Parameter(name = ApiConstants.PORT, type = CommandType.STRING, required = true, description = "호스트 관리 인터페이스 포트")
     private String port;
 
-    @Parameter(name = ApiConstants.USERNAME, type = CommandType.STRING, required = true, description = "the host management interface user")
+    @Parameter(name = ApiConstants.USERNAME, type = CommandType.STRING, required = true, description = "호스트 관리 인터페이스 사용자 이름")
     private String username;
 
-    @Parameter(name = ApiConstants.PASSWORD, type = CommandType.STRING, required = true, description = "the host management interface password")
+    @Parameter(name = ApiConstants.PASSWORD, type = CommandType.STRING, required = true, description = "호스트 관리 인터페이스 비밀번호")
     private String password;
 
-    @Parameter(name = ApiConstants.MANAGE_CONSOLE_PROTOCOL, type = CommandType.STRING, required = true,  description = "the host management interface management console protocol")
+    @Parameter(name = ApiConstants.MANAGE_CONSOLE_PROTOCOL, type = CommandType.STRING, required = true,  description = "호스트 관리 인터페이스 관리콘솔 프로토콜")
     private String manageConsoleProtocol;
 
-    @Parameter(name = ApiConstants.MANAGE_CONSOLE_PORT, type = CommandType.STRING, description = "the host management interface management console port")
+    @Parameter(name = ApiConstants.MANAGE_CONSOLE_PORT, type = CommandType.STRING, description = "호스트 관리 인터페이스 관리콘솔 포트")
     private String manageConsolePort;
 
     /////////////////////////////////////////////////////

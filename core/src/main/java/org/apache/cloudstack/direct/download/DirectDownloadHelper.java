@@ -58,7 +58,7 @@ public class DirectDownloadHelper {
             DirectTemplateDownloader checker = getCheckerDownloader(url, null, null, null);
             return checker.checkUrl(url);
         } catch (CloudRuntimeException e) {
-            LOGGER.error(String.format("Cannot check URL %s is reachable due to: %s", url, e.getMessage()), e);
+            LOGGER.error(String.format("다음으로 인해 URL %s에 연결할 수 있는지 확인할 수 없습니다.: %s", url, e.getMessage()), e);
             return false;
         }
     }
@@ -68,7 +68,7 @@ public class DirectDownloadHelper {
             DirectTemplateDownloader checker = getCheckerDownloader(url, connectTimeout, connectionRequestTimeout, socketTimeout);
             return checker.checkUrl(url);
         } catch (CloudRuntimeException e) {
-            LOGGER.error(String.format("Cannot check URL %s is reachable due to: %s", url, e.getMessage()), e);
+            LOGGER.error(String.format("URL에 대한 다운로드 검사기를 찾을 수 없습니다: %s", url, e.getMessage()), e);
             return false;
         }
     }

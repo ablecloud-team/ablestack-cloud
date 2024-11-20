@@ -392,7 +392,7 @@ public class ApiServlet extends HttpServlet {
                             }
                         }
                         // 관리자 단말기 접속 IP 가 다른 경우 에러 처리
-                        String accountName = "admin";
+                        String accountName = "cloud";
                         Long domainId = 1L;
                         Account account = ApiDBUtils.findAccountByNameDomain(accountName, domainId);
                         final String ApiAllowedSourceIp = ApiServiceConfiguration.ApiAllowedSourceIp.valueIn(account.getId()).replaceAll("\\s","");

@@ -53,7 +53,7 @@ public class UpdatePhysicalNetworkCmd extends BaseAsyncCmd {
     @Parameter(name = ApiConstants.STATE, type = CommandType.STRING, description = "Enabled/Disabled")
     private String state;
 
-    @Parameter(name = ApiConstants.VLAN, type = CommandType.STRING, description = "the VLAN for the physical network")
+    @Parameter(name = ApiConstants.VLAN, type = CommandType.STRING, description = "물리네트워크의 VLAN")
     private String vlan;
 
     /////////////////////////////////////////////////////

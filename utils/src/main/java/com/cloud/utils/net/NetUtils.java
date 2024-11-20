@@ -1042,19 +1042,50 @@ public class NetUtils {
         // If it's a host name, don't allow to start with digit
 
         if (hostName.length() > 63 || hostName.length() < 1) {
-            logger.warn("Domain name label must be between 1 and 63 characters long");
+            logger.warn("이름은 1~63자 사이여야 합니다.");
             return false;
         } else if (!hostName.toLowerCase().matches("[a-z0-9-]*")) {
-            logger.warn("Domain name label may contain only the ASCII letters 'a' through 'z' (in a case-insensitive manner)");
+            logger.warn("이름에는 ASCII 문자 'a'부터 'z'까지만 포함될 수 있습니다(대소문자를 구분하지 않음).");
             return false;
         } else if (hostName.startsWith("-") || hostName.endsWith("-")) {
-            logger.warn("Domain name label can not start  with a hyphen and digit, and must not end with a hyphen");
+            logger.warn("이름은 하이픈과 숫자로 시작할 수 없으며 하이픈으로 끝나서는 안 됩니다.");
             return false;
         } else if (isHostName && hostName.matches("^[0-9-].*")) {
-            logger.warn("Host name can't start with digit");
+            logger.warn("이름은 숫자로 시작할 수 없습니다.");
             return false;
         }
 
+        return true;
+    }
+
+    public static boolean verifyOfferingNameLabel(final String hostName, final boolean isHostName) {
+        // must be between 1 and 63 characters long and may contain only the ASCII letters 'a' through 'z' (in a
+        // case-insensitive manner),
+        // the digits '0' through '9', and the hyphen ('-').
+        // Can not start with a hyphen and digit, and must not end with a hyphen
+
+        if (hostName.length() > 63 || hostName.length() < 1) {
+            logger.warn("이름은 1~63자 사이여야 합니다.");
+            return false;
+        } else if (!hostName.toLowerCase().matches("[a-z0-9-]*")) {
+            logger.warn("이름에는 ASCII 문자 'a'부터 'z'까지만 포함될 수 있습니다(대소문자를 구분하지 않음).");
+            return false;
+        } else if (hostName.startsWith("-") || hostName.endsWith("-")) {
+            logger.warn("이름은 하이픈으로 시작할 수 없으며 하이픈으로 끝나서는 안 됩니다.");
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean verifyVlanLabel(final String vlan) {
+        if (!vlan.toLowerCase().equals("untagged") && !vlan.matches("[0-9]+")) {
+            logger.warn("VLAN은 untagged 또는 숫자 1~4자 사이여야 합니다.");
+            return false;
+        } else if ( vlan.matches("[0-9]+") && vlan.length() > 4){
+            logger.warn("VLAN은 untagged 또는 숫자 1~4자 사이여야 합니다.");
+            return false;
+        }
         return true;
     }
 
@@ -1130,7 +1161,7 @@ public class NetUtils {
         final String[] allowedNetBlocks = {"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.64.0.0/10"};
 
         if (!isValidIp4Cidr(cidr)) {
-            logger.warn("Cidr " + cidr + " is not valid");
+            logger.warn("Cidr " + cidr + "는 유효하지 않습니다.");
             return false;
         }
 
@@ -1141,7 +1172,7 @@ public class NetUtils {
         }
 
         // not in allowedNetBlocks - return false
-        logger.warn("cidr " + cidr + " is not RFC 1918 or 6598 compliant");
+        logger.warn("cidr " + cidr + "는 RFC 1918 또는 6598을 준수하지 않습니다.");
         return false;
     }
 

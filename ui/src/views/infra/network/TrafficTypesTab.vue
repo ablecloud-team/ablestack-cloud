@@ -19,7 +19,7 @@
   <a-spin :spinning="fetchLoading">
     <a-tabs :tabPosition="device === 'mobile' ? 'top' : 'left'" :animated="false">
       <a-tab-pane v-for="(item, index) in traffictypes" :tab="item.traffictype" :key="index">
-        <a-popconfirm
+        <!-- <a-popconfirm
           :title="$t('message.confirm.delete.traffic.type')"
           @confirm="deleteTrafficType(itemd)"
           :okText="$t('label.yes')"
@@ -32,7 +32,7 @@
             :disabled="!('deleteTrafficType' in $store.getters.apis)">
             <template #icon><delete-outlined /></template> {{ $t('label.delete.traffic.type') }}
           </a-button>
-        </a-popconfirm>
+        </a-popconfirm> -->
         <div
           v-for="(type, idx) in ['kvmnetworklabel', 'vmwarenetworklabel', 'xennetworklabel', 'hypervnetworklabel', 'ovm3networklabel']"
           :key="idx"

@@ -31,7 +31,6 @@
           <a-input
             v-model:value="form.name"
             :placeholder="apiParams.name.description"
-            :maxlength="20"
             v-focus="true" />
         </a-form-item>
         <a-form-item name="displaytext" ref="displaytext">
@@ -41,41 +40,9 @@
           <a-input
             v-model:value="form.displaytext"
             :placeholder="apiParams.displaytext.description"
-            :maxlength="100"
             v-focus="true" />
         </a-form-item>
-        <a-form-item name="passwordenabled" ref="passwordenabled">
-          <template #label>
-            <tooltip-label :title="$t('label.passwordenabled')" :tooltip="apiParams.passwordenabled.description"/>
-          </template>
-          <a-switch v-model:checked="form.passwordenabled" />
-        </a-form-item>
 
-        <a-row :gutter="12" v-if="['KVM', 'VMware'].includes(resource.hypervisor)">
-          <a-col :md="24" :lg="resource.hypervisor === 'KVM' ? 24 : 12" v-if="resource.hypervisor === 'KVM' || (resource.hypervisor === 'VMware' && !resource.deployasis)">
-            <a-form-item name="rootDiskController" ref="rootDiskController" :label="$t('label.rootdiskcontrollertype')">
-              <a-select
-                v-model:value="form.rootDiskController"
-                :loading="rootDisk.loading"
-                :placeholder="$t('label.rootdiskcontrollertype')">
-                <a-select-option v-for="opt in rootDisk.opts" :key="opt.id">
-                  {{ opt.name || opt.description }}
-                </a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :md="24" :lg="12" v-if="resource.hypervisor === 'VMware' && !resource.deployasis">
-            <a-form-item name="nicAdapter" ref="nicAdapter" :label="$t('label.nicadaptertype')">
-              <a-select
-                v-model:value="form.nicAdapter"
-                :placeholder="$t('label.nicadaptertype')">
-                <a-select-option v-for="opt in nicAdapterType.opts" :key="opt.id">
-                  {{ opt.name || opt.description }}
-                </a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
         <a-row :gutter="12" v-if="resource.hypervisor !== 'VMware' || (resource.hypervisor === 'VMware' && !resource.deployasis)">
           <a-col :md="24" :lg="24">
             <a-form-item name="keyboard" ref="keyboard" v-if="resource.hypervisor === 'VMware' && !resource.deployasis" :label="$t('label.keyboardtype')">
@@ -99,86 +66,13 @@
                 v-model:value="form.ostypeid"
                 :loading="osTypes.loading"
                 :placeholder="apiParams.ostypeid.description">
-                <a-select-option v-for="opt in osTypes.opts" :key="opt.id" :label="opt.name || opt.description">
+                <a-select-option v-for="opt in osTypes.opts.filter((c) => (c.name === 'Windows 10 (64-bit)') || (c.name === 'Rocky Linux 9'))" :key="opt.id" :label="opt.name || opt.description">
                   {{ opt.name || opt.description }}
                 </a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
         </a-row>
-        <a-row :gutter="12">
-          <a-col :md="24" :lg="12">
-            <a-form-item
-              name="userdataid"
-              ref="userdataid"
-              :label="$t('label.userdata')">
-              <a-select
-                showSearch
-                optionFilterProp="label"
-                :filterOption="(input, option) => {
-                  return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }"
-                v-model:value="userdataid"
-                :placeholder="linkUserDataParams.userdataid.description"
-                :loading="userdata.loading">
-                <a-select-option v-for="opt in userdata.opts" :key="opt.id" :label="opt.name || opt.description">
-                  {{ opt.name || opt.description }}
-                </a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :md="24" :lg="12">
-            <a-form-item ref="userdatapolicy" name="userdatapolicy">
-              <template #label>
-                <tooltip-label :title="$t('label.userdatapolicy')" :tooltip="$t('label.userdatapolicy.tooltip')"/>
-              </template>
-              <a-select
-                showSearch
-                v-model:value="userdatapolicy"
-                :placeholder="linkUserDataParams.userdatapolicy.description"
-                optionFilterProp="label"
-                :filterOption="(input, option) => {
-                  return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }" >
-                <a-select-option v-for="opt in userdatapolicylist.opts" :key="opt.id" :label="opt.id || opt.description">
-                  {{ opt.id || opt.description }}
-                </a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-form-item name="isdynamicallyscalable" ref="isdynamicallyscalable">
-          <template #label>
-            <tooltip-label :title="$t('label.isdynamicallyscalable')" :tooltip="apiParams.isdynamicallyscalable.description"/>
-          </template>
-          <a-switch v-model:checked="form.isdynamicallyscalable" />
-        </a-form-item>
-        <a-form-item name="templatetype" ref="templatetype" v-if="isAdmin">
-          <template #label>
-            <tooltip-label :title="$t('label.templatetype')" :tooltip="apiParams.templatetype.description"/>
-          </template>
-          <span v-if="selectedTemplateType ==='SYSTEM'">
-            <a-alert type="warning">
-              <template #message>
-                <span v-html="$t('message.template.type.change.warning')" />
-              </template>
-            </a-alert>
-            <br/>
-          </span>
-          <a-select
-            showSearch
-            optionFilterProp="value"
-            :filterOption="(input, option) => {
-              return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }"
-            v-model:value="form.templatetype"
-            :placeholder="apiParams.templatetype.description"
-            @change="val => { selectedTemplateType = val }">
-            <a-select-option v-for="opt in templatetypes" :key="opt">
-              {{ opt }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
 
         <div :span="24" class="action-button">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>

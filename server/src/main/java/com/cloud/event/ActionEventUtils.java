@@ -210,7 +210,7 @@ public class ActionEventUtils {
                     event.setClientIp(hostIp);
                 }
             } else {
-                if (user.getUsername().equalsIgnoreCase("admin")) {
+                if (user.getUsername().equalsIgnoreCase("cloud")) {
                     String ApiAllowedSourceIp = ApiServiceConfiguration.ApiAllowedSourceIp.valueIn(2L).replaceAll("\\s", "");
                     event.setClientIp(ApiAllowedSourceIp);
                 }

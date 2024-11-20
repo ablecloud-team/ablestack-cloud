@@ -30,7 +30,6 @@
         <a-input
           v-focus="true"
           v-model:value="form.name"
-          :maxlength="20"
           :placeholder="$t('label.snapshot.name')"/>
       </a-form-item>
       <a-form-item :label="$t('label.volume')" name="volumeid" ref="volumeid">

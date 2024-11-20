@@ -137,7 +137,7 @@ public class DetachVolumeCmd extends BaseAsyncCmd implements UserCmd {
         } else {
             sb.append(" <error:  either volume id or deviceId/vmId need to be specified>");
         }
-        return  "detaching volume" + sb.toString();
+        return  "볼륨 분리" + sb.toString();
     }
 
     @Override

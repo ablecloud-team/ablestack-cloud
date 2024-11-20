@@ -103,7 +103,7 @@ public class UpdateNetworkServiceProviderCmd extends BaseAsyncCmd {
 
     @Override
     public String getEventDescription() {
-        return "Updating physical network ServiceProvider: " + getId();
+        return "물리 네트워크 서비스 공급자 업데이트 중: " + getId();
     }
 
     @Override

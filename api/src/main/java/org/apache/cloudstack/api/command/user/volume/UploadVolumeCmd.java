@@ -59,14 +59,14 @@ public class UploadVolumeCmd extends BaseAsyncCmd implements UserCmd {
                description = "the format for the volume. Possible values include QCOW2, OVA, and VHD.")
     private String format;
 
-    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, required = true, description = "the name of the volume")
+    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, required = true, description = "볼륨의 이름")
     private String volumeName;
 
     @Parameter(name = ApiConstants.URL,
                type = CommandType.STRING,
                required = true,
                length = 2048,
-               description = "the URL of where the volume is hosted. Possible URL include http:// and https://")
+               description = "볼륨이 호스팅되는 URL입니다. http:// 및 https://가 포함된 URL 형식에 따릅니다.")
     private String url;
 
     @Parameter(name = ApiConstants.ZONE_ID,
@@ -94,7 +94,7 @@ public class UploadVolumeCmd extends BaseAsyncCmd implements UserCmd {
     @Parameter(name = ApiConstants.PROJECT_ID, type = CommandType.UUID, entityType = ProjectResponse.class, description = "Upload volume for the project")
     private Long projectId;
 
-    @Parameter(name = ApiConstants.DISK_OFFERING_ID, required = false, type = CommandType.UUID, entityType = DiskOfferingResponse.class, description = "the ID of the disk offering. This must be a custom sized offering since during uploadVolume volume size is unknown.")
+    @Parameter(name = ApiConstants.DISK_OFFERING_ID, required = false, type = CommandType.UUID, entityType = DiskOfferingResponse.class, description = "디스크 오퍼링의 아이디")
     private Long diskOfferingId;
 
     /////////////////////////////////////////////////////
@@ -151,7 +151,7 @@ public class UploadVolumeCmd extends BaseAsyncCmd implements UserCmd {
                 response.setResponseName(getCommandName());
                 setResponseObject(response);
             } else {
-                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to upload volume");
+                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "볼륨 업로드에 실패했습니다.");
             }
     }
 
@@ -172,7 +172,7 @@ public class UploadVolumeCmd extends BaseAsyncCmd implements UserCmd {
 
     @Override
     public String getEventDescription() {
-        return  "uploading volume: " + getVolumeName() + " in the zone " + this._uuidMgr.getUuid(DataCenter.class, getZoneId());
+        return  "볼륨 업로드: " + getVolumeName() + ", zone: " + this._uuidMgr.getUuid(DataCenter.class, getZoneId());
     }
 
     @Override

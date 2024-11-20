@@ -53,7 +53,6 @@
           </template>
           <a-input
             v-model:value="form.name"
-            :maxlength="20"
             :placeholder="apiParams.name.description"/>
         </a-form-item>
         <a-form-item name="quiescevm" ref="quiescevm" v-if="isQuiesceVm">
@@ -61,12 +60,6 @@
             <tooltip-label :title="$t('label.quiescevm')" :tooltip="apiParams.quiescevm.description"/>
           </template>
           <a-switch v-model:checked="form.quiescevm"/>
-        </a-form-item>
-        <a-form-item name="asyncbackup" ref="asyncbackup">
-          <template #label>
-            <tooltip-label :title="$t('label.asyncbackup')" :tooltip="apiParams.asyncbackup.description"/>
-          </template>
-          <a-switch v-model:checked="form.asyncbackup"/>
         </a-form-item>
         <div :span="24" class="action-button">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>

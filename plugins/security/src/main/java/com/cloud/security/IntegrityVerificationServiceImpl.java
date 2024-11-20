@@ -121,7 +121,7 @@ public class IntegrityVerificationServiceImpl extends ManagerBase implements Plu
 
         private void integrityVerification() {
             ActionEventUtils.onStartedActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(), EventTypes.EVENT_INTEGRITY_VERIFICATION,
-                    "running periodic integrity verification on management server when running the product.", new Long(0), null, true, 0);
+                    "제품 실행 시 관리서버에서 주기적인 무결성 검증을 실행합니다.", new Long(0), null, true, 0);
             ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
             List<String> verificationFailedList = new ArrayList<>();
             List<Boolean> verificationResults = new ArrayList<>();
@@ -359,7 +359,7 @@ public class IntegrityVerificationServiceImpl extends ManagerBase implements Plu
     @Override
     public boolean runIntegrityVerificationCommand(final RunIntegrityVerificationCmd cmd) {
         ActionEventUtils.onStartedActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(), EventTypes.EVENT_INTEGRITY_VERIFICATION,
-                    "running manual integrity verification on management server when operating the product.", new Long(0), null, true, 0);
+                    "제품 운영 시 관리서버에서 수동 무결성 검증을 실행합니다.", new Long(0), null, true, 0);
         Long mshostId = cmd.getMsHostId();
         List<Boolean> verificationResults = new ArrayList<>();
         List<String> verificationFailedList = new ArrayList<>();
@@ -448,7 +448,7 @@ public class IntegrityVerificationServiceImpl extends ManagerBase implements Plu
         final Long resultId = cmd.getId();
         IntegrityVerificationFinalResult result = integrityVerificationFinalResultDao.findById(resultId);
         if (result == null) {
-            throw new InvalidParameterValueException("Invalid integrity verification final result id specified");
+            throw new InvalidParameterValueException("잘못된 무결성 검증 최종 결과 ID가 지정되었습니다.");
         }
         return integrityVerificationFinalResultDao.remove(result.getId());
     }
@@ -456,28 +456,28 @@ public class IntegrityVerificationServiceImpl extends ManagerBase implements Plu
     private void updateIntegrityVerificationFinalResult(final long msHostId, String uuid, boolean verificationFinalResult, String verificationFailedListToString, String type) {
         if (verificationFinalResult == false) {
             if(type.equals("Execution")){
-                alertManager.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "Failed to execute integrity verification on the management server when running the product", "");
+                alertManager.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "제품 실행시 관리서버에서 무결성 검증을 실행하지 못했습니다.", "");
                 ActionEventUtils.onCompletedActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(), EventVO.LEVEL_ERROR,
-                        EventTypes.EVENT_INTEGRITY_VERIFICATION, "Failed to execute integrity verification on the management server when running the product", new Long(0), null, 0);
+                        EventTypes.EVENT_INTEGRITY_VERIFICATION, "제품 실행시 관리서버에서 무결성 검증을 실행하지 못했습니다.", new Long(0), null, 0);
             }else if(type.equals("Routine")){
-                alertManager.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "Failed to execute integrity verification schedule on the management server when operating the product", "");
+                alertManager.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "제품 운영 중 관리서버에서 무결성 검증 일정을 실행하지 못했습니다.", "");
                 ActionEventUtils.onCompletedActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(), EventVO.LEVEL_ERROR,
-                        EventTypes.EVENT_INTEGRITY_VERIFICATION, "Failed to execute integrity verification schedule on the management server when operating the product", new Long(0), null, 0);
+                        EventTypes.EVENT_INTEGRITY_VERIFICATION, "제품 운영 중 관리서버에서 무결성 검증 일정을 실행하지 못했습니다.", new Long(0), null, 0);
             }else if(type.equals("Manual")){
-                alertManager.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "Failed to execute integrity verification on the management server when operating the product", "");
+                alertManager.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "제품 운영 중 관리서버에서 무결성 검증을 실행하지 못했습니다.", "");
                 ActionEventUtils.onCompletedActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(), EventVO.LEVEL_ERROR,
-                        EventTypes.EVENT_INTEGRITY_VERIFICATION, "Failed to execute integrity verification on the management server when operating the product", new Long(0), null, 0);
+                        EventTypes.EVENT_INTEGRITY_VERIFICATION, "제품 운영 중 관리서버에서 무결성 검증을 실행하지 못했습니다.", new Long(0), null, 0);
             }
         }else {
             if(type.equals("Execution")){
                 ActionEventUtils.onCompletedActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(), EventVO.LEVEL_INFO,
-                        EventTypes.EVENT_INTEGRITY_VERIFICATION, "Successfully completed integrity verification perform on the management server when running the product", new Long(0), null, 0);
+                        EventTypes.EVENT_INTEGRITY_VERIFICATION, "제품 실행 시 관리 서버에서 무결성 검증을 성공적으로 완료했습니다.", new Long(0), null, 0);
             }else if(type.equals("Routine")){
                 ActionEventUtils.onCompletedActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(), EventVO.LEVEL_INFO,
-                        EventTypes.EVENT_INTEGRITY_VERIFICATION, "Successfully completed integrity verification schedule perform on the management server when operating the product", new Long(0), null, 0);
+                        EventTypes.EVENT_INTEGRITY_VERIFICATION, "제품 작동 시 관리 서버에서 무결성 검증 일정을 성공적으로 완료 수행", new Long(0), null, 0);
             }else if(type.equals("Manual")){
                 ActionEventUtils.onCompletedActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(), EventVO.LEVEL_INFO,
-                        EventTypes.EVENT_INTEGRITY_VERIFICATION, "Successfully completed integrity verification perform on the management server when operating the product", new Long(0), null, 0);
+                        EventTypes.EVENT_INTEGRITY_VERIFICATION, "제품 작동 시 관리 서버에서 무결성 검증을 성공적으로 완료했습니다.", new Long(0), null, 0);
             }
         }
         IntegrityVerificationFinalResultVO connectivityVO = new IntegrityVerificationFinalResultVO(msHostId, verificationFinalResult, verificationFailedListToString, type);

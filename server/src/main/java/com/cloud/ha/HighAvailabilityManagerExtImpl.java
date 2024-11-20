@@ -90,8 +90,8 @@ public class HighAvailabilityManagerExtImpl extends HighAvailabilityManagerImpl 
                 }
 
                 if (!isRunning) {
-                    _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_USAGE_SERVER, 0, new Long(0), "No usage server process running",
-                        "No usage server process has been detected, some attention is required");
+                    _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_USAGE_SERVER, 0, new Long(0), "실행 중인 사용 서버 프로세스가 없습니다.",
+                        "사용 서버 프로세스가 감지되지 않았습니다. 주의가 필요합니다.");
                 } else {
                     _alertMgr.clearAlert(AlertManager.AlertType.ALERT_TYPE_USAGE_SERVER, 0, 0);
                 }

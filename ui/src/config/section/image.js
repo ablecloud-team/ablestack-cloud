@@ -54,9 +54,9 @@ export default {
         return fields
       },
       details: () => {
-        var fields = ['name', 'id', 'displaytext', 'checksum', 'hypervisor', 'format', 'ostypename', 'size', 'physicalsize', 'isready', 'passwordenabled',
-          'crossZones', 'templatetype', 'directdownload', 'deployasis', 'ispublic', 'isfeatured', 'isextractable', 'isdynamicallyscalable', 'crosszones', 'type',
-          'account', 'domain', 'created', 'userdatadetails', 'userdatapolicy']
+        var fields = ['name', 'id', 'displaytext', 'checksum', 'hypervisor', 'format', 'ostypename', 'size', 'physicalsize', 'isready',
+          'crossZones', 'templatetype', 'ispublic', 'isfeatured', 'crosszones', 'type',
+          'account', 'created', 'userdatadetails', 'userdatapolicy']
         if (['Admin'].includes(store.getters.userInfo.roletype)) {
           fields.push('url')
         }
@@ -81,23 +81,23 @@ export default {
       }, {
         name: 'zones',
         component: shallowRef(defineAsyncComponent(() => import('@/views/image/TemplateZones.vue')))
-      }, {
-        name: 'settings',
-        component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailSettings')))
-      }, {
-        name: 'vnf.settings',
-        component: shallowRef(defineAsyncComponent(() => import('@/views/image/TemplateVnfSettings.vue'))),
-        show: (record) => { return record.templatetype === 'VNF' }
+      // }, {
+      //   name: 'settings',
+      //   component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailSettings')))
+      // }, {
+      //   name: 'vnf.settings',
+      //   component: shallowRef(defineAsyncComponent(() => import('@/views/image/TemplateVnfSettings.vue'))),
+      //   show: (record) => { return record.templatetype === 'VNF' }
       },
       {
         name: 'events',
         resourceType: 'Template',
         component: shallowRef(defineAsyncComponent(() => import('@/components/view/EventsTab.vue'))),
         show: () => { return 'listEvents' in store.getters.apis }
-      },
-      {
-        name: 'comments',
-        component: shallowRef(defineAsyncComponent(() => import('@/components/view/AnnotationsTab.vue')))
+      // },
+      // {
+      //   name: 'comments',
+      //   component: shallowRef(defineAsyncComponent(() => import('@/components/view/AnnotationsTab.vue')))
       }],
       actions: [
         {
@@ -109,16 +109,16 @@ export default {
           popup: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/image/RegisterOrUploadTemplate.vue')))
         },
-        {
-          api: 'registerTemplate',
-          icon: 'cloud-upload-outlined',
-          label: 'label.upload.template.from.local',
-          show: () => { return 'getUploadParamsForTemplate' in store.getters.apis },
-          docHelp: 'adminguide/templates.html#uploading-templates-and-isos-from-a-local-computer',
-          listView: true,
-          popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/image/RegisterOrUploadTemplate.vue')))
-        },
+        // {
+        //   api: 'registerTemplate',
+        //   icon: 'cloud-upload-outlined',
+        //   label: 'label.upload.template.from.local',
+        //   show: () => { return 'getUploadParamsForTemplate' in store.getters.apis },
+        //   docHelp: 'adminguide/templates.html#uploading-templates-and-isos-from-a-local-computer',
+        //   listView: true,
+        //   popup: true,
+        //   component: shallowRef(defineAsyncComponent(() => import('@/views/image/RegisterOrUploadTemplate.vue')))
+        // },
         {
           api: 'updateTemplate',
           icon: 'edit-outlined',
@@ -139,7 +139,7 @@ export default {
           label: 'label.action.template.share',
           dataView: true,
           args: (record, store) => {
-            const fields = ['isfeatured', 'isextractable']
+            const fields = ['isfeatured']
             if (['Admin'].includes(store.userInfo.roletype) || store.features.userpublictemplateenabled) {
               fields.unshift('ispublic')
             }
@@ -177,217 +177,217 @@ export default {
               value: (record) => { return 'HTTP_DOWNLOAD' }
             }
           },
-          response: (result) => { return `Please click <a href="${result.template.url}" target="_blank">${result.template.url}</a> to download.` }
-        },
-        {
-          api: 'updateTemplatePermissions',
-          icon: 'reconciliation-outlined',
-          label: 'label.action.template.permission',
-          docHelp: 'adminguide/templates.html#sharing-templates-with-other-accounts-projects',
-          dataView: true,
-          popup: true,
-          show: (record, store) => {
-            return !store.features.securityfeaturesenabled && ((['Admin'].includes(store.userInfo.roletype) || // If admin or owner or belongs to current project
-              (record.domainid === store.userInfo.domainid && record.account === store.userInfo.account) ||
-              (record.domainid === store.userInfo.domainid && record.projectid && store.project && store.project.id && record.projectid === store.project.id)) &&
-              record.templatetype !== 'SYSTEM' &&
-              record.isready)
-          },
-          component: shallowRef(defineAsyncComponent(() => import('@/views/image/UpdateTemplateIsoPermissions')))
-        }
-      ]
-    },
-    {
-      name: 'iso',
-      title: 'label.isos',
-      icon: 'usb-outlined',
-      docHelp: 'adminguide/templates.html#working-with-isos',
-      permission: ['listIsos'],
-      params: { isofilter: 'self', showunique: 'true' },
-      resourceType: 'ISO',
-      filters: ['self', 'shared', 'featured', 'community'],
-      columns: () => {
-        var fields = ['name',
-          {
-            state: (record) => {
-              if (record.isready) {
-                return 'Ready'
-              }
-              return 'Not Ready'
-            }
-          }, 'ostypename']
-        if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
-          fields.push('size')
-          fields.push('account')
-        }
-        if (['Admin'].includes(store.getters.userInfo.roletype)) {
-          fields.push('order')
-        }
-        return fields
-      },
-      details: ['name', 'id', 'displaytext', 'checksum', 'ostypename', 'size', 'bootable', 'isready', 'directdownload', 'isextractable', 'ispublic', 'isfeatured', 'crosszones', 'account', 'domain', 'created', 'userdatadetails', 'userdatapolicy', 'url'],
-      searchFilters: () => {
-        var filters = ['name', 'zoneid', 'tags']
-        if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
-          filters.push('storageid')
-          filters.push('imagestoreid')
-        }
-        return filters
-      },
-      related: [{
-        name: 'vm',
-        title: 'label.instances',
-        param: 'isoid'
-      }],
-      tabs: [{
-        name: 'details',
-        component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
-      }, {
-        name: 'zones',
-        component: shallowRef(defineAsyncComponent(() => import('@/views/image/IsoZones.vue')))
-      },
-      {
-        name: 'events',
-        resourceType: 'Iso',
-        component: shallowRef(defineAsyncComponent(() => import('@/components/view/EventsTab.vue'))),
-        show: () => { return 'listEvents' in store.getters.apis }
-      },
-      {
-        name: 'comments',
-        component: shallowRef(defineAsyncComponent(() => import('@/components/view/AnnotationsTab.vue')))
-      }],
-      actions: [
-        {
-          api: 'registerIso',
-          icon: 'plus-outlined',
-          label: 'label.action.register.iso',
-          docHelp: 'adminguide/templates.html#id10',
-          listView: true,
-          popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/image/RegisterOrUploadIso.vue')))
-        },
-        {
-          api: 'registerIso',
-          icon: 'cloud-upload-outlined',
-          label: 'label.upload.iso.from.local',
-          show: () => { return 'getUploadParamsForIso' in store.getters.apis },
-          docHelp: 'adminguide/templates.html#id10',
-          listView: true,
-          popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/image/RegisterOrUploadIso.vue')))
-        },
-        {
-          api: 'updateIso',
-          icon: 'edit-outlined',
-          label: 'label.action.edit.iso',
-          dataView: true,
-          show: (record, store) => {
-            return (['Admin'].includes(store.userInfo.roletype) || // If admin or owner or belongs to current project
-              (record.domainid === store.userInfo.domainid && record.account === store.userInfo.account) ||
-              (record.domainid === store.userInfo.domainid && record.projectid && store.project && store.project.id && record.projectid === store.project.id)) &&
-              !(record.account === 'system' && record.domainid === 1) &&
-              record.isready
-          },
-          popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/image/UpdateISO.vue')))
-        },
-        {
-          api: 'updateIsoPermissions',
-          icon: 'share-alt-outlined',
-          label: 'label.action.iso.share',
-          dataView: true,
-          args: (record, store) => {
-            const fields = ['isfeatured', 'isextractable']
-            if (['Admin'].includes(store.userInfo.roletype) || store.features.userpublictemplateenabled) {
-              fields.unshift('ispublic')
-            }
-            return fields
-          },
-          show: (record, store) => {
-            return (['Admin'].includes(store.userInfo.roletype) || // If admin or owner or belongs to current project
-              (record.domainid === store.userInfo.domainid && record.account === store.userInfo.account) ||
-              (record.domainid === store.userInfo.domainid && record.projectid && store.project && store.project.id && record.projectid === store.project.id)) &&
-              !(record.account === 'system' && record.domainid === 1) &&
-              record.isready
-          }
-        },
-        {
-          api: 'extractIso',
-          icon: 'cloud-download-outlined',
-          label: 'label.action.download.iso',
-          message: 'message.action.download.iso',
-          docHelp: 'adminguide/templates.html#exporting-templates',
-          dataView: true,
-          show: (record, store) => {
-            return (['Admin'].includes(store.userInfo.roletype) || // If admin or owner or belongs to current project
-              (record.domainid === store.userInfo.domainid && record.account === store.userInfo.account && record.isextractable) ||
-              (record.domainid === store.userInfo.domainid && record.projectid && store.project && store.project.id && record.projectid === store.project.id)) &&
-              !(record.account === 'system' && record.domainid === 1) &&
-              record.isready
-          },
-          args: ['zoneid', 'mode'],
-          mapping: {
-            zoneid: {
-              value: (record) => { return record.zoneid }
-            },
-            mode: {
-              value: (record) => { return 'HTTP_DOWNLOAD' }
-            }
-          },
-          response: (result) => { return `Please click <a href="${result.iso.url}" target="_blank">${result.iso.url}</a> to download.` }
-        },
-        {
-          api: 'updateIsoPermissions',
-          icon: 'reconciliation-outlined',
-          label: 'label.action.iso.permission',
-          docHelp: 'adminguide/templates.html#sharing-templates-with-other-accounts-projects',
-          dataView: true,
-          args: ['op', 'accounts', 'projectids'],
-          popup: true,
-          show: (record, store) => {
-            return !store.features.securityfeaturesenabled && ((['Admin'].includes(store.userInfo.roletype) || // If admin or owner or belongs to current project
-              (record.domainid === store.userInfo.domainid && record.account === store.userInfo.account) ||
-              (record.domainid === store.userInfo.domainid && record.projectid && store.project && store.project.id && record.projectid === store.project.id)) &&
-              !(record.account === 'system' && record.domainid === 1) &&
-              record.isready)
-          },
-          component: shallowRef(defineAsyncComponent(() => import('@/views/image/UpdateTemplateIsoPermissions')))
-        }
-      ]
-    },
-    {
-      name: 'kubernetesiso',
-      title: 'label.kubernetes.isos',
-      icon: ['fa-solid', 'fa-dharmachakra'],
-      docHelp: 'plugins/cloudstack-kubernetes-service.html#kubernetes-supported-versions',
-      permission: ['listKubernetesSupportedVersions'],
-      columns: ['name', 'state', 'semanticversion', 'isostate', 'mincpunumber', 'minmemory', 'zonename'],
-      details: ['name', 'semanticversion', 'supportsautoscaling', 'zoneid', 'zonename', 'isoid', 'isoname', 'isostate', 'mincpunumber', 'minmemory', 'supportsha', 'state', 'created'],
-      actions: [
-        {
-          api: 'addKubernetesSupportedVersion',
-          icon: 'plus-outlined',
-          label: 'label.kubernetes.version.add',
-          listView: true,
-          popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/image/AddKubernetesSupportedVersion.vue')))
-        },
-        {
-          api: 'updateKubernetesSupportedVersion',
-          icon: 'edit-outlined',
-          label: 'label.kubernetes.version.update',
-          dataView: true,
-          popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/image/UpdateKubernetesSupportedVersion.vue')))
-        },
-        {
-          api: 'deleteKubernetesSupportedVersion',
-          icon: 'delete-outlined',
-          label: 'label.kubernetes.version.delete',
-          message: 'message.kubernetes.version.delete',
-          dataView: true
+          response: (result) => { return `다운로드하려면 <a href="${result.template.url}" target="_blank">${result.template.url}</a> 클릭하세요.` }
+        // },
+        // {
+        //   api: 'updateTemplatePermissions',
+        //   icon: 'reconciliation-outlined',
+        //   label: 'label.action.template.permission',
+        //   docHelp: 'adminguide/templates.html#sharing-templates-with-other-accounts-projects',
+        //   dataView: true,
+        //   popup: true,
+        //   show: (record, store) => {
+        //     return !store.features.securityfeaturesenabled && ((['Admin'].includes(store.userInfo.roletype) || // If admin or owner or belongs to current project
+        //       (record.domainid === store.userInfo.domainid && record.account === store.userInfo.account) ||
+        //       (record.domainid === store.userInfo.domainid && record.projectid && store.project && store.project.id && record.projectid === store.project.id)) &&
+        //       record.templatetype !== 'SYSTEM' &&
+        //       record.isready)
+        //   },
+        //   component: shallowRef(defineAsyncComponent(() => import('@/views/image/UpdateTemplateIsoPermissions')))
         }
       ]
     }
+    // {
+    //   name: 'iso',
+    //   title: 'label.isos',
+    //   icon: 'usb-outlined',
+    //   docHelp: 'adminguide/templates.html#working-with-isos',
+    //   permission: ['listIsos'],
+    //   params: { isofilter: 'self', showunique: 'true' },
+    //   resourceType: 'ISO',
+    //   filters: ['self', 'shared', 'featured', 'community'],
+    //   columns: () => {
+    //     var fields = ['name',
+    //       {
+    //         state: (record) => {
+    //           if (record.isready) {
+    //             return 'Ready'
+    //           }
+    //           return 'Not Ready'
+    //         }
+    //       }, 'ostypename']
+    //     if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
+    //       fields.push('size')
+    //       fields.push('account')
+    //     }
+    //     if (['Admin'].includes(store.getters.userInfo.roletype)) {
+    //       fields.push('order')
+    //     }
+    //     return fields
+    //   },
+    //   details: ['name', 'id', 'displaytext', 'checksum', 'ostypename', 'size', 'bootable', 'isready', 'directdownload', 'isextractable', 'ispublic', 'isfeatured', 'crosszones', 'account', 'domain', 'created', 'userdatadetails', 'userdatapolicy', 'url'],
+    //   searchFilters: () => {
+    //     var filters = ['name', 'zoneid', 'tags']
+    //     if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
+    //       filters.push('storageid')
+    //       filters.push('imagestoreid')
+    //     }
+    //     return filters
+    //   },
+    //   related: [{
+    //     name: 'vm',
+    //     title: 'label.instances',
+    //     param: 'isoid'
+    //   }],
+    //   tabs: [{
+    //     name: 'details',
+    //     component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
+    //   }, {
+    //     name: 'zones',
+    //     component: shallowRef(defineAsyncComponent(() => import('@/views/image/IsoZones.vue')))
+    //   },
+    //   {
+    //     name: 'events',
+    //     resourceType: 'Iso',
+    //     component: shallowRef(defineAsyncComponent(() => import('@/components/view/EventsTab.vue'))),
+    //     show: () => { return 'listEvents' in store.getters.apis }
+    //   },
+    //   {
+    //     name: 'comments',
+    //     component: shallowRef(defineAsyncComponent(() => import('@/components/view/AnnotationsTab.vue')))
+    //   }],
+    //   actions: [
+    //     {
+    //       api: 'registerIso',
+    //       icon: 'plus-outlined',
+    //       label: 'label.action.register.iso',
+    //       docHelp: 'adminguide/templates.html#id10',
+    //       listView: true,
+    //       popup: true,
+    //       component: shallowRef(defineAsyncComponent(() => import('@/views/image/RegisterOrUploadIso.vue')))
+    //     },
+    //     {
+    //       api: 'registerIso',
+    //       icon: 'cloud-upload-outlined',
+    //       label: 'label.upload.iso.from.local',
+    //       show: () => { return 'getUploadParamsForIso' in store.getters.apis },
+    //       docHelp: 'adminguide/templates.html#id10',
+    //       listView: true,
+    //       popup: true,
+    //       component: shallowRef(defineAsyncComponent(() => import('@/views/image/RegisterOrUploadIso.vue')))
+    //     },
+    //     {
+    //       api: 'updateIso',
+    //       icon: 'edit-outlined',
+    //       label: 'label.action.edit.iso',
+    //       dataView: true,
+    //       show: (record, store) => {
+    //         return (['Admin'].includes(store.userInfo.roletype) || // If admin or owner or belongs to current project
+    //           (record.domainid === store.userInfo.domainid && record.account === store.userInfo.account) ||
+    //           (record.domainid === store.userInfo.domainid && record.projectid && store.project && store.project.id && record.projectid === store.project.id)) &&
+    //           !(record.account === 'system' && record.domainid === 1) &&
+    //           record.isready
+    //       },
+    //       popup: true,
+    //       component: shallowRef(defineAsyncComponent(() => import('@/views/image/UpdateISO.vue')))
+    //     },
+    //     {
+    //       api: 'updateIsoPermissions',
+    //       icon: 'share-alt-outlined',
+    //       label: 'label.action.iso.share',
+    //       dataView: true,
+    //       args: (record, store) => {
+    //         const fields = ['isfeatured', 'isextractable']
+    //         if (['Admin'].includes(store.userInfo.roletype) || store.features.userpublictemplateenabled) {
+    //           fields.unshift('ispublic')
+    //         }
+    //         return fields
+    //       },
+    //       show: (record, store) => {
+    //         return (['Admin'].includes(store.userInfo.roletype) || // If admin or owner or belongs to current project
+    //           (record.domainid === store.userInfo.domainid && record.account === store.userInfo.account) ||
+    //           (record.domainid === store.userInfo.domainid && record.projectid && store.project && store.project.id && record.projectid === store.project.id)) &&
+    //           !(record.account === 'system' && record.domainid === 1) &&
+    //           record.isready
+    //       }
+    //     },
+    //     {
+    //       api: 'extractIso',
+    //       icon: 'cloud-download-outlined',
+    //       label: 'label.action.download.iso',
+    //       message: 'message.action.download.iso',
+    //       docHelp: 'adminguide/templates.html#exporting-templates',
+    //       dataView: true,
+    //       show: (record, store) => {
+    //         return (['Admin'].includes(store.userInfo.roletype) || // If admin or owner or belongs to current project
+    //           (record.domainid === store.userInfo.domainid && record.account === store.userInfo.account && record.isextractable) ||
+    //           (record.domainid === store.userInfo.domainid && record.projectid && store.project && store.project.id && record.projectid === store.project.id)) &&
+    //           !(record.account === 'system' && record.domainid === 1) &&
+    //           record.isready
+    //       },
+    //       args: ['zoneid', 'mode'],
+    //       mapping: {
+    //         zoneid: {
+    //           value: (record) => { return record.zoneid }
+    //         },
+    //         mode: {
+    //           value: (record) => { return 'HTTP_DOWNLOAD' }
+    //         }
+    //       },
+    //       response: (result) => { return `Please click <a href="${result.iso.url}" target="_blank">${result.iso.url}</a> to download.` }
+    //     },
+    //     {
+    //       api: 'updateIsoPermissions',
+    //       icon: 'reconciliation-outlined',
+    //       label: 'label.action.iso.permission',
+    //       docHelp: 'adminguide/templates.html#sharing-templates-with-other-accounts-projects',
+    //       dataView: true,
+    //       args: ['op', 'accounts', 'projectids'],
+    //       popup: true,
+    //       show: (record, store) => {
+    //         return !store.features.securityfeaturesenabled && ((['Admin'].includes(store.userInfo.roletype) || // If admin or owner or belongs to current project
+    //           (record.domainid === store.userInfo.domainid && record.account === store.userInfo.account) ||
+    //           (record.domainid === store.userInfo.domainid && record.projectid && store.project && store.project.id && record.projectid === store.project.id)) &&
+    //           !(record.account === 'system' && record.domainid === 1) &&
+    //           record.isready)
+    //       },
+    //       component: shallowRef(defineAsyncComponent(() => import('@/views/image/UpdateTemplateIsoPermissions')))
+    //     }
+    //   ]
+    // },
+    // {
+    //   name: 'kubernetesiso',
+    //   title: 'label.kubernetes.isos',
+    //   icon: ['fa-solid', 'fa-dharmachakra'],
+    //   docHelp: 'plugins/cloudstack-kubernetes-service.html#kubernetes-supported-versions',
+    //   permission: ['listKubernetesSupportedVersions'],
+    //   columns: ['name', 'state', 'semanticversion', 'isostate', 'mincpunumber', 'minmemory', 'zonename'],
+    //   details: ['name', 'semanticversion', 'supportsautoscaling', 'zoneid', 'zonename', 'isoid', 'isoname', 'isostate', 'mincpunumber', 'minmemory', 'supportsha', 'state', 'created'],
+    //   actions: [
+    //     {
+    //       api: 'addKubernetesSupportedVersion',
+    //       icon: 'plus-outlined',
+    //       label: 'label.kubernetes.version.add',
+    //       listView: true,
+    //       popup: true,
+    //       component: shallowRef(defineAsyncComponent(() => import('@/views/image/AddKubernetesSupportedVersion.vue')))
+    //     },
+    //     {
+    //       api: 'updateKubernetesSupportedVersion',
+    //       icon: 'edit-outlined',
+    //       label: 'label.kubernetes.version.update',
+    //       dataView: true,
+    //       popup: true,
+    //       component: shallowRef(defineAsyncComponent(() => import('@/views/image/UpdateKubernetesSupportedVersion.vue')))
+    //     },
+    //     {
+    //       api: 'deleteKubernetesSupportedVersion',
+    //       icon: 'delete-outlined',
+    //       label: 'label.kubernetes.version.delete',
+    //       message: 'message.kubernetes.version.delete',
+    //       dataView: true
+    //     }
+    //   ]
+    // }
   ]
 }

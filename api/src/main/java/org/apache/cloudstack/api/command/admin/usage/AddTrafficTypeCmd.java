@@ -182,7 +182,7 @@ public class AddTrafficTypeCmd extends BaseAsyncCreateCmd {
 
     @Override
     public String getEventDescription() {
-        return "Adding physical network traffic type: " + getEntityId();
+        return "물리 네트워크 트래픽 유형 추가: " + getEntityId();
     }
 
     @Override

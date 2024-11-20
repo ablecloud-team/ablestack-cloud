@@ -26,7 +26,8 @@ export default {
   permission: ['listRouters'],
   params: { projectid: '-1' },
   columns: () => {
-    var columns = ['name', 'state', 'publicip', 'guestnetworkname', 'vpcname', 'redundantstate', 'softwareversion', 'hostname', 'account', 'zonename', 'requiresupgrade', 'vlan']
+    // var columns = ['name', 'state', 'publicip', 'guestnetworkname', 'vpcname', 'redundantstate', 'softwareversion', 'hostname', 'account', 'zonename', 'requiresupgrade', 'vlan']
+    var columns = ['name', 'state', 'publicip', 'guestnetworkname', 'redundantstate', 'softwareversion', 'hostname', 'account', 'zonename', 'requiresupgrade']
     columns.splice(6, 0, { field: 'version', customTitle: 'templateversion' })
     return columns
   },
@@ -114,58 +115,58 @@ export default {
       popup: true,
       groupMap: (selection, values) => { return selection.map(x => { return { id: x, forced: values.forced } }) }
     },
-    {
-      api: 'restartNetwork',
-      icon: 'diff-outlined',
-      label: 'label.action.patch.systemvm',
-      message: 'message.action.patch.router',
-      dataView: true,
-      show: (record) => { return record.state === 'Running' && !('vpcid' in record) },
-      mapping: {
-        id: {
-          value: (record) => { return record.guestnetworkid }
-        },
-        livepatch: {
-          value: (record) => { return true }
-        }
-      },
-      groupAction: true,
-      popup: true,
-      groupMap: (selection, values, record) => {
-        return selection.map(x => {
-          const data = record.filter(y => { return y.id === x })
-          return {
-            id: data[0].guestnetworkid, livepatch: true
-          }
-        })
-      }
-    },
-    {
-      api: 'restartVPC',
-      icon: 'diff-outlined',
-      label: 'label.action.patch.systemvm.vpc',
-      message: 'message.action.patch.router',
-      dataView: true,
-      show: (record) => { return record.state === 'Running' && ('vpcid' in record) },
-      mapping: {
-        id: {
-          value: (record) => { return record.vpcid }
-        },
-        livepatch: {
-          value: (record) => { return true }
-        }
-      },
-      groupAction: true,
-      popup: true,
-      groupMap: (selection, values, record) => {
-        return selection.map(x => {
-          const data = record.filter(y => { return y.id === x })
-          return {
-            id: data[0].vpcid, livepatch: true
-          }
-        })
-      }
-    },
+    // {
+    //   api: 'restartNetwork',
+    //   icon: 'diff-outlined',
+    //   label: 'label.action.patch.systemvm',
+    //   message: 'message.action.patch.router',
+    //   dataView: true,
+    //   show: (record) => { return record.state === 'Running' && !('vpcid' in record) },
+    //   mapping: {
+    //     id: {
+    //       value: (record) => { return record.guestnetworkid }
+    //     },
+    //     livepatch: {
+    //       value: (record) => { return true }
+    //     }
+    //   },
+    //   groupAction: true,
+    //   popup: true,
+    //   groupMap: (selection, values, record) => {
+    //     return selection.map(x => {
+    //       const data = record.filter(y => { return y.id === x })
+    //       return {
+    //         id: data[0].guestnetworkid, livepatch: true
+    //       }
+    //     })
+    //   }
+    // },
+    // {
+    //   api: 'restartVPC',
+    //   icon: 'diff-outlined',
+    //   label: 'label.action.patch.systemvm.vpc',
+    //   message: 'message.action.patch.router',
+    //   dataView: true,
+    //   show: (record) => { return record.state === 'Running' && ('vpcid' in record) },
+    //   mapping: {
+    //     id: {
+    //       value: (record) => { return record.vpcid }
+    //     },
+    //     livepatch: {
+    //       value: (record) => { return true }
+    //     }
+    //   },
+    //   groupAction: true,
+    //   popup: true,
+    //   groupMap: (selection, values, record) => {
+    //     return selection.map(x => {
+    //       const data = record.filter(y => { return y.id === x })
+    //       return {
+    //         id: data[0].vpcid, livepatch: true
+    //       }
+    //     })
+    //   }
+    // },
     {
       api: 'scaleSystemVm',
       icon: 'arrows-alt-outlined',
@@ -187,17 +188,17 @@ export default {
         }
       }
     },
-    {
-      api: 'upgradeRouterTemplate',
-      icon: 'fullscreen-outlined',
-      label: 'label.upgrade.router.newer.template',
-      message: 'message.confirm.upgrade.router.newer.template',
-      docHelp: 'adminguide/systemvm.html#upgrading-virtual-routers',
-      dataView: true,
-      groupAction: true,
-      // show: (record) => { return record.requiresupgrade },
-      groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
-    },
+    // {
+    //   api: 'upgradeRouterTemplate',
+    //   icon: 'fullscreen-outlined',
+    //   label: 'label.upgrade.router.newer.template',
+    //   message: 'message.confirm.upgrade.router.newer.template',
+    //   docHelp: 'adminguide/systemvm.html#upgrading-virtual-routers',
+    //   dataView: true,
+    //   groupAction: true,
+    //   // show: (record) => { return record.requiresupgrade },
+    //   groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
+    // },
     {
       api: 'migrateSystemVm',
       icon: 'drag-outlined',
@@ -219,37 +220,37 @@ export default {
       component: shallowRef(defineAsyncComponent(() => import('@/views/compute/MigrateVMStorage'))),
       popup: true
     },
-    {
-      api: 'runDiagnostics',
-      icon: 'reconciliation-outlined',
-      label: 'label.action.run.diagnostics',
-      dataView: true,
-      show: (record, store) => { return ['Running'].includes(record.state) && ['Admin'].includes(store.userInfo.roletype) },
-      args: ['targetid', 'type', 'ipaddress', 'params'],
-      mapping: {
-        targetid: {
-          value: (record) => { return record.id }
-        },
-        type: {
-          options: ['ping', 'ping6', 'traceroute', 'traceroute6', 'arping']
-        }
-      },
-      response: (result) => { return result && result.diagnostics ? `<strong>Output</strong>:<br/>${result.diagnostics.stdout}<br/><strong>Error</strong>: ${result.diagnostics.stderr}<br/><strong>Exit Code</strong>: ${result.diagnostics.exitcode}` : 'Invalid response' }
-    },
-    {
-      api: 'getDiagnosticsData',
-      icon: 'download-outlined',
-      label: 'label.action.get.diagnostics',
-      dataView: true,
-      show: (record, store) => { return ['Running'].includes(record.state) && ['Admin'].includes(store.userInfo.roletype) },
-      args: ['targetid', 'files'],
-      mapping: {
-        targetid: {
-          value: (record) => { return record.id }
-        }
-      },
-      response: (result) => { return result && result.diagnostics && result.diagnostics.url ? `Please click the link to download the retrieved diagnostics: <p><a href='${result.diagnostics.url}'>${result.diagnostics.url}</a></p>` : 'Invalid response' }
-    },
+    // {
+    //   api: 'runDiagnostics',
+    //   icon: 'reconciliation-outlined',
+    //   label: 'label.action.run.diagnostics',
+    //   dataView: true,
+    //   show: (record, store) => { return ['Running'].includes(record.state) && ['Admin'].includes(store.userInfo.roletype) },
+    //   args: ['targetid', 'type', 'ipaddress', 'params'],
+    //   mapping: {
+    //     targetid: {
+    //       value: (record) => { return record.id }
+    //     },
+    //     type: {
+    //       options: ['ping', 'ping6', 'traceroute', 'traceroute6', 'arping']
+    //     }
+    //   },
+    //   response: (result) => { return result && result.diagnostics ? `<strong>Output</strong>:<br/>${result.diagnostics.stdout}<br/><strong>Error</strong>: ${result.diagnostics.stderr}<br/><strong>Exit Code</strong>: ${result.diagnostics.exitcode}` : 'Invalid response' }
+    // },
+    // {
+    //   api: 'getDiagnosticsData',
+    //   icon: 'download-outlined',
+    //   label: 'label.action.get.diagnostics',
+    //   dataView: true,
+    //   show: (record, store) => { return ['Running'].includes(record.state) && ['Admin'].includes(store.userInfo.roletype) },
+    //   args: ['targetid', 'files'],
+    //   mapping: {
+    //     targetid: {
+    //       value: (record) => { return record.id }
+    //     }
+    //   },
+    //   response: (result) => { return result && result.diagnostics && result.diagnostics.url ? `Please click the link to download the retrieved diagnostics: <p><a href='${result.diagnostics.url}'>${result.diagnostics.url}</a></p>` : 'Invalid response' }
+    // },
     {
       api: 'destroyRouter',
       icon: 'delete-outlined',

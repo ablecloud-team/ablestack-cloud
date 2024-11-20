@@ -70,7 +70,7 @@ public class CreateTemplateCmd extends BaseAsyncCreateCmd implements UserCmd {
 
     @Parameter(name = ApiConstants.DISPLAY_TEXT,
                type = CommandType.STRING,
-               description = "The display text of the template, defaults to the 'name'.",
+               description = "템플릿의 설명은 기본적으로 '이름'으로 설정됩니다.",
                length = 4096)
     private String displayText;
 
@@ -80,14 +80,14 @@ public class CreateTemplateCmd extends BaseAsyncCreateCmd implements UserCmd {
     @Parameter(name = ApiConstants.IS_PUBLIC, type = CommandType.BOOLEAN, description = "true if this template is a public template, false otherwise")
     private Boolean publicTemplate;
 
-    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, required = true, description = "the name of the template")
+    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, required = true, description = "템플릿의 이름")
     private String templateName;
 
     @Parameter(name = ApiConstants.OS_TYPE_ID,
                type = CommandType.UUID,
                entityType = GuestOSResponse.class,
                required = true,
-               description = "the ID of the OS Type that best represents the OS of this template.")
+               description = "이 템플릿의 운영체제 유형의 아이디입니다.")
     private Long osTypeId;
 
     @Parameter(name = ApiConstants.PASSWORD_ENABLED,
@@ -123,7 +123,7 @@ public class CreateTemplateCmd extends BaseAsyncCreateCmd implements UserCmd {
                description = "Optional, only for baremetal hypervisor. The directory name where template stored on CIFS server")
     private String url;
 
-    @Parameter(name = ApiConstants.TEMPLATE_TAG, type = CommandType.STRING, description = "the tag for this template.")
+    @Parameter(name = ApiConstants.TEMPLATE_TAG, type = CommandType.STRING, description = "템플릿의 태그")
     private String templateTag;
 
     @Parameter(name = ApiConstants.DETAILS, type = CommandType.MAP, description = "Template details in key/value pairs using format details[i].keyname=keyvalue. Example: details[0].hypervisortoolsversion=xenserver61")
@@ -281,7 +281,7 @@ public class CreateTemplateCmd extends BaseAsyncCreateCmd implements UserCmd {
 
     @Override
     public String getEventDescription() {
-        return "creating template: " + getTemplateName();
+        return "템플릿 생성: " + getTemplateName();
     }
 
     @Override
@@ -302,7 +302,7 @@ public class CreateTemplateCmd extends BaseAsyncCreateCmd implements UserCmd {
             setEntityId(template.getId());
             setEntityUuid(template.getUuid());
         } else {
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to create a template");
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "템플릿을 생성하지 못했습니다.");
         }
 
     }
@@ -327,7 +327,7 @@ public class CreateTemplateCmd extends BaseAsyncCreateCmd implements UserCmd {
             response.setResponseName(getCommandName());
             setResponseObject(response);
         } else {
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to create private template");
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "템플릿을 생성하지 못했습니다.");
         }
 
     }

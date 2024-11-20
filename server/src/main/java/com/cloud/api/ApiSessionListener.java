@@ -134,12 +134,12 @@ public class ApiSessionListener implements HttpSessionListener {
             SimpleDateFormat date = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
             if (userId == null) {
                 ActionEventUtils.onActionEvent(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, domainId, EventTypes.EVENT_USER_SESSION_DESTROY,
-                    "Session destroyed by Id : " + event.getSession().getId() + ", last accessed time : " + date.format(acsTime), new Long(0), null);
+                    "세션 파기 Id : " + event.getSession().getId() + ", 마지막으로 액세스한 시간 : " + date.format(acsTime), new Long(0), null);
             } else {
-                String accountName = "admin";
+                String accountName = "cloud";
                 Account userAcct = ApiDBUtils.findAccountByNameDomain(accountName, domainId);
                 ActionEventUtils.onActionEvent(userAcct.getId(), userAcct.getAccountId(), userAcct.getDomainId(), EventTypes.EVENT_USER_SESSION_DESTROY,
-                    "Session destroyed by Id : " + event.getSession().getId() + ", last accessed time : " + date.format(acsTime), userAcct.getId(), null);
+                    "세션 파기 Id : " + event.getSession().getId() + ", 마지막으로 액세스한 시간 : " + date.format(acsTime), userAcct.getId(), null);
             }
         }
         if (LOGGER.isDebugEnabled()) {

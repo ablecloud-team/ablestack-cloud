@@ -16,9 +16,9 @@ try {
   data.buildVersion = version
 } catch (err) {
   // console.log(err)
-  const version = 'V4.0(4.0.0)'
-  const m = new Date()
-  const date = m.getFullYear() + ('0' + (m.getMonth() + 1)).slice(-2) + ('0' + m.getDate()).slice(-2)
+  // const version = 'V4.0(4.0.0)'
+  // const m = new Date()
+  // const date = m.getFullYear() + ('0' + (m.getMonth() + 1)).slice(-2) + ('0' + m.getDate()).slice(-2)
   // data.buildVersion = version + '-' + date + '-dev'
 }
 

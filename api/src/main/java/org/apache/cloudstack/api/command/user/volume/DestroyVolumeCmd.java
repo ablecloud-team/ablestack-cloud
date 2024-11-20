@@ -103,7 +103,7 @@ public class DestroyVolumeCmd extends BaseAsyncCmd {
 
     @Override
     public String getEventDescription() {
-        return  "destroying volume: " + getId();
+        return  "볼륨 제거: " + getId();
     }
 
     @Override

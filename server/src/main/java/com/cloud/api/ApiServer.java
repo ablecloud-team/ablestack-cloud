@@ -583,7 +583,7 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
                 final Pattern pattern = Pattern.compile(CONTROL_CHARACTERS);
                 final Matcher matcher = pattern.matcher(value[0]);
                 if (matcher.find()) {
-                    throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "Received value containing illegal ASCII non-printable characters for parameter " + key);
+                    throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "매개변수에 인쇄할 수 없는 잘못된 ASCII 문자가 포함된 값을 수신했습니다. " + key);
                 }
             }
             stringMap.put(key, value[0]);
@@ -965,12 +965,12 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
                     Long domainId = 1L;
                     if (userId == null) {
                         ActionEventUtils.onActionEvent(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, Domain.ROOT_DOMAIN, EventTypes.EVENT_USER_REQUEST,
-                            "Bad request : reuse credentials or no signature.", new Long(0), null);
+                            "잘못된 요청: 자격 증명을 재사용하거나 서명이 없습니다.", new Long(0), null);
                     } else {
-                        String accountName = "admin";
+                        String accountName = "cloud";
                         Account userAcct = ApiDBUtils.findAccountByNameDomain(accountName, domainId);
                         ActionEventUtils.onActionEvent(userAcct.getId(), userAcct.getAccountId(), domainId, EventTypes.EVENT_USER_REQUEST,
-                            "Bad request : reuse credentials or no signature.", userAcct.getId(), null);
+                            "잘못된 요청: 자격 증명을 재사용하거나 서명이 없습니다.", userAcct.getId(), null);
                     }
                 }
                 return false; // no signature, bad request
@@ -1273,7 +1273,7 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
             User _user = userDao.getUserByName(username, domainId);
             List<DataCenterVO> dcList = new ArrayList<>();
             dcList = ApiDBUtils.listZones();
-            if (validatePassword(_user, "password") && "admin".equals(username) && (dcList == null || dcList.size() == 0)) {
+            if (validatePassword(_user, "password") && "cloud".equals(username) && (dcList == null || dcList.size() == 0)) {
                 session.setAttribute(ApiConstants.FIRST_LOGIN, true);
             } else {
                 session.setAttribute(ApiConstants.FIRST_LOGIN, false);

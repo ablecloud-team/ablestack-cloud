@@ -31,12 +31,12 @@ export default {
   }, {
     name: 'traffic.types',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/network/TrafficTypesTab.vue')))
-  }, {
-    name: 'network.service.providers',
-    component: shallowRef(defineAsyncComponent(() => import('@/views/infra/network/ServiceProvidersTab.vue')))
-  }, {
-    name: 'dedicated.vlan.vni.ranges',
-    component: shallowRef(defineAsyncComponent(() => import('@/views/infra/network/DedicatedVLANTab.vue')))
+  // }, {
+  //   name: 'network.service.providers',
+  //   component: shallowRef(defineAsyncComponent(() => import('@/views/infra/network/ServiceProvidersTab.vue')))
+  // }, {
+  //   name: 'dedicated.vlan.vni.ranges',
+  //   component: shallowRef(defineAsyncComponent(() => import('@/views/infra/network/DedicatedVLANTab.vue')))
   }],
   related: [{
     name: 'guestnetwork',
@@ -44,85 +44,87 @@ export default {
     param: 'physicalnetworkid'
   }],
   actions: [
-    {
-      api: 'createPhysicalNetwork',
-      icon: 'plus-outlined',
-      label: 'label.add.physical.network',
-      listView: true,
-      args: ['name', 'zoneid', 'isolationmethods', 'vlan', 'tags', 'networkspeed', 'broadcastdomainrange'],
-      mapping: {
-        isolationmethods: {
-          options: ['VLAN', 'VXLAN', 'GRE', 'STT', 'BCF_SEGMENT', 'SSP', 'ODL', 'L3VPN', 'VCS']
-        }
-      }
-    },
-    {
-      api: 'updatePhysicalNetwork',
-      icon: 'play-circle-outlined',
-      label: 'label.action.enable.physical.network',
-      message: 'message.action.enable.physical.network',
-      dataView: true,
-      args: ['state'],
-      show: (record) => { return record.state === 'Disabled' },
-      mapping: {
-        state: {
-          value: (record) => { return 'Enabled' }
-        }
-      }
-    },
-    {
-      api: 'updatePhysicalNetwork',
-      icon: 'stop-outlined',
-      label: 'label.action.disable.physical.network',
-      message: 'message.action.disable.physical.network',
-      dataView: true,
-      args: ['state'],
-      show: (record) => { return record.state === 'Enabled' },
-      mapping: {
-        state: {
-          value: (record) => { return 'Disabled' }
-        }
-      }
-    },
-    {
-      api: 'updatePhysicalNetwork',
-      icon: 'edit-outlined',
-      label: 'label.update.physical.network',
-      dataView: true,
-      args: ['vlan', 'tags']
-    },
-    {
-      api: 'addTrafficType',
-      icon: 'plus-square-outlined',
-      label: 'label.add.traffic.type',
-      dataView: true,
-      args: ['traffictype', 'physicalnetworkid', 'isolationmethod'],
-      mapping: {
-        traffictype: {
-          options: ['Public', 'Guest', 'Management', 'Storage']
-        },
-        physicalnetworkid: {
-          value: (record) => { return record.id }
-        },
-        isolationmethod: {
-          options: ['', 'vlan', 'vxlan']
-        }
-      }
-    },
-    {
-      api: 'updateTrafficType',
-      icon: 'branches-outlined',
-      label: 'label.update.traffic.label',
-      dataView: true,
-      popup: true,
-      component: shallowRef(defineAsyncComponent(() => import('@/views/infra/network/EditTrafficLabel.vue')))
-    },
-    {
-      api: 'deletePhysicalNetwork',
-      icon: 'delete-outlined',
-      label: 'label.action.delete.physical.network',
-      message: 'message.action.delete.physical.network',
-      dataView: true
-    }
+    // {
+    //   api: 'createPhysicalNetwork',
+    //   icon: 'plus-outlined',
+    //   label: 'label.add.physical.network',
+    //   listView: true,
+    //   args: ['name', 'zoneid', 'isolationmethods', 'vlan', 'tags', 'networkspeed', 'broadcastdomainrange'],
+    //   mapping: {
+    //     isolationmethods: {
+    //       options: ['VLAN', 'VXLAN', 'GRE', 'STT', 'BCF_SEGMENT', 'SSP', 'ODL', 'L3VPN', 'VCS']
+    //     }
+    //   }
+    // },
+    // {
+    //   api: 'updatePhysicalNetwork',
+    //   icon: 'play-circle-outlined',
+    //   label: 'label.action.enable.physical.network',
+    //   message: 'message.action.enable.physical.network',
+    //   dataView: true,
+    //   args: ['state'],
+    //   show: (record) => { return record.state === 'Disabled' },
+    //   mapping: {
+    //     state: {
+    //       value: (record) => { return 'Enabled' }
+    //     }
+    //   }
+    // },
+    // {
+    //   api: 'updatePhysicalNetwork',
+    //   icon: 'stop-outlined',
+    //   label: 'label.action.disable.physical.network',
+    //   message: 'message.action.disable.physical.network',
+    //   dataView: true,
+    //   args: ['state'],
+    //   show: (record) => { return record.state === 'Enabled' },
+    //   mapping: {
+    //     state: {
+    //       value: (record) => { return 'Disabled' }
+    //     }
+    //   }
+    // },
+    // {
+    //   api: 'updatePhysicalNetwork',
+    //   icon: 'edit-outlined',
+    //   label: 'label.update.physical.network',
+    //   dataView: true,
+    //   // args: ['vlan', 'tags']
+    //   args: ['vlan']
+    // },
+    // {
+    //   api: 'addTrafficType',
+    //   icon: 'plus-square-outlined',
+    //   label: 'label.add.traffic.type',
+    //   dataView: true,
+    //   args: ['traffictype', 'physicalnetworkid', 'isolationmethod'],
+    //   mapping: {
+    //     traffictype: {
+    //       options: ['Public', 'Guest', 'Management', 'Storage']
+    //     },
+    //     physicalnetworkid: {
+    //       value: (record) => { return record.id }
+    //     },
+    //     isolationmethod: {
+    //       // options: ['', 'vlan', 'vxlan']
+    //       options: ['', 'vlan']
+    //     }
+    //   }
+    // },
+    // // {
+    // //   api: 'updateTrafficType',
+    // //   icon: 'branches-outlined',
+    // //   label: 'label.update.traffic.label',
+    // //   dataView: true,
+    // //   popup: true,
+    // //   component: shallowRef(defineAsyncComponent(() => import('@/views/infra/network/EditTrafficLabel.vue')))
+    // // },
+    // {
+    //   api: 'deletePhysicalNetwork',
+    //   icon: 'delete-outlined',
+    //   label: 'label.action.delete.physical.network',
+    //   message: 'message.action.delete.physical.network',
+    //   dataView: true
+    // }
   ]
 }

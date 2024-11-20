@@ -131,7 +131,7 @@
                 </template>
               </a-step>
               <a-step
-                :title="$t('label.templateiso')"
+                :title="$t('label.templates')"
                 :status="zoneSelected ? 'process' : 'wait'">
                 <template #description>
                   <div v-if="zoneSelected" style="margin-top: 15px">
@@ -168,7 +168,7 @@
                           @update-disk-size="updateFieldValue"
                           style="margin-top: 10px;"/>
                       </div>
-                      <div v-else>
+                      <!-- <div v-else>
                         {{ $t('message.iso.desc') }}
                         <template-iso-selection
                           input-decorator="isoid"
@@ -188,7 +188,7 @@
                             optionFilterProp="label"
                             :filterOption="filterOption" />
                         </a-form-item>
-                      </div>
+                      </div> -->
                     </a-card>
                     <a-form-item class="form-item-hidden">
                       <a-input v-model:value="form.templateid" />
@@ -514,7 +514,7 @@
                   </div>
                 </template>
               </a-step>
-              <a-step
+              <!-- <a-step
                 :title="$t('label.advanced.mode')"
                 :status="zoneSelected ? 'process' : 'wait'">
                 <template #description v-if="zoneSelected">
@@ -755,7 +755,7 @@
                     </a-form-item>
                   </div>
                 </template>
-              </a-step>
+              </a-step>-->
               <a-step
                 :title="$t('label.details')"
                 :status="zoneSelected ? 'process' : 'wait'">
@@ -764,12 +764,6 @@
                     {{ $t('message.vm.review.launch') }}
                     <a-form-item :label="$t('label.name.optional')" name="name" ref="name">
                       <a-input v-model:value="form.name" />
-                    </a-form-item>
-                    <a-form-item :label="$t('label.group.optional')" name="group" ref="group">
-                      <a-auto-complete
-                        v-model:value="form.group"
-                        :filterOption="filterOption"
-                        :options="options.instanceGroups" />
                     </a-form-item>
                     <a-form-item :label="$t('label.keyboard')" name="keyboard" ref="keyboard" v-if="!$store.getters.features.securityfeaturesenabled">
                       <a-select
@@ -1285,19 +1279,19 @@ export default {
           key: 'templateid',
           tab: this.$t('label.templates')
         }]
-      } else if (this.isoId) {
-        tabList = [{
-          key: 'isoid',
-          tab: this.$t('label.isos')
-        }]
+      // } else if (this.isoId) {
+      //   tabList = [{
+      //     key: 'isoid',
+      //     tab: this.$t('label.isos')
+      //   }]
       } else {
         tabList = [{
           key: 'templateid',
           tab: this.$t('label.templates')
-        },
-        {
-          key: 'isoid',
-          tab: this.$t('label.isos')
+        // },
+        // {
+        //   key: 'isoid',
+        //   tab: this.$t('label.isos')
         }]
       }
 

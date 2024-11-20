@@ -107,7 +107,7 @@ public class UpdateVMCmd extends BaseCustomIdCmd implements SecurityGroupAction,
                description = "true if VM contains XS/VMWare tools inorder to support dynamic scaling of VM cpu/memory. This can be updated only when dynamic scaling is enabled on template, service offering and the corresponding global setting")
     protected Boolean isDynamicallyScalable;
 
-    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "new host name of the vm. The VM has to be stopped/started for this update to take affect", since = "4.4")
+    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "가상머신의 새 호스트 이름입니다. 이 업데이트를 적용하려면 가상머신을 중지/시작해야 합니다.", since = "4.4")
     private String name;
 
     @Parameter(name = ApiConstants.INSTANCE_NAME, type = CommandType.STRING, description = "instance name of the user vm", since = "4.4", authorized = {RoleType.Admin})
@@ -280,19 +280,19 @@ public class UpdateVMCmd extends BaseCustomIdCmd implements SecurityGroupAction,
 
     @Override
     public void execute() throws ResourceUnavailableException, InsufficientCapacityException, ServerApiException {
-        CallContext.current().setEventDetails("Vm Id: " + this._uuidMgr.getUuid(VirtualMachine.class, getId()));
+        CallContext.current().setEventDetails("가상머신 Id: " + this._uuidMgr.getUuid(VirtualMachine.class, getId()));
         UserVm result = null;
         try {
             result = _userVmService.updateVirtualMachine(this);
         } catch (CloudRuntimeException e) {
-            throw new CloudRuntimeException(String.format("Failed to update VM, due to: %s", e.getLocalizedMessage()), e);
+            throw new CloudRuntimeException(String.format("가상머신 업데이트에 실패했습니다, 이유: %s", e.getLocalizedMessage()), e);
         }
         if (result != null) {
             UserVmResponse response = _responseGenerator.createUserVmResponse(getResponseView(), "virtualmachine", result).get(0);
             response.setResponseName(getCommandName());
             setResponseObject(response);
         } else {
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to update vm");
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "가상머신 업데이트에 실패했습니다.");
         }
     }
 

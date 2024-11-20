@@ -534,8 +534,8 @@ public class HighAvailabilityManagerImpl extends ManagerBase implements Configur
 
                 if (!fenced) {
                     logger.debug("We were unable to fence off the VM " + vm);
-                    _alertMgr.sendAlert(alertType, vm.getDataCenterId(), vm.getPodIdToDeployIn(), "Unable to restart " + vm.getHostName() +
-                        " which was running on host " + hostDesc, "Insufficient capacity to restart VM, name: " + vm.getHostName() + ", id: " + vmId +
+                    _alertMgr.sendAlert(alertType, vm.getDataCenterId(), vm.getPodIdToDeployIn(), "호스트 " + hostDesc + "에서 실행 중이던 " + vm.getHostName() + "을 다시 시작할 수 없습니다."
+                    , "가상머신을 다시 시작하기에는 용량이 부족합니다., name: " + vm.getHostName() + ", id: " + vmId +
                         " which was running on host " + hostDesc);
                     return (System.currentTimeMillis() >> 10) + _restartRetryInterval;
                 }
@@ -609,7 +609,7 @@ public class HighAvailabilityManagerImpl extends ManagerBase implements Configur
 
             VMInstanceVO started = _instanceDao.findById(vm.getId());
             if (started != null && started.getState() == VirtualMachine.State.Running) {
-                String message = String.format("HA starting VM: %s (%s)", started.getHostName(), started.getInstanceName());
+                String message = String.format("HA 시작 가상머신: %s (%s)", started.getHostName(), started.getInstanceName());
                 HostVO hostVmHasStarted = _hostDao.findById(started.getHostId());
                 logger.info(String.format("HA is now restarting %s on %s", started, hostVmHasStarted));
                 _alertMgr.sendAlert(alertType, vm.getDataCenterId(), vm.getPodIdToDeployIn(), message, message);

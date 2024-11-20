@@ -107,7 +107,7 @@ public class DeleteTemplateCmd extends BaseAsyncCmd {
 
     @Override
     public String getEventDescription() {
-        return "Deleting template " + this._uuidMgr.getUuid(VirtualMachineTemplate.class, getId());
+        return "템플릿 삭제 중 " + this._uuidMgr.getUuid(VirtualMachineTemplate.class, getId());
     }
 
     @Override

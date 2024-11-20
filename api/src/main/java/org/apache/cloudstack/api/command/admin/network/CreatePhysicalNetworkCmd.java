@@ -137,12 +137,12 @@ public class CreatePhysicalNetworkCmd extends BaseAsyncCreateCmd {
 
     @Override
     public String getCreateEventDescription() {
-        return "creating Physical Network";
+        return "물리 네트워크 생성중";
     }
 
     @Override
     public String getEventDescription() {
-        return "creating Physical Network. Id: " + getEntityId();
+        return "물리 네트워크 생성. Id: " + getEntityId();
     }
 
     /////////////////////////////////////////////////////
@@ -151,7 +151,7 @@ public class CreatePhysicalNetworkCmd extends BaseAsyncCreateCmd {
 
     @Override
     public void execute() {
-        CallContext.current().setEventDetails("Physical Network Id: " + getEntityId());
+        CallContext.current().setEventDetails("물리 네트워크 Id: " + getEntityId());
         PhysicalNetwork result = _networkService.getCreatedPhysicalNetwork(getEntityId());
         if (result != null) {
             PhysicalNetworkResponse response = _responseGenerator.createPhysicalNetworkResponse(result);

@@ -87,7 +87,7 @@
             </template>
           </a-input-password>
         </a-form-item>
-        <a-form-item ref="domain" name="domain" v-if="!securityfeatures">
+        <!-- <a-form-item ref="domain" name="domain" v-if="!securityfeatures">
           <a-input
             size="large"
             type="text"
@@ -98,7 +98,7 @@
               <block-outlined />
             </template>
           </a-input>
-        </a-form-item>
+        </a-form-item> -->
       </a-tab-pane>
       <!-- <a-tab-pane key="saml" :disabled="idps.length === 0">
         <template #tab>

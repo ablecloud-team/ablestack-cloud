@@ -41,7 +41,7 @@ public class UpdateClusterCmd extends BaseCmd {
     @Parameter(name = ApiConstants.ID, type = CommandType.UUID, entityType = ClusterResponse.class, required = true, description = "the ID of the Cluster")
     private Long id;
 
-    @Parameter(name = ApiConstants.CLUSTER_NAME, type = CommandType.STRING, description = "the cluster name")
+    @Parameter(name = ApiConstants.CLUSTER_NAME, type = CommandType.STRING, description = "클러스터 이름")
     private String clusterName;
 
     @Parameter(name = ApiConstants.HYPERVISOR, type = CommandType.STRING, description = "hypervisor type of the cluster")
@@ -115,7 +115,7 @@ public class UpdateClusterCmd extends BaseCmd {
     public void execute() {
         Cluster cluster = _resourceService.getCluster(getId());
         if (cluster == null) {
-            throw new InvalidParameterValueException("Unable to find the cluster by id=" + getId());
+            throw new InvalidParameterValueException("ID로 클러스터를 찾을 수 없습니다. ID=" + getId());
         }
         Cluster result = _resourceService.updateCluster(this);
         if (result != null) {
@@ -123,7 +123,7 @@ public class UpdateClusterCmd extends BaseCmd {
             clusterResponse.setResponseName(getCommandName());
             this.setResponseObject(clusterResponse);
         } else {
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to update cluster");
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "클러스터를 업데이트하지 못했습니다.");
         }
     }
 }

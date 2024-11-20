@@ -1668,12 +1668,12 @@ StateListener<State, VirtualMachine.Event, VirtualMachine>, Configurable {
         // There should be at least the ROOT volume of the VM in usable state
         if (volumesTobeCreated.isEmpty()) {
             // OfflineVmwareMigration: find out what is wrong with the id of the vm we try to start
-            throw new CloudRuntimeException("Unable to create deployment, no usable volumes found for the VM: " + vmProfile.getId());
+            throw new CloudRuntimeException("배포를 생성할 수 없습니다. 가상머신에 사용 가능한 볼륨이 없습니다.: " + vmProfile.getId());
         }
 
         // don't allow to start vm that doesn't have a root volume
         if (_volsDao.findByInstanceAndType(vmProfile.getId(), Volume.Type.ROOT).isEmpty()) {
-            throw new CloudRuntimeException("Unable to prepare volumes for vm as ROOT volume is missing");
+            throw new CloudRuntimeException("ROOT 볼륨이 없기 때문에 가상머신에 대한 볼륨을 준비할 수 없습니다.");
         }
 
         // for each volume find list of suitable storage pools by calling the

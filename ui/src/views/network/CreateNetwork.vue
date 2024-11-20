@@ -18,14 +18,14 @@
 <template>
   <a-spin :spinning="loading" class="form-layout">
     <a-tabs v-model:activeKey="defaultNetworkTypeTabKey" :animated="false" v-if="!loading">
-      <a-tab-pane :tab="$t('label.isolated')" key="1" v-if="isAdvancedZoneWithoutSGAvailable">
+      <!-- <a-tab-pane :tab="$t('label.isolated')" key="1" v-if="isAdvancedZoneWithoutSGAvailable">
         <CreateIsolatedNetworkForm
           :loading="loading"
           :resource="resource"
           @close-action="closeAction"
           @refresh-data="refreshParent"
           @refresh="handleRefresh"/>
-      </a-tab-pane>
+      </a-tab-pane> -->
       <a-tab-pane :tab="$t('label.l2')" key="3">
         <CreateL2NetworkForm
           :loading="loading"
@@ -34,14 +34,14 @@
           @refresh-data="refreshParent"
           @refresh="handleRefresh"/>
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.shared')" key="2">
+      <!-- <a-tab-pane :tab="$t('label.shared')" key="2">
         <CreateSharedNetworkForm
           :loading="loading"
           :resource="resource"
           @close-action="closeAction"
           @refresh-data="refreshParent"
           @refresh="handleRefresh"/>
-      </a-tab-pane>
+      </a-tab-pane> -->
     </a-tabs>
   </a-spin>
 </template>
@@ -68,7 +68,7 @@ export default {
   data () {
     return {
       isAdvancedZoneWithoutSGAvailable: false,
-      defaultNetworkTypeTabKey: '1',
+      defaultNetworkTypeTabKey: '3',
       loading: false,
       actionZones: [],
       actionZoneLoading: false
@@ -91,13 +91,13 @@ export default {
       promises.push(this.fetchActionZoneData())
       Promise.all(promises).then(() => {
         this.isAdvancedZoneWithoutSGAvailable = false
-        this.defaultNetworkTypeTabKey = '2'
+        this.defaultNetworkTypeTabKey = '3'
 
         for (const i in this.actionZones) {
           const zone = this.actionZones[i]
           if (zone.networktype === 'Advanced' && zone.securitygroupsenabled !== true) {
             this.isAdvancedZoneWithoutSGAvailable = true
-            this.defaultNetworkTypeTabKey = '1'
+            this.defaultNetworkTypeTabKey = '3'
             return
           }
         }

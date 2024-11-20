@@ -272,8 +272,8 @@ public class EventTypes {
     public static final String EVENT_ACCOUNT_MARK_DEFAULT_ZONE = "ACCOUNT.MARK.DEFAULT.ZONE";
 
     // UserVO Events
-    public static final String EVENT_USER_LOGIN = "USER.LOGIN";
-    public static final String EVENT_USER_LOGOUT = "USER.LOGOUT";
+    public static final String EVENT_USER_LOGIN = "USERS.LOGIN";
+    public static final String EVENT_USER_LOGOUT = "USERS.LOGOUT";
     public static final String EVENT_USER_CREATE = "USER.CREATE";
     public static final String EVENT_USER_DELETE = "USER.DELETE";
     public static final String EVENT_USER_DISABLE = "USER.DISABLE";

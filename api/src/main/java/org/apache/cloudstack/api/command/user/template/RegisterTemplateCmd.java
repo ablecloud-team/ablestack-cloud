@@ -63,17 +63,17 @@ public class RegisterTemplateCmd extends BaseCmd implements UserCmd {
 
     @Parameter(name = ApiConstants.DISPLAY_TEXT,
                type = CommandType.STRING,
-               description = "The display text of the template, defaults to 'name'.",
+               description = "템플릿의 표시 텍스트, 기본값은 '이름'입니다.",
                length = 4096)
     private String displayText;
 
     @Parameter(name = ApiConstants.FORMAT,
                type = CommandType.STRING,
                required = true,
-               description = "the format for the template. Possible values include QCOW2, RAW, VHD and OVA.")
+               description = "템플릿의 포맷")
     private String format;
 
-    @Parameter(name = ApiConstants.HYPERVISOR, type = CommandType.STRING, required = true, description = "the target hypervisor for the template")
+    @Parameter(name = ApiConstants.HYPERVISOR, type = CommandType.STRING, required = true, description = "템플릿의 대상 하이퍼바이저")
     protected String hypervisor;
 
     @Parameter(name = ApiConstants.IS_FEATURED, type = CommandType.BOOLEAN, description = "true if this template is a featured template, false otherwise")
@@ -82,14 +82,14 @@ public class RegisterTemplateCmd extends BaseCmd implements UserCmd {
     @Parameter(name = ApiConstants.IS_PUBLIC, type = CommandType.BOOLEAN, description = "true if the template is available to all accounts; default is true")
     private Boolean publicTemplate;
 
-    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, required = true, description = "the name of the template")
+    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, required = true, description = "템플릿의 이름")
     private String templateName;
 
     @Parameter(name = ApiConstants.OS_TYPE_ID,
                type = CommandType.UUID,
                entityType = GuestOSResponse.class,
                required = false,
-               description = "the ID of the OS Type that best represents the OS of this template. Not applicable with VMware, as we honour what is defined in the template")
+               description = "이 템플릿의 운영체제 유형의 아이디")
     private Long osTypeId;
 
     @Parameter(name = ApiConstants.PASSWORD_ENABLED,
@@ -110,11 +110,11 @@ public class RegisterTemplateCmd extends BaseCmd implements UserCmd {
                type = CommandType.STRING,
                required = true,
                length = 2048,
-               description = "the URL of where the template is hosted. Possible URL include http:// and https://")
+               description = "템플릿이 호스팅되는 URL입니다. http:// 및 https://가 포함된 URL 형식에 따릅니다.")
     private String url;
 
     @Parameter(name=ApiConstants.ZONE_ID, type=CommandType.UUID, entityType = ZoneResponse.class,
-            required=false, description="the ID of the zone the template is to be hosted on")
+            required=false, description="템플릿이 호스팅될 Zone ID")
     protected Long zoneId;
 
     @Parameter(name = ApiConstants.DOMAIN_ID,
@@ -129,7 +129,7 @@ public class RegisterTemplateCmd extends BaseCmd implements UserCmd {
     @Parameter(name = ApiConstants.CHECKSUM, type = CommandType.STRING, description = "the checksum value of this template. " + ApiConstants.CHECKSUM_PARAMETER_PREFIX_DESCRIPTION)
     private String checksum;
 
-    @Parameter(name = ApiConstants.TEMPLATE_TAG, type = CommandType.STRING, description = "the tag for this template.")
+    @Parameter(name = ApiConstants.TEMPLATE_TAG, type = CommandType.STRING, description = "템플릿의 태그")
     private String templateTag;
 
     @Parameter(name = ApiConstants.PROJECT_ID, type = CommandType.UUID, entityType = ProjectResponse.class, description = "Register template for the project")
@@ -388,7 +388,7 @@ public class RegisterTemplateCmd extends BaseCmd implements UserCmd {
                 response.setResponseName(getCommandName());
                 setResponseObject(response);
             } else {
-                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to register template");
+                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "템플릿 등록 실패");
             }
         } catch (URISyntaxException ex1) {
             logger.info(ex1);
@@ -399,25 +399,24 @@ public class RegisterTemplateCmd extends BaseCmd implements UserCmd {
     protected void validateParameters() {
         if ((zoneId != null) && (zoneIds != null && !zoneIds.isEmpty()))
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR,
-                    "Both zoneid and zoneids cannot be specified at the same time");
+                    "zoneid와 zoneids를 동시에 지정할 수 없습니다.");
 
         if (zoneId == null && (zoneIds == null || zoneIds.isEmpty()))
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR,
-                    "Either zoneid or zoneids is required. Both cannot be null.");
+                    "zoneid 또는 zoneids가 필요합니다. 둘 다 null일 수 없습니다.");
 
         if (zoneIds != null && zoneIds.size() > 1 && zoneIds.contains(-1L))
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR,
-                    "Parameter zoneids cannot combine all zones (-1) option with other zones");
+                    "매개변수 zoneids는 모든 zone(-1) 옵션을 다른 zone과 결합할 수 없습니다.");
 
         String customHypervisor = HypervisorGuru.HypervisorCustomDisplayName.value();
         if (isDirectDownload() && !(getHypervisor().equalsIgnoreCase(Hypervisor.HypervisorType.KVM.toString())
                 || getHypervisor().equalsIgnoreCase(customHypervisor))) {
-            throw new ServerApiException(ApiErrorCode.PARAM_ERROR, String.format("Parameter directdownload " +
-                    "is only allowed for KVM or %s templates", customHypervisor));
+                    throw new ServerApiException(ApiErrorCode.PARAM_ERROR, String.format("매개변수 직접 다운로드는 KVM 또는 %s 템플릿에만 허용됩니다.", customHypervisor));
         }
 
         if (!isDeployAsIs() && osTypeId == null) {
-            throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "Please provide a guest OS type");
+            throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "게스트 OS 유형을 입력하세요.");
         }
     }
 }

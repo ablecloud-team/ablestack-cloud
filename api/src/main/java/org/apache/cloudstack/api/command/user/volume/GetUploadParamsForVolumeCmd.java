@@ -43,8 +43,7 @@ public class GetUploadParamsForVolumeCmd extends AbstractGetUploadParamsCmd {
     @Parameter(name = ApiConstants.IMAGE_STORE_UUID, type = CommandType.STRING, description = "Image store uuid")
     private String imageStoreUuid;
 
-    @Parameter(name = ApiConstants.DISK_OFFERING_ID, required = false, type = CommandType.UUID, entityType = DiskOfferingResponse.class, description = "the ID of the disk "
-            + "offering. This must be a custom sized offering since during upload of volume/template size is unknown.")
+    @Parameter(name = ApiConstants.DISK_OFFERING_ID, required = false, type = CommandType.UUID, entityType = DiskOfferingResponse.class, description = "디스크 오퍼링의 아이디")
     private Long diskOfferingId;
 
     public String getImageStoreUuid() {

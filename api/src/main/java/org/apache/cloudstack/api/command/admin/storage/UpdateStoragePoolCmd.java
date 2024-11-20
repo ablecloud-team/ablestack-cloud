@@ -46,19 +46,19 @@ public class UpdateStoragePoolCmd extends BaseCmd {
     @Parameter(name = ApiConstants.ID, type = CommandType.UUID, entityType = StoragePoolResponse.class, required = true, description = "the Id of the storage pool")
     private Long id;
 
-    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, entityType = StoragePoolResponse.class, description = "Change the name of the storage pool", since = "4.15")
+    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, entityType = StoragePoolResponse.class, description = "스토리지 풀 이름 변경", since = "4.15")
     private String name;
 
-    @Parameter(name = ApiConstants.TAGS, type = CommandType.LIST, collectionType = CommandType.STRING, description = "comma-separated list of tags for the storage pool")
+    @Parameter(name = ApiConstants.TAGS, type = CommandType.LIST, collectionType = CommandType.STRING, description = "스토리지 풀에 대한 쉼표로 구분된 태그 목록")
     private List<String> tags;
 
-    @Parameter(name = ApiConstants.IP_ADDRESS, type = CommandType.STRING, entityType = StoragePoolResponse.class, description = "Change the ip of the storage pool")
+    @Parameter(name = ApiConstants.IP_ADDRESS, type = CommandType.STRING, entityType = StoragePoolResponse.class, description = "스토리지 풀의 IP 변경")
     private String ipaddress;
 
-    @Parameter(name = ApiConstants.CAPACITY_IOPS, type = CommandType.LONG, required = false, description = "IOPS CloudStack can provision from this storage pool")
+    @Parameter(name = ApiConstants.CAPACITY_IOPS, type = CommandType.LONG, required = false, description = "IOPS는 이 스토리지 풀에서 프로비저닝할 수 있습니다.")
     private Long capacityIops;
 
-    @Parameter(name = ApiConstants.CAPACITY_BYTES, type = CommandType.LONG, required = false, description = "bytes CloudStack can provision from this storage pool")
+    @Parameter(name = ApiConstants.CAPACITY_BYTES, type = CommandType.LONG, required = false, description = "Bytes는 이 스토리지 풀에서 프로비저닝할 수 있습니다.")
     private Long capacityBytes;
 
     @Parameter(name = ApiConstants.ENABLED, type = CommandType.BOOLEAN, required = false, description = "false to disable the pool for allocation of new volumes, true to" +

@@ -37,13 +37,13 @@ public abstract class BaseUpdateTemplateOrIsoCmd extends BaseCmd {
     @Parameter(name = ApiConstants.REQUIRES_HVM, type = CommandType.BOOLEAN, description = "true if the template requires HVM, false otherwise; available only for updateTemplate API")
     private Boolean requiresHvm;
 
-    @Parameter(name = ApiConstants.DISPLAY_TEXT, type = CommandType.STRING, description = "the display text of the image", length = 4096)
+    @Parameter(name = ApiConstants.DISPLAY_TEXT, type = CommandType.STRING, description = "설명", length = 4096)
     private String displayText;
 
     @Parameter(name = ApiConstants.ID, type = CommandType.UUID, entityType = TemplateResponse.class, required = true, description = "the ID of the image file")
     private Long id;
 
-    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "the name of the image file")
+    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "이름")
     private String templateName;
 
     @Parameter(name = ApiConstants.OS_TYPE_ID,

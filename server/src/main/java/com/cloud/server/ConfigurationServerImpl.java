@@ -236,12 +236,12 @@ public class ConfigurationServerImpl extends ManagerBase implements Configuratio
             logger.debug("Configuration server excluded plaintext authenticator");
 
             // Save default service offerings
-            // createServiceOffering(User.UID_SYSTEM, "1C-2GB-RBD-HA", 1, 2048, 500, "1Core 2GB", ProvisioningType.THIN, false, true, null);
-            // createServiceOffering(User.UID_SYSTEM, "2C-4GB-RBD-HA", 2, 4096, 2000, "2Core 4GB", ProvisioningType.THIN, false, true, null);
+            // createServiceOffering("1C-2GB-RBD-HA", 1, 2048, 500, "1Core 2GB", ProvisioningType.THIN, false, true, null);
+            createServiceOffering("2C-4GB", 2, 4096, 2000, "2Core 4GB", ProvisioningType.THIN, false, true, null);
             // createServiceOffering(User.UID_SYSTEM, "4C-8GB-RBD-HA", 4, 8192, 2000, "4Core 8GB", ProvisioningType.THIN, false, true, null);
             // createServiceOffering(User.UID_SYSTEM, "Custom-RBD-HA", 0, 0, 0, "Custom", ProvisioningType.THIN, false, true, null);
             // Save default disk offerings
-            // createDefaultDiskOffering("50GB-WB-RBD", "RBD Disk, 50 GB", ProvisioningType.THIN, 50, null, false, false, DiskCacheMode.WRITEBACK);
+            createDefaultDiskOffering("50GB", "RBD Disk, 50 GB", ProvisioningType.THIN, 50, null, false, false, DiskCacheMode.WRITEBACK);
             // createDefaultDiskOffering("100GB-WB-RBD", "RBD Disk, 100 GB", ProvisioningType.THIN, 100, null, false, false, DiskCacheMode.WRITEBACK);
             // createDefaultDiskOffering("1TB-WB-RBD", "RBD Disk, 1 TB", ProvisioningType.THIN, 1024, null, false, false, DiskCacheMode.WRITEBACK);
             // createDefaultDiskOffering("Custom-WB", "Custom Disk", ProvisioningType.THIN, 0, null, true, false, DiskCacheMode.WRITEBACK);
@@ -939,7 +939,7 @@ public class ConfigurationServerImpl extends ManagerBase implements Configuratio
         return newDiskOffering;
     }
 
-    private ServiceOfferingVO createServiceOffering(long userId, String name, int cpu, int ramSize, int speed, String displayText,
+    private ServiceOfferingVO createServiceOffering(String name, int cpu, int ramSize, int speed, String displayText,
             ProvisioningType provisioningType, boolean localStorageRequired, boolean offerHA, String tags) {
         tags = cleanupTags(tags);
         DiskOfferingVO diskOfferingVO = new DiskOfferingVO(name, displayText, provisioningType, 0, tags, true, null, null, null, DiskCacheMode.WRITEBACK);

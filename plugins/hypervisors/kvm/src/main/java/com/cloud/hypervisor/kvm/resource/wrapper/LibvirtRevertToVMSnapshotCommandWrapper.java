@@ -59,12 +59,12 @@ public final class LibvirtRevertToVMSnapshotCommandWrapper extends CommandWrappe
 
             if (dm == null) {
                 return new RevertToVMSnapshotAnswer(cmd, false,
-                        "Revert to VM Snapshot Failed due to can not find vm: " + vmName);
+                        "가상머신을 찾을 수 없기 때문에 가상머신 스냅샷으로 되돌리기 실패: " + vmName);
             }
 
             DomainSnapshot snapshot = dm.snapshotLookupByName(cmd.getTarget().getSnapshotName());
             if (snapshot == null)
-                return new RevertToVMSnapshotAnswer(cmd, false, "Cannot find vmSnapshot with name: " + cmd.getTarget().getSnapshotName());
+                return new RevertToVMSnapshotAnswer(cmd, false, "가상머신 스냅샷을 찾을 수 없습니다. 이름: " + cmd.getTarget().getSnapshotName());
 
             dm.revertToSnapshot(snapshot);
             snapshot.free();
@@ -80,7 +80,7 @@ public final class LibvirtRevertToVMSnapshotCommandWrapper extends CommandWrappe
 
             return new RevertToVMSnapshotAnswer(cmd, listVolumeTo, vmState);
         } catch (LibvirtException e) {
-            String msg = " Revert to VM snapshot failed due to " + e.toString();
+            String msg = " 다음으로 인해 가상머신 스냅샷으로 되돌리지 못했습니다. " + e.toString();
             logger.warn(msg, e);
             return new RevertToVMSnapshotAnswer(cmd, false, msg);
         } finally {
@@ -88,7 +88,7 @@ public final class LibvirtRevertToVMSnapshotCommandWrapper extends CommandWrappe
                 try {
                     dm.free();
                 } catch (LibvirtException l) {
-                    logger.trace("Ignoring libvirt error.", l);
+                    logger.trace("libvirt 오류 무시.", l);
                 };
             }
         }

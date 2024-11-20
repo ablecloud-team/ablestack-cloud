@@ -112,7 +112,7 @@
             </a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item ref="checksum" name="checksum">
+        <!-- <a-form-item ref="checksum" name="checksum">
           <template #label>
             <tooltip-label :title="$t('label.volumechecksum')" :tooltip="apiParams.checksum.description"/>
           </template>
@@ -121,8 +121,8 @@
             :maxlength="500"
             :placeholder="$t('label.volumechecksum.description')"
           />
-        </a-form-item>
-        <a-form-item name="domainid" ref="domainid" v-if="'listDomains' in $store.getters.apis">
+        </a-form-item> -->
+        <!-- <a-form-item name="domainid" ref="domainid" v-if="'listDomains' in $store.getters.apis">
           <template #label>
             <tooltip-label :title="$t('label.domain')" :tooltip="apiParams.domainid.description"/>
           </template>
@@ -140,8 +140,8 @@
               {{ opt.path || opt.name || opt.description }}
             </a-select-option>
           </a-select>
-        </a-form-item>
-        <a-form-item name="account" ref="account" v-if="'listDomains' in $store.getters.apis">
+        </a-form-item> -->
+        <!-- <a-form-item name="account" ref="account" v-if="'listDomains' in $store.getters.apis">
           <template #label>
             <tooltip-label :title="$t('label.account')" :tooltip="apiParams.account.description"/>
           </template>
@@ -158,7 +158,7 @@
               {{ acc.name }}
             </a-select-option>
           </a-select>
-        </a-form-item>
+        </a-form-item> -->
         <div :span="24" class="action-button">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button :loading="loading" type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
@@ -191,7 +191,7 @@ export default {
       accountList: [],
       offerings: [],
       offeringLoading: false,
-      formats: ['RAW', 'VHD', 'VHDX', 'OVA', 'QCOW2'],
+      formats: ['QCOW2'],
       domainId: null,
       account: null,
       uploadParams: null,
@@ -214,7 +214,7 @@ export default {
         file: undefined,
         name: undefined,
         zoneId: undefined,
-        format: 'RAW',
+        format: 'QCOW2',
         checksum: undefined
       })
       this.rules = reactive({

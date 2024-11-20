@@ -22,10 +22,10 @@ import pods from '@/config/section/infra/pods'
 import clusters from '@/config/section/infra/clusters'
 import hosts from '@/config/section/infra/hosts'
 import primaryStorages from '@/config/section/infra/primaryStorages'
-import secondaryStorages from '@/config/section/infra/secondaryStorages'
-import systemVms from '@/config/section/infra/systemVms'
-import routers from '@/config/section/infra/routers'
-import ilbvms from '@/config/section/infra/ilbvms'
+// import secondaryStorages from '@/config/section/infra/secondaryStorages'
+// import systemVms from '@/config/section/infra/systemVms'
+// import routers from '@/config/section/infra/routers'
+// import ilbvms from '@/config/section/infra/ilbvms'
 import managementServers from '@/config/section/infra/managementServers'
 
 export default {
@@ -34,13 +34,13 @@ export default {
   icon: 'BankOutlined',
   permission: ['listInfrastructure'],
   children: [
-    {
-      name: 'infrasummary',
-      title: 'label.summary',
-      icon: 'ReadOutlined',
-      permission: ['listInfrastructure'],
-      component: () => import('@/views/infra/InfraSummary.vue')
-    },
+    // {
+    //   name: 'infrasummary',
+    //   title: 'label.summary',
+    //   icon: 'ReadOutlined',
+    //   permission: ['listInfrastructure'],
+    //   component: () => import('@/views/infra/InfraSummary.vue')
+    // },
     zones,
     phynetworks,
     nsp,
@@ -48,27 +48,27 @@ export default {
     clusters,
     hosts,
     primaryStorages,
-    secondaryStorages,
-    systemVms,
-    routers,
-    ilbvms,
+    // secondaryStorages,
+    // systemVms,
+    // routers,
+    // ilbvms,
     managementServers,
-    {
-      name: 'cpusocket',
-      title: 'label.cpu.sockets',
-      icon: 'InboxOutlined',
-      docHelp: 'adminguide/management.html#reporting-cpu-sockets',
-      permission: ['listHosts'],
-      component: () => import('@/views/infra/CpuSockets.vue')
-    },
-    {
-      name: 'metric',
-      title: 'label.db.usage.metrics',
-      icon: 'bar-chart-outlined',
-      docHelp: 'adminguide/management.html#metrics',
-      permission: ['listDbMetrics', 'listUsageServerMetrics'],
-      component: () => import('@/views/infra/Metrics.vue')
-    },
+    // {
+    //   name: 'cpusocket',
+    //   title: 'label.cpu.sockets',
+    //   icon: 'InboxOutlined',
+    //   docHelp: 'adminguide/management.html#reporting-cpu-sockets',
+    //   permission: ['listHosts'],
+    //   component: () => import('@/views/infra/CpuSockets.vue')
+    // },
+    // {
+    //   name: 'metric',
+    //   title: 'label.db.usage.metrics',
+    //   icon: 'bar-chart-outlined',
+    //   docHelp: 'adminguide/management.html#metrics',
+    //   permission: ['listDbMetrics', 'listUsageServerMetrics'],
+    //   component: () => import('@/views/infra/Metrics.vue')
+    // },
     {
       name: 'alert',
       title: 'label.alerts',

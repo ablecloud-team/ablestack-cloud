@@ -93,12 +93,12 @@
         :checked="autoMigrate"
         @change="val => { autoMigrate = val }"/>
     </a-form-item>
-    <a-form-item name="shrinkOk" ref="shrinkOk" :label="$t('label.shrinkok')">
+    <!-- <a-form-item name="shrinkOk" ref="shrinkOk" :label="$t('label.shrinkok')">
       <a-switch
         v-model:checked="form.shrinkOk"
         :checked="shrinkOk"
         @change="val => { shrinkOk = val }"/>
-    </a-form-item>
+    </a-form-item> -->
     <a-divider />
     <div class="actions">
       <a-button @click="closeModal">

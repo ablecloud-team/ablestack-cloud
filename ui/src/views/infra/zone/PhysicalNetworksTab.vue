@@ -17,14 +17,14 @@
 
 <template>
   <a-spin :spinning="fetchLoading">
-    <a-button
+    <!-- <a-button
       type="primary"
       style="width: 100%; margin-bottom: 10px"
       @click="showAddPhyNetModal"
       :loading="loading"
       :disabled="!('createPhysicalNetwork' in $store.getters.apis)">
       <template #icon><plus-outlined /></template> {{ $t('label.add.physical.network') }}
-    </a-button>
+    </a-button> -->
     <a-list class="list">
       <a-list-item v-for="network in networks" :key="network.id" class="list__item">
         <div class="list__item-outer-container">

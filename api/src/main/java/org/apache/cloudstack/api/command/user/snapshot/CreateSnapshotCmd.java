@@ -68,7 +68,7 @@ public class CreateSnapshotCmd extends BaseAsyncCreateCmd {
             description = "The domain ID of the snapshot. If used with the account parameter, specifies a domain for the account associated with the disk volume. If account is NOT provided then snapshot will be assigned to the caller account and domain.")
     private Long domainId;
 
-    @Parameter(name = ApiConstants.VOLUME_ID, type = CommandType.UUID, entityType = VolumeResponse.class, required = true, description = "The ID of the disk volume")
+    @Parameter(name = ApiConstants.VOLUME_ID, type = CommandType.UUID, entityType = VolumeResponse.class, required = true, description = "디스크 볼륨의 아이디")
     private Long volumeId;
 
     @Parameter(name = ApiConstants.POLICY_ID,
@@ -84,7 +84,7 @@ public class CreateSnapshotCmd extends BaseAsyncCreateCmd {
             "Valid location types: 'primary', 'secondary'. Default = 'primary'.")
     private String locationType;
 
-    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "the name of the snapshot")
+    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "스냅샷의 이름")
     private String snapshotName;
 
     @Parameter(name = ApiConstants.ASYNC_BACKUP, type = CommandType.BOOLEAN, required = false, description = "asynchronous backup if true")
@@ -202,7 +202,7 @@ public class CreateSnapshotCmd extends BaseAsyncCreateCmd {
 
     @Override
     public String getEventDescription() {
-        return "creating snapshot for volume: " + getVolumeUuid();
+        return "볼륨에 대한 스냅샷 생성: " + getVolumeUuid();
     }
 
     @Override

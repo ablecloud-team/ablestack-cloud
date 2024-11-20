@@ -51,20 +51,20 @@ export default {
     resourceType: 'Pod',
     component: shallowRef(defineAsyncComponent(() => import('@/components/view/EventsTab.vue'))),
     show: () => { return 'listEvents' in store.getters.apis }
-  }, {
-    name: 'comments',
-    component: shallowRef(defineAsyncComponent(() => import('@/components/view/AnnotationsTab.vue')))
+  // }, {
+  //   name: 'comments',
+  //   component: shallowRef(defineAsyncComponent(() => import('@/components/view/AnnotationsTab.vue')))
   }],
   actions: [
-    {
-      api: 'createPod',
-      icon: 'plus-outlined',
-      label: 'label.add.pod',
-      docHelp: 'installguide/configuration.html#adding-a-pod',
-      listView: true,
-      popup: true,
-      component: shallowRef(defineAsyncComponent(() => import('@/views/infra/PodAdd.vue')))
-    },
+    // {
+    //   api: 'createPod',
+    //   icon: 'plus-outlined',
+    //   label: 'label.add.pod',
+    //   docHelp: 'installguide/configuration.html#adding-a-pod',
+    //   listView: true,
+    //   popup: true,
+    //   component: shallowRef(defineAsyncComponent(() => import('@/views/infra/PodAdd.vue')))
+    // },
     {
       api: 'updatePod',
       icon: 'edit-outlined',
@@ -101,26 +101,26 @@ export default {
           value: (record) => 'Disabled'
         }
       }
-    },
-    {
-      api: 'startRollingMaintenance',
-      icon: 'setting-outlined',
-      label: 'label.start.rolling.maintenance',
-      message: 'label.start.rolling.maintenance',
-      dataView: true,
-      args: ['timeout', 'payload', 'forced', 'podids'],
-      mapping: {
-        podids: {
-          value: (record) => { return record.id }
-        }
-      }
-    },
-    {
-      api: 'deletePod',
-      icon: 'delete-outlined',
-      label: 'label.action.delete.pod',
-      message: 'message.action.delete.pod',
-      dataView: true
+    // },
+    // {
+    //   api: 'startRollingMaintenance',
+    //   icon: 'setting-outlined',
+    //   label: 'label.start.rolling.maintenance',
+    //   message: 'label.start.rolling.maintenance',
+    //   dataView: true,
+    //   args: ['timeout', 'payload', 'forced', 'podids'],
+    //   mapping: {
+    //     podids: {
+    //       value: (record) => { return record.id }
+    //     }
+    //   }
+    // },
+    // {
+    //   api: 'deletePod',
+    //   icon: 'delete-outlined',
+    //   label: 'label.action.delete.pod',
+    //   message: 'message.action.delete.pod',
+    //   dataView: true
     }
   ]
 }

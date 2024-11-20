@@ -77,7 +77,7 @@ public class RevertSnapshotCmd extends BaseAsyncCmd {
 
     @Override
     public String getEventDescription() {
-        return  "revert snapshot: " + this._uuidMgr.getUuid(Snapshot.class, getId());
+        return  "스냅샷 복원: " + this._uuidMgr.getUuid(Snapshot.class, getId());
     }
 
     @Override

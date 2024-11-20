@@ -116,7 +116,7 @@ public class ConsoleProxyAlertAdapter extends AdapterBase implements AlertAdapte
                 break;
 
             case ConsoleProxyAlertEventArgs.PROXY_CREATE_FAILURE:
-                message = String.format("Console proxy creation failure. Zone [%s].", dc.getName());
+                message = String.format("콘솔 프록시 생성에 실패했습니다. Zone [%s].", dc.getName());
                 if (logger.isDebugEnabled()) {
                     logger.debug(message);
                 }

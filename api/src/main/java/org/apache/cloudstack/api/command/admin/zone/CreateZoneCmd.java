@@ -174,7 +174,7 @@ public class CreateZoneCmd extends BaseCmd {
 
     @Override
     public void execute() {
-        CallContext.current().setEventDetails("Zone Name: " + getZoneName());
+        CallContext.current().setEventDetails("Zone 이름: " + getZoneName());
         DataCenter result = _configService.createZone(this);
         if (result != null){
             ZoneResponse response = _responseGenerator.createZoneResponse(ResponseView.Full, result, false, false);

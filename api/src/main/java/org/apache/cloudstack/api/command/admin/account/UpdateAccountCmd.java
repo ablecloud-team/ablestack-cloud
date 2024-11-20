@@ -62,7 +62,7 @@ public class UpdateAccountCmd extends BaseCmd {
     @Parameter(name = ApiConstants.ROLE_ID, type = CommandType.UUID, entityType = RoleResponse.class, description = "The UUID of the dynamic role to set for the account")
     private Long roleId;
 
-    @Parameter(name = ApiConstants.NEW_NAME, type = CommandType.STRING, description = "New name for the account")
+    @Parameter(name = ApiConstants.NEW_NAME, type = CommandType.STRING, description = "계정의 새 이름")
     private String newName;
 
     @Parameter(name = ApiConstants.NETWORK_DOMAIN,

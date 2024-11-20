@@ -104,12 +104,12 @@ public class ActionEventInterceptor implements ComponentMethodInterceptor, Metho
             if (actionEvent.create()) {
                 //This start event has to be used for subsequent events of this action
                 startEventId = ActionEventUtils.onCreatedActionEvent(((Long)userId == null) ? User.UID_SYSTEM : userId, ((Long)accountId == null) ? Account.ACCOUNT_ID_SYSTEM : accountId, EventVO.LEVEL_INFO, eventType,
-                        isEventDisplayEnabled, "Successfully created entity for " + eventDescription,
+                        isEventDisplayEnabled, "성공적으로 엔터티를 생성했습니다. : " + eventDescription,
                         eventResourceId, eventResourceType);
                 ctx.setStartEventId(startEventId);
             } else {
                 ActionEventUtils.onCompletedActionEvent(((Long)userId == null) ? User.UID_SYSTEM : userId, ((Long)accountId == null) ? Account.ACCOUNT_ID_SYSTEM : accountId, EventVO.LEVEL_INFO, eventType,
-                        isEventDisplayEnabled, "Successfully completed " + eventDescription,
+                        isEventDisplayEnabled, "성공적으로 완료되었습니다. : " + eventDescription,
                         eventResourceId, eventResourceType, startEventId);
             }
         }
@@ -133,12 +133,12 @@ public class ActionEventInterceptor implements ComponentMethodInterceptor, Metho
 
             if (actionEvent.create()) {
                 long eventId = ActionEventUtils.onCreatedActionEvent(((Long)userId == null) ? User.UID_SYSTEM : userId, ((Long)accountId == null) ? Account.ACCOUNT_ID_SYSTEM : accountId, EventVO.LEVEL_ERROR, eventType,
-                        isEventDisplayEnabled, "Error while creating entity for " + eventDescription,
+                        isEventDisplayEnabled, "엔터티를 생성하는 동안 오류가 발생했습니다. : " + eventDescription,
                         eventResourceId, eventResourceType);
                 ctx.setStartEventId(eventId);
             } else {
                 ActionEventUtils.onCompletedActionEvent(((Long)userId == null) ? User.UID_SYSTEM : userId, ((Long)accountId == null) ? Account.ACCOUNT_ID_SYSTEM : accountId, EventVO.LEVEL_ERROR, eventType, isEventDisplayEnabled,
-                        "Error while " + eventDescription,
+                        "오류가 발생했습니다. : " + eventDescription,
                         eventResourceId, eventResourceType, startEventId);
             }
         }

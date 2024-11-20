@@ -103,7 +103,7 @@ public class DeleteManagementNetworkIpRangeCmd extends BaseAsyncCmd {
 
     @Override
     public String getEventDescription() {
-        return "Deleting management ip range from " + getStartIp() + " to " + getEndIp() + " of Pod: " + getPodId();
+        return "Pod " + getPodId() + " 의 관리 IP 범위  " + getStartIp() + " ~ " + getEndIp() + " 삭제";
     }
 
     @Override

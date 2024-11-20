@@ -217,18 +217,18 @@ export const notifierPlugin = {
         if (error.response.status) {
           msg = `${i18n.global.t('message.request.failed')} (${error.response.status})`
         }
-        if (error.message) {
-          desc = error.message
-        }
-        if (error.response.headers && 'x-description' in error.response.headers) {
-          desc = error.response.headers['x-description']
-        }
-        if (desc === '' && error.response.data) {
+        if (error.response.data) {
           const responseKey = _.findKey(error.response.data, 'errortext')
           if (responseKey) {
             desc = error.response.data[responseKey].errortext
           }
         }
+        if (desc === '' && error.message) {
+          desc = error.message
+        }
+        // if (error.response.headers && 'x-description' in error.response.headers) {
+        //   desc = error.response.headers['x-description']
+        // }
       }
       let countNotify = store.getters.countNotify
       countNotify++

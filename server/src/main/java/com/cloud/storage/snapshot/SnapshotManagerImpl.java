@@ -362,12 +362,12 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         if (instanceId != null) {
             UserVmVO vm = _vmDao.findById(instanceId);
             if (vm.getState() != State.Stopped && vm.getState() != State.Shutdown) {
-                throw new InvalidParameterValueException("The VM the specified disk is attached to is not in the shutdown state.");
+                throw new InvalidParameterValueException("지정된 디스크가 연결된 가상머신이 정지 상태가 아닙니다.");
             }
             // If target VM has associated VM snapshots then don't allow to revert from snapshot
             List<VMSnapshotVO> vmSnapshots = _vmSnapshotDao.findByVm(instanceId);
             if (vmSnapshots.size() > 0 && !Type.GROUP.name().equals(snapshot.getTypeDescription())) {
-                throw new InvalidParameterValueException("Unable to revert snapshot for VM, please remove VM snapshots before reverting VM from snapshot");
+                throw new InvalidParameterValueException("가상머신의 스냅샷을 되돌릴 수 없습니다. 스냅샷에서 가상머신을 되돌리기 전에 가상머신 스냅샷을 제거하세요.");
             }
         }
 
@@ -432,7 +432,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
     @Override
     @DB
-    @ActionEvent(eventType = EventTypes.EVENT_SNAPSHOT_CREATE, eventDescription = "creating snapshot", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_SNAPSHOT_CREATE, eventDescription = "스냅샷 생성", async = true)
     public Snapshot createSnapshot(Long volumeId, Long policyId, Long snapshotId, Account snapshotOwner) {
         VolumeInfo volume = volFactory.getVolume(volumeId);
         if (volume == null) {
@@ -517,7 +517,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
         VolumeInfo volume = volFactory.getVolume(volumeId);
         if (volume == null) {
-            throw new InvalidParameterValueException("Creating snapshot failed due to volume:" + volumeId + " doesn't exist");
+            throw new InvalidParameterValueException("볼륨으로 인해 스냅샷 생성 실패:" + volumeId + " 존재하지 않는다");
         }
 
         if (volume.getState() != Volume.State.Ready) {
@@ -679,7 +679,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
     @Override
     @DB
-    @ActionEvent(eventType = EventTypes.EVENT_SNAPSHOT_DELETE, eventDescription = "deleting snapshot", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_SNAPSHOT_DELETE, eventDescription = "스냅샷 삭제", async = true)
     public boolean deleteSnapshot(long snapshotId, Long zoneId) {
         Account caller = CallContext.current().getCallingAccount();
 
@@ -1351,8 +1351,8 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             UserVmVO userVm = _vmDao.findById(volume.getInstanceId());
             if (userVm != null) {
                 if (userVm.getState().equals(State.Destroyed) || userVm.getState().equals(State.Expunging)) {
-                    throw new CloudRuntimeException("Creating snapshot failed due to volume:" + volume.getId() + " is associated with vm:" + userVm.getInstanceName() + " is in "
-                            + userVm.getState().toString() + " state");
+                    throw new CloudRuntimeException("볼륨으로 인해 스냅샷 생성 실패:" + volume.getId() + ", 연결된 가상머신:" + userVm.getInstanceName() + " 가상머신 상태:"
+                            + userVm.getState().toString());
                 }
 
                 if (userVm.getHypervisorType() == HypervisorType.VMware || userVm.getHypervisorType() == HypervisorType.KVM) {
@@ -1939,11 +1939,11 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         SnapshotVO snapshotVO = _snapshotDao.findById(snapshotId);
         long startEventId = ActionEventUtils.onStartedActionEvent(CallContext.current().getCallingUserId(),
                 CallContext.current().getCallingAccountId(), EventTypes.EVENT_SNAPSHOT_COPY,
-                String.format("Copying snapshot ID: %s", snapshotVO.getUuid()), snapshotId,
+                String.format("복사 중 스냅샷 ID: %s", snapshotVO.getUuid()), snapshotId,
                 ApiCommandResourceType.Snapshot.toString(), true, 0);
         DataStore dataStore = getSnapshotZoneImageStore(snapshotId, zoneId);
         String completedEventLevel = EventVO.LEVEL_ERROR;
-        String completedEventMsg = String.format("Copying snapshot ID: %s failed", snapshotVO.getUuid());
+        String completedEventMsg = String.format("복사 중 스냅샷 ID: %s 실패", snapshotVO.getUuid());
         if (dataStore == null) {
             logger.error(String.format("Unable to find an image store for zone ID: %d where snapshot %s is in Ready state", zoneId, snapshotVO));
             ActionEventUtils.onCompletedActionEvent(CallContext.current().getCallingUserId(),

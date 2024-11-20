@@ -24,8 +24,8 @@ export default {
   docHelp: 'adminguide/events.html',
   permission: ['listEvents'],
   columns: () => {
-    const fields = ['level', 'type', 'state', 'description', 'resource', 'username', 'account', 'domain', 'created']
-    const securityFields = ['level', 'type', 'state', 'description', 'resource', 'username',
+    const fields = ['level', 'type', 'state', 'description', 'username', 'account', 'created']
+    const securityFields = ['level', 'type', 'state', 'description', 'username',
       {
         account: (record) => {
           if (record.username === 'system') {
@@ -34,14 +34,14 @@ export default {
             return record.account
           }
         }
-      }, 'domain', 'created', 'clientip']
+      }, 'created', 'clientip']
     if (store.getters.features.securityfeaturesenabled) {
       return securityFields
     } else {
       return fields
     }
   },
-  details: ['username', 'id', 'description', 'resourcetype', 'resourceid', 'state', 'level', 'type', 'account', 'domain', 'created'],
+  details: ['username', 'id', 'description', 'resourcetype', 'resourceid', 'state', 'level', 'type', 'account', 'created'],
   searchFilters: () => {
     const filters = ['level', 'domainid', 'account', 'keyword', 'resourcetype']
     const securityFilters = ['level', 'domainid', 'keyword', 'resourcetype']
@@ -51,11 +51,6 @@ export default {
       return filters
     }
   },
-  related: [{
-    name: 'event',
-    title: 'label.event.timeline',
-    param: 'startid'
-  }],
   filters: () => {
     return ['active', 'archived']
   },

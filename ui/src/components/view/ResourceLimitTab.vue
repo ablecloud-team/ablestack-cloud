@@ -27,7 +27,7 @@
     >
       <div v-for="(item, index) in dataResource" :key="index">
         <a-form-item
-          v-if="item.resourcetypename !== 'project'"
+          v-if="(item.resourcetypename !== 'project') && (item.resourcetype !== '7') && (item.resourcetype !== '11')"
           :v-bind="item.resourcetypename"
           :label="$t('label.max' + (item.resourcetypename ? item.resourcetypename.replace('_', '') : ''))"
           :name="item.resourcetype"

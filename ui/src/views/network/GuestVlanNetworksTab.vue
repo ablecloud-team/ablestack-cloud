@@ -90,10 +90,10 @@ export default {
         {
           title: this.$t('label.project'),
           dataIndex: 'project'
-        },
-        {
-          title: this.$t('label.vpc'),
-          dataIndex: 'vpc'
+        // },
+        // {
+        //   title: this.$t('label.vpc'),
+        //   dataIndex: 'vpc'
         }
       ]
     }

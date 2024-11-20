@@ -78,28 +78,28 @@ export default {
   }, {
     name: 'resources',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/Resources.vue')))
-  }, {
-    name: 'settings',
-    component: shallowRef(defineAsyncComponent(() => import('@/components/view/SettingsTab.vue')))
+  // }, {
+  //   name: 'settings',
+  //   component: shallowRef(defineAsyncComponent(() => import('@/components/view/SettingsTab.vue')))
   }, {
     name: 'events',
     resourceType: 'Zone',
     component: shallowRef(defineAsyncComponent(() => import('@/components/view/EventsTab.vue'))),
     show: () => { return 'listEvents' in store.getters.apis }
-  }, {
-    name: 'comments',
-    component: shallowRef(defineAsyncComponent(() => import('@/components/view/AnnotationsTab.vue')))
+  // }, {
+  //   name: 'comments',
+  //   component: shallowRef(defineAsyncComponent(() => import('@/components/view/AnnotationsTab.vue')))
   }],
   actions: [
-    {
-      api: 'createZone',
-      icon: 'plus-outlined',
-      label: 'label.add.zone',
-      docHelp: 'installguide/configuration.html#adding-a-zone',
-      listView: true,
-      popup: true,
-      component: shallowRef(defineAsyncComponent(() => import('@/views/infra/zone/ZoneWizard.vue')))
-    },
+    // {
+    //   api: 'createZone',
+    //   icon: 'plus-outlined',
+    //   label: 'label.add.zone',
+    //   docHelp: 'installguide/configuration.html#adding-a-zone',
+    //   listView: true,
+    //   popup: true,
+    //   component: shallowRef(defineAsyncComponent(() => import('@/views/infra/zone/ZoneWizard.vue')))
+    // },
     {
       api: 'updateZone',
       icon: 'edit-outlined',
@@ -167,100 +167,100 @@ export default {
           value: (record) => { return record.id }
         }
       }
-    },
-    {
-      api: 'enableHAForZone',
-      icon: 'eye-outlined',
-      label: 'label.ha.enable',
-      message: 'label.ha.enable',
-      dataView: true,
-      show: (record) => {
-        return record?.resourcedetails?.resourceHAEnabled === 'false'
-      },
-      args: ['zoneid'],
-      mapping: {
-        zoneid: {
-          value: (record) => { return record.id }
-        }
-      }
-    },
-    {
-      api: 'disableHAForZone',
-      icon: 'eye-invisible-outlined',
-      label: 'label.ha.disable',
-      message: 'label.ha.disable',
-      dataView: true,
-      show: (record) => {
-        return !(record?.resourcedetails?.resourceHAEnabled === 'false')
-      },
-      args: ['zoneid'],
-      mapping: {
-        zoneid: {
-          value: (record) => { return record.id }
-        }
-      }
-    },
-    {
-      api: 'addVmwareDc',
-      icon: 'block-outlined',
-      label: 'label.add.vmware.datacenter',
-      dataView: true,
-      show: record => !record.vmwaredc,
-      args: ['zoneid', 'name', 'vcenter', 'username', 'password'],
-      mapping: {
-        zoneid: {
-          value: (record) => { return record.id }
-        }
-      }
-    },
-    {
-      api: 'updateVmwareDc',
-      icon: 'block-outlined',
-      label: 'label.update.vmware.datacenter',
-      message: 'message.restart.mgmt.server',
-      additionalMessage: 'message.restart.mgmt.server',
-      dataView: true,
-      show: record => record.vmwaredc,
-      args: ['zoneid', 'name', 'vcenter', 'username', 'password'],
-      mapping: {
-        zoneid: {
-          value: (record) => { return record.id }
-        }
-      }
-    },
-    {
-      api: 'removeVmwareDc',
-      icon: 'minus-square-outlined',
-      label: 'label.remove.vmware.datacenter',
-      message: 'message.confirm.remove.vmware.datacenter',
-      dataView: true,
-      show: record => record.vmwaredc,
-      args: ['zoneid'],
-      mapping: {
-        zoneid: {
-          value: (record) => { return record.id }
-        }
-      }
-    },
-    {
-      api: 'startRollingMaintenance',
-      icon: 'setting-outlined',
-      label: 'label.start.rolling.maintenance',
-      message: 'label.start.rolling.maintenance',
-      dataView: true,
-      args: ['timeout', 'payload', 'forced', 'zoneids'],
-      mapping: {
-        zoneids: {
-          value: (record) => { return record.id }
-        }
-      }
-    },
-    {
-      api: 'deleteZone',
-      icon: 'delete-outlined',
-      label: 'label.action.delete.zone',
-      message: 'message.action.delete.zone',
-      dataView: true
+    // },
+    // {
+    //   api: 'enableHAForZone',
+    //   icon: 'eye-outlined',
+    //   label: 'label.ha.enable',
+    //   message: 'label.ha.enable',
+    //   dataView: true,
+    //   show: (record) => {
+    //     return record?.resourcedetails?.resourceHAEnabled === 'false'
+    //   },
+    //   args: ['zoneid'],
+    //   mapping: {
+    //     zoneid: {
+    //       value: (record) => { return record.id }
+    //     }
+    //   }
+    // },
+    // {
+    //   api: 'disableHAForZone',
+    //   icon: 'eye-invisible-outlined',
+    //   label: 'label.ha.disable',
+    //   message: 'label.ha.disable',
+    //   dataView: true,
+    //   show: (record) => {
+    //     return !(record?.resourcedetails?.resourceHAEnabled === 'false')
+    //   },
+    //   args: ['zoneid'],
+    //   mapping: {
+    //     zoneid: {
+    //       value: (record) => { return record.id }
+    //     }
+    //   }
+    // },
+    // {
+    //   api: 'addVmwareDc',
+    //   icon: 'block-outlined',
+    //   label: 'label.add.vmware.datacenter',
+    //   dataView: true,
+    //   show: record => !record.vmwaredc,
+    //   args: ['zoneid', 'name', 'vcenter', 'username', 'password'],
+    //   mapping: {
+    //     zoneid: {
+    //       value: (record) => { return record.id }
+    //     }
+    //   }
+    // },
+    // {
+    //   api: 'updateVmwareDc',
+    //   icon: 'block-outlined',
+    //   label: 'label.update.vmware.datacenter',
+    //   message: 'message.restart.mgmt.server',
+    //   additionalMessage: 'message.restart.mgmt.server',
+    //   dataView: true,
+    //   show: record => record.vmwaredc,
+    //   args: ['zoneid', 'name', 'vcenter', 'username', 'password'],
+    //   mapping: {
+    //     zoneid: {
+    //       value: (record) => { return record.id }
+    //     }
+    //   }
+    // },
+    // {
+    //   api: 'removeVmwareDc',
+    //   icon: 'minus-square-outlined',
+    //   label: 'label.remove.vmware.datacenter',
+    //   message: 'message.confirm.remove.vmware.datacenter',
+    //   dataView: true,
+    //   show: record => record.vmwaredc,
+    //   args: ['zoneid'],
+    //   mapping: {
+    //     zoneid: {
+    //       value: (record) => { return record.id }
+    //     }
+    //   }
+    // },
+    // {
+    //   api: 'startRollingMaintenance',
+    //   icon: 'setting-outlined',
+    //   label: 'label.start.rolling.maintenance',
+    //   message: 'label.start.rolling.maintenance',
+    //   dataView: true,
+    //   args: ['timeout', 'payload', 'forced', 'zoneids'],
+    //   mapping: {
+    //     zoneids: {
+    //       value: (record) => { return record.id }
+    //     }
+    //   }
+    // },
+    // {
+    //   api: 'deleteZone',
+    //   icon: 'delete-outlined',
+    //   label: 'label.action.delete.zone',
+    //   message: 'message.action.delete.zone',
+    //   dataView: true
     }
   ]
 }

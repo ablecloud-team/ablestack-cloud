@@ -426,7 +426,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
 
     @DB
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_CLUSTER_ADD, eventDescription = "adding cluster", async = false)
+    @ActionEvent(eventType = EventTypes.EVENT_CLUSTER_ADD, eventDescription = "클러스터 추가", async = false)
     public List<? extends Cluster> discoverCluster(final AddClusterCmd cmd) throws IllegalArgumentException, DiscoveryException, ResourceInUseException {
         final long dcId = cmd.getZoneId();
         final long podId = cmd.getPodId();
@@ -1171,6 +1171,11 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
             if(cluster.getHypervisorType() == HypervisorType.VMware) {
                 throw new InvalidParameterValueException("Renaming VMware cluster is not supported as it could cause problems if the updated  cluster name is not mapped on VCenter.");
             }
+
+            if (!NetUtils.verifyDomainNameLabel(name, true)) {
+                throw new InvalidParameterValueException("이름이 잘못되었습니다. 이름에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없으며 숫자로 시작할 수도 없습니다.");
+            }
+
             logger.debug("Updating Cluster name to: " + name);
             cluster.setName(name);
             doUpdate = true;
@@ -1240,7 +1245,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
             if (StringUtils.isNotBlank(name)) {
                 final Account caller = CallContext.current().getCallingAccount();
                 final Domain domain = _domainDao.findById(caller.getDomainId());
-                String accountName = "admin";
+                String accountName = "cloud";
                 String msg = "Cluster update: id = " + cluster.getId() + "; cluster name = from '" + beforeClusterName + "' to '" + name + "'";
                 ActionEventUtils.onActionEvent(caller.getId(), caller.getAccountId(), domain.getId(), EventTypes.EVENT_CLUSTER_UPDATE, msg, cluster.getId(), ApiCommandResourceType.Cluster.toString());
             }
@@ -1978,6 +1983,9 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
         }
 
         if (StringUtils.isNotBlank(name)) {
+            if (!NetUtils.verifyDomainNameLabel(name, true)) {
+                throw new InvalidParameterValueException("이름이 잘못되었습니다. 이름에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없으며 숫자로 시작할 수도 없습니다.");
+            }
             updateHostName(host, name);
         }
 
@@ -1991,7 +1999,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
 
         final Account caller = CallContext.current().getCallingAccount();
         final Domain domain = _domainDao.findById(caller.getDomainId());
-        StringBuilder msg = new StringBuilder("Host update: ");
+        StringBuilder msg = new StringBuilder("호스트 업데이트: ");
         msg.append("id = " + host.getId());
         if (StringUtils.isNotBlank(name) && !beforeHostname.equalsIgnoreCase(name)) {
             msg.append("; hostname = from '" + beforeHostname + "' to '" + name+ "'");
