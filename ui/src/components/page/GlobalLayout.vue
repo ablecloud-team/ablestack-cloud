@@ -17,7 +17,7 @@
 
 <template>
   <div>
-    <a-affix v-if="this.$store.getters.shutdownTriggered" >
+    <a-affix v-if="this.$store.getters.shutdownTriggered">
       <a-alert :message="$t('message.shutdown.triggered')" type="error" banner :showIcon="false" class="shutdownHeader" />
     </a-affix>
     <a-layout class="layout" :class="[device]">
@@ -37,7 +37,9 @@
               :collapsed="false"
               :collapsible="true"
               mode="inline"
-              @menuSelect="menuSelect"></side-menu>
+              :style="{ paddingBottom: isSidebarVisible ? '300px' : '0' }"
+              @menuSelect="menuSelect"
+              ></side-menu>
           </a-drawer>
           <side-menu
             v-else
@@ -45,7 +47,9 @@
             :menus="menus"
             :theme="navTheme"
             :collapsed="collapsed"
-            :collapsible="true"></side-menu>
+            :collapsible="true"
+            :style="{ paddingBottom: isSidebarVisible ? '300px' : '0' }"
+            ></side-menu>
         </template>
         <template v-else>
           <a-drawer
@@ -62,7 +66,9 @@
               :collapsed="false"
               :collapsible="true"
               mode="inline"
-              @menuSelect="menuSelect"></side-menu>
+              :style="{ paddingBottom: isSidebarVisible ? '300px' : '0' }"
+              @menuSelect="menuSelect"
+              ></side-menu>
           </a-drawer>
         </template>
 
@@ -77,11 +83,23 @@
             <setting :visible="showSetting" />
           </template>
         </drawer>
-
       </a-affix>
 
-      <a-layout :class="[layoutMode, `content-width-${contentWidth}`]" :style="{ paddingLeft: contentPaddingLeft, minHeight: '100vh' }">
-        <!-- layout header -->
+      <div style="position: fixed; bottom: 45px; right: 0px; z-index: 100;">
+        <a-button
+          type="primary"
+          @click="toggleSidebar"
+          style="width: 40px; height: 40px; padding: 0; background: #ccc; border: none; color: #666;">
+          <ScheduleOutlined />
+        </a-button>
+      </div>
+
+      <event-sidebar :isVisible="isSidebarVisible" @update:isVisible="isSidebarVisible = $event" />
+
+      <a-layout
+        :class="[layoutMode, `content-width-${contentWidth}`]"
+        :style="{ paddingLeft: contentPaddingLeft, minHeight: '100vh', paddingBottom: isSidebarVisible ? '300px' : '0' }"
+      >
         <a-affix style="z-index: 100">
           <global-header
             :style="this.$store.getters.shutdownTriggered ? 'margin-top: 25px;' : null"
@@ -95,21 +113,22 @@
         </a-affix>
 
         <a-button
-          v-if="showClear"
-          type="default"
-          size="small"
-          class="button-clear-notification"
-          @click="onClearNotification">{{ $t('label.clear.notification') }}</a-button>
+        v-if="showClear"
+        type="default"
+        size="small"
+        class="button-clear-notification"
+        @click="onClearNotification">{{ $t('label.clear.notification') }}</a-button>
 
-        <!-- layout content -->
+      <!-- layout content -->
         <a-layout-content
-        class="layout-content"
-        :class="{'is-header-fixed': fixedHeader}">
+          class="layout-content"
+          :class="{'is-header-fixed': fixedHeader}"
+          :style="{ paddingBottom: isSidebarVisible ? '300' : '0' }"
+        >
           <slot></slot>
         </a-layout-content>
 
-        <!-- layout footer -->
-        <a-layout-footer style="padding: 0">
+        <a-layout-footer style="padding: 0; transition: padding-bottom 0.3s;" :style="{ paddingBottom: isSidebarVisible ? '300' : '0' }">
           <global-footer />
         </a-layout-footer>
       </a-layout>
@@ -128,6 +147,7 @@ import { isAdmin } from '@/role'
 import { api } from '@/api'
 import Drawer from '@/components/widgets/Drawer'
 import Setting from '@/components/view/Setting.vue'
+import EventSidebar from '@/components/view/EventSidebar.vue'
 
 export default {
   name: 'GlobalLayout',
@@ -136,7 +156,8 @@ export default {
     GlobalHeader,
     GlobalFooter,
     Drawer,
-    Setting
+    Setting,
+    EventSidebar
   },
   mixins: [mixin, mixinDevice],
   data () {
@@ -144,7 +165,8 @@ export default {
       collapsed: false,
       menus: [],
       showSetting: false,
-      showClear: false
+      showClear: false,
+      isSidebarVisible: false
     }
   },
   computed: {
@@ -229,6 +251,9 @@ export default {
     document.body.classList.remove('dark')
   },
   methods: {
+    toggleSidebar () {
+      this.isSidebarVisible = !this.isSidebarVisible
+    },
     ...mapActions(['setSidebar']),
     toggle () {
       this.collapsed = !this.collapsed
@@ -271,6 +296,7 @@ export default {
 .layout-content {
   &.is-header-fixed {
     margin: 78px 12px 0;
+    transition: padding-bottom 0.3s ease
   }
 }
 

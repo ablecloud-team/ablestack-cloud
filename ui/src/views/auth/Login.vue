@@ -191,6 +191,19 @@
         </a-button>
       </div>
     </div>
+    <div :class="['footer']">
+      <div class="line">
+        <span v-html="$config.footer" />
+      </div>
+      <div class="line" v-if="$store.getters.userInfo.roletype === 'Admin','User'">
+        ABLESTACK {{ buildVersion }}
+        <a-divider type="vertical" />
+        <a href="https://github.com/ablecloud-team/ablestack-cloud/issues/new" target="_blank">
+          <github-outlined />
+          {{ $t('label.report.bug') }}
+        </a>
+      </div>
+    </div>
   </a-form>
 </template>
 
@@ -202,6 +215,8 @@ import { SERVER_MANAGER } from '@/store/mutation-types'
 import { sourceToken } from '@/utils/request'
 import { reactive, ref, toRaw } from 'vue'
 import { mapActions } from 'vuex'
+import semver from 'semver'
+import { getParsedVersion } from '@/utils/util'
 
 export default {
   components: {
@@ -230,7 +245,8 @@ export default {
         loginType: 0
       },
       server: '',
-      forgotPasswordEnabled: false
+      forgotPasswordEnabled: false,
+      buildVersion: this.$config.buildVersion
     }
   },
   created () {
@@ -257,6 +273,14 @@ export default {
       })
       this.rules = reactive({})
       this.setRules()
+    },
+    showVersionUpdate () {
+      if (this.$store.getters?.features?.cloudstackversion && this.$store.getters?.latestVersion?.version) {
+        const currentVersion = getParsedVersion(this.$store.getters?.features?.cloudstackversion)
+        const latestVersion = getParsedVersion(this.$store.getters?.latestVersion?.version)
+        return semver.valid(currentVersion) && semver.valid(latestVersion) && semver.gt(latestVersion, currentVersion)
+      }
+      return false
     },
     setRules () {
       if (this.customActiveKey === 'cs' && this.customActiveKeyOauth === false) {
@@ -551,6 +575,23 @@ export default {
         linear-gradient(#CCC 0 0) right;
       background-size: 40% 1px;
       background-repeat: no-repeat;
+    }
+    .footer {
+      padding: 0 16px;
+      margin: 48px 0 24px;
+      text-align: center;
+      transition: all 0.3s ease;
+
+      &.expanded {
+        margin-bottom: 324px;
+      }
+
+      .line {
+        margin-bottom: 8px;
+      }
+      .copyright {
+        font-size: 14px;
+      }
     }
 }
 </style>
