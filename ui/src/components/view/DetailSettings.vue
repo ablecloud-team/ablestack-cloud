@@ -269,6 +269,8 @@ export default {
         apiName = 'updateVirtualMachine'
       } else if (this.resourceType === 'Template') {
         apiName = 'updateTemplate'
+      } else if (this.resourceType === 'DisasterRecoveryCluster') {
+        apiName = 'updateDisasterRecoveryCluster'
       }
       if (!(apiName in this.$store.getters.apis)) {
         this.$notification.error({
@@ -278,7 +280,7 @@ export default {
         return
       }
 
-      var params = { id: this.resource.id }
+      var params = { id: this.resource.id, drclusterstatus: this.resource.drclusterstatus, mirroringagentstatus: this.resource.mirroringagentstatus }
       params = Object.assign(params, this.getDetailsParam(this.details))
       this.loading = true
       api(apiName, params).then(json => {
@@ -287,6 +289,8 @@ export default {
           details = json.updatevirtualmachineresponse.virtualmachine.details
         } else if (this.resourceType === 'Template' && json.updatetemplateresponse.template.details) {
           details = json.updatetemplateresponse.template.details
+        } else if (this.resourceType === 'DisasterRecoveryCluster' && json.updatedisasterrecoveryclusterresponse.disasterrecoverycluster.details) {
+          details = json.updatedisasterrecoveryclusterresponse.disasterrecoverycluster.details
         }
         this.details = Object.keys(details).map(k => {
           return { name: k, value: details[k], edit: false }
@@ -335,7 +339,8 @@ export default {
     hasSettingUpdatePermission () {
       return (
         (this.resourceType === 'Template' && 'updateTemplate' in this.$store.getters.apis) ||
-        (this.resourceType === 'UserVm' && 'updateVirtualMachine' in this.$store.getters.apis)
+        (this.resourceType === 'UserVm' && 'updateVirtualMachine' in this.$store.getters.apis) ||
+        (this.resourceType === 'DisasterRecoveryCluster' && 'updateDisasterRecoveryCluster' in this.$store.getters.apis)
       )
     }
   }

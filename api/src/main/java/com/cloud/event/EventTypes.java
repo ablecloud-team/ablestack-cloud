@@ -793,6 +793,9 @@ public class EventTypes {
     public static final String EVENT_SHAREDFS_EXPUNGE = "SHAREDFS.EXPUNGE";
     public static final String EVENT_SHAREDFS_RECOVER = "SHAREDFS.RECOVER";
 
+    // DISASTER RECOVERY
+    public static final String EVENT_DISASTER_RECOVERY_CLUSTER = "DISASTER.RECOVERY.CLUSTER";
+
     static {
 
         // TODO: need a way to force author adding event types to declare the entity details as well, with out braking
@@ -1285,6 +1288,9 @@ public class EventTypes {
         entityEventDetails.put(EVENT_SHAREDFS_DESTROY, SharedFS.class);
         entityEventDetails.put(EVENT_SHAREDFS_EXPUNGE, SharedFS.class);
         entityEventDetails.put(EVENT_SHAREDFS_RECOVER, SharedFS.class);
+
+        // Disaster Recovery Cluster
+        entityEventDetails.put(EVENT_DISASTER_RECOVERY_CLUSTER, "DisasterRecoveryCluster");
     }
 
     public static boolean isNetworkEvent(String eventType) {

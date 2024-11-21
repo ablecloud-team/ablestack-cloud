@@ -337,7 +337,7 @@ export default {
                 api('attachVolume', params).then(response => {
                   this.$pollJob({
                     jobId: response.attachvolumeresponse.jobid,
-                    title: this.$t('message.success.attach.volume'),
+                    title: this.$t('message.attach.volume.success'),
                     description: values.name,
                     successMessage: this.$t('message.attach.volume.success'),
                     errorMessage: this.$t('message.attach.volume.failed'),
