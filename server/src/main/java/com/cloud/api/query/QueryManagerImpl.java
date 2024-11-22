@@ -2344,7 +2344,8 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         hostSearchBuilder.and("id", hostSearchBuilder.entity().getId(), SearchCriteria.Op.EQ);
         hostSearchBuilder.and("name", hostSearchBuilder.entity().getName(), SearchCriteria.Op.EQ);
         hostSearchBuilder.and("type", hostSearchBuilder.entity().getType(), SearchCriteria.Op.LIKE);
-        hostSearchBuilder.and("status", hostSearchBuilder.entity().getStatus(), SearchCriteria.Op.EQ);
+        hostSearchBuilder.and("statusEQ", hostSearchBuilder.entity().getStatus(), SearchCriteria.Op.EQ);
+        hostSearchBuilder.and("statusNIN", hostSearchBuilder.entity().getStatus(), SearchCriteria.Op.NIN);
         hostSearchBuilder.and("dataCenterId", hostSearchBuilder.entity().getDataCenterId(), SearchCriteria.Op.EQ);
         hostSearchBuilder.and("podId", hostSearchBuilder.entity().getPodId(), SearchCriteria.Op.EQ);
         hostSearchBuilder.and("clusterId", hostSearchBuilder.entity().getClusterId(), SearchCriteria.Op.EQ);
@@ -2398,7 +2399,11 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             sc.setParameters("type", "%" + type);
         }
         if (state != null) {
-            sc.setParameters("status", state);
+            if (state.equals("warning")) {
+                sc.setParameters("statusNIN", "Up");
+            } else {
+                sc.setParameters("statusEQ", state);
+            }
         }
         if (zoneId != null) {
             sc.setParameters("dataCenterId", zoneId);
