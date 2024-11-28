@@ -143,6 +143,7 @@ import com.cloud.api.query.dao.NetworkOfferingJoinDao;
 import com.cloud.api.query.vo.NetworkOfferingJoinVO;
 import com.cloud.capacity.CapacityManager;
 import com.cloud.capacity.dao.CapacityDao;
+import com.cloud.configuration.ConfigurationManagerImpl.ParamCountPair;
 import com.cloud.configuration.Resource.ResourceType;
 import com.cloud.dc.AccountVlanMapVO;
 import com.cloud.dc.ClusterDetailsDao;
@@ -653,13 +654,13 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             if (localCidrs != null && localCidrs.length > 0) {
                 logger.warn("Management network CIDR is not configured originally. Set it default to " + localCidrs[0]);
 
-                _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "Management network CIDR is not configured originally. Set it default to "
+                _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "관리 네트워크 CIDR는 원래 구성되지 않았습니다. 기본값으로 설정 "
                         + localCidrs[0], "");
                 _configDao.update(Config.ManagementNetwork.key(), Config.ManagementNetwork.getCategory(), localCidrs[0]);
             } else {
                 logger.warn("Management network CIDR is not properly configured and we are not able to find a default setting");
                 _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0),
-                        "Management network CIDR is not properly configured and we are not able to find a default setting", "");
+                        "관리 네트워크 CIDR가 제대로 구성되지 않아 기본 설정을 찾을 수 없습니다.", "");
             }
         }
 
@@ -1516,7 +1517,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             cidrAddress = getCidrAddress(cidr);
             cidrSize = getCidrSize(cidr);
         } else {
-            throw new InvalidParameterValueException("Please enter a valid CIDR for pod: " + podName);
+            throw new InvalidParameterValueException("Pod에 유효한 CIDR을 입력하세요.: " + podName);
         }
 
         // Check if the IP range is valid
@@ -1529,18 +1530,18 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
 
         // Check if the gateway is a valid IP address
         if (!NetUtils.isValidIp4(gateway)) {
-            throw new InvalidParameterValueException("The gateway is not a valid IP address.");
+            throw new InvalidParameterValueException("게이트웨이가 유효한 IP 주소가 아닙니다.");
         }
 
         // Check if the gateway is in the CIDR subnet
         if (!NetUtils.getCidrSubNet(gateway, cidrSize).equalsIgnoreCase(NetUtils.getCidrSubNet(cidrAddress, cidrSize))) {
-            throw new InvalidParameterValueException("The gateway is not in the CIDR subnet.");
+            throw new InvalidParameterValueException("게이트웨이가 CIDR 서브넷에 없습니다.");
         }
 
         // Don't allow gateway to overlap with start/endIp
         if (!skipGatewayOverlapCheck) {
             if (NetUtils.ipRangesOverlap(startIp, endIp, gateway, gateway)) {
-                throw new InvalidParameterValueException("The gateway shouldn't overlap start/end ip addresses");
+                throw new InvalidParameterValueException("게이트웨이는 시작/끝 IP 주소와 겹쳐서는 안 됩니다.");
             }
         }
 
@@ -1555,7 +1556,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         if (checkForDuplicates) {
             // Check if the pod already exists
             if (validPod(podName, zone.getId())) {
-                throw new InvalidParameterValueException("A pod with name: " + podName + " already exists in zone " + zone.getId() + ". Please specify a different pod name. ");
+                throw new InvalidParameterValueException("Pod 이름: " + podName + "이(가) " + zone.getId() + " zone에 이미 존재합니다. 다른 Pod 이름을 지정하세요.");
             }
         }
 
@@ -1567,7 +1568,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             try {
                 Grouping.AllocationState.valueOf(allocationStateStr);
             } catch (final IllegalArgumentException ex) {
-                throw new InvalidParameterValueException("Unable to resolve Allocation State '" + allocationStateStr + "' to a supported state");
+                throw new InvalidParameterValueException("할당 상태 '" + allocationStateStr + "'를 지원되는 상태로 확인할 수 없습니다.");
             }
         }
     }
@@ -2178,7 +2179,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         final HostPodVO pod = _podDao.findById(id);
 
         if (pod == null) {
-            throw new InvalidParameterValueException("Unable to find pod by id " + id);
+            throw new InvalidParameterValueException(id + "ID로 Pod를 찾을 수 없습니다.");
         }
 
         // If the gateway, CIDR, private IP range is being changed, check if the
@@ -2190,7 +2191,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                 final long oldCidr = pod.getCidrSize();
 
                 if (newCidr > oldCidr) {
-                    throw new CloudRuntimeException("The specified pod has allocated private IP addresses, so its IP address range can be extended only");
+                    throw new CloudRuntimeException("지정된 Pod에 프라이빗 IP 주소가 할당되었으므로 IP 주소 범위만 확장할 수 있습니다.");
                 }
             }
         }
@@ -2206,6 +2207,11 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         final String oldPodName = pod.getName();
         if (name == null) {
             name = oldPodName;
+        }
+
+        // name, description parameter length check
+        if (name != null && !NetUtils.verifyDomainNameLabel(name, true)) {
+            throw new InvalidParameterValueException("이름이 잘못되었습니다. 이름에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없으며 숫자로 시작할 수도 없습니다.");
         }
 
         if (allocationStateStr == null) {
@@ -2234,15 +2240,15 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                 }
 
                 if (!NetUtils.getCidrSubNet(existingPodIpRange[0], cidrSize).equalsIgnoreCase(NetUtils.getCidrSubNet(cidrAddress, cidrSize))) {
-                    throw new InvalidParameterValueException("The start address of the some IP range is not in the CIDR subnet.");
+                    throw new InvalidParameterValueException("일부 IP 범위의 시작 주소가 CIDR 서브넷에 없습니다.");
                 }
 
                 if (!NetUtils.getCidrSubNet(existingPodIpRange[1], cidrSize).equalsIgnoreCase(NetUtils.getCidrSubNet(cidrAddress, cidrSize))) {
-                    throw new InvalidParameterValueException("The end address of the some IP range is not in the CIDR subnet.");
+                    throw new InvalidParameterValueException("일부 IP 범위의 끝 주소가 CIDR 서브넷에 없습니다.");
                 }
 
                 if (NetUtils.ipRangesOverlap(existingPodIpRange[0], existingPodIpRange[1], gateway, gateway)) {
-                    throw new InvalidParameterValueException("The gateway shouldn't overlap some start/end ip addresses");
+                    throw new InvalidParameterValueException("게이트웨이는 일부 시작/종료 IP 주소와 겹쳐서는 안 됩니다.");
                 }
             }
         }
@@ -2276,7 +2282,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             messageBus.publish(_name, MESSAGE_CREATE_POD_IP_RANGE_EVENT, PublishScope.LOCAL, pod);
         } catch (final Exception e) {
             logger.error("Unable to edit pod due to " + e.getMessage(), e);
-            throw new CloudRuntimeException("Failed to edit pod. Please contact Cloud Support.");
+            throw new CloudRuntimeException("Pod를 편집하지 못했습니다. 클라우드 지원에 문의하세요.");
         }
 
         return pod;
@@ -2298,7 +2304,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_POD_CREATE, eventDescription = "creating pod", async = false)
+    @ActionEvent(eventType = EventTypes.EVENT_POD_CREATE, eventDescription = "pod 생성", async = false)
     public Pod createPod(final long zoneId, final String name, final String startIp, final String endIp, final String gateway, final String netmask, String allocationState) {
         final DataCenterVO zone = _zoneDao.findById(zoneId);
         if (zone == null) {
@@ -2442,7 +2448,11 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         if (checkForDuplicates) {
             // Check if a zone with the specified name already exists
             if (validZone(zoneName)) {
-                throw new InvalidParameterValueException("A zone with that name already exists. Please specify a unique zone name.");
+                throw new InvalidParameterValueException("해당 이름을 가진 zone이 이미 존재합니다. 고유한 zone 이름을 지정하세요.");
+            }
+            // name parameter length check
+            if (zoneName != null && !NetUtils.verifyDomainNameLabel(zoneName, true)) {
+                throw new InvalidParameterValueException("이름이 잘못되었습니다. 이름에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없으며 숫자로 시작할 수도 없습니다.");
             }
         }
 
@@ -2458,19 +2468,19 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         // Check IP validity for DNS addresses
         // Empty strings is a valid input -- hence the length check
         if (dns1 != null && dns1.length() > 0 && !NetUtils.isValidIp4(dns1)) {
-            throw new InvalidParameterValueException("Please enter a valid IP address for DNS1");
+            throw new InvalidParameterValueException("DNS1에 유효한 IP 주소를 입력하세요.");
         }
 
         if (dns2 != null && dns2.length() > 0 && !NetUtils.isValidIp4(dns2)) {
-            throw new InvalidParameterValueException("Please enter a valid IP address for DNS2");
+            throw new InvalidParameterValueException("DNS2에 유효한 IP 주소를 입력하세요.");
         }
 
         if (internalDns1 != null && internalDns1.length() > 0 && !NetUtils.isValidIp4(internalDns1)) {
-            throw new InvalidParameterValueException("Please enter a valid IP address for internal DNS1");
+            throw new InvalidParameterValueException("내부 DNS1에 유효한 IP 주소를 입력하세요.");
         }
 
         if (internalDns2 != null && internalDns2.length() > 0 && !NetUtils.isValidIp4(internalDns2)) {
-            throw new InvalidParameterValueException("Please enter a valid IP address for internal DNS2");
+            throw new InvalidParameterValueException("내부 DNS2에 유효한 IP 주소를 입력하세요.");
         }
 
         if (ip6Dns1 != null && ip6Dns1.length() > 0 && !NetUtils.isValidIp6(ip6Dns1)) {
@@ -2485,7 +2495,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             try {
                 Grouping.AllocationState.valueOf(allocationStateStr);
             } catch (final IllegalArgumentException ex) {
-                throw new InvalidParameterValueException("Unable to resolve Allocation State '" + allocationStateStr + "' to a supported state");
+                throw new InvalidParameterValueException("할당 상태 '" + allocationStateStr + "'를 지원되는 상태로 확인할 수 없습니다.");
             }
         }
     }
@@ -2606,7 +2616,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
 
     @Override
     @DB
-    @ActionEvent(eventType = EventTypes.EVENT_ZONE_EDIT, eventDescription = "editing zone", async = false)
+    @ActionEvent(eventType = EventTypes.EVENT_ZONE_EDIT, eventDescription = "zone 편집", async = false)
     public DataCenter editZone(final UpdateZoneCmd cmd) {
         // Parameter validation as from execute() method in V1
         final Long zoneId = cmd.getId();
@@ -2636,7 +2646,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                 final String value = (String)detail.get("value");
                 if (key == null || value == null) {
                     throw new InvalidParameterValueException(
-                            "Invalid Zone Detail specified, fields 'key' and 'value' cannot be null, please specify details in the form:  details[0].key=XXX&details[0].value=YYY");
+                            "잘못된 zone 세부정보가 지정되었습니다. '키' 및 '값' 필드는 null일 수 없습니다. 세부정보[0].key=XXX&details[0].value=YYY 형식으로 세부정보를 지정하세요.");
                 }
                 newDetails.put(key, value);
             }
@@ -2656,7 +2666,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
 
         final DataCenterVO zone = _zoneDao.findById(zoneId);
         if (zone == null) {
-            throw new InvalidParameterValueException("unable to find zone by id " + zoneId);
+            throw new InvalidParameterValueException(zoneId + "id zone을 찾을 수 없습니다");
         }
 
         if (zoneName == null) {
@@ -2664,12 +2674,12 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         }
 
         if (guestCidr != null && !NetUtils.validateGuestCidr(guestCidr)) {
-            throw new InvalidParameterValueException("Please enter a valid guest cidr");
+            throw new InvalidParameterValueException("유효한 게스트 CIDR 형식으로 입력하세요. (예시: 10.1.1.0/24)");
         }
 
         // Make sure the zone exists
         if (!validZone(zoneId)) {
-            throw new InvalidParameterValueException("A zone with ID: " + zoneId + " does not exist.");
+            throw new InvalidParameterValueException("ID가 " + zoneId + "인 zone이 존재하지 않습니다.");
         }
 
         final String oldZoneName = zone.getName();
@@ -2781,7 +2791,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                                         + " with same configure of management traffic type");
                             }
                         } catch (final InvalidParameterValueException ex) {
-                            throw new InvalidParameterValueException("Cannot enable this Zone since: " + ex.getMessage());
+                            throw new InvalidParameterValueException("이후 이 zone을 활성화할 수 없습니다.: " + ex.getMessage());
                         }
                     }
                     zone.setAllocationState(allocationState);
@@ -2802,7 +2812,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                     if (resource != null) {
                         resourceId = resource.getId();
                         if (!_dedicatedDao.remove(resourceId)) {
-                            throw new CloudRuntimeException("Failed to delete dedicated Zone Resource " + resourceId);
+                            throw new CloudRuntimeException(resourceId + "전용 zone 리소스를 삭제하지 못했습니다.");
                         }
                         // find the group associated and check if there are any more
                         // resources under that group
@@ -2815,7 +2825,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                 }
 
                 if (!_zoneDao.update(zoneId, zone)) {
-                    throw new CloudRuntimeException("Failed to edit zone. Please contact Cloud Support.");
+                    throw new CloudRuntimeException("zone을 수정하지 못했습니다. 클라우드 지원에 문의하세요.");
                 }
             }
         });
@@ -3010,7 +3020,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_SERVICE_OFFERING_CREATE, eventDescription = "creating service offering")
+    @ActionEvent(eventType = EventTypes.EVENT_SERVICE_OFFERING_CREATE, eventDescription = "서비스 오퍼링 생성")
     public ServiceOffering createServiceOffering(final CreateServiceOfferingCmd cmd) {
         final Long userId = CallContext.current().getCallingUserId();
         final Map<String, String> details = cmd.getDetails();
@@ -3458,7 +3468,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_SERVICE_OFFERING_EDIT, eventDescription = "updating service offering")
+    @ActionEvent(eventType = EventTypes.EVENT_SERVICE_OFFERING_EDIT, eventDescription = "서비스 오퍼링 업데이트")
     public ServiceOffering updateServiceOffering(final UpdateServiceOfferingCmd cmd) {
         final String displayText = cmd.getDisplayText();
         final Long id = cmd.getId();
@@ -3561,11 +3571,17 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
 
         ServiceOfferingVO offering = _serviceOfferingDao.createForUpdate(id);
 
-        if (name != null) {
+        // name parameter length check
+        if ((org.apache.commons.lang3.StringUtils.isBlank(name) || !NetUtils.verifyOfferingNameLabel(name, true))) {
+            throw new InvalidParameterValueException("이름이 잘못되었습니다. 이름에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없습니다.");
+        } else {
             offering.setName(name);
         }
 
-        if (displayText != null) {
+        // displayText parameter length check
+        if (displayText != null && !NetUtils.verifyOfferingNameLabel(displayText, true)) {
+            throw new InvalidParameterValueException("설명이 잘못되었습니다. 설명에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없습니다.");
+        } else if (displayText != null) {
             offering.setDisplayText(displayText);
         }
 
@@ -3905,7 +3921,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_DISK_OFFERING_EDIT, eventDescription = "updating disk offering")
+    @ActionEvent(eventType = EventTypes.EVENT_DISK_OFFERING_EDIT, eventDescription = "디스크 오퍼링 업데이트")
     public DiskOffering updateDiskOffering(final UpdateDiskOfferingCmd cmd) {
         final Long diskOfferingId = cmd.getId();
         final String name = cmd.getDiskOfferingName();
@@ -4025,11 +4041,17 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
 
         final DiskOfferingVO diskOffering = _diskOfferingDao.createForUpdate(diskOfferingId);
 
-        if (name != null) {
+        // name parameter length check
+        if ((org.apache.commons.lang3.StringUtils.isBlank(name) || !NetUtils.verifyOfferingNameLabel(name, true))) {
+            throw new InvalidParameterValueException("이름이 잘못되었습니다. 이름에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없습니다.");
+        } else {
             diskOffering.setName(name);
         }
 
-        if (displayText != null) {
+        // displayText parameter length check
+        if (displayText != null && !NetUtils.verifyOfferingNameLabel(displayText, true)) {
+            throw new InvalidParameterValueException("설명이 잘못되었습니다. 설명에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없습니다.");
+        } else if (displayText != null) {
             diskOffering.setDisplayText(displayText);
         }
 
@@ -4300,7 +4322,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
 
     @Override
     @DB
-    @ActionEvent(eventType = EventTypes.EVENT_VLAN_IP_RANGE_CREATE, eventDescription = "creating vlan ip range", async = false)
+    @ActionEvent(eventType = EventTypes.EVENT_VLAN_IP_RANGE_CREATE, eventDescription = "VLAN IP 범위 생성", async = false)
     public Vlan createVlanAndPublicIpRange(final CreateVlanIpRangeCmd cmd) throws InsufficientCapacityException, ConcurrentOperationException, ResourceUnavailableException,
     ResourceAllocationException {
         Long zoneId = cmd.getZoneId();
@@ -7034,7 +7056,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_NETWORK_OFFERING_EDIT, eventDescription = "updating network offering")
+    @ActionEvent(eventType = EventTypes.EVENT_NETWORK_OFFERING_EDIT, eventDescription = "네트워크 오퍼링 업데이트")
     public NetworkOffering updateNetworkOffering(final UpdateNetworkOfferingCmd cmd) {
         final String displayText = cmd.getDisplayText();
         final Long id = cmd.getId();
@@ -7099,11 +7121,17 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                 state != null || tags != null || availabilityStr != null || maxconn != null;
 
         if(updateNeeded) {
-            if (name != null) {
+            // name parameter length check
+            if ((org.apache.commons.lang3.StringUtils.isBlank(name) || !NetUtils.verifyOfferingNameLabel(name, true))) {
+                throw new InvalidParameterValueException("이름이 잘못되었습니다. 이름에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없습니다.");
+            } else {
                 offering.setName(name);
             }
 
-            if (displayText != null) {
+            // displayText parameter length check
+            if (displayText != null && !NetUtils.verifyOfferingNameLabel(displayText, true)) {
+                throw new InvalidParameterValueException("설명이 잘못되었습니다. 설명에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없습니다.");
+            } else if (displayText != null) {
                 offering.setDisplayText(displayText);
             }
 

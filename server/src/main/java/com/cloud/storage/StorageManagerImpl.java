@@ -864,7 +864,7 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
         return details;
     }
 
-    @ActionEvent(eventType = EventTypes.EVENT_DISABLE_PRIMARY_STORAGE, eventDescription = "disable storage pool")
+    @ActionEvent(eventType = EventTypes.EVENT_DISABLE_PRIMARY_STORAGE, eventDescription = "스토리지 풀 비활성화")
     private void disablePrimaryStoragePool(StoragePoolVO primaryStorage) {
         if (!primaryStorage.getStatus().equals(StoragePoolStatus.Up)) {
             throw new InvalidParameterValueException("Primary storage with id " + primaryStorage.getId() + " cannot be disabled. Storage pool state : " + primaryStorage.getStatus().toString());
@@ -876,7 +876,7 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
         ((PrimaryDataStoreLifeCycle)dataStoreLifeCycle).disableStoragePool(store);
     }
 
-    @ActionEvent(eventType = EventTypes.EVENT_ENABLE_PRIMARY_STORAGE, eventDescription = "enable storage pool")
+    @ActionEvent(eventType = EventTypes.EVENT_ENABLE_PRIMARY_STORAGE, eventDescription = "스토리지 풀 활성화")
     private void enablePrimaryStoragePool(StoragePoolVO primaryStorage) {
         if (!primaryStorage.getStatus().equals(StoragePoolStatus.Disabled)) {
             throw new InvalidParameterValueException("Primary storage with id " + primaryStorage.getId() + " cannot be enabled. Storage pool state : " + primaryStorage.getStatus().toString());

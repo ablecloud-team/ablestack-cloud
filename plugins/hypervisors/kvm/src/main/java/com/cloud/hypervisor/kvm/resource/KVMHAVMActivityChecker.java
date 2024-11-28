@@ -73,7 +73,7 @@ public class KVMHAVMActivityChecker extends KVMHABase implements Callable<Boolea
             LOG.debug(String.format("Checking heart beat with KVMHAVMActivityChecker [{command=\"%s\", result: \"%s\", log: \"%s\", pool: \"%s\"}].", cmd.toString(), result, parsedLine, clvmStoragePool._poolIp));
 
         } else if (poolType == StoragePoolType.NetworkFilesystem) {
-            Script cmd = new Script(vmActivityCheckPath, activityScriptTimeout.getStandardSeconds(), LOG);
+            Script cmd = new Script("/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/kvmvmactivity.sh", activityScriptTimeout.getStandardSeconds(), LOG);
             cmd.add("-i", nfsStoragePool._poolIp);
             cmd.add("-p", nfsStoragePool._poolMountSourcePath);
             cmd.add("-m", nfsStoragePool._mountDestPath);

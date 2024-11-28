@@ -146,7 +146,7 @@ public class CreateSnapshotFromVMSnapshotCmd extends BaseAsyncCreateCmd {
 
     @Override
     public String getEventDescription() {
-        return "creating snapshot from vm snapshot : " + this._uuidMgr.getUuid(VMSnapshot.class, getVMSnapshotId());
+        return "가상머신 스냅샷에서 스냅샷 생성 : " + this._uuidMgr.getUuid(VMSnapshot.class, getVMSnapshotId());
     }
 
     @Override

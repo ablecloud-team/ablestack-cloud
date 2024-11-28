@@ -56,10 +56,10 @@ public class UpdateNetworkCmd extends BaseAsyncCustomIdCmd implements UserCmd {
             required=true, description="the ID of the network")
     protected Long id;
 
-    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "the new name for the network")
+    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "네트워크의 새 이름")
     private String name;
 
-    @Parameter(name = ApiConstants.DISPLAY_TEXT, type = CommandType.STRING, description = "the new display text for the network")
+    @Parameter(name = ApiConstants.DISPLAY_TEXT, type = CommandType.STRING, description = "네트워크의 새 설명")
     private String displayText;
 
     @Parameter(name = ApiConstants.NETWORK_DOMAIN, type = CommandType.STRING, description = "network domain")
@@ -212,7 +212,7 @@ public class UpdateNetworkCmd extends BaseAsyncCustomIdCmd implements UserCmd {
     public void execute() throws InsufficientCapacityException, ConcurrentOperationException {
         Network network = _networkService.getNetwork(id);
         if (network == null) {
-            throw new InvalidParameterValueException("Couldn't find network by ID");
+            throw new InvalidParameterValueException("ID로 네트워크를 찾을 수 없습니다.");
         }
 
         Network result = _networkService.updateGuestNetwork(this);
@@ -221,26 +221,27 @@ public class UpdateNetworkCmd extends BaseAsyncCustomIdCmd implements UserCmd {
             response.setResponseName(getCommandName());
             setResponseObject(response);
         } else {
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to update network");
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "네트워크 업데이트에 실패했습니다.");
         }
     }
 
     @Override
     public String getEventDescription() {
-        StringBuilder eventMsg = new StringBuilder("Updating network: " + getId());
+        StringBuilder eventMsg = new StringBuilder("네트워크 업데이트: " + getId());
         if (getNetworkOfferingId() != null) {
             Network network = _networkService.getNetwork(getId());
             if (network == null) {
-                throw new InvalidParameterValueException("Networkd ID=" + id + " doesn't exist");
+                throw new InvalidParameterValueException("네트워크 ID=" + id + "가 존재하지 않습니다.");
             }
             if (network.getNetworkOfferingId() != getNetworkOfferingId()) {
                 NetworkOffering oldOff = _entityMgr.findById(NetworkOffering.class, network.getNetworkOfferingId());
                 NetworkOffering newOff = _entityMgr.findById(NetworkOffering.class, getNetworkOfferingId());
                 if (newOff == null) {
-                    throw new InvalidParameterValueException("Networkd offering ID supplied is invalid");
+                    throw new InvalidParameterValueException("제공된 네트워크 오퍼링 ID가 잘못되었습니다.");
                 }
 
-                eventMsg.append(". Original network offering ID: " + oldOff.getUuid() + ", new network offering ID: " + newOff.getUuid());
+                // eventMsg.append(". Original network offering ID: " + oldOff.getUuid() + ", new network offering ID: " + newOff.getUuid());
+                eventMsg.append("원래 네트워크 오퍼링 ID: " + oldOff.getUuid() + ", 새 네트워크 오퍼링 ID: " + newOff.getUuid());
             }
         }
 

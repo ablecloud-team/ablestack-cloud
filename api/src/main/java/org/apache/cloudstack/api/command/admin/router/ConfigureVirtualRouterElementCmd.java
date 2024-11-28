@@ -103,7 +103,7 @@ public class ConfigureVirtualRouterElementCmd extends BaseAsyncCmd {
 
     @Override
     public String getEventDescription() {
-        return "configuring virtual router provider: " + id;
+        return "가상 라우터 공급자 구성: " + id;
     }
 
     @Override

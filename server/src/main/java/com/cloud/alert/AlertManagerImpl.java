@@ -605,37 +605,35 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
 
         //Cluster Level
         case Capacity.CAPACITY_TYPE_MEMORY:
-            msgSubject = "System Alert: Low Available Memory in cluster " + cluster.getName() + " pod " + pod.getName() + " of availability zone " + dc.getName();
+            msgSubject = "시스템 경고: 가용성 zone" + dc.getName() +"의 pod " + pod.getName() + " 클러스터 " + cluster.getName() + "에서 사용 가능한 메모리 부족";
             totalStr = formatBytesToMegabytes(totalCapacity);
             usedStr = formatBytesToMegabytes(usedCapacity);
             msgContent = "System memory is low, total: " + totalStr + " MB, used: " + usedStr + " MB (" + pctStr + "%)";
             alertType = AlertManager.AlertType.ALERT_TYPE_MEMORY;
             break;
         case Capacity.CAPACITY_TYPE_CPU:
-            msgSubject = "System Alert: Low Unallocated CPU in cluster " + cluster.getName() + " pod " + pod.getName() + " of availability zone " + dc.getName();
+            msgSubject = "시스템 경고: 가용성 zone" + dc.getName() +"의 pod " + pod.getName() + " 클러스터 " + cluster.getName() + "에서 CPU 할당 낮음";
             totalStr = DfWhole.format(totalCapacity);
             usedStr = DfWhole.format(usedCapacity);
             msgContent = "Unallocated CPU is low, total: " + totalStr + " Mhz, used: " + usedStr + " Mhz (" + pctStr + "%)";
             alertType = AlertManager.AlertType.ALERT_TYPE_CPU;
             break;
         case Capacity.CAPACITY_TYPE_STORAGE:
-            msgSubject = "System Alert: Low Available Storage in cluster " + cluster.getName() + " pod " + pod.getName() + " of availability zone " + dc.getName();
+            msgSubject = "시스템 경고: 가용성 zone" + dc.getName() +"의 pod " + pod.getName() + " 클러스터 " + cluster.getName() + "에서 사용 가능한 스토리지 부족";
             totalStr = formatBytesToMegabytes(totalCapacity);
             usedStr = formatBytesToMegabytes(usedCapacity);
             msgContent = "Available storage space is low, total: " + totalStr + " MB, used: " + usedStr + " MB (" + pctStr + "%)";
             alertType = AlertManager.AlertType.ALERT_TYPE_STORAGE;
             break;
         case Capacity.CAPACITY_TYPE_STORAGE_ALLOCATED:
-            msgSubject = "System Alert: Remaining unallocated Storage is low in cluster " + cluster.getName() + " pod " + pod.getName() + " of availability zone " +
-                    dc.getName();
+            msgSubject = "시스템 경고: 가용성 zone" + dc.getName() +"의 pod " + pod.getName() + " 클러스터 " + cluster.getName() + "에서 할당되지 않은 남은 스토리지 부족";
             totalStr = formatBytesToMegabytes(totalCapacity);
             usedStr = formatBytesToMegabytes(usedCapacity);
             msgContent = "Unallocated storage space is low, total: " + totalStr + " MB, allocated: " + usedStr + " MB (" + pctStr + "%)";
             alertType = AlertManager.AlertType.ALERT_TYPE_STORAGE_ALLOCATED;
             break;
         case Capacity.CAPACITY_TYPE_LOCAL_STORAGE:
-            msgSubject = "System Alert: Remaining unallocated Local Storage is low in cluster " + cluster.getName() + " pod " + pod.getName() + " of availability zone " +
-                    dc.getName();
+            msgSubject = "시스템 경고: 가용성 zone" + dc.getName() +"의 pod " + pod.getName() + " 클러스터 " + cluster.getName() + "에서 할당되지 않은 남은 로컬 스토리지 부족";
             totalStr = formatBytesToMegabytes(totalCapacity);
             usedStr = formatBytesToMegabytes(usedCapacity);
             msgContent = "Unallocated storage space is low, total: " + totalStr + " MB, allocated: " + usedStr + " MB (" + pctStr + "%)";
@@ -644,7 +642,7 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
 
             //Pod Level
         case Capacity.CAPACITY_TYPE_PRIVATE_IP:
-            msgSubject = "System Alert: Number of unallocated private IPs is low in pod " + pod.getName() + " of availability zone " + dc.getName();
+            msgSubject = "시스템 경고: 가용성 zone" + dc.getName() +"의 pod " + pod.getName() + " 클러스터 " + cluster.getName() + "에서 할당되지 않은 개인 IP 수가 적습니다.";
             totalStr = Double.toString(totalCapacity);
             usedStr = Double.toString(usedCapacity);
             msgContent = "Number of unallocated private IPs is low, total: " + totalStr + ", allocated: " + usedStr + " (" + pctStr + "%)";
@@ -653,35 +651,35 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
 
             //Zone Level
         case Capacity.CAPACITY_TYPE_SECONDARY_STORAGE:
-            msgSubject = "System Alert: Low Available Secondary Storage in availability zone " + dc.getName();
+            msgSubject = "시스템 경고: 가용성 zone " + dc.getName() + "의 사용 가능한 보조 스토리지 부족";
             totalStr = formatBytesToMegabytes(totalCapacity);
             usedStr = formatBytesToMegabytes(usedCapacity);
             msgContent = "Available secondary storage space is low, total: " + totalStr + " MB, used: " + usedStr + " MB (" + pctStr + "%)";
             alertType = AlertManager.AlertType.ALERT_TYPE_SECONDARY_STORAGE;
             break;
         case Capacity.CAPACITY_TYPE_VIRTUAL_NETWORK_PUBLIC_IP:
-            msgSubject = "System Alert: Number of unallocated virtual network public IPs is low in availability zone " + dc.getName();
+            msgSubject = "시스템 경고: 가용성 zone " + dc.getName() + "의 할당되지 않은 가상 네트워크 public IP 수가 적습니다.";
             totalStr = Double.toString(totalCapacity);
             usedStr = Double.toString(usedCapacity);
             msgContent = "Number of unallocated public IPs is low, total: " + totalStr + ", allocated: " + usedStr + " (" + pctStr + "%)";
             alertType = AlertManager.AlertType.ALERT_TYPE_VIRTUAL_NETWORK_PUBLIC_IP;
             break;
         case Capacity.CAPACITY_TYPE_DIRECT_ATTACHED_PUBLIC_IP:
-            msgSubject = "System Alert: Number of unallocated shared network IPs is low in availability zone " + dc.getName();
+            msgSubject = "시스템 경고: 가용성 zone " + dc.getName() + "의 할당되지 않은 shared 네트워크 IP 수가 적습니다.";
             totalStr = Double.toString(totalCapacity);
             usedStr = Double.toString(usedCapacity);
             msgContent = "Number of unallocated shared network IPs is low, total: " + totalStr + ", allocated: " + usedStr + " (" + pctStr + "%)";
             alertType = AlertManager.AlertType.ALERT_TYPE_DIRECT_ATTACHED_PUBLIC_IP;
             break;
         case Capacity.CAPACITY_TYPE_VLAN:
-            msgSubject = "System Alert: Number of unallocated VLANs is low in availability zone " + dc.getName();
+            msgSubject = "시스템 경고: 가용성 zone " + dc.getName() + "의 할당되지 않은 VLAN 수가 적습니다.";
             totalStr = Double.toString(totalCapacity);
             usedStr = Double.toString(usedCapacity);
             msgContent = "Number of unallocated VLANs is low, total: " + totalStr + ", allocated: " + usedStr + " (" + pctStr + "%)";
             alertType = AlertManager.AlertType.ALERT_TYPE_VLAN;
             break;
         case Capacity.CAPACITY_TYPE_VIRTUAL_NETWORK_IPV6_SUBNET:
-            msgSubject = "System Alert: Number of unallocated virtual network guest IPv6 subnets is low in availability zone " + dc.getName();
+            msgSubject = "시스템 경고: Number of unallocated virtual network guest IPv6 subnets is low in availability zone " + dc.getName();
             totalStr = Double.toString(totalCapacity);
             usedStr = Double.toString(usedCapacity);
             msgContent = "Number of unallocated virtual network guest IPv6 subnets is low, total: " + totalStr + ", allocated: " + usedStr + " (" + pctStr + "%)";
@@ -841,7 +839,7 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.ALERT_GENERATE, eventDescription = "generating alert", async = true)
+    @ActionEvent(eventType = EventTypes.ALERT_GENERATE, eventDescription = "경고 생성", async = true)
     public boolean generateAlert(AlertType alertType, long dataCenterId, Long podId, String msg) {
         try {
             sendAlert(alertType, dataCenterId, podId, msg, msg);

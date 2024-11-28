@@ -230,13 +230,6 @@
           </a-col>
         </a-row>
 
-        <a-form-item ref="isextractable" name="isextractable">
-          <template #label>
-            <tooltip-label :title="$t('label.isextractable')" :tooltip="apiParams.isextractable.description"/>
-          </template>
-          <a-switch v-model:checked="form.isextractable" />
-        </a-form-item>
-
         <a-form-item
           ref="ispublic"
           name="ispublic"

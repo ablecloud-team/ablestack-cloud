@@ -75,7 +75,7 @@ public class SecondaryStorageVmAlertAdapter extends AdapterBase implements Alert
         String message = "";
         String zoneSecStorageVmPrivateAndPublicIp = String.format("zone [%s], secStorageVm [%s], public IP [%s], private IP [%s].", dc.getName(), secStorageVmHostName,
                 secStorageVmPublicIpAddress, secStorageVmPrivateIpAddress);
-        String errorDetails = " Error details: " + args.getMessage();
+        String errorDetails = " 오류 세부정보: " + args.getMessage();
         String zone = String.format("(zone %s)", dc.getName());
 
         switch (args.getType()) {
@@ -113,7 +113,7 @@ public class SecondaryStorageVmAlertAdapter extends AdapterBase implements Alert
                 break;
 
             case SecStorageVmAlertEventArgs.SSVM_CREATE_FAILURE:
-                message = String.format("Secondary Storage Vm creation failure in zone [%s].", dc.getName());
+                message = String.format("[%s] zone에서 Secondary Storage 가상머신 생성 실패.", dc.getName());
                 if (logger.isDebugEnabled()) {
                     logger.debug(message);
                 }

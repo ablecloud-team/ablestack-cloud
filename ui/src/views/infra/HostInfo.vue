@@ -80,7 +80,7 @@
           </div>
         </div>
       </a-list-item>
-      <a-list-item v-if="host.hostha">
+      <!-- <a-list-item v-if="host.hostha">
         <div>
           <strong>{{ $t('label.haenable') }}</strong>
           <div>
@@ -103,7 +103,7 @@
             {{ host.hostha.haprovider }}
           </div>
         </div>
-      </a-list-item>
+      </a-list-item> -->
       <a-list-item>
         <div>
           <strong>{{ $t('label.uefi.supported') }}</strong>

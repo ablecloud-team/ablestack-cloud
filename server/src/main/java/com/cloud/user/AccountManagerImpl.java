@@ -1535,7 +1535,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
             dcList = ApiDBUtils.listZones();
             logger.trace(String.format("Admin account [uuid=%s] executing password update for user [%s] ", callingAccount.getUuid(), user.getUuid()));
             if (validatePassword(user, "password") && "admin".equals(user.getUsername()) && (dcList == null || dcList.size() == 0)) {
-                ActionEventUtils.onActionEvent(user.getId(), user.getAccountId(), getAccount(user.getAccountId()).getDomainId(), EventTypes.EVENT_USER_UPDATE, "The initial default password for the administrator account has been changed.", user.getId(), ApiCommandResourceType.User.toString());
+                ActionEventUtils.onActionEvent(user.getId(), user.getAccountId(), getAccount(user.getAccountId()).getDomainId(), EventTypes.EVENT_USER_UPDATE, "관리자 계정의 초기 기본 비밀번호가 변경되었습니다.", user.getId(), ApiCommandResourceType.User.toString());
             }
         }
         if (!isAdmin && StringUtils.isBlank(currentPassword)) {
@@ -2563,7 +2563,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
     public void logoutUser(long userId) {
         UserAccount userAcct = _userAccountDao.findById(userId);
         if (userAcct != null) {
-            ActionEventUtils.onActionEvent(userId, userAcct.getAccountId(), userAcct.getDomainId(), EventTypes.EVENT_USER_LOGOUT, "user has logged out", userId, ApiCommandResourceType.User.toString());
+            ActionEventUtils.onActionEvent(userId, userAcct.getAccountId(), userAcct.getDomainId(), EventTypes.EVENT_USER_LOGOUT, "사용자 로그아웃", userId, ApiCommandResourceType.User.toString());
         } // else log some kind of error event? This likely means the user doesn't exist, or has been deleted...
     }
 
@@ -2711,7 +2711,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
                 logger.debug("User: " + username + " in domain " + domainId + " has successfully logged in");
             }
 
-            ActionEventUtils.onActionEvent(user.getId(), user.getAccountId(), user.getDomainId(), EventTypes.EVENT_USER_LOGIN, "user has logged in from IP Address " + loginIpAddress, user.getId(), ApiCommandResourceType.User.toString());
+            ActionEventUtils.onActionEvent(user.getId(), user.getAccountId(), user.getDomainId(), EventTypes.EVENT_USER_LOGIN, "사용자는 IP 주소에서 로그인했습니다. " + loginIpAddress, user.getId(), ApiCommandResourceType.User.toString());
 
             return user;
         } else {
@@ -2767,7 +2767,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
                     logger.info("User " + username + " in domain " + domainName + " is disabled/locked (or account is disabled/locked)");
                 }
                 User user = _userDao.getUserByName(userAccount.getUsername(), userAccount.getDomainId());
-                ActionEventUtils.onActionEvent(user.getId(), user.getAccountId(), userAccount.getDomainId(), EventTypes.EVENT_USER_LOGIN, "Login attempt failed. UserId : " + user.getId(), user.getId(), ApiCommandResourceType.User.toString());
+                ActionEventUtils.onActionEvent(user.getId(), user.getAccountId(), userAccount.getDomainId(), EventTypes.EVENT_USER_LOGIN, "로그인 시도 실패. UserId : " + user.getId(), user.getId(), ApiCommandResourceType.User.toString());
                 throw new CloudAuthenticationException("User " + username + " (or their account) in domain " + domainName + " is disabled/locked. Please contact the administrator.");
             }
             // Whenever the user is able to log in successfully, reset the login attempts to zero
@@ -2794,7 +2794,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
             } else {
                 logger.info("User " + userAccount.getUsername() + " is disabled/locked");
                 User user = _userDao.getUserByName(userAccount.getUsername(), userAccount.getDomainId());
-                ActionEventUtils.onActionEvent(user.getId(), user.getAccountId(), userAccount.getDomainId(), EventTypes.EVENT_USER_LOGIN, "Login attempt failed. UserId : " + user.getId(), user.getId(), ApiCommandResourceType.User.toString());
+                ActionEventUtils.onActionEvent(user.getId(), user.getAccountId(), userAccount.getDomainId(), EventTypes.EVENT_USER_LOGIN, "로그인 시도 실패. UserId : " + user.getId(), user.getId(), ApiCommandResourceType.User.toString());
                 throw new CloudAuthenticationException("Failed to authenticate user. User " + userAccount.getUsername() + " is disable/locked. Please contact your administrator or try again later.");
             }
             return null;
@@ -2812,14 +2812,14 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
             logger.warn("Login attempt failed. You have " +
                     (allowedLoginAttempts - attemptsMade) + " attempt(s) remaining");
             User user = _userDao.getUserByName(account.getUsername(), account.getDomainId());
-            ActionEventUtils.onActionEvent(user.getId(), user.getAccountId(), account.getDomainId(), EventTypes.EVENT_USER_LOGIN, "Login attempt failed. UserId : " + user.getId(), user.getId(), ApiCommandResourceType.User.toString());
+            ActionEventUtils.onActionEvent(user.getId(), user.getAccountId(), account.getDomainId(), EventTypes.EVENT_USER_LOGIN, "로그인 시도 실패. UserId : " + user.getId(), user.getId(), ApiCommandResourceType.User.toString());
         } else {
             updateLoginAttempts(account.getId(), allowedLoginAttempts, true);
             logger.warn("User " + account.getUsername() +
                     " has been disabled due to multiple failed login attempts." + " Please contact admin.");
             User user = _userDao.getUserByName(account.getUsername(), account.getDomainId());
             int enableTime = incorrectLoginEnableTime.value();
-            _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_LOGIN, 0, new Long(0), "User has been disabled due to multiple failed login attempts. UserId : " + user.getId(), "User has been disabled due to multiple failed login attempts. Your account will be automatically activated after " + enableTime + " seconds.");
+            _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_LOGIN, 0, new Long(0), "여러 번의 로그인 시도 실패로 인해 사용자가 비활성화되었습니다. UserId : " + user.getId(), "User has been disabled due to multiple failed login attempts. Your account will be automatically activated after " + enableTime + " seconds.");
             ActionEventUtils.onActionEvent(user.getId(), user.getAccountId(), account.getDomainId(), EventTypes.EVENT_USER_LOGIN, "User has been disabled due to multiple failed login attempts. your account will be automatically activated after " + enableTime + " seconds and an email has been sent.", user.getId(), ApiCommandResourceType.User.toString());
             _enableExecutor.schedule(new EnableUserTask(user), enableTime, TimeUnit.SECONDS);
             throw new CloudAuthenticationException("Failed to authenticate user " + account.getUsername() + " in domain " + account.getDomainId() +

@@ -1127,7 +1127,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             if (logger.isDebugEnabled()) {
                 logger.debug("Detected management server node " + msHost.getServiceIP() + " is down, send alert");
             }
-            _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "Management server node " + msHost.getServiceIP() + " is down",
+            _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGMENT_NODE, 0, new Long(0), "관리 서버 노드 " + msHost.getServiceIP() + " 중단",
                 "");
         }
         return true;
@@ -4267,10 +4267,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         }
 
         if (systemVm.getType().equals(VirtualMachine.Type.ConsoleProxy)) {
-            ActionEventUtils.startNestedActionEvent(EventTypes.EVENT_PROXY_DESTROY, "destroying console proxy Vm", systemVm.getId(), ApiCommandResourceType.ConsoleProxy.toString());
+            ActionEventUtils.startNestedActionEvent(EventTypes.EVENT_PROXY_DESTROY, "콘솔 프록시 가상머신 파기", systemVm.getId(), ApiCommandResourceType.ConsoleProxy.toString());
             return destroyConsoleProxy(cmd.getId());
         } else {
-            ActionEventUtils.startNestedActionEvent(EventTypes.EVENT_SSVM_DESTROY, "destroying secondary storage Vm", systemVm.getId(), ApiCommandResourceType.SystemVm.toString());
+            ActionEventUtils.startNestedActionEvent(EventTypes.EVENT_SSVM_DESTROY, "보조 스토리지 가상머신 파기", systemVm.getId(), ApiCommandResourceType.SystemVm.toString());
             return destroySecondaryStorageVm(cmd.getId());
         }
     }

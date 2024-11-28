@@ -35,7 +35,7 @@ import com.cloud.network.Network;
 public class CreateNetworkCmdByAdmin extends CreateNetworkCmd implements AdminCmd {
     protected static Logger logger = LogManager.getLogger(CreateNetworkCmdByAdmin.class.getName());
 
-    @Parameter(name=ApiConstants.VLAN, type=CommandType.STRING, description="the ID or VID of the network")
+    @Parameter(name=ApiConstants.VLAN, type=CommandType.STRING, description="네트워크의 ID 또는 VID")
     private String vlan;
 
     @Parameter(name=ApiConstants.BYPASS_VLAN_OVERLAP_CHECK, type=CommandType.BOOLEAN, description="when true bypasses VLAN id/range overlap check during network creation for shared and L2 networks")

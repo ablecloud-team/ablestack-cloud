@@ -23,9 +23,9 @@
     <span v-else>
       {{ title }}
     </span>
-    <a-tooltip v-if="tooltip" :title="tooltip" :placement="tooltipPlacement">
+    <!-- <a-tooltip v-if="tooltip" :title="tooltip" :placement="tooltipPlacement">
       <info-circle-outlined class="tooltip-icon" />
-    </a-tooltip>
+    </a-tooltip> -->
   </span>
 </template>
 

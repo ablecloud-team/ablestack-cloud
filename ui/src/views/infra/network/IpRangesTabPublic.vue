@@ -17,14 +17,14 @@
 
 <template>
   <a-spin :spinning="componentLoading">
-    <a-button
+    <!-- <a-button
       :disabled="!('createVlanIpRange' in $store.getters.apis)"
       type="dashed"
       style="margin-bottom: 20px; width: 100%"
       @click="handleOpenAddIpRangeModal">
       <template #icon><plus-outlined /></template>
       {{ $t('label.add.ip.range') }}
-    </a-button>
+    </a-button> -->
 
     <a-table
       size="small"
@@ -399,10 +399,10 @@ export default {
         {
           key: 'endip',
           title: this.$t('label.endip')
-        },
-        {
-          key: 'actions',
-          title: this.$t('label.actions')
+        // },
+        // {
+        //   key: 'actions',
+        //   title: this.$t('label.actions')
         }
       ]
     }

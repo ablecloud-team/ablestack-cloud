@@ -51,10 +51,10 @@ export default {
       resourceType: 'SystemVm',
       component: shallowRef(defineAsyncComponent(() => import('@/components/view/EventsTab.vue'))),
       show: () => { return 'listEvents' in store.getters.apis }
-    },
-    {
-      name: 'comments',
-      component: shallowRef(defineAsyncComponent(() => import('@/components/view/AnnotationsTab.vue')))
+    // },
+    // {
+    //   name: 'comments',
+    //   component: shallowRef(defineAsyncComponent(() => import('@/components/view/AnnotationsTab.vue')))
     }
   ],
   actions: [
@@ -129,49 +129,49 @@ export default {
       component: shallowRef(defineAsyncComponent(() => import('@/views/compute/MigrateVMStorage'))),
       popup: true
     },
-    {
-      api: 'runDiagnostics',
-      icon: 'reconciliation-outlined',
-      label: 'label.action.run.diagnostics',
-      dataView: true,
-      show: (record) => { return record.state === 'Running' },
-      args: ['targetid', 'type', 'ipaddress', 'params'],
-      mapping: {
-        targetid: {
-          value: (record) => { return record.id }
-        },
-        type: {
-          options: ['ping', 'traceroute', 'arping']
-        }
-      },
-      response: (result) => { return result && result.diagnostics ? `<strong>Output</strong>:<br/>${result.diagnostics.stdout}<br/><strong>Error</strong>: ${result.diagnostics.stderr}<br/><strong>Exit Code</strong>: ${result.diagnostics.exitcode}` : 'Invalid response' }
-    },
-    {
-      api: 'getDiagnosticsData',
-      icon: 'download-outlined',
-      label: 'label.action.get.diagnostics',
-      dataView: true,
-      show: (record) => { return record.state === 'Running' },
-      args: ['targetid', 'files'],
-      mapping: {
-        targetid: {
-          value: (record) => { return record.id }
-        }
-      },
-      response: (result) => { return result && result.diagnostics && result.diagnostics.url ? `Please click the link to download the retrieved diagnostics: <p><a href='${result.diagnostics.url}'>${result.diagnostics.url}</a></p>` : 'Invalid response' }
-    },
-    {
-      api: 'patchSystemVm',
-      icon: 'diff-outlined',
-      label: 'label.action.patch.systemvm',
-      message: 'message.action.patch.systemvm',
-      dataView: true,
-      show: (record) => { return ['Running'].includes(record.state) },
-      args: ['forced'],
-      groupAction: true,
-      popup: true,
-      groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
-    },
+    // {
+    //   api: 'runDiagnostics',
+    //   icon: 'reconciliation-outlined',
+    //   label: 'label.action.run.diagnostics',
+    //   dataView: true,
+    //   show: (record) => { return record.state === 'Running' },
+    //   args: ['targetid', 'type', 'ipaddress', 'params'],
+    //   mapping: {
+    //     targetid: {
+    //       value: (record) => { return record.id }
+    //     },
+    //     type: {
+    //       options: ['ping', 'traceroute', 'arping']
+    //     }
+    //   },
+    //   response: (result) => { return result && result.diagnostics ? `<strong>Output</strong>:<br/>${result.diagnostics.stdout}<br/><strong>Error</strong>: ${result.diagnostics.stderr}<br/><strong>Exit Code</strong>: ${result.diagnostics.exitcode}` : 'Invalid response' }
+    // },
+    // {
+    //   api: 'getDiagnosticsData',
+    //   icon: 'download-outlined',
+    //   label: 'label.action.get.diagnostics',
+    //   dataView: true,
+    //   show: (record) => { return record.state === 'Running' },
+    //   args: ['targetid', 'files'],
+    //   mapping: {
+    //     targetid: {
+    //       value: (record) => { return record.id }
+    //     }
+    //   },
+    //   response: (result) => { return result && result.diagnostics && result.diagnostics.url ? `Please click the link to download the retrieved diagnostics: <p><a href='${result.diagnostics.url}'>${result.diagnostics.url}</a></p>` : 'Invalid response' }
+    // },
+    // {
+    //   api: 'patchSystemVm',
+    //   icon: 'diff-outlined',
+    //   label: 'label.action.patch.systemvm',
+    //   message: 'message.action.patch.systemvm',
+    //   dataView: true,
+    //   show: (record) => { return ['Running'].includes(record.state) },
+    //   args: ['forced'],
+    //   groupAction: true,
+    //   popup: true,
+    //   groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
+    // },
     {
       api: 'destroySystemVm',
       icon: 'delete-outlined',

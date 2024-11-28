@@ -233,7 +233,7 @@ public class VMEntityManagerImpl implements VMEntityManager {
                 // call retry it.
                 return UUID.randomUUID().toString();
             } else {
-                throw new InsufficientServerCapacityException("No destination found for a deployment for " + vmProfile, DataCenter.class, plan.getDataCenterId(),
+                throw new InsufficientServerCapacityException("다음에 대한 배포 대상을 찾을 수 없습니다.: " + vmProfile, DataCenter.class, plan.getDataCenterId(),
                     areAffinityGroupsAssociated(vmProfile));
             }
         }

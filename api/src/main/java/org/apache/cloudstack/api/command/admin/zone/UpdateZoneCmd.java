@@ -45,10 +45,10 @@ public class UpdateZoneCmd extends BaseCmd {
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
 
-    @Parameter(name = ApiConstants.DNS1, type = CommandType.STRING, description = "the first DNS for the Zone")
+    @Parameter(name = ApiConstants.DNS1, type = CommandType.STRING, description = "zone의 첫 번째 DNS")
     private String dns1;
 
-    @Parameter(name = ApiConstants.DNS2, type = CommandType.STRING, description = "the second DNS for the Zone")
+    @Parameter(name = ApiConstants.DNS2, type = CommandType.STRING, description = "zone의 두 번째 DNS")
     private String dns2;
 
     @Parameter(name = ApiConstants.IP6_DNS1, type = CommandType.STRING, description = "the first DNS for IPv6 network in the Zone")
@@ -57,19 +57,19 @@ public class UpdateZoneCmd extends BaseCmd {
     @Parameter(name = ApiConstants.IP6_DNS2, type = CommandType.STRING, description = "the second DNS for IPv6 network in the Zone")
     private String ip6Dns2;
 
-    @Parameter(name = ApiConstants.GUEST_CIDR_ADDRESS, type = CommandType.STRING, description = "the guest CIDR address for the Zone")
+    @Parameter(name = ApiConstants.GUEST_CIDR_ADDRESS, type = CommandType.STRING, description = "zone의 게스트 CIDR 주소")
     private String guestCidrAddress;
 
     @Parameter(name = ApiConstants.ID, type = CommandType.UUID, entityType = ZoneResponse.class, required = true, description = "the ID of the Zone")
     private Long id;
 
-    @Parameter(name = ApiConstants.INTERNAL_DNS1, type = CommandType.STRING, description = "the first internal DNS for the Zone")
+    @Parameter(name = ApiConstants.INTERNAL_DNS1, type = CommandType.STRING, description = "zone의 첫 번째 내부 DNS")
     private String internalDns1;
 
-    @Parameter(name = ApiConstants.INTERNAL_DNS2, type = CommandType.STRING, description = "the second internal DNS for the Zone")
+    @Parameter(name = ApiConstants.INTERNAL_DNS2, type = CommandType.STRING, description = "zone의 두 번째 내부 DNS")
     private String internalDns2;
 
-    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "the name of the Zone")
+    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "Zone의 이름")
     private String zoneName;
 
     @Parameter(name = ApiConstants.IS_PUBLIC, type = CommandType.BOOLEAN, description = "updates a private zone to public if set, but not vice-versa")
@@ -188,7 +188,7 @@ public class UpdateZoneCmd extends BaseCmd {
             response.setResponseName(getCommandName());
             setResponseObject(response);
         } else {
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to update zone; internal error.");
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "zone을 업데이트하지 못했습니다. 내부 오류.");
         }
     }
 }

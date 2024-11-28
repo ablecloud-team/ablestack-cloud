@@ -24,7 +24,7 @@
 "error.release.dedicate.pod": "Failed to release dedicated pod.",
 "error.release.dedicate.zone": "Failed to release dedicated zone.",
 "error.unable.to.proceed": "Unable to proceed. Please contact your administrator.",
-"firewall.close": "Firewall",
+"firewall.close": "FIREWALL.CLOSE",
 "force.delete.domain.warning": "Warning: Choosing this option will cause the deletion of all child domains and all associated accounts and their resources.",
 "force.remove": "Force Remove",
 "force.remove.host.warning": "Warning: Choosing this option will cause ABLESTACK to forcefully stop all running virtual machines before removing this host from the cluster.",
@@ -4098,5 +4098,7 @@
 "vm.force.reboot": "VM.FORCE.REBOOT",
 "template.permission.update": "TEMPLATE.PERMISSION.UPDATE",
 "iso.permission.update": "ISO.PERMISSION.UPDATE",
-"alert.mail": "ALERT.MAIL"
+"alert.mail": "ALERT.MAIL",
+"users.login": "USERS.LOGIN",
+"users.logout": "USERS.LOGOUT"
 }

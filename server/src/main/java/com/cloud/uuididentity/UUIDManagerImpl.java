@@ -123,8 +123,8 @@ public class UUIDManagerImpl implements UUIDManager {
 
         Identity identity = (Identity) this._entityMgr.findById(entityType, customId);
         if (identity == null) {
-            throw new InvalidParameterValueException(String.format("Unable to find UUID for id [%s] of type [%s]",
-                                                                   customId, entityType.getSimpleName()));
+            throw new InvalidParameterValueException(String.format("유형 [%s]의 ID [%s]에 대한 UUID를 찾을 수 없습니다.",
+                                                                   entityType.getSimpleName(), customId));
 
         }
         return identity.getUuid();

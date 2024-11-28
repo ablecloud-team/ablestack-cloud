@@ -120,7 +120,7 @@
           @exec-action="$parent.execAction"/>
         <router-link :to="{ path: $route.path + '/' + record.id }">{{ text }}</router-link>
       </template>
-      <template v-if="column.key === 'username'">
+      <!-- <template v-if="column.key === 'username'">
         <span v-if="$showIcon() && !['vm', 'vnfapp'].includes($route.path.split('/')[1])" style="margin-right: 5px">
           <resource-icon v-if="$showIcon() && record.icon && record.icon.base64image" :image="record.icon.base64image" size="2x"/>
           <user-outlined v-else style="font-size: 16px;" />
@@ -128,7 +128,7 @@
         <router-link :to="{ path: $route.path + '/' + record.id }" v-if="['/accountuser', '/vpnuser'].includes($route.path)">{{ text }}</router-link>
         <router-link :to="{ path: '/accountuser', query: { username: record.username, domainid: record.domainid } }" v-else-if="$store.getters.userInfo.roletype !== 'User'">{{ text }}</router-link>
         <span v-else>{{ text }}</span>
-      </template>
+      </template> -->
       <template v-if="column.key === 'entityid'">
         <router-link :to="{ path: generateCommentsPath(record), query: { tab: 'comments' } }">{{ record.entityname }}</router-link>
       </template>
@@ -284,7 +284,7 @@
       <template v-if="column.key === 'podname'">
         <router-link :to="{ path: '/pod/' + record.podid }">{{ text }}</router-link>
       </template>
-      <template v-if="column.key === 'account'">
+      <!-- <template v-if="column.key === 'account'">
         <template v-if="record.owner">
           <template v-for="(item, idx) in record.owner" :key="idx">
             <span style="margin-right:5px">
@@ -304,18 +304,18 @@
           <router-link :to="{ path: '/account', query: { name: record.account, domainid: record.domainid, dataView: true } }" v-else-if="$store.getters.userInfo.roletype !== 'User'">{{ text }}</router-link>
           <span v-else>{{ text }}</span>
         </template>
-      </template>
+      </template> -->
       <template v-if="column.key === 'resource'">
         <resource-label :resourceType="record.resourcetype" :resourceId="record.resourceid" :resourceName="record.resourcename" />
       </template>
-      <template v-if="column.key === 'domain'">
+      <!-- <template v-if="column.key === 'domain'">
         <router-link v-if="record.domainid && !record.domainid.toString().includes(',') && $store.getters.userInfo.roletype !== 'User'" :to="{ path: '/domain/' + record.domainid, query: { tab: 'details' } }">{{ text }}</router-link>
         <span v-else>{{ text }}</span>
       </template>
       <template v-if="column.key === 'domainpath'">
         <router-link v-if="record.domainid && !record.domainid.includes(',') && $router.resolve('/domain/' + record.domainid).matched[0].redirect !== '/exception/404'" :to="{ path: '/domain/' + record.domainid, query: { tab: 'details' } }">{{ text }}</router-link>
         <span v-else>{{ text }}</span>
-      </template>
+      </template> -->
       <template v-if="column.key === 'zone'">
         <router-link v-if="record.zoneid && !record.zoneid.includes(',') && $router.resolve('/zone/' + record.zoneid).matched[0].redirect !== '/exception/404'" :to="{ path: '/zone/' + record.zoneid }">{{ text }}</router-link>
         <span v-else>{{ text }}</span>

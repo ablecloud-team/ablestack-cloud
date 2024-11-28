@@ -206,6 +206,7 @@ import com.cloud.utils.db.UUIDManager;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.fsm.NoTransitionException;
 import com.cloud.utils.fsm.StateMachine2;
+import com.cloud.utils.net.NetUtils;
 import com.cloud.vm.DiskProfile;
 import com.cloud.vm.UserVmDetailVO;
 import com.cloud.vm.UserVmManager;
@@ -394,7 +395,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
      */
     @Override
     @DB
-    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_UPLOAD, eventDescription = "uploading volume", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_UPLOAD, eventDescription = "업로드 볼륨", async = true)
     public VolumeVO uploadVolume(UploadVolumeCmd cmd) throws ResourceAllocationException {
         Account caller = CallContext.current().getCallingAccount();
         long ownerId = cmd.getEntityOwnerId();
@@ -437,7 +438,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_UPLOAD, eventDescription = "uploading volume for post upload", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_UPLOAD, eventDescription = "post 업로드를 위한 업로드 볼륨", async = true)
     public GetUploadParamsResponse uploadVolume(final GetUploadParamsForVolumeCmd cmd) throws ResourceAllocationException, MalformedURLException {
         Account caller = CallContext.current().getCallingAccount();
         long ownerId = cmd.getEntityOwnerId();
@@ -530,18 +531,23 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         // Verify that zone exists
         DataCenterVO zone = _dcDao.findById(zoneId);
         if (zone == null) {
-            throw new InvalidParameterValueException("Unable to find zone by id " + zoneId);
+            throw new InvalidParameterValueException("아이디 " + zoneId + "의 Zone을 찾을 수 없습니다");
         }
 
         // Check if zone is disabled
         if (Grouping.AllocationState.Disabled == zone.getAllocationState() && !_accountMgr.isRootAdmin(caller.getId())) {
-            throw new PermissionDeniedException("Cannot perform this operation, Zone is currently disabled: " + zoneId);
+            throw new PermissionDeniedException("이 작업을 수행할 수 없습니다. Zone이 현재 비활성화되어 있습니다.: " + zoneId);
+        }
+
+        // name parameter length check
+        if (volumeName != null && !NetUtils.verifyDomainNameLabel(volumeName, true)) {
+            throw new InvalidParameterValueException("이름이 잘못되었습니다. 이름에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없으며 숫자로 시작할 수도 없습니다. 문자수는 1~63자 입니다.");
         }
 
         //validating the url only when url is not null. url can be null incase of form based post upload
         if (url != null) {
             if (url.toLowerCase().contains("file://")) {
-                throw new InvalidParameterValueException("File:// type urls are currently unsupported");
+                throw new InvalidParameterValueException("File:// 유형 URL은 현재 지원되지 않습니다.");
             }
             UriUtils.validateUrl(format, url);
             if (VolumeUrlCheck.value()) { // global setting that can be set when their MS does not have internet access
@@ -560,10 +566,10 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         if (diskOfferingId != null) {
             DiskOfferingVO diskOffering = _diskOfferingDao.findById(diskOfferingId);
             if ((diskOffering == null) || diskOffering.getRemoved() != null || diskOffering.isComputeOnly()) {
-                throw new InvalidParameterValueException("Please specify a valid disk offering.");
+                throw new InvalidParameterValueException("유효한 디스크 오퍼링을 지정하십시오.");
             }
             if (!diskOffering.isCustomized()) {
-                throw new InvalidParameterValueException("Please specify a custom sized disk offering.");
+                throw new InvalidParameterValueException("사용자 정의 크기의 디스크 오퍼링을 지정하십시오.");
             }
             _configMgr.checkDiskOfferingAccess(volumeOwner, diskOffering, zone);
         }
@@ -685,7 +691,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
      */
     @Override
     @DB
-    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_CREATE, eventDescription = "creating volume", create = true)
+    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_CREATE, eventDescription = "볼륨 생성", create = true)
     public VolumeVO allocVolume(CreateVolumeCmd cmd) throws ResourceAllocationException {
         Account caller = CallContext.current().getCallingAccount();
 
@@ -700,7 +706,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             displayVolume = true;
         } else {
             if (!_accountMgr.isRootAdmin(caller.getId())) {
-                throw new PermissionDeniedException("Cannot update parameter displayvolume, only admin permitted ");
+                throw new PermissionDeniedException("매개변수 표시 볼륨을 업데이트할 수 없습니다. 관리자만 허용됩니다.");
             }
         }
 
@@ -716,9 +722,14 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         // Volume VO used for extracting the source template id
         VolumeVO parentVolume = null;
 
+        // name parameter length check
+        if (cmd.getVolumeName() != null && !NetUtils.verifyDomainNameLabel(cmd.getVolumeName(), true)) {
+            throw new InvalidParameterValueException("설명이 잘못되었습니다. 설명에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없으며 숫자로 시작할 수도 없습니다. 문자수는 0~63자 입니다.");
+        }
+
         // validate input parameters before creating the volume
         if (cmd.getSnapshotId() == null && cmd.getDiskOfferingId() == null) {
-            throw new InvalidParameterValueException("At least one of disk Offering ID or snapshot ID must be passed whilst creating volume");
+            throw new InvalidParameterValueException("볼륨을 생성하는 동안 디스크 오퍼링 ID 또는 스냅샷 ID 중 하나 이상을 전달해야 합니다.");
         }
 
         // disallow passing disk offering ID with DATA disk volume snapshots
@@ -727,7 +738,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             if (snapshot != null) {
                 parentVolume = _volsDao.findByIdIncludingRemoved(snapshot.getVolumeId());
                 if (parentVolume != null && parentVolume.getVolumeType() != Volume.Type.ROOT)
-                    throw new InvalidParameterValueException("Disk Offering ID cannot be passed whilst creating volume from snapshot other than ROOT disk snapshots");
+                    throw new InvalidParameterValueException("ROOT 디스크 스냅샷이 아닌 스냅샷에서 볼륨을 생성하는 동안에는 디스크 오퍼링 ID를 전달할 수 없습니다.");
             }
             parentVolume = null;
         }
@@ -742,25 +753,25 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 if (size > 0) {
                     size = size * 1024 * 1024 * 1024; // user specify size in GB
                 } else {
-                    throw new InvalidParameterValueException("Disk size must be larger than 0");
+                    throw new InvalidParameterValueException("디스크 크기는 0보다 커야 합니다.");
                 }
             }
 
             // Check that the disk offering is specified
             diskOffering = _diskOfferingDao.findById(diskOfferingId);
             if ((diskOffering == null) || diskOffering.getRemoved() != null || diskOffering.isComputeOnly()) {
-                throw new InvalidParameterValueException("Please specify a valid disk offering.");
+                throw new InvalidParameterValueException("유효한 디스크 오퍼링을 지정하십시오.");
             }
 
             if (diskOffering.isCustomized()) {
                 if (size == null) {
-                    throw new InvalidParameterValueException("This disk offering requires a custom size specified");
+                    throw new InvalidParameterValueException("이 디스크 오퍼링에는 맞춤 크기를 지정해야 합니다.");
                 }
                 validateCustomDiskOfferingSizeRange(sizeInGB);
             }
 
             if (!diskOffering.isCustomized() && size != null) {
-                throw new InvalidParameterValueException("This disk offering does not allow custom size");
+                throw new InvalidParameterValueException("이 디스크 오퍼링은 사용자 정의 크기를 허용하지 않습니다.");
             }
 
             _configMgr.checkDiskOfferingAccess(owner, diskOffering, _dcDao.findById(zoneId));
@@ -790,7 +801,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                         maxIops = 0L;
                     } else {
                         if (minIops == null || minIops <= 0) {
-                            throw new InvalidParameterValueException("The min IOPS must be greater than 0.");
+                            throw new InvalidParameterValueException("최소 IOPS는 0보다 커야 합니다.");
                         }
 
                         if (maxIops == null) {
@@ -798,7 +809,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                         }
 
                         if (minIops > maxIops) {
-                            throw new InvalidParameterValueException("The min IOPS must be less than or equal to the max IOPS.");
+                            throw new InvalidParameterValueException("최소 IOPS는 최대 IOPS보다 작거나 같아야 합니다.");
                         }
                     }
                 } else {
@@ -811,7 +822,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             }
 
             if (!validateVolumeSizeInBytes(size)) {
-                throw new InvalidParameterValueException(String.format("Invalid size for custom volume creation: %s, max volume size is: %s GB", NumbersUtil.toReadableSize(size), VolumeOrchestrationService.MaxVolumeSize.value()));
+                throw new InvalidParameterValueException(String.format("사용자 정의 볼륨 생성에 잘못된 크기: %s, 최대 볼륨 크기: %s GB", NumbersUtil.toReadableSize(size), VolumeOrchestrationService.MaxVolumeSize.value()));
             }
         }
 
@@ -819,18 +830,18 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             Long snapshotId = cmd.getSnapshotId();
             SnapshotVO snapshotCheck = _snapshotDao.findById(snapshotId);
             if (snapshotCheck == null) {
-                throw new InvalidParameterValueException("unable to find a snapshot with id " + snapshotId);
+                throw new InvalidParameterValueException(snapshotId + "ID가 있는 스냅샷을 찾을 수 없습니다.");
             }
 
             if (snapshotCheck.getState() != Snapshot.State.BackedUp) {
-                throw new InvalidParameterValueException("Snapshot id=" + snapshotId + " is not in " + Snapshot.State.BackedUp + " state yet and can't be used for volume creation");
+                throw new InvalidParameterValueException("스냅샷 ID" + snapshotId + "은 아직 " + Snapshot.State.BackedUp + " 상태가 아니므로 볼륨 생성에 사용할 수 없습니다");
             }
 
             SnapshotDataStoreVO snapshotStore = _snapshotDataStoreDao.findOneBySnapshotAndDatastoreRole(snapshotId, DataStoreRole.Primary);
             if (snapshotStore != null) {
                 StoragePoolVO storagePoolVO = _storagePoolDao.findById(snapshotStore.getDataStoreId());
                 if (storagePoolVO.getPoolType() == Storage.StoragePoolType.PowerFlex) {
-                    throw new InvalidParameterValueException("Create volume from snapshot is not supported for PowerFlex volume snapshots");
+                    throw new InvalidParameterValueException("PowerFlex 볼륨 스냅샷에는 스냅샷에서 볼륨 생성이 지원되지 않습니다.");
                 }
             }
 
@@ -838,7 +849,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
             // Don't support creating templates from encrypted volumes (yet)
             if (parentVolume.getPassphraseId() != null) {
-                throw new UnsupportedOperationException("Cannot create new volumes from encrypted volume snapshots");
+                throw new UnsupportedOperationException("암호화된 볼륨 스냅샷에서는 새 볼륨을 생성할 수 없습니다.");
             }
 
             if (zoneId == null) {
@@ -855,7 +866,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 size = snapshotCheck.getSize(); // ; disk offering is used for tags purposes
             } else {
                 if (size < snapshotCheck.getSize()) {
-                    throw new InvalidParameterValueException(String.format("Invalid size for volume creation: %dGB, snapshot size is: %dGB",
+                    throw new InvalidParameterValueException(String.format("볼륨 생성에 잘못된 크기: %dGB, 스냅샷 크기: %dGB",
                             size / (1024 * 1024 * 1024), snapshotCheck.getSize() / (1024 * 1024 * 1024)));
                 }
             }
@@ -872,16 +883,15 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 // Check that the virtual machine ID is valid and it's a user vm
                 UserVmVO vm = _userVmDao.findById(vmId);
                 if (vm == null || vm.getType() != VirtualMachine.Type.User) {
-                    throw new InvalidParameterValueException("Please specify a valid User VM.");
+                    throw new InvalidParameterValueException("유효한 사용자 가상머신을 지정하십시오.");
                 }
                 if (vm.getDataCenterId() != zoneId) {
-                    throw new InvalidParameterValueException("The specified zone is different than zone of the VM");
+                    throw new InvalidParameterValueException("지정된 zone이 가상머신의 zone과 다릅니다.\"");
                 }
                 // Check that the VM is in the correct state
                 if (vm.getState() != State.Running && vm.getState() != State.Stopped) {
-                    throw new InvalidParameterValueException("Please specify a VM that is either running or stopped.");
+                    throw new InvalidParameterValueException("실행 중이거나 중지된 가상머신을 지정하세요.");
                 }
-
                 // permission check
                 _accountMgr.checkAccess(caller, null, false, vm);
             }
@@ -895,18 +905,18 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         // Verify that zone exists
         DataCenterVO zone = _dcDao.findById(zoneId);
         if (zone == null) {
-            throw new InvalidParameterValueException("Unable to find zone by id " + zoneId);
+            throw new InvalidParameterValueException(zoneId + "ID로 zone을 찾을 수 없습니다");
         }
 
         // Check if zone is disabled
         if (Grouping.AllocationState.Disabled == zone.getAllocationState() && !_accountMgr.isRootAdmin(caller.getId())) {
-            throw new PermissionDeniedException("Cannot perform this operation, Zone is currently disabled: " + zoneId);
+            throw new PermissionDeniedException("이 작업을 수행할 수 없습니다. zone이 현재 비활성화되어 있습니다: " + zoneId);
         }
 
         // If local storage is disabled then creation of volume with local disk
         // offering not allowed
         if (!zone.isLocalStorageEnabled() && diskOffering.isUseLocalStorage()) {
-            throw new InvalidParameterValueException("Zone is not configured to use local storage but volume's disk offering " + diskOffering.getName() + " uses it");
+            throw new InvalidParameterValueException("zone이 로컬 저장소를 사용하도록 구성되지 않았지만 볼륨의 디스크 오퍼링 " + diskOffering.getName() + "이(가) 이를 사용합니다.");
         }
 
         String userSpecifiedName = getVolumeNameFromCommand(cmd);
@@ -997,7 +1007,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
     @Override
     @DB
-    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_CREATE, eventDescription = "creating volume", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_CREATE, eventDescription = "볼륨 생성", async = true)
     public VolumeVO createVolume(CreateVolumeCmd cmd) {
         VolumeVO volume = _volsDao.findById(cmd.getEntityId());
         boolean created = true;
@@ -1032,7 +1042,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             created = false;
             VolumeInfo vol = volFactory.getVolume(cmd.getEntityId());
             vol.stateTransit(Volume.Event.DestroyRequested);
-            throw new CloudRuntimeException("Failed to create volume: " + volume.getId(), e);
+            throw new CloudRuntimeException("볼륨을 생성하지 못했습니다. 스토리지 용량을 확인해주세요. Volume ID: " + volume.getId(), e);
         } finally {
             if (!created) {
                 logger.trace("Decrementing volume resource count for account id=" + volume.getAccountId() + " as volume failed to create on the backend");
@@ -1069,7 +1079,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
     @Override
     @DB
-    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_RESIZE, eventDescription = "resizing volume", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_RESIZE, eventDescription = "볼륨 크기 조절", async = true)
     public VolumeVO resizeVolume(ResizeVolumeCmd cmd) throws ResourceAllocationException {
         Long newSize = cmd.getSize();
         Long newMinIops = cmd.getMinIops();
@@ -1240,7 +1250,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             if (volume.getInstanceId() != null) {
                 // Check that VM to which this volume is attached does not have VM snapshots
                 if (_vmSnapshotDao.findByVm(volume.getInstanceId()).size() > 0) {
-                    throw new InvalidParameterValueException("A volume that is attached to a VM with any VM snapshots cannot be resized.");
+                    throw new InvalidParameterValueException("가상머신 스냅샷이 있는 가상머신에 연결된 볼륨은 크기를 조정할 수 없습니다.");
                 }
             }
 
@@ -1273,8 +1283,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
              * the actual disk size.
              */
             if (currentSize > newSize && !shrinkOk) {
-                throw new InvalidParameterValueException("Going from existing size of " + currentSize + " to size of " + newSize + " would shrink the volume."
-                        +  "Need to sign off by supplying the shrinkok parameter with value of true.");
+                throw new InvalidParameterValueException("기존 크기에서 작은 크기로 볼륨 사이즈를 변경할 수 없습니다.");
             }
 
             if (newSize > currentSize) {
@@ -1545,7 +1554,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
     @DB
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_DELETE, eventDescription = "deleting volume")
+    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_DELETE, eventDescription = "볼륨 삭제")
     /**
      * Executes the removal of the volume. If the volume is only allocated we do not try to remove it from primary and secondary storage.
      * Otherwise, after the removal in the database, we will try to remove the volume from both primary and secondary storage.
@@ -1583,22 +1592,22 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     protected VolumeVO retrieveAndValidateVolume(long volumeId, Account caller) {
         VolumeVO volume = _volsDao.findById(volumeId);
         if (volume == null) {
-            throw new InvalidParameterValueException("Unable to find volume with ID: " + volumeId);
+            throw new InvalidParameterValueException("볼륨 ID가 존재하지 않습니다.");
         }
         if (!_snapshotMgr.canOperateOnVolume(volume)) {
-            throw new InvalidParameterValueException("There are snapshot operations in progress on the volume, unable to delete it");
+            throw new InvalidParameterValueException("볼륨에서 스냅샷 작업이 진행 중이므로 삭제할 수 없습니다.");
         }
         if (volume.getInstanceId() != null && _vmInstanceDao.findById(volume.getInstanceId()) != null && volume.getState() != Volume.State.Expunged) {
-            throw new InvalidParameterValueException("Please specify a volume that is not attached to any VM.");
+            throw new InvalidParameterValueException("어떤 가상머신에도 연결되지 않은 볼륨을 지정하세요.");
         }
         if (volume.getState() == Volume.State.UploadOp) {
             VolumeDataStoreVO volumeStore = _volumeStoreDao.findByVolume(volume.getId());
             if (volumeStore.getDownloadState() == VMTemplateStorageResourceAssoc.Status.DOWNLOAD_IN_PROGRESS) {
-                throw new InvalidParameterValueException("Please specify a volume that is not uploading");
+                throw new InvalidParameterValueException("업로드되지 않는 볼륨을 지정하십시오.");
             }
         }
         if (volume.getState() == Volume.State.NotUploaded || volume.getState() == Volume.State.UploadInProgress) {
-            throw new InvalidParameterValueException("The volume is either getting uploaded or it may be initiated shortly, please wait for it to be completed");
+            throw new InvalidParameterValueException("볼륨이 업로드 중이거나 곧 시작될 수 있습니다. 완료될 때까지 기다려 주십시오.");
         }
         _accountMgr.checkAccess(caller, null, true, volume);
         return volume;
@@ -1706,7 +1715,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_DESTROY, eventDescription = "destroying a volume")
+    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_DESTROY, eventDescription = "볼륨 파기")
     public Volume destroyVolume(long volumeId, Account caller, boolean expunge, boolean forceExpunge) {
         VolumeVO volume = retrieveAndValidateVolume(volumeId, caller);
 
@@ -1748,7 +1757,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_DESTROY, eventDescription = "destroying a volume")
+    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_DESTROY, eventDescription = "볼륨 파기")
     public void destroyVolume(long volumeId) {
         volService.destroyVolume(volumeId);
     }
@@ -2137,7 +2146,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             if (volume.getInstanceId() != null) {
                 // Check that VM to which this volume is attached does not have VM snapshots
                 if (_vmSnapshotDao.findByVm(volume.getInstanceId()).size() > 0) {
-                    throw new InvalidParameterValueException("A volume that is attached to a VM with any VM snapshots cannot be resized.");
+                    throw new InvalidParameterValueException("가상머신 스냅샷이 있는 가상머신에 연결된 볼륨은 크기를 조정할 수 없습니다.");
                 }
             }
 
@@ -2177,8 +2186,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 }
             }
             if (currentSize > newSize && !shrinkOk) {
-                throw new InvalidParameterValueException("Going from existing size of " + currentSize + " to size of " + newSize + " would shrink the volume."
-                        + "Need to sign off by supplying the shrinkok parameter with value of true.");
+                throw new InvalidParameterValueException("기존 크기 " + currentSize + " 보다 작은 크기 " + newSize + " 로 볼륨 사이즈를 변경할 수 없습니다.");
             }
 
             if (newSize > currentSize) {
@@ -2190,7 +2198,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_ATTACH, eventDescription = "attaching volume", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_ATTACH, eventDescription = "볼륨 연결", async = true)
     public Volume attachVolumeToVM(AttachVolumeCmd command) {
         return attachVolumeToVM(command.getVirtualMachineId(), command.getId(), command.getDeviceId());
     }
@@ -2424,7 +2432,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         // if target VM has associated VM snapshots
         List<VMSnapshotVO> vmSnapshots = _vmSnapshotDao.findByVm(vmId);
         if (vmSnapshots.size() > 0) {
-            throw new InvalidParameterValueException(String.format("Unable to attach volume to VM %s/%s, please specify a VM that does not have VM snapshots", vm.getName(), vm.getUuid()));
+            throw new InvalidParameterValueException(String.format("가상머신 %s/%s에 볼륨을 연결할 수 없습니다. 가상머신 스냅샷이 없는 가상머신을 지정하십시오.", vm.getName(), vm.getUuid()));
         }
 
         // if target VM has backups
@@ -2564,7 +2572,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_UPDATE, eventDescription = "updating volume", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_UPDATE, eventDescription = "볼륨 업데이트", async = true)
     public Volume updateVolume(long volumeId, String path, String state, Long storageId, Boolean displayVolume,
                                String customId, long entityOwnerId, String chainInfo, String name) {
 
@@ -2597,14 +2605,14 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 Volume.State volumeState = Volume.State.valueOf(state);
                 volume.setState(volumeState);
             } catch (IllegalArgumentException ex) {
-                throw new InvalidParameterValueException("Invalid volume state specified");
+                throw new InvalidParameterValueException("잘못된 볼륨 상태가 지정되었습니다.");
             }
         }
 
         if (storageId != null) {
             StoragePool pool = _storagePoolDao.findById(storageId);
             if (pool.getDataCenterId() != volume.getDataCenterId()) {
-                throw new InvalidParameterValueException("Invalid storageId specified; refers to the pool outside of the volume's zone");
+                throw new InvalidParameterValueException("잘못된 StorageId가 지정되었습니다. 볼륨 zone 외부의 풀을 나타냅니다.");
             }
             if (pool.getPoolType() == Storage.StoragePoolType.DatastoreCluster) {
                 List<StoragePoolVO> childDatastores = _storagePoolDao.listChildStoragePoolsInDatastoreCluster(storageId);
@@ -2620,6 +2628,10 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         }
 
         if (name != null) {
+            // name parameter length check
+            if (!NetUtils.verifyDomainNameLabel(name, true)) {
+                throw new InvalidParameterValueException("이름이 잘못되었습니다. 이름에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없으며 숫자로 시작할 수도 없습니다.");
+            }
             volume.setName(name);
         }
 
@@ -2679,7 +2691,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_DETACH, eventDescription = "detaching volume", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_DETACH, eventDescription = "볼륨 연결해제", async = true)
     public Volume detachVolumeFromVM(DetachVolumeCmd cmmd) {
         Account caller = CallContext.current().getCallingAccount();
         if ((cmmd.getId() == null && cmmd.getDeviceId() == null && cmmd.getVirtualMachineId() == null) || (cmmd.getId() != null && (cmmd.getDeviceId() != null || cmmd.getVirtualMachineId() != null))
@@ -2803,7 +2815,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             throw new InvalidParameterValueException("Root volume detach is not supported for hypervisor type " + vm.getHypervisorType());
         }
         if (!(vm.getState() == State.Stopped) || (vm.getState() == State.Destroyed)) {
-            throw new InvalidParameterValueException("Root volume detach can happen only when vm is in states: " + State.Stopped.toString() + " or " + State.Destroyed.toString());
+            throw new InvalidParameterValueException("루트 볼륨 분리는 가상머신이 중지됨 또는 삭제됨 상태일 때만 발생할 수 있습니다.: " + State.Stopped.toString() + " or " + State.Destroyed.toString());
         }
 
         if (volume.getPoolId() != null) {
@@ -2814,7 +2826,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         }
     }
 
-    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_DETACH, eventDescription = "detaching volume")
+    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_DETACH, eventDescription = "볼륨 연결해제")
     public Volume detachVolumeViaDestroyVM(long vmId, long volumeId) {
         Account caller = CallContext.current().getCallingAccount();
         Volume volume = _volsDao.findById(volumeId);
@@ -3417,7 +3429,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_SNAPSHOT_CREATE, eventDescription = "taking snapshot", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_SNAPSHOT_CREATE, eventDescription = "스냅샷 생성", async = true)
     public Snapshot takeSnapshot(Long volumeId, Long policyId, Long snapshotId, Account account, boolean quiescevm,
          Snapshot.LocationType locationType, boolean asyncBackup, Map<String, String> tags, List<Long> zoneIds)
             throws ResourceAllocationException {
@@ -3434,7 +3446,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         Account caller = CallContext.current().getCallingAccount();
         VolumeInfo volume = volFactory.getVolume(volumeId);
         if (volume == null) {
-            throw new InvalidParameterValueException("Creating snapshot failed due to volume:" + volumeId + " doesn't exist");
+            throw new InvalidParameterValueException("볼륨으로 인해 스냅샷을 생성하지 못했습니다.:" + volumeId + " doesn't exist");
         }
         if (policyId != null && policyId > 0) {
             if (CollectionUtils.isNotEmpty(zoneIds)) {
@@ -3532,7 +3544,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         VolumeInfo volume = volFactory.getVolume(volumeId);
 
         if (volume == null) {
-            throw new InvalidParameterValueException("Creating snapshot failed due to volume:" + volumeId + " doesn't exist");
+            throw new InvalidParameterValueException("볼륨으로 인해 스냅샷 생성 실패:" + volumeId + " 존재하지 않는다");
         }
 
         if (volume.getState() != Volume.State.Ready) {
@@ -3570,29 +3582,34 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_SNAPSHOT_CREATE, eventDescription = "allocating snapshot", create = true)
+    @ActionEvent(eventType = EventTypes.EVENT_SNAPSHOT_CREATE, eventDescription = "스냅샷 생성", create = true)
     public Snapshot allocSnapshot(Long volumeId, Long policyId, String snapshotName, Snapshot.LocationType locationType, List<Long> zoneIds) throws ResourceAllocationException {
         Account caller = CallContext.current().getCallingAccount();
 
+        // parameter length check
+        if (snapshotName != null && !NetUtils.verifyDomainNameLabel(snapshotName, true)) {
+            throw new InvalidParameterValueException("이름이 잘못되었습니다. 이름에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없으며 숫자로 시작할 수도 없습니다. 문자수는 0~63자 입니다.");
+        }
+
         VolumeInfo volume = volFactory.getVolume(volumeId);
         if (volume == null) {
-            throw new InvalidParameterValueException("Creating snapshot failed due to volume:" + volumeId + " doesn't exist");
+            throw new InvalidParameterValueException("볼륨으로 인해 스냅샷 생성에 실패했습니다:" + volume + "가 존재하지 않습니다.");
         }
         DataCenter zone = _dcDao.findById(volume.getDataCenterId());
         if (zone == null) {
-            throw new InvalidParameterValueException(String.format("Can't find zone for the volume ID: %s", volume.getUuid()));
+            throw new InvalidParameterValueException(String.format("볼륨 ID에 대한 zone을 찾을 수 없습니다.: %s", volume.getUuid()));
         }
 
         if (Grouping.AllocationState.Disabled == zone.getAllocationState() && !_accountMgr.isRootAdmin(caller.getId())) {
-            throw new PermissionDeniedException("Cannot perform this operation, Zone is currently disabled: " + zone.getName());
-        }
+            throw new PermissionDeniedException("이 작업을 수행할 수 없습니다. zone이 현재 비활성화되어 있습니다.: " + zone.getName());
 
+        }
         if (volume.getState() != Volume.State.Ready) {
-            throw new InvalidParameterValueException("VolumeId: " + volumeId + " is not in " + Volume.State.Ready + " state but " + volume.getState() + ". Cannot take snapshot.");
+            throw new InvalidParameterValueException("VolumeId: " + volumeId + "는 " + Volume.State.Ready + " 상태가 아니지만 " + volume.getState() + " 상태입니다. 스냅샷을 찍을 수 없습니다.");
         }
 
         if (ImageFormat.DIR.equals(volume.getFormat())) {
-            throw new InvalidParameterValueException("Snapshot not supported for volume:" + volumeId);
+            throw new InvalidParameterValueException("볼륨에는 스냅샷이 지원되지 않습니다.:" + volumeId);
         }
         if (volume.getTemplateId() != null) {
             VMTemplateVO template = _templateDao.findById(volume.getTemplateId());
@@ -3602,14 +3619,14 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 userVmVO = _userVmDao.findById(instanceId);
             }
             if (!isOperationSupported(template, userVmVO)) {
-                throw new InvalidParameterValueException("VolumeId: " + volumeId + " is for System VM , Creating snapshot against System VM volumes is not supported");
+                throw new InvalidParameterValueException("VolumeId: " + volumeId + "는 시스템 VM용입니다. 시스템 VM 볼륨에 대한 스냅샷 생성은 지원되지 않습니다.");
             }
         }
 
         StoragePoolVO storagePoolVO = _storagePoolDao.findById(volume.getPoolId());
 
         if (!storagePoolVO.isManaged() && locationType != null) {
-            throw new InvalidParameterValueException("VolumeId: " + volumeId + " LocationType is supported only for managed storage");
+            throw new InvalidParameterValueException("VolumeId: " + volumeId + " LocationType은 관리형 스토리지에만 지원됩니다.");
         }
 
         if (storagePoolVO.isManaged() && locationType == null) {
@@ -3618,32 +3635,32 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
         StoragePool storagePool = (StoragePool)volume.getDataStore();
         if (storagePool == null) {
-            throw new InvalidParameterValueException("VolumeId: " + volumeId + " please attach this volume to a VM before create snapshot for it");
+            throw new InvalidParameterValueException("VolumeId: " + volumeId + " 스냅샷을 생성하기 전에 이 볼륨을 VM에 연결하십시오.");
         }
 
         if (CollectionUtils.isNotEmpty(zoneIds)) {
             if (policyId != null && policyId > 0) {
-                throw new InvalidParameterValueException(String.format("%s parameter can not be specified with %s parameter", ApiConstants.ZONE_ID_LIST, ApiConstants.POLICY_ID));
+                throw new InvalidParameterValueException(String.format("%s 매개변수는 %s 매개변수와 함께 지정할 수 없습니다.", ApiConstants.ZONE_ID_LIST, ApiConstants.POLICY_ID));
             }
             if (Snapshot.LocationType.PRIMARY.equals(locationType)) {
-                throw new InvalidParameterValueException(String.format("%s cannot be specified with snapshot %s as %s", ApiConstants.ZONE_ID_LIST, ApiConstants.LOCATION_TYPE, Snapshot.LocationType.PRIMARY));
+                throw new InvalidParameterValueException(String.format("%s은(는) 스냅샷 %s을(를) %s로 지정할 수 없습니다.", ApiConstants.ZONE_ID_LIST, ApiConstants.LOCATION_TYPE, Snapshot.LocationType.PRIMARY));
             }
             if (Boolean.FALSE.equals(SnapshotInfo.BackupSnapshotAfterTakingSnapshot.value())) {
-                throw new InvalidParameterValueException("Backing up of snapshot has been disabled. Snapshot can not be taken for multiple zones");
+                throw new InvalidParameterValueException("스냅샷 백업이 비활성화되었습니다. 여러 zone에 대한 스냅샷을 생성할 수 없습니다.");
             }
             if (DataCenter.Type.Edge.equals(zone.getType())) {
-                throw new InvalidParameterValueException("Backing up of snapshot is not supported by the zone of the volume. Snapshot can not be taken for multiple zones");
+                throw new InvalidParameterValueException("볼륨 zone에서는 스냅샷 백업이 지원되지 않습니다. 여러 zone에 대한 스냅샷을 생성할 수 없습니다.");
             }
             for (Long zoneId : zoneIds) {
                 DataCenter dataCenter = _dcDao.findById(zoneId);
                 if (dataCenter == null) {
-                    throw new InvalidParameterValueException("Unable to find the specified zone");
+                    throw new InvalidParameterValueException("지정된 zone을 찾을 수 없습니다.");
                 }
                 if (Grouping.AllocationState.Disabled.equals(dataCenter.getAllocationState()) && !_accountMgr.isRootAdmin(caller.getId())) {
-                    throw new PermissionDeniedException("Cannot perform this operation, Zone is currently disabled: " + dataCenter.getName());
+                    throw new PermissionDeniedException("이 작업을 수행할 수 없습니다. zone이 현재 비활성화되어 있습니다.: " + dataCenter.getName());
                 }
                 if (DataCenter.Type.Edge.equals(dataCenter.getType())) {
-                    throw new InvalidParameterValueException("Snapshot functionality is not supported on zone %s");
+                    throw new InvalidParameterValueException("zone에서는 스냅샷 기능이 지원되지 않습니다.");
                 }
             }
         }
@@ -3657,31 +3674,37 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         Account caller = CallContext.current().getCallingAccount();
         VMInstanceVO vm = _vmInstanceDao.findById(vmId);
         if (vm == null) {
-            throw new InvalidParameterValueException("Creating snapshot failed due to vm:" + vmId + " doesn't exist");
+            throw new InvalidParameterValueException("vm:" + vmId + "가 존재하지 않아 스냅샷 생성에 실패했습니다.");
         }
         _accountMgr.checkAccess(caller, null, true, vm);
 
         VolumeInfo volume = volFactory.getVolume(volumeId);
         if (volume == null) {
-            throw new InvalidParameterValueException("Creating snapshot failed due to volume:" + volumeId + " doesn't exist");
+            throw new InvalidParameterValueException("vm:" + vmId + "가 존재하지 않아 스냅샷 생성에 실패했습니다.");
         }
+
+        // parameter length check
+        if (!NetUtils.verifyDomainNameLabel(snapshotName, true)) {
+            throw new InvalidParameterValueException("이름이 잘못되었습니다. 이름에는 ASCII 문자 'a'~'z', 숫자 '0'~'9', 하이픈('-')이 포함될 수 있으며 하이픈('-')으로 시작하거나 끝날 수 없으며 숫자로 시작할 수도 없습니다. 문자수는 1~63자 입니다.");
+        }
+
         _accountMgr.checkAccess(caller, null, true, volume);
         VirtualMachine attachVM = volume.getAttachedVM();
         if (attachVM == null || attachVM.getId() != vm.getId()) {
-            throw new InvalidParameterValueException("Creating snapshot failed due to volume:" + volumeId + " doesn't attach to vm :" + vm);
+            throw new InvalidParameterValueException("볼륨으로 인해 스냅샷 생성 실패:" + volumeId + "가 vm에 연결되지 않음:" + vm);
         }
 
         DataCenter zone = _dcDao.findById(volume.getDataCenterId());
         if (zone == null) {
-            throw new InvalidParameterValueException("Can't find zone by id " + volume.getDataCenterId());
+            throw new InvalidParameterValueException(volume.getDataCenterId() + " ID 로 zone을 찾을 수 없습니다.");
         }
 
         if (Grouping.AllocationState.Disabled == zone.getAllocationState() && !_accountMgr.isRootAdmin(caller.getId())) {
-            throw new PermissionDeniedException("Cannot perform this operation, Zone is currently disabled: " + zone.getName());
+            throw new PermissionDeniedException("이 작업을 수행할 수 없습니다. zone이 현재 비활성화되어 있습니다.: " + zone.getName());
         }
 
         if (volume.getState() != Volume.State.Ready) {
-            throw new InvalidParameterValueException("VolumeId: " + volumeId + " is not in " + Volume.State.Ready + " state but " + volume.getState() + ". Cannot take snapshot.");
+            throw new InvalidParameterValueException("VolumeId: " + volumeId + "는 " + Volume.State.Ready + " 상태가 아니지만 " + volume.getState() + " 상태입니다. 스냅샷을 찍을 수 없습니다.");
         }
 
         if (volume.getTemplateId() != null) {
@@ -3698,7 +3721,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
         StoragePool storagePool = (StoragePool)volume.getDataStore();
         if (storagePool == null) {
-            throw new InvalidParameterValueException("VolumeId: " + volumeId + " please attach this volume to a VM before create snapshot for it");
+            throw new InvalidParameterValueException("VolumeId: " + volumeId + " 스냅샷을 생성하기 전에 이 볼륨을 VM에 연결하십시오.");
         }
 
         if (storagePool.getPoolType() == Storage.StoragePoolType.PowerFlex) {
@@ -3709,7 +3732,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_EXTRACT, eventDescription = "extracting volume", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_EXTRACT, eventDescription = "볼륨 추출", async = true)
     public String extractVolume(ExtractVolumeCmd cmd) {
         Long volumeId = cmd.getId();
         Long zoneId = cmd.getZoneId();

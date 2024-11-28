@@ -77,7 +77,7 @@ public class RevertToVMSnapshotCmd extends BaseAsyncCmd implements UserCmd {
 
     @Override
     public void execute() throws  ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, ConcurrentOperationException {
-        CallContext.current().setEventDetails("vmsnapshot id: " + this._uuidMgr.getUuid(VMSnapshot.class, getVmSnapShotId()));
+        CallContext.current().setEventDetails("가상머신 스냅샷 id: " + this._uuidMgr.getUuid(VMSnapshot.class, getVmSnapShotId()));
         UserVm result = _vmSnapshotService.revertToSnapshot(getVmSnapShotId());
         if (result != null) {
             UserVmResponse response = _responseGenerator.createUserVmResponse(getResponseView(),
@@ -91,7 +91,7 @@ public class RevertToVMSnapshotCmd extends BaseAsyncCmd implements UserCmd {
 
     @Override
     public String getEventDescription() {
-        return "Revert from VM snapshot: " + this._uuidMgr.getUuid(VMSnapshot.class, getVmSnapShotId());
+        return "가상머신 스냅샷 복원: " + this._uuidMgr.getUuid(VMSnapshot.class, getVmSnapShotId());
     }
 
     @Override

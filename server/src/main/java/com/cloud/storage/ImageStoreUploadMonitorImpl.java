@@ -349,7 +349,7 @@ public class ImageStoreUploadMonitorImpl extends ManagerBase implements ImageSto
                                     tmpVolumeDataStore.setDownloadState(VMTemplateStorageResourceAssoc.Status.DOWNLOAD_ERROR);
                                     tmpVolumeDataStore.setState(State.Failed);
                                     stateMachine.transitTo(tmpVolume, Event.OperationFailed, null, _volumeDao);
-                                    msg = "Volume " + tmpVolume.getUuid() + " failed to upload due to operation timed out";
+                                    msg = "작업 시간 초과로 인해 볼륨 " + tmpVolume.getUuid() + "를 업로드하지 못했습니다.";
                                     logger.error(msg);
                                     sendAlert = true;
                                 } else {
@@ -371,7 +371,7 @@ public class ImageStoreUploadMonitorImpl extends ManagerBase implements ImageSto
                                     tmpVolumeDataStore.setDownloadState(VMTemplateStorageResourceAssoc.Status.ABANDONED);
                                     tmpVolumeDataStore.setState(State.Failed);
                                     stateMachine.transitTo(tmpVolume, Event.OperationTimeout, null, _volumeDao);
-                                    msg = "Volume " + tmpVolume.getUuid() + " failed to upload due to operation timed out";
+                                    msg = "작업 시간 초과로 인해 볼륨 " + tmpVolume.getUuid() + "를 업로드하지 못했습니다.";
                                     logger.error(msg);
                                     sendAlert = true;
                                 }
@@ -463,7 +463,7 @@ public class ImageStoreUploadMonitorImpl extends ManagerBase implements ImageSto
                                     tmpTemplateDataStore.setDownloadState(VMTemplateStorageResourceAssoc.Status.DOWNLOAD_ERROR);
                                     tmpTemplateDataStore.setState(State.Failed);
                                     stateMachine.transitTo(tmpTemplate, VirtualMachineTemplate.Event.OperationFailed, null, _templateDao);
-                                    msg = "Template " + tmpTemplate.getUuid() + " failed to upload due to operation timed out";
+                                    msg = "작업 시간 초과로 인해 템플릿 " + tmpTemplate.getUuid() + "를 업로드하지 못했습니다.";
                                     logger.error(msg);
                                     sendAlert = true;
                                 } else {
@@ -485,7 +485,7 @@ public class ImageStoreUploadMonitorImpl extends ManagerBase implements ImageSto
                                     tmpTemplateDataStore.setDownloadState(VMTemplateStorageResourceAssoc.Status.ABANDONED);
                                     tmpTemplateDataStore.setState(State.Failed);
                                     stateMachine.transitTo(tmpTemplate, VirtualMachineTemplate.Event.OperationTimeout, null, _templateDao);
-                                    msg = "Template " + tmpTemplate.getUuid() + " failed to upload due to operation timed out";
+                                    msg = "작업 시간 초과로 인해 템플릿 " + tmpTemplate.getUuid() + "를 업로드하지 못했습니다.";
                                     logger.error(msg);
                                     sendAlert = true;
                                 }

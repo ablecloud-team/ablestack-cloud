@@ -54,7 +54,7 @@ public class PowerOperationTask implements Runnable {
                     powerOperation.name(), host.getName(), e.getMessage()));
 
             String eventMessage = String
-                    .format("Error while issuing out-of-band management action %s for host: %s", powerOperation.name(), host.getName());
+                    .format("호스트에 대해 대역 외 관리 작업 %s을 실행하는 중 오류 발생: %s", powerOperation.name(), host.getName());
 
             ActionEventUtils.onCreatedActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(), EventVO.LEVEL_ERROR,
                     EventTypes.EVENT_HOST_OUTOFBAND_MANAGEMENT_ACTION, true, eventMessage, host.getId(), ApiCommandResourceType.Host.toString());

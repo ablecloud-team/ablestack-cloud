@@ -26,7 +26,8 @@
                 {{ $t('label.name') }}
               </div>
               <div>
-                <router-link :to="{ path: '/systemvm/' + vm.id }">{{ vm.name }}</router-link>
+                <!-- <router-link :to="{ path: '/systemvm/' + vm.id }">{{ vm.name }}</router-link> -->
+                {{ vm.name }}
               </div>
             </div>
             <div class="list__col">

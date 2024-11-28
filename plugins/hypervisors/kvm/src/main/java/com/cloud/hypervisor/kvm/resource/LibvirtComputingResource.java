@@ -939,6 +939,11 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             throw new ConfigurationException("Unable to find kvmheartbeat.sh");
         }
 
+        vmActivityCheckPath = Script.findScript(kvmScriptsDir, "kvmvmactivity.sh");
+        if (vmActivityCheckPath == null) {
+            throw new ConfigurationException("Unable to find kvmvmactivity.sh");
+        }
+
         heartBeatPathRbd = Script.findScript(kvmScriptsDir, "kvmheartbeat_rbd.py");
         if (heartBeatPathRbd == null) {
             throw new ConfigurationException("Unable to find kvmheartbeat_rbd.py");

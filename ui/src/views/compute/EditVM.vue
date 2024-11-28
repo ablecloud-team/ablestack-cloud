@@ -25,17 +25,11 @@
       :rules="rules"
       v-ctrl-enter="handleSubmit"
       @finish="handleSubmit">
-      <a-alert style="margin-bottom: 5px" type="warning" show-icon>
-        <template #message>
-          <span v-html="$t('message.restart.vm.to.update.settings')" />
-        </template>
-      </a-alert>
       <a-form-item name="name" ref="name">
         <template #label>
           <tooltip-label :title="$t('label.name')" :tooltip="apiParams.name.description"/>
         </template>
         <a-input
-          :maxlength="20"
           v-model:value="form.name"
           v-focus="true" />
       </a-form-item>
@@ -43,7 +37,7 @@
         <template #label>
           <tooltip-label :title="$t('label.displayname')" :tooltip="apiParams.displayname.description"/>
         </template>
-        <a-input v-model:value="form.displayname" :maxlength="20" />
+        <a-input v-model:value="form.displayname" />
       </a-form-item>
       <a-form-item name="ostypeid" ref="ostypeid">
         <template #label>
@@ -57,57 +51,8 @@
           }"
           :loading="osTypes.loading"
           v-model:value="form.ostypeid">
-          <a-select-option v-for="(ostype) in osTypes.opts" :key="ostype.id" :label="ostype.description">
+          <a-select-option v-for="(ostype) in osTypes.opts.filter((c) => (c.name === 'Windows 10 (64-bit)') || (c.name === 'Rocky Linux 9'))" :key="ostype.id" :label="ostype.description">
             {{ ostype.description }}
-          </a-select-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item name="isdynamicallyscalable" ref="isdynamicallyscalable">
-        <template #label>
-          <tooltip-label :title="$t('label.isdynamicallyscalable')" :tooltip="apiParams.isdynamicallyscalable.description"/>
-        </template>
-        <a-switch v-model:checked="form.isdynamicallyscalable" />
-      </a-form-item>
-      <a-form-item name="haenable" ref="haenable" v-if="serviceOffering ? serviceOffering.offerha : false">
-        <template #label>
-          <tooltip-label :title="$t('label.haenable')" :tooltip="apiParams.haenable.description"/>
-        </template>
-        <a-switch v-model:checked="form.haenable" />
-      </a-form-item>
-      <a-form-item name="group" ref="group">
-        <template #label>
-          <tooltip-label :title="$t('label.group')" :tooltip="apiParams.group.description"/>
-        </template>
-        <a-auto-complete
-          v-model:value="form.group"
-          :filterOption="(input, option) => {
-            return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }"
-          :options="groups.opts" />
-      </a-form-item>
-      <a-form-item>
-        <template #label>
-          <tooltip-label :title="$t('label.userdata')" :tooltip="apiParams.userdata.description"/>
-        </template>
-        <a-textarea v-model:value="form.userdata" :maxlength="10000">
-        </a-textarea>
-      </a-form-item>
-      <a-form-item ref="securitygroupids" name="securitygroupids" :label="$t('label.security.groups')" v-if="securityGroupsEnabled">
-        <a-select
-          mode="multiple"
-          :placeholder="$t('label.select.security.groups')"
-          v-model:value="form.securitygroupids"
-          showSearch
-          optionFilterProp="label"
-          :filterOption="(input, option) => {
-            return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }"
-          :loading="securitygroups.loading"
-          v-focus="true">
-          <a-select-option v-for="securitygroup in securitygroups.opts" :key="securitygroup.id" :label="securitygroup.name ||  securitygroup.id">
-            <div>
-              {{ securitygroup.name ||  securitygroup.id }}
-            </div>
           </a-select-option>
         </a-select>
       </a-form-item>

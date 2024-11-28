@@ -126,7 +126,7 @@
       </a-list-item>
     </template>
     <HostInfo :resource="dataResource" v-if="$route.meta.name === 'host' && 'listHosts' in $store.getters.apis" />
-    <DedicateData :resource="dataResource" v-if="dedicatedSectionActive" />
+    <!-- <DedicateData :resource="dataResource" v-if="dedicatedSectionActive" /> -->
     <VmwareData :resource="dataResource" v-if="$route.meta.name === 'zone' && 'listVmwareDcs' in $store.getters.apis" />
   </a-list>
 </template>

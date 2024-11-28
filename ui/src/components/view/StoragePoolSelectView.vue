@@ -17,14 +17,14 @@
 
 <template>
   <div>
-    <a-input-search
+    <!-- <a-input-search
       class="top-spaced"
       :placeholder="$t('label.search')"
       :maxlength="20"
       v-model:value="searchQuery"
       style="margin-bottom: 10px;"
       @search="fetchStoragePools"
-      v-focus="true" />
+      v-focus="true" /> -->
     <a-table
       size="small"
       style="overflow-y: auto"

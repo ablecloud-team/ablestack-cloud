@@ -119,7 +119,7 @@ public class ExtractVolumeCmd extends BaseAsyncCmd {
 
     @Override
     public String getEventDescription() {
-        return  "Extraction job";
+        return  "볼륨 추출";
     }
 
     @Override

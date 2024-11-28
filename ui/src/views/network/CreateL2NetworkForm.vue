@@ -33,7 +33,6 @@
             <a-input
               v-model:value="form.name"
               :placeholder="apiParams.name.description"
-              :maxlength="20"
               v-focus="true"/>
           </a-form-item>
           <a-form-item name="displaytext" ref="displaytext">
@@ -42,8 +41,7 @@
             </template>
             <a-input
               v-model:value="form.displaytext"
-              :placeholder="apiParams.displaytext.description"
-              :maxlength="100"/>
+              :placeholder="apiParams.displaytext.description"/>
           </a-form-item>
           <a-form-item name="zoneid" ref="zoneid">
             <template #label>
@@ -68,7 +66,7 @@
               </a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item v-if="isAdminOrDomainAdmin()" name="domainid" ref="domainid">
+          <!-- <a-form-item v-if="isAdminOrDomainAdmin()" name="domainid" ref="domainid">
             <template #label>
               <tooltip-label :title="$t('label.domainid')" :tooltip="apiParams.domainid.description"/>
             </template>
@@ -109,7 +107,7 @@
                 {{ opt.name || opt.description }}
               </a-select-option>
             </a-select>
-          </a-form-item>
+          </a-form-item> -->
           <a-form-item name="networkofferingid" ref="networkofferingid">
             <template #label>
               <tooltip-label :title="$t('label.networkofferingid')" :tooltip="apiParams.networkofferingid.description"/>
@@ -129,7 +127,7 @@
               </a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item
+          <!-- <a-form-item
             v-if="!isObjectEmpty(selectedNetworkOffering) && selectedNetworkOffering.specifyvlan"
             name="vlanid"
             ref="vlanid">
@@ -140,8 +138,8 @@
               v-model:value="form.vlanid"
               :placeholder="apiParams.vlan ? apiParams.vlan.description : $t('label.vlanid')"
               :maxlength="20"/>
-          </a-form-item>
-          <a-form-item
+          </a-form-item> -->
+          <!-- <a-form-item
             v-if="!isObjectEmpty(selectedNetworkOffering) && selectedNetworkOffering.specifyvlan"
             name="bypassvlanoverlapcheck"
             ref="bypassvlanoverlapcheck">
@@ -186,7 +184,7 @@
               v-model:value="form.isolatedpvlan"
               :placeholder="apiParams.isolatedpvlan.description"
               :maxlength="20"/>
-          </a-form-item>
+          </a-form-item> -->
           <div :span="24" class="action-button">
             <a-button
               :loading="actionLoading"
@@ -447,11 +445,12 @@ export default {
           zoneId: this.selectedZone.id,
           name: values.name,
           displayText: values.displaytext,
-          networkOfferingId: this.selectedNetworkOffering.id
+          networkOfferingId: this.selectedNetworkOffering.id,
+          vlan: 'untagged'
         }
-        if (this.isValidTextValueForKey(values, 'vlanid')) {
-          params.vlan = values.vlanid
-        }
+        // if (this.isValidTextValueForKey(values, 'vlanid')) {
+        //   params.vlan = values.vlanid
+        // }
         if (this.isValidValueForKey(values, 'bypassvlanoverlapcheck')) {
           params.bypassvlanoverlapcheck = values.bypassvlanoverlapcheck
         }

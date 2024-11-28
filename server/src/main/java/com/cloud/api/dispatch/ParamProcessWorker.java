@@ -406,7 +406,7 @@ public class ParamProcessWorker implements DispatchWorker {
                 if ((paramObj != null)) {
                     if (paramObj.toString().length() > annotation.length()) {
                         logger.error("Value greater than max allowed length " + annotation.length() + " for param: " + field.getName());
-                        throw new InvalidParameterValueException("Value greater than max allowed length " + annotation.length() + " for param: " + field.getName());
+                        throw new InvalidParameterValueException("param: " + field.getName() + ", name에 허용되는 최대 길이 " + annotation.length() + " 보다 큰 값");
                     } else {
                         field.set(cmdObj, paramObj.toString());
                     }

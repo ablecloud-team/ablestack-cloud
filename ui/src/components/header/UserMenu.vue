@@ -42,7 +42,7 @@
       </span>
       <template #overlay>
         <a-menu class="user-menu-wrapper" @click="handleClickMenu">
-          <a-menu-item class="user-menu-item" key="profile">
+          <!-- <a-menu-item class="user-menu-item" key="profile">
             <UserOutlined class="user-menu-item-icon" />
             <span class="user-menu-item-name">{{ $t('label.profilename') }}</span>
           </a-menu-item>
@@ -54,17 +54,17 @@
             <ClockCircleOutlined class="user-menu-item-icon" />
             <span class="user-menu-item-name" style="margin-right: 5px">{{ $t('label.use.local.timezone') }}</span>
             <a-switch :checked="$store.getters.usebrowsertimezone" />
-          </a-menu-item>
+          </a-menu-item> -->
           <a-menu-item class="user-menu-item" key="document">
             <QuestionCircleOutlined class="user-menu-item-icon" />
             <span class="user-menu-item-name">{{ $t('label.help') }}</span>
           </a-menu-item>
-          <a v-if="$store.getters.userInfo.roletype === 'Admin'" @click="wallPortalLink" >
+          <!-- <a v-if="$store.getters.userInfo.roletype === 'Admin'" @click="wallPortalLink" >
             <a-menu-item class="user-menu-item" key="1">
                 <AreaChartOutlined class="user-menu-item-icon" />
                 <span class="user-menu-item-name">{{ $t('label.wall.portal.url') }}</span>
             </a-menu-item>
-          </a>
+          </a> -->
           <a-menu-divider/>
           <a href="javascript:;" @click="handleLogout">
             <a-menu-item class="user-menu-item" key="4">
@@ -80,7 +80,7 @@
 
 <script>
 import { api } from '@/api'
-import CreateMenu from './CreateMenu'
+// import CreateMenu from './CreateMenu'
 import ExternalLink from './ExternalLink'
 import HeaderNotice from './HeaderNotice'
 import TranslationMenu from './TranslationMenu'
@@ -92,7 +92,7 @@ import { SERVER_MANAGER } from '@/store/mutation-types'
 export default {
   name: 'UserMenu',
   components: {
-    CreateMenu,
+    // CreateMenu,
     ExternalLink,
     TranslationMenu,
     HeaderNotice,

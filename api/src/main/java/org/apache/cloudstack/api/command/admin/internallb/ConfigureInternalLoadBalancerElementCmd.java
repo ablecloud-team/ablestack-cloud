@@ -95,7 +95,7 @@ public class ConfigureInternalLoadBalancerElementCmd extends BaseAsyncCmd {
 
     @Override
     public String getEventDescription() {
-        return "configuring internal load balancer element: " + id;
+        return "내부 로드 밸런서 요소 구성: " + id;
     }
 
     @Override

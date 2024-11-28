@@ -60,10 +60,10 @@ public class CreateNetworkCmd extends BaseCmd implements UserCmd {
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
 
-    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, required = true, description = "the name of the network")
+    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, required = true, description = "네트워크의 이름")
     private String name;
 
-    @Parameter(name = ApiConstants.DISPLAY_TEXT, type = CommandType.STRING, description = "the display text of the network")
+    @Parameter(name = ApiConstants.DISPLAY_TEXT, type = CommandType.STRING, description = "네트워크의 설명")
     private String displayText;
 
     @Parameter(name = ApiConstants.NETWORK_OFFERING_ID,
@@ -421,7 +421,7 @@ public class CreateNetworkCmd extends BaseCmd implements UserCmd {
             response.setResponseName(getCommandName());
             setResponseObject(response);
         } else {
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to create network");
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "네트워크를 생성하지 못했습니다.");
         }
     }
 }

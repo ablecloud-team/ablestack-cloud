@@ -67,19 +67,19 @@ public class StartVMCmd extends BaseAsyncCmd implements UserCmd {
     @Parameter(name = ApiConstants.POD_ID,
             type = CommandType.UUID,
             entityType = PodResponse.class,
-            description = "destination Pod ID to deploy the VM to - parameter available for root admin only")
+            description = "VM을 배포할 대상 Pod 아이디")
     private Long podId;
 
     @Parameter(name = ApiConstants.CLUSTER_ID,
             type = CommandType.UUID,
             entityType = ClusterResponse.class,
-            description = "destination Cluster ID to deploy the VM to - parameter available for root admin only")
+            description = "VM을 배포할 대상 클러스터 아이디")
     private Long clusterId;
 
     @Parameter(name = ApiConstants.HOST_ID,
                type = CommandType.UUID,
                entityType = HostResponse.class,
-               description = "destination Host ID to deploy the VM to - parameter available for root admin only",
+               description = "VM을 배포할 대상 호스트 아이디",
                since = "3.0.1")
     private Long hostId;
 
@@ -160,7 +160,7 @@ public class StartVMCmd extends BaseAsyncCmd implements UserCmd {
 
     @Override
     public String getEventDescription() {
-        return "starting user vm: " + this._uuidMgr.getUuid(VirtualMachine.class, getId());
+        return "사용자 가상머신 시작: " + this._uuidMgr.getUuid(VirtualMachine.class, getId());
     }
 
     @Override
@@ -176,7 +176,7 @@ public class StartVMCmd extends BaseAsyncCmd implements UserCmd {
     @Override
     public void execute() {
         try {
-            CallContext.current().setEventDetails("Vm Id: " + this._uuidMgr.getUuid(VirtualMachine.class, getId()));
+            CallContext.current().setEventDetails("가상머신 Id: " + this._uuidMgr.getUuid(VirtualMachine.class, getId()));
 
             UserVm result;
             result = _userVmService.startVirtualMachine(this);

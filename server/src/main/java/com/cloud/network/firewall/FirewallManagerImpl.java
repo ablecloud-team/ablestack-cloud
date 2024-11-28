@@ -783,7 +783,7 @@ public class FirewallManagerImpl extends ManagerBase implements FirewallService,
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_FIREWALL_CLOSE, eventDescription = "revoking firewall rule", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_FIREWALL_CLOSE, eventDescription = "방화벽 규칙 취소", async = true)
     public boolean revokeIngressFwRule(long ruleId, boolean apply) {
         return revokeIngressFirewallRule(ruleId, apply);
     }
@@ -881,7 +881,7 @@ public class FirewallManagerImpl extends ManagerBase implements FirewallService,
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_FIREWALL_CLOSE, eventDescription = "revoking firewall rule", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_FIREWALL_CLOSE, eventDescription = "방화벽 규칙 취소", async = true)
     public boolean revokeFirewallRulesForIp(long ipId, long userId, Account caller) throws ResourceUnavailableException {
         List<FirewallRule> rules = new ArrayList<FirewallRule>();
 
@@ -932,7 +932,7 @@ public class FirewallManagerImpl extends ManagerBase implements FirewallService,
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_FIREWALL_CLOSE, eventDescription = "revoking firewall rule", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_FIREWALL_CLOSE, eventDescription = "방화벽 규칙 취소", async = true)
     public boolean revokeAllFirewallRulesForNetwork(long networkId, long userId, Account caller) throws ResourceUnavailableException {
         List<FirewallRule> rules = new ArrayList<FirewallRule>();
 
@@ -976,7 +976,7 @@ public class FirewallManagerImpl extends ManagerBase implements FirewallService,
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_FIREWALL_CLOSE, eventDescription = "revoking firewall rule", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_FIREWALL_CLOSE, eventDescription = "방화벽 규칙 취소", async = true)
     public boolean revokeFirewallRulesForVm(long vmId) {
         boolean success = true;
         UserVmVO vm = _vmDao.findByIdIncludingRemoved(vmId);

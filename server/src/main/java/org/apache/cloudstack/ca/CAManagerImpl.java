@@ -148,7 +148,7 @@ public class CAManagerImpl extends ManagerBase implements CAManager {
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_CA_CERTIFICATE_ISSUE, eventDescription = "issuing certificate", async = true)
+    @ActionEvent(eventType = EventTypes.EVENT_CA_CERTIFICATE_ISSUE, eventDescription = "인증서 발급", async = true)
     public Certificate issueCertificate(final String csr, final List<String> domainNames, final List<String> ipAddresses, final Integer validityDuration, final String caProvider) {
         CallContext.current().setEventDetails("domain(s): " + domainNames + " addresses: " + ipAddresses);
         final CAProvider provider = getCAProvider(caProvider);

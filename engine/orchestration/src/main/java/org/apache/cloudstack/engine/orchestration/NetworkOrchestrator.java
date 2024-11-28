@@ -2588,7 +2588,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
         final DataCenterVO zone = _dcDao.findById(zoneId);
         // this method supports only guest network creation
         if (ntwkOff.getTrafficType() != TrafficType.Guest) {
-            logger.warn("Only guest networks can be created using this method");
+            logger.warn("이 방법을 사용하면 게스트 네트워크만 생성할 수 있습니다.");
             return null;
         }
 
@@ -2601,7 +2601,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
         // Validate network offering
         if (ntwkOff.getState() != NetworkOffering.State.Enabled) {
             // see NetworkOfferingVO
-            final InvalidParameterValueException ex = new InvalidParameterValueException("Can't use specified network offering id as its state is not " + NetworkOffering.State.Enabled);
+            final InvalidParameterValueException ex = new InvalidParameterValueException(NetworkOffering.State.Enabled + " 상태가 아니므로 지정된 네트워크 제공 ID를 사용할 수 없습니다.");
             ex.addProxyObject(ntwkOff.getUuid(), "networkOfferingId");
             throw ex;
         }
@@ -2609,7 +2609,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
         // Validate physical network
         if (pNtwk.getState() != PhysicalNetwork.State.Enabled) {
             // see PhysicalNetworkVO.java
-            final InvalidParameterValueException ex = new InvalidParameterValueException("Specified physical network id is" + " in incorrect state:" + pNtwk.getState());
+            final InvalidParameterValueException ex = new InvalidParameterValueException("지정된 물리적 네트워크 ID 상태가 잘못되었습니다.:" + pNtwk.getState());
             ex.addProxyObject(pNtwk.getUuid(), "physicalNetworkId");
             throw ex;
         }
@@ -2659,15 +2659,15 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
         } else if (zone.getNetworkType() == NetworkType.Advanced) {
             if (zone.isSecurityGroupEnabled()) {
                 if (isolatedPvlan != null) {
-                    throw new InvalidParameterValueException("Isolated Private VLAN is not supported with security group!");
+                    throw new InvalidParameterValueException("격리된 사설 VLAN은 보안 그룹에서 지원되지 않습니다.");
                 }
                 // Only Account specific Isolated network with sourceNat service disabled are allowed in security group
                 // enabled zone
                 if ((ntwkOff.getGuestType() != GuestType.Shared) && (ntwkOff.getGuestType() != GuestType.L2)) {
-                    throw new InvalidParameterValueException("Only shared or L2 guest network can be created in security group enabled zone");
+                    throw new InvalidParameterValueException("보안 그룹 활성화 zone에서는 공유 네트워크 또는 L2 게스트 네트워크만 생성할 수 있습니다.");
                 }
                 if (_networkModel.areServicesSupportedByNetworkOffering(ntwkOff.getId(), Service.SourceNat)) {
-                    throw new InvalidParameterValueException("Service SourceNat is not allowed in security group enabled zone");
+                    throw new InvalidParameterValueException("보안 그룹 활성화 zone에서는 SourceNat 서비스가 허용되지 않습니다.");
                 }
             }
 
@@ -2687,10 +2687,10 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
         if (vlanSpecified != ntwkOff.isSpecifyVlan()) {
             if (vlanSpecified) {
                 if (!isSharedNetworkWithoutSpecifyVlan(ntwkOff) && !isPrivateGatewayWithoutSpecifyVlan(ntwkOff)) {
-                    throw new InvalidParameterValueException("Can't specify vlan; corresponding offering says specifyVlan=false");
+                    throw new InvalidParameterValueException("Vlan을 지정할 수 없습니다. 해당 제품에 지정Vlan=false라고 표시됩니다.");
                 }
             } else {
-                throw new InvalidParameterValueException("Vlan has to be specified; corresponding offering says specifyVlan=true");
+                throw new InvalidParameterValueException("Vlan을 지정해야 합니다. 해당 오퍼링에 지정Vlan=true라고 표시됨");
             }
         }
 
@@ -2704,21 +2704,19 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
             //don't allow to specify vlan tag used by physical network for dynamic vlan allocation
             if (!(bypassVlanOverlapCheck && (ntwkOff.getGuestType() == GuestType.Shared || isPrivateNetwork))
                     && _dcDao.findVnet(zoneId, pNtwk.getId(), BroadcastDomainType.getValue(uri)).size() > 0) {
-                throw new InvalidParameterValueException("The VLAN tag to use for new guest network, " + vlanId + " is already being used for dynamic vlan allocation for the guest network in zone "
-                        + zone.getName());
+                throw new InvalidParameterValueException("새 게스트 네트워크 " + vlanId + "에 사용할 VLAN 태그는 이미 zone " + zone.getName() + "의 게스트 네트워크에 대한 동적 VLAN 할당에 사용되고 있습니다.");
             }
             if (secondaryUri != null && !(bypassVlanOverlapCheck && ntwkOff.getGuestType() == GuestType.Shared) &&
                     _dcDao.findVnet(zoneId, pNtwk.getId(), BroadcastDomainType.getValue(secondaryUri)).size() > 0) {
-                throw new InvalidParameterValueException("The VLAN tag for isolated PVLAN " + isolatedPvlan + " is already being used for dynamic vlan allocation for the guest network in zone "
-                        + zone.getName());
+                        throw new InvalidParameterValueException("격리된 PVLAN " + isolatedPvlan + "에 대한 VLAN 태그는 이미 " + zone.getName() + " zone의 게스트 네트워크에 대한 동적 VLAN 할당에 사용되고 있습니다.");
             }
             if (!UuidUtils.isUuid(vlanId)) {
                 // For Isolated and L2 networks, don't allow to create network with vlan that already exists in the zone
                 if (!hasGuestBypassVlanOverlapCheck(bypassVlanOverlapCheck, ntwkOff, isPrivateNetwork)) {
                     if (_networksDao.listByZoneAndUriAndGuestType(zoneId, uri.toString(), null).size() > 0) {
-                        throw new InvalidParameterValueException("Network with vlan " + vlanId + " already exists or overlaps with other network vlans in zone " + zoneId);
+                        throw new InvalidParameterValueException("VLAN " + vlanId + "가 있는 네트워크가 이미 존재하거나 " + zoneId + " zoneId zone의 다른 네트워크 VLAN과 겹칩니다.");
                     } else if (secondaryUri != null && _networksDao.listByZoneAndUriAndGuestType(zoneId, secondaryUri.toString(), null).size() > 0) {
-                        throw new InvalidParameterValueException("Network with vlan " + isolatedPvlan + " already exists or overlaps with other network vlans in zone " + zoneId);
+                        throw new InvalidParameterValueException("vlan이 있는 네트워크 " + isolatedPvlan + "가 이미 존재하거나 zone " + zoneId + "zoneId의 다른 네트워크 VLAN과 겹칩니다.");
                     } else {
                         final List<DataCenterVnetVO> dcVnets = _datacenterVnetDao.findVnet(zoneId, BroadcastDomainType.getValue(uri));
                         //for the network that is created as part of private gateway,
@@ -2739,8 +2737,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
                                     final int vnetsAllocatedToAccount = _datacenterVnetDao.countVnetsAllocatedToAccount(zoneId, owner.getAccountId());
                                     final int vnetsDedicatedToAccount = _datacenterVnetDao.countVnetsDedicatedToAccount(zoneId, owner.getAccountId());
                                     if (vnetsAllocatedToAccount < vnetsDedicatedToAccount) {
-                                        throw new InvalidParameterValueException("Specified vlan " + vlanId + " doesn't belong" + " to the vlan range dedicated to the owner "
-                                                + owner.getAccountName());
+                                        throw new InvalidParameterValueException("지정된 VLAN " + vlanId + "는 소유자 " + owner.getAccountName() + "전용 VLAN 범위에 속하지 않습니다.");
                                     }
                                 }
                             }
@@ -2750,7 +2747,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
                     // don't allow to creating shared network with given Vlan ID, if there already exists a isolated network or
                     // shared network with same Vlan ID in the zone
                     if (!bypassVlanOverlapCheck && _networksDao.listByZoneAndUriAndGuestType(zoneId, uri.toString(), GuestType.Isolated).size() > 0) {
-                        throw new InvalidParameterValueException("There is an existing isolated/shared network that overlaps with vlan id:" + vlanId + " in zone " + zoneId);
+                        throw new InvalidParameterValueException("VLAN ID와 겹치는 기존 격리/공유 네트워크가 있습니다.:" + vlanId + " in zone " + zoneId);
                     }
                 }
             }
@@ -2765,7 +2762,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
             if (isUpdateDnsSupported == null || !Boolean.valueOf(isUpdateDnsSupported)) {
                 if (networkDomain != null) {
                     // TBD: NetworkOfferingId and zoneId. Send uuids instead.
-                    throw new InvalidParameterValueException("Domain name change is not supported by network offering id=" + networkOfferingId + " in zone id=" + zoneId);
+                    throw new InvalidParameterValueException("네트워크 오퍼링 ID에서는 도메인 이름 변경이 지원되지 않습니다.=" + networkOfferingId + " in zone id=" + zoneId);
                 }
             } else {
                 if (networkDomain == null) {
@@ -2784,9 +2781,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
                 } else {
                     // validate network domain
                     if (!NetUtils.verifyDomainName(networkDomain)) {
-                        throw new InvalidParameterValueException("Invalid network domain. Total length shouldn't exceed 190 chars. Each domain "
-                                + "label must be between 1 and 63 characters long, can contain ASCII letters 'a' through 'z', the digits '0' through '9', "
-                                + "and the hyphen ('-'); can't start or end with \"-\"");
+                        throw new InvalidParameterValueException("네트워크 도메인이 잘못되었습니다. 총 길이는 190자를 초과할 수 없습니다. 각 도메인 라벨의 길이는 1~63자여야 하며 ASCII 문자 'a'~'z', 숫자 '0'~'9' 및 하이픈('-')을 포함할 수 있습니다. \"-\"로 시작하거나 끝날 수 없습니다.");
                     }
                 }
             }
@@ -2801,9 +2796,9 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
                 && !_networkModel.areServicesSupportedByNetworkOffering(ntwkOff.getId(), Service.SourceNat)));
         if (cidr == null && ip6Cidr == null && cidrRequired) {
             if (ntwkOff.getGuestType() == GuestType.Shared) {
-                throw new InvalidParameterValueException(String.format("Gateway/netmask are required when creating %s networks.", Network.GuestType.Shared));
+                throw new InvalidParameterValueException(String.format("%s 네트워크를 생성하려면 게이트웨이/넷마스크가 필요합니다.", Network.GuestType.Shared));
             } else {
-                throw new InvalidParameterValueException("gateway/netmask are required when create network of" + " type " + GuestType.Isolated + " with service " + Service.SourceNat.getName() + " disabled");
+                throw new InvalidParameterValueException("서비스 " + Service.SourceNat.getName() + "가 비활성화된 유형 " + GuestType.Isolated + "의 네트워크를 생성할 때 게이트웨이/넷마스크가 필요합니다.");
             }
         }
 
@@ -2817,7 +2812,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
         // Check if cidr is RFC1918 compliant if the network is Guest Isolated for IPv4
         if (cidr != null && ntwkOff.getGuestType() == Network.GuestType.Isolated && ntwkOff.getTrafficType() == TrafficType.Guest) {
             if (!NetUtils.validateGuestCidr(cidr)) {
-                throw new InvalidParameterValueException("Virtual Guest Cidr " + cidr + " is not RFC 1918 or 6598 compliant");
+                throw new InvalidParameterValueException("가상 게스트 Cidr " + cidr + "는 RFC 1918 또는 6598을 준수하지 않습니다.");
             }
         }
 
@@ -2953,7 +2948,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
             }
         });
 
-        CallContext.current().setEventDetails("Network Id: " + network.getId());
+        CallContext.current().setEventDetails("네트워크 Id: " + network.getId());
         CallContext.current().putContextParameter(Network.class, network.getUuid());
         return network;
     }
@@ -4195,7 +4190,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
 
         if (!answer.getResult()) {
             logger.warn("Unable to setup agent " + hostId + " due to " + answer.getDetails());
-            final String msg = "Incorrect Network setup on agent, Reinitialize agent after network names are setup, details : " + answer.getDetails();
+            final String msg = "에이전트의 잘못된 네트워크 설정, 네트워크 이름 설정 후 에이전트 다시 초기화, 세부정보 : " + answer.getDetails();
             _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_HOST, dcId, host.getPodId(), msg, msg);
             throw new ConnectionException(true, msg);
         } else {

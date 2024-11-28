@@ -28,11 +28,11 @@
       <a-tab-pane :tab="$t('label.metrics')" key="stats">
         <StatsTab :resource="resource"/>
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.iso')" key="cdrom" v-if="vm.isoid">
+      <!-- <a-tab-pane :tab="$t('label.iso')" key="cdrom" v-if="vm.isoid">
         <usb-outlined />
         <router-link :to="{ path: '/iso/' + vm.isoid }">{{ vm.isoname }}</router-link> <br/>
         <barcode-outlined /> {{ vm.isoid }}
-      </a-tab-pane>
+      </a-tab-pane> -->
       <a-tab-pane :tab="$t('label.volumes')" key="volumes">
         <a-button
           type="primary"
@@ -124,22 +124,8 @@
           :routerlinks="(record) => { return { name: '/securitygroups/' + record.id } }"
           :showSearch="false"/>
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.schedules')" key="schedules" v-if="'listVMSchedule' in $store.getters.apis">
-        <InstanceSchedules
-          :virtualmachine="vm"
-          :loading="loading"/>
-      </a-tab-pane>
-      <a-tab-pane :tab="$t('label.settings')" key="settings">
-        <DetailSettings :resource="dataResource" :loading="loading" />
-      </a-tab-pane>
       <a-tab-pane :tab="$t('label.events')" key="events" v-if="'listEvents' in $store.getters.apis">
         <events-tab :resource="dataResource" resourceType="VirtualMachine" :loading="loading" />
-      </a-tab-pane>
-      <a-tab-pane :tab="$t('label.annotations')" key="comments" v-if="'listAnnotations' in $store.getters.apis">
-        <AnnotationsTab
-          :resource="vm"
-          :items="annotations">
-        </AnnotationsTab>
       </a-tab-pane>
     </a-tabs>
 
@@ -185,8 +171,6 @@
               </span>
             </a-select-option>
           </a-select>
-          <p class="modal-form__label">{{ $t('label.publicip') }}:</p>
-          <a-input v-model:value="addNetworkData.ip" :maxlength="20"></a-input>
         </div>
 
         <div :span="24" class="action-button">

@@ -31,7 +31,6 @@
           </template>
           <a-input
             v-model:value="form.name"
-            :maxlength="20"
             :placeholder="apiParams.name.description"
             v-focus="true" />
         </a-form-item>
@@ -41,7 +40,6 @@
           </template>
           <a-input
             v-model:value="form.displaytext"
-            :maxlength="100"
             :placeholder="apiParams.displaytext.description"
             v-focus="true" />
         </a-form-item>
@@ -84,7 +82,7 @@
             </a-col>
           </a-row>
         </div>
-        <a-form-item name="sourcenatipaddress" ref="sourcenatipaddress">
+        <!-- <a-form-item name="sourcenatipaddress" ref="sourcenatipaddress">
           <template #label>
             <tooltip-label :title="$t('label.sourcenatipaddress')" :tooltip="apiParams.sourcenatipaddress.description"/>
           </template>
@@ -102,7 +100,7 @@
             :placeholder="apiParams.sourcenatipaddress.description"
             v-focus="true"
             @change="sourcenatchange = form.sourcenatipaddress.length > 0"/>
-        </a-form-item>
+        </a-form-item> -->
         <a-form-item name="networkofferingid" ref="networkofferingid" v-if="isUpdatingIsolatedNetwork">
           <template #label>
             <tooltip-label :title="$t('label.networkofferingid')" :tooltip="apiParams.networkofferingid.description"/>
@@ -131,7 +129,7 @@
             </a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item name="guestvmcidr" ref="guestvmcidr">
+        <!-- <a-form-item name="guestvmcidr" ref="guestvmcidr">
           <template #label>
             <tooltip-label :title="$t('label.guestvmcidr')" :tooltip="apiParams.guestvmcidr.description"/>
           </template>
@@ -140,14 +138,14 @@
             :maxlength="20"
             :placeholder="apiParams.guestvmcidr.description"
             @change="(e) => { cidrChanged = e.target.value !== resource.cidr }" />
-        </a-form-item>
+        </a-form-item> -->
         <a-form-item name="changecidr" ref="changecidr" v-if="cidrChanged">
           <template #label>
             <tooltip-label :title="$t('label.changecidr')" :tooltip="apiParams.changecidr.description"/>
           </template>
           <a-switch v-model:checked="form.changecidr" />
         </a-form-item>
-        <a-form-item name="networkdomain" ref="networkdomain" v-if="isUpdatingIsolatedNetwork">
+        <!-- <a-form-item name="networkdomain" ref="networkdomain" v-if="isUpdatingIsolatedNetwork">
           <template #label>
             <tooltip-label :title="$t('label.networkdomain')" :tooltip="apiParams.guestvmcidr.description"/>
           </template>
@@ -156,7 +154,7 @@
             :maxlength="20"
             :placeholder="apiParams.networkdomain.description"
             v-focus="true" />
-        </a-form-item>
+        </a-form-item> -->
         <a-form-item name="updateinsequence" ref="updateinsequence" v-if="resource.redundantrouter">
           <template #label>
             <tooltip-label :title="$t('label.updateinsequence')" :tooltip="apiParams.updateinsequence.description"/>
@@ -213,19 +211,6 @@
             </a-col>
           </a-row>
         </div>
-        <a-form-item name="displaynetwork" ref="displaynetwork" v-if="isAdmin()">
-          <template #label>
-            <tooltip-label :title="$t('label.displaynetwork')" :tooltip="apiParams.displaynetwork.description"/>
-          </template>
-          <a-switch v-model:checked="form.displaynetwork" />
-        </a-form-item>
-        <a-form-item name="forced" ref="forced" v-if="isAdmin()">
-          <template #label>
-            <tooltip-label :title="$t('label.forced')" :tooltip="apiParams.forced.description"/>
-          </template>
-          <a-switch v-model:checked="form.forced" />
-        </a-form-item>
-
         <div :span="24" class="action-button">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>

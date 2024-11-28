@@ -105,7 +105,7 @@ public class StartSystemVMCmd extends BaseAsyncCmd {
 
     @Override
     public void execute() {
-        CallContext.current().setEventDetails("Vm Id: " + this._uuidMgr.getUuid(VirtualMachine.class, getId()));
+        CallContext.current().setEventDetails("가상머신 Id: " + this._uuidMgr.getUuid(VirtualMachine.class, getId()));
         VirtualMachine instance = _mgr.startSystemVM(getId());
         if (instance != null) {
             SystemVmResponse response = _responseGenerator.createSystemVmResponse(instance);

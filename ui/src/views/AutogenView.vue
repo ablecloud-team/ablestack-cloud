@@ -74,13 +74,13 @@
                   :un-checked-children="$t('label.metrics')"
                   :checked="$store.getters.metrics"
                   @change="(checked, event) => { $store.dispatch('SetMetrics', checked) }"/>
-                <a-switch
+                <!-- <a-switch
                   v-if="!projectView && hasProjectId && !(['event'].includes($route.name) || !securityfeatures)"
                   style="margin-left: 8px; min-height: 23px; margin-bottom: 4px"
                   :checked-children="$t('label.projects')"
                   :un-checked-children="$t('label.projects')"
                   :checked="$store.getters.listAllProjects"
-                  @change="(checked, event) => { $store.dispatch('SetListAllProjects', checked) }"/>
+                  @change="(checked, event) => { $store.dispatch('SetListAllProjects', checked) }"/> -->
               </template>
             </breadcrumb>
           </a-col>
@@ -90,7 +90,7 @@
             <slot name="action" v-if="dataView && $route.path.startsWith('/publicip')"></slot>
             <action-button
               v-else
-              :style="dataView ? { float: device === 'mobile' ? 'left' : 'right' } : { 'margin-right': '10px', display: getStyle() }"
+              :style="dataView ? { float: device === 'mobile' ? 'left' : 'right' } : { 'margin-right': '10px', display: getStyle(), float: 'right' }"
               :loading="loading"
               :actions="actions"
               :selectedRowKeys="selectedRowKeys"
@@ -98,13 +98,13 @@
               :dataView="dataView"
               :resource="resource"
               @exec-action="(action) => execAction(action, action.groupAction && !dataView)"/>
-            <search-view
+            <!-- <search-view
               v-if="!dataView"
               :searchFilters="searchFilters"
               :searchParams="searchParams"
               :apiName="apiName"
               @search="onSearch"
-              @change-filter="changeFilter"/>
+              @change-filter="changeFilter"/> -->
           </a-col>
         </a-row>
       </a-card>
@@ -269,7 +269,7 @@
                   v-focus="fieldIndex === firstIndex"
                 >
                   <a-select-option key="">{{ }}</a-select-option>
-                  <a-select-option v-for="(opt, optIndex) in field.opts" :key="optIndex">
+                  <a-select-option v-for="(opt, optIndex) in field.opts.filter((c) => (c.name === 'Windows 10 (64-bit)') || (c.name === 'Rocky Linux 9'))" :key="optIndex">
                     {{ opt.name || opt.description || opt.traffictype || opt.publicip }}
                   </a-select-option>
                 </a-select>
@@ -286,7 +286,7 @@
                   v-focus="fieldIndex === firstIndex"
                 >
                   <a-select-option key="" label="">{{ }}</a-select-option>
-                  <a-select-option v-for="opt in field.opts" :key="opt.id" :label="opt.name || opt.description || opt.traffictype || opt.publicip">
+                  <a-select-option v-for="opt in field.opts.filter((c) => (c.name === 'Windows 10 (64-bit)') || (c.name === 'Rocky Linux 9'))" :key="opt.id" :label="opt.name || opt.description || opt.traffictype || opt.publicip">
                     <div>
                       <span v-if="(field.name.startsWith('template') || field.name.startsWith('iso'))">
                         <span v-if="opt.icon">
@@ -341,7 +341,7 @@
                     return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }"
                 >
-                  <a-select-option v-for="(opt, optIndex) in field.opts" :key="optIndex">
+                  <a-select-option v-for="(opt, optIndex) in field.opts.filter((c) => (c.name === 'Windows 10 (64-bit)') || (c.name === 'Rocky Linux 9'))" :key="optIndex">
                     {{ opt.name && opt.type ? opt.name + ' (' + opt.type + ')' : opt.name || opt.description }}
                   </a-select-option>
                 </a-select>
@@ -530,7 +530,7 @@
                   v-focus="fieldIndex === firstIndex"
                 >
                   <a-select-option key="" label="">{{ }}</a-select-option>
-                  <a-select-option v-for="opt in field.opts" :key="opt.id" :label="opt.name || opt.description || opt.traffictype || opt.publicip">
+                  <a-select-option v-for="opt in field.opts.filter((c) => (c.name === 'Windows 10 (64-bit)') || (c.name === 'Rocky Linux 9'))" :key="opt.id" :label="opt.name || opt.description || opt.traffictype || opt.publicip">
                     <div>
                       <span v-if="(field.name.startsWith('template') || field.name.startsWith('iso'))">
                         <span v-if="opt.icon">
@@ -699,7 +699,7 @@ import Breadcrumb from '@/components/widgets/Breadcrumb'
 import ListView from '@/components/view/ListView'
 import ResourceView from '@/components/view/ResourceView'
 import ActionButton from '@/components/view/ActionButton'
-import SearchView from '@/components/view/SearchView'
+// import SearchView from '@/components/view/SearchView'
 import OsLogo from '@/components/widgets/OsLogo'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import BulkActionProgress from '@/components/view/BulkActionProgress'
@@ -712,7 +712,7 @@ export default {
     ResourceView,
     ListView,
     ActionButton,
-    SearchView,
+    // SearchView,
     BulkActionProgress,
     TooltipLabel,
     OsLogo,
@@ -1356,7 +1356,8 @@ export default {
             this.items = this.items.filter((row) => row.name !== 'baremetal-system-account')
           }
           if (this.apiName === 'listNetworkOfferings') {
-            this.items = this.items.filter((row) => !row.name.includes('쿠버네테스'))
+            this.items = this.items.filter((row) => row.guestiptype.includes('L2'))
+            this.items = this.items.filter((row) => !row.name.includes('with ConfigDrive'))
           }
         }
         for (let idx = 0; idx < this.items.length; idx++) {

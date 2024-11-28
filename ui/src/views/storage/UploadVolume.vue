@@ -32,7 +32,7 @@
         <a-form-item name="url" ref="url" :label="$t('label.url')">
           <a-input
             v-model:value="form.url"
-            :maxlength="500"
+            :maxlength="255"
             :placeholder="apiParams.url.description"/>
         </a-form-item>
         <a-form-item name="name" ref="name">
@@ -41,7 +41,6 @@
           </template>
           <a-input
             v-model:value="form.name"
-            :maxlength="20"
             :placeholder="$t('label.volumename')"
             v-focus="true" />
         </a-form-item>
@@ -81,29 +80,7 @@
             </a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item name="diskofferingid" ref="diskofferingid">
-          <template #label>
-            <tooltip-label :title="$t('label.diskofferingid')" :tooltip="apiParams.diskofferingid.description || $t('label.diskoffering')"/>
-          </template>
-          <a-select
-            v-model:value="form.diskofferingid"
-            :loading="loading"
-            @change="id => onChangeDiskOffering(id)"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option
-              v-for="(offering, index) in offerings"
-              :value="offering.id"
-              :key="index"
-              :label="offering.displaytext || offering.name">
-              {{ offering.displaytext || offering.name }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item name="checksum" ref="checksum">
+        <!-- <a-form-item name="checksum" ref="checksum">
           <template #label>
             <tooltip-label :title="$t('label.volumechecksum')" :tooltip="apiParams.checksum.description"/>
           </template>
@@ -112,8 +89,8 @@
             :maxlength="500"
             :placeholder="$t('label.volumechecksum.description')"
           />
-        </a-form-item>
-        <a-form-item name="domainid" ref="domainid" v-if="'listDomains' in $store.getters.apis">
+        </a-form-item> -->
+        <!-- <a-form-item name="domainid" ref="domainid" v-if="'listDomains' in $store.getters.apis">
           <template #label>
             <tooltip-label :title="$t('label.domain')" :tooltip="apiParams.domainid.description"/>
           </template>
@@ -149,7 +126,7 @@
               {{ acc.name }}
             </a-select-option>
           </a-select>
-        </a-form-item>
+        </a-form-item> -->
         <div :span="24" class="action-button">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button :loading="loading" type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
@@ -178,7 +155,7 @@ export default {
       zones: [],
       domainList: [],
       accountList: [],
-      formats: ['RAW', 'VHD', 'VHDX', 'OVA', 'QCOW2'],
+      formats: ['QCOW2'],
       offerings: [],
       zoneSelected: '',
       selectedDiskOfferingId: null,
@@ -299,10 +276,17 @@ export default {
         params.domainId = this.domainId
         this.loading = true
         api('uploadVolume', params).then(json => {
-          this.$notification.success({
-            message: this.$t('message.success.upload'),
-            description: this.$t('message.success.upload.volume.description')
-          })
+          const jobId = json.uploadvolumeresponse.jobid
+          if (jobId) {
+            this.$pollJob({
+              jobId: json.uploadvolumeresponse.jobid,
+              title: this.$t('message.success.create.volume'),
+              description: values.name,
+              successMessage: this.$t('message.success.create.volume'),
+              loadingMessage: this.$t('message.volume.state.uploadinprogress'),
+              catchMessage: this.$t('error.fetching.async.job.result')
+            })
+          }
           this.closeAction()
           this.$emit('refresh-data')
         }).catch(error => {

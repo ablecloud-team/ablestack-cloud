@@ -48,12 +48,12 @@
       </template>
       <works-url :resource="resource" :size="size"/>
     </a-tooltip>
-    <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="resource && resource.id && dataView">
+    <!-- <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="resource && resource.id && dataView">
       <template #title>
         {{ $t('label.wall.portal.vm.url') }}
       </template>
       <wall-link-url :resource="resource" :size="size" />
-    </a-tooltip>
+    </a-tooltip> -->
     <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="resource && resource.id && dataView">
       <template #title>
         {{ $t('label.genie.portal.url') }}

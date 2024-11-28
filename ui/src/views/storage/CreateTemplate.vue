@@ -33,7 +33,6 @@
         <a-input
           v-focus="true"
           v-model:value="form.name"
-          :maxlength="20"
           :placeholder="apiParams.name.description" />
       </a-form-item>
       <a-form-item ref="displaytext" name="displaytext">
@@ -42,7 +41,6 @@
         </template>
         <a-input
           v-model:value="form.displaytext"
-          :maxlength="100"
           :placeholder="apiParams.displaytext.description" />
       </a-form-item>
       <a-form-item ref="zoneid" name="zoneid">
@@ -84,7 +82,7 @@
           v-model:value="form.ostypeid"
           :loading="osTypes.loading"
           :placeholder="apiParams.ostypeid.description">
-          <a-select-option v-for="opt in osTypes.opts" :key="opt.id" :label="opt.name || opt.description">
+          <a-select-option v-for="opt in osTypes.opts.filter((c) => (c.name === 'Windows 10 (64-bit)') || (c.name === 'Rocky Linux 9'))" :key="opt.id" :label="opt.name || opt.description">
               {{ opt.name || opt.description }}
           </a-select-option>
           </a-select>
@@ -97,21 +95,6 @@
               style="width: 100%;"
             >
               <a-row>
-                <a-col :span="12">
-                  <a-checkbox value="passwordenabled">
-                    {{ $t('label.passwordenabled') }}
-                  </a-checkbox>
-                </a-col>
-                <a-col :span="12">
-                  <a-checkbox value="isdynamicallyscalable">
-                    {{ $t('label.isdynamicallyscalable') }}
-                  </a-checkbox>
-                </a-col>
-                <a-col :span="12">
-                  <a-checkbox value="requireshvm">
-                    {{ $t('label.requireshvm') }}
-                  </a-checkbox>
-                </a-col>
                 <a-col :span="12" v-if="isAdminRole">
                   <a-checkbox value="isfeatured">
                     {{ $t('label.isfeatured') }}

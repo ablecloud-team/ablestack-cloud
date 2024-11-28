@@ -275,7 +275,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
 
     public static final String VM_WORK_JOB_HANDLER = VirtualMachineManagerImpl.class.getSimpleName();
 
-    private static final String VM_SYNC_ALERT_SUBJECT = "VM state sync alert";
+    private static final String VM_SYNC_ALERT_SUBJECT = "가상머신 상태 동기화 경고";
 
     @Inject
     private UserVmManager _userVmMgr;

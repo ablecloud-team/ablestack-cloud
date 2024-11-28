@@ -131,7 +131,7 @@
             </router-link>
           </a-col>
           <a-col :span="12">
-            <router-link :to="{ path: '/systemvm', query: { zoneid: zoneSelected.id } }">
+            <!-- <router-link :to="{ path: '/systemvm', query: { zoneid: zoneSelected.id } }"> -->
               <a-statistic
                 :title="$t('label.system.vms')"
                 :value="data.systemvms"
@@ -140,9 +140,9 @@
                   <thunderbolt-outlined/>&nbsp;
                 </template>
               </a-statistic>
-            </router-link>
+            <!-- </router-link> -->
           </a-col>
-          <a-col :span="12">
+          <!-- <a-col :span="12">
             <router-link :to="{ path: '/router', query: { zoneid: zoneSelected.id } }">
               <a-statistic
                 :title="$t('label.virtual.routers')"
@@ -153,7 +153,7 @@
                 </template>
               </a-statistic>
             </router-link>
-          </a-col>
+          </a-col> -->
           <a-col :span="12">
             <router-link :to="{ path: '/vm', query: { zoneid: zoneSelected.id, projectid: '-1' } }">
               <a-statistic
@@ -177,7 +177,7 @@
           </div>
         </template>
         <div>
-          <div v-for="ctype in ['MEMORY', 'CPU', 'CPU_CORE', 'GPU']" :key="ctype" >
+          <div v-for="ctype in ['MEMORY', 'CPU', 'CPU_CORE']" :key="ctype" >
             <div v-if="statsMap[ctype]">
               <div>
                 <strong>{{ $t(ts[ctype]) }}</strong>
@@ -207,7 +207,7 @@
           </div>
         </template>
         <div>
-          <div v-for="ctype in ['STORAGE', 'STORAGE_ALLOCATED', 'LOCAL_STORAGE', 'SECONDARY_STORAGE']" :key="ctype" >
+          <div v-for="ctype in ['STORAGE', 'STORAGE_ALLOCATED', 'LOCAL_STORAGE']" :key="ctype" >
             <div v-if="statsMap[ctype]">
               <div>
                 <strong>{{ $t(ts[ctype]) }}</strong>
@@ -237,7 +237,7 @@
           </div>
         </template>
         <div>
-          <div v-for="ctype in ['VLAN', 'VIRTUAL_NETWORK_PUBLIC_IP', 'VIRTUAL_NETWORK_IPV6_SUBNET', 'DIRECT_ATTACHED_PUBLIC_IP', 'PRIVATE_IP']" :key="ctype" >
+          <div v-for="ctype in ['VIRTUAL_NETWORK_PUBLIC_IP', 'VIRTUAL_NETWORK_IPV6_SUBNET', 'DIRECT_ATTACHED_PUBLIC_IP', 'PRIVATE_IP']" :key="ctype" >
             <div v-if="statsMap[ctype]">
               <div>
                 <strong>{{ $t(ts[ctype]) }}</strong>
@@ -304,9 +304,9 @@
             :color="getEventColour(event)">
             <span :style="{ color: '#999' }"><small>{{ $toLocaleDate(event.created) }}</small></span>&nbsp;
             <span :style="{ color: '#666' }"><small><router-link :to="{ path: '/event/' + event.id }">{{ event.type }}</router-link></small></span><br/>
-            <span>
+            <!-- <span>
               <resource-label :resourceType="event.resourcetype" :resourceId="event.resourceid" :resourceName="event.resourcename" />
-            </span>
+            </span> -->
             <span :style="{ color: '#aaa' }">({{ event.username }}) {{ event.description }}</span>
           </a-timeline-item>
         </a-timeline>
@@ -500,9 +500,14 @@ export default {
           this.data.totalHosts = 0
         }
       })
-      api('listHosts', { zoneid: zone.id, listall: true, details: 'min', type: 'routing', state: 'alert', page: 1, pagesize: 1 }).then(json => {
+      api('listHosts', { zoneid: zone.id, listall: true, details: 'min', type: 'routing' }).then(json => {
         this.loading = false
-        this.data.alertHosts = json?.listhostsresponse?.count
+        this.data.alertHosts = 0
+        for (var i = 0; i < json?.listhostsresponse?.count; i++) {
+          if (json?.listhostsresponse?.host[i].state !== 'Up') {
+            this.data.alertHosts += 1
+          }
+        }
         if (!this.data.alertHosts) {
           this.data.alertHosts = 0
         }

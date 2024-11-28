@@ -44,7 +44,7 @@ public class UpdatePodCmd extends BaseCmd {
     @Parameter(name = ApiConstants.ID, type = CommandType.UUID, entityType = PodResponse.class, required = true, description = "the ID of the Pod")
     private Long id;
 
-    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "the name of the Pod")
+    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "Pod의 이름")
     private String podName;
 
     @Parameter(name = ApiConstants.START_IP, type = CommandType.STRING, description = "the starting IP address for the Pod")
@@ -53,10 +53,10 @@ public class UpdatePodCmd extends BaseCmd {
     @Parameter(name = ApiConstants.END_IP, type = CommandType.STRING, description = "the ending IP address for the Pod")
     private String endIp;
 
-    @Parameter(name = ApiConstants.NETMASK, type = CommandType.STRING, description = "the netmask of the Pod")
+    @Parameter(name = ApiConstants.NETMASK, type = CommandType.STRING, description = "Pod의 넷마스크")
     private String netmask;
 
-    @Parameter(name = ApiConstants.GATEWAY, type = CommandType.STRING, description = "the gateway for the Pod")
+    @Parameter(name = ApiConstants.GATEWAY, type = CommandType.STRING, description = "Pod의 게이트웨이")
     private String gateway;
 
     @Parameter(name = ApiConstants.ALLOCATION_STATE, type = CommandType.STRING, description = "Allocation state of this cluster for allocation of new resources")

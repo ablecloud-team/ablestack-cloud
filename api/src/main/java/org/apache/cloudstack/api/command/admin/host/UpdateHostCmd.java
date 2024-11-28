@@ -44,7 +44,7 @@ public class UpdateHostCmd extends BaseCmd {
     @Parameter(name = ApiConstants.ID, type = CommandType.UUID, entityType = HostResponse.class, required = true, description = "the ID of the host to update")
     private Long id;
 
-    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "Change the name of host", since = "4.15", authorized = {RoleType.Admin})
+    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "호스트 이름", since = "4.15", authorized = {RoleType.Admin})
     private String name;
 
     @Parameter(name = ApiConstants.OS_CATEGORY_ID,

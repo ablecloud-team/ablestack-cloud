@@ -134,7 +134,7 @@ public class AddNetworkServiceProviderCmd extends BaseAsyncCreateCmd {
 
     @Override
     public String getEventDescription() {
-        return "Adding physical network ServiceProvider: " + getEntityId();
+        return "물리 네트워크 서비스 공급자 추가: " + getEntityId();
     }
 
     @Override
