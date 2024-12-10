@@ -220,6 +220,7 @@ import com.cloud.dc.DataCenter;
 import com.cloud.dc.DedicatedResourceVO;
 import com.cloud.dc.dao.ClusterDao;
 import com.cloud.dc.dao.DedicatedResourceDao;
+import com.cloud.dr.cluster.DisasterRecoveryDetailConstants;
 import com.cloud.domain.Domain;
 import com.cloud.domain.DomainVO;
 import com.cloud.domain.dao.DomainDao;
@@ -4997,6 +4998,9 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             case VnfTemplate:
                 fillVnfTemplateDetailOptions(options);
                 return new DetailOptionsResponse(options);
+            case DisasterRecoveryCluster:
+                fillDisasterRecoveryClusterDetailOptions(options);
+                return new DetailOptionsResponse(options);
             default:
                 throw new CloudRuntimeException("Resource type not supported.");
         }
@@ -5068,6 +5072,13 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             options.put(VmDetailConstants.SVGA_VRAM_SIZE, Collections.emptyList());
             options.put(VmDetailConstants.RAM_RESERVATION, Collections.emptyList());
         }
+    }
+
+    private void fillDisasterRecoveryClusterDetailOptions(final Map<String, List<String>> options) {
+        if (options == null) {
+            throw new CloudRuntimeException("Invalid/null detail-options response object passed");
+        }
+        options.put(DisasterRecoveryDetailConstants.KEYBOARD, Arrays.asList("uk", "us", "jp", "fr"));
     }
 
     @Override

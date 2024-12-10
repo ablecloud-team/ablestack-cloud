@@ -1261,6 +1261,29 @@ public class ApiConstants {
             "numeric value will be applied; if the result is neither a boolean nor a numeric value, the tariff will not be applied. If the rule is not informed, the tariff " +
             "value will be applied.";
 
+    public static final String DR_CLUSTER_TYPE = "drclustertype";
+    public static final String DR_CLUSTER_URL = "drclusterurl";
+    public static final String DR_CLUSTER_STATUS = "drclusterstatus";
+    public static final String DR_CLUSTER_API_KEY = "drclusterapikey";
+    public static final String DR_CLUSTER_SECRET_KEY = "drclustersecretkey";
+    public static final String DR_CLUSTER_PRIVATE_KEY = "drclusterprivatekey";
+    public static final String DR_CLUSTER_GLUE_IP_ADDRESS = "drclusterglueipaddress";
+    public static final String DR_CLUSTER_VM_MAP = "drclustervmmap";
+    public static final String DR_CLUSTER_ID = "drclusterid";
+    public static final String DR_CLUSTER_VM_ID = "drclustervmid";
+    public static final String DR_CLUSTER_VM_STATUS = "drclustervmstatus";
+    public static final String DR_CLUSTER_MIRROR_VM_ID = "drclustermirrorvmid";
+    public static final String DR_CLUSTER_MIRROR_VM_NAME = "drclustermirrorvmname";
+    public static final String DR_CLUSTER_MIRROR_VM_STATUS = "drclustermirrorvmstatus";
+    public static final String DR_CLUSTER_MIRROR_VM_VOL_STATUS = "drclustermirrorvmvolstatus";
+    public static final String DR_CLUSTER_MIRROR_VM_VOL_TYPE = "drclustermirrorvmvoltype";
+    public static final String DR_CLUSTER_MIRROR_VM_VOL_PATH = "drclustermirrorvmvolpath";
+    public static final String DR_CLUSTER_NAME = "drclustername";
+    public static final String DR_CLUSTER_VM_VOL_STATUS = "drclustervmvolstatus";
+    public static final String DR_CLUSTER_VM_NAME = "drclustervmname";
+    public static final String MIRRORING_AGENT_STATUS = "mirroringagentstatus";
+    public static final String DISASTER_RECOVERY_CLUSTER_VM_LIST = "disasterrecoveryclustervmlist";
+
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.
      * Qemu guests support "threads" and "native" options Since 0.8.8 ; "io_uring" is supported Since 6.3.0 (QEMU 5.0).
