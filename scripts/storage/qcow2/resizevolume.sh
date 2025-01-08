@@ -101,11 +101,13 @@ notifyqemu() {
         image_name="${result//-/}"
         partition_name=$(lsblk $devicePath -p -J |jq -r '.blockdevices[0].children[0].name')
 
-        parted -f --script $devicePath resizepart 1 100%
+        parted -s -f $devicePath resizepart 1 100%
         pvresize $partition_name
+        lvresize -l +100%FREE "vg_"$image_name"/ablestack_kvdo"
         lvresize -l +100%FREE "vg_"$image_name
-        lvresize --size $sizeinkb"kb" "vg_"$image_name"/ablestack_kvdo"
         devicepath=$(virsh domblklist $vmname | grep "/dev/mapper/vg_$image_name-ablestack_kvdo" | awk '{print $1}')
+        deviceBytes=$(lvs --units b "vg_$image_name/ablestack_kvdo" | grep ablestack_kvdo | awk '{print $4}' | sed 's/B$//')
+        sizeinkb=$(($deviceBytes/1024))
       fi
       virsh blockresize --path $devicepath --size $sizeinkb $vmname >/dev/null 2>&1
       retval=$?
@@ -115,6 +117,26 @@ notifyqemu() {
       else
         liveresize='true'
       fi
+    elif [ "$kvdoenable" == "true" ]; then
+      # kvdo devicepath
+      IFS='/' read -r -a image_info <<< "$path"
+      devicePath=$(rbd showmapped | grep "${image_info[0]}[ ]*${image_info[1]}" | grep -o "[^ ]*[ ]*$")
+      if [ -z "$devicePath" ]; then
+        rbd map "${image_info[0]}/${image_info[1]}"
+        devicePath=$(rbd showmapped | grep "${image_info[0]}[ ]*${image_info[1]}" | grep -o "[^ ]*[ ]*$")
+      fi
+      result="${image_info[1]}"
+      image_name="${result//-/}"
+      vg_name=vg_$image_name
+      partition_name=$(lsblk $devicePath -p -J |jq -r '.blockdevices[0].children[0].name')
+
+      vgchange -ay $vg_name
+      parted -s -f $devicePath resizepart 1 100%
+      pvresize $partition_name
+      lvresize -l +100%FREE "vg_"$image_name"/ablestack_kvdo"
+      lvresize -l +100%FREE "vg_"$image_name
+      vgchange -an $vg_name
+      rbd unmap "${image_info[0]}/${image_info[1]}"
     fi
   fi
 }

@@ -66,8 +66,9 @@ partitionExist=$(lsblk $devicePath -p -J |jq -r '.blockdevices[0].children')
 vg_name=vg_$(echo $ImageName| sed 's/-//g')
 if [ "$partitionExist" == "null" ]; then
   # create partition
-  parted --script $devicePath mklabel gpt
-  parted --script $devicePath mkpart primary 1 100%
+  #parted --script $devicePath mklabel gpt
+  #parted --script $devicePath mkpart primary 1 100%
+  parted -s $devicePath mklabel gpt mkpart primary 0% 100% set 1 lvm on
 
   firstPartitionPath=$(lsblk $devicePath -p -J |jq -r '.blockdevices[0].children[0].name')
 
@@ -77,7 +78,7 @@ if [ "$partitionExist" == "null" ]; then
   # create vg
   vgcreate $vg_name $firstPartitionPath
 
-  lvcreate --type vdo --name ablestack_kvdo -l +100%FREE --virtualsize $ImageSize"B" $vg_name
+  lvcreate --type vdo --name ablestack_kvdo -l +100%FREE $vg_name
 
 else
   firstPartitionPath=$(lsblk $devicePath -p -J |jq -r '.blockdevices[0].children[0].name')
