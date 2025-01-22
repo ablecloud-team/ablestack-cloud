@@ -2919,9 +2919,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
             int socket = getCoresPerSocket(vcpus, details);
             boolean isIothreadsEnabled = details != null && details.containsKey(VmDetailConstants.IOTHREADS);
-            for (int i = 0; i < socket; i++) {
-                devices.addDevice(createSCSIDef(i, i, vcpus, isIothreadsEnabled));
-            }
+            addSCSIControllers(devices, vcpus, vmTO.getDisks().length, isIothreadsEnabled);
         }
 
 
@@ -2982,20 +2980,19 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
      * Creates Virtio SCSI controller. <br>
      * The respective Virtio SCSI XML definition is generated only if the VM's Disk Bus is of ISCSI.
      */
-    protected SCSIDef createSCSIDef(int index, int function ,int vcpus) {
-        return new SCSIDef((short)index, 0, 0, 9, function, vcpus);
+    protected SCSIDef createSCSIDef(short index, int vcpus, boolean isIothreadsEnabled) {
+        return new SCSIDef(index, 0, 0, 9 + index, 0, vcpus, isIothreadsEnabled);
     }
 
-    protected SCSIDef createSCSIDef(int vcpus) {
-        return new SCSIDef((short)0, 0, 0, 9, 0, vcpus);
-    }
 
-    protected SCSIDef createSCSIDef(int index, int function, int vcpus, boolean isIothreadsEnabled) {
-        return new SCSIDef((short)index, 0, 0, 9, function, vcpus, isIothreadsEnabled);
-    }
-
-    protected SCSIDef createSCSIDef(int vcpus, boolean isIothreadsEnabled) {
-        return new SCSIDef((short)0, 0, 0, 9, 0, vcpus, isIothreadsEnabled);
+    private void addSCSIControllers(DevicesDef devices, int vcpus, int diskCount, boolean isIothreadsEnabled) {
+        int controllers = diskCount / 7;
+        if (diskCount % 7 != 0) {
+            controllers++;
+        }
+        for (int i = 0; i < controllers; i++) {
+            devices.addDevice(createSCSIDef((short)i, vcpus, isIothreadsEnabled));
+        }
     }
 
     protected ConsoleDef createConsoleDef() {
