@@ -134,9 +134,9 @@ export default {
             if (!store.getters.zones || store.getters.zones.length === 0) {
               return false
             }
-            const AdvancedZones = store.getters.zones.filter(zone => zone.networktype === 'Advanced')
+            // const AdvancedZones = store.getters.zones.filter(zone => zone.networktype === 'Advanced')
             const AdvancedZonesWithoutSG = store.getters.zones.filter(zone => zone.securitygroupsenabled === false)
-            if ((isAdmin() && AdvancedZones && AdvancedZones.length > 0) || (AdvancedZonesWithoutSG && AdvancedZonesWithoutSG.length > 0)) {
+            if (isAdmin() || (AdvancedZonesWithoutSG && AdvancedZonesWithoutSG.length > 0)) {
               return true
             }
             return false

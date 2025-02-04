@@ -895,9 +895,9 @@ class cloudAgentConfig(serviceCfgBase):
                 cfo.addEntry("resource", "com.cloud.hypervisor.kvm.resource.LibvirtComputingResource")
             cfo.save()
 
-            self.syscfg.svo.stopService("cloudstack-agent")
+            self.syscfg.svo.stopService("mold-agent")
             bash("sleep 30")
-            self.syscfg.svo.enableService("cloudstack-agent")
+            self.syscfg.svo.enableService("mold-agent")
             return True
         except:
             raise
@@ -917,8 +917,8 @@ class cloudAgentConfig(serviceCfgBase):
             cfo.addEntry("resource", "com.cloud.agent.resource.computing.consoleProxyResource")
             cfo.save()
 
-            self.syscfg.svo.stopService("cloudstack-agent")
-            self.syscfg.svo.enableService("cloudstack-agent")
+            self.syscfg.svo.stopService("mold-agent")
+            self.syscfg.svo.enableService("mold-agent")
             return True
         except:
             raise

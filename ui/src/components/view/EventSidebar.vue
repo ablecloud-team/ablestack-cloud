@@ -161,9 +161,13 @@ export default {
         listall: true
       }
       try {
-        const settingsResponse = await api('listConfigurations', { name: 'event.recent.minutes' })
-        const eventListBarSetting = settingsResponse?.listconfigurationsresponse?.configuration[0]?.value || 5
-        this.eventListBarMinutes = parseInt(eventListBarSetting, 10) * 60 * 1000
+        if (this.$store.getters.userInfo.roletype === 'Admin') {
+          const settingsResponse = await api('listConfigurations', { name: 'event.recent.minutes' })
+          const eventListBarSetting = settingsResponse?.listconfigurationsresponse?.configuration[0]?.value || 5
+          this.eventListBarMinutes = parseInt(eventListBarSetting, 10) * 60 * 1000
+        } else {
+          this.eventListBarMinutes = parseInt(5, 10) * 60 * 1000
+        }
         const response = await api('listEvents', params)
         if (response && response.listeventsresponse) {
           const events = response.listeventsresponse.event || []

@@ -215,7 +215,6 @@ export default {
       return isNsx
     },
     allSteps () {
-      console.log(this.isNsxZone)
       const steps = []
       steps.push({
         title: 'label.physical.network',

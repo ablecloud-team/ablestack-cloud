@@ -118,12 +118,6 @@
             </a-form-item>
           </a-col>
         </a-row>
-        <a-form-item ref="isdynamicallyscalable" name="isdynamicallyscalable">
-          <template #label>
-            <tooltip-label :title="$t('label.isdynamicallyscalable')" :tooltip="apiParams.isdynamicallyscalable.description"/>
-          </template>
-          <a-switch v-model:checked="form.isdynamicallyscalable" />
-        </a-form-item>
 
         <a-form-item
           name="arch"
@@ -201,7 +195,7 @@ export default {
         displaytext: [{ required: true, message: this.$t('message.error.required.input') }],
         ostypeid: [{ required: true, message: this.$t('message.error.select') }]
       })
-      const resourceFields = ['name', 'displaytext', 'passwordenabled', 'ostypeid', 'userdataid', 'userdatapolicy', 'isdynamicallyscalable']
+      const resourceFields = ['name', 'displaytext', 'passwordenabled', 'isdynamicallyscalable', 'ostypeid', 'userdataid', 'userdatapolicy']
 
       for (var field of resourceFields) {
         var fieldValue = this.resource[field]

@@ -27,7 +27,6 @@ Description=Mold Usage Server
 Documentation=http://www.cloudstack.org/
 Wants=network.target network-online.target mariadb.service mysqld.service mysql.service
 After=network.target network-online.target mariadb.service mysqld.service mysql.service
-PartOf=mold.service
 
 [Service]
 Type=simple
