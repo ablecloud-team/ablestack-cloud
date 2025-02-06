@@ -137,21 +137,21 @@ public class DomainChecker extends AdapterBase implements SecurityChecker {
     @Override
     public boolean checkAccess(Account caller, Domain domain) throws PermissionDeniedException {
         if (caller.getState() != Account.State.ENABLED) {
-            throw new PermissionDeniedException(String.format("Account %s is disabled.", caller));
+            throw new PermissionDeniedException("Account " + caller.getAccountName() + " is disabled.");
         }
 
         if (domain == null) {
-            throw new PermissionDeniedException(String.format("Provided domain is NULL, cannot check access for account [%s]", caller));
+            throw new PermissionDeniedException(String.format("Provided domain is NULL, cannot check access for account [uuid=%s, name=%s]", caller.getUuid(), caller.getAccountName()));
         }
 
         long domainId = domain.getId();
 
         if (_accountService.isNormalUser(caller.getId())) {
             if (caller.getDomainId() != domainId) {
-                throw new PermissionDeniedException(String.format("Account %s does not have permission to operate within domain id=%s", caller, domain.getUuid()));
+                throw new PermissionDeniedException("Account " + caller.getAccountName() + " does not have permission to operate within domain id=" + domain.getUuid());
             }
         } else if (!_domainDao.isChildDomain(caller.getDomainId(), domainId)) {
-            throw new PermissionDeniedException(String.format("Account %s does not have permission to operate within domain id=%s", caller, domain.getUuid()));
+            throw new PermissionDeniedException("Account " + caller.getAccountName() + " does not have permission to operate within domain id=" + domain.getUuid());
         }
 
         return true;
@@ -187,7 +187,8 @@ public class DomainChecker extends AdapterBase implements SecurityChecker {
                 // account can launch a VM from this template
                 LaunchPermissionVO permission = _launchPermissionDao.findByTemplateAndAccount(template.getId(), caller.getId());
                 if (permission == null) {
-                    throw new PermissionDeniedException(String.format("Account %s does not have permission to launch instances from template %s", caller, template));
+                    throw new PermissionDeniedException("Account " + caller.getAccountName() +
+                            " does not have permission to launch instances from template " + template.getName());
                 }
             } else {
                 // Domain admin and regular user can delete/modify only templates created by them
@@ -220,6 +221,8 @@ public class DomainChecker extends AdapterBase implements SecurityChecker {
 
     protected void validateCallerHasAccessToEntityOwner(Account caller, ControlledEntity entity, AccessType accessType) {
         PermissionDeniedException exception = new PermissionDeniedException("Caller does not have permission to operate with provided resource.");
+        String entityLog = String.format("entity [owner ID: %d, type: %s]", entity.getAccountId(),
+                entity.getEntityType().getSimpleName());
 
         if (_accountService.isRootAdmin(caller.getId())) {
             return;
@@ -230,7 +233,6 @@ public class DomainChecker extends AdapterBase implements SecurityChecker {
         }
 
         Account owner = _accountDao.findById(entity.getAccountId());
-        String entityLog = String.format("entity [owner: %s, type: %s]", owner, entity.getEntityType().getSimpleName());
         if (owner == null) {
             logger.error(String.format("Owner not found for %s", entityLog));
             throw exception;
@@ -246,20 +248,20 @@ public class DomainChecker extends AdapterBase implements SecurityChecker {
             // only project owner can delete/modify the project
             if (accessType == AccessType.ModifyProject) {
                 if (!_projectMgr.canModifyProjectAccount(caller, owner.getId())) {
-                    logger.error("Caller: {} does not have permission to modify project with " +
-                            "owner: {}", caller, owner);
+                    logger.error(String.format("Caller ID: %d does not have permission to modify project with " +
+                            "owner ID: %d", caller.getId(), owner.getId()));
                     throw exception;
                 }
             } else if (!_projectMgr.canAccessProjectAccount(caller, owner.getId())) {
-                logger.error("Caller: {} does not have permission to access project with " +
-                        "owner: {}", caller, owner);
+                logger.error(String.format("Caller ID: %d does not have permission to access project with " +
+                        "owner ID: %d", caller.getId(), owner.getId()));
                 throw exception;
             }
             checkOperationPermitted(caller, entity);
             return;
         }
 
-        logger.error("Caller: {} does not have permission to access {}", caller, entityLog);
+        logger.error(String.format("Caller ID: %d does not have permission to access %s", caller.getId(), entityLog));
         throw exception;
     }
 

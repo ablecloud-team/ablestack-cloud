@@ -79,7 +79,7 @@ public interface VolumeOrchestrationService {
     ConfigKey<Long> MaxVolumeSize = new ConfigKey<Long>("Storage",
             Long.class,
             "storage.max.volume.size",
-            "10000",
+            "2000",
             "The maximum size for a volume (in GiB).",
             true);
 

@@ -38,7 +38,7 @@ public class KubernetesClusterStopWorker extends KubernetesClusterActionWorker {
     public boolean stop() throws CloudRuntimeException {
         init();
         if (logger.isInfoEnabled()) {
-            logger.info("Stopping Kubernetes cluster: {}", kubernetesCluster);
+            logger.info(String.format("Stopping Kubernetes cluster : %s", kubernetesCluster.getName()));
         }
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.StopRequested);
         List<UserVm> clusterVMs = getKubernetesClusterVMs();
@@ -51,7 +51,8 @@ public class KubernetesClusterStopWorker extends KubernetesClusterActionWorker {
             try {
                 userVmService.stopVirtualMachine(vm.getId(), false);
             } catch (ConcurrentOperationException ex) {
-                logger.warn("Failed to stop VM: {} in Kubernetes cluster: {}", vm, kubernetesCluster, ex);
+                logger.warn(String.format("Failed to stop VM : %s in Kubernetes cluster : %s",
+                    vm.getDisplayName(), kubernetesCluster.getName()), ex);
             } finally {
                 CallContext.unregister();
             }

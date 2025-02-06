@@ -26,7 +26,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import com.cloud.dc.dao.ClusterDao;
 import org.apache.cloudstack.annotation.AnnotationService;
 import org.apache.cloudstack.annotation.dao.AnnotationDao;
 import org.apache.logging.log4j.Logger;
@@ -74,8 +73,6 @@ public class PrimaryDataStoreHelper {
     protected CapacityDao _capacityDao;
     @Inject
     protected StoragePoolHostDao storagePoolHostDao;
-    @Inject
-    protected ClusterDao clusterDao;
     @Inject
     private AnnotationDao annotationDao;
 
@@ -270,7 +267,7 @@ public class PrimaryDataStoreHelper {
         this._capacityDao.removeBy(Capacity.CAPACITY_TYPE_STORAGE_ALLOCATED, null, null, null, poolVO.getId());
         txn.commit();
 
-        logger.debug("Storage pool {} is removed successfully", poolVO);
+        logger.debug("Storage pool id=" + poolVO.getId() + " is removed successfully");
         return true;
     }
 
@@ -290,7 +287,7 @@ public class PrimaryDataStoreHelper {
                 _capacityDao.update(capacity.getId(), capacity);
             }
         });
-        logger.debug("Scope of storage pool {} is changed to zone", pool);
+        logger.debug("Scope of storage pool id=" + pool.getId() + " is changed to zone");
     }
 
     public void switchToCluster(DataStore store, ClusterScope clusterScope) {
@@ -316,6 +313,6 @@ public class PrimaryDataStoreHelper {
                 _capacityDao.update(capacity.getId(), capacity);
             }
         });
-        logger.debug("Scope of storage pool {} is changed to cluster {}", pool::toString, () -> clusterDao.findById(clusterScope.getScopeId()));
+        logger.debug("Scope of storage pool id=" + pool.getId() + " is changed to cluster id=" + clusterScope.getScopeId());
     }
 }

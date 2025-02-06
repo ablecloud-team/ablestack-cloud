@@ -23,7 +23,6 @@ import com.cloud.network.RemoteAccessVpn;
 import com.cloud.network.VpnUser;
 import com.cloud.network.router.VpcVirtualNetworkApplianceManagerImpl;
 import com.cloud.network.vpc.Vpc;
-import com.cloud.network.vpc.dao.VpcDao;
 import com.cloud.utils.db.EntityManager;
 import com.cloud.vm.DomainRouterVO;
 import com.cloud.vm.dao.DomainRouterDao;
@@ -52,10 +51,7 @@ import static org.mockito.Mockito.when;
 public class VpcVirtualRouterElementTest {
     @Mock
     DataCenterDao _dcDao;
-    @Mock
-    private DomainRouterDao _routerDao;
-    @Mock
-    VpcDao _vpcDao;
+    @Mock private DomainRouterDao _routerDao;
 
     @Mock
     EntityManager _entityMgr;

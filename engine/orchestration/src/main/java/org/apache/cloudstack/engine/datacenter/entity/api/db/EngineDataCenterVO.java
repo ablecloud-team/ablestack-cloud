@@ -43,7 +43,6 @@ import com.cloud.org.Grouping;
 import com.cloud.utils.NumbersUtil;
 import com.cloud.utils.db.GenericDao;
 import com.cloud.utils.db.StateMachine;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "data_center")
@@ -523,12 +522,5 @@ public class EngineDataCenterVO implements EngineDataCenter, Identity {
     @Override
     public DataCenter.Type getType() {
         return type;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("EngineDataCenter %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name"));
     }
 }

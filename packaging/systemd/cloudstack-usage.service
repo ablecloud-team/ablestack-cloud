@@ -23,7 +23,7 @@
 # add a Requires dependency there. Check systemd documentation for details
 
 [Unit]
-Description=Mold Usage Server
+Description=CloudStack Usage Server
 Documentation=http://www.cloudstack.org/
 Wants=network.target network-online.target mariadb.service mysqld.service mysql.service
 After=network.target network-online.target mariadb.service mysqld.service mysql.service

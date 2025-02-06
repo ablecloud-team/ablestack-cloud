@@ -215,8 +215,7 @@ public class SolidFirePrimaryDataStoreDriver implements PrimaryDataStoreDriver {
         }
 
         if (isRevokeAccessNotNeeded(dataObject)) {
-            logger.debug("Skipping revoke access for Solidfire data object type: {} id: {} uuid: {}",
-                    dataObject.getType(), dataObject.getId(), dataObject.getUuid());
+            logger.debug("Skipping revoke access for Solidfire data object type:" + dataObject.getType() + " id:" + dataObject.getId());
             return;
         }
 
@@ -236,8 +235,7 @@ public class SolidFirePrimaryDataStoreDriver implements PrimaryDataStoreDriver {
             throw new CloudRuntimeException(errMsg);
         }
 
-        logger.debug("Revoking access for Solidfire data object type: {} id: {} uuid: {}",
-                dataObject.getType(), dataObject.getId(), dataObject.getUuid());
+        logger.debug("Revoking access for Solidfire data object type:" + dataObject.getType() + " id:" + dataObject.getId());
 
         try {
             SolidFireUtil.SolidFireConnection sfConnection = SolidFireUtil.getSolidFireConnection(storagePoolId, storagePoolDetailsDao);
@@ -953,7 +951,7 @@ public class SolidFirePrimaryDataStoreDriver implements PrimaryDataStoreDriver {
             result.setResult(null);
         }
         catch (Exception ex) {
-            logger.debug("{}Failed to take CloudStack snapshot: {}", SolidFireUtil.LOGGER_PREFIX, snapshotInfo.getSnapshotVO(), ex);
+            logger.debug(SolidFireUtil.LOGGER_PREFIX + "Failed to take CloudStack snapshot: " + snapshotInfo.getId(), ex);
 
             result = new CreateCmdResult(null, new CreateObjectAnswer(ex.toString()));
 
@@ -1271,7 +1269,7 @@ public class SolidFirePrimaryDataStoreDriver implements PrimaryDataStoreDriver {
             }
         }
         catch (Exception ex) {
-            logger.debug("{}Failed to delete SolidFire volume. CloudStack volume {}", SolidFireUtil.LOGGER_PREFIX, volumeInfo.getVolume(), ex);
+            logger.debug(SolidFireUtil.LOGGER_PREFIX + "Failed to delete SolidFire volume. CloudStack volume ID: " + volumeInfo.getId(), ex);
 
             throw ex;
         }
@@ -1314,7 +1312,7 @@ public class SolidFirePrimaryDataStoreDriver implements PrimaryDataStoreDriver {
             storagePoolDao.update(storagePoolId, storagePool);
         }
         catch (Exception ex) {
-            logger.debug("{}Issue in 'deleteSnapshot(SnapshotInfo, long)'. CloudStack snapshot: {}", SolidFireUtil.LOGGER_PREFIX, snapshotInfo.getSnapshotVO(), ex);
+            logger.debug(SolidFireUtil.LOGGER_PREFIX + "Issue in 'deleteSnapshot(SnapshotInfo, long)'. CloudStack snapshot ID: " + csSnapshotId, ex);
 
             throw ex;
         }
@@ -1338,7 +1336,7 @@ public class SolidFirePrimaryDataStoreDriver implements PrimaryDataStoreDriver {
             storagePoolDao.update(storagePoolId, storagePool);
         }
         catch (Exception ex) {
-            logger.debug("{}Failed to delete SolidFire template volume. CloudStack template: {}", SolidFireUtil.LOGGER_PREFIX, template, ex);
+            logger.debug(SolidFireUtil.LOGGER_PREFIX + "Failed to delete SolidFire template volume. CloudStack template ID: " + template.getId(), ex);
 
             throw ex;
         }
@@ -1510,13 +1508,13 @@ public class SolidFirePrimaryDataStoreDriver implements PrimaryDataStoreDriver {
         long newSizeWithHsr = (long)(newSize + newSize * (newHypervisorSnapshotReserve / 100f));
 
         if (newSizeWithHsr < currentSizeWithHsr) {
-            throw new CloudRuntimeException(String.format("Storage pool %s does not support shrinking a volume.", storagePool));
+            throw new CloudRuntimeException("Storage pool " + storagePoolId + " does not support shrinking a volume.");
         }
 
         long availableBytes = storagePool.getCapacityBytes() - getUsedBytes(storagePool);
 
         if ((newSizeWithHsr - currentSizeWithHsr) > availableBytes) {
-            throw new CloudRuntimeException(String.format("Storage pool %s does not have enough space to expand the volume.", storagePool));
+            throw new CloudRuntimeException("Storage pool " + storagePoolId + " does not have enough space to expand the volume.");
         }
     }
 

@@ -22,7 +22,6 @@ import com.cloud.dc.DataCenterGuestIpv6PrefixVO;
 import com.cloud.dc.DataCenterVO;
 import com.cloud.dc.Vlan;
 import com.cloud.dc.VlanVO;
-import com.cloud.dc.dao.DataCenterDao;
 import com.cloud.dc.dao.DataCenterGuestIpv6PrefixDao;
 import com.cloud.dc.dao.VlanDao;
 import com.cloud.event.ActionEventUtils;
@@ -37,7 +36,6 @@ import com.cloud.network.dao.IPAddressVO;
 import com.cloud.network.dao.Ipv6GuestPrefixSubnetNetworkMapDao;
 import com.cloud.network.dao.NetworkDetailsDao;
 import com.cloud.network.dao.NetworkVO;
-import com.cloud.network.dao.PhysicalNetworkDao;
 import com.cloud.network.firewall.FirewallService;
 import com.cloud.network.guru.PublicNetworkGuru;
 import com.cloud.network.rules.FirewallManager;
@@ -120,10 +118,6 @@ public class Ipv6ServiceImplTest {
     NetworkModel networkModel = Mockito.mock(NetworkModelImpl.class);
     @Mock
     IPAddressDao ipAddressDao;
-    @Mock
-    DataCenterDao zoneDao;
-    @Mock
-    PhysicalNetworkDao physicalNetworkDao;
     @Mock
     NetworkOrchestrationService networkOrchestrationService;
     FirewallManager firewallManager = Mockito.mock(FirewallManager.class);
@@ -235,13 +229,12 @@ public class Ipv6ServiceImplTest {
     @Test(expected = ResourceAllocationException.class)
     @DB
     public void testNoPrefixesPreAllocateIpv6SubnetForNetwork() throws ResourceAllocationException, MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
-        DataCenterVO zone = Mockito.mock(DataCenterVO.class);
-        Mockito.when(zone.getId()).thenReturn(1L);
+        final long zoneId = 1L;
         final List<DataCenterGuestIpv6PrefixVO> prefixes = new ArrayList<>();
-        Mockito.when(dataCenterGuestIpv6PrefixDao.listByDataCenterId(zone.getId())).thenReturn(prefixes);
+        Mockito.when(dataCenterGuestIpv6PrefixDao.listByDataCenterId(zoneId)).thenReturn(prefixes);
         TransactionLegacy txn = TransactionLegacy.open("testNoPrefixesPreAllocateIpv6SubnetForNetwork");
         try {
-            ipv6Service.preAllocateIpv6SubnetForNetwork(zone);
+            ipv6Service.preAllocateIpv6SubnetForNetwork(zoneId);
         } finally {
             txn.close("testNoPrefixesPreAllocateIpv6SubnetForNetwork");
         }
@@ -250,18 +243,17 @@ public class Ipv6ServiceImplTest {
     @Test
     @DB
     public void testExistingPreAllocateIpv6SubnetForNetwork() {
-        DataCenterVO zone = Mockito.mock(DataCenterVO.class);
-        Mockito.when(zone.getId()).thenReturn(1L);
+        final long zoneId = 1L;
         final List<DataCenterGuestIpv6PrefixVO> prefixes = new ArrayList<>();
         DataCenterGuestIpv6PrefixVO prefix = prepareMocksForIpv6Subnet();
         prefixes.add(prefix);
         Ipv6GuestPrefixSubnetNetworkMapVO ipv6GuestPrefixSubnetNetworkMap = new Ipv6GuestPrefixSubnetNetworkMapVO(1L, "fd17:5:8a43:e2a4::/64", null, Ipv6GuestPrefixSubnetNetworkMap.State.Free);
-        Mockito.when(dataCenterGuestIpv6PrefixDao.listByDataCenterId(zone.getId())).thenReturn(prefixes);
+        Mockito.when(dataCenterGuestIpv6PrefixDao.listByDataCenterId(zoneId)).thenReturn(prefixes);
         Mockito.when(ipv6GuestPrefixSubnetNetworkMapDao.findFirstAvailable(prefix.getId())).thenReturn(ipv6GuestPrefixSubnetNetworkMap);
         updatedPrefixSubnetMap.clear();
         try (TransactionLegacy txn = TransactionLegacy.open("testNoPrefixesPreAllocateIpv6SubnetForNetwork")) {
             try {
-                ipv6Service.preAllocateIpv6SubnetForNetwork(zone);
+                ipv6Service.preAllocateIpv6SubnetForNetwork(zoneId);
             } catch (ResourceAllocationException e) {
                 Assert.fail("ResourceAllocationException");
             }
@@ -277,8 +269,7 @@ public class Ipv6ServiceImplTest {
     @Test
     @DB
     public void testNewPreAllocateIpv6SubnetForNetwork() {
-        DataCenterVO zone = Mockito.mock(DataCenterVO.class);
-        Mockito.when(zone.getId()).thenReturn(1L);
+        final long zoneId = 1L;
         final List<DataCenterGuestIpv6PrefixVO> prefixes = new ArrayList<>();
         DataCenterGuestIpv6PrefixVO prefix = prepareMocksForIpv6Subnet();
         final IPv6Network ip6Prefix = IPv6Network.fromString(prefix.getPrefix());
@@ -288,14 +279,14 @@ public class Ipv6ServiceImplTest {
             subnets.add(splits.next().toString());
         }
         prefixes.add(prefix);
-        Mockito.when(dataCenterGuestIpv6PrefixDao.listByDataCenterId(zone.getId())).thenReturn(prefixes);
+        Mockito.when(dataCenterGuestIpv6PrefixDao.listByDataCenterId(zoneId)).thenReturn(prefixes);
         Mockito.when(ipv6GuestPrefixSubnetNetworkMapDao.findFirstAvailable(prefix.getId())).thenReturn(null);
         Mockito.when(ipv6GuestPrefixSubnetNetworkMapDao.listUsedByPrefix(prefix.getId())).thenReturn(new ArrayList<>());
         persistedPrefixSubnetMap.clear();
         // No subnet is used from the prefix, should allocate any subnet
         try (TransactionLegacy txn = TransactionLegacy.open("testNewPreAllocateIpv6SubnetForNetwork")) {
             try {
-                ipv6Service.preAllocateIpv6SubnetForNetwork(zone);
+                ipv6Service.preAllocateIpv6SubnetForNetwork(zoneId);
             } catch (ResourceAllocationException e) {
                 Assert.fail("ResourceAllocationException");
             }
@@ -315,7 +306,7 @@ public class Ipv6ServiceImplTest {
         // All subnets from the prefix are already in use, should return ResourceAllocationException
         try (TransactionLegacy txn = TransactionLegacy.open("testNewPreAllocateIpv6SubnetForNetwork")) {
             try {
-                ipv6Service.preAllocateIpv6SubnetForNetwork(zone);
+                ipv6Service.preAllocateIpv6SubnetForNetwork(zoneId);
                 Assert.fail("ResourceAllocationException expected but not returned");
             } catch (ResourceAllocationException ignored) {}
         }
@@ -325,7 +316,7 @@ public class Ipv6ServiceImplTest {
         Ipv6GuestPrefixSubnetNetworkMapVO poppedUsedSubnetMap = usedSubnets.remove(2);
         try (TransactionLegacy txn = TransactionLegacy.open("testNewPreAllocateIpv6SubnetForNetwork")) {
             try {
-                ipv6Service.preAllocateIpv6SubnetForNetwork(zone);
+                ipv6Service.preAllocateIpv6SubnetForNetwork(zoneId);
             } catch (ResourceAllocationException e) {
                 Assert.fail("ResourceAllocationException");
             }
@@ -417,9 +408,6 @@ public class Ipv6ServiceImplTest {
         Nic nic = Mockito.mock(Nic.class);
         Mockito.when(nic.getIPv6Address()).thenReturn(null);
         Mockito.when(nic.getBroadcastUri()).thenReturn(URI.create(vlan));
-        DataCenterVO zoneMock = Mockito.mock(DataCenterVO.class);
-        Mockito.when(zoneDao.findById(Mockito.anyLong())).thenReturn(zoneMock);
-        Mockito.when(zoneMock.getUuid()).thenReturn("uuid");
         try (TransactionLegacy txn = TransactionLegacy.open("testNewErrorAssignPublicIpv6ToNetwork")) {
            ipv6Service.assignPublicIpv6ToNetwork(Mockito.mock(Network.class), nic);
         }
@@ -623,9 +611,6 @@ public class Ipv6ServiceImplTest {
         Mockito.when(vlanVO.getVlanTag()).thenReturn(vlan);
         Mockito.when(vlanDao.findById(Mockito.anyLong())).thenReturn(vlanVO);
         Mockito.when(vlanDao.listIpv6RangeByZoneIdAndVlanId(Mockito.anyLong(), Mockito.anyString())).thenReturn(new ArrayList<>());
-        DataCenterVO zoneMock = Mockito.mock(DataCenterVO.class);
-        Mockito.when(zoneDao.findById(zoneId)).thenReturn(zoneMock);
-        Mockito.when(zoneMock.getUuid()).thenReturn("uuid");
         try {
             ipv6Service.checkNetworkIpv6Upgrade(network);
             Assert.fail("No InsufficientAddressCapacityException");

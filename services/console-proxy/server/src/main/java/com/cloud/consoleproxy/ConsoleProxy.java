@@ -183,6 +183,7 @@ public class ConsoleProxy {
     }
 
     public static ConsoleProxyAuthenticationResult authenticateConsoleAccess(ConsoleProxyClientParam param, boolean reauthentication) {
+
         ConsoleProxyAuthenticationResult authResult = new ConsoleProxyAuthenticationResult();
         authResult.setSuccess(true);
         authResult.setReauthentication(reauthentication);
@@ -226,7 +227,7 @@ public class ConsoleProxy {
             try {
                 result =
                         authMethod.invoke(ConsoleProxy.context, param.getClientHostAddress(), String.valueOf(param.getClientHostPort()), param.getClientTag(),
-                                param.getClientHostPassword(), param.getTicket(), reauthentication, param.getSessionUuid(), param.getClientIp());
+                                param.getClientHostPassword(), param.getTicket(), reauthentication, param.getSessionUuid());
             } catch (IllegalAccessException e) {
                 LOGGER.error("Unable to invoke authenticateConsoleAccess due to IllegalAccessException" + " for vm: " + param.getClientTag(), e);
                 authResult.setSuccess(false);
@@ -300,7 +301,7 @@ public class ConsoleProxy {
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             Class<?> contextClazz = loader.loadClass("com.cloud.agent.resource.consoleproxy.ConsoleProxyResource");
             authMethod = contextClazz.getDeclaredMethod("authenticateConsoleAccess", String.class, String.class,
-                    String.class, String.class, String.class, Boolean.class, String.class, String.class);
+                    String.class, String.class, String.class, Boolean.class, String.class);
             reportMethod = contextClazz.getDeclaredMethod("reportLoadInfo", String.class);
             ensureRouteMethod = contextClazz.getDeclaredMethod("ensureRoute", String.class);
         } catch (SecurityException e) {

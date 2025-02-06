@@ -150,7 +150,6 @@ export default {
       const params = { showicon: true }
       api('listZones', params).then(json => {
         this.zones = json.listzonesresponse.zone || []
-        this.zones = this.zones.filter(zone => zone.routedmodeenabled)
         this.form.zoneid = this.zones[0].id || ''
         this.fetchParentSubnets(this.form.zoneid)
       }).finally(() => {

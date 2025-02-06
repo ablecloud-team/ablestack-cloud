@@ -434,9 +434,7 @@ public class RegisterTemplateCmd extends BaseCmd implements UserCmd {
                     "Parameter zoneids cannot combine all zones (-1) option with other zones");
 
         String customHypervisor = HypervisorGuru.HypervisorCustomDisplayName.value();
-        if (isDirectDownload() &&
-                !(Hypervisor.HypervisorType.getType(getHypervisor())
-                        .isFunctionalitySupported(Hypervisor.HypervisorType.Functionality.DirectDownloadTemplate)
+        if (isDirectDownload() && !(getHypervisor().equalsIgnoreCase(Hypervisor.HypervisorType.KVM.toString())
                 || getHypervisor().equalsIgnoreCase(customHypervisor))) {
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, String.format("Parameter directdownload " +
                     "is only allowed for KVM or %s templates", customHypervisor));

@@ -238,7 +238,7 @@ public interface ConfigurationManager {
      * @param domainId
      * @return success/failure
      */
-    boolean releaseDomainSpecificVirtualRanges(Domain domain);
+    boolean releaseDomainSpecificVirtualRanges(long domainId);
 
     /**
      * Release dedicated virtual ip ranges of an account.
@@ -246,7 +246,7 @@ public interface ConfigurationManager {
      * @param accountId
      * @return success/failure
      */
-    boolean releaseAccountSpecificVirtualRanges(Account account);
+    boolean releaseAccountSpecificVirtualRanges(long accountId);
 
     /**
      * Edits a pod in the database. Will not allow you to edit pods that are being used anywhere in the system.

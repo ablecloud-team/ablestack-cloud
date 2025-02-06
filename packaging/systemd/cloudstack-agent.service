@@ -20,7 +20,7 @@
 # /etc/systemd/system/cloudstack-management.service.d/ directory
 
 [Unit]
-Description=Mold Agent
+Description=CloudStack Agent
 Documentation=http://www.cloudstack.org/
 Requires=libvirtd.service
 After=libvirtd.service

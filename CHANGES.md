@@ -242,6 +242,7 @@ Bug ID | Description
 [CLOUDSTACK-7722](https://issues.apache.org/jira/browse/CLOUDSTACK-7722) | add.label: Add button for tags show the label not "Add" text...
 [CLOUDSTACK-7246](https://issues.apache.org/jira/browse/CLOUDSTACK-7246) | VM deployment failed due to wrong in  script name createipalias.sh...
 
+
 Version 4.4.1
 -------------
 
@@ -274,6 +275,7 @@ Bug ID | Description
 [CLOUDSTACK-3822](https://issues.apache.org/jira/browse/CLOUDSTACK-3822) | Document all types of resource limits...
 [CLOUDSTACK-1632](https://issues.apache.org/jira/browse/CLOUDSTACK-1632) | Mistakes in authorizeSecurityGroup* API docs...
 [CLOUDSTACK-401](https://issues.apache.org/jira/browse/CLOUDSTACK-401)   | Storage options missing from table...
+
 
 Version 4.4.0
 -------------
@@ -928,6 +930,7 @@ Security Fixes:
 
  * CVE-2012-4501: Apache CloudStack configuration vulnerability
 
+
 Version 4.0.2
 ------------------------
 
@@ -976,6 +979,7 @@ Issues fixed in this release:
 * CLOUDSTACK-2090: Upgrade from version 4.0.1 to version 4.0.2 triggers the 4.0.0 to 4.0.1.
 * CLOUDSTACK-2091: Error in API documentation for 4.0.x.
 
+
 Version 4.0.1-incubating
 ------------------------
 
@@ -1019,6 +1023,7 @@ Bugs fixed in this release:
 * CLOUDSTACK-961: Installation docs don't detail dependencies for building RPMs
 * CLOUDSTACK-995: Not able to add the KVM host
 
+
 Version 4.0.0-incubating
 ------------------------
 
@@ -1050,6 +1055,7 @@ New Features:
 Security Fixes:
 
  * CVE-2012-4501: Apache CloudStack configuration vulnerability
+
 
 Updating this file
 ------------------

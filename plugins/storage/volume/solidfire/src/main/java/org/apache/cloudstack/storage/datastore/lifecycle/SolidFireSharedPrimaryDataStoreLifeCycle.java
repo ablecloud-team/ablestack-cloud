@@ -389,7 +389,7 @@ public class SolidFireSharedPrimaryDataStoreLifeCycle extends BasePrimaryDataSto
         if (allHosts.isEmpty()) {
             primaryDataStoreDao.expunge(primaryDataStoreInfo.getId());
 
-            throw new CloudRuntimeException(String.format("No host up to associate a storage pool with in cluster %s", clusterDao.findById(primaryDataStoreInfo.getClusterId())));
+            throw new CloudRuntimeException("No host up to associate a storage pool with in cluster " + primaryDataStoreInfo.getClusterId());
         }
 
         boolean success = false;
@@ -403,14 +403,14 @@ public class SolidFireSharedPrimaryDataStoreLifeCycle extends BasePrimaryDataSto
         }
 
         if (!success) {
-            throw new CloudRuntimeException("Unable to create storage in cluster " + clusterDao.findById(primaryDataStoreInfo.getClusterId()));
+            throw new CloudRuntimeException("Unable to create storage in cluster " + primaryDataStoreInfo.getClusterId());
         }
 
         List<HostVO> poolHosts = new ArrayList<>();
 
         for (HostVO host : allHosts) {
             try {
-                storageMgr.connectHostToSharedPool(host, primaryDataStoreInfo.getId());
+                storageMgr.connectHostToSharedPool(host.getId(), primaryDataStoreInfo.getId());
 
                 poolHosts.add(host);
             } catch (Exception e) {
@@ -419,7 +419,7 @@ public class SolidFireSharedPrimaryDataStoreLifeCycle extends BasePrimaryDataSto
         }
 
         if (poolHosts.isEmpty()) {
-            logger.warn("No host can access storage pool '{}' on cluster '{}'.", primaryDataStoreInfo, clusterDao.findById(primaryDataStoreInfo.getClusterId()));
+            logger.warn("No host can access storage pool '" + primaryDataStoreInfo + "' on cluster '" + primaryDataStoreInfo.getClusterId() + "'.");
 
             primaryDataStoreDao.expunge(primaryDataStoreInfo.getId());
 
@@ -470,9 +470,9 @@ public class SolidFireSharedPrimaryDataStoreLifeCycle extends BasePrimaryDataSto
             final String msg;
 
             if (answer != null) {
-                msg = String.format("Cannot create storage pool through host '%s' due to the following: %s", host, answer.getDetails());
+                msg = "Cannot create storage pool through host '" + hostId + "' due to the following: " + answer.getDetails();
             } else {
-                msg = String.format("Cannot create storage pool through host '%s' due to CreateStoragePoolCommand returns null", host);
+                msg = "Cannot create storage pool through host '" + hostId + "' due to CreateStoragePoolCommand returns null";
             }
 
             logger.warn(msg);
@@ -558,21 +558,23 @@ public class SolidFireSharedPrimaryDataStoreLifeCycle extends BasePrimaryDataSto
             final Answer answer = agentMgr.easySend(host.getHostId(), deleteCmd);
 
             if (answer != null && answer.getResult()) {
+                logger.info("Successfully deleted storage pool using Host ID " + host.getHostId());
+
                 HostVO hostVO = hostDao.findById(host.getHostId());
+
                 if (hostVO != null) {
                     clusterId = hostVO.getClusterId();
                     hostId = hostVO.getId();
                 }
-                logger.info("Successfully deleted storage pool using Host {} with ID {}", hostVO, host.getHostId());
+
                 break;
             }
             else {
-                HostVO hostVO = hostDao.findById(host.getHostId());
                 if (answer != null) {
-                    logger.error("Failed to delete storage pool using Host {} with ID: {}: {}", hostVO, host.getHostId(), answer.getResult());
+                    logger.error("Failed to delete storage pool using Host ID " + host.getHostId() + ": " + answer.getResult());
                 }
                 else {
-                    logger.error("Failed to delete storage pool using Host {} with ID: {}", hostVO, host.getHostId());
+                    logger.error("Failed to delete storage pool using Host ID " + host.getHostId());
                 }
             }
         }
@@ -644,12 +646,12 @@ public class SolidFireSharedPrimaryDataStoreLifeCycle extends BasePrimaryDataSto
             cmd.setTargetTypeToRemove(ModifyTargetsCommand.TargetTypeToRemove.DYNAMIC);
             cmd.setRemoveAsync(true);
 
-            sendModifyTargetsCommand(cmd, host);
+            sendModifyTargetsCommand(cmd, hostId);
         }
     }
 
-    private void sendModifyTargetsCommand(ModifyTargetsCommand cmd, Host host) {
-        Answer answer = agentMgr.easySend(host.getId(), cmd);
+    private void sendModifyTargetsCommand(ModifyTargetsCommand cmd, long hostId) {
+        Answer answer = agentMgr.easySend(hostId, cmd);
 
         if (answer == null) {
             String msg = "Unable to get an answer to the modify targets command";
@@ -657,7 +659,7 @@ public class SolidFireSharedPrimaryDataStoreLifeCycle extends BasePrimaryDataSto
             logger.warn(msg);
         }
         else if (!answer.getResult()) {
-            String msg = String.format("Unable to modify target on the following host: %s", host);
+            String msg = "Unable to modify target on the following host: " + hostId;
 
             logger.warn(msg);
         }

@@ -120,8 +120,6 @@ public class HeuristicVO implements Heuristic {
 
     @Override
     public String toString() {
-        return String.format("Heuristic %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name", "heuristicRule", "type"));
+        return ReflectionToStringBuilderUtils.reflectOnlySelectedFields(this, "name", "heuristicRule", "type");
     }
 }

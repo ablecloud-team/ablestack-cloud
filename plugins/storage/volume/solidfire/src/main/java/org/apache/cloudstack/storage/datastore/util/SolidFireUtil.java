@@ -540,7 +540,7 @@ public class SolidFireUtil {
 
                         if (sfVag.getInitiators().length < MAX_NUM_INITIATORS_PER_VAG) {
                             if (!hostSupports_iScsi(host)) {
-                                String errMsg = String.format("Host %s does not support iSCSI.", host);
+                                String errMsg = "Host with ID " + host.getId() + " does not support iSCSI.";
 
                                 LOGGER.warn(errMsg);
 
@@ -562,7 +562,7 @@ public class SolidFireUtil {
 
             if (numVags > 0) {
                 if (!hostSupports_iScsi(host)) {
-                    String errMsg = String.format("Host %s does not support iSCSI.", host);
+                    String errMsg = "Host with ID " + host.getId() + " does not support iSCSI.";
 
                     LOGGER.warn(errMsg);
 

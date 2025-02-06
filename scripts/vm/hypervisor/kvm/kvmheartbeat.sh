@@ -109,8 +109,8 @@ then
    fi
 fi
 
-hbFolder=$MountPoint/MOLD-HB
-hbFile=$hbFolder/$HostIP
+hbFolder=$MountPoint/KVMHA/
+hbFile=$hbFolder/hb-$HostIP
 
 write_hbLog() {
 #write the heart beat log
@@ -149,9 +149,9 @@ then
   diff=$?
   if [ $diff == 0 ]
   then
-    echo "### [HOST STATE : ALIVE] in [PoolType : NFS] ###"
+    echo "=====> ALIVE <====="
   else
-    echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down in [PoolType : NFS] ###"
+    echo "=====> Considering host as DEAD because last write on [$hbFile] was [$diff] seconds ago, but the max interval is [$interval] <======"
   fi
   exit 0
 elif [ "$cflag" == "1" ]

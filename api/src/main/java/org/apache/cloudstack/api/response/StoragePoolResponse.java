@@ -97,10 +97,6 @@ public class StoragePoolResponse extends BaseResponseWithAnnotations {
     @Param(description = "total min IOPS currently in use by volumes")
     private Long allocatedIops;
 
-    @SerializedName(ApiConstants.USED_IOPS)
-    @Param(description = "total IOPS currently in use", since = "4.20.1")
-    private Long usedIops;
-
     @SerializedName(ApiConstants.STORAGE_CUSTOM_STATS)
     @Param(description = "the storage pool custom stats", since = "4.18.1")
     private Map<String, String> customStats;
@@ -314,14 +310,6 @@ public class StoragePoolResponse extends BaseResponseWithAnnotations {
 
     public void setAllocatedIops(Long allocatedIops) {
        this.allocatedIops = allocatedIops;
-    }
-
-    public Long getUsedIops() {
-        return usedIops;
-    }
-
-    public void setUsedIops(Long usedIops) {
-        this.usedIops = usedIops;
     }
 
     public Map<String, String> getCustomStats() {

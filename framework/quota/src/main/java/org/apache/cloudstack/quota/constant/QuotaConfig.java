@@ -27,7 +27,7 @@ public interface QuotaConfig {
     public static final ConfigKey<String> QuotaEnableEnforcement = new ConfigKey<String>("Advanced", String.class, "quota.enable.enforcement", "false",
             "Enable the usage quota enforcement, i.e. on true when exceeding quota the respective account will be locked.", true);
 
-    public static final ConfigKey<String> QuotaCurrencySymbol = new ConfigKey<String>("Advanced", String.class, "quota.currency.symbol", "₩",
+    public static final ConfigKey<String> QuotaCurrencySymbol = new ConfigKey<String>("Advanced", String.class, "quota.currency.symbol", "$",
             "The symbol for the currency in use to measure usage.", true);
 
     public static final ConfigKey<String> QuotaCurrencyLocale = new ConfigKey<String>("Advanced", String.class, "quota.currency.locale", null,

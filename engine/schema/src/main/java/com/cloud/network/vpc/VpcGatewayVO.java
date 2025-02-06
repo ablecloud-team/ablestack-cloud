@@ -29,7 +29,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "vpc_gateways")
@@ -164,9 +163,9 @@ public class VpcGatewayVO implements VpcGateway {
 
     @Override
     public String toString() {
-        return String.format("VpcGateway %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "vpcId", "ip4Address"));
+        StringBuilder buf = new StringBuilder("VpcGateway[");
+        buf.append(id).append("|").append(ip4Address.toString()).append("|").append(vpcId).append("]");
+        return buf.toString();
     }
 
     @Override

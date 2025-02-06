@@ -29,7 +29,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "kubernetes_cluster")
@@ -402,13 +401,6 @@ public class KubernetesClusterVO implements KubernetesCluster {
         this.autoscalingEnabled = autoscalingEnabled;
         this.minSize = minSize;
         this.maxSize = maxSize;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("KubernetesCluster %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name"));
     }
 
     @Override

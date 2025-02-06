@@ -18,9 +18,6 @@
 
 help() {
   printf "Usage: $0 
-                    -p rbd pool name
-                    -n rbd pool auth username
-                    -g sharedmountpoint type GFS2 path
                     -h host
                     -u volume uuid list
                     -t time on ms
@@ -28,26 +25,16 @@ help() {
   exit 1
 }
 #set -x
-RbdPoolName=
-RbdPoolAuthUserName=
-GfsPoolPath=
+PoolName=rbd
+PoolAuthUserName=admin
 HostIP=
 UUIDList=
 MSTime=
 SuspectTime=
 
-while getopts 'p:n:g:h:u:t:d:' OPTION
+while getopts 'h:u:t:d:' OPTION
 do
   case $OPTION in
-  p)
-     RbdPoolName="$OPTARG"
-     ;;
-  n)
-     RbdPoolAuthUserName="$OPTARG"
-     ;;
-  g)
-     GfsPoolPath="$OPTARG"
-     ;;
   h)
      HostIP="$OPTARG"
      ;;
@@ -80,12 +67,12 @@ now=$(date +%s)
 hb=$(rados -p $PoolName get hb-$HostIP - --id $PoolAuthUserName)
 diff=$(expr $now - $hb)
 if [ $diff -lt 61 ]; then
-    echo "### [HOST STATE : ALIVE] in [PoolType : CLVM] ###"
+    echo "=====> ALIVE <====="
     exit 0
 fi
 
 if [ -z "$UUIDList" ]; then
-    echo " ### [HOST STATE : DEAD] Volume UUID list is empty => Considered host down in [PoolType : CLVM] ###"
+    echo "=====> Considering host as DEAD due to empty UUIDList <======"
     exit 0
 fi
 
@@ -103,9 +90,9 @@ for UUID in $(echo $UUIDList | sed 's/,/ /g'); do
 done
 
 if [ statusFlag == "true" ]; then
-    echo "### [HOST STATE : ALIVE] in [PoolType : CLVM] ###"
+    echo "=====> ALIVE <====="
 else
-    echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : CLVM] ### "
+    echo "=====> Considering host as DEAD due to [CLVM] sg_persist does not exists <======"
 fi
 
 exit 0

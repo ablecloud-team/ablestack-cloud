@@ -28,7 +28,6 @@ import javax.persistence.Table;
 
 import com.cloud.network.Site2SiteVpnGateway;
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 
 @Entity
@@ -69,13 +68,6 @@ public class Site2SiteVpnGatewayVO implements Site2SiteVpnGateway {
         setVpcId(vpcId);
         this.accountId = accountId;
         this.domainId = domainId;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("Site2SiteVpnGateway %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name"));
     }
 
     @Override

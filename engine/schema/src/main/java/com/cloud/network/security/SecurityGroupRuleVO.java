@@ -16,8 +16,6 @@
 // under the License.
 package com.cloud.network.security;
 
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
-
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -89,13 +87,6 @@ public class SecurityGroupRuleVO implements SecurityRule {
         } else {
             this.type = SecurityRuleType.EgressRule.getType();
         }
-    }
-
-    @Override
-    public String toString() {
-        return String.format("SecurityGroupRule %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "type"));
     }
 
     @Override

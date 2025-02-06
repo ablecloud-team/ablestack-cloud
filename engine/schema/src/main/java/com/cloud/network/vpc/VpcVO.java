@@ -28,7 +28,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "vpc")
@@ -211,9 +210,8 @@ public class VpcVO implements Vpc {
 
     @Override
     public String toString() {
-        return String.format("VPC %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name"));
+        final StringBuilder buf = new StringBuilder("[VPC [");
+        return buf.append(id).append("-").append(name).append("]").toString();
     }
 
     @Override

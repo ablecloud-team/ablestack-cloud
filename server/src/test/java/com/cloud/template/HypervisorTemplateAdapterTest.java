@@ -451,11 +451,12 @@ public class HypervisorTemplateAdapterTest {
         DataCenterVO dataCenterVOMock = null;
 
         Mockito.when(_dcDao.findById(Mockito.anyLong())).thenReturn(dataCenterVOMock);
+        Mockito.when(dataStoreMock.getId()).thenReturn(2L);
 
         boolean result = _adapter.isZoneAndImageStoreAvailable(dataStoreMock, zoneId, zoneSet, isTemplatePrivate);
 
-        Mockito.verify(loggerMock, Mockito.times(1)).warn("Unable to find zone by id [{}], so skip downloading template to its image store [{}].",
-                zoneId, dataStoreMock);
+        Mockito.verify(loggerMock, Mockito.times(1)).warn(String.format("Unable to find zone by id [%s], so skip downloading template to its image store [%s].",
+                zoneId, dataStoreMock.getId()));
         Assert.assertFalse(result);
     }
 
@@ -469,10 +470,11 @@ public class HypervisorTemplateAdapterTest {
 
         Mockito.when(_dcDao.findById(Mockito.anyLong())).thenReturn(dataCenterVOMock);
         Mockito.when(dataCenterVOMock.getAllocationState()).thenReturn(Grouping.AllocationState.Disabled);
+        Mockito.when(dataStoreMock.getId()).thenReturn(2L);
 
         boolean result = _adapter.isZoneAndImageStoreAvailable(dataStoreMock, zoneId, zoneSet, isTemplatePrivate);
 
-        Mockito.verify(loggerMock, Mockito.times(1)).info("Zone [{}] is disabled. Skip downloading template to its image store [{}].", dataCenterVOMock, dataStoreMock);
+        Mockito.verify(loggerMock, Mockito.times(1)).info(String.format("Zone [%s] is disabled. Skip downloading template to its image store [%s].", zoneId, dataStoreMock.getId()));
         Assert.assertFalse(result);
     }
 
@@ -486,12 +488,13 @@ public class HypervisorTemplateAdapterTest {
 
         Mockito.when(_dcDao.findById(Mockito.anyLong())).thenReturn(dataCenterVOMock);
         Mockito.when(dataCenterVOMock.getAllocationState()).thenReturn(Grouping.AllocationState.Enabled);
+        Mockito.when(dataStoreMock.getId()).thenReturn(2L);
         Mockito.when(statsCollectorMock.imageStoreHasEnoughCapacity(any(DataStore.class))).thenReturn(false);
 
         boolean result = _adapter.isZoneAndImageStoreAvailable(dataStoreMock, zoneId, zoneSet, isTemplatePrivate);
 
-        Mockito.verify(loggerMock, times(1)).info("Image store doesn't have enough capacity. Skip downloading template to this image store [{}].",
-                dataStoreMock);
+        Mockito.verify(loggerMock, times(1)).info(String.format("Image store doesn't have enough capacity. Skip downloading template to this image store [%s].",
+                dataStoreMock.getId()));
         Assert.assertFalse(result);
     }
 

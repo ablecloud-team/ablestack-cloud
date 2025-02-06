@@ -44,7 +44,7 @@
         size="small"
         :current="options.page"
         :pageSize="options.pageSize"
-        :total="rowCount"
+        :total="rowCountSet"
         :showTotal="total => `${$t('label.total')} ${total} ${$t('label.items')}`"
         :pageSizeOptions="['10', '20', '40', '80', '100', '200']"
         @change="onChangePage"
@@ -148,8 +148,18 @@ export default {
     }
   },
   computed: {
+    filteredComputeItems () {
+      let computeItems = this.computeItems
+      if (this.selectedTemplate && Object.keys(this.selectedTemplate).length >= 1 && this.preFillContent.kvdoenable !== undefined) {
+        computeItems = computeItems.filter(item => item.kvdoenable === this.preFillContent.kvdoenable)
+      }
+      return computeItems
+    },
+    rowCountSet () {
+      return this.filteredComputeItems.length
+    },
     tableSource () {
-      return this.computeItems.map((item) => {
+      return this.filteredComputeItems.map((item) => {
         var maxCpuNumber = item.cpunumber
         var maxCpuSpeed = item.cpuspeed
         var maxMemory = item.memory

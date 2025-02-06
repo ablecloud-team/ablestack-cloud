@@ -172,14 +172,6 @@ export default {
     'prefillContent.provider' (val) {
       if (['SolidFire', 'PowerFlex'].includes(val)) {
         this.form.primaryStorageProtocol = 'custom'
-      } else if (['ABLESTACK'].includes(val)) {
-        this.form.primaryStorageProtocol = 'Glue Block'
-      }
-    },
-    'prefillContent.primaryStorageProtocol' (val) {
-      console.log('protocol :>>>>> ', val)
-      if (['Glue Block', 'Glue FileSystem'].includes(val)) {
-        this.form.provider = 'ABLESTACK'
       }
     }
   },

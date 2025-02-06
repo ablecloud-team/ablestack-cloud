@@ -342,7 +342,7 @@ export default {
   min-width: 50vw;
 }
 
-:deep(.ant-list-item) {
+/deep/ .ant-list-item {
   padding-top: 12px;
   padding-bottom: 12px;
 }

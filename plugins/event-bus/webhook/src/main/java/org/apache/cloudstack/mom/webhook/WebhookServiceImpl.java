@@ -103,7 +103,8 @@ public class WebhookServiceImpl extends ManagerBase implements WebhookService, W
             return jobs;
         }
         if (event.getResourceAccountId() == null) {
-            logger.warn("Skipping delivering event {} to any webhook as account ID is missing", event);
+            logger.warn("Skipping delivering event [ID: {}, description: {}] to any webhook as account ID is missing",
+                    event.getEventId(), event.getDescription());
             throw new EventBusException(String.format("Account missing for the event ID: %s", event.getEventUuid()));
         }
         List<Long> domainIds = new ArrayList<>();
@@ -326,7 +327,7 @@ public class WebhookServiceImpl extends ManagerBase implements WebhookService, W
                 }
                 long deliveriesLimit = WebhookDeliveriesLimit.value();
                 logger.debug("Clearing old deliveries for webhooks with limit={} using management server {}",
-                        deliveriesLimit, msHost);
+                        deliveriesLimit, msHost.getMsid());
                 long processed = cleanupOldWebhookDeliveries(deliveriesLimit);
                 logger.debug("Cleared old deliveries with limit={} for {} webhooks", deliveriesLimit, processed);
             } catch (Exception e) {

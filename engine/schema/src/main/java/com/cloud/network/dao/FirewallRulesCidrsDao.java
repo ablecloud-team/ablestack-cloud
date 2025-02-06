@@ -29,6 +29,4 @@ public interface FirewallRulesCidrsDao extends GenericDao<FirewallRulesCidrsVO, 
 
     @DB
     List<FirewallRulesCidrsVO> listByFirewallRuleId(long firewallRuleId);
-
-    void updateSourceCidrsForRule(Long firewallRuleId, List<String> sourceCidrList);
 }

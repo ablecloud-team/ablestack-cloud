@@ -1933,6 +1933,7 @@ export default {
         this.form.templateid = value
         this.form.isoid = null
         this.form.volumeId = null
+        this.resetFromTemplateConfiguration()
         let template = ''
         for (const key in this.options.templates) {
           var t = _.find(_.get(this.options.templates[key], 'template', []), (option) => option.id === value)
@@ -1948,7 +1949,6 @@ export default {
             break
           }
         }
-        this.resetFromTemplateConfiguration()
         if (template) {
           var size = template.size / (1024 * 1024 * 1024) || 0 // bytes to GB
           this.dataPreFill.minrootdisksize = Math.ceil(size)
@@ -2055,16 +2055,18 @@ export default {
         this.form.userdataid = undefined
         return
       }
-
       this.form.userdataid = id
       this.userDataParams = []
       api('listUserData', { id: id }).then(json => {
         const resp = json?.listuserdataresponse?.userdata || []
         if (resp[0]) {
-          const params = resp[0].params
-          const dataParams = params ? params.split(',') : []
-          dataParams.forEach((val, index) => {
-            this.userDataParams.push({
+          var params = resp[0].params
+          if (params) {
+            var dataParams = params.split(',')
+          }
+          var that = this
+          dataParams.forEach(function (val, index) {
+            that.userDataParams.push({
               id: index,
               key: val
             })
@@ -2491,14 +2493,14 @@ export default {
         domainid: store.getters.userInfo.domainid,
         account: store.getters.userInfo.account
       }
-      if (OwnerOptions.selectedAccountType === 'Account') {
+      if (OwnerOptions.selectedAccountType === this.$t('label.account')) {
         if (!OwnerOptions.selectedAccount) {
           return
         }
         this.owner.account = OwnerOptions.selectedAccount
         this.owner.domainid = OwnerOptions.selectedDomain
         this.owner.projectid = null
-      } else if (OwnerOptions.selectedAccountType === 'Project') {
+      } else if (OwnerOptions.selectedAccountType === this.$t('label.project')) {
         if (!OwnerOptions.selectedProject) {
           return
         }
@@ -2796,9 +2798,6 @@ export default {
       }
     },
     handleSearchFilter (name, options) {
-      if (name === 'serviceOfferings') {
-        this.params[name].options.kvdoenable = this.template.kvdoenable
-      }
       this.params[name].options = { ...this.params[name].options, ...options }
       this.fetchOptions(this.params[name], name)
     },

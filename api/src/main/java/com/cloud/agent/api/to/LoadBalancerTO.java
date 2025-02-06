@@ -374,15 +374,13 @@ public class LoadBalancerTO {
     public static class CounterTO implements Serializable {
         private static final long serialVersionUID = 2L;
         private final Long id;
-        private final String uuid;
         private final String name;
         private final Counter.Source source;
         private final String value;
         private final String provider;
 
-        public CounterTO(Long id, String uuid, String name, Counter.Source source, String value, String provider) {
+        public CounterTO(Long id, String name, Counter.Source source, String value, String provider) {
             this.id = id;
-            this.uuid = uuid;
             this.name = name;
             this.source = source;
             this.value = value;
@@ -391,10 +389,6 @@ public class LoadBalancerTO {
 
         public Long getId() {
             return id;
-        }
-
-        public String getUuid() {
-            return uuid;
         }
 
         public String getName() {
@@ -417,14 +411,12 @@ public class LoadBalancerTO {
     public static class ConditionTO implements Serializable {
         private static final long serialVersionUID = 2L;
         private final Long id;
-        private final String uuid;
         private final long threshold;
         private final Condition.Operator relationalOperator;
         private final CounterTO counter;
 
-        public ConditionTO(Long id, String uuid, long threshold, Condition.Operator relationalOperator, CounterTO counter) {
+        public ConditionTO(Long id, long threshold, Condition.Operator relationalOperator, CounterTO counter) {
             this.id = id;
-            this.uuid = uuid;
             this.threshold = threshold;
             this.relationalOperator = relationalOperator;
             this.counter = counter;
@@ -432,10 +424,6 @@ public class LoadBalancerTO {
 
         public Long getId() {
             return id;
-        }
-
-        public String getUuid() {
-            return uuid;
         }
 
         public long getThreshold() {
@@ -454,7 +442,6 @@ public class LoadBalancerTO {
     public static class AutoScalePolicyTO implements Serializable {
         private static final long serialVersionUID = 2L;
         private final long id;
-        private final String uuid;
         private final int duration;
         private final int quietTime;
         private final Date lastQuietTime;
@@ -462,9 +449,8 @@ public class LoadBalancerTO {
         boolean revoked;
         private final List<ConditionTO> conditions;
 
-        public AutoScalePolicyTO(long id, String uuid, int duration, int quietTime, Date lastQuietTime, AutoScalePolicy.Action action, List<ConditionTO> conditions, boolean revoked) {
+        public AutoScalePolicyTO(long id, int duration, int quietTime, Date lastQuietTime, AutoScalePolicy.Action action, List<ConditionTO> conditions, boolean revoked) {
             this.id = id;
-            this.uuid = uuid;
             this.duration = duration;
             this.quietTime = quietTime;
             this.lastQuietTime = lastQuietTime;
@@ -475,10 +461,6 @@ public class LoadBalancerTO {
 
         public long getId() {
             return id;
-        }
-
-        public String getUuid() {
-            return uuid;
         }
 
         public int getDuration() {

@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.naming.ConfigurationException;
 
-import com.cloud.host.dao.HostDao;
 import org.apache.cloudstack.acl.SecurityChecker.AccessType;
 import org.apache.cloudstack.api.command.user.securitygroup.AuthorizeSecurityGroupEgressCmd;
 import org.apache.cloudstack.api.command.user.securitygroup.AuthorizeSecurityGroupIngressCmd;
@@ -154,8 +153,6 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
     UserVmManager _userVmMgr;
     @Inject
     VMInstanceDao _vmDao;
-    @Inject
-    HostDao hostDao;
     @Inject
     NetworkOrchestrationService _networkMgr;
     @Inject
@@ -761,7 +758,7 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
                 // Prevents other threads/management servers from creating duplicate security rules
                 SecurityGroup securityGroup = _securityGroupDao.acquireInLockTable(securityGroupId);
                 if (securityGroup == null) {
-                    logger.warn("Could not acquire lock on network security group: {}", securityGroup);
+                    logger.warn("Could not acquire lock on network security group: id= " + securityGroupId);
                     return null;
                 }
                 List<SecurityGroupRuleVO> newRules = new ArrayList<SecurityGroupRuleVO>();
@@ -772,14 +769,14 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
                         if (ngVO.getId() != securityGroup.getId()) {
                             final SecurityGroupVO tmpGrp = _securityGroupDao.lockRow(ngId, false);
                             if (tmpGrp == null) {
-                                logger.warn("Failed to acquire lock on security group: {}", ngVO);
-                                throw new CloudRuntimeException(String.format("Failed to acquire lock on security group: %s", ngVO));
+                                logger.warn("Failed to acquire lock on security group: " + ngId);
+                                throw new CloudRuntimeException("Failed to acquire lock on security group: " + ngId);
                             }
                         }
                         SecurityGroupRuleVO securityGroupRule = _securityGroupRuleDao.findByProtoPortsAndAllowedGroupId(securityGroup.getId(), protocolFinal, startPortOrTypeFinal,
                                 endPortOrCodeFinal, ngVO.getId());
                         if ((securityGroupRule != null) && (securityGroupRule.getRuleType() == ruleType)) {
-                            logger.warn("The rule {} already exists.", securityGroupRule);
+                            logger.warn("The rule already exists. id= " + securityGroupRule.getUuid());
                             continue; // rule already exists.
                         }
                         securityGroupRule = new SecurityGroupRuleVO(ruleType, securityGroup.getId(), startPortOrTypeFinal, endPortOrCodeFinal, protocolFinal, ngVO.getId());
@@ -799,7 +796,7 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
                         }
                     }
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Added {} rules to security group {}", newRules.size(), securityGroup);
+                        logger.debug("Added " + newRules.size() + " rules to security group " + securityGroup.getName());
                     }
                     return newRules;
                 } catch (Exception e) {
@@ -855,8 +852,8 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
 
         // check type
         if (type != rule.getRuleType()) {
-            logger.debug("Mismatch in rule type for security rule {}", rule);
-            throw new InvalidParameterValueException(String.format("Mismatch in rule type for security rule %s", rule));
+            logger.debug("Mismatch in rule type for security rule with id " + id);
+            throw new InvalidParameterValueException("Mismatch in rule type for security rule with id " + id);
         }
 
         // Check permissions
@@ -873,12 +870,12 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
                     // acquire lock on parent group (preserving this logic)
                     groupHandle = _securityGroupDao.acquireInLockTable(rule.getSecurityGroupId());
                     if (groupHandle == null) {
-                        logger.warn("Could not acquire lock on security group: {}", securityGroup);
+                        logger.warn("Could not acquire lock on security group id: " + rule.getSecurityGroupId());
                         return false;
                     }
 
                     _securityGroupRuleDao.remove(id);
-                    logger.debug("revokeSecurityGroupRule succeeded for security rule: {}", rule);
+                    logger.debug("revokeSecurityGroupRule succeeded for security rule id: " + id);
 
                     return true;
                 } catch (Exception e) {
@@ -931,9 +928,9 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
         if (group == null) {
             group = new SecurityGroupVO(name, description, domainId, accountId);
             group = _securityGroupDao.persist(group);
-            logger.debug("Created security group {} for account [id: {}, name: {}]", group, accountId, accountName);
+            logger.debug("Created security group " + group + " for account id=" + accountId);
         } else {
-            logger.debug("Returning existing security group {} for account [id: {}, name: {}]", group, accountId, accountName);
+            logger.debug("Returning existing security group " + group + " for account id=" + accountId);
         }
 
         return group;
@@ -1035,14 +1032,14 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
                             locked = true;
                             return;
                         }
-                        logger.warn("Unable to acquire lock on vm {}", vm);
+                        logger.warn("Unable to acquire lock on vm id=" + userVmId);
                         return;
                     }
                     locked = true;
                     Long agentId = null;
                     VmRulesetLogVO log = _rulesetLogDao.findByVmId(userVmId);
                     if (log == null) {
-                        logger.warn("Cannot find log record for vm {}", vm);
+                        logger.warn("Cannot find log record for vm id=" + userVmId);
                         return;
                     }
                     seqnum = log.getLogsequence();
@@ -1069,9 +1066,7 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
                             try {
                                 _agentMgr.send(agentId, cmds, _answerListener);
                             } catch (AgentUnavailableException e) {
-                                Long finalAgentId = agentId;
-                                logger.debug("Unable to send ingress rules updates for vm: {} (agent={})",
-                                        vm::toString, () -> hostDao.findByIdIncludingRemoved(finalAgentId));
+                                logger.debug("Unable to send ingress rules updates for vm: " + userVmId + "(agentid=" + agentId + ")");
                                 _workDao.updateStep(work.getInstanceId(), seqnum, Step.Done);
                             }
 
@@ -1090,10 +1085,9 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
 
     @Override
     @DB
-    public boolean addInstanceToGroups(final UserVm userVm, final List<Long> groups) {
-        long userVmId = userVm.getId();
+    public boolean addInstanceToGroups(final Long userVmId, final List<Long> groups) {
         if (!isVmSecurityGroupEnabled(userVmId)) {
-            logger.trace("User vm {} is not security group enabled, not adding it to security group", userVm);
+            logger.trace("User vm " + userVmId + " is not security group enabled, not adding it to security group");
             return false;
         }
         if (groups != null && !groups.isEmpty()) {
@@ -1108,15 +1102,16 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
                     final Set<SecurityGroupVO> uniqueGroups = new TreeSet<SecurityGroupVO>(new SecurityGroupVOComparator());
                     uniqueGroups.addAll(sgs);
                     if (userVm == null) {
-                        logger.warn("Failed to acquire lock on user vm {}", userVm);
+                        logger.warn("Failed to acquire lock on user vm id=" + userVmId);
                     }
                     try {
                         for (SecurityGroupVO securityGroup : uniqueGroups) {
                             // don't let the group be deleted from under us.
                             SecurityGroupVO ngrpLock = _securityGroupDao.lockRow(securityGroup.getId(), false);
                             if (ngrpLock == null) {
-                                logger.warn("Failed to acquire lock on network group {}", securityGroup);
-                                throw new ConcurrentModificationException(String.format("Failed to acquire lock on network group %s", securityGroup));
+                                logger.warn("Failed to acquire lock on network group id=" + securityGroup.getId() + " name=" + securityGroup.getName());
+                                throw new ConcurrentModificationException("Failed to acquire lock on network group id=" + securityGroup.getId() + " name="
+                                        + securityGroup.getName());
                             }
                             if (_securityGroupVMMapDao.findByVmIdGroupId(userVmId, securityGroup.getId()) == null) {
                                 SecurityGroupVMMapVO groupVmMapVO = new SecurityGroupVMMapVO(securityGroup.getId(), userVmId);
@@ -1138,10 +1133,9 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
 
     @Override
     @DB
-    public void removeInstanceFromGroups(final UserVm vm) {
-        long userVmId = vm.getId();
+    public void removeInstanceFromGroups(final long userVmId) {
         if (_securityGroupVMMapDao.countSGForVm(userVmId) < 1) {
-            logger.trace("No security groups found for vm {}, returning", vm);
+            logger.trace("No security groups found for vm id=" + userVmId + ", returning");
             return;
         }
         Transaction.execute(new TransactionCallbackNoReturn() {
@@ -1150,14 +1144,14 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
                 UserVm userVm = _userVMDao.acquireInLockTable(userVmId); // ensures that duplicate entries are not created in
                 // addInstance
                 if (userVm == null) {
-                    logger.warn("Failed to acquire lock on user vm {}", vm);
+                    logger.warn("Failed to acquire lock on user vm id=" + userVmId);
                 }
                 int n = _securityGroupVMMapDao.deleteVM(userVmId);
-                logger.info("Disassociated {} network groups from uservm {}", n, vm);
+                logger.info("Disassociated " + n + " network groups " + " from uservm " + userVmId);
                 _userVMDao.releaseFromLockTable(userVmId);
             }
         });
-        logger.debug("Security group mappings are removed successfully for vm {}", vm);
+        logger.debug("Security group mappings are removed successfully for vm id=" + userVmId);
     }
 
     @DB
@@ -1174,7 +1168,7 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
         }
 
         if (newName == null) {
-            logger.debug("security group [{}] name is not changed.", group);
+            logger.debug("security group name is not changed. id=" + groupId);
             return group;
         }
 
@@ -1194,7 +1188,7 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
                 }
 
                 if (newName.equals(group.getName())) {
-                    logger.debug("security group [{}] name is not changed.", group);
+                    logger.debug("security group name is not changed. id=" + groupId);
                     return group;
                 } else if (newName.equalsIgnoreCase(SecurityGroupManager.DEFAULT_GROUP_NAME)) {
                     throw new InvalidParameterValueException("The security group name " + SecurityGroupManager.DEFAULT_GROUP_NAME + " is reserved");
@@ -1207,7 +1201,7 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
                 group.setName(newName);
                 _securityGroupDao.update(groupId, group);
 
-                logger.debug("Updated security group {}", group);
+                logger.debug("Updated security group id=" + groupId);
 
                 return group;
             }
@@ -1232,12 +1226,12 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
         boolean result = Transaction.execute(new TransactionCallbackWithException<Boolean, ResourceInUseException>() {
             @Override
             public Boolean doInTransaction(TransactionStatus status) throws ResourceInUseException {
-                SecurityGroupVO groupLock = _securityGroupDao.lockRow(groupId, true);
-                if (groupLock == null) {
-                    throw new InvalidParameterValueException(String.format("Unable to get lock on security group %s", group));
+                SecurityGroupVO group = _securityGroupDao.lockRow(groupId, true);
+                if (group == null) {
+                    throw new InvalidParameterValueException("Unable to find security group by id " + groupId);
                 }
 
-                if (groupLock.getName().equalsIgnoreCase(SecurityGroupManager.DEFAULT_GROUP_NAME)) {
+                if (group.getName().equalsIgnoreCase(SecurityGroupManager.DEFAULT_GROUP_NAME)) {
                     throw new InvalidParameterValueException("The network group default is reserved");
                 }
 
@@ -1251,7 +1245,7 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
 
                 _securityGroupDao.expunge(groupId);
 
-                logger.debug("Deleted security group {}", group);
+                logger.debug("Deleted security group id=" + groupId);
 
                 return true;
             }
@@ -1368,17 +1362,17 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
         Event event = transition.getEvent();
         if (VirtualMachine.State.isVmStarted(oldState, event, newState)) {
             if (logger.isTraceEnabled()) {
-                logger.trace("Security Group Mgr: handling start of vm {}", vm);
+                logger.trace("Security Group Mgr: handling start of vm id" + vm.getId());
             }
             handleVmStarted((VMInstanceVO)vm);
         } else if (VirtualMachine.State.isVmStopped(oldState, event, newState)) {
             if (logger.isTraceEnabled()) {
-                logger.trace("Security Group Mgr: handling stop of vm {}", vm);
+                logger.trace("Security Group Mgr: handling stop of vm id" + vm.getId());
             }
             handleVmStopped((VMInstanceVO)vm);
         } else if (VirtualMachine.State.isVmMigrated(oldState, event, newState)) {
             if (logger.isTraceEnabled()) {
-                logger.trace("Security Group Mgr: handling migration of vm {}", vm);
+                logger.trace("Security Group Mgr: handling migration of vm id" + vm.getId());
             }
             handleVmMigrated((VMInstanceVO)vm);
         }
@@ -1414,7 +1408,7 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
         UserVmVO vm = _userVmMgr.getVirtualMachine(vmId);
         SecurityGroup defaultGroup = getDefaultSecurityGroup(vm.getAccountId());
         if (defaultGroup == null) {
-            logger.warn("Unable to find default security group for account {}", () -> _accountMgr.getAccount(vm.getAccountId()));
+            logger.warn("Unable to find default security group for account id=" + vm.getAccountId());
             return false;
         }
         SecurityGroupVMMapVO map = _securityGroupVMMapDao.findByVmIdGroupId(vmId, defaultGroup.getId());

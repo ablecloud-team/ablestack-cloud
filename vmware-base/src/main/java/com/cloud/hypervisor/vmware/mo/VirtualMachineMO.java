@@ -1185,7 +1185,6 @@ public class VirtualMachineMO extends BaseMO {
     }
 
     public boolean configureVm(VirtualMachineConfigSpec vmConfigSpec) throws Exception {
-        logger.debug("Reconfiguring virtual machine {} using spec {}.", this, GSON.toJson(vmConfigSpec));
         ManagedObjectReference morTask = _context.getService().reconfigVMTask(_mor, vmConfigSpec);
 
         boolean result = _context.getVimClient().waitForTask(morTask);
@@ -3168,12 +3167,9 @@ public class VirtualMachineMO extends BaseMO {
 
         int deviceCount = 0;
         int ideDeviceUnitNumber = -1;
-        if (devices != null) {
+        if (devices != null && devices.size() > 0) {
             for (VirtualDevice device : devices) {
-                if (device.getControllerKey() == null || device.getControllerKey() != controllerKey) {
-                    continue;
-                }
-                if (device instanceof VirtualDisk || device instanceof VirtualCdrom) {
+                if (device instanceof VirtualDisk && (controllerKey == device.getControllerKey())) {
                     deviceCount++;
                     ideDeviceUnitNumber = device.getUnitNumber();
                 }
@@ -3844,10 +3840,5 @@ public class VirtualMachineMO extends BaseMO {
             getContext().uploadResourceContent(vmdkUrl, newVmdkContent);
             logger.info("Removed property ChangeTrackPath from VMDK content file " + diskBackingInfo.getFileName());
         }
-    }
-
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilderUtils.reflectOnlySelectedFields(this, "internalCSName");
     }
 }

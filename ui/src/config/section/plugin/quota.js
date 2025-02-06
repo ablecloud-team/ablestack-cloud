@@ -40,7 +40,7 @@ export default {
       ],
       columnNames: ['account', 'accountstate', 'quotastate', 'domain', 'currency', 'currentbalance'],
       details: ['account', 'domain', 'state', 'currency', 'balance', 'quota', 'startdate', 'enddate'],
-      // component: shallowRef(() => import('@/views/plugins/quota/QuotaSummary.vue')),
+      component: shallowRef(() => import('@/views/plugins/quota/QuotaSummary.vue')),
       tabs: [
         {
           name: 'details',

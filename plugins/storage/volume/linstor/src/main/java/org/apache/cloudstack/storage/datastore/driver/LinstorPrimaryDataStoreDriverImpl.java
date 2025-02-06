@@ -382,7 +382,7 @@ public class LinstorPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriver
                 long vMaxIops = maxIops != null ? maxIops : 0;
                 long newIops = vcIops + vMaxIops;
                 capacityIops -= newIops;
-                logger.info(String.format("Current storagepool %s iops capacity:  %d", storagePool, capacityIops));
+                logger.info("Current storagepool " + storagePool.getName() + " iops capacity:  " + capacityIops);
                 storagePool.setCapacityIops(Math.max(0, capacityIops));
                 _storagePoolDao.update(storagePool.getId(), storagePool);
             }
@@ -1197,7 +1197,7 @@ public class LinstorPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriver
     @Override
     public void takeSnapshot(SnapshotInfo snapshotInfo, AsyncCompletionCallback<CreateCmdResult> callback)
     {
-        logger.debug(String.format("Linstor: takeSnapshot with snapshot: %s", snapshotInfo.getSnapshotVO()));
+        logger.debug("Linstor: takeSnapshot with snapshot: " + snapshotInfo.getUuid());
 
         final VolumeInfo volumeInfo = snapshotInfo.getBaseVolume();
         final VolumeVO volumeVO = _volumeDao.findById(volumeInfo.getId());

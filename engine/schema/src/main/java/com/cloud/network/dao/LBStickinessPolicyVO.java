@@ -33,7 +33,6 @@ import javax.persistence.Table;
 
 import com.cloud.network.rules.StickinessPolicy;
 import com.cloud.utils.Pair;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "load_balancer_stickiness_policies")
@@ -162,12 +161,5 @@ public class LBStickinessPolicyVO implements StickinessPolicy {
     @Override
     public boolean isDisplay() {
         return display;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("LBStickinessPolicy %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name", "methodName"));
     }
 }

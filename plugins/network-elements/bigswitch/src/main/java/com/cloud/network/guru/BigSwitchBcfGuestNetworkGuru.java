@@ -153,11 +153,12 @@ public class BigSwitchBcfGuestNetworkGuru extends GuestNetworkGuru implements Ne
 
         List<BigSwitchBcfDeviceVO> devices = _bigswitchBcfDao.listByPhysicalNetwork(physnet.getId());
         if (devices.isEmpty()) {
-            logger.error(String.format("No BigSwitch Controller on physical network %s", physnet));
+            logger.error("No BigSwitch Controller on physical network " + physnet.getName());
             return null;
         }
         for (BigSwitchBcfDeviceVO d: devices){
-            logger.debug(String.format("BigSwitch Controller %s found on physical network %s", d, physnet));
+            logger.debug("BigSwitch Controller " + d.getUuid()
+                    + " found on physical network " + physnet.getId());
         }
 
         logger.debug("Physical isolation type is BCF_SEGMENT, asking GuestNetworkGuru to design this network");
@@ -308,7 +309,7 @@ public class BigSwitchBcfGuestNetworkGuru extends GuestNetworkGuru implements Ne
     public void shutdown(NetworkProfile profile, NetworkOffering offering) {
         NetworkVO networkObject = _networkDao.findById(profile.getId());
         if (networkObject.getBroadcastDomainType() != BroadcastDomainType.Vlan || networkObject.getBroadcastUri() == null) {
-            logger.warn(String.format("BroadcastUri is empty or incorrect for guest network %s", networkObject));
+            logger.warn("BroadcastUri is empty or incorrect for guestnetwork " + networkObject.getDisplayText());
             return;
         }
 
@@ -352,7 +353,8 @@ public class BigSwitchBcfGuestNetworkGuru extends GuestNetworkGuru implements Ne
             tenantId = vpc.getUuid();
             tenantName = vpc.getName();
             boolean released = _vpcDao.releaseFromLockTable(vpc.getId());
-            logger.debug(String.format("BCF guru release lock vpc: %s released? %s", vpc, released));
+            logger.debug("BCF guru release lock vpc id: " + vpc.getId()
+                    + " released? " + released);
         } else {
             // use network id in CS as tenant in BSN
             // use network uuid as tenant id for non-VPC networks

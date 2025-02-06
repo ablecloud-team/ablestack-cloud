@@ -41,9 +41,7 @@
               </template>
               <template #actions>
                 <a-popconfirm
-                  :title="this.$localStorage.get('LOCALE') == 'ko_KR' ?
-                          (item.adminsonly ? $t('label.annotation.everyone') : $t('label.adminsonly')) + $t('label.make') + '?' :
-                          $t('label.make') + ' ' + (item.adminsonly ? $t('label.annotation.everyone') : $t('label.adminsonly')) + '?'"
+                  :title="$t('label.make') + ' ' + (item.adminsonly ? $t('label.annotation.everyone') : $t('label.adminsonly')) + ' ?'"
                   v-if="['Admin'].includes($store.getters.userInfo.roletype)"
                   key="visibility"
                   @confirm="updateVisibility(item)"
@@ -198,7 +196,6 @@ export default {
         case 'AutoScaleVmGroup': return 'AUTOSCALE_VM_GROUP'
         case 'ManagementServer': return 'MANAGEMENT_SERVER'
         case 'ObjectStorage': return 'OBJECT_STORAGE'
-        case 'DisasterRecoveryCluster': return 'DISASTER_RECOVERY_CLUSTER'
         default: return ''
       }
     },

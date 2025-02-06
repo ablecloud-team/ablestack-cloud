@@ -33,7 +33,6 @@ import org.apache.cloudstack.api.Identity;
 import org.apache.cloudstack.api.InternalIdentity;
 
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "conditions")
@@ -92,9 +91,7 @@ public class ConditionVO implements Condition, Identity, InternalIdentity {
 
     @Override
     public String toString() {
-        return String.format("Condition %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid"));
+        return new StringBuilder("Condition[").append("id-").append(id).append("]").toString();
     }
 
     @Override

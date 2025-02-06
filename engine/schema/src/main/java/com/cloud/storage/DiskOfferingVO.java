@@ -34,7 +34,6 @@ import javax.persistence.Transient;
 
 import com.cloud.offering.DiskOffering;
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "disk_offering")
@@ -614,12 +613,5 @@ public class DiskOfferingVO implements DiskOffering {
 
     public void setDiskSizeStrictness(boolean diskSizeStrictness) {
         this.diskSizeStrictness = diskSizeStrictness;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("DiskOffering %s.",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name"));
     }
 }

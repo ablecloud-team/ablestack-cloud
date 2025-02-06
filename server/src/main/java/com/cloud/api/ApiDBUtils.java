@@ -1951,11 +1951,11 @@ public class ApiDBUtils {
     }
 
     public static UserResponse newUserResponse(UserAccountJoinVO usr) {
-        return newUserResponse(ResponseView.Restricted, null, usr);
+        return newUserResponse(usr, null);
     }
 
-    public static UserResponse newUserResponse(ResponseView view, Long domainId, UserAccountJoinVO usr) {
-        UserResponse response = s_userAccountJoinDao.newUserResponse(view, usr);
+    public static UserResponse newUserResponse(UserAccountJoinVO usr, Long domainId) {
+        UserResponse response = s_userAccountJoinDao.newUserResponse(usr);
         if(!AccountManager.UseSecretKeyInResponse.value()){
             response.setSecretKey(null);
         }

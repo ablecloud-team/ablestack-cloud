@@ -66,7 +66,6 @@ public class ListCapabilitiesCmd extends BaseCmd {
         response.setWallPortalPort((String)capabilities.get("wallPortalPort"));
         response.setWallPortalVmUri((String)capabilities.get("wallPortalVmUri"));
         response.setSecurityFeaturesEnabled((Boolean)capabilities.get("securityFeaturesEnabled"));
-        response.setDisasterRecoveryEnabled((Boolean)capabilities.get("disasterRecoveryEnabled"));
         response.setHost((String)capabilities.get("host"));
         response.setBalancingServiceEnabled((Boolean)capabilities.get("balancingServiceEnabled"));
         response.setEventDeleteEnabled((Boolean)capabilities.get("eventDeleteEnabled"));

@@ -16,8 +16,6 @@
 // under the License.
 package com.cloud.network.security;
 
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
-
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -60,13 +58,6 @@ public class SecurityGroupVO implements SecurityGroup {
         this.domainId = domainId;
         this.accountId = accountId;
         uuid = UUID.randomUUID().toString();
-    }
-
-    @Override
-    public String toString() {
-        return String.format("SecurityGroup %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name"));
     }
 
     @Override

@@ -35,7 +35,6 @@ public class ApiConstants {
     public static final String ALLOW_USER_FORCE_STOP_VM = "allowuserforcestopvm";
     public static final String ANNOTATION = "annotation";
     public static final String API_KEY = "apikey";
-    public static final String API_KEY_ACCESS = "apikeyaccess";
     public static final String ARCHIVED = "archived";
     public static final String ARCH = "arch";
     public static final String AS_NUMBER = "asnumber";
@@ -250,7 +249,6 @@ public class ApiConstants {
     public static final String CUSTOMIMAGES = "customimages";
     public static final String ID = "id";
     public static final String IDS = "ids";
-    public static final String IMPORT_INSTANCE_HOST_ID = "importinstancehostid";
     public static final String INDEX = "index";
     public static final String INSTANCES_DISKS_STATS_RETENTION_ENABLED = "instancesdisksstatsretentionenabled";
     public static final String INSTANCES_DISKS_STATS_RETENTION_TIME = "instancesdisksstatsretentiontime";
@@ -390,14 +388,6 @@ public class ApiConstants {
     public static final String PATH = "path";
     public static final String PAYLOAD = "payload";
     public static final String PAYLOAD_URL = "payloadurl";
-    public static final String PEERS = "peers";
-    public static final String PEER_ID = "peerid";
-    public static final String PEER_NAME = "peername";
-    public static final String PEER_MSID = "peermsid";
-    public static final String PEER_RUNID = "peerrunid";
-    public static final String PEER_SERVICE_IP = "peerserviceip";
-    public static final String PEER_SERVICE_PORT = "peerserviceport";
-    public static final String PEER_STATE = "peerstate";
     public static final String POD_ID = "podid";
     public static final String POD_NAME = "podname";
     public static final String POD_IDS = "podids";
@@ -472,8 +462,6 @@ public class ApiConstants {
     public static final String SNAPSHOT_POLICY_ID = "snapshotpolicyid";
     public static final String SNAPSHOT_TYPE = "snapshottype";
     public static final String SNAPSHOT_QUIESCEVM = "quiescevm";
-    public static final String SUPPORTS_STORAGE_SNAPSHOT = "supportsstoragesnapshot";
-    public static final String SOURCE_CIDR_LIST = "sourcecidrlist";
     public static final String SOURCE_ZONE_ID = "sourcezoneid";
     public static final String SSL_VERIFICATION = "sslverification";
     public static final String START_ASN = "startasn";
@@ -498,6 +486,7 @@ public class ApiConstants {
     public static final String STORAGE_TAGS = "storagetags";
     public static final String SUCCESS = "success";
     public static final String SUITABLE_FOR_VM = "suitableforvirtualmachine";
+    public static final String SUPPORTS_STORAGE_SNAPSHOT = "supportsstoragesnapshot";
     public static final String TARGET_IQN = "targetiqn";
     public static final String TEMPLATE_FILTER = "templatefilter";
     public static final String TEMPLATE_ID = "templateid";
@@ -516,7 +505,6 @@ public class ApiConstants {
     public static final String URL = "url";
     public static final String USAGE_INTERFACE = "usageinterface";
     public static final String USED_SUBNETS = "usedsubnets";
-    public static final String USED_IOPS = "usediops";
     public static final String USER_DATA = "userdata";
 
     public static final String USER_DATA_NAME = "userdataname";
@@ -1005,7 +993,6 @@ public class ApiConstants {
     public static final String ACL_NAME = "aclname";
     public static final String NUMBER = "number";
     public static final String IS_DYNAMICALLY_SCALABLE = "isdynamicallyscalable";
-    public static final String ROUTED_MODE_ENABLED = "routedmodeenabled";
     public static final String ROUTING = "isrouting";
     public static final String ROUTING_MODE = "routingmode";
     public static final String MAX_CONNECTIONS = "maxconnections";
@@ -1254,7 +1241,6 @@ public class ApiConstants {
 
     public static final String SHAREABLE = "shareable";
     public static final String KVDO_ENABLE = "kvdoenable";
-    public static final String KVDO_IN_USE = "kvdoinuse";
     public static final String VBMC_PORT = "vbmcport";
     public static final String IS_TAG_A_RULE = "istagarule";
     public static final String LINK_STATE = "linkstate";
@@ -1280,29 +1266,6 @@ public class ApiConstants {
             "a boolean or a numeric value: if it results in a boolean value, the tariff value will be applied according to the result; if it results in a numeric value, the " +
             "numeric value will be applied; if the result is neither a boolean nor a numeric value, the tariff will not be applied. If the rule is not informed, the tariff " +
             "value will be applied.";
-
-    public static final String DR_CLUSTER_TYPE = "drclustertype";
-    public static final String DR_CLUSTER_URL = "drclusterurl";
-    public static final String DR_CLUSTER_STATUS = "drclusterstatus";
-    public static final String DR_CLUSTER_API_KEY = "drclusterapikey";
-    public static final String DR_CLUSTER_SECRET_KEY = "drclustersecretkey";
-    public static final String DR_CLUSTER_PRIVATE_KEY = "drclusterprivatekey";
-    public static final String DR_CLUSTER_GLUE_IP_ADDRESS = "drclusterglueipaddress";
-    public static final String DR_CLUSTER_VM_MAP = "drclustervmmap";
-    public static final String DR_CLUSTER_ID = "drclusterid";
-    public static final String DR_CLUSTER_VM_ID = "drclustervmid";
-    public static final String DR_CLUSTER_VM_STATUS = "drclustervmstatus";
-    public static final String DR_CLUSTER_MIRROR_VM_ID = "drclustermirrorvmid";
-    public static final String DR_CLUSTER_MIRROR_VM_NAME = "drclustermirrorvmname";
-    public static final String DR_CLUSTER_MIRROR_VM_STATUS = "drclustermirrorvmstatus";
-    public static final String DR_CLUSTER_MIRROR_VM_VOL_STATUS = "drclustermirrorvmvolstatus";
-    public static final String DR_CLUSTER_MIRROR_VM_VOL_TYPE = "drclustermirrorvmvoltype";
-    public static final String DR_CLUSTER_MIRROR_VM_VOL_PATH = "drclustermirrorvmvolpath";
-    public static final String DR_CLUSTER_NAME = "drclustername";
-    public static final String DR_CLUSTER_VM_VOL_STATUS = "drclustervmvolstatus";
-    public static final String DR_CLUSTER_VM_NAME = "drclustervmname";
-    public static final String MIRRORING_AGENT_STATUS = "mirroringagentstatus";
-    public static final String DISASTER_RECOVERY_CLUSTER_VM_LIST = "disasterrecoveryclustervmlist";
 
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.
@@ -1376,31 +1339,5 @@ public class ApiConstants {
 
     public enum DomainDetails {
         all, resource, min;
-    }
-
-    public enum ApiKeyAccess {
-        DISABLED(false),
-        ENABLED(true),
-        INHERIT(null);
-
-        Boolean apiKeyAccess;
-
-        ApiKeyAccess(Boolean keyAccess) {
-            apiKeyAccess = keyAccess;
-        }
-
-        public Boolean toBoolean() {
-            return apiKeyAccess;
-        }
-
-        public static ApiKeyAccess fromBoolean(Boolean value) {
-            if (value == null) {
-                return INHERIT;
-            } else if (value) {
-                return ENABLED;
-            } else {
-                return DISABLED;
-            }
-        }
     }
 }

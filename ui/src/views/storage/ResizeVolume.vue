@@ -47,15 +47,6 @@
           :checked="shrinkOk"
           @change="val => { shrinkOk = val }"/>
       </a-form-item>
-      <a-form-item name="autoMigrate" ref="autoMigrate" :label="$t('label.automigrate.volume')">
-        <template #label>
-          <tooltip-label :title="$t('label.automigrate.volume')" :tooltip="apiParams.automigrate.description"/>
-        </template>
-        <a-switch
-          v-model:checked="form.autoMigrate"
-          :checked="autoMigrate"
-          @change="val => { autoMigrate = val }"/>
-      </a-form-item>
       <div :span="24" class="action-button">
         <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
         <a-button :loading="loading" type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
@@ -67,13 +58,9 @@
 import { ref, reactive, toRaw } from 'vue'
 import { api } from '@/api'
 import { mixinForm } from '@/utils/mixin'
-import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
   name: 'ResizeVolume',
-  components: {
-    TooltipLabel
-  },
   mixins: [mixinForm],
   props: {
     resource: {

@@ -62,10 +62,9 @@ public class ConsoleSessionDaoImpl extends GenericDaoBase<ConsoleSessionVO, Long
     }
 
     @Override
-    public void acquireSession(String sessionUuid, String clientAddress) {
+    public void acquireSession(String sessionUuid) {
         ConsoleSessionVO consoleSessionVO = findByUuid(sessionUuid);
         consoleSessionVO.setAcquired(new Date());
-        consoleSessionVO.setClientAddress(clientAddress);
         update(consoleSessionVO.getId(), consoleSessionVO);
     }
 

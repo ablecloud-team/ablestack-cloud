@@ -97,7 +97,7 @@ public class ManagedNfsStorageAdaptor implements StorageAdaptor {
      * creates a nfs storage pool using libvirt
      */
     @Override
-    public boolean connectPhysicalDisk(String volumeUuid, KVMStoragePool pool, Map<String, String> details, boolean isVMMigrate) {
+    public boolean connectPhysicalDisk(String volumeUuid, KVMStoragePool pool, Map<String, String> details) {
 
         StoragePool sp = null;
         Connect conn = null;

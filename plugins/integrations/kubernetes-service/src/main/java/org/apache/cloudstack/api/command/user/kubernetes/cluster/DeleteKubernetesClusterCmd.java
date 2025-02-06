@@ -93,8 +93,7 @@ public class DeleteKubernetesClusterCmd extends BaseAsyncCmd {
     public void execute() throws ServerApiException, ConcurrentOperationException {
         try {
             if (!kubernetesClusterService.deleteKubernetesCluster(this)) {
-                KubernetesCluster cluster = kubernetesClusterService.findById(getId());
-                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, String.format("Failed to delete Kubernetes cluster %s with id: %d", cluster, getId()));
+                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, String.format("Failed to delete Kubernetes cluster ID: %d", getId()));
             }
             SuccessResponse response = new SuccessResponse(getCommandName());
             setResponseObject(response);

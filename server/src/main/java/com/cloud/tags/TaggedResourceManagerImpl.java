@@ -165,13 +165,12 @@ public class TaggedResourceManagerImpl extends ManagerBase implements TaggedReso
 
     protected void checkTagsDeletePermission(List<ResourceTag> tagsToDelete, Account caller) {
         for (ResourceTag resourceTag : tagsToDelete) {
-            Account owner = _accountMgr.getAccount(resourceTag.getAccountId());
             if(logger.isDebugEnabled()) {
-                logger.debug("Resource Tag Id: {}, Uuid: {}, Type: {}, Account: {}",
-                        resourceTag.getResourceId(), resourceTag.getResourceUuid(),
-                        resourceTag.getResourceType(), owner);
+                logger.debug("Resource Tag Id: " + resourceTag.getResourceId());
+                logger.debug("Resource Tag AccountId: " + resourceTag.getAccountId());
             }
             if (caller.getAccountId() != resourceTag.getAccountId()) {
+                Account owner = _accountMgr.getAccount(resourceTag.getAccountId());
                 if(logger.isDebugEnabled()) {
                     logger.debug("Resource Owner: " + owner);
                 }
@@ -204,8 +203,8 @@ public class TaggedResourceManagerImpl extends ManagerBase implements TaggedReso
                         Long domainId = accountDomainPair.second();
                         Long accountId = accountDomainPair.first();
 
-                        resourceManagerUtil.checkResourceAccessible(accountId, domainId,
-                                String.format("Account '%s' doesn't have permissions to create tags for resource [id: %d, uuid: %s] (%s).", caller, id, resourceUuid, key));
+                        resourceManagerUtil.checkResourceAccessible(accountId, domainId, "Account '" + caller +
+                                "' doesn't have permissions to create tags" + " for resource '" + id + "(" + key + ")'.");
 
                         String value = tags.get(key);
 
@@ -217,7 +216,7 @@ public class TaggedResourceManagerImpl extends ManagerBase implements TaggedReso
                         try {
                             resourceTag = _resourceTagDao.persist(resourceTag);
                         } catch (EntityExistsException e) {
-                            throw new CloudRuntimeException(String.format("tag %s already on %s with id %s", resourceTag.getKey(), resourceType, resourceUuid),e);
+                            throw new CloudRuntimeException(String.format("tag %s already on %s with id %s", resourceTag.getKey(), resourceType.toString(), resourceId),e);
                         }
                         resourceTags.add(resourceTag);
                         if (ResourceObjectType.UserVm.equals(resourceType)) {
@@ -320,7 +319,7 @@ public class TaggedResourceManagerImpl extends ManagerBase implements TaggedReso
             Long poolId = volume.getPoolId();
             DataStore dataStore = retrieveDatastore(poolId);
             if (dataStore == null || !(dataStore.getDriver() instanceof PrimaryDataStoreDriver)) {
-                logger.info("No data store found for volume {} of VM {} with pool ID {}.", volume, vmId, poolId);
+                logger.info(String.format("No data store found for VM %d with pool ID %d.", vmId, poolId));
                 continue;
             }
             PrimaryDataStoreDriver dataStoreDriver = (PrimaryDataStoreDriver) dataStore.getDriver();

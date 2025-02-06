@@ -2,7 +2,9 @@
 
 Dockerfiles used to build CloudStack images are available on Docker hub.
 
+
 ## Using images from docker-hub
+
 
 ### CloudStack Simulator
 
@@ -88,6 +90,7 @@ docker run -ti --rm --link simulator:8096 \
 
 Image provided by CloudStack are automatically built by Jenkins performing following tasks:
 
+
 ### CentOS 6
 
 CentOS 6 image use RPM's from jenkins.buildacloud.org
@@ -110,6 +113,7 @@ tag:latest = main branch
    docker stop cloudstack
    docker commit -m "init system.iso" -a "Apache CloudStack" cloudstack cloudstack/management_centos6
    ```
+
 
 ### Marvin
 

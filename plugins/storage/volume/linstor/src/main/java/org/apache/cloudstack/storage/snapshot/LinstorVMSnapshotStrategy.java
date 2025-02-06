@@ -83,12 +83,12 @@ public class LinstorVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
             Snapshot snap = new Snapshot();
             snap.setName(vmSnapshotVO.getName());
             snap.setResourceName(LinstorUtil.RSC_PREFIX + vol.getPath());
-            log.debug("Add volume {};{} to snapshot", vol, snap.getResourceName());
+            log.debug(String.format("Add volume %s;%s to snapshot", vol.getName(), snap.getResourceName()));
             cmsReq.addSnapshotsItem(snap);
         }
-        log.debug("Creating multi snapshot {}", vmSnapshotVO);
+        log.debug(String.format("Creating multi snapshot %s", vmSnapshotVO.getName()));
         ApiCallRcList answers = api.createMultiSnapshot(cmsReq);
-        log.debug("Created multi snapshot {}", vmSnapshotVO);
+        log.debug(String.format("Created multi snapshot %s", vmSnapshotVO.getName()));
         if (answers.hasError()) {
             throw new CloudRuntimeException(
                 "Error creating vm snapshots: " + LinstorUtil.getBestErrorMessage(answers));
@@ -123,7 +123,7 @@ public class LinstorVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
 
     @Override
     public VMSnapshot takeVMSnapshot(VMSnapshot vmSnapshot) {
-        log.info("Take vm snapshot: {}", vmSnapshot);
+        log.info("Take vm snapshot: " + vmSnapshot.getName());
         UserVm userVm = _userVmDao.findById(vmSnapshot.getVmId());
         VMSnapshotVO vmSnapshotVO = (VMSnapshotVO) vmSnapshot;
 
@@ -151,7 +151,7 @@ public class LinstorVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
 
             linstorCreateMultiSnapshot(api, vmSnapshotVO, volumeTOs);
 
-            log.debug("finalize vm snapshot create for {}", vmSnapshotVO);
+            log.debug(String.format("finalize vm snapshot create for %s", vmSnapshotVO.getName()));
             finalizeCreate(vmSnapshotVO, volumeTOs);
 
             result = _vmSnapshotHelper.vmSnapshotStateTransitTo(vmSnapshot, VMSnapshot.Event.OperationSucceeded);
@@ -246,11 +246,11 @@ public class LinstorVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
             if (err != null)
             {
                 String errMsg = String.format("Unable to delete Linstor resource %s snapshot %s: %s",
-                        rscName, vmSnapshotVO, err);
+                        rscName, snapshotName, err);
                 log.error(errMsg);
                 failedToDelete.add(errMsg);
             }
-            log.info("Linstor: Deleted snapshot {} for resource {}", vmSnapshotVO, rscName);
+            log.info("Linstor: Deleted snapshot " + snapshotName + " for resource " + rscName);
         }
 
         if (!failedToDelete.isEmpty()) {
@@ -306,7 +306,7 @@ public class LinstorVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
 
     @Override
     public boolean revertVMSnapshot(VMSnapshot vmSnapshot) {
-        log.debug("Revert vm snapshot: {}", vmSnapshot);
+        log.debug("Revert vm snapshot: " + vmSnapshot.getName());
         VMSnapshotVO vmSnapshotVO = (VMSnapshotVO) vmSnapshot;
         UserVmVO userVm = _userVmDao.findById(vmSnapshot.getVmId());
 
@@ -325,7 +325,7 @@ public class LinstorVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
             result = revertVMSnapshotOperation(vmSnapshot, userVm.getId());
         } catch (CloudRuntimeException | NoTransitionException  e) {
             String errMsg = String.format(
-                "Error while finalize create vm snapshot [%s] due to %s", vmSnapshot, e.getMessage());
+                "Error while finalize create vm snapshot [%s] due to %s", vmSnapshot.getName(), e.getMessage());
             log.error(errMsg, e);
             throw new CloudRuntimeException(errMsg);
         } finally {

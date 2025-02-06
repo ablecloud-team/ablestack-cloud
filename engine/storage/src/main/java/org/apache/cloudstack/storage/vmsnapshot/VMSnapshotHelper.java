@@ -20,8 +20,6 @@ package org.apache.cloudstack.storage.vmsnapshot;
 
 import java.util.List;
 
-import com.cloud.uservm.UserVm;
-import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
 
 import com.cloud.agent.api.VMSnapshotTO;
@@ -39,7 +37,7 @@ public interface VMSnapshotHelper {
 
     VMSnapshotTO getSnapshotWithParents(VMSnapshotVO snapshot);
 
-    StoragePoolVO getStoragePoolForVM(UserVm vm);
+    Long getStoragePoolForVM(Long vmId);
 
     Storage.StoragePoolType getStoragePoolType(Long poolId);
 }

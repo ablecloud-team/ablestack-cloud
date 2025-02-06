@@ -118,11 +118,6 @@
           </a-select>
           <p class="modal-form__label">{{ $t('label.publicip') }}:</p>
           <a-input v-model:value="addNetworkData.ip"></a-input>
-          <br>
-          <a-checkbox v-model:checked="addNetworkData.makedefault">
-            {{ $t('label.make.default') }}
-          </a-checkbox>
-          <br>
         </div>
 
         <div :span="24" class="action-button">
@@ -265,15 +260,13 @@ export default {
   data () {
     return {
       vm: {},
-      nic: {},
       showAddNetworkModal: false,
       showUpdateIpModal: false,
       showSecondaryIpModal: false,
       addNetworkData: {
         allNetworks: [],
         network: '',
-        ip: '',
-        makedefault: false
+        ip: ''
       },
       loadingNic: false,
       editIpAddressNic: '',
@@ -351,7 +344,6 @@ export default {
       this.showSecondaryIpModal = false
       this.addNetworkData.network = ''
       this.addNetworkData.ip = ''
-      this.addNetworkData.makedefault = false
       this.editIpAddressValue = ''
       this.newSecondaryIp = ''
     },
@@ -388,19 +380,7 @@ export default {
         this.$pollJob({
           jobId: response.addnictovirtualmachineresponse.jobid,
           successMessage: this.$t('message.success.add.network'),
-          successMethod: async () => {
-            if (this.addNetworkData.makedefault) {
-              try {
-                this.nic = await this.getNic(params.networkid, params.virtualmachineid)
-                if (this.nic) {
-                  this.setAsDefault(this.nic)
-                } else {
-                  this.$notifyError('NIC data not found.')
-                }
-              } catch (error) {
-                this.$notifyError('Failed to fetch NIC data.')
-              }
-            }
+          successMethod: () => {
             this.loadingNic = false
             this.closeModals()
           },
@@ -420,14 +400,6 @@ export default {
       }).catch(error => {
         this.$notifyError(error)
         this.loadingNic = false
-      })
-    },
-    getNic (networkid, virtualmachineid) {
-      const params = {}
-      params.virtualmachineid = virtualmachineid
-      params.networkid = networkid
-      return api('listNics', params).then(response => {
-        return response.listnicsresponse.nic[0]
       })
     },
     setAsDefault (item) {

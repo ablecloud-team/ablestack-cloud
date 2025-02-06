@@ -450,12 +450,12 @@ public class MockAccountManagerImpl extends ManagerBase implements Manager, Acco
     }
 
     @Override
-    public Pair<Boolean, Map<String, String>> getKeys(GetUserKeysCmd cmd) {
+    public Map<String, String> getKeys(GetUserKeysCmd cmd) {
         return null;
     }
 
     @Override
-    public Pair<Boolean, Map<String, String>> getKeys(Long userId) {
+    public Map<String, String> getKeys(Long userId) {
         return null;
     }
 

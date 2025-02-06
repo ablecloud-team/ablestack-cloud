@@ -192,8 +192,11 @@ public class UserPasswordResetManagerImpl extends ManagerBase implements UserPas
         mailProperties.setRecipients(addresses);
 
         mailSender.sendMail(mailProperties);
-        logger.debug("User password reset email for user {} account id: {} domain id: {} sent to {} with token expiry at {}",
-                userAccount, userAccount.getAccountId(), userAccount.getDomainId(), email, resetTokenExpiryTime);
+        logger.debug(String.format(
+                "User password reset email for user id: %d username: %s account id: %d" +
+                        " domain id:%d sent to %s with token expiry at %s",
+                userAccount.getId(), username, userAccount.getAccountId(),
+                userAccount.getDomainId(), email, resetTokenExpiryTime));
     }
 
     @Override
@@ -202,8 +205,10 @@ public class UserPasswordResetManagerImpl extends ManagerBase implements UserPas
         UserDetailVO resetTokenExpiryDate = userDetailsDao.findDetail(user.getId(), PasswordResetTokenExpiryDate);
 
         if (resetTokenDetail == null || resetTokenExpiryDate == null) {
-            logger.debug("Failed to reset password. No reset token found for user {} account" +
-                    " id: {} domain id: {}", user, user.getAccountId(), user.getDomainId());
+            logger.debug(String.format(
+                    "Failed to reset password. No reset token found for user id: %d username: %s account" +
+                            " id: %d domain id: %d",
+                    user.getId(), user.getUsername(), user.getAccountId(), user.getDomainId()));
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, String.format("No reset token found for user %s", user.getUsername()));
         }
 
@@ -212,23 +217,31 @@ public class UserPasswordResetManagerImpl extends ManagerBase implements UserPas
         Date now = new Date();
         String resetToken = resetTokenDetail.getValue();
         if (StringUtils.isEmpty(resetToken)) {
-            logger.debug("Failed to reset password. No reset token found for user {} account" +
-                    " id: {} domain id: {}", user, user.getAccountId(), user.getDomainId());
+            logger.debug(String.format(
+                    "Failed to reset password. No reset token found for user id: %d username: %s account" +
+                            " id: %d domain id: %d",
+                    user.getId(), user.getUsername(), user.getAccountId(), user.getDomainId()));
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, String.format("No reset token found for user %s", user.getUsername()));
         }
         if (!resetToken.equals(token)) {
-            logger.debug("Failed to reset password. Invalid reset token for user {} " +
-                    "account id: {} domain id: {}", user, user.getAccountId(), user.getDomainId());
+            logger.debug(String.format(
+                    "Failed to reset password. Invalid reset token for user id: %d username: %s " +
+                            "account id: %d domain id: %d",
+                    user.getId(), user.getUsername(), user.getAccountId(), user.getDomainId()));
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, String.format("Invalid reset token for user %s", user.getUsername()));
         }
         if (now.after(resetTokenExpiryTime)) {
-            logger.debug("Failed to reset password. Reset token has expired for user {} " +
-                    "account id: {} domain id: {}", user, user.getAccountId(), user.getDomainId());
+            logger.debug(String.format(
+                    "Failed to reset password. Reset token has expired for user id: %d username: %s " +
+                            "account id: %d domain id: %d",
+                    user.getId(), user.getUsername(), user.getAccountId(), user.getDomainId()));
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, String.format("Reset token has expired for user %s", user.getUsername()));
         }
 
         resetPassword(user, password);
-        logger.debug("Password reset successful for user {} account id: {} domain id: {}", user, user.getAccountId(), user.getDomainId());
+        logger.debug(String.format(
+                "Password reset successful for user id: %d username: %s account id: %d domain id: %d",
+                user.getId(), user.getUsername(), user.getAccountId(), user.getDomainId()));
         return true;
     }
 

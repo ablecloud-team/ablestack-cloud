@@ -59,14 +59,9 @@ public class SshKeysDistriMonitor implements Listener {
     }
 
     @Override
-    public boolean processDisconnect(long agentId, Status state) {
-        return processDisconnect(agentId, null, null, state);
-    }
-
-    @Override
-    public synchronized boolean processDisconnect(long agentId, String uuid, String name, Status state) {
+    public synchronized boolean processDisconnect(long agentId, Status state) {
         if (logger.isTraceEnabled())
-            logger.trace("Agent disconnected, agent [id: {}, uuid: {}, name: {}, state: {}]. Will notify waiters", agentId, uuid, name, state);
+            logger.trace("Agent disconnected, agent id: " + agentId + ", state: " + state + ". Will notify waiters");
 
         return true;
     }
@@ -98,7 +93,7 @@ public class SshKeysDistriMonitor implements Listener {
                     Commands c = new Commands(cmds);
                     _agentMgr.send(host.getId(), c, this);
                 } catch (AgentUnavailableException e) {
-                    logger.debug("Failed to send keys to agent: {}", host);
+                    logger.debug("Failed to send keys to agent: " + host.getId());
                 }
             }
         }

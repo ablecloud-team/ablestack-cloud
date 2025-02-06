@@ -77,7 +77,7 @@ public class NonStrictHostAffinityProcessor extends AffinityProcessorBase implem
         AffinityGroupVO group = affinityGroupDao.findById(vmGroupMapping.getAffinityGroupId());
 
         if (logger.isDebugEnabled()) {
-            logger.debug(String.format("Processing affinity group %s for VM: %s", group, vm));
+            logger.debug("Processing affinity group " + group.getName() + " for VM Id: " + vm.getId());
         }
 
         List<Long> groupVMIds = affinityGroupVMMapDao.listVmIdsByAffinityGroup(group.getId());
@@ -95,17 +95,17 @@ public class NonStrictHostAffinityProcessor extends AffinityProcessorBase implem
         if (groupVM.getHostId() != null) {
             Integer priority = adjustHostPriority(plan, groupVM.getHostId());
             if (logger.isDebugEnabled()) {
-                logger.debug(String.format("Updated host %s priority to %s, since VM %s is present on the host",
-                        groupVM.getHostId(), priority, groupVM));
+                logger.debug(String.format("Updated host %s priority to %s , since VM %s is present on the host",
+                        groupVM.getHostId(), priority, groupVM.getId()));
             }
         } else if (Arrays.asList(VirtualMachine.State.Starting, VirtualMachine.State.Stopped).contains(groupVM.getState()) && groupVM.getLastHostId() != null) {
             long secondsSinceLastUpdate = (DateUtil.currentGMTTime().getTime() - groupVM.getUpdateTime().getTime()) / 1000;
             if (secondsSinceLastUpdate < vmCapacityReleaseInterval) {
                 Integer priority = adjustHostPriority(plan, groupVM.getLastHostId());
                 if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("Updated host %s priority to %s, since VM %s" +
+                    logger.debug(String.format("Updated host %s priority to %s , since VM %s" +
                             " is present on the host, in %s state but has reserved capacity",
-                            groupVM.getLastHostId(), priority, groupVM, groupVM.getState()));
+                            groupVM.getLastHostId(), priority, groupVM.getId(), groupVM.getState()));
                 }
             }
         }

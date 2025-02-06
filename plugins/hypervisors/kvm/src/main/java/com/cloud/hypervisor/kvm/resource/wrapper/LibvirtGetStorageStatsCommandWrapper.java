@@ -40,8 +40,7 @@ public final class LibvirtGetStorageStatsCommandWrapper extends CommandWrapper<G
             if (sp == null) {
                 return new GetStorageStatsAnswer(command, "no storage pool to get statistics from");
             }
-            return new GetStorageStatsAnswer(command, sp.getCapacity(), sp.getUsed(), sp.getCapacityIops(),
-                    sp.getUsedIops());
+            return new GetStorageStatsAnswer(command, sp.getCapacity(), sp.getUsed());
         } catch (final CloudRuntimeException e) {
             return new GetStorageStatsAnswer(command, e.toString());
         }

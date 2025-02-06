@@ -32,7 +32,6 @@ import javax.persistence.TemporalType;
 
 import org.apache.cloudstack.management.ManagementServerHost;
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "mshost")
@@ -200,9 +199,7 @@ public class ManagementServerHostVO implements ManagementServerHost {
 
     @Override
     public String toString() {
-        return String.format("ManagementServer %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name", "msid"));
+        return new StringBuilder("ManagementServer[").append("-").append(id).append("-").append(msid).append("-").append(state).append("]").toString();
     }
 
     @Override

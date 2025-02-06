@@ -189,7 +189,7 @@
               :copyResource="String(resource.id)"
               @onClick="openMigrationModal(record)" />
             </template>
-            <template v-else-if="column.key == 'deleteactions' && (record.templateid || record.volumeid) == null && !['MOLD-DR', 'MOLD-AC', 'MOLD-HB','ccvm'].some(forbiddenName => record.name.includes(forbiddenName))">
+            <template v-else-if="column.key == 'deleteactions' && (record.templateid || record.volumeid) == null && !['MOLD-AC', 'MOLD-HB','ccvm'].some(forbiddenName => record.name.includes(forbiddenName))">
               <a-col flex="auto">
               <a-tooltip
               :title="$t('label.action.create.volume')">

@@ -71,7 +71,8 @@
                     <a-select-option
                       v-for="(opt, idx) in field.opts"
                       :key="idx"
-                      :value="['account'].includes(field.name) ? opt.name : opt.id">
+                      :value="['account'].includes(field.name) ? opt.name : opt.id"
+                      :label="$t((['storageid'].includes(field.name) || !opt.path) ? opt.name : opt.path)">
                       <div>
                         <span v-if="(field.name.startsWith('zone'))">
                           <span v-if="opt.icon">
@@ -79,7 +80,7 @@
                           </span>
                           <global-outlined v-else style="margin-right: 5px" />
                         </span>
-                        <span v-if="(field.name.startsWith('domain') || field.name === 'account' || field.name.startsWith('associatednetwork'))">
+                        <span v-if="(field.name.startsWith('domain') || field.name === 'account')">
                           <span v-if="opt.icon">
                             <resource-icon :image="opt.icon.base64image" size="1x" style="margin-right: 5px"/>
                           </span>
@@ -89,6 +90,13 @@
                           <status :text="opt.state" />
                         </span>
                         {{ $t((['storageid'].includes(field.name) || !opt.path) ? opt.name : opt.path) }}
+                        <span v-if="(field.name.startsWith('associatednetwork'))">
+                          <span v-if="opt.icon">
+                            <resource-icon :image="opt.icon.base64image" size="1x" style="margin-right: 5px"/>
+                          </span>
+                          <block-outlined v-else style="margin-right: 5px" />
+                        </span>
+                        {{ $t(opt.path || opt.name) }}
                       </div>
                     </a-select-option>
                   </a-select>
@@ -305,13 +313,12 @@ export default {
         }
         if (['zoneid', 'domainid', 'imagestoreid', 'storageid', 'state', 'account', 'hypervisor', 'level',
           'clusterid', 'podid', 'groupid', 'entitytype', 'accounttype', 'systemvmtype', 'scope', 'provider',
-          'type', 'scope', 'managementserverid', 'serviceofferingid', 'diskofferingid', 'networkid',
-          'usagetype', 'restartrequired', 'guestiptype', 'usersource'].includes(item)
+          'type', 'scope', 'managementserverid', 'serviceofferingid', 'diskofferingid', 'networkid', 'usagetype', 'restartrequired'].includes(item)
         ) {
           type = 'list'
         } else if (item === 'tags') {
           type = 'tag'
-        } else if (['resourcetype', 'apikeyaccess'].includes(item)) {
+        } else if (item === 'resourcetype') {
           type = 'autocomplete'
         } else if (item === 'isencrypted') {
           type = 'boolean'
@@ -328,9 +335,9 @@ export default {
       return arrayField
     },
     fetchStaticFieldData (arrayField) {
-      if (arrayField.includes('type') || arrayField.includes('guestiptype')) {
-        if (this.$route.path.includes('/guestnetwork') || this.$route.path.includes('/networkoffering')) {
-          const typeIndex = this.fields.findIndex(item => ['type', 'guestiptype'].includes(item.name))
+      if (arrayField.includes('type')) {
+        if (this.$route.path === '/guestnetwork' || this.$route.path.includes('/guestnetwork/')) {
+          const typeIndex = this.fields.findIndex(item => item.name === 'type')
           this.fields[typeIndex].loading = true
           this.fields[typeIndex].opts = this.fetchGuestNetworkTypes()
           this.fields[typeIndex].loading = false
@@ -420,28 +427,9 @@ export default {
           { value: 'User' },
           { value: 'VirtualMachine' },
           { value: 'Volume' },
-          { value: 'QuotaTariff' },
-          { value: 'DisasterRecoveryCluster' }
+          { value: 'QuotaTariff' }
         ]
         this.fields[resourceTypeIndex].loading = false
-      }
-
-      if (arrayField.includes('apikeyaccess')) {
-        const apiKeyAccessIndex = this.fields.findIndex(item => item.name === 'apikeyaccess')
-        this.fields[apiKeyAccessIndex].loading = true
-        this.fields[apiKeyAccessIndex].opts = [
-          { value: 'Disabled' },
-          { value: 'Enabled' },
-          { value: 'Inherit' }
-        ]
-        this.fields[apiKeyAccessIndex].loading = false
-      }
-
-      if (arrayField.includes('usersource')) {
-        const userSourceIndex = this.fields.findIndex(item => item.name === 'usersource')
-        this.fields[userSourceIndex].loading = true
-        this.fields[userSourceIndex].opts = this.fetchAvailableUserSourceTypes()
-        this.fields[userSourceIndex].loading = false
       }
     },
     async fetchDynamicFieldData (arrayField, searchKeyword) {
@@ -968,7 +956,7 @@ export default {
     },
     fetchVolumes (searchKeyword) {
       return new Promise((resolve, reject) => {
-        api('listVolumes', { listAll: true, isencrypted: searchKeyword }).then(json => {
+        api('listvolumes', { listAll: true, isencrypted: searchKeyword }).then(json => {
           const volumes = json.listvolumesresponse.volume
           resolve({
             type: 'isencrypted',
@@ -994,7 +982,7 @@ export default {
     },
     fetchGuestNetworkTypes () {
       const types = []
-      if (['listNetworks', 'listNetworkOfferings'].includes(this.apiName)) {
+      if (this.apiName.indexOf('listNetworks') > -1) {
         types.push({
           id: 'Isolated',
           name: 'label.isolated'
@@ -1254,8 +1242,7 @@ export default {
           SECONDARY_STORAGE: 'Secondary Storage',
           VR: 'Virtual Router',
           SYSTEM_VM: 'System VM',
-          KUBERNETES_CLUSTER: 'Kubernetes Cluster',
-          DISASTER_RECOVERY: 'Disaster Recovery'
+          KUBERNETES_CLUSTER: 'Kubernetes Cluster'
         }
         for (var key in allowedTypes) {
           entityType.push({
@@ -1302,26 +1289,6 @@ export default {
             reject(error.response.headers['x-description'])
           })
       })
-    },
-    fetchAvailableUserSourceTypes () {
-      return [
-        {
-          id: 'native',
-          name: 'label.native'
-        },
-        {
-          id: 'saml2',
-          name: 'label.saml'
-        },
-        {
-          id: 'saml2disabled',
-          name: 'label.saml.disabled'
-        },
-        {
-          id: 'ldap',
-          name: 'label.ldap'
-        }
-      ]
     },
     onSearch (value) {
       this.paramsFilter = {}

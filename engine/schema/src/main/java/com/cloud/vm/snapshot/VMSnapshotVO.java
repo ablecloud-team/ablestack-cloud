@@ -36,7 +36,6 @@ import javax.persistence.Transient;
 import org.apache.cloudstack.engine.subsystem.api.storage.VMSnapshotOptions;
 
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "vm_snapshots")
@@ -144,13 +143,6 @@ public class VMSnapshotVO implements VMSnapshot {
         this.type = type;
         this.current = current;
         this.serviceOfferingId = serviceOfferingId;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("VMSnapshot %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name", "vmId"));
     }
 
     @Override

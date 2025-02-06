@@ -119,9 +119,9 @@ public class ContrailElementImpl extends AdapterBase
     @Override
     public boolean implement(Network network, NetworkOffering offering, DeployDestination dest, ReservationContext context) throws ConcurrentOperationException,
             ResourceUnavailableException, InsufficientCapacityException {
-        logger.debug(String.format("NetworkElement implement: %s, traffic type: %s", network, network.getTrafficType()));
+        logger.debug("NetworkElement implement: " + network.getName() + ", traffic type: " + network.getTrafficType());
         if (network.getTrafficType() == TrafficType.Guest) {
-            logger.debug(String.format("ignore network %s", network));
+            logger.debug("ignore network " + network.getName());
             return true;
         }
         VirtualNetworkModel vnModel = _manager.getDatabase().lookupVirtualNetwork(network.getUuid(), _manager.getCanonicalName(network), network.getTrafficType());
@@ -145,12 +145,14 @@ public class ContrailElementImpl extends AdapterBase
     public boolean prepare(Network network, NicProfile nicProfile, VirtualMachineProfile vm, DeployDestination dest, ReservationContext context)
             throws ConcurrentOperationException, ResourceUnavailableException, InsufficientCapacityException {
 
-        logger.debug(String.format("NetworkElement prepare: %s, traffic type: %s", network, network.getTrafficType()));
+        logger.debug("NetworkElement prepare: " + network.getName() + ", traffic type: " + network.getTrafficType());
 
         if (network.getTrafficType() == TrafficType.Guest) {
-            logger.debug(String.format("ignore network %s", network));
+            logger.debug("ignore network " + network.getName());
             return true;
         }
+
+        logger.debug("network: " + network.getId());
 
         VirtualNetworkModel vnModel = _manager.getDatabase().lookupVirtualNetwork(network.getUuid(), _manager.getCanonicalName(network), network.getTrafficType());
 
@@ -208,7 +210,7 @@ public class ContrailElementImpl extends AdapterBase
         if (network.getTrafficType() == TrafficType.Guest) {
             return true;
         } else if (!_manager.isManagedPhysicalNetwork(network)) {
-            logger.debug(String.format("release ignore network %s", network));
+            logger.debug("release ignore network " + network.getId());
             return true;
         }
 
@@ -217,7 +219,7 @@ public class ContrailElementImpl extends AdapterBase
 
         VirtualMachineModel vmModel = _manager.getDatabase().lookupVirtualMachine(vm.getUuid());
         if (vmModel == null) {
-            logger.debug(String.format("vm %s not in local database", vm));
+            logger.debug("vm " + vm.getInstanceName() + " not in local database");
             return true;
         }
         VMInterfaceModel vmiModel = vmModel.getVMInterface(nic.getUuid());
@@ -270,7 +272,7 @@ public class ContrailElementImpl extends AdapterBase
         List<NetworkVO> systemNets = _manager.findSystemNetworks(types);
         if (systemNets != null && !systemNets.isEmpty()) {
             for (NetworkVO net: systemNets) {
-                        logger.debug(String.format("update system network service: %s; service provider: %s", net, serviceMap));
+                logger.debug("update system network service: " + net.getName() + "; service provider: " + serviceMap);
                 _networksDao.update(net.getId(), net, serviceMap);
             }
         } else {
@@ -282,7 +284,7 @@ public class ContrailElementImpl extends AdapterBase
         systemNets = _manager.findSystemNetworks(types);
         if (systemNets != null && !systemNets.isEmpty()) {
             for (NetworkVO net: systemNets) {
-                        logger.debug(String.format("update system network service: %s; service provider: %s", net, serviceMap));
+                logger.debug("update system network service: " + net.getName() + "; service provider: " + serviceMap);
                 _networksDao.update(net.getId(), net, serviceMap);
             }
         } else {

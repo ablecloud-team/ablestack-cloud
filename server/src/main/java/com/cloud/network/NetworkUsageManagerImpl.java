@@ -132,13 +132,16 @@ public class NetworkUsageManagerImpl extends ManagerBase implements NetworkUsage
         long zoneId = cmd.getZoneId();
 
         DataCenterVO zone = _dcDao.findById(zoneId);
+        String zoneName;
         if (zone == null) {
             throw new InvalidParameterValueException("Could not find zone with ID: " + zoneId);
+        } else {
+            zoneName = zone.getName();
         }
 
         List<HostVO> trafficMonitorsInZone = _resourceMgr.listAllHostsInOneZoneByType(Host.Type.TrafficMonitor, zoneId);
         if (trafficMonitorsInZone.size() != 0) {
-            throw new InvalidParameterValueException(String.format("Already added an traffic monitor in zone: %s", zone));
+            throw new InvalidParameterValueException("Already added an traffic monitor in zone: " + zoneName);
         }
 
         URI uri;
@@ -263,24 +266,19 @@ public class NetworkUsageManagerImpl extends ManagerBase implements NetworkUsage
         }
 
         @Override
-        public boolean processAnswers(long agentId, long seq, Answer[] answers) {
-            return processAnswers(agentId, null, null, seq, answers);
-        }
-
-        @Override
         @DB
-        public boolean processAnswers(long agentId, String uuid, String name, long seq, Answer[] answers) {
+        public boolean processAnswers(long agentId, long seq, Answer[] answers) {
             /*
              * Do not collect Direct Network usage stats if the Traffic Monitor is not owned by this mgmt server
              */
             HostVO host = _hostDao.findById(agentId);
             if (host != null) {
                 if ((host.getManagementServerId() == null) || (mgmtSrvrId != host.getManagementServerId())) {
-                    logger.warn("Not the owner. Not collecting Direct Network usage from TrafficMonitor : {}", host);
+                    logger.warn("Not the owner. Not collecting Direct Network usage from  TrafficMonitor : " + agentId);
                     return false;
                 }
             } else {
-                logger.warn("Agent not found. Not collecting Direct Network usage from  TrafficMonitor [id: {}, uuid: {}, name: {}", agentId, uuid, name);
+                logger.warn("Agent not found. Not collecting Direct Network usage from  TrafficMonitor : " + agentId);
                 return false;
             }
 
@@ -305,7 +303,7 @@ public class NetworkUsageManagerImpl extends ManagerBase implements NetworkUsage
             final long zoneId = host.getDataCenterId();
             final DetailVO lastCollectDetail = _detailsDao.findDetail(host.getId(), "last_collection");
             if (lastCollectDetail == null) {
-                logger.warn("Last collection time not available. Skipping direct usage collection for Traffic Monitor: {}", host);
+                logger.warn("Last collection time not available. Skipping direct usage collection for Traffic Monitor: " + host.getId());
                 return false;
             }
             Date lastCollection = new Date(Long.parseLong(lastCollectDetail.getValue()));
@@ -379,7 +377,7 @@ public class NetworkUsageManagerImpl extends ManagerBase implements NetworkUsage
                 DirectNetworkUsageAnswer answer = (DirectNetworkUsageAnswer)_agentMgr.easySend(host.getId(), cmd);
                 if (answer == null || !answer.getResult()) {
                     String details = (answer != null) ? answer.getDetails() : "details unavailable";
-                    String msg = String.format("Unable to get network usage stats from %s due to: %s.", host, details);
+                    String msg = "Unable to get network usage stats from " + host.getId() + " due to: " + details + ".";
                     logger.error(msg);
                     return false;
                 } else {
@@ -412,7 +410,7 @@ public class NetworkUsageManagerImpl extends ManagerBase implements NetworkUsage
                 DirectNetworkUsageAnswer answer = (DirectNetworkUsageAnswer)_agentMgr.easySend(host.getId(), cmd);
                 if (answer == null || !answer.getResult()) {
                     String details = (answer != null) ? answer.getDetails() : "details unavailable";
-                    String msg = String.format("Unable to get network usage stats from %s due to: %s.", host, details);
+                    String msg = "Unable to get network usage stats from " + host.getId() + " due to: " + details + ".";
                     logger.error(msg);
                     return false;
                 } else {
@@ -477,13 +475,8 @@ public class NetworkUsageManagerImpl extends ManagerBase implements NetworkUsage
 
         @Override
         public boolean processDisconnect(long agentId, Status state) {
-            return processDisconnect(agentId, null, null, state);
-        }
-
-        @Override
-        public boolean processDisconnect(long agentId, String uuid, String name, Status state) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Disconnected called on [id: {}, uuid: {}, name: {}] with status {}", agentId, uuid, name, state.toString());
+                logger.debug("Disconnected called on " + agentId + " with status " + state.toString());
             }
             return true;
         }
@@ -495,12 +488,13 @@ public class NetworkUsageManagerImpl extends ManagerBase implements NetworkUsage
         @Override
         public void processConnect(Host agent, StartupCommand cmd, boolean forRebalance) {
             if (cmd instanceof StartupTrafficMonitorCommand) {
-                logger.debug("Sending RecurringNetworkUsageCommand to {}", agent);
+                long agentId = agent.getId();
+                logger.debug("Sending RecurringNetworkUsageCommand to " + agentId);
                 RecurringNetworkUsageCommand watch = new RecurringNetworkUsageCommand(_interval);
                 try {
-                    _agentMgr.send(agent.getId(), new Commands(watch), this);
+                    _agentMgr.send(agentId, new Commands(watch), this);
                 } catch (AgentUnavailableException e) {
-                    logger.debug("Can not process connect for host {}", agent, e);
+                    logger.debug("Can not process connect for host " + agentId, e);
                 }
             }
             return;

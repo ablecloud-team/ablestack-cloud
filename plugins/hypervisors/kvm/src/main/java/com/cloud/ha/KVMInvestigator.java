@@ -60,7 +60,7 @@ public class KVMInvestigator extends AdapterBase implements Investigator {
             return haManager.isVMAliveOnHost(host);
         }
         Status status = isAgentAlive(host);
-        logger.debug("HA: HOST is ineligible legacy state {} for host {}", status, host);
+        logger.debug("HA: HOST is ineligible legacy state " + status + " for host " + host.getId());
         if (status == null) {
             throw new UnknownVM();
         }
@@ -88,7 +88,8 @@ public class KVMInvestigator extends AdapterBase implements Investigator {
             storageSupportHA = storageSupportHa(zonePools);
         }
         if (!storageSupportHA) {
-            logger.warn("Agent investigation was requested on host {}, but host does not support investigation because it has no NFS storage. Skipping investigation.", agent);
+            logger.warn(
+                    "Agent investigation was requested on host " + agent + ", but host does not support investigation because it has no NFS, RBD storage. Skipping investigation.");
             return Status.Disconnected;
         }
 
@@ -104,7 +105,7 @@ public class KVMInvestigator extends AdapterBase implements Investigator {
                 hostStatus = answer.getResult() ? Status.Down : Status.Up;
             }
         } catch (Exception e) {
-            logger.debug("Failed to send command to host: {}", agent);
+            logger.debug("Failed to send command to host: " + agent.getId());
         }
         if (hostStatus == null) {
             hostStatus = Status.Disconnected;
@@ -117,18 +118,18 @@ public class KVMInvestigator extends AdapterBase implements Investigator {
                     || (neighbor.getHypervisorType() != Hypervisor.HypervisorType.KVM && neighbor.getHypervisorType() != Hypervisor.HypervisorType.LXC)) {
                 continue;
             }
-            logger.debug("Investigating host:{} via neighbouring host:{}", agent, neighbor);
+            logger.debug("Investigating host:" + agent.getId() + " via neighbouring host:" + neighbor.getId());
             try {
                 Answer answer = _agentMgr.easySend(neighbor.getId(), cmd);
                 if (answer != null) {
                     neighbourStatus = answer.getResult() ? Status.Down : Status.Up;
-                    logger.debug("Neighbouring host:{} returned status:{} for the investigated host:{}", neighbor, neighbourStatus, agent);
+                    logger.debug("Neighbouring host:" + neighbor.getId() + " returned status:" + neighbourStatus + " for the investigated host:" + agent.getId());
                     if (neighbourStatus == Status.Up) {
                         break;
                     }
                 }
             } catch (Exception e) {
-                logger.debug("Failed to send command to host: {}", neighbor);
+                logger.debug("Failed to send command to host: " + neighbor.getId());
             }
         }
         if (neighbourStatus == Status.Up && (hostStatus == Status.Disconnected || hostStatus == Status.Down)) {
@@ -137,7 +138,7 @@ public class KVMInvestigator extends AdapterBase implements Investigator {
         if (neighbourStatus == Status.Down && (hostStatus == Status.Disconnected || hostStatus == Status.Down)) {
             hostStatus = Status.Down;
         }
-        logger.debug("HA: HOST is ineligible legacy state {} for host {}", hostStatus, agent);
+        logger.debug("HA: HOST is ineligible legacy state " + hostStatus + " for host " + agent.getId());
         return hostStatus;
     }
 

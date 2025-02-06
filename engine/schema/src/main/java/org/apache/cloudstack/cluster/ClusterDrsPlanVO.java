@@ -20,7 +20,6 @@
 package org.apache.cloudstack.cluster;
 
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -67,13 +66,6 @@ public class ClusterDrsPlanVO implements ClusterDrsPlan {
 
     protected ClusterDrsPlanVO() {
         uuid = UUID.randomUUID().toString();
-    }
-
-    @Override
-    public String toString() {
-        return String.format("ClusterDrsPlan %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "clusterId"));
     }
 
     public long getId() {

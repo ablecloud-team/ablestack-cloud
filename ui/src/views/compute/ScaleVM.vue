@@ -139,7 +139,6 @@ export default {
       api('listServiceOfferings', {
         virtualmachineid: this.resource.id,
         keyword: options.keyword,
-        kvdoenable: this.resource.kvdoenable,
         page: options.page,
         pageSize: options.pageSize,
         details: 'min',
@@ -150,6 +149,11 @@ export default {
           return
         }
         this.offerings = response.listserviceofferingsresponse.serviceoffering || []
+        if (this.resource.kvdoenable) {
+          this.offerings = this.offerings.filter(offerings => offerings.kvdoenable)
+        } else if (!this.resource.kvdoenable) {
+          this.offerings = this.offerings.filter(offerings => !offerings.kvdoenable)
+        }
         if (this.resource.state === 'Running' && this.resource.hypervisor === 'KVM') {
           this.offerings = this.offerings.filter(offering => offering.id === this.resource.serviceofferingid)
           this.currentOffer = this.offerings[0]

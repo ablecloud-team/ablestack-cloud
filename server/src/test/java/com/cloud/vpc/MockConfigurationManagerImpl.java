@@ -577,7 +577,7 @@ public class MockConfigurationManagerImpl extends ManagerBase implements Configu
      * @see com.cloud.configuration.ConfigurationManager#releaseDomainSpecificVirtualRanges(long)
      */
     @Override
-    public boolean releaseDomainSpecificVirtualRanges(Domain domain) {
+    public boolean releaseDomainSpecificVirtualRanges(long domainId) {
         // TODO Auto-generated method stub
         return false;
     }
@@ -586,7 +586,7 @@ public class MockConfigurationManagerImpl extends ManagerBase implements Configu
      * @see com.cloud.configuration.ConfigurationManager#releaseAccountSpecificVirtualRanges(long)
      */
     @Override
-    public boolean releaseAccountSpecificVirtualRanges(Account account) {
+    public boolean releaseAccountSpecificVirtualRanges(long accountId) {
         // TODO Auto-generated method stub
         return false;
     }

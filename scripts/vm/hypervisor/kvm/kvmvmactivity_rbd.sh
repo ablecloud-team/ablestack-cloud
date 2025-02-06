@@ -84,12 +84,12 @@ else
 fi
 
 if [ $diff -le $interval ]; then
-   echo "### [HOST STATE : ALIVE] in [PoolType : RBD] ###"
+   echo "### [HOST STATE : ALIVE] ###"
    exit 0
 fi
 
 if [ -z "$UUIDList" ]; then
-   echo " ### [HOST STATE : DEAD] Volume UUID list is empty => Considered host down in [PoolType : RBD] ###"
+   echo " ### [HOST STATE : DEAD] Volume UUID list is empty => Considered host down ###"
    exit 0
 fi
 
@@ -97,24 +97,24 @@ fi
 for uuid in $(echo $UUIDList | sed 's/,/ /g'); do
    acTime=$(rbd -p $PoolName --id $PoolAuthUserName image-meta get MOLD-AC $uuid > /dev/null 2>&1)
    if [ $? -gt 0 ]; then
-      echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : RBD] ### "
+      echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down ### "
       exit 0
    else
       acTime=$(rbd -p $PoolName --id $PoolAuthUserName image-meta get MOLD-AC $uuid)
       if [ -z "$acTime" ]; then
-         echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : RBD] ### "
+         echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down ### "
          exit 0
       else
          arrTime=(${acTime//:/ })
          acTime=${arrTime[1]}
          if [ $(expr $now - $acTime) > $interval ]; then
-            echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : RBD] ### "
+            echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down ### "
             exit 0
          fi
       fi
    fi
 done
 
-echo "### [HOST STATE : ALIVE] in [PoolType : RBD] ###"
+echo "### [HOST STATE : ALIVE] ###"
 
 exit 0

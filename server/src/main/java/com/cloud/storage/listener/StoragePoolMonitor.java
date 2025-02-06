@@ -125,18 +125,18 @@ public class StoragePoolMonitor implements Listener {
                     }
 
                     if (pool.getPoolType() == StoragePoolType.OCFS2 && !_ocfs2Mgr.prepareNodes(pool.getClusterId())) {
-                        throw new ConnectionException(true, String.format("Unable to prepare OCFS2 nodes for pool %s", pool));
+                        throw new ConnectionException(true, "Unable to prepare OCFS2 nodes for pool " + pool.getId());
                     }
 
                     Long hostId = host.getId();
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Host {} connected, connecting host to shared pool {} and sending storage pool information ...", host, pool);
+                        logger.debug("Host " + hostId + " connected, connecting host to shared pool id " + pool.getId() + " and sending storage pool information ...");
                     }
                     try {
-                        _storageManager.connectHostToSharedPool(host, pool.getId());
+                        _storageManager.connectHostToSharedPool(hostId, pool.getId());
                         _storageManager.createCapacityEntry(pool.getId());
                     } catch (Exception e) {
-                        throw new ConnectionException(true, String.format("Unable to connect host %s to storage pool %s due to %s", host, pool, e.toString()), e);
+                        throw new ConnectionException(true, "Unable to connect host " + hostId + " to storage pool id " + pool.getId() + " due to " + e.toString(), e);
                     }
                 }
             }
@@ -145,14 +145,9 @@ public class StoragePoolMonitor implements Listener {
 
     @Override
     public synchronized boolean processDisconnect(long agentId, Status state) {
-        return processDisconnect(agentId, null, null, state);
-    }
-
-    @Override
-    public synchronized boolean processDisconnect(long agentId, String uuid, String name, Status state) {
         Host host = _storageManager.getHost(agentId);
         if (host == null) {
-            logger.warn("Agent [id: {}, uuid: {}, name: {}] not found, not disconnecting pools", agentId, uuid, name);
+            logger.warn("Agent: " + agentId + " not found, not disconnecting pools");
             return false;
         }
 
@@ -163,7 +158,7 @@ public class StoragePoolMonitor implements Listener {
         List<StoragePoolHostVO> storagePoolHosts = _storageManager.findStoragePoolsConnectedToHost(host.getId());
         if (storagePoolHosts == null) {
             if (logger.isTraceEnabled()) {
-                logger.trace("No pools to disconnect for host: {}", host);
+                logger.trace("No pools to disconnect for host: " + host.getId());
             }
             return true;
         }
@@ -185,9 +180,9 @@ public class StoragePoolMonitor implements Listener {
             }
 
             try {
-                _storageManager.disconnectHostFromSharedPool(host, pool);
+                _storageManager.disconnectHostFromSharedPool(host.getId(), pool.getId());
             } catch (Exception e) {
-                logger.error("Unable to disconnect host {} from storage pool {} due to {}", host, pool, e.toString());
+                logger.error("Unable to disconnect host " + host.getId() + " from storage pool id " + pool.getId() + " due to " + e.toString());
                 disconnectResult = false;
             }
         }

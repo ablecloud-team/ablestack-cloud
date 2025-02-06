@@ -265,7 +265,7 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
                 if (logger.isDebugEnabled()) {
                     logger.debug(String.format("Checking host : %s for capacity already reserved %d", h.getName(), reserved));
                 }
-                if (capacityManager.checkIfHostHasCapacity(h, cpu_requested * reserved, ram_requested * reserved, false, cpuOvercommitRatio, memoryOvercommitRatio, true)) {
+                if (capacityManager.checkIfHostHasCapacity(h.getId(), cpu_requested * reserved, ram_requested * reserved, false, cpuOvercommitRatio, memoryOvercommitRatio, true)) {
                     logger.debug("Found host {} with enough capacity: CPU={} RAM={}", h.getName(), cpu_requested * reserved, toHumanReadableSize(ram_requested * reserved));
                     hostEntry.setValue(new Pair<HostVO, Integer>(h, reserved));
                     suitable_host_found = true;
@@ -274,19 +274,19 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
             }
             if (!suitable_host_found) {
                 if (logger.isInfoEnabled()) {
-                    logger.info("Suitable hosts not found in datacenter: {} for node {}, with offering: {} and hypervisor: {}",
-                            zone, i, offering, clusterTemplate.getHypervisorType().toString());
+                    logger.info(String.format("Suitable hosts not found in datacenter : %s for node %d, with offering : %s and hypervisor: %s",
+                        zone.getName(), i, offering.getName(), clusterTemplate.getHypervisorType().toString()));
                 }
                 break;
             }
         }
         if (suitable_host_found) {
             if (logger.isInfoEnabled()) {
-                logger.info("Suitable hosts found in datacenter: {}, creating deployment destination", zone);
+                logger.info(String.format("Suitable hosts found in datacenter : %s, creating deployment destination", zone.getName()));
             }
             return new DeployDestination(zone, null, null, null);
         }
-        String msg = String.format("Cannot find enough capacity for Kubernetes cluster(requested cpu=%d memory=%s) with offering: %s and hypervisor: %s",
+        String msg = String.format("Cannot find enough capacity for Kubernetes cluster(requested cpu=%d memory=%s) with offering : %s and hypervisor: %s",
                 cpu_requested * nodesCount, toHumanReadableSize(ram_requested * nodesCount), offering.getName(), clusterTemplate.getHypervisorType().toString());
 
         logger.warn(msg);
@@ -297,7 +297,7 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
         ServiceOffering offering = serviceOfferingDao.findById(kubernetesCluster.getServiceOfferingId());
         DataCenter zone = dataCenterDao.findById(kubernetesCluster.getZoneId());
         if (logger.isDebugEnabled()) {
-            logger.debug("Checking deployment destination for Kubernetes cluster: {} in zone: {}", kubernetesCluster, zone);
+            logger.debug(String.format("Checking deployment destination for Kubernetes cluster : %s in zone : %s", kubernetesCluster.getName(), zone.getName()));
         }
         return plan(kubernetesCluster.getTotalNodeCount(), zone, offering);
     }
@@ -362,7 +362,7 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
                     throw new ManagementServerException(String.format("Failed to provision worker VM for Kubernetes cluster : %s", kubernetesCluster.getName()));
                 }
                 nodes.add(vm);
-                logger.info("Provisioned node VM: {} in to the Kubernetes cluster: {}", vm, kubernetesCluster);
+                logger.info("Provisioned node VM : {} in to the Kubernetes cluster : {}", vm.getDisplayName(), kubernetesCluster.getName());
             } finally {
                 CallContext.unregister();
             }
@@ -420,7 +420,7 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
                     null, addrs, null, null, null, customParameterMap, null, null, null, null, true, UserVmManager.CKS_NODE, null);
         }
         if (logger.isInfoEnabled()) {
-            logger.info("Created node VM : {}, {} in the Kubernetes cluster : {}", hostName, nodeVm, kubernetesCluster.getName());
+            logger.info(String.format("Created node VM : %s, %s in the Kubernetes cluster : %s", hostName, nodeVm.getUuid(), kubernetesCluster.getName()));
         }
         return nodeVm;
     }
@@ -461,7 +461,7 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
                             sourcePort, sourcePort,
                             vmIp,
                             destPort, destPort,
-                            "tcp", networkId, accountId, domainId, vmId, null);
+                            "tcp", networkId, accountId, domainId, vmId);
             newRule.setDisplay(true);
             newRule.setState(FirewallRule.State.Add);
             newRule = portForwardingRulesDao.persist(newRule);
@@ -469,7 +469,7 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
         });
         rulesService.applyPortForwardingRules(publicIp.getId(), account);
         if (logger.isInfoEnabled()) {
-            logger.info("Provisioned SSH port forwarding rule: {} from port {} to {} on {} to the VM IP: {} in Kubernetes cluster: {}", pfRule, sourcePort, destPort, publicIp.getAddress().addr(), vmIp, kubernetesCluster);
+            logger.info(String.format("Provisioned SSH port forwarding rule: %s from port %d to %d on %s to the VM IP : %s in Kubernetes cluster : %s", pfRule.getUuid(), sourcePort, destPort, publicIp.getAddress().addr(), vmIp.toString(), kubernetesCluster.getName()));
         }
     }
 
@@ -637,7 +637,7 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
             int endPort = CLUSTER_NODES_DEFAULT_START_SSH_PORT + clusterVMIds.size() - 1;
             provisionFirewallRules(publicIp, owner, CLUSTER_NODES_DEFAULT_START_SSH_PORT, endPort);
             if (logger.isInfoEnabled()) {
-                logger.info("Provisioned firewall rule to open up port {} to {} on {} for Kubernetes cluster: {}", CLUSTER_NODES_DEFAULT_START_SSH_PORT, endPort, publicIp.getAddress().addr(), kubernetesCluster);
+                logger.info(String.format("Provisioned firewall rule to open up port %d to %d on %s for Kubernetes cluster : %s", CLUSTER_NODES_DEFAULT_START_SSH_PORT, endPort, publicIp.getAddress().addr(), kubernetesCluster.getName()));
             }
         } catch (NoSuchFieldException | IllegalAccessException | ResourceUnavailableException | NetworkRuleConflictException e) {
             throw new ManagementServerException(String.format("Failed to provision firewall rules for SSH access for the Kubernetes cluster : %s", kubernetesCluster.getName()), e);
@@ -652,7 +652,8 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
         try {
             provisionFirewallRules(publicIp, owner, CLUSTER_API_PORT, CLUSTER_API_PORT);
             if (logger.isInfoEnabled()) {
-                logger.info("Provisioned firewall rule to open up port {} on {} for Kubernetes cluster {}", CLUSTER_API_PORT, publicIp.getAddress().addr(), kubernetesCluster);
+                logger.info(String.format("Provisioned firewall rule to open up port %d on %s for Kubernetes cluster %s",
+                        CLUSTER_API_PORT, publicIp.getAddress().addr(), kubernetesCluster.getName()));
             }
         } catch (NoSuchFieldException | IllegalAccessException | ResourceUnavailableException | NetworkRuleConflictException e) {
             throw new ManagementServerException(String.format("Failed to provision firewall rules for API access for the Kubernetes cluster : %s", kubernetesCluster.getName()), e);
@@ -702,7 +703,8 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
         try {
             provisionVpcTierAllowPortACLRule(network, CLUSTER_API_PORT, CLUSTER_API_PORT);
             if (logger.isInfoEnabled()) {
-                logger.info("Provisioned ACL rule to open up port {} on {} for Kubernetes cluster {}", CLUSTER_API_PORT, publicIpAddress, kubernetesCluster);
+                logger.info(String.format("Provisioned ACL rule to open up port %d on %s for Kubernetes cluster %s",
+                        CLUSTER_API_PORT, publicIpAddress, kubernetesCluster.getName()));
             }
         } catch (NoSuchFieldException | IllegalAccessException | ResourceUnavailableException | InvalidParameterValueException | PermissionDeniedException e) {
             throw new ManagementServerException(String.format("Failed to provision firewall rules for API access for the Kubernetes cluster : %s", kubernetesCluster.getName()), e);
@@ -713,7 +715,8 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
         try {
             provisionVpcTierAllowPortACLRule(network, DEFAULT_SSH_PORT, DEFAULT_SSH_PORT);
             if (logger.isInfoEnabled()) {
-                logger.info("Provisioned ACL rule to open up port {} on {} for Kubernetes cluster {}", DEFAULT_SSH_PORT, publicIpAddress, kubernetesCluster);
+                logger.info(String.format("Provisioned ACL rule to open up port %d on %s for Kubernetes cluster %s",
+                        DEFAULT_SSH_PORT, publicIpAddress, kubernetesCluster.getName()));
             }
         } catch (NoSuchFieldException | IllegalAccessException | ResourceUnavailableException | InvalidParameterValueException | PermissionDeniedException e) {
             throw new ManagementServerException(String.format("Failed to provision firewall rules for API access for the Kubernetes cluster : %s", kubernetesCluster.getName()), e);
@@ -730,7 +733,8 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
         try {
             removeVpcTierAllowPortACLRule(network, CLUSTER_API_PORT, CLUSTER_API_PORT);
             if (logger.isInfoEnabled()) {
-                logger.info("Removed network ACL rule to open up port {} on {} for Kubernetes cluster {}", CLUSTER_API_PORT, publicIpAddress, kubernetesCluster);
+                logger.info(String.format("Removed network ACL rule to open up port %d on %s for Kubernetes cluster %s",
+                        CLUSTER_API_PORT, publicIpAddress, kubernetesCluster.getName()));
             }
         } catch (NoSuchFieldException | IllegalAccessException | ResourceUnavailableException e) {
             throw new ManagementServerException(String.format("Failed to remove network ACL rule for API access for the Kubernetes cluster : %s", kubernetesCluster.getName()), e);
@@ -739,7 +743,8 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
         try {
             removeVpcTierAllowPortACLRule(network, DEFAULT_SSH_PORT, DEFAULT_SSH_PORT);
             if (logger.isInfoEnabled()) {
-                logger.info("Removed network ACL rule to open up port {} on {} for Kubernetes cluster {}", DEFAULT_SSH_PORT, publicIpAddress, kubernetesCluster);
+                logger.info(String.format("Removed network ACL rule to open up port %d on %s for Kubernetes cluster %s",
+                        DEFAULT_SSH_PORT, publicIpAddress, kubernetesCluster.getName()));
             }
         } catch (NoSuchFieldException | IllegalAccessException | ResourceUnavailableException e) {
             throw new ManagementServerException(String.format("Failed to remove network ACL rules for SSH access for the Kubernetes cluster : %s", kubernetesCluster.getName()), e);

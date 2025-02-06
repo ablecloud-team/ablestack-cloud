@@ -57,10 +57,6 @@ import com.cloud.utils.db.TransactionStatus;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.net.NetUtils;
 
-import org.apache.cloudstack.api.command.admin.bgp.CreateASNRangeCmd;
-import org.apache.cloudstack.api.command.admin.bgp.DeleteASNRangeCmd;
-import org.apache.cloudstack.api.command.admin.bgp.ListASNRangesCmd;
-import org.apache.cloudstack.api.command.admin.bgp.ReleaseASNumberCmd;
 import org.apache.cloudstack.api.command.admin.network.CreateIpv4SubnetForZoneCmd;
 import org.apache.cloudstack.api.command.admin.network.CreateIpv4SubnetForGuestNetworkCmd;
 import org.apache.cloudstack.api.command.admin.network.DedicateIpv4SubnetForZoneCmd;
@@ -78,7 +74,6 @@ import org.apache.cloudstack.api.command.admin.network.bgp.DeleteBgpPeerCmd;
 import org.apache.cloudstack.api.command.admin.network.bgp.ListBgpPeersCmd;
 import org.apache.cloudstack.api.command.admin.network.bgp.ReleaseDedicatedBgpPeerCmd;
 import org.apache.cloudstack.api.command.admin.network.bgp.UpdateBgpPeerCmd;
-import org.apache.cloudstack.api.command.user.bgp.ListASNumbersCmd;
 import org.apache.cloudstack.api.command.user.network.routing.CreateRoutingFirewallRuleCmd;
 import org.apache.cloudstack.api.command.user.network.routing.DeleteRoutingFirewallRuleCmd;
 import org.apache.cloudstack.api.command.user.network.routing.ListRoutingFirewallRulesCmd;
@@ -159,7 +154,6 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
     @Override
     public ConfigKey<?>[] getConfigKeys() {
         return new ConfigKey[] {
-                RoutedNetworkVpcEnabled,
                 RoutedNetworkIPv4MaxCidrSize, RoutedNetworkIPv4MinCidrSize, RoutedIPv4NetworkCidrAutoAllocationEnabled,
                 RoutedVpcIPv4MaxCidrSize, RoutedVpcIPv4MinCidrSize, UseSystemBgpPeers
         };
@@ -168,25 +162,19 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
     @Override
     public List<Class<?>> getCommands() {
         final List<Class<?>> cmdList = new ArrayList<Class<?>>();
-        if (!RoutedNetworkVpcEnabled.value()) {
-            return cmdList;
-        }
         cmdList.add(CreateIpv4SubnetForZoneCmd.class);
         cmdList.add(DeleteIpv4SubnetForZoneCmd.class);
         cmdList.add(ListIpv4SubnetsForZoneCmd.class);
         cmdList.add(UpdateIpv4SubnetForZoneCmd.class);
         cmdList.add(DedicateIpv4SubnetForZoneCmd.class);
         cmdList.add(ReleaseDedicatedIpv4SubnetForZoneCmd.class);
-
         cmdList.add(CreateIpv4SubnetForGuestNetworkCmd.class);
         cmdList.add(ListIpv4SubnetsForGuestNetworkCmd.class);
         cmdList.add(DeleteIpv4SubnetForGuestNetworkCmd.class);
-
         cmdList.add(CreateRoutingFirewallRuleCmd.class);
         cmdList.add(ListRoutingFirewallRulesCmd.class);
         cmdList.add(UpdateRoutingFirewallRuleCmd.class);
         cmdList.add(DeleteRoutingFirewallRuleCmd.class);
-
         cmdList.add(CreateBgpPeerCmd.class);
         cmdList.add(DeleteBgpPeerCmd.class);
         cmdList.add(ListBgpPeersCmd.class);
@@ -195,13 +183,6 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
         cmdList.add(ReleaseDedicatedBgpPeerCmd.class);
         cmdList.add(ChangeBgpPeersForNetworkCmd.class);
         cmdList.add(ChangeBgpPeersForVpcCmd.class);
-
-        cmdList.add(CreateASNRangeCmd.class);
-        cmdList.add(ListASNRangesCmd.class);
-        cmdList.add(DeleteASNRangeCmd.class);
-        cmdList.add(ListASNumbersCmd.class);
-        cmdList.add(ReleaseASNumberCmd.class);
-
         return cmdList;
     }
 
@@ -216,8 +197,6 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
         if (!NetUtils.isValidIp4Cidr(subnet)) {
             throw new InvalidParameterValueException("Invalid IPv4 subnet: " + subnet);
         }
-
-        checkIfRoutedNetworkVpcEnabled(zoneId);
 
         // check conflicts
         List<DataCenterIpv4GuestSubnetVO> existingSubnets = dataCenterIpv4GuestSubnetDao.listByDataCenterId(zoneId);
@@ -340,7 +319,7 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
         return dataCenterIpv4GuestSubnetDao.findById(subnetId);
     }
 
-    protected void checkConflicts(List<DataCenterIpv4GuestSubnetVO> existingSubnets, String newSubnet, Long ignoreSubnetId) {
+    private void checkConflicts(List<DataCenterIpv4GuestSubnetVO> existingSubnets, String newSubnet, Long ignoreSubnetId) {
         for (DataCenterIpv4GuestSubnetVO existing : existingSubnets) {
             if ((ignoreSubnetId == null || existing.getId() != ignoreSubnetId) && NetUtils.isNetworksOverlap(existing.getSubnet(), newSubnet)) {
                 throw new InvalidParameterValueException(String.format("Existing zone subnet %s has overlap with: %s", existing.getSubnet(), newSubnet));
@@ -574,6 +553,11 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
                 response.setParentSubnet(parent.getSubnet());
                 zoneId = parent.getDataCenterId();
             }
+        } else if (subnet.getNetworkId() != null) {
+            Network network = ApiDBUtils.findNetworkById(subnet.getNetworkId());
+            if (network != null) {
+                zoneId = network.getDataCenterId();
+            }
         }
         if (zoneId != null) {
             DataCenter zone = ApiDBUtils.findZoneById(zoneId);
@@ -606,7 +590,7 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
         return getOrCreateIpv4SubnetForGuestNetworkOrVpcInternal(vpcCidrSize, vpc.getDomainId(), vpc.getAccountId(), vpc.getZoneId());
     }
 
-    protected Ipv4GuestSubnetNetworkMap getOrCreateIpv4SubnetForGuestNetworkOrVpcInternal(Integer cidrSize, Long ownerDomainId, Long ownerAccountId, Long zoneId) {
+    private Ipv4GuestSubnetNetworkMap getOrCreateIpv4SubnetForGuestNetworkOrVpcInternal(Integer cidrSize, Long ownerDomainId, Long ownerAccountId, Long zoneId) {
         validateNetworkCidrSize(ownerAccountId, cidrSize);
         List<DataCenterIpv4GuestSubnetVO> subnets = getZoneSubnetsForAccount(ownerDomainId, ownerAccountId, zoneId);
         for (DataCenterIpv4GuestSubnetVO subnet : subnets) {
@@ -618,7 +602,7 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
         return null;
     }
 
-    protected Ipv4GuestSubnetNetworkMap getOrCreateIpv4SubnetForGuestNetworkOrVpcInternal(Integer cidrSize, DataCenterIpv4GuestSubnetVO subnet) {
+    private Ipv4GuestSubnetNetworkMap getOrCreateIpv4SubnetForGuestNetworkOrVpcInternal(Integer cidrSize, DataCenterIpv4GuestSubnetVO subnet) {
         Ipv4GuestSubnetNetworkMap map = ipv4GuestSubnetNetworkMapDao.findFirstAvailable(subnet.getId(), cidrSize);
         if (map != null) {
             return map;
@@ -631,7 +615,7 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
         return null;
     }
 
-    protected void getOrCreateIpv4SubnetForGuestNetworkOrVpcInternal(String networkCidr, Long ownerDomainId, Long ownerAccountId, Long zoneId) {
+    private void getOrCreateIpv4SubnetForGuestNetworkOrVpcInternal(String networkCidr, Long ownerDomainId, Long ownerAccountId, Long zoneId) {
         Ipv4GuestSubnetNetworkMapVO subnetMap = ipv4GuestSubnetNetworkMapDao.findBySubnet(networkCidr);
         if (subnetMap != null) {
             // check if the subnet is in use
@@ -666,7 +650,7 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
         }
     }
 
-    protected DataCenterIpv4GuestSubnet getParentOfNetworkCidr(Long zoneId, String networkCidr) {
+    private DataCenterIpv4GuestSubnet getParentOfNetworkCidr(Long zoneId, String networkCidr) {
         List<DataCenterIpv4GuestSubnetVO> existingSubnets = dataCenterIpv4GuestSubnetDao.listByDataCenterId(zoneId);
         for (DataCenterIpv4GuestSubnetVO existing : existingSubnets) {
             if (NetUtils.isNetworkAWithinNetworkB(networkCidr, existing.getSubnet())) {
@@ -705,22 +689,14 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
 
     private List<DataCenterIpv4GuestSubnetVO> getZoneSubnetsForAccount(long domainId, long accountId, long zoneId) {
         // Get dedicated guest subnets for the account
-        List<DataCenterIpv4GuestSubnetVO> subnets = new ArrayList<>();
-        subnets.addAll(dataCenterIpv4GuestSubnetDao.listByDataCenterIdAndAccountId(zoneId, accountId));
+        List<DataCenterIpv4GuestSubnetVO> subnets = dataCenterIpv4GuestSubnetDao.listByDataCenterIdAndAccountId(zoneId, accountId);
         subnets.addAll(dataCenterIpv4GuestSubnetDao.listByDataCenterIdAndDomainId(zoneId, domainId));
         // Get non-dedicated zone guest subnets for the account
         subnets.addAll(dataCenterIpv4GuestSubnetDao.listNonDedicatedByDataCenterId(zoneId));
         return subnets;
     }
 
-    protected Ipv4GuestSubnetNetworkMap createIpv4SubnetFromParentSubnet(DataCenterIpv4GuestSubnet parent, Integer networkCidrSize) {
-        String networkCidr = createIpv4SubnetStringFromParentSubnet(parent, networkCidrSize);
-        // create DB record
-        Ipv4GuestSubnetNetworkMapVO subnetMap = new Ipv4GuestSubnetNetworkMapVO(parent.getId(), NetUtils.transformCidr(networkCidr), null, State.Free);
-        return ipv4GuestSubnetNetworkMapDao.persist(subnetMap);
-    }
-
-    protected String createIpv4SubnetStringFromParentSubnet(DataCenterIpv4GuestSubnet parent, Integer networkCidrSize) {
+    private Ipv4GuestSubnetNetworkMap createIpv4SubnetFromParentSubnet(DataCenterIpv4GuestSubnet parent, Integer networkCidrSize) {
         DataCenterIpv4GuestSubnetVO subnetVO = dataCenterIpv4GuestSubnetDao.findById(parent.getId());
         if (subnetVO == null) {
             throw new InvalidParameterValueException(String.format("Invalid subnet ID: %s", parent.getId()));
@@ -757,7 +733,9 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
         if (networkCidr == null) {
             throw new CloudRuntimeException("Failed to automatically allocate a subnet with specified cidrsize");
         }
-        return networkCidr;
+        // create DB record
+        Ipv4GuestSubnetNetworkMapVO subnetMap = new Ipv4GuestSubnetNetworkMapVO(parent.getId(), NetUtils.transformCidr(networkCidr), null, State.Free);
+        return ipv4GuestSubnetNetworkMapDao.persist(subnetMap);
     }
 
     private String getFreeNetworkCidr(List<Pair<Long, Integer>> subnetsInFreeIpRanges, int networkCidrSize) {
@@ -774,7 +752,7 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
         return null;
     }
 
-    protected Ipv4GuestSubnetNetworkMap createIpv4SubnetFromParentSubnet(DataCenterIpv4GuestSubnet parent, String networkCidr) {
+    private Ipv4GuestSubnetNetworkMap createIpv4SubnetFromParentSubnet(DataCenterIpv4GuestSubnet parent, String networkCidr) {
         // Validate the network cidr
         if (!NetUtils.isNetworkAWithinNetworkB(networkCidr, parent.getSubnet())) {
             throw new InvalidParameterValueException(String.format("networkCidr %s is not within parent cidr: %s", networkCidr, parent.getSubnet()));
@@ -962,12 +940,10 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
             return false;
         }
         if (!FirewallRule.Purpose.Firewall.equals(rule.getPurpose())) {
-            logger.error("Cannot apply routing firewall rule: {} as purpose {} is not {}", rule, rule.getPurpose(), FirewallRule.Purpose.Firewall);
-            return false;
+            logger.error(String.format("Cannot apply routing firewall rule with ID: %d as purpose %s is not %s", id, rule.getPurpose(), FirewallRule.Purpose.Firewall));
         }
-        logger.debug("Applying routing firewall rules for rule: {}", rule);
-        List<FirewallRuleVO> rules = new ArrayList<>();
-        rules.addAll(firewallDao.listByNetworkPurposeTrafficType(rule.getNetworkId(), rule.getPurpose(), FirewallRule.TrafficType.Egress));
+        logger.debug(String.format("Applying routing firewall rules for rule with ID: %s", rule.getUuid()));
+        List<FirewallRuleVO> rules = firewallDao.listByNetworkPurposeTrafficType(rule.getNetworkId(), rule.getPurpose(), FirewallRule.TrafficType.Egress);
         rules.addAll(firewallDao.listByNetworkPurposeTrafficType(rule.getNetworkId(), rule.getPurpose(), FirewallRule.TrafficType.Ingress));
         return firewallManager.applyFirewallRules(rules, false, CallContext.current().getCallingAccount());
     }
@@ -1037,8 +1013,6 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
         String ip6Address = createBgpPeerCmd.getIp6Address();
         String password = createBgpPeerCmd.getPassword();
         Map<String, String> detailsStr = createBgpPeerCmd.getDetails();
-
-        checkIfRoutedNetworkVpcEnabled(zoneId);
 
         if (ObjectUtils.allNull(ip4Address, ip6Address)) {
             throw new InvalidParameterValueException("At least one of IPv4 and IPv6 address must be specified.");
@@ -1424,7 +1398,7 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
         return changeBgpPeersForNetworkInternal(network, null);
     }
 
-    protected Network changeBgpPeersForNetworkInternal(Network network, List<Long> bgpPeerIds) {
+    private Network changeBgpPeersForNetworkInternal(Network network, List<Long> bgpPeerIds) {
         final List<Long> bgpPeerIdsToBeAdded;
         if (CollectionUtils.isNotEmpty(bgpPeerIds)) {
             bgpPeerIdsToBeAdded = new ArrayList<>(bgpPeerIds);
@@ -1555,7 +1529,7 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
         return bgpPeerDao.listAvailableBgpPeerIdsForAccount(zoneId, owner.getDomainId(), owner.getId(), UseSystemBgpPeers.valueIn(owner.getId()));
     }
 
-    protected Vpc changeBgpPeersForVpcInternal(Vpc vpc, List<Long> bgpPeerIds) {
+    private Vpc changeBgpPeersForVpcInternal(Vpc vpc, List<Long> bgpPeerIds) {
         final List<Long> bgpPeerIdsToBeAdded;
         if (CollectionUtils.isNotEmpty(bgpPeerIds)) {
             bgpPeerIdsToBeAdded = new ArrayList<>(bgpPeerIds);
@@ -1643,16 +1617,5 @@ public class RoutedIpv4ManagerImpl extends ComponentLifecycleBase implements Rou
     @Override
     public void removeBgpPeersByDomainId(long domainId) {
         bgpPeerDao.removeByDomainId(domainId);
-    }
-
-    @Override
-    public Boolean isRoutedNetworkVpcEnabled(long zoneId) {
-        return RoutedNetworkVpcEnabled.valueIn(zoneId);
-    }
-
-    private void checkIfRoutedNetworkVpcEnabled(long zoneId) {
-        if (!isRoutedNetworkVpcEnabled(zoneId)) {
-            throw new InvalidParameterValueException("Routed networks and VPCs are not enabled for the zone.");
-        }
     }
 }

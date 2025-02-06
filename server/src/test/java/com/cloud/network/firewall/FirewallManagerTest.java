@@ -1,4 +1,3 @@
-
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -28,6 +27,7 @@ import com.cloud.network.dao.FirewallRulesDao;
 import com.cloud.network.element.FirewallServiceProvider;
 import com.cloud.network.element.VirtualRouterElement;
 import com.cloud.network.element.VpcVirtualRouterElement;
+import com.cloud.network.rules.FirewallManager;
 import com.cloud.network.rules.FirewallRule;
 import com.cloud.network.rules.FirewallRule.Purpose;
 import com.cloud.network.rules.FirewallRuleVO;
@@ -35,9 +35,11 @@ import com.cloud.network.vpc.VpcManager;
 import com.cloud.user.AccountManager;
 import com.cloud.user.DomainManager;
 import com.cloud.utils.component.ComponentContext;
+import junit.framework.Assert;
 import org.apache.cloudstack.engine.orchestration.service.NetworkOrchestrationService;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -45,7 +47,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
@@ -61,7 +62,39 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FirewallManagerTest {
+    private Logger logger = LogManager.getLogger(FirewallManagerTest.class);
     private AutoCloseable closeable;
+
+
+    @Ignore("Requires database to be set up")
+    @Test
+    public void testInjected() {
+
+//        FirewallManagerImpl firewallMgr = (FirewallManagerImpl)ComponentLocator.getCurrentLocator().getManager(FirewallManager.class);
+//        Assert.assertTrue(firewallMgr._firewallElements.enumeration().hasMoreElements());
+//        Assert.assertTrue(firewallMgr._pfElements.enumeration().hasMoreElements());
+//        Assert.assertTrue(firewallMgr._staticNatElements.enumeration().hasMoreElements());
+//        Assert.assertTrue(firewallMgr._networkAclElements.enumeration().hasMoreElements());
+//        Assert.assertNotNull(firewallMgr._networkModel);
+//
+//        Assert.assertNotNull(firewallMgr._firewallElements.get("VirtualRouter"));
+//        Assert.assertNotNull(firewallMgr._firewallElements.get("VpcVirtualRouter"));
+//        Assert.assertNotNull(firewallMgr._pfElements.get("VirtualRouter"));
+//        Assert.assertNotNull(firewallMgr._pfElements.get("VpcVirtualRouter"));
+//        Assert.assertNotNull(firewallMgr._staticNatElements.get("VirtualRouter"));
+//        Assert.assertNotNull(firewallMgr._staticNatElements.get("VpcVirtualRouter"));
+//        Assert.assertNotNull(firewallMgr._networkAclElements.get("VpcVirtualRouter"));
+//        Assert.assertNull(firewallMgr._networkAclElements.get("VirtualRouter"));
+//
+//
+//        Assert.assertTrue(firewallMgr._firewallElements.get("VirtualRouter") instanceof FirewallServiceProvider);
+//        Assert.assertTrue(firewallMgr._pfElements.get("VirtualRouter") instanceof PortForwardingServiceProvider);
+//        Assert.assertTrue(firewallMgr._staticNatElements.get("VirtualRouter") instanceof StaticNatServiceProvider);
+//        Assert.assertTrue(firewallMgr._networkAclElements.get("VpcVirtualRouter") instanceof NetworkACLServiceProvider);
+
+        logger.info("Done testing injection of service elements into firewall manager");
+
+    }
 
     @Mock
     AccountManager _accountMgr;
@@ -78,40 +111,17 @@ public class FirewallManagerTest {
     @Mock
     FirewallRulesDao _firewallDao;
 
-    @Spy
     @InjectMocks
-    FirewallManagerImpl _firewallMgr;
-
-    FirewallRule fwRule50to150;
-    FirewallRule fwRule100to200;
-    FirewallRule fwRule151to200;
-
-    FirewallRule pfRule50to150;
-    FirewallRule pfRule100to200;
-    FirewallRule pfRule151to200;
-
+    FirewallManager _firewallMgr = new FirewallManagerImpl();
 
     @Before
     public void initMocks() {
         closeable = MockitoAnnotations.openMocks(this);
-
-        fwRule50to150 = createFirewallRule(50, 150, Purpose.Firewall);
-        fwRule100to200 = createFirewallRule(100, 150, Purpose.Firewall);
-        fwRule151to200 = createFirewallRule(151, 200, Purpose.Firewall);
-
-        pfRule50to150 = createFirewallRule(50, 150, Purpose.PortForwarding);
-        pfRule100to200 = createFirewallRule(100, 150, Purpose.PortForwarding);
-        pfRule151to200 = createFirewallRule(151, 200, Purpose.PortForwarding);
     }
 
     @After
     public void tearDown() throws Exception {
         closeable.close();
-    }
-
-    private FirewallRule createFirewallRule(int startPort, int endPort, Purpose purpose) {
-        return new FirewallRuleVO("xid", 1L, startPort, endPort, "TCP", 2, 3, 4, purpose, new ArrayList<>(),
-                new ArrayList<>(), 5, 6, null, FirewallRule.TrafficType.Ingress);
     }
 
     @Ignore("Requires database to be set up")
@@ -208,75 +218,6 @@ public class FirewallManagerTest {
         }
     }
 
-    @Test
-    public void checkIfRulesHaveConflictingPortRangesTestOnlyOneRuleIsFirewallReturnsFalse()
-    {
-        boolean result = _firewallMgr.checkIfRulesHaveConflictingPortRanges(fwRule50to150, pfRule50to150, true, false, false, true);
 
-        Assert.assertFalse(result);
-    }
 
-    @Test
-    public void checkIfRulesHaveConflictingPortRangesTestBothRulesAreFirewallButNoDuplicateCidrsReturnsFalse()
-    {
-        boolean result = _firewallMgr.checkIfRulesHaveConflictingPortRanges(fwRule50to150, fwRule50to150, false, true, false, false);
-
-        Assert.assertFalse(result);
-    }
-
-    @Test
-    public void checkIfRulesHaveConflictingPortRangesTestBothRulesArePortForwardingButNoDuplicateCidrsReturnsFalse()
-    {
-        boolean result = _firewallMgr.checkIfRulesHaveConflictingPortRanges(pfRule50to150, pfRule50to150, false, false, true, false);
-
-        Assert.assertFalse(result);
-    }
-
-    @Test
-    public void checkIfRulesHaveConflictingPortRangesTestBothRulesAreFirewallAndDuplicatedCidrsAndNewRuleSourceStartPortIsInsideExistingRangeReturnsTrue()
-    {
-        boolean result = _firewallMgr.checkIfRulesHaveConflictingPortRanges(fwRule100to200, fwRule50to150, false, true, false, true);
-
-        Assert.assertTrue(result);
-    }
-
-    @Test
-    public void checkIfRulesHaveConflictingPortRangesTestBothRulesAreFirewallAndDuplicatedCidrsAndNewRuleSourceEndPortIsInsideExistingRangeReturnsTrue()
-    {
-        boolean result = _firewallMgr.checkIfRulesHaveConflictingPortRanges(fwRule50to150, fwRule100to200, false, true, false, true);
-
-        Assert.assertTrue(result);
-    }
-
-    @Test
-    public void checkIfRulesHaveConflictingPortRangesTestBothRulesArePortForwardingAndDuplicatedCidrsAndNewRuleSourceStartPortIsInsideExistingRangeReturnsTrue()
-    {
-        boolean result = _firewallMgr.checkIfRulesHaveConflictingPortRanges(pfRule50to150, pfRule100to200, false, false, true, true);
-
-        Assert.assertTrue(result);
-    }
-
-    @Test
-    public void checkIfRulesHaveConflictingPortRangesTestBothRulesArePortForwardingAndDuplicatedCidrsAndNewRuleSourceEndPortIsInsideExistingRangeReturnsTrue()
-    {
-        boolean result = _firewallMgr.checkIfRulesHaveConflictingPortRanges(pfRule50to150, pfRule100to200, false, false, true, true);
-
-        Assert.assertTrue(result);
-    }
-
-    @Test
-    public void checkIfRulesHaveConflictingPortRangesTestBothRulesAreFirewallAndDuplicatedCidrsAndNoRangeConflictReturnsFalse()
-    {
-        boolean result = _firewallMgr.checkIfRulesHaveConflictingPortRanges(fwRule50to150, fwRule151to200, false, true, false, true);
-
-        Assert.assertFalse(result);
-    }
-
-    @Test
-    public void checkIfRulesHaveConflictingPortRangesTestBothRulesArePortForwardingAndDuplicatedCidrsAndNoRangeConflictReturnsFalse()
-    {
-        boolean result = _firewallMgr.checkIfRulesHaveConflictingPortRanges(pfRule50to150, pfRule151to200, false, false, true, true);
-
-        Assert.assertFalse(result);
-    }
 }

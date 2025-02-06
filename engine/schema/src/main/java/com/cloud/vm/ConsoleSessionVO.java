@@ -64,12 +64,6 @@ public class ConsoleSessionVO {
     @Column(name = "removed")
     private Date removed;
 
-    @Column(name = "console_endpoint_creator_address")
-    private String consoleEndpointCreatorAddress;
-
-    @Column(name = "client_address")
-    private String clientAddress;
-
     public long getId() {
         return id;
     }
@@ -140,21 +134,5 @@ public class ConsoleSessionVO {
 
     public void setAcquired(Date acquired) {
         this.acquired = acquired;
-    }
-
-    public String getConsoleEndpointCreatorAddress() {
-        return consoleEndpointCreatorAddress;
-    }
-
-    public void setConsoleEndpointCreatorAddress(String consoleEndpointCreatorAddress) {
-        this.consoleEndpointCreatorAddress = consoleEndpointCreatorAddress;
-    }
-
-    public String getClientAddress() {
-        return clientAddress;
-    }
-
-    public void setClientAddress(String clientAddress) {
-        this.clientAddress = clientAddress;
     }
 }

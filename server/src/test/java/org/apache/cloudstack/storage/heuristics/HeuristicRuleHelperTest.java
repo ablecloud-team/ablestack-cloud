@@ -76,6 +76,8 @@ public class HeuristicRuleHelperTest {
 
         DataStore result = heuristicRuleHelperSpy.getImageStoreIfThereIsHeuristicRule(zoneId, HeuristicType.TEMPLATE, null);
 
+        Mockito.verify(loggerMock, Mockito.times(1)).debug(String.format("No heuristic rules found for zone with ID [%s] and heuristic type [%s]. Returning null.",
+                zoneId, HeuristicType.TEMPLATE));
         Assert.assertNull(result);
     }
 
@@ -90,6 +92,7 @@ public class HeuristicRuleHelperTest {
 
         DataStore result = heuristicRuleHelperSpy.getImageStoreIfThereIsHeuristicRule(zoneId, HeuristicType.TEMPLATE, null);
 
+        Mockito.verify(loggerMock, Mockito.times(1)).debug(String.format("Found the heuristic rule %s to apply for zone with ID [%s].", heuristicVOMock, zoneId));
         Assert.assertNull(result);
     }
 

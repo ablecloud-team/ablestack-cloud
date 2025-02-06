@@ -39,9 +39,6 @@ public final class LibvirtGetVmIpAddressCommandWrapper extends CommandWrapper<Ge
         String ip = null;
         boolean result = false;
         String vmName = command.getVmName();
-        if (!NetUtils.verifyDomainNameLabel(vmName, true)) {
-            return new Answer(command, result, ip);
-        }
         String sanitizedVmName = sanitizeBashCommandArgument(vmName);
         String networkCidr = command.getVmNetworkCidr();
         List<String[]> commands = new ArrayList<>();

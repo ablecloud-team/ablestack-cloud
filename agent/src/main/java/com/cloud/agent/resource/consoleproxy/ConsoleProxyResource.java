@@ -397,8 +397,9 @@ public class ConsoleProxyResource extends ServerResourceBase implements ServerRe
     }
 
     public String authenticateConsoleAccess(String host, String port, String vmId, String sid, String ticket,
-                                            Boolean isReauthentication, String sessionToken, String clientAddress) {
-        ConsoleAccessAuthenticationCommand cmd = new ConsoleAccessAuthenticationCommand(host, port, vmId, sid, ticket, sessionToken, clientAddress);
+                                            Boolean isReauthentication, String sessionToken) {
+
+        ConsoleAccessAuthenticationCommand cmd = new ConsoleAccessAuthenticationCommand(host, port, vmId, sid, ticket, sessionToken);
         cmd.setReauthenticating(isReauthentication);
 
         ConsoleProxyAuthenticationResult result = new ConsoleProxyAuthenticationResult();

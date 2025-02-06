@@ -110,11 +110,6 @@ public class ListServiceOfferingsCmd extends BaseListProjectAndAccountResourcesC
             since = "4.20.0")
     private Long templateId;
 
-    @Parameter(name = ApiConstants.KVDO_ENABLE, type = CommandType.BOOLEAN,
-    required=false, description = "Whether to KVDO compression and deduplication the volume",
-    since = "4.20")
-    private Boolean kvdoEnable;
-
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -174,10 +169,6 @@ public class ListServiceOfferingsCmd extends BaseListProjectAndAccountResourcesC
 
     public Long getTemplateId() {
         return templateId;
-    }
-
-    public Boolean getKvdoEnable() {
-        return kvdoEnable;
     }
 
     /////////////////////////////////////////////////////

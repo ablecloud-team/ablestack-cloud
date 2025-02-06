@@ -26,7 +26,6 @@ import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.user.Account;
 import com.cloud.utils.Pair;
 import com.cloud.utils.net.Ip;
-import org.apache.cloudstack.api.command.user.firewall.UpdatePortForwardingRuleCmd;
 
 public interface RulesService {
     Pair<List<? extends FirewallRule>, Integer> searchStaticNatRules(Long ipId, Long id, Long vmId, Long start, Long size, String accountName, Long domainId,
@@ -82,8 +81,6 @@ public interface RulesService {
 
     boolean disableStaticNat(long ipId) throws ResourceUnavailableException, NetworkRuleConflictException, InsufficientAddressCapacityException;
 
-    PortForwardingRule updatePortForwardingRule(UpdatePortForwardingRuleCmd cmd);
-
-    void  validatePortForwardingSourceCidrList(List<String> sourceCidrList);
+    PortForwardingRule updatePortForwardingRule(long id, Integer privatePort, Integer privateEndPort, Long virtualMachineId, Ip vmGuestIp, String customId, Boolean forDisplay);
 
 }

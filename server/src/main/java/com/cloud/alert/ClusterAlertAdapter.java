@@ -58,14 +58,14 @@ public class ClusterAlertAdapter extends AdapterBase implements AlertAdapter {
     private void onClusterNodeJoined(Object sender, ClusterNodeJoinEventArgs args) {
         if (logger.isDebugEnabled()) {
             for (ManagementServerHostVO mshost : args.getJoinedNodes()) {
-                logger.debug("Handle cluster node join alert, joined node: {} ({})", mshost.getServiceIP(), mshost);
+                logger.debug("Handle cluster node join alert, joined node: " + mshost.getServiceIP() + ", msid: " + mshost.getMsid());
             }
         }
 
         for (ManagementServerHostVO mshost : args.getJoinedNodes()) {
             if (mshost.getId() == args.getSelf().longValue()) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Management server node {} ({}) is up, send alert", mshost.getServiceIP(), mshost);
+                    logger.debug("Management server node " + mshost.getServiceIP() + " is up, send alert");
                 }
 
                 _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGEMENT_NODE, 0, new Long(0), "Management server node " + mshost.getServiceIP() + " is up", "");
@@ -78,7 +78,7 @@ public class ClusterAlertAdapter extends AdapterBase implements AlertAdapter {
 
         if (logger.isDebugEnabled()) {
             for (ManagementServerHostVO mshost : args.getLeftNodes()) {
-                logger.debug("Handle cluster node left alert, leaving node: {} ({})", mshost.getServiceIP(), mshost);
+                logger.debug("Handle cluster node left alert, leaving node: " + mshost.getServiceIP() + ", msid: " + mshost.getMsid());
             }
         }
 
@@ -86,13 +86,13 @@ public class ClusterAlertAdapter extends AdapterBase implements AlertAdapter {
             if (mshost.getId() != args.getSelf().longValue()) {
                 if (_mshostDao.increaseAlertCount(mshost.getId()) > 0) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Detected management server node {} ({}) is down, send alert", mshost.getServiceIP(), mshost);
+                        logger.debug("Detected management server node " + mshost.getServiceIP() + " is down, send alert");
                     }
                     _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGEMENT_NODE, 0, new Long(0), "Management server node " + mshost.getServiceIP() + " is down",
                         "");
                 } else {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Detected management server node {} ({}) is down, but alert has already been set", mshost.getServiceIP(), mshost);
+                        logger.debug("Detected management server node " + mshost.getServiceIP() + " is down, but alert has already been set");
                     }
                 }
             }

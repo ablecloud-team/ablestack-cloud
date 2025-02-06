@@ -33,7 +33,6 @@ import javax.persistence.TemporalType;
 import org.apache.cloudstack.api.InternalIdentity;
 
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "autoscale_policies")
@@ -93,9 +92,7 @@ public class AutoScalePolicyVO implements AutoScalePolicy, InternalIdentity {
 
     @Override
     public String toString() {
-        return String.format("AutoScalePolicy %s.",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name"));
+        return new StringBuilder("AutoScalePolicy[").append("id-").append(id).append("]").toString();
     }
 
     @Override

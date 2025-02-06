@@ -268,18 +268,18 @@ public class VnfTemplateManagerImpl extends ManagerBase implements VnfTemplateMa
                     continue;
                 }
                 if (!networkModel.areServicesSupportedInNetwork(network.getId(), Network.Service.StaticNat)) {
-                    logger.info("Network: {} does not support static nat, " +
-                            "skipping this network configuration for VNF appliance", network);
+                    logger.info(String.format("Network ID: %s does not support static nat, " +
+                            "skipping this network configuration for VNF appliance", network.getUuid()));
                     continue;
                 }
                 if (network.getVpcId() != null) {
-                    logger.info("Network: {} is a VPC tier, " +
-                            "skipping this network configuration for VNF appliance", network);
+                    logger.info(String.format("Network ID: %s is a VPC tier, " +
+                            "skipping this network configuration for VNF appliance", network.getUuid()));
                     continue;
                 }
                 if (!networkModel.areServicesSupportedInNetwork(network.getId(), Network.Service.Firewall)) {
-                    logger.info("Network: {} does not support firewall, " +
-                            "skipping this network configuration for VNF appliance", network);
+                    logger.info(String.format("Network ID: %s does not support firewall, " +
+                            "skipping this network configuration for VNF appliance", network.getUuid()));
                     continue;
                 }
                 networkAndIpMap.put(network, nic.getIPv4Address());
@@ -326,7 +326,7 @@ public class VnfTemplateManagerImpl extends ManagerBase implements VnfTemplateMa
         Set<Integer> ports = getOpenPortsForVnfAppliance(template);
         for (Map.Entry<Network, String> entry : networkAndIpMap.entrySet()) {
             Network network = entry.getKey();
-            logger.debug("Creating network rules for VNF appliance on isolated network {}", network);
+            logger.debug("Creating network rules for VNF appliance on isolated network " + network.getUuid());
             String ip = entry.getValue();
             IpAddress publicIp = networkService.allocateIP(owner, zone.getId(), network.getId(), null, null);
             if (publicIp == null) {
@@ -367,7 +367,7 @@ public class VnfTemplateManagerImpl extends ManagerBase implements VnfTemplateMa
                 });
                 firewallService.applyIngressFwRules(publicIp.getId(), owner);
             }
-            logger.debug("Created network rules for VNF appliance on isolated network {}", network);
+            logger.debug("Created network rules for VNF appliance on isolated network " + network.getUuid());
         }
     }
 }

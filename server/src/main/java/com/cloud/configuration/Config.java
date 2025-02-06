@@ -522,7 +522,7 @@ public enum Config {
             "The time interval in seconds when the management server polls for snapshots to be scheduled.",
             null),
     SnapshotDeltaMax("Snapshots", SnapshotManager.class, Integer.class, "snapshot.delta.max", "16", "max delta snapshots between two full snapshots.", null),
-    KVMSnapshotEnabled("Snapshots", SnapshotManager.class, Boolean.class, "kvm.snapshot.enabled", "true", "whether snapshot is enabled for KVM hosts", null),
+    KVMSnapshotEnabled("Hidden", SnapshotManager.class, Boolean.class, "kvm.snapshot.enabled", "false", "whether snapshot is enabled for KVM hosts", null),
 
     // Advanced
     EventPurgeInterval(
@@ -1225,7 +1225,7 @@ public enum Config {
             null),
 
     // Usage
-    UsageExecutionTimezone("Usage", ManagementServer.class, String.class, "usage.execution.timezone", "Asia/Seoul", "The timezone to use for usage job execution time", null),
+    UsageExecutionTimezone("Usage", ManagementServer.class, String.class, "usage.execution.timezone", null, "The timezone to use for usage job execution time", null),
     UsageStatsJobAggregationRange(
             "Usage",
             ManagementServer.class,
@@ -1259,7 +1259,7 @@ public enum Config {
             null,
             "Interval (in days) to check sanity of usage data. To disable set it to 0 or negative.",
             null),
-    UsageAggregationTimezone("Usage", ManagementServer.class, String.class, "usage.aggregation.timezone", "Asia/Seoul", "The timezone to use for usage stats aggregation", null),
+    UsageAggregationTimezone("Usage", ManagementServer.class, String.class, "usage.aggregation.timezone", "GMT", "The timezone to use for usage stats aggregation", null),
     TrafficSentinelIncludeZones(
             "Usage",
             ManagementServer.class,
@@ -1765,6 +1765,7 @@ DefaultMaxAccountProjects(
                     null),
 
     // VMSnapshots
+    VMSnapshotMax("Advanced", VMSnapshotManager.class, Integer.class, "vmsnapshot.max", "10", "Maximum vm snapshots for a vm", null),
     VMSnapshotCreateWait("Advanced", VMSnapshotManager.class, Integer.class, "vmsnapshot.create.wait", "1800", "In second, timeout for create vm snapshot", null),
 
     CloudDnsName("Advanced", ManagementServer.class, String.class, "cloud.dns.name", null, "DNS name of the cloud for the GSLB service", null),

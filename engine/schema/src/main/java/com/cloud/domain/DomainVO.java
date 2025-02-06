@@ -26,7 +26,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -207,9 +206,7 @@ public class DomainVO implements Domain {
 
     @Override
     public String toString() {
-        return String.format("Domain %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name", "path"));
+        return new StringBuilder("Domain:").append(id).append(path).toString();
     }
 
     @Override

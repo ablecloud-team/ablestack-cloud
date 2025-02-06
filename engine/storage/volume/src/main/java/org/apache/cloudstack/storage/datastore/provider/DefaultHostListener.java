@@ -27,7 +27,6 @@ import com.cloud.agent.api.SetupPersistentNetworkCommand;
 import com.cloud.agent.api.to.NicTO;
 import com.cloud.alert.AlertManager;
 import com.cloud.configuration.ConfigurationManager;
-import com.cloud.dc.dao.DataCenterDao;
 import com.cloud.exception.StorageConflictException;
 import com.cloud.host.HostVO;
 import com.cloud.host.dao.HostDao;
@@ -86,8 +85,6 @@ public class DefaultHostListener implements HypervisorHostListener {
     @Inject
     StorageService storageService;
     @Inject
-    DataCenterDao zoneDao;
-    @Inject
     NetworkOfferingDao networkOfferingDao;
     @Inject
     HostDao hostDao;
@@ -106,7 +103,7 @@ public class DefaultHostListener implements HypervisorHostListener {
     private boolean createPersistentNetworkResourcesOnHost(long hostId) {
         HostVO host = hostDao.findById(hostId);
         if (host == null) {
-            logger.warn("Host with id {} can't be found", hostId);
+            logger.warn(String.format("Host with id %ld can't be found", hostId));
             return false;
         }
         setupPersistentNetwork(host);
@@ -138,32 +135,32 @@ public class DefaultHostListener implements HypervisorHostListener {
         ModifyStoragePoolCommand cmd = new ModifyStoragePoolCommand(true, pool, nfsMountOpts.first());
         cmd.setDetails(primaryStoreDao.getDetails(poolId));
         cmd.setWait(modifyStoragePoolCommandWait);
-        HostVO host = hostDao.findById(hostId);
-        logger.debug("Sending modify storage pool command to agent: {} for storage pool: {} with timeout {} seconds", host, pool, cmd.getWait());
+        logger.debug(String.format("Sending modify storage pool command to agent: %d for storage pool: %d with timeout %d seconds",
+                hostId, poolId, cmd.getWait()));
         final Answer answer = agentMgr.easySend(hostId, cmd);
 
         if (answer == null) {
-            throw new CloudRuntimeException(String.format("Unable to get an answer to the modify storage pool command %s", pool));
+            throw new CloudRuntimeException("Unable to get an answer to the modify storage pool command" + pool.getId());
         }
 
         if (!answer.getResult()) {
-            String msg = String.format("Unable to attach storage pool %s to the host %d", pool, hostId);
+            String msg = "Unable to attach storage pool" + poolId + " to the host" + hostId;
             alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_HOST, pool.getDataCenterId(), pool.getPodId(), msg, msg);
-            throw new CloudRuntimeException(String.format("Unable to establish connection from storage head to storage pool %s due to %s %s",
-                    pool, answer.getDetails(), pool.getUuid()));
+            throw new CloudRuntimeException("Unable to establish connection from storage head to storage pool " + pool.getId() + " due to " + answer.getDetails() +
+                pool.getId());
         }
 
-        assert (answer instanceof ModifyStoragePoolAnswer) : String.format(
-                "Well, now why won't you actually return the ModifyStoragePoolAnswer when it's ModifyStoragePoolCommand? Pool=%s Host=%d", pool, hostId);
+        assert (answer instanceof ModifyStoragePoolAnswer) : "Well, now why won't you actually return the ModifyStoragePoolAnswer when it's ModifyStoragePoolCommand? Pool=" +
+            pool.getId() + "Host=" + hostId;
         ModifyStoragePoolAnswer mspAnswer = (ModifyStoragePoolAnswer) answer;
         if (mspAnswer.getLocalDatastoreName() != null && pool.isShared()) {
             String datastoreName = mspAnswer.getLocalDatastoreName();
             List<StoragePoolVO> localStoragePools = this.primaryStoreDao.listLocalStoragePoolByPath(pool.getDataCenterId(), datastoreName);
             for (StoragePoolVO localStoragePool : localStoragePools) {
                 if (datastoreName.equals(localStoragePool.getPath())) {
-                    logger.warn("Storage pool: {} has already been added as local storage: {}", pool, localStoragePool);
-                    throw new StorageConflictException(String.format(
-                            "Cannot add shared storage pool: %s because it has already been added as local storage: %s", pool, localStoragePool));
+                    logger.warn("Storage pool: " + pool.getId() + " has already been added as local storage: " + localStoragePool.getName());
+                    throw new StorageConflictException("Cannot add shared storage pool: " + pool.getId() + " because it has already been added as local storage:"
+                            + localStoragePool.getName());
                 }
             }
         }
@@ -177,7 +174,7 @@ public class DefaultHostListener implements HypervisorHostListener {
 
         storageService.updateStorageCapabilities(poolId, false);
 
-        logger.info("Connection established between storage pool {} and host {}", pool, host);
+        logger.info("Connection established between storage pool " + pool + " and host " + hostId);
 
         return createPersistentNetworkResourcesOnHost(hostId);
     }
@@ -226,11 +223,12 @@ public class DefaultHostListener implements HypervisorHostListener {
                     new CleanupPersistentNetworkResourceCommand(createNicTOFromNetworkAndOffering(persistentNetworkVO, networkOfferingVO, host));
             Answer answer = agentMgr.easySend(hostId, cleanupCmd);
             if (answer == null) {
-                logger.error("Unable to get answer to the cleanup persistent network command {}", persistentNetworkVO);
+                logger.error("Unable to get answer to the cleanup persistent network command " + persistentNetworkVO.getId());
                 continue;
             }
             if (!answer.getResult()) {
-                logger.error("Unable to cleanup persistent network resources from network {} on the host {}", persistentNetworkVO, hostId);
+                String msg = String.format("Unable to cleanup persistent network resources from network %d on the host %d", persistentNetworkVO.getId(), hostId);
+                logger.error(msg);
             }
         }
         return true;
@@ -261,11 +259,11 @@ public class DefaultHostListener implements HypervisorHostListener {
                     new SetupPersistentNetworkCommand(createNicTOFromNetworkAndOffering(networkVO, networkOfferingVO, host));
             Answer answer = agentMgr.easySend(host.getId(), persistentNetworkCommand);
             if (answer == null) {
-                throw new CloudRuntimeException(String.format("Unable to get answer to the setup persistent network command %s", networkVO));
+                throw new CloudRuntimeException("Unable to get answer to the setup persistent network command " + networkVO.getId());
             }
             if (!answer.getResult()) {
-                logger.error("Unable to create persistent network resources for network {} on the host {} in zone {}",
-                        networkVO::toString, host::toString, () -> zoneDao.findById(networkVO.getDataCenterId()));
+                String msg = String.format("Unable to create persistent network resources for network %d on the host %d in zone %d", networkVO.getId(), host.getId(), networkVO.getDataCenterId());
+                logger.error(msg);
             }
         }
     }

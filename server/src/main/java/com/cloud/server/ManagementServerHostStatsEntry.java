@@ -24,7 +24,6 @@ public class ManagementServerHostStatsEntry implements ManagementServerHostStats
 
     private long managementServerHostId;
     private String managementServerHostUuid;
-    private long managementServerRunId;
 
     private Date collectionTime;
     private long sessions;
@@ -93,15 +92,6 @@ public class ManagementServerHostStatsEntry implements ManagementServerHostStats
 
     public void setManagementServerHostUuid(String managementServerHostUuid) {
         this.managementServerHostUuid = managementServerHostUuid;
-    }
-
-    @Override
-    public long getManagementServerRunId() {
-        return managementServerRunId;
-    }
-
-    public void setManagementServerRunId(long managementServerRunId) {
-        this.managementServerRunId = managementServerRunId;
     }
 
     @Override

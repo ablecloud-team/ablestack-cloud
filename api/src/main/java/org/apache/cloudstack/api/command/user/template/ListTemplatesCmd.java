@@ -111,11 +111,6 @@ public class ListTemplatesCmd extends BaseListTaggedResourcesCmd implements User
             since = "4.20")
     private String arch;
 
-    @Parameter(name = ApiConstants.KVDO_ENABLE, type = CommandType.BOOLEAN,
-            required=false, description = "Whether to KVDO compression and deduplication the volume",
-            since = "4.20")
-    private Boolean kvdoEnable;
-
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -186,10 +181,6 @@ public class ListTemplatesCmd extends BaseListTaggedResourcesCmd implements User
             (templateFilter == TemplateFilter.featured) || (templateFilter == TemplateFilter.selfexecutable) || (templateFilter == TemplateFilter.sharedexecutable) ||
                 (templateFilter == TemplateFilter.executable && isAccountSpecific) || (templateFilter == TemplateFilter.community);
         return onlyReady;
-    }
-
-    public Boolean getKvdoEnable() {
-        return kvdoEnable;
     }
 
     @Parameter(name = ApiConstants.SHOW_RESOURCE_ICON, type = CommandType.BOOLEAN, description = "flag to display the resource image for the templates")

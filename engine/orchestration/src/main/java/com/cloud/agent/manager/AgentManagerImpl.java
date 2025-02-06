@@ -53,7 +53,6 @@ import org.apache.cloudstack.framework.jobs.AsyncJobExecutionContext;
 import org.apache.cloudstack.managed.context.ManagedContextRunnable;
 import org.apache.cloudstack.outofbandmanagement.dao.OutOfBandManagementDao;
 import org.apache.cloudstack.utils.identity.ManagementServerNode;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 
 import com.cloud.agent.AgentManager;
@@ -140,7 +139,6 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     protected List<Pair<Integer, Listener>> _cmdMonitors = new ArrayList<Pair<Integer, Listener>>(17);
     protected List<Pair<Integer, StartupCommandProcessor>> _creationMonitors = new ArrayList<Pair<Integer, StartupCommandProcessor>>(17);
     protected List<Long> _loadingAgents = new ArrayList<Long>();
-    protected Map<String, Integer> _commandTimeouts = new HashMap<>();
     private int _monitorId = 0;
     private final Lock _agentStatusLock = new ReentrantLock();
 
@@ -243,8 +241,6 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
         _monitorExecutor = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory("AgentMonitor"));
 
-        initializeCommandTimeouts();
-
         return true;
     }
 
@@ -306,7 +302,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             }
         }
 
-        logger.warn("No handling of agent control command: {} sent from {}", cmd, attache);
+        logger.warn("No handling of agent control command: {} sent from {}", cmd, attache.getId());
         return new AgentControlAnswer(cmd);
     }
 
@@ -348,7 +344,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                     answer = easySend(targetHostId, cmd);
                 } catch (final Exception e) {
                     String errorMsg = String.format("Error sending command %s to host %s, due to %s", cmd.getClass().getName(),
-                            host, e.getLocalizedMessage());
+                            host.getUuid(), e.getLocalizedMessage());
                     logger.error(errorMsg);
                     logger.debug(errorMsg, e);
                 }
@@ -428,62 +424,6 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
         }
     }
 
-    protected int getTimeout(final Commands commands, int timeout) {
-        int result;
-        if (timeout > 0) {
-            result = timeout;
-        } else {
-            result = Wait.value();
-        }
-
-        int granularTimeout = getTimeoutFromGranularWaitTime(commands);
-        return (granularTimeout > 0) ? granularTimeout : result;
-    }
-
-    protected int getTimeoutFromGranularWaitTime(final Commands commands) {
-        int maxWait = 0;
-        if (MapUtils.isNotEmpty(_commandTimeouts)) {
-            for (final Command cmd : commands) {
-                String simpleCommandName = cmd.getClass().getSimpleName();
-                Integer commandTimeout = _commandTimeouts.get(simpleCommandName);
-                if (commandTimeout != null && commandTimeout > maxWait) {
-                    maxWait = commandTimeout;
-                }
-            }
-        }
-
-        return maxWait;
-    }
-
-    private void initializeCommandTimeouts() {
-        String commandWaits = GranularWaitTimeForCommands.value().trim();
-        if (StringUtils.isNotEmpty(commandWaits)) {
-            _commandTimeouts = getCommandTimeoutsMap(commandWaits);
-            logger.info(String.format("Timeouts for management server internal commands successfully initialized from global setting commands.timeout: %s", _commandTimeouts));
-        }
-    }
-
-    private Map<String, Integer> getCommandTimeoutsMap(String commandWaits) {
-        String[] commandPairs = commandWaits.split(",");
-        Map<String, Integer> commandTimeouts = new HashMap<>();
-
-        for (String commandPair : commandPairs) {
-            String[] parts = commandPair.trim().split("=");
-            if (parts.length == 2) {
-                try {
-                    String commandName = parts[0].trim();
-                    int commandTimeout = Integer.parseInt(parts[1].trim());
-                    commandTimeouts.put(commandName, commandTimeout);
-                } catch (NumberFormatException e) {
-                    logger.error(String.format("Initialising the timeouts using commands.timeout: %s for management server internal commands failed with error %s", commandPair, e.getMessage()));
-                }
-            } else {
-                logger.error(String.format("Error initialising the timeouts for management server internal commands. Invalid format in commands.timeout: %s", commandPair));
-            }
-        }
-        return commandTimeouts;
-    }
-
     @Override
     public Answer[] send(final Long hostId, final Commands commands, int timeout) throws AgentUnavailableException, OperationTimedoutException {
         assert hostId != null : "Who's not checking the agent id before sending?  ... (finger wagging)";
@@ -491,14 +431,8 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             throw new AgentUnavailableException(-1);
         }
 
-        int wait = getTimeout(commands, timeout);
-        logger.debug(String.format("Wait time setting on %s is %d seconds", commands, wait));
-        for (Command cmd : commands) {
-            String simpleCommandName = cmd.getClass().getSimpleName();
-            Integer commandTimeout = _commandTimeouts.get(simpleCommandName);
-            if (commandTimeout != null) {
-                cmd.setWait(wait);
-            }
+        if (timeout <= 0) {
+            timeout = Wait.value();
         }
 
         if (CheckTxnBeforeSending.value()) {
@@ -520,7 +454,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
         final Request req = new Request(hostId, agent.getName(), _nodeId, cmds, commands.stopOnError(), true);
         req.setSequence(agent.getNextSequence());
-        final Answer[] answers = agent.send(req, wait);
+        final Answer[] answers = agent.send(req, timeout);
         notifyAnswersToMonitors(hostId, req.getSequence(), answers);
         commands.setAnswers(answers);
         return answers;
@@ -530,11 +464,11 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
         final Long hostId = agent.getId();
         final HostVO host = _hostDao.findById(hostId);
         if (host != null && host.getType() != null && !host.getType().isVirtual()) {
-            logger.debug("Checking if agent ({}) is alive", host);
+            logger.debug("Checking if agent ({}) is alive", hostId);
             final Answer answer = easySend(hostId, new CheckHealthCommand());
             if (answer != null && answer.getResult()) {
                 final Status status = Status.Up;
-                logger.debug("Agent ({}) responded to checkHealthCommand, reporting that agent is {}", host, status);
+                logger.debug("Agent ({}) responded to checkHealthCommand, reporting that agent is {}", hostId, status);
                 return status;
             }
             return _haMgr.investigate(hostId);
@@ -559,9 +493,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     public long send(final Long hostId, final Commands commands, final Listener listener) throws AgentUnavailableException {
         final AgentAttache agent = getAttache(hostId);
         if (agent.isClosed()) {
-            throw new AgentUnavailableException(String.format(
-                    "Agent [id: %d, name: %s] is closed",
-                    agent.getId(), agent.getName()), agent.getId());
+            throw new AgentUnavailableException("Agent " + agent.getId() + " is closed", agent.getId());
         }
 
         final Command[] cmds = checkForCommandsAndTag(commands);
@@ -578,7 +510,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             return;
         }
         final long hostId = attache.getId();
-        logger.debug("Remove Agent : {}", attache);
+        logger.debug("Remove Agent : {}", hostId);
         AgentAttache removed = null;
         boolean conflict = false;
         synchronized (_agents) {
@@ -590,7 +522,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             }
         }
         if (conflict) {
-            logger.debug("Agent for host {} is created when it is being disconnected", attache);
+            logger.debug("Agent for host {} is created when it is being disconnected", hostId);
         }
         if (removed != null) {
             removed.disconnect(nextState);
@@ -598,7 +530,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
         for (final Pair<Integer, Listener> monitor : _hostMonitors) {
             logger.debug("Sending Disconnect to listener: {}", monitor.second().getClass().getName());
-            monitor.second().processDisconnect(hostId, attache.getUuid(), attache.getName(), nextState);
+            monitor.second().processDisconnect(hostId, nextState);
         }
     }
 
@@ -623,31 +555,28 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                     if (e instanceof ConnectionException) {
                         final ConnectionException ce = (ConnectionException)e;
                         if (ce.isSetupError()) {
-                            logger.warn("Monitor {} says there is an error in the connect process for {} due to {}",
-                                    monitor.second().getClass().getSimpleName(), host, e.getMessage());
+                            logger.warn("Monitor " + monitor.second().getClass().getSimpleName() + " says there is an error in the connect process for " + hostId + " due to " + e.getMessage());
                             handleDisconnectWithoutInvestigation(attache, Event.AgentDisconnected, true, true);
                             throw ce;
                         } else {
-                            logger.info("Monitor {} says not to continue the connect process for {} due to {}",
-                                    monitor.second().getClass().getSimpleName(), host, e.getMessage());
+                            logger.info("Monitor " + monitor.second().getClass().getSimpleName() + " says not to continue the connect process for " + hostId + " due to " + e.getMessage());
                             handleDisconnectWithoutInvestigation(attache, Event.ShutdownRequested, true, true);
                             return attache;
                         }
                     } else if (e instanceof HypervisorVersionChangedException) {
                         handleDisconnectWithoutInvestigation(attache, Event.ShutdownRequested, true, true);
-                        throw new CloudRuntimeException(String.format("Unable to connect %s", attache), e);
+                        throw new CloudRuntimeException("Unable to connect " + attache.getId(), e);
                     } else {
-                        logger.error("Monitor {} says there is an error in the connect process for {} due to {}",
-                                monitor.second().getClass().getSimpleName(), host, e.getMessage(), e);
+                        logger.error("Monitor {} says there is an error in the connect process for {} due to {}", monitor.second().getClass().getSimpleName(), hostId, e.getMessage(), e);
                         handleDisconnectWithoutInvestigation(attache, Event.AgentDisconnected, true, true);
-                        throw new CloudRuntimeException(String.format("Unable to connect %s", attache), e);
+                        throw new CloudRuntimeException("Unable to connect " + attache.getId(), e);
                     }
                 }
             }
         }
 
         final Long dcId = host.getDataCenterId();
-        final ReadyCommand ready = new ReadyCommand(host, NumbersUtil.enableHumanReadableSizes);
+        final ReadyCommand ready = new ReadyCommand(dcId, host.getId(), NumbersUtil.enableHumanReadableSizes);
         ready.setWait(ReadyCommandWait.value());
         final Answer answer = easySend(hostId, ready);
         if (answer == null || !answer.getResult()) {
@@ -661,7 +590,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             Map<String, String> detailsMap = readyAnswer.getDetailsMap();
             if (detailsMap != null) {
                 String uefiEnabled = detailsMap.get(Host.HOST_UEFI_ENABLE);
-                logger.debug("Got HOST_UEFI_ENABLE [{}] for host [{}]:", uefiEnabled, host);
+                logger.debug("Got HOST_UEFI_ENABLE [{}] for hostId [{}]:", uefiEnabled, host.getUuid());
                 if (uefiEnabled != null) {
                     _hostDao.loadDetails(host);
                     if (!uefiEnabled.equals(host.getDetails().get(Host.HOST_UEFI_ENABLE))) {
@@ -788,14 +717,14 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             // load the respective discoverer
             final Discoverer discoverer = _resourceMgr.getMatchingDiscover(host.getHypervisorType());
             if (discoverer == null) {
-                logger.info("Could not to find a Discoverer to load the resource: {} for hypervisor type: {}", host, host.getHypervisorType());
+                logger.info("Could not to find a Discoverer to load the resource: {} for hypervisor type: {}", host.getId(), host.getHypervisorType());
                 resource = loadResourcesWithoutHypervisor(host);
             } else {
                 resource = discoverer.reloadResource(host);
             }
 
             if (resource == null) {
-                logger.warn("Unable to load the resource: {}", host);
+                logger.warn("Unable to load the resource: {}", host.getId());
                 return false;
             }
 
@@ -815,14 +744,14 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
             return h == null ? false : true;
         } else {
-            _executor.execute(new SimulateStartTask(host.getId(), host.getUuid(), host.getName(), resource, host.getDetails()));
+            _executor.execute(new SimulateStartTask(host.getId(), resource, host.getDetails()));
             return true;
         }
     }
 
     protected AgentAttache createAttacheForDirectConnect(final Host host, final ServerResource resource) throws ConnectionException {
-        logger.debug("create DirectAgentAttache for {}", host);
-        final DirectAgentAttache attache = new DirectAgentAttache(this, host.getId(), host.getUuid(), host.getName(), resource, host.isInMaintenanceStates());
+        logger.debug("create DirectAgentAttache for {}", host.getId());
+        final DirectAgentAttache attache = new DirectAgentAttache(this, host.getId(), host.getName(), resource, host.isInMaintenanceStates());
 
         AgentAttache old = null;
         synchronized (_agents) {
@@ -847,7 +776,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             for (final AgentAttache agent : _agents.values()) {
                 final HostVO host = _hostDao.findById(agent.getId());
                 if (host == null) {
-                    logger.debug("Cannot find host {}", agent);
+                    logger.debug("Cant not find host {}", agent.getId());
                 } else {
                     if (!agent.forForward()) {
                         agentStatusTransitTo(host, Event.ManagementServerDown, _nodeId);
@@ -865,17 +794,17 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
         final Status currentStatus = host.getStatus();
         Status nextStatus;
         if (currentStatus == Status.Down || currentStatus == Status.Alert || currentStatus == Status.Removed) {
-            logger.debug("Host {} is already {}", host, currentStatus);
+            logger.debug("Host {} is already {}", host.getUuid(), currentStatus);
             nextStatus = currentStatus;
         } else {
             try {
                 nextStatus = currentStatus.getNextStatus(event);
             } catch (final NoTransitionException e) {
-                final String err = String.format("Cannot find next status for %s as current status is %s for agent %s", event, currentStatus, host);
+                final String err = String.format("Cannot find next status for %s as current status is %s for agent %s", event, currentStatus, host.getUuid());
                 logger.debug(err);
                 throw new CloudRuntimeException(err);
             }
-            logger.debug("The next status of agent {} is {}, current status is {}", host, nextStatus, currentStatus);
+            logger.debug("The next status of agent {} is {}, current status is {}", host.getUuid(), nextStatus, currentStatus);
         }
         return nextStatus;
     }
@@ -887,18 +816,17 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
         GlobalLock joinLock = getHostJoinLock(hostId);
         if (joinLock.lock(60)) {
             try {
-                logger.info("Host {} is disconnecting with event {}",
-                        attache, event);
+                logger.info("Host {} is disconnecting with event {}", hostId, event);
                 Status nextStatus = null;
                 final HostVO host = _hostDao.findById(hostId);
                 if (host == null) {
-                    logger.warn("Can't find host with {} ({})", hostId, attache);
+                    logger.warn("Can't find host with {}", hostId);
                     nextStatus = Status.Removed;
                 } else {
                     nextStatus = getNextStatusOnDisconnection(host, event);
                     caService.purgeHostCertificate(host);
                 }
-                logger.debug("Deregistering link for {} with state {}", attache, nextStatus);
+                logger.debug("Deregistering link for {} with state {}", hostId, nextStatus);
 
                 removeAgent(attache, nextStatus);
 
@@ -933,30 +861,28 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
             if (nextStatus == Status.Alert) {
                 /* OK, we are going to the bad status, let's see what happened */
-                logger.info("Investigating why host {} has disconnected with event", host, event);
+                logger.info("Investigating why host {} has disconnected with event", hostId, event);
 
                 Status determinedState = investigate(attache);
                 // if state cannot be determined do nothing and bail out
                 if (determinedState == null) {
                     if ((System.currentTimeMillis() >> 10) - host.getLastPinged() > AlertWait.value()) {
-                        logger.warn("Agent {} state cannot be determined for more than {} ({}) seconds, will go to Alert state",
-                                host, AlertWait, AlertWait.value());
+                        logger.warn("Agent {} state cannot be determined for more than {}({}) seconds, will go to Alert state", hostId, AlertWait, AlertWait.value());
                         determinedState = Status.Alert;
                     } else {
-                        logger.warn("Agent {} state cannot be determined, do nothing", host);
+                        logger.warn("Agent {} state cannot be determined, do nothing", hostId);
                         return false;
                     }
                 }
 
                 final Status currentStatus = host.getStatus();
-                logger.info("The agent from host {} state determined is {}", host, determinedState);
+                logger.info("The agent from host {} state determined is {}", hostId, determinedState);
 
                 if (determinedState == Status.Down) {
-                    final String message = String.format("Host %s is down. Starting HA on the VMs", host);
+                    final String message = "Host is down: " + host.getId() + "-" + host.getName() + ". Starting HA on the VMs";
                     logger.error(message);
                     if (host.getType() != Host.Type.SecondaryStorage && host.getType() != Host.Type.ConsoleProxy) {
-                        _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_HOST, host.getDataCenterId(),
-                                host.getPodId(), String.format("Host down, %s", host), message);
+                        _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_HOST, host.getDataCenterId(), host.getPodId(), "Host down, " + host.getId(), message);
                     }
                     event = Status.Event.HostDown;
                 } else if (determinedState == Status.Up) {
@@ -965,20 +891,21 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                     agentStatusTransitTo(host, Status.Event.Ping, _nodeId);
                     return false;
                 } else if (determinedState == Status.Disconnected) {
-                    logger.warn("Agent is disconnected but the host is still up: {} state: {}", host, host.getResourceState());
+                    logger.warn("Agent is disconnected but the host is still up: {}-{}", host.getId(), host.getName() +
+                            '-' + host.getResourceState());
                     if (currentStatus == Status.Disconnected ||
                             (currentStatus == Status.Up && host.getResourceState() == ResourceState.PrepareForMaintenance)) {
                         if ((System.currentTimeMillis() >> 10) - host.getLastPinged() > AlertWait.value()) {
-                            logger.warn("Host {} has been disconnected past the wait time it should be disconnected.", host);
+                            logger.warn("Host {} has been disconnected past the wait time it should be disconnected.", host.getId());
                             event = Status.Event.WaitedTooLong;
                         } else {
-                            logger.debug("Host {} has been determined to be disconnected but it hasn't passed the wait time yet.", host);
+                            logger.debug("Host {} has been determined to be disconnected but it hasn't passed the wait time yet.", host.getId());
                             return false;
                         }
                     } else if (currentStatus == Status.Up) {
                         final DataCenterVO dcVO = _dcDao.findById(host.getDataCenterId());
                         final HostPodVO podVO = _podDao.findById(host.getPodId());
-                        final String hostDesc = "name: " + host.getName() + " (id:" + host.getUuid() + "), availability zone: " + dcVO.getName() + ", pod: " + podVO.getName();
+                        final String hostDesc = "name: " + host.getName() + " (id:" + host.getId() + "), availability zone: " + dcVO.getName() + ", pod: " + podVO.getName();
                         if (host.getType() != Host.Type.SecondaryStorage && host.getType() != Host.Type.ConsoleProxy) {
                             _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_HOST, host.getDataCenterId(), host.getPodId(), "Host disconnected, " + hostDesc,
                                     "If the agent for host [" + hostDesc + "] is not restarted within " + AlertWait + " seconds, host will go to Alert state");
@@ -990,14 +917,12 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                     final DataCenterVO dcVO = _dcDao.findById(host.getDataCenterId());
                     final HostPodVO podVO = _podDao.findById(host.getPodId());
                     final String podName = podVO != null ? podVO.getName() : "NO POD";
-                    final String hostDesc = String.format("%s, availability zone: %s, pod: %s", host, dcVO, podName);
-                    _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_HOST,
-                            host.getDataCenterId(), host.getPodId(),
-                            String.format("Host in ALERT state, %s", hostDesc),
-                            String.format("In availability zone %s, host is in alert state: %s", dcVO, host));
+                    final String hostDesc = "name: " + host.getName() + " (id:" + host.getId() + "), availability zone: " + dcVO.getName() + ", pod: " + podName;
+                    _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_HOST, host.getDataCenterId(), host.getPodId(), "Host in ALERT state, " + hostDesc,
+                            "In availability zone " + host.getDataCenterId() + ", host is in alert state: " + host.getId() + "-" + host.getName());
                 }
             } else {
-                logger.debug("The next status of agent {} is not Alert, no need to investigate what happened", host);
+                logger.debug("The next status of agent {} is not Alert, no need to investigate what happened", host.getId());
             }
         }
         handleDisconnectWithoutInvestigation(attache, event, true, true);
@@ -1043,7 +968,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             }
             final Status status = h.getStatus();
             if (!status.equals(Status.Up) && !status.equals(Status.Connecting)) {
-                logger.debug("Can not send command {} due to Host {} not being up", cmd, h);
+                logger.debug("Can not send command {} due to Host {} not being up", cmd, hostId);
                 return null;
             }
             final Answer answer = send(hostId, cmd);
@@ -1073,11 +998,6 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     @Override
     public Answer[] send(final Long hostId, final Commands cmds) throws AgentUnavailableException, OperationTimedoutException {
         int wait = 0;
-        if (cmds.size() > 1) {
-            logger.debug(String.format("Checking the wait time in seconds to be used for the following commands : %s. If there are multiple commands sent at once," +
-                    "then max wait time of those will be used", cmds));
-        }
-
         for (final Command cmd : cmds) {
             if (cmd.getWait() > wait) {
                 wait = cmd.getWait();
@@ -1094,26 +1014,21 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
         }
 
         if (host.getRemoved() != null) {
-            throw new CloudRuntimeException(String.format(
-                    "Host has already been removed: %s", host));
+            throw new CloudRuntimeException("Host has already been removed: " + hostId);
         }
 
         if (host.getStatus() == Status.Disconnected) {
-            logger.debug("Host is already disconnected, no work to be done: {}", host);
+            logger.debug("Host is already disconnected, no work to be done: {}", hostId);
             return;
         }
 
         if (host.getStatus() != Status.Up && host.getStatus() != Status.Alert && host.getStatus() != Status.Rebalancing) {
-            throw new CloudRuntimeException(String.format(
-                    "Unable to disconnect host because it is not in the correct state: host=%s; Status=%s",
-                    host, host.getStatus()));
+            throw new CloudRuntimeException("Unable to disconnect host because it is not in the correct state: host=" + hostId + "; Status=" + host.getStatus());
         }
 
         AgentAttache attache = findAttache(hostId);
         if (attache == null) {
-            throw new CloudRuntimeException(String.format(
-                    "Unable to disconnect host because it is not connected to this server: %s",
-                    host));
+            throw new CloudRuntimeException("Unable to disconnect host because it is not connected to this server: " + hostId);
         }
         disconnectWithoutInvestigation(attache, Event.ShutdownRequested);
     }
@@ -1138,9 +1053,9 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
     public boolean executeUserRequest(final long hostId, final Event event) throws AgentUnavailableException {
         if (event == Event.AgentDisconnected) {
+            logger.debug("Received agent disconnect event for host {}", hostId);
             AgentAttache attache = null;
             attache = findAttache(hostId);
-            logger.debug("Received agent disconnect event for host {} ({})", hostId, attache);
             if (attache != null) {
                 handleDisconnectWithoutInvestigation(attache, Event.AgentDisconnected, true, true);
             }
@@ -1150,7 +1065,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             try {
                 reconnect(hostId);
             } catch (CloudRuntimeException e) {
-                logger.debug("Error on shutdown request for hostID: {} ({})", hostId, findAttache(hostId), e);
+                logger.debug("Error on shutdown request for hostID: {}", hostId, e);
                 return false;
             }
             return true;
@@ -1165,8 +1080,8 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     }
 
     protected AgentAttache createAttacheForConnect(final HostVO host, final Link link) throws ConnectionException {
-        logger.debug("create ConnectedAgentAttache for {}", host);
-        final AgentAttache attache = new ConnectedAgentAttache(this, host.getId(), host.getUuid(), host.getName(), link, host.isInMaintenanceStates());
+        logger.debug("create ConnectedAgentAttache for {}", host.getId());
+        final AgentAttache attache = new ConnectedAgentAttache(this, host.getId(), host.getName(), link, host.isInMaintenanceStates());
         link.attach(attache);
 
         AgentAttache old = null;
@@ -1213,8 +1128,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                 joinLock.unlock();
             }
         } else {
-            throw new ConnectionException(true,
-                    String.format("Unable to acquire lock on host %s", host));
+            throw new ConnectionException(true, "Unable to acquire lock on host " + host.getUuid());
         }
         joinLock.releaseRef();
         return attache;
@@ -1227,7 +1141,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             final HostVO host = _resourceMgr.createHostVOForConnectedAgent(startup);
             if (host != null) {
                 checkHostArchOnCluster(host);
-                ready = new ReadyCommand(host, NumbersUtil.enableHumanReadableSizes);
+                ready = new ReadyCommand(host.getDataCenterId(), host.getId(), NumbersUtil.enableHumanReadableSizes);
                 attache = sendReadyAndGetAttache(host, ready, link, startup);
             }
         } catch (final Exception e) {
@@ -1267,10 +1181,8 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
         ServerResource resource;
         Map<String, String> details;
         long id;
-        String uuid;
-        String name;
 
-        public SimulateStartTask(final long id, String uuid, String name, final ServerResource resource, final Map<String, String> details) {
+        public SimulateStartTask(final long id, final ServerResource resource, final Map<String, String> details) {
             this.id = id;
             this.resource = resource;
             this.details = details;
@@ -1279,26 +1191,26 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
         @Override
         protected void runInContext() {
             try {
-                logger.debug("Simulating start for resource {} (id: {}, uuid: {}, name {})", resource.getName(), id, uuid, name);
+                logger.debug("Simulating start for resource {} id {}", resource.getName(), id);
 
                 if (tapLoadingAgents(id, TapAgentsAction.Add)) {
                     try {
                         final AgentAttache agentattache = findAttache(id);
                         if (agentattache == null) {
-                            logger.debug("Creating agent for host [id: {}, uuid: {}, name: {}]", id, uuid, name);
+                            logger.debug("Creating agent for host {}", id);
                             _resourceMgr.createHostAndAgent(id, resource, details, false, null, false);
-                            logger.debug("Completed creating agent for host [id: {}, uuid: {}, name: {}", id, uuid, name);
+                            logger.debug("Completed creating agent for host {}", id);
                         } else {
-                            logger.debug("Agent already created in another thread for host [id: {}, uuid: {}, name: {}], ignore this", id, uuid, name);
+                            logger.debug("Agent already created in another thread for host {}, ignore this", id);
                         }
                     } finally {
                         tapLoadingAgents(id, TapAgentsAction.Del);
                     }
                 } else {
-                    logger.debug("Agent creation already getting processed in another thread for host [id: {}, uuid: {}, name: {}], ignore this", id, uuid, name);
+                    logger.debug("Agent creation already getting processed in another thread for host {}, ignore this", id);
                 }
             } catch (final Exception e) {
-                logger.warn("Unable to simulate start on resource [id: {}, uuid: {}, name: {}] name {}", id, uuid, name, resource.getName(), e);
+                logger.warn("Unable to simulate start on resource {} name {}", id, resource.getName(), e);
             }
         }
     }
@@ -1338,7 +1250,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             cmd = cmds[i];
             if (cmd instanceof StartupRoutingCommand || cmd instanceof StartupProxyCommand || cmd instanceof StartupSecondaryStorageCommand ||
                     cmd instanceof StartupStorageCommand) {
-                answers[i] = new StartupAnswer((StartupCommand) cmds[i], 0, "", "", mgmtServiceConf.getPingInterval());
+                answers[i] = new StartupAnswer((StartupCommand) cmds[i], 0, mgmtServiceConf.getPingInterval());
                 break;
             }
         }
@@ -1368,7 +1280,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             }
             if (!BooleanUtils.toBoolean(EnableKVMAutoEnableDisable.valueIn(host.getClusterId()))) {
                 logger.debug("{} is disabled for the cluster {}, cannot process the health check result " +
-                        "received for the host {}", EnableKVMAutoEnableDisable.key(), host.getClusterId(), host);
+                        "received for the host {}", EnableKVMAutoEnableDisable.key(), host.getClusterId(), host.getName());
                 return;
             }
 
@@ -1378,10 +1290,10 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                 logger.info("Host health check {}, auto {} KVM host: {}",
                         hostHealthCheckResult ? "succeeds" : "fails",
                         hostHealthCheckResult ? "enabling" : "disabling",
-                        host);
+                        host.getName());
                 _resourceMgr.autoUpdateHostAllocationState(hostId, resourceEvent);
             } catch (NoTransitionException e) {
-                logger.error("Cannot Auto {} host: {}", resourceEvent, host, e);
+                logger.error("Cannot Auto {} host: {}", resourceEvent, host.getName(), e);
             }
         }
 
@@ -1428,11 +1340,11 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             if (logger.isDebugEnabled()) {
                 if (cmd instanceof PingRoutingCommand) {
                     logD = false;
-                    logger.debug("Ping from Routing host {}", attache);
+                    logger.debug("Ping from Routing host {}({})", hostId, hostName);
                     logger.trace("SeqA {}-{}: Processing {}", hostId, request.getSequence(), request);
                 } else if (cmd instanceof PingCommand) {
                     logD = false;
-                    logger.debug("Ping from {}", attache);
+                    logger.debug("Ping from {}({})", hostId, hostName);
                     logger.trace("SeqA {}-{}: Processing {}", hostId, request.getSequence(), request);
                 } else {
                     logger.debug("SeqA {}-{}: {}", hostId, request.getSequence(), request);
@@ -1447,20 +1359,20 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                     if (cmd instanceof StartupRoutingCommand) {
                         final StartupRoutingCommand startup = (StartupRoutingCommand) cmd;
                         processStartupRoutingCommand(startup, hostId);
-                        answer = new StartupAnswer(startup, attache.getId(), attache.getUuid(), attache.getName(), mgmtServiceConf.getPingInterval());
+                        answer = new StartupAnswer(startup, attache.getId(), mgmtServiceConf.getPingInterval());
                     } else if (cmd instanceof StartupProxyCommand) {
                         final StartupProxyCommand startup = (StartupProxyCommand) cmd;
-                        answer = new StartupAnswer(startup, attache.getId(), attache.getUuid(), attache.getName(), mgmtServiceConf.getPingInterval());
+                        answer = new StartupAnswer(startup, attache.getId(), mgmtServiceConf.getPingInterval());
                     } else if (cmd instanceof StartupSecondaryStorageCommand) {
                         final StartupSecondaryStorageCommand startup = (StartupSecondaryStorageCommand) cmd;
-                        answer = new StartupAnswer(startup, attache.getId(), attache.getUuid(), attache.getName(), mgmtServiceConf.getPingInterval());
+                        answer = new StartupAnswer(startup, attache.getId(), mgmtServiceConf.getPingInterval());
                     } else if (cmd instanceof StartupStorageCommand) {
                         final StartupStorageCommand startup = (StartupStorageCommand) cmd;
-                        answer = new StartupAnswer(startup, attache.getId(), attache.getUuid(), attache.getName(), mgmtServiceConf.getPingInterval());
+                        answer = new StartupAnswer(startup, attache.getId(), mgmtServiceConf.getPingInterval());
                     } else if (cmd instanceof ShutdownCommand) {
                         final ShutdownCommand shutdown = (ShutdownCommand)cmd;
                         final String reason = shutdown.getReason();
-                        logger.info("Host {} has informed us that it is shutting down with reason {} and detail {}", attache, reason, shutdown.getDetail());
+                        logger.info("Host {} has informed us that it is shutting down with reason {} and detail {}", attache.getId(), reason, shutdown.getDetail());
                         if (reason.equals(ShutdownCommand.Update)) {
                             // disconnectWithoutInvestigation(attache, Event.UpdateNeeded);
                             throw new CloudRuntimeException("Agent update not implemented");
@@ -1490,7 +1402,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                                         // gateway (cannot ping the default route)
                                         final DataCenterVO dcVO = _dcDao.findById(host.getDataCenterId());
                                         final HostPodVO podVO = _podDao.findById(host.getPodId());
-                                        final String hostDesc = String.format("%s, availability zone: %s, pod: %s", host, dcVO, podVO);
+                                        final String hostDesc = "name: " + host.getName() + " (id:" + host.getId() + "), availability zone: " + dcVO.getName() + ", pod: " + podVO.getName();
 
                                         _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_ROUTING, host.getDataCenterId(), host.getPodId(), "Host lost connection to gateway, " + hostDesc,
                                                 "Host [" + hostDesc + "] lost connection to gateway (default route) and is possibly having network connection issues.");
@@ -1508,7 +1420,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                         } else if (cmd instanceof ReadyAnswer) {
                             final HostVO host = _hostDao.findById(attache.getId());
                             if (host == null) {
-                                logger.debug("Cant not find host with id: {} ({})", attache.getId(), attache);
+                                logger.debug("Cant not find host {}", attache.getId());
                             }
                             answer = new Answer(cmd);
                         } else {
@@ -1540,7 +1452,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             if (attache == null) {
                 logger.warn("Unable to process: {}", response);
             } else if (!attache.processAnswers(response.getSequence(), response)) {
-                logger.info("Host {} - Seq {}: Response is not processed: {}", attache, response.getSequence(), response);
+                logger.info("Host {} - Seq {}: Response is not processed: {}", attache.getId(), response.getSequence(), response);
             }
         }
 
@@ -1610,16 +1522,14 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     public boolean agentStatusTransitTo(final HostVO host, final Status.Event e, final long msId) {
         try {
             _agentStatusLock.lock();
-            logger.debug("[Resource state = {}, Agent event = , Host = {}]",
-                    host.getResourceState(), e.toString(), host);
+            logger.debug("[Resource state = {}, Agent event = , Host id = {}, name = {}]", host.getResourceState(), e.toString(), host.getId(), host.getName());
 
             host.setManagementServerId(msId);
             try {
                 return _statusStateMachine.transitTo(host, e, host.getId(), _hostDao);
             } catch (final NoTransitionException e1) {
-                logger.debug("Cannot transit agent status with event {} for host {}, management server id is {}", e, host, msId);
-                throw new CloudRuntimeException(String.format(
-                        "Cannot transit agent status with event %s for host %s, management server id is %d, %s", e, host, msId, e1.getMessage()));
+                logger.debug("Cannot transit agent status with event {} for host {}, name={}, management server id is {}", e, host.getId(), host.getName(), msId);
+                throw new CloudRuntimeException("Cannot transit agent status with event " + e + " for host " + host.getId() + ", management server id is " + msId + "," + e1.getMessage());
             }
         } finally {
             _agentStatusLock.unlock();
@@ -1700,7 +1610,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
         attache = createAttacheForDirectConnect(host, resource);
         final StartupAnswer[] answers = new StartupAnswer[cmds.length];
         for (int i = 0; i < answers.length; i++) {
-            answers[i] = new StartupAnswer(cmds[i], attache.getId(), attache.getUuid(), attache.getName(), mgmtServiceConf.getPingInterval());
+            answers[i] = new StartupAnswer(cmds[i], attache.getId(), mgmtServiceConf.getPingInterval());
         }
         attache.process(answers);
 
@@ -1750,7 +1660,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     public void pingBy(final long agentId) {
         // Update PingMap with the latest time if agent entry exists in the PingMap
         if (_pingMap.replace(agentId, InaccurateClock.getTimeInSeconds()) == null) {
-            logger.info("PingMap for agent: {} ({}) will not be updated because agent is no longer in the PingMap", agentId, findAttache(agentId));
+            logger.info("PingMap for agent: " + agentId + " will not be updated because agent is no longer in the PingMap");
         }
     }
 
@@ -1771,17 +1681,17 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                             /*
                              * Host is in non-operation state, so no investigation and direct put agent to Disconnected
                              */
-                            logger.debug("Ping timeout but agent {} is in resource state of {}, so no investigation", h, resourceState);
+                            logger.debug("Ping timeout but agent {} is in resource state of {}, so no investigation", agentId, resourceState);
                             disconnectWithoutInvestigation(agentId, Event.ShutdownRequested);
                         } else {
                             final HostVO host = _hostDao.findById(agentId);
                             if (host != null
                                     && (host.getType() == Host.Type.ConsoleProxy || host.getType() == Host.Type.SecondaryStorageVM || host.getType() == Host.Type.SecondaryStorageCmdExecutor)) {
 
-                                logger.warn("Disconnect agent for CPVM/SSVM due to physical connection close. host: {}", host);
+                                logger.warn("Disconnect agent for CPVM/SSVM due to physical connection close. host: {}", host.getId());
                                 disconnectWithoutInvestigation(agentId, Event.ShutdownRequested);
                             } else {
-                                logger.debug("Ping timeout for agent {}, do investigation", h);
+                                logger.debug("Ping timeout for agent {}, do investigation", agentId);
                                 disconnectWithInvestigation(agentId, Event.PingTimeout);
                             }
                         }
@@ -1902,7 +1812,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     @Override
     public ConfigKey<?>[] getConfigKeys() {
         return new ConfigKey<?>[] { CheckTxnBeforeSending, Workers, Port, Wait, AlertWait, DirectAgentLoadSize,
-                DirectAgentPoolSize, DirectAgentThreadCap, EnableKVMAutoEnableDisable, ReadyCommandWait, GranularWaitTimeForCommands };
+                DirectAgentPoolSize, DirectAgentThreadCap, EnableKVMAutoEnableDisable, ReadyCommandWait };
     }
 
     protected class SetHostParamsListener implements Listener {
@@ -1944,7 +1854,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                         Commands c = new Commands(cmds);
                         send(host.getId(), c, this);
                     } catch (AgentUnavailableException e) {
-                        logger.debug("Failed to send host params on host: {}", host);
+                        logger.debug("Failed to send host params on host: " + host.getId());
                     }
                 }
             }
@@ -2003,7 +1913,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             for (Long hostId : hostIds) {
                 Answer answer = easySend(hostId, cmds);
                 if (answer == null || !answer.getResult()) {
-                    logger.error("Error sending parameters to agent {} ({})", hostId, findAttache(hostId));
+                    logger.error("Error sending parameters to agent {}", hostId);
                 }
             }
         }

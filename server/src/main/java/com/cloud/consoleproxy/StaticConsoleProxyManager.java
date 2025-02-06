@@ -60,7 +60,7 @@ public class StaticConsoleProxyManager extends AgentBasedConsoleProxyManager imp
     }
 
     @Override
-    public ConsoleProxyInfo assignProxy(long dataCenterId, VMInstanceVO userVm) {
+    public ConsoleProxyInfo assignProxy(long dataCenterId, long userVmId) {
         return new ConsoleProxyInfo(_sslEnabled, _ip, _consoleProxyPort, _consoleProxyUrlPort, _consoleProxyUrlDomain);
     }
 

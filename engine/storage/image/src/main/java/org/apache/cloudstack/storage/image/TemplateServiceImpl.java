@@ -280,7 +280,7 @@ public class TemplateServiceImpl implements TemplateService {
                 TemplateDataStoreVO tmpltHost = _vmTemplateStoreDao.findByStoreTemplate(store.getId(), template.getId());
                 if (tmpltHost == null) {
                     associateTemplateToZone(template.getId(), dcId);
-                    logger.info("Downloading builtin template {} to data center: {}", template, dcId);
+                    logger.info("Downloading builtin template " + template.getUniqueName() + " to data center: " + dcId);
                     TemplateInfo tmplt = _templateFactory.getTemplate(template.getId(), DataStoreRole.Image);
                     createTemplateAsync(tmplt, store, null);
                 }
@@ -299,7 +299,7 @@ public class TemplateServiceImpl implements TemplateService {
             return false;
         }
         if (zoneId != null &&  _vmTemplateStoreDao.findByTemplateZone(template.getId(), zoneId, DataStoreRole.Image) == null) {
-            logger.debug("Template {} is not present on any image store for the zone ID: {}, its download cannot be skipped", template, zoneId);
+            logger.debug(String.format("Template %s is not present on any image store for the zone ID: %d, its download cannot be skipped", template.getUniqueName(), zoneId));
             return false;
         }
         return true;
@@ -376,29 +376,29 @@ public class TemplateServiceImpl implements TemplateService {
                             TemplateProp tmpltInfo = templateInfos.remove(uniqueName);
                             toBeDownloaded.remove(tmplt);
                             if (tmpltStore != null) {
-                                logger.info("Template Sync found {} already in the image store", tmplt);
+                                logger.info("Template Sync found " + uniqueName + " already in the image store");
                                 if (tmpltStore.getDownloadState() != Status.DOWNLOADED) {
                                     tmpltStore.setErrorString("");
                                 }
                                 if (tmpltInfo.isCorrupted()) {
                                     tmpltStore.setDownloadState(Status.DOWNLOAD_ERROR);
-                                    String msg = String.format("Template %s is corrupted on secondary storage %s", tmplt, store);
+                                    String msg = "Template " + tmplt.getName() + ":" + tmplt.getId() + " is corrupted on secondary storage " + tmpltStore.getId();
                                     tmpltStore.setErrorString(msg);
                                     logger.info(msg);
                                     _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_UPLOAD_FAILED, zoneId, null, msg, msg);
                                     if (tmplt.getState() == VirtualMachineTemplate.State.NotUploaded || tmplt.getState() == VirtualMachineTemplate.State.UploadInProgress) {
-                                        logger.info("Template Sync found {} on image store {} uploaded using SSVM as corrupted, marking it as failed", tmplt, store);
+                                        logger.info("Template Sync found " + uniqueName + " on image store " + storeId + " uploaded using SSVM as corrupted, marking it as failed");
                                         tmpltStore.setState(State.Failed);
                                         try {
                                             stateMachine.transitTo(tmplt, VirtualMachineTemplate.Event.OperationFailed, null, _templateDao);
                                         } catch (NoTransitionException e) {
-                                            logger.error("Unexpected state transition exception for template {}. Details: {}", tmplt, e.getMessage());
+                                            logger.error("Unexpected state transition exception for template " + tmplt.getName() + ". Details: " + e.getMessage());
                                         }
                                     } else if (tmplt.getUrl() == null) {
-                                        msg = String.format("Private template (%s) with install path %s is corrupted, please check in image store: %s", tmplt, tmpltInfo.getInstallPath(), store);
+                                        msg = "Private template (" + tmplt + ") with install path " + tmpltInfo.getInstallPath() + " is corrupted, please check in image store: " + tmpltStore.getDataStoreId();
                                         logger.warn(msg);
                                     } else {
-                                        logger.info("Removing template_store_ref entry for corrupted template {}", tmplt);
+                                        logger.info("Removing template_store_ref entry for corrupted template " + tmplt.getName());
                                         _vmTemplateStoreDao.remove(tmpltStore.getId());
                                         toBeDownloaded.add(tmplt);
                                     }
@@ -438,7 +438,7 @@ public class TemplateServiceImpl implements TemplateService {
                                         try {
                                             stateMachine.transitTo(tmplt, event, null, _templateDao);
                                         } catch (NoTransitionException e) {
-                                            logger.error("Unexpected state transition exception for template {}. Details: {}", tmplt, e.getMessage());
+                                            logger.error("Unexpected state transition exception for template " + tmplt.getName() + ". Details: " + e.getMessage());
                                         }
                                     }
 
@@ -483,30 +483,30 @@ public class TemplateServiceImpl implements TemplateService {
                                         tmpltInfo.getPhysicalSize(), tmpltInfo.getSize(), VirtualMachineTemplate.class.getName(), tmplt.getUuid());
                             }
                         } else if (tmplt.getState() == VirtualMachineTemplate.State.NotUploaded || tmplt.getState() == VirtualMachineTemplate.State.UploadInProgress) {
-                            logger.info("Template Sync did not find {} on image store {} uploaded using SSVM, marking it as failed", tmplt, store);
+                            logger.info("Template Sync did not find " + uniqueName + " on image store " + storeId + " uploaded using SSVM, marking it as failed");
                             toBeDownloaded.remove(tmplt);
                             tmpltStore.setDownloadState(Status.DOWNLOAD_ERROR);
-                            String msg = String.format("Template %s is corrupted on secondary storage %s", tmplt, store);
+                            String msg = "Template " + tmplt.getName() + ":" + tmplt.getId() + " is corrupted on secondary storage " + tmpltStore.getId();
                             tmpltStore.setErrorString(msg);
                             tmpltStore.setState(State.Failed);
                             _vmTemplateStoreDao.update(tmpltStore.getId(), tmpltStore);
                             try {
                                 stateMachine.transitTo(tmplt, VirtualMachineTemplate.Event.OperationFailed, null, _templateDao);
                             } catch (NoTransitionException e) {
-                                logger.error("Unexpected state transition exception for template {}. Details: {}", tmplt, e.getMessage());
+                                logger.error("Unexpected state transition exception for template " + tmplt.getName() + ". Details: " + e.getMessage());
                             }
                         } else if (tmplt.isDirectDownload()) {
-                            logger.info("Template {} is marked for direct download, discarding it for download on image stores", tmplt);
+                            logger.info("Template " + tmplt.getName() + ":" + tmplt.getId() + " is marked for direct download, discarding it for download on image stores");
                             toBeDownloaded.remove(tmplt);
                         } else {
-                            logger.info("Template Sync did not find {} on image store {}, may request download based on available hypervisor types", tmplt, store);
+                            logger.info("Template Sync did not find " + uniqueName + " on image store " + storeId + ", may request download based on available hypervisor types");
                             if (tmpltStore != null) {
                                 if (_storeMgr.isRegionStore(store) && tmpltStore.getDownloadState() == VMTemplateStorageResourceAssoc.Status.DOWNLOADED
                                         && tmpltStore.getState() == State.Ready
                                         && tmpltStore.getInstallPath() == null) {
                                     logger.info("Keep fake entry in template store table for migration of previous NFS to object store");
                                 } else {
-                                    logger.info("Removing leftover template {} entry from template store table", tmplt);
+                                    logger.info("Removing leftover template " + uniqueName + " entry from template store table");
                                     // remove those leftover entries
                                     _vmTemplateStoreDao.remove(tmpltStore.getId());
                                 }
@@ -530,12 +530,12 @@ public class TemplateServiceImpl implements TemplateService {
                         // download.
                         for (VMTemplateVO tmplt : toBeDownloaded) {
                             if (tmplt.getUrl() == null) { // If url is null, skip downloading
-                                logger.info("Skip downloading template {} since no url is specified.", tmplt);
+                                logger.info("Skip downloading template " + tmplt.getUniqueName() + " since no url is specified.");
                                 continue;
                             }
                             // if this is private template, skip sync to a new image store
                             if (isSkipTemplateStoreDownload(tmplt, zoneId)) {
-                                logger.info("Skip sync downloading private template {} to a new image store", tmplt);
+                                logger.info("Skip sync downloading private template " + tmplt.getUniqueName() + " to a new image store");
                                 continue;
                             }
 
@@ -551,7 +551,7 @@ public class TemplateServiceImpl implements TemplateService {
                             }
 
                             if (availHypers.contains(tmplt.getHypervisorType())) {
-                                logger.info("Downloading template {} to image store {}", tmplt, store);
+                                logger.info("Downloading template " + tmplt.getUniqueName() + " to image store " + store.getName());
                                 associateTemplateToZone(tmplt.getId(), zoneId);
                                 TemplateInfo tmpl = _templateFactory.getTemplate(tmplt.getId(), store);
                                 TemplateOpContext<TemplateApiResult> context = new TemplateOpContext<>(null,(TemplateObject)tmpl, null);
@@ -560,7 +560,8 @@ public class TemplateServiceImpl implements TemplateService {
                                 caller.setContext(context);
                                 createTemplateAsync(tmpl, store, caller);
                             } else {
-                                logger.info("Skip downloading template {} since current data center does not have hypervisor {}", tmplt, tmplt.getHypervisorType());
+                                logger.info("Skip downloading template " + tmplt.getUniqueName() + " since current data center does not have hypervisor " +
+                                        tmplt.getHypervisorType().toString());
                             }
                         }
                     }
@@ -584,10 +585,10 @@ public class TemplateServiceImpl implements TemplateService {
                                 answer = ep.sendMessage(dtCommand);
                             }
                             if (answer == null || !answer.getResult()) {
-                                logger.info("Failed to deleted template at store: {}", store);
+                                logger.info("Failed to deleted template at store: " + store.getName());
 
                             } else {
-                                String description = String.format("Deleted template %s on secondary storage %s", tInfo.getTemplateName(), store);
+                                String description = "Deleted template " + tInfo.getTemplateName() + " on secondary storage " + storeId;
                                 logger.info(description);
                             }
 
@@ -597,7 +598,7 @@ public class TemplateServiceImpl implements TemplateService {
                     syncLock.unlock();
                 }
             } else {
-                logger.info("Couldn't get global lock on {}, another thread may be doing template sync on data store {} now.", lockString, store);
+                logger.info("Couldn't get global lock on " + lockString + ", another thread may be doing template sync on data store " + storeId + " now.");
             }
         } finally {
             syncLock.releaseRef();
@@ -672,14 +673,15 @@ public class TemplateServiceImpl implements TemplateService {
                 if (tmpltStore != null) {
                     physicalSize = tmpltStore.getPhysicalSize();
                 } else {
-                    logger.warn("No entry found in template_store_ref for template: {} and image store: {} at the end of registering template!", template, ds);
+                    logger.warn("No entry found in template_store_ref for template id: " + template.getId() + " and image store id: " + ds.getId() +
+                            " at the end of registering template!");
                 }
                 Scope dsScope = ds.getScope();
                 if (dsScope.getScopeId() != null) {
                     UsageEventUtils.publishUsageEvent(etype, template.getAccountId(), dsScope.getScopeId(), template.getId(), template.getName(), null, null,
                             physicalSize, template.getSize(), VirtualMachineTemplate.class.getName(), template.getUuid());
                 } else {
-                    logger.warn("Zone scope image store {} has a null scope id", ds);
+                    logger.warn("Zone scope image store " + ds.getId() + " has a null scope id");
                 }
                 _resourceLimitMgr.incrementResourceCount(accountId, Resource.ResourceType.secondary_storage, template.getSize());
             }
@@ -705,7 +707,7 @@ public class TemplateServiceImpl implements TemplateService {
             return tanswer.getTemplateInfo();
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("can not list template for secondary storage host {}", ssStore);
+                logger.debug("can not list template for secondary storage host " + ssStore.getId());
             }
         }
 
@@ -843,7 +845,8 @@ public class TemplateServiceImpl implements TemplateService {
             _resourceLimitMgr.incrementResourceCount(template.getAccountId(), ResourceType.secondary_storage, templateVO.getSize());
         } else {
             // Delete the Datadisk templates that were already created as they are now invalid
-            logger.debug("Since creation of Datadisk template: {} failed, delete other Datadisk templates that were created as part of parent template download", templateVO);
+            logger.debug("Since creation of Datadisk template: " + templateVO.getId() + " failed, delete other Datadisk templates that were created as part of parent"
+                    + " template download");
             TemplateInfo parentTemplateInfo = imageFactory.getTemplate(templateVO.getParentTemplateId(), imageStore);
             cleanupDatadiskTemplates(parentTemplateInfo);
         }
@@ -857,7 +860,8 @@ public class TemplateServiceImpl implements TemplateService {
         TemplateApiResult result = null;
         result = templateFuture.get();
         if (!result.isSuccess()) {
-            logger.debug("Since creation of parent template: {} failed, delete Datadisk templates that were created as part of parent template download", templateInfo);
+            logger.debug("Since creation of parent template: " + templateInfo.getId() + " failed, delete Datadisk templates that were created as part of parent"
+                    + " template download");
             cleanupDatadiskTemplates(templateInfo);
         }
         return result.isSuccess();
@@ -906,12 +910,12 @@ public class TemplateServiceImpl implements TemplateService {
         DataStore imageStore = parentTemplateInfo.getDataStore();
         List<VMTemplateVO> datadiskTemplatesToDelete = _templateDao.listByParentTemplatetId(parentTemplateInfo.getId());
         for (VMTemplateVO datadiskTemplateToDelete: datadiskTemplatesToDelete) {
-            logger.info("Delete template: {} from image store: {}", datadiskTemplateToDelete, imageStore);
+            logger.info("Delete template: " + datadiskTemplateToDelete.getId() + " from image store: " + imageStore.getName());
             AsyncCallFuture<TemplateApiResult> future = deleteTemplateAsync(imageFactory.getTemplate(datadiskTemplateToDelete.getId(), imageStore));
             try {
                 TemplateApiResult result = future.get();
                 if (!result.isSuccess()) {
-                    logger.warn("Failed to delete datadisk template: {} from image store: {} due to: {}", datadiskTemplateToDelete, imageStore, result.getResult());
+                    logger.warn("Failed to delete datadisk template: " + datadiskTemplateToDelete + " from image store: " + imageStore.getName() + " due to: " + result.getResult());
                     break;
                 }
                 _vmTemplateZoneDao.deletePrimaryRecordsForTemplate(datadiskTemplateToDelete.getId());
@@ -1024,32 +1028,33 @@ public class TemplateServiceImpl implements TemplateService {
     // This routine is used to push templates currently on cache store, but not in region store to region store.
     // used in migrating existing NFS secondary storage to S3.
     @Override
-    public void syncTemplateToRegionStore(VirtualMachineTemplate template, DataStore store) {
+    public void syncTemplateToRegionStore(long templateId, DataStore store) {
         if (_storeMgr.isRegionStore(store)) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Sync template {} from cache to object store...", template);
+                logger.debug("Sync template " + templateId + " from cache to object store...");
             }
             // if template is on region wide object store, check if it is really downloaded there (by checking install_path). Sync template to region
             // wide store if it is not there physically.
-            TemplateInfo tmplOnStore = _templateFactory.getTemplate(template.getId(), store);
+            TemplateInfo tmplOnStore = _templateFactory.getTemplate(templateId, store);
             if (tmplOnStore == null) {
-                throw new CloudRuntimeException(String.format("Cannot find an entry in template_store_ref for template %s on region store: %s", template, store));
+                throw new CloudRuntimeException("Cannot find an entry in template_store_ref for template " + templateId + " on region store: " + store.getName());
             }
             if (tmplOnStore.getInstallPath() == null || tmplOnStore.getInstallPath().length() == 0) {
                 // template is not on region store yet, sync to region store
-                TemplateInfo srcTemplate = _templateFactory.getReadyTemplateOnCache(template.getId());
+                TemplateInfo srcTemplate = _templateFactory.getReadyTemplateOnCache(templateId);
                 if (srcTemplate == null) {
-                    throw new CloudRuntimeException(String.format("Cannot find template %s on cache store", tmplOnStore));
+                    throw new CloudRuntimeException("Cannot find template " + templateId + "  on cache store");
                 }
                 AsyncCallFuture<TemplateApiResult> future = syncToRegionStoreAsync(srcTemplate, store);
                 try {
                     TemplateApiResult result = future.get();
                     if (result.isFailed()) {
-                        throw new CloudRuntimeException(String.format("sync template from cache to region wide store failed for image store %s: %s", store, result.getResult()));
+                        throw new CloudRuntimeException("sync template from cache to region wide store failed for image store " + store.getName() + ":" +
+                                result.getResult());
                     }
                     _cacheMgr.releaseCacheObject(srcTemplate); // reduce reference count for template on cache, so it can recycled by schedule
                 } catch (Exception ex) {
-                    throw new CloudRuntimeException(String.format("sync template from cache to region wide store failed for image store %s", store));
+                    throw new CloudRuntimeException("sync template from cache to region wide store failed for image store " + store.getName());
                 }
             }
         }
@@ -1067,7 +1072,8 @@ public class TemplateServiceImpl implements TemplateService {
         // generate a URL from source template ssvm to download to destination data store
         String url = generateCopyUrl(srcTemplate);
         if (url == null) {
-            logger.warn("Unable to start/resume copy of template {} to {}, no secondary storage vm in running state in source zone", srcTemplate, destStore);
+            logger.warn("Unable to start/resume copy of template " + srcTemplate.getUniqueName() + " to " + destStore.getName() +
+                    ", no secondary storage vm in running state in source zone");
             throw new CloudRuntimeException("No secondary VM in running state in source template zone ");
         }
 

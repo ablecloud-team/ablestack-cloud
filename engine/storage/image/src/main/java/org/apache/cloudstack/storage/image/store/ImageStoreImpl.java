@@ -228,9 +228,4 @@ public class ImageStoreImpl implements ImageStoreEntity {
         return driver.createDataDiskTemplateAsync(dataDiskTemplate, path, diskId, bootable, fileSize, callback);
     }
 
-    @Override
-    public String toString() {
-        return imageDataStoreVO.toString();
-    }
-
 }

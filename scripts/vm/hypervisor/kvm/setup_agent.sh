@@ -51,7 +51,7 @@ install_cloud_agent() {
         while [ "$retry" -gt "0" ]
         do
             yum clean all
-            yum install mold-agent -y
+            yum install cloudstack-agent -y
             if [ $? -gt 0 ]
             then
                 let retry=retry-1
@@ -64,7 +64,7 @@ install_cloud_agent() {
         while [ "$retry" -gt "0" ]
         do
 	        yum clean all
-	        yum update mold-agent -y
+	        yum update cloudstack-agent -y
             if [ $? -gt 0 ]
             then
                 let retry=retry-1

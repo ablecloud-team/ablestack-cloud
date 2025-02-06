@@ -33,7 +33,6 @@
       :scroll="{ y: 225 }"
     >
       <template #headerCell="{ column }">
-        <template v-if="column.key === 'name'"><solution-outlined /> {{ $t('label.userdata') }}</template>
         <template v-if="column.key === 'account'"><user-outlined /> {{ $t('label.account') }}</template>
         <template v-if="column.key === 'domain'"><block-outlined /> {{ $t('label.domain') }}</template>
       </template>
@@ -79,7 +78,6 @@ export default {
       filter: '',
       columns: [
         {
-          key: 'name',
           dataIndex: 'name',
           title: this.$t('label.userdata'),
           width: '40%'
@@ -183,9 +181,11 @@ export default {
     },
     onClickRow (record) {
       return {
-        onClick: () => {
-          this.selectedRowKeys = [record.key]
-          this.$emit('select-user-data-item', record.key)
+        on: {
+          click: () => {
+            this.selectedRowKeys = [record.key]
+            this.$emit('select-user-data-item', record.key)
+          }
         }
       }
     }

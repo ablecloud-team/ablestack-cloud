@@ -26,8 +26,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import com.cloud.resource.ServerResource;
 
-import java.util.UUID;
-
 @RunWith(MockitoJUnitRunner.class)
 public class DirectAgentAttacheTest {
     @Mock
@@ -38,11 +36,9 @@ public class DirectAgentAttacheTest {
 
     long _id = 0L;
 
-    String _uuid = UUID.randomUUID().toString();
-
     @Before
     public void setup() {
-        directAgentAttache = new DirectAgentAttache(_agentMgr, _id, _uuid, "myDirectAgentAttache", _resource, false);
+        directAgentAttache = new DirectAgentAttache(_agentMgr, _id, "myDirectAgentAttache", _resource, false);
 
         MockitoAnnotations.initMocks(directAgentAttache);
     }

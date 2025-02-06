@@ -17,10 +17,9 @@
 package com.cloud.consoleproxy;
 
 import com.cloud.info.ConsoleProxyInfo;
-import com.cloud.vm.VMInstanceVO;
 
 public interface ConsoleProxyService {
 
-    public abstract ConsoleProxyInfo assignProxy(long dataCenterId, VMInstanceVO userVm);
+    public abstract ConsoleProxyInfo assignProxy(long dataCenterId, long userVmId);
 
 }

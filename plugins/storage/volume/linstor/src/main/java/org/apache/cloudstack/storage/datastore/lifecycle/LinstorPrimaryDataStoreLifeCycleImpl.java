@@ -173,22 +173,22 @@ public class LinstorPrimaryDataStoreLifeCycleImpl extends BasePrimaryDataStoreLi
         return dataStoreHelper.createPrimaryDataStore(parameters);
     }
 
-    protected boolean createStoragePool(Host host, StoragePool pool) {
-        logger.debug(String.format("creating pool %s on  host %s", pool, host));
+    protected boolean createStoragePool(long hostId, StoragePool pool) {
+        logger.debug("creating pool " + pool.getName() + " on  host " + hostId);
 
         if (pool.getPoolType() != Storage.StoragePoolType.Linstor) {
             logger.warn(" Doesn't support storage pool type " + pool.getPoolType());
             return false;
         }
         CreateStoragePoolCommand cmd = new CreateStoragePoolCommand(true, pool);
-        final Answer answer = _agentMgr.easySend(host.getId(), cmd);
+        final Answer answer = _agentMgr.easySend(hostId, cmd);
         if (answer != null && answer.getResult()) {
             return true;
         } else {
             _primaryDataStoreDao.expunge(pool.getId());
             String msg = answer != null ?
-                    String.format("Can not create storage pool %s through host %s due to %s", pool, host, answer.getDetails()) :
-                    String.format("Can not create storage pool %s through host %s due to CreateStoragePoolCommand returns null", pool, host);
+                "Can not create storage pool through host " + hostId + " due to " + answer.getDetails() :
+                "Can not create storage pool through host " + hostId + " due to CreateStoragePoolCommand returns null";
             logger.warn(msg);
             throw new CloudRuntimeException(msg);
         }
@@ -219,9 +219,9 @@ public class LinstorPrimaryDataStoreLifeCycleImpl extends BasePrimaryDataStoreLi
         List<HostVO> poolHosts = new ArrayList<>();
         for (HostVO host : allHosts) {
             try {
-                createStoragePool(host, primaryDataStoreInfo);
+                createStoragePool(host.getId(), primaryDataStoreInfo);
 
-                _storageMgr.connectHostToSharedPool(host, primaryDataStoreInfo.getId());
+                _storageMgr.connectHostToSharedPool(host.getId(), primaryDataStoreInfo.getId());
 
                 poolHosts.add(host);
             } catch (Exception e) {
@@ -254,7 +254,7 @@ public class LinstorPrimaryDataStoreLifeCycleImpl extends BasePrimaryDataStoreLi
 
         for (HostVO host : hosts) {
             try {
-                _storageMgr.connectHostToSharedPool(host, dataStore.getId());
+                _storageMgr.connectHostToSharedPool(host.getId(), dataStore.getId());
             } catch (Exception e) {
                 logger.warn("Unable to establish a connection between " + host + " and " + dataStore, e);
             }

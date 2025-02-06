@@ -413,8 +413,7 @@ public class VirtualNetworkModel extends ModelObjectBase {
     diff.removeAll(vncSubnets);
 
     if (!diff.isEmpty()) {
-        logger.debug(String.format("Subnets changed, network: [id: %d, uuid: %s, name: %s]; " +
-                "db: %s, vnc: %s, diff: %s", _id, _uuid, _name, dbSubnets, vncSubnets, diff));
+        logger.debug("Subnets changed, network: " + _name + "; db: " + dbSubnets + ", vnc: " + vncSubnets + ", diff: " + diff);
         return false;
     }
 
@@ -501,7 +500,7 @@ public class VirtualNetworkModel extends ModelObjectBase {
         diff.removeAll(newSubnets);
 
         if (!diff.isEmpty()) {
-            logger.debug(String.format("Subnets differ, network: [id: %d, uuid: %s, name: %s]; db: %s, vnc: %s, diff: %s", _id, _uuid, _name, currentSubnets, newSubnets, diff));
+            logger.debug("Subnets differ, network: " + _name + "; db: " + currentSubnets + ", vnc: " + newSubnets + ", diff: " + diff);
             return false;
         }
 

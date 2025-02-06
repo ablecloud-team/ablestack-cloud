@@ -271,10 +271,11 @@ public class TungstenElement extends AdapterBase
     }
 
     protected boolean canHandle(Network network, Network.Service service) {
-        logger.debug(String.format("Checking if TungstenElement can handle service %s on network %s", service.getName(), network));
+        logger.debug("Checking if TungstenElement can handle service " + service.getName() + " on network "
+            + network.getDisplayText());
 
         if (!networkModel.isProviderForNetwork(getProvider(), network.getId())) {
-            logger.debug(String.format("TungstenElement is not a provider for network %s", network));
+            logger.debug("TungstenElement is not a provider for network " + network.getDisplayText());
             return false;
         }
 
@@ -660,7 +661,8 @@ public class TungstenElement extends AdapterBase
                             TungstenUtils.getPublicNetworkPolicyName(ipAddressVO.getId()), null, network.getUuid());
                     tungstenFabricUtils.sendTungstenCommand(deleteTungstenNetworkPolicyCommand, network.getDataCenterId());
                 } catch (IllegalArgumentException e) {
-                    throw new CloudRuntimeException(String.format("Failing to expunge the vm %s from Tungsten-Fabric", vm));
+                    throw new CloudRuntimeException(
+                            "Failing to expunge the vm from Tungsten-Fabric with the uuid " + vm.getUuid());
                 }
             }
 
@@ -678,7 +680,8 @@ public class TungstenElement extends AdapterBase
                     TungstenCommand deleteVmCmd = new DeleteTungstenVmCommand(vm.getUuid());
                     tungstenFabricUtils.sendTungstenCommand(deleteVmCmd, network.getDataCenterId());
                 } catch (IllegalArgumentException e) {
-                    throw new CloudRuntimeException(String.format("Failing to expunge the vm %s from Tungsten-Fabric", vm));
+                    throw new CloudRuntimeException(
+                            "Failing to expunge the vm from Tungsten-Fabric with the uuid " + vm.getUuid());
                 }
             }
         }

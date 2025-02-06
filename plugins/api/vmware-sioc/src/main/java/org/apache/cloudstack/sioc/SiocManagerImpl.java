@@ -98,11 +98,11 @@ public class SiocManagerImpl implements SiocManager {
         }
 
         if (storagePool.getDataCenterId() != zoneId) {
-            throw new Exception(String.format("Error: Storage pool %s is not in zone %s.", storagePool, zone));
+            throw new Exception("Error: Storage pool '" + storagePool.getName() + "' is not in zone ID " + zoneId + ".");
         }
 
         if (!storagePool.getPoolType().equals(StoragePoolType.VMFS)) {
-            throw new Exception(String.format("Error: Storage pool %s does not represent a VMFS datastore.", storagePool));
+            throw new Exception("Error: Storage pool '" + storagePool.getName() + "' does not represent a VMFS datastore.");
         }
 
         String lockName = zone.getUuid() + "-" + storagePool.getUuid();
@@ -193,7 +193,7 @@ public class SiocManagerImpl implements SiocManager {
         ManagedObjectReference morVm = nameToVm.get(vmName);
 
         if (morVm == null) {
-            String errMsg = String.format("Error: The VM %s could not be located (ManagedObjectReference).", vmInstance);
+            String errMsg = "Error: The VM with ID " + instanceId + " could not be located (ManagedObjectReference).";
 
             throw new Exception(errMsg);
         }
@@ -336,7 +336,7 @@ public class SiocManagerImpl implements SiocManager {
     }
 
     private String getInfoMsg(Volume volume, Integer newShares, Long newLimitIops) {
-        String msgPrefix = String.format("VMware SIOC: Volume %s", volume);
+        String msgPrefix = "VMware SIOC: Volume = " + volume.getName();
 
         String msgNewShares = newShares != null ? "; New Shares = " + newShares : "";
 
@@ -354,7 +354,8 @@ public class SiocManagerImpl implements SiocManager {
         List<VolumeVO> volumes = volumeDao.findByInstance(vmInstance.getId());
 
         if (volumes == null || volumes.size() == 0) {
-            String errMsg = String.format("Error: The VMware virtual disk '%s' could not be mapped to a CloudStack volume. There were no volumes for the VM: %s.", disk, vmInstance);
+            String errMsg = "Error: The VMware virtual disk '" + disk + "' could not be mapped to a CloudStack volume. " +
+                    "There were no volumes for the VM with the following ID: " + vmInstance.getId() + ".";
 
             throw new Exception(errMsg);
         }

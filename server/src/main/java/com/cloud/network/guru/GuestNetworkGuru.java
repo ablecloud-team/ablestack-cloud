@@ -201,7 +201,7 @@ public abstract class GuestNetworkGuru extends AdapterBase implements NetworkGur
         }
         if (methods.isEmpty()) {
             // The empty isolation method is assumed to be VLAN
-            logger.debug("Empty physical isolation type for physical network {}", physicalNetwork);
+            logger.debug("Empty physical isolation type for physical network " + physicalNetwork.getUuid());
             methods = new ArrayList<String>(1);
             methods.add("VLAN".toLowerCase());
         }
@@ -297,7 +297,7 @@ public abstract class GuestNetworkGuru extends AdapterBase implements NetworkGur
     public void deallocate(final Network network, final NicProfile nic, final VirtualMachineProfile vm) {
         if (network.getSpecifyIpRanges()) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Deallocate network: {}, nic: {}", network, nic);
+                logger.debug("Deallocate network: networkId: " + nic.getNetworkId() + ", ip: " + nic.getIPv4Address());
             }
 
             final IPAddressVO ip = _ipAddressDao.findByIpAndSourceNetworkId(nic.getNetworkId(), nic.getIPv4Address());
@@ -321,7 +321,7 @@ public abstract class GuestNetworkGuru extends AdapterBase implements NetworkGur
         }
 
         if (pNetwork.getVnet() == null) {
-            throw new CloudRuntimeException(String.format("Could not find vlan range for physical Network %s.", pNetwork));
+            throw new CloudRuntimeException("Could not find vlan range for physical Network " + physicalNetworkId + ".");
         }
         Integer lowestVlanTag = null;
         final List<Pair<Integer, Integer>> vnetList = pNetwork.getVnet();
@@ -437,8 +437,7 @@ public abstract class GuestNetworkGuru extends AdapterBase implements NetworkGur
                     if (network.getGuestType() != GuestType.L2 && vm.getType() == VirtualMachine.Type.DomainRouter) {
                         Nic placeholderNic = _networkModel.getPlaceholderNicForRouter(network, null);
                         if (placeholderNic != null) {
-                            logger.debug("Nic {} got an ip address {} stored in placeholder nic " +
-                                    "for the network {}", nic, placeholderNic.getIPv4Address(), network);
+                            logger.debug("Nic got an ip address " + placeholderNic.getIPv4Address() + " stored in placeholder nic for the network " + network);
                             guestIp = placeholderNic.getIPv4Address();
                         }
                     }
@@ -516,11 +515,11 @@ public abstract class GuestNetworkGuru extends AdapterBase implements NetworkGur
         }
 
         if ((profile.getBroadcastDomainType() == BroadcastDomainType.Vlan || profile.getBroadcastDomainType() == BroadcastDomainType.Vxlan) && !offering.isSpecifyVlan()) {
-            logger.debug("Releasing vnet for the network: {}", profile);
+            logger.debug("Releasing vnet for the network id=" + profile.getId());
             _dcDao.releaseVnet(BroadcastDomainType.getValue(profile.getBroadcastUri()), profile.getDataCenterId(), profile.getPhysicalNetworkId(), profile.getAccountId(),
                     profile.getReservationId());
             ActionEventUtils.onCompletedActionEvent(CallContext.current().getCallingUserId(), profile.getAccountId(), EventVO.LEVEL_INFO, EventTypes.EVENT_ZONE_VLAN_RELEASE,
-                    String.format("Released Zone Vnet: %s for Network: %s", BroadcastDomainType.getValue(profile.getBroadcastUri()), profile),
+                    "Released Zone Vnet: " + BroadcastDomainType.getValue(profile.getBroadcastUri()) + " for Network: " + profile.getId(),
                     profile.getDataCenterId(), ApiCommandResourceType.Zone.toString(), 0);
         }
 

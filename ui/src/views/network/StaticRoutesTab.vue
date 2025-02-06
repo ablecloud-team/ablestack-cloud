@@ -304,6 +304,7 @@ export default {
     },
     openTagsModal (route) {
       this.selectedRule = route
+      this.rulesRef.value.resetFields()
       this.fetchTags(this.selectedRule)
       this.tagsModalVisible = true
     }

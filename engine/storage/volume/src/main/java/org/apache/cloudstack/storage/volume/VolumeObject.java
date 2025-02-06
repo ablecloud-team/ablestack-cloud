@@ -915,7 +915,7 @@ public class VolumeObject implements VolumeInfo {
                     volumeVO.setPassphraseId(null);
                     volumeDao.persist(volumeVO);
 
-                    logger.debug("Checking to see if we can delete passphrase id {} for volume {}", passphraseId, volumeVO);
+                    logger.debug(String.format("Checking to see if we can delete passphrase id %s", passphraseId));
                     List<VolumeVO> volumes = volumeDao.listVolumesByPassphraseId(passphraseId);
 
                     if (volumes != null && !volumes.isEmpty()) {
@@ -998,12 +998,5 @@ public class VolumeObject implements VolumeInfo {
     @Override
     public void setUsedPhysicalSize(Long usedPhysicalSize) {
         volumeVO.setUsedPhysicalSize(usedPhysicalSize);
-    }
-
-    @Override
-    public String toString() {
-        return String.format("VolumeObject %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "volumeVO", "dataStore"));
     }
 }

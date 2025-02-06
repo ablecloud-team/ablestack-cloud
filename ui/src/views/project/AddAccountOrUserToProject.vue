@@ -31,23 +31,27 @@
             <template #label>
               <tooltip-label :title="$t('label.account')" :tooltip="apiParams.addAccountToProject.account.description"/>
             </template>
-            <a-auto-complete
+            <a-select
+                show-search
                 v-model:value="form.account"
                 :placeholder="apiParams.addAccountToProject.account.description"
-                :filterOption="filterOption"
-                :options="accounts"
-            >
-              <template v-if="load.accounts" #notFoundContent>
-                <a-spin size="small" />
-              </template>
-              <template v-if="!load.accounts" #option="account">
-                <span v-if="account.icon">
-                  <resource-icon :image="account.icon.base64image" size="1x" style="margin-right: 5px"/>
-                </span>
-                <block-outlined v-else style="margin-right: 5px" />
-                {{ account.name }}
-              </template>
-            </a-auto-complete>
+                v-focus="true"
+                :filterOption="false"
+                @search="fetchAccounts"
+              >
+                <template v-if="load.accounts" #notFoundContent>
+                  <a-spin size="small" />
+                </template>
+                <template v-if="!load.accounts">
+                  <a-select-option v-for="account in accounts" :key="account.name" :value="account.name">
+                    <span v-if="account.icon">
+                      <resource-icon :image="account.icon.base64image" size="1x" style="margin-right: 5px"/>
+                    </span>
+                    <block-outlined v-else style="margin-right: 5px" />
+                    {{ account.name }}
+                  </a-select-option>
+                </template>
+              </a-select>
           </a-form-item>
           <a-form-item name="email" ref="email">
             <template #label>
@@ -117,23 +121,27 @@
             <template #label>
               <tooltip-label :title="$t('label.name')" :tooltip="apiParams.addUserToProject.username.description"/>
             </template>
-              <a-auto-complete
+              <a-select
+                show-search
                 v-model:value="form.username"
                 :placeholder="apiParams.addUserToProject.username.description"
-                :filterOption="filterOption"
-                :options="users"
+                v-focus="true"
+                :filterOption="false"
+                @search="fetchUsers"
               >
                 <template v-if="load.users" #notFoundContent>
                   <a-spin size="small" />
                 </template>
-                <template v-if="!load.users" #option="user">
-                  <span v-if="user.icon">
-                    <resource-icon :image="user.icon.base64image" size="1x" style="margin-right: 5px"/>
-                  </span>
-                  <block-outlined v-else style="margin-right: 5px" />
-                  {{ user.firstName + ' ' + user.lastName + " (" + user.username + ")" }}
+                <template v-if="!load.users">
+                  <a-select-option v-for="user in users" :key="user.username" :value="user.username">
+                    <span v-if="user.icon">
+                      <resource-icon :image="user.icon.base64image" size="1x" style="margin-right: 5px"/>
+                    </span>
+                    <block-outlined v-else style="margin-right: 5px" />
+                    {{ user.firstname + ' ' + user.lastname + " (" + user.username + ")" }}
+                  </a-select-option>
                 </template>
-              </a-auto-complete>
+              </a-select>
           </a-form-item>
           <a-form-item name="email" ref="email">
             <template #label>
@@ -246,11 +254,6 @@ export default {
         this.fetchProjectRoles()
       }
     },
-    filterOption (input, option) {
-      return (
-        option.value.toUpperCase().indexOf(input.toUpperCase()) >= 0
-      )
-    },
     fetchUsers (keyword) {
       this.load.users = true
       const params = { listall: true, showicon: true }
@@ -258,26 +261,11 @@ export default {
         params.keyword = keyword
       }
       api('listUsers', params).then(response => {
-        this.users = this.parseUsers(response?.listusersresponse?.user)
+        this.users = response.listusersresponse.user ? response.listusersresponse.user : []
       }).catch(error => {
         this.$notifyError(error)
       }).finally(() => {
         this.load.users = false
-      })
-    },
-    parseUsers (users) {
-      if (!users) {
-        return []
-      }
-
-      return users.map(user => {
-        return {
-          value: user.username,
-          username: user.username,
-          firstName: user.firstname,
-          lastName: user.lastname,
-          icon: user.icon
-        }
       })
     },
     fetchAccounts (keyword) {
@@ -287,24 +275,11 @@ export default {
         params.keyword = keyword
       }
       api('listAccounts', params).then(response => {
-        this.accounts = this.parseAccounts(response?.listaccountsresponse?.account)
+        this.accounts = response.listaccountsresponse.account || []
       }).catch(error => {
         this.$notifyError(error)
       }).finally(() => {
         this.load.accounts = false
-      })
-    },
-    parseAccounts (accounts) {
-      if (!accounts) {
-        return []
-      }
-
-      return accounts.map(account => {
-        return {
-          value: account.name,
-          name: account.name,
-          icon: account.icon
-        }
       })
     },
     fetchProjectRoles () {

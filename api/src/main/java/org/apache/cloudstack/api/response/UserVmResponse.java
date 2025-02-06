@@ -412,10 +412,6 @@ public class UserVmResponse extends BaseResponseWithTagInformation implements Co
     @Param(description = "Whether to KVDO compression and deduplication the volume", since = "4.20")
     private Boolean kvdoEnable;
 
-    @SerializedName(ApiConstants.KVDO_IN_USE)
-    @Param(description = "Whether the virtual machine uses a compressed/deduplicated volume", since = "4.20")
-    private Boolean kvdoInUse;
-
     @SerializedName((ApiConstants.VM_TYPE))
     @Param(description = "User VM type", since = "4.20.0")
     private String vmType;
@@ -1210,21 +1206,12 @@ public class UserVmResponse extends BaseResponseWithTagInformation implements Co
     public void setQemuAgentVersion(String qemuAgentVersion) {
         this.qemuAgentVersion = qemuAgentVersion;
     }
-
     public boolean getKvdoEnable() {
         return kvdoEnable;
     }
 
     public void setKvdoEnable(boolean kvdoEnable) {
         this.kvdoEnable = kvdoEnable;
-    }
-
-    public boolean getKvdoInUse() {
-        return kvdoInUse;
-    }
-
-    public void setKvdoInUse(boolean kvdoInUse) {
-        this.kvdoInUse = kvdoInUse;
     }
 
     public void setVmType(String vmType) {

@@ -403,7 +403,7 @@ public class AutomationControllerActionWorker {
                 if (logger.isDebugEnabled()) {
                     logger.debug(String.format("Checking host : %s for capacity already reserved %d", h.getName(), reserved));
                 }
-                if (capacityManager.checkIfHostHasCapacity(h, cpu_requested * reserved, ram_requested * reserved, false, cpuOvercommitRatio, memoryOvercommitRatio, true)) {
+                if (capacityManager.checkIfHostHasCapacity(h.getId(), cpu_requested * reserved, ram_requested * reserved, false, cpuOvercommitRatio, memoryOvercommitRatio, true)) {
                     if (logger.isDebugEnabled()) {
                         logger.debug(String.format("Found host : %s for with enough capacity, CPU=%d RAM=%s", h.getName(), cpu_requested * reserved, toHumanReadableSize(ram_requested * reserved)));
                     }

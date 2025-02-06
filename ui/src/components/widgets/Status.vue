@@ -119,7 +119,6 @@ export default {
         case 'up':
         case 'success':
         case 'poweron':
-        case 'syncing':
           status = 'success'
           break
         case 'alert':

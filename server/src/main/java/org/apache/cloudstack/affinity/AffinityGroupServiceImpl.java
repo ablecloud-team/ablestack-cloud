@@ -160,7 +160,7 @@ public class AffinityGroupServiceImpl extends ManagerBase implements AffinityGro
         AffinityGroupVO group = createAffinityGroup(processor, owner, aclType, affinityGroupName, affinityGroupType, description, domainLevel, domainId);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Created affinity group {}", group);
+            logger.debug("Created affinity group =" + affinityGroupName);
         }
         CallContext.current().putContextParameter(AffinityGroup.class, group.getUuid());
 
@@ -260,7 +260,7 @@ public class AffinityGroupServiceImpl extends ManagerBase implements AffinityGro
         _messageBus.publish(_name, EntityManager.MESSAGE_REMOVE_ENTITY_EVENT, PublishScope.LOCAL, params);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Deleted affinity group {}", group);
+            logger.debug("Deleted affinity group id=" + affinityGroupIdFinal);
         }
         return true;
     }
@@ -445,14 +445,12 @@ public class AffinityGroupServiceImpl extends ManagerBase implements AffinityGro
         Account caller = CallContext.current().getCallingAccount();
         Account owner = _accountMgr.getAccount(vmInstance.getAccountId());
 
-        List<AffinityGroupVO> affinityGroupList = new ArrayList<>();
         // check that the affinity groups exist
         for (Long affinityGroupId : affinityGroupIds) {
             AffinityGroupVO ag = _affinityGroupDao.findById(affinityGroupId);
             if (ag == null) {
                 throw new InvalidParameterValueException("Unable to find affinity group by id " + affinityGroupId);
             } else {
-                affinityGroupList.add(ag);
                 // verify permissions
                 if (ag.getAclType() == ACLType.Domain) {
                     _accountMgr.checkAccess(caller, null, false, owner, ag);
@@ -477,7 +475,7 @@ public class AffinityGroupServiceImpl extends ManagerBase implements AffinityGro
         }
         _affinityGroupVMMapDao.updateMap(vmId, affinityGroupIds);
         if (logger.isDebugEnabled()) {
-            logger.debug("Updated VM {} affinity groups to {}", vmInstance, affinityGroupList);
+            logger.debug("Updated VM :" + vmId + " affinity groups to =" + affinityGroupIds);
         }
         // APIResponseHelper will pull out the updated affinitygroups.
         return vmInstance;

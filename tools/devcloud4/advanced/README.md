@@ -21,6 +21,7 @@
     - Subnet of 255.255.255.0
     - DHCP server disabled
 
+
 ### Start the vagrant boxes
 
 ```bash
@@ -31,6 +32,7 @@ vagrant up
 
 - 'Cannot forward the specified ports on this VM': There could be MySQL or some other
   service running on the host OS causing vagrant to fail setting up local port forwarding.
+
 
 ### Start Cloudstack
 

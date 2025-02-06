@@ -29,7 +29,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.cloud.region.ha.GlobalLoadBalancerRule;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "global_load_balancing_rules")
@@ -92,15 +91,6 @@ public class GlobalLoadBalancerRuleVO implements GlobalLoadBalancerRule {
         uuid = UUID.randomUUID().toString();
         this.state = state;
     }
-
-
-    @Override
-    public String toString() {
-        return String.format("GlobalLoadBalancerRule %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name"));
-    }
-
 
     @Override
     public String getName() {

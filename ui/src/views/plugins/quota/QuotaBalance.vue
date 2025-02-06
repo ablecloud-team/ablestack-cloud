@@ -24,14 +24,14 @@
       :dataSource="dataSource"
       :rowKey="record => record.name"
       :pagination="false"
-      :rowClassName="getRowClassName"
+      :scroll="{ y: '55vh' }"
     >
       <template #bodyCell="{ column, text }">
         <template v-if="column.key === 'quota'">
-          <span v-if="text!==null">{{ `${currency} ${text.toLocaleString()}` }}</span>
+          <span v-if="text!==null">{{ `${currency} ${text}` }}</span>
         </template>
         <template v-if="column.key === 'credit'">
-          <span v-if="text!==null">{{ `${currency} ${text.toLocaleString()}` }}</span>
+          <span v-if="text!==null">{{ `${currency} ${text}` }}</span>
         </template>
       </template>
     </a-table>
@@ -158,7 +158,7 @@ export default {
         params.domainid = this.resource.domainid
         params.account = this.account
         params.startdate = moment(this.resource.startdate).format(this.pattern)
-        params.enddate = moment(resource.enddate).format(this.pattern)
+        params.enddate = moment(resource.startdate).format(this.pattern)
 
         api('quotaBalance', params).then(json => {
           const quotaBalance = json.quotabalanceresponse.balance || {}
@@ -167,18 +167,7 @@ export default {
           reject(error)
         })
       })
-    },
-    getRowClassName (record, index) {
-      if (index !== 0 && index !== 1) {
-        return 'light-row'
-      }
-      return 'dark2-row'
     }
   }
 }
 </script>
-<style scoped>
-  :deep(.dark2-row) {
-    background-color: #dbe5f6;
-  }
-</style>

@@ -19,7 +19,6 @@
 
 package org.apache.cloudstack.cluster;
 
-import com.cloud.dc.ClusterVO;
 import com.cloud.host.Host;
 import com.cloud.service.ServiceOfferingVO;
 import com.cloud.utils.Ternary;
@@ -62,8 +61,6 @@ public class BalancedTest {
 
     ServiceOfferingVO serviceOffering;
 
-    ClusterVO cluster;
-
     long clusterId = 1L;
 
     Map<Long, List<VirtualMachine>> hostVmMap;
@@ -76,7 +73,6 @@ public class BalancedTest {
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
         closeable = MockitoAnnotations.openMocks(this);
 
-        cluster = Mockito.mock(ClusterVO.class);
 
         vm1 = Mockito.mock(VirtualMachine.class);
         vm2 = Mockito.mock(VirtualMachine.class);
@@ -88,10 +84,10 @@ public class BalancedTest {
         hostVmMap.put(2L, Arrays.asList(vm2, vm3));
 
         serviceOffering = Mockito.mock(ServiceOfferingVO.class);
-
-        Mockito.when(cluster.getId()).thenReturn(clusterId);
         Mockito.when(vm3.getHostId()).thenReturn(2L);
+
         Mockito.when(destHost.getId()).thenReturn(1L);
+
         Mockito.when(serviceOffering.getCpu()).thenReturn(1);
         Mockito.when(serviceOffering.getSpeed()).thenReturn(1000);
         Mockito.when(serviceOffering.getRamSize()).thenReturn(1024);
@@ -137,7 +133,7 @@ public class BalancedTest {
     @Test
     public void needsDrsWithCpu() throws ConfigurationException, NoSuchFieldException, IllegalAccessException {
         overrideDefaultConfigValue(ClusterDrsMetric, "_defaultValue", "cpu");
-        assertFalse(balanced.needsDrs(cluster, new ArrayList<>(hostCpuFreeMap.values()), new ArrayList<>(hostMemoryFreeMap.values())));
+        assertFalse(balanced.needsDrs(clusterId, new ArrayList<>(hostCpuFreeMap.values()), new ArrayList<>(hostMemoryFreeMap.values())));
     }
 
     /*
@@ -147,14 +143,14 @@ public class BalancedTest {
     @Test
     public void needsDrsWithMemory() throws ConfigurationException, NoSuchFieldException, IllegalAccessException {
         overrideDefaultConfigValue(ClusterDrsMetric, "_defaultValue", "memory");
-        assertTrue(balanced.needsDrs(cluster, new ArrayList<>(hostCpuFreeMap.values()), new ArrayList<>(hostMemoryFreeMap.values())));
+        assertTrue(balanced.needsDrs(clusterId, new ArrayList<>(hostCpuFreeMap.values()), new ArrayList<>(hostMemoryFreeMap.values())));
     }
 
     /* 3. cluster with "unknown" metric */
     @Test
     public void needsDrsWithUnknown() throws NoSuchFieldException, IllegalAccessException {
         overrideDefaultConfigValue(ClusterDrsMetric, "_defaultValue", "unknown");
-        assertThrows(ConfigurationException.class, () -> balanced.needsDrs(cluster, new ArrayList<>(hostCpuFreeMap.values()), new ArrayList<>(hostMemoryFreeMap.values())));
+        assertThrows(ConfigurationException.class, () -> balanced.needsDrs(clusterId, new ArrayList<>(hostCpuFreeMap.values()), new ArrayList<>(hostMemoryFreeMap.values())));
     }
 
     /**
@@ -183,7 +179,7 @@ public class BalancedTest {
     @Test
     public void getMetricsWithCpu() throws NoSuchFieldException, IllegalAccessException, ConfigurationException {
         overrideDefaultConfigValue(ClusterDrsMetric, "_defaultValue", "cpu");
-        Ternary<Double, Double, Double> result = balanced.getMetrics(cluster, vm3, serviceOffering, destHost,
+        Ternary<Double, Double, Double> result = balanced.getMetrics(clusterId, vm3, serviceOffering, destHost,
                 hostCpuFreeMap, hostMemoryFreeMap, false);
         assertEquals(0.0, result.first(), 0.01);
         assertEquals(0.0, result.second(), 0.0);
@@ -197,7 +193,7 @@ public class BalancedTest {
     @Test
     public void getMetricsWithMemory() throws NoSuchFieldException, IllegalAccessException, ConfigurationException {
         overrideDefaultConfigValue(ClusterDrsMetric, "_defaultValue", "memory");
-        Ternary<Double, Double, Double> result = balanced.getMetrics(cluster, vm3, serviceOffering, destHost,
+        Ternary<Double, Double, Double> result = balanced.getMetrics(clusterId, vm3, serviceOffering, destHost,
                 hostCpuFreeMap, hostMemoryFreeMap, false);
         assertEquals(0.4, result.first(), 0.01);
         assertEquals(0, result.second(), 0.0);

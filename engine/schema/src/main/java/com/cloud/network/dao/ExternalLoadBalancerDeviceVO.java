@@ -30,7 +30,6 @@ import javax.persistence.Table;
 import org.apache.cloudstack.api.Identity;
 import org.apache.cloudstack.api.InternalIdentity;
 import org.apache.cloudstack.network.ExternalNetworkDeviceManager;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 /**
  * ExternalLoadBalancerDeviceVO contains information on external load balancer devices (F5/Netscaler VPX,MPX,SDX) added into a deployment
@@ -244,12 +243,5 @@ public class ExternalLoadBalancerDeviceVO implements InternalIdentity, Identity 
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("ExternalLoadBalancerDevice %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "providerName"));
     }
 }

@@ -34,7 +34,6 @@ import org.apache.cloudstack.api.InternalIdentity;
 
 import com.cloud.network.Network;
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "counter")
@@ -80,9 +79,7 @@ public class CounterVO implements Counter, Identity, InternalIdentity {
 
     @Override
     public String toString() {
-        return String.format("Counter %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name"));
+        return new StringBuilder("Counter[").append("id-").append(id).append("]").toString();
     }
 
     @Override

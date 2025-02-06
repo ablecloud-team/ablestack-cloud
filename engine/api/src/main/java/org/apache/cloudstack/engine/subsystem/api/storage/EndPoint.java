@@ -24,8 +24,6 @@ import com.cloud.agent.api.Command;
 public interface EndPoint {
     long getId();
 
-    String getUuid();
-
     String getHostAddr();
 
     String getPublicAddr();

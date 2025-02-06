@@ -430,7 +430,7 @@ export default {
       })
     } else {
       const traffics = requiredTrafficTypes.map(item => {
-        return { type: item, label: 'bridge0' }
+        return { type: item, label: '' }
       })
       this.count = 1
       this.physicalNetworks = [{ key: this.randomKeyTraffic(this.count), name: 'Physical Network 1', isolationMethod: 'VLAN', traffics: traffics, tags: null }]
@@ -581,7 +581,7 @@ export default {
         delete this.trafficInEdit.traffic.vlanId
         delete this.trafficInEdit.traffic.vSwitchType
         fields.trafficLabel = null
-        fields.trafficLabel = this.trafficInEdit?.traffic?.label || 'bridge0'
+        fields.trafficLabel = this.trafficInEdit?.traffic?.label || null
       }
 
       Object.keys(fields).forEach(key => {

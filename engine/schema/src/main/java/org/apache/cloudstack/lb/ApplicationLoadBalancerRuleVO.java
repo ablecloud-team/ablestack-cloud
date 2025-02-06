@@ -30,7 +30,6 @@ import org.apache.cloudstack.network.lb.ApplicationLoadBalancerRule;
 import com.cloud.network.rules.FirewallRuleVO;
 import com.cloud.utils.net.Ip;
 import com.cloud.utils.net.NetUtils;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 /**
  * This VO represent Internal Load Balancer rule.
@@ -89,13 +88,6 @@ public class ApplicationLoadBalancerRuleVO extends FirewallRuleVO implements App
         this.sourceIp = sourceIp;
         this.sourceIpNetworkId = sourceIpNtwkId;
         this.scheme = scheme;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("ApplicationLoadBalancerRule %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name", "purpose", "state"));
     }
 
     @Override

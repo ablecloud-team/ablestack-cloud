@@ -78,7 +78,7 @@ public class MultipathSCSIPool implements KVMStoragePool {
 
     @Override
     public boolean connectPhysicalDisk(String volumeUuid, Map<String, String> details) {
-        return storageAdaptor.connectPhysicalDisk(volumeUuid, this, details, false);
+        return storageAdaptor.connectPhysicalDisk(volumeUuid, this, details);
     }
 
     @Override

@@ -18,7 +18,6 @@ package com.cloud.agent.api.to;
 
 import com.cloud.storage.DataStoreRole;
 import com.cloud.utils.SwiftUtil;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 public class SwiftTO implements DataStoreTO, SwiftUtil.SwiftClientCfg {
     Long id;
@@ -40,13 +39,6 @@ public class SwiftTO implements DataStoreTO, SwiftUtil.SwiftClientCfg {
         this.userName = userName;
         this.key = key;
         this.storagePolicy = storagePolicy;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("SwiftTO %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "account", "userName"));
     }
 
     public Long getId() {

@@ -60,6 +60,7 @@ import the new section's (newconfig.js as example) configuration file and rules 
 
       generateRouterMap(newSection),
 
+
 ### Section
 
 An existing or new section's config/js file must export the following parameters:
@@ -79,6 +80,7 @@ An existing or new section's config/js file must export the following parameters
 - `columns`: When children is not defined, list of column keys
 - `component`: When children is not defined, the custom component for rendering
   the route view
+
 
 See `src/config/section/compute.js` and `src/config/section/project.js` for example.
 

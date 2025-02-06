@@ -87,8 +87,8 @@ class cloudManagementConfig(serviceCfgBase):
             cfo.save()
 
         if self.syscfg.env.noStart == False:
-            self.syscfg.svo.stopService("mold")
-            if self.syscfg.svo.enableService("mold"):
+            self.syscfg.svo.stopService("cloudstack-management")
+            if self.syscfg.svo.enableService("cloudstack-management"):
                 return True
             else:
                 raise CloudRuntimeException("Failed to configure %s, please see the /var/log/cloudstack/management/setupManagement.log for detail"%self.serviceName)

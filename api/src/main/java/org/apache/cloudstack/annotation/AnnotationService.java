@@ -45,7 +45,7 @@ public interface AnnotationService {
         SERVICE_OFFERING(false), DISK_OFFERING(false), NETWORK_OFFERING(false),
         ZONE(false), POD(false), CLUSTER(false), HOST(false), DOMAIN(false),
         PRIMARY_STORAGE(false), SECONDARY_STORAGE(false), VR(false), SYSTEM_VM(false),
-        AUTOSCALE_VM_GROUP(true), MANAGEMENT_SERVER(false), OBJECT_STORAGE(false), DISASTER_RECOVERY_CLUSTER(false);
+        AUTOSCALE_VM_GROUP(true), MANAGEMENT_SERVER(false), OBJECT_STORAGE(false);
 
         private final boolean usersAllowed;
 
@@ -84,7 +84,6 @@ public interface AnnotationService {
                 list.add(EntityType.SERVICE_OFFERING);
                 list.add(EntityType.DISK_OFFERING);
             }
-            list.add(EntityType.DISASTER_RECOVERY_CLUSTER);
             return list;
         }
     }

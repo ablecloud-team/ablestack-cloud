@@ -48,34 +48,31 @@ public class VolumeVO implements Volume {
     @TableGenerator(name = "volume_sq", table = "sequence", pkColumnName = "name", valueColumnName = "value", pkColumnValue = "volume_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = "id")
-    private long id;
-
-    @Column(name = "last_id")
-    private long lastId;
+    long id;
 
     @Column(name = "name")
-    private String name;
+    String name;
 
     @Column(name = "pool_id")
-    private Long poolId;
+    Long poolId;
 
     @Column(name = "last_pool_id")
-    private Long lastPoolId;
+    Long lastPoolId;
 
     @Column(name = "account_id")
-    private long accountId;
+    long accountId;
 
     @Column(name = "domain_id")
-    private long domainId;
+    long domainId;
 
     @Column(name = "instance_id")
-    private Long instanceId = null;
+    Long instanceId = null;
 
     @Column(name = "device_id")
-    private Long deviceId = null;
+    Long deviceId = null;
 
     @Column(name = "size")
-    private Long size;
+    Long size;
 
     @Column(name = "min_iops")
     private Long minIops;
@@ -84,50 +81,50 @@ public class VolumeVO implements Volume {
     private Long maxIops;
 
     @Column(name = "folder")
-    private String folder;
+    String folder;
 
     @Column(name = "path")
-    private String path;
+    String path;
 
     @Column(name = "pod_id")
-    private Long podId;
+    Long podId;
 
     @Column(name = "created")
-    private Date created;
+    Date created;
 
     @Column(name = "attached")
     @Temporal(value = TemporalType.TIMESTAMP)
-    private Date attached;
+    Date attached;
 
     @Column(name = "data_center_id")
-    private long dataCenterId;
+    long dataCenterId;
 
     @Column(name = "host_ip")
-    private String hostIp;
+    String hostip;
 
     @Column(name = "disk_offering_id")
-    private long diskOfferingId;
+    long diskOfferingId;
 
     @Column(name = "template_id")
-    private Long templateId;
+    Long templateId;
 
     @Column(name = "first_snapshot_backup_uuid")
-    private String firstSnapshotBackupUuid;
+    String firstSnapshotBackupUuid;
 
     @Column(name = "volume_type")
     @Enumerated(EnumType.STRING)
-    private Type volumeType = Volume.Type.UNKNOWN;
+    Type volumeType = Volume.Type.UNKNOWN;
 
     @Column(name = "pool_type")
     @Convert(converter = StoragePoolTypeConverter.class)
-    private StoragePoolType poolType;
+    StoragePoolType poolType;
 
     @Column(name = GenericDao.REMOVED_COLUMN)
-    private Date removed;
+    Date removed;
 
     @Column(name = "updated")
     @Temporal(value = TemporalType.TIMESTAMP)
-    private Date updated;
+    Date updated;
 
     @Column(name = "update_count", updatable = true, nullable = false)
     protected long updatedCount; // This field should be updated everytime the
@@ -136,17 +133,17 @@ public class VolumeVO implements Volume {
                                  // dao code.
 
     @Column(name = "recreatable")
-    private boolean recreatable;
+    boolean recreatable;
 
     @Column(name = "state")
     @Enumerated(value = EnumType.STRING)
     private State state;
 
     @Column(name = "chain_info", length = 65535)
-    private String chainInfo;
+    String chainInfo;
 
     @Column(name = "uuid")
-    private String uuid;
+    String uuid;
 
     @Column(name = "format")
     private Storage.ImageFormat format;
@@ -171,7 +168,7 @@ public class VolumeVO implements Volume {
 
     @Transient
     // @Column(name="reservation")
-    private String reservationId;
+    String reservationId;
 
     @Column(name = "hv_ss_reserve")
     private Integer hypervisorSnapshotReserve;
@@ -446,11 +443,11 @@ public class VolumeVO implements Volume {
     }
 
     public String getHostIp() {
-        return hostIp;
+        return hostip;
     }
 
     public void setHostIp(String hostip) {
-        this.hostIp = hostip;
+        this.hostip = hostip;
     }
 
     public void setPodId(Long podId) {
@@ -529,9 +526,7 @@ public class VolumeVO implements Volume {
 
     @Override
     public String toString() {
-        return String.format("Volume %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name", "volumeType", "instanceId"));
+        return new StringBuilder("Vol[").append(id).append("|name=").append(name).append("|vm=").append(instanceId).append("|").append(volumeType).append("]").toString();
     }
 
     @Override
@@ -725,13 +720,5 @@ public class VolumeVO implements Volume {
 
     public void setDeleteProtection(boolean deleteProtection) {
         this.deleteProtection = deleteProtection;
-    }
-
-    public long getLastId() {
-        return lastId;
-    }
-
-    public void setLastId(long lastId) {
-        this.lastId = lastId;
     }
 }

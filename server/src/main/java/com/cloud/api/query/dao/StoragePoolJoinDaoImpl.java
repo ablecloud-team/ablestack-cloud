@@ -143,9 +143,7 @@ public class StoragePoolJoinDaoImpl extends GenericDaoBase<StoragePoolJoinVO, Lo
         }
         poolResponse.setDiskSizeTotal(pool.getCapacityBytes());
         poolResponse.setDiskSizeAllocated(allocatedSize);
-        poolResponse.setDiskSizeUsed(pool.getUsedBytes());
         poolResponse.setCapacityIops(pool.getCapacityIops());
-        poolResponse.setUsedIops(pool.getUsedIops());
 
         if (storagePool.isManaged()) {
             DataStore store = dataStoreMgr.getDataStore(pool.getId(), DataStoreRole.Primary);
@@ -159,6 +157,13 @@ public class StoragePoolJoinDaoImpl extends GenericDaoBase<StoragePoolJoinVO, Lo
                     poolResponse.setCustomStats(storageCustomStats);
                 }
             }
+        }
+
+        // TODO: StatsCollector does not persist data
+        StorageStats stats = ApiDBUtils.getStoragePoolStatistics(pool.getId());
+        if (stats != null) {
+            Long used = stats.getByteUsed();
+            poolResponse.setDiskSizeUsed(used);
         }
 
         poolResponse.setClusterId(pool.getClusterUuid());

@@ -1283,7 +1283,6 @@ export default {
       if (this.isEdgeZone) {
         clusterName = 'Cluster-' + this.stepData.zoneReturned.name
       }
-      params.arch = this.prefillContent?.arch || null
 
       if (hypervisor === 'VMware') {
         params.username = this.prefillContent?.vCenterUsername || null

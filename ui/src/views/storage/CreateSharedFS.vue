@@ -273,14 +273,14 @@ export default {
     fetchOwnerOptions (OwnerOptions) {
       this.owner = {}
       console.log('fetching owner')
-      if (OwnerOptions.selectedAccountType === 'Account') {
+      if (OwnerOptions.selectedAccountType === this.$t('label.account')) {
         if (!OwnerOptions.selectedAccount) {
           return
         }
         console.log('fetched account')
         this.owner.account = OwnerOptions.selectedAccount
         this.owner.domainid = OwnerOptions.selectedDomain
-      } else if (OwnerOptions.selectedAccountType === 'Project') {
+      } else if (OwnerOptions.selectedAccountType === this.$t('label.project')) {
         if (!OwnerOptions.selectedProject) {
           return
         }

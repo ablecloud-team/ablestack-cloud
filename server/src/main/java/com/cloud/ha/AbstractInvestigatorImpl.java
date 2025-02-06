@@ -64,22 +64,23 @@ public abstract class AbstractInvestigatorImpl extends AdapterBase implements In
     }
 
     // Host.status is up and Host.type is routing
-    protected List<HostVO> findHostByPod(long podId, Long excludeHostId) {
+    protected List<Long> findHostByPod(long podId, Long excludeHostId) {
         QueryBuilder<HostVO> sc = QueryBuilder.create(HostVO.class);
         sc.and(sc.entity().getType(), Op.EQ, Type.Routing);
         sc.and(sc.entity().getPodId(), Op.EQ, podId);
         sc.and(sc.entity().getStatus(), Op.EQ, Status.Up);
         List<HostVO> hosts = sc.list();
 
-        List<HostVO> hostList = new ArrayList<>(hosts.size());
-        for (HostVO host : hosts) {
-            if (excludeHostId != null && host.getId() == excludeHostId) {
-                continue;
-            }
-            hostList.add(host);
+        List<Long> hostIds = new ArrayList<Long>(hosts.size());
+        for (HostVO h : hosts) {
+            hostIds.add(h.getId());
         }
 
-        return hostList;
+        if (excludeHostId != null) {
+            hostIds.remove(excludeHostId);
+        }
+
+        return hostIds;
     }
 
     // Method only returns Status.Up, Status.Down and Status.Unknown

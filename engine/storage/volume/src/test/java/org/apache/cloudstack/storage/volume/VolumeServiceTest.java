@@ -47,7 +47,6 @@ import org.apache.cloudstack.engine.subsystem.api.storage.VolumeDataFactory;
 import org.apache.cloudstack.engine.subsystem.api.storage.VolumeInfo;
 import org.apache.cloudstack.engine.subsystem.api.storage.VolumeService;
 import org.apache.cloudstack.framework.async.AsyncCallFuture;
-import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,9 +86,6 @@ public class VolumeServiceTest extends TestCase{
     StorageManager storageManagerMock;
 
     @Mock
-    PrimaryDataStoreDao primaryDataStoreDao;
-
-    @Mock
     VolumeVO volumeVoMock;
 
     @Mock
@@ -109,7 +105,6 @@ public class VolumeServiceTest extends TestCase{
         volumeServiceImplSpy.snapshotMgr = snapshotManagerMock;
         volumeServiceImplSpy._storageMgr = storageManagerMock;
         volumeServiceImplSpy._hostDao = hostDaoMock;
-        volumeServiceImplSpy.storagePoolDao = primaryDataStoreDao;
         volumeServiceImplSpy.diskOfferingDao = diskOfferingDaoMock;
     }
 
@@ -225,7 +220,6 @@ public class VolumeServiceTest extends TestCase{
         VolumeVO vo = new VolumeVO() {};
         vo.setPoolType(Storage.StoragePoolType.Filesystem);
         volumeObject.configure(null, vo);
-        vo.setPoolId(1L);
 
         List<Exception> exceptions = new ArrayList<>(Arrays.asList(new InterruptedException(), new ExecutionException() {}));
 

@@ -50,7 +50,6 @@ import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.VirtualMachine.State;
 import com.google.gson.Gson;
 import org.apache.cloudstack.util.HypervisorTypeConverter;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "vm_instance")
@@ -464,7 +463,7 @@ public class VMEntityVO implements VirtualMachine, FiniteStateObject<State, Virt
     @Override
     public String toString() {
         if (toString == null) {
-            toString = String.format("VM %s", ReflectionToStringBuilderUtils.reflectOnlySelectedFields(this, "id", "uuid", "instanceName", "type"));
+            toString = new StringBuilder("VM[").append(type.toString()).append("|").append(hostName).append("]").toString();
         }
         return toString;
     }

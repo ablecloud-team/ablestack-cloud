@@ -114,7 +114,7 @@ write_hbLog() {
 
   obj=$(rbd -p $PoolName --id $PoolAuthUserName image-meta set MOLD-HB $HostIP $Timestamp)
   if [ $? -gt 0 ]; then
-   	printf "Failed to create rbd file and set image-meta"
+   	printf "Failed to create rbd file"
     return 2
   fi
   return 0
@@ -140,9 +140,9 @@ if [ "$rflag" == "1" ]; then
   check_hbLog
   diff=$?
   if [ $diff == 0 ]; then
-    echo "### [HOST STATE : ALIVE] in [PoolType : RBD] ###"
+    echo "### [HOST STATE : ALIVE] ###"
   else
-    echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down in [PoolType : RBD] ###"
+    echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down ###"
   fi
     exit 0
 elif [ "$cflag" == "1" ]; then

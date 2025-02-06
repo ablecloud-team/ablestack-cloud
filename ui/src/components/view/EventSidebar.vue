@@ -140,12 +140,14 @@ export default {
     }
   },
   created () {
+    this.fetchEvents()
+    this.refreshInterval = setInterval(this.fetchEvents, 5000)
+    // console.log('EventsListBar:', this.$store.getters.globalSettings.EventsListBar)
+  },
+  unmounted () {
+    clearInterval(this.refreshInterval)
   },
   methods: {
-    openSiderBar () {
-      this.fetchEvents()
-      this.refreshInterval = setInterval(this.fetchEvents, 5000)
-    },
     closeSidebar () {
       clearInterval(this.refreshInterval)
       this.$emit('update:isVisible', false)
@@ -161,13 +163,9 @@ export default {
         listall: true
       }
       try {
-        if (this.$store.getters.userInfo.roletype === 'Admin') {
-          const settingsResponse = await api('listConfigurations', { name: 'event.recent.minutes' })
-          const eventListBarSetting = settingsResponse?.listconfigurationsresponse?.configuration[0]?.value || 5
-          this.eventListBarMinutes = parseInt(eventListBarSetting, 10) * 60 * 1000
-        } else {
-          this.eventListBarMinutes = parseInt(5, 10) * 60 * 1000
-        }
+        const settingsResponse = await api('listConfigurations', { name: 'event.recent.minutes' })
+        const eventListBarSetting = settingsResponse?.listconfigurationsresponse?.configuration[0]?.value || 5
+        this.eventListBarMinutes = parseInt(eventListBarSetting, 10) * 60 * 1000
         const response = await api('listEvents', params)
         if (response && response.listeventsresponse) {
           const events = response.listeventsresponse.event || []

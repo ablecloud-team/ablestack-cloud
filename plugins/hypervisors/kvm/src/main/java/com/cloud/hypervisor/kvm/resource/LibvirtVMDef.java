@@ -923,8 +923,8 @@ public class LibvirtVMDef {
             }
         }
 
-        public void defISODisk(String volPath, DiskType diskType) {
-            _diskType = diskType;
+        public void defISODisk(String volPath) {
+            _diskType = DiskType.FILE;
             _deviceType = DeviceType.CDROM;
             _sourcePath = volPath;
             _diskLabel = getDevLabel(3, DiskBus.IDE, true);
@@ -933,8 +933,8 @@ public class LibvirtVMDef {
             _bus = DiskBus.IDE;
         }
 
-        public void defISODisk(String volPath, boolean isUefiEnabled, DiskType diskType) {
-            _diskType = diskType;
+        public void defISODisk(String volPath, boolean isUefiEnabled) {
+            _diskType = DiskType.FILE;
             _deviceType = DeviceType.CDROM;
             _sourcePath = volPath;
             _bus = isUefiEnabled ? DiskBus.SATA : DiskBus.IDE;
@@ -943,18 +943,18 @@ public class LibvirtVMDef {
             _diskCacheMode = DiskCacheMode.NONE;
         }
 
-        public void defISODisk(String volPath, Integer devId, DiskType diskType) {
-            defISODisk(volPath, devId, null, diskType);
+        public void defISODisk(String volPath, Integer devId) {
+            defISODisk(volPath, devId, null);
         }
 
-        public void defISODisk(String volPath, Integer devId, String diskLabel, DiskType diskType) {
+        public void defISODisk(String volPath, Integer devId, String diskLabel) {
             if (devId == null && StringUtils.isBlank(diskLabel)) {
                 LOGGER.debug(String.format("No ID or label informed for volume [%s].", volPath));
-                defISODisk(volPath, diskType);
+                defISODisk(volPath);
                 return;
             }
 
-            _diskType = diskType;
+            _diskType = DiskType.FILE;
             _deviceType = DeviceType.CDROM;
             _sourcePath = volPath;
 
@@ -971,11 +971,11 @@ public class LibvirtVMDef {
             _bus = DiskBus.IDE;
         }
 
-        public void defISODisk(String volPath, Integer devId, boolean isSecure, DiskType diskType) {
+        public void defISODisk(String volPath, Integer devId,boolean isSecure) {
             if (!isSecure) {
-                defISODisk(volPath, devId, diskType);
+                defISODisk(volPath, devId);
             } else {
-                _diskType = diskType;
+                _diskType = DiskType.FILE;
                 _deviceType = DeviceType.CDROM;
                 _sourcePath = volPath;
                 _diskLabel = getDevLabel(devId, DiskBus.SATA, true);

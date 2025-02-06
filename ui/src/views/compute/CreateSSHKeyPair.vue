@@ -27,8 +27,11 @@
         @finish="handleSubmit"
         layout="vertical">
         <a-form-item name="name" ref="name">
-          <template #label>
-            <tooltip-label :title="$t('label.name')" :tooltip="apiParams.name.description"/>
+          <template #label :title="apiParams.name.description">
+            {{ $t('label.name') }}
+            <a-tooltip>
+              <info-circle-outlined style="color: rgba(0,0,0,.45)" />
+            </a-tooltip>
           </template>
           <a-input
             v-model:value="form.name"
@@ -36,16 +39,22 @@
             v-focus="true" />
         </a-form-item>
         <a-form-item name="publickey" ref="publickey">
-          <template #label>
-            <tooltip-label :title="$t('label.publickey')" :tooltip="apiParams.publickey.description"/>
+          <template #label :title="apiParams.publickey.description">
+            {{ $t('label.publickey') }}
+            <a-tooltip>
+              <info-circle-outlined style="color: rgba(0,0,0,.45)" />
+            </a-tooltip>
           </template>
           <a-input
             v-model:value="form.publickey"
             :placeholder="apiParams.publickey.description"/>
         </a-form-item>
         <a-form-item name="domainid" ref="domainid" v-if="isAdminOrDomainAdmin()">
-          <template #label>
-            <tooltip-label :title="$t('label.domainid')" :tooltip="apiParams.domainid.description"/>
+          <template #label :title="apiParams.domainid.description">
+            {{ $t('label.domainid') }}
+            <a-tooltip>
+              <info-circle-outlined style="color: rgba(0,0,0,.45)" />
+            </a-tooltip>
           </template>
           <a-select
             id="domain-selection"
@@ -96,15 +105,11 @@
 import { ref, reactive, toRaw } from 'vue'
 import { api } from '@/api'
 import { mixinForm } from '@/utils/mixin'
-import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
   name: 'CreateSSHKeyPair',
   mixins: [mixinForm],
   props: {},
-  components: {
-    TooltipLabel
-  },
   data () {
     return {
       domains: [],

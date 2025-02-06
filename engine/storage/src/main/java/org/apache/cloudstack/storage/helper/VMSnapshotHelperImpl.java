@@ -25,7 +25,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import com.cloud.uservm.UserVm;
 import org.apache.cloudstack.engine.subsystem.api.storage.VolumeDataFactory;
 import org.apache.cloudstack.engine.subsystem.api.storage.VolumeInfo;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
@@ -151,25 +150,23 @@ public class VMSnapshotHelperImpl implements VMSnapshotHelper {
     }
 
     @Override
-    public StoragePoolVO getStoragePoolForVM(UserVm vm) {
-        List<VolumeVO> rootVolumes = volumeDao.findReadyRootVolumesByInstance(vm.getId());
+    public Long getStoragePoolForVM(Long vmId) {
+        List<VolumeVO> rootVolumes = volumeDao.findReadyRootVolumesByInstance(vmId);
         if (rootVolumes == null || rootVolumes.isEmpty()) {
-            throw new InvalidParameterValueException(String.format("Failed to find root volume for the user vm: %s", vm));
+            throw new InvalidParameterValueException("Failed to find root volume for the user vm:" + vmId);
         }
 
         VolumeVO rootVolume = rootVolumes.get(0);
         StoragePoolVO rootVolumePool = primaryDataStoreDao.findById(rootVolume.getPoolId());
         if (rootVolumePool == null) {
-            throw new InvalidParameterValueException(String.format(
-                    "Failed to find storage pool for root volume %s for the user vm: %s", rootVolume, vm));
+            throw new InvalidParameterValueException("Failed to find root volume storage pool for the user vm:" + vmId);
         }
 
         if (rootVolumePool.isInMaintenance()) {
-            throw new InvalidParameterValueException(String.format(
-                    "Storage pool %s for root volume %s of the user vm: %s is in maintenance", rootVolumePool, rootVolume, vm));
+            throw new InvalidParameterValueException("Storage pool for the user vm:" + vmId + " is in maintenance");
         }
 
-        return rootVolumePool;
+        return rootVolumePool.getId();
     }
 
     @Override

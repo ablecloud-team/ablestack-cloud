@@ -177,19 +177,19 @@ public abstract class BaseImageStoreDriverImpl implements ImageStoreDriver {
         if (data.getType() == DataObjectType.TEMPLATE) {
             caller.setCallback(caller.getTarget().createTemplateAsyncCallback(null, null));
             if (logger.isDebugEnabled()) {
-                logger.debug("Downloading template to data store {}", dataStore);
+                logger.debug("Downloading template to data store " + dataStore.getId());
             }
             _downloadMonitor.downloadTemplateToStorage(data, caller);
         } else if (data.getType() == DataObjectType.VOLUME) {
             caller.setCallback(caller.getTarget().createVolumeAsyncCallback(null, null));
             if (logger.isDebugEnabled()) {
-                logger.debug("Downloading volume to data store {}", dataStore);
+                logger.debug("Downloading volume to data store " + dataStore.getId());
             }
             _downloadMonitor.downloadVolumeToStorage(data, caller);
         } else if (data.getType() == DataObjectType.SNAPSHOT) {
             caller.setCallback(caller.getTarget().createSnapshotAsyncCallback(null, null));
             if (logger.isDebugEnabled()) {
-                logger.debug("Downloading snapshot to data store {}", dataStore);
+                logger.debug("Downloading volume to data store " + dataStore.getId());
             }
             _downloadMonitor.downloadSnapshotToStorage(data, caller);
         }
@@ -212,7 +212,7 @@ public abstract class BaseImageStoreDriverImpl implements ImageStoreDriver {
                     OVFInformationTO ovfInformationTO = answer.getOvfInformationTO();
                     boolean persistDeployAsIs = deployAsIsHelper.persistTemplateOVFInformationAndUpdateGuestOS(template.getId(), ovfInformationTO, tmpltStoreVO);
                     if (!persistDeployAsIs) {
-                        logger.info("Failed persisting deploy-as-is template details for template {}", template);
+                        logger.info("Failed persisting deploy-as-is template details for template " + template.getName());
                         return null;
                     }
                 }
@@ -221,7 +221,7 @@ public abstract class BaseImageStoreDriverImpl implements ImageStoreDriver {
                 }
                 return null;
             }
-            logger.info("Updating store ref entry for template {}", template);
+            logger.info("Updating store ref entry for template " + template.getName());
             TemplateDataStoreVO updateBuilder = _templateStoreDao.createForUpdate();
             updateBuilder.setDownloadPercent(answer.getDownloadPct());
             updateBuilder.setDownloadState(answer.getDownloadStatus());
@@ -378,7 +378,7 @@ public abstract class BaseImageStoreDriverImpl implements ImageStoreDriver {
                 result.setResult(answer.getDetails());
             }
         } catch (Exception ex) {
-            logger.debug("Unable to destroy {}: [id: {}, uuid: {}, name: {}]", data.getType().toString(), data.getId(), data.getUuid(), data.getName(), ex);
+            logger.debug("Unable to destroy " + data.getType().toString() + ": " + data.getId(), ex);
             result.setResult(ex.toString());
         }
         callback.complete(result);
@@ -443,11 +443,14 @@ public abstract class BaseImageStoreDriverImpl implements ImageStoreDriver {
             answer = agentMgr.send(endPoint.getId(), cmd);
             answer.setContextParam("cmd", cmdExecId.toString());
             return answer;
-        }  catch (AgentUnavailableException | OperationTimedoutException e) {
+        }  catch (AgentUnavailableException e) {
             errMsg = e.toString();
-            logger.debug("Failed to send command, due to Agent [id: {}, uuid: {}]: {}", endPoint.getId(), endPoint.getUuid(), e.toString());
+            logger.debug("Failed to send command, due to Agent:" + endPoint.getId() + ", " + e.toString());
+        } catch (OperationTimedoutException e) {
+            errMsg = e.toString();
+            logger.debug("Failed to send command, due to Agent:" + endPoint.getId() + ", " + e.toString());
         }
-        throw new CloudRuntimeException(String.format("Failed to send command, due to Agent: [id: %s, uuid: %s], %s", endPoint.getId(), endPoint.getUuid(), errMsg));
+        throw new CloudRuntimeException("Failed to send command, due to Agent:" + endPoint.getId() + ", " + errMsg);
     }
 
     @Override
@@ -504,7 +507,7 @@ public abstract class BaseImageStoreDriverImpl implements ImageStoreDriver {
         Answer answer = null;
         String errMsg = null;
         if (logger.isDebugEnabled()) {
-            logger.debug("Create Datadisk template: {}", dataDiskTemplate);
+            logger.debug("Create Datadisk template: " + dataDiskTemplate.getId());
         }
         CreateDatadiskTemplateCommand cmd = new CreateDatadiskTemplateCommand(dataDiskTemplate.getTO(), path, diskId, fileSize, bootable);
         EndPoint ep = _defaultEpSelector.select(dataDiskTemplate.getDataStore());

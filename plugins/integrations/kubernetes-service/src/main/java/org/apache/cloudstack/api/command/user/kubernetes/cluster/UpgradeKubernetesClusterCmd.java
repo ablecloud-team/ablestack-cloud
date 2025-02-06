@@ -110,8 +110,7 @@ public class UpgradeKubernetesClusterCmd extends BaseAsyncCmd {
     public void execute() throws ServerApiException, ConcurrentOperationException {
         try {
             if (!kubernetesClusterService.upgradeKubernetesCluster(this)) {
-                KubernetesCluster cluster = kubernetesClusterService.findById(getId());
-                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, String.format("Failed to upgrade Kubernetes cluster %s with id %d", cluster, getId()));
+                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, String.format("Failed to upgrade Kubernetes cluster ID: %d", getId()));
             }
             final KubernetesClusterResponse response = kubernetesClusterService.createKubernetesClusterResponse(getId());
             response.setResponseName(getCommandName());

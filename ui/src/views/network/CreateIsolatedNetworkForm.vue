@@ -492,14 +492,14 @@ export default {
         domainid: this.$store.getters.userInfo.domainid,
         account: this.$store.getters.userInfo.account
       }
-      if (OwnerOptions.selectedAccountType === 'Account') {
+      if (OwnerOptions.selectedAccountType === this.$t('label.account')) {
         if (!OwnerOptions.selectedAccount) {
           return
         }
         this.owner.account = OwnerOptions.selectedAccount
         this.owner.domainid = OwnerOptions.selectedDomain
         this.owner.projectid = null
-      } else if (OwnerOptions.selectedAccountType === 'Project') {
+      } else if (OwnerOptions.selectedAccountType === this.$t('label.project')) {
         if (!OwnerOptions.selectedProject) {
           return
         }
@@ -552,9 +552,8 @@ export default {
       this.selectedNetworkOffering = {}
       api('listNetworkOfferings', params).then(json => {
         this.networkOfferings = json.listnetworkofferingsresponse.networkoffering
-        this.networkOfferings = this.networkOfferings.filter(offering => offering.fornsx === this.selectedZone.isnsxenabled)
-        if (!this.selectedZone.routedmodeenabled) {
-          this.networkOfferings = this.networkOfferings.filter(offering => offering.networkmode !== 'ROUTED')
+        if (this.selectedZone.isnsxenabled) {
+          this.networkOfferings = this.networkOfferings.filter(offering => offering.fornsx)
         }
       }).catch(error => {
         this.$notifyError(error)

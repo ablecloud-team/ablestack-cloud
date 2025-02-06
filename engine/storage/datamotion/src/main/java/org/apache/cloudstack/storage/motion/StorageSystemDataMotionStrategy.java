@@ -2289,8 +2289,6 @@ public class StorageSystemDataMotionStrategy implements DataMotionStrategy {
             if (success) {
                 VolumeVO volumeVO = _volumeDao.findById(destVolumeInfo.getId());
                 volumeVO.setFormat(ImageFormat.QCOW2);
-                volumeVO.setLastId(srcVolumeInfo.getId());
-
                 _volumeDao.update(volumeVO.getId(), volumeVO);
 
                 _volumeService.copyPoliciesBetweenVolumesAndDestroySourceVolumeAfterMigration(Event.OperationSuccessed, null, srcVolumeInfo, destVolumeInfo, false);

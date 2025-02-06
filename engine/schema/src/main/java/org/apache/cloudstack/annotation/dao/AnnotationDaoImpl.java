@@ -67,12 +67,12 @@ public class AnnotationDaoImpl extends GenericDaoBase<AnnotationVO, Long> implem
             List<EntityType> adminOnlyTypes = Arrays.asList(EntityType.SERVICE_OFFERING, EntityType.DISK_OFFERING,
                     EntityType.NETWORK_OFFERING, EntityType.ZONE, EntityType.POD, EntityType.CLUSTER, EntityType.HOST,
                     EntityType.DOMAIN, EntityType.PRIMARY_STORAGE, EntityType.SECONDARY_STORAGE,
-                    EntityType.VR, EntityType.SYSTEM_VM, EntityType.DISASTER_RECOVERY_CLUSTER);
+                    EntityType.VR, EntityType.SYSTEM_VM);
             if (StringUtils.isBlank(entityType)) {
                 sc.setParameters("entityTypeNotIn", EntityType.SERVICE_OFFERING, EntityType.DISK_OFFERING,
                         EntityType.NETWORK_OFFERING, EntityType.ZONE, EntityType.POD, EntityType.CLUSTER, EntityType.HOST,
                         EntityType.DOMAIN, EntityType.PRIMARY_STORAGE, EntityType.SECONDARY_STORAGE,
-                        EntityType.VR, EntityType.SYSTEM_VM, EntityType.DISASTER_RECOVERY_CLUSTER);
+                        EntityType.VR, EntityType.SYSTEM_VM);
             } else if (adminOnlyTypes.contains(EntityType.valueOf(entityType))) {
                 return new ArrayList<>();
             }

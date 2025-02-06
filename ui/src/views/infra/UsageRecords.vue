@@ -50,7 +50,6 @@
           <a-row justify="end">
             <a-col>
               <tooltip-button
-                v-if="'generateUsageRecords' in $store.getters.apis"
                 type="primary"
                 icon="hdd-outlined"
                 :tooltip="$t('label.usage.records.generate')"
@@ -59,7 +58,6 @@
             </a-col>&nbsp;&nbsp;
             <a-col>
               <tooltip-button
-                v-if="'removeRawUsageRecords' in $store.getters.apis"
                 type="danger"
                 icon="delete-outlined"
                 :tooltip="$t('label.usage.records.purge')"
@@ -72,7 +70,7 @@
     </a-card>
   </a-affix>
   <a-col>
-    <a-card size="small" :loading="serverMetricsLoading" v-if="'listUsageServerMetrics' in $store.getters.apis">
+    <a-card size="small" :loading="serverMetricsLoading">
       <a-row justify="space-around">
         <a-card-grid style="width: 30%; text-align: center; font-size: small;">
           <a-statistic
@@ -88,10 +86,10 @@
         <a-card-grid style="width: 35%; text-align: center; font-size: small;">
           <a-statistic
             :title="$t('label.lastheartbeat')"
-            :value="serverStats.lastheartbeat ? $toLocaleDate(serverStats.lastheartbeat) : $t('label.never')"
+            :value="$toLocaleDate(serverStats.lastheartbeat)"
             valueStyle="font-size: medium"
           />
-          <a-card-meta v-if="!!serverStats.lastheartbeat" :description="getTimeSince(serverStats.collectiontime)" />
+          <a-card-meta :description="getTimeSince(serverStats.collectiontime)" />
         </a-card-grid>
         <a-card-grid style="width: 35%; text-align: center; font-size: small;">
           <a-statistic
@@ -161,7 +159,7 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :span="3" v-if="'listUsageTypes' in $store.getters.apis">
+          <a-col :span="3">
             <a-form-item
               ref="type"
               name="type"
@@ -175,7 +173,7 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :span="3" v-if="'listUsageTypes' in $store.getters.apis">
+          <a-col :span="3">
             <a-form-item
               ref="id"
               name="id"
@@ -427,9 +425,6 @@ export default {
   beforeCreate () {
     this.apiParams = this.$getApiParams('listUsageRecords')
   },
-  mounted () {
-    this.listUsageRecords()
-  },
   created () {
     this.rangePresets[this.$t('label.range.today')] = [dayjs(), dayjs()]
     this.rangePresets[this.$t('label.range.yesterday')] = [dayjs().add(-1, 'd'), dayjs().add(-1, 'd')]
@@ -466,7 +461,7 @@ export default {
         account: null,
         type: null,
         id: null,
-        dateRange: [dayjs().add(-1, 'd'), dayjs()],
+        dateRange: [],
         isRecursive: false
       })
       this.rules = reactive({
@@ -508,11 +503,6 @@ export default {
       }
     },
     listUsageServerMetrics () {
-      if (!('listUsageServerMetrics' in this.$store.getters.apis)) {
-        this.serverMetricsLoading = false
-        return
-      }
-
       this.serverMetricsLoading = true
       api('listUsageServerMetrics').then(json => {
         this.stats = []
@@ -649,10 +639,6 @@ export default {
       })
     },
     getUsageTypes () {
-      if (!('listUsageTypes' in this.$store.getters.apis)) {
-        return
-      }
-
       api('listUsageTypes').then(json => {
         if (json && json.listusagetypesresponse && json.listusagetypesresponse.usagetype) {
           this.usageTypes = [{ id: null, value: '' }, ...json.listusagetypesresponse.usagetype.map(x => {

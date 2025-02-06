@@ -53,7 +53,7 @@ public class QuotaSummaryResponse extends BaseResponse {
     @Param(description = "account state")
     private State state;
 
-    @SerializedName("quotausage")
+    @SerializedName("quota")
     @Param(description = "quota usage of this period")
     private BigDecimal quotaUsage;
 
@@ -134,15 +134,15 @@ public class QuotaSummaryResponse extends BaseResponse {
     }
 
     public Date getStartDate() {
-        return startDate == null ? null : new Date(startDate.getTime());
+        return startDate == null ?  null : new Date(startDate.getTime());
     }
 
     public void setStartDate(Date startDate) {
-        this.startDate = startDate == null ? null : new Date(startDate.getTime());
+        this.startDate =  startDate == null ?  null : new Date(startDate.getTime());
     }
 
     public Date getEndDate() {
-        return  endDate == null ? null : new Date(endDate.getTime());
+        return  endDate == null ?  null : new Date(endDate.getTime());
     }
 
     public void setEndDate(Date endDate) {

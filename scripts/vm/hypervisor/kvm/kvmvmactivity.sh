@@ -78,15 +78,8 @@ then
    exit 2
 fi
 
-hbFile="$MountPoint/MOLD-HB/$HostIP"
-acFolder="$MountPoint/MOLD-AC"
-acFile="$acFolder/$HostIP"
-
-
-if [ ! -f $acFolder ]; then
-    mkdir -p $acFolder &> /dev/null
-fi
-
+hbFile="$MountPoint/KVMHA/hb-$HostIP"
+acFile="$MountPoint/KVMHA/ac-$HostIP"
 
 # First check: heartbeat file
 now=$(date +%s)
@@ -94,14 +87,14 @@ hb=$(cat $hbFile)
 diff=$(expr $now - $hb)
 if [ $diff -lt 61 ]
 then
-    echo "### [HOST STATE : ALIVE] in [PoolType : NFS] ###"
-    exit 0
+  echo "=====> ALIVE <====="
+  exit 0
 fi
 
 if [ -z "$UUIDList" ]
 then
-    echo " ### [HOST STATE : DEAD] Volume UUID list is empty => Considered host down in [PoolType : NFS] ###"
-    exit 0
+  echo "=====> Considering host as DEAD due to empty UUIDList <======"
+  exit 0
 fi
 
 # Second check: disk activity check
@@ -112,10 +105,9 @@ if [ ! -f $acFile ]; then
     echo "$SuspectTime:$latestUpdateTime:$MSTime" > $acFile
 
     if [[ $latestUpdateTime -gt $SuspectTime ]]; then
-        echo "### [HOST STATE : ALIVE] in [PoolType : NFS] ###"
+        echo "=====> ALIVE <====="
     else
-        echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : NFS] ### "
-        # echo "=====> Considering host as DEAD due to file [$acFile] does not exists and condition [latestUpdateTime -gt SuspectTime] has not been satisfied. <======"
+        echo "=====> Considering host as DEAD due to file [$acFile] does not exists and condition [latestUpdateTime -gt SuspectTime] has not been satisfied. <======"
     fi
 else
     acTime=$(cat $acFile)
@@ -127,17 +119,15 @@ else
     suspectTimeDiff=$(expr $SuspectTime - $lastSuspectTime)
     if [[ $suspectTimeDiff -lt 0 ]]; then
         if [[ $latestUpdateTime -gt $SuspectTime ]]; then
-            echo "### [HOST STATE : ALIVE] in [PoolType : NFS] ###"
+            echo "=====> ALIVE <====="
         else
-            echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : NFS] ### "
-            # echo "=====> Considering host as DEAD due to file [$acFile] exist, condition [suspectTimeDiff -lt 0] was satisfied and [latestUpdateTime -gt SuspectTime] has not been satisfied. <======"
+            echo "=====> Considering host as DEAD due to file [$acFile] exist, condition [suspectTimeDiff -lt 0] was satisfied and [latestUpdateTime -gt SuspectTime] has not been satisfied. <======"
         fi
     else
         if [[ $latestUpdateTime -gt $lastUpdateTime ]]; then
-            echo "### [HOST STATE : ALIVE] in [PoolType : NFS] ###"
+            echo "=====> ALIVE <====="
         else
-            echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : NFS] ### "
-            # echo "=====> Considering host as DEAD due to file [$acFile] exist and conditions [suspectTimeDiff -lt 0] and [latestUpdateTime -gt SuspectTime] have not been satisfied. <======"
+            echo "=====> Considering host as DEAD due to file [$acFile] exist and conditions [suspectTimeDiff -lt 0] and [latestUpdateTime -gt SuspectTime] have not been satisfied. <======"
         fi
     fi
 fi

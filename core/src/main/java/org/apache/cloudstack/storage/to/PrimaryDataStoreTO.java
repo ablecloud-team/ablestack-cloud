@@ -26,7 +26,6 @@ import org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore;
 import com.cloud.agent.api.to.DataStoreTO;
 import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.Storage.StoragePoolType;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 public class PrimaryDataStoreTO implements DataStoreTO {
     public static final String MANAGED = PrimaryDataStore.MANAGED;
@@ -161,9 +160,15 @@ public class PrimaryDataStoreTO implements DataStoreTO {
 
     @Override
     public String toString() {
-        return String.format("PrimaryDataStoreTO %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name", "poolType"));
+        return new StringBuilder("PrimaryDataStoreTO[uuid=").append(uuid)
+            .append("|name=")
+            .append(name)
+            .append("|id=")
+            .append(id)
+            .append("|pooltype=")
+            .append(poolType)
+            .append("]")
+            .toString();
     }
 
     public Boolean isFullCloneFlag() {

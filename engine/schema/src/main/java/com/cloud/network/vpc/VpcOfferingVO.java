@@ -30,7 +30,6 @@ import javax.persistence.Table;
 
 import com.cloud.offering.NetworkOffering;
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "vpc_offerings")
@@ -181,9 +180,8 @@ public class VpcOfferingVO implements VpcOffering {
 
     @Override
     public String toString() {
-        return String.format("VPCOffering %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name"));
+        StringBuilder buf = new StringBuilder("[VPC Offering [");
+        return buf.append(id).append("-").append(name).append("]").toString();
     }
 
     public void setName(String name) {

@@ -21,9 +21,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.ApiCommandResourceType;
-import org.apache.cloudstack.api.command.user.UserCmd;
 import org.apache.cloudstack.api.response.RoleResponse;
 
 import org.apache.cloudstack.acl.SecurityChecker.AccessType;
@@ -42,8 +40,8 @@ import org.apache.cloudstack.region.RegionService;
 import com.cloud.user.Account;
 
 @APICommand(name = "updateAccount", description = "Updates account information for the authenticated user", responseObject = AccountResponse.class, entityType = {Account.class},
-        responseView = ResponseView.Restricted, requestHasSensitiveInfo = false, responseHasSensitiveInfo = true)
-public class UpdateAccountCmd extends BaseCmd implements UserCmd {
+        requestHasSensitiveInfo = false, responseHasSensitiveInfo = true)
+public class UpdateAccountCmd extends BaseCmd {
 
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////
@@ -71,9 +69,6 @@ public class UpdateAccountCmd extends BaseCmd implements UserCmd {
 
     @Parameter(name = ApiConstants.ACCOUNT_DETAILS, type = CommandType.MAP, description = "Details for the account used to store specific parameters")
     private Map details;
-
-    @Parameter(name = ApiConstants.API_KEY_ACCESS, type = CommandType.STRING, description = "Determines if Api key access for this user is enabled, disabled or inherits the value from its parent, the domain level setting api.key.access", since = "4.20.1.0", authorized = {RoleType.Admin})
-    private String apiKeyAccess;
 
     @Inject
     RegionService _regionService;
@@ -114,10 +109,6 @@ public class UpdateAccountCmd extends BaseCmd implements UserCmd {
         return params;
     }
 
-    public String getApiKeyAccess() {
-        return apiKeyAccess;
-    }
-
     /////////////////////////////////////////////////////
     /////////////// API Implementation///////////////////
     /////////////////////////////////////////////////////
@@ -140,7 +131,7 @@ public class UpdateAccountCmd extends BaseCmd implements UserCmd {
     public void execute() {
         Account result = _regionService.updateAccount(this);
         if (result != null){
-            AccountResponse response = _responseGenerator.createAccountResponse(getResponseView(), result);
+            AccountResponse response = _responseGenerator.createAccountResponse(ResponseView.Full, result);
             response.setResponseName(getCommandName());
             setResponseObject(response);
         } else {

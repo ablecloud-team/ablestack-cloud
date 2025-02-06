@@ -39,7 +39,6 @@ select
     user.incorrect_login_attempts,
     user.source,
     user.default,
-    user.api_key_access,
     account.id account_id,
     account.uuid account_uuid,
     account.account_name account_name,

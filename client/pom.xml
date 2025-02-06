@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.cloudstack</groupId>
         <artifactId>cloudstack</artifactId>
-        <version>4.21.0.0-SNAPSHOT</version>
+        <version>4.20.0.0-SNAPSHOT</version>
     </parent>
     <dependencies>
         <dependency>
@@ -630,11 +630,6 @@
         <dependency>
             <groupId>org.apache.cloudstack</groupId>
             <artifactId>cloud-plugin-integrations-automation-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cloudstack</groupId>
-            <artifactId>cloud-plugin-integrations-disaster-recovery</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

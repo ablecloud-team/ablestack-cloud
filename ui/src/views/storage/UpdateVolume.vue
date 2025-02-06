@@ -24,7 +24,7 @@
         </template>
         <a-input v-model:value="form.name" :placeholder="$t('label.name')" />
       </a-form-item>
-      <a-form-item v-if="!this.resource.kvdoenable" name="path" ref="path">
+      <a-form-item name="path" ref="path">
         <template #label>
           <tooltip-label :title="$t('label.path')" :tooltip="apiParams.path.description" />
         </template>

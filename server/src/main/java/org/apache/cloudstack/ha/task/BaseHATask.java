@@ -100,7 +100,7 @@ public abstract class BaseHATask implements Callable<Boolean> {
             logger.warn("Exception occurred while running " + getTaskType() + " on a resource: " + e.getMessage(), e.getCause());
             throwable = e.getCause();
         } catch (TimeoutException e) {
-            logger.trace("{} operation timed out for resource: {}", getTaskType(), resource);
+            logger.trace(getTaskType() + " operation timed out for resource id:" + resource.getId());
         }
         processResult(result, throwable);
         return result;

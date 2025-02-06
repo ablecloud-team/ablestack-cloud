@@ -281,7 +281,7 @@ NetworkMigrationResponder, AggregatedCommandExecutor, RedundantResource, DnsServ
         if (canHandle(network, Service.Firewall)) {
             final List<DomainRouterVO> routers = getRouters(network);
             if (routers == null || routers.isEmpty()) {
-                logger.debug("Virtual router element doesn't need to apply firewall rules on the backend; virtual router doesn't exist in the network {}", network);
+                logger.debug("Virtual router elemnt doesn't need to apply firewall rules on the backend; virtual " + "router doesn't exist in the network " + network.getId());
                 return true;
             }
 
@@ -328,7 +328,7 @@ NetworkMigrationResponder, AggregatedCommandExecutor, RedundantResource, DnsServ
 
             final List<DomainRouterVO> routers = getRouters(network);
             if (routers == null || routers.isEmpty()) {
-                logger.debug("Virtual router element doesn't need to apply lb rules on the backend; virtual router doesn't exist in the network {}", network);
+                logger.debug("Virtual router elemnt doesn't need to apply lb rules on the backend; virtual " + "router doesn't exist in the network " + network.getId());
                 return true;
             }
 
@@ -352,7 +352,7 @@ NetworkMigrationResponder, AggregatedCommandExecutor, RedundantResource, DnsServ
         if (canHandle(network, Service.Vpn)) {
             final List<DomainRouterVO> routers = _routerDao.listByNetworkAndRole(network.getId(), Role.VIRTUAL_ROUTER);
             if (routers == null || routers.isEmpty()) {
-                logger.debug("Virtual router element doesn't need to apply vpn users on the backend; virtual router doesn't exist in the network {}", network);
+                logger.debug("Virtual router elemnt doesn't need to apply vpn users on the backend; virtual router" + " doesn't exist in the network " + network.getId());
                 return null;
             }
 
@@ -376,7 +376,7 @@ NetworkMigrationResponder, AggregatedCommandExecutor, RedundantResource, DnsServ
         if (canHandle(network, Service.Vpn)) {
             final List<DomainRouterVO> routers = _routerDao.listByNetworkAndRole(network.getId(), Role.VIRTUAL_ROUTER);
             if (routers == null || routers.isEmpty()) {
-                logger.debug("Virtual router element doesn't need stop vpn on the backend; virtual router doesn't exist in the network {}", network);
+                logger.debug("Virtual router elemnt doesn't need stop vpn on the backend; virtual router doesn't" + " exist in the network " + network.getId());
                 return true;
             }
             return _routerMgr.startRemoteAccessVpn(network, vpn, routers);
@@ -396,7 +396,8 @@ NetworkMigrationResponder, AggregatedCommandExecutor, RedundantResource, DnsServ
         if (canHandle(network, Service.Vpn)) {
             final List<DomainRouterVO> routers = _routerDao.listByNetworkAndRole(network.getId(), Role.VIRTUAL_ROUTER);
             if (routers == null || routers.isEmpty()) {
-                logger.debug("There is no virtual router in network {}, it is not necessary to stop the VPN on backend.", network);
+                logger.debug(String.format("There is no virtual router in network [uuid: %s, name: %s], it is not necessary to stop the VPN on backend.",
+                        network.getUuid(), network.getName()));
                 return true;
             }
             return _routerMgr.deleteRemoteAccessVpn(network, vpn, routers);
@@ -419,7 +420,7 @@ NetworkMigrationResponder, AggregatedCommandExecutor, RedundantResource, DnsServ
         if (canHandle) {
             final List<DomainRouterVO> routers = getRouters(network);
             if (routers == null || routers.isEmpty()) {
-                logger.debug("Virtual router element doesn't need to associate ip addresses on the backend; virtual router doesn't exist in the network {}", network);
+                logger.debug("Virtual router elemnt doesn't need to associate ip addresses on the backend; virtual " + "router doesn't exist in the network " + network.getId());
                 return true;
             }
 
@@ -542,7 +543,7 @@ NetworkMigrationResponder, AggregatedCommandExecutor, RedundantResource, DnsServ
         // Set capabilities for vpn
         final Map<Capability, String> vpnCapabilities = new HashMap<Capability, String>();
         vpnCapabilities.put(Capability.SupportedVpnProtocols, "pptp,l2tp,ipsec");
-        vpnCapabilities.put(Capability.VpnTypes, "remoteaccessvpn");
+        vpnCapabilities.put(Capability.VpnTypes, "removeaccessvpn");
         capabilities.put(Service.Vpn, vpnCapabilities);
 
         final Map<Capability, String> dnsCapabilities = new HashMap<Capability, String>();
@@ -591,7 +592,7 @@ NetworkMigrationResponder, AggregatedCommandExecutor, RedundantResource, DnsServ
         if (canHandle(network, Service.StaticNat)) {
             final List<DomainRouterVO> routers = getRouters(network);
             if (routers == null || routers.isEmpty()) {
-                logger.debug("Virtual router element doesn't need to apply static nat on the backend; virtual router doesn't exist in the network {}", network);
+                logger.debug("Virtual router elemnt doesn't need to apply static nat on the backend; virtual " + "router doesn't exist in the network " + network.getId());
                 return true;
             }
 
@@ -693,7 +694,7 @@ NetworkMigrationResponder, AggregatedCommandExecutor, RedundantResource, DnsServ
         }
         final List<DomainRouterVO> routers = _routerDao.listByNetworkAndRole(network.getId(), Role.VIRTUAL_ROUTER);
         if (routers == null || routers.isEmpty()) {
-            logger.debug("Can't find virtual router element in network {}", network);
+            logger.debug("Can't find virtual router element in network " + network.getId());
             return true;
         }
 
@@ -751,7 +752,7 @@ NetworkMigrationResponder, AggregatedCommandExecutor, RedundantResource, DnsServ
         }
         final List<DomainRouterVO> routers = _routerDao.listByNetworkAndRole(network.getId(), Role.VIRTUAL_ROUTER);
         if (routers == null || routers.isEmpty()) {
-            logger.debug("Can't find virtual router element in network {}", network);
+            logger.debug("Can't find virtual router element in network " + network.getId());
             return true;
         }
 
@@ -801,7 +802,7 @@ NetworkMigrationResponder, AggregatedCommandExecutor, RedundantResource, DnsServ
         }
         final List<DomainRouterVO> routers = _routerDao.listByNetworkAndRole(network.getId(), Role.VIRTUAL_ROUTER);
         if (routers == null || routers.isEmpty()) {
-            logger.debug("Can't find virtual router element in network {}", network);
+            logger.debug("Can't find virtual router element in network " + network.getId());
             return true;
         }
 
@@ -875,7 +876,7 @@ NetworkMigrationResponder, AggregatedCommandExecutor, RedundantResource, DnsServ
         if (canHandle(network, Service.PortForwarding)) {
             final List<DomainRouterVO> routers = _routerDao.listByNetworkAndRole(network.getId(), Role.VIRTUAL_ROUTER);
             if (routers == null || routers.isEmpty()) {
-                logger.debug("Virtual router element doesn't need to apply firewall rules on the backend; virtual router doesn't exist in the network {}", network);
+                logger.debug("Virtual router elemnt doesn't need to apply firewall rules on the backend; virtual " + "router doesn't exist in the network " + network.getId());
                 return true;
             }
 
@@ -1244,7 +1245,7 @@ NetworkMigrationResponder, AggregatedCommandExecutor, RedundantResource, DnsServ
                 logger.debug("Successfully saved user data to router");
             }
         } else {
-            logger.debug("Not applying userdata for nic {} in vm {} because it is not supported in network {}", nic, vm, network);
+            logger.debug("Not applying userdata for nic id=" + nic.getId() + " in vm id=" + vm.getId() + " because it is not supported in network id=" + network.getId());
         }
     }
 

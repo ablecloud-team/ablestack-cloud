@@ -19,14 +19,15 @@ package com.cloud.vm;
 import java.util.Map;
 
 import com.cloud.agent.api.HostVmStateReportEntry;
-import com.cloud.host.Host;
 
 public interface VirtualMachinePowerStateSync {
 
-    void resetHostSyncState(Host hostId);
+    void resetHostSyncState(long hostId);
 
     void processHostVmStateReport(long hostId, Map<String, HostVmStateReportEntry> report);
 
     // to adapt legacy ping report
     void processHostVmStatePingReport(long hostId, Map<String, HostVmStateReportEntry> report, boolean force);
+
+    Map<Long, VirtualMachine.PowerState> convertVmStateReport(Map<String, HostVmStateReportEntry> states);
 }

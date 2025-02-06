@@ -25,11 +25,10 @@
       :rowKey="record => record.name"
       :pagination="false"
       :scroll="{ y: '55vh' }"
-      :rowClassName="getRowClassName"
     >
       <template #bodyCell="{ column, text }">
         <template v-if="column.key === 'quota'">
-          <span v-if="text!==undefined">{{ `${currency} ${text.toLocaleString()}` }}</span>
+          <span v-if="text!==undefined">{{ `${currency} ${text}` }}</span>
         </template>
       </template>
     </a-table>
@@ -109,14 +108,14 @@ export default {
         this.dataSource = this.dataSource.concat(quotaUsage)
         this.currency = quotaStatement.currency
         this.totalQuota = quotaStatement.totalquota
-        this.dataSource.unshift({
+        this.dataSource.push({
           name: `${this.$t('label.quota.total')}: `,
           quota: this.totalQuota
         })
         this.dataSource.unshift({
           type: 0,
-          name: `${this.$t('label.startdate')}: ${moment(this.resource.startdate).format(this.pattern)}`,
-          unit: `${this.$t('label.enddate')}: ${moment(resource.enddate).format(this.pattern)}`
+          name: `${this.$t('startdate')}: ${moment(this.resource.startdate).format(this.pattern)}`,
+          unit: `${this.$t('enddate')}: ${moment(this.resource.enddate).format(this.pattern)}`
         })
         this.loading = false
       } catch (e) {
@@ -144,7 +143,7 @@ export default {
         params.domainid = this.resource.domainid
         params.account = this.account
         params.startdate = moment(this.resource.startdate).format(this.pattern)
-        params.enddate = moment(resource.enddate).format(this.pattern)
+        params.enddate = moment(resource.startdate).format(this.pattern)
 
         api('quotaStatement', params).then(json => {
           const quotaStatement = json.quotastatementresponse.statement || {}
@@ -153,18 +152,7 @@ export default {
           reject(error)
         })
       })
-    },
-    getRowClassName (record, index) {
-      if (index !== 0 && record.name !== `${this.$t('label.quota.total')}: `) {
-        return 'light-row'
-      }
-      return 'dark2-row'
     }
   }
 }
 </script>
-<style scoped>
-  :deep(.dark2-row) {
-    background-color: #dbe5f6;
-  }
-</style>

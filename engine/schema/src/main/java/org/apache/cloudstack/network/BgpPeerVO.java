@@ -28,7 +28,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "bgp_peers")
@@ -84,9 +83,7 @@ public class BgpPeerVO implements BgpPeer {
 
     @Override
     public String toString() {
-        return String.format("BgpPeer %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "asNumber", "ip4Address", "ip6Address"));
+        return String.format("BgpPeerVO [%s|%s|%s]", asNumber, ip4Address, ip6Address);
     }
 
     @Override

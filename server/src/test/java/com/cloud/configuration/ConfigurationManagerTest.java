@@ -17,7 +17,6 @@
 
 package com.cloud.configuration;
 
-import com.cloud.agent.AgentManager;
 import com.cloud.api.query.dao.NetworkOfferingJoinDao;
 import com.cloud.api.query.vo.NetworkOfferingJoinVO;
 import com.cloud.configuration.Resource.ResourceType;
@@ -72,7 +71,6 @@ import com.cloud.user.ResourceLimitService;
 import com.cloud.user.User;
 import com.cloud.user.UserVO;
 import com.cloud.user.dao.AccountDao;
-import com.cloud.utils.Pair;
 import com.cloud.utils.db.Filter;
 import com.cloud.utils.db.SearchCriteria;
 import com.cloud.utils.db.TransactionLegacy;
@@ -126,10 +124,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -366,7 +361,7 @@ public class ConfigurationManagerTest {
         try {
             configurationMgr.dedicatePublicIpRange(dedicatePublicIpRangesCmd);
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("Unable to find vlan by id"));
+            Assert.assertTrue(e.getMessage().contains("Unable to find vlan by id"));
         } finally {
             txn.close("runDedicatePublicIpRangeInvalidRange");
         }
@@ -395,7 +390,7 @@ public class ConfigurationManagerTest {
         try {
             configurationMgr.dedicatePublicIpRange(dedicatePublicIpRangesCmd);
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("Public IP range has already been dedicated"));
+            Assert.assertTrue(e.getMessage().contains("Public IP range has already been dedicated"));
         } finally {
             txn.close("runDedicatePublicIpRangePublicIpRangeDedicated");
         }
@@ -421,7 +416,7 @@ public class ConfigurationManagerTest {
         try {
             configurationMgr.dedicatePublicIpRange(dedicatePublicIpRangesCmd);
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("Public IP range can be dedicated to an account only in the zone of type Advanced"));
+            Assert.assertTrue(e.getMessage().contains("Public IP range can be dedicated to an account only in the zone of type Advanced"));
         } finally {
             txn.close("runDedicatePublicIpRangeInvalidZone");
         }
@@ -448,7 +443,7 @@ public class ConfigurationManagerTest {
         try {
             configurationMgr.dedicatePublicIpRange(dedicatePublicIpRangesCmd);
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("Public IP address in range is allocated to another account"));
+            Assert.assertTrue(e.getMessage().contains("Public IP address in range is allocated to another account"));
         } finally {
             txn.close("runDedicatePublicIpRangeIPAddressAllocated");
         }
@@ -470,7 +465,7 @@ public class ConfigurationManagerTest {
         when(configurationMgr._accountVlanMapDao.remove(anyLong())).thenReturn(true);
         try {
             Boolean result = configurationMgr.releasePublicIpRange(releasePublicIpRangesCmd);
-            assertTrue(result);
+            Assert.assertTrue(result);
         } catch (Exception e) {
             logger.info("exception in testing runReleasePublicIpRangePostiveTest1 message: " + e.toString());
         } finally {
@@ -497,14 +492,14 @@ public class ConfigurationManagerTest {
 
         when(configurationMgr._firewallDao.countRulesByIpId(anyLong())).thenReturn(0L);
 
-        when(configurationMgr._ipAddrMgr.disassociatePublicIpAddress(any(), anyLong(), any(Account.class))).thenReturn(true);
+        when(configurationMgr._ipAddrMgr.disassociatePublicIpAddress(anyLong(), anyLong(), any(Account.class))).thenReturn(true);
 
         when(configurationMgr._vlanDao.releaseFromLockTable(anyLong())).thenReturn(true);
 
         when(configurationMgr._accountVlanMapDao.remove(anyLong())).thenReturn(true);
         try {
             Boolean result = configurationMgr.releasePublicIpRange(releasePublicIpRangesCmd);
-            assertTrue(result);
+            Assert.assertTrue(result);
         } catch (Exception e) {
             logger.info("exception in testing runReleasePublicIpRangePostiveTest2 message: " + e.toString());
         } finally {
@@ -519,7 +514,7 @@ public class ConfigurationManagerTest {
         try {
             configurationMgr.releasePublicIpRange(releasePublicIpRangesCmd);
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("Please specify a valid IP range id"));
+            Assert.assertTrue(e.getMessage().contains("Please specify a valid IP range id"));
         } finally {
             txn.close("runReleasePublicIpRangeInvalidIpRange");
         }
@@ -535,7 +530,7 @@ public class ConfigurationManagerTest {
         try {
             configurationMgr.releasePublicIpRange(releasePublicIpRangesCmd);
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("as it not dedicated to any domain and any account"));
+            Assert.assertTrue(e.getMessage().contains("as it not dedicated to any domain and any account"));
         } finally {
             txn.close("runReleaseNonDedicatedPublicIpRange");
         }
@@ -575,10 +570,10 @@ public class ConfigurationManagerTest {
         try {
             configurationMgr.validateSourceNatServiceCapablities(sourceNatServiceCapabilityMap);
         } catch (InvalidParameterValueException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("Either peraccount or perzone source NAT type can be specified for SupportedSourceNatTypes"));
+            Assert.assertTrue(e.getMessage(), e.getMessage().contains("Either peraccount or perzone source NAT type can be specified for SupportedSourceNatTypes"));
             caught = true;
         }
-        assertTrue("should not be accepted", caught);
+        Assert.assertTrue("should not be accepted", caught);
     }
 
     @Test
@@ -590,10 +585,10 @@ public class ConfigurationManagerTest {
         try {
             configurationMgr.validateSourceNatServiceCapablities(sourceNatServiceCapabilityMap);
         } catch (InvalidParameterValueException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("Unknown specified value for RedundantRouter"));
+            Assert.assertTrue(e.getMessage(), e.getMessage().contains("Unknown specified value for RedundantRouter"));
             caught = true;
         }
-        assertTrue("should not be accepted", caught);
+        Assert.assertTrue("should not be accepted", caught);
     }
 
     @Test
@@ -605,10 +600,10 @@ public class ConfigurationManagerTest {
         try {
             configurationMgr.validateSourceNatServiceCapablities(sourceNatServiceCapabilityMap);
         } catch (InvalidParameterValueException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("Only SupportedSourceNatTypes, Network.Capability[name=RedundantRouter] capabilities can be specified for source nat service"));
+            Assert.assertTrue(e.getMessage(), e.getMessage().contains("Only SupportedSourceNatTypes, Network.Capability[name=RedundantRouter] capabilities can be specified for source nat service"));
             caught = true;
         }
-        assertTrue("should not be accepted", caught);
+        Assert.assertTrue("should not be accepted", caught);
     }
 
     @Test
@@ -627,10 +622,10 @@ public class ConfigurationManagerTest {
         try {
             configurationMgr.validateStaticNatServiceCapablities(staticNatServiceCapabilityMap);
         } catch (InvalidParameterValueException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("(frue and talse)"));
+            Assert.assertTrue(e.getMessage(), e.getMessage().contains("(frue and talse)"));
             caught = true;
         }
-        assertTrue("should not be accepted", caught);
+        Assert.assertTrue("should not be accepted", caught);
     }
 
     @Test
@@ -639,7 +634,7 @@ public class ConfigurationManagerTest {
         Map<Capability, String> sourceNatServiceCapabilityMap = new HashMap<>();
         sourceNatServiceCapabilityMap.put(Capability.SupportedSourceNatTypes, "peraccount");
         sourceNatServiceCapabilityMap.put(Capability.RedundantRouter, "true");
-        assertTrue(configurationMgr.isRedundantRouter(providers, Network.Service.SourceNat, sourceNatServiceCapabilityMap));
+        Assert.assertTrue(configurationMgr.isRedundantRouter(providers, Network.Service.SourceNat, sourceNatServiceCapabilityMap));
     }
 
     @Test
@@ -647,7 +642,7 @@ public class ConfigurationManagerTest {
         Map<Network.Service, Set<Network.Provider>> serviceCapabilityMap = new HashMap<>();
         Map<Capability, String> sourceNatServiceCapabilityMap = new HashMap<>();
         sourceNatServiceCapabilityMap.put(Capability.SupportedSourceNatTypes, "perzone");
-        assertTrue(configurationMgr.isSharedSourceNat(serviceCapabilityMap, sourceNatServiceCapabilityMap));
+        Assert.assertTrue(configurationMgr.isSharedSourceNat(serviceCapabilityMap, sourceNatServiceCapabilityMap));
     }
 
     @Test
@@ -655,7 +650,7 @@ public class ConfigurationManagerTest {
         Map<Network.Service, Set<Network.Provider>> serviceCapabilityMap = new HashMap<>();
         Map<Capability, String> sourceNatServiceCapabilityMap = new HashMap<>();
         sourceNatServiceCapabilityMap.put(Capability.SupportedSourceNatTypes, "peraccount");
-        assertFalse(configurationMgr.isSharedSourceNat(serviceCapabilityMap, sourceNatServiceCapabilityMap));
+        Assert.assertFalse(configurationMgr.isSharedSourceNat(serviceCapabilityMap, sourceNatServiceCapabilityMap));
     }
 
     @Test
@@ -664,7 +659,7 @@ public class ConfigurationManagerTest {
         sourceNatServiceCapabilityMap.put(Capability.SupportedSourceNatTypes, "peraccount");
         sourceNatServiceCapabilityMap.put(Capability.RedundantRouter, "True");
 
-        assertTrue(configurationMgr.sourceNatCapabilitiesContainValidValues(sourceNatServiceCapabilityMap));
+        Assert.assertTrue(configurationMgr.sourceNatCapabilitiesContainValidValues(sourceNatServiceCapabilityMap));
     }
 
     @Test
@@ -695,13 +690,13 @@ public class ConfigurationManagerTest {
         try {
             configurationMgr.validateStaticNatServiceCapablities(staticNatServiceCapabilityMap);
         } catch (InvalidParameterValueException e) {
-            assertTrue(
+            Assert.assertTrue(
                     e.getMessage(),
                     e.getMessage().contains(
                         "Capability " + Capability.AssociatePublicIP.getName() + " can only be set when capability " + Capability.ElasticIp.getName() + " is true"));
             caught = true;
         }
-        assertTrue("should not be accepted", caught);
+        Assert.assertTrue("should not be accepted", caught);
     }
 
     @Test
@@ -966,27 +961,27 @@ public class ConfigurationManagerTest {
         //Ipv4 Test
         boolean result;
         result = configurationMgr.hasSameSubnet(false, null, null, null, null, null, null, false, null, null, null, null, null);
-        assertFalse(result);
+        Assert.assertFalse(result);
         try {
             configurationMgr.hasSameSubnet(true, "10.0.0.1", "255.255.255.0", "10.0.0.2", "255.255.255.0", "10.0.0.2", "10.0.0.10", false, null, null, null, null, null);
             Assert.fail();
         } catch (InvalidParameterValueException e) {
-            assertEquals(e.getMessage(), "The gateway of the subnet should be unique. The subnet already has a gateway 10.0.0.1");
+            Assert.assertEquals(e.getMessage(), "The gateway of the subnet should be unique. The subnet already has a gateway 10.0.0.1");
         }
         try {
             configurationMgr.hasSameSubnet(true, "10.0.0.1", "255.255.0.0", "10.0.0.2", "255.255.255.0", "10.0.0.2", "10.0.0.10", false, null, null, null, null, null);
             Assert.fail();
         } catch (InvalidParameterValueException e){
-            assertEquals(e.getMessage(), "The subnet you are trying to add is a subset of the existing subnet having gateway 10.0.0.1 and netmask 255.255.0.0");
+            Assert.assertEquals(e.getMessage(), "The subnet you are trying to add is a subset of the existing subnet having gateway 10.0.0.1 and netmask 255.255.0.0");
         }
         try {
             configurationMgr.hasSameSubnet(true, "10.0.0.1", "255.255.255.0", "10.0.0.2", "255.255.0.0", "10.0.0.2", "10.0.0.10", false, null, null, null, null, null);
             Assert.fail();
         } catch (InvalidParameterValueException e) {
-            assertEquals(e.getMessage(), "The subnet you are trying to add is a superset of the existing subnet having gateway 10.0.0.1 and netmask 255.255.255.0");
+            Assert.assertEquals(e.getMessage(), "The subnet you are trying to add is a superset of the existing subnet having gateway 10.0.0.1 and netmask 255.255.255.0");
         }
         result = configurationMgr.hasSameSubnet(true, "10.0.0.1", "255.255.255.0", "10.0.0.1", "255.255.255.0", "10.0.0.2", "10.0.0.10", false, null, null, null, null, null);
-        assertTrue(result);
+        Assert.assertTrue(result);
 
         //Ipv6 Test
         Network ipV6Network = mock(Network.class);
@@ -997,35 +992,35 @@ public class ConfigurationManagerTest {
         doThrow(new InvalidParameterValueException("ip6Gateway and ip6Cidr should be defined when startIPv6/endIPv6 are passed in")).when(configurationMgr._networkModel).checkIp6Parameters(Mockito.anyString(), Mockito.anyString(), Mockito.isNull(String.class), Mockito.isNull(String.class));
 
         configurationMgr.hasSameSubnet(false, null, null, null, null, null, null, true, "2001:db8:0:f101::1", "2001:db8:0:f101::0/64", "2001:db8:0:f101::2", "2001:db8:0:f101::a", ipV6Network);
-        assertTrue(result);
+        Assert.assertTrue(result);
         try {
             configurationMgr.hasSameSubnet(false, null, null, null, null, null, null, true, "2001:db8:0:f101::2", "2001:db8:0:f101::0/64", "2001:db8:0:f101::2", "2001:db8:0:f101::a", ipV6Network);
             Assert.fail();
         } catch (InvalidParameterValueException e){
-            assertEquals(e.getMessage(), "The input gateway 2001:db8:0:f101::2 is not same as network gateway 2001:db8:0:f101::1");
+            Assert.assertEquals(e.getMessage(), "The input gateway 2001:db8:0:f101::2 is not same as network gateway 2001:db8:0:f101::1");
         }
         try {
             configurationMgr.hasSameSubnet(false, null, null, null, null, null, null, true, "2001:db8:0:f101::1", "2001:db8:0:f101::0/63", "2001:db8:0:f101::2", "2001:db8:0:f101::a", ipV6Network);
             Assert.fail();
         } catch (InvalidParameterValueException e){
-            assertEquals(e.getMessage(), "The input cidr 2001:db8:0:f101::0/63 is not same as network cidr 2001:db8:0:f101::0/64");
+            Assert.assertEquals(e.getMessage(), "The input cidr 2001:db8:0:f101::0/63 is not same as network cidr 2001:db8:0:f101::0/64");
         }
 
         try {
             configurationMgr.hasSameSubnet(false, null, null, null, null, null, null, true, "2001:db8:0:f101::1", "2001:db8:0:f101::0/64", "2001:db9:0:f101::2", "2001:db9:0:f101::a", ipV6Network);
             Assert.fail();
         } catch (InvalidParameterValueException e) {
-            assertEquals(e.getMessage(), "Exception from Mock: startIPv6 is not in ip6cidr indicated network!");
+            Assert.assertEquals(e.getMessage(), "Exception from Mock: startIPv6 is not in ip6cidr indicated network!");
         }
         try {
             configurationMgr.hasSameSubnet(false, null, null, null, null, null, null, true, "2001:db8:0:f101::1", "2001:db8:0:f101::0/64", "2001:db8:0:f101::a", "2001:db9:0:f101::2", ipV6Network);
             Assert.fail();
         } catch(InvalidParameterValueException e) {
-            assertEquals(e.getMessage(), "Exception from Mock: endIPv6 is not in ip6cidr indicated network!");
+            Assert.assertEquals(e.getMessage(), "Exception from Mock: endIPv6 is not in ip6cidr indicated network!");
         }
 
         result = configurationMgr.hasSameSubnet(false, null, null, null, null, null, null, true, null, null, "2001:db8:0:f101::2", "2001:db8:0:f101::a", ipV6Network);
-        assertTrue(result);
+        Assert.assertTrue(result);
     }
 
     @Test(expected = CloudRuntimeException.class)
@@ -1040,12 +1035,12 @@ public class ConfigurationManagerTest {
 
     @Test
     public void testGetVlanNumberFromUriVlan() {
-        assertEquals("7", configurationMgr.getVlanNumberFromUri("vlan://7"));
+        Assert.assertEquals("7", configurationMgr.getVlanNumberFromUri("vlan://7"));
     }
 
     @Test
     public void testGetVlanNumberFromUriUntagged() {
-        assertEquals("untagged", configurationMgr.getVlanNumberFromUri("vlan://untagged"));
+        Assert.assertEquals("untagged", configurationMgr.getVlanNumberFromUri("vlan://untagged"));
     }
 
     @Test
@@ -1085,48 +1080,48 @@ public class ConfigurationManagerTest {
 
     @Test
     public void shouldUpdateDiskOfferingTests(){
-        assertTrue(configurationMgr.shouldUpdateDiskOffering(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyString(), Mockito.any(DiskOffering.State.class)));
-        assertTrue(configurationMgr.shouldUpdateDiskOffering(Mockito.anyString(), nullable(String.class), nullable(Integer.class), nullable(Boolean.class), nullable(String.class), nullable(String.class), nullable(DiskOffering.State.class)));
-        assertTrue(configurationMgr.shouldUpdateDiskOffering(nullable(String.class), nullable(String.class), nullable(Integer.class), nullable(Boolean.class), nullable(String.class), nullable(String.class), Mockito.any(DiskOffering.State.class)));
-        assertTrue(configurationMgr.shouldUpdateDiskOffering(nullable(String.class), Mockito.anyString(), nullable(Integer.class), nullable(Boolean.class), nullable(String.class), nullable(String.class), nullable(DiskOffering.State.class)));
-        assertTrue(configurationMgr.shouldUpdateDiskOffering(nullable(String.class), nullable(String.class), Mockito.anyInt(), nullable(Boolean.class), nullable(String.class), nullable(String.class), nullable(DiskOffering.State.class)));
-        assertTrue(configurationMgr.shouldUpdateDiskOffering(nullable(String.class), nullable(String.class), nullable(int.class), Mockito.anyBoolean(), nullable(String.class), nullable(String.class), nullable(DiskOffering.State.class)));
-        assertTrue(configurationMgr.shouldUpdateDiskOffering(nullable(String.class), nullable(String.class), nullable(int.class), nullable(Boolean.class), Mockito.anyString(), Mockito.anyString(), nullable(DiskOffering.State.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateDiskOffering(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyString(), Mockito.any(DiskOffering.State.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateDiskOffering(Mockito.anyString(), nullable(String.class), nullable(Integer.class), nullable(Boolean.class), nullable(String.class), nullable(String.class), nullable(DiskOffering.State.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateDiskOffering(nullable(String.class), nullable(String.class), nullable(Integer.class), nullable(Boolean.class), nullable(String.class), nullable(String.class), Mockito.any(DiskOffering.State.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateDiskOffering(nullable(String.class), Mockito.anyString(), nullable(Integer.class), nullable(Boolean.class), nullable(String.class), nullable(String.class), nullable(DiskOffering.State.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateDiskOffering(nullable(String.class), nullable(String.class), Mockito.anyInt(), nullable(Boolean.class), nullable(String.class), nullable(String.class), nullable(DiskOffering.State.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateDiskOffering(nullable(String.class), nullable(String.class), nullable(int.class), Mockito.anyBoolean(), nullable(String.class), nullable(String.class), nullable(DiskOffering.State.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateDiskOffering(nullable(String.class), nullable(String.class), nullable(int.class), nullable(Boolean.class), Mockito.anyString(), Mockito.anyString(), nullable(DiskOffering.State.class)));
     }
 
     @Test
     public void shouldUpdateDiskOfferingTestFalse(){
-        assertFalse(configurationMgr.shouldUpdateDiskOffering(null, null, null, null, null, null, null));
+        Assert.assertFalse(configurationMgr.shouldUpdateDiskOffering(null, null, null, null, null, null, null));
     }
 
     @Test
     public void shouldUpdateIopsRateParametersTestFalse() {
-        assertFalse(configurationMgr.shouldUpdateIopsRateParameters(null, null, null, null, null, null));
+        Assert.assertFalse(configurationMgr.shouldUpdateIopsRateParameters(null, null, null, null, null, null));
     }
 
     @Test
     public void shouldUpdateIopsRateParametersTests(){
-        assertTrue(configurationMgr.shouldUpdateIopsRateParameters(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong()));
-        assertTrue(configurationMgr.shouldUpdateIopsRateParameters(nullable(Long.class), Mockito.anyLong(), nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class)));
-        assertTrue(configurationMgr.shouldUpdateIopsRateParameters(nullable(Long.class), nullable(Long.class), Mockito.anyLong(), nullable(Long.class), nullable(Long.class), nullable(Long.class)));
-        assertTrue(configurationMgr.shouldUpdateIopsRateParameters(nullable(Long.class), nullable(Long.class), nullable(Long.class), Mockito.anyLong(), nullable(Long.class), nullable(Long.class)));
-        assertTrue(configurationMgr.shouldUpdateIopsRateParameters(nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class), Mockito.anyLong(), nullable(Long.class)));
-        assertTrue(configurationMgr.shouldUpdateIopsRateParameters(nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class), Mockito.anyLong()));
+        Assert.assertTrue(configurationMgr.shouldUpdateIopsRateParameters(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong()));
+        Assert.assertTrue(configurationMgr.shouldUpdateIopsRateParameters(nullable(Long.class), Mockito.anyLong(), nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateIopsRateParameters(nullable(Long.class), nullable(Long.class), Mockito.anyLong(), nullable(Long.class), nullable(Long.class), nullable(Long.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateIopsRateParameters(nullable(Long.class), nullable(Long.class), nullable(Long.class), Mockito.anyLong(), nullable(Long.class), nullable(Long.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateIopsRateParameters(nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class), Mockito.anyLong(), nullable(Long.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateIopsRateParameters(nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class), Mockito.anyLong()));
     }
 
     @Test
     public void shouldUpdateBytesRateParametersTestFalse() {
-        assertFalse(configurationMgr.shouldUpdateBytesRateParameters(null, null, null, null, null, null));
+        Assert.assertFalse(configurationMgr.shouldUpdateBytesRateParameters(null, null, null, null, null, null));
     }
 
     @Test
     public void shouldUpdateBytesRateParametersTests(){
-        assertTrue(configurationMgr.shouldUpdateBytesRateParameters(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong()));
-        assertTrue(configurationMgr.shouldUpdateBytesRateParameters(nullable(Long.class), Mockito.anyLong(), nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class)));
-        assertTrue(configurationMgr.shouldUpdateBytesRateParameters(nullable(Long.class), nullable(Long.class), Mockito.anyLong(), nullable(Long.class), nullable(Long.class), nullable(Long.class)));
-        assertTrue(configurationMgr.shouldUpdateBytesRateParameters(nullable(Long.class), nullable(Long.class), nullable(Long.class), Mockito.anyLong(), nullable(Long.class), nullable(Long.class)));
-        assertTrue(configurationMgr.shouldUpdateBytesRateParameters(nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class), Mockito.anyLong(), nullable(Long.class)));
-        assertTrue(configurationMgr.shouldUpdateBytesRateParameters(nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class), Mockito.anyLong()));
+        Assert.assertTrue(configurationMgr.shouldUpdateBytesRateParameters(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyLong()));
+        Assert.assertTrue(configurationMgr.shouldUpdateBytesRateParameters(nullable(Long.class), Mockito.anyLong(), nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateBytesRateParameters(nullable(Long.class), nullable(Long.class), Mockito.anyLong(), nullable(Long.class), nullable(Long.class), nullable(Long.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateBytesRateParameters(nullable(Long.class), nullable(Long.class), nullable(Long.class), Mockito.anyLong(), nullable(Long.class), nullable(Long.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateBytesRateParameters(nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class), Mockito.anyLong(), nullable(Long.class)));
+        Assert.assertTrue(configurationMgr.shouldUpdateBytesRateParameters(nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class), nullable(Long.class), Mockito.anyLong()));
     }
 
     @Test
@@ -1240,10 +1235,10 @@ public class ConfigurationManagerTest {
             return prefixVO;
         });
         configurationMgr.createDataCenterGuestIpv6Prefix(cmd);
-        assertEquals(1, persistedPrefix.size());
+        Assert.assertEquals(1, persistedPrefix.size());
         DataCenterGuestIpv6PrefixVO prefixVO = persistedPrefix.get(0);
-        assertEquals(zoneId, prefixVO.getDataCenterId());
-        assertEquals(prefix, prefixVO.getPrefix());
+        Assert.assertEquals(zoneId, prefixVO.getDataCenterId());
+        Assert.assertEquals(prefix, prefixVO.getPrefix());
     }
 
     @Test
@@ -1260,17 +1255,17 @@ public class ConfigurationManagerTest {
                         Mockito.mock(DataCenterGuestIpv6PrefixVO.class),
                         Mockito.mock(DataCenterGuestIpv6PrefixVO.class)));
         List<? extends DataCenterGuestIpv6Prefix> prefixes = configurationMgr.listDataCenterGuestIpv6Prefixes(cmd);
-        assertEquals(1, prefixes.size());
+        Assert.assertEquals(1, prefixes.size());
         ListGuestNetworkIpv6PrefixesCmd cmd1 = Mockito.mock(ListGuestNetworkIpv6PrefixesCmd.class);
         Mockito.when(cmd1.getId()).thenReturn(null);
         Mockito.when(cmd1.getZoneId()).thenReturn(1L);
         prefixes = configurationMgr.listDataCenterGuestIpv6Prefixes(cmd1);
-        assertEquals(2, prefixes.size());
+        Assert.assertEquals(2, prefixes.size());
         ListGuestNetworkIpv6PrefixesCmd cmd2 = Mockito.mock(ListGuestNetworkIpv6PrefixesCmd.class);
         Mockito.when(cmd2.getId()).thenReturn(null);
         Mockito.when(cmd2.getZoneId()).thenReturn(null);
         prefixes = configurationMgr.listDataCenterGuestIpv6Prefixes(cmd2);
-        assertEquals(3, prefixes.size());
+        Assert.assertEquals(3, prefixes.size());
     }
 
     @Test(expected = InvalidParameterValueException.class)
@@ -1309,8 +1304,8 @@ public class ConfigurationManagerTest {
             return true;
         });
         configurationMgr.deleteDataCenterGuestIpv6Prefix(cmd);
-        assertEquals(1, removedPrefix.size());
-        assertEquals(prefixId, removedPrefix.get(0));
+        Assert.assertEquals(1, removedPrefix.size());
+        Assert.assertEquals(prefixId, removedPrefix.get(0));
     }
 
     @Test(expected = InvalidParameterValueException.class)
@@ -1360,8 +1355,8 @@ public class ConfigurationManagerTest {
         mockPersistDatacenterForCreateZone();
         DataCenter zone = configurationMgr.createZone(cmd);
         Assert.assertNotNull(zone);
-        assertEquals(NetworkType.Advanced, zone.getNetworkType());
-        assertEquals(DataCenter.Type.Edge, zone.getType());
+        Assert.assertEquals(NetworkType.Advanced, zone.getNetworkType());
+        Assert.assertEquals(DataCenter.Type.Edge, zone.getType());
     }
 
     @Test
@@ -1373,8 +1368,8 @@ public class ConfigurationManagerTest {
         mockPersistDatacenterForCreateZone();
         DataCenter zone = configurationMgr.createZone(cmd);
         Assert.assertNotNull(zone);
-        assertEquals(NetworkType.Advanced, zone.getNetworkType());
-        assertEquals(DataCenter.Type.Core, zone.getType());
+        Assert.assertEquals(NetworkType.Advanced, zone.getNetworkType());
+        Assert.assertEquals(DataCenter.Type.Core, zone.getType());
     }
 
     @Test
@@ -1386,7 +1381,7 @@ public class ConfigurationManagerTest {
         mockPersistDatacenterForCreateZone();
         DataCenter zone = configurationMgr.createZone(cmd);
         Assert.assertNotNull(zone);
-        assertEquals(NetworkType.Basic, zone.getNetworkType());
+        Assert.assertEquals(NetworkType.Basic, zone.getNetworkType());
     }
 
     @Test(expected = InvalidParameterValueException.class)
@@ -1432,78 +1427,5 @@ public class ConfigurationManagerTest {
         });
         Mockito.doNothing().when(messageBus).publish(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         configurationMgr.createPod(zoneId, "TestPod", null, null, null, null, null);
-    }
-
-    @Test
-    public void testValidateSpecificConfigurationValues_ValidFormatWithPositiveIntegers() {
-        String name = AgentManager.GranularWaitTimeForCommands.toString();
-        String validValue = "CopyCommand=120, DeleteCommand= 60";
-
-        try {
-            configurationMgr.validateSpecificConfigurationValues(name, validValue, String.class);
-        } catch (InvalidParameterValueException e) {
-            Assert.fail("Exception should not be thrown for a valid command string with positive integers, but there is an error " + e);
-        }
-    }
-
-    @Test
-    public void testValidateSpecificConfigurationValues_InvalidFormat() {
-        String name = AgentManager.GranularWaitTimeForCommands.toString();
-        String invalidValue = "{\"CopyCommand\": 120}";
-
-        try {
-            configurationMgr.validateSpecificConfigurationValues(name, invalidValue, String.class);
-            Assert.fail("Exception should be thrown for an invalid command string.");
-        } catch (InvalidParameterValueException e) {
-            assertTrue(e.getMessage().contains("does not contain '='."));
-        }
-    }
-
-    @Test
-    public void testValidCommandString() {
-        final String input = "DhcpEntryCommand=600, SavePasswordCommand=300, VmDataCommand=300";
-        final Pair<Boolean, String> result = configurationMgr.validateCommaSeparatedKeyValueConfigWithPositiveIntegerValues(input);
-        assertTrue("Expected validation to pass", result.first());
-        assertEquals("Expected no error message", "", result.second());
-    }
-
-    @Test
-    public void testInvalidCommandValue() {
-        final String input = "DhcpEntryCommand=600, SavePasswordCommand=300, VmDataCommand=invalid";
-        final Pair<Boolean, String> result = configurationMgr.validateCommaSeparatedKeyValueConfigWithPositiveIntegerValues(input);
-        assertFalse("Expected validation to fail", result.first());
-        assertEquals("Expected specific error message",
-                "Validation failed: The value for command 'VmDataCommand' is not a valid integer. Invalid value: invalid",
-                result.second());
-    }
-
-    @Test
-    public void testCommandWithZeroValue() {
-        final String input = "DhcpEntryCommand=600, SavePasswordCommand=0, VmDataCommand=300";
-        final Pair<Boolean, String> result = configurationMgr.validateCommaSeparatedKeyValueConfigWithPositiveIntegerValues(input);
-        assertFalse("Expected validation to fail", result.first());
-        assertEquals("Expected specific error message",
-                "Validation failed: The value for command 'SavePasswordCommand' is not greater than 0. Invalid value: 0",
-                result.second());
-    }
-
-    @Test
-    public void testCommandWithNegativeValue() {
-        final String input = "DhcpEntryCommand=-100, SavePasswordCommand=300, VmDataCommand=300";
-        final Pair<Boolean, String> result = configurationMgr.validateCommaSeparatedKeyValueConfigWithPositiveIntegerValues(input);
-        assertFalse("Expected validation to fail", result.first());
-        assertEquals("Expected specific error message",
-                "Validation failed: The value for command 'DhcpEntryCommand' is not greater than 0. Invalid value: -100",
-                result.second());
-    }
-
-    @Test
-    public void testInvalidCommandStructure() {
-        final String input = "DhcpEntryCommand600, SavePasswordCommand=300, VmDataCommand=300";
-        final Pair<Boolean, String> result = configurationMgr.validateCommaSeparatedKeyValueConfigWithPositiveIntegerValues(input);
-        assertFalse("Expected validation to fail", result.first());
-        assertEquals("Expected specific error message",
-                "Validation failed: Command 'DhcpEntryCommand600' does not contain '='.",
-                result.second());
     }
 }

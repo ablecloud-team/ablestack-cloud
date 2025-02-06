@@ -30,7 +30,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 @Entity
 @Table(name = "kubernetes_supported_version")
@@ -84,13 +83,6 @@ public class KubernetesSupportedVersionVO implements KubernetesSupportedVersion 
         this.zoneId = zoneId;
         this.minimumCpu = minimumCpu;
         this.minimumRamSize = minimumRamSize;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("KubernetesSupportedVersion %s",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name", "semanticVersion"));
     }
 
     @Override

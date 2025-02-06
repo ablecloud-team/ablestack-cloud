@@ -17,8 +17,6 @@
 
 package org.apache.cloudstack.quota.activationrule.presetvariables;
 
-import java.util.List;
-
 public class PresetVariables {
 
     @PresetVariableDefinition(description = "Account owner of the resource.")
@@ -38,9 +36,6 @@ public class PresetVariables {
 
     @PresetVariableDefinition(description = "Zone where the resource is.")
     private GenericPresetVariable zone;
-
-    @PresetVariableDefinition(description = "A list containing the tariffs ordered by the field 'position'.")
-    private List<Tariff> lastTariffs;
 
     public Account getAccount() {
         return account;
@@ -88,13 +83,5 @@ public class PresetVariables {
 
     public void setZone(GenericPresetVariable zone) {
         this.zone = zone;
-    }
-
-    public List<Tariff> getLastTariffs() {
-        return lastTariffs;
-    }
-
-    public void setLastTariffs(List<Tariff> lastTariffs) {
-        this.lastTariffs = lastTariffs;
     }
 }

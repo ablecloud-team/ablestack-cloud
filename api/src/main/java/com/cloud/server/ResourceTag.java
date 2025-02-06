@@ -70,8 +70,7 @@ public interface ResourceTag extends ControlledEntity, Identity, InternalIdentit
         NetworkOffering(false, true),
         VpcOffering(true, false),
         Domain(false, false, true),
-        ObjectStore(false, false, true),
-        DisasterRecoveryCluster(false, false, true);
+        ObjectStore(false, false, true);
 
 
         ResourceObjectType(boolean resourceTagsSupport, boolean resourceMetadataSupport) {

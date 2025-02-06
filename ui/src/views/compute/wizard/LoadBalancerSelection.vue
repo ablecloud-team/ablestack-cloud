@@ -30,7 +30,6 @@
       :rowKey="record => record.id"
       :pagination="false"
       :rowSelection="rowSelection"
-      :customRow="onClickRow"
       size="middle"
       :scroll="{ y: 225 }">
       <template #headerCell="{ column }">
@@ -198,14 +197,6 @@ export default {
       this.options.page = page
       this.options.pageSize = pageSize
       this.$emit('handle-search-filter', this.options)
-    },
-    onClickRow (record) {
-      return {
-        onClick: () => {
-          this.selectedRowKeys = [record.id]
-          this.$emit('select-load-balancer-item', record.id)
-        }
-      }
     }
   }
 }
