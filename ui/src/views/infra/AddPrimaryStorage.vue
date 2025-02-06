@@ -143,6 +143,26 @@
           </template>
           <a-input v-model:value="form.name" :placeholder="apiParams.name.description"/>
         </a-form-item>
+        <div v-if="form.protocol !== 'Linstor'">
+          <a-form-item name="provider" ref="provider">
+            <template #label>
+              <tooltip-label :title="$t('label.providername')" :tooltip="apiParams.provider.description"/>
+            </template>
+            <a-select
+              v-model:value="form.provider"
+              @change="updateProviderAndProtocol"
+              showSearch
+              optionFilterProp="value"
+              :filterOption="(input, option) => {
+                return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }"
+              :placeholder="apiParams.provider.description">
+              <a-select-option :value="provider" v-for="(provider,idx) in providers" :key="idx">
+                {{ provider }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+        </div>
         <a-form-item name="protocol" ref="protocol" v-if="form.scope === 'zone' || form.scope === 'cluster' || form.scope === 'host'">
           <template #label>
             <tooltip-label :title="$t('label.protocol')" :tooltip="$t('message.protocol.description')"/>
@@ -221,26 +241,6 @@
               <tooltip-label :title="$t('label.vcenterdatastore')" :tooltip="$t('message.datastore.description')"/>
             </template>
             <a-input v-model:value="form.vCenterDataStore" :placeholder="$t('message.datastore.description')"/>
-          </a-form-item>
-        </div>
-        <div v-if="form.protocol !== 'Linstor'">
-          <a-form-item name="provider" ref="provider">
-            <template #label>
-              <tooltip-label :title="$t('label.providername')" :tooltip="apiParams.provider.description"/>
-            </template>
-            <a-select
-              v-model:value="form.provider"
-              @change="updateProviderAndProtocol"
-              showSearch
-              optionFilterProp="value"
-              :filterOption="(input, option) => {
-                return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }"
-              :placeholder="apiParams.provider.description">
-              <a-select-option :value="provider" v-for="(provider,idx) in providers" :key="idx">
-                {{ provider }}
-              </a-select-option>
-            </a-select>
           </a-form-item>
         </div>
         <div v-if="form.provider !== 'DefaultPrimary' && form.provider !== 'PowerFlex' && form.provider !== 'Linstor' && form.provider !== 'ABLESTACK' && form.protocol !== 'FiberChannel'">
@@ -544,7 +544,16 @@ export default {
         primeraPassword: [{ required: true, message: this.$t('label.password') }],
         flashArrayURL: [{ required: true, message: this.$t('label.url') }],
         flashArrayUsername: [{ required: true, message: this.$t('label.username') }],
-        flashArrayPassword: [{ required: true, message: this.$t('label.password') }]
+        kradosmonitor: [{ required: true, message: this.$t('label.required') }],
+        kradospool: [{ required: true, message: this.$t('label.required') }],
+        kradosuser: [{ required: true, message: this.$t('label.required') }],
+        kradossecret: [{ required: true, message: this.$t('label.required') }],
+        kradospath: [{ required: true, message: this.$t('label.required') }],
+        gluefsserver: [{ required: true, message: this.$t('label.required') }],
+        gluefsuser: [{ required: true, message: this.$t('label.required') }],
+        gluefsname: [{ required: true, message: this.$t('label.required') }],
+        gluefssecret: [{ required: true, message: this.$t('label.required') }],
+        gluefstargetpath: [{ required: true, message: this.$t('label.required') }]
       })
     },
     fetchData () {
@@ -814,6 +823,9 @@ export default {
       } else if (value === 'Flash Array' || value === 'Primera') {
         this.protocols = ['FiberChannel']
         this.form.protocol = 'FiberChannel'
+      } else if (value === 'ABLESTACK') {
+        this.protocols = ['Glue Block', 'Glue FileSystem']
+        this.form.protocol = 'Glue Block'
       } else {
         this.fetchHypervisor(value)
       }
@@ -913,6 +925,7 @@ export default {
         } else if (values.protocol === 'Glue Block') {
           url = this.rbdURL(values.kradosmonitor, values.kradospool, values.kradosuser, values.kradossecret)
           params.krbdPath = values.kradospath
+          params['details[0].provider'] = 'ABLESTACK'
         } else if (values.protocol === 'Glue FileSystem') {
           url = this.gluefsURL(values.gluefsserver, values.gluefstargetpath, values.gluefsuser, values.gluefssecret)
           params['details[0].gluefsname'] = values.gluefsname

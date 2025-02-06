@@ -78,13 +78,13 @@ hb=$(cat $hbFile)
 diff=$(expr $now - $hb)
 if [ $diff -lt 61 ]
 then
-    echo "### [HOST STATE : ALIVE] ###"
+    echo "### [HOST STATE : ALIVE] in [PoolType : SharedMountPoint] ###"
     exit 0
 fi
 
 if [ -z "$UUIDList" ]
 then
-    echo " ### [HOST STATE : DEAD] Volume UUID list is empty => Considered host down ###"
+    echo " ### [HOST STATE : DEAD] Volume UUID list is empty => Considered host down in [PoolType : SharedMountPoint] ###"
     exit 0
 fi
 
@@ -96,9 +96,9 @@ if [ ! -f $acFile ]; then
     echo "$SuspectTime:$latestUpdateTime:$MSTime" > $acFile
 
     if [[ $latestUpdateTime -gt $SuspectTime ]]; then
-        echo "### [HOST STATE : ALIVE] ###"
+        echo "### [HOST STATE : ALIVE] in [PoolType : SharedMountPoint] ###"
     else
-         echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down ### "
+         echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : SharedMountPoint] ### "
     fi
 else
     acTime=$(cat $acFile)
@@ -110,15 +110,15 @@ else
     suspectTimeDiff=$(expr $SuspectTime - $lastSuspectTime)
     if [[ $suspectTimeDiff -lt 0 ]]; then
         if [[ $latestUpdateTime -gt $SuspectTime ]]; then
-            echo "### [HOST STATE : ALIVE] ###"
+            echo "### [HOST STATE : ALIVE] in [PoolType : SharedMountPoint] ###"
         else
-            echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down ### "
+            echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : SharedMountPoint] ### "
         fi
     else
         if [[ $latestUpdateTime -gt $lastUpdateTime ]]; then
-            echo "### [HOST STATE : ALIVE] ###"
+            echo "### [HOST STATE : ALIVE] in [PoolType : SharedMountPoint] ###"
         else
-         echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down ### "
+         echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : SharedMountPoint] ### "
         fi
     fi
 fi

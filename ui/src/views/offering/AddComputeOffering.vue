@@ -392,13 +392,13 @@
                 </a-radio-button>
               </a-radio-group>
             </a-form-item>
-            <a-form-item name="kvdoenable" ref="kvdoenable">
+            <a-form-item v-if="!form.shareable" name="kvdoenable" ref="kvdoenable">
               <template #label>
                 <tooltip-label :title="$t('label.kvdoenable')" :tooltip="apiParams.kvdoenable.description"/>
               </template>
               <a-switch v-model:checked="form.kvdoenable" />
             </a-form-item>
-            <a-form-item name="shareable" ref="shareable">
+            <a-form-item v-if="!form.kvdoenable" name="shareable" ref="shareable">
               <template #label>
                 <tooltip-label :title="$t('label.shareable')" :tooltip="apiParams.shareable.description"/>
               </template>

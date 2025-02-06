@@ -26,7 +26,7 @@
     :rowSelection="explicitlyAllowRowSelection || enableGroupAction() || $route.name === 'event' ? {selectedRowKeys: selectedRowKeys, onChange: onSelectChange, columnWidth: 30} : null"
     :rowClassName="getRowClassName"
     @resizeColumn="handleResizeColumn"
-    style="overflow-y: auto"
+    :style="{ 'overflow-y': this.$route.name === 'usage' ? 'hidden' : 'auto' }"
   >
     <template #customFilterDropdown>
       <div style="padding: 8px" class="filter-dropdown">
@@ -44,7 +44,7 @@
           <span v-if="record.icon && record.icon.base64image">
             <resource-icon :image="record.icon.base64image" size="2x"/>
           </span>
-          <os-logo v-else :osId="record.ostypeid" :osName="record.osdisplayname" size="2x" />
+          <os-logo v-else :osId="record.ostypeid" :osName="record.osdisplayname" size="xl" />
         </span>
         <span style="min-width: 120px" >
           <QuickView
@@ -58,12 +58,12 @@
           </span>
           <span v-if="$showIcon() && !['vm', 'vnfapp'].includes($route.path.split('/')[1])" style="margin-right: 5px">
             <resource-icon v-if="$showIcon() && record.icon && record.icon.base64image" :image="record.icon.base64image" size="2x"/>
-            <os-logo v-else-if="record.ostypename" :osName="record.ostypename" size="2x" />
+            <os-logo v-else-if="record.ostypename" :osName="record.ostypename" size="xl" />
             <render-icon v-else-if="typeof $route.meta.icon ==='string'" style="font-size: 16px;" :icon="$route.meta.icon"/>
             <render-icon v-else style="font-size: 16px;" :svgIcon="$route.meta.icon" />
           </span>
           <span v-else :style="{ 'margin-right': record.ostypename ? '5px' : '0' }">
-            <os-logo v-if="record.ostypename" :osName="record.ostypename" size="1x" />
+            <os-logo v-if="record.ostypename" :osName="record.ostypename" size="xl" />
           </span>
 
           <span v-if="record.hasannotations">
@@ -243,12 +243,24 @@
       <template v-if="column.key === 'agentstate'">
         <status :text="text ? text : ''" displayText />
       </template>
+      <template v-if="column.key === 'cpunumber'">
+        <span>{{ record.serviceofferingdetails?.mincpunumber && record.serviceofferingdetails?.maxcpunumber ? `${record.serviceofferingdetails.mincpunumber} - ${record.serviceofferingdetails.maxcpunumber}` : record.cpunumber }}</span>
+      </template>
+      <template v-if="column.key === 'memory'">
+        <span>{{ record.serviceofferingdetails?.minmemory && record.serviceofferingdetails?.maxmemory ? `${record.serviceofferingdetails.minmemory} - ${record.serviceofferingdetails.maxmemory}` : record.memory }}</span>
+      </template>
       <template v-if="column.key === 'quotastate'">
         <status :text="text ? text : ''" displayText />
       </template>
       <template v-if="column.key === 'qemuagentversion'">
         <a-tag v-if="text === 'Not Installed'" color="error">{{ this.$t('label.state.qemuagentversion.notinstalled') }}</a-tag>
         <a-tag v-else-if="text" color="success">{{ text }}</a-tag>
+      </template>
+      <template v-if="column.key === 'mirroringagentstatus'">
+        <status :text="text ? text : ''" displayText />
+      </template>
+      <template v-if="column.key === 'drclusterstatus'">
+        <status :text="text ? text : ''" displayText />
       </template>
       <template v-if="column.key === 'vlan'">
         <a href="javascript:;">
@@ -348,7 +360,7 @@
         </template>
         <template v-if="text && !text.startsWith('PrjAcct-')">
           <router-link
-            v-if="'quota' in record && $router.resolve(`${$route.path}/${record.account}`).matched[0].redirect !== '/exception/404'"
+            v-if="'quotausage' in record && $router.resolve(`${$route.path}/${record.account}`).matched[0].redirect !== '/exception/404'"
             :to="{ path: `${$route.path}/${record.account}`, query: { account: record.account, domainid: record.domainid, quota: true } }">{{ text }}</router-link>
           <router-link :to="{ path: '/account/' + record.accountid }" v-else-if="record.accountid">{{ text }}</router-link>
           <router-link :to="{ path: '/account', query: { name: record.account, domainid: record.domainid, dataView: true } }" v-else-if="$store.getters.userInfo.roletype !== 'User'">{{ text }}</router-link>
@@ -466,7 +478,7 @@
           {{ isNaN(text) ? text : (parseFloat(parseFloat(text) / 1024.0 / 1024.0 / 1024.0).toFixed(2) + ' GiB') }}
         </span>
       </template>
-      <template v-if="['startdate', 'enddate'].includes(column.key) && ['usage'].includes($route.path.split('/')[1])">
+      <template v-if="['startdate', 'enddate'].includes(column.key) && ['quotasummary', 'usage'].includes($route.path.split('/')[1])">
         {{ $toLocaleDate(text.replace('\'T\'', ' ')) }}
       </template>
       <template v-if="column.key === 'order'">
@@ -727,12 +739,12 @@ export default {
       return new RegExp(['/vm', '/desktop', '/kubernetes', '/ssh', '/userdata', '/vmgroup', '/affinitygroup', '/autoscalevmgroup',
         '/volume', '/snapshot', '/vmsnapshot', '/backup',
         '/guestnetwork', '/vpc', '/vpncustomergateway', '/vnfapp',
-        '/template', '/controllertemplate', '/mastertemplate', 'automationtemplate', 'automationcontroller', '/iso',
+        '/template', '/controllertemplate', '/mastertemplate', '/automationtemplate', '/automationcontroller', '/iso',
         '/project', '/account', 'buckets', 'objectstore',
         '/zone', '/pod', '/cluster', '/host', '/storagepool', '/imagestore', '/systemvm', '/router', '/ilbvm', '/annotation',
         '/computeoffering', '/systemoffering', '/diskoffering', '/backupoffering', '/networkoffering', '/vpcoffering',
         '/tungstenfabric', '/oauthsetting', '/guestos', '/guestoshypervisormapping', '/webhook', 'webhookdeliveries', '/quotatariff', '/sharedfs',
-        '/ipv4subnets'].join('|'))
+        '/ipv4subnets', '/disasterrecoverycluster'].join('|'))
         .test(this.$route.path)
     },
     enableGroupAction () {

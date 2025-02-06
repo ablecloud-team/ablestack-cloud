@@ -211,13 +211,13 @@ export default {
     },
     fetchOwnerOptions (OwnerOptions) {
       this.owner = {}
-      if (OwnerOptions.selectedAccountType === this.$t('label.account')) {
+      if (OwnerOptions.selectedAccountType === 'Account') {
         if (!OwnerOptions.selectedAccount) {
           return
         }
         this.owner.account = OwnerOptions.selectedAccount
         this.owner.domainid = OwnerOptions.selectedDomain
-      } else if (OwnerOptions.selectedAccountType === this.$t('label.project')) {
+      } else if (OwnerOptions.selectedAccountType === 'Project') {
         if (!OwnerOptions.selectedProject) {
           return
         }
@@ -337,7 +337,7 @@ export default {
                 api('attachVolume', params).then(response => {
                   this.$pollJob({
                     jobId: response.attachvolumeresponse.jobid,
-                    title: this.$t('message.success.attach.volume'),
+                    title: this.$t('message.attach.volume.success'),
                     description: values.name,
                     successMessage: this.$t('message.attach.volume.success'),
                     errorMessage: this.$t('message.attach.volume.failed'),

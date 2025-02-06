@@ -635,7 +635,7 @@
 
     <div :style="this.$store.getters.shutdownTriggered ? 'margin-top: 24px; margin-bottom: 12px' : null">
       <div v-if="dataView">
-        <slot name="resource" v-if="$route.path.startsWith('/quotasummary') || $route.path.startsWith('/publicip')"></slot>
+        <slot name="resource" v-if="$route.path.startsWith('/publicip')"></slot>
         <resource-view
           v-else
           :resource="resource"
@@ -777,6 +777,7 @@ export default {
     eventBus.off('desktop-refresh-data')
     eventBus.off('resource-request-refresh-data')
     eventBus.off('automation-refresh-data')
+    eventBus.off('dr-refresh-data')
   },
   mounted () {
     eventBus.on('exec-action', (args) => {
@@ -810,6 +811,11 @@ export default {
     // })
     eventBus.on('automation-controller-refresh-data', () => {
       if (this.$route.path === '/automationcontroller' || this.$route.path.includes('/automationcontroller/')) {
+        this.fetchData()
+      }
+    })
+    eventBus.on('dr-refresh-data', () => {
+      if (this.$route.path === '/disasterrecoverycluster' || this.$route.path.includes('/disasterrecoverycluster/')) {
         this.fetchData()
       }
     })
@@ -948,7 +954,7 @@ export default {
         return this.$route.query.filter
       }
       const routeName = this.$route.name
-      if ((this.projectView && routeName === 'vm') || (['Admin', 'DomainAdmin'].includes(this.$store.getters.userInfo.roletype) && ['vm', 'iso', 'template', 'pod', 'cluster', 'host', 'systemvm', 'router', 'storagepool'].includes(routeName)) || ['account', 'guestnetwork', 'guestvlans', 'oauthsetting', 'guestos', 'guestoshypervisormapping', 'kubernetes', 'asnumbers'].includes(routeName)) {
+      if ((this.projectView && routeName === 'vm') || (['Admin', 'DomainAdmin'].includes(this.$store.getters.userInfo.roletype) && ['vm', 'iso', 'template', 'pod', 'cluster', 'host', 'systemvm', 'router', 'storagepool'].includes(routeName)) || ['account', 'guestnetwork', 'guestvlans', 'oauthsetting', 'guestos', 'guestoshypervisormapping', 'kubernetes', 'asnumbers', 'networkoffering'].includes(routeName)) {
         return 'all'
       }
       if (['publicip'].includes(routeName)) {
@@ -977,8 +983,6 @@ export default {
       }
     },
     getCsvDownload (paramFields) {
-      console.log('123123123')
-      console.log(JSON.stringify(paramFields.resource))
       var csvFile = 'event.csv'
       var downloadLink
       var row = []

@@ -246,6 +246,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/lib
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/setup
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/log/%{name}/management
 mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/management
+mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/systemd/system/%{name}-management.service.d
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/run
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/setup/wheel
 
@@ -298,7 +299,8 @@ install -D utils/target/cloud-utils-%{_maventag}-tests.jar ${RPM_BUILD_ROOT}%{_d
 
 install -D packaging/centos8/cloud-ipallocator.rc ${RPM_BUILD_ROOT}%{_initrddir}/%{name}-ipallocator
 install -D packaging/centos8/cloud.limits ${RPM_BUILD_ROOT}%{_sysconfdir}/security/limits.d/cloud
-install -D packaging/systemd/cloudstack-management.service ${RPM_BUILD_ROOT}%{_unitdir}/%{name}-management.service
+install -D packaging/centos8/filelimit.conf ${RPM_BUILD_ROOT}%{_sysconfdir}/systemd/system/%{name}-management.service.d
+install -D packaging/systemd/cloudstack-management.service ${RPM_BUILD_ROOT}%{_unitdir}/mold.service
 install -D packaging/systemd/cloudstack-management.default ${RPM_BUILD_ROOT}%{_sysconfdir}/default/%{name}-management
 install -D server/target/conf/cloudstack-sudoers ${RPM_BUILD_ROOT}%{_sysconfdir}/sudoers.d/%{name}-management
 touch ${RPM_BUILD_ROOT}%{_localstatedir}/run/%{name}-management.pid
@@ -338,7 +340,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/agent
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/log/%{name}/agent
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-agent/lib
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-agent/plugins
-install -D packaging/systemd/cloudstack-agent.service ${RPM_BUILD_ROOT}%{_unitdir}/%{name}-agent.service
+install -D packaging/systemd/cloudstack-agent.service ${RPM_BUILD_ROOT}%{_unitdir}/mold-agent.service
 install -D packaging/systemd/cloudstack-rolling-maintenance@.service ${RPM_BUILD_ROOT}%{_unitdir}/%{name}-rolling-maintenance@.service
 install -D packaging/systemd/cloudstack-agent.default ${RPM_BUILD_ROOT}%{_sysconfdir}/default/%{name}-agent
 install -D agent/target/transformed/agent.properties ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/agent/agent.properties
@@ -365,7 +367,7 @@ install -D usage/target/transformed/db.properties ${RPM_BUILD_ROOT}%{_sysconfdir
 install -D usage/target/transformed/log4j-cloud_usage.xml ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/usage/log4j-cloud.xml
 cp usage/target/dependencies/* ${RPM_BUILD_ROOT}%{_datadir}/%{name}-usage/lib/
 cp client/target/lib/mysql*jar ${RPM_BUILD_ROOT}%{_datadir}/%{name}-usage/lib/
-install -D packaging/systemd/cloudstack-usage.service ${RPM_BUILD_ROOT}%{_unitdir}/%{name}-usage.service
+install -D packaging/systemd/cloudstack-usage.service ${RPM_BUILD_ROOT}%{_unitdir}/mold-usage.service
 install -D packaging/systemd/cloudstack-usage.default ${RPM_BUILD_ROOT}%{_sysconfdir}/default/%{name}-usage
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/log/%{name}/usage/
 install -D usage/target/transformed/cloudstack-usage.logrotate ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d/%{name}-usage
@@ -412,8 +414,8 @@ if [ ! -z $python_dir ];then
 fi
 
 %preun management
-/usr/bin/systemctl stop cloudstack-management || true
-/usr/bin/systemctl disable cloudstack-management || true
+/usr/bin/systemctl stop mold || true
+/usr/bin/systemctl disable mold || true
 
 %pre management
 id cloud > /dev/null 2>&1 || /usr/sbin/useradd -M -U -c "CloudStack unprivileged user" \
@@ -442,7 +444,7 @@ fi
 # Install mysql-connector-python
 pip3 install %{_datadir}/%{name}-management/setup/wheel/six-1.15.0-py2.py3-none-any.whl %{_datadir}/%{name}-management/setup/wheel/setuptools-47.3.1-py3-none-any.whl %{_datadir}/%{name}-management/setup/wheel/protobuf-3.19.6-py2.py3-none-any.whl %{_datadir}/%{name}-management/setup/wheel/mysql_connector_python-8.0.31-py2.py3-none-any.whl
 
-/usr/bin/systemctl enable cloudstack-management > /dev/null 2>&1 || true
+/usr/bin/systemctl enable mold > /dev/null 2>&1 || true
 /usr/bin/systemctl enable --now rngd > /dev/null 2>&1 || true
 
 grep -s -q "db.cloud.driver=jdbc:mysql" "%{_sysconfdir}/%{name}/management/db.properties" || sed -i -e "\$adb.cloud.driver=jdbc:mysql" "%{_sysconfdir}/%{name}/management/db.properties"
@@ -476,11 +478,12 @@ if [ -f "/usr/share/cloudstack-common/scripts/installer/cloudstack-help-text" ];
     sed -i "s,^ACS_VERSION=.*,ACS_VERSION=%{_maventag},g" /usr/share/cloudstack-common/scripts/installer/cloudstack-help-text
     /usr/share/cloudstack-common/scripts/installer/cloudstack-help-text management
 fi
+/usr/bin/systemctl enable mold > /dev/null 2>&1 || true
 
 %preun agent
-/sbin/service cloudstack-agent stop || true
+/sbin/service mold-agent stop || true
 if [ "$1" == "0" ] ; then
-    /sbin/chkconfig --del cloudstack-agent > /dev/null 2>&1 || true
+    /sbin/chkconfig --del mold-agent > /dev/null 2>&1 || true
 fi
 
 %pre agent
@@ -503,7 +506,7 @@ fi
 cp -a ${RPM_BUILD_ROOT}%{_datadir}/%{name}-agent/lib/libvirtqemuhook %{_sysconfdir}/libvirt/hooks/qemu
 mkdir -m 0755 -p /usr/share/cloudstack-agent/tmp
 /usr/bin/systemctl restart libvirtd
-/usr/bin/systemctl enable cloudstack-agent > /dev/null 2>&1 || true
+/usr/bin/systemctl enable mold-agent > /dev/null 2>&1 || true
 /usr/bin/systemctl enable cloudstack-rolling-maintenance@p > /dev/null 2>&1 || true
 /usr/bin/systemctl enable --now rngd > /dev/null 2>&1 || true
 
@@ -528,9 +531,9 @@ id cloud > /dev/null 2>&1 || /usr/sbin/useradd -M -U -c "CloudStack unprivileged
      -r -s /bin/sh -d %{_localstatedir}/cloudstack/management cloud|| true
 
 %preun usage
-/sbin/service cloudstack-usage stop || true
+/sbin/service mold-usage stop || true
 if [ "$1" == "0" ] ; then
-    /sbin/chkconfig --del cloudstack-usage > /dev/null 2>&1 || true
+    /sbin/chkconfig --del mold-usage > /dev/null 2>&1 || true
 fi
 
 %post usage
@@ -538,7 +541,7 @@ if [ -f "%{_sysconfdir}/%{name}/management/db.properties" ]; then
     echo "Replacing usage server's db.properties with a link to the management server's db.properties"
     rm -f %{_sysconfdir}/%{name}/usage/db.properties
     ln -s %{_sysconfdir}/%{name}/management/db.properties %{_sysconfdir}/%{name}/usage/db.properties
-    /usr/bin/systemctl enable cloudstack-usage > /dev/null 2>&1 || true
+    /usr/bin/systemctl enable mold-usage > /dev/null 2>&1 || true
 fi
 
 if [ -f "%{_sysconfdir}/%{name}/management/key" ]; then
@@ -579,6 +582,7 @@ pip3 install --upgrade /usr/share/cloudstack-marvin/Marvin-*.tar.gz
 %config(noreplace) %{_sysconfdir}/default/%{name}-management
 %config(noreplace) %{_sysconfdir}/sudoers.d/%{name}-management
 %config(noreplace) %{_sysconfdir}/security/limits.d/cloud
+%config(noreplace) %{_sysconfdir}/systemd/system/%{name}-management.service.d
 %config(noreplace) %attr(0640,root,cloud) %{_sysconfdir}/%{name}/management/db.properties
 %config(noreplace) %attr(0640,root,cloud) %{_sysconfdir}/%{name}/management/server.properties
 %config(noreplace) %attr(0640,root,cloud) %{_sysconfdir}/%{name}/management/config.json
@@ -587,7 +591,7 @@ pip3 install --upgrade /usr/share/cloudstack-marvin/Marvin-*.tar.gz
 %config(noreplace) %{_sysconfdir}/%{name}/management/environment.properties
 %config(noreplace) %{_sysconfdir}/%{name}/management/java.security.ciphers
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/logrotate.d/%{name}-management
-%attr(0644,root,root) %{_unitdir}/%{name}-management.service
+%attr(0644,root,root) %{_unitdir}/mold.service
 %attr(0755,cloud,cloud) %{_localstatedir}/run/%{name}-management.pid
 %attr(0755,root,root) %{_bindir}/%{name}-setup-management
 %attr(0755,root,root) %{_bindir}/%{name}-update-xenserver-licenses
@@ -620,7 +624,7 @@ pip3 install --upgrade /usr/share/cloudstack-marvin/Marvin-*.tar.gz
 %attr(0755,root,root) %{_bindir}/%{name}-agent-upgrade
 %attr(0755,root,root) %{_bindir}/%{name}-guest-tool
 %attr(0755,root,root) %{_bindir}/%{name}-ssh
-%attr(0644,root,root) %{_unitdir}/%{name}-agent.service
+%attr(0644,root,root) %{_unitdir}/mold-agent.service
 %attr(0644,root,root) %{_unitdir}/%{name}-rolling-maintenance@.service
 %config(noreplace) %{_sysconfdir}/default/%{name}-agent
 %attr(0644,root,root) %{_sysconfdir}/profile.d/%{name}-agent-profile.sh
@@ -657,7 +661,7 @@ pip3 install --upgrade /usr/share/cloudstack-marvin/Marvin-*.tar.gz
 %{_defaultdocdir}/%{name}-ui-%{version}/NOTICE
 
 %files usage
-%attr(0644,root,root) %{_unitdir}/%{name}-usage.service
+%attr(0644,root,root) %{_unitdir}/mold-usage.service
 %config(noreplace) %{_sysconfdir}/default/%{name}-usage
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/logrotate.d/%{name}-usage
 %attr(0644,root,root) %{_datadir}/%{name}-usage/*.jar

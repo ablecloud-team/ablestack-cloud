@@ -1021,9 +1021,9 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             throw new ConfigurationException("Unable to find kvmheartbeat.sh");
         }
 
-        heartBeatPathGfs = Script.findScript(kvmScriptsDir, "kvmheartbeat_gluegfs.sh");
+        heartBeatPathGfs = Script.findScript(kvmScriptsDir, "kvmheartbeat_gfs.sh");
         if (heartBeatPathGfs == null) {
-            throw new ConfigurationException("Unable to find kvmheartbeat_gluegfs.sh");
+            throw new ConfigurationException("Unable to find kvmheartbeat_gfs.sh");
         }
 
         heartBeatPathRbd = Script.findScript(kvmScriptsDir, "kvmheartbeat_rbd.sh");
@@ -1066,9 +1066,9 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             throw new ConfigurationException("Unable to find kvmvmactivity.sh");
         }
 
-        vmActivityCheckPathGfs = Script.findScript(kvmScriptsDir, "kvmvmactivity_gluegfs.sh");
+        vmActivityCheckPathGfs = Script.findScript(kvmScriptsDir, "kvmvmactivity_gfs.sh");
         if (vmActivityCheckPathGfs == null) {
-            throw new ConfigurationException("Unable to find kvmvmactivity.sh");
+            throw new ConfigurationException("Unable to find kvmvmactivity_gfs.sh");
         }
 
         vmActivityCheckPathRbd = Script.findScript(kvmScriptsDir, "kvmvmactivity_rbd.sh");
@@ -3326,6 +3326,18 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return dataPath;
     }
 
+    public static boolean useBLOCKDiskType(KVMPhysicalDisk physicalDisk) {
+        return physicalDisk != null &&
+                physicalDisk.getPool() != null &&
+                StoragePoolType.Linstor.equals(physicalDisk.getPool().getType()) &&
+                physicalDisk.getFormat() != null &&
+                PhysicalDiskFormat.RAW.equals(physicalDisk.getFormat());
+    }
+
+    public static DiskDef.DiskType getDiskType(KVMPhysicalDisk physicalDisk) {
+        return useBLOCKDiskType(physicalDisk) ? DiskDef.DiskType.BLOCK : DiskDef.DiskType.FILE;
+    }
+
     public void createVbd(final Connect conn, final VirtualMachineTO vmSpec, final String vmName, final LibvirtVMDef vm) throws InternalErrorException, LibvirtException, URISyntaxException {
         final Map<String, String> details = vmSpec.getDetails();
         final List<DiskTO> disks = Arrays.asList(vmSpec.getDisks());
@@ -3371,7 +3383,8 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                         physicalDisk = getPhysicalDiskFromNfsStore(dataStoreUrl, data);
                     } else if (primaryDataStoreTO.getPoolType().equals(StoragePoolType.SharedMountPoint) ||
                             primaryDataStoreTO.getPoolType().equals(StoragePoolType.Filesystem) ||
-                            primaryDataStoreTO.getPoolType().equals(StoragePoolType.StorPool)) {
+                            primaryDataStoreTO.getPoolType().equals(StoragePoolType.StorPool) ||
+                            primaryDataStoreTO.getPoolType().equals(StoragePoolType.Linstor)) {
                         physicalDisk = getPhysicalDiskPrimaryStore(primaryDataStoreTO, data);
                     }
                 }
@@ -3421,8 +3434,8 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             final DiskDef disk = new DiskDef();
             int devId = volume.getDiskSeq().intValue();
             if (volume.getType() == Volume.Type.ISO) {
-
-                disk.defISODisk(volPath, devId, isUefiEnabled);
+                final DiskDef.DiskType diskType = getDiskType(physicalDisk);
+                disk.defISODisk(volPath, devId, isUefiEnabled, diskType);
 
                 if (guestCpuArch != null && guestCpuArch.equals("aarch64")) {
                     disk.setBusType(DiskDef.DiskBus.SCSI);
@@ -3568,7 +3581,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
         if (vmSpec.getType() != VirtualMachine.Type.User) {
             final DiskDef iso = new DiskDef();
-            iso.defISODisk(sysvmISOPath);
+            iso.defISODisk(sysvmISOPath, DiskDef.DiskType.FILE);
             if (guestCpuArch != null && guestCpuArch.equals("aarch64")) {
                 iso.setBusType(DiskDef.DiskBus.SCSI);
             }
@@ -3781,19 +3794,21 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         List<DiskDef> disks = getDisks(conn, vmName);
         DiskDef configdrive = null;
         for (DiskDef disk : disks) {
-            if (disk.getDeviceType() == DiskDef.DeviceType.CDROM && disk.getDiskLabel() == CONFIG_DRIVE_ISO_DISK_LABEL) {
+            if (disk.getDeviceType() == DiskDef.DeviceType.CDROM && CONFIG_DRIVE_ISO_DISK_LABEL.equals(disk.getDiskLabel())) {
                 configdrive = disk;
             }
         }
         if (configdrive != null) {
             try {
+                LOGGER.debug(String.format("Detaching ConfigDrive ISO of the VM %s, at path %s", vmName, configdrive.getDiskPath()));
                 String result = attachOrDetachISO(conn, vmName, configdrive.getDiskPath(), false, CONFIG_DRIVE_ISO_DEVICE_ID);
                 if (result != null) {
-                    LOGGER.warn("Detach ConfigDrive ISO with result: " + result);
+                    LOGGER.warn(String.format("Detach ConfigDrive ISO of the VM %s, at path %s with %s: ", vmName, configdrive.getDiskPath(), result));
                 }
+                LOGGER.debug(String.format("Attaching ConfigDrive ISO of the VM %s, at path %s", vmName, configdrive.getDiskPath()));
                 result = attachOrDetachISO(conn, vmName, configdrive.getDiskPath(), true, CONFIG_DRIVE_ISO_DEVICE_ID);
                 if (result != null) {
-                    LOGGER.warn("Attach ConfigDrive ISO with result: " + result);
+                    LOGGER.warn(String.format("Attach ConfigDrive ISO of the VM %s, at path %s with %s: ", vmName, configdrive.getDiskPath(), result));
                 }
             } catch (final LibvirtException | InternalErrorException | URISyntaxException e) {
                 final String msg = "Detach and attach ConfigDrive ISO failed due to " + e.toString();
@@ -3805,17 +3820,22 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     public synchronized String attachOrDetachISO(final Connect conn, final String vmName, String isoPath, final boolean isAttach, final Integer diskSeq) throws LibvirtException, URISyntaxException,
             InternalErrorException {
         final DiskDef iso = new DiskDef();
-        if (isoPath != null && isAttach) {
-            final int index = isoPath.lastIndexOf("/");
-            final String path = isoPath.substring(0, index);
-            final String name = isoPath.substring(index + 1);
-            final KVMStoragePool secondaryPool = storagePoolManager.getStoragePoolByURI(path);
-            final KVMPhysicalDisk isoVol = secondaryPool.getPhysicalDisk(name);
-            isoPath = isoVol.getPath();
+        if (isAttach && StringUtils.isNotBlank(isoPath) && isoPath.lastIndexOf("/") > 0) {
+            if (isoPath.startsWith(getConfigPath() + "/" + ConfigDrive.CONFIGDRIVEDIR) && isoPath.contains(vmName)) {
+                iso.defISODisk(isoPath, diskSeq, DiskDef.DiskType.FILE);
+            } else {
+                final int index = isoPath.lastIndexOf("/");
+                final String path = isoPath.substring(0, index);
+                final String name = isoPath.substring(index + 1);
+                final KVMStoragePool storagePool = storagePoolManager.getStoragePoolByURI(path);
+                final KVMPhysicalDisk isoVol = storagePool.getPhysicalDisk(name);
+                final DiskDef.DiskType diskType = getDiskType(isoVol);
+                isoPath = isoVol.getPath();
 
-            iso.defISODisk(isoPath, diskSeq);
+                iso.defISODisk(isoPath, diskSeq, diskType);
+            }
         } else {
-            iso.defISODisk(null, diskSeq);
+            iso.defISODisk(null, diskSeq, DiskDef.DiskType.FILE);
         }
 
         final String result = attachOrDetachDevice(conn, true, vmName, iso.toString());
@@ -3823,7 +3843,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             final List<DiskDef> disks = getDisks(conn, vmName);
             for (final DiskDef disk : disks) {
                 if (disk.getDeviceType() == DiskDef.DeviceType.CDROM
-                        && (diskSeq == null || disk.getDiskLabel() == iso.getDiskLabel())) {
+                        && (diskSeq == null || disk.getDiskLabel().equals(iso.getDiskLabel()))) {
                     cleanupDisk(disk);
                 }
             }
@@ -4426,7 +4446,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             return stopVMInternal(conn, vmName, true);
         }
         String ret = stopVMInternal(conn, vmName, false);
-        if (ret == Script.ERR_TIMEOUT) {
+        if (Script.ERR_TIMEOUT.equals(ret)) {
             ret = stopVMInternal(conn, vmName, true);
         } else if (ret != null) {
             /*
@@ -5652,10 +5672,6 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             Script.runSimpleBashScript("rbd map " + disk.getPath() + " --id " + pool.getAuthUserName());
             device = Script.runSimpleBashScript("rbd showmapped | grep \""+splitPoolImage[0]+"[ ]*"+splitPoolImage[1]+"\" | grep -o \"[^ ]*[ ]*$\"");
         }
-
-        // kvdo가 활성화 되어있음
-        device = Script.runSimpleBashScript("rbd showmapped | grep \""+splitPoolImage[0]+"[ ]*"+splitPoolImage[1]+"\" | grep -o \"[^ ]*[ ]*$\"");
-
         if(kvdoEnable){
             try {
                 createKvdoCmdLine(splitPoolImage[0], pool.getAuthUserName(), splitPoolImage[1], String.valueOf(disk.getSize()));

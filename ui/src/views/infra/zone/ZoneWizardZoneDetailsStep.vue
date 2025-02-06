@@ -383,6 +383,7 @@ export default {
       if (this.isEdgeZone) {
         return 'KVM'
       }
+      console.log('this.prefillContent.hypervisor :>> ', this.prefillContent.hypervisor)
       if (this.prefillContent.hypervisor) {
         return this.prefillContent.hypervisor
       } else if (this.hypervisors && this.hypervisors.length > 0) {
@@ -460,7 +461,7 @@ export default {
         if ('listSimulatorHAStateTransitions' in this.$store.getters.apis) {
           this.hypervisors.push({ name: 'Simulator' })
         }
-        this.form.hypervisor = this.currentHypervisor
+        this.form.hypervisor = 'KVM'
         this.formModel = toRaw(this.form)
       })
 

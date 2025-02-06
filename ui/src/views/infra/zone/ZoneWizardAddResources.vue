@@ -193,6 +193,13 @@ export default {
           required: true
         },
         {
+          title: 'label.arch',
+          key: 'arch',
+          required: false,
+          select: true,
+          options: this.architectureTypes
+        },
+        {
           title: 'label.vcenter.host',
           key: 'vCenterHost',
           placeHolder: 'message.error.vcenter.host',
@@ -378,9 +385,19 @@ export default {
           options: this.primaryStorageScopes
         },
         {
+          title: 'label.provider',
+          key: 'provider',
+          placeHolder: 'message.error.select',
+          value: 'ABLESTACK',
+          select: true,
+          required: true,
+          options: this.primaryStorageProviders
+        },
+        {
           title: 'label.protocol',
           key: 'primaryStorageProtocol',
           placeHolder: 'message.error.select',
+          value: 'Glue Block',
           required: true,
           select: true,
           options: this.primaryStorageProtocols
@@ -498,7 +515,7 @@ export default {
           title: 'label.glueblock.monitor',
           key: 'primaryStorageRADOSMonitor',
           placeHolder: 'message.error.rados.monitor',
-          required: false,
+          required: true,
           display: {
             primaryStorageProtocol: ['Glue Block']
           }
@@ -507,7 +524,7 @@ export default {
           title: 'label.glueblock.pool',
           key: 'primaryStorageRADOSPool',
           placeHolder: 'message.error.rados.pool',
-          required: false,
+          required: true,
           display: {
             primaryStorageProtocol: ['Glue Block']
           }
@@ -516,7 +533,7 @@ export default {
           title: 'label.glueblock.user',
           key: 'primaryStorageRADOSUser',
           placeHolder: 'message.error.rados.user',
-          required: false,
+          required: true,
           display: {
             primaryStorageProtocol: ['Glue Block']
           }
@@ -525,7 +542,7 @@ export default {
           title: 'label.glueblock.secret',
           key: 'primaryStorageRADOSSecret',
           placeHolder: 'message.error.rados.secret',
-          required: false,
+          required: true,
           display: {
             primaryStorageProtocol: ['Glue Block']
           }
@@ -534,7 +551,7 @@ export default {
           title: 'label.glueblock.path',
           key: 'primaryStorageRADOSPath',
           placeHolder: 'message.error.rados.path',
-          required: false,
+          required: true,
           display: {
             primaryStorageProtocol: ['Glue Block']
           }
@@ -543,7 +560,7 @@ export default {
           title: 'label.gluefs.server',
           key: 'gluefsserver',
           placeHolder: 'message.error.gluefs.server',
-          required: false,
+          required: true,
           display: {
             primaryStorageProtocol: ['Glue FileSystem']
           }
@@ -552,7 +569,7 @@ export default {
           title: 'label.gluefs.user',
           key: 'gluefsuser',
           placeHolder: 'message.error.gluefs.user',
-          required: false,
+          required: true,
           display: {
             primaryStorageProtocol: ['Glue FileSystem']
           }
@@ -561,7 +578,7 @@ export default {
           title: 'label.gluefs.name',
           key: 'gluefsname',
           placeHolder: 'message.error.gluefs.name',
-          required: false,
+          required: true,
           display: {
             primaryStorageProtocol: ['Glue FileSystem']
           }
@@ -570,7 +587,7 @@ export default {
           title: 'label.gluefs.secret',
           key: 'gluefssecret',
           placeHolder: 'message.error.gluefs.secret',
-          required: false,
+          required: true,
           display: {
             primaryStorageProtocol: ['Glue FileSystem']
           }
@@ -579,7 +596,7 @@ export default {
           title: 'label.gluefs.path',
           key: 'gluefstargetpath',
           placeHolder: 'message.error.gluefs.path',
-          required: false,
+          required: true,
           display: {
             primaryStorageProtocol: ['Glue FileSystem']
           }
@@ -637,15 +654,6 @@ export default {
           display: {
             primaryStorageProtocol: 'Linstor'
           }
-        },
-        {
-          title: 'label.provider',
-          key: 'provider',
-          placeHolder: 'message.error.select',
-          value: 'DefaultPrimary',
-          select: true,
-          required: true,
-          options: this.primaryStorageProviders
         },
         {
           title: 'label.ismanaged',
@@ -936,6 +944,13 @@ export default {
       primaryStorageScopes: [],
       primaryStorageProtocols: [],
       primaryStorageProviders: [],
+      architectureTypes: [{
+        id: 'x86_64',
+        description: 'AMD 64 bits (x86_64)'
+      }, {
+        id: 'aarch64',
+        description: 'ARM 64 bits (aarch64)'
+      }],
       storageProviders: [],
       currentStep: null,
       options: ['primaryStorageScope', 'primaryStorageProtocol', 'provider', 'primaryStorageProvider']
@@ -1054,7 +1069,7 @@ export default {
       this.primaryStorageScopes = scope
     },
     fetchProtocol () {
-      const hypervisor = this.prefillContent?.hypervisor || null
+      const hypervisor = this.prefillContent?.hypervisor || 'KVM'
       const protocols = []
       if (hypervisor === 'KVM') {
         protocols.push({

@@ -20,17 +20,22 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.Duration;
+import org.libvirt.Connect;
+import org.libvirt.LibvirtException;
 import org.libvirt.StoragePool;
 
 import org.apache.cloudstack.utils.qemu.QemuImg.PhysicalDiskFormat;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.cloud.agent.api.to.HostTO;
 import com.cloud.hypervisor.kvm.resource.KVMHABase.HAStoragePool;
+import com.cloud.hypervisor.kvm.resource.LibvirtConnection;
+import com.cloud.hypervisor.kvm.resource.LibvirtStoragePoolDef;
+import com.cloud.hypervisor.kvm.resource.LibvirtStoragePoolDef.PoolType;
+import com.cloud.hypervisor.kvm.resource.LibvirtStoragePoolXMLParser;
 import com.cloud.storage.Storage;
 import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -42,6 +47,8 @@ public class LibvirtStoragePool implements KVMStoragePool {
     protected String uuid;
     protected long capacity;
     protected long used;
+    protected Long capacityIops;
+    protected Long usedIops;
     protected long available;
     protected String name;
     protected String localPath;
@@ -80,18 +87,36 @@ public class LibvirtStoragePool implements KVMStoragePool {
         this.used = used;
     }
 
-    public void setAvailable(long available) {
-        this.available = available;
-    }
-
     @Override
     public long getUsed() {
         return this.used;
     }
 
     @Override
+    public Long getCapacityIops() {
+        return capacityIops;
+    }
+
+    public void setCapacityIops(Long capacityIops) {
+        this.capacityIops = capacityIops;
+    }
+
+    @Override
+    public Long getUsedIops() {
+        return usedIops;
+    }
+
+    public void setUsedIops(Long usedIops) {
+        this.usedIops = usedIops;
+    }
+
+    @Override
     public long getAvailable() {
         return this.available;
+    }
+
+    public void setAvailable(long available) {
+        this.available = available;
     }
 
     public StoragePoolType getStoragePoolType() {
@@ -304,7 +329,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
             return Script.findScript(kvmScriptsDir, "kvmheartbeat.sh");
         }
         if (type == StoragePoolType.SharedMountPoint) {
-            return Script.findScript(kvmScriptsDir, "kvmheartbeat_gluegfs.sh");
+            return Script.findScript(kvmScriptsDir, "kvmheartbeat_gfs.sh");
         }
         if (type == StoragePoolType.RBD) {
             return Script.findScript(kvmScriptsDir, "kvmheartbeat_rbd.sh");
@@ -324,17 +349,15 @@ public class LibvirtStoragePool implements KVMStoragePool {
             cmd.add("-m", primaryStoragePool.getMountDestPath());
             if (hostValidation) {
                 cmd.add("-h", hostPrivateIp);
-            }
-            if (!hostValidation) {
+            } else {
                 cmd.add("-c");
             }
         } else if (primaryStoragePool.getPool().getType() == StoragePoolType.SharedMountPoint) {
                 cmd = new Script(getHearthBeatPath(), HeartBeatUpdateTimeout, logger);
-                cmd.add("-m", primaryStoragePool.getPoolMountSourcePath());
+                cmd.add("-m", primaryStoragePool.getMountDestPath());
                 if (hostValidation) {
                     cmd.add("-h", hostPrivateIp);
-                }
-                if (!hostValidation) {
+                } else {
                     cmd.add("-c");
                 }
         } else if (primaryStoragePool.getPool().getType() == StoragePoolType.RBD) {
@@ -347,11 +370,57 @@ public class LibvirtStoragePool implements KVMStoragePool {
                 cmd.add("-c");
             }
         } else if (primaryStoragePool.getPool().getType() == StoragePoolType.CLVM) {
-            cmd.add("-p", primaryStoragePool.getPoolMountSourcePath());
+            logger.info("RBD Pool or GFS Pool Setting...");
+            Connect conn = null;
+            try {
+                conn = LibvirtConnection.getConnection();
+            } catch (LibvirtException e) {
+                throw new CloudRuntimeException(e.toString());
+            }
+
+            String rbdPoolName = "";
+            String authUserName = "";
+            String smpTargetPath = "";
+            try {
+                String[] poolnames = conn.listStoragePools();
+                if (poolnames.length == 0) {
+                    logger.info("Didn't find an existing storage pool");
+                }
+                for (String poolname : poolnames) {
+                    logger.debug("Checking path of existing pool " + poolname + " against pool we want to create");
+                    StoragePool sp = conn.storagePoolLookupByName(poolname);
+                    String poolDefXML = sp.getXMLDesc(0);
+                    LibvirtStoragePoolXMLParser parser = new LibvirtStoragePoolXMLParser();
+                    LibvirtStoragePoolDef pdef =  parser.parseStoragePoolXML(poolDefXML);
+                    if (pdef == null) {
+                        throw new CloudRuntimeException("Unable to parse the storage pool definition for storage pool " + poolname);
+                    }
+                    if (pdef.getPoolType() == PoolType.RBD) {
+                        logger.debug(String.format("RBD Pool name [%s] auth name [%s]", pdef.getSourceDir(), pdef.getAuthUserName()));
+                        rbdPoolName = pdef.getSourceDir();
+                        authUserName = pdef.getAuthUserName();
+                    }
+                    if (pdef.getPoolType() == PoolType.DIR) {
+                        logger.debug(String.format("SharedMountPoint Pool source path [%s]", pdef.getTargetPath()));
+                        smpTargetPath = pdef.getTargetPath();
+                    }
+                }
+            } catch (LibvirtException e) {
+                logger.error("Failure in attempting to see if an existing storage pool might be using the path of the pool to be created:" + e);
+            }
+
+            if (rbdPoolName.length() > 0 && authUserName.length() > 0) {
+                cmd.add("-p", rbdPoolName);
+                cmd.add("-n", authUserName);
+            } else if (smpTargetPath.length() > 0) {
+                cmd.add("-g", smpTargetPath);
+            } else {
+                return "0";
+            }
+            cmd.add("-q", primaryStoragePool.getPoolMountSourcePath());
             if (hostValidation) {
                 cmd.add("-h", hostPrivateIp);
-            }
-            if (!hostValidation) {
+            } else {
                 cmd.add("-c");
             }
         }
@@ -360,7 +429,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.JSON_STYLE).append("uuid", getUuid()).append("path", getLocalPath()).toString();
+        return String.format("LibvirtStoragePool %s", ReflectionToStringBuilderUtils.reflectOnlySelectedFields(this, "uuid", "path"));
     }
 
     @Override
@@ -385,8 +454,55 @@ public class LibvirtStoragePool implements KVMStoragePool {
             cmd.add("-r");
             cmd.add("-t", String.valueOf(HeartBeatCheckerFreq / 1000));
         } else if (pool.getPool().getType() == StoragePoolType.CLVM) {
+            logger.info("RBD Pool or GFS Pool Setting...");
+            Connect conn = null;
+            try {
+                conn = LibvirtConnection.getConnection();
+            } catch (LibvirtException e) {
+                throw new CloudRuntimeException(e.toString());
+            }
+
+            String rbdPoolName = "";
+            String authUserName = "";
+            String smpTargetPath = "";
+            try {
+                String[] poolnames = conn.listStoragePools();
+                if (poolnames.length == 0) {
+                    logger.info("Didn't find an existing storage pool");
+                }
+                for (String poolname : poolnames) {
+                    logger.debug("Checking path of existing pool " + poolname + " against pool we want to create");
+                    StoragePool sp = conn.storagePoolLookupByName(poolname);
+                    String poolDefXML = sp.getXMLDesc(0);
+                    LibvirtStoragePoolXMLParser parser = new LibvirtStoragePoolXMLParser();
+                    LibvirtStoragePoolDef pdef =  parser.parseStoragePoolXML(poolDefXML);
+                    if (pdef == null) {
+                        throw new CloudRuntimeException("Unable to parse the storage pool definition for storage pool " + poolname);
+                    }
+                    if (pdef.getPoolType() == PoolType.RBD) {
+                        logger.debug(String.format("RBD Pool name [%s] auth name [%s]", pdef.getSourceDir(), pdef.getAuthUserName()));
+                        rbdPoolName = pdef.getSourceDir();
+                        authUserName = pdef.getAuthUserName();
+                    }
+                    if (pdef.getPoolType() == PoolType.DIR) {
+                        logger.debug(String.format("SharedMountPoint Pool source path [%s]", pdef.getTargetPath()));
+                        smpTargetPath = pdef.getTargetPath();
+                    }
+                }
+            } catch (LibvirtException e) {
+                logger.error("Failure in attempting to see if an existing storage pool might be using the path of the pool to be created:" + e);
+            }
+
+            if (rbdPoolName.length() > 0 && authUserName.length() > 0) {
+                cmd.add("-p", rbdPoolName);
+                cmd.add("-n", authUserName);
+            } else if (smpTargetPath.length() > 0) {
+                cmd.add("-g", smpTargetPath);
+            } else {
+                return true;
+            }
             cmd.add("-h", host.getPrivateNetwork().getIp());
-            cmd.add("-p", pool.getPoolMountSourcePath());
+            cmd.add("-q", pool.getPoolMountSourcePath());
             cmd.add("-r");
             cmd.add("-t", String.valueOf(HeartBeatCheckerFreq / 1000));
         }
@@ -463,6 +579,51 @@ public class LibvirtStoragePool implements KVMStoragePool {
             cmd.add("-u", volumeUUIDListString);
             cmd.add("-t", String.valueOf(HeartBeatCheckerFreq / 1000));
         } else if (pool.getPool().getType() == StoragePoolType.CLVM) {
+            logger.info("RBD Pool or GFS Pool Setting...");
+            Connect conn = null;
+            try {
+                conn = LibvirtConnection.getConnection();
+            } catch (LibvirtException e) {
+                throw new CloudRuntimeException(e.toString());
+            }
+            String rbdPoolName = "";
+            String authUserName = "";
+            String smpTargetPath = "";
+            try {
+                String[] poolnames = conn.listStoragePools();
+                if (poolnames.length == 0) {
+                    logger.info("Didn't find an existing storage pool");
+                }
+                for (String poolname : poolnames) {
+                    logger.debug("Checking path of existing pool " + poolname + " against pool we want to create");
+                    StoragePool sp = conn.storagePoolLookupByName(poolname);
+                    String poolDefXML = sp.getXMLDesc(0);
+                    LibvirtStoragePoolXMLParser parser = new LibvirtStoragePoolXMLParser();
+                    LibvirtStoragePoolDef pdef =  parser.parseStoragePoolXML(poolDefXML);
+                    if (pdef == null) {
+                        throw new CloudRuntimeException("Unable to parse the storage pool definition for storage pool " + poolname);
+                    }
+                    if (pdef.getPoolType() == PoolType.RBD) {
+                        logger.debug(String.format("RBD Pool name [%s] auth name [%s]", pdef.getSourceDir(), pdef.getAuthUserName()));
+                        rbdPoolName = pdef.getSourceDir();
+                        authUserName = pdef.getAuthUserName();
+                    }
+                    if (pdef.getPoolType() == PoolType.DIR) {
+                        logger.debug(String.format("SharedMountPoint Pool source path [%s]", pdef.getTargetPath()));
+                        smpTargetPath = pdef.getTargetPath();
+                    }
+                }
+            } catch (LibvirtException e) {
+                logger.error("Failure in attempting to see if an existing storage pool might be using the path of the pool to be created:" + e);
+            }
+            if (rbdPoolName.length() > 0 && authUserName.length() > 0) {
+                cmd.add("-p", rbdPoolName);
+                cmd.add("-n", authUserName);
+            } else if (smpTargetPath.length() > 0) {
+                cmd.add("-g", smpTargetPath);
+            } else {
+                return true;
+            }
             cmd.add("-h", host.getPublicNetwork().getIp());
             cmd.add("-u", volumeUUIDListString);
             cmd.add("-t", String.valueOf(String.valueOf(System.currentTimeMillis() / 1000)));

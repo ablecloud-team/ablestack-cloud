@@ -21,7 +21,7 @@
       class="form-item-scroll"
       itemLayout="vertical"
       size="small"
-      :dataSource="setData()"
+      :dataSource="osList"
       :pagination="false">
       <template #renderItem="{ item, index }">
         <a-list-item :key="item.id" @click="onClickRow(item)">
@@ -67,7 +67,7 @@
         size="small"
         :current="options.page"
         :pageSize="options.pageSize"
-        :total="itemCountNum"
+        :total="itemCount"
         :showTotal="total => `${$t('label.total')} ${total} ${$t('label.items')}`"
         :pageSizeOptions="['10', '20', '40', '80', '100', '200']"
         @change="onChangePage"
@@ -133,16 +133,6 @@ export default {
     }
   },
   methods: {
-    setData () {
-      if (this.preFillContent.isreinstall) {
-        const osListFilter = this.osList.filter(osList => osList.kvdoenable === this.preFillContent.kvdoenable)
-        this.itemCountNum = osListFilter.length
-        return osListFilter
-      } else {
-        this.itemCountNum = this.osList.length
-        return this.osList
-      }
-    },
     onSelectTemplateIso () {
       if (this.inputDecorator === 'templateid') {
         this.value = !this.preFillContent.templateid ? this.selected : this.preFillContent.templateid

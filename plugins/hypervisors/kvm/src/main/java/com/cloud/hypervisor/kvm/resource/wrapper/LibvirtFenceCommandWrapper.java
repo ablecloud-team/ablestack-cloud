@@ -59,7 +59,7 @@ public final class LibvirtFenceCommandWrapper extends CommandWrapper<FenceComman
             logger.warn(logline);
             return new FenceAnswer(command, false, logline);
         } else if (gfspools.size() == 0) {
-            String logline = String.format("No Glue GFS storage pools found. No way to safely fence %s on host %s", command.getVmName(), command.getHostGuid());
+            String logline = String.format("No SharedMountPoint storage pools found. No way to safely fence %s on host %s", command.getVmName(), command.getHostGuid());
             logger.warn(logline);
             return new FenceAnswer(command, false, logline);
         } else if (rbdpools.size() == 0) {

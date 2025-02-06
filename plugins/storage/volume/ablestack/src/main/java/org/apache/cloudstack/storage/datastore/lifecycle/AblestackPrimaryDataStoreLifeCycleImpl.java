@@ -234,7 +234,7 @@ public class AblestackPrimaryDataStoreLifeCycleImpl extends BasePrimaryDataStore
         List<HostVO> poolHosts = new ArrayList<HostVO>();
         for (HostVO h : allHosts) {
             try {
-                storageMgr.connectHostToSharedPool(h.getId(), primarystore.getId());
+                storageMgr.connectHostToSharedPool(h, primarystore.getId());
                 poolHosts.add(h);
             } catch (StorageConflictException se) {
                 primaryDataStoreDao.expunge(primarystore.getId());
@@ -261,7 +261,7 @@ public class AblestackPrimaryDataStoreLifeCycleImpl extends BasePrimaryDataStore
         List<HostVO> poolHosts = new ArrayList<HostVO>();
         for (HostVO host : hosts) {
             try {
-                storageMgr.connectHostToSharedPool(host.getId(), dataStore.getId());
+                storageMgr.connectHostToSharedPool(host, dataStore.getId());
                 poolHosts.add(host);
             } catch (StorageConflictException se) {
                     primaryDataStoreDao.expunge(dataStore.getId());

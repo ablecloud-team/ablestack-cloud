@@ -34,7 +34,7 @@ export default {
       permission: ['listNetworks'],
       resourceType: 'Network',
       columns: () => {
-        var fields = ['name', 'state', 'type', 'vpcname', 'cidr', 'ip6cidr', 'broadcasturi', 'domainpath']
+        var fields = ['name', 'state', 'type', 'vpcname', 'cidr', 'ip6cidr', 'broadcasturi', 'domain']
         if (!isAdmin()) {
           fields = fields.filter(function (e) { return e !== 'broadcasturi' })
         }
@@ -47,13 +47,13 @@ export default {
         return fields
       },
       details: () => {
-        var fields = ['name', 'id', 'description', 'type', 'traffictype', 'vpcid', 'vlan', 'broadcasturi', 'cidr', 'ip6cidr', 'netmask', 'gateway', 'asnumber', 'aclname', 'ispersistent', 'restartrequired', 'reservediprange', 'redundantrouter', 'networkdomain', 'egressdefaultpolicy', 'zonename', 'account', 'domainpath', 'associatednetwork', 'associatednetworkid', 'ip4routing', 'ip6routing', 'dns1', 'dns2', 'ip6dns1', 'ip6dns2', 'publicmtu', 'privatemtu']
+        var fields = ['name', 'id', 'description', 'type', 'traffictype', 'vpcid', 'vlan', 'broadcasturi', 'cidr', 'ip6cidr', 'netmask', 'gateway', 'asnumber', 'aclname', 'ispersistent', 'restartrequired', 'reservediprange', 'redundantrouter', 'networkdomain', 'egressdefaultpolicy', 'zonename', 'account', 'domain', 'associatednetwork', 'associatednetworkid', 'ip4routing', 'ip6routing', 'dns1', 'dns2', 'ip6dns1', 'ip6dns2', 'publicmtu', 'privatemtu']
         if (!isAdmin()) {
           fields = fields.filter(function (e) { return e !== 'broadcasturi' })
         }
         return fields
       },
-      filters: ['all', 'account', 'domainpath', 'shared'],
+      filters: ['all', 'account', 'domain', 'shared'],
       searchFilters: ['keyword', 'zoneid', 'domainid', 'account', 'type', 'restartrequired', 'tags'],
       related: [{
         name: 'vm',
@@ -134,9 +134,9 @@ export default {
             if (!store.getters.zones || store.getters.zones.length === 0) {
               return false
             }
-            const AdvancedZones = store.getters.zones.filter(zone => zone.networktype === 'Advanced')
+            // const AdvancedZones = store.getters.zones.filter(zone => zone.networktype === 'Advanced')
             const AdvancedZonesWithoutSG = store.getters.zones.filter(zone => zone.securitygroupsenabled === false)
-            if ((isAdmin() && AdvancedZones && AdvancedZones.length > 0) || (AdvancedZonesWithoutSG && AdvancedZonesWithoutSG.length > 0)) {
+            if (isAdmin() || (AdvancedZonesWithoutSG && AdvancedZonesWithoutSG.length > 0)) {
               return true
             }
             return false
@@ -769,7 +769,7 @@ export default {
         fields.push(...['domain', 'zonename'])
         return fields
       },
-      details: ['ipaddress', 'id', 'associatednetworkname', 'virtualmachinename', 'networkid', 'issourcenat', 'isstaticnat', 'virtualmachinename', 'vmipaddress', 'vlan', 'allocated', 'account', 'domain', 'zonename'],
+      details: ['ipaddress', 'id', 'associatednetworkname', 'networkid', 'issourcenat', 'isstaticnat', 'virtualmachinename', 'vmipaddress', 'vlan', 'allocated', 'account', 'domain', 'zonename'],
       filters: ['allocated', 'reserved', 'free'],
       component: shallowRef(() => import('@/views/network/PublicIpResource.vue')),
       tabs: [{
@@ -872,7 +872,14 @@ export default {
       icon: 'partition-outlined',
       permission: ['listASNumbers'],
       show: () => {
-        return ['Admin'].includes(store.getters.userInfo.roletype)
+        if (!store.getters.zones || store.getters.zones.length === 0) {
+          return false
+        }
+        const AdvancedZonesWithRoutedmode = store.getters.zones.filter(zone => zone.routedmodeenabled)
+        if (isAdmin() && (AdvancedZonesWithRoutedmode && AdvancedZonesWithRoutedmode.length > 0)) {
+          return true
+        }
+        return false
       },
       filters: ['all', 'allocatedonly', 'free'],
       columns: ['asnumber', 'allocationstate', 'asnrange', 'associatednetworkname', 'vpcname', 'allocated', 'account', 'domain', 'zonename'],
@@ -1447,7 +1454,11 @@ export default {
         if (!store.getters.zones || store.getters.zones.length === 0) {
           return false
         }
-        return isAdmin()
+        const AdvancedZonesWithRoutedmode = store.getters.zones.filter(zone => zone.routedmodeenabled)
+        if (isAdmin() && (AdvancedZonesWithRoutedmode && AdvancedZonesWithRoutedmode.length > 0)) {
+          return true
+        }
+        return false
       },
       actions: [
         {

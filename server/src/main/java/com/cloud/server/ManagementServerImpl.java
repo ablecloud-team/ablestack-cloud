@@ -16,211 +16,6 @@
 // under the License.
 package com.cloud.server;
 
-import com.cloud.agent.AgentManager;
-import com.cloud.agent.api.Answer;
-import com.cloud.agent.api.CheckGuestOsMappingAnswer;
-import com.cloud.agent.api.CheckGuestOsMappingCommand;
-import com.cloud.agent.api.Command;
-import com.cloud.agent.api.GetHypervisorGuestOsNamesAnswer;
-import com.cloud.agent.api.GetHypervisorGuestOsNamesCommand;
-import com.cloud.agent.api.GetVncPortAnswer;
-import com.cloud.agent.api.GetVncPortCommand;
-import com.cloud.agent.api.ListHostDeviceAnswer;
-import com.cloud.agent.api.ListHostDeviceCommand;
-import com.cloud.agent.api.PatchSystemVmAnswer;
-import com.cloud.agent.api.PatchSystemVmCommand;
-import com.cloud.agent.api.proxy.AllowConsoleAccessCommand;
-import com.cloud.agent.api.routing.NetworkElementCommand;
-import com.cloud.agent.manager.Commands;
-import com.cloud.agent.manager.allocator.HostAllocator;
-import com.cloud.alert.Alert;
-import com.cloud.alert.AlertManager;
-import com.cloud.alert.AlertVO;
-import com.cloud.alert.dao.AlertDao;
-import com.cloud.api.ApiDBUtils;
-import com.cloud.api.query.dao.StoragePoolJoinDao;
-import com.cloud.api.query.vo.StoragePoolJoinVO;
-import com.cloud.capacity.Capacity;
-import com.cloud.capacity.CapacityVO;
-import com.cloud.capacity.dao.CapacityDao;
-import com.cloud.capacity.dao.CapacityDaoImpl.SummedCapacity;
-import com.cloud.cluster.ClusterManager;
-import com.cloud.cluster.ManagementServerHostVO;
-import com.cloud.cluster.dao.ManagementServerHostDao;
-import com.cloud.configuration.Config;
-import com.cloud.configuration.ConfigurationManagerImpl;
-import com.cloud.consoleproxy.ConsoleProxyManagementState;
-import com.cloud.consoleproxy.ConsoleProxyManager;
-import com.cloud.dc.AccountVlanMapVO;
-import com.cloud.dc.ClusterVO;
-import com.cloud.dc.DataCenterVO;
-import com.cloud.dc.DomainVlanMapVO;
-import com.cloud.dc.HostPodVO;
-import com.cloud.dc.Pod;
-import com.cloud.dc.PodVlanMapVO;
-import com.cloud.dc.Vlan;
-import com.cloud.dc.Vlan.VlanType;
-import com.cloud.dc.VlanVO;
-import com.cloud.dc.dao.AccountVlanMapDao;
-import com.cloud.dc.dao.ClusterDao;
-import com.cloud.dc.dao.DataCenterDao;
-import com.cloud.dc.dao.DomainVlanMapDao;
-import com.cloud.dc.dao.HostPodDao;
-import com.cloud.dc.dao.PodVlanMapDao;
-import com.cloud.dc.dao.VlanDao;
-import com.cloud.deploy.DataCenterDeployment;
-import com.cloud.deploy.DeploymentPlanner;
-import com.cloud.deploy.DeploymentPlanner.ExcludeList;
-import com.cloud.deploy.DeploymentPlanningManager;
-import com.cloud.domain.DomainVO;
-import com.cloud.domain.dao.DomainDao;
-import com.cloud.event.ActionEvent;
-import com.cloud.event.ActionEventUtils;
-import com.cloud.event.EventTypes;
-import com.cloud.event.EventVO;
-import com.cloud.event.dao.EventDao;
-import com.cloud.exception.AgentUnavailableException;
-import com.cloud.exception.ConcurrentOperationException;
-import com.cloud.exception.InsufficientAddressCapacityException;
-import com.cloud.exception.InvalidParameterValueException;
-import com.cloud.exception.ManagementServerException;
-import com.cloud.exception.OperationTimedoutException;
-import com.cloud.exception.PermissionDeniedException;
-import com.cloud.exception.ResourceUnavailableException;
-import com.cloud.exception.VirtualMachineMigrationException;
-import com.cloud.gpu.GPU;
-import com.cloud.ha.HighAvailabilityManager;
-import com.cloud.host.DetailVO;
-import com.cloud.host.Host;
-import com.cloud.host.Host.Type;
-import com.cloud.host.HostTagVO;
-import com.cloud.host.HostVO;
-import com.cloud.host.dao.HostDao;
-import com.cloud.host.dao.HostDetailsDao;
-import com.cloud.host.dao.HostTagsDao;
-import com.cloud.hypervisor.Hypervisor.HypervisorType;
-import com.cloud.hypervisor.HypervisorCapabilities;
-import com.cloud.hypervisor.HypervisorCapabilitiesVO;
-import com.cloud.hypervisor.HypervisorGuru;
-import com.cloud.hypervisor.dao.HypervisorCapabilitiesDao;
-import com.cloud.hypervisor.kvm.dpdk.DpdkHelper;
-import com.cloud.info.ConsoleProxyInfo;
-import com.cloud.network.IpAddress;
-import com.cloud.network.IpAddressManager;
-import com.cloud.network.IpAddressManagerImpl;
-import com.cloud.network.Network;
-import com.cloud.network.NetworkModel;
-import com.cloud.network.Networks;
-import com.cloud.network.dao.IPAddressDao;
-import com.cloud.network.dao.IPAddressVO;
-import com.cloud.network.dao.LoadBalancerDao;
-import com.cloud.network.dao.LoadBalancerVO;
-import com.cloud.network.dao.NetworkAccountDao;
-import com.cloud.network.dao.NetworkAccountVO;
-import com.cloud.network.dao.NetworkDao;
-import com.cloud.network.dao.NetworkDomainDao;
-import com.cloud.network.dao.NetworkDomainVO;
-import com.cloud.network.dao.NetworkVO;
-import com.cloud.network.dao.PublicIpQuarantineDao;
-import com.cloud.network.vpc.dao.VpcDao;
-import com.cloud.org.Cluster;
-import com.cloud.org.Grouping.AllocationState;
-import com.cloud.projects.Project;
-import com.cloud.projects.Project.ListProjectResourcesCriteria;
-import com.cloud.projects.ProjectManager;
-import com.cloud.resource.ResourceManager;
-import com.cloud.server.ResourceTag.ResourceObjectType;
-import com.cloud.service.ServiceOfferingVO;
-import com.cloud.service.dao.ServiceOfferingDao;
-import com.cloud.service.dao.ServiceOfferingDetailsDao;
-import com.cloud.storage.DiskOfferingVO;
-import com.cloud.storage.GuestOS;
-import com.cloud.storage.GuestOSCategoryVO;
-import com.cloud.storage.GuestOSHypervisor;
-import com.cloud.storage.GuestOSHypervisorVO;
-import com.cloud.storage.GuestOSVO;
-import com.cloud.storage.GuestOsCategory;
-import com.cloud.storage.ScopeType;
-import com.cloud.storage.Storage;
-import com.cloud.storage.StorageManager;
-import com.cloud.storage.StoragePool;
-import com.cloud.storage.StoragePoolStatus;
-import com.cloud.storage.VMTemplateVO;
-import com.cloud.storage.Volume;
-import com.cloud.storage.VolumeApiServiceImpl;
-import com.cloud.storage.VolumeVO;
-import com.cloud.storage.dao.DiskOfferingDao;
-import com.cloud.storage.dao.GuestOSCategoryDao;
-import com.cloud.storage.dao.GuestOSDao;
-import com.cloud.storage.dao.GuestOSHypervisorDao;
-import com.cloud.storage.dao.StoragePoolTagsDao;
-import com.cloud.storage.dao.VMTemplateDao;
-import com.cloud.storage.dao.VolumeDao;
-import com.cloud.storage.secondary.SecondaryStorageVmManager;
-import com.cloud.tags.ResourceTagVO;
-import com.cloud.tags.dao.ResourceTagDao;
-import com.cloud.template.TemplateManager;
-import com.cloud.user.Account;
-import com.cloud.user.AccountManager;
-import com.cloud.user.AccountService;
-import com.cloud.user.ResourceLimitService;
-import com.cloud.user.SSHKeyPair;
-import com.cloud.user.SSHKeyPairVO;
-import com.cloud.user.User;
-import com.cloud.user.UserData;
-import com.cloud.user.UserDataVO;
-import com.cloud.user.UserVO;
-import com.cloud.user.dao.AccountDao;
-import com.cloud.user.dao.SSHKeyPairDao;
-import com.cloud.user.dao.UserDao;
-import com.cloud.user.dao.UserDataDao;
-import com.cloud.utils.NumbersUtil;
-import com.cloud.utils.Pair;
-import com.cloud.utils.PasswordGenerator;
-import com.cloud.utils.Ternary;
-import com.cloud.utils.component.ComponentLifecycle;
-import com.cloud.utils.component.ManagerBase;
-import com.cloud.utils.concurrency.NamedThreadFactory;
-import com.cloud.utils.crypt.DBEncryptionUtil;
-import com.cloud.utils.db.DB;
-import com.cloud.utils.db.Filter;
-import com.cloud.utils.db.GlobalLock;
-import com.cloud.utils.db.JoinBuilder;
-import com.cloud.utils.db.JoinBuilder.JoinType;
-import com.cloud.utils.db.SearchBuilder;
-import com.cloud.utils.db.SearchCriteria;
-import com.cloud.utils.db.Transaction;
-import com.cloud.utils.db.TransactionCallbackNoReturn;
-import com.cloud.utils.db.TransactionStatus;
-import com.cloud.utils.db.UUIDManager;
-import com.cloud.utils.exception.CloudRuntimeException;
-import com.cloud.utils.fsm.StateMachine2;
-import com.cloud.utils.net.MacAddress;
-import com.cloud.utils.net.NetUtils;
-import com.cloud.utils.ssh.SSHKeysHelper;
-import com.cloud.vm.ConsoleProxyVO;
-import com.cloud.vm.DiskProfile;
-import com.cloud.vm.DomainRouterVO;
-import com.cloud.vm.InstanceGroupVO;
-import com.cloud.vm.NicVO;
-import com.cloud.vm.SecondaryStorageVmVO;
-import com.cloud.vm.UserVmDetailVO;
-import com.cloud.vm.UserVmManager;
-import com.cloud.vm.UserVmVO;
-import com.cloud.vm.VMInstanceVO;
-import com.cloud.vm.VirtualMachine;
-import com.cloud.vm.VirtualMachine.State;
-import com.cloud.vm.VirtualMachineManager;
-import com.cloud.vm.VirtualMachineProfile;
-import com.cloud.vm.VirtualMachineProfileImpl;
-import com.cloud.vm.dao.ConsoleProxyDao;
-import com.cloud.vm.dao.DomainRouterDao;
-import com.cloud.vm.dao.InstanceGroupDao;
-import com.cloud.vm.dao.NicDao;
-import com.cloud.vm.dao.SecondaryStorageVmDao;
-import com.cloud.vm.dao.UserVmDao;
-import com.cloud.vm.dao.UserVmDetailsDao;
-import com.cloud.vm.dao.VMInstanceDao;
 import java.lang.reflect.Field;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
@@ -243,6 +38,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
@@ -272,11 +68,6 @@ import org.apache.cloudstack.api.command.admin.affinitygroup.UpdateVMAffinityGro
 import org.apache.cloudstack.api.command.admin.alert.GenerateAlertCmd;
 import org.apache.cloudstack.api.command.admin.autoscale.CreateCounterCmd;
 import org.apache.cloudstack.api.command.admin.autoscale.DeleteCounterCmd;
-import org.apache.cloudstack.api.command.admin.bgp.CreateASNRangeCmd;
-import org.apache.cloudstack.api.command.admin.bgp.DeleteASNRangeCmd;
-import org.apache.cloudstack.api.command.admin.bgp.ListASNRangesCmd;
-import org.apache.cloudstack.api.command.user.bgp.ListASNumbersCmd;
-import org.apache.cloudstack.api.command.admin.bgp.ReleaseASNumberCmd;
 import org.apache.cloudstack.api.command.admin.cluster.AddClusterCmd;
 import org.apache.cloudstack.api.command.admin.cluster.DeleteClusterCmd;
 import org.apache.cloudstack.api.command.admin.cluster.ListClustersCmd;
@@ -503,7 +294,6 @@ import org.apache.cloudstack.api.command.admin.vm.DeployVMVolumeCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vm.DestroyVMCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vm.ExpungeVMCmd;
 import org.apache.cloudstack.api.command.admin.vm.GetVMUserDataCmd;
-import org.apache.cloudstack.api.command.admin.vm.ListAffectedVmsForStorageScopeChangeCmd;
 import org.apache.cloudstack.api.command.admin.vm.ListVMsCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vm.MigrateVMCmd;
 import org.apache.cloudstack.api.command.admin.vm.MigrateVirtualMachineWithVolumeCmd;
@@ -743,6 +533,7 @@ import org.apache.cloudstack.api.command.user.vm.CloneVMCmd;
 import org.apache.cloudstack.api.command.user.vm.DeployVMCmd;
 import org.apache.cloudstack.api.command.user.vm.DeployVMVolumeCmd;
 import org.apache.cloudstack.api.command.user.vm.DestroyVMCmd;
+import org.apache.cloudstack.api.command.admin.vm.ListAffectedVmsForStorageScopeChangeCmd;
 import org.apache.cloudstack.api.command.user.vm.GetVMPasswordCmd;
 import org.apache.cloudstack.api.command.user.vm.ListNicsCmd;
 import org.apache.cloudstack.api.command.user.vm.ListVMsCmd;
@@ -863,9 +654,209 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-
-
-
+import com.cloud.agent.AgentManager;
+import com.cloud.agent.api.Answer;
+import com.cloud.agent.api.CheckGuestOsMappingAnswer;
+import com.cloud.agent.api.CheckGuestOsMappingCommand;
+import com.cloud.agent.api.Command;
+import com.cloud.agent.api.GetHypervisorGuestOsNamesAnswer;
+import com.cloud.agent.api.GetHypervisorGuestOsNamesCommand;
+import com.cloud.agent.api.GetVncPortAnswer;
+import com.cloud.agent.api.GetVncPortCommand;
+import com.cloud.agent.api.ListHostDeviceAnswer;
+import com.cloud.agent.api.ListHostDeviceCommand;
+import com.cloud.agent.api.PatchSystemVmAnswer;
+import com.cloud.agent.api.PatchSystemVmCommand;
+import com.cloud.agent.api.proxy.AllowConsoleAccessCommand;
+import com.cloud.agent.api.routing.NetworkElementCommand;
+import com.cloud.agent.manager.Commands;
+import com.cloud.agent.manager.allocator.HostAllocator;
+import com.cloud.alert.Alert;
+import com.cloud.alert.AlertManager;
+import com.cloud.alert.AlertVO;
+import com.cloud.alert.dao.AlertDao;
+import com.cloud.api.ApiDBUtils;
+import com.cloud.api.query.dao.StoragePoolJoinDao;
+import com.cloud.api.query.vo.StoragePoolJoinVO;
+import com.cloud.capacity.Capacity;
+import com.cloud.capacity.CapacityVO;
+import com.cloud.capacity.dao.CapacityDao;
+import com.cloud.capacity.dao.CapacityDaoImpl.SummedCapacity;
+import com.cloud.cluster.ClusterManager;
+import com.cloud.configuration.Config;
+import com.cloud.configuration.ConfigurationManagerImpl;
+import com.cloud.consoleproxy.ConsoleProxyManagementState;
+import com.cloud.consoleproxy.ConsoleProxyManager;
+import com.cloud.dc.AccountVlanMapVO;
+import com.cloud.dc.ClusterVO;
+import com.cloud.dc.DataCenterVO;
+import com.cloud.dc.DomainVlanMapVO;
+import com.cloud.dc.HostPodVO;
+import com.cloud.dc.Pod;
+import com.cloud.dc.PodVlanMapVO;
+import com.cloud.dc.Vlan;
+import com.cloud.dc.Vlan.VlanType;
+import com.cloud.dc.VlanVO;
+import com.cloud.dc.dao.AccountVlanMapDao;
+import com.cloud.dc.dao.ClusterDao;
+import com.cloud.dc.dao.DataCenterDao;
+import com.cloud.dc.dao.DomainVlanMapDao;
+import com.cloud.dc.dao.HostPodDao;
+import com.cloud.dc.dao.PodVlanMapDao;
+import com.cloud.dc.dao.VlanDao;
+import com.cloud.deploy.DataCenterDeployment;
+import com.cloud.deploy.DeploymentPlanner;
+import com.cloud.deploy.DeploymentPlanner.ExcludeList;
+import com.cloud.deploy.DeploymentPlanningManager;
+import com.cloud.domain.DomainVO;
+import com.cloud.domain.dao.DomainDao;
+import com.cloud.event.ActionEvent;
+import com.cloud.event.ActionEventUtils;
+import com.cloud.event.EventTypes;
+import com.cloud.event.EventVO;
+import com.cloud.event.dao.EventDao;
+import com.cloud.exception.AgentUnavailableException;
+import com.cloud.exception.ConcurrentOperationException;
+import com.cloud.exception.InsufficientAddressCapacityException;
+import com.cloud.exception.InvalidParameterValueException;
+import com.cloud.exception.ManagementServerException;
+import com.cloud.exception.OperationTimedoutException;
+import com.cloud.exception.PermissionDeniedException;
+import com.cloud.exception.ResourceUnavailableException;
+import com.cloud.exception.VirtualMachineMigrationException;
+import com.cloud.gpu.GPU;
+import com.cloud.ha.HighAvailabilityManager;
+import com.cloud.host.DetailVO;
+import com.cloud.host.Host;
+import com.cloud.host.Host.Type;
+import com.cloud.host.HostTagVO;
+import com.cloud.host.HostVO;
+import com.cloud.host.dao.HostDao;
+import com.cloud.host.dao.HostDetailsDao;
+import com.cloud.host.dao.HostTagsDao;
+import com.cloud.hypervisor.Hypervisor.HypervisorType;
+import com.cloud.hypervisor.HypervisorCapabilities;
+import com.cloud.hypervisor.HypervisorCapabilitiesVO;
+import com.cloud.hypervisor.HypervisorGuru;
+import com.cloud.hypervisor.dao.HypervisorCapabilitiesDao;
+import com.cloud.hypervisor.kvm.dpdk.DpdkHelper;
+import com.cloud.info.ConsoleProxyInfo;
+import com.cloud.network.IpAddress;
+import com.cloud.network.IpAddressManager;
+import com.cloud.network.IpAddressManagerImpl;
+import com.cloud.network.Network;
+import com.cloud.network.NetworkModel;
+import com.cloud.network.Networks;
+import com.cloud.network.dao.IPAddressDao;
+import com.cloud.network.dao.IPAddressVO;
+import com.cloud.network.dao.LoadBalancerDao;
+import com.cloud.network.dao.LoadBalancerVO;
+import com.cloud.network.dao.NetworkAccountDao;
+import com.cloud.network.dao.NetworkAccountVO;
+import com.cloud.network.dao.NetworkDao;
+import com.cloud.network.dao.NetworkDomainDao;
+import com.cloud.network.dao.NetworkDomainVO;
+import com.cloud.network.dao.NetworkVO;
+import com.cloud.network.dao.PublicIpQuarantineDao;
+import com.cloud.network.vpc.dao.VpcDao;
+import com.cloud.org.Cluster;
+import com.cloud.org.Grouping.AllocationState;
+import com.cloud.projects.Project;
+import com.cloud.projects.Project.ListProjectResourcesCriteria;
+import com.cloud.projects.ProjectManager;
+import com.cloud.resource.ResourceManager;
+import com.cloud.server.ResourceTag.ResourceObjectType;
+import com.cloud.service.ServiceOfferingVO;
+import com.cloud.service.dao.ServiceOfferingDao;
+import com.cloud.service.dao.ServiceOfferingDetailsDao;
+import com.cloud.storage.DiskOfferingVO;
+import com.cloud.storage.GuestOS;
+import com.cloud.storage.GuestOSCategoryVO;
+import com.cloud.storage.GuestOSHypervisor;
+import com.cloud.storage.GuestOSHypervisorVO;
+import com.cloud.storage.GuestOSVO;
+import com.cloud.storage.GuestOsCategory;
+import com.cloud.storage.ScopeType;
+import com.cloud.storage.Storage;
+import com.cloud.storage.StorageManager;
+import com.cloud.storage.StoragePool;
+import com.cloud.storage.StoragePoolStatus;
+import com.cloud.storage.VMTemplateVO;
+import com.cloud.storage.Volume;
+import com.cloud.storage.VolumeApiServiceImpl;
+import com.cloud.storage.VolumeVO;
+import com.cloud.storage.dao.DiskOfferingDao;
+import com.cloud.storage.dao.GuestOSCategoryDao;
+import com.cloud.storage.dao.GuestOSDao;
+import com.cloud.storage.dao.GuestOSHypervisorDao;
+import com.cloud.storage.dao.StoragePoolTagsDao;
+import com.cloud.storage.dao.VMTemplateDao;
+import com.cloud.storage.dao.VolumeDao;
+import com.cloud.storage.secondary.SecondaryStorageVmManager;
+import com.cloud.tags.ResourceTagVO;
+import com.cloud.tags.dao.ResourceTagDao;
+import com.cloud.template.TemplateManager;
+import com.cloud.user.Account;
+import com.cloud.user.AccountManager;
+import com.cloud.user.AccountService;
+import com.cloud.user.ResourceLimitService;
+import com.cloud.user.SSHKeyPair;
+import com.cloud.user.SSHKeyPairVO;
+import com.cloud.user.User;
+import com.cloud.user.UserData;
+import com.cloud.user.UserDataVO;
+import com.cloud.user.UserVO;
+import com.cloud.user.dao.AccountDao;
+import com.cloud.user.dao.SSHKeyPairDao;
+import com.cloud.user.dao.UserDao;
+import com.cloud.user.dao.UserDataDao;
+import com.cloud.utils.NumbersUtil;
+import com.cloud.utils.Pair;
+import com.cloud.utils.PasswordGenerator;
+import com.cloud.utils.Ternary;
+import com.cloud.utils.component.ComponentLifecycle;
+import com.cloud.utils.component.ManagerBase;
+import com.cloud.utils.concurrency.NamedThreadFactory;
+import com.cloud.utils.crypt.DBEncryptionUtil;
+import com.cloud.utils.db.DB;
+import com.cloud.utils.db.Filter;
+import com.cloud.utils.db.GlobalLock;
+import com.cloud.utils.db.JoinBuilder;
+import com.cloud.utils.db.JoinBuilder.JoinType;
+import com.cloud.utils.db.SearchBuilder;
+import com.cloud.utils.db.SearchCriteria;
+import com.cloud.utils.db.Transaction;
+import com.cloud.utils.db.TransactionCallbackNoReturn;
+import com.cloud.utils.db.TransactionStatus;
+import com.cloud.utils.db.UUIDManager;
+import com.cloud.utils.exception.CloudRuntimeException;
+import com.cloud.utils.fsm.StateMachine2;
+import com.cloud.utils.net.MacAddress;
+import com.cloud.utils.net.NetUtils;
+import com.cloud.utils.ssh.SSHKeysHelper;
+import com.cloud.vm.ConsoleProxyVO;
+import com.cloud.vm.DiskProfile;
+import com.cloud.vm.DomainRouterVO;
+import com.cloud.vm.InstanceGroupVO;
+import com.cloud.vm.NicVO;
+import com.cloud.vm.SecondaryStorageVmVO;
+import com.cloud.vm.UserVmDetailVO;
+import com.cloud.vm.UserVmManager;
+import com.cloud.vm.UserVmVO;
+import com.cloud.vm.VMInstanceVO;
+import com.cloud.vm.VirtualMachine;
+import com.cloud.vm.VirtualMachine.State;
+import com.cloud.vm.VirtualMachineManager;
+import com.cloud.vm.VirtualMachineProfile;
+import com.cloud.vm.VirtualMachineProfileImpl;
+import com.cloud.vm.dao.ConsoleProxyDao;
+import com.cloud.vm.dao.DomainRouterDao;
+import com.cloud.vm.dao.InstanceGroupDao;
+import com.cloud.vm.dao.NicDao;
+import com.cloud.vm.dao.SecondaryStorageVmDao;
+import com.cloud.vm.dao.UserVmDao;
+import com.cloud.vm.dao.UserVmDetailsDao;
+import com.cloud.vm.dao.VMInstanceDao;
 
 
 public class ManagementServerImpl extends ManagerBase implements ManagementServer, Configurable {
@@ -1033,8 +1024,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     @Inject
     UserDataManager userDataManager;
     @Inject
-    private ManagementServerHostDao _msHostDao;
-    @Inject
     StoragePoolTagsDao storagePoolTagsDao;
 
     @Inject
@@ -1170,20 +1159,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         _clusterMgr.registerListener(_lockControllerListener);
 
         enableAdminUser("password");
-        return true;
-    }
-
-    @Override
-    public boolean stop() {
-        logger.info("Shutdown CloudStack management server...");
-        ManagementServerHostVO msHost = _msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
-        if (_msHostDao.increaseAlertCount(msHost.getId()) > 0) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Detected management server node " + msHost.getServiceIP() + " is down, send alert");
-            }
-            _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_MANAGEMENT_NODE, 0, new Long(0), "Management server node " + msHost.getServiceIP() + " is down",
-                "");
-        }
         return true;
     }
 
@@ -2588,7 +2563,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     freeAddrs.addAll(_ipAddressMgr.listAvailablePublicIps(dcId, null, vlanDbIds, owner, VlanType.VirtualNetwork, associatedNetworkId,
                             false, false, false, null, null, false, cmd.getVpcId(), cmd.isDisplay(), false, false)); // Free
                 } catch (InsufficientAddressCapacityException e) {
-                    logger.warn("no free address is found in zone " + dcId);
+                    logger.warn("no free address is found in zone {}", dc);
                 }
             }
             for (IPAddressVO addr: freeAddrs) {
@@ -3122,8 +3097,8 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
     }
 
-    protected ConsoleProxyInfo getConsoleProxyForVm(final long dataCenterId, final long userVmId) {
-        return _consoleProxyMgr.assignProxy(dataCenterId, userVmId);
+    protected ConsoleProxyInfo getConsoleProxyForVm(final long dataCenterId, final VMInstanceVO userVm) {
+        return _consoleProxyMgr.assignProxy(dataCenterId, userVm);
     }
 
     private ConsoleProxyVO startConsoleProxy(final long instanceId) {
@@ -3158,7 +3133,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     public String getConsoleAccessUrlRoot(final long vmId) {
         final VMInstanceVO vm = _vmInstanceDao.findById(vmId);
         if (vm != null) {
-            final ConsoleProxyInfo proxy = getConsoleProxyForVm(vm.getDataCenterId(), vmId);
+            final ConsoleProxyInfo proxy = getConsoleProxyForVm(vm.getDataCenterId(), vm);
             if (proxy != null) {
                 return proxy.getProxyImageUrl();
             }
@@ -3172,7 +3147,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         if (vm == null) {
             return new Pair<>(false, "Cannot find a VM with id = " + vmId);
         }
-        final ConsoleProxyInfo proxy = getConsoleProxyForVm(vm.getDataCenterId(), vmId);
+        final ConsoleProxyInfo proxy = getConsoleProxyForVm(vm.getDataCenterId(), vm);
         if (proxy == null) {
             return new Pair<>(false, "Cannot find a console proxy for the VM " + vmId);
         }
@@ -3267,7 +3242,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     public String getConsoleAccessAddress(long vmId) {
         final VMInstanceVO vm = _vmInstanceDao.findById(vmId);
         if (vm != null) {
-            final ConsoleProxyInfo proxy = getConsoleProxyForVm(vm.getDataCenterId(), vmId);
+            final ConsoleProxyInfo proxy = getConsoleProxyForVm(vm.getDataCenterId(), vm);
             return proxy != null ? proxy.getProxyAddress() : null;
         }
         return null;
@@ -4147,12 +4122,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(RemoveSecondaryStorageSelectorCmd.class);
         cmdList.add(ListAffectedVmsForStorageScopeChangeCmd.class);
 
-        cmdList.add(CreateASNRangeCmd.class);
-        cmdList.add(ListASNRangesCmd.class);
-        cmdList.add(DeleteASNRangeCmd.class);
-        cmdList.add(ListASNumbersCmd.class);
-        cmdList.add(ReleaseASNumberCmd.class);
-
         // Out-of-band management APIs for admins
         cmdList.add(EnableOutOfBandManagementForHostCmd.class);
         cmdList.add(DisableOutOfBandManagementForHostCmd.class);
@@ -4622,6 +4591,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         final String wallPortalPort = _configDao.getValue("monitoring.wall.portal.port");
         final String wallPortalVmUri = _configDao.getValue("monitoring.wall.portal.vm.uri");
         final boolean securityFeaturesEnabled = Boolean.parseBoolean(_configDao.getValue("security.features.enabled"));
+        final boolean disasterRecoveryEnabled = Boolean.parseBoolean(_configDao.getValue("cloud.dr.service.enabled"));
         final String host = _configDao.getValue("host");
         final boolean balancingServiceEnabled = Boolean.parseBoolean(_configDao.getValue("cloud.balancing.service.enabled"));
         final boolean eventDeleteEnabled = Boolean.parseBoolean(_configDao.getValue("event.delete.enabled"));
@@ -4662,6 +4632,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         capabilities.put("wallPortalPort", wallPortalPort);
         capabilities.put("wallPortalVmUri", wallPortalVmUri);
         capabilities.put("securityFeaturesEnabled", securityFeaturesEnabled);
+        capabilities.put("disasterRecoveryEnabled", disasterRecoveryEnabled);
         capabilities.put("host", host);
         capabilities.put("balancingServiceEnabled", balancingServiceEnabled);
         capabilities.put("eventDeleteEnabled", eventDeleteEnabled);
@@ -5196,8 +5167,8 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         String password = vm.getDetail("Encrypted.Password");
 
         if (StringUtils.isEmpty(password)) {
-            throw new InvalidParameterValueException(String.format("No password found for VM with id [%s]. When the VM's SSH keypair is changed, the current encrypted password is "
-              + "removed due to incosistency in the encryptation, as the new SSH keypair is different from which the password was encrypted. To get a new password, it must be reseted.", vmId));
+            throw new InvalidParameterValueException(String.format("No password found for VM [%s]. When the VM's SSH keypair is changed, the current encrypted password is "
+              + "removed due to inconsistency in the encryption, as the new SSH keypair is different from which the password was encrypted. To get a new password, it must be reseted.", vm));
         }
 
         return password;
@@ -5215,19 +5186,19 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         Transaction.execute(new TransactionCallbackNoReturn() {
             @Override
             public void doInTransactionWithoutResult(final TransactionStatus status) {
-                for (final HostVO h : hosts) {
+                for (final HostVO host : hosts) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Changing password for host name = " + h.getName());
+                        logger.debug("Changing password for host {}", host);
                     }
                     // update password for this host
-                    final DetailVO nv = _detailsDao.findDetail(h.getId(), ApiConstants.USERNAME);
+                    final DetailVO nv = _detailsDao.findDetail(host.getId(), ApiConstants.USERNAME);
                     if (nv == null) {
-                        final DetailVO nvu = new DetailVO(h.getId(), ApiConstants.USERNAME, userNameWithoutSpaces);
+                        final DetailVO nvu = new DetailVO(host.getId(), ApiConstants.USERNAME, userNameWithoutSpaces);
                         _detailsDao.persist(nvu);
-                        final DetailVO nvp = new DetailVO(h.getId(), ApiConstants.PASSWORD, DBEncryptionUtil.encrypt(command.getPassword()));
+                        final DetailVO nvp = new DetailVO(host.getId(), ApiConstants.PASSWORD, DBEncryptionUtil.encrypt(command.getPassword()));
                         _detailsDao.persist(nvp);
                     } else if (nv.getValue().equals(userNameWithoutSpaces)) {
-                        final DetailVO nvp = _detailsDao.findDetail(h.getId(), ApiConstants.PASSWORD);
+                        final DetailVO nvp = _detailsDao.findDetail(host.getId(), ApiConstants.PASSWORD);
                         nvp.setValue(DBEncryptionUtil.encrypt(command.getPassword()));
                         _detailsDao.persist(nvp);
                     } else {
@@ -5284,7 +5255,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             @Override
             public void doInTransactionWithoutResult(final TransactionStatus status) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Changing password for host name = " + host.getName());
+                    logger.debug("Changing password for host {}", host);
                 }
                 // update password for this host
                 final DetailVO nv = _detailsDao.findDetail(host.getId(), ApiConstants.USERNAME);

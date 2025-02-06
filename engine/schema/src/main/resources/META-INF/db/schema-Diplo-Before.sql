@@ -83,3 +83,48 @@ CALL `cloud`.`ADD_COL`('volumes', 'dedup', 'tinyint(1) unsigned NOT NULL DEFAULT
 CALL `cloud`.`ADD_COL`('volumes', 'used_fs_bytes', 'bigint unsigned');
 
 CALL `cloud`.`ADD_COL`('volumes', 'used_physical_size', 'bigint unsigned');
+
+-- Adding disaster_recovery_cluster table
+CREATE TABLE IF NOT EXISTS `disaster_recovery_cluster` (
+    `id`                     bigint unsigned AUTO_INCREMENT,
+    `uuid`                   varchar(40)     NULL,
+    `mshost_id`              bigint unsigned NOT NULL,
+    `name`                   varchar(255)    NOT NULL,
+    `description`            varchar(255)    NULL,
+    `dr_cluster_url`         varchar(255)    NOT NULL,
+    `dr_cluster_type`        varchar(255)    NOT NULL,
+    `dr_cluster_status`      varchar(255)    NOT NULL,
+    `mirroring_agent_status` varchar(255)    NOT NULL,
+    `glue_ip_address`        varchar(255)    NULL,
+    `created`                datetime        NOT NULL COMMENT 'date created',
+    `removed`                datetime        NULL COMMENT 'date removed',
+    PRIMARY KEY (`id`),
+    CONSTRAINT `i_disaster_recovery_cluster__mshost_id__file_path_final_result` FOREIGN KEY (`mshost_id`) REFERENCES mshost (`id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB CHARSET=utf8mb3;
+
+-- Adding disaster_recovery_cluster_vm_map table
+CREATE TABLE IF NOT EXISTS `disaster_recovery_cluster_vm_map` (
+    `id`                           bigint unsigned auto_increment,
+    `disaster_recovery_cluster_id` bigint unsigned NOT NULL COMMENT 'the ID of the Disaster Recovery Cluster',
+    `vm_id`                        bigint unsigned NOT NULL COMMENT 'the ID of the VM',
+    `mirrored_vm_id`               varchar(40)     NULL,
+    `mirrored_vm_name`             varchar(255)    NULL,
+    `mirrored_vm_status`           varchar(255)    NULL,
+    `mirrored_vm_volume_type`      varchar(255)    NULL,
+    `mirrored_vm_volume_path`        varchar(255)    NULL,
+    `mirrored_vm_volume_status`    varchar(255)    NULL,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `fk_disaster_recovery_cluster_vm_map_disaster_recovery_cluster_id` FOREIGN KEY (`disaster_recovery_cluster_id`) REFERENCES `disaster_recovery_cluster` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_disaster_recovery_cluster_vm_map_vm_instance_id`
+    FOREIGN KEY (`vm_id`) REFERENCES vm_instance (`id`)
+    ) ENGINE=InnoDB CHARSET=utf8mb3;
+
+-- Adding disaster_recovery_cluster_details table
+CREATE TABLE IF NOT EXISTS `disaster_recovery_cluster_details` (
+    `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+    `dr_cluster_id` bigint unsigned NOT NULL COMMENT 'disaster_recovery_cluster id',
+    `name` varchar(255) NOT NULL,
+    `value` varchar(5120) NOT NULL,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `fk_disaster_recovery_cluster_details__dr_cluster_id` FOREIGN KEY (`dr_cluster_id`) REFERENCES `disaster_recovery_cluster` (`id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB CHARSET=utf8mb3;

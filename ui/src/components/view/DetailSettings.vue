@@ -39,7 +39,7 @@
           <a-auto-complete
             class="detail-input"
             ref="keyElm"
-            :filterOption="filterOption"
+            :filterOption="(input, option) => filterOption(input, option, 'key')"
             v-model:value="newKey"
             :options="detailKeys"
             :placeholder="$t('label.name')"
@@ -51,7 +51,7 @@
             disabled />
           <a-auto-complete
             class="detail-input"
-            :filterOption="filterOption"
+            :filterOption="(input, option) => filterOption(input, option, 'value')"
             v-model:value="newValue"
             :options="detailValues"
             :placeholder="$t('label.value')"
@@ -171,7 +171,7 @@ export default {
         if (this.detailOptions[this.newKey]) {
           return { value: this.detailOptions[this.newKey] }
         } else {
-          return ''
+          return []
         }
       }
       return this.detailOptions[this.newKey].map(value => {
@@ -183,7 +183,12 @@ export default {
     this.updateResource(this.resource)
   },
   methods: {
-    filterOption (input, option) {
+    filterOption (input, option, filterType) {
+      if ((filterType === 'key' && !this.newKey) ||
+        (filterType === 'value' && !this.newValue)) {
+        return true
+      }
+
       return (
         option.value.toUpperCase().indexOf(input.toUpperCase()) >= 0
       )
@@ -269,6 +274,8 @@ export default {
         apiName = 'updateVirtualMachine'
       } else if (this.resourceType === 'Template') {
         apiName = 'updateTemplate'
+      } else if (this.resourceType === 'DisasterRecoveryCluster') {
+        apiName = 'updateDisasterRecoveryCluster'
       }
       if (!(apiName in this.$store.getters.apis)) {
         this.$notification.error({
@@ -278,7 +285,7 @@ export default {
         return
       }
 
-      var params = { id: this.resource.id }
+      var params = { id: this.resource.id, drclusterstatus: this.resource.drclusterstatus, mirroringagentstatus: this.resource.mirroringagentstatus }
       params = Object.assign(params, this.getDetailsParam(this.details))
       this.loading = true
       api(apiName, params).then(json => {
@@ -287,6 +294,8 @@ export default {
           details = json.updatevirtualmachineresponse.virtualmachine.details
         } else if (this.resourceType === 'Template' && json.updatetemplateresponse.template.details) {
           details = json.updatetemplateresponse.template.details
+        } else if (this.resourceType === 'DisasterRecoveryCluster' && json.updatedisasterrecoveryclusterresponse.disasterrecoverycluster.details) {
+          details = json.updatedisasterrecoveryclusterresponse.disasterrecoverycluster.details
         }
         this.details = Object.keys(details).map(k => {
           return { name: k, value: details[k], edit: false }
@@ -335,7 +344,8 @@ export default {
     hasSettingUpdatePermission () {
       return (
         (this.resourceType === 'Template' && 'updateTemplate' in this.$store.getters.apis) ||
-        (this.resourceType === 'UserVm' && 'updateVirtualMachine' in this.$store.getters.apis)
+        (this.resourceType === 'UserVm' && 'updateVirtualMachine' in this.$store.getters.apis) ||
+        (this.resourceType === 'DisasterRecoveryCluster' && 'updateDisasterRecoveryCluster' in this.$store.getters.apis)
       )
     }
   }

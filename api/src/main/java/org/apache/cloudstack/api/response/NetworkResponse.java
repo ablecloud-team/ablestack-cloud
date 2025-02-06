@@ -358,6 +358,10 @@ public class NetworkResponse extends BaseResponseWithAssociatedNetwork implement
         this.name = name;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void setBroadcastDomainType(String broadcastDomainType) {
         this.broadcastDomainType = broadcastDomainType;
     }

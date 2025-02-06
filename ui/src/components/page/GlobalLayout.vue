@@ -94,12 +94,14 @@
         </a-button>
       </div>
 
-      <event-sidebar :isVisible="isSidebarVisible" @update:isVisible="isSidebarVisible = $event" />
+      <event-sidebar
+        :isVisible="isSidebarVisible"
+        ref="eventSidebar"
+        @update:isVisible="isSidebarVisible = $event" />
 
       <a-layout
         :class="[layoutMode, `content-width-${contentWidth}`]"
-        :style="{ paddingLeft: contentPaddingLeft, minHeight: '100vh', paddingBottom: isSidebarVisible ? '300px' : '0' }"
-      >
+        :style="{ paddingLeft: contentPaddingLeft, minHeight: '100vh', paddingBottom: isSidebarVisible ? '300px' : '0' }">
         <a-affix style="z-index: 100">
           <global-header
             :style="this.$store.getters.shutdownTriggered ? 'margin-top: 25px;' : null"
@@ -108,23 +110,21 @@
             :theme="navTheme"
             :collapsed="collapsed"
             :device="device"
-            @toggle="toggle"
-          />
+            @toggle="toggle" />
         </a-affix>
 
         <a-button
-        v-if="showClear"
-        type="default"
-        size="small"
-        class="button-clear-notification"
-        @click="onClearNotification">{{ $t('label.clear.notification') }}</a-button>
+          v-if="showClear"
+          type="default"
+          size="small"
+          class="button-clear-notification"
+          @click="onClearNotification">{{ $t('label.clear.notification') }}</a-button>
 
-      <!-- layout content -->
+        <!-- layout content -->
         <a-layout-content
           class="layout-content"
           :class="{'is-header-fixed': fixedHeader}"
-          :style="{ paddingBottom: isSidebarVisible ? '300' : '0' }"
-        >
+          :style="{ paddingBottom: isSidebarVisible ? '300' : '0' }">
           <slot></slot>
         </a-layout-content>
 
@@ -252,7 +252,8 @@ export default {
   },
   methods: {
     toggleSidebar () {
-      this.isSidebarVisible = !this.isSidebarVisible
+      this.isSidebarVisible = true
+      this.$refs.eventSidebar.openSiderBar()
     },
     ...mapActions(['setSidebar']),
     toggle () {

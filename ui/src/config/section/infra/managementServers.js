@@ -52,6 +52,10 @@ export default {
       component: shallowRef(defineAsyncComponent(() => import('@/views/infra/IntegrityVerificationTab.vue')))
     },
     {
+      name: 'management.server.peers',
+      component: shallowRef(defineAsyncComponent(() => import('@/views/infra/ManagementServerPeerTab.vue')))
+    },
+    {
       name: 'comments',
       component: shallowRef(defineAsyncComponent(() => import('@/components/view/AnnotationsTab.vue')))
     }

@@ -279,30 +279,30 @@ kflag=
 while getopts 'c:s:v:p:t:r:k:' OPTION
 do
   case $OPTION in
-  s)	sflag=1
-		newsize="$OPTARG"
-		;;
+  s)  sflag=1
+    newsize="$OPTARG"
+    ;;
   c)    cflag=1
                 currentsize="$OPTARG"
                 ;;
-  v)	vflag=1
-		vmname="$OPTARG"
-		;;
-  p)	dflag=1
-		path="$OPTARG"
-		;;
+  v)  vflag=1
+    vmname="$OPTARG"
+    ;;
+  p)  dflag=1
+    path="$OPTARG"
+    ;;
   t)    tflag=1
                 ptype="$OPTARG"
                 ;;
   r)    rflag=1
                 shrink="$OPTARG"
                 ;;
-  k)	kflag=1
-		kvdoenable="$OPTARG"
-		;;
-  ?)	usage
-		exit 2
-		;;
+  k)  kflag=1
+    kvdoenable="$OPTARG"
+    ;;
+  ?)  usage
+    exit 2
+    ;;
   esac
 done
 

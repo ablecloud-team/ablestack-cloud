@@ -134,14 +134,14 @@ then
   diff=$?
   if [ $diff == 0 ]
   then
-    echo "### [HOST STATE : ALIVE] ###"
+    echo "### [HOST STATE : ALIVE] in [PoolType : SharedMountPoint] ###"
   else
-    echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down ###"
+    echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down in [PoolType : SharedMountPoint] ###"
   fi
   exit 0
 elif [ "$cflag" == "1" ]
 then
-  /usr/bin/logger -t heartbeat "kvmheartbeat_gluegfs.sh will reboot system because it was unable to write the heartbeat to the storage."
+  /usr/bin/logger -t heartbeat "kvmheartbeat_gfs.sh will reboot system because it was unable to write the heartbeat to the storage."
   sync &
   sleep 5
   echo b > /proc/sysrq-trigger

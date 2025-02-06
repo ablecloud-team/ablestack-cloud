@@ -8,14 +8,14 @@
     }
   ],
   "docBase": "http://docs.ablecloud.io/latest",
-  "appTitle": "Mold-ABLESTACK",
-  "footer": "Copyright (c) 2021-2024, ABLECLOUD.Co.Ltd",
+  "appTitle": "ABLESTACK-Mold",
+  "footer": "ⓒ 2021 ABLECLOUD Inc. All Rights Reserved.",
   "buildVersion": "V4.0-4.0.15",
   "loginFooter": "",
   "logo": "assets/ablestack-logo.png",
   "minilogo": "assets/mini-ablestack-logo.png",
   "banner": "assets/ablestack-logo.png",
-  "loginTitle": "Mold-ABLESTACK",
+  "loginTitle": "ABLESTACK-Mold",
   "loginFavicon": "assets/ablestack-favicon.png",
   "error": {
     "403": "assets/403.png",
@@ -68,26 +68,20 @@
     "links": [
       {
         "title": "Documentation",
-        "text": "CloudStack documentation website",
-        "link": "https://docs.cloudstack.apache.org/en/latest/",
+        "text": "ABLESTACK documentation website",
+        "link": "http://docs.ablecloud.io/latest",
         "icon": "read-outlined"
       },
       {
-        "title": "API Documentation",
-        "text": "Refer to API documentation",
-        "link": "https://cloudstack.apache.org/api.html",
-        "icon": "api-outlined"
-      },
-      {
         "title": "Email Support",
-        "text": "Join CloudStack users mailing list to seek and provide support",
-        "link": "mailto:users-subscribe@cloudstack.apache.org",
+        "text": "Join ABLESTACK users mailing list to seek and provide support",
+        "link": "mailto:support@ablecloud.io",
         "icon": "mail-outlined"
       },
       {
         "title": "Report Issue",
         "text": "Submit a bug or improvement request",
-        "link": "https://github.com/apache/cloudstack/issues/new",
+        "link": "https://github.com/ablecloud-team/ablestack-cloud/issues/new",
         "icon": "bug-outlined"
       }
     ]

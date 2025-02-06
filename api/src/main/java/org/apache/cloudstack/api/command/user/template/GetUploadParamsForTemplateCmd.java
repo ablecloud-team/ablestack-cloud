@@ -95,7 +95,7 @@ public class GetUploadParamsForTemplateCmd extends AbstractGetUploadParamsCmd {
     private String templateTag;
 
     @Parameter(name = ApiConstants.KVDO_ENABLE, type = CommandType.BOOLEAN, description = "Whether to KVDO compression and deduplication the volume", since = "4.20")
-    private Boolean kvodEnable;
+    private Boolean kvdoEnable;
 
     @Parameter(name=ApiConstants.DEPLOY_AS_IS,
             type = CommandType.BOOLEAN,
@@ -167,7 +167,7 @@ public class GetUploadParamsForTemplateCmd extends AbstractGetUploadParamsCmd {
     }
 
     public Boolean isKvdoEnable() {
-        return kvodEnable;
+        return kvdoEnable;
     }
 
     public boolean isDeployAsIs() {

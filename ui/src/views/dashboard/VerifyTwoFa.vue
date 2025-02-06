@@ -54,7 +54,6 @@
             @click="handleSubmit">{{ $t('label.verify') }}
           </a-button>
         </div>
-
       </a-form>
     </a-form>
   </div>

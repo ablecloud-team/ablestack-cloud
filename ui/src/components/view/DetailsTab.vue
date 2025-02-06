@@ -155,6 +155,9 @@
               </div>
             </div>
           </div>
+          <div v-else-if="item === 'usersource'">
+            {{ $t(getUserSourceLabel(dataResource[item])) }}
+          </div>
           <div v-else>{{ dataResource[item] }}</div>
         </div>
       </a-list-item>
@@ -236,7 +239,7 @@ export default {
   computed: {
     customDisplayItems () {
       var items = ['ip4routes', 'ip6routes', 'privatemtu', 'publicmtu', 'provider']
-      if (this.$route.meta.name === 'webhookdeliveries') {
+      if (this.$route.meta.name === 'webhookdeliveries' || this.$route.meta.name === 'quotasummary') {
         items.push('startdate')
         items.push('enddate')
       }
@@ -444,6 +447,15 @@ export default {
       if (val < 1024 * 1024 * 1024) return `${(val / 1024 / 1024).toFixed(2)} GB`
       if (val < 1024 * 1024 * 1024 * 1024) return `${(val / 1024 / 1024 / 1024).toFixed(2)} TB`
       return val
+    },
+    getUserSourceLabel (source) {
+      if (source === 'saml2') {
+        source = 'saml'
+      } else if (source === 'saml2disabled') {
+        source = 'saml.disabled'
+      }
+
+      return `label.${source}`
     }
   }
 }

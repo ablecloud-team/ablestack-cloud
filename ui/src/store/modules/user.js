@@ -323,7 +323,7 @@ const user = {
             const result = response.listusersresponse.user[0]
             commit('SET_INFO', result)
             commit('SET_NAME', result.firstname + ' ' + result.lastname)
-            store.dispatch('SetCsLatestVersion', result.rolename)
+            // store.dispatch('SetCsLatestVersion', result.rolename)
             resolve(cachedApis)
           }).catch(error => {
             reject(error)
@@ -396,7 +396,7 @@ const user = {
           const result = response.listusersresponse.user[0]
           commit('SET_INFO', result)
           commit('SET_NAME', result.firstname + ' ' + result.lastname)
-          store.dispatch('SetCsLatestVersion', result.rolename)
+          // store.dispatch('SetCsLatestVersion', result.rolename)
         }).catch(error => {
           reject(error)
         })
@@ -426,12 +426,12 @@ const user = {
           reject(error)
         })
 
-        api('listLdapConfigurations').then(response => {
-          const ldapEnable = (response.ldapconfigurationresponse.count > 0)
-          commit('SET_LDAP', ldapEnable)
-        }).catch(error => {
-          reject(error)
-        })
+        // api('listLdapConfigurations').then(response => {
+        //   const ldapEnable = (response.ldapconfigurationresponse.count > 0)
+        //   commit('SET_LDAP', ldapEnable)
+        // }).catch(error => {
+        //   reject(error)
+        // })
 
         api('cloudianIsEnabled').then(response => {
           const cloudian = response.cloudianisenabledresponse.cloudianisenabled || {}
