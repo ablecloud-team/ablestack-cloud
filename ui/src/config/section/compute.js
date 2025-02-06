@@ -185,7 +185,7 @@ export default {
           docHelp: 'adminguide/virtual_machines.html#cloning-vms',
           dataView: true,
           popup: true,
-          show: (record) => { return true },
+          show: (record) => { return ['Running', 'Stopped'].includes(record.state) },
           disabled: (record) => { return record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM' },
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/CloneVM.vue')))
         },
@@ -476,7 +476,7 @@ export default {
           dataView: true,
           popup: true,
           args: ['virtualmachineid'],
-          show: (record) => { return record.vbmcport === 'None' },
+          show: (record) => { return ['Running', 'Stopped'].includes(record.state) && record.vbmcport === 'None' },
           mapping: {
             virtualmachineid: {
               value: (record, params) => { return record.id }
