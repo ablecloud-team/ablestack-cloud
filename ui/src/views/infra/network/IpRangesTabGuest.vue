@@ -18,43 +18,6 @@
 <template>
   <a-spin :spinning="componentLoading">
     <a-button
-      :disabled="!('createGuestNetworkIpv6Prefix' in $store.getters.apis)"
-      type="dashed"
-      style="margin-bottom: 20px; width: 100%"
-      @click="handleOpenAddIpv6PrefixForm()">
-      <template #icon><plus-outlined /></template>
-      {{ $t('label.add.ip.v6.prefix') }}
-    </a-button>
-    <a-table
-      style="overflow-y: auto"
-      size="small"
-      :columns="ipv6Columns"
-      :dataSource="ipv6Prefixes"
-      :rowKey="record => record.id + record.prefix"
-      :pagination="false"
-    >
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'allocated'">
-          {{ record.usedsubnets + '/' + record.totalsubnets }}
-        </template>
-        <template v-if="column.key === 'actions'">
-          <div class="actions">
-            <tooltip-button
-              tooltipPlacement="bottom"
-              :tooltip="$t('label.delete.ip.v6.prefix')"
-              type="primary"
-              icon="delete-outlined"
-              :danger="true"
-              @click="handleDeleteIpv6Prefix(record)"
-              :disabled="!('deleteGuestNetworkIpv6Prefix' in $store.getters.apis)" />
-          </div>
-        </template>
-      </template>
-    </a-table>
-    <br>
-    <br>
-
-    <a-button
       :disabled="!('createNetwork' in $store.getters.apis)"
       type="dashed"
       style="margin-bottom: 20px; width: 100%"
@@ -96,6 +59,44 @@
         <span>{{ props.value }} / {{ $t('label.page') }}</span>
       </template>
     </a-pagination>
+
+    <br>
+    <br>
+
+    <a-button
+      :disabled="!('createGuestNetworkIpv6Prefix' in $store.getters.apis)"
+      type="dashed"
+      style="margin-bottom: 20px; width: 100%"
+      @click="handleOpenAddIpv6PrefixForm()">
+      <template #icon><plus-outlined /></template>
+      {{ $t('label.add.ip.v6.prefix') }}
+    </a-button>
+    <a-table
+      style="overflow-y: auto"
+      size="small"
+      :columns="ipv6Columns"
+      :dataSource="ipv6Prefixes"
+      :rowKey="record => record.id + record.prefix"
+      :pagination="false"
+    >
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'allocated'">
+          {{ record.usedsubnets + '/' + record.totalsubnets }}
+        </template>
+        <template v-if="column.key === 'actions'">
+          <div class="actions">
+            <tooltip-button
+              tooltipPlacement="bottom"
+              :tooltip="$t('label.delete.ip.v6.prefix')"
+              type="primary"
+              icon="delete-outlined"
+              :danger="true"
+              @click="handleDeleteIpv6Prefix(record)"
+              :disabled="!('deleteGuestNetworkIpv6Prefix' in $store.getters.apis)" />
+          </div>
+        </template>
+      </template>
+    </a-table>
 
     <a-modal
       v-if="showCreateForm"

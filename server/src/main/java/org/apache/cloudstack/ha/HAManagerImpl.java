@@ -91,6 +91,10 @@ import com.cloud.vm.dao.VMInstanceDao;
 import com.cloud.vm.UserVmService;
 import com.cloud.org.Cluster;
 import com.cloud.resource.ResourceService;
+import com.cloud.storage.DiskOfferingVO;
+import com.cloud.storage.VolumeVO;
+import com.cloud.storage.dao.DiskOfferingDao;
+import com.cloud.storage.dao.VolumeDao;
 import com.cloud.utils.component.ComponentContext;
 import com.cloud.utils.component.ManagerBase;
 import com.cloud.utils.component.PluggableService;
@@ -141,6 +145,12 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
 
     @Inject
     private AgentManager _agentMgr;
+
+    @Inject
+    private VolumeDao volumeDao;
+
+    @Inject
+    private DiskOfferingDao diskOfferingDao;
 
     private List<HAProvider<HAResource>> haProviders;
     private Map<String, HAProvider<HAResource>> haProviderMap = new HashMap<>();
@@ -665,10 +675,26 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
 
         //가장 작은 ramsize의 vm을 가장 작은 메모리used의 호스트로 migration
         try {
-            logger.info("===4.vm migration===");
-            Host destinationHost = resourceService.getHost(minHostId);
-            logger.info("minEntry.getKey() : " + minEntry.getKey() + ", destinationHost : " + destinationHost);
-            userVmService.migrateVirtualMachine(minEntry.getKey(), destinationHost);
+            List<VolumeVO> volumesForVm = volumeDao.findUsableVolumesForInstance(minEntry.getKey());
+            boolean kvdoVm = false;
+            for (VolumeVO vol : volumesForVm) {
+                DiskOfferingVO diskOffering = diskOfferingDao.findById(vol.getDiskOfferingId());
+                if (diskOffering.getKvdoEnable()) {
+                    kvdoVm = true;
+                    break;
+                }
+            }
+
+            if (kvdoVm) {
+                logger.info("===4.vm migration===");
+                logger.debug("The host on which maintenance mode is to be set cannot be run because there is a virtual machine using a compressed/deduplicated volume. Check the VM id: " + minEntry.getKey());
+                logger.info("");
+            } else {
+                logger.info("===4.vm migration===");
+                Host destinationHost = resourceService.getHost(minHostId);
+                logger.info("minEntry.getKey() : " + minEntry.getKey() + ", destinationHost : " + destinationHost);
+                userVmService.migrateVirtualMachine(minEntry.getKey(), destinationHost);
+            }
         } catch (ResourceUnavailableException ex) {
             logger.warn("Exception: ", ex);
             throw new ServerApiException(ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR, ex.getMessage());

@@ -4028,6 +4028,9 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         }
 
         StoragePoolVO storagePoolVO = _storagePoolDao.findById(volume.getPoolId());
+        if (storagePoolVO.getPoolType() == Storage.StoragePoolType.CLVM) {
+            throw new CloudRuntimeException("Snapshot not supported for pool type: " + storagePoolVO.getPoolType());
+        }
 
         if (!storagePoolVO.isManaged() && locationType != null) {
             throw new InvalidParameterValueException("VolumeId: " + volumeId + " LocationType is supported only for managed storage");

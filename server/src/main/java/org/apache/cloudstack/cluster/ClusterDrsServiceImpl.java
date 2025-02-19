@@ -37,6 +37,10 @@ import com.cloud.offering.ServiceOffering;
 import com.cloud.org.Cluster;
 import com.cloud.server.ManagementServer;
 import com.cloud.service.dao.ServiceOfferingDao;
+import com.cloud.storage.DiskOfferingVO;
+import com.cloud.storage.VolumeVO;
+import com.cloud.storage.dao.DiskOfferingDao;
+import com.cloud.storage.dao.VolumeDao;
 import com.cloud.user.Account;
 import com.cloud.user.User;
 import com.cloud.utils.DateUtil;
@@ -124,6 +128,12 @@ public class ClusterDrsServiceImpl extends ManagerBase implements ClusterDrsServ
 
     @Inject
     ManagementServer managementServer;
+
+    @Inject
+    private VolumeDao volumeDao;
+
+    @Inject
+    private DiskOfferingDao diskOfferingDao;
 
     List<ClusterDrsAlgorithm> drsAlgorithms = new ArrayList<>();
 
@@ -449,6 +459,21 @@ public class ClusterDrsServiceImpl extends ManagerBase implements ClusterDrsServ
             ) {
                 continue;
             }
+
+            List<VolumeVO> volumesForVm = volumeDao.findUsableVolumesForInstance(vm.getId());
+            boolean kvdoVm = false;
+            for (VolumeVO vol : volumesForVm) {
+                DiskOfferingVO diskOffering = diskOfferingDao.findById(vol.getDiskOfferingId());
+                if (diskOffering.getKvdoEnable()) {
+                    kvdoVm = true;
+                    break;
+                }
+            }
+
+            if (kvdoVm) {
+                continue;
+            }
+
             Ternary<Pair<List<? extends Host>, Integer>, List<? extends Host>, Map<Host, Boolean>> hostsForMigrationOfVM = managementServer
                     .listHostsForMigrationOfVM(
                             vm, 0L, 500L, null, vmList);

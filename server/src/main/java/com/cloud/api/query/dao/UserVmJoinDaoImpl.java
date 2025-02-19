@@ -233,12 +233,10 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
         userVmResponse.setKvdoInUse(false);
         List<VolumeVO> volumesForVm = _volsDao.findUsableVolumesForInstance(userVm.getId());
         for (VolumeVO vol : volumesForVm) {
-            if (vol.getDiskOfferingId() != null) {
-                DiskOfferingVO diskOffering = _diskOfferingDao.findById(vol.getDiskOfferingId());
-                if (diskOffering.getKvdoEnable()) {
-                    userVmResponse.setKvdoInUse(true);
-                    break;
-                }
+            DiskOfferingVO diskOffering = _diskOfferingDao.findById(vol.getDiskOfferingId());
+            if (diskOffering.getKvdoEnable()) {
+                userVmResponse.setKvdoInUse(true);
+                break;
             }
         }
         if (details.contains(VMDetails.all) || details.contains(VMDetails.backoff)) {

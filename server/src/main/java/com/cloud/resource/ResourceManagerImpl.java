@@ -1513,12 +1513,10 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
         for (VMInstanceVO vm : activeVMs) {
             List<VolumeVO> volumesForVm = volumeDao.findUsableVolumesForInstance(vm.getId());
             for (VolumeVO vol : volumesForVm) {
-                if (vol.getDiskOfferingId() != null) {
-                    DiskOfferingVO diskOffering = diskOfferingDao.findById(vol.getDiskOfferingId());
-                    if (diskOffering.getKvdoEnable()) {
-                        logger.debug("The host on which maintenance mode is to be set cannot be run because there is a virtual machine using a compressed/deduplicated volume. Check the VM: " + vm.getInstanceName());
-                        throw new InvalidParameterValueException("The host on which maintenance mode is to be set cannot be run because there is a virtual machine using a compressed/deduplicated volume. Check the VM: " + vm.getInstanceName());
-                    }
+                DiskOfferingVO diskOffering = diskOfferingDao.findById(vol.getDiskOfferingId());
+                if (diskOffering.getKvdoEnable()) {
+                    logger.debug("The host on which maintenance mode is to be set cannot be run because there is a virtual machine using a compressed/deduplicated volume. Check the VM: " + vm.getInstanceName());
+                    throw new InvalidParameterValueException("The host on which maintenance mode is to be set cannot be run because there is a virtual machine using a compressed/deduplicated volume. Check the VM: " + vm.getInstanceName());
                 }
             }
         }

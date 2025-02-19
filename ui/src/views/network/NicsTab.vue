@@ -116,7 +116,7 @@
               </span>
             </a-select-option>
           </a-select>
-          <p class="modal-form__label">{{ $t('label.publicip') }}:</p>
+          <p class="modal-form__label">{{ $t('label.ipaddress') }}:</p>
           <a-input v-model:value="addNetworkData.ip"></a-input>
           <br>
           <a-checkbox v-model:checked="addNetworkData.makedefault">
@@ -144,7 +144,7 @@
 
       <a-form @finish="submitUpdateIP" v-ctrl-enter="submitUpdateIP">
         <div class="modal-form">
-          <p class="modal-form__label">{{ $t('label.publicip') }}:</p>
+          <p class="modal-form__label">{{ $t('label.ipaddress') }}:</p>
           <a-select
             v-if="editNicResource.type==='Shared'"
             v-model:value="editIpAddressValue"
@@ -187,7 +187,7 @@
       <a-divider />
       <div v-ctrl-enter="submitSecondaryIP">
         <div class="modal-form">
-          <p class="modal-form__label">{{ $t('label.publicip') }}:</p>
+          <p class="modal-form__label">{{ $t('label.ipaddress') }}:</p>
           <a-select
             v-if="editNicResource.type==='Shared'"
             v-model:value="newSecondaryIp"

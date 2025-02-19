@@ -408,6 +408,10 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
         // check if there are active volume snapshots tasks
         List<VolumeVO> listVolumes = _volumeDao.findByInstance(vmId);
         for (VolumeVO volume : listVolumes) {
+            StoragePoolVO storagePoolVO = _storagePoolDao.findById(volume.getPoolId());
+            if (storagePoolVO.getPoolType() == Storage.StoragePoolType.CLVM) {
+                throw new CloudRuntimeException("VM snapshot not supported for pool type: " + storagePoolVO.getPoolType());
+            }
             List<SnapshotVO> activeSnapshots =
                 _snapshotDao.listByInstanceId(volume.getInstanceId(), Snapshot.State.Creating, Snapshot.State.CreatedOnPrimary, Snapshot.State.BackingUp);
             if (activeSnapshots.size() > 0) {
