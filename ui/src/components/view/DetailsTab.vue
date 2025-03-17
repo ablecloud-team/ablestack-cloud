@@ -23,6 +23,12 @@
       </div>
     </template>
   </a-alert>
+  <a-alert
+    v-if="resource.licenseExpiryDate !== undefined"
+    :message="getLicenseMessage()"
+    type="error"
+    show-icon>
+  </a-alert>
   <a-alert v-if="ip4routes" type="info" :showIcon="true" :message="$t('label.add.upstream.ipv4.routes')">
     <template #description>
       <p v-html="ip4routes" />
@@ -230,7 +236,11 @@ export default {
       dedicatedSectionActive: false,
       projectname: '',
       dataResource: {},
-      detailsTitles: []
+      detailsTitles: [],
+      licenseInfo: {
+        expired: false,
+        expiryDate: ''
+      }
     }
   },
   mounted () {
@@ -373,13 +383,17 @@ export default {
   watch: {
     resource: {
       deep: true,
-      handler () {
-        this.dataResource = this.resource
+      handler (newVal) {
+        this.dataResource = newVal
         if ('account' in this.dataResource && this.dataResource.account.startsWith('PrjAcct-')) {
           this.projectname = this.dataResource.account.substring(this.dataResource.account.indexOf('-') + 1, this.dataResource.account.lastIndexOf('-'))
           this.dataResource.projectname = this.projectname
         }
-      }
+        if (newVal.ipaddress) {
+          this.fetchLicenseInfo()
+        }
+      },
+      immediate: true
     },
     $route () {
       this.dedicatedSectionActive = this.dedicatedRoutes.includes(this.$route.meta.name)
@@ -456,6 +470,40 @@ export default {
       }
 
       return `label.${source}`
+    },
+    getLicenseMessage () {
+      if (!this.resource.licenseExpiryDate) {
+        return this.$t('message.license.not.found')
+      }
+      return `${this.$t('message.alert.licenseexpired')} ${this.resource.licenseExpiryDate} ${this.isLicenseExpired(this.resource.licenseExpiryDate) ? this.$t('message.license.renewal.required') : '(D' + this.calculateDday(this.resource.licenseExpiryDate) + ')'}`
+    },
+    async fetchLicenseInfo () {
+      if (this.resource && this.resource.ipaddress) {
+        try {
+          const response = await fetch(`https://${this.resource.ipaddress}:8080/api/v1/license/isLicenseExpired`)
+          const data = await response.json()
+          if (data.error) {
+            this.dataResource.licenseExpiryDate = ''
+          } else {
+            this.dataResource.licenseExpiryDate = data.expiry_date
+          }
+        } catch (error) {
+          console.error('라이선스 정보를 가져오는데 실패했습니다:', error)
+        }
+      }
+    },
+
+    isLicenseExpired (expiryDate) {
+      const today = new Date()
+      const expiry = new Date(expiryDate)
+      return today > expiry
+    },
+    calculateDday (expiryDate) {
+      const today = new Date()
+      const expiry = new Date(expiryDate)
+      const diffTime = expiry - today
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      return `-${diffDays}`
     }
   }
 }

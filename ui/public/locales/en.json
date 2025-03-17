@@ -4750,5 +4750,8 @@
 "message.error.create.disaster.recovery.cluster.vm": "There was an error creating mirroring virtualmachine",
 "message.dr.mirrored.cluster.disable": "If you disable the selected disaster recovery cluster, all mirroring virtual machines in the secondary cluster will be deleted. If you wish to disable, please enter the phrase 'I would like to disable it'.",
 "message.success.disable.disaster.recovery.cluster": "Successfully disabled disaster recovery cluster",
-"message.error.confirm.create.dr.mirroring.vm": "Mirroring virtual machines cannot be created if compression deduplication is enabled."
+"message.error.confirm.create.dr.mirroring.vm": "Mirroring virtual machines cannot be created if compression deduplication is enabled.",
+"message.alert.licenseexpired": "License Expired Date",
+"message.license.renewal.required": "It's past work. Please renew.",
+"message.license.not.found": "License file not found. Please register."
 }

@@ -67,6 +67,8 @@ import org.apache.cloudstack.api.command.user.userdata.RegisterUserDataCmd;
 import org.apache.cloudstack.api.command.user.vm.GetVMPasswordCmd;
 import org.apache.cloudstack.api.command.user.vmgroup.UpdateVMGroupCmd;
 import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.LicenseCheckerResponse;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.LicenseCheckCmd;
 import org.apache.cloudstack.api.response.ListHostDevicesResponse;
 import org.apache.cloudstack.config.Configuration;
 import org.apache.cloudstack.config.ConfigurationGroup;
@@ -493,5 +495,7 @@ public interface ManagementService {
     Pair<Boolean, String> patchSystemVM(PatchSystemVMCmd cmd);
 
     ListResponse<ListHostDevicesResponse> listHostDevices(ListHostDevicesCmd cmd);
+
+    LicenseCheckerResponse checkLicense(LicenseCheckCmd cmd);
 
 }

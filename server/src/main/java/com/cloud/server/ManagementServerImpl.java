@@ -1,3 +1,5 @@
+
+
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -16,7 +18,12 @@
 // under the License.
 package com.cloud.server;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+// import java.net.HttpURLConnection;
+import java.net.URL;
+// import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,12 +45,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.naming.ConfigurationException;
-
 import com.cloud.utils.security.CertificateHelper;
 import org.apache.cloudstack.acl.ControlledEntity;
 import org.apache.cloudstack.acl.SecurityChecker;
@@ -63,7 +72,6 @@ import org.apache.cloudstack.api.command.admin.account.UpdateAccountCmd;
 import org.apache.cloudstack.api.command.admin.address.AcquirePodIpCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.address.AssociateIPAddrCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.address.ListPublicIpAddressesCmdByAdmin;
-import org.apache.cloudstack.api.command.admin.address.ReleasePodIpCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.affinitygroup.UpdateVMAffinityGroupCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.alert.GenerateAlertCmd;
 import org.apache.cloudstack.api.command.admin.autoscale.CreateCounterCmd;
@@ -82,7 +90,6 @@ import org.apache.cloudstack.api.command.admin.config.UpdateHypervisorCapabiliti
 import org.apache.cloudstack.api.command.admin.direct.download.ListTemplateDirectDownloadCertificatesCmd;
 import org.apache.cloudstack.api.command.admin.direct.download.ProvisionTemplateDirectDownloadCertificateCmd;
 import org.apache.cloudstack.api.command.admin.direct.download.RevokeTemplateDirectDownloadCertificateCmd;
-import org.apache.cloudstack.api.command.admin.direct.download.UploadTemplateDirectDownloadCertificateCmd;
 import org.apache.cloudstack.api.command.admin.domain.CreateDomainCmd;
 import org.apache.cloudstack.api.command.admin.domain.DeleteDomainCmd;
 import org.apache.cloudstack.api.command.admin.domain.ListDomainChildrenCmd;
@@ -128,13 +135,11 @@ import org.apache.cloudstack.api.command.admin.loadbalancer.ListLoadBalancerRule
 import org.apache.cloudstack.api.command.admin.management.ListMgmtsCmd;
 import org.apache.cloudstack.api.command.admin.network.AddNetworkDeviceCmd;
 import org.apache.cloudstack.api.command.admin.network.AddNetworkServiceProviderCmd;
-import org.apache.cloudstack.api.command.admin.network.CreateManagementNetworkIpRangeCmd;
 import org.apache.cloudstack.api.command.admin.network.CreateNetworkCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.network.CreateNetworkOfferingCmd;
 import org.apache.cloudstack.api.command.admin.network.CreatePhysicalNetworkCmd;
 import org.apache.cloudstack.api.command.admin.network.CreateStorageNetworkIpRangeCmd;
 import org.apache.cloudstack.api.command.admin.network.DedicateGuestVlanRangeCmd;
-import org.apache.cloudstack.api.command.admin.network.DeleteManagementNetworkIpRangeCmd;
 import org.apache.cloudstack.api.command.admin.network.DeleteNetworkDeviceCmd;
 import org.apache.cloudstack.api.command.admin.network.DeleteNetworkOfferingCmd;
 import org.apache.cloudstack.api.command.admin.network.DeleteNetworkServiceProviderCmd;
@@ -145,14 +150,12 @@ import org.apache.cloudstack.api.command.admin.network.ListGuestVlansCmd;
 import org.apache.cloudstack.api.command.admin.network.ListNetworkDeviceCmd;
 import org.apache.cloudstack.api.command.admin.network.ListNetworkIsolationMethodsCmd;
 import org.apache.cloudstack.api.command.admin.network.ListNetworkServiceProvidersCmd;
-import org.apache.cloudstack.api.command.admin.network.ListNetworksCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.network.ListPhysicalNetworksCmd;
 import org.apache.cloudstack.api.command.admin.network.ListStorageNetworkIpRangeCmd;
 import org.apache.cloudstack.api.command.admin.network.ListSupportedNetworkServicesCmd;
 import org.apache.cloudstack.api.command.admin.network.MigrateNetworkCmd;
 import org.apache.cloudstack.api.command.admin.network.MigrateVPCCmd;
 import org.apache.cloudstack.api.command.admin.network.ReleaseDedicatedGuestVlanRangeCmd;
-import org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.network.UpdateNetworkOfferingCmd;
 import org.apache.cloudstack.api.command.admin.network.UpdateNetworkServiceProviderCmd;
 import org.apache.cloudstack.api.command.admin.network.UpdatePhysicalNetworkCmd;
@@ -174,6 +177,7 @@ import org.apache.cloudstack.api.command.admin.outofbandmanagement.EnableOutOfBa
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.EnableOutOfBandManagementForHostCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.EnableOutOfBandManagementForZoneCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.IssueOutOfBandManagementPowerActionCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.LicenseCheckCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostDevicesCmd;
 import org.apache.cloudstack.api.command.admin.pod.CreatePodCmd;
 import org.apache.cloudstack.api.command.admin.pod.DeletePodCmd;
@@ -294,6 +298,7 @@ import org.apache.cloudstack.api.command.admin.vm.DeployVMVolumeCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vm.DestroyVMCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vm.ExpungeVMCmd;
 import org.apache.cloudstack.api.command.admin.vm.GetVMUserDataCmd;
+import org.apache.cloudstack.api.command.admin.vm.ListAffectedVmsForStorageScopeChangeCmd;
 import org.apache.cloudstack.api.command.admin.vm.ListVMsCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vm.MigrateVMCmd;
 import org.apache.cloudstack.api.command.admin.vm.MigrateVirtualMachineWithVolumeCmd;
@@ -321,12 +326,10 @@ import org.apache.cloudstack.api.command.admin.volume.ResizeVolumeCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.volume.UpdateVolumeCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.volume.UploadVolumeCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vpc.CreatePrivateGatewayByAdminCmd;
-import org.apache.cloudstack.api.command.admin.vpc.CreateVPCCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vpc.CreateVPCOfferingCmd;
 import org.apache.cloudstack.api.command.admin.vpc.DeletePrivateGatewayCmd;
 import org.apache.cloudstack.api.command.admin.vpc.DeleteVPCOfferingCmd;
 import org.apache.cloudstack.api.command.admin.vpc.ListPrivateGatewaysCmdByAdminCmd;
-import org.apache.cloudstack.api.command.admin.vpc.ListVPCsCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vpc.UpdateVPCCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vpc.UpdateVPCOfferingCmd;
 import org.apache.cloudstack.api.command.admin.zone.CreateZoneCmd;
@@ -348,7 +351,6 @@ import org.apache.cloudstack.api.command.user.address.ReleaseIPAddrCmd;
 import org.apache.cloudstack.api.command.user.address.RemoveQuarantinedIpCmd;
 import org.apache.cloudstack.api.command.user.address.ReserveIPAddrCmd;
 import org.apache.cloudstack.api.command.user.address.UpdateIPAddrCmd;
-import org.apache.cloudstack.api.command.user.address.UpdateQuarantinedIpCmd;
 import org.apache.cloudstack.api.command.user.affinitygroup.CreateAffinityGroupCmd;
 import org.apache.cloudstack.api.command.user.affinitygroup.DeleteAffinityGroupCmd;
 import org.apache.cloudstack.api.command.user.affinitygroup.ListAffinityGroupTypesCmd;
@@ -533,7 +535,6 @@ import org.apache.cloudstack.api.command.user.vm.CloneVMCmd;
 import org.apache.cloudstack.api.command.user.vm.DeployVMCmd;
 import org.apache.cloudstack.api.command.user.vm.DeployVMVolumeCmd;
 import org.apache.cloudstack.api.command.user.vm.DestroyVMCmd;
-import org.apache.cloudstack.api.command.admin.vm.ListAffectedVmsForStorageScopeChangeCmd;
 import org.apache.cloudstack.api.command.user.vm.GetVMPasswordCmd;
 import org.apache.cloudstack.api.command.user.vm.ListNicsCmd;
 import org.apache.cloudstack.api.command.user.vm.ListVMsCmd;
@@ -578,9 +579,9 @@ import org.apache.cloudstack.api.command.user.volume.MigrateVolumeCmd;
 import org.apache.cloudstack.api.command.user.volume.RecoverVolumeCmd;
 import org.apache.cloudstack.api.command.user.volume.RemoveResourceDetailCmd;
 import org.apache.cloudstack.api.command.user.volume.ResizeVolumeCmd;
+import org.apache.cloudstack.api.command.user.volume.UpdateCompressDedupCmd;
 import org.apache.cloudstack.api.command.user.volume.UpdateVolumeCmd;
 import org.apache.cloudstack.api.command.user.volume.UploadVolumeCmd;
-import org.apache.cloudstack.api.command.user.volume.UpdateCompressDedupCmd;
 import org.apache.cloudstack.api.command.user.vpc.CreatePrivateGatewayCmd;
 import org.apache.cloudstack.api.command.user.vpc.CreateStaticRouteCmd;
 import org.apache.cloudstack.api.command.user.vpc.CreateVPCCmd;
@@ -613,6 +614,7 @@ import org.apache.cloudstack.api.command.user.vpn.UpdateVpnConnectionCmd;
 import org.apache.cloudstack.api.command.user.vpn.UpdateVpnCustomerGatewayCmd;
 import org.apache.cloudstack.api.command.user.vpn.UpdateVpnGatewayCmd;
 import org.apache.cloudstack.api.command.user.zone.ListZonesCmd;
+import org.apache.cloudstack.api.response.LicenseCheckerResponse;
 import org.apache.cloudstack.api.response.ListHostDevicesResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.auth.UserAuthenticator;
@@ -636,6 +638,8 @@ import org.apache.cloudstack.framework.config.impl.ConfigurationGroupVO;
 import org.apache.cloudstack.framework.config.impl.ConfigurationSubGroupVO;
 import org.apache.cloudstack.framework.config.impl.ConfigurationVO;
 import org.apache.cloudstack.framework.security.keystore.KeystoreManager;
+import org.apache.cloudstack.ha.HAConfigManager;
+import org.apache.cloudstack.ha.HAResource;
 import org.apache.cloudstack.managed.context.ManagedContextRunnable;
 import org.apache.cloudstack.query.QueryService;
 import org.apache.cloudstack.resourcedetail.dao.GuestOsDetailsDao;
@@ -650,6 +654,7 @@ import org.apache.cloudstack.storage.datastore.db.VolumeDataStoreVO;
 import org.apache.cloudstack.userdata.UserDataManager;
 import org.apache.cloudstack.utils.CloudStackVersion;
 import org.apache.cloudstack.utils.identity.ManagementServerNode;
+// import org.apache.cloudstack.utils.security.SSLUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -865,6 +870,9 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     static final String FOR_SYSTEMVMS = "forsystemvms";
     static final ConfigKey<Integer> vmPasswordLength = new ConfigKey<>("Advanced", Integer.class, "vm.password.length", "6", "Specifies the length of a randomly generated password", false);
     static final ConfigKey<Integer> sshKeyLength = new ConfigKey<>("Advanced", Integer.class, "ssh.key.length", "2048", "Specifies custom SSH key length (bit)", true, ConfigKey.Scope.Global);
+    static final ConfigKey<Integer> LicenseCheckInterval = new ConfigKey<>("Advanced", Integer.class,
+            "license.check.interval", "1",
+            "License check interval (days)", true);
     static final ConfigKey<Boolean> humanReadableSizes = new ConfigKey<>("Advanced", Boolean.class, "display.human.readable.sizes", "true", "Enables outputting human readable byte sizes to logs and usage records.", false, ConfigKey.Scope.Global);
     public static final ConfigKey<String> customCsIdentifier = new ConfigKey<>("Advanced", String.class, "custom.cs.identifier", UUID.randomUUID().toString().split("-")[0].substring(4), "Custom identifier for the cloudstack installation", true, ConfigKey.Scope.Global);
     private static final VirtualMachine.Type []systemVmTypes = { VirtualMachine.Type.SecondaryStorageVm, VirtualMachine.Type.ConsoleProxy};
@@ -1037,9 +1045,13 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     @Inject
     ResourceLimitService resourceLimitService;
 
+    @Inject
+    private HAConfigManager haConfigManager;
+
     private LockControllerListener _lockControllerListener;
     private final ScheduledExecutorService _eventExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("EventChecker"));
     private final ScheduledExecutorService _alertExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("AlertChecker"));
+    private final ScheduledExecutorService _licenseExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LicenseCheck"));
     private static final int patchCommandTimeout = 600000;
 
     private Map<String, String> _configs;
@@ -1128,6 +1140,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         _alertPurgeDelay = NumbersUtil.parseInt(_configDao.getValue(Config.AlertPurgeDelay.key()), 0);
         if (_alertPurgeDelay != 0) {
             _alertExecutor.scheduleAtFixedRate(new AlertPurgeTask(), alertPurgeInterval, alertPurgeInterval, TimeUnit.SECONDS);
+        }
+
+        if(LicenseCheckInterval.value() > 0) {
+            _licenseExecutor.scheduleAtFixedRate(new LicenseCheckTask(), 0, LicenseCheckInterval.value(), TimeUnit.DAYS);
         }
 
         final String[] availableIds = TimeZone.getAvailableIDs();
@@ -1472,7 +1488,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     }
 
     protected boolean zoneWideVolumeRequiresStorageMotion(PrimaryDataStore volumeDataStore,
-               final Host sourceHost, final Host destinationHost) {
+            final Host sourceHost, final Host destinationHost) {
         if (volumeDataStore.isManaged() && sourceHost.getClusterId() != destinationHost.getClusterId()) {
             PrimaryDataStoreDriver driver = (PrimaryDataStoreDriver)volumeDataStore.getDriver();
             // Depends on the storage driver. For some storages simply
@@ -3174,7 +3190,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         return new Pair<>(result, details);
     }
 
-     @Override
+    @Override
     public ListResponse<ListHostDevicesResponse> listHostDevices(ListHostDevicesCmd cmd) {
         Long id = cmd.getId();
         HostVO hostVO = _hostDao.findById(id);
@@ -3503,7 +3519,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
 
     protected List<CapacityVO> listCapacitiesWithDetails(final Long zoneId, final Long podId, Long clusterId,
-             final Integer capacityType, final String tag, List<Long> dcList) {
+            final Integer capacityType, final String tag, List<Long> dcList) {
         List<String> tags = new ArrayList<>();
         if (StringUtils.isNotEmpty(tag)) {
             tags.add(tag);
@@ -3824,8 +3840,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(CreateNetworkCmd.class);
         cmdList.add(DeleteNetworkACLCmd.class);
         cmdList.add(DeleteNetworkCmd.class);
+        cmdList.add(ListNetworkACLListsCmd.class);
         cmdList.add(ListNetworkACLsCmd.class);
         cmdList.add(ListNetworkOfferingsCmd.class);
+        cmdList.add(ListNetworkPermissionsCmd.class);
         cmdList.add(ListNetworkProtocolsCmd.class);
         cmdList.add(ListNetworksCmd.class);
         cmdList.add(RestartNetworkCmd.class);
@@ -4033,7 +4051,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(UpdateVpnConnectionCmd.class);
         cmdList.add(UpdateVpnGatewayCmd.class);
         cmdList.add(ListQuarantinedIpsCmd.class);
-        cmdList.add(UpdateQuarantinedIpCmd.class);
         cmdList.add(RemoveQuarantinedIpCmd.class);
         // separated admin commands
         cmdList.add(ListAccountsCmdByAdmin.class);
@@ -4083,10 +4100,9 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(AssociateIPAddrCmdByAdmin.class);
         cmdList.add(ListPublicIpAddressesCmdByAdmin.class);
         cmdList.add(CreateNetworkCmdByAdmin.class);
-        cmdList.add(UpdateNetworkCmdByAdmin.class);
-        cmdList.add(ListNetworksCmdByAdmin.class);
-        cmdList.add(CreateVPCCmdByAdmin.class);
-        cmdList.add(ListVPCsCmdByAdmin.class);
+        // cmdList.add(ListNetworksCmdByAdmin.class);
+        // cmdList.add(CreateVPCCmdByAdmin.class);
+        // cmdList.add(ListVPCsCmdByAdmin.class);
         cmdList.add(UpdateVPCCmdByAdmin.class);
         cmdList.add(CreatePrivateGatewayByAdminCmd.class);
         cmdList.add(ListPrivateGatewaysCmdByAdminCmd.class);
@@ -4097,10 +4113,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(MigrateNetworkCmd.class);
         cmdList.add(MigrateVPCCmd.class);
         cmdList.add(AcquirePodIpCmdByAdmin.class);
-        cmdList.add(ReleasePodIpCmdByAdmin.class);
-        cmdList.add(CreateManagementNetworkIpRangeCmd.class);
-        cmdList.add(DeleteManagementNetworkIpRangeCmd.class);
-        cmdList.add(UploadTemplateDirectDownloadCertificateCmd.class);
         cmdList.add(RevokeTemplateDirectDownloadCertificateCmd.class);
         cmdList.add(ListTemplateDirectDownloadCertificatesCmd.class);
         cmdList.add(ProvisionTemplateDirectDownloadCertificateCmd.class);
@@ -4155,6 +4167,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(UpdateBucketCmd.class);
         cmdList.add(DeleteBucketCmd.class);
         cmdList.add(ListBucketsCmd.class);
+        cmdList.add(LicenseCheckCmd.class);
 
         return cmdList;
     }
@@ -4233,6 +4246,19 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 }
             } catch (final Exception e) {
                 logger.error("Exception ", e);
+            }
+        }
+    }
+
+    protected class LicenseCheckTask extends ManagedContextRunnable {
+        @Override
+        protected void runInContext() {
+            try {
+                logger.info("Daily license check started");
+                List<HostVO> hosts = _hostDao.listAll();
+                checkLicensesForHosts(hosts);
+            } catch (Exception e) {
+                logger.error("Error occurred during license check", e);
             }
         }
     }
@@ -5168,7 +5194,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
         if (StringUtils.isEmpty(password)) {
             throw new InvalidParameterValueException(String.format("No password found for VM [%s]. When the VM's SSH keypair is changed, the current encrypted password is "
-              + "removed due to inconsistency in the encryption, as the new SSH keypair is different from which the password was encrypted. To get a new password, it must be reseted.", vm));
+            + "removed due to inconsistency in the encryption, as the new SSH keypair is different from which the password was encrypted. To get a new password, it must be reseted.", vm));
         }
 
         return password;
@@ -5634,5 +5660,285 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
     public void setLockControllerListener(final LockControllerListener lockControllerListener) {
         _lockControllerListener = lockControllerListener;
+    }
+
+    @Override
+    public LicenseCheckerResponse checkLicense(LicenseCheckCmd cmd) {
+        logger.info("License check started");
+        Long hostId = cmd.getHostId();
+        if (hostId == null) {
+            throw new InvalidParameterValueException("Host ID is required");
+        }
+
+        HostVO host = _hostDao.findById(hostId);
+        if (host == null) {
+            throw new InvalidParameterValueException("Host not found: " + hostId);
+        }
+
+        return checkLicensesForHosts(List.of(host)).getResponses().get(0);
+    }
+    private List<HostVO> getHostsToCheck(Long hostId) {
+        if (hostId != null) {
+            SearchBuilder<HostVO> sb = _hostDao.createSearchBuilder();
+            sb.and("id", sb.entity().getId(), SearchCriteria.Op.EQ);
+            SearchCriteria<HostVO> sc = sb.create();
+            sc.setParameters("id", hostId);
+            return _hostDao.search(sc, new Filter(HostVO.class, "id", true));
+        }
+        return _hostDao.listAll();
+    }
+    public ListResponse<LicenseCheckerResponse> listLicenseChecks(final LicenseCheckCmd cmd) {
+        final Long hostId = cmd.getHostId();
+        List<HostVO> hosts = getHostsToCheck(hostId);
+        return checkLicensesForHosts(hosts);
+    }
+
+    private ListResponse<LicenseCheckerResponse> checkLicensesForHosts(List<HostVO> hosts) {
+        List<LicenseCheckerResponse> responseList = new ArrayList<>();
+
+        for (HostVO host : hosts) {
+            try {
+                logger.info("host::: " + host.getPrivateIpAddress());
+                logger.info("getPrivateIpAddress: " + host.getPrivateIpAddress());
+                boolean isExpired = isLicenseExpired(host.getPrivateIpAddress());
+                LicenseCheckerResponse response = createLicenseResponse(host, !isExpired);
+                if (isExpired) {
+                    handleExpiredLicense(host);
+                } else {
+                    handleValidLicense(host);
+                }
+                responseList.add(response);
+            } catch (Exception e) {
+                logger.error("Error occurred during license check - Host ID: " + host.getId(), e);
+                responseList.add(createErrorResponse(host, e.getMessage()));
+            }
+        }
+
+        ListResponse<LicenseCheckerResponse> response = new ListResponse<>();
+        response.setResponses(responseList);
+        return response;
+    }
+
+    private boolean handleValidLicense(HostVO host) {
+        boolean licenseHostValue = false;
+        try {
+            // Disable HA
+            boolean result = haConfigManager.disableHA(host.getId(), HAResource.ResourceType.Host);
+            if (!result) {
+                logger.warn("Failed to disable HA for host " + host.getId());
+                throw new CloudRuntimeException("Failed to disable HA");
+            }
+
+            TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
+                }
+            };
+            logger.info("Starting Glue-API call: " + host.getPrivateIpAddress());
+            String glueEndpoint = "https://" + host.getPrivateIpAddress() + ":8080/api/v1/license/controlHostAgent/start";
+            logger.info("Starting Glue-API call: " + glueEndpoint);
+            logger.info("Starting Glue-API call: " + glueEndpoint);
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+
+            URL url = new URL(glueEndpoint);
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+            connection.setHostnameVerifier((hostname, session) -> hostname.equals(host.getPrivateIpAddress()));
+
+            connection.setDoOutput(true);
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(30000);
+            connection.setReadTimeout(60000);
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+
+                    String licenseData = response.toString();
+                    licenseHostValue = Boolean.parseBoolean(licenseData);
+
+                    // 라이센스 재시작 알림 전송
+                    _alertMgr.sendAlert(
+                        AlertManager.AlertType.ALERT_TYPE_HOST,
+                        host.getDataCenterId(),
+                        host.getId(),
+                        "License activated",
+                        "The license for host " + host.getName() + "has been activated normally."
+                    );
+
+                    logger.info("License is valid and activated. Host ID: " + host.getId());
+
+                    return licenseHostValue;
+                }
+            } else {
+                logger.error("Error: Received HTTP response code " + responseCode);
+            }
+        } catch (Exception e) {
+            logger.error("Exception occurred: ", e);
+            e.printStackTrace();
+        }
+        return licenseHostValue;
+    }
+
+    private boolean handleExpiredLicense(HostVO host) {
+        boolean licenseHostValue = false;
+        try {
+            // Disable HA
+            boolean result = haConfigManager.disableHA(host.getId(), HAResource.ResourceType.Host);
+            if (!result) {
+                logger.warn("Failed to disable HA for host " + host.getId());
+                throw new CloudRuntimeException("Failed to disable HA");
+            }
+
+            TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
+                }
+            };
+            logger.info("Starting Glue-API call: " + host.getPrivateIpAddress());
+            String glueEndpoint = "https://" + host.getPrivateIpAddress() + ":8080/api/v1/license/controlHostAgent/stop";
+            logger.info("Starting Glue-API call: " + glueEndpoint);
+            logger.info("Starting Glue-API call: " + glueEndpoint);
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+
+            URL url = new URL(glueEndpoint);
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+            connection.setHostnameVerifier((hostname, session) -> hostname.equals(host.getPrivateIpAddress()));
+            connection.setDoOutput(true);
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(30000);
+            connection.setReadTimeout(60000);
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+
+                    String licenseData = response.toString();
+                    licenseHostValue = Boolean.parseBoolean(licenseData);
+                }
+            } else {
+                logger.error("Error: Received HTTP response code " + responseCode);
+            }
+
+            // 라이센스 만료 알림 전송
+            _alertMgr.sendAlert(
+                AlertManager.AlertType.ALERT_TYPE_HOST,
+                host.getDataCenterId(),
+                host.getId(),
+                "The license file does not exist or has expired.",
+                "The license for host " + host.getName() + "has expired. Please renew the license."
+            );
+
+            logger.warn("License has expired. Host ID: " + host.getId());
+
+        } catch (Exception e) {
+            logger.error("Exception occurred: ", e);
+            e.printStackTrace();
+        }
+
+        return licenseHostValue;
+    }
+
+    private boolean isLicenseExpired(String ipAddress) throws Exception {
+        boolean licenseHostValue = false;
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
+                }
+            };
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+
+            String licenseApiUrl = "https://" + ipAddress + ":8080/api/v1/license/isLicenseExpired";
+            URL url = new URL(licenseApiUrl);
+            logger.info("Starting Glue-API call: " + ipAddress);
+            logger.info("Starting Glue-API call: " + licenseApiUrl);
+            logger.info("Starting Glue-API call: " + licenseApiUrl);
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+            connection.setHostnameVerifier((hostname, session) -> hostname.equals(ipAddress));
+
+            connection.setDoOutput(true);
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(30000);
+            connection.setReadTimeout(60000);
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+
+                    String licenseData = response.toString();
+                    licenseHostValue = Boolean.parseBoolean(licenseData);
+
+                    return licenseHostValue;
+                }
+            } else {
+                logger.error("Error: Received HTTP response code " + responseCode);
+            }
+        } catch (Exception e) {
+            logger.error("Exception occurred: ", e);
+            e.printStackTrace();
+        }
+        return licenseHostValue;
+    }
+
+    private LicenseCheckerResponse createLicenseResponse(HostVO host, boolean isValid) {
+        LicenseCheckerResponse response = new LicenseCheckerResponse();
+        response.setObjectName("licensecheck");
+        response.setHostId(host.getId());
+        response.setSuccess(isValid);
+        return response;
+    }
+
+    private LicenseCheckerResponse createErrorResponse(HostVO host, String errorMessage) {
+        LicenseCheckerResponse response = new LicenseCheckerResponse();
+        response.setObjectName("licensecheck");
+        response.setHostId(host.getId());
+        response.setSuccess(false);
+        return response;
     }
 }

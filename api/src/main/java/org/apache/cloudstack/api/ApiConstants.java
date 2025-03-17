@@ -1303,6 +1303,8 @@ public class ApiConstants {
     public static final String DR_CLUSTER_VM_NAME = "drclustervmname";
     public static final String MIRRORING_AGENT_STATUS = "mirroringagentstatus";
     public static final String DISASTER_RECOVERY_CLUSTER_VM_LIST = "disasterrecoveryclustervmlist";
+    public static final String EXPIRY_DATE = "expirydate";
+    public static final String LICENSE_CHECK = "licensecheck";
 
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.

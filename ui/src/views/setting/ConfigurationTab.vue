@@ -230,7 +230,8 @@ export default {
             'event.delete.enabled',
             'event.purge.delay',
             'security.check.interval',
-            'integrity.verification.interval']
+            'integrity.verification.interval',
+            'license.check.interval']
           config = config.filter((x) => !securityArr.includes(x.name))
           // console.log('config :>> ', config)
         }
@@ -347,6 +348,20 @@ export default {
           '#' + this.$route.path
         )
       }
+    },
+    updateConfiguration (name, value) {
+      api('updateConfiguration', {
+        name: name,
+        value: value
+      }).then(response => {
+        this.$notification.success({
+          message: this.$t('message.success'),
+          description: this.$t('message.configuration.value.updated')
+        })
+        this.fetchConfigurationData()
+      }).catch(error => {
+        this.$notifyError(error)
+      })
     }
   }
 }
