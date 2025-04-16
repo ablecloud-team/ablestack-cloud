@@ -75,6 +75,10 @@ public interface HighAvailabilityManager extends Manager {
     public static final ConfigKey<Boolean> KvmHAFenceHostIfHeartbeatFailsOnStorage = new ConfigKey<>("Advanced", Boolean.class, "kvm.ha.fence.on.storage.heartbeat.failure", "false",
             "Proceed fencing the host even the heartbeat failed for only one storage pool", false, ConfigKey.Scope.Zone);
 
+    public static final ConfigKey<Boolean> KvmHACheckOnStorage = new ConfigKey<>("Advanced", Boolean.class, "kvm.ha.on.storage.heartbeat", "false",
+            "Whether the storage is attempting to perform HA heartbeat checks.", false, ConfigKey.Scope.StoragePool);
+
+
     public enum WorkType {
         Migration,  // Migrating VMs off of a host.
         Stop,       // Stops a VM for storage pool migration purposes.  This should be obsolete now.

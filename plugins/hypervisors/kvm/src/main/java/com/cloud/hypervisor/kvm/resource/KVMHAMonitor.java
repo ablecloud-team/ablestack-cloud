@@ -58,98 +58,139 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
         KVMHABase.s_heartBeatPathClvm = scriptPathClvm;
     }
     public void addStoragePool(HAStoragePool pool) {
-        storagePool.put(pool.getPoolUUID(), pool);
+        synchronized (storagePool) {
+            storagePool.put(pool.getPoolUUID(), pool);
+        }
     }
 
     public void addGfsStoragePool(HAStoragePool pool) {
-        storageGfsPool.put(pool.getPoolUUID(), pool);
+        synchronized (storageGfsPool) {
+            storageGfsPool.put(pool.getPoolUUID(), pool);
+        }
     }
 
     public void addRbdStoragePool(HAStoragePool pool) {
-        storageRbdPool.put(pool.getPoolUUID(), pool);
+        synchronized (storageRbdPool) {
+            storageRbdPool.put(pool.getPoolUUID(), pool);
+        }
     }
 
     public void addClvmStoragePool(HAStoragePool pool) {
-        storageClvmPool.put(pool.getPoolUUID(), pool);
+        synchronized (storageClvmPool) {
+            storageClvmPool.put(pool.getPoolUUID(), pool);
+        }
     }
 
     public void removeStoragePool(String uuid) {
-        HAStoragePool pool = storagePool.get(uuid);
-        if (pool != null) {
-            Script.runSimpleBashScript("umount " + pool.getMountDestPath());
-            storagePool.remove(uuid);
+        synchronized (storagePool) {
+            HAStoragePool pool = storagePool.get(uuid);
+            if (pool != null) {
+                Script.runSimpleBashScript("umount " + pool.getMountDestPath());
+                storagePool.remove(uuid);
+            }
+        }
+    }
+
+    public void removeGfsStoragePool(String uuid) {
+        synchronized (storageGfsPool) {
+            HAStoragePool pool = storageGfsPool.get(uuid);
+            if (pool != null) {
+                Script.runSimpleBashScript("umount " + pool.getMountDestPath());
+                storageGfsPool.remove(uuid);
+            }
         }
     }
 
     public void removeRbdStoragePool(String uuid) {
-        HAStoragePool pool = storageRbdPool.get(uuid);
-        if (pool != null) {
-            Script.runSimpleBashScript("umount " + pool.getMountDestPath());
-            storageRbdPool.remove(uuid);
+        synchronized (storageRbdPool) {
+            HAStoragePool pool = storageRbdPool.get(uuid);
+            if (pool != null) {
+                storageRbdPool.remove(uuid);
+            }
         }
     }
 
     public void removeClvmStoragePool(String uuid) {
-        HAStoragePool pool = storageClvmPool.get(uuid);
-        if (pool != null) {
-            storageClvmPool.remove(uuid);
+        synchronized (storageClvmPool) {
+            HAStoragePool pool = storageClvmPool.get(uuid);
+            if (pool != null) {
+                storageClvmPool.remove(uuid);
+            }
         }
     }
 
     public List<HAStoragePool> getStoragePools() {
-        return new ArrayList<>(storagePool.values());
+        synchronized (storagePool) {
+            return new ArrayList<>(storagePool.values());
+        }
     }
 
     public List<HAStoragePool> getGfsStoragePools() {
-        return new ArrayList<>(storageGfsPool.values());
+        synchronized (storageGfsPool) {
+            return new ArrayList<>(storageGfsPool.values());
+        }
     }
 
     public List<HAStoragePool> getRbdStoragePools() {
-        return new ArrayList<>(storageRbdPool.values());
+        synchronized (storageRbdPool) {
+            return new ArrayList<>(storageRbdPool.values());
+        }
     }
 
     public List<HAStoragePool> getClvmStoragePools() {
-        return new ArrayList<>(storageClvmPool.values());
+        synchronized (storageClvmPool) {
+            return new ArrayList<>(storageClvmPool.values());
+        }
     }
 
     public HAStoragePool getStoragePool(String uuid) {
-        return storagePool.get(uuid);
+        synchronized (storagePool) {
+            return storagePool.get(uuid);
+        }
     }
 
     public HAStoragePool getGfsStoragePool(String uuid) {
-        return storageGfsPool.get(uuid);
+        synchronized (storageGfsPool) {
+            return storageGfsPool.get(uuid);
+        }
     }
 
     public HAStoragePool getRbdStoragePool(String uuid) {
-        return storageRbdPool.get(uuid);
+        synchronized (storageRbdPool) {
+            return storageRbdPool.get(uuid);
+        }
     }
 
     public HAStoragePool getClvmStoragePool(String uuid) {
-        return storageClvmPool.get(uuid);
+        synchronized (storageClvmPool) {
+            return storageClvmPool.get(uuid);
+        }
     }
 
-    protected void runHeartBeat(Map<String, HAStoragePool> storagePool) {
-        Set<String> removedPools = new HashSet<>();
-        for (String uuid : storagePool.keySet()) {
-            HAStoragePool primaryStoragePool = storagePool.get(uuid);
-            if (primaryStoragePool.getPool().getType() == StoragePoolType.NetworkFilesystem || primaryStoragePool.getPool().getType() == StoragePoolType.SharedMountPoint || primaryStoragePool.getPool().getType() == StoragePoolType.RBD || primaryStoragePool.getPool().getType() == StoragePoolType.CLVM) {
-                checkForNotExistingPools(removedPools, uuid);
-                if (removedPools.contains(uuid)) {
-                    continue;
+    protected void runHeartBeat(Map<String, HAStoragePool> sPool) {
+        synchronized (sPool) {
+            Set<String> removedPools = new HashSet<>();
+            for (String uuid : sPool.keySet()) {
+                HAStoragePool primaryStoragePool = sPool.get(uuid);
+                if (primaryStoragePool.getPool().getType() == StoragePoolType.NetworkFilesystem || primaryStoragePool.getPool().getType() == StoragePoolType.SharedMountPoint || primaryStoragePool.getPool().getType() == StoragePoolType.RBD || primaryStoragePool.getPool().getType() == StoragePoolType.CLVM) {
+                    checkForNotExistingPools(removedPools, uuid);
+                    if (removedPools.contains(uuid)) {
+                        continue;
+                    }
+                }
+                String result = null;
+                result = executePoolHeartBeatCommand(uuid, primaryStoragePool, result);
+                if (result != null && rebootHostAndAlertManagementOnHeartbeatTimeout) {
+                    logger.warn(String.format("Write heartbeat for pool [%s] failed: %s; stopping cloudstack-agent.", uuid, result));
+                    if (primaryStoragePool.getPool().isPoolSupportHA()) {
+                        primaryStoragePool.getPool().createHeartBeatCommand(primaryStoragePool, null, false);
+                    }
                 }
             }
-            String result = null;
-            result = executePoolHeartBeatCommand(uuid, primaryStoragePool, result);
-            if (result != null && rebootHostAndAlertManagementOnHeartbeatTimeout) {
-                logger.warn(String.format("Write heartbeat for pool [%s] failed: %s; stopping cloudstack-agent.", uuid, result));
-                if (primaryStoragePool.getPool().isPoolSupportHA()) {
-                    primaryStoragePool.getPool().createHeartBeatCommand(primaryStoragePool, null, false);
+            if (!removedPools.isEmpty()) {
+                for (String uuid : removedPools) {
+                    removeStoragePool(uuid);
                 }
-            }
-        }
-        if (!removedPools.isEmpty()) {
-            for (String uuid : removedPools) {
-                removeStoragePool(uuid);
             }
         }
     }
@@ -202,6 +243,10 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
     @Override
     public void run() {
         while (true) {
+            logger.info(String.format("### [HA Checking] for NFS Type Storage Pools : %s", storagePool));
+            logger.info(String.format("### [HA Checking] for SharedMountPoint Type Storage Pools : %s", storageGfsPool));
+            logger.info(String.format("### [HA Checking] for RBD Type Storage Pools : %s", storageRbdPool));
+            logger.info(String.format("### [HA Checking] for CLVM Type Storage Pools : %s", storageClvmPool));
 
             runHeartBeat(storagePool);
             runHeartBeat(storageGfsPool);

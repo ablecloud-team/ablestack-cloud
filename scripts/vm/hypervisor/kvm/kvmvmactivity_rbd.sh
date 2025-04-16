@@ -73,19 +73,13 @@ fi
 
 now=$(date +%s)
 getHbTime=$(rbd -p $PoolName --id $PoolAuthUserName image-meta get MOLD-HB $HostIP)
-if [ $? -gt 0 ] || [ -z "$getHbTime" ]; then
-   diff=$(expr $interval + 10)
-fi
 
 if [ $? -eq 0 ]; then
    diff=$(expr $now - $getHbTime)
-else
-   diff=$(expr $interval + 10)
-fi
-
-if [ $diff -le $interval ]; then
-   echo "### [HOST STATE : ALIVE] in [PoolType : RBD] ###"
-   exit 0
+   if [ $diff -le $interval ]; then
+      echo "### [HOST STATE : ALIVE] in [PoolType : RBD] ###"
+      exit 0
+   fi
 fi
 
 if [ -z "$UUIDList" ]; then

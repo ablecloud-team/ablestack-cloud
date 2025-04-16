@@ -23,11 +23,11 @@
       </div>
     </template>
   </a-alert>
-  <div v-if="['host'].includes($route.meta.name)">
-    <a-alert type="error" :showIcon="true" v-if="!dataResource.licenseExpiryDate" :message="$t('message.license.not.found')" />
-    <a-alert type="error" :showIcon="true" v-else-if="isLicenseNotStarted(dataResource.licenseStartDate)" :message="$t('message.alert.licenseexpired') + ' : ' + dataResource.licenseStartDate + ' ~ ' + dataResource.licenseExpiryDate+ '(' + calculateDday(dataResource.licenseExpiryDate) + $t('message.license.days.left') + ')'" />
-    <a-alert type="error" :showIcon="true" v-else-if="isLicenseExpired(dataResource.licenseExpiryDate)" :message="$t('message.alert.licenseexpired') + ' : ' + dataResource.licenseStartDate + ' ~ ' + dataResource.licenseExpiryDate + '(' + $t('message.license.renewal.required') + ')'" />
-    <a-alert type="success" :showIcon="true" v-else :message="$t('message.alert.licenseexpired') + ' : ' + dataResource.licenseStartDate + ' ~ ' + dataResource.licenseExpiryDate + '(' + calculateDday(dataResource.licenseExpiryDate) + $t('message.license.days.left') + ')'" />
+  <div v-if="['host'].includes($route.meta.name)  && licenseCode !== ''">
+    <a-alert type="success" :showIcon="true" v-if="licenseCode == 'OK'" :message="$t('message.alert.licenseexpired') + ' : ' + dataResource.licenseStartDate + '~' + dataResource.licenseExpiryDate" :description="'(' + calculateDday(dataResource.licenseExpiryDate) + $t('message.license.days.left') + ')'" />
+    <a-alert type="error" :showIcon="true" v-else-if="licenseCode == 'PASSED'" :message="$t('message.alert.licenseexpired') + ' : ' + dataResource.licenseStartDate + '~' + dataResource.licenseExpiryDate" :description="'(' + $t('message.license.renewal.required') + ')'" />
+    <a-alert type="error" :showIcon="true" v-else-if="licenseCode == 'NOSTART'" :message="$t('message.alert.licenseexpired') + ' : ' + dataResource.licenseStartDate + '~' + dataResource.licenseExpiryDate" :description="'(' + $t('message.license.nostart') + ')'" />
+    <a-alert type="error" :showIcon="true" v-else-if="licenseCode == 'NONE'" :message="$t('message.license.not.found1')" :description="$t('message.license.not.found2')"/>
   </div>
   <a-alert v-if="ip4routes" type="info" :showIcon="true" :message="$t('label.add.upstream.ipv4.routes')">
     <template #description>
@@ -242,7 +242,7 @@ export default {
         expired: false,
         expiryDate: ''
       },
-      licenseStateType: 'error'
+      licenseCode: ''
     }
   },
   mounted () {
@@ -473,6 +473,7 @@ export default {
       return `label.${source}`
     },
     fetchLicenseInfo () {
+      const today = new Date()
       api('licenseCheck', { hostid: this.resource.id }).then(response => {
         const licenseData = response?.null?.licensecheck
         if (licenseData) {
@@ -483,24 +484,24 @@ export default {
           this.dataResource.hostId = licenseData.hostid
           this.dataResource.hasLicense = licenseData.haslicense === 'true'
           this.dataResource.licenseValid = licenseData.success === 'true'
-          if (this.isLicenseExpired(this.dataResource.licenseExpiryDate)) {
-            this.licenseStateType = 'error'
+
+          if (today <= expiryDate && today >= issuedDate) {
+            this.licenseCode = 'OK'
+          } else if (today > expiryDate) {
+            this.licenseCode = 'PASSED'
+          } else if (today < issuedDate) {
+            this.licenseCode = 'NOSTART'
           } else {
-            this.licenseStateType = 'success'
+            this.licenseCode = 'NONE'
           }
         } else {
           this.dataResource.licenseStartDate = ''
           this.dataResource.licenseExpiryDate = ''
           this.dataResource.hasLicense = false
           this.dataResource.licenseValid = false
-          this.licenseStateType = 'error'
+          this.licenseCode = 'NONE'
         }
       })
-    },
-    isLicenseExpired (expiryDate) {
-      const today = new Date()
-      const expiry = new Date(expiryDate)
-      return today > expiry
     },
     calculateDday (expiryDate) {
       const today = new Date()
@@ -514,11 +515,6 @@ export default {
         return value
       }
       return `0${value}`
-    },
-    isLicenseNotStarted (startDate) {
-      const today = new Date()
-      const start = new Date(startDate)
-      return today < start
     }
   }
 }

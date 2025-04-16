@@ -1205,7 +1205,7 @@ public class HighAvailabilityManagerImpl extends ManagerBase implements Configur
     public ConfigKey<?>[] getConfigKeys() {
         return new ConfigKey[] {TimeBetweenCleanup, MigrationMaxRetries, TimeToSleep, TimeBetweenFailures,
             StopRetryInterval, RestartRetryInterval, MigrateRetryInterval, InvestigateRetryInterval,
-            HAWorkers, ForceHA, VmHaEnabled, VmHaAlertsEnabled, KvmHAFenceHostIfHeartbeatFailsOnStorage};
+            HAWorkers, ForceHA, VmHaEnabled, VmHaAlertsEnabled, KvmHAFenceHostIfHeartbeatFailsOnStorage, KvmHACheckOnStorage};
     }
 
     @Override

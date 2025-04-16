@@ -4753,6 +4753,8 @@
 "message.error.confirm.create.dr.mirroring.vm": "Mirroring virtual machines cannot be created if compression deduplication is enabled.",
 "message.alert.licenseexpired": "License Effective Date",
 "message.license.renewal.required": "It's past work. Please renew.",
-"message.license.not.found": "License file not found. Please register.",
-"message.license.days.left": "Expires in a few days."
+"message.license.not.found1": "Unable to verify license information.",
+"message.license.not.found2": "Please register a new license and use it.",
+"message.license.days.left": "Expires in a few days.",
+"message.license.nostart": "Please check the start date of the license validity period."
 }

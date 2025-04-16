@@ -95,7 +95,9 @@ done
 # fi
 
 hbFolder=$MountPoint/MOLD-HB
-hbFile=$hbFolder/$HostIP
+MPTitle=$(echo $MountPoint | sed 's/\//-/g' 2> /dev/null)
+
+hbFile=$hbFolder/$HostIP$MPTitle
 
 write_hbLog() {
 #write the heart beat log
@@ -112,17 +114,18 @@ write_hbLog() {
      fi
   fi
 
-  timestamp=$(date +%s)
-  echo $timestamp > $hbFile
-  return $?
+  Timestamp=$(date +%s)
+  echo $Timestamp > $hbFile
+  return 0
 }
 
 check_hbLog() {
   now=$(date +%s)
-  hb=$(cat $hbFile)
-  diff=`expr $now - $hb`
-  if [ $diff -gt $interval ]
-  then
+  getHbTime=$(cat $hbFile)
+
+  diff=$(expr $now - $getHbTime)
+
+  if [ $diff -gt $interval ]; then
     return $diff
   fi
   return 0
@@ -148,5 +151,5 @@ then
   exit $?
 else
   write_hbLog
-  exit $?
+  exit 0
 fi

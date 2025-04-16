@@ -1277,7 +1277,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             }
 
             // 라이선스 유효성 검사: 발급되지 않았거나 만료되었으면 false
-            boolean isValid = !isExpired && isIssued;
+            boolean isValid = !isExpired && !isIssued;
 
             // 라이선스 상태에 따라 에이전트 제어
             if (isValid) {

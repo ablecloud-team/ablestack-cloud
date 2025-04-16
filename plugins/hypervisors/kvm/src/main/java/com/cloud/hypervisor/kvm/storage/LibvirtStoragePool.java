@@ -341,6 +341,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
     }
 
     public String createHeartBeatCommand(HAStoragePool primaryStoragePool, String hostPrivateIp, boolean hostValidation) {
+        logger.info("### [HA Checking] createHeartBeatCommand Method Start!!!");
         Script cmd = new Script(getHearthBeatPath(), HeartBeatUpdateTimeout, logger);
         if (primaryStoragePool.getPool().getType() == StoragePoolType.NetworkFilesystem) {
             cmd = new Script(getHearthBeatPath(), HeartBeatUpdateTimeout, logger);
@@ -370,7 +371,6 @@ public class LibvirtStoragePool implements KVMStoragePool {
                 cmd.add("-c");
             }
         } else if (primaryStoragePool.getPool().getType() == StoragePoolType.CLVM) {
-            logger.info("RBD Pool or GFS Pool Setting...");
             Connect conn = null;
             try {
                 conn = LibvirtConnection.getConnection();
@@ -382,31 +382,50 @@ public class LibvirtStoragePool implements KVMStoragePool {
             String authUserName = "";
             String smpTargetPath = "";
             try {
-                String[] poolnames = conn.listStoragePools();
-                if (poolnames.length == 0) {
-                    logger.info("Didn't find an existing storage pool");
-                }
-                for (String poolname : poolnames) {
-                    logger.debug("Checking path of existing pool " + poolname + " against pool we want to create");
-                    StoragePool sp = conn.storagePoolLookupByName(poolname);
+                String glueBlockPool = Script.runSimpleBashScript(String.format("virsh pool-list --type rbd | grep active | head -1 | awk '{print $1}'"));
+                if (glueBlockPool != null) {
+                    logger.info("### [HA Checking] createHeartBeatCommand Method Start!!! - CLVM HA Use GlueBlockPool > ");
+                    StoragePool sp = conn.storagePoolLookupByName(glueBlockPool);
                     String poolDefXML = sp.getXMLDesc(0);
                     LibvirtStoragePoolXMLParser parser = new LibvirtStoragePoolXMLParser();
                     LibvirtStoragePoolDef pdef =  parser.parseStoragePoolXML(poolDefXML);
                     if (pdef == null) {
-                        throw new CloudRuntimeException("Unable to parse the storage pool definition for storage pool " + poolname);
+                        throw new CloudRuntimeException("Unable to parse the storage pool definition for storage pool " + glueBlockPool);
                     }
                     if (pdef.getPoolType() == PoolType.RBD) {
                         logger.debug(String.format("RBD Pool name [%s] auth name [%s]", pdef.getSourceDir(), pdef.getAuthUserName()));
                         rbdPoolName = pdef.getSourceDir();
                         authUserName = pdef.getAuthUserName();
                     }
-                    if (pdef.getPoolType() == PoolType.DIR && !"/var/lib/libvirt/images".equals(pdef.getTargetPath())) {
-                        logger.debug(String.format("SharedMountPoint Pool source path [%s]", pdef.getTargetPath()));
-                        smpTargetPath = pdef.getTargetPath();
+                } else  {
+                    logger.info("### [HA Checking] createHeartBeatCommand Method Start!!! - CLVM HA Use SharedMountPointPoolCmd > ");
+                    Script listCommand = new Script("/bin/bash", logger);
+                    listCommand.add("-c");
+                    listCommand.add("virsh pool-list --type dir | grep active | awk '{print $1}' | sort");
+
+                    OutputInterpreter.AllLinesParser pars = new OutputInterpreter.AllLinesParser();
+                    String result = listCommand.execute(pars);
+                    if (result == null && pars.getLines() != null) {
+                        String[] lines = pars.getLines().split(System.lineSeparator());
+                        for (String smpPool : lines) {
+                            StoragePool sp = conn.storagePoolLookupByName(smpPool);
+                            String poolDefXML = sp.getXMLDesc(0);
+                            LibvirtStoragePoolXMLParser parser = new LibvirtStoragePoolXMLParser();
+                            LibvirtStoragePoolDef pdef =  parser.parseStoragePoolXML(poolDefXML);
+                            if (pdef == null) {
+                                throw new CloudRuntimeException("Unable to parse the storage pool definition for storage pool " + smpPool);
+                            }
+                            if (pdef.getPoolType() == PoolType.DIR && !"/var/lib/libvirt/images".equals(pdef.getTargetPath())) {
+                                logger.debug(String.format("SharedMountPoint Pool source path [%s]", pdef.getTargetPath()));
+                                smpTargetPath = pdef.getTargetPath();
+                                break;
+                            }
+                        }
                     }
                 }
             } catch (LibvirtException e) {
                 logger.error("Failure in attempting to see if an existing storage pool might be using the path of the pool to be created:" + e);
+                return "0";
             }
 
             if (rbdPoolName.length() > 0 && authUserName.length() > 0) {
@@ -439,6 +458,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
 
     @Override
     public Boolean checkingHeartBeat(HAStoragePool pool, HostTO host) {
+        logger.info("### [HA Checking] checkingHeartBeat Method Start!!!");
         boolean validResult = false;
         Script cmd = new Script(getHearthBeatPath(), HeartBeatCheckerTimeout, logger);
         if (pool.getPool().getType() == StoragePoolType.NetworkFilesystem) {
@@ -454,7 +474,6 @@ public class LibvirtStoragePool implements KVMStoragePool {
             cmd.add("-r");
             cmd.add("-t", String.valueOf(HeartBeatCheckerFreq / 1000));
         } else if (pool.getPool().getType() == StoragePoolType.CLVM) {
-            logger.info("RBD Pool or GFS Pool Setting...");
             Connect conn = null;
             try {
                 conn = LibvirtConnection.getConnection();
@@ -466,33 +485,56 @@ public class LibvirtStoragePool implements KVMStoragePool {
             String authUserName = "";
             String smpTargetPath = "";
             try {
-                String[] poolnames = conn.listStoragePools();
-                if (poolnames.length == 0) {
-                    logger.info("Didn't find an existing storage pool");
-                }
-                for (String poolname : poolnames) {
-                    logger.debug("Checking path of existing pool " + poolname + " against pool we want to create");
-                    StoragePool sp = conn.storagePoolLookupByName(poolname);
+                String glueBlockPool = Script.runSimpleBashScript(String.format("virsh pool-list --type rbd | grep active | head -1 | awk '{print $1}'"));
+                if (glueBlockPool != null) {
+                    logger.info("### [HA Checking] checkingHeartBeat Method Start!!! - CLVM HA Use GlueBlockPool > ");
+                    StoragePool sp = conn.storagePoolLookupByName(glueBlockPool);
                     String poolDefXML = sp.getXMLDesc(0);
                     LibvirtStoragePoolXMLParser parser = new LibvirtStoragePoolXMLParser();
                     LibvirtStoragePoolDef pdef =  parser.parseStoragePoolXML(poolDefXML);
                     if (pdef == null) {
-                        throw new CloudRuntimeException("Unable to parse the storage pool definition for storage pool " + poolname);
+                        throw new CloudRuntimeException("Unable to parse the storage pool definition for storage pool " + glueBlockPool);
                     }
                     if (pdef.getPoolType() == PoolType.RBD) {
                         logger.debug(String.format("RBD Pool name [%s] auth name [%s]", pdef.getSourceDir(), pdef.getAuthUserName()));
                         rbdPoolName = pdef.getSourceDir();
                         authUserName = pdef.getAuthUserName();
                     }
-                    if (pdef.getPoolType() == PoolType.DIR && !"/var/lib/libvirt/images".equals(pdef.getTargetPath())) {
-                        logger.debug(String.format("SharedMountPoint Pool source path [%s]", pdef.getTargetPath()));
-                        smpTargetPath = pdef.getTargetPath();
+                } else  {
+                    logger.info("### [HA Checking] checkingHeartBeat Method Start!!! - CLVM HA Use SharedMountPointPoolCmd > ");
+                    Script listCommand = new Script("/bin/bash", logger);
+                    listCommand.add("-c");
+                    listCommand.add("virsh pool-list --type dir | grep active | awk '{print $1}' | sort");
+
+                    OutputInterpreter.AllLinesParser pars = new OutputInterpreter.AllLinesParser();
+                    String result = listCommand.execute(pars);
+                    if (result == null && pars.getLines() != null) {
+                        String[] lines = pars.getLines().split(System.lineSeparator());
+                        for (String smpPool : lines) {
+                            StoragePool sp = conn.storagePoolLookupByName(smpPool);
+                            String poolDefXML = sp.getXMLDesc(0);
+                            LibvirtStoragePoolXMLParser parser = new LibvirtStoragePoolXMLParser();
+                            LibvirtStoragePoolDef pdef =  parser.parseStoragePoolXML(poolDefXML);
+                            if (pdef == null) {
+                                throw new CloudRuntimeException("Unable to parse the storage pool definition for storage pool " + smpPool);
+                            }
+                            if (pdef.getPoolType() == PoolType.DIR && !"/var/lib/libvirt/images".equals(pdef.getTargetPath())) {
+                                logger.debug(String.format("SharedMountPoint Pool source path [%s]", pdef.getTargetPath()));
+                                smpTargetPath = pdef.getTargetPath();
+                                break;
+                            }
+                        }
                     }
                 }
             } catch (LibvirtException e) {
                 logger.error("Failure in attempting to see if an existing storage pool might be using the path of the pool to be created:" + e);
+                return true;
             }
 
+            cmd.add("-h", host.getPrivateNetwork().getIp());
+            cmd.add("-q", pool.getPoolMountSourcePath());
+            cmd.add("-r");
+            cmd.add("-t", String.valueOf(HeartBeatCheckerFreq / 1000));
             if (rbdPoolName.length() > 0 && authUserName.length() > 0) {
                 cmd.add("-p", rbdPoolName);
                 cmd.add("-n", authUserName);
@@ -501,10 +543,6 @@ public class LibvirtStoragePool implements KVMStoragePool {
             } else {
                 return true;
             }
-            cmd.add("-h", host.getPrivateNetwork().getIp());
-            cmd.add("-q", pool.getPoolMountSourcePath());
-            cmd.add("-r");
-            cmd.add("-t", String.valueOf(HeartBeatCheckerFreq / 1000));
         }
 
         OutputInterpreter.OneLineParser parser = new OutputInterpreter.OneLineParser();
@@ -525,6 +563,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
 
     @Override
     public Boolean checkingHeartBeatRBD(HAStoragePool pool, HostTO host, String volumeList) {
+        logger.info("### [HA Checking] checkingHeartBeatRBD Method Start!!!");
         boolean validResult = false;
         Script cmd = new Script(getHearthBeatPath(), HeartBeatCheckerTimeout, logger);
         if (pool.getPool().getType() == StoragePoolType.RBD) {
@@ -556,6 +595,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
 
     @Override
     public Boolean vmActivityCheck(HAStoragePool pool, HostTO host, Duration activityScriptTimeout, String volumeUUIDListString, String vmActivityCheckPath, long duration) {
+        logger.info("### [HA Checking] vmActivityCheck Method Start!!!");
         Script cmd = new Script(vmActivityCheckPath, activityScriptTimeout.getStandardSeconds(), logger);
         if (pool.getPool().getType() == StoragePoolType.NetworkFilesystem) {
             cmd.add("-i", pool.getPoolIp());
@@ -569,6 +609,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
             cmd.add("-m", pool.getMountDestPath());
             cmd.add("-h", host.getPrivateNetwork().getIp());
             cmd.add("-u", volumeUUIDListString);
+            cmd.add("-i", String.valueOf(HeartBeatCheckerFreq / 1000));
             cmd.add("-t", String.valueOf(String.valueOf(System.currentTimeMillis() / 1000)));
             cmd.add("-d", String.valueOf(duration));
         } else if (pool.getPool().getType() == StoragePoolType.RBD) {
@@ -579,7 +620,6 @@ public class LibvirtStoragePool implements KVMStoragePool {
             cmd.add("-u", volumeUUIDListString);
             cmd.add("-t", String.valueOf(HeartBeatCheckerFreq / 1000));
         } else if (pool.getPool().getType() == StoragePoolType.CLVM) {
-            logger.info("RBD Pool or GFS Pool Setting...");
             Connect conn = null;
             try {
                 conn = LibvirtConnection.getConnection();
@@ -590,32 +630,57 @@ public class LibvirtStoragePool implements KVMStoragePool {
             String authUserName = "";
             String smpTargetPath = "";
             try {
-                String[] poolnames = conn.listStoragePools();
-                if (poolnames.length == 0) {
-                    logger.info("Didn't find an existing storage pool");
-                }
-                for (String poolname : poolnames) {
-                    logger.debug("Checking path of existing pool " + poolname + " against pool we want to create");
-                    StoragePool sp = conn.storagePoolLookupByName(poolname);
+                String glueBlockPool = Script.runSimpleBashScript(String.format("virsh pool-list --type rbd | grep active | head -1 | awk '{print $1}'"));
+                if (glueBlockPool != null) {
+                    logger.info("### [HA Checking] vmActivityCheck Method Start!!! - CLVM HA Use GlueBlockPool > ");
+                    StoragePool sp = conn.storagePoolLookupByName(glueBlockPool);
                     String poolDefXML = sp.getXMLDesc(0);
                     LibvirtStoragePoolXMLParser parser = new LibvirtStoragePoolXMLParser();
                     LibvirtStoragePoolDef pdef =  parser.parseStoragePoolXML(poolDefXML);
                     if (pdef == null) {
-                        throw new CloudRuntimeException("Unable to parse the storage pool definition for storage pool " + poolname);
+                        throw new CloudRuntimeException("Unable to parse the storage pool definition for storage pool " + glueBlockPool);
                     }
                     if (pdef.getPoolType() == PoolType.RBD) {
                         logger.debug(String.format("RBD Pool name [%s] auth name [%s]", pdef.getSourceDir(), pdef.getAuthUserName()));
                         rbdPoolName = pdef.getSourceDir();
                         authUserName = pdef.getAuthUserName();
                     }
-                    if (pdef.getPoolType() == PoolType.DIR && !"/var/lib/libvirt/images".equals(pdef.getTargetPath())) {
-                        logger.debug(String.format("SharedMountPoint Pool source path [%s]", pdef.getTargetPath()));
-                        smpTargetPath = pdef.getTargetPath();
+                } else  {
+                    logger.info("### [HA Checking] vmActivityCheck Method Start!!! - CLVM HA Use SharedMountPointPoolCmd > ");
+                    Script listCommand = new Script("/bin/bash", logger);
+                    listCommand.add("-c");
+                    listCommand.add("virsh pool-list --type dir | grep active | awk '{print $1}' | sort");
+
+                    OutputInterpreter.AllLinesParser pars = new OutputInterpreter.AllLinesParser();
+                    String result = listCommand.execute(pars);
+                    if (result == null && pars.getLines() != null) {
+                        String[] lines = pars.getLines().split(System.lineSeparator());
+                        for (String smpPool : lines) {
+                            StoragePool sp = conn.storagePoolLookupByName(smpPool);
+                            String poolDefXML = sp.getXMLDesc(0);
+                            LibvirtStoragePoolXMLParser parser = new LibvirtStoragePoolXMLParser();
+                            LibvirtStoragePoolDef pdef =  parser.parseStoragePoolXML(poolDefXML);
+                            if (pdef == null) {
+                                throw new CloudRuntimeException("Unable to parse the storage pool definition for storage pool " + smpPool);
+                            }
+                            if (pdef.getPoolType() == PoolType.DIR && !"/var/lib/libvirt/images".equals(pdef.getTargetPath())) {
+                                logger.debug(String.format("SharedMountPoint Pool source path [%s]", pdef.getTargetPath()));
+                                smpTargetPath = pdef.getTargetPath();
+                                break;
+                            }
+                        }
                     }
                 }
             } catch (LibvirtException e) {
                 logger.error("Failure in attempting to see if an existing storage pool might be using the path of the pool to be created:" + e);
+                return true;
             }
+
+            cmd.add("-h", host.getPublicNetwork().getIp());
+            cmd.add("-q", pool.getPoolMountSourcePath());
+            cmd.add("-u", volumeUUIDListString);
+            cmd.add("-t", String.valueOf(HeartBeatCheckerFreq / 1000));
+            cmd.add("-d", String.valueOf(duration));
             if (rbdPoolName.length() > 0 && authUserName.length() > 0) {
                 cmd.add("-p", rbdPoolName);
                 cmd.add("-n", authUserName);
@@ -624,10 +689,6 @@ public class LibvirtStoragePool implements KVMStoragePool {
             } else {
                 return true;
             }
-            cmd.add("-h", host.getPublicNetwork().getIp());
-            cmd.add("-u", volumeUUIDListString);
-            cmd.add("-t", String.valueOf(String.valueOf(System.currentTimeMillis() / 1000)));
-            cmd.add("-d", String.valueOf(duration));
         }
 
         OutputInterpreter.OneLineParser parser = new OutputInterpreter.OneLineParser();
