@@ -91,10 +91,9 @@
         <a-textarea v-model:value="form.userdata">
         </a-textarea>
       </a-form-item>
-      <a-form-item ref="securitygroupids" name="securitygroupids" :label="$t('label.security.groups')" v-if="securityGroupsEnabled">
+      <a-form-item ref="securitygroupids" name="securitygroupids" :label="$t('label.security.groups')" v-if="securityGroupNetworkProviderUseThisVM">
         <a-select
           mode="multiple"
-          :placeholder="$t('label.select.security.groups')"
           v-model:value="form.securitygroupids"
           showSearch
           optionFilterProp="label"
@@ -165,7 +164,8 @@ export default {
       groups: {
         loading: false,
         opts: []
-      }
+      },
+      securityGroupNetworkProviderUseThisVM: false
     }
   },
   beforeCreate () {
@@ -206,7 +206,28 @@ export default {
         zoneid: this.resource.zoneid
       }).then(response => {
         const zone = response?.listzonesresponse?.zone || []
-        this.securityGroupsEnabled = zone?.[0]?.securitygroupsenabled
+        this.securityGroupsEnabled = zone?.[0]?.securitygroupsenabled || this.$store.getters.showSecurityGroups
+        if (this.securityGroupsEnabled) {
+          api('listNetworks', { supportedservices: 'SecurityGroup' }).then(json => {
+            if (json.listnetworksresponse && json.listnetworksresponse.network) {
+              for (const net of json.listnetworksresponse.network) {
+                if (this.securityGroupNetworkProviderUseThisVM) {
+                  break
+                }
+                const listVmParams = {
+                  id: this.resource.id,
+                  networkid: net.id,
+                  listall: true
+                }
+                api('listVirtualMachines', listVmParams).then(json => {
+                  if (json.listvirtualmachinesresponse && json.listvirtualmachinesresponse?.virtualmachine?.length > 0) {
+                    this.securityGroupNetworkProviderUseThisVM = true
+                  }
+                })
+              }
+            }
+          })
+        }
       })
     },
     fetchSecurityGroups () {
@@ -337,7 +358,7 @@ export default {
         params.name = values.name
         params.displayname = values.displayname
         params.ostypeid = values.ostypeid
-        if (this.securityGroupsEnabled) {
+        if (this.securityGroupNetworkProviderUseThisVM) {
           if (values.securitygroupids) {
             params.securitygroupids = values.securitygroupids
           }

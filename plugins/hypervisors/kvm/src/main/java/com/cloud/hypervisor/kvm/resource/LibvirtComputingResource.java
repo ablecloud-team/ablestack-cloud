@@ -3759,6 +3759,9 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             throw new InternalErrorException("LibvirtVMDef object get devices with null result");
         }
         final InterfaceDef interfaceDef = getVifDriver(nic.getType(), nic.getName()).plug(nic, vm.getPlatformEmulator(), nicAdapter, extraConfig);
+        if (!nic.isSecurityGroupEnabled()) {
+            interfaceDef.setFilterrefFilterTag();
+        }
         if (vmSpec.getDetails() != null) {
             setInterfaceDefQueueSettings(vmSpec.getDetails(), vmSpec.getCpus(), interfaceDef);
         }

@@ -33,9 +33,17 @@ public class LicenseCheckerResponse extends BaseResponse {
     @Param(description = "license expiry date")
     private Date expiryDate;
 
+    @SerializedName(ApiConstants.ISSUED_DATE)
+    @Param(description = "license issued date")
+    private Date issuedDate;
+
     @SerializedName(ApiConstants.SUCCESS)
     @Param(description = "license success")
     private String success;
+
+    @SerializedName(ApiConstants.HAS_LICENSE)
+    @Param(description = "whether host has a valid license")
+    private String hasLicense;
 
     public Long getHostId() {
         return HostId;
@@ -45,8 +53,16 @@ public class LicenseCheckerResponse extends BaseResponse {
         return expiryDate;
     }
 
+    public Date getIssuedDate() {
+        return issuedDate;
+    }
+
     public String getSuccess() {
         return success;
+    }
+
+    public String getHasLicense() {
+        return hasLicense;
     }
 
     public void setHostId(long hostId) {
@@ -57,7 +73,15 @@ public class LicenseCheckerResponse extends BaseResponse {
         this.expiryDate = expiryDate;
     }
 
+    public void setIssuedDate(Date issuedDate) {
+        this.issuedDate = issuedDate;
+    }
+
     public void setSuccess(boolean isValid) {
         this.success = Boolean.toString(isValid);
+    }
+
+    public void setHasLicense(boolean hasLicense) {
+        this.hasLicense = Boolean.toString(hasLicense);
     }
 }

@@ -267,6 +267,9 @@ public class DomainRouterJoinVO extends BaseViewVO implements ControlledViewEnti
     @Column(name = "mtu")
     private Integer mtu;
 
+    @Column(name = "link_state")
+    private boolean linkState;
+
     public DomainRouterJoinVO() {
     }
 
@@ -566,4 +569,9 @@ public class DomainRouterJoinVO extends BaseViewVO implements ControlledViewEnti
     public Integer getMtu() {
         return mtu;
     }
+
+    public boolean getLinkState() {
+        return linkState;
+    }
+
 }

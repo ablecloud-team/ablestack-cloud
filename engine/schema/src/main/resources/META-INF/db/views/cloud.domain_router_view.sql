@@ -75,6 +75,7 @@ select
     nics.broadcast_uri broadcast_uri,
     nics.isolation_uri isolation_uri,
     nics.mtu mtu,
+    nics.link_state,
     vpc.id vpc_id,
     vpc.uuid vpc_uuid,
     vpc.name vpc_name,

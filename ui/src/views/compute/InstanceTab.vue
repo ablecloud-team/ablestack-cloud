@@ -94,7 +94,7 @@
           :routerlinks="(record) => { return { created: '/backup/' + record.id } }"
           :showSearch="false"/>
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.securitygroups')" key="securitygroups" v-if="dataResource.securitygroup && dataResource.securitygroup.length > 0 || $store.getters.showSecurityGroups">
+      <a-tab-pane :tab="$t('label.securitygroups')" key="securitygroups" v-if="(dataResource.securitygroup && dataResource.securitygroup.length > 0) || ($store.getters.showSecurityGroups && securityGroupNetworkProviderUseThisVM)">
         <a-button
           type="primary"
           style="width: 100%; margin-bottom: 10px"
@@ -103,6 +103,8 @@
           <template #icon><edit-outlined /></template> {{ $t('label.action.update.security.groups') }}
         </a-button>
         <ListResourceTable
+          apiName="listSecurityGroups"
+          :params="{virtualmachineid: dataResource.id}"
           :items="dataResource.securitygroup"
           :columns="['name', 'description']"
           :routerlinks="(record) => { return { name: '/securitygroups/' + record.id } }"
@@ -248,6 +250,7 @@ export default {
       totalStorage: 0,
       currentTab: 'details',
       showAddVolumeModal: false,
+      showUpdateSecurityGroupsModal: false,
       diskOfferings: [],
       showAddMirrorVMModal: false,
       showDrSimulationTestModal: false,
@@ -258,7 +261,8 @@ export default {
       editeNic: '',
       editNicLinkStat: '',
       dataPreFill: {},
-      securitygroupids: []
+      securitygroupids: [],
+      securityGroupNetworkProviderUseThisVM: false
     }
   },
   created () {
@@ -314,6 +318,25 @@ export default {
       api('listAnnotations', { entityid: this.dataResource.id, entitytype: 'VM', annotationfilter: 'all' }).then(json => {
         if (json.listannotationsresponse && json.listannotationsresponse.annotation) {
           this.annotations = json.listannotationsresponse.annotation
+        }
+      })
+      api('listNetworks', { supportedservices: 'SecurityGroup' }).then(json => {
+        if (json.listnetworksresponse && json.listnetworksresponse.network) {
+          for (const net of json.listnetworksresponse.network) {
+            if (this.securityGroupNetworkProviderUseThisVM) {
+              break
+            }
+            const listVmParams = {
+              id: this.resource.id,
+              networkid: net.id,
+              listall: true
+            }
+            api('listVirtualMachines', listVmParams).then(json => {
+              if (json.listvirtualmachinesresponse && json.listvirtualmachinesresponse?.virtualmachine?.length > 0) {
+                this.securityGroupNetworkProviderUseThisVM = true
+              }
+            })
+          }
         }
       })
     },

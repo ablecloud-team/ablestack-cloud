@@ -28,14 +28,22 @@ write_files:
       log() {
         echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> $LOG_FILE
       }
-
       get_block_device() {
         if [ "$HYPERVISOR" == "kvm" ]; then
           BLOCK_DEVICE="sdb"
+          if [ -n "$(blkid /dev/$BLOCK_DEVICE)" ]; then
+            BLOCK_DEVICE="sda"
+          fi
         elif [ "$HYPERVISOR" == "xenserver" ]; then
           BLOCK_DEVICE="xvdb"
+          if [ -n "$(blkid /dev/$BLOCK_DEVICE)" ]; then
+            BLOCK_DEVICE="xvda"
+          fi
         elif [ "$HYPERVISOR" == "vmware" ]; then
           BLOCK_DEVICE="sdb"
+          if [ -n "$(blkid /dev/$BLOCK_DEVICE)" ]; then
+            BLOCK_DEVICE="sda"
+          fi
         else
           log "Unknown hypervisor"
           exit 1

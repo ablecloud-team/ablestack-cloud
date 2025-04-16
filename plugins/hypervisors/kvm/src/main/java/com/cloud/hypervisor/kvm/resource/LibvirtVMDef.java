@@ -1455,6 +1455,7 @@ public class LibvirtVMDef {
         private Integer _userIp4Prefix;
         private Integer _multiQueueNumber;
         private Boolean _packedVirtQueues;
+        private Boolean _filterrefFilter = false;
 
         public void defBridgeNet(String brName, String targetBrName, String macAddr, NicModel model) {
             defBridgeNet(brName, targetBrName, macAddr, model, 0);
@@ -1651,6 +1652,10 @@ public class LibvirtVMDef {
             this._packedVirtQueues = packedVirtQueues;
         }
 
+        public void setFilterrefFilterTag() {
+            this._filterrefFilter = true;
+        }
+
         public String getContent() {
             StringBuilder netBuilder = new StringBuilder();
             if (_netType == GuestNetType.BRIDGE) {
@@ -1726,7 +1731,9 @@ public class LibvirtVMDef {
             if (StringUtils.isNotBlank(_userIp4Network) && _userIp4Prefix != null) {
                 netBuilder.append(String.format("<ip family='ipv4' address='%s' prefix='%s'/>\n", _userIp4Network, _userIp4Prefix));
             }
-
+            if (_filterrefFilter) {
+                netBuilder.append("<filterref filter='allow-all-traffic'/>");
+            }
             return netBuilder.toString();
         }
 

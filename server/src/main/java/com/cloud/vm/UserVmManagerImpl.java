@@ -28,7 +28,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -3205,42 +3204,6 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             }
         }
 
-        boolean isVMware = (vm.getHypervisorType() == HypervisorType.VMware);
-
-        if (securityGroupIdList != null && isVMware) {
-            throw new InvalidParameterValueException("Security group feature is not supported for vmWare hypervisor");
-        } else {
-            // Get default guest network in Basic zone
-            Network defaultNetwork = null;
-            try {
-                DataCenterVO zone = _dcDao.findById(vm.getDataCenterId());
-                if (zone.getNetworkType() == NetworkType.Basic) {
-                    // Get default guest network in Basic zone
-                    defaultNetwork = _networkModel.getExclusiveGuestNetwork(zone.getId());
-                } else if (_networkModel.checkSecurityGroupSupportForNetwork(_accountMgr.getActiveAccountById(vm.getAccountId()), zone, Collections.emptyList(), securityGroupIdList)) {
-                    NicVO defaultNic = _nicDao.findDefaultNicForVM(vm.getId());
-                    if (defaultNic != null) {
-                        defaultNetwork = _networkDao.findById(defaultNic.getNetworkId());
-                    }
-                }
-            } catch (InvalidParameterValueException e) {
-                if(logger.isDebugEnabled()) {
-                    logger.debug(e.getMessage(),e);
-                }
-                defaultNetwork = _networkModel.getDefaultNetworkForVm(id);
-            }
-
-            if (securityGroupIdList != null && _networkModel.isSecurityGroupSupportedInNetwork(defaultNetwork) && _networkModel.canAddDefaultSecurityGroup()) {
-                if (vm.getState() == State.Stopped) {
-                    // Remove instance from security groups
-                    _securityGroupMgr.removeInstanceFromGroups(vm);
-                    // Add instance in provided groups
-                    _securityGroupMgr.addInstanceToGroups(vm, securityGroupIdList);
-                } else {
-                    throw new InvalidParameterValueException("Virtual machine must be stopped prior to update security groups ");
-                }
-            }
-        }
         List<? extends Nic> nics = _nicDao.listByVmId(vm.getId());
         if (hostName != null) {
             // Check is hostName is RFC compliant
@@ -3273,6 +3236,35 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                     .getUuid(), nic.getId(), extraDhcpOptionsMap);
         }
 
+        boolean isVMware = (vm.getHypervisorType() == HypervisorType.VMware);
+
+        if (securityGroupIdList != null && isVMware) {
+            throw new InvalidParameterValueException("Security group feature is not supported for vmWare hypervisor");
+        } else if (securityGroupIdList != null){
+            DataCenterVO zone = _dcDao.findById(vm.getDataCenterId());
+            List<Long> networkIds = new ArrayList<>();
+            try {
+                if (zone.getNetworkType() == NetworkType.Basic) {
+                    // Get default guest network in Basic zone
+                    Network defaultNetwork = _networkModel.getExclusiveGuestNetwork(zone.getId());
+                    networkIds.add(defaultNetwork.getId());
+                } else {
+                    networkIds = networks.stream().map(Network::getId).collect(Collectors.toList());
+                }
+            } catch (InvalidParameterValueException e) {
+                if(logger.isDebugEnabled()) {
+                    logger.debug(e.getMessage(),e);
+                }
+            }
+
+            if (_networkModel.checkSecurityGroupSupportForNetwork(
+                            _accountMgr.getActiveAccountById(vm.getAccountId()),
+                            zone, networkIds, securityGroupIdList)
+            ) {
+                updateSecurityGroup(vm, securityGroupIdList);
+            }
+        }
+
         _vmDao.updateVM(id, displayName, ha, osTypeId, userData, userDataId,
                 userDataDetails, isDisplayVmEnabled, isDynamicallyScalable,
                 deleteProtection, customId, hostName, instanceName);
@@ -3286,6 +3278,17 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
 
         return _vmDao.findById(id);
+    }
+
+    private void updateSecurityGroup(UserVmVO vm, List<Long> securityGroupIdList) {
+        if (vm.getState() == State.Stopped) {
+            // Remove instance from security groups
+            _securityGroupMgr.removeInstanceFromGroups(vm);
+            // Add instance in provided groups
+            _securityGroupMgr.addInstanceToGroups(vm, securityGroupIdList);
+        } else {
+            throw new InvalidParameterValueException("Virtual machine must be stopped prior to update security groups ");
+        }
     }
 
     protected void updateUserData(UserVm vm) throws ResourceUnavailableException, InsufficientCapacityException {
@@ -9870,7 +9873,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                     if (rootVolume == null) {
                         throw new CloudRuntimeException("Creation of root volume is not queried. The virtual machine cannot be cloned!");
                     }
-                    UserVm cloneVM = createCloneVM(cmd, String.valueOf(rootVolume.getId()));
+                    UserVm cloneVM = createCloneVM(cmd, rootVolume.getId());
                     if (cloneVM == null) {
                         throw new CloudRuntimeException("Unable to record the VM to DB!");
                     }
@@ -9962,7 +9965,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         return null;
     }
 
-    public UserVm createCloneVM(CloneVMCmd cmd, String rootVolumeId) throws ConcurrentOperationException, ResourceAllocationException, InsufficientCapacityException, ResourceUnavailableException {
+    public UserVm createCloneVM(CloneVMCmd cmd, Long rootVolumeId) throws ConcurrentOperationException, ResourceAllocationException, InsufficientCapacityException, ResourceUnavailableException {
         //network configurations and check, then create the template
         UserVm curVm = cmd.getTargetVM();
         // check if host is available
@@ -9972,8 +9975,12 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         DataCenter dataCenter = _entityMgr.findById(DataCenter.class, zoneId);
         Map<String, String> customParameters = userVmDetailsDao.listDetailsKeyPairs(curVm.getId());
         String keyboard = customParameters.get(VmDetailConstants.KEYBOARD);
-        if (!rootVolumeId.isBlank()) {
-            customParameters.put("volumeId", rootVolumeId);
+        Long size = null; // mutual exclusive with disk offering id
+        if (rootVolumeId != null) {
+            customParameters.put("volumeId", String.valueOf(rootVolumeId));
+            VolumeVO vol = _volsDao.findById(rootVolumeId);
+            size = vol.getSize();
+            customParameters.put(VmDetailConstants.ROOT_DISK_SIZE, String.valueOf(size / GiB_TO_BYTES));
         }
         HypervisorType hypervisorType = curVm.getHypervisorType();
         Account curAccount = _accountDao.findById(curVm.getAccountId());
@@ -9986,9 +9993,6 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         List<Long> securityGroupIdList = securityGroupList.stream().map(SecurityGroupVO::getId).collect(Collectors.toList());
         String name = cmd.getName();
         String displayName = cmd.getName();
-        // VolumeVO curVolume = _volsDao.findByInstance(curVm.getId()).get(0);
-        // Long diskOfferingId = curVolume.getDiskOfferingId();
-        Long size = null; // mutual exclusive with disk offering id
         String userData = curVm.getUserData();
         // String sshKeyPair = null;
         Map<Long, IpAddresses> ipToNetoworkMap = null; // Since we've specified Ip
