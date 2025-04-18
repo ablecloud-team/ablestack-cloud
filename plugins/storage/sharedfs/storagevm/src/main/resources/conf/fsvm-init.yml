@@ -31,17 +31,17 @@ write_files:
       get_block_device() {
         if [ "$HYPERVISOR" == "kvm" ]; then
           BLOCK_DEVICE="sdb"
-          if [ -n "$(blkid /dev/$BLOCK_DEVICE)" ]; then
+          if [ -n "$(blkid /dev/$BLOCK_DEVICE)" -a -z "$(blkid -s TYPE /dev/$BLOCK_DEVICE)" ]; then
             BLOCK_DEVICE="sda"
           fi
         elif [ "$HYPERVISOR" == "xenserver" ]; then
           BLOCK_DEVICE="xvdb"
-          if [ -n "$(blkid /dev/$BLOCK_DEVICE)" ]; then
+          if [ -n "$(blkid /dev/$BLOCK_DEVICE)" -a -z "$(blkid -s TYPE /dev/$BLOCK_DEVICE)" ]; then
             BLOCK_DEVICE="xvda"
           fi
         elif [ "$HYPERVISOR" == "vmware" ]; then
           BLOCK_DEVICE="sdb"
-          if [ -n "$(blkid /dev/$BLOCK_DEVICE)" ]; then
+          if [ -n "$(blkid /dev/$BLOCK_DEVICE)" -a -z "$(blkid -s TYPE /dev/$BLOCK_DEVICE)" ]; then
             BLOCK_DEVICE="sda"
           fi
         else
