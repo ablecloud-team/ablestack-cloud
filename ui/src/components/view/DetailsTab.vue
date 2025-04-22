@@ -474,11 +474,16 @@ export default {
     },
     fetchLicenseInfo () {
       const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
       api('licenseCheck', { hostid: this.resource.id }).then(response => {
         const licenseData = response?.null?.licensecheck
         if (licenseData) {
           var expiryDate = new Date(licenseData.expirydate)
           var issuedDate = new Date(licenseData.issueddate)
+          expiryDate.setHours(0, 0, 0, 0)
+          issuedDate.setHours(0, 0, 0, 0)
+
           this.dataResource.licenseStartDate = issuedDate.getFullYear() + '-' + this.leftPad(issuedDate.getMonth() + 1) + '-' + this.leftPad(issuedDate.getDate())
           this.dataResource.licenseExpiryDate = expiryDate.getFullYear() + '-' + this.leftPad(expiryDate.getMonth() + 1) + '-' + this.leftPad(expiryDate.getDate())
           this.dataResource.hostId = licenseData.hostid
