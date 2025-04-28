@@ -50,6 +50,7 @@ public class ManagementServerMaintenanceResponse extends BaseResponse {
     @Param(description = "The number of jobs in progress")
     private Long pendingJobsCount;
 
+<<<<<<< Updated upstream:plugins/maintenance/src/main/java/org/apache/cloudstack/api/response/ManagementServerMaintenanceResponse.java
     @SerializedName(ApiConstants.AGENTS_COUNT)
     @Param(description = "The number of host agents this management server is responsible for")
     private Long agentsCount;
@@ -62,6 +63,14 @@ public class ManagementServerMaintenanceResponse extends BaseResponse {
         this.managementServerId = managementServerId;
         this.state = state;
         this.maintenanceInitiated = maintenanceInitiated;
+=======
+    @SerializedName(ApiConstants.MANAGEMENT_SERVER_ID)
+    @Param(description = "The id of the management server")
+    private String msUuid;
+
+    public ReadyForShutdownResponse(String msUuid, Boolean shutdownTriggered, Boolean readyForShutdown, long pendingJobsCount) {
+        this.msUuid = msUuid;
+>>>>>>> Stashed changes:plugins/shutdown/src/main/java/org/apache/cloudstack/api/response/ReadyForShutdownResponse.java
         this.shutdownTriggered = shutdownTriggered;
         this.readyForShutdown = readyForShutdown;
         this.pendingJobsCount = pendingJobsCount;
@@ -116,6 +125,7 @@ public class ManagementServerMaintenanceResponse extends BaseResponse {
     public void setPendingJobsCount(Long pendingJobsCount) {
         this.pendingJobsCount = pendingJobsCount;
     }
+<<<<<<< Updated upstream:plugins/maintenance/src/main/java/org/apache/cloudstack/api/response/ManagementServerMaintenanceResponse.java
 
     public Long getAgentsCount() {
         return this.agentsCount;
@@ -132,4 +142,6 @@ public class ManagementServerMaintenanceResponse extends BaseResponse {
     public void setAgents(List<String> agents) {
         this.agents = agents;
     }
+=======
+>>>>>>> Stashed changes:plugins/shutdown/src/main/java/org/apache/cloudstack/api/response/ReadyForShutdownResponse.java
 }
