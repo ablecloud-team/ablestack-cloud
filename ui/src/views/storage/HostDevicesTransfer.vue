@@ -74,59 +74,147 @@ export default {
   created () {
     this.fetchVMs()
   },
+  watch: {
+    showAddModal: {
+      immediate: true,
+      handler (newVal) {
+        if (newVal) {
+          this.fetchVMs()
+        }
+      }
+    }
+  },
   methods: {
-    fetchVMs () {
+    refreshVMList () {
+      if (!this.resource || !this.resource.id) {
+        this.loading = false
+        return Promise.reject(new Error('Invalid resource'))
+      }
+
       this.loading = true
-      const params = { hostid: this.resource.id, details: 'min' }
+      const params = { hostid: this.resource.id, details: 'min', listall: true }
       const vmStates = ['Running']
 
-      vmStates.forEach((state) => {
-        params.state = state
-        api('listVirtualMachines', params).then(response => {
-          this.virtualmachines = this.virtualmachines.concat(response.listvirtualmachinesresponse.virtualmachine || [])
-        }).catch(error => {
-          this.$notifyError(error.message || 'Failed to fetch VMs')
-        }).finally(() => {
-          this.loading = false
+      // Promise.all을 사용하여 각 상태별로 VM 조회
+      return Promise.all(vmStates.map(state => {
+        return api('listVirtualMachines', { ...params, state })
+          .then(vmResponse => vmResponse.listvirtualmachinesresponse.virtualmachine || [])
+      })).then(vmArrays => {
+        // 모든 상태의 VM을 하나의 배열로 합침
+        const vms = vmArrays.flat()
+
+        // 각 VM에 대해 상세 정보를 추가로 조회
+        return Promise.all(vms.map(vm => {
+          return api('listVirtualMachines', {
+            id: vm.id,
+            details: 'all'
+          }).then(detailResponse => {
+            return detailResponse.listvirtualmachinesresponse.virtualmachine[0]
+          })
+        }))
+      }).then(detailedVms => {
+        // 실시간 필터링을 위해 최신 할당 상태 다시 확인
+        return api('listHostDevices', {
+          id: this.resource.id
+        }).then(latestResponse => {
+          const latestDevices = latestResponse.listhostdevicesresponse?.listhostdevices?.[0]
+          const latestAllocatedVmIds = new Set()
+
+          if (latestDevices?.vmallocations) {
+            Object.values(latestDevices.vmallocations).forEach(vmId => {
+              if (vmId) {
+                latestAllocatedVmIds.add(vmId.toString())
+              }
+            })
+          }
+
+          // 최신 상태로 필터링
+          this.virtualmachines = detailedVms.filter(vm => {
+            // 이미 할당된 VM 제외
+            if (latestAllocatedVmIds.has(vm.id.toString())) {
+              return false
+            }
+            // PCI 디바이스가 적용된 VM 제외
+            if (vm.details && vm.details['extraconfig-1']) {
+              return false
+            }
+            return true
+          })
         })
+      }).catch(error => {
+        this.$notifyError(error.message || 'Failed to fetch VMs')
+      }).finally(() => {
+        this.loading = false
       })
     },
+
+    fetchVMs () {
+      this.form.virtualmachineid = undefined
+      return this.refreshVMList()
+    },
+
     handleSubmit () {
+      if (!this.resource || !this.resource.id) {
+        this.$notifyError(this.$t('message.error.invalid.resource'))
+        return
+      }
+
       if (!this.form.virtualmachineid) {
         this.$notifyError(this.$t('message.error.select.vm'))
         return
       }
 
       this.loading = true
-      const vmId = this.form.virtualmachineid
       const hostDevicesName = this.resource.hostDevicesName
+      const xmlConfig = this.generateXmlConfig(hostDevicesName)
 
+      // 할당 전에 다시 한번 VM 상태 확인
       api('listVirtualMachines', {
-        id: vmId,
-        details: 'min'
+        id: this.form.virtualmachineid,
+        details: 'all'
       }).then(response => {
         const vm = response.listvirtualmachinesresponse.virtualmachine[0]
-        const details = vm.details || {}
+        if (vm.details && vm.details['extraconfig-1']) {
+          throw new Error(this.$t('message.device.already.allocated'))
+        }
 
-        const xmlConfig = this.generateXmlConfig(hostDevicesName)
+        const params = {
+          id: vm.id,
+          'details[0].extraconfig-1': xmlConfig
+        }
 
-        const params = { id: vmId }
-
-        // 기존 details 값을 유지하면서 새로운 값 추가
-        Object.keys(details).forEach(key => {
-          params[`details[0].${key}`] = details[key]
-        })
-
-        // 필요한 추가 값 동적으로 설정
-        params[`details[0].extraconfig-1`] = xmlConfig
+        if (vm.details) {
+          Object.entries(vm.details).forEach(([key, value]) => {
+            if (key !== 'extraconfig-1') {
+              params[`details[0].${key}`] = value
+            }
+          })
+        }
 
         return api('updateVirtualMachine', params)
       }).then(() => {
-        this.$message.success(this.$t('message.success.update.vm'))
-        this.closeAction()
+        return api('updateHostDevices', {
+          hostid: this.resource.id,
+          hostdevicesname: hostDevicesName,
+          virtualmachineid: this.form.virtualmachineid
+        })
+      }).then(() => {
+        this.$message.success(this.$t('message.success.allocate.device'))
+        // VM 리스트 새로고침
+        return this.refreshVMList()
+      }).then(() => {
+        // 성공 후 form 초기화
+        this.form.virtualmachineid = undefined
+        // 부모 컴포넌트에 완료 이벤트 발생
+        this.$emit('device-allocated')
+        this.$emit('allocation-completed', hostDevicesName, this.form.virtualmachineid)
+        // 모달 닫기
+        this.$emit('close-action')
       }).catch(error => {
-        this.$notifyError(error.message || 'Failed to update VM')
+        this.$notifyError(error.message || 'Failed to allocate device')
         this.formRef.value.scrollToField('virtualmachineid')
+        // 에러 발생 시에도 VM 리스트 새로고침
+        this.refreshVMList()
       }).finally(() => {
         this.loading = false
       })
