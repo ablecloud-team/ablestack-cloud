@@ -22,16 +22,16 @@ package com.cloud.agent.api;
 import java.util.Collections;
 import java.util.List;
 
-public class ListHostDeviceAnswer extends Answer {
+public class ListHostUsbDeviceAnswer extends Answer {
     private boolean successMessage;
     private List<String> hostDevicesNames;
     private List<String> hostDevicesText;
 
-    public ListHostDeviceAnswer() {
+    public ListHostUsbDeviceAnswer() {
         super();
     }
 
-    public ListHostDeviceAnswer(boolean successMessage, List<String> hostDevicesNames, List<String> hostDevicesText) {
+    public ListHostUsbDeviceAnswer(boolean successMessage, List<String> hostDevicesNames, List<String> hostDevicesText) {
         super();
         this.successMessage = successMessage;
         this.hostDevicesNames = hostDevicesNames;

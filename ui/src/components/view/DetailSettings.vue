@@ -66,7 +66,8 @@
       <a-list-item :key="index" v-for="(item, index) in details">
         <a-list-item-meta>
           <template #title>
-            {{ item.name }}
+            <!-- {{ item.name }} -->
+            {{ formatDetailTitle(item.name) }}
           </template>
           <template #description>
             <div v-if="item.edit" style="display: flex">
@@ -91,7 +92,9 @@
                 iconType="check-circle-two-tone"
                 iconTwoToneColor="#52c41a" />
             </div>
-            <span v-else style="word-break: break-all">{{ item.value }}</span>
+            <span v-else style="word-break: break-all">{{ formatDetailValue(item.name, item.value) }}</span>
+              <!-- {{ formatDetailValue(item.name, item.value) }} -->
+            <!-- </span> -->
           </template>
         </a-list-item-meta>
         <template #actions>
@@ -347,6 +350,33 @@ export default {
         (this.resourceType === 'UserVm' && 'updateVirtualMachine' in this.$store.getters.apis) ||
         (this.resourceType === 'DisasterRecoveryCluster' && 'updateDisasterRecoveryCluster' in this.$store.getters.apis)
       )
+    },
+    formatDetailTitle (name) {
+      if (name === 'extraconfig-1') {
+        return 'extraconfig-1'
+      }
+      return name
+    },
+    formatDetailValue (name, value) {
+      if (!this.showAddDetail && name === 'extraconfig-1' && value.includes('<hostdev')) {
+        try {
+          const parser = new DOMParser()
+          const xmlDoc = parser.parseFromString(value, 'text/xml')
+          const addressElement = xmlDoc.querySelector('address')
+
+          if (addressElement) {
+            const bus = addressElement.getAttribute('bus')
+            const slot = addressElement.getAttribute('slot')
+            const func = addressElement.getAttribute('function')
+
+            return `Device 정보 (bus: ${parseInt(bus)}, slot: ${parseInt(slot.replace('0x', ''), 16)}, function: ${parseInt(func.replace('0x', ''), 16)})`
+            // \n원본 설정: ${value}
+          }
+        } catch (e) {
+          console.error('XML 파싱 에러:', e)
+        }
+      }
+      return value
     }
   }
 }
