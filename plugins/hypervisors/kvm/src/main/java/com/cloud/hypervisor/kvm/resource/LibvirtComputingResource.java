@@ -21,6 +21,7 @@ import static com.cloud.host.Host.HOST_VOLUME_ENCRYPTION;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.InetAddress;
@@ -3196,8 +3197,8 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             }
         }
         guest.setUuid(uuid);
-        guest.setBootOrder(GuestDef.BootOrder.CDROM);
         guest.setBootOrder(GuestDef.BootOrder.HARDISK);
+        guest.setBootOrder(GuestDef.BootOrder.CDROM);
         return guest;
     }
 
@@ -3759,7 +3760,16 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             throw new InternalErrorException("LibvirtVMDef object get devices with null result");
         }
         final InterfaceDef interfaceDef = getVifDriver(nic.getType(), nic.getName()).plug(nic, vm.getPlatformEmulator(), nicAdapter, extraConfig);
-        if (!nic.isSecurityGroupEnabled()) {
+
+        String defaultVifDriver = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.LIBVIRT_VIF_DRIVER);
+        final String bridgeType = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.NETWORK_BRIDGE_TYPE);
+        boolean enableOVSDriver = false;
+
+        if (defaultVifDriver != null && defaultVifDriver.equals(DEFAULT_OVS_VIF_DRIVER_CLASS_NAME) && bridgeType != null && "openvswitch".equals(bridgeType)) {
+            enableOVSDriver = true;
+        }
+
+        if (!nic.isSecurityGroupEnabled() && !enableOVSDriver && nic.getNwfilter()) {
             interfaceDef.setFilterrefFilterTag();
         }
         if (vmSpec.getDetails() != null) {
@@ -3790,6 +3800,80 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
     protected KVMStoragePoolManager getPoolManager() {
         return storagePoolManager;
+    }
+
+    public void detachAndAttachConfigDriveISO(final Connect conn, final String vmName, VirtualMachineTO to) {
+        // detach and re-attach configdrive ISO
+        List<DiskDef> disks = getDisks(conn, vmName);
+        DiskDef configdrive = null;
+        for (DiskDef disk : disks) {
+            if (disk.getDeviceType() == DiskDef.DeviceType.CDROM && CONFIG_DRIVE_ISO_DISK_LABEL.equals(disk.getDiskLabel())) {
+                configdrive = disk;
+            }
+        }
+
+        if (configdrive != null) {
+            try {
+                LOGGER.debug(String.format("Detaching ConfigDrive ISO of the VM %s, at path %s", vmName, configdrive.getDiskPath()));
+                String result = attachOrDetachConfigDriveISO(conn, vmName, to, configdrive.getDiskPath(),  false, CONFIG_DRIVE_ISO_DEVICE_ID);
+                if (result != null) {
+                    LOGGER.warn(String.format("Detach ConfigDrive ISO of the VM %s, at path %s with %s: ", vmName, configdrive.getDiskPath(), result));
+                }
+                LOGGER.debug(String.format("Attaching ConfigDrive ISO of the VM %s, at path %s", vmName, configdrive.getDiskPath()));
+                result = attachOrDetachConfigDriveISO(conn, vmName, to, configdrive.getDiskPath(), true, CONFIG_DRIVE_ISO_DEVICE_ID);
+                if (result != null) {
+                    LOGGER.warn(String.format("Attach ConfigDrive ISO of the VM %s, at path %s with %s: ", vmName, configdrive.getDiskPath(), result));
+                }
+            } catch (final LibvirtException | InternalErrorException | URISyntaxException e) {
+                final String msg = "Detach and attach ConfigDrive ISO failed due to " + e.toString();
+                LOGGER.warn(msg, e);
+            }
+        }
+    }
+
+    public synchronized String attachOrDetachConfigDriveISO(final Connect conn, final String vmName, VirtualMachineTO to, String cdPath, final boolean isAttach, final Integer diskSeq) throws LibvirtException, URISyntaxException,
+            InternalErrorException {
+        DiskTO configDriveDisk = null;
+        for (DiskTO disk : to.getDisks()) {
+            if (disk.getPath() != null && disk.getPath().contains("configdrive")) {
+                configDriveDisk = disk;
+                break;
+            }
+        }
+        String isoPath = getVolumePath(conn, configDriveDisk, to.isConfigDriveOnHostCache());
+        DiskDef iso = new DiskDef();
+        if (isAttach && StringUtils.isNotBlank(isoPath) && configDriveDisk !=null && isoPath.lastIndexOf("/") > 0) {
+            if (isoPath.startsWith(getConfigPath() + "/" + ConfigDrive.CONFIGDRIVEDIR) && isoPath.contains(vmName)) {
+                iso.defISODisk(isoPath, diskSeq, DiskDef.DiskType.FILE);
+            } else {
+                final DataTO diskData = configDriveDisk.getData();
+                final String dataName = configDriveDisk.getPath();
+                final DataStoreTO store = diskData.getDataStore();
+                isoPath = store.getUrl().split("\\?")[0] + File.separator + dataName;
+
+                final int index = isoPath.lastIndexOf("/");
+                final String path = isoPath.substring(0, index);
+                final String name = isoPath.substring(index + 1);
+                final KVMStoragePool storagePool = storagePoolManager.getStoragePoolByURI(path);
+                final KVMPhysicalDisk isoVol = storagePool.getPhysicalDisk(name);
+                final DiskDef.DiskType diskType = getDiskType(isoVol);
+                isoPath = isoVol.getPath();
+                iso.defISODisk(isoPath, diskSeq, diskType);
+            }
+        } else {
+            iso.defISODisk(null, diskSeq, DiskDef.DiskType.FILE);
+        }
+        final String result = attachOrDetachDevice(conn, true, vmName, iso.toString());
+        if (result == null && !isAttach) {
+            final List<DiskDef> disks = getDisks(conn, vmName);
+            for (final DiskDef disk : disks) {
+                if (disk.getDeviceType() == DiskDef.DeviceType.CDROM
+                        && (diskSeq == null || disk.getDiskLabel().equals(iso.getDiskLabel()))) {
+                    cleanupDisk(disk);
+                }
+            }
+        }
+        return result;
     }
 
     public void detachAndAttachConfigDriveISO(final Connect conn, final String vmName) {
@@ -5431,7 +5515,8 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     public Answer listFilesAtPath(ListDataStoreObjectsCommand command) {
         DataStoreTO store = command.getStore();
         if(command.getPoolType().equals("RBD")) {
-            return listRbdFilesAtPath(command.getStartIndex(), command.getPageSize(), command.getPoolPath(), command.getKeyword());
+            KVMStoragePool storagePool = storagePoolManager.getStoragePool(StoragePoolType.RBD, store.getUuid());
+            return listRbdFilesAtPath(storagePool.getUuid(), storagePool.getAuthSecret(), storagePool.getAuthUserName(), storagePool.getSourceHost(), command.getStartIndex(), command.getPageSize(), command.getPoolPath(), command.getKeyword());
         } else {
             KVMStoragePool storagePool = storagePoolManager.getStoragePool(StoragePoolType.NetworkFilesystem, store.getUuid());
             return listFilesAtPath(storagePool.getLocalPath(), command.getPath(), command.getStartIndex(), command.getPageSize(),command.getKeyword());
@@ -5439,15 +5524,19 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     }
 
     public Answer createImageRbd(CreateRbdObjectsCommand command) {
+        DataStoreTO store = command.getStore();
         if(command.getPoolType().equals("RBD")) {
-            return createImageRbd(command.getNames(), command.getSizes(), command.getPoolPath());
+            KVMStoragePool storagePool = storagePoolManager.getStoragePool(StoragePoolType.RBD, store.getUuid());
+            return createImageRbd(storagePool.getUuid(), storagePool.getAuthSecret(), storagePool.getAuthUserName(), storagePool.getSourceHost(), command.getNames(), command.getSizes(), command.getPoolPath());
         }
         return null;
     }
 
     public Answer deleteImageRbd(DeleteRbdObjectsCommand command) {
+        DataStoreTO store = command.getStore();
         if(command.getPoolType().equals("RBD")) {
-            return deleteImageRbd(command.getName(), command.getPoolPath());
+            KVMStoragePool storagePool = storagePoolManager.getStoragePool(StoragePoolType.RBD, store.getUuid());
+            return deleteImageRbd(storagePool.getUuid(), storagePool.getAuthSecret(), storagePool.getAuthUserName(), storagePool.getSourceHost(),command.getName(), command.getPoolPath());
         }
         return null;
     }
@@ -5671,8 +5760,9 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         final String[] splitPoolImage = disk.getPath().split("/");
         String device = Script.runSimpleBashScript("rbd showmapped | grep \""+splitPoolImage[0]+"[ ]*"+splitPoolImage[1]+"\" | grep -o \"[^ ]*[ ]*$\"");
         if(device == null) {
+            createRBDSecretKeyFileIfNoExist(pool.getUuid(), DEFAULT_LOCAL_STORAGE_PATH, pool.getAuthSecret());
             //If not mapped, map and return mapped device
-            Script.runSimpleBashScript("rbd map " + disk.getPath() + " --id " + pool.getAuthUserName());
+            Script.runSimpleBashScript("rbd map " + disk.getPath() + " -m " + pool.getSourceHost() + " --id " + pool.getAuthUserName() +" -K " + DEFAULT_LOCAL_STORAGE_PATH + pool.getUuid());
             device = Script.runSimpleBashScript("rbd showmapped | grep \""+splitPoolImage[0]+"[ ]*"+splitPoolImage[1]+"\" | grep -o \"[^ ]*[ ]*$\"");
         }
         if(kvdoEnable){
@@ -5684,7 +5774,6 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 logger.info("createKvdoCmdLine Action Error : "+e);
             }
         }
-
         return device;
     }
 
@@ -5705,7 +5794,9 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     logger.info("unmapRbdDevice Action error : "+e);
                 }
             }
-            Script.runSimpleBashScript("rbd unmap " + disk.getPath() + " --id " + pool.getAuthUserName());
+            createRBDSecretKeyFileIfNoExist(pool.getUuid(), DEFAULT_LOCAL_STORAGE_PATH, pool.getAuthSecret());
+
+            Script.runSimpleBashScript("rbd unmap " + disk.getPath() + " -m " + pool.getSourceHost() + " --id " + pool.getAuthUserName() +" -K " + DEFAULT_LOCAL_STORAGE_PATH + pool.getUuid());
             device = Script.runSimpleBashScript("rbd showmapped | grep \""+splitPoolImage[0]+"[ ]*"+splitPoolImage[1]+"\" | grep -o \"[^ ]*[ ]*$\"");
         }
         return device;
@@ -6167,5 +6258,21 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             }
         }
         return uuid;
+    }
+
+    public void createRBDSecretKeyFileIfNoExist(String uuid, String localPath, String skey) {
+        File file = new File(localPath + File.separator + uuid);
+        try {
+            // 파일이 존재하지 않을 때만 생성
+            if (!file.exists()) {
+                boolean isCreated = file.createNewFile();
+                if (isCreated) {
+                    // 파일 생성 후 내용 작성
+                    FileWriter writer = new FileWriter(file);
+                    writer.write(skey);
+                    writer.close();
+                }
+            }
+        } catch (IOException e) {}
     }
 }

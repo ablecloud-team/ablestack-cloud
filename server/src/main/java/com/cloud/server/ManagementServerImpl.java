@@ -4674,10 +4674,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         final boolean desktopServiceEnabled = Boolean.parseBoolean(_configDao.getValue("cloud.desktop.service.enabled"));
         final boolean automationServiceEnabled = Boolean.parseBoolean(_configDao.getValue("cloud.automation.service.enabled"));
         final String desktopWorksPortalPort = _configDao.getValue("cloud.desktop.service.works.portal.port");
-        final String wallPortalProtocol = _configDao.getValue("monitoring.wall.portal.protocol");
-        final String wallPortalDomain = _configDao.getValue("monitoring.wall.portal.domain");
-        final String wallPortalPort = _configDao.getValue("monitoring.wall.portal.port");
-        final String wallPortalVmUri = _configDao.getValue("monitoring.wall.portal.vm.uri");
         final boolean securityFeaturesEnabled = Boolean.parseBoolean(_configDao.getValue("security.features.enabled"));
         final boolean disasterRecoveryEnabled = Boolean.parseBoolean(_configDao.getValue("cloud.dr.service.enabled"));
         final String host = _configDao.getValue("host");
@@ -4715,10 +4711,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         capabilities.put("desktopServiceEnabled", desktopServiceEnabled);
         capabilities.put("automationServiceEnabled", automationServiceEnabled);
         capabilities.put("desktopWorksPortalPort", desktopWorksPortalPort);
-        capabilities.put("wallPortalProtocol", wallPortalProtocol);
-        capabilities.put("wallPortalDomain", wallPortalDomain);
-        capabilities.put("wallPortalPort", wallPortalPort);
-        capabilities.put("wallPortalVmUri", wallPortalVmUri);
         capabilities.put("securityFeaturesEnabled", securityFeaturesEnabled);
         capabilities.put("disasterRecoveryEnabled", disasterRecoveryEnabled);
         capabilities.put("host", host);
@@ -5825,13 +5817,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                         // 라이선스 상태에 따른 에이전트 제어
                         if (isValid) {
                             controlHostAgent(host, "start");
-                            _alertMgr.sendAlert(
-                                AlertManager.AlertType.ALERT_TYPE_HOST,
-                                host.getDataCenterId(),
-                                host.getId(),
-                                "License valid for host " + host.getName(),
-                                "The license is valid. Agent has been started for host " + host.getName()
-                            );
                         } else {
                             controlHostAgent(host, "stop");
                             handleExpiredLicense(host);

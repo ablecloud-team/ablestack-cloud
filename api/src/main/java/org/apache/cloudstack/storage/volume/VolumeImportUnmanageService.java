@@ -35,7 +35,7 @@ public interface VolumeImportUnmanageService extends PluggableService {
             Arrays.asList(Hypervisor.HypervisorType.KVM, Hypervisor.HypervisorType.VMware);
 
     List<Storage.StoragePoolType> SUPPORTED_STORAGE_POOL_TYPES_FOR_KVM = Arrays.asList(Storage.StoragePoolType.NetworkFilesystem,
-            Storage.StoragePoolType.Filesystem, Storage.StoragePoolType.RBD);
+            Storage.StoragePoolType.Filesystem, Storage.StoragePoolType.RBD, Storage.StoragePoolType.SharedMountPoint);
 
     ListResponse<VolumeForImportResponse> listVolumesForImport(ListVolumesForImportCmd cmd);
 

@@ -159,6 +159,7 @@ public final class LibvirtResizeVolumeCommandWrapper extends CommandWrapper<Resi
                 resizecmd.add("-r", String.valueOf(shrinkOk));
                 resizecmd.add("-v", vmInstanceName);
                 resizecmd.add("-k", String.valueOf(kvdoEnable));
+                libvirtComputingResource.createRBDSecretKeyFileIfNoExist(pool.getUuid(), "/var/lib/libvirt/images/", pool.getAuthSecret());
                 final String result = resizecmd.execute();
 
                 if (result != null) {

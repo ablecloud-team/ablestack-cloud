@@ -48,11 +48,11 @@
       </template>
       <works-url :resource="resource" :size="size"/>
     </a-tooltip>
-    <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="resource && resource.id && dataView">
+    <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="resource && resource.id && dataView && ['vm', 'host', 'cluster'].includes($route.meta.name)">
       <template #title>
-        {{ $t('label.wall.portal.vm.url') }}
+        {{ $t('label.wall.portal.' + $route.meta.name + '.url') }}
       </template>
-      <wall-link-url :resource="resource" :size="size" />
+      <wall-link-url :resource="resource" :scope="$route.meta.name" :size="size" />
     </a-tooltip>
     <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="resource && resource.id && dataView">
       <template #title>
@@ -60,11 +60,17 @@
       </template>
       <genie-url :resource="resource" :size="size" />
     </a-tooltip>
-    <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="resource && resource.id && resource.outofbandmanagement && dataView">
+    <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="resource && resource.id && dataView && ['host'].includes($route.meta.name)">
       <template #title>
         {{ $t('label.oobm.portal.url') }}
       </template>
-      <oobm-url :resource="resource" :size="size"/>
+      <oobm-cube-url :resource="resource" :scope="'oobm'" :size="size"/>
+    </a-tooltip>
+    <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="resource && resource.id && dataView && ['host'].includes($route.meta.name)">
+      <template #title>
+        {{ $t('label.cube.portal.url') }}
+      </template>
+      <oobm-cube-url :resource="resource" :scope="'cube'" :size="size"/>
     </a-tooltip>
     <a-tooltip
       v-for="(action, actionIndex) in actions"
@@ -130,7 +136,7 @@ import Console from '@/components/widgets/Console'
 import WorksUrl from '@/components/widgets/WorksUrl'
 import WallLinkUrl from '@/components/widgets/WallLinkUrl'
 import GenieUrl from '@/components/widgets/GenieUrl'
-import OobmUrl from '@/components/widgets/OobmUrl'
+import OobmCubeUrl from '@/components/widgets/OobmCubeUrl'
 
 export default {
   name: 'ActionButton',
@@ -139,7 +145,7 @@ export default {
     WallLinkUrl,
     GenieUrl,
     WorksUrl,
-    OobmUrl
+    OobmCubeUrl
   },
   data () {
     return {

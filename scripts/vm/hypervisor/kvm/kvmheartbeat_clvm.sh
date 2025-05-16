@@ -78,8 +78,8 @@ hbFile=$hbFolder/$HostIP-$poolPath
 
 write_hbLog() {
   #write the heart beat log
-  path=$(pvs 2>/dev/null | grep -w $poolPath | awk '{print $1}')
-  persist=$(sg_persist -ik $path)
+  path=$(pvs 2>/dev/null | grep -w $poolPath | awk '{print $1}' | sed 's/[0-9]//g')
+  persist=$(multipath -l $path | grep status=active)
   if [ $? -eq 0 ]
   then
     Timestamp=$(date +%s)

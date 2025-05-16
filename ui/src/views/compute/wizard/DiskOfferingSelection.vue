@@ -143,16 +143,6 @@ export default {
   },
   created () {
     this.initDataItem()
-    if (this.items) {
-      var diskFilter = this.items
-      if (this.preFillContent.kvdoenable && this.preFillContent.kvdoenable !== undefined) {
-        diskFilter = this.items.filter(items => items.kvdoenable)
-      } else if (!this.preFillContent.kvdoenable && this.preFillContent.kvdoenable !== undefined) {
-        diskFilter = this.items.filter(items => !items.kvdoenable)
-      }
-      this.rowCountNum = diskFilter.length
-      this.dataItems = this.dataItems.concat(diskFilter)
-    }
   },
   computed: {
     tableSource () {
@@ -189,9 +179,9 @@ export default {
         if (newData) {
           var diskFilter = newData
           if (this.preFillContent.kvdoenable && this.preFillContent.kvdoenable !== undefined) {
-            diskFilter = newData.filter(newData => newData.kvdoenable)
+            diskFilter = newData.filter(data => data.kvdoenable)
           } else if (!this.preFillContent.kvdoenable && this.preFillContent.kvdoenable !== undefined) {
-            diskFilter = this.newData.filter(newData => !newData.kvdoenable)
+            diskFilter = newData.filter(data => !data.kvdoenable)
           }
           this.rowCountNum = diskFilter.length
           this.dataItems = this.dataItems.concat(diskFilter)

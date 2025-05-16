@@ -61,8 +61,8 @@
           </a-menu-item>
           <a v-if="$store.getters.userInfo.roletype === 'Admin'" @click="wallPortalLink" >
             <a-menu-item class="user-menu-item" key="1">
-                <AreaChartOutlined class="user-menu-item-icon" />
-                <span class="user-menu-item-name">{{ $t('label.wall.portal.url') }}</span>
+              <AreaChartOutlined class="user-menu-item-icon" />
+              <span class="user-menu-item-name">{{ $t('label.wall.portal.url') }}</span>
             </a-menu-item>
           </a>
           <a-menu-divider/>
@@ -204,28 +204,18 @@ export default {
       this.$notification.destroy()
     },
     wallPortalLink () {
-      var uri = ''
-      const host = this.$store.getters.features.host
-      const wallPortalProtocol = this.$store.getters.features.wallportalprotocol
-      const wallPortalDomain = this.$store.getters.features.wallportaldomain
-      const wallPortalPort = this.$store.getters.features.wallportalport
-
-      if (wallPortalProtocol === null || wallPortalProtocol === '') {
-        uri += 'http://'
-      } else {
-        uri += wallPortalProtocol + '://'
-      }
-      if (wallPortalDomain === null || wallPortalDomain === '') {
-        uri += host
-      } else {
-        uri += wallPortalDomain
-      }
-      if (typeof wallPortalPort !== 'undefined') {
-        uri += ':' + wallPortalPort
-      }
-      uri += '/login?orgId=1'
-
-      window.open(uri, '_blank')
+      api('listConfigurations', { keyword: 'monitoring.wall.portal' }).then(json => {
+        const items = json.listconfigurationsresponse.configuration
+        const wallPortalProtocol = items.filter(x => x.name === 'monitoring.wall.portal.protocol')[0]?.value
+        const wallPortalPort = items.filter(x => x.name === 'monitoring.wall.portal.port')[0]?.value
+        var wallPortalDomain = items.filter(x => x.name === 'monitoring.wall.portal.domain')[0]?.value
+        if (wallPortalDomain === null || wallPortalDomain === '') {
+          wallPortalDomain = this.$store.getters.features.host
+        }
+        const uri = wallPortalProtocol + '://' + wallPortalDomain + ':' + wallPortalPort
+        this.uriInfo = uri + '/logout'
+        window.open(this.uriInfo, '_blank')
+      })
     },
     async fetchConfigurationSwitch () {
       await this.fetchFaviconStateInterval()

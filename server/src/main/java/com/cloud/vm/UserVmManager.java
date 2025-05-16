@@ -82,6 +82,8 @@ public interface UserVmManager extends UserVmService {
             "true",
             "If set to true, tags specified in `resource.limit.host.tags` are also included in vm.strict.host.tags.",
             true);
+    ConfigKey<Boolean> EnableVmNetwokFilterAllowAllTraffic = new ConfigKey<Boolean>("Advanced", Boolean.class, "enable.vm.network.filter.allow.all.traffic", "false",
+            "If true, the network security feature is enabled when creating a virtual machine, tag: <filterref filter='allow-all-traffic'/> item is enabled.", true);
 
     static final int MAX_USER_DATA_LENGTH_BYTES = 2048;
 

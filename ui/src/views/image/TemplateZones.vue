@@ -103,16 +103,14 @@
       <template #action="{ record }">
         <tooltip-button
           style="margin-right: 5px"
-          :dataSource="templates"
-          :disabled="!('copyTemplate' in $store.getters.apis && record.isready) || templates.includes(record.id)"
+          :disabled="!('copyTemplate' in $store.getters.apis && record.isready)"
           :title="$t('label.action.copy.template')"
           icon="copy-outlined"
-          :loading="copyLoading || fetchLoading"
+          :loading="copyLoading"
           @onClick="showCopyTemplate(record)" />
         <tooltip-button
           style="margin-right: 5px"
-          :dataSource="templates"
-          :disabled="!('deleteTemplate' in $store.getters.apis) || templates.includes(record.id)"
+          :disabled="!('deleteTemplate' in $store.getters.apis)"
           :title="$t('label.action.delete.template')"
           type="primary"
           :danger="true"
@@ -274,7 +272,6 @@ export default {
     return {
       columns: [],
       dataSource: [],
-      templates: [],
       page: 1,
       pageSize: 10,
       itemCount: 0,
@@ -398,30 +395,7 @@ export default {
       }).catch(error => {
         this.$notifyError(error)
       }).finally(() => {
-      })
-      this.templates = []
-      api('listDesktopControllerVersions').then(json => {
-        var items = json.listdesktopcontrollerversionsresponse.desktopcontrollerversion
-        if (items != null) {
-          for (var i = 0; i < items.length; i++) {
-            for (var j = 0; j < items[i].templates.length; j++) {
-              this.templates.push(items[i].templates[j].id)
-            }
-          }
-        }
-      }).finally(() => {
-      })
-      api('listDesktopMasterVersions').then(json => {
-        var items = json.listdesktopmasterversionsresponse.desktopmasterversion
-        if (items != null) {
-          for (var i = 0; i < items.length; i++) {
-            this.templates.push(items[i].templateid)
-          }
-        }
-      }).finally(() => {
         this.fetchLoading = false
-        // this.$set(this.resource, 'templates', this.templates)
-        // this.resource.templetes = this.templates
       })
       this.fetchZoneData()
     },

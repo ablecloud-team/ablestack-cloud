@@ -37,6 +37,7 @@ import org.apache.cloudstack.backup.Backup;
 import org.apache.cloudstack.engine.orchestration.service.NetworkOrchestrationService;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
+import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
 import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 import org.apache.cloudstack.vm.UnmanagedInstanceTO;
 import org.apache.commons.collections.CollectionUtils;
@@ -120,6 +121,8 @@ public abstract class HypervisorGuruBase extends AdapterBase implements Hypervis
     private UserVmManager userVmManager;
     @Inject
     private ConfigurationManager configurationManager;
+    @Inject
+    ConfigurationDao configDao;
 
     public static ConfigKey<Boolean> VmMinMemoryEqualsMemoryDividedByMemOverprovisioningFactor = new ConfigKey<Boolean>("Advanced", Boolean.class, "vm.min.memory.equals.memory.divided.by.mem.overprovisioning.factor", "true",
             "If we set this to 'true', a minimum memory (memory/ mem.overprovisioning.factor) will be set to the VM, independent of using a scalable service offering or not.", true, ConfigKey.Scope.Cluster);
@@ -172,6 +175,7 @@ public abstract class HypervisorGuruBase extends AdapterBase implements Hypervis
         to.setIp6Dns2(profile.getIPv6Dns2());
         to.setNetworkId(profile.getNetworkId());
         to.setLinkState(profile.getLinkState());
+        to.setNwfilter(Boolean.parseBoolean(configDao.getValueAndInitIfNotExist("enable.vm.network.filter.allow.all.traffic", "Advanced", "false")));
 
         NetworkVO network = networkDao.findById(profile.getNetworkId());
         to.setNetworkUuid(network.getUuid());

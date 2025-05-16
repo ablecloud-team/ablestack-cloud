@@ -20,23 +20,27 @@
 package org.apache.cloudstack.storage.command.browser;
 
 import com.cloud.agent.api.storage.StorageCommand;
+import com.cloud.agent.api.to.DataStoreTO;
 
 public class CreateRbdObjectsCommand extends StorageCommand {
 
-   private String names;
+    private DataStoreTO store;
 
-   private long sizes;
+    private String names;
 
-   private String poolType;
+    private long sizes;
 
-   private String poolPath;
+    private String poolType;
 
-   private String keyword;
+    private String poolPath;
 
-   private Long poolId;
+    private String keyword;
 
-    public CreateRbdObjectsCommand(String names, long sizes) {
+    private Long poolId;
+
+    public CreateRbdObjectsCommand(DataStoreTO store, String names, long sizes) {
         super();
+        this.store = store;
         this.names = names;
         this.sizes = sizes;
     }
@@ -44,6 +48,10 @@ public class CreateRbdObjectsCommand extends StorageCommand {
     @Override
     public boolean executeInSequence() {
         return false;
+    }
+
+    public DataStoreTO getStore() {
+        return store;
     }
 
     public String getNames() {

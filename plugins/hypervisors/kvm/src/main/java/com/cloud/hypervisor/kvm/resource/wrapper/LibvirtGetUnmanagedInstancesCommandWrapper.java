@@ -34,6 +34,8 @@ import org.libvirt.Connect;
 import org.libvirt.Domain;
 import org.libvirt.DomainBlockInfo;
 import org.libvirt.LibvirtException;
+import org.libvirt.StoragePool;
+import org.libvirt.StorageVol;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -120,7 +122,6 @@ public final class LibvirtGetUnmanagedInstancesCommandWrapper extends CommandWra
 
             final UnmanagedInstanceTO instance = new UnmanagedInstanceTO();
             instance.setName(domain.getName());
-
             instance.setCpuCores((int) LibvirtComputingResource.countDomainRunningVcpus(domain));
             if (parser.getCpuTuneDef() !=null) {
                 instance.setCpuSpeed(parser.getCpuTuneDef().getShares()/instance.getCpuCores());
@@ -221,7 +222,17 @@ public final class LibvirtGetUnmanagedInstancesCommandWrapper extends CommandWra
             disk.setDatastoreType(diskDef.getDiskType().toString());
             disk.setDatastorePort(diskDef.getSourceHostPort());
             disk.setImagePath(diskDef.getSourcePath());
-            disk.setDatastoreName(disk.getDatastorePath());
+            try {
+                String rbdImagePath = "";
+                if (diskDef.getSourcePath().contains("/dev/rbd")) {
+                    rbdImagePath = diskDef.getSourcePath().replace("/dev/rbd/", "");
+                }
+                StorageVol storageVolLookupByPath = conn.storageVolLookupByPath("".equals(rbdImagePath) ? diskDef.getSourcePath() : rbdImagePath);
+                StoragePool sp = storageVolLookupByPath.storagePoolLookupByVolume();
+                disk.setDatastoreName(sp.getName());
+            } catch (LibvirtException e) {
+                throw new RuntimeException(e);
+            }
             disk.setFileBaseName(getDiskRelativePath(diskDef));
             disks.add(disk);
         }

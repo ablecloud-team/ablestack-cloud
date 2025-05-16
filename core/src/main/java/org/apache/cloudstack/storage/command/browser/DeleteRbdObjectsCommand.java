@@ -20,23 +20,31 @@
 package org.apache.cloudstack.storage.command.browser;
 
 import com.cloud.agent.api.storage.StorageCommand;
+import com.cloud.agent.api.to.DataStoreTO;
 
 public class DeleteRbdObjectsCommand extends StorageCommand {
 
-   private String name;
+    private DataStoreTO store;
 
-   private String poolType;
+    private String name;
 
-   private String poolPath;
+    private String poolType;
 
-    public DeleteRbdObjectsCommand(String name) {
+    private String poolPath;
+
+    public DeleteRbdObjectsCommand(DataStoreTO store, String name) {
         super();
+        this.store = store;
         this.name = name;
     }
 
     @Override
     public boolean executeInSequence() {
         return false;
+    }
+
+    public DataStoreTO getStore() {
+        return store;
     }
 
     public String getName() {

@@ -306,7 +306,7 @@ public class StorageBrowserImpl extends MutualExclusiveIdsManagerBase implements
         if (ep == null) {
             throw new CloudRuntimeException("No remote endpoint to send command");
         }
-        DeleteRbdObjectsCommand deleteRICmd = new DeleteRbdObjectsCommand(name);
+        DeleteRbdObjectsCommand deleteRICmd = new DeleteRbdObjectsCommand(dataStore.getTO(), name);
         deleteRICmd.setWait(15);
 
         if (dataStore.getRole() == DataStoreRole.Primary) {
@@ -338,7 +338,7 @@ public class StorageBrowserImpl extends MutualExclusiveIdsManagerBase implements
         if (ep == null) {
             throw new CloudRuntimeException("No remote endpoint to send command");
         }
-        CreateRbdObjectsCommand createRICmd = new CreateRbdObjectsCommand(names, sizes);
+        CreateRbdObjectsCommand createRICmd = new CreateRbdObjectsCommand(dataStore.getTO(), names, sizes);
         createRICmd.setWait(15);
 
         if (dataStore.getRole() == DataStoreRole.Primary) {

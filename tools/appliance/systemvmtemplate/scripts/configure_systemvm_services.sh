@@ -19,7 +19,8 @@
 set -e
 set -x
 
-CLOUDSTACK_RELEASE=4.20.0
+CLOUDSTACK_RELEASE=4.21.0
+CREATE_DATE=
 
 function configure_apache2() {
    # Enable ssl, rewrite and auth
@@ -42,6 +43,7 @@ function configure_issue() {
    __?.o/  ABLECLOUD Mold SystemVM $CLOUDSTACK_RELEASE
   (  )#    https://www.ablecloud.io
  (___(_)   Debian GNU/Linux 12 \n \l
+ ########  SystemVM Template Creation Date : $CREATE_DATE
 
 EOF
 }

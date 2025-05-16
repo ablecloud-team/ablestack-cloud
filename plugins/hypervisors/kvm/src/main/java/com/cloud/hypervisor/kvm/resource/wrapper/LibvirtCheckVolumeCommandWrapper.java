@@ -51,7 +51,8 @@ public final class LibvirtCheckVolumeCommandWrapper extends CommandWrapper<Check
 
         try {
             if (storageFilerTO.getType() == Storage.StoragePoolType.Filesystem ||
-                    storageFilerTO.getType() == Storage.StoragePoolType.NetworkFilesystem) {
+                    storageFilerTO.getType() == Storage.StoragePoolType.NetworkFilesystem ||
+                    storageFilerTO.getType() == Storage.StoragePoolType.SharedMountPoint) {
                 final KVMPhysicalDisk vol = pool.getPhysicalDisk(srcFile);
                 final String path = vol.getPath();
                 long size = getVirtualSizeFromFile(path);

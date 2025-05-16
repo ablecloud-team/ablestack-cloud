@@ -44,6 +44,7 @@ public class NetworkTO {
     protected String ip6Dns1;
     protected String ip6Dns2;
     protected boolean linkState = true;
+    protected boolean nwfilter = false;
 
     public NetworkTO() {
     }
@@ -241,4 +242,11 @@ public class NetworkTO {
         this.linkState = linkState;
     }
 
+    public boolean getNwfilter() {
+        return nwfilter;
+    }
+
+    public void setNwfilter(boolean nwfilter) {
+        this.nwfilter = nwfilter;
+    }
 }

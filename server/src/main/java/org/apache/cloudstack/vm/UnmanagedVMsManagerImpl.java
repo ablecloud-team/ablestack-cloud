@@ -544,20 +544,8 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
         final String dsPath = disk.getDatastorePath();
         final String dsType = disk.getDatastoreType();
         final String dsName = disk.getDatastoreName();
-        logger.debug("### DataStore [Host:%s, Path:%s, Type:%s, Uuid:%s" ,dsHost, dsPath, dsType, dsName);
-        if (dsType != null) {
-            List<StoragePoolVO> pools = primaryDataStoreDao.listPoolByHostPath(dsHost, dsPath);
-            for (StoragePool pool : pools) {
-                if (pool.getDataCenterId() == zone.getId() &&
-                        (pool.getClusterId() == null || pool.getClusterId().equals(cluster.getId())) &&
-                        volumeApiService.doesTargetStorageSupportDiskOffering(pool, diskOfferingTags)) {
-                    storagePool = pool;
-                    break;
-                }
-            }
-        }
-
-        if (storagePool == null) {
+        logger.debug(String.format("### DataStore [Host:%s, Path:%s, Type:%s, Name:%s]" , dsHost, dsPath, dsType, dsName));
+        if (dsName != null) {
             List<StoragePoolVO> pools = primaryDataStoreDao.listPoolsByCluster(cluster.getId());
             pools.addAll(primaryDataStoreDao.listByDataCenterId(zone.getId()));
             for (StoragePool pool : pools) {
@@ -567,6 +555,17 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
                         storagePool = pool;
                         break;
                     }
+                }
+            }
+        }
+        if (storagePool == null) {
+            List<StoragePoolVO> pools = primaryDataStoreDao.listPoolByHostPath(dsHost, dsPath);
+            for (StoragePool pool : pools) {
+                if (pool.getDataCenterId() == zone.getId() &&
+                        (pool.getClusterId() == null || pool.getClusterId().equals(cluster.getId())) &&
+                        volumeApiService.doesTargetStorageSupportDiskOffering(pool, diskOfferingTags)) {
+                    storagePool = pool;
+                    break;
                 }
             }
         }

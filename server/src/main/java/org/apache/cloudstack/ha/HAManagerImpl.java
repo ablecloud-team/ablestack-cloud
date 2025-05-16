@@ -64,6 +64,7 @@ import org.apache.cloudstack.management.ManagementServerHost;
 import org.apache.cloudstack.poll.BackgroundPollManager;
 import org.apache.cloudstack.poll.BackgroundPollTask;
 import org.apache.cloudstack.utils.identity.ManagementServerNode;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.cloud.host.HostVO;
@@ -90,6 +91,7 @@ import com.cloud.host.dao.HostDao;
 import com.cloud.vm.dao.VMInstanceDao;
 import com.cloud.vm.UserVmService;
 import com.cloud.org.Cluster;
+import com.cloud.resource.ResourceManager;
 import com.cloud.resource.ResourceService;
 import com.cloud.storage.DiskOfferingVO;
 import com.cloud.storage.VolumeVO;
@@ -108,6 +110,7 @@ import com.cloud.utils.fsm.StateMachine2;
 import com.google.common.base.Preconditions;
 import org.apache.cloudstack.api.ResponseGenerator;
 import com.cloud.agent.AgentManager;
+import com.cloud.agent.api.UpdateHaStateCommand;
 import com.cloud.api.query.vo.UserVmJoinVO;
 import com.cloud.api.query.dao.UserVmJoinDao;
 
@@ -151,6 +154,9 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
 
     @Inject
     private DiskOfferingDao diskOfferingDao;
+
+    @Inject
+    private ResourceManager resourceManager;
 
     private List<HAProvider<HAResource>> haProviders;
     private Map<String, HAProvider<HAResource>> haProviderMap = new HashMap<>();
@@ -466,10 +472,14 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
     public boolean enableHA(final Cluster cluster, Boolean includeHost) {
         clusterDetailsDao.persist(cluster.getId(), HA_ENABLED_DETAIL, String.valueOf(true));
 
+        List<? extends HAResource> hosts = hostDao.findHypervisorHostInCluster(cluster.getId());
+        if (CollectionUtils.isNotEmpty(hosts)) {
+            UpdateHaStateCommand cmd = new UpdateHaStateCommand("enable");
+            _agentMgr.easySend(hosts.get(0).getId(), cmd);
+        }
         //host enableHA
         if (includeHost) {
-            List<? extends HAResource> resources = hostDao.findByClusterId(cluster.getId());
-            for (HAResource resource : resources) {
+            for (HAResource resource : hosts) {
                 final HAConfig haConfig = haConfigDao.findHAResource(resource.getId(), resource.resourceType());
                 if (haConfig == null) {
                     boolean configureHA = configureHA(resource.getId(), resource.resourceType(), true, "kvmhaprovider");
@@ -486,10 +496,14 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
     public boolean disableHA(final Cluster cluster, Boolean includeHost) {
         clusterDetailsDao.persist(cluster.getId(), HA_ENABLED_DETAIL, String.valueOf(false));
 
+        List<? extends HAResource> hosts = hostDao.findHypervisorHostInCluster(cluster.getId());
+        if (CollectionUtils.isNotEmpty(hosts)) {
+            UpdateHaStateCommand cmd = new UpdateHaStateCommand("disable");
+            _agentMgr.easySend(hosts.get(0).getId(), cmd);
+        }
         //host disableHA
         if (includeHost) {
-            List<? extends HAResource> resources = hostDao.findByClusterId(cluster.getId());
-            for (HAResource resource : resources) {
+            for (HAResource resource : hosts) {
                 final HAConfig haConfig = haConfigDao.findHAResource(resource.getId(), resource.resourceType());
                 if (haConfig != null && haConfig.isEnabled()) {
                     boolean result = disableHA(resource.getId(), resource.resourceType());

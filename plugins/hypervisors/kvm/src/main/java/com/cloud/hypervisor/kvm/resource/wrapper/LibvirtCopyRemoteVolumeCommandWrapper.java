@@ -56,7 +56,8 @@ public final class LibvirtCopyRemoteVolumeCommandWrapper extends CommandWrapper<
 
         try {
             if (storageFilerTO.getType() == Storage.StoragePoolType.Filesystem ||
-                    storageFilerTO.getType() == Storage.StoragePoolType.NetworkFilesystem) {
+                    storageFilerTO.getType() == Storage.StoragePoolType.NetworkFilesystem||
+                    storageFilerTO.getType() == Storage.StoragePoolType.SharedMountPoint) {
                 String filename = libvirtComputingResource.copyVolume(srcIp, username, password, dstPath, srcFile, tmpPath, timeoutInSecs);
                 logger.debug("Volume " + srcFile + " copy successful, copied to file: " + filename);
                 final KVMPhysicalDisk vol = pool.getPhysicalDisk(filename);
