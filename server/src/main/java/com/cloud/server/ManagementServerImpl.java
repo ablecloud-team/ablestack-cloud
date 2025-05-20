@@ -177,6 +177,8 @@ import org.apache.cloudstack.api.command.admin.outofbandmanagement.EnableOutOfBa
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.IssueOutOfBandManagementPowerActionCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.LicenseCheckCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostDevicesCmd;
+// import org.apache.cloudstack.api.command.admin.outofbandmanagement.DeleteHostDevicesCmd;
 import org.apache.cloudstack.api.command.admin.pod.CreatePodCmd;
 import org.apache.cloudstack.api.command.admin.pod.DeletePodCmd;
 import org.apache.cloudstack.api.command.admin.pod.ListPodsByCmd;
@@ -867,6 +869,7 @@ import com.cloud.vm.dao.VMInstanceDao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import javax.naming.ConfigurationException;
+import org.apache.cloudstack.api.response.UpdateHostDevicesResponse;
 
 
 
@@ -1056,6 +1059,12 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
     @Inject
     private HAConfigDao haConfigDao;
+
+    @Inject
+    private HostDetailsDao _hostDetailsDao;
+
+    @Inject
+    private UserVmDetailsDao _vmDetailsDao;
 
     private LockControllerListener _lockControllerListener;
     private final ScheduledExecutorService _eventExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("EventChecker"));
@@ -2171,6 +2180,166 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     }
 
     @Override
+    public ListResponse<ListHostDevicesResponse> listHostDevices(ListHostDevicesCmd cmd) {
+        Long id = cmd.getId();
+        HostVO hostVO = _hostDao.findById(id);
+        if (hostVO == null) {
+            throw new CloudRuntimeException("Host not found with ID: " + id);
+        }
+
+        ListHostDeviceCommand pciCmd = new ListHostDeviceCommand(id);
+        Answer answer;
+        try {
+            answer = _agentMgr.send(hostVO.getId(), pciCmd);
+        } catch (Exception e) {
+            String errorMsg = "Error sending ListHostDevicesCommand: " + e.getMessage();
+            logger.error(errorMsg, e);
+            throw new CloudRuntimeException(errorMsg, e);
+        }
+
+        if (answer == null) {
+            throw new CloudRuntimeException("Answer is null");
+        }
+        if (!answer.getResult()) {
+            String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
+                    : "No additional details available";
+            String errorMsg = "Answer result is false. Details: " + errorDetails;
+            logger.error(errorMsg);
+            throw new CloudRuntimeException(errorMsg);
+        }
+        if (!(answer instanceof ListHostDeviceAnswer)) {
+            throw new CloudRuntimeException("Answer is not an instance of listHostDeviceAnswer");
+        }
+
+        ListHostDeviceAnswer pciAnswer = (ListHostDeviceAnswer) answer;
+        if (!pciAnswer.isSuccessMessage()) {
+            throw new IllegalArgumentException("Failed to list VM PCI objects.");
+        }
+
+        List<ListHostDevicesResponse> responses = new ArrayList<>();
+        ListResponse<ListHostDevicesResponse> listResponse = new ListResponse<>();
+
+        List<String> hostDevicesTexts = pciAnswer.getHostDevicesTexts();
+
+        List<String> hostDevicesNames = new ArrayList<>();
+        List<String> pciDescriptions = new ArrayList<>();
+
+        for (String hostDevicesText : hostDevicesTexts) {
+            String[] parts = hostDevicesText.split(": ", 2);
+            if (parts.length == 2) {
+                hostDevicesNames.add(parts[0].trim());
+                pciDescriptions.add(parts[1].trim());
+            } else {
+                logger.warn("Unexpected PCI info format: " + hostDevicesText);
+            }
+        }
+
+        ListHostDevicesResponse response = new ListHostDevicesResponse();
+        response.setHostDevicesNames(hostDevicesNames);
+        response.setHostDevicesTexts(pciDescriptions);
+
+        // VM 할당 정보 확인 및 업데이트
+        Map<String, String> vmAllocations = new HashMap<>();
+        for (String deviceName : hostDevicesNames) {
+            // 현재 할당 상태 확인
+            String currentAllocation = getDeviceAllocation(id, deviceName);
+
+            if (currentAllocation != null) {
+                // 이미 할당된 경우에만 맵에 추가
+                vmAllocations.put(deviceName, currentAllocation);
+            }
+        }
+        response.setVmAllocations(vmAllocations);
+
+        responses.add(response);
+        listResponse.setResponses(responses);
+        return listResponse;
+    }
+
+    // VM에 디바이스가 할당될 때 호출되는 메서드
+   @Override
+    public ListResponse<UpdateHostDevicesResponse> updateHostDevices(UpdateHostDevicesCmd cmd) {
+        Long hostId = cmd.getHostId();
+        String hostDeviceName = cmd.getHostDeviceName();
+        Long vmId = cmd.getVirtualMachineId();
+
+        // 호스트 존재 여부 확인
+        HostVO hostVO = _hostDao.findById(hostId);
+        if (hostVO == null) {
+            throw new CloudRuntimeException("Host not found with ID: " + hostId);
+        }
+
+        // VM 존재 여부 확인 (vmId가 null이 아닌 경우)
+        VMInstanceVO vmInstance = null;
+        if (vmId != null) {
+            vmInstance = _vmInstanceDao.findById(vmId);
+            if (vmInstance == null) {
+                throw new CloudRuntimeException("VM not found with ID: " + vmId);
+            }
+        }
+
+        logger.info("Updating host device allocation - hostId: {}, hostDeviceName: {}, virtualMachineId: {}",
+            hostId, hostDeviceName, vmId);
+
+        try {
+            DetailVO currentAllocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
+
+            if (vmId == null) {
+                // 디바이스 할당 해제
+                if (currentAllocation != null) {
+                    String currentVmId = currentAllocation.getValue();
+                    VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(currentVmId));
+                    if (vm != null) {
+                        _vmDetailsDao.removeDetail(vm.getId(), "extraconfig-1");
+                        logger.info("Successfully removed extraconfig-1 from VM {}", vm.getInstanceName());
+                    }
+                    // DB에서 해당 디바이스 레코드 삭제
+                    _hostDetailsDao.remove(currentAllocation.getId());
+                    logger.info("Successfully removed device {} allocation from host {}", hostDeviceName, hostId);
+                }
+            } else {
+                // 새로운 할당
+                if (currentAllocation != null) {
+                    String currentVmId = currentAllocation.getValue();
+                    VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(currentVmId));
+                    throw new CloudRuntimeException("Device " + hostDeviceName + " is already allocated to VM: " +
+                        (vm != null ? vm.getInstanceName() : currentVmId));
+                }
+
+                Map<String, String> details = new HashMap<>();
+                details.put(hostDeviceName, vmId.toString());
+                _hostDetailsDao.persist(hostId, details);
+                logger.info("Successfully allocated device {} to VM {} on host {}", hostDeviceName, vmId, hostId);
+            }
+        } catch (Exception e) {
+            logger.error("Error during device allocation/deallocation - hostDeviceName: {}, error: {}",
+                hostDeviceName, e.getMessage(), e);
+            throw new CloudRuntimeException("Failed to update device allocation: " + e.getMessage(), e);
+        }
+
+        // 응답 생성
+        ListResponse<UpdateHostDevicesResponse> response = new ListResponse<>();
+        List<UpdateHostDevicesResponse> responses = new ArrayList<>();
+        UpdateHostDevicesResponse deviceResponse = new UpdateHostDevicesResponse();
+
+        DetailVO allocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
+        deviceResponse.setHostDeviceName(hostDeviceName);
+        deviceResponse.setVirtualMachineId(allocation != null ? allocation.getValue() : null);
+        deviceResponse.setAllocated(allocation != null && allocation.getValue() != null);
+
+        responses.add(deviceResponse);
+        response.setResponses(responses);
+
+        return response;
+    }
+
+    // PCI 디바이스의 VM 할당 상태 조회
+    public String getDeviceAllocation(Long hostId, String deviceName) {
+        DetailVO vmAllocationDetail = _hostDetailsDao.findDetail(hostId, deviceName);
+        return vmAllocationDetail != null ? vmAllocationDetail.getValue() : null;
+    }
+
+    @Override
     public Pair<List<? extends Vlan>, Integer> searchForVlans(final ListVlanIpRangesCmd cmd) {
         // If an account name and domain ID are specified, look up the account
         final String accountName = cmd.getAccountName();
@@ -3266,70 +3435,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     }
 
     @Override
-    public ListResponse<ListHostDevicesResponse> listHostDevices(ListHostDevicesCmd cmd) {
-        Long id = cmd.getId();
-        HostVO hostVO = _hostDao.findById(id);
-        if (hostVO == null) {
-            throw new CloudRuntimeException("Host not found with ID: " + id);
-        }
-
-        ListHostDeviceCommand pciCmd = new ListHostDeviceCommand(id);
-        Answer answer;
-        try {
-            answer = _agentMgr.send(hostVO.getId(), pciCmd);
-        } catch (Exception e) {
-            String errorMsg = "Error sending ListHostDevicesCommand: " + e.getMessage();
-            logger.error(errorMsg, e);
-            throw new CloudRuntimeException(errorMsg, e);
-        }
-
-        if (answer == null) {
-            throw new CloudRuntimeException("Answer is null");
-        }
-        if (!answer.getResult()) {
-            String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
-                    : "No additional details available";
-            String errorMsg = "Answer result is false. Details: " + errorDetails;
-            logger.error(errorMsg);
-            throw new CloudRuntimeException(errorMsg);
-        }
-        if (!(answer instanceof ListHostDeviceAnswer)) {
-            throw new CloudRuntimeException("Answer is not an instance of listHostDeviceAnswer");
-        }
-
-        ListHostDeviceAnswer pciAnswer = (ListHostDeviceAnswer) answer;
-        if (!pciAnswer.isSuccessMessage()) {
-            throw new IllegalArgumentException("Failed to list VM PCI objects.");
-        }
-
-        List<ListHostDevicesResponse> responses = new ArrayList<>();
-        ListResponse<ListHostDevicesResponse> listResponse = new ListResponse<>();
-
-        List<String> hostDevicesTexts = pciAnswer.getHostDevicesTexts();
-
-        List<String> hostDevicesNames = new ArrayList<>();
-        List<String> pciDescriptions = new ArrayList<>();
-
-        for (String hostDevicesText : hostDevicesTexts) {
-            String[] parts = hostDevicesText.split(": ", 2);
-            if (parts.length == 2) {
-                hostDevicesNames.add(parts[0].trim());
-                pciDescriptions.add(parts[1].trim());
-            } else {
-                logger.warn("Unexpected PCI info format: " + hostDevicesText);
-            }
-        }
-
-        ListHostDevicesResponse response = new ListHostDevicesResponse();
-        response.setHostDevicesNames(hostDevicesNames);
-        response.setHostDevicesTexts(pciDescriptions);
-        responses.add(response);
-
-        listResponse.setResponses(responses);
-        return listResponse;
-    }
-
-    @Override
     public String getConsoleAccessAddress(long vmId) {
         final VMInstanceVO vm = _vmInstanceDao.findById(vmId);
         if (vm != null) {
@@ -4232,7 +4337,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(AllocateVbmcToVMCmd.class);
         cmdList.add(RemoveVbmcToVMCmd.class);
         cmdList.add(ListHostDevicesCmd.class);
-
+        cmdList.add(UpdateHostDevicesCmd.class);
         //object store APIs
         cmdList.add(AddObjectStoragePoolCmd.class);
         cmdList.add(ListObjectStoragePoolsCmd.class);
@@ -5789,7 +5894,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                         //     "License error for host " + host.getName(),
                         //     "License check failed: " + errorMessage
                         // );
-                    } else {
+        } else {
                         boolean isExpired = jsonNode.get("expiry_date").asBoolean();
                         boolean isIssued = jsonNode.get("issued_date").asBoolean();
                         String expiryDateStr = jsonNode.get("expired").asText();

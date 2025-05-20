@@ -28,7 +28,7 @@ import org.apache.cloudstack.api.EntityReference;
 
 
 @EntityReference(value = Host.class)
-public class ListHostDevicesResponse extends BaseResponse {
+public class ListHostUsbDevicesResponse extends BaseResponse {
 
     @SerializedName(ApiConstants.HOSTDEVICES_NAME)
     @Param(description = "Allocated IP address")
@@ -42,14 +42,14 @@ public class ListHostDevicesResponse extends BaseResponse {
     @Param(description = "Map of device to VM allocations")
     private Map<String, String> vmAllocations;
 
-    public ListHostDevicesResponse(List<String> hostDevicesName, List<String> hostDevicesText) {
+    public ListHostUsbDevicesResponse(List<String> hostDevicesName, List<String> hostDevicesText) {
         this.hostDevicesName = hostDevicesName;
         this.hostDevicesText = hostDevicesText;
     }
 
-    public ListHostDevicesResponse() {
+    public ListHostUsbDevicesResponse() {
         super();
-        this.setObjectName("listhostdevices");
+        this.setObjectName("listhostusbdevices");
     }
 
     public List<String> getHostDevicesNames() {

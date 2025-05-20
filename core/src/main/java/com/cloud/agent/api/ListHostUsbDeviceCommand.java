@@ -19,40 +19,40 @@
 
 package com.cloud.agent.api;
 
-import java.util.Collections;
 import java.util.List;
 
-public class ListHostDeviceAnswer extends Answer {
-    private boolean successMessage;
-    private List<String> hostDevicesNames;
+public class ListHostUsbDeviceCommand extends Command {
+
+    private List<String> hostDevicesName;
     private List<String> hostDevicesText;
+    private Long id;
 
-    public ListHostDeviceAnswer() {
+    public ListHostUsbDeviceCommand() {
+    }
+
+    public ListHostUsbDeviceCommand(Long id) {
         super();
+        this.id = id;
     }
 
-    public ListHostDeviceAnswer(boolean successMessage, List<String> hostDevicesNames, List<String> hostDevicesText) {
-        super();
-        this.successMessage = successMessage;
-        this.hostDevicesNames = hostDevicesNames;
-        this.hostDevicesText = hostDevicesText;
+    @Override
+    public boolean executeInSequence() {
+        return false;
     }
 
-    public List<String> getHostDevicesNames() {
-        if (hostDevicesText == null) {
-            return Collections.emptyList();
-        }
-        return hostDevicesNames;
+    public List<String> getHostDevicesName() {
+        return hostDevicesName;
     }
 
-    public List<String> getHostDevicesTexts() {
-        if (hostDevicesText == null) {
-            return Collections.emptyList();
-        }
+    public List<String> getHostDevicesText() {
         return hostDevicesText;
     }
 
-    public boolean isSuccessMessage() {
-        return successMessage;
+    public Long getId() {
+        return id;
+    }
+
+    public void setHostDevicesName(List<String> hostDevicesName) {
+        this.hostDevicesName = hostDevicesName;
     }
 }

@@ -165,6 +165,7 @@ public abstract class ServerResourceBase implements ServerResource {
 
     protected Answer listHostDevices() {
         List<String> hostDevicesText = new ArrayList<>();
+        List<String> hostDevicesNames = new ArrayList<>();
         Script listCommand = new Script("lspci");
         OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
         String result = listCommand.execute(parser);
@@ -178,7 +179,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
         }
-        return new ListHostDeviceAnswer(true, hostDevicesText);
+        return new ListHostDeviceAnswer(true, hostDevicesNames, hostDevicesText);
     }
 
     protected Answer createImageRbd(String poolUuid, String skey, String authUserName, String host, String names, long sizes, String poolPath) {

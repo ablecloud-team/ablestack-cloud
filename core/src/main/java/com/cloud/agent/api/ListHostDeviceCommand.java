@@ -51,4 +51,8 @@ public class ListHostDeviceCommand extends Command {
     public Long getId() {
         return id;
     }
+
+    public void setHostDevicesName(List<String> hostDevicesName) {
+        this.hostDevicesName = hostDevicesName;
+    }
 }

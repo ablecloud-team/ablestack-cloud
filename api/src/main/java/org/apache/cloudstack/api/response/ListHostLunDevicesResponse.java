@@ -20,36 +20,40 @@ package org.apache.cloudstack.api.response;
 import com.cloud.host.Host;
 import com.cloud.serializer.Param;
 import com.google.gson.annotations.SerializedName;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseResponse;
 import org.apache.cloudstack.api.EntityReference;
 
-
 @EntityReference(value = Host.class)
-public class ListHostDevicesResponse extends BaseResponse {
+public class ListHostLunDevicesResponse extends BaseResponse {
 
     @SerializedName(ApiConstants.HOSTDEVICES_NAME)
-    @Param(description = "Allocated IP address")
+    @Param(description = "Device names")
     private List<String> hostDevicesName;
 
     @SerializedName(ApiConstants.HOSTDEVICES_TEXT)
-    @Param(description = "the ID of the pod the  IP address belongs to")
+    @Param(description = "Device descriptions")
     private List<String> hostDevicesText;
 
     @SerializedName("vmallocations")
     @Param(description = "Map of device to VM allocations")
     private Map<String, String> vmAllocations;
 
-    public ListHostDevicesResponse(List<String> hostDevicesName, List<String> hostDevicesText) {
+    @SerializedName("haspartitions")
+    @Param(description = "Map of devices indicating whether they have partitions")
+    private Map<String, Boolean> partitionInfo = new HashMap<>();
+
+    public ListHostLunDevicesResponse(List<String> hostDevicesName, List<String> hostDevicesText) {
         this.hostDevicesName = hostDevicesName;
         this.hostDevicesText = hostDevicesText;
     }
 
-    public ListHostDevicesResponse() {
+    public ListHostLunDevicesResponse() {
         super();
-        this.setObjectName("listhostdevices");
+        this.setObjectName("listhostlundevices");
     }
 
     public List<String> getHostDevicesNames() {
@@ -76,4 +80,18 @@ public class ListHostDevicesResponse extends BaseResponse {
         return this.vmAllocations;
     }
 
+    public Map<String, Boolean> getPartitionInfo() {
+        return partitionInfo;
+    }
+
+    public void setPartitionInfo(Map<String, Boolean> partitionInfo) {
+        this.partitionInfo = partitionInfo;
+    }
+
+    public void addPartitionInfo(String deviceName, boolean hasPartition) {
+        if (this.partitionInfo == null) {
+            this.partitionInfo = new HashMap<>();
+        }
+        this.partitionInfo.put(deviceName, hasPartition);
+    }
 }

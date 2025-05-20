@@ -19,40 +19,40 @@
 
 package com.cloud.agent.api;
 
-import java.util.Collections;
+// import java.util.Collections;
 import java.util.List;
 
-public class ListHostDeviceAnswer extends Answer {
-    private boolean successMessage;
+public class ListHostLunDeviceAnswer extends Answer {
     private List<String> hostDevicesNames;
-    private List<String> hostDevicesText;
+    private List<String> hostDevicesTexts;
+    private List<Boolean> hasPartitions;
 
-    public ListHostDeviceAnswer() {
+    public ListHostLunDeviceAnswer(boolean success, List<String> hostDevicesNames, List<String> hostDevicesTexts, List<Boolean> hasPartitions) {
         super();
-    }
-
-    public ListHostDeviceAnswer(boolean successMessage, List<String> hostDevicesNames, List<String> hostDevicesText) {
-        super();
-        this.successMessage = successMessage;
         this.hostDevicesNames = hostDevicesNames;
-        this.hostDevicesText = hostDevicesText;
+        this.hostDevicesTexts = hostDevicesTexts;
+        this.hasPartitions = hasPartitions;
     }
 
+    // Getters and setters
     public List<String> getHostDevicesNames() {
-        if (hostDevicesText == null) {
-            return Collections.emptyList();
-        }
         return hostDevicesNames;
     }
 
-    public List<String> getHostDevicesTexts() {
-        if (hostDevicesText == null) {
-            return Collections.emptyList();
-        }
-        return hostDevicesText;
+    public void setHostDevicesNames(List<String> hostDevicesNames) {
+        this.hostDevicesNames = hostDevicesNames;
     }
 
-    public boolean isSuccessMessage() {
-        return successMessage;
+    public List<String> getHostDevicesTexts() {
+        return hostDevicesTexts;
     }
+
+    public void setHostDevicesTexts(List<String> hostDevicesTexts) {
+        this.hostDevicesTexts = hostDevicesTexts;
+    }
+
+    public List<Boolean> getHasPartitions() {
+        return hasPartitions;
+    }
+
 }
