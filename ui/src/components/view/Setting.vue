@@ -143,7 +143,7 @@ export default {
   },
   data () {
     return {
-      layoutMode: this.$config.theme['@layout-mode'] || 'light',
+      layoutMode: this.$localStorage.get('DARK_MODE') ? 'dark' : 'light',
       colorPick: this.$config.theme['@primary-color'],
       navBgColorPick: this.$config.theme['@navigation-background-color'],
       navTextColorPick: this.$config.theme['@navigation-text-color'],
@@ -229,7 +229,6 @@ export default {
   methods: {
     fetchData () {
       this.originalSetting = Object.assign({}, this.$config.theme)
-      this.layoutMode = this.$config.theme['@layout-mode'] || 'light'
       this.uiSettings = this.$config.theme
     },
     switchLayoutMode () {

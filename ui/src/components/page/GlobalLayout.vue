@@ -227,11 +227,16 @@ export default {
     }
   },
   mounted () {
-    const layoutMode = this.$config.theme['@layout-mode'] || 'light'
-    this.$store.dispatch('SetDarkMode', (layoutMode === 'dark'))
-    if (layoutMode === 'dark') {
-      document.body.classList.add('dark-mode')
-    }
+    // 시스템 테마 변경되었을때 감지 후 테마 변경
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
+      this.$localStorage.set('DARK_MODE', event.matches)
+      this.$store.dispatch('SetDarkMode', event.matches)
+      document.body.classList.toggle('dark-mode', event.matches)
+    })
+    // 로컬스토리지 다크 모드 확인 후 변경
+    const isDark = !!this.$localStorage.get('DARK_MODE')
+    this.$store.dispatch('SetDarkMode', isDark)
+    document.body.classList.toggle('dark-mode', isDark)
     const userAgent = navigator.userAgent
     if (userAgent.indexOf('Edge') > -1) {
       this.$nextTick(() => {

@@ -12,7 +12,8 @@ if [ "ablestack" == "$type" ]; then
   # 로고 파일 변경
   sed -i "/\"logo\"/ c\  \"logo\": \"assets/logo-ablestack.png\","  $config_path
   sed -i "/\"banner\"/ c\  \"banner\": \"assets/login-logo-ablestack.png\","  $config_path
-  sed -i "/\"minilogo\"/ c\  \"minilogo\": \"assets/mini-logo-ablestack.png\","  $config_path
+  sed -i "/\"miniLogo\"/ c\  \"miniLogo\": \"assets/mini-logo-ablestack.png\","  $config_path
+  sed -i "/\"whiteLogo\"/ c\  \"whiteLogo\": \"assets/white-logo-ablestack.png\","  $config_path
 
   # 저작권 표시 변경
   sed -i "/\"footer\"/ c\  \"footer\": \"ⓒ 2021-2025 ABLECLOUD Inc. All Rights Reserved.\","  $config_path
@@ -42,7 +43,8 @@ elif [ "clostack" == "$type" ]; then
   # 로고 파일 변경
   sed -i "/\"logo\"/ c\  \"logo\": \"assets/logo-clostack.png\","  $config_path
   sed -i "/\"banner\"/ c\  \"banner\": \"assets/login-logo-clostack.png\","  $config_path
-  sed -i "/\"minilogo\"/ c\  \"minilogo\": \"assets/mini-logo-ablestack.png\","  $config_path
+  sed -i "/\"miniLogo\"/ c\  \"miniLogo\": \"assets/mini-logo-ablestack.png\","  $config_path
+  sed -i "/\"whiteLogo\"/ c\  \"whiteLogo\": \"assets/white-logo-clostack.png\","  $config_path
 
   # 저작권 표시 변경
   sed -i "/\"footer\"/ c\  \"footer\": \"ⓒ 2025 ITCEN CLOIT. All Rights Reserved.\","  $config_path
@@ -71,7 +73,8 @@ elif [ "hv" == "$type" ]; then
   # 로고 파일 변경
   sed -i "/\"logo\"/ c\  \"logo\": \"assets/logo-hv.png\","  $config_path
   sed -i "/\"banner\"/ c\  \"banner\": \"assets/login-logo-hv.png\","  $config_path
-  sed -i "/\"minilogo\"/ c\  \"minilogo\": \"assets/mini-logo-hv.png\","  $config_path
+  sed -i "/\"miniLogo\"/ c\  \"miniLogo\": \"assets/mini-logo-hv.png\","  $config_path
+  sed -i "/\"whiteLogo\"/ c\  \"whiteLogo\": \"assets/white-logo-hv.png\","  $config_path
 
   # 저작권 표시 변경
   sed -i "/\"footer\"/ c\  \"footer\": \"© HS HYOSUNG INFORMATION SYSTEMS\","  $config_path

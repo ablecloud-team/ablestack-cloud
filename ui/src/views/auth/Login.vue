@@ -242,7 +242,8 @@ export default {
       server: '',
       forgotPasswordEnabled: false,
       loginTitle: this.$config.loginTitle,
-      buildVersion: this.$config.buildVersion
+      buildVersion: this.$config.buildVersion,
+      logoPath: this.$config.logo
     }
   },
   created () {

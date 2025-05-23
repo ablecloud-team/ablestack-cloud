@@ -28,13 +28,15 @@
     <NicsTable :resource="resource" :loading="loading">
       <template #actions="record">
         <a-popconfirm
-        :title="$t('label.set.default.nic')"
+          v-if="!record.nic.isdefault"
+          :title="$t('message.set.default.nic')"
           @confirm="setAsDefault(record.nic)"
           :okText="$t('label.yes')"
-         :cancelText="$t('label.no')"
-          v-if="!record.nic.isdefault"
-        >
+          :cancelText="$t('label.no')"
+          >
           <tooltip-button
+            class="action-button"
+            :shape="'round'"
             tooltipPlacement="bottom"
             :tooltip="$t('label.set.default.nic')"
             :disabled="!('updateDefaultNicForVirtualMachine' in $store.getters.apis)"
@@ -42,6 +44,8 @@
         </a-popconfirm>
         <tooltip-button
           v-if="record.nic.type !== 'L2'"
+          class="action-button"
+          :shape="'round'"
           tooltipPlacement="bottom"
           :tooltip="$t('label.change.ip.address')"
           icon="swap-outlined"
@@ -49,11 +53,26 @@
           @onClick="onChangeIPAddress(record)" />
         <tooltip-button
           v-if="record.nic.type !== 'L2'"
+          class="action-button"
+          :shape="'round'"
           tooltipPlacement="bottom"
           :tooltip="$t('label.edit.secondary.ips')"
           icon="environment-outlined"
           :disabled="(!('addIpToNic' in $store.getters.apis) && !('addIpToNic' in $store.getters.apis))"
           @onClick="onAcquireSecondaryIPAddress(record)" />
+        <a-popconfirm
+          :title="`${record.nic.linkstate ? $t('label.action.nic.linkstate.down') : $t('label.action.nic.linkstate.up')}`"
+          @confirm="onChangeNicLinkState(record)"
+          :okText="$t('label.yes')"
+          :cancelText="$t('label.no')">
+          <tooltip-button
+            class="action-button"
+            :shape="'round'"
+            tooltipPlacement="top"
+            :tooltip="$t('label.action.nic.linkstate')"
+            :type="record.nic.linkstate ? 'primary' : ''"
+            icon="wifi-outlined" />
+        </a-popconfirm>
         <a-popconfirm
           :title="$t('message.network.removenic')"
           @confirm="removeNIC(record.nic)"
@@ -62,6 +81,8 @@
           v-if="!record.nic.isdefault"
         >
           <tooltip-button
+            class="action-button"
+            :shape="'round'"
             tooltipPlacement="bottom"
             :tooltip="$t('label.action.remove.nic')"
             :disabled="!('removeNicFromVirtualMachine' in $store.getters.apis)"
@@ -69,18 +90,6 @@
             :danger="true"
             icon="delete-outlined" />
         </a-popconfirm>
-        <a-popconfirm
-              :title="`${record.nic.linkstate ? $t('label.action.nic.linkstate.down') : $t('label.action.nic.linkstate.up')}`"
-              @confirm="onChangeNicLinkState(record)"
-              :okText="$t('label.yes')"
-              :cancelText="$t('label.no')"
-            >
-              <tooltip-button
-                tooltipPlacement="top"
-                :tooltip="$t('label.action.nic.linkstate')"
-                :type="record.nic.linkstate ? 'primary' : ''"
-                icon="wifi-outlined" />
-            </a-popconfirm>
       </template>
     </NicsTable>
 

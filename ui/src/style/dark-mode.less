@@ -45,7 +45,11 @@
   }
 
   td.ant-table-column-sort {
-      background: @dark-secondary-bgColor;
+    background: @dark-secondary-bgColor;
+  }
+
+  .ant-select-multiple, .ant-select-selection-item {
+    background: @dark-border-color;
   }
 
   tr.ant-table-expanded-row,
@@ -100,7 +104,6 @@
 
   .sider.light {
     background: @dark-secondary-bgColor;
-    padding-top: 15px;
 
     .logo {
       background-color: @dark-secondary-bgColor;
@@ -296,7 +299,7 @@
       & > tr:hover.ant-table-row-selected > td,
       & > tr.ant-table-row-hover:not(.ant-table-expanded-row):not(.ant-table-row-selected) > td,
       & > tr:hover:not(.ant-table-expanded-row):not(.ant-table-row-selected) > td {
-        background-color: transparent;
+        background-color: @table-body-hover-bgColor;
       }
     }
 
@@ -316,8 +319,11 @@
         background: @dark-secondary-bgColor;
       }
 
+      & > tr > td.ant-table-cell {
+        background: @dropdown-hover-bgColor;
+      }
       & > tr.ant-table-row:hover > td, & > tr > td.ant-table-cell-row-hover {
-        background: transparent;
+        background: @dark-secondary-bgColor;
       }
     }
 
