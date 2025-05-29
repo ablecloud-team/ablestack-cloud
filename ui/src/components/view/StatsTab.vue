@@ -465,10 +465,10 @@ export default {
       var formatedStartDate = null
       var formatedEndDate = null
       if (this.startDate) {
-        formatedStartDate = moment(this.startDate).format('MMM DD, YYYY') + ' at ' + moment(this.startDate).format('HH:mm:ss')
+        formatedStartDate = moment(this.startDate).format('YYYY-MM-DD HH:mm:ss')
       }
       if (this.endDate) {
-        formatedEndDate = moment(this.endDate).format('MMM DD, YYYY') + ' at ' + moment(this.endDate).format('HH:mm:ss')
+        formatedEndDate = moment(this.endDate).format('YYYY-MM-DD HH:mm:ss')
       }
       if (formatedStartDate && formatedEndDate) {
         this.formatedPeriod = ' ' + this.$t('label.vm.stats.filter.period', { startDate: formatedStartDate, endDate: formatedEndDate })

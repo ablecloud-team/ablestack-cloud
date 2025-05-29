@@ -748,7 +748,8 @@ export default {
         diskofferingstrictness: this.diskofferingstrictness,
         encryptdisk: this.encryptdisk,
         kvdoenable: false,
-        shareable: false
+        shareable: false,
+        networkrate: 10000
       })
       this.rules = reactive({
         name: [{ required: true, message: this.$t('message.error.required.input') }],
@@ -780,7 +781,10 @@ export default {
           { required: true, message: this.$t('message.error.required.input') },
           this.naturalNumberRule
         ],
-        networkrate: [this.naturalNumberRule],
+        networkrate: [
+          { required: true, message: this.$t('message.error.required.input') },
+          this.naturalNumberRule
+        ],
         rootdisksize: [this.naturalNumberRule],
         diskbytesreadrate: [this.naturalNumberRule],
         diskbyteswriterate: [this.naturalNumberRule],

@@ -24,44 +24,43 @@
     :pagination="false"
   >
     <template #expandedRowRender="{ record }">
-      <slot name="actions" :nic="record" />
-      <a-descriptions style="margin-top: 10px" layout="vertical" :column="1" :bordered="false" size="small">
-        <a-descriptions-item :label="$t('label.nic.linkstate')">
-            {{ record.linkstate ? 'UP' : 'DOWN' }}
-        </a-descriptions-item>
-        <a-descriptions-item :label="$t('label.id')">
-          {{ record.id }}
-        </a-descriptions-item>
-        <a-descriptions-item :label="$t('label.networkid')" v-if="record.networkid">
-          {{ record.networkid }}
-        </a-descriptions-item>
-        <a-descriptions-item :label="$t('label.type')" v-if="record.type">
-          {{ record.type }}
-        </a-descriptions-item>
-        <a-descriptions-item :label="$t('label.traffictype')" v-if="record.traffictype">
-          {{ record.traffictype }}
-        </a-descriptions-item>
-        <a-descriptions-item :label="$t('label.secondaryips')" v-if="record.secondaryip && record.secondaryip.length > 0 && record.type !== 'L2'">
-          {{ record.secondaryip.map(x => x.ipaddress).join(', ') }}
-        </a-descriptions-item>
-        <a-descriptions-item :label="$t('label.ip6address')" v-if="record.ip6address">
-          {{ record.ip6address }}
-        </a-descriptions-item>
-        <a-descriptions-item :label="$t('label.ip6gateway')" v-if="record.ip6gateway">
-          {{ record.ip6gateway }}
-        </a-descriptions-item>
-        <a-descriptions-item :label="$t('label.ip6cidr')" v-if="record.ip6cidr">
-          {{ record.ip6cidr }}
-        </a-descriptions-item>
-        <template v-if="['Admin', 'DomainAdmin'].includes($store.getters.userInfo.roletype)">
-          <a-descriptions-item :label="$t('label.broadcasturi')" v-if="record.broadcasturi">
-            {{ record.broadcasturi }}
-          </a-descriptions-item>
-          <a-descriptions-item :label="$t('label.isolationuri')" v-if="record.isolationuri">
-            {{ record.isolationuri }}
-          </a-descriptions-item>
-        </template>
-      </a-descriptions>
+    <slot name="actions" :nic="record" />
+    <a-list size="small">
+      <a-list-item />
+      <a-list-item>
+        <strong>{{ $t('label.nic.linkstate') }}</strong> : {{ record.linkstate ? 'UP' : 'DOWN' }}
+      </a-list-item>
+      <a-list-item>
+        <strong>{{ $t('label.id') }}</strong> : {{ record.id }}
+      </a-list-item>
+      <a-list-item v-if="record.networkid">
+        <strong>{{ $t('label.networkid') }}</strong> : {{ record.networkid }}
+      </a-list-item>
+      <a-list-item v-if="record.type">
+        <strong>{{ $t('label.type') }}</strong> : {{ record.type }}
+      </a-list-item>
+      <a-list-item v-if="record.traffictype">
+        <strong>{{ $t('label.traffictype') }}</strong> : {{ record.traffictype }}
+      </a-list-item>
+      <a-list-item v-if="record.secondaryip && record.secondaryip.length > 0 && record.type !== 'L2'">
+        <strong>{{ $t('label.secondaryips') }}</strong> : {{ record.secondaryip.map(x => x.ipaddress).join(', ') }}
+      </a-list-item>
+      <a-list-item v-if="record.ip6address">
+        <strong>{{ $t('label.ip6address') }}</strong> : {{ record.ip6address }}
+      </a-list-item>
+      <a-list-item v-if="record.ip6address">
+        <strong>{{ $t('label.ip6gateway') }}</strong> : {{ record.ip6gateway }}
+      </a-list-item>
+      <a-list-item v-if="record.ip6address">
+        <strong>{{ $t('label.ip6cidr') }}</strong> : {{ record.ip6cidr }}
+      </a-list-item >
+      <a-list-item v-if="['Admin', 'DomainAdmin'].includes($store.getters.userInfo.roletype) && record.broadcasturi">
+        <strong>{{ $t('label.broadcasturi') }}</strong> : {{ record.broadcasturi }}
+      </a-list-item>
+      <a-list-item v-if="record.isolationuri">
+        <strong>{{ $t('label.isolationuri') }}</strong> : {{ record.isolationuri }}
+      </a-list-item>
+    </a-list>
     </template>
     <template #bodyCell="{ column, text, record }">
       <template v-if="column.key === 'networkname'">

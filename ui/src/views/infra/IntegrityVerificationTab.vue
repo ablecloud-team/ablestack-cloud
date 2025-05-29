@@ -53,7 +53,7 @@
       </template>
       <template #expandedRowRender="{ record } ">
         <a-table
-          style="margin: 10px 0;"
+          style="margin: 0;"
           :columns="innerColumns"
           :dataSource="integrityVerificationFinalResultTwo"
           :pagination="false"

@@ -112,8 +112,7 @@
         :columns="columns"
         :row-key="record => record.name"
         :data-source="dataSource"
-        :pagination="{ current: page, pageSize: pageSize, total: total }"
-        @change="handleTableChange">
+        :pagination="false" >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key == 'name'">
             <template v-if="record.isdirectory">
@@ -223,6 +222,24 @@
             </template>
           </template>
       </a-table>
+      <a-pagination
+        class="row-element"
+        style="margin-top: 10px"
+        size="small"
+        :current="page"
+        :pageSize="pageSize"
+        :total="total"
+        :showTotal="total => this.$localStorage.get('LOCALE') == 'ko_KR' ?
+          `${$t('label.total')} ${total} ${$t('label.items')} ${$t('label.of')} ${Math.min(total, 1+((page-1)*pageSize))}-${Math.min(page*pageSize, total)} ${$t('label.showing')}` :
+          `${$t('label.showing')} ${Math.min(total, 1+((page-1)*pageSize))}-${Math.min(page*pageSize, total)} ${$t('label.of')} ${total} ${$t('label.items')}`"
+        :pageSizeOptions="pageSizeOptions"
+        @change="changePage"
+        @showSizeChange="changePage"
+        showSizeChanger>
+        <template #buildOptionText="props">
+          <span>{{ props.value }} / {{ $t('label.page') }}</span>
+        </template>
+      </a-pagination>
       <a-modal
         :visible="showAddTypeModal"
         :title="$t('label.volumetype')"
@@ -320,6 +337,17 @@ export default {
       targetSize: ''
     }
   },
+  computed: {
+    pageSizeOptions () {
+      var sizes = [20, 50, 100, 200, this.$store.getters.defaultListViewPageSize]
+      if (this.device !== 'desktop') {
+        sizes.unshift(10)
+      }
+      return [...new Set(sizes)].sort(function (a, b) {
+        return a - b
+      }).map(String)
+    }
+  },
   created () {
     this.initForm()
     this.fetchData()
@@ -338,6 +366,11 @@ export default {
         this.templateIdsToMigrate.push(record.templateid)
       }
       this.showMigrateModal = true
+    },
+    changePage (page, pageSize) {
+      this.page = page
+      this.pageSize = pageSize
+      this.fetchData()
     },
     handleTableChange (pagination, filters, sorter) {
       this.page = pagination.current

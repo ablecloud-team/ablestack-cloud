@@ -21,6 +21,7 @@ import com.cloud.host.Host;
 import com.cloud.serializer.Param;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
+import java.util.Map;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseResponse;
 import org.apache.cloudstack.api.EntityReference;
@@ -36,6 +37,10 @@ public class ListHostDevicesResponse extends BaseResponse {
     @SerializedName(ApiConstants.HOSTDEVICES_TEXT)
     @Param(description = "the ID of the pod the  IP address belongs to")
     private List<String> hostDevicesText;
+
+    @SerializedName("vmallocations")
+    @Param(description = "Map of device to VM allocations")
+    private Map<String, String> vmAllocations;
 
     public ListHostDevicesResponse(List<String> hostDevicesName, List<String> hostDevicesText) {
         this.hostDevicesName = hostDevicesName;
@@ -61,6 +66,14 @@ public class ListHostDevicesResponse extends BaseResponse {
 
     public void setHostDevicesTexts(List<String> hostDevicesText) {
         this.hostDevicesText = hostDevicesText;
+    }
+
+    public void setVmAllocations(Map<String, String> vmAllocations) {
+        this.vmAllocations = vmAllocations;
+    }
+
+    public Map<String, String> getVmAllocations() {
+        return this.vmAllocations;
     }
 
 }

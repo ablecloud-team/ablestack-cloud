@@ -113,6 +113,9 @@ import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.Command;
 import com.cloud.agent.api.HostVmStateReportEntry;
 import com.cloud.agent.api.ListHostDeviceCommand;
+// import com.cloud.agent.api.ListHostLunDeviceCommand;
+// import com.cloud.agent.api.ListHostUsbDeviceCommand;
+// import com.cloud.agent.api.UpdateHostUsbDeviceCommand;
 import com.cloud.agent.api.PingCommand;
 import com.cloud.agent.api.PingRoutingCommand;
 import com.cloud.agent.api.PingRoutingWithNwGroupsCommand;
@@ -5511,6 +5514,31 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             throw new IllegalArgumentException("Host ID cannot be null");
         }
     }
+
+    // public Answer listHostUsbDevices(ListHostUsbDeviceCommand command) {
+    //     logger.info("listusb: " + command.getId());
+    //     if (command.getId() != null) {
+    //         // 상위 클래스의 메서드를 호출
+    //         return super.listHostUsbDevices(command);
+    //     } else {
+    //         throw new IllegalArgumentException("Host ID cannot be null");
+    //     }
+    // }
+
+    // public Answer listHostLunDevices(ListHostLunDeviceCommand command) {
+    //     logger.info("listlun: " + command.getId());
+    //     if (command.getId() != null) {
+    //         // 상위 클래스의 메서드를 호출
+    //         return super.listHostLunDevices(command);
+    //     } else {
+    //         throw new IllegalArgumentException("Host ID cannot be null");
+    //     }
+    // }
+    // public Answer updateHostUsbDevices(UpdateHostUsbDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+    //     logger.info("Received USB device update command - VM: {}, isAttach: {}, xmlConfig: {}",
+    //         vmName, isAttach, xmlConfig);
+    //     return super.updateHostUsbDevices(command, vmName, xmlConfig, isAttach);
+    // }
 
     public Answer listFilesAtPath(ListDataStoreObjectsCommand command) {
         DataStoreTO store = command.getStore();

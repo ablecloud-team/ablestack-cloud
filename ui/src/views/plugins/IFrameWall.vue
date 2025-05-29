@@ -42,6 +42,8 @@ export default {
   },
   methods: {
     urlAction (hypervisortype) {
+      const theme = this.$localStorage.get('DARK_MODE') ? '&theme=dark' : '&theme=light'
+
       api('listConfigurations', { keyword: 'monitoring.wall.portal' }).then(json => {
         var items = json.listconfigurationsresponse.configuration
         var wallPortalProtocol = items.filter(x => x.name === 'monitoring.wall.portal.protocol')[0]?.value
@@ -53,10 +55,10 @@ export default {
         var uri = wallPortalProtocol + '://' + wallPortalDomain + ':' + wallPortalPort
         if (typeof hypervisortype !== 'undefined' && hypervisortype !== null && hypervisortype !== '') {
           const clusterUriPath = items.filter(x => x.name === 'monitoring.wall.portal.cluster.uri')[0]?.value
-          this.uriInfo = uri + clusterUriPath + '&theme=light'
+          this.uriInfo = uri + clusterUriPath + theme
         } else {
           const hostUriPath = items.filter(x => x.name === 'monitoring.wall.portal.host.uri')[0]?.value
-          this.uriInfo = uri + hostUriPath + '&theme=light&var-host=' + this.resource.ipaddress
+          this.uriInfo = uri + hostUriPath + '&var-host=' + this.resource.ipaddress + theme
         }
         this.uriCreateOk = true
       })

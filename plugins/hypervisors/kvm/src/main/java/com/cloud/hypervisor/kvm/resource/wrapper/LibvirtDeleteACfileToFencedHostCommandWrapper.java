@@ -26,10 +26,8 @@ import org.libvirt.StoragePool;
 import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.DeleteACfileToFencedHostCommand;
 import com.cloud.agent.api.to.StorageFilerTO;
-import com.cloud.hypervisor.kvm.resource.KVMHABase.HAStoragePool;
 import com.cloud.hypervisor.kvm.storage.KVMStoragePool;
 import com.cloud.hypervisor.kvm.storage.KVMStoragePoolManager;
-import com.cloud.hypervisor.kvm.resource.KVMHAMonitor;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.hypervisor.kvm.resource.LibvirtConnection;
 import com.cloud.hypervisor.kvm.resource.LibvirtStoragePoolDef;
@@ -37,7 +35,6 @@ import com.cloud.hypervisor.kvm.resource.LibvirtStoragePoolDef.PoolType;
 import com.cloud.hypervisor.kvm.resource.LibvirtStoragePoolXMLParser;
 import com.cloud.resource.CommandWrapper;
 import com.cloud.resource.ResourceWrapper;
-import com.cloud.storage.Storage;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.script.Script;
 
@@ -46,17 +43,11 @@ public final class LibvirtDeleteACfileToFencedHostCommandWrapper extends Command
 
     @Override
     public Answer execute(final DeleteACfileToFencedHostCommand command, final LibvirtComputingResource libvirtComputingResource) {
-        final KVMHAMonitor monitor = libvirtComputingResource.getMonitor();
         final StorageFilerTO pool = command.getPool();
         final KVMStoragePoolManager storagePoolMgr = libvirtComputingResource.getStoragePoolMgr();
 
         KVMStoragePool primaryPool = storagePoolMgr.getStoragePool(pool.getType(), pool.getUuid());
         if (primaryPool.isPoolSupportHA()){
-            HAStoragePool haStoragePool = null;
-            if (Storage.StoragePoolType.NetworkFilesystem == pool.getType()) {
-                haStoragePool = monitor.getStoragePool(pool.getUuid());
-                haStoragePool.getMountDestPath();
-            }
 
             logger.info("RBD Pool or GFS Pool Setting...");
             Connect conn = null;
@@ -66,9 +57,6 @@ public final class LibvirtDeleteACfileToFencedHostCommandWrapper extends Command
                 throw new CloudRuntimeException(e.toString());
             }
 
-            String rbdPoolName = "";
-            String authUserName = "";
-            String nfsOrSmpTargetPath = "";
             try {
                 String[] poolnames = conn.listStoragePools();
                 if (poolnames.length == 0) {
@@ -85,16 +73,13 @@ public final class LibvirtDeleteACfileToFencedHostCommandWrapper extends Command
                     }
                     if (pdef.getPoolType() == PoolType.RBD) {
                         logger.debug(String.format("RBD Pool name [%s] auth name [%s]", pdef.getSourceDir(), pdef.getAuthUserName()));
-                        rbdPoolName = pdef.getSourceDir();
-                        authUserName = pdef.getAuthUserName();
-
-                        Script.runSimpleBashScript("rbd -p " + rbdPoolName + " --id " + authUserName + " rm MOLD-AC");
+                        Script.runSimpleBashScript("rbd -p " + pdef.getSourceDir() + " --id " + pdef.getAuthUserName() + " -m " + pdef.getSourceHost() + " -K /var/lib/libvirt/images/"+ pdef.getPoolName()+ " rm MOLD-HB");
+                        Script.runSimpleBashScript("rbd -p " + pdef.getSourceDir() + " --id " + pdef.getAuthUserName() + " -m " + pdef.getSourceHost() + " -K /var/lib/libvirt/images/"+ pdef.getPoolName()+ " rm MOLD-AC");
                     }
                     if (pdef.getPoolType() == PoolType.DIR || pdef.getPoolType() == PoolType.NETFS) {
                         logger.debug(String.format("SharedMountPoint Pool source path [%s]", pdef.getTargetPath()));
-                        nfsOrSmpTargetPath = pdef.getTargetPath();
 
-                        Script.runSimpleBashScript("rm -rf " + nfsOrSmpTargetPath + "/MOLD-AC");
+                        Script.runSimpleBashScript("rm -rf " + pdef.getTargetPath() + "/MOLD-AC");
                     }
                 }
                 return new Answer(command, true, "success");

@@ -115,6 +115,19 @@
           :virtualmachine="vm"
           :loading="loading"/>
       </a-tab-pane>
+      <a-tab-pane :tab="$t('label.listhostdevices')" key="pcidevices" v-if="hasPciDevices">
+        <div v-if="pciDevices.length > 0">
+          <a-table
+            :columns="pciColumns"
+            :dataSource="pciDevices"
+            :pagination="false"
+            :loading="loading">
+          </a-table>
+        </div>
+        <div v-else>
+          {{ $t('label.no.pci.devices') }}
+        </div>
+      </a-tab-pane>
       <a-tab-pane :tab="$t('label.settings')" key="settings">
         <DetailSettings :resource="dataResource" :loading="loading" />
       </a-tab-pane>
@@ -262,7 +275,21 @@ export default {
       editNicLinkStat: '',
       dataPreFill: {},
       securitygroupids: [],
-      securityGroupNetworkProviderUseThisVM: false
+      securityGroupNetworkProviderUseThisVM: false,
+      hasPciDevices: false,
+      pciDevices: [],
+      pciColumns: [
+        {
+          title: this.$t('label.name'),
+          dataIndex: 'hostDevicesName',
+          key: 'hostDevicesName'
+        },
+        {
+          title: this.$t('label.details'),
+          dataIndex: 'hostDevicesText',
+          key: 'hostDevicesText'
+        }
+      ]
     }
   },
   created () {
@@ -296,21 +323,7 @@ export default {
     setCurrentTab () {
       this.currentTab = this.$route.query.tab ? this.$route.query.tab : 'details'
     },
-    handleChangeTab (e) {
-      this.currentTab = e
-      const query = Object.assign({}, this.$route.query)
-      query.tab = e
-      history.pushState(
-        {},
-        null,
-        '#' + this.$route.path + '?' + Object.keys(query).map(key => {
-          return (
-            encodeURIComponent(key) + '=' + encodeURIComponent(query[key])
-          )
-        }).join('&')
-      )
-    },
-    fetchData () {
+    async fetchData () {
       this.annotations = []
       if (!this.vm || !this.vm.id) {
         return
@@ -339,6 +352,17 @@ export default {
           }
         }
       })
+
+      // PCI 디바이스 할당 여부만 확인
+      this.hasPciDevices = false
+      if (this.vm.details) {
+        for (const [key, value] of Object.entries(this.vm.details)) {
+          if (key.startsWith('extraconfig-') && value.includes('<hostdev')) {
+            this.hasPciDevices = true
+            break
+          }
+        }
+      }
     },
     listDiskOfferings () {
       api('listDiskOfferings', {
@@ -390,6 +414,48 @@ export default {
     },
     removeMirror () {
       this.showRemoveMirrorVMModal = true
+    },
+    async handleChangeTab (activeKey) {
+      if (activeKey === 'pcidevices') {
+        await this.fetchPciDevices()
+      }
+      if (this.currentTab !== activeKey) {
+        this.currentTab = activeKey
+      }
+    },
+    async fetchPciDevices () {
+      this.pciDevices = []
+      if (!this.vm.hostid) return
+
+      try {
+        const vmNumericId = this.vm.instancename.split('-')[2]
+        if (!vmNumericId) {
+          console.error('Failed to get VM numeric ID')
+          return
+        }
+
+        const response = await api('listHostDevices', {
+          id: this.vm.hostid
+        })
+
+        const devices = response?.listhostdevicesresponse?.listhostdevices?.[0]
+        if (devices && devices.vmallocations) {
+          Object.entries(devices.vmallocations).forEach(([deviceName, vmId]) => {
+            if (vmId === vmNumericId) {
+              const deviceIndex = devices.hostdevicesname.findIndex(name => name === deviceName)
+              if (deviceIndex !== -1) {
+                this.pciDevices.push({
+                  key: deviceName,
+                  hostDevicesName: devices.hostdevicesname[deviceIndex],
+                  hostDevicesText: devices.hostdevicestext[deviceIndex]
+                })
+              }
+            }
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching PCI devices:', error)
+      }
     }
   }
 }

@@ -26,7 +26,6 @@
       <template #renderItem="{ item, index }">
         <a-list-item :key="item.id" @click="onClickRow(item)">
           <a-radio-group
-            class="radio-group"
             :key="index"
             v-model:value="value"
             @change="($event) => updateSelectionTemplateIso($event.target.value)">

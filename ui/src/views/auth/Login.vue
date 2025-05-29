@@ -196,7 +196,7 @@
         <span v-html="$config.footer" />
       </div>
       <div class="line" v-if="$store.getters.userInfo.roletype === 'Admin','User'">
-        ABLESTACK {{ buildVersion }}
+        {{ loginTitle }} {{ buildVersion }}
       </div>
     </div>
   </a-form>
@@ -241,7 +241,9 @@ export default {
       },
       server: '',
       forgotPasswordEnabled: false,
-      buildVersion: this.$config.buildVersion
+      loginTitle: this.$config.loginTitle,
+      buildVersion: this.$config.buildVersion,
+      logoPath: this.$config.logo
     }
   },
   created () {

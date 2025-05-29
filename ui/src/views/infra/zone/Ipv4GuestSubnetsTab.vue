@@ -54,7 +54,9 @@
             <router-link :to="{ name: 'ipv4subnets', query: { parentid: record.id }}">
               <tooltip-button
                 tooltipPlacement="bottom"
-                :tooltip="$t('label.view') + ' ' + $t('label.ipv4.subnets')"
+                :tooltip="this.$localStorage.get('LOCALE') == 'ko_KR' ?
+                $t('label.ipv4.subnets') + ' ' + $t('label.view') :
+                $t('label.view') + ' ' + $t('label.ipv4.subnets')"
                 icon="environment-outlined"/>
             </router-link>
             <tooltip-button

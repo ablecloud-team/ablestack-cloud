@@ -34,7 +34,7 @@
       <a-form-item :label="$t('label.only.start.date.and.time')" ref="allData" name="allData">
         <a-switch v-model:checked="onlyStartDateIsChecked" @change="onToggleStartDate"/>
       </a-form-item>
-      <a-form-item :label="$t('label.start.date.and.time')" ref="startDate" name="startDate" :rules="[{ required: showStartDate, message: `${this.$t('message.error.start.date.and.time')}` }]">
+      <a-form-item :label="$t('label.start.date.and.time')" ref="startDate" name="startDate">
         <a-date-picker
           v-model:value="form.startDate"
           show-time
@@ -45,7 +45,7 @@
       <a-form-item :label="$t('label.only.end.date.and.time')">
         <a-switch v-model:checked="onlyEndDateIsChecked"  @change="onToggleEndDate"/>
       </a-form-item>
-      <a-form-item :label="$t('label.end.date.and.time')" ref="endDate" name="endDate" :rules="[{ required: showEndDate, message: `${this.$t('message.error.end.date.and.time')}` }]">
+      <a-form-item :label="$t('label.end.date.and.time')" ref="endDate" name="endDate">
         <a-date-picker
           v-model:value="form.endDate"
           show-time
@@ -61,7 +61,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import moment from 'moment'
+// import moment from 'moment'
 
 export default {
   name: 'DateTimeFilter',
@@ -84,20 +84,7 @@ export default {
       value: ''
     }
   },
-  computed: {
-    startDate () {
-      if (this.startDateProp) {
-        return moment(this.startDateProp)
-      }
-      return null
-    },
-    endDate () {
-      if (this.endDateProp) {
-        return moment(this.endDateProp)
-      }
-      return null
-    }
-  },
+  computed: {},
   data () {
     return {
       allDataIsChecked: false,

@@ -199,13 +199,6 @@ export default {
     mainMenu (newMenu) {
       this.menus = newMenu.find((item) => item.path === '/').children
     },
-    '$store.getters.darkMode' (darkMode) {
-      if (darkMode) {
-        document.body.classList.add('dark-mode')
-      } else {
-        document.body.classList.remove('dark-mode')
-      }
-    },
     '$store.getters.countNotify' (countNotify) {
       this.showClear = false
       if (countNotify && countNotify > 0) {
@@ -227,11 +220,6 @@ export default {
     }
   },
   mounted () {
-    const layoutMode = this.$config.theme['@layout-mode'] || 'light'
-    this.$store.dispatch('SetDarkMode', (layoutMode === 'dark'))
-    if (layoutMode === 'dark') {
-      document.body.classList.add('dark-mode')
-    }
     const userAgent = navigator.userAgent
     if (userAgent.indexOf('Edge') > -1) {
       this.$nextTick(() => {

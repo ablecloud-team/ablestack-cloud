@@ -108,7 +108,9 @@
         :current="options.page"
         :pageSize="options.pageSize"
         :total="itemCount"
-        :showTotal="total => `${$t('label.showing')} ${Math.min(total, 1+((options.page-1)*options.pageSize))}-${Math.min(options.page*options.pageSize, total)} ${$t('label.of')} ${total} ${$t('label.items')}`"
+        :showTotal="total => this.$localStorage.get('LOCALE') == 'ko_KR' ?
+            `${$t('label.total')} ${total} ${$t('label.items')} ${$t('label.of')} ${Math.min(total, 1+((options.page-1)*options.pageSize))}-${Math.min(options.page*options.pageSize, total)} ${$t('label.showing')}` :
+            `${$t('label.showing')} ${Math.min(total, 1+((options.page-1)*options.pageSize))}-${Math.min(options.page*options.pageSize, total)} ${$t('label.of')} ${total} ${$t('label.items')}`"
         :pagination="{showSizeChanger: true, total: total}"
         :pageSizeOptions="['10', '20', '40', '80', '100']"
         @change="handleTableChange"

@@ -39,6 +39,7 @@ interval=0
 rflag=0
 cflag=0
 UUIDList=
+skeyPath="/var/lib/libvirt/images/"
 
 while getopts 'p:n:s:h:i:t:u:r:c' OPTION
 do
@@ -81,24 +82,24 @@ if [ -z "$PoolName" ]; then
 fi
 
 # rados object touch action for vol list
-res=$(rbd -p $PoolName ls --id $PoolAuthUserName | grep MOLD-AC)
+res=$(rbd -p $PoolName ls --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret | grep MOLD-AC)
 if [ $? -gt 0 ]; then
-  rbd -p $PoolName create --size 1 --id $PoolAuthUserName MOLD-AC
+  rbd -p $PoolName create --size 1 --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret MOLD-AC
 fi
 
 timestamp=$(date +%s)
 
 if [ -n "$UUIDList" ]; then
     for uuid in $(echo $UUIDList | sed 's/,/ /g'); do
-      objId=$(rbd -p $PoolName info $uuid --id $PoolAuthUserName | grep 'id:')
+      objId=$(rbd -p $PoolName info $uuid --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret | grep 'id:')
       objId=${objId#*id: }
       res=$(timeout 3s bash -c "rados -p $PoolName touch rbd_object_map.$objId")
       if [ $? -eq 0 ]; then
         # 정상적인 touch 상태면 image meta에 key: uuid / value : timestamp 입력
-        rbd -p $PoolName --id $PoolAuthUserName image-meta set MOLD-AC $uuid $HostIP:$timestamp
+        rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta set MOLD-AC $uuid $HostIP:$timestamp
       else
         # 정상적으로 touch 상태가 아니면 image meta에 key : uuid 삭제
-        rbd -p $PoolName --id $PoolAuthUserName image-meta rm MOLD-AC $uuid
+        rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta rm MOLD-AC $uuid
       fi
     done
 fi
@@ -106,13 +107,13 @@ fi
 #write the heart beat log
 write_hbLog() {
   Timestamp=$(date +%s)
-  obj=$(rbd -p $PoolName ls --id $PoolAuthUserName | grep MOLD-HB)
+  obj=$(rbd -p $PoolName ls --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret | grep MOLD-HB)
 
   if [ $? -gt 0 ]; then
-     rbd -p $PoolName create --size 1 --id $PoolAuthUserName MOLD-HB
+     rbd -p $PoolName create --size 1 --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret MOLD-HB
   fi
 
-  obj=$(rbd -p $PoolName --id $PoolAuthUserName image-meta set MOLD-HB $HostIP $Timestamp)
+  obj=$(rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta set MOLD-HB $HostIP $Timestamp)
   if [ $? -gt 0 ]; then
    	printf "Failed to create rbd file and set image-meta"
     return 2
@@ -123,7 +124,7 @@ write_hbLog() {
 #check the heart beat log
 check_hbLog() {
   now=$(date +%s)
-  getHbTime=$(rbd -p $PoolName --id $PoolAuthUserName image-meta get MOLD-HB $HostIP)
+  getHbTime=$(rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta get MOLD-HB $HostIP)
   if [ $? -gt 0 ] || [ -z "$getHbTime" ]; then
     return 1
   fi

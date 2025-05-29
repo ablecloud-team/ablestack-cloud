@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div :class="['footer']">
+  <div :class="['']">
     <div class="line">
     </div>
   </div>

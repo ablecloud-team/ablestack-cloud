@@ -31,10 +31,12 @@ PoolName=
 PoolAuthUserName=
 PoolAuthSecret=
 HostIP=
+SourceHostIP=
 UUIDList=
 interval=0
+skeyPath="/var/lib/libvirt/images/"
 
-while getopts 'p:n:s:h:u:t:' OPTION
+while getopts 'p:n:s:h:i:u:t:' OPTION
 do
   case $OPTION in
   p)
@@ -48,6 +50,9 @@ do
      ;;
   h)
      HostIP="$OPTARG"
+     ;;
+  i)
+     SourceHostIP="$OPTARG"
      ;;
   u)
      UUIDList="$OPTARG"
@@ -72,7 +77,7 @@ fi
 # First check: heartbeat filei
 
 now=$(date +%s)
-getHbTime=$(rbd -p $PoolName --id $PoolAuthUserName image-meta get MOLD-HB $HostIP)
+getHbTime=$(rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta get MOLD-HB $HostIP)
 
 if [ $? -eq 0 ]; then
    diff=$(expr $now - $getHbTime)
@@ -89,12 +94,12 @@ fi
 
 # Second check: disk activity check
 for uuid in $(echo $UUIDList | sed 's/,/ /g'); do
-   acTime=$(rbd -p $PoolName --id $PoolAuthUserName image-meta get MOLD-AC $uuid > /dev/null 2>&1)
+   acTime=$(rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta get MOLD-AC $uuid > /dev/null 2>&1)
    if [ $? -gt 0 ]; then
       echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : RBD] ### "
       exit 0
    else
-      acTime=$(rbd -p $PoolName --id $PoolAuthUserName image-meta get MOLD-AC $uuid)
+      acTime=$(rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta get MOLD-AC $uuid)
       if [ -z "$acTime" ]; then
          echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : RBD] ### "
          exit 0

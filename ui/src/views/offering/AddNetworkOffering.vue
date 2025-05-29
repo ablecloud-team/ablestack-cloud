@@ -681,11 +681,15 @@ export default {
         egressdefaultpolicy: 'deny',
         ispublic: this.isPublic,
         nsxsupportlb: true,
-        routingmode: 'static'
+        routingmode: 'static',
+        networkrate: '10000'
       })
       this.rules = reactive({
         name: [{ required: true, message: this.$t('message.error.name') }],
-        networkrate: [{ type: 'number', validator: this.validateNumber }],
+        networkrate: [
+          { type: 'number', validator: this.validateNumber },
+          { required: true, message: this.$t('message.error.required.input') }
+        ],
         serviceofferingid: [{ required: true, message: this.$t('message.error.select') }],
         domainid: [{ type: 'array', required: true, message: this.$t('message.error.select') }],
         zoneid: [{

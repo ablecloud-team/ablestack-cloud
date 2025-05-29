@@ -24,16 +24,25 @@ import java.util.List;
 
 public class ListHostDeviceAnswer extends Answer {
     private boolean successMessage;
+    private List<String> hostDevicesNames;
     private List<String> hostDevicesText;
 
     public ListHostDeviceAnswer() {
         super();
     }
 
-    public ListHostDeviceAnswer(boolean successMessage, List<String> hostDevicesText) {
+    public ListHostDeviceAnswer(boolean successMessage, List<String> hostDevicesNames, List<String> hostDevicesText) {
         super();
         this.successMessage = successMessage;
+        this.hostDevicesNames = hostDevicesNames;
         this.hostDevicesText = hostDevicesText;
+    }
+
+    public List<String> getHostDevicesNames() {
+        if (hostDevicesText == null) {
+            return Collections.emptyList();
+        }
+        return hostDevicesNames;
     }
 
     public List<String> getHostDevicesTexts() {

@@ -57,7 +57,9 @@
             <router-link :to="{ name: 'publicip', query: { vlanid: record.id }}" target="_blank">
               <tooltip-button
                 tooltipPlacement="bottom"
-                :tooltip="$t('label.view') + ' ' + $t('label.public.ip.addresses')"
+                :tooltip="this.$localStorage.get('LOCALE') == 'ko_KR' ?
+                  $t('label.public.ip.addresses') + ' ' + $t('label.view') :
+                  $t('label.view') + ' ' + $t('label.public.ip.addresses')"
                 icon="environment-outlined"/>
             </router-link>
             <tooltip-button

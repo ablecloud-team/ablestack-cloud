@@ -63,7 +63,9 @@
             <router-link :to="{ name: 'guestnetwork', query: { bgppeerid: record.id }}">
               <tooltip-button
                 tooltipPlacement="bottom"
-                :tooltip="$t('label.view') + ' ' + $t('label.networks')"
+                :tooltip="this.$localStorage.get('LOCALE') == 'ko_KR' ?
+                  $t('label.networks') + ' ' + $t('label.view') :
+                  $t('label.view') + ' ' + $t('label.networks')"
                 icon="environment-outlined"/>
             </router-link>
             <tooltip-button
