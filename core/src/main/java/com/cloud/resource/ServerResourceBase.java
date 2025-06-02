@@ -45,8 +45,6 @@ import org.apache.cloudstack.storage.command.browser.ListDataStoreObjectsAnswer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
-// import org.json.JSONArray;
-// import org.json.JSONObject;
 import org.apache.logging.log4j.LogManager;
 
 import com.cloud.agent.IAgentControl;
@@ -57,9 +55,6 @@ import com.cloud.utils.net.NetUtils;
 import com.cloud.utils.script.OutputInterpreter;
 import com.cloud.utils.script.Script;
 import com.cloud.agent.api.ListHostDeviceAnswer;
-// import com.cloud.agent.api.ListHostLunDeviceAnswer;
-// import com.cloud.agent.api.ListHostUsbDeviceAnswer;
-// import com.cloud.agent.api.ListHostLunDeviceCommand;
 
 public abstract class ServerResourceBase implements ServerResource {
     protected Logger logger = LogManager.getLogger(getClass());
@@ -518,45 +513,4 @@ public abstract class ServerResourceBase implements ServerResource {
     public boolean stop() {
         return true;
     }
-
-    // protected Answer updateHostUsbDevices(Command command, String vmName, String xmlConfig, boolean isAttach) {
-    //     try {
-    //         // 임시 XML 파일 생성
-    //         String tempXmlPath = "/tmp/usb_device_" + System.currentTimeMillis() + ".xml";
-    //         try (PrintWriter writer = new PrintWriter(tempXmlPath)) {
-    //             writer.write(xmlConfig);
-    //         }
-    //         logger.info("Generated temporary XML file: {}", tempXmlPath);
-    //         // virsh 명령어 실행
-    //         Script virshCmd = new Script("virsh");
-    //         if (isAttach) {
-    //             virshCmd.add("attach-device", vmName, tempXmlPath);
-    //         } else {
-    //             virshCmd.add("detach-device", vmName, tempXmlPath);
-    //         }
-
-    //         String result = virshCmd.execute();
-
-    //         // 임시 파일 삭제
-    //         File tempFile = new File(tempXmlPath);
-    //         if (tempFile.exists() && !tempFile.delete()) {
-    //             logger.warn("Failed to delete temporary file: {}", tempXmlPath);
-    //         }
-
-    //         if (result != null) {
-    //             String action = isAttach ? "attach" : "detach";
-    //             logger.error("Failed to {} USB device: {}", action, result);
-    //             return new Answer(command, false, "Failed to " + action + " USB device: " + result);
-    //         }
-
-    //         String action = isAttach ? "attached to" : "detached from";
-    //         logger.info("Successfully {} USB device {} VM {}", action, tempXmlPath, vmName);
-    //         return new Answer(command, true, null);
-
-    //     } catch (Exception e) {
-    //         String action = isAttach ? "attaching" : "detaching";
-    //         logger.error("Error {} USB device: {}", action, e.getMessage(), e);
-    //         return new Answer(command, false, "Error " + action + " USB device: " + e.getMessage());
-    //     }
-    // }
 }
