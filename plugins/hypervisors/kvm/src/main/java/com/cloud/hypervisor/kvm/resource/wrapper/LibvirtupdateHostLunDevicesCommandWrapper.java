@@ -20,17 +20,21 @@
 package com.cloud.hypervisor.kvm.resource.wrapper;
 
 import com.cloud.agent.api.Answer;
-import com.cloud.agent.api.ListHostLunDeviceCommand;
+import com.cloud.agent.api.UpdateHostLunDeviceCommand;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.resource.CommandWrapper;
 import com.cloud.resource.ResourceWrapper;
 
-@ResourceWrapper(handles = ListHostLunDeviceCommand.class)
-public final class LibvirtlistHostLunDevicesCommandWrapper
-        extends CommandWrapper<ListHostLunDeviceCommand, Answer, LibvirtComputingResource> {
+@ResourceWrapper(handles = UpdateHostLunDeviceCommand.class)
+public final class LibvirtupdateHostLunDevicesCommandWrapper
+        extends CommandWrapper<UpdateHostLunDeviceCommand, Answer, LibvirtComputingResource> {
     @Override
-    public Answer execute(final ListHostLunDeviceCommand command,
+    public Answer execute(final UpdateHostLunDeviceCommand command,
             final LibvirtComputingResource libvirtComputingResource) {
-        return libvirtComputingResource.listHostLunDevices(command);
+        try {
+            return libvirtComputingResource.updateHostLunDevices(command, command.getVmName(), command.getXmlConfig(), command.getIsAttach());
+        } catch (Exception e) {
+            return new Answer(command, false, "LUN 장치 업데이트 중 오류 발생: " + e.getMessage());
+        }
     }
 }

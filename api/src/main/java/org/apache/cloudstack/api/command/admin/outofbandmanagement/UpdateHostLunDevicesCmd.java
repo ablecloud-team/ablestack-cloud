@@ -25,7 +25,7 @@ import org.apache.cloudstack.api.BaseListCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.response.UpdateHostLunDevicesResponse;
 import org.apache.cloudstack.context.CallContext;
-// import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.ListResponse;
 // import org.apache.cloudstack.api.response.HostResponse;
 
 @APICommand(name = "updateHostLunDevices", description = "list Host Lun Devices'.", since = "4.20.0.0", responseObject = UpdateHostLunDevicesResponse.class, requestHasSensitiveInfo = false, responseHasSensitiveInfo = false, authorized = {
@@ -106,9 +106,9 @@ public class UpdateHostLunDevicesCmd extends BaseListCmd {
 
     @Override
     public void execute() {
-        // ListResponse<UpdateHostLunDevicesResponse> response = _mgr.updateHostLunDevices(this);
-        // response.setResponseName(getCommandName());
-        // response.setObjectName(getCommandName());
-        // this.setResponseObject(response);
+        ListResponse<UpdateHostLunDevicesResponse> response = _mgr.updateHostLunDevices(this);
+        response.setResponseName(getCommandName());
+        response.setObjectName(getCommandName());
+        this.setResponseObject(response);
     }
 }

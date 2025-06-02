@@ -40,21 +40,25 @@ import java.util.Map;
 import javax.naming.ConfigurationException;
 
 import org.apache.cloudstack.storage.command.browser.ListRbdObjectsAnswer;
-
 import org.apache.cloudstack.storage.command.browser.ListDataStoreObjectsAnswer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
+import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import com.cloud.agent.IAgentControl;
 import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.Command;
+import com.cloud.agent.api.ListHostDeviceAnswer;
+import com.cloud.agent.api.ListHostLunDeviceAnswer;
+import com.cloud.agent.api.ListHostUsbDeviceAnswer;
 import com.cloud.agent.api.StartupCommand;
+import com.cloud.agent.api.UpdateHostUsbDeviceAnswer;
 import com.cloud.utils.net.NetUtils;
 import com.cloud.utils.script.OutputInterpreter;
 import com.cloud.utils.script.Script;
-import com.cloud.agent.api.ListHostDeviceAnswer;
+// import com.cloud.agent.api.ListHostLunDeviceCommand;
 
 public abstract class ServerResourceBase implements ServerResource {
     protected Logger logger = LogManager.getLogger(getClass());
@@ -180,6 +184,95 @@ public abstract class ServerResourceBase implements ServerResource {
             }
         }
         return new ListHostDeviceAnswer(true, hostDevicesNames, hostDevicesText);
+    }
+
+    protected Answer listHostUsbDevices(Command command) {
+        List<String> hostDevicesText = new ArrayList<>();
+        List<String> hostDevicesNames = new ArrayList<>();
+        Script listCommand = new Script("lsusb");
+        OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+        String result = listCommand.execute(parser);
+        if (result == null && parser.getLines() != null) {
+            String[] lines = parser.getLines().split("\\n");
+            for (String line : lines) {
+                String[] parts = line.split("\\s+", 2);
+                if (parts.length >= 2) {
+                    hostDevicesNames.add(parts[0].trim());
+                    hostDevicesText.add(parts[1].trim());
+                }
+            }
+        }
+        return new ListHostUsbDeviceAnswer(true, hostDevicesNames, hostDevicesText);
+    }
+
+    public Answer listHostLunDevices(Command command) {
+        try {
+            List<String> hostDevicesNames = new ArrayList<>();
+            List<String> hostDevicesText = new ArrayList<>();
+            List<Boolean> hasPartitions = new ArrayList<>();
+
+            Script cmd = new Script("/usr/bin/lsblk");
+            cmd.add("--json", "--paths", "--output", "NAME,TYPE,SIZE,MOUNTPOINT");
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String result = cmd.execute(parser);
+
+            if (result != null) {
+                logger.error("Failed to execute lsblk command: " + result);
+                return new ListHostLunDeviceAnswer(false, hostDevicesNames, hostDevicesText, hasPartitions);
+            }
+
+            JSONObject json = new JSONObject(parser.getLines());
+            JSONArray blockdevices = json.getJSONArray("blockdevices");
+
+            // multipath 서비스 상태 확인
+            boolean isMultipathActive = checkMultipathStatus();
+
+            for (int i = 0; i < blockdevices.length(); i++) {
+                JSONObject device = blockdevices.getJSONObject(i);
+
+                // 파티션이 아닌 디스크만 처리
+                if (!"part".equals(device.getString("type"))) {
+                    String name = device.getString("name");
+                    String size = device.getString("size");
+
+                    // 파티션 존재 여부 확인
+                    JSONArray children = device.optJSONArray("children");
+                    boolean hasPartition = (children != null && children.length() > 0);
+
+                    StringBuilder info = new StringBuilder();
+                    if (isMultipathActive && name.startsWith("/dev/disk/by-path/")) {
+                        info.append("Multipath LUN Device: ").append(name);
+                    } else {
+                        info.append("LUN Device: ").append(name);
+                    }
+                    info.append(" Size: ").append(size);
+                    if (hasPartition) {
+                        info.append(" (").append(children.length()).append(" partitions)");
+                    }
+
+                    hostDevicesNames.add(name);
+                    hostDevicesText.add(info.toString());
+                    hasPartitions.add(hasPartition);
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Found LUN device: " + info.toString());
+                    }
+                }
+            }
+
+            return new ListHostLunDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions);
+
+        } catch (Exception e) {
+            logger.error("Error listing LUN devices: " + e.getMessage(), e);
+            return new ListHostLunDeviceAnswer(false, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        }
+    }
+
+    private boolean checkMultipathStatus() {
+        Script cmd = new Script("systemctl");
+        cmd.add("is-active", "multipathd");
+        String result = cmd.execute(null);
+        return "active".equals(result != null ? result.trim() : "");
     }
 
     protected Answer createImageRbd(String poolUuid, String skey, String authUserName, String host, String names, long sizes, String poolPath) {
@@ -512,5 +605,82 @@ public abstract class ServerResourceBase implements ServerResource {
     @Override
     public boolean stop() {
         return true;
+    }
+
+    protected Answer updateHostUsbDevices(Command command, String vmName, String xmlConfig, boolean isAttach) {
+        String usbXmlPath = String.format("/tmp/usb_device_%s.xml", vmName);
+        try {
+            // XML 파일이 없을 경우에만 생성
+            File xmlFile = new File(usbXmlPath);
+            if (!xmlFile.exists()) {
+                try (PrintWriter writer = new PrintWriter(usbXmlPath)) {
+                    writer.write(xmlConfig);
+                }
+                logger.info("Generated XML file: {} for VM: {}", usbXmlPath, vmName);
+            }
+
+            Script virshCmd = new Script("virsh");
+            if (isAttach) {
+                virshCmd.add("attach-device", vmName, usbXmlPath);
+            } else {
+                virshCmd.add("detach-device", vmName, usbXmlPath);
+                logger.info("Executing detach command for VM: {} with XML: {}", vmName, xmlConfig);
+            }
+
+            String result = virshCmd.execute();
+
+            if (result != null) {
+                String action = isAttach ? "attach" : "detach";
+                logger.error("Failed to {} USB device: {}", action, result);
+                return new UpdateHostUsbDeviceAnswer(false, vmName, xmlConfig, isAttach);
+            }
+
+            String action = isAttach ? "attached to" : "detached from";
+            logger.info("Successfully {} USB device for VM {}", action, vmName);
+            return new UpdateHostUsbDeviceAnswer(true, vmName, xmlConfig, isAttach);
+
+        } catch (Exception e) {
+            String action = isAttach ? "attaching" : "detaching";
+            logger.error("Error {} USB device: {}", action, e.getMessage(), e);
+            return new UpdateHostUsbDeviceAnswer(false, vmName, xmlConfig, isAttach);
+        }
+    }
+    protected Answer updateHostLunDevices(Command command, String vmName, String xmlConfig, boolean isAttach) {
+        String lunXmlPath = String.format("/tmp/lun_device_%s.xml", vmName);
+        try {
+            // XML 파일이 없을 경우에만 생성
+            File xmlFile = new File(lunXmlPath);
+            if (!xmlFile.exists()) {
+                try (PrintWriter writer = new PrintWriter(lunXmlPath)) {
+                    writer.write(xmlConfig);
+                }
+                logger.info("Generated XML file: {} for VM: {}", lunXmlPath, vmName);
+            }
+
+            Script virshCmd = new Script("virsh");
+            if (isAttach) {
+                virshCmd.add("attach-device", vmName, lunXmlPath);
+            } else {
+                virshCmd.add("detach-device", vmName, lunXmlPath);
+                logger.info("Executing detach command for VM: {} with XML: {}", vmName, xmlConfig);
+            }
+
+            String result = virshCmd.execute();
+
+            if (result != null) {
+                String action = isAttach ? "attach" : "detach";
+                logger.error("Failed to {} USB device: {}", action, result);
+                return new UpdateHostUsbDeviceAnswer(false, vmName, xmlConfig, isAttach);
+            }
+
+            String action = isAttach ? "attached to" : "detached from";
+            logger.info("Successfully {} USB device for VM {}", action, vmName);
+            return new UpdateHostUsbDeviceAnswer(true, vmName, xmlConfig, isAttach);
+
+        } catch (Exception e) {
+            String action = isAttach ? "attaching" : "detaching";
+            logger.error("Error {} USB device: {}", action, e.getMessage(), e);
+            return new UpdateHostUsbDeviceAnswer(false, vmName, xmlConfig, isAttach);
+        }
     }
 }
