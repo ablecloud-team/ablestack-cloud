@@ -19,9 +19,9 @@
 package com.cloud.server;
 
 import java.io.BufferedReader;
-import java.io.File;
+
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+
 import java.lang.reflect.Field;
 import java.net.SocketTimeoutException;
 import java.net.URL;
@@ -2342,6 +2342,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         response.setHostDevicesNames(deviceNames);
         response.setHostDevicesTexts(deviceDescriptions);
 
+        // LUN 디바이스별 할당된 VM ID 조회
         Map<String, String> vmAllocations = new HashMap<>();
         for (String deviceName : deviceNames) {
             String allocation = getDeviceAllocation(hostId, deviceName);
@@ -2739,7 +2740,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 if (!answer.getResult()) {
                     String errorDetails = (answer.getDetails() != null) ?
                         answer.getDetails() : "No additional details available";
-                    throw new CloudRuntimeException("Failed to update Lun device. Details: " + errorDetails);
+                    throw new CloudRuntimeException("Failed to update LUN device. Details: " + errorDetails);
                 }
                 if (!(answer instanceof UpdateHostLunDeviceAnswer)) {
                     throw new CloudRuntimeException("Answer is not an instance of UpdateHostLunDeviceAnswer");
@@ -2747,7 +2748,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
                 UpdateHostLunDeviceAnswer lunAnswer = (UpdateHostLunDeviceAnswer) answer;
                 if (!lunAnswer.isSuccessMessage()) {
-                    throw new CloudRuntimeException("Failed to update Lun device for VM: " + lunAnswer.getVmName());
+                    throw new CloudRuntimeException("Failed to update LUN device for VM: " + lunAnswer.getVmName());
                 }
 
                 // DB 업데이트
@@ -2763,9 +2764,9 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 }
 
                 // 응답 생성
-                ListResponse<UpdateHostUsbDevicesResponse> response = new ListResponse<>();
-                List<UpdateHostUsbDevicesResponse> responses = new ArrayList<>();
-                UpdateHostUsbDevicesResponse deviceResponse = new UpdateHostUsbDevicesResponse();
+                ListResponse<UpdateHostLunDevicesResponse> response = new ListResponse<>();
+                List<UpdateHostLunDevicesResponse> responses = new ArrayList<>();
+                UpdateHostLunDevicesResponse deviceResponse = new UpdateHostLunDevicesResponse();
 
                 DetailVO allocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
                 deviceResponse.setHostDeviceName(hostDeviceName);

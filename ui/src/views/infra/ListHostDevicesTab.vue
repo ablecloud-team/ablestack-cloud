@@ -17,10 +17,8 @@
 
 <template>
   <div>
-    <!-- 탭 관련 코드 주석 처리
     <a-tabs v-model:activeKey="activeKey" tab-position="top" @change="handleTabChange">
       <a-tab-pane key="1" :tab="$t('label.other.devices')">
-    -->
         <a-input-search
           v-model:value="otherSearchQuery"
           :placeholder="$t('label.search')"
@@ -55,7 +53,7 @@
                   size="medium"
                   shape="circle"
                   :tooltip="isDeviceAssigned(record) ? $t('label.remove') : $t('label.create')"
-                  @click="isDeviceAssigned(record) ? showConfirmModal(record) : openModal(record)"
+                  @click="isDeviceAssigned(record) ? deallocatePciDevice(record) : openPciModal(record)"
                   :loading="loading">
                   <template #icon>
                     <delete-outlined v-if="isDeviceAssigned(record)" />
@@ -67,18 +65,110 @@
             </template>
           </template>
         </a-table>
-    <!-- 탭 닫는 태그 주석 처리
       </a-tab-pane>
 
       <a-tab-pane key="2" :tab="$t('label.usb.devices')">
-        ... USB devices content ...
+        <a-input-search
+          v-model:value="usbSearchQuery"
+          :placeholder="$t('label.search')"
+          style="width: 500px; margin-bottom: 15px; float: right;"
+          @search="onUsbSearch"
+          @change="onUsbSearch"
+        />
+        <a-table
+          :columns="columns"
+          :dataSource="filteredUsbDevices"
+          :loading="loading"
+          :pagination="false"
+          size="middle"
+          :scroll="{ y: 1000 }">
+          <template #headerCell="{ column }">
+            <template v-if="column.key === 'hostDevicesText'">
+              {{ $t('label.details') }}
+            </template>
+          </template>
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'hostDevicesName'">
+              {{ record.hostDevicesName }}
+            </template>
+            <template v-if="column.key === 'hostDevicesText'">
+              {{ record.hostDevicesText }}
+            </template>
+            <template v-if="column.dataIndex === 'vmName'">
+              <a-spin v-if="vmNameLoading" size="small" />
+              <template v-else>{{ vmNames[record.hostDevicesName] || $t('') }}</template>
+            </template>
+            <template v-if="column.key === 'action'">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <a-button
+                  :type="isDeviceAssigned(record) ? 'danger' : 'primary'"
+                  size="medium"
+                  shape="circle"
+                  :tooltip="isDeviceAssigned(record) ? $t('label.remove') : $t('label.create')"
+                  @click="isDeviceAssigned(record) ? deallocateUsbDevice(record) : openUsbModal(record)"
+                  :loading="loading"
+                  :disabled="loading"
+                  style="z-index: 1; position: relative;">
+                  <template #icon>
+                    <delete-outlined v-if="isDeviceAssigned(record)" />
+                    <plus-outlined v-else />
+                  </template>
+                </a-button>
+              </div>
+              <span style="display: none;">{{ record.virtualmachineid }}</span>
+            </template>
+          </template>
+        </a-table>
       </a-tab-pane>
 
       <a-tab-pane key="3" :tab="$t('label.lun.devices')">
-        ... LUN devices content ...
+        <a-input-search
+          v-model:value="lunSearchQuery"
+          :placeholder="$t('label.search')"
+          style="width: 500px; margin-bottom: 15px; float: right;"
+          @search="onLunSearch"
+          @change="onLunSearch"
+        />
+        <a-table
+          :columns="columns"
+          :dataSource="filteredLunDevices"
+          :pagination="false"
+          size="middle"
+          :scroll="{ y: 1000 }">
+          <template #headerCell="{ column }">
+            <template v-if="column.key === 'hostDevicesText'">
+              {{ $t('label.details') }}
+            </template>
+          </template>
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'hostDevicesName'">{{ record.hostDevicesName }}</template>
+            <template v-if="column.key === 'hostDevicesText'">{{ record.hostDevicesText }}</template>
+            <template v-if="column.dataIndex === 'vmName'">
+              <a-spin v-if="vmNameLoading" size="small" />
+              <template v-else>{{ vmNames[record.hostDevicesName] || $t('') }}</template>
+            </template>
+            <template v-if="column.key === 'action'">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <a-button
+                  v-if="!record.hostDevicesText?.toLowerCase().includes('partitions')"
+                  :type="isDeviceAssigned(record) ? 'danger' : 'primary'"
+                  size="medium"
+                  shape="circle"
+                  :tooltip="isDeviceAssigned(record) ? $t('label.remove') : $t('label.create')"
+                  @click="isDeviceAssigned(record) ? deallocateLunDevice(record) : openLunModal(record)"
+                  :loading="loading">
+                  <template #icon>
+                    <delete-outlined v-if="isDeviceAssigned(record)" />
+                    <plus-outlined v-else />
+                  </template>
+                </a-button>
+              </div>
+              <span style="display: none;">{{ record.virtualmachineid }}</span>
+            </template>
+          </template>
+        </a-table>
       </a-tab-pane>
     </a-tabs>
-    -->
 
     <a-modal
       :visible="showAddModal"
@@ -89,34 +179,55 @@
       :footer="null"
       @cancel="closeAction">
       <HostDevicesTransfer
-        v-if="activeKey === '1'"
+        v-if="activeKey === '1' && selectedResource"
         ref="hostDevicesTransfer"
         :resource="selectedResource"
         @close-action="closeAction"
         @allocation-completed="onAllocationCompleted"
         @device-allocated="handleDeviceAllocated" />
-      <!-- <HostUsbDevicesTransfer
-        v-else-if="activeKey === '2'"
+      <HostUsbDevicesTransfer
+        v-else-if="activeKey === '2' && selectedResource"
         ref="hostUsbDevicesTransfer"
         :resource="selectedResource"
         @close-action="closeAction"
         @allocation-completed="onAllocationCompleted"
         @device-allocated="handleDeviceAllocated" />
       <HostLunDevicesTransfer
-        v-else
+        v-else-if="activeKey === '3' && selectedResource"
         ref="hostLunDevicesTransfer"
         :resource="selectedResource"
         @close-action="closeAction"
-        @allocation-completed="onAllocationCompleted" -->
-        <!-- @device-allocated="handleDeviceAllocated" /> -->
+        @allocation-completed="onAllocationCompleted"
+        @device-allocated="handleDeviceAllocated" />
     </a-modal>
 
-    <!-- PCI 디바이스 모달로 통일 -->
+    <a-modal
+      v-model:visible="showUsbDeleteModal"
+      :title="`${vmNames[selectedUsbDevice?.hostDevicesName] || ''} ${$t('message.delete.device.allocation')}`"
+      @ok="handleUsbDeviceDelete"
+      @cancel="closeUsbDeleteModal"
+    >
+      <div>
+        <p>{{ $t('message.confirm.delete.device') }}</p>
+      </div>
+    </a-modal>
+
     <a-modal
       v-model:visible="showPciDeleteModal"
-      :title="`${vmNames[selectedPciDevice?.hostDevicesName] || ''} ${$t('message.delete.device.allocation')}`"
+      :title="`${selectedPciDevice?.vmName || ''} ${$t('message.delete.device.allocation1')}`"
       @ok="handlePciDeviceDelete"
       @cancel="closePciDeleteModal"
+    >
+      <div>
+        <p>{{ $t('message.confirm.delete.device') }}</p>
+      </div>
+    </a-modal>
+
+    <a-modal
+      v-model:visible="showLunDeleteModal"
+      :title="`${selectedLunDevice?.vmName || ''} ${$t('message.delete.device.allocation')}`"
+      @ok="handleLunDeviceDelete"
+      @cancel="closeLunDeleteModal"
     >
       <div>
         <p>{{ $t('message.confirm.delete.device') }}</p>
@@ -130,8 +241,8 @@ import { api } from '@/api'
 import eventBus from '@/config/eventBus'
 import { IdcardOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import HostDevicesTransfer from '@/views/storage/HostDevicesTransfer'
-// import HostUsbDevicesTransfer from '@/views/storage/HostUsbDevicesTransfer'
-// import HostLunDevicesTransfer from '@/views/storage/HostLunDevicesTransfer'
+import HostUsbDevicesTransfer from '@/views/storage/HostUsbDevicesTransfer'
+import HostLunDevicesTransfer from '@/views/storage/HostLunDevicesTransfer'
 
 export default {
   name: 'ListHostDevicesTab',
@@ -139,9 +250,9 @@ export default {
     IdcardOutlined,
     PlusOutlined,
     DeleteOutlined,
-    HostDevicesTransfer
-    // HostUsbDevicesTransfer,
-    // HostLunDevicesTransfer
+    HostDevicesTransfer,
+    HostUsbDevicesTransfer,
+    HostLunDevicesTransfer
   },
   props: {
     resource: {
@@ -193,7 +304,11 @@ export default {
       selectedPciDevice: null,
       pciConfigs: {},
       vmNames: {},
-      vmNameLoading: false
+      vmNameLoading: false,
+      showUsbDeleteModal: false,
+      selectedUsbDevice: null,
+      showLunDeleteModal: false,
+      selectedLunDevice: null
     }
   },
   computed: {
@@ -202,7 +317,10 @@ export default {
         key: index,
         hostDevicesName: Array.isArray(item.hostDevicesNames) ? item.hostDevicesNames[0] : item.hostDevicesName,
         hostDevicesText: Array.isArray(item.hostDevicesTexts) ? item.hostDevicesTexts[0] : item.hostDevicesText,
-        value: item.value
+        value: item.value,
+        virtualmachineid: item.virtualmachineid,
+        isAssigned: item.isAssigned,
+        vmName: item.vmName || (this.vmNames[item.hostDevicesName] || '')
       }))
     },
 
@@ -272,9 +390,6 @@ export default {
               const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
 
               if (devices?.vmallocations) {
-                console.log('VM allocations:', devices.vmallocations)
-                console.log('Looking for devices allocated to VM:', vmId)
-
                 // 삭제된 VM에 할당된 디바이스 찾기
                 const allocatedDevices = Object.entries(devices.vmallocations)
                   .filter(([_, allocatedVmId]) => {
@@ -332,12 +447,10 @@ export default {
         if (data) {
           const vmAllocations = data.vmallocations || {}
 
-          // VM ID를 문자열로 처리
           const vmIds = Object.values(vmAllocations)
             .filter(id => id)
             .map(id => id.toString())
 
-          // VM 이름 정보를 가져옴
           const vmNameMap = {}
           if (vmIds.length > 0) {
             for (const vmId of vmIds) {
@@ -357,7 +470,6 @@ export default {
 
           this.vmNames = vmNameMap
 
-          // 데이터 매핑 시 VM ID를 문자열로 변환하여 비교
           this.dataItems = data.hostdevicesname.map((name, index) => {
             const vmId = vmAllocations[name] || null
             const vmName = vmId ? this.vmNames[vmId] : null
@@ -388,7 +500,11 @@ export default {
              record.isAssigned ||
              this.selectedDevices.includes(record.hostDevicesName)
     },
-    openModal (record) {
+    openPciModal (record) {
+      this.selectedResource = { ...this.resource, hostDevicesName: record.hostDevicesName }
+      this.showAddModal = true
+    },
+    openUsbModal (record) {
       this.selectedResource = { ...this.resource, hostDevicesName: record.hostDevicesName }
       this.showAddModal = true
     },
@@ -414,43 +530,21 @@ export default {
     },
     async handleDelete (record) {
       if (this.activeKey === '2') {
-        this.selectedResource = { ...this.resource, hostDevicesName: record.hostDevicesName }
-        this.showAddModal = true
+        // HostUsbDevicesTransfer의 handleDelete 메서드 호출
+        this.$refs.hostUsbDevicesTransfer.handleDelete()
       } else if (this.activeKey === '3') {
-        this.selectedResource = { ...this.resource, hostDevicesName: record.hostDevicesName }
-        this.showAddModal = true
+        // 다른 로직 처리
       } else {
-        try {
-          // 먼저 VM 정보를 가져옵니다
-          const response = await api('listHostDevices', { id: this.resource.id })
-          const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
-          const vmAllocations = devices?.vmallocations || {}
-          const vmId = vmAllocations[record.hostDevicesName]
-
-          if (vmId) {
-            const vmResponse = await api('listVirtualMachines', {
-              id: vmId,
-              listall: true
-            })
-            const vm = vmResponse?.listvirtualmachinesresponse?.virtualmachine?.[0]
-            record.vmName = vm?.name || vm?.displayname
-          }
-
-          // VM 정보를 가져온 후에 모달을 표시합니다
-          this.selectedPciDevice = record
-          this.showPciDeleteModal = true
-          this.fetchPciConfigs(record)
-        } catch (error) {
-          console.error('Error fetching VM details:', error)
-          this.$notifyError(error)
-        }
+        // 기존 로직 처리
       }
     },
     handleAllocationCompleted () {
       if (this.activeKey === '2') {
         this.fetchUsbDevices()
       } else if (this.activeKey === '3') {
-        this.fetchLunDevices()
+        setTimeout(() => {
+          this.fetchLunDevices()
+        }, 700)
       } else {
         this.fetchData()
       }
@@ -466,59 +560,7 @@ export default {
         this.fetchData()
       }
     },
-    refreshVMFiltering () {
-      const params = { hostid: this.resource.id, details: 'min', listall: true }
-      const vmStates = ['Running']
 
-      this.loading = true
-
-      return Promise.all(vmStates.map(state => {
-        return api('listVirtualMachines', { ...params, state })
-          .then(vmResponse => vmResponse.listvirtualmachinesresponse.virtualmachine || [])
-      })).then(vmArrays => {
-        const vms = vmArrays.flat()
-
-        return Promise.all(vms.map(vm => {
-          return api('listVirtualMachines', {
-            id: vm.id,
-            details: 'all'
-          }).then(detailResponse => {
-            return detailResponse.listvirtualmachinesresponse.virtualmachine[0]
-          })
-        }))
-      }).then(detailedVms => {
-        return api('listHostDevices', {
-          id: this.resource.id
-        }).then(latestResponse => {
-          const latestDevices = latestResponse.listhostdevicesresponse?.listhostdevices?.[0]
-          const latestAllocatedVmIds = new Set()
-
-          if (latestDevices?.vmallocations) {
-            Object.values(latestDevices.vmallocations).forEach(vmId => {
-              if (vmId) {
-                latestAllocatedVmIds.add(vmId.toString())
-              }
-            })
-          }
-
-          this.virtualmachines = detailedVms.filter(vm => {
-            if (latestAllocatedVmIds.has(vm.id.toString())) {
-              return false
-            }
-            if (vm.details && vm.details['extraconfig-1']) {
-              return false
-            }
-            return true
-          })
-
-          if (this.$refs.hostDevicesTransfer) {
-            this.$refs.hostDevicesTransfer.virtualmachines = this.virtualmachines
-          }
-        })
-      }).finally(() => {
-        this.loading = false
-      })
-    },
     async handleTabChange (activeKey) {
       this.activeKey = activeKey
       if (activeKey === '2') {
@@ -547,11 +589,12 @@ export default {
           }))
 
           this.dataItems = usbDevices
+          // 가상머신 이름을 업데이트합니다
+          this.updateUsbVmNames()
         } else {
           this.dataItems = []
         }
       }).catch(error => {
-        console.error('Error fetching USB devices:', error)
         this.$notification.error({
           message: this.$t('label.error'),
           description: error.message || this.$t('message.error.fetch.usb.devices')
@@ -564,26 +607,35 @@ export default {
       this.loading = true
       api('listHostLunDevices', {
         id: this.resource.id
-      }).then(response => {
+      }).then(async response => {
         if (response.listhostlundevicesresponse?.listhostlundevices?.[0]) {
           const lunData = response.listhostlundevicesresponse.listhostlundevices[0]
-
-          // LUN 디바이스 데이터 매핑
+          const vmAllocations = lunData.vmallocations || {}
+          // VM 이름 매핑
+          const vmNameMap = {}
+          for (const name in vmAllocations) {
+            const vmId = vmAllocations[name]
+            if (vmId) {
+              const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+              const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+              if (vm) vmNameMap[name] = vm.displayname || vm.name
+            }
+          }
+          this.vmNames = { ...this.vmNames, ...vmNameMap }
           const lunDevices = lunData.hostdevicesname.map((name, index) => ({
             key: index,
             hostDevicesName: name,
             hostDevicesText: lunData.hostdevicestext[index],
             virtualmachineid: (lunData.vmallocations && lunData.vmallocations[name]) || null,
+            vmName: vmNameMap[name] || '',
             isAssigned: Boolean(lunData.vmallocations && lunData.vmallocations[name]),
             hasPartitions: lunData.haspartitions[name]
           }))
-
           this.dataItems = lunDevices
         } else {
           this.dataItems = []
         }
       }).catch(error => {
-        console.error('Error fetching LUN devices:', error)
         this.$notification.error({
           message: this.$t('label.error'),
           description: error.message || this.$t('message.error.fetch.lun.devices')
@@ -592,36 +644,6 @@ export default {
         this.loading = false
       })
       this.updateDataWithVmNames()
-    },
-    async fetchPciConfigs (record) {
-      try {
-        const response = await api('listHostDevices', { id: this.resource.id })
-        const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
-        const vmAllocations = devices?.vmallocations || {}
-        const vmId = vmAllocations[record.hostDevicesName]
-
-        if (vmId) {
-          const vmResponse = await api('listVirtualMachines', {
-            id: vmId,
-            listall: true,
-            details: 'all'
-          })
-          const vm = vmResponse?.listvirtualmachinesresponse?.virtualmachine?.[0]
-
-          this.pciConfigs = {}
-          Object.entries(vm.details || {}).forEach(([key, value]) => {
-            if (key.startsWith('extraconfig-') &&
-                value.includes(record.hostDevicesName)) {
-              this.pciConfigs[key] = {
-                vmName: vm.name || vm.displayname,
-                config: value
-              }
-            }
-          })
-        }
-      } catch (error) {
-        this.$notifyError(error)
-      }
     },
     async handlePciDeviceDelete () {
       try {
@@ -679,15 +701,15 @@ export default {
         this.$notifyError(error)
       }
     },
-    closePciDeleteModal () {
-      this.showPciDeleteModal = false
-      this.selectedPciDevice = null
-      this.pciConfigs = {}
-    },
+    // closePciDeleteModal () {
+    //   this.showPciDeleteModal = false
+    //   this.selectedPciDevice = null
+    //   this.pciConfigs = {}
+    // },
     showConfirmModal (device) {
-      console.log('Selected device:', device)
-      console.log('VM Names:', this.vmNames)
-      this.selectedPciDevice = device
+      // vmName을 강제로 할당
+      const vmName = this.vmNames[device.hostDevicesName] || ''
+      this.selectedPciDevice = { ...device, vmName }
       this.showPciDeleteModal = true
     },
     async updateDataWithVmNames () {
@@ -698,8 +720,6 @@ export default {
         if (data && data.vmallocations) {
           const vmIds = [...new Set(Object.values(data.vmallocations))].filter(Boolean)
           const vmNameMap = await this.getVmNames(vmIds)
-
-          // 기존 dataItems에 vmName 추가
           this.dataItems = this.dataItems.map(item => ({
             ...item,
             vmName: item.virtualmachineid ? vmNameMap[item.virtualmachineid] : ''
@@ -715,7 +735,6 @@ export default {
         const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
 
         if (devices?.vmallocations) {
-          console.log('VM allocations:', devices.vmallocations)
           const vmNamesMap = {}
           const entries = Object.entries(devices.vmallocations)
           const processedDevices = new Set()
@@ -738,7 +757,8 @@ export default {
                     const updateResponse = await api('updateHostDevices', {
                       hostid: this.resource.id,
                       hostdevicesname: deviceName,
-                      virtualmachineid: null
+                      virtualmachineid: null,
+                      isattach: false
                     })
                     console.log('Update host device response:', updateResponse)
 
@@ -776,14 +796,50 @@ export default {
             }
           }
           this.vmNames = vmNamesMap
-
-          // 변경사항이 있을 때만 조용히 데이터 새로고침
           if (processedDevices.size > 0) {
             await this.fetchData()
           }
         }
       } catch (error) {
         console.error('Error in updateVmNames:', error)
+      } finally {
+        this.vmNameLoading = false
+      }
+    },
+    async updateUsbVmNames () {
+      this.vmNameLoading = true
+      try {
+        const response = await api('listHostUsbDevices', { id: this.resource.id })
+        const devices = response.listhostusbdevicesresponse?.listhostusbdevices?.[0]
+
+        if (devices?.vmallocations) {
+          const vmNamesMap = {}
+          const entries = Object.entries(devices.vmallocations)
+
+          for (const [deviceName, vmId] of entries) {
+            if (vmId) {
+              try {
+                const vmResponse = await api('listVirtualMachines', {
+                  id: vmId,
+                  listall: true
+                })
+
+                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+                if (vm) {
+                  vmNamesMap[deviceName] = vm.name || vm.displayname
+                } else {
+                  vmNamesMap[deviceName] = this.$t('label.no.vm.assigned')
+                }
+              } catch (error) {
+                console.error('Error fetching VM name for USB device:', deviceName, error)
+                vmNamesMap[deviceName] = this.$t('label.no.vm.assigned')
+              }
+            }
+          }
+          this.vmNames = { ...this.vmNames, ...vmNamesMap }
+        }
+      } catch (error) {
+        console.error('Error in updateUsbVmNames:', error)
       } finally {
         this.vmNameLoading = false
       }
@@ -796,20 +852,343 @@ export default {
           eventType: eventType
         })
       })
-    }
-  },
-  watch: {
-    activeKey: {
-      handler (newVal) {
-        this.$nextTick(() => {
-          this.updateDataWithVmNames()
-        })
+    },
+    async deallocateUsbDevice (record) {
+      if (!this.resource || !this.resource.id) {
+        this.$notifyError(this.$t('message.error.invalid.resource'))
+        return
       }
+
+      this.loading = true
+      const hostDevicesName = record.hostDevicesName
+
+      console.log('Deallocating USB device:', hostDevicesName)
+
+      try {
+        // 1. USB 디바이스의 현재 할당 상태 확인
+        const response = await api('listHostUsbDevices', {
+          id: this.resource.id
+        })
+        const devices = response.listhostusbdevicesresponse?.listhostusbdevices?.[0]
+        const vmAllocations = devices?.vmallocations || {}
+        const vmId = vmAllocations[hostDevicesName]
+
+        if (!vmId) {
+          console.error('No VM allocation found for device:', hostDevicesName)
+          throw new Error('No VM allocation found for this device')
+        }
+
+        // 2. 할당 해제 확인 및 실행
+        const vmName = this.vmNames[hostDevicesName] || 'Unknown VM'
+        this.$confirm({
+          title: `${vmName} ${this.$t('message.delete.device.allocation')}`,
+          content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
+          onOk: async () => {
+            const xmlConfig = this.generateXmlUsbConfig(hostDevicesName)
+            const detachResponse = await api('updateHostUsbDevices', {
+              hostid: this.resource.id,
+              hostdevicesname: hostDevicesName,
+              virtualmachineid: null,
+              currentvmid: vmId,
+              xmlconfig: xmlConfig,
+              isattach: false
+            })
+
+            if (!detachResponse || detachResponse.error) {
+              console.error('Failed to detach USB device:', detachResponse?.error?.errortext)
+              throw new Error(detachResponse?.error?.errortext || 'Failed to detach USB device')
+            }
+
+            // **여기서 dataItems의 vmName을 직접 비워줌**
+            this.dataItems = this.dataItems.map(item =>
+              item.hostDevicesName === hostDevicesName
+                ? { ...item, virtualmachineid: null, vmName: '', isAssigned: false }
+                : item
+            )
+
+            this.$message.success(this.$t('message.success.remove.allocation'))
+            await this.fetchUsbDevices()
+            this.vmNames = {}
+            this.$emit('device-allocated')
+            this.$emit('allocation-completed')
+            this.$emit('close-action')
+          },
+          onCancel () {
+            console.log('Deallocation cancelled')
+          }
+        })
+      } catch (error) {
+        console.error('Error during USB device deallocation:', error)
+        this.$notifyError(error.message || 'Failed to deallocate USB device')
+      } finally {
+        this.loading = false
+      }
+    },
+
+    generateXmlUsbConfig (hostDeviceName) {
+      const match = hostDeviceName.match(/(\d+)\D+(\d+)/)
+      let bus = '0x001'
+      let device = '0x01'
+      if (match) {
+        bus = '0x' + parseInt(match[1], 10).toString(16).padStart(3, '0')
+        device = '0x' + parseInt(match[2], 10).toString(16).padStart(2, '0')
+      }
+      console.log(bus, device)
+      return `
+        <hostdev mode='subsystem' type='usb'>
+          <source>
+            <address type='usb' bus='${bus}' device='${device}' />
+          </source>
+        </hostdev>
+      `.trim()
+    },
+    generateXmlLunConfig (hostDeviceName) {
+      let targetDev = 'sdc'
+      const match = hostDeviceName.match(/\/dev\/([a-z]+[a-z0-9]*)$/)
+      if (match) {
+        targetDev = match[1]
+      } else {
+        // 기본값
+        targetDev = 'sdc'
+      }
+      return `
+        <disk type='block' device='lun'>
+          <driver name='qemu' type='raw'/>
+          <source dev='${hostDeviceName}'/>
+          <target dev='${targetDev}' bus='scsi'/>
+          <address type='drive' controller='0' bus='0' target='1' unit='0'/>
+        </disk>
+      `.trim()
+    },
+    async handleUsbDeviceDelete () {
+      if (!this.resource || !this.resource.id) {
+        this.$notifyError(this.$t('message.error.invalid.resource'))
+        return
+      }
+
+      this.loading = true
+      const hostDevicesName = this.selectedUsbDevice.hostDevicesName
+
+      console.log('Deallocating USB device:', hostDevicesName)
+
+      try {
+        const response = await api('listHostUsbDevices', {
+          id: this.resource.id
+        })
+        const devices = response.listhostusbdevicesresponse?.listhostusbdevices?.[0]
+        const vmAllocations = devices?.vmallocations || {}
+        const vmId = vmAllocations[hostDevicesName]
+
+        if (!vmId) {
+          console.error('No VM allocation found for device:', hostDevicesName)
+          throw new Error('No VM allocation found for this device')
+        }
+
+        const xmlConfig = this.generateXmlUsbConfig(hostDevicesName)
+        const detachResponse = await api('updateHostUsbDevices', {
+          hostid: this.resource.id,
+          hostdevicesname: hostDevicesName,
+          virtualmachineid: vmId,
+          xmlconfig: xmlConfig,
+          isattach: false
+        })
+
+        if (!detachResponse || detachResponse.error) {
+          // console.error('Failed to detach USB device:', detachResponse?.error?.errortext)
+          throw new Error(detachResponse?.error?.errortext || 'Failed to detach USB device')
+        }
+        console.log('detachResponse', detachResponse)
+        console.log('Device detached successfully')
+
+        this.$message.success(this.$t('message.success.remove.allocation'))
+        this.$emit('device-allocated')
+        this.$emit('allocation-completed')
+        this.$emit('close-action')
+      } catch (error) {
+        console.error('Error during USB device deallocation:', error)
+        this.$notifyError(error.message || 'Failed to deallocate USB device')
+      } finally {
+        this.loading = false
+      }
+    },
+    closeUsbDeleteModal () {
+      this.showUsbDeleteModal = false
+      this.selectedUsbDevice = null
+    },
+    async deallocateLunDevice (record) {
+      if (!this.resource || !this.resource.id) {
+        this.$notifyError(this.$t('message.error.invalid.resource'))
+        return
+      }
+      this.loading = true
+      const hostDevicesName = record.hostDevicesName
+      try {
+        // 1. LUN 디바이스의 현재 할당 상태 확인
+        const response = await api('listHostLunDevices', {
+          id: this.resource.id
+        })
+        const devices = response.listhostlundevicesresponse?.listhostlundevices?.[0]
+        const vmAllocations = devices?.vmallocations || {}
+        const vmId = vmAllocations[hostDevicesName]
+        if (!vmId) {
+          throw new Error('No VM allocation found for this device')
+        }
+        // 2. 할당 해제 확인 및 실행
+        const vmName = this.vmNames[hostDevicesName] || 'Unknown VM'
+        this.$confirm({
+          title: `${vmName} ${this.$t('message.delete.device.allocation')}`,
+          content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
+          onOk: async () => {
+            const xmlConfig = this.generateXmlLunConfig(hostDevicesName)
+            const detachResponse = await api('updateHostLunDevices', {
+              hostid: this.resource.id,
+              hostdevicesname: hostDevicesName,
+              virtualmachineid: null,
+              currentvmid: vmId,
+              xmlconfig: xmlConfig,
+              isattach: false
+            })
+            if (!detachResponse || detachResponse.error) {
+              throw new Error(detachResponse?.error?.errortext || 'Failed to detach LUN device')
+            }
+
+            this.dataItems = this.dataItems.map(item =>
+              item.hostDevicesName === hostDevicesName
+                ? { ...item, virtualmachineid: null, vmName: '', isAssigned: false }
+                : item
+            )
+
+            this.$message.success(this.$t('message.success.remove.allocation'))
+            await this.fetchLunDevices()
+            this.vmNames = {}
+            this.$emit('device-allocated')
+            this.$emit('allocation-completed')
+            this.$emit('close-action')
+          },
+          onCancel () {}
+        })
+      } catch (error) {
+        this.$notifyError(error.message || 'Failed to deallocate LUN device')
+      } finally {
+        this.loading = false
+      }
+    },
+    closeLunDeleteModal () {
+      this.showLunDeleteModal = false
+      this.selectedLunDevice = null
+    },
+    async handleLunDeviceDelete () {
+      if (!this.resource || !this.resource.id) {
+        this.$notifyError(this.$t('message.error.invalid.resource'))
+        return
+      }
+      this.loading = true
+      const hostDevicesName = this.selectedLunDevice.hostDevicesName
+      try {
+        const response = await api('updateHostLunDevices', {
+          hostid: this.resource.id,
+          hostdevicesname: hostDevicesName,
+          virtualmachineid: null
+        })
+        if (!response || response.error) {
+          throw new Error(response?.error?.errortext || 'Failed to detach LUN device')
+        }
+        this.$message.success(this.$t('message.success.remove.allocation'))
+        this.showLunDeleteModal = false
+        this.selectedLunDevice = null
+        await this.fetchLunDevices()
+        this.$emit('device-allocated')
+        this.$emit('allocation-completed')
+        this.$emit('close-action')
+      } catch (error) {
+        this.$notifyError(error.message || 'Failed to deallocate LUN device')
+      } finally {
+        this.loading = false
+      }
+    },
+    openLunModal (record) {
+      this.selectedResource = { ...this.resource, hostDevicesName: record.hostDevicesName }
+      this.showAddModal = true
+    },
+    async deallocatePciDevice (record) {
+      if (!this.resource || !this.resource.id) {
+        this.$notifyError(this.$t('message.error.invalid.resource'))
+        return
+      }
+      this.loading = true
+      const hostDevicesName = record.hostDevicesName
+      try {
+        // 1. PCI 디바이스의 현재 할당 상태 확인
+        const response = await api('listHostDevices', {
+          id: this.resource.id
+        })
+        const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
+        const vmAllocations = devices?.vmallocations || {}
+        const vmId = vmAllocations[hostDevicesName]
+        if (!vmId) {
+          throw new Error('No VM allocation found for this device')
+        }
+        // 2. 할당 해제 확인 및 실행
+        const vmName = this.vmNames[hostDevicesName] || 'Unknown VM'
+        this.$confirm({
+          title: `${vmName} ${this.$t('message.delete.device.allocation')}`,
+          content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
+          onOk: async () => {
+            // VM extraconfig에서 PCI 관련 설정 제거
+            const vmResponse = await api('listVirtualMachines', {
+              id: vmId,
+              listall: true,
+              details: 'all'
+            })
+            const vm = vmResponse?.listvirtualmachinesresponse?.virtualmachine?.[0]
+            const params = { id: vm.id }
+            Object.entries(vm.details || {}).forEach(([key, value]) => {
+              if (key.startsWith('extraconfig-') && value.includes('<hostdev')) {
+                const [pciAddress] = hostDevicesName.split(' ')
+                const [bus, slotFunction] = pciAddress.split(':')
+                const [slot, func] = slotFunction.split('.')
+                const pattern = `bus='0x${bus}' slot='0x${slot}' function='0x${func}'`
+                if (!value.includes(pattern)) {
+                  params[`details[0].${key}`] = value
+                }
+              } else if (!key.startsWith('extraconfig-')) {
+                params[`details[0].${key}`] = value
+              }
+            })
+            await api('updateVirtualMachine', params)
+            // PCI 디바이스 할당 해제
+            await api('updateHostDevices', {
+              hostid: this.resource.id,
+              hostdevicesname: hostDevicesName,
+              virtualmachineid: null
+            })
+            this.dataItems = this.dataItems.map(item =>
+              item.hostDevicesName === hostDevicesName
+                ? { ...item, virtualmachineid: null, vmName: '', isAssigned: false }
+                : item
+            )
+            // 해당 디바이스만 vmNames에서 삭제
+            if (this.vmNames[hostDevicesName]) {
+              delete this.vmNames[hostDevicesName]
+            }
+            this.$message.success(this.$t('message.success.remove.allocation'))
+            await this.fetchData()
+            this.$emit('device-allocated')
+            this.$emit('allocation-completed')
+            this.$emit('close-action')
+          },
+          onCancel () {}
+        })
+      } catch (error) {
+        this.$notifyError(error.message || 'Failed to deallocate PCI device')
+      } finally {
+        this.loading = false
+      }
+    },
+    closePciDeleteModal () {
+      this.showPciDeleteModal = false
+      this.selectedPciDevice = null
     }
-  },
-  mounted () {
-    this.fetchData()
-    this.updateDataWithVmNames()
   }
 }
 </script>

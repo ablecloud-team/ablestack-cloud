@@ -115,18 +115,22 @@
           :virtualmachine="vm"
           :loading="loading"/>
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.listhostdevices')" key="pcidevices" v-if="hasPciDevices">
-        <div v-if="pciDevices.length > 0">
-          <a-table
-            :columns="pciColumns"
-            :dataSource="pciDevices"
-            :pagination="false"
-            :loading="loading">
-          </a-table>
-        </div>
-        <div v-else>
-          {{ $t('label.no.pci.devices') }}
-        </div>
+      <a-tab-pane
+        :tab="$t('label.listhostdevices')"
+        key="pcidevices"
+        v-if="hasPciDevices || hasUsbDevices || hasLunDevices"
+      >
+        <a-tabs v-model:activeKey="hostDeviceTabKey" style="margin-bottom: 16px;">
+          <a-tab-pane v-if="pciDevices.length > 0" key="pci" :tab="$t('label.other.devices')">
+            <a-table :columns="pciColumns" :dataSource="pciDevices" :pagination="false" :loading="loading" />
+          </a-tab-pane>
+          <a-tab-pane v-if="usbDevices.length > 0" key="usb" :tab="$t('label.usb.devices')">
+            <a-table :columns="usbColumns" :dataSource="usbDevices" :pagination="false" :loading="loading" />
+          </a-tab-pane>
+          <a-tab-pane v-if="lunDevices.length > 0" key="lun" :tab="$t('label.lun.devices')">
+            <a-table :columns="lunColumns" :dataSource="lunDevices" :pagination="false" :loading="loading" />
+          </a-tab-pane>
+        </a-tabs>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.settings')" key="settings">
         <DetailSettings :resource="dataResource" :loading="loading" />
@@ -276,7 +280,8 @@ export default {
       dataPreFill: {},
       securitygroupids: [],
       securityGroupNetworkProviderUseThisVM: false,
-      hasPciDevices: false,
+      usbDevices: [],
+      lunDevices: [],
       pciDevices: [],
       pciColumns: [
         {
@@ -289,7 +294,32 @@ export default {
           dataIndex: 'hostDevicesText',
           key: 'hostDevicesText'
         }
-      ]
+      ],
+      usbColumns: [
+        {
+          title: this.$t('label.name'),
+          dataIndex: 'hostDevicesName',
+          key: 'hostDevicesName'
+        },
+        {
+          title: this.$t('label.details'),
+          dataIndex: 'hostDevicesText',
+          key: 'hostDevicesText'
+        }
+      ],
+      lunColumns: [
+        {
+          title: this.$t('label.name'),
+          dataIndex: 'hostDevicesName',
+          key: 'hostDevicesName'
+        },
+        {
+          title: this.$t('label.details'),
+          dataIndex: 'hostDevicesText',
+          key: 'hostDevicesText'
+        }
+      ],
+      hostDeviceTabKey: 'pci'
     }
   },
   created () {
@@ -314,7 +344,21 @@ export default {
     },
     '$route.fullPath': function () {
       this.setCurrentTab()
+    },
+    hostDeviceTabKey (newKey) {
+      if (newKey === 'pci') {
+        this.fetchPciDevices()
+      } else if (newKey === 'usb') {
+        this.fetchUsbDevices()
+      } else if (newKey === 'lun') {
+        this.fetchLunDevices()
+      }
     }
+  },
+  computed: {
+    hasPciDevices () { return this.pciDevices.length > 0 },
+    hasUsbDevices () { return this.usbDevices.length > 0 },
+    hasLunDevices () { return this.lunDevices.length > 0 }
   },
   mounted () {
     this.setCurrentTab()
@@ -325,9 +369,7 @@ export default {
     },
     async fetchData () {
       this.annotations = []
-      if (!this.vm || !this.vm.id) {
-        return
-      }
+      if (!this.vm || !this.vm.id) return
       api('listAnnotations', { entityid: this.dataResource.id, entitytype: 'VM', annotationfilter: 'all' }).then(json => {
         if (json.listannotationsresponse && json.listannotationsresponse.annotation) {
           this.annotations = json.listannotationsresponse.annotation
@@ -353,15 +395,16 @@ export default {
         }
       })
 
-      // PCI 디바이스 할당 여부만 확인
-      this.hasPciDevices = false
-      if (this.vm.details) {
-        for (const [key, value] of Object.entries(this.vm.details)) {
-          if (key.startsWith('extraconfig-') && value.includes('<hostdev')) {
-            this.hasPciDevices = true
-            break
-          }
-        }
+      await this.fetchPciDevices()
+      await this.fetchUsbDevices()
+      await this.fetchLunDevices()
+
+      if (this.pciDevices.length > 0) {
+        this.hostDeviceTabKey = 'pci'
+      } else if (this.usbDevices.length > 0) {
+        this.hostDeviceTabKey = 'usb'
+      } else if (this.lunDevices.length > 0) {
+        this.hostDeviceTabKey = 'lun'
       }
     },
     listDiskOfferings () {
@@ -418,6 +461,8 @@ export default {
     async handleChangeTab (activeKey) {
       if (activeKey === 'pcidevices') {
         await this.fetchPciDevices()
+        await this.fetchUsbDevices()
+        await this.fetchLunDevices()
       }
       if (this.currentTab !== activeKey) {
         this.currentTab = activeKey
@@ -455,6 +500,47 @@ export default {
         }
       } catch (error) {
         console.error('Error fetching PCI devices:', error)
+      }
+    },
+    getVmNumericId () {
+      if (!this.vm.instancename) return null
+      const parts = this.vm.instancename.split('-')
+      return parts.length > 2 ? parts[2] : null
+    },
+    async fetchUsbDevices () {
+      this.usbDevices = []
+      if (this.vm.hostid) {
+        const usbRes = await api('listHostUsbDevices', { id: this.vm.hostid })
+        const usbData = usbRes?.listhostusbdevicesresponse?.listhostusbdevices?.[0]
+        if (usbData && usbData.vmallocations) {
+          const vmNumericId = this.getVmNumericId()
+          for (const [devName, vmId] of Object.entries(usbData.vmallocations)) {
+            if (vmId && String(vmId) === String(vmNumericId)) {
+              this.usbDevices.push({
+                hostDevicesName: devName,
+                hostDevicesText: usbData.hostdevicestext[usbData.hostdevicesname.indexOf(devName)]
+              })
+            }
+          }
+        }
+      }
+    },
+    async fetchLunDevices () {
+      this.lunDevices = []
+      if (this.vm.hostid) {
+        const lunRes = await api('listHostLunDevices', { id: this.vm.hostid })
+        const lunData = lunRes?.listhostlundevicesresponse?.listhostlundevices?.[0]
+        if (lunData && lunData.vmallocations) {
+          const vmNumericId = this.getVmNumericId()
+          for (const [devName, vmId] of Object.entries(lunData.vmallocations)) {
+            if (vmId && String(vmId) === String(vmNumericId)) {
+              this.lunDevices.push({
+                hostDevicesName: devName,
+                hostDevicesText: lunData.hostdevicestext[lunData.hostdevicesname.indexOf(devName)]
+              })
+            }
+          }
+        }
       }
     }
   }

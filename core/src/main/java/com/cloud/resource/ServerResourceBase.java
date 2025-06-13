@@ -19,6 +19,18 @@
 
 package com.cloud.resource;
 
+import com.cloud.agent.IAgentControl;
+import com.cloud.agent.api.Answer;
+import com.cloud.agent.api.Command;
+import com.cloud.agent.api.ListHostDeviceAnswer;
+import com.cloud.agent.api.ListHostLunDeviceAnswer;
+import com.cloud.agent.api.ListHostUsbDeviceAnswer;
+import com.cloud.agent.api.StartupCommand;
+import com.cloud.agent.api.UpdateHostLunDeviceAnswer;
+import com.cloud.agent.api.UpdateHostUsbDeviceAnswer;
+import com.cloud.utils.net.NetUtils;
+import com.cloud.utils.script.OutputInterpreter;
+import com.cloud.utils.script.Script;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,28 +48,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
 import javax.naming.ConfigurationException;
-
-import org.apache.cloudstack.storage.command.browser.ListRbdObjectsAnswer;
 import org.apache.cloudstack.storage.command.browser.ListDataStoreObjectsAnswer;
+import org.apache.cloudstack.storage.command.browser.ListRbdObjectsAnswer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import com.cloud.agent.IAgentControl;
-import com.cloud.agent.api.Answer;
-import com.cloud.agent.api.Command;
-import com.cloud.agent.api.ListHostDeviceAnswer;
-import com.cloud.agent.api.ListHostLunDeviceAnswer;
-import com.cloud.agent.api.ListHostUsbDeviceAnswer;
-import com.cloud.agent.api.StartupCommand;
-import com.cloud.agent.api.UpdateHostUsbDeviceAnswer;
-import com.cloud.utils.net.NetUtils;
-import com.cloud.utils.script.OutputInterpreter;
-import com.cloud.utils.script.Script;
+
+
+// import org.apache.cloudstack.storage.command.browser.ListRbdObjectsAnswer;
+
 // import com.cloud.agent.api.ListHostLunDeviceCommand;
 
 public abstract class ServerResourceBase implements ServerResource {
@@ -236,18 +239,17 @@ public abstract class ServerResourceBase implements ServerResource {
                     String size = device.getString("size");
 
                     // 파티션 존재 여부 확인
-                    JSONArray children = device.optJSONArray("children");
-                    boolean hasPartition = (children != null && children.length() > 0);
+                    boolean hasPartition = hasPartitionRecursive(device);
 
                     StringBuilder info = new StringBuilder();
                     if (isMultipathActive && name.startsWith("/dev/disk/by-path/")) {
-                        info.append("Multipath LUN Device: ").append(name);
+                        // info.append("Multipath LUN Device: ").append(name);
                     } else {
-                        info.append("LUN Device: ").append(name);
+                        // info.append("LUN Device: ").append(name);
                     }
-                    info.append(" Size: ").append(size);
+                    info.append(size);
                     if (hasPartition) {
-                        info.append(" (").append(children.length()).append(" partitions)");
+                        info.append(" (").append(hasPartition ? "has partitions" : "no partitions").append(")");
                     }
 
                     hostDevicesNames.add(name);
@@ -273,6 +275,25 @@ public abstract class ServerResourceBase implements ServerResource {
         cmd.add("is-active", "multipathd");
         String result = cmd.execute(null);
         return "active".equals(result != null ? result.trim() : "");
+    }
+
+    private boolean hasPartitionRecursive(JSONObject device) {
+        // children이 없으면 false
+        if (!device.has("children")) {
+            return false;
+        }
+        JSONArray children = device.getJSONArray("children");
+        for (int i = 0; i < children.length(); i++) {
+            JSONObject child = children.getJSONObject(i);
+            String type = child.optString("type", "");
+            if ("part".equals(type)) {
+                return true;
+            }
+            if (hasPartitionRecursive(child)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected Answer createImageRbd(String poolUuid, String skey, String authUserName, String host, String names, long sizes, String poolPath) {
@@ -627,6 +648,8 @@ public abstract class ServerResourceBase implements ServerResource {
                 logger.info("Executing detach command for VM: {} with XML: {}", vmName, xmlConfig);
             }
 
+            logger.info("isAttach value: {}", isAttach);
+
             String result = virshCmd.execute();
 
             if (result != null) {
@@ -665,22 +688,24 @@ public abstract class ServerResourceBase implements ServerResource {
                 logger.info("Executing detach command for VM: {} with XML: {}", vmName, xmlConfig);
             }
 
+            logger.info("isAttach value: {}", isAttach);
+
             String result = virshCmd.execute();
 
             if (result != null) {
                 String action = isAttach ? "attach" : "detach";
                 logger.error("Failed to {} USB device: {}", action, result);
-                return new UpdateHostUsbDeviceAnswer(false, vmName, xmlConfig, isAttach);
+                return new UpdateHostLunDeviceAnswer(false, vmName, xmlConfig, isAttach);
             }
 
             String action = isAttach ? "attached to" : "detached from";
             logger.info("Successfully {} USB device for VM {}", action, vmName);
-            return new UpdateHostUsbDeviceAnswer(true, vmName, xmlConfig, isAttach);
+            return new UpdateHostLunDeviceAnswer(true, vmName, xmlConfig, isAttach);
 
         } catch (Exception e) {
             String action = isAttach ? "attaching" : "detaching";
             logger.error("Error {} USB device: {}", action, e.getMessage(), e);
-            return new UpdateHostUsbDeviceAnswer(false, vmName, xmlConfig, isAttach);
+            return new UpdateHostLunDeviceAnswer(false, vmName, xmlConfig, isAttach);
         }
     }
 }
