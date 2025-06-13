@@ -556,7 +556,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
                 pool.getPoolIp()));
 
         if (result == null && parsedLine.contains("DEAD")) {
-            logger.warn(String.format("Checking heart beat with KVMHAChecker command [%s] returned [%s]. [%s]. It may cause a shutdown of host IP [%s].", cmd.toString(),
+            logger.info(String.format("Checking heart beat with KVMHAChecker command [%s] returned [%s]. [%s]. It may cause a shutdown of host IP [%s].", cmd.toString(),
                     result, parsedLine, host.getPrivateNetwork().getIp()));
         } else {
             validResult = true;
@@ -588,7 +588,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
                 pool.getPoolIp()));
 
         if (result == null && parsedLine.contains("DEAD")) {
-            logger.warn(String.format("Checking heart beat with KVMHAChecker command [%s] returned [%s]. [%s]. It may cause a shutdown of host IP [%s].", cmd.toString(),
+            logger.info(String.format("Checking heart beat with KVMHAChecker command [%s] returned [%s]. [%s]. It may cause a shutdown of host IP [%s].", cmd.toString(),
                     result, parsedLine, host.getPrivateNetwork().getIp()));
         } else {
             validResult = true;
@@ -702,7 +702,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
         logger.debug(String.format("Checking heart beat with KVMHAVMActivityChecker [{command=\"%s\", result: \"%s\", log: \"%s\", pool: \"%s\"}].", cmd.toString(), result, parsedLine, pool.getPoolIp()));
 
         if (result == null && parsedLine.contains("DEAD")) {
-            logger.warn(String.format("Checking heart beat with KVMHAVMActivityChecker command [%s] returned [%s]. It is [%s]. It may cause a shutdown of host IP [%s].", cmd.toString(), result, parsedLine, host.getPrivateNetwork().getIp()));
+            logger.info(String.format("Checking heart beat with KVMHAVMActivityChecker command [%s] returned [%s]. It is [%s]. It may cause a shutdown of host IP [%s].", cmd.toString(), result, parsedLine, host.getPrivateNetwork().getIp()));
             return false;
         } else {
             return true;
