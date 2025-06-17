@@ -4465,6 +4465,7 @@
 "physical.ovscontroller.add": "PHYSICAL.OVSCONTROLLER.ADD",
 "physical.ovscontroller.delete": "PHYSICAL.OVSCONTROLLER.DELETE",
 "cluster.drs.generate": "CLUSTER.DRS.GENERATE",
+"cluster.drs": "CLUSTER.DRS",
 "counter.create": "COUNTER.CREATE",
 "counter.delete": "COUNTER.DELETE",
 "condition.create": "CONDITION.CREATE",

@@ -250,13 +250,9 @@ export default {
 
                 const vm = response?.listvirtualmachinesresponse?.virtualmachine?.[0]
                 const details = vm?.details || {}
-
-                // extraconfig에 해당 호스트 디바이스 설정이 남아있는지 확인
                 const hasDeviceConfig = Object.values(details).some(value =>
                   value.includes('<hostdev') && value.includes(hostDevicesName)
                 )
-
-                // 설정이 남아있다면 삭제하지 않음
                 if (hasDeviceConfig) {
                   return
                 }
@@ -277,17 +273,18 @@ export default {
     },
 
     generateXmlConfig (hostDeviceName) {
-      // PCI 디바이스인 경우 (기존 로직)
       const [pciAddress] = hostDeviceName.split(' ')
       const [bus, slotFunction] = pciAddress.split(':')
       const [slot, func] = slotFunction.split('.')
 
       return `
+      <devices>
       <hostdev mode='subsystem' type='pci' managed='yes'>
         <source>
           <address domain='0x0000' bus='0x${bus}' slot='0x${slot}' function='0x${func}'/>
         </source>
       </hostdev>
+      </devices>
       `.trim()
     },
 
@@ -321,3 +318,4 @@ export default {
   }
 }
 </style>
+

@@ -133,6 +133,19 @@
             <status class="status" :text="resource.resourcestate" displayText/>
           </div>
         </div>
+        <div class="resource-detail-item" v-if="['cluster', 'zone'].includes($route.meta.name) && resource.resourcedetails">
+          <div class="resource-detail-item__label">{{ $t('label.haenable') }}</div>
+          <div class="resource-detail-item__details">
+            <status class="status" :text="resource.resourcedetails.resourceHAEnabled === 'true' ? 'enabled' : 'disabled'" displayText/>
+          </div>
+        </div>
+        <div class="resource-detail-item" v-if="$route.meta.name === 'host' && resource.hostha">
+          <div class="resource-detail-item__label">{{ $t('label.haenable') }}</div>
+          <div class="resource-detail-item__details">
+            <status class="status" :text="resource.hostha.haenable === 'true' ? 'enabled' : 'disabled'" displayText/>
+            <a-tag style="margin-left: 5px; margin-bottom: 5px;">{{ resource.hostha.hastate }}</a-tag>
+          </div>
+        </div>
         <div class="resource-detail-item" v-if="('success' in resource) && $route.meta.name === 'webhookdeliveries'">
           <div class="resource-detail-item__label">{{ $t('label.success') }}</div>
           <div class="resource-detail-item__details">

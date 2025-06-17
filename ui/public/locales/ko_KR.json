@@ -4465,6 +4465,7 @@
 "physical.ovscontroller.add": "\ubb3c\ub9ac OVS\ucee8\ud2b8\ub864\ub7ec \ucd94\uac00",
 "physical.ovscontroller.delete": "\ubb3c\ub9ac OVSC\ucee8\ud2b8\ub864\ub7ec \uc0ad\uc81c",
 "cluster.drs.generate": "\ud074\ub7ec\uc2a4\ud130 DRS \uc0dd\uc131",
+"cluster.drs": "\ud074\ub7ec\uc2a4\ud130 DRS",
 "counter.create": "\uce74\uc6b4\ud130 \uc0dd\uc131",
 "counter.delete": "\uce74\uc6b4\ud130 \uc0ad\uc81c",
 "condition.create": "\uc870\uac74 \uc0dd\uc131",

@@ -476,10 +476,13 @@
           {{ isNaN(text) ? text : (parseFloat(parseFloat(text) / 1024.0 / 1024.0 / 1024.0).toFixed(2) + ' GiB') }}
         </span>
       </template>
+      <template v-if="['cluster', 'zone'].includes($route.meta.name) && column.key === 'haenable'">
+        <status :text="record.resourcedetails.resourceHAEnabled === 'true' ? 'enabled' : 'disabled'" displayText/>
+      </template>
       <template v-if="column.key === 'hastate'">
         <a-tag>{{ record.hostha.hastate }}</a-tag>
       </template>
-      <template v-if="column.key === 'haenable'">
+      <template v-if="$route.meta.name === 'host' && column.key === 'haenable'">
         <status :text="record.hostha.haenable ? 'enabled' : 'disabled'" displayText/>
       </template>
       <template v-if="['startdate', 'enddate'].includes(column.key) && ['quotasummary', 'usage'].includes($route.path.split('/')[1])">

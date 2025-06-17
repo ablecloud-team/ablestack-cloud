@@ -26,7 +26,7 @@ export default {
   permission: ['listZonesMetrics'],
   searchFilters: ['name', 'domainid', 'tags'],
   columns: () => {
-    const fields = ['name', 'allocationstate', 'type', 'networktype', 'clusters']
+    const fields = ['name', 'allocationstate', 'type', 'networktype', 'clusters', 'haenable']
     const metricsFields = ['cpuused', 'cpumaxdeviation', 'cpuallocated', 'cputotal', 'memoryused', 'memorymaxdeviation', 'memoryallocated', 'memorytotal']
     if (store.getters.metrics) {
       fields.push(...metricsFields)
@@ -34,7 +34,7 @@ export default {
     fields.push('order')
     return fields
   },
-  details: ['name', 'id', 'allocationstate', 'type', 'networktype', 'guestcidraddress', 'localstorageenabled', 'securitygroupsenabled', 'dns1', 'dns2', 'internaldns1', 'internaldns2', 'asnrange'],
+  details: ['name', 'id', 'allocationstate', 'type', 'networktype', 'guestcidraddress', 'localstorageenabled', 'securitygroupsenabled', 'dns1', 'dns2', 'internaldns1', 'internaldns2', 'asnrange', 'haenable'],
   related: [{
     name: 'pod',
     title: 'label.pods',
