@@ -700,6 +700,8 @@ import com.cloud.agent.api.UpdateHostUsbDeviceAnswer;
 import com.cloud.agent.api.UpdateHostUsbDeviceCommand;
 import com.cloud.agent.api.UpdateHostLunDeviceAnswer;
 import com.cloud.agent.api.UpdateHostLunDeviceCommand;
+import com.cloud.agent.api.UpdateHostHbaDeviceAnswer;
+import com.cloud.agent.api.UpdateHostHbaDeviceCommand;
 import com.cloud.agent.api.proxy.AllowConsoleAccessCommand;
 import com.cloud.agent.api.routing.NetworkElementCommand;
 import com.cloud.agent.manager.Commands;

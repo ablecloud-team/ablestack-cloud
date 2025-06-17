@@ -23,6 +23,7 @@ import com.cloud.agent.IAgentControl;
 import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.Command;
 import com.cloud.agent.api.ListHostDeviceAnswer;
+import com.cloud.agent.api.ListHostHbaDeviceAnswer;
 import com.cloud.agent.api.ListHostLunDeviceAnswer;
 import com.cloud.agent.api.ListHostUsbDeviceAnswer;
 import com.cloud.agent.api.StartupCommand;
@@ -48,7 +49,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import javax.naming.ConfigurationException;
 import org.apache.cloudstack.storage.command.browser.ListDataStoreObjectsAnswer;
 import org.apache.cloudstack.storage.command.browser.ListRbdObjectsAnswer;
 import org.apache.commons.collections.CollectionUtils;
@@ -294,6 +294,28 @@ public abstract class ServerResourceBase implements ServerResource {
             }
         }
         return false;
+    }
+
+    protected Answer listHostHbaDevices(Command command) {
+        List<String> hostDevicesText = new ArrayList<>();
+        List<String> hostDevicesNames = new ArrayList<>();
+        // lsscsi 대신 lspci 명령어로 HBA 조회
+        Script listCommand = new Script("/bin/bash");
+        listCommand.add("-c");
+        listCommand.add("lspci | grep -i 'scsi\\|sas\\|fibre\\|raid\\|hba'");
+        OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+        String result = listCommand.execute(parser);
+        if (result == null && parser.getLines() != null) {
+            String[] lines = parser.getLines().split("\\n");
+            for (String line : lines) {
+                String[] parts = line.split(" ", 2);
+                if (parts.length >= 2) {
+                    hostDevicesNames.add(parts[0].trim());
+                    hostDevicesText.add(parts[1].trim());
+                }
+            }
+        }
+        return new ListHostHbaDeviceAnswer(true, hostDevicesNames, hostDevicesText);
     }
 
     protected Answer createImageRbd(String poolUuid, String skey, String authUserName, String host, String names, long sizes, String poolPath) {
