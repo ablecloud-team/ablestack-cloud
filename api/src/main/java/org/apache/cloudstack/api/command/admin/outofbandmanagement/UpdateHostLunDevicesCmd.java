@@ -32,7 +32,7 @@ import org.apache.cloudstack.context.CallContext;
         RoleType.Admin })
 public class UpdateHostLunDevicesCmd extends BaseListCmd {
 
-    private static final String UPDATEHOSTDEVICES = "updatehostdevices";
+    private static final String UPDATEHOSTLUNDEVICES = "updatehostlundevices";
 
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////

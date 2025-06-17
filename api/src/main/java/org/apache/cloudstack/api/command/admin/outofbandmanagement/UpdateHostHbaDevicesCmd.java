@@ -23,22 +23,22 @@ import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.BaseListCmd;
 import org.apache.cloudstack.api.Parameter;
-import org.apache.cloudstack.api.response.ListResponse;
-import org.apache.cloudstack.api.response.UpdateHostUsbDevicesResponse;
+import org.apache.cloudstack.api.response.UpdateHostHbaDevicesResponse;
 import org.apache.cloudstack.context.CallContext;
+import org.apache.cloudstack.api.response.ListResponse;
 // import org.apache.cloudstack.api.response.HostResponse;
 
-@APICommand(name = "updateHostUsbDevices", description = "list Host Usb Devices'.", since = "4.20.0.0", responseObject = UpdateHostUsbDevicesResponse.class, requestHasSensitiveInfo = false, responseHasSensitiveInfo = false, authorized = {
+@APICommand(name = "updateHostHbaDevices", description = "list Host Usb Devices'.", since = "4.20.0.0", responseObject = UpdateHostHbaDevicesResponse.class, requestHasSensitiveInfo = false, responseHasSensitiveInfo = false, authorized = {
         RoleType.Admin })
-public class UpdateHostUsbDevicesCmd extends BaseListCmd {
+public class UpdateHostHbaDevicesCmd extends BaseListCmd {
 
-    private static final String UPDATEHOSTUSBDEVICES = "updatehostusbdevices";
+    private static final String UPDATEHOSTHBADEVICES = "updatehosthbadevices";
 
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
 
-    @Parameter(name = ApiConstants.HOST_ID, type = BaseCmd.CommandType.UUID, entityType = UpdateHostUsbDevicesResponse.class, description = "host ID", required = true, validations = {
+    @Parameter(name = ApiConstants.HOST_ID, type = BaseCmd.CommandType.UUID, entityType = UpdateHostHbaDevicesResponse.class, description = "host ID", required = true, validations = {
             ApiArgValidator.PositiveNumber })
     private Long hostId;
 
@@ -47,7 +47,7 @@ public class UpdateHostUsbDevicesCmd extends BaseListCmd {
     private String hostDeviceName;
 
     @Parameter(name = ApiConstants.VIRTUAL_MACHINE_ID, type = CommandType.UUID,
-            entityType = UpdateHostUsbDevicesResponse.class,
+            entityType = UpdateHostHbaDevicesResponse.class,
             required = false, description = "VM ID to allocate the device to")
     private Long vmId;
 
@@ -96,7 +96,7 @@ public class UpdateHostUsbDevicesCmd extends BaseListCmd {
     /////////////////////////////////////////////////////
 
     public static String getResultObjectName() {
-        return "updatehostdevices";
+        return "updatehosthbadevices";
     }
 
     @Override
@@ -106,7 +106,7 @@ public class UpdateHostUsbDevicesCmd extends BaseListCmd {
 
     @Override
     public void execute() {
-        ListResponse<UpdateHostUsbDevicesResponse> response = _mgr.updateHostUsbDevices(this);
+        ListResponse<UpdateHostHbaDevicesResponse> response = _mgr.updateHostHbaDevices(this);
         response.setResponseName(getCommandName());
         response.setObjectName(getCommandName());
         this.setResponseObject(response);
