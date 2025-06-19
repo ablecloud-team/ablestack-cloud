@@ -4778,5 +4778,6 @@
 "message.error.remove.allocation": "\ub514\ubc14\uc774\uc2a4 \ud560\ub2f9 \ud574\uc81c\uc5d0 \uc2e4\ud328\ud558\uc600\uc2b5\ub2c8\ub2e4.",
 "message.delete.device.allocation": "\uc5d0 \uc788\ub294 \ub514\ubc14\uc774\uc2a4 \ud560\ub2f9 \ud574\uc81c",
 "message.success.allocate.device": "\ub514\ubc14\uc774\uc2a4 \ud560\ub2f9 \uc644\ub8cc",
-"message.confirm.delete.device": "\ub514\ubc14\uc774\uc2a4\ub97c \uc0ad\uc81c\ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?"
+"message.confirm.delete.device": "\ub514\ubc14\uc774\uc2a4\ub97c \uc0ad\uc81c\ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?",
+"label.hba.devices": "HBA \ub514\ubc14\uc774\uc2a4"
 }

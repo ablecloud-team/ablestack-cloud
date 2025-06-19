@@ -27,6 +27,7 @@ import com.cloud.agent.api.ListHostHbaDeviceAnswer;
 import com.cloud.agent.api.ListHostLunDeviceAnswer;
 import com.cloud.agent.api.ListHostUsbDeviceAnswer;
 import com.cloud.agent.api.StartupCommand;
+import com.cloud.agent.api.UpdateHostHbaDeviceAnswer;
 import com.cloud.agent.api.UpdateHostLunDeviceAnswer;
 import com.cloud.agent.api.UpdateHostUsbDeviceAnswer;
 import com.cloud.utils.net.NetUtils;
@@ -57,6 +58,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import javax.naming.ConfigurationException;
 
 
 // import org.apache.cloudstack.storage.command.browser.ListRbdObjectsAnswer;
@@ -299,7 +301,6 @@ public abstract class ServerResourceBase implements ServerResource {
     protected Answer listHostHbaDevices(Command command) {
         List<String> hostDevicesText = new ArrayList<>();
         List<String> hostDevicesNames = new ArrayList<>();
-        // lsscsi 대신 lspci 명령어로 HBA 조회
         Script listCommand = new Script("/bin/bash");
         listCommand.add("-c");
         listCommand.add("lspci | grep -i 'scsi\\|sas\\|fibre\\|raid\\|hba'");
@@ -728,6 +729,47 @@ public abstract class ServerResourceBase implements ServerResource {
             String action = isAttach ? "attaching" : "detaching";
             logger.error("Error {} USB device: {}", action, e.getMessage(), e);
             return new UpdateHostLunDeviceAnswer(false, vmName, xmlConfig, isAttach);
+        }
+    }
+
+    protected Answer updateHostHbaDevices(Command command, String vmName, String xmlConfig, boolean isAttach) {
+        String hbaXmlPath = String.format("/tmp/hba_device_%s.xml", vmName);
+        try {
+            // XML 파일이 없을 경우에만 생성
+            File xmlFile = new File(hbaXmlPath);
+            if (!xmlFile.exists()) {
+                try (PrintWriter writer = new PrintWriter(hbaXmlPath)) {
+                    writer.write(xmlConfig);
+                }
+                logger.info("Generated XML file: {} for VM: {}", hbaXmlPath, vmName);
+            }
+
+            Script virshCmd = new Script("virsh");
+            if (isAttach) {
+                virshCmd.add("attach-device", vmName, hbaXmlPath);
+            } else {
+                virshCmd.add("detach-device", vmName, hbaXmlPath);
+                logger.info("Executing detach command for VM: {} with XML: {}", vmName, xmlConfig);
+            }
+
+            logger.info("isAttach value: {}", isAttach);
+
+            String result = virshCmd.execute();
+
+            if (result != null) {
+                String action = isAttach ? "attach" : "detach";
+                logger.error("Failed to {} HBA device: {}", action, result);
+                return new UpdateHostHbaDeviceAnswer(false, vmName, xmlConfig, isAttach);
+            }
+
+            String action = isAttach ? "attached to" : "detached from";
+            logger.info("Successfully {} HBA device for VM {}", action, vmName);
+            return new UpdateHostHbaDeviceAnswer(true, vmName, xmlConfig, isAttach);
+
+        } catch (Exception e) {
+            String action = isAttach ? "attaching" : "detaching";
+            logger.error("Error {} HBA device: {}", action, e.getMessage(), e);
+            return new UpdateHostHbaDeviceAnswer(false, vmName, xmlConfig, isAttach);
         }
     }
 }

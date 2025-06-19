@@ -168,6 +168,60 @@
           </template>
         </a-table>
       </a-tab-pane>
+
+      <a-tab-pane key="4" :tab="$t('label.hba.devices')">
+        <a-input-search
+          v-model:value="hbaSearchQuery"
+          :placeholder="$t('label.search')"
+          style="width: 500px; margin-bottom: 15px; float: right;"
+          @search="onHbaSearch"
+          @change="onHbaSearch"
+        />
+        <a-table
+          :columns="columns"
+          :dataSource="filteredHbaDevices"
+          :loading="loading"
+          :pagination="false"
+          size="middle"
+          :scroll="{ y: 1000 }">
+          <template #headerCell="{ column }">
+            <template v-if="column.key === 'hostDevicesText'">
+              {{ $t('label.details') }}
+            </template>
+          </template>
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'hostDevicesName'">
+              {{ record.hostDevicesName }}
+            </template>
+            <template v-if="column.key === 'hostDevicesText'">
+              {{ record.hostDevicesText }}
+            </template>
+            <template v-if="column.key === 'vmName'">
+              <a-spin v-if="vmNameLoading" size="small" />
+              <template v-else>{{ vmNames[record.hostDevicesName] || $t('') }}</template>
+            </template>
+            <template v-if="column.key === 'action'">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <a-button
+                  :type="isDeviceAssigned(record) ? 'danger' : 'primary'"
+                  size="medium"
+                  shape="circle"
+                  :tooltip="isDeviceAssigned(record) ? $t('label.remove') : $t('label.create')"
+                  @click="isDeviceAssigned(record) ? deallocateHbaDevice(record) : openHbaModal(record)"
+                  :loading="loading"
+                  :disabled="loading"
+                  style="z-index: 1; position: relative;">
+                  <template #icon>
+                    <delete-outlined v-if="isDeviceAssigned(record)" />
+                    <plus-outlined v-else />
+                  </template>
+                </a-button>
+              </div>
+              <span style="display: none;">{{ record.virtualmachineid }}</span>
+            </template>
+          </template>
+        </a-table>
+      </a-tab-pane>
     </a-tabs>
 
     <a-modal
@@ -195,6 +249,13 @@
       <HostLunDevicesTransfer
         v-else-if="activeKey === '3' && selectedResource"
         ref="hostLunDevicesTransfer"
+        :resource="selectedResource"
+        @close-action="closeAction"
+        @allocation-completed="onAllocationCompleted"
+        @device-allocated="handleDeviceAllocated" />
+      <HostHbaDevicesTransfer
+        v-else-if="activeKey === '4' && selectedResource"
+        ref="hostHbaDevicesTransfer"
         :resource="selectedResource"
         @close-action="closeAction"
         @allocation-completed="onAllocationCompleted"
@@ -243,6 +304,7 @@ import { IdcardOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons-
 import HostDevicesTransfer from '@/views/storage/HostDevicesTransfer'
 import HostUsbDevicesTransfer from '@/views/storage/HostUsbDevicesTransfer'
 import HostLunDevicesTransfer from '@/views/storage/HostLunDevicesTransfer'
+import HostHbaDevicesTransfer from '@/views/storage/HostHbaDevicesTransfer'
 
 export default {
   name: 'ListHostDevicesTab',
@@ -252,7 +314,8 @@ export default {
     DeleteOutlined,
     HostDevicesTransfer,
     HostUsbDevicesTransfer,
-    HostLunDevicesTransfer
+    HostLunDevicesTransfer,
+    HostHbaDevicesTransfer
   },
   props: {
     resource: {
@@ -297,6 +360,7 @@ export default {
       usbSearchQuery: '',
       lunSearchQuery: '',
       otherSearchQuery: '',
+      hbaSearchQuery: '',
       selectedDevices: [],
       selectedPciDevices: [],
       virtualmachines: [],
@@ -366,6 +430,17 @@ export default {
         return isLun && (
           deviceName.toLowerCase().includes(query) ||
           deviceText.toLowerCase().includes(query)
+        )
+      })
+    },
+
+    filteredHbaDevices () {
+      const query = this.hbaSearchQuery.toLowerCase()
+      return this.dataItems.filter(item => {
+        if (!query) return true
+        return (
+          (item.hostDevicesName && item.hostDevicesName.toLowerCase().includes(query)) ||
+          (item.hostDevicesText && item.hostDevicesText.toLowerCase().includes(query))
         )
       })
     }
@@ -496,9 +571,12 @@ export default {
       await this.updateVmNames()
     },
     isDeviceAssigned (record) {
+      // HBA 디바이스의 경우 고유한 디바이스명 사용
+      const deviceName = this.activeKey === '4' ? record.hostDevicesName : record.hostDevicesName
       return record.virtualmachineid != null ||
              record.isAssigned ||
-             this.selectedDevices.includes(record.hostDevicesName)
+             this.selectedDevices.includes(deviceName) ||
+             (this.activeKey === '4' && this.vmNames[record.hostDevicesName])
     },
     openPciModal (record) {
       this.selectedResource = { ...this.resource, hostDevicesName: record.hostDevicesName }
@@ -515,6 +593,8 @@ export default {
         this.fetchUsbDevices()
       } else if (this.activeKey === '3') {
         this.fetchLunDevices()
+      } else if (this.activeKey === '4') {
+        this.fetchHbaDevices()
       } else {
         this.fetchData()
       }
@@ -545,6 +625,8 @@ export default {
         setTimeout(() => {
           this.fetchLunDevices()
         }, 700)
+      } else if (this.activeKey === '4') {
+        this.fetchHbaDevices()
       } else {
         this.fetchData()
       }
@@ -556,6 +638,8 @@ export default {
         this.fetchUsbDevices()
       } else if (this.activeKey === '3') {
         this.fetchLunDevices()
+      } else if (this.activeKey === '4') {
+        this.fetchHbaDevices()
       } else {
         this.fetchData()
       }
@@ -570,6 +654,8 @@ export default {
         await this.updateVmNames()
       } else if (activeKey === '3') {
         this.fetchLunDevices() // LUN 탭 선택 시 호출
+      } else if (activeKey === '4') {
+        this.fetchHbaDevices() // HBA 탭 선택 시 호출
       }
     },
     fetchUsbDevices () {
@@ -1188,6 +1274,185 @@ export default {
     closePciDeleteModal () {
       this.showPciDeleteModal = false
       this.selectedPciDevice = null
+    },
+    onHbaSearch () {
+      // HBA 디바이스 검색은 computed 속성에서 자동으로 처리됨
+    },
+    async fetchHbaDevices () {
+      this.loading = true
+      try {
+        const response = await api('listHostHbaDevices', {
+          id: this.resource.id
+        })
+
+        if (response.listhosthbadevicesresponse?.listhosthbadevices?.[0]) {
+          const hbaData = response.listhosthbadevicesresponse.listhosthbadevices[0]
+          const vmAllocations = hbaData.vmallocations || {}
+
+          // VM 이름 매핑
+          const vmNameMap = {}
+          for (const name in vmAllocations) {
+            const vmId = vmAllocations[name]
+            if (vmId) {
+              const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+              const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+              if (vm) vmNameMap[name] = vm.displayname || vm.name
+            }
+          }
+          this.vmNames = { ...this.vmNames, ...vmNameMap }
+
+          const hbaDevices = hbaData.hostdevicesname.map((name, index) => {
+            return {
+              key: index,
+              hostDevicesName: name,
+              hostDevicesText: hbaData.hostdevicestext[index],
+              virtualmachineid: (hbaData.vmallocations && hbaData.vmallocations[name]) || null,
+              vmName: vmNameMap[name] || '',
+              isAssigned: Boolean(hbaData.vmallocations && hbaData.vmallocations[name])
+            }
+          })
+
+          this.dataItems = hbaDevices
+          // 가상머신 이름을 업데이트합니다
+          this.updateHbaVmNames()
+        } else {
+          this.dataItems = []
+        }
+      } catch (error) {
+        console.error('Error fetching HBA devices:', error)
+        this.$notification.error({
+          message: this.$t('label.error'),
+          description: error.message || this.$t('message.error.fetch.hba.devices')
+        })
+        this.dataItems = []
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async updateHbaVmNames () {
+      this.vmNameLoading = true
+      try {
+        const response = await api('listHostHbaDevices', { id: this.resource.id })
+        const devices = response.listhosthbadevicesresponse?.listhosthbadevices?.[0]
+
+        if (devices?.vmallocations) {
+          const vmNamesMap = {}
+          const entries = Object.entries(devices.vmallocations)
+
+          for (const [deviceName, vmId] of entries) {
+            if (vmId) {
+              try {
+                const vmResponse = await api('listVirtualMachines', {
+                  id: vmId,
+                  listall: true
+                })
+
+                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+                if (vm) {
+                  vmNamesMap[deviceName] = vm.name || vm.displayname
+                } else {
+                  vmNamesMap[deviceName] = this.$t('label.no.vm.assigned')
+                }
+              } catch (error) {
+                console.error('Error fetching VM name for HBA device:', deviceName, error)
+                vmNamesMap[deviceName] = this.$t('label.no.vm.assigned')
+              }
+            }
+          }
+          this.vmNames = { ...this.vmNames, ...vmNamesMap }
+        }
+      } catch (error) {
+        console.error('Error in updateHbaVmNames:', error)
+      } finally {
+        this.vmNameLoading = false
+      }
+    },
+    async deallocateHbaDevice (record) {
+      if (!this.resource || !this.resource.id) {
+        this.$notifyError(this.$t('message.error.invalid.resource'))
+        return
+      }
+      this.loading = true
+      try {
+        // 1. HBA 디바이스의 현재 할당 상태 확인
+        const response = await api('listHostHbaDevices', {
+          id: this.resource.id
+        })
+        const devices = response.listhosthbadevicesresponse?.listhosthbadevices?.[0]
+        const vmAllocations = devices?.vmallocations || {}
+        const vmId = vmAllocations[record.hostDevicesName]
+
+        if (!vmId) {
+          throw new Error('No VM allocation found for this device')
+        }
+
+        // 2. 할당 해제 확인 및 실행
+        const vmName = this.vmNames[record.hostDevicesName] || 'Unknown VM'
+        this.$confirm({
+          title: `${vmName} ${this.$t('message.delete.device.allocation')}`,
+          content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
+          onOk: async () => {
+            const xmlConfig = this.generateXmlHbaConfig(record.hostDevicesName)
+            const detachResponse = await api('updateHostHbaDevices', {
+              hostid: this.resource.id,
+              hostdevicesname: record.hostDevicesName,
+              virtualmachineid: null,
+              currentvmid: vmId,
+              xmlconfig: xmlConfig,
+              isattach: false
+            })
+            if (!detachResponse || detachResponse.error) {
+              throw new Error(detachResponse?.error?.errortext || 'Failed to detach HBA device')
+            }
+
+            // 현재 디바이스만 업데이트
+            this.dataItems = this.dataItems.map(item =>
+              item.hostDevicesName === record.hostDevicesName
+                ? { ...item, virtualmachineid: null, vmName: '', isAssigned: false }
+                : item
+            )
+
+            this.$message.success(this.$t('message.success.remove.allocation'))
+            await this.fetchHbaDevices()
+            this.vmNames = {}
+            this.$emit('device-allocated')
+            this.$emit('allocation-completed')
+            this.$emit('close-action')
+          },
+          onCancel () {}
+        })
+      } catch (error) {
+        this.$notifyError(error.message || 'Failed to deallocate HBA device')
+      } finally {
+        this.loading = false
+      }
+    },
+    openHbaModal (record) {
+      // 원본 디바이스명 사용 (API 호출용)
+      const hostDevicesName = record.hostDevicesName
+      this.selectedResource = { ...this.resource, hostDevicesName: hostDevicesName }
+      this.showAddModal = true
+    },
+    generateXmlHbaConfig (hostDeviceName) {
+      const match = hostDeviceName.match(/(\d+):(\d+)\.(\d+)/)
+      let bus = '0x0000'
+      let slot = '0x00'
+      let func = '0x0'
+
+      if (match) {
+        bus = '0x' + parseInt(match[1], 10).toString(16).padStart(4, '0')
+        slot = '0x' + parseInt(match[2], 10).toString(16).padStart(2, '0')
+        func = '0x' + parseInt(match[3], 10).toString(16)
+      }
+
+      return `
+        <hostdev mode='subsystem' type='pci' managed='yes'>
+          <source>
+            <address domain='0x0000' bus='${bus}' slot='${slot}' function='${func}'/>
+          </source>
+        </hostdev>
+      `.trim()
     }
   }
 }

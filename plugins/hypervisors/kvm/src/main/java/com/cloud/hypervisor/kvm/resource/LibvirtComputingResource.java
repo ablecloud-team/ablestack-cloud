@@ -113,6 +113,7 @@ import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.Command;
 import com.cloud.agent.api.HostVmStateReportEntry;
 import com.cloud.agent.api.ListHostDeviceCommand;
+import com.cloud.agent.api.ListHostHbaDeviceCommand;
 import com.cloud.agent.api.ListHostLunDeviceCommand;
 import com.cloud.agent.api.ListHostUsbDeviceCommand;
 import com.cloud.agent.api.UpdateHostLunDeviceCommand;
@@ -125,6 +126,9 @@ import com.cloud.agent.api.SetupGuestNetworkCommand;
 import com.cloud.agent.api.StartupCommand;
 import com.cloud.agent.api.StartupRoutingCommand;
 import com.cloud.agent.api.StartupStorageCommand;
+import com.cloud.agent.api.UpdateHostHbaDeviceCommand;
+// import com.cloud.agent.api.UpdateHostLunDeviceCommand;
+// import com.cloud.agent.api.UpdateHostUsbDeviceCommand;
 import com.cloud.agent.api.VmDiskStatsEntry;
 import com.cloud.agent.api.VmNetworkStatsEntry;
 import com.cloud.agent.api.VmStatsEntry;
@@ -5535,6 +5539,16 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             throw new IllegalArgumentException("Host ID cannot be null");
         }
     }
+
+    public Answer listHostHbaDevices(ListHostHbaDeviceCommand command) {
+        logger.info("listhba: " + command.getId());
+        if (command.getId() != null) {
+            return super.listHostHbaDevices(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
     public Answer updateHostUsbDevices(UpdateHostUsbDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
         logger.info("Received USB device update command - VM: {}, isAttach: {}, xmlConfig: {}",
             vmName, isAttach, xmlConfig);
@@ -5545,6 +5559,12 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         logger.info("Received LUN device update command - VM: {}, isAttach: {}, xmlConfig: {}",
             vmName, isAttach, xmlConfig);
         return super.updateHostLunDevices(command, vmName, xmlConfig, isAttach);
+    }
+
+    public Answer updateHostHbaDevices(UpdateHostHbaDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        logger.info("Received HBA device update command - VM: {}, isAttach: {}, xmlConfig: {}",
+            vmName, isAttach, xmlConfig);
+        return super.updateHostHbaDevices(command, vmName, xmlConfig, isAttach);
     }
 
     public Answer listFilesAtPath(ListDataStoreObjectsCommand command) {
@@ -6295,6 +6315,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return uuid;
     }
 
+    @Override
     public void createRBDSecretKeyFileIfNoExist(String uuid, String localPath, String skey) {
         File file = new File(localPath + File.separator + uuid);
         try {
