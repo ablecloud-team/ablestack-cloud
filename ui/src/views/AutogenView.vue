@@ -923,6 +923,10 @@ export default {
       }
 
       this.loading = true
+      if (this.$route.path.startsWith('/cniconfiguration')) {
+        params.forcks = true
+        console.log('here')
+      }
       if (this.$route.params && this.$route.params.id) {
         params.id = this.$route.params.id
         if (['listNetworks'].includes(this.apiName) && 'displaynetwork' in this.$route.query) {
@@ -1261,6 +1265,9 @@ export default {
       }
       var paramName = param.name
       var extractedParamName = paramName.replace('ids', '').replace('id', '').toLowerCase()
+      if (extractedParamName.endsWith('ory')) {
+        extractedParamName = extractedParamName.slice(0, -3) + 'orie'
+      }
       var params = { listall: true }
       for (const filter in filters) {
         params[filter] = filters[filter]
@@ -1724,6 +1731,7 @@ export default {
       delete query.domainid
       delete query.state
       delete query.annotationfilter
+      delete query.leased
       if (this.$route.name === 'template') {
         query.templatefilter = filter
       } else if (this.$route.name === 'iso') {
@@ -1773,6 +1781,8 @@ export default {
           query.domainid = this.$store.getters.userInfo.domainid
         } else if (['running', 'stopped'].includes(filter)) {
           query.state = filter
+        } else if (filter === 'leased') {
+          query.leased = true
         }
       } else if (this.$route.name === 'comment') {
         query.annotationfilter = filter
