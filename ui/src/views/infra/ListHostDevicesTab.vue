@@ -95,26 +95,13 @@
         @close-action="closeAction"
         @allocation-completed="onAllocationCompleted"
         @device-allocated="handleDeviceAllocated" />
-      <!-- <HostUsbDevicesTransfer
-        v-else-if="activeKey === '2'"
-        ref="hostUsbDevicesTransfer"
-        :resource="selectedResource"
-        @close-action="closeAction"
-        @allocation-completed="onAllocationCompleted"
-        @device-allocated="handleDeviceAllocated" />
-      <HostLunDevicesTransfer
-        v-else
-        ref="hostLunDevicesTransfer"
-        :resource="selectedResource"
-        @close-action="closeAction"
-        @allocation-completed="onAllocationCompleted" -->
-        <!-- @device-allocated="handleDeviceAllocated" /> -->
     </a-modal>
 
-    <!-- PCI 디바이스 모달로 통일 -->
     <a-modal
       v-model:visible="showPciDeleteModal"
       :title="`${vmNames[selectedPciDevice?.hostDevicesName] || ''} ${$t('message.delete.device.allocation')}`"
+      :cancelText="$t('label.cancel')"
+      :okText="$t('label.ok')"
       @ok="handlePciDeviceDelete"
       @cancel="closePciDeleteModal"
     >
@@ -130,8 +117,6 @@ import { api } from '@/api'
 import eventBus from '@/config/eventBus'
 import { IdcardOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import HostDevicesTransfer from '@/views/storage/HostDevicesTransfer'
-// import HostUsbDevicesTransfer from '@/views/storage/HostUsbDevicesTransfer'
-// import HostLunDevicesTransfer from '@/views/storage/HostLunDevicesTransfer'
 
 export default {
   name: 'ListHostDevicesTab',
@@ -140,8 +125,6 @@ export default {
     PlusOutlined,
     DeleteOutlined,
     HostDevicesTransfer
-    // HostUsbDevicesTransfer,
-    // HostLunDevicesTransfer
   },
   props: {
     resource: {
