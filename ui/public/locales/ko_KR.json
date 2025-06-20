@@ -4797,5 +4797,6 @@
 "state.backingup": "\ubc31\uc5c5 \uc911",
 "state.destroying": "\uc0ad\uc81c \uc911",
 "state.scheduled" : "\uc608\uc815\ub428",
-"state.started" : "\uc2dc\uc791"
+"state.started" : "\uc2dc\uc791",
+"message.cannot.remove.device.vm.running": "\uc2e4\ud589 \uc911\uc778 \uac00\uc0c1\uba38\uc2e0\uc740 \ub514\ubc14\uc774\uc2a4\ub97c \ud574\uc81c\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4."
 }

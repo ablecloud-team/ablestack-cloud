@@ -374,6 +374,11 @@ export default {
     openModal (record) {
       this.selectedResource = { ...this.resource, hostDevicesName: record.hostDevicesName }
       this.showAddModal = true
+      this.$nextTick(() => {
+        if (this.$refs.hostDevicesTransfer) {
+          this.$refs.hostDevicesTransfer.refreshVMList()
+        }
+      })
     },
     closeAction () {
       this.showAddModal = false
@@ -619,6 +624,16 @@ export default {
           details: 'all'
         })
         const vm = vmResponse?.listvirtualmachinesresponse?.virtualmachine?.[0]
+        if (vm && vm.state === 'Running') {
+          this.$notification.warning({
+            message: this.$t('label.warning'),
+            description: this.$t('message.cannot.remove.device.vm.running')
+          })
+          this.showPciDeleteModal = false
+          this.selectedPciDevice = null
+          this.pciConfigs = {}
+          return
+        }
 
         const params = {
           id: vm.id
@@ -668,10 +683,28 @@ export default {
       this.pciConfigs = {}
     },
     showConfirmModal (device) {
-      console.log('Selected device:', device)
-      console.log('VM Names:', this.vmNames)
-      this.selectedPciDevice = device
-      this.showPciDeleteModal = true
+      if (device.virtualmachineid) {
+        api('listVirtualMachines', {
+          id: device.virtualmachineid,
+          listall: true
+        }).then(response => {
+          const vm = response?.listvirtualmachinesresponse?.virtualmachine?.[0]
+          if (vm && vm.state === 'Running') {
+            this.$notification.warning({
+              message: this.$t('label.warning'),
+              description: this.$t('message.cannot.remove.device.vm.running')
+            })
+            return
+          }
+          this.selectedPciDevice = device
+          this.showPciDeleteModal = true
+        }).catch(error => {
+          this.$notifyError(error)
+        })
+      } else {
+        this.selectedPciDevice = device
+        this.showPciDeleteModal = true
+      }
     },
     async updateDataWithVmNames () {
       try {
