@@ -4798,5 +4798,6 @@
 "state.deytroying" : "Deleting",
 "state.scheduled" : "Scheduled",
 "state.started" : "Started",
-"message.delete.device.allocation": "Unassigning devices in virtual machines"
+"message.delete.device.allocation": "Unassigning devices in virtual machines",
+"message.cannot.remove.device.vm.running": "Running virtual machines cannot be removed"
 }
