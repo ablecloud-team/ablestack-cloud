@@ -5,7 +5,7 @@ config_path="/usr/share/cloudstack-management/webapp/config.json"
 # ko_path="/usr/share/cloudstack-management/webapp/locales/ko_KR.json"
 # en_path="/usr/share/cloudstack-management/webapp/locales/en.json"
 
-if [ "ablestack" == "$type" ]; then
+if [ "ABLESTACK" == "$type" ]; then
 
   echo "ABLECLOUD ABLESTACK Mold 테마 설정 중...."
 
@@ -36,7 +36,7 @@ if [ "ablestack" == "$type" ]; then
 
   echo "ABLECLOUD ABLESTACK Mold 테마 설정 완료!"
 
-elif [ "clostack" == "$type" ]; then
+elif [ "Clostack" == "$type" ]; then
 
   echo "CLOIT CLOSTACK Mold 테마 설정 중...."
 
@@ -67,8 +67,8 @@ elif [ "clostack" == "$type" ]; then
 
   echo "CLOIT CLOSTACK Mold 테마 설정 완료!"
 
-elif [ "hv" == "$type" ]; then
-  echo "효성 UCP HV Mold 테마 설정 중...."
+elif [ "UCP HV powered by ABLESTACK" == "$type" ]; then
+  echo "효성인포메이션시스템 UCP HV Mold 테마 설정 중...."
 
   # 로고 파일 변경
   sed -i "/\"logo\"/ c\  \"logo\": \"assets/logo-hv.png\","  $config_path
@@ -95,6 +95,6 @@ elif [ "hv" == "$type" ]; then
   sed -i "/\"@mini-logo-magin-top\"/ c\    \"@mini-logo-magin-top\": \"8px\","  $config_path
   sed -i "/\"@mini-logo-magin-bottom\"/ c\    \"@mini-logo-magin-bottom\": \"8px\","  $config_path
 
-  echo "효성 UCP HV Mold 테마 설정 완료!"
+  echo "효성인포메이션시스템 UCP HV Mold 테마 설정 완료!"
 
 fi
