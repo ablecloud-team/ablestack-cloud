@@ -90,7 +90,10 @@
         :checked="autoMigrate"
         @change="val => { autoMigrate = val }"/>
     </a-form-item>
-    <a-form-item v-if="!this.resource.kvdoenable" name="shrinkOk" ref="shrinkOk" :label="$t('label.shrinkok')">
+    <a-form-item name="shrinkOk" ref="shrinkOk" :label="$t('label.shrinkok')" v-if="!['XenServer'].includes(resource.hypervisor) || !this.resource.kvdoenable">
+      <template #label>
+        <tooltip-label :title="$t('label.shrinkok')" :tooltip="apiParams.shrinkok.description"/>
+      </template>
       <a-switch
         v-model:checked="form.shrinkOk"
         :checked="shrinkOk"
