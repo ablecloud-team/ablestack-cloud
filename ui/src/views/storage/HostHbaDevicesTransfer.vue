@@ -231,7 +231,6 @@ export default {
         `.trim()
       }
 
-      // 기본 PCI 설정
       return `
         <hostdev mode='subsystem' type='pci' managed='yes'>
           <source>

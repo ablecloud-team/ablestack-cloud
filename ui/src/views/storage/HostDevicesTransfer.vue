@@ -277,17 +277,18 @@ export default {
     },
 
     generateXmlConfig (hostDeviceName) {
-      // PCI 디바이스인 경우 (기존 로직)
       const [pciAddress] = hostDeviceName.split(' ')
       const [bus, slotFunction] = pciAddress.split(':')
       const [slot, func] = slotFunction.split('.')
 
       return `
+      <devices>
       <hostdev mode='subsystem' type='pci' managed='yes'>
         <source>
           <address domain='0x0000' bus='0x${bus}' slot='0x${slot}' function='0x${func}'/>
         </source>
       </hostdev>
+      </devices>
       `.trim()
     },
 

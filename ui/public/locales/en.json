@@ -4779,5 +4779,6 @@
 "message.delete.device.alloc": "Unassigning devices in virtual machines",
 "message.success.allocate.device": "Device allocation completed",
 "message.confirm.delete.device": "Are you sure you want to delete the device",
-"label.hba.devices": "HBA Devices"
+"label.hba.devices": "HBA Devices",
+"message.cannot.remove.device.vm.running": "Running virtual machines cannot be removed"
 }
