@@ -32,6 +32,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import com.cloud.utils.Pair;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.utils.cryptsetup.KeyFile;
 import org.apache.cloudstack.utils.qemu.QemuImageOptions;
@@ -79,6 +80,13 @@ import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.StorageLayer;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.script.Script;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 public class LibvirtStorageAdaptor implements StorageAdaptor {
     protected Logger logger = LogManager.getLogger(getClass());
@@ -703,10 +711,17 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                 logger.info("Asking libvirt to refresh storage pool " + uuid);
                 pool.refresh();
             }
-            pool.setCapacity(storage.getInfo().capacity);
-            pool.setUsed(storage.getInfo().allocation);
-            updateLocalPoolIops(pool);
-            pool.setAvailable(storage.getInfo().available);
+            if (pool.getType() == StoragePoolType.RBD) {
+                // queryCephStats 메서드 호출 (직접 Ceph에서 정확한 수치 조회)
+                Pair<Long, Long> cephStats = queryCephStats("rbd");
+                pool.setCapacity(cephStats.first());
+                pool.setUsed(cephStats.second());
+                pool.setAvailable(cephStats.first() - cephStats.second());
+            } else {
+                pool.setCapacity(storage.getInfo().capacity);
+                pool.setUsed(storage.getInfo().allocation);
+                pool.setAvailable(storage.getInfo().available);
+            }
 
             logger.debug("Successfully refreshed pool " + uuid +
                            " Capacity: " + toHumanReadableSize(storage.getInfo().capacity) +
@@ -717,6 +732,59 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
         } catch (LibvirtException e) {
             logger.debug("Could not find storage pool " + uuid + " in libvirt");
             throw new CloudRuntimeException(e.toString(), e);
+        }
+    }
+
+    /**
+     * Ceph 풀의 저장량과 총 논리 용량을 계산하여 반환합니다.
+     * Returns the logical used and total capacity for a given Ceph pool.
+     * - 사용량은 stored 값을 기반으로 하며 (복제 미포함)
+     * - 총 용량은 stored + (max_avail / replicationFactor) 방식으로 계산합니다.
+     *
+     * @param poolName Ceph 풀 이름 / Name of the Ceph pool (e.g., "rbd")
+     * @return (총 용량, 사용량) / (total capacity, used capacity) in bytes
+     */
+    public static Pair<Long, Long> queryCephStats(String poolName) {
+        try {
+            Process process = new ProcessBuilder("ceph", "df", "--format=json").start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder output = new StringBuilder();
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line);
+            }
+            process.waitFor();
+
+            JsonParser parser = new JsonParser();
+            JsonObject root = parser.parse(output.toString()).getAsJsonObject();
+            JsonArray pools = root.getAsJsonArray("pools");
+
+            long stored = 0;
+            long maxAvail = 0;
+
+            for (JsonElement el : pools) {
+                JsonObject pool = el.getAsJsonObject();
+                String name = pool.get("name").getAsString();
+
+                if (!name.equals(poolName)) {
+                    continue;
+                }
+
+                JsonObject stats = pool.getAsJsonObject("stats");
+                stored = stats.get("stored").getAsLong();
+                maxAvail = stats.get("max_avail").getAsLong();
+                break;
+            }
+
+            long logicalMaxAvail = maxAvail;
+            long total = stored + logicalMaxAvail;
+            long used = stored;
+
+            return new Pair<>(total, used);
+
+        } catch (Exception e) {
+            throw new CloudRuntimeException("Failed to execute 'ceph df --format=json': " + e.getMessage(), e);
         }
     }
 
