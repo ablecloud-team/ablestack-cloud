@@ -739,7 +739,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
      * Ceph 풀의 저장량과 총 논리 용량을 계산하여 반환합니다.
      * Returns the logical used and total capacity for a given Ceph pool.
      * - 사용량은 stored 값을 기반으로 하며 (복제 미포함)
-     * - 총 용량은 stored + (max_avail / replicationFactor) 방식으로 계산합니다.
+     * - 총 용량은 stored + max_avail 방식으로 계산합니다.
      *
      * @param poolName Ceph 풀 이름 / Name of the Ceph pool (e.g., "rbd")
      * @return (총 용량, 사용량) / (total capacity, used capacity) in bytes
