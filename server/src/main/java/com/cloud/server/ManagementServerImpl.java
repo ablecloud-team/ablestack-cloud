@@ -5937,7 +5937,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                         //     "License error for host " + host.getName(),
                         //     "License check failed: " + errorMessage
                         // );
-        } else {
+                    } else {
                         boolean isExpired = jsonNode.get("expiry_date").asBoolean();
                         boolean isIssued = jsonNode.get("issued_date").asBoolean();
                         String expiryDateStr = jsonNode.get("expired").asText();
@@ -5987,7 +5987,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     connection.disconnect();
                 }
             }
-        return response;
+            return response;
         } catch (Exception e) {
             logger.error("Error checking license for host: " + host.getId(), e);
             throw new CloudRuntimeException("라이선스 체크 실패: " + e.getMessage());

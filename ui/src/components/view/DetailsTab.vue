@@ -427,7 +427,6 @@ export default {
     fetchDetails () {
       let details = this.$route.meta.details
 
-      console.log('details :>> ', details)
       if (!details) {
         return
       }

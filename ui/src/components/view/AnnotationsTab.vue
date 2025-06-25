@@ -41,6 +41,7 @@
               </template>
               <template #actions>
                 <a-popconfirm
+                  placement="topLeft"
                   :title="this.$localStorage.get('LOCALE') == 'ko_KR' ?
                           (item.adminsonly ? $t('label.annotation.everyone') : $t('label.adminsonly')) + $t('label.make') + '?' :
                           $t('label.make') + ' ' + (item.adminsonly ? $t('label.annotation.everyone') : $t('label.adminsonly')) + '?'"
@@ -61,13 +62,14 @@
             </a-comment>
             <template #actions>
               <a-popconfirm
-                :title="$t('label.remove.annotation')"
+                placement="topRight"
+                :title="$t('message.remove.annotation')"
                 v-if="'removeAnnotation' in $store.getters.apis && isAdminOrAnnotationOwner(item)"
                 key="visibility"
                 @confirm="deleteNote(item)"
                 :okText="$t('label.yes')"
                 :cancelText="$t('label.no')" >
-                <delete-two-tone shape="circle" two-tone-color="#eb2f96" />
+                <a-button type="primary" shape="circle" danger><template #icon><delete-outlined /></template></a-button>
               </a-popconfirm>
             </template>
           </a-list-item>

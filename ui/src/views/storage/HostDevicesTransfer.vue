@@ -110,7 +110,6 @@ export default {
           }).then(detailResponse => {
             const vmDetails = detailResponse.listvirtualmachinesresponse.virtualmachine[0]
 
-            // XML 형식이 아닌 extraconfig 제거
             if (vmDetails.details) {
               const filteredDetails = {}
               Object.entries(vmDetails.details).forEach(([key, value]) => {
@@ -140,13 +139,12 @@ export default {
           }
 
           this.virtualmachines = detailedVms.filter(vm => {
-            if (latestAllocatedVmIds.has(vm.id.toString()) &&
-                vm.details?.['extraconfig-1']?.toLowerCase().includes('usb') ||
-                vm.details?.['extraconfig-1']?.toLowerCase().includes('disk type=\'block\' device=\'lun\'')) {
-              return false
+            if (vm.state === 'Running') {
+              return true
             }
-            return true
+            return false
           })
+          console.log('Filtered VMs for allocation (All Running VMs):', this.virtualmachines.length)
         })
       }).catch(error => {
         this.$notifyError(error.message || 'Failed to fetch VMs')
@@ -202,7 +200,6 @@ export default {
           [`details[0].extraconfig-${nextConfigNum}`]: xmlConfig
         }
 
-        // 기존 XML 설정만 유지
         Object.entries(details).forEach(([key, value]) => {
           if (key.startsWith('extraconfig-') && value.includes('<hostdev')) {
             params[`details[0].${key}`] = value
