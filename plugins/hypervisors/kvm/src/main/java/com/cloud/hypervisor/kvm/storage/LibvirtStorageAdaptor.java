@@ -713,7 +713,11 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
             }
             if (pool.getType() == StoragePoolType.RBD) {
                 // queryCephStats 메서드 호출 (직접 Ceph에서 정확한 수치 조회)
-                Pair<Long, Long> cephStats = queryCephStats("rbd");
+                String cephPoolName = spd.getSourceDir();
+                if (cephPoolName == null || cephPoolName.isEmpty()) {
+                    throw new CloudRuntimeException("RBD pool name (source dir) is missing for pool " + uuid);
+                }
+                Pair<Long, Long> cephStats = queryCephStats(cephPoolName);
                 pool.setCapacity(cephStats.first());
                 pool.setUsed(cephStats.second());
                 pool.setAvailable(cephStats.first() - cephStats.second());
