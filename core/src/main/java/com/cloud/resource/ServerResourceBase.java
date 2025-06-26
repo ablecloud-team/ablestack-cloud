@@ -297,7 +297,7 @@ public abstract class ServerResourceBase implements ServerResource {
     protected Answer listHostHbaDevices(Command command) {
         List<String> hostDevicesText = new ArrayList<>();
         List<String> hostDevicesNames = new ArrayList<>();
-        
+
         // 물리 HBA 장치 조회
         Script listCommand = new Script("/bin/bash");
         listCommand.add("-c");
@@ -314,7 +314,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
         }
-        
+
         // vHBA 장치 조회 (KVM 환경)
         try {
             Script vhbaCommand = new Script("/bin/bash");
@@ -322,7 +322,7 @@ public abstract class ServerResourceBase implements ServerResource {
             vhbaCommand.add("virsh nodedev-list | grep vhba");
             OutputInterpreter.AllLinesParser vhbaParser = new OutputInterpreter.AllLinesParser();
             String vhbaResult = vhbaCommand.execute(vhbaParser);
-            
+
             if (vhbaResult == null && vhbaParser.getLines() != null) {
                 String[] vhbaLines = vhbaParser.getLines().split("\\n");
                 for (String vhbaLine : vhbaLines) {
@@ -334,7 +334,7 @@ public abstract class ServerResourceBase implements ServerResource {
                         vhbaInfoCommand.add("virsh nodedev-dumpxml " + vhbaName);
                         OutputInterpreter.AllLinesParser vhbaInfoParser = new OutputInterpreter.AllLinesParser();
                         String vhbaInfoResult = vhbaInfoCommand.execute(vhbaInfoParser);
-                        
+
                         String vhbaDescription = "Virtual HBA Device";
                         if (vhbaInfoResult == null && vhbaInfoParser.getLines() != null) {
                             String[] infoLines = vhbaInfoParser.getLines().split("\\n");
@@ -346,7 +346,7 @@ public abstract class ServerResourceBase implements ServerResource {
                                 }
                             }
                         }
-                        
+
                         hostDevicesNames.add(vhbaName);
                         hostDevicesText.add(vhbaDescription);
                     }
@@ -355,7 +355,7 @@ public abstract class ServerResourceBase implements ServerResource {
         } catch (Exception e) {
             logger.debug("vHBA 조회 중 오류 발생 (일반적인 상황): " + e.getMessage());
         }
-        
+
         return new ListHostHbaDeviceAnswer(true, hostDevicesNames, hostDevicesText);
     }
 
@@ -418,14 +418,14 @@ public abstract class ServerResourceBase implements ServerResource {
             ListVhbaDevicesCommand cmd = (ListVhbaDevicesCommand) command;
             String keyword = cmd.getKeyword();
             List<ListVhbaDevicesCommand.VhbaDeviceInfo> vhbaDevices = new ArrayList<>();
-            
+
             // vHBA 장치 조회 (KVM 환경)
             Script vhbaCommand = new Script("/bin/bash");
             vhbaCommand.add("-c");
             vhbaCommand.add("virsh nodedev-list | grep vhba");
             OutputInterpreter.AllLinesParser vhbaParser = new OutputInterpreter.AllLinesParser();
             String vhbaResult = vhbaCommand.execute(vhbaParser);
-            
+
             if (vhbaResult == null && vhbaParser.getLines() != null) {
                 String[] vhbaLines = vhbaParser.getLines().split("\\n");
                 for (String vhbaLine : vhbaLines) {
@@ -435,20 +435,20 @@ public abstract class ServerResourceBase implements ServerResource {
                         if (keyword != null && !keyword.isEmpty() && !vhbaName.contains(keyword)) {
                             continue;
                         }
-                        
+
                         // vHBA 상세 정보 조회
                         Script vhbaInfoCommand = new Script("/bin/bash");
                         vhbaInfoCommand.add("-c");
                         vhbaInfoCommand.add("virsh nodedev-dumpxml " + vhbaName);
                         OutputInterpreter.AllLinesParser vhbaInfoParser = new OutputInterpreter.AllLinesParser();
                         String vhbaInfoResult = vhbaInfoCommand.execute(vhbaInfoParser);
-                        
+
                         String parentHbaName = "";
                         String wwnn = "";
                         String wwpn = "";
                         String description = "Virtual HBA Device";
                         String status = "Active";
-                        
+
                         if (vhbaInfoResult == null && vhbaInfoParser.getLines() != null) {
                             String[] infoLines = vhbaInfoParser.getLines().split("\\n");
                             for (String infoLine : infoLines) {
@@ -464,22 +464,22 @@ public abstract class ServerResourceBase implements ServerResource {
                                 }
                             }
                         }
-                        
+
                         // vHBA 상태 확인
                         Script statusCommand = new Script("/bin/bash");
                         statusCommand.add("-c");
                         statusCommand.add("virsh nodedev-info " + vhbaName + " | grep State");
                         OutputInterpreter.AllLinesParser statusParser = new OutputInterpreter.AllLinesParser();
                         String statusResult = statusCommand.execute(statusParser);
-                        
+
                         if (statusResult == null && statusParser.getLines() != null) {
                             String statusLine = statusParser.getLines().trim();
                             if (statusLine.contains("State:")) {
                                 status = statusLine.replaceAll(".*State:\\s*([^\\s]+).*", "$1").trim();
                             }
                         }
-                        
-                        com.cloud.agent.api.ListVhbaDevicesCommand.VhbaDeviceInfo vhbaInfo = 
+
+                        com.cloud.agent.api.ListVhbaDevicesCommand.VhbaDeviceInfo vhbaInfo =
                             new com.cloud.agent.api.ListVhbaDevicesCommand.VhbaDeviceInfo(
                                 vhbaName, parentHbaName, wwnn, wwpn, description, status
                             );
@@ -487,10 +487,10 @@ public abstract class ServerResourceBase implements ServerResource {
                     }
                 }
             }
-            
+
             logger.info("vHBA 디바이스 조회 완료: " + vhbaDevices.size() + "개 발견");
             return new com.cloud.agent.api.ListVhbaDevicesAnswer(true, vhbaDevices);
-            
+
         } catch (Exception e) {
             logger.error("vHBA 디바이스 조회 중 오류: " + e.getMessage(), e);
             return new com.cloud.agent.api.ListVhbaDevicesAnswer(false, new ArrayList<>());
@@ -500,7 +500,7 @@ public abstract class ServerResourceBase implements ServerResource {
     protected Answer listVhbaCapableHbas(Command command) {
         List<String> hostDevicesText = new ArrayList<>();
         List<String> hostDevicesNames = new ArrayList<>();
-        
+
         try {
             // vHBA를 지원하는 HBA 조회
             Script vportsCommand = new Script("/bin/bash");
@@ -508,7 +508,7 @@ public abstract class ServerResourceBase implements ServerResource {
             vportsCommand.add("virsh nodedev-list --cap vports");
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = vportsCommand.execute(parser);
-            
+
             if (result == null && parser.getLines() != null) {
                 String[] lines = parser.getLines().split("\\n");
                 for (String line : lines) {
@@ -520,7 +520,7 @@ public abstract class ServerResourceBase implements ServerResource {
                         hbaInfoCommand.add("virsh nodedev-dumpxml " + hbaName);
                         OutputInterpreter.AllLinesParser hbaInfoParser = new OutputInterpreter.AllLinesParser();
                         String hbaInfoResult = hbaInfoCommand.execute(hbaInfoParser);
-                        
+
                         String hbaDescription = "vHBA Capable HBA: " + hbaName;
                         if (hbaInfoResult == null && hbaInfoParser.getLines() != null) {
                             String[] infoLines = hbaInfoParser.getLines().split("\\n");
@@ -532,7 +532,7 @@ public abstract class ServerResourceBase implements ServerResource {
                                 }
                             }
                         }
-                        
+
                         hostDevicesNames.add(hbaName);
                         hostDevicesText.add(hbaDescription);
                     }
@@ -541,7 +541,7 @@ public abstract class ServerResourceBase implements ServerResource {
         } catch (Exception e) {
             logger.debug("vHBA 지원 HBA 조회 중 오류 발생: " + e.getMessage());
         }
-        
+
         return new ListHostHbaDeviceAnswer(true, hostDevicesNames, hostDevicesText);
     }
 

@@ -50,4 +50,4 @@ public class ListVhbaDevicesAnswer extends Answer {
     public void setVhbaDevices(List<ListVhbaDevicesCommand.VhbaDeviceInfo> vhbaDevices) {
         this.vhbaDevices = vhbaDevices;
     }
-} 
+}

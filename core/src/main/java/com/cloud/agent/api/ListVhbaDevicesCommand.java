@@ -131,4 +131,4 @@ public class ListVhbaDevicesCommand extends Command {
             this.status = status;
         }
     }
-} 
+}

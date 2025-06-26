@@ -58,4 +58,4 @@ public class CreateVhbaDeviceAnswer extends Answer {
     public void setCreatedDeviceName(String createdDeviceName) {
         this.createdDeviceName = createdDeviceName;
     }
-} 
+}

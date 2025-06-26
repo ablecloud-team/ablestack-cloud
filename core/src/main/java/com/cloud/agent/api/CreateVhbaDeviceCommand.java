@@ -91,4 +91,4 @@ public class CreateVhbaDeviceCommand extends Command {
     public void setXmlContent(String xmlContent) {
         this.xmlContent = xmlContent;
     }
-} 
+}

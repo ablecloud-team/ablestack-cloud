@@ -81,4 +81,4 @@ public class UpdateHostVhbaDeviceCommand extends Command {
     public void setAttach(boolean isAttach) {
         this.isAttach = isAttach;
     }
-} 
+}

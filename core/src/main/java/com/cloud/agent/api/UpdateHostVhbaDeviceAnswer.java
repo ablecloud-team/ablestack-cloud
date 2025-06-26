@@ -68,4 +68,4 @@ public class UpdateHostVhbaDeviceAnswer extends Answer {
     public void setAttach(boolean isAttach) {
         this.isAttach = isAttach;
     }
-} 
+}
