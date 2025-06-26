@@ -38,42 +38,41 @@ SourceHostIP=
 interval=0
 rflag=0
 cflag=0
-UUIDList=
+UUIDList=""
 skeyPath="/var/lib/libvirt/images/"
 
-while getopts 'p:n:s:h:i:t:u:r:c' OPTION
-do
+while getopts 'p:n:s:h:i:t:u:r:c' OPTION; do
   case $OPTION in
   p)
-     PoolName="$OPTARG"
-     ;;
+    PoolName="$OPTARG"
+    ;;
   n)
-     PoolAuthUserName="$OPTARG"
-     ;;
+    PoolAuthUserName="$OPTARG"
+    ;;
   s)
-     PoolAuthSecret="$OPTARG"
-     ;;
+    PoolAuthSecret="$OPTARG"
+    ;;
   h)
-     HostIP="$OPTARG"
-     ;;
+    HostIP="$OPTARG"
+    ;;
   i)
-     SourceHostIP="$OPTARG"
-     ;;
+    SourceHostIP="$OPTARG"
+    ;;
   t)
-     interval="$OPTARG"
-     ;;
+    interval="$OPTARG"
+    ;;
   u)
-     UUIDList="$OPTARG"
-     ;;
+    UUIDList="$OPTARG"
+    ;;
   r)
-     rflag=1
-     ;;
+    rflag=1
+    ;;
   c)
-     cflag=1
-     ;;
+    cflag=1
+    ;;
   *)
-     help
-     ;;
+    help
+    ;;
   esac
 done
 
@@ -81,41 +80,21 @@ if [ -z "$PoolName" ]; then
   exit 2
 fi
 
-# rados object touch action for vol list
-res=$(rbd -p $PoolName ls --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret | grep MOLD-AC)
-if [ $? -gt 0 ]; then
-  rbd -p $PoolName create --size 1 --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret MOLD-AC
-fi
-
-timestamp=$(date +%s)
-
-if [ -n "$UUIDList" ]; then
-    for uuid in $(echo $UUIDList | sed 's/,/ /g'); do
-      objId=$(rbd -p $PoolName info $uuid --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret | grep 'id:')
-      objId=${objId#*id: }
-      res=$(timeout 3s bash -c "rados -p $PoolName touch rbd_object_map.$objId")
-      if [ $? -eq 0 ]; then
-        # 정상적인 touch 상태면 image meta에 key: uuid / value : timestamp 입력
-        rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta set MOLD-AC $uuid $HostIP:$timestamp
-      else
-        # 정상적으로 touch 상태가 아니면 image meta에 key : uuid 삭제
-        rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta rm MOLD-AC $uuid
-      fi
-    done
-fi
-
 #write the heart beat log
 write_hbLog() {
   Timestamp=$(date +%s)
-  obj=$(rbd -p $PoolName ls --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret | grep MOLD-HB)
+  CurrentTime=$(date +"%Y-%m-%d %H:%M:%S")
+
+  obj=$(rbd -p $PoolName ls --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret | grep MOLD-HB-$HostIP)
 
   if [ $? -gt 0 ]; then
-     rbd -p $PoolName create --size 1 --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret MOLD-HB
+    rbd -p $PoolName create --size 1 --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret MOLD-HB-$HostIP
   fi
 
-  obj=$(rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta set MOLD-HB $HostIP $Timestamp)
+  logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(RBD) > [현 시간:$CurrentTime]"
+  obj=$(rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta set MOLD-HB-$HostIP $HostIP $Timestamp)
   if [ $? -gt 0 ]; then
-   	printf "Failed to create rbd file and set image-meta"
+    printf "Failed to create rbd file and set image-meta"
     return 2
   fi
   return 0
@@ -123,14 +102,17 @@ write_hbLog() {
 
 #check the heart beat log
 check_hbLog() {
-  now=$(date +%s)
-  getHbTime=$(rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta get MOLD-HB $HostIP)
+  Timestamp=$(date +%s)
+  CurrentTime=$(date +"%Y-%m-%d %H:%M:%S")
+
+  getHbTime=$(rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta get MOLD-HB-$HostIP $HostIP)
   if [ $? -gt 0 ] || [ -z "$getHbTime" ]; then
     return 1
   fi
 
-  diff=$(expr $now - $getHbTime)
-
+  diff=$(expr $Timestamp - $getHbTime)
+  getHbTimeFmt=$(date -d @${getHbTime} '+%Y-%m-%d %H:%M:%S')
+  logger -p user.info -t MOLD-HA-HB "[Checking] 호스트:$HostIP | HB 파일 체크(RBD) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
   if [ $diff -gt $interval ]; then
     return $diff
   fi
@@ -141,16 +123,18 @@ if [ "$rflag" == "1" ]; then
   check_hbLog
   diff=$?
   if [ $diff == 0 ]; then
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(RBD) > [HOST STATE : ALIVE]"
     echo "### [HOST STATE : ALIVE] in [PoolType : RBD] ###"
   else
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(RBD) > [HOST STATE : DEAD]"
     echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down in [PoolType : RBD] ###"
   fi
-    exit 0
+  exit 0
 elif [ "$cflag" == "1" ]; then
   /usr/bin/logger -t heartbeat "kvmheartbeat_rbd.sh will reboot system because it was unable to write the heartbeat to the storage."
   sync &
   sleep 5
-  echo b > /proc/sysrq-trigger
+  echo b >/proc/sysrq-trigger
   exit $?
 else
   write_hbLog

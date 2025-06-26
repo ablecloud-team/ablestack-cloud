@@ -573,16 +573,14 @@ public class LibvirtStoragePool implements KVMStoragePool {
         logger.info("### [HA Checking] checkingHeartBeatRBD Method Start!!!");
         boolean validResult = false;
         Script cmd = new Script(getHearthBeatPath(), HeartBeatCheckerTimeout, logger);
-        if (pool.getPool().getType() == StoragePoolType.RBD) {
-            cmd.add("-i", pool.getPoolSourceHost());
-            cmd.add("-p", pool.getPoolMountSourcePath());
-            cmd.add("-n", pool.getPoolAuthUserName());
-            cmd.add("-s", pool.getPoolUUID());
-            cmd.add("-h", host.getPrivateNetwork().getIp());
-            cmd.add("-u", volumeList.length() > 0 ? volumeList : "");
-            cmd.add("-r", "r");
-            cmd.add("-t", String.valueOf(HeartBeatCheckerFreq / 1000));
-        }
+        cmd.add("-i", pool.getPoolSourceHost());
+        cmd.add("-p", pool.getPoolMountSourcePath());
+        cmd.add("-n", pool.getPoolAuthUserName());
+        cmd.add("-s", pool.getPoolUUID());
+        cmd.add("-h", host.getPrivateNetwork().getIp());
+        // cmd.add("-u", volumeList.length() > 0 ? volumeList : "");
+        cmd.add("-r", "r");
+        cmd.add("-t", String.valueOf(HeartBeatCheckerFreq / 1000));
 
         OutputInterpreter.OneLineParser parser = new OutputInterpreter.OneLineParser();
         String result = cmd.execute(parser);

@@ -32,30 +32,28 @@ interval=
 rflag=0
 cflag=0
 
-while getopts 'm:h:t:rc' OPTION
-do
+while getopts 'm:h:t:rc' OPTION; do
   case $OPTION in
   m)
-     MountPoint="$OPTARG"
-     ;;
+    MountPoint="$OPTARG"
+    ;;
   h)
-     HostIP="$OPTARG"
-     ;;
+    HostIP="$OPTARG"
+    ;;
   r)
-     rflag=1
-     ;;
+    rflag=1
+    ;;
   t)
-     interval="$OPTARG"
-     ;;
+    interval="$OPTARG"
+    ;;
   c)
     cflag=1
-     ;;
+    ;;
   *)
-     help
-     ;;
+    help
+    ;;
   esac
 done
-
 
 # #delete VMs on this mountpoint
 # deleteVMs() {
@@ -95,59 +93,61 @@ done
 # fi
 
 hbFolder=$MountPoint/MOLD-HB
-MPTitle=$(echo $MountPoint | sed 's/\//-/g' 2> /dev/null)
+MPTitle=$(echo $MountPoint | sed 's/\//-/g' 2>/dev/null)
 
 hbFile=$hbFolder/$HostIP$MPTitle
 
 write_hbLog() {
-#write the heart beat log
-  stat $hbFile &> /dev/null
-  if [ $? -gt 0 ]
-  then
-     # create a new one
-     mkdir -p $hbFolder &> /dev/null
-     touch $hbFile &> /dev/null
-     if [ $? -gt 0 ]
-     then
- 	printf "Failed to create $hbFile"
-        return 2
-     fi
+  #write the heart beat log
+  stat $hbFile &>/dev/null
+  if [ $? -gt 0 ]; then
+    # create a new one
+    mkdir -p $hbFolder &>/dev/null
+    touch $hbFile &>/dev/null
+    if [ $? -gt 0 ]; then
+      printf "Failed to create $hbFile"
+      return 2
+    fi
   fi
 
   Timestamp=$(date +%s)
-  echo $Timestamp > $hbFile
+  CurrentTime=$(date +"%Y-%m-%d %H:%M:%S")
+  logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(GFS) > [현 시간:$CurrentTime]"
+  echo $Timestamp >$hbFile
   return 0
 }
 
 check_hbLog() {
-  now=$(date +%s)
+  Timestamp=$(date +%s)
+  CurrentTime=$(date +"%Y-%m-%d %H:%M:%S")
+
   getHbTime=$(cat $hbFile)
+  diff=$(expr $Timestamp - $getHbTime)
 
-  diff=$(expr $now - $getHbTime)
-
+  getHbTimeFmt=$(date -d @${getHbTime} '+%Y-%m-%d %H:%M:%S')
+  logger -p user.info -t MOLD-HA-HB "[Checking] 호스트:$HostIP | HB 파일 체크(GFS) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
   if [ $diff -gt $interval ]; then
     return $diff
   fi
   return 0
 }
 
-if [ "$rflag" == "1" ]
-then
+if [ "$rflag" == "1" ]; then
   check_hbLog
   diff=$?
-  if [ $diff == 0 ]
-  then
+  if [ $diff == 0 ]; then
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(GFS) > [HOST STATE : ALIVE]"
     echo "### [HOST STATE : ALIVE] in [PoolType : SharedMountPoint] ###"
   else
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(GFS) > [HOST STATE : DEAD]"
     echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down in [PoolType : SharedMountPoint] ###"
   fi
   exit 0
-elif [ "$cflag" == "1" ]
-then
+elif [ "$cflag" == "1" ]; then
   /usr/bin/logger -t heartbeat "kvmheartbeat_gfs.sh will reboot system because it was unable to write the heartbeat to the storage."
   sync &
   sleep 5
-  echo b > /proc/sysrq-trigger
+  echo b >/proc/sysrq-trigger
   exit $?
 else
   write_hbLog

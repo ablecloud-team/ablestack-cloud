@@ -116,6 +116,7 @@ public interface HAConfig extends StateObject<HAConfig.HAState>, InternalIdentit
             FSM.addTransition(Checking, Event.TooFewActivityCheckSamples, Suspect);
             FSM.addTransition(Checking, Event.ActivityCheckFailureUnderThresholdRatio, Degraded);
             FSM.addTransition(Checking, Event.ActivityCheckFailureOverThresholdRatio, Recovering);
+            FSM.addTransition(Checking, Event.HealthCheckPassed, Available);
 
             FSM.addTransition(Degraded, Event.Disabled, Disabled);
             FSM.addTransition(Degraded, Event.Ineligible, Ineligible);
