@@ -20,17 +20,17 @@
 package com.cloud.hypervisor.kvm.resource.wrapper;
 
 import com.cloud.agent.api.Answer;
-import com.cloud.agent.api.ListHostUsbDeviceCommand;
+import com.cloud.agent.api.UpdateHostVhbaDeviceCommand;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.resource.CommandWrapper;
 import com.cloud.resource.ResourceWrapper;
 
-@ResourceWrapper(handles = ListHostUsbDeviceCommand.class)
-public final class LibvirtListHostUsbDevicesCommandWrapper
-        extends CommandWrapper<ListHostUsbDeviceCommand, Answer, LibvirtComputingResource> {
+@ResourceWrapper(handles = UpdateHostVhbaDeviceCommand.class)
+public final class LibvirtUpdateHostVHbaDevicesCommandWrapper
+        extends CommandWrapper<UpdateHostVhbaDeviceCommand, Answer, LibvirtComputingResource> {
     @Override
-    public Answer execute(final ListHostUsbDeviceCommand command,
+    public Answer execute(final UpdateHostVhbaDeviceCommand command,
             final LibvirtComputingResource libvirtComputingResource) {
-        return libvirtComputingResource.listHostUsbDevices(command);
+        return libvirtComputingResource.updateHostVHbaDevices(command);
     }
 }

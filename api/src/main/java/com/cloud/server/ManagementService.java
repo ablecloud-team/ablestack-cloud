@@ -57,15 +57,18 @@ import org.apache.cloudstack.api.command.admin.guest.UpdateGuestOsCmd;
 import org.apache.cloudstack.api.command.admin.guest.UpdateGuestOsMappingCmd;
 import org.apache.cloudstack.api.command.admin.host.ListHostsCmd;
 import org.apache.cloudstack.api.command.admin.host.UpdateHostPasswordCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.CreateVhbaDeviceCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.LicenseCheckCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostHbaDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostLunDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostUsbDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListVhbaDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostHbaDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostLunDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostUsbDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostVhbaDevicesCmd;
 import org.apache.cloudstack.api.command.admin.pod.ListPodsByCmd;
 import org.apache.cloudstack.api.command.admin.resource.ArchiveAlertsCmd;
 import org.apache.cloudstack.api.command.admin.resource.DeleteAlertsCmd;
@@ -96,18 +99,22 @@ import org.apache.cloudstack.api.command.user.userdata.ListUserDataCmd;
 import org.apache.cloudstack.api.command.user.userdata.RegisterUserDataCmd;
 import org.apache.cloudstack.api.command.user.vm.GetVMPasswordCmd;
 import org.apache.cloudstack.api.command.user.vmgroup.UpdateVMGroupCmd;
+import org.apache.cloudstack.api.response.CreateVhbaDeviceResponse;
 import org.apache.cloudstack.api.response.LicenseCheckerResponse;
 import org.apache.cloudstack.api.response.ListHostDevicesResponse;
 import org.apache.cloudstack.api.response.ListHostHbaDevicesResponse;
 import org.apache.cloudstack.api.response.ListHostLunDevicesResponse;
 import org.apache.cloudstack.api.response.ListHostUsbDevicesResponse;
 import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.ListVhbaDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostHbaDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostLunDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostUsbDevicesResponse;
+import org.apache.cloudstack.api.response.UpdateHostVhbaDevicesResponse;
 import org.apache.cloudstack.config.Configuration;
 import org.apache.cloudstack.config.ConfigurationGroup;
+
 
 
 
@@ -524,6 +531,12 @@ public interface ManagementService {
     ListResponse<ListHostHbaDevicesResponse> listHostHbaDevices(ListHostHbaDevicesCmd cmd);
 
     ListResponse<UpdateHostHbaDevicesResponse> updateHostHbaDevices(UpdateHostHbaDevicesCmd cmd);
+
+    ListResponse<CreateVhbaDeviceResponse> createVhbaDevice(CreateVhbaDeviceCmd cmd);
+
+    ListResponse<ListVhbaDevicesResponse> listVhbaDevices(ListVhbaDevicesCmd cmd);
+
+    ListResponse<UpdateHostVhbaDevicesResponse> updateHostVhbaDevices(UpdateHostVhbaDevicesCmd cmd);
 
     LicenseCheckerResponse checkLicense(LicenseCheckCmd cmd);
 
