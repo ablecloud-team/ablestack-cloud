@@ -9930,6 +9930,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                     "", true, 64, Account.ACCOUNT_ID_SYSTEM, "",
                     "Glue Image Default Template", false, 1, HypervisorType.KVM);
             template.setState(VirtualMachineTemplate.State.Inactive);
+            template.setDynamicallyScalable(true);
             template = _templateDao.persist(template);
             if (template == null) {
                 return null;
