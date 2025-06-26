@@ -23,10 +23,11 @@ import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseListCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.ListVhbaDevicesResponse;
 import org.apache.cloudstack.context.CallContext;
 
-@APICommand(name = "listVhbaDevices", description = "List vHBA devices", since = "4.20.0.0", 
-           responseObject = ListVhbaDevicesResponse.class, requestHasSensitiveInfo = false, 
+@APICommand(name = "listVhbaDevices", description = "List vHBA devices", since = "4.20.0.0",
+           responseObject = ListVhbaDevicesResponse.class, requestHasSensitiveInfo = false,
            responseHasSensitiveInfo = false, authorized = { RoleType.Admin })
 public class ListVhbaDevicesCmd extends BaseListCmd {
 
@@ -36,7 +37,7 @@ public class ListVhbaDevicesCmd extends BaseListCmd {
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
 
-    @Parameter(name = ApiConstants.HOST_ID, type = BaseListCmd.CommandType.UUID, entityType = ListVhbaDevicesResponse.class, 
+    @Parameter(name = ApiConstants.HOST_ID, type = BaseListCmd.CommandType.UUID, entityType = ListVhbaDevicesResponse.class,
                description = "host ID", required = true, validations = { ApiArgValidator.PositiveNumber })
     private Long hostId;
 
@@ -77,4 +78,4 @@ public class ListVhbaDevicesCmd extends BaseListCmd {
         response.setObjectName(getCommandName());
         this.setResponseObject(response);
     }
-} 
+}

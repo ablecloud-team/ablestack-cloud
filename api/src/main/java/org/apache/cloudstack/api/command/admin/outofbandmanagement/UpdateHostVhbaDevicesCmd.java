@@ -26,8 +26,8 @@ import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.UpdateHostVhbaDevicesResponse;
 import org.apache.cloudstack.context.CallContext;
 
-@APICommand(name = "updateHostVhbaDevices", description = "Update vHBA device allocation", since = "4.20.0.0", 
-           responseObject = UpdateHostVhbaDevicesResponse.class, requestHasSensitiveInfo = false, 
+@APICommand(name = "updateHostVhbaDevices", description = "Update vHBA device allocation", since = "4.20.0.0",
+           responseObject = UpdateHostVhbaDevicesResponse.class, requestHasSensitiveInfo = false,
            responseHasSensitiveInfo = false, authorized = { RoleType.Admin })
 public class UpdateHostVhbaDevicesCmd extends BaseCmd {
 
@@ -37,7 +37,7 @@ public class UpdateHostVhbaDevicesCmd extends BaseCmd {
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
 
-    @Parameter(name = ApiConstants.HOST_ID, type = BaseCmd.CommandType.UUID, entityType = UpdateHostVhbaDevicesResponse.class, 
+    @Parameter(name = ApiConstants.HOST_ID, type = BaseCmd.CommandType.UUID, entityType = UpdateHostVhbaDevicesResponse.class,
                description = "host ID", required = true, validations = { ApiArgValidator.PositiveNumber })
     private Long hostId;
 
@@ -110,4 +110,4 @@ public class UpdateHostVhbaDevicesCmd extends BaseCmd {
         response.setObjectName(getCommandName());
         this.setResponseObject(response);
     }
-} 
+}

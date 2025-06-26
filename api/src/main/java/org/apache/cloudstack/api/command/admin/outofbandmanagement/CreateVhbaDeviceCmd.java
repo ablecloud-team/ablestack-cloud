@@ -26,8 +26,8 @@ import org.apache.cloudstack.api.response.CreateVhbaDeviceResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.context.CallContext;
 
-@APICommand(name = "createVhbaDevice", description = "Create a vHBA device", since = "4.20.0.0", 
-           responseObject = CreateVhbaDeviceResponse.class, requestHasSensitiveInfo = false, 
+@APICommand(name = "createVhbaDevice", description = "Create a vHBA device", since = "4.20.0.0",
+           responseObject = CreateVhbaDeviceResponse.class, requestHasSensitiveInfo = false,
            responseHasSensitiveInfo = false, authorized = { RoleType.Admin })
 public class CreateVhbaDeviceCmd extends BaseCmd {
 
@@ -37,7 +37,7 @@ public class CreateVhbaDeviceCmd extends BaseCmd {
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
 
-    @Parameter(name = ApiConstants.HOST_ID, type = BaseCmd.CommandType.UUID, entityType = CreateVhbaDeviceResponse.class, 
+    @Parameter(name = ApiConstants.HOST_ID, type = BaseCmd.CommandType.UUID, entityType = CreateVhbaDeviceResponse.class,
                description = "host ID", required = true, validations = { ApiArgValidator.PositiveNumber })
     private Long hostId;
 

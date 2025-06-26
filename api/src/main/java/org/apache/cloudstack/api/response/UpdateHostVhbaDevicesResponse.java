@@ -111,4 +111,4 @@ public class UpdateHostVhbaDevicesResponse extends BaseResponse {
     public void setDetails(String details) {
         this.details = details;
     }
-} 
+}

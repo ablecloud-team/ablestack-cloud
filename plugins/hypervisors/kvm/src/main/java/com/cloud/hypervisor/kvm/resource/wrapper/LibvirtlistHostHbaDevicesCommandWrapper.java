@@ -26,7 +26,7 @@ import com.cloud.resource.CommandWrapper;
 import com.cloud.resource.ResourceWrapper;
 
 @ResourceWrapper(handles = ListHostHbaDeviceCommand.class)
-public final class LibvirtlistHostHbaDevicesCommandWrapper
+public final class LibvirtListHostHbaDevicesCommandWrapper
         extends CommandWrapper<ListHostHbaDeviceCommand, Answer, LibvirtComputingResource> {
     @Override
     public Answer execute(final ListHostHbaDeviceCommand command,

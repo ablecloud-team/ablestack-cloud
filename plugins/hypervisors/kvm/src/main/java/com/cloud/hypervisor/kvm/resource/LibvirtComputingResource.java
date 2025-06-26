@@ -127,8 +127,9 @@ import com.cloud.agent.api.StartupCommand;
 import com.cloud.agent.api.StartupRoutingCommand;
 import com.cloud.agent.api.StartupStorageCommand;
 import com.cloud.agent.api.UpdateHostHbaDeviceCommand;
-// import com.cloud.agent.api.UpdateHostLunDeviceCommand;
-// import com.cloud.agent.api.UpdateHostUsbDeviceCommand;
+import com.cloud.agent.api.ListVhbaDevicesCommand;
+import com.cloud.agent.api.CreateVhbaDeviceCommand;
+import com.cloud.agent.api.UpdateHostVhbaDeviceCommand;
 import com.cloud.agent.api.VmDiskStatsEntry;
 import com.cloud.agent.api.VmNetworkStatsEntry;
 import com.cloud.agent.api.VmStatsEntry;
@@ -5548,6 +5549,30 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             throw new IllegalArgumentException("Host ID cannot be null");
         }
     }
+
+    public Answer listHostVHbaDevices(ListVhbaDevicesCommand command) {
+        logger.info("listvhba: " + command.getHostId());
+        if (command.getHostId() != null) {
+            return super.listHostVHbaDevices(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    public Answer createHostVHbaDevices(CreateVhbaDeviceCommand command) {
+        logger.info("createvhba: " + command.getHostId());
+        if (command.getHostId() != null) {
+            return super.createVhbaDevices(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    public Answer updateHostVHbaDevices(UpdateHostVhbaDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        logger.info("updatevhba: " + command.getHostId());
+        return super.updateHostVHbaDevices(command, vmName, xmlConfig, isAttach);
+    }
+
 
     public Answer updateHostUsbDevices(UpdateHostUsbDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
         logger.info("Received USB device update command - VM: {}, isAttach: {}, xmlConfig: {}",

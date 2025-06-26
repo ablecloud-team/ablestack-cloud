@@ -21,7 +21,6 @@ import com.cloud.host.Host;
 import com.cloud.serializer.Param;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
-import java.util.Map;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseResponse;
 import org.apache.cloudstack.api.EntityReference;
@@ -120,4 +119,4 @@ public class CreateVhbaDeviceResponse extends BaseResponse {
     public void setDetails(String details) {
         this.details = details;
     }
-} 
+}
