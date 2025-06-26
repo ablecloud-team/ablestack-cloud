@@ -30,7 +30,11 @@ public final class LibvirtUpdateHostVHbaDevicesCommandWrapper
         extends CommandWrapper<UpdateHostVhbaDeviceCommand, Answer, LibvirtComputingResource> {
     @Override
     public Answer execute(final UpdateHostVhbaDeviceCommand command,
-            final LibvirtComputingResource libvirtComputingResource) {
-        return libvirtComputingResource.updateHostVHbaDevices(command);
+    final LibvirtComputingResource libvirtComputingResource) {
+        try {
+            return libvirtComputingResource.updateHostVHbaDevices(command, command.getVmName(), command.getXmlConfig(), command.isAttach());
+        } catch (Exception e) {
+            return new Answer(command, false, "vHBA 장치 업데이트 중 오류 발생: " + e.getMessage());
+        }
     }
 }

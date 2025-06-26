@@ -18,6 +18,229 @@
 // under the License.
 package com.cloud.server;
 
+import com.cloud.agent.AgentManager;
+import com.cloud.agent.api.Answer;
+import com.cloud.agent.api.CheckGuestOsMappingAnswer;
+import com.cloud.agent.api.CheckGuestOsMappingCommand;
+import com.cloud.agent.api.Command;
+import com.cloud.agent.api.CreateVhbaDeviceAnswer;
+import com.cloud.agent.api.CreateVhbaDeviceCommand;
+import com.cloud.agent.api.GetHypervisorGuestOsNamesAnswer;
+import com.cloud.agent.api.GetHypervisorGuestOsNamesCommand;
+import com.cloud.agent.api.GetVncPortAnswer;
+import com.cloud.agent.api.GetVncPortCommand;
+import com.cloud.agent.api.ListHostDeviceAnswer;
+import com.cloud.agent.api.ListHostDeviceCommand;
+import com.cloud.agent.api.ListHostHbaDeviceAnswer;
+import com.cloud.agent.api.ListHostHbaDeviceCommand;
+import com.cloud.agent.api.ListHostLunDeviceAnswer;
+import com.cloud.agent.api.ListHostLunDeviceCommand;
+import com.cloud.agent.api.ListHostUsbDeviceAnswer;
+import com.cloud.agent.api.ListHostUsbDeviceCommand;
+import com.cloud.agent.api.ListVhbaDevicesAnswer;
+import com.cloud.agent.api.ListVhbaDevicesCommand;
+import com.cloud.agent.api.PatchSystemVmAnswer;
+import com.cloud.agent.api.PatchSystemVmCommand;
+import com.cloud.agent.api.UpdateHostHbaDeviceAnswer;
+import com.cloud.agent.api.UpdateHostHbaDeviceCommand;
+import com.cloud.agent.api.UpdateHostLunDeviceAnswer;
+import com.cloud.agent.api.UpdateHostLunDeviceCommand;
+import com.cloud.agent.api.UpdateHostUsbDeviceAnswer;
+import com.cloud.agent.api.UpdateHostUsbDeviceCommand;
+import com.cloud.agent.api.UpdateHostVhbaDeviceAnswer;
+import com.cloud.agent.api.UpdateHostVhbaDeviceCommand;
+import com.cloud.agent.api.proxy.AllowConsoleAccessCommand;
+import com.cloud.agent.api.routing.NetworkElementCommand;
+import com.cloud.agent.manager.Commands;
+import com.cloud.agent.manager.allocator.HostAllocator;
+import com.cloud.alert.Alert;
+import com.cloud.alert.AlertManager;
+import com.cloud.alert.AlertVO;
+import com.cloud.alert.dao.AlertDao;
+import com.cloud.api.ApiDBUtils;
+import com.cloud.api.query.dao.StoragePoolJoinDao;
+import com.cloud.api.query.vo.StoragePoolJoinVO;
+import com.cloud.capacity.Capacity;
+import com.cloud.capacity.CapacityVO;
+import com.cloud.capacity.dao.CapacityDao;
+import com.cloud.capacity.dao.CapacityDaoImpl.SummedCapacity;
+import com.cloud.cluster.ClusterManager;
+import com.cloud.configuration.Config;
+import com.cloud.configuration.ConfigurationManagerImpl;
+import com.cloud.consoleproxy.ConsoleProxyManagementState;
+import com.cloud.consoleproxy.ConsoleProxyManager;
+import com.cloud.dc.AccountVlanMapVO;
+import com.cloud.dc.ClusterVO;
+import com.cloud.dc.DataCenterVO;
+import com.cloud.dc.DomainVlanMapVO;
+import com.cloud.dc.HostPodVO;
+import com.cloud.dc.Pod;
+import com.cloud.dc.PodVlanMapVO;
+import com.cloud.dc.Vlan;
+import com.cloud.dc.Vlan.VlanType;
+import com.cloud.dc.VlanVO;
+import com.cloud.dc.dao.AccountVlanMapDao;
+import com.cloud.dc.dao.ClusterDao;
+import com.cloud.dc.dao.DataCenterDao;
+import com.cloud.dc.dao.DomainVlanMapDao;
+import com.cloud.dc.dao.HostPodDao;
+import com.cloud.dc.dao.PodVlanMapDao;
+import com.cloud.dc.dao.VlanDao;
+import com.cloud.deploy.DataCenterDeployment;
+import com.cloud.deploy.DeploymentPlanner;
+import com.cloud.deploy.DeploymentPlanner.ExcludeList;
+import com.cloud.deploy.DeploymentPlanningManager;
+import com.cloud.domain.DomainVO;
+import com.cloud.domain.dao.DomainDao;
+import com.cloud.event.ActionEvent;
+import com.cloud.event.ActionEventUtils;
+import com.cloud.event.EventTypes;
+import com.cloud.event.EventVO;
+import com.cloud.event.dao.EventDao;
+import com.cloud.exception.AgentUnavailableException;
+import com.cloud.exception.ConcurrentOperationException;
+import com.cloud.exception.InsufficientAddressCapacityException;
+import com.cloud.exception.InvalidParameterValueException;
+import com.cloud.exception.ManagementServerException;
+import com.cloud.exception.OperationTimedoutException;
+import com.cloud.exception.PermissionDeniedException;
+import com.cloud.exception.ResourceUnavailableException;
+import com.cloud.exception.VirtualMachineMigrationException;
+import com.cloud.gpu.GPU;
+import com.cloud.ha.HighAvailabilityManager;
+import com.cloud.host.DetailVO;
+import com.cloud.host.Host;
+import com.cloud.host.Host.Type;
+import com.cloud.host.HostTagVO;
+import com.cloud.host.HostVO;
+import com.cloud.host.dao.HostDao;
+import com.cloud.host.dao.HostDetailsDao;
+import com.cloud.host.dao.HostTagsDao;
+import com.cloud.hypervisor.Hypervisor.HypervisorType;
+import com.cloud.hypervisor.HypervisorCapabilities;
+import com.cloud.hypervisor.HypervisorCapabilitiesVO;
+import com.cloud.hypervisor.HypervisorGuru;
+import com.cloud.hypervisor.dao.HypervisorCapabilitiesDao;
+import com.cloud.hypervisor.kvm.dpdk.DpdkHelper;
+import com.cloud.info.ConsoleProxyInfo;
+import com.cloud.network.IpAddress;
+import com.cloud.network.IpAddressManager;
+import com.cloud.network.IpAddressManagerImpl;
+import com.cloud.network.Network;
+import com.cloud.network.NetworkModel;
+import com.cloud.network.Networks;
+import com.cloud.network.dao.IPAddressDao;
+import com.cloud.network.dao.IPAddressVO;
+import com.cloud.network.dao.LoadBalancerDao;
+import com.cloud.network.dao.LoadBalancerVO;
+import com.cloud.network.dao.NetworkAccountDao;
+import com.cloud.network.dao.NetworkAccountVO;
+import com.cloud.network.dao.NetworkDao;
+import com.cloud.network.dao.NetworkDomainDao;
+import com.cloud.network.dao.NetworkDomainVO;
+import com.cloud.network.dao.NetworkVO;
+import com.cloud.network.dao.PublicIpQuarantineDao;
+import com.cloud.network.vpc.dao.VpcDao;
+import com.cloud.org.Cluster;
+import com.cloud.org.Grouping.AllocationState;
+import com.cloud.projects.Project;
+import com.cloud.projects.Project.ListProjectResourcesCriteria;
+import com.cloud.projects.ProjectManager;
+import com.cloud.resource.ResourceManager;
+import com.cloud.server.ResourceTag.ResourceObjectType;
+import com.cloud.service.ServiceOfferingVO;
+import com.cloud.service.dao.ServiceOfferingDao;
+import com.cloud.service.dao.ServiceOfferingDetailsDao;
+import com.cloud.storage.DiskOfferingVO;
+import com.cloud.storage.GuestOS;
+import com.cloud.storage.GuestOSCategoryVO;
+import com.cloud.storage.GuestOSHypervisor;
+import com.cloud.storage.GuestOSHypervisorVO;
+import com.cloud.storage.GuestOSVO;
+import com.cloud.storage.GuestOsCategory;
+import com.cloud.storage.ScopeType;
+import com.cloud.storage.Storage;
+import com.cloud.storage.StorageManager;
+import com.cloud.storage.StoragePool;
+import com.cloud.storage.StoragePoolStatus;
+import com.cloud.storage.VMTemplateVO;
+import com.cloud.storage.Volume;
+import com.cloud.storage.VolumeApiServiceImpl;
+import com.cloud.storage.VolumeVO;
+import com.cloud.storage.dao.DiskOfferingDao;
+import com.cloud.storage.dao.GuestOSCategoryDao;
+import com.cloud.storage.dao.GuestOSDao;
+import com.cloud.storage.dao.GuestOSHypervisorDao;
+import com.cloud.storage.dao.StoragePoolTagsDao;
+import com.cloud.storage.dao.VMTemplateDao;
+import com.cloud.storage.dao.VolumeDao;
+import com.cloud.storage.secondary.SecondaryStorageVmManager;
+import com.cloud.tags.ResourceTagVO;
+import com.cloud.tags.dao.ResourceTagDao;
+import com.cloud.template.TemplateManager;
+import com.cloud.user.Account;
+import com.cloud.user.AccountManager;
+import com.cloud.user.AccountService;
+import com.cloud.user.ResourceLimitService;
+import com.cloud.user.SSHKeyPair;
+import com.cloud.user.SSHKeyPairVO;
+import com.cloud.user.User;
+import com.cloud.user.UserData;
+import com.cloud.user.UserDataVO;
+import com.cloud.user.UserVO;
+import com.cloud.user.dao.AccountDao;
+import com.cloud.user.dao.SSHKeyPairDao;
+import com.cloud.user.dao.UserDao;
+import com.cloud.user.dao.UserDataDao;
+import com.cloud.utils.NumbersUtil;
+import com.cloud.utils.Pair;
+import com.cloud.utils.PasswordGenerator;
+import com.cloud.utils.Ternary;
+import com.cloud.utils.component.ComponentLifecycle;
+import com.cloud.utils.component.ManagerBase;
+import com.cloud.utils.concurrency.NamedThreadFactory;
+import com.cloud.utils.crypt.DBEncryptionUtil;
+import com.cloud.utils.db.DB;
+import com.cloud.utils.db.Filter;
+import com.cloud.utils.db.GlobalLock;
+import com.cloud.utils.db.JoinBuilder;
+import com.cloud.utils.db.JoinBuilder.JoinType;
+import com.cloud.utils.db.SearchBuilder;
+import com.cloud.utils.db.SearchCriteria;
+import com.cloud.utils.db.Transaction;
+import com.cloud.utils.db.TransactionCallbackNoReturn;
+import com.cloud.utils.db.TransactionStatus;
+import com.cloud.utils.db.UUIDManager;
+import com.cloud.utils.exception.CloudRuntimeException;
+import com.cloud.utils.fsm.StateMachine2;
+import com.cloud.utils.net.MacAddress;
+import com.cloud.utils.net.NetUtils;
+import com.cloud.utils.nio.TrustAllManager;
+import com.cloud.utils.security.CertificateHelper;
+import com.cloud.utils.ssh.SSHKeysHelper;
+import com.cloud.vm.ConsoleProxyVO;
+import com.cloud.vm.DiskProfile;
+import com.cloud.vm.DomainRouterVO;
+import com.cloud.vm.InstanceGroupVO;
+import com.cloud.vm.NicVO;
+import com.cloud.vm.SecondaryStorageVmVO;
+import com.cloud.vm.UserVmDetailVO;
+import com.cloud.vm.UserVmManager;
+import com.cloud.vm.UserVmVO;
+import com.cloud.vm.VMInstanceVO;
+import com.cloud.vm.VirtualMachine;
+import com.cloud.vm.VirtualMachine.State;
+import com.cloud.vm.VirtualMachineManager;
+import com.cloud.vm.VirtualMachineProfile;
+import com.cloud.vm.VirtualMachineProfileImpl;
+import com.cloud.vm.dao.ConsoleProxyDao;
+import com.cloud.vm.dao.DomainRouterDao;
+import com.cloud.vm.dao.InstanceGroupDao;
+import com.cloud.vm.dao.NicDao;
+import com.cloud.vm.dao.SecondaryStorageVmDao;
+import com.cloud.vm.dao.UserVmDao;
+import com.cloud.vm.dao.UserVmDetailsDao;
+import com.cloud.vm.dao.VMInstanceDao;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
@@ -631,14 +854,11 @@ import org.apache.cloudstack.api.response.ListHostLunDevicesResponse;
 import org.apache.cloudstack.api.response.ListHostUsbDevicesResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.ListVhbaDevicesResponse;
-import org.apache.cloudstack.api.response.UpdateHostHbaDevicesResponse;
-import org.apache.cloudstack.api.response.UpdateHostLunDevicesResponse;
-import org.apache.cloudstack.api.response.UpdateHostUsbDevicesResponse;
+import org.apache.cloudstack.api.response.UpdateHostDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostHbaDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostLunDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostUsbDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostVhbaDevicesResponse;
-import org.apache.cloudstack.api.response.UpdateHostDevicesResponse;
 import org.apache.cloudstack.auth.UserAuthenticator;
 import org.apache.cloudstack.auth.UserTwoFactorAuthenticator;
 import org.apache.cloudstack.config.ApiServiceConfiguration;
@@ -679,236 +899,7 @@ import org.apache.cloudstack.userdata.UserDataManager;
 import org.apache.cloudstack.utils.CloudStackVersion;
 import org.apache.cloudstack.utils.identity.ManagementServerNode;
 import org.apache.cloudstack.utils.security.SSLUtils;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
-import com.cloud.agent.AgentManager;
-import com.cloud.agent.api.Answer;
-import com.cloud.agent.api.CheckGuestOsMappingAnswer;
-import com.cloud.agent.api.CheckGuestOsMappingCommand;
-import com.cloud.agent.api.Command;
-import com.cloud.agent.api.GetHypervisorGuestOsNamesAnswer;
-import com.cloud.agent.api.GetHypervisorGuestOsNamesCommand;
-import com.cloud.agent.api.GetVncPortAnswer;
-import com.cloud.agent.api.GetVncPortCommand;
-import com.cloud.agent.api.ListHostDeviceAnswer;
-import com.cloud.agent.api.ListHostDeviceCommand;
-import com.cloud.agent.api.ListHostLunDeviceAnswer;
-import com.cloud.agent.api.ListHostLunDeviceCommand;
-import com.cloud.agent.api.ListHostUsbDeviceAnswer;
-import com.cloud.agent.api.ListHostUsbDeviceCommand;
-import com.cloud.agent.api.ListHostHbaDeviceAnswer;
-import com.cloud.agent.api.ListHostHbaDeviceCommand;
-import com.cloud.agent.api.CreateVhbaDeviceAnswer;
-import com.cloud.agent.api.CreateVhbaDeviceCommand;
-import com.cloud.agent.api.ListVhbaDevicesAnswer;
-import com.cloud.agent.api.ListVhbaDevicesCommand;
-import com.cloud.agent.api.UpdateHostVhbaDeviceAnswer;
-import com.cloud.agent.api.UpdateHostVhbaDeviceCommand;
-import com.cloud.agent.api.PatchSystemVmAnswer;
-import com.cloud.agent.api.PatchSystemVmCommand;
-import com.cloud.agent.api.UpdateHostUsbDeviceAnswer;
-import com.cloud.agent.api.UpdateHostUsbDeviceCommand;
-import com.cloud.agent.api.UpdateHostLunDeviceAnswer;
-import com.cloud.agent.api.UpdateHostLunDeviceCommand;
-import com.cloud.agent.api.UpdateHostHbaDeviceAnswer;
-import com.cloud.agent.api.UpdateHostHbaDeviceCommand;
-import com.cloud.agent.api.proxy.AllowConsoleAccessCommand;
-import com.cloud.agent.api.routing.NetworkElementCommand;
-import com.cloud.agent.manager.Commands;
-import com.cloud.agent.manager.allocator.HostAllocator;
-import com.cloud.alert.Alert;
-import com.cloud.alert.AlertManager;
-import com.cloud.alert.AlertVO;
-import com.cloud.alert.dao.AlertDao;
-import com.cloud.api.ApiDBUtils;
-import com.cloud.api.query.dao.StoragePoolJoinDao;
-import com.cloud.api.query.vo.StoragePoolJoinVO;
-import com.cloud.capacity.Capacity;
-import com.cloud.capacity.CapacityVO;
-import com.cloud.capacity.dao.CapacityDao;
-import com.cloud.capacity.dao.CapacityDaoImpl.SummedCapacity;
-import com.cloud.cluster.ClusterManager;
-import com.cloud.configuration.Config;
-import com.cloud.configuration.ConfigurationManagerImpl;
-import com.cloud.consoleproxy.ConsoleProxyManagementState;
-import com.cloud.consoleproxy.ConsoleProxyManager;
-import com.cloud.dc.AccountVlanMapVO;
-import com.cloud.dc.ClusterVO;
-import com.cloud.dc.DataCenterVO;
-import com.cloud.dc.DomainVlanMapVO;
-import com.cloud.dc.HostPodVO;
-import com.cloud.dc.Pod;
-import com.cloud.dc.PodVlanMapVO;
-import com.cloud.dc.Vlan;
-import com.cloud.dc.Vlan.VlanType;
-import com.cloud.dc.VlanVO;
-import com.cloud.dc.dao.AccountVlanMapDao;
-import com.cloud.dc.dao.ClusterDao;
-import com.cloud.dc.dao.DataCenterDao;
-import com.cloud.dc.dao.DomainVlanMapDao;
-import com.cloud.dc.dao.HostPodDao;
-import com.cloud.dc.dao.PodVlanMapDao;
-import com.cloud.dc.dao.VlanDao;
-import com.cloud.deploy.DataCenterDeployment;
-import com.cloud.deploy.DeploymentPlanner;
-import com.cloud.deploy.DeploymentPlanner.ExcludeList;
-import com.cloud.deploy.DeploymentPlanningManager;
-import com.cloud.domain.DomainVO;
-import com.cloud.domain.dao.DomainDao;
-import com.cloud.event.ActionEvent;
-import com.cloud.event.ActionEventUtils;
-import com.cloud.event.EventTypes;
-import com.cloud.event.EventVO;
-import com.cloud.event.dao.EventDao;
-import com.cloud.exception.AgentUnavailableException;
-import com.cloud.exception.ConcurrentOperationException;
-import com.cloud.exception.InsufficientAddressCapacityException;
-import com.cloud.exception.InvalidParameterValueException;
-import com.cloud.exception.ManagementServerException;
-import com.cloud.exception.OperationTimedoutException;
-import com.cloud.exception.PermissionDeniedException;
-import com.cloud.exception.ResourceUnavailableException;
-import com.cloud.exception.VirtualMachineMigrationException;
-import com.cloud.gpu.GPU;
-import com.cloud.ha.HighAvailabilityManager;
-import com.cloud.host.DetailVO;
-import com.cloud.host.Host;
-import com.cloud.host.Host.Type;
-import com.cloud.host.HostTagVO;
-import com.cloud.host.HostVO;
-import com.cloud.host.dao.HostDao;
-import com.cloud.host.dao.HostDetailsDao;
-import com.cloud.host.dao.HostTagsDao;
-import com.cloud.hypervisor.Hypervisor.HypervisorType;
-import com.cloud.hypervisor.HypervisorCapabilities;
-import com.cloud.hypervisor.HypervisorCapabilitiesVO;
-import com.cloud.hypervisor.HypervisorGuru;
-import com.cloud.hypervisor.dao.HypervisorCapabilitiesDao;
-import com.cloud.hypervisor.kvm.dpdk.DpdkHelper;
-import com.cloud.info.ConsoleProxyInfo;
-import com.cloud.network.IpAddress;
-import com.cloud.network.IpAddressManager;
-import com.cloud.network.IpAddressManagerImpl;
-import com.cloud.network.Network;
-import com.cloud.network.NetworkModel;
-import com.cloud.network.Networks;
-import com.cloud.network.dao.IPAddressDao;
-import com.cloud.network.dao.IPAddressVO;
-import com.cloud.network.dao.LoadBalancerDao;
-import com.cloud.network.dao.LoadBalancerVO;
-import com.cloud.network.dao.NetworkAccountDao;
-import com.cloud.network.dao.NetworkAccountVO;
-import com.cloud.network.dao.NetworkDao;
-import com.cloud.network.dao.NetworkDomainDao;
-import com.cloud.network.dao.NetworkDomainVO;
-import com.cloud.network.dao.NetworkVO;
-import com.cloud.network.dao.PublicIpQuarantineDao;
-import com.cloud.network.vpc.dao.VpcDao;
-import com.cloud.org.Cluster;
-import com.cloud.org.Grouping.AllocationState;
-import com.cloud.projects.Project;
-import com.cloud.projects.Project.ListProjectResourcesCriteria;
-import com.cloud.projects.ProjectManager;
-import com.cloud.resource.ResourceManager;
-import com.cloud.server.ResourceTag.ResourceObjectType;
-import com.cloud.service.ServiceOfferingVO;
-import com.cloud.service.dao.ServiceOfferingDao;
-import com.cloud.service.dao.ServiceOfferingDetailsDao;
-import com.cloud.storage.DiskOfferingVO;
-import com.cloud.storage.GuestOS;
-import com.cloud.storage.GuestOSCategoryVO;
-import com.cloud.storage.GuestOSHypervisor;
-import com.cloud.storage.GuestOSHypervisorVO;
-import com.cloud.storage.GuestOSVO;
-import com.cloud.storage.GuestOsCategory;
-import com.cloud.storage.ScopeType;
-import com.cloud.storage.Storage;
-import com.cloud.storage.StorageManager;
-import com.cloud.storage.StoragePool;
-import com.cloud.storage.StoragePoolStatus;
-import com.cloud.storage.VMTemplateVO;
-import com.cloud.storage.Volume;
-import com.cloud.storage.VolumeApiServiceImpl;
-import com.cloud.storage.VolumeVO;
-import com.cloud.storage.dao.DiskOfferingDao;
-import com.cloud.storage.dao.GuestOSCategoryDao;
-import com.cloud.storage.dao.GuestOSDao;
-import com.cloud.storage.dao.GuestOSHypervisorDao;
-import com.cloud.storage.dao.StoragePoolTagsDao;
-import com.cloud.storage.dao.VMTemplateDao;
-import com.cloud.storage.dao.VolumeDao;
-import com.cloud.storage.secondary.SecondaryStorageVmManager;
-import com.cloud.tags.ResourceTagVO;
-import com.cloud.tags.dao.ResourceTagDao;
-import com.cloud.template.TemplateManager;
-import com.cloud.user.Account;
-import com.cloud.user.AccountManager;
-import com.cloud.user.AccountService;
-import com.cloud.user.ResourceLimitService;
-import com.cloud.user.SSHKeyPair;
-import com.cloud.user.SSHKeyPairVO;
-import com.cloud.user.User;
-import com.cloud.user.UserData;
-import com.cloud.user.UserDataVO;
-import com.cloud.user.UserVO;
-import com.cloud.user.dao.AccountDao;
-import com.cloud.user.dao.SSHKeyPairDao;
-import com.cloud.user.dao.UserDao;
-import com.cloud.user.dao.UserDataDao;
-import com.cloud.utils.NumbersUtil;
-import com.cloud.utils.Pair;
-import com.cloud.utils.PasswordGenerator;
-import com.cloud.utils.Ternary;
-import com.cloud.utils.component.ComponentLifecycle;
-import com.cloud.utils.component.ManagerBase;
-import com.cloud.utils.concurrency.NamedThreadFactory;
-import com.cloud.utils.crypt.DBEncryptionUtil;
-import com.cloud.utils.db.DB;
-import com.cloud.utils.db.Filter;
-import com.cloud.utils.db.GlobalLock;
-import com.cloud.utils.db.JoinBuilder;
-import com.cloud.utils.db.JoinBuilder.JoinType;
-import com.cloud.utils.db.SearchBuilder;
-import com.cloud.utils.db.SearchCriteria;
-import com.cloud.utils.db.Transaction;
-import com.cloud.utils.db.TransactionCallbackNoReturn;
-import com.cloud.utils.db.TransactionStatus;
-import com.cloud.utils.db.UUIDManager;
-import com.cloud.utils.exception.CloudRuntimeException;
-import com.cloud.utils.fsm.StateMachine2;
-import com.cloud.utils.net.MacAddress;
-import com.cloud.utils.net.NetUtils;
-import com.cloud.utils.nio.TrustAllManager;
-import com.cloud.utils.security.CertificateHelper;
-import com.cloud.utils.ssh.SSHKeysHelper;
-import com.cloud.vm.ConsoleProxyVO;
-import com.cloud.vm.DiskProfile;
-import com.cloud.vm.DomainRouterVO;
-import com.cloud.vm.InstanceGroupVO;
-import com.cloud.vm.NicVO;
-import com.cloud.vm.SecondaryStorageVmVO;
-import com.cloud.vm.UserVmDetailVO;
-import com.cloud.vm.UserVmManager;
-import com.cloud.vm.UserVmVO;
-import com.cloud.vm.VMInstanceVO;
-import com.cloud.vm.VirtualMachine;
-import com.cloud.vm.VirtualMachine.State;
-import com.cloud.vm.VirtualMachineManager;
-import com.cloud.vm.VirtualMachineProfile;
-import com.cloud.vm.VirtualMachineProfileImpl;
-import com.cloud.vm.dao.ConsoleProxyDao;
-import com.cloud.vm.dao.DomainRouterDao;
-import com.cloud.vm.dao.InstanceGroupDao;
-import com.cloud.vm.dao.NicDao;
-import com.cloud.vm.dao.SecondaryStorageVmDao;
-import com.cloud.vm.dao.UserVmDao;
-import com.cloud.vm.dao.UserVmDetailsDao;
-import com.cloud.vm.dao.VMInstanceDao;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
-import javax.naming.ConfigurationException;
 
 
 
@@ -3031,13 +3022,13 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         }
 
         CreateVhbaDeviceAnswer hbaAnswer = (CreateVhbaDeviceAnswer) answer;
-        
+
         List<CreateVhbaDeviceResponse> responses = new ArrayList<>();
         ListResponse<CreateVhbaDeviceResponse> listResponse = new ListResponse<>();
 
         CreateVhbaDeviceResponse response = new CreateVhbaDeviceResponse(
-            hbaAnswer.getVhbaName(), 
-            hbaAnswer.getCreatedDeviceName(), 
+            hbaAnswer.getVhbaName(),
+            hbaAnswer.getCreatedDeviceName(),
             hbaAnswer.isSuccess()
         );
 
@@ -3102,12 +3093,12 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 }
 
                 // 호스트에 명령 전송
-               UpdateHostHbaDeviceCommand hbaCmd = new UpdateHostHbaDeviceCommand(vmInternalName, xmlConfig, isAttach);
+               UpdateHostVhbaDeviceCommand vhbaCmd = new UpdateHostVhbaDeviceCommand(hostId, hostDeviceName, vmInternalName, xmlConfig, isAttach);
                 Answer answer;
                 try {
-                    answer = _agentMgr.send(hostVO.getId(), hbaCmd);
+                    answer = _agentMgr.send(hostVO.getId(), vhbaCmd);
                 } catch (Exception e) {
-                    String errorMsg = "Error sending UpdateHostHbaDeviceCommand: " + e.getMessage();
+                    String errorMsg = "Error sending UpdateHostVhbaDeviceCommand: " + e.getMessage();
                     logger.error(errorMsg, e);
                     throw new CloudRuntimeException(errorMsg, e);
                 }
@@ -3118,15 +3109,15 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 if (!answer.getResult()) {
                     String errorDetails = (answer.getDetails() != null) ?
                         answer.getDetails() : "No additional details available";
-                    throw new CloudRuntimeException("Failed to update HBA device. Details: " + errorDetails);
+                    throw new CloudRuntimeException("Failed to update vHBA device. Details: " + errorDetails);
                 }
-                if (!(answer instanceof UpdateHostHbaDeviceAnswer)) {
-                    throw new CloudRuntimeException("Answer is not an instance of UpdateHostHbaDeviceAnswer");
+                if (!(answer instanceof UpdateHostVhbaDeviceAnswer)) {
+                    throw new CloudRuntimeException("Answer is not an instance of UpdateHostVhbaDeviceAnswer");
                 }
 
-                UpdateHostHbaDeviceAnswer hbaAnswer = (UpdateHostHbaDeviceAnswer) answer;
-                if (!hbaAnswer.isSuccessMessage()) {
-                    throw new CloudRuntimeException("Failed to update HBA device for VM: " + hbaAnswer.getVmName());
+                UpdateHostVhbaDeviceAnswer vhbaAnswer = (UpdateHostVhbaDeviceAnswer) answer;
+                if (!vhbaAnswer.isSuccess()) {
+                    throw new CloudRuntimeException("Failed to update vHBA device for VM: " + vhbaAnswer.getVmName());
                 }
 
                 // DB 업데이트
@@ -3142,14 +3133,14 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             }
 
             // 응답 생성
-                ListResponse<UpdateHostHbaDevicesResponse> response = new ListResponse<>();
-                List<UpdateHostHbaDevicesResponse> responses = new ArrayList<>();
-                UpdateHostHbaDevicesResponse deviceResponse = new UpdateHostHbaDevicesResponse();
+                ListResponse<UpdateHostVhbaDevicesResponse> response = new ListResponse<>();
+                List<UpdateHostVhbaDevicesResponse> responses = new ArrayList<>();
+                UpdateHostVhbaDevicesResponse deviceResponse = new UpdateHostVhbaDevicesResponse();
 
             DetailVO allocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
-            deviceResponse.setHostDeviceName(hostDeviceName);
+            deviceResponse.setVhbaName(hostDeviceName);
             deviceResponse.setVirtualMachineId(allocation != null ? allocation.getValue() : null);
-                deviceResponse.setAllocated(allocation != null);
+            deviceResponse.setIsAttached(allocation != null);
 
             responses.add(deviceResponse);
             response.setResponses(responses);
@@ -3157,9 +3148,9 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             return response;
 
         } catch (Exception e) {
-                logger.error("Error during HBA device allocation/deallocation - hostDeviceName: {}, error: {}",
+                logger.error("Error during vHBA device allocation/deallocation - hostDeviceName: {}, error: {}",
                 hostDeviceName, e.getMessage(), e);
-                throw new CloudRuntimeException("Failed to update HBA device allocation: " + e.getMessage(), e);
+                throw new CloudRuntimeException("Failed to update vHBA device allocation: " + e.getMessage(), e);
         }
     }
 
@@ -3167,7 +3158,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     public ListResponse<ListVhbaDevicesResponse> listVhbaDevices(ListVhbaDevicesCmd cmd) {
         Long hostId = cmd.getHostId();
         String keyword = cmd.getKeyword();
-        
+
         HostVO hostVO = _hostDao.findById(hostId);
         if (hostVO == null) {
             throw new CloudRuntimeException("Host not found with ID: " + hostId);
@@ -3198,7 +3189,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         }
 
         ListVhbaDevicesAnswer vhbaAnswer = (ListVhbaDevicesAnswer) answer;
-        
+
         List<ListVhbaDevicesResponse> responses = new ArrayList<>();
         ListResponse<ListVhbaDevicesResponse> listResponse = new ListResponse<>();
 

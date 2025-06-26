@@ -20,17 +20,22 @@
 package com.cloud.hypervisor.kvm.resource.wrapper;
 
 import com.cloud.agent.api.Answer;
-import com.cloud.agent.api.ListHostHbaDeviceCommand;
+import com.cloud.agent.api.CreateVhbaDeviceCommand;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.resource.CommandWrapper;
 import com.cloud.resource.ResourceWrapper;
 
-@ResourceWrapper(handles = ListHostHbaDeviceCommand.class)
+@ResourceWrapper(handles = CreateVhbaDeviceCommand.class)
 public final class LibvirtCreateHostVHbaDevicesCommandWrapper
-        extends CommandWrapper<ListHostHbaDeviceCommand, Answer, LibvirtComputingResource> {
+        extends CommandWrapper<CreateVhbaDeviceCommand, Answer, LibvirtComputingResource> {
     @Override
-    public Answer execute(final ListHostHbaDeviceCommand command,
+    public Answer execute(final CreateVhbaDeviceCommand command,
             final LibvirtComputingResource libvirtComputingResource) {
-        return libvirtComputingResource.createHostVHbaDevices(command);
+        try {
+            return libvirtComputingResource.createHostVHbaDevice(command, command.getParentHbaName(), 
+                command.getWwnn(), command.getWwpn(), command.getVhbaName(), command.getXmlContent());
+        } catch (Exception e) {
+            return new Answer(command, false, "vHBA 장치 생성 중 오류 발생: " + e.getMessage());
+        }
     }
 }

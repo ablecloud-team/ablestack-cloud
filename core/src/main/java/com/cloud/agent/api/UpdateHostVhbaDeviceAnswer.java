@@ -24,6 +24,7 @@ public class UpdateHostVhbaDeviceAnswer extends Answer {
     private String vmName;
     private String xmlConfig;
     private boolean isAttach;
+    private boolean success;
 
     public UpdateHostVhbaDeviceAnswer() {
         super();
@@ -35,6 +36,7 @@ public class UpdateHostVhbaDeviceAnswer extends Answer {
         this.vmName = vmName;
         this.xmlConfig = xmlConfig;
         this.isAttach = isAttach;
+        this.success = success;
     }
 
     public String getVhbaName() {
@@ -67,5 +69,13 @@ public class UpdateHostVhbaDeviceAnswer extends Answer {
 
     public void setAttach(boolean isAttach) {
         this.isAttach = isAttach;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 }

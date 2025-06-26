@@ -59,6 +59,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import javax.naming.ConfigurationException;
 
 public abstract class ServerResourceBase implements ServerResource {
@@ -359,16 +361,9 @@ public abstract class ServerResourceBase implements ServerResource {
         return new ListHostHbaDeviceAnswer(true, hostDevicesNames, hostDevicesText);
     }
 
-    protected Answer createHostVHbaDevices(Command command) {
+    public Answer createHostVHbaDevice(Command command, String parentHbaName, String wwnn, String wwpn, String vhbaName, String xmlContent) {
         try {
             CreateVhbaDeviceCommand cmd = (CreateVhbaDeviceCommand) command;
-            String parentHbaName = cmd.getParentHbaName();
-            String wwnn = cmd.getWwnn();
-            String wwpn = cmd.getWwpn();
-            String vhbaName = cmd.getVhbaName();
-            String xmlContent = cmd.getXmlContent();
-
-            // Vue에서 받은 XML을 임시 파일로 저장
             String xmlFilePath = "/tmp/" + vhbaName + ".xml";
             try (FileWriter writer = new FileWriter(xmlFilePath)) {
                 writer.write(xmlContent);

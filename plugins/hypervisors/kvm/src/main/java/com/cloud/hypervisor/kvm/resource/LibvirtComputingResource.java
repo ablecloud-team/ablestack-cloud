@@ -5559,10 +5559,10 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         }
     }
 
-    public Answer createHostVHbaDevices(CreateVhbaDeviceCommand command) {
+    public Answer createHostVHbaDevice(CreateVhbaDeviceCommand command, String parentHbaName, String wwnn, String wwpn, String vhbaName, String xmlContent) {
         logger.info("createvhba: " + command.getHostId());
         if (command.getHostId() != null) {
-            return super.createVhbaDevices(command);
+            return super.createHostVHbaDevice(command, parentHbaName, wwnn, wwpn, vhbaName, xmlContent);
         } else {
             throw new IllegalArgumentException("Host ID cannot be null");
         }
