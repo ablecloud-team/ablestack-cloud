@@ -112,14 +112,15 @@ fi
 # Second check: disk activity check
 statusFlag=false
 for img in $(echo $UUIDList | sed 's/,/ /g'); do
-   # vol_persist=$(sg_persist -ik /dev/vg_iscsi/$UUID)
-   vol_lvs=$(lvs 2>/dev/null | grep $img)
-   if [[ $vol_lvs =~ "-wi-ao----" ]]; then
+
+   if ps aux | grep "[q]emu.*${img}" >/dev/null; then
       statusFlag=true
-      logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | AC 체크 결과(CLVM) > [HOST STATE : ALIVE] ${img} 볼륨이 사용중(-wi-ao----)으로 확인"
+      logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | AC 체크 결과(CLVM) > [HOST STATE : ALIVE] ${img} 볼륨이 QEMU 프로세스에서 사용중으로 확인됨"
       echo "### [HOST STATE : ALIVE] in [PoolType : CLVM] ###"
       break
+      echo "true"
    fi
+
 done
 
 # 빠져나왔으면 DEAD

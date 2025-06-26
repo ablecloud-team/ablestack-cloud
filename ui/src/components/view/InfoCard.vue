@@ -143,7 +143,7 @@
         <div class="resource-detail-item" v-if="$route.meta.name === 'host' && resource.hostha">
           <div class="resource-detail-item__label">{{ $t('label.haenable') }}</div>
           <div class="resource-detail-item__details">
-            <status class="status" :text="resource.hostha.haenable === 'true' ? 'enabled' : 'disabled'" displayText/>
+            <status class="status" :text="resource.hostha.haenable ? 'enabled' : 'disabled'" displayText/>
             <a-tag style="margin-left: 5px; margin-bottom: 5px;">{{ resource.hostha.hastate }}</a-tag>
           </div>
         </div>
