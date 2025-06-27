@@ -113,22 +113,20 @@ check_hbLog() {
   diff=$(expr $Timestamp - $getHbTime)
   getHbTimeFmt=$(date -d @${getHbTime} '+%Y-%m-%d %H:%M:%S')
   logger -p user.info -t MOLD-HA-HB "[Checking] 호스트:$HostIP | HB 파일 체크(RBD) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
+
   if [ $diff -gt $interval ]; then
-    return $diff
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(RBD) > [HOST STATE : DEAD]"
+    echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down in [PoolType : RBD] ###"
+    return 0
+  else
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(RBD) > [HOST STATE : ALIVE]"
+    echo "### [HOST STATE : ALIVE] in [PoolType : RBD] ###"
   fi
   return 0
 }
 
 if [ "$rflag" == "1" ]; then
   check_hbLog
-  diff=$?
-  if [ $diff == 0 ]; then
-    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(RBD) > [HOST STATE : ALIVE]"
-    echo "### [HOST STATE : ALIVE] in [PoolType : RBD] ###"
-  else
-    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(RBD) > [HOST STATE : DEAD]"
-    echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down in [PoolType : RBD] ###"
-  fi
   exit 0
 elif [ "$cflag" == "1" ]; then
   /usr/bin/logger -t heartbeat "kvmheartbeat_rbd.sh will reboot system because it was unable to write the heartbeat to the storage."

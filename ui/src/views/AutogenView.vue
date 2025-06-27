@@ -910,6 +910,7 @@ export default {
   },
   watch: {
     '$route' (to, from) {
+      clearInterval(this.refreshInterval)
       if (to.fullPath !== from.fullPath && !to.fullPath.includes('action/') && to?.query?.tab !== 'browser') {
         if ('page' in to.query) {
           this.page = Number(to.query.page)
@@ -919,6 +920,7 @@ export default {
         }
         this.itemCount = 0
         this.fetchData()
+        if (Object.keys(to.params).length === 0) this.refreshInterval = setInterval(this.fetchData, 5000)
         if ('projectid' in to.query) {
           this.switchProject(to.query.projectid)
         }
@@ -1224,7 +1226,7 @@ export default {
         params.details = 'group,nics,secgrp,tmpl,servoff,diskoff,iso,volume,affgrp,backoff'
       }
 
-      this.loading = true
+      this.loading = this.IntervalLoading
       if (this.$route.path.startsWith('/cniconfiguration')) {
         params.forcks = true
         console.log('here')

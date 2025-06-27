@@ -140,21 +140,17 @@ check_hbLog() {
   fi
 
   if [ $diff -gt $interval ]; then
-    return $diff
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(CLVM) > [HOST STATE : DEAD]"
+    echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down in [PoolType : CLVM] ###"
+  else
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(CLVM) > [HOST STATE : ALIVE]"
+    echo "### [HOST STATE : ALIVE] in [PoolType : CLVM] ###"
   fi
   return 0
 }
 
 if [ "$rflag" == "1" ]; then
   check_hbLog
-  diff=$?
-  if [ $diff == 0 ]; then
-    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(CLVM) > [HOST STATE : ALIVE]"
-    echo "### [HOST STATE : ALIVE] in [PoolType : CLVM] ###"
-  else
-    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(CLVM) > [HOST STATE : DEAD]"
-    echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down in [PoolType : CLVM] ###"
-  fi
   exit 0
 elif [ "$cflag" == "1" ]; then
   /usr/bin/logger -t heartbeat "kvmheartbeat_clvm.sh will reboot system because it was unable to write the heartbeat to the storage."

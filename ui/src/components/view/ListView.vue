@@ -516,10 +516,15 @@
         </span>
       </template>
       <template v-if="['cluster', 'zone'].includes($route.meta.name) && column.key === 'haenable'">
-        <status :text="record.resourcedetails.resourceHAEnabled === 'true' ? 'enabled' : 'disabled'" displayText/>
+        <status :text="record.resourcedetails?.resourceHAEnabled === 'true' ? 'enabled' : 'disabled'" displayText/>
       </template>
       <template v-if="column.key === 'hastate'">
-        <a-tag>{{ record.hostha.hastate }}</a-tag>
+        <!-- <a-tag>{{ record.hostha.hastate }}</a-tag> -->
+        <a-tag v-if="record.hostha.hastate === 'Available'" color="success" :styles="{ 'min-width': '250px' }">{{ record.hostha.hastate }}</a-tag>
+        <a-tag v-else-if="record.hostha.hastate === 'Suspect' || record.hostha.hastate === 'Checking'" color="processing">{{ record.hostha.hastate }}</a-tag>
+        <a-tag v-else-if="record.hostha.hastate === 'Fenced'" color="error">{{ record.hostha.hastate }}</a-tag>
+        <a-tag v-else-if="record.hostha.hastate === 'Degraded'" color="default">{{ record.hostha.hastate }}</a-tag>
+        <a-tag v-else color="warning">{{ record.hostha.hastate }}</a-tag>
       </template>
       <template v-if="$route.meta.name === 'host' && column.key === 'haenable'">
         <status :text="record.hostha.haenable ? 'enabled' : 'disabled'" displayText/>

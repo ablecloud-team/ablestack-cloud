@@ -179,7 +179,7 @@
         <div>
           <strong>{{ $t('label.ha.enable') }}</strong>
           <br/>
-          <div>{{ dataResource.resourcedetails.resourceHAEnabled }}</div>
+          <div>{{ dataResource.resourcedetails?.resourceHAEnabled }}</div>
         </div>
       </a-list-item>
       <a-list-item v-else-if="item === 'ip6address' && ipV6Address && ipV6Address.length > 0">
