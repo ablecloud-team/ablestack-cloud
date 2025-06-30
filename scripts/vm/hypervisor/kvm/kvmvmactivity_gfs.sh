@@ -84,16 +84,16 @@ getHbTime=$(cat $hbFile)
 diff=$(expr $Timestamp - $getHbTime)
 
 getHbTimeFmt=$(date -d @${getHbTime} '+%Y-%m-%d %H:%M:%S')
-logger -p user.info -t MOLD-HA-AC "[Checking] 호스트:$HostIP | HB 파일 체크(GFS) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
+logger -p user.info -t MOLD-HA-AC "[Checking] 호스트:$HostIP | HB 파일 체크(GFS, 스토리지:$MountPoint) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
 
 if [ $diff -lt $interval ]; then
-    logger -p user.info -t MOLD-HA-AC "[Result]   호스트:$HostIP | HB 체크 결과(GFS) > [HOST STATE : ALIVE]"
+    logger -p user.info -t MOLD-HA-AC "[Result]   호스트:$HostIP | HB 체크 결과(GFS, 스토리지:$MountPoint) > [HOST STATE : ALIVE]"
     echo "### [HOST STATE : ALIVE] in [PoolType : SharedMountPoint] ###"
     exit 0
 fi
 
 if [ -z "$UUIDList" ]; then
-    logger -p user.info -t MOLD-HA-AC "[Result]   호스트:$HostIP | HB 체크 결과(GFS) > [HOST HOST STATE : DEAD] 볼륨 UUID 목록이 비어 있음 => 호스트가 다운된 것으로 간주됨"
+    logger -p user.info -t MOLD-HA-AC "[Result]   호스트:$HostIP | HB 체크 결과(GFS, 스토리지:$MountPoint) > [HOST HOST STATE : DEAD] 볼륨 UUID 목록이 비어 있음 => 호스트가 다운된 것으로 간주됨"
     echo " ### [HOST STATE : DEAD] Volume UUID list is empty => Considered host down in [PoolType : SharedMountPoint] ###"
     exit 0
 fi
@@ -106,8 +106,10 @@ if [ ! -f $acFile ]; then
     echo "$SuspectTime:$latestUpdateTime:$MSTime" >$acFile
 
     if [[ $latestUpdateTime -gt $SuspectTime ]]; then
+        logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | AC 체크 결과(GFS, 스토리지:$MountPoint) > [HOST STATE : ALIVE]"
         echo "### [HOST STATE : ALIVE] in [PoolType : SharedMountPoint] ###"
     else
+        logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | HB 체크 결과(GFS, 스토리지:$MountPoint) > [HOST STATE : DEAD] => 호스트가 다운된 것으로 간주됨"
         echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : SharedMountPoint] ### "
     fi
 else
@@ -120,18 +122,18 @@ else
     suspectTimeDiff=$(expr $SuspectTime - $lastSuspectTime)
     if [[ $suspectTimeDiff -lt 0 ]]; then
         if [[ $latestUpdateTime -gt $SuspectTime ]]; then
-            logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | AC 체크 결과(GFS) > [HOST STATE : ALIVE]"
+            logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | AC 체크 결과(GFS, 스토리지:$MountPoint) > [HOST STATE : ALIVE]"
             echo "### [HOST STATE : ALIVE] in [PoolType : SharedMountPoint] ###"
         else
-            logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | HB 체크 결과(GFS) > [HOST STATE : DEAD] => 호스트가 다운된 것으로 간주됨"
+            logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | HB 체크 결과(GFS, 스토리지:$MountPoint) > [HOST STATE : DEAD] => 호스트가 다운된 것으로 간주됨"
             echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : SharedMountPoint] ### "
         fi
     else
         if [[ $latestUpdateTime -gt $lastUpdateTime ]]; then
-            logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | AC 체크 결과(GFS) > [HOST STATE : ALIVE]"
+            logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | AC 체크 결과(GFS, 스토리지:$MountPoint) > [HOST STATE : ALIVE]"
             echo "### [HOST STATE : ALIVE] in [PoolType : SharedMountPoint] ###"
         else
-            logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | HB 체크 결과(GFS) > [HOST STATE : DEAD] => 호스트가 다운된 것으로 간주됨"
+            logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | HB 체크 결과(GFS, 스토리지:$MountPoint) > [HOST STATE : DEAD] => 호스트가 다운된 것으로 간주됨"
             echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : SharedMountPoint] ### "
         fi
     fi

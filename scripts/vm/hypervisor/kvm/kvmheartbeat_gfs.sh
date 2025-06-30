@@ -112,8 +112,13 @@ write_hbLog() {
 
   Timestamp=$(date +%s)
   CurrentTime=$(date +"%Y-%m-%d %H:%M:%S")
-  logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(GFS) > [현 시간:$CurrentTime]"
-  echo $Timestamp >$hbFile
+  echo "$Timestamp" >"$hbFile"
+  ret=$?
+  if [ $ret -eq 0 ]; then
+    logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(GFS, 스토리지:$MountPoint) > [현 시간:$CurrentTime]"
+  else
+    logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(GFS, 스토리지:$MountPoint) > HB 갱신 실패!!!"
+  fi
   return 0
 }
 
@@ -125,14 +130,14 @@ check_hbLog() {
   diff=$(expr $Timestamp - $getHbTime)
 
   getHbTimeFmt=$(date -d @${getHbTime} '+%Y-%m-%d %H:%M:%S')
-  logger -p user.info -t MOLD-HA-HB "[Checking] 호스트:$HostIP | HB 파일 체크(GFS) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
+  logger -p user.info -t MOLD-HA-HB "[Checking] 호스트:$HostIP | HB 파일 체크(GFS, 스토리지:$MountPoint) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
 
   if [ $diff -gt $interval ]; then
-    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(GFS) > [HOST STATE : DEAD]"
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(GFS, 스토리지:$MountPoint) > [HOST STATE : DEAD]"
     echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down in [PoolType : SharedMountPoint] ###"
     return 0
   else
-    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(GFS) > [HOST STATE : ALIVE]"
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(GFS, 스토리지:$MountPoint) > [HOST STATE : ALIVE]"
     echo "### [HOST STATE : ALIVE] in [PoolType : SharedMountPoint] ###"
   fi
   return 0

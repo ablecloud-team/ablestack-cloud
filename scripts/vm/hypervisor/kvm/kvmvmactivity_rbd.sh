@@ -82,16 +82,16 @@ getHbTime=$(
 if [ $? -eq 0 ]; then
    diff=$(expr $Timestamp - $getHbTime)
    getHbTimeFmt=$(date -d @${getHbTime} '+%Y-%m-%d %H:%M:%S')
-   logger -p user.info -t MOLD-HA-AC "[Checking] 호스트:$HostIP | HB 파일 체크(RBD) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
+   logger -p user.info -t MOLD-HA-AC "[Checking] 호스트:$HostIP | HB 파일 체크(RBD, 스토리지:$PoolName) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
    if [ $diff -le $interval ]; then
-      logger -p user.info -t MOLD-HA-AC "[Result]   호스트:$HostIP | HB 체크 결과(RBD) > [HOST STATE : ALIVE]"
+      logger -p user.info -t MOLD-HA-AC "[Result]   호스트:$HostIP | HB 체크 결과(RBD, 스토리지:$PoolName) > [HOST STATE : ALIVE]"
       echo "### [HOST STATE : ALIVE] in [PoolType : RBD] ###"
       exit 0
    fi
 fi
 
 if [ -z "$UUIDList" ]; then
-   logger -p user.info -t MOLD-HA-AC "[Result]   호스트:$HostIP | HB 체크 결과(RBD) > [HOST HOST STATE : DEAD] 볼륨 UUID 목록이 비어 있음 => 호스트가 다운된 것으로 간주됨"
+   logger -p user.info -t MOLD-HA-AC "[Result]   호스트:$HostIP | HB 체크 결과(RBD, 스토리지:$PoolName) > [HOST HOST STATE : DEAD] 볼륨 UUID 목록이 비어 있음 => 호스트가 다운된 것으로 간주됨"
    echo " ### [HOST STATE : DEAD] Volume UUID list is empty => Considered host down in [PoolType : RBD] ###"
    exit 0
 fi
@@ -106,12 +106,12 @@ for img in $(echo "$UUIDList" | tr ',' ' '); do
 
    # Watchers: none 이 아니면 ALIVE
    if ! echo "$output" | grep -q '^ *Watchers: none'; then
-      logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | AC 체크 결과(RBD) > [HOST STATE : ALIVE] ${img} 볼륨에 Watcher 모니터 존재"
+      logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | AC 체크 결과(RBD, 스토리지:$PoolName) > [HOST STATE : ALIVE] ${img} 볼륨에 Watcher 모니터 존재"
       echo "### [HOST STATE : ALIVE] in [PoolType : RBD] ###"
       exit 0
    fi
 done
 # 끝까지 빠져나왔으면 DEAD
-logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | HB 체크 결과(RBD) > [HOST STATE : DEAD] 볼륨 이미지 목록의 정상 동작을 확인할 수 없음 => 호스트가 다운된 것으로 간주됨"
+logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | HB 체크 결과(RBD, 스토리지:$PoolName) > [HOST STATE : DEAD] 볼륨 이미지 목록의 정상 동작을 확인할 수 없음 => 호스트가 다운된 것으로 간주됨"
 echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : RBD] ###"
 exit 0

@@ -84,13 +84,19 @@ write_hbLog() {
     CurrentTime=$(date +"%Y-%m-%d %H:%M:%S")
 
     if [ -n "$RbdPoolName" ]; then
-      obj=$(rbd -p $RbdPoolName ls --id $RbdPoolAuthUserName | grep -w MOLD-HB-$HostIP-$poolPath)
+      rbd -p $RbdPoolName ls --id $RbdPoolAuthUserName | grep -w MOLD-HB-$HostIP-$poolPath
       if [ $? -gt 0 ]; then
         rbd -p $RbdPoolName create --size 1 --id $RbdPoolAuthUserName MOLD-HB-$HostIP-$poolPath
       fi
 
-      logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(CLVM with RBD) > [현 시간:$CurrentTime]"
-      obj=$(rbd -p $RbdPoolName --id $RbdPoolAuthUserName image-meta set MOLD-HB-$HostIP-$poolPath $HostIP-$poolPath $Timestamp)
+      rbd -p $RbdPoolName --id $RbdPoolAuthUserName image-meta set MOLD-HB-$HostIP-$poolPath $HostIP-$poolPath $Timestamp
+      ret=$?
+      if [ $ret -eq 0 ]; then
+        logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(CLVM with RBD, 스토리지:$poolPath) > [현 시간:$CurrentTime]"
+      else
+        logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(CLVM with RBD, 스토리지:$poolPath) > HB 갱신 실패!!!"
+      fi
+      return $ret
     elif [ -n "$GfsPoolPath" ]; then
       stat $hbFile &>/dev/null
       if [ $? -gt 0 ]; then
@@ -102,11 +108,16 @@ write_hbLog() {
         fi
       fi
 
-      logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(CLVM with GFS) > [현 시간:$CurrentTime]"
-      echo $Timestamp >$hbFile
-      return $?
+      echo "$Timestamp" >"$hbFile"
+      ret=$?
+      if [ $ret -eq 0 ]; then
+        logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(CLVM with GFS, 스토리지:$poolPath) > [현 시간:$CurrentTime]"
+      else
+        logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(CLVM with GFS, 스토리지:$poolPath) > HB 갱신 실패!!!"
+      fi
+      return $ret
     else
-      logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(CLVM) 실패!!! > RBD 또는 GFS 형식의 스토리지가 존재하지 않습니다."
+      logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(CLVM, 스토리지:$poolPath) 실패!!! > RBD 또는 GFS 형식의 스토리지가 존재하지 않습니다."
       printf "There is no storage information of type RBD or SharedMountPoint."
       return 0
     fi
@@ -126,24 +137,24 @@ check_hbLog() {
     fi
     diff=$(expr $Timestamp - $getHbTime)
     getHbTimeFmt=$(date -d @${getHbTime} '+%Y-%m-%d %H:%M:%S')
-    logger -p user.info -t MOLD-HA-HB "[Checking] 호스트:$HostIP | HB 파일 체크(CLVM with RBD) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
+    logger -p user.info -t MOLD-HA-HB "[Checking] 호스트:$HostIP | HB 파일 체크(CLVM with RBD, 스토리지:$poolPath) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
 
   elif [ -n "$GfsPoolPath" ]; then
     getHbTime=$(cat $hbFile)
     diff=$(expr $Timestamp - $getHbTime)
     getHbTimeFmt=$(date -d @${getHbTime} '+%Y-%m-%d %H:%M:%S')
-    logger -p user.info -t MOLD-HA-HB "[Checking] 호스트:$HostIP | HB 파일 체크(CLVM with GFS) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
+    logger -p user.info -t MOLD-HA-HB "[Checking] 호스트:$HostIP | HB 파일 체크(CLVM with GFS, 스토리지:$poolPath) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
   else
-    logger -p user.info -t MOLD-HA-HB "[Checking]  호스트:$HostIP | HB 파일 체크(CLVM with RBD) 실패!!! > RBD 또는 GFS 형식의 스토리지가 존재하지 않습니다."
+    logger -p user.info -t MOLD-HA-HB "[Checking]  호스트:$HostIP | HB 파일 체크(CLVM with RBD, 스토리지:$poolPath) 실패!!! > RBD 또는 GFS 형식의 스토리지가 존재하지 않습니다."
     printf "There is no storage information of type RBD or SharedMountPoint."
     return 0
   fi
 
   if [ $diff -gt $interval ]; then
-    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(CLVM) > [HOST STATE : DEAD]"
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(CLVM, 스토리지:$poolPath) > [HOST STATE : DEAD]"
     echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down in [PoolType : CLVM] ###"
   else
-    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(CLVM) > [HOST STATE : ALIVE]"
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(CLVM, 스토리지:$poolPath) > [HOST STATE : ALIVE]"
     echo "### [HOST STATE : ALIVE] in [PoolType : CLVM] ###"
   fi
   return 0

@@ -91,8 +91,15 @@ write_hbLog() {
     rbd -p $PoolName create --size 1 --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret MOLD-HB-$HostIP
   fi
 
-  logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(RBD) > [현 시간:$CurrentTime]"
-  obj=$(rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta set MOLD-HB-$HostIP $HostIP $Timestamp)
+  rbd -p $PoolName --id $PoolAuthUserName -m $SourceHostIP -K $skeyPath$PoolAuthSecret image-meta set MOLD-HB-$HostIP $HostIP $Timestamp
+  ret=$?
+  if [ $ret -eq 0 ]; then
+    logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(RBD, 스토리지:$PoolName) > [현 시간:$CurrentTime]"
+  else
+    logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(RBD, 스토리지:$PoolName) > HB 갱신 실패!!!"
+  fi
+  return $ret
+
   if [ $? -gt 0 ]; then
     printf "Failed to create rbd file and set image-meta"
     return 2
@@ -112,14 +119,14 @@ check_hbLog() {
 
   diff=$(expr $Timestamp - $getHbTime)
   getHbTimeFmt=$(date -d @${getHbTime} '+%Y-%m-%d %H:%M:%S')
-  logger -p user.info -t MOLD-HA-HB "[Checking] 호스트:$HostIP | HB 파일 체크(RBD) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
+  logger -p user.info -t MOLD-HA-HB "[Checking] 호스트:$HostIP | HB 파일 체크(RBD, 스토리지:$PoolName) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
 
   if [ $diff -gt $interval ]; then
-    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(RBD) > [HOST STATE : DEAD]"
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(RBD, 스토리지:$PoolName) > [HOST STATE : DEAD]"
     echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down in [PoolType : RBD] ###"
     return 0
   else
-    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(RBD) > [HOST STATE : ALIVE]"
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(RBD, 스토리지:$PoolName) > [HOST STATE : ALIVE]"
     echo "### [HOST STATE : ALIVE] in [PoolType : RBD] ###"
   fi
   return 0

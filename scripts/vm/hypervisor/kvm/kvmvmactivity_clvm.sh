@@ -80,9 +80,9 @@ if [ -n "$RbdPoolName" ]; then
    if [ $? -eq 0 ]; then
       diff=$(expr $Timestamp - $getHbTime)
       getHbTimeFmt=$(date -d @${getHbTime} '+%Y-%m-%d %H:%M:%S')
-      logger -p user.info -t MOLD-HA-AC "[Checking] 호스트:$HostIP | HB 파일 체크(CLVM with RBD) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
+      logger -p user.info -t MOLD-HA-AC "[Checking] 호스트:$HostIP | HB 파일 체크(CLVM with RBD, 스토리지:$poolPath) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
       if [ $diff -le $interval ]; then
-         logger -p user.info -t MOLD-HA-AC "[Result]   호스트:$HostIP | HB 체크 결과(CLVM with RBD) > [HOST STATE : ALIVE]"
+         logger -p user.info -t MOLD-HA-AC "[Result]   호스트:$HostIP | HB 체크 결과(CLVM with RBD, 스토리지:$poolPath) > [HOST STATE : ALIVE]"
          echo "### [HOST STATE : ALIVE] in [PoolType : CLVM] ###"
          exit 0
       fi
@@ -91,20 +91,20 @@ elif [ -n "$GfsPoolPath" ]; then
    getHbTime=$(cat $hbFile)
    diff=$(expr $Timestamp - $getHbTime)
    getHbTimeFmt=$(date -d @${getHbTime} '+%Y-%m-%d %H:%M:%S')
-   logger -p user.info -t MOLD-HA-AC "[Checking] 호스트:$HostIP | HB 파일 체크(CLVM with GFS) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
+   logger -p user.info -t MOLD-HA-AC "[Checking] 호스트:$HostIP | HB 파일 체크(CLVM with GFS, 스토리지:$poolPath) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
    if [ $diff -le $interval ]; then
-      logger -p user.info -t MOLD-HA-AC "[Result]   호스트:$HostIP | HB 체크 결과(CLVM with GFS) > [HOST STATE : ALIVE]"
+      logger -p user.info -t MOLD-HA-AC "[Result]   호스트:$HostIP | HB 체크 결과(CLVM with GFS, 스토리지:$poolPath) > [HOST STATE : ALIVE]"
       echo "### [HOST STATE : ALIVE] in [PoolType : CLVM] ###"
       exit 0
    fi
 else
-   logger -p user.info -t MOLD-HA-AC "[Writing]  호스트:$HostIP | HB 파일 갱신(CLVM) 실패!!! > RBD 또는 GFS 형식의 스토리지가 존재하지 않습니다."
+   logger -p user.info -t MOLD-HA-AC "[Writing]  호스트:$HostIP | HB 파일 갱신(CLVM, 스토리지:$poolPath) 실패!!! > RBD 또는 GFS 형식의 스토리지가 존재하지 않습니다."
    printf "There is no storage information of type RBD or SharedMountPoint."
    return 0
 fi
 
 if [ -z "$UUIDList" ]; then
-   logger -p user.info -t MOLD-HA-AC "[Result]   호스트:$HostIP | HB 체크 결과(CLVM) > [HOST HOST STATE : DEAD] 볼륨 UUID 목록이 비어 있음 => 호스트가 다운된 것으로 간주됨"
+   logger -p user.info -t MOLD-HA-AC "[Result]   호스트:$HostIP | HB 체크 결과(CLVM, 스토리지:$poolPath) > [HOST HOST STATE : DEAD] 볼륨 UUID 목록이 비어 있음 => 호스트가 다운된 것으로 간주됨"
    echo " ### [HOST STATE : DEAD] Volume UUID list is empty => Considered host down in [PoolType : CLVM] ###"
    exit 0
 fi
@@ -115,7 +115,7 @@ for img in $(echo $UUIDList | sed 's/,/ /g'); do
 
    if ps aux | grep "[q]emu.*${img}" >/dev/null; then
       statusFlag=true
-      logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | AC 체크 결과(CLVM) > [HOST STATE : ALIVE] ${img} 볼륨이 QEMU 프로세스에서 사용중으로 확인됨"
+      logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | AC 체크 결과(CLVM, 스토리지:$poolPath) > [HOST STATE : ALIVE] ${img} 볼륨이 QEMU 프로세스에서 사용중으로 확인됨"
       echo "### [HOST STATE : ALIVE] in [PoolType : CLVM] ###"
       break
       echo "true"
@@ -124,6 +124,6 @@ for img in $(echo $UUIDList | sed 's/,/ /g'); do
 done
 
 # 빠져나왔으면 DEAD
-logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | HB 체크 결과(CLVM) > [HOST STATE : DEAD] 볼륨 이미지 목록의 정상 동작을 확인할 수 없음 => 호스트가 다운된 것으로 간주됨"
+logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | HB 체크 결과(CLVM, 스토리지:$poolPath) > [HOST STATE : DEAD] 볼륨 이미지 목록의 정상 동작을 확인할 수 없음 => 호스트가 다운된 것으로 간주됨"
 echo "### [HOST STATE : DEAD] Unable to confirm normal activity of volume image list => Considered host down in [PoolType : CLVM] ### "
 exit 0
