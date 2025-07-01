@@ -97,8 +97,8 @@ public class SAML2LoginAPIAuthenticatorCmd extends BaseCmd implements APIAuthent
     @Inject
     private UserAccountDao userAccountDao;
 
-    protected static ConfigKey<String> saml2FailedLoginRedirectUrl = new ConfigKey<String>("Advanced", String.class, "saml2.failed.login.redirect.url", "",
-            "The URL to redirect the SAML2 login failed message (the default vaulue is empty).", true);
+    // protected static ConfigKey<String> saml2FailedLoginRedirectUrl = new ConfigKey<String>("Advanced", String.class, "saml2.failed.login.redirect.url", "",
+    //         "The URL to redirect the SAML2 login failed message (the default vaulue is empty).", true);
 
     SAML2AuthManager samlAuthManager;
 
@@ -352,7 +352,7 @@ public class SAML2LoginAPIAuthenticatorCmd extends BaseCmd implements APIAuthent
     protected void whenFailToAuthenticateThrowExceptionOrRedirectToUrl(final Map<String, Object[]> params, final String responseType, final HttpServletResponse resp, Issuer issuer,
             UserAccount userAccount) throws IOException {
         if (userAccount == null || userAccount.getExternalEntity() == null || !samlAuthManager.isUserAuthorized(userAccount.getId(), issuer.getValue())) {
-            String saml2RedirectUrl = saml2FailedLoginRedirectUrl.value();
+            String saml2RedirectUrl = SAML2AuthManager.SAMLFailedLoginRedirectUrl.value();
             if (StringUtils.isBlank(saml2RedirectUrl)) {
                 throw new ServerApiException(ApiErrorCode.ACCOUNT_ERROR, apiServer.getSerializedApiError(ApiErrorCode.ACCOUNT_ERROR.getHttpCode(),
                         "Your authenticated user is not authorized for SAML Single Sign-On, please contact your administrator", params, responseType));
