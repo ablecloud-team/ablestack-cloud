@@ -97,8 +97,8 @@ public class SAML2LoginAPIAuthenticatorCmd extends BaseCmd implements APIAuthent
     @Inject
     private UserAccountDao userAccountDao;
 
-    // protected static ConfigKey<String> saml2FailedLoginRedirectUrl = new ConfigKey<String>("Advanced", String.class, "saml2.failed.login.redirect.url", "",
-    //         "The URL to redirect the SAML2 login failed message (the default vaulue is empty).", true);
+    protected static ConfigKey<String> saml2FailedLoginRedirectUrl = new ConfigKey<String>("Advanced", String.class, "saml2.failed.login.redirect.url", "",
+            "The URL to redirect the SAML2 login failed message (the default vaulue is empty).", true);
 
     SAML2AuthManager samlAuthManager;
 
@@ -222,9 +222,14 @@ public class SAML2LoginAPIAuthenticatorCmd extends BaseCmd implements APIAuthent
                                 params, responseType));
                     }
                 } else {
-                    throw new ServerApiException(ApiErrorCode.ACCOUNT_ERROR, apiServer.getSerializedApiError(ApiErrorCode.ACCOUNT_ERROR.getHttpCode(),
+                    String saml2RedirectUrl = SAML2AuthManager.SAMLFailedLoginRedirectUrl.value();
+                    if (StringUtils.isBlank(saml2RedirectUrl)) {
+                        throw new ServerApiException(ApiErrorCode.ACCOUNT_ERROR, apiServer.getSerializedApiError(ApiErrorCode.ACCOUNT_ERROR.getHttpCode(),
                             "Received SAML response for a SSO request that we may not have made or has expired, please try logging in again",
                             params, responseType));
+                    } else {
+                        resp.sendRedirect(saml2RedirectUrl);
+                    }
                 }
                 samlAuthManager.purgeToken(token);
 
