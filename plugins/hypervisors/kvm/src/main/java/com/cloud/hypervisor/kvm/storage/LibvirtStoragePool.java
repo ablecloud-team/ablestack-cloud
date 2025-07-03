@@ -374,10 +374,10 @@ public class LibvirtStoragePool implements KVMStoragePool {
         } else if (primaryStoragePool.getPool().getType() == StoragePoolType.CLVM) {
             cmd.add("-q", primaryStoragePool.getPoolMountSourcePath());
             String glueBlockPool = Script.runSimpleBashScript(String.format("jq -r '.clusterConfig.type' /usr/share/cockpit/ablestack/tools/properties/cluster.json"));
-            if ("ablestack-hci".equals(glueBlockPool)) {
+            if ("ablestack-hci".equalsIgnoreCase(glueBlockPool)) {
                 cmd.add("-p", "rbd");
                 cmd.add("-n", "admin");
-            } else if ("ablestack-vm".equals(glueBlockPool)) {
+            } else if ("ablestack-vm".equalsIgnoreCase(glueBlockPool)) {
                 cmd.add("-g", "/mnt/glue-gfs");
             } else {
                 return "0";
@@ -424,10 +424,10 @@ public class LibvirtStoragePool implements KVMStoragePool {
             cmd.add("-r");
             cmd.add("-t", String.valueOf(HeartBeatCheckerFreq / 1000));
             String glueBlockPool = Script.runSimpleBashScript(String.format("jq -r '.clusterConfig.type' /usr/share/cockpit/ablestack/tools/properties/cluster.json"));
-            if ("ablestack-hci".equals(glueBlockPool)) {
+            if ("ablestack-hci".equalsIgnoreCase(glueBlockPool)) {
                 cmd.add("-p", "rbd");
                 cmd.add("-n", "admin");
-            } else if ("ablestack-vm".equals(glueBlockPool)) {
+            } else if ("ablestack-vm".equalsIgnoreCase(glueBlockPool)) {
                 cmd.add("-g", "/mnt/glue-gfs");
             } else {
                 return true;
@@ -514,10 +514,10 @@ public class LibvirtStoragePool implements KVMStoragePool {
             cmd.add("-t", String.valueOf(HeartBeatCheckerFreq / 1000));
             cmd.add("-d", String.valueOf(duration));
             String glueBlockPool = Script.runSimpleBashScript(String.format("jq -r '.clusterConfig.type' /usr/share/cockpit/ablestack/tools/properties/cluster.json"));
-            if ("ablestack-hci".equals(glueBlockPool)) {
+            if ("ablestack-hci".equalsIgnoreCase(glueBlockPool)) {
                 cmd.add("-p", "rbd");
                 cmd.add("-n", "admin");
-            } else if ("ablestack-vm".equals(glueBlockPool)) {
+            } else if ("ablestack-vm".equalsIgnoreCase(glueBlockPool)) {
                 cmd.add("-g", "/mnt/glue-gfs");
             } else {
                 return true;
