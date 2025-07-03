@@ -1497,7 +1497,7 @@ export default {
       this.getFirstIndexFocus()
 
       this.showAction = true
-      const listIconForFillValues = ['copy-outlined', 'CopyOutlined', 'edit-outlined', 'EditOutlined', 'share-alt-outlined', 'ShareAltOutlined']
+      const listIconForFillValues = ['copy-outlined', 'CopyOutlined', 'edit-outlined', 'EditOutlined', 'share-alt-outlined', 'ShareAltOutlined', 'minus-square-outlined']
       for (const param of this.currentAction.paramFields) {
         if (param.type === 'list' && ['tags', 'hosttags', 'storagetags', 'storageaccessgroups', 'files'].includes(param.name)) {
           param.type = 'string'
@@ -1726,6 +1726,8 @@ export default {
         fieldValue = this.resource[fieldName] ? this.resource[fieldName] : null
         if (fieldValue) {
           this.form[field.name] = fieldValue
+        } else if (field.type === 'boolean' && field.name === 'rebalance' && this.currentAction.api === 'cancelMaintenance') {
+          this.form[field.name] = true
         }
       })
     },
@@ -1880,6 +1882,10 @@ export default {
           if (values.storagetags === this.resource.storagetags) {
             delete values.tags
           }
+        }
+
+        if (['cancelMaintenance'].includes(action.api) && (params.rebalance === undefined || params.rebalance === null || params.rebalance === '')) {
+          params.rebalance = true
         }
 
         for (const key in values) {

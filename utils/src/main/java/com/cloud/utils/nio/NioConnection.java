@@ -331,9 +331,7 @@ public abstract class NioConnection implements Callable<Boolean> {
             }
             final byte[] data = link.read(socketChannel);
             if (data == null) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("Packet is incomplete.  Waiting for more.");
-                }
+                logger.trace("Packet is incomplete. Waiting for more.");
                 return;
             }
             final Task task = _factory.create(Task.Type.DATA, link, data);

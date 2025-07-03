@@ -274,8 +274,6 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
         _executor = new ThreadPoolExecutor(agentTaskThreads, agentTaskThreads, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), new NamedThreadFactory("AgentTaskPool"));    _executor.allowCoreThreadTimeOut(true);
 
-        initConnectExecutor();
-
         maxConcurrentNewAgentConnections = RemoteAgentMaxConcurrentNewConnections.value();
 
         _connection = new NioServer("AgentManager", Port.value(), Workers.value() + 10,
@@ -856,6 +854,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             return true;
         }
 
+        initConnectExecutor();
         startDirectlyConnectedHosts(false);
 
         if (_connection != null) {
@@ -2223,7 +2222,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     }
 
     @Override
-    public boolean transferDirectAgentsFromMS(String fromMsUuid, long fromMsId, long timeoutDurationInMs) {
+    public boolean transferDirectAgentsFromMS(String fromMsUuid, long fromMsId, long timeoutDurationInMs, boolean excludeHostsInMaintenance) {
         return true;
     }
 
