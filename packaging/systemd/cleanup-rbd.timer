@@ -1,0 +1,11 @@
+[Unit]
+Description=Run cleanup-rbd every 180s
+
+[Timer]
+OnBootSec=10s
+OnUnitActiveSec=180s
+AccuracySec=3s
+Unit=cleanup-rbd.service
+
+[Install]
+WantedBy=timers.target
