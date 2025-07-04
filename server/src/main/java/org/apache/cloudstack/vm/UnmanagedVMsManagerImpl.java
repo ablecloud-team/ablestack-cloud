@@ -2091,39 +2091,8 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
                 logger.error(msg);
                 throw new CloudRuntimeException(msg);
             }
-            diskOfferingTags.add(diskOffering.getTags());
-        }
-        if (serviceOffering.getDiskOfferingId() != null) {
-            DiskOfferingVO diskOffering = diskOfferingDao.findById(serviceOffering.getDiskOfferingId());
-            if (diskOffering != null) {
-                diskOfferingTags.add(diskOffering.getTags());
-            }
-        }
-
-        pools = getPoolsWithMatchingTags(pools, diskOfferingTags);
-        if (pools.isEmpty()) {
-            String msg = String.format("Cannot find suitable storage pools in cluster %s for the conversion", destinationCluster);
-            logger.error(msg);
-            throw new CloudRuntimeException(msg);
-        }
-        return pools;
-    }
-
-    private List<StoragePoolVO> getPoolsWithMatchingTags(List<StoragePoolVO> pools, List<String> diskOfferingTags) {
-        if (diskOfferingTags.isEmpty()) {
-            return pools;
-        }
-        List<StoragePoolVO> poolsSupportingTags = new ArrayList<>(pools);
-        for (String tags : diskOfferingTags) {
-            boolean tagsMatched = false;
-            for (StoragePoolVO pool : pools) {
-                if (volumeApiService.doesTargetStorageSupportDiskOffering(pool, tags)) {
-                    poolsSupportingTags.add(pool);
-                    tagsMatched = true;
-                }
-            }
-            if (!tagsMatched) {
-                String msg = String.format("Cannot find suitable storage pools for the conversion with disk offering tags %s", tags);
+            if (getStoragePoolWithTags(pools, diskOffering.getTags()) == null) {
+                String msg = String.format("Cannot find suitable storage pool for disk offering %s", diskOffering.getName());
                 logger.error(msg);
                 throw new CloudRuntimeException(msg);
             }

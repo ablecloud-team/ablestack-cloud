@@ -704,11 +704,10 @@ public class UnmanagedVMsManagerImplTest {
             when(agentManager.send(Mockito.eq(convertHostId), Mockito.any(CheckConvertInstanceCommand.class))).thenReturn(checkConvertInstanceAnswer);
         }
 
-        when(volumeApiService.doesStoragePoolSupportDiskOfferingTags(any(StoragePool.class), any())).thenReturn(true);
+        when(volumeApiService.doesStoragePoolSupportDiskOffering(any(StoragePool.class), any(DiskOffering.class))).thenReturn(true);
 
         ConvertInstanceAnswer convertInstanceAnswer = mock(ConvertInstanceAnswer.class);
         ImportConvertedInstanceAnswer convertImportedInstanceAnswer = mock(ImportConvertedInstanceAnswer.class);
-        when(convertInstanceAnswer.getConvertedInstance()).thenReturn(instance);
         when(convertInstanceAnswer.getResult()).thenReturn(vcenterParameter != VcenterParameter.CONVERT_FAILURE);
         Mockito.lenient().when(convertImportedInstanceAnswer.getConvertedInstance()).thenReturn(instance);
         Mockito.lenient().when(convertImportedInstanceAnswer.getResult()).thenReturn(vcenterParameter != VcenterParameter.CONVERT_FAILURE);
