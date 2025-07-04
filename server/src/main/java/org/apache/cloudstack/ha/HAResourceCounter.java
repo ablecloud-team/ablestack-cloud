@@ -36,6 +36,10 @@ public final class HAResourceCounter {
         return activityCheckCounter.get();
     }
 
+    public long getActivityCheckFailureCounter() {
+        return activityCheckFailureCounter.get();
+    }
+
     public long getRecoveryCounter() {
         return recoveryOperationCounter.get();
     }

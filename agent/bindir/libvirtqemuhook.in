@@ -293,8 +293,8 @@ if __name__ == '__main__':
         logger.error('The given action: %s, is not a valid libvirt qemu operation.' % action)
         sys.exit(0)
 
-    # if action == "prepare" and status == "begin":
-    #     getOwnership()
+    if action == "prepare" and status == "begin":
+        getOwnership()
 
     if action == "migrate" and status == "begin":
         handleMigrateBegin()

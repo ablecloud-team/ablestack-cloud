@@ -21,6 +21,8 @@ import java.util.concurrent.ExecutorService;
 
 import javax.inject.Inject;
 
+import org.apache.cloudstack.api.ApiCommandResourceType;
+import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.ha.HAConfig;
 import org.apache.cloudstack.ha.HAManager;
 import org.apache.cloudstack.ha.HAResource;
@@ -29,6 +31,10 @@ import org.apache.cloudstack.ha.provider.HACheckerException;
 import org.apache.cloudstack.ha.provider.HAProvider;
 import org.apache.cloudstack.ha.provider.HAProvider.HAProviderConfig;
 import org.joda.time.DateTime;
+
+import com.cloud.domain.Domain;
+import com.cloud.event.ActionEventUtils;
+import com.cloud.event.EventTypes;
 
 public class ActivityCheckTask extends BaseHATask {
 
@@ -63,7 +69,14 @@ public class ActivityCheckTask extends BaseHATask {
         }
 
         counter.incrActivityCounter(!result);
-
+        String message = String.format("[VM Activity Check] Executions : %s/%s | Failures : %s, Failure Rate : %s(Threshold : %s) ",
+                            counter.getActivityCheckCounter(),
+                            maxActivityChecks,
+                            counter.getActivityCheckFailureCounter(),
+                            Math.round((double)counter.getActivityCheckFailureCounter() / maxActivityChecks * 100) +  "%",
+                            Math.round(activityCheckFailureRatio * 100) +  "%");
+        ActionEventUtils.onActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(),
+                                        Domain.ROOT_DOMAIN, EventTypes.EVENT_HA_STATE_TRANSITION, message, haConfig.getResourceId(), ApiCommandResourceType.Host.toString());
         if (counter.getActivityCheckCounter() < maxActivityChecks) {
             haManager.transitionHAState(HAConfig.Event.TooFewActivityCheckSamples, haConfig);
             return;

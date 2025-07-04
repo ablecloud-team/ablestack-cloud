@@ -806,7 +806,7 @@ public class AgentProperties{
      * Data type: Long.<br>
      * Default value: <code>60000l</code>
      */
-    public static final Property<Long> KVM_HEARTBEAT_CHECKER_FREQUENCY = new Property<>("kvm.heartbeat.checker.timeout", 60000L);
+    public static final Property<Long> KVM_HEARTBEAT_CHECKER_FREQUENCY = new Property<>("kvm.heartbeat.checker.frequency", 60000L);
 
     /**
      * Keystore passphrase

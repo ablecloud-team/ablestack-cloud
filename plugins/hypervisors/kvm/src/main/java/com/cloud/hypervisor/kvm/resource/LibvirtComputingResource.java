@@ -4152,7 +4152,6 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
     @Override
     public StartupCommand[] initialize() {
-        Script.runSimpleBashScript("rbd rm MOLD-AC");
 
         final KVMHostInfo info = new KVMHostInfo(dom0MinMem, dom0OvercommitMem, manualCpuSpeed, dom0MinCpuCores);
         calculateHostCpuMaxCapacity(info.getAllocatableCpus(), info.getCpuSpeed());
