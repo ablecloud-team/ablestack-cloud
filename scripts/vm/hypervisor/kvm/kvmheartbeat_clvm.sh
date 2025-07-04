@@ -138,12 +138,39 @@ check_hbLog() {
     diff=$(expr $Timestamp - $getHbTime)
     getHbTimeFmt=$(date -d @${getHbTime} '+%Y-%m-%d %H:%M:%S')
     logger -p user.info -t MOLD-HA-HB "[Checking] 호스트:$HostIP | HB 파일 체크(CLVM with RBD, 스토리지:$poolPath) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
-
+    if { [ "$diff" -gt 30 ] && [ "$diff" -le 45 ]; } || { [ "$diff" -gt 60 ] && [ "$diff" -le 75 ]; }; then
+      timeout 1 ssh ccvm "
+        mysql -u cloud -pAblecloud1! -D cloud -e \"
+          INSERT INTO event (
+            uuid, type, state, description, user_id, account_id, domain_id,
+            resource_id, resource_type, created, level, start_id,
+            parameters, archived, display
+          ) VALUES (
+            UUID(), 'HA.STATE.TRANSITION', 'Completed',
+            '[Heartbeat Checking] Host: $HostIP | Storage: $poolPath [Current Time: $CurrentTime | HB File Time: $getHbTimeFmt | Time Difference: $diff seconds]', 1, 1, 1, 0, 'Host',
+            UTC_TIMESTAMP(), 'WARN', 0, NULL, 0, 1
+          );
+        \"
+      "
+    fi
   elif [ -n "$GfsPoolPath" ]; then
     getHbTime=$(cat $hbFile)
     diff=$(expr $Timestamp - $getHbTime)
     getHbTimeFmt=$(date -d @${getHbTime} '+%Y-%m-%d %H:%M:%S')
     logger -p user.info -t MOLD-HA-HB "[Checking] 호스트:$HostIP | HB 파일 체크(CLVM with GFS, 스토리지:$poolPath) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
+        timeout 1 ssh ccvm "
+      mysql -u cloud -pAblecloud1! -D cloud -e \"
+        INSERT INTO event (
+          uuid, type, state, description, user_id, account_id, domain_id,
+          resource_id, resource_type, created, level, start_id,
+          parameters, archived, display
+        ) VALUES (
+          UUID(), 'HA.STATE.TRANSITION', 'Completed',
+          '[Heartbeat Checking] Host: $HostIP | Storage: $poolPath [Current Time: $CurrentTime | HB File Time: $getHbTimeFmt | Time Difference: $diff seconds]', 1, 1, 1, 0, 'Host',
+          UTC_TIMESTAMP(), 'WARN', 0, NULL, 0, 1
+        );
+      \"
+    "
   else
     logger -p user.info -t MOLD-HA-HB "[Checking]  호스트:$HostIP | HB 파일 체크(CLVM with RBD, 스토리지:$poolPath) 실패!!! > RBD 또는 GFS 형식의 스토리지가 존재하지 않습니다."
     printf "There is no storage information of type RBD or SharedMountPoint."
