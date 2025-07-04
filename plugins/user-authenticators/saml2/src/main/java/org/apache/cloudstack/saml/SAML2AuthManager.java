@@ -79,6 +79,9 @@ public interface SAML2AuthManager extends PluggableAPIAuthenticator, PluggableSe
     ConfigKey<String> SAMLUserSessionKeyPathAttribute = new ConfigKey<String>("Advanced", String.class, "saml2.user.sessionkey.path", "",
             "The Path attribute of sessionkey cookie when SAML users have logged in. If not set, it will be set to the path of SAML redirection URL (saml2.redirect.url).", true);
 
+    ConfigKey<String> SAMLFailedLoginRedirectUrl = new ConfigKey<String>("Advanced", String.class, "saml2.failed.login.redirect.url", "http://localhost:8080/client/#/user/login?ssoLogin=false",
+            "The URL to redirect the SAML2 login failed message.", true);
+
     SAMLProviderMetadata getSPMetadata();
     SAMLProviderMetadata getIdPMetadata(String entityId);
     Collection<SAMLProviderMetadata> getAllIdPMetadata();

@@ -170,6 +170,20 @@ router.beforeEach((to, from, next) => {
       next({ path: '/verifyOauth', query: { redirect: to.fullPath } })
     } else if (allowList.includes(to.name)) {
       next()
+      // Failed samlSso login
+      const hash = window.location.hash
+      const queryString = hash.split('?')[1]
+      const params = new URLSearchParams(queryString)
+      const hasSsoLogin = params.has('ssoLogin')
+      const ssoLogin = params.get('ssoLogin')
+      if (hasSsoLogin && ssoLogin === 'false') {
+        notification.error({
+          top: '65px',
+          message: 'Error',
+          description: i18n.global.t('message.ssologin.failed.security'),
+          duration: 3
+        })
+      }
     } else {
       next({ path: '/user/login', query: { redirect: to.fullPath } })
       NProgress.done()

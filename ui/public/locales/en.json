@@ -4799,5 +4799,6 @@
 "state.scheduled" : "Scheduled",
 "state.started" : "Started",
 "message.delete.device.allocation": "Unassigning devices in virtual machines",
-"message.cannot.remove.device.vm.running": "Running virtual machines cannot be removed"
+"message.cannot.remove.device.vm.running": "Running virtual machines cannot be removed",
+"message.ssologin.failed.security" : "Your authenticated user is not authorized for SAML Single Sign-On, please contact your administrator"
 }

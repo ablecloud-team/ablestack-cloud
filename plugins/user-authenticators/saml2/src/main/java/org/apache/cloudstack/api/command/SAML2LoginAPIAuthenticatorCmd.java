@@ -222,9 +222,14 @@ public class SAML2LoginAPIAuthenticatorCmd extends BaseCmd implements APIAuthent
                                 params, responseType));
                     }
                 } else {
-                    throw new ServerApiException(ApiErrorCode.ACCOUNT_ERROR, apiServer.getSerializedApiError(ApiErrorCode.ACCOUNT_ERROR.getHttpCode(),
+                    String saml2RedirectUrl = SAML2AuthManager.SAMLFailedLoginRedirectUrl.value();
+                    if (StringUtils.isBlank(saml2RedirectUrl)) {
+                        throw new ServerApiException(ApiErrorCode.ACCOUNT_ERROR, apiServer.getSerializedApiError(ApiErrorCode.ACCOUNT_ERROR.getHttpCode(),
                             "Received SAML response for a SSO request that we may not have made or has expired, please try logging in again",
                             params, responseType));
+                    } else {
+                        resp.sendRedirect(saml2RedirectUrl);
+                    }
                 }
                 samlAuthManager.purgeToken(token);
 
@@ -352,7 +357,7 @@ public class SAML2LoginAPIAuthenticatorCmd extends BaseCmd implements APIAuthent
     protected void whenFailToAuthenticateThrowExceptionOrRedirectToUrl(final Map<String, Object[]> params, final String responseType, final HttpServletResponse resp, Issuer issuer,
             UserAccount userAccount) throws IOException {
         if (userAccount == null || userAccount.getExternalEntity() == null || !samlAuthManager.isUserAuthorized(userAccount.getId(), issuer.getValue())) {
-            String saml2RedirectUrl = saml2FailedLoginRedirectUrl.value();
+            String saml2RedirectUrl = SAML2AuthManager.SAMLFailedLoginRedirectUrl.value();
             if (StringUtils.isBlank(saml2RedirectUrl)) {
                 throw new ServerApiException(ApiErrorCode.ACCOUNT_ERROR, apiServer.getSerializedApiError(ApiErrorCode.ACCOUNT_ERROR.getHttpCode(),
                         "Your authenticated user is not authorized for SAML Single Sign-On, please contact your administrator", params, responseType));
