@@ -131,7 +131,7 @@
 </template>
 
 <script>
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import DiskOfferingSelection from '@views/compute/wizard/DiskOfferingSelection'
 import DiskSizeSelection from '@views/compute/wizard/DiskSizeSelection'
 import OsBasedImageSelection from '@views/compute/wizard/OsBasedImageSelection'
@@ -272,7 +272,7 @@ export default {
         params.rootdisksize = this.overrideRootDiskSize
       }
       params.expunge = this.expungeDisk
-      api('restoreVirtualMachine', params).then(response => {
+      postAPI('restoreVirtualMachine', params).then(response => {
         this.$pollJob({
           jobId: response.restorevmresponse.jobid,
           successMessage: this.$t('label.reinstall.vm') + ' ' + this.$t('label.success'),
@@ -310,7 +310,7 @@ export default {
         featured: true,
         showicon: true
       }
-      api('listOsCategories', params).then((response) => {
+      getAPI('listOsCategories', params).then((response) => {
         this.options.guestOsCategories = response?.listoscategoriesresponse?.oscategory || []
         if (this.showUserCategoryForModernImageSelection) {
           const userCategory = {
@@ -376,7 +376,7 @@ export default {
       args.showicon = 'true'
       args.kvdoenable = this.resource.kvdoenable
       return new Promise((resolve, reject) => {
-        api('listTemplates', args).then((response) => {
+        getAPI('listTemplates', args).then((response) => {
           resolve(response)
         }).catch((reason) => {
           reject(reason)
@@ -384,7 +384,7 @@ export default {
       })
     },
     fetchDiskOfferings (params) {
-      api('listDiskOfferings', { zoneid: this.resource.zoneid, listall: true, ...params }).then((response) => {
+      getAPI('listDiskOfferings', { zoneid: this.resource.zoneid, listall: true, ...params }).then((response) => {
         this.options.diskOfferings = response?.listdiskofferingsresponse?.diskoffering || []
         this.count.diskOfferings = response?.listdiskofferingsresponse?.count || 0
       })

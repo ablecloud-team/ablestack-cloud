@@ -264,7 +264,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipButton from '@/components/widgets/TooltipButton'
 
@@ -367,7 +367,7 @@ export default {
     },
     fetchDomains () {
       this.domainsLoading = true
-      api('listDomains', {
+      getAPI('listDomains', {
         details: 'min',
         listAll: true
       }).then(response => {
@@ -387,7 +387,7 @@ export default {
     },
     fetchZoneIpv4Subnet () {
       this.componentLoading = true
-      api('listIpv4SubnetsForZone', {
+      getAPI('listIpv4SubnetsForZone', {
         zoneid: this.resource.id,
         projectid: -1,
         showicon: true,
@@ -421,7 +421,7 @@ export default {
         params.account = this.addAccountForIpv4GuestSubnet.account
       }
 
-      api('dedicateIpv4SubnetForZone', params).then(response => {
+      postAPI('dedicateIpv4SubnetForZone', params).then(response => {
         this.$pollJob({
           jobId: response.dedicateipv4subnetforzoneresponse.jobid,
           title: this.$t('label.dedicate.ipv4.subnet'),
@@ -451,7 +451,7 @@ export default {
     },
     handleRemoveAccountFromIpv4GuestSubnet (id) {
       this.componentLoading = true
-      api('releaseIpv4SubnetForZone', { id }).then(response => {
+      postAPI('releaseIpv4SubnetForZone', { id }).then(response => {
         this.$pollJob({
           jobId: response.releaseipv4subnetforzoneresponse.jobid,
           title: this.$t('label.release.dedicated.ipv4.subnet'),
@@ -501,7 +501,7 @@ export default {
     },
     handleDeleteIpv4Subnet (id) {
       this.componentLoading = true
-      api('deleteIpv4SubnetForZone', { id }).then(response => {
+      postAPI('deleteIpv4SubnetForZone', { id }).then(response => {
         this.$pollJob({
           jobId: response.deleteipv4subnetforzoneresponse.jobid,
           successMessage: this.$t('message.success.delete.ipv4.subnet'),
@@ -540,7 +540,7 @@ export default {
           domainid: values.domain,
           account: values.account
         }
-        api('createIpv4SubnetForZone', params).then(response => {
+        postAPI('createIpv4SubnetForZone', params).then(response => {
           this.$pollJob({
             jobId: response.createipv4subnetforzoneresponse.jobid,
             title: this.$t('label.add.ipv4.subnet'),
@@ -586,7 +586,7 @@ export default {
           id: this.selectedIpv4GuestSubnet.id,
           subnet: values.subnet
         }
-        api('updateIpv4SubnetForZone', params).then(response => {
+        postAPI('updateIpv4SubnetForZone', params).then(response => {
           this.$pollJob({
             jobId: response.updateipv4subnetforzoneresponse.jobid,
             title: this.$t('label.update.ipv4.subnet'),

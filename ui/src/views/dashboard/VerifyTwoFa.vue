@@ -60,7 +60,7 @@
 </template>
 <script>
 
-import { api } from '@/api'
+import { postAPI } from '@/api'
 import { ref, reactive, toRaw } from 'vue'
 
 export default {
@@ -99,7 +99,7 @@ export default {
         if (values.code !== null) {
           this.buttonstate = true
         }
-        api('validateUserTwoFactorAuthenticationCode', { codefor2fa: values.code }).then(response => {
+        postAPI('validateUserTwoFactorAuthenticationCode', { codefor2fa: values.code }).then(response => {
           this.twoFAresponse = true
           if (this.twoFAresponse) {
             this.$notification.destroy()

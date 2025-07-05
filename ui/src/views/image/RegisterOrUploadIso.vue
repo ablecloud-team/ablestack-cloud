@@ -317,7 +317,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import store from '@/store'
 import { axios } from '../../utils/request'
 import { mixinForm } from '@/utils/mixin'
@@ -418,7 +418,7 @@ export default {
       if (store.getters.userInfo.roletype === 'Admin') {
         this.allowed = true
       }
-      api('listZones', params).then(json => {
+      getAPI('listZones', params).then(json => {
         const listZones = json.listzonesresponse.zone
         if (listZones) {
           this.zones = this.zones.concat(listZones)
@@ -432,7 +432,7 @@ export default {
     fetchOsType () {
       this.osTypeLoading = true
 
-      api('listOsTypes').then(json => {
+      getAPI('listOsTypes').then(json => {
         const listOsTypes = json.listostypesresponse.ostype
         this.osTypes = this.osTypes.concat(listOsTypes)
       }).finally(() => {
@@ -447,7 +447,7 @@ export default {
       this.userdata.opts = []
       this.userdata.loading = true
 
-      api('listUserData', params).then(json => {
+      getAPI('listUserData', params).then(json => {
         const listUserdata = json.listuserdataresponse.userdata
         this.userdata.opts = listUserdata
       }).finally(() => {
@@ -556,7 +556,7 @@ export default {
         console.log('params :>> ', params)
         if (this.currentForm === 'Create') {
           this.loading = true
-          api('registerIso', params).then(json => {
+          postAPI('registerIso', params).then(json => {
             if (this.userdataid !== null) {
               this.linkUserdataToTemplate(this.userdataid, json.registerisoresponse.iso[0].id, this.userdatapolicy)
             }
@@ -577,7 +577,7 @@ export default {
           }
           params.format = 'ISO'
           this.loading = true
-          api('getUploadParamsForIso', params).then(json => {
+          getAPI('getUploadParamsForIso', params).then(json => {
             this.uploadParams = (json.postuploadisoresponse && json.postuploadisoresponse.getuploadparams) ? json.postuploadisoresponse.getuploadparams : ''
             const response = this.handleUpload()
             if (this.userdataid !== null) {
@@ -611,7 +611,7 @@ export default {
       if (userdatapolicy) {
         params.userdatapolicy = userdatapolicy
       }
-      api('linkUserDataToTemplate', params).then(json => {
+      postAPI('linkUserDataToTemplate', params).then(json => {
         this.closeAction()
       }).catch(error => {
         this.$notifyError(error)
@@ -625,7 +625,7 @@ export default {
       params.showicon = true
       params.details = 'min'
       this.domainLoading = true
-      api('listDomains', params).then(json => {
+      getAPI('listDomains', params).then(json => {
         this.domains = json.listdomainsresponse.domain
       }).finally(() => {
         this.domainLoading = false
@@ -641,7 +641,7 @@ export default {
       }
     },
     fetchAccounts () {
-      api('listAccounts', {
+      getAPI('listAccounts', {
         domainid: this.domainid
       }).then(response => {
         this.accounts = response.listaccountsresponse.account || []

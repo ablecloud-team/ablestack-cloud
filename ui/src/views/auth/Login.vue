@@ -203,13 +203,13 @@
 </template>
 
 <script>
-import { api } from '@/api'
-import TranslationMenu from '@/components/header/TranslationMenu'
+import { ref, reactive, toRaw } from 'vue'
+import { getAPI, postAPI } from '@/api'
 import store from '@/store'
-import { SERVER_MANAGER } from '@/store/mutation-types'
-import { sourceToken } from '@/utils/request'
-import { reactive, ref, toRaw } from 'vue'
 import { mapActions } from 'vuex'
+import { sourceToken } from '@/utils/request'
+import { SERVER_MANAGER } from '@/store/mutation-types'
+import TranslationMenu from '@/components/header/TranslationMenu'
 import semver from 'semver'
 import { getParsedVersion } from '@/utils/util'
 
@@ -307,7 +307,7 @@ export default {
       }
     },
     fetchData () {
-      api('listIdps').then(response => {
+      getAPI('listIdps').then(response => {
         if (response) {
           this.idps = response.listidpsresponse.idp || []
           this.idps.sort(function (a, b) {
@@ -318,7 +318,7 @@ export default {
           this.form.idp = this.idps[0].id || ''
         }
       })
-      api('listOauthProvider', {}).then(response => {
+      getAPI('listOauthProvider', {}).then(response => {
         if (response) {
           const oauthproviders = response.listoauthproviderresponse.oauthprovider || []
           oauthproviders.forEach(item => {
@@ -336,7 +336,7 @@ export default {
           this.socialLogin = this.googleprovider || this.githubprovider
         }
       })
-      api('forgotPassword', {}).then(response => {
+      postAPI('forgotPassword', {}).then(response => {
         this.forgotPasswordEnabled = response.forgotpasswordresponse.enabled
       }).catch((err) => {
         if (err?.response?.data === null) {

@@ -477,7 +477,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import _ from 'lodash'
 import Breadcrumb from '@/components/widgets/Breadcrumb'
 import Status from '@/components/widgets/Status'
@@ -822,7 +822,7 @@ export default {
       if (!('listall' in options) && !['zones', 'pods', 'clusters', 'hosts', 'pools'].includes(name)) {
         options.listall = true
       }
-      api(param.list, options).then((response) => {
+      postAPI(param.list, options).then((response) => {
         param.loading = false
         _.map(response, (responseItem, responseKey) => {
           if (Object.keys(responseItem).length === 0) {
@@ -975,7 +975,7 @@ export default {
       this.fetchOptions(this.params.zones, 'zones', value)
     },
     fetchDomains () {
-      api('listDomains', {
+      getAPI('listDomains', {
         response: 'json',
         listAll: true,
         showicon: true,
@@ -990,7 +990,7 @@ export default {
     },
     fetchAccounts () {
       this.loading = true
-      api('listAccounts', {
+      getAPI('listAccounts', {
         response: 'json',
         domainId: this.importForm.selectedDomain,
         showicon: true,
@@ -1006,7 +1006,7 @@ export default {
     },
     fetchProjects () {
       this.loading = true
-      api('listProjects', {
+      getAPI('listProjects', {
         response: 'json',
         domainId: this.importForm.selectedDomain,
         state: 'Active',
@@ -1067,7 +1067,7 @@ export default {
         params.projectid = this.importForm.selectedProject
       }
 
-      api('listDiskOfferings', params).then(json => {
+      getAPI('listDiskOfferings', params).then(json => {
         this.diskOfferings = json.listdiskofferingsresponse.diskoffering || []
       }).finally(() => {
         this.loading = false
@@ -1100,7 +1100,7 @@ export default {
 
       const apiName = this.listVolumesApi.unmanaged
 
-      api(apiName, params).then(json => {
+      getAPI(apiName, params).then(json => {
         const response = json.listvolumesforimportresponse
         const listUnmanagedVolumes = response.volumeforimport
         if (this.arrayHasItems(listUnmanagedVolumes)) {
@@ -1141,7 +1141,7 @@ export default {
       }
       this.managedVolumesLoading = true
       this.searchParams.managed = params
-      api(this.listVolumesApi.managed, params).then(json => {
+      getAPI(this.listVolumesApi.managed, params).then(json => {
         const response = json.listvolumesresponse
         const listManagedVolumes = response.volume
         if (this.arrayHasItems(listManagedVolumes)) {
@@ -1220,7 +1220,7 @@ export default {
         path: this.selectedUnmanagedVolume.path,
         name: this.values.name
       }
-      api('importVolume', params).then(json => {
+      postAPI('importVolume', params).then(json => {
         const jobId = json.importvolumeresponse.jobid
         this.$pollJob({
           jobId,
@@ -1273,7 +1273,7 @@ export default {
       for (var index of this.managedVolumesSelectedRowKeys) {
         const vm = this.managedVolumes[index]
         var params = { id: vm.id }
-        api('unmanageVolume', params).then(json => {
+        postAPI('unmanageVolume', params).then(json => {
           const jobId = json.unmanagevolumeresponse.jobid
           this.$pollJob({
             jobId,

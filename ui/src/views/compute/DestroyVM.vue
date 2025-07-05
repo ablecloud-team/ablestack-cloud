@@ -147,7 +147,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import BulkActionProgress from '@/components/view/BulkActionProgress'
 
@@ -239,7 +239,7 @@ export default {
     callListVolume (vmId) {
       return new Promise((resolve) => {
         this.volumes = []
-        api('listVolumes', {
+        getAPI('listVolumes', {
           virtualMachineId: vmId,
           type: 'DATADISK',
           details: 'min',
@@ -331,7 +331,7 @@ export default {
     },
     destroyVM (params) {
       return new Promise((resolve, reject) => {
-        api('destroyVirtualMachine', params).then(json => {
+        postAPI('destroyVirtualMachine', params).then(json => {
           const jobId = json.destroyvirtualmachineresponse.jobid
           return resolve(jobId)
         }).catch(error => {

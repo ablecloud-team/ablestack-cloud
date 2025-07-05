@@ -113,7 +113,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
@@ -179,7 +179,7 @@ export default {
       })
     },
     fetchDiskOfferings () {
-      api('listDiskOfferings', {
+      getAPI('listDiskOfferings', {
         volumeid: this.resource.id,
         listall: true
       }).then(response => {
@@ -224,7 +224,7 @@ export default {
         if (values.maxiops) {
           params.maxiops = values.maxiops
         }
-        api('changeOfferingForVolume', params).then(response => {
+        postAPI('changeOfferingForVolume', params).then(response => {
           this.$pollJob({
             jobId: response.changeofferingforvolumeresponse.jobid,
             successMessage: this.$t('message.change.offering.for.volume'),

@@ -219,7 +219,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import { isAdmin } from '@/role'
 import { mixinForm } from '@/utils/mixin'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -321,7 +321,7 @@ export default {
       return array !== null && array !== undefined && Array.isArray(array) && array.length > 0
     },
     fetchMtuForZone () {
-      api('listZones', {
+      getAPI('listZones', {
         id: this.resource.zoneid
       }).then(json => {
         this.setMTU = json?.listzonesresponse?.zone?.[0]?.allowuserspecifyvrmtu || false
@@ -341,7 +341,7 @@ export default {
         params.id = this.resource.networkofferingid
       }
       this.networkOfferingLoading = true
-      api('listNetworkOfferings', params).then(json => {
+      getAPI('listNetworkOfferings', params).then(json => {
         this.networkOfferings = json.listnetworkofferingsresponse.networkoffering
       }).finally(() => {
         this.networkOfferingLoading = false
@@ -406,7 +406,7 @@ export default {
           this.networkOfferings[values.networkofferingid].id !== this.resource.networkofferingid) {
           params.networkofferingid = this.networkOfferings[values.networkofferingid].id
         }
-        api('updateNetwork', params).then(json => {
+        postAPI('updateNetwork', params).then(json => {
           const jobId = json.updatenetworkresponse.jobid
           this.$pollJob({
             jobId,
