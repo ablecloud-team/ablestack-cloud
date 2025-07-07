@@ -919,6 +919,9 @@ export default {
           this.page = 1
         }
         this.itemCount = 0
+        if ('listview' in this.$refs && this.$refs.listview) {
+          this.$refs.listview.resetSelection()
+        }
         this.fetchData()
         if (Object.keys(to.params).length === 0) this.refreshInterval = setInterval(this.fetchData, 5000)
         if ('projectid' in to.query) {
@@ -1128,9 +1131,10 @@ export default {
         params.listsystemvms = true
       }
 
-      if ('listview' in this.$refs && this.$refs.listview) {
-        this.$refs.listview.resetSelection()
-      }
+      // console.log('this.$refs :>> ', this.$refs)
+      // if ('listview' in this.$refs && this.$refs.listview) {
+      //   this.$refs.listview.resetSelection()
+      // }
 
       if (this.$route && this.$route.meta && this.$route.meta.permission) {
         this.apiName = this.$route.meta.permission[0]
