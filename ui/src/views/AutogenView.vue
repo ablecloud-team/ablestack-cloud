@@ -2269,7 +2269,6 @@ export default {
           this.rules[field.name].push(rule)
           break
         case (field.type === 'uuid'):
-          console.log('uuid: ' + field)
           rule.required = field.required
           rule.message = this.$t('message.error.select')
           this.rules[field.name].push(rule)
