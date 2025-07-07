@@ -3,4 +3,4 @@ Description=Cleanup unused RBD mappings
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/cleanup_rbd
+ExecStart=cleanup_rbd
