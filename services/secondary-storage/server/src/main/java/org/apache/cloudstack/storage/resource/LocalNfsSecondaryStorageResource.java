@@ -75,14 +75,14 @@ public class LocalNfsSecondaryStorageResource extends NfsSecondaryStorageResourc
 
         // Change permissions for the mountpoint - seems to bypass authentication
         Script script = new Script(true, "chmod", _timeout, logger);
-        script.add("777", localRootPath);
+        script.add("1777", localRootPath);
         String result = script.execute();
         if (result != null) {
             String errMsg = "Unable to set permissions for " + localRootPath + " due to " + result;
             logger.error(errMsg);
             throw new CloudRuntimeException(errMsg);
         }
-        logger.debug("Successfully set 777 permission for " + localRootPath);
+        logger.debug("Successfully set 1777 permission for " + localRootPath);
 
         // XXX: Adding the check for creation of snapshots dir here. Might have
         // to move it somewhere more logical later.

@@ -66,6 +66,7 @@ public final class CitrixRevertToVMSnapshotCommandWrapper extends CommandWrapper
             try {
                 vm = citrixResourceBase.getVM(conn, vmName);
             } catch (final Exception e) {
+                logger.debug(String.format("Failed to find VM with name: %s due to:", vmName), e);
                 vm = citrixResourceBase.createWorkingVM(conn, vmName, command.getGuestOSType(), command.getPlatformEmulator(), listVolumeTo);
             }
 
@@ -88,7 +89,7 @@ public final class CitrixRevertToVMSnapshotCommandWrapper extends CommandWrapper
             }
 
             if (!snapshotMemory) {
-                vm.destroy(conn);
+                citrixResourceBase.destroyVm(vm, conn);
                 vmState = PowerState.PowerOff;
             } else {
                 vmState = PowerState.PowerOn;

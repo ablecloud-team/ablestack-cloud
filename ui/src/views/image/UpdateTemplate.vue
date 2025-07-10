@@ -151,6 +151,12 @@
           </template>
           <a-switch v-model:checked="form.isdynamicallyscalable" />
         </a-form-item>
+        <a-form-item name="forcks" ref="forcks">
+          <template #label>
+            <tooltip-label :title="$t('label.forcks')" :tooltip="apiParams.forcks.description"/>
+          </template>
+          <a-switch v-model:checked="form.forcks" />
+        </a-form-item>
         <a-form-item name="templatetype" ref="templatetype" v-if="isAdmin">
           <template #label>
             <tooltip-label :title="$t('label.templatetype')" :tooltip="apiParams.templatetype.description"/>
@@ -274,7 +280,7 @@ export default {
         displaytext: [{ required: true, message: this.$t('message.error.required.input') }],
         ostypeid: [{ required: true, message: this.$t('message.error.select') }]
       })
-      const resourceFields = ['name', 'displaytext', 'architecture', 'passwordenabled', 'ostypeid', 'isdynamicallyscalable', 'userdataid', 'userdatapolicy']
+      const resourceFields = ['name', 'displaytext', 'architecture', 'passwordenabled', 'ostypeid', 'isdynamicallyscalable', 'userdataid', 'userdatapolicy', 'forcks']
       if (this.isAdmin) {
         resourceFields.push('templatetype')
         resourceFields.push('templatetag')
@@ -310,7 +316,7 @@ export default {
     },
     fetchData () {
       this.fetchOsTypes()
-      this.fetchArchitectureTypes()
+      this.architectureTypes.opts = this.$fetchCpuArchitectureTypes()
       this.fetchRootDiskControllerTypes(this.resource.hypervisor)
       this.fetchNicAdapterTypes()
       this.fetchKeyboardTypes()
@@ -334,19 +340,6 @@ export default {
       }).finally(() => {
         this.osTypes.loading = false
       })
-    },
-    fetchArchitectureTypes () {
-      this.architectureTypes.opts = []
-      const typesList = []
-      typesList.push({
-        id: 'x86_64',
-        description: 'AMD 64 bits (x86_64)'
-      })
-      typesList.push({
-        id: 'aarch64',
-        description: 'ARM 64 bits (aarch64)'
-      })
-      this.architectureTypes.opts = typesList
     },
     fetchRootDiskControllerTypes (hyperVisor) {
       const controller = []

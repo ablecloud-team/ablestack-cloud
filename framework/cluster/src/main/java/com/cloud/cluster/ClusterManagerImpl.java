@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.naming.ConfigurationException;
 
+import org.apache.cloudstack.command.ReconcileCommandService;
 import org.apache.cloudstack.framework.config.ConfigDepot;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
@@ -103,6 +104,9 @@ public class ClusterManagerImpl extends ManagerBase implements ClusterManager, C
     protected Dispatcher _dispatcher;
 
     private StatusAdministrator statusAdministrator;
+
+    @Inject
+    protected ReconcileCommandService reconcileCommandService;
 
     //
     // pay attention to _mshostId and _msid
@@ -941,7 +945,7 @@ public class ClusterManagerImpl extends ManagerBase implements ClusterManager, C
                 try {
                     JmxUtil.unregisterMBean("ClusterManager", "Node " + mshost.getId());
                 } catch (final Exception e) {
-                    logger.warn("Unable to deregiester cluster node from JMX monitoring due to exception " + e.toString());
+                    logger.warn("Unable to deregister cluster node from JMX monitoring due to exception " + e.toString());
                 }
             }
 
@@ -1013,6 +1017,8 @@ public class ClusterManagerImpl extends ManagerBase implements ClusterManager, C
                     logger.warn("Management node " + host.getId() + " is detected inactive by timestamp and did not send node status to all other nodes");
                     host.setState(ManagementServerHost.State.Down);
                     _mshostDao.update(host.getId(), host);
+
+                    reconcileCommandService.updateReconcileCommandToInterruptedByManagementServerId(host.getMsid());
                 }
             }
         } else {
@@ -1063,8 +1069,12 @@ public class ClusterManagerImpl extends ManagerBase implements ClusterManager, C
                         logger.info("New instance of management server {}, runId {} is being started", mshost, _runId);
                     }
                 } else {
+                    ManagementServerHost.State msHostState = ManagementServerHost.State.Up;
+                    if (ManagementServerHost.State.Maintenance.equals(mshost.getState()) || ManagementServerHost.State.PreparingForMaintenance.equals(mshost.getState())) {
+                        msHostState = ManagementServerHost.State.Maintenance;
+                    }
                     _mshostDao.update(mshost.getId(), _runId, NetUtils.getCanonicalHostName(), version, _clusterNodeIP, _currentServiceAdapter.getServicePort(),
-                            DateUtil.currentGMTTime());
+                            DateUtil.currentGMTTime(), msHostState);
                     if (logger.isInfoEnabled()) {
                         logger.info("Management server {}, runId {} is being started", mshost, _runId);
                     }
@@ -1101,12 +1111,30 @@ public class ClusterManagerImpl extends ManagerBase implements ClusterManager, C
         }
 
         if (_mshostId != null) {
-            final ManagementServerHostVO mshost = _mshostDao.findByMsid(_msId);
-            final ManagementServerStatusVO mshostStatus = mshostStatusDao.findByMsId(mshost.getUuid());
-            mshost.setState(ManagementServerHost.State.Down);
-            mshostStatus.setLastJvmStop(new Date());
-            _mshostDao.update(_mshostId, mshost);
-            mshostStatusDao.update(mshostStatus.getId(), mshostStatus);
+            ManagementServerHostVO mshost = _mshostDao.findByMsid(_msId);
+            if (mshost != null) {
+                ManagementServerStatusVO mshostStatus = mshostStatusDao.findByMsId(mshost.getUuid());
+                if (mshostStatus != null) {
+                    mshost.setState(ManagementServerHost.State.Down);
+                    mshostStatus.setLastJvmStop(new Date());
+                    _mshostDao.update(_mshostId, mshost);
+                    mshostStatusDao.update(mshostStatus.getId(), mshostStatus);
+                } else {
+                    logger.warn(String.format("Found a management server host [%s] without a status. This should never happen!", mshost));
+                    mshostStatus = new ManagementServerStatusVO();
+                    mshostStatus.setMsId(mshost.getUuid());
+                    mshostStatus.setLastSystemBoot(new Date());
+                    mshostStatus.setLastJvmStart(new Date());
+                    mshostStatus.setUpdated(new Date());
+                    mshostStatusDao.persist(mshostStatus);
+                }
+
+                ManagementServerHost.State msHostState = ManagementServerHost.State.Down;
+                if (ManagementServerHost.State.Maintenance.equals(mshost.getState()) || ManagementServerHost.State.PreparingForMaintenance.equals(mshost.getState())) {
+                    msHostState = ManagementServerHost.State.Maintenance;
+                }
+                _mshostDao.updateState(mshost.getId(), msHostState);
+            }
         }
 
         _heartbeatScheduler.shutdownNow();

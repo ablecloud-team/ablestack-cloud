@@ -51,12 +51,19 @@ public class ApiConstants {
     public static final String AVAILABLE = "available";
     public static final String AVAILABLE_SUBNETS = "availablesubnets";
     public static final String AVAILABLE_VIRTUAL_MACHINE_COUNT = "availablevirtualmachinecount";
+    public static final String BACKUP_AVAILABLE = "backupavailable";
     public static final String BACKUP_ID = "backupid";
+    public static final String BACKUP_LIMIT = "backuplimit";
     public static final String BACKUP_OFFERING_NAME = "backupofferingname";
     public static final String BACKUP_OFFERING_ID = "backupofferingid";
+    public static final String BACKUP_STORAGE_AVAILABLE = "backupstorageavailable";
+    public static final String BACKUP_STORAGE_LIMIT = "backupstoragelimit";
+    public static final String BACKUP_STORAGE_TOTAL = "backupstoragetotal";
+    public static final String BACKUP_TOTAL = "backuptotal";
     public static final String BASE64_IMAGE = "base64image";
     public static final String BGP_PEERS = "bgppeers";
     public static final String BGP_PEER_IDS = "bgppeerids";
+    public static final String BATCH_SIZE = "batchsize";
     public static final String BITS = "bits";
     public static final String BOOTABLE = "bootable";
     public static final String BIND_DN = "binddn";
@@ -112,6 +119,10 @@ public class ApiConstants {
     public static final String CN = "cn";
     public static final String COMMAND = "command";
     public static final String CMD_EVENT_TYPE = "cmdeventtype";
+    public static final String CNI_CONFIG = "cniconfig";
+    public static final String CNI_CONFIG_ID = "cniconfigurationid";
+    public static final String CNI_CONFIG_DETAILS = "cniconfigdetails";
+    public static final String CNI_CONFIG_NAME = "cniconfigname";
     public static final String COMPONENT = "component";
     public static final String CPU_CORE_PER_SOCKET = "cpucorepersocket";
     public static final String CPU_NUMBER = "cpunumber";
@@ -138,6 +149,7 @@ public class ApiConstants {
     public static final String SAVING_RATE = "savingrate";
     public static final String ENCRYPT_ROOT = "encryptroot";
     public static final String ENCRYPTION_SUPPORTED = "encryptionsupported";
+    public static final String ETCD_IPS = "etcdips";
     public static final String MIN_IOPS = "miniops";
     public static final String MAX_IOPS = "maxiops";
     public static final String HYPERVISOR_SNAPSHOT_RESERVE = "hypervisorsnapshotreserve";
@@ -268,7 +280,10 @@ public class ApiConstants {
     public static final String INTERNAL_DNS2 = "internaldns2";
     public static final String INTERNET_PROTOCOL = "internetprotocol";
     public static final String INTERVAL_TYPE = "intervaltype";
-    public static final String LOCATION_TYPE = "locationtype";
+    public static final String INSTANCE_LEASE_DURATION = "leaseduration";
+    public static final String INSTANCE_LEASE_ENABLED = "instanceleaseenabled";
+    public static final String INSTANCE_LEASE_EXPIRY_ACTION = "leaseexpiryaction";
+    public static final String INSTANCE_LEASE_EXPIRY_DATE= "leaseexpirydate";
     public static final String IOPS_READ_RATE = "iopsreadrate";
     public static final String IOPS_READ_RATE_MAX = "iopsreadratemax";
     public static final String IOPS_READ_RATE_MAX_LENGTH = "iopsreadratemaxlength";
@@ -295,6 +310,7 @@ public class ApiConstants {
     public static final String IS_EXTRACTABLE = "isextractable";
     public static final String IS_FEATURED = "isfeatured";
     public static final String IS_IMPLICIT = "isimplicit";
+    public static final String IS_ISO = "isiso";
     public static final String IS_PORTABLE = "isportable";
     public static final String IS_PUBLIC = "ispublic";
     public static final String IS_PERSISTENT = "ispersistent";
@@ -317,18 +333,22 @@ public class ApiConstants {
     public static final String LAST_BOOT = "lastboottime";
     public static final String LAST_SERVER_START = "lastserverstart";
     public static final String LAST_SERVER_STOP = "lastserverstop";
+    public static final String LEASED = "leased";
     public static final String LEVEL = "level";
     public static final String LENGTH = "length";
     public static final String LIMIT = "limit";
     public static final String LIMIT_CPU_USE = "limitcpuuse";
     public static final String LIST_HOSTS = "listhosts";
+    public static final String LOCATION_TYPE = "locationtype";
     public static final String LOCK = "lock";
     public static final String LUN = "lun";
     public static final String LBID = "lbruleid";
     public static final String LB_PROVIDER = "lbprovider";
     public static final String MAC_ADDRESS = "macaddress";
+    public static final String MANUAL_UPGRADE = "manualupgrade";
     public static final String MAX = "max";
     public static final String MAX_SNAPS = "maxsnaps";
+    public static final String MAX_BACKUPS = "maxbackups";
     public static final String MAX_CPU_NUMBER = "maxcpunumber";
     public static final String MAX_MEMORY = "maxmemory";
     public static final String MIN_CPU_NUMBER = "mincpunumber";
@@ -337,6 +357,7 @@ public class ApiConstants {
     public static final String MIGRATIONS = "migrations";
     public static final String MEMORY = "memory";
     public static final String MODE = "mode";
+    public static final String MOUNT_CKS_ISO_ON_VR = "mountcksisoonvr";
     public static final String MULTI_ARCH = "ismultiarch";
     public static final String NSX_MODE = "nsxmode";
     public static final String NETWORK_MODE = "networkmode";
@@ -353,6 +374,7 @@ public class ApiConstants {
     public static final String NIC_PACKED_VIRTQUEUES_ENABLED = "nicpackedvirtqueuesenabled";
     public static final String NEW_START_IP = "newstartip";
     public static final String NEW_END_IP = "newendip";
+    public static final String KUBERNETES_NODE_VERSION = "kubernetesnodeversion";
     public static final String NUM_RETRIES = "numretries";
     public static final String OFFER_HA = "offerha";
     public static final String OS_DISTRIBUTION = "osdistribution";
@@ -443,6 +465,7 @@ public class ApiConstants {
     public static final String QUALIFIERS = "qualifiers";
     public static final String QUERY_FILTER = "queryfilter";
     public static final String SCHEDULE = "schedule";
+    public static final String SCHEDULE_ID = "scheduleid";
     public static final String SCOPE = "scope";
     public static final String SEARCH_BASE = "searchbase";
     public static final String SECONDARY_IP = "secondaryip";
@@ -496,6 +519,11 @@ public class ApiConstants {
     public static final String SYSTEM_VM_TYPE = "systemvmtype";
     public static final String TAGS = "tags";
     public static final String STORAGE_TAGS = "storagetags";
+    public static final String STORAGE_ACCESS_GROUPS = "storageaccessgroups";
+    public static final String STORAGE_ACCESS_GROUP = "storageaccessgroup";
+    public static final String CLUSTER_STORAGE_ACCESS_GROUPS = "clusterstorageaccessgroups";
+    public static final String POD_STORAGE_ACCESS_GROUPS = "podstorageaccessgroups";
+    public static final String ZONE_STORAGE_ACCESS_GROUPS = "zonestorageaccessgroups";
     public static final String SUCCESS = "success";
     public static final String SUITABLE_FOR_VM = "suitableforvirtualmachine";
     public static final String TARGET_IQN = "targetiqn";
@@ -534,6 +562,7 @@ public class ApiConstants {
     public static final String USER_SECURITY_GROUP_LIST = "usersecuritygrouplist";
     public static final String USER_SECRET_KEY = "usersecretkey";
     public static final String USE_VIRTUAL_NETWORK = "usevirtualnetwork";
+    public static final String USE_VIRTUAL_ROUTER_IP_RESOLVER = "userouteripresolver";
     public static final String UPDATE_IN_SEQUENCE = "updateinsequence";
     public static final String VALUE = "value";
     public static final String VIRTUAL_MACHINE_ID = "virtualmachineid";
@@ -550,6 +579,12 @@ public class ApiConstants {
 
     public static final String VLAN = "vlan";
     public static final String VLAN_RANGE = "vlanrange";
+    public static final String WORKER_SERVICE_OFFERING_ID = "workerofferingid";
+    public static final String WORKER_SERVICE_OFFERING_NAME = "workerofferingname";
+    public static final String CONTROL_SERVICE_OFFERING_ID = "controlofferingid";
+    public static final String CONTROL_SERVICE_OFFERING_NAME = "controlofferingname";
+    public static final String ETCD_SERVICE_OFFERING_ID = "etcdofferingid";
+    public static final String ETCD_SERVICE_OFFERING_NAME = "etcdofferingname";
     public static final String REMOVE_VLAN = "removevlan";
     public static final String VLAN_ID = "vlanid";
     public static final String ISOLATED_PVLAN = "isolatedpvlan";
@@ -900,6 +935,7 @@ public class ApiConstants {
     public static final String SPLIT_CONNECTIONS = "splitconnections";
     public static final String FOR_VPC = "forvpc";
     public static final String FOR_NSX = "fornsx";
+    public static final String FOR_CKS = "forcks";
     public static final String NSX_SUPPORT_LB = "nsxsupportlb";
     public static final String NSX_SUPPORTS_INTERNAL_LB = "nsxsupportsinternallb";
     public static final String FOR_TUNGSTEN = "fortungsten";
@@ -961,7 +997,6 @@ public class ApiConstants {
     public static final String AUTOSCALE_VMGROUP_NAME = "autoscalevmgroupname";
     public static final String BAREMETAL_DISCOVER_NAME = "baremetaldiscovername";
     public static final String BAREMETAL_RCT_URL = "baremetalrcturl";
-    public static final String BATCH_SIZE = "batchsize";
     public static final String UCS_DN = "ucsdn";
     public static final String GSLB_PROVIDER = "gslbprovider";
     public static final String EXCLUSIVE_GSLB_PROVIDER = "isexclusivegslbprovider";
@@ -1109,6 +1144,10 @@ public class ApiConstants {
     public static final String MASTER_NODES = "masternodes";
     public static final String NODE_IDS = "nodeids";
     public static final String CONTROL_NODES = "controlnodes";
+    public static final String ETCD_NODES = "etcdnodes";
+    public static final String EXTERNAL_NODES = "externalnodes";
+    public static final String IS_EXTERNAL_NODE = "isexternalnode";
+    public static final String IS_ETCD_NODE = "isetcdnode";
     public static final String MIN_SEMANTIC_VERSION = "minimumsemanticversion";
     public static final String MIN_KUBERNETES_VERSION_ID = "minimumkubernetesversionid";
     public static final String NODE_ROOT_DISK_SIZE = "noderootdisksize";
@@ -1117,6 +1156,8 @@ public class ApiConstants {
     public static final String AUTOSCALING_ENABLED = "autoscalingenabled";
     public static final String MIN_SIZE = "minsize";
     public static final String MAX_SIZE = "maxsize";
+    public static final String NODE_TYPE_OFFERING_MAP = "nodeofferings";
+    public static final String NODE_TYPE_TEMPLATE_MAP = "nodetemplates";
 
     public static final String DESKTOP_CONTROLLER_VERSION = "controllerversion";
     public static final String DESKTOP_CONTROLLER_VERSION_NAME = "controllerversionname";
@@ -1203,16 +1244,19 @@ public class ApiConstants {
 
     public static final String KRBD_PATH = "krbdpath";
 
-    public static final String READY_FOR_SHUTDOWN = "readyforshutdown";
+    public static final String MAINTENANCE_INITIATED = "maintenanceinitiated";
     public static final String SHUTDOWN_TRIGGERED = "shutdowntriggered";
+    public static final String READY_FOR_SHUTDOWN = "readyforshutdown";
     public static final String PENDING_JOBS_COUNT = "pendingjobscount";
+    public static final String AGENTS_COUNT = "agentscount";
+    public static final String AGENTS = "agents";
+    public static final String LAST_AGENTS = "lastagents";
 
     public static final String PUBLIC_MTU = "publicmtu";
     public static final String PRIVATE_MTU = "privatemtu";
     public static final String MTU = "mtu";
     public static final String AUTO_ENABLE_KVM_HOST = "autoenablekvmhost";
     public static final String LIST_APIS = "listApis";
-    public static final String OBJECT_STORAGE_ID = "objectstorageid";
     public static final String VERSIONING = "versioning";
     public static final String OBJECT_LOCKING = "objectlocking";
     public static final String ENCRYPTION = "encryption";
@@ -1226,7 +1270,6 @@ public class ApiConstants {
     public static final String DISK_PATH = "diskpath";
     public static final String IMPORT_SOURCE = "importsource";
     public static final String TEMP_PATH = "temppath";
-    public static final String OBJECT_STORAGE = "objectstore";
 
     public static final String FIRST_LOGIN = "firstlogin";
 
@@ -1275,11 +1318,30 @@ public class ApiConstants {
     public static final String LISTHOSTDEVICES = "listhostdevices";
     public static final String HOSTDEVICES_NAME = "hostdevicesname";
     public static final String HOSTDEVICES_TEXT = "hostdevicestext";
+    // Object Storage related
+    public static final String BUCKET_AVAILABLE = "bucketavailable";
+    public static final String BUCKET_LIMIT = "bucketlimit";
+    public static final String BUCKET_TOTAL = "buckettotal";
+    public static final String OBJECT_STORAGE_ID = "objectstorageid";
+    public static final String OBJECT_STORAGE = "objectstore";
+    public static final String OBJECT_STORAGE_AVAILABLE = "objectstorageavailable";
+    public static final String OBJECT_STORAGE_LIMIT = "objectstoragelimit";
+    public static final String OBJECT_STORAGE_TOTAL = "objectstoragetotal";
 
     public static final String PARAMETER_DESCRIPTION_ACTIVATION_RULE = "Quota tariff's activation rule. It can receive a JS script that results in either " +
             "a boolean or a numeric value: if it results in a boolean value, the tariff value will be applied according to the result; if it results in a numeric value, the " +
             "numeric value will be applied; if the result is neither a boolean nor a numeric value, the tariff will not be applied. If the rule is not informed, the tariff " +
             "value will be applied.";
+
+    public static final String PARAMETER_DESCRIPTION_START_DATE_POSSIBLE_FORMATS = "The recommended format is \"yyyy-MM-dd'T'HH:mm:ssZ\" (e.g.: \"2023-01-01T12:00:00+0100\"); " +
+            "however, the following formats are also accepted: \"yyyy-MM-dd HH:mm:ss\" (e.g.: \"2023-01-01 12:00:00\") and \"yyyy-MM-dd\" (e.g.: \"2023-01-01\" - if the time is not " +
+            "added, it will be interpreted as \"00:00:00\"). If the recommended format is not used, the date will be considered in the server timezone.";
+
+    public static final String PARAMETER_DESCRIPTION_END_DATE_POSSIBLE_FORMATS = "The recommended format is \"yyyy-MM-dd'T'HH:mm:ssZ\" (e.g.: \"2023-01-01T12:00:00+0100\"); " +
+            "however, the following formats are also accepted: \"yyyy-MM-dd HH:mm:ss\" (e.g.: \"2023-01-01 12:00:00\") and \"yyyy-MM-dd\" (e.g.: \"2023-01-01\" - if the time is not " +
+            "added, it will be interpreted as \"23:59:59\"). If the recommended format is not used, the date will be considered in the server timezone.";
+
+    public static final String VMWARE_DC = "vmwaredc";
 
     public static final String DR_CLUSTER_TYPE = "drclustertype";
     public static final String DR_CLUSTER_URL = "drclusterurl";
@@ -1330,14 +1392,6 @@ public class ApiConstants {
             return ioDriver;
         }
     }
-
-    public static final String PARAMETER_DESCRIPTION_START_DATE_POSSIBLE_FORMATS = "The recommended format is \"yyyy-MM-dd'T'HH:mm:ssZ\" (e.g.: \"2023-01-01T12:00:00+0100\"); " +
-            "however, the following formats are also accepted: \"yyyy-MM-dd HH:mm:ss\" (e.g.: \"2023-01-01 12:00:00\") and \"yyyy-MM-dd\" (e.g.: \"2023-01-01\" - if the time is not " +
-            "added, it will be interpreted as \"00:00:00\"). If the recommended format is not used, the date will be considered in the server timezone.";
-
-    public static final String PARAMETER_DESCRIPTION_END_DATE_POSSIBLE_FORMATS = "The recommended format is \"yyyy-MM-dd'T'HH:mm:ssZ\" (e.g.: \"2023-01-01T12:00:00+0100\"); " +
-            "however, the following formats are also accepted: \"yyyy-MM-dd HH:mm:ss\" (e.g.: \"2023-01-01 12:00:00\") and \"yyyy-MM-dd\" (e.g.: \"2023-01-01\" - if the time is not " +
-            "added, it will be interpreted as \"23:59:59\"). If the recommended format is not used, the date will be considered in the server timezone.";
 
     public enum BootType {
         UEFI, BIOS;

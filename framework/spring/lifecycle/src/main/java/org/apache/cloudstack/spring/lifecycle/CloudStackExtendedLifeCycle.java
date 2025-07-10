@@ -129,6 +129,7 @@ public class CloudStackExtendedLifeCycle extends AbstractBeanCollector {
                     throw new CloudRuntimeException(e);
                 } catch (Exception e) {
                     logger.error("Error on configuring bean {} - {}", lifecycle.getName(), e.getMessage(), e);
+                    throw new CloudRuntimeException(e);
                 }
             }
         });

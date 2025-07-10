@@ -51,10 +51,6 @@ import java.util.concurrent.TimeoutException;
 import javax.naming.ConfigurationException;
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.trilead.ssh2.SFTPException;
-import com.trilead.ssh2.SFTPv3Client;
-import com.trilead.ssh2.SFTPv3DirectoryEntry;
-import com.trilead.ssh2.SFTPv3FileAttributes;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.diagnostics.CopyToSecondaryStorageAnswer;
 import org.apache.cloudstack.diagnostics.CopyToSecondaryStorageCommand;
@@ -71,6 +67,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.xmlrpc.XmlRpcException;
 import org.joda.time.Duration;
 import org.w3c.dom.Document;
@@ -152,6 +149,10 @@ import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.VirtualMachine.PowerState;
 import com.cloud.vm.VmDetailConstants;
 import com.trilead.ssh2.SCPClient;
+import com.trilead.ssh2.SFTPException;
+import com.trilead.ssh2.SFTPv3Client;
+import com.trilead.ssh2.SFTPv3DirectoryEntry;
+import com.trilead.ssh2.SFTPv3FileAttributes;
 import com.xensource.xenapi.Bond;
 import com.xensource.xenapi.Connection;
 import com.xensource.xenapi.Console;
@@ -625,7 +626,7 @@ public abstract class CitrixResourceBase extends ServerResourceBase implements S
 
                 if (VmPowerState.HALTED.equals(vmRec.powerState) && vmRec.affinity.equals(host) && !isAlienVm(vm, conn)) {
                     try {
-                        vm.destroy(conn);
+                        destroyVm(vm, conn);
                     } catch (final Exception e) {
                         logger.warn("Catch Exception " + e.getClass().getName() + ": unable to destroy VM " + vmRec.nameLabel + " due to ", e);
                         success = false;
@@ -1394,7 +1395,7 @@ public abstract class CitrixResourceBase extends ServerResourceBase implements S
                 cpuWeight = _maxWeight;
             }
 
-            if (vmSpec.getLimitCpuUse()) {
+            if (vmSpec.isLimitCpuUse()) {
                 // CPU cap is per VM, so need to assign cap based on the number
                 // of vcpus
                 utilization = (int)(vmSpec.getMaxSpeed() * 0.99 * vmSpec.getCpus() / _host.getSpeed() * 100);
@@ -1450,7 +1451,7 @@ public abstract class CitrixResourceBase extends ServerResourceBase implements S
                 vm.setPVBootloader(conn, "pygrub");
                 vm.setPVBootloaderArgs(conn, CitrixHelper.getPVbootloaderArgs(guestOsTypeName));
             } else {
-                vm.destroy(conn);
+                destroyVm(vm, conn, true);
                 throw new CloudRuntimeException("Unable to handle boot loader type: " + vmSpec.getBootloader());
             }
         }
@@ -1713,6 +1714,7 @@ public abstract class CitrixResourceBase extends ServerResourceBase implements S
             nwr.nameLabel = newName;
             nwr.tags = new HashSet<String>();
             nwr.tags.add(generateTimeStamp());
+            nwr.managed = true;
             vlanNetwork = Network.create(conn, nwr);
             vlanNic = getNetworkByName(conn, newName);
             if (vlanNic == null) { // Still vlanNic is null means we could not
@@ -2018,6 +2020,7 @@ public abstract class CitrixResourceBase extends ServerResourceBase implements S
                 // started
                 otherConfig.put("assume_network_is_shared", "true");
                 rec.otherConfig = otherConfig;
+                rec.managed = true;
                 nw = Network.create(conn, rec);
                 logger.debug("### XenServer network for tunnels created:" + nwName);
             } else {
@@ -2036,7 +2039,7 @@ public abstract class CitrixResourceBase extends ServerResourceBase implements S
             final Long domId = vm.getDomid(conn);
             callHostPlugin(conn, "vmopspremium", "forceShutdownVM", "domId", domId.toString());
             vm.powerStateReset(conn);
-            vm.destroy(conn);
+            destroyVm(vm, conn);
         } catch (final Exception e) {
             final String msg = "forceShutdown failed due to " + e.toString();
             logger.warn(msg, e);
@@ -3689,7 +3692,7 @@ public abstract class CitrixResourceBase extends ServerResourceBase implements S
             }
             if (vm.getPowerState(conn) == VmPowerState.HALTED) {
                 try {
-                    vm.destroy(conn);
+                    destroyVm(vm, conn, true);
                 } catch (final Exception e) {
                     logger.warn("VM destroy failed due to ", e);
                 }
@@ -3724,6 +3727,11 @@ public abstract class CitrixResourceBase extends ServerResourceBase implements S
 
     @Override
     public StartupCommand[] initialize() throws IllegalArgumentException {
+        return initialize(false);
+    }
+
+    @Override
+    public StartupCommand[] initialize(boolean isTransferredConnection) throws IllegalArgumentException {
         final Connection conn = getConnection();
         if (!getHostInfo(conn)) {
             logger.warn("Unable to get host information for " + _host.getIp());
@@ -3734,6 +3742,7 @@ public abstract class CitrixResourceBase extends ServerResourceBase implements S
         cmd.setHypervisorType(HypervisorType.XenServer);
         cmd.setCluster(_cluster);
         cmd.setPoolSync(false);
+        cmd.setConnectionTransferred(isTransferredConnection);
 
         try {
             final Pool pool = Pool.getByUuid(conn, _host.getPool());
@@ -4754,8 +4763,8 @@ public abstract class CitrixResourceBase extends ServerResourceBase implements S
                 cpuWeight = _maxWeight;
             }
 
-            if (vmSpec.getLimitCpuUse()) {
-                long utilization = 0; // max CPU cap, default is unlimited
+            if (vmSpec.isLimitCpuUse()) {
+                long utilization; // max CPU cap, default is unlimited
                 utilization = (int)(vmSpec.getMaxSpeed() * 0.99 * vmSpec.getCpus() / _host.getSpeed() * 100);
                 // vm.addToVCPUsParamsLive(conn, "cap",
                 // Long.toString(utilization)); currently xenserver doesnot
@@ -4883,6 +4892,7 @@ public abstract class CitrixResourceBase extends ServerResourceBase implements S
                 configs.put("netmask", NetUtils.getLinkLocalNetMask());
                 configs.put("vswitch-disable-in-band", "true");
                 rec.otherConfig = configs;
+                rec.managed = true;
                 linkLocal = Network.create(conn, rec);
             } else {
                 linkLocal = networks.iterator().next();
@@ -5074,6 +5084,7 @@ public abstract class CitrixResourceBase extends ServerResourceBase implements S
                 if (networks.size() == 0) {
                     rec.nameDescription = "vswitch network for " + nwName;
                     rec.nameLabel = nwName;
+                    rec.managed = true;
                     vswitchNw = Network.create(conn, rec);
                 } else {
                     vswitchNw = networks.iterator().next();
@@ -5207,7 +5218,7 @@ public abstract class CitrixResourceBase extends ServerResourceBase implements S
                 }
                 if (vm.getPowerState(conn) == VmPowerState.HALTED) {
                     try {
-                        vm.destroy(conn);
+                        destroyVm(vm, conn, true);
                     } catch (final Exception e) {
                         final String msg = "VM destroy failed due to " + e.toString();
                         logger.warn(msg, e);
@@ -5873,5 +5884,24 @@ public abstract class CitrixResourceBase extends ServerResourceBase implements S
             String errMsg = "Could not umount secondary storage " + remoteDir + " on host " + localDir;
             logger.warn(errMsg);
         }
+    }
+
+    public boolean isDestroyHaltedVms() {
+        ComparableVersion version = new ComparableVersion(getHost().getProductVersion());
+        if (version.compareTo(new ComparableVersion("8.0")) >= 0) {
+            return false;
+        }
+        return true;
+    }
+
+    public void destroyVm(VM vm, Connection connection, boolean forced) throws XenAPIException, XmlRpcException {
+        if (!isDestroyHaltedVms() && !forced) {
+            return;
+        }
+        vm.destroy(connection);
+    }
+
+    public void destroyVm(VM vm, Connection connection) throws XenAPIException, XmlRpcException {
+        destroyVm(vm, connection, false);
     }
 }

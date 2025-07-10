@@ -505,7 +505,6 @@ export default {
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
         var params = {
-          isMirrored: false,
           name: values.name,
           displaytext: values.displaytext,
           storageType: values.storagetype,

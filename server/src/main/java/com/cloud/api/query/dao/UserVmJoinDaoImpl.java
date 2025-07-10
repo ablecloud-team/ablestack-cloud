@@ -16,38 +16,6 @@
 // under the License.
 package com.cloud.api.query.dao;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
-import org.apache.cloudstack.affinity.AffinityGroupResponse;
-import org.apache.cloudstack.annotation.AnnotationService;
-import org.apache.cloudstack.annotation.dao.AnnotationDao;
-import org.apache.cloudstack.api.ApiConstants;
-import org.apache.cloudstack.api.ApiConstants.VMDetails;
-import org.apache.cloudstack.api.ResponseObject.ResponseView;
-import org.apache.cloudstack.api.response.NicExtraDhcpOptionResponse;
-import org.apache.cloudstack.api.response.NicResponse;
-import org.apache.cloudstack.api.response.NicSecondaryIpResponse;
-import org.apache.cloudstack.api.response.SecurityGroupResponse;
-import org.apache.cloudstack.api.response.UserVmResponse;
-import org.apache.cloudstack.api.response.VnfNicResponse;
-import org.apache.cloudstack.context.CallContext;
-import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
-import org.apache.cloudstack.query.QueryService;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
-
 import com.cloud.api.ApiDBUtils;
 import com.cloud.api.ApiResponseHelper;
 import com.cloud.api.query.vo.UserVmJoinVO;
@@ -90,6 +58,42 @@ import com.cloud.vm.dao.NicExtraDhcpOptionDao;
 import com.cloud.vm.dao.NicSecondaryIpVO;
 import com.cloud.vm.dao.UserVmDetailsDao;
 import com.cloud.vm.dao.VbmcDao;
+import org.apache.cloudstack.affinity.AffinityGroupResponse;
+import org.apache.cloudstack.annotation.AnnotationService;
+import org.apache.cloudstack.annotation.dao.AnnotationDao;
+import org.apache.cloudstack.api.ApiConstants;
+import org.apache.cloudstack.api.ApiConstants.VMDetails;
+import org.apache.cloudstack.api.ResponseObject.ResponseView;
+import org.apache.cloudstack.api.response.NicExtraDhcpOptionResponse;
+import org.apache.cloudstack.api.response.NicResponse;
+import org.apache.cloudstack.api.response.NicSecondaryIpResponse;
+import org.apache.cloudstack.api.response.SecurityGroupResponse;
+import org.apache.cloudstack.api.response.UserVmResponse;
+import org.apache.cloudstack.api.response.VnfNicResponse;
+import org.apache.cloudstack.context.CallContext;
+import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
+import org.apache.cloudstack.query.QueryService;
+import org.apache.cloudstack.vm.lease.VMLeaseManager;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJoinVO, UserVmResponse> implements UserVmJoinDao {
@@ -120,9 +124,13 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
     VolumeDao _volsDao;
     @Inject
     DiskOfferingDao _diskOfferingDao;
+    @Inject
+    ConfigurationDao configurationDao;
 
     private final SearchBuilder<UserVmJoinVO> VmDetailSearch;
     private final SearchBuilder<UserVmJoinVO> activeVmByIsoSearch;
+    private final SearchBuilder<UserVmJoinVO> leaseExpiredInstanceSearch;
+    private final SearchBuilder<UserVmJoinVO> remainingLeaseInDaysSearch;
 
     protected UserVmJoinDaoImpl() {
 
@@ -136,6 +144,29 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
         activeVmByIsoSearch.and("isoId", activeVmByIsoSearch.entity().getIsoId(), SearchCriteria.Op.EQ);
         activeVmByIsoSearch.and("stateNotIn", activeVmByIsoSearch.entity().getState(), SearchCriteria.Op.NIN);
         activeVmByIsoSearch.done();
+
+        leaseExpiredInstanceSearch = createSearchBuilder();
+        leaseExpiredInstanceSearch.selectFields(leaseExpiredInstanceSearch.entity().getId(), leaseExpiredInstanceSearch.entity().getState(),
+                leaseExpiredInstanceSearch.entity().isDeleteProtection(), leaseExpiredInstanceSearch.entity().getName(),
+                leaseExpiredInstanceSearch.entity().getUuid(), leaseExpiredInstanceSearch.entity().getLeaseExpiryAction());
+
+        leaseExpiredInstanceSearch.and(leaseExpiredInstanceSearch.entity().getLeaseActionExecution(), Op.EQ).values(VMLeaseManager.LeaseActionExecution.PENDING.name());
+        leaseExpiredInstanceSearch.and("leaseExpired", leaseExpiredInstanceSearch.entity().getLeaseExpiryDate(), Op.LT);
+        leaseExpiredInstanceSearch.and("leaseExpiryActions", leaseExpiredInstanceSearch.entity().getLeaseExpiryAction(), Op.IN);
+        leaseExpiredInstanceSearch.and("instanceStateNotIn", leaseExpiredInstanceSearch.entity().getState(), Op.NOTIN);
+        leaseExpiredInstanceSearch.done();
+
+        remainingLeaseInDaysSearch = createSearchBuilder();
+        remainingLeaseInDaysSearch.selectFields(remainingLeaseInDaysSearch.entity().getId(),
+                remainingLeaseInDaysSearch.entity().getUuid(), remainingLeaseInDaysSearch.entity().getName(),
+                remainingLeaseInDaysSearch.entity().getUserId(), remainingLeaseInDaysSearch.entity().getDomainId(),
+                remainingLeaseInDaysSearch.entity().getAccountId(), remainingLeaseInDaysSearch.entity().getLeaseExpiryAction());
+
+        remainingLeaseInDaysSearch.and(remainingLeaseInDaysSearch.entity().getLeaseActionExecution(), Op.EQ).values(VMLeaseManager.LeaseActionExecution.PENDING.name());
+        remainingLeaseInDaysSearch.and("leaseCurrentDate", remainingLeaseInDaysSearch.entity().getLeaseExpiryDate(), Op.GTEQ);
+        remainingLeaseInDaysSearch.and("leaseExpiryEndDate", remainingLeaseInDaysSearch.entity().getLeaseExpiryDate(), Op.LT);
+        remainingLeaseInDaysSearch.done();
+
     }
 
     @Override
@@ -200,6 +231,7 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
             userVmResponse.setInstanceName(userVm.getInstanceName());
             userVmResponse.setHostId(userVm.getHostUuid());
             userVmResponse.setHostName(userVm.getHostName());
+            userVmResponse.setArch(userVm.getArch());
         }
         if (userVm.getHostStatus() != null) {
             userVmResponse.setHostControlState(ControlState.getControlState(userVm.getHostStatus(), userVm.getHostResourceState()).toString());
@@ -450,10 +482,10 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
             userVmResponse.setDynamicallyScalable(userVm.isDynamicallyScalable());
         }
 
-        if (userVm.getDeleteProtection() == null) {
+        if (userVm.isDeleteProtection() == null) {
             userVmResponse.setDeleteProtection(false);
         } else {
-            userVmResponse.setDeleteProtection(userVm.getDeleteProtection());
+            userVmResponse.setDeleteProtection(userVm.isDeleteProtection());
         }
 
         if (userVm.getAutoScaleVmGroupName() != null) {
@@ -477,6 +509,14 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
         }
 
         userVmResponse.setQemuAgentVersion(userVm.getQemuAgentVersion());
+        if (VMLeaseManager.InstanceLeaseEnabled.value() && userVm.getLeaseExpiryDate() != null &&
+                VMLeaseManager.LeaseActionExecution.PENDING.name().equals(userVm.getLeaseActionExecution())) {
+
+                userVmResponse.setLeaseExpiryAction(userVm.getLeaseExpiryAction());
+                userVmResponse.setLeaseExpiryDate(userVm.getLeaseExpiryDate());
+                int leaseDuration = (int) computeLeaseDurationFromExpiryDate(new Date(), userVm.getLeaseExpiryDate());
+                userVmResponse.setLeaseDuration(leaseDuration);
+        }
 
         addVmRxTxDataToResponse(userVm, userVmResponse);
 
@@ -485,6 +525,13 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
         }
 
         return userVmResponse;
+    }
+
+
+    private long computeLeaseDurationFromExpiryDate(Date created, Date leaseExpiryDate) {
+        LocalDate createdDate = created.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate expiryDate = leaseExpiryDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        return ChronoUnit.DAYS.between(createdDate, expiryDate);
     }
 
     private void addVnfInfoToserVmResponse(UserVmJoinVO userVm, UserVmResponse userVmResponse) {
@@ -726,6 +773,8 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
     public List<UserVmJoinVO> listByAccountServiceOfferingTemplateAndNotInState(long accountId, List<State> states,
             List<Long> offeringIds, List<Long> templateIds) {
         SearchBuilder<UserVmJoinVO> userVmSearch = createSearchBuilder();
+        userVmSearch.selectFields(userVmSearch.entity().getId(), userVmSearch.entity().getCpu(),
+                userVmSearch.entity().getRamSize());
         userVmSearch.and("accountId", userVmSearch.entity().getAccountId(), Op.EQ);
         userVmSearch.and("serviceOfferingId", userVmSearch.entity().getServiceOfferingId(), Op.IN);
         userVmSearch.and("templateId", userVmSearch.entity().getTemplateId(), Op.IN);
@@ -746,7 +795,7 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
             sc.setParameters("state", states.toArray());
         }
         sc.setParameters("displayVm", 1);
-        return listBy(sc);
+        return customSearch(sc, null);
     }
 
     @Override
@@ -756,6 +805,45 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
         GuestTypeVMsSearch.done();
         SearchCriteria<UserVmJoinVO> sc = GuestTypeVMsSearch.create();
         sc.setParameters("guestType", type);
+        return listBy(sc);
+    }
+
+    /**
+     * This method fetches instances where
+     * 1. lease has expired
+     * 2. leaseExpiryActions are valid, either STOP or DESTROY
+     * 3. instance State is eligible for expiry action
+     * @return list of instances, expiry action can be executed on
+     */
+    @Override
+    public List<UserVmJoinVO> listEligibleInstancesWithExpiredLease() {
+        SearchCriteria<UserVmJoinVO> sc = leaseExpiredInstanceSearch.create();
+        sc.setParameters("leaseExpired", new Date());
+        sc.setParameters("leaseExpiryActions", VMLeaseManager.ExpiryAction.STOP.name(), VMLeaseManager.ExpiryAction.DESTROY.name());
+        sc.setParameters("instanceStateNotIn", State.Destroyed, State.Expunging, State.Error, State.Unknown, State.Migrating);
+        return listBy(sc);
+    }
+
+
+    /**
+     * This method will return instances which are expiring within days
+     * in case negative value is given, there won't be any endDate
+     *
+     * @param days
+     * @return
+     */
+    @Override
+    public List<UserVmJoinVO> listLeaseInstancesExpiringInDays(int days) {
+        SearchCriteria<UserVmJoinVO> sc = remainingLeaseInDaysSearch.create();
+        Date currentDate = new Date();
+        sc.setParameters("leaseCurrentDate", currentDate);
+        if (days > 0) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(currentDate);
+            calendar.add(Calendar.DAY_OF_MONTH, days);
+            Date nextDate = calendar.getTime();
+            sc.setParameters("leaseExpiryEndDate", nextDate);
+        }
         return listBy(sc);
     }
 }
