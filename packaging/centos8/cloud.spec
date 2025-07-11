@@ -343,6 +343,9 @@ mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-agent/plugins
 install -D packaging/systemd/cloudstack-agent.service ${RPM_BUILD_ROOT}%{_unitdir}/mold-agent.service
 install -D packaging/systemd/cloudstack-rolling-maintenance@.service ${RPM_BUILD_ROOT}%{_unitdir}/%{name}-rolling-maintenance@.service
 install -D packaging/systemd/cloudstack-agent.default ${RPM_BUILD_ROOT}%{_sysconfdir}/default/%{name}-agent
+install -D packaging/systemd/cleanup-rbd.service ${RPM_BUILD_ROOT}%{_unitdir}/cleanup-rbd.service
+install -D packaging/systemd/cleanup-rbd.timer ${RPM_BUILD_ROOT}%{_unitdir}/cleanup-rbd.timer
+install -D agent/target/transformed/cleanup-rbd ${RPM_BUILD_ROOT}%{_bindir}/cleanup-rbd
 install -D agent/target/transformed/agent.properties ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/agent/agent.properties
 install -D agent/target/transformed/environment.properties ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/agent/environment.properties
 install -D agent/target/transformed/log4j-cloud.xml ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/agent/log4j-cloud.xml
@@ -624,6 +627,9 @@ pip3 install --upgrade /usr/share/cloudstack-marvin/Marvin-*.tar.gz
 %attr(0755,root,root) %{_bindir}/%{name}-agent-upgrade
 %attr(0755,root,root) %{_bindir}/%{name}-guest-tool
 %attr(0755,root,root) %{_bindir}/%{name}-ssh
+%attr(0755,root,root) %{_bindir}/cleanup-rbd
+%attr(0644,root,root) %{_unitdir}/cleanup-rbd.service
+%attr(0644,root,root) %{_unitdir}/cleanup-rbd.timer
 %attr(0644,root,root) %{_unitdir}/mold-agent.service
 %attr(0644,root,root) %{_unitdir}/%{name}-rolling-maintenance@.service
 %config(noreplace) %{_sysconfdir}/default/%{name}-agent
@@ -712,3 +718,4 @@ pip3 install --upgrade /usr/share/cloudstack-marvin/Marvin-*.tar.gz
 
 * Fri Oct 5 2012 Hugo Trippaers <hugo@apache.org> 4.1.0
 - new style spec file
+ 

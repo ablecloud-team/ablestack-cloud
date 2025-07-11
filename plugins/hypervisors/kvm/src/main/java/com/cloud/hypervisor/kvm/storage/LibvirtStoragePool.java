@@ -423,7 +423,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
             if ("ablestack-hci".equalsIgnoreCase(glueBlockPool)) {
                 cmd.add("-p", "rbd");
                 cmd.add("-n", "admin");
-            } else if ("ablestack-vm".equalsIgnoreCase(glueBlockPool)) {
+            } else if ("general-virtualization".equalsIgnoreCase(glueBlockPool) || "ablestack-vm".equalsIgnoreCase(glueBlockPool)) {
                 cmd.add("-g", "/mnt/glue-gfs");
             } else {
                 return true;
@@ -513,7 +513,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
             if ("ablestack-hci".equalsIgnoreCase(glueBlockPool)) {
                 cmd.add("-p", "rbd");
                 cmd.add("-n", "admin");
-            } else if ("ablestack-vm".equalsIgnoreCase(glueBlockPool)) {
+            } else if ("general-virtualization".equalsIgnoreCase(glueBlockPool) || "ablestack-vm".equalsIgnoreCase(glueBlockPool)) {
                 cmd.add("-g", "/mnt/glue-gfs");
             } else {
                 return true;

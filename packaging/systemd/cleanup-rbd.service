@@ -1,0 +1,6 @@
+[Unit]
+Description=Cleanup unused RBD mappings
+
+[Service]
+Type=oneshot
+ExecStart=cleanup-rbd

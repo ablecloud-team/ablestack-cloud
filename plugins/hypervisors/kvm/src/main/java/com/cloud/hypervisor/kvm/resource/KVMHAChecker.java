@@ -92,8 +92,6 @@ public class KVMHAChecker extends KVMHABase implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        // logger.addAppender(new org.apache.log4j.ConsoleAppender(new
-        // org.apache.log4j.PatternLayout(), "System.out"));
         return checkingHeartBeat();
     }
 }
