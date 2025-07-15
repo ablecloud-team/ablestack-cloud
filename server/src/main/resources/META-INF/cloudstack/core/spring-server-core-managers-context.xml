@@ -394,4 +394,5 @@
         <property name="asyncJobDispatcher" ref="ApiAsyncJobDispatcher" />
     </bean>
 
+    <bean id="guiThemeServiceImpl" class="org.apache.cloudstack.gui.theme.GuiThemeServiceImpl" />
 </beans>
