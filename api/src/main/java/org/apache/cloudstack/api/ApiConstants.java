@@ -441,6 +441,7 @@ public class ApiConstants {
     public static final String PUBLIC_END_PORT = "publicendport";
     public static final String PUBLIC_ZONE = "publiczone";
     public static final String PURGE_RESOURCES = "purgeresources";
+    public static final String REBALANCE = "rebalance";
     public static final String RECEIVED_BYTES = "receivedbytes";
     public static final String RECONNECT = "reconnect";
     public static final String RECOVER = "recover";
@@ -1254,6 +1255,22 @@ public class ApiConstants {
             "added, it will be interpreted as \"23:59:59\"). If the recommended format is not used, the date will be considered in the server timezone.";
 
     public static final String VMWARE_DC = "vmwaredc";
+
+    public static final String CSS = "css";
+
+    public static final String JSON_CONFIGURATION = "jsonconfiguration";
+
+    public static final String COMMON_NAMES = "commonnames";
+
+    public static final String COMMON_NAME = "commonname";
+
+    public static final String DOMAIN_IDS = "domainids";
+
+    public static final String SHOW_PUBLIC = "showpublic";
+
+    public static final String LIST_ONLY_DEFAULT_THEME = "listonlydefaulttheme";
+
+    public static final String RECURSIVE_DOMAINS = "recursivedomains";
 
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.
