@@ -138,7 +138,7 @@ const vueConfig = {
     port: 5050,
     proxy: {
       '/client': {
-        target: process.env.CS_URL || 'http://localhost:8080',
+        target: process.env.CS_URL || 'http://10.10.253.29:8080',
         secure: false,
         ws: false,
         changeOrigin: true,
