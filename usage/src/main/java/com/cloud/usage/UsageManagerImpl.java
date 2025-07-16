@@ -2160,10 +2160,8 @@ public class UsageManagerImpl extends ManagerBase implements UsageManager, Runna
 
                         if ((timeSinceLastSuccessJob > 0) && (timeSinceLastSuccessJob > (aggregationDurationMillis - 100))) {
                             if (timeToJob > (aggregationDurationMillis / 2)) {
-                                if (logger.isDebugEnabled()) {
-                                    logger.debug("it's been " + timeSinceLastSuccessJob + " ms since last usage job and " + timeToJob +
-                                            " ms until next job, scheduling an immediate job to catch up (aggregation duration is " + _aggregationDuration + " minutes)");
-                                }
+                                logger.debug("it's been {} ms since last usage job and {} ms until next job, scheduling an immediate job to catch up (aggregation duration is {} minutes)"
+                                    , timeSinceLastSuccessJob, timeToJob, _aggregationDuration);
                                 scheduleParse();
                             }
                         }

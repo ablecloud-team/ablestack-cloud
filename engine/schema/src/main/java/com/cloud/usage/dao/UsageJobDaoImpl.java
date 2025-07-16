@@ -216,10 +216,10 @@ public class UsageJobDaoImpl extends GenericDaoBase<UsageJobVO, Long> implements
         try {
             List<UsageJobVO> jobs = getLastOpenJobsOwned(hostname, pid);
             if (CollectionUtils.isNotEmpty(jobs)) {
-                s_logger.info(String.format("Found %s opens job, to remove", jobs.size()));
+                logger.info("Found {} opens job, to remove", jobs.size());
                 for (UsageJobVO job : jobs) {
-                    s_logger.debug(String.format("Removing job - id: %d, pid: %d, job type: %d, scheduled: %d, heartbeat: %s",
-                            job.getId(), job.getPid(), job.getJobType(), job.getScheduled(), job.getHeartbeat()));
+                    logger.debug("Removing job - id: {}, pid: {}, job type: {}, scheduled: {}, heartbeat: {}",
+                            job.getId(), job.getPid(), job.getJobType(), job.getScheduled(), job.getHeartbeat());
                     remove(job.getId());
                 }
             }
