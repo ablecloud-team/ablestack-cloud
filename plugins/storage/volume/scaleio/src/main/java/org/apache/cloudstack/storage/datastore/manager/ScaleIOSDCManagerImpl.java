@@ -185,7 +185,7 @@ public class ScaleIOSDCManagerImpl implements ScaleIOSDCManager, Configurable {
                 }
 
                 int waitTimeInSecs = 15; // Wait for 15 secs (usual tests with SDC service start took 10-15 secs)
-                if (isHostSdcConnected(sdcId, dataStore, waitTimeInSecs)) {
+                if (hostSdcConnected(sdcId, dataStore, waitTimeInSecs)) {
                     return sdcId;
                 }
             }
@@ -249,7 +249,7 @@ public class ScaleIOSDCManagerImpl implements ScaleIOSDCManager, Configurable {
         }
 
         if (StringUtils.isBlank(sdcId)) {
-            logger.warn("Couldn't retrieve PowerFlex storage SDC details from the host: {}, add MDMs if On-demand connect disabled or try (re)install SDC & restart agent", host);
+            logger.warn("Couldn't retrieve PowerFlex storage SDC details from the host: {}, add MDMs if not or try (re)install SDC & restart agent", host);
             return null;
         }
 

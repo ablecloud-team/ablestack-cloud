@@ -513,39 +513,4 @@ public class ScaleIOUtil {
         } catch (InterruptedException ignore) {
         }
     }
-
-    /**
-     * Represents {@link ScaleIOUtil#DRV_CFG_FILE} MDM entry (SDC and Installation Ids are skipped).
-     */
-    public static class MdmEntry {
-        private String mdmId;
-        private Collection<String> ips;
-
-        /**
-         * MDM entry constructor.
-         *
-         * @param mdmId MDM Id
-         * @param ips   IP Addresses
-         */
-        public MdmEntry(String mdmId, Collection<String> ips) {
-            this.mdmId = mdmId;
-            this.ips = ips;
-        }
-
-        public String getMdmId() {
-            return mdmId;
-        }
-
-        public void setMdmId(String mdmId) {
-            this.mdmId = mdmId;
-        }
-
-        public Collection<String> getIps() {
-            return ips;
-        }
-
-        public void setIps(Collection<String> ips) {
-            this.ips = ips;
-        }
-    }
 }
