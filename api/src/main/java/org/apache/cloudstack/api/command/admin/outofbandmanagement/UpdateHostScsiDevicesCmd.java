@@ -21,36 +21,37 @@ import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiArgValidator;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseCmd;
+import org.apache.cloudstack.api.BaseListCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.response.ListResponse;
-import org.apache.cloudstack.api.response.UpdateHostVhbaDevicesResponse;
+import org.apache.cloudstack.api.response.UpdateHostScsiDevicesResponse;
 import org.apache.cloudstack.context.CallContext;
+// import org.apache.cloudstack.api.response.HostResponse;
 
-@APICommand(name = "updateHostVhbaDevices", description = "Update vHBA device allocation", since = "4.20.0.0",
-           responseObject = UpdateHostVhbaDevicesResponse.class, requestHasSensitiveInfo = false,
-           responseHasSensitiveInfo = false, authorized = { RoleType.Admin })
-public class UpdateHostVhbaDevicesCmd extends BaseCmd {
+@APICommand(name = "updateHostScsiDevices", description = "list Host SCSI Devices'.", since = "4.20.0.0", responseObject = UpdateHostScsiDevicesResponse.class, requestHasSensitiveInfo = false, responseHasSensitiveInfo = false, authorized = {
+        RoleType.Admin })
+public class UpdateHostScsiDevicesCmd extends BaseListCmd {
 
-    private static final String UPDATEHOSTVHBADEVICES = "updatehostvhbadevices";
+    private static final String UPDATEHOSTSCSIDEVICES = "updatehostscsidevices";
 
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
 
-    @Parameter(name = ApiConstants.HOST_ID, type = BaseCmd.CommandType.UUID, entityType = UpdateHostVhbaDevicesResponse.class,
-               description = "host ID", required = true, validations = { ApiArgValidator.PositiveNumber })
+    @Parameter(name = ApiConstants.HOST_ID, type = BaseCmd.CommandType.UUID, entityType = UpdateHostScsiDevicesResponse.class, description = "host ID", required = true, validations = {
+            ApiArgValidator.PositiveNumber })
     private Long hostId;
 
     @Parameter(name = ApiConstants.HOSTDEVICES_NAME, type = CommandType.STRING, required = true,
             description = "Device name to allocate")
     private String hostDeviceName;
 
-    @Parameter(name = ApiConstants.VIRTUAL_MACHINE_ID, type = CommandType.UUID, entityType = UpdateHostVhbaDevicesResponse.class,
-               description = "Virtual machine ID to allocate the vHBA device to. If null, the device will be deallocated.")
+    @Parameter(name = ApiConstants.VIRTUAL_MACHINE_ID, type = CommandType.UUID,
+            entityType = UpdateHostScsiDevicesResponse.class,
+            required = false, description = "VM ID to allocate the device to")
     private Long vmId;
 
-    @Parameter(name = ApiConstants.XML_CONFIG, type = CommandType.STRING, required = false,
-            description = "XML configuration for device attachment")
+    @Parameter(name = ApiConstants.XML_CONFIG, type = CommandType.STRING, length = 2048, description = "xml config for device")
     private String xmlConfig;
 
     @Parameter(name = ApiConstants.CURRENT_VM_ID, type = CommandType.STRING, required = false,
@@ -73,7 +74,6 @@ public class UpdateHostVhbaDevicesCmd extends BaseCmd {
         return vmId;
     }
 
-
     public String getXmlConfig() {
         return xmlConfig;
     }
@@ -95,7 +95,7 @@ public class UpdateHostVhbaDevicesCmd extends BaseCmd {
     /////////////////////////////////////////////////////
 
     public static String getResultObjectName() {
-        return "updatehostvhbadevices";
+        return "updatehostdevices";
     }
 
     @Override
@@ -105,7 +105,7 @@ public class UpdateHostVhbaDevicesCmd extends BaseCmd {
 
     @Override
     public void execute() {
-        ListResponse<UpdateHostVhbaDevicesResponse> response = _mgr.updateHostVhbaDevices(this);
+        ListResponse<UpdateHostScsiDevicesResponse> response = _mgr.updateHostScsiDevices(this);
         response.setResponseName(getCommandName());
         response.setObjectName(getCommandName());
         this.setResponseObject(response);

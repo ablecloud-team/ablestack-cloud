@@ -20,52 +20,40 @@ package org.apache.cloudstack.api.response;
 import com.cloud.host.Host;
 import com.cloud.serializer.Param;
 import com.google.gson.annotations.SerializedName;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseResponse;
 import org.apache.cloudstack.api.EntityReference;
 
-
 @EntityReference(value = Host.class)
-public class ListHostHbaDevicesResponse extends BaseResponse {
+public class ListHostScsiDevicesResponse extends BaseResponse {
 
     @SerializedName(ApiConstants.HOSTDEVICES_NAME)
-    @Param(description = "Allocated IP address")
+    @Param(description = "Device names")
     private List<String> hostDevicesName;
 
     @SerializedName(ApiConstants.HOSTDEVICES_TEXT)
-    @Param(description = "the ID of the pod the  IP address belongs to")
+    @Param(description = "Device descriptions")
     private List<String> hostDevicesText;
 
     @SerializedName("vmallocations")
     @Param(description = "Map of device to VM allocations")
     private Map<String, String> vmAllocations;
 
-    @SerializedName("devicetypes")
-    @Param(description = "List of device types (physical/virtual)")
-    private List<String> deviceTypes;
+    @SerializedName("haspartitions")
+    @Param(description = "Map of devices indicating whether they have partitions")
+    private Map<String, Boolean> partitionInfo = new HashMap<>();
 
-    @SerializedName("parenthbanames")
-    @Param(description = "List of parent HBA names for vHBA devices")
-    private List<String> parentHbaNames;
-
-    public ListHostHbaDevicesResponse(List<String> hostDevicesName, List<String> hostDevicesText) {
+    public ListHostScsiDevicesResponse(List<String> hostDevicesName, List<String> hostDevicesText) {
         this.hostDevicesName = hostDevicesName;
         this.hostDevicesText = hostDevicesText;
     }
 
-    public ListHostHbaDevicesResponse(List<String> hostDevicesName, List<String> hostDevicesText,
-                                     List<String> deviceTypes, List<String> parentHbaNames) {
-        this.hostDevicesName = hostDevicesName;
-        this.hostDevicesText = hostDevicesText;
-        this.deviceTypes = deviceTypes;
-        this.parentHbaNames = parentHbaNames;
-    }
-
-    public ListHostHbaDevicesResponse() {
+    public ListHostScsiDevicesResponse() {
         super();
-        this.setObjectName("listhosthbadevices");
+        this.setObjectName("listhostscsidevices");
     }
 
     public List<String> getHostDevicesNames() {
@@ -76,28 +64,12 @@ public class ListHostHbaDevicesResponse extends BaseResponse {
         return hostDevicesText;
     }
 
-    public List<String> getDeviceTypes() {
-        return deviceTypes;
-    }
-
-    public List<String> getParentHbaNames() {
-        return parentHbaNames;
-    }
-
     public void setHostDevicesNames(List<String> hostDevicesName) {
         this.hostDevicesName = hostDevicesName;
     }
 
     public void setHostDevicesTexts(List<String> hostDevicesText) {
         this.hostDevicesText = hostDevicesText;
-    }
-
-    public void setDeviceTypes(List<String> deviceTypes) {
-        this.deviceTypes = deviceTypes;
-    }
-
-    public void setParentHbaNames(List<String> parentHbaNames) {
-        this.parentHbaNames = parentHbaNames;
     }
 
     public void setVmAllocations(Map<String, String> vmAllocations) {
@@ -108,4 +80,18 @@ public class ListHostHbaDevicesResponse extends BaseResponse {
         return this.vmAllocations;
     }
 
+    public Map<String, Boolean> getPartitionInfo() {
+        return partitionInfo;
+    }
+
+    public void setPartitionInfo(Map<String, Boolean> partitionInfo) {
+        this.partitionInfo = partitionInfo;
+    }
+
+    public void addPartitionInfo(String deviceName, boolean hasPartition) {
+        if (this.partitionInfo == null) {
+            this.partitionInfo = new HashMap<>();
+        }
+        this.partitionInfo.put(deviceName, hasPartition);
+    }
 }

@@ -20,22 +20,21 @@
 package com.cloud.hypervisor.kvm.resource.wrapper;
 
 import com.cloud.agent.api.Answer;
-import com.cloud.agent.api.CreateVhbaDeviceCommand;
+import com.cloud.agent.api.UpdateHostScsiDeviceCommand;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.resource.CommandWrapper;
 import com.cloud.resource.ResourceWrapper;
 
-@ResourceWrapper(handles = CreateVhbaDeviceCommand.class)
-public final class LibvirtCreateHostVHbaDevicesCommandWrapper
-        extends CommandWrapper<CreateVhbaDeviceCommand, Answer, LibvirtComputingResource> {
+@ResourceWrapper(handles = UpdateHostScsiDeviceCommand.class)
+public final class LibvirtupdateHostScsiDevicesCommandWrapper
+        extends CommandWrapper<UpdateHostScsiDeviceCommand, Answer, LibvirtComputingResource> {
     @Override
-    public Answer execute(final CreateVhbaDeviceCommand command,
+    public Answer execute(final UpdateHostScsiDeviceCommand command,
             final LibvirtComputingResource libvirtComputingResource) {
         try {
-            return libvirtComputingResource.createHostVHbaDevice(command, command.getParentHbaName(),
-                command.getWwnn(), command.getWwpn(), command.getVhbaName(), command.getXmlContent());
+            return libvirtComputingResource.updateHostScsiDevices(command, command.getVmName(), command.getXmlConfig(), command.getIsAttach());
         } catch (Exception e) {
-            return new Answer(command, false, "vHBA 장치 생성 중 오류 발생: " + e.getMessage());
+            return new Answer(command, false, "SCSI 장치 업데이트 중 오류 발생: " + e.getMessage());
         }
     }
 }

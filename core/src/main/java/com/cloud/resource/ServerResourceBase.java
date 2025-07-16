@@ -31,6 +31,8 @@ import com.cloud.agent.api.ListVhbaDevicesCommand;
 import com.cloud.agent.api.StartupCommand;
 import com.cloud.agent.api.UpdateHostHbaDeviceAnswer;
 import com.cloud.agent.api.UpdateHostLunDeviceAnswer;
+import com.cloud.agent.api.UpdateHostScsiDeviceAnswer;
+import com.cloud.agent.api.UpdateHostScsiDeviceCommand;
 import com.cloud.agent.api.UpdateHostUsbDeviceAnswer;
 import com.cloud.agent.api.UpdateHostVhbaDeviceCommand;
 import com.cloud.utils.net.NetUtils;
@@ -49,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -61,7 +64,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import javax.naming.ConfigurationException;
 
 public abstract class ServerResourceBase implements ServerResource {
     protected Logger logger = LogManager.getLogger(getClass());
@@ -296,80 +298,251 @@ public abstract class ServerResourceBase implements ServerResource {
         return false;
     }
 
+    // lsscsi -g 명령을 사용하여 SCSI 디바이스 정보를 조회하는 메서드
+    public Answer listHostScsiDevices(Command command) {
+        List<String> hostDevicesNames = new ArrayList<>();
+        List<String> hostDevicesText = new ArrayList<>();
+        List<Boolean> hasPartitions = new ArrayList<>();
+        try {
+            Script cmd = new Script("/usr/bin/lsscsi");
+            cmd.add("-g");
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String result = cmd.execute(parser);
+
+            if (result != null) {
+                logger.error("Failed to execute lsscsi -g command: " + result);
+                return new com.cloud.agent.api.ListHostScsiDeviceAnswer(false, hostDevicesNames, hostDevicesText, hasPartitions);
+            }
+
+            String[] lines = parser.getLines().split("\n");
+            for (String line : lines) {
+                // 예시: [0:0:275:0]  disk    ATA      HFS3T8G3H2X069N  DZ02  /dev/sda  /dev/sg0
+                line = line.trim();
+                if (line.isEmpty()) continue;
+                String[] tokens = line.split("\\s+");
+                if (tokens.length < 7) continue;
+                String scsiAddr = tokens[0]; // [0:0:275:0]
+                String type = tokens[1];     // disk
+                String vendor = tokens[2];   // ATA
+                String model = tokens[3];    // HFS3T8G3H2X069N
+                String rev = tokens[4];      // DZ02
+                String dev = tokens[5];      // /dev/sda
+                String sgdev = tokens[6];    // /dev/sg0
+                String name = sgdev; // sg 디바이스를 기본 이름으로 사용
+                StringBuilder text = new StringBuilder();
+                text.append("SCSI Address: ").append(scsiAddr).append("\n");
+                text.append("Type: ").append(type).append("\n");
+                text.append("Vendor: ").append(vendor).append("\n");
+                text.append("Model: ").append(model).append("\n");
+                text.append("Revision: ").append(rev).append("\n");
+                text.append("Device: ").append(dev).append("\n");
+                text.append("SG Device: ").append(sgdev);
+                hostDevicesNames.add(name);
+                hostDevicesText.add(text.toString());
+                hasPartitions.add(false);
+            }
+            return new com.cloud.agent.api.ListHostScsiDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions);
+        } catch (Exception e) {
+            logger.error("Error listing SCSI devices with lsscsi -g: " + e.getMessage(), e);
+            return new com.cloud.agent.api.ListHostScsiDeviceAnswer(false, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        }
+    }
+
     protected Answer listHostHbaDevices(Command command) {
         List<String> hostDevicesText = new ArrayList<>();
         List<String> hostDevicesNames = new ArrayList<>();
-
-        // 물리 HBA 장치 조회
-        Script listCommand = new Script("/bin/bash");
-        listCommand.add("-c");
-        listCommand.add("lspci | grep -i 'scsi\\|sas\\|fibre\\|raid\\|hba'");
-        OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
-        String result = listCommand.execute(parser);
-        if (result == null && parser.getLines() != null) {
-            String[] lines = parser.getLines().split("\\n");
-            for (String line : lines) {
-                String[] parts = line.split(" ", 2);
-                if (parts.length >= 2) {
-                    hostDevicesNames.add(parts[0].trim());
-                    hostDevicesText.add("Physical HBA: " + parts[1].trim());
+        List<String> deviceTypes = new ArrayList<>(); // 물리 HBA인지 vHBA인지 구분
+        List<String> parentHbaNames = new ArrayList<>(); // vHBA의 경우 부모 HBA 이름
+        // 1. lspci로 물리 HBA 조회 (PCI 패스스루용)
+        /*
+        try {
+            Script lspciCommand = new Script("/bin/bash");
+            lspciCommand.add("-c");
+            lspciCommand.add("lspci | grep -i 'scsi\\|sas\\|fibre\\|raid\\|hba'");
+            OutputInterpreter.AllLinesParser lspciParser = new OutputInterpreter.AllLinesParser();
+            String lspciResult = lspciCommand.execute(lspciParser);
+            if (lspciResult == null && lspciParser.getLines() != null) {
+                String[] lines = lspciParser.getLines().split("\\n");
+                for (String line : lines) {
+                    String[] parts = line.split(" ", 2);
+                    if (parts.length >= 2) {
+                        String pciName = parts[0].trim(); // PCI 이름 (0000:01:00.0)
+                        String description = parts[1].trim(); // 설명 (RAID bus controller)
+                        if (!hostDevicesNames.contains(pciName)) { // 중복 방지
+                            hostDevicesNames.add(pciName);
+                            hostDevicesText.add(description);
+                            deviceTypes.add("physical");
+                            parentHbaNames.add("");
+                        }
+                    }
                 }
             }
+        } catch (Exception e) {
+            logger.debug("물리 HBA(lspci) 조회 중 오류 발생: " + e.getMessage());
         }
-
-        // vHBA 장치 조회 (KVM 환경)
+        */
+        // 2. virsh nodedev-list --cap vports로 vHBA 지원 물리 HBA도 추가(중복 방지)
+        try {
+            Script vportsCommand = new Script("/bin/bash");
+            vportsCommand.add("-c");
+            vportsCommand.add("virsh nodedev-list --cap vports");
+            OutputInterpreter.AllLinesParser vportsParser = new OutputInterpreter.AllLinesParser();
+            String vportsResult = vportsCommand.execute(vportsParser);
+            if (vportsResult == null && vportsParser.getLines() != null) {
+                String[] vportsLines = vportsParser.getLines().split("\\n");
+                for (String vportsLine : vportsLines) {
+                    String hbaName = vportsLine.trim();
+                    if (!hbaName.isEmpty() && !hostDevicesNames.contains(hbaName)) {
+                        String detailedInfo = getHbaDeviceDetailsFromVports(hbaName);
+                        hostDevicesNames.add(hbaName);
+                        hostDevicesText.add(detailedInfo);
+                        deviceTypes.add("physical");
+                        parentHbaNames.add("");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("vHBA 지원 HBA 조회 중 오류 발생: " + e.getMessage());
+        }
+        // 3. virsh nodedev-list | grep vhba로 vHBA 추가
         try {
             Script vhbaCommand = new Script("/bin/bash");
             vhbaCommand.add("-c");
             vhbaCommand.add("virsh nodedev-list | grep vhba");
             OutputInterpreter.AllLinesParser vhbaParser = new OutputInterpreter.AllLinesParser();
             String vhbaResult = vhbaCommand.execute(vhbaParser);
-
             if (vhbaResult == null && vhbaParser.getLines() != null) {
                 String[] vhbaLines = vhbaParser.getLines().split("\\n");
                 for (String vhbaLine : vhbaLines) {
                     String vhbaName = vhbaLine.trim();
-                    if (!vhbaName.isEmpty()) {
+                    if (!vhbaName.isEmpty() && !hostDevicesNames.contains(vhbaName)) {
                         // vHBA 상세 정보 조회
                         Script vhbaInfoCommand = new Script("/bin/bash");
                         vhbaInfoCommand.add("-c");
                         vhbaInfoCommand.add("virsh nodedev-dumpxml " + vhbaName);
                         OutputInterpreter.AllLinesParser vhbaInfoParser = new OutputInterpreter.AllLinesParser();
                         String vhbaInfoResult = vhbaInfoCommand.execute(vhbaInfoParser);
-
                         String vhbaDescription = "Virtual HBA Device";
+                        String parentHbaName = "";
                         if (vhbaInfoResult == null && vhbaInfoParser.getLines() != null) {
                             String[] infoLines = vhbaInfoParser.getLines().split("\\n");
                             for (String infoLine : infoLines) {
-                                if (infoLine.contains("<name>")) {
+                                if (infoLine.contains("<parent>")) {
+                                    parentHbaName = infoLine.replaceAll("<[^>]*>", "").trim();
+                                } else if (infoLine.contains("<name>")) {
                                     String name = infoLine.replaceAll("<[^>]*>", "").trim();
                                     vhbaDescription = "Virtual HBA: " + name;
-                                    break;
                                 }
                             }
                         }
-
                         hostDevicesNames.add(vhbaName);
                         hostDevicesText.add(vhbaDescription);
+                        deviceTypes.add("virtual");
+                        parentHbaNames.add(parentHbaName);
                     }
                 }
             }
         } catch (Exception e) {
             logger.debug("vHBA 조회 중 오류 발생 (일반적인 상황): " + e.getMessage());
         }
-
-        return new ListHostHbaDeviceAnswer(true, hostDevicesNames, hostDevicesText);
+        return new ListHostHbaDeviceAnswer(true, hostDevicesNames, hostDevicesText, deviceTypes, parentHbaNames);
     }
 
-    public Answer createHostVHbaDevice(Command command, String parentHbaName, String wwnn, String wwpn, String vhbaName, String xmlContent) {
+    // vHBA 지원 물리 HBA 디바이스의 상세 정보 조회
+    private String getHbaDeviceDetailsFromVports(String hbaName) {
+        StringBuilder details = new StringBuilder();
+        details.append("vHBA Capable HBA: ").append(hbaName);
+
         try {
-            CreateVhbaDeviceCommand cmd = (CreateVhbaDeviceCommand) command;
-            String xmlFilePath = "/tmp/" + vhbaName + ".xml";
-            try (FileWriter writer = new FileWriter(xmlFilePath)) {
-                writer.write(xmlContent);
+            // HBA 상세 정보 조회
+            Script hbaInfoCommand = new Script("/bin/bash");
+            hbaInfoCommand.add("-c");
+            hbaInfoCommand.add("virsh nodedev-dumpxml " + hbaName);
+            OutputInterpreter.AllLinesParser hbaInfoParser = new OutputInterpreter.AllLinesParser();
+            String hbaInfoResult = hbaInfoCommand.execute(hbaInfoParser);
+
+            if (hbaInfoResult == null && hbaInfoParser.getLines() != null) {
+                String[] infoLines = hbaInfoParser.getLines().split("\\n");
+                String maxVports = "";
+                String wwnn = "";
+                String wwpn = "";
+                String fabricWwn = "";
+
+                for (String infoLine : infoLines) {
+                    if (infoLine.contains("<max_vports>")) {
+                        maxVports = infoLine.replaceAll("<[^>]*>", "").trim();
+                    } else if (infoLine.contains("<wwnn>")) {
+                        wwnn = infoLine.replaceAll("<[^>]*>", "").trim();
+                    } else if (infoLine.contains("<wwpn>")) {
+                        wwpn = infoLine.replaceAll("<[^>]*>", "").trim();
+                    } else if (infoLine.contains("<fabric_wwn>")) {
+                        fabricWwn = infoLine.replaceAll("<[^>]*>", "").trim();
+                    }
+                }
+
+                // 상세 정보 조합
+                if (!maxVports.isEmpty()) {
+                    details.append(" (Max vPorts: ").append(maxVports).append(")");
+                }
+                if (!wwnn.isEmpty()) {
+                    details.append(" WWNN: ").append(wwnn);
+                }
+                if (!wwpn.isEmpty()) {
+                    details.append(" WWPN: ").append(wwpn);
+                }
+                if (!fabricWwn.isEmpty() && !fabricWwn.equals("0")) {
+                    details.append(" Fabric WWN: ").append(fabricWwn);
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("HBA 상세 정보 조회 중 오류: " + e.getMessage());
+        }
+
+        return details.toString();
+    }
+
+    public Answer createHostVHbaDevice(CreateVhbaDeviceCommand command, String parentHbaName, String wwnn, String wwpn, String vhbaName, String xmlContent) {
+        logger.info("vHBA 생성 시작 - 부모 HBA: " + parentHbaName + ", vHBA 이름: " + vhbaName);
+
+        try {
+            // 1. 입력 파라미터 검증
+            if (parentHbaName == null || parentHbaName.trim().isEmpty()) {
+                logger.error("부모 HBA 이름이 제공되지 않았습니다");
+                return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "부모 HBA 이름이 필요합니다");
             }
 
-            // virsh nodedev-create 명령 실행
+            // 2. 부모 HBA의 유효성 검증 (virsh nodedev-list --cap vports에서 나온 값인지 확인)
+            if (!validateParentHbaFromVports(parentHbaName)) {
+                logger.error("부모 HBA가 vports 지원 목록에 없습니다: " + parentHbaName);
+                return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "부모 HBA가 vports를 지원하지 않습니다: " + parentHbaName);
+            }
+
+            // 3. XML 내용 검증 (Vue에서 제공한 XML 사용)
+            if (xmlContent == null || xmlContent.trim().isEmpty()) {
+                logger.error("XML 내용이 제공되지 않았습니다");
+                return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "XML 내용이 필요합니다");
+            }
+
+            if (!validateXmlContent(xmlContent)) {
+                logger.error("제공된 XML이 유효하지 않습니다");
+                return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "유효하지 않은 XML 형식입니다");
+            }
+
+            logger.info("사용된 XML 내용:\n" + xmlContent);
+
+            // 4. XML 파일명 생성 (parenthbaname + 무작위 숫자)
+            String xmlFileName = generateXmlFileName(parentHbaName);
+            String xmlFilePath = "/tmp/" + xmlFileName + ".xml";
+
+            try (FileWriter writer = new FileWriter(xmlFilePath)) {
+                writer.write(xmlContent);
+                logger.info("vHBA XML 파일 생성: " + xmlFilePath);
+            } catch (IOException e) {
+                logger.error("XML 파일 생성 실패: " + e.getMessage());
+                return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "XML 파일 생성 실패: " + e.getMessage());
+            }
+
+            // 5. virsh nodedev-create 명령 실행
             Script createCommand = new Script("/bin/bash");
             createCommand.add("-c");
             createCommand.add("virsh nodedev-create " + xmlFilePath);
@@ -378,33 +551,139 @@ public abstract class ServerResourceBase implements ServerResource {
 
             if (result != null) {
                 logger.error("vHBA 생성 실패: " + result);
-                return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, null);
+                cleanupXmlFile(xmlFilePath);
+                return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "vHBA 생성 실패: " + result);
             }
 
-            // 생성된 디바이스 이름 추출
-            String createdDeviceName = null;
-            if (parser.getLines() != null) {
-                String[] lines = parser.getLines().split("\\n");
-                for (String line : lines) {
-                    if (line.contains("created from")) {
-                        String[] parts = line.split(" ");
-                        if (parts.length >= 2) {
-                            createdDeviceName = parts[1];
-                        }
-                        break;
-                    }
-                }
+            // 6. 생성된 디바이스 이름 추출 (Node device scsi_host5 created from vhba_host3.xml 형태에서 파싱)
+            String createdDeviceName = extractCreatedDeviceNameFromOutput(parser.getLines());
+            if (createdDeviceName == null) {
+                logger.error("생성된 vHBA 디바이스 이름을 추출할 수 없습니다");
+                cleanupXmlFile(xmlFilePath);
+                return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "디바이스 이름 추출 실패");
             }
 
-            // 임시 XML 파일 삭제
-            // new File(xmlFilePath).delete();
+            // 7. 생성된 vHBA 검증
+            if (!validateCreatedVhba(createdDeviceName)) {
+                logger.error("생성된 vHBA 검증 실패: " + createdDeviceName);
+                cleanupXmlFile(xmlFilePath);
+                return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "vHBA 검증 실패");
+            }
+
+            // 8. 임시 XML 파일 정리
+            cleanupXmlFile(xmlFilePath);
 
             logger.info("vHBA 디바이스 생성 성공: " + vhbaName + " -> " + createdDeviceName);
             return new com.cloud.agent.api.CreateVhbaDeviceAnswer(true, vhbaName, createdDeviceName);
 
         } catch (Exception e) {
             logger.error("vHBA 디바이스 생성 중 오류: " + e.getMessage(), e);
-            return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, null, null);
+            return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "vHBA 생성 중 오류: " + e.getMessage());
+        }
+    }
+
+    // virsh nodedev-list --cap vports에서 나온 부모 HBA 유효성 검증
+    private boolean validateParentHbaFromVports(String parentHbaName) {
+        try {
+            Script vportsCommand = new Script("/bin/bash");
+            vportsCommand.add("-c");
+            vportsCommand.add("virsh nodedev-list --cap vports");
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String result = vportsCommand.execute(parser);
+
+            if (result == null && parser.getLines() != null) {
+                String[] lines = parser.getLines().split("\\n");
+                for (String line : lines) {
+                    String hbaName = line.trim();
+                    if (hbaName.equals(parentHbaName)) {
+                        logger.info("부모 HBA가 vports 지원 목록에 존재함: " + parentHbaName);
+                        return true;
+                    }
+                }
+            }
+
+            logger.warn("부모 HBA가 vports 지원 목록에 없음: " + parentHbaName);
+            return false;
+        } catch (Exception e) {
+            logger.debug("부모 HBA vports 검증 중 오류: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // XML 파일명 생성 (parenthbaname + 무작위 숫자)
+    private String generateXmlFileName(String parentHbaName) {
+        // parenthbaname에서 특수문자 제거하고 안전한 파일명 생성
+        String safeParentName = parentHbaName.replaceAll("[^a-zA-Z0-9]", "_");
+        long timestamp = System.currentTimeMillis();
+        return "vhba_" + safeParentName + "_" + timestamp;
+    }
+
+    // XML 내용 검증
+    private boolean validateXmlContent(String xmlContent) {
+        try {
+            return xmlContent.contains("<device>") &&
+                   xmlContent.contains("<parent>") &&
+                   xmlContent.contains("<capability type='scsi_host'>");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // 생성된 디바이스 이름 추출 (Node device scsi_host5 created from vhba_host3.xml 형태에서 파싱)
+    private String extractCreatedDeviceNameFromOutput(String output) {
+        if (output == null) {
+            return null;
+        }
+
+        String[] lines = output.split("\\n");
+        for (String line : lines) {
+            // "Node device scsi_host5 created from vhba_host3.xml" 형태에서 scsi_host5 추출
+            if (line.contains("Node device") && line.contains("created from")) {
+                String[] parts = line.split(" ");
+                for (int i = 0; i < parts.length; i++) {
+                    if (parts[i].startsWith("scsi_host")) {
+                        String deviceName = parts[i];
+                        logger.info("생성된 디바이스명 추출: " + deviceName);
+                        return deviceName;
+                    }
+                }
+            }
+        }
+
+        logger.warn("생성된 디바이스명을 찾을 수 없음. 출력: " + output);
+        return null;
+    }
+
+    // 생성된 vHBA 검증
+    private boolean validateCreatedVhba(String deviceName) {
+        try {
+            Script validateCommand = new Script("/bin/bash");
+            validateCommand.add("-c");
+            validateCommand.add("virsh nodedev-dumpxml " + deviceName + " | grep -c 'fc_host'");
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String result = validateCommand.execute(parser);
+
+            if (result == null && parser.getLines() != null) {
+                String count = parser.getLines().trim();
+                return !count.equals("0");
+            }
+            return false;
+        } catch (Exception e) {
+            logger.debug("생성된 vHBA 검증 중 오류: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // XML 파일 정리
+    private void cleanupXmlFile(String xmlFilePath) {
+        try {
+            File xmlFile = new File(xmlFilePath);
+            if (xmlFile.exists()) {
+                // xmlFile.delete();
+                logger.debug("임시 XML 파일 삭제: " + xmlFilePath);
+            }
+        } catch (Exception e) {
+            logger.debug("XML 파일 정리 중 오류: " + e.getMessage());
         }
     }
 
@@ -413,74 +692,185 @@ public abstract class ServerResourceBase implements ServerResource {
             ListVhbaDevicesCommand cmd = (ListVhbaDevicesCommand) command;
             String keyword = cmd.getKeyword();
             List<ListVhbaDevicesCommand.VhbaDeviceInfo> vhbaDevices = new ArrayList<>();
+            logger.info("vHBA 디바이스 조회 시작 - 키워드: " + keyword);
 
-            // vHBA 장치 조회 (KVM 환경)
-            Script vhbaCommand = new Script("/bin/bash");
-            vhbaCommand.add("-c");
-            vhbaCommand.add("virsh nodedev-list | grep vhba");
-            OutputInterpreter.AllLinesParser vhbaParser = new OutputInterpreter.AllLinesParser();
-            String vhbaResult = vhbaCommand.execute(vhbaParser);
+            // Set을 사용하여 중복 제거
+            HashSet<String> vhbaNames = new HashSet<>();
 
-            if (vhbaResult == null && vhbaParser.getLines() != null) {
-                String[] vhbaLines = vhbaParser.getLines().split("\\n");
-                for (String vhbaLine : vhbaLines) {
-                    String vhbaName = vhbaLine.trim();
-                    if (!vhbaName.isEmpty()) {
-                        // 키워드 필터링
-                        if (keyword != null && !keyword.isEmpty() && !vhbaName.contains(keyword)) {
-                            continue;
-                        }
+            // 방법 1: 키워드가 있는 경우 특정 물리 HBA의 vHBA만 조회
+            if (keyword != null && !keyword.isEmpty()) {
+                try {
+                    Script specificVhbaCommand = new Script("/bin/bash");
+                    specificVhbaCommand.add("-c");
+                    specificVhbaCommand.add("virsh nodedev-list | grep scsi_host | while read device; do " +
+                                       "parent=$(virsh nodedev-dumpxml $device | grep '<parent>' | sed 's/<[^>]*>//g' | tr -d ' '); " +
+                                       "if [ \"$parent\" = \"" + keyword + "\" ]; then " +
+                                       "echo $device; " +
+                                       "fi; " +
+                                       "done");
+                    OutputInterpreter.AllLinesParser specificVhbaParser = new OutputInterpreter.AllLinesParser();
+                    String specificVhbaResult = specificVhbaCommand.execute(specificVhbaParser);
 
-                        // vHBA 상세 정보 조회
-                        Script vhbaInfoCommand = new Script("/bin/bash");
-                        vhbaInfoCommand.add("-c");
-                        vhbaInfoCommand.add("virsh nodedev-dumpxml " + vhbaName);
-                        OutputInterpreter.AllLinesParser vhbaInfoParser = new OutputInterpreter.AllLinesParser();
-                        String vhbaInfoResult = vhbaInfoCommand.execute(vhbaInfoParser);
-
-                        String parentHbaName = "";
-                        String wwnn = "";
-                        String wwpn = "";
-                        String description = "Virtual HBA Device";
-                        String status = "Active";
-
-                        if (vhbaInfoResult == null && vhbaInfoParser.getLines() != null) {
-                            String[] infoLines = vhbaInfoParser.getLines().split("\\n");
-                            for (String infoLine : infoLines) {
-                                if (infoLine.contains("<parent>")) {
-                                    parentHbaName = infoLine.replaceAll("<[^>]*>", "").trim();
-                                } else if (infoLine.contains("wwnn=")) {
-                                    wwnn = infoLine.replaceAll(".*wwnn='([^']*)'.*", "$1").trim();
-                                } else if (infoLine.contains("wwpn=")) {
-                                    wwpn = infoLine.replaceAll(".*wwpn='([^']*)'.*", "$1").trim();
-                                } else if (infoLine.contains("<name>")) {
-                                    String name = infoLine.replaceAll("<[^>]*>", "").trim();
-                                    description = "Virtual HBA: " + name;
+                    if (specificVhbaResult == null && specificVhbaParser.getLines() != null) {
+                        String[] specificVhbaLines = specificVhbaParser.getLines().split("\\n");
+                        for (String specificVhbaLine : specificVhbaLines) {
+                            String vhbaName = specificVhbaLine.trim();
+                            if (!vhbaName.isEmpty() && !vhbaName.startsWith("===")) {
+                                // vHBA인지 확인 후 추가
+                                if (isVhbaDevice(vhbaName)) {
+                                    vhbaNames.add(vhbaName);
+                                    logger.debug("특정 물리 HBA에서 발견된 vHBA: " + vhbaName + " (부모: " + keyword + ")");
                                 }
                             }
                         }
+                    }
+                } catch (Exception e) {
+                    logger.debug("특정 물리 HBA vHBA 조회 중 오류: " + e.getMessage());
+                }
+            } else {
+                // 방법 2: 키워드가 없는 경우 모든 vHBA 조회 (중복 제거)
+                try {
+                    Script scsiHostCommand = new Script("/bin/bash");
+                    scsiHostCommand.add("-c");
+                    scsiHostCommand.add("virsh nodedev-list | grep scsi_host");
+                    OutputInterpreter.AllLinesParser scsiHostParser = new OutputInterpreter.AllLinesParser();
+                    String scsiHostResult = scsiHostCommand.execute(scsiHostParser);
 
-                        // vHBA 상태 확인
-                        Script statusCommand = new Script("/bin/bash");
-                        statusCommand.add("-c");
-                        statusCommand.add("virsh nodedev-info " + vhbaName + " | grep State");
-                        OutputInterpreter.AllLinesParser statusParser = new OutputInterpreter.AllLinesParser();
-                        String statusResult = statusCommand.execute(statusParser);
+                    if (scsiHostResult == null && scsiHostParser.getLines() != null) {
+                        String[] scsiHostLines = scsiHostParser.getLines().split("\\n");
+                        logger.info("발견된 scsi_host 디바이스 수: " + scsiHostLines.length);
 
-                        if (statusResult == null && statusParser.getLines() != null) {
-                            String statusLine = statusParser.getLines().trim();
-                            if (statusLine.contains("State:")) {
-                                status = statusLine.replaceAll(".*State:\\s*([^\\s]+).*", "$1").trim();
+                        for (String scsiHostLine : scsiHostLines) {
+                            String deviceName = scsiHostLine.trim();
+                            if (!deviceName.isEmpty()) {
+                                // 각 scsi_host 디바이스가 vHBA인지 확인
+                                if (isVhbaDevice(deviceName)) {
+                                    vhbaNames.add(deviceName);
+                                    logger.debug("vHBA로 확인된 디바이스: " + deviceName);
+                                }
                             }
                         }
+                    }
+                } catch (Exception e) {
+                    logger.debug("scsi_host 디바이스 조회 중 오류: " + e.getMessage());
+                }
+            }
 
-                        com.cloud.agent.api.ListVhbaDevicesCommand.VhbaDeviceInfo vhbaInfo =
-                            new com.cloud.agent.api.ListVhbaDevicesCommand.VhbaDeviceInfo(
-                                vhbaName, parentHbaName, wwnn, wwpn, description, status
-                            );
-                        vhbaDevices.add(vhbaInfo);
+            // 방법 3: /sys/class/fc_remote_ports에서 vHBA 찾기 (백업 방법, 키워드가 없을 때만)
+            if (vhbaNames.isEmpty() && (keyword == null || keyword.isEmpty())) {
+                try {
+                    Script fcRemotePortsCommand = new Script("/bin/bash");
+                    fcRemotePortsCommand.add("-c");
+                    fcRemotePortsCommand.add("find /sys/class/fc_remote_ports -name 'rport-*' -type d 2>/dev/null | head -10");
+                    OutputInterpreter.AllLinesParser fcRemotePortsParser = new OutputInterpreter.AllLinesParser();
+                    String fcRemotePortsResult = fcRemotePortsCommand.execute(fcRemotePortsParser);
+
+                    if (fcRemotePortsResult == null && fcRemotePortsParser.getLines() != null) {
+                        String[] fcRemotePortsLines = fcRemotePortsParser.getLines().split("\\n");
+                        for (String fcRemotePortsLine : fcRemotePortsLines) {
+                            String vhbaPath = fcRemotePortsLine.trim();
+                            if (!vhbaPath.isEmpty()) {
+                                String vhbaName = extractVhbaNameFromPath(vhbaPath);
+                                if (vhbaName != null) {
+                                    vhbaNames.add(vhbaName);
+                                    logger.debug("fc_remote_ports에서 발견된 vHBA: " + vhbaName);
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.debug("fc_remote_ports 조회 중 오류: " + e.getMessage());
+                }
+            }
+
+            logger.info("총 발견된 vHBA 디바이스 수: " + vhbaNames.size());
+
+            // 발견된 vHBA 디바이스들의 상세 정보 조회
+            for (String vhbaName : vhbaNames) {
+                logger.debug("vHBA 디바이스 처리 중: " + vhbaName);
+
+                // vHBA 상세 정보 조회
+                Script vhbaInfoCommand = new Script("/bin/bash");
+                vhbaInfoCommand.add("-c");
+                vhbaInfoCommand.add("virsh nodedev-dumpxml " + vhbaName);
+                OutputInterpreter.AllLinesParser vhbaInfoParser = new OutputInterpreter.AllLinesParser();
+                String vhbaInfoResult = vhbaInfoCommand.execute(vhbaInfoParser);
+
+                String parentHbaName = "";
+                String wwnn = "";
+                String wwpn = "";
+                String fabricWwn = "";
+                String description = "Virtual HBA Device";
+                String status = "Active";
+
+                if (vhbaInfoResult == null && vhbaInfoParser.getLines() != null) {
+                    String[] infoLines = vhbaInfoParser.getLines().split("\\n");
+                    for (String infoLine : infoLines) {
+                        if (infoLine.contains("<parent>")) {
+                            parentHbaName = infoLine.replaceAll("<[^>]*>", "").trim();
+                            logger.debug("vHBA " + vhbaName + "의 부모 HBA: " + parentHbaName);
+                        } else if (infoLine.contains("<wwnn>")) {
+                            wwnn = infoLine.replaceAll("<[^>]*>", "").trim();
+                        } else if (infoLine.contains("<wwpn>")) {
+                            wwpn = infoLine.replaceAll("<[^>]*>", "").trim();
+                        } else if (infoLine.contains("<fabric_wwn>")) {
+                            fabricWwn = infoLine.replaceAll("<[^>]*>", "").trim();
+                        } else if (infoLine.contains("<name>")) {
+                            String name = infoLine.replaceAll("<[^>]*>", "").trim();
+                            description = "Virtual HBA: " + name;
+                        }
+                    }
+
+                    // description에 WWN 정보 추가 (줄 바꿈 사용)
+                    StringBuilder descBuilder = new StringBuilder(description);
+                    if (!wwnn.isEmpty()) {
+                        descBuilder.append("\nWWNN: ").append(wwnn);
+                    }
+                    if (!wwpn.isEmpty()) {
+                        descBuilder.append("\nWWPN: ").append(wwpn);
+                    }
+                    if (!fabricWwn.isEmpty() && !fabricWwn.equals("0")) {
+                        descBuilder.append("\nFabric WWN: ").append(fabricWwn);
+                    }
+                    description = descBuilder.toString();
+                }
+
+                // 키워드 필터링 (키워드가 있는 경우에만)
+                boolean shouldInclude = true;
+                if (keyword != null && !keyword.isEmpty()) {
+                    // 정확한 매칭만 허용 (scsi_host13과 같은 실제 값)
+                    shouldInclude = parentHbaName.equals(keyword);
+
+                    logger.debug("키워드 필터링: keyword=" + keyword +
+                               ", parentHbaName=" + parentHbaName +
+                               ", shouldInclude=" + shouldInclude);
+                }
+
+                if (!shouldInclude) {
+                    logger.debug("vHBA " + vhbaName + " 필터링됨");
+                    continue;
+                }
+
+                // vHBA 상태 확인
+                Script statusCommand = new Script("/bin/bash");
+                statusCommand.add("-c");
+                statusCommand.add("virsh nodedev-info " + vhbaName + " | grep State");
+                OutputInterpreter.AllLinesParser statusParser = new OutputInterpreter.AllLinesParser();
+                String statusResult = statusCommand.execute(statusParser);
+
+                if (statusResult == null && statusParser.getLines() != null) {
+                    String statusLine = statusParser.getLines().trim();
+                    if (statusLine.contains("State:")) {
+                        status = statusLine.replaceAll(".*State:\\s*([^\\s]+).*", "$1").trim();
                     }
                 }
+
+                com.cloud.agent.api.ListVhbaDevicesCommand.VhbaDeviceInfo vhbaInfo =
+                    new com.cloud.agent.api.ListVhbaDevicesCommand.VhbaDeviceInfo(
+                        vhbaName, parentHbaName, wwnn, wwpn, description, status
+                    );
+                vhbaDevices.add(vhbaInfo);
+                logger.debug("vHBA 디바이스 추가됨: " + vhbaName);
             }
 
             logger.info("vHBA 디바이스 조회 완료: " + vhbaDevices.size() + "개 발견");
@@ -489,6 +879,49 @@ public abstract class ServerResourceBase implements ServerResource {
         } catch (Exception e) {
             logger.error("vHBA 디바이스 조회 중 오류: " + e.getMessage(), e);
             return new com.cloud.agent.api.ListVhbaDevicesAnswer(false, new ArrayList<>());
+        }
+    }
+
+    // scsi_host 디바이스가 vHBA인지 확인하는 메서드
+    private boolean isVhbaDevice(String deviceName) {
+        try {
+            Script checkCommand = new Script("/bin/bash");
+            checkCommand.add("-c");
+            checkCommand.add("virsh nodedev-dumpxml " + deviceName + " | grep -c 'fc_host'");
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String result = checkCommand.execute(parser);
+
+            if (result == null && parser.getLines() != null) {
+                String count = parser.getLines().trim();
+                return !count.equals("0");
+            }
+            return false;
+        } catch (Exception e) {
+            logger.debug("vHBA 확인 중 오류: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // 경로에서 vHBA 이름 추출하는 메서드
+    private String extractVhbaNameFromPath(String path) {
+        try {
+            // /sys/class/fc_remote_ports/rport-1:0-0 형태에서 scsi_host 이름 추출
+            Script extractCommand = new Script("/bin/bash");
+            extractCommand.add("-c");
+            extractCommand.add("find /sys/class/fc_remote_ports -name '$(basename " + path + ")' -exec dirname {} \\; | grep scsi_host | head -1");
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String result = extractCommand.execute(parser);
+
+            if (result == null && parser.getLines() != null) {
+                String scsiHostPath = parser.getLines().trim();
+                if (!scsiHostPath.isEmpty()) {
+                    return scsiHostPath.substring(scsiHostPath.lastIndexOf('/') + 1);
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            logger.debug("vHBA 이름 추출 중 오류: " + e.getMessage());
+            return null;
         }
     }
 
@@ -519,13 +952,35 @@ public abstract class ServerResourceBase implements ServerResource {
                         String hbaDescription = "vHBA Capable HBA: " + hbaName;
                         if (hbaInfoResult == null && hbaInfoParser.getLines() != null) {
                             String[] infoLines = hbaInfoParser.getLines().split("\\n");
+                            String maxVports = "";
+                            String wwnn = "";
+                            String wwpn = "";
+                            String fabricWwn = "";
+
                             for (String infoLine : infoLines) {
                                 if (infoLine.contains("<max_vports>")) {
-                                    String maxVports = infoLine.replaceAll("<[^>]*>", "").trim();
-                                    hbaDescription = "vHBA Capable HBA: " + hbaName + " (Max vPorts: " + maxVports + ")";
-                                    break;
+                                    maxVports = infoLine.replaceAll("<[^>]*>", "").trim();
+                                } else if (infoLine.contains("<wwnn>")) {
+                                    wwnn = infoLine.replaceAll("<[^>]*>", "").trim();
+                                } else if (infoLine.contains("<wwpn>")) {
+                                    wwpn = infoLine.replaceAll("<[^>]*>", "").trim();
+                                } else if (infoLine.contains("<fabric_wwn>")) {
+                                    fabricWwn = infoLine.replaceAll("<[^>]*>", "").trim();
                                 }
                             }
+
+                            // description에 상세 정보 추가 (줄 바꿈 사용)
+                            StringBuilder descBuilder = new StringBuilder("vHBA Capable HBA: " + hbaName);
+                            if (!wwnn.isEmpty()) {
+                                descBuilder.append("\nWWNN: ").append(wwnn);
+                            }
+                            if (!wwpn.isEmpty()) {
+                                descBuilder.append("\nWWPN: ").append(wwpn);
+                            }
+                            if (!maxVports.isEmpty()) {
+                                descBuilder.append("\n(Max vPorts: ").append(maxVports).append(")");
+                            }
+                            hbaDescription = descBuilder.toString();
                         }
 
                         hostDevicesNames.add(hbaName);
@@ -952,6 +1407,48 @@ public abstract class ServerResourceBase implements ServerResource {
             return new UpdateHostLunDeviceAnswer(false, vmName, xmlConfig, isAttach);
         }
     }
+
+    protected Answer updateHostScsiDevices(UpdateHostScsiDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        String scsiXmlPath = String.format("/tmp/scsi_device_%s.xml", vmName);
+        try {
+            // XML 파일이 없을 경우에만 생성
+            File xmlFile = new File(scsiXmlPath);
+            if (!xmlFile.exists()) {
+                try (PrintWriter writer = new PrintWriter(scsiXmlPath)) {
+                    writer.write(xmlConfig);
+                }
+                logger.info("Generated XML file: {} for VM: {}", scsiXmlPath, vmName);
+            }
+
+            Script virshCmd = new Script("virsh");
+            if (isAttach) {
+                virshCmd.add("attach-device", vmName, scsiXmlPath);
+            } else {
+                virshCmd.add("detach-device", vmName, scsiXmlPath);
+                logger.info("Executing detach command for VM: {} with XML: {}", vmName, xmlConfig);
+            }
+
+            logger.info("isAttach value: {}", isAttach);
+
+            String result = virshCmd.execute();
+
+            if (result != null) {
+                String action = isAttach ? "attach" : "detach";
+                logger.error("Failed to {} SCSI device: {}", action, result);
+                return new UpdateHostScsiDeviceAnswer(false, vmName, xmlConfig, isAttach);
+            }
+
+            String action = isAttach ? "attached to" : "detached from";
+            logger.info("Successfully {} SCSI device for VM {}", action, vmName);
+            return new UpdateHostScsiDeviceAnswer(true, vmName, xmlConfig, isAttach);
+
+        } catch (Exception e) {
+            String action = isAttach ? "attaching" : "detaching";
+            logger.error("Error {} SCSI device: {}", action, e.getMessage(), e);
+            return new UpdateHostScsiDeviceAnswer(false, vmName, xmlConfig, isAttach);
+        }
+    }
+
 
     protected Answer updateHostHbaDevices(Command command, String vmName, String xmlConfig, boolean isAttach) {
         String hbaXmlPath = String.format("/tmp/hba_device_%s.xml", vmName);

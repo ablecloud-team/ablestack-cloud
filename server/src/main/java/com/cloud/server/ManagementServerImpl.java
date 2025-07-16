@@ -1,5 +1,3 @@
-
-
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -35,6 +33,8 @@ import com.cloud.agent.api.ListHostHbaDeviceAnswer;
 import com.cloud.agent.api.ListHostHbaDeviceCommand;
 import com.cloud.agent.api.ListHostLunDeviceAnswer;
 import com.cloud.agent.api.ListHostLunDeviceCommand;
+import com.cloud.agent.api.ListHostScsiDeviceAnswer;
+import com.cloud.agent.api.ListHostScsiDeviceCommand;
 import com.cloud.agent.api.ListHostUsbDeviceAnswer;
 import com.cloud.agent.api.ListHostUsbDeviceCommand;
 import com.cloud.agent.api.ListVhbaDevicesAnswer;
@@ -45,6 +45,8 @@ import com.cloud.agent.api.UpdateHostHbaDeviceAnswer;
 import com.cloud.agent.api.UpdateHostHbaDeviceCommand;
 import com.cloud.agent.api.UpdateHostLunDeviceAnswer;
 import com.cloud.agent.api.UpdateHostLunDeviceCommand;
+import com.cloud.agent.api.UpdateHostScsiDeviceAnswer;
+import com.cloud.agent.api.UpdateHostScsiDeviceCommand;
 import com.cloud.agent.api.UpdateHostUsbDeviceAnswer;
 import com.cloud.agent.api.UpdateHostUsbDeviceCommand;
 import com.cloud.agent.api.UpdateHostVhbaDeviceAnswer;
@@ -241,6 +243,8 @@ import com.cloud.vm.dao.SecondaryStorageVmDao;
 import com.cloud.vm.dao.UserVmDao;
 import com.cloud.vm.dao.UserVmDetailsDao;
 import com.cloud.vm.dao.VMInstanceDao;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
@@ -404,11 +408,13 @@ import org.apache.cloudstack.api.command.admin.outofbandmanagement.LicenseCheckC
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostHbaDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostLunDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostScsiDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostUsbDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListVhbaDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostHbaDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostLunDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostScsiDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostUsbDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostVhbaDevicesCmd;
 import org.apache.cloudstack.api.command.admin.pod.CreatePodCmd;
@@ -851,12 +857,14 @@ import org.apache.cloudstack.api.response.LicenseCheckerResponse;
 import org.apache.cloudstack.api.response.ListHostDevicesResponse;
 import org.apache.cloudstack.api.response.ListHostHbaDevicesResponse;
 import org.apache.cloudstack.api.response.ListHostLunDevicesResponse;
+import org.apache.cloudstack.api.response.ListHostScsiDevicesResponse;
 import org.apache.cloudstack.api.response.ListHostUsbDevicesResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.ListVhbaDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostHbaDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostLunDevicesResponse;
+import org.apache.cloudstack.api.response.UpdateHostScsiDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostUsbDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostVhbaDevicesResponse;
 import org.apache.cloudstack.auth.UserAuthenticator;
@@ -899,6 +907,13 @@ import org.apache.cloudstack.userdata.UserDataManager;
 import org.apache.cloudstack.utils.CloudStackVersion;
 import org.apache.cloudstack.utils.identity.ManagementServerNode;
 import org.apache.cloudstack.utils.security.SSLUtils;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+
+
+
 
 
 
@@ -2319,19 +2334,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         return listResponse;
     }
 
-    private void validateAnswer(Answer answer) {
-        if (answer == null) {
-            throw new CloudRuntimeException("Answer is null");
-        }
-        if (!answer.getResult()) {
-            String errorDetails = answer.getDetails() != null ? answer.getDetails()
-                              : "No additional details available";
-            throw new CloudRuntimeException("Answer result is false. Details: " + errorDetails);
-        }
-        if (!(answer instanceof ListHostLunDeviceAnswer)) {
-            throw new CloudRuntimeException("Answer is not an instance of ListHostLunDeviceAnswer");
-        }
-    }
+    
 
     private ListHostLunDevicesResponse createResponse(ListHostLunDeviceAnswer lunAnswer, Long hostId) {
         ListHostLunDevicesResponse response = new ListHostLunDevicesResponse();
@@ -2343,6 +2346,84 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         for (int i = 0; i < lunAnswer.getHostDevicesTexts().size(); i++) {
             String deviceText = lunAnswer.getHostDevicesTexts().get(i);
             String deviceName = lunAnswer.getHostDevicesNames().get(i);
+            boolean hasPartition = hasPartitions.get(i);
+
+            deviceNames.add(deviceName);
+            deviceDescriptions.add(deviceText);
+            response.addPartitionInfo(deviceName, hasPartition);
+        }
+
+        response.setHostDevicesNames(deviceNames);
+        response.setHostDevicesTexts(deviceDescriptions);
+
+        // LUN 디바이스별 할당된 VM ID 조회
+        Map<String, String> vmAllocations = new HashMap<>();
+        for (String deviceName : deviceNames) {
+            String allocation = getDeviceAllocation(hostId, deviceName);
+            if (allocation != null) {
+                vmAllocations.put(deviceName, allocation);
+            }
+        }
+        response.setVmAllocations(vmAllocations);
+
+        return response;
+    }
+
+    @Override
+    public ListResponse<ListHostScsiDevicesResponse> listHostScsiDevices(ListHostScsiDevicesCmd cmd) {
+        Long id = cmd.getId();
+        HostVO hostVO = _hostDao.findById(id);
+        if (hostVO == null) {
+            throw new CloudRuntimeException("Host not found with ID: " + id);
+        }
+
+        ListHostScsiDeviceCommand scsiCmd = new ListHostScsiDeviceCommand(id);
+        Answer answer;
+        try {
+            answer = _agentMgr.send(hostVO.getId(), scsiCmd);
+        } catch (Exception e) {
+            String errorMsg = "Error sending ListHostScsiDeviceCommand: " + e.getMessage();
+            logger.error(errorMsg, e);
+            throw new CloudRuntimeException(errorMsg, e);
+        }
+
+        validateAnswer(answer);
+        ListHostScsiDeviceAnswer scsiAnswer = (ListHostScsiDeviceAnswer) answer;
+
+        ListResponse<ListHostScsiDevicesResponse> listResponse = new ListResponse<>();
+        List<ListHostScsiDevicesResponse> responses = new ArrayList<>();
+
+        ListHostScsiDevicesResponse response = createResponse(scsiAnswer, id);
+        responses.add(response);
+
+        listResponse.setResponses(responses);
+        return listResponse;
+    }
+
+    private void validateAnswer(Answer answer) {
+        if (answer == null) {
+            throw new CloudRuntimeException("Answer is null");
+        }
+        if (!answer.getResult()) {
+            String errorDetails = answer.getDetails() != null ? answer.getDetails()
+                              : "No additional details available";
+            throw new CloudRuntimeException("Answer result is false. Details: " + errorDetails);
+        }
+        if (!(answer instanceof ListHostScsiDeviceAnswer)) {
+            throw new CloudRuntimeException("Answer is not an instance of ListHostScsiDeviceAnswer");
+        }
+    }
+
+    private ListHostScsiDevicesResponse createResponse(ListHostScsiDeviceAnswer scsiAnswer, Long hostId) {
+        ListHostScsiDevicesResponse response = new ListHostScsiDevicesResponse();
+
+        List<String> deviceNames = new ArrayList<>();
+        List<String> deviceDescriptions = new ArrayList<>();
+        List<Boolean> hasPartitions = scsiAnswer.getHasPartitions();
+
+        for (int i = 0; i < scsiAnswer.getHostDevicesTexts().size(); i++) {
+            String deviceText = scsiAnswer.getHostDevicesTexts().get(i);
+            String deviceName = scsiAnswer.getHostDevicesNames().get(i);
             boolean hasPartition = hasPartitions.get(i);
 
             deviceNames.add(deviceName);
@@ -2484,23 +2565,15 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         ListResponse<ListHostHbaDevicesResponse> listResponse = new ListResponse<>();
 
         List<String> hostDevicesTexts = hbaAnswer.getHostDevicesTexts();
-
-        List<String> hostDevicesNames = new ArrayList<>();
-        List<String> pciDescriptions = new ArrayList<>();
-
-        for (String hostDevicesText : hostDevicesTexts) {
-            String[] parts = hostDevicesText.split(": ", 2);
-            if (parts.length == 2) {
-                hostDevicesNames.add(parts[0].trim());
-                pciDescriptions.add(parts[1].trim());
-            } else {
-                logger.warn("Unexpected PCI info format: " + hostDevicesText);
-            }
-        }
+        List<String> hostDevicesNames = hbaAnswer.getHostDevicesNames();
+        List<String> deviceTypes = hbaAnswer.getDeviceTypes();
+        List<String> parentHbaNames = hbaAnswer.getParentHbaNames();
 
         ListHostHbaDevicesResponse response = new ListHostHbaDevicesResponse();
         response.setHostDevicesNames(hostDevicesNames);
-        response.setHostDevicesTexts(pciDescriptions);
+        response.setHostDevicesTexts(hostDevicesTexts);
+        response.setDeviceTypes(deviceTypes);
+        response.setParentHbaNames(parentHbaNames);
 
         // VM 할당 정보 확인 및 업데이트
         Map<String, String> vmAllocations = new HashMap<>();
@@ -2873,7 +2946,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         }
 
         @Override
-        public ListResponse<UpdateHostHbaDevicesResponse> updateHostHbaDevices(UpdateHostHbaDevicesCmd cmd) {
+        public ListResponse<UpdateHostScsiDevicesResponse> updateHostScsiDevices(UpdateHostScsiDevicesCmd cmd) {
             Long hostId = cmd.getHostId();
             String hostDeviceName = cmd.getHostDeviceName();
             Long vmId = cmd.getVirtualMachineId();
@@ -2921,6 +2994,138 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                         throw new CloudRuntimeException("Device is already allocated to VM: " + currentAllocation.getValue());
                     }
                     vmInternalName = vmInstance.getInstanceName();
+                }
+
+                if (vmInternalName == null) {
+                    throw new CloudRuntimeException("Unable to get VM instance name");
+                }
+
+                // 호스트에 명령 전송
+               UpdateHostScsiDeviceCommand scsiCmd = new UpdateHostScsiDeviceCommand(vmInternalName, xmlConfig, isAttach);
+                Answer answer;
+                try {
+                    answer = _agentMgr.send(hostVO.getId(), scsiCmd);
+                } catch (Exception e) {
+                    String errorMsg = "Error sending UpdateHostScsiDeviceCommand: " + e.getMessage();
+                    logger.error(errorMsg, e);
+                    throw new CloudRuntimeException(errorMsg, e);
+                }
+
+                if (answer == null) {
+                    throw new CloudRuntimeException("Answer is null");
+                }
+                if (!answer.getResult()) {
+                    String errorDetails = (answer.getDetails() != null) ?
+                        answer.getDetails() : "No additional details available";
+                    throw new CloudRuntimeException("Failed to update SCSI device. Details: " + errorDetails);
+                }
+                if (!(answer instanceof UpdateHostScsiDeviceAnswer)) {
+                    throw new CloudRuntimeException("Answer is not an instance of UpdateHostScsiDeviceAnswer");
+                }
+
+                UpdateHostScsiDeviceAnswer scsiAnswer = (UpdateHostScsiDeviceAnswer) answer;
+                if (!scsiAnswer.isSuccessMessage()) {
+                    throw new CloudRuntimeException("Failed to update SCSI device for VM: " + scsiAnswer.getVmName());
+                }
+
+                // DB 업데이트
+                if (!isAttach) {
+                    // 할당 해제
+                    if (currentAllocation != null) {
+                        _hostDetailsDao.remove(currentAllocation.getId());
+                    }
+                } else {
+                    // 새로운 할당
+                    DetailVO detail = new DetailVO(hostId, hostDeviceName, vmId.toString());
+                    _hostDetailsDao.persist(detail);
+                }
+
+                // 응답 생성
+                ListResponse<UpdateHostScsiDevicesResponse> response = new ListResponse<>();
+                List<UpdateHostScsiDevicesResponse> responses = new ArrayList<>();
+                UpdateHostScsiDevicesResponse deviceResponse = new UpdateHostScsiDevicesResponse();
+
+                DetailVO allocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
+                deviceResponse.setHostDeviceName(hostDeviceName);
+                deviceResponse.setVirtualMachineId(allocation != null ? allocation.getValue() : null);
+                deviceResponse.setAllocated(allocation != null);
+
+                responses.add(deviceResponse);
+                response.setResponses(responses);
+
+                return response;
+
+            } catch (Exception e) {
+                logger.error("Error during SCSI device allocation/deallocation - hostDeviceName: {}, error: {}",
+                    hostDeviceName, e.getMessage(), e);
+                throw new CloudRuntimeException("Failed to update SCSI device allocation: " + e.getMessage(), e);
+            }
+        }
+
+
+        @Override
+        public ListResponse<UpdateHostHbaDevicesResponse> updateHostHbaDevices(UpdateHostHbaDevicesCmd cmd) {
+            Long hostId = cmd.getHostId();
+            String hostDeviceName = cmd.getHostDeviceName();
+            Long vmId = cmd.getVirtualMachineId();
+            String xmlConfig = cmd.getXmlConfig();
+
+            // 호스트 존재 여부 확인
+            HostVO hostVO = _hostDao.findById(hostId);
+            if (hostVO == null) {
+                throw new CloudRuntimeException("Host not found with ID: " + hostId);
+            }
+
+            // VM 존재 여부 확인 (vmId가 null이 아닌 경우)
+            VMInstanceVO vmInstance = null;
+            if (vmId != null) {
+                vmInstance = _vmInstanceDao.findById(vmId);
+                if (vmInstance == null) {
+                    throw new CloudRuntimeException("VM not found with ID: " + vmId);
+                }
+                // VM 상태 검증 - Running 상태가 아니면 오류
+                if (vmInstance.getState() != VirtualMachine.State.Running) {
+                    throw new CloudRuntimeException("VM must be in Running state for HBA device allocation. Current state: " + vmInstance.getState());
+                }
+            }
+
+            // XML 설정 검증
+            if (xmlConfig == null || xmlConfig.trim().isEmpty()) {
+                throw new CloudRuntimeException("XML configuration is required for HBA device allocation");
+            }
+
+            logger.info("Updating host device allocation - hostId: {}, hostDeviceName: {}, virtualMachineId: {}",
+                hostId, hostDeviceName, vmId);
+
+            try {
+                DetailVO currentAllocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
+                String vmInternalName = null;
+                boolean isAttach = (vmId != null);
+
+                if (!isAttach) {
+                    // 디바이스 할당 해제
+                    String currentVmId = cmd.getCurrentVmId();
+                    if (currentAllocation != null && currentVmId != null) {
+                        // 현재 할당된 VM이 요청된 VM과 일치하는지 확인
+                        if (!currentVmId.equals(currentAllocation.getValue())) {
+                            throw new CloudRuntimeException("Device is allocated to a different VM");
+                        }
+                        VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(currentVmId));
+                        if (vm != null) {
+                            vmInternalName = vm.getInstanceName();
+                        }
+                    }
+                } else {
+                    // 새로운 할당
+                    if (currentAllocation != null) {
+                        throw new CloudRuntimeException("Device is already allocated to VM: " + currentAllocation.getValue());
+                    }
+                    // KVM에서 libvirt 이름은 보통 instance name 형식을 사용
+                    // vmInstance.getInstanceName()은 CloudStack 내부 이름 (예: i-2-215-VM)
+                    // libvirt에서는 이 이름을 사용하는 것이 일반적
+                    vmInternalName = vmInstance.getInstanceName();
+
+                    logger.info("VM libvirt name determined - instanceName: {}", vmInternalName);
                 }
 
                 if (vmInternalName == null) {
@@ -2991,51 +3196,99 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
         @Override
         public ListResponse<CreateVhbaDeviceResponse> createVhbaDevice(CreateVhbaDeviceCmd cmd) {
-        Long hostId = cmd.getHostId();
-        HostVO hostVO = _hostDao.findById(hostId);
-        if (hostVO == null) {
-            throw new CloudRuntimeException("Host not found with ID: " + hostId);
+            Long hostId = cmd.getHostId();
+            String parentHbaName = cmd.getParentHbaName();
+            String wwnn = cmd.getWwnn();
+            String wwpn = cmd.getWwpn();
+            String vhbaName = cmd.getVhbaName();
+            String xmlContent = cmd.getXmlContent();
+
+            logger.info("createVhbaDevice 호출됨 - hostId: {}, parentHbaName: {}, vhbaName: {}, wwnn: {}, wwpn: {}",
+                hostId, parentHbaName, vhbaName, wwnn, wwpn);
+
+            // 1. 호스트 존재 여부 확인
+            HostVO hostVO = _hostDao.findById(hostId);
+            if (hostVO == null) {
+                String errorMsg = "Host not found with ID: " + hostId;
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+
+            // 2. 필수 파라미터 검증
+            if (parentHbaName == null || parentHbaName.trim().isEmpty()) {
+                String errorMsg = "Parent HBA name is required";
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+
+            if (vhbaName == null || vhbaName.trim().isEmpty()) {
+                String errorMsg = "vHBA name is required";
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+
+            logger.info("호스트 정보 - ID: {}, 이름: {}, 상태: {}", hostVO.getId(), hostVO.getName(), hostVO.getStatus());
+
+            // 3. CreateVhbaDeviceCommand 생성
+            CreateVhbaDeviceCommand hbaCmd = new CreateVhbaDeviceCommand(hostId, parentHbaName, wwnn, wwpn, vhbaName, xmlContent);
+
+            logger.info("CreateVhbaDeviceCommand 생성 완료 - hostId: {}, parentHbaName: {}, vhbaName: {}",
+                hbaCmd.getHostId(), hbaCmd.getParentHbaName(), hbaCmd.getVhbaName());
+
+            // 4. 에이전트로 명령 전송
+            Answer answer;
+            try {
+                logger.info("에이전트로 명령 전송 시작 - hostId: {}", hostVO.getId());
+                answer = _agentMgr.send(hostVO.getId(), hbaCmd);
+                logger.info("에이전트로부터 응답 수신");
+            } catch (Exception e) {
+                String errorMsg = "Error sending CreateVhbaDeviceCommand: " + e.getMessage();
+                logger.error(errorMsg, e);
+                throw new CloudRuntimeException(errorMsg, e);
+            }
+
+            // 5. 응답 검증
+            if (answer == null) {
+                String errorMsg = "Answer is null";
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+
+            logger.info("응답 결과: {}, 상세: {}", answer.getResult(), answer.getDetails());
+
+            if (!answer.getResult()) {
+                String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
+                        : "No additional details available";
+                String errorMsg = "Answer result is false. Details: " + errorDetails;
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+
+            if (!(answer instanceof CreateVhbaDeviceAnswer)) {
+                String errorMsg = "Answer is not an instance of CreateVhbaDeviceAnswer. Actual type: " + answer.getClass().getSimpleName();
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+
+            // 6. 응답 처리
+            CreateVhbaDeviceAnswer hbaAnswer = (CreateVhbaDeviceAnswer) answer;
+            logger.info("vHBA 생성 결과 - 성공: {}, vHBA 이름: {}, 생성된 디바이스: {}",
+                hbaAnswer.isSuccess(), hbaAnswer.getVhbaName(), hbaAnswer.getCreatedDeviceName());
+
+            List<CreateVhbaDeviceResponse> responses = new ArrayList<>();
+            ListResponse<CreateVhbaDeviceResponse> listResponse = new ListResponse<>();
+
+            CreateVhbaDeviceResponse response = new CreateVhbaDeviceResponse();
+            response.setVhbaName(hbaAnswer.getVhbaName());
+            response.setDetails(hbaAnswer.getCreatedDeviceName());
+            response.setSuccess(hbaAnswer.isSuccess());
+
+            responses.add(response);
+            listResponse.setResponses(responses);
+
+            logger.info("createVhbaDevice 완료 - 응답 생성 완료");
+            return listResponse;
         }
-
-        CreateVhbaDeviceCommand hbaCmd = new CreateVhbaDeviceCommand(cmd.getHostId(), cmd.getParentHbaName(), cmd.getWwnn(), cmd.getWwpn(), cmd.getVhbaName(), cmd.getXmlContent());
-        Answer answer;
-        try {
-            answer = _agentMgr.send(hostVO.getId(), hbaCmd);
-        } catch (Exception e) {
-            String errorMsg = "Error sending CreateVhbaDeviceCommand: " + e.getMessage();
-            logger.error(errorMsg, e);
-            throw new CloudRuntimeException(errorMsg, e);
-        }
-
-        if (answer == null) {
-            throw new CloudRuntimeException("Answer is null");
-        }
-        if (!answer.getResult()) {
-            String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
-                    : "No additional details available";
-            String errorMsg = "Answer result is false. Details: " + errorDetails;
-            logger.error(errorMsg);
-            throw new CloudRuntimeException(errorMsg);
-        }
-        if (!(answer instanceof CreateVhbaDeviceAnswer)) {
-            throw new CloudRuntimeException("Answer is not an instance of CreateVhbaDeviceAnswer");
-        }
-
-        CreateVhbaDeviceAnswer hbaAnswer = (CreateVhbaDeviceAnswer) answer;
-
-        List<CreateVhbaDeviceResponse> responses = new ArrayList<>();
-        ListResponse<CreateVhbaDeviceResponse> listResponse = new ListResponse<>();
-
-        CreateVhbaDeviceResponse response = new CreateVhbaDeviceResponse(
-            hbaAnswer.getVhbaName(),
-            hbaAnswer.getCreatedDeviceName(),
-            hbaAnswer.isSuccess()
-        );
-
-        responses.add(response);
-        listResponse.setResponses(responses);
-        return listResponse;
-    }
 
     @Override
     public ListResponse<UpdateHostVhbaDevicesResponse> updateHostVhbaDevices(UpdateHostVhbaDevicesCmd cmd) {

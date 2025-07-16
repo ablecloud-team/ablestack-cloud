@@ -20,22 +20,17 @@
 package com.cloud.hypervisor.kvm.resource.wrapper;
 
 import com.cloud.agent.api.Answer;
-import com.cloud.agent.api.CreateVhbaDeviceCommand;
+import com.cloud.agent.api.ListHostScsiDeviceCommand;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.resource.CommandWrapper;
 import com.cloud.resource.ResourceWrapper;
 
-@ResourceWrapper(handles = CreateVhbaDeviceCommand.class)
-public final class LibvirtCreateHostVHbaDevicesCommandWrapper
-        extends CommandWrapper<CreateVhbaDeviceCommand, Answer, LibvirtComputingResource> {
+@ResourceWrapper(handles = ListHostScsiDeviceCommand.class)
+public final class LibvirtlistHostScsiDevicesCommandWrapper
+        extends CommandWrapper<ListHostScsiDeviceCommand, Answer, LibvirtComputingResource> {
     @Override
-    public Answer execute(final CreateVhbaDeviceCommand command,
+    public Answer execute(final ListHostScsiDeviceCommand command,
             final LibvirtComputingResource libvirtComputingResource) {
-        try {
-            return libvirtComputingResource.createHostVHbaDevice(command, command.getParentHbaName(),
-                command.getWwnn(), command.getWwpn(), command.getVhbaName(), command.getXmlContent());
-        } catch (Exception e) {
-            return new Answer(command, false, "vHBA 장치 생성 중 오류 발생: " + e.getMessage());
-        }
+        return libvirtComputingResource.listHostScsiDevices(command);
     }
 }

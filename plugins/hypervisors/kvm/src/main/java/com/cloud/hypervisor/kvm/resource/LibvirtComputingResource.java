@@ -115,8 +115,10 @@ import com.cloud.agent.api.HostVmStateReportEntry;
 import com.cloud.agent.api.ListHostDeviceCommand;
 import com.cloud.agent.api.ListHostHbaDeviceCommand;
 import com.cloud.agent.api.ListHostLunDeviceCommand;
+import com.cloud.agent.api.ListHostScsiDeviceCommand;
 import com.cloud.agent.api.ListHostUsbDeviceCommand;
 import com.cloud.agent.api.UpdateHostLunDeviceCommand;
+import com.cloud.agent.api.UpdateHostScsiDeviceCommand;
 import com.cloud.agent.api.UpdateHostUsbDeviceCommand;
 import com.cloud.agent.api.PingCommand;
 import com.cloud.agent.api.PingRoutingCommand;
@@ -5559,6 +5561,17 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         }
     }
 
+    public Answer listHostScsiDevices(ListHostScsiDeviceCommand command) {
+        logger.info("listscsi: " + command.getId());
+        if (command.getId() != null) {
+            // 상위 클래스의 메서드를 호출
+            return super.listHostScsiDevices(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    @Override
     public Answer createHostVHbaDevice(CreateVhbaDeviceCommand command, String parentHbaName, String wwnn, String wwpn, String vhbaName, String xmlContent) {
         logger.info("createvhba: " + command.getHostId());
         if (command.getHostId() != null) {
@@ -5573,7 +5586,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return super.updateHostVHbaDevices(command, vmName, xmlConfig, isAttach);
     }
 
-
+    
     public Answer updateHostUsbDevices(UpdateHostUsbDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
         logger.info("Received USB device update command - VM: {}, isAttach: {}, xmlConfig: {}",
             vmName, isAttach, xmlConfig);
@@ -5590,6 +5603,12 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         logger.info("Received HBA device update command - VM: {}, isAttach: {}, xmlConfig: {}",
             vmName, isAttach, xmlConfig);
         return super.updateHostHbaDevices(command, vmName, xmlConfig, isAttach);
+    }
+
+    public Answer updateHostScsiDevices(UpdateHostScsiDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        logger.info("Received SCSI device update command - VM: {}, isAttach: {}, xmlConfig: {}",
+            vmName, isAttach, xmlConfig);
+        return super.updateHostScsiDevices(command, vmName, xmlConfig, isAttach);
     }
 
     public Answer listFilesAtPath(ListDataStoreObjectsCommand command) {

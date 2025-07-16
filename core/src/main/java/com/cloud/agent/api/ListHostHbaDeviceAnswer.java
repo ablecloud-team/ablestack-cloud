@@ -26,6 +26,8 @@ public class ListHostHbaDeviceAnswer extends Answer {
     private boolean successMessage;
     private List<String> hostDevicesNames;
     private List<String> hostDevicesText;
+    private List<String> deviceTypes;
+    private List<String> parentHbaNames;
 
     public ListHostHbaDeviceAnswer() {
         super();
@@ -38,8 +40,18 @@ public class ListHostHbaDeviceAnswer extends Answer {
         this.hostDevicesText = hostDevicesText;
     }
 
+    public ListHostHbaDeviceAnswer(boolean successMessage, List<String> hostDevicesNames, List<String> hostDevicesText,
+                                   List<String> deviceTypes, List<String> parentHbaNames) {
+        super();
+        this.successMessage = successMessage;
+        this.hostDevicesNames = hostDevicesNames;
+        this.hostDevicesText = hostDevicesText;
+        this.deviceTypes = deviceTypes;
+        this.parentHbaNames = parentHbaNames;
+    }
+
     public List<String> getHostDevicesNames() {
-        if (hostDevicesText == null) {
+        if (hostDevicesNames == null) {
             return Collections.emptyList();
         }
         return hostDevicesNames;
@@ -50,6 +62,20 @@ public class ListHostHbaDeviceAnswer extends Answer {
             return Collections.emptyList();
         }
         return hostDevicesText;
+    }
+
+    public List<String> getDeviceTypes() {
+        if (deviceTypes == null) {
+            return Collections.emptyList();
+        }
+        return deviceTypes;
+    }
+
+    public List<String> getParentHbaNames() {
+        if (parentHbaNames == null) {
+            return Collections.emptyList();
+        }
+        return parentHbaNames;
     }
 
     public boolean isSuccessMessage() {
