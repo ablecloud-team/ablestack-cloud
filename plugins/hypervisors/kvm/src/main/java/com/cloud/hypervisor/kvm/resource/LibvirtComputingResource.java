@@ -131,6 +131,7 @@ import com.cloud.agent.api.StartupStorageCommand;
 import com.cloud.agent.api.UpdateHostHbaDeviceCommand;
 import com.cloud.agent.api.ListVhbaDevicesCommand;
 import com.cloud.agent.api.CreateVhbaDeviceCommand;
+import com.cloud.agent.api.DeleteVhbaDeviceCommand;
 import com.cloud.agent.api.UpdateHostVhbaDeviceCommand;
 import com.cloud.agent.api.VmDiskStatsEntry;
 import com.cloud.agent.api.VmNetworkStatsEntry;
@@ -5581,12 +5582,21 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         }
     }
 
+    @Override
+    public Answer deleteHostVHbaDevice(DeleteVhbaDeviceCommand command) {
+        logger.info("deletevhba: " + command.getHostId());
+        if (command.getHostId() != null) {
+            return super.deleteHostVHbaDevice(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
     public Answer updateHostVHbaDevices(UpdateHostVhbaDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
         logger.info("updatevhba: " + command.getHostId());
         return super.updateHostVHbaDevices(command, vmName, xmlConfig, isAttach);
     }
 
-    
     public Answer updateHostUsbDevices(UpdateHostUsbDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
         logger.info("Received USB device update command - VM: {}, isAttach: {}, xmlConfig: {}",
             vmName, isAttach, xmlConfig);

@@ -23,6 +23,8 @@ import com.cloud.agent.api.CheckGuestOsMappingCommand;
 import com.cloud.agent.api.Command;
 import com.cloud.agent.api.CreateVhbaDeviceAnswer;
 import com.cloud.agent.api.CreateVhbaDeviceCommand;
+import com.cloud.agent.api.DeleteVhbaDeviceAnswer;
+import com.cloud.agent.api.DeleteVhbaDeviceCommand;
 import com.cloud.agent.api.GetHypervisorGuestOsNamesAnswer;
 import com.cloud.agent.api.GetHypervisorGuestOsNamesCommand;
 import com.cloud.agent.api.GetVncPortAnswer;
@@ -397,6 +399,7 @@ import org.apache.cloudstack.api.command.admin.offering.UpdateServiceOfferingCmd
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ChangeOutOfBandManagementPasswordCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ConfigureOutOfBandManagementCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.CreateVhbaDeviceCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.DeleteVhbaDeviceCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.DisableOutOfBandManagementForClusterCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.DisableOutOfBandManagementForHostCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.DisableOutOfBandManagementForZoneCmd;
@@ -853,6 +856,7 @@ import org.apache.cloudstack.api.command.user.vpn.UpdateVpnCustomerGatewayCmd;
 import org.apache.cloudstack.api.command.user.vpn.UpdateVpnGatewayCmd;
 import org.apache.cloudstack.api.command.user.zone.ListZonesCmd;
 import org.apache.cloudstack.api.response.CreateVhbaDeviceResponse;
+import org.apache.cloudstack.api.response.DeleteVhbaDeviceResponse;
 import org.apache.cloudstack.api.response.LicenseCheckerResponse;
 import org.apache.cloudstack.api.response.ListHostDevicesResponse;
 import org.apache.cloudstack.api.response.ListHostHbaDevicesResponse;
@@ -910,6 +914,7 @@ import org.apache.cloudstack.utils.security.SSLUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import javax.naming.ConfigurationException;
 
 
 
@@ -2321,7 +2326,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             throw new CloudRuntimeException(errorMsg, e);
         }
 
-        validateAnswer(answer);
+        validateLunAnswer(answer);
         ListHostLunDeviceAnswer lunAnswer = (ListHostLunDeviceAnswer) answer;
 
         ListResponse<ListHostLunDevicesResponse> listResponse = new ListResponse<>();
@@ -2333,8 +2338,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         listResponse.setResponses(responses);
         return listResponse;
     }
-
-    
 
     private ListHostLunDevicesResponse createResponse(ListHostLunDeviceAnswer lunAnswer, Long hostId) {
         ListHostLunDevicesResponse response = new ListHostLunDevicesResponse();
@@ -2387,7 +2390,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             throw new CloudRuntimeException(errorMsg, e);
         }
 
-        validateAnswer(answer);
+        validateScsiAnswer(answer);
         ListHostScsiDeviceAnswer scsiAnswer = (ListHostScsiDeviceAnswer) answer;
 
         ListResponse<ListHostScsiDevicesResponse> listResponse = new ListResponse<>();
@@ -2409,8 +2412,19 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                               : "No additional details available";
             throw new CloudRuntimeException("Answer result is false. Details: " + errorDetails);
         }
+    }
+
+    private void validateScsiAnswer(Answer answer) {
+        validateAnswer(answer);
         if (!(answer instanceof ListHostScsiDeviceAnswer)) {
             throw new CloudRuntimeException("Answer is not an instance of ListHostScsiDeviceAnswer");
+        }
+    }
+
+    private void validateLunAnswer(Answer answer) {
+        validateAnswer(answer);
+        if (!(answer instanceof ListHostLunDeviceAnswer)) {
+            throw new CloudRuntimeException("Answer is not an instance of ListHostLunDeviceAnswer");
         }
     }
 
@@ -3461,6 +3475,99 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         listResponse.setResponses(responses);
         return listResponse;
     }
+
+        @Override
+        public ListResponse<DeleteVhbaDeviceResponse> deleteVhbaDevice(DeleteVhbaDeviceCmd cmd) {
+            Long hostId = cmd.getHostId();
+            String hostDeviceName = cmd.getHostDeviceName();
+
+            logger.info("deleteVhbaDevice 호출됨 - hostId: {}, hostDeviceName: {}", hostId, hostDeviceName);
+
+            // 1. 호스트 존재 여부 확인
+            HostVO hostVO = _hostDao.findById(hostId);
+            if (hostVO == null) {
+                String errorMsg = "Host not found with ID: " + hostId;
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+
+            // 2. 필수 파라미터 검증
+            if (hostDeviceName == null || hostDeviceName.trim().isEmpty()) {
+                String errorMsg = "Host device name is required";
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+
+            logger.info("호스트 정보 - ID: {}, 이름: {}, 상태: {}", hostVO.getId(), hostVO.getName(), hostVO.getStatus());
+
+            // 3. vHBA가 VM에 할당되어 있는지 확인
+            DetailVO currentAllocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
+            if (currentAllocation != null) {
+                String errorMsg = "vHBA device is currently allocated to a VM. Please deallocate it first.";
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+
+            // 4. DeleteVhbaDeviceCommand 생성
+            DeleteVhbaDeviceCommand deleteCmd = new DeleteVhbaDeviceCommand(hostId, hostDeviceName);
+
+            logger.info("DeleteVhbaDeviceCommand 생성 완료 - hostId: {}, vHBA 이름: {}", 
+                deleteCmd.getHostId(), deleteCmd.getVhbaName());
+
+            // 5. 에이전트로 명령 전송
+            Answer answer;
+            try {
+                logger.info("에이전트로 명령 전송 시작 - hostId: {}", hostVO.getId());
+                answer = _agentMgr.send(hostVO.getId(), deleteCmd);
+                logger.info("에이전트로부터 응답 수신");
+            } catch (Exception e) {
+                String errorMsg = "Error sending DeleteVhbaDeviceCommand: " + e.getMessage();
+                logger.error(errorMsg, e);
+                throw new CloudRuntimeException(errorMsg, e);
+            }
+
+            // 6. 응답 검증
+            if (answer == null) {
+                String errorMsg = "Answer is null";
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+
+            logger.info("응답 결과: {}, 상세: {}", answer.getResult(), answer.getDetails());
+
+            if (!answer.getResult()) {
+                String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
+                        : "No additional details available";
+                String errorMsg = "Answer result is false. Details: " + errorDetails;
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+
+            if (!(answer instanceof DeleteVhbaDeviceAnswer)) {
+                String errorMsg = "Answer is not an instance of DeleteVhbaDeviceAnswer. Actual type: " + answer.getClass().getSimpleName();
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+
+            // 7. 응답 처리
+            DeleteVhbaDeviceAnswer deleteAnswer = (DeleteVhbaDeviceAnswer) answer;
+            logger.info("vHBA 삭제 결과 - 성공: {}, vHBA 이름: {}, 상세: {}",
+                deleteAnswer.getResult(), deleteAnswer.getVhbaName(), deleteAnswer.getDetails());
+
+            List<DeleteVhbaDeviceResponse> responses = new ArrayList<>();
+            ListResponse<DeleteVhbaDeviceResponse> listResponse = new ListResponse<>();
+
+            DeleteVhbaDeviceResponse response = new DeleteVhbaDeviceResponse();
+            response.setSuccess(deleteAnswer.getResult());
+            response.setHostDeviceName(deleteAnswer.getVhbaName());
+            response.setDetails(deleteAnswer.getDetails());
+
+            responses.add(response);
+            listResponse.setResponses(responses);
+
+            logger.info("deleteVhbaDevice 완료 - 응답 생성 완료");
+            return listResponse;
+        }
 
     @Override
     public Pair<List<? extends Vlan>, Integer> searchForVlans(final ListVlanIpRangesCmd cmd) {
@@ -5470,6 +5577,9 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(CreateVhbaDeviceCmd.class);
         cmdList.add(ListVhbaDevicesCmd.class);
         cmdList.add(UpdateHostVhbaDevicesCmd.class);
+        cmdList.add(ListHostScsiDevicesCmd.class);
+        cmdList.add(UpdateHostScsiDevicesCmd.class);
+        cmdList.add(DeleteVhbaDeviceCmd.class);
         //object store APIs
         cmdList.add(AddObjectStoragePoolCmd.class);
         cmdList.add(ListObjectStoragePoolsCmd.class);

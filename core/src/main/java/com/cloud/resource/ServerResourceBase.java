@@ -23,6 +23,8 @@ import com.cloud.agent.IAgentControl;
 import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.Command;
 import com.cloud.agent.api.CreateVhbaDeviceCommand;
+import com.cloud.agent.api.DeleteVhbaDeviceAnswer;
+import com.cloud.agent.api.DeleteVhbaDeviceCommand;
 import com.cloud.agent.api.ListHostDeviceAnswer;
 import com.cloud.agent.api.ListHostHbaDeviceAnswer;
 import com.cloud.agent.api.ListHostLunDeviceAnswer;
@@ -34,7 +36,7 @@ import com.cloud.agent.api.UpdateHostLunDeviceAnswer;
 import com.cloud.agent.api.UpdateHostScsiDeviceAnswer;
 import com.cloud.agent.api.UpdateHostScsiDeviceCommand;
 import com.cloud.agent.api.UpdateHostUsbDeviceAnswer;
-import com.cloud.agent.api.UpdateHostVhbaDeviceCommand;
+import com.cloud.agent.api.UpdateHostVhbaDeviceAnswer;
 import com.cloud.utils.net.NetUtils;
 import com.cloud.utils.script.OutputInterpreter;
 import com.cloud.utils.script.Script;
@@ -51,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -64,6 +67,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import javax.naming.ConfigurationException;
 
 public abstract class ServerResourceBase implements ServerResource {
     protected Logger logger = LogManager.getLogger(getClass());
@@ -215,6 +219,7 @@ public abstract class ServerResourceBase implements ServerResource {
             List<String> hostDevicesNames = new ArrayList<>();
             List<String> hostDevicesText = new ArrayList<>();
             List<Boolean> hasPartitions = new ArrayList<>();
+            Map<String, String> deviceMappings = new HashMap<>(); // LUN -> SCSI 매핑
 
             Script cmd = new Script("/usr/bin/lsblk");
             cmd.add("--json", "--paths", "--output", "NAME,TYPE,SIZE,MOUNTPOINT");
@@ -303,6 +308,7 @@ public abstract class ServerResourceBase implements ServerResource {
         List<String> hostDevicesNames = new ArrayList<>();
         List<String> hostDevicesText = new ArrayList<>();
         List<Boolean> hasPartitions = new ArrayList<>();
+        Map<String, String> deviceMappings = new HashMap<>(); // SCSI -> LUN 매핑
         try {
             Script cmd = new Script("/usr/bin/lsscsi");
             cmd.add("-g");
@@ -340,6 +346,11 @@ public abstract class ServerResourceBase implements ServerResource {
                 hostDevicesNames.add(name);
                 hostDevicesText.add(text.toString());
                 hasPartitions.add(false);
+
+                // SCSI 디바이스와 LUN 디바이스 매핑 저장
+                if (dev != null && !dev.isEmpty()) {
+                    deviceMappings.put(name, dev);
+                }
             }
             return new com.cloud.agent.api.ListHostScsiDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions);
         } catch (Exception e) {
@@ -579,6 +590,98 @@ public abstract class ServerResourceBase implements ServerResource {
         } catch (Exception e) {
             logger.error("vHBA 디바이스 생성 중 오류: " + e.getMessage(), e);
             return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "vHBA 생성 중 오류: " + e.getMessage());
+        }
+    }
+
+    public Answer deleteHostVHbaDevice(DeleteVhbaDeviceCommand command) {
+        String vhbaName = command.getVhbaName();
+        logger.info("vHBA 삭제 시작 - vHBA 이름: " + vhbaName);
+
+        try {
+            // 1. 입력 파라미터 검증
+            if (vhbaName == null || vhbaName.trim().isEmpty()) {
+                logger.error("vHBA 이름이 제공되지 않았습니다");
+                return new DeleteVhbaDeviceAnswer(command, false, "vHBA 이름이 필요합니다");
+            }
+
+            // 2. vHBA 디바이스 존재 여부 확인
+            if (!validateVhbaDeviceExists(vhbaName)) {
+                logger.error("vHBA 디바이스가 존재하지 않습니다: " + vhbaName);
+                return new DeleteVhbaDeviceAnswer(command, false, "vHBA 디바이스가 존재하지 않습니다: " + vhbaName);
+            }
+
+            // 3. vHBA가 VM에 할당되어 있는지 확인
+            if (isVhbaAllocatedToVm(vhbaName)) {
+                logger.error("vHBA가 VM에 할당되어 있어 삭제할 수 없습니다: " + vhbaName);
+                return new DeleteVhbaDeviceAnswer(command, false, "vHBA가 VM에 할당되어 있어 삭제할 수 없습니다. 먼저 할당을 해제해주세요.");
+            }
+
+            // 4. virsh nodedev-destroy 명령 실행
+            Script destroyCommand = new Script("/bin/bash");
+            destroyCommand.add("-c");
+            destroyCommand.add("virsh nodedev-destroy " + vhbaName);
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String result = destroyCommand.execute(parser);
+
+            if (result != null) {
+                logger.error("vHBA 삭제 실패: " + result);
+                return new DeleteVhbaDeviceAnswer(command, false, "vHBA 삭제 실패: " + result);
+            }
+
+            // 5. 삭제 확인
+            if (validateVhbaDeviceExists(vhbaName)) {
+                logger.error("vHBA 삭제 후에도 여전히 존재합니다: " + vhbaName);
+                return new DeleteVhbaDeviceAnswer(command, false, "vHBA 삭제 확인 실패");
+            }
+
+            logger.info("vHBA 디바이스 삭제 성공: " + vhbaName);
+            return new DeleteVhbaDeviceAnswer(command, true, "vHBA 디바이스가 성공적으로 삭제되었습니다: " + vhbaName);
+
+        } catch (Exception e) {
+            logger.error("vHBA 디바이스 삭제 중 오류: " + e.getMessage(), e);
+            return new DeleteVhbaDeviceAnswer(command, false, "vHBA 삭제 중 오류: " + e.getMessage());
+        }
+    }
+
+    // vHBA 디바이스 존재 여부 확인
+    private boolean validateVhbaDeviceExists(String vhbaName) {
+        try {
+            Script checkCommand = new Script("/bin/bash");
+            checkCommand.add("-c");
+            checkCommand.add("virsh nodedev-info " + vhbaName + " >/dev/null 2>&1");
+            String result = checkCommand.execute(null);
+            return result == null; // 결과가 null이면 성공 (디바이스 존재)
+        } catch (Exception e) {
+            logger.debug("vHBA 디바이스 존재 확인 중 오류: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // vHBA가 VM에 할당되어 있는지 확인
+    private boolean isVhbaAllocatedToVm(String vhbaName) {
+        try {
+            Script checkCommand = new Script("/bin/bash");
+            checkCommand.add("-c");
+            checkCommand.add("virsh list --all | grep -v 'Id' | grep -v '^-' | while read line; do " +
+                           "vm_id=$(echo $line | awk '{print $1}'); " +
+                           "if [ ! -z \"$vm_id\" ]; then " +
+                           "virsh dumpxml $vm_id | grep -q '" + vhbaName + "'; " +
+                           "if [ $? -eq 0 ]; then " +
+                           "echo 'allocated'; " +
+                           "break; " +
+                           "fi; " +
+                           "fi; " +
+                           "done");
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String result = checkCommand.execute(parser);
+            
+            if (result == null && parser.getLines() != null) {
+                return parser.getLines().trim().equals("allocated");
+            }
+            return false;
+        } catch (Exception e) {
+            logger.debug("vHBA 할당 상태 확인 중 오류: " + e.getMessage());
+            return false;
         }
     }
 
@@ -1408,48 +1511,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    protected Answer updateHostScsiDevices(UpdateHostScsiDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
-        String scsiXmlPath = String.format("/tmp/scsi_device_%s.xml", vmName);
-        try {
-            // XML 파일이 없을 경우에만 생성
-            File xmlFile = new File(scsiXmlPath);
-            if (!xmlFile.exists()) {
-                try (PrintWriter writer = new PrintWriter(scsiXmlPath)) {
-                    writer.write(xmlConfig);
-                }
-                logger.info("Generated XML file: {} for VM: {}", scsiXmlPath, vmName);
-            }
-
-            Script virshCmd = new Script("virsh");
-            if (isAttach) {
-                virshCmd.add("attach-device", vmName, scsiXmlPath);
-            } else {
-                virshCmd.add("detach-device", vmName, scsiXmlPath);
-                logger.info("Executing detach command for VM: {} with XML: {}", vmName, xmlConfig);
-            }
-
-            logger.info("isAttach value: {}", isAttach);
-
-            String result = virshCmd.execute();
-
-            if (result != null) {
-                String action = isAttach ? "attach" : "detach";
-                logger.error("Failed to {} SCSI device: {}", action, result);
-                return new UpdateHostScsiDeviceAnswer(false, vmName, xmlConfig, isAttach);
-            }
-
-            String action = isAttach ? "attached to" : "detached from";
-            logger.info("Successfully {} SCSI device for VM {}", action, vmName);
-            return new UpdateHostScsiDeviceAnswer(true, vmName, xmlConfig, isAttach);
-
-        } catch (Exception e) {
-            String action = isAttach ? "attaching" : "detaching";
-            logger.error("Error {} SCSI device: {}", action, e.getMessage(), e);
-            return new UpdateHostScsiDeviceAnswer(false, vmName, xmlConfig, isAttach);
-        }
-    }
-
-
     protected Answer updateHostHbaDevices(Command command, String vmName, String xmlConfig, boolean isAttach) {
         String hbaXmlPath = String.format("/tmp/hba_device_%s.xml", vmName);
         try {
@@ -1493,7 +1554,7 @@ public abstract class ServerResourceBase implements ServerResource {
 
     protected Answer updateHostVHbaDevices(Command command, String vmName, String xmlConfig, boolean isAttach) {
         try {
-            UpdateHostVhbaDeviceCommand cmd = (UpdateHostVhbaDeviceCommand) command;
+            UpdateHostVhbaDeviceAnswer cmd = (UpdateHostVhbaDeviceAnswer) command;
             String vhbaName = cmd.getVhbaName();
 
             String vhbaXmlPath = String.format("/tmp/vhba_device_%s.xml", vmName);
@@ -1537,6 +1598,120 @@ public abstract class ServerResourceBase implements ServerResource {
         } catch (Exception e) {
             logger.error("Error in updateHostVhbaDevices: " + e.getMessage(), e);
             return new com.cloud.agent.api.UpdateHostVhbaDeviceAnswer(false, null, null, null, false);
+        }
+    }
+
+    protected Answer updateHostScsiDevices(UpdateHostScsiDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        String scsiXmlPath = String.format("/tmp/scsi_device_%s.xml", vmName);
+        try {
+            // XML 파일이 없을 경우에만 생성
+            File xmlFile = new File(scsiXmlPath);
+            if (!xmlFile.exists()) {
+                try (PrintWriter writer = new PrintWriter(scsiXmlPath)) {
+                    writer.write(xmlConfig);
+                }
+                logger.info("Generated XML file: {} for VM: {}", scsiXmlPath, vmName);
+            }
+
+            Script virshCmd = new Script("virsh");
+            if (isAttach) {
+                virshCmd.add("attach-device", vmName, scsiXmlPath);
+            } else {
+                virshCmd.add("detach-device", vmName, scsiXmlPath);
+                logger.info("Executing detach command for VM: {} with XML: {}", vmName, xmlConfig);
+            }
+
+            logger.info("isAttach value: {}", isAttach);
+
+            String result = virshCmd.execute();
+
+            if (result != null) {
+                String action = isAttach ? "attach" : "detach";
+                logger.error("Failed to {} SCSI device: {}", action, result);
+                return new UpdateHostScsiDeviceAnswer(false, vmName, xmlConfig, isAttach);
+            }
+
+            String action = isAttach ? "attached to" : "detached from";
+            logger.info("Successfully {} SCSI device for VM {}", action, vmName);
+            return new UpdateHostScsiDeviceAnswer(true, vmName, xmlConfig, isAttach);
+
+        } catch (Exception e) {
+            String action = isAttach ? "attaching" : "detaching";
+            logger.error("Error {} SCSI device: {}", action, e.getMessage(), e);
+            return new UpdateHostScsiDeviceAnswer(false, vmName, xmlConfig, isAttach);
+        }
+    }
+
+    public Answer createVhbaScsiStoragePool(String poolName, String parentHba, String wwnn, String wwpn, String fabricWwn) {
+        try {
+            // 1. XML 생성
+            StringBuilder xml = new StringBuilder();
+            xml.append("<pool type='scsi'>\n");
+            xml.append("  <name>").append(poolName).append("</name>\n");
+            xml.append("  <source>\n");
+            xml.append("    <adapter type='fc_host'");
+            if (parentHba != null && !parentHba.isEmpty()) {
+                xml.append(" parent='").append(parentHba).append("'");
+            }
+            if (wwnn != null && !wwnn.isEmpty()) {
+                xml.append(" wwnn='").append(wwnn).append("'");
+            }
+            if (wwpn != null && !wwpn.isEmpty()) {
+                xml.append(" wwpn='").append(wwpn).append("'");
+            }
+            if (fabricWwn != null && !fabricWwn.isEmpty()) {
+                xml.append(" fabric_wwn='").append(fabricWwn).append("'");
+            }
+            xml.append("/>\n");
+            xml.append("  </source>\n");
+            xml.append("  <target>\n");
+            xml.append("    <path>/dev/disk/by-path</path>\n");
+            xml.append("    <permissions>\n");
+            xml.append("      <mode>0700</mode>\n");
+            xml.append("      <owner>0</owner>\n");
+            xml.append("      <group>0</group>\n");
+            xml.append("    </permissions>\n");
+            xml.append("  </target>\n");
+            xml.append("</pool>\n");
+
+            // 2. XML 파일로 저장
+            String xmlFilePath = "/tmp/" + poolName + ".xml";
+            try (FileWriter writer = new FileWriter(xmlFilePath)) {
+                writer.write(xml.toString());
+            }
+
+            // 3. virsh pool-define
+            Script defineCmd = new Script("virsh");
+            defineCmd.add("pool-define", xmlFilePath);
+            String defineResult = defineCmd.execute();
+            if (defineResult != null) {
+                logger.error("Failed to define vHBA SCSI pool: " + defineResult);
+                return new Answer(null, false, "Failed to define vHBA SCSI pool: " + defineResult);
+            }
+
+            // 4. virsh pool-start
+            Script startCmd = new Script("virsh");
+            startCmd.add("pool-start", poolName);
+            String startResult = startCmd.execute();
+            if (startResult != null) {
+                logger.error("Failed to start vHBA SCSI pool: " + startResult);
+                return new Answer(null, false, "Failed to start vHBA SCSI pool: " + startResult);
+            }
+
+            // 5. virsh pool-autostart
+            Script autoCmd = new Script("virsh");
+            autoCmd.add("pool-autostart", poolName);
+            String autoResult = autoCmd.execute();
+            if (autoResult != null) {
+                logger.warn("Failed to autostart vHBA SCSI pool: " + autoResult);
+            }
+
+            logger.info("vHBA SCSI storage pool 생성 및 시작 성공: " + poolName);
+            return new Answer(null, true, "vHBA SCSI storage pool created and started: " + poolName);
+
+        } catch (Exception e) {
+            logger.error("vHBA SCSI storage pool 생성 중 오류: " + e.getMessage(), e);
+            return new Answer(null, false, "vHBA SCSI storage pool 생성 중 오류: " + e.getMessage());
         }
     }
 }

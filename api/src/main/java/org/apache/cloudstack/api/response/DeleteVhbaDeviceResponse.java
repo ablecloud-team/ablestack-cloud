@@ -1,0 +1,75 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+package org.apache.cloudstack.api.response;
+
+import com.cloud.serializer.Param;
+import com.google.gson.annotations.SerializedName;
+import org.apache.cloudstack.api.ApiConstants;
+import org.apache.cloudstack.api.BaseResponse;
+import org.apache.cloudstack.api.EntityReference;
+
+
+@EntityReference(value = {})
+public class DeleteVhbaDeviceResponse extends BaseResponse {
+
+    @SerializedName(ApiConstants.SUCCESS)
+    @Param(description = "true if vHBA device was successfully deleted")
+    private Boolean success;
+
+    @SerializedName(ApiConstants.HOSTDEVICES_NAME)
+    @Param(description = "The name of the deleted vHBA device")
+    private String hostDeviceName;
+
+    @SerializedName(ApiConstants.DETAILS)
+    @Param(description = "Additional details about the deletion operation")
+    private String details;
+
+    public DeleteVhbaDeviceResponse() {
+    }
+
+    public DeleteVhbaDeviceResponse(Boolean success, String hostDeviceName, String details) {
+        this.success = success;
+        this.hostDeviceName = hostDeviceName;
+        this.details = details;
+    }
+
+    public Boolean getSuccess() {
+        return success;
+    }
+
+    public void setSuccess(Boolean success) {
+        this.success = success;
+    }
+
+    public String getHostDeviceName() {
+        return hostDeviceName;
+    }
+
+    public void setHostDeviceName(String hostDeviceName) {
+        this.hostDeviceName = hostDeviceName;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
+}
