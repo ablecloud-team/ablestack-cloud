@@ -18,7 +18,7 @@
 
 package org.apache.cloudstack.api.command.admin.outofbandmanagement;
 
-import com.cloud.user.Account;
+import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiArgValidator;
 import org.apache.cloudstack.api.ApiConstants;
@@ -26,12 +26,11 @@ import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.response.DeleteVhbaDeviceResponse;
 import org.apache.cloudstack.api.response.ListResponse;
-import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.context.CallContext;
 
 
 @APICommand(name = "deleteVhbaDevice", description = "Delete a vHBA device", since = "4.20.0.0",
-           responseObject = SuccessResponse.class, requestHasSensitiveInfo = false,
+           responseObject = DeleteVhbaDeviceResponse.class, requestHasSensitiveInfo = false,
            responseHasSensitiveInfo = false, authorized = { RoleType.Admin })
 public class DeleteVhbaDeviceCmd extends BaseCmd {
 
@@ -81,4 +80,4 @@ public class DeleteVhbaDeviceCmd extends BaseCmd {
         response.setObjectName(getCommandName());
         this.setResponseObject(response);
     }
-} 
+}

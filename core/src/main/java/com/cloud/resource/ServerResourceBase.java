@@ -674,7 +674,7 @@ public abstract class ServerResourceBase implements ServerResource {
                            "done");
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = checkCommand.execute(parser);
-            
+
             if (result == null && parser.getLines() != null) {
                 return parser.getLines().trim().equals("allocated");
             }
