@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -4838,6 +4839,8 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         boolean showRemovedTmpl = cmd.getShowRemoved();
         Account caller = CallContext.current().getCallingAccount();
         Long parentTemplateId = cmd.getParentTemplateId();
+        Long domainId = cmd.getDomainId();
+        boolean isRecursive = cmd.isRecursive();
 
         boolean listAll = false;
         if (templateFilter != null && templateFilter == TemplateFilter.all) {
@@ -4848,7 +4851,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         }
 
         List<Long> permittedAccountIds = new ArrayList<Long>();
-        Ternary<Long, Boolean, ListProjectResourcesCriteria> domainIdRecursiveListProject = new Ternary<>(cmd.getDomainId(), cmd.isRecursive(), null);
+        Ternary<Long, Boolean, ListProjectResourcesCriteria> domainIdRecursiveListProject = new Ternary<>(domainId, isRecursive, null);
         accountMgr.buildACLSearchParameters(
                 caller, id, cmd.getAccountName(), cmd.getProjectId(), permittedAccountIds,
                 domainIdRecursiveListProject, listAll, false
@@ -4876,8 +4879,8 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         return searchForTemplatesInternal(id, cmd.getTemplateName(), cmd.getKeyword(), templateFilter, false,
                 null, cmd.getPageSizeVal(), cmd.getStartIndex(), cmd.getZoneId(), cmd.getStoragePoolId(),
                 cmd.getImageStoreId(), hypervisorType, showDomr, cmd.listInReadyState(), permittedAccounts, caller,
-                listProjectResourcesCriteria, tags, showRemovedTmpl, cmd.getIds(), parentTemplateId, cmd.getShowUnique(),
-                templateType, isVnf, cmd.getArch(), cmd.getOsCategoryId(), forCks, cmd.getKvdoEnable(), cmd.getExtensionId());
+                listProjectResourcesCriteria, tags, showRemovedTmpl, cmd.getIds(), parentTemplateId, cmd.getShowUnique(), 
+                templateType, isVnf, cmd.getArch(), cmd.getOsCategoryId(), forCks, cmd.getKvdoEnable(), cmd.getExtensionId(), domainId, isRecursive);
     }
 
     private Pair<List<TemplateJoinVO>, Integer> searchForTemplatesInternal(Long templateId, String name, String keyword,
@@ -4886,7 +4889,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             boolean showDomr, boolean onlyReady, List<Account> permittedAccounts, Account caller,
             ListProjectResourcesCriteria listProjectResourcesCriteria, Map<String, String> tags,
             boolean showRemovedTmpl, List<Long> ids, Long parentTemplateId, Boolean showUnique, String templateType,
-            Boolean isVnf, CPU.CPUArch arch, Long osCategoryId, Boolean forCks, Boolean kvdoEnable, Long extensionId) {
+            Boolean isVnf, CPU.CPUArch arch, Long osCategoryId, Boolean forCks, Boolean kvdoEnable, Long extensionId, Long domainId, boolean isRecursive) {
 
         // check if zone is configured, if not, just return empty list
         List<HypervisorType> hypers = null;
@@ -4994,7 +4997,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             if (!permittedAccounts.isEmpty()) {
                 domain = _domainDao.findById(permittedAccounts.get(0).getDomainId());
             } else {
-                domain = _domainDao.findById(caller.getDomainId());
+                domain = _domainDao.findById(Objects.requireNonNullElse(domainId, caller.getDomainId()));
             }
 
             setIdsListToSearchCriteria(sc, ids);
@@ -5006,10 +5009,14 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
                 sc.addAnd("accountType", SearchCriteria.Op.EQ, Account.Type.PROJECT);
             }
 
-            // add criteria for domain path in case of domain admin
+            // add criteria for domain path in case of admins
             if ((templateFilter == TemplateFilter.self || templateFilter == TemplateFilter.selfexecutable)
-                    && (caller.getType() == Account.Type.DOMAIN_ADMIN || caller.getType() == Account.Type.RESOURCE_DOMAIN_ADMIN)) {
-                sc.addAnd("domainPath", SearchCriteria.Op.LIKE, domain.getPath() + "%");
+                    && (accountMgr.isAdmin(caller.getAccountId()))) {
+                if (isRecursive) {
+                    sc.addAnd("domainPath", SearchCriteria.Op.LIKE, domain.getPath() + "%");
+                } else {
+                    sc.addAnd("domainPath", SearchCriteria.Op.EQ, domain.getPath());
+                }
             }
 
             List<Long> relatedDomainIds = new ArrayList<Long>();
@@ -5320,6 +5327,8 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         Map<String, String> tags = cmd.getTags();
         boolean showRemovedISO = cmd.getShowRemoved();
         Account caller = CallContext.current().getCallingAccount();
+        Long domainId = cmd.getDomainId();
+        boolean isRecursive = cmd.isRecursive();
 
         boolean listAll = false;
         if (isoFilter != null && isoFilter == TemplateFilter.all) {
@@ -5331,7 +5340,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
 
 
         List<Long> permittedAccountIds = new ArrayList<>();
-        Ternary<Long, Boolean, ListProjectResourcesCriteria> domainIdRecursiveListProject = new Ternary<>(cmd.getDomainId(), cmd.isRecursive(), null);
+        Ternary<Long, Boolean, ListProjectResourcesCriteria> domainIdRecursiveListProject = new Ternary<>(domainId, isRecursive, null);
         accountMgr.buildACLSearchParameters(caller, id, cmd.getAccountName(), cmd.getProjectId(), permittedAccountIds, domainIdRecursiveListProject, listAll, false);
         ListProjectResourcesCriteria listProjectResourcesCriteria = domainIdRecursiveListProject.third();
         List<Account> permittedAccounts = new ArrayList<>();
@@ -5345,7 +5354,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
                 cmd.getPageSizeVal(), cmd.getStartIndex(), cmd.getZoneId(), cmd.getStoragePoolId(), cmd.getImageStoreId(),
                 hypervisorType, true, cmd.listInReadyState(), permittedAccounts, caller, listProjectResourcesCriteria,
                 tags, showRemovedISO, null, null, cmd.getShowUnique(), null, null,
-                cmd.getArch(), cmd.getOsCategoryId(), null, null);
+                cmd.getArch(), cmd.getOsCategoryId(), null, null, domainId, isRecursive);
     }
 
     @Override
