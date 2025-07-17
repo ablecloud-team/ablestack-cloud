@@ -51,6 +51,7 @@ public class ApiConstants {
     public static final String AVAILABLE = "available";
     public static final String AVAILABLE_SUBNETS = "availablesubnets";
     public static final String AVAILABLE_VIRTUAL_MACHINE_COUNT = "availablevirtualmachinecount";
+    public static final String BACKUP = "backup";
     public static final String BACKUP_ID = "backupid";
     public static final String BACKUP_OFFERING_NAME = "backupofferingname";
     public static final String BACKUP_OFFERING_ID = "backupofferingid";
@@ -836,6 +837,7 @@ public class ApiConstants {
     public static final String DEST_NETWORK_UUID = "destnetworkuuid";
     public static final String LOGICAL_ROUTER_UUID = "logicalrouteruuid";
     public static final String RETRY = "retry";
+    public static final String RETENTION_PERIOD = "retentionperiod";
     public static final String HTTP_METHOD = "httpmethodtype";
     public static final String EXPECTED_CODE = "expectedcode";
     public static final String URL_PATH = "urlpath";
@@ -1309,6 +1311,7 @@ public class ApiConstants {
     public static final String ISSUED_DATE = "issueddate";
     public static final String XML_CONFIG = "xmlconfig";
     public static final String CURRENT_VM_ID = "currentvmid";
+    public static final String VM_SNAPSHOT_NONCOPY = "noncopy";
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.
      * Qemu guests support "threads" and "native" options Since 0.8.8 ; "io_uring" is supported Since 6.3.0 (QEMU 5.0).

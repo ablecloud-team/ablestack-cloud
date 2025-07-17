@@ -79,11 +79,17 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups">
+      <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups" v-if="!isCommvault()">
         <template #label>
           <tooltip-label :title="$t('label.allowuserdrivenbackups')" :tooltip="apiParams.allowuserdrivenbackups.description"/>
         </template>
         <a-switch v-model:checked="form.allowuserdrivenbackups"/>
+      </a-form-item>
+      <a-form-item name="retentionperiod" ref="retentionperiod" v-if="isCommvault()">
+        <template #label>
+          <tooltip-label :title="$t('label.retentionperiod')" :tooltip="apiParams.retentionperiod.description"/>
+        </template>
+        <a-input v-model:value="form.retentionperiod"/>
       </a-form-item>
       <div :span="24" class="action-button">
         <a-button :loading="loading" @click="closeAction">{{ this.$t('label.cancel') }}</a-button>
@@ -115,7 +121,8 @@ export default {
       externals: {
         loading: false,
         opts: []
-      }
+      },
+      useCommvault: false
     }
   },
   beforeCreate () {
@@ -151,6 +158,26 @@ export default {
         this.zones.loading = false
       })
     },
+    checkBackupOffering () {
+      api('listBackupOfferings').then(json => {
+        var backupOff = json.listbackupofferingsresponse.backupoffering || []
+        for (const off of backupOff) {
+          if (off.provider === 'commvault') {
+            this.useCommvault = true
+          }
+        }
+      })
+    },
+    isCommvault () {
+      api('listConfigurations', { name: 'backup.framework.provider.plugin' }).then(json => {
+        if (json.listconfigurationsresponse.configuration[0]) {
+          if (json.listconfigurationsresponse.configuration[0].value === 'commvault') {
+            return true
+          }
+        }
+        return false
+      })
+    },
     fetchExternal (zoneId) {
       if (!zoneId) {
         this.externals.opts = []
@@ -169,6 +196,13 @@ export default {
       e.preventDefault()
       if (this.loading) return
       this.formRef.value.validate().then(() => {
+        if (this.checkBackupOffering) {
+          this.$notification.error({
+            message: this.$t('message.request.failed'),
+            description: this.$t('message.error.confirm.remove.dr.mirroring.vm')
+          })
+          return
+        }
         const values = toRaw(this.form)
         const params = {}
         for (const key in values) {

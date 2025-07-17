@@ -646,4 +646,10 @@ public class NetworkerBackupProvider extends AdapterBase implements BackupProvid
 
     @Override
     public boolean willDeleteBackupsOnOfferingRemoval() { return false; }
+
+    @Override
+    public boolean checkBackupAgent(final Long zoneId) { return true; }
+
+        @Override
+    public boolean importBackupPlan(final Long zoneId) { return true; }
 }

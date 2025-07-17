@@ -14,16 +14,17 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package org.apache.cloudstack.backup;
+package org.apache.cloudstack.backup.commvault;
 
+import org.apache.cloudstack.backup.BackupOffering;
 import java.util.Date;
 
-public class NasBackupOffering implements BackupOffering {
+public class CommvaultBackupOffering implements BackupOffering {
 
     private String name;
     private String uid;
 
-    public NasBackupOffering(String name, String uid) {
+    public CommvaultBackupOffering(String name, String uid) {
         this.name = name;
         this.uid = uid;
     }
@@ -40,7 +41,7 @@ public class NasBackupOffering implements BackupOffering {
 
     @Override
     public String getDescription() {
-        return "NAS Backup Offering (Repository)";
+        return "Commvault Backup Offering (Job)";
     }
 
     @Override
@@ -50,12 +51,12 @@ public class NasBackupOffering implements BackupOffering {
 
     @Override
     public boolean isUserDrivenBackupAllowed() {
-        return true;
+        return false;
     }
 
     @Override
     public String getProvider() {
-        return "nas";
+        return "commvault";
     }
 
     @Override
@@ -71,10 +72,5 @@ public class NasBackupOffering implements BackupOffering {
     @Override
     public long getId() {
         return -1;
-    }
-
-    @Override
-    public String getRetentionPeriod() {
-        return null;
     }
 }
