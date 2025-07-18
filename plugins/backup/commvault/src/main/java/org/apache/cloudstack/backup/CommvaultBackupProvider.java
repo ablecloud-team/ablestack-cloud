@@ -275,7 +275,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
-    public boolean importBackupPlan(final Long zoneId) {
+    public boolean importBackupPlan(final Long zoneId, final String retentionPeriod) {
         boolean cvtJob1, cvtJob2, cvtJob3 = false;
         final CommvaultClient client = getClient(zoneId);
         // 선택한 백업 정책의 RPO 편집 Commvault API 호출
@@ -297,19 +297,33 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             // 문구 변경 필요
             throw new CloudRuntimeException("commvault plan schedule rpo delete err");
         }
-        // 호스트에 선택한 백업 정책 설정 Commvault API 호출
-        String path = "/";
-        List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
+        // 선택한 백업 정책의 보존 기간 변경 Commvault APi 호출
         type = "updateRPO";
         String planEntity = client.getScheduleTaskId(type, cmd.getExternalId());
-        String[] parts = planEntity.split(",");
-        for (final HostVO host : Hosts) {
-            if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
-                String backupSetId = client.getDefaultBackupSetId(host.getName());
-                if (!client.setBackupSet(path, parts[0], parts[1], parts[2], parts[3], parts[4], backupSetId)) {
-                    throw new CloudRuntimeException("commvault client backup schedule rpo setting err");
+        JSONObject jsonObject = new JSONObject(planEntity);
+        String planType = jsonObject.getString("planType");
+        String planName = jsonObject.getString("planName");
+        String planSubtype = jsonObject.getString("planSubtype");
+        String planId = jsonObject.getString("planId");
+        String companyId = jsonObject.getJSONObject("entityInfo").getString("companyId");
+        String storagePoolId = client.getStoragePoolId(planId);
+        boolean result = client.updateRetentionPeriod(planId, storagePoolId, retentionPeriod);
+        if (result) {
+            // 호스트에 선택한 백업 정책 설정 Commvault API 호출
+            String path = "/";
+            List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
+            for (final HostVO host : Hosts) {
+                if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
+                    String backupSetId = client.getDefaultBackupSetId(host.getName());
+                    if (!client.setBackupSet(path, planType, planName, planSubtype, planId, companyId, backupSetId)) {
+                        throw new CloudRuntimeException("commvault client backup schedule rpo setting err");
+                    }
                 }
             }
+        } else {
+            // 문구 변경 필요
+            throw new CloudRuntimeException("commvault plan schedule rpo delete err");
+            return false;
         }
     }
 
@@ -617,14 +631,14 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 return true;
             } else {
                 // 백업 실패 시 스냅샷 삭제 mold-API 호출
-                Map<String, String> volSnapParams = new HashMap<>();
-                volSnapParams.put("voltid", snapId);
-                moldDeleteVmSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, vmSnapParams);
+                Map<String, String> snapParams = new HashMap<>();
+                snapParams.put("voltid", snapId);
+                moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapParams);
                 LOG.error("take backup commvault api resulted in " + jobState);
                 return false;
             }
         } else {
-            // 생성된 스냅샷의 경로로 해당 백업 세트의 백업 콘텐츠 경로 업데이트 실패 시 vm 스냅샷 삭제 mold-API 호출
+            // 생성된 스냅샷의 경로로 해당 백업 세트의 백업 콘텐츠 경로 업데이트 실패 시 스냅샷 삭제 mold-API 호출
             Map<String, String> vmSnapParams = new HashMap<>();
             vmSnapParams.put("vmsnapshotid", snapId);
             moldDeleteVmSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, vmSnapParams);

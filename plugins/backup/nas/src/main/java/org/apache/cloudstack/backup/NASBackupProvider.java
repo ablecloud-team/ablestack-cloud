@@ -193,7 +193,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         backup.setVmId(vm.getId());
         backup.setExternalId(backupPath);
         backup.setType("FULL");
-        backup.setDate(new Date());
+    backup.setDate(new Date());
         long virtualSize = 0L;
         for (final Volume volume: volumeDao.findByInstance(vm.getId())) {
             if (Volume.State.Ready.equals(volume.getState())) {
@@ -444,6 +444,6 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
     @Override
     public boolean checkBackupAgent(final Long zoneId) { return true; }
 
-        @Override
-    public boolean importBackupPlan(final Long zoneId) { return true; }
+    @Override
+    public boolean importBackupPlan(final Long zoneId, final String retentionPeriod) { return true; }
 }

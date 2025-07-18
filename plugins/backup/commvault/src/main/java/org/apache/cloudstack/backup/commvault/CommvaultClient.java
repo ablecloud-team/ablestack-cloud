@@ -295,6 +295,27 @@ public class CommvaultClient {
     }
 
     // https://10.10.255.56/commandcenter/api/plan/<planId>
+    // plan 상세 조회하여 StoragePoolID 반환하는 API로 없는 경우 null, 있는 경우 storage pool id 반환
+    public String getStoragePoolId(String planId) {
+        try {
+            final HttpResponse response = get("/v2/plan/" + planId);
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            JsonNode planNode = root.path("plan");
+            JsonNode storagePoolIdNode = planNode.path("storageResourcePoolMap").path("storage").path("storagePoolId");
+            if (!storagePoolIdNode.isMissingNode()) {
+                return storagePoolIdNode.asText();
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to list commvault plan jobs due to:", e);
+            checkResponseTimeOut(e);
+        }
+        return null;
+    }
+
+    // https://10.10.255.56/commandcenter/api/plan/<planId>
     // plan 상세 조회하는 API로 없는 경우 null, 있는 경우 schedule task id 반환
     public String getScheduleTaskId(String type, String planId) {
         try {
@@ -303,7 +324,7 @@ public class CommvaultClient {
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
-            JsonNode plan = root.path("plan");
+            JsonNode planNode = root.path("plan");
             if (type.equals("deleteRpo")) {
                 JsonNode scheduleTaskIdNode = planNode.path("schedule").path("task").path("taskId");
                 // JsonNode scheduleLogTaskIdNode = planNode.path("database").path("scheduleLog").path("task").path("taskId");
@@ -312,18 +333,8 @@ public class CommvaultClient {
                     return scheduleTaskIdNode.asText();
                 }
             } else {
-                String planDetails = "";
-                JsonNode planType = planNode.path("summary").path("plan").path("planType");
-                JsonNode planName = planNode.path("summary").path("plan").path("planName");
-                JsonNode planSubtype = planNode.path("summary").path("plan").path("planSubtype");
-                JsonNode planId = planNode.path("summary").path("plan").path("planId");
-                JsonNode companyId = planNode.path("summary").path("plan").path("entityInfo").path("companyId");
-                if (!planType.isMissingNode()) { planDetails.join(",", planId); }
-                if (!planName.isMissingNode()) { planDetails.join(",", planName); }
-                if (!planSubtype.isMissingNode()) { planDetails.join(",", planSubtype); }
-                if (!planId.isMissingNode()) { planDetails.join(",", planId); }
-                if (!companyId.isMissingNode()) { planDetails.join(",", companyId); }
-                return planDetails;
+                JsonNode plan = planNode.path("summary").path("plan");
+                return new ObjectMapper().writeVauleAsString(plan);
             }
         } catch (final IOException e) {
             LOG.error("Failed to list commvault plan jobs due to:", e);
@@ -401,11 +412,7 @@ public class CommvaultClient {
                     }
                     in.close();
                     String jsonResponse = responseBuilder.toString();
-                    JSONObject jsonObject = new JSONObject(jsonResponse);
-                    String state = jsonObject.getJSONObject("job")
-                                    .getJSONObject("jobDetail")
-                                    .getJSONObject("progressInfo")
-                                    .getString("state");
+                    return jsonResponse;
                 } else {
                     return null;
                 }
@@ -494,9 +501,8 @@ public class CommvaultClient {
     }
 
     // https://10.10.255.56/commandcenter/api/subclient?clientId=<clientId>
-    // subclient 조회하는 API로 없는 경우 null, 있는 경우 <key,vaule> 반환
-    public Map<String, String> getSubclient(String clientId, String vmName) {
-        Map<String, String> subClient = new HashMap<String, String>();
+    // subclient 조회하는 API로 없는 경우 null, 있는 경우 entity String으로 반환
+    public String getSubclient(String clientId, String vmName) {
         try {
             final HttpResponse response = get("/subclient?clientId=" + clientId);
             checkResponseOK(response);
@@ -504,26 +510,11 @@ public class CommvaultClient {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
             JsonNode subClient = root.get("subClientProperties");
-            StringJoiner joiner = new StringJoiner(",");
             if (subClient != null && subClient.isArray()) {
                 for (JsonNode item : subClient) {
                     JsonNode entity = item.get("subClientEntity");
                     if (entity != null && vmName.equals(entity.get("backupsetName").asText())) {
-                        subClient.put("subclientId", entity.get("subclientId").asText());
-                        subClient.put("applicationId", entity.get("applicationId").asText());
-                        subClient.put("backupsetId", entity.get("backupsetId").asText());
-                        subClient.put("instanceId", entity.get("instanceId").asText());
-                        subClient.put("backupsetName", entity.get("backupsetName").asText());
-                        subClient.put("instanceName", entity.get("instanceName").asText());
-                        subClient.put("displayName", entity.get("displayName").asText());
-                        subClient.put("commCellName", entity.get("commCellName").asText());
-                        subClient.put("companyName", entity.get("companyName").asText());
-                        subClient.put("appName", entity.get("appName").asText());
-                        subClient.put("clientName", entity.get("clientName").asText());
-                        subClient.put("subclientGUID", entity.get("subclientGUID").asText());
-                        subClient.put("subclientName", entity.get("subclientName").asText());
-                        subClient.put("csGUID", entity.get("csGUID").asText());
-                        return subClient;
+                        return new ObjectMapper().writeVauleAsString(entity);
                     }
                 }
             }
@@ -675,6 +666,50 @@ public class CommvaultClient {
             checkResponseTimeOut(e);
         }
         return null;
+    }
+
+    // https://10.10.255.56/commandcenter/api/v5/serverplan/<planId>/backupdestination/<storagePoolId>
+    // plan의 retention period 변경 API 
+    public String updateRetentionPeriod(String planId, String copyId, String retentionPeriod) {
+        String putUrl = apiURI.toString() + "/v5/serverplan/" + planId + "/baackupdestination/" + copyId;
+        try {
+            URL url = new URL(putUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setDoOutput(true);
+            String jsonBody = String.format("{\"retentionRules\":{\"retentionRuleType\":\"RETENTION_PERIOD\",\"retentionPeriodDays\":%d,\"useExtendedRetentionRules\":false}}"),retentionPeriod;
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                StringBuilder response = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                }
+                JsonParser jParser = new JsonParser();
+                JsonObject jObject = (JsonObject)jParser.parse(response.toString());
+                String errorCode = jObject.get("errorCode").toString();
+                if (errorCode.equals("1")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to get Host Client due to:", e);
+            checkResponseTimeOut(e);
+        }
+        return false;
     }
 
     // https://10.10.255.56/commandcenter/api/backupset/<backupSetId>

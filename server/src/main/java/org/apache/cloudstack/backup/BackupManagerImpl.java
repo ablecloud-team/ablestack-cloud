@@ -219,7 +219,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             throw new CloudRuntimeException("The backup offering cannot be imported because the host does not have the agent properly installed on provider " + provider.getName() + "on zone" + cmd.getZoneId());
         }
 
-        if (!provider.importBackupPlan(cmd.getZoneId())) {
+        if (!provider.importBackupPlan(cmd.getZoneId(), cmd.getRetentionPeriod())) {
             throw new CloudRuntimeException("The backup offering cannot be imported because failed setting on provider " + provider.getName() + "on zone" + cmd.getZoneId());
         }
 

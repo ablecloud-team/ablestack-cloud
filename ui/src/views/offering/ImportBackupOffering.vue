@@ -79,17 +79,35 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups" v-if="!isCommvault()">
+      <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups" v-if="provider!=='nas'">
         <template #label>
           <tooltip-label :title="$t('label.allowuserdrivenbackups')" :tooltip="apiParams.allowuserdrivenbackups.description"/>
         </template>
         <a-switch v-model:checked="form.allowuserdrivenbackups"/>
       </a-form-item>
-      <a-form-item name="retentionperiod" ref="retentionperiod" v-if="isCommvault()">
+      <a-form-item name="retentionperiod" ref="retentionperiod" v-if="provider==='nas'">
         <template #label>
-          <tooltip-label :title="$t('label.retentionperiod')" :tooltip="apiParams.retentionperiod.description"/>
+          <!-- <tooltip-label :title="$t('label.retentionperiod')" :tooltip="apiParams.retentionperiod.description"/> -->
+          <tooltip-label :title="$t('label.allowuserdrivenbackups')" :tooltip="apiParams.allowuserdrivenbackups.description"/>
         </template>
-        <a-input v-model:value="form.retentionperiod"/>
+        <a-input-group compact>
+          <a-input
+            v-if="form.retentionPeriodUnit !== 'Infinite'"
+            v-model:value="form.retentionPeriodValue"
+            style="width: 50%"
+            :placeholder="$t('label.enter.value')"
+            type="number"
+            min="1"/>
+          <a-select
+            v-model:value="form.retentionPeriodUnit"
+            :style="form.retentionPeriodUnit === 'Infinite' ? 'width: 100%' : 'width: 50%'">
+            <a-select-option value="Day">{{ $t('label.day') }}</a-select-option>
+            <a-select-option value="Week">{{ $t('label.week') }}</a-select-option>
+            <a-select-option value="Month">{{ $t('label.month') }}</a-select-option>
+            <a-select-option value="Years">{{ $t('label.years') }}</a-select-option>
+            <a-select-option value="Infinite">{{ $t('label.infinite') }}</a-select-option>
+          </a-select>
+        </a-input-group>
       </a-form-item>
       <div :span="24" class="action-button">
         <a-button :loading="loading" @click="closeAction">{{ this.$t('label.cancel') }}</a-button>
@@ -122,7 +140,8 @@ export default {
         loading: false,
         opts: []
       },
-      useCommvault: false
+      useCommvault: false,
+      provider: ''
     }
   },
   beforeCreate () {
@@ -131,12 +150,44 @@ export default {
   created () {
     this.initForm()
     this.fetchData()
+    this.isCommvault()
+  },
+  compute: {
+    retentionPeriodFormatted () {
+      if (this.form.retentionPeriodUnit === 'Infinite') {
+        return '-1'
+      }
+      return `${this.form.retentionPeriodValue} ${this.form.retentionPeriodUnit}`
+    },
+    retentionPeriodInDays () {
+      if (this.form.retentionPeriodUnit === 'Infinite' || !this.form.retentionPeriodValue) {
+        return null
+      }
+      const value = parseInt(this.form.retentionPeriodValue)
+      if (isNaN(value) || value <= 0) {
+        return null
+      }
+      switch (this.form.retentionPeriodUnit) {
+        case 'Day':
+          return value
+        case 'Week':
+          return value * 7
+        case 'Month':
+          return value * 30
+        case 'Years':
+          return value * 365
+        default:
+          return value
+      }
+    }
   },
   methods: {
     initForm () {
       this.formRef = ref()
       this.form = reactive({
-        allowuserdrivenbackups: true
+        allowuserdrivenbackups: true,
+        retentionPeriodValue: '',
+        retentionPeriodUnit: 'Day'
       })
       this.rules = reactive({
         name: [{ required: true, message: this.$t('message.error.required.input') }],
@@ -171,11 +222,8 @@ export default {
     isCommvault () {
       api('listConfigurations', { name: 'backup.framework.provider.plugin' }).then(json => {
         if (json.listconfigurationsresponse.configuration[0]) {
-          if (json.listconfigurationsresponse.configuration[0].value === 'commvault') {
-            return true
-          }
+          this.provider = json.listconfigurationsresponse.configuration[0].value
         }
-        return false
       })
     },
     fetchExternal (zoneId) {
@@ -212,6 +260,9 @@ export default {
           } else {
             params[key] = input
           }
+        }
+        if (values.retentionPeriodValue !== '') {
+          params.retentionPeriodValue = values.retentionPeriodValue
         }
         params.allowuserdrivenbackups = values.allowuserdrivenbackups
         this.loading = true
