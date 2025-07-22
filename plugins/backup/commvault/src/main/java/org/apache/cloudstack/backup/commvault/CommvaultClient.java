@@ -74,6 +74,10 @@ public class CommvaultClient {
     private final String apiPassword;
     private final HttpClient httpClient;
     private String accessToken = null;
+    private String cvtServerIp;
+    private String cvtServerUsername;
+    private String cvtServerPassword;
+    private final int cvtServerPort = 22;
 
     public CommvaultClient(final String url, final String username, final String password, final boolean validateCertificate, final int timeout) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
 
@@ -104,6 +108,13 @@ public class CommvaultClient {
         }
 
         authenticate(username, password);
+        setCvtSshCredentials(this.apiURI.getHost(), username, password);
+    }
+
+    protected void setCvtSshCredentials(String hostIp, String username, String password) {
+        this.cvtServerIp = hostIp;
+        this.cvtServerUsername = username;
+        this.cvtServerPassword = password;
     }
 
     private void authenticate(final String username, final String password) {
@@ -814,6 +825,28 @@ public class CommvaultClient {
             return jobIds.split(",")[0];
         }
         return null;
+    }
+
+    /**
+     * Execute a list of commands in a single call on PowerShell through SSH
+     */
+    protected Pair<Boolean, String> executePowerShellCommands(List<String> cmds) {
+        try {
+            String commands = transformPowerShellCommandList(cmds);
+            Pair<Boolean, String> response = SshHelper.sshExecute(cvtServerIp, cvtServerPort,
+                    cvtServerUsername, null, cvtServerPassword,
+                    commands, 120000, 120000, 3600000);
+
+            if (response == null || !response.first()) {
+                logger.error(String.format("Commvault PowerShell commands [%s] failed due to: [%s].", commands, response != null ? response.second() : "no PowerShell output returned"));
+            } else {
+                logger.debug(String.format("Commvault response for PowerShell commands [%s] is: [%s].", commands, response.second()));
+            }
+
+            return response;
+        } catch (Exception e) {
+            throw new CloudRuntimeException("Error while executing PowerShell commands due to: " + e.getMessage());
+        }
     }
 
 }

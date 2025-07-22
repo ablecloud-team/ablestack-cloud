@@ -542,7 +542,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         UserVmJoinVO userVM = userVmJoinDao.findById(vm.getId());
         List<VolumeVO> volumes = volsDao.findByInstance(userVM.getId());
         StringJoiner joiner = new StringJoiner(",");
-        boolean check = false;
         Map<String, String> checkResult = new HashMap<>();
         for (VolumeVO vol : volumes) {
             Map<String, String> snapParams = new HashMap<>();
@@ -550,20 +549,38 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             snapParams.put("quiescevm", "true");
             String createSnapResult = moldCreateSnapshotBackupAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapParams);
             if (createSnapResult == null) {
-                if (check) {
-                    // 생성된 스냅샷 삭제 API 호출
-                    checkResult.get(vol.getId());
+                // 스냅샷 생성 실패
+                if (!checkResult.isEmpty()) {
+                    for (String value : checkResult.values()) {
+                        Map<String, String> snapshotParams = new HashMap<>();
+                        snapshotParams.put("id", value);
+                        String moldCommand = "deleteSnapshot";
+                        moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+                    }
                 }
-                throw new CloudRuntimeException("Failed to request createSnapshot Mold-API.");
+                LOG.error("Failed to request createSnapshot Mold-API.");
+                return false;
             } else {
                 JSONObject jsonObject = new JSONObject(createSnapResult);
                 String jobId = jsonObject.get("jobid").toString();
                 String snapId = jsonObject.get("id").toString();
                 int jobStatus = getAsyncJobResult(moldUrl, apiKey, secretKey, jobId);
                 if (jobStatus == 2) {
-                    throw new CloudRuntimeException("createVMSnapshot Mold-API async job resulted in failure.");
+                    // 스냅샷 생성 실패
+                    Map<String, String> snapshotParams = new HashMap<>();
+                    snapshotParams.put("id", snapId);
+                    String moldCommand = "deleteSnapshot";
+                    moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+                    if (!checkResult.isEmpty()) {
+                        for (String value : checkResult.values()) {
+                            Map<String, String> snapshotParams = new HashMap<>();
+                            snapshotParams.put("id", value);
+                            moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+                        }
+                    }
+                    LOG.error("createSnapshot Mold-API async job resulted in failure.");
+                    return false;
                 }
-                check = true;
                 checkResult.put(vol.getId(), snapId);
                 SnapshotVO volSnap = snapshotDao.findBySnapshotId(snapId);
                 joiner.add(volSnap.getInstallPath());
@@ -591,7 +608,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String csGUID = jsonObject.getString("csGUID");
         boolean upResult = client.updateBackupSet(path, subclientId, clientId, applicationId, backupsetId, instanceId, backupsetName);
         if (upResult) {
-            // 해당 경로로 백업 실행
             String storagePolicyId = client.getStoragePolicyId(planName);
             String jobId = client.createBackup(subclientId, storagePolicyId, displayName, commCellName, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, subclientGUID, subclientName, csGUID, backupsetName);
             String jobDetails = client.getJobDetails(jobId);
@@ -630,19 +646,29 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 backupDao.persist(backup);
                 return true;
             } else {
-                // 백업 실패 시 스냅샷 삭제 mold-API 호출
-                Map<String, String> snapParams = new HashMap<>();
-                snapParams.put("voltid", snapId);
-                moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapParams);
-                LOG.error("take backup commvault api resulted in " + jobState);
+                // 백업 실패
+                if (!checkResult.isEmpty()) {
+                    for (String value : checkResult.values()) {
+                        Map<String, String> snapshotParams = new HashMap<>();
+                        snapshotParams.put("id", value);
+                        String moldCommand = "deleteSnapshot";
+                        moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+                    }
+                }
+                LOG.error("createBackup commvault api resulted in " + jobState);
                 return false;
             }
         } else {
-            // 생성된 스냅샷의 경로로 해당 백업 세트의 백업 콘텐츠 경로 업데이트 실패 시 스냅샷 삭제 mold-API 호출
-            Map<String, String> vmSnapParams = new HashMap<>();
-            vmSnapParams.put("vmsnapshotid", snapId);
-            moldDeleteVmSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, vmSnapParams);
-            LOG.error("Delete vm snapshot Mold-API resulted in failure.");
+            // 백업 경로 업데이트 실패
+            if (!checkResult.isEmpty()) {
+                for (String value : checkResult.values()) {
+                    Map<String, String> snapshotParams = new HashMap<>();
+                    snapshotParams.put("id", value);
+                    String moldCommand = "deleteSnapshot";
+                    moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+                }
+            }
+            LOG.error("updateBackupSet commvault api resulted in failure.");
             return false;
         }
     }
@@ -767,7 +793,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return false; 
     }
 
-    protected static String moldCreateVmSnapshotAPI(String region, String command, String method, String apiKey, String secretKey, Map<String, String> params) {
+    protected static String moldCreateSnapshotBackupAPI(String region, String command, String method, String apiKey, String secretKey, Map<String, String> params) {
         try {
             String readLine = null;
             StringBuffer sb = null;
@@ -798,7 +824,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 return null;
             }
             JSONObject jObject = XML.toJSONObject(sb.toString());
-            JSONObject response = (JSONObject) jObject.get("createvmsnapshotresponse");
+            JSONObject response = (JSONObject) jObject.get("createsnapshotbackupresponse");
             return response.toString();
         } catch (Exception e) {
             LOG.error(String.format("Mold API endpoint not available"), e);
@@ -806,7 +832,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
     }
 
-    protected static String moldDeleteVmSnapshotAPI(String region, String command, String method, String apiKey, String secretKey, Map<String, String> params) {
+    protected static String moldDeleteSnapshotAPI(String region, String command, String method, String apiKey, String secretKey, Map<String, String> params) {
         try {
             String readLine = null;
             StringBuffer sb = null;
@@ -838,7 +864,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 return null;
             }
             JSONObject jObject = XML.toJSONObject(sb.toString());
-            JSONObject response = (JSONObject) jObject.get("deletevmsnapshotresponse");
+            JSONObject response = (JSONObject) jObject.get("deletesnapshotresponse");
             return response.toString();
         } catch (Exception e) {
             LOGGER.error(String.format("Mold API endpoint not available"), e);
