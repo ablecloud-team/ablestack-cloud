@@ -34,6 +34,9 @@
                     <span v-if="resourceIcon && !['router', 'systemvm', 'volume'].includes($route.path.split('/')[1])">
                       <resource-icon :image="resourceIcon" size="4x" style="margin-right: 5px"/>
                     </span>
+                    <span v-else-if="resource.vmtype === 'sharedfsvm'">
+                      <file-text-outlined style="font-size: 36px;" />
+                    </span>
                     <span v-else>
                       <os-logo v-if="resource.ostypeid || resource.ostypename || ['guestoscategory'].includes($route.path.split('/')[1])" :osId="resource.ostypeid" :osName="resource.ostypename || resource.osdisplayname || resource.name" size="3x" />
                       <render-icon v-else-if="typeof $route.meta.icon ==='string'" style="font-size: 36px" :icon="$route.meta.icon" />
@@ -1066,6 +1069,7 @@ import eventBus from '@/config/eventBus'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import ResourceLabel from '@/components/widgets/ResourceLabel'
 import ImageDeployInstanceButton from '@/components/view/ImageDeployInstanceButton'
+import { FileTextOutlined } from '@ant-design/icons-vue'
 
 export default {
   name: 'InfoCard',
@@ -1078,7 +1082,8 @@ export default {
     UploadResourceIcon,
     ResourceIcon,
     ResourceLabel,
-    ImageDeployInstanceButton
+    ImageDeployInstanceButton,
+    FileTextOutlined
   },
   props: {
     resource: {
