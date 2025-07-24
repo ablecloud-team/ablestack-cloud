@@ -179,7 +179,6 @@ export default {
       template: {},
       userDataEnabled: false,
       securityGroupsEnabled: false,
-      dynamicScalingVmConfig: false,
       loading: false,
       securitygroups: {
         loading: false,
@@ -239,7 +238,6 @@ export default {
       this.fetchInstaceGroups()
       this.fetchServiceOfferingData()
       this.fetchTemplateData()
-      this.fetchDynamicScalingVmConfig()
       this.fetchUserData()
     },
     fetchZoneDetails () {
@@ -303,6 +301,9 @@ export default {
     },
     canDynamicScalingEnabled () {
       return this.template.isdynamicallyscalable && this.serviceOffering.dynamicscalingenabled && this.dynamicScalingVmConfig
+    },
+    isDynamicScalingEnabled () {
+      return this.template.isdynamicallyscalable && this.serviceOffering.dynamicscalingenabled && this.$store.getters.features.dynamicscalingenabled
     },
     fetchOsTypes () {
       this.osTypes.loading = true

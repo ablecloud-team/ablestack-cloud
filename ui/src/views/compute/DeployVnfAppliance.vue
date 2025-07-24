@@ -952,8 +952,7 @@ export default {
         keyboards: [],
         bootTypes: [],
         bootModes: [],
-        ioPolicyTypes: [],
-        dynamicScalingVmConfig: false
+        ioPolicyTypes: []
       },
       rowCount: {},
       loading: {
@@ -1330,7 +1329,7 @@ export default {
       return Boolean('listUserData' in this.$store.getters.apis)
     },
     dynamicScalingVmConfigValue () {
-      return this.options.dynamicScalingVmConfig?.[0]?.value === 'true'
+      return this.$store.getters.features.dynamicscalingenabled
     },
     isCustomizedDiskIOPS () {
       return this.diskSelected?.iscustomizediops || false
@@ -2475,16 +2474,24 @@ export default {
         param.loading = true
         param.opts = []
         const options = param.options || {}
-        if (!('listall' in options) && !['zones', 'pods', 'clusters', 'hosts', 'dynamicScalingVmConfig', 'hypervisors'].includes(name)) {
+        if (!('listall' in options) && !['zones', 'pods', 'clusters', 'hosts', 'hypervisors'].includes(name)) {
           options.listall = true
         }
-        postAPI(param.list, options).then((response) => {
+        getAPI(param.list, options).then((response) => {
           param.loading = false
           _.map(response, (responseItem, responseKey) => {
             if (Object.keys(responseItem).length === 0) {
               this.rowCount[name] = 0
               this.options[name] = []
-              return resolve(null)
+              return
+            }
+            if (!responseKey.includes('response')) {
+              return
+            }
+            _.map(responseItem, (response, key) => {
+              if (key === 'count') {
+                this.rowCount[name] = response
+                return
             }
             if (!responseKey.includes('response')) {
               return resolve(null)
