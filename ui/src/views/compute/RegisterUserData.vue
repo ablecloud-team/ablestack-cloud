@@ -38,11 +38,11 @@
         <div v-if="$route.name === 'userdata'">
           <a-form-item name="userdata" ref="userdata">
             <template #label>
-              <tooltip-label :title="$t('label.userdata')" :tooltip="apiParams.userdata.description"/>
+              <tooltip-label :title="$t('label.user.data')" :tooltip="$t('label.register.user.data.details')"/>
             </template>
             <a-textarea
               v-model:value="form.userdata"
-              :placeholder="apiParams.userdata.description"/>
+              :placeholder="$t('label.register.user.data.details')"/>
           </a-form-item>
         </div>
         <div v-else>
@@ -169,7 +169,7 @@ export default {
       })
       this.rules = reactive({
         name: [{ required: true, message: this.$t('message.error.name') }],
-        userdata: [{ required: true, message: this.$t('message.error.userdata') }]
+        userdata: [{ required: true, message: this.$t('message.error.user.data') }]
       })
     },
     fetchData () {

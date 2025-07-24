@@ -549,7 +549,7 @@
                           @change="val => { dynamicscalingenabled = val }"/>
                       </a-form-item>
                     </a-form-item>
-                    <a-form-item :label="$t('label.userdata')">
+                    <a-form-item :label="$t('label.user.data')">
                       <a-card>
                         <div v-if="this.template && this.template.userdataid">
                           <a-typography-text>
@@ -603,11 +603,11 @@
                         </div><br/><br/>
                         <div v-if="userdataDefaultOverridePolicy === 'ALLOWOVERRIDE' || userdataDefaultOverridePolicy === 'APPEND' || !userdataDefaultOverridePolicy">
                           <span v-if="userdataDefaultOverridePolicy === 'ALLOWOVERRIDE'" >
-                            {{ $t('label.userdata.do.override') }}
+                            {{ $t('label.user.data.do.override') }}
                             <a-switch v-model:checked="doUserdataOverride" style="margin-left: 10px"/>
                           </span>
                           <span v-if="userdataDefaultOverridePolicy === 'APPEND'">
-                            {{ $t('label.userdata.do.append') }}
+                            {{ $t('label.user.data.do.append') }}
                             <a-switch v-model:checked="doUserdataAppend" style="margin-left: 10px"/>
                           </span>
                           <a-step
@@ -1010,11 +1010,11 @@ export default {
       userDataValues: {},
       templateUserDataCols: [
         {
-          title: this.$t('label.userdata'),
+          title: this.$t('label.user.data'),
           dataIndex: 'userdata'
         },
         {
-          title: this.$t('label.userdatapolicy'),
+          title: this.$t('label.user.data.policy'),
           dataIndex: 'userdataoverridepolicy'
         }
       ],
@@ -1289,16 +1289,17 @@ export default {
       }]
     },
     userdataTabList () {
-      return [
-        {
-          key: 'userdataregistered',
-          tab: this.$t('label.userdata.registered')
-        },
-        {
-          key: 'userdatatext',
-          tab: this.$t('label.userdata.text')
-        }
-      ]
+      let tabList = []
+      tabList = [{
+        key: 'userdataregistered',
+        tab: this.$t('label.user.data.registered')
+      },
+      {
+        key: 'userdatatext',
+        tab: this.$t('label.user.data.text')
+      }]
+
+      return tabList
     },
     showVnfNicsSection () {
       return this.networks && this.networks.length > 0 && this.vm.templateid && this.templateVnfNics && this.templateVnfNics.length > 0

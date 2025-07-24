@@ -33,7 +33,7 @@ import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.user.UserData;
 
 @APICommand(name = "registerUserData",
-        description = "Register a new userdata.",
+        description = "Register a new User Data.",
         since = "4.18",
         responseObject = SuccessResponse.class,
         requestHasSensitiveInfo = false,

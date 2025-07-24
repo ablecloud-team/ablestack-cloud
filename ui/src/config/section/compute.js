@@ -441,7 +441,7 @@ export default {
         {
           api: 'resetUserDataForVirtualMachine',
           icon: 'solution-outlined',
-          label: 'label.reset.userdata.on.vm',
+          label: 'label.reset.user.data.on.vm',
           message: 'message.desc.reset.userdata',
           docHelp: 'adminguide/virtual_machines.html#resetting-userdata',
           dataView: true,
@@ -1026,7 +1026,7 @@ export default {
     },
     {
       name: 'userdata',
-      title: 'label.user.data',
+      title: 'label.user.data.library',
       icon: 'solution-outlined',
       docHelp: 'adminguide/virtual_machines.html#user-data-and-meta-data',
       permission: ['listUserData'],
@@ -1065,7 +1065,7 @@ export default {
           api: 'registerUserData',
           icon: 'plus-outlined',
           label: 'label.register.user.data',
-          docHelp: 'adminguide/virtual_machines.html#creating-the-ssh-keypair',
+          docHelp: 'adminguide/virtual_machines.html#user-data-and-meta-data',
           listView: true,
           popup: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/RegisterUserData.vue')))
