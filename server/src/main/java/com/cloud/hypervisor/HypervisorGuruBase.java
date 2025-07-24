@@ -78,7 +78,7 @@ import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.VirtualMachineProfile;
 import com.cloud.vm.dao.NicDao;
 import com.cloud.vm.dao.NicSecondaryIpDao;
-import com.cloud.vm.dao.UserVmDetailsDao;
+import com.cloud.vm.dao.VMInstanceDetailsDao;
 import com.cloud.vm.dao.VMInstanceDao;
 
 public abstract class HypervisorGuruBase extends AdapterBase implements HypervisorGuru, Configurable {
@@ -103,7 +103,7 @@ public abstract class HypervisorGuruBase extends AdapterBase implements Hypervis
     protected
     VMInstanceDao virtualMachineDao;
     @Inject
-    private UserVmDetailsDao _userVmDetailsDao;
+    private VMInstanceDetailsDao _vmInstanceDetailsDao;
     @Inject
     private NicSecondaryIpDao _nicSecIpDao;
     @Inject
@@ -326,7 +326,7 @@ public abstract class HypervisorGuruBase extends AdapterBase implements Hypervis
             to.setArch("x86_64");
         }
 
-        Map<String, String> detailsInVm = _userVmDetailsDao.listDetailsKeyPairs(vm.getId());
+        Map<String, String> detailsInVm = _vmInstanceDetailsDao.listDetailsKeyPairs(vm.getId());
         if (detailsInVm != null) {
             to.setDetails(detailsInVm);
             addExtraConfig(detailsInVm, to, vm.getAccountId(), vm.getHypervisorType());
