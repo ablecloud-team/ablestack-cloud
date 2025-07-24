@@ -505,7 +505,7 @@ export default {
     },
     getProject (projectName) {
       return new Promise((resolve, reject) => {
-        api('listProjects', {
+        getAPI('listProjects', {
           response: 'json',
           domainId: this.selectedDomain,
           details: 'min'
