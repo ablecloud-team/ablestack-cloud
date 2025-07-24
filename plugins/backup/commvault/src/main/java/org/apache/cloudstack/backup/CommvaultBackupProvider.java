@@ -376,49 +376,28 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     @Override
     public boolean restoreVMFromBackup(VirtualMachine vm, Backup backup) {
-        String CommvaultServer;
-        HostVO hostVO;
-
-        final Long zoneId = backup.getZoneId();
-        final String externalBackupId = backup.getExternalId();
-        final NetworkerBackup networkerBackup = getClient(zoneId).getNetworkerBackupInfo(externalBackupId);
-        final String SSID = networkerBackup.getShortId();
-
-        LOG.debug(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
-
-        if ( SSID.isEmpty() ) {
-            LOG.debug("There was an error retrieving the SSID for backup with id " + externalBackupId + " from Commvault");
-            return false;
-        }
-
-        // Find where the VM was last running
-        hostVO = getLastVMHypervisorHost(vm);
-        // Get credentials for that host
-        Ternary<String, String, String> credentials = getKVMHyperisorCredentials(hostVO);
-        LOG.debug("The SSID was reported successfully " + externalBackupId);
+        String hostName = null;
         try {
-            CommvaultServer = getUrlDomain(CommvaultUrl.value());
+            String commvaultServer = getUrlDomain(CommvaultUrl.value());
         } catch (URISyntaxException e) {
             throw new CloudRuntimeException(String.format("Failed to convert API to HOST : %s", e));
         }
-        String commvaultRestoreScr = "/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/cvtkvmrestore.sh";
-        final Script script = new Script(commvaultRestoreScr);
-        script.add("-s");
-        script.add(CommvaultServer);
-        script.add("-S");
-        script.add(SSID);
-
-        Date restoreJobStart = new Date();
-        LOG.debug(String.format("Starting Restore for VM %s and %s at %s", vm, SSID, restoreJobStart));
-
-        if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), script.toString())) {
-            Date restoreJobEnd = new Date();
-            LOG.debug("Restore Job for SSID " + SSID + " completed successfully at " + restoreJobEnd);
-            return true;
-        } else {
-            LOG.debug("Restore Job for SSID " + SSID + " failed!");
-            return false;
+        // 클라이언트의 백업세트 조회하여 호스트 정의
+        final CommvaultClient client = getClient(vm.getDataCenterId());
+        String accessToken = getToken();
+        List<HostVO> Hosts = hostDao.findByDataCenterId(vm.getDataCenterId());
+        for (final HostVO host : Hosts) {
+            if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
+                String checkVm = client.getVmBackupSetId(host.getName(), vm.getInstanceName());
+                if (checkVm != null) {
+                    hostName = host.getName();
+                }
+            }
         }
+        BackupOfferingVO vmBackupOffering = new BackupOfferingDaoImpl().findById(vm.getBackupOfferingId());
+        String planName = vmBackupOffering.getExternalId();
+        LOG.info(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
+        return client.restoreFullVM();
     }
 
     @Override
@@ -644,6 +623,13 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 backup.setZoneId(vm.getDataCenterId());
                 backup.setBackedUpVolumes(BackupManagerImpl.createVolumeInfoFromVolumes(volumeDao.findByInstance(vm.getId())));
                 backupDao.persist(backup);
+                // 백업 성공 후 스냅샷 삭제
+                for (String value : checkResult.values()) {
+                    Map<String, String> snapshotParams = new HashMap<>();
+                    snapshotParams.put("id", value);
+                    String moldCommand = "deleteSnapshot";
+                    moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+                }
                 return true;
             } else {
                 // 백업 실패
@@ -675,18 +661,32 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     @Override
     public boolean deleteBackup(Backup backup, boolean forced) {
-
-        backupDao.remove(backup.getId());
-        return true;
-        
+        String clientName = null;
         final Long zoneId = backup.getZoneId();
-        final String externalBackupId = backup.getExternalId();
+        final String path = backup.getExternalId();
         final CommvaultClient client = getClient(zoneId);
-        if (client.deleteBackupForVM(externalBackupId)) {
-            LOG.debug("Commvault successfully deleted backup with id " + externalBackupId);
+        VMInstanceVO vm = vmInstanceDao.findById(backup.getVmId());
+        // 클라이언트의 백업세트 조회하여 호스트 정의
+        List<HostVO> Hosts = hostDao.findByDataCenterId(vm.getDataCenterId());
+        for (final HostVO host : Hosts) {
+            if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
+                String checkVm = client.getVmBackupSetId(host.getName(), vm.getInstanceName());
+                if (checkVm != null) {
+                    clientName = host.getName();
+                }
+            }
+        }
+        String clientId = client.getClientId();
+        String subClientEntity = client.getSubclient(clientId, vm.getName());
+        String applicationId = jsonObject.getString("applicationId");
+        String backupsetId = jsonObject.getString("backupsetId");
+        String instanceId = jsonObject.getString("instanceId");
+        String subclientId = jsonObject.getString("subclientId");
+        if (client.deleteBackupForVM(path, clientId, applicationId, backupsetId, instanceId, subclientId, clientName)) {
+            LOG.debug("Commvault successfully deleted backup with id " + path);
             return true;
         } else {
-            LOG.debug("There was an error removing the backup with id " + externalBackupId + " from Commvault");
+            LOG.debug("There was an error removing the backup with id " + path + " from Commvault");
         }
         return false;
     }
