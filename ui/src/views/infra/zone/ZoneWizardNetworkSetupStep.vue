@@ -51,7 +51,7 @@
       :isFixError="isFixError"
     />
     <ip-address-range-form
-      v-if="steps && ['publicTraffic', 'nsxPublicTraffic'].includes(steps[currentStep].formKey)"
+      v-if="steps && ['publicTraffic', 'nsxPublicTraffic', 'netrisPublicTraffic'].includes(steps[currentStep].formKey)"
       @nextPressed="nextPressed"
       @backPressed="handleBack"
       @fieldsChanged="fieldsChanged"
@@ -62,6 +62,8 @@
       :isFixError="isFixError"
       :forNsx="steps[currentStep].formKey === 'nsxPublicTraffic'"
       :isNsxZone="isNsxZone"
+      :forNetris="steps[currentStep].formKey === 'netrisPublicTraffic'"
+      :isNetrisZone="isNetrisZone"
     />
 
     <static-inputs-form
@@ -85,6 +87,18 @@
       :fields="nsxFields"
       :prefillContent="prefillContent"
       :description="nsxSetupDescription"
+      :isFixError="isFixError"
+    />
+
+    <static-inputs-form
+      v-if="steps && steps[currentStep].formKey === 'netris'"
+      @nextPressed="nextPressed"
+      @backPressed="handleBack"
+      @fieldsChanged="fieldsChanged"
+      @submitLaunchZone="submitLaunchZone"
+      :fields="netrisFields"
+      :prefillContent="prefillContent"
+      :description="netrisSetupDescription"
       :isFixError="isFixError"
     />
 
@@ -213,6 +227,16 @@ export default {
       }
       return isNsx
     },
+    isNetrisZone () {
+      let isNetris = false
+      if (!this.prefillContent.physicalNetworks) {
+        isNetris = false
+      } else {
+        const netrisIdx = this.prefillContent.physicalNetworks.findIndex(network => network.isolationMethod === 'Netris')
+        isNetris = netrisIdx > -1
+      }
+      return isNetris
+    },
     allSteps () {
       const steps = []
       steps.push({
@@ -231,6 +255,12 @@ export default {
           formKey: 'nsx'
         })
       }
+      if (this.isNetrisZone) {
+        steps.push({
+          title: 'label.netris.provider',
+          formKey: 'netris'
+        })
+      }
       if (this.havingNetscaler) {
         steps.push({
           title: 'label.netScaler',
@@ -246,6 +276,13 @@ export default {
         steps.push({
           title: 'label.public.traffic.nsx',
           formKey: 'nsxPublicTraffic',
+          trafficType: 'public'
+        })
+      }
+      if (this.isNetrisZone) {
+        steps.push({
+          title: 'label.public.traffic.netris',
+          formKey: 'netrisPublicTraffic',
           trafficType: 'public'
         })
       }
@@ -438,6 +475,54 @@ export default {
       ]
       return fields
     },
+    netrisFields () {
+      const fields = [
+        {
+          title: 'label.netris.provider.name',
+          key: 'netrisName',
+          placeHolder: 'message.installwizard.tooltip.netris.provider.name',
+          required: true
+        },
+        {
+          title: 'label.netris.provider.url',
+          key: 'url',
+          placeHolder: 'message.installwizard.tooltip.netris.provider.url',
+          required: true
+        },
+        {
+          title: 'label.netris.provider.username',
+          key: 'username',
+          placeHolder: 'message.installwizard.tooltip.netris.provider.username',
+          required: true
+        },
+        {
+          title: 'label.netris.provider.password',
+          key: 'password',
+          placeHolder: 'message.installwizard.tooltip.netris.provider.password',
+          required: true,
+          password: true
+        },
+        {
+          title: 'label.netris.provider.site',
+          key: 'siteName',
+          placeHolder: 'message.installwizard.tooltip.netris.provider.site',
+          required: true
+        },
+        {
+          title: 'label.netris.provider.tenant.name',
+          key: 'tenantName',
+          placeHolder: 'message.installwizard.tooltip.netris.provider.tenant.name',
+          required: true
+        },
+        {
+          title: 'label.netris.provider.tag',
+          key: 'netrisTag',
+          placeHolder: 'message.installwizard.tooltip.netris.provider.tag',
+          required: true
+        }
+      ]
+      return fields
+    },
     guestTrafficFields () {
       const fields = [
         {
@@ -508,6 +593,7 @@ export default {
       podSetupDescription: 'message.add.pod.during.zone.creation',
       tungstenSetupDescription: 'message.infra.setup.tungsten.description',
       nsxSetupDescription: 'message.infra.setup.nsx.description',
+      netrisSetupDescription: 'message.infra.setup.netris.description',
       netscalerSetupDescription: 'label.please.specify.netscaler.info',
       storageTrafficDescription: 'label.zonewizard.traffictype.storage',
       podFields: [
