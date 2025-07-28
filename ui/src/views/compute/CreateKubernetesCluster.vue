@@ -734,9 +734,7 @@ export default {
 
       getAPI('listHypervisors', params).then(json => {
         const listResponse = json.listhypervisorsresponse.hypervisor || []
-        if (listResponse) {
-          this.selectedZoneHypervisors = listResponse
-        }
+        this.selectedZoneHypervisors = listResponse.filter(hypervisor => hypervisor.name !== 'External')
       }).finally(() => {
         this.hypervisorLoading = false
       })

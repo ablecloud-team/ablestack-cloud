@@ -75,6 +75,7 @@ public interface AlertService {
         public static final AlertType ALERT_TYPE_VR_PRIVATE_IFACE_MTU = new AlertType((short)32, "ALERT.VR.PRIVATE.IFACE.MTU", true);
         public static final AlertType EVENT_USER_SESSION_BLOCK = new AlertType((short)33, "USER.SESSION.BLOCK", true);
         public static final AlertType ALERT_TYPE_LOGIN = new AlertType((short)32, "ALERT.LOGIN", true);
+        public static final AlertType ALERT_TYPE_EXTENSION_PATH_NOT_READY = new AlertType((short)33, "ALERT.TYPE.EXTENSION.PATH.NOT.READY", true);
 
         public short getType() {
             return type;

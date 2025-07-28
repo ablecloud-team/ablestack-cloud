@@ -88,7 +88,9 @@ public enum ApiCommandResourceType {
     KubernetesCluster(com.cloud.kubernetes.cluster.KubernetesCluster.class),
     KubernetesSupportedVersion(null),
     SharedFS(org.apache.cloudstack.storage.sharedfs.SharedFS.class),
-    DisasterRecoveryCluster(com.cloud.dr.cluster.DisasterRecoveryCluster.class);
+    DisasterRecoveryCluster(com.cloud.dr.cluster.DisasterRecoveryCluster.class),
+    Extension(org.apache.cloudstack.extension.Extension.class),
+    ExtensionCustomAction(org.apache.cloudstack.extension.ExtensionCustomAction.class);
 
     private final Class<?> clazz;
 

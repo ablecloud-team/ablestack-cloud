@@ -194,7 +194,7 @@
             </a-form-item>
           </a-col>
           <a-col :md="24" :lg="12">
-            <a-form-item ref="format" name="format">
+            <a-form-item ref="format" name="format" v-if="!hyperExternalShow">
               <template #label>
                 <tooltip-label :title="$t('label.format')" :tooltip="apiParams.format.description"/>
               </template>
@@ -212,6 +212,23 @@
                 </a-select-option>
               </a-select>
             </a-form-item>
+            <a-form-item ref="extensionid" name="extensionid" v-if="hyperExternalShow">
+              <template #label>
+                <tooltip-label :title="$t('label.extensionid')" :tooltip="apiParams.extensionid.description"/>
+              </template>
+              <a-select
+                v-model:value="form.extensionid"
+                :placeholder="apiParams.extensionid.description"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="(input, option) => {
+                  return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }" >
+                <a-select-option v-for="extension in extensionsList" :key="extension.id" :label="extension.name || extension.description">
+                  {{ extension.name || extension.description }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
           </a-col>
         </a-row>
         <a-form-item ref="kvdoenable" name="kvdoenable" v-if="allowed && hyperKVMShow">
@@ -220,8 +237,19 @@
           </template>
           <a-switch v-model:checked="form.kvdoenable" />
         </a-form-item>
-        <a-row :gutter="12">
-          <a-col :md="24" :lg="12" v-if="(hyperKVMShow || hyperCustomShow) && currentForm === 'Create'">
+        <a-form-item name="externaldetails" ref="externaldetails" v-if="hyperExternalShow">
+          <template #label>
+            <tooltip-label :title="$t('label.externaldetails')" :tooltip="apiParams.externaldetails.description"/>
+          </template>
+          <a-switch v-model:checked="externalDetailsEnabled" @change="onExternalDetailsEnabledChange"/>
+          <a-card v-if="externalDetailsEnabled" style="margin-top: 10px">
+            <div style="margin-bottom: 10px">{{ $t('message.add.orchestrator.resource.details') }}</div>
+            <details-input
+              v-model:value="form.externaldetails" />
+          </a-card>
+        </a-form-item>
+        <a-row :gutter="12" v-if="(hyperKVMShow || hyperCustomShow) && currentForm === 'Create'">
+          <a-col :md="24" :lg="12">
             <a-form-item ref="directdownload" name="directdownload">
               <template #label>
                 <tooltip-label :title="$t('label.directdownload')" :tooltip="apiParams.directdownload.description"/>
@@ -485,6 +513,7 @@ import { axios } from '../../utils/request'
 import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
+import DetailsInput from '@/components/widgets/DetailsInput'
 
 export default {
   name: 'RegisterOrUploadTemplate',
@@ -501,7 +530,8 @@ export default {
   },
   components: {
     ResourceIcon,
-    TooltipLabel
+    TooltipLabel,
+    DetailsInput
   },
   data () {
     return {
@@ -524,6 +554,7 @@ export default {
       userdatapolicylist: {},
       defaultOsId: null,
       hyperKVMShow: false,
+      hyperExternalShow: false,
       hyperCustomShow: false,
       hyperXenServerShow: false,
       hyperVMWShow: false,
@@ -542,7 +573,8 @@ export default {
       domainid: null,
       account: null,
       customHypervisorName: 'Custom',
-      architectureTypes: {}
+      architectureTypes: {},
+      externalDetailsEnabled: false
     }
   },
   beforeCreate () {
@@ -586,7 +618,8 @@ export default {
         hypervisor: [{ type: 'number', required: true, message: this.$t('message.error.select') }],
         format: [{ required: true, message: this.$t('message.error.select') }],
         ostypeid: [{ required: true, message: this.$t('message.error.select') }],
-        groupenabled: [{ type: 'array' }]
+        groupenabled: [{ type: 'array' }],
+        extensionid: [{ required: true, message: this.$t('message.error.select') }]
       })
     },
     fetchData () {
@@ -605,6 +638,7 @@ export default {
           this.fetchXenServerProvider()
         }
       }
+      this.fetchExtensionsList()
     },
     handleFormChange (e) {
       this.currentForm = e.target.value
@@ -670,6 +704,17 @@ export default {
             store.dispatch('SetCustomHypervisorName', this.customHypervisorName)
           }
         }
+      }).finally(() => {
+        this.loading = false
+      })
+    },
+    fetchExtensionsList () {
+      this.loading = true
+      getAPI('listExtensions', {
+      }).then(response => {
+        this.extensionsList = response.listextensionsresponse.extension || []
+      }).catch(error => {
+        this.$notifyError(error)
       }).finally(() => {
         this.loading = false
       })
@@ -935,6 +980,10 @@ export default {
             description: 'BareMetal'
           })
           break
+        case 'External':
+          this.hyperExternalShow = true
+          this.selectedFormat = 'External'
+          break
         case 'Ovm':
           format.push({
             id: 'RAW',
@@ -1012,6 +1061,7 @@ export default {
       this.hyperXenServerShow = false
       this.hyperVMWShow = false
       this.hyperKVMShow = false
+      this.hyperExternalShow = false
       this.hyperCustomShow = false
       this.deployasis = false
       this.allowDirectDownload = false
@@ -1026,8 +1076,18 @@ export default {
       this.fetchRootDisk(hyperVisor)
       this.fetchNicAdapterTypes()
       this.fetchKeyboardType()
+      this.templateTypes.opts = this.$fetchTemplateTypes(hyperVisor)
+      if (this.form.templatetype && !this.templateTypes.opts.find(opt => opt.id === this.form.templatetype)) {
+        this.form.templatetype = undefined
+      }
 
       this.form.rootDiskControllerType = this.rootDisk.opts.length > 0 ? 'osdefault' : ''
+    },
+    onExternalDetailsEnabledChange (val) {
+      if (val || !this.form.externaldetails) {
+        return
+      }
+      this.form.externaldetails = undefined
     },
     handleSubmit (e) {
       e.preventDefault()
@@ -1064,6 +1124,10 @@ export default {
               const name = input[index]
               params[name] = true
             }
+          } else if (key === 'externaldetails') {
+            Object.entries(input).forEach(([k, v]) => {
+              params['externaldetails[0].' + k] = v
+            })
           } else {
             const formattedDetailData = {}
             switch (key) {
@@ -1092,6 +1156,9 @@ export default {
         }
         if (!('requireshvm' in params)) { // handled as default true by API
           params.requireshvm = false
+        }
+        if (this.selectedFormat === 'External') {
+          params.format = 'External'
         }
         if (this.currentForm === 'Create') {
           this.loading = true

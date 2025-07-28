@@ -2771,6 +2771,13 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
         checkDeviceId(deviceId, volumeToAttach, vm);
 
+        HypervisorType rootDiskHyperType = vm.getHypervisorType();
+        HypervisorType volumeToAttachHyperType = _volsDao.getHypervisorType(volumeToAttach.getId());
+
+        if (HypervisorType.External.equals(rootDiskHyperType)) {
+            throw new InvalidParameterValueException("Volume operations are not allowed for External hypervisor type");
+        }
+
         checkNumberOfAttachedVolumes(deviceId, vm);
 
         excludeLocalStorageIfNeeded(volumeToAttach);
@@ -2778,9 +2785,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         checkForDevicesInCopies(vmId, vm);
 
         checkRightsToAttach(caller, volumeToAttach, vm);
-
-        HypervisorType rootDiskHyperType = vm.getHypervisorType();
-        HypervisorType volumeToAttachHyperType = _volsDao.getHypervisorType(volumeToAttach.getId());
 
         StoragePoolVO volumeToAttachStoragePool = _storagePoolDao.findById(volumeToAttach.getPoolId());
         if (logger.isTraceEnabled() && volumeToAttachStoragePool != null) {
@@ -3572,6 +3576,11 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             throw new InvalidParameterValueException("Volume " + vol + " is already on the destination storage pool");
         }
 
+        HypervisorType hypervisorType = _volsDao.getHypervisorType(volumeId);
+        if (HypervisorType.External.equals(hypervisorType)) {
+            throw new InvalidParameterValueException("Volume migration operation is not allowed for hypervisor type External");
+        }
+
         boolean liveMigrateVolume = false;
         boolean srcAndDestOnStorPool = false;
         Long instanceId = vol.getInstanceId();
@@ -3686,7 +3695,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             throw new CloudRuntimeException("Storage pool " + destPool.getName() + " is not suitable to migrate volume " + vol.getName());
         }
 
-        HypervisorType hypervisorType = _volsDao.getHypervisorType(volumeId);
         DiskProfile diskProfile = new DiskProfile(vol, diskOffering, hypervisorType);
         Pair<Volume, DiskProfile> volumeDiskProfilePair = new Pair<>(vol, diskProfile);
         if (!storageMgr.storagePoolHasEnoughSpace(Collections.singletonList(volumeDiskProfilePair), destPool)) {
@@ -4047,6 +4055,9 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         VolumeInfo volume = volFactory.getVolume(volumeId);
         if (volume == null) {
             throw new InvalidParameterValueException("Creating snapshot failed due to volume:" + volumeId + " doesn't exist");
+        }
+        if (HypervisorType.External.equals(volume.getHypervisorType())) {
+            throw new InvalidParameterValueException("Snapshot operations are not allowed for External hypervisor type");
         }
         if (policyId != null && policyId > 0) {
             if (CollectionUtils.isNotEmpty(zoneIds)) {
@@ -4831,7 +4842,12 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         String errorMsg = "Failed to attach volume " + volumeToAttach.getName() + " to VM " + vm.getHostName();
         boolean sendCommand = vm.getState() == State.Running;
         AttachAnswer answer = null;
+        HypervisorType rootDiskHyperType = vm.getHypervisorType();
         StoragePoolVO volumeToAttachStoragePool = _storagePoolDao.findById(volumeToAttach.getPoolId());
+        if (HypervisorType.External.equals(rootDiskHyperType)) {
+            throw new InvalidParameterValueException("Volume operations are not allowed for External hypervisor type");
+        }
+
         if (logger.isTraceEnabled() && volumeToAttachStoragePool != null) {
             logger.trace("storage is gotten from volume to attach: {}", volumeToAttachStoragePool);
         }

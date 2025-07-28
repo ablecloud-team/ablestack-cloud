@@ -22,13 +22,13 @@
       style="width: 100%; margin-bottom: 10px"
       @click="showAddNicModal"
       :loading="loadingNic"
-      :disabled="!('addNicToVirtualMachine' in $store.getters.apis)">
+      :disabled="!('addNicToVirtualMachine' in $store.getters.apis) || resource.hypervisor === 'External'">
       <template #icon><plus-outlined /></template> {{ $t('label.network.addvm') }}
     </a-button>
     <NicsTable :resource="resource" :loading="loading">
       <template #actions="record">
         <a-popconfirm
-          v-if="!record.nic.isdefault"
+          v-if="!record.nic.isdefault && resource.hypervisor !== 'External'"
           :title="$t('message.set.default.nic')"
           @confirm="setAsDefault(record.nic)"
           :okText="$t('label.yes')"
@@ -43,7 +43,7 @@
             icon="check-square-outlined" />
         </a-popconfirm>
         <tooltip-button
-          v-if="record.nic.type !== 'L2'"
+          v-if="record.nic.type !== 'L2' && resource.hypervisor !== 'External'"
           class="action-button"
           :shape="'round'"
           tooltipPlacement="bottom"
@@ -52,7 +52,7 @@
           :disabled="!('updateVmNicIp' in $store.getters.apis)"
           @onClick="onChangeIPAddress(record)" />
         <tooltip-button
-          v-if="record.nic.type !== 'L2'"
+          v-if="record.nic.type !== 'L2' && resource.hypervisor !== 'External'"
           class="action-button"
           :shape="'round'"
           tooltipPlacement="bottom"
@@ -78,7 +78,7 @@
           @confirm="removeNIC(record.nic)"
           :okText="$t('label.yes')"
           :cancelText="$t('label.no')"
-          v-if="!record.nic.isdefault"
+          v-if="!record.nic.isdefault && resource.hypervisor !== 'External'"
         >
           <tooltip-button
             class="action-button"

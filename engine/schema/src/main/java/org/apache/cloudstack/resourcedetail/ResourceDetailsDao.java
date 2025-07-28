@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.apache.cloudstack.api.ResourceDetail;
 
+import com.cloud.utils.Pair;
 import com.cloud.utils.db.GenericDao;
 
 public interface ResourceDetailsDao<R extends ResourceDetail> extends GenericDao<R, Long> {
@@ -94,7 +95,9 @@ public interface ResourceDetailsDao<R extends ResourceDetail> extends GenericDao
 
     Map<String, Boolean> listDetailsVisibility(long resourceId);
 
-    public void saveDetails(List<R> details);
+    Pair<Map<String, String>, Map<String, String>> listDetailsKeyPairsWithVisibility(long resourceId);
+
+    void saveDetails(List<R> details);
 
     public void addDetail(long resourceId, String key, String value, boolean display);
 

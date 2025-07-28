@@ -88,7 +88,7 @@ export default {
         fields.push('zonename')
         return fields
       },
-      searchFilters: ['name', 'zoneid', 'domainid', 'account', 'groupid', 'arch', 'tags'],
+      searchFilters: ['name', 'zoneid', 'domainid', 'account', 'groupid', 'arch', 'extensionid', 'tags'],
       details: () => {
         var fields = ['name', 'qemuagentversion', 'displayname', 'id', 'state', 'publicip', 'ipaddress', 'ip6address', 'templatename', 'ostypename',
           'serviceofferingname', 'isdynamicallyscalable', 'haenable', 'hypervisor', 'arch', 'boottype', 'bootmode', 'account',
@@ -201,7 +201,7 @@ export default {
           message: 'message.reinstall.vm',
           dataView: true,
           popup: true,
-          show: (record) => { return ['Running', 'Stopped'].includes(record.state) && record.vmtype !== 'sharedfsvm' },
+          show: (record) => { return record.hypervisor !== 'External' && ['Running', 'Stopped'].includes(record.state) && record.vmtype !== 'sharedfsvm' },
           disabled: (record) => { return record.hostcontrolstate === 'Offline' },
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/ReinstallVm.vue')))
         },
@@ -219,7 +219,7 @@ export default {
             return args
           },
           show: (record) => {
-            return (((['Running'].includes(record.state) && record.hypervisor !== 'LXC') ||
+            return record.hypervisor !== 'External' && (((['Running'].includes(record.state) && record.hypervisor !== 'LXC') ||
               (['Stopped'].includes(record.state) && (!['KVM', 'LXC'].includes(record.hypervisor) ||
               (record.hypervisor === 'KVM' && ['PowerFlex', 'Filesystem', 'NetworkFilesystem', 'SharedMountPoint', 'RBD'].includes(record.pooltype))))) && record.vmtype !== 'sharedfsvm')
           },
@@ -238,9 +238,9 @@ export default {
           dataView: true,
           popup: true,
           show: (record, store) => {
-            return (record.hypervisor !== 'KVM') ||
+            return record.hypervisor !== 'External' && ((record.hypervisor !== 'KVM') ||
               ['Stopped', 'Destroyed'].includes(record.state) ||
-              store.features.kvmsnapshotenabled
+              store.features.kvmsnapshotenabled)
           },
           disabled: (record) => { return record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM' },
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/CreateSnapshotWizard.vue')))
@@ -253,7 +253,7 @@ export default {
           docHelp: 'adminguide/virtual_machines.html#backup-offerings',
           dataView: true,
           args: ['virtualmachineid', 'backupofferingid'],
-          show: (record) => { return !record.backupofferingid },
+          show: (record) => { return record.hypervisor !== 'External' && !record.backupofferingid },
           mapping: {
             backupofferingid: {
               api: 'listBackupOfferings',
@@ -319,7 +319,7 @@ export default {
           docHelp: 'adminguide/templates.html#attaching-an-iso-to-a-vm',
           dataView: true,
           popup: true,
-          show: (record) => { return ['Running', 'Stopped'].includes(record.state) && !record.isoid && record.vmtype !== 'sharedfsvm' },
+          show: (record) => { return record.hypervisor !== 'External' && ['Running', 'Stopped'].includes(record.state) && !record.isoid && record.vmtype !== 'sharedfsvm' },
           disabled: (record) => { return record.hostcontrolstate === 'Offline' || record.hostcontrolstate === 'Maintenance' },
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/AttachIso.vue')))
         },
@@ -336,7 +336,7 @@ export default {
             }
             return args
           },
-          show: (record) => { return ['Running', 'Stopped'].includes(record.state) && 'isoid' in record && record.isoid && record.vmtype !== 'sharedfsvm' },
+          show: (record) => { return record.hypervisor !== 'External' && ['Running', 'Stopped'].includes(record.state) && 'isoid' in record && record.isoid && record.vmtype !== 'sharedfsvm' },
           disabled: (record) => { return record.hostcontrolstate === 'Offline' || record.hostcontrolstate === 'Maintenance' },
           mapping: {
             virtualmachineid: {
@@ -351,7 +351,7 @@ export default {
           docHelp: 'adminguide/virtual_machines.html#change-affinity-group-for-an-existing-vm',
           dataView: true,
           args: ['affinitygroupids'],
-          show: (record) => { return ['Stopped'].includes(record.state) && record.vmtype !== 'sharedfsvm' },
+          show: (record) => { return record.hypervisor !== 'External' && ['Stopped'].includes(record.state) && record.vmtype !== 'sharedfsvm' },
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/ChangeAffinity'))),
           popup: true
         },
@@ -361,7 +361,7 @@ export default {
           label: 'label.scale.vm',
           docHelp: 'adminguide/virtual_machines.html#how-to-dynamically-scale-cpu-and-ram',
           dataView: true,
-          show: (record) => { return (['Stopped'].includes(record.state) || (['Running'].includes(record.state) && record.hypervisor !== 'LXC')) && record.vmtype !== 'sharedfsvm' },
+          show: (record) => { return record.hypervisor !== 'External' && (['Stopped'].includes(record.state) || (['Running'].includes(record.state) && record.hypervisor !== 'LXC')) && record.vmtype !== 'sharedfsvm' },
           disabled: (record) => { return record.state === 'Running' && !record.isdynamicallyscalable },
           popup: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/ScaleVM.vue')))
@@ -373,7 +373,7 @@ export default {
           docHelp: 'adminguide/virtual_machines.html#moving-vms-between-hosts-manual-live-migration',
           dataView: true,
           show: (record, store) => {
-            return ['Running'].includes(record.state) && ['Admin'].includes(store.userInfo.roletype) && !record.kvdoinuse
+            return record.hypervisor !== 'External' && ['Running'].includes(record.state) && ['Admin'].includes(store.userInfo.roletype) && !record.kvdoinuse
           },
           disabled: (record) => {
             return record.details && 'extraconfig-1' in record.details
@@ -396,7 +396,7 @@ export default {
           docHelp: 'adminguide/virtual_machines.html#moving-vms-between-hosts-manual-live-migration',
           dataView: true,
           show: (record, store) => {
-            return ['Stopped'].includes(record.state) && ['Admin'].includes(store.userInfo.roletype) && !record.kvdoinuse
+            return record.hypervisor !== 'External' && ['Stopped'].includes(record.state) && ['Admin'].includes(store.userInfo.roletype) && !record.kvdoinuse
           },
           disabled: (record) => {
             return record.hostcontrolstate === 'Offline' || (record.details && 'extraconfig-1' in record.details)
@@ -418,7 +418,7 @@ export default {
           message: 'message.action.instance.reset.password',
           dataView: true,
           args: ['password'],
-          show: (record) => { return ['Stopped'].includes(record.state) && record.passwordenabled },
+          show: (record) => { return record.hypervisor !== 'External' && ['Stopped'].includes(record.state) && record.passwordenabled },
           response: (result) => {
             return {
               message: result.virtualmachine && result.virtualmachine.password ? `The password of VM <b>${result.virtualmachine.displayname}</b> is <b>${result.virtualmachine.password}</b>` : null,
@@ -434,7 +434,7 @@ export default {
           message: 'message.desc.reset.ssh.key.pair',
           docHelp: 'adminguide/virtual_machines.html#resetting-ssh-keys',
           dataView: true,
-          show: (record) => { return ['Stopped'].includes(record.state) && record.vmtype !== 'sharedfsvm' },
+          show: (record) => { return record.hypervisor !== 'External' && ['Stopped'].includes(record.state) && record.vmtype !== 'sharedfsvm' },
           popup: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/ResetSshKeyPair')))
         },
@@ -445,7 +445,7 @@ export default {
           message: 'message.desc.reset.userdata',
           docHelp: 'adminguide/virtual_machines.html#resetting-userdata',
           dataView: true,
-          show: (record) => { return ['Stopped'].includes(record.state) && record.vmtype !== 'sharedfsvm' },
+          show: (record) => { return record.hypervisor !== 'External' && ['Stopped'].includes(record.state) && record.vmtype !== 'sharedfsvm' },
           popup: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/ResetUserData')))
         },
@@ -456,7 +456,7 @@ export default {
           dataView: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/AssignInstance'))),
           popup: true,
-          show: (record) => { return ['Stopped'].includes(record.state) && record.vmtype !== 'sharedfsvm' }
+          show: (record) => { return record.hypervisor !== 'External' && ['Stopped'].includes(record.state) && record.vmtype !== 'sharedfsvm' }
         },
         {
           api: 'recoverVirtualMachine',
@@ -464,7 +464,16 @@ export default {
           label: 'label.recover.vm',
           message: 'message.recover.vm',
           dataView: true,
-          show: (record, store) => { return ['Destroyed'].includes(record.state) && store.features.allowuserexpungerecovervm && record.vmtype !== 'sharedfsvm' }
+          show: (record, store) => { return record.hypervisor !== 'External' && ['Destroyed'].includes(record.state) && store.features.allowuserexpungerecovervm && record.vmtype !== 'sharedfsvm' }
+        },
+        {
+          api: 'runCustomAction',
+          icon: 'play-square-outlined',
+          label: 'label.run.custom.action',
+          dataView: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/extension/RunCustomAction'))),
+          popup: true,
+          show: (record) => { return ['External'].includes(record.hypervisor) }
         },
         {
           api: 'unmanageVirtualMachine',
@@ -472,7 +481,7 @@ export default {
           label: 'label.action.unmanage.virtualmachine',
           message: 'message.action.unmanage.virtualmachine',
           dataView: true,
-          show: (record) => { return ['Running', 'Stopped'].includes(record.state) && ['VMware', 'KVM'].includes(record.hypervisor) && record.vmtype !== 'sharedfsvm' }
+          show: (record) => { return record.hypervisor !== 'External' && ['Running', 'Stopped'].includes(record.state) && ['VMware', 'KVM'].includes(record.hypervisor) && record.vmtype !== 'sharedfsvm' }
         },
         {
           api: 'expungeVirtualMachine',

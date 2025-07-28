@@ -44,7 +44,7 @@ export default {
     fields.push('managementservername')
     return fields
   },
-  details: ['name', 'id', 'resourcestate', 'ipaddress', 'hypervisor', 'arch', 'type', 'clustername', 'podname', 'zonename', 'storageaccessgroups', 'clusterstorageaccessgroups', 'podstorageaccessgroups', 'zonestorageaccessgroups', 'managementservername', 'disconnected', 'created'],
+  details: ['name', 'id', 'resourcestate', 'ipaddress', 'hypervisor', 'externalprovisioner', 'arch', 'type', 'clustername', 'podname', 'zonename', 'storageaccessgroups', 'clusterstorageaccessgroups', 'podstorageaccessgroups', 'zonestorageaccessgroups', 'managementservername', 'disconnected', 'created', 'externaldetails'],
   tabs: [{
     name: 'details',
     component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
@@ -95,6 +95,7 @@ export default {
       label: 'label.action.change.password',
       dataView: true,
       popup: true,
+      show: (record) => { return record.hypervisor !== 'External' },
       component: shallowRef(defineAsyncComponent(() => import('@/views/infra/ChangeHostPassword.vue')))
     },
     {
@@ -177,6 +178,7 @@ export default {
       docHelp: 'adminguide/hosts.html#out-of-band-management',
       dataView: true,
       popup: true,
+      show: (record) => { return record.hypervisor !== 'External' },
       component: shallowRef(defineAsyncComponent(() => import('@/views/infra/ConfigureHostOOBM')))
     },
     {
@@ -187,7 +189,7 @@ export default {
       docHelp: 'adminguide/hosts.html#out-of-band-management',
       dataView: true,
       show: (record) => {
-        return !(record?.outofbandmanagement?.enabled === true)
+        return record.hypervisor !== 'External' && !(record?.outofbandmanagement?.enabled === true)
       },
       args: ['hostid'],
       mapping: {
@@ -204,7 +206,7 @@ export default {
       docHelp: 'adminguide/hosts.html#out-of-band-management',
       dataView: true,
       show: (record) => {
-        return record?.outofbandmanagement?.enabled === true
+        return record.hypervisor !== 'External' && record?.outofbandmanagement?.enabled === true
       },
       args: ['hostid'],
       mapping: {
@@ -221,7 +223,7 @@ export default {
       docHelp: 'adminguide/hosts.html#out-of-band-management',
       dataView: true,
       show: (record) => {
-        return record?.outofbandmanagement?.enabled === true
+        return record.hypervisor !== 'External' && record?.outofbandmanagement?.enabled === true
       },
       args: ['hostid', 'action'],
       mapping: {
@@ -241,7 +243,7 @@ export default {
       docHelp: 'adminguide/hosts.html#out-of-band-management',
       dataView: true,
       show: (record) => {
-        return record?.outofbandmanagement?.enabled === true
+        return record.hypervisor !== 'External' && record?.outofbandmanagement?.enabled === true
       },
       args: ['hostid', 'password'],
       mapping: {
@@ -276,7 +278,7 @@ export default {
       docHelp: 'adminguide/reliability.html#ha-for-hosts',
       dataView: true,
       show: (record) => {
-        return !(record?.hostha?.haenable === true)
+        return record.hypervisor !== 'External' && !(record?.hostha?.haenable === true)
       },
       args: ['hostid'],
       mapping: {

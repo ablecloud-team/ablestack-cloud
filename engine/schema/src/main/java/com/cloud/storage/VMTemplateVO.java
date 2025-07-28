@@ -179,6 +179,9 @@ public class VMTemplateVO implements VirtualMachineTemplate {
     @Convert(converter = CPUArchConverter.class)
     private CPU.CPUArch arch;
 
+    @Column(name = "extension_id")
+    private Long extensionId;
+
     @Override
     public String getUniqueName() {
         return uniqueName;
@@ -221,7 +224,7 @@ public class VMTemplateVO implements VirtualMachineTemplate {
 
     public VMTemplateVO(long id, String name, ImageFormat format, boolean isPublic, boolean featured, boolean isExtractable, TemplateType type, String url, boolean requiresHvm, int bits, long accountId, String cksum, String displayText, boolean enablePassword, long guestOSId, boolean bootable,
                         HypervisorType hyperType, String templateTag, Map<String, String> details, boolean sshKeyEnabled, boolean isDynamicallyScalable, boolean directDownload, boolean kvdoEnable,
-                        boolean deployAsIs, CPU.CPUArch arch) {
+                        boolean deployAsIs, CPU.CPUArch arch, Long extensionId) {
         this(id,
             name,
             format,
@@ -249,6 +252,7 @@ public class VMTemplateVO implements VirtualMachineTemplate {
         this.kvdoEnable = kvdoEnable;
         this.deployAsIs = deployAsIs;
         this.arch = arch;
+        this.extensionId = extensionId;
     }
 
     public static VMTemplateVO createPreHostIso(Long id, String uniqueName, String name, ImageFormat format, boolean isPublic, boolean featured, TemplateType type,
@@ -718,4 +722,11 @@ public class VMTemplateVO implements VirtualMachineTemplate {
         this.arch = arch;
     }
 
+    public Long getExtensionId() {
+        return extensionId;
+    }
+
+    public void setExtensionId(Long extensionId) {
+        this.extensionId = extensionId;
+    }
 }
