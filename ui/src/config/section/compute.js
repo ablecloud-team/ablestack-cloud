@@ -54,7 +54,10 @@ export default {
         const metricsFields = ['cpunumber', 'cputotal', 'cpuused', 'memorytotal',
           {
             memoryused: (record) => {
-              return record.memorykbs && record.memoryintusablekbs ? parseFloat(100.0 * (record.memorykbs - record.memoryintusablekbs) / record.memorykbs).toFixed(2) + '%' : '0.0%'
+              if (!record.memoryintfreekbs || record.memoryintfreekbs <= 0 || record.memorykbs <= 0) {
+                return ''
+              }
+              return parseFloat(100.0 * (record.memorykbs - record.memoryintfreekbs) / record.memorykbs).toFixed(2) + '%'
             }
           },
           'networkread', 'networkwrite', 'diskread', 'diskwrite', 'diskiopstotal']
