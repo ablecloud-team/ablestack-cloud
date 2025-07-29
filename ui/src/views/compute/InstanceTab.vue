@@ -46,6 +46,15 @@
         </a-button>
         <volumes-tab :resource="vm" :loading="loading" />
       </a-tab-pane>
+      <a-tab-pane :tab="$t('label.gpu')" key="gpu" v-if="dataResource.gpucardname">
+        <GPUTab
+          apiName="listGpuDevices"
+          :resource="dataResource"
+          :params="{virtualmachineid: dataResource.id}"
+          resourceType="VirtualMachine"
+          :columns="['gpucardname', 'vgpuprofilename', 'state'].concat($store.getters.userInfo.roletype === 'Admin' ? ['id', 'hostname'] : [])"
+          :routerlinks="(record) => { return { displayname: '/gpudevice/' + record.id } }"/>
+      </a-tab-pane>
       <a-tab-pane :tab="$t('label.nics')" key="nics" v-if="'listNics' in $store.getters.apis">
         <NicsTab :resource="vm"/>
       </a-tab-pane>
@@ -222,6 +231,7 @@ import DRTable from '@/views/compute/dr/DRTable'
 import DRsimulationTestModal from '@/views/compute/dr/DRsimulationTestModal'
 import DRMirroringVMAdd from '@/views/compute/dr/DRMirroringVMAdd'
 import DRMirroringVMRemove from '@/views/compute/dr/DRMirroringVMRemove'
+import GPUTab from '@/components/view/GPUTab.vue'
 
 export default {
   name: 'InstanceTab',
@@ -237,6 +247,7 @@ export default {
     DRsimulationTestModal,
     DRMirroringVMAdd,
     DRMirroringVMRemove,
+    GPUTab,
     InstanceSchedules,
     ListResourceTable,
     SecurityGroupSelection,

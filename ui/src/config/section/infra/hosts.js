@@ -33,9 +33,9 @@ export default {
   params: { type: 'routing' },
   columns: () => {
     const fields = [
-      'name', 'state', 'resourcestate', 'ipaddress', 'arch', 'hypervisor', 
+      'name', 'state', 'resourcestate', 'ipaddress', 'arch', 'hypervisor',
       { field: 'systeminstances', customTitle: 'system.vms' }, 'instances', 'powerstate', 'version', 'haenable', 'hastate']
-    const metricsFields = ['instances', 'powerstate', 'cpunumber', 'cputotalghz', 'cpuusedghz', 'cpuallocatedghz', 'memorytotalgb', 'memoryusedgb', 'memoryallocatedgb', 'networkread', 'networkwrite']
+    const metricsFields = ['instances', 'powerstate', 'cpunumber', 'cputotalghz', 'cpuusedghz', 'cpuallocatedghz', 'memorytotalgb', 'memoryusedgb', 'memoryallocatedgb', 'gputotal', 'gpuused', 'networkread', 'networkwrite']
     if (store.getters.metrics) {
       fields.push(...metricsFields)
     }
@@ -57,6 +57,10 @@ export default {
   }, {
     name: 'listhostdevices',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/ListHostDevicesTab.vue')))
+  }, {
+    name: 'gpu',
+    resourceType: 'Host',
+    component: shallowRef(defineAsyncComponent(() => import('@/components/view/GPUTab.vue')))
   }, {
     name: 'events',
     resourceType: 'Host',

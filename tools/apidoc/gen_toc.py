@@ -310,6 +310,8 @@ known_categories = {
     'createGuiTheme': 'GUI Theme',
     'updateGuiTheme': 'GUI Theme',
     'removeGuiTheme': 'GUI Theme',
+    'Gpu': 'GPU',
+    'Vgpu': 'GPU',
     'Extension' : 'Extension',
     'Extensions' : 'Extension',
     'CustomAction' : 'Extension',

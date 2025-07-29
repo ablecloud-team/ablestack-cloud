@@ -94,7 +94,10 @@ export default {
           case 'readwrite':
             state = this.$t('state.readwrite')
             break
-          case 'inprogress':
+          case 'partiallyallocated':
+            state = this.$t('state.partiallyallocated')
+            break
+          case 'InProgress':
             state = this.$t('state.inprogress')
             break
           case 'down':
@@ -193,6 +196,7 @@ export default {
         case 'poweron':
         case 'syncing':
         case 'primary':
+        case 'managed':
         case 'yes':
           status = 'success'
           break
@@ -208,6 +212,7 @@ export default {
         case 'poweroff':
         case 'stopped':
         case 'failed':
+        case 'unmanaged':
         case 'no':
           status = 'error'
           break
@@ -239,6 +244,7 @@ export default {
         case 'backup':
         case 'free':
         case 'scheduled':
+        case 'partiallyallocated':
           status = 'warning'
           break
       }
