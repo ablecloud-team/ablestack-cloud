@@ -51,6 +51,7 @@ import javax.inject.Inject;
 import javax.naming.ConfigurationException;
 
 import com.cloud.hypervisor.HypervisorGuru;
+import com.cloud.network.as.AutoScaleManager;
 import com.cloud.user.AccountManagerImpl;
 import com.cloud.utils.crypt.DBEncryptionUtil;
 import com.cloud.host.HostTagVO;
@@ -619,6 +620,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         configValuesForValidation.add(VMLeaseManager.InstanceLeaseSchedulerInterval.key());
         configValuesForValidation.add(VMLeaseManager.InstanceLeaseExpiryEventSchedulerInterval.key());
         configValuesForValidation.add(VMLeaseManager.InstanceLeaseExpiryEventDaysBefore.key());
+        configValuesForValidation.add(AutoScaleManager.AutoScaleErroredInstanceThreshold.key());
     }
 
     protected void weightBasedParametersForValidation() {
