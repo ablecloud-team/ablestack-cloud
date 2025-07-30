@@ -1098,6 +1098,7 @@ export default {
           providerParams.transportzone = this.prefillContent?.transportZone || ''
 
           await this.addNsxController(providerParams)
+          await this.updateNsxServiceProviderStatus()
           this.stepData.stepMove.push('addNsxController')
         }
         this.stepData.stepMove.push('nsx')
