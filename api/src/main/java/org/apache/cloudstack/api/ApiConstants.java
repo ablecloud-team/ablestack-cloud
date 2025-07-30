@@ -1420,6 +1420,9 @@ public class ApiConstants {
     public static final String EXPIRY_DATE = "expirydate";
     public static final String LICENSE_CHECK = "licensecheck";
     public static final String HAS_LICENSE = "haslicense";
+    public static final String PARAMETER_DESCRIPTION_MAX_BACKUPS = "The maximum number of backups to keep for a VM. " +
+            "If \"0\", no retention policy will be applied and, thus, no backups from the schedule will be automatically deleted. " +
+            "This parameter is only supported for the Dummy, NAS and EMC Networker backup provider.";
 
     public static final String VMWARE_DC = "vmwaredc";
 
