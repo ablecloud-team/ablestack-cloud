@@ -22,10 +22,12 @@ import com.google.gson.Gson;
 import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.beans.Transient;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -88,11 +90,11 @@ public class BackupVO implements Backup {
     @Column(name = "zone_id")
     private long zoneId;
 
-    @Column(name = "backup_interval_type")
-    private short backupIntervalType;
-
     @Column(name = "backed_volumes", length = 65535)
     protected String backedUpVolumes;
+
+    @Column(name = "backup_schedule_id")
+    private Long backupScheduleId;
 
     @Column(name = "snapshot_id")
     private String snapshotId;
@@ -214,14 +216,6 @@ public class BackupVO implements Backup {
         this.zoneId = zoneId;
     }
 
-    public short getBackupIntervalType() {
-        return backupIntervalType;
-    }
-
-    public void setBackupIntervalType(short backupIntervalType) {
-        this.backupIntervalType = backupIntervalType;
-    }
-
     @Override
     public Class<?> getEntityType() {
         return Backup.class;
@@ -252,6 +246,14 @@ public class BackupVO implements Backup {
     }
 
     @Override
+    public Long getBackupScheduleId() {
+        return backupScheduleId;
+    }
+
+    public void setBackupScheduleId(Long backupScheduleId) {
+        this.backupScheduleId = backupScheduleId;
+    }
+
     public String getSnapshotId() {
         return snapshotId;
     }
