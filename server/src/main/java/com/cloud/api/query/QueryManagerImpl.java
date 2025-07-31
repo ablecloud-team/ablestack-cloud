@@ -244,6 +244,7 @@ import com.cloud.dc.dao.HostPodDao;
 import com.cloud.domain.Domain;
 import com.cloud.domain.DomainVO;
 import com.cloud.domain.dao.DomainDao;
+import com.cloud.event.Event;
 import com.cloud.event.EventVO;
 import com.cloud.event.dao.EventDao;
 import com.cloud.event.dao.EventJoinDao;
@@ -923,6 +924,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         Long startId = cmd.getStartId();
         final String resourceUuid = cmd.getResourceId();
         final String resourceTypeStr = cmd.getResourceType();
+        final String stateStr = cmd.getState();
         ApiCommandResourceType resourceType = null;
         Long resourceId = null;
         if (resourceTypeStr != null) {
@@ -952,6 +954,13 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
                 accountMgr.checkAccess(CallContext.current().getCallingAccount(), SecurityChecker.AccessType.ListEntry, entity.getAccountId() == caller.getId(), entity);
             }
         }
+        Event.State state = null;
+        if (StringUtils.isNotBlank(stateStr)) {
+            state = EnumUtils.getEnum(Event.State.class, stateStr);
+            if (state == null) {
+                throw new InvalidParameterValueException(String.format("Invalid %s specified: %s", ApiConstants.STATE, stateStr));
+            }
+        }
 
         Ternary<Long, Boolean, ListProjectResourcesCriteria> domainIdRecursiveListProject = new Ternary<Long, Boolean, ListProjectResourcesCriteria>(cmd.getDomainId(), cmd.isRecursive(), null);
         accountMgr.buildACLSearchParameters(caller, id, cmd.getAccountName(), cmd.getProjectId(), permittedAccounts, domainIdRecursiveListProject, cmd.listAll(), false);
@@ -975,7 +984,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         eventSearchBuilder.and("createDateB", eventSearchBuilder.entity().getCreateDate(), SearchCriteria.Op.BETWEEN);
         eventSearchBuilder.and("createDateG", eventSearchBuilder.entity().getCreateDate(), SearchCriteria.Op.GTEQ);
         eventSearchBuilder.and("createDateL", eventSearchBuilder.entity().getCreateDate(), SearchCriteria.Op.LTEQ);
-        eventSearchBuilder.and("state", eventSearchBuilder.entity().getState(), SearchCriteria.Op.NEQ);
+        eventSearchBuilder.and("state", eventSearchBuilder.entity().getState(), SearchCriteria.Op.EQ);
         eventSearchBuilder.or("startId", eventSearchBuilder.entity().getStartId(), SearchCriteria.Op.EQ);
         eventSearchBuilder.and("createDate", eventSearchBuilder.entity().getCreateDate(), SearchCriteria.Op.BETWEEN);
         eventSearchBuilder.and("displayEvent", eventSearchBuilder.entity().isDisplay(), SearchCriteria.Op.EQ);
@@ -1044,7 +1053,11 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             sc.setParameters("archived", cmd.getArchived());
         }
 
-        Pair<List<Long>, Integer> eventPair = null;
+        if (state != null) {
+            sc.setParameters("state", state);
+        }
+
+        Pair<List<Long>, Integer> eventPair;
         // event_view will not have duplicate rows for each event, so
         // searchAndCount should be good enough.
         if ((entryTime != null) && (duration != null)) {
