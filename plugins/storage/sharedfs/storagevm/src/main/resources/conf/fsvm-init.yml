@@ -29,23 +29,9 @@ write_files:
         echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> $LOG_FILE
       }
       get_block_device() {
-        if [ "$HYPERVISOR" == "kvm" ]; then
-          BLOCK_DEVICE="sdb"
-          if [ -n "$(blkid /dev/$BLOCK_DEVICE)" -a -z "$(blkid -s TYPE /dev/$BLOCK_DEVICE)" ]; then
-            BLOCK_DEVICE="sda"
-          fi
-        elif [ "$HYPERVISOR" == "xenserver" ]; then
-          BLOCK_DEVICE="xvdb"
-          if [ -n "$(blkid /dev/$BLOCK_DEVICE)" -a -z "$(blkid -s TYPE /dev/$BLOCK_DEVICE)" ]; then
-            BLOCK_DEVICE="xvda"
-          fi
-        elif [ "$HYPERVISOR" == "vmware" ]; then
-          BLOCK_DEVICE="sdb"
-          if [ -n "$(blkid /dev/$BLOCK_DEVICE)" -a -z "$(blkid -s TYPE /dev/$BLOCK_DEVICE)" ]; then
-            BLOCK_DEVICE="sda"
-          fi
-        else
-          log "Unknown hypervisor"
+        BLOCK_DEVICE=$(lsblk -dn -o NAME,TYPE | awk '$2=="disk"{print $1}' | tail -n 1)
+        if [ -z "$BLOCK_DEVICE" ]; then
+          log "Unknown data disk"
           exit 1
         fi
         echo "$BLOCK_DEVICE"
