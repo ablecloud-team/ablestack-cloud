@@ -317,12 +317,15 @@ export default {
         if (item === 'isencrypted' && !('listVolumes' in this.$store.getters.apis)) {
           return true
         }
+        if (item === 'backupofferingid' && !('listBackupOfferings' in this.$store.getters.apis)) {
+          return true
+        }
         if (['zoneid', 'domainid', 'imagestoreid', 'storageid', 'state', 'account', 'hypervisor', 'level',
           'clusterid', 'podid', 'groupid', 'entitytype', 'accounttype', 'systemvmtype', 'scope', 'provider',
           'type', 'scope', 'managementserverid', 'serviceofferingid',
           'diskofferingid', 'networkid', 'usagetype', 'restartrequired', 'gpuenabled',
           'displaynetwork', 'guestiptype', 'usersource', 'arch', 'oscategoryid', 'templatetype', 'gpucardid', 'vgpuprofileid',
-          'extensionid'].includes(item)
+          'extensionid', 'backupoffering'].includes(item)
         ) {
           type = 'list'
         } else if (item === 'tags') {
@@ -508,6 +511,7 @@ export default {
       let networkIndex = -1
       let usageTypeIndex = -1
       let volumeIndex = -1
+      let backupOfferingIndex = -1
       let osCategoryIndex = -1
       let gpuCardIndex = -1
       let vgpuProfileIndex = -1
@@ -625,6 +629,12 @@ export default {
         osCategoryIndex = this.fields.findIndex(item => item.name === 'oscategoryid')
         this.fields[osCategoryIndex].loading = true
         promises.push(await this.fetchOsCategories(searchKeyword))
+      }
+
+      if (arrayField.includes('backupofferingid')) {
+        backupOfferingIndex = this.fields.findIndex(item => item.name === 'backupofferingid')
+        this.fields[backupOfferingIndex].loading = true
+        promises.push(await this.fetchBackupOfferings(searchKeyword))
       }
 
       if (arrayField.includes('gpucardid')) {
@@ -749,6 +759,13 @@ export default {
           }
         }
 
+        if (backupOfferingIndex > -1) {
+          const backupOfferings = response.filter(item => item.type === 'backupofferingid')
+          if (backupOfferings?.length > 0) {
+            this.fields[backupOfferingIndex].opts = this.sortArray(backupOfferings[0].data)
+          }
+        }
+
         if (gpuCardIndex > -1) {
           const gpuCards = response.filter(item => item.type === 'gpucardid')
           if (gpuCards && gpuCards.length > 0) {
@@ -813,6 +830,9 @@ export default {
         }
         if (osCategoryIndex > -1) {
           this.fields[osCategoryIndex].loading = false
+        }
+        if (backupOfferingIndex > -1) {
+          this.fields[backupOfferingIndex].loading = false
         }
         if (gpuCardIndex > -1) {
           this.fields[gpuCardIndex].loading = false
@@ -1451,6 +1471,19 @@ export default {
           .catch(error => {
             reject(error.response.headers['x-description'])
           })
+      })
+    },
+    fetchBackupOfferings (searchKeyword) {
+      return new Promise((resolve, reject) => {
+        getAPI('listBackupOfferings').then(json => {
+          const backupOfferings = json.listbackupofferingsresponse.backupoffering
+          resolve({
+            type: 'backupofferingid',
+            data: backupOfferings
+          })
+        }).catch(error => {
+          reject(error.response.headers['x-description'])
+        })
       })
     },
     fetchAvailableUserSourceTypes () {

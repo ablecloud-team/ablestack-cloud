@@ -926,6 +926,10 @@ export default {
       if (this.$route.path === '/vm' || this.$route.path.includes('/vm/')) {
         this.fetchData()
       }
+      if (this.$route.path === '/backup') {
+        this.$router.push('/vm')
+        this.fetchData()
+      }
     })
     eventBus.on('desktop-refresh-data', () => {
       if (this.$route.path === '/desktopcluster' || this.$route.path.includes('/desktopcluster/')) {
