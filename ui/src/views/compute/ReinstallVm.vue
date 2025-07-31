@@ -369,6 +369,7 @@ export default {
       }
       args.zoneid = this.resource.zoneid
       args.templatefilter = templateFilter
+      args.isready = true
       if (this.resource.arch) {
         args.arch = this.resource.arch
       }
