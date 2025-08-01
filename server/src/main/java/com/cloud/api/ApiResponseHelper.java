@@ -77,7 +77,6 @@ import org.apache.cloudstack.api.response.AutoScaleVmGroupResponse;
 import org.apache.cloudstack.api.response.AutoScaleVmProfileResponse;
 import org.apache.cloudstack.api.response.BackupOfferingResponse;
 import org.apache.cloudstack.api.response.BackupRepositoryResponse;
-import org.apache.cloudstack.api.response.BackupResponse;
 import org.apache.cloudstack.api.response.BackupScheduleResponse;
 import org.apache.cloudstack.api.response.BgpPeerResponse;
 import org.apache.cloudstack.api.response.BucketResponse;
@@ -198,7 +197,6 @@ import org.apache.cloudstack.api.response.VpcOfferingResponse;
 import org.apache.cloudstack.api.response.VpcResponse;
 import org.apache.cloudstack.api.response.VpnUsersResponse;
 import org.apache.cloudstack.api.response.ZoneResponse;
-import org.apache.cloudstack.backup.Backup;
 import org.apache.cloudstack.backup.BackupOffering;
 import org.apache.cloudstack.backup.BackupRepository;
 import org.apache.cloudstack.backup.BackupSchedule;
@@ -300,7 +298,6 @@ import com.cloud.domain.DomainVO;
 import com.cloud.event.Event;
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.exception.PermissionDeniedException;
-import com.cloud.gpu.GPU;
 import com.cloud.host.ControlState;
 import com.cloud.host.Host;
 import com.cloud.host.HostVO;
@@ -1484,6 +1481,7 @@ public class ApiResponseHelper implements ResponseGenerator {
         capacities.add(ApiDBUtils.getStoragePoolUsedStats(poolId, clusterId, podId, zoneId));
         if (clusterId == null && podId == null) {
             capacities.add(ApiDBUtils.getSecondaryStorageUsedStats(poolId, zoneId));
+            capacities.add(ApiDBUtils.getObjectStorageUsedStats(zoneId));
         }
 
         List<CapacityResponse> capacityResponses = new ArrayList<CapacityResponse>();
@@ -2141,6 +2139,11 @@ public class ApiResponseHelper implements ResponseGenerator {
         List<CapacityResponse> capacityResponses = new ArrayList<CapacityResponse>();
 
         for (Capacity summedCapacity : result) {
+            if (summedCapacity.getTotalCapacity() == 0 &&
+                    (summedCapacity.getCapacityType() == Capacity.CAPACITY_TYPE_BACKUP_STORAGE ||
+                     summedCapacity.getCapacityType() == Capacity.CAPACITY_TYPE_OBJECT_STORAGE)) {
+                continue;
+            }
             CapacityResponse capacityResponse = new CapacityResponse();
             capacityResponse.setCapacityTotal(summedCapacity.getTotalCapacity());
             if (summedCapacity.getAllocatedCapacity() != null) {
@@ -2195,15 +2198,13 @@ public class ApiResponseHelper implements ResponseGenerator {
                         result.get(0).getPodId(), result.get(0).getClusterId())) != null) {
             HashMap<String, Long> vgpuVMs = ApiDBUtils.getVgpuVmsCount(result.get(0).getDataCenterId(), result.get(0).getPodId(), result.get(0).getClusterId());
 
-            float capacityUsed = 0;
+            long capacityUsed = 0;
             long capacityMax = 0;
             for (VgpuTypesInfo capacity : gpuCapacities) {
                 if (vgpuVMs.containsKey(capacity.getGroupName().concat(capacity.getModelName()))) {
-                    capacityUsed += (float)vgpuVMs.get(capacity.getGroupName().concat(capacity.getModelName())) / capacity.getMaxVpuPerGpu();
+                    capacityUsed += vgpuVMs.get(capacity.getGroupName().concat(capacity.getModelName()));
                 }
-                if (capacity.getModelName().equals(GPU.GPUType.passthrough.toString())) {
-                    capacityMax += capacity.getMaxCapacity();
-                }
+                capacityMax += capacity.getMaxCapacity();
             }
 
             DataCenter zone = ApiDBUtils.findZoneById(result.get(0).getDataCenterId());
@@ -2224,10 +2225,11 @@ public class ApiResponseHelper implements ResponseGenerator {
             }
             capacityResponse.setCapacityType(Capacity.CAPACITY_TYPE_GPU);
             capacityResponse.setCapacityName(CapacityVO.getCapacityName(Capacity.CAPACITY_TYPE_GPU));
-            capacityResponse.setCapacityUsed((long)Math.ceil(capacityUsed));
+            capacityResponse.setCapacityUsed(capacityUsed);
+            capacityResponse.setCapacityAllocated(capacityUsed);
             capacityResponse.setCapacityTotal(capacityMax);
             if (capacityMax > 0) {
-                capacityResponse.setPercentUsed(format.format(capacityUsed / capacityMax * 100f));
+                capacityResponse.setPercentUsed(format.format((float)capacityUsed / capacityMax * 100f));
             } else {
                 capacityResponse.setPercentUsed(format.format(0));
             }
@@ -2541,10 +2543,11 @@ public class ApiResponseHelper implements ResponseGenerator {
             response.setType(network.getGuestType().toString());
         }
 
-        response.setGateway(network.getGateway());
+        response.setGateway(com.cloud.utils.StringUtils.getFirstValueFromCommaSeparatedString(network.getGateway()));
+        String cidr = com.cloud.utils.StringUtils.getFirstValueFromCommaSeparatedString(network.getCidr());
 
         // FIXME - either set netmask or cidr
-        response.setCidr(network.getCidr());
+        response.setCidr(cidr);
         if (network.getNetworkCidr() != null) {
             response.setNetworkCidr((network.getNetworkCidr()));
         }
@@ -2555,18 +2558,18 @@ public class ApiResponseHelper implements ResponseGenerator {
         if (network.getNetworkCidr() != null) {
             response.setNetmask(NetUtils.cidr2Netmask(network.getNetworkCidr()));
         }
-        if (((network.getCidr()) != null) && (network.getNetworkCidr() == null)) {
-            response.setNetmask(NetUtils.cidr2Netmask(network.getCidr()));
+        if ((cidr != null) && (network.getNetworkCidr() == null)) {
+            response.setNetmask(NetUtils.cidr2Netmask(cidr));
         }
 
-        response.setIp6Gateway(network.getIp6Gateway());
-        response.setIp6Cidr(network.getIp6Cidr());
+        response.setIp6Gateway(com.cloud.utils.StringUtils.getFirstValueFromCommaSeparatedString(network.getIp6Gateway()));
+        response.setIp6Cidr(com.cloud.utils.StringUtils.getFirstValueFromCommaSeparatedString(network.getIp6Cidr()));
 
         // create response for reserved IP ranges that can be used for
         // non-cloudstack purposes
         String reservation = null;
-        if ((network.getCidr() != null) && (NetUtils.isNetworkAWithinNetworkB(network.getCidr(), network.getNetworkCidr()))) {
-            String[] guestVmCidrPair = network.getCidr().split("\\/");
+        if ((cidr != null) && (NetUtils.isNetworkAWithinNetworkB(cidr, network.getNetworkCidr()))) {
+            String[] guestVmCidrPair = cidr.split("\\/");
             String[] guestCidrPair = network.getNetworkCidr().split("\\/");
 
             Long guestVmCidrSize = Long.valueOf(guestVmCidrPair[1]);
@@ -5057,11 +5060,6 @@ public class ApiResponseHelper implements ResponseGenerator {
         response.setHasAnnotation(annotationDao.hasAnnotations(userData.getUuid(), AnnotationService.EntityType.USER_DATA.name(),
                 _accountMgr.isRootAdmin(CallContext.current().getCallingAccount().getId())));
         return response;
-    }
-
-    @Override
-    public BackupResponse createBackupResponse(Backup backup) {
-        return ApiDBUtils.newBackupResponse(backup);
     }
 
     @Override
