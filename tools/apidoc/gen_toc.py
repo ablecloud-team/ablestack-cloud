@@ -265,6 +265,8 @@ known_categories = {
     'SecurityCheck': 'Security',
     'IntegrityVerification': 'Security',
     'Shutdown': 'Shutdown',
+    'createConsoleEndpoint': 'Console Session',
+    'listConsoleSessions': 'Console Session',
     'importVm': 'Virtual Machine',
     'revertToVMSnapshot': 'Virtual Machine',
     'listQuarantinedIp': 'IP Quarantine',
