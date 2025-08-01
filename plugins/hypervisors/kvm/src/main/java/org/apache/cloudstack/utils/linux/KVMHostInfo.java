@@ -63,6 +63,7 @@ public class KVMHostInfo {
     private static String cpuInfoFreqFileName = "/sys/devices/system/cpu/cpu0/cpufreq/base_frequency";
     private static String cpuInfoFreqFileNameforAMD = "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq";
     private static String cpuArchCommand = "/usr/bin/arch";
+    private static String cpuArchRetrieveExecutable = "arch";
     private static List<String> cpuInfoFreqFileNames = List.of("/sys/devices/system/cpu/cpu0/cpufreq/base_frequency","/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq");
 
     public KVMHostInfo(long reservedMemory, long overCommitMemory, long manualSpeed, int reservedCpus) {
@@ -266,6 +267,6 @@ public class KVMHostInfo {
 
     private String getCPUArchFromCommand() {
         LOGGER.info("Fetching host CPU arch");
-        return Script.runSimpleBashScript(cpuArchCommand);
+        return Script.runSimpleBashScript(Script.getExecutableAbsolutePath(cpuArchRetrieveExecutable));
     }
 }
