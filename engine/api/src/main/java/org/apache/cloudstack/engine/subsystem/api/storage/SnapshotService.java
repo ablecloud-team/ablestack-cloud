@@ -49,4 +49,5 @@ public interface SnapshotService {
 
     boolean flattenVolumeAsync(SnapshotInfo snapshot, DataStore store);
 
+    AsyncCallFuture<SnapshotResult> copySnapshot(SnapshotInfo sourceSnapshot, SnapshotInfo destSnapshot, SnapshotStrategy strategy);
 }

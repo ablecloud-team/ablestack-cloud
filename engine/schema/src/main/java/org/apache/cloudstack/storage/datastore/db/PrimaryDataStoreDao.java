@@ -170,4 +170,7 @@ public interface PrimaryDataStoreDao extends GenericDao<StoragePoolVO, Long> {
     List<StoragePoolVO> listByIds(List<Long> ids);
 
     List<StoragePoolVO> findStoragePoolsByEmptyStorageAccessGroups(Long dcId, Long podId, Long clusterId, ScopeType scope, HypervisorType hypervisorType);
+
+    List<StoragePoolVO> findPoolsByStorageTypeAndZone(Storage.StoragePoolType storageType, Long zoneId);
+
 }

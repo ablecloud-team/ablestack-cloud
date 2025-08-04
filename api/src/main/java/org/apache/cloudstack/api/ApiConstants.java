@@ -424,6 +424,7 @@ public class ApiConstants {
     public static final String OS_TYPE_ID = "ostypeid";
     public static final String OS_DISPLAY_NAME = "osdisplayname";
     public static final String OS_NAME_FOR_HYPERVISOR = "osnameforhypervisor";
+    public static final String OWNER = "owner";
     public static final String GPU_CARD_ID = "gpucardid";
     public static final String GPU_CARD_NAME = "gpucardname";
     public static final String GPU_COUNT = "gpucount";
@@ -546,7 +547,6 @@ public class ApiConstants {
     public static final String SNAPSHOT_POLICY_ID = "snapshotpolicyid";
     public static final String SNAPSHOT_TYPE = "snapshottype";
     public static final String SNAPSHOT_QUIESCEVM = "quiescevm";
-    public static final String SUPPORTS_STORAGE_SNAPSHOT = "supportsstoragesnapshot";
     public static final String SOURCE_CIDR_LIST = "sourcecidrlist";
     public static final String SOURCE_ZONE_ID = "sourcezoneid";
     public static final String SSL_VERIFICATION = "sslverification";
@@ -565,7 +565,7 @@ public class ApiConstants {
     public static final String STORAGE_CAPABILITIES = "storagecapabilities";
     public static final String STORAGE_CUSTOM_STATS = "storagecustomstats";
     public static final String SUBNET = "subnet";
-    public static final String OWNER = "owner";
+    public static final String SUPPORTS_STORAGE_SNAPSHOT = "supportsstoragesnapshot";
     public static final String SWAP_OWNER = "swapowner";
     public static final String SYSTEM_VM_TYPE = "systemvmtype";
     public static final String TAGS = "tags";
@@ -600,6 +600,7 @@ public class ApiConstants {
     public static final String USED_SUBNETS = "usedsubnets";
     public static final String USED_IOPS = "usediops";
     public static final String USER_DATA = "userdata";
+    public static final String USE_STORAGE_REPLICATION = "usestoragereplication";
 
     public static final String USER_DATA_NAME = "userdataname";
     public static final String USER_DATA_ID = "userdataid";
@@ -1166,6 +1167,7 @@ public class ApiConstants {
 
     public static final String ZONE_ID_LIST = "zoneids";
     public static final String DESTINATION_ZONE_ID_LIST = "destzoneids";
+    public static final String STORAGE_ID_LIST = "storageids";
     public static final String ADMIN = "admin";
     public static final String CHECKSUM_PARAMETER_PREFIX_DESCRIPTION = "The parameter containing the checksum will be considered a MD5sum if it is not prefixed\n"
             + " and just a plain ascii/utf8 representation of a hexadecimal string. If it is required to\n"
