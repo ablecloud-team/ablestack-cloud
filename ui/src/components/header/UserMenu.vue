@@ -222,7 +222,7 @@ export default {
           wallPortalDomain = this.$store.getters.features.host
         }
         const uri = wallPortalProtocol + '://' + wallPortalDomain + ':' + wallPortalPort
-        this.uriInfo = uri + '/logout'
+        this.uriInfo = uri
         window.open(this.uriInfo, '_blank')
       })
     },
