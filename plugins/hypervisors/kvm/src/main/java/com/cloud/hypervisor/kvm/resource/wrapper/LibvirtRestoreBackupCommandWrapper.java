@@ -78,7 +78,7 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
     }
 
     private void restoreVolumesOfExistingVM(List<String> volumePaths, String backupPath,
-                                             String backupRepoType, String backupRepoAddress, String mountOptions) {
+                                            String backupRepoType, String backupRepoAddress, String mountOptions) {
         String diskType = "root";
         String mountDirectory = mountBackupDirectory(backupRepoAddress, backupRepoType, mountOptions);
         try {
@@ -151,16 +151,6 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
         try {
             mountDirectory = Files.createTempDirectory(mountDirectory).toString();
             String mount = String.format(MOUNT_COMMAND, backupRepoType, backupRepoAddress, mountDirectory);
-            if ("cifs".equals(backupRepoType)) {
-                if (Objects.isNull(mountOptions) || mountOptions.trim().isEmpty()) {
-                    mountOptions = "nobrl";
-                } else {
-                    mountOptions += ",nobrl";
-                }
-            }
-            if (Objects.nonNull(mountOptions) && !mountOptions.trim().isEmpty()) {
-                mount += " -o " + mountOptions;
-            }
             Script.runSimpleBashScript(mount);
         } catch (Exception e) {
             throw new CloudRuntimeException(String.format("Failed to mount %s to %s", backupRepoType, backupRepoAddress), e);
