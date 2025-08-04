@@ -49,43 +49,54 @@ public class KVMHAChecker extends KVMHABase implements Callable<Boolean> {
     @Override
     public Boolean checkingHeartBeat() {
         boolean validResult = false;
-        String hostAndPools = String.format("host IP [%s] in pools [%s]", host.getPrivateNetwork().getIp(), storagePools.stream().map(pool -> pool.getPoolUUID()).collect(Collectors.joining(", ")));
 
+        // NFS
         for (HAStoragePool pool : storagePools) {
-            logger.debug(String.format("Checking heart beat with KVMHAChecker NFS for %s", hostAndPools));
+            logger.debug(String.format(
+                "Checking heart beat with KVMHAChecker NFS for host IP [%s] in pool [%s]",
+                host.getPrivateNetwork().getIp(),
+                pool.getPoolUUID()
+            ));
             validResult = pool.getPool().checkingHeartBeat(pool, host);
-            if (reportFailureIfOneStorageIsDown && !validResult) {
-                break;
-            }
+            if (reportFailureIfOneStorageIsDown && !validResult) break;
         }
 
-        hostAndPools = String.format("host IP [%s] in SharedMountPoint pools [%s]", host.getPrivateNetwork().getIp(), gfsStoragePools.stream().map(pool -> pool.getPoolUUID()).collect(Collectors.joining(", ")));
+        // SharedMountPoint(GFS)
         for (HAStoragePool gfspool : gfsStoragePools) {
-            logger.debug(String.format("Checking heart beat with KVMHAChecker SharedMountPoint for %s", hostAndPools));
+            logger.debug(String.format(
+                "Checking heart beat with KVMHAChecker SharedMountPoint for host IP [%s] in pool [%s]",
+                host.getPrivateNetwork().getIp(),
+                gfspool.getPoolUUID()
+            ));
             validResult = gfspool.getPool().checkingHeartBeat(gfspool, host);
-            if (reportFailureIfOneStorageIsDown && !validResult) {
-                break;
-            }
+            if (reportFailureIfOneStorageIsDown && !validResult) break;
         }
 
-        hostAndPools = String.format("host IP [%s] in RBD pools [%s]", host.getPrivateNetwork().getIp(), rbdStoragePools.stream().map(pool -> pool.monHost).collect(Collectors.joining(", ")));
+        // RBD
         for (HAStoragePool rbdpool : rbdStoragePools) {
-            logger.debug(String.format("Checking heart beat with KVMHAChecker RBD for %s", hostAndPools));
+            logger.debug(String.format(
+                "Checking heart beat with KVMHAChecker RBD for host IP [%s] in pool [%s]",
+                host.getPrivateNetwork().getIp(),
+                rbdpool.monHost
+            ));
             validResult = rbdpool.getPool().checkingHeartBeatRBD(rbdpool, host, volumeList);
-            if (reportFailureIfOneStorageIsDown && !validResult) {
-                break;
-            }
+            if (reportFailureIfOneStorageIsDown && !validResult) break;
         }
-        hostAndPools = String.format("host IP [%s] in CLVM pools [%s]", host.getPrivateNetwork().getIp(), clvmStoragePools.stream().map(pool -> pool.poolIp).collect(Collectors.joining(", ")));
+
+        // CLVM
         for (HAStoragePool clvmpool : clvmStoragePools) {
-            logger.debug(String.format("Checking heart beat with KVMHAChecker CLVM for %s", hostAndPools));
+            logger.debug(String.format(
+                "Checking heart beat with KVMHAChecker CLVM for host IP [%s] in pool [%s]",
+                host.getPrivateNetwork().getIp(),
+                clvmpool.poolIp
+            ));
             validResult = clvmpool.getPool().checkingHeartBeat(clvmpool, host);
-            if (reportFailureIfOneStorageIsDown && !validResult) {
-                break;
-            }
+            if (reportFailureIfOneStorageIsDown && !validResult) break;
         }
+
         if (!validResult) {
-            logger.warn(String.format("All checks with KVMHAChecker for %s considered it as dead. It may cause a shutdown of the host.", hostAndPools));
+            // 마지막 검사한 pool의 정보만 남음(가장 마지막 실패 기준)
+            logger.warn("All checks with KVMHAChecker considered it as dead. It may cause a shutdown of the host.");
         }
         return validResult;
     }
