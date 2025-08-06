@@ -17,6 +17,7 @@
 
 <template>
   <a-spin :spinning="fetchLoading">
+    <a-divider style="margin-top: 0px; margin-bottom: 0px;"/>
     <a-list size="small">
       <a-list-item v-if="host.hypervisorversion || (host.details && host.details['Host.OS'])">
         <div>

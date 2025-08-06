@@ -40,6 +40,7 @@ import org.apache.cloudstack.managed.context.ManagedContextRunnable;
 import org.apache.cloudstack.outofbandmanagement.dao.OutOfBandManagementDao;
 import org.apache.cloudstack.outofbandmanagement.driver.OutOfBandManagementDriverChangePasswordCommand;
 import org.apache.cloudstack.outofbandmanagement.driver.OutOfBandManagementDriverPowerCommand;
+import org.apache.cloudstack.outofbandmanagement.driver.OutOfBandManagementDriverRedfishDataCommand;
 import org.apache.cloudstack.outofbandmanagement.driver.OutOfBandManagementDriverResponse;
 import org.apache.cloudstack.poll.BackgroundPollManager;
 import org.apache.cloudstack.poll.BackgroundPollTask;
@@ -537,6 +538,33 @@ public class OutOfBandManagementServiceImpl extends ManagerBase implements OutOf
         final OutOfBandManagementResponse response = new OutOfBandManagementResponse();
         response.setSuccess(changePasswordResult );
         response.setId(host.getUuid());
+        return response;
+    }
+
+   @Override
+    @ActionEvent(eventType = EventTypes.EVENT_HOST_OUTOFBAND_MANAGEMENT_GET_REDFISH_DATA, eventDescription = "Fetch host out-of-band management redfish data", async = false)
+    public OutOfBandManagementResponse getHostRedfishData(final Host host, final String category) {
+        logger.info("Redfish Data Fecth!!!!!!! category >> " + category);
+        checkOutOfBandManagementEnabledByZoneClusterHost(host);
+        final OutOfBandManagement outOfBandManagementConfig = getConfigForHost(host);
+        final ImmutableMap<OutOfBandManagement.Option, String> options = getOptions(outOfBandManagementConfig);
+        final OutOfBandManagementDriver driver = getDriver(outOfBandManagementConfig);
+
+        Long actionTimeOut = ActionTimeout.valueIn(host.getClusterId());
+
+        final OutOfBandManagementDriverPowerCommand currnetStatusCmd = new OutOfBandManagementDriverPowerCommand(options, actionTimeOut, OutOfBandManagement.PowerOperation.STATUS);
+        final OutOfBandManagementDriverResponse currentDriverResponse = driver.execute(currnetStatusCmd);
+        if (currentDriverResponse == null) {
+            throw new CloudRuntimeException(String.format("Out-of-band Management action [%s] on %s failed due to no response from the driver", OutOfBandManagement.PowerOperation.STATUS, host));
+        }
+        final OutOfBandManagementResponse response = new OutOfBandManagementResponse(outOfBandManagementDao.findByHost(host.getId()));
+        final OutOfBandManagementDriverRedfishDataCommand cmd = new OutOfBandManagementDriverRedfishDataCommand(options, actionTimeOut, category);
+        final OutOfBandManagementDriverResponse driverResponse = driver.execute(cmd);
+
+        response.setSuccess(driverResponse.isSuccess());
+        response.setResultDescription(driverResponse.getResult());
+        response.setResultRedfishData(driverResponse.getRedfishData());
+                response.setId(host.getUuid());
         return response;
     }
 

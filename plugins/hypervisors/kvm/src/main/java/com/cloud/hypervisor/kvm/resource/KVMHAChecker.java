@@ -18,8 +18,6 @@ package com.cloud.hypervisor.kvm.resource;
 
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
-
 
 import com.cloud.agent.api.to.HostTO;
 

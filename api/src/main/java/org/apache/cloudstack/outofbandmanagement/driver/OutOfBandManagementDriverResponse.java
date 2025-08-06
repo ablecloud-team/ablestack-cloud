@@ -24,6 +24,7 @@ public class OutOfBandManagementDriverResponse {
     private boolean success = false;
     private boolean hasAuthFailure = false;
     private OutOfBandManagement.PowerState powerState;
+    private String redfishData;
 
     public OutOfBandManagementDriverResponse(String result, String error, boolean success) {
         this.result = result;
@@ -82,4 +83,13 @@ public class OutOfBandManagementDriverResponse {
     public void setAuthFailure(boolean hasAuthFailure) {
         this.hasAuthFailure = hasAuthFailure;
     }
+
+    public String getRedfishData() {
+        return redfishData;
+    }
+
+    public void setRedfishData(String redfishData) {
+        this.redfishData = redfishData;
+    }
+
 }
