@@ -188,6 +188,7 @@
         <cs.caffeine.version>3.1.7</cs.caffeine.version>
         <cs.gmavenplus.version>3.0.2</cs.gmavenplus.version>
         <cs.exec-maven-plugin.version>3.4.1</cs.exec-maven-plugin.version>
+        <cs.okhttp3.version>4.9.3</cs.okhttp3.version>
     </properties>
 
     <distributionManagement>
@@ -533,6 +534,11 @@
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
                 <version>${cs.httpcore.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${cs.okhttp3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.kafka</groupId>
