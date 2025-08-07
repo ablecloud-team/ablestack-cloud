@@ -50,6 +50,7 @@
     :dataSource="drsPlans"
     :rowKey="item => item.id"
     :pagination="{hideOnSinglePage: true, showSizeChanger: true}"
+    :expandRowByClick="true"
   >
     <template #expandedRowRender="{ record }">
       <a-table
