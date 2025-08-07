@@ -5567,7 +5567,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         double bytes_rd = 0;
         double bytes_wr = 0;
         for (final DiskDef disk : disks) {
-            if (disk.getDeviceType() == DeviceType.CDROM || disk.getDeviceType() == DeviceType.FLOPPY) {
+            if (disk.getDeviceType() == null || disk.getDeviceType() == DeviceType.CDROM || disk.getDeviceType() == DeviceType.FLOPPY || disk.getDeviceType() == DeviceType.LUN) {
                 LOGGER.debug("Ignoring disk [{}] in VM [{}]'s stats since its deviceType is [{}].", disk.toString().replace("\n", ""), vmAsString, disk.getDeviceType());
                 continue;
             }
