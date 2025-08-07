@@ -816,6 +816,10 @@ public class RedfishClient {
                 List<CompletableFuture<JsonObject>> futures = new ArrayList<>();
                 for (JsonElement member : members) {
                     String odataId = member.getAsJsonObject().get("@odata.id").getAsString();
+
+                    String lastPart = odataId.substring(odataId.lastIndexOf('/') + 1);
+                    if (lastPart.contains("Event") || lastPart.contains("Fault")) continue;
+
                     String logServiceUrl = buildRequestCustomUrl(hostAddress, odataId);
 
                     // 3-1. LogService 정보 병렬 조회 (name 속성 포함)
