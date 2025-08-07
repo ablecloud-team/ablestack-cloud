@@ -4866,12 +4866,12 @@
 "label.productversion": "\uc81c\ud488 \ubc84\uc804",
 "label.componentintegritystatus": "\ubb34\uacb0\uc131 \uc0c1\ud0dc",
 "state.absent": "\ubbf8 \uc7a5\ucc29",
-"label.hardware.storage.controllers": "\ucee8\ud2b8\ub864\ub7ec",
+"label.hardware.storage.controllerlist": "\ucee8\ud2b8\ub864\ub7ec",
 "label.hardware.storage.volumelist": "\ubcfc\ub968",
-"label.hardware.storage.drives": "\ub4dc\ub77c\uc774\ubc84",
+"label.hardware.storage.drivelist": "\ub4dc\ub77c\uc774\ubc84",
 "label.mediatype": "\ubbf8\ub514\uc5b4 \uc720\ud615",
 "label.predictedmedialifeleftpercent": "\ubbf8\ub514\uc5b4 \ub77c\uc774\ud504",
-"label.hardware.storage.enclosure": "\uc778\ud074\ub85c\uc800",
+"label.hardware.storage.enclosurelist": "\uc778\ud074\ub85c\uc800",
 "label.switches": "\uc2a4\uc704\uce58",
 "message.redfishdata.loading": "\uc870\ud68c\uc5d0 \uc2dc\uac04\uc774 \uc18c\uc694\ub420 \uc218 \uc788\uc2b5\ub2c8\ub2e4."
 }
