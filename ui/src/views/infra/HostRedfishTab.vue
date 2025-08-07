@@ -330,9 +330,6 @@
               <template v-if="column.key === 'created'">
                 {{ dateFmt(record.created) }}
               </template>
-              <template v-if="column.key === 'category'">
-                {{ record.categories?.join(', ') }}
-              </template>
             </template>
             <template #expandedRowRender="{ record }">
               <a-card style="margin-left: 40px;">
@@ -356,7 +353,6 @@
 </template>
 <script>
 import { api } from '@/api'
-import dayjs from 'dayjs'
 import Status from '@/components/widgets/Status'
 export default {
   name: 'HostRedfishTab',
@@ -751,7 +747,21 @@ export default {
       return false
     },
     dateFmt (val) {
-      return dayjs(val).format('YYYY-MM-DD HH:mm:ss')
+      const date = new Date(val)
+      // UTC 기준으로 뽑기
+
+      const newDate = new Date(date.getTime() + 9 * 60 * 60 * 1000)
+
+      const year = newDate.getFullYear()
+      const month = this.pad(newDate.getMonth() + 1)
+      const day = this.pad(newDate.getDate())
+      const hour = this.pad(newDate.getHours())
+      const min = this.pad(newDate.getMinutes())
+      const sec = this.pad(newDate.getSeconds())
+      return `${year}-${month}-${day} ${hour}:${min}:${sec}`
+    },
+    pad (num) {
+      return num.toString().padStart(2, '0')
     },
     hasArrProp (arr, key, propName, ifnullval) {
       if (arr[key] &&
