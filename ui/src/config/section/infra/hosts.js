@@ -56,7 +56,10 @@ export default {
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/OobmTab.vue')))
   }, {
     name: 'hostredfishdata',
-    component: shallowRef(defineAsyncComponent(() => import('@/views/infra/HostRedfishTab.vue')))
+    component: shallowRef(defineAsyncComponent(() => import('@/views/infra/HostRedfishTab.vue'))),
+    show: (record) => {
+      return record.outofbandmanagement?.driver === 'redfish' && record.outofbandmanagement?.powerstate === 'On'
+    }
   }, {
     name: 'listhostdevices',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/ListHostDevicesTab.vue')))
