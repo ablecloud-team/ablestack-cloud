@@ -1,5 +1,5 @@
 <template>
-  <a-spin :spinning="spinning">
+  <a-spin :spinning="spinning" :tip="$t('message.redfishdata.loading')">
   <a-tabs
     :activeKey="category"
     :tabPosition="device === 'mobile' ? 'top' : 'left'"
@@ -658,7 +658,7 @@ export default {
       logData: [],
       logDataType: '',
       storageDataType: 'controllerlist',
-      category: 'network',
+      category: 'summary',
       spinning: false
     }
   },
