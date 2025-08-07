@@ -136,9 +136,9 @@
       </a-table>
     </a-tab-pane>
     <a-tab-pane :tab="$t('label.network')" key="network">
-      <a-list :grid="{ gutter: 16, column: 1 }" :dataSource="dataMap['network']">
+      <a-list :grid="{ gutter: 8, column: 1 }" :dataSource="dataMap['network']">
         <template #renderItem="{item}">
-          <a-card :title="item.model || 'UnKnown'">
+          <a-card :title="item.model || 'UnKnown'" style="width: 99%; margin-bottom: 10px;" :bordered="true">
             <a-list-item>
               <a-row class="cus-row">
                 <a-col :span="12"><strong>{{ $t('label.manufacturer') }}</strong></a-col>
@@ -195,7 +195,55 @@
       </a-list>
     </a-tab-pane>
     <a-tab-pane :tab="$t('label.storage')" key="storage">
-      <a-radio-group
+      <a-tabs
+        v-model:activeKey="storageDataType"
+        @update:activeKey="changeStorageTab"
+        type="card">
+        <a-tab-pane
+          v-for="item, index in dataMap['storage']"
+          :key="index"
+          :tab="$t('label.hardware.storage.' + index)">
+          <a-table
+            v-if="item"
+            size="small"
+            style="overflow-y: auto"
+            :columns="storageColumns"
+            :dataSource="item"
+            :pagination="false"
+            :rowKey="record => record.id"
+            :expandRowByClick="true">
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'status'">
+                <status class="status" :text="record.status?.health || record.status?.state" displayText/>
+              </template>
+              <template v-if="column.key === 'capacitybytes'">
+                {{ autoFormatBytes(record.capacitybytes) }}
+              </template>
+              <template v-if="column.key === 'location'">
+                {{ PartLocation }}
+              </template>
+              <template v-if="column.key === 'predictedmedialifeleftpercent'">
+                {{ attachSign(record.predictedmedialifeleftpercent, '%') }}
+              </template>
+            </template>
+            <template #expandedRowRender="{ record }">
+              <a-card style="margin-left: 40px;">
+                <a-row
+                  v-for="(value, key) in flattenObjToDotNotation(record)"
+                  :key="key"
+                  class="cus-row-2"
+                  justify="end"
+                  style="padding-top: 10px" >
+                  <a-col :span="12"><strong>{{ key }}</strong></a-col>
+                  <a-col :span="12">{{ value }}</a-col>
+                </a-row>
+              </a-card>
+            </template>
+          </a-table>
+        </a-tab-pane>
+      </a-tabs>
+
+      <!-- <a-radio-group
         v-model:value="storageDataType"
         buttonStyle="solid"
         optionType="button"
@@ -243,7 +291,7 @@
             </a-row>
           </a-card>
         </template>
-      </a-table>
+      </a-table> -->
     </a-tab-pane>
     <a-tab-pane :tab="$t('label.devices')" key="device">
       <a-table
@@ -293,55 +341,6 @@
             {{ record.lowestsupportedversion || record.version}}
           </template>
         </template>
-      </a-table>
-    </a-tab-pane>
-    <a-tab-pane :tab="$t('label.log')" key="log">
-      <a-radio-group
-        v-model:value="logDataType"
-        buttonStyle="solid"
-        optionType="button"
-        style="width: 100%;"
-        @change="($event) => updateLogRadio($event.target.value)">
-       <a-radio-button
-          v-for="item, index in dataMap['log'].loglist"
-          :key="index"
-          :value="item"
-        >
-          {{ camelToSentence(item.name) }}
-        </a-radio-button>
-      </a-radio-group>
-      <!-- <a-radio-group
-        v-model:value="dataMap['log']"
-        buttonStyle="solid"
-        optionType="button"
-        style="width: 100%;"
-        @change="($event) => updateStorageRadio($event.target.value)">
-        <a-radio-button style="width: 25%; text-align: center;" value="controllerlist">{{ $t('label.hardware.storage.controllers') }}</a-radio-button>
-        <a-radio-button style="width: 25%; text-align: center;" value="volumelist">{{ $t('label.hardware.storage.volumelist') }}</a-radio-button>
-        <a-radio-button style="width: 25%; text-align: center;" value="drivelist">{{ $t('label.hardware.storage.drives') }}</a-radio-button>
-        <a-radio-button style="width: 25%; text-align: center;" value="enclosurelist">{{ $t('label.hardware.storage.enclosure') }}</a-radio-button>
-      </a-radio-group> -->
-      <a-divider />
-      <a-table
-        v-if="logData"
-        size="small"
-        style="overflow-y: auto"
-        :columns="logColumns"
-        :dataSource="logData.members"
-        :pagination="false"
-        :rowKey="record => record.id"
-        :expandRowByClick="true">
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'associatednetworkaddresses'">
-            {{ dateFmt(record.updated) }}
-          </template>
-          <template v-if="column.key === 'created'">
-            {{ dateFmt(record.created) }}
-          </template>
-          <template v-if="column.key === 'category'">
-            {{ record.categories?.join(', ') }}
-          </template>
-        </template>
         <template #expandedRowRender="{ record }">
           <a-card style="margin-left: 40px;">
             <a-row
@@ -354,11 +353,53 @@
               <a-col :span="12">{{ value }}</a-col>
             </a-row>
           </a-card>
-          <!-- <p style="margin: 0">
-            {{ record.recommendedaction || record.description }}
-          </p> -->
         </template>
       </a-table>
+    </a-tab-pane>
+    <a-tab-pane :tab="$t('label.log')" key="log">
+      <a-tabs
+        v-model:activeKey="logDataType"
+        type="card">
+        <a-tab-pane
+          v-for="item, index in dataMap['log'].loglist"
+          :key="index"
+          :tab="camelToSentence(item.name)">
+          <a-table
+            v-if="item"
+            size="small"
+            style="overflow-y: auto"
+            :columns="logColumns"
+            :dataSource="item.members"
+            :pagination="false"
+            :rowKey="record => record.id"
+            :expandRowByClick="true">
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'associatednetworkaddresses'">
+                {{ dateFmt(record.updated) }}
+              </template>
+              <template v-if="column.key === 'created'">
+                {{ dateFmt(record.created) }}
+              </template>
+              <template v-if="column.key === 'category'">
+                {{ record.categories?.join(', ') }}
+              </template>
+            </template>
+            <template #expandedRowRender="{ record }">
+              <a-card style="margin-left: 40px;">
+                <a-row
+                  v-for="(value, key) in flattenObjToDotNotation(record)"
+                  :key="key"
+                  class="cus-row-2"
+                  justify="end"
+                  style="padding-top: 10px" >
+                  <a-col :span="12"><strong>{{ key }}</strong></a-col>
+                  <a-col :span="12">{{ value }}</a-col>
+                </a-row>
+              </a-card>
+            </template>
+          </a-table>
+        </a-tab-pane>
+      </a-tabs>
     </a-tab-pane>
   </a-tabs>
   </a-spin>
@@ -656,7 +697,7 @@ export default {
       storageColumns: [],
       storageData: [],
       logData: [],
-      logDataType: '',
+      logDataType: 0,
       storageDataType: 'controllerlist',
       category: 'summary',
       spinning: false
@@ -682,8 +723,16 @@ export default {
       }
     },
     camelToSentence (str) {
-      const normal = str.replace(/([A-Z])/g, ' $1').trim()
-      return normal.charAt(0).toUpperCase() + normal.slice(1)
+      if (!str) return str
+      // 이미 공백(띄어쓰기)이 있으면 변환하지 않고 그대로 반환
+      if (/\s/.test(str)) return str
+      // CamelCase를 띄어쓰기 추가해서 변환
+      const sentence = str
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
+        .toLowerCase()
+      // 첫 글자만 대문자
+      return sentence.charAt(0).toUpperCase() + sentence.slice(1)
     },
     flattenObjToDotNotation (obj, prefix = '') {
       const result = {}
@@ -708,35 +757,24 @@ export default {
       }
       return result
     },
-    updateLogRadio (val) {
-      this.logData = []
-      this.logDataType = val.id
-      setTimeout(() => {
-        this.logData = val
-      }, 200)
-    },
-    updateStorageRadio (val) {
-      this.storageData = []
-      setTimeout(() => {
-        switch (val) {
-          case 'controllerlist':
-            this.storageColumns = this.storageContollerColumns
-            break
-          case 'volumelist':
-            this.storageColumns = this.storageVolumeColumns
-            break
-          case 'drivelist':
-            this.storageColumns = this.storageDriveColumns
-            break
-          case 'enclosurelist':
-            this.storageColumns = this.storageEncColumns
-            break
-          default:
-            break
-        }
-        const map = this.dataMap[this.category]
-        this.storageData = map[val]
-      }, 200)
+    changeStorageTab (val) {
+      console.log('val :>> ', val)
+      switch (val) {
+        case 'controllerlist':
+          this.storageColumns = this.storageContollerColumns
+          break
+        case 'volumelist':
+          this.storageColumns = this.storageVolumeColumns
+          break
+        case 'drivelist':
+          this.storageColumns = this.storageDriveColumns
+          break
+        case 'enclosurelist':
+          this.storageColumns = this.storageEncColumns
+          break
+        default:
+          break
+      }
     },
     autoFormatBytes (bytes) {
       if (typeof bytes !== 'number' || bytes < 0) return '0'
@@ -869,19 +907,12 @@ export default {
           case 'network':
           case 'device':
           case 'firmware':
-          case 'storage':
-            this.dataMap[this.category] = obj
-            this.updateStorageRadio('controllerlist')
-            break
           case 'log':
-            // if (Object.keys(obj).length !== 0) {
-            //   obj = obj.map(m => ({
-            //     ...m,
-            //     ...(m.oem?.hpe || {})
-            //   }))
             this.dataMap[this.category] = obj
-            this.updateLogRadio(obj.loglist[0])
-            // }
+            break
+          case 'storage':
+            this.storageColumns = this.storageContollerColumns
+            this.dataMap[this.category] = obj
             break
           default:
             break

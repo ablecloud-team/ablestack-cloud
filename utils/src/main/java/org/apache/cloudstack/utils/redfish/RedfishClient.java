@@ -112,7 +112,7 @@ public class RedfishClient {
     private final static int WAIT_FOR_REQUEST_RETRY = 2;
 
     // --- 싱글톤 자원 추가 ---
-    private static final int THREAD_POOL_SIZE = 20;
+    private static final int THREAD_POOL_SIZE = 50;
     private static final ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
     // OkHttpClient (SSL 옵션 별로 2개)
