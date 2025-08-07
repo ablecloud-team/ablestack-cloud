@@ -210,7 +210,7 @@
             :columns="storageColumns"
             :dataSource="item"
             :pagination="false"
-            :rowKey="record => record.id"
+            :rowKey="(record, index) => index"
             :expandRowByClick="true">
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'status'">
@@ -635,8 +635,6 @@ export default {
         log: []
       },
       storageColumns: [],
-      storageData: [],
-      logData: [],
       logDataType: 0,
       storageDataType: 'controllerlist',
       category: 'summary',
