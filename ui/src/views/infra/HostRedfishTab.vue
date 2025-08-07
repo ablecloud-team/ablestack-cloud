@@ -242,56 +242,6 @@
           </a-table>
         </a-tab-pane>
       </a-tabs>
-
-      <!-- <a-radio-group
-        v-model:value="storageDataType"
-        buttonStyle="solid"
-        optionType="button"
-        style="width: 100%;"
-        @change="($event) => updateStorageRadio($event.target.value)">
-        <a-radio-button style="width: 25%; text-align: center;" value="controllerlist">{{ $t('label.hardware.storage.controllers') }}</a-radio-button>
-        <a-radio-button style="width: 25%; text-align: center;" value="volumelist">{{ $t('label.hardware.storage.volumelist') }}</a-radio-button>
-        <a-radio-button style="width: 25%; text-align: center;" value="drivelist">{{ $t('label.hardware.storage.drives') }}</a-radio-button>
-        <a-radio-button style="width: 25%; text-align: center;" value="enclosurelist">{{ $t('label.hardware.storage.enclosure') }}</a-radio-button>
-      </a-radio-group>
-      <a-divider />
-      <a-table
-        v-if="storageData?.length > 0"
-        size="small"
-        style="overflow-y: auto"
-        :columns="storageColumns"
-        :dataSource="storageData"
-        :pagination="false"
-        :rowKey="record => record.id"
-        :expandRowByClick="true">
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'status'">
-            <status class="status" :text="record.status?.health || record.status?.state" displayText/>
-          </template>
-          <template v-if="column.key === 'capacitybytes'">
-            {{ autoFormatBytes(record.capacitybytes) }}
-          </template>
-          <template v-if="column.key === 'location'">
-            {{ PartLocation }}
-          </template>
-          <template v-if="column.key === 'predictedmedialifeleftpercent'">
-            {{ attachSign(record.predictedmedialifeleftpercent, '%') }}
-          </template>
-        </template>
-        <template #expandedRowRender="{ record }">
-          <a-card style="margin-left: 40px;">
-            <a-row
-              v-for="(value, key) in flattenObjToDotNotation(record)"
-              :key="key"
-              class="cus-row-2"
-              justify="end"
-              style="padding-top: 10px" >
-              <a-col :span="12"><strong>{{ key }}</strong></a-col>
-              <a-col :span="12">{{ value }}</a-col>
-            </a-row>
-          </a-card>
-        </template>
-      </a-table> -->
     </a-tab-pane>
     <a-tab-pane :tab="$t('label.devices')" key="device">
       <a-table
@@ -453,12 +403,6 @@ export default {
           title: this.$t('label.created'),
           dataIndex: 'created',
           width: '15%'
-        },
-        {
-          key: 'category',
-          title: this.$t('label.category'),
-          dataIndex: 'category',
-          width: '10%'
         }
       ],
       memorySummaryColumns: [
@@ -758,7 +702,6 @@ export default {
       return result
     },
     changeStorageTab (val) {
-      console.log('val :>> ', val)
       switch (val) {
         case 'controllerlist':
           this.storageColumns = this.storageContollerColumns
@@ -855,20 +798,18 @@ export default {
     makeData (obj) {
       if (obj) {
         obj = this.keysToLowerCaseDeep(obj)
-        console.log('obj :>> ', obj)
+        // console.log('obj :>> ', obj)
         switch (this.category) {
           case 'summary':
             this.dataMap.model = obj.model
             if (obj?.oem?.hpe?.aggregatehealthstatus) {
               for (const [key, value] of Object.entries(obj?.oem?.hpe?.aggregatehealthstatus)) {
-                console.log('value.status?.health :>> ', value.status?.health)
                 if (value.status?.health) {
                   this.dataMap[this.category].push({ name: key, status: value.status?.health })
                 } else {
                   this.dataMap[this.category].push({ name: key, status: value })
                 }
               }
-              console.log('this.dataMap[this.category] :>> ', this.dataMap[this.category])
             } else if (obj?.oem?.dell?.dellsystem) {
               const dellSystem = obj?.oem?.dell?.dellsystem
               this.dataMap[this.category] = Object.entries(dellSystem)
@@ -882,7 +823,6 @@ export default {
               let varL2cache
               let varL3cache
               if (obj[key].oem?.hpe?.cache) {
-                console.log('obj[key', obj[key].oem?.hpe?.cache?.find(c => c.name === 'L1-Cache')?.installedsizekb)
                 varL1cache = this.hasObjProp(obj[key].oem?.hpe?.cache?.find(c => c.name === 'L1-Cache'), 'installedsizekb', '')
                 varL2cache = this.hasObjProp(obj[key].oem?.hpe?.cache?.find(c => c.name === 'L2-Cache'), 'installedsizekb', '')
                 varL3cache = this.hasObjProp(obj[key].oem?.hpe?.cache?.find(c => c.name === 'L3-Cache'), 'installedsizekb', '')
@@ -918,7 +858,7 @@ export default {
             break
         }
       }
-      console.log(this.category + ' :>> ' + this.dataMap[this.category])
+      // console.log(this.category + ' :>> ' + this.dataMap[this.category])
     }
   }
 }

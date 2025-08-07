@@ -533,25 +533,6 @@ public class RedfishClient {
                     logger.error("Redfish processors fetch failed", ex);
                     return "{}";
                 }
-
-                // url = buildRequestCustomUrl(hostAddress, String.format("%s%s/%s", SYSTEMS_URL_PATH, systemId, "Processors"));
-                // response = (CloseableHttpResponse) executeGetRequest(url);
-                // root = parseRedfishJsonResponse(response);
-                // if (root.has("Members") && root.get("Members").isJsonArray()) {
-                //     JsonArray members = root.getAsJsonArray("Members");
-                //     for (JsonElement member : members) {
-                //         JsonObject memberObj = member.getAsJsonObject();
-                //         String odataId = memberObj.get("@odata.id").getAsString();
-                //         url = buildRequestCustomUrl(hostAddress, odataId);
-
-                //         response = (CloseableHttpResponse) executeGetRequest(url);
-                //         root = parseRedfishJsonResponse(response);
-                //         retArray.add(root);
-                //     }
-                //     return retArray.toString();
-                // } else {
-                //     return "{}";
-                // }
             case "memory":
                 logger.info(":::::MEMORY DATA::::::::");
                 url = buildRequestCustomUrl(hostAddress, String.format("%s%s/%s", SYSTEMS_URL_PATH, systemId, "Memory"));
@@ -592,31 +573,6 @@ public class RedfishClient {
                     logger.error("Redfish memory fetch failed", ex);
                     return "{}";
                 }
-                // response = (CloseableHttpResponse) executeGetRequest(url);
-                // root = parseRedfishJsonResponse(response);
-                // if (root.has("Oem")) {
-                //     JsonObject oem = root.getAsJsonObject("Oem");
-                //     if (oem.has("Hpe")) {
-                //         JsonObject hpe = oem.getAsJsonObject("Hpe");
-                //         retObj.add("memmorysummary", hpe);
-                //     }
-                // }
-                // if (root.has("Members") && root.get("Members").isJsonArray()) {
-                //     JsonArray members = root.getAsJsonArray("Members");
-                //     for (JsonElement member : members) {
-                //         JsonObject memberObj = member.getAsJsonObject();
-                //         String odataId = memberObj.get("@odata.id").getAsString();
-                //         url = buildRequestCustomUrl(hostAddress, odataId);
-
-                //         response = (CloseableHttpResponse) executeGetRequest(url);
-                //         root = parseRedfishJsonResponse(response);
-                //         retArray.add(root);
-                //     }
-                //     retObj.add("memlistinfo", retArray);
-                //     return retObj.toString();
-                // } else {
-                //     return "{}";
-                // }
             case "network":
                 logger.info(":::::NETWORK DATA::::::::");
                     url = buildRequestCustomUrl(hostAddress, String.format("%s%s/%s", CHASSIS_URL_PATH, chassisId, "NetworkAdapters"));
@@ -668,44 +624,6 @@ public class RedfishClient {
                     } else {
                         return "{}";
                     }
-
-                // response = (CloseableHttpResponse) executeGetRequest(url);
-                // root = parseRedfishJsonResponse(response);
-                // if (root.has("Members") && root.get("Members").isJsonArray()) {
-                //     JsonArray members = root.getAsJsonArray("Members");
-                //     for (JsonElement member : members) {
-                //         JsonObject memberObj = member.getAsJsonObject();
-                //         String odataId = memberObj.get("@odata.id").getAsString();
-                //         url = buildRequestCustomUrl(hostAddress, odataId);
-                //         response = (CloseableHttpResponse) executeGetRequest(url);
-                //         root = parseRedfishJsonResponse(response);
-                //         JsonArray tempArray = new JsonArray();
-                //         if (root.has("Controllers")) {
-                //             JsonObject controllers = root.getAsJsonArray("Controllers").get(0).getAsJsonObject();
-                //             if (controllers.has("Links")) {
-                //                 JsonObject links = controllers.getAsJsonObject("Links");
-                //                 String portsString = links.has("Ports") ? "Ports" : "NetworkPorts";
-                //                 if (links.has(portsString)) {
-                //                     JsonArray ports = links.getAsJsonArray(portsString);
-                //                     for (JsonElement port : ports) {
-                //                         JsonObject portObj = port.getAsJsonObject();
-                //                         String portsOdataId = portObj.get("@odata.id").getAsString();
-                //                         logger.info("ports OdataId :::::: " + portsOdataId);
-                //                         url = buildRequestCustomUrl(hostAddress, portsOdataId);
-                //                         response = (CloseableHttpResponse) executeGetRequest(url);
-                //                         tempArray.add(parseRedfishJsonResponse(response));
-                //                     }
-                //                 }
-                //             }
-                //         }
-                //         root.add("port", tempArray);
-                //         retArray.add(root);
-                //     }
-                //     return retArray.toString();
-                // } else {
-                //     return "{}";
-                // }
-
             case "storage":
                 logger.info(":::::STORAGE DATA::::::::");
                 url = buildRequestCustomUrl(hostAddress, String.format("%s%s/%s", SYSTEMS_URL_PATH, systemId, "Storage"));
@@ -817,116 +735,6 @@ public class RedfishClient {
                 } else {
                     return "{}";
                 }
-                // response = (CloseableHttpResponse) executeGetRequest(url);
-                // root = parseRedfishJsonResponse(response);
-
-                // JsonArray controllerList = new JsonArray();
-                // JsonArray volumeList = new JsonArray();
-                // JsonArray driveList = new JsonArray();
-                // JsonArray enclosureList = new JsonArray();
-
-                // Set<String> controllerSet = new HashSet<>();
-                // Set<String> volumeSet = new HashSet<>();
-                // Set<String> driveSet = new HashSet<>();
-                // Set<String> enclosureSet = new HashSet<>();
-
-                // if (root.has("Members") && root.get("Members").isJsonArray()) {
-                //     JsonArray storageMembers = root.getAsJsonArray("Members");
-                //     for (JsonElement sMember : storageMembers) {
-                //         JsonObject sMemberObj = sMember.getAsJsonObject();
-                //         String sOdataId = sMemberObj.get("@odata.id").getAsString();
-
-                //         // Controller
-                //         url = buildRequestCustomUrl(hostAddress, sOdataId);
-                //         response = (CloseableHttpResponse) executeGetRequest(url);
-                //         JsonObject rootObj = parseRedfishJsonResponse(response);
-
-                //         url = buildRequestCustomUrl(hostAddress, sOdataId + "/Controllers");
-                //         response = (CloseableHttpResponse) executeGetRequest(url);
-                //         JsonObject ContollerObj = parseRedfishJsonResponse(response);
-                //         if (ContollerObj.has("Members") && ContollerObj.get("Members").isJsonArray()) {
-                //             JsonArray controllerMembers = ContollerObj.getAsJsonArray("Members");
-                //             for (JsonElement cont : controllerMembers) {
-                //                 JsonObject contMemberObj = cont.getAsJsonObject();
-                //                 String contOdataId = contMemberObj.get("@odata.id").getAsString();
-                //                 if (controllerSet.add(contOdataId)) {
-                //                     url = buildRequestCustomUrl(hostAddress, contOdataId);
-                //                     response = (CloseableHttpResponse) executeGetRequest(url);
-                //                     contMemberObj = parseRedfishJsonResponse(response);
-                //                     controllerList.add(contMemberObj);
-                //                 }
-                //             }
-                //         }
-
-                //         // Volume
-                //         if (rootObj.has("Volumes")) {
-                //             JsonObject volumesObj = rootObj.getAsJsonObject("Volumes");
-                //             if (volumesObj.has("@odata.id")) {
-                //                 String volumesOdataId = volumesObj.get("@odata.id").getAsString();
-                //                 url = buildRequestCustomUrl(hostAddress, volumesOdataId);
-                //                 response = (CloseableHttpResponse) executeGetRequest(url);
-                //                 volumesObj = parseRedfishJsonResponse(response);
-                //                 if (volumesObj.has("Members") && volumesObj.get("Members").isJsonArray()) {
-                //                     JsonArray volumesMembers = volumesObj.getAsJsonArray("Members");
-                //                     for (JsonElement vol : volumesMembers) {
-                //                         JsonObject volumesMemberObj = vol.getAsJsonObject();
-                //                         String volOdataId = volumesMemberObj.get("@odata.id").getAsString();
-                //                         if (volumeSet.add(volOdataId)) {
-                //                             url = buildRequestCustomUrl(hostAddress, volOdataId);
-                //                             response = (CloseableHttpResponse) executeGetRequest(url);
-                //                             volumesMemberObj = parseRedfishJsonResponse(response);
-                //                             volumeList.add(volumesMemberObj);
-                //                         }
-                //                     }
-                //                 }
-                //             }
-                //         }
-
-                //         // Drive
-                //         if (rootObj.has("Drives") && rootObj.get("Drives").isJsonArray()) {
-                //             JsonArray drivesMembers = rootObj.getAsJsonArray("Drives");
-                //             for (JsonElement drive : drivesMembers) {
-                //                 JsonObject driveMemberObj = drive.getAsJsonObject();
-                //                 String driveOdataId = driveMemberObj.get("@odata.id").getAsString();
-                //                 if (driveSet.add(driveOdataId)) {
-                //                     url = buildRequestCustomUrl(hostAddress, driveOdataId);
-                //                     response = (CloseableHttpResponse) executeGetRequest(url);
-                //                     driveMemberObj = parseRedfishJsonResponse(response);
-                //                     driveList.add(driveMemberObj);
-                //                 }
-                //             }
-                //         }
-
-                //         // Enclosure
-                //         if (rootObj.has("Links")) {
-                //             JsonObject links = rootObj.getAsJsonObject("Links");
-                //             if (links.has("Enclosures")) {
-                //                 JsonArray enclosures = links.getAsJsonArray("Enclosures");
-                //                 for (JsonElement enc : enclosures) {
-                //                     JsonObject encObj = enc.getAsJsonObject();
-                //                     if (encObj.has("@odata.id")) {
-                //                         String encOdataId = encObj.get("@odata.id").getAsString();
-                //                         if (enclosureSet.add(encOdataId)) {
-                //                             url = buildRequestCustomUrl(hostAddress, encOdataId);
-                //                             response = (CloseableHttpResponse) executeGetRequest(url);
-                //                             encObj = parseRedfishJsonResponse(response);
-                //                             enclosureList.add(encObj);
-                //                         }
-                //                     }
-                //                 }
-                //             }
-                //         }
-                //     }
-
-                //     retObj.add("controllerList", controllerList);
-                //     retObj.add("volumeList", volumeList);
-                //     retObj.add("driveList", driveList);
-                //     retObj.add("enclosureList", enclosureList);
-                //     return retObj.toString();
-                // } else {
-                //     return "{}";
-                // }
-
             case "device":
                 logger.info(":::::DEVICE DATA::::::::");
                 // HPE/PCIe 분기 처리
@@ -961,51 +769,6 @@ public class RedfishClient {
                 } else {
                     return "{}";
                 }
-                // response = (CloseableHttpResponse) executeGetRequest(url);
-                // root = parseRedfishJsonResponse(response);
-                // if (root.has("Oem")) {
-                //     JsonObject oem = root.getAsJsonObject("Oem");
-                //     if (oem.has("Hpe")) {
-                //         url = buildRequestCustomUrl(hostAddress, String.format("%s%s/%s", CHASSIS_URL_PATH, chassisId, "Devices"));
-                //         response = (CloseableHttpResponse) executeGetRequest(url);
-                //         root = parseRedfishJsonResponse(response);
-                //         if (root.has("Members") && root.get("Members").isJsonArray()) {
-                //             JsonArray members = root.getAsJsonArray("Members");
-                //             for (JsonElement member : members) {
-                //                 JsonObject memberObj = member.getAsJsonObject();
-                //                 String odataId = memberObj.get("@odata.id").getAsString();
-                //                 url = buildRequestCustomUrl(hostAddress, odataId);
-
-                //                 response = (CloseableHttpResponse) executeGetRequest(url);
-                //                 root = parseRedfishJsonResponse(response);
-                //                 retArray.add(root);
-                //             }
-                //             retObj.add("devicelist", retArray);
-                //             return retObj.toString();
-                //         } else {
-                //             return "{}";
-                //         }
-                //     } else {
-                //         url = buildRequestCustomUrl(hostAddress, String.format("%s%s/%s", CHASSIS_URL_PATH, chassisId, "PCIeDevices"));
-                //         response = (CloseableHttpResponse) executeGetRequest(url);
-                //         root = parseRedfishJsonResponse(response);
-                //         if (root.has("Members") && root.get("Members").isJsonArray()) {
-                //             JsonArray members = root.getAsJsonArray("Members");
-                //             for (JsonElement member : members) {
-                //                 JsonObject memberObj = member.getAsJsonObject();
-                //                 String odataId = memberObj.get("@odata.id").getAsString();
-                //                 url = buildRequestCustomUrl(hostAddress, odataId);
-                //                 response = (CloseableHttpResponse) executeGetRequest(url);
-                //                 root = parseRedfishJsonResponse(response);
-                //                 retArray.add(root);
-                //             }
-                //             retObj.add("devicelist", retArray);
-                //             return retObj.toString();
-                //         } else {
-                //             return "{}";
-                //         }
-                //     }
-                // }
             case "firmware":
                 logger.info(":::::FIRMWARE DATA::::::::");
                 url = buildRequestCustomUrl(hostAddress, FIRMWARE_URL_PATH);
@@ -1030,24 +793,6 @@ public class RedfishClient {
                 } else {
                     return "{}";
                 }
-                // url = buildRequestCustomUrl(hostAddress, FIRMWARE_URL_PATH);
-                // response = (CloseableHttpResponse) executeGetRequest(url);
-                // root = parseRedfishJsonResponse(response);
-                // if (root.has("Members") && root.get("Members").isJsonArray()) {
-                //     JsonArray members = root.getAsJsonArray("Members");
-                //     for (JsonElement member : members) {
-                //         JsonObject memberObj = member.getAsJsonObject();
-                //         String odataId = memberObj.get("@odata.id").getAsString();
-                //         url = buildRequestCustomUrl(hostAddress, odataId);
-                //         response = (CloseableHttpResponse) executeGetRequest(url);
-                //         root = parseRedfishJsonResponse(response);
-                //         retArray.add(root);
-                //     }
-                //     retObj.add("firmwarelist", retArray);
-                //     return retObj.toString();
-                // } else {
-                //     return "{}";
-                // }
             case "log":
                  logger.info(":::::LOG DATA::::::::");
 
@@ -1093,9 +838,31 @@ public class RedfishClient {
 
                 // 모든 비동기 요청 완료까지 대기
                 CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+                List<JsonObject> logEntryList = new ArrayList<>();
                 for (CompletableFuture<JsonObject> f : futures) {
-                    retArray.add(f.join());
+                    logEntryList.add(f.join());
                 }
+
+                // 정렬: "Id" 또는 "id" 값을 기준으로 내림차순
+                logEntryList.sort((a, b) -> {
+                    String aId = a.has("Id") ? a.get("Id").getAsString() : (a.has("id") ? a.get("id").getAsString() : "");
+                    String bId = b.has("Id") ? b.get("Id").getAsString() : (b.has("id") ? b.get("id").getAsString() : "");
+                    // 숫자형일 때
+                    try {
+                        long aNum = Long.parseLong(aId.replaceAll("[^0-9]", ""));
+                        long bNum = Long.parseLong(bId.replaceAll("[^0-9]", ""));
+                        return Long.compare(bNum, aNum); // 내림차순
+                    } catch (NumberFormatException e) {
+                        // 문자열일 때
+                        return bId.compareTo(aId);
+                    }
+                });
+
+                retArray = new JsonArray();
+                for (JsonObject obj : logEntryList) {
+                    retArray.add(obj);
+                }
+
                 retObj.add("loglist", retArray);
                 return retObj.toString();
             default:
@@ -1119,30 +886,6 @@ public class RedfishClient {
             throw new RedfishException("Failed to process system response due to exception", e);
         }
     }
-
-    private OkHttpClient getUnsafeOkHttpClient() {
-        try {
-            final TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    public void checkClientTrusted(X509Certificate[] chain, String authType) {}
-                    public void checkServerTrusted(X509Certificate[] chain, String authType) {}
-                    public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
-                }
-            };
-            final SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-            return new OkHttpClient.Builder()
-                .sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0])
-                .hostnameVerifier((hostname, session) -> true)
-                .connectTimeout(120, TimeUnit.SECONDS) // 연결 시도 timeout
-                .readTimeout(120, TimeUnit.SECONDS)    // 응답 읽기 timeout
-                .writeTimeout(120, TimeUnit.SECONDS)   // 요청 쓰기 timeout
-                .build();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private OkHttpClient getClient() {
         return ignoreSsl ? unsafeClient : safeClient;
     }
@@ -1205,9 +948,9 @@ public class RedfishClient {
             return new OkHttpClient.Builder()
                     .sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0])
                     .hostnameVerifier((hostname, session) -> true)
-                    .connectTimeout(120, TimeUnit.SECONDS)
-                    .readTimeout(120, TimeUnit.SECONDS)
-                    .writeTimeout(120, TimeUnit.SECONDS)
+                    .connectTimeout(300, TimeUnit.SECONDS)
+                    .readTimeout(300, TimeUnit.SECONDS)
+                    .writeTimeout(300, TimeUnit.SECONDS)
                     .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
