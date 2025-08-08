@@ -745,17 +745,29 @@ export default {
       return false
     },
     dateFmt (val) {
+      // null, 빈문자, 타입체크
+      if (!val || typeof val !== 'string' || val.trim() === '') return ''
+
+      // 0000-00-00T00:00:00Z 등 빈 날짜 체크
+      if (/^0{4}-0{2}-0{2}T/.test(val)) return ''
+
       const date = new Date(val)
-      // UTC 기준으로 뽑기
+      if (isNaN(date.getTime())) return ''
 
-      const newDate = new Date(date.getTime() + 9 * 60 * 60 * 1000)
+      // KST(+9) 변환
+      const kstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000)
 
-      const year = newDate.getFullYear()
-      const month = this.pad(newDate.getMonth() + 1)
-      const day = this.pad(newDate.getDate())
-      const hour = this.pad(newDate.getHours())
-      const min = this.pad(newDate.getMinutes())
-      const sec = this.pad(newDate.getSeconds())
+      function pad (num) {
+        return num.toString().padStart(2, '0')
+      }
+
+      const year = kstDate.getFullYear()
+      const month = pad(kstDate.getMonth() + 1)
+      const day = pad(kstDate.getDate())
+      const hour = pad(kstDate.getHours())
+      const min = pad(kstDate.getMinutes())
+      const sec = pad(kstDate.getSeconds())
+
       return `${year}-${month}-${day} ${hour}:${min}:${sec}`
     },
     pad (num) {
