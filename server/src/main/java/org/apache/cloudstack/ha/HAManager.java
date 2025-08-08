@@ -28,7 +28,7 @@ public interface HAManager extends HAConfigManager, Configurable {
 
     ConfigKey<Integer> HACheckingInterval = new ConfigKey<>("Advanced", Integer.class,
         "ha.checking.interval",
-        "10",
+        "15",
         "The interval at which the garbage collector background tasks in seconds", true);
 
     ConfigKey<Integer> MaxConcurrentHealthCheckOperations = new ConfigKey<>("Advanced", Integer.class,

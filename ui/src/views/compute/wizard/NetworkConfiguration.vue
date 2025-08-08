@@ -73,9 +73,9 @@
               </a-input>
             </a-form-item>
           </template>
-          <template v-if="column.key === 'linkstate'">
-            <a-form-item v-if="record.type === 'L2'" :name="'linkstate' + record.id">
-              <a-switch v-model:checked="form[`linkstate` + record.id]" @change="($event) => updateNetworkData('linkstate', record.id, $event)" style="margin-bottom: 30px"/>
+          <template v-if="column.key === 'linkState'">
+            <a-form-item v-if="record.type === 'L2'" :name="'linkState' + record.id">
+              <a-switch v-model:checked="form[`linkState` + record.id]" @change="($event) => updateNetworkData('linkState', record.id, $event)" style="margin-bottom: 30px"/>
             </a-form-item>
           </template>
         </template>
@@ -133,8 +133,8 @@ export default {
           width: '25%'
         },
         {
-          key: 'linkstate',
-          dataIndex: 'linkstate',
+          key: 'linkState',
+          dataIndex: 'linkState',
           title: this.$t('label.nic.linkstate')
         }
       ],
@@ -176,6 +176,7 @@ export default {
     items: {
       deep: true,
       handler (newData) {
+        console.log('items :>> ', this.items)
         if (newData && newData.length > 0) {
           this.dataItems = newData
           this.initForm()
@@ -202,7 +203,7 @@ export default {
       this.dataItems.forEach(record => {
         const ipAddressKey = 'ipAddress' + record.id
         const macAddressKey = 'macAddress' + record.id
-        const linkstate = 'linkstate' + record.id
+        const linkState = 'linkState' + record.id
         rules[ipAddressKey] = [{
           validator: this.validatorIpAddress,
           cidr: record.cidr,
@@ -218,7 +219,8 @@ export default {
           form[macAddressKey] = this.preFillContent.macAddressArray[presetMacAddressIndex]
           presetMacAddressIndex++
         }
-        form[linkstate] = true
+        console.log('record.linkState :>> ', record.linkState)
+        form[linkState] = record.linkState === undefined ? true : record.linkState
       })
       this.form = reactive(form)
       this.rules = reactive(rules)

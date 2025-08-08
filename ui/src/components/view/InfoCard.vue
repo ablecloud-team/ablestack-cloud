@@ -139,6 +139,12 @@
             <status class="status" :text="resource.resourcedetails.resourceHAEnabled === 'true' ? 'enabled' : 'disabled'" displayText/>
           </div>
         </div>
+        <div class="resource-detail-item" v-if="$route.meta.name === 'host' && resource.outofbandmanagement">
+          <div class="resource-detail-item__label">{{ $t('label.powerstate') }}</div>
+          <div class="resource-detail-item__details">
+            <status class="status" :text="resource.outofbandmanagement?.powerstate" displayText/>
+          </div>
+        </div>
         <div class="resource-detail-item" v-if="$route.meta.name === 'host' && resource.hostha">
           <div class="resource-detail-item__label">{{ $t('label.haenable') }}</div>
           <div class="resource-detail-item__details">

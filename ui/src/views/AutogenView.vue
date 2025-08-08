@@ -737,7 +737,7 @@ export default {
     return {
       apiName: '',
       loading: false,
-      IntervalLoading: false,
+      // IntervalLoading: false,
       actionLoading: false,
       columnKeys: [],
       allColumns: [],
@@ -911,8 +911,8 @@ export default {
   },
   watch: {
     '$route' (to, from) {
-      clearInterval(this.refreshInterval)
-      this.IntervalLoading = true
+      // clearInterval(this.refreshInterval)
+      // this.IntervalLoading = true
       if (to.fullPath !== from.fullPath && !to.fullPath.includes('action/') && to?.query?.tab !== 'browser') {
         if ('page' in to.query) {
           this.page = Number(to.query.page)
@@ -921,14 +921,15 @@ export default {
           this.page = 1
         }
         this.itemCount = 0
-        if ('listview' in this.$refs && this.$refs.listview) {
-          this.$refs.listview.resetSelection()
-        }
+        // if ('listview' in this.$refs && this.$refs.listview) {
+        //   this.$refs.listview.resetSelection()
+        // }
         this.fetchData()
-        if (Object.keys(to.params).length === 0) {
-          this.refreshInterval = setInterval(this.fetchData, 5000)
-          this.IntervalLoading = false
-        }
+        // if (Object.keys(to.params).length === 0) {
+        //   clearInterval(this.refreshInterval)
+        //   this.refreshInterval = setInterval(this.fetchData, 5000)
+        //   this.IntervalLoading = false
+        // }
         if ('projectid' in to.query) {
           this.switchProject(to.query.projectid)
         }
@@ -1230,7 +1231,7 @@ export default {
         params.details = 'group,nics,secgrp,tmpl,servoff,diskoff,iso,volume,affgrp,backoff'
       }
 
-      this.loading = this.IntervalLoading
+      this.loading = true
       if (this.$route.params && this.$route.params.id) {
         params.id = this.$route.params.id
         if (['listSSHKeyPairs'].includes(this.apiName)) {

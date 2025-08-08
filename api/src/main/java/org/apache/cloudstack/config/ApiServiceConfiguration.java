@@ -52,7 +52,7 @@ public class ApiServiceConfiguration implements Configurable {public static fina
 
     @Override
     public ConfigKey<?>[] getConfigKeys() {
-        return new ConfigKey<?>[] {ManagementServerAddresses, ApiServletPath, DefaultUIPageSize, ApiSourceCidrChecksEnabled, ApiAllowedSourceIp, ApiAllowedSourceCidr, MonitoringWallPortalProtocol, MonitoringWallPortalDomain, MonitoringWallPortalPort, MonitoringWallPortalVmUri, EventDeleteEnabled};
+        return new ConfigKey<?>[] {ManagementServerAddresses, ApiServletPath, DefaultUIPageSize, ApiSourceCidrChecksEnabled, ApiAllowedSourceIp, ApiAllowedSourceCidr, MonitoringWallPortalProtocol, MonitoringWallPortalDomain, MonitoringWallPortalPort, MonitoringWallPortalVmUri, MonitoringWallPortalHostUri, MonitoringWallPortalClusterUri, EventDeleteEnabled};
     }
 
 }

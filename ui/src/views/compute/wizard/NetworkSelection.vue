@@ -33,6 +33,7 @@
       :pagination="false"
       :rowSelection="rowSelection"
       :scroll="{ y: 225 }"
+      :expandRowByClick="true"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name'">

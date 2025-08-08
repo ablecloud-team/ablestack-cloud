@@ -71,6 +71,10 @@ public class OutOfBandManagementResponse extends BaseResponse {
     @Param(description = "the operation result")
     private Boolean success;
 
+    @SerializedName(ApiConstants.RESULT_REDFISH_DATA)
+    @Param(description = "the operation result redfish data")
+    private String resultRedfishData;
+
     public OutOfBandManagementResponse() {
         super("outofbandmanagement");
     }
@@ -185,5 +189,9 @@ public class OutOfBandManagementResponse extends BaseResponse {
 
     public void setSuccess(Boolean success) {
         this.success = success;
+    }
+
+    public void setResultRedfishData(String resultRedfishData) {
+        this.resultRedfishData = resultRedfishData;
     }
 }

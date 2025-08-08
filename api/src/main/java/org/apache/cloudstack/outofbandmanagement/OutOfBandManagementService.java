@@ -52,4 +52,5 @@ public interface OutOfBandManagementService {
     OutOfBandManagementResponse configure(Host host, ImmutableMap<OutOfBandManagement.Option, String> options);
     OutOfBandManagementResponse executePowerOperation(Host host, OutOfBandManagement.PowerOperation operation, Long timeout);
     OutOfBandManagementResponse changePassword(Host host, String password);
+    OutOfBandManagementResponse getHostRedfishData(Host host, String category);
 }

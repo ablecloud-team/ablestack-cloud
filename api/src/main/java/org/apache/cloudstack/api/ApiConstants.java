@@ -1309,6 +1309,9 @@ public class ApiConstants {
     public static final String ISSUED_DATE = "issueddate";
     public static final String XML_CONFIG = "xmlconfig";
     public static final String CURRENT_VM_ID = "currentvmid";
+
+    public static final String RESULT_REDFISH_DATA = "redfishdata";
+
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.
      * Qemu guests support "threads" and "native" options Since 0.8.8 ; "io_uring" is supported Since 6.3.0 (QEMU 5.0).

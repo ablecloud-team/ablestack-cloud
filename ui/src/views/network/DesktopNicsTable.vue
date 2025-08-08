@@ -22,6 +22,7 @@
     :dataSource="resource"
     :rowKey="item => item.id"
     :pagination="false"
+    :expandRowByClick="true"
   >
     <template #expandedRowRender="{ record }">
       <slot name="actions" :nic="record" />
