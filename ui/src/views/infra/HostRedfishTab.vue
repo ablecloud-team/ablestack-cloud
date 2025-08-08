@@ -818,7 +818,7 @@ export default {
     makeData (obj) {
       if (obj) {
         obj = this.keysToLowerCaseDeep(obj)
-        // console.log('obj :>> ', obj)
+        console.log('obj :>> ', obj)
         switch (this.category) {
           case 'summary':
             this.dataMap.model = obj.model
@@ -867,7 +867,12 @@ export default {
           case 'network':
           case 'device':
           case 'firmware':
+            this.dataMap[this.category] = obj
+            break
           case 'log':
+            obj.loglist.forEach(item => {
+              item.members.sort((a, b) => b.id - a.id)
+            })
             this.dataMap[this.category] = obj
             break
           case 'storage':
@@ -878,7 +883,7 @@ export default {
             break
         }
       }
-      // console.log(this.category + ' :>> ' + this.dataMap[this.category])
+      console.log(this.category + ' :>> ' + this.dataMap[this.category])
     }
   }
 }

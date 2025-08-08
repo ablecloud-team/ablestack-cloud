@@ -842,31 +842,9 @@ public class RedfishClient {
 
                 // 모든 비동기 요청 완료까지 대기
                 CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-                List<JsonObject> logEntryList = new ArrayList<>();
                 for (CompletableFuture<JsonObject> f : futures) {
-                    logEntryList.add(f.join());
+                    retArray.add(f.join());
                 }
-
-                // 정렬: "Id" 또는 "id" 값을 기준으로 내림차순
-                logEntryList.sort((a, b) -> {
-                    String aId = a.has("Id") ? a.get("Id").getAsString() : (a.has("id") ? a.get("id").getAsString() : "");
-                    String bId = b.has("Id") ? b.get("Id").getAsString() : (b.has("id") ? b.get("id").getAsString() : "");
-                    // 숫자형일 때
-                    try {
-                        long aNum = Long.parseLong(aId.replaceAll("[^0-9]", ""));
-                        long bNum = Long.parseLong(bId.replaceAll("[^0-9]", ""));
-                        return Long.compare(bNum, aNum); // 내림차순
-                    } catch (NumberFormatException e) {
-                        // 문자열일 때
-                        return bId.compareTo(aId);
-                    }
-                });
-
-                retArray = new JsonArray();
-                for (JsonObject obj : logEntryList) {
-                    retArray.add(obj);
-                }
-
                 retObj.add("loglist", retArray);
                 return retObj.toString();
             default:
