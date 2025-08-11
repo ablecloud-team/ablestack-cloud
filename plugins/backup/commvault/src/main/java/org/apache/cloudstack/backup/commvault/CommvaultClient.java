@@ -194,7 +194,7 @@ public class CommvaultClient {
         return response;
     }
 
-    // https://10.10.255.56/commandcenter/api/client/<clientId> 
+    // https://10.10.255.56/commandcenter/api/client/<clientId>
     // client의 applicationId 조회하는 로직으로 없는 경우 null, 있는 경우 applicationId 반환
     public String getApplicationId(String clientId) {
         try {
@@ -227,7 +227,7 @@ public class CommvaultClient {
         return null;
     }
 
-    // https://10.10.255.56/commandcenter/api/client 
+    // https://10.10.255.56/commandcenter/api/client
     // client에 호스트가 연결되어있는지 확인하는 API로 호스트가 없는 경우 null, 있는 경우 clientId 반환
     public String getClientId(String hostName) {
         try {
@@ -692,9 +692,9 @@ public class CommvaultClient {
             connection.setRequestProperty("Accept", "application/json");
             connection.setDoOutput(true);
             String jsonBody = String.format("{\"taskInfo\":{\"task\":{\"taskType\":\"IMMEDIATE\"},\"associations\":[{\"subclientId\":%d,\"storagePolicyId\":%d,\"displayName\":\"%s\",\"commCellName\":\"%s\",\"clientId\":%d,\"entityInfo\":{\"companyId\":%d,\"companyName\":\"%s\"},\"instanceName\":\"%s\",\"appName\":\"%s\",\"applicationId\":%d,\"clientName\":\"%s\",\"backupsetId\":%d,\"instanceId\":%d,\"subclientGUID\":\"%s\",\"subclientName\":\"%s\",\"csGUID\":\"%s\",\"backupsetName\":\"%s\",\"_type_\":\"SUBCLIENT_ENTITY\"}],\"subTasks\":[{\"subTask\":{\"subTaskType\":\"BACKUP\",\"operationType\":\"BACKUP\"},\"options\":{\"backupOpts\":{\"backupLevel\":\"FULL\"}}}]}}",
-            subclientId, storagePolicyId, displayName, commCellName, clientId, 
-            companyId, companyName, instanceName, appName, applicationId, 
-            clientName, backupsetId, instanceId, subclientGUID, subclientName, 
+            subclientId, storagePolicyId, displayName, commCellName, clientId,
+            companyId, companyName, instanceName, appName, applicationId,
+            clientName, backupsetId, instanceId, subclientGUID, subclientName,
             csGUID, backupsetName);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
@@ -733,9 +733,13 @@ public class CommvaultClient {
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
             connection.setDoOutput(true);
-            String jsonBody = String.format("{\"taskInfo\":{\"task\":{\"taskType\":\"IMMEDIATE\",\"initiatedFrom\":\"GUI\"},\"associations\":[{\"subclientId\":%d,\"displayName\":\"%s\",\"backupsetGUID\":\"%s\",\"clientId\":%d,\"entityInfo\":{\"companyId\":%d,\"companyName\":\"%s\"},\"instanceName\":\"%s\",\"appName\":\"%s\",\"applicationId\":%d,\"clientName\":\"%s\",\"flags\":{},\"backupsetId\":%d,\"instanceId\":%d,\"backupsetName\":\"%s\",\"_type_\":\"SUBCLIENT_ENTITY\"}],\"subTasks\":[{\"subTask\":{\"subTaskType\":\"RESTORE\",\"operationType\":\"RESTORE\"},\"options\":{\"restoreOptions\":{\"browseOption\":{\"commCellId\":%d,\"backupset\":{\"backupsetId\":%d,\"clientId\":%d},\"timeRange\":{\"toTime\":%s},\"browseJobCommCellId\":%d},\"destination\":{\"destClient\":{\"clientId\":%d,\"clientName\":\"%s\"},\"destAppId\":%d,\"inPlace\":true,\"destinationInstance\":{\"applicationId\":0},\"noOfStreams\":10},\"restoreACLsType\":\"ACL_DATA\",\"qrOption\":{\"destAppTypeId\":%d},\"volumeRstOption\":{\"volumeLeveRestore\":false},\"virtualServerRstOption\":{},\"fileOption\":{\"sourceItem\":[\"%s\"],\"fsCloneOptions\":{\"cloneMountPath\":\"\"}},\"impersonation\":{\"user\":{}},\"commonOptions\":{\"overwriteFiles\":true,\"unconditionalOverwrite\":false,\"stripLevelType\":\"PRESERVE_LEVEL\",\"preserveLevel\":1,\"isFromBrowseBackup\":true}}}}]}}",
-            subclientId, displayName, backupsetGUID, clientId, companyId, 
-            companyName, instanceName, appName, applicationId, clientName, 
+            String jsonBody = String.format("{\"taskInfo\":{\"task\":{\"taskType\":\"IMMEDIATE\",\"initiatedFrom\":\"GUI\"},\"associations\":[{\"subclientId\":%d,\"displayName\":\"%s\",\"backupsetGUID\":\"%s\",\"clientId\":%d,"
+            + "\"entityInfo\":{\"companyId\":%d,\"companyName\":\"%s\"},\"instanceName\":\"%s\",\"appName\":\"%s\",\"applicationId\":%d,\"clientName\":\"%s\",\"flags\":{},\"backupsetId\":%d,\"instanceId\":%d,\"backupsetName\":\"%s\","
+            + "\"_type_\":\"SUBCLIENT_ENTITY\"}],\"subTasks\":[{\"subTask\":{\"subTaskType\":\"RESTORE\",\"operationType\":\"RESTORE\"},\"options\":{\"restoreOptions\":{\"browseOption\":{\"commCellId\":%d,\"backupset\":{\"backupsetId\":%d,\"clientId\":%d},"
+            + "\"timeRange\":{\"toTime\":%s},\"browseJobCommCellId\":%d},\"destination\":{\"destClient\":{\"clientId\":%d,\"clientName\":\"%s\"},\"destAppId\":%d,\"inPlace\":true,\"destinationInstance\":{\"applicationId\":0},\"noOfStreams\":10},\"restoreACLsType\":\"ACL_DATA\",\"qrOption\":{\"destAppTypeId\":%d},\"volumeRstOption\":{\"volumeLeveRestore\":false},"
+            + "\"virtualServerRstOption\":{},\"fileOption\":{\"sourceItem\":[\"%s\"],\"fsCloneOptions\":{\"cloneMountPath\":\"\"}},\"impersonation\":{\"user\":{}},\"commonOptions\":{\"overwriteFiles\":true,\"unconditionalOverwrite\":false,\"stripLevelType\":\"PRESERVE_LEVEL\",\"preserveLevel\":1,\"isFromBrowseBackup\":true}}}}]}}",
+            subclientId, displayName, backupsetGUID, clientId, companyId,
+            companyName, instanceName, appName, applicationId, clientName,
             backupsetId, instanceId, backupsetName, commCellId, backupsetId, clientId,
             endTime, commCellId, clientId, clientName, applicationId, applicationId, path);
             try (OutputStream os = connection.getOutputStream()) {
@@ -765,7 +769,7 @@ public class CommvaultClient {
     }
 
     // https://10.10.255.56/commandcenter/api/v5/serverplan/<planId>/backupdestination/<storagePoolId>
-    // plan의 retention period 변경 API 
+    // plan의 retention period 변경 API
     public String updateRetentionPeriod(String planId, String copyId, String retentionPeriod) {
         String putUrl = apiURI.toString() + "/v5/serverplan/" + planId + "/baackupdestination/" + copyId;
         try {
