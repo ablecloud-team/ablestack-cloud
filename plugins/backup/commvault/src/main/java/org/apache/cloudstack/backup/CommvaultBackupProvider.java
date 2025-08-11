@@ -43,6 +43,7 @@ import com.cloud.utils.nio.TrustAllManager;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
+import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreVO;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreDao;
 import org.apache.cloudstack.backup.commvault.CommvaultClient;
 import org.apache.cloudstack.backup.dao.BackupDao;
@@ -445,7 +446,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String backupsetGUID = client.getVmBackupSetGuid(clientName, backupsetName);
         LOG.info(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
         String jobId2 = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
-        if (result) {
+        if (jobId2 != null) {
+            //job 진행 체크 추가 필요 
             String[] properties = getServerProperties();
             ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
             String moldUrl = properties[1] + "://" + msHost.getServiceIP() + ":" + properties[0] + "/client/api/";
@@ -478,7 +480,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             throw new CloudRuntimeException(String.format("Failed to convert API to HOST : %s", e));
         }
         final String externalId = backup.getExternalId();
-        final CommvaultClient client = getClient(vm.getDataCenterId());
+        final CommvaultClient client = getClient(dataStoreUuid);
         String[] external = externalId.split("/");
         String path = external[0];
         String jobId = external[1];
@@ -499,9 +501,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String backupsetName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("backupsetName");
         String commCellId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").getString("commCellId");
         String backupsetGUID = client.getVmBackupSetGuid(clientName, backupsetName);
-        LOG.info(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
-        boolean result = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
-        if (result) {
+        LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volumeUuid, backup));
+        String result = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
+        if (result != null) {
             String[] properties = getServerProperties();
             ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
             String moldUrl = properties[1] + "://" + msHost.getServiceIP() + ":" + properties[0] + "/client/api/";
@@ -520,9 +522,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     //결과에 따른 처리 추가 필요
                 }
             }
+        } else {
+            return false;
         }
-        return false;
-
         VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
         StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
         Long restoredVolumeDiskSize = 0L;

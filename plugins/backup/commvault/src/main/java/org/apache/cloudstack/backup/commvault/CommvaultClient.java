@@ -424,6 +424,7 @@ public class CommvaultClient {
             LOG.error("Failed to get Host Client due to:", e);
             checkResponseTimeOut(e);
         }
+        return null;
     }
 
     // https://10.10.255.56/commandcenter/api/backupset?clientName=<hostName>
