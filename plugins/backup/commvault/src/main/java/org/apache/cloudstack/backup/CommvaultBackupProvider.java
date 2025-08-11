@@ -31,8 +31,6 @@ import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.StoragePoolHostDao;
 import com.cloud.storage.dao.VolumeDao;
-import com.cloud.storage.dao.SnapshotDao;
-import com.cloud.storage.SnapshotVO;
 import com.cloud.user.UserAccount;
 import com.cloud.user.AccountService;
 import com.cloud.utils.PropertiesUtil;
