@@ -62,7 +62,6 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Base64;
 import java.util.List;
-import java.util.StringJoiner;
 
 public class CommvaultClient {
     private static final Logger LOG = LogManager.getLogger(CommvaultClient.class);
