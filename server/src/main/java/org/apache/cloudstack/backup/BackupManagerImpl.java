@@ -297,7 +297,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         return new Gson().toJson(list.toArray(), Backup.VolumeInfo[].class);
     }
 
-    public static String createVolumeInfoFromVolumes(List<VolumeVO> vmVolumes, Map<String, String> checkResult) {
+    public static String createVolumeInfoFromVolumes(List<VolumeVO> vmVolumes, Map<Object, String> checkResult) {
         List<Backup.VolumeInfo> list = new ArrayList<>();
         for (VolumeVO vol : vmVolumes) {
             list.add(new Backup.VolumeInfo(vol.getUuid(), vol.getPath(), vol.getVolumeType(), vol.getSize()));

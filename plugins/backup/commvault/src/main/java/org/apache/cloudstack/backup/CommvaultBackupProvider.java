@@ -617,7 +617,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 int jobStatus = getAsyncJobResult(moldUrl, apiKey, secretKey, jobId);
                 if (jobStatus == 2) {
                     // 스냅샷 생성 실패
-                    Map<String, Object> snapshotParams = new HashMap<>();
+                    Map<String, String> snapshotParams = new HashMap<>();
                     snapshotParams.put("id", snapId);
                     moldMethod = "GET";
                     moldCommand = "deleteSnapshot";
@@ -635,7 +635,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     return false;
                 }
                 checkResult.put(vol.getId(), snapId);
-                List<SnapshotDataStoreVO> volSnap = snapshotStoreDao.findBySnapshotId(snapId);
+                List<SnapshotDataStoreVO> volSnap = snapshotStoreDao.findBySnapshotId(Long.parseLong(snapId));
                 //수정 필요joiner.add(volSnap.getInstallPath());
             }
         }
