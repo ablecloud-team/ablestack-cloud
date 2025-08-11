@@ -521,7 +521,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     snapshotParams.put("id", snapshots[i]);
                     moldRevertSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
                     //결과에 따른 처리 추가 필요
-                    return new Pair<>(true,restoredVolume.getUuid());
                 }
             }
         } else {
@@ -592,10 +591,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         UserVmJoinVO userVM = userVmJoinDao.findById(vm.getId());
         List<VolumeVO> volumes = volsDao.findByInstance(userVM.getId());
         StringJoiner joiner = new StringJoiner(",");
-        Map<String, String> checkResult = new HashMap<>();
+        Map<Object, String> checkResult = new HashMap<>();
         for (VolumeVO vol : volumes) {
             Map<String, String> snapParams = new HashMap<>();
-            snapParams.put("volumeid", Long.parseLong(vol.getId()));
+            snapParams.put("volumeid", Long.toString(vol.getId()));
             snapParams.put("quiescevm", "true");
             String createSnapResult = moldCreateSnapshotBackupAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapParams);
             if (createSnapResult == null) {
@@ -618,7 +617,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 int jobStatus = getAsyncJobResult(moldUrl, apiKey, secretKey, jobId);
                 if (jobStatus == 2) {
                     // 스냅샷 생성 실패
-                    Map<String, String> snapshotParams = new HashMap<>();
+                    Map<String, Object> snapshotParams = new HashMap<>();
                     snapshotParams.put("id", snapId);
                     moldMethod = "GET";
                     moldCommand = "deleteSnapshot";
