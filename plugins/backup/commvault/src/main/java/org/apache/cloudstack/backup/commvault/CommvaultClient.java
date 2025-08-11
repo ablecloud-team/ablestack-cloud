@@ -19,6 +19,7 @@ package org.apache.cloudstack.backup.commvault;
 
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.ServerApiException;
@@ -35,19 +36,28 @@ import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.net.URL;
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.Base64;
 import java.util.List;
 
@@ -112,7 +122,7 @@ public class CommvaultClient {
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setDoOutput(true);
 
-            String jsonParams = "{\"username\":\"" + username + "\",\"password\":\"" + Base64.getEncoder().encodeToString(password).getBytes() + "\"}";
+            String jsonParams = "{\"username\":\"" + username + "\",\"password\":\"" + Base64.getEncoder().encodeToString(password) + "\"}";
 
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonParams.getBytes("utf-8");
@@ -191,7 +201,7 @@ public class CommvaultClient {
         final HttpResponse response = httpClient.execute(request);
         checkAuthFailure(response);
 
-        logger.debug(String.format("Response received in DELETE request is: [%s] for URL [%s].", response.toString(), url));
+        LOG.debug(String.format("Response received in DELETE request is: [%s] for URL [%s].", response.toString(), url));
         return response;
     }
 
@@ -391,7 +401,7 @@ public class CommvaultClient {
                                 + "\"jobId\": " + jobId
                             + "}";
             try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
             int responseCode = connection.getResponseCode();
@@ -619,11 +629,11 @@ public class CommvaultClient {
                 "}", path, planId, planName, planType, planSubtype, companyId
             );
 
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
-            int responseCode = conn.getResponseCode();
+            int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 connection.disconnect();
                 return true;
@@ -663,11 +673,11 @@ public class CommvaultClient {
             contentArray, subclientId, clientId, applicationId, backupsetId, instanceId, subclientName, backupsetName
         );
 
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
-            int responseCode = conn.getResponseCode();
+            int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 connection.disconnect();
                 return true;
@@ -698,7 +708,7 @@ public class CommvaultClient {
             clientName, backupsetId, instanceId, subclientGUID, subclientName,
             csGUID, backupsetName);
             try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
             int responseCode = connection.getResponseCode();
@@ -744,7 +754,7 @@ public class CommvaultClient {
             backupsetId, instanceId, backupsetName, commCellId, backupsetId, clientId,
             endTime, commCellId, clientId, clientName, applicationId, applicationId, path);
             try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
             int responseCode = connection.getResponseCode();
@@ -782,7 +792,7 @@ public class CommvaultClient {
             connection.setDoOutput(true);
             String jsonBody = String.format("{\"retentionRules\":{\"retentionRuleType\":\"RETENTION_PERIOD\",\"retentionPeriodDays\":%d,\"useExtendedRetentionRules\":false}}"),retentionPeriod;
             try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
             int responseCode = connection.getResponseCode();
@@ -849,11 +859,11 @@ public class CommvaultClient {
                                 + "\"storagePolicyId\": " + storagePolicyId + ","
                                 + "\"loadArchiverJobs\": \"true\""
                             + "}";
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
-            int responseCode = conn.getResponseCode();
+            int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 connection.disconnect();
                 return true;
@@ -909,11 +919,11 @@ public class CommvaultClient {
                                 + "}"
                             + "}";
 
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
-            int responseCode = conn.getResponseCode();
+            int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 connection.disconnect();
                 return true;
