@@ -21,6 +21,8 @@ import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonObject;
 import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.utils.security.SSLUtils;
@@ -60,6 +62,7 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Base64;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class CommvaultClient {
     private static final Logger LOG = LogManager.getLogger(CommvaultClient.class);
@@ -122,7 +125,7 @@ public class CommvaultClient {
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setDoOutput(true);
 
-            String jsonParams = "{\"username\":\"" + username + "\",\"password\":\"" + Base64.getEncoder().encodeToString(password) + "\"}";
+            String jsonParams = "{\"username\":\"" + username + "\",\"password\":\"" + Base64.getEncoder().toString(password) + "\"}";
 
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonParams.getBytes("utf-8");
@@ -285,7 +288,7 @@ public class CommvaultClient {
                 for (JsonNode planNode : plans) {
                     JsonNode planDetails = planNode.path("plan");
                     if (!planDetails.isMissingNode()) {
-                        int planId = planDetails.path("planId").asInt();
+                        String planId = planDetails.path("planId").asText();
                         String planName = planDetails.path("planName").asText();
                         offerings.add(new CommvaultBackupOffering(planName, planId));
                     }
@@ -507,14 +510,6 @@ public class CommvaultClient {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
             JsonNode policies = root.get("policies");
-            if (policies != null && policies.isArray()) {
-                for (JsonNode item : policies) {
-                    JsonNode entity = item.get("copies");
-                    if (entity != null && vmName.equals(entity.get("backupsetName").asText())) {
-                        return entity.get("backupsetId").asText();
-                    }
-                }
-            }
             if (policies.isArray()) {
                 for (JsonNode policy : policies) {
                     JsonNode storagePolicyNameNode = policy
@@ -950,18 +945,6 @@ public class CommvaultClient {
             return jobIds.split(",")[0];
         }
         return null;
-    }
-
-    /**
-     * Generate a single command to be passed through SSH
-     */
-    protected String transformPowerShellCommandList(List<String> cmds) {
-        StringJoiner joiner = new StringJoiner(";");
-        joiner.add("qlogin -cs '%s' -u '%s' -clp '%s'", cvtServerIp, cvtServerUsername, cvtServerPassword);
-        for (String cmd : cmds) {
-            joiner.add(cmd);
-        }
-        return joiner.toString();
     }
 
 }

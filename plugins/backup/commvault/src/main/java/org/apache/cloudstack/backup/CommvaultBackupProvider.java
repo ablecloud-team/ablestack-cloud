@@ -27,6 +27,10 @@ import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.StoragePoolHostDao;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.storage.dao.SnapshotDao;
+import com.cloud.event.EventVO;
+import com.cloud.event.EventTypes;
+import com.cloud.event.ActionEventUtils;
+import com.cloud.user.User;
 import com.cloud.utils.Pair;
 import com.cloud.utils.Ternary;
 import com.cloud.utils.component.AdapterBase;
@@ -34,6 +38,7 @@ import com.cloud.utils.db.Transaction;
 import com.cloud.utils.db.TransactionCallbackNoReturn;
 import com.cloud.utils.db.TransactionStatus;
 import com.cloud.utils.exception.CloudRuntimeException;
+import com.cloud.utils.nio.TrustAllManager;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
@@ -43,14 +48,20 @@ import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDaoImpl;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
+import org.apache.cloudstack.utils.security.SSLUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.xml.utils.URI;
 import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.HttpsURLConnection;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -772,54 +783,55 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     @Override
     public void syncBackups(VirtualMachine vm, Backup.Metric metric) {
         // 복원 지점이 생긴 경우 sync 맞춰주는 로직 고민 필요
-        List<Backup.RestorePoint> restorePoints = listRestorePoints(vm);
-        if (CollectionUtils.isEmpty(restorePoints)) {
-            logger.debug("Can't find any restore point to VM: {}", vm);
-            return;
-        }
-        Transaction.execute(new TransactionCallbackNoReturn() {
-            @Override
-            public void doInTransactionWithoutResult(TransactionStatus status) {
-                final List<Backup> backupsInDb = backupDao.listByVmId(null, vm.getId());
-                final List<Long> removeList = backupsInDb.stream().map(InternalIdentity::getId).collect(Collectors.toList());
-                for (final Backup.RestorePoint restorePoint : restorePoints) {
-                    if (!(restorePoint.getId() == null || restorePoint.getType() == null || restorePoint.getCreated() == null)) {
-                        Backup existingBackupEntry = checkAndUpdateIfBackupEntryExistsForRestorePoint(backupsInDb, restorePoint, metric);
-                        if (existingBackupEntry != null) {
-                            removeList.remove(existingBackupEntry.getId());
-                            continue;
-                        }
+        // List<Backup.RestorePoint> restorePoints = listRestorePoints(vm);
+        // if (CollectionUtils.isEmpty(restorePoints)) {
+        //     logger.debug("Can't find any restore point to VM: {}", vm);
+        //     return;
+        // }
+        // Transaction.execute(new TransactionCallbackNoReturn() {
+        //     @Override
+        //     public void doInTransactionWithoutResult(TransactionStatus status) {
+        //         final List<Backup> backupsInDb = backupDao.listByVmId(null, vm.getId());
+        //         final List<Long> removeList = backupsInDb.stream().map(InternalIdentity::getId).collect(Collectors.toList());
+        //         for (final Backup.RestorePoint restorePoint : restorePoints) {
+        //             if (!(restorePoint.getId() == null || restorePoint.getType() == null || restorePoint.getCreated() == null)) {
+        //                 Backup existingBackupEntry = checkAndUpdateIfBackupEntryExistsForRestorePoint(backupsInDb, restorePoint, metric);
+        //                 if (existingBackupEntry != null) {
+        //                     removeList.remove(existingBackupEntry.getId());
+        //                     continue;
+        //                 }
 
-                        BackupVO backup = new BackupVO();
-                        backup.setVmId(vm.getId());
-                        backup.setExternalId(restorePoint.getId());
-                        backup.setType(restorePoint.getType());
-                        backup.setDate(restorePoint.getCreated());
-                        backup.setStatus(Backup.Status.BackedUp);
-                        if (metric != null) {
-                            backup.setSize(metric.getBackupSize());
-                            backup.setProtectedSize(metric.getDataSize());
-                        }
-                        backup.setBackupOfferingId(vm.getBackupOfferingId());
-                        backup.setAccountId(vm.getAccountId());
-                        backup.setDomainId(vm.getDomainId());
-                        backup.setZoneId(vm.getDataCenterId());
+        //                 BackupVO backup = new BackupVO();
+        //                 backup.setVmId(vm.getId());
+        //                 backup.setExternalId(restorePoint.getId());
+        //                 backup.setType(restorePoint.getType());
+        //                 backup.setDate(restorePoint.getCreated());
+        //                 backup.setStatus(Backup.Status.BackedUp);
+        //                 if (metric != null) {
+        //                     backup.setSize(metric.getBackupSize());
+        //                     backup.setProtectedSize(metric.getDataSize());
+        //                 }
+        //                 backup.setBackupOfferingId(vm.getBackupOfferingId());
+        //                 backup.setAccountId(vm.getAccountId());
+        //                 backup.setDomainId(vm.getDomainId());
+        //                 backup.setZoneId(vm.getDataCenterId());
 
-                        logger.debug("Creating a new entry in backups: [id: {}, uuid: {}, name: {}, vm_id: {}, external_id: {}, type: {}, date: {}, backup_offering_id: {}, account_id: {}, "
-                                + "domain_id: {}, zone_id: {}].", backup.getId(), backup.getUuid(), backup.getName(), backup.getVmId(), backup.getExternalId(), backup.getType(), backup.getDate(), backup.getBackupOfferingId(), backup.getAccountId(), backup.getDomainId(), backup.getZoneId());
-                        backupDao.persist(backup);
+        //                 logger.debug("Creating a new entry in backups: [id: {}, uuid: {}, name: {}, vm_id: {}, external_id: {}, type: {}, date: {}, backup_offering_id: {}, account_id: {}, "
+        //                         + "domain_id: {}, zone_id: {}].", backup.getId(), backup.getUuid(), backup.getName(), backup.getVmId(), backup.getExternalId(), backup.getType(), backup.getDate(), backup.getBackupOfferingId(), backup.getAccountId(), backup.getDomainId(), backup.getZoneId());
+        //                 backupDao.persist(backup);
 
-                        ActionEventUtils.onCompletedActionEvent(User.UID_SYSTEM, vm.getAccountId(), EventVO.LEVEL_INFO, EventTypes.EVENT_VM_BACKUP_CREATE,
-                                String.format("Created backup %s for VM ID: %s", backup.getUuid(), vm.getUuid()),
-                                vm.getId(), ApiCommandResourceType.VirtualMachine.toString(),0);
-                    }
-                }
-                for (final Long backupIdToRemove : removeList) {
-                    logger.warn(String.format("Removing backup with ID: [%s].", backupIdToRemove));
-                    backupDao.remove(backupIdToRemove);
-                }
-            }
-        });
+        //                 ActionEventUtils.onCompletedActionEvent(User.UID_SYSTEM, vm.getAccountId(), EventVO.LEVEL_INFO, EventTypes.EVENT_VM_BACKUP_CREATE,
+        //                         String.format("Created backup %s for VM ID: %s", backup.getUuid(), vm.getUuid()),
+        //                         vm.getId(), ApiCommandResourceType.VirtualMachine.toString(),0);
+        //             }
+        //         }
+        //         for (final Long backupIdToRemove : removeList) {
+        //             logger.warn(String.format("Removing backup with ID: [%s].", backupIdToRemove));
+        //             backupDao.remove(backupIdToRemove);
+        //         }
+        //     }
+        // });
+        return;
     }
 
     @Override
