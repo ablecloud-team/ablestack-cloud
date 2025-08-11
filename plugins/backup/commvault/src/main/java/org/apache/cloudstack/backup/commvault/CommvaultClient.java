@@ -29,8 +29,6 @@ import org.apache.cloudstack.backup.BackupVO;
 import org.apache.cloudstack.backup.commvault.api.ClientProperties;
 import org.apache.cloudstack.backup.commvault.api.ClientProperty;
 import org.apache.cloudstack.backup.commvault.api.Plans;
-import org.apache.cloudstack.backup.networker.api.NetworkerBackup;
-import org.apache.cloudstack.backup.networker.api.NetworkerBackups;
 import org.apache.cloudstack.backup.networker.api.ProtectionPolicies;
 import org.apache.cloudstack.backup.networker.api.ProtectionPolicy;
 import org.apache.cloudstack.utils.security.SSLUtils;
@@ -64,8 +62,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-
-import static org.apache.cloudstack.backup.CommvaultBackupProvider.BACKUP_IDENTIFIER;
 
 public class CommvaultClient {
     private static final Logger LOG = LogManager.getLogger(CommvaultClient.class);

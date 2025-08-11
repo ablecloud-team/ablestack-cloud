@@ -48,7 +48,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.xml.utils.URI;
-import org.apache.cloudstack.backup.networker.api.NetworkerBackup;
 import javax.inject.Inject;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -69,7 +68,6 @@ import com.cloud.utils.script.Script;
 
 public class CommvaultBackupProvider extends AdapterBase implements BackupProvider, Configurable {
 
-    public static final String BACKUP_IDENTIFIER = "-CSBKP-";
     private static final Logger LOG = LogManager.getLogger(CommvaultBackupProvider.class);
 
     public ConfigKey<String> CommvaultUrl = new ConfigKey<>("Advanced", String.class,
@@ -745,19 +743,19 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             return metrics;
         }
 
-        for (final VirtualMachine vm : vms) {
-            for (Backup.VolumeInfo thisVMVol : vm.getBackupVolumeList()) {
-                vmBackupSize += (thisVMVol.getSize() / 1024L / 1024L);
-            }
-            final ArrayList<String> vmBackups = getClient(zoneId).getBackupsForVm(vm);
-            for (String vmBackup : vmBackups) {
-                NetworkerBackup vmNwBackup = getClient(zoneId).getNetworkerBackupInfo(vmBackup);
-                vmBackupProtectedSize+= vmNwBackup.getSize().getValue() / 1024L;
-            }
-            Backup.Metric vmBackupMetric = new Backup.Metric(vmBackupSize,vmBackupProtectedSize);
-            LOG.debug(String.format("Metrics for VM [%s] is [backup size: %s, data size: %s].", vm, vmBackupMetric.getBackupSize(), vmBackupMetric.getDataSize()));
-            metrics.put(vm, vmBackupMetric);
-        }
+        // for (final VirtualMachine vm : vms) {
+        //     for (Backup.VolumeInfo thisVMVol : vm.getBackupVolumeList()) {
+        //         vmBackupSize += (thisVMVol.getSize() / 1024L / 1024L);
+        //     }
+        //     final ArrayList<String> vmBackups = getClient(zoneId).getBackupsForVm(vm);
+        //     for (String vmBackup : vmBackups) {
+        //         NetworkerBackup vmNwBackup = getClient(zoneId).getNetworkerBackupInfo(vmBackup);
+        //         vmBackupProtectedSize+= vmNwBackup.getSize().getValue() / 1024L;
+        //     }
+        //     Backup.Metric vmBackupMetric = new Backup.Metric(vmBackupSize,vmBackupProtectedSize);
+        //     LOG.debug(String.format("Metrics for VM [%s] is [backup size: %s, data size: %s].", vm, vmBackupMetric.getBackupSize(), vmBackupMetric.getDataSize()));
+        //     metrics.put(vm, vmBackupMetric);
+        // }
         return metrics;
     }
 
