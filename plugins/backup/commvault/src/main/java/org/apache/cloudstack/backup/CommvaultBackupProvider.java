@@ -32,7 +32,7 @@ import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.StoragePoolHostDao;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.storage.dao.SnapshotDao;
-import com.cloud.storage.snapshotVO;
+import com.cloud.storage.SnapshotVO;
 import com.cloud.user.UserAccount;
 import com.cloud.user.AccountService;
 import com.cloud.utils.Pair;
@@ -608,7 +608,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
                     if (!checkResult.isEmpty()) {
                         for (String value : checkResult.values()) {
-                            Map<String, String> snapshotParams = new HashMap<>();
+                            snapshotParams = new HashMap<>();
                             snapshotParams.put("id", value);
                             moldMethod = "GET";
                             moldCommand = "deleteSnapshot";
