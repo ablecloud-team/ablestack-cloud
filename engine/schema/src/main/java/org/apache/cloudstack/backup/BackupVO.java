@@ -91,6 +91,9 @@ public class BackupVO implements Backup {
     @Column(name = "backed_volumes", length = 65535)
     protected String backedUpVolumes;
 
+    @Column(name = "snapshot_id")
+    private String snapshotId;
+
     public BackupVO() {
         this.uuid = UUID.randomUUID().toString();
     }
@@ -235,5 +238,14 @@ public class BackupVO implements Backup {
 
     public void setRemoved(Date removed) {
         this.removed = removed;
+    }
+
+    @Override
+    public String getSnapshotId() {
+        return snapshotId;
+    }
+
+    public void setSnapshotId(String snapshotId) {
+        this.snapshotId = snapshotId;
     }
 }

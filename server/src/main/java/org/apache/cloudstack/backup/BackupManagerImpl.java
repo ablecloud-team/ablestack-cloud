@@ -63,6 +63,7 @@ import org.apache.cloudstack.backup.dao.BackupScheduleDao;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.engine.orchestration.service.VolumeOrchestrationService;
 import org.apache.cloudstack.framework.config.ConfigKey;
+import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
 import org.apache.cloudstack.framework.jobs.AsyncJobDispatcher;
 import org.apache.cloudstack.framework.jobs.AsyncJobManager;
 import org.apache.cloudstack.framework.jobs.impl.AsyncJobVO;
@@ -164,6 +165,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     private VolumeApiService volumeApiService;
     @Inject
     private VolumeOrchestrationService volumeOrchestrationService;
+    @Inject
+    private ConfigurationDao configDao;
 
     private AsyncJobDispatcher asyncJobDispatcher;
     private Timer backupTimer;
@@ -212,8 +215,16 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             throw new CloudRuntimeException("Backup offering '" + cmd.getExternalId() + "' does not exist on provider " + provider.getName() + " on zone " + cmd.getZoneId());
         }
 
+        if (!provider.checkBackupAgent(cmd.getZoneId())) {
+            throw new CloudRuntimeException("The backup offering cannot be imported because the host does not have the agent properly installed on provider " + provider.getName() + "on zone" + cmd.getZoneId());
+        }
+
+        if (!provider.importBackupPlan(cmd.getZoneId(), cmd.getRetentionPeriod())) {
+            throw new CloudRuntimeException("The backup offering cannot be imported because failed setting on provider " + provider.getName() + "on zone" + cmd.getZoneId());
+        }
+
         final BackupOfferingVO offering = new BackupOfferingVO(cmd.getZoneId(), cmd.getExternalId(), provider.getName(),
-                cmd.getName(), cmd.getDescription(), cmd.getUserDrivenBackups());
+                cmd.getName(), cmd.getDescription(), cmd.getUserDrivenBackups(), cmd.getRetentionPeriod());
 
         final BackupOfferingVO savedOffering = backupOfferingDao.persist(offering);
         if (savedOffering == null) {
@@ -279,6 +290,14 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     public static String createVolumeInfoFromVolumes(List<VolumeVO> vmVolumes) {
+        List<Backup.VolumeInfo> list = new ArrayList<>();
+        for (VolumeVO vol : vmVolumes) {
+            list.add(new Backup.VolumeInfo(vol.getUuid(), vol.getPath(), vol.getVolumeType(), vol.getSize()));
+        }
+        return new Gson().toJson(list.toArray(), Backup.VolumeInfo[].class);
+    }
+
+    public static String createVolumeInfoFromVolumes(List<VolumeVO> vmVolumes, Map<String, String> checkResult) {
         List<Backup.VolumeInfo> list = new ArrayList<>();
         for (VolumeVO vol : vmVolumes) {
             list.add(new Backup.VolumeInfo(vol.getUuid(), vol.getPath(), vol.getVolumeType(), vol.getSize()));
@@ -1230,6 +1249,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     if (backupProvider == null) {
                         logger.warn("Backup provider not available or configured for zone {}", dataCenter);
                         continue;
+                    }
+                    if (backupProvider.getName().equalsIgnoreCase("commvault")) {
+                        // 1. commvault agent 상태 체크 로직 추가 필요 REST API 호출
+                        backupProvider.checkBackupAgent(dataCenter.getId());
                     }
 
                     List<VMInstanceVO> vms = vmInstanceDao.listByZoneWithBackups(dataCenter.getId(), null);

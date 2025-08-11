@@ -61,6 +61,14 @@ public class BackupOfferingResponse extends BaseResponse {
     @Param(description = "the date this backup offering was created")
     private Date created;
 
+    @SerializedName(ApiConstants.PROVIDER)
+    @Param(description = "backup provider")
+    private String provider;
+
+    @SerializedName(ApiConstants.RETENTION_PERIOD)
+    @Param(description = "Retention period of backup data")
+    private String retentionPeriod;
+
     public void setId(String id) {
         this.id = id;
     }
@@ -91,5 +99,13 @@ public class BackupOfferingResponse extends BaseResponse {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public void setRetentionPeriod(String retentionPeriod) {
+        this.retentionPeriod = retentionPeriod;
     }
 }

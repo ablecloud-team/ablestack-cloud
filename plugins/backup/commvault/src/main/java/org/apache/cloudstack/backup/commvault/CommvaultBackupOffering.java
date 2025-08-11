@@ -14,19 +14,17 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
-package org.apache.cloudstack.backup.veeam;
-
-import java.util.Date;
+package org.apache.cloudstack.backup.commvault;
 
 import org.apache.cloudstack.backup.BackupOffering;
+import java.util.Date;
 
-public class VeeamBackupOffering implements BackupOffering {
+public class CommvaultBackupOffering implements BackupOffering {
 
     private String name;
     private String uid;
 
-    public VeeamBackupOffering(String name, String uid) {
+    public CommvaultBackupOffering(String name, String uid) {
         this.name = name;
         this.uid = uid;
     }
@@ -43,7 +41,7 @@ public class VeeamBackupOffering implements BackupOffering {
 
     @Override
     public String getDescription() {
-        return "Veeam Backup Offering (Job)";
+        return "Commvault Backup Offering (Job)";
     }
 
     @Override
@@ -58,7 +56,7 @@ public class VeeamBackupOffering implements BackupOffering {
 
     @Override
     public String getProvider() {
-        return "veeam";
+        return "commvault";
     }
 
     @Override

@@ -1464,6 +1464,8 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
         Long snapshotId = payload.getSnapshotId();
         Account snapshotOwner = payload.getAccount();
+        boolean backup = payload.getBackup();
+        logger.info(":::::::::::::::::::::::::::::backup" + backup);
         SnapshotInfo snapshot = snapshotFactory.getSnapshot(snapshotId, volume.getDataStore());
         snapshot.addPayload(payload);
         try {
@@ -1476,6 +1478,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             SnapshotInfo snapshotOnPrimary = snapshotStrategy.takeSnapshot(snapshot);
             boolean backupSnapToSecondary = isBackupSnapshotToSecondaryForZone(snapshot.getDataCenterId());
             if (backupSnapToSecondary) {
+                // backup 옵션에 따라 백업을 위한 API인 경우 backupSnapshtoToSecondary 가지않도록 설정
                 backupSnapshotToSecondary(payload.getAsyncBackup(), snapshotStrategy, snapshotOnPrimary, payload.getZoneIds());
             } else {
                 logger.debug("skipping backup of snapshot [{}] to secondary due to configuration", snapshot);
@@ -1503,6 +1506,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                 _resourceLimitMgr.decrementResourceCount(snapshotOwner.getId(), ResourceType.secondary_storage, new Long(volume.getSize() - snapshotStoreRef.getPhysicalSize()));
 
                 if (!payload.getAsyncBackup() && backupSnapToSecondary) {
+                    // backup 옵션에 따라 백업을 위한 API인 경우 copyNewSnapshotToZones 가지않도록 설정
                     copyNewSnapshotToZones(snapshotId, snapshot.getDataCenterId(), payload.getZoneIds());
                 }
             } catch (Exception e) {
