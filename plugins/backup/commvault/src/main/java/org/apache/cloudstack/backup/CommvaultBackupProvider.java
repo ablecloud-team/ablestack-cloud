@@ -1006,7 +1006,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 final SSLContext sslContext = SSLUtils.getSSLContext();
                 sslContext.init(null, new TrustManager[]{new TrustAllManager()}, new SecureRandom());
                 connection.setSSLSocketFactory(sslContext.getSocketFactory());
-            }   
+            }
             connection.setDoOutput(true);
             connection.setRequestMethod(method);
             connection.setConnectTimeout(10000);
