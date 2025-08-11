@@ -35,6 +35,8 @@ import com.cloud.storage.dao.SnapshotDao;
 import com.cloud.storage.SnapshotVO;
 import com.cloud.user.UserAccount;
 import com.cloud.user.AccountService;
+import com.cloud.utils.PropertiesUtil;
+import com.cloud.utils.server.ServerProperties;
 import com.cloud.utils.Pair;
 import com.cloud.utils.Ternary;
 import com.cloud.utils.component.AdapterBase;
@@ -60,8 +62,11 @@ import javax.inject.Inject;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.HttpsURLConnection;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.Mac;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -76,9 +81,18 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.StringTokenizer;
 import java.util.StringJoiner;
+import java.util.Properties;
+import java.util.Base64;
+import java.util.Collections;
+import java.io.File;
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 
 public class CommvaultBackupProvider extends AdapterBase implements BackupProvider, Configurable {
 
@@ -645,23 +659,23 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String csGUID = jsonObject.getString("csGUID");
         boolean upResult = client.updateBackupSet(path, subclientId, clientId, applicationId, backupsetId, instanceId, backupsetName);
         String jobState = "Running";
-        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject2 = new JSONObject();
         if (upResult) {
             String storagePolicyId = client.getStoragePolicyId(planName);
             String jobId = client.createBackup(subclientId, storagePolicyId, displayName, commCellName, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, subclientGUID, subclientName, csGUID, backupsetName);
             while (jobState == "Running") {
                 String jobDetails = client.getJobDetails(jobId);
-                jsonObject = new JSONObject(jobDetails);
-                jobState = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").getString("state");
+                jsonObject2 = new JSONObject(jobDetails);
+                jobState = jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").getString("state");
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException e) {
                     LOG.error("create backup get asyncjob result sleep interrupted error");
                 }
             }
-            String endTime = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").getString("endTime");
-            String size = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").getString("sizeOfApplication");
-            String type = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getString("backupType");
+            String endTime = jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").getString("endTime");
+            String size = jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").getString("sizeOfApplication");
+            String type = jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getString("backupType");
             SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             if (jobState == "Completed") {
                 String externalId = path + "/" + jobId;
@@ -744,6 +758,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String jobId = external[1];
         final CommvaultClient client = getClient(zoneId);
         String jobDetails = client.getJobDetails(jobId);
+        JSONObject jsonObject = new JSONObject(jobDetails);
         String commcellId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").getString("commCellId");
         String storagePolicyId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("storagePolicy").getString("storagePolicyId");
         String copyId = client.getStoragePolicyDetails(storagePolicyId);
@@ -974,6 +989,46 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             return response.toString();
         } catch (Exception e) {
             LOG.error(String.format("Mold API endpoint not available"), e);
+            return null;
+        }
+    }
+
+    protected static String moldQueryAsyncJobResultAPI(String region, String command, String method, String apiKey, String secretKey, Map<String, String> params) {
+        try {
+            String readLine = null;
+            StringBuffer sb = null;
+            String apiParams = buildParamsMold(command, params);
+            String urlFinal = buildUrl(apiParams, region, apiKey, secretKey);
+            URL url = new URL(urlFinal);
+            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            if (region.contains("https")) {
+                // SSL 인증서 에러 우회 처리
+                final SSLContext sslContext = SSLUtils.getSSLContext();
+                sslContext.init(null, new TrustManager[]{new TrustAllManager()}, new SecureRandom());
+                connection.setSSLSocketFactory(sslContext.getSocketFactory());
+            }   
+            connection.setDoOutput(true);
+            connection.setRequestMethod(method);
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(180000);
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
+            if (connection.getResponseCode() == 200) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+                sb = new StringBuffer();
+                while ((readLine = br.readLine()) != null) {
+                    sb.append(readLine);
+                }
+            } else {
+                String msg = "Failed to request mold API. response code : " + connection.getResponseCode();
+                LOGGER.error(msg);
+                return null;
+            }
+            JSONObject jObject = XML.toJSONObject(sb.toString());
+            JSONObject response = (JSONObject) jObject.get("queryasyncjobresultresponse");
+            return response.get("jobstatus").toString();
+        } catch (Exception e) {
+            LOGGER.error(String.format("Mold API endpoint not available"), e);
             return null;
         }
     }
