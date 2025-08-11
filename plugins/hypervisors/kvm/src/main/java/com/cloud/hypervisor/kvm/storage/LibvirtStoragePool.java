@@ -341,7 +341,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
     }
 
     public String createHeartBeatCommand(HAStoragePool primaryStoragePool, String hostPrivateIp, boolean hostValidation) {
-        logger.info("### [HA Checking] createHeartBeatCommand Method Start!!!");
+        logger.info("### [HA HB Writing] createHeartBeatCommand Method Start!!!");
         Script cmd = new Script(getHearthBeatPath(), HeartBeatUpdateTimeout, logger);
         if (primaryStoragePool.getPool().getType() == StoragePoolType.NetworkFilesystem) {
             cmd = new Script(getHearthBeatPath(), HeartBeatUpdateTimeout, logger);
@@ -452,7 +452,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
 
     @Override
     public Boolean checkingHeartBeatRBD(HAStoragePool pool, HostTO host, String volumeList) {
-        logger.info("### [HA Checking] checkingHeartBeatRBD Method Start!!!");
+        logger.info("### [HA RBD Checking] checkingHeartBeatRBD Method Start!!!");
         boolean validResult = false;
         Script cmd = new Script(getHearthBeatPath(), HeartBeatCheckerTimeout, logger);
         cmd.add("-i", pool.getPoolSourceHost());
@@ -482,7 +482,7 @@ public class LibvirtStoragePool implements KVMStoragePool {
 
     @Override
     public Boolean vmActivityCheck(HAStoragePool pool, HostTO host, Duration activityScriptTimeout, String volumeUUIDListString, String vmActivityCheckPath, long duration) {
-        logger.info("### [HA Checking] vmActivityCheck Method Start!!!");
+        logger.info("### [HA AC Checking] vmActivityCheck Method Start!!!");
         Script cmd = new Script(vmActivityCheckPath, activityScriptTimeout.getStandardSeconds(), logger);
         if (pool.getPool().getType() == StoragePoolType.NetworkFilesystem) {
             cmd.add("-i", pool.getPoolIp());
