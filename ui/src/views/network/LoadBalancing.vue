@@ -123,7 +123,8 @@
       :dataSource="lbRules"
       :pagination="false"
       :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
-      :rowKey="record => record.id">
+      :rowKey="record => record.id"
+      :expandRowByClick="true">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'cidrlist'">
           <span style="white-space: pre-line"> {{ record.cidrlist?.replaceAll(",", "\n") }}</span>

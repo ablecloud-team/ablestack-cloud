@@ -180,6 +180,7 @@ import org.apache.cloudstack.api.command.admin.outofbandmanagement.EnableOutOfBa
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.IssueOutOfBandManagementPowerActionCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.LicenseCheckCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostRedfishDataCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostDevicesCmd;
 // import org.apac
 import org.apache.cloudstack.api.command.admin.pod.CreatePodCmd;
@@ -4393,6 +4394,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(DeleteBucketCmd.class);
         cmdList.add(ListBucketsCmd.class);
         cmdList.add(LicenseCheckCmd.class);
+        cmdList.add(ListHostRedfishDataCmd.class);
 
         return cmdList;
     }
