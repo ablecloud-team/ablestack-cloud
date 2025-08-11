@@ -621,6 +621,7 @@
             <groupId>org.apache.cloudstack</groupId>
             <artifactId>cloud-plugin-backup-commvault</artifactId>
             <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.cloudstack</groupId>
             <artifactId>cloud-plugin-integrations-kubernetes-service</artifactId>
