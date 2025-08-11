@@ -395,44 +395,39 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/jobDetails
     // 작업의 상세정보를 가져와서 작업 상태 반환 (failedClients,successfullClients,skippedClients,pendingClients)
     private String getJobDetails(String jobId) {
-        String state = "Running";
-        while (state == "Running") {
-            String postUrl = apiURI.toString() + "/jobDatails";
-            try {
-                URL url = new URL(postUrl);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setRequestProperty("Accept", "application/json");
-                connection.setDoOutput(true);
-                String jsonBody = "{"
-                                    + "\"jobId\": " + jobId
-                                + "}";
-
-                try (OutputStream os = connection.getOutputStream()) {
-                    byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
-                    os.write(input, 0, input.length);
-                }
-                int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    StringBuilder responseBuilder = new StringBuilder();
-                    String line;
-                    while ((line = in.readLine()) != null) {
-                        responseBuilder.append(line);
-                    }
-                    in.close();
-                    String jsonResponse = responseBuilder.toString();
-                    return jsonResponse;
-                } else {
-                    return null;
-                }
-            } catch (final IOException e) {
-                LOG.error("Failed to get Host Client due to:", e);
-                checkResponseTimeOut(e);
+        String postUrl = apiURI.toString() + "/jobDatails";
+        try {
+            URL url = new URL(postUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setDoOutput(true);
+            String jsonBody = "{"
+                                + "\"jobId\": " + jobId
+                            + "}";
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
             }
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder responseBuilder = new StringBuilder();
+                String line;
+                while ((line = in.readLine()) != null) {
+                    responseBuilder.append(line);
+                }
+                in.close();
+                String jsonResponse = responseBuilder.toString();
+                return jsonResponse;
+            } else {
+                return null;
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to get Host Client due to:", e);
+            checkResponseTimeOut(e);
         }
-        return state;
     }
 
     // https://10.10.255.56/commandcenter/api/backupset?clientName=<hostName>
@@ -483,6 +478,31 @@ public class CommvaultClient {
         return null;
     }
 
+    // https://10.10.255.56/commandcenter/api/backupset?clientName=<hostName>
+    // 호스트의 vm backupset 조회하는 API로 없는 경우 null, 있는 경우 backupsetGUID 반환
+    public String getVmBackupSetGuid(String hostName, String vmName) {
+        try {
+            final HttpResponse response = get("backupset?clientName=" + hostName);
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            JsonNode backupSets = root.get("backupsetProperties");
+            if (backupSets != null && backupSets.isArray()) {
+                for (JsonNode item : backupSets) {
+                    JsonNode entity = item.get("backupSetEntity");
+                    if (entity != null && vmName.equals(entity.get("backupsetName").asText())) {
+                        return entity.get("backupsetGUID").asText();
+                    }
+                }
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to get Host Client due to:", e);
+            checkResponseTimeOut(e);
+        }
+        return null;
+    }
+
     // https://10.10.255.56/commandcenter/api/storagepolicy
     // storagePolicy 조회하는 API로 없는 경우 null, 있는 경우 storagePolicyId 반환
     public String getStoragePolicyId(String planName) {
@@ -493,6 +513,14 @@ public class CommvaultClient {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
             JsonNode policies = root.get("policies");
+            if (policies != null && policies.isArray()) {
+                for (JsonNode item : policies) {
+                    JsonNode entity = item.get("copies");
+                    if (entity != null && vmName.equals(entity.get("backupsetName").asText())) {
+                        return entity.get("backupsetId").asText();
+                    }
+                }
+            }
             if (policies.isArray()) {
                 for (JsonNode policy : policies) {
                     JsonNode storagePolicyNameNode = policy
@@ -501,6 +529,38 @@ public class CommvaultClient {
                             .path("storagePolicyId");
                     if (!storagePolicyIdNode.isMissingNode() && planName.equals(storagePolicyNameNode.asText())) {
                         return storagePolicyIdNode.asText();
+                    }
+                }
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to get Host Client due to:", e);
+            checkResponseTimeOut(e);
+        }
+        return null;
+    }
+
+    // https://10.10.255.56/commandcenter/api/storagepolicy/<storagePolicyId>
+    // storagePolicy 상세 조회하는 API로 없는 경우 null, 있는 경우 storagePolicyId 반환
+    public String getStoragePolicyDetails(String storagePolicyId) {
+        try {
+            final HttpResponse response = get("storagePolicy/" + storagePolicyId);
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            JsonNode policies = root.get("policies");
+            if (policies.isArray()) {
+                for (JsonNode policy : policies) {
+                    JsonNode copies = policy.get("copies");
+                    if (copies != null && copies.isArray()) {
+                        for (JsonNode item : copies) {
+                            if (item.get("isDefault").asText().equals("1")) {
+                                JsonNode StoragePolicyCopy = item.get("StoragePolicyCopy");
+                                if (StoragePolicyCopy != null && StoragePolicyCopy.has("copyId")) {
+                                    return StoragePolicyCopy.get("copyId").asText();
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -681,7 +741,7 @@ public class CommvaultClient {
 
     // https://10.10.255.56/commandcenter/api/createtask
     // 복원 실행 API
-    public String restoreFullVM(String subclientId, String storagePolicyId, String displayName, String commCellName, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String subclientGUID, String subclientName, String csGUID, String backupsetName) {
+    public String restoreFullVM(String endTime, String subclientId, String displayName, String backupsetGUID, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String backupsetName, String commCellId, String path) {
         String postUrl = apiURI.toString() + "/createtask";
         try {
             URL url = new URL(postUrl);
@@ -690,11 +750,11 @@ public class CommvaultClient {
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
             connection.setDoOutput(true);
-            String jsonBody = String.format("{\"taskInfo\":{\"task\":{\"taskType\":\"IMMEDIATE\",\"initiatedFrom\":\"GUI\"},\"associations\":[{\"subclientId\":-1,\"displayName\":\"ablecube31-2\",\"backupsetGUID\":\"452C37E6-4B78-4ADA-B7FB-945DDDAB8CB1\",\"clientId\":3,\"entityInfo\":{\"companyId\":0,\"companyName\":\"Commcell\"},\"instanceName\":\"DefaultInstanceName\",\"appName\":\"File System\",\"applicationId\":29,\"clientName\":\"ablecube31-2\",\"flags\":{},\"backupsetId\":1005,\"instanceId\":1,\"backupsetName\":\"i-2-214-VM\",\"_type_\":\"SUBCLIENT_ENTITY\"}],\"subTasks\":[{\"subTask\":{\"subTaskType\":\"RESTORE\",\"operationType\":\"RESTORE\"},\"options\":{\"restoreOptions\":{\"browseOption\":{\"commCellId\":2,\"backupset\":{\"backupsetId\":1005,\"clientId\":3},\"timeRange\":{\"toTime\":1753317176},\"browseJobCommCellId\":2},\"destination\":{\"destClient\":{\"clientId\":3,\"clientName\":\"ablecube31-2\"},\"destAppId\":29,\"inPlace\":true,\"destinationInstance\":{\"applicationId\":0},\"noOfStreams\":10},\"restoreACLsType\":\"ACL_DATA\",\"qrOption\":{\"destAppTypeId\":29},\"volumeRstOption\":{\"volumeLeveRestore\":false},\"virtualServerRstOption\":{},\"fileOption\":{\"sourceItem\":[\"/mnt/glue-gfs/b4f17e52-2366-4d8a-86fa-cdc89772b4da@048db4e9-ee76-4f91-875c-f0c0770b541a\"],\"fsCloneOptions\":{\"cloneMountPath\":\"\"}},\"impersonation\":{\"user\":{}},\"commonOptions\":{\"overwriteFiles\":true,\"unconditionalOverwrite\":false,\"stripLevelType\":\"PRESERVE_LEVEL\",\"preserveLevel\":1,\"isFromBrowseBackup\":true}},\"commonOpts\":{\"subscriptionInfo\":\"\\u003cApi_Subscription subscriptionId \\u003d\\\"125\\\"/\\u003e\",\"notifyUserOnJobCompletion\":true}}}]}}",
-            subclientId, storagePolicyId, displayName, commCellName, clientId, 
-            companyId, companyName, instanceName, appName, applicationId, 
-            clientName, backupsetId, instanceId, subclientGUID, subclientName, 
-            csGUID, backupsetName);
+            String jsonBody = String.format("{\"taskInfo\":{\"task\":{\"taskType\":\"IMMEDIATE\",\"initiatedFrom\":\"GUI\"},\"associations\":[{\"subclientId\":%d,\"displayName\":\"%s\",\"backupsetGUID\":\"%s\",\"clientId\":%d,\"entityInfo\":{\"companyId\":%d,\"companyName\":\"%s\"},\"instanceName\":\"%s\",\"appName\":\"%s\",\"applicationId\":%d,\"clientName\":\"%s\",\"flags\":{},\"backupsetId\":%d,\"instanceId\":%d,\"backupsetName\":\"%s\",\"_type_\":\"SUBCLIENT_ENTITY\"}],\"subTasks\":[{\"subTask\":{\"subTaskType\":\"RESTORE\",\"operationType\":\"RESTORE\"},\"options\":{\"restoreOptions\":{\"browseOption\":{\"commCellId\":%d,\"backupset\":{\"backupsetId\":%d,\"clientId\":%d},\"timeRange\":{\"toTime\":%s},\"browseJobCommCellId\":%d},\"destination\":{\"destClient\":{\"clientId\":%d,\"clientName\":\"%s\"},\"destAppId\":%d,\"inPlace\":true,\"destinationInstance\":{\"applicationId\":0},\"noOfStreams\":10},\"restoreACLsType\":\"ACL_DATA\",\"qrOption\":{\"destAppTypeId\":%d},\"volumeRstOption\":{\"volumeLeveRestore\":false},\"virtualServerRstOption\":{},\"fileOption\":{\"sourceItem\":[\"%s\"],\"fsCloneOptions\":{\"cloneMountPath\":\"\"}},\"impersonation\":{\"user\":{}},\"commonOptions\":{\"overwriteFiles\":true,\"unconditionalOverwrite\":false,\"stripLevelType\":\"PRESERVE_LEVEL\",\"preserveLevel\":1,\"isFromBrowseBackup\":true}}}}]}}",
+            subclientId, displayName, backupsetGUID, clientId, companyId, 
+            companyName, instanceName, appName, applicationId, clientName, 
+            backupsetId, instanceId, backupsetName, commCellId, backupsetId, clientId,
+            endTime, commCellId, clientId, clientName, applicationId, applicationId, path);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
@@ -779,10 +839,10 @@ public class CommvaultClient {
         return false;
     }
 
-    // https://10.10.255.56/commandcenter/api/dobrowse
-    // 특정 경로 백업 삭제
-    public boolean deleteBackupForVM(String path, String clientId, String applicationId, String backupsetId, String instanceId, String subclientId, String clientName) {
-        String postUrl = apiURI.toString() + "/dobrowse";
+    // https://10.10.255.56/commandcenter/api/v4/plan/backupdestination/joboperations
+    // 백업 삭제
+    public boolean deleteBackupForVM(String jobId, String commcellId, String copyId, String storagePolicyId) {
+        String postUrl = apiURI.toString() + "/v4/plan/backupdestination/joboperations";
         try {
             URL url = new URL(postUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -791,29 +851,15 @@ public class CommvaultClient {
             connection.setRequestProperty("Accept", "application/json");
             connection.setDoOutput(true);
             String jsonBody = "{"
-                                + "\"opType\": \"doEndUserErase\","
-                                + "\"queries\": ["
-                                +         "{"
-                                +             "\"type\": \"DATA\","
-                                +             "\"queryId\": \"dataQuery\""
-                                +         "}"
+                                + "\"opType\": \"DELETE\","
+                                + "\"loadDependentJobs\": \"true\","
+                                + "\"jobIds\": ["
+                                +         jobId
                                 + "],"
-                                + "\"paths\": ["
-                                +         "{"
-                                +             "\"path\": " + path
-                                +         "}"
-                                + "],"
-                                + "\"entity\": {"
-                                +      "\"applicationId\": \"" + applicationId + "\","
-                                +      "\"backupsetId\": " + backupsetId + ","
-                                +      "\"instanceId\": " + instanceId + ","
-                                +      "\"clientId\": " + clientId + ","
-                                +      "\"subclientId\": " + subclientId + ","
-                                +      "\"clientName\": " + clientName
-                                + "},"
-                                + "\"advOptions\": {"
-                                +      "\"copyPrecedence\": 0"
-                                + "}"
+                                + "\"commcellId\": " + commcellId + ","
+                                + "\"copyId\": " + copyId + ","
+                                + "\"storagePolicyId\": " + storagePolicyId + ","
+                                + "\"loadArchiverJobs\": \"true\""
                             + "}";
             try (OutputStream os = conn.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
