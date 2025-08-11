@@ -1142,7 +1142,6 @@
                     <artifactId>cloud-plugin-backup-veeam</artifactId>
                     <version>${project.version}</version>
                 </dependency>
-                </dependency>
             </dependencies>
         </profile>
         <profile>
