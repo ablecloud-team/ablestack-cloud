@@ -296,7 +296,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
-    public boolean importBackupPlan(final Long zoneId, final String retentionPeriod, fianl String externalId) {
+    public boolean importBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) {
         boolean cvtJob1, cvtJob2, cvtJob3 = false;
         final CommvaultClient client = getClient(zoneId);
         // 선택한 백업 정책의 RPO 편집 Commvault API 호출
