@@ -480,7 +480,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             throw new CloudRuntimeException(String.format("Failed to convert API to HOST : %s", e));
         }
         final String externalId = backup.getExternalId();
-        final CommvaultClient client = getClient(dataStoreUuid);
+        final Long zoneId = backup.getZoneId();
+        final CommvaultClient client = getClient(zoneId);
         String[] external = externalId.split("/");
         String path = external[0];
         String jobId = external[1];
@@ -520,10 +521,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     snapshotParams.put("id", snapshots[i]);
                     moldRevertSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
                     //결과에 따른 처리 추가 필요
+                    return new Pair<>(true,restoredVolume.getUuid());
                 }
             }
         } else {
-            return false;
+            return null;
         }
         VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
         StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
@@ -552,8 +554,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         } catch (Exception e) {
             throw new CloudRuntimeException("Unable to craft restored volume due to: "+e);
         }
-
         //복원 후 패스변경
+        return null;
     }
 
     @Override
