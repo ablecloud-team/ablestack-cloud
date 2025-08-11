@@ -341,7 +341,7 @@ public class CommvaultClient {
                 }
             } else {
                 JsonNode plan = planNode.path("summary").path("plan");
-                return mapper.writeVauleAsString(plan);
+                return plan.asText();
             }
         } catch (final IOException e) {
             LOG.error("Failed to list commvault plan jobs due to:", e);
@@ -573,7 +573,7 @@ public class CommvaultClient {
                 for (JsonNode item : subClient) {
                     JsonNode entity = item.get("subClientEntity");
                     if (entity != null && vmName.equals(entity.get("backupsetName").asText())) {
-                        return mapper.writeVauleAsString(entity);
+                        return entity.asText();
                     }
                 }
             }

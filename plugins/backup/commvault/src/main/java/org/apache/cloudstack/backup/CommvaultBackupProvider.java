@@ -84,7 +84,7 @@ import java.util.stream.Collectors;
 import java.util.StringTokenizer;
 import java.util.StringJoiner;
 import java.util.Properties;
-import java.util.Base64;
+import org.apache.commons.codec.binary.Base64;
 import java.util.Collections;
 import java.io.File;
 import java.io.InputStream;
@@ -445,7 +445,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String commCellId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").getString("commCellId");
         String backupsetGUID = client.getVmBackupSetGuid(clientName, backupsetName);
         LOG.info(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
-        boolean result = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
+        String jobId2 = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
         if (result) {
             String[] properties = getServerProperties();
             ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
@@ -1000,7 +1000,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             String apiParams = buildParamsMold(command, params);
             String urlFinal = buildUrl(apiParams, region, apiKey, secretKey);
             URL url = new URL(urlFinal);
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
             if (region.contains("https")) {
                 // SSL 인증서 에러 우회 처리
                 final SSLContext sslContext = SSLUtils.getSSLContext();
@@ -1021,14 +1021,14 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 }
             } else {
                 String msg = "Failed to request mold API. response code : " + connection.getResponseCode();
-                LOGGER.error(msg);
+                LOG.error(msg);
                 return null;
             }
             JSONObject jObject = XML.toJSONObject(sb.toString());
             JSONObject response = (JSONObject) jObject.get("queryasyncjobresultresponse");
             return response.get("jobstatus").toString();
         } catch (Exception e) {
-            LOGGER.error(String.format("Mold API endpoint not available"), e);
+            LOG.error(String.format("Mold API endpoint not available"), e);
             return null;
         }
     }
@@ -1112,7 +1112,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         Map<String, String> params = new HashMap<>();
         params.put("jobid", jobId);
         while (jobStatus == 0) {
-            String result = DisasterRecoveryClusterUtil.moldQueryAsyncJobResultAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, params);
+            String result = moldQueryAsyncJobResultAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, params);
             if (result != null) {
                 jobStatus = Integer.parseInt(result);
                 try {
