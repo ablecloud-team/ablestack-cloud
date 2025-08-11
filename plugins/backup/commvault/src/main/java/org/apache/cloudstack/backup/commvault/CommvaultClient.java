@@ -19,18 +19,9 @@ package org.apache.cloudstack.backup.commvault;
 
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
-import com.cloud.vm.VirtualMachine;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.ServerApiException;
-import org.apache.cloudstack.backup.BackupOffering;
-import org.apache.cloudstack.backup.BackupVO;
-import org.apache.cloudstack.backup.commvault.api.ClientProperties;
-import org.apache.cloudstack.backup.commvault.api.ClientProperty;
-import org.apache.cloudstack.backup.commvault.api.Plans;
-import org.apache.cloudstack.backup.networker.api.ProtectionPolicies;
-import org.apache.cloudstack.backup.networker.api.ProtectionPolicy;
 import org.apache.cloudstack.utils.security.SSLUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -55,12 +46,8 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 
 public class CommvaultClient {
@@ -942,7 +929,6 @@ public class CommvaultClient {
     public static String extractJobIdsFromJsonString(String jsonString) {
         Pattern pattern = Pattern.compile("\"jobIds\"\\s*:\\s*\\[(.*?)\\]");
         Matcher matcher = pattern.matcher(jsonString);
-        
         if (matcher.find()) {
             String jobIdsArray = matcher.group(1);
             String jobId = jobIdsArray.replaceAll("\"", "").replaceAll("\\s", "");
@@ -961,29 +947,6 @@ public class CommvaultClient {
             joiner.add(cmd);
         }
         return joiner.toString();
-    }
-
-
-    /**
-     * Execute a list of commands in a single call on PowerShell through SSH
-     */
-    protected Pair<Boolean, String> executePowerShellCommands(List<String> cmds) {
-        try {
-            String commands = transformPowerShellCommandList(cmds);
-            Pair<Boolean, String> response = SshHelper.sshExecute(cvtServerIp, cvtServerPort,
-                    cvtServerUsername, null, cvtServerPassword,
-                    commands, 120000, 120000, 3600000);
-
-            if (response == null || !response.first()) {
-                logger.error(String.format("Commvault PowerShell commands [%s] failed due to: [%s].", commands, response != null ? response.second() : "no PowerShell output returned"));
-            } else {
-                logger.debug(String.format("Commvault response for PowerShell commands [%s] is: [%s].", commands, response.second()));
-            }
-
-            return response;
-        } catch (Exception e) {
-            throw new CloudRuntimeException("Error while executing PowerShell commands due to: " + e.getMessage());
-        }
     }
 
 }

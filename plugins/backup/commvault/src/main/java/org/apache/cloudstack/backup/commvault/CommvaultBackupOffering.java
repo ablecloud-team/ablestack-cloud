@@ -74,7 +74,7 @@ public class CommvaultBackupOffering implements BackupOffering {
         return -1;
     }
 
-    @Override  
+    @Override
     public String getRetentionPeriod() {
         return null;
     }

@@ -33,7 +33,6 @@ import com.cloud.utils.db.Transaction;
 import com.cloud.utils.db.TransactionCallbackNoReturn;
 import com.cloud.utils.db.TransactionStatus;
 import com.cloud.utils.exception.CloudRuntimeException;
-import com.cloud.utils.ssh.SshHelper;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
@@ -43,7 +42,6 @@ import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDaoImpl;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
-import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -61,10 +59,7 @@ import java.util.HashMap;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import com.cloud.utils.script.Script;
 
 public class CommvaultBackupProvider extends AdapterBase implements BackupProvider, Configurable {
 
@@ -345,7 +340,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
-    public boolean assignVMToBackupOffering(VirtualMachine vm, BackupOffering backupOffering) { 
+    public boolean assignVMToBackupOffering(VirtualMachine vm, BackupOffering backupOffering) {
         HostVO hostVO;
         final CommvaultClient client = getClient(vm.getDataCenterId());
         if (vm.getState() == VirtualMachine.State.Running) {
@@ -402,13 +397,13 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String applicationId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("applicationId");
         String clientName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("clientName");
         String backupsetId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("backupsetId");
-        String instanceId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("instanceId"); 
+        String instanceId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("instanceId");
         String backupsetName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("backupsetName");
         String commCellId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").getString("commCellId");
         String backupsetGUID = client.getVmBackupSetGuid(clientName, backupsetName);
         LOG.info(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
         boolean result = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
-        if (result) {    
+        if (result) {
             String[] properties = getServerProperties();
             ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
             String moldUrl = properties[1] + "://" + msHost.getServiceIP() + ":" + properties[0] + "/client/api/";
@@ -457,13 +452,13 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String applicationId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("applicationId");
         String clientName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("clientName");
         String backupsetId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("backupsetId");
-        String instanceId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("instanceId"); 
+        String instanceId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("instanceId");
         String backupsetName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("backupsetName");
         String commCellId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").getString("commCellId");
         String backupsetGUID = client.getVmBackupSetGuid(clientName, backupsetName);
         LOG.info(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
         boolean result = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
-        if (result) {    
+        if (result) {
             String[] properties = getServerProperties();
             ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
             String moldUrl = properties[1] + "://" + msHost.getServiceIP() + ":" + properties[0] + "/client/api/";
@@ -484,7 +479,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             }
         }
         return false;
-        
 
         VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
         StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
@@ -830,8 +824,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
-    public boolean willDeleteBackupsOnOfferingRemoval() { 
-        return false; 
+    public boolean willDeleteBackupsOnOfferingRemoval() {
+        return false;
     }
 
     protected static String moldCreateSnapshotBackupAPI(String region, String command, String method, String apiKey, String secretKey, Map<String, String> params) {
