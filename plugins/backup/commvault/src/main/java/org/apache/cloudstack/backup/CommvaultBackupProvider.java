@@ -360,7 +360,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             // 문구 변경 필요
             throw new CloudRuntimeException("commvault plan schedule rpo delete err");
         }
-        return false;
     }
 
     @Override
