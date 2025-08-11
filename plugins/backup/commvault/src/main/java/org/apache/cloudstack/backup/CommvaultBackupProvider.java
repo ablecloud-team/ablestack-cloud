@@ -45,6 +45,7 @@ import com.cloud.utils.nio.TrustAllManager;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
+import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreDao;
 import org.apache.cloudstack.backup.commvault.CommvaultClient;
 import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDaoImpl;
@@ -147,7 +148,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     private VolumeDao volumeDao;
 
     @Inject
-    private SnapshotDao snapshotDao;
+    private SnapshotDataStoreDao snapshotStoreDao;
 
     @Inject
     private StoragePoolHostDao storagePoolHostDao;
@@ -156,7 +157,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     private VMInstanceDao vmInstanceDao;
 
     @Inject
-    private ManagementServerHostDao mshostDao;
+    private ManagementServerHostDao msHostDao;
 
     @Inject
     private AccountService accountService;
@@ -424,7 +425,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         final CommvaultClient client = getClient(vm.getDataCenterId());
         final String externalId = backup.getExternalId();
-        String[] external = str.split("/");
+        String[] external = externalId.split("/");
         String path = external[0];
         String jobId = external[1];
         String jobDetails = client.getJobDetails(jobId);
@@ -472,7 +473,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     @Override
     public Pair<Boolean, String> restoreBackedUpVolume(Backup backup, String volumeUuid, String hostIp, String dataStoreUuid, Pair<String, VirtualMachine.State> vmNameAndState) {
         List<Backup.VolumeInfo> backedVolumes = backup.getBackedUpVolumes();
-        List<VolumeVO> volumes = backedVolumes.stream().map(volume -> volumeDao.findByUuid(volume.getUuid())).collect(Collectors.toList());
+        VolumeVO volume = volumeDao.findByUuid(volumeUuid);
         try {
             String commvaultServer = getUrlDomain(CommvaultUrl.value());
         } catch (URISyntaxException e) {
@@ -480,7 +481,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         final String externalId = backup.getExternalId();
         final CommvaultClient client = getClient(vm.getDataCenterId());
-        String[] external = str.split("/");
+        String[] external = externalId.split("/");
         String path = external[0];
         String jobId = external[1];
         String jobDetails = client.getJobDetails(jobId);
@@ -565,7 +566,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         // 클라이언트의 백업세트 조회하여 호스트 정의
         final CommvaultClient client = getClient(vm.getDataCenterId());
-        String accessToken = getToken();
+        String accessToken = client.getToken();
         List<HostVO> Hosts = hostDao.findByDataCenterId(vm.getDataCenterId());
         for (final HostVO host : Hosts) {
             if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
@@ -592,7 +593,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         Map<String, String> checkResult = new HashMap<>();
         for (VolumeVO vol : volumes) {
             Map<String, String> snapParams = new HashMap<>();
-            snapParams.put("volumeid", vol.getId());
+            snapParams.put("volumeid", Long.parseLong(vol.getId()));
             snapParams.put("quiescevm", "true");
             String createSnapResult = moldCreateSnapshotBackupAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapParams);
             if (createSnapResult == null) {
@@ -633,8 +634,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     return false;
                 }
                 checkResult.put(vol.getId(), snapId);
-                SnapshotVO volSnap = snapshotDao.findBySnapshotId(snapId);
-                joiner.add(volSnap.getInstallPath());
+                List<SnapshotDataStoreVO> volSnap = snapshotStoreDao.findBySnapshotId(snapId);
+                //수정 필요joiner.add(volSnap.getInstallPath());
             }
         }
         String path = joiner.toString();
@@ -657,7 +658,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String subclientGUID = jsonObject.getString("subclientGUID");
         String subclientName = jsonObject.getString("subclientName");
         String csGUID = jsonObject.getString("csGUID");
-        boolean upResult = client.updateBackupSet(path, subclientId, clientId, applicationId, backupsetId, instanceId, backupsetName);
+        boolean upResult = client.updateBackupSet(path, subclientId, clientId, planName, applicationId, backupsetId, instanceId, subclientName, backupsetName);
         String jobState = "Running";
         JSONObject jsonObject2 = new JSONObject();
         if (upResult) {
@@ -690,7 +691,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     LOG.error(msg, e);
                     throw new CloudRuntimeException(msg, e);
                 }
-                backup.setSize(size);
+                backup.setSize(Long.parseLong(size));
                 long virtualSize = 0L;
                 for (final Volume volume: volumeDao.findByInstance(vm.getId())) {
                     if (Volume.State.Ready.equals(volume.getState())) {
@@ -753,7 +754,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     public boolean deleteBackup(Backup backup, boolean forced) {
         final Long zoneId = backup.getZoneId();
         final String externalId = backup.getExternalId();
-        String[] external = str.split("/");
+        String[] external = externalId.split("/");
         String path = external[0];
         String jobId = external[1];
         final CommvaultClient client = getClient(zoneId);
