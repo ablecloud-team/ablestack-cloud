@@ -619,6 +619,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.cloudstack</groupId>
+            <artifactId>cloud-plugin-backup-commvault</artifactId>
+            <version>${project.version}</version>
+        <dependency>
+            <groupId>org.apache.cloudstack</groupId>
             <artifactId>cloud-plugin-integrations-kubernetes-service</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -1137,10 +1141,6 @@
                     <artifactId>cloud-plugin-backup-veeam</artifactId>
                     <version>${project.version}</version>
                 </dependency>
-                <dependency>
-                    <groupId>org.apache.cloudstack</groupId>
-                    <artifactId>cloud-plugin-backup-commvault</artifactId>
-                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
         </profile>
