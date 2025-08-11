@@ -16,7 +16,12 @@
 // under the License.
 package org.apache.cloudstack.backup;
 
+import com.cloud.cluster.ManagementServerHostVO;
+import com.cloud.cluster.dao.ManagementServerHostDao;
 import com.cloud.dc.dao.ClusterDao;
+import com.cloud.api.query.vo.UserVmJoinVO;
+import com.cloud.api.query.dao.UserVmJoinDao;
+import com.cloud.host.Host;
 import com.cloud.host.HostVO;
 import com.cloud.host.Status;
 import com.cloud.host.dao.HostDao;
@@ -27,6 +32,9 @@ import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.StoragePoolHostDao;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.storage.dao.SnapshotDao;
+import com.cloud.storage.snapshotVO;
+import com.cloud.user.UserAccount;
+import com.cloud.user.AccountService;
 import com.cloud.utils.Pair;
 import com.cloud.utils.Ternary;
 import com.cloud.utils.component.AdapterBase;
@@ -41,10 +49,13 @@ import org.apache.cloudstack.backup.dao.BackupOfferingDaoImpl;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
 import org.apache.cloudstack.utils.security.SSLUtils;
+import org.apache.cloudstack.utils.identity.ManagementServerNode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.xml.utils.URI;
+import org.json.JSONObject;
+import org.json.XML;
 import javax.inject.Inject;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -65,6 +76,9 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.StringJoiner;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 public class CommvaultBackupProvider extends AdapterBase implements BackupProvider, Configurable {
 
@@ -126,6 +140,18 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     @Inject
     private VMInstanceDao vmInstanceDao;
+
+    @Inject
+    private ManagementServerHostDao mshostDao;
+
+    @Inject
+    private AccountService accountService;
+
+    @Inject
+    private UserVmJoinDao userVmJoinDao;
+
+    @Inject
+    private VolumeDao volsDao;
 
     private static String getUrlDomain(String url) throws URISyntaxException {
         URI uri;
@@ -270,12 +296,12 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
-    public boolean importBackupPlan(final Long zoneId, final String retentionPeriod) {
+    public boolean importBackupPlan(final Long zoneId, final String retentionPeriod, fianl String externalId) {
         boolean cvtJob1, cvtJob2, cvtJob3 = false;
         final CommvaultClient client = getClient(zoneId);
         // 선택한 백업 정책의 RPO 편집 Commvault API 호출
         String type = "deleteRpo";
-        String taskId = client.getScheduleTaskId(type, cmd.getExternalId());
+        String taskId = client.getScheduleTaskId(type, externalId);
         if (taskId != null) {
             String subTaskId = client.getSubTaskId(taskId);
             if (subTaskId != null) {
@@ -294,7 +320,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         // 선택한 백업 정책의 보존 기간 변경 Commvault APi 호출
         type = "updateRPO";
-        String planEntity = client.getScheduleTaskId(type, cmd.getExternalId());
+        String planEntity = client.getScheduleTaskId(type, externalId);
         JSONObject jsonObject = new JSONObject(planEntity);
         String planType = jsonObject.getString("planType");
         String planName = jsonObject.getString("planName");
@@ -382,6 +408,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         if (vm.getState() != VirtualMachine.State.Stopped && vm.getState() != VirtualMachine.State.Shutdown) {
             throw new CloudRuntimeException("The VM the specified disk is attached to is not in the shutdown state.");
         }
+        final CommvaultClient client = getClient(vm.getDataCenterId());
         final String externalId = backup.getExternalId();
         String[] external = str.split("/");
         String path = external[0];
@@ -438,6 +465,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             throw new CloudRuntimeException(String.format("Failed to convert API to HOST : %s", e));
         }
         final String externalId = backup.getExternalId();
+        final CommvaultClient client = getClient(vm.getDataCenterId());
         String[] external = str.split("/");
         String path = external[0];
         String jobId = external[1];
@@ -759,7 +787,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         for (final Backup backup : backupsInDb) {
             if (restorePoint.getId().equals(backup.getExternalId())) {
                 if (metric != null) {
-                    logger.debug("Update backup with [id: {}, uuid: {}, name: {}, external id: {}] from [size: {}, protected size: {}] to [size: {}, protected size: {}].",
+                    LOG.debug("Update backup with [id: {}, uuid: {}, name: {}, external id: {}] from [size: {}, protected size: {}] to [size: {}, protected size: {}].",
                             backup.getId(), backup.getUuid(), backup.getName(), backup.getExternalId(), backup.getSize(), backup.getProtectedSize(), metric.getBackupSize(), metric.getDataSize());
 
                     ((BackupVO) backup).setSize(metric.getBackupSize());
@@ -777,7 +805,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         // 복원 지점이 생긴 경우 sync 맞춰주는 로직 고민 필요
         // List<Backup.RestorePoint> restorePoints = listRestorePoints(vm);
         // if (CollectionUtils.isEmpty(restorePoints)) {
-        //     logger.debug("Can't find any restore point to VM: {}", vm);
+        //     LOG.debug("Can't find any restore point to VM: {}", vm);
         //     return;
         // }
         // Transaction.execute(new TransactionCallbackNoReturn() {
@@ -808,7 +836,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         //                 backup.setDomainId(vm.getDomainId());
         //                 backup.setZoneId(vm.getDataCenterId());
 
-        //                 logger.debug("Creating a new entry in backups: [id: {}, uuid: {}, name: {}, vm_id: {}, external_id: {}, type: {}, date: {}, backup_offering_id: {}, account_id: {}, "
+        //                 LOG.debug("Creating a new entry in backups: [id: {}, uuid: {}, name: {}, vm_id: {}, external_id: {}, type: {}, date: {}, backup_offering_id: {}, account_id: {}, "
         //                         + "domain_id: {}, zone_id: {}].", backup.getId(), backup.getUuid(), backup.getName(), backup.getVmId(), backup.getExternalId(), backup.getType(), backup.getDate(), backup.getBackupOfferingId(), backup.getAccountId(), backup.getDomainId(), backup.getZoneId());
         //                 backupDao.persist(backup);
 
@@ -818,7 +846,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         //             }
         //         }
         //         for (final Long backupIdToRemove : removeList) {
-        //             logger.warn(String.format("Removing backup with ID: [%s].", backupIdToRemove));
+        //             LOG.warn(String.format("Removing backup with ID: [%s].", backupIdToRemove));
         //             backupDao.remove(backupIdToRemove);
         //         }
         //     }
@@ -898,14 +926,14 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 }
             } else {
                 String msg = "Failed to request mold API. response code : " + connection.getResponseCode();
-                LOGGER.error(msg);
+                LOG.error(msg);
                 return null;
             }
             JSONObject jObject = XML.toJSONObject(sb.toString());
             JSONObject response = (JSONObject) jObject.get("revertsnapshotresponse");
             return response.toString();
         } catch (Exception e) {
-            LOGGER.error(String.format("Mold API endpoint not available"), e);
+            LOG.error(String.format("Mold API endpoint not available"), e);
             return null;
         }
     }
@@ -938,14 +966,14 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 }
             } else {
                 String msg = "Failed to request mold API. response code : " + connection.getResponseCode();
-                LOGGER.error(msg);
+                LOG.error(msg);
                 return null;
             }
             JSONObject jObject = XML.toJSONObject(sb.toString());
             JSONObject response = (JSONObject) jObject.get("deletesnapshotresponse");
             return response.toString();
         } catch (Exception e) {
-            LOGGER.error(String.format("Mold API endpoint not available"), e);
+            LOG.error(String.format("Mold API endpoint not available"), e);
             return null;
         }
     }
@@ -1048,6 +1076,31 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return backedUpVolumes.stream()
                 .filter(v -> v.getUuid().equals(volumeUuid))
                 .findFirst();
+    }
+
+    private String[] getServerProperties() {
+        String[] serverInfo = null;
+        final String HTTP_PORT = "http.port";
+        final String HTTPS_ENABLE = "https.enable";
+        final String HTTPS_PORT = "https.port";
+        final File confFile = PropertiesUtil.findConfigFile("server.properties");
+        try {
+            InputStream is = new FileInputStream(confFile);
+            String port = null;
+            String protocol = null;
+            final Properties properties = ServerProperties.getServerProperties(is);
+            if (properties.getProperty(HTTPS_ENABLE).equals("true")){
+                port = properties.getProperty(HTTPS_PORT);
+                protocol = "https";
+            } else {
+                port = properties.getProperty(HTTP_PORT);
+                protocol = "http";
+            }
+            serverInfo = new String[]{port, protocol};
+        } catch (final IOException e) {
+            LOG.debug("Failed to read configuration from server.properties file", e);
+        }
+        return serverInfo;
     }
 
 }

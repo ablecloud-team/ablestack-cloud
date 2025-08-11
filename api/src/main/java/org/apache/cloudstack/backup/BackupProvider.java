@@ -118,6 +118,6 @@ public interface BackupProvider {
     /**
      * import commvault backup plan
      */
-    boolean importBackupPlan(Long zoneId, String retentionPeriod);
+    boolean importBackupPlan(Long zoneId, String retentionPeriod, String externalId);
 
 }

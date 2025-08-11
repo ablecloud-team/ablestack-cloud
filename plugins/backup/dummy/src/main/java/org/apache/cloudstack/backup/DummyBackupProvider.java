@@ -143,5 +143,5 @@ public class DummyBackupProvider extends AdapterBase implements BackupProvider {
     public boolean checkBackupAgent(final Long zoneId) { return true; }
 
     @Override
-    public boolean importBackupPlan(final Long zoneId, final String retentionPeriod) { return true; }
+    public boolean importBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
 }

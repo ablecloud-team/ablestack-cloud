@@ -123,8 +123,8 @@ public class CommvaultClient {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setDoOutput(true);
-
-            String jsonParams = "{\"username\":\"" + username + "\",\"password\":\"" + Base64.getEncoder().toString(password) + "\"}";
+            byte[] bytes = password.getBytes(StandardCharsets.UTF_8);
+            String jsonParams = "{\"username\":\"" + username + "\",\"password\":\"" + Base64.getEncoder().encodeToString(bytes) + "\"}";
 
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonParams.getBytes("utf-8");
@@ -341,7 +341,7 @@ public class CommvaultClient {
                 }
             } else {
                 JsonNode plan = planNode.path("summary").path("plan");
-                return new ObjectMapper().writeVauleAsString(plan);
+                return mapper.writeVauleAsString(plan);
             }
         } catch (final IOException e) {
             LOG.error("Failed to list commvault plan jobs due to:", e);
@@ -390,7 +390,7 @@ public class CommvaultClient {
 
     // https://10.10.255.56/commandcenter/api/jobDetails
     // 작업의 상세정보를 가져와서 작업 상태 반환 (failedClients,successfullClients,skippedClients,pendingClients)
-    private String getJobDetails(String jobId) {
+    public String getJobDetails(String jobId) {
         String postUrl = apiURI.toString() + "/jobDatails";
         try {
             URL url = new URL(postUrl);
@@ -573,7 +573,7 @@ public class CommvaultClient {
                 for (JsonNode item : subClient) {
                     JsonNode entity = item.get("subClientEntity");
                     if (entity != null && vmName.equals(entity.get("backupsetName").asText())) {
-                        return new ObjectMapper().writeVauleAsString(entity);
+                        return mapper.writeVauleAsString(entity);
                     }
                 }
             }
@@ -775,7 +775,7 @@ public class CommvaultClient {
 
     // https://10.10.255.56/commandcenter/api/v5/serverplan/<planId>/backupdestination/<storagePoolId>
     // plan의 retention period 변경 API
-    public String updateRetentionPeriod(String planId, String copyId, String retentionPeriod) {
+    public boolean updateRetentionPeriod(String planId, String copyId, String retentionPeriod) {
         String putUrl = apiURI.toString() + "/v5/serverplan/" + planId + "/baackupdestination/" + copyId;
         try {
             URL url = new URL(putUrl);
@@ -784,7 +784,7 @@ public class CommvaultClient {
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
             connection.setDoOutput(true);
-            String jsonBody = String.format("{\"retentionRules\":{\"retentionRuleType\":\"RETENTION_PERIOD\",\"retentionPeriodDays\":%d,\"useExtendedRetentionRules\":false}}"),retentionPeriod;
+            String jsonBody = String.format("{\"retentionRules\":{\"retentionRuleType\":\"RETENTION_PERIOD\",\"retentionPeriodDays\":%d,\"useExtendedRetentionRules\":false}}",retentionPeriod);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
@@ -941,7 +941,7 @@ public class CommvaultClient {
         if (matcher.find()) {
             String jobIdsArray = matcher.group(1);
             String jobId = jobIdsArray.replaceAll("\"", "").replaceAll("\\s", "");
-            return jobIds.split(",")[0];
+            return jobId.split(",")[0];
         }
         return null;
     }
