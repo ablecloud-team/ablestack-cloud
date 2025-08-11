@@ -26,6 +26,7 @@ import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.StoragePoolHostDao;
 import com.cloud.storage.dao.VolumeDao;
+import com.cloud.storage.dao.SnapshotDao;
 import com.cloud.utils.Pair;
 import com.cloud.utils.Ternary;
 import com.cloud.utils.component.AdapterBase;
@@ -59,6 +60,7 @@ import java.util.HashMap;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CommvaultBackupProvider extends AdapterBase implements BackupProvider, Configurable {
@@ -106,9 +108,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     @Inject
     private HostDao hostDao;
-
-    @Inject
-    private PrimaryDataStoreDao storagePoolDao;
 
     @Inject
     private ClusterDao clusterDao;
