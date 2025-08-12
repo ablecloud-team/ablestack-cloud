@@ -4877,5 +4877,10 @@
 "label.predictedmedialifeleftpercent": "\ubbf8\ub514\uc5b4 \ub77c\uc774\ud504",
 "label.hardware.storage.enclosurelist": "\uc778\ud074\ub85c\uc800",
 "label.switches": "\uc2a4\uc704\uce58",
-"message.redfishdata.loading": "\uc870\ud68c\uc5d0 \uc2dc\uac04\uc774 \uc18c\uc694\ub420 \uc218 \uc788\uc2b5\ub2c8\ub2e4."
+"message.redfishdata.loading": "\uc870\ud68c\uc5d0 \uc2dc\uac04\uc774 \uc18c\uc694\ub420 \uc218 \uc788\uc2b5\ub2c8\ub2e4.",
+"label.retentionperiod": "\ubcf4\uc874 \uae30\uac04",
+"label.week": "\uc8fc",
+"label.month": "\uc6d4",
+"label.years": "\ub144",
+"label.infinite": "\ubb34\ud55c"
 }

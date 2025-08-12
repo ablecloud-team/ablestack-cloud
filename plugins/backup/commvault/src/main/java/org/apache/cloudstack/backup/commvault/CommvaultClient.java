@@ -79,8 +79,6 @@ public class CommvaultClient {
 
         apiName = username;
         apiPassword = password;
-        LOG.info("password:::::::::::::::::::::");
-        LOG.info(password);
 
         this.apiURI = new URI(url);
         final RequestConfig config = RequestConfig.custom()
@@ -144,8 +142,6 @@ public class CommvaultClient {
                     Matcher matcher = pattern.matcher(response);
                     if (matcher.find()) {
                         accessToken = "QSDK " + matcher.group(1);
-                        LOG.info("accessToken::::::::::::::::::::::::::::");
-                        LOG.info(accessToken);
                     } else {
                         throw new CloudRuntimeException("Could not fetch access token from the given code");
                     }

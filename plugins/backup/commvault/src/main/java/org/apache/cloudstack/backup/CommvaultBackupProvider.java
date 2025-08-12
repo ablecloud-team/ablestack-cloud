@@ -99,7 +99,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     private static final Logger LOG = LogManager.getLogger(CommvaultBackupProvider.class);
 
     public ConfigKey<String> CommvaultUrl = new ConfigKey<>("Advanced", String.class,
-            "backup.plugin.commvault.url", "https://10.10.254.84/commandcenter/api",
+            "backup.plugin.commvault.url", "https://localhost/commandcenter/api",
             "Commvault Command Center API URL.", true, ConfigKey.Scope.Zone);
 
     private final ConfigKey<String> CommvaultUsername = new ConfigKey<>("Advanced", String.class,

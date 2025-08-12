@@ -79,23 +79,22 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups" v-if="provider!=='nas'">
+      <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups" v-if="provider!=='commvault'">
         <template #label>
           <tooltip-label :title="$t('label.allowuserdrivenbackups')" :tooltip="apiParams.allowuserdrivenbackups.description"/>
         </template>
         <a-switch v-model:checked="form.allowuserdrivenbackups"/>
       </a-form-item>
-      <a-form-item name="retentionperiod" ref="retentionperiod" v-if="provider==='nas'">
+      <a-form-item name="retentionperiod" ref="retentionperiod" v-if="provider==='commvault'">
         <template #label>
-          <!-- <tooltip-label :title="$t('label.retentionperiod')" :tooltip="apiParams.retentionperiod.description"/> -->
-          <tooltip-label :title="$t('label.allowuserdrivenbackups')" :tooltip="apiParams.allowuserdrivenbackups.description"/>
+          <tooltip-label :title="$t('label.retentionperiod')" :tooltip="apiParams.retentionperiod.description"/>
         </template>
         <a-input-group compact>
           <a-input
+            ref="retentionInput"
             v-if="form.retentionPeriodUnit !== 'Infinite'"
             v-model:value="form.retentionPeriodValue"
             style="width: 50%"
-            :placeholder="$t('label.enter.value')"
             type="number"
             min="1"/>
           <a-select
@@ -150,23 +149,10 @@ export default {
   created () {
     this.initForm()
     this.fetchData()
-    this.isCommvault()
   },
-  compute: {
-    retentionPeriodFormatted () {
-      if (this.form.retentionPeriodUnit === 'Infinite') {
-        return '-1'
-      }
-      return `${this.form.retentionPeriodValue} ${this.form.retentionPeriodUnit}`
-    },
+  computed: {
     retentionPeriodInDays () {
-      if (this.form.retentionPeriodUnit === 'Infinite' || !this.form.retentionPeriodValue) {
-        return null
-      }
       const value = parseInt(this.form.retentionPeriodValue)
-      if (isNaN(value) || value <= 0) {
-        return null
-      }
       switch (this.form.retentionPeriodUnit) {
         case 'Day':
           return value
@@ -176,6 +162,8 @@ export default {
           return value * 30
         case 'Years':
           return value * 365
+        case 'Infinite':
+          return -1
         default:
           return value
       }
@@ -193,11 +181,23 @@ export default {
         name: [{ required: true, message: this.$t('message.error.required.input') }],
         description: [{ required: true, message: this.$t('message.error.required.input') }],
         zoneid: [{ required: true, message: this.$t('message.error.select') }],
-        externalid: [{ required: true, message: this.$t('message.error.select') }]
+        externalid: [{ required: true, message: this.$t('message.error.select') }],
+        retentionperiod: [{
+          validator: (rule, value) => {
+            if (this.form.retentionPeriodUnit === 'Infinite') {
+              return Promise.resolve()
+            }
+            if (!this.form.retentionPeriodValue || this.form.retentionPeriodValue === '') {
+              return Promise.reject(this.$t('message.error.required.input'))
+            }
+            return Promise.resolve()
+          }
+        }]
       })
     },
     fetchData () {
       this.fetchZone()
+      this.isCommvault()
     },
     fetchZone () {
       this.zones.loading = true
@@ -215,6 +215,7 @@ export default {
         for (const off of backupOff) {
           if (off.provider === 'commvault') {
             this.useCommvault = true
+            return
           }
         }
       })
@@ -240,11 +241,18 @@ export default {
         this.externals.loading = false
       })
     },
+    forceUpdateRetentionValue () {
+      if (this.$refs.retentionInput) {
+        const inputValue = this.$refs.retentionInput.$el.querySelector('input').value
+        this.form.retentionPeriodValue = inputValue
+      }
+    },
     handleSubmit (e) {
       e.preventDefault()
       if (this.loading) return
+      this.checkBackupOffering()
       this.formRef.value.validate().then(() => {
-        if (this.checkBackupOffering) {
+        if (this.useCommvault) {
           this.$notification.error({
             message: this.$t('message.request.failed'),
             description: this.$t('message.error.confirm.remove.dr.mirroring.vm')
@@ -261,8 +269,8 @@ export default {
             params[key] = input
           }
         }
-        if (values.retentionPeriodValue !== '') {
-          params.retentionPeriodValue = values.retentionPeriodValue
+        if (this.provider === 'commvault') {
+          params.retentionPeriodValue = this.retentionPeriodInDays
         }
         params.allowuserdrivenbackups = values.allowuserdrivenbackups
         this.loading = true

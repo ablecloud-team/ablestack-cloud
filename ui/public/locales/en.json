@@ -4877,5 +4877,10 @@
 "label.predictedmedialifeleftpercent": "Media Life",
 "label.hardware.storage.enclosurelist": "Enclosures",
 "label.switches": "Switches",
-"message.redfishdata.loading": "Query may take some time."
+"message.redfishdata.loading": "Query may take some time.",
+"label.retentionperiod": "Retention Period",
+"label.week": "Week",
+"label.month": "Month",
+"label.years": "Years",
+"label.infinite": "Infinite"
 }
