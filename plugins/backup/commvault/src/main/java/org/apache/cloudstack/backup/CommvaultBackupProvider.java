@@ -316,10 +316,16 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         // 선택한 백업 정책의 RPO 편집 Commvault API 호출
         String type = "deleteRpo";
         String taskId = client.getScheduleTaskId(type, externalId);
+        LOG.info("taskId:::::::::::::::::::::::");
+        LOG.info(taskId);
         if (taskId != null) {
             String subTaskId = client.getSubTaskId(taskId);
+            LOG.info("subTaskId:::::::::::::::::::::::");
+            LOG.info(subTaskId);
             if (subTaskId != null) {
                 cvtJob1 = client.deleteSchedulePolicy(taskId, subTaskId);
+                LOG.info("cvtJob1:::::::::::::::::::::::");
+                LOG.info(cvtJob1);
             } else {
                 // 문구 변경 필요
                 throw new CloudRuntimeException("commvault schedule policy details sub task id none");
@@ -342,7 +348,13 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String planId = jsonObject.getString("planId");
         String companyId = jsonObject.getJSONObject("entityInfo").getString("companyId");
         String storagePoolId = client.getStoragePoolId(planId);
+        LOG.info("updateRetentionPeriod:::::::::::::::::::::::");
+        LOG.info(planId);
+        LOG.info(storagePoolId);
+        LOG.info(retentionPeriod);
         boolean result = client.updateRetentionPeriod(planId, storagePoolId, retentionPeriod);
+        LOG.info("result:::::::::::::::::::::::");
+        LOG.info(result);
         if (result) {
             // 호스트에 선택한 백업 정책 설정 Commvault API 호출
             String path = "/";
@@ -350,6 +362,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             for (final HostVO host : Hosts) {
                 if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
                     String backupSetId = client.getDefaultBackupSetId(host.getName());
+                    LOG.info("backupSetId:::::::::::::::::::::::");
+                    LOG.info(backupSetId);
                     if (!client.setBackupSet(path, planType, planName, planSubtype, planId, companyId, backupSetId)) {
                         throw new CloudRuntimeException("commvault client backup schedule rpo setting err");
                     }
