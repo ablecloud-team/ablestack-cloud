@@ -178,12 +178,8 @@ export default {
       return this.selectedOffering?.serviceofferingdetails?.minmemory * 1 || 512
     },
     getCPUSpeed () {
-      // We can only scale up while a VM is running
-      if (this.resource.state === 'Running') {
-        return this.resource.cpuspeed
-      }
       this.getMinDiskSize()
-      return this.selectedOffering?.serviceofferingdetails?.cpuspeed * 1 || 1
+      return this.resource.cpuspeed || this.selectedOffering?.serviceofferingdetails?.cpuspeed * 1 || 1
     },
     getTemplate () {
       return new Promise((resolve, reject) => {

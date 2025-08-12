@@ -113,11 +113,11 @@ export default {
     },
     cpuSpeed: {
       type: Number,
-      default: 0
+      default: 1000
     },
     minCpu: {
       type: Number,
-      default: 0
+      default: 1
     },
     maxCpu: {
       type: Number,
@@ -125,11 +125,11 @@ export default {
     },
     minMemory: {
       type: Number,
-      default: 0
+      default: 512
     },
     maxMemory: {
       type: Number,
-      default: 256
+      default: 512
     },
     cpuNumberInputDecorator: {
       type: String,
