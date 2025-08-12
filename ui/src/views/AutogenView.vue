@@ -1518,7 +1518,7 @@ export default {
           }
         } else {
           if (this.dataView) {
-            this.$router.push({ path: '/exception/404' })
+            this.$router.push({ path: '/dashboard' })
           }
         }
       }).catch(error => {
@@ -1543,15 +1543,15 @@ export default {
         this.$notifyError(error)
 
         if ([405].includes(error.response.status)) {
-          this.$router.push({ path: '/exception/403' })
+          this.$router.push({ path: '/dashboard' })
         }
 
         if ([430, 431, 432].includes(error.response.status)) {
-          this.$router.push({ path: '/exception/404' })
+          this.$router.push({ path: '/dashboard' })
         }
 
         if ([530, 531, 532, 533, 534, 535, 536, 537].includes(error.response.status)) {
-          this.$router.push({ path: '/exception/500' })
+          this.$router.push({ path: '/dashboard' })
         }
       }).finally(f => {
         this.loading = false

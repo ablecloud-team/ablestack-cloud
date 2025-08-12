@@ -24,6 +24,20 @@ import store from '@/store'
 import { sourceToken } from '@/utils/request'
 import { toLocalDate, toLocaleDate } from '@/utils/date'
 
+function normalizePath (path) {
+  if (!path) return ''
+  return path.replace(/\/+$/, '')
+}
+
+function isBase64 (str) {
+  try {
+    const decoded = new TextDecoder().decode(Uint8Array.from(atob(str), c => c.charCodeAt(0)))
+    return btoa(decoded) === str
+  } catch (err) {
+    return false
+  }
+}
+
 export const pollJobPlugin = {
   install (app) {
     app.config.globalProperties.$pollJob = function (options) {
@@ -64,6 +78,9 @@ export const pollJobPlugin = {
         resourceId = null
       } = options
 
+      // 디버그: 폴링 시작 로그
+      console.debug('[pollJob] start', { jobId, name, resourceId })
+
       store.dispatch('AddHeaderNotice', {
         key: jobId,
         title,
@@ -72,44 +89,75 @@ export const pollJobPlugin = {
         timestamp: new Date()
       })
 
-      eventBus.on('update-job-details', (args) => {
-        const { jobId, resourceId } = args
+      // 리스너 중복 등록 방지: 기존 핸들러가 있으면 제거
+      // - eventBus에 'update-job-details' 이벤트 리스너가 중복 등록되는 것을 막음
+      // - 이전 등록된 핸들러(this._pollJobUpdateHandler)가 있으면 off()로 제거
+      if (this._pollJobUpdateHandler) {
+        eventBus.off('update-job-details', this._pollJobUpdateHandler)
+      }
+
+      // 디버그 강화된 핸들러
+      const updateHandler = (args) => {
+        const { jobId: evtJobId, resourceId: evtResourceId } = args || {}
         const fullPath = this.$route.fullPath
         const path = this.$route.path
-        var jobs = this.$store.getters.headerNotices.map(job => {
-          if (job.key === jobId) {
-            if (resourceId && !path.includes(resourceId)) {
-              job.path = path + '/' + resourceId
+
+        console.debug('[pollJob] on update-job-details', {
+          evtJobId, evtResourceId, fullPath, path
+        })
+
+        const jobs = this.$store.getters.headerNotices.map(job => {
+          if (job.key === evtJobId) {
+            let targetPath = path
+            // 변경 사항:
+            // - 기존에는 단순히 path + resourceId로 이동 시도
+            // - 이제 this.$router.resolve()로 해당 경로가 실제 라우터에 매칭되는지 검증
+            // - 매칭 실패 시 404 이동 방지하고 경고 로그 출력
+            if (evtResourceId && !path.includes(evtResourceId)) {
+              const candidate = normalizePath(path) + '/' + evtResourceId
+              const resolved = this.$router.resolve(candidate)
+              if (resolved.matched.length > 0) {
+                targetPath = candidate
+              } else {
+                console.warn('[pollJob] Invalid resourceId path skipped:', candidate)
+                console.warn('[pollJob]   Current route path:', path)
+                console.warn('[pollJob]   Resource ID:', evtResourceId)
+                console.warn('[pollJob]   Router matched length:', resolved.matched.length)
+                try {
+                  console.warn('[pollJob]   Available routes:', this.$router.getRoutes().map(r => r.path))
+                } catch (e) {
+                  console.warn('[pollJob]   Available routes: <unavailable in this env>')
+                }
+              }
             } else {
-              job.path = fullPath
+              targetPath = fullPath
             }
+            job.path = targetPath
           }
           return job
         })
         this.$store.commit('SET_HEADER_NOTICES', jobs)
-      })
+      }
 
-      options.originalPage = options.originalPage || this.$router.currentRoute.value.path
-      getAPI('queryAsyncJobResult', { jobId }).then(json => {
+      this._pollJobUpdateHandler = updateHandler
+      eventBus.on('update-job-details', updateHandler)
+
+      options.originalPage = options.originalPage || normalizePath(this.$router.currentRoute.value.path)
+      console.debug('[pollJob] originalPage:', options.originalPage)
+
+      api('queryAsyncJobResult', { jobId }).then(json => {
         const result = json.queryasyncjobresultresponse
         eventBus.emit('update-job-details', { jobId, resourceId })
+
+        // 폴링 성공 시 처리 부분
         if (result.jobstatus === 1) {
-          if (showSuccessMessage) {
-            var content = successMessage
-            if (successMessage === 'Success' && action && action.label) {
-              content = i18n.global.t(action.label)
-            }
-            if (name) {
-              content = content + ' - ' + name
-            }
-            message.success({
-              content,
-              key: jobId,
-              duration: 2
-            })
-          } else {
-            message.destroy(jobId)
+          let content = successMessage
+          if (successMessage === 'Success' && action && action.label) {
+            content = i18n.global.t(action.label)
           }
+          if (name) content = content + ' - ' + name
+
+          message.success({ content, key: jobId, duration: 2 })
           store.dispatch('AddHeaderNotice', {
             key: jobId,
             title,
@@ -118,39 +166,51 @@ export const pollJobPlugin = {
             duration: 2,
             timestamp: new Date()
           })
-          eventBus.emit('update-job-details', { jobId, resourceId })
-          // Ensure we refresh on the same / parent page
-          const currentPage = this.$router.currentRoute.value.path
-          const samePage = options.originalPage === currentPage || options.originalPage.startsWith(currentPage + '/')
-          if (samePage && (!action || !('isFetchData' in action) || (action.isFetchData))) {
-            eventBus.emit('async-job-complete', action)
+
+          const currentPage = normalizePath(this.$router.currentRoute.value.path)
+          const originalPage = normalizePath(options.originalPage)
+          const samePage = currentPage === originalPage
+          console.debug('[pollJob] success', { currentPage, originalPage, samePage, action })
+
+          // 변경 사항:
+          // - 라우트 존재 여부를 this.$router.resolve()로 검증 후 이벤트 실행
+          // - 존재하지 않으면 404로 가는 것을 방지하고 경고 로그 출력
+          if (samePage && (!action || !('isFetchData' in action) || action.isFetchData)) {
+            const resolved = this.$router.resolve(currentPage)
+            if (resolved.matched.length > 0) {
+              eventBus.emit('async-job-complete', action)
+            } else {
+              console.warn('[pollJob] Prevented navigation to non-existent route:', currentPage)
+              console.warn('[pollJob]   Original page:', originalPage)
+              console.warn('[pollJob]   Router matched length:', resolved.matched.length)
+              try {
+                console.warn('[pollJob]   Available routes:', this.$router.getRoutes().map(r => r.path))
+              } catch (e) {
+                console.warn('[pollJob]   Available routes: <unavailable in this env>')
+              }
+            }
           }
           successMethod(result)
         } else if (result.jobstatus === 2) {
+          // 실패
           if (!bulkAction) {
-            message.error({
-              content: errorMessage,
-              key: jobId,
-              duration: 1
-            })
+            message.error({ content: errorMessage, key: jobId, duration: 1 })
           }
-          var errMessage = errorMessage
-          if (action && action.label) {
-            errMessage = i18n.global.t(action.label)
-          }
-          var desc = result.jobresult.errortext
-          if (name) {
-            desc = `(${name}) ${desc}`
-          }
+          let errMessage = errorMessage
+          if (action && action.label) errMessage = i18n.global.t(action.label)
+
+          let desc = result.jobresult?.errortext
+          if (name) desc = `(${name}) ${desc}`
+
           let onClose = () => {}
           if (!bulkAction) {
             let countNotify = store.getters.countNotify
             countNotify++
             store.commit('SET_COUNT_NOTIFY', countNotify)
             onClose = () => {
-              let countNotify = store.getters.countNotify
-              countNotify > 0 ? countNotify-- : countNotify = 0
-              store.commit('SET_COUNT_NOTIFY', countNotify)
+              let c = store.getters.countNotify
+              c > 0 ? c-- : c = 0
+              store.commit('SET_COUNT_NOTIFY', c)
             }
           }
           notification.error({
@@ -159,7 +219,7 @@ export const pollJobPlugin = {
             description: desc,
             key: jobId,
             duration: 0,
-            onClose: onClose
+            onClose
           })
           store.dispatch('AddHeaderNotice', {
             key: jobId,
@@ -169,15 +229,19 @@ export const pollJobPlugin = {
             duration: 2,
             timestamp: new Date()
           })
+
           eventBus.emit('update-job-details', { jobId, resourceId })
-          // Ensure we refresh on the same / parent page
+
           const currentPage = this.$router.currentRoute.value.path
           const samePage = options.originalPage === currentPage || options.originalPage.startsWith(currentPage + '/')
+          console.debug('[pollJob] failed', { currentPage, originalPage: options.originalPage, samePage })
+
           if (samePage && (!action || !('isFetchData' in action) || (action.isFetchData))) {
             eventBus.emit('async-job-complete', action)
           }
           errorMethod(result)
         } else if (result.jobstatus === 0) {
+          // 진행중 → 폴링
           if (showLoading) {
             message.loading({
               content: loadingMessage,
@@ -201,9 +265,9 @@ export const pollJobPlugin = {
             description: catchMessage,
             duration: 0,
             onClose: () => {
-              let countNotify = store.getters.countNotify
-              countNotify > 0 ? countNotify-- : countNotify = 0
-              store.commit('SET_COUNT_NOTIFY', countNotify)
+              let c = store.getters.countNotify
+              c > 0 ? c-- : c = 0
+              store.commit('SET_COUNT_NOTIFY', c)
             }
           })
         }
@@ -211,7 +275,6 @@ export const pollJobPlugin = {
       })
     }
   }
-
 }
 
 export const notifierPlugin = {
@@ -246,9 +309,9 @@ export const notifierPlugin = {
         description: desc,
         duration: 0,
         onClose: () => {
-          let countNotify = store.getters.countNotify
-          countNotify > 0 ? countNotify-- : countNotify = 0
-          store.commit('SET_COUNT_NOTIFY', countNotify)
+          let c = store.getters.countNotify
+          c > 0 ? c-- : c = 0
+          store.commit('SET_COUNT_NOTIFY', c)
         }
       })
     }
@@ -257,15 +320,15 @@ export const notifierPlugin = {
       defaultConfig: {
         top: '65px',
         onClose: () => {
-          let countNotify = store.getters.countNotify
-          countNotify > 0 ? countNotify-- : countNotify = 0
-          store.commit('SET_COUNT_NOTIFY', countNotify)
+          let c = store.getters.countNotify
+          c > 0 ? c-- : c = 0
+          store.commit('SET_COUNT_NOTIFY', c)
         }
       },
       setCountNotify: () => {
-        let countNotify = store.getters.countNotify
-        countNotify++
-        store.commit('SET_COUNT_NOTIFY', countNotify)
+        let c = store.getters.countNotify
+        c++
+        store.commit('SET_COUNT_NOTIFY', c)
       },
       info: (config) => {
         app.config.globalProperties.$notification.setCountNotify()
@@ -492,15 +555,6 @@ export const fileSizeUtilPlugin = {
         return (bytes / TiB).toFixed(2) + ' TiB'
       }
     }
-  }
-}
-
-function isBase64 (str) {
-  try {
-    const decoded = new TextDecoder().decode(Uint8Array.from(atob(str), c => c.charCodeAt(0)))
-    return btoa(decoded) === str
-  } catch (err) {
-    return false
   }
 }
 

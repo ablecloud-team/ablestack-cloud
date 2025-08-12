@@ -237,36 +237,36 @@ export function asyncRouterMap () {
         name: 'exception',
         component: shallowRef(RouteView),
         hidden: true,
-        redirect: '/exception/404',
+        redirect: '/dashboard',
         meta: { title: 'Exception', icon: 'warning' },
         children: [
           {
             path: '/exception/403',
             name: '403',
             hidden: true,
-            component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/403'),
-            meta: { title: '403' }
+            meta: { title: '403' },
+            redirect: '/dashboard'
           },
           {
             path: '/exception/404',
             name: '404',
             hidden: true,
-            component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/404'),
-            meta: { title: '404' }
+            meta: { title: '404' },
+            redirect: '/dashboard'
           },
           {
             path: '/exception/500',
             name: '500',
             hidden: true,
-            component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/500'),
-            meta: { title: '500' }
+            meta: { title: '500' },
+            redirect: '/dashboard'
           }
         ]
       }
     ]
   },
   {
-    path: '/:catchAll(.*)', redirect: '/exception/404', hidden: true
+    path: '/:catchAll(.*)', redirect: '/dashboard', hidden: true
   }]
 
   const plugins = vueProps.$config.plugins
