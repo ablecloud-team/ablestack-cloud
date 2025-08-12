@@ -240,7 +240,8 @@ public class CommvaultClient {
     // client에 호스트가 연결되어있는지 확인하는 API로 호스트가 없는 경우 null, 있는 경우 clientId 반환
     public String getClientId(String hostName) {
         try {
-            final HttpResponse response = get("client");
+            LOG.info("getClientId REST API 호출");
+            final HttpResponse response = get("/client");
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
             ObjectMapper mapper = new ObjectMapper();
@@ -322,6 +323,7 @@ public class CommvaultClient {
     // plan 상세 조회하는 API로 없는 경우 null, 있는 경우 schedule task id 반환
     public String getScheduleTaskId(String type, String planId) {
         try {
+            LOG.info("getScheduleTaskId REST API 호출");
             final HttpResponse response = get("/v2/plan/" + planId);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
