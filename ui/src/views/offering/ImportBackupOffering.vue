@@ -281,7 +281,7 @@ export default {
             jobId,
             title,
             description: values.name,
-            successMessage: `${title} ${this.$t('label.for')} ${params.name}`,
+            successMessage: `${title} ${params.name}`,
             loadingMessage: `${title} ${this.$t('label.in.progress')} ${this.$t('label.for')} ${params.name}`,
             catchMessage: this.$t('error.fetching.async.job.result')
           })
