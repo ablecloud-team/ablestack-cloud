@@ -44,6 +44,8 @@
       :minCpu="getMinCpu()"
       :maxCpu="'serviceofferingdetails' in selectedOffering ? selectedOffering.serviceofferingdetails.maxcpunumber*1 : Number.MAX_SAFE_INTEGER"
       :cpuSpeed="getCPUSpeed()"
+      :curCpu="getCurCPU()"
+      :curMemory="getCurMemory()"
       :minMemory="getMinMemory()"
       :maxMemory="'serviceofferingdetails' in selectedOffering ? selectedOffering.serviceofferingdetails.maxmemory*1 : Number.MAX_SAFE_INTEGER"
       :isCustomized="selectedOffering.iscustomized"
@@ -180,6 +182,12 @@ export default {
     getCPUSpeed () {
       this.getMinDiskSize()
       return this.resource.cpuspeed || this.selectedOffering?.serviceofferingdetails?.cpuspeed * 1 || 1
+    },
+    getCurCPU () {
+      return this.resource.cpunumber || 1
+    },
+    getCurMemory () {
+      return this.resource.memory || 512
     },
     getTemplate () {
       return new Promise((resolve, reject) => {

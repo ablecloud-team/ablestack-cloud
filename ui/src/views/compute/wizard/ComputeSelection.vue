@@ -119,6 +119,14 @@ export default {
       type: Number,
       default: 1
     },
+    curCpu: {
+      type: Number,
+      default: 1
+    },
+    curMemory: {
+      type: Number,
+      default: 1
+    },
     maxCpu: {
       type: Number,
       default: 2
@@ -204,8 +212,8 @@ export default {
   },
   methods: {
     fillValue () {
-      this.cpuNumberInputValue = this.minCpu
-      this.memoryInputValue = this.minMemory
+      this.cpuNumberInputValue = this.curCpu || this.minCpu
+      this.memoryInputValue = this.curMemory || this.minMemory
       this.cpuSpeedInputValue = this.cpuSpeed
 
       if (!this.preFillContent) {
