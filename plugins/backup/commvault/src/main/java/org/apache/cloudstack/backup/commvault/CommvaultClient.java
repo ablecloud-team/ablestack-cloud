@@ -140,10 +140,10 @@ public class CommvaultClient {
                         response.append(inputLine);
                     }
                     String regexPattern = "token=([^&]+)";
-                    Pattern pattern = Pattern.compile(regexPattern);
+                    Pattern pattern = Pattern.compile("\"QSDK\\s([a-fA-F0-9]+)\"");
                     Matcher matcher = pattern.matcher(response);
                     if (matcher.find()) {
-                        accessToken = matcher.group(1);
+                        accessToken = "QSDK " + matcher.group(1);
                         LOG.info("accessToken::::::::::::::::::::::::::::");
                         LOG.info(accessToken);
                     } else {
