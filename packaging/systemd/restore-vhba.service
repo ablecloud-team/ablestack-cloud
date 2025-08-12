@@ -1,5 +1,5 @@
 [Unit]
-Description=Restore vHBA devices after reboot
+Description=CloudStack VHBA Restore Service
 After=libvirtd.service network.target
 Before=cloudstack-agent.service
 Wants=libvirtd.service
@@ -7,9 +7,10 @@ Requires=libvirtd.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/restore-vhba.sh
+ExecStart=/usr/bin/restore-vhba
 RemainAfterExit=yes
-TimeoutSec=300
+StandardOutput=journal
+StandardError=journal
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target 
