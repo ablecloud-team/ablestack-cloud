@@ -277,26 +277,22 @@ export default {
         const title = this.$t('label.import.offering')
         api('importBackupOffering', params).then(json => {
           const jobId = json.importbackupofferingresponse.jobid
-          if (jobId) {
-            this.$pollJob({
-              jobId,
-              title,
-              description: values.name,
-              successMethod: result => {
-                this.closeAction()
-                this.loading = false
-              },
-              loadingMessage: `${title} ${this.$t('label.in.progress')} ${this.$t('label.for')} ${params.name}`,
-              catchMessage: this.$t('error.fetching.async.job.result'),
-              catchMethod: () => {
-                this.loading = false
-              }
-            })
-          }
+          this.$pollJob({
+            jobId,
+            title,
+            description: values.name,
+            successMessage: `${title} ${this.$t('label.for')} ${params.name}`,
+            loadingMessage: `${title} ${this.$t('label.in.progress')} ${this.$t('label.for')} ${params.name}`,
+            catchMessage: this.$t('error.fetching.async.job.result')
+          })
+          this.closeAction()
         }).catch(error => {
           this.$notifyError(error)
+        }).finally(() => {
           this.loading = false
         })
+      }).catch(error => {
+        this.formRef.value.scrollToField(error.errorFields[0].name)
       })
     },
     onChangeZone (value) {
