@@ -300,7 +300,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
         for (final HostVO host : Hosts) {
             if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
+                LOG.info("checkBackupAgent:::::::::::::::::::");
+                LOG.info(host.getName());
                 String checkHost = client.getClientId(host.getName());
+                LOG.info("checkHost:::::::::::::::::::");
+                LOG.info(checkHost);
                 if (checkHost != null) {
                     return true;
                 }

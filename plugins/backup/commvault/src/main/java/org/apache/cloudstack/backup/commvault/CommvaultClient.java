@@ -247,22 +247,19 @@ public class CommvaultClient {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
             JsonNode clientProperties = root.get("clientProperties");
-            LOG.info("clientProperties::::::::::");
-            LOG.info(clientProperties);
-            LOG.info(clientProperties.asText());
             if (clientProperties.isArray()) {
                 for (JsonNode clientProperty : clientProperties) {
                     JsonNode clientNameNode = clientProperty
                             .path("client")
                             .path("clientEntity")
                             .path("clientName");
-                    LOG.info(clientNameNode.asText());
                     JsonNode clientIdNode = clientProperty
                             .path("client")
                             .path("clientEntity")
                             .path("clientId");
-                    LOG.info(clientIdNode.asText());
+                    LOG.info(clientNameNode + hostName);
                     if (!clientNameNode.isMissingNode() && hostName.equals(clientNameNode.asText())) {
+                        LOG.info("clientIdNode.asText():::::::::::::::::::::::");
                         return clientIdNode.asText();
                     }
                 }
