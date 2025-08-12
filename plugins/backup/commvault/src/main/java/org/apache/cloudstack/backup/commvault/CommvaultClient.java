@@ -248,6 +248,7 @@ public class CommvaultClient {
             JsonNode root = mapper.readTree(jsonString);
             JsonNode clientProperties = root.get("clientProperties");
             LOG.info("clientProperties::::::::::");
+            LOG.info(clientProperties);
             LOG.info(clientProperties.asText());
             if (clientProperties.isArray()) {
                 for (JsonNode clientProperty : clientProperties) {
@@ -255,10 +256,12 @@ public class CommvaultClient {
                             .path("client")
                             .path("clientEntity")
                             .path("clientName");
+                    LOG.info(clientNameNode.asText());
                     JsonNode clientIdNode = clientProperty
                             .path("client")
                             .path("clientEntity")
                             .path("clientId");
+                    LOG.info(clientIdNode.asText());
                     if (!clientNameNode.isMissingNode() && hostName.equals(clientNameNode.asText())) {
                         return clientIdNode.asText();
                     }
