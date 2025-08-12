@@ -247,6 +247,8 @@ public class CommvaultClient {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
             JsonNode clientProperties = root.get("clientProperties");
+            LOG.info("clientProperties::::::::::");
+            LOG.info(clientProperties.asText());
             if (clientProperties.isArray()) {
                 for (JsonNode clientProperty : clientProperties) {
                     JsonNode clientNameNode = clientProperty
@@ -330,6 +332,8 @@ public class CommvaultClient {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
             JsonNode planNode = root.path("plan");
+            LOG.info("planNode::::::::::");
+            LOG.info(planNode.asText());
             if (type.equals("deleteRpo")) {
                 JsonNode scheduleTaskIdNode = planNode.path("schedule").path("task").path("taskId");
                 // JsonNode scheduleLogTaskIdNode = planNode.path("database").path("scheduleLog").path("task").path("taskId");
@@ -352,6 +356,7 @@ public class CommvaultClient {
     // 스케줄 정책 조회하는 API로 없는 경우 null, 있는 경우 subtaskid 반환
     public String getSubTaskId(String taskId) {
         try {
+            LOG.info("getSubTaskId REST API 호출");
             final HttpResponse response = get("/schedulepolicy/" + taskId);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -362,6 +367,8 @@ public class CommvaultClient {
                                     .get(0)
                                     .path("subTask")
                                     .path("subTaskId");
+            LOG.info("subTaskIdNode::::::::::");
+            LOG.info(subTaskIdNode.asText());
             if (!subTaskIdNode.isMissingNode()) {
                 return subTaskIdNode.asText();
             }
@@ -376,6 +383,7 @@ public class CommvaultClient {
     // 스케줄 정책 조회하여 스케줄 삭제
     public Boolean deleteSchedulePolicy(String taskId, String subTaskId) {
         try {
+            LOG.info("deleteSchedulePolicy REST API 호출");
             final HttpResponse response = delete("/schedulepolicy/" + taskId + "/schedule/" + subTaskId);
             checkResponseOK(response);
             return true;
@@ -389,6 +397,7 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/jobDetails
     // 작업의 상세정보를 가져와서 작업 상태 반환 (failedClients,successfullClients,skippedClients,pendingClients)
     public String getJobDetails(String jobId) {
+        LOG.info("getJobDetails REST API 호출");
         String postUrl = apiURI.toString() + "/jobDatails";
         try {
             URL url = new URL(postUrl);
@@ -429,6 +438,7 @@ public class CommvaultClient {
     // 호스트의 default backupset 조회하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public String getDefaultBackupSetId(String hostName) {
         try {
+            LOG.info("getDefaultBackupSetId REST API 호출");
             final HttpResponse response = get("backupset?clientName=" + hostName);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -452,6 +462,7 @@ public class CommvaultClient {
     // 호스트의 vm backupset 조회하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public String getVmBackupSetId(String hostName, String vmName) {
         try {
+            LOG.info("getVmBackupSetId REST API 호출");
             final HttpResponse response = get("backupset?clientName=" + hostName);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -477,6 +488,7 @@ public class CommvaultClient {
     // 호스트의 vm backupset 조회하는 API로 없는 경우 null, 있는 경우 backupsetGUID 반환
     public String getVmBackupSetGuid(String hostName, String vmName) {
         try {
+            LOG.info("getVmBackupSetGuid REST API 호출");
             final HttpResponse response = get("backupset?clientName=" + hostName);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -502,6 +514,7 @@ public class CommvaultClient {
     // storagePolicy 조회하는 API로 없는 경우 null, 있는 경우 storagePolicyId 반환
     public String getStoragePolicyId(String planName) {
         try {
+            LOG.info("getStoragePolicyId REST API 호출");
             final HttpResponse response = get("storagePolicy");
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -530,6 +543,7 @@ public class CommvaultClient {
     // storagePolicy 상세 조회하는 API로 없는 경우 null, 있는 경우 storagePolicyId 반환
     public String getStoragePolicyDetails(String storagePolicyId) {
         try {
+            LOG.info("getStoragePolicyDetails REST API 호출");
             final HttpResponse response = get("storagePolicy/" + storagePolicyId);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -562,6 +576,7 @@ public class CommvaultClient {
     // subclient 조회하는 API로 없는 경우 null, 있는 경우 entity String으로 반환
     public String getSubclient(String clientId, String vmName) {
         try {
+            LOG.info("getSubclient REST API 호출");
             final HttpResponse response = get("/subclient?clientId=" + clientId);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -586,6 +601,7 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/backupset/<backupsetId>
     // 호스트의 backupset 설정하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public boolean setBackupSet(String path, String planId, String planName, String planType, String planSubtype, String companyId, String backupSetId) {
+        LOG.info("setBackupSet REST API 호출");
         String postUrl = apiURI.toString() + "/backupset/" + backupSetId;
         try {
             URL url = new URL(postUrl);
@@ -643,6 +659,7 @@ public class CommvaultClient {
     // POST https://10.10.255.56/commandcenter/api/subclient/<backupsetId>
     // 호스트의 backupset 콘텐츠 경로를 변경하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public boolean updateBackupSet(String path, String subclientId, String clientId, String planName, String applicationId, String backupsetId, String instanceId, String subclientName, String backupsetName) {
+        LOG.info("updateBackupSet REST API 호출");
         String postUrl = apiURI.toString() + "/subclient/" + backupsetId;
         String[] paths = path.split(",");
         StringBuilder contentBuilder = new StringBuilder();
@@ -687,6 +704,7 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/createtask
     // 백업 실행 API
     public String createBackup(String subclientId, String storagePolicyId, String displayName, String commCellName, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String subclientGUID, String subclientName, String csGUID, String backupsetName) {
+        LOG.info("createBackup REST API 호출");
         String postUrl = apiURI.toString() + "/createtask";
         try {
             URL url = new URL(postUrl);
@@ -729,6 +747,7 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/createtask
     // 복원 실행 API
     public String restoreFullVM(String endTime, String subclientId, String displayName, String backupsetGUID, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String backupsetName, String commCellId, String path) {
+        LOG.info("restoreFullVM REST API 호출");
         String postUrl = apiURI.toString() + "/createtask";
         try {
             URL url = new URL(postUrl);
@@ -775,6 +794,7 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/v5/serverplan/<planId>/backupdestination/<storagePoolId>
     // plan의 retention period 변경 API
     public boolean updateRetentionPeriod(String planId, String copyId, String retentionPeriod) {
+        LOG.info("updateRetentionPeriod REST API 호출");
         String putUrl = apiURI.toString() + "/v5/serverplan/" + planId + "/baackupdestination/" + copyId;
         try {
             URL url = new URL(putUrl);
@@ -819,6 +839,7 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/backupset/<backupSetId>
     // 가상머신에서 백업 오퍼링 삭제 시 관련된 백업 삭제 API
     public boolean deleteBackupSet(String backupSetId) {
+        LOG.info("deleteBackupSet REST API 호출");
         try {
             final HttpResponse response = delete("/backupset/" + backupSetId);
             checkResponseOK(response);
@@ -833,6 +854,7 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/v4/plan/backupdestination/joboperations
     // 백업 삭제
     public boolean deleteBackupForVM(String jobId, String commcellId, String copyId, String storagePolicyId) {
+        LOG.info("deleteBackupForVM REST API 호출");
         String postUrl = apiURI.toString() + "/v4/plan/backupdestination/joboperations";
         try {
             URL url = new URL(postUrl);
@@ -873,6 +895,7 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/backupset
     // 가상머신에 백업 오퍼링 할당 시 backupset 추가 API
     public boolean createBackupSet(String vmName, String applicationId, String clientId, String planId) {
+        LOG.info("createBackupSet REST API 호출");
         String postUrl = apiURI.toString() + "/backupset";
         try {
             URL url = new URL(postUrl);
