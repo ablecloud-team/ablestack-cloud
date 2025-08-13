@@ -469,7 +469,9 @@ export default {
     },
     async fetchData () {
       this.annotations = []
-      if (!this.vm || !this.vm.id) return
+      if (!this.vm || !this.vm.id) {
+        return
+      }
       api('listAnnotations', { entityid: this.dataResource.id, entitytype: 'VM', annotationfilter: 'all' }).then(json => {
         if (json.listannotationsresponse && json.listannotationsresponse.annotation) {
           this.annotations = json.listannotationsresponse.annotation
@@ -1066,7 +1068,7 @@ export default {
       try {
         const vmNumericId = this.getVmNumericId()
         if (!vmNumericId) {
-          console.log('No VM numeric ID found, skipping SCSI device fetch')
+          console.error('Failed to get VM numeric ID')
           return
         }
 
