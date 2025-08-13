@@ -346,10 +346,14 @@ public class CommvaultClient {
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
-            JsonNode planNode = root.path("plan");
-            JsonNode storagePoolIdNode = planNode.path("storageResourcePoolMap").path("storage").path("storagePoolId");
-            LOG.info(storagePoolIdNode);
-            if (!storagePoolIdNode.isMissingNode()) {
+            LOG.info("1"+root);
+            LOG.info("2"+root.path("plan"));
+            LOG.info("3"+root.path("plan").path("storageResourcePoolMap"));
+            LOG.info("4"+root.path("plan").path("storageResourcePoolMap").path("storage"));
+            LOG.info("5"+root.path("plan").path("storageResourcePoolMap").path("storage").path("storagePoolId"));
+            JsonNode planNode = root.path("plan").path("storageResourcePoolMap").path("storage").path("storagePoolId");
+            LOG.info("6"+planNode);
+            if (!planNode.isMissingNode()) {
                 LOG.info(storagePoolIdNode.asText());
                 LOG.info(storagePoolIdNode.toString());
                 return storagePoolIdNode.toString();
