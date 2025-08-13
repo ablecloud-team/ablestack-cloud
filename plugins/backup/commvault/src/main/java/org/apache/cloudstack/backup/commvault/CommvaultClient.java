@@ -224,8 +224,8 @@ public class CommvaultClient {
                             .path("client")
                             .path("clientEntity")
                             .path("clientId");
-                    if (!clientNameNode.isMissingNode() && hostName.equals(clientNameNode.toString())) {
-                        return clientIdNode.toString();
+                    if (!clientNameNode.isMissingNode() && hostName.equals(clientNameNode.asText())) {
+                        return clientIdNode.asText();
                     }
                 }
             }
@@ -252,8 +252,8 @@ public class CommvaultClient {
                 for (JsonNode planNode : plans) {
                     JsonNode planDetails = planNode.path("plan");
                     if (!planDetails.isMissingNode()) {
-                        String planId = planDetails.path("planId").toString();
-                        String planName = planDetails.path("planName").toString();
+                        String planId = planDetails.path("planId").asText();
+                        String planName = planDetails.path("planName").asText();
                         offerings.add(new CommvaultBackupOffering(planName, planId));
                     }
                 }
@@ -283,12 +283,12 @@ public class CommvaultClient {
                 // JsonNode scheduleLogTaskIdNode = planNode.path("database").path("scheduleLog").path("task").path("taskId");
                 // JsonNode snapTaskIdNode = planNode.path("snapInfo").path("snapTask").path("task").path("taskId");
                 if (!scheduleTaskIdNode.isMissingNode()) {
-                    return scheduleTaskIdNode.toString();
+                    return scheduleTaskIdNode.asText();
                 }
             } else {
                 JsonNode plan = planNode.path("summary").path("plan");
-                LOG.info(plan);
-                return plan.toString();
+                LOG.info(plan.asText());
+                return plan.asText();
             }
         } catch (final IOException e) {
             LOG.error("Failed to list commvault plan jobs due to:", e);
@@ -313,7 +313,7 @@ public class CommvaultClient {
                                     .path("subTask")
                                     .path("subTaskId");
             if (!subTaskIdNode.isMissingNode()) {
-                return subTaskIdNode.toString();
+                return subTaskIdNode.asText();
             }
         } catch (final IOException e) {
             LOG.error("Failed to list commvault plan jobs due to:", e);
