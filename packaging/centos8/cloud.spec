@@ -344,6 +344,7 @@ install -D packaging/systemd/cloudstack-agent.service ${RPM_BUILD_ROOT}%{_unitdi
 install -D packaging/systemd/cloudstack-rolling-maintenance@.service ${RPM_BUILD_ROOT}%{_unitdir}/%{name}-rolling-maintenance@.service
 install -D packaging/systemd/cloudstack-agent.default ${RPM_BUILD_ROOT}%{_sysconfdir}/default/%{name}-agent
 install -D packaging/systemd/restore-vhba.service ${RPM_BUILD_ROOT}%{_unitdir}/restore-vhba.service
+install -D agent/target/transformed/restore-vhba ${RPM_BUILD_ROOT}%{_bindir}/restore-vhba
 install -D agent/target/transformed/agent.properties ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/agent/agent.properties
 install -D agent/target/transformed/environment.properties ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/agent/environment.properties
 install -D agent/target/transformed/log4j-cloud.xml ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/agent/log4j-cloud.xml

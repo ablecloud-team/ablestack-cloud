@@ -4780,5 +4780,16 @@
 "message.success.allocate.device": "Device allocation completed",
 "message.confirm.delete.device": "Are you sure you want to delete the device",
 "label.hba.devices": "HBA Devices",
-"message.cannot.remove.device.vm.running": "Running virtual machines cannot be removed"
+"message.cannot.remove.device.vm.running": "Running virtual machines cannot be removed",
+"label.create.vhba": "Create vHBA",
+"message.confirm.create.vhba": "Do you want to create a vHBA?",
+"label.total.vhba.count": "vHBA Count",
+"message.success.create.vhba": "vHBA creation completed",
+"label.delete.vhba": "Delete vHBA",
+"message.confirm.delete.vhba": "Do you want to delete a vHBA?",
+"message.success.delete.vhba": "vHBA deletion completed",
+"label.no.partitions": "No partitions",
+"label.has.partitions": "Has partitions",
+"label.not.in.use": "Not in use",
+"label.in.use": "In use"
 }

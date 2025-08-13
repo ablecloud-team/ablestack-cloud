@@ -71,6 +71,7 @@ import com.cloud.capacity.dao.CapacityDaoImpl.SummedCapacity;
 import com.cloud.cluster.ClusterManager;
 import com.cloud.configuration.Config;
 import com.cloud.configuration.ConfigurationManagerImpl;
+import javax.naming.ConfigurationException;
 import com.cloud.consoleproxy.ConsoleProxyManagementState;
 import com.cloud.consoleproxy.ConsoleProxyManager;
 import com.cloud.dc.AccountVlanMapVO;
@@ -914,7 +915,6 @@ import org.apache.cloudstack.utils.security.SSLUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import javax.naming.ConfigurationException;
 
 
 
@@ -3119,27 +3119,23 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 if (!isAttach) {
                     // 디바이스 할당 해제
                     String currentVmId = cmd.getCurrentVmId();
-                    if (currentAllocation != null && currentVmId != null) {
-                        // 현재 할당된 VM이 요청된 VM과 일치하는지 확인
-                        if (!currentVmId.equals(currentAllocation.getValue())) {
+                    if (currentAllocation != null) {
+                        String vmIdToUse = (currentVmId != null) ? currentVmId : currentAllocation.getValue();
+                        if (currentVmId != null && !currentVmId.equals(currentAllocation.getValue())) {
                             throw new CloudRuntimeException("Device is allocated to a different VM");
                         }
-                        VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(currentVmId));
+                        VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(vmIdToUse));
                         if (vm != null) {
                             vmInternalName = vm.getInstanceName();
                         }
                     }
                 } else {
-                    // 새로운 할당
                     if (currentAllocation != null) {
-                        throw new CloudRuntimeException("Device is already allocated to VM: " + currentAllocation.getValue());
+                        logger.info("Device is already allocated to VM: " + currentAllocation.getValue() +
+                                  ". Allowing multiple HBA allocation to same VM.");
                     }
-                    // KVM에서 libvirt 이름은 보통 instance name 형식을 사용
-                    // vmInstance.getInstanceName()은 CloudStack 내부 이름 (예: i-2-215-VM)
-                    // libvirt에서는 이 이름을 사용하는 것이 일반적
                     vmInternalName = vmInstance.getInstanceName();
 
-                    logger.info("VM libvirt name determined - instanceName: {}", vmInternalName);
                 }
 
                 if (vmInternalName == null) {
@@ -3179,11 +3175,18 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     // 할당 해제
                     if (currentAllocation != null) {
                         _hostDetailsDao.remove(currentAllocation.getId());
+                        logger.info("Removed allocation for device: " + hostDeviceName);
                     }
                 } else {
-                    // 새로운 할당
+                    if (currentAllocation != null) {
+                        logger.info("Device is already allocated to VM: " + currentAllocation.getValue() +
+                                  ". Allowing multiple HBA allocation to same VM.");
+                    }
+
                     DetailVO detail = new DetailVO(hostId, hostDeviceName, vmId.toString());
                     _hostDetailsDao.persist(detail);
+                    logger.info("Created allocation for device: " + hostDeviceName +
+                              " to VM: " + vmId);
                 }
 
                 // 응답 생성
@@ -3191,6 +3194,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 List<UpdateHostHbaDevicesResponse> responses = new ArrayList<>();
                 UpdateHostHbaDevicesResponse deviceResponse = new UpdateHostHbaDevicesResponse();
 
+                // 현재 할당 상태 확인
                 DetailVO allocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
                 deviceResponse.setHostDeviceName(hostDeviceName);
                 deviceResponse.setVirtualMachineId(allocation != null ? allocation.getValue() : null);
@@ -3198,7 +3202,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
                 responses.add(deviceResponse);
                 response.setResponses(responses);
-
                 return response;
 
             } catch (Exception e) {
@@ -3480,10 +3483,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         public ListResponse<DeleteVhbaDeviceResponse> deleteVhbaDevice(DeleteVhbaDeviceCmd cmd) {
             Long hostId = cmd.getHostId();
             String hostDeviceName = cmd.getHostDeviceName();
+            String wwnn = cmd.getWwnn();
 
-            logger.info("deleteVhbaDevice 호출됨 - hostId: {}, hostDeviceName: {}", hostId, hostDeviceName);
+            logger.info("deleteVhbaDevice 호출됨 - hostId: {}, hostDeviceName: {}, WWNN: {}", hostId, hostDeviceName, wwnn);
 
-            // 1. 호스트 존재 여부 확인
             HostVO hostVO = _hostDao.findById(hostId);
             if (hostVO == null) {
                 String errorMsg = "Host not found with ID: " + hostId;
@@ -3491,16 +3494,14 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 throw new CloudRuntimeException(errorMsg);
             }
 
-            // 2. 필수 파라미터 검증
-            if (hostDeviceName == null || hostDeviceName.trim().isEmpty()) {
-                String errorMsg = "Host device name is required";
+            if ((hostDeviceName == null || hostDeviceName.trim().isEmpty()) &&
+                (wwnn == null || wwnn.trim().isEmpty())) {
+                String errorMsg = "Either host device name or WWNN is required";
                 logger.error(errorMsg);
                 throw new CloudRuntimeException(errorMsg);
             }
 
-            logger.info("호스트 정보 - ID: {}, 이름: {}, 상태: {}", hostVO.getId(), hostVO.getName(), hostVO.getStatus());
 
-            // 3. vHBA가 VM에 할당되어 있는지 확인
             DetailVO currentAllocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
             if (currentAllocation != null) {
                 String errorMsg = "vHBA device is currently allocated to a VM. Please deallocate it first.";
@@ -3508,13 +3509,17 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 throw new CloudRuntimeException(errorMsg);
             }
 
-            // 4. DeleteVhbaDeviceCommand 생성
-            DeleteVhbaDeviceCommand deleteCmd = new DeleteVhbaDeviceCommand(hostId, hostDeviceName);
+            DeleteVhbaDeviceCommand deleteCmd;
+            if (wwnn != null && !wwnn.trim().isEmpty()) {
+                deleteCmd = new DeleteVhbaDeviceCommand(hostId, hostDeviceName, wwnn);
+                    deleteCmd.getHostId();
+                    deleteCmd.getWwnn();
+            } else {
+                deleteCmd = new DeleteVhbaDeviceCommand(hostId, hostDeviceName);
+                    deleteCmd.getHostId();
+                    deleteCmd.getVhbaName();
+            }
 
-            logger.info("DeleteVhbaDeviceCommand 생성 완료 - hostId: {}, vHBA 이름: {}", 
-                deleteCmd.getHostId(), deleteCmd.getVhbaName());
-
-            // 5. 에이전트로 명령 전송
             Answer answer;
             try {
                 logger.info("에이전트로 명령 전송 시작 - hostId: {}", hostVO.getId());

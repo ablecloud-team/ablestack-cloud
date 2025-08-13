@@ -29,6 +29,7 @@
         </template>
       </a-alert>
       <br>
+
       <a-form-item :label="$t('label.virtualmachine')" name="virtualmachineid" ref="virtualmachineid">
         <a-select
           v-focus="true"
@@ -195,7 +196,7 @@ export default {
 
       this.loading = true
       try {
-        const xmlConfig = this.generateXmlConfig(this.resource.hostDevicesName)
+        const xmlConfig = await this.generateXmlConfig()
 
         await api('updateHostLunDevices', {
           hostid: this.resource.id,
@@ -262,24 +263,116 @@ export default {
       }
     },
 
-    generateXmlConfig (hostDeviceName) {
-      let targetDev = 'sdc'
-      const match = hostDeviceName.match(/\/dev\/([a-z]+[a-z0-9]*)$/)
-      if (match) {
-        targetDev = match[1]
-      } else {
-        // 기본값
-        targetDev = 'sdc'
+    // SCSI 주소 추출 메서드
+    async extractScsiAddress (devicePath) {
+      // SCSI 주소 정보가 resource에 포함되어 있다면 사용
+      if (this.resource.scsiAddress) {
+        console.log('Using resource.scsiAddress:', this.resource.scsiAddress)
+        return this.parseScsiAddress(this.resource.scsiAddress)
       }
 
-      return `
-        <disk type='block' device='lun'>
-          <driver name='qemu' type='raw'/>
-          <source dev='${hostDeviceName}'/>
-          <target dev='${targetDev}' bus='scsi'/>
-          <address type='drive' controller='0' bus='0' target='1' unit='0'/>
-        </disk>
-      `.trim()
+      // 디바이스 텍스트에서 SCSI 주소 추출
+      if (this.resource.hostDevicesText) {
+        console.log('Searching in hostDevicesText:', this.resource.hostDevicesText)
+        const scsiMatch = this.resource.hostDevicesText.match(/SCSI_ADDRESS:\s*([0-9]+:[0-9]+:[0-9]+:[0-9]+)/i)
+        if (scsiMatch) {
+          console.log('Found SCSI address in hostDevicesText:', scsiMatch[1])
+          return this.parseScsiAddress(scsiMatch[1])
+        }
+      }
+
+      // 백엔드에서 LUN 디바이스 정보를 다시 조회하여 SCSI 주소 가져오기
+      try {
+        const response = await api('listHostLunDevices', { id: this.resource.id })
+        const lunDevices = response.listhostlundevicesresponse?.listhostlundevices?.[0]
+
+        if (lunDevices && lunDevices.hostdevicesname && lunDevices.hostdevicestext) {
+          const deviceIndex = lunDevices.hostdevicesname.indexOf(devicePath)
+          if (deviceIndex !== -1 && lunDevices.hostdevicestext[deviceIndex]) {
+            const deviceText = lunDevices.hostdevicestext[deviceIndex]
+
+            const scsiMatch = deviceText.match(/SCSI_ADDRESS:\s*([0-9]+:[0-9]+:[0-9]+:[0-9]+)/i)
+            if (scsiMatch) {
+              return this.parseScsiAddress(scsiMatch[1])
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching LUN devices:', error)
+      }
+
+      // 기본값 반환
+      return { bus: '0', target: '0', unit: '0' }
+    },
+
+    // SCSI 주소 파싱
+    parseScsiAddress (scsiAddress) {
+      const parts = scsiAddress.split(':')
+
+      if (parts.length >= 4) {
+        const result = {
+          host: parts[0],
+          bus: parts[1] || '0',
+          target: parts[2] || '0',
+          unit: parts[3] || '0'
+        }
+        return result
+      }
+
+      return { bus: '0', target: '0', unit: '0' }
+    },
+
+    async generateXmlConfig () {
+      let targetDev = 'sdc'
+
+      // multipath 장치인지 확인
+      const isMultipath = this.resource.hostDevicesName.startsWith('/dev/mapper/')
+
+      if (isMultipath) {
+        // multipath 장치의 경우 dm-* 이름을 사용
+        const match = this.resource.hostDevicesName.match(/\/dev\/mapper\/(dm-\d+)$/)
+        if (match) {
+          targetDev = match[1] // dm-10, dm-11 등
+        } else {
+          // fallback: mpatha, mpathb 등
+          const mpathMatch = this.resource.hostDevicesName.match(/\/dev\/mapper\/(mpath[a-z]+)$/)
+          if (mpathMatch) {
+            targetDev = mpathMatch[1]
+          }
+        }
+      } else {
+        // 일반 블록 디바이스의 경우
+        const match = this.resource.hostDevicesName.match(/\/dev\/([a-z]+[a-z0-9]*)$/)
+        if (match) {
+          targetDev = match[1]
+        }
+      }
+
+      // SCSI 주소 추출
+      const scsiAddress = await this.extractScsiAddress(this.resource.hostDevicesName)
+
+      // multipath 장치인 경우와 일반 디바이스인 경우를 구분하여 XML 생성
+      if (isMultipath) {
+        // multipath 장치용 XML - SCSI address 없이
+        return `
+          <disk type='block' device='lun'>
+            <driver name='qemu' type='raw'/>
+            <source dev='${this.resource.hostDevicesName}'/>
+            <target dev='${targetDev}' bus='scsi'/>
+            <serial>multipath-${targetDev}</serial>
+          </disk>
+        `.trim()
+      } else {
+        // 일반 블록 디바이스용 XML - SCSI address 포함
+        return `
+          <disk type='block' device='lun'>
+            <driver name='qemu' type='raw'/>
+            <source dev='${this.resource.hostDevicesName}'/>
+            <target dev='${targetDev}' bus='scsi'/>
+            <address type='drive' controller='0' bus='${scsiAddress.bus}' target='${scsiAddress.target}' unit='${scsiAddress.unit}'/>
+          </disk>
+        `.trim()
+      }
     },
 
     closeAction () {
@@ -305,10 +398,9 @@ export default {
         if (vmId) {
           const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
           const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-          console.log(vm)
-          // this.currentVmName = vm ? (vm.displayname || vm.name) : this.$t('label.no.vm.assigned')
+          this.currentVmName = vm ? (vm.displayname || vm.name) : this.$t('label.no.vm.assigned')
         } else {
-          // this.currentVmName = this.$t('label.no.vm.assigned')
+          this.currentVmName = this.$t('label.no.vm.assigned')
         }
       } catch (e) {
         this.currentVmId = null
