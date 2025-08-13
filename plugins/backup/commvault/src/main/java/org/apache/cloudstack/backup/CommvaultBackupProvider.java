@@ -300,11 +300,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
         for (final HostVO host : Hosts) {
             if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
-                LOG.info("checkBackupAgent:::::::::::::::::::");
-                LOG.info(host.getName());
                 String checkHost = client.getClientId(host.getName());
-                LOG.info("checkHost:::::::::::::::::::");
-                LOG.info(checkHost);
+                // 하나라도 없다면 false 리턴하도록 추후 로직 변경해야함
                 if (checkHost != null) {
                     return true;
                 }
@@ -342,11 +339,12 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         LOG.info("planEntity:::::::::::::::::::::::");
         LOG.info(planEntity);
         JSONObject jsonObject = new JSONObject(planEntity);
-        String planType = jsonObject.getString("planType");
-        String planName = jsonObject.getString("planName");
-        String planSubtype = jsonObject.getString("planSubtype");
-        String planId = jsonObject.getString("planId");
-        String companyId = jsonObject.getJSONObject("entityInfo").getString("companyId");
+        String planType = String.valueOf(jsonObject.get("planType"));
+        String planName = String.valueOf(jsonObject.get("planName"));
+        String planSubtype = String.valueOf(jsonObject.get("planSubtype"));
+        String planId = String.valueOf(jsonObject.get("planId"));
+        JSONObject entityInfo = jsonObject.getJSONObject("entityInfo");
+        String companyId = String.valueOf(entityInfo.getInt("companyId"));
         String storagePoolId = client.getStoragePoolId(planId);
         LOG.info("updateRetentionPeriod:::::::::::::::::::::::");
         LOG.info(planId);

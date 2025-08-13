@@ -236,6 +236,7 @@ public class CommvaultClient {
         return null;
     }
 
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/client
     // client에 호스트가 연결되어있는지 확인하는 API로 호스트가 없는 경우 null, 있는 경우 clientId 반환
     public String getClientId(String hostName) {
@@ -257,9 +258,7 @@ public class CommvaultClient {
                             .path("client")
                             .path("clientEntity")
                             .path("clientId");
-                    LOG.info(clientNameNode + hostName);
                     if (!clientNameNode.isMissingNode() && hostName.equals(clientNameNode.asText())) {
-                        LOG.info("clientIdNode.asText():::::::::::::::::::::::");
                         return clientIdNode.asText();
                     }
                 }
@@ -271,6 +270,7 @@ public class CommvaultClient {
         return null;
     }
 
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/plan
     // plan 조회하는 API로 없는 경우 빈 배열, 있는 경우 plan 명, plan id 반환
     public List<BackupOffering> listPlans() {
@@ -321,6 +321,7 @@ public class CommvaultClient {
         return null;
     }
 
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/plan/<planId>
     // plan 상세 조회하는 API로 없는 경우 null, 있는 경우 schedule task id 반환
     public String getScheduleTaskId(String type, String planId) {
@@ -337,12 +338,12 @@ public class CommvaultClient {
                 // JsonNode scheduleLogTaskIdNode = planNode.path("database").path("scheduleLog").path("task").path("taskId");
                 // JsonNode snapTaskIdNode = planNode.path("snapInfo").path("snapTask").path("task").path("taskId");
                 if (!scheduleTaskIdNode.isMissingNode()) {
-                    return scheduleTaskIdNode.asText();
+                    return scheduleTaskIdNode.toString();
                 }
             } else {
                 JsonNode plan = planNode.path("summary").path("plan");
                 LOG.info(plan);
-                return plan.asText();
+                return plan.toString();
             }
         } catch (final IOException e) {
             LOG.error("Failed to list commvault plan jobs due to:", e);
@@ -351,6 +352,7 @@ public class CommvaultClient {
         return null;
     }
 
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/schedulepolicy/<taskId>
     // 스케줄 정책 조회하는 API로 없는 경우 null, 있는 경우 subtaskid 반환
     public String getSubTaskId(String taskId) {
@@ -366,8 +368,6 @@ public class CommvaultClient {
                                     .get(0)
                                     .path("subTask")
                                     .path("subTaskId");
-            LOG.info("subTaskIdNode::::::::::");
-            LOG.info(subTaskIdNode.asText());
             if (!subTaskIdNode.isMissingNode()) {
                 return subTaskIdNode.asText();
             }
@@ -378,6 +378,7 @@ public class CommvaultClient {
         return null;
     }
 
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/schedulepolicy/<taskId>/schedule/<subTaskId>
     // 스케줄 정책 조회하여 스케줄 삭제
     public Boolean deleteSchedulePolicy(String taskId, String subTaskId) {
