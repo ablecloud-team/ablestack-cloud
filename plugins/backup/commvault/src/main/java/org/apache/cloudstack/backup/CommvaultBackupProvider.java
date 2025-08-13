@@ -321,13 +321,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             if (subTaskId != null) {
                 boolean result = client.deleteSchedulePolicy(taskId, subTaskId);
                 if (!result) {
-                    // 문구 변경 필요
-                    throw new CloudRuntimeException("commvault plan schedule rpo delete err");
+                    throw new CloudRuntimeException("Failed to delete schedule policy commvault api");
                 }
             }
         } else {
-            // 문구 변경 필요
-            throw new CloudRuntimeException("commvault plan details schedule task id none");
+            throw new CloudRuntimeException("Failed to get plan details schedule task id commvault api");
         }
         // 선택한 백업 정책의 보존 기간 변경 Commvault APi 호출
         type = "updateRPO";
