@@ -354,9 +354,9 @@ public class CommvaultClient {
             JsonNode planNode = root.path("plan").path("storageResourcePoolMap").path("storage").path("storagePoolId");
             LOG.info("6"+planNode);
             if (!planNode.isMissingNode()) {
-                LOG.info(storagePoolIdNode.asText());
-                LOG.info(storagePoolIdNode.toString());
-                return storagePoolIdNode.toString();
+                LOG.info(planNode.asText());
+                LOG.info(planNode.toString());
+                return planNode.toString();
             }
         } catch (final IOException e) {
             LOG.error("Failed to request getStoragePoolId commvault api due to:", e);
