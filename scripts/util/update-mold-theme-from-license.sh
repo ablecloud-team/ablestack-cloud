@@ -29,7 +29,7 @@ echo "선택된 테마: ${TYPE:-default}"
 
 if [[ "$TYPE" == "Clostack" ]]; then
   echo "CLOIT CLOSTACK Mold 테마 설정 중...."
-  replace_in_locale_files $CURRENT_APPTITLE "CLOSTACK"
+  replace_in_locale_files "$CURRENT_APPTITLE" "CLOSTACK"
 
   replace_json_line "logo" "assets/logo-clostack.png"              # 로고 파일 변경
   replace_json_line "banner" "assets/login-logo-clostack.png"      # 로그인 배너 변경
@@ -50,7 +50,7 @@ if [[ "$TYPE" == "Clostack" ]]; then
 
 elif [[ "$TYPE" == "UCP HV powered by ABLESTACK" ]]; then
   echo "효성인포메이션시스템 UCP HV Mold 테마 설정 중...."
-  replace_in_locale_files $CURRENT_APPTITLE "UCP HV"
+  replace_in_locale_files "$CURRENT_APPTITLE" "UCP HV"
 
   replace_json_line "logo" "assets/logo-hv.png"                     # 로고 파일 변경
   replace_json_line "banner" "assets/login-logo-hv.png"             # 로그인 배너 변경
@@ -71,7 +71,7 @@ elif [[ "$TYPE" == "UCP HV powered by ABLESTACK" ]]; then
 
 else
   echo "ABLECLOUD ABLESTACK Mold 테마 설정 중...."
-  replace_in_locale_files $CURRENT_APPTITLE "ABLESTACK"
+  replace_in_locale_files "$CURRENT_APPTITLE" "ABLESTACK"
 
   replace_json_line "logo" "assets/logo-ablestack.png"               # 로고 파일 변경
   replace_json_line "banner" "assets/login-logo-ablestack.png"       # 로그인 배너 변경
