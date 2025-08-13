@@ -287,6 +287,7 @@ public class CommvaultClient {
                 }
             } else {
                 JsonNode plan = planNode.path("summary").path("plan");
+                LOG.info(plan);
                 LOG.info(plan.asText());
                 return plan.asText();
             }
