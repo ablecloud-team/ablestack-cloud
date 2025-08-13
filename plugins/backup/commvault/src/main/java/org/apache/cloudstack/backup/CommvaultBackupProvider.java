@@ -331,11 +331,12 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         type = "updateRPO";
         String planEntity = client.getScheduleTaskId(type, externalId);
         JSONObject jsonObject = new JSONObject(planEntity);
-        String planType = jsonObject.getString("planType");
-        String planName = jsonObject.getString("planName");
-        String planSubtype = jsonObject.getString("planSubtype");
-        String planId = jsonObject.getString("planId");
-        String companyId = jsonObject.getJSONObject("entityInfo").getString("companyId");
+        String planType = String.valueOf(jsonObject.get("planType"));
+        String planName = String.valueOf(jsonObject.get("planName"));
+        String planSubtype = String.valueOf(jsonObject.get("planSubtype"));
+        String planId = String.valueOf(jsonObject.get("planId"));
+        JSONObject entityInfo = jsonObject.getJSONObject("entityInfo");
+        String companyId = String.valueOf(entityInfo.get("companyId"));
         String storagePoolId = client.getStoragePoolId(planId);
         LOG.info("updateRetentionPeriod:::::::::::::::::::::::");
         LOG.info(planId);
