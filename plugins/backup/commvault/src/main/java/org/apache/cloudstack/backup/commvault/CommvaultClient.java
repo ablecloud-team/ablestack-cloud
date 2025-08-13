@@ -268,7 +268,7 @@ public class CommvaultClient {
 
     // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/plan/<planId>
-    // plan 상세 조회하는 API로 없는 경우 null, 있는 경우 schedule task id 반환
+    // plan 상세 조회하는 API로 없는 경우 null, type이 deleteRpo인 경우 값이 있는 경우 schedule task id 반환, type이 updateRPO인 경우 plan 반환
     public String getScheduleTaskId(String type, String planId) {
         try {
             LOG.info("getScheduleTaskId REST API 호출");
@@ -287,9 +287,7 @@ public class CommvaultClient {
                 }
             } else {
                 JsonNode plan = planNode.path("summary").path("plan");
-                LOG.info(plan);
-                LOG.info(plan.asText());
-                return plan.asText();
+                return plan.toString();
             }
         } catch (final IOException e) {
             LOG.error("Failed to request getScheduleTaskId commvault api due to:", e);
