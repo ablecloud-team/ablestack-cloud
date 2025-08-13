@@ -270,7 +270,7 @@ export default {
           }
         }
         if (this.provider === 'commvault') {
-          params.retentionPeriodValue = this.retentionPeriodInDays
+          params.retentionperiod = this.retentionPeriodInDays
         }
         params.allowuserdrivenbackups = values.allowuserdrivenbackups
         this.loading = true

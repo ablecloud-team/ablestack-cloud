@@ -268,7 +268,7 @@ public class CommvaultClient {
 
     // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/plan/<planId>
-    // plan 상세 조회하는 API로 없는 경우 null, type이 deleteRpo인 경우 값이 있는 경우 schedule task id 반환, type이 updateRPO인 경우 plan 반환
+    // plan 상세 조회하는 API로 없는 경우 null, type이 deleteRpo인 경우 값이 있는 경우 schedule task id 반환, type이 updateRpo인 경우 plan 반환
     public String getScheduleTaskId(String type, String planId) {
         try {
             LOG.info("getScheduleTaskId REST API 호출");
@@ -340,6 +340,7 @@ public class CommvaultClient {
     // plan 상세 조회하여 StoragePoolID 반환하는 API로 없는 경우 null, 있는 경우 storage pool id 반환
     public String getStoragePoolId(String planId) {
         try {
+            LOG.info("getStoragePoolId REST API 호출");
             final HttpResponse response = get("/v2/plan/" + planId);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -347,7 +348,10 @@ public class CommvaultClient {
             JsonNode root = mapper.readTree(jsonString);
             JsonNode planNode = root.path("plan");
             JsonNode storagePoolIdNode = planNode.path("storageResourcePoolMap").path("storage").path("storagePoolId");
+            LOG.info(storagePoolIdNode);
             if (!storagePoolIdNode.isMissingNode()) {
+                LOG.info(storagePoolIdNode.asText());
+                LOG.info(storagePoolIdNode.toString());
                 return storagePoolIdNode.asText();
             }
         } catch (final IOException e) {

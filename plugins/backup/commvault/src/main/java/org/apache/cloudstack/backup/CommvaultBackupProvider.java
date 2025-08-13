@@ -328,7 +328,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             throw new CloudRuntimeException("Failed to get plan details schedule task id commvault api");
         }
         // 선택한 백업 정책의 보존 기간 변경 Commvault API 호출
-        type = "updateRPO";
+        type = "updateRpo";
         String planEntity = client.getScheduleTaskId(type, externalId);
         JSONObject jsonObject = new JSONObject(planEntity);
         String planType = String.valueOf(jsonObject.get("planType"));
@@ -434,20 +434,20 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String jobId = external[1];
         String jobDetails = client.getJobDetails(jobId);
         JSONObject jsonObject = new JSONObject(jobDetails);
-        String endTime = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").getString("endTime");
-        String subclientId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("subclientId");
-        String displayName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("displayName");
-        String clientId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("clientId");
-        String companyId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("company").getString("companyId");
-        String companyName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("company").getString("companyName");
-        String instanceName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("instanceName");
-        String appName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("appName");
-        String applicationId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("applicationId");
-        String clientName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("clientName");
-        String backupsetId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("backupsetId");
-        String instanceId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("instanceId");
-        String backupsetName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("backupsetName");
-        String commCellId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").getString("commCellId");
+        String endTime = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
+        String subclientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("subclientId"));
+        String displayName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("displayName"));
+        String clientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientId"));
+        String companyId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("company").get("companyId"));
+        String companyName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("company").get("companyName"));
+        String instanceName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("instanceName"));
+        String appName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("appName"));
+        String applicationId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("applicationId"));
+        String clientName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getg("clientName"));
+        String backupsetId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetId"));
+        String instanceId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("instanceId"));
+        String backupsetName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetName"));
+        String commCellId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").get("commCellId"));
         String backupsetGUID = client.getVmBackupSetGuid(clientName, backupsetName);
         LOG.info(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
         String jobId2 = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
@@ -492,20 +492,20 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String jobId = external[1];
         String jobDetails = client.getJobDetails(jobId);
         JSONObject jsonObject = new JSONObject(jobDetails);
-        String endTime = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").getString("endTime");
-        String subclientId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("subclientId");
-        String displayName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("displayName");
-        String clientId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("clientId");
-        String companyId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("company").getString("companyId");
-        String companyName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("company").getString("companyName");
-        String instanceName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("instanceName");
-        String appName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("appName");
-        String applicationId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("applicationId");
-        String clientName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("clientName");
-        String backupsetId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("backupsetId");
-        String instanceId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("instanceId");
-        String backupsetName = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getString("backupsetName");
-        String commCellId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").getString("commCellId");
+        String endTime = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
+        String subclientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("subclientId"));
+        String displayName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("displayName"));
+        String clientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientId"));
+        String companyId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("company").get("companyId"));
+        String companyName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("company").get("companyName"));
+        String instanceName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("instanceName"));
+        String appName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("appName"));
+        String applicationId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("applicationId"));
+        String clientName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getg("clientName"));
+        String backupsetId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetId"));
+        String instanceId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("instanceId"));
+        String backupsetName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetName"));
+        String commCellId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").get("commCellId"));
         String backupsetGUID = client.getVmBackupSetGuid(clientName, backupsetName);
         LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volumeUuid, backup));
         String result = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
@@ -649,21 +649,21 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String clientId = client.getClientId(hostName);
         String subClientEntity = client.getSubclient(clientId, vm.getName());
         JSONObject jsonObject = new JSONObject(subClientEntity);
-        String subclientId = jsonObject.getString("subclientId");
-        String applicationId = jsonObject.getString("applicationId");
-        String backupsetId = jsonObject.getString("backupsetId");
-        String instanceId = jsonObject.getString("instanceId");
-        String backupsetName = jsonObject.getString("backupsetName");
-        String displayName = jsonObject.getString("displayName");
-        String commCellName = jsonObject.getString("commCellName");
-        String companyId = jsonObject.getJSONObject("entityInfo").getString("companyId");
-        String companyName = jsonObject.getJSONObject("entityInfo").getString("companyName");
-        String instanceName = jsonObject.getString("instanceName");
-        String appName = jsonObject.getString("appName");
-        String clientName = jsonObject.getString("clientName");
-        String subclientGUID = jsonObject.getString("subclientGUID");
-        String subclientName = jsonObject.getString("subclientName");
-        String csGUID = jsonObject.getString("csGUID");
+        String subclientId = String.valueOf(jsonObject.get("subclientId"));
+        String applicationId = String.valueOf(jsonObject.get("applicationId"));
+        String backupsetId = String.valueOf(jsonObject.get("backupsetId"));
+        String instanceId = String.valueOf(jsonObject.get("instanceId"));
+        String backupsetName = String.valueOf(jsonObject.get("backupsetName"));
+        String displayName = String.valueOf(jsonObject.get("displayName"));
+        String commCellName = String.valueOf(jsonObject.get("commCellName"));
+        String companyId = String.valueOf(jsonObject.getJSONObject("entityInfo").get("companyId"));
+        String companyName = String.valueOf(jsonObject.getJSONObject("entityInfo").get("companyName"));
+        String instanceName = String.valueOf(jsonObject.get("instanceName"));
+        String appName = String.valueOf(jsonObject.get("appName"));
+        String clientName = String.valueOf(jsonObject.get("clientName"));
+        String subclientGUID = String.valueOf(jsonObject.get("subclientGUID"));
+        String subclientName = String.valueOf(jsonObject.get("subclientName"));
+        String csGUID = String.valueOf(jsonObject.get("csGUID"));
         boolean upResult = client.updateBackupSet(path, subclientId, clientId, planName, applicationId, backupsetId, instanceId, subclientName, backupsetName);
         String jobState = "Running";
         JSONObject jsonObject2 = new JSONObject();
@@ -673,16 +673,16 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             while (jobState == "Running") {
                 String jobDetails = client.getJobDetails(jobId);
                 jsonObject2 = new JSONObject(jobDetails);
-                jobState = jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").getString("state");
+                jobState = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").get("state"));
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException e) {
                     LOG.error("create backup get asyncjob result sleep interrupted error");
                 }
             }
-            String endTime = jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").getString("endTime");
-            String size = jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").getString("sizeOfApplication");
-            String type = jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getString("backupType");
+            String endTime = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
+            String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
+            String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
             SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             if (jobState == "Completed") {
                 String externalId = path + "/" + jobId;
@@ -766,8 +766,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         final CommvaultClient client = getClient(zoneId);
         String jobDetails = client.getJobDetails(jobId);
         JSONObject jsonObject = new JSONObject(jobDetails);
-        String commcellId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").getString("commCellId");
-        String storagePolicyId = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("storagePolicy").getString("storagePolicyId");
+        String commcellId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").get("commCellId"));
+        String storagePolicyId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("storagePolicy").get("storagePolicyId"));
         String copyId = client.getStoragePolicyDetails(storagePolicyId);
         if (client.deleteBackupForVM(jobId, commcellId, copyId, storagePolicyId)) {
             LOG.debug("Commvault successfully deleted backup with id " + externalId);
