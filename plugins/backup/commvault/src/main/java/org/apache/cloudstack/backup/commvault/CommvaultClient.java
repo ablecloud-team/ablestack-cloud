@@ -307,13 +307,11 @@ public class CommvaultClient {
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
-            JsonNode subTaskIdNode = root.path("taskInfo")
-                                    .path("subTasks")
-                                    .get(0)
-                                    .path("subTask")
-                                    .path("subTaskId");
+            JsonNode subTaskIdNode = root.path("taskInfo").path("subTasks");
             if (!subTaskIdNode.isMissingNode()) {
-                return subTaskIdNode.asText();
+                return subTaskIdNode.get(0).path("subTask").path("subTaskId").asText();
+            } else {
+                return null;
             }
         } catch (final IOException e) {
             LOG.error("Failed to list commvault plan jobs due to:", e);

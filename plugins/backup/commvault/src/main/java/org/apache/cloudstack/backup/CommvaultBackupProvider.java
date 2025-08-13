@@ -321,9 +321,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             String subTaskId = client.getSubTaskId(taskId);
             if (subTaskId != null) {
                 cvtJob1 = client.deleteSchedulePolicy(taskId, subTaskId);
-            } else {
-                // 문구 변경 필요
-                throw new CloudRuntimeException("commvault schedule policy details sub task id none");
             }
         } else {
             // 문구 변경 필요
