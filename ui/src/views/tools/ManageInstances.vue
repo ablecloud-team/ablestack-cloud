@@ -576,7 +576,7 @@ export default {
       },
       {
         name: 'vmware',
-        label: 'Migrate existing instances to ABLESTACK',
+        label: 'Migrate existing instances to ' + this.$t('label.app.name'),
         sourceDestHypervisors: {
           vmware: 'kvm'
         },

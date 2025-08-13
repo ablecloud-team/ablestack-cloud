@@ -4,39 +4,10 @@ set -euo pipefail
 TYPE=${1:-}
 CONFIG_PATH="/usr/share/cloudstack-management/webapp/config.json"
 
-KO_ORIGINAL_FILE="/usr/share/cloudstack-management/webapp/locales/ko_KR.json.org"
 KO_SOURCE_FILE="/usr/share/cloudstack-management/webapp/locales/ko_KR.json"
-EN_ORIGINAL_FILE="/usr/share/cloudstack-management/webapp/locales/en.json.org"
 EN_SOURCE_FILE="/usr/share/cloudstack-management/webapp/locales/en.json"
 
-# 필수 파일 확인
-if [[ ! -f "$CONFIG_PATH" ]]; then
-  echo "ERROR: CONFIG_PATH가 존재하지 않습니다: $CONFIG_PATH" >&2
-  exit 1
-fi
-if [[ ! -f "$KO_SOURCE_FILE" ]]; then
-  echo "ERROR: 한글 소스 파일이 없습니다: $KO_SOURCE_FILE" >&2
-  exit 1
-fi
-if [[ ! -f "$EN_SOURCE_FILE" ]]; then
-  echo "ERROR: 영어 소스 파일이 없습니다: $EN_SOURCE_FILE" >&2
-  exit 1
-fi
-
-# 원본 백업 생성(없을 때만)
-if [[ ! -f "$KO_ORIGINAL_FILE" ]]; then
-  cp "$KO_SOURCE_FILE" "$KO_ORIGINAL_FILE"
-  echo "백업 파일 생성 완료: $KO_ORIGINAL_FILE"
-else
-  echo "백업 파일이 이미 존재합니다: $KO_ORIGINAL_FILE"
-fi
-
-if [[ ! -f "$EN_ORIGINAL_FILE" ]]; then
-  cp "$EN_SOURCE_FILE" "$EN_ORIGINAL_FILE"
-  echo "백업 파일 생성 완료: $EN_ORIGINAL_FILE"
-else
-  echo "백업 파일이 이미 존재합니다: $EN_ORIGINAL_FILE"
-fi
+CURRENT_APPTITLE=$(jq -r '."label.app.name"' $KO_SOURCE_FILE)
 
 # JSON 키 한 줄 치환 유틸
 replace_json_line() {
@@ -58,7 +29,7 @@ echo "선택된 테마: ${TYPE:-default}"
 
 if [[ "$TYPE" == "Clostack" ]]; then
   echo "CLOIT CLOSTACK Mold 테마 설정 중...."
-  replace_in_locale_files "ABLESTACK" "CLOSTACK"
+  replace_in_locale_files $CURRENT_APPTITLE "CLOSTACK"
 
   replace_json_line "logo" "assets/logo-clostack.png"              # 로고 파일 변경
   replace_json_line "banner" "assets/login-logo-clostack.png"      # 로그인 배너 변경
@@ -79,7 +50,7 @@ if [[ "$TYPE" == "Clostack" ]]; then
 
 elif [[ "$TYPE" == "UCP HV powered by ABLESTACK" ]]; then
   echo "효성인포메이션시스템 UCP HV Mold 테마 설정 중...."
-  replace_in_locale_files "ABLESTACK" "UCP HV"
+  replace_in_locale_files $CURRENT_APPTITLE "UCP HV"
 
   replace_json_line "logo" "assets/logo-hv.png"                     # 로고 파일 변경
   replace_json_line "banner" "assets/login-logo-hv.png"             # 로그인 배너 변경
@@ -100,6 +71,8 @@ elif [[ "$TYPE" == "UCP HV powered by ABLESTACK" ]]; then
 
 else
   echo "ABLECLOUD ABLESTACK Mold 테마 설정 중...."
+  replace_in_locale_files $CURRENT_APPTITLE "ABLESTACK"
+
   replace_json_line "logo" "assets/logo-ablestack.png"               # 로고 파일 변경
   replace_json_line "banner" "assets/login-logo-ablestack.png"       # 로그인 배너 변경
   replace_json_line "miniLogo" "assets/mini-logo-ablestack.png"      # 미니 로고 변경

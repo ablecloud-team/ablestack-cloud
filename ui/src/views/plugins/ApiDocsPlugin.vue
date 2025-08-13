@@ -103,7 +103,7 @@
             </a-alert>
             <a-result
               status="success"
-              :title="$t('label.download') + ' ABLESTACK MOLD CLI'"
+              :title="$t('label.download') + ' ' + $t('label.app.name') + ' MOLD CLI'"
               sub-title="For API automation and orchestration"
             >
               <template #extra>
