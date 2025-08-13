@@ -343,6 +343,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-agent/plugins
 install -D packaging/systemd/cloudstack-agent.service ${RPM_BUILD_ROOT}%{_unitdir}/mold-agent.service
 install -D packaging/systemd/cloudstack-rolling-maintenance@.service ${RPM_BUILD_ROOT}%{_unitdir}/%{name}-rolling-maintenance@.service
 install -D packaging/systemd/cloudstack-agent.default ${RPM_BUILD_ROOT}%{_sysconfdir}/default/%{name}-agent
+install -D packaging/systemd/restore-vhba.service ${RPM_BUILD_ROOT}%{_unitdir}/restore-vhba.service
 install -D agent/target/transformed/agent.properties ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/agent/agent.properties
 install -D agent/target/transformed/environment.properties ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/agent/environment.properties
 install -D agent/target/transformed/log4j-cloud.xml ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/agent/log4j-cloud.xml
@@ -510,6 +511,10 @@ mkdir -m 0755 -p /usr/share/cloudstack-agent/tmp
 /usr/bin/systemctl enable cloudstack-rolling-maintenance@p > /dev/null 2>&1 || true
 /usr/bin/systemctl enable --now rngd > /dev/null 2>&1 || true
 
+# VHBA 복원 서비스 활성화
+/usr/bin/systemctl enable restore-vhba.service > /dev/null 2>&1 || true
+systemctl daemon-reload
+
 # if saved configs from upgrade exist, copy them over
 if [ -f "%{_sysconfdir}/cloud.rpmsave/agent/agent.properties" ]; then
     mv %{_sysconfdir}/%{name}/agent/agent.properties  %{_sysconfdir}/%{name}/agent/agent.properties.rpmnew
@@ -624,6 +629,8 @@ pip3 install --upgrade /usr/share/cloudstack-marvin/Marvin-*.tar.gz
 %attr(0755,root,root) %{_bindir}/%{name}-agent-upgrade
 %attr(0755,root,root) %{_bindir}/%{name}-guest-tool
 %attr(0755,root,root) %{_bindir}/%{name}-ssh
+%attr(0755,root,root) %{_bindir}/restore-vhba
+%attr(0644,root,root) %{_unitdir}/restore-vhba.service
 %attr(0644,root,root) %{_unitdir}/mold-agent.service
 %attr(0644,root,root) %{_unitdir}/%{name}-rolling-maintenance@.service
 %config(noreplace) %{_sysconfdir}/default/%{name}-agent

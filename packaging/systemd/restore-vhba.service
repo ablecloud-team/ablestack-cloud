@@ -1,9 +1,7 @@
 [Unit]
 Description=CloudStack VHBA Restore Service
-After=libvirtd.service network.target
-Before=cloudstack-agent.service
+After=libvirtd.service
 Wants=libvirtd.service
-Requires=libvirtd.service
 
 [Service]
 Type=oneshot
