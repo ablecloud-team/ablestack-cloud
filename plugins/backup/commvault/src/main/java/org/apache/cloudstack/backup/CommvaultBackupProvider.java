@@ -312,7 +312,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     @Override
     public boolean importBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) {
-        boolean cvtJob1, cvtJob2, cvtJob3 = false;
         final CommvaultClient client = getClient(zoneId);
         // 선택한 백업 정책의 RPO 편집 Commvault API 호출
         String type = "deleteRpo";
@@ -320,15 +319,15 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         if (taskId != null) {
             String subTaskId = client.getSubTaskId(taskId);
             if (subTaskId != null) {
-                cvtJob1 = client.deleteSchedulePolicy(taskId, subTaskId);
+                boolean result = client.deleteSchedulePolicy(taskId, subTaskId);
+                if (!result) {
+                    // 문구 변경 필요
+                    throw new CloudRuntimeException("commvault plan schedule rpo delete err");
+                }
             }
         } else {
             // 문구 변경 필요
             throw new CloudRuntimeException("commvault plan details schedule task id none");
-        }
-        if (!cvtJob1) {
-            // 문구 변경 필요
-            throw new CloudRuntimeException("commvault plan schedule rpo delete err");
         }
         // 선택한 백업 정책의 보존 기간 변경 Commvault APi 호출
         type = "updateRPO";
