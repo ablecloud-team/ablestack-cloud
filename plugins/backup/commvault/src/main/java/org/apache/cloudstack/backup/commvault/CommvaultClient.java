@@ -352,7 +352,7 @@ public class CommvaultClient {
             if (!storagePoolIdNode.isMissingNode()) {
                 LOG.info(storagePoolIdNode.asText());
                 LOG.info(storagePoolIdNode.toString());
-                return storagePoolIdNode.asText();
+                return storagePoolIdNode.toString();
             }
         } catch (final IOException e) {
             LOG.error("Failed to request getStoragePoolId commvault api due to:", e);
