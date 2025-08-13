@@ -203,45 +203,11 @@ public class CommvaultClient {
         return response;
     }
 
-    // https://10.10.255.56/commandcenter/api/client/<clientId>
-    // client의 applicationId 조회하는 로직으로 없는 경우 null, 있는 경우 applicationId 반환
-    public String getApplicationId(String clientId) {
-        try {
-            final HttpResponse response = get("client/" + clientId);
-            checkResponseOK(response);
-            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(jsonString);
-            JsonNode clientProperties = root.get("clientProperties");
-            if (clientProperties != null && clientProperties.isArray()) {
-                for (JsonNode clientProp : clientProperties) {
-                    JsonNode client = clientProp.get("client");
-                    if (client != null) {
-                        JsonNode idaList = client.get("idaList");
-                        if (idaList != null && idaList.isArray()) {
-                            for (JsonNode idaItem : idaList) {
-                                JsonNode idaEntity = idaItem.get("idaEntity");
-                                if (idaEntity != null && idaEntity.has("applicationId")) {
-                                    return idaEntity.get("applicationId").asText();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (final IOException e) {
-            LOG.error("Failed to get Host Client due to:", e);
-            checkResponseTimeOut(e);
-        }
-        return null;
-    }
-
     // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/client
     // client에 호스트가 연결되어있는지 확인하는 API로 호스트가 없는 경우 null, 있는 경우 clientId 반환
     public String getClientId(String hostName) {
         try {
-            LOG.info("getClientId REST API 호출");
             final HttpResponse response = get("/client");
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -258,8 +224,8 @@ public class CommvaultClient {
                             .path("client")
                             .path("clientEntity")
                             .path("clientId");
-                    if (!clientNameNode.isMissingNode() && hostName.equals(clientNameNode.asText())) {
-                        return clientIdNode.asText();
+                    if (!clientNameNode.isMissingNode() && hostName.equals(clientNameNode.toString())) {
+                        return clientIdNode.toString();
                     }
                 }
             }
@@ -286,8 +252,8 @@ public class CommvaultClient {
                 for (JsonNode planNode : plans) {
                     JsonNode planDetails = planNode.path("plan");
                     if (!planDetails.isMissingNode()) {
-                        String planId = planDetails.path("planId").asText();
-                        String planName = planDetails.path("planName").asText();
+                        String planId = planDetails.path("planId").toString();
+                        String planName = planDetails.path("planName").toString();
                         offerings.add(new CommvaultBackupOffering(planName, planId));
                     }
                 }
@@ -298,27 +264,6 @@ public class CommvaultClient {
             checkResponseTimeOut(e);
         }
         return offerings;
-    }
-
-    // https://10.10.255.56/commandcenter/api/plan/<planId>
-    // plan 상세 조회하여 StoragePoolID 반환하는 API로 없는 경우 null, 있는 경우 storage pool id 반환
-    public String getStoragePoolId(String planId) {
-        try {
-            final HttpResponse response = get("/v2/plan/" + planId);
-            checkResponseOK(response);
-            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(jsonString);
-            JsonNode planNode = root.path("plan");
-            JsonNode storagePoolIdNode = planNode.path("storageResourcePoolMap").path("storage").path("storagePoolId");
-            if (!storagePoolIdNode.isMissingNode()) {
-                return storagePoolIdNode.asText();
-            }
-        } catch (final IOException e) {
-            LOG.error("Failed to list commvault plan jobs due to:", e);
-            checkResponseTimeOut(e);
-        }
-        return null;
     }
 
     // 정상 동작 확인
@@ -357,7 +302,6 @@ public class CommvaultClient {
     // 스케줄 정책 조회하는 API로 없는 경우 null, 있는 경우 subtaskid 반환
     public String getSubTaskId(String taskId) {
         try {
-            LOG.info("getSubTaskId REST API 호출");
             final HttpResponse response = get("/schedulepolicy/" + taskId);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -369,7 +313,7 @@ public class CommvaultClient {
                                     .path("subTask")
                                     .path("subTaskId");
             if (!subTaskIdNode.isMissingNode()) {
-                return subTaskIdNode.asText();
+                return subTaskIdNode.toString();
             }
         } catch (final IOException e) {
             LOG.error("Failed to list commvault plan jobs due to:", e);
@@ -392,6 +336,60 @@ public class CommvaultClient {
             checkResponseTimeOut(e);
         }
         return false;
+    }
+
+    // https://10.10.255.56/commandcenter/api/client/<clientId>
+    // client의 applicationId 조회하는 로직으로 없는 경우 null, 있는 경우 applicationId 반환
+    public String getApplicationId(String clientId) {
+        try {
+            final HttpResponse response = get("client/" + clientId);
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            JsonNode clientProperties = root.get("clientProperties");
+            if (clientProperties != null && clientProperties.isArray()) {
+                for (JsonNode clientProp : clientProperties) {
+                    JsonNode client = clientProp.get("client");
+                    if (client != null) {
+                        JsonNode idaList = client.get("idaList");
+                        if (idaList != null && idaList.isArray()) {
+                            for (JsonNode idaItem : idaList) {
+                                JsonNode idaEntity = idaItem.get("idaEntity");
+                                if (idaEntity != null && idaEntity.has("applicationId")) {
+                                    return idaEntity.get("applicationId").asText();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to get Host Client due to:", e);
+            checkResponseTimeOut(e);
+        }
+        return null;
+    }
+
+    // https://10.10.255.56/commandcenter/api/plan/<planId>
+    // plan 상세 조회하여 StoragePoolID 반환하는 API로 없는 경우 null, 있는 경우 storage pool id 반환
+    public String getStoragePoolId(String planId) {
+        try {
+            final HttpResponse response = get("/v2/plan/" + planId);
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            JsonNode planNode = root.path("plan");
+            JsonNode storagePoolIdNode = planNode.path("storageResourcePoolMap").path("storage").path("storagePoolId");
+            if (!storagePoolIdNode.isMissingNode()) {
+                return storagePoolIdNode.asText();
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to list commvault plan jobs due to:", e);
+            checkResponseTimeOut(e);
+        }
+        return null;
     }
 
     // https://10.10.255.56/commandcenter/api/jobDetails
