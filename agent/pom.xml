@@ -64,7 +64,7 @@
                                         <include name="agent.properties" />
                                     </fileset>
                                 </copy>
-                                <copy overwrite="true" todir="${basedir}/target/transformed">
+                                <copy overwrite="true" todir="${basedir}/target/transformed" encoding="UTF-8" outputEncoding="UTF-8">
                                     <fileset dir="${basedir}/conf">
                                         <include name="*.in" />
                                     </fileset>
@@ -75,7 +75,7 @@
                                         </filterreader>
                                     </filterchain>
                                 </copy>
-                                <copy overwrite="true" todir="${basedir}/target/transformed">
+                                <copy overwrite="true" todir="${basedir}/target/transformed" encoding="UTF-8" outputEncoding="UTF-8">
                                     <fileset dir="${basedir}/bindir">
                                         <include name="*.in" />
                                     </fileset>

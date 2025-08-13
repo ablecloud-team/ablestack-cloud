@@ -32,7 +32,7 @@ export default {
   },
   params: { type: 'routing' },
   columns: () => {
-    const fields = ['name', 'state', 'resourcestate', 'ipaddress', 'hypervisor', 'instances', 'powerstate', 'version']
+    const fields = ['name', 'state', 'resourcestate', 'ipaddress', 'hypervisor', 'instances', 'powerstate', 'version', 'haenable', 'hastate']
     const metricsFields = ['cpunumber', 'cputotalghz', 'cpuusedghz', 'cpuallocatedghz', 'memorytotalgb', 'memoryusedgb', 'memoryallocatedgb', 'networkread', 'networkwrite']
     if (store.getters.metrics) {
       fields.push(...metricsFields)
@@ -51,6 +51,12 @@ export default {
   }, {
     name: 'outofbandmanagement',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/OobmTab.vue')))
+  }, {
+    name: 'hostredfishdata',
+    component: shallowRef(defineAsyncComponent(() => import('@/views/infra/HostRedfishTab.vue'))),
+    show: (record) => {
+      return record.outofbandmanagement?.driver === 'redfish' && record.outofbandmanagement?.powerstate === 'On'
+    }
   }, {
     name: 'listhostdevices',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/ListHostDevicesTab.vue')))

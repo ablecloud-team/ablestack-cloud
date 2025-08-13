@@ -55,7 +55,7 @@
         <a-table
           style="margin: 0;"
           :columns="innerColumns"
-          :dataSource="integrityVerificationFinalResultTwo"
+          :dataSource="record.parsedFailedList"
           :pagination="false"
           :bordered="true"
           :rowKey="record.id">
@@ -228,7 +228,7 @@ export default {
     ]
     this.innerColumns = [
       {
-        key: 'integrityverificationsfailedlist',
+        key: 'failed',
         title: this.$t('label.failed.integrity.verification.list')
       }
     ]
@@ -253,9 +253,9 @@ export default {
       this.rules = reactive({})
     },
     showUuid (record, index) {
-      this.integrityVerificationFinalResultTwo = this.integrityVerificationFinalResult.filter(item => item.id === index.id) || []
-      const failedList = index.integrityverificationsfailedlist
-      this.integrityVerificationFinalResultTwo = failedList.split(', ').filter(item => item.trim() !== '')
+      // this.integrityVerificationFinalResultTwo = this.integrityVerificationFinalResult.filter(item => item.id === index.id) || []
+      // const failedList = index.integrityverificationsfailedlist
+      // this.integrityVerificationFinalResultTwo = failedList.split(', ').filter(item => item.trim() !== '')
     },
     fetchData () {
       const params = {}
@@ -265,10 +265,15 @@ export default {
       this.itemCount = 0
       this.fetchLoading = true
       api('getIntegrityVerificationFinalResult', params).then(json => {
-        this.integrityVerificationFinalResult = json.getintegrityverificationfinalresultresponse.integrityverificationsfinalresults || []
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(f => {
+        this.integrityVerificationFinalResult =
+          (json.getintegrityverificationfinalresultresponse.integrityverificationsfinalresults || []).map(item => {
+            return {
+              ...item,
+              parsedFailedList: item.integrityverificationsfailedlist
+                ? item.integrityverificationsfailedlist.split(', ').filter(i => i.trim() !== '')
+                : []
+            }
+          })
       })
       api('getIntegrityVerification', { managementserverid: this.resource.id }).then(json => {
         this.integrityVerification = json.getintegrityverificationresponse.integrityverificationsresult.integrityverificationsresult || []

@@ -9597,6 +9597,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                     "", true, 64, Account.ACCOUNT_ID_SYSTEM, "",
                     "Glue Image Default Template", false, 1, HypervisorType.KVM);
             template.setState(VirtualMachineTemplate.State.Inactive);
+            template.setDynamicallyScalable(true);
             template = _templateDao.persist(template);
             if (template == null) {
                 return null;
@@ -9864,7 +9865,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                         _snapshotDao.update(snapVO.getId(), snapVO);
                     }
                     VolumeVO newVol = cloneVolumeFromSnapToDB(curVmAccount, true, zoneId, diskOfferingId, provisioningType, size, minIops, maxIops, parentRootVolume, rootVolumeName,
-                                                                        _uuidMgr.generateUuid(Volume.class, null), new HashMap<>(), Volume.Type.ROOT);
+                                                                        _uuidMgr.generateUuid(Volume.class, null), new HashMap<>(), Volume.Type.ROOT, 0L);
                     VolumeVO rootVolume = (VolumeVO) _volumeService.cloneVolumeFromSnapshot(newVol, snapVO.getId(), curVm.getId());
                     if (rootVolume == null) {
                         throw new CloudRuntimeException("Creation of root volume is not queried. The virtual machine cannot be cloned!");
@@ -9907,16 +9908,13 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                     VolumeVO newDataDiskVol = null;
                     try {
                         newDataDiskVol = cloneVolumeFromSnapToDB(curVmAccount, true, zoneId, diskOfferingId, provisioningType, size, minIops, maxIops, parentDataDiskVolume, dataVolumeName,
-                                                                            _uuidMgr.generateUuid(Volume.class, null), new HashMap<>(), Volume.Type.DATADISK);
+                                                                            _uuidMgr.generateUuid(Volume.class, null), new HashMap<>(), Volume.Type.DATADISK, parentDataDiskVolume.getDeviceId());
                         VolumeVO dataDiskVolume = (VolumeVO) _volumeService.cloneVolumeFromSnapshot(newDataDiskVol, snapVO.getId(), curVm.getId());
                         if (dataDiskVolume == null) {
                             throw new CloudRuntimeException("Creation of root volume is not queried. The virtual machine cannot be cloned!");
                         }
                         createdVolumes.add(dataDiskVolume);
-
-                        for (VolumeVO createdVol : createdVolumes) {
-                            _volumeService.attachVolumeToVM(cmd.getEntityId(), createdVol.getId(), createdVol.getDeviceId(), false);
-                        }
+                        _volumeService.attachVolumeToVM(cmd.getEntityId(), dataDiskVolume.getId(), dataDiskVolume.getDeviceId(), false);
                     } catch (CloudRuntimeException e){
                         logger.warn("data disk process failed during clone, clearing the temporary resources...");
                         for (VolumeVO dataDiskToClear : createdVolumes) {
@@ -10033,7 +10031,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     private VolumeVO cloneVolumeFromSnapToDB(final Account owner, final Boolean displayVolume, final Long zoneId, final Long diskOfferingId,
                                                     final Storage.ProvisioningType provisioningType, final Long size, final Long minIops, final Long maxIops,
                                                     final VolumeVO parentVolume, final String volumeName, final String uuid, final Map<String, String> details,
-                                                    Volume.Type volType) {
+                                                    Volume.Type volType, final Long deviceId) {
         return Transaction.execute((TransactionCallback<VolumeVO>) status -> {
             VolumeVO volume = new VolumeVO(volumeName, -1, -1, -1, -1, Long.valueOf(-1), null, null, provisioningType, 0, volType);
             volume.setPoolId(null);
@@ -10049,9 +10047,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             volume.setInstanceId(null);
             volume.setUpdated(new Date());
             volume.setDisplayVolume(displayVolume);
-            if (volType == Volume.Type.ROOT) {
-                volume.setDeviceId(0L);
-            }
+            volume.setDeviceId(deviceId);
+
             if (parentVolume != null) {
                 volume.setTemplateId(parentVolume.getTemplateId());
                 volume.setFormat(parentVolume.getFormat());

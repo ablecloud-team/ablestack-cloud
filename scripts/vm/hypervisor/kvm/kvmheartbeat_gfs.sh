@@ -32,30 +32,28 @@ interval=
 rflag=0
 cflag=0
 
-while getopts 'm:h:t:rc' OPTION
-do
+while getopts 'm:h:t:rc' OPTION; do
   case $OPTION in
   m)
-     MountPoint="$OPTARG"
-     ;;
+    MountPoint="$OPTARG"
+    ;;
   h)
-     HostIP="$OPTARG"
-     ;;
+    HostIP="$OPTARG"
+    ;;
   r)
-     rflag=1
-     ;;
+    rflag=1
+    ;;
   t)
-     interval="$OPTARG"
-     ;;
+    interval="$OPTARG"
+    ;;
   c)
     cflag=1
-     ;;
+    ;;
   *)
-     help
-     ;;
+    help
+    ;;
   esac
 done
-
 
 # #delete VMs on this mountpoint
 # deleteVMs() {
@@ -95,59 +93,79 @@ done
 # fi
 
 hbFolder=$MountPoint/MOLD-HB
-MPTitle=$(echo $MountPoint | sed 's/\//-/g' 2> /dev/null)
+MPTitle=$(echo $MountPoint | sed 's/\//-/g' 2>/dev/null)
 
 hbFile=$hbFolder/$HostIP$MPTitle
 
 write_hbLog() {
-#write the heart beat log
-  stat $hbFile &> /dev/null
-  if [ $? -gt 0 ]
-  then
-     # create a new one
-     mkdir -p $hbFolder &> /dev/null
-     touch $hbFile &> /dev/null
-     if [ $? -gt 0 ]
-     then
- 	printf "Failed to create $hbFile"
-        return 2
-     fi
+  #write the heart beat log
+  stat $hbFile &>/dev/null
+  if [ $? -gt 0 ]; then
+    # create a new one
+    mkdir -p $hbFolder &>/dev/null
+    touch $hbFile &>/dev/null
+    if [ $? -gt 0 ]; then
+      printf "Failed to create $hbFile"
+      return 2
+    fi
   fi
 
   Timestamp=$(date +%s)
-  echo $Timestamp > $hbFile
+  CurrentTime=$(date +"%Y-%m-%d %H:%M:%S")
+  echo "$Timestamp" >"$hbFile"
+  ret=$?
+  if [ $ret -eq 0 ]; then
+    logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(GFS, 스토리지:$MountPoint) > [현 시간:$CurrentTime]"
+  else
+    logger -p user.info -t MOLD-HA-HB "[Writing]  호스트:$HostIP | HB 파일 갱신(GFS, 스토리지:$MountPoint) > HB 갱신 실패!!!"
+  fi
   return 0
 }
 
 check_hbLog() {
-  now=$(date +%s)
-  getHbTime=$(cat $hbFile)
+  Timestamp=$(date +%s)
+  CurrentTime=$(date +"%Y-%m-%d %H:%M:%S")
 
-  diff=$(expr $now - $getHbTime)
+  getHbTime=$(cat $hbFile)
+  diff=$(expr $Timestamp - $getHbTime)
+
+  getHbTimeFmt=$(date -d @${getHbTime} '+%Y-%m-%d %H:%M:%S')
+  logger -p user.info -t MOLD-HA-HB "[Checking] 호스트:$HostIP | HB 파일 체크(GFS, 스토리지:$MountPoint) > [현 시간:$CurrentTime | HB 파일 시간:$getHbTimeFmt | 시간 차이:$diff초]"
+  if { [ "$diff" -gt 30 ] && [ "$diff" -le 45 ]; } || { [ "$diff" -gt 60 ] && [ "$diff" -le 75 ]; }; then
+    timeout 1 ssh ccvm "
+      mysql -u cloud -pAblecloud1! -D cloud -e \"
+        INSERT INTO event (
+          uuid, type, state, description, user_id, account_id, domain_id,
+          resource_id, resource_type, created, level, start_id,
+          parameters, archived, display
+        ) VALUES (
+          UUID(), 'HA.STATE.TRANSITION', 'Completed',
+          '[Heartbeat Checking] Host: $HostIP | Storage: $MountPoint [Current Time: $CurrentTime | HB File Time: $getHbTimeFmt | Time Difference: $diff seconds]', 1, 1, 1, 0, 'Host',
+          UTC_TIMESTAMP(), 'WARN', 0, NULL, 0, 1
+        );
+      \"
+    "
+  fi
 
   if [ $diff -gt $interval ]; then
-    return $diff
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(GFS, 스토리지:$MountPoint) > [HOST STATE : DEAD]"
+    echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down in [PoolType : SharedMountPoint] ###"
+    return 0
+  else
+    logger -p user.info -t MOLD-HA-HB "[Result]   호스트:$HostIP | HB 체크 결과(GFS, 스토리지:$MountPoint) > [HOST STATE : ALIVE]"
+    echo "### [HOST STATE : ALIVE] in [PoolType : SharedMountPoint] ###"
   fi
   return 0
 }
 
-if [ "$rflag" == "1" ]
-then
+if [ "$rflag" == "1" ]; then
   check_hbLog
-  diff=$?
-  if [ $diff == 0 ]
-  then
-    echo "### [HOST STATE : ALIVE] in [PoolType : SharedMountPoint] ###"
-  else
-    echo "### [HOST STATE : DEAD] Set maximum interval: ($interval seconds), Actual difference: ($diff seconds) => Considered host down in [PoolType : SharedMountPoint] ###"
-  fi
   exit 0
-elif [ "$cflag" == "1" ]
-then
+elif [ "$cflag" == "1" ]; then
   /usr/bin/logger -t heartbeat "kvmheartbeat_gfs.sh will reboot system because it was unable to write the heartbeat to the storage."
   sync &
   sleep 5
-  echo b > /proc/sysrq-trigger
+  echo b >/proc/sysrq-trigger
   exit $?
 else
   write_hbLog

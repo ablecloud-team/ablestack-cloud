@@ -415,8 +415,7 @@
         <span>  {{ record.loadbalancerrule }} </span>
       </template>
       <template v-if="column.key === 'autoscalingenabled'">
-        <status :text="record.autoscalingenabled ? 'Enabled' : 'Disabled'" />
-        {{ record.autoscalingenabled ? 'Enabled' : 'Disabled' }}
+        <status :text="record.autoscalingenabled ? 'Enabled' : 'Disabled'" displayText/>
       </template>
       <template v-if="column.key === 'current'">
         <status :text="record.current ? record.current.toString() : 'false'" />
@@ -470,13 +469,26 @@
         <span>  {{ getDuration(record.startdate, record.enddate) }} </span>
       </template>
       <template v-if="column.key === 'kvdoenable'">
-        <status :text="record.kvdoenable ? record.kvdoenable.toString() : 'false'" />
-        {{ record.kvdoenable ? 'Enabled' : 'Disabled' }}
+        <status :text="record.kvdoenable ? 'enabled' : 'disabled'" displayText/>
       </template>
       <template v-if="column.key === 'usedfsbytes'">
         <span v-if="text">
           {{ isNaN(text) ? text : (parseFloat(parseFloat(text) / 1024.0 / 1024.0 / 1024.0).toFixed(2) + ' GiB') }}
         </span>
+      </template>
+      <template v-if="['cluster', 'zone'].includes($route.meta.name) && column.key === 'haenable'">
+        <status :text="record.resourcedetails?.resourceHAEnabled === 'true' ? 'enabled' : 'disabled'" displayText/>
+      </template>
+      <template v-if="column.key === 'hastate'">
+        <!-- <a-tag>{{ record.hostha.hastate }}</a-tag> -->
+        <a-tag v-if="record.hostha.hastate === 'Available'" color="success" :styles="{ 'min-width': '250px' }">{{ record.hostha.hastate }}</a-tag>
+        <a-tag v-else-if="record.hostha.hastate === 'Suspect' || record.hostha.hastate === 'Checking'" color="processing">{{ record.hostha.hastate }}</a-tag>
+        <a-tag v-else-if="record.hostha.hastate === 'Fenced'" color="error">{{ record.hostha.hastate }}</a-tag>
+        <a-tag v-else-if="record.hostha.hastate === 'Degraded'" color="default">{{ record.hostha.hastate }}</a-tag>
+        <a-tag v-else color="warning">{{ record.hostha.hastate }}</a-tag>
+      </template>
+      <template v-if="$route.meta.name === 'host' && column.key === 'haenable'">
+        <status :text="record.hostha.haenable ? 'enabled' : 'disabled'" displayText/>
       </template>
       <template v-if="['startdate', 'enddate'].includes(column.key) && ['quotasummary', 'usage'].includes($route.path.split('/')[1])">
         {{ $toLocaleDate(text.replace('\'T\'', ' ')) }}

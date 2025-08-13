@@ -167,6 +167,13 @@
           <div v-else>{{ dataResource[item] }}</div>
         </div>
       </a-list-item>
+      <a-list-item v-else-if="['cluster', 'zone'].includes($route.meta.name) && item === 'haenable'">
+        <div>
+          <strong>{{ $t('label.ha.enable') }}</strong>
+          <br/>
+          <div>{{ dataResource.resourcedetails?.resourceHAEnabled }}</div>
+        </div>
+      </a-list-item>
       <a-list-item v-else-if="item === 'ip6address' && ipV6Address && ipV6Address.length > 0">
         <div>
           <strong>{{ $t('label.' + String(item).toLowerCase()) }}</strong>

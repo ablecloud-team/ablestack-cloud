@@ -509,14 +509,14 @@ public class Script implements Callable<String> {
     }
 
     public static String findScript(String path, String script) {
-        LOGGER.debug("Looking for " + script + " in the classpath");
+        // LOGGER.debug("Looking for " + script + " in the classpath");
 
         URL url = ClassLoader.getSystemResource(script);
-        LOGGER.debug("System resource: " + url);
+        // LOGGER.debug("System resource: " + url);
         File file = null;
         if (url != null) {
             file = new File(url.getFile());
-            LOGGER.debug("Absolute path =  " + file.getAbsolutePath());
+            // LOGGER.debug("Absolute path =  " + file.getAbsolutePath());
             return file.getAbsolutePath();
         }
 
@@ -535,11 +535,11 @@ public class Script implements Callable<String> {
         } else {
             url = Script.class.getClassLoader().getResource(path + File.separator + script);
         }
-        LOGGER.debug("Classpath resource: " + url);
+        // LOGGER.debug("Classpath resource: " + url);
         if (url != null) {
             try {
                 file = new File(new URI(url.toString()).getPath());
-                LOGGER.debug("Absolute path =  " + file.getAbsolutePath());
+                // LOGGER.debug("Absolute path =  " + file.getAbsolutePath());
                 return file.getAbsolutePath();
             } catch (URISyntaxException e) {
                 LOGGER.warn("Unable to convert " + url.toString() + " to a URI");
@@ -556,7 +556,7 @@ public class Script implements Callable<String> {
             return file.exists() ? file.getAbsolutePath() : null;
         }
 
-        LOGGER.debug("Looking for " + script);
+        // LOGGER.debug("Looking for " + script);
         String search = null;
         for (int i = 0; i < 3; i++) {
             if (i == 0) {
@@ -576,25 +576,25 @@ public class Script implements Callable<String> {
                 else
                     cp = cp.substring(begin, end);
 
-                LOGGER.debug("Current binaries reside at " + cp);
+                // LOGGER.debug("Current binaries reside at " + cp);
                 search = cp;
             } else if (i == 1) {
-                LOGGER.debug("Searching in environment.properties");
+                // LOGGER.debug("Searching in environment.properties");
                 try {
                     final File propsFile = PropertiesUtil.findConfigFile("environment.properties");
                     if (propsFile == null) {
-                        LOGGER.debug("environment.properties could not be opened");
+                        // LOGGER.debug("environment.properties could not be opened");
                     } else {
                         final Properties props = PropertiesUtil.loadFromFile(propsFile);
                         search = props.getProperty("paths.script");
                     }
                 } catch (IOException e) {
-                    LOGGER.debug("environment.properties could not be opened");
+                    // LOGGER.debug("environment.properties could not be opened");
                     continue;
                 }
-                LOGGER.debug("environment.properties says scripts should be in " + search);
+                // LOGGER.debug("environment.properties says scripts should be in " + search);
             } else {
-                LOGGER.debug("Searching in the current directory");
+                // LOGGER.debug("Searching in the current directory");
                 search = ".";
             }
 
@@ -602,7 +602,7 @@ public class Script implements Callable<String> {
             do {
                 search = search.substring(0, search.lastIndexOf(File.separator));
                 file = new File(search + File.separator + script);
-                LOGGER.debug("Looking for " + script + " in " + file.getAbsolutePath());
+                // LOGGER.debug("Looking for " + script + " in " + file.getAbsolutePath());
             } while (!file.exists() && search.lastIndexOf(File.separator) != -1);
 
             if (file.exists()) {
@@ -617,7 +617,7 @@ public class Script implements Callable<String> {
         do {
             search = search.substring(0, search.lastIndexOf(File.separator));
             file = new File(search + File.separator + script);
-            LOGGER.debug("Looking for " + script + " in " + file.getAbsolutePath());
+            // LOGGER.debug("Looking for " + script + " in " + file.getAbsolutePath());
         } while (!file.exists() && search.lastIndexOf(File.separator) != -1);
 
         if (file.exists()) {
@@ -702,7 +702,7 @@ public class Script implements Callable<String> {
                     output.append(line).append(System.lineSeparator());
                 }
                 last.waitFor();
-                LOGGER.debug("Piped commands executed successfully");
+                // LOGGER.debug("Piped commands executed successfully");
                 return new Pair<>(last.exitValue(), output.toString());
             } catch (IOException | InterruptedException e) {
                 LOGGER.error("Error executing piped commands", e);

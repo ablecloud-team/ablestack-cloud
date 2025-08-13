@@ -51,6 +51,14 @@ export default {
       if (this.displayText && this.text) {
         var state = this.text
         switch (state.toLowerCase()) {
+          case 'enabled':
+          case 'active':
+          case 'ok':
+            state = this.$t('state.ok')
+            break
+          case 'disabled':
+            state = this.$t('state.disabled')
+            break
           case 'running':
             state = this.$t('state.running')
             break
@@ -78,20 +86,95 @@ export default {
           case 'error':
             state = this.$t('state.error')
             break
-          case 'ReadOnly':
+          case 'readonly':
             state = this.$t('state.readonly')
             break
-          case 'ReadWrite':
+          case 'readwrite':
             state = this.$t('state.readwrite')
             break
-          case 'InProgress':
+          case 'inprogress':
             state = this.$t('state.inprogress')
             break
-          case 'Down':
+          case 'down':
             state = this.$t('state.down')
             break
-          case 'Up':
+          case 'up':
             state = this.$t('state.up')
+            break
+          case 'prepareformaintenance':
+            state = this.$t('state.prepareformaintenance')
+            break
+          case 'maintenance':
+            state = this.$t('state.maintenance')
+            break
+          case 'inactive':
+            state = this.$t('state.disabled')
+            break
+          case 'disconnected':
+            state = this.$t('state.disconnected')
+            break
+          case 'connecting':
+            state = this.$t('state.connecting')
+            break
+          case 'ready':
+            state = this.$t('state.ready')
+            break
+          case 'not ready':
+            state = this.$t('state.notready')
+            break
+          case 'setup':
+            state = this.$t('state.setup')
+            break
+          case 'allocated':
+            state = this.$t('state.allocated')
+            break
+          case 'free':
+            state = this.$t('state.free')
+            break
+          case 'destroyed':
+            state = this.$t('state.destroyed')
+            break
+          case 'snapshotting':
+            state = this.$t('state.snapshotting')
+            break
+          case 'backedup':
+            state = this.$t('state.backedup')
+            break
+          case 'backingup':
+            state = this.$t('state.backingup')
+            break
+          case 'destroying':
+            state = this.$t('state.destroying')
+            break
+          case 'scheduled':
+            state = this.$t('state.scheduled')
+            break
+          case 'started':
+            state = this.$t('state.started')
+            break
+          case 'completed':
+            state = this.$t('state.completed')
+            break
+          case 'redundant':
+            state = this.$t('state.redundant')
+            break
+          case 'nonredundant':
+            state = this.$t('state.nonredundant')
+            break
+          case 'unavailable':
+            state = this.$t('state.unavailable')
+            break
+          case 'critical':
+            state = this.$t('state.critical')
+            break
+          case 'notpresent':
+            state = this.$t('state.notpresent')
+            break
+          case 'goodinuse':
+            state = this.$t('state.goodinuse')
+            break
+          case 'absent':
+            state = this.$t('state.absent')
             break
         }
         return state.charAt(0).toUpperCase() + state.slice(1)
@@ -120,6 +203,9 @@ export default {
         case 'success':
         case 'poweron':
         case 'syncing':
+        case 'ok':
+        case 'redundant':
+        case 'goodinuse':
           status = 'success'
           break
         case 'alert':
@@ -134,6 +220,7 @@ export default {
         case 'poweroff':
         case 'stopped':
         case 'failed':
+        case 'critical':
           status = 'error'
           break
         case 'migrating':
@@ -142,10 +229,15 @@ export default {
         case 'stopping':
         case 'upgrading':
         case 'inprogress':
+        case 'connecting':
+        case 'prepareformaintenance':
+        case 'snapshotting':
+        case 'backingup':
+        case 'destroying':
           status = 'processing'
           break
         case 'allocated':
-          if (this.$route.path.startsWith('/publicip')) {
+          if (this.$route.path.startsWith('/publicip') || this.$route.path.startsWith('/guestvlans')) {
             status = 'success'
           } else {
             status = 'warning'
@@ -156,6 +248,9 @@ export default {
         case 'pending':
         case 'unsecure':
         case 'warning':
+        case 'free':
+        case 'scheduled':
+        case 'notredundant':
           status = 'warning'
           break
       }
@@ -164,6 +259,8 @@ export default {
     getStatusColor (state) {
       switch (state.toLowerCase()) {
         case 'scheduled':
+          return 'orange'
+        case 'started':
           return 'blue'
         case 'reserved':
           return 'orange'

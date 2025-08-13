@@ -98,7 +98,7 @@
           </a-input>
         </a-form-item>
       </a-tab-pane>
-      <!-- <a-tab-pane key="saml" :disabled="idps.length === 0">
+      <a-tab-pane key="saml" :disabled="idps.length === 0">
         <template #tab>
           <span>
             <audit-outlined />
@@ -137,7 +137,7 @@
             </a-select-option>
           </a-select>
         </a-form-item>
-      </a-tab-pane> -->
+      </a-tab-pane>
     </a-tabs>
 
     <a-form-item>

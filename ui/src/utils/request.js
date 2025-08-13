@@ -124,7 +124,7 @@ const err = (error) => {
           store.commit('SET_COUNT_NOTIFY', countNotify)
         }
       })
-      router.push({ path: '/exception/404' })
+      router.push({ path: '/dashboard' })
     }
     // if (response.status === 531) {
     //   console.log('request.js 531')
