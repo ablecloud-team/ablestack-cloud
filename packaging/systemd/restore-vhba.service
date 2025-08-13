@@ -1,6 +1,7 @@
 [Unit]
 Description=CloudStack VHBA Restore Service
 After=libvirtd.service
+Requires=libvirtd.service
 Wants=libvirtd.service
 
 [Service]
