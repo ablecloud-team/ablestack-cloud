@@ -320,16 +320,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         // 선택한 백업 정책의 RPO 편집 Commvault API 호출
         String type = "deleteRpo";
         String taskId = client.getScheduleTaskId(type, externalId);
-        LOG.info("taskId:::::::::::::::::::::::");
-        LOG.info(taskId);
         if (taskId != null) {
             String subTaskId = client.getSubTaskId(taskId);
-            LOG.info("subTaskId:::::::::::::::::::::::");
-            LOG.info(subTaskId);
             if (subTaskId != null) {
                 cvtJob1 = client.deleteSchedulePolicy(taskId, subTaskId);
-                LOG.info("cvtJob1:::::::::::::::::::::::");
-                LOG.info(cvtJob1);
             } else {
                 // 문구 변경 필요
                 throw new CloudRuntimeException("commvault schedule policy details sub task id none");
@@ -345,6 +339,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         // 선택한 백업 정책의 보존 기간 변경 Commvault APi 호출
         type = "updateRPO";
         String planEntity = client.getScheduleTaskId(type, externalId);
+        LOG.info("planEntity:::::::::::::::::::::::");
+        LOG.info(planEntity);
         JSONObject jsonObject = new JSONObject(planEntity);
         String planType = jsonObject.getString("planType");
         String planName = jsonObject.getString("planName");

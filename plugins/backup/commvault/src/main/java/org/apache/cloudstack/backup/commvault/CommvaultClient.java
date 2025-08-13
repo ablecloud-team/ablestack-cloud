@@ -332,8 +332,6 @@ public class CommvaultClient {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
             JsonNode planNode = root.path("plan");
-            LOG.info("planNode::::::::::");
-            LOG.info(planNode.asText());
             if (type.equals("deleteRpo")) {
                 JsonNode scheduleTaskIdNode = planNode.path("schedule").path("task").path("taskId");
                 // JsonNode scheduleLogTaskIdNode = planNode.path("database").path("scheduleLog").path("task").path("taskId");
@@ -343,6 +341,7 @@ public class CommvaultClient {
                 }
             } else {
                 JsonNode plan = planNode.path("summary").path("plan");
+                LOG.info(plan);
                 return plan.asText();
             }
         } catch (final IOException e) {
