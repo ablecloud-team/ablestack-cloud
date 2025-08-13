@@ -327,18 +327,15 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         } else {
             throw new CloudRuntimeException("Failed to get plan details schedule task id commvault api");
         }
-        // 선택한 백업 정책의 보존 기간 변경 Commvault APi 호출
+        // 선택한 백업 정책의 보존 기간 변경 Commvault API 호출
         type = "updateRPO";
         String planEntity = client.getScheduleTaskId(type, externalId);
-        LOG.info("planEntity:::::::::::::::::::::::");
-        LOG.info(planEntity);
         JSONObject jsonObject = new JSONObject(planEntity);
-        String planType = String.valueOf(jsonObject.get("planType"));
-        String planName = String.valueOf(jsonObject.get("planName"));
-        String planSubtype = String.valueOf(jsonObject.get("planSubtype"));
-        String planId = String.valueOf(jsonObject.get("planId"));
-        JSONObject entityInfo = jsonObject.getJSONObject("entityInfo");
-        String companyId = String.valueOf(entityInfo.getInt("companyId"));
+        String planType = jsonObject.getString("planType");
+        String planName = jsonObject.getString("planName");
+        String planSubtype = jsonObject.getString("planSubtype");
+        String planId = jsonObject.getString("planId");
+        String companyId = jsonObject.getJSONObject("entityInfo").getString("companyId");
         String storagePoolId = client.getStoragePoolId(planId);
         LOG.info("updateRetentionPeriod:::::::::::::::::::::::");
         LOG.info(planId);
