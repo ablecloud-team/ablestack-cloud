@@ -18,6 +18,7 @@
 
 package org.apache.cloudstack.api.response;
 
+import com.cloud.host.Host;
 import com.cloud.serializer.Param;
 import com.google.gson.annotations.SerializedName;
 import org.apache.cloudstack.api.ApiConstants;
@@ -25,7 +26,7 @@ import org.apache.cloudstack.api.BaseResponse;
 import org.apache.cloudstack.api.EntityReference;
 
 
-@EntityReference(value = {})
+@EntityReference(value = Host.class)
 public class DeleteVhbaDeviceResponse extends BaseResponse {
 
     @SerializedName(ApiConstants.SUCCESS)

@@ -44,9 +44,13 @@ public class DeleteVhbaDeviceCmd extends BaseCmd {
                description = "host ID", required = true, validations = { ApiArgValidator.PositiveNumber })
     private Long hostId;
 
-    @Parameter(name = ApiConstants.HOSTDEVICES_NAME, type = CommandType.STRING, required = true,
+    @Parameter(name = ApiConstants.HOSTDEVICES_NAME, type = CommandType.STRING, required = false,
                description = "vHBA device name to delete")
     private String hostDeviceName;
+
+    @Parameter(name = ApiConstants.WWNN, type = CommandType.STRING, required = false,
+               description = "World Wide Node Name to identify vHBA device")
+    private String wwnn;
 
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
@@ -58,6 +62,10 @@ public class DeleteVhbaDeviceCmd extends BaseCmd {
 
     public String getHostDeviceName() {
         return hostDeviceName;
+    }
+
+    public String getWwnn() {
+        return wwnn;
     }
 
     /////////////////////////////////////////////////////

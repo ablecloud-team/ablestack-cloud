@@ -21,6 +21,7 @@ package com.cloud.agent.api;
 public class DeleteVhbaDeviceCommand extends Command {
     private Long hostId;
     private String vhbaName;
+    private String wwnn;
 
     public DeleteVhbaDeviceCommand() {
     }
@@ -28,6 +29,12 @@ public class DeleteVhbaDeviceCommand extends Command {
     public DeleteVhbaDeviceCommand(Long hostId, String vhbaName) {
         this.hostId = hostId;
         this.vhbaName = vhbaName;
+    }
+
+    public DeleteVhbaDeviceCommand(Long hostId, String vhbaName, String wwnn) {
+        this.hostId = hostId;
+        this.vhbaName = vhbaName;
+        this.wwnn = wwnn;
     }
 
     @Override
@@ -49,5 +56,13 @@ public class DeleteVhbaDeviceCommand extends Command {
 
     public void setVhbaName(String vhbaName) {
         this.vhbaName = vhbaName;
+    }
+
+    public String getWwnn() {
+        return wwnn;
+    }
+
+    public void setWwnn(String wwnn) {
+        this.wwnn = wwnn;
     }
 }
