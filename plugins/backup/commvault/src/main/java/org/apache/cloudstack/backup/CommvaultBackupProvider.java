@@ -355,14 +355,14 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     LOG.info("backupSetId:::::::::::::::::::::::");
                     LOG.info(backupSetId);
                     if (!client.setBackupSet(path, planType, planName, planSubtype, planId, companyId, backupSetId)) {
-                        throw new CloudRuntimeException("commvault client backup schedule rpo setting err");
+                        throw new CloudRuntimeException("Failed to setting backup plan for client commvault api");
                     }
                 }
             }
             return true;
         } else {
             // 문구 변경 필요
-            throw new CloudRuntimeException("commvault plan schedule rpo delete err");
+            throw new CloudRuntimeException("Failed to edit plan schedule retention period commvault api");
         }
     }
 
@@ -443,7 +443,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String instanceName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("instanceName"));
         String appName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("appName"));
         String applicationId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("applicationId"));
-        String clientName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").getg("clientName"));
+        String clientName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientName"));
         String backupsetId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetId"));
         String instanceId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("instanceId"));
         String backupsetName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetName"));
