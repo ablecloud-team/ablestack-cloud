@@ -327,7 +327,7 @@ public class CommvaultClient {
         return false;
     }
 
-    //
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/storagepolicy
     // storagePolicy 조회하는 API로 없는 경우 null, 있는 경우 storagePolicyId 반환
     public String getStoragePolicyId(String planName) {
