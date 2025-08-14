@@ -337,12 +337,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String planId = String.valueOf(jsonObject.get("planId"));
         JSONObject entityInfo = jsonObject.getJSONObject("entityInfo");
         String companyId = String.valueOf(entityInfo.get("companyId"));
-        String storagePoolId = client.getStoragePoolId(planId);
         LOG.info("updateRetentionPeriod:::::::::::::::::::::::");
-        LOG.info(planId);
-        LOG.info(storagePoolId);
-        LOG.info(retentionPeriod);
-        boolean result = client.updateRetentionPeriod(planId, storagePoolId, retentionPeriod);
+        boolean result = client.getStoragePoolId(planId, retentionPeriod);
         LOG.info("result:::::::::::::::::::::::");
         LOG.info(result);
         if (result) {
