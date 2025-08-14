@@ -333,7 +333,7 @@ public class CommvaultClient {
         return false;
     }
 
-    // 정상 동작 확인
+    // 미사용
     // https://10.10.255.56/commandcenter/api/plan/<planId>
     // plan 상세 조회하여 StoragePoolID 반환하는 API로 없는 경우 null, 있는 경우 updateRetentionPeriod API 실행한 결과값 반환
     public boolean getStoragePoolId(String planId, String retentionPeriod) {
@@ -364,7 +364,35 @@ public class CommvaultClient {
     }
 
     //
-    // https://10.10.255.56/commandcenter/api/v5/serverplan/<planId>/backupdestination/<storagePoolId>
+    // https://10.10.255.56/commandcenter/api/storagepolicy
+    // storagePolicy 조회하는 API로 없는 경우 null, 있는 경우 storagePolicyId 반환
+    public String getStoragePolicyId(String planName) {
+        try {
+            LOG.info("getStoragePolicyId REST API 호출");
+            final HttpResponse response = get("/storagePolicy");
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            JsonNode policies = root.get("policies");
+            if (policies.isArray()) {
+                for (JsonNode policy : policies) {
+                    JsonNode storagePolicyNameNode = policy.path("storagePolicyName");
+                    JsonNode storagePolicyIdNode = policy.path("storagePolicyId");
+                    if (!storagePolicyIdNode.isMissingNode() && planName.equals(storagePolicyNameNode.asText())) {
+                        return storagePolicyIdNode.asText();
+                    }
+                }
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to request getStoragePolicyId commvault api due to:", e);
+            checkResponseTimeOut(e);
+        }
+        return null;
+    }
+
+    //
+    // https://10.10.255.56/commandcenter/api/v5/serverplan/<planId>/backupdestination/<storagePolicyId>
     // plan의 retention period 변경 API
     public boolean updateRetentionPeriod(String planId, String copyId, String retentionPeriod) {
         LOG.info("updateRetentionPeriod REST API 호출");
@@ -618,35 +646,6 @@ public class CommvaultClient {
             }
         } catch (final IOException e) {
             LOG.error("Failed to request getVmBackupSetGuid commvault api due to:", e);
-            checkResponseTimeOut(e);
-        }
-        return null;
-    }
-
-    // https://10.10.255.56/commandcenter/api/storagepolicy
-    // storagePolicy 조회하는 API로 없는 경우 null, 있는 경우 storagePolicyId 반환
-    public String getStoragePolicyId(String planName) {
-        try {
-            LOG.info("getStoragePolicyId REST API 호출");
-            final HttpResponse response = get("storagePolicy");
-            checkResponseOK(response);
-            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(jsonString);
-            JsonNode policies = root.get("policies");
-            if (policies.isArray()) {
-                for (JsonNode policy : policies) {
-                    JsonNode storagePolicyNameNode = policy
-                            .path("storagePolicyName");
-                    JsonNode storagePolicyIdNode = policy
-                            .path("storagePolicyId");
-                    if (!storagePolicyIdNode.isMissingNode() && planName.equals(storagePolicyNameNode.asText())) {
-                        return storagePolicyIdNode.asText();
-                    }
-                }
-            }
-        } catch (final IOException e) {
-            LOG.error("Failed to request getStoragePolicyId commvault api due to:", e);
             checkResponseTimeOut(e);
         }
         return null;
