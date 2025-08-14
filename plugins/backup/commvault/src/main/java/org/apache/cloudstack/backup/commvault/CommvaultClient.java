@@ -370,26 +370,19 @@ public class CommvaultClient {
             LOG.info(copy);
             if (copy.isArray()) {
                 for (JsonNode cop : copy) {
-                    JsonNode copies = cop.get("copies");
-                    LOG.info(copies);
-                    if (copies != null && copies.isArray()) {
-                        for (JsonNode item : copies) {
-                            JsonNode StoragePolicyCopy = item.get("StoragePolicyCopy");
-                            LOG.info(StoragePolicyCopy);
-                            if (!StoragePolicyCopy.isMissingNode()) {
-                                String copyId = StoragePolicyCopy.get("copyId").asText();
-                                String copyIds = StoragePolicyCopy.get("copyId").toString();
-                                LOG.info(copyId);
-                                LOG.info(copyIds);
-                                boolean result = updateRetentionPeriod(planId, copyIds, retentionPeriod);
-                                if (!result) {
-                                    return false;
-                                }
-                            }
+                    JsonNode copies = cop.get("StoragePolicyCopy");
+                    if (!copies.isMissingNode()) {
+                        String copyId = StoragePolicyCopy.get("copyId").asText();
+                        String copyIds = StoragePolicyCopy.get("copyId").toString();
+                        LOG.info(copyId);
+                        LOG.info(copyIds);
+                        boolean result = updateRetentionPeriod(planId, copyIds, retentionPeriod);
+                        if (!result) {
+                            return false;
                         }
-                        return true;
                     }
                 }
+                return true;
             }
         } catch (final IOException e) {
             LOG.error("Failed to request getStoragePolicyDetails commvault api due to:", e);
