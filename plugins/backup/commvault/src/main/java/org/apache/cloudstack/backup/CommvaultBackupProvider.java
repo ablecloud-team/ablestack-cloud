@@ -767,13 +767,13 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         JSONObject jsonObject = new JSONObject(jobDetails);
         String commcellId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").get("commCellId"));
         String storagePolicyId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("storagePolicy").get("storagePolicyId"));
-        String copyId = client.getStoragePolicyDetails("planId", storagePolicyId, "");
-        if (client.deleteBackupForVM(jobId, commcellId, copyId, storagePolicyId)) {
-            LOG.debug("Commvault successfully deleted backup with id " + externalId);
-            return true;
-        } else {
-            LOG.debug("There was an error removing the backup with id " + externalId + " from Commvault");
-        }
+        // boolean copyId = client.getStoragePolicyDetails("planId", storagePolicyId, "");
+        // if (client.deleteBackupForVM(jobId, commcellId, copyId, storagePolicyId)) {
+        //     LOG.debug("Commvault successfully deleted backup with id " + externalId);
+        //     return true;
+        // } else {
+        //     LOG.debug("There was an error removing the backup with id " + externalId + " from Commvault");
+        // }
         return false;
     }
 

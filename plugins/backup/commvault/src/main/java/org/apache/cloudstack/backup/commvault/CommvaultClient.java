@@ -389,7 +389,7 @@ public class CommvaultClient {
             LOG.error("Failed to request getStoragePolicyDetails commvault api due to:", e);
             checkResponseTimeOut(e);
         }
-        return null;
+        return false;
     }
 
     // 1) https://10.10.255.56/commandcenter/api/plan/<planId>/storage/modify 테스트 시 응답 500 error
@@ -409,7 +409,7 @@ public class CommvaultClient {
             connection.setDoOutput(true);
             String jsonBody = String.format("{\"retentionRules\":{\"retentionRuleType\":\"RETENTION_PERIOD\",\"retentionPeriodDays\":%d,\"useExtendedRetentionRules\":false}}",retentionPeriod);
             try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = data.getBytes(StandardCharsets.UTF_8);
+                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
                 os.flush();
             }
