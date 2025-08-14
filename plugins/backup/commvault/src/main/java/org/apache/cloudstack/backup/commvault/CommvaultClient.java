@@ -399,7 +399,7 @@ public class CommvaultClient {
             connection.setRequestMethod("PUT");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("Authtoken", accessToken);
+            connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
             String jsonBody = String.format("{\"retentionRules\":{\"retentionRuleType\":\"RETENTION_PERIOD\",\"retentionPeriodDays\":%d}}",Integer.parseInt(retentionPeriod));
             LOG.info(jsonBody);
