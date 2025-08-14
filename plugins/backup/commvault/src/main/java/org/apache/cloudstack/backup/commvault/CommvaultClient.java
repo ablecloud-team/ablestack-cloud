@@ -394,7 +394,7 @@ public class CommvaultClient {
     //
     // https://10.10.255.56/commandcenter/api/storagepolicy/<storagePolicyId>
     // storagePolicy 상세 조회하여 copyId를 반환하여 updateRetentionPeriod API 호출
-    public String getStoragePolicyDetails(String planId, String storagePolicyId, String retentionPeriod) {
+    public String getStoragePolicyDetails(String storagePolicyId) {
         try {
             LOG.info("getStoragePolicyDetails REST API 호출");
             final HttpResponse response = get("/storagePolicy/" + storagePolicyId);
@@ -413,7 +413,6 @@ public class CommvaultClient {
                                 return StoragePolicyCopy.get("copyId").asText();
                             }
                         }
-                        return true;
                     }
                 }
             }
@@ -421,7 +420,7 @@ public class CommvaultClient {
             LOG.error("Failed to request getStoragePolicyDetails commvault api due to:", e);
             checkResponseTimeOut(e);
         }
-        return false;
+        return null;
     }
 
     //

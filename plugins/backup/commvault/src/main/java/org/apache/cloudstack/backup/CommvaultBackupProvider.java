@@ -343,7 +343,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         // }
         // LOG.info("storagePolicyId:::::::::::::::::::::::");
         // LOG.info(storagePolicyId);
-        //boolean result = client.getStoragePolicyDetails(planId, storagePolicyId, retentionPeriod);
+        // boolean result = client.getStoragePolicyDetails(planId, storagePolicyId, retentionPeriod);
         boolean result = client.updateRetentionPeriod(planId, retentionPeriod);
         if (result) {
             // 호스트에 선택한 백업 정책 설정 Commvault API 호출
