@@ -367,7 +367,6 @@ public class CommvaultClient {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
             JsonNode copy = root.get("copy");
-            LOG.info(copy);
             if (copy.isArray()) {
                 for (JsonNode cop : copy) {
                     JsonNode copies = cop.path("StoragePolicyCopy");
@@ -388,6 +387,7 @@ public class CommvaultClient {
         return false;
     }
 
+    // 
     // 1) https://10.10.255.56/commandcenter/api/plan/<planId>/storage/modify 테스트 시 응답 500 error
     // 2) https://10.10.255.56/commandcenter/api/v5/serverplan/<planId>/backupdestination/<copyId>
     // plan의 retention period 변경 API
@@ -403,7 +403,7 @@ public class CommvaultClient {
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Authtoken", accessToken);
             connection.setDoOutput(true);
-            String jsonBody = String.format("{\"retentionRules\":{\"retentionRuleType\":\"RETENTION_PERIOD\",\"retentionPeriodDays\":%s,\"useExtendedRetentionRules\":false}}",retentionPeriod);
+            String jsonBody = String.format("{\"retentionRules\":{\"retentionRuleType\":\"RETENTION_PERIOD\",\"retentionPeriodDays\":%s,\"useExtendedRetentionRules\":false}}",Integer.parseInt(retentionPeriod));
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
