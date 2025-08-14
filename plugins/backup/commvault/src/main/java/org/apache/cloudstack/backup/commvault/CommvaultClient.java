@@ -370,10 +370,10 @@ public class CommvaultClient {
             LOG.info(copy);
             if (copy.isArray()) {
                 for (JsonNode cop : copy) {
-                    JsonNode copies = cop.get("StoragePolicyCopy");
+                    JsonNode copies = cop.path("StoragePolicyCopy");
                     if (!copies.isMissingNode()) {
-                        String copyId = StoragePolicyCopy.get("copyId").asText();
-                        String copyIds = StoragePolicyCopy.get("copyId").toString();
+                        String copyId = StoragePolicyCopy.path("copyId").asText();
+                        String copyIds = StoragePolicyCopy.path("copyId").toString();
                         LOG.info(copyId);
                         LOG.info(copyIds);
                         boolean result = updateRetentionPeriod(planId, copyIds, retentionPeriod);
