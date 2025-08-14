@@ -163,7 +163,7 @@ export default {
         case 'Years':
           return value * 365
         case 'Infinite':
-          return 0
+          return -1
         default:
           return value
       }
