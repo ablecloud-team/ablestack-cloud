@@ -336,32 +336,32 @@ public class CommvaultClient {
     // 미사용
     // https://10.10.255.56/commandcenter/api/plan/<planId>
     // plan 상세 조회하여 StoragePoolID 반환하는 API로 없는 경우 null, 있는 경우 updateRetentionPeriod API 실행한 결과값 반환
-    public boolean getStoragePoolId(String planId, String retentionPeriod) {
-        try {
-            LOG.info("getStoragePoolId REST API 호출");
-            final HttpResponse response = get("/v2/plan/" + planId);
-            checkResponseOK(response);
-            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(jsonString);
-            JsonNode planNode = root.path("plan").path("storageResourcePoolMap");
-            if (planNode.isArray()) {
-                for (JsonNode plan : planNode) {
-                    JsonNode storagePoolId = plan.path("storage").path("storagePoolId");
-                    if (!storagePoolId.isMissingNode()) {
-                        boolean result = updateRetentionPeriod(planId, storagePoolId.asText(), retentionPeriod);
-                        if (!result) {
-                            throw new CloudRuntimeException("Failed to edit plan schedule retention period commvault api");
-                        }
-                    }
-                }
-            }
-        } catch (final IOException e) {
-            LOG.error("Failed to request getStoragePoolId commvault api due to:", e);
-            checkResponseTimeOut(e);
-        }
-        return false;
-    }
+    // public boolean getStoragePoolId(String planId, String retentionPeriod) {
+    //     try {
+    //         LOG.info("getStoragePoolId REST API 호출");
+    //         final HttpResponse response = get("/v2/plan/" + planId);
+    //         checkResponseOK(response);
+    //         String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+    //         ObjectMapper mapper = new ObjectMapper();
+    //         JsonNode root = mapper.readTree(jsonString);
+    //         JsonNode planNode = root.path("plan").path("storageResourcePoolMap");
+    //         if (planNode.isArray()) {
+    //             for (JsonNode plan : planNode) {
+    //                 JsonNode storagePoolId = plan.path("storage").path("storagePoolId");
+    //                 if (!storagePoolId.isMissingNode()) {
+    //                     boolean result = updateRetentionPeriod(planId, storagePoolId.asText(), retentionPeriod);
+    //                     if (!result) {
+    //                         throw new CloudRuntimeException("Failed to edit plan schedule retention period commvault api");
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     } catch (final IOException e) {
+    //         LOG.error("Failed to request getStoragePoolId commvault api due to:", e);
+    //         checkResponseTimeOut(e);
+    //     }
+    //     return false;
+    // }
 
     //
     // https://10.10.255.56/commandcenter/api/storagepolicy
@@ -410,11 +410,7 @@ public class CommvaultClient {
                         for (JsonNode item : copies) {
                             JsonNode StoragePolicyCopy = item.get("StoragePolicyCopy");
                             if (StoragePolicyCopy != null && StoragePolicyCopy.has("copyId")) {
-                                String copyId = StoragePolicyCopy.get("copyId").asText();
-                                boolean result = updateRetentionPeriod(planId, copyId, retentionPeriod);
-                                if (!result) {
-                                    throw new CloudRuntimeException("Failed to edit plan schedule retention period commvault api");
-                                }
+                                return StoragePolicyCopy.get("copyId").asText();
                             }
                         }
                         return true;
