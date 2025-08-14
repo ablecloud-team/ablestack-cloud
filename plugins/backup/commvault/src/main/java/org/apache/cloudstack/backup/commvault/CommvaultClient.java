@@ -271,7 +271,6 @@ public class CommvaultClient {
     // plan 상세 조회하는 API로 없는 경우 null, type이 deleteRpo인 경우 값이 있는 경우 schedule task id 반환, type이 updateRpo인 경우 plan 반환
     public String getScheduleTaskId(String type, String planId) {
         try {
-            LOG.info("getScheduleTaskId REST API 호출");
             final HttpResponse response = get("/v2/plan/" + planId);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -324,7 +323,6 @@ public class CommvaultClient {
     // 스케줄 정책 조회하여 스케줄 삭제
     public Boolean deleteSchedulePolicy(String taskId, String subTaskId) {
         try {
-            LOG.info("deleteSchedulePolicy REST API 호출");
             final HttpResponse response = delete("/schedulepolicy/" + taskId + "/schedule/" + subTaskId);
             checkResponseOK(response);
             return true;

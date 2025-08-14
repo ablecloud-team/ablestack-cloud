@@ -1309,14 +1309,15 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         String name = updateBackupOfferingCmd.getName();
         String description = updateBackupOfferingCmd.getDescription();
         Boolean allowUserDrivenBackups = updateBackupOfferingCmd.getAllowUserDrivenBackups();
+        String retentionPeriod = updateBackupOfferingCmd.getRetentionPeriod();
 
         BackupOfferingVO backupOfferingVO = backupOfferingDao.findById(id);
         if (backupOfferingVO == null) {
             throw new InvalidParameterValueException(String.format("Unable to find Backup Offering with id: [%s].", id));
         }
         logger.debug("Trying to update Backup Offering {} to {}.",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(backupOfferingVO, "uuid", "name", "description", "userDrivenBackupAllowed"),
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(updateBackupOfferingCmd, "name", "description", "allowUserDrivenBackups"));
+                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(backupOfferingVO, "uuid", "name", "description", "userDrivenBackupAllowed", "retentionPeriod"),
+                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(updateBackupOfferingCmd, "name", "description", "allowUserDrivenBackups", "retentionPeriod"));
 
         BackupOfferingVO offering = backupOfferingDao.createForUpdate(id);
         List<String> fields = new ArrayList<>();
@@ -1330,10 +1331,14 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             fields.add("description: " + description);
         }
 
-
         if (allowUserDrivenBackups != null){
             offering.setUserDrivenBackupAllowed(allowUserDrivenBackups);
             fields.add("allowUserDrivenBackups: " + allowUserDrivenBackups);
+        }
+
+        if (retentionPeriod != null){
+            offering.setRetentionPeriod(retentionPeriod);
+            fields.add("retentionPeriod: " + retentionPeriod);
         }
 
         if (!backupOfferingDao.update(id, offering)) {

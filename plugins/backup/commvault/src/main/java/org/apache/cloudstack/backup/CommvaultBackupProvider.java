@@ -337,10 +337,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String planId = String.valueOf(jsonObject.get("planId"));
         JSONObject entityInfo = jsonObject.getJSONObject("entityInfo");
         String companyId = String.valueOf(entityInfo.get("companyId"));
-        LOG.info("updateRetentionPeriod:::::::::::::::::::::::");
         boolean result = client.getStoragePoolId(planId, retentionPeriod);
-        LOG.info("result:::::::::::::::::::::::");
-        LOG.info(result);
         if (result) {
             // 호스트에 선택한 백업 정책 설정 Commvault API 호출
             String path = "/";
