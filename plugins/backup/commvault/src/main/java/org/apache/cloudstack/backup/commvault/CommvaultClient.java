@@ -332,7 +332,6 @@ public class CommvaultClient {
     // storagePolicy 조회하는 API로 없는 경우 null, 있는 경우 storagePolicyId 반환
     public String getStoragePolicyId(String planName) {
         try {
-            LOG.info("getStoragePolicyId REST API 호출");
             final HttpResponse response = get("/storagePolicy");
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -360,7 +359,6 @@ public class CommvaultClient {
     // storagePolicy 상세 조회하여 copyId를 반환하여 updateRetentionPeriod API 호출
     public boolean getStoragePolicyDetails(String planId, String storagePolicyId, String retentionPeriod) {
         try {
-            LOG.info("getStoragePolicyDetails REST API 호출");
             final HttpResponse response = get("/storagePolicy/" + storagePolicyId);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -388,8 +386,8 @@ public class CommvaultClient {
     }
 
     //
-    // 1) https://10.10.255.56/commandcenter/api/plan/<planId>/storage/modify 테스트 시 응답 500 error
-    // 2) https://10.10.255.56/commandcenter/api/v5/serverplan/<planId>/backupdestination/<copyId>
+    // 1) https://10.10.255.56/commandcenter/api/plan/<planId>/storage/modify 해당 plan의 스토리지의 retention을 전부 바꿔주는 API > 테스트 시 응답 500 error
+    // 2) https://10.10.255.56/commandcenter/api/v5/serverplan/<planId>/backupdestination/<copyId> 해당 plan의 스토리지의 copy id를 조회하여 개별로 바꿔주는 API
     // plan의 retention period 변경 API
     public boolean updateRetentionPeriod(String planId, String copyId, String retentionPeriod) {
         LOG.info("updateRetentionPeriod REST API 호출");
@@ -403,7 +401,8 @@ public class CommvaultClient {
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Authtoken", accessToken);
             connection.setDoOutput(true);
-            String jsonBody = String.format("{\"retentionRules\":{\"retentionRuleType\":\"RETENTION_PERIOD\",\"retentionPeriodDays\":%s,\"useExtendedRetentionRules\":false}}",Integer.parseInt(retentionPeriod));
+            String jsonBody = String.format("{\"retentionRules\":{\"retentionRuleType\":\"RETENTION_PERIOD\",\"retentionPeriodDays\":%d}}",Integer.parseInt(retentionPeriod));
+            LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
@@ -426,22 +425,7 @@ public class CommvaultClient {
                 String errorCode = jObject.get("errorCode").toString();
                 if (errorCode.equals("0")) {
                     return true;
-                } else {
-                    return false;
                 }
-            } else {
-                StringBuilder errorResponse = new StringBuilder();
-                try (BufferedReader errorReader = new BufferedReader(
-                    new InputStreamReader(connection.getErrorStream()))) {
-                    String errorLine;
-                    while ((errorLine = errorReader.readLine()) != null) {
-                        errorResponse.append(errorLine);
-                    }
-                    LOG.info("Error response body: " + errorResponse.toString());
-                } catch (Exception e) {
-                    LOG.info("Failed to read error response", e);
-                }
-                return false;
             }
         } catch (final IOException e) {
             LOG.error("Failed to request updateRetentionPeriod commvault api due to:", e);
@@ -453,36 +437,6 @@ public class CommvaultClient {
         }
         return false;
     }
-
-    // 미사용
-    // https://10.10.255.56/commandcenter/api/plan/<planId>
-    // plan 상세 조회하여 StoragePoolID 반환하는 API로 없는 경우 null, 있는 경우 updateRetentionPeriod API 실행한 결과값 반환
-    // public boolean getStoragePoolId(String planId, String retentionPeriod) {
-    //     try {
-    //         LOG.info("getStoragePoolId REST API 호출");
-    //         final HttpResponse response = get("/v2/plan/" + planId);
-    //         checkResponseOK(response);
-    //         String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
-    //         ObjectMapper mapper = new ObjectMapper();
-    //         JsonNode root = mapper.readTree(jsonString);
-    //         JsonNode planNode = root.path("plan").path("storageResourcePoolMap");
-    //         if (planNode.isArray()) {
-    //             for (JsonNode plan : planNode) {
-    //                 JsonNode storagePoolId = plan.path("storage").path("storagePoolId");
-    //                 if (!storagePoolId.isMissingNode()) {
-    //                     boolean result = updateRetentionPeriod(planId, storagePoolId.asText(), retentionPeriod);
-    //                     if (!result) {
-    //                         throw new CloudRuntimeException("Failed to edit plan schedule retention period commvault api");
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     } catch (final IOException e) {
-    //         LOG.error("Failed to request getStoragePoolId commvault api due to:", e);
-    //         checkResponseTimeOut(e);
-    //     }
-    //     return false;
-    // }
 
     //
     // https://10.10.255.56/commandcenter/api/backupset?clientName=<hostName>
