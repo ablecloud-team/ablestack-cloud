@@ -337,14 +337,13 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String planId = String.valueOf(jsonObject.get("planId"));
         JSONObject entityInfo = jsonObject.getJSONObject("entityInfo");
         String companyId = String.valueOf(entityInfo.get("companyId"));
-        // String storagePolicyId = client.getStoragePolicyId(planName);
-        // if (storagePolicyId == null) {
-        //     throw new CloudRuntimeException("Failed to get plan storage policy id commvault api");
-        // }
-        // LOG.info("storagePolicyId:::::::::::::::::::::::");
-        // LOG.info(storagePolicyId);
-        // boolean result = client.getStoragePolicyDetails(planId, storagePolicyId, retentionPeriod);
-        boolean result = client.updateRetentionPeriod(planId, retentionPeriod);
+        String storagePolicyId = client.getStoragePolicyId(planName);
+        if (storagePolicyId == null) {
+            throw new CloudRuntimeException("Failed to get plan storage policy id commvault api");
+        }
+        LOG.info("storagePolicyId:::::::::::::::::::::::");
+        LOG.info(storagePolicyId);
+        boolean result = client.getStoragePolicyDetails(planId, storagePolicyId, retentionPeriod);
         if (result) {
             // 호스트에 선택한 백업 정책 설정 Commvault API 호출
             String path = "/";
@@ -768,7 +767,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         JSONObject jsonObject = new JSONObject(jobDetails);
         String commcellId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").get("commCellId"));
         String storagePolicyId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("storagePolicy").get("storagePolicyId"));
-        String copyId = client.getStoragePolicyDetails(storagePolicyId);
+        String copyId = client.getStoragePolicyDetails("planId", storagePolicyId, "");
         if (client.deleteBackupForVM(jobId, commcellId, copyId, storagePolicyId)) {
             LOG.debug("Commvault successfully deleted backup with id " + externalId);
             return true;
