@@ -136,7 +136,7 @@ public class BackupOfferingVO implements BackupOffering {
         return retentionPeriod;
     }
 
-    public void setRescription(String retentionPeriod) {
+    public void setRetentionPeriod(String retentionPeriod) {
         this.retentionPeriod = retentionPeriod;
     }
 
