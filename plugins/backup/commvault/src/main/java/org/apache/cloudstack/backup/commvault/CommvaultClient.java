@@ -377,8 +377,10 @@ public class CommvaultClient {
             connection.setRequestMethod("PUT");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Authtoken", accessToken);
             connection.setDoOutput(true);
             String jsonBody = String.format("{\"retentionRules\":{\"retentionRuleType\":\"RETENTION_PERIOD\",\"retentionPeriodDays\":%s,\"useExtendedRetentionRules\":false}}",retentionPeriod);
+            LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
@@ -449,6 +451,7 @@ public class CommvaultClient {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Authtoken", accessToken);
             connection.setDoOutput(true);
             String jsonBody = String.format(
                 "{\n" +
