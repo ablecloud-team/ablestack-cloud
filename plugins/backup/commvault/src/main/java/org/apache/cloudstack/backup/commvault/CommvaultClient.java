@@ -137,10 +137,11 @@ public class CommvaultClient {
                     while ((inputLine = in.readLine()) != null) {
                         response.append(inputLine);
                     }
-                    JsonParser parser = new JsonParser();
-                    JsonObject jsonResponse = parser.parse(response.toString()).getAsJsonObject();
-                    if (jsonResponse.has("token")) {
-                        accessToken = jsonResponse.get("token").getAsString();
+                    String regexPattern = "token=([^&]+)";
+                    Pattern pattern = Pattern.compile("\"QSDK\\s([a-fA-F0-9]+)\"");
+                    Matcher matcher = pattern.matcher(response);
+                    if (matcher.find()) {
+                        accessToken = "QSDK " + matcher.group(1);
                     } else {
                         throw new CloudRuntimeException("Could not fetch access token from the given code");
                     }
