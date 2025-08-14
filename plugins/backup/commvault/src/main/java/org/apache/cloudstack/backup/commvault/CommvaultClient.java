@@ -337,8 +337,8 @@ public class CommvaultClient {
 
     //
     // https://10.10.255.56/commandcenter/api/plan/<planId>
-    // plan 상세 조회하여 StoragePoolID 반환하는 API로 없는 경우 null, 있는 경우 storage pool id 반환
-    public String getStoragePoolId(String planId) {
+    // plan 상세 조회하여 StoragePoolID 반환하는 API로 없는 경우 null, 있는 경우 updateRetentionPeriod API 실행한 결과값 반환
+    public boolean getStoragePoolId(String planId, String retentionPeriod) {
         try {
             LOG.info("getStoragePoolId REST API 호출");
             final HttpResponse response = get("/v2/plan/" + planId);
@@ -346,23 +346,25 @@ public class CommvaultClient {
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
-            LOG.info("1"+root);
-            LOG.info("2"+root.path("plan"));
-            LOG.info("3"+root.path("plan").path("storageResourcePoolMap"));
-            LOG.info("4"+root.path("plan").path("storageResourcePoolMap").path("storage"));
-            LOG.info("5"+root.path("plan").path("storageResourcePoolMap").path("storage").path("storagePoolId"));
-            JsonNode planNode = root.path("plan").path("storageResourcePoolMap").path("storage").path("storagePoolId");
-            LOG.info("6"+planNode);
-            if (!planNode.isMissingNode()) {
-                LOG.info(planNode.asText());
-                LOG.info(planNode.toString());
-                return planNode.toString();
+            JsonNode planNode = root.path("plan").path("storageResourcePoolMap");
+            if (planNode.isArray()) {
+                for (JsonNode plan : planNode) {
+                    JsonNode storagePoolId = plan.path("storage").path("storagePoolId");
+                    LOG.info(storagePoolId.toString());
+                    LOG.info(storagePoolId.asText());
+                    if (!storagePoolId.isMissingNode()) {
+                        boolean result = updateRetentionPeriod(planId, storagePoolId.toString(), retentionPeriod);
+                        if (!result) {
+                            throw new CloudRuntimeException("Failed to edit plan schedule retention period commvault api");
+                        }
+                    }
+                }
             }
         } catch (final IOException e) {
             LOG.error("Failed to request getStoragePoolId commvault api due to:", e);
             checkResponseTimeOut(e);
         }
-        return null;
+        return false;
     }
 
     //
