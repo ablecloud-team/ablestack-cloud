@@ -355,7 +355,7 @@ public class CommvaultClient {
         return null;
     }
 
-    //
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/storagepolicy/<storagePolicyId>
     // storagePolicy 상세 조회하여 copyId를 반환하여 updateRetentionPeriod API 호출
     public boolean getStoragePolicyDetails(String planId, String storagePolicyId, String retentionPeriod) {
@@ -373,10 +373,7 @@ public class CommvaultClient {
                     JsonNode copies = cop.path("StoragePolicyCopy");
                     if (!copies.isMissingNode()) {
                         String copyId = copies.path("copyId").asText();
-                        String copyIds = copies.path("copyId").toString();
-                        LOG.info(copyId);
-                        LOG.info(copyIds);
-                        boolean result = updateRetentionPeriod(planId, copyIds, retentionPeriod);
+                        boolean result = updateRetentionPeriod(planId, copyId, retentionPeriod);
                         if (!result) {
                             return false;
                         }
@@ -406,7 +403,7 @@ public class CommvaultClient {
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Authtoken", accessToken);
             connection.setDoOutput(true);
-            String jsonBody = String.format("{\"retentionRules\":{\"retentionRuleType\":\"RETENTION_PERIOD\",\"retentionPeriodDays\":%d,\"useExtendedRetentionRules\":false}}",retentionPeriod);
+            String jsonBody = String.format("{\"retentionRules\":{\"retentionRuleType\":\"RETENTION_PERIOD\",\"retentionPeriodDays\":%s,\"useExtendedRetentionRules\":false}}",retentionPeriod);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
