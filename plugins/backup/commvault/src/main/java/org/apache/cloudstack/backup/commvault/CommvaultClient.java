@@ -444,7 +444,7 @@ public class CommvaultClient {
     public String getDefaultBackupSetId(String hostName) {
         try {
             LOG.info("getDefaultBackupSetId REST API 호출");
-            final HttpResponse response = get("backupset?clientName=" + hostName);
+            final HttpResponse response = get("/backupset?clientName=" + hostName);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
             ObjectMapper mapper = new ObjectMapper();
@@ -527,7 +527,7 @@ public class CommvaultClient {
     // client의 applicationId 조회하는 로직으로 없는 경우 null, 있는 경우 applicationId 반환
     public String getApplicationId(String clientId) {
         try {
-            final HttpResponse response = get("client/" + clientId);
+            final HttpResponse response = get("/client/" + clientId);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
             ObjectMapper mapper = new ObjectMapper();
@@ -601,7 +601,7 @@ public class CommvaultClient {
     public String getVmBackupSetId(String hostName, String vmName) {
         try {
             LOG.info("getVmBackupSetId REST API 호출");
-            final HttpResponse response = get("backupset?clientName=" + hostName);
+            final HttpResponse response = get("/backupset?clientName=" + hostName);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
             ObjectMapper mapper = new ObjectMapper();
@@ -627,7 +627,7 @@ public class CommvaultClient {
     public String getVmBackupSetGuid(String hostName, String vmName) {
         try {
             LOG.info("getVmBackupSetGuid REST API 호출");
-            final HttpResponse response = get("backupset?clientName=" + hostName);
+            final HttpResponse response = get("/backupset?clientName=" + hostName);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
             ObjectMapper mapper = new ObjectMapper();
