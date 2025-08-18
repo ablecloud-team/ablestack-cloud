@@ -392,7 +392,7 @@ public class CommvaultClient {
     public boolean updateRetentionPeriod(String planId, String copyId, String retentionPeriod) {
         LOG.info("updateRetentionPeriod REST API 호출");
         HttpURLConnection connection = null;
-        String putUrl = apiURI.toString() + "/v5/serverplan" + planId + "/backupdestination/" + copyId;
+        String putUrl = apiURI.toString() + "/v5/serverplan/" + planId + "/backupdestination/" + copyId;
         try {
             URL url = new URL(putUrl);
             connection = (HttpURLConnection) url.openConnection();
