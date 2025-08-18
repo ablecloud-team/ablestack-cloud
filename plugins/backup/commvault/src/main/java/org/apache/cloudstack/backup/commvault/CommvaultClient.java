@@ -468,7 +468,7 @@ public class CommvaultClient {
     //
     // https://10.10.255.56/commandcenter/api/backupset/<backupsetId>
     // 호스트의 backupset 설정하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
-    public boolean setBackupSet(String path, String planId, String planName, String planType, String planSubtype, String companyId, String backupSetId) {
+    public boolean setBackupSet(String path, String planType, String planName, String planSubtype, String planId, String companyId, String backupSetId) {
         LOG.info("setBackupSet REST API 호출");
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/backupset/" + backupSetId;
