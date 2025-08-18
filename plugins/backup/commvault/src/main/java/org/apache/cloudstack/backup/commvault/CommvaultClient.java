@@ -863,7 +863,7 @@ public class CommvaultClient {
         String postUrl = apiURI.toString() + "/v4/plan/backupdestination/joboperations";
         try {
             URL url = new URL(postUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
