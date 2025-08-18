@@ -442,7 +442,7 @@ public class CommvaultClient {
         return false;
     }
 
-    //
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/backupset?clientName=<hostName>
     // 호스트의 default backupset 조회하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public String getDefaultBackupSetId(String hostName) {
@@ -479,6 +479,7 @@ public class CommvaultClient {
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
+            LOG.info(path, planId, planName, planType, planSubtype, companyId);
             String jsonBody = String.format(
                 "{\n" +
                 "  \"backupsetProperties\": {\n" +
@@ -504,7 +505,7 @@ public class CommvaultClient {
                 "    },\n" +
                 "    \"useContentFromPlan\": false\n" +
                 "  }\n" +
-                "}", path, planId, planName, planType, planSubtype, companyId
+                "}", path, Integer.parseInt(planId), planName, Integer.parseInt(planType), Integer.parseInt(planSubtype), Integer.parseInt(companyId)
             );
             LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
@@ -514,6 +515,15 @@ public class CommvaultClient {
             }
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
+                StringBuilder response = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                }
+                LOG.info(response.toString());
                 return true;
             } else {
                 return false;
