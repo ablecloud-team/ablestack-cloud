@@ -453,10 +453,7 @@ public class CommvaultClient {
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
-            JsonNode backupsetIdNode = root.path("backupsetProperties")
-                                    .get(0)
-                                    .path("backupSetEntity")
-                                    .path("backupsetId");
+            JsonNode backupsetIdNode = root.path("backupsetProperties").get(0).path("backupSetEntity").path("backupsetId");
             if (!backupsetIdNode.isMissingNode()) {
                 return backupsetIdNode.asText();
             }
@@ -472,14 +469,15 @@ public class CommvaultClient {
     // 호스트의 backupset 설정하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public boolean setBackupSet(String path, String planId, String planName, String planType, String planSubtype, String companyId, String backupSetId) {
         LOG.info("setBackupSet REST API 호출");
+        HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/backupset/" + backupSetId;
         try {
             URL url = new URL(postUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("Authorization",  "Bearer " + accessToken);
+            connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
             String jsonBody = String.format(
                 "{\n" +
@@ -512,10 +510,10 @@ public class CommvaultClient {
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
+                os.flush();
             }
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                connection.disconnect();
                 return true;
             } else {
                 return false;
@@ -523,6 +521,10 @@ public class CommvaultClient {
         } catch (final IOException e) {
             LOG.error("Failed to request setBackupSet commvault api due to:", e);
             checkResponseTimeOut(e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
         return false;
     }
@@ -564,13 +566,15 @@ public class CommvaultClient {
     // 작업의 상세정보를 가져와서 작업 상태 반환 (failedClients,successfullClients,skippedClients,pendingClients)
     public String getJobDetails(String jobId) {
         LOG.info("getJobDetails REST API 호출");
+        HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/jobDatails";
         try {
             URL url = new URL(postUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
             String jsonBody = "{"
                                 + "\"jobId\": " + jobId
@@ -578,24 +582,29 @@ public class CommvaultClient {
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
+                os.flush();
             }
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                StringBuilder responseBuilder = new StringBuilder();
-                String line;
-                while ((line = in.readLine()) != null) {
-                    responseBuilder.append(line);
+                StringBuilder response = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
                 }
-                in.close();
-                String jsonResponse = responseBuilder.toString();
-                return jsonResponse;
+                return response.toString();
             } else {
                 return null;
             }
         } catch (final IOException e) {
             LOG.error("Failed to request getJobDetails commvault api due to:", e);
             checkResponseTimeOut(e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
         return null;
     }
@@ -682,6 +691,7 @@ public class CommvaultClient {
     // 호스트의 backupset 콘텐츠 경로를 변경하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public boolean updateBackupSet(String path, String subclientId, String clientId, String planName, String applicationId, String backupsetId, String instanceId, String subclientName, String backupsetName) {
         LOG.info("updateBackupSet REST API 호출");
+        HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/subclient/" + backupsetId;
         String[] paths = path.split(",");
         StringBuilder contentBuilder = new StringBuilder();
@@ -695,23 +705,22 @@ public class CommvaultClient {
         String contentArray = "[" + contentBuilder.toString() + "]";
         try {
             URL url = new URL(postUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
             String jsonBody = String.format(
             "{\"subClientProperties\":{\"commonProperties\":{\"impersonateUserCredentialinfo\":{\"credentialId\":0}},\"content\":%s,\"fsSubClientProp\":{\"includePolicyFilters\":false,\"useGlobalFilters\":\"USE_CELL_LEVEL_POLICY\",\"backupSystemState\":false,\"followMountPointsMode\":\"FOLLOW_MOUNT_POINTS_ON\",\"customSubclientContentFlags\":0,\"customSubclientFlag\":true,\"openvmsBackupDate\":false},\"fsContentOperationType\":\"OVERWRITE\",\"fsExcludeFilterOperationType\":\"DELETE\",\"fsIncludeFilterOperationType\":\"DELETE\"},\"association\":{\"entity\":[{\"subclientId\":%d,\"clientId\":%d,\"applicationId\":%d,\"backupsetId\":%d,\"instanceId\":%d,\"subclientName\":\"%s\",\"backupsetName\":\"%s\"}]}}",
-            contentArray, subclientId, clientId, applicationId, backupsetId, instanceId, subclientName, backupsetName
-        );
-
+            contentArray, subclientId, clientId, applicationId, backupsetId, instanceId, subclientName, backupsetName);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
+                os.flush();
             }
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                connection.disconnect();
                 return true;
             } else {
                 return false;
@@ -719,6 +728,10 @@ public class CommvaultClient {
         } catch (final IOException e) {
             LOG.error("Failed to request updateBackupSet commvault api due to:", e);
             checkResponseTimeOut(e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
         return false;
     }
@@ -727,13 +740,15 @@ public class CommvaultClient {
     // 백업 실행 API
     public String createBackup(String subclientId, String storagePolicyId, String displayName, String commCellName, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String subclientGUID, String subclientName, String csGUID, String backupsetName) {
         LOG.info("createBackup REST API 호출");
+        HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/createtask";
         try {
             URL url = new URL(postUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
             String jsonBody = String.format("{\"taskInfo\":{\"task\":{\"taskType\":\"IMMEDIATE\"},\"associations\":[{\"subclientId\":%d,\"storagePolicyId\":%d,\"displayName\":\"%s\",\"commCellName\":\"%s\",\"clientId\":%d,\"entityInfo\":{\"companyId\":%d,\"companyName\":\"%s\"},\"instanceName\":\"%s\",\"appName\":\"%s\",\"applicationId\":%d,\"clientName\":\"%s\",\"backupsetId\":%d,\"instanceId\":%d,\"subclientGUID\":\"%s\",\"subclientName\":\"%s\",\"csGUID\":\"%s\",\"backupsetName\":\"%s\",\"_type_\":\"SUBCLIENT_ENTITY\"}],\"subTasks\":[{\"subTask\":{\"subTaskType\":\"BACKUP\",\"operationType\":\"BACKUP\"},\"options\":{\"backupOpts\":{\"backupLevel\":\"FULL\"}}}]}}",
             subclientId, storagePolicyId, displayName, commCellName, clientId,
@@ -743,6 +758,7 @@ public class CommvaultClient {
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
+                os.flush();
             }
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -762,6 +778,10 @@ public class CommvaultClient {
         } catch (final IOException e) {
             LOG.error("Failed to request createBackup commvault api due to:", e);
             checkResponseTimeOut(e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
         return null;
     }
@@ -770,13 +790,15 @@ public class CommvaultClient {
     // 복원 실행 API
     public String restoreFullVM(String endTime, String subclientId, String displayName, String backupsetGUID, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String backupsetName, String commCellId, String path) {
         LOG.info("restoreFullVM REST API 호출");
+        HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/createtask";
         try {
             URL url = new URL(postUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
             String jsonBody = String.format("{\"taskInfo\":{\"task\":{\"taskType\":\"IMMEDIATE\",\"initiatedFrom\":\"GUI\"},\"associations\":[{\"subclientId\":%d,\"displayName\":\"%s\",\"backupsetGUID\":\"%s\",\"clientId\":%d,"
             + "\"entityInfo\":{\"companyId\":%d,\"companyName\":\"%s\"},\"instanceName\":\"%s\",\"appName\":\"%s\",\"applicationId\":%d,\"clientName\":\"%s\",\"flags\":{},\"backupsetId\":%d,\"instanceId\":%d,\"backupsetName\":\"%s\","
@@ -790,6 +812,7 @@ public class CommvaultClient {
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
+                os.flush();
             }
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -809,6 +832,10 @@ public class CommvaultClient {
         } catch (final IOException e) {
             LOG.error("Failed to request restoreFullVM commvault api due to:", e);
             checkResponseTimeOut(e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
         return null;
     }
@@ -832,6 +859,7 @@ public class CommvaultClient {
     // 백업 삭제
     public boolean deleteBackupForVM(String jobId, String commcellId, String copyId, String storagePolicyId) {
         LOG.info("deleteBackupForVM REST API 호출");
+        HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/v4/plan/backupdestination/joboperations";
         try {
             URL url = new URL(postUrl);
@@ -839,6 +867,7 @@ public class CommvaultClient {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
             String jsonBody = "{"
                                 + "\"opType\": \"DELETE\","
@@ -854,10 +883,10 @@ public class CommvaultClient {
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
+                os.flush();
             }
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                connection.disconnect();
                 return true;
             } else {
                 return false;
@@ -865,6 +894,10 @@ public class CommvaultClient {
         } catch (final IOException e) {
             LOG.error("Failed to request deleteBackupForVM commvault api due to:", e);
             checkResponseTimeOut(e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
         return false;
     }
@@ -873,13 +906,15 @@ public class CommvaultClient {
     // 가상머신에 백업 오퍼링 할당 시 backupset 추가 API
     public boolean createBackupSet(String vmName, String applicationId, String clientId, String planId) {
         LOG.info("createBackupSet REST API 호출");
+        HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/backupset";
         try {
             URL url = new URL(postUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
             String jsonBody = "{"
                                 + "\"backupSetInfo\": {"
@@ -915,10 +950,10 @@ public class CommvaultClient {
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
+                os.flush();
             }
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                connection.disconnect();
                 return true;
             } else {
                 return false;
@@ -926,6 +961,10 @@ public class CommvaultClient {
         } catch (final IOException e) {
             LOG.error("Failed to request createBackupSet commvault api due to:", e);
             checkResponseTimeOut(e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
         return false;
     }
