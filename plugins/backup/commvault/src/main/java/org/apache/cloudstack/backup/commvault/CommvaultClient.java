@@ -385,7 +385,7 @@ public class CommvaultClient {
         return false;
     }
 
-    //
+    // 정상 동작 확인
     // 1) https://10.10.255.56/commandcenter/api/plan/<planId>/storage/modify 해당 plan의 스토리지의 retention을 전부 바꿔주는 API > 테스트 시 응답 500 error
     // 2) https://10.10.255.56/commandcenter/api/v5/serverplan/<planId>/backupdestination/<copyId> 해당 plan의 스토리지의 copy id를 조회하여 개별로 바꿔주는 API
     // plan의 retention period 변경 API
@@ -402,14 +402,12 @@ public class CommvaultClient {
             connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
             String jsonBody = String.format("{\"retentionRules\":{\"retentionRuleType\":\"RETENTION_PERIOD\",\"retentionPeriodDays\":%d}}",Integer.parseInt(retentionPeriod));
-            LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
                 os.flush();
             }
             int responseCode = connection.getResponseCode();
-            LOG.info(responseCode);
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 StringBuilder response = new StringBuilder();
                 try (BufferedReader reader = new BufferedReader(
@@ -421,10 +419,16 @@ public class CommvaultClient {
                 }
                 JsonParser jParser = new JsonParser();
                 JsonObject jObject = (JsonObject)jParser.parse(response.toString());
-                LOG.info(response.toString());
-                String errorCode = jObject.get("errorCode").toString();
-                if (errorCode.equals("0")) {
-                    return true;
+                if (jObject.has("error")) {
+                    JsonObject errorObject = jObject.getAsJsonObject("error");
+                    if (errorObject.has("errorCode")) {
+                        int errorCode = errorObject.get("errorCode").getAsInt();
+                        if (errorCode == 0) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
                 }
             }
         } catch (final IOException e) {
