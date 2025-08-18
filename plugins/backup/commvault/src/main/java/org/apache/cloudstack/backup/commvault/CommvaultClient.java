@@ -471,6 +471,7 @@ public class CommvaultClient {
         LOG.info("setBackupSet REST API 호출");
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/backupset/" + backupSetId;
+        LOG.info(postUrl);
         try {
             URL url = new URL(postUrl);
             connection = (HttpURLConnection) url.openConnection();
@@ -479,7 +480,6 @@ public class CommvaultClient {
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
-            LOG.info(path, planId, planName, planType, planSubtype, companyId);
             String jsonBody = String.format(
                 "{\n" +
                 "  \"backupsetProperties\": {\n" +
@@ -514,6 +514,7 @@ public class CommvaultClient {
                 os.flush();
             }
             int responseCode = connection.getResponseCode();
+            LOG.info(responseCode);
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 StringBuilder response = new StringBuilder();
                 try (BufferedReader reader = new BufferedReader(
@@ -523,8 +524,22 @@ public class CommvaultClient {
                         response.append(line);
                     }
                 }
-                LOG.info(response.toString());
-                return true;
+                JsonParser jParser = new JsonParser();
+                JsonObject jObject = (JsonObject)jParser.parse(response.toString());
+                if (jObject.has("response") && jObject.get("response").isJsonArray()) {
+                    JsonArray responseArray = jObject.getAsJsonArray("response");
+                    if (responseArray.size() > 0) {
+                        JsonObject firstResponse = responseArray.get(0).getAsJsonObject();
+                        if (firstResponse.has("errorCode")) {
+                            int errorCode = firstResponse.get("errorCode").getAsInt();
+                            if (errorCode == 0) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+                    }
+                }
             } else {
                 return false;
             }

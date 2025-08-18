@@ -341,8 +341,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         if (storagePolicyId == null) {
             throw new CloudRuntimeException("Failed to get plan storage policy id commvault api");
         }
-        LOG.info("storagePolicyId:::::::::::::::::::::::");
-        LOG.info(storagePolicyId);
         boolean result = client.getStoragePolicyDetails(planId, storagePolicyId, retentionPeriod);
         if (result) {
             // 호스트에 선택한 백업 정책 설정 Commvault API 호출
@@ -351,7 +349,12 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             for (final HostVO host : Hosts) {
                 if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
                     String backupSetId = client.getDefaultBackupSetId(host.getName());
-                    LOG.info("backupSetId:::::::::::::::::::::::");
+                    LOG.info(path);
+                    LOG.info(planType);
+                    LOG.info(planName);
+                    LOG.info(planSubtype);
+                    LOG.info(planId);
+                    LOG.info(companyId);
                     LOG.info(backupSetId);
                     if (!client.setBackupSet(path, planType, planName, planSubtype, planId, companyId, backupSetId)) {
                         throw new CloudRuntimeException("Failed to setting backup plan for client commvault api");
