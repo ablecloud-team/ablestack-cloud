@@ -961,7 +961,7 @@ public class CommvaultClient {
                 "}",
                 Integer.parseInt(jobId)
             );
-            LOG.iinfo(jsonBody);
+            LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
