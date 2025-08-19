@@ -600,10 +600,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             snapParams.put("backup", "true");
             String createSnapResult = moldCreateSnapshotBackupAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapParams);
             if (createSnapResult == null) {
-                LOG.info("스냅샷 생성 실패");
-                // 스냅샷 생성 실패
                 if (!checkResult.isEmpty()) {
-                    LOG.info(checkResult.toString());
                     for (String value : checkResult.values()) {
                         Map<String, String> snapshotParams = new HashMap<>();
                         snapshotParams.put("id", value);
@@ -620,15 +617,12 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 String snapId = jsonObject.get("id").toString();
                 int jobStatus = getAsyncJobResult(moldUrl, apiKey, secretKey, jobId);
                 if (jobStatus == 2) {
-                    // 스냅샷 생성 실패
-                    LOG.info("스냅샷 생성 실패2");
                     Map<String, String> snapshotParams = new HashMap<>();
                     snapshotParams.put("id", snapId);
                     moldMethod = "GET";
                     moldCommand = "deleteSnapshot";
                     moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
                     if (!checkResult.isEmpty()) {
-                        LOG.info(checkResult.toString());
                         for (String value : checkResult.values()) {
                             snapshotParams = new HashMap<>();
                             snapshotParams.put("id", value);
@@ -641,11 +635,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     return false;
                 }
                 checkResult.put(vol.getId(), snapId);
-                LOG.info("checkResult.toString()::::::::::::::::::::::");
-                LOG.info(checkResult.toString());
                 SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findLatestSnapshotForVolume(vol.getId(), DataStoreRole.Primary);
-                LOG.info("snapshotStore.getInstallPath():::::::::::::::::::");
-                LOG.info(snapshotStore.getInstallPath());
                 joiner.add(snapshotStore.getInstallPath());
             }
         }
