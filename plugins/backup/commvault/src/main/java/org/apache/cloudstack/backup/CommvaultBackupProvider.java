@@ -643,8 +643,18 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         // 생성된 스냅샷의 경로로 해당 백업 세트의 백업 콘텐츠 경로 업데이트
         String clientId = client.getClientId(hostName);
         String subClientEntity = client.getSubclient(clientId, vm.getInstanceName());
-        LOG.info("subClientEntity:::::::::::::::::::::::");
-        LOG.info(subClientEntity);
+        if (subClientEntity == null) {
+            if (!checkResult.isEmpty()) {
+                for (String value : checkResult.values()) {
+                    Map<String, String> snapshotParams = new HashMap<>();
+                    snapshotParams.put("id", value);
+                    moldMethod = "GET";
+                    moldCommand = "deleteSnapshot";
+                    moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+                }
+            }
+            throw new CloudRuntimeException("Failed to get subckuebt id commvault api");
+        }
         JSONObject jsonObject = new JSONObject(subClientEntity);
         String subclientId = String.valueOf(jsonObject.get("subclientId"));
         String applicationId = String.valueOf(jsonObject.get("applicationId"));
@@ -666,6 +676,34 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         JSONObject jsonObject2 = new JSONObject();
         if (upResult) {
             String storagePolicyId = client.getStoragePolicyId(planId);
+            if (storagePolicyId == null) {
+                if (!checkResult.isEmpty()) {
+                    for (String value : checkResult.values()) {
+                        Map<String, String> snapshotParams = new HashMap<>();
+                        snapshotParams.put("id", value);
+                        moldMethod = "GET";
+                        moldCommand = "deleteSnapshot";
+                        moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+                    }
+                }
+                throw new CloudRuntimeException("Failed to get storage Policy id commvault api");
+            }
+            LOG.info(subclientId);
+            LOG.info(storagePolicyId);
+            LOG.info(displayName);
+            LOG.info(commCellName);
+            LOG.info(clientId);
+            LOG.info(companyId);
+            LOG.info(companyName);
+            LOG.info(instanceName);
+            LOG.info(appName);
+            LOG.info(applicationId);
+            LOG.info(clientName);
+            LOG.info(backupsetId);
+            LOG.info(instanceId);
+            LOG.info(subclientGUID);
+            LOG.info(csGUID);
+            LOG.info(backupsetName);
             String jobId = client.createBackup(subclientId, storagePolicyId, displayName, commCellName, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, subclientGUID, subclientName, csGUID, backupsetName);
             if (jobId != null) {
                 LOG.info("백업 성공");

@@ -726,12 +726,11 @@ public class CommvaultClient {
         return false;
     }
 
-    //
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/subclient?clientId=<clientId>
     // subclient 조회하는 API로 없는 경우 null, 있는 경우 entity String으로 반환
     public String getSubclient(String clientId, String vmName) {
         try {
-            LOG.info("getSubclient REST API 호출");
             final HttpResponse response = get("/subclient?clientId=" + clientId);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -743,7 +742,6 @@ public class CommvaultClient {
                     JsonNode entity = item.path("subClientEntity");
                     JsonNode backupsetName = entity.path("backupsetName");
                     if (!entity.isMissingNode() && vmName.equals(backupsetName.asText())) {
-                        LOG.info(entity);
                         return entity.toString();
                     }
                 }
@@ -755,11 +753,10 @@ public class CommvaultClient {
         return null;
     }
 
-    //
+    // 정상 동작 확인
     // POST https://10.10.255.56/commandcenter/api/subclient/<backupsetId>
     // 호스트의 backupset 콘텐츠 경로를 변경하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public boolean updateBackupSet(String path, String subclientId, String clientId, String planName, String applicationId, String backupsetId, String instanceId, String subclientName, String backupsetName) {
-        LOG.info("updateBackupSet REST API 호출");
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/subclient/" + backupsetId;
         String[] paths = path.split(",");
@@ -772,7 +769,6 @@ public class CommvaultClient {
             }
         }
         String contentArray = "[" + contentBuilder.toString() + "]";
-        LOG.info(contentArray);
         try {
             URL url = new URL(postUrl);
             connection = (HttpURLConnection) url.openConnection();
@@ -817,7 +813,6 @@ public class CommvaultClient {
                 "}",
                 contentArray, Integer.parseInt(subclientId), Integer.parseInt(clientId), Integer.parseInt(applicationId), Integer.parseInt(backupsetId), Integer.parseInt(instanceId),subclientName,backupsetName
             );
-            LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
@@ -833,9 +828,22 @@ public class CommvaultClient {
                         response.append(line);
                     }
                 }
-                LOG.info("response 처리 추가 필요:::::::::::::::::");
-                LOG.info(response.toString());
-                return true;
+                JsonParser jParser = new JsonParser();
+                JsonObject jObject = (JsonObject)jParser.parse(response.toString());
+                if (jObject.has("response") && jObject.get("response").isJsonArray()) {
+                    JsonArray responseArray = jObject.getAsJsonArray("response");
+                    if (responseArray.size() > 0) {
+                        JsonObject firstResponse = responseArray.get(0).getAsJsonObject();
+                        if (firstResponse.has("errorCode")) {
+                            int errorCode = firstResponse.get("errorCode").getAsInt();
+                            if (errorCode == 0) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+                    }
+                }
             } else {
                 return false;
             }
