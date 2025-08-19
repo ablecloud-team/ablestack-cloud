@@ -339,7 +339,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String planId = String.valueOf(jsonObject.get("planId"));
         JSONObject entityInfo = jsonObject.getJSONObject("entityInfo");
         String companyId = String.valueOf(entityInfo.get("companyId"));
-        String storagePolicyId = client.getStoragePolicyId(planId);
+        String storagePolicyId = client.getStoragePolicyId(planName);
         if (storagePolicyId == null) {
             throw new CloudRuntimeException("Failed to get plan storage policy id commvault api");
         }
@@ -675,8 +675,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String jobState = "Running";
         JSONObject jsonObject2 = new JSONObject();
         if (upResult) {
-            String storagePolicyId = client.getStoragePolicyId(planId);
-            if (storagePolicyId == null) {
+            String planName = client.getPlanName(planId);
+            String storagePolicyId = client.getStoragePolicyId(planName);
+            LOG.info(planName);
+            LOG.info(storagePolicyId);
+            if (planName == null || storagePolicyId == null) {
                 if (!checkResult.isEmpty()) {
                     for (String value : checkResult.values()) {
                         Map<String, String> snapshotParams = new HashMap<>();

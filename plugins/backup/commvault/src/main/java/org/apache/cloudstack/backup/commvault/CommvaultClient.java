@@ -331,7 +331,7 @@ public class CommvaultClient {
     // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/storagepolicy
     // storagePolicy 조회하는 API로 없는 경우 null, 있는 경우 storagePolicyId 반환
-    public String getStoragePolicyId(String planId) {
+    public String getStoragePolicyId(String planName) {
         try {
             final HttpResponse response = get("/storagePolicy");
             checkResponseOK(response);
@@ -343,7 +343,7 @@ public class CommvaultClient {
                 for (JsonNode policy : policies) {
                     JsonNode storagePolicyNameNode = policy.path("storagePolicyName");
                     JsonNode storagePolicyIdNode = policy.path("storagePolicyId");
-                    if (!storagePolicyIdNode.isMissingNode() && planId.equals(storagePolicyIdNode.asText())) {
+                    if (!storagePolicyIdNode.isMissingNode() && planName.equals(storagePolicyNameNode.asText())) {
                         return storagePolicyIdNode.asText();
                     }
                 }
@@ -588,6 +588,35 @@ public class CommvaultClient {
             }
         } catch (final IOException e) {
             LOG.error("Failed to request getApplicationId commvault api due to:", e);
+            checkResponseTimeOut(e);
+        }
+        return null;
+    }
+
+    // 정상 동작 확인
+    // https://10.10.255.56/commandcenter/api/plan/<planId>
+    // plan 상세 조회하는 API로 없는 경우 null, 있는 경우 planName 반환
+    public String getPlanName(String planId) {
+        LOG.info("getPlanName REST API 호출");
+        try {
+            final HttpResponse response = get("/plan/" + planId);
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            LOG.info(root);
+            JsonNode plan = root.path("plan").path("summary").path("plan");
+            LOG.info(plan);
+            if (!plan.isMissingNode()) {
+                JsonNode planName = planNode.path("planName");
+                LOG.info(planName);
+                if (!planName.isMissingNode()) {
+                    return planName.asText();
+                }
+            }
+            return null;
+        } catch (final IOException e) {
+            LOG.error("Failed to request plan detail commvault api due to:", e);
             checkResponseTimeOut(e);
         }
         return null;
