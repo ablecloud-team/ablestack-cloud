@@ -391,7 +391,6 @@ public class CommvaultClient {
     // 2) https://10.10.255.56/commandcenter/api/v5/serverplan/<planId>/backupdestination/<copyId> 해당 plan의 스토리지의 copy id를 조회하여 개별로 바꿔주는 API
     // plan의 retention period 변경 API
     public boolean updateRetentionPeriod(String planId, String copyId, String retentionPeriod) {
-        LOG.info("updateRetentionPeriod REST API 호출");
         HttpURLConnection connection = null;
         String putUrl = apiURI.toString() + "/v5/serverplan/" + planId + "/backupdestination/" + copyId;
         try {
@@ -448,7 +447,6 @@ public class CommvaultClient {
     // 호스트의 default backupset 조회하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public String getDefaultBackupSetId(String hostName) {
         try {
-            LOG.info("getDefaultBackupSetId REST API 호출");
             final HttpResponse response = get("/backupset?clientName=" + hostName);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -470,7 +468,6 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/backupset/<backupsetId>
     // 호스트의 backupset 설정하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public boolean setBackupSet(String path, String planType, String planName, String planSubtype, String planId, String companyId, String backupSetId) {
-        LOG.info("setBackupSet REST API 호출");
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/backupset/" + backupSetId;
         try {
@@ -553,7 +550,7 @@ public class CommvaultClient {
         return false;
     }
 
-    //
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/client/<clientId>
     // client의 applicationId 조회하는 API 로 없는 경우 null, 있는 경우 applicationId 반환
     public String getApplicationId(String clientId) {
@@ -564,20 +561,15 @@ public class CommvaultClient {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
             JsonNode clientProperties = root.get("clientProperties");
-            LOG.info(clientProperties);
             if (clientProperties != null && clientProperties.isArray()) {
                 for (JsonNode clientProp : clientProperties) {
                     JsonNode client = clientProp.get("client");
-                    LOG.info(client);
                     if (!client.isMissingNode()) {
                         JsonNode idaList = client.get("idaList");
-                        LOG.info(idaList);
                         if (idaList != null && idaList.isArray()) {
                             for (JsonNode idaItem : idaList) {
                                 JsonNode idaEntity = idaItem.get("idaEntity");
-                                LOG.info(idaEntity);
                                 if (idaEntity != null && idaEntity.has("applicationId")) {
-                                    LOG.info(idaEntity.get("applicationId").asText());
                                     return idaEntity.get("applicationId").asText();
                                 }
                             }
@@ -592,11 +584,10 @@ public class CommvaultClient {
         return null;
     }
 
-    //
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/backupset
     // 가상머신에 백업 오퍼링 할당 시 backupset 추가 API
     public boolean createBackupSet(String vmName, String applicationId, String clientId, String planId) {
-        LOG.info("createBackupSet REST API 호출");
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/backupset";
         try {
@@ -607,10 +598,6 @@ public class CommvaultClient {
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
-            LOG.info(vmName);
-            LOG.info(applicationId);
-            LOG.info(clientId);
-            LOG.info(planId);
             String jsonBody = "{"
                                 + "\"backupSetInfo\": {"
                                 +     "\"backupSetEntity\": {"
@@ -641,14 +628,12 @@ public class CommvaultClient {
                                 +     "\"useContentFromPlan\": false"
                                 + "}"
                             + "}";
-            LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
                 os.flush();
             }
             int responseCode = connection.getResponseCode();
-            LOG.info(responseCode);
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 StringBuilder response = new StringBuilder();
                 try (BufferedReader reader = new BufferedReader(
@@ -658,8 +643,22 @@ public class CommvaultClient {
                         response.append(line);
                     }
                 }
-                LOG.info(response.toString());
-                return true;
+                JsonParser jParser = new JsonParser();
+                JsonObject jObject = (JsonObject)jParser.parse(response.toString());
+                if (jObject.has("response") && jObject.get("response").isJsonArray()) {
+                    JsonArray responseArray = jObject.getAsJsonArray("response");
+                    if (responseArray.size() > 0) {
+                        JsonObject firstResponse = responseArray.get(0).getAsJsonObject();
+                        if (firstResponse.has("errorCode")) {
+                            int errorCode = firstResponse.get("errorCode").getAsInt();
+                            if (errorCode == 0) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+                    }
+                }
             } else {
                 return false;
             }
@@ -670,6 +669,23 @@ public class CommvaultClient {
             if (connection != null) {
                 connection.disconnect();
             }
+        }
+        return false;
+    }
+
+    //
+    // https://10.10.255.56/commandcenter/api/backupset/<backupSetId>
+    // 가상머신에서 백업 오퍼링 삭제 시 관련된 백업 삭제 API
+    public boolean deleteBackupSet(String backupSetId) {
+        LOG.info("deleteBackupSet REST API 호출");
+        LOG.info(backupSetId);
+        try {
+            final HttpResponse response = delete("/backupset/" + backupSetId);
+            checkResponseOK(response);
+            return true;
+        } catch (final IOException e) {
+            LOG.error("Failed to request deleteBackupSet commvault api due to:", e);
+            checkResponseTimeOut(e);
         }
         return false;
     }
@@ -950,21 +966,6 @@ public class CommvaultClient {
             }
         }
         return null;
-    }
-
-    // https://10.10.255.56/commandcenter/api/backupset/<backupSetId>
-    // 가상머신에서 백업 오퍼링 삭제 시 관련된 백업 삭제 API
-    public boolean deleteBackupSet(String backupSetId) {
-        LOG.info("deleteBackupSet REST API 호출");
-        try {
-            final HttpResponse response = delete("/backupset/" + backupSetId);
-            checkResponseOK(response);
-            return true;
-        } catch (final IOException e) {
-            LOG.error("Failed to request deleteBackupSet commvault api due to:", e);
-            checkResponseTimeOut(e);
-        }
-        return false;
     }
 
     // https://10.10.255.56/commandcenter/api/v4/plan/backupdestination/joboperations

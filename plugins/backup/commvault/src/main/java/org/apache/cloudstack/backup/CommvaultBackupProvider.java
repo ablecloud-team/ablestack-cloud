@@ -400,7 +400,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         final CommvaultClient client = getClient(vm.getDataCenterId());
         List<HostVO> Hosts = hostDao.findByDataCenterId(vm.getDataCenterId());
         for (final HostVO host : Hosts) {
-            if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
+            if (host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
                 String backupSetId = client.getVmBackupSetId(host.getName(), vm.getInstanceName());
                 if (backupSetId != null) {
                     return client.deleteBackupSet(backupSetId);
