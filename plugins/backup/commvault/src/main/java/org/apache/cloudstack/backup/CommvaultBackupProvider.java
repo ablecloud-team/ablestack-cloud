@@ -65,6 +65,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.HttpsURLConnection;
 import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.Mac;
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
