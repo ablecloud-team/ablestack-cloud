@@ -928,7 +928,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 final SSLContext sslContext = SSLUtils.getSSLContext();
                 sslContext.init(null, new TrustManager[]{new TrustAllManager()}, new SecureRandom());
                 HttpsURLConnection httpsConnection = (HttpsURLConnection) url.openConnection();
-                connection.setSSLSocketFactory(sslContext.getSocketFactory());
+                httpsConnection.setSSLSocketFactory(sslContext.getSocketFactory());
                 connection = httpsConnection;
             } else {
                 connection = (HttpURLConnection) url.openConnection();
@@ -971,7 +971,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 final SSLContext sslContext = SSLUtils.getSSLContext();
                 sslContext.init(null, new TrustManager[]{new TrustAllManager()}, new SecureRandom());
                 HttpsURLConnection httpsConnection = (HttpsURLConnection) url.openConnection();
-                connection.setSSLSocketFactory(sslContext.getSocketFactory());
+                httpsConnection.setSSLSocketFactory(sslContext.getSocketFactory());
                 connection = httpsConnection;
             } else {
                 connection = (HttpURLConnection) url.openConnection();
@@ -1014,7 +1014,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 final SSLContext sslContext = SSLUtils.getSSLContext();
                 sslContext.init(null, new TrustManager[]{new TrustAllManager()}, new SecureRandom());
                 HttpsURLConnection httpsConnection = (HttpsURLConnection) url.openConnection();
-                connection.setSSLSocketFactory(sslContext.getSocketFactory());
+                httpsConnection.setSSLSocketFactory(sslContext.getSocketFactory());
                 connection = httpsConnection;
             } else {
                 connection = (HttpURLConnection) url.openConnection();
@@ -1059,7 +1059,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 final SSLContext sslContext = SSLUtils.getSSLContext();
                 sslContext.init(null, new TrustManager[]{new TrustAllManager()}, new SecureRandom());
                 HttpsURLConnection httpsConnection = (HttpsURLConnection) url.openConnection();
-                connection.setSSLSocketFactory(sslContext.getSocketFactory());
+                httpsConnection.setSSLSocketFactory(sslContext.getSocketFactory());
                 connection = httpsConnection;
             } else {
                 connection = (HttpURLConnection) url.openConnection();
