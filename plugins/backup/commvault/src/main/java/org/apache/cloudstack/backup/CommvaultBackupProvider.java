@@ -873,8 +873,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
+    // 하위 클라이언트 삭제 시 백업본 데이터는 그대로 남아있지만, 해당 하위 클라이언트가 삭제되었기 때문에 스케줄도 삭제시켜야하며
+    // 남아있는 백업본 데이터는 mold에서 관리하지 않고, commvault 의 plan 보존기간에 따라 데이터 에이징 됨.
     public boolean willDeleteBackupsOnOfferingRemoval() {
-        return false;
+        return true;
     }
 
     protected static String moldCreateSnapshotBackupAPI(String region, String command, String method, String apiKey, String secretKey, Map<String, String> params) {
