@@ -4882,5 +4882,6 @@
 "label.week": "\uc8fc",
 "label.month": "\uc6d4",
 "label.years": "\ub144",
-"label.infinite": "\ubb34\ud55c"
+"label.infinite": "\ubb34\ud55c",
+"message.error.import.backup.offering": "Commvault \ubc31\uc5c5\uc758 \uacbd\uc6b0 \ud558\ub098\uc758 \ubc31\uc5c5 \uc624\ud37c\ub9c1\ub9cc \uac00\uc838\uc62c \uc218 \uc788\uc73c\uba70, \uc774\ubbf8 \ubc31\uc5c5 \uc624\ud37c\ub9c1\uc774 \uc874\uc7ac\ud569\ub2c8\ub2e4."
 }

@@ -149,6 +149,7 @@ export default {
   created () {
     this.initForm()
     this.fetchData()
+    this.checkBackupOffering()
   },
   computed: {
     retentionPeriodInDays () {
@@ -250,12 +251,11 @@ export default {
     handleSubmit (e) {
       e.preventDefault()
       if (this.loading) return
-      this.checkBackupOffering()
       this.formRef.value.validate().then(() => {
         if (this.useCommvault) {
           this.$notification.error({
             message: this.$t('message.request.failed'),
-            description: this.$t('message.error.confirm.remove.dr.mirroring.vm')
+            description: this.$t('message.error.import.backup.offering')
           })
           return
         }
