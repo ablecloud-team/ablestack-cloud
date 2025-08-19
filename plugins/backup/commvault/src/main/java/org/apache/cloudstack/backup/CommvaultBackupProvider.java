@@ -347,15 +347,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             String path = "/";
             List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
             for (final HostVO host : Hosts) {
-                if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
-                    String backupSetId = client.getDefaultBackupSetId(host.getName());
-                    LOG.info(path);
-                    LOG.info(planType);
-                    LOG.info(planName);
-                    LOG.info(planSubtype);
-                    LOG.info(planId);
-                    LOG.info(companyId);
-                    LOG.info(backupSetId);
+                String backupSetId = client.getDefaultBackupSetId(host.getName());
+                LOG.info("backupSetId::::::::::::::::::::");
+                LOG.info(backupSetId);
+                if (backupSetId != null) {
                     if (!client.setBackupSet(path, planType, planName, planSubtype, planId, companyId, backupSetId)) {
                         throw new CloudRuntimeException("Failed to setting backup plan for client commvault api");
                     }
@@ -363,7 +358,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             }
             return true;
         } else {
-            // 문구 변경 필요
             throw new CloudRuntimeException("Failed to edit plan schedule retention period commvault api");
         }
     }
@@ -398,7 +392,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         String clientId = client.getClientId(hostVO.getName());
         String applicationId = client.getApplicationId(clientId);
-        return client.createBackupSet(vm.getInstanceName(), applicationId, backupOffering.getExternalId(), clientId);
+        return client.createBackupSet(vm.getInstanceName(), applicationId, clientId, backupOffering.getExternalId());
     }
 
     @Override
