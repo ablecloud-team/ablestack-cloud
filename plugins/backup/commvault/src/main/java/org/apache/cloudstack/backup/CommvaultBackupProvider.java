@@ -573,15 +573,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         for (final HostVO host : Hosts) {
             if (host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
                 String checkVm = client.getVmBackupSetId(host.getName(), vm.getInstanceName());
-                LOG.info("checkVm:::::::::::::::::::::::::");
-                LOG.info(checkVm);
                 if (checkVm != null) {
                     hostName = host.getName();
                 }
             }
         }
-        LOG.info("hostName:::::::::::::::::::::::::");
-        LOG.info(hostName);
         BackupOfferingVO vmBackupOffering = new BackupOfferingDaoImpl().findById(vm.getBackupOfferingId());
         String planId = vmBackupOffering.getExternalId();
         // 스냅샷 생성 mold-API 호출
@@ -926,11 +922,15 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             String apiParams = buildParamsMold(command, params);
             String urlFinal = buildUrl(apiParams, region, apiKey, secretKey);
             URL url = new URL(urlFinal);
-            HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
+            HttpURLConnection connection = null;
             if (region.contains("https")) {
                 final SSLContext sslContext = SSLUtils.getSSLContext();
                 sslContext.init(null, new TrustManager[]{new TrustAllManager()}, new SecureRandom());
+                HttpsURLConnection httpsConnection = (HttpsURLConnection) url.openConnection();
                 connection.setSSLSocketFactory(sslContext.getSocketFactory());
+                connection = httpsConnection;
+            } else {
+                connection = (HttpURLConnection) url.openConnection();
             }
             connection.setDoOutput(true);
             connection.setRequestMethod(method);
@@ -965,12 +965,15 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             String apiParams = buildParamsMold(command, params);
             String urlFinal = buildUrl(apiParams, region, apiKey, secretKey);
             URL url = new URL(urlFinal);
-            HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
+            HttpURLConnection connection = null;
             if (region.contains("https")) {
-                // SSL 인증서 에러 우회 처리
                 final SSLContext sslContext = SSLUtils.getSSLContext();
                 sslContext.init(null, new TrustManager[]{new TrustAllManager()}, new SecureRandom());
+                HttpsURLConnection httpsConnection = (HttpsURLConnection) url.openConnection();
                 connection.setSSLSocketFactory(sslContext.getSocketFactory());
+                connection = httpsConnection;
+            } else {
+                connection = (HttpURLConnection) url.openConnection();
             }
             connection.setDoOutput(true);
             connection.setRequestMethod(method);
@@ -1005,12 +1008,15 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             String apiParams = buildParamsMold(command, params);
             String urlFinal = buildUrl(apiParams, region, apiKey, secretKey);
             URL url = new URL(urlFinal);
-            HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
+            HttpURLConnection connection = null;
             if (region.contains("https")) {
-                // SSL 인증서 에러 우회 처리
                 final SSLContext sslContext = SSLUtils.getSSLContext();
                 sslContext.init(null, new TrustManager[]{new TrustAllManager()}, new SecureRandom());
+                HttpsURLConnection httpsConnection = (HttpsURLConnection) url.openConnection();
                 connection.setSSLSocketFactory(sslContext.getSocketFactory());
+                connection = httpsConnection;
+            } else {
+                connection = (HttpURLConnection) url.openConnection();
             }
             connection.setDoOutput(true);
             connection.setRequestMethod(method);
@@ -1047,12 +1053,15 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             String apiParams = buildParamsMold(command, params);
             String urlFinal = buildUrl(apiParams, region, apiKey, secretKey);
             URL url = new URL(urlFinal);
-            HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
+            HttpURLConnection connection = null;
             if (region.contains("https")) {
-                // SSL 인증서 에러 우회 처리
                 final SSLContext sslContext = SSLUtils.getSSLContext();
                 sslContext.init(null, new TrustManager[]{new TrustAllManager()}, new SecureRandom());
+                HttpsURLConnection httpsConnection = (HttpsURLConnection) url.openConnection();
                 connection.setSSLSocketFactory(sslContext.getSocketFactory());
+                connection = httpsConnection;
+            } else {
+                connection = (HttpURLConnection) url.openConnection();
             }
             connection.setDoOutput(true);
             connection.setRequestMethod(method);
