@@ -90,7 +90,7 @@ public class CreateSnapshotBackupCmd extends BaseAsyncCreateCmd {
     @Parameter(name = ApiConstants.TAGS, type = CommandType.MAP, description = "Map of tags (key/value pairs)")
     private Map tags;
 
-    @Parameter(name = ApiConstants.BACKUP, type = CommandType.BOOLEAN, description = "Skip secondary storage copy for backup solution use")
+    @Parameter(name = ApiConstants.BACKUP, type = CommandType.BOOLEAN, required = true, description = "Skip secondary storage copy for backup solution use")
     private Boolean backup;
 
     @Parameter(name = ApiConstants.ZONE_ID_LIST,
