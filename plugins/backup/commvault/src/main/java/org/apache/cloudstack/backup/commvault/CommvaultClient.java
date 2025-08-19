@@ -608,7 +608,7 @@ public class CommvaultClient {
             JsonNode plan = root.path("plan").path("summary").path("plan");
             LOG.info(plan);
             if (!plan.isMissingNode()) {
-                JsonNode planName = planNode.path("planName");
+                JsonNode planName = plan.path("planName");
                 LOG.info(planName);
                 if (!planName.isMissingNode()) {
                     return planName.asText();
