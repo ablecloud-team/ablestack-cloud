@@ -641,8 +641,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     return false;
                 }
                 checkResult.put(vol.getId(), snapId);
+                LOG.info("checkResult.toString()::::::::::::::::::::::");
                 LOG.info(checkResult.toString());
-                SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findOneBySnapshotAndDatastoreRole(Long.parseLong(snapId), DataStoreRole.Primary);
+                SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findLatestSnapshotForVolume(vol.getId(), DataStoreRole.Primary);
+                LOG.info("snapshotStore.getInstallPath():::::::::::::::::::");
                 LOG.info(snapshotStore.getInstallPath());
                 joiner.add(snapshotStore.getInstallPath());
             }

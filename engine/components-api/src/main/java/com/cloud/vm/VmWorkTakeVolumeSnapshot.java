@@ -87,7 +87,7 @@ public class VmWorkTakeVolumeSnapshot extends VmWork {
         return zoneIds;
     }
 
-    public boolean backup() {
+    public boolean getBackup() {
         return backup;
     }
 }
