@@ -553,7 +553,7 @@ public class CommvaultClient {
         return false;
     }
 
-    // 
+    //
     // https://10.10.255.56/commandcenter/api/client/<clientId>
     // client의 applicationId 조회하는 API 로 없는 경우 null, 있는 경우 applicationId 반환
     public String getApplicationId(String clientId) {
@@ -592,7 +592,7 @@ public class CommvaultClient {
         return null;
     }
 
-    // 
+    //
     // https://10.10.255.56/commandcenter/api/backupset
     // 가상머신에 백업 오퍼링 할당 시 backupset 추가 API
     public boolean createBackupSet(String vmName, String applicationId, String clientId, String planId) {
