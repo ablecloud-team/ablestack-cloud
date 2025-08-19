@@ -4050,6 +4050,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             if (CollectionUtils.isNotEmpty(zoneIds)) {
                 payload.setZoneIds(zoneIds);
             }
+            payload.setBackup(backup);
             volume.addPayload(payload);
             return volService.takeSnapshot(volume);
         }
