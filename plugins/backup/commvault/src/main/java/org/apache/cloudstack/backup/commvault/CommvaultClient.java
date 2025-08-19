@@ -738,14 +738,13 @@ public class CommvaultClient {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
             JsonNode subClient = root.get("subClientProperties");
-            LOG.info(subClient);
             if (subClient.isArray()) {
                 for (JsonNode item : subClient) {
                     JsonNode entity = item.path("subClientEntity");
                     JsonNode backupsetName = entity.path("backupsetName");
-                    LOG.info(entity);
                     if (!entity.isMissingNode() && vmName.equals(backupsetName.asText())) {
-                        return entity.asText();
+                        LOG.info(entity);
+                        return entity.toString();
                     }
                 }
             }
