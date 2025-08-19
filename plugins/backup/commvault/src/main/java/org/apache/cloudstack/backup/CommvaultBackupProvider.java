@@ -597,7 +597,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         for (VolumeVO vol : volumes) {
             Map<String, String> snapParams = new HashMap<>();
             snapParams.put("volumeid", Long.toString(vol.getId()));
-            snapParams.put("quiescevm", "true");
             snapParams.put("backup", "true");
             String createSnapResult = moldCreateSnapshotBackupAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapParams);
             if (createSnapResult == null) {

@@ -4119,7 +4119,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         payload.setQuiescevm(quiescevm);
         payload.setLocationType(locationType);
         payload.setAsyncBackup(asyncBackup);
-        payload.setAsyncBackup(backup);
+        payload.setBackup(backup);
         if (CollectionUtils.isNotEmpty(zoneIds)) {
             payload.setZoneIds(zoneIds);
         }
