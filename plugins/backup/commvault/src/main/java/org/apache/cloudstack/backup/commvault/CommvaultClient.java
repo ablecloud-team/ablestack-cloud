@@ -42,6 +42,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.json.JSONObject;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509TrustManager;
@@ -936,7 +937,7 @@ public class CommvaultClient {
 
     // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/jobDetails
-    // 작업의 상세 정보 조회하는 API
+    // 작업의 상세정보를 조회하는 API로 작업이 완료된 경우 최종 작업 상태를 반환
     public String getJobStatus(String jobId) {
         LOG.info("getJobStatus호출::::::::::::::::::::::::");
         String jobStatus = "Running";
@@ -975,9 +976,8 @@ public class CommvaultClient {
                             response.append(line);
                         }
                     }
-                    JsonParser jParser = new JsonParser();
-                    JsonObject jObject = (JsonObject)jParser.parse(response.toString());
-                    jobStatus = String.valueOf(jObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").get("state"));
+                    JSONObject jsonObject = new JSONObject(response.toString());
+                    jobStatus = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").get("state"));
                     LOG.info("jobStatus::::::::::::::::::::::::");
                     LOG.info(jobStatus);
                     try {
