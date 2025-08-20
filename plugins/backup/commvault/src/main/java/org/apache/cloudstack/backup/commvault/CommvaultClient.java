@@ -934,11 +934,79 @@ public class CommvaultClient {
         return null;
     }
 
-    //
+    // 정상 동작 확인
+    // https://10.10.255.56/commandcenter/api/jobDetails
+    // 작업의 상세 정보 조회하는 API
+    public String getJobStatus(String jobId) {
+        LOG.inof("getJobStatus호출::::::::::::::::::::::::");
+        String jobStatus = "Running";
+        LOG.inof("jobStatus::::::::::::::::::::::::");
+        LOG.inof(jobStatus);
+        HttpURLConnection connection = null;
+        while (jobStatus == "Running") {
+            LOG.inof("while시작::::::::::::::::::::::::");
+            String postUrl = apiURI.toString() + "/jobDetails";
+            try {
+                URL url = new URL(postUrl);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("Accept", "application/json");
+                connection.setRequestProperty("Authorization", accessToken);
+                connection.setDoOutput(true);
+                String jsonBody = String.format(
+                    "{" +
+                        "\"jobId\":" + jobId +
+                    "}",
+                    Integer.parseInt(jobId)
+                );
+                try (OutputStream os = connection.getOutputStream()) {
+                    byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
+                    os.write(input, 0, input.length);
+                    os.flush();
+                }
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    StringBuilder response = new StringBuilder();
+                    try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream()))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            response.append(line);
+                        }
+                    }
+                    JsonParser jParser = new JsonParser();
+                    JsonObject jObject = (JsonObject)jParser.parse(response.toString());
+                    jobStatus = String.valueOf(jObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").get("state"));
+                    LOG.inof("jobStatus::::::::::::::::::::::::");
+                    LOG.inof(jobStatus);
+                    try {
+                        Thread.sleep(30000);
+                    } catch (InterruptedException e) {
+                        LOG.error("create backup get asyncjob result sleep interrupted error");
+                        break;
+                    }
+                } else {
+                    return null;
+                }
+            } catch (final IOException e) {
+                LOG.error("Failed to request getJobDetails commvault api due to:", e);
+                checkResponseTimeOut(e);
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+            LOG.inof("while끝::::::::::::::::::::::::");
+        }
+        return jobStatus;
+    }
+
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/jobDetails
     // 작업의 상세 정보 조회하는 API
     public String getJobDetails(String jobId) {
-        LOG.info("getJobDetails REST API 호출");
+        LOG.inof("getJobDetails호출::::::::::::::::::::::::");
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/jobDetails";
         try {
@@ -955,14 +1023,12 @@ public class CommvaultClient {
                 "}",
                 Integer.parseInt(jobId)
             );
-            LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
                 os.flush();
             }
             int responseCode = connection.getResponseCode();
-            LOG.info(responseCode);
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 StringBuilder response = new StringBuilder();
                 try (BufferedReader reader = new BufferedReader(
@@ -972,7 +1038,6 @@ public class CommvaultClient {
                         response.append(line);
                     }
                 }
-                LOG.info(response.toString());
                 return response.toString();
             } else {
                 return null;

@@ -663,37 +663,23 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String backupsetName = String.valueOf(jsonObject.get("backupsetName"));
         String subclientName = String.valueOf(jsonObject.get("subclientName"));
         boolean upResult = client.updateBackupSet(path, subclientId, clientId, planId, applicationId, backupsetId, instanceId, subclientName, backupsetName);
-        String jobState = "Running";
-        JSONObject jsonObject2 = new JSONObject();
-        String jobDetails = null;
         if (upResult) {
             String jobId = client.createBackup(subclientId);
             if (jobId != null) {
-                while (jobState.equals("Running")) {
-                    LOG.info("while문 시작:::::::");
-                    jobDetails = client.getJobDetails(jobId);
-                    LOG.info("getJobDetails 호출 완료:::::::");
-                    jsonObject2 = new JSONObject(jobDetails);
-                    jobState = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").get("state"));
-                    LOG.info("jobState");
-                    LOG.info(jobState);
-                    try {
-                        Thread.sleep(30000);
-                    } catch (InterruptedException e) {
-                        LOG.error("create backup get asyncjob result sleep interrupted error");
-                    }
-                    LOG.info("while문 끝:::::::");
-                }
-                LOG.info("while문 나옴::::");
-                LOG.info(jobState);
-                String endTime = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
-                String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
-                String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
-                LOG.info(endTime);
-                LOG.info(size);
-                LOG.info(type);
-                SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-                if (jobState == "Completed") {
+                String jobStatus = client.getJobStatus(jobId);
+                LOG.info("commvaultbackupprovider jobStatus::::::::::::");
+                LOG.info(jobStatus);
+                if (jobStatus == "Completed") {
+                    String jobDetails = client.getJobDetails(jobId);
+                    JSONObject jsonObject2 = new JSONObject(jobDetails);
+                    String endTime = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
+                    String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
+                    String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
+                    SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                    LOG.info(endTime);
+                    LOG.info(size);
+                    LOG.info(type);
+                    LOG.info(formatterDateTime.parse(endTime));
                     String externalId = path + "/" + jobId;
                     BackupVO backup = new BackupVO();
                     backup.setVmId(vm.getId());
@@ -748,7 +734,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
                         }
                     }
-                    LOG.error("createBackup commvault api resulted in " + jobState);
+                    LOG.error("createBackup commvault api resulted in " + jobStatus);
                     return false;
                 }
             } else {
@@ -763,7 +749,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
                     }
                 }
-                LOG.error("createBackup commvault api resulted in " + jobState);
+                LOG.error("failed request createBackup commvault api");
                 return false;
             }
         } else {
