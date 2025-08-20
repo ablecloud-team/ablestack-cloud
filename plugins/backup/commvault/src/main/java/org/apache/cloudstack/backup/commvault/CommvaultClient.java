@@ -940,14 +940,10 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/jobDetails
     // 작업의 상세정보를 조회하는 API로 작업이 완료된 경우 최종 작업 상태를 반환
     public String getJobStatus(String jobId) {
-        LOG.info("getJobStatus호출::::::::::::::::::::::::");
         String jobStatus = "Running";
-        LOG.info("jobStatus::::::::::::::::::::::::");
-        LOG.info(jobStatus);
         HttpURLConnection connection = null;
         Set<String> runningStates = Set.of("Running", "Pending", "Waiting", "Queued", "Suspended");
         while (runningStates.contains(jobStatus)) {
-            LOG.info("while시작::::::::::::::::::::::::");
             String postUrl = apiURI.toString() + "/jobDetails";
             try {
                 URL url = new URL(postUrl);
@@ -980,8 +976,6 @@ public class CommvaultClient {
                     }
                     JSONObject jsonObject = new JSONObject(response.toString());
                     jobStatus = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").getString("state");
-                    LOG.info("jobStatus::::::::::::::::::::::::");
-                    LOG.info(jobStatus);
                     try {
                         Thread.sleep(30000);
                     } catch (InterruptedException e) {
@@ -999,7 +993,6 @@ public class CommvaultClient {
                     connection.disconnect();
                 }
             }
-            LOG.info("while끝::::::::::::::::::::::::");
         }
         return jobStatus;
     }
@@ -1008,7 +1001,6 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/jobDetails
     // 작업의 상세 정보 조회하는 API
     public String getJobDetails(String jobId) {
-        LOG.info("getJobDetails호출::::::::::::::::::::::::");
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/jobDetails";
         try {

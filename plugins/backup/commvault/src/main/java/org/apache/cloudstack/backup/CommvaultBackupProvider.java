@@ -667,10 +667,12 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             String jobId = client.createBackup(subclientId);
             if (jobId != null) {
                 String jobStatus = client.getJobStatus(jobId);
-                LOG.info("commvaultbackupprovider jobStatus::::::::::::");
+                LOG.info("commvaultBackupProvider jobStatus::::::::::::");
                 LOG.info(jobStatus);
-                if (jobStatus == "Completed") {
+                if (jobStatus.equalsIgnoreCase("Completed")) {
                     String jobDetails = client.getJobDetails(jobId);
+                    LOG.info("jobDetails");
+                    LOG.info(jobDetails);
                     JSONObject jsonObject2 = new JSONObject(jobDetails);
                     String endTime = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
                     String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
