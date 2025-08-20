@@ -677,8 +677,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         if (upResult) {
             String planName = client.getPlanName(planId);
             String storagePolicyId = client.getStoragePolicyId(planName);
-            LOG.info(planName);
-            LOG.info(storagePolicyId);
             if (planName == null || storagePolicyId == null) {
                 if (!checkResult.isEmpty()) {
                     for (String value : checkResult.values()) {
@@ -705,6 +703,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             LOG.info(backupsetId);
             LOG.info(instanceId);
             LOG.info(subclientGUID);
+            LOG.info(subclientName);
             LOG.info(csGUID);
             LOG.info(backupsetName);
             String jobId = client.createBackup(subclientId, storagePolicyId, displayName, commCellName, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, subclientGUID, subclientName, csGUID, backupsetName);

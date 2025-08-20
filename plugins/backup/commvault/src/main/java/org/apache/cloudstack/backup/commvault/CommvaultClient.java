@@ -597,19 +597,15 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/plan/<planId>
     // plan 상세 조회하는 API로 없는 경우 null, 있는 경우 planName 반환
     public String getPlanName(String planId) {
-        LOG.info("getPlanName REST API 호출");
         try {
             final HttpResponse response = get("/plan/" + planId);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
-            LOG.info(root);
             JsonNode plan = root.path("plan").path("summary").path("plan");
-            LOG.info(plan);
             if (!plan.isMissingNode()) {
                 JsonNode planName = plan.path("planName");
-                LOG.info(planName);
                 if (!planName.isMissingNode()) {
                     return planName.asText();
                 }
@@ -964,6 +960,7 @@ public class CommvaultClient {
                     }
                 }
                 String jsonResponse = response.toString();
+                LOG.info(jsonResponse);
                 return extractJobIdsFromJsonString(jsonResponse);
             } else {
                 return null;
@@ -1007,6 +1004,7 @@ public class CommvaultClient {
                 os.flush();
             }
             int responseCode = connection.getResponseCode();
+            LOG.info(responseCode);
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 StringBuilder response = new StringBuilder();
                 try (BufferedReader reader = new BufferedReader(
@@ -1016,6 +1014,7 @@ public class CommvaultClient {
                         response.append(line);
                     }
                 }
+                LOG.info(response.toString());
                 return response.toString();
             } else {
                 return null;
