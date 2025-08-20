@@ -986,7 +986,7 @@ public class CommvaultClient {
     // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/subclient/<subclientId>/action/backup
     // 백업 실행 API
-    public String createBackup2(String subclientId, String storagePolicyId, String displayName, String commCellName, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String subclientGUID, String subclientName, String csGUID, String backupsetName) {
+    public String createBackup2(String subclientId) {
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/subclient/" + subclientId + "/action/backup";
         try {
@@ -1004,15 +1004,6 @@ public class CommvaultClient {
                     "\"overrideStoragePolicySettings\":true," +
                     "\"overridePolicyBackupLevel\":true," +
                     "\"forceFullBackup\":true," +
-                    "\"skipCatalogPhase\":false," +
-                    "\"enableIndexing\":true" +
-                "}," +
-                "\"commonOpts\":{" +
-                    "\"notifyUserOnJobCompletion\":true," +
-                    "\"startUpOpts\":{" +
-                        "\"runJob\":true," +
-                        "\"priority\":100" +
-                    "}" +
                 "}" +
             "}";
             try (OutputStream os = connection.getOutputStream()) {
