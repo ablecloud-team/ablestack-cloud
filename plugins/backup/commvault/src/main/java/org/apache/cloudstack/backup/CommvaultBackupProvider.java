@@ -676,10 +676,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
                     String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
                     SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                    String externalId = path + "/" + jobId;
                     LOG.info(endTime);
                     LOG.info(size);
                     LOG.info(type);
-                    String externalId = path + "/" + jobId;
+                    LOG.info(externalId);
                     BackupVO backup = new BackupVO();
                     backup.setVmId(vm.getId());
                     backup.setExternalId(externalId);
@@ -710,6 +711,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         snapshots.add(value);
                     }
                     backup.setSnapshotId(snapshots.toString());
+                    LOG.info(snapshots.toString());
                     backupDao.persist(backup);
                     // 백업 성공 후 스냅샷 삭제
                     LOG.info("백업 성공 후 스냅샷 삭제::::");

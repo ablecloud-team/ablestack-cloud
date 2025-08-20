@@ -64,6 +64,7 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Base64;
 import java.util.List;
+import java.util.Set;
 
 public class CommvaultClient {
     private static final Logger LOG = LogManager.getLogger(CommvaultClient.class);
@@ -944,7 +945,8 @@ public class CommvaultClient {
         LOG.info("jobStatus::::::::::::::::::::::::");
         LOG.info(jobStatus);
         HttpURLConnection connection = null;
-        while (jobStatus == "Running") {
+        Set<String> runningStates = Set.of("Running", "Pending", "Waiting", "Queued", "Suspended");
+        while (runningStates.contains(jobStatus)) {
             LOG.info("while시작::::::::::::::::::::::::");
             String postUrl = apiURI.toString() + "/jobDetails";
             try {
@@ -977,7 +979,7 @@ public class CommvaultClient {
                         }
                     }
                     JSONObject jsonObject = new JSONObject(response.toString());
-                    jobStatus = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").get("state"));
+                    jobStatus = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").getString("state");
                     LOG.info("jobStatus::::::::::::::::::::::::");
                     LOG.info(jobStatus);
                     try {
