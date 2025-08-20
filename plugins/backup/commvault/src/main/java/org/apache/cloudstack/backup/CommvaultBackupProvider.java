@@ -665,22 +665,24 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         boolean upResult = client.updateBackupSet(path, subclientId, clientId, planId, applicationId, backupsetId, instanceId, subclientName, backupsetName);
         String jobState = "Running";
         JSONObject jsonObject2 = new JSONObject();
+        String jobDetails = null;
         if (upResult) {
             String jobId = client.createBackup(subclientId);
             if (jobId != null) {
-                LOG.info("백업 성공");
-                LOG.info(jobId);
-                while (jobState == "Running") {
-                    LOG.info("while문 반복중::::");
-                    String jobDetails = client.getJobDetails(jobId);
+                while (jobState.equals("Running")) {
+                    LOG.info("while문 시작:::::::");
+                    jobDetails = client.getJobDetails(jobId);
+                    LOG.info("getJobDetails 호출 완료:::::::");
                     jsonObject2 = new JSONObject(jobDetails);
                     jobState = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").get("state"));
+                    LOG.info("jobState");
                     LOG.info(jobState);
                     try {
-                        Thread.sleep(10000);
+                        Thread.sleep(30000);
                     } catch (InterruptedException e) {
                         LOG.error("create backup get asyncjob result sleep interrupted error");
                     }
+                    LOG.info("while문 끝:::::::");
                 }
                 LOG.info("while문 나옴::::");
                 LOG.info(jobState);
