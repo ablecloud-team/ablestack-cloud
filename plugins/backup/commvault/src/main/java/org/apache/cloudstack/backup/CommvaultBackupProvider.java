@@ -427,7 +427,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         final CommvaultClient client = getClient(vm.getDataCenterId());
         final String externalId = backup.getExternalId();
-        String[] external = externalId.split("/");
+        String[] external = externalId.split(",");
         String path = external[0];
         String jobId = external[1];
         String jobDetails = client.getJobDetails(jobId);
@@ -485,7 +485,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         final String externalId = backup.getExternalId();
         final Long zoneId = backup.getZoneId();
         final CommvaultClient client = getClient(zoneId);
-        String[] external = externalId.split("/");
+        String[] external = externalId.split(",");
         String path = external[0];
         String jobId = external[1];
         String jobDetails = client.getJobDetails(jobId);
@@ -678,7 +678,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     String formattedString = formatterDateTime.format(endDate);
                     String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
                     String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
-                    String externalId = path + "/" + jobId;
+                    String externalId = path + "," + jobId;
                     BackupVO backup = new BackupVO();
                     backup.setVmId(vm.getId());
                     backup.setExternalId(externalId);
@@ -767,7 +767,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     public boolean deleteBackup(Backup backup, boolean forced) {
         final Long zoneId = backup.getZoneId();
         final String externalId = backup.getExternalId();
-        String[] external = externalId.split("/");
+        String[] external = externalId.split(",");
         String path = external[0];
         String jobId = external[1];
         final CommvaultClient client = getClient(zoneId);
