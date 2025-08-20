@@ -886,9 +886,10 @@ public class CommvaultClient {
     }
 
     // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/subclient/<subclientId>/action/backup
+    // https://10.10.255.56/commandcenter/api/subclient/<subclientId>/action/backup 테스트 시 Incremental 백업으로 반환되어 사용 x 
+    // https://10.10.255.56/commandcenter/api/createtask
     // 백업 실행 API
-    public String createBackup(String subclientId) {
+    public String createBackup(String subclientId, String storagePolicyId, String displayName, String commCellName, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String subclientGUID, String subclientName, String csGUID, String backupsetName) {
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/subclient/" + subclientId + "/action/backup";
         try {
@@ -899,17 +900,50 @@ public class CommvaultClient {
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
-            String jsonBody = "{" +
-                "\"backupLevel\":\"FULL\"," +
-                "\"runIncrementalBackup\":false," +
-                "\"advancedOptions\":{" +
-                    "\"overrideStoragePolicySettings\":true," +
-                    "\"skipCatalogPhase\":false" +
-                "}," +
-                "\"commonOpts\":{" +
-                    "\"notifyUserOnJobCompletion\":true" +
-                "}" +
-            "}";
+            String jsonBody = String.format(
+                "{" +
+                    "\"taskInfo\":{" +
+                        "\"task\":{" +
+                            "\"taskType\":\"IMMEDIATE\"" +
+                        "}," +
+                        "\"associations\":[{" +
+                            "\"subclientId\":%d," +
+                            "\"storagePolicyId\":%d," +
+                            "\"displayName\":\"%s\"," +
+                            "\"commCellName\":\"%s\"," +
+                            "\"clientId\":%d," +
+                            "\"entityInfo\":{" +
+                                "\"companyId\":%d," +
+                                "\"companyName\":\"%s\"" +
+                            "}," +
+                            "\"instanceName\":\"%s\"," +
+                            "\"appName\":\"%s\"," +
+                            "\"applicationId\":%d," +
+                            "\"clientName\":\"%s\"," +
+                            "\"backupsetId\":%d," +
+                            "\"instanceId\":%d," +
+                            "\"subclientGUID\":\"%s\"," +
+                            "\"subclientName\":\"%s\"," +
+                            "\"csGUID\":\"%s\"," +
+                            "\"backupsetName\":\"%s\"," +
+                            "\"_type_\":\"SUBCLIENT_ENTITY\"" +
+                        "}]," +
+                        "\"subTasks\":[{" +
+                            "\"subTask\":{" +
+                                "\"subTaskType\":\"BACKUP\"," +
+                                "\"operationType\":\"BACKUP\"" +
+                            "}," +
+                            "\"options\":{" +
+                                "\"backupOpts\":{" +
+                                    "\"backupLevel\":\"FULL\"" +
+                                "}" +
+                            "}" +
+                        "}]" +
+                    "}" +
+                "}",
+                Integer.parseInt(subclientId), Integer.parseInt(storagePolicyId), displayName, commCellName,  Integer.parseInt(clientId),
+                Integer.parseInt(companyId), companyName, instanceName, appName, Integer.parseInt(applicationId), clientName,
+                Integer.parseInt(backupsetId), Integer.parseInt(instanceId), subclientGUID, subclientName, csGUID, backupsetName);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
@@ -947,7 +981,7 @@ public class CommvaultClient {
     public String getJobStatus(String jobId) {
         String jobStatus = "Running";
         HttpURLConnection connection = null;
-        Set<String> runningStates = Set.of("Running", "Pending", "Waiting", "Queued", "Suspended");
+        Set<String> runningStates = Set.of("Not Started", "Running", "Pending", "Waiting", "Queued", "Suspended");
         while (runningStates.contains(jobStatus)) {
             String postUrl = apiURI.toString() + "/jobDetails";
             try {
