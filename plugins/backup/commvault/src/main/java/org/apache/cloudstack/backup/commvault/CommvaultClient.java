@@ -938,13 +938,13 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/jobDetails
     // 작업의 상세 정보 조회하는 API
     public String getJobStatus(String jobId) {
-        LOG.inof("getJobStatus호출::::::::::::::::::::::::");
+        LOG.info("getJobStatus호출::::::::::::::::::::::::");
         String jobStatus = "Running";
-        LOG.inof("jobStatus::::::::::::::::::::::::");
-        LOG.inof(jobStatus);
+        LOG.info("jobStatus::::::::::::::::::::::::");
+        LOG.info(jobStatus);
         HttpURLConnection connection = null;
         while (jobStatus == "Running") {
-            LOG.inof("while시작::::::::::::::::::::::::");
+            LOG.info("while시작::::::::::::::::::::::::");
             String postUrl = apiURI.toString() + "/jobDetails";
             try {
                 URL url = new URL(postUrl);
@@ -978,8 +978,8 @@ public class CommvaultClient {
                     JsonParser jParser = new JsonParser();
                     JsonObject jObject = (JsonObject)jParser.parse(response.toString());
                     jobStatus = String.valueOf(jObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").get("state"));
-                    LOG.inof("jobStatus::::::::::::::::::::::::");
-                    LOG.inof(jobStatus);
+                    LOG.info("jobStatus::::::::::::::::::::::::");
+                    LOG.info(jobStatus);
                     try {
                         Thread.sleep(30000);
                     } catch (InterruptedException e) {
@@ -997,7 +997,7 @@ public class CommvaultClient {
                     connection.disconnect();
                 }
             }
-            LOG.inof("while끝::::::::::::::::::::::::");
+            LOG.info("while끝::::::::::::::::::::::::");
         }
         return jobStatus;
     }
@@ -1006,7 +1006,7 @@ public class CommvaultClient {
     // https://10.10.255.56/commandcenter/api/jobDetails
     // 작업의 상세 정보 조회하는 API
     public String getJobDetails(String jobId) {
-        LOG.inof("getJobDetails호출::::::::::::::::::::::::");
+        LOG.info("getJobDetails호출::::::::::::::::::::::::");
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/jobDetails";
         try {
