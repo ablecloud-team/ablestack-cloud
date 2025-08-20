@@ -653,7 +653,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
                 }
             }
-            throw new CloudRuntimeException("Failed to get subckuebt id commvault api");
+            throw new CloudRuntimeException("Failed to get subclient info commvault api");
         }
         JSONObject jsonObject = new JSONObject(subClientEntity);
         String subclientId = String.valueOf(jsonObject.get("subclientId"));

@@ -883,11 +883,10 @@ public class CommvaultClient {
         return false;
     }
 
-    //
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/subclient/<subclientId>/action/backup
     // 백업 실행 API
     public String createBackup(String subclientId) {
-        LOG.info("createBackup REST API 호출");
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/subclient/" + subclientId + "/action/backup";
         try {
@@ -904,7 +903,6 @@ public class CommvaultClient {
                     "\"runIncrementalBackup\":\"false\"" +
                 "}"
             );
-            LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
@@ -921,7 +919,6 @@ public class CommvaultClient {
                     }
                 }
                 String jsonResponse = response.toString();
-                LOG.info(jsonResponse);
                 return extractJobIdsFromJsonString(jsonResponse);
             } else {
                 return null;
@@ -943,7 +940,7 @@ public class CommvaultClient {
     public String getJobDetails(String jobId) {
         LOG.info("getJobDetails REST API 호출");
         HttpURLConnection connection = null;
-        String postUrl = apiURI.toString() + "/jobDatails";
+        String postUrl = apiURI.toString() + "/jobDetails";
         try {
             URL url = new URL(postUrl);
             connection = (HttpURLConnection) url.openConnection();
@@ -954,7 +951,7 @@ public class CommvaultClient {
             connection.setDoOutput(true);
             String jsonBody = String.format(
                 "{" +
-                    "\"jobId\": " + jobId +
+                    "\"jobId\":" + jobId +
                 "}",
                 Integer.parseInt(jobId)
             );
