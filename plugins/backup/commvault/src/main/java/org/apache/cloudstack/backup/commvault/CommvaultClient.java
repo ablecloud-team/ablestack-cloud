@@ -902,7 +902,7 @@ public class CommvaultClient {
             String jsonBody = String.format(
                 "{" +
                     "\"backupLevel\":\"FULL\"," +
-                    "\"runIncrementalBackup\":\"false\"" +
+                    "\"runIncrementalBackup\":false" +
                 "}"
             );
             try (OutputStream os = connection.getOutputStream()) {

@@ -664,20 +664,22 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String subclientName = String.valueOf(jsonObject.get("subclientName"));
         boolean upResult = client.updateBackupSet(path, subclientId, clientId, planId, applicationId, backupsetId, instanceId, subclientName, backupsetName);
         if (upResult) {
+            // 백업 실행
             String jobId = client.createBackup(subclientId);
             if (jobId != null) {
                 String jobStatus = client.getJobStatus(jobId);
-                LOG.info("commvaultBackupProvider jobStatus::::::::::::");
-                LOG.info(jobStatus);
                 if (jobStatus.equalsIgnoreCase("Completed")) {
                     String jobDetails = client.getJobDetails(jobId);
                     LOG.info("jobDetails");
                     LOG.info(jobDetails);
                     JSONObject jsonObject2 = new JSONObject(jobDetails);
                     String endTime = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
+                    long timestamp = Long.parseLong(endTime) * 1000L;
+                    Date endDate = new Date(timestamp);
+                    SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                    String formattedString = formatterDateTime.format(endDate);
                     String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
                     String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
-                    SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                     String externalId = path + "/" + jobId;
                     LOG.info(endTime);
                     LOG.info(size);
@@ -688,7 +690,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     backup.setExternalId(externalId);
                     backup.setType(type);
                     try {
-                        backup.setDate(formatterDateTime.parse(endTime));
+                        backup.setDate(formatterDateTime.parse(formattedString));
                     } catch (ParseException e) {
                         String msg = String.format("Unable to parse date [%s].", endTime);
                         LOG.error(msg, e);
