@@ -670,8 +670,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 String jobStatus = client.getJobStatus(jobId);
                 if (jobStatus.equalsIgnoreCase("Completed")) {
                     String jobDetails = client.getJobDetails(jobId);
-                    LOG.info("jobDetails");
-                    LOG.info(jobDetails);
                     JSONObject jsonObject2 = new JSONObject(jobDetails);
                     String endTime = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
                     long timestamp = Long.parseLong(endTime) * 1000L;
@@ -681,10 +679,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
                     String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
                     String externalId = path + "/" + jobId;
-                    LOG.info(endTime);
-                    LOG.info(size);
-                    LOG.info(type);
-                    LOG.info(externalId);
                     BackupVO backup = new BackupVO();
                     backup.setVmId(vm.getId());
                     backup.setExternalId(externalId);
@@ -715,10 +709,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         snapshots.add(value);
                     }
                     backup.setSnapshotId(snapshots.toString());
-                    LOG.info(snapshots.toString());
                     backupDao.persist(backup);
                     // 백업 성공 후 스냅샷 삭제
-                    LOG.info("백업 성공 후 스냅샷 삭제::::");
                     for (String value : checkResult.values()) {
                         Map<String, String> snapshotParams = new HashMap<>();
                         snapshotParams.put("id", value);
@@ -728,7 +720,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     }
                     return true;
                 } else {
-                    LOG.info("백업 실패2");
                     // 백업 실패
                     if (!checkResult.isEmpty()) {
                         for (String value : checkResult.values()) {
@@ -743,7 +734,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     return false;
                 }
             } else {
-                LOG.info("백업 실패1");
                 // 백업 실패
                 if (!checkResult.isEmpty()) {
                     for (String value : checkResult.values()) {
@@ -758,7 +748,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 return false;
             }
         } else {
-            LOG.info("백업 경로 업데이트 실패");
             // 백업 경로 업데이트 실패
             if (!checkResult.isEmpty()) {
                 for (String value : checkResult.values()) {

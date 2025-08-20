@@ -899,12 +899,17 @@ public class CommvaultClient {
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
-            String jsonBody = String.format(
-                "{" +
-                    "\"backupLevel\":\"FULL\"," +
-                    "\"runIncrementalBackup\":false" +
-                "}"
-            );
+            String jsonBody = "{" +
+                "\"backupLevel\":\"FULL\"," +
+                "\"runIncrementalBackup\":false," +
+                "\"advancedOptions\":{" +
+                    "\"overrideStoragePolicySettings\":true," +
+                    "\"skipCatalogPhase\":false" +
+                "}," +
+                "\"commonOpts\":{" +
+                    "\"notifyUserOnJobCompletion\":true" +
+                "}" +
+            "}";
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
