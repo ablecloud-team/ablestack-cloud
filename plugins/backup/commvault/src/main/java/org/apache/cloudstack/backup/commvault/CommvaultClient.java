@@ -947,9 +947,9 @@ public class CommvaultClient {
                         "}]" +
                     "}" +
                 "}",
-                Integer.parseInt(subclientId), Integer.parseInt(storagePolicyId), displayName, commCellName, 
-                Integer.parseInt(clientId), Integer.parseInt(companyId), companyName, instanceName, appName, 
-                Integer.parseInt(applicationId), clientName, Integer.parseInt(backupsetId), 
+                Integer.parseInt(subclientId), Integer.parseInt(storagePolicyId), displayName, commCellName,
+                Integer.parseInt(clientId), Integer.parseInt(companyId), companyName, instanceName, appName,
+                Integer.parseInt(applicationId), clientName, Integer.parseInt(backupsetId),
                 Integer.parseInt(instanceId), subclientGUID, subclientName, csGUID, backupsetName
             );
             try (OutputStream os = connection.getOutputStream()) {
