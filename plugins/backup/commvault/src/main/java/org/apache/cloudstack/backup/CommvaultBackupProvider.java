@@ -16,11 +16,11 @@
 // under the License.
 package org.apache.cloudstack.backup;
 
+import com.cloud.api.query.vo.UserVmJoinVO;
+import com.cloud.api.query.dao.UserVmJoinDao;
 import com.cloud.cluster.ManagementServerHostVO;
 import com.cloud.cluster.dao.ManagementServerHostDao;
 import com.cloud.dc.dao.ClusterDao;
-import com.cloud.api.query.vo.UserVmJoinVO;
-import com.cloud.api.query.dao.UserVmJoinDao;
 import com.cloud.host.Host;
 import com.cloud.host.HostVO;
 import com.cloud.host.Status;
@@ -54,17 +54,12 @@ import org.apache.cloudstack.framework.config.Configurable;
 import org.apache.cloudstack.utils.security.SSLUtils;
 import org.apache.cloudstack.utils.identity.ManagementServerNode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.xml.utils.URI;
 import org.json.JSONObject;
 import org.json.XML;
-import javax.inject.Inject;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.HttpsURLConnection;
-import javax.crypto.spec.SecretKeySpec;
-import javax.crypto.Mac;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -86,7 +81,6 @@ import java.util.stream.Collectors;
 import java.util.StringTokenizer;
 import java.util.StringJoiner;
 import java.util.Properties;
-import org.apache.commons.codec.binary.Base64;
 import java.util.Collections;
 import java.io.File;
 import java.io.InputStream;
@@ -95,6 +89,12 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.HttpsURLConnection;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.Mac;
 
 public class CommvaultBackupProvider extends AdapterBase implements BackupProvider, Configurable {
 
@@ -679,7 +679,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     LOG.info(endTime);
                     LOG.info(size);
                     LOG.info(type);
-                    LOG.info(formatterDateTime.parse(endTime));
                     String externalId = path + "/" + jobId;
                     BackupVO backup = new BackupVO();
                     backup.setVmId(vm.getId());
