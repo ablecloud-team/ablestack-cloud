@@ -984,60 +984,6 @@ public class CommvaultClient {
     }
 
     // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/subclient/<subclientId>/action/backup
-    // 백업 실행 API
-    public String createBackup2(String subclientId) {
-        HttpURLConnection connection = null;
-        String postUrl = apiURI.toString() + "/subclient/" + subclientId + "/action/backup";
-        try {
-            URL url = new URL(postUrl);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("Authorization", accessToken);
-            connection.setDoOutput(true);
-            String jsonBody = "{" +
-                "\"backupLevel\":\"FULL\"," +
-                "\"runIncrementalBackup\":false," +
-                "\"advancedOptions\":{" +
-                    "\"overrideStoragePolicySettings\":true," +
-                    "\"overridePolicyBackupLevel\":true," +
-                    "\"forceFullBackup\":true," +
-                "}" +
-            "}";
-            try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
-                os.write(input, 0, input.length);
-                os.flush();
-            }
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                StringBuilder response = new StringBuilder();
-                try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
-                }
-                String jsonResponse = response.toString();
-                return extractJobIdsFromJsonString(jsonResponse);
-            } else {
-                return null;
-            }
-        } catch (final IOException e) {
-            LOG.error("Failed to request createBackup commvault api due to:", e);
-            checkResponseTimeOut(e);
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-        return null;
-    }
-
-    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/jobDetails
     // 작업의 상세정보를 조회하는 API로 작업이 완료된 경우 최종 작업 상태를 반환
     public String getJobStatus(String jobId) {
