@@ -884,12 +884,12 @@ public class CommvaultClient {
     }
 
     //
-    // https://10.10.255.56/commandcenter/api/createtask
+    // https://10.10.255.56/commandcenter/api/subclient/<subclientId>/action/backup
     // 백업 실행 API
-    public String createBackup(String subclientId, String storagePolicyId, String displayName, String commCellName, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String subclientGUID, String subclientName, String csGUID, String backupsetName) {
+    public String createBackup(String subclientId) {
         LOG.info("createBackup REST API 호출");
         HttpURLConnection connection = null;
-        String postUrl = apiURI.toString() + "/createtask";
+        String postUrl = apiURI.toString() + "/subclient/" + subclientId + "/action/backup";
         try {
             URL url = new URL(postUrl);
             connection = (HttpURLConnection) url.openConnection();
@@ -900,48 +900,9 @@ public class CommvaultClient {
             connection.setDoOutput(true);
             String jsonBody = String.format(
                 "{" +
-                    "\"taskInfo\":{" +
-                        "\"task\":{" +
-                            "\"taskType\":\"IMMEDIATE\"" +
-                        "}," +
-                        "\"associations\":[{" +
-                            "\"subclientId\":%d," +
-                            "\"storagePolicyId\":%d," +
-                            "\"displayName\":\"%s\"," +
-                            "\"commCellName\":\"%s\"," +
-                            "\"clientId\":%d," +
-                            "\"entityInfo\":{" +
-                                "\"companyId\":%d," +
-                                "\"companyName\":\"%s\"" +
-                            "}," +
-                            "\"instanceName\":\"%s\"," +
-                            "\"appName\":\"%s\"," +
-                            "\"applicationId\":%d," +
-                            "\"clientName\":\"%s\"," +
-                            "\"backupsetId\":%d," +
-                            "\"instanceId\":%d," +
-                            "\"subclientGUID\":\"%s\"," +
-                            "\"subclientName\":\"%s\"," +
-                            "\"csGUID\":\"%s\"," +
-                            "\"backupsetName\":\"%s\"," +
-                            "\"_type_\":\"SUBCLIENT_ENTITY\"" +
-                        "}]," +
-                        "\"subTasks\":[{" +
-                            "\"subTask\":{" +
-                                "\"subTaskType\":\"BACKUP\"," +
-                                "\"operationType\":\"BACKUP\"" +
-                            "}," +
-                            "\"options\":{" +
-                                "\"backupOpts\":{" +
-                                    "\"backupLevel\":\"FULL\"" +
-                                "}" +
-                            "}" +
-                        "}]" +
-                    "}" +
-                "}",
-                Integer.parseInt(subclientId), Integer.parseInt(storagePolicyId), displayName, commCellName,  Integer.parseInt(clientId),
-                Integer.parseInt(companyId), companyName, instanceName, appName, Integer.parseInt(applicationId), clientName,
-                Integer.parseInt(backupsetId), Integer.parseInt(instanceId), subclientGUID, subclientName, csGUID, backupsetName
+                    "\"backupLevel\":\"FULL\"," +
+                    "\"runIncrementalBackup\":\"false\"" +
+                "}"
             );
             LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
