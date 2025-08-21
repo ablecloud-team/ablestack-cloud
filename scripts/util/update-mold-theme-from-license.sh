@@ -7,7 +7,7 @@ CONFIG_PATH="/usr/share/cloudstack-management/webapp/config.json"
 KO_SOURCE_FILE="/usr/share/cloudstack-management/webapp/locales/ko_KR.json"
 EN_SOURCE_FILE="/usr/share/cloudstack-management/webapp/locales/en.json"
 
-CURRENT_APPTITLE=$(jq -r '."label.app.name"' $KO_SOURCE_FILE)
+CURRENT_APPTITLE=$(jq -r '."label.app.name"' "$KO_SOURCE_FILE")
 
 # JSON 키 한 줄 치환 유틸
 replace_json_line() {
@@ -25,11 +25,25 @@ replace_in_locale_files() {
   sed -i "s/${search}/${replace}/g" "$EN_SOURCE_FILE"
 }
 
+# "label.hosts" 항목을 "Hosts"로 수정
+set_json_key_jq() {
+    local file="$1"
+    local key="$2"
+    local val="$3"
+    local tmp
+
+    tmp=$(mktemp)
+    jq --arg k "$key" --arg v "$val" '.[$k] = $v' "$file" > "$tmp" && mv "$tmp" "$file"
+    chmod 644 "$file"
+}
+
 echo "선택된 테마: ${TYPE:-default}"
 
 if [[ "$TYPE" == "Clostack" ]]; then
   echo "CLOIT CLOSTACK Mold 테마 설정 중...."
   replace_in_locale_files "$CURRENT_APPTITLE" "CLOSTACK"
+  set_json_key_jq "$EN_SOURCE_FILE" "label.hosts" "Hosts"
+  set_json_key_jq "$KO_SOURCE_FILE" "label.hosts" "호스트"
 
   replace_json_line "logo" "assets/logo-clostack.png"              # 로고 파일 변경
   replace_json_line "banner" "assets/login-logo-clostack.png"      # 로그인 배너 변경
@@ -52,6 +66,9 @@ elif [[ "$TYPE" == "UCP HV powered by ABLESTACK" ]]; then
   echo "효성인포메이션시스템 UCP HV Mold 테마 설정 중...."
   replace_in_locale_files "$CURRENT_APPTITLE" "UCP HV"
 
+  set_json_key_jq "$EN_SOURCE_FILE" "label.hosts" "UCP HV"
+  set_json_key_jq "$KO_SOURCE_FILE" "label.hosts" "UCP HV"
+
   replace_json_line "logo" "assets/logo-hv.png"                     # 로고 파일 변경
   replace_json_line "banner" "assets/login-logo-hv.png"             # 로그인 배너 변경
   replace_json_line "miniLogo" "assets/mini-logo-hv.png"            # 미니 로고 변경
@@ -72,6 +89,9 @@ elif [[ "$TYPE" == "UCP HV powered by ABLESTACK" ]]; then
 else
   echo "ABLECLOUD ABLESTACK Mold 테마 설정 중...."
   replace_in_locale_files "$CURRENT_APPTITLE" "ABLESTACK"
+
+  set_json_key_jq "$EN_SOURCE_FILE" "label.hosts" "Hosts"
+  set_json_key_jq "$KO_SOURCE_FILE" "label.hosts" "호스트"
 
   replace_json_line "logo" "assets/logo-ablestack.png"               # 로고 파일 변경
   replace_json_line "banner" "assets/login-logo-ablestack.png"       # 로그인 배너 변경
