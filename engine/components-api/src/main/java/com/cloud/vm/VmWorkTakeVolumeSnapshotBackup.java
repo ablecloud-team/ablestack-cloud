@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.cloud.storage.Snapshot;
 
-public class VmWorkTakeVolumeSnapshot extends VmWork {
+public class VmWorkTakeVolumeSnapshotBackup extends VmWork {
 
     private static final long serialVersionUID = 341816293003023823L;
 
@@ -30,12 +30,13 @@ public class VmWorkTakeVolumeSnapshot extends VmWork {
     private boolean quiesceVm;
     private Snapshot.LocationType locationType;
     private boolean asyncBackup;
+    private boolean backup;
 
     private List<Long> zoneIds;
 
-    public VmWorkTakeVolumeSnapshot(long userId, long accountId, long vmId, String handlerName,
+    public VmWorkTakeVolumeSnapshotBackup(long userId, long accountId, long vmId, String handlerName,
             Long volumeId, Long policyId, Long snapshotId, boolean quiesceVm, Snapshot.LocationType locationType,
-            boolean asyncBackup, List<Long> zoneIds) {
+            boolean asyncBackup, List<Long> zoneIds, boolean backup) {
         super(userId, accountId, vmId, handlerName);
         this.volumeId = volumeId;
         this.policyId = policyId;
@@ -44,6 +45,7 @@ public class VmWorkTakeVolumeSnapshot extends VmWork {
         this.locationType = locationType;
         this.asyncBackup = asyncBackup;
         this.zoneIds = zoneIds;
+        this.backup = backup;
     }
 
     public Long getVolumeId() {
@@ -72,4 +74,7 @@ public class VmWorkTakeVolumeSnapshot extends VmWork {
         return zoneIds;
     }
 
+    public boolean getBackup() {
+        return backup;
+    }
 }

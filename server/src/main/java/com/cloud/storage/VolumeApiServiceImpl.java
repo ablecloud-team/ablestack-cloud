@@ -229,6 +229,7 @@ import com.cloud.vm.VmWorkMigrateVolume;
 import com.cloud.vm.VmWorkResizeVolume;
 import com.cloud.vm.VmWorkSerializer;
 import com.cloud.vm.VmWorkTakeVolumeSnapshot;
+import com.cloud.vm.VmWorkTakeVolumeSnapshotBackup;
 import com.cloud.vm.dao.UserVmDao;
 import com.cloud.vm.dao.UserVmDetailsDao;
 import com.cloud.vm.dao.VMInstanceDao;
@@ -5389,7 +5390,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         VmWorkJobVO workJob = new VmWorkJobVO(context.getContextId());
 
         workJob.setDispatcher(VmWorkConstants.VM_WORK_JOB_DISPATCHER);
-        workJob.setCmd(VmWorkTakeVolumeSnapshot.class.getName());
+        workJob.setCmd(VmWorkTakeVolumeSnapshotBackup.class.getName());
 
         workJob.setAccountId(callingAccount.getId());
         workJob.setUserId(callingUser.getId());
@@ -5399,7 +5400,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         workJob.setRelated(AsyncJobExecutionContext.getOriginJobId());
 
         // save work context info (there are some duplications)
-        VmWorkTakeVolumeSnapshot workInfo = new VmWorkTakeVolumeSnapshot(callingUser.getId(), accountId != null ? accountId : callingAccount.getId(), vm.getId(),
+        VmWorkTakeVolumeSnapshotBackup workInfo = new VmWorkTakeVolumeSnapshotBackup(callingUser.getId(), accountId != null ? accountId : callingAccount.getId(), vm.getId(),
                 VolumeApiServiceImpl.VM_WORK_JOB_HANDLER, volumeId, policyId, snapshotId, quiesceVm, locationType, asyncBackup, zoneIds, backup);
         workJob.setCmdInfo(VmWorkSerializer.serialize(workInfo));
 
@@ -5452,6 +5453,14 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         Account account = _accountDao.findById(work.getAccountId());
         orchestrateTakeVolumeSnapshot(work.getVolumeId(), work.getPolicyId(), work.getSnapshotId(), account,
                 work.isQuiesceVm(), work.getLocationType(), work.isAsyncBackup(), work.getZoneIds());
+        return new Pair<JobInfo.Status, String>(JobInfo.Status.SUCCEEDED, _jobMgr.marshallResultObject(work.getSnapshotId()));
+    }
+
+    @ReflectionUse
+    private Pair<JobInfo.Status, String> orchestrateTakeVolumeSnapshot(VmWorkTakeVolumeSnapshotBackup work) throws Exception {
+        Account account = _accountDao.findById(work.getAccountId());
+        orchestrateTakeVolumeSnapshot(work.getVolumeId(), work.getPolicyId(), work.getSnapshotId(), account,
+                work.isQuiesceVm(), work.getLocationType(), work.isAsyncBackup(), work.getZoneIds(), work.getBackup());
         return new Pair<JobInfo.Status, String>(JobInfo.Status.SUCCEEDED, _jobMgr.marshallResultObject(work.getSnapshotId()));
     }
 
