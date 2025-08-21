@@ -68,6 +68,7 @@
                   :min="minMemory"
                   :max="maxMemory"
                   v-model:value="memoryInputValue"
+                  :step="1024"
                   @change="($event) => updateComputeMemory($event)"
                 />
               </a-col>
@@ -76,6 +77,7 @@
                   v-model:value="memoryInputValue"
                   :min="minMemory"
                   :max="maxMemory"
+                  :step="1024"
                   @change="($event) => updateComputeMemory($event)"
                 />
               </a-col>
@@ -133,11 +135,11 @@ export default {
     },
     minMemory: {
       type: Number,
-      default: 512
+      default: 1024
     },
     maxMemory: {
       type: Number,
-      default: 512
+      default: 1024
     },
     cpuNumberInputDecorator: {
       type: String,

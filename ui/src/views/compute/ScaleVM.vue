@@ -177,7 +177,7 @@ export default {
       if (this.resource.state === 'Running') {
         return this.resource.memory
       }
-      return this.selectedOffering?.serviceofferingdetails?.minmemory * 1 || 512
+      return this.selectedOffering?.serviceofferingdetails?.minmemory * 1 || 1024
     },
     getCPUSpeed () {
       this.getMinDiskSize()
@@ -187,7 +187,7 @@ export default {
       return this.resource.cpunumber || 1
     },
     getCurMemory () {
-      return this.resource.memory || 512
+      return this.resource.memory || 1024
     },
     getTemplate () {
       return new Promise((resolve, reject) => {

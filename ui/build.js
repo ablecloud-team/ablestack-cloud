@@ -1,25 +1,37 @@
+#!/usr/bin/env node
 const fs = require('fs')
-const fs2 = require('fs')
+const path = require('path')
 
-const jsonBuffer = fs.readFileSync('./public/config.json')
-const dataJson = jsonBuffer.toString()
-const data = JSON.parse(dataJson)
+const CONFIG_PATH = path.resolve(__dirname, './public/config.json')
+const VERSION_PATH = '/mnt/versionInfo.txt'
+const TMP_PATH = CONFIG_PATH + '.tmp'
 
-// var m = new Date()
-// var dateString = m.getFullYear() + ('0' + (m.getMonth() + 1)).slice(-2) + ('0' + m.getDate()).slice(-2) //+
-// ('0' + m.getHours()).slice(-2) +
-// ('0' + m.getMinutes()).slice(-2) +
-// ('0' + m.getSeconds()).slice(-2)
-
-try {
-  const version = fs2.readFileSync('/mnt/jenkins-work/versionInfo.txt', 'utf8')
-  data.buildVersion = version
-} catch (err) {
-  // console.log(err)
-  const version = 'Diplo-V4.5.0'
-  const m = new Date()
-  const date = m.getFullYear() + ('0' + (m.getMonth() + 1)).slice(-2) + ('0' + m.getDate()).slice(-2)
-  data.buildVersion = version + '-' + date
+function readJSON (file) {
+  return JSON.parse(fs.readFileSync(file, 'utf8'))
 }
 
-fs.writeFileSync('./public/config.json', JSON.stringify(data))
+function writeJSONAtomic (file, obj) {
+  const text = JSON.stringify(obj, null, 2) + '\n'
+  fs.writeFileSync(TMP_PATH, text, 'utf8')
+  fs.renameSync(TMP_PATH, file)
+}
+
+function getBuildVersion () {
+  try {
+    // 개행/공백 제거해서 그대로 사용
+    const v = fs.readFileSync(VERSION_PATH, 'utf8').trim()
+    if (v) return v
+  } catch (_) {}
+  // fallback: v4.5.0-YYYYMMDD
+  const base = 'v4.5.0'
+  const d = new Date()
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${base}-${yyyy}${mm}${dd}`
+}
+
+const data = readJSON(CONFIG_PATH)
+data.buildVersion = getBuildVersion()
+writeJSONAtomic(CONFIG_PATH, data)
+console.log('[OK] buildVersion:', data.buildVersion)
