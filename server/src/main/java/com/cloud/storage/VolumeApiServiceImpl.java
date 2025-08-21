@@ -3855,8 +3855,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     public Snapshot takeSnapshot(Long volumeId, Long policyId, Long snapshotId, Account account, boolean quiescevm,
          Snapshot.LocationType locationType, boolean asyncBackup, Map<String, String> tags, List<Long> zoneIds, boolean backup)
             throws ResourceAllocationException {
-        logger.info("3. VolumeApiServiceImpl::::::takeSnapshot");
-        logger.info(backup);
         final Snapshot snapshot = takeSnapshotInternal(volumeId, policyId, snapshotId, account, quiescevm, locationType, asyncBackup, zoneIds, backup);
         if (snapshot != null && MapUtils.isNotEmpty(tags)) {
             taggedResourceService.createTags(Collections.singletonList(snapshot.getUuid()), ResourceTag.ResourceObjectType.Snapshot, tags, null);
@@ -3964,8 +3962,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     private Snapshot takeSnapshotInternal(Long volumeId, Long policyId, Long snapshotId, Account account,
           boolean quiescevm, Snapshot.LocationType locationType, boolean asyncBackup, List<Long> zoneIds, boolean backup)
             throws ResourceAllocationException {
-        logger.info("4. VolumeApiServiceImpl::::::takeSnapshotInternal");
-        logger.info(backup);
         Account caller = CallContext.current().getCallingAccount();
         VolumeInfo volume = volFactory.getVolume(volumeId);
         if (volume == null) {
@@ -4009,13 +4005,11 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             // serialize VM operation
             AsyncJobExecutionContext jobContext = AsyncJobExecutionContext.getCurrentExecutionContext();
             if (jobContext.isJobDispatchedBy(VmWorkConstants.VM_WORK_JOB_DISPATCHER)) {
-                logger.info("4-1. VolumeApiServiceImpl::::::createPlaceHolderWork");
                 // avoid re-entrance
 
                 VmWorkJobVO placeHolder = null;
                 placeHolder = createPlaceHolderWork(vm.getId());
                 try {
-                    logger.info("4-2. VolumeApiServiceImpl::::::orchestrateTakeVolumeSnapshot");
                     return orchestrateTakeVolumeSnapshot(volumeId, policyId, snapshotId, account, quiescevm,
                             locationType, asyncBackup, zoneIds, backup);
                 } finally {
@@ -4023,7 +4017,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 }
 
             } else {
-                logger.info("4-3. VolumeApiServiceImpl::::::takeVolumeSnapshotThroughJobQueue");
                 Outcome<Snapshot> outcome = takeVolumeSnapshotThroughJobQueue(vm.getId(), volumeId, policyId,
                         snapshotId, account.getId(), quiescevm, locationType, asyncBackup, zoneIds, backup);
 
@@ -4049,7 +4042,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 return _snapshotDao.findById(snapshotId);
             }
         } else {
-            logger.info("4-4. VolumeApiServiceImpl::::::CreateSnapshotPayload");
             CreateSnapshotPayload payload = new CreateSnapshotPayload();
             payload.setSnapshotId(snapshotId);
             payload.setSnapshotPolicyId(policyId);
@@ -4104,8 +4096,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     private Snapshot orchestrateTakeVolumeSnapshot(Long volumeId, Long policyId, Long snapshotId, Account account,
         boolean quiescevm, Snapshot.LocationType locationType, boolean asyncBackup, List<Long> zoneIds, boolean backup)
             throws ResourceAllocationException {
-        logger.info("4-2. VolumeApiServiceImpl::::::orchestrateTakeVolumeSnapshot:::::::::");
-        logger.info(backup);
         VolumeInfo volume = volFactory.getVolume(volumeId);
 
         if (volume == null) {
@@ -4151,7 +4141,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_SNAPSHOT_CREATE, eventDescription = "allocating snapshot", create = true)
     public Snapshot allocSnapshot(Long volumeId, Long policyId, String snapshotName, Snapshot.LocationType locationType, List<Long> zoneIds) throws ResourceAllocationException {
-        logger.info("1. VolumeApiServiceImpl.java:::::::::::::::::::::::::");
         Account caller = CallContext.current().getCallingAccount();
 
         VolumeInfo volume = volFactory.getVolume(volumeId);
@@ -5379,8 +5368,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
     public Outcome<Snapshot> takeVolumeSnapshotThroughJobQueue(final Long vmId, final Long volumeId, final Long policyId, final Long snapshotId, final Long accountId, final boolean quiesceVm,
                                                                final Snapshot.LocationType locationType, final boolean asyncBackup, final List<Long> zoneIds, final boolean backup) {
-        logger.info("4-3. VolumeApiServiceImpl::::::takeVolumeSnapshotThroughJobQueue:::::::::");
-        logger.info(backup);
         final CallContext context = CallContext.current();
         final User callingUser = context.getCallingUser();
         final Account callingAccount = context.getCallingAccount();

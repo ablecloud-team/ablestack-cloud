@@ -1458,7 +1458,6 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
     @Override
     @DB
     public SnapshotInfo takeSnapshot(VolumeInfo volume) throws ResourceAllocationException {
-        logger.info("6. SnapshotManagerImpl::::::takeSnapshot");
         CreateSnapshotPayload payload = (CreateSnapshotPayload)volume.getpayload();
 
         updateSnapshotPayload(volume.getPoolId(), payload);
@@ -1466,7 +1465,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         Long snapshotId = payload.getSnapshotId();
         Account snapshotOwner = payload.getAccount();
         boolean backup = payload.getBackup();
-        logger.info(":::::::::::::::::::::::::::::backup : " + backup);
+        logger.info("::::::::::::::::::::::::::::::;::::::backup : " + backup);
         SnapshotInfo snapshot = snapshotFactory.getSnapshot(snapshotId, volume.getDataStore());
         snapshot.addPayload(payload);
         try {
@@ -1478,14 +1477,14 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
             SnapshotInfo snapshotOnPrimary = snapshotStrategy.takeSnapshot(snapshot);
             boolean backupSnapToSecondary = isBackupSnapshotToSecondaryForZone(snapshot.getDataCenterId());
-            if (backupSnapToSecondary) {
-                // 백업을 위한 API인 경우 2차 스토리지에 백업하지 않도록 추가
-                if (!backup) {
+            // 백업을 위한 API인 경우 2차 스토리지에 백업하지 않도록 추가
+            if (!backup) {
+                if (backupSnapToSecondary) {
                     backupSnapshotToSecondary(payload.getAsyncBackup(), snapshotStrategy, snapshotOnPrimary, payload.getZoneIds());
+                } else {
+                    logger.debug("skipping backup of snapshot [{}] to secondary due to configuration", snapshot);
+                    snapshotOnPrimary.markBackedUp();
                 }
-            } else {
-                logger.debug("skipping backup of snapshot [{}] to secondary due to configuration", snapshot);
-                snapshotOnPrimary.markBackedUp();
             }
 
             try {
