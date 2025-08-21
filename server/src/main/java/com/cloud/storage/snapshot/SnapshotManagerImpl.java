@@ -1479,13 +1479,17 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             boolean backupSnapToSecondary = isBackupSnapshotToSecondaryForZone(snapshot.getDataCenterId());
             // 백업을 위한 API인 경우 2차 스토리지에 백업하지 않도록 추가
             if (!backup) {
+                logger.info("::::::::::::::::::::::::::::::;::::::!backup");
                 if (backupSnapToSecondary) {
+                    logger.info("::::::::::::::::::::::::::::::;::::::in");
                     backupSnapshotToSecondary(payload.getAsyncBackup(), snapshotStrategy, snapshotOnPrimary, payload.getZoneIds());
                 } else {
+                    logger.info("::::::::::::::::::::::::::::::;::::::out");
                     logger.debug("skipping backup of snapshot [{}] to secondary due to configuration", snapshot);
                     snapshotOnPrimary.markBackedUp();
                 }
             }
+            logger.info("::::::::::::::::::::::::::::::;::::::backup");
 
             try {
                 postCreateSnapshot(volume.getId(), snapshotId, payload.getSnapshotPolicyId());
@@ -1720,7 +1724,6 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
     @Override
     public Snapshot allocSnapshot(Long volumeId, Long policyId, String snapshotName, Snapshot.LocationType locationType, Boolean isFromVmSnapshot, List<Long> zoneIds) throws ResourceAllocationException {
-        logger.info("2. SnapshotManagerImpl.java:::::::::::::::::::::::::");
         Account caller = CallContext.current().getCallingAccount();
         VolumeInfo volume = volFactory.getVolume(volumeId);
         supportedByHypervisor(volume, isFromVmSnapshot);
