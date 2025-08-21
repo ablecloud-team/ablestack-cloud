@@ -486,6 +486,7 @@ public class DefaultSnapshotStrategy extends SnapshotStrategyBase {
     @Override
     @DB
     public SnapshotInfo takeSnapshot(SnapshotInfo snapshot) {
+        logger.info("DefaultSnapshotStrategy.java:::::::::::::::::::::::");
         SnapshotInfo snapshotOnPrimary = null;
         Object payload = snapshot.getPayload();
         CreateSnapshotPayload createSnapshotPayload = null;

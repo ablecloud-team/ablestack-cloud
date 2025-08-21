@@ -351,6 +351,7 @@ public class AblestackPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriv
 
     @Override
     public void takeSnapshot(SnapshotInfo snapshot, AsyncCompletionCallback<CreateCmdResult> callback) {
+        logger.info("AblestackPrimaryDataStoreDriverImpl.java:::::::::::::::::::::::");
         CreateCmdResult result = null;
         try {
             SnapshotObjectTO snapshotTO = (SnapshotObjectTO) snapshot.getTO();

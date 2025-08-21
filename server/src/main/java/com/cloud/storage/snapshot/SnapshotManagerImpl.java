@@ -1458,6 +1458,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
     @Override
     @DB
     public SnapshotInfo takeSnapshot(VolumeInfo volume) throws ResourceAllocationException {
+        logger.info("6. SnapshotManagerImpl::::::takeSnapshot");
         CreateSnapshotPayload payload = (CreateSnapshotPayload)volume.getpayload();
 
         updateSnapshotPayload(volume.getPoolId(), payload);
@@ -1720,6 +1721,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
     @Override
     public Snapshot allocSnapshot(Long volumeId, Long policyId, String snapshotName, Snapshot.LocationType locationType, Boolean isFromVmSnapshot, List<Long> zoneIds) throws ResourceAllocationException {
+        logger.info("2. SnapshotManagerImpl.java:::::::::::::::::::::::::");
         Account caller = CallContext.current().getCallingAccount();
         VolumeInfo volume = volFactory.getVolume(volumeId);
         supportedByHypervisor(volume, isFromVmSnapshot);
