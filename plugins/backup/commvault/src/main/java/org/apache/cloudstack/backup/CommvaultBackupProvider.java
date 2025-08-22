@@ -539,7 +539,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volumeUuid, backup));
         String result = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
         if (result != null) {
-            // 스냅샷 복원 mold-API 호출 
+            // 스냅샷 복원 mold-API 호출
             return null;
         } else {
             return null;
