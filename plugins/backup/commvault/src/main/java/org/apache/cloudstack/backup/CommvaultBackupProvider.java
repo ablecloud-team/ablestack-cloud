@@ -26,7 +26,7 @@ import com.cloud.host.HostVO;
 import com.cloud.host.Status;
 import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor;
-import com.cloud.storage.StoragePoolHostVO;
+// import com.cloud.storage.StoragePoolHostVO;
 import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
@@ -41,7 +41,7 @@ import com.cloud.utils.Ternary;
 import com.cloud.utils.component.AdapterBase;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
-import com.cloud.vm.VMInstanceVO;
+// import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreVO;
@@ -75,7 +75,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Date;
 import java.util.Objects;
-import java.util.UUID;
+// import java.util.UUID;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.StringTokenizer;
@@ -539,7 +539,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volumeUuid, backup));
         String result = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
         if (result != null) {
-            // 스냅샷 복원 mold-API 호출     
+            // 스냅샷 복원 mold-API 호출 
             return null;
         } else {
             return null;

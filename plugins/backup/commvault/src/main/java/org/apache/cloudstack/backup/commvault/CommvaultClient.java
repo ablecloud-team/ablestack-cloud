@@ -1129,7 +1129,7 @@ public class CommvaultClient {
                     + "\"queryId\":\"dataQuery\""
                 + "}],"
                 + "\"paths\":%s"
-                + "}", 
+                + "}",
                 Integer.parseInt(subclientId), Integer.parseInt(applicationId), Integer.parseInt(instanceId),
                 Integer.parseInt(clientId), clientName, Integer.parseInt(backupsetId), pathsJson
             );
@@ -1312,7 +1312,7 @@ public class CommvaultClient {
                             + "}"
                         + "}"
                     + "}]"
-                + "}}", 
+                + "}}",
                 Integer.parseInt(subclientId), displayName, backupsetGUID, Integer.parseInt(clientId), Integer.parseInt(companyId),
                 companyName, instanceName, appName, Integer.parseInt(applicationId), clientName, Integer.parseInt(backupsetId),
                 Integer.parseInt(instanceId), backupsetName, Integer.parseInt(commCellId), Integer.parseInt(backupsetId), Integer.parseInt(clientId),
