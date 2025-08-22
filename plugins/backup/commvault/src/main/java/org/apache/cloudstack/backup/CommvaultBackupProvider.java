@@ -572,7 +572,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         //     throw new CloudRuntimeException("Unable to craft restored volume due to: "+e);
         // }
         //복원 후 패스변경
-        return null;
     }
 
     @Override
