@@ -1231,7 +1231,7 @@ public class CommvaultClient {
             connection.setDoOutput(true);
             String jsonBody = String.format(
                 "{"
-                +  "\"taskInfo\":{"
+                + "\"taskInfo\":{"
                     + "\"task\":{"
                         + "\"taskType\":\"IMMEDIATE\","
                         + "\"initiatedFrom\":\"GUI\""
