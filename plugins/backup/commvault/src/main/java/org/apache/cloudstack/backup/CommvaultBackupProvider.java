@@ -426,7 +426,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         final CommvaultClient client = getClient(vm.getDataCenterId());
         final String externalId = backup.getExternalId();
         String jobId = externalId.substring(externalId.lastIndexOf(',') + 1).trim();
-        String path = externalId.substring(0, str.lastIndexOf(','));
+        String path = externalId.substring(0, externalId.lastIndexOf(','));
         String jobDetails = client.getJobDetails(jobId);
         if (jobDetails != null) {
             throw new CloudRuntimeException("Failed to get job details commvault api");
@@ -518,7 +518,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         final Long zoneId = backup.getZoneId();
         final CommvaultClient client = getClient(zoneId);
         String jobId = externalId.substring(externalId.lastIndexOf(',') + 1).trim();
-        String path = externalId.substring(0, str.lastIndexOf(','));
+        String path = externalId.substring(0, externalId.lastIndexOf(','));
         String jobDetails = client.getJobDetails(jobId);
         JSONObject jsonObject = new JSONObject(jobDetails);
         String endTime = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
@@ -806,7 +806,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         final Long zoneId = backup.getZoneId();
         final String externalId = backup.getExternalId();
         String jobId = externalId.substring(externalId.lastIndexOf(',') + 1).trim();
-        String path = externalId.substring(0, str.lastIndexOf(','));
+        String path = externalId.substring(0, externalId.lastIndexOf(','));
         final CommvaultClient client = getClient(zoneId);
         String jobDetails = client.getJobDetails(jobId);
         if (jobDetails != null) {

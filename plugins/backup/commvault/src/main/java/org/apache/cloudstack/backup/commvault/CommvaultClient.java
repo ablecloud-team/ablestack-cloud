@@ -1230,9 +1230,9 @@ public class CommvaultClient {
             connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
             String jsonBody = String.format(
-                "{" +
-                    "\"taskInfo\":{" +
-                        "\"task\":{" +
+                "{" 
+                +  "\"taskInfo\":{" 
+                    + "\"task\":{" 
                         + "\"taskType\":\"IMMEDIATE\","
                         + "\"initiatedFrom\":\"GUI\""
                     + "},"
@@ -1361,7 +1361,7 @@ public class CommvaultClient {
         return null;
     }
 
-    private String buildPathsJson(List<String> pathsString) {
+    private String buildPathsJson(String pathsString) {
         if (pathsString == null || pathsString.trim().isEmpty()) {
             return "[]";
         }
