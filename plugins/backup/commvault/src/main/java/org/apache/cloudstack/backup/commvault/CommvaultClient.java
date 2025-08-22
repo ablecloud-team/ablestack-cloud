@@ -1094,9 +1094,101 @@ public class CommvaultClient {
         return null;
     }
 
+    //
+    // POST https://10.10.255.56/commandcenter/api/doBrowse
+    // commvault의 브라우저단에서 백업 목록에서 조회되지 않도록 삭제하는 API
+    public boolean deleteBackup(String subclientId, String applicationId, String instanceId, String clientId, String clientName, String backupsetId, String path) {
+        LOG.info("deleteBackup REST API 호출");
+        HttpURLConnection connection = null;
+        String postUrl = apiURI.toString() + "/doBrowse";
+        String pathsJson = buildPathsJson(path);
+        LOG.info(pathsJson);
+        try {
+            URL url = new URL(postUrl);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Authorization", accessToken);
+            connection.setDoOutput(true);
+            String jsonBody = String.format("{"
+                + "\"opType\":\"DoEndUserErase\","
+                + "\"entity\":{"
+                    + "\"subclientId\":%d,"
+                    + "\"applicationId\":%d,"
+                    + "\"instanceId\":%d,"
+                    + "\"clientId\":%d,"
+                    + "\"clientName\":\"%s\","
+                    + "\"backupsetId\":%d"
+                + "},"
+                + "\"advOptions\":{"
+                    + "\"copyPrecedence\":0"
+                + "},"
+                + "\"queries\":[{"
+                    + "\"type\":\"DATA\","
+                    + "\"queryId\":\"dataQuery\""
+                + "}],"
+                + "\"paths\":%s"
+                + "}", 
+                Integer.parseInt(subclientId), Integer.parseInt(applicationId), Integer.parseInt(instanceId),
+                Integer.parseInt(clientId), clientName, Integer.parseInt(backupsetId), pathsJson
+            );
+            LOG.info(jsonBody);
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+                os.flush();
+            }
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                StringBuilder response = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                }
+                JsonParser jParser = new JsonParser();
+                JsonObject jObject = (JsonObject)jParser.parse(response.toString());
+                LOG.info(response.toString());
+                if (jObject.has("errorCode")) {
+                    LOG.info("errorCode");
+                    return false;
+                }
+                if (jObject.has("browseResponses")) {
+                    LOG.info("browseResponses");
+                    JsonArray browseResponses = jObject.getAsJsonArray("browseResponses");
+                    for (int i = 0; i < browseResponses.size(); i++) {
+                        JsonObject browseResponse = browseResponses.get(i).getAsJsonObject();
+                        if (browseResponse.has("respType")) {
+                            int respType = browseResponse.get("respType").getAsInt();
+                            if (respType == 1) {
+                                return false;
+                            } else if (respType == 5) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            } else {
+                return false;
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to request updateBackupSet commvault api due to:", e);
+            checkResponseTimeOut(e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+        return false;
+    }
+
+    //
     // https://10.10.255.56/commandcenter/api/backupset?clientName=<hostName>
     // 호스트의 vm backupset 조회하는 API로 없는 경우 null, 있는 경우 backupsetGUID 반환
-    public String getVmBackupSetGuid(String hostName, String vmName) {
+    public String getVmBackupSetGuid(String hostName, String backupsetName) {
         try {
             LOG.info("getVmBackupSetGuid REST API 호출");
             final HttpResponse response = get("/backupset?clientName=" + hostName);
@@ -1105,10 +1197,12 @@ public class CommvaultClient {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
             JsonNode backupSets = root.get("backupsetProperties");
+            LOG.info(backupSets);
             if (backupSets != null && backupSets.isArray()) {
                 for (JsonNode item : backupSets) {
                     JsonNode entity = item.get("backupSetEntity");
-                    if (entity != null && vmName.equals(entity.get("backupsetName").asText())) {
+                    LOG.info(entity);
+                    if (entity != null && backupsetName.equals(entity.get("backupsetName").asText())) {
                         return entity.get("backupsetGUID").asText();
                     }
                 }
@@ -1120,9 +1214,10 @@ public class CommvaultClient {
         return null;
     }
 
+    //
     // https://10.10.255.56/commandcenter/api/createtask
     // 복원 실행 API
-    public String restoreFullVM(String endTime, String subclientId, String displayName, String backupsetGUID, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String backupsetName, String commCellId, String path) {
+    public String restoreFullVM(String subclientId, String displayName, String backupsetGUID, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String backupsetName, String commCellId, String endTime, String path) {
         LOG.info("restoreFullVM REST API 호출");
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/createtask";
@@ -1134,21 +1229,102 @@ public class CommvaultClient {
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Authorization", accessToken);
             connection.setDoOutput(true);
-            String jsonBody = String.format("{\"taskInfo\":{\"task\":{\"taskType\":\"IMMEDIATE\",\"initiatedFrom\":\"GUI\"},\"associations\":[{\"subclientId\":%d,\"displayName\":\"%s\",\"backupsetGUID\":\"%s\",\"clientId\":%d,"
-            + "\"entityInfo\":{\"companyId\":%d,\"companyName\":\"%s\"},\"instanceName\":\"%s\",\"appName\":\"%s\",\"applicationId\":%d,\"clientName\":\"%s\",\"flags\":{},\"backupsetId\":%d,\"instanceId\":%d,\"backupsetName\":\"%s\","
-            + "\"_type_\":\"SUBCLIENT_ENTITY\"}],\"subTasks\":[{\"subTask\":{\"subTaskType\":\"RESTORE\",\"operationType\":\"RESTORE\"},\"options\":{\"restoreOptions\":{\"browseOption\":{\"commCellId\":%d,\"backupset\":{\"backupsetId\":%d,\"clientId\":%d},"
-            + "\"timeRange\":{\"toTime\":%s},\"browseJobCommCellId\":%d},\"destination\":{\"destClient\":{\"clientId\":%d,\"clientName\":\"%s\"},\"destAppId\":%d,\"inPlace\":true,\"destinationInstance\":{\"applicationId\":0},\"noOfStreams\":10},\"restoreACLsType\":\"ACL_DATA\",\"qrOption\":{\"destAppTypeId\":%d},\"volumeRstOption\":{\"volumeLeveRestore\":false},"
-            + "\"virtualServerRstOption\":{},\"fileOption\":{\"sourceItem\":[\"%s\"],\"fsCloneOptions\":{\"cloneMountPath\":\"\"}},\"impersonation\":{\"user\":{}},\"commonOptions\":{\"overwriteFiles\":true,\"unconditionalOverwrite\":false,\"stripLevelType\":\"PRESERVE_LEVEL\",\"preserveLevel\":1,\"isFromBrowseBackup\":true}}}}]}}",
-            subclientId, displayName, backupsetGUID, clientId, companyId,
-            companyName, instanceName, appName, applicationId, clientName,
-            backupsetId, instanceId, backupsetName, commCellId, backupsetId, clientId,
-            endTime, commCellId, clientId, clientName, applicationId, applicationId, path);
+            String jsonBody = String.format(
+                "{" +
+                    "\"taskInfo\":{" +
+                        "\"task\":{" +
+                        + "\"taskType\":\"IMMEDIATE\","
+                        + "\"initiatedFrom\":\"GUI\""
+                    + "},"
+                    + "\"associations\":[{"
+                        + "\"subclientId\":%d,"
+                        + "\"displayName\":\"%s\","
+                        + "\"backupsetGUID\":\"%s\","
+                        + "\"clientId\":%d,"
+                        + "\"entityInfo\":{"
+                            + "\"companyId\":%d,"
+                            + "\"companyName\":\"%s\""
+                        + "},"
+                        + "\"instanceName\":\"%s\","
+                        + "\"appName\":\"%s\","
+                        + "\"applicationId\":%d,"
+                        + "\"clientName\":\"%s\","
+                        + "\"flags\":{},"
+                        + "\"backupsetId\":%d,"
+                        + "\"instanceId\":%d,"
+                        + "\"backupsetName\":\"%s\","
+                        + "\"_type_\":\"SUBCLIENT_ENTITY\""
+                    + "}],"
+                    + "\"subTasks\":[{"
+                        + "\"subTask\":{"
+                            + "\"subTaskType\":\"RESTORE\","
+                            + "\"operationType\":\"RESTORE\""
+                        + "},"
+                        + "\"options\":{"
+                            + "\"restoreOptions\":{"
+                                + "\"browseOption\":{"
+                                    + "\"commCellId\":%d,"
+                                    + "\"backupset\":{"
+                                        + "\"backupsetId\":%d,"
+                                        + "\"clientId\":%d"
+                                    + "},"
+                                    + "\"timeRange\":{"
+                                        + "\"toTime\":%s"
+                                    + "},"
+                                    + "\"browseJobCommCellId\":%d"
+                                + "},"
+                                + "\"destination\":{"
+                                    + "\"destClient\":{"
+                                        + "\"clientId\":%d,"
+                                        + "\"clientName\":\"%s\""
+                                    + "},"
+                                    + "\"destAppId\":%d,"
+                                    + "\"inPlace\":true,"
+                                    + "\"destinationInstance\":{"
+                                        + "\"applicationId\":0"
+                                    + "},"
+                                    + "\"noOfStreams\":10"
+                                + "},"
+                                + "\"restoreACLsType\":\"ACL_DATA\","
+                                + "\"qrOption\":{"
+                                    + "\"destAppTypeId\":%d"
+                                + "},"
+                                + "\"volumeRstOption\":{"
+                                    + "\"volumeLeveRestore\":false"
+                                + "},"
+                                + "\"virtualServerRstOption\":{},"
+                                + "\"fileOption\":{"
+                                    + "\"sourceItem\":[\"%s\"],"
+                                    + "\"fsCloneOptions\":{"
+                                        + "\"cloneMountPath\":\"\""
+                                    + "}"
+                                + "},"
+                                + "\"impersonation\":{"
+                                    + "\"user\":{}"
+                                + "},"
+                                + "\"commonOptions\":{"
+                                    + "\"overwriteFiles\":true,"
+                                    + "\"unconditionalOverwrite\":false,"
+                                    + "\"stripLevelType\":\"PRESERVE_LEVEL\","
+                                    + "\"preserveLevel\":1,"
+                                    + "\"isFromBrowseBackup\":true"
+                                + "}"
+                            + "}"
+                        + "}"
+                    + "}]"
+                + "}}", 
+                Integer.parseInt(subclientId), displayName, backupsetGUID, Integer.parseInt(clientId), Integer.parseInt(companyId),
+                companyName, instanceName, appName, Integer.parseInt(applicationId), clientName, Integer.parseInt(backupsetId),
+                Integer.parseInt(instanceId), backupsetName, Integer.parseInt(commCellId), Integer.parseInt(backupsetId), Integer.parseInt(clientId),
+                endTime, Integer.parseInt(commCellId), Integer.parseInt(clientId), clientName, Integer.parseInt(applicationId), Integer.parseInt(applicationId), path);
+            LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
                 os.flush();
             }
             int responseCode = connection.getResponseCode();
+            LOG.info(responseCode);
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 StringBuilder response = new StringBuilder();
                 try (BufferedReader reader = new BufferedReader(
@@ -1174,53 +1350,6 @@ public class CommvaultClient {
         return null;
     }
 
-    // https://10.10.255.56/commandcenter/api/v4/plan/backupdestination/joboperations
-    // 백업 삭제
-    public boolean deleteBackupForVM(String jobId, String commcellId, String copyId, String storagePolicyId) {
-        LOG.info("deleteBackupForVM REST API 호출");
-        HttpURLConnection connection = null;
-        String postUrl = apiURI.toString() + "/v4/plan/backupdestination/joboperations";
-        try {
-            URL url = new URL(postUrl);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("Authorization", accessToken);
-            connection.setDoOutput(true);
-            String jsonBody = "{"
-                                + "\"opType\": \"DELETE\","
-                                + "\"loadDependentJobs\": \"true\","
-                                + "\"jobIds\": ["
-                                +         jobId
-                                + "],"
-                                + "\"commcellId\": " + commcellId + ","
-                                + "\"copyId\": " + copyId + ","
-                                + "\"storagePolicyId\": " + storagePolicyId + ","
-                                + "\"loadArchiverJobs\": \"true\""
-                            + "}";
-            try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
-                os.write(input, 0, input.length);
-                os.flush();
-            }
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (final IOException e) {
-            LOG.error("Failed to request deleteBackupForVM commvault api due to:", e);
-            checkResponseTimeOut(e);
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-        return false;
-    }
-
     public static String extractJobIdsFromJsonString(String jsonString) {
         Pattern pattern = Pattern.compile("\"jobIds\"\\s*:\\s*\\[(.*?)\\]");
         Matcher matcher = pattern.matcher(jsonString);
@@ -1232,4 +1361,22 @@ public class CommvaultClient {
         return null;
     }
 
+    private String buildPathsJson(List<String> pathsString) {
+        if (pathsString == null || pathsString.trim().isEmpty()) {
+            return "[]";
+        }
+        String[] pathArray = pathsString.split(",");
+        StringBuilder pathsJson = new StringBuilder("[");
+        for (int i = 0; i < pathArray.length; i++) {
+            String path = pathArray[i].trim();
+            if (!path.isEmpty()) {
+                pathsJson.append("{\"path\":\"").append(path).append("\"}");
+                if (i < pathArray.length - 1) {
+                    pathsJson.append(",");
+                }
+            }
+        }
+        pathsJson.append("]");
+        return pathsBuilder.toString();
+    }
 }

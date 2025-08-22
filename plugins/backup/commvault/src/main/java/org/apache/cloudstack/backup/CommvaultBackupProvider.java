@@ -350,8 +350,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
             for (final HostVO host : Hosts) {
                 String backupSetId = client.getDefaultBackupSetId(host.getName());
-                LOG.info("backupSetId::::::::::::::::::::");
-                LOG.info(backupSetId);
                 if (backupSetId != null) {
                     if (!client.setBackupSet(path, planType, planName, planSubtype, planId, companyId, backupSetId)) {
                         throw new CloudRuntimeException("Failed to setting backup plan for client commvault api");
@@ -427,10 +425,12 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         final CommvaultClient client = getClient(vm.getDataCenterId());
         final String externalId = backup.getExternalId();
-        String[] external = externalId.split(",");
-        String path = external[0];
-        String jobId = external[1];
+        String jobId = externalId.substring(externalId.lastIndexOf(',') + 1).trim();
+        String path = externalId.substring(0, str.lastIndexOf(','));
         String jobDetails = client.getJobDetails(jobId);
+        if (jobDetails != null) {
+            throw new CloudRuntimeException("Failed to get job details commvault api");
+        }
         JSONObject jsonObject = new JSONObject(jobDetails);
         String endTime = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
         String subclientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("subclientId"));
@@ -447,27 +447,59 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String backupsetName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetName"));
         String commCellId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").get("commCellId"));
         String backupsetGUID = client.getVmBackupSetGuid(clientName, backupsetName);
+        LOG.info(backupsetGUID);
+        if (backupsetGUID != null) {
+            throw new CloudRuntimeException("Failed to get vm backup set guid commvault api");
+        }
         LOG.info(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
-        String jobId2 = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
+        LOG.info(endTime);
+        LOG.info(subclientId);
+        LOG.info(displayName);
+        LOG.info(clientId);
+        LOG.info(companyId);
+        LOG.info(companyName);
+        LOG.info(instanceName);
+        LOG.info(appName);
+        LOG.info(applicationId);
+        LOG.info(clientName);
+        LOG.info(backupsetId);
+        LOG.info(instanceId);
+        LOG.info(backupsetName);
+        LOG.info(commCellId);
+        LOG.info(backupsetGUID);
+        // 복원 실행
+        String jobId2 = client.restoreFullVM(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, path);
+        LOG.info("jobId2::::::::::::::::::::::::::::::::::");
+        LOG.info(jobId2);
         if (jobId2 != null) {
-            //job 진행 체크 추가 필요
-            String[] properties = getServerProperties();
-            ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
-            String moldUrl = properties[1] + "://" + msHost.getServiceIP() + ":" + properties[0] + "/client/api/";
-            String moldMethod = "GET";
-            String moldCommand = "revertSnapshot";
-            UserAccount user = accountService.getActiveUserAccount("admin", 1L);
-            String apiKey = user.getApiKey();
-            String secretKey = user.getSecretKey();
-            String snapshotId = backup.getSnapshotId();
-            if (snapshotId != null || !snapshotId.isEmpty()) {
-                String[] snapshots = snapshotId.split(",");
-                for (int i=0; i < snapshots.length; i++) {
-                    Map<String, String> snapshotParams = new HashMap<>();
-                    snapshotParams.put("id", snapshots[i]);
-                    moldRevertSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                    //결과에 따른 처리 추가 필요
-                }
+            String jobStatus = client.getJobStatus(jobId2);
+            if (jobStatus.equalsIgnoreCase("Completed")) {
+                LOG.info("restore success::::::::::::::::::::::::");
+                String job2Details = client.getJobDetails(jobId2);
+                JSONObject jsonObject2 = new JSONObject(job2Details);
+                // String[] properties = getServerProperties();
+                // ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
+                // String moldUrl = properties[1] + "://" + msHost.getServiceIP() + ":" + properties[0] + "/client/api/";
+                // String moldMethod = "GET";
+                // String moldCommand = "revertSnapshot";
+                // UserAccount user = accountService.getActiveUserAccount("admin", 1L);
+                // String apiKey = user.getApiKey();
+                // String secretKey = user.getSecretKey();
+                // String snapshotId = backup.getSnapshotId();
+                // if (snapshotId != null || !snapshotId.isEmpty()) {
+                //     String[] snapshots = snapshotId.split(",");
+                //     for (int i=0; i < snapshots.length; i++) {
+                //         Map<String, String> snapshotParams = new HashMap<>();
+                //         snapshotParams.put("id", snapshots[i]);
+                //         LOG.info(snapshotParams);
+                //         moldRevertSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+                //         //결과에 따른 처리 추가 필요
+                //     }
+                // }
+            } else {
+                // 복원 실패
+                LOG.error("restoreBackup commvault api resulted in " + jobStatus);
+                return false;
             }
         }
         return false;
@@ -485,9 +517,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         final String externalId = backup.getExternalId();
         final Long zoneId = backup.getZoneId();
         final CommvaultClient client = getClient(zoneId);
-        String[] external = externalId.split(",");
-        String path = external[0];
-        String jobId = external[1];
+        String jobId = externalId.substring(externalId.lastIndexOf(',') + 1).trim();
+        String path = externalId.substring(0, str.lastIndexOf(','));
         String jobDetails = client.getJobDetails(jobId);
         JSONObject jsonObject = new JSONObject(jobDetails);
         String endTime = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
@@ -508,54 +539,38 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volumeUuid, backup));
         String result = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
         if (result != null) {
-            String[] properties = getServerProperties();
-            ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
-            String moldUrl = properties[1] + "://" + msHost.getServiceIP() + ":" + properties[0] + "/client/api/";
-            String moldMethod = "GET";
-            String moldCommand = "revertSnapshot";
-            UserAccount user = accountService.getActiveUserAccount("admin", 1L);
-            String apiKey = user.getApiKey();
-            String secretKey = user.getSecretKey();
-            String snapshotId = backup.getSnapshotId();
-            if (snapshotId != null || !snapshotId.isEmpty()) {
-                String[] snapshots = snapshotId.split(",");
-                for (int i=0; i < snapshots.length; i++) {
-                    Map<String, String> snapshotParams = new HashMap<>();
-                    snapshotParams.put("id", snapshots[i]);
-                    moldRevertSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                    //결과에 따른 처리 추가 필요
-                }
-            }
+            // 스냅샷 복원 mold-API 호출     
+            return null;
         } else {
             return null;
         }
-        VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
-        StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
-        Long restoredVolumeDiskSize = 0L;
-        // Find volume size  from backup vols
-        for (Backup.VolumeInfo VMVolToRestore : backupSourceVm.getBackupVolumeList()) {
-            if (VMVolToRestore.getUuid().equals(volumeUuid))
-                restoredVolumeDiskSize = (VMVolToRestore.getSize());
-        }
-        VolumeVO restoredVolume = new VolumeVO(Volume.Type.DATADISK, null, backup.getZoneId(),
-                backup.getDomainId(), backup.getAccountId(), 0, null,
-                backup.getSize(), null, null, null);
-        restoredVolume.setName("RV-"+volume.getName());
-        restoredVolume.setProvisioningType(volume.getProvisioningType());
-        restoredVolume.setUpdated(new Date());
-        restoredVolume.setUuid(UUID.randomUUID().toString());
-        restoredVolume.setRemoved(null);
-        restoredVolume.setDisplayVolume(true);
-        restoredVolume.setPoolId(dataStore.getPoolId());
-        restoredVolume.setPath(restoredVolume.getUuid());
-        restoredVolume.setState(Volume.State.Copying);
-        restoredVolume.setSize(restoredVolumeDiskSize);
-        restoredVolume.setDiskOfferingId(volume.getDiskOfferingId());
-        try {
-            volumeDao.persist(restoredVolume);
-        } catch (Exception e) {
-            throw new CloudRuntimeException("Unable to craft restored volume due to: "+e);
-        }
+        // VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
+        // StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
+        // Long restoredVolumeDiskSize = 0L;
+        // // Find volume size  from backup vols
+        // for (Backup.VolumeInfo VMVolToRestore : backupSourceVm.getBackupVolumeList()) {
+        //     if (VMVolToRestore.getUuid().equals(volumeUuid))
+        //         restoredVolumeDiskSize = (VMVolToRestore.getSize());
+        // }
+        // VolumeVO restoredVolume = new VolumeVO(Volume.Type.DATADISK, null, backup.getZoneId(),
+        //         backup.getDomainId(), backup.getAccountId(), 0, null,
+        //         backup.getSize(), null, null, null);
+        // restoredVolume.setName("RV-"+volume.getName());
+        // restoredVolume.setProvisioningType(volume.getProvisioningType());
+        // restoredVolume.setUpdated(new Date());
+        // restoredVolume.setUuid(UUID.randomUUID().toString());
+        // restoredVolume.setRemoved(null);
+        // restoredVolume.setDisplayVolume(true);
+        // restoredVolume.setPoolId(dataStore.getPoolId());
+        // restoredVolume.setPath(restoredVolume.getUuid());
+        // restoredVolume.setState(Volume.State.Copying);
+        // restoredVolume.setSize(restoredVolumeDiskSize);
+        // restoredVolume.setDiskOfferingId(volume.getDiskOfferingId());
+        // try {
+        //     volumeDao.persist(restoredVolume);
+        // } catch (Exception e) {
+        //     throw new CloudRuntimeException("Unable to craft restored volume due to: "+e);
+        // }
         //복원 후 패스변경
         return null;
     }
@@ -790,22 +805,28 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     public boolean deleteBackup(Backup backup, boolean forced) {
         final Long zoneId = backup.getZoneId();
         final String externalId = backup.getExternalId();
-        String[] external = externalId.split(",");
-        String path = external[0];
-        String jobId = external[1];
+        String jobId = externalId.substring(externalId.lastIndexOf(',') + 1).trim();
+        String path = externalId.substring(0, str.lastIndexOf(','));
         final CommvaultClient client = getClient(zoneId);
         String jobDetails = client.getJobDetails(jobId);
-        JSONObject jsonObject = new JSONObject(jobDetails);
-        String commcellId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").get("commCellId"));
-        String storagePolicyId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("storagePolicy").get("storagePolicyId"));
-        // boolean copyId = client.getStoragePolicyDetails("planId", storagePolicyId, "");
-        // if (client.deleteBackupForVM(jobId, commcellId, copyId, storagePolicyId)) {
-        //     LOG.debug("Commvault successfully deleted backup with id " + externalId);
-        //     return true;
-        // } else {
-        //     LOG.debug("There was an error removing the backup with id " + externalId + " from Commvault");
-        // }
-        return false;
+        if (jobDetails != null) {
+            JSONObject jsonObject = new JSONObject(jobDetails);
+            String subclientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("subclientId"));
+            String applicationId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("applicationId"));
+            String instanceId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("instanceId"));
+            String clientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientId"));
+            String clientName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientName"));
+            String backupsetId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetId"));
+            LOG.info(subclientId);
+            LOG.info(applicationId);
+            LOG.info(instanceId);
+            LOG.info(clientId);
+            LOG.info(clientName);
+            LOG.info(backupsetId);
+            return client.deleteBackup(subclientId, applicationId, applicationId, clientId, clientName, backupsetId, path);
+        } else {
+            throw new CloudRuntimeException("Failed to request backup job detail commvault api");
+        }
     }
 
     @Override
@@ -992,6 +1013,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             }
             JSONObject jObject = XML.toJSONObject(sb.toString());
             JSONObject response = (JSONObject) jObject.get("revertsnapshotresponse");
+            LOG.info(response.toString());
             return response.toString();
         } catch (Exception e) {
             LOG.error(String.format("Mold API endpoint not available"), e);
@@ -1035,8 +1057,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             }
             JSONObject jObject = XML.toJSONObject(sb.toString());
             JSONObject response = (JSONObject) jObject.get("deletesnapshotresponse");
-            LOG.info("스냅샷 삭제 response::::::::::::::::");
-            LOG.info(response.toString());
             return response.toString();
         } catch (Exception e) {
             LOG.error(String.format("Mold API endpoint not available"), e);
