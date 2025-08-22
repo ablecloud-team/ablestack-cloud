@@ -1377,6 +1377,6 @@ public class CommvaultClient {
             }
         }
         pathsJson.append("]");
-        return pathsBuilder.toString();
+        return pathsJson.toString();
     }
 }
