@@ -445,7 +445,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String commCellId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").get("commCellId"));
         String backupsetGUID = client.getVmBackupSetGuid(clientName, backupsetName);
         LOG.info(backupsetGUID);
-        if (backupsetGUID != null) {
+        if (backupsetGUID == null) {
             throw new CloudRuntimeException("Failed to get vm backup set guid commvault api");
         }
         LOG.info(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
@@ -536,6 +536,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String backupsetName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetName"));
         String commCellId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").get("commCellId"));
         String backupsetGUID = client.getVmBackupSetGuid(clientName, backupsetName);
+        if (backupsetGUID == null) {
+            throw new CloudRuntimeException("Failed to get vm backup set guid commvault api");
+        }
         LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volumeUuid, backup));
         String result = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
         if (result != null) {
