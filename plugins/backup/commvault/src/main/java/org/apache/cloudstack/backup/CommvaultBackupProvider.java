@@ -444,55 +444,77 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String backupsetName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetName"));
         String commCellId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("commcell").get("commCellId"));
         String backupsetGUID = client.getVmBackupSetGuid(clientName, backupsetName);
-        LOG.info(backupsetGUID);
         if (backupsetGUID == null) {
             throw new CloudRuntimeException("Failed to get vm backup set guid commvault api");
         }
         LOG.info(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
-        LOG.info(endTime);
-        LOG.info(subclientId);
-        LOG.info(displayName);
-        LOG.info(clientId);
-        LOG.info(companyId);
-        LOG.info(companyName);
-        LOG.info(instanceName);
-        LOG.info(appName);
-        LOG.info(applicationId);
-        LOG.info(clientName);
-        LOG.info(backupsetId);
-        LOG.info(instanceId);
-        LOG.info(backupsetName);
-        LOG.info(commCellId);
-        LOG.info(backupsetGUID);
         // 복원 실행
         String jobId2 = client.restoreFullVM(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, path);
-        LOG.info("jobId2::::::::::::::::::::::::::::::::::");
-        LOG.info(jobId2);
         if (jobId2 != null) {
             String jobStatus = client.getJobStatus(jobId2);
             if (jobStatus.equalsIgnoreCase("Completed")) {
-                LOG.info("restore success::::::::::::::::::::::::");
-                String job2Details = client.getJobDetails(jobId2);
-                JSONObject jsonObject2 = new JSONObject(job2Details);
-                // String[] properties = getServerProperties();
-                // ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
-                // String moldUrl = properties[1] + "://" + msHost.getServiceIP() + ":" + properties[0] + "/client/api/";
-                // String moldMethod = "GET";
-                // String moldCommand = "revertSnapshot";
-                // UserAccount user = accountService.getActiveUserAccount("admin", 1L);
-                // String apiKey = user.getApiKey();
-                // String secretKey = user.getSecretKey();
-                // String snapshotId = backup.getSnapshotId();
-                // if (snapshotId != null || !snapshotId.isEmpty()) {
-                //     String[] snapshots = snapshotId.split(",");
-                //     for (int i=0; i < snapshots.length; i++) {
-                //         Map<String, String> snapshotParams = new HashMap<>();
-                //         snapshotParams.put("id", snapshots[i]);
-                //         LOG.info(snapshotParams);
-                //         moldRevertSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                //         //결과에 따른 처리 추가 필요
-                //     }
-                // }
+                String[] properties = getServerProperties();
+                ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
+                String moldUrl = properties[1] + "://" + msHost.getServiceIP() + ":" + properties[0] + "/client/api/";
+                String moldMethod = "GET";
+                String moldCommand = "revertSnapshot";
+                UserAccount user = accountService.getActiveUserAccount("admin", 1L);
+                String apiKey = user.getApiKey();
+                String secretKey = user.getSecretKey();
+                String snapshotId = backup.getSnapshotId();
+                Map<Object, String> checkResult = new HashMap<>();
+                if (snapshotId != null || !snapshotId.isEmpty()) {
+                    String[] snapshots = snapshotId.split(",");
+                    for (int i=0; i < snapshots.length; i++) {
+                        Map<String, String> snapshotParams = new HashMap<>();
+                        snapshotParams.put("id", snapshots[i]);
+                        LOG.info(snapshotParams);
+                        LOG.info(moldUrl);
+                        LOG.info(moldMethod);
+                        LOG.info(moldCommand);
+                        LOG.info(apiKey);
+                        LOG.info(secretKey);
+                        String revertSnapResult = moldRevertSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+                        LOG.info(revertSnapResult);
+                        if (revertSnapResult == null) {
+                            // rm -rf 복원된 스냅샷 경로 ssh 명령 전송
+                            LOG.info(path);
+                            LOG.error("Failed to request revertSnapshot Mold-API.");
+                            return false;
+                        } else {
+                            LOG.info("revertSnapResult");
+                            JSONObject jsonObject2 = new JSONObject(revertSnapResult);
+                            String jobId3 = jsonObject2.get("jobid").toString();
+                            String snapId = jsonObject2.get("id").toString();
+                            LOG.info(jobId3);
+                            LOG.info(snapId);
+                            LOG.info(path);
+                            int jobStatus2 = getAsyncJobResult(moldUrl, apiKey, secretKey, jobId);
+                            if (jobStatus2 == 2) {
+                                LOG.info("revertSnapResult jobStatus2 2");
+                                if (!checkResult.isEmpty()) {
+                                    for (String value : checkResult.values()) {
+                                        LOG.info(value);
+                                        // rm -rf 복원된 냅샷 경로 ssh 명령 전송 
+                                    }
+                                }
+                                LOG.error("revertSnapshot Mold-API async job resulted in failure.");
+                                return false;
+                            }
+                        }
+                        if (snapshots.length > 1) {
+                            LOG.info("snapshots.length > 1");
+                            String[] paths = path.split(",");
+                            checkResult.put(snapshots[i], paths[i]);
+                            LOG.info(checkResult.toString());
+                        } else {
+                            LOG.info("snapshots.length = 1");
+                            checkResult.put(snapshots[i], path);
+                            LOG.info(checkResult.toString());
+                        }
+                    }
+                    return true;
+                }
             } else {
                 // 복원 실패
                 LOG.error("restoreBackup commvault api resulted in " + jobStatus);
@@ -1004,6 +1026,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 }
             } else {
                 String msg = "Failed to request mold API. response code : " + connection.getResponseCode();
+                LOG.info(connection.getResponseMessage());
                 LOG.error(msg);
                 return null;
             }

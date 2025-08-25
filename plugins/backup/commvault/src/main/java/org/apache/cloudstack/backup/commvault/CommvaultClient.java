@@ -1179,23 +1179,20 @@ public class CommvaultClient {
         return false;
     }
 
-    //
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/backupset?clientName=<hostName>
     // 호스트의 vm backupset 조회하는 API로 없는 경우 null, 있는 경우 backupsetGUID 반환
     public String getVmBackupSetGuid(String hostName, String backupsetName) {
         try {
-            LOG.info("getVmBackupSetGuid REST API 호출");
             final HttpResponse response = get("/backupset?clientName=" + hostName);
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
             JsonNode backupSets = root.get("backupsetProperties");
-            LOG.info(backupSets);
             if (backupSets != null && backupSets.isArray()) {
                 for (JsonNode item : backupSets) {
                     JsonNode entity = item.get("backupSetEntity");
-                    LOG.info(entity);
                     if (entity != null && backupsetName.equals(entity.get("backupsetName").asText())) {
                         return entity.get("backupsetGUID").asText();
                     }
@@ -1208,11 +1205,10 @@ public class CommvaultClient {
         return null;
     }
 
-    //
+    // 정상 동작 확인
     // https://10.10.255.56/commandcenter/api/createtask
     // 복원 실행 API
     public String restoreFullVM(String subclientId, String displayName, String backupsetGUID, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String backupsetName, String commCellId, String endTime, String path) {
-        LOG.info("restoreFullVM REST API 호출");
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/createtask";
         try {
@@ -1311,14 +1307,12 @@ public class CommvaultClient {
                 companyName, instanceName, appName, Integer.parseInt(applicationId), clientName, Integer.parseInt(backupsetId),
                 Integer.parseInt(instanceId), backupsetName, Integer.parseInt(commCellId), Integer.parseInt(backupsetId), Integer.parseInt(clientId),
                 endTime, Integer.parseInt(commCellId), Integer.parseInt(clientId), clientName, Integer.parseInt(applicationId), Integer.parseInt(applicationId), path);
-            LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
                 os.flush();
             }
             int responseCode = connection.getResponseCode();
-            LOG.info(responseCode);
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 StringBuilder response = new StringBuilder();
                 try (BufferedReader reader = new BufferedReader(
