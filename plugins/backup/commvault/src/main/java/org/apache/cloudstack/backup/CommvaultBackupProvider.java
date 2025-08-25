@@ -485,9 +485,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             LOG.info("revertSnapResult");
                             JSONObject jsonObject2 = new JSONObject(revertSnapResult);
                             String jobId3 = jsonObject2.get("jobid").toString();
-                            String snapId = jsonObject2.get("id").toString();
                             LOG.info(jobId3);
-                            LOG.info(snapId);
                             LOG.info(path);
                             int jobStatus2 = getAsyncJobResult(moldUrl, apiKey, secretKey, jobId);
                             if (jobStatus2 == 2) {
