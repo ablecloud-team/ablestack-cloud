@@ -172,7 +172,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     @Inject
     private VolumeDao volsDao;
 
-    @inject
+    @Inject
     private SnapshotDao snapshotDao;
 
     private static String getUrlDomain(String url) throws URISyntaxException {
