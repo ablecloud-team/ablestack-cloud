@@ -116,8 +116,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
@@ -243,7 +241,7 @@ import com.google.gson.JsonParseException;
 
 public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiService, VmWorkJobHandler, Configurable {
     public static final String VM_WORK_JOB_HANDLER = VolumeApiServiceImpl.class.getSimpleName();
-    protected Logger logger = LogManager.getLogger(getClass());
+
     @Inject
     private UserVmManager _userVmMgr;
     @Inject
@@ -3943,8 +3941,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                         throw new RuntimeException("Unexpected exception", (Throwable)jobResult);
                     }
                 }
-                Snapshot snap = _snapshotDao.findById(snapshotId);
-                logger.info("VolumeApiServiceImpl.java snap.getState() + " snap.getState());
+                logger.info(_snapshotDao.findById(snapshotId).toString());
                 return _snapshotDao.findById(snapshotId);
             }
         } else {
