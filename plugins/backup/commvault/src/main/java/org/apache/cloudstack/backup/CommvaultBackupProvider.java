@@ -425,7 +425,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String jobId = externalId.substring(externalId.lastIndexOf(',') + 1).trim();
         String path = externalId.substring(0, externalId.lastIndexOf(','));
         String jobDetails = client.getJobDetails(jobId);
-        if (jobDetails != null) {
+        if (jobDetails == null) {
             throw new CloudRuntimeException("Failed to get job details commvault api");
         }
         JSONObject jsonObject = new JSONObject(jobDetails);
@@ -517,6 +517,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String jobId = externalId.substring(externalId.lastIndexOf(',') + 1).trim();
         String path = externalId.substring(0, externalId.lastIndexOf(','));
         String jobDetails = client.getJobDetails(jobId);
+        if (jobDetails == null) {
+            throw new CloudRuntimeException("Failed to get job details commvault api");
+        }
         JSONObject jsonObject = new JSONObject(jobDetails);
         String endTime = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
         String subclientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("subclientId"));
