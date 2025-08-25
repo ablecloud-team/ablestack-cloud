@@ -27,6 +27,7 @@ import com.cloud.host.Status;
 import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor;
 // import com.cloud.storage.StoragePoolHostVO;
+import com.cloud.storage.Snapshot;
 import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
@@ -658,10 +659,15 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 joiner.add(snapshotStore.getInstallPath());
             }
             // 볼륨이 여러 개인 경우 다음 볼륨에 대한 스냅샷 생성 바로 호출 시 activeSnapshots 존재로 431 에러 발생하여 sleep 추가
-            try {
-                Thread.sleep(60000);
-            } catch (InterruptedException e) {
-                LOG.error("create snapshot result sleep interrupted error");
+            List<SnapshotVO> activeSnapshots = _snapshotDao.listByInstanceId(vol.getInstanceId(), Snapshot.State.Creating, Snapshot.State.CreatedOnPrimary,Snapshot.State.BackingUp);
+            while (activeSnapshots.size() > 0) {
+                LOG.info("CommvaultBackupProvider.java :::::: " + activeSnapshots.size());
+                LOG.info(activeSnapshots.toString());
+                try {
+                    Thread.sleep(30000);
+                } catch (InterruptedException e) {
+                    LOG.error("activeSnapshots result sleep interrupted error");
+                }
             }
         }
         String path = joiner.toString();
