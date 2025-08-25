@@ -615,18 +615,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         StringJoiner joiner = new StringJoiner(",");
         Map<Object, String> checkResult = new HashMap<>();
         for (VolumeVO vol : volumes) {
-            LOG.info("CommvaultBackupProvider.java takeBackup vol :" + Long.toString(vol.getId()));
             Map<String, String> snapParams = new HashMap<>();
             snapParams.put("volumeid", Long.toString(vol.getId()));
             snapParams.put("backup", "true");
-            LOG.info(moldUrl);
-            LOG.info(moldCommand);
-            LOG.info(moldMethod);
-            LOG.info(apiKey);
-            LOG.info(secretKey);
-            LOG.info(snapParams.toString());
             String createSnapResult = moldCreateSnapshotBackupAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapParams);
-            LOG.info("CommvaultBackupProvider.java takeBackup createSnapResult :" + createSnapResult);
             if (createSnapResult == null) {
                 if (!checkResult.isEmpty()) {
                     for (String value : checkResult.values()) {
@@ -643,9 +635,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 JSONObject jsonObject = new JSONObject(createSnapResult);
                 String jobId = jsonObject.get("jobid").toString();
                 String snapId = jsonObject.get("id").toString();
-                LOG.info("CommvaultBackupProvider.java takeBackup snapId :" + snapId);
                 int jobStatus = getAsyncJobResult(moldUrl, apiKey, secretKey, jobId);
-                LOG.info("CommvaultBackupProvider.java takeBackup jobStatus :" + jobStatus);
                 if (jobStatus == 2) {
                     Map<String, String> snapshotParams = new HashMap<>();
                     snapshotParams.put("id", snapId);
@@ -666,19 +656,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 }
                 checkResult.put(vol.getId(), snapId);
                 SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findLatestSnapshotForVolume(vol.getId(), DataStoreRole.Primary);
-                LOG.info("CommvaultBackupProvider.java takeBackup snapshotStore :" + snapshotStore.getInstallPath());
                 joiner.add(snapshotStore.getInstallPath());
-            }
-            // 볼륨이 여러 개인 경우 다음 볼륨에 대한 스냅샷 생성 바로 호출 시 activeSnapshots 존재로 431 에러 발생하여 sleep 추가
-            List<SnapshotVO> activeSnapshots = snapshotDao.listByInstanceId(vol.getInstanceId(), Snapshot.State.Creating, Snapshot.State.CreatedOnPrimary,Snapshot.State.BackingUp);
-            if (activeSnapshots.size() > 0) {
-                LOG.info("CommvaultBackupProvider.java :::::: " + activeSnapshots.size());
-                LOG.info(activeSnapshots.toString());
-                try {
-                    Thread.sleep(30000);
-                } catch (InterruptedException e) {
-                    LOG.error("activeSnapshots result sleep interrupted error");
-                }
             }
         }
         String path = joiner.toString();
@@ -987,7 +965,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             } else {
                 String msg = "Failed to request mold API. response code : " + connection.getResponseCode();
                 LOG.error(msg);
-                LOG.error(connection.getResponseMessage());
                 return null;
             }
             JSONObject jObject = XML.toJSONObject(sb.toString());
