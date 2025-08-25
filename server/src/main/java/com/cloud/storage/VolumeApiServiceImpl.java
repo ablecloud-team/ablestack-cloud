@@ -3861,7 +3861,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         if (snapshot != null && MapUtils.isNotEmpty(tags)) {
             taggedResourceService.createTags(Collections.singletonList(snapshot.getUuid()), ResourceTag.ResourceObjectType.Snapshot, tags, null);
         }
-        logger.info("VolumeApiServiceImpl.java snapshot.getState() + " snapshot.getState());
         return snapshot;
     }
 
@@ -3944,7 +3943,8 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                         throw new RuntimeException("Unexpected exception", (Throwable)jobResult);
                     }
                 }
-
+                Snapshot snap = _snapshotDao.findById(snapshotId);
+                logger.info("VolumeApiServiceImpl.java snap.getState() + " snap.getState());
                 return _snapshotDao.findById(snapshotId);
             }
         } else {
