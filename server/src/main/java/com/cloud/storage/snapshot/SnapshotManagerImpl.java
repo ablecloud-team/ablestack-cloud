@@ -1466,6 +1466,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         Account snapshotOwner = payload.getAccount();
         boolean backup = payload.getBackup();
         SnapshotInfo snapshot = snapshotFactory.getSnapshot(snapshotId, volume.getDataStore());
+        logger.info("SnapshotManagerImpl.java takeSnapshot snapshot.getState() : " + snapshot.getState());
         snapshot.addPayload(payload);
         try {
             SnapshotStrategy snapshotStrategy = _storageStrategyFactory.getSnapshotStrategy(snapshot, SnapshotOperation.TAKE);
@@ -1475,6 +1476,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             }
 
             SnapshotInfo snapshotOnPrimary = snapshotStrategy.takeSnapshot(snapshot);
+            logger.info("SnapshotManagerImpl.java takeSnapshot snapshotOnPrimary.getState() : " + snapshotOnPrimary.getState());
             boolean backupSnapToSecondary = isBackupSnapshotToSecondaryForZone(snapshot.getDataCenterId());
             // 백업을 위한 API인 경우 2차 스토리지에 백업하지 않도록 추가
             if (!backup) {
@@ -1491,7 +1493,9 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                 snapshotZoneDao.addSnapshotToZone(snapshotId, snapshot.getDataCenterId());
 
                 DataStoreRole dataStoreRole = backupSnapToSecondary ? snapshotHelper.getDataStoreRole(snapshot) : DataStoreRole.Primary;
-
+                List<SnapshotDataStoreVO> testSnapshot = _snapshotStoreDao.findBySnapshotId(snapshotId);
+                SnapshotDataStoreVO testRef = snapshotStoreRefs.get(0);
+                logger.info("SnapshotManagerImpl.java takeSnapshot testRef.getState() : " +  testRef.getState());
                 List<SnapshotDataStoreVO> snapshotStoreRefs = _snapshotStoreDao.listReadyBySnapshot(snapshotId, dataStoreRole);
                 if (CollectionUtils.isEmpty(snapshotStoreRefs)) {
                     throw new CloudRuntimeException(String.format("Could not find snapshot %s on [%s]", snapshot.getSnapshotVO(), snapshot.getLocationType()));

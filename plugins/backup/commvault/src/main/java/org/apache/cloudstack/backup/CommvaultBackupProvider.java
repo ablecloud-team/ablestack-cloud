@@ -609,10 +609,12 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         StringJoiner joiner = new StringJoiner(",");
         Map<Object, String> checkResult = new HashMap<>();
         for (VolumeVO vol : volumes) {
+            LOG.info("CommvaultBackupProvider.java takeBackup vol :" + Long.toString(vol.getId()));
             Map<String, String> snapParams = new HashMap<>();
             snapParams.put("volumeid", Long.toString(vol.getId()));
             snapParams.put("backup", "true");
             String createSnapResult = moldCreateSnapshotBackupAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapParams);
+            LOG.info("CommvaultBackupProvider.java takeBackup createSnapResult :" + createSnapResult);
             if (createSnapResult == null) {
                 if (!checkResult.isEmpty()) {
                     for (String value : checkResult.values()) {
@@ -629,7 +631,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 JSONObject jsonObject = new JSONObject(createSnapResult);
                 String jobId = jsonObject.get("jobid").toString();
                 String snapId = jsonObject.get("id").toString();
+                LOG.info("CommvaultBackupProvider.java takeBackup snapId :" + snapId);
                 int jobStatus = getAsyncJobResult(moldUrl, apiKey, secretKey, jobId);
+                LOG.info("CommvaultBackupProvider.java takeBackup jobStatus :" + jobStatus);
                 if (jobStatus == 2) {
                     Map<String, String> snapshotParams = new HashMap<>();
                     snapshotParams.put("id", snapId);
@@ -650,6 +654,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 }
                 checkResult.put(vol.getId(), snapId);
                 SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findLatestSnapshotForVolume(vol.getId(), DataStoreRole.Primary);
+                LOG.info("CommvaultBackupProvider.java takeBackup snapshotStore :" + snapshotStore.getInstallPath());
                 joiner.add(snapshotStore.getInstallPath());
             }
         }
@@ -816,12 +821,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             String clientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientId"));
             String clientName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientName"));
             String backupsetId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetId"));
-            LOG.info(subclientId);
-            LOG.info(applicationId);
-            LOG.info(instanceId);
-            LOG.info(clientId);
-            LOG.info(clientName);
-            LOG.info(backupsetId);
             return client.deleteBackup(subclientId, applicationId, applicationId, clientId, clientName, backupsetId, path);
         } else {
             throw new CloudRuntimeException("Failed to request backup job detail commvault api");
