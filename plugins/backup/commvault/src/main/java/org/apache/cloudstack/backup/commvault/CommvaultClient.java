@@ -1094,15 +1094,13 @@ public class CommvaultClient {
         return null;
     }
 
-    //
+    // 정상 동작 확인
     // POST https://10.10.255.56/commandcenter/api/doBrowse
     // commvault의 브라우저단에서 백업 목록에서 조회되지 않도록 삭제하는 API
     public boolean deleteBackup(String subclientId, String applicationId, String instanceId, String clientId, String clientName, String backupsetId, String path) {
-        LOG.info("deleteBackup REST API 호출");
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/doBrowse";
         String pathsJson = buildPathsJson(path);
-        LOG.info(pathsJson);
         try {
             URL url = new URL(postUrl);
             connection = (HttpURLConnection) url.openConnection();
@@ -1133,7 +1131,6 @@ public class CommvaultClient {
                 Integer.parseInt(subclientId), Integer.parseInt(applicationId), Integer.parseInt(instanceId),
                 Integer.parseInt(clientId), clientName, Integer.parseInt(backupsetId), pathsJson
             );
-            LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
@@ -1151,13 +1148,10 @@ public class CommvaultClient {
                 }
                 JsonParser jParser = new JsonParser();
                 JsonObject jObject = (JsonObject)jParser.parse(response.toString());
-                LOG.info(response.toString());
                 if (jObject.has("errorCode")) {
-                    LOG.info("errorCode");
                     return false;
                 }
                 if (jObject.has("browseResponses")) {
-                    LOG.info("browseResponses");
                     JsonArray browseResponses = jObject.getAsJsonArray("browseResponses");
                     for (int i = 0; i < browseResponses.size(); i++) {
                         JsonObject browseResponse = browseResponses.get(i).getAsJsonObject();
