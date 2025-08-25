@@ -420,9 +420,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         } catch (URISyntaxException e) {
             throw new CloudRuntimeException(String.format("Failed to convert API to HOST : %s", e));
         }
-        if (vm.getState() != VirtualMachine.State.Stopped && vm.getState() != VirtualMachine.State.Shutdown) {
-            throw new CloudRuntimeException("The VM the specified disk is attached to is not in the shutdown state.");
-        }
         final CommvaultClient client = getClient(vm.getDataCenterId());
         final String externalId = backup.getExternalId();
         String jobId = externalId.substring(externalId.lastIndexOf(',') + 1).trim();
