@@ -989,7 +989,7 @@ public class CommvaultClient {
     public String getJobStatus(String jobId) {
         String jobStatus = "Running";
         HttpURLConnection connection = null;
-        Set<String> runningStates = Set.of("Not Started", "Running", "Pending", "Waiting", "Queued", "Suspended");
+        Set<String> runningStates = Set.of("Not Started", "Running", "Pending", "Waiting", "Queued", "Suspended", "Not started");
         while (runningStates.contains(jobStatus)) {
             String postUrl = apiURI.toString() + "/jobDetails";
             try {
