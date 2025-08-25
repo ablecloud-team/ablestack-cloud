@@ -1486,6 +1486,9 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                     logger.debug("skipping backup of snapshot [{}] to secondary due to configuration", snapshot);
                     snapshotOnPrimary.markBackedUp();
                 }
+            } else {
+                logger.debug("skipping backup of snapshot [{}] to secondary due to configuration", snapshot);
+                snapshotOnPrimary.markBackedUp();
             }
 
             try {
