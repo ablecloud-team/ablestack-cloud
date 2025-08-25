@@ -3941,7 +3941,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                         throw new RuntimeException("Unexpected exception", (Throwable)jobResult);
                     }
                 }
-                logger.info(_snapshotDao.findById(snapshotId).toString());
                 return _snapshotDao.findById(snapshotId);
             }
         } else {
@@ -4113,7 +4112,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         }
 
         CreateSnapshotPayload payload = new CreateSnapshotPayload();
-        logger.info("orchestrateTakeVolumeSnapshot payload : " + backup);
 
         payload.setSnapshotId(snapshotId);
         payload.setSnapshotPolicyId(policyId);
