@@ -657,6 +657,12 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 LOG.info("CommvaultBackupProvider.java takeBackup snapshotStore :" + snapshotStore.getInstallPath());
                 joiner.add(snapshotStore.getInstallPath());
             }
+            // 볼륨이 여러 개인 경우 다음 볼륨에 대한 스냅샷 생성 바로 호출 시 activeSnapshots 존재로 431 에러 발생하여 sleep 추가
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException e) {
+                LOG.error("create snapshot result sleep interrupted error");
+            }
         }
         String path = joiner.toString();
         // 생성된 스냅샷의 경로로 해당 백업 세트의 백업 콘텐츠 경로 업데이트
@@ -964,6 +970,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             } else {
                 String msg = "Failed to request mold API. response code : " + connection.getResponseCode();
                 LOG.error(msg);
+                LOG.error(connection.getResponseMessage());
                 return null;
             }
             JSONObject jObject = XML.toJSONObject(sb.toString());
