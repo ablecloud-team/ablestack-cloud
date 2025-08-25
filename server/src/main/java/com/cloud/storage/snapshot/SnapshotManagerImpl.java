@@ -1494,7 +1494,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
                 DataStoreRole dataStoreRole = backupSnapToSecondary ? snapshotHelper.getDataStoreRole(snapshot) : DataStoreRole.Primary;
                 List<SnapshotDataStoreVO> testSnapshot = _snapshotStoreDao.findBySnapshotId(snapshotId);
-                SnapshotDataStoreVO testRef = snapshotStoreRefs.get(0);
+                SnapshotDataStoreVO testRef = testSnapshot.get(0);
                 logger.info("SnapshotManagerImpl.java takeSnapshot testRef.getState() : " +  testRef.getState());
                 List<SnapshotDataStoreVO> snapshotStoreRefs = _snapshotStoreDao.listReadyBySnapshot(snapshotId, dataStoreRole);
                 if (CollectionUtils.isEmpty(snapshotStoreRefs)) {
