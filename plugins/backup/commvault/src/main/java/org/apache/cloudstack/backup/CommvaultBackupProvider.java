@@ -27,9 +27,6 @@ import com.cloud.host.Status;
 import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor;
 // import com.cloud.storage.StoragePoolHostVO;
-import com.cloud.storage.Snapshot;
-import com.cloud.storage.SnapshotVO;
-import com.cloud.storage.dao.SnapshotDao;
 import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
@@ -171,9 +168,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     @Inject
     private VolumeDao volsDao;
-
-    @Inject
-    private SnapshotDao snapshotDao;
 
     private static String getUrlDomain(String url) throws URISyntaxException {
         URI uri;
