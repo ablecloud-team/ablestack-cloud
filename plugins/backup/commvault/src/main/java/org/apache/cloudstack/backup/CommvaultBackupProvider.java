@@ -495,7 +495,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                 if (!checkResult.isEmpty()) {
                                     for (String value : checkResult.values()) {
                                         LOG.info(value);
-                                        // rm -rf 복원된 냅샷 경로 ssh 명령 전송 
+                                        // rm -rf 복원된 냅샷 경로 ssh 명령 전송
                                     }
                                 }
                                 LOG.error("revertSnapshot Mold-API async job resulted in failure.");
