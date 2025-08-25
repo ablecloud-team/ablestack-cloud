@@ -466,11 +466,16 @@ const user = {
       })
     },
 
-    Logout ({ commit, state }) {
+    Logout ({ commit, state }, payload) {
       return new Promise((resolve) => {
         var cloudianUrl = null
         if (state.cloudian.url && state.cloudian.enabled) {
           cloudianUrl = state.cloudian.url + 'logout.htm?redirect=' + encodeURIComponent(window.location.href)
+        }
+
+        // saml 로그인 사용자인 경우, saml 로그아웃
+        if (Cookies.get('isSAML')) {
+          window.location.href = payload.apiBase + '?command=samlSlo&ssoLogin=false&username=' + Cookies.get('username') + '&idpid=' + Cookies.get('idpid')
         }
 
         commit('SET_TOKEN', '')

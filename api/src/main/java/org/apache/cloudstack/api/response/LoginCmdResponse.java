@@ -94,6 +94,10 @@ public class LoginCmdResponse extends AuthenticationCmdResponse {
     @Param(description = "Management Server ID that the user logged to", since = "4.21.0.0")
     private String managementServerId;
 
+    @SerializedName(value = ApiConstants.EXTERNAL_ENTITY)
+    @Param(description = "externalEntity")
+    private String externalEntity;
+
     public String getUsername() {
         return username;
     }
@@ -227,12 +231,20 @@ public class LoginCmdResponse extends AuthenticationCmdResponse {
     public void setFirstLogin(String firstLogin) {
         this.firstLogin = firstLogin;
     }
-    
+
     public String getManagementServerId() {
         return managementServerId;
     }
 
     public void setManagementServerId(String managementServerId) {
         this.managementServerId = managementServerId;
+    }
+    
+    public String getExternalEntity() {
+        return externalEntity;
+    }
+
+    public void setExternalEntity(String externalEntity) {
+        this.externalEntity = externalEntity;
     }
 }
