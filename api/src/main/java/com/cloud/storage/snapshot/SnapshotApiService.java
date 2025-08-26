@@ -131,6 +131,8 @@ public interface SnapshotApiService {
 
     Snapshot revertSnapshot(Long snapshotId);
 
+    Snapshot revertSnapshot(Long snapshotId, boolean backup);
+
     Snapshot backupSnapshotFromVmSnapshot(Long snapshotId, Long vmId, Long volumeId, Long vmSnapshotId);
 
     SnapshotPolicy updateSnapshotPolicy(UpdateSnapshotPolicyCmd updateSnapshotPolicyCmd);

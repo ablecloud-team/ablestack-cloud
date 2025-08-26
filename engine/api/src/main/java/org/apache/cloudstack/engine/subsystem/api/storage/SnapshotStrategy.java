@@ -32,6 +32,8 @@ public interface SnapshotStrategy {
 
     boolean revertSnapshot(SnapshotInfo snapshot);
 
+    boolean revertSnapshot(SnapshotInfo snapshot, boolean backup);
+
     StrategyPriority canHandle(Snapshot snapshot, Long zoneId, SnapshotOperation op);
 
     void postSnapshotCreation(SnapshotInfo snapshot);

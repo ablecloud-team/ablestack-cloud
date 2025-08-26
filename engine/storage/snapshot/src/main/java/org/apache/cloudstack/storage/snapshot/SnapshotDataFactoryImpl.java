@@ -149,6 +149,21 @@ public class SnapshotDataFactoryImpl implements SnapshotDataFactory {
     }
 
     @Override
+    public SnapshotInfo getSnapshotOnPrimaryStore(long snapshotId, boolean backup) {
+        SnapshotVO snapshot = snapshotDao.findByIdIncludingRemoved(snapshotId);
+        if (snapshot == null) {
+            return null;
+        }
+        SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findOneBySnapshotAndDatastoreRole(snapshotId, DataStoreRole.Primary);
+        if (snapshotStore == null) {
+            return null;
+        }
+        DataStore store = storeMgr.getDataStore(snapshotStore.getDataStoreId(), snapshotStore.getRole());
+        SnapshotObject so = SnapshotObject.getSnapshotObject(snapshot, store);
+        return so;
+    }
+
+    @Override
     public SnapshotInfo getSnapshot(long snapshotId, DataStoreRole role, long zoneId, boolean retrieveAnySnapshotFromVolume) {
         SnapshotVO snapshot = snapshotDao.findById(snapshotId);
         if (snapshot == null) {

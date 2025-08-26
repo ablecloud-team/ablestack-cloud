@@ -105,6 +105,8 @@ StateDao<ObjectInDataStoreStateMachine.State, ObjectInDataStoreStateMachine.Even
 
     SnapshotDataStoreVO findOneBySnapshotAndDatastoreRole(long snapshotId, DataStoreRole role);
 
+    SnapshotDataStoreVO findOneBySnapshotAndDatastoreRole(long snapshotId, DataStoreRole role, boolean backup);
+
     void updateDisplayForSnapshotStoreRole(long snapshotId, long storeId, DataStoreRole role, boolean display);
 
     int expungeBySnapshotList(List<Long> snapshotIds, Long batchSize);

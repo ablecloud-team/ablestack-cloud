@@ -601,6 +601,41 @@ public class SnapshotServiceImpl implements SnapshotService {
         return false;
     }
 
+    @Override
+    public boolean revertSnapshot(SnapshotInfo snapshot, boolean backup) {
+        PrimaryDataStore store = null;
+        SnapshotInfo snapshotOnPrimaryStore = _snapshotFactory.getSnapshotOnPrimaryStore(snapshot.getId(), backup);
+        if (snapshotOnPrimaryStore == null) {
+            logger.warn("Cannot find an entry for snapshot {} on primary storage pools, searching with volume's primary storage pool", snapshot);
+            VolumeInfo volumeInfo = volFactory.getVolume(snapshot.getVolumeId(), DataStoreRole.Primary);
+            store = (PrimaryDataStore)volumeInfo.getDataStore();
+        } else {
+            store = (PrimaryDataStore)snapshotOnPrimaryStore.getDataStore();
+        }
+
+        AsyncCallFuture<SnapshotResult> future = new AsyncCallFuture<SnapshotResult>();
+        RevertSnapshotContext<CommandResult> context = new RevertSnapshotContext<CommandResult>(null, snapshot, future);
+        AsyncCallbackDispatcher<SnapshotServiceImpl, CommandResult> caller = AsyncCallbackDispatcher.create(this);
+        caller.setCallback(caller.getTarget().revertSnapshotCallback(null, null)).setContext(context);
+
+        ((PrimaryDataStoreDriver)store.getDriver()).revertSnapshot(snapshot, snapshotOnPrimaryStore, caller);
+
+        SnapshotResult result = null;
+        try {
+            result = future.get();
+            if (result.isFailed()) {
+                throw new CloudRuntimeException(result.getResult());
+            }
+            return true;
+        } catch (InterruptedException e) {
+            logger.debug("revert snapshot is failed: " + e.toString());
+        } catch (ExecutionException e) {
+            logger.debug("revert snapshot is failed: " + e.toString());
+        }
+
+        return false;
+    }
+
     // This routine is used to push snapshots currently on cache store, but not in region store to region store.
     // used in migrating existing NFS secondary storage to S3. We chose to push all volume related snapshots to handle delta snapshots smoothly.
     @Override
