@@ -67,30 +67,6 @@ public class ScaleIOSnapshotStrategy extends StorageSystemSnapshotStrategy {
     }
 
     @Override
-    public StrategyPriority canHandle(Snapshot snapshot, Long zoneId, SnapshotOperation op, boolean backup) {
-        long volumeId = snapshot.getVolumeId();
-        VolumeVO volumeVO = volumeDao.findByIdIncludingRemoved(volumeId);
-        boolean baseVolumeExists = volumeVO.getRemoved() == null;
-        if (!baseVolumeExists) {
-            return StrategyPriority.CANT_HANDLE;
-        }
-
-        if (!isSnapshotStoredOnScaleIOStoragePoolAndOperationForSameZone(snapshot, zoneId)) {
-            return StrategyPriority.CANT_HANDLE;
-        }
-
-        if (SnapshotOperation.REVERT.equals(op)) {
-            return StrategyPriority.HIGHEST;
-        }
-
-        if (SnapshotOperation.DELETE.equals(op)) {
-            return StrategyPriority.HIGHEST;
-        }
-
-        return StrategyPriority.CANT_HANDLE;
-    }
-
-    @Override
     public boolean revertSnapshot(SnapshotInfo snapshotInfo) {
         VolumeInfo volumeInfo = snapshotInfo.getBaseVolume();
         Storage.ImageFormat imageFormat = volumeInfo.getFormat();
