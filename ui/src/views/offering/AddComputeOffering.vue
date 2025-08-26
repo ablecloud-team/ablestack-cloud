@@ -749,7 +749,7 @@ export default {
         encryptdisk: this.encryptdisk,
         kvdoenable: false,
         shareable: false,
-        networkrate: 10000
+        networkrate: '10000'
       })
       this.rules = reactive({
         name: [{ required: true, message: this.$t('message.error.required.input') }],

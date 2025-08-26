@@ -310,9 +310,9 @@
                       :computeOfferingId="instanceConfig.computeofferingid"
                       :computeOfferingKvdoEnable="serviceOffering.kvdoenable"
                       :isConstrained="isOfferingConstrained(serviceOffering)"
-                      :minCpu="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.mincpunumber*1 : 0"
+                      :minCpu="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.mincpunumber*1 : 1"
                       :maxCpu="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.maxcpunumber*1 : Number.MAX_SAFE_INTEGER"
-                      :minMemory="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.minmemory*1 : 0"
+                      :minMemory="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.minmemory*1 : 1024"
                       :maxMemory="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.maxmemory*1 : Number.MAX_SAFE_INTEGER"
                       :isCustomized="serviceOffering.iscustomized"
                       :isCustomizedIOps="'iscustomizediops' in serviceOffering && serviceOffering.iscustomizediops"
@@ -1556,7 +1556,8 @@ export default {
 
         this.zone = _.find(this.options.zones, (option) => option.id === this.instanceConfig.zoneid)
         this.affinityGroups = _.filter(this.options.affinityGroups, (option) => _.includes(instanceConfig.affinitygroupids, option.id))
-        this.networks = this.getSelectedNetworksWithExistingConfig(_.filter(this.options.networks, (option) => _.includes(instanceConfig.networkids, option.id)))
+        // this.networks = this.getSelectedNetworksWithExistingConfig(_.filter(this.options.networks, (option) => _.includes(instanceConfig.networkids, option.id)))
+        this.networks = _.filter(this.options.networks, (option) => _.includes(instanceConfig.networkids, option.id))
 
         this.diskOffering = _.find(this.options.diskOfferings, (option) => option.id === instanceConfig.diskofferingid)
         this.sshKeyPair = _.find(this.options.sshKeyPairs, (option) => option.name === instanceConfig.keypair)
@@ -2044,7 +2045,23 @@ export default {
       this.form.defaultnetworkid = id
     },
     updateNetworkConfig (networks) {
+      console.log('networks :>> ', networks)
       this.networkConfig = networks
+      if (this.networks.length > 0) {
+        this.networks.forEach((el, idx) => {
+          console.log('::선택된 net::>> ', el.id)
+          networks.forEach(el2 => {
+            if (el.id === el2.key) {
+              console.log('::값바꾼 net::>> ', el2.key)
+              this.networks[idx].linkState = el2.linkstate ? el2.linkState : false
+              this.networks[idx].ipAddress = el2.ipAddress ? el2.ipAddress : ''
+              this.networks[idx].macAddress = el2.macAddress ? el2.macAddress : ''
+            }
+          })
+        })
+        // this.networks[0].linkstate = true
+        // console.log(this.networks[0].linkstate)
+      }
     },
     updateSshKeyPairs (names) {
       this.form.keypairs = names
