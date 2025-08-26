@@ -30,10 +30,10 @@ public interface OutOfBandManagementService {
     ConfigKey<Long> ActionTimeout = new ConfigKey<Long>("Advanced", Long.class, "outofbandmanagement.action.timeout", "60",
                     "The out of band management action timeout in seconds, configurable by cluster", true, ConfigKey.Scope.Cluster);
 
-    ConfigKey<Integer> SyncThreadPoolSize = new ConfigKey<Integer>("Advanced", Integer.class, "outofbandmanagement.sync.poolsize", "50",
+    ConfigKey<Integer> SyncThreadPoolSize = new ConfigKey<Integer>("Advanced", Integer.class, "outofbandmanagement.sync.poolsize", "3",
             "The out of band management background sync thread pool size", true, ConfigKey.Scope.Global);
 
-    ConfigKey<Integer> OutOfBandManagementBackgroundTaskExecutionInterval = new ConfigKey<>("Advanced", Integer.class, "outofbandmanagement.background.task.execution.interval", "4",
+    ConfigKey<Integer> OutOfBandManagementBackgroundTaskExecutionInterval = new ConfigKey<>("Advanced", Integer.class, "outofbandmanagement.background.task.execution.interval", "15",
             "The interval in seconds for the out of band management (OOBM) background task.", true);
 
     long getId();
