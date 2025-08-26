@@ -44,6 +44,8 @@
       :minCpu="getMinCpu()"
       :maxCpu="'serviceofferingdetails' in selectedOffering ? selectedOffering.serviceofferingdetails.maxcpunumber*1 : Number.MAX_SAFE_INTEGER"
       :cpuSpeed="getCPUSpeed()"
+      :curCpu="getCurCPU()"
+      :curMemory="getCurMemory()"
       :minMemory="getMinMemory()"
       :maxMemory="'serviceofferingdetails' in selectedOffering ? selectedOffering.serviceofferingdetails.maxmemory*1 : Number.MAX_SAFE_INTEGER"
       :isCustomized="selectedOffering.iscustomized"
@@ -174,15 +176,17 @@ export default {
       if (this.resource.state === 'Running') {
         return this.resource.memory
       }
-      return this.selectedOffering?.serviceofferingdetails?.minmemory * 1 || 512
+      return this.selectedOffering?.serviceofferingdetails?.minmemory * 1 || 1024
     },
     getCPUSpeed () {
-      // We can only scale up while a VM is running
-      if (this.resource.state === 'Running') {
-        return this.resource.cpuspeed
-      }
       this.getMinDiskSize()
-      return this.selectedOffering?.serviceofferingdetails?.cpuspeed * 1 || 1
+      return this.resource.cpuspeed || this.selectedOffering?.serviceofferingdetails?.cpuspeed * 1 || 1
+    },
+    getCurCPU () {
+      return this.resource.cpunumber || 1
+    },
+    getCurMemory () {
+      return this.resource.memory || 1024
     },
     getTemplate () {
       return new Promise((resolve, reject) => {

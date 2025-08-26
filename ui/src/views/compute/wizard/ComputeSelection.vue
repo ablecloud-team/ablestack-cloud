@@ -24,13 +24,25 @@
             :label="$t('label.cpunumber')"
             :validate-status="errors.cpu.status"
             :help="errors.cpu.message">
-            <a-select
-              v-model:value="cpuNumberInputValue"
-              show-search
-              style="width: 100px"
-              :options="cpuOptions"
-              @change="($event) => updateComputeCpuNumber($event) "
-            ></a-select>
+            <a-row :gutter="12">
+              <a-col :md="10" :lg="10" v-show="isConstrained && maxCpu && !isNaN(maxCpu)">
+                <a-slider
+                  :min="minCpu"
+                  :max="maxCpu"
+                  v-model:value="cpuNumberInputValue"
+                  @change="($event) => updateComputeCpuNumber($event)"
+                />
+              </a-col>
+              <a-col :md="4" :lg="4">
+                <a-input-number
+                  v-focus="isConstrained"
+                  v-model:value="cpuNumberInputValue"
+                  :min="minCpu"
+                  :max="maxCpu"
+                  @change="($event) => updateComputeCpuNumber($event)"
+                />
+              </a-col>
+            </a-row>
           </a-form-item>
         </a-col>
         <a-col :md="8" :lg="8" v-show="!isConstrained" v-if="isCustomized">
@@ -47,16 +59,29 @@
         </a-col>
         <a-col :md="colContraned" :lg="colContraned" v-if="isCustomized">
           <a-form-item
-            :label="$t('label.memory.gb')"
+            :label="$t('label.memory.mb')"
             :validate-status="errors.memory.status"
             :help="errors.memory.message">
-            <a-select
-              v-model:value="memoryInputValue"
-              show-search
-              style="width: 100px"
-              :options="memOptions"
-              @change="($event) => updateComputeMemory($event)"
-            ></a-select>
+            <a-row :gutter="12">
+              <a-col :md="10" :lg="10" v-show="isConstrained && maxMemory && !isNaN(maxMemory)">
+                <a-slider
+                  :min="minMemory"
+                  :max="maxMemory"
+                  v-model:value="memoryInputValue"
+                  :step="1024"
+                  @change="($event) => updateComputeMemory($event)"
+                />
+              </a-col>
+              <a-col :md="4" :lg="4">
+                <a-input-number
+                  v-model:value="memoryInputValue"
+                  :min="minMemory"
+                  :max="maxMemory"
+                  :step="1024"
+                  @change="($event) => updateComputeMemory($event)"
+                />
+              </a-col>
+            </a-row>
           </a-form-item>
         </a-col>
         <a-col :md="8" v-if="isCustomizedIOps">
@@ -90,9 +115,17 @@ export default {
     },
     cpuSpeed: {
       type: Number,
-      default: 0
+      default: 1000
     },
     minCpu: {
+      type: Number,
+      default: 1
+    },
+    curCpu: {
+      type: Number,
+      default: 0
+    },
+    curMemory: {
       type: Number,
       default: 0
     },
@@ -102,11 +135,11 @@ export default {
     },
     minMemory: {
       type: Number,
-      default: 0
+      default: 1024
     },
     maxMemory: {
       type: Number,
-      default: 256
+      default: 1024
     },
     cpuNumberInputDecorator: {
       type: String,
@@ -155,40 +188,7 @@ export default {
       minIOps: null,
       maxIOps: null,
       errorMinIOps: false,
-      errorMaxIOps: false,
-      cpuOpt: [
-        { value: '1', label: '1' },
-        { value: '2', label: '2' },
-        { value: '4', label: '4' },
-        { value: '8', label: '8' },
-        { value: '16', label: '16' },
-        { value: '32', label: '32' },
-        { value: '64', label: '64' },
-        { value: '128', label: '128' },
-        { value: '256', label: '256' },
-        { value: '512', label: '512' },
-        { value: '1024', label: '1024' },
-        { value: '2048', label: '2048' },
-        { value: '4096', label: '4096' },
-        { value: '8192', label: '8192' }
-      ],
-      memOpt: [
-        { value: '512', label: '0.5' },
-        { value: '1024', label: '1' },
-        { value: '2048', label: '2' },
-        { value: '4096', label: '4' },
-        { value: '8192', label: '8' },
-        { value: '16384', label: '16' },
-        { value: '32768', label: '32' },
-        { value: '65536', label: '64' },
-        { value: '131072', label: '128' },
-        { value: '262144', label: '256' },
-        { value: '524288', label: '512' },
-        { value: '1048576', label: '1024' },
-        { value: '2097152', label: '2048' },
-        { value: '4194304', label: '4096' },
-        { value: '8388608', label: '8192' }
-      ]
+      errorMaxIOps: false
     }
   },
   computed: {
@@ -214,15 +214,10 @@ export default {
   },
   methods: {
     fillValue () {
-      if (this.isConstrained && this.maxCpu && !isNaN(this.maxCpu)) {
-        this.cpuOptions = this.cpuOpt.filter(x => x.value >= this.minCpu && x.value <= this.maxCpu)
-        this.memOptions = this.memOpt.filter(x => x.value >= this.minMemory && x.value <= this.maxMemory)
-      } else {
-        this.cpuOptions = this.cpuOpt
-        this.memOptions = this.memOpt
-      }
-      this.cpuNumberInputValue = this.cpuOptions[0].value
-      this.memoryInputValue = this.memOptions[0].value
+      console.log('this.curMemory :>> ', this.curMemory)
+      console.log('this.minMemory :>> ', this.minMemory)
+      this.cpuNumberInputValue = this.curCpu > 1 ? this.curCpu : this.minCpu
+      this.memoryInputValue = this.curMemory > 1 ? this.curMemory : this.minMemory
       this.cpuSpeedInputValue = this.cpuSpeed
 
       if (!this.preFillContent) {
@@ -284,11 +279,11 @@ export default {
           max = this.maxCpu
           break
         case 'memory':
-          min = this.memOptions[0].value / 1024
-          max = this.memOptions[this.memOptions.length - 1].value / 1024
-          value = value / 1024
+          min = this.minMemory
+          max = this.maxMemory
           break
       }
+
       if (!this.checkValidRange(value, min, max)) {
         this.errors[input].status = 'error'
         this.errors[input].message = `${this.$t('message.please.enter.value')} (${min} ~ ${max})`

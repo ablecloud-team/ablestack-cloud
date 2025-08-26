@@ -1,100 +1,112 @@
 #!/bin/bash
+set -euo pipefail
 
-type=$1
-config_path="/usr/share/cloudstack-management/webapp/config.json"
-# ko_path="/usr/share/cloudstack-management/webapp/locales/ko_KR.json"
-# en_path="/usr/share/cloudstack-management/webapp/locales/en.json"
+TYPE=${1:-}
+CONFIG_PATH="/usr/share/cloudstack-management/webapp/config.json"
 
-if [ "ABLESTACK" == "$type" ]; then
+KO_SOURCE_FILE="/usr/share/cloudstack-management/webapp/locales/ko_KR.json"
+EN_SOURCE_FILE="/usr/share/cloudstack-management/webapp/locales/en.json"
 
-  echo "ABLECLOUD ABLESTACK Mold 테마 설정 중...."
+CURRENT_APPTITLE=$(jq -r '."label.app.name"' "$KO_SOURCE_FILE")
 
-  # 로고 파일 변경
-  sed -i "/\"logo\"/ c\  \"logo\": \"assets/logo-ablestack.png\","  $config_path
-  sed -i "/\"banner\"/ c\  \"banner\": \"assets/login-logo-ablestack.png\","  $config_path
-  sed -i "/\"miniLogo\"/ c\  \"miniLogo\": \"assets/mini-logo-ablestack.png\","  $config_path
-  sed -i "/\"whiteLogo\"/ c\  \"whiteLogo\": \"assets/white-logo-ablestack.png\","  $config_path
+# JSON 키 한 줄 치환 유틸
+replace_json_line() {
+  local key="$1"
+  local value="$2"
+  # ${key} 항목을 ${value}로 변경
+  sed -i "/\"${key}\"/ c\\  \"${key}\": \"${value}\"," "$CONFIG_PATH"
+}
 
-  # 저작권 표시 변경
-  sed -i "/\"footer\"/ c\  \"footer\": \"ⓒ 2021-2025 ABLECLOUD Inc. All Rights Reserved.\","  $config_path
+# 문자열 교체 유틸
+replace_in_locale_files() {
+  local search="$1"
+  local replace="$2"
+  sed -i "s/${search}/${replace}/g" "$KO_SOURCE_FILE"
+  sed -i "s/${search}/${replace}/g" "$EN_SOURCE_FILE"
+}
 
-  # 앱 타이틀 명 변경
-  sed -i "/\"appTitle\"/ c\  \"appTitle\": \"ABLESTACK-Mold\","  $config_path
-  sed -i "/\"loginTitle\"/ c\  \"loginTitle\": \"ABLESTACK\","  $config_path
+# "label.hosts" 항목을 "Hosts"로 수정
+set_json_key_jq() {
+    local file="$1"
+    local key="$2"
+    local val="$3"
+    local tmp
 
-  # 테마 변경
-  sed -i "/\"@primary-color\"/ c\    \"@primary-color\": \"#1890ff\","  $config_path
-  sed -i "/\"@link-color\"/ c\    \"@link-color\": \"#1890ff\","  $config_path
-  sed -i "/\"@loading-color\"/ c\    \"@loading-color\": \"#1890ff\","  $config_path
-  sed -i "/\"@processing-color\"/ c\    \"@processing-color\": \"#1890ff\","  $config_path
+    tmp=$(mktemp)
+    jq --arg k "$key" --arg v "$val" '.[$k] = $v' "$file" > "$tmp" && mv "$tmp" "$file"
+    chmod 644 "$file"
+}
 
-  # 로고 사이즈 설정
-  sed -i "/\"@logo-magin-top\"/ c\    \"@logo-magin-top\": \"4px\","  $config_path
-  sed -i "/\"@logo-magin-bottom\"/ c\    \"@logo-magin-bottom\": \"0px\","  $config_path
-  sed -i "/\"@mini-logo-magin-top\"/ c\    \"@mini-logo-magin-top\": \"8px\","  $config_path
-  sed -i "/\"@mini-logo-magin-bottom\"/ c\    \"@mini-logo-magin-bottom\": \"8px\","  $config_path
+echo "선택된 테마: ${TYPE:-default}"
 
-  echo "ABLECLOUD ABLESTACK Mold 테마 설정 완료!"
-
-elif [ "Clostack" == "$type" ]; then
-
+if [[ "$TYPE" == "Clostack" ]]; then
   echo "CLOIT CLOSTACK Mold 테마 설정 중...."
+  replace_in_locale_files "$CURRENT_APPTITLE" "CLOSTACK"
+  set_json_key_jq "$EN_SOURCE_FILE" "label.hosts" "Hosts"
+  set_json_key_jq "$KO_SOURCE_FILE" "label.hosts" "호스트"
 
-  # 로고 파일 변경
-  sed -i "/\"logo\"/ c\  \"logo\": \"assets/logo-clostack.png\","  $config_path
-  sed -i "/\"banner\"/ c\  \"banner\": \"assets/login-logo-clostack.png\","  $config_path
-  sed -i "/\"miniLogo\"/ c\  \"miniLogo\": \"assets/mini-logo-ablestack.png\","  $config_path
-  sed -i "/\"whiteLogo\"/ c\  \"whiteLogo\": \"assets/white-logo-clostack.png\","  $config_path
-
-  # 저작권 표시 변경
-  sed -i "/\"footer\"/ c\  \"footer\": \"ⓒ 2025 ITCEN CLOIT. All Rights Reserved.\","  $config_path
-
-  # 앱 타이틀 명 변경
-  sed -i "/\"appTitle\"/ c\  \"appTitle\": \"CLOSTACK-Mold\","  $config_path
-  sed -i "/\"loginTitle\"/ c\  \"loginTitle\": \"CLOSTACK\","  $config_path
-
-  # 테마 변경
-  sed -i "/\"@primary-color\"/ c\    \"@primary-color\": \"#5FB684\","  $config_path
-  sed -i "/\"@link-color\"/ c\    \"@link-color\": \"#5FB684\","  $config_path
-  sed -i "/\"@loading-color\"/ c\    \"@loading-color\": \"#5FB684\","  $config_path
-  sed -i "/\"@processing-color\"/ c\    \"@processing-color\": \"#5FB684\","  $config_path
-
-  # 로고 사이즈 설정
-  sed -i "/\"@logo-magin-top\"/ c\    \"@logo-magin-top\": \"8px\","  $config_path
-  sed -i "/\"@logo-magin-bottom\"/ c\    \"@logo-magin-bottom\": \"5px\","  $config_path
-  sed -i "/\"@mini-logo-magin-top\"/ c\    \"@mini-logo-magin-top\": \"8px\","  $config_path
-  sed -i "/\"@mini-logo-magin-bottom\"/ c\    \"@mini-logo-magin-bottom\": \"8px\","  $config_path
-
+  replace_json_line "logo" "assets/logo-clostack.png"              # 로고 파일 변경
+  replace_json_line "banner" "assets/login-logo-clostack.png"      # 로그인 배너 변경
+  replace_json_line "miniLogo" "assets/mini-logo-ablestack.png"    # 미니 로고 변경
+  replace_json_line "whiteLogo" "assets/white-logo-clostack.png"   # 화이트 로고 변경
+  replace_json_line "footer" "ⓒ 2025 ITCEN CLOIT. All Rights Reserved."  # 저작권 표시 변경
+  replace_json_line "appTitle" "CLOSTACK-Mold"                     # 앱 타이틀 변경
+  replace_json_line "loginTitle" "CLOSTACK"                        # 로그인 타이틀 변경
+  replace_json_line "@primary-color" "#5FB684"                     # 기본 색상
+  replace_json_line "@link-color" "#5FB684"                        # 링크 색상
+  replace_json_line "@loading-color" "#5FB684"                     # 로딩 색상
+  replace_json_line "@processing-color" "#5FB684"                  # 처리 색상
+  replace_json_line "@logo-magin-top" "8px"                        # 로고 상단 마진
+  replace_json_line "@logo-magin-bottom" "5px"                     # 로고 하단 마진
+  replace_json_line "@mini-logo-magin-top" "8px"                   # 미니 로고 상단 마진
+  replace_json_line "@mini-logo-magin-bottom" "8px"                # 미니 로고 하단 마진
   echo "CLOIT CLOSTACK Mold 테마 설정 완료!"
 
-elif [ "UCP HV powered by ABLESTACK" == "$type" ]; then
+elif [[ "$TYPE" == "UCP HV powered by ABLESTACK" ]]; then
   echo "효성인포메이션시스템 UCP HV Mold 테마 설정 중...."
+  replace_in_locale_files "$CURRENT_APPTITLE" "UCP HV"
 
-  # 로고 파일 변경
-  sed -i "/\"logo\"/ c\  \"logo\": \"assets/logo-hv.png\","  $config_path
-  sed -i "/\"banner\"/ c\  \"banner\": \"assets/login-logo-hv.png\","  $config_path
-  sed -i "/\"miniLogo\"/ c\  \"miniLogo\": \"assets/mini-logo-hv.png\","  $config_path
-  sed -i "/\"whiteLogo\"/ c\  \"whiteLogo\": \"assets/white-logo-hv.png\","  $config_path
+  set_json_key_jq "$EN_SOURCE_FILE" "label.hosts" "UCP HV"
+  set_json_key_jq "$KO_SOURCE_FILE" "label.hosts" "UCP HV"
 
-  # 저작권 표시 변경
-  sed -i "/\"footer\"/ c\  \"footer\": \"© HS HYOSUNG INFORMATION SYSTEMS\","  $config_path
-
-  # 앱 타이틀 명 변경
-  sed -i "/\"appTitle\"/ c\  \"appTitle\": \"효성 UCP HV - Mold\","  $config_path
-  sed -i "/\"loginTitle\"/ c\  \"loginTitle\": \"효성 UCP HV\","  $config_path
-
-  # 테마 변경
-  sed -i "/\"@primary-color\"/ c\    \"@primary-color\": \"#2f54eb\","  $config_path
-  sed -i "/\"@link-color\"/ c\    \"@link-color\": \"#2f54eb\","  $config_path
-  sed -i "/\"@loading-color\"/ c\    \"@loading-color\": \"#2f54eb\","  $config_path
-  sed -i "/\"@processing-color\"/ c\    \"@processing-color\": \"#2f54eb\","  $config_path
-
-  # 로고 사이즈 설정
-  sed -i "/\"@logo-magin-top\"/ c\    \"@logo-magin-top\": \"4px\","  $config_path
-  sed -i "/\"@logo-magin-bottom\"/ c\    \"@logo-magin-bottom\": \"0px\","  $config_path
-  sed -i "/\"@mini-logo-magin-top\"/ c\    \"@mini-logo-magin-top\": \"8px\","  $config_path
-  sed -i "/\"@mini-logo-magin-bottom\"/ c\    \"@mini-logo-magin-bottom\": \"8px\","  $config_path
-
+  replace_json_line "logo" "assets/logo-hv.png"                     # 로고 파일 변경
+  replace_json_line "banner" "assets/login-logo-hv.png"             # 로그인 배너 변경
+  replace_json_line "miniLogo" "assets/mini-logo-hv.png"            # 미니 로고 변경
+  replace_json_line "whiteLogo" "assets/white-logo-hv.png"          # 화이트 로고 변경
+  replace_json_line "footer" "© HS HYOSUNG INFORMATION SYSTEMS"     # 저작권 표시 변경
+  replace_json_line "appTitle" "효성 UCP HV - Mold"                 # 앱 타이틀 변경
+  replace_json_line "loginTitle" "효성 UCP HV"                      # 로그인 타이틀 변경
+  replace_json_line "@primary-color" "#2f54eb"                      # 기본 색상
+  replace_json_line "@link-color" "#2f54eb"                         # 링크 색상
+  replace_json_line "@loading-color" "#2f54eb"                      # 로딩 색상
+  replace_json_line "@processing-color" "#2f54eb"                   # 처리 색상
+  replace_json_line "@logo-magin-top" "4px"                         # 로고 상단 마진
+  replace_json_line "@logo-magin-bottom" "0px"                      # 로고 하단 마진
+  replace_json_line "@mini-logo-magin-top" "8px"                    # 미니 로고 상단 마진
+  replace_json_line "@mini-logo-magin-bottom" "8px"                 # 미니 로고 하단 마진
   echo "효성인포메이션시스템 UCP HV Mold 테마 설정 완료!"
 
+else
+  echo "ABLECLOUD ABLESTACK Mold 테마 설정 중...."
+  replace_in_locale_files "$CURRENT_APPTITLE" "ABLESTACK"
+
+  set_json_key_jq "$EN_SOURCE_FILE" "label.hosts" "Hosts"
+  set_json_key_jq "$KO_SOURCE_FILE" "label.hosts" "호스트"
+
+  replace_json_line "logo" "assets/logo-ablestack.png"               # 로고 파일 변경
+  replace_json_line "banner" "assets/login-logo-ablestack.png"       # 로그인 배너 변경
+  replace_json_line "miniLogo" "assets/mini-logo-ablestack.png"      # 미니 로고 변경
+  replace_json_line "whiteLogo" "assets/white-logo-ablestack.png"    # 화이트 로고 변경
+  replace_json_line "footer" "ⓒ 2021-2025 ABLECLOUD Inc. All Rights Reserved." # 저작권 표시 변경
+  replace_json_line "appTitle" "ABLESTACK-Mold"                     # 앱 타이틀 변경
+  replace_json_line "loginTitle" "ABLESTACK"                        # 로그인 타이틀 변경
+  replace_json_line "@primary-color" "#1890ff"                      # 기본 색상
+  replace_json_line "@link-color" "#1890ff"                         # 링크 색상
+  replace_json_line "@loading-color" "#1890ff"                      # 로딩 색상
+  replace_json_line "@processing-color" "#1890ff"                   # 처리 색상
+  replace_json_line "@logo-magin-top" "4px"                         # 로고 상단 마진
+  replace_json_line "@logo-magin-bottom" "0px"                      # 로고 하단 마진
+  replace_json_line "@mini-logo-magin-top" "8px"                    # 미니 로고 상단 마진
+  replace_json_line "@mini-logo-magin-bottom" "8px"                 # 미니 로고 하단 마진
+  echo "ABLECLOUD ABLESTACK Mold 테마 설정 완료!"
 fi
