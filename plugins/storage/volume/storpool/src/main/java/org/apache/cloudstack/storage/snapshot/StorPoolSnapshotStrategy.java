@@ -378,6 +378,11 @@ public class StorPoolSnapshotStrategy implements SnapshotStrategy {
     }
 
     @Override
+    public boolean revertSnapshot(SnapshotInfo snapshot, boolean backup) {
+        return false;
+    }
+
+    @Override
     public void postSnapshotCreation(SnapshotInfo snapshot) {
     }
 }
