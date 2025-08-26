@@ -1478,7 +1478,7 @@ public class TransactionLegacy implements Closeable {
     private static void startPoolMonitorOnce() {
         if (POOL_MONITOR_STARTED.compareAndSet(false, true)) {
             startPoolMonitor(); // ← 이미 만들어둔 1분 주기 로거
-            LOGGER.info("Started HikariCP pool monitor.");
+            LOGGER.debug("Started HikariCP pool monitor.");
         }
     }
 
@@ -1536,7 +1536,7 @@ public class TransactionLegacy implements Closeable {
             if (isHigh) {
                 LOGGER.warn(msg + " ⚠️ HIGH UTILIZATION");
             } else {
-                LOGGER.info(msg);
+                LOGGER.debug(msg);
             }
 
             // 이전값 저장
