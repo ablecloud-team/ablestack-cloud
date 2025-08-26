@@ -457,7 +457,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
                 String moldUrl = properties[1] + "://" + msHost.getServiceIP() + ":" + properties[0] + "/client/api/";
                 String moldMethod = "GET";
-                String moldCommand = "revertSnapshot";
+                String moldCommand = "revertSnapshotBackup";
                 UserAccount user = accountService.getActiveUserAccount("admin", 1L);
                 String apiKey = user.getApiKey();
                 String secretKey = user.getSecretKey();
@@ -468,6 +468,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     for (int i=0; i < snapshots.length; i++) {
                         Map<String, String> snapshotParams = new HashMap<>();
                         snapshotParams.put("id", snapshots[i]);
+                        snapshotParams.put("backup", "true");
                         LOG.info(snapshotParams);
                         LOG.info(moldUrl);
                         LOG.info(moldMethod);

@@ -129,6 +129,11 @@ public class SnapshotDataFactoryImpl implements SnapshotDataFactory {
     }
 
     @Override
+    public SnapshotInfo getSnapshotWithRoleAndZone(long snapshotId, DataStoreRole role, long zoneId, boolean backup) {
+        return getSnapshot(snapshotId, role, zoneId, true, backup);
+    }
+
+    @Override
     public SnapshotInfo getSnapshotOnPrimaryStore(long snapshotId) {
         SnapshotVO snapshot = snapshotDao.findById(snapshotId);
         if (snapshot == null) {
@@ -150,6 +155,40 @@ public class SnapshotDataFactoryImpl implements SnapshotDataFactory {
             return null;
         }
         List<SnapshotDataStoreVO> snapshotStores = snapshotStoreDao.listReadyBySnapshot(snapshotId, role);
+        SnapshotDataStoreVO snapshotStore = null;
+        for (SnapshotDataStoreVO ref : snapshotStores) {
+            if (zoneId == storeMgr.getStoreZoneId(ref.getDataStoreId(), ref.getRole())) {
+                snapshotStore = ref;
+                break;
+            }
+        }
+        if (snapshotStore == null) {
+            if (!retrieveAnySnapshotFromVolume) {
+                return null;
+            }
+            snapshotStores = snapshotStoreDao.findByVolume(snapshotId, snapshot.getVolumeId(), role);
+            for (SnapshotDataStoreVO ref : snapshotStores) {
+                if (zoneId == storeMgr.getStoreZoneId(ref.getDataStoreId(), ref.getRole())); {
+                    snapshotStore = ref;
+                    break;
+                }
+            }
+            if (snapshotStore == null) {
+                return null;
+            }
+        }
+        DataStore store = storeMgr.getDataStore(snapshotStore.getDataStoreId(), role);
+        SnapshotObject so = SnapshotObject.getSnapshotObject(snapshot, store);
+        return so;
+    }
+
+    @Override
+    public SnapshotInfo getSnapshot(long snapshotId, DataStoreRole role, long zoneId, boolean retrieveAnySnapshotFromVolume, boolean backup) {
+        SnapshotVO snapshot = snapshotDao.findByIdIncludingRemoved(snapshotId);
+        if (snapshot == null) {
+            return null;
+        }
+        List<SnapshotDataStoreVO> snapshotStores = snapshotStoreDao.findBySnapshotId(snapshotId);
         SnapshotDataStoreVO snapshotStore = null;
         for (SnapshotDataStoreVO ref : snapshotStores) {
             if (zoneId == storeMgr.getStoreZoneId(ref.getDataStoreId(), ref.getRole())) {
