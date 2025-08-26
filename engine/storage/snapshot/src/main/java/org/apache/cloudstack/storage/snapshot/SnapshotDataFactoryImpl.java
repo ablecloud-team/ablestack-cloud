@@ -37,7 +37,11 @@ import com.cloud.storage.SnapshotVO;
 import com.cloud.storage.dao.SnapshotDao;
 import com.cloud.utils.exception.CloudRuntimeException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class SnapshotDataFactoryImpl implements SnapshotDataFactory {
+    protected Logger logger = LogManager.getLogger(getClass());
 
     @Inject
     private SnapshotDao snapshotDao;
@@ -199,35 +203,47 @@ public class SnapshotDataFactoryImpl implements SnapshotDataFactory {
 
     @Override
     public SnapshotInfo getSnapshot(long snapshotId, DataStoreRole role, long zoneId, boolean retrieveAnySnapshotFromVolume, boolean backup) {
+        logger.info("SnapshotDataFactoryImpl.java getSnapshot:::::::::::::::::");
         SnapshotVO snapshot = snapshotDao.findByIdIncludingRemoved(snapshotId);
+        logger.info("SnapshotDataFactoryImpl.java snapshot:::::::::::::::::" + snapshot);
         if (snapshot == null) {
             return null;
         }
         List<SnapshotDataStoreVO> snapshotStores = snapshotStoreDao.findBySnapshotId(snapshotId);
+        logger.info("SnapshotDataFactoryImpl.java snapshotStores:::::::::::::::::" + snapshotStores);
         SnapshotDataStoreVO snapshotStore = null;
         for (SnapshotDataStoreVO ref : snapshotStores) {
+            logger.info("SnapshotDataFactoryImpl.java ref:::::::::::::::::" + ref);
             if (zoneId == storeMgr.getStoreZoneId(ref.getDataStoreId(), ref.getRole())) {
                 snapshotStore = ref;
+                logger.info("SnapshotDataFactoryImpl.java break:::::::::::::::::");
                 break;
             }
         }
+        logger.info("SnapshotDataFactoryImpl.java snapshotStore:::::::::::::::::" + snapshotStore);
         if (snapshotStore == null) {
             if (!retrieveAnySnapshotFromVolume) {
                 return null;
             }
             snapshotStores = snapshotStoreDao.findByVolume(snapshotId, snapshot.getVolumeId(), role);
+            logger.info("SnapshotDataFactoryImpl.java snapshotStore:::::::::::::::::" + snapshotStore);
             for (SnapshotDataStoreVO ref : snapshotStores) {
+                logger.info("SnapshotDataFactoryImpl.java snapshotStore ref:::::::::::::::::" + ref);
                 if (zoneId == storeMgr.getStoreZoneId(ref.getDataStoreId(), ref.getRole())); {
                     snapshotStore = ref;
+                    logger.info("SnapshotDataFactoryImpl.java snapshotStore break:::::::::::::::::");
                     break;
                 }
             }
+            logger.info("SnapshotDataFactoryImpl.java snapshotStore:::::::::::::::::" + snapshotStores);
             if (snapshotStore == null) {
                 return null;
             }
         }
         DataStore store = storeMgr.getDataStore(snapshotStore.getDataStoreId(), role);
+        logger.info("SnapshotDataFactoryImpl.java store:::::::::::::::::" + store);
         SnapshotObject so = SnapshotObject.getSnapshotObject(snapshot, store);
+        logger.info("SnapshotDataFactoryImpl.java so:::::::::::::::::" + so);
         return so;
     }
 
