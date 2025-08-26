@@ -486,7 +486,7 @@ public class DefaultSnapshotStrategy extends SnapshotStrategyBase {
     @Override
     public boolean revertSnapshot(SnapshotInfo snapshot, boolean backup) {
         logger.info("DefaultSnapshotStrategy.java revertSnapshot ::::::::::::::::::");
-        if (canHandle(snapshot, null, SnapshotOperation.REVERT) == StrategyPriority.CANT_HANDLE) {
+        if (canHandle(snapshot, null, SnapshotOperation.REVERT, backup) == StrategyPriority.CANT_HANDLE) {
             throw new CloudRuntimeException("Reverting not supported. Create a template or volume based on the snapshot instead.");
         }
 
