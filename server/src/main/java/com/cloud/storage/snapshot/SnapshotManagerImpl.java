@@ -437,7 +437,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             throw new CloudRuntimeException(String.format("snapshot %s [%s] does not exists in data store", snapshot.getName(), snapshot.getUuid()));
         }
 
-        SnapshotStrategy snapshotStrategy = _storageStrategyFactory.getSnapshotStrategy(snapshot, SnapshotOperation.REVERT);
+        SnapshotStrategy snapshotStrategy = _storageStrategyFactory.getSnapshotStrategy(snapshot, SnapshotOperation.REVERT, backup);
         logger.info("SnapshotManagerImpl.java snapshotStrategy::::::::::::::::::" + snapshotStrategy);
         if (snapshotStrategy == null) {
             logger.error("Unable to find snapshot strategy to handle snapshot {}", snapshot);

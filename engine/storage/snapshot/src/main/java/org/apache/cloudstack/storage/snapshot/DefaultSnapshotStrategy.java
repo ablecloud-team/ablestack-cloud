@@ -639,11 +639,42 @@ public class DefaultSnapshotStrategy extends SnapshotStrategyBase {
         return StrategyPriority.DEFAULT;
     }
 
+    @Override
+    public StrategyPriority canHandle(Snapshot snapshot, Long zoneId, SnapshotOperation op, boolean backup) {
+        logger.info("DefaultSnapshotStrategy.java canHandle ::::::::::::::::::");
+        if (SnapshotOperation.REVERT.equals(op)) {
+            long volumeId = snapshot.getVolumeId();
+            VolumeVO volumeVO = volumeDao.findById(volumeId);
+
+            if (isSnapshotStoredOnSameZoneStoreForQCOW2Volume(snapshot, volumeVO, backup)) {
+                logger.info("DefaultSnapshotStrategy.java isSnapshotStoredOnSameZoneStoreForQCOW2Volume ::::::::::::::::::");
+                return StrategyPriority.DEFAULT;
+            }
+
+            return StrategyPriority.CANT_HANDLE;
+        }
+        if (zoneId != null && SnapshotOperation.DELETE.equals(op)) {
+            logger.debug(String.format("canHandle for zone ID: %d, operation: %s - %s", zoneId, op, StrategyPriority.DEFAULT));
+        }
+        return StrategyPriority.DEFAULT;
+    }
+
     protected boolean isSnapshotStoredOnSameZoneStoreForQCOW2Volume(Snapshot snapshot, VolumeVO volumeVO) {
         if (volumeVO == null || !ImageFormat.QCOW2.equals(volumeVO.getFormat())) {
             return false;
         }
         List<SnapshotDataStoreVO> snapshotStores = snapshotStoreDao.listBySnapshotIdAndState(snapshot.getId(), State.Ready);
+        return CollectionUtils.isNotEmpty(snapshotStores) &&
+                snapshotStores.stream().anyMatch(s -> Objects.equals(
+                        dataStoreMgr.getStoreZoneId(s.getDataStoreId(), s.getRole()), volumeVO.getDataCenterId()));
+    }
+
+    protected boolean isSnapshotStoredOnSameZoneStoreForQCOW2Volume(Snapshot snapshot, VolumeVO volumeVO, boolean backup) {
+        if (volumeVO == null || !ImageFormat.QCOW2.equals(volumeVO.getFormat())) {
+            return false;
+        }
+        List<SnapshotDataStoreVO> snapshotStores = snapshotStoreDao.findByIdIncludingRemoved(snapshot.getId());
+        logger.info("DefaultSnapshotStrategy.java isSnapshotStoredOnSameZoneStoreForQCOW2Volume snapshotStores ::::::::::::::::::" + snapshotStores);
         return CollectionUtils.isNotEmpty(snapshotStores) &&
                 snapshotStores.stream().anyMatch(s -> Objects.equals(
                         dataStoreMgr.getStoreZoneId(s.getDataStoreId(), s.getRole()), volumeVO.getDataCenterId()));
