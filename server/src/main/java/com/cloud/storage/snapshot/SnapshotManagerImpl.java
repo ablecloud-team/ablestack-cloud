@@ -445,7 +445,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             throw new CloudRuntimeException(errorMsg);
         }
 
-        boolean result = snapshotStrategy.revertSnapshot(snapshotInfo);
+        boolean result = snapshotStrategy.revertSnapshot(snapshotInfo, backup);
         logger.info("SnapshotManagerImpl.java result::::::::::::::::::" + result);
         if (result) {
             // update volume size and primary storage count
