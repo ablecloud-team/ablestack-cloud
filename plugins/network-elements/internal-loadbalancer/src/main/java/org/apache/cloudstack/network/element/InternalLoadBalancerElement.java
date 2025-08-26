@@ -478,6 +478,7 @@ public class InternalLoadBalancerElement extends AdapterBase implements LoadBala
         }
 
         element = new VirtualRouterProviderVO(ntwkSvcProviderId, Type.InternalLbVm);
+        element.setEnabled(true);
         element = _vrProviderDao.persist(element);
         return element;
     }
