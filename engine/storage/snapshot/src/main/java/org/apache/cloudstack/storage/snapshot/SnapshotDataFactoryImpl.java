@@ -209,7 +209,7 @@ public class SnapshotDataFactoryImpl implements SnapshotDataFactory {
         if (snapshot == null) {
             return null;
         }
-        List<SnapshotDataStoreVO> snapshotStores = snapshotStoreDao.findBySnapshotId(snapshotId);
+        List<SnapshotDataStoreVO> snapshotStores = snapshotStoreDao.listBySnapshot(snapshotId, role);
         logger.info("SnapshotDataFactoryImpl.java snapshotStores:::::::::::::::::" + snapshotStores);
         SnapshotDataStoreVO snapshotStore = null;
         for (SnapshotDataStoreVO ref : snapshotStores) {

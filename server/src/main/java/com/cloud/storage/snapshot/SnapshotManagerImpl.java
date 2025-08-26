@@ -429,8 +429,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             }
         }
 
-        DataStoreRole dataStoreRole = snapshotHelper.getDataStoreRole(snapshot);
-        logger.info("SnapshotManagerImpl.java dataStoreRole::::::::::::::::::" + dataStoreRole);
+        DataStoreRole dataStoreRole = DataStoreRole.Primary;
 
         SnapshotInfo snapshotInfo = snapshotFactory.getSnapshotWithRoleAndZone(snapshotId, dataStoreRole, volume.getDataCenterId(), backup);
         logger.info("SnapshotManagerImpl.java snapshotInfo::::::::::::::::::" + snapshotInfo);
