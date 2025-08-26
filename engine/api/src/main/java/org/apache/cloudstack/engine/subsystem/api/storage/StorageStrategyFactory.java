@@ -38,6 +38,8 @@ public interface StorageStrategyFactory {
 
     SnapshotStrategy getSnapshotStrategy(Snapshot snapshot, Long zoneId, SnapshotOperation op);
 
+    SnapshotStrategy getSnapshotStrategy(Snapshot snapshot, Long zoneId, SnapshotOperation op, boolean backup);
+
     VMSnapshotStrategy getVmSnapshotStrategy(VMSnapshot vmSnapshot);
 
     /**
