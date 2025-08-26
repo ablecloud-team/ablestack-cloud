@@ -1030,7 +1030,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 return null;
             }
             JSONObject jObject = XML.toJSONObject(sb.toString());
-            JSONObject response = (JSONObject) jObject.get("revertsnapshotresponse");
+            JSONObject response = (JSONObject) jObject.get("revertsnapshotbackupresponse");
             LOG.info(response.toString());
             return response.toString();
         } catch (Exception e) {
