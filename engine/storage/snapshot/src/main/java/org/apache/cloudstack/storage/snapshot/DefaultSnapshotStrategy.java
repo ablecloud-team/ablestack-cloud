@@ -673,7 +673,7 @@ public class DefaultSnapshotStrategy extends SnapshotStrategyBase {
         if (volumeVO == null || !ImageFormat.QCOW2.equals(volumeVO.getFormat())) {
             return false;
         }
-        List<SnapshotDataStoreVO> snapshotStores = snapshotStoreDao.findByIdIncludingRemoved(snapshot.getId());
+        List<SnapshotDataStoreVO> snapshotStores = snapshotStoreDao.listBySnapshotIdAndState(snapshot.getId(), State.Destroyed);
         logger.info("DefaultSnapshotStrategy.java isSnapshotStoredOnSameZoneStoreForQCOW2Volume snapshotStores ::::::::::::::::::" + snapshotStores);
         return CollectionUtils.isNotEmpty(snapshotStores) &&
                 snapshotStores.stream().anyMatch(s -> Objects.equals(
