@@ -506,25 +506,15 @@ public class DefaultSnapshotStrategy extends SnapshotStrategyBase {
                 throw new CloudRuntimeException("store is not in up state");
             }
 
-            volumeInfo.stateTransit(Volume.Event.RevertSnapshotRequested);
-
             boolean result = false;
 
-            try {
-                result =  snapshotSvr.revertSnapshot(snapshot, backup);
-                logger.info("DefaultSnapshotStrategy.java result ::::::::::::::::::" + result);
+            result =  snapshotSvr.revertSnapshot(snapshot, backup);
+            logger.info("DefaultSnapshotStrategy.java result ::::::::::::::::::" + result);
 
-                if (!result) {
-                    logger.debug("Failed to revert snapshot: {}", snapshot);
+            if (!result) {
+                logger.debug("Failed to revert snapshot: {}", snapshot);
 
-                    throw new CloudRuntimeException(String.format("Failed to revert snapshot: %s", snapshot));
-                }
-            } finally {
-                if (result) {
-                    volumeInfo.stateTransit(Volume.Event.OperationSucceeded);
-                } else {
-                    volumeInfo.stateTransit(Volume.Event.OperationFailed);
-                }
+                throw new CloudRuntimeException(String.format("Failed to revert snapshot: %s", snapshot));
             }
 
             return result;
