@@ -31,8 +31,6 @@ public interface SnapshotService {
 
     boolean revertSnapshot(SnapshotInfo snapshot);
 
-    boolean revertSnapshot(SnapshotInfo snapshot, boolean backup);
-
     void syncVolumeSnapshotsToRegionStore(long volumeId, DataStore store);
 
     void cleanupVolumeDuringSnapshotFailure(Long volumeId, Long snapshotId);

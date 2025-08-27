@@ -455,7 +455,7 @@ public class DefaultSnapshotStrategy extends SnapshotStrategyBase {
                 throw new CloudRuntimeException("store is not in up state");
             }
 
-            volumeInfo.stateTransit(Volume.Event.RevertSnapshotRequested);
+            // volumeInfo.stateTransit(Volume.Event.RevertSnapshotRequested);
 
             boolean result = false;
 
@@ -468,53 +468,11 @@ public class DefaultSnapshotStrategy extends SnapshotStrategyBase {
                     throw new CloudRuntimeException(String.format("Failed to revert snapshot: %s", snapshot));
                 }
             } finally {
-                if (result) {
-                    volumeInfo.stateTransit(Volume.Event.OperationSucceeded);
-                } else {
-                    volumeInfo.stateTransit(Volume.Event.OperationFailed);
-                }
-            }
-
-            return result;
-        } finally {
-            if (snapshotVO != null) {
-                snapshotDao.releaseFromLockTable(snapshot.getId());
-            }
-        }
-    }
-
-    @Override
-    public boolean revertSnapshot(SnapshotInfo snapshot, boolean backup) {
-        logger.info("DefaultSnapshotStrategy.java revertSnapshot ::::::::::::::::::");
-        if (canHandle(snapshot, null, SnapshotOperation.REVERT, backup) == StrategyPriority.CANT_HANDLE) {
-            throw new CloudRuntimeException("Reverting not supported. Create a template or volume based on the snapshot instead.");
-        }
-
-        SnapshotVO snapshotVO = snapshotDao.acquireInLockTable(snapshot.getId());
-        logger.info("DefaultSnapshotStrategy.java snapshotVO ::::::::::::::::::" + snapshotVO);
-        if (snapshotVO == null) {
-            throw new CloudRuntimeException(String.format("Failed to get lock on snapshot: %s", snapshot));
-        }
-
-        try {
-            VolumeInfo volumeInfo = snapshot.getBaseVolume();
-            StoragePool store = (StoragePool)volumeInfo.getDataStore();
-
-            if (store != null && store.getStatus() != StoragePoolStatus.Up) {
-                snapshot.processEvent(Event.OperationFailed);
-
-                throw new CloudRuntimeException("store is not in up state");
-            }
-
-            boolean result = false;
-
-            result =  snapshotSvr.revertSnapshot(snapshot, backup);
-            logger.info("DefaultSnapshotStrategy.java result ::::::::::::::::::" + result);
-
-            if (!result) {
-                logger.debug("Failed to revert snapshot: {}", snapshot);
-
-                throw new CloudRuntimeException(String.format("Failed to revert snapshot: %s", snapshot));
+                // if (result) {
+                //     volumeInfo.stateTransit(Volume.Event.OperationSucceeded);
+                // } else {
+                //     volumeInfo.stateTransit(Volume.Event.OperationFailed);
+                // }
             }
 
             return result;
@@ -629,42 +587,11 @@ public class DefaultSnapshotStrategy extends SnapshotStrategyBase {
         return StrategyPriority.DEFAULT;
     }
 
-    @Override
-    public StrategyPriority canHandle(Snapshot snapshot, Long zoneId, SnapshotOperation op, boolean backup) {
-        logger.info("DefaultSnapshotStrategy.java canHandle ::::::::::::::::::");
-        if (SnapshotOperation.REVERT.equals(op)) {
-            long volumeId = snapshot.getVolumeId();
-            VolumeVO volumeVO = volumeDao.findById(volumeId);
-
-            if (isSnapshotStoredOnSameZoneStoreForQCOW2Volume(snapshot, volumeVO, backup)) {
-                logger.info("DefaultSnapshotStrategy.java isSnapshotStoredOnSameZoneStoreForQCOW2Volume ::::::::::::::::::");
-                return StrategyPriority.DEFAULT;
-            }
-
-            return StrategyPriority.CANT_HANDLE;
-        }
-        if (zoneId != null && SnapshotOperation.DELETE.equals(op)) {
-            logger.debug(String.format("canHandle for zone ID: %d, operation: %s - %s", zoneId, op, StrategyPriority.DEFAULT));
-        }
-        return StrategyPriority.DEFAULT;
-    }
-
     protected boolean isSnapshotStoredOnSameZoneStoreForQCOW2Volume(Snapshot snapshot, VolumeVO volumeVO) {
         if (volumeVO == null || !ImageFormat.QCOW2.equals(volumeVO.getFormat())) {
             return false;
         }
         List<SnapshotDataStoreVO> snapshotStores = snapshotStoreDao.listBySnapshotIdAndState(snapshot.getId(), State.Ready);
-        return CollectionUtils.isNotEmpty(snapshotStores) &&
-                snapshotStores.stream().anyMatch(s -> Objects.equals(
-                        dataStoreMgr.getStoreZoneId(s.getDataStoreId(), s.getRole()), volumeVO.getDataCenterId()));
-    }
-
-    protected boolean isSnapshotStoredOnSameZoneStoreForQCOW2Volume(Snapshot snapshot, VolumeVO volumeVO, boolean backup) {
-        if (volumeVO == null || !ImageFormat.QCOW2.equals(volumeVO.getFormat())) {
-            return false;
-        }
-        List<SnapshotDataStoreVO> snapshotStores = snapshotStoreDao.listBySnapshotIdAndState(snapshot.getId(), State.Destroyed);
-        logger.info("DefaultSnapshotStrategy.java isSnapshotStoredOnSameZoneStoreForQCOW2Volume snapshotStores ::::::::::::::::::" + snapshotStores);
         return CollectionUtils.isNotEmpty(snapshotStores) &&
                 snapshotStores.stream().anyMatch(s -> Objects.equals(
                         dataStoreMgr.getStoreZoneId(s.getDataStoreId(), s.getRole()), volumeVO.getDataCenterId()));

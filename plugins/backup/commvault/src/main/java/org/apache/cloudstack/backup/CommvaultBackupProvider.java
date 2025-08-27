@@ -16,8 +16,6 @@
 // under the License.
 package org.apache.cloudstack.backup;
 
-import com.cloud.agent.api.Answer;
-import com.cloud.agent.api.to.DataTO;
 import com.cloud.api.query.vo.UserVmJoinVO;
 import com.cloud.api.query.dao.UserVmJoinDao;
 import com.cloud.cluster.ManagementServerHostVO;
@@ -48,15 +46,10 @@ import com.cloud.utils.nio.TrustAllManager;
 // import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
-import org.apache.cloudstack.engine.subsystem.api.storage.DataObject;
-import org.apache.cloudstack.engine.subsystem.api.storage.EndPoint;
-import org.apache.cloudstack.engine.subsystem.api.storage.EndPointSelector;
-import org.apache.cloudstack.engine.subsystem.api.storage.SnapshotDataFactory;
-import org.apache.cloudstack.engine.subsystem.api.storage.SnapshotInfo;
 import org.apache.cloudstack.storage.command.RevertSnapshotCommand;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreVO;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreDao;
-import org.apache.cloudstack.storage.to.SnapshotObjectTO;
+import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.backup.commvault.CommvaultClient;
 import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDaoImpl;
@@ -93,6 +86,9 @@ import java.util.StringTokenizer;
 import java.util.StringJoiner;
 import java.util.Properties;
 import java.util.Collections;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -181,15 +177,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     private SnapshotDao snapshotDao;
 
     @Inject
-    private SnapshotDataFactory snapshotFactory;
-
-    @Inject
-    private EndPointSelector epSelector;
-
-    @Override
-    public DataTO getTO(DataObject data) {
-        return null;
-    }
+    private PrimaryDataStoreDao primaryDataStoreDao;
 
     private static String getUrlDomain(String url) throws URISyntaxException {
         URI uri;
@@ -483,50 +471,22 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         SnapshotVO snapshot = snapshotDao.findByIdIncludingRemoved(Long.parseLong(snapshots[i]));
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshot" + snapshot);
                         VolumeVO volume = volumeDao.findById(snapshot.getVolumeId());
-                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: volume" + volume);
-                        SnapshotInfo snapshotOnPrimaryStore = snapshotFactory.getSnapshotOnPrimaryStore(snapshot.getId(), true);
-                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshotOnPrimaryStore" + snapshotOnPrimaryStore);
-                        SnapshotInfo snapshotInfo = snapshotFactory.getSnapshotWithRoleAndZone(Long.parseLong(snapshots[i]), DataStoreRole.Primary, volume.getDataCenterId(), true);
-                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshotInfo" + snapshotInfo);
-                        SnapshotObjectTO dataOnPrimaryStorage = (SnapshotObjectTO)snapshotOnPrimaryStore.getTO();
-                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: dataOnPrimaryStorage" + dataOnPrimaryStorage);
-                        RevertSnapshotCommand cmd = new RevertSnapshotCommand((SnapshotObjectTO)snapshot.getTO(), dataOnPrimaryStorage);
+                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: volume" + volume.getPath());
+                        StoragePoolVO storagePool = primaryDataStoreDao.findById(volume.getPoolId());
+                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: storagePool" + storagePool);
+                        String volumePath = String.format("%s/%s", storagePool.getPath(), volume.getPath());
                         try {
-                            EndPoint ep = epSelector.select(snapshotOnPrimaryStore);
-                            LOG.info("CommvaultBackupProvider.java::::::::::::::::::: ep" + ep);
-                            if (ep == null){
-                                String errMsg = "No remote endpoint to send RevertSnapshotCommand.";
-                                LOG.info(errMsg);
-                                if (!checkResult.isEmpty()) {
-                                    for (String value : checkResult.values()) {
-                                        LOG.info(value);
-                                        // rm -rf 복원된 스냅샷 경로 ssh 명령 전송 추가
-                                    }
-                                }
-                                return false;
-                            } else {
-                                Answer answer = ep.sendMessage(cmd);
-                                if (answer != null && !answer.getResult()) {
-                                    LOG.info("failed");
-                                    if (!checkResult.isEmpty()) {
-                                        for (String value : checkResult.values()) {
-                                            LOG.info(value);
-                                            // rm -rf 복원된 스냅샷 경로 ssh 명령 전송 추가
-                                        }
-                                    }
-                                    throw new CloudRuntimeException("Failed to revert backup : " + answer.getDetails());
-                                }
-                                LOG.info("success");
-                            }
-                        } catch (Exception ex) {
-                            LOG.info("Unable to revert snapshot {}", snapshot, ex);
+                            replaceVolumeWithSnapshot(volumePath, snapshots[i]);
+                            LOG.info(String.format("Successfully reverted volume to snapshot [%s].", snapshots[i]));
+                        } catch (IOException ex) {
                             if (!checkResult.isEmpty()) {
                                 for (String value : checkResult.values()) {
+                                    LOG.info("checkResult::::::::::::::::::");
                                     LOG.info(value);
                                     // rm -rf 복원된 스냅샷 경로 ssh 명령 전송 추가
                                 }
                             }
-                            return false;
+                            throw new CloudRuntimeException(String.format("Unable to revert volume to snapshot [%s] due to [%s].", snapshots[i], ex.getMessage()), ex);
                         }
                         if (snapshots.length > 1) {
                             LOG.info("snapshots.length > 1");
@@ -1235,4 +1195,13 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return serverInfo;
     }
 
+    /**
+     * Replaces the current volume with the snapshot.
+     * @throws IOException If can't replace the current volume with the snapshot.
+     */
+    protected void replaceVolumeWithSnapshot(String volumePath, String snapshotPath) throws IOException {
+        logger.info("replaceVolumeWithSnapshot snapshotPath::: " + snapshotPath);
+        logger.info("replaceVolumeWithSnapshot volumePath::: " + volumePath);
+        Files.copy(Paths.get(snapshotPath), Paths.get(volumePath), StandardCopyOption.REPLACE_EXISTING);
+    }
 }

@@ -71,5 +71,4 @@ public class VmWorkTakeVolumeSnapshot extends VmWork {
     public List<Long> getZoneIds() {
         return zoneIds;
     }
-
 }
