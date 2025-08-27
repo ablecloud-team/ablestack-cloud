@@ -400,64 +400,6 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
     }
 
     @Override
-    public Snapshot revertSnapshot(Long snapshotId, boolean backup) {
-        logger.info("SnapshotManagerImpl.java revertSnapshot::::::::::::::::::");
-        SnapshotVO snapshot = _snapshotDao.findByIdIncludingRemoved(snapshotId);
-        logger.info("SnapshotManagerImpl.java snapshot::::::::::::::::::" + snapshot);
-        if (snapshot == null) {
-            throw new InvalidParameterValueException("No such snapshot");
-        }
-
-        if (Type.GROUP.name().equals(snapshot.getTypeDescription())) {
-            throw new InvalidParameterValueException(String.format("The snapshot [%s] is part of a [%s] snapshots and cannot be reverted separately", snapshot, snapshot.getTypeDescription()));
-        }
-        VolumeVO volume = _volsDao.findById(snapshot.getVolumeId());
-        if (!backup) {
-            if (volume.getState() != Volume.State.Ready) {
-                throw new InvalidParameterValueException("The volume is not in Ready state.");
-            }
-        }
-        Long instanceId = volume.getInstanceId();
-
-        // If this volume is attached to an VM, then the VM needs to be in the stopped state
-        // in order to revert the volume
-        if (instanceId != null) {
-            // If target VM has associated VM snapshots then don't allow to revert from snapshot
-            List<VMSnapshotVO> vmSnapshots = _vmSnapshotDao.findByVm(instanceId);
-            if (vmSnapshots.size() > 0 && !Type.GROUP.name().equals(snapshot.getTypeDescription())) {
-                throw new InvalidParameterValueException("Unable to revert snapshot for VM, please remove VM snapshots before reverting VM from snapshot");
-            }
-        }
-
-        DataStoreRole dataStoreRole = DataStoreRole.Primary;
-
-        SnapshotInfo snapshotInfo = snapshotFactory.getSnapshotWithRoleAndZone(snapshotId, dataStoreRole, volume.getDataCenterId(), backup);
-        logger.info("SnapshotManagerImpl.java snapshotInfo::::::::::::::::::" + snapshotInfo);
-        if (snapshotInfo == null) {
-            throw new CloudRuntimeException(String.format("snapshot %s [%s] does not exists in data store", snapshot.getName(), snapshot.getUuid()));
-        }
-
-        SnapshotStrategy snapshotStrategy = _storageStrategyFactory.getSnapshotStrategy(snapshot, SnapshotOperation.REVERT, backup);
-        logger.info("SnapshotManagerImpl.java snapshotStrategy::::::::::::::::::" + snapshotStrategy);
-        if (snapshotStrategy == null) {
-            logger.error("Unable to find snapshot strategy to handle snapshot {}", snapshot);
-            String errorMsg = String.format("Revert snapshot command failed for snapshot %s, because this command is supported only for KVM hypervisor", snapshot);
-            throw new CloudRuntimeException(errorMsg);
-        }
-
-        boolean result = snapshotStrategy.revertSnapshot(snapshotInfo, backup);
-        logger.info("SnapshotManagerImpl.java result::::::::::::::::::" + result);
-        if (result) {
-            // update volume size and primary storage count
-            _resourceLimitMgr.decrementResourceCount(snapshot.getAccountId(), ResourceType.primary_storage, volume.getSize() - snapshot.getSize());
-            volume.setSize(snapshot.getSize());
-            _volsDao.update(volume.getId(), volume);
-            return snapshotInfo;
-        }
-        return null;
-    }
-
-    @Override
     @ActionEvent(eventType = EventTypes.EVENT_SNAPSHOT_POLICY_UPDATE, eventDescription = "updating snapshot policy", async = true)
     public SnapshotPolicy updateSnapshotPolicy(UpdateSnapshotPolicyCmd cmd) {
 

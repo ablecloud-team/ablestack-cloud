@@ -180,36 +180,6 @@ public class StorPoolSnapshotStrategy implements SnapshotStrategy {
         return StrategyPriority.CANT_HANDLE;
     }
 
-    @Override
-    public StrategyPriority canHandle(Snapshot snapshot, Long zoneId, SnapshotOperation op, boolean backup) {
-        logger.debug("StorpoolSnapshotStrategy.canHandle: snapshot {}, op={}", snapshot, op);
-
-        if (op != SnapshotOperation.DELETE) {
-            return StrategyPriority.CANT_HANDLE;
-        }
-        SnapshotDataStoreVO snapshotOnPrimary = _snapshotStoreDao.findOneBySnapshotAndDatastoreRole(snapshot.getId(), DataStoreRole.Primary);
-        if (snapshotOnPrimary == null) {
-            return StrategyPriority.CANT_HANDLE;
-        }
-        if (zoneId != null) { // If zoneId is present, then it should be same as the zoneId of primary store
-            StoragePoolVO storagePoolVO = _primaryDataStoreDao.findById(snapshotOnPrimary.getDataStoreId());
-            if (!zoneId.equals(storagePoolVO.getDataCenterId())) {
-                return StrategyPriority.CANT_HANDLE;
-            }
-        }
-        String name = StorPoolHelper.getSnapshotName(snapshot.getId(), snapshot.getUuid(), _snapshotStoreDao, _snapshotDetailsDao);
-        if (name != null) {
-            StorPoolUtil.spLog("StorpoolSnapshotStrategy.canHandle: globalId=%s", name);
-
-            return StrategyPriority.HIGHEST;
-        }
-        SnapshotDetailsVO snapshotDetails = _snapshotDetailsDao.findDetail(snapshot.getId(), snapshot.getUuid());
-        if (snapshotDetails != null) {
-            _snapshotDetailsDao.remove(snapshotDetails.getId());
-        }
-        return StrategyPriority.CANT_HANDLE;
-    }
-
     private boolean deleteSnapshotChain(SnapshotInfo snapshot) {
         logger.debug("delete snapshot chain for snapshot: {}", snapshot);
         final SnapshotInfo snapOnImage = snapshot;
@@ -404,11 +374,6 @@ public class StorPoolSnapshotStrategy implements SnapshotStrategy {
 
     @Override
     public boolean revertSnapshot(SnapshotInfo snapshot) {
-        return false;
-    }
-
-    @Override
-    public boolean revertSnapshot(SnapshotInfo snapshot, boolean backup) {
         return false;
     }
 

@@ -455,7 +455,7 @@ public class DefaultSnapshotStrategy extends SnapshotStrategyBase {
                 throw new CloudRuntimeException("store is not in up state");
             }
 
-            // volumeInfo.stateTransit(Volume.Event.RevertSnapshotRequested);
+            volumeInfo.stateTransit(Volume.Event.RevertSnapshotRequested);
 
             boolean result = false;
 
@@ -468,11 +468,11 @@ public class DefaultSnapshotStrategy extends SnapshotStrategyBase {
                     throw new CloudRuntimeException(String.format("Failed to revert snapshot: %s", snapshot));
                 }
             } finally {
-                // if (result) {
-                //     volumeInfo.stateTransit(Volume.Event.OperationSucceeded);
-                // } else {
-                //     volumeInfo.stateTransit(Volume.Event.OperationFailed);
-                // }
+                if (result) {
+                    volumeInfo.stateTransit(Volume.Event.OperationSucceeded);
+                } else {
+                    volumeInfo.stateTransit(Volume.Event.OperationFailed);
+                }
             }
 
             return result;
