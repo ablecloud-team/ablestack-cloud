@@ -628,6 +628,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         UserAccount user = accountService.getActiveUserAccount("admin", 1L);
         String apiKey = user.getApiKey();
         String secretKey = user.getSecretKey();
+        if (apiKey == null || secretKey == null) {
+            throw new CloudRuntimeException("Failed because the API key and Secret key for the admin account do not exist.");
+        }
         UserVmJoinVO userVM = userVmJoinDao.findById(vm.getId());
         List<VolumeVO> volumes = volsDao.findByInstance(userVM.getId());
         StringJoiner joiner = new StringJoiner(",");
