@@ -1545,7 +1545,7 @@ public class DateraPrimaryDataStoreDriver implements PrimaryDataStoreDriver {
     @Override
     public void revertSnapshot(SnapshotInfo snapshotInfo, SnapshotInfo snapshotOnPrimaryStore,
             AsyncCompletionCallback<CommandResult> callback) {
-
+        logger.info("DateraPrimaryDataStoreDriver.java :::::::::::::::::::::::");
         VolumeInfo volumeInfo = snapshotInfo.getBaseVolume();
         VolumeVO volumeVO = _volumeDao.findById(volumeInfo.getId());
 
