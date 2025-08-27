@@ -47,6 +47,8 @@ import com.cloud.utils.nio.TrustAllManager;
 // import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
+import org.apache.cloudstack.engine.subsystem.api.storage.EndPoint;
+import org.apache.cloudstack.engine.subsystem.api.storage.EndPointSelector;
 import org.apache.cloudstack.engine.subsystem.api.storage.SnapshotDataFactory;
 import org.apache.cloudstack.engine.subsystem.api.storage.SnapshotInfo;
 import org.apache.cloudstack.storage.command.RevertSnapshotCommand;
@@ -178,6 +180,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     @Inject
     private SnapshotDataFactory snapshotFactory;
+
+    @Inject
+    private EndPointSelector epSelector;
 
     private static String getUrlDomain(String url) throws URISyntaxException {
         URI uri;
@@ -468,13 +473,13 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 if (snapshotId != null || !snapshotId.isEmpty()) {
                     String[] snapshots = snapshotId.split(",");
                     for (int i=0; i < snapshots.length; i++) {
-                        SnapshotVO snapshot = snapshotDao.findByIdIncludingRemoved(snapshots[i]);
+                        SnapshotVO snapshot = snapshotDao.findByIdIncludingRemoved(Long.parseLong(snapshots[i]));
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshot" + snapshot);
                         VolumeVO volume = volumeDao.findById(snapshot.getVolumeId());
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: volume" + volume);
                         SnapshotInfo snapshotOnPrimaryStore = snapshotFactory.getSnapshotOnPrimaryStore(snapshot.getId(), true);
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshotOnPrimaryStore" + snapshotOnPrimaryStore);
-                        SnapshotInfo snapshotInfo = snapshotFactory.getSnapshotWithRoleAndZone(snapshots[i], DataStoreRole.Primary, volume.getDataCenterId(), true);
+                        SnapshotInfo snapshotInfo = snapshotFactory.getSnapshotWithRoleAndZone(Long.parseLong(snapshots[i]), DataStoreRole.Primary, volume.getDataCenterId(), true);
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshotInfo" + snapshotInfo);
                         SnapshotObjectTO dataOnPrimaryStorage = (SnapshotObjectTO)snapshotOnPrimaryStore.getTO();
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: dataOnPrimaryStorage" + dataOnPrimaryStorage);
@@ -1005,51 +1010,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             }
             JSONObject jObject = XML.toJSONObject(sb.toString());
             JSONObject response = (JSONObject) jObject.get("createsnapshotbackupresponse");
-            return response.toString();
-        } catch (Exception e) {
-            LOG.error(String.format("Mold API endpoint not available"), e);
-            return null;
-        }
-    }
-
-    protected static String moldRevertSnapshotAPI(String region, String command, String method, String apiKey, String secretKey, Map<String, String> params) {
-        try {
-            String readLine = null;
-            StringBuffer sb = null;
-            String apiParams = buildParamsMold(command, params);
-            String urlFinal = buildUrl(apiParams, region, apiKey, secretKey);
-            URL url = new URL(urlFinal);
-            HttpURLConnection connection = null;
-            if (region.contains("https")) {
-                final SSLContext sslContext = SSLUtils.getSSLContext();
-                sslContext.init(null, new TrustManager[]{new TrustAllManager()}, new SecureRandom());
-                HttpsURLConnection httpsConnection = (HttpsURLConnection) url.openConnection();
-                httpsConnection.setSSLSocketFactory(sslContext.getSocketFactory());
-                connection = httpsConnection;
-            } else {
-                connection = (HttpURLConnection) url.openConnection();
-            }
-            connection.setDoOutput(true);
-            connection.setRequestMethod(method);
-            connection.setConnectTimeout(10000);
-            connection.setReadTimeout(180000);
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
-            if (connection.getResponseCode() == 200) {
-                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
-                sb = new StringBuffer();
-                while ((readLine = br.readLine()) != null) {
-                    sb.append(readLine);
-                }
-            } else {
-                String msg = "Failed to request mold API. response code : " + connection.getResponseCode();
-                LOG.info(connection.getResponseMessage());
-                LOG.error(msg);
-                return null;
-            }
-            JSONObject jObject = XML.toJSONObject(sb.toString());
-            JSONObject response = (JSONObject) jObject.get("revertsnapshotbackupresponse");
-            LOG.info(response.toString());
             return response.toString();
         } catch (Exception e) {
             LOG.error(String.format("Mold API endpoint not available"), e);
