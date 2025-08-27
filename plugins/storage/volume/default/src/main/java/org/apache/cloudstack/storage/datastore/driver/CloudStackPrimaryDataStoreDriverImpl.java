@@ -393,7 +393,6 @@ public class CloudStackPrimaryDataStoreDriverImpl implements PrimaryDataStoreDri
 
     @Override
     public void revertSnapshot(SnapshotInfo snapshot, SnapshotInfo snapshotOnPrimaryStore, AsyncCompletionCallback<CommandResult> callback) {
-        logger.info("CloudstackPrimaryDataStoreDriver.java :::::::::::::::::::::::");
         SnapshotObjectTO dataOnPrimaryStorage = null;
         if (snapshotOnPrimaryStore != null) {
             dataOnPrimaryStorage = (SnapshotObjectTO)snapshotOnPrimaryStore.getTO();

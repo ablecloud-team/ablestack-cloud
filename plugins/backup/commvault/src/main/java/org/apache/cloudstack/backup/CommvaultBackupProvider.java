@@ -16,6 +16,7 @@
 // under the License.
 package org.apache.cloudstack.backup;
 
+import com.cloud.agent.api.Answer;
 import com.cloud.api.query.vo.UserVmJoinVO;
 import com.cloud.api.query.dao.UserVmJoinDao;
 import com.cloud.cluster.ManagementServerHostVO;
@@ -30,6 +31,8 @@ import com.cloud.hypervisor.Hypervisor;
 import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
+import com.cloud.storage.SnapshotVO;
+import com.cloud.storage.dao.SnapshotDao;
 import com.cloud.storage.dao.StoragePoolHostDao;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.user.UserAccount;
@@ -44,8 +47,12 @@ import com.cloud.utils.nio.TrustAllManager;
 // import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
+import org.apache.cloudstack.engine.subsystem.api.storage.SnapshotDataFactory;
+import org.apache.cloudstack.engine.subsystem.api.storage.SnapshotInfo;
+import org.apache.cloudstack.storage.command.RevertSnapshotCommand;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreVO;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreDao;
+import org.apache.cloudstack.storage.to.SnapshotObjectTO;
 import org.apache.cloudstack.backup.commvault.CommvaultClient;
 import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDaoImpl;
@@ -167,7 +174,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     private UserVmJoinDao userVmJoinDao;
 
     @Inject
-    private VolumeDao volsDao;
+    private SnapshotDao snapshotDao;
+
+    @Inject
+    private SnapshotDataFactory snapshotFactory;
 
     private static String getUrlDomain(String url) throws URISyntaxException {
         URI uri;
@@ -453,53 +463,58 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         if (jobId2 != null) {
             String jobStatus = client.getJobStatus(jobId2);
             if (jobStatus.equalsIgnoreCase("Completed")) {
-                String[] properties = getServerProperties();
-                ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
-                String moldUrl = properties[1] + "://" + msHost.getServiceIP() + ":" + properties[0] + "/client/api/";
-                String moldMethod = "GET";
-                String moldCommand = "revertSnapshotBackup";
-                UserAccount user = accountService.getActiveUserAccount("admin", 1L);
-                String apiKey = user.getApiKey();
-                String secretKey = user.getSecretKey();
                 String snapshotId = backup.getSnapshotId();
                 Map<Object, String> checkResult = new HashMap<>();
                 if (snapshotId != null || !snapshotId.isEmpty()) {
                     String[] snapshots = snapshotId.split(",");
                     for (int i=0; i < snapshots.length; i++) {
-                        Map<String, String> snapshotParams = new HashMap<>();
-                        snapshotParams.put("id", snapshots[i]);
-                        snapshotParams.put("backup", "true");
-                        LOG.info(snapshotParams);
-                        LOG.info(moldUrl);
-                        LOG.info(moldMethod);
-                        LOG.info(moldCommand);
-                        LOG.info(apiKey);
-                        LOG.info(secretKey);
-                        String revertSnapResult = moldRevertSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                        LOG.info(revertSnapResult);
-                        if (revertSnapResult == null) {
-                            // rm -rf 복원된 스냅샷 경로 ssh 명령 전송
-                            LOG.info(path);
-                            LOG.error("Failed to request revertSnapshot Mold-API.");
-                            return false;
-                        } else {
-                            LOG.info("revertSnapResult");
-                            JSONObject jsonObject2 = new JSONObject(revertSnapResult);
-                            String jobId3 = jsonObject2.get("jobid").toString();
-                            LOG.info(jobId3);
-                            LOG.info(path);
-                            int jobStatus2 = getAsyncJobResult(moldUrl, apiKey, secretKey, jobId);
-                            if (jobStatus2 == 2) {
-                                LOG.info("revertSnapResult jobStatus2 2");
+                        SnapshotVO snapshot = snapshotDao.findByIdIncludingRemoved(snapshots[i]);
+                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshot" + snapshot);
+                        VolumeVO volume = volumeDao.findById(snapshot.getVolumeId());
+                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: volume" + volume);
+                        SnapshotInfo snapshotOnPrimaryStore = snapshotFactory.getSnapshotOnPrimaryStore(snapshot.getId(), true);
+                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshotOnPrimaryStore" + snapshotOnPrimaryStore);
+                        SnapshotInfo snapshotInfo = snapshotFactory.getSnapshotWithRoleAndZone(snapshots[i], DataStoreRole.Primary, volume.getDataCenterId(), true);
+                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshotInfo" + snapshotInfo);
+                        SnapshotObjectTO dataOnPrimaryStorage = (SnapshotObjectTO)snapshotOnPrimaryStore.getTO();
+                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: dataOnPrimaryStorage" + dataOnPrimaryStorage);
+                        RevertSnapshotCommand cmd = new RevertSnapshotCommand((SnapshotObjectTO)snapshot.getTO(), dataOnPrimaryStorage);
+                        try {
+                            EndPoint ep = epSelector.select(snapshotOnPrimaryStore);
+                            LOG.info("CommvaultBackupProvider.java::::::::::::::::::: ep" + ep);
+                            if (ep == null){
+                                String errMsg = "No remote endpoint to send RevertSnapshotCommand.";
+                                LOG.info(errMsg);
                                 if (!checkResult.isEmpty()) {
                                     for (String value : checkResult.values()) {
                                         LOG.info(value);
-                                        // rm -rf 복원된 냅샷 경로 ssh 명령 전송
+                                        // rm -rf 복원된 스냅샷 경로 ssh 명령 전송 추가
                                     }
                                 }
-                                LOG.error("revertSnapshot Mold-API async job resulted in failure.");
                                 return false;
+                            } else {
+                                Answer answer = ep.sendMessage(cmd);
+                                if (answer != null && !answer.getResult()) {
+                                    LOG.info("failed");
+                                    if (!checkResult.isEmpty()) {
+                                        for (String value : checkResult.values()) {
+                                            LOG.info(value);
+                                            // rm -rf 복원된 스냅샷 경로 ssh 명령 전송 추가
+                                        }
+                                    }
+                                    throw new CloudRuntimeException("Failed to revert backup : " + answer.getDetails());
+                                }
+                                LOG.info("success");
                             }
+                        } catch (Exception ex) {
+                            LOG.info("Unable to revert snapshot {}", snapshot, ex);
+                            if (!checkResult.isEmpty()) {
+                                for (String value : checkResult.values()) {
+                                    LOG.info(value);
+                                    // rm -rf 복원된 스냅샷 경로 ssh 명령 전송 추가
+                                }
+                            }
+                            return false;
                         }
                         if (snapshots.length > 1) {
                             LOG.info("snapshots.length > 1");
@@ -632,7 +647,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             throw new CloudRuntimeException("Failed because the API key and Secret key for the admin account do not exist.");
         }
         UserVmJoinVO userVM = userVmJoinDao.findById(vm.getId());
-        List<VolumeVO> volumes = volsDao.findByInstance(userVM.getId());
+        List<VolumeVO> volumes = volumeDao.findByInstance(userVM.getId());
         StringJoiner joiner = new StringJoiner(",");
         Map<Object, String> checkResult = new HashMap<>();
         for (VolumeVO vol : volumes) {
