@@ -46,7 +46,6 @@ import com.cloud.utils.nio.TrustAllManager;
 // import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
-import org.apache.cloudstack.storage.command.RevertSnapshotCommand;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreVO;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
@@ -548,13 +547,57 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             throw new CloudRuntimeException("Failed to get vm backup set guid commvault api");
         }
         LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volumeUuid, backup));
-        String result = client.restoreFullVM(endTime, subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, path);
-        if (result != null) {
-            // 스냅샷 복원 mold-API 호출
-            return null;
-        } else {
-            return null;
+        // 복원 실행
+        String jobId2 = client.restoreFullVM(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, path);
+        if (jobId2 != null) {
+            String jobStatus = client.getJobStatus(jobId2);
+            if (jobStatus.equalsIgnoreCase("Completed")) {
+                String snapshotId = backup.getSnapshotId();
+                Map<Object, String> checkResult = new HashMap<>();
+                if (snapshotId != null || !snapshotId.isEmpty()) {
+                    String[] snapshots = snapshotId.split(",");
+                    for (int i=0; i < snapshots.length; i++) {
+                        SnapshotVO snapshot = snapshotDao.findByIdIncludingRemoved(Long.parseLong(snapshots[i]));
+                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshot" + snapshot);
+                        VolumeVO volumes = volumeDao.findById(snapshot.getVolumeId());
+                        // 해당 볼륨이 위에서 선택한 볼륨이 아닌 경우 패스
+                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: volume" + volume.getPath());
+                        StoragePoolVO storagePool = primaryDataStoreDao.findById(volumes.getPoolId());
+                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: storagePool" + storagePool);
+                        String volumePath = String.format("%s/%s", storagePool.getPath(), volumes.getPath());
+                        try {
+                            replaceVolumeWithSnapshot(volumePath, snapshots[i]);
+                            LOG.info(String.format("Successfully reverted volume to snapshot [%s].", snapshots[i]));
+                        } catch (IOException ex) {
+                            if (!checkResult.isEmpty()) {
+                                for (String value : checkResult.values()) {
+                                    LOG.info("checkResult::::::::::::::::::");
+                                    LOG.info(value);
+                                    // rm -rf 복원된 스냅샷 경로 ssh 명령 전송 추가
+                                }
+                            }
+                            throw new CloudRuntimeException(String.format("Unable to revert volume to snapshot [%s] due to [%s].", snapshots[i], ex.getMessage()), ex);
+                        }
+                        if (snapshots.length > 1) {
+                            LOG.info("snapshots.length > 1");
+                            String[] paths = path.split(",");
+                            checkResult.put(snapshots[i], paths[i]);
+                            LOG.info(checkResult.toString());
+                        } else {
+                            LOG.info("snapshots.length = 1");
+                            checkResult.put(snapshots[i], path);
+                            LOG.info(checkResult.toString());
+                        }
+                    }
+                    return true;
+                }
+            } else {
+                // 복원 실패
+                LOG.error("restoreBackup commvault api resulted in " + jobStatus);
+                return false;
+            }
         }
+        return false;
         // VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
         // StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
         // Long restoredVolumeDiskSize = 0L;
