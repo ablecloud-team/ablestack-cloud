@@ -46,6 +46,7 @@ import com.cloud.utils.nio.TrustAllManager;
 // import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
+import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreVO;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
@@ -589,15 +590,15 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             LOG.info(checkResult.toString());
                         }
                     }
-                    return true;
+                    return null;
                 }
             } else {
                 // 복원 실패
                 LOG.error("restoreBackup commvault api resulted in " + jobStatus);
-                return false;
+                return null;
             }
         }
-        return false;
+        return null;
         // VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
         // StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
         // Long restoredVolumeDiskSize = 0L;
