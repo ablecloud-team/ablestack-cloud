@@ -396,7 +396,7 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
             }
             String publicIpAddressStr = String.valueOf(publicIpAddress.getAddress());
             try {
-                pingCheck(publicIpAddressStr, 300000);
+                pingCheck(publicIpAddressStr, 450000);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -438,7 +438,7 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
         stateTransitTo(automationController.getId(), AutomationController.Event.StartRequested);
         startAutomationControllerVMs();
         try {
-            pingCheck(publicIpAddressStr, 300000);
+            pingCheck(publicIpAddressStr, 450000);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -477,8 +477,8 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
         try {
             URL url = new URL("http://"+address+":"+port);
             URLConnection con = url.openConnection();
-            con.setConnectTimeout(30000);
-            con.setReadTimeout(45000);
+            con.setConnectTimeout(400000);
+            con.setReadTimeout(450000);
             HttpURLConnection exitCode = (HttpURLConnection)con;
             if(exitCode.getResponseCode() == 200) {
                 return true;
