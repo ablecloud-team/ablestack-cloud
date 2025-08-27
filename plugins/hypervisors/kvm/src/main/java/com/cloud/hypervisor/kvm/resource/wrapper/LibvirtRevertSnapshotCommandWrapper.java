@@ -211,6 +211,8 @@ public class LibvirtRevertSnapshotCommandWrapper extends CommandWrapper<RevertSn
      * @throws IOException If can't replace the current volume with the snapshot.
      */
     protected void replaceVolumeWithSnapshot(String volumePath, String snapshotPath) throws IOException {
+        logger.info("replaceVolumeWithSnapshot volumePath::: " + volumePath);
+        logger.info("replaceVolumeWithSnapshot snapshotPath::: " + snapshotPath);
         Files.copy(Paths.get(snapshotPath), Paths.get(volumePath), StandardCopyOption.REPLACE_EXISTING);
     }
 }
