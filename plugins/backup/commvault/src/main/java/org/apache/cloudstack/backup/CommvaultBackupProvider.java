@@ -17,6 +17,7 @@
 package org.apache.cloudstack.backup;
 
 import com.cloud.agent.api.Answer;
+import com.cloud.agent.api.to.DataTO;
 import com.cloud.api.query.vo.UserVmJoinVO;
 import com.cloud.api.query.dao.UserVmJoinDao;
 import com.cloud.cluster.ManagementServerHostVO;
@@ -183,6 +184,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     @Inject
     private EndPointSelector epSelector;
+
+    @Override
+    public DataTO getTO(DataObject data) {
+        return null;
+    }
 
     private static String getUrlDomain(String url) throws URISyntaxException {
         URI uri;
