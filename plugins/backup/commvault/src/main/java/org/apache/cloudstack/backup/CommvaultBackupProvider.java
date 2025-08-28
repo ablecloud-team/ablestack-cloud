@@ -497,6 +497,15 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             return false;
                         }
                     }
+                    if (!checkResult.isEmpty()) {
+                        for (String value : checkResult.values()) {
+                            LOG.info("checkResult::::::::::::::::::");
+                            LOG.info(value);
+                            String command = String.format(RM_COMMAND, value);
+                            LOG.info(command);
+                            executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
+                        }
+                    }
                     return true;
                 }
             } else {
