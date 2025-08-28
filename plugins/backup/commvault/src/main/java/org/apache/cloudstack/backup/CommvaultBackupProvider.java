@@ -40,6 +40,7 @@ import com.cloud.utils.PropertiesUtil;
 import com.cloud.utils.server.ServerProperties;
 import com.cloud.utils.Pair;
 import com.cloud.utils.Ternary;
+import com.cloud.utils.script.Script;
 import com.cloud.utils.component.AdapterBase;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
@@ -1248,6 +1249,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     protected void replaceVolumeWithSnapshot(String volumePath, String snapshotPath) throws IOException {
         logger.info("replaceVolumeWithSnapshot snapshotPath::: " + snapshotPath);
         logger.info("replaceVolumeWithSnapshot volumePath::: " + volumePath);
+        Script.runSimpleBashScript("chmod 744 " + volumePath);
+        Script.runSimpleBashScript("chmod 744 " + snapshotPath);
         Files.copy(Paths.get(snapshotPath), Paths.get(volumePath), StandardCopyOption.REPLACE_EXISTING);
     }
 }
