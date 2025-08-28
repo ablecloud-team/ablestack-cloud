@@ -468,7 +468,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 if (snapshotId != null || !snapshotId.isEmpty()) {
                     String[] snapshots = snapshotId.split(",");
                     for (int i=0; i < snapshots.length; i++) {
-                        SnapshotVO snapshot = snapshotDao.findByIdIncludingRemoved(Long.parseLong(snapshots[i]));
+                        SnapshotVO snapshot = snapshotDao.findByUuidIncludingRemoved(Long.parseLong(snapshots[i]));
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshot" + snapshot);
                         VolumeVO volume = volumeDao.findById(snapshot.getVolumeId());
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: volume" + volume.getPath());
@@ -566,8 +566,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         StoragePoolVO storagePool = primaryDataStoreDao.findById(volumes.getPoolId());
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: storagePool" + storagePool);
                         String volumePath = String.format("%s/%s", storagePool.getPath(), volumes.getPath());
+                        SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findLatestSnapshotForVolume(volumes.getId(), DataStoreRole.Primary);
                         try {
-                            replaceVolumeWithSnapshot(volumePath, snapshots[i]);
+                            replaceVolumeWithSnapshot(volumePath, snapshotStore.getInstallPath());
                             LOG.info(String.format("Successfully reverted volume to snapshot [%s].", snapshots[i]));
                         } catch (IOException ex) {
                             if (!checkResult.isEmpty()) {
