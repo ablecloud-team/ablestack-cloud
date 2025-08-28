@@ -555,6 +555,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             if (jobStatus.equalsIgnoreCase("Completed")) {
                 String snapshotId = backup.getSnapshotId();
                 Map<Object, String> checkResult = new HashMap<>();
+                String restoreVolume = null;
                 if (snapshotId != null || !snapshotId.isEmpty()) {
                     String[] snapshots = snapshotId.split(",");
                     for (int i=0; i < snapshots.length; i++) {
@@ -599,6 +600,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                 Date restoreJobEnd = new Date();
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
                                 checkResult.put(snapshots[i], volumePath);
+                                restoreVolume = restoredVolume.getUuid();
                             } else {
                                 volumeDao.expunge(restoredVolume.getId());
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed failed.");
@@ -615,7 +617,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     }
                     if (!checkResult.isEmpty()) {
                         LOG.info("!checkResult.isEmpty()");
-                        return new Pair<>(true,restoredVolume.getUuid());
+                        return new Pair<>(true,restoreVolume);
                     } else {
                         LOG.info("checkResult.isEmpty()");
                         return null;
