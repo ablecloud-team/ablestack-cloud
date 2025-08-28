@@ -475,7 +475,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         StoragePoolVO storagePool = primaryDataStoreDao.findById(volume.getPoolId());
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: storagePool" + storagePool);
                         String volumePath = String.format("%s/%s", storagePool.getPath(), volume.getPath());
-                        SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findLatestSnapshotForVolume(volume.getId(), DataStoreRole.Primary);
+                        SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findDestroyedReferenceBySnapshot(snapshot.getSnapshotId(), DataStoreRole.Primary);
                         try {
                             replaceVolumeWithSnapshot(volumePath, snapshotStore.getInstallPath());
                             LOG.info(String.format("Successfully reverted volume to snapshot [%s].", snapshots[i]));
@@ -567,7 +567,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         StoragePoolVO storagePool = primaryDataStoreDao.findById(volumes.getPoolId());
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: storagePool" + storagePool);
                         String volumePath = String.format("%s/%s", storagePool.getPath(), volumes.getPath());
-                        SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findLatestSnapshotForVolume(volumes.getId(), DataStoreRole.Primary);
+                        SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findDestroyedReferenceBySnapshot(snapshot.getSnapshotId(), DataStoreRole.Primary);
                         try {
                             replaceVolumeWithSnapshot(volumePath, snapshotStore.getInstallPath());
                             LOG.info(String.format("Successfully reverted volume to snapshot [%s].", snapshots[i]));
