@@ -468,15 +468,16 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 if (snapshotId != null || !snapshotId.isEmpty()) {
                     String[] snapshots = snapshotId.split(",");
                     for (int i=0; i < snapshots.length; i++) {
-                        SnapshotVO snapshot = snapshotDao.findByUuidIncludingRemoved(Long.parseLong(snapshots[i]));
+                        SnapshotVO snapshot = snapshotDao.findByUuidIncludingRemoved(snapshots[i]);
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshot" + snapshot);
                         VolumeVO volume = volumeDao.findById(snapshot.getVolumeId());
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: volume" + volume.getPath());
                         StoragePoolVO storagePool = primaryDataStoreDao.findById(volume.getPoolId());
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: storagePool" + storagePool);
                         String volumePath = String.format("%s/%s", storagePool.getPath(), volume.getPath());
+                        SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findLatestSnapshotForVolume(volumes.getId(), DataStoreRole.Primary);
                         try {
-                            replaceVolumeWithSnapshot(volumePath, snapshots[i]);
+                            replaceVolumeWithSnapshot(volumePath, snapshotStore.getInstallPath());
                             LOG.info(String.format("Successfully reverted volume to snapshot [%s].", snapshots[i]));
                         } catch (IOException ex) {
                             if (!checkResult.isEmpty()) {
@@ -558,7 +559,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 if (snapshotId != null || !snapshotId.isEmpty()) {
                     String[] snapshots = snapshotId.split(",");
                     for (int i=0; i < snapshots.length; i++) {
-                        SnapshotVO snapshot = snapshotDao.findByIdIncludingRemoved(Long.parseLong(snapshots[i]));
+                        SnapshotVO snapshot = snapshotDao.findByUuidIncludingRemoved(snapshots[i]);
                         LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshot" + snapshot);
                         VolumeVO volumes = volumeDao.findById(snapshot.getVolumeId());
                         // 해당 볼륨이 위에서 선택한 볼륨이 아닌 경우 패스
