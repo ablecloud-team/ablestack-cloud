@@ -287,10 +287,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return new Ternary<>(username, password, null);
     }
 
-    private String executeBackupCommand(HostVO host, String username, String password, String command) {
-        return null;
-    }
-
     private CommvaultClient getClient(final Long zoneId) {
         try {
             return new CommvaultClient(CommvaultUrl.valueIn(zoneId), CommvaultUsername.valueIn(zoneId), CommvaultPassword.valueIn(zoneId),
@@ -552,6 +548,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volumeUuid, backup));
         // 복원 실행
         HostVO hostVO = hostDao.findByName(clientName);
+        Ternary<String, String, String> credentials = getKVMHyperisorCredentials(hostVO);
         String jobId2 = client.restoreFullVM(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, path);
         if (jobId2 != null) {
             String jobStatus = client.getJobStatus(jobId2);
