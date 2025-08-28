@@ -469,28 +469,18 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findDestroyedReferenceBySnapshot(snapshot.getSnapshotId(), DataStoreRole.Primary);
                         String snapshotPath = snapshotStore.getInstallPath();
                         String command = String.format(CHMOD_COMMAND, snapshotPath) + " && " + String.format(RSYNC_COMMAND, snapshotPath, volumePath) + " && " + String.format(CHMOD_COMMAND, volumePath);
-                        LOG.info(command);
                         if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), command)) {
                             Date restoreJobEnd = new Date();
-                            LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
                             if (snapshots.length > 1) {
-                                LOG.info("snapshots.length > 1");
                                 String[] paths = path.split(",");
                                 checkResult.put(snapshots[i], paths[i]);
-                                LOG.info(checkResult.toString());
                             } else {
-                                LOG.info("snapshots.length = 1");
                                 checkResult.put(snapshots[i], path);
-                                LOG.info(checkResult.toString());
                             }
                         } else {
-                            LOG.info("Restore Job for jobID " + jobId2 + " completed failed.");
                             if (!checkResult.isEmpty()) {
                                 for (String value : checkResult.values()) {
-                                    LOG.info("checkResult::::::::::::::::::");
-                                    LOG.info(value);
                                     command = String.format(RM_COMMAND, value);
-                                    LOG.info(command);
                                     executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                                 }
                             }
@@ -499,10 +489,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     }
                     if (!checkResult.isEmpty()) {
                         for (String value : checkResult.values()) {
-                            LOG.info("checkResult::::::::::::::::::");
-                            LOG.info(value);
                             String command = String.format(RM_COMMAND, value);
-                            LOG.info(command);
                             executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                         }
                     }
