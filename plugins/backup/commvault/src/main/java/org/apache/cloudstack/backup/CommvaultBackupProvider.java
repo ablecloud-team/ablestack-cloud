@@ -40,7 +40,7 @@ import com.cloud.utils.PropertiesUtil;
 import com.cloud.utils.server.ServerProperties;
 import com.cloud.utils.Pair;
 import com.cloud.utils.Ternary;
-import com.cloud.utils.script.Script;
+import com.cloud.utils.ssh.SshHelper;
 import com.cloud.utils.component.AdapterBase;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
@@ -143,6 +143,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     private final ConfigKey<Boolean> CommvaultClientVerboseLogs = new ConfigKey<>("Advanced", Boolean.class,
             "backup.plugin.commvault.client.verbosity", "false",
             "Produce Verbose logs in Hypervisor", true, ConfigKey.Scope.Zone);
+
+    private static final String RSYNC_COMMAND = "rsync -az %s %s";
+    private static final String CHMOD_COMMAND = "chmod 744 %s";
+    private static final String RM_COMMAND = "rm -rf %s";
 
     @Inject
     private BackupDao backupDao;
@@ -291,10 +295,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return null;
     }
 
-    private boolean executeRestoreCommand(HostVO host, String username, String password, String command) {
-        return false;
-    }
-
     private CommvaultClient getClient(final Long zoneId) {
         try {
             return new CommvaultClient(CommvaultUrl.valueIn(zoneId), CommvaultUsername.valueIn(zoneId), CommvaultPassword.valueIn(zoneId),
@@ -425,7 +425,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     public boolean restoreVMFromBackup(VirtualMachine vm, Backup backup) {
         List<Backup.VolumeInfo> backedVolumes = backup.getBackedUpVolumes();
         List<VolumeVO> volumes = backedVolumes.stream().map(volume -> volumeDao.findByUuid(volume.getUuid())).collect(Collectors.toList());
-        final Host host = getLastVMHypervisorHost(vm);
         try {
             String commvaultServer = getUrlDomain(CommvaultUrl.value());
         } catch (URISyntaxException e) {
@@ -460,6 +459,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         LOG.info(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
         // 복원 실행
+        HostVO hostVO = hostDao.findByName(clientName);
+        Ternary<String, String, String> credentials = getKVMHyperisorCredentials(hostVO);
         String jobId2 = client.restoreFullVM(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, path);
         if (jobId2 != null) {
             String jobStatus = client.getJobStatus(jobId2);
@@ -470,35 +471,38 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     String[] snapshots = snapshotId.split(",");
                     for (int i=0; i < snapshots.length; i++) {
                         SnapshotVO snapshot = snapshotDao.findByUuidIncludingRemoved(snapshots[i]);
-                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshot" + snapshot);
                         VolumeVO volume = volumeDao.findById(snapshot.getVolumeId());
-                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: volume" + volume.getPath());
                         StoragePoolVO storagePool = primaryDataStoreDao.findById(volume.getPoolId());
-                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: storagePool" + storagePool);
                         String volumePath = String.format("%s/%s", storagePool.getPath(), volume.getPath());
                         SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findDestroyedReferenceBySnapshot(snapshot.getSnapshotId(), DataStoreRole.Primary);
-                        try {
-                            replaceVolumeWithSnapshot(volumePath, snapshotStore.getInstallPath());
-                            LOG.info(String.format("Successfully reverted volume to snapshot [%s].", snapshots[i]));
-                        } catch (IOException ex) {
+                        String snapshotPath = snapshotStore.getInstallPath();
+                        String command = String.format(CHMOD_COMMAND, snapshotPath) + " && " + String.format(RSYNC_COMMAND, snapshotPath, volumePath) + " && " + String.format(CHMOD_COMMAND, volumePath);
+                        LOG.info(command);
+                        if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), command)) {
+                            Date restoreJobEnd = new Date();
+                            LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
+                            if (snapshots.length > 1) {
+                                LOG.info("snapshots.length > 1");
+                                String[] paths = path.split(",");
+                                checkResult.put(snapshots[i], paths[i]);
+                                LOG.info(checkResult.toString());
+                            } else {
+                                LOG.info("snapshots.length = 1");
+                                checkResult.put(snapshots[i], path);
+                                LOG.info(checkResult.toString());
+                            }
+                        } else {
+                            LOG.info("Restore Job for jobID " + jobId2 + " completed failed.");
                             if (!checkResult.isEmpty()) {
                                 for (String value : checkResult.values()) {
                                     LOG.info("checkResult::::::::::::::::::");
                                     LOG.info(value);
-                                    // rm -rf 복원된 스냅샷 경로 ssh 명령 전송 추가
+                                    command = String.format(RM_COMMAND, value);
+                                    LOG.info(command);
+                                    executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);  
                                 }
                             }
-                            throw new CloudRuntimeException(String.format("Unable to revert volume to snapshot [%s] due to [%s].", snapshots[i], ex.getMessage()), ex);
-                        }
-                        if (snapshots.length > 1) {
-                            LOG.info("snapshots.length > 1");
-                            String[] paths = path.split(",");
-                            checkResult.put(snapshots[i], paths[i]);
-                            LOG.info(checkResult.toString());
-                        } else {
-                            LOG.info("snapshots.length = 1");
-                            checkResult.put(snapshots[i], path);
-                            LOG.info(checkResult.toString());
+                            return false;
                         }
                     }
                     return true;
@@ -551,6 +555,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volumeUuid, backup));
         // 복원 실행
+        HostVO hostVO = hostDao.findByName(clientName);
         String jobId2 = client.restoreFullVM(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, path);
         if (jobId2 != null) {
             String jobStatus = client.getJobStatus(jobId2);
@@ -561,36 +566,38 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     String[] snapshots = snapshotId.split(",");
                     for (int i=0; i < snapshots.length; i++) {
                         SnapshotVO snapshot = snapshotDao.findByUuidIncludingRemoved(snapshots[i]);
-                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: snapshot" + snapshot);
                         VolumeVO volumes = volumeDao.findById(snapshot.getVolumeId());
-                        // 해당 볼륨이 위에서 선택한 볼륨이 아닌 경우 패스
-                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: volume" + volume.getPath());
                         StoragePoolVO storagePool = primaryDataStoreDao.findById(volumes.getPoolId());
-                        LOG.info("CommvaultBackupProvider.java::::::::::::::::::: storagePool" + storagePool);
-                        String volumePath = String.format("%s/%s", storagePool.getPath(), volumes.getPath());
+                        String volumePath = String.format("%s/%s", storagePool.getPath(), volume.getPath());
                         SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findDestroyedReferenceBySnapshot(snapshot.getSnapshotId(), DataStoreRole.Primary);
-                        try {
-                            replaceVolumeWithSnapshot(volumePath, snapshotStore.getInstallPath());
-                            LOG.info(String.format("Successfully reverted volume to snapshot [%s].", snapshots[i]));
-                        } catch (IOException ex) {
+                        String snapshotPath = snapshotStore.getInstallPath();
+                        String command = String.format(CHMOD_COMMAND, snapshotPath) + " && " + String.format(RSYNC_COMMAND, snapshotPath, volumePath) + " && " + String.format(CHMOD_COMMAND, volumePath);
+                        LOG.info(command);
+                        if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), command)) {
+                            Date restoreJobEnd = new Date();
+                            LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
+                            if (snapshots.length > 1) {
+                                LOG.info("snapshots.length > 1");
+                                String[] paths = path.split(",");
+                                checkResult.put(snapshots[i], paths[i]);
+                                LOG.info(checkResult.toString());
+                            } else {
+                                LOG.info("snapshots.length = 1");
+                                checkResult.put(snapshots[i], path);
+                                LOG.info(checkResult.toString());
+                            }
+                        } else {
+                            LOG.info("Restore Job for jobID " + jobId2 + " completed failed.");
                             if (!checkResult.isEmpty()) {
                                 for (String value : checkResult.values()) {
                                     LOG.info("checkResult::::::::::::::::::");
                                     LOG.info(value);
-                                    // rm -rf 복원된 스냅샷 경로 ssh 명령 전송 추가
+                                    command = String.format(RM_COMMAND, value);
+                                    LOG.info(command);
+                                    executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);  
                                 }
                             }
-                            throw new CloudRuntimeException(String.format("Unable to revert volume to snapshot [%s] due to [%s].", snapshots[i], ex.getMessage()), ex);
-                        }
-                        if (snapshots.length > 1) {
-                            LOG.info("snapshots.length > 1");
-                            String[] paths = path.split(",");
-                            checkResult.put(snapshots[i], paths[i]);
-                            LOG.info(checkResult.toString());
-                        } else {
-                            LOG.info("snapshots.length = 1");
-                            checkResult.put(snapshots[i], path);
-                            LOG.info(checkResult.toString());
+                            return null;
                         }
                     }
                     return null;
@@ -1242,15 +1249,37 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return serverInfo;
     }
 
-    /**
-     * Replaces the current volume with the snapshot.
-     * @throws IOException If can't replace the current volume with the snapshot.
-     */
-    protected void replaceVolumeWithSnapshot(String volumePath, String snapshotPath) throws IOException {
-        logger.info("replaceVolumeWithSnapshot snapshotPath::: " + snapshotPath);
-        logger.info("replaceVolumeWithSnapshot volumePath::: " + volumePath);
-        Script.runSimpleBashScript("chmod 744 " + volumePath);
-        Script.runSimpleBashScript("chmod 744 " + snapshotPath);
-        Files.copy(Paths.get(snapshotPath), Paths.get(volumePath), StandardCopyOption.REPLACE_EXISTING);
+    private boolean executeRestoreCommand(HostVO host, String username, String password, String command) {
+        try {
+            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), 22,
+                    username, null, password, command, 120000, 120000, 3600000);
+
+            if (!response.first()) {
+                LOG.error(String.format("Restore failed on HYPERVISOR %s due to: %s", host, response.second()));
+            } else {
+                LOG.info(String.format("Commvault Restore Results: %s", response.second()));
+                return true;
+            }
+        } catch (final Exception e) {
+            throw new CloudRuntimeException(String.format("Failed to restore backup on host %s due to: %s", host.getName(), e.getMessage()));
+        }
+        return false;
+    }
+
+    private boolean executeDeleteSnapshotCommand(HostVO host, String username, String password, String command) {
+        try {
+            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), 22,
+                    username, null, password, command, 120000, 120000, 3600000);
+
+            if (!response.first()) {
+                LOG.error(String.format("Restore failed on HYPERVISOR %s due to: %s", host, response.second()));
+            } else {
+                LOG.info(String.format("Commvault Restore Results: %s", response.second()));
+                return true;
+            }
+        } catch (final Exception e) {
+            throw new CloudRuntimeException(String.format("Failed to restore backup on host %s due to: %s", host.getName(), e.getMessage()));
+        }
+        return false;
     }
 }
