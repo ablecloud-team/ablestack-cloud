@@ -565,6 +565,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findDestroyedReferenceBySnapshot(snapshot.getSnapshotId(), DataStoreRole.Primary);
                         String snapshotPath = snapshotStore.getInstallPath();
                         if (volumes.getPath() == volume.getPath()) {
+                            LOG.info("volume이 같은 경우");
                             VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
                             StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
                             Long restoredVolumeDiskSize = 0L;
@@ -597,17 +598,27 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), command)) {
                                 Date restoreJobEnd = new Date();
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
-                                return new Pair<>(true,restoredVolume.getUuid());
-                                // 성공한 경우 나머지 복원된 불필요한 스냅샷 삭제 로직 추가
+                                checkResult.put(snapshots[i], volumePath);
                             } else {
                                 volumeDao.expunge(restoredVolume.getId());
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed failed.");
-                                // 실패한 경우 전체 스냅샷 삭제
-                                return null;
+                                command = String.format(RM_COMMAND, snapshotPath);
+                                LOG.info(command);
+                                executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                             }
                         } else {
-                            // 복원된 스냅샷 rm -rf 해주기
+                            LOG.info("volume이 다른 경우");
+                            String command = String.format(RM_COMMAND, snapshotPath);
+                            LOG.info(command);
+                            executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                         }
+                    }
+                    if (!checkResult.isEmpty()) {
+                        LOG.info("!checkResult.isEmpty()");
+                        return new Pair<>(true,restoredVolume.getUuid());
+                    } else {
+                        LOG.info("checkResult.isEmpty()");
+                        return null;
                     }
                 }
             } else {
