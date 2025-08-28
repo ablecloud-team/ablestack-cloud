@@ -876,7 +876,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
 
     @Override
     public KVMStoragePool createStoragePool(String name, String host, int port, String path, String userInfo, StoragePoolType type, Map<String, String> details, boolean isPrimaryStorage) {
-        logger.info("Attempting to create storage pool " + name + " (" + type.toString() + ") in libvirt");
+        logger.info("Attempting to create storage pool {} ({}) in libvirt", name, type);
 
         // gluefs mount script call
         if (type == StoragePoolType.SharedMountPoint && !MapUtils.isEmpty(details) && !ObjectUtils.isEmpty(details.get("provider")) && "ABLESTACK".equals(details.get("provider"))) {
