@@ -21,7 +21,6 @@ import com.cloud.api.query.dao.UserVmJoinDao;
 import com.cloud.cluster.ManagementServerHostVO;
 import com.cloud.cluster.dao.ManagementServerHostDao;
 import com.cloud.dc.dao.ClusterDao;
-import com.cloud.host.Host;
 import com.cloud.host.HostVO;
 import com.cloud.host.Status;
 import com.cloud.host.dao.HostDao;
@@ -87,9 +86,6 @@ import java.util.StringTokenizer;
 import java.util.StringJoiner;
 import java.util.Properties;
 import java.util.Collections;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -499,7 +495,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                     LOG.info(value);
                                     command = String.format(RM_COMMAND, value);
                                     LOG.info(command);
-                                    executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);  
+                                    executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                                 }
                             }
                             return false;
@@ -594,7 +590,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                     LOG.info(value);
                                     command = String.format(RM_COMMAND, value);
                                     LOG.info(command);
-                                    executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);  
+                                    executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                                 }
                             }
                             return null;
