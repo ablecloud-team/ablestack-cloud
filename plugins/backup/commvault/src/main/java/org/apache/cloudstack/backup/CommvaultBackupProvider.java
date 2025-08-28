@@ -25,7 +25,7 @@ import com.cloud.host.HostVO;
 import com.cloud.host.Status;
 import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor;
-// import com.cloud.storage.StoragePoolHostVO;
+import com.cloud.storage.StoragePoolHostVO;
 import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
@@ -43,7 +43,7 @@ import com.cloud.utils.ssh.SshHelper;
 import com.cloud.utils.component.AdapterBase;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
-// import com.cloud.vm.VMInstanceVO;
+import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
@@ -79,7 +79,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Date;
 import java.util.Objects;
-// import java.util.UUID;
+import java.util.UUID;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.StringTokenizer;
@@ -564,36 +564,51 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         String volumePath = String.format("%s/%s", storagePool.getPath(), volume.getPath());
                         SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findDestroyedReferenceBySnapshot(snapshot.getSnapshotId(), DataStoreRole.Primary);
                         String snapshotPath = snapshotStore.getInstallPath();
-                        String command = String.format(CHMOD_COMMAND, snapshotPath) + " && " + String.format(RSYNC_COMMAND, snapshotPath, volumePath) + " && " + String.format(CHMOD_COMMAND, volumePath);
-                        LOG.info(command);
-                        if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), command)) {
-                            Date restoreJobEnd = new Date();
-                            LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
-                            if (snapshots.length > 1) {
-                                LOG.info("snapshots.length > 1");
-                                String[] paths = path.split(",");
-                                checkResult.put(snapshots[i], paths[i]);
-                                LOG.info(checkResult.toString());
+                        if (volumes.getPath() == volume.getPath()) {
+                            VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
+                            StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
+                            Long restoredVolumeDiskSize = 0L;
+                            // Find volume size  from backup vols
+                            for (Backup.VolumeInfo VMVolToRestore : backupSourceVm.getBackupVolumeList()) {
+                                if (VMVolToRestore.getUuid().equals(volumeUuid))
+                                    restoredVolumeDiskSize = (VMVolToRestore.getSize());
+                            }
+                            VolumeVO restoredVolume = new VolumeVO(Volume.Type.DATADISK, null, backup.getZoneId(),
+                                    backup.getDomainId(), backup.getAccountId(), 0, null,
+                                    backup.getSize(), null, null, null);
+                            restoredVolume.setName("RV-"+volume.getName());
+                            restoredVolume.setProvisioningType(volume.getProvisioningType());
+                            restoredVolume.setUpdated(new Date());
+                            restoredVolume.setUuid(UUID.randomUUID().toString());
+                            restoredVolume.setRemoved(null);
+                            restoredVolume.setDisplayVolume(true);
+                            restoredVolume.setPoolId(dataStore.getPoolId());
+                            restoredVolume.setPath(restoredVolume.getUuid());
+                            restoredVolume.setState(Volume.State.Copying);
+                            restoredVolume.setSize(restoredVolumeDiskSize);
+                            restoredVolume.setDiskOfferingId(volume.getDiskOfferingId());
+                            try {
+                                volumeDao.persist(restoredVolume);
+                            } catch (Exception e) {
+                                throw new CloudRuntimeException("Unable to craft restored volume due to: "+e);
+                            }
+                            String command = String.format(CHMOD_COMMAND, snapshotPath) + " && " + String.format(RSYNC_COMMAND, snapshotPath, restoredVolume.getUuid()) + " && " + String.format(CHMOD_COMMAND, restoredVolume.getUuid());
+                            LOG.info(command);
+                            if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), command)) {
+                                Date restoreJobEnd = new Date();
+                                LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
+                                return new Pair<>(true,restoredVolume.getUuid());
+                                // 성공한 경우 나머지 복원된 불필요한 스냅샷 삭제 로직 추가
                             } else {
-                                LOG.info("snapshots.length = 1");
-                                checkResult.put(snapshots[i], path);
-                                LOG.info(checkResult.toString());
+                                volumeDao.expunge(restoredVolume.getId());
+                                LOG.info("Restore Job for jobID " + jobId2 + " completed failed.");
+                                // 실패한 경우 전체 스냅샷 삭제
+                                return null;
                             }
                         } else {
-                            LOG.info("Restore Job for jobID " + jobId2 + " completed failed.");
-                            if (!checkResult.isEmpty()) {
-                                for (String value : checkResult.values()) {
-                                    LOG.info("checkResult::::::::::::::::::");
-                                    LOG.info(value);
-                                    command = String.format(RM_COMMAND, value);
-                                    LOG.info(command);
-                                    executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
-                                }
-                            }
-                            return null;
+                            // 복원된 스냅샷 rm -rf 해주기
                         }
                     }
-                    return null;
                 }
             } else {
                 // 복원 실패
@@ -602,34 +617,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             }
         }
         return null;
-        // VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
-        // StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
-        // Long restoredVolumeDiskSize = 0L;
-        // // Find volume size  from backup vols
-        // for (Backup.VolumeInfo VMVolToRestore : backupSourceVm.getBackupVolumeList()) {
-        //     if (VMVolToRestore.getUuid().equals(volumeUuid))
-        //         restoredVolumeDiskSize = (VMVolToRestore.getSize());
-        // }
-        // VolumeVO restoredVolume = new VolumeVO(Volume.Type.DATADISK, null, backup.getZoneId(),
-        //         backup.getDomainId(), backup.getAccountId(), 0, null,
-        //         backup.getSize(), null, null, null);
-        // restoredVolume.setName("RV-"+volume.getName());
-        // restoredVolume.setProvisioningType(volume.getProvisioningType());
-        // restoredVolume.setUpdated(new Date());
-        // restoredVolume.setUuid(UUID.randomUUID().toString());
-        // restoredVolume.setRemoved(null);
-        // restoredVolume.setDisplayVolume(true);
-        // restoredVolume.setPoolId(dataStore.getPoolId());
-        // restoredVolume.setPath(restoredVolume.getUuid());
-        // restoredVolume.setState(Volume.State.Copying);
-        // restoredVolume.setSize(restoredVolumeDiskSize);
-        // restoredVolume.setDiskOfferingId(volume.getDiskOfferingId());
-        // try {
-        //     volumeDao.persist(restoredVolume);
-        // } catch (Exception e) {
-        //     throw new CloudRuntimeException("Unable to craft restored volume due to: "+e);
-        // }
-        //복원 후 패스변경
     }
 
     @Override
