@@ -141,7 +141,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             "Produce Verbose logs in Hypervisor", true, ConfigKey.Scope.Zone);
 
     private static final String RSYNC_COMMAND = "cp %s %s";
-    private static final String CHMOD_COMMAND = "chmod 744 %s";
     private static final String RM_COMMAND = "rm -rf %s";
 
     @Inject
@@ -468,7 +467,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         String volumePath = String.format("%s/%s", storagePool.getPath(), volume.getPath());
                         SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findDestroyedReferenceBySnapshot(snapshot.getSnapshotId(), DataStoreRole.Primary);
                         String snapshotPath = snapshotStore.getInstallPath();
-                        String command = String.format(CHMOD_COMMAND, snapshotPath) + " && " + String.format(RSYNC_COMMAND, snapshotPath, volumePath) + " && " + String.format(CHMOD_COMMAND, volumePath);
+                        String command = String.format(RSYNC_COMMAND, snapshotPath, volumePath);
                         if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), command)) {
                             Date restoreJobEnd = new Date();
                             if (snapshots.length > 1) {
@@ -590,7 +589,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             } catch (Exception e) {
                                 throw new CloudRuntimeException("Unable to craft restored volume due to: "+e);
                             }
-                            String command = String.format(CHMOD_COMMAND, snapshotPath) + " && " + String.format(RSYNC_COMMAND, snapshotPath, restoredVolume.getUuid()) + " && " + String.format(CHMOD_COMMAND, restoredVolume.getUuid());
+                            String command = String.format(RSYNC_COMMAND, snapshotPath, volumePath);
                             LOG.info(command);
                             if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), command)) {
                                 Date restoreJobEnd = new Date();
