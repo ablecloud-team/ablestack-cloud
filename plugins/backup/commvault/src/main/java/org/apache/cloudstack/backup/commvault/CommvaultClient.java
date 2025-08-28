@@ -1358,7 +1358,6 @@ public class CommvaultClient {
             if (!trimmedPath.isEmpty()) {
                 String escapedPath = trimmedPath.replace("\"", "\\\"");
                 jsonArray.append("\"").append(escapedPath).append("\"");
-                
                 if (i < paths.length - 1) {
                     jsonArray.append(",");
                 }
