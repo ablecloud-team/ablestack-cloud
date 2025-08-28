@@ -206,8 +206,7 @@ public class CommvaultClient {
         return response;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/client
+    // GET https://<commserveIp>/commandcenter/api/client
     // client에 호스트가 연결되어있는지 확인하는 API로 호스트가 없는 경우 null, 있는 경우 clientId 반환
     public String getClientId(String hostName) {
         try {
@@ -233,8 +232,7 @@ public class CommvaultClient {
         return null;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/plan
+    // GET https://<commserveIp>/commandcenter/api/plan
     // plan 조회하는 API로 없는 경우 빈 배열, 있는 경우 plan 명, plan id 반환
     public List<BackupOffering> listPlans() {
         final List<BackupOffering> offerings = new ArrayList<>();
@@ -263,8 +261,7 @@ public class CommvaultClient {
         return offerings;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/plan/<planId>
+    // GET https://<commserveIp>/commandcenter/api/plan/<planId>
     // plan 상세 조회하는 API로 없는 경우 null, type이 deleteRpo인 경우 값이 있는 경우 schedule task id 반환, type이 updateRpo인 경우 plan 반환
     public String getScheduleTaskId(String type, String planId) {
         try {
@@ -292,8 +289,7 @@ public class CommvaultClient {
         return null;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/schedulepolicy/<taskId>
+    // GET https://<commserveIp>/commandcenter/api/schedulepolicy/<taskId>
     // 스케줄 정책 조회하는 API로 없는 경우 null, 있는 경우 subtaskid 반환
     public String getSubTaskId(String taskId) {
         try {
@@ -315,8 +311,7 @@ public class CommvaultClient {
         return null;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/schedulepolicy/<taskId>/schedule/<subTaskId>
+    // DELETE https://<commserveIp>/commandcenter/api/schedulepolicy/<taskId>/schedule/<subTaskId>
     // 스케줄 정책 조회하여 스케줄 삭제
     public Boolean deleteSchedulePolicy(String taskId, String subTaskId) {
         try {
@@ -330,8 +325,7 @@ public class CommvaultClient {
         return false;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/storagepolicy
+    // GET https://<commserveIp>/commandcenter/api/storagepolicy
     // storagePolicy 조회하는 API로 없는 경우 null, 있는 경우 storagePolicyId 반환
     public String getStoragePolicyId(String planName) {
         try {
@@ -357,8 +351,7 @@ public class CommvaultClient {
         return null;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/storagepolicy/<storagePolicyId>
+    // GET https://<commserveIp>/commandcenter/api/storagepolicy/<storagePolicyId>
     // storagePolicy 상세 조회하여 copyId를 반환하여 updateRetentionPeriod API 호출
     public boolean getStoragePolicyDetails(String planId, String storagePolicyId, String retentionPeriod) {
         try {
@@ -388,9 +381,8 @@ public class CommvaultClient {
         return false;
     }
 
-    // 정상 동작 확인
-    // 1) https://10.10.255.56/commandcenter/api/plan/<planId>/storage/modify 해당 plan의 스토리지의 retention을 전부 바꿔주는 API > 테스트 시 응답 500 error
-    // 2) https://10.10.255.56/commandcenter/api/v5/serverplan/<planId>/backupdestination/<copyId> 해당 plan의 스토리지의 copy id를 조회하여 개별로 바꿔주는 API
+    // PUT 1) https://<commserveIp>/commandcenter/api/plan/<planId>/storage/modify 해당 plan의 스토리지의 retention을 전부 바꿔주는 API > 테스트 시 응답 500 error
+    // PUT 2) https://<commserveIp>/commandcenter/api/v5/serverplan/<planId>/backupdestination/<copyId> 해당 plan의 스토리지의 copy id를 조회하여 개별로 바꿔주는 API
     // plan의 retention period 변경 API
     public boolean updateRetentionPeriod(String planId, String copyId, String retentionPeriod) {
         HttpURLConnection connection = null;
@@ -452,8 +444,7 @@ public class CommvaultClient {
         return false;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/backupset?clientName=<hostName>
+    // GET https://<commserveIp>/commandcenter/api/backupset?clientName=<hostName>
     // 호스트의 default backupset 조회하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public String getDefaultBackupSetId(String hostName) {
         try {
@@ -474,8 +465,7 @@ public class CommvaultClient {
         return null;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/backupset/<backupsetId>
+    // POST https://<commserveIp>/commandcenter/api/backupset/<backupsetId>
     // 호스트의 backupset 설정하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public boolean setBackupSet(String path, String planType, String planName, String planSubtype, String planId, String companyId, String backupSetId) {
         HttpURLConnection connection = null;
@@ -561,8 +551,7 @@ public class CommvaultClient {
         return false;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/client/<clientId>
+    // GET https://<commserveIp>/commandcenter/api/client/<clientId>
     // client의 applicationId 조회하는 API 로 없는 경우 null, 있는 경우 applicationId 반환
     public String getApplicationId(String clientId) {
         try {
@@ -595,8 +584,7 @@ public class CommvaultClient {
         return null;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/plan/<planId>
+    // GET https://<commserveIp>/commandcenter/api/plan/<planId>
     // plan 상세 조회하는 API로 없는 경우 null, 있는 경우 planName 반환
     public String getPlanName(String planId) {
         try {
@@ -620,8 +608,7 @@ public class CommvaultClient {
         return null;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/backupset
+    // POST https://<commserveIp>/commandcenter/api/backupset
     // 가상머신에 백업 오퍼링 할당 시 backupset 추가 API
     public boolean createBackupSet(String vmName, String applicationId, String clientId, String planId) {
         HttpURLConnection connection = null;
@@ -712,8 +699,7 @@ public class CommvaultClient {
         return false;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/backupset?clientName=<hostName>
+    // GET https://<commserveIp>/commandcenter/api/backupset?clientName=<hostName>
     // 호스트의 vm backupset 조회하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public String getVmBackupSetId(String hostName, String vmName) {
         try {
@@ -738,8 +724,7 @@ public class CommvaultClient {
         return null;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/backupset/<backupSetId>
+    // DELETE https://<commserveIp>/commandcenter/api/backupset/<backupSetId>
     // 가상머신에서 백업 오퍼링 삭제 시 관련된 백업 삭제 API
     public boolean deleteBackupSet(String backupSetId) {
         try {
@@ -753,8 +738,7 @@ public class CommvaultClient {
         return false;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/subclient?clientId=<clientId>
+    // GET https://<commserveIp>/commandcenter/api/subclient?clientId=<clientId>
     // subclient 조회하는 API로 없는 경우 null, 있는 경우 entity String으로 반환
     public String getSubclient(String clientId, String vmName) {
         try {
@@ -780,7 +764,6 @@ public class CommvaultClient {
         return null;
     }
 
-    // 정상 동작 확인
     // POST https://10.10.255.56/commandcenter/api/subclient/<backupsetId>
     // 호스트의 backupset 콘텐츠 경로를 변경하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public boolean updateBackupSet(String path, String subclientId, String clientId, String planName, String applicationId, String backupsetId, String instanceId, String subclientName, String backupsetName) {
@@ -885,9 +868,8 @@ public class CommvaultClient {
         return false;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/subclient/<subclientId>/action/backup 테스트 시 Incremental 백업으로 반환되어 사용 x
-    // https://10.10.255.56/commandcenter/api/createtask
+    // POST https://<commserveIp>/commandcenter/api/subclient/<subclientId>/action/backup 테스트 시 Incremental 백업으로 반환되어 사용 x
+    // POST https://<commserveIp>/commandcenter/api/createtask
     // 백업 실행 API
     public String createBackup(String subclientId, String storagePolicyId, String displayName, String commCellName, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String subclientGUID, String subclientName, String csGUID, String backupsetName) {
         HttpURLConnection connection = null;
@@ -983,8 +965,7 @@ public class CommvaultClient {
         return null;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/jobDetails
+    // POST https://<commserveIp>/commandcenter/api/jobDetails
     // 작업의 상세정보를 조회하는 API로 작업이 완료된 경우 최종 작업 상태를 반환
     public String getJobStatus(String jobId) {
         String jobStatus = "Running";
@@ -1044,8 +1025,7 @@ public class CommvaultClient {
         return jobStatus;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/jobDetails
+    // POST https://<commserveIp>/commandcenter/api/jobDetails
     // 작업의 상세 정보 조회하는 API
     public String getJobDetails(String jobId) {
         HttpURLConnection connection = null;
@@ -1094,8 +1074,7 @@ public class CommvaultClient {
         return null;
     }
 
-    // 정상 동작 확인
-    // POST https://10.10.255.56/commandcenter/api/doBrowse
+    // POST https://<commserveIp>/commandcenter/api/doBrowse
     // commvault의 브라우저단에서 백업 목록에서 조회되지 않도록 삭제하는 API
     public boolean deleteBackup(String subclientId, String applicationId, String instanceId, String clientId, String clientName, String backupsetId, String path) {
         HttpURLConnection connection = null;
@@ -1179,8 +1158,7 @@ public class CommvaultClient {
         return false;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/backupset?clientName=<hostName>
+    // GET https://<commserveIp>/commandcenter/api/backupset?clientName=<hostName>
     // 호스트의 vm backupset 조회하는 API로 없는 경우 null, 있는 경우 backupsetGUID 반환
     public String getVmBackupSetGuid(String hostName, String backupsetName) {
         try {
@@ -1205,11 +1183,11 @@ public class CommvaultClient {
         return null;
     }
 
-    // 정상 동작 확인
-    // https://10.10.255.56/commandcenter/api/createtask
+    // POST https://<commserveIp>/commandcenter/api/createtask
     // 복원 실행 API
     public String restoreFullVM(String subclientId, String displayName, String backupsetGUID, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String backupsetName, String commCellId, String endTime, String path) {
         HttpURLConnection connection = null;
+        String sourceItemsJson = convertPathToJsonArray(path);
         String postUrl = apiURI.toString() + "/createtask";
         try {
             URL url = new URL(postUrl);
@@ -1284,7 +1262,7 @@ public class CommvaultClient {
                                 + "},"
                                 + "\"virtualServerRstOption\":{},"
                                 + "\"fileOption\":{"
-                                    + "\"sourceItem\":[\"%s\"],"
+                                    + "\"sourceItem\":%s,"
                                     + "\"fsCloneOptions\":{"
                                         + "\"cloneMountPath\":\"\""
                                     + "}"
@@ -1306,7 +1284,7 @@ public class CommvaultClient {
                 Integer.parseInt(subclientId), displayName, backupsetGUID, Integer.parseInt(clientId), Integer.parseInt(companyId),
                 companyName, instanceName, appName, Integer.parseInt(applicationId), clientName, Integer.parseInt(backupsetId),
                 Integer.parseInt(instanceId), backupsetName, Integer.parseInt(commCellId), Integer.parseInt(backupsetId), Integer.parseInt(clientId),
-                endTime, Integer.parseInt(commCellId), Integer.parseInt(clientId), clientName, Integer.parseInt(applicationId), Integer.parseInt(applicationId), path);
+                endTime, Integer.parseInt(commCellId), Integer.parseInt(clientId), clientName, Integer.parseInt(applicationId), Integer.parseInt(applicationId), sourceItemsJson);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
@@ -1366,5 +1344,27 @@ public class CommvaultClient {
         }
         pathsJson.append("]");
         return pathsJson.toString();
+    }
+
+    private String convertPathToJsonArray(String path) {
+        if (path == null || path.trim().isEmpty()) {
+            return "[]";
+        }
+        String[] paths = path.split(",");
+        StringBuilder jsonArray = new StringBuilder();
+        jsonArray.append("[");
+        for (int i = 0; i < paths.length; i++) {
+            String trimmedPath = paths[i].trim();
+            if (!trimmedPath.isEmpty()) {
+                String escapedPath = trimmedPath.replace("\"", "\\\"");
+                jsonArray.append("\"").append(escapedPath).append("\"");
+                
+                if (i < paths.length - 1) {
+                    jsonArray.append(",");
+                }
+            }
+        }
+        jsonArray.append("]");
+        return jsonArray.toString();
     }
 }
