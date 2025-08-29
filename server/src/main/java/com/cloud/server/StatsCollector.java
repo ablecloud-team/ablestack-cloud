@@ -1873,6 +1873,9 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
                 List<StoragePoolVO> pools = _storagePoolDao.listAll();
 
                 for (StoragePoolVO pool : pools) {
+                    if (pool.getPoolType() == Storage.StoragePoolType.CLVM) {
+                        continue;
+                    }
                     List<VolumeVO> volumes = _volsDao.findByPoolId(pool.getId(), null);
                     for (VolumeVO volume : volumes) {
                         if (!List.of(ImageFormat.QCOW2, ImageFormat.VHD, ImageFormat.OVA, ImageFormat.RAW).contains(volume.getFormat()) &&
@@ -1954,9 +1957,10 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
 
                 List<StoragePoolVO> storagePools = _storagePoolDao.listAll();
                 for (StoragePoolVO pool : storagePools) {
+                    
                     // check if the pool has enabled hosts
                     List<Long> hostIds = _storageManager.getUpHostsInPool(pool.getId());
-                    if (hostIds == null || hostIds.isEmpty())
+                    if (hostIds == null || hostIds.isEmpty() || pool.getPoolType() == Storage.StoragePoolType.CLVM)
                         continue;
                     GetStorageStatsCommand command = new GetStorageStatsCommand(pool.getUuid(), pool.getPoolType(), pool.getPath());
                     long poolId = pool.getId();
