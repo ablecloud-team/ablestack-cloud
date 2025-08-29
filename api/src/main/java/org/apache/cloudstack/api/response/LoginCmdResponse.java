@@ -98,6 +98,10 @@ public class LoginCmdResponse extends AuthenticationCmdResponse {
     @Param(description = "externalEntity")
     private String externalEntity;
 
+    @SerializedName(value = ApiConstants.EXTERNAL_ENTITY)
+    @Param(description = "externalEntity")
+    private String externalEntity;
+
     public String getUsername() {
         return username;
     }
