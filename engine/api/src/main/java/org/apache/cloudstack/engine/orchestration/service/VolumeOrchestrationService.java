@@ -72,7 +72,7 @@ public interface VolumeOrchestrationService {
     ConfigKey<Long> CustomDiskOfferingMaxSize = new ConfigKey<Long>("Advanced",
         Long.class,
         "custom.diskoffering.size.max",
-        "1024",
+        "4096",
         "Maximum size in GB for custom disk offering.",
         true
     );
@@ -80,7 +80,7 @@ public interface VolumeOrchestrationService {
     ConfigKey<Long> MaxVolumeSize = new ConfigKey<Long>("Storage",
             Long.class,
             "storage.max.volume.size",
-            "10000",
+            "40000",
             "The maximum size for a volume (in GiB).",
             true);
 
