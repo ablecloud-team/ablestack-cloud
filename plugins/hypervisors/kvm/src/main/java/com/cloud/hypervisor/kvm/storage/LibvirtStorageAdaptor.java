@@ -713,27 +713,30 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                 logger.info("Asking libvirt to refresh storage pool " + uuid);
                 pool.refresh();
             }
-            if (pool.getType() == StoragePoolType.RBD) {
-                // queryCephStats 메서드 호출 (직접 Ceph에서 정확한 수치 조회)
-                String cephPoolName = spd.getSourceDir();
+
+            long cap, used, avail;
+            if (type == StoragePoolType.RBD) {
+                final String cephPoolName = spd.getSourceDir();
                 if (cephPoolName == null || cephPoolName.isEmpty()) {
-                    throw new CloudRuntimeException("RBD pool name (source dir) is missing for pool " + uuid);
+                    throw new CloudRuntimeException("Missing RBD pool name (source dir) for " + uuid);
                 }
-                Pair<Long, Long> cephStats = queryCephStats(cephPoolName);
-                pool.setCapacity(cephStats.first());
-                pool.setUsed(cephStats.second());
-                pool.setAvailable(cephStats.first() - cephStats.second());
+                Pair<Long, Long> ceph = queryCephStats(cephPoolName); // ceph.first=capacity, ceph.second=used(정의 명확화)
+                cap = ceph.first();
+                used = ceph.second();
+                avail = Math.max(0L, cap - used);
             } else {
-                pool.setCapacity(storage.getInfo().capacity);
-                pool.setUsed(storage.getInfo().allocation);
-                pool.setAvailable(storage.getInfo().available);
+                cap = storage.getInfo().capacity;
+                used = storage.getInfo().allocation;
+                avail = storage.getInfo().available;
             }
 
-            logger.debug("Successfully refreshed pool " + uuid +
-                           " Capacity: " + toHumanReadableSize(storage.getInfo().capacity) +
-                           " Used: " + toHumanReadableSize(storage.getInfo().allocation) +
-                           " Available: " + toHumanReadableSize(storage.getInfo().available));
+            pool.setCapacity(cap);
+            pool.setUsed(used);
+            pool.setAvailable(avail);
 
+            logger.debug("Successfully refreshed pool {} ({}, type={}) stats -> Capacity={}, Used={}, Available={}",
+                    uuid, storage.getName(), type,
+                    toHumanReadableSize(cap), toHumanReadableSize(used), toHumanReadableSize(avail));
             return pool;
         } catch (LibvirtException e) {
             logger.debug("Could not find storage pool " + uuid + " in libvirt");
