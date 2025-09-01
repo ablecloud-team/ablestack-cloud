@@ -294,6 +294,7 @@ import com.cloud.utils.LogUtils;
 import com.cloud.utils.NumbersUtil;
 import com.cloud.utils.Pair;
 import com.cloud.utils.Ternary;
+import com.cloud.utils.UuidUtils;
 import com.cloud.utils.db.DB;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.exception.ExceptionUtil;
@@ -5312,7 +5313,7 @@ public class VmwareResource extends ServerResourceBase implements StoragePoolRes
                     poolInfo.setHostPath(childPath);
                     String uuid = childDsMo.getCustomFieldValue(CustomFieldConstants.CLOUD_UUID);
                     if (uuid == null || !uuid.contains("-")) {
-                        uuid = UUID.nameUUIDFromBytes(((pool.getHost() + childPath)).getBytes()).toString();
+                        uuid = UuidUtils.nameUUIDFromBytes(((pool.getHost() + childPath)).getBytes()).toString();
                     }
                     poolInfo.setUuid(uuid);
                     poolInfo.setLocalPath(cmd.LOCAL_PATH_PREFIX + File.separator + uuid);
@@ -5547,7 +5548,7 @@ public class VmwareResource extends ServerResourceBase implements StoragePoolRes
     private String getSecondaryDatastoreUUID(String storeUrl) {
         String uuid = null;
         try {
-            uuid = UUID.nameUUIDFromBytes(storeUrl.getBytes("UTF-8")).toString();
+            uuid = UuidUtils.nameUUIDFromBytes(storeUrl.getBytes("UTF-8")).toString();
         } catch (UnsupportedEncodingException e) {
             logger.warn("Failed to create UUID from string " + storeUrl + ". Bad storeUrl or UTF-8 encoding error.");
         }
