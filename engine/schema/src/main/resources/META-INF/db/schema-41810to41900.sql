@@ -18,8 +18,7 @@
 --;
 -- Schema upgrade from 4.18.1.0 to 4.19.0.0
 --;
-
-ALTER TABLE `cloud`.`mshost` MODIFY COLUMN `state` varchar(25);
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.mshost','state','state','VARCHAR(25)');
 
 UPDATE `cloud`.`network_offerings` SET conserve_mode=1 WHERE name='DefaultIsolatedNetworkOfferingForVpcNetworks';
 
@@ -44,7 +43,11 @@ CREATE TABLE IF NOT EXISTS `cloud`.`quarantined_ips` (
 );
 
 -- create_public_parameter_on_roles. #6960
-ALTER TABLE `cloud`.`roles` ADD COLUMN `public_role` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'Indicates whether the role will be visible to all users (public) or only to root admins (private). If this parameter is not specified during the creation of the role its value will be defaulted to true (public).';
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`(
+  'cloud.roles',
+  'public_role',
+  'TINYINT(1) NOT NULL DEFAULT 1 COMMENT ''Indicates whether the role will be visible to all users (public) or only to root admins (private). If this parameter is not specified during the creation of the role its value will be defaulted to true (public).'''
+);
 
 -- Create heuristic table for dynamic allocating resources to the secondary storage
 CREATE TABLE IF NOT EXISTS `cloud`.`heuristics` (
@@ -62,8 +65,7 @@ CREATE TABLE IF NOT EXISTS `cloud`.`heuristics` (
 );
 
 -- Add tables for VM Scheduler
-DROP TABLE IF EXISTS `cloud`.`vm_schedule`;
-CREATE TABLE `cloud`.`vm_schedule` (
+CREATE TABLE IF NOT EXISTS `cloud`.`vm_schedule` (
   `id` bigint unsigned NOT NULL auto_increment COMMENT 'id',
   `vm_id` bigint unsigned NOT NULL,
   `uuid` varchar(40) NOT NULL COMMENT 'schedule uuid',
@@ -82,8 +84,7 @@ CREATE TABLE `cloud`.`vm_schedule` (
   CONSTRAINT `fk_vm_schedule__vm_id` FOREIGN KEY (`vm_id`) REFERENCES `vm_instance`(`id`) ON DELETE CASCADE
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `cloud`.`vm_scheduled_job`;
-CREATE TABLE `cloud`.`vm_scheduled_job` (
+CREATE TABLE IF NOT EXISTS `cloud`.`vm_scheduled_job` (
   `id` bigint unsigned NOT NULL auto_increment COMMENT 'id',
   `vm_id` bigint unsigned NOT NULL,
   `vm_schedule_id` bigint unsigned NOT NULL,
@@ -100,8 +101,14 @@ CREATE TABLE `cloud`.`vm_scheduled_job` (
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Add support for different cluster types for kubernetes
-ALTER TABLE `cloud`.`kubernetes_cluster` ADD COLUMN `cluster_type` varchar(64) DEFAULT 'CloudManaged' COMMENT 'type of cluster';
-ALTER TABLE `cloud`.`kubernetes_cluster` MODIFY COLUMN `kubernetes_version_id` bigint unsigned NULL COMMENT 'the ID of the Kubernetes version of this Kubernetes cluster';
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.kubernetes_cluster','cluster_type','VARCHAR(64) DEFAULT ''CloudManaged'' COMMENT ''type of cluster''');
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`(
+  'cloud.kubernetes_cluster',
+  'kubernetes_version_id',
+  'kubernetes_version_id',
+  'BIGINT UNSIGNED NULL COMMENT ''the ID of the Kubernetes version of this Kubernetes cluster'''
+);
+
 
 -- Add indexes for data store browser
 ALTER TABLE `cloud`.`template_spool_ref` ADD INDEX `i_template_spool_ref__install_path`(`install_path`);
@@ -110,8 +117,7 @@ ALTER TABLE `cloud`.`snapshot_store_ref` ADD INDEX `i_snapshot_store_ref__instal
 ALTER TABLE `cloud`.`template_store_ref` ADD INDEX `i_template_store_ref__install_path`(`install_path`);
 
 -- Add table for image store object download
-DROP TABLE IF EXISTS `cloud`.`image_store_object_download`;
-CREATE TABLE `cloud`.`image_store_object_download` (
+CREATE TABLE IF NOT EXISTS `cloud`.`image_store_object_download` (
   `id` bigint unsigned NOT NULL auto_increment COMMENT 'id',
   `store_id` bigint unsigned NOT NULL COMMENT 'image store id',
   `path` varchar(255) NOT NULL COMMENT 'path on store',
@@ -154,8 +160,7 @@ CREATE TABLE IF NOT EXISTS `cloud`.`vnf_template_details` (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Add tables for Cluster DRS
-DROP TABLE IF EXISTS `cloud`.`cluster_drs_plan`;
-CREATE TABLE `cloud`.`cluster_drs_plan` (
+CREATE TABLE IF NOT EXISTS `cloud`.`cluster_drs_plan` (
   `id` bigint unsigned NOT NULL auto_increment COMMENT 'id',
   `cluster_id` bigint unsigned NOT NULL,
   `event_id` bigint unsigned NOT NULL,
@@ -170,8 +175,7 @@ CREATE TABLE `cloud`.`cluster_drs_plan` (
   CONSTRAINT `fk_cluster_drs_plan__cluster_id` FOREIGN KEY (`cluster_id`) REFERENCES `cluster`(`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
-DROP TABLE IF EXISTS `cloud`.`cluster_drs_plan_migration`;
-CREATE TABLE `cloud`.`cluster_drs_plan_migration` (
+CREATE TABLE IF NOT EXISTS `cloud`.`cluster_drs_plan_migration` (
   `id` bigint unsigned NOT NULL auto_increment COMMENT 'id',
   `plan_id` bigint unsigned NOT NULL,
   `vm_id` bigint unsigned NOT NULL,
@@ -184,14 +188,14 @@ CREATE TABLE `cloud`.`cluster_drs_plan_migration` (
   CONSTRAINT `fk_cluster_drs_plan_migration__plan_id` FOREIGN KEY (`plan_id`) REFERENCES `cluster_drs_plan`(`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
-INSERT INTO `cloud`.`configuration_subgroup` (`name`, `keywords`, `precedence`, `group_id`) VALUES ('DRS', 'drs', 4, (SELECT id FROM `cloud`.`configuration_group` WHERE `name` = 'Miscellaneous'));
+INSERT IGNORE INTO `cloud`.`configuration_subgroup` (`name`, `keywords`, `precedence`, `group_id`) VALUES ('DRS', 'drs', 4, (SELECT id FROM `cloud`.`configuration_group` WHERE `name` = 'Miscellaneous'));
 
 UPDATE `cloud`.`configuration`
     SET subgroup_id = (SELECT id FROM `cloud`.`configuration_subgroup` WHERE name = 'DRS')
     WHERE name IN ('drs.automatic.enable', 'drs.algorithm', 'drs.automatic.interval', 'drs.max.migrations', 'drs.imbalance', 'drs.metric', 'drs.plan.expire.interval');
 
 -- Add table for snapshot zone reference
-CREATE TABLE  `cloud`.`snapshot_zone_ref` (
+CREATE TABLE IF NOT EXISTS `cloud`.`snapshot_zone_ref` (
   `id` bigint unsigned NOT NULL auto_increment,
   `zone_id` bigint unsigned NOT NULL,
   `snapshot_id` bigint unsigned NOT NULL,
@@ -207,28 +211,84 @@ CREATE TABLE  `cloud`.`snapshot_zone_ref` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- Alter snapshot_store_ref table to add download related fields
-ALTER TABLE `cloud`.`snapshot_store_ref`
-    ADD COLUMN `download_state` varchar(255) DEFAULT NULL COMMENT 'the state of the snapshot download' AFTER `volume_id`,
-    ADD COLUMN `download_pct` int unsigned DEFAULT NULL COMMENT 'the percentage of the snapshot download completed' AFTER `download_state`,
-    ADD COLUMN `error_str` varchar(255) DEFAULT NULL COMMENT 'the error message when the snapshot download occurs' AFTER `download_pct`,
-    ADD COLUMN `local_path` varchar(255) DEFAULT NULL COMMENT 'the path of the snapshot download' AFTER `error_str`,
-    ADD COLUMN `display` tinyint(1) unsigned NOT NULL DEFAULT 1  COMMENT '1 implies store reference is available for listing' AFTER `error_str`;
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`(
+  'cloud.snapshot_store_ref',
+  'download_state',
+  'VARCHAR(255) DEFAULT NULL COMMENT ''the state of the snapshot download'' AFTER `volume_id`'
+);
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`(
+  'cloud.snapshot_store_ref',
+  'download_pct',
+  'INT UNSIGNED DEFAULT NULL COMMENT ''the percentage of the snapshot download completed'' AFTER `download_state`'
+);
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`(
+  'cloud.snapshot_store_ref',
+  'error_str',
+  'VARCHAR(255) DEFAULT NULL COMMENT ''the error message when the snapshot download occurs'' AFTER `download_pct`'
+);
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`(
+  'cloud.snapshot_store_ref',
+  'local_path',
+  'VARCHAR(255) DEFAULT NULL COMMENT ''the path of the snapshot download'' AFTER `error_str`'
+);
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`(
+  'cloud.snapshot_store_ref',
+  'display',
+  'TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT ''1 implies store reference is available for listing'' AFTER `error_str`'
+);
 
-UPDATE `cloud`.`configuration` SET
-    `options` = concat(`options`, ',OAUTH2'),
-    `default_value` = concat(`default_value`, ',OAUTH2'),
-    `value` = concat(`value`, ',OAUTH2')
-WHERE `name` = 'user.authenticators.order' ;
+-- user.authenticators.order 에 OAUTH2 추가 (멱등)
+UPDATE `cloud`.`configuration` c
+SET
+  c.`options` = CASE
+    WHEN c.`options` IS NULL OR TRIM(BOTH ',' FROM TRIM(c.`options`)) = '' THEN 'OAUTH2'
+    WHEN FIND_IN_SET('OAUTH2', REPLACE(c.`options`, ' ', '')) > 0 THEN c.`options`
+    ELSE CONCAT(TRIM(BOTH ',' FROM TRIM(c.`options`)), ',OAUTH2')
+  END,
+  c.`default_value` = CASE
+    WHEN c.`default_value` IS NULL OR TRIM(BOTH ',' FROM TRIM(c.`default_value`)) = '' THEN 'OAUTH2'
+    WHEN FIND_IN_SET('OAUTH2', REPLACE(c.`default_value`, ' ', '')) > 0 THEN c.`default_value`
+    ELSE CONCAT(TRIM(BOTH ',' FROM TRIM(c.`default_value`)), ',OAUTH2')
+  END,
+  c.`value` = CASE
+    WHEN c.`value` IS NULL OR TRIM(BOTH ',' FROM TRIM(c.`value`)) = '' THEN 'OAUTH2'
+    WHEN FIND_IN_SET('OAUTH2', REPLACE(c.`value`, ' ', '')) > 0 THEN c.`value`
+    ELSE CONCAT(TRIM(BOTH ',' FROM TRIM(c.`value`)), ',OAUTH2')
+  END
+WHERE c.`name` = 'user.authenticators.order'
+  AND (
+    c.`options` IS NULL OR FIND_IN_SET('OAUTH2', REPLACE(c.`options`, ' ', '')) = 0
+    OR c.`default_value` IS NULL OR FIND_IN_SET('OAUTH2', REPLACE(c.`default_value`, ' ', '')) = 0
+    OR c.`value` IS NULL OR FIND_IN_SET('OAUTH2', REPLACE(c.`value`, ' ', '')) = 0
+  );
 
-UPDATE `cloud`.`configuration` SET
-    `options` = concat(`options`, ',OAUTH2Auth'),
-    `default_value` = concat(`default_value`, ',OAUTH2Auth'),
-    `value` = concat(`value`, ',OAUTH2Auth')
-where `name` = 'pluggableApi.authenticators.order' ;
+-- pluggableApi.authenticators.order 에 OAUTH2Auth 추가 (멱등)
+UPDATE `cloud`.`configuration` c
+SET
+  c.`options` = CASE
+    WHEN c.`options` IS NULL OR TRIM(BOTH ',' FROM TRIM(c.`options`)) = '' THEN 'OAUTH2Auth'
+    WHEN FIND_IN_SET('OAUTH2Auth', REPLACE(c.`options`, ' ', '')) > 0 THEN c.`options`
+    ELSE CONCAT(TRIM(BOTH ',' FROM TRIM(c.`options`)), ',OAUTH2Auth')
+  END,
+  c.`default_value` = CASE
+    WHEN c.`default_value` IS NULL OR TRIM(BOTH ',' FROM TRIM(c.`default_value`)) = '' THEN 'OAUTH2Auth'
+    WHEN FIND_IN_SET('OAUTH2Auth', REPLACE(c.`default_value`, ' ', '')) > 0 THEN c.`default_value`
+    ELSE CONCAT(TRIM(BOTH ',' FROM TRIM(c.`default_value`)), ',OAUTH2Auth')
+  END,
+  c.`value` = CASE
+    WHEN c.`value` IS NULL OR TRIM(BOTH ',' FROM TRIM(c.`value`)) = '' THEN 'OAUTH2Auth'
+    WHEN FIND_IN_SET('OAUTH2Auth', REPLACE(c.`value`, ' ', '')) > 0 THEN c.`value`
+    ELSE CONCAT(TRIM(BOTH ',' FROM TRIM(c.`value`)), ',OAUTH2Auth')
+  END
+WHERE c.`name` = 'pluggableApi.authenticators.order'
+  AND (
+    c.`options` IS NULL OR FIND_IN_SET('OAUTH2Auth', REPLACE(c.`options`, ' ', '')) = 0
+    OR c.`default_value` IS NULL OR FIND_IN_SET('OAUTH2Auth', REPLACE(c.`default_value`, ' ', '')) = 0
+    OR c.`value` IS NULL OR FIND_IN_SET('OAUTH2Auth', REPLACE(c.`value`, ' ', '')) = 0
+  );
 
 -- Create table for OAuth provider details
-DROP TABLE IF EXISTS `cloud`.`oauth_provider`;
-CREATE TABLE `cloud`.`oauth_provider` (
+CREATE TABLE IF NOT EXISTS  `cloud`.`oauth_provider` (
   `id` bigint unsigned NOT NULL auto_increment COMMENT 'id',
   `uuid` varchar(40) NOT NULL COMMENT 'unique identifier',
   `description` varchar(1024) COMMENT 'description of the provider',
@@ -243,16 +303,12 @@ CREATE TABLE `cloud`.`oauth_provider` (
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Flexible tags
-ALTER TABLE `cloud`.`storage_pool_tags` ADD COLUMN is_tag_a_rule int(1) UNSIGNED not null DEFAULT 0;
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_pool_tags','is_tag_a_rule','INT(1) UNSIGNED NOT NULL DEFAULT 0');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.host_tags','is_tag_a_rule','INT(1) UNSIGNED NOT NULL DEFAULT 0');
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.storage_pool_tags','tag','tag','TEXT NOT NULL');
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.host_tags','tag','tag','TEXT NOT NULL');
 
-ALTER TABLE `cloud`.`storage_pool_tags` MODIFY tag text NOT NULL;
-
-ALTER TABLE `cloud`.`host_tags` ADD COLUMN is_tag_a_rule int(1) UNSIGNED not null DEFAULT 0;
-
-ALTER TABLE `cloud`.`host_tags` MODIFY tag text NOT NULL;
-
-DROP TABLE IF EXISTS `cloud`.`object_store`;
-CREATE TABLE `cloud`.`object_store` (
+CREATE TABLE IF NOT EXISTS `cloud`.`object_store` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `name` varchar(255) NOT NULL COMMENT 'name of object store',
   `object_provider_name` varchar(255) NOT NULL COMMENT 'id of object_store_provider',
@@ -265,8 +321,7 @@ CREATE TABLE `cloud`.`object_store` (
   PRIMARY KEY(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `cloud`.`object_store_details`;
-CREATE TABLE `cloud`.`object_store_details` (
+CREATE TABLE IF NOT EXISTS `cloud`.`object_store_details` (
   `id` bigint unsigned UNIQUE NOT NULL AUTO_INCREMENT COMMENT 'id',
   `store_id` bigint unsigned NOT NULL COMMENT 'store the detail is related to',
   `name` varchar(255) NOT NULL COMMENT 'name of the detail',
@@ -276,8 +331,7 @@ CREATE TABLE `cloud`.`object_store_details` (
   INDEX `i_object_store__name__value`(`name`(128), `value`(128))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `cloud`.`bucket`;
-CREATE TABLE `cloud`.`bucket` (
+CREATE TABLE IF NOT EXISTS `cloud`.`bucket` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `name` varchar(255) NOT NULL COMMENT 'name of bucket',
   `object_store_id` varchar(255) NOT NULL COMMENT 'id of object_store',
@@ -299,8 +353,7 @@ CREATE TABLE `cloud`.`bucket` (
   PRIMARY KEY(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `cloud`.`bucket_statistics`;
-CREATE TABLE `cloud`.`bucket_statistics` (
+CREATE TABLE IF NOT EXISTS `cloud`.`bucket_statistics` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `account_id` bigint unsigned NOT NULL COMMENT 'owner of this bucket',
   `bucket_id` bigint unsigned NOT NULL COMMENT 'id of this bucket',
@@ -308,8 +361,7 @@ CREATE TABLE `cloud`.`bucket_statistics` (
    PRIMARY KEY(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `cloud_usage`.`bucket_statistics`;
-CREATE TABLE `cloud_usage`.`bucket_statistics` (
+CREATE TABLE IF NOT EXISTS `cloud_usage`.`bucket_statistics` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `account_id` bigint unsigned NOT NULL COMMENT 'owner of this bucket',
   `bucket_id` bigint unsigned NOT NULL COMMENT 'id of this bucket',
