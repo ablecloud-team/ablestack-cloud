@@ -4877,5 +4877,18 @@
 "label.predictedmedialifeleftpercent": "\ubbf8\ub514\uc5b4 \ub77c\uc774\ud504",
 "label.hardware.storage.enclosurelist": "\uc778\ud074\ub85c\uc800",
 "label.switches": "\uc2a4\uc704\uce58",
-"message.redfishdata.loading": "\uc870\ud68c\uc5d0 \uc2dc\uac04\uc774 \uc18c\uc694\ub420 \uc218 \uc788\uc2b5\ub2c8\ub2e4."
+"message.redfishdata.loading": "\uc870\ud68c\uc5d0 \uc2dc\uac04\uc774 \uc18c\uc694\ub420 \uc218 \uc788\uc2b5\ub2c8\ub2e4.",
+"label.hba.devices": "HBA \ub514\ubc14\uc774\uc2a4",
+"label.create.vhba": "vHBA \uc0dd\uc131",
+"message.confirm.create.vhba": "vHBA\ub97c \uc0dd\uc131\ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?",
+"label.total.vhba.count": "vHBA \uac1c\uc218",
+"message.success.create.vhba": "vHBA \uc0dd\uc131\uc5d0 \uc131\uacf5\ud558\uc600\uc2b5\ub2c8\ub2e4.",
+"label.scsi.devices": "SCSI \ub514\ubc14\uc774\uc2a4",
+"label.delete.vhba": "vHBA \uc0ad\uc81c",
+"message.confirm.delete.vhba": "vHBA\ub97c \uc0ad\uc81c\ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?",
+"message.success.delete.vhba": "vHBA \uc0ad\uc81c\uc5d0 \uc131\uacf5\ud558\uc600\uc2b5\ub2c8\ub2e4.",
+"label.no.partitions": "\ud30c\ud2f0\uc158 \uc5c6\uc74c",
+"label.has.partitions": "\ud30c\ud2f0\uc158 \uc788\uc74c",
+"label.not.in.use": "\uc0ac\uc6a9 \uc548\ud568",
+"label.in.use": "\uc0ac\uc6a9 \uc911"
 }

@@ -113,9 +113,13 @@ import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.Command;
 import com.cloud.agent.api.HostVmStateReportEntry;
 import com.cloud.agent.api.ListHostDeviceCommand;
-// import com.cloud.agent.api.ListHostLunDeviceCommand;
-// import com.cloud.agent.api.ListHostUsbDeviceCommand;
-// import com.cloud.agent.api.UpdateHostUsbDeviceCommand;
+import com.cloud.agent.api.ListHostHbaDeviceCommand;
+import com.cloud.agent.api.ListHostLunDeviceCommand;
+import com.cloud.agent.api.ListHostScsiDeviceCommand;
+import com.cloud.agent.api.ListHostUsbDeviceCommand;
+import com.cloud.agent.api.UpdateHostLunDeviceCommand;
+import com.cloud.agent.api.UpdateHostScsiDeviceCommand;
+import com.cloud.agent.api.UpdateHostUsbDeviceCommand;
 import com.cloud.agent.api.PingCommand;
 import com.cloud.agent.api.PingRoutingCommand;
 import com.cloud.agent.api.PingRoutingWithNwGroupsCommand;
@@ -124,6 +128,11 @@ import com.cloud.agent.api.SetupGuestNetworkCommand;
 import com.cloud.agent.api.StartupCommand;
 import com.cloud.agent.api.StartupRoutingCommand;
 import com.cloud.agent.api.StartupStorageCommand;
+import com.cloud.agent.api.UpdateHostHbaDeviceCommand;
+import com.cloud.agent.api.ListVhbaDevicesCommand;
+import com.cloud.agent.api.CreateVhbaDeviceCommand;
+import com.cloud.agent.api.DeleteVhbaDeviceCommand;
+import com.cloud.agent.api.UpdateHostVhbaDeviceCommand;
 import com.cloud.agent.api.VmDiskStatsEntry;
 import com.cloud.agent.api.VmNetworkStatsEntry;
 import com.cloud.agent.api.VmStatsEntry;
@@ -3772,7 +3781,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             enableOVSDriver = true;
         }
 
-        if (!nic.isSecurityGroupEnabled() && !enableOVSDriver && nic.getNwfilter()) {
+        if (!nic.isSecurityGroupEnabled() && !enableOVSDriver) {
             interfaceDef.setFilterrefFilterTag();
         }
         if (vmSpec.getDetails() != null) {
@@ -5514,30 +5523,102 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         }
     }
 
-    // public Answer listHostUsbDevices(ListHostUsbDeviceCommand command) {
-    //     logger.info("listusb: " + command.getId());
-    //     if (command.getId() != null) {
-    //         // 상위 클래스의 메서드를 호출
-    //         return super.listHostUsbDevices(command);
-    //     } else {
-    //         throw new IllegalArgumentException("Host ID cannot be null");
-    //     }
-    // }
+    public Answer listHostUsbDevices(ListHostUsbDeviceCommand command) {
+        logger.info("listusb: " + command.getId());
+        if (command.getId() != null) {
+            // 상위 클래스의 메서드를 호출
+            return super.listHostUsbDevices(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
 
-    // public Answer listHostLunDevices(ListHostLunDeviceCommand command) {
-    //     logger.info("listlun: " + command.getId());
-    //     if (command.getId() != null) {
-    //         // 상위 클래스의 메서드를 호출
-    //         return super.listHostLunDevices(command);
-    //     } else {
-    //         throw new IllegalArgumentException("Host ID cannot be null");
-    //     }
-    // }
-    // public Answer updateHostUsbDevices(UpdateHostUsbDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
-    //     logger.info("Received USB device update command - VM: {}, isAttach: {}, xmlConfig: {}",
-    //         vmName, isAttach, xmlConfig);
-    //     return super.updateHostUsbDevices(command, vmName, xmlConfig, isAttach);
-    // }
+    public Answer listHostLunDevices(ListHostLunDeviceCommand command) {
+        logger.info("listlun: " + command.getId());
+        if (command.getId() != null) {
+            // 상위 클래스의 메서드를 호출
+            return super.listHostLunDevices(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    public Answer listHostHbaDevices(ListHostHbaDeviceCommand command) {
+        logger.info("listhba: " + command.getId());
+        if (command.getId() != null) {
+            return super.listHostHbaDevices(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    public Answer listHostVHbaDevices(ListVhbaDevicesCommand command) {
+        logger.info("listvhba: " + command.getHostId());
+        if (command.getHostId() != null) {
+            return super.listHostVHbaDevices(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    public Answer listHostScsiDevices(ListHostScsiDeviceCommand command) {
+        logger.info("listscsi: " + command.getId());
+        if (command.getId() != null) {
+            // 상위 클래스의 메서드를 호출
+            return super.listHostScsiDevices(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    @Override
+    public Answer createHostVHbaDevice(CreateVhbaDeviceCommand command, String parentHbaName, String wwnn, String wwpn, String vhbaName, String xmlContent) {
+        logger.info("createvhba: " + command.getHostId());
+        if (command.getHostId() != null) {
+            return super.createHostVHbaDevice(command, parentHbaName, wwnn, wwpn, vhbaName, xmlContent);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    @Override
+    public Answer deleteHostVHbaDevice(DeleteVhbaDeviceCommand command) {
+        logger.info("deletevhba: " + command.getHostId());
+        if (command.getHostId() != null) {
+            return super.deleteHostVHbaDevice(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    public Answer updateHostVHbaDevices(UpdateHostVhbaDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        logger.info("updatevhba: " + command.getHostId());
+        return super.updateHostVHbaDevices(command, vmName, xmlConfig, isAttach);
+    }
+
+    public Answer updateHostUsbDevices(UpdateHostUsbDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        logger.info("Received USB device update command - VM: {}, isAttach: {}, xmlConfig: {}",
+            vmName, isAttach, xmlConfig);
+        return super.updateHostUsbDevices(command, vmName, xmlConfig, isAttach);
+    }
+
+    public Answer updateHostLunDevices(UpdateHostLunDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        logger.info("Received LUN device update command - VM: {}, isAttach: {}, xmlConfig: {}",
+            vmName, isAttach, xmlConfig);
+        return super.updateHostLunDevices(command, vmName, xmlConfig, isAttach);
+    }
+
+    public Answer updateHostHbaDevices(UpdateHostHbaDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        logger.info("Received HBA device update command - VM: {}, isAttach: {}, xmlConfig: {}",
+            vmName, isAttach, xmlConfig);
+        return super.updateHostHbaDevices(command, vmName, xmlConfig, isAttach);
+    }
+
+    public Answer updateHostScsiDevices(UpdateHostScsiDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        logger.info("Received SCSI device update command - VM: {}, isAttach: {}, xmlConfig: {}",
+            vmName, isAttach, xmlConfig);
+        return super.updateHostScsiDevices(command, vmName, xmlConfig, isAttach);
+    }
 
     public Answer listFilesAtPath(ListDataStoreObjectsCommand command) {
         DataStoreTO store = command.getStore();
@@ -6287,6 +6368,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return uuid;
     }
 
+    @Override
     public void createRBDSecretKeyFileIfNoExist(String uuid, String localPath, String skey) {
         File file = new File(localPath + File.separator + uuid);
         try {

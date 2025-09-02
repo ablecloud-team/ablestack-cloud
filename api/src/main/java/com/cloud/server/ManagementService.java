@@ -16,11 +16,33 @@
 // under the License.
 package com.cloud.server;
 
+import com.cloud.alert.Alert;
+import com.cloud.capacity.Capacity;
+import com.cloud.dc.Pod;
+import com.cloud.dc.Vlan;
+import com.cloud.exception.ConcurrentOperationException;
+import com.cloud.exception.ManagementServerException;
+import com.cloud.exception.ResourceUnavailableException;
+import com.cloud.exception.VirtualMachineMigrationException;
+import com.cloud.host.Host;
+import com.cloud.hypervisor.Hypervisor.HypervisorType;
+import com.cloud.hypervisor.HypervisorCapabilities;
+import com.cloud.network.IpAddress;
+import com.cloud.org.Cluster;
+import com.cloud.storage.GuestOS;
+import com.cloud.storage.GuestOSHypervisor;
+import com.cloud.storage.GuestOsCategory;
+import com.cloud.storage.StoragePool;
+import com.cloud.user.SSHKeyPair;
+import com.cloud.user.UserData;
+import com.cloud.utils.Pair;
+import com.cloud.utils.Ternary;
+import com.cloud.vm.InstanceGroup;
+import com.cloud.vm.VirtualMachine;
+import com.cloud.vm.VirtualMachine.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import com.cloud.user.UserData;
 import org.apache.cloudstack.api.command.admin.cluster.ListClustersCmd;
 import org.apache.cloudstack.api.command.admin.config.ListCfgGroupsByCmd;
 import org.apache.cloudstack.api.command.admin.config.ListCfgsByCmd;
@@ -35,13 +57,21 @@ import org.apache.cloudstack.api.command.admin.guest.UpdateGuestOsCmd;
 import org.apache.cloudstack.api.command.admin.guest.UpdateGuestOsMappingCmd;
 import org.apache.cloudstack.api.command.admin.host.ListHostsCmd;
 import org.apache.cloudstack.api.command.admin.host.UpdateHostPasswordCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.CreateVhbaDeviceCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.DeleteVhbaDeviceCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.LicenseCheckCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostDevicesCmd;
-// import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostLunDevicesCmd;
-// import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostUsbDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostHbaDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostLunDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostScsiDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostUsbDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListVhbaDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostDevicesCmd;
-// import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostLunDevicesCmd;
-// import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostUsbDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostHbaDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostLunDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostScsiDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostUsbDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostVhbaDevicesCmd;
 import org.apache.cloudstack.api.command.admin.pod.ListPodsByCmd;
 import org.apache.cloudstack.api.command.admin.resource.ArchiveAlertsCmd;
 import org.apache.cloudstack.api.command.admin.resource.DeleteAlertsCmd;
@@ -72,40 +102,27 @@ import org.apache.cloudstack.api.command.user.userdata.ListUserDataCmd;
 import org.apache.cloudstack.api.command.user.userdata.RegisterUserDataCmd;
 import org.apache.cloudstack.api.command.user.vm.GetVMPasswordCmd;
 import org.apache.cloudstack.api.command.user.vmgroup.UpdateVMGroupCmd;
+import org.apache.cloudstack.api.response.CreateVhbaDeviceResponse;
+import org.apache.cloudstack.api.response.DeleteVhbaDeviceResponse;
 import org.apache.cloudstack.api.response.LicenseCheckerResponse;
 import org.apache.cloudstack.api.response.ListHostDevicesResponse;
-// import org.apache.cloudstack.api.response.ListHostLunDevicesResponse;
-// import org.apache.cloudstack.api.response.ListHostUsbDevicesResponse;
+import org.apache.cloudstack.api.response.ListHostHbaDevicesResponse;
+import org.apache.cloudstack.api.response.ListHostLunDevicesResponse;
+import org.apache.cloudstack.api.response.ListHostScsiDevicesResponse;
+import org.apache.cloudstack.api.response.ListHostUsbDevicesResponse;
 import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.ListVhbaDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostDevicesResponse;
-// import org.apache.cloudstack.api.response.UpdateHostLunDevicesResponse;
-// import org.apache.cloudstack.api.response.UpdateHostUsbDevicesResponse;
+import org.apache.cloudstack.api.response.UpdateHostHbaDevicesResponse;
+import org.apache.cloudstack.api.response.UpdateHostLunDevicesResponse;
+import org.apache.cloudstack.api.response.UpdateHostScsiDevicesResponse;
+import org.apache.cloudstack.api.response.UpdateHostUsbDevicesResponse;
+import org.apache.cloudstack.api.response.UpdateHostVhbaDevicesResponse;
 import org.apache.cloudstack.config.Configuration;
 import org.apache.cloudstack.config.ConfigurationGroup;
 
-import com.cloud.alert.Alert;
-import com.cloud.capacity.Capacity;
-import com.cloud.dc.Pod;
-import com.cloud.dc.Vlan;
-import com.cloud.exception.ConcurrentOperationException;
-import com.cloud.exception.ManagementServerException;
-import com.cloud.exception.ResourceUnavailableException;
-import com.cloud.exception.VirtualMachineMigrationException;
-import com.cloud.host.Host;
-import com.cloud.hypervisor.Hypervisor.HypervisorType;
-import com.cloud.hypervisor.HypervisorCapabilities;
-import com.cloud.network.IpAddress;
-import com.cloud.org.Cluster;
-import com.cloud.storage.GuestOS;
-import com.cloud.storage.GuestOSHypervisor;
-import com.cloud.storage.GuestOsCategory;
-import com.cloud.storage.StoragePool;
-import com.cloud.user.SSHKeyPair;
-import com.cloud.utils.Pair;
-import com.cloud.utils.Ternary;
-import com.cloud.vm.InstanceGroup;
-import com.cloud.vm.VirtualMachine;
-import com.cloud.vm.VirtualMachine.Type;
+
+
 
 
 /**
@@ -509,13 +526,29 @@ public interface ManagementService {
 
     ListResponse<UpdateHostDevicesResponse> updateHostDevices(UpdateHostDevicesCmd cmd);
 
-    // ListResponse<ListHostUsbDevicesResponse> listHostUsbDevices(ListHostUsbDevicesCmd cmd);
+    ListResponse<ListHostUsbDevicesResponse> listHostUsbDevices(ListHostUsbDevicesCmd cmd);
 
-    // ListResponse<ListHostLunDevicesResponse> listHostLunDevices(ListHostLunDevicesCmd cmd);
+    ListResponse<ListHostLunDevicesResponse> listHostLunDevices(ListHostLunDevicesCmd cmd);
 
-    // ListResponse<UpdateHostUsbDevicesResponse> updateHostUsbDevices(UpdateHostUsbDevicesCmd cmd);
+    ListResponse<UpdateHostUsbDevicesResponse> updateHostUsbDevices(UpdateHostUsbDevicesCmd cmd);
 
-    // ListResponse<UpdateHostLunDevicesResponse> updateHostLunDevices(UpdateHostLunDevicesCmd cmd);
+    ListResponse<UpdateHostLunDevicesResponse> updateHostLunDevices(UpdateHostLunDevicesCmd cmd);
+
+    ListResponse<ListHostHbaDevicesResponse> listHostHbaDevices(ListHostHbaDevicesCmd cmd);
+
+    ListResponse<UpdateHostHbaDevicesResponse> updateHostHbaDevices(UpdateHostHbaDevicesCmd cmd);
+
+    ListResponse<ListHostScsiDevicesResponse> listHostScsiDevices(ListHostScsiDevicesCmd cmd);
+
+    ListResponse<UpdateHostScsiDevicesResponse> updateHostScsiDevices(UpdateHostScsiDevicesCmd cmd);
+
+    ListResponse<CreateVhbaDeviceResponse> createVhbaDevice(CreateVhbaDeviceCmd cmd);
+
+    ListResponse<DeleteVhbaDeviceResponse> deleteVhbaDevice(DeleteVhbaDeviceCmd cmd);
+
+    ListResponse<ListVhbaDevicesResponse> listVhbaDevices(ListVhbaDevicesCmd cmd);
+
+    ListResponse<UpdateHostVhbaDevicesResponse> updateHostVhbaDevices(UpdateHostVhbaDevicesCmd cmd);
 
     LicenseCheckerResponse checkLicense(LicenseCheckCmd cmd);
 

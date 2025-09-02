@@ -23,16 +23,16 @@ import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.BaseListCmd;
 import org.apache.cloudstack.api.Parameter;
+import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.UpdateHostUsbDevicesResponse;
 import org.apache.cloudstack.context.CallContext;
-// import org.apache.cloudstack.api.response.ListResponse;
 // import org.apache.cloudstack.api.response.HostResponse;
 
 @APICommand(name = "updateHostUsbDevices", description = "list Host Usb Devices'.", since = "4.20.0.0", responseObject = UpdateHostUsbDevicesResponse.class, requestHasSensitiveInfo = false, responseHasSensitiveInfo = false, authorized = {
         RoleType.Admin })
 public class UpdateHostUsbDevicesCmd extends BaseListCmd {
 
-    private static final String UPDATEHOSTDEVICES = "updatehostdevices";
+    private static final String UPDATEHOSTUSBDEVICES = "updatehostusbdevices";
 
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////
@@ -106,9 +106,9 @@ public class UpdateHostUsbDevicesCmd extends BaseListCmd {
 
     @Override
     public void execute() {
-        // ListResponse<UpdateHostUsbDevicesResponse> response = _mgr.updateHostUsbDevices(this);
-        // response.setResponseName(getCommandName());
-        // response.setObjectName(getCommandName());
-        // this.setResponseObject(response);
+        ListResponse<UpdateHostUsbDevicesResponse> response = _mgr.updateHostUsbDevices(this);
+        response.setResponseName(getCommandName());
+        response.setObjectName(getCommandName());
+        this.setResponseObject(response);
     }
 }

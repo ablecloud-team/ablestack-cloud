@@ -346,6 +346,8 @@ install -D packaging/systemd/cloudstack-agent.default ${RPM_BUILD_ROOT}%{_syscon
 install -D packaging/systemd/cleanup-rbd.service ${RPM_BUILD_ROOT}%{_unitdir}/cleanup-rbd.service
 install -D packaging/systemd/cleanup-rbd.timer ${RPM_BUILD_ROOT}%{_unitdir}/cleanup-rbd.timer
 install -D agent/target/transformed/cleanup-rbd ${RPM_BUILD_ROOT}%{_bindir}/cleanup-rbd
+install -D packaging/systemd/restore-vhba.service ${RPM_BUILD_ROOT}%{_unitdir}/restore-vhba.service
+install -D agent/target/transformed/restore-vhba ${RPM_BUILD_ROOT}%{_bindir}/restore-vhba
 install -D agent/target/transformed/agent.properties ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/agent/agent.properties
 install -D agent/target/transformed/environment.properties ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/agent/environment.properties
 install -D agent/target/transformed/log4j-cloud.xml ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/agent/log4j-cloud.xml
@@ -513,6 +515,10 @@ mkdir -m 0755 -p /usr/share/cloudstack-agent/tmp
 /usr/bin/systemctl enable cloudstack-rolling-maintenance@p > /dev/null 2>&1 || true
 /usr/bin/systemctl enable --now rngd > /dev/null 2>&1 || true
 
+# VHBA 복원 서비스 활성화
+/usr/bin/systemctl enable restore-vhba.service > /dev/null 2>&1 || true
+systemctl daemon-reload
+
 # if saved configs from upgrade exist, copy them over
 if [ -f "%{_sysconfdir}/cloud.rpmsave/agent/agent.properties" ]; then
     mv %{_sysconfdir}/%{name}/agent/agent.properties  %{_sysconfdir}/%{name}/agent/agent.properties.rpmnew
@@ -630,6 +636,8 @@ pip3 install --upgrade /usr/share/cloudstack-marvin/Marvin-*.tar.gz
 %attr(0755,root,root) %{_bindir}/cleanup-rbd
 %attr(0644,root,root) %{_unitdir}/cleanup-rbd.service
 %attr(0644,root,root) %{_unitdir}/cleanup-rbd.timer
+%attr(0755,root,root) %{_bindir}/restore-vhba
+%attr(0644,root,root) %{_unitdir}/restore-vhba.service
 %attr(0644,root,root) %{_unitdir}/mold-agent.service
 %attr(0644,root,root) %{_unitdir}/%{name}-rolling-maintenance@.service
 %config(noreplace) %{_sysconfdir}/default/%{name}-agent
@@ -718,4 +726,3 @@ pip3 install --upgrade /usr/share/cloudstack-marvin/Marvin-*.tar.gz
 
 * Fri Oct 5 2012 Hugo Trippaers <hugo@apache.org> 4.1.0
 - new style spec file
- 

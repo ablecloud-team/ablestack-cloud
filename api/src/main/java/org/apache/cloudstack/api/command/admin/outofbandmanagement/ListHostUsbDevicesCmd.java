@@ -25,7 +25,7 @@ import org.apache.cloudstack.api.BaseListCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.response.ListHostUsbDevicesResponse;
 import org.apache.cloudstack.context.CallContext;
-// import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.ListResponse;
 
 
 
@@ -65,9 +65,9 @@ public class ListHostUsbDevicesCmd extends BaseListCmd {
 
     @Override
     public void execute() {
-        // ListResponse<ListHostUsbDevicesResponse> response = _mgr.listHostUsbDevices(this);
-        // response.setResponseName(getCommandName());
-        // response.setObjectName(getCommandName());
-        // this.setResponseObject(response);
+        ListResponse<ListHostUsbDevicesResponse> response = _mgr.listHostUsbDevices(this);
+        response.setResponseName(getCommandName());
+        response.setObjectName(getCommandName());
+        this.setResponseObject(response);
     }
 }
