@@ -52,6 +52,7 @@ import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.backup.commvault.CommvaultClient;
 import org.apache.cloudstack.backup.dao.BackupDao;
+import org.apache.cloudstack.backup.dao.BackupOfferingDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDaoImpl;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
@@ -145,6 +146,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     @Inject
     private BackupDao backupDao;
+
+    @Inject
+    private BackupOfferingDao backupOfferingDao;
 
     @Inject
     private HostDao hostDao;
