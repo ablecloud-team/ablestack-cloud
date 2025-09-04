@@ -560,10 +560,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         String volumePath = String.format("%s/%s", storagePool.getPath(), volume.getPath());
                         SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findDestroyedReferenceBySnapshot(snapshot.getSnapshotId(), DataStoreRole.Primary);
                         String snapshotPath = snapshotStore.getInstallPath();
-                        LOG.info(":::::::::::::::::::::::::::::::::::::");
-                        LOG.info(volumes.getPath());
-                        LOG.info(volume.getPath());
-                        LOG.info(snapshotPath);
                         if (volumes.getPath().equalsIgnoreCase(volume.getPath())) {
                             LOG.info("volume이 같은 경우");
                             VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
@@ -604,7 +600,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                 volumeDao.expunge(restoredVolume.getId());
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed failed.");
                                 command = String.format(RM_COMMAND, snapshotPath);
-                                LOG.info(command);
                                 executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                             }
                         } else {
