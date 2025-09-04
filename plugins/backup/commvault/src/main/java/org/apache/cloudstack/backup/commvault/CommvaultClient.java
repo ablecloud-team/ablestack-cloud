@@ -1368,7 +1368,7 @@ public class CommvaultClient {
     //
     // POST https://<commserveIp>/commandcenter/api/createtask
     // commvault 에이전트 설치 API
-    public String installAgent(String clientName, String commCellId, String CommServeHostName, String userName, String password) {
+    public String installAgent(String clientName, String commCellId, String commServeHostName, String userName, String password) {
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/createTask";
         try {
@@ -1485,7 +1485,7 @@ public class CommvaultClient {
                 "    ]\n" +
                 "  }\n" +
                 "}",
-                clientName, Integer.parseInt(commCellId), CommServeHostName, userName, password);
+                clientName, Integer.parseInt(commCellId), commServeHostName, userName, password);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
