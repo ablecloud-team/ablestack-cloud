@@ -564,7 +564,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         LOG.info(volumes.getPath());
                         LOG.info(volume.getPath());
                         LOG.info(snapshotPath);
-                        if (volumes.getPath() == volume.getPath()) {
+                        if (volumes.getPath().equalsIgnoreCase(volume.getPath())) {
                             LOG.info("volume이 같은 경우");
                             VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
                             StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
