@@ -240,7 +240,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
     protected void runScript(Connection conn, InputStream file) {
 
         try (InputStreamReader reader = new InputStreamReader(file)) {
-            ScriptRunner runner = new ScriptRunner(conn, false, true);
+            ScriptRunner runner = new ScriptRunner(conn, false, false);
             runner.runScript(reader);
         } catch (IOException e) {
             LOGGER.error("Unable to read upgrade script", e);
@@ -257,7 +257,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
 
         checkArgument(dbVersion != null);
         checkArgument(currentVersion != null);
-        checkArgument(currentVersion.compareTo(dbVersion) > 0);
+        checkArgument(currentVersion.compareTo(dbVersion) >= 0);
 
         final DbUpgrade[] upgrades = hierarchy.getPath(dbVersion, currentVersion);
 
@@ -305,9 +305,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
     protected void upgrade(CloudStackVersion dbVersion, CloudStackVersion currentVersion) {
         executeProcedureScripts();
         final DbUpgrade[] upgrades = executeUpgrades(dbVersion, currentVersion);
-
-        executeViewScripts();
-        updateSystemVmTemplates(upgrades);
+        // updateSystemVmTemplates(upgrades); // 템플릿` 업데이트 자동 동작 제거
     }
 
     protected void executeProcedureScripts() {
@@ -453,8 +451,13 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
             try {
                 initializeDatabaseEncryptors();
 
-                final CloudStackVersion dbVersion = CloudStackVersion.parse(_dao.getCurrentVersion());
+                // DB version 테이블의 latest 행 삭제
+                final CloudStackVersion dbVersionInitial = CloudStackVersion.parse(_dao.getCurrentVersion());
+                deleteCurrentVersionRowIfPresent(dbVersionInitial);
+
                 final String currentVersionValue = this.getClass().getPackage().getImplementationVersion();
+                if (StringUtils.isBlank(currentVersionValue)) return;
+                final CloudStackVersion currentVersion = CloudStackVersion.parse(currentVersionValue);
 
                 ///////////////////// Ablestack 업그레이드 //////////////////////////
                 beforeUpgradeAblestack("Bronto");
@@ -462,25 +465,18 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                 beforeUpgradeAblestack("Diplo");
                 ///////////////////// Ablestack 업그레이드 //////////////////////////
 
-                if (StringUtils.isBlank(currentVersionValue)) {
-                    return;
-                }
+                // 삭제 후 DB 버전 재조회
+                final CloudStackVersion dbVersion = CloudStackVersion.parse(_dao.getCurrentVersion());
+                LOGGER.info("After deletion, DB version = {} , Code version = {}", dbVersion, currentVersion);
 
                 String csVersion = SystemVmTemplateRegistration.parseMetadataFile();
                 final CloudStackVersion sysVmVersion = CloudStackVersion.parse(csVersion);
-                final  CloudStackVersion currentVersion = CloudStackVersion.parse(currentVersionValue);
                 SystemVmTemplateRegistration.CS_MAJOR_VERSION  = String.valueOf(sysVmVersion.getMajorRelease()) + "." + String.valueOf(sysVmVersion.getMinorRelease());
                 SystemVmTemplateRegistration.CS_TINY_VERSION = String.valueOf(sysVmVersion.getPatchRelease());
 
-                LOGGER.info("DB version = " + dbVersion + " Code Version = " + currentVersion);
-
+                // 역전 방지 체크
                 if (dbVersion.compareTo(currentVersion) > 0) {
                     throw new CloudRuntimeException("Database version " + dbVersion + " is higher than management software version " + currentVersionValue);
-                }
-
-                if (dbVersion.compareTo(currentVersion) == 0) {
-                    LOGGER.info("DB version and code version matches so no upgrade needed.");
-                    return;
                 }
 
                 upgrade(dbVersion, currentVersion);
@@ -498,6 +494,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
             lock.releaseRef();
         }
     }
+
     // Cloudstack DB 업데이트 전 Ablestack DB 업데이트 진행
     public void beforeUpgradeAblestack (String ablestackVersion) {
         TransactionLegacy txn = TransactionLegacy.open("Upgrade");
@@ -528,6 +525,27 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
             String errorMessage = "Unable to upgrade the database ablestack [beforeUpgradeAblestack : " + ablestackVersion + "]";
             LOGGER.error(errorMessage, e);
             throw new CloudRuntimeException(errorMessage, e);
+        } finally {
+            txn.close();
+        }
+    }
+
+    private void deleteCurrentVersionRowIfPresent(final CloudStackVersion currentVersion) {
+        TransactionLegacy txn = TransactionLegacy.open("delete-current-version-row");
+        txn.start();
+        try {
+            Connection conn = txn.getConnection();
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "DELETE FROM `cloud`.`version` WHERE `version` = ? AND (`step` IS NULL OR `step` = 'Complete')")) {
+                ps.setString(1, currentVersion.toString());
+                int deleted = ps.executeUpdate();
+                LOGGER.warn("Deleted {} row(s) from cloud.version for {}", deleted, currentVersion);
+            }
+            txn.commit();
+        } catch (SQLException e) {
+            txn.rollback();
+            LOGGER.error("Unable to delete current version row", e);
+            throw new CloudRuntimeException("Unable to delete current version row", e);
         } finally {
             txn.close();
         }

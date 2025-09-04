@@ -30,6 +30,7 @@ import org.apache.cloudstack.api.response.LogoutCmdResponse;
 import org.apache.cloudstack.saml.SAML2AuthManager;
 import org.apache.cloudstack.saml.SAMLPluginConstants;
 import org.apache.cloudstack.saml.SAMLProviderMetadata;
+import org.apache.cloudstack.saml.SAMLProviderMetadata;
 import org.apache.cloudstack.saml.SAMLUtils;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.saml2.core.LogoutRequest;
@@ -127,10 +128,25 @@ public class SAML2LogoutAPIAuthenticatorCmd extends BaseCmd implements APIAuthen
             return responseString;
         }
 
-        String idpId = (String) session.getAttribute(SAMLPluginConstants.SAML_IDPID);
+        // String idpId = (String) session.getAttribute(SAMLPluginConstants.SAML_IDPID);
+        // SAMLProviderMetadata idpMetadata = _samlAuthManager.getIdPMetadata(idpId);
+        // String nameId = (String) session.getAttribute(SAMLPluginConstants.SAML_NAMEID);
+        // if (idpMetadata == null || nameId == null || nameId.isEmpty()) {
+        //     try {
+        //         resp.sendRedirect(SAML2AuthManager.SAMLCloudStackRedirectionUrl.value());
+        //     } catch (IOException ignored) {
+        //         logger.info("[ignored] final redirected failed.", ignored);
+        //     }
+        //     return responseString;
+        // }
+        // LogoutRequest logoutRequest = SAMLUtils.buildLogoutRequest(idpMetadata.getSloUrl(), _samlAuthManager.getSPMetadata().getEntityId(), nameId);
+
+        // 위 코드값이 null로 전달되어 소스수정(SAML2Logou 전에 ApiServlet에서 session을 삭제하므로 idpId, nameId 값이 무조건 null. 로그아웃시 쿠키에 담긴 파라미터로 전달)
+        String idpId = ((String[])params.get("idpid"))[0];
         SAMLProviderMetadata idpMetadata = _samlAuthManager.getIdPMetadata(idpId);
-        String nameId = (String) session.getAttribute(SAMLPluginConstants.SAML_NAMEID);
-        if (idpMetadata == null || nameId == null || nameId.isEmpty()) {
+        String nameId = ((String[])params.get("username"))[0];
+
+        if (idpId == null || nameId == null || nameId.isEmpty()) {
             try {
                 resp.sendRedirect(SAML2AuthManager.SAMLCloudStackRedirectionUrl.value());
             } catch (IOException ignored) {
@@ -138,8 +154,8 @@ public class SAML2LogoutAPIAuthenticatorCmd extends BaseCmd implements APIAuthen
             }
             return responseString;
         }
-        LogoutRequest logoutRequest = SAMLUtils.buildLogoutRequest(idpMetadata.getSloUrl(), _samlAuthManager.getSPMetadata().getEntityId(), nameId);
 
+        LogoutRequest logoutRequest = SAMLUtils.buildLogoutRequest(idpMetadata.getSloUrl(), _samlAuthManager.getSPMetadata().getEntityId(), nameId);
         try {
             String redirectUrl = idpMetadata.getSloUrl() + "?SAMLRequest=" + SAMLUtils.encodeSAMLRequest(logoutRequest);
             resp.sendRedirect(redirectUrl);
@@ -149,7 +165,8 @@ public class SAML2LogoutAPIAuthenticatorCmd extends BaseCmd implements APIAuthen
                     "SAML Single Logout Error",
                     params, responseType));
         }
-        return responseString;
+        // return responseString;
+        return null;
     }
 
     @Override
