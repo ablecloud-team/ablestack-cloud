@@ -560,6 +560,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         String volumePath = String.format("%s/%s", storagePool.getPath(), volume.getPath());
                         SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findDestroyedReferenceBySnapshot(snapshot.getSnapshotId(), DataStoreRole.Primary);
                         String snapshotPath = snapshotStore.getInstallPath();
+                        LOG.info(":::::::::::::::::::::::::::::::::::::");
+                        LOG.info(volumes.getPath());
+                        LOG.info(volume.getPath());
+                        LOG.info(snapshotPath);
                         if (volumes.getPath() == volume.getPath()) {
                             LOG.info("volume이 같은 경우");
                             VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
@@ -615,16 +619,16 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         return new Pair<>(true,restoreVolume);
                     } else {
                         LOG.info("checkResult.isEmpty()");
-                        return null;
+                        throw new CloudRuntimeException("Failed to restore VM to location " + volume.getPath());
                     }
                 }
             } else {
                 // 복원 실패
                 LOG.error("restoreBackup commvault api resulted in " + jobStatus);
-                return null;
+                throw new CloudRuntimeException("Failed to restore VM to location " + volume.getPath() + " commvault api resulted in " + jobStatus);
             }
         }
-        return null;
+        return new Pair<>(false,null);
     }
 
     @Override
