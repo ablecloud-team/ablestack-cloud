@@ -304,18 +304,43 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     @Override
     public boolean checkBackupAgent(final Long zoneId) {
+        Map<String, String> checkResult = new HashMap<>();
         final CommvaultClient client = getClient(zoneId);
         List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
         for (final HostVO host : Hosts) {
             if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
                 String checkHost = client.getClientId(host.getName());
-                // 하나라도 없다면 false 리턴하도록 추후 로직 변경해야함
-                if (checkHost != null) {
-                    return true;
+                if (checkHost == null) {
+                    String commCell = client.getCommcell();
+                    LOG.info(commCell);
+                    JSONObject jsonObject = new JSONObject(commCell);
+                    String commCellId = String.valueOf(jsonObject.get("commCellId"));
+                    String commServeHostName = String.valueOf(jsonObject.get("commCellName"));
+                    Ternary<String, String, String> credentials = getKVMHyperisorCredentials(host);
+                    LOG.info(commCellId);
+                    LOG.info(commServeHostName);
+                    LOG.info(host.getPrivateIpAddress());
+                    LOG.info(credentials.first());
+                    LOG.info(credentials.second());
+                    String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
+                    if (jobId != null) {
+                        LOG.info(jobId);
+                        String jobStatus = client.getJobStatus(jobId);
+                        LOG.info(jobStatus);
+                        if (!jobStatus.equalsIgnoreCase("Completed")) {
+                            checkResult.put(host.getName(), jobId);
+                            LOG.error("createBackup commvault api resulted in " + jobStatus);
+                        }
+                    }
                 }
             }
         }
-        return false;
+        if (!checkResult.isEmpty()) {
+            for (String value : checkResult.values()) {
+                //jobID로 재시도하거나 kill 로직 추가
+            }
+        }
+        return true;
     }
 
     @Override

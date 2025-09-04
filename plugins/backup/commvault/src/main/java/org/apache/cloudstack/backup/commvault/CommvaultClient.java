@@ -1343,6 +1343,180 @@ public class CommvaultClient {
         return null;
     }
 
+    //
+    // GET https://<commserveIp>/commandcenter/api/commcell/properties
+    // 에이전트 설치를 위한 commcell 정보 조회 API
+    public String getCommcell() {
+        try {
+            final HttpResponse response = get("/commcell/properties");
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            JsonNode commCellInfo = root.path("commCellInfo");
+            JsonNode commCell = commCellInfo.path("commCellEntity");
+            if (!commCell.isMissingNode()) {
+                return commCell.toString();
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to request getCommcell commvault api due to:", e);
+            checkResponseTimeOut(e);
+        }
+        return null;
+    }
+
+    //
+    // POST https://<commserveIp>/commandcenter/api/createtask
+    // commvault 에이전트 설치 API
+    public String installAgent(String clientName, String commCellId, String CommServeHostName, String userName, String password) {
+        HttpURLConnection connection = null;
+        String postUrl = apiURI.toString() + "/createTask";
+        try {
+            URL url = new URL(postUrl);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Authorization", accessToken);
+            connection.setDoOutput(true);
+            String jsonBody = String.format(
+                "{\n" +
+                "  \"taskInfo\": {\n" +
+                "    \"task\": {\n" +
+                "      \"taskFlags\": {\n" +
+                "        \"disabled\": false\n" +
+                "      },\n" +
+                "      \"taskType\": \"IMMEDIATE\",\n" +
+                "      \"initiatedFrom\": \"GUI\"\n" +
+                "    },\n" +
+                "    \"associations\": [\n" +
+                "      {\n" +
+                "        \"commCellId\": %d\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"subTasks\": [\n" +
+                "      {\n" +
+                "        \"subTask\": {\n" +
+                "          \"subTaskType\": \"ADMIN\",\n" +
+                "          \"operationType\": \"INSTALL_CLIENT\"\n" +
+                "        },\n" +
+                "        \"options\": {\n" +
+                "          \"adminOpts\": {\n" +
+                "            \"updateOption\": {\n" +
+                "              \"rebootClient\": true\n" +
+                "            },\n" +
+                "            \"clientInstallOption\": {\n" +
+                "              \"clientDetails\": [\n" +
+                "                {\n" +
+                "                  \"clientEntity\": {\n" +
+                "                    \"clientName\": \"%s\",\n" +
+                "                    \"commCellId\": %d\n" +
+                "                  }\n" +
+                "                }\n" +
+                "              ],\n" +
+                "              \"installOSType\": \"UNIX\",\n" +
+                "              \"discoveryType\": \"MANUAL\",\n" +
+                "              \"installerOption\": {\n" +
+                "                \"RemoteClient\": false,\n" +
+                "                \"requestType\": \"PRE_DECLARE_CLIENT\",\n" +
+                "                \"User\": {\n" +
+                "                  \"userId\": 1,\n" +
+                "                  \"userName\": \"admin\"\n" +
+                "                },\n" +
+                "                \"Operationtype\": \"INSTALL_CLIENT\",\n" +
+                "                \"CommServeHostName\": \"%s\",\n" +
+                "                \"clientComposition\": [\n" +
+                "                  {\n" +
+                "                    \"overrideSoftwareCache\": false,\n" +
+                "                    \"clientInfo\": {\n" +
+                "                      \"client\": {\n" +
+                "                        \"cvdPort\": 0,\n" +
+                "                        \"evmgrcPort\": 0\n" +
+                "                      }\n" +
+                "                    },\n" +
+                "                    \"components\": {\n" +
+                "                      \"componentInfo\": [\n" +
+                "                        {\n" +
+                "                          \"osType\": \"Unix\",\n" +
+                "                          \"ComponentId\": 1101\n" +
+                "                        }\n" +
+                "                      ],\n" +
+                "                      \"commonInfo\": {\n" +
+                "                        \"globalFilters\": \"UseCellLevelPolicy\"\n" +
+                "                      },\n" +
+                "                      \"fileSystem\": {\n" +
+                "                        \"configureForLaptopBackups\": false\n" +
+                "                      }\n" +
+                "                    },\n" +
+                "                    \"packageDeliveryOption\": \"CopyPackage\"\n" +
+                "                  }\n" +
+                "                ],\n" +
+                "                \"installFlags\": {\n" +
+                "                  \"install32Base\": false,\n" +
+                "                  \"disableOSFirewall\": false,\n" +
+                "                  \"addToFirewallExclusion\": true,\n" +
+                "                  \"forceReboot\": false,\n" +
+                "                  \"killBrowserProcesses\": true,\n" +
+                "                  \"ignoreJobsRunning\": false,\n" +
+                "                  \"stopOracleServices\": false,\n" +
+                "                  \"skipClientsOfCS\": false,\n" +
+                "                  \"restoreOnlyAgents\": false,\n" +
+                "                  \"overrideClientInfo\": true,\n" +
+                "                  \"firewallInstall\": {\n" +
+                "                    \"enableFirewallConfig\": false,\n" +
+                "                    \"firewallConnectionType\": 0,\n" +
+                "                    \"portNumber\": 0\n" +
+                "                  }\n" +
+                "                }\n" +
+                "              },\n" +
+                "              \"clientAuthForJob\": {\n" +
+                "                \"userName\": \"%s\",\n" +
+                "                \"password\": \"%s\"\n" +
+                "              },\n" +
+                "              \"reuseADCredentials\": false\n" +
+                "            }\n" +
+                "          },\n" +
+                "          \"commonOpts\": {\n" +
+                "            \"subscriptionInfo\": \"<Api_Subscription subscriptionId =\\\"%d\\\"/>\",\n" +
+                "            \"notifyUserOnJobCompletion\": false\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}",
+                clientName, Integer.parseInt(commCellId), CommServeHostName, userName, password);
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+                os.flush();
+            }
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                StringBuilder response = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                }
+                String jsonResponse = response.toString();
+                return extractJobIdsFromJsonString(jsonResponse);
+            } else {
+                return null;
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to request restoreFullVM commvault api due to:", e);
+            checkResponseTimeOut(e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+        return null;
+    }
+
     public static String extractJobIdsFromJsonString(String jsonString) {
         Pattern pattern = Pattern.compile("\"jobIds\"\\s*:\\s*\\[(.*?)\\]");
         Matcher matcher = pattern.matcher(jsonString);
