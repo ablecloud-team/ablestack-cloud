@@ -140,7 +140,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             "backup.plugin.commvault.client.verbosity", "false",
             "Produce Verbose logs in Hypervisor", true, ConfigKey.Scope.Zone);
 
-    private static final String RSYNC_COMMAND = "cp %s %s";
+    private static final String RSYNC_COMMAND = "rsync -az %s %s";
     private static final String RM_COMMAND = "rm -rf %s";
 
     @Inject
