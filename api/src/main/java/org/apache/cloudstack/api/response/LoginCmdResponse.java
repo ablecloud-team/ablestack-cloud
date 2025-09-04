@@ -90,6 +90,10 @@ public class LoginCmdResponse extends AuthenticationCmdResponse {
     @Param(description = "first login")
     private String firstLogin;
 
+    @SerializedName(value = ApiConstants.EXTERNAL_ENTITY)
+    @Param(description = "externalEntity")
+    private String externalEntity;
+
     public String getUsername() {
         return username;
     }
@@ -222,5 +226,13 @@ public class LoginCmdResponse extends AuthenticationCmdResponse {
 
     public void setFirstLogin(String firstLogin) {
         this.firstLogin = firstLogin;
+    }
+
+    public String getExternalEntity() {
+        return externalEntity;
+    }
+
+    public void setExternalEntity(String externalEntity) {
+        this.externalEntity = externalEntity;
     }
 }

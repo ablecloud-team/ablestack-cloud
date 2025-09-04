@@ -38,8 +38,7 @@ BEGIN
 CALL `cloud`.`IDEMPOTENT_ADD_UNIQUE_INDEX`('cloud.resource_count', 'i_resource_count__type_tag_accountId', '(type, tag, account_id)');
 CALL `cloud`.`IDEMPOTENT_ADD_UNIQUE_INDEX`('cloud.resource_count', 'i_resource_count__type_tag_domainId', '(type, tag, domain_id)');
 
-ALTER TABLE `cloud`.`resource_reservation`
-    MODIFY COLUMN `amount` bigint NOT NULL;
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.resource_reservation','amount','amount','BIGINT NOT NULL');
 
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.resource_reservation', 'resource_id', 'bigint unsigned NULL COMMENT "id of the resource" ');
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.resource_reservation', 'mgmt_server_id', 'bigint unsigned NULL COMMENT "management server id" ');
@@ -55,7 +54,7 @@ UPDATE `cloud`.`service_offering` SET ram_size = 512 WHERE unique_name IN ("Clou
                                                        AND system_use = 1 AND ram_size < 512;
 
 -- NSX Plugin --
-CREATE TABLE `cloud`.`nsx_providers` (
+CREATE TABLE IF NOT EXISTS `cloud`.`nsx_providers` (
                                          `id` bigint unsigned NOT NULL auto_increment COMMENT 'id',
                                          `uuid` varchar(40),
                                          `zone_id` bigint unsigned NOT NULL COMMENT 'Zone ID',
@@ -193,7 +192,7 @@ CREATE TABLE IF NOT EXISTS `cloud`.`ip4_guest_subnet_network_map` (
 
 CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('network_offerings',  'nsx_mode', 'network_mode', 'varchar(32)  COMMENT "mode in which the network would route traffic"');
 CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('vpc_offerings', 'nsx_mode', 'network_mode', 'varchar(32)  COMMENT "mode in which the network would route traffic"');
-ALTER TABLE `cloud`.`event` MODIFY COLUMN `type` varchar(50) NOT NULL;
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.event','type','type','VARCHAR(50) NOT NULL');
 
 -- Add tables for AS Numbers and range
 CREATE TABLE IF NOT EXISTS `cloud`.`as_number_range` (
@@ -387,8 +386,7 @@ CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.host', 'arch', 'varchar(8) DEFAULT "
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.vm_template', 'arch', 'varchar(8) DEFAULT "x86_64" COMMENT "the CPU architecture of the template/ISO"');
 
 -- NAS B&R Plugin Backup Repository
-DROP TABLE IF EXISTS `cloud`.`backup_repository`;
-CREATE TABLE `cloud`.`backup_repository` (
+CREATE TABLE IF NOT EXISTS `cloud`.`backup_repository` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id of the backup repository',
   `uuid` varchar(255) NOT NULL COMMENT 'uuid of the backup repository',
   `name` varchar(255) CHARACTER SET utf8mb4 NOT NULL COMMENT 'name of the backup repository',
@@ -407,9 +405,9 @@ CREATE TABLE `cloud`.`backup_repository` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Drop foreign key on backup_schedule, drop unique key on vm_id and re-add foreign key to allow multiple backup schedules to be created
-ALTER TABLE `cloud`.`backup_schedule` DROP FOREIGN KEY fk_backup_schedule__vm_id;
-ALTER TABLE `cloud`.`backup_schedule` DROP INDEX vm_id;
-ALTER TABLE `cloud`.`backup_schedule` ADD CONSTRAINT fk_backup_schedule__vm_id FOREIGN KEY (vm_id) REFERENCES vm_instance(id) ON DELETE CASCADE;
+CALL `cloud`.`IDEMPOTENT_DROP_FOREIGN_KEY`('cloud.backup_schedule','fk_backup_schedule__vm_id');
+CALL `cloud`.`IDEMPOTENT_DROP_INDEX`('vm_id', 'cloud.backup_schedule');
+CALL `cloud`.`IDEMPOTENT_ADD_FOREIGN_KEY`('cloud.backup_schedule','fk_backup_schedule__vm_id','(vm_id)','vm_instance(id)');
 
 -- Add volume details to the backups table to keep track of the volumes being backed up
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.backups', 'backed_volumes', 'text DEFAULT NULL COMMENT "details of backed-up volumes" ');
