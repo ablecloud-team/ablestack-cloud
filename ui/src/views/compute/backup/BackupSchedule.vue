@@ -150,7 +150,11 @@ export default {
       this.dataSchedules = this.dataSource
     }
   },
-  inject: ['refreshSchedule'],
+  inject: {
+    refreshSchedule: {
+      from: 'refreshSchedule'
+    }
+  },
   watch: {
     dataSource: {
       deep: true,
