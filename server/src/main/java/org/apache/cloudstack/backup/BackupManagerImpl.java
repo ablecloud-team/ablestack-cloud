@@ -1253,6 +1253,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     if (backupProvider.getName().equalsIgnoreCase("commvault")) {
                         // 1. commvault agent 상태 체크 로직 추가 필요 REST API 호출
                         backupProvider.checkBackupAgent(dataCenter.getId());
+                        // 2. commvault agent 없는 경우 호스트에 설치하도록 REST API 호출 개발 예정
                     }
 
                     List<VMInstanceVO> vms = vmInstanceDao.listByZoneWithBackups(dataCenter.getId(), null);

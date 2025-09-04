@@ -880,98 +880,59 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     @Override
     public Map<VirtualMachine, Backup.Metric> getBackupMetrics(Long zoneId, List<VirtualMachine> vms) {
         final Map<VirtualMachine, Backup.Metric> metrics = new HashMap<>();
-        Long vmBackupSize=0L;
-        Long vmBackupProtectedSize=0L;
-
         if (CollectionUtils.isEmpty(vms)) {
             LOG.warn("Unable to get VM Backup Metrics because the list of VMs is empty.");
             return metrics;
         }
 
-        // for (final VirtualMachine vm : vms) {
-        //     for (Backup.VolumeInfo thisVMVol : vm.getBackupVolumeList()) {
-        //         vmBackupSize += (thisVMVol.getSize() / 1024L / 1024L);
-        //     }
-        //     final ArrayList<String> vmBackups = getClient(zoneId).getBackupsForVm(vm);
-        //     for (String vmBackup : vmBackups) {
-        //         NetworkerBackup vmNwBackup = getClient(zoneId).getNetworkerBackupInfo(vmBackup);
-        //         vmBackupProtectedSize+= vmNwBackup.getSize().getValue() / 1024L;
-        //     }
-        //     Backup.Metric vmBackupMetric = new Backup.Metric(vmBackupSize,vmBackupProtectedSize);
-        //     LOG.debug(String.format("Metrics for VM [%s] is [backup size: %s, data size: %s].", vm, vmBackupMetric.getBackupSize(), vmBackupMetric.getDataSize()));
-        //     metrics.put(vm, vmBackupMetric);
-        // }
-        return metrics;
-    }
-
-    private Backup checkAndUpdateIfBackupEntryExistsForRestorePoint(List<Backup> backupsInDb, Backup.RestorePoint restorePoint, Backup.Metric metric) {
-        for (final Backup backup : backupsInDb) {
-            if (restorePoint.getId().equals(backup.getExternalId())) {
-                if (metric != null) {
-                    LOG.debug("Update backup with [id: {}, uuid: {}, name: {}, external id: {}] from [size: {}, protected size: {}] to [size: {}, protected size: {}].",
-                            backup.getId(), backup.getUuid(), backup.getName(), backup.getExternalId(), backup.getSize(), backup.getProtectedSize(), metric.getBackupSize(), metric.getDataSize());
-
-                    ((BackupVO) backup).setSize(metric.getBackupSize());
-                    ((BackupVO) backup).setProtectedSize(metric.getDataSize());
-                    backupDao.update(backup.getId(), ((BackupVO) backup));
-                }
-                return backup;
+        for (final VirtualMachine vm : vms) {
+            Long vmBackupSize = 0L;
+            Long vmBackupProtectedSize = 0L;
+            for (final Backup backup: backupDao.listByVmId(null, vm.getId())) {
+                vmBackupSize += backup.getSize();
+                vmBackupProtectedSize += backup.getProtectedSize();
             }
+            Backup.Metric vmBackupMetric = new Backup.Metric(vmBackupSize,vmBackupProtectedSize);
+            LOG.debug("Metrics for VM {} is [backup size: {}, data size: {}].", vm, vmBackupMetric.getBackupSize(), vmBackupMetric.getDataSize());
+            metrics.put(vm, vmBackupMetric);
         }
-        return null;
+        return metrics;
     }
 
     @Override
     public void syncBackups(VirtualMachine vm, Backup.Metric metric) {
-        // 복원 지점이 생긴 경우 sync 맞춰주는 로직 고민 필요
-        // List<Backup.RestorePoint> restorePoints = listRestorePoints(vm);
-        // if (CollectionUtils.isEmpty(restorePoints)) {
-        //     LOG.debug("Can't find any restore point to VM: {}", vm);
-        //     return;
-        // }
-        // Transaction.execute(new TransactionCallbackNoReturn() {
-        //     @Override
-        //     public void doInTransactionWithoutResult(TransactionStatus status) {
-        //         final List<Backup> backupsInDb = backupDao.listByVmId(null, vm.getId());
-        //         final List<Long> removeList = backupsInDb.stream().map(InternalIdentity::getId).collect(Collectors.toList());
-        //         for (final Backup.RestorePoint restorePoint : restorePoints) {
-        //             if (!(restorePoint.getId() == null || restorePoint.getType() == null || restorePoint.getCreated() == null)) {
-        //                 Backup existingBackupEntry = checkAndUpdateIfBackupEntryExistsForRestorePoint(backupsInDb, restorePoint, metric);
-        //                 if (existingBackupEntry != null) {
-        //                     removeList.remove(existingBackupEntry.getId());
-        //                     continue;
-        //                 }
-
-        //                 BackupVO backup = new BackupVO();
-        //                 backup.setVmId(vm.getId());
-        //                 backup.setExternalId(restorePoint.getId());
-        //                 backup.setType(restorePoint.getType());
-        //                 backup.setDate(restorePoint.getCreated());
-        //                 backup.setStatus(Backup.Status.BackedUp);
-        //                 if (metric != null) {
-        //                     backup.setSize(metric.getBackupSize());
-        //                     backup.setProtectedSize(metric.getDataSize());
-        //                 }
-        //                 backup.setBackupOfferingId(vm.getBackupOfferingId());
-        //                 backup.setAccountId(vm.getAccountId());
-        //                 backup.setDomainId(vm.getDomainId());
-        //                 backup.setZoneId(vm.getDataCenterId());
-
-        //                 LOG.debug("Creating a new entry in backups: [id: {}, uuid: {}, name: {}, vm_id: {}, external_id: {}, type: {}, date: {}, backup_offering_id: {}, account_id: {}, "
-        //                         + "domain_id: {}, zone_id: {}].", backup.getId(), backup.getUuid(), backup.getName(), backup.getVmId(), backup.getExternalId(), backup.getType(), backup.getDate(), backup.getBackupOfferingId(), backup.getAccountId(), backup.getDomainId(), backup.getZoneId());
-        //                 backupDao.persist(backup);
-
-        //                 ActionEventUtils.onCompletedActionEvent(User.UID_SYSTEM, vm.getAccountId(), EventVO.LEVEL_INFO, EventTypes.EVENT_VM_BACKUP_CREATE,
-        //                         String.format("Created backup %s for VM ID: %s", backup.getUuid(), vm.getUuid()),
-        //                         vm.getId(), ApiCommandResourceType.VirtualMachine.toString(),0);
-        //             }
-        //         }
-        //         for (final Long backupIdToRemove : removeList) {
-        //             LOG.warn(String.format("Removing backup with ID: [%s].", backupIdToRemove));
-        //             backupDao.remove(backupIdToRemove);
-        //         }
-        //     }
-        // });
+        final CommvaultClient client = getClient(vm.getDataCenterId());
+        for (final Backup backup: backupDao.listByVmId(vm.getDataCenterId(), vm.getId())) {
+            String externalId = backup.getExternalId();
+            String jobId = externalId.substring(externalId.lastIndexOf(',') + 1).trim();
+            String path = externalId.substring(0, externalId.lastIndexOf(','));
+            String jobDetails = client.getJobDetails(jobId);
+            if (jobDetails != null) {
+                JSONObject jsonObject = new JSONObject(jobDetails);
+                String retainedUntil = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("retainedUntil"));
+                String storagePolicyId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("storagePolicy").get("storagePolicyId"));
+                // 보존 기간 sync
+                BackupOfferingVO offering = backupOfferingDao.createForUpdate(offering.getId());
+                String retentionDay = client.getRetentionPeriod(storagePolicyId);
+                LOG.info("syncBackups retentionDay:::::::::");
+                LOG.info(retentionDay);
+                offering.setRetentionPeriod(retentionDay);
+                backupOfferingDao.update(offering.getId(), offering);
+                long timestamp = Long.parseLong(retainedUntil) * 1000L;
+                boolean isExpired = isRetentionExpired(retainedUntil);
+                if (isExpired) {
+                    // 보존 기간 지난 백업 데이터 삭제
+                    LOG.info("백업 데이터의 보존 기간 만료");
+                    String subclientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("subclientId"));
+                    String applicationId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("applicationId"));
+                    String instanceId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("instanceId"));
+                    String clientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientId"));
+                    String clientName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientName"));
+                    String backupsetId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetId"));
+                    client.deleteBackup(subclientId, applicationId, applicationId, clientId, clientName, backupsetId, path);
+                }
+            }
+        }
         return;
     }
 
@@ -1268,5 +1229,22 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             throw new CloudRuntimeException(String.format("Failed to restore backup on host %s due to: %s", host.getName(), e.getMessage()));
         }
         return false;
+    }
+
+    public static boolean isRetentionExpired(String retainedUntil) {
+        if (retainedUntil == null || retainedUntil.trim().isEmpty() || "null".equals(retainedUntil)) {
+            return false;
+        }
+        try {
+            long timestamp = Long.parseLong(retainedUntil) * 1000L;
+            Date retainedDate = new Date(timestamp);
+            Date currentDate = new Date();
+            LOG.info("보존 만료 날짜: " + retainedDate);
+            LOG.info("현재 날짜: " + currentDate);
+            return currentDate.after(retainedDate);
+        } catch (Exception e) {
+            LOG.info("날짜 파싱 오류: " + e.getMessage());
+            return false;
+        }
     }
 }

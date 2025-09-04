@@ -381,6 +381,33 @@ public class CommvaultClient {
         return false;
     }
 
+    // GET https://<commserveIp>/commandcenter/api/storagepolicy/<storagePolicyId>
+    // storagePolicy 상세 조회하여 retentionPeriod 반환
+    public String getRetentionPeriod(String storagePolicyId) {
+        try {
+            final HttpResponse response = get("/storagePolicy/" + storagePolicyId);
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            JsonNode copy = root.get("copy");
+            if (copy.isArray()) {
+                for (JsonNode cop : copy) {
+                    JsonNode copies = cop.path("retentionRules");
+                    if (!copies.isMissingNode()) {
+                        String retainDays = copies.path("retainBackupDataForDays").asText();
+                        return retainDays;
+                    }
+                }
+                return null;
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to request getRetentionPeriod commvault api due to:", e);
+            checkResponseTimeOut(e);
+        }
+        return null;
+    }
+
     // PUT 1) https://<commserveIp>/commandcenter/api/plan/<planId>/storage/modify 해당 plan의 스토리지의 retention을 전부 바꿔주는 API > 테스트 시 응답 500 error
     // PUT 2) https://<commserveIp>/commandcenter/api/v5/serverplan/<planId>/backupdestination/<copyId> 해당 plan의 스토리지의 copy id를 조회하여 개별로 바꿔주는 API
     // plan의 retention period 변경 API
