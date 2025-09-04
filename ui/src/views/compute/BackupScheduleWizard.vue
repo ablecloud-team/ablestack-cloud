@@ -77,7 +77,7 @@ export default {
         const listBackupSchedule = json.listbackupscheduleresponse.backupschedule
         this.dataSource = listBackupSchedule || []
       }).catch(error => {
-        if ('No backup schedule exists for the VM'.includes(error.response.data.listbackupscheduleresponse.errortext)) {
+        if ([530].includes(error.response.status)) {
           this.dataSource = []
         }
       }).finally(() => {

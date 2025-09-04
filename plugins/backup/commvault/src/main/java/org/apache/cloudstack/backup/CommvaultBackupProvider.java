@@ -905,6 +905,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     @Override
     public void syncBackups(VirtualMachine vm, Backup.Metric metric) {
+        try {
+            String commvaultServer = getUrlDomain(CommvaultUrl.value());
+        } catch (URISyntaxException e) {
+            return;
+        }
         final CommvaultClient client = getClient(vm.getDataCenterId());
         for (final Backup backup: backupDao.listByVmId(vm.getDataCenterId(), vm.getId())) {
             String externalId = backup.getExternalId();
