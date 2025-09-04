@@ -934,7 +934,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     String clientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientId"));
                     String clientName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientName"));
                     String backupsetId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetId"));
-                    client.deleteBackup(subclientId, applicationId, applicationId, clientId, clientName, backupsetId, path);
+                    boolean result = client.deleteBackup(subclientId, applicationId, applicationId, clientId, clientName, backupsetId, path);
+                    if (result) {
+                        backupDao.remove(backup.getId());
+                    }
                 }
             }
         }
