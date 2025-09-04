@@ -916,7 +916,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 String retainedUntil = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("retainedUntil"));
                 String storagePolicyId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("storagePolicy").get("storagePolicyId"));
                 // 보존 기간 sync
-                BackupOfferingVO offering = backupOfferingDao.createForUpdate(offering.getId());
+                BackupOfferingVO vmBackupOffering = new BackupOfferingDaoImpl().findById(vm.getBackupOfferingId());
+                BackupOfferingVO offering = backupOfferingDao.createForUpdate(vmBackupOffering.getId());
                 String retentionDay = client.getRetentionPeriod(storagePolicyId);
                 LOG.info("syncBackups retentionDay:::::::::");
                 LOG.info(retentionDay);
