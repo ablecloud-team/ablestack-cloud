@@ -1491,6 +1491,7 @@ public class CommvaultClient {
                 os.flush();
             }
             int responseCode = connection.getResponseCode();
+            LOG.info(responseCode);
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 StringBuilder response = new StringBuilder();
                 try (BufferedReader reader = new BufferedReader(
@@ -1501,6 +1502,7 @@ public class CommvaultClient {
                     }
                 }
                 String jsonResponse = response.toString();
+                LOG.info(jsonResponse);
                 return extractJobIdsFromJsonString(jsonResponse);
             } else {
                 return null;

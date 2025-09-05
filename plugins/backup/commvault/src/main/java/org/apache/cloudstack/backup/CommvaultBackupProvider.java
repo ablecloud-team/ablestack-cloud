@@ -306,23 +306,19 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     public boolean checkBackupAgent(final Long zoneId) {
         Map<String, String> checkResult = new HashMap<>();
         final CommvaultClient client = getClient(zoneId);
+        // commvault 통신안되는 경우 테스트 필요 (글로벌 설정 변경)
         List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
         for (final HostVO host : Hosts) {
             if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
                 String checkHost = client.getClientId(host.getName());
                 if (checkHost == null) {
                     String commCell = client.getCommcell();
-                    LOG.info(commCell);
                     JSONObject jsonObject = new JSONObject(commCell);
                     String commCellId = String.valueOf(jsonObject.get("commCellId"));
                     String commServeHostName = String.valueOf(jsonObject.get("commCellName"));
                     Ternary<String, String, String> credentials = getKVMHyperisorCredentials(host);
-                    LOG.info(commCellId);
-                    LOG.info(commServeHostName);
-                    LOG.info(host.getPrivateIpAddress());
-                    LOG.info(credentials.first());
-                    LOG.info(credentials.second());
                     String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
+                    LOG.info(jobId);
                     if (jobId != null) {
                         LOG.info(jobId);
                         String jobStatus = client.getJobStatus(jobId);
