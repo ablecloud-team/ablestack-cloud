@@ -317,9 +317,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     String commServeHostName = String.valueOf(jsonObject.get("commCellName"));
                     Ternary<String, String, String> credentials = getKVMHyperisorCredentials(host);
                     String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
-                    LOG.info(jobId);
                     if (jobId != null) {
-                        LOG.info(jobId);
                         String jobStatus = client.getJobStatus(jobId);
                         LOG.info(jobStatus);
                         if (!jobStatus.equalsIgnoreCase("Completed")) {

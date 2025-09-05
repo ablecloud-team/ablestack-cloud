@@ -1364,7 +1364,6 @@ public class CommvaultClient {
         return null;
     }
 
-    //
     // POST https://<commserveIp>/commandcenter/api/createtask
     // commvault 에이전트 설치 API
     public String installAgent(String clientName, String commCellId, String commServeHostName, String userName, String password) {
@@ -1476,10 +1475,6 @@ public class CommvaultClient {
                 "              \"reuseADCredentials\": false\n" +
                 "            }\n" +
                 "          }\n" +
-                // "          \"commonOpts\": {\n" +
-                // "            \"subscriptionInfo\": \"<Api_Subscription subscriptionId =\\\"%d\\\"/>\",\n" +
-                // "            \"notifyUserOnJobCompletion\": false\n" +
-                // "          }\n" +
                 "        }\n" +
                 "      }\n" +
                 "    ]\n" +
@@ -1492,7 +1487,6 @@ public class CommvaultClient {
                 os.flush();
             }
             int responseCode = connection.getResponseCode();
-            LOG.info(responseCode);
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 StringBuilder response = new StringBuilder();
                 try (BufferedReader reader = new BufferedReader(
@@ -1503,7 +1497,6 @@ public class CommvaultClient {
                     }
                 }
                 String jsonResponse = response.toString();
-                LOG.info(jsonResponse);
                 return extractJobIdsFromJsonString(jsonResponse);
             } else {
                 return null;
