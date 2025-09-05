@@ -306,7 +306,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     public boolean checkBackupAgent(final Long zoneId) {
         Map<String, String> checkResult = new HashMap<>();
         final CommvaultClient client = getClient(zoneId);
-        // commvault 통신안되는 경우 테스트 필요 (글로벌 설정 변경)
         List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
         for (final HostVO host : Hosts) {
             if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
