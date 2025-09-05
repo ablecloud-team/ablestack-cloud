@@ -460,7 +460,7 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
         if (diskOffering == null) {
             return false;
         }
-        return volumeApiService.doesTargetStorageSupportDiskOffering(pool, diskOffering.getTags());
+        return volumeApiService.doesStoragePoolSupportDiskOfferingTags(pool, diskOffering.getTags());
     }
 
     private ServiceOfferingVO getUnmanagedInstanceServiceOffering(final UnmanagedInstanceTO instance, ServiceOfferingVO serviceOffering, final Account owner, final DataCenter zone, final Map<String, String> details, Hypervisor.HypervisorType hypervisorType)
@@ -538,32 +538,31 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
         return nicIpAddresses;
     }
 
-    private StoragePool getStoragePool(final UnmanagedInstanceTO.Disk disk, final DataCenter zone, final Cluster cluster, String diskOfferingTags) {
+    private StoragePool getStoragePool(final UnmanagedInstanceTO.Disk disk, final DataCenter zone, final Cluster cluster, DiskOffering diskOffering) {
         StoragePool storagePool = null;
         final String dsHost = disk.getDatastoreHost();
         final String dsPath = disk.getDatastorePath();
         final String dsType = disk.getDatastoreType();
         final String dsName = disk.getDatastoreName();
-        logger.debug(String.format("### DataStore [Host:%s, Path:%s, Type:%s, Name:%s]" , dsHost, dsPath, dsType, dsName));
-        if (dsName != null) {
-            List<StoragePoolVO> pools = primaryDataStoreDao.listPoolsByCluster(cluster.getId());
-            pools.addAll(primaryDataStoreDao.listByDataCenterId(zone.getId()));
-            for (StoragePool pool : pools) {
-                if (pool.getUuid().equals(dsName)) {
-                    StoragePoolVO spool = primaryDataStoreDao.findByUuid(dsName);
-                    if (spool != null) {
-                        storagePool = pool;
-                        break;
-                    }
-                }
-            }
-        }
-        if (storagePool == null) {
+        if (dsType != null) {
             List<StoragePoolVO> pools = primaryDataStoreDao.listPoolByHostPath(dsHost, dsPath);
             for (StoragePool pool : pools) {
                 if (pool.getDataCenterId() == zone.getId() &&
                         (pool.getClusterId() == null || pool.getClusterId().equals(cluster.getId())) &&
-                        volumeApiService.doesTargetStorageSupportDiskOffering(pool, diskOfferingTags)) {
+                        volumeApiService.doesStoragePoolSupportDiskOffering(pool, diskOffering)) {
+                    storagePool = pool;
+                    break;
+                }
+            }
+        }
+
+        if (storagePool == null) {
+            List<StoragePoolVO> pools = primaryDataStoreDao.listPoolsByCluster(cluster.getId());
+            pools.addAll(primaryDataStoreDao.listByDataCenterId(zone.getId()));
+            for (StoragePool pool : pools) {
+                String searchPoolParam = StringUtils.isNotBlank(dsPath) ? dsPath : dsName;
+                if (StringUtils.contains(pool.getPath(), searchPoolParam) &&
+                        volumeApiService.doesStoragePoolSupportDiskOffering(pool, diskOffering)) {
                     storagePool = pool;
                     break;
                 }
@@ -627,7 +626,7 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, String.format("Size of disk offering(ID: %s) %dGB is found less than the size of disk(ID: %s) %dGB during VM import", diskOffering.getUuid(), (diskOffering.getDiskSize() / Resource.ResourceType.bytesToGiB), disk.getDiskId(), (disk.getCapacity() / (Resource.ResourceType.bytesToGiB))));
         }
         diskOffering = diskOffering != null ? diskOffering : diskOfferingDao.findById(serviceOffering.getDiskOfferingId());
-        StoragePool storagePool = getStoragePool(disk, zone, cluster, diskOffering != null ? diskOffering.getTags() : null);
+        StoragePool storagePool = getStoragePool(disk, zone, cluster, diskOffering);
         if (diskOffering != null && !migrateAllowed && !storagePoolSupportsDiskOffering(storagePool, diskOffering)) {
             throw new InvalidParameterValueException(String.format("Disk offering: %s is not compatible with storage pool: %s of unmanaged disk: %s", diskOffering.getUuid(), storagePool.getUuid(), disk.getDiskId()));
         }
@@ -864,7 +863,7 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
             diskInfo.setDiskChain(new String[]{disk.getImagePath()});
             chainInfo = gson.toJson(diskInfo);
         }
-        StoragePool storagePool = getStoragePool(disk, zone, cluster, diskOffering != null ? diskOffering.getTags() : null);
+        StoragePool storagePool = getStoragePool(disk, zone, cluster, diskOffering);
         DiskProfile profile = volumeManager.importVolume(type, name, diskOffering, diskSize,
                 minIops, maxIops, vm.getDataCenterId(), vm.getHypervisorType(), vm, template, owner, deviceId, storagePool.getId(), path, chainInfo);
 
@@ -1767,9 +1766,9 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
         convertedInstance.setPowerState(UnmanagedInstanceTO.PowerState.PowerOff);
         List<UnmanagedInstanceTO.Disk> convertedInstanceDisks = convertedInstance.getDisks();
         List<UnmanagedInstanceTO.Disk> sourceVMwareInstanceDisks = sourceVMwareInstance.getDisks();
-        for (UnmanagedInstanceTO.Disk sourceVMwareInstanceDisk : sourceVMwareInstanceDisks) {
-            UnmanagedInstanceTO.Disk convertedDisk = convertedInstanceDisks.get(sourceVMwareInstanceDisk.getPosition());
-            convertedDisk.setDiskId(sourceVMwareInstanceDisk.getDiskId());
+        for (int i = 0; i < convertedInstanceDisks.size(); i++) {
+            UnmanagedInstanceTO.Disk disk = convertedInstanceDisks.get(i);
+            disk.setDiskId(sourceVMwareInstanceDisks.get(i).getDiskId());
         }
         List<UnmanagedInstanceTO.Nic> convertedInstanceNics = convertedInstance.getNics();
         List<UnmanagedInstanceTO.Nic> sourceVMwareInstanceNics = sourceVMwareInstance.getNics();
@@ -1982,7 +1981,7 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
         logger.debug(String.format("Delegating the conversion of instance %s from VMware to KVM to the host %s (%s) after OVF export through ovftool",
                 sourceVM, convertHost.getId(), convertHost.getName()));
 
-        RemoteInstanceTO remoteInstanceTO = new RemoteInstanceTO(sourceVMwareInstance.getName(), vcenterHost, vcenterUsername, vcenterPassword, datacenterName);
+        RemoteInstanceTO remoteInstanceTO = new RemoteInstanceTO(sourceVMwareInstance.getName(), sourceVMwareInstance.getPath(), vcenterHost, vcenterUsername, vcenterPassword, datacenterName);
         List<String> destinationStoragePools = selectInstanceConversionStoragePools(convertStoragePools, sourceVMwareInstance.getDisks(), serviceOffering, dataDiskOfferingMap);
         ConvertInstanceCommand cmd = new ConvertInstanceCommand(remoteInstanceTO,
                 Hypervisor.HypervisorType.KVM, temporaryConvertLocation, null, false, true);
@@ -2054,6 +2053,25 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
         pools.addAll(primaryDataStoreDao.findClusterWideStoragePoolsByHypervisorAndPoolType(destinationCluster.getId(), Hypervisor.HypervisorType.KVM, Storage.StoragePoolType.NetworkFilesystem));
         pools.addAll(primaryDataStoreDao.findZoneWideStoragePoolsByHypervisorAndPoolType(destinationCluster.getDataCenterId(), Hypervisor.HypervisorType.KVM, Storage.StoragePoolType.NetworkFilesystem));
         List<String> diskOfferingTags = new ArrayList<>();
+        if (pools.isEmpty()) {
+            String msg = String.format("Cannot find suitable storage pools in the cluster %s for the conversion", destinationCluster.getName());
+            logger.error(msg);
+            throw new CloudRuntimeException(msg);
+        }
+
+        if (serviceOffering.getDiskOfferingId() != null) {
+            DiskOfferingVO diskOffering = diskOfferingDao.findById(serviceOffering.getDiskOfferingId());
+            if (diskOffering == null) {
+                String msg = String.format("Cannot find disk offering with ID %s that belongs to the service offering %s", serviceOffering.getDiskOfferingId(), serviceOffering.getName());
+                logger.error(msg);
+                throw new CloudRuntimeException(msg);
+            }
+            if (getStoragePoolWithTags(pools, diskOffering.getTags()) == null) {
+                String msg = String.format("Cannot find suitable storage pool for disk offering %s that belongs to the service offering %s", diskOffering.getName(), serviceOffering.getName());
+                logger.error(msg);
+                throw new CloudRuntimeException(msg);
+            }
+        }
         for (Long diskOfferingId : dataDiskOfferingMap.values()) {
             DiskOfferingVO diskOffering = diskOfferingDao.findById(diskOfferingId);
             if (diskOffering == null) {
@@ -2087,7 +2105,7 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
         for (String tags : diskOfferingTags) {
             boolean tagsMatched = false;
             for (StoragePoolVO pool : pools) {
-                if (volumeApiService.doesTargetStorageSupportDiskOffering(pool, tags)) {
+                if (volumeApiService.doesStoragePoolSupportDiskOfferingTags(pool, tags)) {
                     poolsSupportingTags.add(pool);
                     tagsMatched = true;
                 }
@@ -2098,7 +2116,20 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
                 throw new CloudRuntimeException(msg);
             }
         }
-        return poolsSupportingTags;
+
+        return pools;
+    }
+
+    private StoragePoolVO getStoragePoolWithTags(List<StoragePoolVO> pools, String tags) {
+        if (StringUtils.isEmpty(tags)) {
+            return pools.get(0);
+        }
+        for (StoragePoolVO pool : pools) {
+            if (volumeApiService.doesStoragePoolSupportDiskOfferingTags(pool, tags)) {
+                return pool;
+            }
+        }
+        return null;
     }
 
     private List<String> selectInstanceConversionStoragePools(
@@ -2106,26 +2137,22 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
             ServiceOfferingVO serviceOffering, Map<String, Long> dataDiskOfferingMap
     ) {
         List<String> storagePools = new ArrayList<>(disks.size());
-        for (int i = 0; i < disks.size(); i++) {
-            storagePools.add(null);
-        }
         Set<String> dataDiskIds = dataDiskOfferingMap.keySet();
         for (UnmanagedInstanceTO.Disk disk : disks) {
-            Long diskOfferingId = dataDiskOfferingMap.get(disk.getDiskId());
-            if (diskOfferingId == null && !dataDiskIds.contains(disk.getDiskId())) {
+            Long diskOfferingId = null;
+            if (dataDiskIds.contains(disk.getDiskId())) {
+                diskOfferingId = dataDiskOfferingMap.get(disk.getDiskId());
+            } else {
                 diskOfferingId = serviceOffering.getDiskOfferingId();
             }
+
             //TODO: Choose pools by capacity
             if (diskOfferingId == null) {
-                storagePools.set(disk.getPosition(), pools.get(0).getUuid());
+                storagePools.add(pools.get(0).getUuid());
             } else {
                 DiskOfferingVO diskOffering = diskOfferingDao.findById(diskOfferingId);
-                for (StoragePoolVO pool : pools) {
-                    if (volumeApiService.doesTargetStorageSupportDiskOffering(pool, diskOffering.getTags())) {
-                        storagePools.set(disk.getPosition(), pool.getUuid());
-                        break;
-                    }
-                }
+                StoragePoolVO pool = getStoragePoolWithTags(pools, diskOffering.getTags());
+                storagePools.add(pool.getUuid());
             }
         }
         return storagePools;

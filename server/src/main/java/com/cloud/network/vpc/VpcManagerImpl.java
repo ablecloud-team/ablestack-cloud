@@ -50,7 +50,6 @@ import com.cloud.dc.dao.ASNumberDao;
 import com.cloud.dc.Vlan;
 import com.cloud.network.dao.NsxProviderDao;
 import com.cloud.network.element.NsxProviderVO;
-import com.cloud.resourcelimit.CheckedReservation;
 import com.google.common.collect.Sets;
 import org.apache.cloudstack.acl.ControlledEntity.ACLType;
 import org.apache.cloudstack.alert.AlertService;
@@ -873,7 +872,7 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
             final SearchCriteria<VpcOfferingJoinVO> ssc = vpcOfferingJoinDao.createSearchCriteria();
             ssc.addOr("displayText", SearchCriteria.Op.LIKE, "%" + keyword + "%");
             ssc.addOr("name", SearchCriteria.Op.LIKE, "%" + keyword + "%");
-            ssc.addOr("uuid", SearchCriteria.Op.LIKE, "%" + keyword + "%");
+
             sc.addAnd("name", SearchCriteria.Op.SC, ssc);
         }
 
@@ -1146,7 +1145,7 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
     @ActionEvent(eventType = EventTypes.EVENT_VPC_CREATE, eventDescription = "creating vpc", create = true)
     public Vpc createVpc(final long zoneId, final long vpcOffId, final long vpcOwnerId, final String vpcName, final String displayText, final String cidr, String networkDomain,
                          final String ip4Dns1, final String ip4Dns2, final String ip6Dns1, final String ip6Dns2, final Boolean displayVpc, Integer publicMtu,
-                         final Integer cidrSize, final Long asNumber, final List<Long> bgpPeerIds) throws ResourceAllocationException {
+                         final Integer cidrSize, final Long asNumber, final List<Long> bgpPeerIds, Boolean useVrIpResolver) throws ResourceAllocationException {
         final Account caller = CallContext.current().getCallingAccount();
         final Account owner = _accountMgr.getAccount(vpcOwnerId);
 
@@ -1248,6 +1247,7 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
                 vpcOff.isRedundantRouter(), ip4Dns1, ip4Dns2, ip6Dns1, ip6Dns2);
         vpc.setPublicMtu(publicMtu);
         vpc.setDisplay(Boolean.TRUE.equals(displayVpc));
+        vpc.setUseRouterIpResolver(Boolean.TRUE.equals(useVrIpResolver));
 
         if (vpc.getCidr() == null && cidrSize != null) {
             // Allocate a CIDR for VPC
@@ -1306,7 +1306,7 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
         List<Long> bgpPeerIds = (cmd instanceof CreateVPCCmdByAdmin) ? ((CreateVPCCmdByAdmin)cmd).getBgpPeerIds() : null;
         Vpc vpc = createVpc(cmd.getZoneId(), cmd.getVpcOffering(), cmd.getEntityOwnerId(), cmd.getVpcName(), cmd.getDisplayText(),
             cmd.getCidr(), cmd.getNetworkDomain(), cmd.getIp4Dns1(), cmd.getIp4Dns2(), cmd.getIp6Dns1(),
-            cmd.getIp6Dns2(), cmd.isDisplay(), cmd.getPublicMtu(), cmd.getCidrSize(), cmd.getAsNumber(), bgpPeerIds);
+            cmd.getIp6Dns2(), cmd.isDisplay(), cmd.getPublicMtu(), cmd.getCidrSize(), cmd.getAsNumber(), bgpPeerIds, cmd.getUseVrIpResolver());
 
         String sourceNatIP = cmd.getSourceNatIP();
         boolean forNsx = isVpcForNsx(vpc);
@@ -2976,7 +2976,7 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
         }
 
         // 2) CIDR should be outside of link-local cidr
-        if (NetUtils.isNetworksOverlap(vpc.getCidr(), NetUtils.getLinkLocalCIDR())) {
+        if (NetUtils.isNetworksOverlap(cidr, NetUtils.getLinkLocalCIDR())) {
             throw new InvalidParameterValueException("CIDR should be outside of link local cidr " + NetUtils.getLinkLocalCIDR());
         }
 
@@ -3005,7 +3005,7 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
     }
 
     protected boolean isCidrDenylisted(final String cidr, final long zoneId) {
-        final String routesStr = NetworkOrchestrationService.GuestDomainSuffix.valueIn(zoneId);
+        final String routesStr = NetworkOrchestrationService.DeniedRoutes.valueIn(zoneId);
         if (routesStr != null && !routesStr.isEmpty()) {
             final String[] cidrDenyList = routesStr.split(",");
 
@@ -3207,32 +3207,27 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
         // check permissions
         _accountMgr.checkAccess(caller, null, false, owner, vpc);
 
-        logger.debug("Associating ip " + ipToAssoc + " to vpc " + vpc);
+        logger.debug(String.format("Associating IP [%s] to VPC [%s]", ipToAssoc, vpc));
 
         final boolean isSourceNatFinal = isSrcNatIpRequired(vpc.getVpcOfferingId()) && getExistingSourceNatInVpc(vpc.getAccountId(), vpcId, false) == null;
-        try (CheckedReservation publicIpReservation = new CheckedReservation(owner, ResourceType.public_ip, 1l, reservationDao, _resourceLimitMgr)) {
-            Transaction.execute(new TransactionCallbackNoReturn() {
-                @Override
-                public void doInTransactionWithoutResult(final TransactionStatus status) {
+        try {
+            IPAddressVO updatedIpAddress = Transaction.execute((TransactionCallbackWithException<IPAddressVO, CloudRuntimeException>) status -> {
                 final IPAddressVO ip = _ipAddressDao.findById(ipId);
-                // update ip address with networkId
                 ip.setVpcId(vpcId);
                 ip.setSourceNat(isSourceNatFinal);
-
                 _ipAddressDao.update(ipId, ip);
-
-                // mark ip as allocated
                 _ipAddrMgr.markPublicIpAsAllocated(ip);
-                }
+                return _ipAddressDao.findById(ipId);
             });
-        } catch (Exception e) {
-            logger.error("Failed to associate ip " + ipToAssoc + " to vpc " + vpc, e);
-            throw new CloudRuntimeException("Failed to associate ip " + ipToAssoc + " to vpc " + vpc, e);
-        }
 
-        logger.debug("Successfully assigned ip " + ipToAssoc + " to vpc " + vpc);
-        CallContext.current().putContextParameter(IpAddress.class, ipToAssoc.getUuid());
-        return _ipAddressDao.findById(ipId);
+            logger.debug(String.format("Successfully assigned IP [%s] to VPC [%s]", ipToAssoc, vpc));
+            CallContext.current().putContextParameter(IpAddress.class, ipToAssoc.getUuid());
+            return updatedIpAddress;
+        } catch (Exception e) {
+            String errorMessage = String.format("Failed to associate IP address [%s] to VPC [%s]", ipToAssoc, vpc);
+            logger.error(errorMessage, e);
+            throw new CloudRuntimeException(errorMessage, e);
+        }
     }
 
     @Override

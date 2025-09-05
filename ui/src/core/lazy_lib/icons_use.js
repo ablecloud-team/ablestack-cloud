@@ -88,6 +88,7 @@ import {
   FileDoneOutlined,
   FileProtectOutlined,
   FileTextOutlined,
+  FileZipOutlined,
   FilterOutlined,
   FilterTwoTone,
   FileAddOutlined,
@@ -275,6 +276,7 @@ export default {
     app.component('FileDoneOutlined', FileDoneOutlined)
     app.component('FileProtectOutlined', FileProtectOutlined)
     app.component('FileTextOutlined', FileTextOutlined)
+    app.component('FileZipOutlined', FileZipOutlined)
     app.component('FilterOutlined', FilterOutlined)
     app.component('FilterTwoTone', FilterTwoTone)
     app.component('FireOutlined', FireOutlined)
@@ -292,6 +294,7 @@ export default {
     app.component('GoldOutlined', GoldOutlined)
     app.component('GroupOutlined', GroupOutlined)
     app.component('GoogleOutlined', GoogleOutlined)
+    app.component('GroupOutlined', GroupOutlined)
     app.component('HddOutlined', HddOutlined)
     app.component('HomeOutlined', HomeOutlined)
     app.component('IdcardOutlined', IdcardOutlined)

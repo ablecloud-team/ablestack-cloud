@@ -34,7 +34,6 @@ public class VmStatsEntry extends VmStatsEntryBase {
      * @param memoryKBs the memory total (in KBs).
      * @param intFreeMemoryKBs the internal free memory (in KBs).
      * @param targetMemoryKBs the target memory (in KBs).
-     * @param intusablememoryKBs the usable memory (in KBs).
      * @param cpuUtilization the CPU utilization.
      * @param networkReadKBs the network read (in KiBs).
      * @param networkWriteKBs the network write (in KiBs).

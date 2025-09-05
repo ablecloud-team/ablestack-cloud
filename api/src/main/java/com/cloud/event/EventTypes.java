@@ -293,6 +293,8 @@ public class EventTypes {
 
     //registering userdata events
     public static final String EVENT_REGISTER_USER_DATA = "REGISTER.USER.DATA";
+    public static final String EVENT_REGISTER_CNI_CONFIG = "REGISTER.CNI.CONFIG";
+    public static final String EVENT_DELETE_CNI_CONFIG = "DELETE.CNI.CONFIG";
 
     //register for user API and secret keys
     public static final String EVENT_REGISTER_FOR_SECRET_API_KEY = "REGISTER.USER.KEY";
@@ -471,6 +473,7 @@ public class EventTypes {
     public static final String EVENT_ENABLE_PRIMARY_STORAGE = "ENABLE.PS";
     public static final String EVENT_DISABLE_PRIMARY_STORAGE = "DISABLE.PS";
     public static final String EVENT_SYNC_STORAGE_POOL = "SYNC.STORAGE.POOL";
+    public static final String EVENT_CONFIGURE_STORAGE_ACCESS = "CONFIGURE.STORAGE.ACCESS";
     public static final String EVENT_CHANGE_STORAGE_POOL_SCOPE = "CHANGE.STORAGE.POOL.SCOPE";
 
     // VPN
@@ -693,6 +696,9 @@ public class EventTypes {
     public static final String EVENT_EXTERNAL_OPENDAYLIGHT_CONFIGURE_CONTROLLER = "PHYSICAL.ODLCONTROLLER.CONFIGURE";
 
     //Guest OS related events
+    public static final String EVENT_GUEST_OS_CATEGORY_ADD = "GUEST.OS.CATEGORY.ADD";
+    public static final String EVENT_GUEST_OS_CATEGORY_DELETE = "GUEST.OS.CATEGORY.DELETE";
+    public static final String EVENT_GUEST_OS_CATEGORY_UPDATE = "GUEST.OS.CATEGORY.UPDATE";
     public static final String EVENT_GUEST_OS_ADD = "GUEST.OS.ADD";
     public static final String EVENT_GUEST_OS_REMOVE = "GUEST.OS.REMOVE";
     public static final String EVENT_GUEST_OS_UPDATE = "GUEST.OS.UPDATE";
@@ -750,6 +756,13 @@ public class EventTypes {
     public static final String EVENT_INTEGRITY_VERIFICATION = "INTEGRITY.VERIFICATION";
     public static final String EVENT_LOG_AUTO_DELETED = "LOG.DELETED";
 
+    // Management Server
+    public static final String EVENT_MS_MAINTENANCE_PREPARE = "MS.MAINTENANCE.PREPARE";
+    public static final String EVENT_MS_MAINTENANCE_CANCEL = "MS.MAINTENANCE.CANCEL";
+    public static final String EVENT_MS_SHUTDOWN_PREPARE = "MS.SHUTDOWN.PREPARE";
+    public static final String EVENT_MS_SHUTDOWN_CANCEL = "MS.SHUTDOWN.CANCEL";
+    public static final String EVENT_MS_SHUTDOWN = "MS.SHUTDOWN";
+
     // OBJECT STORE
     public static final String EVENT_OBJECT_STORE_CREATE = "OBJECT.STORE.CREATE";
     public static final String EVENT_OBJECT_STORE_DELETE = "OBJECT.STORE.DELETE";
@@ -798,6 +811,14 @@ public class EventTypes {
 
     // DISASTER RECOVERY
     public static final String EVENT_DISASTER_RECOVERY_CLUSTER = "DISASTER.RECOVERY.CLUSTER";
+
+    // Resource Limit
+    public static final String EVENT_RESOURCE_LIMIT_UPDATE = "RESOURCE.LIMIT.UPDATE";
+
+    public static final String VM_LEASE_EXPIRED = "VM.LEASE.EXPIRED";
+    public static final String VM_LEASE_DISABLED = "VM.LEASE.DISABLED";
+    public static final String VM_LEASE_CANCELLED = "VM.LEASE.CANCELLED";
+    public static final String VM_LEASE_EXPIRING = "VM.LEASE.EXPIRING";
 
     static {
 
@@ -1248,6 +1269,12 @@ public class EventTypes {
         //Security
         entityEventDetails.put(EVENT_SECURITY_CHECK, "Security");
 
+        entityEventDetails.put(EVENT_MS_MAINTENANCE_PREPARE, "ManagementServer");
+        entityEventDetails.put(EVENT_MS_MAINTENANCE_CANCEL, "ManagementServer");
+        entityEventDetails.put(EVENT_MS_SHUTDOWN_PREPARE, "ManagementServer");
+        entityEventDetails.put(EVENT_MS_SHUTDOWN_CANCEL, "ManagementServer");
+        entityEventDetails.put(EVENT_MS_SHUTDOWN, "ManagementServer");
+
         //Object Store
         entityEventDetails.put(EVENT_OBJECT_STORE_CREATE, ObjectStore.class);
         entityEventDetails.put(EVENT_OBJECT_STORE_UPDATE, ObjectStore.class);
@@ -1294,6 +1321,12 @@ public class EventTypes {
 
         // Disaster Recovery Cluster
         entityEventDetails.put(EVENT_DISASTER_RECOVERY_CLUSTER, "DisasterRecoveryCluster");
+
+        // VM Lease
+        entityEventDetails.put(VM_LEASE_EXPIRED, VirtualMachine.class);
+        entityEventDetails.put(VM_LEASE_EXPIRING, VirtualMachine.class);
+        entityEventDetails.put(VM_LEASE_DISABLED, VirtualMachine.class);
+        entityEventDetails.put(VM_LEASE_CANCELLED, VirtualMachine.class);
     }
 
     public static boolean isNetworkEvent(String eventType) {

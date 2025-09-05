@@ -36,7 +36,7 @@ public class NetworkTO {
     protected TrafficType type;
     protected URI broadcastUri;
     protected URI isolationUri;
-    protected boolean isSecurityGroupEnabled;
+    protected boolean securityGroupEnabled;
     protected String name;
     protected String ip6address;
     protected String ip6gateway;
@@ -114,7 +114,7 @@ public class NetworkTO {
     }
 
     public void setSecurityGroupEnabled(boolean enabled) {
-        this.isSecurityGroupEnabled = enabled;
+        this.securityGroupEnabled = enabled;
     }
 
     /**
@@ -223,7 +223,7 @@ public class NetworkTO {
     }
 
     public boolean isSecurityGroupEnabled() {
-        return this.isSecurityGroupEnabled;
+        return this.securityGroupEnabled;
     }
 
     public void setIp6Dns1(String ip6Dns1) {

@@ -248,7 +248,8 @@ export default {
       this.fetchDynamicFieldData(fieldname, event.target.value)
     },
     onSelectFieldChange (fieldname) {
-      if (fieldname === 'domainid') {
+      const fetchAccountOptions = fieldname === 'domainid' && this.fields.some((field) => field.name === 'account')
+      if (fetchAccountOptions) {
         this.fetchDynamicFieldData('account')
       }
     },
@@ -305,8 +306,9 @@ export default {
         }
         if (['zoneid', 'domainid', 'imagestoreid', 'storageid', 'state', 'account', 'hypervisor', 'level',
           'clusterid', 'podid', 'groupid', 'entitytype', 'accounttype', 'systemvmtype', 'scope', 'provider',
-          'type', 'scope', 'managementserverid', 'serviceofferingid', 'diskofferingid', 'networkid',
-          'usagetype', 'restartrequired', 'guestiptype', 'usersource'].includes(item)
+          'type', 'scope', 'managementserverid', 'serviceofferingid',
+          'diskofferingid', 'networkid', 'usagetype', 'restartrequired',
+          'displaynetwork', 'guestiptype', 'usersource', 'arch', 'oscategoryid', 'templatetype'].includes(item)
         ) {
           type = 'list'
         } else if (item === 'tags') {
@@ -328,6 +330,12 @@ export default {
       return arrayField
     },
     fetchStaticFieldData (arrayField) {
+      if (arrayField.includes('displaynetwork')) {
+        const typeIndex = this.fields.findIndex(item => item.name === 'displaynetwork')
+        this.fields[typeIndex].loading = true
+        this.fields[typeIndex].opts = this.fetchBoolean()
+        this.fields[typeIndex].loading = false
+      }
       if (arrayField.includes('type') || arrayField.includes('guestiptype')) {
         if (this.$route.path.includes('/guestnetwork') || this.$route.path.includes('/networkoffering')) {
           const typeIndex = this.fields.findIndex(item => ['type', 'guestiptype'].includes(item.name))
@@ -443,6 +451,20 @@ export default {
         this.fields[userSourceIndex].opts = this.fetchAvailableUserSourceTypes()
         this.fields[userSourceIndex].loading = false
       }
+
+      if (arrayField.includes('arch')) {
+        const typeIndex = this.fields.findIndex(item => item.name === 'arch')
+        this.fields[typeIndex].loading = true
+        this.fields[typeIndex].opts = this.$fetchCpuArchitectureTypes()
+        this.fields[typeIndex].loading = false
+      }
+
+      if (arrayField.includes('templatetype')) {
+        const typeIndex = this.fields.findIndex(item => item.name === 'templatetype')
+        this.fields[typeIndex].loading = true
+        this.fields[typeIndex].opts = this.$fetchTemplateTypes()
+        this.fields[typeIndex].loading = false
+      }
     },
     async fetchDynamicFieldData (arrayField, searchKeyword) {
       const promises = []
@@ -462,6 +484,7 @@ export default {
       let networkIndex = -1
       let usageTypeIndex = -1
       let volumeIndex = -1
+      let osCategoryIndex = -1
 
       if (arrayField.includes('type')) {
         if (this.$route.path === '/alert') {
@@ -565,6 +588,12 @@ export default {
         promises.push(await this.fetchVolumes(searchKeyword))
       }
 
+      if (arrayField.includes('oscategoryid')) {
+        osCategoryIndex = this.fields.findIndex(item => item.name === 'oscategoryid')
+        this.fields[osCategoryIndex].loading = true
+        promises.push(await this.fetchOsCategories(searchKeyword))
+      }
+
       Promise.all(promises).then(response => {
         if (typeIndex > -1) {
           const types = response.filter(item => item.type === 'type')
@@ -661,6 +690,13 @@ export default {
             this.fields[usageTypeIndex].opts = this.sortArray(usageTypes[0].data)
           }
         }
+
+        if (osCategoryIndex > -1) {
+          const osCategories = response.filter(item => item.type === 'oscategoryid')
+          if (osCategories && osCategories.length > 0) {
+            this.fields[osCategoryIndex].opts = this.sortArray(osCategories[0].data)
+          }
+        }
       }).finally(() => {
         if (typeIndex > -1) {
           this.fields[typeIndex].loading = false
@@ -673,6 +709,9 @@ export default {
         }
         if (accountIndex > -1) {
           this.fields[accountIndex].loading = false
+        }
+        if (hypervisorIndex > -1) {
+          this.fields[hypervisorIndex].loading = false
         }
         if (imageStoreIndex > -1) {
           this.fields[imageStoreIndex].loading = false
@@ -704,13 +743,12 @@ export default {
         if (usageTypeIndex > -1) {
           this.fields[usageTypeIndex].loading = false
         }
+        if (osCategoryIndex > -1) {
+          this.fields[osCategoryIndex].loading = false
+        }
         if (Array.isArray(arrayField)) {
           this.fillFormFieldValues()
         }
-        if (networkIndex > -1) {
-          this.fields[networkIndex].loading = false
-        }
-        this.fillFormFieldValues()
       })
     },
     initFormFieldData () {
@@ -778,7 +816,7 @@ export default {
           params.domainid = this.form.domainid
         }
         api('listAccounts', params).then(json => {
-          var account = json.listaccountsresponse.account
+          let account = json?.listaccountsresponse?.account || []
           if (this.form.domainid) {
             account = account.filter(a => a.domainid === this.form.domainid)
           }
@@ -992,6 +1030,19 @@ export default {
         })
       })
     },
+    fetchOsCategories (searchKeyword) {
+      return new Promise((resolve, reject) => {
+        api('listOsCategories', { showicon: true, keyword: searchKeyword }).then(json => {
+          const osCategories = json.listoscategoriesresponse.oscategory
+          resolve({
+            type: 'oscategoryid',
+            data: osCategories
+          })
+        }).catch(error => {
+          reject(error.response.headers['x-description'])
+        })
+      })
+    },
     fetchGuestNetworkTypes () {
       const types = []
       if (['listNetworks', 'listNetworkOfferings'].includes(this.apiName)) {
@@ -1008,6 +1059,18 @@ export default {
           name: 'label.l2'
         })
       }
+      return types
+    },
+    fetchBoolean () {
+      const types = []
+      types.push({
+        id: 'true',
+        name: 'label.true'
+      })
+      types.push({
+        id: 'false',
+        name: 'label.false'
+      })
       return types
     },
     fetchAccountTypes () {
@@ -1328,7 +1391,7 @@ export default {
       this.searchQuery = value
       this.$emit('search', { searchQuery: this.searchQuery })
     },
-    onClear () {
+    async onClear () {
       this.formRef.value.resetFields()
       this.form = reactive({})
       this.isFiltered = false
@@ -1336,6 +1399,14 @@ export default {
       this.inputValue = null
       this.searchQuery = null
       this.paramsFilter = {}
+
+      const refreshAccountOptions = ['account', 'domainid'].every((field) => {
+        return this.fields.some((searchViewField) => searchViewField.name === field)
+      })
+      if (refreshAccountOptions) {
+        await this.fetchDynamicFieldData('account')
+      }
+
       this.$emit('search', this.paramsFilter)
     },
     handleSubmit () {

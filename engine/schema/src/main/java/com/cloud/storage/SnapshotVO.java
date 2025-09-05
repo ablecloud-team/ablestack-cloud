@@ -295,6 +295,6 @@ public class SnapshotVO implements Snapshot {
     public String toString() {
         return String.format("Snapshot %s",
                 ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
-                        this, "id", "uuid", "name", "volumeId", "version"));
+                        this, "id", "uuid", "name", "volumeId", "version", "state"));
     }
 }

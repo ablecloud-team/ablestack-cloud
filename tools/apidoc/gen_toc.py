@@ -269,7 +269,8 @@ known_categories = {
     'listQuarantinedIp': 'IP Quarantine',
     'updateQuarantinedIp': 'IP Quarantine',
     'removeQuarantinedIp': 'IP Quarantine',
-    'Shutdown': 'Management',
+    'Shutdown': 'Maintenance',
+    'Maintenance': 'Maintenance',
     'addObjectStoragePool': 'Object Store',
     'listObjectStoragePools': 'Object Store',
     'createRbdImage': 'Object Store',
@@ -300,6 +301,10 @@ known_categories = {
     'listDomains.xml': 'Domain',
     'listDomainChildren.xml': 'Domain',
     'licenseCheck.xml': 'License',
+    'addNodesToKubernetesCluster': 'Kubernetes Service',
+    'removeNodesFromKubernetesCluster': 'Kubernetes Service',
+    'configureStorageAccess': 'Storage Access Groups',
+    'listStorageAccessGroups': 'Storage Access Groups'
 }
 
 

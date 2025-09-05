@@ -140,6 +140,9 @@ const app = {
       vueProps.$localStorage.set(RELOAD_ALL_PROJECTS, allProjects)
       state.allProjects = allProjects
     },
+    SET_MAINTENANCE_INITIATED: (state, maintenanceInitiated) => {
+      state.maintenanceInitiated = maintenanceInitiated
+    },
     SET_SHUTDOWN_TRIGGERED: (state, shutdownTriggered) => {
       state.shutdownTriggered = shutdownTriggered
     },
@@ -210,6 +213,9 @@ const app = {
     },
     ReloadAllProjects ({ commit, allProjects }) {
       commit('RELOAD_ALL_PROJECTS', allProjects)
+    },
+    SetMaintenanceInitiated ({ commit }, bool) {
+      commit('SET_MAINTENANCE_INITIATED', bool)
     },
     SetShutdownTriggered ({ commit }, bool) {
       commit('SET_SHUTDOWN_TRIGGERED', bool)

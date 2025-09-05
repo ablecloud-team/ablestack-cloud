@@ -908,6 +908,7 @@ class CsVmMetadata(CsDataBag):
             if os.path.exists(metamanifest):
                 fh = open(metamanifest, "a+")
                 self.__exflock(fh)
+                fh.seek(0)
                 if file not in fh.read():
                     fh.write(file + '\n')
                 self.__unflock(fh)
@@ -932,6 +933,7 @@ class CsVmMetadata(CsDataBag):
         if os.path.exists(htaccessFile):
             fh = open(htaccessFile, "a+")
             self.__exflock(fh)
+            fh.seek(0)
             if entry not in fh.read():
                 fh.write(entry + '\n')
             self.__unflock(fh)
@@ -969,6 +971,7 @@ class CsVmMetadata(CsDataBag):
 
             fh = open(htaccessFile, "a+")
             self.__exflock(fh)
+            fh.seek(0)
             if entry not in fh.read():
                 fh.write(entry + '\n')
 

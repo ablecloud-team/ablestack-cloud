@@ -639,7 +639,7 @@
         </dependency>
         <dependency>
            <groupId>org.apache.cloudstack</groupId>
-           <artifactId>cloud-plugin-shutdown</artifactId>
+           <artifactId>cloud-plugin-maintenance</artifactId>
            <version>${project.version}</version>
        </dependency>
        <dependency>
@@ -660,6 +660,11 @@
         <dependency>
             <groupId>org.apache.cloudstack</groupId>
             <artifactId>cloud-plugin-storage-object-ceph</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cloudstack</groupId>
+            <artifactId>cloud-plugin-storage-object-cloudian</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

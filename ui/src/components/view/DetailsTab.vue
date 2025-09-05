@@ -50,7 +50,9 @@
     <template #renderItem="{item}">
       <a-list-item v-if="(item in dataResource && !customDisplayItems.includes(item)) || (offeringDetails.includes(item) && dataResource.serviceofferingdetails)">
         <div style="width: 100%">
-          <strong>{{ item === 'service' ? $t('label.supportedservices') : $t(getDetailTitle(item)) }}</strong>
+          <strong>{{ item === 'service' ? $t('label.supportedservices') :
+           $route.meta.name === 'cniconfiguration' && item === 'userdata' ? $t('label.' + String($route.meta.name).toLowerCase()) :
+           $t(getDetailTitle(item)) }}</strong>
           <a-tooltip v-if="['volume', 'snapshot', 'template', 'iso'].includes($route.meta.name) && item === 'usedfsbytes'"><template #title>{{ $t('message.usedfsbytes') }}</template><QuestionCircleOutlined style="margin-left: 8px;"/></a-tooltip>
           <a-tooltip v-if="['volume', 'snapshot', 'template', 'iso'].includes($route.meta.name) && item === 'savingrate'"><template #title>{{ $t('message.savingrate') }}</template><QuestionCircleOutlined style="margin-left: 8px;"/></a-tooltip>
           <br/>
@@ -133,6 +135,9 @@
           <div v-else-if="$route.meta.name === 'userdata' && item === 'userdata'">
             <div style="white-space: pre-wrap;"> {{ decodeUserData(dataResource.userdata)}} </div>
           </div>
+          <div v-else-if="$route.meta.name === 'cniconfiguration' && item === 'userdata'">
+            <div style="white-space: pre-wrap;"> {{ dataResource.userdata}} </div>
+          </div>
           <div v-else-if="$route.meta.name === 'guestnetwork' && item === 'egressdefaultpolicy'">
             {{ dataResource[item]? $t('message.egress.rules.allow') : $t('message.egress.rules.deny') }}
           </div>
@@ -164,6 +169,9 @@
           <div v-else-if="item === 'usersource'">
             {{ $t(getUserSourceLabel(dataResource[item])) }}
           </div>
+          <div v-else-if="$route.meta.name === 'kubernetes' && item === 'cniconfigname'">
+              <router-link :to="{ path: '/cniconfiguration/' + dataResource.cniconfigurationid }">{{ dataResource.cniconfigname }}</router-link>
+          </div>
           <div v-else>{{ dataResource[item] }}</div>
         </div>
       </a-list-item>
@@ -193,6 +201,20 @@
           <strong>{{ $t('label.' + item.replace('date', '.date.and.time'))}}</strong>
           <br/>
           <div>{{ $toLocaleDate(dataResource[item]) }}</div>
+        </div>
+      </a-list-item>
+      <a-list-item v-else-if="item === 'leaseexpirydate' && dataResource[item]">
+        <div>
+          <strong>{{ $t('label.' + item.replace('date', '.date.and.time'))}}</strong>
+          <br/>
+          <div>{{ $toLocaleDate(dataResource[item]) }}</div>
+        </div>
+      </a-list-item>
+      <a-list-item v-else-if="item === 'details' && $route.meta.name === 'storagepool' && dataResource[item].rbd_default_data_pool">
+        <div>
+          <strong>{{ $t('label.data.pool') }}</strong>
+          <br/>
+          <div>{{ dataResource[item].rbd_default_data_pool }}</div>
         </div>
       </a-list-item>
     </template>
@@ -257,10 +279,13 @@ export default {
   },
   computed: {
     customDisplayItems () {
-      var items = ['ip4routes', 'ip6routes', 'privatemtu', 'publicmtu', 'provider']
+      var items = ['ip4routes', 'ip6routes', 'privatemtu', 'publicmtu', 'provider', 'details']
       if (this.$route.meta.name === 'webhookdeliveries' || this.$route.meta.name === 'quotasummary') {
         items.push('startdate')
         items.push('enddate')
+      }
+      if (this.$route.meta.name === 'vm') {
+        items.push('leaseexpirydate')
       }
       return items
     },

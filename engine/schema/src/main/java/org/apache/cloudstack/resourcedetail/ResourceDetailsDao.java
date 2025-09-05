@@ -88,6 +88,8 @@ public interface ResourceDetailsDao<R extends ResourceDetail> extends GenericDao
 
     public Map<String, String> listDetailsKeyPairs(long resourceId);
 
+    Map<String, String> listDetailsKeyPairs(long resourceId, List<String> keys);
+
     public Map<String, String> listDetailsKeyPairs(long resourceId, boolean forDisplay);
 
     Map<String, Boolean> listDetailsVisibility(long resourceId);
@@ -99,4 +101,6 @@ public interface ResourceDetailsDao<R extends ResourceDetail> extends GenericDao
     public List<Long> findResourceIdsByNameAndValueIn(String name, Object[] values);
 
     public long batchExpungeForResources(List<Long> ids, Long batchSize);
+
+    String getActualValue(ResourceDetail resourceDetail);
 }

@@ -16,8 +16,10 @@
 // under the License.
 package com.cloud.agent.manager;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.SocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,36 +27,43 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.naming.ConfigurationException;
 
-import com.cloud.configuration.Config;
-import com.cloud.org.Cluster;
-import com.cloud.utils.NumbersUtil;
-import com.cloud.utils.db.GlobalLock;
 import org.apache.cloudstack.agent.lb.IndirectAgentLB;
 import org.apache.cloudstack.ca.CAManager;
+import org.apache.cloudstack.command.ReconcileCommandService;
+import org.apache.cloudstack.command.ReconcileCommandUtils;
+import org.apache.cloudstack.command.ReconcileCommandVO;
+import org.apache.cloudstack.command.dao.ReconcileCommandDao;
 import org.apache.cloudstack.engine.orchestration.service.NetworkOrchestrationService;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
 import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
 import org.apache.cloudstack.framework.jobs.AsyncJob;
 import org.apache.cloudstack.framework.jobs.AsyncJobExecutionContext;
+import org.apache.cloudstack.maintenance.ManagementServerMaintenanceListener;
+import org.apache.cloudstack.maintenance.ManagementServerMaintenanceManager;
 import org.apache.cloudstack.managed.context.ManagedContextRunnable;
+import org.apache.cloudstack.management.ManagementServerHost;
 import org.apache.cloudstack.outofbandmanagement.dao.OutOfBandManagementDao;
 import org.apache.cloudstack.utils.identity.ManagementServerNode;
+import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.ThreadContext;
 
 import com.cloud.agent.AgentManager;
 import com.cloud.agent.Listener;
@@ -81,6 +90,9 @@ import com.cloud.agent.api.UnsupportedAnswer;
 import com.cloud.agent.transport.Request;
 import com.cloud.agent.transport.Response;
 import com.cloud.alert.AlertManager;
+import com.cloud.cluster.ManagementServerHostVO;
+import com.cloud.cluster.dao.ManagementServerHostDao;
+import com.cloud.configuration.Config;
 import com.cloud.configuration.ManagementServiceConfiguration;
 import com.cloud.dc.ClusterVO;
 import com.cloud.dc.DataCenterVO;
@@ -100,15 +112,18 @@ import com.cloud.host.Status.Event;
 import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor.HypervisorType;
 import com.cloud.hypervisor.HypervisorGuruManager;
+import com.cloud.org.Cluster;
 import com.cloud.resource.Discoverer;
 import com.cloud.resource.ResourceManager;
 import com.cloud.resource.ResourceState;
 import com.cloud.resource.ServerResource;
+import com.cloud.utils.NumbersUtil;
 import com.cloud.utils.Pair;
 import com.cloud.utils.component.ManagerBase;
 import com.cloud.utils.concurrency.NamedThreadFactory;
 import com.cloud.utils.db.DB;
 import com.cloud.utils.db.EntityManager;
+import com.cloud.utils.db.GlobalLock;
 import com.cloud.utils.db.QueryBuilder;
 import com.cloud.utils.db.SearchCriteria.Op;
 import com.cloud.utils.db.TransactionLegacy;
@@ -123,13 +138,11 @@ import com.cloud.utils.nio.Link;
 import com.cloud.utils.nio.NioServer;
 import com.cloud.utils.nio.Task;
 import com.cloud.utils.time.InaccurateClock;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.ThreadContext;
 
 /**
  * Implementation of the Agent Manager. This class controls the connection to the agents.
  **/
-public class AgentManagerImpl extends ManagerBase implements AgentManager, HandlerFactory, Configurable {
+public class AgentManagerImpl extends ManagerBase implements AgentManager, HandlerFactory, ManagementServerMaintenanceListener, Configurable {
 
     /**
      * _agents is a ConcurrentHashMap, but it is used from within a synchronized block. This will be reported by findbugs as JLM_JSR166_UTILCONCURRENT_MONITORENTER. Maybe a
@@ -142,7 +155,6 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     protected List<Long> _loadingAgents = new ArrayList<Long>();
     protected Map<String, Integer> _commandTimeouts = new HashMap<>();
     private int _monitorId = 0;
-    private final Lock _agentStatusLock = new ReentrantLock();
 
     @Inject
     protected CAManager caService;
@@ -152,6 +164,8 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     protected NioServer _connection;
     @Inject
     protected HostDao _hostDao = null;
+    @Inject
+    private ManagementServerHostDao _mshostDao;
     @Inject
     protected OutOfBandManagementDao outOfBandManagementDao;
     @Inject
@@ -167,12 +181,19 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     protected HighAvailabilityManager _haMgr = null;
     @Inject
     protected AlertManager _alertMgr = null;
+    @Inject
+    protected ReconcileCommandService reconcileCommandService;
+    @Inject
+    ReconcileCommandDao reconcileCommandDao;
 
     @Inject
     protected HypervisorGuruManager _hvGuruMgr;
 
     @Inject
     protected IndirectAgentLB indirectAgentLB;
+
+    @Inject
+    private ManagementServerMaintenanceManager managementServerMaintenanceManager;
 
     protected int _retry = 2;
 
@@ -186,8 +207,16 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
     private int _directAgentThreadCap;
 
+    private List<String> lastAgents = null;
+
     protected StateMachine2<Status, Status.Event, Host> _statusStateMachine = Status.getStateMachine();
     private final ConcurrentHashMap<Long, Long> _pingMap = new ConcurrentHashMap<Long, Long>(10007);
+    private int maxConcurrentNewAgentConnections;
+    private final ConcurrentHashMap<String, Long> newAgentConnections = new ConcurrentHashMap<>();
+    protected ScheduledExecutorService newAgentConnectionsMonitor;
+
+    private boolean _reconcileCommandsEnabled = false;
+    private Integer _reconcileCommandInterval;
 
     @Inject
     ResourceManager _resourceMgr;
@@ -196,7 +225,17 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
     protected final ConfigKey<Integer> Workers = new ConfigKey<Integer>("Advanced", Integer.class, "workers", "5",
             "Number of worker threads handling remote agent connections.", false);
-    protected final ConfigKey<Integer> Port = new ConfigKey<Integer>("Advanced", Integer.class, "port", "8250", "Port to listen on for remote agent connections.", false);
+    protected final ConfigKey<Integer> Port = new ConfigKey<>("Advanced", Integer.class, "port", "8250", "Port to listen on for remote (indirect) agent connections.", false);
+    protected final ConfigKey<Integer> RemoteAgentSslHandshakeTimeout = new ConfigKey<>("Advanced",
+            Integer.class, "agent.ssl.handshake.timeout", "30",
+            "Seconds after which SSL handshake times out during remote (indirect) agent connections.", false);
+    protected final ConfigKey<Integer> RemoteAgentMaxConcurrentNewConnections = new ConfigKey<>("Advanced",
+            Integer.class, "agent.max.concurrent.new.connections", "0",
+            "Number of maximum concurrent new connections server allows for remote (indirect) agents. " +
+                    "If set to zero (default value) then no limit will be enforced on concurrent new connections",
+            false);
+    protected final ConfigKey<Integer> RemoteAgentNewConnectionsMonitorInterval = new ConfigKey<>("Advanced", Integer.class, "agent.connections.monitor.interval", "1800",
+            "Time in seconds to monitor the new agent connections and cleanup the expired connections.", false);
     protected final ConfigKey<Integer> AlertWait = new ConfigKey<Integer>("Advanced", Integer.class, "alert.wait", "1800",
             "Seconds to wait before alerting on a disconnected agent", true);
     protected final ConfigKey<Integer> DirectAgentLoadSize = new ConfigKey<Integer>("Advanced", Integer.class, "direct.agent.load.size", "16",
@@ -208,12 +247,15 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     protected final ConfigKey<Boolean> CheckTxnBeforeSending = new ConfigKey<Boolean>("Developer", Boolean.class, "check.txn.before.sending.agent.commands", "false",
             "This parameter allows developers to enable a check to see if a transaction wraps commands that are sent to the resource.  This is not to be enabled on production systems.", true);
 
+    public static final List<Host.Type> HOST_DOWN_ALERT_UNSUPPORTED_HOST_TYPES = Arrays.asList(
+            Host.Type.SecondaryStorage,
+            Host.Type.ConsoleProxy
+    );
+
     @Override
     public boolean configure(final String name, final Map<String, Object> params) throws ConfigurationException {
 
         logger.info("Ping Timeout is {}.", mgmtServiceConf.getPingTimeout());
-
-        final int threads = DirectAgentLoadSize.value();
 
         _nodeId = ManagementServerNode.getManagementServerId();
         logger.info("Configuring AgentManagerImpl. management server node id(msid): {}.", _nodeId);
@@ -225,25 +267,30 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
         registerForHostEvents(new SetHostParamsListener(), true, true, false);
 
-        _executor = new ThreadPoolExecutor(threads, threads, 60l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory("AgentTaskPool"));
+        managementServerMaintenanceManager.registerListener(this);
 
-        _connectExecutor = new ThreadPoolExecutor(100, 500, 60l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory("AgentConnectTaskPool"));
-        // allow core threads to time out even when there are no items in the queue
-        _connectExecutor.allowCoreThreadTimeOut(true);
+        final int agentTaskThreads = DirectAgentLoadSize.value();
 
-        _connection = new NioServer("AgentManager", Port.value(), Workers.value() + 10, this, caService);
+        _executor = new ThreadPoolExecutor(agentTaskThreads, agentTaskThreads, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), new NamedThreadFactory("AgentTaskPool"));
+
+        maxConcurrentNewAgentConnections = RemoteAgentMaxConcurrentNewConnections.value();
+
+        _connection = new NioServer("AgentManager", Port.value(), Workers.value() + 10,
+                this, caService, RemoteAgentSslHandshakeTimeout.value());
         logger.info("Listening on {} with {} workers.", Port.value(), Workers.value());
 
+        final int directAgentPoolSize = DirectAgentPoolSize.value();
         // executes all agent commands other than cron and ping
-        _directAgentExecutor = new ScheduledThreadPoolExecutor(DirectAgentPoolSize.value(), new NamedThreadFactory("DirectAgent"));
+        _directAgentExecutor = new ScheduledThreadPoolExecutor(directAgentPoolSize, new NamedThreadFactory("DirectAgent"));
         // executes cron and ping agent commands
-        _cronJobExecutor = new ScheduledThreadPoolExecutor(DirectAgentPoolSize.value(), new NamedThreadFactory("DirectAgentCronJob"));
-        logger.debug("Created DirectAgentAttache pool with size: {}.", DirectAgentPoolSize.value());
-        _directAgentThreadCap = Math.round(DirectAgentPoolSize.value() * DirectAgentThreadCap.value()) + 1; // add 1 to always make the value > 0
-
-        _monitorExecutor = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory("AgentMonitor"));
+        _cronJobExecutor = new ScheduledThreadPoolExecutor(directAgentPoolSize, new NamedThreadFactory("DirectAgentCronJob"));
+        logger.debug("Created DirectAgentAttache pool with size: {}.", directAgentPoolSize);
+        _directAgentThreadCap = Math.round(directAgentPoolSize * DirectAgentThreadCap.value()) + 1; // add 1 to always make the value > 0
 
         initializeCommandTimeouts();
+
+        _reconcileCommandsEnabled = ReconcileCommandService.ReconcileCommandsEnabled.value();
+        _reconcileCommandInterval = ReconcileCommandService.ReconcileCommandsInterval.value();
 
         return true;
     }
@@ -251,6 +298,28 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     @Override
     public Task create(final Task.Type type, final Link link, final byte[] data) {
         return new AgentHandler(type, link, data);
+    }
+
+    @Override
+    public int getMaxConcurrentNewConnectionsCount() {
+        return maxConcurrentNewAgentConnections;
+    }
+
+    @Override
+    public int getNewConnectionsCount() {
+        return newAgentConnections.size();
+    }
+
+    @Override
+    public void registerNewConnection(SocketAddress address) {
+        logger.trace(String.format("Adding new agent connection from %s", address.toString()));
+        newAgentConnections.putIfAbsent(address.toString(), System.currentTimeMillis());
+    }
+
+    @Override
+    public void unregisterNewConnection(SocketAddress address) {
+        logger.trace(String.format("Removing new agent connection for %s", address.toString()));
+        newAgentConnections.remove(address.toString());
     }
 
     @Override
@@ -293,6 +362,79 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     public void unregisterForHostEvents(final int id) {
         logger.debug("Deregistering {}", id);
         _hostMonitors.remove(id);
+    }
+
+    @Override
+    public void onManagementServerPreparingForMaintenance() {
+        logger.debug("Management server preparing for maintenance");
+        if (_connection != null) {
+            _connection.block();
+        }
+    }
+
+    @Override
+    public void onManagementServerCancelPreparingForMaintenance() {
+        logger.debug("Management server cancel preparing for maintenance");
+        if (_connection != null) {
+            _connection.unblock();
+        }
+    }
+
+    @Override
+    public void onManagementServerMaintenance() {
+        logger.debug("Management server maintenance enabled");
+        _monitorExecutor.shutdownNow();
+        newAgentConnectionsMonitor.shutdownNow();
+        if (_connection != null) {
+            _connection.stop();
+
+            try {
+                _connection.cleanUp();
+            } catch (final IOException e) {
+                logger.warn("Fail to clean up old connection", e);
+            }
+        }
+        _connectExecutor.shutdownNow();
+    }
+
+    @Override
+    public void onManagementServerCancelMaintenance() {
+        logger.debug("Management server maintenance disabled");
+        if (_connectExecutor.isShutdown()) {
+            initConnectExecutor();
+        }
+        startDirectlyConnectedHosts(true);
+        if (_connection != null) {
+            try {
+                _connection.start();
+            } catch (final NioConnectionException e) {
+                logger.error("Error when connecting to the NioServer!", e);
+            }
+        }
+
+        if (_monitorExecutor.isShutdown()) {
+            initAndScheduleMonitorExecutor();
+        }
+        if (newAgentConnectionsMonitor.isShutdown()) {
+            initAndScheduleAgentConnectionsMonitor();
+        }
+    }
+
+    private void initConnectExecutor() {
+        _connectExecutor = new ThreadPoolExecutor(100, 500, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), new NamedThreadFactory("AgentConnectTaskPool"));
+        // allow core threads to time out even when there are no items in the queue
+        _connectExecutor.allowCoreThreadTimeOut(true);
+    }
+
+    private void initAndScheduleMonitorExecutor() {
+        _monitorExecutor = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory("AgentMonitor"));
+        _monitorExecutor.scheduleWithFixedDelay(new MonitorTask(), mgmtServiceConf.getPingInterval(), mgmtServiceConf.getPingInterval(), TimeUnit.SECONDS);
+    }
+
+    private void initAndScheduleAgentConnectionsMonitor() {
+        final int cleanupTimeInSecs = Wait.value();
+        newAgentConnectionsMonitor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("NewAgentConnectionsMonitor"));
+        newAgentConnectionsMonitor.scheduleAtFixedRate(new AgentNewConnectionsMonitorTask(), cleanupTimeInSecs, cleanupTimeInSecs, TimeUnit.SECONDS);
     }
 
     private AgentControlAnswer handleControlCommand(final AgentAttache attache, final AgentControlCommand cmd) {
@@ -520,7 +662,13 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
         final Request req = new Request(hostId, agent.getName(), _nodeId, cmds, commands.stopOnError(), true);
         req.setSequence(agent.getNextSequence());
+
+        reconcileCommandService.persistReconcileCommands(hostId, req.getSequence(), cmds);
+
         final Answer[] answers = agent.send(req, wait);
+
+        reconcileCommandService.processAnswers(req.getSequence(), cmds, answers);
+
         notifyAnswersToMonitors(hostId, req.getSequence(), answers);
         commands.setAnswers(answers);
         return answers;
@@ -615,33 +763,28 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
         final long hostId = attache.getId();
         final HostVO host = _hostDao.findById(hostId);
         for (final Pair<Integer, Listener> monitor : _hostMonitors) {
-            logger.debug("Sending Connect to listener: {}", monitor.second().getClass().getSimpleName());
+            logger.debug("Sending Connect to listener: {}, for rebalance: {}", monitor.second().getClass().getSimpleName(), forRebalance);
             for (int i = 0; i < cmd.length; i++) {
                 try {
+                    logger.debug("process connection to issue: {} for host: {}, forRebalance: {}, connection transferred: {}", ReflectionToStringBuilderUtils.reflectCollection(cmd[i]), hostId, forRebalance, cmd[i].isConnectionTransferred());
                     monitor.second().processConnect(host, cmd[i], forRebalance);
-                } catch (final Exception e) {
-                    if (e instanceof ConnectionException) {
-                        final ConnectionException ce = (ConnectionException)e;
-                        if (ce.isSetupError()) {
-                            logger.warn("Monitor {} says there is an error in the connect process for {} due to {}",
-                                    monitor.second().getClass().getSimpleName(), host, e.getMessage());
-                            handleDisconnectWithoutInvestigation(attache, Event.AgentDisconnected, true, true);
-                            throw ce;
-                        } else {
-                            logger.info("Monitor {} says not to continue the connect process for {} due to {}",
-                                    monitor.second().getClass().getSimpleName(), host, e.getMessage());
-                            handleDisconnectWithoutInvestigation(attache, Event.ShutdownRequested, true, true);
-                            return attache;
-                        }
-                    } else if (e instanceof HypervisorVersionChangedException) {
-                        handleDisconnectWithoutInvestigation(attache, Event.ShutdownRequested, true, true);
-                        throw new CloudRuntimeException(String.format("Unable to connect %s", attache), e);
-                    } else {
-                        logger.error("Monitor {} says there is an error in the connect process for {} due to {}",
-                                monitor.second().getClass().getSimpleName(), host, e.getMessage(), e);
+                } catch (final ConnectionException ce) {
+                    if (ce.isSetupError()) {
+                        logger.warn("Monitor " + monitor.second().getClass().getSimpleName() + " says there is an error in the connect process for " + hostId + " due to " + ce.getMessage());
                         handleDisconnectWithoutInvestigation(attache, Event.AgentDisconnected, true, true);
-                        throw new CloudRuntimeException(String.format("Unable to connect %s", attache), e);
+                        throw ce;
+                    } else {
+                        logger.info("Monitor " + monitor.second().getClass().getSimpleName() + " says not to continue the connect process for " + hostId + " due to " + ce.getMessage());
+                        handleDisconnectWithoutInvestigation(attache, Event.ShutdownRequested, true, true);
+                        return attache;
                     }
+                } catch (final HypervisorVersionChangedException hvce) {
+                    handleDisconnectWithoutInvestigation(attache, Event.ShutdownRequested, true, true);
+                    throw new CloudRuntimeException("Unable to connect " + (attache == null ? "<unknown agent>" : attache.getId()), hvce);
+                } catch (final Exception e) {
+                    logger.error("Monitor " + monitor.second().getClass().getSimpleName() + " says there is an error in the connect process for " + hostId + " due to " + e.getMessage(), e);
+                    handleDisconnectWithoutInvestigation(attache, Event.AgentDisconnected, true, true);
+                    throw new CloudRuntimeException("Unable to connect " + (attache == null ? "<unknown agent>" : attache.getId()), e);
                 }
             }
         }
@@ -689,7 +832,15 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
     @Override
     public boolean start() {
-        startDirectlyConnectedHosts();
+        ManagementServerHostVO msHost = _mshostDao.findByMsid(_nodeId);
+        if (msHost != null && (ManagementServerHost.State.Maintenance.equals(msHost.getState()) || ManagementServerHost.State.PreparingForMaintenance.equals(msHost.getState()))) {
+            _monitorExecutor.shutdownNow();
+            newAgentConnectionsMonitor.shutdownNow();
+            return true;
+        }
+        initConnectExecutor();
+
+        startDirectlyConnectedHosts(false);
 
         if (_connection != null) {
             try {
@@ -699,15 +850,15 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             }
         }
 
-        _monitorExecutor.scheduleWithFixedDelay(new MonitorTask(), mgmtServiceConf.getPingInterval(), mgmtServiceConf.getPingInterval(), TimeUnit.SECONDS);
-
+        initAndScheduleMonitorExecutor();
+        initAndScheduleAgentConnectionsMonitor();
         return true;
     }
 
-    public void startDirectlyConnectedHosts() {
+    public void startDirectlyConnectedHosts(final boolean forRebalance) {
         final List<HostVO> hosts = _resourceMgr.findDirectlyConnectedHosts();
         for (final HostVO host : hosts) {
-            loadDirectlyConnectedHost(host, false);
+            loadDirectlyConnectedHost(host, forRebalance);
         }
     }
 
@@ -782,6 +933,10 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     }
 
     protected boolean loadDirectlyConnectedHost(final HostVO host, final boolean forRebalance) {
+        return loadDirectlyConnectedHost(host, forRebalance, false);
+    }
+
+    protected boolean loadDirectlyConnectedHost(final HostVO host, final boolean forRebalance, final boolean isTransferredConnection) {
         boolean initialized = false;
         ServerResource resource = null;
         try {
@@ -810,7 +965,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
         if (forRebalance) {
             tapLoadingAgents(host.getId(), TapAgentsAction.Add);
-            final Host h = _resourceMgr.createHostAndAgent(host.getId(), resource, host.getDetails(), false, null, true);
+            final Host h = _resourceMgr.createHostAndAgent(host.getId(), resource, host.getDetails(), false, null, true, isTransferredConnection);
             tapLoadingAgents(host.getId(), TapAgentsAction.Del);
 
             return h == null ? false : true;
@@ -822,7 +977,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
     protected AgentAttache createAttacheForDirectConnect(final Host host, final ServerResource resource) throws ConnectionException {
         logger.debug("create DirectAgentAttache for {}", host);
-        final DirectAgentAttache attache = new DirectAgentAttache(this, host.getId(), host.getUuid(), host.getName(), resource, host.isInMaintenanceStates());
+        final DirectAgentAttache attache = new DirectAgentAttache(this, host.getId(), host.getUuid(), host.getName(), host.getHypervisorType(), resource, host.isInMaintenanceStates());
 
         AgentAttache old = null;
         synchronized (_agents) {
@@ -858,6 +1013,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
         _connectExecutor.shutdownNow();
         _monitorExecutor.shutdownNow();
+        newAgentConnectionsMonitor.shutdownNow();
         return true;
     }
 
@@ -954,9 +1110,11 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                 if (determinedState == Status.Down) {
                     final String message = String.format("Host %s is down. Starting HA on the VMs", host);
                     logger.error(message);
-                    if (host.getType() != Host.Type.SecondaryStorage && host.getType() != Host.Type.ConsoleProxy) {
-                        _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_HOST, host.getDataCenterId(),
-                                host.getPodId(), String.format("Host down, %s", host), message);
+                    if (Status.Down.equals(host.getStatus())) {
+                        logger.debug(String.format("Skipping sending alert for %s as it already in %s state",
+                                host, host.getStatus()));
+                    } else if (!HOST_DOWN_ALERT_UNSUPPORTED_HOST_TYPES.contains(host.getType())) {
+                        _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_HOST, host.getDataCenterId(), host.getPodId(), "Host down, " + host.getId(), message);
                     }
                     event = Status.Event.HostDown;
                 } else if (determinedState == Status.Up) {
@@ -1003,7 +1161,8 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
         handleDisconnectWithoutInvestigation(attache, event, true, true);
         host = _hostDao.findById(hostId); // Maybe the host magically reappeared?
         if (host != null && host.getStatus() == Status.Down) {
-            _haMgr.scheduleRestartForVmsOnHost(host, true);
+            _haMgr.scheduleRestartForVmsOnHost(host, true, HighAvailabilityManager.ReasonType.HostDown);
+            reconcileCommandService.updateReconcileCommandToInterruptedByHostId(hostId);
         }
         return true;
     }
@@ -1166,7 +1325,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
     protected AgentAttache createAttacheForConnect(final HostVO host, final Link link) throws ConnectionException {
         logger.debug("create ConnectedAgentAttache for {}", host);
-        final AgentAttache attache = new ConnectedAgentAttache(this, host.getId(), host.getUuid(), host.getName(), link, host.isInMaintenanceStates());
+        final AgentAttache attache = new ConnectedAgentAttache(this, host.getId(), host.getUuid(), host.getName(), host.getHypervisorType(), link, host.isInMaintenanceStates());
         link.attach(attache);
 
         AgentAttache old = null;
@@ -1202,6 +1361,8 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                 if (!indirectAgentLB.compareManagementServerList(host.getId(), host.getDataCenterId(), agentMSHostList, lbAlgorithm)) {
                     final List<String> newMSList = indirectAgentLB.getManagementServerList(host.getId(), host.getDataCenterId(), null);
                     ready.setMsHostList(newMSList);
+                    final List<String> avoidMsList = _mshostDao.listNonUpStateMsIPs();
+                    ready.setAvoidMsHostList(avoidMsList);
                     ready.setLbAlgorithm(indirectAgentLB.getLBAlgorithmName());
                     ready.setLbCheckInterval(indirectAgentLB.getLBPreferredHostCheckInterval(host.getClusterId()));
                     logger.debug("Agent's management server host list is not up to date, sending list update: {}", newMSList);
@@ -1326,6 +1487,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             if (attache == null) {
                 logger.warn("Unable to create attache for agent: {}", _request);
             }
+            unregisterNewConnection(_link.getSocketAddress());
         }
     }
 
@@ -1368,7 +1530,7 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             }
             if (!BooleanUtils.toBoolean(EnableKVMAutoEnableDisable.valueIn(host.getClusterId()))) {
                 logger.debug("{} is disabled for the cluster {}, cannot process the health check result " +
-                        "received for the host {}", EnableKVMAutoEnableDisable.key(), host.getClusterId(), host);
+                        "received for {}", EnableKVMAutoEnableDisable.key(), host.getClusterId(), host);
                 return;
             }
 
@@ -1504,7 +1666,11 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                             if (host!= null && host.getStatus() != Status.Up && gatewayAccessible) {
                                 requestStartupCommand = true;
                             }
-                            answer = new PingAnswer((PingCommand)cmd, requestStartupCommand);
+                            final List<String> avoidMsList = _mshostDao.listNonUpStateMsIPs();
+                            answer = new PingAnswer((PingCommand)cmd, avoidMsList, requestStartupCommand);
+
+                            // Add or update reconcile tasks
+                            reconcileCommandService.processCommand(cmd, answer);
                         } else if (cmd instanceof ReadyAnswer) {
                             final HostVO host = _hostDao.findById(attache.getId());
                             if (host == null) {
@@ -1608,21 +1774,16 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
     @Override
     public boolean agentStatusTransitTo(final HostVO host, final Status.Event e, final long msId) {
-        try {
-            _agentStatusLock.lock();
-            logger.debug("[Resource state = {}, Agent event = , Host = {}]",
-                    host.getResourceState(), e.toString(), host);
+        logger.debug("[Resource state = {}, Agent event = , Host = {}]",
+                host.getResourceState(), e.toString(), host);
 
-            host.setManagementServerId(msId);
-            try {
-                return _statusStateMachine.transitTo(host, e, host.getId(), _hostDao);
-            } catch (final NoTransitionException e1) {
-                logger.debug("Cannot transit agent status with event {} for host {}, management server id is {}", e, host, msId);
-                throw new CloudRuntimeException(String.format(
-                        "Cannot transit agent status with event %s for host %s, management server id is %d, %s", e, host, msId, e1.getMessage()));
-            }
-        } finally {
-            _agentStatusLock.unlock();
+        host.setManagementServerId(msId);
+        try {
+            return _statusStateMachine.transitTo(host, e, host.getId(), _hostDao);
+        } catch (final NoTransitionException e1) {
+            logger.debug("Cannot transit agent status with event {} for host {}, management server id is {}", e, host, msId);
+            throw new CloudRuntimeException(String.format(
+                    "Cannot transit agent status with event %s for host %s, management server id is %d, %s", e, host, msId, e1.getMessage()));
         }
     }
 
@@ -1827,6 +1988,29 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
         }
     }
 
+    protected class AgentNewConnectionsMonitorTask extends ManagedContextRunnable {
+        @Override
+        protected void runInContext() {
+            logger.trace("Agent New Connections Monitor is started.");
+            final int cleanupTime = RemoteAgentNewConnectionsMonitorInterval.value();
+            Set<Map.Entry<String, Long>> entrySet = newAgentConnections.entrySet();
+            long cutOff = System.currentTimeMillis() - (cleanupTime * 1000L);
+            List<String> expiredConnections = newAgentConnections.entrySet()
+                    .stream()
+                    .filter(e -> e.getValue() <= cutOff)
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+            logger.debug("Currently {} active new connections, of which {} have expired - {}",
+                    entrySet.size(),
+                    expiredConnections.size(),
+                    StringUtils.join(expiredConnections));
+            for (String connection : expiredConnections) {
+                logger.trace("Cleaning up new agent connection for {}", connection);
+                newAgentConnections.remove(connection);
+            }
+        }
+    }
+
     protected class BehindOnPingListener implements Listener {
         @Override
         public boolean isRecurring() {
@@ -1902,7 +2086,9 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     @Override
     public ConfigKey<?>[] getConfigKeys() {
         return new ConfigKey<?>[] { CheckTxnBeforeSending, Workers, Port, Wait, AlertWait, DirectAgentLoadSize,
-                DirectAgentPoolSize, DirectAgentThreadCap, EnableKVMAutoEnableDisable, ReadyCommandWait, GranularWaitTimeForCommands };
+                DirectAgentPoolSize, DirectAgentThreadCap, EnableKVMAutoEnableDisable, ReadyCommandWait,
+                GranularWaitTimeForCommands, RemoteAgentSslHandshakeTimeout, RemoteAgentMaxConcurrentNewConnections,
+                RemoteAgentNewConnectionsMonitorInterval };
     }
 
     protected class SetHostParamsListener implements Listener {
@@ -1932,12 +2118,16 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
 
         @Override
         public void processConnect(final Host host, final StartupCommand cmd, final boolean forRebalance) {
-            if (cmd instanceof StartupRoutingCommand) {
-                if (((StartupRoutingCommand)cmd).getHypervisorType() == HypervisorType.KVM || ((StartupRoutingCommand)cmd).getHypervisorType() == HypervisorType.LXC) {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put(Config.RouterAggregationCommandEachTimeout.toString(), _configDao.getValue(Config.RouterAggregationCommandEachTimeout.toString()));
-                    params.put(Config.MigrateWait.toString(), _configDao.getValue(Config.MigrateWait.toString()));
-                    params.put(NetworkOrchestrationService.TUNGSTEN_ENABLED.key(), String.valueOf(NetworkOrchestrationService.TUNGSTEN_ENABLED.valueIn(host.getDataCenterId())));
+            if (!(cmd instanceof StartupRoutingCommand) || cmd.isConnectionTransferred()) {
+                return;
+            }
+
+            if (((StartupRoutingCommand)cmd).getHypervisorType() == HypervisorType.KVM || ((StartupRoutingCommand)cmd).getHypervisorType() == HypervisorType.LXC) {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put(Config.RouterAggregationCommandEachTimeout.toString(), _configDao.getValue(Config.RouterAggregationCommandEachTimeout.toString()));
+                params.put(Config.MigrateWait.toString(), _configDao.getValue(Config.MigrateWait.toString()));
+                params.put(NetworkOrchestrationService.TUNGSTEN_ENABLED.key(), String.valueOf(NetworkOrchestrationService.TUNGSTEN_ENABLED.valueIn(host.getDataCenterId())));
+                params.put(ReconcileCommandService.ReconcileCommandsEnabled.key(), String.valueOf(_reconcileCommandsEnabled));
 
                     try {
                         SetHostParamsCommand cmds = new SetHostParamsCommand(params);
@@ -1948,8 +2138,6 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
                     }
                 }
             }
-
-        }
 
         @Override
         public boolean processDisconnect(final long agentId, final Status state) {
@@ -2018,7 +2206,44 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
         }
     }
 
+    @Override
+    public boolean transferDirectAgentsFromMS(String fromMsUuid, long fromMsId, long timeoutDurationInMs) {
+        return true;
+    }
+
     private GlobalLock getHostJoinLock(Long hostId) {
         return GlobalLock.getInternLock(String.format("%s-%s", "Host-Join", hostId));
+    }
+
+    public boolean isReconcileCommandsEnabled(HypervisorType hypervisorType) {
+        return _reconcileCommandsEnabled && ReconcileCommandService.SupportedHypervisorTypes.contains(hypervisorType);
+    }
+
+    public void updateReconcileCommandsIfNeeded(long requestSeq, Command[] commands, Command.State state) {
+        if (!_reconcileCommandsEnabled) {
+            return;
+        }
+        for (Command command: commands) {
+            if (command.isReconcile()) {
+                reconcileCommandService.updateReconcileCommand(requestSeq, command, null, state, null);
+            }
+        }
+    }
+
+    public Pair<Command.State, Answer> getStateAndAnswerOfReconcileCommand(long requestSeq, Command command) {
+        ReconcileCommandVO reconcileCommandVO = reconcileCommandDao.findCommand(requestSeq, command.toString());
+        if (reconcileCommandVO == null) {
+            return null;
+        }
+        Command.State state = reconcileCommandVO.getStateByAgent();
+        if (reconcileCommandVO.getAnswerName() == null || reconcileCommandVO.getAnswerInfo() == null) {
+            return new Pair<>(state, null);
+        }
+        Answer answer = ReconcileCommandUtils.parseAnswerFromAnswerInfo(reconcileCommandVO.getAnswerName(), reconcileCommandVO.getAnswerInfo());
+        return new Pair<>(state, answer);
+    }
+
+    public Integer getReconcileInterval() {
+        return _reconcileCommandInterval;
     }
 }

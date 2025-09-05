@@ -29,6 +29,7 @@ import com.cloud.agent.api.to.HostTO;
 import com.cloud.agent.properties.AgentProperties;
 import com.cloud.agent.properties.AgentPropertiesFileHandler;
 import com.cloud.hypervisor.kvm.resource.KVMHABase.HAStoragePool;
+import com.cloud.hypervisor.kvm.resource.LibvirtVMDef;
 import com.cloud.storage.Storage;
 import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.utils.script.OutputInterpreter;
@@ -309,4 +310,10 @@ public class StorPoolStoragePool implements KVMStoragePool {
         return checkingHeartBeat(pool, host);
     }
 
+    @Override
+    public void customizeLibvirtDiskDef(LibvirtVMDef.DiskDef disk) {
+        if (LibvirtVMDef.DiskDef.DiskBus.VIRTIO.equals(disk.getBusType()) || LibvirtVMDef.DiskDef.DiskBus.SCSI.equals(disk.getBusType())) {
+            disk.setDiscard(LibvirtVMDef.DiskDef.DiscardType.UNMAP);
+        }
+    }
 }

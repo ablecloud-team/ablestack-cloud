@@ -41,6 +41,7 @@ import {
   DOMAIN_STORE,
   DARK_MODE,
   CUSTOM_COLUMNS,
+  MS_ID,
   OAUTH_DOMAIN,
   OAUTH_PROVIDER,
   LATEST_CS_VERSION
@@ -68,6 +69,8 @@ const user = {
     loginFlag: false,
     logoutFlag: false,
     customColumns: {},
+    msId: '',
+    maintenanceInitiated: false,
     shutdownTriggered: false,
     twoFaEnabled: false,
     twoFaProvider: '',
@@ -147,6 +150,13 @@ const user = {
     SET_CUSTOM_COLUMNS: (state, customColumns) => {
       vueProps.$localStorage.set(CUSTOM_COLUMNS, customColumns)
       state.customColumns = customColumns
+    },
+    SET_MS_ID: (state, msId) => {
+      state.msId = msId
+      vueProps.$localStorage.set(MS_ID, msId)
+    },
+    SET_MAINTENANCE_INITIATED: (state, maintenanceInitiated) => {
+      state.maintenanceInitiated = maintenanceInitiated
     },
     SET_SHUTDOWN_TRIGGERED: (state, shutdownTriggered) => {
       state.shutdownTriggered = shutdownTriggered
@@ -233,6 +243,9 @@ const user = {
           commit('SET_2FA_ISSUER', result.issuerfor2fa)
           commit('SET_FIRST_LOGIN', (result.firstlogin === 'true'))
           commit('SET_LOGIN_FLAG', false)
+          if (result && result.managementserverid) {
+            commit('SET_MS_ID', result.managementserverid)
+          }
           const latestVersion = vueProps.$localStorage.get(LATEST_CS_VERSION, { version: '', fetchedTs: 0 })
           commit('SET_LATEST_VERSION', latestVersion)
           notification.destroy()
@@ -282,6 +295,9 @@ const user = {
           commit('SET_2FA_PROVIDER', result.providerfor2fa)
           commit('SET_2FA_ISSUER', result.issuerfor2fa)
           commit('SET_LOGIN_FLAG', false)
+          if (result && result.managementserverid) {
+            commit('SET_MS_ID', result.managementserverid)
+          }
           const latestVersion = vueProps.$localStorage.get(LATEST_CS_VERSION, { version: '', fetchedTs: 0 })
           commit('SET_LATEST_VERSION', latestVersion)
           notification.destroy()
@@ -303,6 +319,7 @@ const user = {
         const domainStore = vueProps.$localStorage.get(DOMAIN_STORE, {})
         const cachedShowSecurityGroups = vueProps.$localStorage.get(SHOW_SECURTIY_GROUPS, false)
         const darkMode = vueProps.$localStorage.get(DARK_MODE, false)
+        const msId = vueProps.$localStorage.get(MS_ID, false)
         const latestVersion = vueProps.$localStorage.get(LATEST_CS_VERSION, { version: '', fetchedTs: 0 })
         const hasAuth = Object.keys(cachedApis).length > 0
 
@@ -317,9 +334,10 @@ const user = {
           commit('SET_TIMEZONE_OFFSET', cachedTimezoneOffset)
           commit('SET_USE_BROWSER_TIMEZONE', cachedUseBrowserTimezone)
           commit('SET_CUSTOM_COLUMNS', cachedCustomColumns)
+          commit('SET_MS_ID', msId)
 
           // Ensuring we get the user info so that store.getters.user is never empty when the page is freshly loaded
-          api('listUsers', { username: Cookies.get('username'), listall: true }).then(response => {
+          api('listUsers', { id: Cookies.get('userid'), listall: true }).then(response => {
             const result = response.listusersresponse.user[0]
             commit('SET_INFO', result)
             commit('SET_NAME', result.firstname + ' ' + result.lastname)
@@ -392,10 +410,11 @@ const user = {
           }).catch(ignored => {})
         }
 
-        api('listUsers', { username: Cookies.get('username') }).then(response => {
+        api('listUsers', { id: Cookies.get('userid'), showicon: true }).then(response => {
           const result = response.listusersresponse.user[0]
           commit('SET_INFO', result)
           commit('SET_NAME', result.firstname + ' ' + result.lastname)
+          commit('SET_AVATAR', result.icon?.base64image || '')
           // store.dispatch('SetCsLatestVersion', result.rolename)
         }).catch(error => {
           reject(error)
@@ -469,6 +488,7 @@ const user = {
         commit('SET_2FA_PROVIDER', '')
         commit('SET_2FA_ISSUER', '')
         commit('SET_LOGIN_FLAG', false)
+        commit('SET_MS_ID', '')
         vueProps.$localStorage.remove(CURRENT_PROJECT)
         vueProps.$localStorage.remove(ACCESS_TOKEN)
         vueProps.$localStorage.remove(HEADER_NOTICES)
