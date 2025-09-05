@@ -1343,7 +1343,6 @@ public class CommvaultClient {
         return null;
     }
 
-    //
     // GET https://<commserveIp>/commandcenter/api/commcell/properties
     // 에이전트 설치를 위한 commcell 정보 조회 API
     public String getCommcell() {
@@ -1475,11 +1474,11 @@ public class CommvaultClient {
                 "              },\n" +
                 "              \"reuseADCredentials\": false\n" +
                 "            }\n" +
-                "          },\n" +
-                "          \"commonOpts\": {\n" +
-                "            \"subscriptionInfo\": \"<Api_Subscription subscriptionId =\\\"%d\\\"/>\",\n" +
-                "            \"notifyUserOnJobCompletion\": false\n" +
                 "          }\n" +
+                // "          \"commonOpts\": {\n" +
+                // "            \"subscriptionInfo\": \"<Api_Subscription subscriptionId =\\\"%d\\\"/>\",\n" +
+                // "            \"notifyUserOnJobCompletion\": false\n" +
+                // "          }\n" +
                 "        }\n" +
                 "      }\n" +
                 "    ]\n" +
