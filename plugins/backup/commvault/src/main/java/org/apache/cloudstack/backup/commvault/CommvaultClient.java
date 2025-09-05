@@ -1370,6 +1370,7 @@ public class CommvaultClient {
     public String installAgent(String clientName, String commCellId, String commServeHostName, String userName, String password) {
         HttpURLConnection connection = null;
         String postUrl = apiURI.toString() + "/createtask";
+        byte[] bytes = password.getBytes(StandardCharsets.UTF_8);
         try {
             URL url = new URL(postUrl);
             connection = (HttpURLConnection) url.openConnection();
@@ -1484,7 +1485,7 @@ public class CommvaultClient {
                 "    ]\n" +
                 "  }\n" +
                 "}",
-                Integer.parseInt(commCellId), clientName, Integer.parseInt(commCellId), commServeHostName, userName, password);
+                Integer.parseInt(commCellId), clientName, Integer.parseInt(commCellId), commServeHostName, userName, Base64.getEncoder().encodeToString(bytes));
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
