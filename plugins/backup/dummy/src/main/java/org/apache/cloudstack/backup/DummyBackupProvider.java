@@ -146,5 +146,5 @@ public class DummyBackupProvider extends AdapterBase implements BackupProvider {
     public boolean importBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
 
     @Override
-    public boolean getActiveBackupJob(final VMInstanceVO vm) { return false; }
+    public boolean getActiveBackupJob(final VirtualMachine vm) { return false; }
 }

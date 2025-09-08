@@ -905,7 +905,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
-    public boolean getActiveBackupJob(VMInstanceVO vm) {
+    public boolean getActiveBackupJob(VirtualMachine vm) {
         final CommvaultClient client = getClient(vm.getDataCenterId());
         return client.getActiveJob(vm.getInstanceName());
     }
