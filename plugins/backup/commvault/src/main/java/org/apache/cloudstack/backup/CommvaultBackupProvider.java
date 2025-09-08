@@ -330,8 +330,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         if (!checkResult.isEmpty()) {
             for (String value : checkResult.values()) {
+                LOG.info("checkResult not empty::::::::::::::");
+                LOG.info(value);
                 //jobID로 재시도하거나 kill 로직 추가
             }
+            return false;
         }
         return true;
     }
