@@ -65,7 +65,7 @@ public class LibvirtVMDef {
             }
         }
 
-        enum BootType {
+        public enum BootType {
             UEFI("UEFI"), BIOS("BIOS");
 
             String _type;
@@ -99,6 +99,7 @@ public class LibvirtVMDef {
         }
 
         enum BootMode {
+        public enum BootMode {
             LEGACY("LEGACY"), SECURE("SECURE");
 
             String _mode;
