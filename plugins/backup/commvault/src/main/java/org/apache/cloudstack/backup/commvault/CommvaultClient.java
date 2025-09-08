@@ -1530,7 +1530,7 @@ public class CommvaultClient {
                     if (!entity.isMissingNode()) {
                         JsonNode backupSetName = entity.path("backupsetName");
                         LOG.info(backupSetName);
-                        if (!backupSetName.isMissingNode() && vmName.equals(backupsetName.asText())) {
+                        if (!backupSetName.isMissingNode() && vmName.equals(backupSetName.asText())) {
                             return true;
                         }
                     }
