@@ -656,8 +656,13 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         } catch (URISyntaxException e) {
             throw new CloudRuntimeException(String.format("Failed to convert API to HOST : %s", e));
         }
-        // 클라이언트의 백업세트 조회하여 호스트 정의
+        // 백업 중인 작업 조회
         final CommvaultClient client = getClient(vm.getDataCenterId());
+        boolean activeJob = client.getActiveJob(vm.getInstanceName());
+        if (activeJob) {
+            throw new CloudRuntimeException("There are backup jobs running on the virtual machine. Please try again later.");
+        }
+        // 클라이언트의 백업세트 조회하여 호스트 정의
         List<HostVO> Hosts = hostDao.findByDataCenterId(vm.getDataCenterId());
         for (final HostVO host : Hosts) {
             if (host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
@@ -897,6 +902,12 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         } else {
             throw new CloudRuntimeException("Failed to request backup job detail commvault api");
         }
+    }
+
+    @Override
+    public boolean getActiveBackupJob(VMInstanceVO vm) {
+        final CommvaultClient client = getClient(vm.getDataCenterId());
+        return client.getActiveJob(vm.getInstanceName());
     }
 
     @Override

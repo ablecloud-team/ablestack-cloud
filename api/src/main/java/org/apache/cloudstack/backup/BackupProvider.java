@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.cloud.utils.Pair;
 import com.cloud.vm.VirtualMachine;
+import com.cloud.vm.VMInstanceVO;
 
 public interface BackupProvider {
 
@@ -120,4 +121,8 @@ public interface BackupProvider {
      */
     boolean importBackupPlan(Long zoneId, String retentionPeriod, String externalId);
 
+    /**
+     * get active commvault backup job
+     */
+    boolean getActiveBackupJob(VMInstanceVO vm);
 }

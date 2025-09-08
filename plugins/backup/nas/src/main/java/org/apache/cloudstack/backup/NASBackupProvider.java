@@ -36,6 +36,7 @@ import com.cloud.utils.Pair;
 import com.cloud.utils.component.AdapterBase;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.VirtualMachine;
+import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.dao.VMInstanceDao;
 import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDao;
@@ -446,4 +447,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
 
     @Override
     public boolean importBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
+
+    @Override
+    public boolean getActiveBackupJob(final VMInstanceVO vm) { return false; }
 }

@@ -1134,6 +1134,20 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 continue;
             }
 
+            final BackupProvider backupProvider = getBackupProvider(vm.getDataCenterId());
+            if (backupProvider.getName().equalsIgnoreCase("commvault")) {
+                // 백업 중인 작업 조회하여 존재하는 경우 delay
+                while (backupProvider.getActiveBackupJob(vm)) {
+                    logger.info("schedule backup active job check in::::::::::::::");
+                    try {
+                        Thread.sleep(30000);
+                    } catch (InterruptedException e) {
+                        logger.error("get active backup job sleep interrupted error");
+                    }
+                }
+                logger.info("schedule backup active job check out::::::::::::::");
+            }
+
             final Account backupAccount = accountService.getAccount(vm.getAccountId());
             if (backupAccount == null || backupAccount.getState() == Account.State.DISABLED) {
                 logger.debug("Skip backup for VM ({}) since its account has been removed or disabled.", vm);
@@ -1253,7 +1267,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     if (backupProvider.getName().equalsIgnoreCase("commvault")) {
                         // 1. commvault agent 상태 체크 로직 추가 필요 REST API 호출
                         backupProvider.checkBackupAgent(dataCenter.getId());
-                        // 2. commvault agent 없는 경우 호스트에 설치하도록 REST API 호출 개발 예정
                     }
 
                     List<VMInstanceVO> vms = vmInstanceDao.listByZoneWithBackups(dataCenter.getId(), null);

@@ -1512,6 +1512,37 @@ public class CommvaultClient {
         return null;
     }
 
+    //
+    // GET https://<commserveIP>/commandcenter/api/Job?jobCategory=Active
+    // 실행중인 Job 조회 API로, vm의 백업 작업이 실행중인 경우 true 반환
+    public boolean getActiveJob(String vmName) {
+        try {
+            LOG.info("getActiveJob::::::::::::::::::::::::");
+            final HttpResponse response = get("/Job?jobCategory=Active");
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            JsonNode jobs = root.get("jobs");
+            if (jobs != null && jobs.isArray()) {
+                for (JsonNode item : jobs) {
+                    JsonNode entity = item.get("jobSummary");
+                    if (!entity.isMissingNode()) {
+                        JsonNode backupSetName = entity.path("backupsetName");
+                        LOG.info(backupSetName);
+                        if (!backupSetName.isMissingNode() && vmName.equals(backupsetName.asText())) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to request getVmBackupSetGuid commvault api due to:", e);
+            checkResponseTimeOut(e);
+        }
+        return false;
+    }
+
     public static String extractJobIdsFromJsonString(String jsonString) {
         Pattern pattern = Pattern.compile("\"jobIds\"\\s*:\\s*\\[(.*?)\\]");
         Matcher matcher = pattern.matcher(jsonString);
