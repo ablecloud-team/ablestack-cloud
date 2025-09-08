@@ -119,9 +119,4 @@ public interface BackupProvider {
      * import commvault backup plan
      */
     boolean importBackupPlan(Long zoneId, String retentionPeriod, String externalId);
-
-    /**
-     * get active commvault backup job
-     */
-    boolean getActiveBackupJob(VirtualMachine vm);
 }

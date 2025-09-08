@@ -446,7 +446,4 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
 
     @Override
     public boolean importBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
-
-    @Override
-    public boolean getActiveBackupJob(final VirtualMachine vm) { return false; }
 }

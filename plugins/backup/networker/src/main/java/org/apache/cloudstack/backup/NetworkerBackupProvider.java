@@ -652,7 +652,4 @@ public class NetworkerBackupProvider extends AdapterBase implements BackupProvid
 
     @Override
     public boolean importBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
-
-    @Override
-    public boolean getActiveBackupJob(final VirtualMachine vm) { return false; }
 }

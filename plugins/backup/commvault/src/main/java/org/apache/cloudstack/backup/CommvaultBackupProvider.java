@@ -322,7 +322,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         LOG.info(jobStatus);
                         if (!jobStatus.equalsIgnoreCase("Completed")) {
                             checkResult.put(host.getName(), jobId);
-                            LOG.error("createBackup commvault api resulted in " + jobStatus);
+                            LOG.error("installAgent commvault api resulted in " + jobStatus);
                         }
                     }
                 }
@@ -905,12 +905,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
-    public boolean getActiveBackupJob(VirtualMachine vm) {
-        final CommvaultClient client = getClient(vm.getDataCenterId());
-        return client.getActiveJob(vm.getInstanceName());
-    }
-
-    @Override
     public Map<VirtualMachine, Backup.Metric> getBackupMetrics(Long zoneId, List<VirtualMachine> vms) {
         final Map<VirtualMachine, Backup.Metric> metrics = new HashMap<>();
         if (CollectionUtils.isEmpty(vms)) {
@@ -953,15 +947,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 BackupOfferingVO vmBackupOffering = new BackupOfferingDaoImpl().findById(vm.getBackupOfferingId());
                 BackupOfferingVO offering = backupOfferingDao.createForUpdate(vmBackupOffering.getId());
                 String retentionDay = client.getRetentionPeriod(storagePolicyId);
-                LOG.info("syncBackups retentionDay:::::::::");
-                LOG.info(retentionDay);
                 offering.setRetentionPeriod(retentionDay);
                 backupOfferingDao.update(offering.getId(), offering);
                 long timestamp = Long.parseLong(retainedUntil) * 1000L;
                 boolean isExpired = isRetentionExpired(retainedUntil);
                 if (isExpired) {
-                    // 보존 기간 지난 백업 데이터 삭제
-                    LOG.info("백업 데이터의 보존 기간 만료");
                     String subclientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("subclientId"));
                     String applicationId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("applicationId"));
                     String instanceId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("instanceId"));
@@ -1281,11 +1271,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             long timestamp = Long.parseLong(retainedUntil) * 1000L;
             Date retainedDate = new Date(timestamp);
             Date currentDate = new Date();
-            LOG.info("보존 만료 날짜: " + retainedDate);
-            LOG.info("현재 날짜: " + currentDate);
             return currentDate.after(retainedDate);
         } catch (Exception e) {
-            LOG.info("날짜 파싱 오류: " + e.getMessage());
+            LOG.info("parsing error: " + e.getMessage());
             return false;
         }
     }
