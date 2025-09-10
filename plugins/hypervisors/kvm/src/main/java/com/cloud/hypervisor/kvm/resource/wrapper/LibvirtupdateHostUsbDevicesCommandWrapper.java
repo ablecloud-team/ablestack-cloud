@@ -31,7 +31,10 @@ public final class LibvirtupdateHostUsbDevicesCommandWrapper
     @Override
     public Answer execute(final UpdateHostUsbDeviceCommand command,
             final LibvirtComputingResource libvirtComputingResource) {
-        return null;
-        // libvirtComputingResource.updateHostUsbDevices(command);
+        try {
+            return libvirtComputingResource.updateHostUsbDevices(command, command.getVmName(), command.getXmlConfig(), command.getIsAttach());
+        } catch (Exception e) {
+            return new Answer(command, false, "USB 장치 업데이트 중 오류 발생: " + e.getMessage());
+        }
     }
 }

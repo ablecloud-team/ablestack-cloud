@@ -4877,5 +4877,21 @@
 "label.predictedmedialifeleftpercent": "Media Life",
 "label.hardware.storage.enclosurelist": "Enclosures",
 "label.switches": "Switches",
-"message.redfishdata.loading": "Query may take some time."
+"message.redfishdata.loading": "Query may take some time.",
+"Message.Success.Remove.alloc": "Deallocation of device completed",
+"message.error.remove.alloc": "Unassigning device failed",
+"message.delete.device.alloc": "Unassigning devices in virtual machines",
+"label.hba.devices": "HBA Devices",
+"label.create.vhba": "Create vHBA",
+"message.confirm.create.vhba": "Do you want to create a vHBA?",
+"label.total.vhba.count": "vHBA Count",
+"message.success.create.vhba": "vHBA creation completed",
+"label.delete.vhba": "Delete vHBA",
+"message.confirm.delete.vhba": "Do you want to delete a vHBA?",
+"message.success.delete.vhba": "vHBA deletion completed",
+"label.no.partitions": "No partitions",
+"label.has.partitions": "Has partitions",
+"label.not.in.use": "Not in use",
+"label.in.use": "In use",
+"message.success.hba.device.allocated": "HBA device allocation completed"
 }
