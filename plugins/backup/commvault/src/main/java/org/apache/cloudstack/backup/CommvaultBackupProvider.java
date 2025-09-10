@@ -311,18 +311,36 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
                 String checkHost = client.getClientId(host.getName());
                 if (checkHost == null) {
+                    LOG.info("install request host" + host.getName() + " :::::::::::::::::");
                     String commCell = client.getCommcell();
                     JSONObject jsonObject = new JSONObject(commCell);
                     String commCellId = String.valueOf(jsonObject.get("commCellId"));
                     String commServeHostName = String.valueOf(jsonObject.get("commCellName"));
                     Ternary<String, String, String> credentials = getKVMHyperisorCredentials(host);
-                    String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
-                    if (jobId != null) {
-                        String jobStatus = client.getJobStatus(jobId);
-                        LOG.info(jobStatus);
-                        if (!jobStatus.equalsIgnoreCase("Completed")) {
-                            checkResult.put(host.getName(), jobId);
-                            LOG.error("installAgent commvault api resulted in " + jobStatus);
+                    boolean installJob = true;
+                    // 설치가 진행중인 호스트가 있는지 확인
+                    while (installJob) {
+                        LOG.info("installJob while in :::::::::::::::::");
+                        installJob = client.getInstallActiveJob(host.getName());
+                        try {
+                            Thread.sleep(30000);
+                        } catch (InterruptedException e) {
+                            LOG.error("checkBackupAgent get install active job result sleep interrupted error");
+                        }
+                    }
+                    LOG.info("installJob while out :::::::::::::::::");
+                    checkHost = client.getClientId(host.getName());
+                    if (checkHost == null) {
+                        LOG.info("설치가 진행중인 호스트가 없으며 설치 실행:::::::::::::::::");
+                        String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
+                        LOG.info("설치가 진행중인 호스트가 없으며 설치 실행 jobId :::::::::::::::::" + jobId);
+                        if (jobId != null) {
+                            String jobStatus = client.getJobStatus(jobId);
+                            LOG.info("설치가 진행중인 호스트가 없으며 설치 실행 jobStatus :::::::::::::::::" + jobStatus);
+                            if (!jobStatus.equalsIgnoreCase("Completed")) {
+                                checkResult.put(host.getName(), jobId);
+                                LOG.error("installAgent commvault api resulted in " + jobStatus);
+                            }
                         }
                     }
                 }

@@ -1512,7 +1512,6 @@ public class CommvaultClient {
         return null;
     }
 
-    //
     // GET https://<commserveIP>/commandcenter/api/Job?jobCategory=Active
     // 실행중인 Job 조회 API로, vm의 백업 작업이 실행중인 경우 true 반환
     public boolean getActiveJob(String vmName) {
@@ -1532,6 +1531,44 @@ public class CommvaultClient {
                         LOG.info(backupSetName);
                         if (!backupSetName.isMissingNode() && vmName.equals(backupSetName.asText())) {
                             return true;
+                        }
+                    }
+                }
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to request getVmBackupSetGuid commvault api due to:", e);
+            checkResponseTimeOut(e);
+        }
+        return false;
+    }
+
+    //
+    // GET https://<commserveIP>/commandcenter/api/Job?jobCategory=Active
+    // 실행중인 Job 조회 API로, 호스트의 에이전트 설치 작업이 실행중인 경우 true 반환
+    public boolean getInstallActiveJob(String hostName) {
+        try {
+            LOG.info("getInstallActiveJob::::::::::::::::::::::::");
+            final HttpResponse response = get("/Job?jobCategory=Active");
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            JsonNode jobs = root.get("jobs");
+            if (jobs != null && jobs.isArray()) {
+                for (JsonNode item : jobs) {
+                    JsonNode entity = item.get("jobSummary");
+                    if (!entity.isMissingNode()) {
+                        JsonNode jobType = entity.path("jobType");
+                        JsonNode subclient = entity.path("subclient");
+                        string type = "Install Client";
+                        if (!jobType.isMissingNode() && type.equals(jobType.asText())) {
+                            LOG.info("install client job progressing::::::::::::::::::");
+                            if (!subclient.isMissingNode()) {
+                                JsonNode clientName = subclient.path("clientName");
+                                if (!clientName.isMissingNode() && hostName.equals(clientName.asText())) {
+                                    return true;
+                                }
+                            }
                         }
                     }
                 }
