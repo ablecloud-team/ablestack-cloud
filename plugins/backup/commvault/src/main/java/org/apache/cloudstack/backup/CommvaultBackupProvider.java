@@ -360,10 +360,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                 checkResult.put(host.getPrivateIpAddress(), jobId);
                             }
                         }
-                    } else { 
+                    } else {
                         // 설치가 정상적으로 설치안된 경우 확인
                         boolean checkInstall = client.getClientProps(checkHost);
-                        LOG.info("설치가 정상적으로 설치안된 경우:::::::::::::::::;");
+                        LOG.info("설치가 정상적으로 설치안된 경우:::::::::::::::::");
                         // jobId로 재시도하거나 kill 로직 추가 필요
                     }
                 }
