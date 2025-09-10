@@ -628,8 +628,8 @@ public class CommvaultClient {
                     JsonNode activePhysicalNode = clientProp.get("ActivePhysicalNode");
                     if (!clientReadiness.isMissingNode()) {
                         LOG.info(clientReadiness);
-                        String status = "Ready. \n";
-                        if (!status.equals(clientReadiness.get("readinessStatus").asText()) || activePhysicalNode.isMissingNode()) {
+                        String status = "Not Ready";
+                        if (status.contains(clientReadiness.get("readinessStatus").asText()) || activePhysicalNode.isMissingNode()) {
                             LOG.info(clientReadiness.get("readinessStatus").asText());
                             LOG.info(status.equals(clientReadiness.get("readinessStatus").asText()));
                             LOG.info(activePhysicalNode.isMissingNode());
