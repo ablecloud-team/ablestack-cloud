@@ -611,6 +611,40 @@ public class CommvaultClient {
         return null;
     }
 
+    //
+    // GET https://<commserveIp>/commandcenter/api/client/<clientId>
+    // client properties 조회하는 API 설치가 정상적으로 된 경우 true, 안된 경우 false 반환
+    public String getClientProps(String clientId) {
+        try {
+            final HttpResponse response = get("/client/" + clientId);
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            JsonNode clientProperties = root.get("clientProperties");
+            if (clientProperties != null && clientProperties.isArray()) {
+                for (JsonNode clientProp : clientProperties) {
+                    JsonNode clientReadiness = clientProp.get("clientReadiness");
+                    JsonNode activePhysicalNode = clientProp.get("ActivePhysicalNode");
+                    if (!clientReadiness.isMissingNode()) {
+                        LOG.info(clientReadiness);
+                        String status = "Ready. \n";
+                        if (!status.equals(clientReadiness.get("readinessStatus").asText()) || activePhysicalNode.isMissingNode()) {
+                            LOG.info(clientReadiness.get("readinessStatus").asText());
+                            LOG.info(status.equals(clientReadiness.get("readinessStatus").asText()));
+                            LOG.info(activePhysicalNode.isMissingNode());
+                            return false;
+                        }
+                    }
+                }
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to request getApplicationId commvault api due to:", e);
+            checkResponseTimeOut(e);
+        }
+        return true;
+    }
+
     // GET https://<commserveIp>/commandcenter/api/plan/<planId>
     // plan 상세 조회하는 API로 없는 경우 null, 있는 경우 planName 반환
     public String getPlanName(String planId) {
@@ -1516,7 +1550,6 @@ public class CommvaultClient {
     // 실행중인 Job 조회 API로, vm의 백업 작업이 실행중인 경우 true 반환
     public boolean getActiveJob(String vmName) {
         try {
-            LOG.info("getActiveJob::::::::::::::::::::::::");
             final HttpResponse response = get("/Job?jobCategory=Active");
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -1528,7 +1561,6 @@ public class CommvaultClient {
                     JsonNode entity = item.get("jobSummary");
                     if (!entity.isMissingNode()) {
                         JsonNode backupSetName = entity.path("backupsetName");
-                        LOG.info(backupSetName);
                         if (!backupSetName.isMissingNode() && vmName.equals(backupSetName.asText())) {
                             return true;
                         }
@@ -1536,18 +1568,16 @@ public class CommvaultClient {
                 }
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getVmBackupSetGuid commvault api due to:", e);
+            LOG.error("Failed to request getActiveJob commvault api due to:", e);
             checkResponseTimeOut(e);
         }
         return false;
     }
 
-    //
     // GET https://<commserveIP>/commandcenter/api/Job?jobCategory=Active
     // 실행중인 Job 조회 API로, 호스트의 에이전트 설치 작업이 실행중인 경우 true 반환
     public boolean getInstallActiveJob(String hostName) {
         try {
-            LOG.info("getInstallActiveJob::::::::::::::::::::::::");
             final HttpResponse response = get("/Job?jobCategory=Active");
             checkResponseOK(response);
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -1562,13 +1592,9 @@ public class CommvaultClient {
                         JsonNode subclient = entity.path("subclient");
                         String type = "Install Client";
                         if (!jobType.isMissingNode() && type.equals(jobType.asText())) {
-                            LOG.info("install client job progressing::::::::::::::::::");
                             if (!subclient.isMissingNode()) {
                                 JsonNode clientName = subclient.path("clientName");
-                                LOG.info("install client job progressing clientName::::::::::::::::::" + clientName);
-                                LOG.info("install client job progressing hostName::::::::::::::::::" + hostName);
                                 if (!clientName.isMissingNode() && hostName.equals(clientName.asText())) {
-                                    LOG.info("install client job progressing ture in::::::::::");
                                     return true;
                                 }
                             }
@@ -1577,7 +1603,7 @@ public class CommvaultClient {
                 }
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getVmBackupSetGuid commvault api due to:", e);
+            LOG.error("Failed to request getInstallActiveJob commvault api due to:", e);
             checkResponseTimeOut(e);
         }
         return false;

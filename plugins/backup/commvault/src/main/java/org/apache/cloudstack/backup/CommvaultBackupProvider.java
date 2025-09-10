@@ -311,12 +311,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
                 String checkHost = client.getClientId(host.getName());
                 if (checkHost == null) {
-                    LOG.info("checkBackupAgent checkHost null 호스트 설치 필요");
                     return false;
                 } else {
                     boolean installJob = client.getInstallActiveJob(host.getPrivateIpAddress());
                     if (installJob) {
-                        LOG.info("checkBackupAgent installJob ture 설치 진행중인 호스트 있음");
                         return false;
                     }
                 }
@@ -334,7 +332,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
                 String checkHost = client.getClientId(host.getName());
                 if (checkHost == null) {
-                    LOG.info("install request host" + host.getName() + " :::::::::::::::::");
+                    LOG.info("checking for install agent on the Commvault Backup Provider in host " + host.getPrivateIpAddress());
                     String commCell = client.getCommcell();
                     JSONObject jsonObject = new JSONObject(commCell);
                     String commCellId = String.valueOf(jsonObject.get("commCellId"));
@@ -343,7 +341,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     boolean installJob = true;
                     // 설치가 진행중인 호스트가 있는지 확인
                     while (installJob) {
-                        LOG.info("installJob while in :::::::::::::::::");
                         installJob = client.getInstallActiveJob(host.getName());
                         try {
                             Thread.sleep(30000);
@@ -351,20 +348,23 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             LOG.error("checkBackupAgent get install active job result sleep interrupted error");
                         }
                     }
-                    LOG.info("installJob while out :::::::::::::::::");
                     checkHost = client.getClientId(host.getName());
                     if (checkHost == null) {
-                        LOG.info("설치가 진행중인 호스트가 없으며 설치 실행:::::::::::::::::");
+                        LOG.info("installing agent on the Commvault Backup Provider in host " + host.getPrivateIpAddress());
                         String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
-                        LOG.info("설치가 진행중인 호스트가 없으며 설치 실행 jobId :::::::::::::::::" + jobId);
+                        LOG.info("installing agent on the Commvault Backup Provider jogId : " + jobId);
                         if (jobId != null) {
                             String jobStatus = client.getJobStatus(jobId);
-                            LOG.info("설치가 진행중인 호스트가 없으며 설치 실행 jobStatus :::::::::::::::::" + jobStatus);
+                            LOG.info("installing agent on the Commvault Backup Provider jobStatus : " + jobStatus);
                             if (!jobStatus.equalsIgnoreCase("Completed")) {
-                                checkResult.put(host.getName(), jobId);
-                                LOG.error("installAgent commvault api resulted in " + jobStatus);
+                                checkResult.put(host.getPrivateIpAddress(), jobId);
                             }
                         }
+                    } else { 
+                        // 설치가 정상적으로 설치안된 경우 확인
+                        boolean checkInstall = client.getClientProps(checkHost);
+                        LOG.info("설치가 정상적으로 설치안된 경우:::::::::::::::::;");
+                        // jobId로 재시도하거나 kill 로직 추가 필요
                     }
                 }
             }
