@@ -314,7 +314,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     return false;
                 } else {
                     boolean installJob = client.getInstallActiveJob(host.getPrivateIpAddress());
-                    if (installJob) {
+                    boolean checkInstall = client.getClientProps(checkHost);
+                    LOG.info("checkBackupAgent:::::::::::::::::::");
+                    LOG.info("checkBackupAgent installJob:::::::::::::::::::" + installJob);
+                    LOG.info("checkBackupAgent checkInstall:::::::::::::::::::" + checkInstall);
+                    if (installJob || !checkInstall) {
                         return false;
                     }
                 }

@@ -639,7 +639,7 @@ public class CommvaultClient {
                 }
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getApplicationId commvault api due to:", e);
+            LOG.error("Failed to request getClientProps commvault api due to:", e);
             checkResponseTimeOut(e);
         }
         return true;
