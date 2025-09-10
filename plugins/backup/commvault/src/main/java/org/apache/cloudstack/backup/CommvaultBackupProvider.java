@@ -371,7 +371,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         // jobId로 재시도하거나 kill 로직 추가 필요
                     }
                 } else {
-                    // 호스트에서는 에이전트를  삭제하여 commvault에서도 파일서버에서 조회되지않지만, client 조회 시 남아있는 이슈 처리 필요
+                    // 설치가 정상적으로 설치안된 경우 확인
+                    boolean checkInstall = client.getClientProps(checkHost);
+                    LOG.info("설치가 정상적으로 설치안된 경우:::::::::::::::::");
+                    // jobId로 재시도하거나 kill 로직 추가 필요
                 }
             }
         }

@@ -624,11 +624,9 @@ public class CommvaultClient {
             if (clientProperties != null && clientProperties.isArray()) {
                 for (JsonNode clientProp : clientProperties) {
                     JsonNode clientReadiness = clientProp.get("clientReadiness");
-                    JsonNode activePhysicalNode = clientProp.get("ActivePhysicalNode");
                     if (!clientReadiness.isMissingNode()) {
                         String status = "Not Ready";
-                        // 호스트에서는 에이전트를  삭제하여 commvault에서도 파일서버에서 조회되지않지만, client 조회 시 남아있는 이슈
-                        if (clientReadiness.get("readinessStatus").asText().contains(status) || activePhysicalNode.isMissingNode()) {
+                        if (clientReadiness.get("readinessStatus").asText().contains(status)) {
                             return false;
                         }
                     }
