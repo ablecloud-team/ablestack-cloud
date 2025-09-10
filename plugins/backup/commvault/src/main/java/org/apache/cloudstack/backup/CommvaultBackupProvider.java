@@ -311,7 +311,14 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
                 String checkHost = client.getClientId(host.getName());
                 if (checkHost == null) {
+                    LOG.info("checkBackupAgent checkHost null 호스트 설치 필요");
                     return false;
+                } else {
+                    boolean installJob = client.getInstallActiveJob(host.getName());
+                    if (installJob) {
+                        LOG.info("checkBackupAgent installJob ture 설치 진행중인 호스트 있음");
+                        return false;
+                    } 
                 }
             }
         }
