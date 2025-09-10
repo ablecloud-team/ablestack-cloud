@@ -614,7 +614,7 @@ public class CommvaultClient {
     //
     // GET https://<commserveIp>/commandcenter/api/client/<clientId>
     // client properties 조회하는 API 설치가 정상적으로 된 경우 true, 안된 경우 false 반환
-    public String getClientProps(String clientId) {
+    public boolean getClientProps(String clientId) {
         try {
             final HttpResponse response = get("/client/" + clientId);
             checkResponseOK(response);
