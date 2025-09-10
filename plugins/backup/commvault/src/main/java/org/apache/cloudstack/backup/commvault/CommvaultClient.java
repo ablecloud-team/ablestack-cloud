@@ -611,7 +611,6 @@ public class CommvaultClient {
         return null;
     }
 
-    //
     // GET https://<commserveIp>/commandcenter/api/client/<clientId>
     // client properties 조회하는 API 설치가 정상적으로 된 경우 true, 안된 경우 false 반환
     public boolean getClientProps(String clientId) {
@@ -627,12 +626,9 @@ public class CommvaultClient {
                     JsonNode clientReadiness = clientProp.get("clientReadiness");
                     JsonNode activePhysicalNode = clientProp.get("ActivePhysicalNode");
                     if (!clientReadiness.isMissingNode()) {
-                        LOG.info(clientReadiness);
                         String status = "Not Ready";
+                        // 호스트에서는 에이전트를  삭제하여 commvault에서도 파일서버에서 조회되지않지만, client 조회 시 남아있는 이슈
                         if (clientReadiness.get("readinessStatus").asText().contains(status) || activePhysicalNode.isMissingNode()) {
-                            LOG.info(clientReadiness.get("readinessStatus").asText());
-                            LOG.info(status.equals(clientReadiness.get("readinessStatus").asText()));
-                            LOG.info(activePhysicalNode.isMissingNode());
                             return false;
                         }
                     }
