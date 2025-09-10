@@ -1565,7 +1565,10 @@ public class CommvaultClient {
                             LOG.info("install client job progressing::::::::::::::::::");
                             if (!subclient.isMissingNode()) {
                                 JsonNode clientName = subclient.path("clientName");
+                                LOG.info("install client job progressing clientName::::::::::::::::::" + clientName);
+                                LOG.info("install client job progressing hostName::::::::::::::::::" + hostName);
                                 if (!clientName.isMissingNode() && hostName.equals(clientName.asText())) {
+                                    LOG.info("install client job progressing ture in::::::::::");
                                     return true;
                                 }
                             }

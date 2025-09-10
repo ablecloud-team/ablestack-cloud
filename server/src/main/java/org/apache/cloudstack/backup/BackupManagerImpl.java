@@ -1253,6 +1253,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     if (backupProvider.getName().equalsIgnoreCase("commvault")) {
                         logger.info("BackupManagerImpl.java runIncontext checkBackupAgent ::::");
                         boolean check = backupProvider.checkBackupAgent(dataCenter.getId());
+                        logger.info("BackupManagerImpl.java runIncontext checkBackupAgent check::::" + check);
                         if (!check) {
                             backupProvider.installBackupAgent(dataCenter.getId());
                         }
