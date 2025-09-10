@@ -629,7 +629,7 @@ public class CommvaultClient {
                     if (!clientReadiness.isMissingNode()) {
                         LOG.info(clientReadiness);
                         String status = "Not Ready";
-                        if (status.contains(clientReadiness.get("readinessStatus").asText()) || activePhysicalNode.isMissingNode()) {
+                        if (clientReadiness.get("readinessStatus").asText().contains(status) || activePhysicalNode.isMissingNode()) {
                             LOG.info(clientReadiness.get("readinessStatus").asText());
                             LOG.info(status.equals(clientReadiness.get("readinessStatus").asText()));
                             LOG.info(activePhysicalNode.isMissingNode());
