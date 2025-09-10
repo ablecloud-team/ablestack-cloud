@@ -311,6 +311,22 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
                 String checkHost = client.getClientId(host.getName());
                 if (checkHost == null) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean installBackupAgent(final Long zoneId) {
+        Map<String, String> checkResult = new HashMap<>();
+        final CommvaultClient client = getClient(zoneId);
+        List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
+        for (final HostVO host : Hosts) {
+            if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
+                String checkHost = client.getClientId(host.getName());
+                if (checkHost == null) {
                     LOG.info("install request host" + host.getName() + " :::::::::::::::::");
                     String commCell = client.getCommcell();
                     JSONObject jsonObject = new JSONObject(commCell);

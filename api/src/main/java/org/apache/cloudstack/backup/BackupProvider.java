@@ -116,6 +116,11 @@ public interface BackupProvider {
     boolean checkBackupAgent(Long zoneId);
 
     /**
+     * install commvault backup agent
+     */
+    boolean installBackupAgent(Long zoneId);
+
+    /**
      * import commvault backup plan
      */
     boolean importBackupPlan(Long zoneId, String retentionPeriod, String externalId);

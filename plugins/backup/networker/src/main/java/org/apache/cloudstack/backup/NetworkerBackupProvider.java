@@ -651,5 +651,8 @@ public class NetworkerBackupProvider extends AdapterBase implements BackupProvid
     public boolean checkBackupAgent(final Long zoneId) { return true; }
 
     @Override
+    public boolean installBackupAgent(final Long zoneId) { return true; }
+
+    @Override
     public boolean importBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
 }

@@ -216,7 +216,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
 
         if (!provider.checkBackupAgent(cmd.getZoneId())) {
-            throw new CloudRuntimeException("The backup offering cannot be imported because the host does not have the agent properly installed on provider " + provider.getName() + "on zone" + cmd.getZoneId());
+            throw new CloudRuntimeException("The backup offering cannot be imported because the host does not have the agent properly installed on provider " + provider.getName() + "on zone" + cmd.getZoneId() + ". Please try again later.");
         }
 
         if (!provider.importBackupPlan(cmd.getZoneId(), cmd.getRetentionPeriod(), cmd.getExternalId())) {
@@ -1251,8 +1251,11 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                         continue;
                     }
                     if (backupProvider.getName().equalsIgnoreCase("commvault")) {
-                        // 1. commvault agent 상태 체크 로직 추가 필요 REST API 호출
-                        backupProvider.checkBackupAgent(dataCenter.getId());
+                        logger.info("BackupManagerImpl.java runIncontext checkBackupAgent ::::");
+                        boolean check = backupProvider.checkBackupAgent(dataCenter.getId());
+                        if (!check) {
+                            backupProvider.installBackupAgent(dataCenter.getId());
+                        }
                     }
 
                     List<VMInstanceVO> vms = vmInstanceDao.listByZoneWithBackups(dataCenter.getId(), null);
