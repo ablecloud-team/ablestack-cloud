@@ -10715,7 +10715,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                         null, new HashMap<>(), null, new HashMap<>(), dynamicScalingEnabled, null, null);
             }
         } catch (CloudRuntimeException e) {
-            _templateMgr.delete(curAccount.getId(), template.getId(), zoneId);
+            // _templateMgr.delete(curAccount.getId(), template.getId(), zoneId);
             throw new CloudRuntimeException("Unable to create the clone VM record");
         }
         return vmResult;

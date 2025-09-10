@@ -458,7 +458,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
 
                 // DB version 테이블의 latest 행 삭제
                 final CloudStackVersion dbVersionInitial = CloudStackVersion.parse(_dao.getCurrentVersion());
-                deleteCurrentVersionRowIfPresent(dbVersionInitial);
+                enforceBaselineThenDeleteLastVersionIfNeeded(dbVersionInitial);
 
                 final String currentVersionValue = this.getClass().getPackage().getImplementationVersion();
                 if (StringUtils.isBlank(currentVersionValue)) return;
@@ -500,6 +500,72 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
         }
     }
 
+    private void enforceBaselineThenDeleteLastVersionIfNeeded(final CloudStackVersion dbVersionInitial) {
+        final String BASELINE_VERSION = "4.0.0";
+        final String targetVersion = dbVersionInitial != null ? dbVersionInitial.toString() : null;
+
+        final TransactionLegacy txn = TransactionLegacy.open("enforce-baseline-then-delete-last");
+        txn.start();
+        try {
+            final Connection conn = txn.getConnection();
+
+            // 1) '4.0.0' 없으면 즉시 삽입(있으면 0 rows) → 한 턴에 끝
+            final String insertIfMissingSql =
+                "INSERT INTO `cloud`.`version` (`version`, `step`, `updated`) " +
+                "SELECT ?, 'Complete', NOW() FROM DUAL " +
+                "WHERE NOT EXISTS (SELECT 1 FROM `cloud`.`version` WHERE `version` = ?)";
+
+            try (PreparedStatement ins = conn.prepareStatement(insertIfMissingSql)) {
+                ins.setString(1, BASELINE_VERSION);
+                ins.setString(2, BASELINE_VERSION);
+                int inserted = ins.executeUpdate();
+                if (inserted > 0) {
+                    LOGGER.info("Inserted baseline version row: {}", BASELINE_VERSION);
+                    txn.commit();
+                    return; // 여기서 바로 종료
+                }
+            }
+
+            // 2) 삭제 대상: dbVersionInitial 의 최신 1건 (단, 베이스라인이면 삭제 금지)
+            if (targetVersion != null && !BASELINE_VERSION.equals(targetVersion)) {
+                // 최신 1건을 서브쿼리로 바로 삭제 (MySQL은 DELETE에서 서브쿼리 테이블 참조 시 래핑 필요)
+                final String deleteLatestOneSql =
+                    "DELETE FROM `cloud`.`version` " +
+                    "WHERE `id` IN ( " +
+                    "  SELECT id FROM ( " +
+                    "    SELECT `id` " +
+                    "    FROM `cloud`.`version` " +
+                    "    WHERE `version` = ? AND (`step` IS NULL OR `step` = 'Complete') " +
+                    "    ORDER BY COALESCE(`updated`, FROM_UNIXTIME(0)) DESC " +
+                    "    LIMIT 1 " +
+                    "  ) AS _x " +
+                    ")";
+
+                try (PreparedStatement delLatest = conn.prepareStatement(deleteLatestOneSql)) {
+                    delLatest.setString(1, targetVersion);
+                    int deleted = delLatest.executeUpdate();
+                    if (deleted > 0) {
+                        LOGGER.warn("Deleted {} latest row for version {}", deleted, targetVersion);
+                        txn.commit();
+                        return; // 목적(해당 버전 최신 1건 삭제) 달성 시 즉시 종료
+                    } else {
+                        LOGGER.info("No deletable row found for targetVersion={}; skipping targeted delete.", targetVersion);
+                    }
+                }
+            } else {
+                LOGGER.info("Target version is baseline or null ({}). Skipping targeted delete.", targetVersion);
+            }
+
+            txn.commit();
+        } catch (SQLException e) {
+            txn.rollback();
+            LOGGER.error("Failed in enforceBaselineThenDeleteLastVersionIfNeeded", e);
+            throw new CloudRuntimeException("Failed in enforceBaselineThenDeleteLastVersionIfNeeded", e);
+        } finally {
+            txn.close();
+        }
+    }
+
     // Cloudstack DB 업데이트 전 Ablestack DB 업데이트 진행
     public void beforeUpgradeAblestack (String ablestackVersion) {
         TransactionLegacy txn = TransactionLegacy.open("Upgrade");
@@ -530,27 +596,6 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
             String errorMessage = "Unable to upgrade the database ablestack [beforeUpgradeAblestack : " + ablestackVersion + "]";
             LOGGER.error(errorMessage, e);
             throw new CloudRuntimeException(errorMessage, e);
-        } finally {
-            txn.close();
-        }
-    }
-
-    private void deleteCurrentVersionRowIfPresent(final CloudStackVersion currentVersion) {
-        TransactionLegacy txn = TransactionLegacy.open("delete-current-version-row");
-        txn.start();
-        try {
-            Connection conn = txn.getConnection();
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "DELETE FROM `cloud`.`version` WHERE `version` = ? AND (`step` IS NULL OR `step` = 'Complete')")) {
-                ps.setString(1, currentVersion.toString());
-                int deleted = ps.executeUpdate();
-                LOGGER.warn("Deleted {} row(s) from cloud.version for {}", deleted, currentVersion);
-            }
-            txn.commit();
-        } catch (SQLException e) {
-            txn.rollback();
-            LOGGER.error("Unable to delete current version row", e);
-            throw new CloudRuntimeException("Unable to delete current version row", e);
         } finally {
             txn.close();
         }
