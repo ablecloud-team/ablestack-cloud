@@ -1560,7 +1560,7 @@ public class CommvaultClient {
                     if (!entity.isMissingNode()) {
                         JsonNode jobType = entity.path("jobType");
                         JsonNode subclient = entity.path("subclient");
-                        string type = "Install Client";
+                        String type = "Install Client";
                         if (!jobType.isMissingNode() && type.equals(jobType.asText())) {
                             LOG.info("install client job progressing::::::::::::::::::");
                             if (!subclient.isMissingNode()) {
