@@ -67,13 +67,66 @@ export default {
     return {
       virtualmachines: [],
       loading: true,
-      form: reactive({ virtualmachineid: null })
+      form: reactive({ virtualmachineid: null }),
+      // 로컬 할당 상태 관리
+      isAssigned: false,
+      virtualmachineid: null,
+      vmName: null
+    }
+  },
+  computed: {
+    // 할당 상태를 부모 컴포넌트에서 접근할 수 있도록 computed 속성 제공
+    allocationStatus () {
+      return {
+        isAssigned: this.isAssigned,
+        virtualmachineid: this.virtualmachineid,
+        vmName: this.vmName
+      }
     }
   },
   created () {
     this.fetchVMs()
+    this.checkCurrentAllocation()
   },
   methods: {
+    // 현재 할당 상태 확인
+    async checkCurrentAllocation () {
+      if (!this.resource || !this.resource.id || !this.resource.hostDevicesName) {
+        return
+      }
+
+      try {
+        const response = await api('listVhbaDevices', {
+          hostid: this.resource.id
+        })
+
+        if (response.listvhbadevicesresponse?.listvhbadevices?.[0]) {
+          const vhbaData = response.listvhbadevicesresponse.listvhbadevices[0]
+          const vmAllocations = vhbaData.vmallocations || {}
+          const vmId = vmAllocations[this.resource.hostDevicesName]
+
+          if (vmId) {
+            // 할당된 상태로 설정
+            this.isAssigned = true
+            this.virtualmachineid = vmId
+
+            // VM 이름 찾기
+            const vm = this.virtualmachines.find(vm => vm.id === vmId)
+            if (vm) {
+              this.vmName = vm.name || vm.displayname
+            }
+          } else {
+            // 할당되지 않은 상태로 설정
+            this.isAssigned = false
+            this.virtualmachineid = null
+            this.vmName = null
+          }
+        }
+      } catch (error) {
+        console.error('Failed to check current allocation:', error)
+      }
+    },
+
     refreshVMList () {
       if (!this.resource || !this.resource.id) {
         this.loading = false
@@ -129,6 +182,8 @@ export default {
         this.$notifyError(error.message || 'Failed to fetch VMs')
       }).finally(() => {
         this.loading = false
+        // VM 목록 로드 완료 후 할당 상태 다시 확인
+        this.checkCurrentAllocation()
       })
     },
 
@@ -163,26 +218,89 @@ export default {
           return
         }
 
-        // CloudStack의 VM UUID를 그대로 사용
+        // UUID/숫자(long) 호환: 먼저 UUID로 시도, 실패 시 numeric으로 재시도
         const vmUuid = selectedVM.id
+        // VM ID가 숫자인지 확인
+        let vmNumericId = null
+        if (typeof vmUuid === 'number') {
+          vmNumericId = vmUuid
+          console.log('VM ID is already numeric:', vmNumericId)
+        } else if (typeof vmUuid === 'string') {
+          // UUID인 경우 인스턴스 이름에서 숫자 ID 추출
+          let instanceNumber = null
+          if (selectedVM.instancename) {
+            const parts = selectedVM.instancename.split('-')
+            if (parts.length >= 3) instanceNumber = parts[2]
+            console.log('Extracted instance number from instancename:', instanceNumber, 'from:', selectedVM.instancename)
+          }
+          if (!instanceNumber) {
+            const numberFromName = (selectedVM.name || selectedVM.displayname || '').match(/(\d+)/)
+            if (numberFromName) instanceNumber = numberFromName[1]
+            console.log('Extracted instance number from name:', instanceNumber, 'from:', selectedVM.name || selectedVM.displayname)
+          }
+          vmNumericId = instanceNumber && !Number.isNaN(parseInt(instanceNumber, 10))
+            ? parseInt(instanceNumber, 10)
+            : null
+          console.log('Final numeric ID:', vmNumericId, 'from UUID:', vmUuid)
+        }
 
         const xmlConfig = this.generateVhbaAllocationXmlConfig()
 
-        // updateHostVhbaDevices API 호출 시 virtualmachineid에 VM UUID 전달
-        const response = await api('updateHostVhbaDevices', {
-          hostid: this.resource.id,
-          hostdevicesname: this.resource.hostDevicesName,
-          virtualmachineid: vmUuid,
-          xmlconfig: xmlConfig,
-          isattach: true
-        })
+        // 숫자 ID가 있으면 바로 사용, 없으면 UUID로 시도 후 재시도
+        let response
+        if (vmNumericId != null) {
+          // 숫자 ID가 있으면 바로 사용
+          response = await api('updateHostVhbaDevices', {
+            hostid: this.resource.id,
+            hostdevicesname: this.resource.hostDevicesName,
+            virtualmachineid: vmNumericId,
+            xmlconfig: xmlConfig
+          })
+        } else {
+          // 숫자 ID가 없으면 UUID로 시도 후 재시도
+          try {
+            response = await api('updateHostVhbaDevices', {
+              hostid: this.resource.id,
+              hostdevicesname: this.resource.hostDevicesName,
+              virtualmachineid: vmUuid,
+              xmlconfig: xmlConfig
+            })
+            if (response?.error) throw response.error
+          } catch (e1) {
+            const errText = e1?.errortext || e1?.message || ''
+            const errCode = e1?.errorcode || response?.updatehostvhbadevicesresponse?.errorcode
+            const csErr = e1?.cserrorcode || response?.updatehostvhbadevicesresponse?.cserrorcode
+            const uuidFailed = (errCode === 431) || (csErr === 9999) || /incorrect long value format/i.test(errText)
+
+            if (uuidFailed) {
+              throw new Error('VM ID format not supported. Please check VM instance name format.')
+            } else {
+              throw new Error(errText || 'Failed to allocate vHBA device')
+            }
+          }
+        }
 
         if (response.error) {
           throw new Error(response.error.errortext || 'Failed to allocate vHBA device')
         }
 
+        // 할당 성공 후 UI 상태 업데이트
+        if (response.updatehostvhbadevicesresponse?.updatehostvhbadevices?.[0]) {
+          const allocationResult = response.updatehostvhbadevicesresponse.updatehostvhbadevices[0]
+          if (allocationResult.isattached) {
+            // 할당된 상태로 UI 업데이트
+            this.isAssigned = true
+            this.virtualmachineid = allocationResult.virtualmachineid
+            this.vmName = this.virtualmachines.find(vm => vm.id === this.form.virtualmachineid)?.name ||
+                         this.virtualmachines.find(vm => vm.id === this.form.virtualmachineid)?.displayname ||
+                         'Unknown VM'
+          }
+        }
+
         this.$message.success(this.$t('message.success.allocate.device'))
         this.$emit('allocation-completed')
+        this.$emit('allocation-status-changed', this.allocationStatus)
+        this.$emit('refresh-device-list') // 디바이스 리스트 새로고침 이벤트 추가
         this.$emit('close-action')
       } catch (error) {
         this.$notification.error({
@@ -219,17 +337,23 @@ export default {
           hostdevicesname: hostDevicesName,
           virtualmachineid: null,
           currentvmid: vmId,
-          xmlconfig: xmlConfig,
-          isattach: false
+          xmlconfig: xmlConfig
         })
 
         if (!detachResponse || detachResponse.error) {
           throw new Error(detachResponse?.error?.errortext || 'Failed to detach vHBA device')
         }
 
+        // 해제 성공 후 UI 상태 업데이트
+        this.isAssigned = false
+        this.virtualmachineid = null
+        this.vmName = null
+
         this.$message.success(this.$t('message.success.remove.allocation'))
         this.$emit('device-allocated')
         this.$emit('allocation-completed')
+        this.$emit('allocation-status-changed', this.allocationStatus)
+        this.$emit('refresh-device-list') // 디바이스 리스트 새로고침 이벤트 추가
         this.$emit('close-action')
       } catch (error) {
         this.$notifyError(error.message || 'Failed to deallocate vHBA device')
@@ -238,32 +362,108 @@ export default {
       }
     },
 
+    // SCSI 주소 추출 함수
+    extractScsiAddress (deviceText) {
+      if (!deviceText) return null
+
+      const scsiMatch = deviceText.match(/SCSI Address:\s*([0-9]+:[0-9]+:[0-9]+:[0-9]+)/i) ||
+                        deviceText.match(/scsi[:\s]*([0-9]+:[0-9]+:[0-9]+:[0-9]+)/i) ||
+                        deviceText.match(/([0-9]+:[0-9]+:[0-9]+:[0-9]+)/)
+
+      const result = scsiMatch ? scsiMatch[1] : null
+      return result
+    },
+
     // vHBA 할당용 XML 설정 생성 (libvirt SCSI 패스스루 표준)
     generateVhbaAllocationXmlConfig () {
-      // hostDevicesName에서 숫자 추출
       const hostDeviceName = this.resource.hostDevicesName || ''
-      const numberMatch = hostDeviceName.match(/(\d+)/)
-      const adapterNumber = numberMatch ? numberMatch[1] : '0'
+
+      // 디바이스 텍스트에서 SCSI 주소 추출 시도
+      let scsiAddress = null
+      if (this.resource.hostDevicesText) {
+        scsiAddress = this.extractScsiAddress(this.resource.hostDevicesText)
+      }
+
+      let bus = '0'
+      let target = '0'
+      let unit = '0'
+      let adapterName = hostDeviceName
+
+      // 전달받은 SCSI 주소 사용
+      if (scsiAddress) {
+        const scsiParts = scsiAddress.split(':')
+        if (scsiParts.length >= 4) {
+          const hostNum = scsiParts[0]
+          bus = scsiParts[1] || '0'
+          target = scsiParts[2] || '0'
+          unit = scsiParts[3] || '0'
+          adapterName = `scsi_host${hostNum}`
+        }
+      } else {
+        // 디바이스 이름에서 고유한 SCSI 주소 생성
+        const hostMatch = hostDeviceName.match(/scsi_host(\d+)/i)
+        if (hostMatch) {
+          const hostNum = parseInt(hostMatch[1])
+          bus = '0'
+          target = '0'
+          unit = '0'
+          adapterName = `scsi_host${hostNum}`
+        }
+      }
+
       return `
         <hostdev mode='subsystem' type='scsi' rawio='yes'>
           <source>
-            <adapter name='scsi_host${adapterNumber}'/>
-            <address bus='0' target='0' unit='3'/>
+            <adapter name='${adapterName}'/>
+            <address bus='${bus}' target='${target}' unit='${unit}'/>
           </source>
         </hostdev>
       `.trim()
     },
 
-    // vHBA 해제용 XML 설정 생성 (HBA와 동일하게)
+    // vHBA 해제용 XML 설정 생성
     generateVhbaDeallocationXmlConfig () {
       const hostDeviceName = this.resource.hostDevicesName || ''
-      const numberMatch = hostDeviceName.match(/(\d+)/)
-      const adapterNumber = numberMatch ? numberMatch[1] : '0'
+
+      // 할당 시와 동일한 SCSI 주소 생성 로직 사용
+      let bus = '0'
+      let target = '0'
+      let unit = '0'
+      let adapterName = hostDeviceName
+
+      // 디바이스 텍스트에서 SCSI 주소 추출 시도
+      let scsiAddress = null
+      if (this.resource.hostDevicesText) {
+        scsiAddress = this.extractScsiAddress(this.resource.hostDevicesText)
+      }
+
+      // 전달받은 SCSI 주소 사용
+      if (scsiAddress) {
+        const scsiParts = scsiAddress.split(':')
+        if (scsiParts.length >= 4) {
+          const hostNum = scsiParts[0]
+          bus = scsiParts[1] || '0'
+          target = scsiParts[2] || '0'
+          unit = scsiParts[3] || '0'
+          adapterName = `scsi_host${hostNum}`
+        }
+      } else {
+        // 디바이스 이름에서 고유한 SCSI 주소 생성
+        const hostMatch = hostDeviceName.match(/scsi_host(\d+)/i)
+        if (hostMatch) {
+          const hostNum = parseInt(hostMatch[1])
+          bus = '0'
+          target = '0'
+          unit = '0'
+          adapterName = `scsi_host${hostNum}`
+        }
+      }
+
       return `
         <hostdev mode='subsystem' type='scsi' rawio='yes'>
           <source>
-            <adapter name='scsi_host${adapterNumber}'/>
-            <address bus='0' target='0' unit='1'/>
+            <adapter name='${adapterName}'/>
+            <address bus='${bus}' target='${target}' unit='${unit}'/>
           </source>
         </hostdev>
       `.trim()

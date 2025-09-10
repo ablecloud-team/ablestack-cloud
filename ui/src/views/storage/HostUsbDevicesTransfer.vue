@@ -87,7 +87,7 @@ export default {
     }
   },
   methods: {
-    refreshVMList () {
+    async refreshVMList () {
       if (!this.resource || !this.resource.id) {
         this.loading = false
         return Promise.reject(new Error('Invalid resource'))
@@ -97,49 +97,189 @@ export default {
       const params = { hostid: this.resource.id, details: 'all', listall: true }
       const vmStates = ['Running']
 
-      return Promise.all([
-        // 실행 중인 VM 목록 가져오기
-        Promise.all(vmStates.map(state => {
-          return api('listVirtualMachines', { ...params, state })
-            .then(vmResponse => {
-              const vms = vmResponse.listvirtualmachinesresponse?.virtualmachine || []
-              return vms.map(vm => ({
-                ...vm,
-                instanceId: vm.instancename ? vm.instancename.split('-')[2] : null
-              }))
-            })
-        })),
-        // 현재 USB 디바이스 할당 상태 가져오기
-        api('listHostUsbDevices', { id: this.resource.id })
-      ]).then(([vmArrays, usbResponse]) => {
+      try {
+        const [vmArrays, usbResponse] = await Promise.all([
+          // 실행 중인 VM 목록 가져오기
+          Promise.all(vmStates.map(state => {
+            return api('listVirtualMachines', { ...params, state })
+              .then(vmResponse => {
+                const vms = vmResponse.listvirtualmachinesresponse?.virtualmachine || []
+                return vms.map(vm => {
+                  // VM의 인스턴스 번호 추출 (i-2-163-VM -> 163)
+                  const instanceNumber = vm.instancename ? vm.instancename.split('-')[2] : null
+
+                  // 콘솔에 VM 정보 출력
+                  console.log('VM Info:', {
+                    id: vm.id,
+                    name: vm.name,
+                    displayname: vm.displayname,
+                    instancename: vm.instancename,
+                    instanceNumber: instanceNumber,
+                    state: vm.state
+                  })
+
+                  return {
+                    ...vm,
+                    instanceNumber: instanceNumber
+                  }
+                })
+              })
+          })),
+          // 현재 USB 디바이스 할당 상태 가져오기
+          api('listHostUsbDevices', { id: this.resource.id })
+        ])
+
         const vms = vmArrays.flat()
         const usbDevices = usbResponse.listhostusbdevicesresponse?.listhostusbdevices?.[0]
         const allocatedVmIds = new Set()
 
-        // 모든 USB 디바이스에 할당된 VM ID 수집
+        // 모든 USB 디바이스에 할당된 VM ID 수집하고, 존재하지 않는 VM은 자동으로 할당 해제
         if (usbDevices?.vmallocations) {
-          Object.values(usbDevices.vmallocations).forEach(vmId => {
-            if (vmId) {
-              allocatedVmIds.add(vmId.toString())
-            }
-          })
-        }
+          const processedDevices = new Set()
 
-        // 현재 디바이스에 할당된 VM ID가 있다면 제외
-        if (this.resource.hostDevicesName && usbDevices?.vmallocations) {
-          const currentVmId = usbDevices.vmallocations[this.resource.hostDevicesName]
-          if (currentVmId) {
-            allocatedVmIds.delete(currentVmId.toString())
+          for (const [deviceName, vmId] of Object.entries(usbDevices.vmallocations)) {
+            if (vmId && !processedDevices.has(deviceName)) {
+              try {
+                // VM이 실제로 존재하는지 확인
+                const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+
+                if (vm && vm.state !== 'Expunging') {
+                  // VM이 정상적으로 존재하는 경우에만 할당된 VM ID에 추가
+                  // VM의 인스턴스 번호 추출 (i-2-163-VM -> 163)
+                  const instanceNumber = vm.instancename ? vm.instancename.split('-')[2] : null
+
+                  // 콘솔에 할당된 VM 정보 출력
+                  console.log('Allocated VM Info:', {
+                    vmId: vmId,
+                    vmName: vm.name || vm.displayname,
+                    instancename: vm.instancename,
+                    instanceNumber: instanceNumber,
+                    state: vm.state,
+                    deviceName: deviceName
+                  })
+
+                  if (instanceNumber) {
+                    allocatedVmIds.add(instanceNumber.toString())
+                    console.log(`✓ VM ${vmId} (${vm.name || vm.displayname}) has instance number: ${instanceNumber}`)
+                  } else {
+                    console.warn(`✗ VM ${vmId} (${vm.name || vm.displayname}) has no valid instance name: ${vm.instancename}`)
+                  }
+                } else {
+                  // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
+                  try {
+                    const xmlConfig = this.generateXmlConfig(deviceName)
+                    await api('updateHostUsbDevices', {
+                      hostid: this.resource.id,
+                      hostdevicesname: deviceName,
+                      virtualmachineid: null,
+                      currentvmid: vmId,
+                      xmlconfig: xmlConfig
+                    })
+                    console.log(`Automatically deallocated USB device ${deviceName} from deleted/expunging VM ${vmId}`)
+                  } catch (error) {
+                    console.error(`Failed to automatically deallocate USB device ${deviceName}:`, error)
+                  }
+                }
+              } catch (error) {
+                console.error(`Error checking VM ${vmId} for device ${deviceName}:`, error)
+                // VM 조회 실패 시에도 할당 해제 시도
+                try {
+                  const xmlConfig = this.generateXmlConfig(deviceName)
+                  await api('updateHostUsbDevices', {
+                    hostid: this.resource.id,
+                    hostdevicesname: deviceName,
+                    virtualmachineid: null,
+                    currentvmid: vmId,
+                    xmlconfig: xmlConfig
+                  })
+                  console.log(`Automatically deallocated USB device ${deviceName} after VM check error`)
+                } catch (detachError) {
+                  console.error(`Failed to automatically deallocate USB device ${deviceName} after error:`, detachError)
+                }
+              }
+              processedDevices.add(deviceName)
+            }
           }
         }
 
-        // 할당되지 않은 VM만 필터링
-        this.virtualmachines = vms.filter(vm => !allocatedVmIds.has(vm.instanceId?.toString()))
-      }).catch(error => {
+        // 현재 디바이스에 할당된 VM ID가 있다면 제외 (인스턴스 번호로 비교)
+        if (this.resource.hostDevicesName && usbDevices?.vmallocations) {
+          const currentVmId = usbDevices.vmallocations[this.resource.hostDevicesName]
+          if (currentVmId) {
+            console.log('Current device allocation info:', {
+              deviceName: this.resource.hostDevicesName,
+              currentVmId: currentVmId
+            })
+
+            try {
+              // 현재 VM의 인스턴스 번호 가져오기
+              const currentVmResponse = await api('listVirtualMachines', { id: currentVmId, listall: true })
+              const currentVm = currentVmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+
+              if (currentVm && currentVm.instancename) {
+                const currentInstanceNumber = currentVm.instancename.split('-')[2]
+                console.log('Current VM info:', {
+                  vmId: currentVmId,
+                  vmName: currentVm.name || currentVm.displayname,
+                  instancename: currentVm.instancename,
+                  instanceNumber: currentInstanceNumber
+                })
+
+                if (currentInstanceNumber) {
+                  allocatedVmIds.delete(currentInstanceNumber.toString())
+                  console.log(`✓ Excluded current device VM instance number: ${currentInstanceNumber}`)
+                }
+              } else {
+                console.warn(`Current VM ${currentVmId} has no instancename`)
+              }
+            } catch (error) {
+              console.error(`Error getting current VM info:`, error)
+            }
+          } else {
+            console.log('No current device allocation found')
+          }
+        }
+
+        console.log('All allocated VM IDs:', Array.from(allocatedVmIds))
+
+        // USB 디바이스가 할당된 VM들을 제외 (인스턴스 번호로 비교)
+        this.virtualmachines = vms.filter(vm => {
+          // VM의 인스턴스 번호 추출 (i-2-163-VM -> 163)
+          const instanceNumber = vm.instancename ? vm.instancename.split('-')[2] : null
+
+          // 콘솔에 필터링 과정 출력
+          console.log('Filtering VM:', {
+            vmId: vm.id,
+            vmName: vm.name || vm.displayname,
+            instancename: vm.instancename,
+            instanceNumber: instanceNumber,
+            isAllocated: instanceNumber && allocatedVmIds.has(instanceNumber),
+            allocatedVmIds: Array.from(allocatedVmIds)
+          })
+
+          // USB 디바이스가 할당된 VM은 제외 (인스턴스 번호로 비교)
+          if (instanceNumber && allocatedVmIds.has(instanceNumber)) {
+            console.log(`✗ Excluding VM ${vm.id} (${vm.name || vm.displayname}) - already has USB device`)
+            return false
+          }
+          console.log(`✓ Including VM ${vm.id} (${vm.name || vm.displayname}) - available for USB device`)
+          return true
+        })
+
+        if (this.virtualmachines.length === 0) {
+          this.$notification.warning({
+            message: this.$t('message.warning'),
+            description: allocatedVmIds.size > 0
+              ? 'All VMs already have USB devices allocated. Please deallocate a USB device first to assign to another VM.'
+              : 'No VMs with valid instance names found. Please ensure VMs are properly running.'
+          })
+        }
+      } catch (error) {
         this.$notifyError(error.message || 'Failed to fetch VMs')
-      }).finally(() => {
+      } finally {
         this.loading = false
-      })
+      }
     },
 
     fetchVMs () {
@@ -160,19 +300,27 @@ export default {
       try {
         const xmlConfig = this.generateXmlConfig(this.resource.hostDevicesName)
 
-        await api('updateHostUsbDevices', {
+        const response = await api('updateHostUsbDevices', {
           hostid: this.resource.id,
           hostdevicesname: this.resource.hostDevicesName,
           virtualmachineid: this.form.virtualmachineid,
           xmlconfig: xmlConfig
         })
 
+        if (response && response.error) {
+          throw new Error(response.error.errortext || 'Failed to allocate USB device')
+        }
+
         this.$message.success(this.$t('message.success.allocate.device'))
 
         this.$emit('allocation-completed')
         this.$emit('close-action')
       } catch (error) {
-        this.$notifyError(error)
+        console.error('Error allocating USB device:', error)
+        this.$notification.error({
+          message: this.$t('label.error'),
+          description: error.message || 'Failed to allocate USB device'
+        })
       } finally {
         this.loading = false
       }
@@ -201,14 +349,35 @@ export default {
           throw new Error('No VM allocation found for this device')
         }
 
+        // VM 상태 확인
+        try {
+          const vmResponse = await api('listVirtualMachines', {
+            id: vmId,
+            listall: true
+          })
+          const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+
+          if (!vm) {
+            console.log('VM not found, proceeding with deallocation')
+          } else if (vm.state === 'Expunging') {
+            console.log('VM is in Expunging state, proceeding with deallocation')
+          } else if (vm.state !== 'Running' && vm.state !== 'Stopped') {
+            console.log(`VM is in ${vm.state} state, proceeding with deallocation`)
+          }
+        } catch (vmError) {
+          console.log('Failed to check VM state, proceeding with deallocation:', vmError)
+        }
+
         const xmlConfig = this.generateXmlConfig(hostDevicesName)
 
         console.log('Attempting to detach USB device with config:', xmlConfig)
 
-        const detachResponse = await api('updateHostDevices', {
+        const detachResponse = await api('updateHostUsbDevices', {
           hostid: this.resource.id,
           hostdevicesname: hostDevicesName,
-          virtualmachineid: null
+          virtualmachineid: null,
+          currentvmid: vmId,
+          xmlconfig: xmlConfig
         })
 
         if (!detachResponse || detachResponse.error) {
@@ -219,8 +388,8 @@ export default {
         console.log('Device detached successfully')
 
         this.$message.success(this.$t('message.success.remove.allocation'))
-        await this.fetchUsbDevices()
-        await this.updateUsbVmNames()
+        // VM 목록 새로고침
+        await this.refreshVMList()
         this.$emit('device-allocated')
         this.$emit('allocation-completed')
         this.$emit('close-action')
@@ -233,21 +402,90 @@ export default {
     },
 
     generateXmlConfig (hostDeviceName) {
-      const match = hostDeviceName.match(/(\d+)\D+(\d+)/)
-      let bus = '0x001'
-      let device = '0x01'
-      if (match) {
-        bus = '0x' + parseInt(match[1], 10).toString(16).padStart(3, '0')
-        device = '0x' + parseInt(match[2], 10).toString(16).padStart(2, '0')
+      try {
+        console.log('Generating XML config for USB device:', hostDeviceName)
+
+        let bus = '0x001'
+        let device = '0x01'
+
+        // 다양한 USB 디바이스 이름 형식 지원
+        // 1. "001 Device 003" 형식
+        let match = hostDeviceName.match(/(\d+)\s+Device\s+(\d+)/i)
+        if (match && match.length >= 3) {
+          const busNum = parseInt(match[1], 10)
+          const deviceNum = parseInt(match[2], 10)
+
+          if (!isNaN(busNum) && !isNaN(deviceNum)) {
+            bus = '0x' + busNum.toString(16).padStart(3, '0')
+            device = '0x' + deviceNum.toString(16).padStart(2, '0')
+            console.log('Matched "001 Device 003" format - Bus:', bus, 'Device:', device)
+          }
+        } else {
+          // 2. "001:003" 형식
+          match = hostDeviceName.match(/(\d+):(\d+)/)
+          if (match && match.length >= 3) {
+            const busNum = parseInt(match[1], 10)
+            const deviceNum = parseInt(match[2], 10)
+
+            if (!isNaN(busNum) && !isNaN(deviceNum)) {
+              bus = '0x' + busNum.toString(16).padStart(3, '0')
+              device = '0x' + deviceNum.toString(16).padStart(2, '0')
+              console.log('Matched "001:003" format - Bus:', bus, 'Device:', device)
+            }
+          } else {
+            // 3. "001.003" 형식
+            match = hostDeviceName.match(/(\d+)\.(\d+)/)
+            if (match && match.length >= 3) {
+              const busNum = parseInt(match[1], 10)
+              const deviceNum = parseInt(match[2], 10)
+
+              if (!isNaN(busNum) && !isNaN(deviceNum)) {
+                bus = '0x' + busNum.toString(16).padStart(3, '0')
+                device = '0x' + deviceNum.toString(16).padStart(2, '0')
+                console.log('Matched "001.003" format - Bus:', bus, 'Device:', device)
+              }
+            } else {
+              // 4. 기존 정규식 (숫자+문자+숫자)
+              match = hostDeviceName.match(/(\d+)\D+(\d+)/)
+              if (match && match.length >= 3) {
+                const busNum = parseInt(match[1], 10)
+                const deviceNum = parseInt(match[2], 10)
+
+                if (!isNaN(busNum) && !isNaN(deviceNum)) {
+                  bus = '0x' + busNum.toString(16).padStart(3, '0')
+                  device = '0x' + deviceNum.toString(16).padStart(2, '0')
+                  console.log('Matched generic format - Bus:', bus, 'Device:', device)
+                }
+              }
+            }
+          }
+        }
+
+        // 최종 검증
+        if (bus === '0x001' && device === '0x01') {
+          console.warn('Using default values for USB device:', hostDeviceName)
+        }
+
+        console.log('Final USB XML config - Bus:', bus, 'Device:', device)
+
+        return `
+          <hostdev mode='subsystem' type='usb'>
+            <source>
+              <address type='usb' bus='${bus}' device='${device}' />
+            </source>
+          </hostdev>
+        `.trim()
+      } catch (error) {
+        console.error('Error generating USB XML config for device:', hostDeviceName, error)
+        // 기본값 반환
+        return `
+          <hostdev mode='subsystem' type='usb'>
+            <source>
+              <address type='usb' bus='0x001' device='0x01' />
+            </source>
+          </hostdev>
+        `.trim()
       }
-      console.log(bus, device)
-      return `
-        <hostdev mode='subsystem' type='usb'>
-          <source>
-            <address type='usb' bus='${bus}' device='${device}' />
-          </source>
-        </hostdev>
-      `.trim()
     },
 
     closeAction () {

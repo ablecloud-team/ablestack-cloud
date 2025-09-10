@@ -118,7 +118,6 @@
       <a-tab-pane
         :tab="$t('label.listhostdevices')"
         key="pcidevices"
-        v-if="hasPciDevices || hasUsbDevices || hasLunDevices || hasHbaDevices || hasVhbaDevices || hasScsiDevices"
       >
         <a-tabs v-model:activeKey="hostDeviceTabKey" style="margin-bottom: 16px;">
           <a-tab-pane v-if="pciDevices.length > 0" key="pci" :tab="$t('label.other.devices')">
@@ -127,7 +126,7 @@
           <a-tab-pane v-if="hbaDevices.length > 0" key="hba" :tab="$t('label.hba.devices')">
             <a-table :columns="hbaColumns" :dataSource="hbaDevices" :pagination="false" :loading="loading" />
           </a-tab-pane>
-          <a-tab-pane v-if="vhbaDevices.length > 0" key="vhba" :tab="$t('label.vhba.devices')">
+          <a-tab-pane v-if="vhbaDevices.length > 0 && hbaDevices.length === 0" key="vhba" :tab="$t('label.vhba.devices')">
             <a-table :columns="vhbaColumns" :dataSource="vhbaDevices" :pagination="false" :loading="loading" />
           </a-tab-pane>
           <a-tab-pane v-if="usbDevices.length > 0" key="usb" :tab="$t('label.usb.devices')">
@@ -138,6 +137,9 @@
           </a-tab-pane>
           <a-tab-pane v-if="scsiDevices.length > 0" key="scsi" :tab="$t('label.scsi.devices')">
             <a-table :columns="scsiColumns" :dataSource="scsiDevices" :pagination="false" :loading="loading" />
+          </a-tab-pane>
+          <a-tab-pane v-if="hasNoDevices" key="no-devices" :tab="$t('label.no.devices')">
+            <a-empty :description="$t('message.no.devices.found')" />
           </a-tab-pane>
         </a-tabs>
       </a-tab-pane>
@@ -429,35 +431,13 @@ export default {
     }
   },
   computed: {
-    hasPciDevices () {
-      const has = this.pciDevices.length > 0
-      console.log('hasPciDevices:', has, 'count:', this.pciDevices.length)
-      return has
-    },
-    hasUsbDevices () {
-      const has = this.usbDevices.length > 0
-      console.log('hasUsbDevices:', has, 'count:', this.usbDevices.length)
-      return has
-    },
-    hasLunDevices () {
-      const has = this.lunDevices.length > 0
-      console.log('hasLunDevices:', has, 'count:', this.lunDevices.length)
-      return has
-    },
-    hasHbaDevices () {
-      const has = this.hbaDevices.length > 0
-      console.log('hasHbaDevices:', has, 'count:', this.hbaDevices.length)
-      return has
-    },
-    hasVhbaDevices () {
-      const has = this.vhbaDevices.length > 0
-      console.log('hasVhbaDevices:', has, 'count:', this.vhbaDevices.length)
-      return has
-    },
-    hasScsiDevices () {
-      const has = this.scsiDevices.length > 0
-      console.log('hasScsiDevices:', has, 'count:', this.scsiDevices.length)
-      return has
+    hasNoDevices () {
+      return this.pciDevices.length === 0 &&
+             this.hbaDevices.length === 0 &&
+             (this.vhbaDevices.length === 0 || this.hbaDevices.length > 0) &&
+             this.usbDevices.length === 0 &&
+             this.lunDevices.length === 0 &&
+             this.scsiDevices.length === 0
     }
   },
   mounted () {
@@ -508,11 +488,12 @@ export default {
 
       console.log('Device counts - PCI:', this.pciDevices.length, 'USB:', this.usbDevices.length, 'LUN:', this.lunDevices.length, 'HBA:', this.hbaDevices.length, 'VHBA:', this.vhbaDevices.length, 'SCSI:', this.scsiDevices.length)
 
+      // 디바이스가 있는 첫 번째 탭을 선택
       if (this.pciDevices.length > 0) {
         this.hostDeviceTabKey = 'pci'
       } else if (this.hbaDevices.length > 0) {
         this.hostDeviceTabKey = 'hba'
-      } else if (this.vhbaDevices.length > 0) {
+      } else if (this.vhbaDevices.length > 0 && this.hbaDevices.length === 0) {
         this.hostDeviceTabKey = 'vhba'
       } else if (this.usbDevices.length > 0) {
         this.hostDeviceTabKey = 'usb'
@@ -520,6 +501,9 @@ export default {
         this.hostDeviceTabKey = 'lun'
       } else if (this.scsiDevices.length > 0) {
         this.hostDeviceTabKey = 'scsi'
+      } else {
+        // 디바이스가 없으면 "No Devices" 탭 선택
+        this.hostDeviceTabKey = 'no-devices'
       }
     },
     listDiskOfferings () {
@@ -960,8 +944,8 @@ export default {
           let vhbaApiSupported = false
           for (const host of hosts) {
             try {
-              const testRes = await api('listHostVhbaDevices', { id: host.id })
-              if (!testRes?.listhostvhbadevicesresponse?.errorcode) {
+              const testRes = await api('listVhbaDevices', { hostid: host.id })
+              if (!testRes?.listvhbadevicesresponse?.errorcode) {
                 vhbaApiSupported = true
                 console.log(`VHBA API is supported on host ${host.name}`)
                 break
@@ -983,15 +967,15 @@ export default {
           // 각 호스트에서 VHBA 디바이스 할당 정보 확인
           for (const host of hosts) {
             try {
-              const vhbaRes = await api('listHostVhbaDevices', { id: host.id })
+              const vhbaRes = await api('listVhbaDevices', { hostid: host.id })
 
               // API 응답에서 에러 코드 확인
-              if (vhbaRes?.listhostvhbadevicesresponse?.errorcode) {
+              if (vhbaRes?.listvhbadevicesresponse?.errorcode) {
                 console.log(`VHBA API not supported on host ${host.name}, skipping...`)
                 continue
               }
 
-              const vhbaData = vhbaRes?.listhostvhbadevicesresponse?.listhostvhbadevices?.[0]
+              const vhbaData = vhbaRes?.listvhbadevicesresponse?.listvhbadevices?.[0]
 
               // 할당된 디바이스만 처리
               if (vhbaData && vhbaData.vmallocations && vhbaData.hostdevicesname && vhbaData.hostdevicestext) {
@@ -1022,15 +1006,15 @@ export default {
           // VM이 실행 중인 경우 기존 방식 사용
           console.log('VM is running, using hostid for VHBA:', this.vm.hostid)
           try {
-            const vhbaRes = await api('listHostVhbaDevices', { id: this.vm.hostid })
+            const vhbaRes = await api('listVhbaDevices', { hostid: this.vm.hostid })
 
             // API 응답에서 에러 코드 확인
-            if (vhbaRes?.listhostvhbadevicesresponse?.errorcode) {
+            if (vhbaRes?.listvhbadevicesresponse?.errorcode) {
               console.log('VHBA API not supported, skipping...')
               return
             }
 
-            const vhbaData = vhbaRes?.listhostvhbadevicesresponse?.listhostvhbadevices?.[0]
+            const vhbaData = vhbaRes?.listvhbadevicesresponse?.listvhbadevices?.[0]
 
             // 할당된 디바이스만 처리
             if (vhbaData && vhbaData.vmallocations && vhbaData.hostdevicesname && vhbaData.hostdevicestext) {

@@ -440,7 +440,6 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     protected String guestCpuModel;
     protected boolean noKvmClock;
     protected String videoHw;
-    protected String videoHw2;
     protected String sound;
     protected int videoRam;
     protected Pair<Integer,Integer> hostOsVersion;
@@ -1223,12 +1222,8 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         manualCpuSpeed = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.HOST_CPU_MANUAL_SPEED_MHZ);
 
         videoHw = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.VM_VIDEO_HARDWARE);
-
-        videoHw2 = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.VM_VIDEO_HARDWARE_2);
-
+        // videoHw2 로딩 제거 (미사용)
         sound = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.SOUND);
-
-        videoRam = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.VM_VIDEO_RAM);
 
         // Reserve 1GB unless admin overrides
         dom0MinMem = ByteScaleUtils.mebibytesToBytes(AgentPropertiesFileHandler.getPropertyValue(AgentProperties.HOST_RESERVED_MEM_MB));
@@ -2902,7 +2897,6 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         devices.addDevice(createChannelDef(vmTO));
         devices.addDevice(createWatchDogDef());
         devices.addDevice(createVideoDef(vmTO));
-        devices.addDevice(createVideoDef2(vmTO));
         devices.addDevice(createConsoleDef());
         devices.addDevice(createGraphicDef(vmTO));
         devices.addDevice(createTabletInputDef());
@@ -3016,29 +3010,8 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             if (details.containsKey(VmDetailConstants.VIDEO_HARDWARE)) {
                 videoHw = details.get(VmDetailConstants.VIDEO_HARDWARE);
             }
-            if (details.containsKey(VmDetailConstants.VIDEO_RAM)) {
-                String value = details.get(VmDetailConstants.VIDEO_RAM);
-                videoRam = NumbersUtil.parseInt(value, videoRam);
-            }
         }
         return new VideoDef(videoHw, videoRam);
-    }
-
-    protected VideoDef2 createVideoDef2(VirtualMachineTO vmTO) {
-        Map<String, String> details = vmTO.getDetails();
-        String videoHw2 = this.videoHw2;
-        int videoRam = this.videoRam;
-
-        if (details != null) {
-            if (details.containsKey(VmDetailConstants.VIDEO_HARDWARE_2)) {
-                videoHw2 = details.get(VmDetailConstants.VIDEO_HARDWARE_2);
-            }
-            if (details.containsKey(VmDetailConstants.VIDEO_RAM)) {
-                String value = details.get(VmDetailConstants.VIDEO_RAM);
-                videoRam = NumbersUtil.parseInt(value, videoRam);
-            }
-        }
-        return new VideoDef2(videoHw2, videoRam);
     }
 
     protected SoundDef createSoundDef(VirtualMachineTO vmTO) {
@@ -3281,17 +3254,56 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
      */
     protected void addExtraConfigComponent(Map<String, String> extraConfig, LibvirtVMDef vm) {
         if (MapUtils.isNotEmpty(extraConfig)) {
-            StringBuilder extraConfigBuilder = new StringBuilder();
+            StringBuilder deviceConfigBuilder = new StringBuilder();
+            StringBuilder otherConfigBuilder = new StringBuilder();
+
             for (String key : extraConfig.keySet()) {
                 if (!key.startsWith(DpdkHelper.DPDK_INTERFACE_PREFIX) && !key.equals(DpdkHelper.DPDK_VHOST_USER_MODE)) {
-                    extraConfigBuilder.append(extraConfig.get(key));
+                    String snippet = extraConfig.get(key);
+                    if (StringUtils.isBlank(snippet)) {
+                        continue;
+                    }
+
+                    // 디바이스 관련 XML인지 확인 (hostdev, disk 등)
+                    if (isDeviceSnippet(snippet)) {
+                        deviceConfigBuilder.append(snippet).append("\n");
+                    } else {
+                        otherConfigBuilder.append(snippet);
+                    }
                 }
             }
-            String comp = extraConfigBuilder.toString();
-            if (StringUtils.isNotBlank(comp)) {
-                vm.addComp(comp);
+
+            // 디바이스 XML이 있으면 하나의 <devices> 블록으로 감싸서 추가
+            String deviceConfig = deviceConfigBuilder.toString().trim();
+            if (StringUtils.isNotBlank(deviceConfig)) {
+                String wrappedDeviceConfig = "<devices>\n" + deviceConfig + "\n</devices>";
+                vm.addComp(wrappedDeviceConfig);
+            }
+
+            // 기타 설정은 그대로 추가
+            String otherConfig = otherConfigBuilder.toString();
+            if (StringUtils.isNotBlank(otherConfig)) {
+                vm.addComp(otherConfig);
             }
         }
+    }
+
+    /**
+     * 디바이스 관련 XML 스니펫인지 확인
+     */
+    private boolean isDeviceSnippet(String snippet) {
+        if (StringUtils.isBlank(snippet)) {
+            return false;
+        }
+
+        String trimmed = snippet.trim();
+        return trimmed.startsWith("<hostdev") ||
+               trimmed.startsWith("<disk") ||
+               trimmed.startsWith("<interface") ||
+               trimmed.startsWith("<controller") ||
+               trimmed.startsWith("<input") ||
+               trimmed.startsWith("<graphics") ||
+               trimmed.startsWith("<tpm");
     }
 
     public void createVifs(final VirtualMachineTO vmSpec, final LibvirtVMDef vm) throws InternalErrorException, LibvirtException {

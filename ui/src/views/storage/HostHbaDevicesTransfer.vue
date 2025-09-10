@@ -62,6 +62,13 @@ import { api } from '@/api'
 
 export default {
   name: 'HostHbaDevicesTransfer',
+  i18n: {
+    messages: {
+      ko: {
+        'message.success.hba.device.allocated': 'HBA 디바이스가 성공적으로 할당되었습니다.'
+      }
+    }
+  },
   props: {
     resource: {
       type: Object,
@@ -116,7 +123,7 @@ export default {
           }),
         // 현재 HBA 디바이스 할당 상태 가져오기
         api('listHostHbaDevices', { id: this.resource.id })
-      ]).then(([vms, hbaResponse]) => {
+      ]).then(async ([vms, hbaResponse]) => {
         console.log('Total valid VMs fetched:', vms.length)
 
         // HBA 할당 상태 확인
@@ -127,34 +134,66 @@ export default {
         const currentDeviceVmId = vmAllocations[this.resource.hostDevicesName]
         console.log('Current device VM ID:', currentDeviceVmId)
 
-        // 모든 HBA 디바이스가 할당된 VM들을 필터링
+        // 모든 HBA 디바이스가 할당된 VM들을 필터링하고, 존재하지 않는 VM은 자동으로 할당 해제
         const allocatedVmIds = new Set()
-        Object.values(vmAllocations).forEach(vmId => {
-          if (vmId) {
-            allocatedVmIds.add(vmId.toString())
+        const processedDevices = new Set()
+
+        for (const [deviceName, vmId] of Object.entries(vmAllocations)) {
+          if (vmId && !processedDevices.has(deviceName)) {
+            try {
+              // VM이 실제로 존재하는지 확인
+              const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+              const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+
+              if (vm && vm.state !== 'Expunging') {
+                allocatedVmIds.add(vmId.toString())
+              } else {
+                // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
+                try {
+                  const xmlConfig = this.generateHbaDeallocationXmlConfig(deviceName)
+                  await api('updateHostHbaDevices', {
+                    hostid: this.resource.id,
+                    hostdevicesname: deviceName,
+                    virtualmachineid: null,
+                    xmlconfig: xmlConfig,
+                    isattach: false
+                  })
+                  console.log(`Automatically deallocated HBA device ${deviceName} from deleted/expunging VM ${vmId}`)
+                } catch (error) {
+                  console.error(`Failed to automatically deallocate HBA device ${deviceName}:`, error)
+                }
+              }
+            } catch (error) {
+              console.error(`Error checking VM ${vmId} for device ${deviceName}:`, error)
+              // VM 조회 실패 시에도 할당 해제 시도
+              try {
+                const xmlConfig = this.generateHbaDeallocationXmlConfig(deviceName)
+                await api('updateHostHbaDevices', {
+                  hostid: this.resource.id,
+                  hostdevicesname: deviceName,
+                  virtualmachineid: null,
+                  xmlconfig: xmlConfig,
+                  isattach: false
+                })
+                console.log(`Automatically deallocated HBA device ${deviceName} after VM check error`)
+              } catch (detachError) {
+                console.error(`Failed to automatically deallocate HBA device ${deviceName} after error:`, detachError)
+              }
+            }
+            processedDevices.add(deviceName)
           }
-        })
+        }
 
         console.log('All allocated VM IDs:', Array.from(allocatedVmIds))
 
-        // HBA 디바이스가 할당된 VM들을 제외 (인스턴스 번호로 비교)
-        this.virtualmachines = vms.filter(vm => {
-          // VM의 인스턴스 번호 추출 (i-2-163-VM -> 163)
-          const instanceNumber = vm.instancename ? vm.instancename.split('-')[2] : null
-
-          // HBA 디바이스가 할당된 VM은 제외 (인스턴스 번호로 비교)
-          if (instanceNumber && allocatedVmIds.has(instanceNumber)) {
-            return false
-          }
-          return true
-        })
+        // HBA 디바이스는 같은 이름으로도 여러 할당이 가능하므로 모든 VM을 표시
+        // 백엔드에서 같은 HBA 디바이스 이름으로도 여러 할당을 허용하므로 필터링하지 않음
+        this.virtualmachines = vms
 
         if (this.virtualmachines.length === 0) {
           this.$notification.warning({
             message: this.$t('message.warning'),
-            description: allocatedVmIds.size > 0
-              ? 'All VMs already have HBA devices allocated. Please deallocate an HBA device first to assign to another VM.'
-              : 'No VMs with valid instance names found. Please ensure VMs are properly running.'
+            description: 'No VMs with valid instance names found. Please ensure VMs are properly running.'
           })
         }
       }).catch(error => {
@@ -221,13 +260,11 @@ export default {
           bus = '0'
           target = '0'
           unit = '0'
-          console.log('Const  ructed SCSI address from host number:', `${hostNum}:${bus}:${target}:${unit}`)
+          console.log('Constructed SCSI address from host number:', `${hostNum}:${bus}:${target}:${unit}`)
         }
       }
 
-      // 물리 HBA와 가상 HBA의 XML 구조를 다르게 처리
       if (this.resource && this.resource.deviceType === 'physical') {
-        // 물리 HBA의 경우 더 간단한 XML 구조 사용
         return `<hostdev mode='subsystem' type='scsi' rawio='yes'>
   <source>
     <adapter name='${adapterName}'/>
@@ -235,7 +272,6 @@ export default {
   </source>
 </hostdev>`
       } else {
-        // 가상 HBA의 경우 기존 XML 구조 사용
         return `<hostdev mode='subsystem' type='scsi' rawio='yes'>
   <source>
     <adapter name='${adapterName}'/>
@@ -245,9 +281,50 @@ export default {
       }
     },
 
-    // HBA 디바이스 텍스트에서 SCSI 주소 정보 추출
+    // HBA 할당 해제용 XML 설정 생성
+    generateHbaDeallocationXmlConfig (hostDeviceName) {
+      // 할당 시와 동일한 SCSI 주소 생성 로직 사용
+      let bus = '0'
+      let target = '0'
+      let unit = '0'
+      let adapterName = hostDeviceName
+
+      // 디바이스 텍스트에서 SCSI 주소 추출 시도
+      let scsiAddress = null
+      if (this.resource.hostDevicesText) {
+        scsiAddress = this.extractScsiAddress(this.resource.hostDevicesText)
+      }
+
+      // 전달받은 SCSI 주소 사용
+      if (scsiAddress) {
+        const scsiParts = scsiAddress.split(':')
+        if (scsiParts.length >= 4) {
+          const hostNum = scsiParts[0]
+          bus = scsiParts[1] || '0'
+          target = scsiParts[2] || '0'
+          unit = scsiParts[3] || '0'
+          adapterName = `scsi_host${hostNum}`
+        }
+      } else {
+        const scsiMatch = hostDeviceName.match(/scsi_host(\d+)/i)
+        if (scsiMatch) {
+          bus = '0'
+          target = '0'
+          unit = '0'
+        }
+      }
+
+      return `
+        <hostdev mode='subsystem' type='scsi' rawio='yes'>
+          <source>
+            <adapter name='${adapterName}'/>
+            <address bus='${bus}' target='${target}' unit='${unit}'/>
+          </source>
+        </hostdev>
+      `.trim()
+    },
+
     getHbaInfoFromDeviceText () {
-      // 여러 가능한 속성에서 SCSI 주소 찾기
       let deviceText = ''
 
       if (this.resource.hostDevicesText) {
@@ -258,7 +335,6 @@ export default {
         deviceText = this.resource.text
       }
 
-      // SCSI 주소 패턴 매칭 (다양한 형식 지원)
       const scsiAddressMatch = deviceText.match(/SCSI Address:\s*([0-9:]+)/i) ||
                               deviceText.match(/scsi[:\s]*([0-9:]+)/i) ||
                               deviceText.match(/([0-9]+:[0-9]+:[0-9]+:[0-9]+)/)
@@ -273,12 +349,43 @@ export default {
       return null
     },
 
-    // 다중 HBA 할당 처리
     async handleSubmit () {
       if (!this.form.virtualmachineid) {
         this.$notification.error({
           message: this.$t('message.error'),
           description: this.$t('message.please.select.vm')
+        })
+        return
+      }
+
+      // VM 상태 확인
+      try {
+        const vmResponse = await api('listVirtualMachines', {
+          id: this.form.virtualmachineid,
+          listall: true
+        })
+        const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+
+        if (!vm) {
+          this.$notification.error({
+            message: this.$t('label.error'),
+            description: 'Selected VM not found.'
+          })
+          return
+        }
+
+        if (vm.state !== 'Running') {
+          this.$notification.warning({
+            message: this.$t('message.warning'),
+            description: `VM must be in Running state for HBA device allocation. Current state: ${vm.state}`
+          })
+          return
+        }
+      } catch (error) {
+        console.error('Error checking VM state:', error)
+        this.$notification.error({
+          message: this.$t('label.error'),
+          description: 'Failed to check VM state.'
         })
         return
       }
@@ -304,14 +411,12 @@ export default {
           return
         }
 
-        // HBA 디바이스 상세 정보 가져오기
         const hbaResponse = await api('listHostHbaDevices', { id: this.resource.id })
         const hbaDevices = hbaResponse.listhosthbadevicesresponse?.listhosthbadevices?.[0]
 
         console.log('HBA Devices response:', hbaResponse)
         console.log('HBA Devices data:', hbaDevices)
 
-        // HBA 디바이스 데이터에서 SCSI 주소 정보 추출
         let scsiAddress = null
         let deviceType = null
         let isVhba = false
@@ -359,15 +464,10 @@ export default {
           }
         }
 
-        // 현재 HBA 디바이스를 선택된 VM에 할당
-        console.log('Allocating current HBA device to VM...')
-
         try {
-          // SCSI 주소 추출 - resource에서 직접 가져오기
           let scsiAddress = null
           let deviceText = ''
 
-          // 여러 가능한 속성에서 디바이스 텍스트 찾기
           if (this.resource.hostDevicesText) {
             deviceText = this.resource.hostDevicesText
           } else if (this.resource.hostdevicestext) {
@@ -380,7 +480,6 @@ export default {
           console.log('Device text:', deviceText)
           console.log('Extracted SCSI address:', scsiAddress)
 
-          // XML 설정 생성
           const xmlConfig = this.generateXmlConfig(this.resource.hostDevicesName, scsiAddress)
           console.log('Generated XML config:', xmlConfig)
 
@@ -420,8 +519,7 @@ export default {
             throw new Error(allocationResponse.error.errortext || 'Failed to allocate HBA device')
           }
 
-          console.log('Successfully allocated HBA device to VM')
-          this.$message.success('HBA 디바이스가 성공적으로 할당되었습니다.')
+          this.$message.success(this.$t('message.success.hba.device.allocated'))
         } catch (error) {
           console.error('Failed to allocate HBA device:', error)
           throw error

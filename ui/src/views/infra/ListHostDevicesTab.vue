@@ -304,7 +304,7 @@
               <div style="display: flex; align-items: center; gap: 8px;">
                 <template v-if="activeKey === '4'">
                   <a-button
-                    v-if="!hasPartitionsFromText(record.hostDevicesText) && !isInUseFromText(record.hostDevicesText) && shouldShowAllocationButton(record)"
+                    v-if="!hasPartitionsFromText(record.hostDevicesText) && shouldShowAllocationButton(record)"
                     :type="(isDeviceAssigned(record) || record.allocatedInOtherTab) ? 'danger' : 'primary'"
                     size="middle"
                     shape="circle"
@@ -524,7 +524,8 @@
         :resource="selectedVhbaDevice"
         @close-action="closeVhbaAllocationModal"
         @allocation-completed="onVhbaAllocationCompleted"
-        @device-allocated="handleVhbaDeviceAllocated" />
+        @device-allocated="handleVhbaDeviceAllocated"
+        @refresh-device-list="refreshVhbaDeviceList" />
     </a-modal>
   </div>
 </template>
@@ -779,7 +780,7 @@ export default {
   },
   methods: {
     setupVMEventListeners () {
-      const eventTypes = ['DestroyVM', 'ExpungeVM']
+      const eventTypes = ['DestroyVM', 'ExpungeVM', 'StopVM', 'RebootVM', 'StartVM']
 
       eventTypes.forEach(eventType => {
         eventBus.emit('register-event', {
@@ -787,52 +788,404 @@ export default {
           callback: async (event) => {
             try {
               const vmId = event.id
+              console.log(`VM event received: ${eventType} for VM ${vmId}`)
 
-              // 현재 호스트의 디바이스 할당 정보 조회
-              const response = await api('listHostDevices', { id: this.resource.id })
-              const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
+              // VM 삭제 이벤트인 경우에만 디바이스 할당 해제 처리
+              if (eventType === 'DestroyVM' || eventType === 'ExpungeVM') {
+                // 모든 디바이스 타입에 대해 할당 해제 처리
+                await Promise.all([
+                  // PCI 디바이스 할당 해제
+                  this.deallocateDevicesOnVmDelete(vmId, 'listHostDevices', 'updateHostDevices'),
+                  // HBA 디바이스 할당 해제
+                  this.deallocateDevicesOnVmDelete(vmId, 'listHostHbaDevices', 'updateHostHbaDevices'),
+                  // USB 디바이스 할당 해제
+                  this.deallocateDevicesOnVmDelete(vmId, 'listHostUsbDevices', 'updateHostUsbDevices'),
+                  // LUN 디바이스 할당 해제
+                  this.deallocateDevicesOnVmDelete(vmId, 'listHostLunDevices', 'updateHostLunDevices'),
+                  // SCSI 디바이스 할당 해제
+                  this.deallocateDevicesOnVmDelete(vmId, 'listHostScsiDevices', 'updateHostScsiDevices')
+                ])
 
-              if (devices?.vmallocations) {
-                // 삭제된 VM에 할당된 디바이스 찾기
-                const allocatedDevices = Object.entries(devices.vmallocations)
-                  .filter(([_, allocatedVmId]) => {
-                    return allocatedVmId === vmId
-                  })
-                  .map(([deviceName]) => deviceName)
-
-                // 각 디바이스의 할당 해제
-                for (const deviceName of allocatedDevices) {
-                  try {
-                    const response = await api('updateHostDevices', {
-                      hostid: this.resource.id,
-                      hostdevicesname: deviceName,
-                      virtualmachineid: null
-                    })
-
-                    if (!response || response.error) {
-                      throw new Error(response?.error?.errortext || 'Failed to update host device')
-                    }
-                  } catch (error) {
-                    console.error('Failed to update host device:', deviceName, error)
-                    this.$notification.error({
-                      message: this.$t('label.error'),
-                      description: error.message || this.$t('message.update.host.device.failed')
-                    })
-                  }
-                }
-
-                if (allocatedDevices.length > 0) {
-                  this.$message.info(this.$t('message.device.allocation.removed.vm.deleted'))
+                // 할당 해제된 디바이스가 있으면 데이터 새로고침
+                await this.refreshDataAfterVmDelete()
+              } else if (eventType === 'StartVM') {
+                // VM 시작 시 extraconfig에서 디바이스 복원
+                await this.restoreDevicesFromExtraConfig(vmId)
+              } else {
+                // 다른 이벤트의 경우 현재 탭 데이터만 새로고침
+                if (this.activeKey === '1') {
                   await this.fetchData()
-                  await this.updateVmNames()
+                } else if (this.activeKey === '2') {
+                  await this.fetchHbaDevices()
+                } else if (this.activeKey === '3') {
+                  await this.fetchUsbDevices()
+                } else if (this.activeKey === '4') {
+                  await this.fetchLunDevices()
+                } else if (this.activeKey === '5') {
+                  await this.fetchScsiDevices()
                 }
               }
             } catch (error) {
-              console.error('Error handling VM deletion event:', error)
+              console.error('Error handling VM event:', error)
             }
           }
         })
       })
+    },
+
+    // VM 삭제 시 디바이스 할당 해제 처리
+    async deallocateDevicesOnVmDelete (vmId, listApiMethod, updateApiMethod) {
+      try {
+        const response = await api(listApiMethod, { id: this.resource.id })
+        const devices = this.extractDevicesFromResponse(response)
+
+        if (devices?.vmallocations) {
+          // 삭제된 VM에 할당된 디바이스 찾기
+          const allocatedDevices = Object.entries(devices.vmallocations)
+            .filter(([_, allocatedVmId]) => allocatedVmId === vmId)
+            .map(([deviceName]) => deviceName)
+
+          // 각 디바이스의 할당 해제
+          for (const deviceName of allocatedDevices) {
+            try {
+              // 디바이스 타입에 맞는 API 호출
+              let updateResponse
+              if (listApiMethod === 'listHostDevices') {
+                updateResponse = await api('updateHostDevices', {
+                  hostid: this.resource.id,
+                  hostdevicesname: deviceName,
+                  virtualmachineid: null
+                })
+              } else if (listApiMethod === 'listHostHbaDevices') {
+                // HBA 디바이스의 경우 XML 설정도 함께 전달
+                const xmlConfig = this.generateHbaDeallocationXmlConfig(deviceName)
+                updateResponse = await api('updateHostHbaDevices', {
+                  hostid: this.resource.id,
+                  hostdevicesname: deviceName,
+                  virtualmachineid: null,
+                  xmlconfig: xmlConfig
+                })
+              } else if (listApiMethod === 'listHostUsbDevices') {
+                const xmlConfig = this.generateXmlUsbConfig(deviceName)
+                updateResponse = await api('updateHostUsbDevices', {
+                  hostid: this.resource.id,
+                  hostdevicesname: deviceName,
+                  virtualmachineid: null,
+                  currentvmid: vmId,
+                  xmlconfig: xmlConfig
+                })
+              } else if (listApiMethod === 'listHostLunDevices') {
+                const xmlConfig = this.generateXmlLunConfig(deviceName)
+                updateResponse = await api('updateHostLunDevices', {
+                  hostid: this.resource.id,
+                  hostdevicesname: deviceName,
+                  virtualmachineid: null,
+                  xmlconfig: xmlConfig
+                })
+              } else if (listApiMethod === 'listHostScsiDevices') {
+                const xmlConfig = this.generateScsiXmlConfig(deviceName)
+                updateResponse = await api('updateHostScsiDevices', {
+                  hostid: this.resource.id,
+                  hostdevicesname: deviceName,
+                  virtualmachineid: null,
+                  currentvmid: vmId,
+                  xmlconfig: xmlConfig
+                })
+              } else if (listApiMethod === 'listVhbaDevices') {
+                const xmlConfig = this.generateVhbaDeallocationXmlConfig(deviceName)
+                updateResponse = await api('updateHostVhbaDevices', {
+                  hostid: this.resource.id,
+                  hostdevicesname: deviceName,
+                  virtualmachineid: null,
+                  currentvmid: vmId,
+                  xmlconfig: xmlConfig
+                })
+              }
+
+              if (!updateResponse || updateResponse.error) {
+                throw new Error(updateResponse?.error?.errortext || 'Failed to update host device')
+              }
+            } catch (error) {
+              console.error('Failed to update host device:', deviceName, error)
+              this.$notification.error({
+                message: this.$t('label.error'),
+                description: error.message || this.$t('message.update.host.device.failed')
+              })
+            }
+          }
+
+          return allocatedDevices.length > 0
+        }
+        return false
+      } catch (error) {
+        console.error(`Error in deallocateDevicesOnVmDelete for ${listApiMethod}:`, error)
+        return false
+      }
+    },
+
+    // API 응답에서 디바이스 데이터 추출
+    extractDevicesFromResponse (response) {
+      if (response.listhostdevicesresponse?.listhostdevices?.[0]) {
+        return response.listhostdevicesresponse.listhostdevices[0]
+      } else if (response.listhosthbadevicesresponse?.listhosthbadevices?.[0]) {
+        return response.listhosthbadevicesresponse.listhosthbadevices[0]
+      } else if (response.listhostusbdevicesresponse?.listhostusbdevices?.[0]) {
+        return response.listhostusbdevicesresponse.listhostusbdevices[0]
+      } else if (response.listhostlundevicesresponse?.listhostlundevices?.[0]) {
+        return response.listhostlundevicesresponse.listhostlundevices[0]
+      } else if (response.listhostscsidevicesresponse?.listhostscsidevices?.[0]) {
+        return response.listhostscsidevicesresponse.listhostscsidevices[0]
+      }
+      return null
+    },
+
+    // VM 삭제 후 데이터 새로고침
+    async refreshDataAfterVmDelete () {
+      try {
+        // 모든 탭의 데이터를 새로고침하여 할당 해제된 디바이스 상태를 정확히 반영
+        await Promise.all([
+          this.fetchData(),
+          this.fetchHbaDevices(),
+          this.fetchUsbDevices(),
+          this.fetchLunDevices(),
+          this.fetchScsiDevices()
+        ])
+
+        // VM 이름 캐시 초기화
+        this.vmNames = {}
+
+        // 현재 활성 탭의 VM 이름만 다시 업데이트
+        if (this.activeKey === '1') {
+          await this.updateVmNames()
+        } else if (this.activeKey === '2') {
+          await this.updateHbaVmNames()
+        } else if (this.activeKey === '3') {
+          await this.updateUsbVmNames()
+        }
+
+        // UI 강제 업데이트
+        this.$nextTick(() => {
+          this.$forceUpdate()
+          setTimeout(() => {
+            this.$forceUpdate()
+          }, 100)
+        })
+
+        this.$message.info(this.$t('message.device.allocation.removed.vm.deleted'))
+      } catch (error) {
+        console.error('Error refreshing data after VM delete:', error)
+      }
+    },
+
+    // VM 시작 시 extraconfig에서 디바이스 복원
+    async restoreDevicesFromExtraConfig (vmId) {
+      try {
+        console.log(`Restoring devices from extraconfig for VM: ${vmId}`)
+
+        // VM의 extraconfig 조회
+        const vmResponse = await api('listVirtualMachines', { id: vmId })
+        const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+
+        if (!vm || !vm.details) {
+          console.log('No VM details found for device restoration')
+          return
+        }
+
+        // extraconfig에서 디바이스 설정 추출
+        const deviceConfigs = []
+        Object.entries(vm.details).forEach(([key, value]) => {
+          if (key.startsWith('extraconfig-') && value.includes('<hostdev')) {
+            deviceConfigs.push({ key, value })
+          }
+        })
+
+        if (deviceConfigs.length === 0) {
+          console.log('No device configurations found in extraconfig')
+          return
+        }
+
+        console.log(`Found ${deviceConfigs.length} device configurations to restore`)
+
+        // 각 디바이스 설정을 복원
+        for (const config of deviceConfigs) {
+          try {
+            await this.restoreDeviceFromConfig(vmId, config.value)
+          } catch (error) {
+            console.error(`Error restoring device config ${config.key}:`, error)
+          }
+        }
+
+        // 복원 완료 후 데이터 새로고침
+        await this.refreshDataAfterVmStart()
+
+        this.$message.success(this.$t('message.device.restored.from.extraconfig'))
+      } catch (error) {
+        console.error('Error restoring devices from extraconfig:', error)
+        this.$message.error(this.$t('message.device.restore.failed'))
+      }
+    },
+
+    // 개별 디바이스 설정 복원
+    async restoreDeviceFromConfig (vmId, xmlConfig) {
+      try {
+        // XML 설정에서 디바이스 타입과 정보 추출
+        const deviceInfo = this.parseDeviceXmlConfig(xmlConfig)
+
+        if (!deviceInfo) {
+          console.log('Could not parse device XML config')
+          return
+        }
+
+        console.log(`Restoring ${deviceInfo.type} device:`, deviceInfo)
+
+        // 디바이스 타입에 따라 적절한 API 호출
+        const params = {
+          hostid: this.resource.id,
+          hostdevicesname: deviceInfo.deviceName,
+          virtualmachineid: vmId,
+          xmlconfig: xmlConfig
+        }
+
+        let apiMethod
+        switch (deviceInfo.type) {
+          case 'usb':
+            apiMethod = 'updateHostUsbDevices'
+            break
+          case 'hba':
+            apiMethod = 'updateHostHbaDevices'
+            break
+          case 'lun':
+            apiMethod = 'updateHostLunDevices'
+            break
+          case 'scsi':
+            apiMethod = 'updateHostScsiDevices'
+            break
+          case 'vhba':
+            apiMethod = 'updateHostVhbaDevices'
+            break
+          default:
+            console.log(`Unknown device type: ${deviceInfo.type}`)
+            return
+        }
+
+        const response = await api(apiMethod, params)
+        console.log(`Device restoration response for ${deviceInfo.type}:`, response)
+      } catch (error) {
+        console.error(`Error restoring device:`, error)
+        throw error
+      }
+    },
+
+    // XML 설정에서 디바이스 정보 파싱
+    parseDeviceXmlConfig (xmlConfig) {
+      try {
+        // USB 디바이스 확인
+        if (xmlConfig.includes("type='usb'")) {
+          const busMatch = xmlConfig.match(/bus='0x([^']+)'/)
+          const deviceMatch = xmlConfig.match(/device='0x([^']+)'/)
+          if (busMatch && deviceMatch) {
+            const bus = busMatch[1].padStart(3, '0')
+            const device = deviceMatch[1].padStart(3, '0')
+            return {
+              type: 'usb',
+              deviceName: `${bus} Device ${device}`,
+              bus: bus,
+              device: device
+            }
+          }
+        }
+
+        // HBA 디바이스 확인
+        if (xmlConfig.includes("type='scsi_host'")) {
+          const adapterMatch = xmlConfig.match(/name='([^']+)'/)
+          if (adapterMatch) {
+            return {
+              type: 'hba',
+              deviceName: adapterMatch[1],
+              adapterName: adapterMatch[1]
+            }
+          }
+        }
+
+        // LUN 디바이스 확인
+        if (xmlConfig.includes("device='lun'")) {
+          const devMatch = xmlConfig.match(/dev='([^']+)'/)
+          if (devMatch) {
+            const devicePath = devMatch[1]
+            const deviceName = devicePath.split('/').pop()
+            return {
+              type: 'lun',
+              deviceName: deviceName,
+              devicePath: devicePath
+            }
+          }
+        }
+
+        // SCSI 디바이스 확인
+        if (xmlConfig.includes("type='scsi'")) {
+          const adapterMatch = xmlConfig.match(/name='([^']+)'/)
+          if (adapterMatch) {
+            return {
+              type: 'scsi',
+              deviceName: adapterMatch[1],
+              adapterName: adapterMatch[1]
+            }
+          }
+        }
+
+        // vHBA 디바이스 확인
+        if (xmlConfig.includes("type='fc_host'")) {
+          const parentMatch = xmlConfig.match(/<parent>([^<]+)<\/parent>/)
+          if (parentMatch) {
+            return {
+              type: 'vhba',
+              deviceName: parentMatch[1],
+              parentHba: parentMatch[1]
+            }
+          }
+        }
+
+        return null
+      } catch (error) {
+        console.error('Error parsing device XML config:', error)
+        return null
+      }
+    },
+
+    // VM 시작 후 데이터 새로고침
+    async refreshDataAfterVmStart () {
+      try {
+        // 모든 탭의 데이터를 새로고침
+        await Promise.all([
+          this.fetchData(),
+          this.fetchHbaDevices(),
+          this.fetchUsbDevices(),
+          this.fetchLunDevices(),
+          this.fetchScsiDevices()
+        ])
+
+        // VM 이름 캐시 초기화
+        this.vmNames = {}
+
+        // 현재 활성 탭의 VM 이름만 다시 업데이트
+        if (this.activeKey === '1') {
+          await this.updateVmNames()
+        } else if (this.activeKey === '2') {
+          await this.updateHbaVmNames()
+        } else if (this.activeKey === '3') {
+          await this.updateUsbVmNames()
+        }
+
+        // UI 강제 업데이트
+        this.$nextTick(() => {
+          this.$forceUpdate()
+          setTimeout(() => {
+            this.$forceUpdate()
+          }, 100)
+        })
+      } catch (error) {
+        console.error('Error refreshing data after VM start:', error)
+      }
     },
     async fetchData () {
       this.loading = true
@@ -896,6 +1249,27 @@ export default {
     isDeviceAssigned (record) {
       // HBA 디바이스의 경우 고유한 디바이스명 사용
       const deviceName = this.activeKey === '4' ? record.hostDevicesName : record.hostDevicesName
+
+      // record.vmName이 있으면 할당된 상태
+      if (record.vmName && record.vmName.trim() !== '') {
+        return true
+      }
+
+      // allocatedInOtherTab이 있으면 할당된 상태
+      if (record.allocatedInOtherTab && record.allocatedInOtherTab.isAllocated) {
+        return true
+      }
+
+      // vmNames에서 할당 상태 확인
+      if (this.vmNames[record.hostDevicesName]) {
+        return true
+      }
+
+      // 동적 사용 상태 확인 (USAGE_STATUS가 "사용중"이면 할당된 상태로 간주)
+      if (record.hostDevicesText && this.isInUseFromText(record.hostDevicesText)) {
+        return true
+      }
+
       return record.virtualmachineid != null ||
              record.isAssigned ||
              this.selectedDevices.includes(deviceName) ||
@@ -918,7 +1292,12 @@ export default {
         return true
       }
 
-      // 3. vHBA 디바이스 데이터에서 할당 상태 확인
+      // 3. 동적 사용 상태 확인 (USAGE_STATUS가 "사용중"이면 할당된 상태로 간주)
+      if (record.hostDevicesText && this.isInUseFromText(record.hostDevicesText)) {
+        return true
+      }
+
+      // 4. vHBA 디바이스 데이터에서 할당 상태 확인
       if (record.parentHba && this.vhbaDevicesData[record.parentHba]) {
         const vhbaDevice = this.vhbaDevicesData[record.parentHba].find(
           vhba => vhba.hostDevicesName === record.hostDevicesName
@@ -960,6 +1339,7 @@ export default {
     },
     closeAction () {
       this.showAddModal = false
+      this.loading = true
       this.selectedResource = null
       if (this.activeKey === '2') {
         this.fetchHbaDevices()
@@ -1027,6 +1407,9 @@ export default {
     handleAllocationCompleted () {
       // 현재 활성 탭을 저장
       const currentActiveKey = this.activeKey
+      // 먼저 모달을 닫고 로딩을 즉시 표시
+      this.showAddModal = false
+      this.loading = true
 
       if (this.activeKey === '2') {
         this.fetchHbaDevices()
@@ -1049,7 +1432,6 @@ export default {
         this.fetchData()
       }
 
-      this.showAddModal = false
       this.updateDataWithVmNames()
 
       // 현재 탭 유지
@@ -1060,6 +1442,8 @@ export default {
     handleDeviceAllocated () {
       // 현재 활성 탭을 저장
       const currentActiveKey = this.activeKey
+      // 데이터 새로고침 전에 로딩을 먼저 표시
+      this.loading = true
 
       if (this.activeKey === '2') {
         this.fetchHbaDevices()
@@ -1140,9 +1524,44 @@ export default {
           for (const name in vmAllocations) {
             const vmId = vmAllocations[name]
             if (vmId) {
-              const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
-              const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-              if (vm) vmNameMap[name] = vm.displayname || vm.name
+              try {
+                const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+                if (vm && vm.state !== 'Expunging') {
+                  vmNameMap[name] = vm.displayname || vm.name
+                } else {
+                  // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
+                  try {
+                    const xmlConfig = this.generateXmlLunConfig(name)
+                    const updateResponse = await api('updateHostLunDevices', {
+                      hostid: this.resource.id,
+                      hostdevicesname: name,
+                      virtualmachineid: null,
+                      xmlconfig: xmlConfig
+                    })
+
+                    if (!updateResponse || updateResponse.error) {
+                      console.error('Failed to update LUN device:', name, updateResponse?.error)
+                    }
+                  } catch (error) {
+                    console.error('Failed to update LUN device:', name, error)
+                  }
+                }
+              } catch (error) {
+                console.error('Error fetching VM for LUN device:', name, error)
+                // VM 조회 실패 시에도 할당 해제 시도
+                try {
+                  const xmlConfig = this.generateXmlLunConfig(name)
+                  await api('updateHostLunDevices', {
+                    hostid: this.resource.id,
+                    hostdevicesname: name,
+                    virtualmachineid: null,
+                    xmlconfig: xmlConfig
+                  })
+                } catch (detachError) {
+                  console.error('Failed to detach LUN device after VM fetch error:', name, detachError)
+                }
+              }
             }
           }
           this.vmNames = { ...this.vmNames, ...vmNameMap }
@@ -1173,7 +1592,7 @@ export default {
                     const vmResponse = await api('listVirtualMachines', { id: allocatedVmId, listall: true })
                     const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
 
-                    if (vm) {
+                    if (vm && vm.state !== 'Expunging') {
                       device.allocatedInOtherTab = {
                         isAllocated: true,
                         vmName: vm.displayname || vm.name,
@@ -1183,6 +1602,27 @@ export default {
                       device.vmName = vm.displayname || vm.name
                       device.virtualmachineid = allocatedVmId
                       device.isAssigned = true
+                    } else {
+                      // VM이 Expunging 상태면 SCSI 디바이스 할당도 해제
+                      try {
+                        const xmlConfig = this.generateScsiXmlConfig(sgDevice)
+                        await api('updateHostScsiDevices', {
+                          hostid: this.resource.id,
+                          hostdevicesname: sgDevice,
+                          virtualmachineid: null,
+                          currentvmid: allocatedVmId,
+                          xmlconfig: xmlConfig
+                        })
+                        console.log(`Automatically deallocated SCSI device ${sgDevice} from expunging VM ${allocatedVmId}`)
+
+                        // UI 상태 업데이트: 할당 해제된 상태로 설정
+                        device.isAssigned = false
+                        device.virtualmachineid = null
+                        device.vmName = null
+                        device.allocatedInOtherTab = null
+                      } catch (error) {
+                        console.error(`Failed to deallocate SCSI device ${sgDevice}:`, error)
+                      }
                     }
                     break
                   } else {
@@ -1340,9 +1780,10 @@ export default {
                 })
 
                 const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-                if (vm) {
+                if (vm && vm.state !== 'Expunging') {
                   vmNamesMap[deviceName] = vm.name || vm.displayname
                 } else {
+                  // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
                   try {
                     const updateResponse = await api('updateHostDevices', {
                       hostid: this.resource.id,
@@ -1369,6 +1810,9 @@ export default {
                       }
                       return item
                     })
+
+                    // selectedDevices에서도 제거
+                    this.selectedDevices = this.selectedDevices.filter(device => device !== deviceName)
                   } catch (error) {
                     console.error('Failed to update host device:', deviceName, error)
                     this.$notification.error({
@@ -1384,6 +1828,32 @@ export default {
             }
           }
           this.vmNames = vmNamesMap
+
+          // vmNames가 변경되었을 때 dataItems의 상태도 업데이트
+          this.dataItems = this.dataItems.map(item => {
+            if (vmNamesMap[item.hostDevicesName]) {
+              // VM 이름이 있으면 할당된 상태
+              return {
+                ...item,
+                isAssigned: true,
+                vmName: vmNamesMap[item.hostDevicesName]
+              }
+            } else {
+              // VM 이름이 없으면 할당되지 않은 상태로 설정하고 할당된 ID 삭제
+              return {
+                ...item,
+                isAssigned: false,
+                vmName: null,
+                virtualmachineid: null
+              }
+            }
+          })
+
+          // VM 이름이 없는 디바이스는 selectedDevices에서도 제거
+          this.selectedDevices = this.selectedDevices.filter(deviceName =>
+            vmNamesMap[deviceName] !== undefined
+          )
+
           if (processedDevices.size > 0) {
             await this.fetchData()
           }
@@ -1403,9 +1873,10 @@ export default {
         if (devices?.vmallocations) {
           const vmNamesMap = {}
           const entries = Object.entries(devices.vmallocations)
+          const processedDevices = new Set()
 
           for (const [deviceName, vmId] of entries) {
-            if (vmId) {
+            if (vmId && !processedDevices.has(deviceName)) {
               try {
                 const vmResponse = await api('listVirtualMachines', {
                   id: vmId,
@@ -1413,10 +1884,49 @@ export default {
                 })
 
                 const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-                if (vm) {
+                if (vm && vm.state !== 'Expunging') {
                   vmNamesMap[deviceName] = vm.name || vm.displayname
                 } else {
-                  vmNamesMap[deviceName] = this.$t(' ')
+                  // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
+                  try {
+                    const xmlConfig = this.generateXmlUsbConfig(deviceName)
+                    const updateResponse = await api('updateHostUsbDevices', {
+                      hostid: this.resource.id,
+                      hostdevicesname: deviceName,
+                      virtualmachineid: null,
+                      currentvmid: vmId,
+                      xmlconfig: xmlConfig
+                    })
+
+                    if (!updateResponse || updateResponse.error) {
+                      throw new Error(updateResponse?.error?.errortext || 'Failed to update USB device')
+                    }
+
+                    vmNamesMap[deviceName] = this.$t(' ')
+                    processedDevices.add(deviceName)
+
+                    // UI 업데이트
+                    this.dataItems = this.dataItems.map(item => {
+                      if (item.hostDevicesName === deviceName) {
+                        return {
+                          ...item,
+                          virtualmachineid: null,
+                          vmName: null,
+                          isAssigned: false
+                        }
+                      }
+                      return item
+                    })
+
+                    // selectedDevices에서도 제거
+                    this.selectedDevices = this.selectedDevices.filter(device => device !== deviceName)
+                  } catch (error) {
+                    console.error('Failed to update USB device:', deviceName, error)
+                    this.$notification.error({
+                      message: this.$t('label.error'),
+                      description: error.message || this.$t('message.update.usb.device.failed')
+                    })
+                  }
                 }
               } catch (error) {
                 console.error('Error fetching VM name for USB device:', deviceName, error)
@@ -1425,6 +1935,36 @@ export default {
             }
           }
           this.vmNames = { ...this.vmNames, ...vmNamesMap }
+
+          // vmNames가 변경되었을 때 dataItems의 상태도 업데이트
+          this.dataItems = this.dataItems.map(item => {
+            if (vmNamesMap[item.hostDevicesName]) {
+              // VM 이름이 있으면 할당된 상태
+              return {
+                ...item,
+                isAssigned: true,
+                vmName: vmNamesMap[item.hostDevicesName]
+              }
+            } else if (vmNamesMap[item.hostDevicesName] === '' || vmNamesMap[item.hostDevicesName] === undefined) {
+              // VM 이름이 빈 문자열이거나 undefined면 할당되지 않은 상태로 설정하고 할당된 ID 삭제
+              return {
+                ...item,
+                isAssigned: false,
+                vmName: null,
+                virtualmachineid: null
+              }
+            }
+            return item
+          })
+
+          // VM 이름이 없는 디바이스는 selectedDevices에서도 제거
+          this.selectedDevices = this.selectedDevices.filter(deviceName =>
+            vmNamesMap[deviceName] !== undefined && vmNamesMap[deviceName] !== ''
+          )
+
+          if (processedDevices.size > 0) {
+            await this.fetchUsbDevices()
+          }
         }
       } catch (error) {
         console.error('Error in updateUsbVmNames:', error)
@@ -1434,7 +1974,7 @@ export default {
     },
     // 컴포넌트가 제거될 때 이벤트 리스너도 제거
     beforeDestroy () {
-      const eventTypes = ['DestroyVM', 'ExpungeVM']
+      const eventTypes = ['DestroyVM', 'ExpungeVM', 'StopVM', 'RebootVM']
       eventTypes.forEach(eventType => {
         eventBus.emit('unregister-event', {
           eventType: eventType
@@ -1457,9 +1997,16 @@ export default {
         })
         const devices = response.listhostusbdevicesresponse?.listhostusbdevices?.[0]
         const vmAllocations = devices?.vmallocations || {}
-        const vmId = vmAllocations[hostDevicesName]
+        const vmId = String(vmAllocations[hostDevicesName]) // 문자열로 변환
 
-        if (!vmId) {
+        console.log('USB device deallocation debug:', {
+          hostDevicesName,
+          vmAllocations,
+          vmId,
+          vmIdType: typeof vmId
+        })
+
+        if (!vmId || vmId === 'null' || vmId === 'undefined') {
           console.error('No VM allocation found for device:', hostDevicesName)
           throw new Error('No VM allocation found for this device')
         }
@@ -1470,14 +2017,42 @@ export default {
           title: `${vmName} ${this.$t('message.delete.device.allocation')}`,
           content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
           onOk: async () => {
+            // VM 상태 확인
+            try {
+              const vmResponse = await api('listVirtualMachines', {
+                id: vmId,
+                listall: true
+              })
+              const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+
+              if (!vm) {
+                console.log('VM not found, proceeding with deallocation')
+              } else if (vm.state === 'Expunging') {
+                console.log('VM is in Expunging state, proceeding with deallocation')
+              } else if (vm.state !== 'Running' && vm.state !== 'Stopped') {
+                console.log(`VM is in ${vm.state} state, proceeding with deallocation`)
+              }
+            } catch (vmError) {
+              console.log('Failed to check VM state, proceeding with deallocation:', vmError)
+            }
+
             const xmlConfig = this.generateXmlUsbConfig(hostDevicesName)
+
+            console.log('USB device deallocation API call:', {
+              hostid: this.resource.id,
+              hostdevicesname: hostDevicesName,
+              virtualmachineid: null,
+              currentvmid: vmId,
+              currentvmidType: typeof vmId,
+              xmlconfig: xmlConfig
+            })
+
             const detachResponse = await api('updateHostUsbDevices', {
               hostid: this.resource.id,
               hostdevicesname: hostDevicesName,
               virtualmachineid: null,
               currentvmid: vmId,
-              xmlconfig: xmlConfig,
-              isattach: false
+              xmlconfig: xmlConfig
             })
 
             if (!detachResponse || detachResponse.error) {
@@ -1510,21 +2085,90 @@ export default {
     },
 
     generateXmlUsbConfig (hostDeviceName) {
-      const match = hostDeviceName.match(/(\d+)\D+(\d+)/)
-      let bus = '0x001'
-      let device = '0x01'
-      if (match) {
-        bus = '0x' + parseInt(match[1], 10).toString(16).padStart(3, '0')
-        device = '0x' + parseInt(match[2], 10).toString(16).padStart(2, '0')
+      try {
+        console.log('Generating XML config for USB device:', hostDeviceName)
+
+        let bus = '0x001'
+        let device = '0x01'
+
+        // 다양한 USB 디바이스 이름 형식 지원
+        // 1. "001 Device 003" 형식
+        let match = hostDeviceName.match(/(\d+)\s+Device\s+(\d+)/i)
+        if (match && match.length >= 3) {
+          const busNum = parseInt(match[1], 10)
+          const deviceNum = parseInt(match[2], 10)
+
+          if (!isNaN(busNum) && !isNaN(deviceNum)) {
+            bus = '0x' + busNum.toString(16).padStart(3, '0')
+            device = '0x' + deviceNum.toString(16).padStart(2, '0')
+            console.log('Matched "001 Device 003" format - Bus:', bus, 'Device:', device)
+          }
+        } else {
+          // 2. "001:003" 형식
+          match = hostDeviceName.match(/(\d+):(\d+)/)
+          if (match && match.length >= 3) {
+            const busNum = parseInt(match[1], 10)
+            const deviceNum = parseInt(match[2], 10)
+
+            if (!isNaN(busNum) && !isNaN(deviceNum)) {
+              bus = '0x' + busNum.toString(16).padStart(3, '0')
+              device = '0x' + deviceNum.toString(16).padStart(2, '0')
+              console.log('Matched "001:003" format - Bus:', bus, 'Device:', device)
+            }
+          } else {
+            // 3. "001.003" 형식
+            match = hostDeviceName.match(/(\d+)\.(\d+)/)
+            if (match && match.length >= 3) {
+              const busNum = parseInt(match[1], 10)
+              const deviceNum = parseInt(match[2], 10)
+
+              if (!isNaN(busNum) && !isNaN(deviceNum)) {
+                bus = '0x' + busNum.toString(16).padStart(3, '0')
+                device = '0x' + deviceNum.toString(16).padStart(2, '0')
+                console.log('Matched "001.003" format - Bus:', bus, 'Device:', device)
+              }
+            } else {
+              // 4. 기존 정규식 (숫자+문자+숫자)
+              match = hostDeviceName.match(/(\d+)\D+(\d+)/)
+              if (match && match.length >= 3) {
+                const busNum = parseInt(match[1], 10)
+                const deviceNum = parseInt(match[2], 10)
+
+                if (!isNaN(busNum) && !isNaN(deviceNum)) {
+                  bus = '0x' + busNum.toString(16).padStart(3, '0')
+                  device = '0x' + deviceNum.toString(16).padStart(2, '0')
+                  console.log('Matched generic format - Bus:', bus, 'Device:', device)
+                }
+              }
+            }
+          }
+        }
+
+        // 최종 검증
+        if (bus === '0x001' && device === '0x01') {
+          console.warn('Using default values for USB device:', hostDeviceName)
+        }
+
+        console.log('Final USB XML config - Bus:', bus, 'Device:', device)
+
+        return `
+          <hostdev mode='subsystem' type='usb'>
+            <source>
+              <address type='usb' bus='${bus}' device='${device}' />
+            </source>
+          </hostdev>
+        `.trim()
+      } catch (error) {
+        console.error('Error generating USB XML config for device:', hostDeviceName, error)
+        // 기본값 반환
+        return `
+          <hostdev mode='subsystem' type='usb'>
+            <source>
+              <address type='usb' bus='0x001' device='0x01' />
+            </source>
+          </hostdev>
+        `.trim()
       }
-      console.log(bus, device)
-      return `
-        <hostdev mode='subsystem' type='usb'>
-          <source>
-            <address type='usb' bus='${bus}' device='${device}' />
-          </source>
-        </hostdev>
-      `.trim()
     },
     generateXmlLunConfig (hostDeviceName) {
       let targetDev = 'sdc'
@@ -1554,11 +2198,6 @@ export default {
 
       const sgNumber = parseInt(scsiAddressMatch[1])
 
-      // SCSI 디바이스 정보에서 실제 SCSI 주소 가져오기
-      // lsscsi -g 명령 결과에서 해당 sg 디바이스의 SCSI 주소를 찾아야 함
-      // 여기서는 기본값을 사용하거나, 실제 구현에서는 백엔드에서 제공하는 정보를 사용
-
-      // 기본 SCSI 주소 (실제로는 백엔드에서 제공해야 함)
       const host = 0
       const bus = 0
       const target = sgNumber % 256
@@ -1588,20 +2227,56 @@ export default {
         })
         const devices = response.listhostusbdevicesresponse?.listhostusbdevices?.[0]
         const vmAllocations = devices?.vmallocations || {}
-        const vmId = vmAllocations[hostDevicesName]
+        const vmId = String(vmAllocations[hostDevicesName]) // 문자열로 변환
 
-        if (!vmId) {
+        console.log('USB device deallocation debug:', {
+          hostDevicesName,
+          vmAllocations,
+          vmId,
+          vmIdType: typeof vmId
+        })
+
+        if (!vmId || vmId === 'null' || vmId === 'undefined') {
           console.error('No VM allocation found for device:', hostDevicesName)
           throw new Error('No VM allocation found for this device')
         }
 
+        // VM 상태 확인
+        try {
+          const vmResponse = await api('listVirtualMachines', {
+            id: vmId,
+            listall: true
+          })
+          const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+
+          if (!vm) {
+            console.log('VM not found, proceeding with deallocation')
+          } else if (vm.state === 'Expunging') {
+            console.log('VM is in Expunging state, proceeding with deallocation')
+          } else if (vm.state !== 'Running' && vm.state !== 'Stopped') {
+            console.log(`VM is in ${vm.state} state, proceeding with deallocation`)
+          }
+        } catch (vmError) {
+          console.log('Failed to check VM state, proceeding with deallocation:', vmError)
+        }
+
         const xmlConfig = this.generateXmlUsbConfig(hostDevicesName)
+
+        console.log('USB device deallocation API call:', {
+          hostid: this.resource.id,
+          hostdevicesname: hostDevicesName,
+          virtualmachineid: null,
+          currentvmid: vmId,
+          currentvmidType: typeof vmId,
+          xmlconfig: xmlConfig
+        })
+
         const detachResponse = await api('updateHostUsbDevices', {
           hostid: this.resource.id,
           hostdevicesname: hostDevicesName,
-          virtualmachineid: vmId,
-          xmlconfig: xmlConfig,
-          isattach: false
+          virtualmachineid: null,
+          currentvmid: vmId,
+          xmlconfig: xmlConfig
         })
 
         if (!detachResponse || detachResponse.error) {
@@ -1899,33 +2574,12 @@ export default {
           title: `${vmName} ${this.$t('message.delete.device.allocation')}`,
           content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
           onOk: async () => {
-            // VM extraconfig에서 PCI 관련 설정 제거
-            const vmDetailResponse = await api('listVirtualMachines', {
-              id: vmId,
-              listall: true,
-              details: 'all'
-            })
-            const vmDetails = vmDetailResponse?.listvirtualmachinesresponse?.virtualmachine?.[0]
-            const params = { id: vmDetails.id }
-            Object.entries(vmDetails.details || {}).forEach(([key, value]) => {
-              if (key.startsWith('extraconfig-') && value.includes('<hostdev')) {
-                const [pciAddress] = hostDevicesName.split(' ')
-                const [bus, slotFunction] = pciAddress.split(':')
-                const [slot, func] = slotFunction.split('.')
-                const pattern = `bus='0x${bus}' slot='0x${slot}' function='0x${func}'`
-                if (!value.includes(pattern)) {
-                  params[`details[0].${key}`] = value
-                }
-              } else if (!key.startsWith('extraconfig-')) {
-                params[`details[0].${key}`] = value
-              }
-            })
-            await api('updateVirtualMachine', params)
-            // PCI 디바이스 할당 해제
+            // PCI 디바이스 할당 해제 (서버에서 자동으로 extraconfig 삭제)
             await api('updateHostDevices', {
               hostid: this.resource.id,
               hostdevicesname: hostDevicesName,
-              virtualmachineid: null
+              virtualmachineid: null,
+              currentvmid: vmId
             })
             this.dataItems = this.dataItems.map(item =>
               item.hostDevicesName === hostDevicesName
@@ -1955,11 +2609,11 @@ export default {
       this.selectedPciDevice = null
     },
     onHbaSearch () {
-      // HBA 디바이스 검색은 computed 속성에서 자동으로 처리됨
+
     },
 
     onScsiSearch () {
-      // SCSI 디바이스 검색은 computed 속성에서 자동으로 처리됨
+
     },
     async fetchHbaDevices () {
       this.loading = true
@@ -1972,14 +2626,54 @@ export default {
           const hbaData = response.listhosthbadevicesresponse.listhosthbadevices[0]
           const vmAllocations = hbaData.vmallocations || {}
 
-          // VM 이름 매핑
+          // VM 이름 매핑 - 개별 처리로 변경 (배치 조회 오류 방지)
           const vmNameMap = {}
+
           for (const name in vmAllocations) {
             const vmId = vmAllocations[name]
             if (vmId) {
-              const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
-              const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-              if (vm) vmNameMap[name] = vm.displayname || vm.name
+              try {
+                const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+                if (vm && vm.state !== 'Expunging') {
+                  vmNameMap[name] = vm.displayname || vm.name
+                } else {
+                  // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
+                  try {
+                    const xmlConfig = this.generateScsiXmlConfig(name)
+                    const updateResponse = await api('updateHostScsiDevices', {
+                      hostid: this.resource.id,
+                      hostdevicesname: name,
+                      virtualmachineid: null,
+                      currentvmid: vmId,
+                      xmlconfig: xmlConfig,
+                      isattach: false
+                    })
+
+                    if (!updateResponse || updateResponse.error) {
+                      console.error('Failed to update SCSI device:', name, updateResponse?.error)
+                    }
+                  } catch (error) {
+                    console.error('Failed to update SCSI device:', name, error)
+                  }
+                }
+              } catch (error) {
+                console.error('Error fetching VM for SCSI device:', name, error)
+                // VM 조회 실패 시에도 할당 해제 시도
+                try {
+                  const xmlConfig = this.generateScsiXmlConfig(name)
+                  await api('updateHostScsiDevices', {
+                    hostid: this.resource.id,
+                    hostdevicesname: name,
+                    virtualmachineid: null,
+                    currentvmid: vmId,
+                    xmlconfig: xmlConfig,
+                    isattach: false
+                  })
+                } catch (detachError) {
+                  console.error('Failed to detach SCSI device after VM fetch error:', name, detachError)
+                }
+              }
             }
           }
           this.vmNames = { ...this.vmNames, ...vmNameMap }
@@ -2009,24 +2703,20 @@ export default {
             const deviceType = deviceTypes[index] || 'physical'
             const parentHbaName = parentHbaNames[index] || ''
 
-            // "Virtual HBA: scsi_host49" 및 "Virtual HBA Device" 정보 제거
             deviceText = deviceText.replace(/Virtual HBA:\s*[^\s\n]+/g, '').trim()
             deviceText = deviceText.replace(/Virtual HBA Device/g, '').trim()
 
-            // scsi_host 숫자 패턴 제거 (예: scsi_host13, scsi_host14 등)
             deviceText = deviceText.replace(/scsi_host\d+/g, '').trim()
 
-            // 줄바꿈 문자를 HTML <br> 태그로 변환
             deviceText = deviceText.replace(/\n/g, '<br>')
 
-            // RAID 컨트롤러 필터링
             const isRaidController = deviceText.toLowerCase().includes('raid') ||
                                    deviceText.toLowerCase().includes('sas') ||
                                    deviceText.toLowerCase().includes('broadcom') ||
                                    deviceText.toLowerCase().includes('lsi')
 
             if (isRaidController) {
-              return // 이 디바이스는 건너뛰기
+              return
             }
 
             if (deviceType === 'physical') {
@@ -2065,7 +2755,6 @@ export default {
 
               hbaDevices.push(vhbaDevice)
 
-              // 부모 HBA가 있으면 hasChildren 플래그 설정
               if (parentHbaName && physicalHbaMap.has(parentHbaName)) {
                 const parentIndex = physicalHbaMap.get(parentHbaName)
                 hbaDevices[parentIndex].hasChildren = true
@@ -2074,13 +2763,10 @@ export default {
           })
 
           this.dataItems = hbaDevices
-          // 가상머신 이름을 업데이트합니다
           this.updateHbaVmNames()
 
-          // vHBA 개수 업데이트를 위해 강제로 computed 속성 재계산
           this.$nextTick(() => {
             this.$forceUpdate()
-            // 추가로 setTimeout을 사용하여 DOM 업데이트 보장
             setTimeout(() => {
               this.$forceUpdate()
             }, 100)
@@ -2101,17 +2787,13 @@ export default {
     },
 
     findVhbaDevicesForHba (physicalHbaName, hbaData) {
-      // 물리 HBA에서 생성된 vHBA 디바이스들을 찾는 로직
       const vhbaDevices = []
       const vmAllocations = hbaData.vmallocations || {}
 
       hbaData.hostdevicesname.forEach((name, index) => {
         const deviceText = hbaData.hostdevicestext[index]
 
-        // vHBA 디바이스인지 확인
         if (this.isVhbaDevice({ hostDevicesName: name, hostDevicesText: deviceText })) {
-          // 물리 HBA와 vHBA의 관계를 확인하는 로직
-          // 여기서는 간단히 이름 패턴으로 판단 (실제로는 더 정확한 로직 필요)
           if (name.includes(physicalHbaName) || this.isVhbaRelatedToHba(name, physicalHbaName)) {
             const vmId = vmAllocations[name] || null
             const vmName = this.vmNames[name] || ''
@@ -2144,9 +2826,10 @@ export default {
         if (devices?.vmallocations) {
           const vmNamesMap = {}
           const entries = Object.entries(devices.vmallocations)
+          const processedDevices = new Set()
 
           for (const [deviceName, vmId] of entries) {
-            if (vmId) {
+            if (vmId && !processedDevices.has(deviceName)) {
               try {
                 const vmResponse = await api('listVirtualMachines', {
                   id: vmId,
@@ -2154,10 +2837,48 @@ export default {
                 })
 
                 const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-                if (vm) {
+                if (vm && vm.state !== 'Expunging') {
                   vmNamesMap[deviceName] = vm.name || vm.displayname
                 } else {
-                  vmNamesMap[deviceName] = this.$t(' ')
+                  // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
+                  try {
+                    const xmlConfig = this.generateHbaDeallocationXmlConfig(deviceName)
+                    const updateResponse = await api('updateHostHbaDevices', {
+                      hostid: this.resource.id,
+                      hostdevicesname: deviceName,
+                      virtualmachineid: null,
+                      xmlconfig: xmlConfig,
+                      isattach: false
+                    })
+
+                    if (!updateResponse || updateResponse.error) {
+                      throw new Error(updateResponse?.error?.errortext || 'Failed to update HBA device')
+                    }
+
+                    vmNamesMap[deviceName] = this.$t(' ')
+                    processedDevices.add(deviceName)
+
+                    // UI 업데이트
+                    this.dataItems = this.dataItems.map(item => {
+                      if (item.hostDevicesName === deviceName) {
+                        return {
+                          ...item,
+                          virtualmachineid: null,
+                          vmName: null,
+                          isAssigned: false
+                        }
+                      }
+                      return item
+                    })
+                    // selectedDevices에서도 제거
+                    this.selectedDevices = this.selectedDevices.filter(device => device !== deviceName)
+                  } catch (error) {
+                    console.error('Failed to update HBA device:', deviceName, error)
+                    this.$notification.error({
+                      message: this.$t('label.error'),
+                      description: error.message || this.$t('message.update.hba.device.failed')
+                    })
+                  }
                 }
               } catch (error) {
                 console.error('Error fetching VM name for HBA device:', deviceName, error)
@@ -2166,6 +2887,13 @@ export default {
             }
           }
           this.vmNames = { ...this.vmNames, ...vmNamesMap }
+
+          if (processedDevices.size > 0) {
+            await this.fetchHbaDevices()
+          }
+
+          // vHBA 디바이스의 VM 이름도 업데이트
+          await this.updateVhbaVmNames()
         }
       } catch (error) {
         console.error('Error in updateHbaVmNames:', error)
@@ -2173,6 +2901,118 @@ export default {
         this.vmNameLoading = false
       }
     },
+
+    // vHBA 디바이스의 VM 이름 업데이트 (다른 디바이스들처럼)
+    async updateVhbaVmNames () {
+      if (this.vmNameLoading) return
+
+      this.vmNameLoading = true
+      try {
+        const response = await api('listVhbaDevices', {
+          hostid: this.resource.id
+        })
+
+        if (response.listvhbadevicesresponse?.listvhbadevices?.[0]) {
+          const vhbaData = response.listvhbadevicesresponse.listvhbadevices[0]
+          const vmAllocations = vhbaData.vmallocations || {}
+
+          // VM 이름 매핑
+          const vmNamesMap = {}
+          const processedDevices = new Set()
+
+          for (const [deviceName, vmId] of Object.entries(vmAllocations)) {
+            if (vmId && !processedDevices.has(deviceName)) {
+              try {
+                const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+
+                if (vm && vm.state !== 'Expunging') {
+                  vmNamesMap[deviceName] = vm.name || vm.displayname
+                } else {
+                  // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
+                  try {
+                    const xmlConfig = this.generateVhbaDeallocationXmlConfig(deviceName)
+                    const updateResponse = await api('updateHostVhbaDevices', {
+                      hostid: this.resource.id,
+                      hostdevicesname: deviceName,
+                      virtualmachineid: null,
+                      currentvmid: vmId,
+                      xmlconfig: xmlConfig
+                    })
+
+                    if (!updateResponse || updateResponse.error) {
+                      throw new Error(updateResponse?.error?.errortext || 'Failed to update vHBA device')
+                    }
+
+                    vmNamesMap[deviceName] = this.$t(' ')
+                    processedDevices.add(deviceName)
+
+                    // UI 업데이트
+                    this.dataItems = this.dataItems.map(item => {
+                      if (item.hostDevicesName === deviceName) {
+                        return {
+                          ...item,
+                          virtualmachineid: null,
+                          vmName: null,
+                          isAssigned: false
+                        }
+                      }
+                      return item
+                    })
+                    // selectedDevices에서도 제거
+                    this.selectedDevices = this.selectedDevices.filter(device => device !== deviceName)
+                  } catch (error) {
+                    console.error('Failed to update vHBA device:', deviceName, error)
+                    this.$notification.error({
+                      message: this.$t('label.error'),
+                      description: error.message || this.$t('message.update.vhba.device.failed')
+                    })
+                  }
+                }
+              } catch (error) {
+                console.error('Error fetching VM name for vHBA device:', deviceName, error)
+                vmNamesMap[deviceName] = this.$t(' ')
+              }
+            }
+          }
+          this.vmNames = { ...this.vmNames, ...vmNamesMap }
+
+          if (processedDevices.size > 0) {
+            await this.fetchHbaDevices()
+          }
+        }
+      } catch (error) {
+        console.error('Error in updateVhbaVmNames:', error)
+      } finally {
+        this.vmNameLoading = false
+      }
+    },
+
+    // vHBA 디바이스 리스트 새로고침
+    async refreshVhbaDeviceList () {
+      try {
+        // vHBA 캐시 완전 초기화
+        this.vhbaDevicesData = {}
+        this.vhbaLoading = {}
+
+        // VM 이름 캐시도 초기화
+        this.vmNames = {}
+
+        // HBA 디바이스 목록 새로고침
+        await this.fetchHbaDevices()
+
+        // vHBA VM 이름 업데이트
+        await this.updateVhbaVmNames()
+
+        // UI 강제 업데이트
+        this.$nextTick(() => {
+          this.$forceUpdate()
+        })
+      } catch (error) {
+        console.error('Failed to refresh vHBA device list:', error)
+      }
+    },
+
     async deallocateHbaDevice (record) {
       if (!this.resource || !this.resource.id) {
         this.$notifyError(this.$t('message.error.invalid.resource'))
@@ -2186,45 +3026,75 @@ export default {
         })
         const devices = response.listhosthbadevicesresponse?.listhosthbadevices?.[0]
         const vmAllocations = devices?.vmallocations || {}
-        const vmId = vmAllocations[record.hostDevicesName]
 
-        if (!vmId) {
+        // 같은 HBA 디바이스에 여러 할당이 있을 수 있으므로 모든 할당 확인
+        const allocations = []
+        for (const [deviceName, vmId] of Object.entries(vmAllocations)) {
+          if (deviceName === record.hostDevicesName) {
+            allocations.push({ deviceName, vmId })
+          }
+        }
+
+        if (allocations.length === 0) {
           throw new Error('No VM allocation found for this device')
         }
 
-        // 2. 할당 해제 확인 및 실행
+        // 2. 할당 해제할 VM 선택 (여러 할당이 있는 경우)
+        let targetVmId = null
+
+        if (allocations.length === 1) {
+          // 할당이 하나만 있는 경우
+          targetVmId = allocations[0].vmId
+        } else {
+          // 여러 할당이 있는 경우 사용자가 선택하도록 함
+          this.$confirm({
+            title: '할당 해제할 VM 선택',
+            content: '이 HBA 디바이스는 여러 VM에 할당되어 있습니다. 해제할 VM을 선택해주세요.',
+            onOk: () => {
+              // 여기서는 간단히 첫 번째 할당을 해제하도록 함
+              // 실제로는 드롭다운이나 선택 UI가 필요할 수 있음
+              targetVmId = allocations[0].vmId
+            },
+            onCancel: () => {
+              this.loading = false
+            }
+          })
+        }
+
+        if (!targetVmId) {
+          this.loading = false
+          return
+        }
+
+        // 3. 할당 해제 확인 및 실행
         const vmName = this.vmNames[record.hostDevicesName] || 'Unknown VM'
         this.$confirm({
           title: `${vmName} ${this.$t('message.delete.device.allocation')}`,
           content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
           onOk: async () => {
-            // 물리 HBA 할당 해제용 XML 생성 (libvirt hostdev 형식)
             const xmlConfig = this.generateHbaDeallocationXmlConfig(record.hostDevicesName)
             const detachResponse = await api('updateHostHbaDevices', {
               hostid: this.resource.id,
               hostdevicesname: record.hostDevicesName,
               virtualmachineid: null,
-              currentVmId: vmId,
+              currentvmid: targetVmId,
               xmlconfig: xmlConfig
             })
             if (!detachResponse || detachResponse.error) {
               throw new Error(detachResponse?.error?.errortext || 'Failed to detach HBA device')
             }
 
-            // 현재 디바이스만 업데이트
+            // UI 상태 업데이트 (해당 VM의 할당만 제거)
             this.dataItems = this.dataItems.map(item =>
-              item.hostDevicesName === record.hostDevicesName
-                ? { ...item, virtualmachineid: null, vmName: '', isAssigned: false }
+              item.hostDevicesName === record.hostDevicesName && item.virtualmachineid === targetVmId
+                ? { ...item, virtualmachineid: null, vmName: null, isAssigned: false }
                 : item
             )
 
             this.$message.success(this.$t('message.success.remove.allocation'))
 
-            // 해당 물리 HBA의 vHBA 리스트 새로고침
             if (record.parentHba) {
-              // 캐시된 데이터 삭제
               delete this.vhbaDevicesData[record.parentHba]
-              // vHBA 리스트 다시 조회
               const parentHbaRecord = this.dataItems.find(item =>
                 item.hostDevicesName === record.parentHba
               )
@@ -2234,9 +3104,7 @@ export default {
             }
 
             this.vmNames = {}
-            // 전체 HBA 디바이스 목록 새로고침
             await this.fetchHbaDevices()
-            // vHBA 카운터 업데이트를 위해 강제로 computed 속성 재계산
             this.$nextTick(() => {
               this.$forceUpdate()
             })
@@ -2253,7 +3121,6 @@ export default {
       }
     },
     openHbaModal (record) {
-      // 원본 디바이스명 사용 (API 호출용)
       const hostDevicesName = record.hostDevicesName
       this.selectedResource = { ...this.resource, hostDevicesName: hostDevicesName }
       this.showAddModal = true
@@ -2279,7 +3146,6 @@ export default {
       `.trim()
     },
     isVhbaDevice (record) {
-      // deviceType 속성을 우선적으로 확인
       if (record.deviceType === 'virtual') {
         return true
       }
@@ -2287,7 +3153,6 @@ export default {
         return false
       }
 
-      // isVhba 플래그 확인
       if (record.isVhba === true) {
         return true
       }
@@ -2295,7 +3160,6 @@ export default {
         return false
       }
 
-      // 이름이나 텍스트에서 vHBA 관련 키워드 확인 (마지막 수단)
       const deviceName = record.hostDevicesName || ''
       const deviceText = record.hostDevicesText || ''
 
@@ -2312,7 +3176,6 @@ export default {
           onOk: async () => {
             this.loading = true
 
-            // WWNN 값 추출
             let wwnn = null
             if (record.hostDevicesText) {
               const wwnnMatch = record.hostDevicesText.match(/WWNN:\s*([0-9A-Fa-f]{16})/i)
@@ -2321,7 +3184,6 @@ export default {
               }
             }
 
-            // WWNN 기반으로 삭제 API 호출
             const params = {
               hostid: this.numericHostId
             }
@@ -2337,11 +3199,8 @@ export default {
             if (response && !response.error) {
               this.$message.success(this.$t('message.success.delete.vhba'))
 
-              // 해당 물리 HBA의 vHBA 리스트 새로고침
               if (record.parentHba) {
-                // 캐시된 데이터 삭제
                 delete this.vhbaDevicesData[record.parentHba]
-                // vHBA 리스트 다시 조회
                 const parentHbaRecord = this.dataItems.find(item =>
                   item.hostDevicesName === record.parentHba
                 )
@@ -2350,9 +3209,7 @@ export default {
                 }
               }
 
-              // 전체 HBA 디바이스 목록 새로고침
               await this.fetchHbaDevices()
-              // vHBA 카운터 업데이트를 위해 강제로 computed 속성 재계산
               this.$nextTick(() => {
                 this.$forceUpdate()
               })
@@ -2376,8 +3233,6 @@ export default {
       try {
         this.vhbaCreating = true
 
-        // vHBA 이름 생성 (virsh nodedev-create 명령에서 사용할 XML 파일명)
-        // 예: vhba_host3 (parenthbaname이 scsi_host3인 경우)
         const parentHbaName = record.hostDevicesName
         const vhbaName = `vhba_${parentHbaName.replace(/[^a-zA-Z0-9]/g, '_')}`
 
@@ -2412,26 +3267,22 @@ export default {
       try {
         this.vhbaCreating = true
 
-        // 물리 HBA에서 WWNN/WWPN 값 추출
         let wwnn = ''
         let wwpn = ''
 
         if (this.selectedHbaDevice && this.selectedHbaDevice.hostDevicesText) {
           const hbaText = this.selectedHbaDevice.hostDevicesText
 
-          // WWNN 추출 (16자리 16진수)
           const wwnnMatch = hbaText.match(/WWNN:\s*([0-9A-Fa-f]{16})/i)
           if (wwnnMatch) {
             wwnn = wwnnMatch[1]
           }
 
-          // WWPN 추출 (16자리 16진수)
           const wwpnMatch = hbaText.match(/WWPN:\s*([0-9A-Fa-f]{16})/i)
           if (wwpnMatch) {
             wwpn = wwpnMatch[1]
           }
 
-          // WWNN/WWPN이 추출되지 않으면 다른 패턴 시도
           if (!wwnn) {
             const wwnnMatch2 = hbaText.match(/([0-9A-Fa-f]{16})/g)
             if (wwnnMatch2 && wwnnMatch2.length > 0) {
@@ -2447,26 +3298,22 @@ export default {
           }
         }
 
-        // 기본 XML 생성 (백엔드에서 dumpxml에서 WWNN 추출)
         const xmlContent = this.generateBasicVhbaXml(
           this.selectedHbaDevice.hostDevicesName
         )
 
-        // API 호출 파라미터 준비
         const params = {
           hostid: this.resource.id,
           parenthbaname: this.selectedHbaDevice.hostDevicesName,
           vhbaname: `vhba_${this.selectedHbaDevice.hostDevicesName.replace(/[^a-zA-Z0-9]/g, '_')}`,
-          wwnn: wwnn, // 추출된 WWNN 값 (참고용)
-          wwpn: wwpn, // 추출된 WWPN 값 (참고용)
+          wwnn: wwnn,
+          wwpn: wwpn,
           xmlconfig: xmlContent
         }
 
-        // createVhbaDevice API 호출
         const response = await api('createVhbaDevice', params)
 
         if (response && !response.error) {
-          // 실제 생성된 vHBA 이름(예: scsi_host5) 추출
           const realVhbaName = response.result || response.createdDeviceName || response.data || response.vhbaName
           if (realVhbaName) {
             this.$message.success(`${this.$t('message.success.create.vhba')} (${realVhbaName})`)
@@ -2475,16 +3322,13 @@ export default {
           }
           this.closeVhbaCreateModal()
 
-          // 즉시 vHBA 개수 업데이트를 위해 현재 데이터에 새 vHBA 추가
           if (this.selectedHbaDevice) {
             const parentHbaName = this.selectedHbaDevice.hostDevicesName
 
-            // 기존 vHBA 데이터가 없으면 초기화
             if (!this.vhbaDevicesData[parentHbaName]) {
               this.vhbaDevicesData[parentHbaName] = []
             }
 
-            // 새로 생성된 vHBA를 데이터에 추가
             const newVhbaDevice = {
               key: `vhba-${parentHbaName}-${Date.now()}`,
               hostDevicesName: realVhbaName || `vhba_${parentHbaName.replace(/[^a-zA-Z0-9]/g, '_')}`,
@@ -2505,22 +3349,18 @@ export default {
 
             this.vhbaDevicesData[parentHbaName].push(newVhbaDevice)
 
-            // 해당 물리 HBA가 펼쳐져 있지 않으면 펼치기
             if (!this.expandedVhbaDevices[parentHbaName]) {
               this.expandedVhbaDevices[parentHbaName] = true
             }
 
-            // 즉시 UI 업데이트를 위한 강제 리렌더링
             this.$nextTick(() => {
               this.$forceUpdate()
-              // 추가로 한 번 더 강제 업데이트
               setTimeout(() => {
                 this.$forceUpdate()
               }, 50)
             })
           }
 
-          // 백그라운드에서 전체 데이터 새로고침 (사용자 경험을 위해 지연)
           setTimeout(async () => {
             await this.fetchHbaDevices()
           }, 500)
@@ -2539,7 +3379,6 @@ export default {
       }
     },
 
-    // vHBA 디바이스 목록 조회 (listVhbaDevices API)
     async fetchVhbaDevices () {
       try {
         const response = await api('listVhbaDevices', { hostid: this.resource.id })
@@ -2550,7 +3389,6 @@ export default {
       }
     },
 
-    // 기본 vHBA XML 생성 메서드 (백엔드에서 dumpxml에서 WWNN 추출)
     generateBasicVhbaXml (parentHbaName) {
       const xml = `<device>
   <parent>${parentHbaName}</parent>
@@ -2563,10 +3401,8 @@ export default {
       return xml
     },
 
-    // 물리 HBA 디바이스 정보 가져오기 (개선된 버전)
     async getHbaDeviceInfo (hbaDeviceName) {
       try {
-        // 물리 HBA의 상세 정보를 가져오기 위해 시스템 명령어 실행
         const response = await api('listHostHbaDevices', {
           id: this.resource.id
         })
@@ -2579,18 +3415,15 @@ export default {
           if (deviceIndex !== -1) {
             const deviceText = hbaData.hostdevicestext[deviceIndex]
 
-            // 다양한 패턴으로 WWPN/WWNN 추출 시도
             let wwpn = null
             let wwnn = null
 
-            // 1. 직접적인 WWPN/WWNN 패턴 (개선된 정규식)
             const wwpnMatch1 = deviceText.match(/wwpn[:\s]*([0-9A-Fa-f]{16})/i)
             const wwnnMatch1 = deviceText.match(/wwnn[:\s]*([0-9A-Fa-f]{16})/i)
 
             if (wwpnMatch1) wwpn = wwpnMatch1[1]
             if (wwnnMatch1) wwnn = wwnnMatch1[1]
 
-            // 2. port_name/node_name 패턴
             if (!wwpn) {
               const portNameMatch = deviceText.match(/port_name[:\s]*([0-9A-Fa-f]{16})/i)
               if (portNameMatch) wwpn = portNameMatch[1]
@@ -2601,25 +3434,19 @@ export default {
               if (nodeNameMatch) wwnn = nodeNameMatch[1]
             }
 
-            // 3. 일반적인 16자리 16진수 패턴 (마지막 수단)
             if (!wwpn || !wwnn) {
               const hexMatches = deviceText.match(/([0-9A-Fa-f]{16})/g)
               if (hexMatches && hexMatches.length > 0) {
                 if (!wwpn) {
-                  // 첫 번째 16자리 16진수를 WWPN으로 사용
                   wwpn = hexMatches[0]
                 }
                 if (!wwnn && hexMatches.length > 1) {
-                  // 두 번째 16자리 16진수를 WWNN으로 사용
                   wwnn = hexMatches[1]
                 }
               }
             }
 
-            // 4. 만약 여전히 찾지 못했다면, 기본값 사용 (테스트용)
             if (!wwpn || !wwnn) {
-              // 실제 환경에서는 이 값들이 백엔드에서 제공되어야 함
-              // 여기서는 테스트를 위해 기본값 사용
               if (!wwpn) wwpn = '10000000c9848140'
               if (!wwnn) wwnn = '20000000c9848140'
             }
@@ -2634,7 +3461,6 @@ export default {
           }
         }
 
-        // 기본 정보 반환
         return {
           name: hbaDeviceName,
           description: '',
@@ -2654,7 +3480,6 @@ export default {
       }
     },
 
-    // HBA XML 정보 가져오기 (시뮬레이션)
     async getHbaXmlInfo (hbaDeviceName) {
       return {
         wwpn: '10000000c9848140',
@@ -2691,7 +3516,10 @@ export default {
       }
       // 전체 HBA 디바이스 목록 새로고침
       this.fetchHbaDevices()
-      // vHBA 카운터 업데이트를 위해 강제로 computed 속성 재계산
+
+      // vHBA VM 이름도 업데이트
+      this.updateVhbaVmNames()
+
       this.$nextTick(() => {
         this.$forceUpdate()
       })
@@ -2721,11 +3549,10 @@ export default {
       }
       this.loading = true
       try {
-        // 1. vHBA 디바이스의 현재 할당 상태 확인
-        const response = await api('listHostHbaDevices', {
-          id: this.resource.id
+        const response = await api('listVhbaDevices', {
+          hostid: this.resource.id
         })
-        const devices = response.listhosthbadevicesresponse?.listhosthbadevices?.[0]
+        const devices = response.listvhbadevicesresponse?.listvhbadevices?.[0]
         const vmAllocations = devices?.vmallocations || {}
         const vmId = vmAllocations[record.hostDevicesName]
 
@@ -2733,7 +3560,6 @@ export default {
           throw new Error('No VM allocation found for this vHBA device')
         }
 
-        // 2. VM 정보 가져오기
         const vmResponse = await api('listVirtualMachines', {
           id: vmId,
           listall: true
@@ -2744,43 +3570,35 @@ export default {
           throw new Error('VM not found')
         }
 
-        // 3. 할당 해제 확인 및 실행
         const vmName = vm.name || vm.displayname || 'Unknown VM'
         this.$confirm({
           title: `${vmName} ${this.$t('message.delete.device.allocation')}`,
           content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
           onOk: async () => {
-            // vHBA 할당 해제용 XML 생성 (libvirt hostdev 형식)
             const xmlConfig = this.generateVhbaDeallocationXmlConfig(record.hostDevicesName)
 
-            // updateHostHbaDevices API 사용 (vHBA도 동일한 API 사용)
-            const detachResponse = await api('updateHostHbaDevices', {
+            const detachResponse = await api('updateHostVhbaDevices', {
               hostid: this.resource.id,
               hostdevicesname: record.hostDevicesName,
               virtualmachineid: null,
               currentvmid: vmId,
-              xmlconfig: xmlConfig,
-              isattach: false
+              xmlconfig: xmlConfig
             })
 
             if (!detachResponse || detachResponse.error) {
               throw new Error(detachResponse?.error?.errortext || 'Failed to detach vHBA device')
             }
 
-            // 현재 디바이스만 업데이트
             this.dataItems = this.dataItems.map(item =>
               item.hostDevicesName === record.hostDevicesName
-                ? { ...item, virtualmachineid: null, vmName: '', isAssigned: false }
+                ? { ...item, virtualmachineid: null, vmName: null, isAssigned: false }
                 : item
             )
 
             this.$message.success(this.$t('message.success.remove.allocation'))
 
-            // 해당 물리 HBA의 vHBA 리스트 새로고침
             if (record.parentHba) {
-              // 캐시된 데이터 삭제
               delete this.vhbaDevicesData[record.parentHba]
-              // vHBA 리스트 다시 조회
               const parentHbaRecord = this.dataItems.find(item =>
                 item.hostDevicesName === record.parentHba
               )
@@ -2790,9 +3608,7 @@ export default {
             }
 
             this.vmNames = {}
-            // 전체 HBA 디바이스 목록 새로고침
             await this.fetchHbaDevices()
-            // vHBA 카운터 업데이트를 위해 강제로 computed 속성 재계산
             this.$nextTick(() => {
               this.$forceUpdate()
             })
@@ -2811,12 +3627,11 @@ export default {
 
     // vHBA 해제용 XML 설정 생성
     generateVhbaDeallocationXmlConfig (vhbaDeviceName) {
-      // vHBA 해제용 XML 생성 (VM에서 분리할 때 사용)
-      // vHBA는 물리 HBA와 동일한 형식의 hostdev XML 사용
       return `
         <hostdev mode='subsystem' type='scsi' rawio='yes'>
           <source>
             <adapter name='${vhbaDeviceName}'/>
+            <address bus='0' target='0' unit='0'/>
           </source>
         </hostdev>
       `.trim()
@@ -2824,45 +3639,36 @@ export default {
 
     // 물리 HBA 할당 해제용 XML 설정 생성
     generateHbaDeallocationXmlConfig (hostDeviceName) {
-      // 물리 HBA 할당 해제용 XML 생성 (libvirt hostdev 형식)
-      // SCSI host adapter를 VM에서 분리할 때 사용
       return `
         <hostdev mode='subsystem' type='scsi' rawio='yes'>
           <source>
             <adapter name='${hostDeviceName}'/>
+            <address bus='0' target='0' unit='0'/>
           </source>
         </hostdev>
       `.trim()
     },
 
-    // vHBA 디바이스 정보 가져오기 (vHBA용)
     async getVhbaDeviceInfo (vhbaDeviceName) {
       try {
-        // vHBA 디바이스의 상세 정보를 가져오기 위해 시스템 명령어 실행
-        const response = await api('listHostHbaDevices', {
-          id: this.resource.id
+        const response = await api('listVhbaDevices', {
+          hostid: this.resource.id
         })
 
-        if (response.listhosthbadevicesresponse?.listhosthbadevices?.[0]) {
-          const hbaData = response.listhosthbadevicesresponse.listhosthbadevices[0]
-          const deviceIndex = hbaData.hostdevicesname.indexOf(vhbaDeviceName)
+        if (response.listvhbadevicesresponse?.listvhbadevices?.[0]) {
+          const vhbaData = response.listvhbadevicesresponse.listvhbadevices[0]
+          const deviceIndex = vhbaData.hostdevicesname?.indexOf(vhbaDeviceName)
 
           if (deviceIndex !== -1) {
-            const deviceText = hbaData.hostdevicestext[deviceIndex]
-
-            // vHBA 디바이스 텍스트에서 WWPN/WWNN 정보 추출 (개선된 정규식)
-            const wwpnMatch = deviceText.match(/wwpn[:\s]*([0-9A-Fa-f]{16})/i) ||
-                             deviceText.match(/port_name[:\s]*([0-9A-Fa-f]{16})/i) ||
-                             deviceText.match(/([0-9A-Fa-f]{16})/i)
-
-            const wwnnMatch = deviceText.match(/wwnn[:\s]*([0-9A-Fa-f]{16})/i) ||
-                             deviceText.match(/node_name[:\s]*([0-9A-Fa-f]{16})/i)
+            const deviceText = vhbaData.hostdevicestext?.[deviceIndex] || ''
+            const wwpn = vhbaData.wwpns?.[deviceIndex] || ''
+            const wwnn = vhbaData.wwnns?.[deviceIndex] || ''
 
             return {
               name: vhbaDeviceName,
               description: deviceText,
-              wwpn: wwpnMatch ? wwpnMatch[1] : null,
-              wwnn: wwnnMatch ? wwnnMatch[1] : null
+              wwpn: wwpn || null,
+              wwnn: wwnn || null
             }
           }
         }
@@ -2884,18 +3690,7 @@ export default {
         }
       }
     },
-    generateVhbaXmlConfig (vhbaName, wwpn, wwnn, parentHbaDevice) {
-      // vHBA XML 형식은 다음과 같아야 합니다:
-      // <device>
-      //   <name>vhba</name>
-      //   <parent wwnn='20000000c9848140' wwpn='10000000c9848140'/>
-      //   <capability type='scsi_host'>
-      //     <capability type='fc_host'>
-      //     </capability>
-      //   </capability>
-      // </device>
-
-      // 물리 HBA의 WWPN/WWNN이 필요합니다
+    generateVhbaXmlConfig (vhbaName, wwpn, wwnn) {
       if (!wwpn || !wwnn) {
         throw new Error('vHBA device must have WWPN and WWNN values')
       }
@@ -2949,12 +3744,10 @@ export default {
     async fetchVhbaListForHba (physicalHbaRecord) {
       const hbaName = physicalHbaRecord.hostDevicesName
 
-      // 이미 로딩 중이거나 데이터가 있으면 중복 호출 방지
       if (this.vhbaLoading[hbaName] || this.vhbaDevicesData[hbaName]) {
         return
       }
 
-      // Vue 3에서는 직접 할당 사용
       this.vhbaLoading[hbaName] = true
 
       try {
@@ -2975,31 +3768,126 @@ export default {
         }
 
         if (vhbaDevices.length > 0) {
-          // 해당 물리 HBA에 속한 vHBA만 필터링
-          const filteredVhbaDevices = vhbaDevices.filter(vhba => {
-            const parentHbaName = vhba.parenthbaname || vhba.parentHbaName
-            return parentHbaName === hbaName
-          })
+          let formattedVhbaDevices = []
 
-          // vHBA 디바이스들을 기존 데이터 형식에 맞게 변환
-          const formattedVhbaDevices = filteredVhbaDevices.map((vhba, index) => ({
-            key: `vhba-${hbaName}-${index}`,
-            hostDevicesName: vhba.vhbaname || vhba.name || vhba.hostdevicesname,
-            hostDevicesText: (vhba.description || vhba.hostdevicestext || `Virtual HBA: ${vhba.vhbaname || vhba.name}`).replace(/\n/g, '<br>'),
-            virtualmachineid: vhba.virtualmachineid || null,
-            vmName: vhba.vmname || '',
-            isAssigned: Boolean(vhba.virtualmachineid),
-            isPhysicalHba: false,
-            isVhba: true,
-            deviceType: 'virtual',
-            parentHba: hbaName,
-            indent: true,
-            isVhbaDevice: true,
-            wwnn: vhba.wwnn || '',
-            wwpn: vhba.wwpn || '',
-            status: vhba.status || 'Active'
-          }))
+          // 집계형 포맷: 단일 객체에 배열 필드들이 있는 경우 처리
+          const first = vhbaDevices[0]
+          const isAggregate = first && Array.isArray(first.hostdevicesname) && Array.isArray(first.parenthbanames)
+
+          if (isAggregate) {
+            const names = first.hostdevicesname || []
+            const texts = first.hostdevicestext || []
+            const types = first.devicetypes || []
+            const parents = first.parenthbanames || []
+            const allocations = first.vmallocations || {}
+
+            // 할당된 VM ID들을 수집
+            const allocatedVmIds = new Set()
+            names.forEach((name, idx) => {
+              const type = types[idx] || 'virtual'
+              const parent = parents[idx] || ''
+              if (type === 'virtual' && parent === hbaName) {
+                const vmId = allocations[name] || null
+                if (vmId) {
+                  allocatedVmIds.add(vmId)
+                }
+              }
+            })
+
+            // VM 이름들을 개별적으로 가져오기 (배치 조회 오류 방지)
+            const vmNamesMap = {}
+            if (allocatedVmIds.size > 0) {
+              const vmIdArray = Array.from(allocatedVmIds)
+              for (const vmId of vmIdArray) {
+                try {
+                  const vmResponse = await api('listVirtualMachines', {
+                    id: vmId,
+                    listall: true
+                  })
+                  const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+                  if (vm && vm.state !== 'Expunging') {
+                    vmNamesMap[vmId] = vm.name || vm.displayname
+                  }
+                } catch (error) {
+                  console.error(`Failed to fetch VM name for ID ${vmId}:`, error)
+                }
+              }
+
+              // 전역 vmNames에도 저장하여 다른 곳에서 재사용 가능하도록 함
+              names.forEach((name, idx) => {
+                const type = types[idx] || 'virtual'
+                const parent = parents[idx] || ''
+                if (type === 'virtual' && parent === hbaName) {
+                  const vmId = allocations[name] || null
+                  if (vmId && vmNamesMap[vmId]) {
+                    this.vmNames[name] = vmNamesMap[vmId]
+                  }
+                }
+              })
+            }
+
+            names.forEach((name, idx) => {
+              const type = types[idx] || 'virtual'
+              const parent = parents[idx] || ''
+              if (type === 'virtual' && parent === hbaName) {
+                const vmId = allocations[name] || null
+
+                let vmName = ''
+                if (vmId) {
+                  vmName = vmNamesMap[vmId] || ''
+                }
+
+                formattedVhbaDevices.push({
+                  key: `vhba-${hbaName}-${idx}`,
+                  hostDevicesName: name,
+                  hostDevicesText: String(texts[idx] || '').replace(/\n/g, '<br>'),
+                  virtualmachineid: vmId,
+                  vmName: vmName,
+                  isAssigned: Boolean(vmId),
+                  isPhysicalHba: false,
+                  isVhba: true,
+                  deviceType: 'virtual',
+                  parentHba: hbaName,
+                  indent: true,
+                  isVhbaDevice: true,
+                  wwnn: '',
+                  wwpn: '',
+                  status: 'Active'
+                })
+              }
+            })
+          } else {
+            // 객체 리스트 포맷 기존 처리
+            const filteredVhbaDevices = vhbaDevices.filter(vhba => {
+              const parentHbaName = vhba.parenthbaname || vhba.parentHbaName
+              return parentHbaName === hbaName
+            })
+
+            formattedVhbaDevices = filteredVhbaDevices.map((vhba, index) => ({
+              key: `vhba-${hbaName}-${index}`,
+              hostDevicesName: vhba.vhbaname || vhba.name || vhba.hostdevicesname,
+              hostDevicesText: (vhba.description || vhba.hostdevicestext || `Virtual HBA: ${vhba.vhbaname || vhba.name}`).replace(/\n/g, '<br>'),
+              virtualmachineid: vhba.virtualmachineid || null,
+              vmName: vhba.vmname || '',
+              isAssigned: Boolean(vhba.virtualmachineid),
+              isPhysicalHba: false,
+              isVhba: true,
+              deviceType: 'virtual',
+              parentHba: hbaName,
+              indent: true,
+              isVhbaDevice: true,
+              wwnn: vhba.wwnn || '',
+              wwpn: vhba.wwpn || '',
+              status: vhba.status || 'Active'
+            }))
+          }
+
           this.vhbaDevicesData[hbaName] = formattedVhbaDevices
+
+          // UI 즉시 업데이트
+          this.$nextTick(() => {
+            this.$forceUpdate()
+          })
         } else {
           this.vhbaDevicesData[hbaName] = []
         }
@@ -3015,19 +3903,15 @@ export default {
       }
     },
 
-    // HBA 디바이스 목록을 가져올 때 vHBA 데이터도 함께 처리
     getHbaDevicesWithVhba () {
       const result = []
 
       this.dataItems.forEach(item => {
-        // 물리 HBA 추가
         result.push(item)
 
-        // 해당 물리 HBA의 vHBA들이 펼쳐져 있으면 추가
         if (!this.isVhbaDevice(item) && this.expandedVhbaDevices[item.hostDevicesName]) {
           const vhbaDevices = this.vhbaDevicesData[item.hostDevicesName] || []
           result.push(...vhbaDevices)
-          // vHBA 개수 표시를 위한 요약 행 추가
           if (vhbaDevices.length > 0) {
             result.push({
               key: `summary-${item.hostDevicesName}`,
@@ -3051,14 +3935,52 @@ export default {
         if (response.listhostscsidevicesresponse?.listhostscsidevices?.[0]) {
           const scsiData = response.listhostscsidevicesresponse.listhostscsidevices[0]
           const vmAllocations = scsiData.vmallocations || {}
-          // VM 이름 매핑
           const vmNameMap = {}
           for (const name in vmAllocations) {
             const vmId = vmAllocations[name]
             if (vmId) {
-              const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
-              const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-              if (vm) vmNameMap[name] = vm.displayname || vm.name
+              try {
+                const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+                if (vm && vm.state !== 'Expunging') {
+                  vmNameMap[name] = vm.displayname || vm.name
+                } else {
+                  // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
+                  try {
+                    const xmlConfig = this.generateScsiXmlConfig(name)
+                    const updateResponse = await api('updateHostScsiDevices', {
+                      hostid: this.resource.id,
+                      hostdevicesname: name,
+                      virtualmachineid: null,
+                      currentvmid: vmId,
+                      xmlconfig: xmlConfig,
+                      isattach: false
+                    })
+
+                    if (!updateResponse || updateResponse.error) {
+                      console.error('Failed to update SCSI device:', name, updateResponse?.error)
+                    }
+                  } catch (error) {
+                    console.error('Failed to update SCSI device:', name, error)
+                  }
+                }
+              } catch (error) {
+                console.error('Error fetching VM for SCSI device:', name, error)
+                // VM 조회 실패 시에도 할당 해제 시도
+                try {
+                  const xmlConfig = this.generateScsiXmlConfig(name)
+                  await api('updateHostScsiDevices', {
+                    hostid: this.resource.id,
+                    hostdevicesname: name,
+                    virtualmachineid: null,
+                    currentvmid: vmId,
+                    xmlconfig: xmlConfig,
+                    isattach: false
+                  })
+                } catch (detachError) {
+                  console.error('Failed to detach SCSI device after VM fetch error:', name, detachError)
+                }
+              }
             }
           }
           this.vmNames = { ...this.vmNames, ...vmNameMap }
@@ -3071,9 +3993,7 @@ export default {
             isAssigned: Boolean(scsiData.vmallocations && scsiData.vmallocations[name])
           }))
 
-          // 다른 탭에서 할당된 디바이스 확인 (LUN 탭과의 중복 할당 방지)
           for (const device of scsiDevices) {
-            // SCSI 디바이스 텍스트에서 LUN 디바이스 찾기
             const deviceMatch = device.hostDevicesText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
 
             if (deviceMatch) {
@@ -3091,7 +4011,7 @@ export default {
                   const vmResponse = await api('listVirtualMachines', { id: allocatedVmId, listall: true })
                   const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
 
-                  if (vm) {
+                  if (vm && vm.state !== 'Expunging') {
                     device.allocatedInOtherTab = {
                       isAllocated: true,
                       vmName: vm.displayname || vm.name,
@@ -3101,6 +4021,27 @@ export default {
                     device.vmName = vm.displayname || vm.name
                     device.virtualmachineid = allocatedVmId
                     device.isAssigned = true
+                  } else {
+                    // VM이 Expunging 상태면 LUN 디바이스 할당도 해제
+                    try {
+                      const xmlConfig = this.generateXmlLunConfig(lunDevice)
+                      await api('updateHostLunDevices', {
+                        hostid: this.resource.id,
+                        hostdevicesname: lunDevice,
+                        virtualmachineid: null,
+                        xmlconfig: xmlConfig,
+                        isattach: false
+                      })
+                      console.log(`Automatically deallocated LUN device ${lunDevice} from expunging VM ${allocatedVmId}`)
+
+                      // UI 상태 업데이트: 할당 해제된 상태로 설정
+                      device.isAssigned = false
+                      device.virtualmachineid = null
+                      device.vmName = null
+                      device.allocatedInOtherTab = null
+                    } catch (error) {
+                      console.error(`Failed to deallocate LUN device ${lunDevice}:`, error)
+                    }
                   }
                 } else {
                   console.log(`LUN 디바이스 ${lunDevice}는 할당되지 않음`)
@@ -3154,10 +4095,8 @@ export default {
           vmName = record.allocatedInOtherTab.vmName
           isLunAllocated = record.allocatedInOtherTab.tabType === 'LUN'
 
-          // allocatedInOtherTab에 vmId가 없는 경우, 실제 API에서 확인
           if (!vmId) {
             if (isLunAllocated) {
-              // LUN 탭에서 할당 정보 확인
               const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
               const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
 
@@ -3249,12 +4188,10 @@ export default {
 
               this.$message.success(this.$t('message.success.remove.allocation'))
 
-              // 현재 탭만 새로고침 (SCSI 탭에서 해제한 경우 SCSI 탭만)
               await this.fetchScsiDevices()
 
               this.vmNames = {}
               this.$emit('device-allocated')
-              // allocation-completed 이벤트 제거 (탭 전환 방지)
               this.$emit('close-action')
             } catch (error) {
               console.error('디바이스 해제 중 오류:', error)
@@ -3275,10 +4212,8 @@ export default {
       }
     },
 
-    // 디바이스가 다른 탭에서 할당되었는지 확인하는 메서드
     async isDeviceAllocatedInOtherTab (record, currentTab) {
       try {
-        // 현재 탭이 아닌 다른 탭들의 할당 상태 확인
         const otherTabs = {
           3: 'listHostLunDevices', // LUN 탭
           5: 'listHostScsiDevices' // SCSI 탭
@@ -3295,10 +4230,8 @@ export default {
                          res?.listhostlundevices?.[0]
 
           if (devices?.vmallocations) {
-            // 디바이스 이름 매핑 확인
             const deviceName = record.hostDevicesName
 
-            // 직접 매칭 확인
             let allocatedVmId = devices.vmallocations[deviceName]
 
             if (!allocatedVmId && currentTab === '5' && tabKey === '3') {
@@ -3309,7 +4242,6 @@ export default {
                 const scsiIndex = scsiData.hostdevicesname.indexOf(deviceName)
                 if (scsiIndex !== -1) {
                   const scsiText = scsiData.hostdevicestext[scsiIndex]
-                  // Device: /dev/sdah 추출
                   const deviceMatch = scsiText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
                   if (deviceMatch) {
                     const blockDevice = deviceMatch[1]
@@ -3371,36 +4303,37 @@ export default {
     async fetchHostInfo () {
       const hostResponse = await api('listHosts', { id: this.resource.id })
       const host = hostResponse.listhostsresponse?.host?.[0]
-      this.numericHostId = host.id // 숫자 ID 저장
+      this.numericHostId = host.id
     },
     hasPartitionsFromText (hostDevicesText) {
-      // HAS_PARTITIONS: true/false 패턴 매칭
       const hasPartitionsMatch = hostDevicesText.match(/HAS_PARTITIONS:\s*(true|false)/i)
       if (hasPartitionsMatch) {
         return hasPartitionsMatch[1].toLowerCase() === 'true'
       }
 
-      // 기존 패턴도 지원
       return /has[\s_]?partitions\s*:\s*true/i.test(hostDevicesText)
     },
 
     isInUseFromText (hostDevicesText) {
-      // IN_USE: true/false 패턴 매칭
+      // 새로운 USAGE_STATUS 필드를 우선적으로 확인
+      const usageStatusMatch = hostDevicesText.match(/USAGE_STATUS:\s*(사용중|사용안함)/i)
+      if (usageStatusMatch) {
+        return usageStatusMatch[1] === '사용중'
+      }
+
+      // 기존 IN_USE 필드 확인
       const inUseMatch = hostDevicesText.match(/IN_USE:\s*(true|false)/i)
       if (inUseMatch) {
         return inUseMatch[1].toLowerCase() === 'true'
       }
 
-      // 기존 패턴도 지원
       return /in[\s_]?use\s*:\s*true/i.test(hostDevicesText)
     },
 
     isCephLvmVolume (deviceName) {
-      // Ceph OSD 블록 디바이스인지 확인
       return deviceName && deviceName.includes('ceph--') && deviceName.includes('--osd--block--')
     },
 
-    // HAS_PARTITIONS와 IN_USE를 라벨로 변경하는 함수
     formatHostDevicesText (text) {
       if (!text) return text
 
@@ -3409,6 +4342,11 @@ export default {
       formattedText = formattedText.replace(/HAS_PARTITIONS:\s*false/gi, this.$t('label.no.partitions'))
       formattedText = formattedText.replace(/HAS_PARTITIONS:\s*true/gi, this.$t('label.has.partitions'))
 
+      // 새로운 USAGE_STATUS 필드 처리
+      formattedText = formattedText.replace(/USAGE_STATUS:\s*사용안함/gi, '사용안함')
+      formattedText = formattedText.replace(/USAGE_STATUS:\s*사용중/gi, '사용중')
+
+      // 기존 IN_USE 필드 처리 (하위 호환성)
       formattedText = formattedText.replace(/IN_USE:\s*false/gi, this.$t('label.not.in.use'))
       formattedText = formattedText.replace(/IN_USE:\s*true/gi, this.$t('label.in.use'))
 

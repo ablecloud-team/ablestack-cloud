@@ -4892,5 +4892,6 @@
 "label.no.partitions": "No partitions",
 "label.has.partitions": "Has partitions",
 "label.not.in.use": "Not in use",
-"label.in.use": "In use"
+"label.in.use": "In use",
+"message.success.hba.device.allocated": "HBA device allocation completed"
 }

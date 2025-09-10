@@ -22,41 +22,61 @@ import com.cloud.serializer.Param;
 import com.google.gson.annotations.SerializedName;
 import org.apache.cloudstack.api.BaseResponse;
 import org.apache.cloudstack.api.EntityReference;
+import org.apache.cloudstack.api.ApiConstants;
+import java.util.List;
+import java.util.Map;
 
 @EntityReference(value = Host.class)
 public class ListVhbaDevicesResponse extends BaseResponse {
 
-    @SerializedName("vhbaname")
-    @Param(description = "vHBA device name")
-    private String vhbaName;
+    @SerializedName(ApiConstants.HOSTDEVICES_NAME)
+    @Param(description = "Allocated IP address")
+    private List<String> hostDevicesName;
+
+    @SerializedName(ApiConstants.HOSTDEVICES_TEXT)
+    @Param(description = "the ID of the pod the  IP address belongs to")
+    private List<String> hostDevicesText;
 
     @SerializedName("parenthbaname")
     @Param(description = "Parent HBA device name")
     private String parentHbaName;
 
-    @SerializedName("wwnn")
-    @Param(description = "World Wide Node Name")
-    private String wwnn;
+    @SerializedName("vmallocations")
+    @Param(description = "Map of device to VM allocations")
+    private Map<String, String> vmAllocations;
 
-    @SerializedName("wwpn")
-    @Param(description = "World Wide Port Name")
-    private String wwpn;
+    @SerializedName("devicetypes")
+    @Param(description = "List of device types (physical/virtual)")
+    private List<String> deviceTypes;
 
-    @SerializedName("description")
-    @Param(description = "vHBA device description")
-    private String description;
+    @SerializedName("parenthbanames")
+    @Param(description = "List of parent HBA names for vHBA devices")
+    private List<String> parentHbaNames;
 
-    @SerializedName("status")
-    @Param(description = "vHBA device status")
-    private String status;
+    @SerializedName("wwnns")
+    @Param(description = "List of World Wide Node Names")
+    private List<String> wwnns;
 
-    public ListVhbaDevicesResponse(String vhbaName, String parentHbaName, String wwnn, String wwpn, String description, String status) {
-        this.vhbaName = vhbaName;
+    @SerializedName("wwpns")
+    @Param(description = "List of World Wide Port Names")
+    private List<String> wwpns;
+
+    @SerializedName("descriptions")
+    @Param(description = "List of vHBA device descriptions")
+    private List<String> descriptions;
+
+    @SerializedName("statuses")
+    @Param(description = "List of vHBA device statuses")
+    private List<String> statuses;
+
+    public ListVhbaDevicesResponse(List<String> hostDevicesName, List<String> hostDevicesText, String parentHbaName, List<String> wwnns, List<String> wwpns, List<String> descriptions, List<String> statuses) {
+        this.hostDevicesName = hostDevicesName;
+        this.hostDevicesText = hostDevicesText;
         this.parentHbaName = parentHbaName;
-        this.wwnn = wwnn;
-        this.wwpn = wwpn;
-        this.description = description;
-        this.status = status;
+        this.wwnns = wwnns;
+        this.wwpns = wwpns;
+        this.descriptions = descriptions;
+        this.statuses = statuses;
     }
 
     public ListVhbaDevicesResponse() {
@@ -64,12 +84,19 @@ public class ListVhbaDevicesResponse extends BaseResponse {
         setObjectName("listvhbadevices");
     }
 
-    public String getVhbaName() {
-        return vhbaName;
+    public List<String> getHostDevicesNames() {
+        return hostDevicesName;
     }
 
-    public void setVhbaName(String vhbaName) {
-        this.vhbaName = vhbaName;
+    public List<String> getHostDevicesTexts() {
+        return hostDevicesText;
+    }
+    public void setHostDevicesNames(List<String> hostDevicesName) {
+        this.hostDevicesName = hostDevicesName;
+    }
+
+    public void setHostDevicesTexts(List<String> hostDevicesText) {
+        this.hostDevicesText = hostDevicesText;
     }
 
     public String getParentHbaName() {
@@ -80,35 +107,58 @@ public class ListVhbaDevicesResponse extends BaseResponse {
         this.parentHbaName = parentHbaName;
     }
 
-    public String getWwnn() {
-        return wwnn;
+    public List<String> getWwnns() {
+        return wwnns;
     }
 
-    public void setWwnn(String wwnn) {
-        this.wwnn = wwnn;
+    public void setWwnns(List<String> wwnns) {
+        this.wwnns = wwnns;
     }
 
-    public String getWwpn() {
-        return wwpn;
+    public List<String> getWwpns() {
+        return wwpns;
     }
 
-    public void setWwpn(String wwpn) {
-        this.wwpn = wwpn;
+    public void setWwpns(List<String> wwpns) {
+        this.wwpns = wwpns;
     }
 
-    public String getDescription() {
-        return description;
+    public List<String> getDescriptions() {
+        return descriptions;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setDescriptions(List<String> descriptions) {
+        this.descriptions = descriptions;
     }
 
-    public String getStatus() {
-        return status;
+    public List<String> getStatuses() {
+        return statuses;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setStatuses(List<String> statuses) {
+        this.statuses = statuses;
+    }
+
+    public void setVmAllocations(Map<String, String> vmAllocations) {
+        this.vmAllocations = vmAllocations;
+    }
+
+    public Map<String, String> getVmAllocations() {
+        return this.vmAllocations;
+    }
+
+    public void setDeviceTypes(List<String> deviceTypes) {
+        this.deviceTypes = deviceTypes;
+    }
+
+    public List<String> getDeviceTypes() {
+        return this.deviceTypes;
+    }
+    public void setParentHbaNames(List<String> parentHbaNames) {
+        this.parentHbaNames = parentHbaNames;
+    }
+
+    public List<String> getParentHbaNames() {
+        return this.parentHbaNames;
     }
 }

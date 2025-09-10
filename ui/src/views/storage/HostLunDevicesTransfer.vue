@@ -48,12 +48,6 @@
           <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
         </div>
       </a-form-item>
-      <a-alert
-        v-if="currentVmName"
-        type="info"
-        style="margin-bottom: 10px;"
-        :message="`${$t('label.current.allocated.vm')}: ${currentVmName}`"
-      />
     </a-form>
   </a-spin>
 </template>
@@ -107,7 +101,7 @@ export default {
     }
   },
   methods: {
-    refreshVMList () {
+    async refreshVMList () {
       if (!this.resource || !this.resource.id) {
         this.loading = false
         return Promise.reject(new Error('Invalid resource'))
@@ -117,64 +111,99 @@ export default {
       const params = { hostid: this.resource.id, details: 'all', listall: true }
       const vmStates = ['Running']
 
-      return Promise.all([
-        // 실행 중인 VM 목록 가져오기
-        Promise.all(vmStates.map(state => {
-          return api('listVirtualMachines', { ...params, state })
-            .then(vmResponse => {
-              const vms = vmResponse.listvirtualmachinesresponse?.virtualmachine || []
-              return vms.map(vm => ({
-                ...vm,
-                instanceId: vm.instancename ? vm.instancename.split('-')[2] : null
-              }))
-            })
-        })),
-        // 현재 LUN 디바이스 할당 상태 가져오기
-        api('listHostLunDevices', { id: this.resource.id })
-      ]).then(([vmArrays, lunResponse]) => {
+      try {
+        const [vmArrays, lunResponse] = await Promise.all([
+          // 실행 중인 VM 목록 가져오기
+          Promise.all(vmStates.map(state => {
+            return api('listVirtualMachines', { ...params, state })
+              .then(vmResponse => {
+                const vms = vmResponse.listvirtualmachinesresponse?.virtualmachine || []
+                return vms.map(vm => ({
+                  ...vm,
+                  instanceId: vm.instancename ? vm.instancename.split('-')[2] : null
+                }))
+              })
+          })),
+          // 현재 LUN 디바이스 할당 상태 가져오기
+          api('listHostLunDevices', { id: this.resource.id })
+        ])
+
         const vms = vmArrays.flat()
         const lunDevices = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
         const allocatedVmIds = new Set()
 
-        // 모든 LUN 디바이스에 할당된 VM ID 수집
+        // 모든 LUN 디바이스에 할당된 VM ID 수집 (다중 할당 허용하므로 모든 할당 유지)
         if (lunDevices?.vmallocations) {
-          Object.values(lunDevices.vmallocations).forEach(vmId => {
+          for (const [deviceName, vmId] of Object.entries(lunDevices.vmallocations)) {
             if (vmId) {
-              allocatedVmIds.add(vmId.toString())
-            }
-          })
-        }
+              try {
+                // VM이 실제로 존재하는지 확인
+                const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
 
-        // 현재 디바이스에 할당된 VM ID가 있다면 제외
-        if (this.resource.hostDevicesName && lunDevices?.vmallocations) {
-          const currentVmId = lunDevices.vmallocations[this.resource.hostDevicesName]
-          if (currentVmId) {
-            allocatedVmIds.delete(currentVmId.toString())
+                if (vm && vm.state !== 'Expunging') {
+                  allocatedVmIds.add(vmId.toString())
+                } else {
+                  // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
+                  try {
+                    const xmlConfig = this.generateXmlConfig(deviceName)
+                    await api('updateHostLunDevices', {
+                      hostid: this.resource.id,
+                      hostdevicesname: deviceName,
+                      virtualmachineid: null,
+                      xmlconfig: xmlConfig,
+                      isattach: false
+                    })
+                    console.log(`Automatically deallocated LUN device ${deviceName} from deleted/expunging VM ${vmId}`)
+                  } catch (error) {
+                    console.error(`Failed to automatically deallocate LUN device ${deviceName}:`, error)
+                  }
+                }
+              } catch (error) {
+                console.error(`Error checking VM ${vmId} for device ${deviceName}:`, error)
+                // VM 조회 실패 시에도 할당 해제 시도
+                try {
+                  const xmlConfig = this.generateXmlConfig(deviceName)
+                  await api('updateHostLunDevices', {
+                    hostid: this.resource.id,
+                    hostdevicesname: deviceName,
+                    virtualmachineid: null,
+                    xmlconfig: xmlConfig,
+                    isattach: false
+                  })
+                  console.log(`Automatically deallocated LUN device ${deviceName} after VM check error`)
+                } catch (detachError) {
+                  console.error(`Failed to automatically deallocate LUN device ${deviceName} after error:`, detachError)
+                }
+              }
+            }
           }
         }
 
-        // 할당되지 않은 VM만 필터링
-        return Promise.all(vms
-          .filter(vm => !allocatedVmIds.has(vm.instanceId?.toString()))
-          .map(vm => {
-            return api('listVirtualMachines', {
-              id: vm.id,
-              details: 'all'
-            }).then(detailResponse => {
-              const detailedVm = detailResponse.listvirtualmachinesresponse.virtualmachine[0]
-              return {
-                ...detailedVm,
-                instanceId: vm.instanceId
-              }
-            })
-          }))
-      }).then(detailedVms => {
+        // 현재 디바이스에 할당된 VM ID는 제외하지 않음 (다중 할당 허용)
+        // 모든 VM을 표시하되, 할당된 VM은 별도 표시
+
+        // 모든 VM을 표시 (할당된 VM도 포함)
+        const detailedVms = await Promise.all(vms.map(vm => {
+          return api('listVirtualMachines', {
+            id: vm.id,
+            details: 'all'
+          }).then(detailResponse => {
+            const detailedVm = detailResponse.listvirtualmachinesresponse.virtualmachine[0]
+            return {
+              ...detailedVm,
+              instanceId: vm.instanceId,
+              isAllocated: allocatedVmIds.has(vm.instanceId?.toString())
+            }
+          })
+        }))
+
         this.virtualmachines = detailedVms
-      }).catch(error => {
+      } catch (error) {
         this.$notifyError(error.message || 'Failed to fetch VMs')
-      }).finally(() => {
+      } finally {
         this.loading = false
-      })
+      }
     },
 
     fetchVMs () {
@@ -196,7 +225,7 @@ export default {
 
       this.loading = true
       try {
-        const xmlConfig = await this.generateXmlConfig()
+        const xmlConfig = this.generateXmlConfig()
 
         await api('updateHostLunDevices', {
           hostid: this.resource.id,
@@ -263,116 +292,25 @@ export default {
       }
     },
 
-    // SCSI 주소 추출 메서드
-    async extractScsiAddress (devicePath) {
-      // SCSI 주소 정보가 resource에 포함되어 있다면 사용
-      if (this.resource.scsiAddress) {
-        console.log('Using resource.scsiAddress:', this.resource.scsiAddress)
-        return this.parseScsiAddress(this.resource.scsiAddress)
-      }
+    generateXmlConfig (devicePath) {
+      // devicePath가 제공되지 않은 경우 resource에서 가져오기
+      const targetDevicePath = devicePath || this.resource.hostDevicesName
 
-      // 디바이스 텍스트에서 SCSI 주소 추출
-      if (this.resource.hostDevicesText) {
-        console.log('Searching in hostDevicesText:', this.resource.hostDevicesText)
-        const scsiMatch = this.resource.hostDevicesText.match(/SCSI_ADDRESS:\s*([0-9]+:[0-9]+:[0-9]+:[0-9]+)/i)
-        if (scsiMatch) {
-          console.log('Found SCSI address in hostDevicesText:', scsiMatch[1])
-          return this.parseScsiAddress(scsiMatch[1])
-        }
-      }
-
-      // 백엔드에서 LUN 디바이스 정보를 다시 조회하여 SCSI 주소 가져오기
-      try {
-        const response = await api('listHostLunDevices', { id: this.resource.id })
-        const lunDevices = response.listhostlundevicesresponse?.listhostlundevices?.[0]
-
-        if (lunDevices && lunDevices.hostdevicesname && lunDevices.hostdevicestext) {
-          const deviceIndex = lunDevices.hostdevicesname.indexOf(devicePath)
-          if (deviceIndex !== -1 && lunDevices.hostdevicestext[deviceIndex]) {
-            const deviceText = lunDevices.hostdevicestext[deviceIndex]
-
-            const scsiMatch = deviceText.match(/SCSI_ADDRESS:\s*([0-9]+:[0-9]+:[0-9]+:[0-9]+)/i)
-            if (scsiMatch) {
-              return this.parseScsiAddress(scsiMatch[1])
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching LUN devices:', error)
-      }
-
-      // 기본값 반환
-      return { bus: '0', target: '0', unit: '0' }
-    },
-
-    // SCSI 주소 파싱
-    parseScsiAddress (scsiAddress) {
-      const parts = scsiAddress.split(':')
-
-      if (parts.length >= 4) {
-        const result = {
-          host: parts[0],
-          bus: parts[1] || '0',
-          target: parts[2] || '0',
-          unit: parts[3] || '0'
-        }
-        return result
-      }
-
-      return { bus: '0', target: '0', unit: '0' }
-    },
-
-    async generateXmlConfig () {
+      // 디바이스 이름에서 target 디바이스 이름 추출
       let targetDev = 'sdc'
-
-      // multipath 장치인지 확인
-      const isMultipath = this.resource.hostDevicesName.startsWith('/dev/mapper/')
-
-      if (isMultipath) {
-        // multipath 장치의 경우 dm-* 이름을 사용
-        const match = this.resource.hostDevicesName.match(/\/dev\/mapper\/(dm-\d+)$/)
-        if (match) {
-          targetDev = match[1] // dm-10, dm-11 등
-        } else {
-          // fallback: mpatha, mpathb 등
-          const mpathMatch = this.resource.hostDevicesName.match(/\/dev\/mapper\/(mpath[a-z]+)$/)
-          if (mpathMatch) {
-            targetDev = mpathMatch[1]
-          }
-        }
-      } else {
-        // 일반 블록 디바이스의 경우
-        const match = this.resource.hostDevicesName.match(/\/dev\/([a-z]+[a-z0-9]*)$/)
-        if (match) {
-          targetDev = match[1]
-        }
+      const match = targetDevicePath.match(/\/dev\/([a-z]+[a-z0-9]*)$/)
+      if (match) {
+        targetDev = match[1]
       }
 
-      // SCSI 주소 추출
-      const scsiAddress = await this.extractScsiAddress(this.resource.hostDevicesName)
-
-      // multipath 장치인 경우와 일반 디바이스인 경우를 구분하여 XML 생성
-      if (isMultipath) {
-        // multipath 장치용 XML - SCSI address 없이
-        return `
-          <disk type='block' device='lun'>
-            <driver name='qemu' type='raw'/>
-            <source dev='${this.resource.hostDevicesName}'/>
-            <target dev='${targetDev}' bus='scsi'/>
-            <serial>multipath-${targetDev}</serial>
-          </disk>
-        `.trim()
-      } else {
-        // 일반 블록 디바이스용 XML - SCSI address 포함
-        return `
-          <disk type='block' device='lun'>
-            <driver name='qemu' type='raw'/>
-            <source dev='${this.resource.hostDevicesName}'/>
-            <target dev='${targetDev}' bus='scsi'/>
-            <address type='drive' controller='0' bus='${scsiAddress.bus}' target='${scsiAddress.target}' unit='${scsiAddress.unit}'/>
-          </disk>
-        `.trim()
-      }
+      // 표준 LUN 디바이스 XML 설정 (address 없이)
+      return `
+        <disk type='block' device='lun'>
+          <driver name='qemu' type='raw'/>
+          <source dev='${targetDevicePath}'/>
+          <target dev='${targetDev}' bus='scsi'/>
+        </disk>
+      `.trim()
     },
 
     closeAction () {

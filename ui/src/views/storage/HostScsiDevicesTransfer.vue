@@ -85,7 +85,7 @@ export default {
     }
   },
   methods: {
-    refreshVMList () {
+    async refreshVMList () {
       if (!this.resource || !this.resource.id) {
         this.loading = false
         return Promise.reject(new Error('Invalid resource'))
@@ -95,49 +95,90 @@ export default {
       const params = { hostid: this.resource.id, details: 'all', listall: true }
       const vmStates = ['Running']
 
-      return Promise.all([
-        // 실행 중인 VM 목록 가져오기
-        Promise.all(vmStates.map(state => {
-          return api('listVirtualMachines', { ...params, state })
-            .then(vmResponse => {
-              const vms = vmResponse.listvirtualmachinesresponse?.virtualmachine || []
-              return vms.map(vm => ({
-                ...vm,
-                instanceId: vm.instancename ? vm.instancename.split('-')[2] : null
-              }))
-            })
-        })),
-        // 현재 SCSI 디바이스 할당 상태 가져오기
-        api('listHostScsiDevices', { id: this.resource.id })
-      ]).then(([vmArrays, scsiResponse]) => {
+      try {
+        const [vmArrays, scsiResponse] = await Promise.all([
+          // 실행 중인 VM 목록 가져오기
+          Promise.all(vmStates.map(state => {
+            return api('listVirtualMachines', { ...params, state })
+              .then(vmResponse => {
+                const vms = vmResponse.listvirtualmachinesresponse?.virtualmachine || []
+                return vms.map(vm => ({
+                  ...vm,
+                  instanceId: vm.instancename ? vm.instancename.split('-')[2] : null
+                }))
+              })
+          })),
+          // 현재 SCSI 디바이스 할당 상태 가져오기
+          api('listHostScsiDevices', { id: this.resource.id })
+        ])
+
         const vms = vmArrays.flat()
         const scsiDevices = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
         const allocatedVmIds = new Set()
 
-        // 모든 SCSI 디바이스에 할당된 VM ID 수집
+        // 모든 SCSI 디바이스에 할당된 VM ID 수집 (다중 할당 허용하므로 모든 할당 유지)
         if (scsiDevices?.vmallocations) {
-          Object.values(scsiDevices.vmallocations).forEach(vmId => {
+          for (const [deviceName, vmId] of Object.entries(scsiDevices.vmallocations)) {
             if (vmId) {
-              allocatedVmIds.add(vmId.toString())
-            }
-          })
-        }
+              try {
+                // VM이 실제로 존재하는지 확인
+                const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
 
-        // 현재 디바이스에 할당된 VM ID가 있다면 제외
-        if (this.resource.hostDevicesName && scsiDevices?.vmallocations) {
-          const currentVmId = scsiDevices.vmallocations[this.resource.hostDevicesName]
-          if (currentVmId) {
-            allocatedVmIds.delete(currentVmId.toString())
+                if (vm && vm.state !== 'Expunging') {
+                  allocatedVmIds.add(vmId.toString())
+                } else {
+                  // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
+                  try {
+                    const xmlConfig = this.generateXmlConfig(deviceName, '')
+                    await api('updateHostScsiDevices', {
+                      hostid: this.resource.id,
+                      hostdevicesname: deviceName,
+                      virtualmachineid: null,
+                      currentvmid: vmId,
+                      xmlconfig: xmlConfig,
+                      isattach: false
+                    })
+                    console.log(`Automatically deallocated SCSI device ${deviceName} from deleted/expunging VM ${vmId}`)
+                  } catch (error) {
+                    console.error(`Failed to automatically deallocate SCSI device ${deviceName}:`, error)
+                  }
+                }
+              } catch (error) {
+                console.error(`Error checking VM ${vmId} for device ${deviceName}:`, error)
+                // VM 조회 실패 시에도 할당 해제 시도
+                try {
+                  const xmlConfig = this.generateXmlConfig(deviceName, '')
+                  await api('updateHostScsiDevices', {
+                    hostid: this.resource.id,
+                    hostdevicesname: deviceName,
+                    virtualmachineid: null,
+                    currentvmid: vmId,
+                    xmlconfig: xmlConfig,
+                    isattach: false
+                  })
+                  console.log(`Automatically deallocated SCSI device ${deviceName} after VM check error`)
+                } catch (detachError) {
+                  console.error(`Failed to automatically deallocate SCSI device ${deviceName} after error:`, detachError)
+                }
+              }
+            }
           }
         }
 
-        // 할당되지 않은 VM만 필터링
-        this.virtualmachines = vms.filter(vm => !allocatedVmIds.has(vm.instanceId?.toString()))
-      }).catch(error => {
+        // 현재 디바이스에 할당된 VM ID는 제외하지 않음 (다중 할당 허용)
+        // 모든 VM을 표시하되, 할당된 VM은 별도 표시
+
+        // 모든 VM을 표시 (할당된 VM도 포함)
+        this.virtualmachines = vms.map(vm => ({
+          ...vm,
+          isAllocated: allocatedVmIds.has(vm.instanceId?.toString())
+        }))
+      } catch (error) {
         this.$notifyError(error.message || 'Failed to fetch VMs')
-      }).finally(() => {
+      } finally {
         this.loading = false
-      })
+      }
     },
 
     fetchVMs () {

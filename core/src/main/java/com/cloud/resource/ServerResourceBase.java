@@ -66,13 +66,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.cloudstack.storage.command.browser.ListDataStoreObjectsAnswer;
 import org.apache.cloudstack.storage.command.browser.ListRbdObjectsAnswer;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import javax.naming.ConfigurationException;
 
 public abstract class ServerResourceBase implements ServerResource {
     protected Logger logger = LogManager.getLogger(getClass());
@@ -277,9 +272,11 @@ public abstract class ServerResourceBase implements ServerResource {
             }
             deviceInfo.append("\nHAS_PARTITIONS: ").append(hasPartition ? "true" : "false");
 
-            // 추가 정보: 디바이스가 사용 중인지 여부
+            // 추가 정보: 디바이스가 사용 중인지 여부 (동적 확인)
             boolean isInUse = isDeviceInUse(name);
+            String usageStatus = isInUse ? "사용중" : "사용안함";
             deviceInfo.append("\nIN_USE: ").append(isInUse ? "true" : "false");
+            deviceInfo.append("\nUSAGE_STATUS: ").append(usageStatus);
 
             // SCSI 주소 정보 추가
             String scsiAddress = getScsiAddress(name);
@@ -547,9 +544,11 @@ public abstract class ServerResourceBase implements ServerResource {
 
                             deviceInfo.append("\nHAS_PARTITIONS: false");
 
-                            // 사용 중인지 여부 확인
+                            // 사용 중인지 여부 확인 (동적 확인)
                             boolean isInUse = isDeviceInUse(devicePath);
+                            String usageStatus = isInUse ? "사용중" : "사용안함";
                             deviceInfo.append("\nIN_USE: ").append(isInUse ? "true" : "false");
+                            deviceInfo.append("\nUSAGE_STATUS: ").append(usageStatus);
 
                             // SCSI 주소 정보 추가
                             String scsiAddress = getScsiAddress(devicePath);
@@ -831,49 +830,93 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // 디바이스가 사용 중인지 확인하는 메서드
+    // 디바이스가 사용 중인지 확인하는 메서드 (LUN 디바이스용)
     private boolean isDeviceInUse(String deviceName) {
         try {
-            // 1. 마운트 포인트 확인
+            // 1. VM 할당 상태 확인 (가장 중요)
+            if (isLunDeviceAllocatedToVm(deviceName)) {
+                logger.debug("LUN 디바이스가 VM에 할당됨: " + deviceName);
+                return true;
+            }
+
+            // 2. 마운트 포인트 확인
             Script mountCommand = new Script("/bin/bash");
             mountCommand.add("-c");
             mountCommand.add("mount | grep -q '" + deviceName + "'");
             String mountResult = mountCommand.execute(null);
             if (mountResult == null) {
+                logger.debug("LUN 디바이스가 마운트됨: " + deviceName);
                 return true; // 마운트되어 있음
             }
 
-            // 2. LVM 사용 확인
+            // 3. LVM 사용 확인
             Script lvmCommand = new Script("/bin/bash");
             lvmCommand.add("-c");
             lvmCommand.add("lvs --noheadings -o lv_name,vg_name 2>/dev/null | grep -q '" + deviceName + "'");
             String lvmResult = lvmCommand.execute(null);
             if (lvmResult == null) {
+                logger.debug("LUN 디바이스가 LVM에서 사용 중: " + deviceName);
                 return true; // LVM에서 사용 중
             }
 
-            // 3. 스왑 확인
+            // 4. 스왑 확인
             Script swapCommand = new Script("/bin/bash");
             swapCommand.add("-c");
             swapCommand.add("swapon --show | grep -q '" + deviceName + "'");
             String swapResult = swapCommand.execute(null);
             if (swapResult == null) {
+                logger.debug("LUN 디바이스가 스왑으로 사용 중: " + deviceName);
                 return true; // 스왑으로 사용 중
             }
 
-            // 4. 파티션 테이블 확인
+            // 5. 파티션 테이블 확인
             Script partCommand = new Script("/bin/bash");
             partCommand.add("-c");
             partCommand.add("fdisk -l " + deviceName + " 2>/dev/null | grep -q 'Disklabel type:'");
             String partResult = partCommand.execute(null);
             if (partResult == null) {
+                logger.debug("LUN 디바이스에 파티션 테이블 존재: " + deviceName);
                 return true; // 파티션 테이블이 있음
             }
 
+            logger.debug("LUN 디바이스 사용 안함: " + deviceName);
             return false; // 사용되지 않음
         } catch (Exception e) {
             logger.debug("디바이스 사용 여부 확인 중 오류: " + e.getMessage());
             return true; // 오류 시 안전하게 사용 중으로 간주
+        }
+    }
+
+    // LUN 디바이스가 VM에 할당되어 있는지 확인하는 메서드
+    private boolean isLunDeviceAllocatedToVm(String deviceName) {
+        try {
+            // virsh list --all로 모든 VM 조회
+            Script listCommand = new Script("/bin/bash");
+            listCommand.add("-c");
+            listCommand.add("virsh list --all | grep -v 'Id' | grep -v '^-' | while read line; do " +
+                           "vm_id=$(echo $line | awk '{print $1}'); " +
+                           "if [ ! -z \"$vm_id\" ]; then " +
+                           "virsh dumpxml $vm_id | grep -q '" + deviceName + "'; " +
+                           "if [ $? -eq 0 ]; then " +
+                           "echo 'allocated'; " +
+                           "break; " +
+                           "fi; " +
+                           "fi; " +
+                           "done");
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String result = listCommand.execute(parser);
+
+            if (result == null && parser.getLines() != null) {
+                boolean isAllocated = parser.getLines().trim().equals("allocated");
+                if (isAllocated) {
+                    logger.debug("LUN 디바이스가 VM에 할당됨: " + deviceName);
+                }
+                return isAllocated;
+            }
+            return false;
+        } catch (Exception e) {
+            logger.debug("LUN 디바이스 할당 상태 확인 중 오류: " + e.getMessage());
+            return false;
         }
     }
 
@@ -1563,6 +1606,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 String fabricWwn = "";
                 String description = "";
                 String status = "Active";
+                String scsiAddress = "";
 
                 if (vhbaInfoResult == null && vhbaInfoParser.getLines() != null) {
                     String[] infoLines = vhbaInfoParser.getLines().split("\\n");
@@ -1579,7 +1623,101 @@ public abstract class ServerResourceBase implements ServerResource {
                         }
                     }
 
+                    // SCSI 주소 추출 - 실제 lsscsi 명령어로 추출
+                    try {
+                        logger.info("vHBA " + vhbaName + " SCSI 주소 검색 시작");
+                        
+                        // 먼저 전체 lsscsi 출력을 확인
+                        Script lsscsiAllCommand = new Script("/bin/bash");
+                        lsscsiAllCommand.add("-c");
+                        lsscsiAllCommand.add("lsscsi");
+                        OutputInterpreter.AllLinesParser lsscsiAllParser = new OutputInterpreter.AllLinesParser();
+                        String lsscsiAllResult = lsscsiAllCommand.execute(lsscsiAllParser);
+                        
+                        logger.info("vHBA " + vhbaName + " 전체 lsscsi 출력: " + (lsscsiAllResult != null ? lsscsiAllResult : "null"));
+                        if (lsscsiAllResult == null && lsscsiAllParser.getLines() != null) {
+                            String allLines = lsscsiAllParser.getLines();
+                            logger.info("vHBA " + vhbaName + " 전체 lsscsi 내용: '" + allLines + "'");
+                        }
+                        
+                        // vHBA 이름으로 검색
+                        Script scsiAddressCommand = new Script("/bin/bash");
+                        scsiAddressCommand.add("-c");
+                        scsiAddressCommand.add("lsscsi | grep -E '\\[.*:.*:.*:.*\\].*" + vhbaName + "' | head -1");
+                        OutputInterpreter.AllLinesParser scsiAddressParser = new OutputInterpreter.AllLinesParser();
+                        String scsiAddressResult = scsiAddressCommand.execute(scsiAddressParser);
+
+                        logger.info("vHBA " + vhbaName + " SCSI 주소 검색 결과: " + (scsiAddressResult != null ? scsiAddressResult : "null"));
+                        if (scsiAddressResult == null && scsiAddressParser.getLines() != null) {
+                            String scsiLine = scsiAddressParser.getLines().trim();
+                            logger.info("vHBA " + vhbaName + " lsscsi 출력: '" + scsiLine + "'");
+                            if (!scsiLine.isEmpty()) {
+                                // lsscsi 출력에서 SCSI 주소 추출: [18:0:0:0] -> 18:0:0:0
+                                String[] parts = scsiLine.split("\\s+");
+                                logger.info("vHBA " + vhbaName + " lsscsi 파싱된 부분들: " + java.util.Arrays.toString(parts));
+                                if (parts.length > 0) {
+                                    String scsiPart = parts[0];
+                                    logger.info("vHBA " + vhbaName + " 첫 번째 부분: '" + scsiPart + "'");
+                                    if (scsiPart.startsWith("[") && scsiPart.endsWith("]")) {
+                                        scsiAddress = scsiPart.substring(1, scsiPart.length() - 1);
+                                        logger.info("vHBA " + vhbaName + "의 실제 SCSI 주소: " + scsiAddress);
+                                    } else {
+                                        logger.info("vHBA " + vhbaName + " 첫 번째 부분이 [로 시작하지 않음: '" + scsiPart + "'");
+                                    }
+                                }
+                            } else {
+                                logger.info("vHBA " + vhbaName + " lsscsi 출력이 비어있음");
+                            }
+                        } else {
+                            logger.info("vHBA " + vhbaName + " lsscsi 명령어 실행 실패 또는 출력 없음");
+                        }
+
+                        // lsscsi에서 찾지 못한 경우, sysfs에서 직접 확인
+                        if (scsiAddress.isEmpty()) {
+                            logger.info("vHBA " + vhbaName + " lsscsi에서 SCSI 주소를 찾지 못함, sysfs 확인 중...");
+                            
+                            // vHBA 이름에서 호스트 번호 추출
+                            String hostNum = vhbaName.replace("scsi_host", "");
+                            logger.info("vHBA " + vhbaName + " 추출된 호스트 번호: '" + hostNum + "'");
+                            
+                            if (hostNum.matches("\\d+")) {
+                                // 호스트 번호가 유효한 경우 기본 SCSI 주소 생성
+                                scsiAddress = hostNum + ":0:1:0";
+                                logger.info("vHBA " + vhbaName + "의 SCSI 주소 (기본값): " + scsiAddress);
+                                
+                                // 실제로 해당 호스트가 존재하는지 확인
+                                Script hostCheckCommand = new Script("/bin/bash");
+                                hostCheckCommand.add("-c");
+                                hostCheckCommand.add("ls /sys/class/scsi_host/" + vhbaName + " 2>/dev/null || echo 'not_found'");
+                                OutputInterpreter.AllLinesParser hostCheckParser = new OutputInterpreter.AllLinesParser();
+                                String hostCheckResult = hostCheckCommand.execute(hostCheckParser);
+                                
+                                logger.info("vHBA " + vhbaName + " 호스트 존재 확인: " + (hostCheckResult != null ? hostCheckResult : "null"));
+                                if (hostCheckResult == null && hostCheckParser.getLines() != null) {
+                                    String checkResult = hostCheckParser.getLines().trim();
+                                    logger.info("vHBA " + vhbaName + " 호스트 확인 결과: '" + checkResult + "'");
+                                    if (checkResult.equals("not_found")) {
+                                        logger.info("vHBA " + vhbaName + " 호스트가 실제로 존재하지 않음, SCSI 주소 초기화");
+                                        scsiAddress = "";
+                                    }
+                                }
+                            } else {
+                                logger.info("vHBA " + vhbaName + " 호스트 번호가 숫자가 아님: '" + hostNum + "'");
+                            }
+                        }
+
+                        logger.info("vHBA " + vhbaName + " 최종 SCSI 주소: " + (scsiAddress.isEmpty() ? "없음" : scsiAddress));
+                    } catch (Exception e) {
+                        logger.error("vHBA " + vhbaName + "의 SCSI 주소 추출 중 오류: " + e.getMessage());
+                    }
+
                     StringBuilder descBuilder = new StringBuilder();
+                    logger.info("vHBA " + vhbaName + " description 생성 시작");
+                    logger.info("vHBA " + vhbaName + " WWNN: '" + wwnn + "'");
+                    logger.info("vHBA " + vhbaName + " WWPN: '" + wwpn + "'");
+                    logger.info("vHBA " + vhbaName + " Fabric WWN: '" + fabricWwn + "'");
+                    logger.info("vHBA " + vhbaName + " SCSI Address: '" + scsiAddress + "'");
+
                     if (!wwnn.isEmpty()) {
                         descBuilder.append("WWNN: ").append(wwnn);
                     }
@@ -1595,7 +1733,17 @@ public abstract class ServerResourceBase implements ServerResource {
                         }
                         descBuilder.append("Fabric WWN: ").append(fabricWwn);
                     }
+                    if (!scsiAddress.isEmpty()) {
+                        if (descBuilder.length() > 0) {
+                            descBuilder.append("\n");
+                        }
+                        descBuilder.append("SCSI Address: ").append(scsiAddress);
+                        logger.info("vHBA " + vhbaName + " SCSI Address를 description에 추가함");
+                    } else {
+                        logger.info("vHBA " + vhbaName + " SCSI Address가 비어있어 description에 추가하지 않음");
+                    }
                     description = descBuilder.toString();
+                    logger.info("vHBA " + vhbaName + " 최종 description: '" + description + "'");
                 }
 
                 boolean shouldInclude = true;
@@ -2128,21 +2276,29 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
     protected Answer updateHostLunDevices(Command command, String vmName, String xmlConfig, boolean isAttach) {
-        String lunXmlPath = String.format("/tmp/lun_device_%s.xml", vmName);
+        // LUN 디바이스 이름을 추출하여 고유한 파일명 생성
+        String lunDeviceName = extractDeviceNameFromLunXml(xmlConfig);
+        if (lunDeviceName == null) {
+            lunDeviceName = "unknown";
+        }
+        String lunXmlPath = String.format("/tmp/lun_device_%s_%s.xml", vmName, lunDeviceName);
         try {
-            // XML 파일이 없을 경우에만 생성
-            File xmlFile = new File(lunXmlPath);
-            if (!xmlFile.exists()) {
-                try (PrintWriter writer = new PrintWriter(lunXmlPath)) {
-                    writer.write(xmlConfig);
-                }
-                logger.info("Generated XML file: {} for VM: {}", lunXmlPath, vmName);
+            // XML 파일 생성 (기존 파일이 있어도 덮어씀 - 고유한 파일명이므로 안전)
+            try (PrintWriter writer = new PrintWriter(lunXmlPath)) {
+                writer.write(xmlConfig);
             }
+            logger.info("Generated XML file: {} for VM: {}", lunXmlPath, vmName);
 
             Script virshCmd = new Script("virsh");
             if (isAttach) {
                 virshCmd.add("attach-device", vmName, lunXmlPath);
             } else {
+                // detach 시도 전에 실제 VM에 해당 디바이스가 붙어있는지 확인
+                if (!isLunDeviceActuallyAttachedToVm(vmName, xmlConfig)) {
+                    logger.warn("LUN device is not actually attached to VM: {}. Skipping detach operation.", vmName);
+                    // 실제로 붙어있지 않아도 성공으로 처리 (DB 상태만 정리)
+                    return new UpdateHostLunDeviceAnswer(true, vmName, xmlConfig, isAttach);
+                }
                 virshCmd.add("detach-device", vmName, lunXmlPath);
                 logger.info("Executing detach command for VM: {} with XML: {}", vmName, xmlConfig);
             }
@@ -2153,37 +2309,45 @@ public abstract class ServerResourceBase implements ServerResource {
 
             if (result != null) {
                 String action = isAttach ? "attach" : "detach";
-                logger.error("Failed to {} USB device: {}", action, result);
+                logger.error("Failed to {} LUN device: {}", action, result);
                 return new UpdateHostLunDeviceAnswer(false, vmName, xmlConfig, isAttach);
             }
 
             String action = isAttach ? "attached to" : "detached from";
-            logger.info("Successfully {} USB device for VM {}", action, vmName);
+            logger.info("Successfully {} LUN device for VM {}", action, vmName);
             return new UpdateHostLunDeviceAnswer(true, vmName, xmlConfig, isAttach);
 
         } catch (Exception e) {
             String action = isAttach ? "attaching" : "detaching";
-            logger.error("Error {} USB device: {}", action, e.getMessage(), e);
+            logger.error("Error {} LUN device: {}", action, e.getMessage(), e);
             return new UpdateHostLunDeviceAnswer(false, vmName, xmlConfig, isAttach);
         }
     }
 
     protected Answer updateHostHbaDevices(Command command, String vmName, String xmlConfig, boolean isAttach) {
-        String hbaXmlPath = String.format("/tmp/hba_device_%s.xml", vmName);
+        // HBA 디바이스 이름을 추출하여 고유한 파일명 생성
+        String hbaDeviceName = extractAdapterNameFromXml(xmlConfig);
+        if (hbaDeviceName == null) {
+            hbaDeviceName = "unknown";
+        }
+        String hbaXmlPath = String.format("/tmp/hba_device_%s_%s.xml", vmName, hbaDeviceName);
         try {
-            // XML 파일이 없을 경우에만 생성
-            File xmlFile = new File(hbaXmlPath);
-            if (!xmlFile.exists()) {
-                try (PrintWriter writer = new PrintWriter(hbaXmlPath)) {
-                    writer.write(xmlConfig);
-                }
-                logger.info("Generated XML file: {} for VM: {}", hbaXmlPath, vmName);
+            // XML 파일 생성 (기존 파일이 있어도 덮어씀 - 고유한 파일명이므로 안전)
+            try (PrintWriter writer = new PrintWriter(hbaXmlPath)) {
+                writer.write(xmlConfig);
             }
+            logger.info("Generated XML file: {} for VM: {}", hbaXmlPath, vmName);
 
             Script virshCmd = new Script("virsh");
             if (isAttach) {
                 virshCmd.add("attach-device", vmName, hbaXmlPath);
             } else {
+                // detach 시도 전에 실제 VM에 해당 디바이스가 붙어있는지 확인
+                if (!isDeviceActuallyAttachedToVm(vmName, xmlConfig)) {
+                    logger.warn("Device is not actually attached to VM: {}. Skipping detach operation.", vmName);
+                    // 실제로 붙어있지 않아도 성공으로 처리 (DB 상태만 정리)
+                    return new UpdateHostHbaDeviceAnswer(true, vmName, xmlConfig, isAttach);
+                }
                 virshCmd.add("detach-device", vmName, hbaXmlPath);
                 logger.info("Executing detach command for VM: {} with XML: {}", vmName, xmlConfig);
             }
@@ -2209,83 +2373,80 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    protected Answer updateHostVHbaDevices(Command command, String vmName, String xmlConfig, boolean isAttach) {
+        protected Answer updateHostVHbaDevices(Command command, String vmName, String xmlConfig, boolean isAttach) {
+        // vHBA 디바이스 이름을 추출하여 고유한 파일명 생성
+        String vhbaDeviceName = extractDeviceNameFromVhbaXml(xmlConfig);
+        if (vhbaDeviceName == null) {
+            vhbaDeviceName = "unknown";
+        }
+        String vhbaXmlPath = String.format("/tmp/vhba_device_%s_%s.xml", vmName, vhbaDeviceName);
+
         try {
-            UpdateHostVhbaDeviceAnswer cmd = (UpdateHostVhbaDeviceAnswer) command;
-            String vhbaName = cmd.getVhbaName();
-            File vhbaDir = new File("/etc/vhba");
-            String vhbaXmlPath;
+            // XML 파일 생성 (기존 파일이 있어도 덮어씀 - 고유한 파일명이므로 안전)
+            try (PrintWriter writer = new PrintWriter(vhbaXmlPath)) {
+                writer.write(xmlConfig);
+            }
+            logger.info("Generated XML file: {} for VM: {}", vhbaXmlPath, vmName);
 
-            if (!vhbaDir.exists()) {
-                if (vhbaDir.mkdirs()) {
-                    logger.info("Created /etc/vhba directory");
-                    vhbaXmlPath = String.format("/etc/vhba/%s.xml", vhbaName);
-                } else {
-                    logger.warn("Failed to create /etc/vhba directory, using /tmp as fallback");
-                    vhbaXmlPath = String.format("/tmp/%s.xml", vhbaName);
-                }
+            Script virshCmd = new Script("virsh");
+            if (isAttach) {
+                virshCmd.add("attach-device", vmName, vhbaXmlPath);
             } else {
-                vhbaXmlPath = String.format("/etc/vhba/%s.xml", vhbaName);
+                // detach 시도 전에 실제 VM에 해당 디바이스가 붙어있는지 확인
+                if (!isVhbaDeviceActuallyAttachedToVm(vmName, xmlConfig)) {
+                    logger.warn("vHBA device is not actually attached to VM: {}. Skipping detach operation.", vmName);
+                    // 실제로 붙어있지 않아도 성공으로 처리 (DB 상태만 정리)
+                    return new UpdateHostVhbaDeviceAnswer(true, vhbaDeviceName, vmName, xmlConfig, isAttach);
+                }
+                virshCmd.add("detach-device", vmName, vhbaXmlPath);
+                logger.info("Executing detach command for VM: {} with XML: {}", vmName, xmlConfig);
             }
-            try {
-                // XML 파일이 없을 경우에만 생성
-                File xmlFile = new File(vhbaXmlPath);
-                if (!xmlFile.exists()) {
-                    try (PrintWriter writer = new PrintWriter(vhbaXmlPath)) {
-                        writer.write(xmlConfig);
-                    }
-                    logger.info("Generated XML file: {} for VM: {}", vhbaXmlPath, vmName);
-                }
 
-                Script virshCmd = new Script("virsh");
-                if (isAttach) {
-                    virshCmd.add("attach-device", vmName, vhbaXmlPath);
-                } else {
-                    virshCmd.add("detach-device", vmName, vhbaXmlPath);
-                    logger.info("Executing detach command for VM: {} with XML: {}", vmName, xmlConfig);
-                }
+            logger.info("isAttach value: {}", isAttach);
 
-                logger.info("isAttach value: {}", isAttach);
+            String result = virshCmd.execute();
 
-                String result = virshCmd.execute();
-
-                if (result != null) {
-                    String action = isAttach ? "attach" : "detach";
-                    logger.error("Failed to {} vHBA device: {}", action, result);
-                    return new com.cloud.agent.api.UpdateHostVhbaDeviceAnswer(false, vhbaName, vmName, xmlConfig, isAttach);
-                }
-
-                String action = isAttach ? "attached to" : "detached from";
-                logger.info("Successfully {} vHBA device for VM {}", action, vmName);
-                return new com.cloud.agent.api.UpdateHostVhbaDeviceAnswer(true, vhbaName, vmName, xmlConfig, isAttach);
-
-            } catch (Exception e) {
-                String action = isAttach ? "attaching" : "detaching";
-                logger.error("Error {} vHBA device: {}", action, e.getMessage(), e);
-                return new com.cloud.agent.api.UpdateHostVhbaDeviceAnswer(false, vhbaName, vmName, xmlConfig, isAttach);
+            if (result != null) {
+                String action = isAttach ? "attach" : "detach";
+                logger.error("Failed to {} vHBA device: {}", action, result);
+                return new UpdateHostVhbaDeviceAnswer(false, vhbaDeviceName, vmName, xmlConfig, isAttach);
             }
+
+            String action = isAttach ? "attached to" : "detached from";
+            logger.info("Successfully {} vHBA device for VM {}", action, vmName);
+            return new UpdateHostVhbaDeviceAnswer(true, vhbaDeviceName, vmName, xmlConfig, isAttach);
+
         } catch (Exception e) {
-            logger.error("Error in updateHostVhbaDevices: " + e.getMessage(), e);
-            return new com.cloud.agent.api.UpdateHostVhbaDeviceAnswer(false, null, null, null, false);
+            String action = isAttach ? "attaching" : "detaching";
+            logger.error("Error {} vHBA device: {}", action, e.getMessage(), e);
+            return new UpdateHostVhbaDeviceAnswer(false, vhbaDeviceName, vmName, xmlConfig, isAttach);
         }
     }
 
     protected Answer updateHostScsiDevices(UpdateHostScsiDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
-        String scsiXmlPath = String.format("/tmp/scsi_device_%s.xml", vmName);
+        // SCSI 디바이스 이름을 추출하여 고유한 파일명 생성
+        String scsiDeviceName = extractDeviceNameFromScsiXml(xmlConfig);
+        if (scsiDeviceName == null) {
+            scsiDeviceName = "unknown";
+        }
+        String scsiXmlPath = String.format("/tmp/scsi_device_%s_%s.xml", vmName, scsiDeviceName);
         try {
-            // XML 파일이 없을 경우에만 생성
-            File xmlFile = new File(scsiXmlPath);
-            if (!xmlFile.exists()) {
-                try (PrintWriter writer = new PrintWriter(scsiXmlPath)) {
-                    writer.write(xmlConfig);
-                }
-                logger.info("Generated XML file: {} for VM: {}", scsiXmlPath, vmName);
+            // XML 파일 생성 (기존 파일이 있어도 덮어씀 - 고유한 파일명이므로 안전)
+            try (PrintWriter writer = new PrintWriter(scsiXmlPath)) {
+                writer.write(xmlConfig);
             }
+            logger.info("Generated XML file: {} for VM: {}", scsiXmlPath, vmName);
 
             Script virshCmd = new Script("virsh");
             if (isAttach) {
                 virshCmd.add("attach-device", vmName, scsiXmlPath);
             } else {
+                // detach 시도 전에 실제 VM에 해당 디바이스가 붙어있는지 확인
+                if (!isScsiDeviceActuallyAttachedToVm(vmName, xmlConfig)) {
+                    logger.warn("SCSI device is not actually attached to VM: {}. Skipping detach operation.", vmName);
+                    // 실제로 붙어있지 않아도 성공으로 처리 (DB 상태만 정리)
+                    return new UpdateHostScsiDeviceAnswer(true, vmName, xmlConfig, isAttach);
+                }
                 virshCmd.add("detach-device", vmName, scsiXmlPath);
                 logger.info("Executing detach command for VM: {} with XML: {}", vmName, xmlConfig);
             }
@@ -2311,7 +2472,300 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // XML에서 WWNN 추출
+    // VM에 실제로 디바이스가 붙어있는지 확인하는 메서드
+    private boolean isDeviceActuallyAttachedToVm(String vmName, String xmlConfig) {
+        try {
+            // HBA 디바이스 이름을 추출하여 고유한 파일명 생성
+            String hbaDeviceName = extractAdapterNameFromXml(xmlConfig);
+            if (hbaDeviceName == null) {
+                hbaDeviceName = "unknown";
+            }
+            String hbaXmlPath = String.format("/tmp/hba_device_%s_%s.xml", vmName, hbaDeviceName);
+
+            // 해당 XML 파일이 존재하는지 확인
+            File xmlFile = new File(hbaXmlPath);
+            if (!xmlFile.exists()) {
+                logger.warn("XML file does not exist for device check: {}", hbaXmlPath);
+                return false;
+            }
+
+            // virsh dumpxml로 VM의 현재 상태 확인
+            Script dumpCommand = new Script("virsh");
+            dumpCommand.add("dumpxml", vmName);
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String result = dumpCommand.execute(parser);
+
+            if (result != null) {
+                logger.warn("Failed to get VM XML for device check: {}", result);
+                return false;
+            }
+
+            String vmXml = parser.getLines();
+            if (vmXml == null || vmXml.isEmpty()) {
+                logger.warn("Empty VM XML for device check");
+                return false;
+            }
+
+            // XML에서 adapter name 추출
+            String adapterName = extractAdapterNameFromXml(xmlConfig);
+            if (adapterName == null) {
+                logger.warn("Could not extract adapter name from XML config");
+                return false;
+            }
+
+            // VM XML에 해당 adapter가 있는지 확인
+            boolean deviceFound = vmXml.contains("<adapter name='" + adapterName + "'/>") ||
+                                vmXml.contains("<adapter name=\"" + adapterName + "\"/>");
+
+            logger.info("Device attachment check for VM: {}, adapter: {}, file: {}, found: {}", vmName, adapterName, hbaXmlPath, deviceFound);
+            return deviceFound;
+
+        } catch (Exception e) {
+            logger.error("Error checking device attachment for VM: {}", vmName, e);
+            return false;
+        }
+    }
+
+    // XML에서 adapter name 추출 (HBA용)
+    private String extractAdapterNameFromXml(String xmlConfig) {
+        try {
+            // <adapter name='scsi_host14'/> 형태에서 scsi_host14 추출
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("name=['\"]([^'\"]+)['\"]");
+            java.util.regex.Matcher matcher = pattern.matcher(xmlConfig);
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
+            return null;
+        } catch (Exception e) {
+            logger.debug("Error extracting adapter name from XML: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    // LUN XML에서 디바이스 이름 추출
+    private String extractDeviceNameFromLunXml(String xmlConfig) {
+        try {
+            // <source dev='/dev/sdc'/> 형태에서 sdc 추출
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("dev=['\"]([^'\"]+)['\"]");
+            java.util.regex.Matcher matcher = pattern.matcher(xmlConfig);
+            if (matcher.find()) {
+                String devicePath = matcher.group(1);
+                // 경로에서 디바이스 이름만 추출
+                String[] parts = devicePath.split("/");
+                if (parts.length > 0) {
+                    return parts[parts.length - 1];
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            logger.debug("Error extracting device name from LUN XML: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    // LUN 디바이스가 VM에 실제로 붙어있는지 확인하는 메서드
+    private boolean isLunDeviceActuallyAttachedToVm(String vmName, String xmlConfig) {
+        try {
+            // LUN 디바이스 이름을 추출하여 고유한 파일명 생성
+            String lunDeviceName = extractDeviceNameFromLunXml(xmlConfig);
+            if (lunDeviceName == null) {
+                lunDeviceName = "unknown";
+            }
+            String lunXmlPath = String.format("/tmp/lun_device_%s_%s.xml", vmName, lunDeviceName);
+
+            // 해당 XML 파일이 존재하는지 확인
+            File xmlFile = new File(lunXmlPath);
+            if (!xmlFile.exists()) {
+                logger.warn("XML file does not exist for device check: {}", lunXmlPath);
+                return false;
+            }
+
+            // virsh dumpxml로 VM의 현재 상태 확인
+            Script dumpCommand = new Script("virsh");
+            dumpCommand.add("dumpxml", vmName);
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String result = dumpCommand.execute(parser);
+
+            if (result != null) {
+                logger.warn("Failed to get VM XML for device check: {}", result);
+                return false;
+            }
+
+            String vmXml = parser.getLines();
+            if (vmXml == null || vmXml.isEmpty()) {
+                logger.warn("Empty VM XML for device check");
+                return false;
+            }
+
+            // XML에서 source dev 추출
+            String sourceDev = extractDeviceNameFromLunXml(xmlConfig);
+            if (sourceDev == null) {
+                logger.warn("Could not extract source dev from XML config");
+                return false;
+            }
+
+            // VM XML에 해당 디바이스가 있는지 확인
+            boolean deviceFound = vmXml.contains("dev='" + sourceDev + "'") ||
+                                vmXml.contains("dev=\"" + sourceDev + "\"");
+
+            logger.info("LUN device attachment check for VM: {}, device: {}, file: {}, found: {}", vmName, sourceDev, lunXmlPath, deviceFound);
+            return deviceFound;
+
+        } catch (Exception e) {
+            logger.error("Error checking LUN device attachment for VM: {}", vmName, e);
+            return false;
+        }
+    }
+
+    // SCSI XML에서 디바이스 이름 추출
+    private String extractDeviceNameFromScsiXml(String xmlConfig) {
+        try {
+            // <adapter name='scsi_host14'/> 형태에서 scsi_host14 추출
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("name=['\"]([^'\"]+)['\"]");
+            java.util.regex.Matcher matcher = pattern.matcher(xmlConfig);
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
+            return null;
+        } catch (Exception e) {
+            logger.debug("Error extracting device name from SCSI XML: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    // SCSI 디바이스가 VM에 실제로 붙어있는지 확인하는 메서드
+    private boolean isScsiDeviceActuallyAttachedToVm(String vmName, String xmlConfig) {
+        try {
+            // SCSI 디바이스 이름을 추출하여 고유한 파일명 생성
+            String scsiDeviceName = extractDeviceNameFromScsiXml(xmlConfig);
+            if (scsiDeviceName == null) {
+                scsiDeviceName = "unknown";
+            }
+            String scsiXmlPath = String.format("/tmp/scsi_device_%s_%s.xml", vmName, scsiDeviceName);
+
+            // 해당 XML 파일이 존재하는지 확인
+            File xmlFile = new File(scsiXmlPath);
+            if (!xmlFile.exists()) {
+                logger.warn("XML file does not exist for device check: {}", scsiXmlPath);
+                return false;
+            }
+
+            // virsh dumpxml로 VM의 현재 상태 확인
+            Script dumpCommand = new Script("virsh");
+            dumpCommand.add("dumpxml", vmName);
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String result = dumpCommand.execute(parser);
+
+            if (result != null) {
+                logger.warn("Failed to get VM XML for device check: {}", result);
+                return false;
+            }
+
+            String vmXml = parser.getLines();
+            if (vmXml == null || vmXml.isEmpty()) {
+                logger.warn("Empty VM XML for device check");
+                return false;
+            }
+
+            // XML에서 adapter name 추출
+            String adapterName = extractDeviceNameFromScsiXml(xmlConfig);
+            if (adapterName == null) {
+                logger.warn("Could not extract adapter name from XML config");
+                return false;
+            }
+
+            // VM XML에 해당 adapter가 있는지 확인
+            boolean deviceFound = vmXml.contains("<adapter name='" + adapterName + "'/>") ||
+                                vmXml.contains("<adapter name=\"" + adapterName + "\"/>");
+
+            logger.info("SCSI device attachment check for VM: {}, adapter: {}, file: {}, found: {}", vmName, adapterName, scsiXmlPath, deviceFound);
+            return deviceFound;
+
+        } catch (Exception e) {
+            logger.error("Error checking SCSI device attachment for VM: {}", vmName, e);
+            return false;
+        }
+    }
+
+    // vHBA XML에서 디바이스 이름 추출
+    private String extractDeviceNameFromVhbaXml(String xmlConfig) {
+        try {
+            // 1) 우선 <parent>scsi_host14</parent> 형태를 시도
+            java.util.regex.Pattern parentPattern = java.util.regex.Pattern.compile("<parent>([^<]+)</parent>");
+            java.util.regex.Matcher parentMatcher = parentPattern.matcher(xmlConfig);
+            if (parentMatcher.find()) {
+                return parentMatcher.group(1);
+            }
+
+            // 2) 없으면 <adapter name='scsi_host14'/> 또는 <adapter name='scsi_host14'> 형태에서 name 추출
+            java.util.regex.Pattern adapterPattern = java.util.regex.Pattern.compile("<adapter\\s+name=['\"]([^'\"]+)['\"][^>]*?>");
+            java.util.regex.Matcher adapterMatcher = adapterPattern.matcher(xmlConfig);
+            if (adapterMatcher.find()) {
+                return adapterMatcher.group(1);
+            }
+
+            return null;
+        } catch (Exception e) {
+            logger.debug("Error extracting device name from vHBA XML: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    // vHBA 디바이스가 VM에 실제로 붙어있는지 확인하는 메서드
+    private boolean isVhbaDeviceActuallyAttachedToVm(String vmName, String xmlConfig) {
+        try {
+            // vHBA 디바이스 이름을 추출하여 고유한 파일명 생성
+            String vhbaDeviceName = extractDeviceNameFromVhbaXml(xmlConfig);
+            if (vhbaDeviceName == null) {
+                vhbaDeviceName = "unknown";
+            }
+            // updateHostVHbaDevices에서 생성하는 경로와 접두어를 동일하게 사용
+            String vhbaXmlPath = String.format("/tmp/vhba_device_%s_%s.xml", vmName, vhbaDeviceName);
+
+            // 해당 XML 파일이 존재하는지 확인
+            File xmlFile = new File(vhbaXmlPath);
+            if (!xmlFile.exists()) {
+                logger.warn("XML file does not exist for device check: {}", vhbaXmlPath);
+                return false;
+            }
+
+            // virsh dumpxml로 VM의 현재 상태 확인
+            Script dumpCommand = new Script("virsh");
+            dumpCommand.add("dumpxml", vmName);
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String result = dumpCommand.execute(parser);
+
+            if (result != null) {
+                logger.warn("Failed to get VM XML for device check: {}", result);
+                return false;
+            }
+
+            String vmXml = parser.getLines();
+            if (vmXml == null || vmXml.isEmpty()) {
+                logger.warn("Empty VM XML for device check");
+                return false;
+            }
+
+            // XML에서 대상 이름 추출 (parent 또는 adapter name)
+            String targetName = extractDeviceNameFromVhbaXml(xmlConfig);
+            if (targetName == null) {
+                logger.warn("Could not extract device/parent name from XML config");
+                return false;
+            }
+
+            // VM XML에 해당 adapter/parent 흔적이 있는지 확인
+            boolean deviceFound = vmXml.contains("<adapter name='" + targetName + "'/>") ||
+                                  vmXml.contains("<adapter name=\"" + targetName + "\"/>") ||
+                                  vmXml.contains("<parent>" + targetName + "</parent>");
+
+            logger.info("vHBA device attachment check for VM: {}, target: {}, file: {}, found: {}", vmName, targetName, vhbaXmlPath, deviceFound);
+            return deviceFound;
+
+        } catch (Exception e) {
+            logger.error("Error checking vHBA device attachment for VM: {}", vmName, e);
+            return false;
+        }
+    }
     private String extractWwnnFromXml(String xmlContent) {
         try {
             // XML에서 wwnn 속성 또는 태그 찾기
