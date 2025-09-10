@@ -318,7 +318,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     if (installJob) {
                         LOG.info("checkBackupAgent installJob ture 설치 진행중인 호스트 있음");
                         return false;
-                    } 
+                    }
                 }
             }
         }
