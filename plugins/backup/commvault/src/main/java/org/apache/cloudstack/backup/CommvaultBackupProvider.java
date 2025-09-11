@@ -315,9 +315,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 } else {
                     boolean installJob = client.getInstallActiveJob(host.getPrivateIpAddress());
                     boolean checkInstall = client.getClientProps(checkHost);
-                    LOG.info("checkBackupAgent:::::::::::::::::::");
-                    LOG.info("checkBackupAgent installJob:::::::::::::::::::" + installJob);
-                    LOG.info("checkBackupAgent checkInstall:::::::::::::::::::" + checkInstall);
                     if (installJob || !checkInstall) {
                         return false;
                     }
@@ -329,61 +326,59 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     @Override
     public boolean installBackupAgent(final Long zoneId) {
-        Map<String, String> checkResult = new HashMap<>();
+        Map<String, String> failResult = new HashMap<>();
         final CommvaultClient client = getClient(zoneId);
         List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
         for (final HostVO host : Hosts) {
             if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
-                String checkHost = client.getClientId(host.getName());
-                if (checkHost == null) {
-                    LOG.info("checking for install agent on the Commvault Backup Provider in host " + host.getPrivateIpAddress());
-                    String commCell = client.getCommcell();
-                    JSONObject jsonObject = new JSONObject(commCell);
-                    String commCellId = String.valueOf(jsonObject.get("commCellId"));
-                    String commServeHostName = String.valueOf(jsonObject.get("commCellName"));
-                    Ternary<String, String, String> credentials = getKVMHyperisorCredentials(host);
-                    boolean installJob = true;
-                    // 설치가 진행중인 호스트가 있는지 확인
-                    while (installJob) {
-                        installJob = client.getInstallActiveJob(host.getName());
-                        try {
-                            Thread.sleep(30000);
-                        } catch (InterruptedException e) {
-                            LOG.error("checkBackupAgent get install active job result sleep interrupted error");
-                        }
+                String commCell = client.getCommcell();
+                JSONObject jsonObject = new JSONObject(commCell);
+                String commCellId = String.valueOf(jsonObject.get("commCellId"));
+                String commServeHostName = String.valueOf(jsonObject.get("commCellName"));
+                Ternary<String, String, String> credentials = getKVMHyperisorCredentials(host);
+                boolean installJob = true;
+                LOG.info("checking for install agent on the Commvault Backup Provider in host " + host.getPrivateIpAddress());
+                // 설치가 진행중인 호스트가 있는지 확인
+                while (installJob) {
+                    installJob = client.getInstallActiveJob(host.getName());
+                    try {
+                        Thread.sleep(30000);
+                    } catch (InterruptedException e) {
+                        LOG.error("checkBackupAgent get install active job result sleep interrupted error");
                     }
-                    checkHost = client.getClientId(host.getName());
-                    if (checkHost == null) {
-                        LOG.info("installing agent on the Commvault Backup Provider in host " + host.getPrivateIpAddress());
-                        String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
-                        LOG.info("installing agent on the Commvault Backup Provider jogId : " + jobId);
-                        if (jobId != null) {
-                            String jobStatus = client.getJobStatus(jobId);
-                            LOG.info("installing agent on the Commvault Backup Provider jobStatus : " + jobStatus);
-                            if (!jobStatus.equalsIgnoreCase("Completed")) {
-                                checkResult.put(host.getPrivateIpAddress(), jobId);
-                            }
+                }
+                String checkHost = client.getClientId(host.getName());
+                // 호스트가 클라이언트에 등록되지 않은 경우
+                if (checkHost == null) {
+                    String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
+                    if (jobId != null) {
+                        String jobStatus = client.getJobStatus(jobId);
+                        if (!jobStatus.equalsIgnoreCase("Completed")) {
+                            LOG.error("installing agent on the Commvault Backup Provider failed jogId : " + jobId + " , jobStatus : " + jobStatus);
+                            failResult.put(host.getPrivateIpAddress(), jobId);
                         }
                     } else {
-                        // 설치가 정상적으로 설치안된 경우 확인
-                        boolean checkInstall = client.getClientProps(checkHost);
-                        LOG.info("설치가 정상적으로 설치안된 경우:::::::::::::::::");
-                        // jobId로 재시도하거나 kill 로직 추가 필요
+                        return false;
                     }
                 } else {
-                    // 설치가 정상적으로 설치안된 경우 확인
+                    // 호스트가 클라이언트에는 등록되었지만 구성이 정상적으로 되지 않은 경우
                     boolean checkInstall = client.getClientProps(checkHost);
-                    LOG.info("설치가 정상적으로 설치안된 경우:::::::::::::::::");
-                    // jobId로 재시도하거나 kill 로직 추가 필요
+                    if (!checkInstall) {
+                        String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
+                        if (jobId != null) {
+                            String jobStatus = client.getJobStatus(jobId);
+                            if (!jobStatus.equalsIgnoreCase("Completed")) {
+                                LOG.error("installing agent on the Commvault Backup Provider failed jogId : " + jobId + " , jobStatus : " + jobStatus);
+                                failResult.put(host.getPrivateIpAddress(), jobId);
+                            }
+                        } else {
+                            return false;
+                        }
+                    }
                 }
             }
         }
-        if (!checkResult.isEmpty()) {
-            for (String value : checkResult.values()) {
-                LOG.info("checkResult not empty::::::::::::::");
-                LOG.info(value);
-                //jobID로 재시도하거나 kill 로직 추가
-            }
+        if (!failResult.isEmpty()) {
             return false;
         }
         return true;
