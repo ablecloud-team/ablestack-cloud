@@ -257,11 +257,11 @@ WHERE n.`state` = 'Setup'
   AND n.`removed` IS NULL
   AND n.`guest_type` = 'Isolated'
   AND o.`is_persistent` = 1
-  AND m.network_offering_id IS NULL;   -- 서비스 매핑이 한 건도 없는 오퍼링만
+  AND m.network_offering_id IS NULL;
 
 ----- PR Quota custom tariffs #5909---
 -- Create column 'uuid'
-CALL `cloud_usage`.`IDEMPOTENT_ADD_COLUMN`('cloud_usage.quota_tariff','uuid','VARCHAR(40) DEFAULT NULL');
+CALL `cloud_usage`.`IDEMPOTENT_ADD_COLUMN`('cloud_usage.quota_tariff','uuid','VARCHAR(40)');
 
 UPDATE `cloud_usage`.`quota_tariff`
 SET `uuid` = UUID()
