@@ -456,13 +456,16 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
             try {
                 initializeDatabaseEncryptors();
 
-                // DB version 테이블의 latest 행 삭제
-                final CloudStackVersion dbVersionInitial = CloudStackVersion.parse(_dao.getCurrentVersion());
-                enforceBaselineThenDeleteLastVersionIfNeeded(dbVersionInitial);
-
+                // 1) 코드(설치될) 버전 먼저 파싱
                 final String currentVersionValue = this.getClass().getPackage().getImplementationVersion();
                 if (StringUtils.isBlank(currentVersionValue)) return;
                 final CloudStackVersion currentVersion = CloudStackVersion.parse(currentVersionValue);
+
+                // 2) DB 최신 버전 읽기
+                final CloudStackVersion dbLatestVersion = CloudStackVersion.parse(_dao.getCurrentVersion());
+
+                // 3) 베이스라인 보장 + (db==code) 같으면 삭제 스킵
+                enforceBaselineThenDeleteLastVersionIfNeeded(dbLatestVersion, currentVersion);
 
                 ///////////////////// Ablestack 업그레이드 //////////////////////////
                 beforeUpgradeAblestack("Bronto");
@@ -470,9 +473,9 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                 beforeUpgradeAblestack("Diplo");
                 ///////////////////// Ablestack 업그레이드 //////////////////////////
 
-                // 삭제 후 DB 버전 재조회
+                // 4) 재조회 후 본 업그레이드 진행
                 final CloudStackVersion dbVersion = CloudStackVersion.parse(_dao.getCurrentVersion());
-                LOGGER.info("After deletion, DB version = {} , Code version = {}", dbVersion, currentVersion);
+                LOGGER.info("After enforcement, DB version = {} , Code version = {}", dbVersion, currentVersion);
 
                 String csVersion = SystemVmTemplateRegistration.parseMetadataFile();
                 final CloudStackVersion sysVmVersion = CloudStackVersion.parse(csVersion);
@@ -500,21 +503,30 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
         }
     }
 
-    private void enforceBaselineThenDeleteLastVersionIfNeeded(final CloudStackVersion dbVersionInitial) {
+    private void enforceBaselineThenDeleteLastVersionIfNeeded(final CloudStackVersion dbLatestVersion,
+                                                          final CloudStackVersion currentVersion) {
         final String BASELINE_VERSION = "4.0.0";
-        final String targetVersion = dbVersionInitial != null ? dbVersionInitial.toString() : null;
-
         final TransactionLegacy txn = TransactionLegacy.open("enforce-baseline-then-delete-last");
         txn.start();
         try {
             final Connection conn = txn.getConnection();
 
-            // 1) '4.0.0' 없으면 즉시 삽입(있으면 0 rows) → 한 턴에 끝
-            final String insertIfMissingSql =
-                "INSERT INTO `cloud`.`version` (`version`, `step`, `updated`) " +
-                "SELECT ?, 'Complete', NOW() FROM DUAL " +
-                "WHERE NOT EXISTS (SELECT 1 FROM `cloud`.`version` WHERE `version` = ?)";
+            // 0) DB 최신버전 == 코드버전이면 삭제/삽입 모두 스킵
+            final boolean sameAsCode = (dbLatestVersion != null
+                    && currentVersion != null
+                    && dbLatestVersion.compareTo(currentVersion) == 0);
+            if (sameAsCode) {
+                LOGGER.info("DB latest version equals code version (db={}, code={}). Skipping baseline insert and deletion.",
+                        dbLatestVersion, currentVersion);
+                txn.commit();
+                return;
+            }
 
+            // 1) sameAsCode == false 인 경우에만 베이스라인 보장 (없으면 삽입)
+            final String insertIfMissingSql =
+                    "INSERT INTO `cloud`.`version` (`version`, `step`, `updated`) " +
+                    "SELECT ?, 'Complete', NOW() FROM DUAL " +
+                    "WHERE NOT EXISTS (SELECT 1 FROM `cloud`.`version` WHERE `version` = ?)";
             try (PreparedStatement ins = conn.prepareStatement(insertIfMissingSql)) {
                 ins.setString(1, BASELINE_VERSION);
                 ins.setString(2, BASELINE_VERSION);
@@ -522,45 +534,49 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                 if (inserted > 0) {
                     LOGGER.info("Inserted baseline version row: {}", BASELINE_VERSION);
                     txn.commit();
-                    return; // 여기서 바로 종료
+                    return; // 여기서 종료
                 }
             }
 
-            // 2) 삭제 대상: dbVersionInitial 의 최신 1건 (단, 베이스라인이면 삭제 금지)
-            if (targetVersion != null && !BASELINE_VERSION.equals(targetVersion)) {
-                // 최신 1건을 서브쿼리로 바로 삭제 (MySQL은 DELETE에서 서브쿼리 테이블 참조 시 래핑 필요)
-                final String deleteLatestOneSql =
-                    "DELETE FROM `cloud`.`version` " +
-                    "WHERE `id` IN ( " +
-                    "  SELECT id FROM ( " +
-                    "    SELECT `id` " +
-                    "    FROM `cloud`.`version` " +
-                    "    WHERE `version` = ? AND (`step` IS NULL OR `step` = 'Complete') " +
-                    "    ORDER BY COALESCE(`updated`, FROM_UNIXTIME(0)) DESC " +
-                    "    LIMIT 1 " +
-                    "  ) AS _x " +
-                    ")";
+            // 2) 삭제 대상: dbLatestVersion 의 최신 1건 (단, 베이스라인이면 삭제 금지)
+            if (dbLatestVersion != null
+                    && currentVersion != null
+                    && dbLatestVersion.compareTo(currentVersion) != 0
+                    && !BASELINE_VERSION.equals(dbLatestVersion.toString())) {
 
+                final String deleteLatestOneSql =
+                        "DELETE FROM `cloud`.`version` " +
+                        "WHERE `id` IN ( " +
+                        "  SELECT id FROM ( " +
+                        "    SELECT `id` " +
+                        "    FROM `cloud`.`version` " +
+                        "    WHERE `version` = ? AND (`step` IS NULL OR `step` = 'Complete') " +
+                        "    ORDER BY COALESCE(`updated`, FROM_UNIXTIME(0)) DESC " +
+                        "    LIMIT 1 " +
+                        "  ) AS _x " +
+                        ")";
                 try (PreparedStatement delLatest = conn.prepareStatement(deleteLatestOneSql)) {
-                    delLatest.setString(1, targetVersion);
+                    delLatest.setString(1, dbLatestVersion.toString());
                     int deleted = delLatest.executeUpdate();
                     if (deleted > 0) {
-                        LOGGER.warn("Deleted {} latest row for version {}", deleted, targetVersion);
+                        LOGGER.warn("Deleted {} latest row for version {}", deleted, dbLatestVersion.toString());
                         txn.commit();
-                        return; // 목적(해당 버전 최신 1건 삭제) 달성 시 즉시 종료
+                        return;
                     } else {
-                        LOGGER.info("No deletable row found for targetVersion={}; skipping targeted delete.", targetVersion);
+                        LOGGER.info("No deletable row found for targetVersion={}; skipping targeted delete.",
+                                dbLatestVersion.toString());
                     }
                 }
             } else {
-                LOGGER.info("Target version is baseline or null ({}). Skipping targeted delete.", targetVersion);
+                // null-safe 로깅
+                LOGGER.info("Target version is baseline or null ({}). Skipping targeted delete.",
+                        String.valueOf(dbLatestVersion));
             }
 
             txn.commit();
         } catch (SQLException e) {
             txn.rollback();
             LOGGER.error("Failed in enforceBaselineThenDeleteLastVersionIfNeeded", e);
-            throw new CloudRuntimeException("Failed in enforceBaselineThenDeleteLastVersionIfNeeded", e);
         } finally {
             txn.close();
         }
