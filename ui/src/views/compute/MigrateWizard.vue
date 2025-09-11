@@ -17,9 +17,9 @@
 
 <template>
   <div class="form" v-ctrl-enter="handleKeyboardSubmit">
-    <a-alert type="warning">
+    <a-alert :type="extraConfigExist ? 'warning': 'info'">
       <template #message>
-        <span v-html="$t('message.migrate.instance.to.host')" />
+        <span v-html="extraConfigExist ? $t('message.migrate.instance.to.host') + $t('message.migrate.instance.to.host.extraconfig') : $t('message.migrate.instance.to.host')" />
       </template>
     </a-alert>
     <a-input-search
@@ -189,10 +189,19 @@ export default {
       ],
       migrateWithStorage: false,
       volumeToPoolSelection: [],
-      volumes: []
+      volumes: [],
+      extraConfigExist: false
     }
   },
   created () {
+    const _rawExtraCfg1 = this.resource?.details?.['extraconfig-1']
+    const _asString = (_rawExtraCfg1 == null) ? '' : String(_rawExtraCfg1).trim()
+
+    // 진짜 값이 있을 때만 (빈문자열, "undefined", "null" 모두 제외)
+    if (_asString !== '' && _asString.toLowerCase() !== 'undefined' && _asString.toLowerCase() !== 'null') {
+      console.log('extraconfig-1 :', _rawExtraCfg1)
+      this.extraConfigExist = true
+    }
     this.fetchData()
   },
   computed: {
