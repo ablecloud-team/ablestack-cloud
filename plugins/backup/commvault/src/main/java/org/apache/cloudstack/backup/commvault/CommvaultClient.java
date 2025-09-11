@@ -1024,6 +1024,7 @@ public class CommvaultClient {
     // 작업의 상세정보를 조회하는 API로 작업이 완료된 경우 최종 작업 상태를 반환
     public String getJobStatus(String jobId) {
         String jobStatus = "Running";
+        String errorStatus = "Failed";
         HttpURLConnection connection = null;
         Set<String> runningStates = Set.of("Not Started", "Running", "Pending", "Waiting", "Queued", "Suspended", "Not started");
         while (runningStates.contains(jobStatus)) {
@@ -1059,10 +1060,14 @@ public class CommvaultClient {
                     }
                     JSONObject jsonObject = new JSONObject(response.toString());
                     jobStatus = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").getString("state");
+                    if (jobStatus.equals(errorStatus)) {
+                        String errorMessage = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("progressInfo").getString("reasonForJobDelay");
+                        LOG.error("commvault job failed reason : " + errorMessage);
+                    }
                     try {
                         Thread.sleep(30000);
                     } catch (InterruptedException e) {
-                        LOG.error("create backup get asyncjob result sleep interrupted error");
+                        LOG.error("getJobDetails result sleep interrupted error");
                         break;
                     }
                 } else {
