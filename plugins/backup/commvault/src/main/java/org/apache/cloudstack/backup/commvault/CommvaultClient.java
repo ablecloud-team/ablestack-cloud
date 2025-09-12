@@ -157,7 +157,7 @@ public class CommvaultClient {
                 throw new CloudRuntimeException("Failed to create and authenticate Commvault API client, please check the settings.");
             }
         } catch (IOException e) {
-            throw new CloudRuntimeException("Failed to authenticate Commvault API service due to:" + e.getMessage());
+            throw new CloudRuntimeException("Failed to authenticate Commvault API service due to : " + e.getMessage());
         }
     }
 
@@ -230,7 +230,7 @@ public class CommvaultClient {
                 }
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getClientId commvault api due to:", e);
+            LOG.error("Failed to request getClientId commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return null;
@@ -259,7 +259,7 @@ public class CommvaultClient {
             }
             return offerings;
         } catch (final IOException e) {
-            LOG.error("Failed to request listPlans commvault api due to:", e);
+            LOG.error("Failed to request listPlans commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return offerings;
@@ -287,7 +287,7 @@ public class CommvaultClient {
                 return plan.toString();
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getScheduleTaskId commvault api due to:", e);
+            LOG.error("Failed to request getScheduleTaskId commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return null;
@@ -309,7 +309,7 @@ public class CommvaultClient {
                 return null;
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getSubTaskId commvault api due to:", e);
+            LOG.error("Failed to request getSubTaskId commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return null;
@@ -323,7 +323,7 @@ public class CommvaultClient {
             checkResponseOK(response);
             return true;
         } catch (final IOException e) {
-            LOG.error("Failed to request deleteSchedulePolicy commvault api due to:", e);
+            LOG.error("Failed to request deleteSchedulePolicy commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return false;
@@ -349,7 +349,7 @@ public class CommvaultClient {
                 }
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getStoragePolicyId commvault api due to:", e);
+            LOG.error("Failed to request getStoragePolicyId commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return null;
@@ -379,7 +379,7 @@ public class CommvaultClient {
                 return true;
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getStoragePolicyDetails commvault api due to:", e);
+            LOG.error("Failed to request getStoragePolicyDetails commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return false;
@@ -406,7 +406,7 @@ public class CommvaultClient {
                 return null;
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getRetentionPeriod commvault api due to:", e);
+            LOG.error("Failed to request getRetentionPeriod commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return null;
@@ -467,7 +467,7 @@ public class CommvaultClient {
                 }
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request updateRetentionPeriod commvault api due to:", e);
+            LOG.error("Failed to request updateRetentionPeriod commvault api due to : ", e);
             checkResponseTimeOut(e);
         } finally {
             if (connection != null) {
@@ -492,7 +492,7 @@ public class CommvaultClient {
                 return backupsetId.asText();
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getDefaultBackupSetId commvault api due to:", e);
+            LOG.error("Failed to request getDefaultBackupSetId commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return null;
@@ -576,7 +576,7 @@ public class CommvaultClient {
                 return false;
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request setBackupSet commvault api due to:", e);
+            LOG.error("Failed to request setBackupSet commvault api due to : ", e);
             checkResponseTimeOut(e);
         } finally {
             if (connection != null) {
@@ -613,7 +613,7 @@ public class CommvaultClient {
                 }
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getApplicationId commvault api due to:", e);
+            LOG.error("Failed to request getApplicationId commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return null;
@@ -641,7 +641,7 @@ public class CommvaultClient {
                 }
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getClientProps commvault api due to:", e);
+            LOG.error("Failed to request getClientProps commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return true;
@@ -665,7 +665,7 @@ public class CommvaultClient {
             }
             return null;
         } catch (final IOException e) {
-            LOG.error("Failed to request plan detail commvault api due to:", e);
+            LOG.error("Failed to request plan detail commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return null;
@@ -754,7 +754,7 @@ public class CommvaultClient {
                 return false;
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request createBackupSet commvault api due to:", e);
+            LOG.error("Failed to request createBackupSet commvault api due to : ", e);
             checkResponseTimeOut(e);
         } finally {
             if (connection != null) {
@@ -783,7 +783,7 @@ public class CommvaultClient {
                 }
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getVmBackupSetId commvault api due to:", e);
+            LOG.error("Failed to request getVmBackupSetId commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return null;
@@ -797,7 +797,7 @@ public class CommvaultClient {
             checkResponseOK(response);
             return true;
         } catch (final IOException e) {
-            LOG.error("Failed to request deleteBackupSet commvault api due to:", e);
+            LOG.error("Failed to request deleteBackupSet commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return false;
@@ -823,7 +823,7 @@ public class CommvaultClient {
                 }
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getSubclient commvault api due to:", e);
+            LOG.error("Failed to request getSubclient commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return null;
@@ -925,7 +925,7 @@ public class CommvaultClient {
                 return false;
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request updateBackupSet commvault api due to:", e);
+            LOG.error("Failed to request updateBackupSet commvault api due to : ", e);
             checkResponseTimeOut(e);
         } finally {
             if (connection != null) {
@@ -1024,7 +1024,7 @@ public class CommvaultClient {
                 return null;
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request createBackup commvault api due to:", e);
+            LOG.error("Failed to request createBackup commvault api due to : ", e);
             checkResponseTimeOut(e);
         } finally {
             if (connection != null) {
@@ -1090,7 +1090,7 @@ public class CommvaultClient {
                     return null;
                 }
             } catch (final IOException e) {
-                LOG.error("Failed to request getJobDetails commvault api due to:", e);
+                LOG.error("Failed to request getJobDetails commvault api due to : ", e);
                 checkResponseTimeOut(e);
             } finally {
                 if (connection != null) {
@@ -1142,7 +1142,7 @@ public class CommvaultClient {
                 return null;
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getJobDetails commvault api due to:", e);
+            LOG.error("Failed to request getJobDetails commvault api due to : ", e);
             checkResponseTimeOut(e);
         } finally {
             if (connection != null) {
@@ -1228,7 +1228,7 @@ public class CommvaultClient {
                 return false;
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request updateBackupSet commvault api due to:", e);
+            LOG.error("Failed to request updateBackupSet commvault api due to : ", e);
             checkResponseTimeOut(e);
         } finally {
             if (connection != null) {
@@ -1257,7 +1257,7 @@ public class CommvaultClient {
                 }
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getVmBackupSetGuid commvault api due to:", e);
+            LOG.error("Failed to request getVmBackupSetGuid commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return null;
@@ -1388,7 +1388,7 @@ public class CommvaultClient {
                 return null;
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request restoreFullVM commvault api due to:", e);
+            LOG.error("Failed to request restoreFullVM commvault api due to : ", e);
             checkResponseTimeOut(e);
         } finally {
             if (connection != null) {
@@ -1413,7 +1413,7 @@ public class CommvaultClient {
                 return commCell.toString();
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getCommcell commvault api due to:", e);
+            LOG.error("Failed to request getCommcell commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return null;
@@ -1559,7 +1559,7 @@ public class CommvaultClient {
                 return null;
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request restoreFullVM commvault api due to:", e);
+            LOG.error("Failed to request installAgent commvault api due to : ", e);
             checkResponseTimeOut(e);
         } finally {
             if (connection != null) {
@@ -1591,7 +1591,7 @@ public class CommvaultClient {
                 }
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getActiveJob commvault api due to:", e);
+            LOG.error("Failed to request getActiveJob commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return false;
@@ -1626,7 +1626,7 @@ public class CommvaultClient {
                 }
             }
         } catch (final IOException e) {
-            LOG.error("Failed to request getInstallActiveJob commvault api due to:", e);
+            LOG.error("Failed to request getInstallActiveJob commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
         return false;
