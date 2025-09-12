@@ -148,9 +148,10 @@ public class CommvaultClient {
                     if (matcher.find()) {
                         accessToken = "QSDK " + matcher.group(1);
                     } else {
-                        JSONObject jsonObject = new JSONObject(response.toString());
-                        if (jsonObject.has("errList") && jsonObject.get("errList").isJsonArray()) {
-                            JsonArray responseArray = jsonObject.getAsJsonArray("errList");
+                        JsonParser jParser = new JsonParser();
+                        JsonObject jObject = (JsonObject)jParser.parse(response.toString());
+                        if (jObject.has("errList") && jObject.get("errList").isJsonArray()) {
+                            JsonArray responseArray = jObject.getAsJsonArray("errList");
                             if (responseArray.size() > 0) {
                                 JsonObject errLogMessage = responseArray.get(0).getAsJsonObject();
                                 if (errLogMessage.has("errLogMessage")) {
