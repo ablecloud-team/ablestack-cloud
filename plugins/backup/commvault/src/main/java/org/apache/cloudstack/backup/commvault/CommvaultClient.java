@@ -148,20 +148,7 @@ public class CommvaultClient {
                     if (matcher.find()) {
                         accessToken = "QSDK " + matcher.group(1);
                     } else {
-                        JsonParser jParser = new JsonParser();
-                        JsonObject jObject = (JsonObject)jParser.parse(response.toString());
-                        if (jObject.has("errList") && jObject.get("errList").isJsonArray()) {
-                            JsonArray responseArray = jObject.getAsJsonArray("errList");
-                            if (responseArray.size() > 0) {
-                                JsonObject errLogMessage = responseArray.get(0).getAsJsonObject();
-                                if (errLogMessage.has("errLogMessage")) {
-                                    String errorMessage = errLogMessage.get("errLogMessage").getAsString();
-                                    throw new CloudRuntimeException("Could not fetch access token from the given code : " + errorMessage);
-                                }
-                            }
-                        } else {
-                            throw new CloudRuntimeException("Could not fetch access token from the given code");
-                        }
+                        throw new CloudRuntimeException("Unable to retrieve access token. Check commvault information in global settings.");
                     }
                 }
             } else {
