@@ -123,6 +123,8 @@ public class CommvaultClient {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(180000);
             connection.setDoOutput(true);
             byte[] bytes = password.getBytes(StandardCharsets.UTF_8);
             String jsonParams = "{\"username\":\"" + username + "\",\"password\":\"" + Base64.getEncoder().encodeToString(bytes) + "\"}";
