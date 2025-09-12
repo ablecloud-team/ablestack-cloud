@@ -146,7 +146,9 @@ public class CommvaultClient {
                     if (matcher.find()) {
                         accessToken = "QSDK " + matcher.group(1);
                     } else {
-                        throw new CloudRuntimeException("Could not fetch access token from the given code");
+                        JSONObject jsonObject = new JSONObject(response.toString());
+                        String errorMessage = jsonObject.getJSONObject("errList").getString("errLogMessage");
+                        throw new CloudRuntimeException("Could not fetch access token from the given code : " + errorMessage);
                     }
                 }
             } else {
