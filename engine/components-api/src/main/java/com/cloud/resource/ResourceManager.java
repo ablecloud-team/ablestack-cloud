@@ -60,6 +60,11 @@ public interface ResourceManager extends ResourceService, Configurable {
             "Number of retries when preparing a host into Maintenance Mode is faulty before failing",
             false);
 
+    ConfigKey<String> KvmSshPort = new ConfigKey<>("Advanced", String.class,
+            "kvm.ssh.port","22",
+            "Kvm Host agent port value",
+            false);
+
     ConfigKey<String> HOST_MAINTENANCE_LOCAL_STRATEGY = new ConfigKey<>(String.class,
     "host.maintenance.local.storage.strategy", "Advanced","Error",
             "Defines the strategy towards VMs with volumes on local storage when putting a host in maintenance. "

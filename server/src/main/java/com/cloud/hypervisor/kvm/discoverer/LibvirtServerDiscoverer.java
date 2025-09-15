@@ -273,7 +273,7 @@ public abstract class LibvirtServerDiscoverer extends DiscovererBase implements 
                 }
             }
 
-            int port = NumbersUtil.parseInt(_configDao.getValue(Config.KvmSshPort.toString()), 22);
+            int port = NumbersUtil.parseInt(_configDao.getValue("kvm.ssh.port"), 22);
             sshConnection = new Connection(agentIp, port);
 
             sshConnection.connect(null, 60000, 60000);

@@ -4566,7 +4566,8 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
     @Override
     public ConfigKey<?>[] getConfigKeys() {
         return new ConfigKey<?>[] {
-                KvmSshToAgentEnabled,
+                KvmSshToAgentEnabled, 
+                KvmSshPort, 
                 HOST_MAINTENANCE_LOCAL_STRATEGY,
                 SystemVmPreferredArchitecture
         };
