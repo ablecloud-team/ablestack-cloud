@@ -79,11 +79,34 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups">
+      <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups" v-if="provider!=='commvault'">
         <template #label>
           <tooltip-label :title="$t('label.allowuserdrivenbackups')" :tooltip="apiParams.allowuserdrivenbackups.description"/>
         </template>
         <a-switch v-model:checked="form.allowuserdrivenbackups"/>
+      </a-form-item>
+      <a-form-item name="retentionperiod" ref="retentionperiod" v-if="provider==='commvault'">
+        <template #label>
+          <tooltip-label :title="$t('label.retentionperiod')" :tooltip="apiParams.retentionperiod.description"/>
+        </template>
+        <a-input-group compact>
+          <a-input
+            ref="retentionInput"
+            v-if="form.retentionPeriodUnit !== 'Infinite'"
+            v-model:value="form.retentionPeriodValue"
+            style="width: 50%"
+            type="number"
+            min="1"/>
+          <a-select
+            v-model:value="form.retentionPeriodUnit"
+            :style="form.retentionPeriodUnit === 'Infinite' ? 'width: 100%' : 'width: 50%'">
+            <a-select-option value="Day">{{ $t('label.day') }}</a-select-option>
+            <a-select-option value="Week">{{ $t('label.week') }}</a-select-option>
+            <a-select-option value="Month">{{ $t('label.month') }}</a-select-option>
+            <a-select-option value="Years">{{ $t('label.years') }}</a-select-option>
+            <a-select-option value="Infinite">{{ $t('label.infinite') }}</a-select-option>
+          </a-select>
+        </a-input-group>
       </a-form-item>
       <div :span="24" class="action-button">
         <a-button :loading="loading" @click="closeAction">{{ this.$t('label.cancel') }}</a-button>
@@ -115,7 +138,9 @@ export default {
       externals: {
         loading: false,
         opts: []
-      }
+      },
+      useCommvault: false,
+      provider: ''
     }
   },
   beforeCreate () {
@@ -124,22 +149,56 @@ export default {
   created () {
     this.initForm()
     this.fetchData()
+    this.checkBackupOffering()
+  },
+  computed: {
+    retentionPeriodInDays () {
+      const value = parseInt(this.form.retentionPeriodValue)
+      switch (this.form.retentionPeriodUnit) {
+        case 'Day':
+          return value
+        case 'Week':
+          return value * 7
+        case 'Month':
+          return value * 30
+        case 'Years':
+          return value * 365
+        case 'Infinite':
+          return -1
+        default:
+          return value
+      }
+    }
   },
   methods: {
     initForm () {
       this.formRef = ref()
       this.form = reactive({
-        allowuserdrivenbackups: true
+        allowuserdrivenbackups: true,
+        retentionPeriodValue: '',
+        retentionPeriodUnit: 'Day'
       })
       this.rules = reactive({
         name: [{ required: true, message: this.$t('message.error.required.input') }],
         description: [{ required: true, message: this.$t('message.error.required.input') }],
         zoneid: [{ required: true, message: this.$t('message.error.select') }],
-        externalid: [{ required: true, message: this.$t('message.error.select') }]
+        externalid: [{ required: true, message: this.$t('message.error.select') }],
+        retentionperiod: [{
+          validator: (rule, value) => {
+            if (this.form.retentionPeriodUnit === 'Infinite') {
+              return Promise.resolve()
+            }
+            if (!this.form.retentionPeriodValue || this.form.retentionPeriodValue === '') {
+              return Promise.reject(this.$t('message.error.required.input'))
+            }
+            return Promise.resolve()
+          }
+        }]
       })
     },
     fetchData () {
       this.fetchZone()
+      this.isCommvault()
     },
     fetchZone () {
       this.zones.loading = true
@@ -149,6 +208,24 @@ export default {
         this.$notifyError(error)
       }).finally(f => {
         this.zones.loading = false
+      })
+    },
+    checkBackupOffering () {
+      api('listBackupOfferings').then(json => {
+        var backupOff = json.listbackupofferingsresponse.backupoffering || []
+        for (const off of backupOff) {
+          if (off.provider === 'commvault') {
+            this.useCommvault = true
+            return
+          }
+        }
+      })
+    },
+    isCommvault () {
+      api('listConfigurations', { name: 'backup.framework.provider.plugin' }).then(json => {
+        if (json.listconfigurationsresponse.configuration[0]) {
+          this.provider = json.listconfigurationsresponse.configuration[0].value
+        }
       })
     },
     fetchExternal (zoneId) {
@@ -165,10 +242,23 @@ export default {
         this.externals.loading = false
       })
     },
+    forceUpdateRetentionValue () {
+      if (this.$refs.retentionInput) {
+        const inputValue = this.$refs.retentionInput.$el.querySelector('input').value
+        this.form.retentionPeriodValue = inputValue
+      }
+    },
     handleSubmit (e) {
       e.preventDefault()
       if (this.loading) return
       this.formRef.value.validate().then(() => {
+        if (this.useCommvault) {
+          this.$notification.error({
+            message: this.$t('message.request.failed'),
+            description: this.$t('message.error.import.backup.offering')
+          })
+          return
+        }
         const values = toRaw(this.form)
         const params = {}
         for (const key in values) {
@@ -179,31 +269,30 @@ export default {
             params[key] = input
           }
         }
+        if (this.provider === 'commvault') {
+          params.retentionperiod = this.retentionPeriodInDays
+        }
         params.allowuserdrivenbackups = values.allowuserdrivenbackups
         this.loading = true
         const title = this.$t('label.import.offering')
         api('importBackupOffering', params).then(json => {
           const jobId = json.importbackupofferingresponse.jobid
-          if (jobId) {
-            this.$pollJob({
-              jobId,
-              title,
-              description: values.name,
-              successMethod: result => {
-                this.closeAction()
-                this.loading = false
-              },
-              loadingMessage: `${title} ${this.$t('label.in.progress')} ${this.$t('label.for')} ${params.name}`,
-              catchMessage: this.$t('error.fetching.async.job.result'),
-              catchMethod: () => {
-                this.loading = false
-              }
-            })
-          }
+          this.$pollJob({
+            jobId,
+            title,
+            description: values.name,
+            successMessage: `${title} ${params.name}`,
+            loadingMessage: `${title} ${this.$t('label.in.progress')} ${this.$t('label.for')} ${params.name}`,
+            catchMessage: this.$t('error.fetching.async.job.result')
+          })
+          this.closeAction()
         }).catch(error => {
           this.$notifyError(error)
+        }).finally(() => {
           this.loading = false
         })
+      }).catch(error => {
+        this.formRef.value.scrollToField(error.errorFields[0].name)
       })
     },
     onChangeZone (value) {

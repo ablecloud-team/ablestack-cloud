@@ -4878,5 +4878,11 @@
 "label.hardware.storage.enclosurelist": "Enclosures",
 "label.switches": "Switches",
 "message.redfishdata.loading": "Query may take some time.",
-"message.migrate.instance.to.host.extraconfig" : "<br>(The virtual machine is using host devices (ExtraConfig) and live migration may fail. Do you want to proceed anyway?)"
+"message.migrate.instance.to.host.extraconfig" : "<br>(The virtual machine is using host devices (ExtraConfig) and live migration may fail. Do you want to proceed anyway?)",
+"label.retentionperiod": "Retention Period",
+"label.week": "Week",
+"label.month": "Month",
+"label.years": "Years",
+"label.infinite": "Infinite",
+"message.error.import.backup.offering": "For Commvuault backups, only one backup offering can be imported, and the backup offering already exists."
 }

@@ -28,7 +28,7 @@
         <BackupSchedule
           :loading="loading"
           :resource="resource"
-          :dataSource="dataSource" />
+          :dataSource="dataSource"/>
       </a-tab-pane>
     </a-tabs>
   </div>
@@ -54,12 +54,14 @@ export default {
   data () {
     return {
       loading: false,
-      dataSource: {}
+      dataSource: []
     }
   },
   provide () {
     return {
-      refreshSchedule: this.fetchData,
+      refreshSchedule: () => {
+        this.fetchData()
+      },
       closeSchedule: this.closeAction
     }
   },
@@ -69,11 +71,15 @@ export default {
   methods: {
     fetchData () {
       const params = {}
-      this.dataSource = {}
       this.loading = true
       params.virtualmachineid = this.resource.id
       api('listBackupSchedule', params).then(json => {
-        this.dataSource = json.listbackupscheduleresponse.backupschedule || {}
+        const listBackupSchedule = json.listbackupscheduleresponse.backupschedule
+        this.dataSource = listBackupSchedule || []
+      }).catch(error => {
+        if ([530].includes(error.response.status)) {
+          this.dataSource = []
+        }
       }).finally(() => {
         this.loading = false
       })
