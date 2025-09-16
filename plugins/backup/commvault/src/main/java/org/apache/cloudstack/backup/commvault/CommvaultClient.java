@@ -1535,7 +1535,6 @@ public class CommvaultClient {
                 "  }\n" +
                 "}",
                 Integer.parseInt(commCellId), clientName, Integer.parseInt(commCellId), commServeHostName, userName, Base64.getEncoder().encodeToString(bytes));
-                LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
