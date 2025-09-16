@@ -1048,7 +1048,6 @@ public class CommvaultClient {
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setRequestProperty("Accept", "application/json");
                 connection.setRequestProperty("Authorization", accessToken);
-                connection.setConnectTimeout(10000);
                 connection.setReadTimeout(180000);
                 connection.setDoOutput(true);
                 String jsonBody = String.format(
