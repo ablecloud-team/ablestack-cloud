@@ -30,7 +30,6 @@ import org.apache.cloudstack.api.response.LogoutCmdResponse;
 import org.apache.cloudstack.saml.SAML2AuthManager;
 import org.apache.cloudstack.saml.SAMLPluginConstants;
 import org.apache.cloudstack.saml.SAMLProviderMetadata;
-import org.apache.cloudstack.saml.SAMLProviderMetadata;
 import org.apache.cloudstack.saml.SAMLUtils;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.saml2.core.LogoutRequest;

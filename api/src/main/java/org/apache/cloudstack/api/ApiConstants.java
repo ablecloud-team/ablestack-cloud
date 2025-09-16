@@ -1311,6 +1311,7 @@ public class ApiConstants {
     public static final String CURRENT_VM_ID = "currentvmid";
 
     public static final String RESULT_REDFISH_DATA = "redfishdata";
+    public static final String EXTERNAL_ENTITY = "externalEntity";
 
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.
