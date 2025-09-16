@@ -43,7 +43,7 @@ CALL `cloud`.`ADD_GUEST_OS_AND_HYPERVISOR_MAPPING` (1, 'Red Hat Enterprise Linux
 CALL `cloud`.`ADD_GUEST_OS_AND_HYPERVISOR_MAPPING` (1, 'Rocky Linux 9', 'VMware', '7.0.3.0', 'otherLinux64Guest');
 
 -- Add support for VMware 8.0 and 8.0a (8.0.0.1)
- `cloud`.`hypervisor_capabilities` (uuid, hypervisor_type, hypervisor_version, max_guests_limit, security_group_enabled, max_data_volumes_limit, max_hosts_per_cluster, storage_motion_supported, vm_snapshot_enabled) values (UUID(), 'VMware', '8.0', 1024, 0, 59, 64, 1, 1);
+INSERT IGNORE INTO `cloud`.`hypervisor_capabilities` (uuid, hypervisor_type, hypervisor_version, max_guests_limit, security_group_enabled, max_data_volumes_limit, max_hosts_per_cluster, storage_motion_supported, vm_snapshot_enabled) values (UUID(), 'VMware', '8.0', 1024, 0, 59, 64, 1, 1);
 INSERT IGNORE INTO `cloud`.`hypervisor_capabilities` (uuid, hypervisor_type, hypervisor_version, max_guests_limit, security_group_enabled, max_data_volumes_limit, max_hosts_per_cluster, storage_motion_supported, vm_snapshot_enabled) values (UUID(), 'VMware', '8.0.0.1', 1024, 0, 59, 64, 1, 1);
 INSERT IGNORE INTO `cloud`.`guest_os_hypervisor` (uuid,hypervisor_type, hypervisor_version, guest_os_name, guest_os_id, created, is_user_defined) SELECT UUID(),'VMware', '8.0', guest_os_name, guest_os_id, utc_timestamp(), 0  FROM `cloud`.`guest_os_hypervisor` WHERE hypervisor_type='VMware' AND hypervisor_version='7.0.3.0';
 INSERT IGNORE INTO `cloud`.`guest_os_hypervisor` (uuid,hypervisor_type, hypervisor_version, guest_os_name, guest_os_id, created, is_user_defined) SELECT UUID(),'VMware', '8.0.0.1', guest_os_name, guest_os_id, utc_timestamp(), 0  FROM `cloud`.`guest_os_hypervisor` WHERE hypervisor_type='VMware' AND hypervisor_version='7.0.3.0';
@@ -257,11 +257,11 @@ WHERE n.`state` = 'Setup'
   AND n.`removed` IS NULL
   AND n.`guest_type` = 'Isolated'
   AND o.`is_persistent` = 1
-  AND m.network_offering_id IS NULL;   -- 서비스 매핑이 한 건도 없는 오퍼링만
+  AND m.network_offering_id IS NULL;
 
 ----- PR Quota custom tariffs #5909---
 -- Create column 'uuid'
-CALL `cloud_usage`.`IDEMPOTENT_ADD_COLUMN`('cloud_usage.quota_tariff','uuid','VARCHAR(40) DEFAULT NULL');
+CALL `cloud_usage`.`IDEMPOTENT_ADD_COLUMN`('cloud_usage.quota_tariff','uuid','VARCHAR(40)');
 
 UPDATE `cloud_usage`.`quota_tariff`
 SET `uuid` = UUID()
