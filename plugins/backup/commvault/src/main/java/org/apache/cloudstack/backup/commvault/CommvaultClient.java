@@ -631,8 +631,9 @@ public class CommvaultClient {
                 for (JsonNode clientProp : clientProperties) {
                     JsonNode clientReadiness = clientProp.get("clientReadiness");
                     if (!clientReadiness.isMissingNode()) {
-                        String status = "Not Ready";
-                        if (clientReadiness.get("readinessStatus").asText().contains(status)) {
+                        String status1 = "Not Ready";
+                        String status2 = "Unknown";
+                        if (clientReadiness.get("readinessStatus").asText().contains(status1) || clientReadiness.get("readinessStatus").asText().contains(status2)) {
                             return false;
                         }
                     }
