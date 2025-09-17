@@ -781,9 +781,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 checkResult.put(vol.getId(), snapId);
                 SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findLatestSnapshotForVolume(vol.getId(), DataStoreRole.Primary);
                 joiner.add(snapshotStore.getInstallPath());
+                LOG.info(joiner+"::::::::::::::::::::::::::");
             }
         }
         String path = joiner.toString();
+        LOG.info(path+"::::::::::::::::::::::::::");
         // 생성된 스냅샷의 경로로 해당 백업 세트의 백업 콘텐츠 경로 업데이트
         String clientId = client.getClientId(hostName);
         String subClientEntity = client.getSubclient(clientId, vm.getInstanceName());
@@ -846,6 +848,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
                     String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
                     String externalId = path + "," + jobId;
+                    LOG.info(externalId+"::::::::::::::::::::::::::");
                     BackupVO backup = new BackupVO();
                     backup.setVmId(vm.getId());
                     backup.setExternalId(externalId);
