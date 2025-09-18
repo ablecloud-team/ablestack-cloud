@@ -669,9 +669,12 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                 Date restoreJobEnd = new Date();
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
                                 if (VirtualMachine.State.Running.equals(vmNameAndState.second())) {
+                                    final VMInstanceVO vm = vmInstanceDao.findByIdIncludingRemoved(backup.getVmId());
+                                    HostVO rvHostVO = hostDao.findByVmId(vm.getId());
+                                    Ternary<String, String, String> rvCredentials = getKVMHyperisorCredentials(rvHostVO);
                                     command = String.format(CURRRENT_DEVICE, vmNameAndState.first());
                                     LOG.info(command+":::::::::::::::::::::::::::::::::::::::::::");
-                                    String currentDevice = executeDeviceCommand(hostVO, credentials.first(), credentials.second(), command);
+                                    String currentDevice = executeDeviceCommand(rvHostVO, rvCredentials.first(), rvCredentials.second(), command);
                                     LOG.info(currentDevice+":::::::::::::::::::::::::::::::::::::::::::");
                                     if (currentDevice == null) {
                                         volumeDao.expunge(restoredVolume.getId());
@@ -685,7 +688,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                         LOG.info(rvDevice+":::::::::::::::::::::::::::::::::::::::::::");
                                         command = String.format(ATTACH_DISK_COMMAND, vmNameAndState.first(), reVolumePath, rvDevice);
                                         LOG.info(command+"::::::::::::::::::");
-                                        if (!executeAttachCommand(hostVO, credentials.first(), credentials.second(), command)) {
+                                        if (!executeAttachCommand(rvHostVO, rvCredentials.first(), rvCredentials.second(), command)) {
                                             volumeDao.expunge(restoredVolume.getId());
                                             command = String.format(RM_COMMAND, snapshotPath);
                                             executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
