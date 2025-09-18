@@ -25,7 +25,6 @@ import com.cloud.host.HostVO;
 import com.cloud.host.Status;
 import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor;
-import com.cloud.storage.StoragePoolHostVO;
 import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
