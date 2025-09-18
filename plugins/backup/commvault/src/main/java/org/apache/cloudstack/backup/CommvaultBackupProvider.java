@@ -636,7 +636,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findDestroyedReferenceBySnapshot(snapshot.getSnapshotId(), DataStoreRole.Primary);
                         String snapshotPath = snapshotStore.getInstallPath();
                         if (volumes.getPath().equalsIgnoreCase(volume.getPath())) {
-                            LOG.info("volume이 같은 경우");
                             VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
                             Long restoredVolumeDiskSize = 0L;
                             // Find volume size  from backup vols
@@ -678,7 +677,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                         executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                                         throw new CloudRuntimeException("Failed to get current device execute command VM to location " + volume.getPath());
                                     } else {
-                                        command = String.format(ATTACH_DISK_COMMAND, vmNameAndState.first(), restoredVolume.getUuid(), deviceName);
+                                        command = String.format(ATTACH_DISK_COMMAND, vmNameAndState.first(), reVolumePath, deviceName);
                                         if (!executeAttachCommand(hostVO, credentials.first(), credentials.second(), command)) {
                                             volumeDao.expunge(restoredVolume.getId());
                                             command = String.format(RM_COMMAND, snapshotPath);
@@ -696,17 +695,14 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                 executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                             }
                         } else {
-                            LOG.info("volume이 다른 경우");
                             String command = String.format(RM_COMMAND, snapshotPath);
                             LOG.info(command);
                             executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                         }
                     }
                     if (!checkResult.isEmpty()) {
-                        LOG.info("!checkResult.isEmpty()");
                         return new Pair<>(true,restoreVolume);
                     } else {
-                        LOG.info("checkResult.isEmpty()");
                         throw new CloudRuntimeException("Failed to restore VM to location " + volume.getPath());
                     }
                 }
