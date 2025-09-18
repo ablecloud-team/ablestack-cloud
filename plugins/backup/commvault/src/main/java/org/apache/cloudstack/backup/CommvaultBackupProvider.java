@@ -842,55 +842,70 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 String jobStatus = client.getJobStatus(jobId);
                 if (jobStatus.equalsIgnoreCase("Completed")) {
                     String jobDetails = client.getJobDetails(jobId);
-                    JSONObject jsonObject2 = new JSONObject(jobDetails);
-                    String endTime = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
-                    long timestamp = Long.parseLong(endTime) * 1000L;
-                    Date endDate = new Date(timestamp);
-                    SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-                    String formattedString = formatterDateTime.format(endDate);
-                    String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
-                    String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
-                    String externalId = path + "," + jobId;
-                    BackupVO backup = new BackupVO();
-                    backup.setVmId(vm.getId());
-                    backup.setExternalId(externalId);
-                    backup.setType(type);
-                    try {
-                        backup.setDate(formatterDateTime.parse(formattedString));
-                    } catch (ParseException e) {
-                        String msg = String.format("Unable to parse date [%s].", endTime);
-                        LOG.error(msg, e);
-                        throw new CloudRuntimeException(msg, e);
-                    }
-                    backup.setSize(Long.parseLong(size));
-                    long virtualSize = 0L;
-                    for (final Volume volume: volumeDao.findByInstance(vm.getId())) {
-                        if (Volume.State.Ready.equals(volume.getState())) {
-                            virtualSize += volume.getSize();
+                    if (jobDetails != null) {
+                        JSONObject jsonObject2 = new JSONObject(jobDetails);
+                        String endTime = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
+                        long timestamp = Long.parseLong(endTime) * 1000L;
+                        Date endDate = new Date(timestamp);
+                        SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                        String formattedString = formatterDateTime.format(endDate);
+                        String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
+                        String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
+                        String externalId = path + "," + jobId;
+                        BackupVO backup = new BackupVO();
+                        backup.setVmId(vm.getId());
+                        backup.setExternalId(externalId);
+                        backup.setType(type);
+                        try {
+                            backup.setDate(formatterDateTime.parse(formattedString));
+                        } catch (ParseException e) {
+                            String msg = String.format("Unable to parse date [%s].", endTime);
+                            LOG.error(msg, e);
+                            throw new CloudRuntimeException(msg, e);
                         }
+                        backup.setSize(Long.parseLong(size));
+                        long virtualSize = 0L;
+                        for (final Volume volume: volumeDao.findByInstance(vm.getId())) {
+                            if (Volume.State.Ready.equals(volume.getState())) {
+                                virtualSize += volume.getSize();
+                            }
+                        }
+                        backup.setProtectedSize(Long.valueOf(virtualSize));
+                        backup.setStatus(org.apache.cloudstack.backup.Backup.Status.BackedUp);
+                        backup.setBackupOfferingId(vm.getBackupOfferingId());
+                        backup.setAccountId(vm.getAccountId());
+                        backup.setDomainId(vm.getDomainId());
+                        backup.setZoneId(vm.getDataCenterId());
+                        backup.setBackedUpVolumes(BackupManagerImpl.createVolumeInfoFromVolumes(volumeDao.findByInstance(vm.getId()), checkResult));
+                        StringJoiner snapshots = new StringJoiner(",");
+                        for (String value : checkResult.values()) {
+                            snapshots.add(value);
+                        }
+                        backup.setSnapshotId(snapshots.toString());
+                        backupDao.persist(backup);
+                        // 백업 성공 후 스냅샷 삭제
+                        for (String value : checkResult.values()) {
+                            Map<String, String> snapshotParams = new HashMap<>();
+                            snapshotParams.put("id", value);
+                            moldMethod = "GET";
+                            moldCommand = "deleteSnapshot";
+                            moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+                        }
+                        return true;
+                    } else {
+                        // 백업 실패
+                        if (!checkResult.isEmpty()) {
+                            for (String value : checkResult.values()) {
+                                Map<String, String> snapshotParams = new HashMap<>();
+                                snapshotParams.put("id", value);
+                                moldMethod = "GET";
+                                moldCommand = "deleteSnapshot";
+                                moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+                            }
+                        }
+                        LOG.error("createBackup commvault api resulted in " + jobStatus);
+                        return false;
                     }
-                    backup.setProtectedSize(Long.valueOf(virtualSize));
-                    backup.setStatus(org.apache.cloudstack.backup.Backup.Status.BackedUp);
-                    backup.setBackupOfferingId(vm.getBackupOfferingId());
-                    backup.setAccountId(vm.getAccountId());
-                    backup.setDomainId(vm.getDomainId());
-                    backup.setZoneId(vm.getDataCenterId());
-                    backup.setBackedUpVolumes(BackupManagerImpl.createVolumeInfoFromVolumes(volumeDao.findByInstance(vm.getId()), checkResult));
-                    StringJoiner snapshots = new StringJoiner(",");
-                    for (String value : checkResult.values()) {
-                        snapshots.add(value);
-                    }
-                    backup.setSnapshotId(snapshots.toString());
-                    backupDao.persist(backup);
-                    // 백업 성공 후 스냅샷 삭제
-                    for (String value : checkResult.values()) {
-                        Map<String, String> snapshotParams = new HashMap<>();
-                        snapshotParams.put("id", value);
-                        moldMethod = "GET";
-                        moldCommand = "deleteSnapshot";
-                        moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                    }
-                    return true;
                 } else {
                     // 백업 실패
                     if (!checkResult.isEmpty()) {
