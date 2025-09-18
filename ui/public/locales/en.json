@@ -5207,5 +5207,6 @@
 "label.hardware.storage.enclosurelist": "Enclosures",
 "label.switches": "Switches",
 "message.redfishdata.loading": "Query may take some time.",
-"message.migrate.instance.to.host.extraconfig" : "<br>(The virtual machine is using host devices (ExtraConfig) and live migration may fail. Do you want to proceed anyway?)"
+"message.migrate.instance.to.host.extraconfig" : "<br>(The virtual machine is using host devices (ExtraConfig) and live migration may fail. Do you want to proceed anyway?)",
+"label.migrationip": "Live Migration IP Address"
 }

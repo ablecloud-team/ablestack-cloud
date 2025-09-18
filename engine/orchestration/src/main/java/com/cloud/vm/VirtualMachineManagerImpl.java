@@ -3211,8 +3211,13 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
      */
     protected MigrateCommand buildMigrateCommand(VMInstanceVO vmInstance, VirtualMachineTO virtualMachineTO, DeployDestination destination, Answer answer,
                                                  Map<String, DpdkTO> dpdkInterfaceMapping) {
+        final HostVO destHost = _hostDao.findById(destination.getHost().getId());
+        String destIp = StringUtils.isNotBlank(destHost.getMigrationIp())
+            ? destHost.getMigrationIp()
+            : destination.getHost().getPrivateIpAddress();
+
         final boolean isWindows = _guestOsCategoryDao.findById(_guestOsDao.findById(vmInstance.getGuestOSId()).getCategoryId()).getName().equalsIgnoreCase("Windows");
-        final MigrateCommand migrateCommand = new MigrateCommand(vmInstance.getInstanceName(), destination.getHost().getPrivateIpAddress(), isWindows, virtualMachineTO,
+        final MigrateCommand migrateCommand = new MigrateCommand(vmInstance.getInstanceName(), destIp, isWindows, virtualMachineTO,
                 getExecuteInSequence(vmInstance.getHypervisorType()));
 
         Map<String, Boolean> vlanToPersistenceMap = getVlanToPersistenceMapForVM(vmInstance.getId());

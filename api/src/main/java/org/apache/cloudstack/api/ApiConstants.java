@@ -1471,6 +1471,8 @@ public class ApiConstants {
 
     public static final String RESULT_REDFISH_DATA = "redfishdata";
     public static final String EXTERNAL_ENTITY = "externalEntity";
+    public static final String MIGRATION_IP = "migrationip";
+
 
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.

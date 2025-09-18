@@ -231,6 +231,9 @@ public class HostJoinVO extends BaseViewVO implements InternalIdentity, Identity
     @Convert(converter = CPUArchConverter.class)
     private CPU.CPUArch arch;
 
+    @Column(name = "migration_ip")
+    private String migrationIp;
+
     @Override
     public long getId() {
         return this.id;
@@ -469,5 +472,9 @@ public class HostJoinVO extends BaseViewVO implements InternalIdentity, Identity
 
     public CPU.CPUArch getArch() {
         return arch;
+    }
+
+    public String getMigrationIp() {
+        return migrationIp;
     }
 }
