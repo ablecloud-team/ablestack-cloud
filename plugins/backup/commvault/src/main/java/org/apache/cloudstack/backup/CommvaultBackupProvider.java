@@ -671,6 +671,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                 if (VirtualMachine.State.Running.equals(vmNameAndState.second())) {
                                     command = String.format(CURRRENT_DEVICE, vmNameAndState.first());
                                     String currentDevice = executeDeviceCommand(hostVO, credentials.first(), credentials.second(), command);
+                                    LOG.info(currentDevice+":::::::::::::::::::::::::::::::::::::::::::");
                                     if (currentDevice == null) {
                                         volumeDao.expunge(restoredVolume.getId());
                                         command = String.format(RM_COMMAND, snapshotPath);
@@ -680,7 +681,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                         char lastChar = currentDevice.charAt(currentDevice.length() - 1);
                                         char incrementedChar = (char) (lastChar + 1);
                                         String rvDevice = currentDevice.substring(0, currentDevice.length() - 1) + incrementedChar;
+                                        LOG.info(rvDevice+":::::::::::::::::::::::::::::::::::::::::::");
                                         command = String.format(ATTACH_DISK_COMMAND, vmNameAndState.first(), reVolumePath, rvDevice);
+                                        LOG.info(command+"::::::::::::::::::");
                                         if (!executeAttachCommand(hostVO, credentials.first(), credentials.second(), command)) {
                                             volumeDao.expunge(restoredVolume.getId());
                                             command = String.format(RM_COMMAND, snapshotPath);
