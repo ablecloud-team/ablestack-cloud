@@ -143,6 +143,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     private static final String RSYNC_COMMAND = "rsync -az %s %s";
     private static final String RM_COMMAND = "rm -rf %s";
+    private static final String CURRRENT_DEVICE = "virsh domblklist --domain %s | tail -n 3 | head -n 1 | awk '{print $1}'";
+    private static final String ATTACH_DISK_COMMAND = " virsh attach-disk %s %s %s --driver qemu --subdriver qcow2 --cache none";
 
     @Inject
     private BackupDao backupDao;
@@ -667,6 +669,24 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), command)) {
                                 Date restoreJobEnd = new Date();
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
+                                if (VirtualMachine.State.Running.equals(vmNameAndState.second())) {
+                                    command = String.format(CURRRENT_DEVICE, vmNameAndState.first());
+                                    String deviceName = executeDeviceCommand(hostVO, credentials.first(), credentials.second(), command);
+                                    if (deviceName == null) {
+                                        volumeDao.expunge(restoredVolume.getId());
+                                        command = String.format(RM_COMMAND, snapshotPath);
+                                        executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
+                                        throw new CloudRuntimeException("Failed to get current device execute command VM to location " + volume.getPath());
+                                    } else {
+                                        command = String.format(ATTACH_DISK_COMMAND, vmNameAndState.first(), restoredVolume.getUuid(), deviceName);
+                                        if (!executeAttachCommand(hostVO, credentials.first(), credentials.second(), command)) {
+                                            volumeDao.expunge(restoredVolume.getId());
+                                            command = String.format(RM_COMMAND, snapshotPath);
+                                            executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
+                                            throw new CloudRuntimeException(String.format("Failed to attach volume to VM: %s", vmNameAndState.first()));
+                                        }
+                                    }
+                                }
                                 checkResult.put(snapshots[i], volumePath);
                                 restoreVolume = restoredVolume.getUuid();
                             } else {
@@ -1294,6 +1314,38 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             LOG.debug("Failed to read configuration from server.properties file", e);
         }
         return serverInfo;
+    }
+
+    private String executeDeviceCommand(HostVO host, String username, String password, String command) {
+        try {
+            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), 22,
+                    username, null, password, command, 120000, 120000, 3600000);
+
+            if (!response.first()) {
+                LOG.error(String.format("get current device failed on HYPERVISOR %s due to: %s", host, response.second()));
+            } else {
+                return response.second();
+            }
+        } catch (final Exception e) {
+            throw new CloudRuntimeException(String.format("Failed to get current device backup on host %s due to: %s", host.getName(), e.getMessage()));
+        }
+        return null;
+    }
+
+    private boolean executeAttachCommand(HostVO host, String username, String password, String command) {
+        try {
+            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), 22,
+                    username, null, password, command, 120000, 120000, 3600000);
+
+            if (!response.first()) {
+                LOG.error(String.format("Attach voulme failed on HYPERVISOR %s due to: %s", host, response.second()));
+            } else {
+                return true;
+            }
+        } catch (final Exception e) {
+            throw new CloudRuntimeException(String.format("Failed to attach volume backup on host %s due to: %s", host.getName(), e.getMessage()));
+        }
+        return false;
     }
 
     private boolean executeRestoreCommand(HostVO host, String username, String password, String command) {
