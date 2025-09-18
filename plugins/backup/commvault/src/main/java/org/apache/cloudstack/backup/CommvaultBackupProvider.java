@@ -87,6 +87,7 @@ import java.util.StringTokenizer;
 import java.util.StringJoiner;
 import java.util.Properties;
 import java.util.Collections;
+import java.util.Comparator;
 import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -485,7 +486,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     @Override
     public boolean restoreVMFromBackup(VirtualMachine vm, Backup backup) {
         List<Backup.VolumeInfo> backedVolumes = backup.getBackedUpVolumes();
-        List<VolumeVO> volumes = backedVolumes.stream().map(volume -> volumeDao.findByUuid(volume.getUuid())).collect(Collectors.toList());
+        List<VolumeVO> volumes = backedVolumes.stream()
+                .map(volume -> volumeDao.findByUuid(volume.getUuid()))
+                .sorted((v1, v2) -> Long.compare(v1.getDeviceId(), v2.getDeviceId()))
+                .collect(Collectors.toList());
         try {
             String commvaultServer = getUrlDomain(CommvaultUrl.value());
         } catch (URISyntaxException e) {
@@ -736,6 +740,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         UserVmJoinVO userVM = userVmJoinDao.findById(vm.getId());
         List<VolumeVO> volumes = volumeDao.findByInstance(userVM.getId());
+        volumes.sort(Comparator.comparing(Volume::getDeviceId));
         StringJoiner joiner = new StringJoiner(",");
         Map<Object, String> checkResult = new HashMap<>();
         for (VolumeVO vol : volumes) {
