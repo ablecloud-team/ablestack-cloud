@@ -670,14 +670,17 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
                                 if (VirtualMachine.State.Running.equals(vmNameAndState.second())) {
                                     command = String.format(CURRRENT_DEVICE, vmNameAndState.first());
-                                    String deviceName = executeDeviceCommand(hostVO, credentials.first(), credentials.second(), command);
-                                    if (deviceName == null) {
+                                    String currentDevice = executeDeviceCommand(hostVO, credentials.first(), credentials.second(), command);
+                                    if (currentDevice == null) {
                                         volumeDao.expunge(restoredVolume.getId());
                                         command = String.format(RM_COMMAND, snapshotPath);
                                         executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                                         throw new CloudRuntimeException("Failed to get current device execute command VM to location " + volume.getPath());
                                     } else {
-                                        command = String.format(ATTACH_DISK_COMMAND, vmNameAndState.first(), reVolumePath, deviceName);
+                                        char lastChar = currentDevice.charAt(currentDevice.length() - 1);
+                                        char incrementedChar = (char) (lastChar + 1);
+                                        String rvDevice = currentDevice.substring(0, currentDevice.length() - 1) + incrementedChar;
+                                        command = String.format(ATTACH_DISK_COMMAND, vmNameAndState.first(), reVolumePath, rvDevice);
                                         if (!executeAttachCommand(hostVO, credentials.first(), credentials.second(), command)) {
                                             volumeDao.expunge(restoredVolume.getId());
                                             command = String.format(RM_COMMAND, snapshotPath);
