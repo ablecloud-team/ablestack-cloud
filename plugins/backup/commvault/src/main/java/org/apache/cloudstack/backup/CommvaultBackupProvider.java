@@ -663,7 +663,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             } catch (Exception e) {
                                 throw new CloudRuntimeException("Unable to craft restored volume due to: "+e);
                             }
-                            String command = String.format(RSYNC_COMMAND, snapshotPath, volumePath);
+                            String command = String.format(RSYNC_COMMAND, snapshotPath, restoredVolume.getUuid());
                             LOG.info(command);
                             if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), command)) {
                                 Date restoreJobEnd = new Date();
