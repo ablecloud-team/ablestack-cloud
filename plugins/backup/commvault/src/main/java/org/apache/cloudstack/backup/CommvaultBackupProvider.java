@@ -670,6 +670,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
                                 if (VirtualMachine.State.Running.equals(vmNameAndState.second())) {
                                     command = String.format(CURRRENT_DEVICE, vmNameAndState.first());
+                                    LOG.info(command+":::::::::::::::::::::::::::::::::::::::::::");
                                     String currentDevice = executeDeviceCommand(hostVO, credentials.first(), credentials.second(), command);
                                     LOG.info(currentDevice+":::::::::::::::::::::::::::::::::::::::::::");
                                     if (currentDevice == null) {
@@ -1326,6 +1327,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             if (!response.first()) {
                 LOG.error(String.format("get current device failed on HYPERVISOR %s due to: %s", host, response.second()));
             } else {
+                LOG.info(response.second()+":::::::::::::::::::::::::::::::");
                 return response.second();
             }
         } catch (final Exception e) {
