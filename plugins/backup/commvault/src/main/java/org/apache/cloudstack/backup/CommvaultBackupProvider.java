@@ -1285,7 +1285,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             if (!response.first()) {
                 LOG.error(String.format("Restore failed on HYPERVISOR %s due to: %s", host, response.second()));
             } else {
-                LOG.info(String.format("Commvault Restore Results: %s", response.second()));
                 return true;
             }
         } catch (final Exception e) {
@@ -1302,7 +1301,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             if (!response.first()) {
                 LOG.error(String.format("Restore failed on HYPERVISOR %s due to: %s", host, response.second()));
             } else {
-                LOG.info(String.format("Commvault Restore Results: %s", response.second()));
                 return true;
             }
         } catch (final Exception e) {
