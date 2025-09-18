@@ -637,7 +637,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         if (volumes.getPath().equalsIgnoreCase(volume.getPath())) {
                             LOG.info("volume이 같은 경우");
                             VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
-                            StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
                             Long restoredVolumeDiskSize = 0L;
                             // Find volume size  from backup vols
                             for (Backup.VolumeInfo VMVolToRestore : backupSourceVm.getBackupVolumeList()) {
@@ -653,7 +652,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             restoredVolume.setUuid(UUID.randomUUID().toString());
                             restoredVolume.setRemoved(null);
                             restoredVolume.setDisplayVolume(true);
-                            restoredVolume.setPoolId(dataStore.getPoolId());
+                            restoredVolume.setPoolId(volumes.getPoolId());
                             restoredVolume.setPath(restoredVolume.getUuid());
                             restoredVolume.setState(Volume.State.Copying);
                             restoredVolume.setSize(restoredVolumeDiskSize);
