@@ -670,7 +670,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
                                 if (VirtualMachine.State.Running.equals(vmNameAndState.second())) {
                                     final VMInstanceVO vm = vmInstanceDao.findByIdIncludingRemoved(backup.getVmId());
-                                    HostVO rvHostVO = hostDao.findByVmId(vm.getId());
+                                    HostVO rvHostVO = hostDao.findById(vm.getHostId());
                                     Ternary<String, String, String> rvCredentials = getKVMHyperisorCredentials(rvHostVO);
                                     command = String.format(CURRRENT_DEVICE, vmNameAndState.first());
                                     LOG.info(command+":::::::::::::::::::::::::::::::::::::::::::");
