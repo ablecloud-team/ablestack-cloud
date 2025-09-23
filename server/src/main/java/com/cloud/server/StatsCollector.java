@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -265,10 +264,6 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
     private static final String DEFAULT_DATABASE_NAME = "cloudstack";
     private static final String INFLUXDB_HOST_MEASUREMENT = "host_stats";
     private static final String INFLUXDB_VM_MEASUREMENT = "vm_stats";
-
-    private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-    private static final AtomicReference<CompletableFuture<?>> currentTask = new AtomicReference<>(null);
-    private static final AtomicBoolean isTaskCancelled = new AtomicBoolean(false);
 
     private static Boolean DELETE_EVENT_ACTIVE = false;
 

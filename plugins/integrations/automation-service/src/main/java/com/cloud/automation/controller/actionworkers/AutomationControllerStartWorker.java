@@ -184,18 +184,18 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
         if (automationControllerIp == null || network.getGuestType() == Network.GuestType.L2) {
             Network.IpAddresses addrs = new Network.IpAddresses(null, null, null);
             genieControlVms = userVmService.createAdvancedVirtualMachine(zone, serviceOffering, templates, networkIds, owner,
-                    hostName, hostName, null, null, null,
+                    hostName, hostName, null, null, null, null,
                     templates.getHypervisorType(), BaseCmd.HTTPMethod.POST, base64UserData, null, null, keypairs,
-                    null, addrs, null, null, null, customParameterMap, null, null, null, null, true, null, null);
+                    null, addrs, null, null, null, customParameterMap, null, null, null, null, true, null, null, null, null);
         } else {
             ipToNetworkMap = new LinkedHashMap<Long, Network.IpAddresses>();
             Network.IpAddresses addrs = new Network.IpAddresses(null, null, null);
             Network.IpAddresses controllerAddrs = new Network.IpAddresses(automationControllerIp, null, null);
             ipToNetworkMap.put(automationController.getNetworkId(), controllerAddrs);
             genieControlVms = userVmService.createAdvancedVirtualMachine(zone, serviceOffering, templates, networkIds, owner,
-                    hostName, hostName, null, null, null,
+                    hostName, hostName, null, null, null, null,
                     templates.getHypervisorType(), BaseCmd.HTTPMethod.POST, base64UserData, null, null, keypairs,
-                    ipToNetworkMap, addrs, null, null, null, customParameterMap, null, null, null, null, true, null, null);
+                    ipToNetworkMap, addrs, null, null, null, customParameterMap, null, null, null, null, true, null, null, null, null);
         }
         if (logger.isInfoEnabled()) {
             logger.info(String.format("Created Control VM ID : %s, %s in the automation controller : %s", genieControlVms.getUuid(), hostName, automationController.getName()));

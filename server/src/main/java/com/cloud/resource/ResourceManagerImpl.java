@@ -45,7 +45,6 @@ import com.cloud.service.ServiceOfferingDetailsVO;
 import com.cloud.storage.ScopeType;
 import com.cloud.storage.StoragePoolAndAccessGroupMapVO;
 import com.cloud.storage.dao.StoragePoolAndAccessGroupMapDao;
-import com.cloud.storage.dao.StoragePoolTagsDao;
 import com.cloud.gpu.GpuCardVO;
 import com.cloud.gpu.VgpuProfileVO;
 import com.cloud.gpu.dao.GpuCardDao;
@@ -282,7 +281,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
     @Inject
     private PrimaryDataStoreDao _storagePoolDao;
     @Inject
-    private StoragePoolTagsDao _storagePoolTagsDao;
+    private DiskOfferingDao diskOfferingDao;
     @Inject
     private StoragePoolAndAccessGroupMapDao _storagePoolAccessGroupMapDao;
     @Inject
@@ -1369,7 +1368,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
                         try {
                             Thread.sleep(5 * 1000);
                         } catch (final InterruptedException e) {
-                            s_logger.debug("thread unexpectedly interrupted during wait, while updating cluster");
+                            logger.debug("thread unexpectedly interrupted during wait, while updating cluster");
                         }
                         hosts = listAllUpAndEnabledHosts(Host.Type.Routing, cluster.getId(), cluster.getPodId(), cluster.getDataCenterId());
                         for (final HostVO host : hosts) {
@@ -1403,7 +1402,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
     @Override
     @DB
     @ActionEvent(eventType = EventTypes.EVENT_MAINTENANCE_CANCEL, eventDescription = "cancel maintenance for host", async = true)
-    public Host cancelMaintenance(final CancelMaintenanceCmd cmd) {
+    public Host cancelMaintenance(final CancelHostMaintenanceCmd cmd) {
         final Long hostId = cmd.getId();
 
         // verify input parameters
@@ -1634,7 +1633,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
     @Override
     @DB
     @ActionEvent(eventType = EventTypes.EVENT_MAINTENANCE_PREPARE, eventDescription = "prepare maintenance for host", async = true)
-    public Host maintain(final PrepareForMaintenanceCmd cmd) {
+    public Host maintain(final PrepareForHostMaintenanceCmd cmd) {
         final Long hostId = cmd.getId();
         final HostVO host = _hostDao.findById(hostId);
 

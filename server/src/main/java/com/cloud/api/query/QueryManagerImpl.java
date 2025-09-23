@@ -179,7 +179,6 @@ import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreVO;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolDetailVO;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolDetailsDao;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
-import org.apache.cloudstack.storage.datastore.db.TemplateDataStoreDao;
 import org.apache.cloudstack.vm.lease.VMLeaseManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -245,7 +244,6 @@ import com.cloud.dc.DedicatedResourceVO;
 import com.cloud.dc.dao.ClusterDao;
 import com.cloud.dc.dao.DedicatedResourceDao;
 import com.cloud.dr.cluster.DisasterRecoveryDetailConstants;
-import com.cloud.dc.dao.HostPodDao;
 import com.cloud.domain.Domain;
 import com.cloud.domain.DomainVO;
 import com.cloud.domain.dao.DomainDao;
@@ -326,7 +324,6 @@ import com.cloud.storage.dao.GuestOSDao;
 import com.cloud.storage.dao.StoragePoolHostDao;
 import com.cloud.storage.dao.StoragePoolTagsDao;
 import com.cloud.storage.dao.VMTemplateDao;
-import com.cloud.storage.dao.VMTemplateDetailsDao;
 import com.cloud.storage.dao.VMTemplatePoolDao;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.tags.ResourceTagVO;
@@ -373,274 +370,262 @@ import com.cloud.vm.dao.VMInstanceDetailsDao;
 
 @Component
 public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements QueryService, Configurable {
-    
 
     private static final String ID_FIELD = "id";
 
     @Inject
-    private AccountManager accountMgr;
+    AccountManager accountMgr;
 
     @Inject
-    private ProjectManager _projectMgr;
+    ProjectManager _projectMgr;
 
     @Inject
-    private DomainDao _domainDao;
+    DomainDao _domainDao;
 
     @Inject
-    private DomainJoinDao _domainJoinDao;
+    DomainJoinDao _domainJoinDao;
 
     @Inject
-    private UserAccountJoinDao _userAccountJoinDao;
+    UserAccountJoinDao _userAccountJoinDao;
 
     @Inject
-    private EventDao eventDao;
+    EventDao eventDao;
 
     @Inject
-    private EventJoinDao _eventJoinDao;
+    EventJoinDao _eventJoinDao;
 
     @Inject
-    private ResourceTagJoinDao _resourceTagJoinDao;
+    ResourceTagJoinDao _resourceTagJoinDao;
 
     @Inject
-    private InstanceGroupJoinDao _vmGroupJoinDao;
+    InstanceGroupJoinDao _vmGroupJoinDao;
 
     @Inject
-    private UserVmJoinDao _userVmJoinDao;
+    UserVmJoinDao _userVmJoinDao;
 
     @Inject
-    private UserVmDao userVmDao;
+    UserVmDao userVmDao;
 
     @Inject
-    private VMInstanceDao _vmInstanceDao;
+    VMInstanceDao _vmInstanceDao;
 
     @Inject
-    private SecurityGroupJoinDao _securityGroupJoinDao;
+    SecurityGroupJoinDao _securityGroupJoinDao;
 
     @Inject
-    private SecurityGroupVMMapDao securityGroupVMMapDao;
+    SecurityGroupVMMapDao securityGroupVMMapDao;
 
     @Inject
-    private DomainRouterJoinDao _routerJoinDao;
+    DomainRouterJoinDao _routerJoinDao;
 
     @Inject
-    private ProjectInvitationJoinDao _projectInvitationJoinDao;
+    ProjectInvitationJoinDao _projectInvitationJoinDao;
 
     @Inject
-    private ProjectJoinDao _projectJoinDao;
+    ProjectJoinDao _projectJoinDao;
 
     @Inject
-    private ProjectDao _projectDao;
+    ProjectDao _projectDao;
 
     @Inject
-    private ProjectAccountDao _projectAccountDao;
+    ProjectAccountDao _projectAccountDao;
 
     @Inject
-    private ProjectAccountJoinDao _projectAccountJoinDao;
+    ProjectAccountJoinDao _projectAccountJoinDao;
 
     @Inject
-    private HostJoinDao hostJoinDao;
+    HostJoinDao hostJoinDao;
 
     @Inject
-    private VolumeJoinDao _volumeJoinDao;
+    VolumeJoinDao _volumeJoinDao;
 
     @Inject
-    private AccountDao _accountDao;
+    AccountDao _accountDao;
 
     @Inject
-    private AccountJoinDao _accountJoinDao;
+    AccountJoinDao _accountJoinDao;
 
     @Inject
-    private AsyncJobJoinDao _jobJoinDao;
+    AsyncJobJoinDao _jobJoinDao;
 
     @Inject
-    private StoragePoolJoinDao _poolJoinDao;
+    StoragePoolJoinDao _poolJoinDao;
 
     @Inject
-    private StoragePoolTagsDao _storageTagDao;
+    StoragePoolTagsDao _storageTagDao;
 
     @Inject
-    private HostTagsDao _hostTagDao;
+    HostTagsDao _hostTagDao;
 
     @Inject
-    private ImageStoreJoinDao _imageStoreJoinDao;
+    ImageStoreJoinDao _imageStoreJoinDao;
 
     @Inject
-    private DiskOfferingJoinDao _diskOfferingJoinDao;
+    DiskOfferingJoinDao _diskOfferingJoinDao;
 
     @Inject
-    private DiskOfferingDetailsDao _diskOfferingDetailsDao;
+    DiskOfferingDetailsDao _diskOfferingDetailsDao;
 
     @Inject
-    private ServiceOfferingJoinDao _srvOfferingJoinDao;
+    ServiceOfferingJoinDao _srvOfferingJoinDao;
 
     @Inject
-    private ServiceOfferingDao _srvOfferingDao;
+    ServiceOfferingDao _srvOfferingDao;
 
     @Inject
-    private ServiceOfferingDetailsDao _srvOfferingDetailsDao;
+    ServiceOfferingDetailsDao _srvOfferingDetailsDao;
 
     @Inject
-    private DiskOfferingDao _diskOfferingDao;
+    DiskOfferingDao _diskOfferingDao;
 
     @Inject
-    private DataCenterJoinDao _dcJoinDao;
+    DataCenterJoinDao _dcJoinDao;
 
     @Inject
-    private DomainRouterDao _routerDao;
+    DomainRouterDao _routerDao;
 
     @Inject
-    private HighAvailabilityManager _haMgr;
+    HighAvailabilityManager _haMgr;
 
     @Inject
-    private VMTemplateDao _templateDao;
+    VMTemplateDao _templateDao;
 
     @Inject
-    private TemplateJoinDao _templateJoinDao;
+    TemplateJoinDao _templateJoinDao;
 
     @Inject
-    private ResourceManager _resourceMgr;
+    ResourceManager _resourceMgr;
     @Inject
-    private ResourceMetaDataService _resourceMetaDataMgr;
+    ResourceMetaDataService _resourceMetaDataMgr;
 
     @Inject
-    private ResourceManagerUtil resourceManagerUtil;
+    ResourceManagerUtil resourceManagerUtil;
 
     @Inject
-    private AffinityGroupVMMapDao _affinityGroupVMMapDao;
+    AffinityGroupVMMapDao _affinityGroupVMMapDao;
 
     @Inject
-    private AffinityGroupJoinDao _affinityGroupJoinDao;
+    AffinityGroupJoinDao _affinityGroupJoinDao;
 
     @Inject
-    private DedicatedResourceDao _dedicatedDao;
+    DedicatedResourceDao _dedicatedDao;
 
     @Inject
-    private DomainManager _domainMgr;
+    DomainManager _domainMgr;
 
     @Inject
-    private AffinityGroupDomainMapDao _affinityGroupDomainMapDao;
+    AffinityGroupDomainMapDao _affinityGroupDomainMapDao;
 
     @Inject
-    private ResourceTagDao resourceTagDao;
+    ResourceTagDao resourceTagDao;
 
     @Inject
-    private DataStoreManager dataStoreManager;
+    DataStoreManager dataStoreManager;
 
     @Inject
     ManagementServerJoinDao managementServerJoinDao;
 
     @Inject
-    public VpcVirtualNetworkApplianceService routerService;
+    VpcVirtualNetworkApplianceService routerService;
 
     @Inject
-    private ResponseGenerator responseGenerator;
+    ResponseGenerator responseGenerator;
 
     @Inject
-    private RouterHealthCheckResultDao routerHealthCheckResultDao;
+    RouterHealthCheckResultDao routerHealthCheckResultDao;
 
     @Inject
-    private PrimaryDataStoreDao storagePoolDao;
+    PrimaryDataStoreDao storagePoolDao;
 
     @Inject
-    private StoragePoolDetailsDao _storagePoolDetailsDao;
+    StoragePoolDetailsDao _storagePoolDetailsDao;
 
     @Inject
-    private ProjectInvitationDao projectInvitationDao;
-
-    @Inject
-    private TemplateDataStoreDao templateDataStoreDao;
+    ProjectInvitationDao projectInvitationDao;
 
     @Inject
     VMTemplatePoolDao templatePoolDao;
 
     @Inject
-    private SnapshotDataStoreDao snapshotDataStoreDao;
+    SnapshotDataStoreDao snapshotDataStoreDao;
 
     @Inject
-    private UserDao userDao;
+    UserDao userDao;
 
     @Inject
-    private VirtualMachineManager virtualMachineManager;
+    VirtualMachineManager virtualMachineManager;
 
     @Inject
-    private VolumeDao volumeDao;
+    VolumeDao volumeDao;
 
     @Inject
     ResourceIconDao resourceIconDao;
-    
-    @Inject
-    StorageManager storageManager;
 
     @Inject
-    private ManagementServerHostDao msHostDao;
+    ManagementServerHostDao msHostDao;
 
     @Inject
-    private SecondaryStorageHeuristicDao secondaryStorageHeuristicDao;
+    SecondaryStorageHeuristicDao secondaryStorageHeuristicDao;
 
     @Inject
-    private NetworkDao networkDao;
+    NetworkDao networkDao;
 
     @Inject
-    private IPAddressDao ipAddressDao;
+    IPAddressDao ipAddressDao;
 
     @Inject
-    private NicDao nicDao;
+    NicDao nicDao;
 
     @Inject
-    private HostDao hostDao;
+    HostDao hostDao;
 
     @Inject
-    private OutOfBandManagementDao outOfBandManagementDao;
+    OutOfBandManagementDao outOfBandManagementDao;
 
     @Inject
-    private InstanceGroupVMMapDao instanceGroupVMMapDao;
+    InstanceGroupVMMapDao instanceGroupVMMapDao;
 
     @Inject
-    private AffinityGroupVMMapDao affinityGroupVMMapDao;
+    AffinityGroupVMMapDao affinityGroupVMMapDao;
 
     @Inject
     VMInstanceDetailsDao vmInstanceDetailsDao;
 
     @Inject
-    private SSHKeyPairDao sshKeyPairDao;
+    SSHKeyPairDao sshKeyPairDao;
 
     @Inject
-    private BackupOfferingDao backupOfferingDao;
+    BackupOfferingDao backupOfferingDao;
 
     @Inject
     AutoScaleVmGroupVmMapDao autoScaleVmGroupVmMapDao;
 
     @Inject
-    private AutoScaleVmGroupVmMapDao autoScaleVmGroupVmMapDao;
+    SnapshotJoinDao snapshotJoinDao;
 
     @Inject
-    private SnapshotJoinDao snapshotJoinDao;
+    ObjectStoreDao objectStoreDao;
 
     @Inject
-    private ObjectStoreDao objectStoreDao;
-
-    @Inject
-    private BucketDao bucketDao;
+    BucketDao bucketDao;
 
     @Inject
     EntityManager entityManager;
 
     @Inject
-    private PublicIpQuarantineDao publicIpQuarantineDao;
+    PublicIpQuarantineDao publicIpQuarantineDao;
 
     @Inject
-    private StoragePoolHostDao storagePoolHostDao;
+    StoragePoolHostDao storagePoolHostDao;
 
     @Inject
-    private ClusterDao clusterDao;
+    ClusterDao clusterDao;
 
     @Inject
-    private ManagementServerHostPeerJoinDao mshostPeerJoinDao;
+    ManagementServerHostPeerJoinDao mshostPeerJoinDao;
 
     @Inject
     private AsyncJobManager jobManager;
-    @Inject
-    private VMTemplateDetailsDao templateDetailsDao;
 
     @Inject
     private StoragePoolAndAccessGroupMapDao storagePoolAndAccessGroupMapDao;
@@ -2602,7 +2587,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
                 sc.setParameters("mgmt_server_id", msHost.getMsid());
             }
         }
-        
+
         if (arch != null) {
             sc.setParameters("arch", arch);
         }
@@ -4934,7 +4919,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         return searchForTemplatesInternal(id, cmd.getTemplateName(), cmd.getKeyword(), templateFilter, false,
                 null, cmd.getPageSizeVal(), cmd.getStartIndex(), cmd.getZoneId(), cmd.getStoragePoolId(),
                 cmd.getImageStoreId(), hypervisorType, showDomr, cmd.listInReadyState(), permittedAccounts, caller,
-                listProjectResourcesCriteria, tags, showRemovedTmpl, cmd.getIds(), parentTemplateId, cmd.getShowUnique(), 
+                listProjectResourcesCriteria, tags, showRemovedTmpl, cmd.getIds(), parentTemplateId, cmd.getShowUnique(),
                 templateType, isVnf, cmd.getArch(), cmd.getOsCategoryId(), forCks, cmd.getKvdoEnable(), cmd.getExtensionId(), domainId, isRecursive);
     }
 
@@ -4998,7 +4983,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         if (kvdoEnable != null) {
             sc.addAnd("kvdoEnable", SearchCriteria.Op.EQ, kvdoEnable);
         }
-        
+
         if (osCategoryId != null) {
             List<Long> guestOsIds = guestOSDao.listIdsByCategoryId(osCategoryId);
             if (CollectionUtils.isNotEmpty(guestOsIds)) {

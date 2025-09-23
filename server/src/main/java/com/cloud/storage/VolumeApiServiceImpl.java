@@ -2615,49 +2615,10 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             newVolumeOnPrimaryStorage = _volumeMgr.createVolumeOnPrimaryStorage(vm, volumeToAttach,
                     vm.getHypervisorType(), destPrimaryStorage);
         } catch (NoTransitionException e) {
-            s_logger.debug("Failed to create volume on primary storage", e);
+            logger.debug("Failed to create volume on primary storage", e);
             throw new CloudRuntimeException("Failed to create volume on primary storage", e);
         }
         return newVolumeOnPrimaryStorage;
-    }
-
-    protected VolumeVO getVmExistingVolumeForVolumeAttach(UserVmVO vm, VolumeInfo volumeToAttach) {
-        VolumeVO existingVolumeOfVm = null;
-        VMTemplateVO template = _templateDao.findById(vm.getTemplateId());
-        List<VolumeVO> rootVolumesOfVm = _volsDao.findByInstanceAndType(vm.getId(), Volume.Type.ROOT);
-        if (rootVolumesOfVm.size() > 1 && template != null && !template.isDeployAsIs()) {
-            throw new CloudRuntimeException("The VM " + vm.getHostName() + " has more than one ROOT volume and is in an invalid state.");
-        } else {
-            if (!rootVolumesOfVm.isEmpty()) {
-                existingVolumeOfVm = rootVolumesOfVm.get(0);
-            } else {
-                // locate data volume of the vm
-                List<VolumeVO> diskVolumesOfVm = _volsDao.findByInstanceAndType(vm.getId(), Volume.Type.DATADISK);
-                for (VolumeVO diskVolume : diskVolumesOfVm) {
-                    if (diskVolume.getState() != Volume.State.Allocated) {
-                        existingVolumeOfVm = diskVolume;
-                        break;
-                    }
-                }
-            }
-        }
-        if (existingVolumeOfVm == null) {
-            if (s_logger.isTraceEnabled()) {
-                s_logger.trace(String.format("No existing volume found for VM (%s/%s) to attach volume %s/%s",
-                        vm.getName(), vm.getUuid(),
-                        volumeToAttach.getName(), volumeToAttach.getUuid()));
-            }
-            return null;
-        }
-        if (s_logger.isTraceEnabled()) {
-            String msg = "attaching volume %s/%s to a VM (%s/%s) with an existing volume %s/%s on primary storage %s";
-            s_logger.trace(String.format(msg,
-                    volumeToAttach.getName(), volumeToAttach.getUuid(),
-                    vm.getName(), vm.getUuid(),
-                    existingVolumeOfVm.getName(), existingVolumeOfVm.getUuid(),
-                    existingVolumeOfVm.getPoolId()));
-        }
-        return existingVolumeOfVm;
     }
 
     protected StoragePool getSuitablePoolForAllocatedOrUploadedVolumeForAttach(final VolumeInfo volumeToAttach, final UserVmVO vm) {
@@ -2677,42 +2638,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         diskProfile.setHyperType(vm.getHypervisorType());
         return _volumeMgr.findStoragePool(diskProfile, zone, pod, clusterHostId.first(),
                 clusterHostId.second(), vm, Collections.emptySet());
-    }
-
-    protected VolumeInfo createVolumeOnPrimaryForAttachIfNeeded(final VolumeInfo volumeToAttach, final UserVmVO vm, VolumeVO existingVolumeOfVm) {
-        VolumeInfo newVolumeOnPrimaryStorage = volumeToAttach;
-        boolean volumeOnSecondary = volumeToAttach.getState() == Volume.State.Uploaded;
-        if (!Arrays.asList(Volume.State.Allocated, Volume.State.Uploaded).contains(volumeToAttach.getState())) {
-            return newVolumeOnPrimaryStorage;
-        }
-        //don't create volume on primary storage if its being attached to the vm which Root's volume hasn't been created yet
-        StoragePool destPrimaryStorage = null;
-        if (existingVolumeOfVm != null && !existingVolumeOfVm.getState().equals(Volume.State.Allocated)) {
-            destPrimaryStorage = _storagePoolDao.findById(existingVolumeOfVm.getPoolId());
-            if (s_logger.isTraceEnabled() && destPrimaryStorage != null) {
-                s_logger.trace(String.format("decided on target storage: %s/%s", destPrimaryStorage.getName(), destPrimaryStorage.getUuid()));
-            }
-        }
-        if (destPrimaryStorage == null) {
-            destPrimaryStorage = getSuitablePoolForAllocatedOrUploadedVolumeForAttach(volumeToAttach, vm);
-            if (destPrimaryStorage == null) {
-                if (Volume.State.Allocated.equals(volumeToAttach.getState()) && State.Stopped.equals(vm.getState())) {
-                    return newVolumeOnPrimaryStorage;
-                }
-                throw new CloudRuntimeException(String.format("Failed to find a primary storage for volume in state: %s", volumeToAttach.getState()));
-            }
-        }
-        try {
-            if (volumeOnSecondary && Storage.StoragePoolType.PowerFlex.equals(destPrimaryStorage.getPoolType())) {
-                throw new InvalidParameterValueException("Cannot attach uploaded volume, this operation is unsupported on storage pool type " + destPrimaryStorage.getPoolType());
-            }
-            newVolumeOnPrimaryStorage = _volumeMgr.createVolumeOnPrimaryStorage(vm, volumeToAttach,
-                    vm.getHypervisorType(), destPrimaryStorage);
-        } catch (NoTransitionException e) {
-            s_logger.debug("Failed to create volume on primary storage", e);
-            throw new CloudRuntimeException("Failed to create volume on primary storage", e);
-        }
-        return newVolumeOnPrimaryStorage;
     }
 
     private Volume orchestrateAttachVolumeToVM(Long vmId, Long volumeId, Long deviceId) {
@@ -3939,7 +3864,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
      *      </body>
      *   </table>
      */
-    protected boolean doesStoragePoolSupportDiskOffering(StoragePool destPool, DiskOfferingVO diskOffering) {
+    public boolean doesStoragePoolSupportDiskOffering(StoragePool destPool, DiskOffering diskOffering) {
         String offeringTags = diskOffering.getTags();
         return doesStoragePoolSupportDiskOfferingTags(destPool, offeringTags);
     }
@@ -3969,7 +3894,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         }
         if (storagePoolTags == null || CollectionUtils.isEmpty(storagePoolTags.first())) {
             logger.debug("Destination storage pool [{}] has no tags, while disk offering has tags [{}]. Therefore, they are not compatible", destPool.getUuid(),
-                    diskOfferingTags));
+                    diskOfferingTags);
             return false;
         }
         List<String> storageTagsList = storagePoolTags.first();

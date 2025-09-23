@@ -30,7 +30,7 @@ under the License.
 
       <!-- A regular appender -->
       <RollingFile name="FILE" append="true" fileName="@MSLOG@" filePattern="@MSLOG@.%d{yyyy-MM-dd}.gz">
-         <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+         <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
          <Policies>
             <TimeBasedTriggeringPolicy/>
          </Policies>
@@ -39,7 +39,7 @@ under the License.
 
 
       <RollingFile name="APISERVER" append="true" fileName="@APISERVERLOG@" filePattern="@APISERVERLOG@.%d{yyyy-MM-dd}.gz">
-         <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+         <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
          <Policies>
             <TimeBasedTriggeringPolicy/>
          </Policies>
@@ -51,7 +51,7 @@ under the License.
       <!-- ============================== -->
 
       <Syslog name="SYSLOG" host="localhost" facility="LOCAL6">
-         <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+         <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
          <PatternLayout pattern="%d{ISO8601} %-5p [%c{1.}] (%t:%x) (logid:%X{logcontextid}) %m%ex{filters(${filters})}%n"/>
       </Syslog>
 
@@ -60,7 +60,7 @@ under the License.
       <!-- ============================== -->
 
       <AlertSyslogAppender name="ALERTSYSLOG" syslogHosts="" facility="LOCAL6">
-         <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+         <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
          <PatternLayout pattern="%d{ISO8601} %-5p [%c{1.}] (%t:%x) (logid:%X{logcontextid}) %m%ex{filters(${filters})}%n"/>
       </AlertSyslogAppender>
 
@@ -78,41 +78,41 @@ under the License.
       <!-- ============================== -->
 
       <SnmpTrapAppender name="SNMP" SnmpManagerIpAddresses="" SnmpManagerPorts="" SnmpManagerCommunities="">
-               <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+               <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
       </SnmpTrapAppender>
    </Appenders>
 
    <Loggers>
 
-      <Logger name="com.cloud" level="INFO"/>
+      <Logger name="com.cloud" level="DEBUG"/>
 
-      <Logger name="org.apache.cloudstack" level="INFO"/>
+      <Logger name="org.apache.cloudstack" level="DEBUG"/>
 
-      <Logger name="com.cloud.utils.nio" level="INFO"/>
+      <Logger name="com.cloud.utils.nio" level="DEBUG"/>
 
-      <Logger name="org.apache" level="INFO"/>
+      <Logger name="org.apache" level="DEBUG"/>
 
-      <Logger name="org.apache.cloudstack.api.command" level="INFO"/>
+      <Logger name="org.apache.cloudstack.api.command" level="DEBUG"/>
 
-      <Logger name="org" level="INFO"/>
+      <Logger name="org" level="DEBUG"/>
 
-      <Logger name="org.springframework" level="INFO"/>
+      <Logger name="org.springframework" level="DEBUG"/>
 
-      <Logger name="org.apache.cloudstack.spring.module.context.ResourceApplicationContext" level="INFO"/>
+      <Logger name="org.apache.cloudstack.spring.module.context.ResourceApplicationContext" level="DEBUG"/>
 
-      <Logger name="net" level="INFO"/>
+      <Logger name="net" level="DEBUG"/>
 
-      <Logger name="apiserver.com.cloud"  level="INFO"/>
+      <Logger name="apiserver.com.cloud"  level="DEBUG"/>
 
-      <Logger name="apiserver.com.cloud" level="INFO" additivity="false">
+      <Logger name="apiserver.com.cloud" level="DEBUG" additivity="false">
          <AppenderRef ref="APISERVER"/>
       </Logger>
 
-      <Logger name="com.amazonaws" level="INFO"/>
+      <Logger name="com.amazonaws" level="DEBUG"/>
 
-      <Logger name="httpclient.wire" level="INFO"/>
+      <Logger name="httpclient.wire" level="DEBUG"/>
 
-      <Logger name="org.apache.cloudstack.alert" additivity="false" level="INFO">
+      <Logger name="org.apache.cloudstack.alert" additivity="false" level="DEBUG">
          <AppenderRef ref="SYSLOG"/>
          <AppenderRef ref="CONSOLE"/>
          <AppenderRef ref="FILE"/>
@@ -124,7 +124,7 @@ under the License.
       <!-- Setup the Root category -->
       <!-- ======================= -->
 
-      <Root level="INFO">
+      <Root level="DEBUG">
          <AppenderRef ref="SYSLOG"/>
          <AppenderRef ref="CONSOLE"/>
          <AppenderRef ref="FILE"/>

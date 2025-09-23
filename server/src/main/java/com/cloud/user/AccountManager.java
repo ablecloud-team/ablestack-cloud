@@ -203,7 +203,7 @@ public interface AccountManager extends AccountService, Configurable {
     void validateUserPasswordAndUpdateIfNeeded(String newPassword, UserVO user, String currentPassword, boolean skipCurrentPassValidation);
 
     void checkApiAccess(Account caller, String command);
-    
+
     UserAccount clearUserTwoFactorAuthenticationInSetupStateOnLogin(UserAccount user);
 
     void verifyCallerPrivilegeForUserOrAccountOperations(Account userAccount);

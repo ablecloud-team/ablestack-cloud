@@ -1654,7 +1654,7 @@ public class IpAddressManagerImpl extends ManagerBase implements IpAddressManage
         boolean isSourceNat = isSourceNatAvailableForNetwork(owner, ipToAssoc, network);
 
         logger.debug(String.format("Associating IP [%s] to network [%s].", ipToAssoc, network));
-        
+
         boolean success = false;
         IPAddressVO ip = null;
         try {

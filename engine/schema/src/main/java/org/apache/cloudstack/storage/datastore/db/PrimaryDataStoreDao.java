@@ -130,7 +130,7 @@ public interface PrimaryDataStoreDao extends GenericDao<StoragePoolVO, Long> {
     List<StoragePoolVO> findZoneWideStoragePoolsByTags(long dcId, String[] tags, boolean validateTagRule);
 
     List<StoragePoolVO> findZoneWideScopeZoneOrClusterStoragePoolsByTags(long dcId, String[] tags, boolean validateTagRule);
-    
+
     List<StoragePoolVO> findZoneWideStoragePoolsByAccessGroupsForHostConnection(long dcId, String[] storageAccessGroups);
 
     List<StoragePoolVO> findZoneWideStoragePoolsByAccessGroupsAndHypervisorTypeForHostConnection(long dcId, String[] storageAccessGroups, HypervisorType type);

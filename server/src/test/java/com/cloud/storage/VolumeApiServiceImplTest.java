@@ -1944,7 +1944,7 @@ public class VolumeApiServiceImplTest {
             verify(volumeServiceMock, times(0)).resize(any(VolumeInfo.class));
         }
     }
-    
+
     private UserVmVO getMockedVm() {
         UserVmVO vm = Mockito.mock(UserVmVO.class);
         Mockito.when(vm.getId()).thenReturn(1L);

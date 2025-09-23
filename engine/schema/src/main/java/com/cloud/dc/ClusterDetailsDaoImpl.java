@@ -105,7 +105,7 @@ public class ClusterDetailsDaoImpl extends ResourceDetailsDaoBase<ClusterDetails
             return new HashMap<>();
         }
         SearchBuilder<ClusterDetailsVO> sb = createSearchBuilder();
-        sb.and("clusterId", sb.entity().getClusterId(), SearchCriteria.Op.EQ);
+        sb.and("clusterId", sb.entity().getResourceId(), SearchCriteria.Op.EQ);
         sb.and("name", sb.entity().getName(), SearchCriteria.Op.IN);
         sb.done();
         SearchCriteria<ClusterDetailsVO> sc = sb.create();

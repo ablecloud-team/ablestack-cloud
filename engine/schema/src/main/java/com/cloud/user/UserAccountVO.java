@@ -33,11 +33,11 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.apache.cloudstack.api.InternalIdentity;
+import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.cloud.utils.db.Encrypt;
 import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
-import org.apache.commons.lang3.StringUtils;
 
 @Entity
 @Table(name = "user")
@@ -129,12 +129,6 @@ public class UserAccountVO implements UserAccount, InternalIdentity {
         ENABLED, VERIFIED
     }
     public UserAccountVO() {
-    }
-
-    @Override
-    public String toString() {
-        return String.format("UserAccount %s.", ReflectionToStringBuilderUtils.reflectOnlySelectedFields
-                (this, "id", "uuid", "username", "accountName"));
     }
 
     @Override
@@ -382,6 +376,7 @@ public class UserAccountVO implements UserAccount, InternalIdentity {
 
     @Override
     public String toString() {
-        return String.format("User %s", ReflectionToStringBuilderUtils.reflectOnlySelectedFields(this, "id", "name", "uuid"));
+        return String.format("UserAccount %s.", ReflectionToStringBuilderUtils.reflectOnlySelectedFields
+                (this, "id", "uuid", "username", "accountName"));
     }
 }

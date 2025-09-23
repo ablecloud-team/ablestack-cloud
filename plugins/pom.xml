@@ -119,7 +119,6 @@
         <module>outofbandmanagement-drivers/nested-cloudstack</module>
         <module>outofbandmanagement-drivers/redfish</module>
 
-        <module>shutdown</module>
         <module>security</module>
         <module>maintenance</module>
 

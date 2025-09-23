@@ -133,12 +133,12 @@ public class BasePrimaryDataStoreLifeCycleImpl {
             DeleteStoragePoolCommand deleteStoragePoolCommand = new DeleteStoragePoolCommand(storagePool);
             final Answer answer = agentMgr.easySend(poolHostVO.getHostId(), deleteStoragePoolCommand);
             if (answer != null && answer.getResult()) {
-                s_logger.info("Successfully deleted storage pool: " + storagePool.getId() + " from host: " + poolHostVO.getHostId());
+                logger.info("Successfully deleted storage pool: " + storagePool.getId() + " from host: " + poolHostVO.getHostId());
             } else {
                 if (answer != null) {
-                    s_logger.error("Failed to delete storage pool: " + storagePool.getId() + " from host: " + poolHostVO.getHostId() + " , result: " + answer.getResult());
+                    logger.error("Failed to delete storage pool: " + storagePool.getId() + " from host: " + poolHostVO.getHostId() + " , result: " + answer.getResult());
                 } else {
-                    s_logger.error("Failed to delete storage pool: " + storagePool.getId() + " from host: " + poolHostVO.getHostId());
+                    logger.error("Failed to delete storage pool: " + storagePool.getId() + " from host: " + poolHostVO.getHostId());
                 }
             }
         }

@@ -403,7 +403,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
             "Determines whether API (api-key/secret-key) access is allowed or not. Editable only by Root Admin.",
             true,
             ConfigKey.Scope.Domain);
-            
+
     static ConfigKey<Boolean> userAllowMultipleAccounts = new ConfigKey<>("Advanced",
             Boolean.class,
             "user.allow.multiple.accounts",

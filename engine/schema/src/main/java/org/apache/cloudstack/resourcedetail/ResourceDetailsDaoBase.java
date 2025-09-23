@@ -260,7 +260,7 @@ public abstract class ResourceDetailsDaoBase<R extends ResourceDetail> extends G
         sc.setParameters("ids", ids.toArray());
         return batchExpunge(sc, batchSize);
     }
-    
+
     @Override
     public String getActualValue(ResourceDetail resourceDetail) {
         ConfigurationVO configurationVO = configDao.findByName(resourceDetail.getName());

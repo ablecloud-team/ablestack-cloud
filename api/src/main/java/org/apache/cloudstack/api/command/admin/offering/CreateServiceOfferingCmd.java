@@ -542,7 +542,7 @@ public class CreateServiceOfferingCmd extends BaseCmd {
     public boolean getKvdoEnable() {
         return kvdoEnable == null ? false : kvdoEnable;
     }
-    
+
     public VMLeaseManager.ExpiryAction getLeaseExpiryAction() {
         if (StringUtils.isBlank(leaseExpiryAction)) {
             return null;

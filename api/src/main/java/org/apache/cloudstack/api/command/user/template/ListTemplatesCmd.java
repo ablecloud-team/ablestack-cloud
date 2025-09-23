@@ -120,7 +120,7 @@ public class ListTemplatesCmd extends BaseListTaggedResourcesCmd implements User
             required=false, description = "Whether to KVDO compression and deduplication the volume",
             since = "4.20")
     private Boolean kvdoEnable;
-    
+
     @Parameter(name = ApiConstants.OS_CATEGORY_ID, type = CommandType.UUID, entityType= GuestOSCategoryResponse.class,
             description = "the ID of the OS category for the template",
             since = "4.21.0")

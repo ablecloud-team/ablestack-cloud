@@ -269,7 +269,7 @@ public abstract class TemplateAdapterBase extends AdapterBase implements Templat
     @Override
     public TemplateProfile prepare(boolean isIso, Long userId, String name, String displayText, CPU.CPUArch arch, Integer bits, Boolean passwordEnabled, Boolean requiresHVM, String url,
                                    Boolean isPublic, Boolean featured, Boolean isExtractable, String format, Long guestOSId, List<Long> zoneId, HypervisorType hypervisorType, String accountName,
-                                   Long domainId, String chksum, Boolean bootable, Map details, boolean directDownload, boolean deployAsIs, Long extensionId) throws ResourceAllocationException {
+                                   Long domainId, String chksum, Boolean bootable, Map details, boolean directDownload, boolean kvdoEnable, boolean deployAsIs, Long extensionId) throws ResourceAllocationException {
         return prepare(isIso, userId, name, displayText, arch, bits, passwordEnabled, requiresHVM, url, isPublic, featured, isExtractable, format, guestOSId, zoneId,
             hypervisorType, chksum, bootable, null, null, details, false, null, false, TemplateType.USER, directDownload, false, deployAsIs, false, extensionId);
     }

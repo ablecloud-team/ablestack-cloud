@@ -59,7 +59,7 @@ public interface KubernetesClusterService extends PluggableService, Configurable
             false);
     static final ConfigKey<String> KubernetesClusterNetworkOffering = new ConfigKey<String>("Advanced", String.class,
             "cloud.kubernetes.cluster.network.offering",
-            "쿠버네테스 서비스에 대한 기본 네트워크오퍼링",
+            "DefaultNetworkOfferingforKubernetesService",
             "Name of the network offering that will be used to create isolated network in which Kubernetes cluster VMs will be launched",
             false,
             KubernetesServiceEnabled.key());
@@ -180,6 +180,6 @@ public interface KubernetesClusterService extends PluggableService, Configurable
     List<RemoveVirtualMachinesFromKubernetesClusterResponse> removeVmsFromCluster(RemoveVirtualMachinesFromKubernetesClusterCmd cmd);
 
     boolean isDirectAccess(Network network);
-    
+
     void cleanupForAccount(Account account);
 }

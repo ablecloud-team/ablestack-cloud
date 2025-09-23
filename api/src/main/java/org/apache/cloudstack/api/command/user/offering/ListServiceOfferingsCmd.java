@@ -115,7 +115,7 @@ public class ListServiceOfferingsCmd extends BaseListProjectAndAccountResourcesC
     required=false, description = "Whether to KVDO compression and deduplication the volume",
     since = "4.20")
     private Boolean kvdoEnable;
-    
+
     @Parameter(name = ApiConstants.VGPU_PROFILE_ID,
             type = CommandType.UUID,
             entityType = VgpuProfileResponse.class,
@@ -193,7 +193,7 @@ public class ListServiceOfferingsCmd extends BaseListProjectAndAccountResourcesC
     public Boolean getKvdoEnable() {
         return kvdoEnable;
     }
-    
+
     public Long getVgpuProfileId() {
         return vgpuProfileId;
     }

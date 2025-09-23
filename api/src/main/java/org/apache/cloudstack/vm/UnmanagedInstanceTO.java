@@ -198,7 +198,7 @@ public class UnmanagedInstanceTO {
                 ReflectionToStringBuilderUtils.reflectOnlySelectedFields(
                         this, "name", "internalCSName", "hostName", "clusterName"));
     }
-    
+
     public String getBootType() {
         return bootType;
     }

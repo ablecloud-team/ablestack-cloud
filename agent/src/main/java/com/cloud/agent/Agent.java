@@ -735,6 +735,9 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
                 final Command cmd = cmds[i];
                 Answer answer;
                 try {
+                    if (cmd.getContextParam("logid") != null) {
+                        ThreadContext.put("logcontextid", cmd.getContextParam("logid"));
+                    }
                     if (logger.isDebugEnabled()) {
                         if (!requestLogged) // ensures request is logged only once per method call
                         {
@@ -978,7 +981,7 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
     }
 
     private void migrateAgentConnection(List<String> avoidMsList) {
-        final String[] msHosts = _shell.getHosts();
+        final String[] msHosts = shell.getHosts();
         if (msHosts == null || msHosts.length < 1) {
             throw new CloudRuntimeException("Management Server hosts empty, not properly configured in agent");
         }
@@ -1226,12 +1229,12 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
     public class WatchTask implements Runnable {
         protected Request _request;
         protected Agent _agent;
-        protected Link _link;
+        protected Link link;
 
         public WatchTask(final Link link, final Request request, final Agent agent) {
             super();
             _request = request;
-            _link = link;
+            this.link = link;
             _agent = agent;
         }
 
@@ -1240,9 +1243,9 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
             logger.trace("Scheduling {}", (_request instanceof Response ? "Ping" : "Watch Task"));
             try {
                 if (_request instanceof Response) {
-                    outRequestHandler.submit(new ServerHandler(Task.Type.OTHER, _link, _request));
+                    outRequestHandler.submit(new ServerHandler(Task.Type.OTHER, link, _request));
                 } else {
-                    _link.schedule(new ServerHandler(Task.Type.OTHER, _link, _request));
+                    link.schedule(new ServerHandler(Task.Type.OTHER, link, _request));
                 }
             } catch (final ClosedChannelException e) {
                 logger.warn("Unable to schedule task because channel is closed");
@@ -1251,12 +1254,12 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
     }
 
     public class StartupTask implements Runnable {
-        protected Link _link;
+        protected Link link;
         private final AtomicBoolean cancelled = new AtomicBoolean(false);
 
         public StartupTask(final Link link) {
             logger.debug("Startup task created");
-            _link = link;
+            this.link = link;
         }
 
         public boolean cancel() {
@@ -1274,8 +1277,8 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
                 logger.info("The running startup command is now invalid. Attempting reconnect");
                 startupTask.set(null);
                 startupWait = DEFAULT_STARTUP_WAIT * 2;
-                logger.debug("Executing reconnect from task - {}", () -> getLinkLog(_link));
-                reconnect(_link);
+                logger.debug("Executing reconnect from task - {}", () -> getLinkLog(link));
+                reconnect(link);
             }
         }
     }
@@ -1308,8 +1311,8 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
             if (task.getType() == Task.Type.CONNECT) {
                 shell.getBackoffAlgorithm().reset();
                 setLink(task.getLink());
-                sendStartup(task.getLink(), _shell.isConnectionTransfer());
-                _shell.setConnectionTransfer(false);
+                sendStartup(task.getLink(), shell.isConnectionTransfer());
+                shell.setConnectionTransfer(false);
             } else if (task.getType() == Task.Type.DATA) {
                 Request request;
                 try {

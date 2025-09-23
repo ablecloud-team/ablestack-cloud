@@ -87,7 +87,7 @@ public class DeployVMCmd extends BaseDeployVMCmd {
     public boolean isVolumeOrSnapshotProvided() {
         return volumeId != null || snapshotId != null;
     }
-    
+
     @Override
     public void execute() {
         UserVm result;

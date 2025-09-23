@@ -737,9 +737,8 @@ public class KVMStorageProcessor implements StorageProcessor {
                 }
             } else {
                 logger.debug("Converting RBD disk " + disk.getPath() + " into template " + templateName);
-                final QemuImgFile srcFile =
-                new QemuImgFile(KVMPhysicalDisk.RBDStringBuilder(primary.getSourceHost(), primary.getSourcePort(), primary.getAuthUserName(),
-                primary.getAuthSecret(), disk.getPath()));
+
+                final QemuImgFile srcFile = new QemuImgFile(KVMPhysicalDisk.RBDStringBuilder(primary, disk.getPath()));
                 srcFile.setFormat(PhysicalDiskFormat.RAW);
 
                 final QemuImgFile destFile = new QemuImgFile(tmpltPath + "/" + templateName + ".qcow2");

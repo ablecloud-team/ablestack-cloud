@@ -1271,6 +1271,7 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
             userAcct = accountMgr.authenticateUser(username, password, domainId, loginIpAddress, requestParameters);
         }
 
+        List<String> sessionIds = new ArrayList<>();
         if (userAcct != null) {
             if (ApiServer.SecurityFeaturesEnabled.value()) { // 보안기능용 : 하나의 세션만 접속
                 if (ApiSessionListener.getSessionCount() > 1) { // 존재하는 세션이 있으면 기존 세션 차단
@@ -1367,7 +1368,7 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
             } else {
                 session.setAttribute(ApiConstants.FIRST_LOGIN, false);
             }
-            
+
             if (accountMgr.isRootAdmin(userAcct.getAccountId())) {
                 ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
                 if (msHost != null && msHost.getUuid() != null) {

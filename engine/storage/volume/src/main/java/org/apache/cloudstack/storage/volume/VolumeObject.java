@@ -1011,7 +1011,7 @@ public class VolumeObject implements VolumeInfo {
     public void setUsedPhysicalSize(Long usedPhysicalSize) {
         volumeVO.setUsedPhysicalSize(usedPhysicalSize);
     }
-    
+
     public List<String> getCheckpointPaths() {
         return checkpointPaths;
     }

@@ -19,7 +19,6 @@
 
 package com.cloud.agent.api;
 
-<<<<<<<< HEAD:core/src/main/java/com/cloud/agent/api/CleanupVMCommand.java
 /**
  * This command will destroy a leftover VM during the expunge process if it wasn't destroyed before.
  *
@@ -34,30 +33,14 @@ public class CleanupVMCommand extends Command {
     public CleanupVMCommand(String vmName, boolean executeInSequence) {
         this.vmName = vmName;
         this.executeInSequence = executeInSequence;
-========
-public class UpdateHaStateCommand extends Command {
-
-    String hostHAState;
-
-    public UpdateHaStateCommand(String hostHAState) {
-        this.hostHAState = hostHAState;
-    }
-
-    public String getHostHAState() {
-        return hostHAState;
->>>>>>>> 23aff2e406 (Merge branch 'ablestack-diplo' into hostDeviceFilter):core/src/main/java/com/cloud/agent/api/UpdateHaStateCommand.java
     }
 
     @Override
     public boolean executeInSequence() {
-<<<<<<<< HEAD:core/src/main/java/com/cloud/agent/api/CleanupVMCommand.java
         return executeInSequence;
     }
 
     public String getVmName() {
         return vmName;
-========
-        return true;
->>>>>>>> 23aff2e406 (Merge branch 'ablestack-diplo' into hostDeviceFilter):core/src/main/java/com/cloud/agent/api/UpdateHaStateCommand.java
     }
 }

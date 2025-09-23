@@ -145,7 +145,7 @@ public abstract class AbstractStoragePoolAllocator extends AdapterBase implement
             storageType = "shared";
         }
 
-        s_logger.debug(String.format(
+        logger.debug(String.format(
                 "Filtering storage pools by capacity type [%s] as the first storage pool of the list, with name [%s] and ID [%s], is a [%s] storage.",
                 capacityType, storagePool.getName(), storagePool.getUuid(), storageType
         ));

@@ -27,12 +27,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -279,7 +277,7 @@ public class KubernetesClusterActionWorker {
 
     protected String getControlNodeLoginUser() {
         List<KubernetesClusterVmMapVO> vmMapVOList = getKubernetesClusterVMMaps();
-        if (vmMapVOList.size() > 0) {
+        if (!vmMapVOList.isEmpty()) {
             long vmId = vmMapVOList.get(0).getVmId();
             UserVmVO userVM = userVmDao.findById(vmId);
             if (userVM == null) {
@@ -442,7 +440,7 @@ public class KubernetesClusterActionWorker {
             return null;
         }
         IpAddress address = ipAddressDao.findByUuid(detailsVO.getValue());
-        if (address == null || network.getVpcId() != address.getVpcId()) {
+        if (address == null || !Objects.equals(network.getVpcId(), address.getVpcId())) {
             logger.warn("Public IP with ID: {} linked to the Kubernetes cluster: {} is not usable", detailsVO.getValue(), kubernetesCluster.getName());
             if (address == null) {
                 logger.warn("Public IP with ID: {} was not found by uuid", detailsVO.getValue());
@@ -632,8 +630,7 @@ public class KubernetesClusterActionWorker {
     }
 
     protected List<KubernetesClusterVmMapVO> getKubernetesClusterVMMaps() {
-        List<KubernetesClusterVmMapVO> clusterVMs = kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId());
-        return clusterVMs;
+        return kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId());
     }
 
     protected List<KubernetesClusterVmMapVO> getKubernetesClusterVMMapsForNodes(List<Long> nodeIds) {

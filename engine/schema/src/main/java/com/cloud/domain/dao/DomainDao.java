@@ -1,3 +1,4 @@
+
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -41,6 +42,8 @@ public interface DomainDao extends GenericDao<DomainVO, Long> {
     Set<Long> getDomainParentIds(long domainId);
 
     List<Long> getDomainChildrenIds(String path);
+
+    List<Long> getDomainAndChildrenIds(long domainId);
 
     boolean domainIdListContainsAccessibleDomain(String domainIdList, Account caller, Long domainId);
 }

@@ -211,11 +211,11 @@ public class LinstorUtil {
                     .mapToLong(sp -> sp.getTotalCapacity() != null && sp.getFreeCapacity() != null ?
                             sp.getTotalCapacity() - sp.getFreeCapacity() : 0L)
                     .sum() * 1024; // linstor uses Kib
-            s_logger.debug(
+            LOGGER.debug(
                     String.format("Linstor(%s;%s): storageStats -> %d/%d", linstorUrl, rscGroupName, capacity, used));
             return new Pair<>(capacity, used);
         } catch (ApiException apiEx) {
-            s_logger.error(apiEx.getMessage());
+            LOGGER.error(apiEx.getMessage());
             throw new CloudRuntimeException(apiEx.getBestMessage(), apiEx);
         }
     }
@@ -390,10 +390,10 @@ public class LinstorUtil {
 
         if (answers.hasError()) {
             String bestError = LinstorUtil.getBestErrorMessage(answers);
-            s_logger.error(String.format("Set %s on %s error: %s", propKey, rscName, bestError));
+            LOGGER.error("Set {} on {} error: {}", propKey, rscName, bestError);
             throw new CloudRuntimeException(bestError);
         } else {
-            s_logger.info(String.format("Set %s property on %s", propKey, rscName));
+            LOGGER.info("Set {} property on {}", propKey, rscName);
         }
     }
 

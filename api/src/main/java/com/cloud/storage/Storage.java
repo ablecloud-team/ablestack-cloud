@@ -16,14 +16,10 @@
 // under the License.
 package com.cloud.storage;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Storage {
     public static enum ImageFormat {
@@ -189,7 +185,6 @@ public class Storage {
         StorPool(true, true, EncryptionSupport.Hypervisor),
         FiberChannel(true, true, EncryptionSupport.Unsupported); // Fiber Channel Pool for KVM hypervisors is used to find the volume by WWN value (/dev/disk/by-id/wwn-<wwnvalue>)
 
-        private final String name;
         private final boolean shared;
         private final boolean overProvisioning;
         private final EncryptionSupport encryption;
@@ -198,7 +193,6 @@ public class Storage {
             this.shared = shared;
             this.overProvisioning = overProvisioning;
             this.encryption = encryption;
-            addStoragePoolType(this);
         }
 
         public boolean isShared() {
@@ -215,48 +209,6 @@ public class Storage {
 
         public EncryptionSupport encryptionSupportMode() {
             return encryption;
-        }
-
-        private static void addStoragePoolType(StoragePoolType storagePoolType) {
-            map.putIfAbsent(storagePoolType.name, storagePoolType);
-        }
-
-        public static StoragePoolType[] values() {
-            return map.values().toArray(StoragePoolType[]::new).clone();
-        }
-
-        public static StoragePoolType valueOf(String name) {
-            if (StringUtils.isBlank(name)) {
-                return null;
-            }
-
-            StoragePoolType storage = map.get(name);
-            if (storage == null) {
-                throw new IllegalArgumentException("StoragePoolType '" + name + "' not found");
-            }
-            return storage;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-
-        public String name() {
-            return name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            StoragePoolType that = (StoragePoolType) o;
-            return Objects.equals(name, that.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name);
         }
     }
 

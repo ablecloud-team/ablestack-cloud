@@ -56,7 +56,6 @@ import javax.net.ssl.X509TrustManager;
 
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
-import com.google.gson.JsonElement;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
