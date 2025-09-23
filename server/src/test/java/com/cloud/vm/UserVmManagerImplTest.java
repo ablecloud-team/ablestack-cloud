@@ -159,7 +159,6 @@ import com.cloud.storage.GuestOSVO;
 import com.cloud.storage.ScopeType;
 import com.cloud.storage.SnapshotVO;
 import com.cloud.storage.Storage;
-import com.cloud.storage.StorageManager;
 import com.cloud.storage.VMTemplateVO;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeApiService;
@@ -415,7 +414,7 @@ public class UserVmManagerImplTest {
 
     @Mock
     NetworkService networkServiceMock;
-    
+
     @Mock
     private VolumeDataFactory volumeDataFactory;
 

@@ -41,6 +41,7 @@ import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.network.IpAddress;
 import com.cloud.network.rules.FirewallRule;
 import com.cloud.user.Account;
+import com.cloud.utils.StringUtils;
 import com.cloud.utils.net.NetUtils;
 
 @APICommand(name = "createFirewallRule", description = "Creates a firewall rule for a given IP address", responseObject = FirewallResponse.class, entityType = {FirewallRule.class},

@@ -1407,7 +1407,7 @@ public class ApiConstants {
             "a boolean or a numeric value: if it results in a boolean value, the tariff value will be applied according to the result; if it results in a numeric value, the " +
             "numeric value will be applied; if the result is neither a boolean nor a numeric value, the tariff will not be applied. If the rule is not informed, the tariff " +
             "value will be applied.";
-    
+
     public static final String PARAMETER_DESCRIPTION_START_DATE_POSSIBLE_FORMATS = "The recommended format is \"yyyy-MM-dd'T'HH:mm:ssZ\" (e.g.: \"2023-01-01T12:00:00+0100\"); " +
             "however, the following formats are also accepted: \"yyyy-MM-dd HH:mm:ss\" (e.g.: \"2023-01-01 12:00:00\") and \"yyyy-MM-dd\" (e.g.: \"2023-01-01\" - if the time is not " +
             "added, it will be interpreted as \"00:00:00\"). If the recommended format is not used, the date will be considered in the server timezone.";
@@ -1452,7 +1452,7 @@ public class ApiConstants {
     public static final String XML_CONFIG = "xmlconfig";
 
     public static final String CURRENT_VM_ID = "currentvmid";
-    
+
     public static final String CSS = "css";
 
     public static final String JSON_CONFIGURATION = "jsonconfiguration";

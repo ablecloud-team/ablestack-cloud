@@ -1,3 +1,4 @@
+
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -1381,7 +1382,7 @@ public class LinstorPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriver
 
         ResizeVolumeCommand resizeCmd =
             new ResizeVolumeCommand(vol.getPath(), new StorageFilerTO(pool), oldSize, resizeParameter.newSize, resizeParameter.shrinkOk,
-                resizeParameter.instanceName, null);
+                resizeParameter.instanceName, null, vol.getKvdoEnable());
         CreateCmdResult result = new CreateCmdResult(null, null);
         try {
             ResizeVolumeAnswer answer = (ResizeVolumeAnswer) _storageMgr.sendToPool(pool, resizeParameter.hosts, resizeCmd);
@@ -1524,7 +1525,7 @@ public class LinstorPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriver
 
     @Override
     public Pair<Long, Long> getStorageStats(StoragePool storagePool) {
-        s_logger.debug(String.format("Requesting storage stats: %s", storagePool));
+        logger.debug(String.format("Requesting storage stats: %s", storagePool));
         return LinstorUtil.getStorageStats(storagePool.getHostAddress(), getRscGrp(storagePool));
     }
 
@@ -1540,7 +1541,7 @@ public class LinstorPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriver
     private void fillVolumeStatsCache(String linstorAddr) {
         final DevelopersApi api = LinstorUtil.getLinstorAPI(linstorAddr);
         try {
-            s_logger.trace("Start volume stats cache update for " + linstorAddr);
+            logger.trace("Start volume stats cache update for " + linstorAddr);
             List<ResourceWithVolumes> resources = api.viewResources(
                     Collections.emptyList(),
                     Collections.emptyList(),
@@ -1574,9 +1575,9 @@ public class LinstorPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriver
                 volumeStats.put(linstorAddr + "/" + entry.getKey(), volStat);
             }
             volumeStatsLastUpdate.put(linstorAddr, System.currentTimeMillis());
-            s_logger.debug(String.format("Done volume stats cache update for %s: %d", linstorAddr, volumeStats.size()));
+            logger.debug(String.format("Done volume stats cache update for %s: %d", linstorAddr, volumeStats.size()));
         } catch (ApiException e) {
-            s_logger.error("Unable to fetch Linstor resources: " + e.getBestMessage());
+            logger.error("Unable to fetch Linstor resources: {}", e.getBestMessage());
         }
     }
 
@@ -1592,7 +1593,7 @@ public class LinstorPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriver
             String volumeKey = linstorAddr + "/" + LinstorUtil.RSC_PREFIX + volumeId;
             Pair<Long, Long> sizePair = volumeStats.get(volumeKey);
             if (sizePair == null) {
-                s_logger.warn(String.format("Volumestats for %s not found in cache", volumeKey));
+                logger.warn(String.format("Volumestats for %s not found in cache", volumeKey));
             }
             return sizePair;
         }
@@ -1628,5 +1629,9 @@ public class LinstorPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriver
 
     @Override
     public void detachVolumeFromAllStorageNodes(Volume volume) {
+    }
+
+    @Override
+    public void flattenAsync(DataStore store, DataObject data, AsyncCompletionCallback<CommandResult> callback) {
     }
 }

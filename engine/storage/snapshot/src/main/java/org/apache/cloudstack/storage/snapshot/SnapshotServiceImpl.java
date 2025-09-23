@@ -957,7 +957,7 @@ public class SnapshotServiceImpl implements SnapshotService {
         future.complete(res);
         return null;
     }
-    
+
     public AsyncCallFuture<SnapshotResult> copySnapshot(SnapshotInfo sourceSnapshot, SnapshotInfo destSnapshot, SnapshotStrategy strategy) {
         try {
             if (destSnapshot.getStatus() == ObjectInDataStoreStateMachine.State.Allocated) {

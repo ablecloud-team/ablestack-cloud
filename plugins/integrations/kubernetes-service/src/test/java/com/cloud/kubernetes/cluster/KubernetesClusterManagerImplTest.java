@@ -312,6 +312,119 @@ public class KubernetesClusterManagerImplTest {
     }
 
     @Test
+    public void testValidateServiceOfferingNodeType() {
+        Map<String, Long> map = new HashMap<>();
+        map.put(WORKER.name(), 1L);
+        map.put(CONTROL.name(), 2L);
+        ServiceOfferingVO serviceOffering = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(serviceOfferingDao.findById(1L)).thenReturn(serviceOffering);
+        Mockito.when(serviceOffering.isDynamic()).thenReturn(false);
+        Mockito.when(serviceOffering.getCpu()).thenReturn(2);
+        Mockito.when(serviceOffering.getRamSize()).thenReturn(2048);
+        KubernetesSupportedVersion version = Mockito.mock(KubernetesSupportedVersion.class);
+        Mockito.when(version.getMinimumCpu()).thenReturn(2);
+        Mockito.when(version.getMinimumRamSize()).thenReturn(2048);
+        kubernetesClusterManager.validateServiceOfferingForNode(map, 1L, WORKER.name(), null, version);
+        Mockito.verify(kubernetesClusterManager).validateServiceOffering(serviceOffering, version);
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testValidateServiceOfferingNodeTypeInvalidOffering() {
+        Map<String, Long> map = new HashMap<>();
+        map.put(WORKER.name(), 1L);
+        map.put(CONTROL.name(), 2L);
+        ServiceOfferingVO serviceOffering = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(serviceOfferingDao.findById(1L)).thenReturn(serviceOffering);
+        Mockito.when(serviceOffering.isDynamic()).thenReturn(true);
+        kubernetesClusterManager.validateServiceOfferingForNode(map, 1L, WORKER.name(), null, null);
+    }
+
+    @Test
+    public void testClusterCapacity() {
+        long workerOfferingId = 1L;
+        long controlOfferingId = 2L;
+        long workerCount = 2L;
+        long controlCount = 2L;
+
+        int workerOfferingCpus = 4;
+        int workerOfferingMemory = 4096;
+        int controlOfferingCpus = 2;
+        int controlOfferingMemory = 2048;
+
+        Map<String, Long> map = Map.of(WORKER.name(), workerOfferingId, CONTROL.name(), controlOfferingId);
+        Map<String, Long> nodeCount = Map.of(WORKER.name(), workerCount, CONTROL.name(), controlCount);
+
+        ServiceOfferingVO workerOffering = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(serviceOfferingDao.findById(workerOfferingId)).thenReturn(workerOffering);
+        ServiceOfferingVO controlOffering = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(serviceOfferingDao.findById(controlOfferingId)).thenReturn(controlOffering);
+        Mockito.when(workerOffering.getCpu()).thenReturn(workerOfferingCpus);
+        Mockito.when(workerOffering.getRamSize()).thenReturn(workerOfferingMemory);
+        Mockito.when(controlOffering.getCpu()).thenReturn(controlOfferingCpus);
+        Mockito.when(controlOffering.getRamSize()).thenReturn(controlOfferingMemory);
+
+        Pair<Long, Long> pair = kubernetesClusterManager.calculateClusterCapacity(map, nodeCount, 1L);
+        Long expectedCpu = (workerOfferingCpus * workerCount) + (controlOfferingCpus * controlCount);
+        Long expectedMemory = (workerOfferingMemory * workerCount) + (controlOfferingMemory * controlCount);
+        Assert.assertEquals(expectedCpu, pair.first());
+        Assert.assertEquals(expectedMemory, pair.second());
+    }
+
+    @Test
+    public void testIsAnyNodeOfferingEmptyNullMap() {
+        Assert.assertTrue(kubernetesClusterManager.isAnyNodeOfferingEmpty(null));
+    }
+
+    @Test
+    public void testIsAnyNodeOfferingEmptyNullValue() {
+        Map<String, Long> map = new HashMap<>();
+        map.put(WORKER.name(), 1L);
+        map.put(CONTROL.name(), null);
+        map.put(ETCD.name(), 2L);
+        Assert.assertTrue(kubernetesClusterManager.isAnyNodeOfferingEmpty(map));
+    }
+
+    @Test
+    public void testIsAnyNodeOfferingEmpty() {
+        Map<String, Long> map = new HashMap<>();
+        map.put(WORKER.name(), 1L);
+        map.put(CONTROL.name(), 2L);
+        Assert.assertFalse(kubernetesClusterManager.isAnyNodeOfferingEmpty(map));
+    }
+
+    @Test
+    public void testCreateNodeTypeToServiceOfferingMapNullMap() {
+        KubernetesClusterVO clusterVO = Mockito.mock(KubernetesClusterVO.class);
+        Mockito.when(clusterVO.getServiceOfferingId()).thenReturn(1L);
+        ServiceOfferingVO offering = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(serviceOfferingDao.findById(1L)).thenReturn(offering);
+        Map<String, ServiceOffering> mapping = kubernetesClusterManager.createNodeTypeToServiceOfferingMap(new HashMap<>(), null, clusterVO);
+        Assert.assertFalse(MapUtils.isEmpty(mapping));
+        Assert.assertTrue(mapping.containsKey(DEFAULT.name()));
+        Assert.assertEquals(offering, mapping.get(DEFAULT.name()));
+    }
+
+    @Test
+    public void testCreateNodeTypeToServiceOfferingMap() {
+        Map<String, Long> idsMap = new HashMap<>();
+        long workerOfferingId = 1L;
+        long controlOfferingId = 2L;
+        idsMap.put(WORKER.name(), workerOfferingId);
+        idsMap.put(CONTROL.name(), controlOfferingId);
+
+        ServiceOfferingVO workerOffering = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(serviceOfferingDao.findById(workerOfferingId)).thenReturn(workerOffering);
+        ServiceOfferingVO controlOffering = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(serviceOfferingDao.findById(controlOfferingId)).thenReturn(controlOffering);
+
+        Map<String, ServiceOffering> mapping = kubernetesClusterManager.createNodeTypeToServiceOfferingMap(idsMap, null, null);
+        Assert.assertEquals(2, mapping.size());
+        Assert.assertTrue(mapping.containsKey(WORKER.name()) && mapping.containsKey(CONTROL.name()));
+        Assert.assertEquals(workerOffering, mapping.get(WORKER.name()));
+        Assert.assertEquals(controlOffering, mapping.get(CONTROL.name()));
+    }
+
+    @Test
     public void testGetCksClusterPreferredArchDifferentArchsPreferCKSIsoArch() {
         String systemVMArch = "x86_64";
         VMTemplateVO cksIso = Mockito.mock(VMTemplateVO.class);

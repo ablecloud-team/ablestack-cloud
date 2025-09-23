@@ -545,7 +545,7 @@ public interface UserVmService {
     UserVm removeVbmcToVM(RemoveVbmcToVMCmd cmd);
 
     UserVm updateVmNicLinkState(UpdateVmNicLinkStateCmd cmd);
-    
+
     UserVm allocateVMFromBackup(CreateVMFromBackupCmd cmd) throws InsufficientCapacityException, ResourceAllocationException, ResourceUnavailableException;
 
     UserVm restoreVMFromBackup(CreateVMFromBackupCmd cmd) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException;

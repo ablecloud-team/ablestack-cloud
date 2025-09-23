@@ -195,7 +195,7 @@ public class SnapshotDaoImpl extends GenericDaoBase<SnapshotVO, Long> implements
         volumesToFlattenSearch.and("cloneType", volumesToFlattenSearch.entity().getCloneType(), Op.EQ);
         volumesToFlattenSearch.and("removed", volumesToFlattenSearch.entity().getRemoved(), Op.NULL);
         volumesToFlattenSearch.done();
-        
+
         volumeIdAndTypeNotInSearch = createSearchBuilder();
         volumeIdAndTypeNotInSearch.and(VOLUME_ID, volumeIdAndTypeNotInSearch.entity().getVolumeId(), SearchCriteria.Op.EQ);
         volumeIdAndTypeNotInSearch.and(STATUS, volumeIdAndTypeNotInSearch.entity().getState(), SearchCriteria.Op.NEQ);

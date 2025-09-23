@@ -18,7 +18,6 @@
  */
 package org.apache.cloudstack.storage.datastore.lifecycle;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -118,7 +117,7 @@ public class ScaleIOPrimaryDataStoreLifeCycle extends BasePrimaryDataStoreLifeCy
             List<org.apache.cloudstack.storage.datastore.api.StoragePool> storagePools = client.listStoragePools();
             for (org.apache.cloudstack.storage.datastore.api.StoragePool pool : storagePools) {
                 if (pool.getName().equals(storagePoolName)) {
-                    logger.info("Found PowerFlex storage pool: " + storagePoolName);
+                    logger.info("Found PowerFlex storage pool: {}", storagePoolName);
                     final org.apache.cloudstack.storage.datastore.api.StoragePoolStatistics poolStatistics = client.getStoragePoolStatistics(pool.getId());
                     pool.setStatistics(poolStatistics);
 
@@ -174,7 +173,7 @@ public class ScaleIOPrimaryDataStoreLifeCycle extends BasePrimaryDataStoreLifeCy
             throw new CloudRuntimeException("Cluster Id must also be specified when the Pod Id is specified for Cluster-wide primary storage.");
         }
 
-        URI uri = null;
+        URI uri;
         try {
             uri = new URI(UriUtils.encodeURIComponent(url));
             if (uri.getScheme() == null || !uri.getScheme().equalsIgnoreCase("powerflex")) {
@@ -184,12 +183,8 @@ public class ScaleIOPrimaryDataStoreLifeCycle extends BasePrimaryDataStoreLifeCy
             throw new InvalidParameterValueException(url + " is not a valid uri");
         }
 
-        String storagePoolName = null;
-        try {
-            storagePoolName = URLDecoder.decode(uri.getPath(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            logger.error("[ignored] we are on a platform not supporting \"UTF-8\"!?!", e);
-        }
+        String storagePoolName;
+        storagePoolName = URLDecoder.decode(uri.getPath(), StringUtils.getPreferredCharset());
         if (storagePoolName == null) { // if decoding fails, use getPath() anyway
             storagePoolName = uri.getPath();
         }
@@ -197,7 +192,7 @@ public class ScaleIOPrimaryDataStoreLifeCycle extends BasePrimaryDataStoreLifeCy
 
         final String storageHost = uri.getHost();
         final int port = uri.getPort();
-        String gatewayApiURL = null;
+        String gatewayApiURL;
         if (port == -1) {
             gatewayApiURL = String.format("https://%s/api", storageHost);
         } else {

@@ -69,8 +69,8 @@ import com.cloud.vm.UserVmManager;
 import com.cloud.vm.UserVmService;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.UserVmVO;
-import com.cloud.vm.UserVmDetailVO;
-import com.cloud.vm.dao.UserVmDetailsDao;
+import com.cloud.vm.VMInstanceDetailVO;
+import com.cloud.vm.dao.VMInstanceDetailsDao;
 import com.cloud.vm.dao.UserVmDao;
 import com.cloud.vm.dao.VMInstanceDao;
 import com.google.gson.JsonParser;
@@ -129,7 +129,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Inject
     private DiskOfferingDao diskOfferingDao;
     @Inject
-    private UserVmDetailsDao userVmDetailsDao;
+    private VMInstanceDetailsDao vmInstanceDetailsDao;
     @Inject
     private DisasterRecoveryClusterDao disasterRecoveryClusterDao;
     @Inject
@@ -1731,21 +1731,21 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
                 String ioPolicy = "";
                 String ioThread = "false";
                 // 생성된 ROOT 디스크로 미러링 가상머신 생성
-                List<UserVmDetailVO> vmDetails = userVmDetailsDao.listDetails(userVM.getId(), true);
+                List<VMInstanceDetailVO> vmDetails = vmInstanceDetailsDao.listDetails(userVM.getId(), true);
                 if (vmDetails != null) {
-                    for (UserVmDetailVO userVmDetailVO : vmDetails) {
-                        if ((ApiConstants.BootType.UEFI.toString()).equalsIgnoreCase(userVmDetailVO.getName())) {
+                    for (VMInstanceDetailVO VMInstanceDetailVO : vmDetails) {
+                        if ((ApiConstants.BootType.UEFI.toString()).equalsIgnoreCase(VMInstanceDetailVO.getName())) {
                             bootType = "UEFI";
-                            bootMode = userVmDetailVO.getValue().toLowerCase();
+                            bootMode = VMInstanceDetailVO.getValue().toLowerCase();
                         }
-                        if ((ApiConstants.TPM_VERSION.toString()).equalsIgnoreCase(userVmDetailVO.getName())) {
-                            tpmVersion = userVmDetailVO.getValue().toLowerCase();
+                        if ((ApiConstants.TPM_VERSION.toString()).equalsIgnoreCase(VMInstanceDetailVO.getName())) {
+                            tpmVersion = VMInstanceDetailVO.getValue().toLowerCase();
                         }
-                        if ((ApiConstants.IO_DRIVER_POLICY.toString()).equalsIgnoreCase(userVmDetailVO.getName())) {
-                            ioPolicy = userVmDetailVO.getValue().toLowerCase();
+                        if ((ApiConstants.IO_DRIVER_POLICY.toString()).equalsIgnoreCase(VMInstanceDetailVO.getName())) {
+                            ioPolicy = VMInstanceDetailVO.getValue().toLowerCase();
                         }
-                        if ((ApiConstants.IOTHREADS_ENABLED.toString()).equalsIgnoreCase(userVmDetailVO.getName())) {
-                            ioThread = userVmDetailVO.getValue().toLowerCase();
+                        if ((ApiConstants.IOTHREADS_ENABLED.toString()).equalsIgnoreCase(VMInstanceDetailVO.getName())) {
+                            ioThread = VMInstanceDetailVO.getValue().toLowerCase();
                         }
                     }
                 }

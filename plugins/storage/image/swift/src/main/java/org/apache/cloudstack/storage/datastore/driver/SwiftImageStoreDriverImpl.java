@@ -101,7 +101,7 @@ public class SwiftImageStoreDriverImpl extends BaseImageStoreDriverImpl {
         if (cacheStore == null) {
             String errMsg = String.format("No cache store found for scope: %s",
                     dataStore.getScope().getScopeType().name());
-            s_logger.error(errMsg);
+            logger.error(errMsg);
             throw new CloudRuntimeException(errMsg);
         }
         DownloadCommand dcmd = new DownloadCommand((TemplateObjectTO)(data.getTO()), maxTemplateSizeInBytes);

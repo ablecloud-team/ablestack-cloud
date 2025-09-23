@@ -22,7 +22,13 @@ import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
+import com.cloud.exception.ResourceAllocationException;
+import com.cloud.exception.StorageUnavailableException;
+import com.cloud.offering.DiskOffering;
+import com.cloud.user.Account;
 import com.cloud.utils.Pair;
+import com.cloud.utils.fsm.NoTransitionException;
+
 import org.apache.cloudstack.api.command.user.volume.AssignVolumeCmd;
 import org.apache.cloudstack.api.command.user.volume.AttachVolumeCmd;
 import org.apache.cloudstack.api.command.user.volume.ChangeOfferingForVolumeCmd;
@@ -33,19 +39,14 @@ import org.apache.cloudstack.api.command.user.volume.ExtractVolumeCmd;
 import org.apache.cloudstack.api.command.user.volume.GetUploadParamsForVolumeCmd;
 import org.apache.cloudstack.api.command.user.volume.MigrateVolumeCmd;
 import org.apache.cloudstack.api.command.user.volume.ResizeVolumeCmd;
-import org.apache.cloudstack.api.command.user.volume.UploadVolumeCmd;
 import org.apache.cloudstack.api.command.user.volume.UpdateCompressDedupCmd;
+import org.apache.cloudstack.api.command.user.volume.UploadVolumeCmd;
 import org.apache.cloudstack.api.response.GetUploadParamsResponse;
 import org.apache.cloudstack.framework.config.ConfigKey;
 
-import com.cloud.exception.StorageUnavailableException;
-import com.cloud.exception.ResourceAllocationException;
-import com.cloud.user.Account;
-import com.cloud.utils.fsm.NoTransitionException;
-
 public interface VolumeApiService {
 
-    ConfigKey<Long> ConcurrentMigrationsThresholdPerDatastore = new ConfigKey<Long>("Advanced"
+    ConfigKey<Long> ConcurrentMigrationsThresholdPerDatastore = new ConfigKey<>("Advanced"
             , Long.class
             , "concurrent.migrations.per.target.datastore"
             , "0"
@@ -53,10 +54,10 @@ public interface VolumeApiService {
             , true // not sure if this is to be dynamic
             , ConfigKey.Scope.Global);
 
-    ConfigKey<Boolean> UseHttpsToUpload = new ConfigKey<Boolean>("Advanced",
+    ConfigKey<Boolean> UseHttpsToUpload = new ConfigKey<>("Advanced",
             Boolean.class,
             "use.https.to.upload",
-            "false",
+            "true",
             "Determines the protocol (HTTPS or HTTP) ACS will use to generate links to upload ISOs, volumes, and templates. When set as 'true', ACS will use protocol HTTPS, otherwise, it will use protocol HTTP. Default value is 'true'.",
             true,
             ConfigKey.Scope.StoragePool);
@@ -87,7 +88,7 @@ public interface VolumeApiService {
      * @param cmd
      *            the API command wrapping the criteria
      * @return the volume object
-     * @throws ResourceAllocationException
+     * @throws ResourceAllocationException no capacity to allocate the new volume size
      */
     Volume resizeVolume(ResizeVolumeCmd cmd) throws ResourceAllocationException;
 
@@ -119,7 +120,10 @@ public interface VolumeApiService {
 
     Snapshot allocSnapshot(Long volumeId, Long policyId, String snapshotName, Snapshot.LocationType locationType, List<Long> zoneIds, List<Long> storagePoolIds, Boolean useStorageReplication) throws ResourceAllocationException;
 
-    Volume updateVolume(long volumeId, String path, String state, Long storageId, Boolean displayVolume, Boolean deleteProtection, String customId, long owner, String chainInfo, String name, String type);
+    Volume updateVolume(long volumeId, String path, String state, Long storageId,
+                        Boolean displayVolume, Boolean deleteProtection,
+                        String customId, long owner, String chainInfo, String name, String type);
+
 
     /**
      * Extracts the volume to a particular location.
@@ -202,6 +206,6 @@ public interface VolumeApiService {
     Volume cloneVolumeFromSnapshot(Volume volume, long snapshotId, Long vmId) throws StorageUnavailableException;
 
     Volume updateCompressDedupVolume(UpdateCompressDedupCmd cmd);
-    
+
     Long getVolumePhysicalSize(Storage.ImageFormat format, String path, String chainInfo);
 }

@@ -77,7 +77,7 @@ public class QemuImgFile {
     public boolean getKvdoEnable() {
         return kvdoEnable;
     }
-    
+
     @Override
     public String toString() {
         return ReflectionToStringBuilder.toString(this);

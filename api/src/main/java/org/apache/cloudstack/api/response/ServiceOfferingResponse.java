@@ -241,7 +241,7 @@ public class ServiceOfferingResponse extends BaseResponseWithAnnotations {
     @SerializedName(ApiConstants.KVDO_ENABLE)
     @Param(description = "Whether to KVDO compression and deduplication the volume", since = "4.20")
     private Boolean kvdoEnable;
-    
+
     @SerializedName(ApiConstants.GPU_CARD_ID)
     @Param(description = "the ID of the gpu card to which service offering is linked", since = "4.21")
     private String gpuCardId;
@@ -568,7 +568,7 @@ public class ServiceOfferingResponse extends BaseResponseWithAnnotations {
     public void setKvdoEnable(boolean kvdoEnable) {
         this.kvdoEnable = kvdoEnable;
     }
-    
+
     public Integer getLeaseDuration() {
         return leaseDuration;
     }

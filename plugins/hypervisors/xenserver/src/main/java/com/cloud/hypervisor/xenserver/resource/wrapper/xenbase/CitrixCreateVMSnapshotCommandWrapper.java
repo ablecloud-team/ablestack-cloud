@@ -98,7 +98,7 @@ public final class CitrixCreateVMSnapshotCommandWrapper extends CommandWrapper<C
                     vm = citrixResourceBase.getVM(conn, vmName);
                     vmState = vm.getPowerState(conn);
                 } catch (final Exception e) {
-                    s_logger.debug(String.format("Failed to find VM with name: %s due to:", vmName), e);
+                    logger.debug(String.format("Failed to find VM with name: %s due to:", vmName), e);
                     if (!snapshotMemory) {
                         vm = citrixResourceBase.createWorkingVM(conn, vmName, guestOSType, platformEmulator, listVolumeTo);
                     }

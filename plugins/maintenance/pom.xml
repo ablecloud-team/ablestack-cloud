@@ -21,8 +21,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>cloud-plugin-security</artifactId>
-    <name>Apache CloudStack Plugin - Security</name>
+    <artifactId>cloud-plugin-maintenance</artifactId>
+    <name>Apache CloudStack Plugin - MS Maintenance and Safe Shutdown</name>
     <parent>
         <groupId>org.apache.cloudstack</groupId>
         <artifactId>cloudstack-plugins</artifactId>
@@ -39,11 +39,6 @@
             <groupId>org.apache.cloudstack</groupId>
             <artifactId>cloud-utils</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20210307</version>
         </dependency>
     </dependencies>
 </project>

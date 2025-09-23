@@ -149,7 +149,6 @@ import com.cloud.host.Host;
 import com.cloud.host.HostVO;
 import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor;
-import com.cloud.hypervisor.Hypervisor.HypervisorType;
 import com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClusterNodeType;
 import com.cloud.kubernetes.cluster.actionworkers.KubernetesClusterActionWorker;
 import com.cloud.kubernetes.cluster.actionworkers.KubernetesClusterAddWorker;
@@ -276,8 +275,6 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
     );
     private static final String PROJECT_KUBERNETES_ACCOUNT_FIRST_NAME = "Kubernetes";
     private static final String PROJECT_KUBERNETES_ACCOUNT_LAST_NAME = "Service User";
-
-
     private static final String DEFAULT_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_DISPLAY_TEXT = "Network Offering used for CloudStack Kubernetes service";
     private static final String DEFAULT_NSX_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_NAME = "DefaultNSXNetworkOfferingforKubernetesService";
     private static final String DEFAULT_NSX_VPC_TIER_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_NAME = "DefaultNSXVPCNetworkOfferingforKubernetesService";
@@ -319,8 +316,6 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
     protected VMTemplateDao templateDao;
     @Inject
     protected TemplateJoinDao templateJoinDao;
-    @Inject
-    public AccountDao accountDao;
     @Inject
     protected DedicatedResourceDao dedicatedResourceDao;
     @Inject
@@ -386,7 +381,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
     @Inject
     RoleService roleService;
 
-    private void logMessage(final Level logLevel, final String message, final Exception e) {
+private void logMessage(final Level logLevel, final String message, final Exception e) {
         if (logLevel == Level.WARN) {
             if (e != null) {
                 logger.warn(message, e);
@@ -671,7 +666,6 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         boolean useDedicatedHosts = false;
         Long group = getExplicitAffinityGroup(domainId);
         List<HostVO> hosts = new ArrayList<>();
-        hosts = resourceManager.listAllUpAndEnabledHostsAndRoutingTypeInOneZoneByHypervisor(HypervisorType.KVM, zone.getId());
         if (Objects.nonNull(group)) {
             List<DedicatedResourceVO> dedicatedHosts = new ArrayList<>();
             if (Objects.nonNull(accountId)) {
@@ -1857,7 +1851,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         }
         roleService.createRolePermission(role, new Rule("*"), RolePermissionEntity.Permission.DENY,
                 "Deny all");
-        LOGGER.debug(String.format("Created default role for Kubernetes service account in projects: %s", role));
+        logger.debug(String.format("Created default role for Kubernetes service account in projects: %s", role));
         return role;
     }
 
@@ -1865,7 +1859,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         List<Role> roles = roleService.findRolesByName(PROJECT_KUBEADMIN_ACCOUNT_ROLE_NAME);
         if (CollectionUtils.isNotEmpty(roles)) {
             Role role = roles.get(0);
-            LOGGER.debug(String.format("Found default role for Kubernetes service account in projects: %s", role));
+            logger.debug(String.format("Found default role for Kubernetes service account in projects: %s", role));
             return role;
         }
         return createProjectKubernetesAccountRole();
@@ -1882,7 +1876,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
             projectManager.assignAccountToProject(project, userAccount.getAccountId(), ProjectAccount.Role.Regular,
                     userAccount.getId(), null);
             Account account = accountService.getAccount(userAccount.getAccountId());
-            LOGGER.debug(String.format("Created Kubernetes service account in project %s: %s", project, account));
+            logger.debug(String.format("Created Kubernetes service account in project %s: %s", project, account));
             return account;
         } finally {
             CallContext.unregister();
@@ -1895,7 +1889,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         List<AccountVO> accounts = accountDao.findAccountsByName(accountName);
         for (AccountVO account : accounts) {
             if (projectManager.canAccessProjectAccount(account, project.getProjectAccountId())) {
-                LOGGER.debug(String.format("Created Kubernetes service account in project %s: %s", project, account));
+                logger.debug(String.format("Created Kubernetes service account in project %s: %s", project, account));
                 return account;
             }
         }
@@ -2399,12 +2393,12 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         if (CollectionUtils.isEmpty(clusters)) {
             return;
         }
-        LOGGER.debug(String.format("Cleaning up %d Kubernetes cluster for %s", clusters.size(), account));
+        logger.debug(String.format("Cleaning up %d Kubernetes cluster for %s", clusters.size(), account));
         for (KubernetesClusterVO cluster : clusters) {
             try {
                 destroyKubernetesCluster(cluster, false);
             } catch (CloudRuntimeException e) {
-                LOGGER.warn(String.format("Failed to destroy Kubernetes cluster: %s during cleanup for %s",
+                logger.warn(String.format("Failed to destroy Kubernetes cluster: %s during cleanup for %s",
                         cluster.getName(), account), e);
             }
         }
@@ -2468,9 +2462,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
                     }
                     try {
                         if (destroyKubernetesCluster(kubernetesCluster)) {
-                            if (logger.isInfoEnabled()) {
-                                logger.info(String.format("Garbage collection complete for Kubernetes cluster : %s", kubernetesCluster.getName()));
-                            }
+                            logger.info("Garbage collection complete for Kubernetes cluster: {}", kubernetesCluster);
                         } else {
                             logger.warn("Garbage collection failed for Kubernetes cluster : {}, it will be attempted to garbage collected in next run", kubernetesCluster);
                         }
@@ -2644,6 +2636,8 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
 
         // createNetworkOfferingForKubernetes(DEFAULT_NSX_VPC_TIER_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_NAME,
         //         DEFAULT_NSX_VPC_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_DISPLAY_TEXT , true, true);
+
+        getProjectKubernetesAccountRole();
 
         _gcExecutor.scheduleWithFixedDelay(new KubernetesClusterGarbageCollector(), 300, 300, TimeUnit.SECONDS);
         _stateScanner.scheduleWithFixedDelay(new KubernetesClusterStatusScanner(), 300, 30, TimeUnit.SECONDS);

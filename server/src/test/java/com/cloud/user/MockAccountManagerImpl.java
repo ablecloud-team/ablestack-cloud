@@ -501,7 +501,7 @@ public class MockAccountManagerImpl extends ManagerBase implements Manager, Acco
     @Override
     public void validateUserPasswordAndUpdateIfNeeded(String newPassword, UserVO user, String currentPassword, boolean skipCurrentPassValidation) {
     }
-    
+
     public UserAccount clearUserTwoFactorAuthenticationInSetupStateOnLogin(UserAccount user) {
         return null;
     }

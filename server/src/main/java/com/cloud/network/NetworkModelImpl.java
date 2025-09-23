@@ -946,7 +946,7 @@ public class NetworkModelImpl extends ManagerBase implements NetworkModel, Confi
     @Override
     public UserDataServiceProvider getUserDataUpdateProvider(Network network) {
         if (network == null) {
-            s_logger.warn("No network details, can't fetch user data provider");
+            logger.warn("No network details, can't fetch user data provider");
             return null;
         }
 

@@ -272,7 +272,7 @@ public class ViewResponseHelper {
         }
         return new ArrayList<OutOfBandManagement>(vrDataList.values());
     }
-    
+
     public static List<HostResponse> createMinimalHostResponse(HostJoinVO... hosts) {
         LinkedHashMap<Long, HostResponse> vrDataList = new LinkedHashMap<>();
         for (HostJoinVO vr : hosts) {

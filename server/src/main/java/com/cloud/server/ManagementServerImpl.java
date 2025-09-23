@@ -19,9 +19,7 @@
 package com.cloud.server;
 
 import java.io.BufferedReader;
-// import java.io.File;
 import java.io.InputStreamReader;
-// import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.net.SocketTimeoutException;
 import java.net.URL;
@@ -49,21 +47,21 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
+import javax.naming.ConfigurationException;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-// import javax.net.ssl.X509TrustManager;
-import javax.naming.ConfigurationException;
 
 import com.cloud.cpu.CPU;
 import com.cloud.dc.VlanDetailsVO;
 import com.cloud.dc.dao.VlanDetailsDao;
 import com.cloud.network.dao.NetrisProviderDao;
 import com.cloud.network.dao.NsxProviderDao;
-
+import com.cloud.network.dao.PublicIpQuarantineDao;
 import com.cloud.utils.security.CertificateHelper;
 import com.cloud.api.query.dao.ManagementServerJoinDao;
 import com.cloud.api.query.vo.ManagementServerJoinVO;
@@ -201,7 +199,6 @@ import org.apache.cloudstack.api.command.admin.outofbandmanagement.LicenseCheckC
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostRedfishDataCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostDevicesCmd;
-// import org.apac
 import org.apache.cloudstack.api.command.admin.pod.CreatePodCmd;
 import org.apache.cloudstack.api.command.admin.pod.DeletePodCmd;
 import org.apache.cloudstack.api.command.admin.pod.ListPodsByCmd;
@@ -805,7 +802,6 @@ import com.cloud.network.dao.NetworkDao;
 import com.cloud.network.dao.NetworkDomainDao;
 import com.cloud.network.dao.NetworkDomainVO;
 import com.cloud.network.dao.NetworkVO;
-import com.cloud.network.dao.PublicIpQuarantineDao;
 import com.cloud.network.vpc.dao.VpcDao;
 import com.cloud.org.Cluster;
 import com.cloud.org.Grouping.AllocationState;
@@ -881,7 +877,6 @@ import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.fsm.StateMachine2;
 import com.cloud.utils.net.MacAddress;
 import com.cloud.utils.net.NetUtils;
-import com.cloud.utils.security.CertificateHelper;
 import com.cloud.utils.nio.TrustAllManager;
 import com.cloud.utils.ssh.SSHKeysHelper;
 import com.cloud.vm.ConsoleProxyVO;
@@ -906,11 +901,9 @@ import com.cloud.vm.dao.NicDao;
 import com.cloud.vm.dao.SecondaryStorageVmDao;
 import com.cloud.vm.dao.UserVmDao;
 import com.cloud.vm.dao.VMInstanceDao;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
-import javax.naming.ConfigurationException;
-
 import com.cloud.vm.dao.VMInstanceDetailsDao;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ManagementServerImpl extends ManagerBase implements ManagementServer, Configurable {
     protected StateMachine2<State, VirtualMachine.Event, VirtualMachine> _stateMachine;
@@ -1118,9 +1111,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
     @Inject
     private HostDetailsDao _hostDetailsDao;
-
-    @Inject
-    private UserVmDetailsDao _vmDetailsDao;
 
     private LockControllerListener _lockControllerListener;
     private final ScheduledExecutorService _eventExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("EventChecker"));
@@ -2405,13 +2395,13 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(currentVmId));
                     if (vm != null) {
                         // 해당 VM의 모든 extraconfig 항목 조회
-                        List<UserVmDetailVO> existingConfigs = _vmDetailsDao.listDetails(vm.getId());
+                        List<VMInstanceDetailVO> existingConfigs = _vmInstanceDetailsDao.listDetails(vm.getId());
 
                         // 현재 디바이스의 설정 찾기 및 제거
-                        for (UserVmDetailVO detail : existingConfigs) {
+                        for (VMInstanceDetailVO detail : existingConfigs) {
                             if (detail.getName().startsWith("extraconfig-") &&
                                 detail.getValue().contains(hostDeviceName)) {
-                                _vmDetailsDao.removeDetail(vm.getId(), detail.getName());
+                                _vmInstanceDetailsDao.removeDetail(vm.getId(), detail.getName());
                                 logger.info("Successfully removed device configuration {} from VM {}",
                                     detail.getName(), vm.getInstanceName());
                                 break;
@@ -2432,11 +2422,11 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             }
 
             // 다음 사용 가능한 extraconfig 번호 찾기
-            List<UserVmDetailVO> existingConfigs = _vmDetailsDao.listDetails(vmInstance.getId());
+            List<VMInstanceDetailVO> existingConfigs = _vmInstanceDetailsDao.listDetails(vmInstance.getId());
                 int nextConfigNum = 1;
                 Set<Integer> usedNums = new HashSet<>();
 
-                for (UserVmDetailVO detail : existingConfigs) {
+                for (VMInstanceDetailVO detail : existingConfigs) {
                     if (detail.getName().startsWith("extraconfig-")) {
                         try {
                             int num = Integer.parseInt(detail.getName().split("-")[1]);

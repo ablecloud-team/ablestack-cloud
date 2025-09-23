@@ -225,7 +225,7 @@ public class ServiceOfferingJoinVO extends BaseViewVO implements InternalIdentit
 
     @Column(name = "kvdo_enable")
     private boolean kvdoEnable;
-    
+
     @Column(name = "lease_duration")
     private Integer leaseDuration;
 
@@ -511,7 +511,7 @@ public class ServiceOfferingJoinVO extends BaseViewVO implements InternalIdentit
     public boolean getShareable() { return shareable; }
 
     public boolean getKvdoEnable() { return kvdoEnable; }
-    
+
     public Integer getLeaseDuration() {
         return leaseDuration;
     }

@@ -66,7 +66,7 @@ public final class CitrixRevertToVMSnapshotCommandWrapper extends CommandWrapper
             try {
                 vm = citrixResourceBase.getVM(conn, vmName);
             } catch (final Exception e) {
-                s_logger.debug(String.format("Failed to find VM with name: %s due to:", vmName), e);
+                logger.debug(String.format("Failed to find VM with name: %s due to:", vmName), e);
                 vm = citrixResourceBase.createWorkingVM(conn, vmName, command.getGuestOSType(), command.getPlatformEmulator(), listVolumeTo);
             }
 

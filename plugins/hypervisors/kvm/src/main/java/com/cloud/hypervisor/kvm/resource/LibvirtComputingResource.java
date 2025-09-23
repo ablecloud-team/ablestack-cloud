@@ -3276,7 +3276,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             devices.addDevice(createTabletInputDef());
         }
         devices.addDevice(createSoundDef(vmTO));
-        
+
         TpmDef tpmDef = createTpmDef(vmTO);
         if (tpmDef != null) {
             devices.addDevice(tpmDef);
@@ -3325,7 +3325,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         }
         return numCoresPerSocket;
     }
-    
+
     protected void attachGpuDevices(final VirtualMachineTO vmTO, final DevicesDef devicesDef) {
         // GPU device is not set for the VM
         List<VgpuTypesInfo> gpuDevices = vmTO.getGpuDevice().getGpuDevices();
@@ -5714,7 +5714,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         }
         return NumberUtils.LONG_ZERO;
     }
-    
+
     public void removeCheckpointsOnVm(String vmName, String volumeUuid, List<String> checkpointPaths) {
         logger.debug("Removing checkpoints with paths [{}] of volume [{}] on VM [{}].", checkpointPaths, volumeUuid, vmName);
         String checkpointName;
@@ -7072,7 +7072,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         }
         return uuid;
     }
-    
+
     @Override
     public void disconnected() {
         LOGGER.info("Detected agent disconnect event, running through " + _disconnectHooks.size() + " disconnect hooks");
@@ -7152,7 +7152,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     public String getHypervisorPath() {
         return hypervisorPath;
     }
-    
+
     public String getGuestCpuArch() {
         return guestCpuArch;
     }

@@ -34,7 +34,7 @@ CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.console_session', 'console_endpoint_
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.console_session', 'client_address', 'VARCHAR(45)');
 
 -- Allow default roles to use quotaCreditsList
-INSERT INTO `cloud`.`role_permissions` (uuid, role_id, rule, permission, sort_order)
+INSERT IGNORE INTO `cloud`.`role_permissions` (uuid, role_id, rule, permission, sort_order)
 SELECT uuid(), role_id, 'quotaCreditsList', permission, sort_order
 FROM `cloud`.`role_permissions` rp
 WHERE rp.rule = 'quotaStatement'
@@ -63,12 +63,12 @@ CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.kubernetes_cluster_vm_map','external
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.kubernetes_cluster_vm_map','manual_upgrade', 'tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT "indicates if the node is marked for manual upgrade and excluded from the Kubernetes cluster upgrade operation"');
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.kubernetes_cluster_vm_map','kubernetes_node_version', 'varchar(40) COMMENT "version of k8s the cluster node is on"');
 
-ALTER TABLE `cloud`.`kubernetes_cluster` ADD CONSTRAINT `fk_cluster__control_node_service_offering_id` FOREIGN KEY `fk_cluster__control_node_service_offering_id`(`control_node_service_offering_id`) REFERENCES `service_offering`(`id`) ON DELETE CASCADE;
-ALTER TABLE `cloud`.`kubernetes_cluster` ADD CONSTRAINT `fk_cluster__worker_node_service_offering_id` FOREIGN KEY `fk_cluster__worker_node_service_offering_id`(`worker_node_service_offering_id`) REFERENCES `service_offering`(`id`) ON DELETE CASCADE;
-ALTER TABLE `cloud`.`kubernetes_cluster` ADD CONSTRAINT `fk_cluster__etcd_node_service_offering_id` FOREIGN KEY `fk_cluster__etcd_node_service_offering_id`(`etcd_node_service_offering_id`) REFERENCES `service_offering`(`id`) ON DELETE CASCADE;
-ALTER TABLE `cloud`.`kubernetes_cluster` ADD CONSTRAINT `fk_cluster__control_node_template_id` FOREIGN KEY `fk_cluster__control_node_template_id`(`control_node_template_id`) REFERENCES `vm_template`(`id`) ON DELETE CASCADE;
-ALTER TABLE `cloud`.`kubernetes_cluster` ADD CONSTRAINT `fk_cluster__worker_node_template_id` FOREIGN KEY `fk_cluster__worker_node_template_id`(`worker_node_template_id`) REFERENCES `vm_template`(`id`) ON DELETE CASCADE;
-ALTER TABLE `cloud`.`kubernetes_cluster` ADD CONSTRAINT `fk_cluster__etcd_node_template_id` FOREIGN KEY `fk_cluster__etcd_node_template_id`(`etcd_node_template_id`) REFERENCES `vm_template`(`id`) ON DELETE CASCADE;
+CALL `cloud`.`IDEMPOTENT_ADD_FOREIGN_KEY`('cloud.kubernetes_cluster','fk_cluster__control_node_service_offering_id','(`control_node_service_offering_id`)','`service_offering`(`id`)');
+CALL `cloud`.`IDEMPOTENT_ADD_FOREIGN_KEY`('cloud.kubernetes_cluster','fk_cluster__worker_node_service_offering_id','(`worker_node_service_offering_id`)','`service_offering`(`id`)');
+CALL `cloud`.`IDEMPOTENT_ADD_FOREIGN_KEY`('cloud.kubernetes_cluster','fk_cluster__etcd_node_service_offering_id','(`etcd_node_service_offering_id`)','`service_offering`(`id`)');
+CALL `cloud`.`IDEMPOTENT_ADD_FOREIGN_KEY`('cloud.kubernetes_cluster','fk_cluster__control_node_template_id','(`control_node_template_id`)','`vm_template`(`id`)');
+CALL `cloud`.`IDEMPOTENT_ADD_FOREIGN_KEY`('cloud.kubernetes_cluster','fk_cluster__worker_node_template_id','(`worker_node_template_id`)','`vm_template`(`id`)');
+CALL `cloud`.`IDEMPOTENT_ADD_FOREIGN_KEY`('cloud.kubernetes_cluster','fk_cluster__etcd_node_template_id','(`etcd_node_template_id`)','`vm_template`(`id`)');
 
 -- Add for_cks column to the user_data table to represent CNI Configuration stored as userdata
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.user_data','for_cks', 'int(1) unsigned DEFAULT "0" COMMENT "if true, the user data represent CNI configuration meant for CKS use only"');
@@ -301,7 +301,7 @@ CALL `cloud`.`IDEMPOTENT_DROP_FOREIGN_KEY`('cloud.service_offering','fk_service_
 CALL `cloud`.`IDEMPOTENT_ADD_FOREIGN_KEY`('cloud.service_offering', 'fk_service_offering__vgpu_profile_id', '(vgpu_profile_id)', '`vgpu_profile`(`id`)');
 
 -- Netris Plugin
-CREATE TABLE `cloud`.`netris_providers` (
+CREATE TABLE IF NOT EXISTS `cloud`.`netris_providers` (
                                             `id` bigint unsigned NOT NULL auto_increment COMMENT 'id',
                                             `uuid` varchar(40),
                                             `zone_id` bigint unsigned NOT NULL COMMENT 'Zone ID',
@@ -321,11 +321,11 @@ CREATE TABLE `cloud`.`netris_providers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Drop the Tungsten and NSX columns from the network offerings (replaced by checking the provider on the ntwk_offering_service_map table)
-ALTER TABLE `cloud`.`network_offerings` DROP COLUMN `for_tungsten`;
-ALTER TABLE `cloud`.`network_offerings` DROP COLUMN `for_nsx`;
+SET @sql := (SELECT IF(COUNT(*)>0,'ALTER TABLE `cloud`.`network_offerings` DROP COLUMN `for_tungsten`','SELECT 1') FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='cloud' AND TABLE_NAME='network_offerings' AND COLUMN_NAME='for_tungsten'); PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+SET @sql := (SELECT IF(COUNT(*)>0,'ALTER TABLE `cloud`.`network_offerings` DROP COLUMN `for_nsx`','SELECT 1') FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='cloud' AND TABLE_NAME='network_offerings' AND COLUMN_NAME='for_nsx'); PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
 -- Drop the Tungsten and NSX columns from the VPC offerings (replaced by checking the provider on the vpc_offering_service_map table)
-ALTER TABLE `cloud`.`vpc_offerings` DROP COLUMN `for_nsx`;
+SET @sql := (SELECT IF(COUNT(*)>0,'ALTER TABLE `cloud`.`vpc_offerings` DROP COLUMN `for_nsx`','SELECT 1') FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='cloud' AND TABLE_NAME='vpc_offerings' AND COLUMN_NAME='for_nsx'); PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
 -- Add next_hop to the static_routes table
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.static_routes', 'next_hop', 'varchar(50) COMMENT "next hop of the static route" AFTER `vpc_gateway_id`');
@@ -338,12 +338,12 @@ INSERT IGNORE INTO `cloud`.`counter` (uuid, provider, source, name, value, creat
 INSERT IGNORE INTO `cloud`.`counter` (uuid, provider, source, name, value, created) VALUES (UUID(), 'Netris', 'memory', 'VM Memory - average percentage', 'vm.memory.average.percentage', NOW());
 
 -- Rename user_vm_details to vm_instance_details
-ALTER TABLE `cloud`.`user_vm_details` RENAME TO `cloud`.`vm_instance_details`;
-ALTER TABLE `cloud`.`vm_instance_details` DROP FOREIGN KEY `fk_user_vm_details__vm_id`;
-ALTER TABLE `cloud`.`vm_instance_details` ADD CONSTRAINT `fk_vm_instance_details__vm_id` FOREIGN KEY (vm_id) REFERENCES vm_instance(id) ON DELETE CASCADE;
+SET @sql := (SELECT IF(COUNT(*)>0,'RENAME TABLE `cloud`.`user_vm_details` TO `cloud`.`vm_instance_details`','SELECT 1') FROM information_schema.TABLES WHERE TABLE_SCHEMA='cloud' AND TABLE_NAME='user_vm_details'); PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+SET @sql := (SELECT IF(COUNT(*)>0,'ALTER TABLE `cloud`.`vm_instance_details` DROP FOREIGN KEY `fk_user_vm_details__vm_id`','SELECT 1') FROM information_schema.TABLE_CONSTRAINTS WHERE CONSTRAINT_SCHEMA='cloud' AND TABLE_NAME='vm_instance_details' AND CONSTRAINT_NAME='fk_user_vm_details__vm_id' AND CONSTRAINT_TYPE='FOREIGN KEY'); PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+CALL `cloud`.`IDEMPOTENT_ADD_FOREIGN_KEY`('cloud.vm_instance_details', 'fk_vm_instance_details__vm_id', '(vm_id)', '`vm_instance`(`id`)');
 
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.backup_schedule', 'uuid', 'VARCHAR(40) NOT NULL');
-UPDATE `cloud`.`backup_schedule` SET uuid = UUID();
+UPDATE `cloud`.`backup_schedule` SET uuid = UUID() WHERE uuid IS NULL;
 
 -- Extension framework
 UPDATE `cloud`.`configuration` SET value = CONCAT(value, ',External') WHERE name = 'hypervisor.list';
@@ -479,7 +479,6 @@ BEGIN
 
 CALL `cloud`.`INSERT_EXTENSION_IF_NOT_EXISTS`('Proxmox', 'Sample extension for Proxmox written in bash', 'Proxmox/proxmox.sh');
 CALL `cloud`.`INSERT_EXTENSION_DETAIL_IF_NOT_EXISTS`('Proxmox', 'orchestratorrequirespreparevm', 'true', 0);
-
 CALL `cloud`.`INSERT_EXTENSION_IF_NOT_EXISTS`('HyperV', 'Sample extension for HyperV written in python', 'HyperV/hyperv.py');
 
 DROP PROCEDURE IF EXISTS `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_IF_NOT_EXISTS`;
@@ -546,129 +545,33 @@ CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_IF_NOT_EXISTS`('Proxmox', 'ListSnap
 CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_IF_NOT_EXISTS`('Proxmox', 'CreateSnapshot', 'Create an Instance snapshot', 'VirtualMachine', 15, 'Snapshot created for {{resourceName}} in {{extensionName}}', 'Snapshot creation failed for {{resourceName}}', 60);
 CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_IF_NOT_EXISTS`('Proxmox', 'RestoreSnapshot', 'Restore Instance to the specific snapshot', 'VirtualMachine', 15, 'Successfully restored snapshot for {{resourceName}} in {{extensionName}}', 'Restore snapshot failed for {{resourceName}}', 60);
 CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_IF_NOT_EXISTS`('Proxmox', 'DeleteSnapshot', 'Delete the specified snapshot', 'VirtualMachine', 15, 'Successfully deleted snapshot for {{resourceName}} in {{extensionName}}', 'Delete snapshot failed for {{resourceName}}', 60);
-
-CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`(
-    'Proxmox',
-    'ListSnapshots',
-    '[]'
-);
-CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`(
-    'Proxmox',
-    'CreateSnapshot',
-    '[
-      {
-        "name": "snap_name",
-        "type": "STRING",
-        "validationformat": "NONE",
-        "required": true
-      },
-      {
-        "name": "snap_description",
-        "type": "STRING",
-        "validationformat": "NONE",
-        "required": false
-      },
-      {
-        "name": "snap_save_memory",
-        "type": "BOOLEAN",
-        "validationformat": "NONE",
-        "required": false
-      }
-    ]'
-);
-CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`(
-    'Proxmox',
-    'RestoreSnapshot',
-    '[
-      {
-        "name": "snap_name",
-        "type": "STRING",
-        "validationformat": "NONE",
-        "required": true
-      }
-    ]'
-);
-CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`(
-    'Proxmox',
-    'DeleteSnapshot',
-    '[
-      {
-        "name": "snap_name",
-        "type": "STRING",
-        "validationformat": "NONE",
-        "required": true
-      }
-    ]'
-);
-
+CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`('Proxmox','ListSnapshots','[]');
+CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`('Proxmox','CreateSnapshot','[{"name":"snap_name","type":"STRING","validationformat":"NONE","required":true},{"name":"snap_description","type":"STRING","validationformat":"NONE","required":false},{"name":"snap_save_memory","type":"BOOLEAN","validationformat":"NONE","required":false}]');
+CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`('Proxmox','RestoreSnapshot','[{"name":"snap_name","type":"STRING","validationformat":"NONE","required":true}]');
+CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`('Proxmox','DeleteSnapshot','[{"name":"snap_name","type":"STRING","validationformat":"NONE","required":true}]');
 CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_IF_NOT_EXISTS`('HyperV', 'ListSnapshots', 'List checkpoints/snapshots for the Instance', 'VirtualMachine', 15, 'Snapshots fetched for {{resourceName}} in {{extensionName}}', 'List Snapshots failed for {{resourceName}}', 60);
 CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_IF_NOT_EXISTS`('HyperV', 'CreateSnapshot', 'Create a checkpoint/snapshot for the Instance', 'VirtualMachine', 15, 'Snapshot created for {{resourceName}} in {{extensionName}}', 'Snapshot creation failed for {{resourceName}}', 60);
 CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_IF_NOT_EXISTS`('HyperV', 'RestoreSnapshot', 'Restore Instance to the specified snapshot', 'VirtualMachine', 15, 'Successfully restored snapshot for {{resourceName}} in {{extensionName}}', 'Restore snapshot failed for {{resourceName}}', 60);
 CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_IF_NOT_EXISTS`('HyperV', 'DeleteSnapshot', 'Delete the specified snapshot', 'VirtualMachine', 15, 'Successfully deleted snapshot for {{resourceName}} in {{extensionName}}', 'Delete snapshot failed for {{resourceName}}', 60);
 CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_IF_NOT_EXISTS`('HyperV', 'Suspend', 'Suspend the Instance by freezing its current state in RAM', 'VirtualMachine', 15, 'Successfully suspended {{resourceName}} in {{extensionName}}', 'Suspend failed for {{resourceName}}', 60);
 CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_IF_NOT_EXISTS`('HyperV', 'Resume', 'Resumes a suspended Instance, restoring CPU execution from memory.', 'VirtualMachine', 15, 'Successfully resumed {{resourceName}} in {{extensionName}}', 'Resume failed for {{resourceName}}', 60);
+CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`('HyperV','ListSnapshots','[]');
+CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`('HyperV','CreateSnapshot','[{"name":"snapshot_name","type":"STRING","validationformat":"NONE","required":true}]');
+CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`('HyperV','RestoreSnapshot','[{"name":"snapshot_name","type":"STRING","validationformat":"NONE","required":true}]');
+CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`('HyperV','DeleteSnapshot','[{"name":"snapshot_name","type":"STRING","validationformat":"NONE","required":true}]');
+CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`('HyperV', 'Suspend', '[]');
+CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`('HyperV', 'Resume', '[]');
 
-CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`(
-    'HyperV',
-    'ListSnapshots',
-    '[]'
-);
-CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`(
-    'HyperV',
-    'CreateSnapshot',
-    '[
-      {
-        "name": "snapshot_name",
-        "type": "STRING",
-        "validationformat": "NONE",
-        "required": true
-      }
-    ]'
-);
-CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`(
-    'HyperV',
-    'RestoreSnapshot',
-    '[
-      {
-        "name": "snapshot_name",
-        "type": "STRING",
-        "validationformat": "NONE",
-        "required": true
-      }
-    ]'
-);
-CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`(
-    'HyperV',
-    'DeleteSnapshot',
-    '[
-      {
-        "name": "snapshot_name",
-        "type": "STRING",
-        "validationformat": "NONE",
-        "required": true
-      }
-    ]'
-);
-CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`(
-    'HyperV',
-    'Suspend',
-    '[]'
-);
-CALL `cloud`.`INSERT_EXTENSION_CUSTOM_ACTION_DETAILS_IF_NOT_EXISTS`(
-    'HyperV',
-    'Resume',
-    '[]'
-);
 
-ALTER TABLE `cloud`.`networks` MODIFY COLUMN `cidr` varchar(255) DEFAULT NULL COMMENT 'CloudStack managed vms get IP address from cidr.In general this cidr also serves as the network CIDR. But in case IP reservation feature is being used by a Guest network, networkcidr is the Effective network CIDR for that network';
-ALTER TABLE `cloud`.`networks` MODIFY COLUMN `gateway` varchar(255) DEFAULT NULL COMMENT 'gateway(s) for this network configuration';
-ALTER TABLE `cloud`.`networks` MODIFY COLUMN `ip6_cidr` varchar(1024) DEFAULT NULL COMMENT 'IPv6 cidr(s) for this network';
-ALTER TABLE `cloud`.`networks` MODIFY COLUMN `ip6_gateway` varchar(1024) DEFAULT NULL COMMENT 'IPv6 gateway(s) for this network';
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.networks','cidr','cidr','VARCHAR(255) DEFAULT NULL COMMENT ''CloudStack managed vms get IP address from cidr.In general this cidr also serves as the network CIDR. But in case IP reservation feature is being used by a Guest network, networkcidr is the Effective network CIDR for that network''');
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.networks','gateway','gateway','VARCHAR(255) DEFAULT NULL COMMENT ''gateway(s) for this network configuration''');
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.networks','ip6_cidr','ip6_cidr','VARCHAR(1024) DEFAULT NULL COMMENT ''IPv6 cidr(s) for this network''');
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.networks','ip6_gateway','ip6_gateway','VARCHAR(1024) DEFAULT NULL COMMENT ''IPv6 gateway(s) for this network''');
 
 -- Add columns name, description and backup_interval_type to backup table
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.backups', 'name', 'VARCHAR(255) NULL COMMENT "name of the backup"');
 UPDATE `cloud`.`backups` backup INNER JOIN `cloud`.`vm_instance` vm ON backup.vm_id = vm.id SET backup.name = vm.name;
-ALTER TABLE `cloud`.`backups` MODIFY COLUMN `name` VARCHAR(255) NOT NULL;
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.backups','name','name','VARCHAR(255) NOT NULL');
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.backups', 'description', 'VARCHAR(1024) COMMENT "description for the backup"');
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.backups', 'backup_interval_type', 'int(5) COMMENT "type of backup, e.g. manual, recurring - hourly, daily, weekly or monthly"');
 
@@ -735,8 +638,9 @@ WHERE vm.backup_offering_id IS NOT NULL;
 
 -- Add column allocated_size to object_store table. Rename column 'used_bytes' to 'used_size'
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.object_store', 'allocated_size', 'bigint unsigned COMMENT "allocated size in bytes"');
-ALTER TABLE `cloud`.`object_store` CHANGE COLUMN `used_bytes` `used_size` BIGINT UNSIGNED COMMENT 'used size in bytes';
-ALTER TABLE `cloud`.`object_store` MODIFY COLUMN `total_size` bigint unsigned COMMENT 'total size in bytes';
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.object_store','used_bytes','used_size','BIGINT UNSIGNED COMMENT ''used size in bytes''');
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.object_store','total_size','total_size','BIGINT UNSIGNED COMMENT ''total size in bytes''');
+
 UPDATE `cloud`.`object_store`
 JOIN (
     SELECT object_store_id, SUM(quota) AS total_quota

@@ -331,7 +331,7 @@ public class CapabilitiesResponse extends BaseResponse {
     public void setExtensionsPath(String extensionsPath) {
         this.extensionsPath = extensionsPath;
     }
-    
+
     public void setDynamicScalingEnabled(Boolean dynamicScalingEnabled) {
         this.dynamicScalingEnabled = dynamicScalingEnabled;
     }

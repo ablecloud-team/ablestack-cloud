@@ -79,4 +79,9 @@ public abstract class BaseObjectStoreDriverImpl implements ObjectStoreDriver {
     @Override
     public void resize(DataObject data, AsyncCompletionCallback<CreateCmdResult> callback) {
     }
+
+
+    @Override
+    public void flattenAsync(DataStore store, DataObject data, AsyncCompletionCallback<CommandResult> callback) {
+    }
 }

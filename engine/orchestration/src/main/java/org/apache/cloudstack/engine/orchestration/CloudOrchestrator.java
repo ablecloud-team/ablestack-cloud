@@ -162,7 +162,7 @@ public class CloudOrchestrator implements OrchestrationService {
 
     @Override
     public VirtualMachineEntity createVirtualMachine(String id, String owner, String templateId, String hostName, String displayName, String hypervisor, int cpu,
-                                                     int speed, long memory, Long diskSize, List<String> computeTags, List<String> rootDiskTags, Map<String, List<NicProfile>> networkNicMap, DeploymentPlan plan,
+                                                     int speed, long memory, Map<String, String> customParameters, Long diskSize, List<String> computeTags, List<String> rootDiskTags, Map<String, List<NicProfile>> networkNicMap, DeploymentPlan plan,
                                                      Long rootDiskSize, Map<String, Map<Integer, String>> extraDhcpOptionMap, Map<Long, DiskOffering> dataDiskTemplateToDiskOfferingMap, Long dataDiskOfferingId, Long rootDiskOfferingId,
                                                      List<VmDiskInfo> dataDiskInfoList, Volume volume, Snapshot snapshot) throws InsufficientCapacityException {
 
@@ -272,14 +272,14 @@ public class CloudOrchestrator implements OrchestrationService {
         } else
             template = _templateDao.findById(new Long(templateId));
         _itMgr.allocate(vm.getInstanceName(), template, computeOffering, rootDiskOfferingInfo, dataDiskOfferings, dataDiskDeviceIds,
-                networkIpMap, plan, hypervisorType, extraDhcpOptionMap, dataDiskTemplateToDiskOfferingMap, volume, snapshot);
+                networkIpMap, plan, hypervisorType, extraDhcpOptionMap, dataDiskTemplateToDiskOfferingMap, customParameters, volume, snapshot);
 
         return vmEntity;
     }
 
     @Override
     public VirtualMachineEntity createVirtualMachineFromScratch(String id, String owner, String isoId, String hostName, String displayName, String hypervisor, String os,
-        int cpu, int speed, long memory, Long diskSize, List<String> computeTags, List<String> rootDiskTags, Map<String, List<NicProfile>> networkNicMap, DeploymentPlan plan,
+        int cpu, int speed, long memory, Map<String, String> customParameters, Long diskSize, List<String> computeTags, List<String> rootDiskTags, Map<String, List<NicProfile>> networkNicMap, DeploymentPlan plan,
         Map<String, Map<Integer, String>> extraDhcpOptionMap, Long diskOfferingId, List<VmDiskInfo> dataDiskInfoList, Volume volume, Snapshot snapshot)
         throws InsufficientCapacityException {
 
@@ -347,7 +347,7 @@ public class CloudOrchestrator implements OrchestrationService {
         HypervisorType hypervisorType = HypervisorType.valueOf(hypervisor);
 
         _itMgr.allocate(vm.getInstanceName(), _templateDao.findByIdIncludingRemoved(new Long(isoId)), computeOffering, rootDiskOfferingInfo, dataDiskOfferings, dataDiskDeviceIds,
-                networkIpMap, plan, hypervisorType, extraDhcpOptionMap, null, volume, snapshot);
+                networkIpMap, plan, hypervisorType, extraDhcpOptionMap, null, customParameters, volume, snapshot);
 
         return vmEntity;
     }

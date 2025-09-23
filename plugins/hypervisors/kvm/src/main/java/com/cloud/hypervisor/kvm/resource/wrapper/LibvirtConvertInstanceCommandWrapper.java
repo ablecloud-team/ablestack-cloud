@@ -114,6 +114,7 @@ public class LibvirtConvertInstanceCommandWrapper extends CommandWrapper<Convert
         final String temporaryConvertUuid = UUID.randomUUID().toString();
         boolean verboseModeEnabled = serverResource.isConvertInstanceVerboseModeEnabled();
 
+        boolean cleanupSecondaryStorage = false;
         try {
             boolean result = performInstanceConversion(sourceOVFDirPath, temporaryConvertPath, temporaryConvertUuid,
                     timeout, verboseModeEnabled);
@@ -138,6 +139,10 @@ public class LibvirtConvertInstanceCommandWrapper extends CommandWrapper<Convert
                 String sourceOVFDir = String.format("%s/%s", temporaryConvertPath, ovfTemplateDirOnConversionLocation);
                 logger.debug("Cleaning up exported OVA at dir " + sourceOVFDir);
                 FileUtil.deletePath(sourceOVFDir);
+            }
+            if (cleanupSecondaryStorage && conversionTemporaryLocation instanceof NfsTO) {
+                logger.debug("Cleaning up secondary storage temporary location");
+                storagePoolMgr.deleteStoragePool(temporaryStoragePool.getType(), temporaryStoragePool.getUuid());
             }
         }
     }
@@ -177,7 +182,7 @@ public class LibvirtConvertInstanceCommandWrapper extends CommandWrapper<Convert
         String encodedUsername = encodeUsername(username);
         String encodedPassword = encodeUsername(password);
         if (StringUtils.isNotBlank(path)) {
-            s_logger.info("VM path: " + path);
+            logger.info("VM path: {}", path);
             return String.format("vi://%s:%s@%s/%s/%s/%s",
                     encodedUsername, encodedPassword, vcenter, datacenter, path, vm);
         }

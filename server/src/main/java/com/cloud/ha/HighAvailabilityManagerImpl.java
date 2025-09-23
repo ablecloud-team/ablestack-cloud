@@ -243,7 +243,7 @@ public class HighAvailabilityManagerImpl extends ManagerBase implements Configur
                 .reduce((first, second) -> second);
         if (item.isPresent() && (item.get().getTimesTried() < _maxRetries ||
                 !item.get().canScheduleNew(_timeBetweenFailures))) {
-            s_logger.debug(String.format("Skipping HA on %s as there is already a running HA job for it", vm));
+            logger.debug(String.format("Skipping HA on %s as there is already a running HA job for it", vm));
             return true;
         }
         return false;
@@ -335,7 +335,7 @@ public class HighAvailabilityManagerImpl extends ManagerBase implements Configur
             }
         }
         if (reorderedVMList.isEmpty() && skippedHAVms > 0 && skippedHAVms == vms.size()) {
-            s_logger.debug(String.format(
+            logger.debug(String.format(
                     "Skipping sending alert for %s as it is suspected to be a duplicate of a recent alert", host));
             return;
         }
@@ -849,7 +849,7 @@ public class HighAvailabilityManagerImpl extends ManagerBase implements Configur
         }
         logger.info("Migration attempt: for VM " + vm.getUuid() + "from host id " + srcHostId +
                 ". Starting attempt: " + (1 + work.getTimesTried()) + "/" + _maxRetries + " times.");
-                
+
         try {
             work.setStep(Step.Migrating);
             _haDao.update(work.getId(), work);
@@ -1190,10 +1190,10 @@ public class HighAvailabilityManagerImpl extends ManagerBase implements Configur
                     wait(_timeToSleep);
                 }
             } catch (final InterruptedException e) {
-                s_logger.info("Interrupted");
+                logger.info("Interrupted");
             }
             logger.info("Starting work");
-            
+
             while (!_stopped) {
                 _managedContext.runWithContext(new Runnable() {
                     @Override

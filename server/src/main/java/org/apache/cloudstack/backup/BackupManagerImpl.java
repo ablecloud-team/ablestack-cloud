@@ -35,16 +35,6 @@ import java.util.TimerTask;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.amazonaws.util.CollectionUtils;
-import com.cloud.alert.AlertManager;
-import com.cloud.configuration.Resource;
-import com.cloud.exception.ResourceAllocationException;
-import com.cloud.storage.Snapshot;
-import com.cloud.storage.VolumeApiService;
-import com.cloud.user.DomainManager;
-import com.cloud.user.ResourceLimitService;
-import com.cloud.utils.fsm.NoTransitionException;
-import com.cloud.vm.VirtualMachineManager;
 import javax.inject.Inject;
 import javax.naming.ConfigurationException;
 
@@ -95,6 +85,8 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.amazonaws.util.CollectionUtils;
+import com.cloud.alert.AlertManager;
 import com.cloud.api.ApiDispatcher;
 import com.cloud.api.ApiGsonHelper;
 import com.cloud.api.query.dao.UserVmJoinDao;
@@ -133,6 +125,7 @@ import com.cloud.storage.DiskOfferingVO;
 import com.cloud.storage.ScopeType;
 import com.cloud.storage.Storage;
 import com.cloud.storage.Volume;
+import com.cloud.storage.VolumeApiService;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.DiskOfferingDao;
 import com.cloud.storage.dao.VMTemplateDao;
@@ -955,8 +948,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             String keywordMatch = "%" + keyword + "%";
             sc.setParameters("keywordName", keywordMatch);
             sc.setParameters("keywordVmName", keywordMatch);
-            sc.addOr("uuid", SearchCriteria.Op.LIKE, "%" + keyword + "%");
-            sc.setJoinParameters("vmSearch", "name", "%" + keyword + "%");
         }
 
         Pair<List<BackupVO>, Integer> result = backupDao.searchAndCount(sc, searchFilter);

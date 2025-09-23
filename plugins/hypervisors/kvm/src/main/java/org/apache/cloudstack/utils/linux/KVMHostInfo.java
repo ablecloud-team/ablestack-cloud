@@ -16,7 +16,6 @@
 // under the License.
 package org.apache.cloudstack.utils.linux;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -59,10 +58,6 @@ public class KVMHostInfo {
     private long reservedMemory;
     private long overCommitMemory;
     private List<String> capabilities = new ArrayList<>();
-
-    private static String cpuInfoFreqFileName = "/sys/devices/system/cpu/cpu0/cpufreq/base_frequency";
-    private static String cpuInfoFreqFileNameforAMD = "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq";
-    private static String cpuArchCommand = "/usr/bin/arch";
     private static String cpuArchRetrieveExecutable = "arch";
     private static List<String> cpuInfoFreqFileNames = List.of("/sys/devices/system/cpu/cpu0/cpufreq/base_frequency","/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq");
 
@@ -169,22 +164,15 @@ public class KVMHostInfo {
     }
 
     private static long getCpuSpeedFromFile() {
-        String cpuInfoFreqFile = "";
-        File f = new File(cpuInfoFreqFileName);
-        if(f.exists()) {
+        for (final String cpuInfoFreqFileName:  cpuInfoFreqFileNames) {
             LOGGER.info(String.format("Fetching CPU speed from file [%s].", cpuInfoFreqFileName));
-            cpuInfoFreqFile = cpuInfoFreqFileName;
-        } else {
-            LOGGER.info(String.format("Fetching CPU speed from file [%s].", cpuInfoFreqFileNameforAMD));
-            cpuInfoFreqFile = cpuInfoFreqFileNameforAMD;
-        }
-        try (Reader reader = new FileReader(cpuInfoFreqFile)) {
-            Long cpuInfoFreq = Long.parseLong(IOUtils.toString(reader).trim());
-            LOGGER.info(String.format("Retrieved value [%s] from file [%s]. This corresponds to a CPU speed of [%s] MHz.", cpuInfoFreq, cpuInfoFreqFile, cpuInfoFreq / 1000));
-            return cpuInfoFreq / 1000;
-        } catch (IOException | NumberFormatException e) {
-            LOGGER.error(String.format("Unable to retrieve the CPU speed from file [%s]", cpuInfoFreqFile), e);
-            return 0L;
+            try (Reader reader = new FileReader(cpuInfoFreqFileName)) {
+                Long cpuInfoFreq = Long.parseLong(IOUtils.toString(reader).trim());
+                LOGGER.info(String.format("Retrieved value [%s] from file [%s]. This corresponds to a CPU speed of [%s] MHz.", cpuInfoFreq, cpuInfoFreqFileName, cpuInfoFreq / 1000));
+                return cpuInfoFreq / 1000;
+            } catch (IOException | NumberFormatException e) {
+                LOGGER.error(String.format("Unable to retrieve the CPU speed from file [%s]", cpuInfoFreqFileName), e);
+            }
         }
         return 0L;
     }

@@ -34,8 +34,6 @@ import org.libvirt.Connect;
 import org.libvirt.Domain;
 import org.libvirt.DomainBlockInfo;
 import org.libvirt.LibvirtException;
-import org.libvirt.StoragePool;
-import org.libvirt.StorageVol;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +46,7 @@ public final class LibvirtGetUnmanagedInstancesCommandWrapper extends CommandWra
 
     @Override
     public GetUnmanagedInstancesAnswer execute(GetUnmanagedInstancesCommand command, LibvirtComputingResource libvirtComputingResource) {
-        logger.info("Fetching unmanaged instances on host");
+        logger.info("Fetching unmanaged instance on host");
 
         HashMap<String, UnmanagedInstanceTO> unmanagedInstances = new HashMap<>();
         try {
@@ -234,17 +232,7 @@ public final class LibvirtGetUnmanagedInstancesCommandWrapper extends CommandWra
             disk.setDatastoreType(diskDef.getDiskType().toString());
             disk.setDatastorePort(diskDef.getSourceHostPort());
             disk.setImagePath(diskDef.getSourcePath());
-            try {
-                String rbdImagePath = "";
-                if (diskDef.getSourcePath().contains("/dev/rbd")) {
-                    rbdImagePath = diskDef.getSourcePath().replace("/dev/rbd/", "");
-                }
-                StorageVol storageVolLookupByPath = conn.storageVolLookupByPath("".equals(rbdImagePath) ? diskDef.getSourcePath() : rbdImagePath);
-                StoragePool sp = storageVolLookupByPath.storagePoolLookupByVolume();
-                disk.setDatastoreName(sp.getName());
-            } catch (LibvirtException e) {
-                throw new RuntimeException(e);
-            }
+            disk.setDatastoreName(disk.getDatastorePath());
             disk.setFileBaseName(getDiskRelativePath(diskDef));
             disks.add(disk);
         }

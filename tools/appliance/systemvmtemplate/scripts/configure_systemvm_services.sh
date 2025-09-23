@@ -19,7 +19,7 @@
 set -e
 set -x
 
-CLOUDSTACK_RELEASE=4.21.0
+CLOUDSTACK_RELEASE=4.22.0
 CREATE_DATE=
 
 function configure_apache2() {
