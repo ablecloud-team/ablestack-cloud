@@ -674,6 +674,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                     Ternary<String, String, String> rvCredentials = getKVMHyperisorCredentials(rvHostVO);
                                     command = String.format(CURRRENT_DEVICE, vmNameAndState.first());
                                     String currentDevice = executeDeviceCommand(rvHostVO, rvCredentials.first(), rvCredentials.second(), command);
+                                    LOG.info(currentDevice+":::::::::::::::::::::::::::::::");
                                     if (currentDevice == null || currentDevice.contains("error")) {
                                         volumeDao.expunge(restoredVolume.getId());
                                         command = String.format(RM_COMMAND, snapshotPath);
