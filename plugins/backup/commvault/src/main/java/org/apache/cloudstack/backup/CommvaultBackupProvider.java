@@ -674,7 +674,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                     Ternary<String, String, String> rvCredentials = getKVMHyperisorCredentials(rvHostVO);
                                     command = String.format(CURRRENT_DEVICE, vmNameAndState.first());
                                     String currentDevice = executeDeviceCommand(rvHostVO, rvCredentials.first(), rvCredentials.second(), command);
-                                    if (currentDevice == null) {
+                                    if (currentDevice == null || currentDevice.contains("error")) {
                                         volumeDao.expunge(restoredVolume.getId());
                                         command = String.format(RM_COMMAND, snapshotPath);
                                         executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
@@ -1329,7 +1329,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             if (!response.first()) {
                 LOG.error(String.format("get current device failed on HYPERVISOR %s due to: %s", host, response.second()));
             } else {
-                LOG.info(response.second()+":::::::::::::::::::::::::::::::");
                 return response.second();
             }
         } catch (final Exception e) {
