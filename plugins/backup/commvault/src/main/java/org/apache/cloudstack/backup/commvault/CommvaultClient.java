@@ -633,6 +633,8 @@ public class CommvaultClient {
                     if (!clientReadiness.isMissingNode()) {
                         String status1 = "Not Ready";
                         String status2 = "Unknown";
+                        // Unknown 상태의 경우
+                        // https://commserve/commandcenter/proxy/Client/4/CheckReadiness?ApplicationReadinessOption=1&IncludeDisabledClients=false&NeedXmlResp=true&applicationCheck=true&clientId=4&networkOption=true&resourceCapacityOption=true
                         if (clientReadiness.get("readinessStatus").asText().contains(status1) || clientReadiness.get("readinessStatus").asText().contains(status2)) {
                             return false;
                         }

@@ -673,15 +673,14 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                     HostVO rvHostVO = hostDao.findById(vm.getHostId());
                                     Ternary<String, String, String> rvCredentials = getKVMHyperisorCredentials(rvHostVO);
                                     command = String.format(CURRRENT_DEVICE, vmNameAndState.first());
-                                    LOG.info(command+":::::::::::::::::::::::::::::::::::::::::::");
                                     String currentDevice = executeDeviceCommand(rvHostVO, rvCredentials.first(), rvCredentials.second(), command);
-                                    LOG.info(currentDevice+":::::::::::::::::::::::::::::::::::::::::::");
                                     if (currentDevice == null) {
                                         volumeDao.expunge(restoredVolume.getId());
                                         command = String.format(RM_COMMAND, snapshotPath);
                                         executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                                         throw new CloudRuntimeException("Failed to get current device execute command VM to location " + volume.getPath());
                                     } else {
+                                        currentDevice = currentDevice.replaceAll("\\s", "");
                                         char lastChar = currentDevice.charAt(currentDevice.length() - 1);
                                         char incrementedChar = (char) (lastChar + 1);
                                         String rvDevice = currentDevice.substring(0, currentDevice.length() - 1) + incrementedChar;
