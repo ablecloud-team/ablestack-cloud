@@ -261,7 +261,7 @@ import VmwareData from './VmwareData'
 import ObjectListTable from '@/components/view/ObjectListTable'
 import ExternalConfigurationDetails from '@/views/extension/ExternalConfigurationDetails'
 import { genericCompare } from '@/utils/sort'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 
 export default {
   name: 'DetailsTab',
@@ -543,7 +543,7 @@ export default {
       const today = new Date()
       today.setHours(0, 0, 0, 0)
 
-      api('licenseCheck', { hostid: this.resource.id }).then(response => {
+      getAPI('licenseCheck', { hostid: this.resource.id }).then(response => {
         const licenseData = response?.null?.licensecheck
         if (licenseData) {
           var expiryDate = new Date(licenseData.expirydate)

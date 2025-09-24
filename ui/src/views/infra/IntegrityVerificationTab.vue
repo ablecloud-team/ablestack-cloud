@@ -125,7 +125,7 @@
 
 <script>
 import { ref, reactive } from 'vue'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import Status from '@/components/widgets/Status'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import BulkActionProgress from '@/components/view/BulkActionProgress'
@@ -264,7 +264,7 @@ export default {
       this.integrityVerificationFinalResult = []
       this.itemCount = 0
       this.fetchLoading = true
-      api('getIntegrityVerificationFinalResult', params).then(json => {
+      getAPI('getIntegrityVerificationFinalResult', params).then(json => {
         this.integrityVerificationFinalResult =
           (json.getintegrityverificationfinalresultresponse.integrityverificationsfinalresults || []).map(item => {
             return {
@@ -275,7 +275,7 @@ export default {
             }
           })
       })
-      api('getIntegrityVerification', { managementserverid: this.resource.id }).then(json => {
+      getAPI('getIntegrityVerification', { managementserverid: this.resource.id }).then(json => {
         this.integrityVerification = json.getintegrityverificationresponse.integrityverificationsresult.integrityverificationsresult || []
       }).catch(error => {
         this.$notifyError(error)
@@ -375,7 +375,7 @@ export default {
         id: result.id
       }
       this.deleteLoading = true
-      api('deleteIntegrityVerificationFinalResult', params).then(json => {
+      getAPI('deleteIntegrityVerificationFinalResult', params).then(json => {
         const jobId = json.deleteintegrityverificationfinalresultresponse.jobid
         if (jobId) {
           this.$pollJob({

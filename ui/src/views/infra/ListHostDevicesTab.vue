@@ -113,7 +113,7 @@
 </template>
 
 <script>
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import eventBus from '@/config/eventBus'
 import { IdcardOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import HostDevicesTransfer from '@/views/storage/HostDevicesTransfer'
@@ -251,7 +251,7 @@ export default {
               const vmId = event.id
 
               // 현재 호스트의 디바이스 할당 정보 조회
-              const response = await api('listHostDevices', { id: this.resource.id })
+              const response = await getAPI('listHostDevices', { id: this.resource.id })
               const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
 
               if (devices?.vmallocations) {
@@ -272,7 +272,7 @@ export default {
                 for (const deviceName of allocatedDevices) {
                   try {
                     console.log('Attempting to update host device:', deviceName)
-                    const response = await api('updateHostDevices', {
+                    const response = await getAPI('updateHostDevices', {
                       hostid: this.resource.id,
                       hostdevicesname: deviceName,
                       virtualmachineid: null
@@ -309,7 +309,7 @@ export default {
       this.selectedDevices = []
 
       try {
-        const response = await api('listHostDevices', { id: this.resource.id })
+        const response = await getAPI('listHostDevices', { id: this.resource.id })
         const data = response.listhostdevicesresponse?.listhostdevices?.[0]
 
         if (data) {
@@ -325,7 +325,7 @@ export default {
           if (vmIds.length > 0) {
             for (const vmId of vmIds) {
               try {
-                const vmResponse = await api('listVirtualMachines', {
+                const vmResponse = await getAPI('listVirtualMachines', {
                   id: vmId,
                   listall: true
                 })
@@ -410,13 +410,13 @@ export default {
       } else {
         try {
           // 먼저 VM 정보를 가져옵니다
-          const response = await api('listHostDevices', { id: this.resource.id })
+          const response = await getAPI('listHostDevices', { id: this.resource.id })
           const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
           const vmAllocations = devices?.vmallocations || {}
           const vmId = vmAllocations[record.hostDevicesName]
 
           if (vmId) {
-            const vmResponse = await api('listVirtualMachines', {
+            const vmResponse = await getAPI('listVirtualMachines', {
               id: vmId,
               listall: true
             })
@@ -461,13 +461,13 @@ export default {
       this.loading = true
 
       return Promise.all(vmStates.map(state => {
-        return api('listVirtualMachines', { ...params, state })
+        return getAPI('listVirtualMachines', { ...params, state })
           .then(vmResponse => vmResponse.listvirtualmachinesresponse.virtualmachine || [])
       })).then(vmArrays => {
         const vms = vmArrays.flat()
 
         return Promise.all(vms.map(vm => {
-          return api('listVirtualMachines', {
+          return getAPI('listVirtualMachines', {
             id: vm.id,
             details: 'all'
           }).then(detailResponse => {
@@ -475,7 +475,7 @@ export default {
           })
         }))
       }).then(detailedVms => {
-        return api('listHostDevices', {
+        return getAPI('listHostDevices', {
           id: this.resource.id
         }).then(latestResponse => {
           const latestDevices = latestResponse.listhostdevicesresponse?.listhostdevices?.[0]
@@ -520,7 +520,7 @@ export default {
     },
     fetchUsbDevices () {
       this.loading = true
-      api('listHostUsbDevices', {
+      getAPI('listHostUsbDevices', {
         id: this.resource.id
       }).then(response => {
         if (response.listhostusbdevicesresponse?.listhostusbdevices?.[0]) {
@@ -550,7 +550,7 @@ export default {
     },
     fetchLunDevices () {
       this.loading = true
-      api('listHostLunDevices', {
+      getAPI('listHostLunDevices', {
         id: this.resource.id
       }).then(response => {
         if (response.listhostlundevicesresponse?.listhostlundevices?.[0]) {
@@ -583,13 +583,13 @@ export default {
     },
     async fetchPciConfigs (record) {
       try {
-        const response = await api('listHostDevices', { id: this.resource.id })
+        const response = await getAPI('listHostDevices', { id: this.resource.id })
         const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
         const vmAllocations = devices?.vmallocations || {}
         const vmId = vmAllocations[record.hostDevicesName]
 
         if (vmId) {
-          const vmResponse = await api('listVirtualMachines', {
+          const vmResponse = await getAPI('listVirtualMachines', {
             id: vmId,
             listall: true,
             details: 'all'
@@ -613,12 +613,12 @@ export default {
     },
     async handlePciDeviceDelete () {
       try {
-        const response = await api('listHostDevices', { id: this.resource.id })
+        const response = await getAPI('listHostDevices', { id: this.resource.id })
         const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
         const vmAllocations = devices?.vmallocations || {}
         const vmId = vmAllocations[this.selectedPciDevice.hostDevicesName]
 
-        const vmResponse = await api('listVirtualMachines', {
+        const vmResponse = await getAPI('listVirtualMachines', {
           id: vmId,
           listall: true,
           details: 'all'
@@ -656,10 +656,10 @@ export default {
         })
 
         // 먼저 VM의 extraconfig를 업데이트
-        await api('updateVirtualMachine', params)
+        await getAPI('updateVirtualMachine', params)
 
         // 그 다음 호스트 디바이스 할당 해제
-        await api('updateHostDevices', {
+        await getAPI('updateHostDevices', {
           hostid: this.resource.id,
           hostdevicesname: this.selectedPciDevice.hostDevicesName,
           virtualmachineid: null
@@ -684,7 +684,7 @@ export default {
     },
     showConfirmModal (device) {
       if (device.virtualmachineid) {
-        api('listVirtualMachines', {
+        getAPI('listVirtualMachines', {
           id: device.virtualmachineid,
           listall: true
         }).then(response => {
@@ -708,7 +708,7 @@ export default {
     },
     async updateDataWithVmNames () {
       try {
-        const response = await api('listHostDevices', { id: this.resource.id })
+        const response = await getAPI('listHostDevices', { id: this.resource.id })
         const data = response.listhostdevicesresponse?.listhostdevices?.[0]
 
         if (data && data.vmallocations) {
@@ -727,7 +727,7 @@ export default {
     async updateVmNames () {
       this.vmNameLoading = true
       try {
-        const response = await api('listHostDevices', { id: this.resource.id })
+        const response = await getAPI('listHostDevices', { id: this.resource.id })
         const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
 
         if (devices?.vmallocations) {
@@ -739,7 +739,7 @@ export default {
           for (const [deviceName, vmId] of entries) {
             if (vmId && !processedDevices.has(deviceName)) {
               try {
-                const vmResponse = await api('listVirtualMachines', {
+                const vmResponse = await getAPI('listVirtualMachines', {
                   id: vmId,
                   listall: true
                 })
@@ -751,7 +751,7 @@ export default {
                   console.log('VM not found, removing device allocation:', deviceName)
                   try {
                     console.log('Attempting to update host device:', deviceName)
-                    const updateResponse = await api('updateHostDevices', {
+                    const updateResponse = await getAPI('updateHostDevices', {
                       hostid: this.resource.id,
                       hostdevicesname: deviceName,
                       virtualmachineid: null

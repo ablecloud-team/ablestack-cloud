@@ -108,7 +108,6 @@ import {
   GoldOutlined,
   GroupOutlined,
   GoogleOutlined,
-  GroupOutlined,
   HddOutlined,
   HomeOutlined,
   IdcardOutlined,

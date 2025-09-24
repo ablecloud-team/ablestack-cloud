@@ -381,10 +381,10 @@ export default {
       this.volumetype = val
     },
     createVolume () {
-      api('listDiskOfferings', { listall: true }).then(json => {
+      getAPI('listDiskOfferings', { listall: true }).then(json => {
         this.offerings = json.listdiskofferingsresponse.diskoffering || []
         this.customDiskOffering = this.offerings.filter(x => x.iscustomized === true)
-        api('createVolume', {
+        getAPI('createVolume', {
           diskofferingid: this.customDiskOffering[0].id,
           size: this.targetSize / (1024 * 1024 * 1024),
           name: this.targetName,
@@ -395,7 +395,7 @@ export default {
             title: this.$t('message.success.create.volume'),
             successMessage: this.$t('message.success.create.volume'),
             successMethod: (result) => {
-              api('updateVolume', {
+              getAPI('updateVolume', {
                 id: result.jobresult.volume.id,
                 path: this.targetName,
                 storageid: this.resource.id,
@@ -421,7 +421,7 @@ export default {
       })
     },
     deleteRbdImage (name) {
-      api('deleteRbdImage', {
+      getAPI('deleteRbdImage', {
         name: name,
         id: this.resource.id
       }).then(json => {

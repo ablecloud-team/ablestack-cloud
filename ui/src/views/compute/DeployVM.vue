@@ -121,28 +121,6 @@
                 </template>
               </a-step>
               <a-step
-                v-else
-                :title="$t('label.template.iso.rbdimage')"
-                :status="zoneSelected ? 'process' : 'wait'">
-                <template #description>
-                  <div v-if="zoneSelected" style="margin-top: 15px">
-                    {{ $t('message.instance.architecture') }}
-                    <block-radio-group-select
-                      style="margin-top: 5px;"
-                      :items="architectureTypes.opts"
-                      :selectedValue="selectedArchitecture"
-                      @change="changeArchitecture">
-                        <template #radio-option="{ item }">
-                          <span>{{ item.name || item.description }}</span>
-                        </template>
-                        <template #select-option="{ item }">
-                          <span>{{ item.name || item.description }}</span>
-                        </template>
-                    </block-radio-group-select>
-                  </div>
-                </template>
-              </a-step>                              
-              <a-step
                 :title="$t('label.image')"
                 :status="zoneSelected ? 'process' : 'wait'">
                 <template #description>
@@ -205,7 +183,7 @@
                           @update-disk-size="updateFieldValue"
                           style="margin-top: 10px;"/>
                       </div>
-                      <div v-else-if="tabKey === 'isoid'">
+                      <div v-else>
                         {{ $t('message.iso.desc') }}
                         <template-iso-selection
                           input-decorator="isoid"
@@ -226,21 +204,6 @@
                             :filterOption="filterOption" />
                         </a-form-item>
                       </div>
-                      <div v-else-if="tabKey === 'volumeId'">
-                        {{ $t('message.rbd.desc') }}
-                        <StorageRbdImageSelection
-                          input-decorator="volumeId"
-                          :items="options.volume"
-                          :selected="tabKey"
-                          :zoneId="zoneId"
-                          :row-count="rowCount.volume"
-                          :loading="loading.volume"
-                          :preFillContent="dataPreFill"
-                          @handle-search-filter="($event) => fetchAllRbdImage($event)"
-                          @on-selected-rbd-size="onSelectRbdSize"
-                          @update-rbd-images="updateFieldValue"
-                          @select-rbd-images-item="($event) => updateRbdImages($event)" />
-                      </div>
                     </a-card>
                     <a-form-item class="form-item-hidden">
                       <a-input v-model:value="form.templateid" />
@@ -257,12 +220,6 @@
                     <a-form-item class="form-item-hidden">
                       <a-input v-model:value="form.rootdisksize" />
                     </a-form-item>
-                    <a-form-item class="form-item-hidden">
-                      <a-input v-model:value="form.volumeId" />
-                    </a-form-item>
-                    <a-form-item class="form-item-hidden">
-                      <a-input v-model:value="form.templateKvdoEnable" />
-                    </a-form-item>
                   </div>
                 </template>
               </a-step>
@@ -270,10 +227,7 @@
                 :title="$t('label.serviceofferingid')"
                 :status="zoneSelected ? 'process' : 'wait'">
                 <template #description>
-                  <div v-if="zoneSelected" style="margin-top: 5px">
-                    <div v-if="tabKey=='volumeId'" style="margin-bottom: 10px">
-                      <a-alert :message="$t('label.override.root.no')" type="warning" />
-                    </div>
+                  <div v-if="zoneSelected">
                     <a-form-item v-if="zoneSelected && templateConfigurationExists" name="templateConfiguration" ref="templateConfiguration">
                       <template #label>
                         <tooltip-label :title="$t('label.configuration')" :tooltip="$t('message.ovf.configurations')"/>
@@ -307,7 +261,7 @@
                       :minimum-cpunumber="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.cpunumber ? selectedTemplateConfiguration.cpunumber : 0"
                       :minimum-cpuspeed="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.cpuspeed ? selectedTemplateConfiguration.cpuspeed : 0"
                       :minimum-memory="templateConfigurationExists && selectedTemplateConfiguration && selectedTemplateConfiguration.memory ? selectedTemplateConfiguration.memory : 0"
-                      @select-compute-item="($event, $kvdoEnable) => updateComputeOffering($event, $kvdoEnable)"
+                      @select-compute-item="($event) => updateComputeOffering($event)"
                       @handle-search-filter="($event) => handleSearchFilter('serviceOfferings', $event)"
                     ></compute-offering-selection>
                     <compute-selection
@@ -317,11 +271,10 @@
                       memoryInputDecorator="memory"
                       :preFillContent="dataPreFill"
                       :computeOfferingId="instanceConfig.computeofferingid"
-                      :computeOfferingKvdoEnable="serviceOffering.kvdoenable"
                       :isConstrained="isOfferingConstrained(serviceOffering)"
-                      :minCpu="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.mincpunumber*1 : 1"
+                      :minCpu="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.mincpunumber*1 : 0"
                       :maxCpu="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.maxcpunumber*1 : Number.MAX_SAFE_INTEGER"
-                      :minMemory="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.minmemory*1 : 1024"
+                      :minMemory="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.minmemory*1 : 0"
                       :maxMemory="'serviceofferingdetails' in serviceOffering ? serviceOffering.serviceofferingdetails.maxmemory*1 : Number.MAX_SAFE_INTEGER"
                       :isCustomized="serviceOffering.iscustomized"
                       :isCustomizedIOps="'iscustomizediops' in serviceOffering && serviceOffering.iscustomizediops"
@@ -344,11 +297,8 @@
                       <a-form-item class="form-item-hidden" name="memory" ref="memory">
                         <a-input v-model:value="form.memory"/>
                       </a-form-item>
-                      <!-- <a-form-item class="form-item-hidden">
-                        <a-input v-model:value="form.computeOfferingKvdoEnable" />
-                      </a-form-item> -->
                     </span>
-                    <span v-if="tabKey!=='isoid' && tabKey!=='volumeId' && !isTemplateHypervisorExternal">
+                    <span v-if="imageType!=='isoid' && !isTemplateHypervisorExternal">
                       {{ $t('label.override.root.diskoffering') }}
                       <a-switch
                         v-model:checked="showOverrideDiskOfferingOption"
@@ -402,9 +352,6 @@
                               @update-root-disk-iops-value="updateIOPSValue"/>
                             <a-form-item class="form-item-hidden">
                               <a-input v-model:value="form.rootdisksize"/>
-                            </a-form-item>
-                            <a-form-item class="form-item-hidden">
-                              <a-input v-model:value="form.offeringKvdoEnable" />
                             </a-form-item>
                           </div>
                         </template>
@@ -594,6 +541,25 @@
                 </template>
               </a-step>
               <a-step
+                v-if="zoneAllowsBackupOperations"
+                :title="$t('label.backup')"
+                :status="zoneSelected ? 'process' : 'wait'">
+                <template #description>
+                  <div v-if="zoneSelected" style="margin-top: 15px">
+                    <deploy-instance-backup-selection
+                      :zoneId="zoneId"
+                      v-model:backupOfferingId="form.backupofferingid"
+                      :backupSchedules="backupSchedules"
+                      @change-backup-offering="onChangeBackupOffering"
+                      @add-backup-schedule="onAddBackupSchedule"
+                      @delete-backup-schedule="backupSchedules = backupSchedules.filter(schedule => schedule.id !== $event.id)" />
+                    <a-form-item class="form-item-hidden">
+                      <a-input v-model:value="form.backupofferingid" />
+                    </a-form-item>
+                  </div>
+                </template>
+              </a-step>
+              <a-step
                 :title="$t('label.advanced.mode')"
                 :status="zoneSelected ? 'process' : 'wait'">
                 <template #description v-if="zoneSelected">
@@ -603,7 +569,7 @@
                   </span>
                   <div style="margin-top: 15px" v-if="showDetails">
                     <div
-                      v-if="['KVM', 'VMware', 'XenServer'].includes(hypervisor) && ((vm.templateid && !template.deployasis) || vm.isoid) || tabKey == 'volumeId'">
+                      v-if="['KVM', 'VMware', 'XenServer'].includes(hypervisor) && ((vm.templateid && template && !template.deployasis) || vm.isoid)">
                       <a-form-item :label="$t('label.boottype')" name="boottype" ref="boottype">
                         <a-select
                           v-model:value="form.boottype"
@@ -628,17 +594,6 @@
                         </a-select>
                       </a-form-item>
                     </div>
-                    <a-form-item :label="$t('label.tpm')" name="tpmversion" ref="tpmversion">
-                      <a-select
-                        v-model:value="form.tpmversion"
-                        showSearch
-                        optionFilterProp="label"
-                        :filterOption="filterOption">
-                        <a-select-option v-for="tpmversion in options.tpmversion" :key="tpmversion.id">
-                          {{ tpmversion.description }}
-                        </a-select-option>
-                      </a-select>
-                    </a-form-item>
                     <a-form-item
                       :label="$t('label.bootintosetup')"
                       v-if="zoneSelected && ((imageType === 'isoid' && hypervisor === 'VMware') || (imageType === 'templateid' && template && template.hypervisor === 'VMware'))"
@@ -659,7 +614,7 @@
                       </a-form-item>
                     </a-form-item>
                     <a-form-item name="showLeaseOptions" ref="showLeaseOptions" v-if="isLeaseFeatureEnabled">
-                      <template #label>
+                      <template #label>555555555
                         <tooltip-label :title="$t('label.lease.enable')" :tooltip="$t('label.lease.enable.tooltip')"/>
                       </template>
                       <a-switch v-model:checked="showLeaseOptions" @change="onToggleLeaseData"/>
@@ -818,7 +773,7 @@
                         @select-affinity-group-item="($event) => updateAffinityGroups($event)"
                         @handle-search-filter="($event) => handleSearchFilter('affinityGroups', $event)"/>
                     </a-form-item>
-                    <a-form-item name="nicmultiqueuenumber" ref="nicmultiqueuenumber" v-if="vm.templateid && ['KVM'].includes(hypervisor) || tabKey == 'volumeId'">
+                    <a-form-item name="nicmultiqueuenumber" ref="nicmultiqueuenumber" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
                       <template #label>
                         <tooltip-label :title="$t('label.nicmultiqueuenumber')" :tooltip="$t('label.nicmultiqueuenumber.tooltip')"/>
                       </template>
@@ -826,7 +781,7 @@
                         style="width: 100%;"
                         v-model:value="form.nicmultiqueuenumber" />
                     </a-form-item>
-                    <a-form-item name="nicpackedvirtqueuesenabled" ref="nicpackedvirtqueuesenabled" v-if="vm.templateid && ['KVM'].includes(hypervisor) || tabKey == 'volumeId'">
+                    <a-form-item name="nicpackedvirtqueuesenabled" ref="nicpackedvirtqueuesenabled" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
                       <template #label>
                         <tooltip-label :title="$t('label.nicpackedvirtqueuesenabled')" :tooltip="$t('label.nicpackedvirtqueuesenabled.tooltip')"/>
                       </template>
@@ -835,7 +790,7 @@
                         :checked="nicpackedvirtqueuesenabled"
                         @change="val => { nicpackedvirtqueuesenabled = val }"/>
                     </a-form-item>
-                    <a-form-item name="iothreadsenabled" ref="iothreadsenabled" v-if="vm.templateid && ['KVM'].includes(hypervisor) || tabKey == 'volumeId'">
+                    <a-form-item name="iothreadsenabled" ref="iothreadsenabled" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
                       <template #label>
                         <tooltip-label :title="$t('label.iothreadsenabled')" :tooltip="$t('label.iothreadsenabled.tooltip')"/>
                       </template>
@@ -846,7 +801,7 @@
                           @change="val => { iothreadsenabled = val }"/>
                       </a-form-item>
                     </a-form-item>
-                    <a-form-item name="iodriverpolicy" ref="iodriverpolicy" v-if="vm.templateid && ['KVM'].includes(hypervisor) || tabKey == 'volumeId'">
+                    <a-form-item name="iodriverpolicy" ref="iodriverpolicy" v-if="vm.templateid && ['KVM'].includes(hypervisor)">
                       <template #label>
                         <tooltip-label :title="$t('label.iodriverpolicy')" :tooltip="$t('label.iodriverpolicy.tooltip')"/>
                       </template>
@@ -885,11 +840,6 @@
                         optionFilterProp="label"
                         :filterOption="filterOption"
                       ></a-select>
-                    </a-form-item>
-                    <a-form-item v-if="tabKey!=='volumeId'">
-                      <a-form-item :label="$t('label.deploy.vm.number')" name="vmNumber" ref="vmNumber">
-                        <a-input-number :min=1 :max=50 :maxlength="2" v-model:value="form.vmNumber" />
-                      </a-form-item>
                     </a-form-item>
                     <a-form-item name="externaldetails" ref="externaldetails" v-if="imageType === 'templateid' && isTemplateHypervisorExternal">
                       <template #label>
@@ -970,7 +920,7 @@
 
 <script>
 import { ref, reactive, toRaw, nextTick, h } from 'vue'
-import { Button } from 'ant-design-vue'
+import { Button, message } from 'ant-design-vue'
 import { getAPI, postAPI } from '@/api'
 import _ from 'lodash'
 import { mixin, mixinDevice } from '@/utils/mixin.js'
@@ -998,8 +948,8 @@ import UserDataSelection from '@views/compute/wizard/UserDataSelection'
 import SecurityGroupSelection from '@views/compute/wizard/SecurityGroupSelection'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import InstanceNicsNetworkSelectListView from '@/components/view/InstanceNicsNetworkSelectListView'
-import StorageRbdImageSelection from '@views/compute/wizard/StorageRbdImageSelection'
 import DetailsInput from '@/components/widgets/DetailsInput'
+import DeployInstanceBackupSelection from '@views/compute/wizard/DeployInstanceBackupSelection'
 
 export default {
   name: 'Wizard',
@@ -1025,8 +975,8 @@ export default {
     SecurityGroupSelection,
     TooltipLabel,
     InstanceNicsNetworkSelectListView,
-    StorageRbdImageSelection,
-    DetailsInput
+    DetailsInput,
+    DeployInstanceBackupSelection
   },
   props: {
     visible: {
@@ -1093,11 +1043,7 @@ export default {
         keyboards: [],
         bootTypes: [],
         bootModes: [],
-        tpmversion: [],
-        ioPolicyTypes: [],
-        dynamicScalingVmConfig: false,
-        storagePoolObjects: [],
-        volume: {}
+        ioPolicyTypes: []
       },
       rowCount: {},
       loading: {
@@ -1118,8 +1064,7 @@ export default {
         pods: false,
         clusters: false,
         hosts: false,
-        groups: false,
-        volume: false
+        groups: false
       },
       owner: {
         projectid: store.getters.project?.id,
@@ -1130,7 +1075,6 @@ export default {
       template: {},
       defaultBootType: '',
       defaultBootMode: '',
-      defaultTPM: '',
       templateConfigurations: [],
       templateNics: [],
       templateLicenses: [],
@@ -1179,7 +1123,7 @@ export default {
       dataNetworkCreated: [],
       userdataTabKey: 'userdataregistered',
       dataPreFill: {},
-      showDetails: true,
+      showDetails: false,
       showRootDiskSizeChanger: false,
       showOverrideDiskOfferingOption: false,
       securitygroupids: [],
@@ -1196,7 +1140,6 @@ export default {
       selectedZone: '',
       formModel: {},
       nicToNetworkSelection: [],
-      rbdSelected: {},
       selectedArchitecture: null,
       isLeaseFeatureEnabled: this.$store.getters.features.instanceleaseenabled,
       showLeaseOptions: false,
@@ -1213,7 +1156,10 @@ export default {
         opts: []
       },
       externalDetailsEnabled: false,
-      selectedExtensionId: null
+      selectedExtensionId: null,
+      zoneAllowsBackupOperations: false,
+      selectedBackupOffering: null,
+      backupSchedules: []
     }
   },
   computed: {
@@ -1503,33 +1449,6 @@ export default {
     queryNetworkId () {
       return this.$route.query.networkid || null
     },
-    volumeId () {
-      return this.$route.query.volumeId || null
-    },
-    tabList () {
-      let tabList = []
-      if (this.templateId) {
-        tabList = [{
-          key: 'templateid',
-          tab: this.$t('label.templates')
-        }]
-      } else if (this.isoId) {
-        tabList = [{
-          key: 'isoid',
-          tab: this.$t('label.isos')
-        }]
-      } else if (this.volumeId) {
-        tabList = [{
-          key: 'volumeId',
-          tab: this.$t('label.data.rbd.image')
-        }]
-      } else {
-        tabList = [{
-          key: 'templateid',
-          tab: this.$t('label.templates')
-        }]
-      }
-    },
     queryGuestOsCategoryId () {
       return this.$route.query.oscategoryid || null
     },
@@ -1543,10 +1462,6 @@ export default {
         return [{
           key: 'isoid',
           tab: this.$t('label.isos')
-        },
-        {
-          key: 'volumeId',
-          tab: this.$t('label.glue.images')
         }]
       }
       return [{
@@ -1679,8 +1594,7 @@ export default {
 
         this.zone = _.find(this.options.zones, (option) => option.id === this.instanceConfig.zoneid)
         this.affinityGroups = _.filter(this.options.affinityGroups, (option) => _.includes(instanceConfig.affinitygroupids, option.id))
-        // this.networks = this.getSelectedNetworksWithExistingConfig(_.filter(this.options.networks, (option) => _.includes(instanceConfig.networkids, option.id)))
-        this.networks = _.filter(this.options.networks, (option) => _.includes(instanceConfig.networkids, option.id))
+        this.networks = this.getSelectedNetworksWithExistingConfig(_.filter(this.options.networks, (option) => _.includes(instanceConfig.networkids, option.id)))
 
         this.diskOffering = _.find(this.options.diskOfferings, (option) => option.id === instanceConfig.diskofferingid)
         this.sshKeyPair = _.find(this.options.sshKeyPairs, (option) => option.name === instanceConfig.keypair)
@@ -1735,14 +1649,6 @@ export default {
           if (this.hypervisor) {
             this.vm.hypervisor = this.hypervisor
           }
-
-          if (this.volume) {
-            this.vm.volumeId = this.volume.id
-            this.vm.templateid = this.template.id
-            this.vm.volumesname = this.volume.displaytext
-            this.vm.ostypeid = this.volume.ostypeid
-            this.vm.ostypename = this.volume.ostypename
-          }
         }
 
         if (this.serviceOffering) {
@@ -1790,6 +1696,13 @@ export default {
         if (this.leaseduration < 1) {
           this.vm.leaseduration = undefined
         }
+
+        delete this.vm.backupofferingid
+        delete this.vm.backupofferingname
+        if (this.form.backupofferingid && this.selectedBackupOffering) {
+          this.vm.backupofferingid = this.selectedBackupOffering.id
+          this.vm.backupofferingname = this.selectedBackupOffering.name
+        }
       }
     }
   },
@@ -1817,7 +1730,6 @@ export default {
     return {
       vmFetchTemplates: this.fetchAllTemplates,
       vmFetchIsos: this.fetchAllIsos,
-      vmFetchRbd: this.fetchAllRbdImage,
       vmFetchNetworks: this.fetchNetwork
     }
   },
@@ -1838,7 +1750,6 @@ export default {
       if (this.zoneSelected) {
         this.form.startvm = true
       }
-      this.form.vmNumber = 1
 
       if (this.zone && this.zone.networktype !== 'Basic') {
         if (this.zoneSelected && this.vm.templateid && this.templateNics && this.templateNics.length > 0) {
@@ -1945,10 +1856,6 @@ export default {
           params.isready = true
           params.id = this.queryIsoId
           this.dataPreFill.isoid = this.queryIsoId
-        } else if (this.volumeId) {
-          apiName = 'listVolumes'
-          params.listall = true
-          params.id = this.volumeId
         } else if (this.queryNetworkId) {
           apiName = 'listNetworks'
           params.listall = true
@@ -1996,14 +1903,12 @@ export default {
       }
       this.fetchBootTypes()
       this.fetchBootModes()
-      this.fetchTpm()
       this.fetchInstaceGroups()
       this.fetchIoPolicyTypes()
       nextTick().then(() => {
-        ['name', 'keyboard', 'boottype', 'bootmode', 'userdata', 'tpmversion', 'iothreadsenabled', 'iodriverpolicy', 'nicmultiqueuenumber', 'nicpackedvirtqueues'].forEach(this.fillValue)
+        ['name', 'keyboard', 'boottype', 'bootmode', 'userdata', 'iothreadsenabled', 'iodriverpolicy', 'nicmultiqueuenumber', 'nicpackedvirtqueues'].forEach(this.fillValue)
         this.form.boottype = this.defaultBootType ? this.defaultBootType : this.options.bootTypes && this.options.bootTypes.length > 0 ? this.options.bootTypes[0].id : undefined
         this.form.bootmode = this.defaultBootMode ? this.defaultBootMode : this.options.bootModes && this.options.bootModes.length > 0 ? this.options.bootModes[0].id : undefined
-        this.form.tpmversion = this.defaultTPM ? this.defaultTPM : this.options.tpmversion && this.options.tpmversion.length > 0 ? this.options.tpmversion[0].id : undefined
         this.instanceConfig = toRaw(this.form)
       })
     },
@@ -2046,12 +1951,6 @@ export default {
       }
       this.options.bootModes = bootModes
     },
-    fetchTpm () {
-      this.options.tpmversion = [
-        { id: 'NONE', description: 'Disabled' },
-        { id: 'V2_0', description: 'TPM Version 2.0' }
-      ]
-    },
     fetchIoPolicyTypes () {
       this.options.ioPolicyTypes = [
         { id: 'native', description: 'native' },
@@ -2085,7 +1984,6 @@ export default {
         hypervisor: null,
         templateid: null,
         templatename: null,
-        volumeId: null,
         keyboard: null,
         keypair: null,
         group: null,
@@ -2118,13 +2016,11 @@ export default {
             break
           }
         }
-        this.resetFromTemplateConfiguration()
         if (template) {
           this.resetTemplateAssociatedResources()
           this.updateTemplateParameters()
           var size = template.size / (1024 * 1024 * 1024) || 0 // bytes to GB
           this.dataPreFill.minrootdisksize = Math.ceil(size)
-          this.dataPreFill.kvdoenable = template.kvdoenable
           this.updateTemplateLinkedUserData(template.userdataid)
           this.userdataDefaultOverridePolicy = template.userdatapolicy
           this.form.dynamicscalingenabled = template.isdynamicallyscalable
@@ -2136,9 +2032,6 @@ export default {
           this.form.iothreadsenabled = template.details && Object.prototype.hasOwnProperty.call(template.details, 'iothreads')
           this.form.iodriverpolicy = template.details?.['io.policy']
           this.form.keyboard = template.details?.keyboard
-          this.form.templateKvdoEnable = template.kvdoenable
-          this.showOverrideDiskOfferingOption = false
-          this.updateOverrideRootDiskShowParam(false)
           if (template.details['vmware-to-kvm-mac-addresses']) {
             this.dataPreFill.macAddressArray = JSON.parse(template.details['vmware-to-kvm-mac-addresses'])
           }
@@ -2217,9 +2110,8 @@ export default {
         this.userdataDefaultOverridePolicy = this.snapshot.userdatapolicy
       }
     },
-    updateComputeOffering (id, kvdoEnable) {
+    updateComputeOffering (id) {
       this.form.computeofferingid = id
-      this.form.computeOfferingKvdoEnable = kvdoEnable
       setTimeout(() => {
         this.updateTemplateConfigurationOfferingDetails(id)
       }, 500)
@@ -2230,13 +2122,6 @@ export default {
         return
       }
       this.form.diskofferingid = id
-    },
-    updateRbdImages (id, name, value) {
-      if (id === '0') {
-        this.form.volumeId = undefined
-        return
-      }
-      this.form.volumeId = id
     },
     updateOverrideDiskOffering (id) {
       if (id === '0') {
@@ -2259,23 +2144,7 @@ export default {
       this.form.defaultnetworkid = id
     },
     updateNetworkConfig (networks) {
-      console.log('networks :>> ', networks)
       this.networkConfig = networks
-      if (this.networks.length > 0) {
-        this.networks.forEach((el, idx) => {
-          console.log('::선택된 net::>> ', el.id)
-          networks.forEach(el2 => {
-            if (el.id === el2.key) {
-              console.log('::값바꾼 net::>> ', el2.key)
-              this.networks[idx].linkState = el2.linkstate ? el2.linkState : false
-              this.networks[idx].ipAddress = el2.ipAddress ? el2.ipAddress : ''
-              this.networks[idx].macAddress = el2.macAddress ? el2.macAddress : ''
-            }
-          })
-        })
-        // this.networks[0].linkstate = true
-        // console.log(this.networks[0].linkstate)
-      }
     },
     updateSshKeyPairs (names) {
       this.form.keypairs = names
@@ -2408,7 +2277,7 @@ export default {
             description: this.$t('message.template.iso')
           })
           return
-        } else if (values.isoid && values.volumeId == null && (!values.diskofferingid || values.diskofferingid === '0')) {
+        } else if (values.isoid && (!values.diskofferingid || values.diskofferingid === '0')) {
           this.$notification.error({
             message: this.$t('message.request.failed'),
             description: this.$t('message.step.3.continue')
@@ -2445,7 +2314,6 @@ export default {
           deployVmData.boottype = values.boottype
           deployVmData.bootmode = values.bootmode
         }
-        deployVmData.tpmversion = values.tpmversion
         deployVmData.dynamicscalingenabled = values.dynamicscalingenabled
         deployVmData.iothreadsenabled = values.iothreadsenabled
         deployVmData.iodriverpolicy = values.iodriverpolicy
@@ -2455,25 +2323,17 @@ export default {
         if (isUserdataAllowed && values.userdata && values.userdata.length > 0) {
           deployVmData.userdata = this.$toBase64AndURIEncoded(values.userdata)
         }
-        // step 2: select template/iso/rbdimage
-        if (this.tabKey === 'templateid') {
+        // step 2: select template/iso
+        if (this.imageType === 'templateid') {
           deployVmData.templateid = values.templateid
           values.hypervisor = null
-          if (values.templateKvdoEnable !== values.computeOfferingKvdoEnable) {
-            this.$notification.error({
-              message: this.$t('message.request.failed'),
-              description: this.$t('message.step.3.kvdo')
-            })
-            this.loading.deploy = false
-            return
-          }
         } else if (this.imageType === 'volumeid') {
           deployVmData.volumeid = values.volumeid
         } else if (this.imageType === 'snapshotid') {
           deployVmData.snapshotid = values.snapshotid
         } else {
           deployVmData.templateid = values.isoid
-        } 
+        }
 
         if (this.showRootDiskSizeChanger && values.rootdisksize && values.rootdisksize > 0) {
           deployVmData.rootdisksize = values.rootdisksize
@@ -2577,7 +2437,6 @@ export default {
                 if (networkConfig && networkConfig.length > 0) {
                   deployVmData['iptonetworklist[' + j + '].ip'] = networkConfig[0].ipAddress ? networkConfig[0].ipAddress : undefined
                   deployVmData['iptonetworklist[' + j + '].mac'] = networkConfig[0].macAddress ? networkConfig[0].macAddress : undefined
-                  deployVmData['iptonetworklist[' + j + '].linkstate'] = networkConfig[0].linkstate === undefined ? true : networkConfig[0].linkstate
                 }
               }
             }
@@ -2653,92 +2512,56 @@ export default {
           }
         }
 
-        const httpMethod = deployVmData.userdata ? 'POST' : 'GET'
-
-        if (values.vmNumber) {
-          for (var num = 1; num <= Number(values.vmNumber); num++) {
-            let args = ''
-            let data = ''
-            if (values.name) {
-              if (values.vmNumber === 1) {
-                deployVmData.name = values.name
-                deployVmData.displayname = values.name
-              } else {
-                if (deployVmData['iptonetworklist[0].ip'] != null || deployVmData['iptonetworklist[0].mac'] != null) {
-                  this.$notification.error({
-                    message: this.$t('message.request.failed'),
-                    description: this.$t('message.deploy.vm.number')
+        postAPI('deployVirtualMachine', deployVmData).then(response => {
+          const jobId = response.deployvirtualmachineresponse.jobid
+          if (jobId) {
+            this.$pollJob({
+              jobId,
+              title,
+              description,
+              successMethod: result => {
+                const vm = result.jobresult.virtualmachine
+                const name = vm.displayname || vm.name || vm.id
+                if (vm.password) {
+                  this.$notification.success({
+                    message: password + ` ${this.$t('label.for')} ` + name,
+                    description: vm.password,
+                    btn: () => h(
+                      Button,
+                      {
+                        type: 'primary',
+                        size: 'small',
+                        onClick: () => this.copyToClipboard(vm.password)
+                      },
+                      () => [this.$t('label.copy.password')]
+                    ),
+                    duration: 0
                   })
-                  this.loading.deploy = false
-                  return
                 }
-                deployVmData.name = values.name + '-' + num
-                deployVmData.displayname = values.name + '-' + num
+                this.performPostDeployBackupActions(vm)
+                eventBus.emit('vm-refresh-data')
+              },
+              loadingMessage: `${title} ${this.$t('label.in.progress')}`,
+              catchMessage: this.$t('error.fetching.async.job.result'),
+              action: {
+                isFetchData: false
               }
-            }
-            args = httpMethod === 'POST' ? {} : deployVmData
-            data = httpMethod === 'POST' ? deployVmData : {}
-            try {
-              let jobId
-              if (values.volumeId) {
-                jobId = await this.deployVirtualMachineForVolume(args, httpMethod, data)
-              } else {
-                jobId = await this.deployVM(args, httpMethod, data)
-              }
-              if (num === 1) {
-                this.$pollJob({
-                  jobId,
-                  title,
-                  description,
-                  successMethod: result => {
-                    const vm = result.jobresult.virtualmachine
-                    const name = vm.displayname || vm.name || vm.id
-                    if (vm.password) {
-                      this.$notification.success({
-                        message: password + ` ${this.$t('label.for')} ` + name,
-                        description: vm.password,
-                        btn: () => h(
-                          Button,
-                          {
-                            type: 'primary',
-                            size: 'small',
-                            onClick: () => this.copyToClipboard(vm.password)
-                          },
-                          () => [this.$t('label.copy.password')]
-                        ),
-                        duration: 0
-                      })
-                    }
-                    if (!values.stayonpage) {
-                      eventBus.emit('vm-refresh-data')
-                    }
-                  },
-                  loadingMessage: `${title} ${this.$t('label.in.progress')}`,
-                  catchMessage: this.$t('error.fetching.async.job.result'),
-                  action: {
-                    isFetchData: false
-                  }
-                })
-              }
-            } catch (error) {
-              if (error.message !== undefined) {
-                await this.$notifyError(error)
-              }
-              this.loading.deploy = false
-            }
-            if (values.templateKvdoEnable && values.vmNumber > 1) {
-              await new Promise(resolve => setTimeout(resolve, 6000)).then(() => {})
-            }
+            })
           }
-          await new Promise(resolve => setTimeout(resolve, 3000)).then(() => {
+          // Sending a refresh in case it hasn't picked up the new VM
+          new Promise(resolve => setTimeout(resolve, 3000)).then(() => {
             eventBus.emit('vm-refresh-data')
           })
           if (!values.stayonpage) {
-            await this.$router.back()
+            this.$router.back()
           }
+        }).catch(error => {
+          this.$notifyError(error)
+          this.loading.deploy = false
+        }).finally(() => {
           this.form.stayonpage = false
           this.loading.deploy = false
-        }
+        })
       }).catch(err => {
         this.formRef.value.scrollToField(err.errorFields[0].name)
         if (err) {
@@ -2749,31 +2572,12 @@ export default {
             })
             return
           }
+
           this.$notification.error({
             message: this.$t('message.request.failed'),
             description: this.$t('error.form.message')
           })
         }
-      })
-    },
-    deployVM (args, httpMethod, data) {
-      return new Promise((resolve, reject) => {
-        api('deployVirtualMachine', args, httpMethod, data).then(json => {
-          const jobId = json.deployvirtualmachineresponse.jobid
-          return resolve(jobId)
-        }).catch(error => {
-          return reject(error)
-        })
-      })
-    },
-    deployVirtualMachineForVolume (args, httpMethod, data) {
-      return new Promise((resolve, reject) => {
-        api('deployVirtualMachineForVolume', args, httpMethod, data).then(json => {
-          const jobId = json.deployvirtualmachineforvolumeresponse.jobid
-          return resolve(jobId)
-        }).catch(error => {
-          return reject(error)
-        })
       })
     },
     fetchOwnerOptions (OwnerOptions) {
@@ -2797,6 +2601,7 @@ export default {
         this.owner.domainid = null
         this.owner.projectid = OwnerOptions.selectedProject
       }
+      this.resetData()
     },
     fetchZones (zoneId, listZoneAllow) {
       this.zones = []
@@ -2847,14 +2652,6 @@ export default {
             }
             if (!responseKey.includes('response')) {
               return
-            }
-            _.map(responseItem, (response, key) => {
-              if (key === 'count') {
-                this.rowCount[name] = response
-                return
-            }
-            if (!responseKey.includes('response')) {
-              return resolve(null)
             }
             _.map(responseItem, (response, key) => {
               if (key === 'count') {
@@ -3063,23 +2860,6 @@ export default {
         })
       })
     },
-    fetchRbdImage (params) {
-      this.paramsFilter = {}
-      const args = Object.assign(this.paramsFilter, params)
-      args.zoneid = _.get(this.zone, 'id')
-      args.page = args.page || 1
-      args.pageSize = args.pageSize || 10
-      args.customimages = 'true'
-      args.type = 'ROOT'
-      return new Promise((resolve, reject) => {
-        api('listVolumes', args).then((response) => {
-          resolve(response)
-        }).catch((reason) => {
-          // ToDo: Handle errors
-          reject(reason)
-        })
-      })
-    },
     fetchImages (params) {
       if (this.imageType === 'isoid') {
         this.fetchAllIsos(params)
@@ -3231,6 +3011,31 @@ export default {
       this.updateTemplateKey()
       this.formModel = toRaw(this.form)
     },
+    async updateZoneAllowsBackupOperations () {
+      this.zoneAllowsBackupOperations = false
+      if (!this.zoneId) {
+        return
+      }
+      if (!('listBackupOfferings' in this.$store.getters.apis) ||
+        !('assignVirtualMachineToBackupOffering' in this.$store.getters.apis)) {
+        return
+      }
+      const params = {
+        zoneid: this.zoneId,
+        issystem: false,
+        listall: true,
+        page: 1,
+        pageSize: 1
+      }
+      try {
+        const response = await getAPI('listBackupOfferings', params)
+        const backupOfferings = response.listbackupofferingsresponse.backupoffering || []
+        this.zoneAllowsBackupOperations = backupOfferings.length > 0
+      } catch (error) {
+        console.error('Error fetching backup offerings:', error)
+        this.zoneAllowsBackupOperations = false
+      }
+    },
     onSelectZoneId (value) {
       if (this.dataPreFill.zoneid !== value) {
         this.dataPreFill = {}
@@ -3253,36 +3058,13 @@ export default {
       this.form.guestoscategoryid = undefined
       this.form.templateid = undefined
       this.form.isoid = undefined
-      this.form.volumeId = undefined
-      this.tabKey = 'templateid'
-      if (this.isoId) {
-        this.tabKey = 'isoid'
-      } else if (this.volumeId) {
-        this.tabKey = 'volumeId'
-      }
-      _.each(this.params, (param, name) => {
-        if (this.networkId && name === 'networks') {
-          param.options = {
-            id: this.networkId
-          }
-        }
-        if (!('isLoad' in param) || param.isLoad) {
-          this.fetchOptions(param, name, ['zones'])
-        }
-      })
-      if (this.tabKey === 'templateid') {
-        this.fetchAllTemplates()
-      } else if (this.tabKey === 'isoid') {
-        this.fetchAllIsos()
-      } else if (this.tabKey === 'volumeId') {
-        this.fetchAllRbdImage()
-      }
-      this.updateTemplateKey()
-      this.formModel = toRaw(this.form)
       this.resetTemplatesList()
       this.resetIsosList()
       this.imageType = this.queryIsoId ? 'isoid' : 'templateid'
+      this.form.backupofferingid = undefined
+      this.selectedBackupOffering = null
       this.fetchZoneOptions()
+      this.updateZoneAllowsBackupOperations()
     },
     onSelectPodId (value) {
       this.podId = value
@@ -3576,7 +3358,7 @@ export default {
             if (this.selectedTemplateConfiguration) {
               this.updateFieldValue('templateConfiguration', this.selectedTemplateConfiguration.id)
             }
-            this.updateComputeOffering(null, this.template.kvdoEnable) // reset as existing selection may be incompatible
+            this.updateComputeOffering(null) // reset as existing selection may be incompatible
           }
         }, 500)
         this.updateFormProperties()
@@ -3585,7 +3367,7 @@ export default {
     onSelectTemplateConfigurationId (value) {
       this.selectedTemplateConfiguration = _.find(this.templateConfigurations, (option) => option.id === value)
       this.handleTemplateConfiguration()
-      this.updateComputeOffering(null, null)
+      this.updateComputeOffering(null)
     },
     updateTemplateConfigurationOfferingDetails (offeringId) {
       this.rootDiskSizeFixed = 0
@@ -3687,6 +3469,113 @@ export default {
         return
       }
       this.form.externaldetails = undefined
+    },
+    onChangeBackupOffering (val) {
+      if (!val || !val.id) {
+        this.selectedBackupOffering = null
+        this.backupSchedules = []
+        return
+      }
+      this.selectedBackupOffering = val
+      if (this.backupSchedules && this.backupSchedules.length > 0 && !this.$isBackupProviderSupportsQuiesceVm(val.provider)) {
+        this.backupSchedules = this.backupSchedules.filter(item => !item.quiescevm)
+      }
+    },
+    onAddBackupSchedule (schedule) {
+      if (!schedule) {
+        return
+      }
+      // This is in accordance with the API behavior that only one schedule per intervaltype is allowed
+      const existingIndex = this.backupSchedules.findIndex(item => item.intervaltype === schedule.intervaltype)
+      if (existingIndex !== -1) {
+        message.warning({
+          content: this.$t('message.backup.update.existing.schedule') + ' ' + schedule.intervaltype,
+          duration: 2
+        })
+        this.backupSchedules.splice(existingIndex, 1, schedule)
+        return
+      }
+      this.backupSchedules.push(schedule)
+    },
+    async performPostDeployBackupActions (vm) {
+      if (!this.zoneAllowsBackupOperations) {
+        return
+      }
+      const assigned = await this.assignVirtualMachineToBackupOfferingIfNeeded(vm)
+      if (assigned) {
+        await this.createVirtualMachineBackupSchedulesIfNeeded(vm)
+      }
+    },
+    assignVirtualMachineToBackupOfferingIfNeeded (vm) {
+      if (!this.form.backupofferingid || !vm || !vm.id) {
+        return Promise.resolve(false)
+      }
+      const params = {
+        virtualmachineid: vm.id,
+        backupofferingid: this.form.backupofferingid
+      }
+      return new Promise((resolve, reject) => {
+        postAPI('assignVirtualMachineToBackupOffering', params).then(json => {
+          const jobId = json.assignvirtualmachinetobackupofferingresponse?.jobid
+          if (!jobId) {
+            resolve(false)
+            return
+          }
+          this.$pollJob({
+            jobId,
+            loadingMessage: `${this.$t('label.backup.offering.assign')} ${this.$t('label.in.progress')}`,
+            successMethod: () => {
+              resolve(true)
+            },
+            errorMethod: (result) => {
+              this.$notification.error({
+                message: this.$t('label.backup.offering.assign.failed'),
+                description: result?.jobresult?.errortext || this.$t('error.fetching.async.job.result')
+              })
+              resolve(false)
+            },
+            catchMessage: this.$t('error.fetching.async.job.result')
+          })
+        }).catch(error => {
+          this.$notification.error({
+            message: this.$t('label.backup.offering.assign.failed'),
+            description: error.message || error
+          })
+          resolve(false)
+        })
+      })
+    },
+    createVirtualMachineBackupSchedulesIfNeeded (vm) {
+      if (!vm || !vm.id || !this.backupSchedules) {
+        return Promise.resolve()
+      }
+      const promises = (this.backupSchedules || []).map(item =>
+        this.createVirtualMachineBackupSchedule(vm, item)
+      )
+      return Promise.all(promises)
+    },
+    createVirtualMachineBackupSchedule (vm, item) {
+      const params = {
+        virtualmachineid: vm.id,
+        intervaltype: item.intervaltype,
+        maxbackups: item.maxbackups,
+        timezone: item.timezone,
+        schedule: item.schedule
+      }
+      if (item.quiescevm) {
+        params.quiescevm = item.quiescevm
+      }
+      return new Promise((resolve, reject) => {
+        postAPI('createBackupSchedule', params).then(response => {
+          resolve(response)
+        }).catch(error => {
+          this.$notification.error({
+            message: this.$t('label.backup.schedule.create.failed'),
+            description: error.message || error
+          })
+          reject(error)
+        })
+      })
     }
   }
 }

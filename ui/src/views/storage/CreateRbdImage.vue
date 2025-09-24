@@ -55,7 +55,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -108,7 +108,7 @@ export default {
         values.zoneid = this.resource.zoneid
         values.id = this.resource.id
         this.loading = true
-        api('createRbdImage', values).then(json => {
+        getAPI('createRbdImage', values).then(json => {
           this.data = json.createrbdimageresponse.successmessage
           this.closeModal()
         }).catch(error => {

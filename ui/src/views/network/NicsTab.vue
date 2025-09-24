@@ -611,7 +611,7 @@ export default {
       params.virtualmachineid = this.vm.id
       params.nicid = record.nic.id
       params.linkstate = !record.nic.linkstate
-      api('UpdateVmNicLinkState', params).then(response => {
+      getAPI('UpdateVmNicLinkState', params).then(response => {
         this.$pollJob({
           jobId: response.updatevmniclinkstateresponse.jobid,
           successMessage: this.$t('message.success.update.nic.linkstate'),

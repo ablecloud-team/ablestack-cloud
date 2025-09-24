@@ -64,7 +64,7 @@
 </template>
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
@@ -121,7 +121,7 @@ export default {
           params.clonetype = null
         }
         // console.log(params)
-        api('cloneVirtualMachine', params).then(json => {
+        getAPI('cloneVirtualMachine', params).then(json => {
           const jobId = json.clonevirtualmachineresponse.jobid
           this.$pollJob({
             jobId,

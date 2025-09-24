@@ -154,7 +154,7 @@ export default {
       }
 
       this.tabLoading = true
-      api('updateConfiguration', {
+      getAPI('updateConfiguration', {
         [this.scopeKey]: this.resource.id,
         name: item.name,
         value: this.editableValue

@@ -42,7 +42,7 @@
 </template>
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
@@ -81,7 +81,7 @@ export default {
     },
     fetchData () {
       this.loading = true
-      api('listDiskOfferings', {
+      getAPI('listDiskOfferings', {
         zoneid: this.resource.zoneid,
         listall: true
       })
@@ -108,7 +108,7 @@ export default {
           params.domainid = values.domainid
           params.path = values.path
           this.loading = true
-          api('updateVolume', params)
+          getAPI('updateVolume', params)
             .then((response) => {
               this.$pollJob({
                 jobId: response.updatevolumeresponse.jobid,

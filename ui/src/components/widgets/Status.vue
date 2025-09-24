@@ -161,53 +161,12 @@ export default {
             break
           case 'completed':
             state = this.$t('state.completed')
+            break
           case 'Yes':
             state = this.$t('label.yes')
             break
           case 'no':
             state = this.$t('label.no')
-            break
-          case 'redundant':
-            state = this.$t('state.redundant')
-            break
-          case 'nonredundant':
-            state = this.$t('state.nonredundant')
-            break
-          case 'unavailable':
-            state = this.$t('state.unavailable')
-            break
-          case 'critical':
-            state = this.$t('state.critical')
-            break
-          case 'notpresent':
-            state = this.$t('state.notpresent')
-            break
-          case 'goodinuse':
-            state = this.$t('state.goodinuse')
-            break
-          case 'absent':
-            state = this.$t('state.absent')
-            break
-          case 'redundant':
-            state = this.$t('state.redundant')
-            break
-          case 'nonredundant':
-            state = this.$t('state.nonredundant')
-            break
-          case 'unavailable':
-            state = this.$t('state.unavailable')
-            break
-          case 'critical':
-            state = this.$t('state.critical')
-            break
-          case 'notpresent':
-            state = this.$t('state.notpresent')
-            break
-          case 'goodinuse':
-            state = this.$t('state.goodinuse')
-            break
-          case 'absent':
-            state = this.$t('state.absent')
             break
           case 'redundant':
             state = this.$t('state.redundant')

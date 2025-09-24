@@ -145,19 +145,26 @@ export const pollJobPlugin = {
       options.originalPage = options.originalPage || normalizePath(this.$router.currentRoute.value.path)
       console.debug('[pollJob] originalPage:', options.originalPage)
 
-      api('queryAsyncJobResult', { jobId }).then(json => {
+      getAPI('queryAsyncJobResult', { jobId }).then(json => {
         const result = json.queryasyncjobresultresponse
         eventBus.emit('update-job-details', { jobId, resourceId })
 
         // 폴링 성공 시 처리 부분
         if (result.jobstatus === 1) {
-          let content = successMessage
-          if (successMessage === 'Success' && action && action.label) {
-            content = i18n.global.t(action.label)
+          if (showSuccessMessage) {
+            let content = successMessage
+            if (successMessage === 'Success' && action && action.label) {
+              content = i18n.global.t(action.label)
+            }
+            if (name) content = content + ' - ' + name
+            message.success({
+              content,
+              key: jobId,
+              duration: 2
+            })
+          } else {
+            message.destroy(jobId)
           }
-          if (name) content = content + ' - ' + name
-
-          message.success({ content, key: jobId, duration: 2 })
           store.dispatch('AddHeaderNotice', {
             key: jobId,
             title,

@@ -1405,7 +1405,8 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
                     Pair<Map<Long, VMInstanceVO>, Map<String, Long>> vmsAndMap = getVmMapForStatsForHost(host);
                     Map<Long, VMInstanceVO> vmMap = vmsAndMap.first();
                     try {
-                        Map<Long, ? extends VmStats> vmStatsById = virtualMachineManager.getVirtualMachineStatistics(host.getId(), host.getName(), vmMap);
+                        Map<Long, ? extends VmStats> vmStatsById = virtualMachineManager.getVirtualMachineStatistics(
+                                host, vmsAndMap.second());
 
                         if (MapUtils.isEmpty(vmStatsById)) {
                             continue;

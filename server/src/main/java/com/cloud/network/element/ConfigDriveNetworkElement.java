@@ -326,7 +326,7 @@ public class ConfigDriveNetworkElement extends AdapterBase implements NetworkEle
                 final Network network = _networkMgr.getNetwork(nic.getNetworkId());
                 final UserDataServiceProvider userDataUpdateProvider = _networkModel.getUserDataUpdateProvider(network);
                 if (userDataUpdateProvider == null) {
-                    LOG.warn("Failed to get user data provider");
+                    logger.warn("Failed to get user data provider");
                     return false;
                 }
                 final Provider provider = userDataUpdateProvider.getProvider();

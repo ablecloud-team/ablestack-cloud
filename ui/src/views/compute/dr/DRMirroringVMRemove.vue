@@ -48,7 +48,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import ResourceIcon from '@/components/view/ResourceIcon.vue'
 import TooltipLabel from '@/components/widgets/TooltipLabel.vue'
 export default {
@@ -87,7 +87,7 @@ export default {
     },
     fetchData () {
       this.loading = true
-      api('getDisasterRecoveryClusterList', { drclustertype: 'secondary' }).then(json => {
+      getAPI('getDisasterRecoveryClusterList', { drclustertype: 'secondary' }).then(json => {
         this.drCluster = json.getdisasterrecoveryclusterlistresponse.disasterrecoverycluster
         for (const dr of this.drCluster) {
           for (const vm of dr.drclustervmmap) {
@@ -118,7 +118,7 @@ export default {
           virtualmachineid: this.resource.id,
           drclustername: this.drName
         }
-        api('deleteDisasterRecoveryClusterVm', params).then(response => {
+        getAPI('deleteDisasterRecoveryClusterVm', params).then(response => {
           this.$pollJob({
             jobId: response.deletedisasterrecoveryclustervmresponse.jobid,
             description: this.resource.id,
