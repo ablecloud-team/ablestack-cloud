@@ -473,7 +473,7 @@ public class VirtualMachineMO extends BaseMO {
             _context.waitForTaskProgressDone(morTask);
             return true;
         } else {
-            s_logger.error("VMware RelocateVM_Task to change host failed due to " + TaskMO.getTaskFailureInfo(_context, morTask));
+            logger.error("VMware RelocateVM_Task to change host failed due to " + TaskMO.getTaskFailureInfo(_context, morTask));
         }
         return false;
     }
@@ -493,7 +493,7 @@ public class VirtualMachineMO extends BaseMO {
             _context.waitForTaskProgressDone(morTask);
             return true;
         } else {
-            s_logger.error("VMware change datastore relocateVM_Task failed due to " + TaskMO.getTaskFailureInfo(_context, morTask));
+            logger.error("VMware change datastore relocateVM_Task failed due to " + TaskMO.getTaskFailureInfo(_context, morTask));
         }
 
         return false;
@@ -590,7 +590,7 @@ public class VirtualMachineMO extends BaseMO {
     public boolean revertToSnapshot(String snapshotName) throws Exception {
         ManagedObjectReference morSnapshot = getSnapshotMor(snapshotName);
         if (morSnapshot == null) {
-            s_logger.warn("Unable to find snapshot: " + snapshotName);
+            logger.warn("Unable to find snapshot: " + snapshotName);
             return false;
         }
         ManagedObjectReference morTask = _context.getService().revertToSnapshotTask(morSnapshot, _mor, null);
@@ -599,7 +599,7 @@ public class VirtualMachineMO extends BaseMO {
             _context.waitForTaskProgressDone(morTask);
             return true;
         } else {
-            s_logger.error("VMware revert to snapshot failed due to " + TaskMO.getTaskFailureInfo(_context, morTask));
+            logger.error("VMware revert to snapshot failed due to " + TaskMO.getTaskFailureInfo(_context, morTask));
         }
 
         return false;
@@ -1200,7 +1200,7 @@ public class VirtualMachineMO extends BaseMO {
             _context.waitForTaskProgressDone(morTask);
             return true;
         } else {
-            s_logger.error("VMware reconfigVM_Task failed due to " + TaskMO.getTaskFailureInfo(_context, morTask));
+            logger.error("VMware reconfigVM_Task failed due to " + TaskMO.getTaskFailureInfo(_context, morTask));
         }
         return false;
     }
@@ -1812,9 +1812,9 @@ public class VirtualMachineMO extends BaseMO {
         descriptor.parse(content);
 
         Pair<VmdkFileDescriptor, byte[]> result = new Pair<VmdkFileDescriptor, byte[]>(descriptor, content);
-        if (s_logger.isTraceEnabled()) {
-            s_logger.trace("vCenter API trace - getVmdkFileInfo() done");
-            s_logger.trace("VMDK file descriptor: " + GSON.toJson(result.first()));
+        if (logger.isTraceEnabled()) {
+            logger.trace("vCenter API trace - getVmdkFileInfo() done");
+            logger.trace("VMDK file descriptor: " + GSON.toJson(result.first()));
         }
         return result;
     }
@@ -2115,13 +2115,13 @@ public class VirtualMachineMO extends BaseMO {
                             destParentFileName = null;
                         }
 
-                        s_logger.info("Copy VMDK base file " + srcVmdkBaseFilePath + " to " + destDsDirectory + "/" + destBaseFileName);
+                        logger.info("Copy VMDK base file " + srcVmdkBaseFilePath + " to " + destDsDirectory + "/" + destBaseFileName);
                         srcDsInfo.first().copyDatastoreFile(srcVmdkBaseFilePath, dcMo.getMor(), morDestDs, destDsDirectory + "/" + destBaseFileName, dcMo.getMor(), true);
 
                         byte[] newVmdkContent = VmdkFileDescriptor.changeVmdkContentBaseInfo(vmdkInfo.second(), destBaseFileName, destParentFileName);
                         String vmdkUploadUrl = getContext().composeDatastoreBrowseUrl(dcMo.getName(), destDsDirectory + "/" + destFileName);
 
-                        s_logger.info("Upload VMDK content file to " + destDsDirectory + "/" + destFileName);
+                        logger.info("Upload VMDK content file to " + destDsDirectory + "/" + destFileName);
                         getContext().uploadResourceContent(vmdkUploadUrl, newVmdkContent);
 
                         backupInfo.add(new Ternary<String, String, String>(destFileName, destBaseFileName, destParentFileName));
@@ -2217,7 +2217,7 @@ public class VirtualMachineMO extends BaseMO {
     }
 
     public void plugDevice(VirtualDevice device) throws Exception {
-        s_logger.debug(LogUtils.logGsonWithoutException("Pluging device [%s] to VM [%s].", device, getVmName()));
+        logger.debug(LogUtils.logGsonWithoutException("Pluging device [%s] to VM [%s].", device, getVmName()));
         VirtualMachineConfigSpec vmConfigSpec = new VirtualMachineConfigSpec();
         VirtualDeviceConfigSpec deviceConfigSpec = new VirtualDeviceConfigSpec();
         deviceConfigSpec.setDevice(device);
@@ -2277,7 +2277,7 @@ public class VirtualMachineMO extends BaseMO {
 
                     vmdkDescriptor = getVmdkFileInfo(fileItem.first());
 
-                    s_logger.info("Copy VM disk file " + srcFile.getPath() + " to " + destFile.getPath());
+                    logger.info("Copy VM disk file " + srcFile.getPath() + " to " + destFile.getPath());
                     srcDsMo.copyDatastoreFile(fileItem.first(), dcMo.getMor(), destDsMo.getMor(), destFile.getPath(), dcMo.getMor(), true);
 
                     if (vmdkDescriptor != null) {
@@ -2285,7 +2285,7 @@ public class VirtualMachineMO extends BaseMO {
                         String baseFilePath = srcFile.getCompanionPath(vmdkBaseFileName);
                         destFile = new DatastoreFile(destDsMo.getName(), destDsDir, vmdkBaseFileName);
 
-                        s_logger.info("Copy VM disk file " + baseFilePath + " to " + destFile.getPath());
+                        logger.info("Copy VM disk file " + baseFilePath + " to " + destFile.getPath());
                         srcDsMo.copyDatastoreFile(baseFilePath, dcMo.getMor(), destDsMo.getMor(), destFile.getPath(), dcMo.getMor(), true);
                     }
                 }
@@ -2677,7 +2677,7 @@ public class VirtualMachineMO extends BaseMO {
             if (configureVm(vmConfig)) {
                 throw new Exception("Unable to add Scsi controllers to the VM " + getName());
             } else {
-                s_logger.info("Successfully added " + count + " SCSI controllers.");
+                logger.info("Successfully added " + count + " SCSI controllers.");
             }
         }
     }
