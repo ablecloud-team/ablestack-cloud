@@ -891,6 +891,7 @@ public class CommvaultClient {
                 "}",
                 contentArray, Integer.parseInt(subclientId), Integer.parseInt(clientId), Integer.parseInt(applicationId), Integer.parseInt(backupsetId), Integer.parseInt(instanceId),subclientName,backupsetName
             );
+            LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
@@ -908,6 +909,7 @@ public class CommvaultClient {
                 }
                 JsonParser jParser = new JsonParser();
                 JsonObject jObject = (JsonObject)jParser.parse(response.toString());
+                LOG.info(response.toString());
                 if (jObject.has("response") && jObject.get("response").isJsonArray()) {
                     JsonArray responseArray = jObject.getAsJsonArray("response");
                     if (responseArray.size() > 0) {

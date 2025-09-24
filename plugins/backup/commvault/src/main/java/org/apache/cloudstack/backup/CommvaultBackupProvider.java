@@ -834,10 +834,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         JSONObject jsonObject = new JSONObject(subClientEntity);
         String subclientId = String.valueOf(jsonObject.get("subclientId"));
         String applicationId = String.valueOf(jsonObject.get("applicationId"));
-        LOG.info(applicationId +":::::::::::::::::::::::::::::::");
-        if (applicationId == null) {
-            applicationId = client.getApplicationId(clientId);
-        }
         String backupsetId = String.valueOf(jsonObject.get("backupsetId"));
         String instanceId = String.valueOf(jsonObject.get("instanceId"));
         String backupsetName = String.valueOf(jsonObject.get("backupsetName"));
@@ -851,6 +847,22 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String subclientGUID = String.valueOf(jsonObject.get("subclientGUID"));
         String subclientName = String.valueOf(jsonObject.get("subclientName"));
         String csGUID = String.valueOf(jsonObject.get("csGUID"));
+        LOG.info(subclientId);
+        LOG.info(applicationId);
+        LOG.info(backupsetId);
+        LOG.info(instanceId);
+        LOG.info(backupsetName);
+        LOG.info(displayName);
+        LOG.info(commCellName);
+        LOG.info(companyId);
+        LOG.info(companyName);
+        LOG.info(instanceName);
+        LOG.info(appName);
+        LOG.info(clientName);
+        LOG.info(subclientGUID);
+        LOG.info(subclientName);
+        LOG.info(csGUID);
+        LOG.info(path);
         boolean upResult = client.updateBackupSet(path, subclientId, clientId, planId, applicationId, backupsetId, instanceId, subclientName, backupsetName);
         if (upResult) {
             String planName = client.getPlanName(planId);
