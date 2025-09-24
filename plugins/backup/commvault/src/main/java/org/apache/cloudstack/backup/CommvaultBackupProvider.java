@@ -834,6 +834,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         JSONObject jsonObject = new JSONObject(subClientEntity);
         String subclientId = String.valueOf(jsonObject.get("subclientId"));
         String applicationId = String.valueOf(jsonObject.get("applicationId"));
+        LOG.info(applicationId +":::::::::::::::::::::::::::::::");
+        if (applicationId == null) {
+            applicationId = client.getApplicationId(clientId);
+        }
         String backupsetId = String.valueOf(jsonObject.get("backupsetId"));
         String instanceId = String.valueOf(jsonObject.get("instanceId"));
         String backupsetName = String.valueOf(jsonObject.get("backupsetName"));
