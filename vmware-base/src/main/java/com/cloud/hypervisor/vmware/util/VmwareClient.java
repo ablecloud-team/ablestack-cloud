@@ -1,3 +1,4 @@
+
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -54,7 +55,6 @@ import org.apache.logging.log4j.LogManager;
 import com.vmware.vim25.DynamicProperty;
 import com.vmware.vim25.InvalidCollectorVersionFaultMsg;
 import com.vmware.vim25.InvalidPropertyFaultMsg;
-import com.vmware.vim25.InvalidStateFaultMsg;
 import com.vmware.vim25.LocalizedMethodFault;
 import com.vmware.vim25.ManagedObjectReference;
 import com.vmware.vim25.MethodFault;
@@ -412,7 +412,7 @@ public class VmwareClient {
      * @throws RuntimeFaultFaultMsg
      * @throws InvalidPropertyFaultMsg
      */
-    public boolean waitForTask(ManagedObjectReference task) throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg, InvalidCollectorVersionFaultMsg, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InvalidStateFaultMsg {
+    public boolean waitForTask(ManagedObjectReference task) throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg, InvalidCollectorVersionFaultMsg, Exception {
 
         boolean retVal = false;
 

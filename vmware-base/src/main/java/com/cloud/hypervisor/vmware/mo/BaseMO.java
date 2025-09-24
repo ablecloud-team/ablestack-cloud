@@ -21,13 +21,13 @@ import org.apache.logging.log4j.LogManager;
 
 import com.cloud.hypervisor.vmware.util.VmwareContext;
 import com.cloud.utils.Pair;
+
 import com.vmware.vim25.DynamicProperty;
 import com.vmware.vim25.ObjectContent;
 import com.vmware.vim25.VirtualMachineBootOptions;
 import com.vmware.vim25.VirtualMachinePowerState;
 import org.apache.cloudstack.vm.UnmanagedInstanceTO;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 
 import com.vmware.vim25.CustomFieldDef;
 import com.vmware.vim25.CustomFieldStringValue;
@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 public class BaseMO {
-    protected Logger logger = LogManager.getLogger(getClass());
+    protected static Logger logger = LogManager.getLogger(BaseMO.class);
 
     protected VmwareContext _context;
     protected ManagedObjectReference _mor;
@@ -79,12 +79,12 @@ public class BaseMO {
     }
 
     public ManagedObjectReference getParentMor() throws Exception {
-        return (ManagedObjectReference)_context.getVimClient().getDynamicProperty(_mor, "parent");
+        return _context.getVimClient().getDynamicProperty(_mor, "parent");
     }
 
     public String getName() throws Exception {
         if (_name == null)
-            _name = (String)_context.getVimClient().getDynamicProperty(_mor, "name");
+            _name = _context.getVimClient().getDynamicProperty(_mor, "name");
 
         return _name;
     }
@@ -101,7 +101,7 @@ public class BaseMO {
             _context.waitForTaskProgressDone(morTask);
             return true;
         } else {
-            logger.error("VMware destroy_Task failed due to " + TaskMO.getTaskFailureInfo(_context, morTask));
+            logger.error("VMware destroy_Task failed due to {}", TaskMO.getTaskFailureInfo(_context, morTask));
         }
         return false;
     }
@@ -118,7 +118,7 @@ public class BaseMO {
             _context.waitForTaskProgressDone(morTask);
             return true;
         } else {
-            logger.error("VMware rename_Task failed due to " + TaskMO.getTaskFailureInfo(_context, morTask));
+            logger.error("VMware rename_Task failed due to {}", TaskMO.getTaskFailureInfo(_context, morTask));
         }
         return false;
     }
@@ -149,7 +149,7 @@ public class BaseMO {
         if (key == 0)
             return null;
 
-        CustomFieldStringValue cfValue = (CustomFieldStringValue)_context.getVimClient().getDynamicProperty(getMor(), String.format("value[%d]", key));
+        CustomFieldStringValue cfValue = _context.getVimClient().getDynamicProperty(getMor(), String.format("value[%d]", key));
         if (cfValue != null)
             return cfValue.getValue();
 
@@ -274,9 +274,8 @@ public class BaseMO {
         } catch (Exception e) {
             String msg = String.format("Cannot find a cluster for host %s, assuming standalone host, " +
                     "setting its cluster name as empty", hostName);
-            s_logger.info(msg);
+            logger.info(msg);
             return null;
         }
     }
-
 }
