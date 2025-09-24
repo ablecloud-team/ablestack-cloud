@@ -830,11 +830,11 @@ public class CommvaultClient {
         return null;
     }
 
-    // POST https://10.10.255.56/commandcenter/api/subclient/<backupsetId>
+    // POST https://10.10.255.56/commandcenter/api/subclient/<subclientId>
     // 호스트의 backupset 콘텐츠 경로를 변경하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public boolean updateBackupSet(String path, String subclientId, String clientId, String planName, String applicationId, String backupsetId, String instanceId, String subclientName, String backupsetName) {
         HttpURLConnection connection = null;
-        String postUrl = apiURI.toString() + "/subclient/" + backupsetId;
+        String postUrl = apiURI.toString() + "/subclient/" + subclientId;
         String[] paths = path.split(",");
         StringBuilder contentBuilder = new StringBuilder();
         for (int i = 0; i < paths.length; i++) {
@@ -891,7 +891,6 @@ public class CommvaultClient {
                 "}",
                 contentArray, Integer.parseInt(subclientId), Integer.parseInt(clientId), Integer.parseInt(applicationId), Integer.parseInt(backupsetId), Integer.parseInt(instanceId),subclientName,backupsetName
             );
-            LOG.info(jsonBody);
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
@@ -909,7 +908,6 @@ public class CommvaultClient {
                 }
                 JsonParser jParser = new JsonParser();
                 JsonObject jObject = (JsonObject)jParser.parse(response.toString());
-                LOG.info(response.toString());
                 if (jObject.has("response") && jObject.get("response").isJsonArray()) {
                     JsonArray responseArray = jObject.getAsJsonArray("response");
                     if (responseArray.size() > 0) {
