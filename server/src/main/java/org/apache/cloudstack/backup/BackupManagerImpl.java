@@ -894,7 +894,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         Long poolId = rootVmVolume.get(0).getPoolId();
         StoragePoolVO storagePoolVO = primaryDataStoreDao.findById(poolId);
         if (storagePoolVO == null) {
-            throw new CloudRuntimeException("The volume is not in the Ready state, and a storage pool for the volume cannot be found.");
+            throw new CloudRuntimeException("The volume of the virtual machine to which you are trying to attach the backup volume is not in the Ready state, and the storage pool for the volume cannot be found.");
         }
         HostVO hostVO = vm.getHostId() == null ?
                             getFirstHostFromStoragePool(storagePoolVO) :
