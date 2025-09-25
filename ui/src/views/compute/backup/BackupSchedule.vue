@@ -122,6 +122,7 @@ export default {
           dataIndex: 'intervaltype'
         },
         {
+          key: 'time',
           title: this.$t('label.time'),
           dataIndex: 'schedule'
         },
