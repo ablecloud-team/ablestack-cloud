@@ -317,7 +317,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 } else {
                     boolean installJob = client.getInstallActiveJob(host.getPrivateIpAddress());
                     boolean checkInstall = client.getClientProps(checkHost);
+                    LOG.info("checkBackupAgent checkInstall result :::::::::::::: " + checkInstall);
                     if (installJob || !checkInstall) {
+                        if (!checkInstall) {
+                            LOG.error("The host is registered with the client, but the readiness status is not normal and you must manually check the client status.");
+                        }
                         return false;
                     }
                 }
@@ -350,8 +354,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     }
                 }
                 String checkHost = client.getClientId(host.getName());
+                LOG.info("installBackupAgent checkHost getClientId ::::::::::::::::::::" + checkHost);
                 // 호스트가 클라이언트에 등록되지 않은 경우
                 if (checkHost == null) {
+                    LOG.info("호스트가 클라이언트에 등록되지 않은 경우");
                     String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
                     if (jobId != null) {
                         String jobStatus = client.getJobStatus(jobId);
@@ -363,19 +369,13 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         return false;
                     }
                 } else {
-                    // 호스트가 클라이언트에는 등록되었지만 구성이 정상적으로 되지 않은 경우
-                    boolean checkInstall = client.getClientProps(checkHost);
+                    // 호스트가 클라이언트에는 등록되었지만 구성이 정상적으로 되지 않은 경우 준비 상태 체크
+                    LOG.info("호스트가 클라이언트에는 등록되었지만 구성이 정상적으로 되지 않은 경우 준비 상태 체크");
+                    boolean checkInstall = client.getClientCheckReadiness(checkHost);
+                    LOG.info("installBackupAgent getClientCheckReadiness checkInstall ::::::::::::::::::::" + checkInstall);
                     if (!checkInstall) {
-                        String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
-                        if (jobId != null) {
-                            String jobStatus = client.getJobStatus(jobId);
-                            if (!jobStatus.equalsIgnoreCase("Completed")) {
-                                LOG.error("installing agent on the Commvault Backup Provider failed jogId : " + jobId + " , jobStatus : " + jobStatus);
-                                failResult.put(host.getPrivateIpAddress(), jobId);
-                            }
-                        } else {
-                            return false;
-                        }
+                        LOG.error("The host is registered with the client, but the readiness status is not normal and you must manually check the client status.");
+                        return false;
                     }
                 }
             }

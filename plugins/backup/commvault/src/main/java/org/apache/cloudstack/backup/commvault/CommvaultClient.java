@@ -618,7 +618,7 @@ public class CommvaultClient {
     }
 
     // GET https://<commserveIp>/commandcenter/api/client/<clientId>
-    // client properties 조회하는 API 설치가 정상적으로 된 경우 true, 안된 경우 false 반환
+    // client properties 조회하는 API 설치 및 준비상태가 정상적인 경우 true 반환
     public boolean getClientProps(String clientId) {
         try {
             final HttpResponse response = get("/client/" + clientId);
@@ -631,12 +631,11 @@ public class CommvaultClient {
                 for (JsonNode clientProp : clientProperties) {
                     JsonNode clientReadiness = clientProp.get("clientReadiness");
                     if (!clientReadiness.isMissingNode()) {
-                        String status1 = "Not Ready";
-                        String status2 = "Unknown";
-                        // Unknown 상태의 경우
-                        // https://commserve/commandcenter/proxy/Client/4/CheckReadiness?ApplicationReadinessOption=1&IncludeDisabledClients=false&NeedXmlResp=true&applicationCheck=true&clientId=4&networkOption=true&resourceCapacityOption=true
-                        if (clientReadiness.get("readinessStatus").asText().contains(status1) || clientReadiness.get("readinessStatus").asText().contains(status2)) {
-                            return false;
+                        String status = "Ready";
+                        if (clientReadiness.get("readinessStatus").asText().equalsIgnoreCase(status)) {
+                            return true;
+                        } else {
+                            return getClientCheckReadiness(clientId);
                         }
                     }
                 }
@@ -645,7 +644,37 @@ public class CommvaultClient {
             LOG.error("Failed to request getClientProps commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
-        return true;
+        return false;
+    }
+
+    // GET https://<commserveIp>/commandcenter/api/Client/<clientId>/CheckReadiness?network=true&resourceCapacity=true&includeDisabledClients=true&NeedXmlResp=true&ApplicationReadinessOption=1
+    // client 준비상태 체크하는 API로 status가 Ready 일 때만 true 반환
+    public boolean getClientCheckReadiness(String clientId) {
+        try {
+            final HttpResponse response = get("/client/" + clientId + "/CheckReadiness?network=true&resourceCapacity=true&includeDisabledClients=false&NeedXmlResp=true&ApplicationReadinessOption=1");
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            JsonNode summary = root.get("summary");
+            if (summary != null && summary.isArray()) {
+                for (JsonNode entity : summary) {
+                    JsonNode status = entity.get("status");
+                    LOG.info("getClientCheckReadiness ::::::::::::::::");
+                    LOG.info(status);
+                    if (!status.isMissingNode()) {
+                        String ready = "Ready";
+                        if (status.asText().equalsIgnoreCase(ready)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to request getClientCheckReadiness commvault api due to : ", e);
+            checkResponseTimeOut(e);
+        }
+        return false;
     }
 
     // GET https://<commserveIp>/commandcenter/api/plan/<planId>
