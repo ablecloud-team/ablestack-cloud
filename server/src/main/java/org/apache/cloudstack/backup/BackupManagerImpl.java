@@ -893,7 +893,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         List<VolumeVO> rootVmVolume = volumeDao.findIncludingRemovedByInstanceAndType(vm.getId(), Volume.Type.ROOT);
         Long poolId = rootVmVolume.get(0).getPoolId();
         StoragePoolVO storagePoolVO = primaryDataStoreDao.findById(poolId);
-        if (storagePoolVO == null || storagePoolVO.size() == 0) {
+        if (storagePoolVO == null) {
             throw new CloudRuntimeException("The volume is not in the Ready state, and a storage pool for the volume cannot be found.");
         }
         HostVO hostVO = vm.getHostId() == null ?
