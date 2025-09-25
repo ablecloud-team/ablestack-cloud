@@ -631,7 +631,7 @@ public class CommvaultClient {
                 for (JsonNode clientProp : clientProperties) {
                     JsonNode clientReadiness = clientProp.get("clientReadiness");
                     if (!clientReadiness.isMissingNode()) {
-                        String status = "Ready";
+                        String status = "Ready.";
                         if (clientReadiness.get("readinessStatus").asText().equalsIgnoreCase(status)) {
                             return true;
                         } else {
@@ -663,7 +663,7 @@ public class CommvaultClient {
                     LOG.info("getClientCheckReadiness ::::::::::::::::");
                     LOG.info(status);
                     if (!status.isMissingNode()) {
-                        String ready = "Ready";
+                        String ready = "Ready.";
                         if (status.asText().equalsIgnoreCase(ready)) {
                             return true;
                         }
