@@ -317,7 +317,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 } else {
                     boolean installJob = client.getInstallActiveJob(host.getPrivateIpAddress());
                     boolean checkInstall = client.getClientProps(checkHost);
-                    LOG.info("checkBackupAgent checkInstall result :::::::::::::: " + checkInstall);
                     if (installJob || !checkInstall) {
                         if (!checkInstall) {
                             LOG.error("The host is registered with the client, but the readiness status is not normal and you must manually check the client status.");
@@ -354,10 +353,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     }
                 }
                 String checkHost = client.getClientId(host.getName());
-                LOG.info("installBackupAgent checkHost getClientId ::::::::::::::::::::" + checkHost);
                 // 호스트가 클라이언트에 등록되지 않은 경우
                 if (checkHost == null) {
-                    LOG.info("호스트가 클라이언트에 등록되지 않은 경우");
                     String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
                     if (jobId != null) {
                         String jobStatus = client.getJobStatus(jobId);
@@ -370,9 +367,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     }
                 } else {
                     // 호스트가 클라이언트에는 등록되었지만 구성이 정상적으로 되지 않은 경우 준비 상태 체크
-                    LOG.info("호스트가 클라이언트에는 등록되었지만 구성이 정상적으로 되지 않은 경우 준비 상태 체크");
                     boolean checkInstall = client.getClientCheckReadiness(checkHost);
-                    LOG.info("installBackupAgent getClientCheckReadiness checkInstall ::::::::::::::::::::" + checkInstall);
                     if (!checkInstall) {
                         LOG.error("The host is registered with the client, but the readiness status is not normal and you must manually check the client status.");
                         return false;
@@ -670,13 +665,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
                                 if (VirtualMachine.State.Running.equals(vmNameAndState.second())) {
                                     final VMInstanceVO vm = vmInstanceDao.findVMByInstanceName(vmNameAndState.first());
-                                    LOG.info(vm+":::::::::::::::::::::::::::::::");
                                     HostVO rvHostVO = hostDao.findById(vm.getHostId());
                                     Ternary<String, String, String> rvCredentials = getKVMHyperisorCredentials(rvHostVO);
                                     command = String.format(CURRRENT_DEVICE, vmNameAndState.first());
-                                    LOG.info(command+":::::::::::::::::::::::::::::::");
                                     String currentDevice = executeDeviceCommand(rvHostVO, rvCredentials.first(), rvCredentials.second(), command);
-                                    LOG.info(currentDevice+":::::::::::::::::::::::::::::::");
                                     if (currentDevice == null || currentDevice.contains("error")) {
                                         volumeDao.expunge(restoredVolume.getId());
                                         command = String.format(RM_COMMAND, snapshotPath);
@@ -687,9 +679,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                         char lastChar = currentDevice.charAt(currentDevice.length() - 1);
                                         char incrementedChar = (char) (lastChar + 1);
                                         String rvDevice = currentDevice.substring(0, currentDevice.length() - 1) + incrementedChar;
-                                        LOG.info(rvDevice+":::::::::::::::::::::::::::::::::::::::::::");
                                         command = String.format(ATTACH_DISK_COMMAND, vmNameAndState.first(), reVolumePath, rvDevice);
-                                        LOG.info(command+"::::::::::::::::::");
                                         if (!executeAttachCommand(rvHostVO, rvCredentials.first(), rvCredentials.second(), command)) {
                                             volumeDao.expunge(restoredVolume.getId());
                                             command = String.format(RM_COMMAND, snapshotPath);

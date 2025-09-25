@@ -275,8 +275,6 @@ public class CommvaultClient {
             JsonNode planNode = root.path("plan");
             if (type.equals("deleteRpo")) {
                 JsonNode scheduleTaskIdNode = planNode.path("schedule").path("task").path("taskId");
-                // JsonNode scheduleLogTaskIdNode = planNode.path("database").path("scheduleLog").path("task").path("taskId");
-                // JsonNode snapTaskIdNode = planNode.path("snapInfo").path("snapTask").path("task").path("taskId");
                 if (!scheduleTaskIdNode.isMissingNode()) {
                     return scheduleTaskIdNode.asText();
                 }
@@ -660,8 +658,6 @@ public class CommvaultClient {
             if (summary != null && summary.isArray()) {
                 for (JsonNode entity : summary) {
                     JsonNode status = entity.get("status");
-                    LOG.info("getClientCheckReadiness ::::::::::::::::");
-                    LOG.info(status);
                     if (!status.isMissingNode()) {
                         String ready = "Ready.";
                         if (status.asText().equalsIgnoreCase(ready)) {
