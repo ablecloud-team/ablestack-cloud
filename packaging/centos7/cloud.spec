@@ -17,7 +17,7 @@
 
 %define __os_install_post %{nil}
 %global debug_package %{nil}
-%global __requires_exclude libc\\.so\\..*
+%global __requires_exclude libc\\.so\\..*|libc\\.so\\.6\\(GLIBC_.*\\)
 %define _binaries_in_noarch_packages_terminate_build   0
 
 # DISABLE the post-percentinstall java repacking and line number stripping
@@ -42,8 +42,8 @@ Source0:   %{name}-%{_maventag}.tgz
 BuildRoot: %{_tmppath}/%{name}-%{_maventag}-%{release}-build
 BuildArch: noarch
 
-BuildRequires: java-11-openjdk-devel
-BuildRequires: ws-commons-util
+BuildRequires: (java-11-openjdk-devel or java-17-openjdk-devel or java-21-openjdk-devel)
+#BuildRequires: ws-commons-util
 BuildRequires: jpackage-utils
 BuildRequires: gcc
 BuildRequires: glibc-devel
@@ -63,9 +63,8 @@ intelligent IaaS cloud implementation.
 
 %package management
 Summary:   CloudStack management server UI
-Requires: java-11-openjdk
-Requires: tzdata-java
-Requires: python
+Requires: (java-17-openjdk or java-21-openjdk)
+Requires: (tzdata-java or timezone-java)
 Requires: python3
 Requires: bash
 Requires: gawk
@@ -74,12 +73,12 @@ Requires: file
 Requires: bzip2
 Requires: gzip
 Requires: unzip
-Requires: /sbin/mount.nfs
-Requires: openssh-clients
-Requires: nfs-utils
+Requires: (/sbin/mount.nfs or /usr/sbin/mount.nfs)
+Requires: (openssh-clients or openssh)
+Requires: (nfs-utils or nfs-client)
 Requires: iproute
 Requires: wget
-Requires: mysql
+Requires: (mysql or mariadb or mysql8.4)
 Requires: sudo
 Requires: /sbin/service
 Requires: /sbin/chkconfig
@@ -105,12 +104,12 @@ Requires: python3-pip
 Group:   System Environment/Libraries
 %description common
 The Apache CloudStack files shared between agent and management server
-%global __requires_exclude ^libuuid\\.so\\.1$
+%global __requires_exclude libc\\.so\\..*|libc\\.so\\.6\\(GLIBC_.*\\)|^(libuuid\\.so\\.1|/usr/bin/python)$
 
 %package agent
 Summary: CloudStack Agent for KVM hypervisors
 Requires: (openssh-clients or openssh)
-Requires: java-17-openjdk
+Requires: (java-17-openjdk or java-21-openjdk)
 Requires: (tzdata-java or timezone-java)
 Requires: %{name}-common = %{_ver}
 Requires: libvirt
@@ -152,7 +151,7 @@ The CloudStack baremetal agent
 
 %package usage
 Summary: CloudStack Usage calculation server
-Requires: java-17-openjdk
+Requires: (java-17-openjdk or java-21-openjdk)
 Requires: (tzdata-java or timezone-java)
 Group: System Environment/Libraries
 %description usage
