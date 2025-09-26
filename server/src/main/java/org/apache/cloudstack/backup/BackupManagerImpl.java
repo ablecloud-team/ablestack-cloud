@@ -19,6 +19,7 @@ package org.apache.cloudstack.backup;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +64,7 @@ import org.apache.cloudstack.backup.dao.BackupScheduleDao;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.engine.orchestration.service.VolumeOrchestrationService;
 import org.apache.cloudstack.framework.config.ConfigKey;
+import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
 import org.apache.cloudstack.framework.jobs.AsyncJobDispatcher;
 import org.apache.cloudstack.framework.jobs.AsyncJobManager;
 import org.apache.cloudstack.framework.jobs.impl.AsyncJobVO;
@@ -164,6 +166,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     private VolumeApiService volumeApiService;
     @Inject
     private VolumeOrchestrationService volumeOrchestrationService;
+    @Inject
+    private ConfigurationDao configDao;
 
     private AsyncJobDispatcher asyncJobDispatcher;
     private Timer backupTimer;
@@ -212,8 +216,16 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             throw new CloudRuntimeException("Backup offering '" + cmd.getExternalId() + "' does not exist on provider " + provider.getName() + " on zone " + cmd.getZoneId());
         }
 
+        if (!provider.checkBackupAgent(cmd.getZoneId())) {
+            throw new CloudRuntimeException("The backup offering cannot be imported because the host does not have the agent properly installed on provider " + provider.getName() + "on zone" + cmd.getZoneId() + ". Please try again later.");
+        }
+
+        if (!provider.importBackupPlan(cmd.getZoneId(), cmd.getRetentionPeriod(), cmd.getExternalId())) {
+            throw new CloudRuntimeException("The backup offering cannot be imported because failed setting on provider " + provider.getName() + "on zone" + cmd.getZoneId());
+        }
+
         final BackupOfferingVO offering = new BackupOfferingVO(cmd.getZoneId(), cmd.getExternalId(), provider.getName(),
-                cmd.getName(), cmd.getDescription(), cmd.getUserDrivenBackups());
+                cmd.getName(), cmd.getDescription(), cmd.getUserDrivenBackups(), cmd.getRetentionPeriod());
 
         final BackupOfferingVO savedOffering = backupOfferingDao.persist(offering);
         if (savedOffering == null) {
@@ -280,6 +292,15 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
     public static String createVolumeInfoFromVolumes(List<VolumeVO> vmVolumes) {
         List<Backup.VolumeInfo> list = new ArrayList<>();
+        for (VolumeVO vol : vmVolumes) {
+            list.add(new Backup.VolumeInfo(vol.getUuid(), vol.getPath(), vol.getVolumeType(), vol.getSize()));
+        }
+        return new Gson().toJson(list.toArray(), Backup.VolumeInfo[].class);
+    }
+
+    public static String createVolumeInfoFromVolumes(List<VolumeVO> vmVolumes, Map<Object, String> checkResult) {
+        List<Backup.VolumeInfo> list = new ArrayList<>();
+        vmVolumes.sort(Comparator.comparing(VolumeVO::getDeviceId));
         for (VolumeVO vol : vmVolumes) {
             list.add(new Backup.VolumeInfo(vol.getUuid(), vol.getPath(), vol.getVolumeType(), vol.getSize()));
         }
@@ -872,6 +893,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         List<VolumeVO> rootVmVolume = volumeDao.findIncludingRemovedByInstanceAndType(vm.getId(), Volume.Type.ROOT);
         Long poolId = rootVmVolume.get(0).getPoolId();
         StoragePoolVO storagePoolVO = primaryDataStoreDao.findById(poolId);
+        if (storagePoolVO == null) {
+            throw new CloudRuntimeException("The volume of the virtual machine to which you are trying to attach the backup volume is not in the Ready state, and the storage pool for the volume cannot be found.");
+        }
         HostVO hostVO = vm.getHostId() == null ?
                             getFirstHostFromStoragePool(storagePoolVO) :
                             hostDao.findById(vm.getHostId());
@@ -1231,6 +1255,16 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                         logger.warn("Backup provider not available or configured for zone {}", dataCenter);
                         continue;
                     }
+                    if (backupProvider.getName().equalsIgnoreCase("commvault")) {
+                        boolean check = backupProvider.checkBackupAgent(dataCenter.getId());
+                        if (!check) {
+                            boolean install = false;
+                            while(!install) {
+                                logger.info("Commvault Backup Agent will attempt to install....");
+                                install = backupProvider.installBackupAgent(dataCenter.getId());
+                            }
+                        }
+                    }
 
                     List<VMInstanceVO> vms = vmInstanceDao.listByZoneWithBackups(dataCenter.getId(), null);
                     if (vms == null || vms.isEmpty()) {
@@ -1286,14 +1320,15 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         String name = updateBackupOfferingCmd.getName();
         String description = updateBackupOfferingCmd.getDescription();
         Boolean allowUserDrivenBackups = updateBackupOfferingCmd.getAllowUserDrivenBackups();
+        String retentionPeriod = updateBackupOfferingCmd.getRetentionPeriod();
 
         BackupOfferingVO backupOfferingVO = backupOfferingDao.findById(id);
         if (backupOfferingVO == null) {
             throw new InvalidParameterValueException(String.format("Unable to find Backup Offering with id: [%s].", id));
         }
         logger.debug("Trying to update Backup Offering {} to {}.",
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(backupOfferingVO, "uuid", "name", "description", "userDrivenBackupAllowed"),
-                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(updateBackupOfferingCmd, "name", "description", "allowUserDrivenBackups"));
+                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(backupOfferingVO, "uuid", "name", "description", "userDrivenBackupAllowed", "retentionPeriod"),
+                ReflectionToStringBuilderUtils.reflectOnlySelectedFields(updateBackupOfferingCmd, "name", "description", "allowUserDrivenBackups", "retentionPeriod"));
 
         BackupOfferingVO offering = backupOfferingDao.createForUpdate(id);
         List<String> fields = new ArrayList<>();
@@ -1307,10 +1342,14 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             fields.add("description: " + description);
         }
 
-
         if (allowUserDrivenBackups != null){
             offering.setUserDrivenBackupAllowed(allowUserDrivenBackups);
             fields.add("allowUserDrivenBackups: " + allowUserDrivenBackups);
+        }
+
+        if (retentionPeriod != null){
+            offering.setRetentionPeriod(retentionPeriod);
+            fields.add("retentionPeriod: " + retentionPeriod);
         }
 
         if (!backupOfferingDao.update(id, offering)) {

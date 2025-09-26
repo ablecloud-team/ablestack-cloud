@@ -63,6 +63,10 @@ public class BackupOfferingDaoImpl extends GenericDaoBase<BackupOfferingVO, Long
             response.setZoneId(zone.getUuid());
             response.setZoneName(zone.getName());
         }
+        if (offering.getRetentionPeriod() != null) {
+            response.setRetentionPeriod(offering.getRetentionPeriod());
+        }
+        response.setProvider(offering.getProvider());
         response.setCreated(offering.getCreated());
         response.setObjectName("backupoffering");
         return response;

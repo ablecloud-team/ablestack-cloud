@@ -354,7 +354,19 @@ export default {
         dataView: true,
         popup: true,
         groupMap: (selection) => { return selection.map(x => { return { id: x } }) },
-        args: ['name', 'description', 'allowuserdrivenbackups']
+        args: (record) => {
+          var fields = ['name', 'description']
+          if (record.provider !== 'commvault') {
+            fields.push('allowuserdrivenbackups')
+          }
+          return fields
+        },
+        customParamHandler: (params, query) => {
+          if (!['allowuserdrivenbackups'].includes(query.filter)) {
+            params.allowuserdrivenbackups = true
+          }
+          return params
+        }
       }, {
         api: 'deleteBackupOffering',
         icon: 'delete-outlined',
