@@ -81,7 +81,7 @@ public class DeleteBackupScheduleCmd  extends BaseCmd {
     @Override
     public void execute() throws ResourceUnavailableException, InsufficientCapacityException, ServerApiException, ConcurrentOperationException, ResourceAllocationException, NetworkRuleConflictException {
         try {
-            boolean result = backupManager.deleteBackupSchedule(getVmId());
+            boolean result = backupManager.deleteBackupSchedule(getId(), getVmId());
             if (result) {
                 SuccessResponse response = new SuccessResponse(getCommandName());
                 response.setResponseName(getCommandName());
