@@ -21,7 +21,7 @@
       size="small"
       :columns="columns"
       :dataSource="dataSchedules"
-      :rowKey="record => record.intervaltype"
+      :rowKey="record => record.id"
       :pagination="false"
       :loading="loading">
       <template #bodyCell="{ column, text, record }">
@@ -167,6 +167,7 @@ export default {
   methods: {
     handleClickDelete (record) {
       const params = {}
+      params.id = record.id
       params.virtualmachineid = record.virtualmachineid
       this.actionLoading = true
       api('deleteBackupSchedule', params).then(json => {

@@ -492,6 +492,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_SCHEDULE_DELETE, eventDescription = "deleting VM backup schedule")
     public boolean deleteBackupSchedule(final Long vmId) {
+        Long scheduleId = cmd.getId();
         final VMInstanceVO vm = findVmById(vmId);
         validateForZone(vm.getDataCenterId());
         accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
@@ -500,7 +501,11 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (schedule == null) {
             throw new CloudRuntimeException("VM has no backup schedule defined, no need to delete anything.");
         }
-        return backupScheduleDao.remove(schedule.getId());
+        final BackupSchedule schedulePick = backupScheduleDao.findById(scheduleId);
+        if (schedulePick == null) {
+            throw new CloudRuntimeException("Backup schedule id given: " + scheduleId + " does not exist");
+        }
+        return backupScheduleDao.remove(schedulePick.getId());
     }
 
     @Override
