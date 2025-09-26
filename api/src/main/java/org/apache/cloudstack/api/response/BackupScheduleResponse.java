@@ -56,6 +56,10 @@ public class BackupScheduleResponse extends BaseResponse {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getVmName() {
         return vmName;
     }
