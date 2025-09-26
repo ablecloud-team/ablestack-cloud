@@ -49,6 +49,7 @@ INSERT IGNORE INTO `cloud`.`vbmc_port` (id, port) VALUES (19, 6248);
 INSERT IGNORE INTO `cloud`.`vbmc_port` (id, port) VALUES (20, 6249);
 INSERT IGNORE INTO `cloud`.`vbmc_port` (id, port) VALUES (21, 6250);
 
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.host', 'migration_ip', 'VARCHAR(45)');
 -- backup offering table update
 CALL `cloud`.`ADD_COL`('backup_offering', 'retention_period', 'VARCHAR(255) DEFAULT null');
 CALL `cloud`.`ADD_COL`('backups', 'snapshot_id', 'VARCHAR(255) DEFAULT null');

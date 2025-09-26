@@ -1314,7 +1314,6 @@ public class ApiConstants {
     public static final String RESULT_REDFISH_DATA = "redfishdata";
     public static final String EXTERNAL_ENTITY = "externalEntity";
     public static final String VM_SNAPSHOT_NONCOPY = "noncopy";
-    public static final String EXTERNAL_ENTITY = "externalentity";
 
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.
