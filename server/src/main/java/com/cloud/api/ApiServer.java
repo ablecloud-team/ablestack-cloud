@@ -1210,6 +1210,9 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
                 if (ApiConstants.FIRST_LOGIN.equalsIgnoreCase(attrName)) {
                     response.setFirstLogin(attrObj.toString());
                 }
+                if (ApiConstants.EXTERNAL_ENTITY.equalsIgnoreCase(attrName)) {
+                    response.setExternalEntity(attrObj.toString());
+                }
             }
         }
         response.setResponseName("loginresponse");
@@ -1287,6 +1290,7 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
             session.setAttribute("lastname", userAcct.getLastname());
             session.setAttribute("accountobj", account);
             session.setAttribute("account", account.getAccountName());
+            session.setAttribute(ApiConstants.EXTERNAL_ENTITY, userAcct.getExternalEntity());
 
             session.setAttribute("domainid", account.getDomainId());
             final DomainVO domain = (DomainVO)domainMgr.getDomain(account.getDomainId());

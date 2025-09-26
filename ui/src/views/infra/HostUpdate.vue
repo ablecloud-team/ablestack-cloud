@@ -62,7 +62,12 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-
+      <a-form-item name="migrationip" ref="migrationip">
+        <template #label>
+          <tooltip-label :title="$t('label.migrationip')" :tooltip="$t('label.migrationip')"/>
+        </template>
+        <a-input v-model:value="form.migrationip" />
+      </a-form-item>
       <div :span="24" class="action-button">
         <a-button :loading="loading" @click="onCloseAction">{{ $t('label.cancel') }}</a-button>
         <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
@@ -114,9 +119,30 @@ export default {
         name: this.resource.name,
         hosttags: this.resource.explicithosttags,
         istagarule: this.resource.istagarule,
-        oscategoryid: this.resource.oscategoryid
+        oscategoryid: this.resource.oscategoryid,
+        migrationip: this.resource.migrationip
       })
-      this.rules = reactive({})
+      this.rules = reactive({
+        migrationip: [
+          {
+            validator: (rule, value) => {
+              return new Promise((resolve, reject) => {
+                if (value === null || value === undefined || value === '') {
+                  resolve()
+                } else {
+                  // IPv4 regex
+                  const ipv4Regex = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/
+                  if (ipv4Regex.test(value)) {
+                    resolve()
+                  } else {
+                    reject(new Error(this.$t('message.error.ipv4.address')))
+                  }
+                }
+              })
+            }
+          }
+        ]
+      })
     },
     fetchOsCategories () {
       this.osCategories.loading = true
@@ -137,6 +163,7 @@ export default {
         params.name = values.name
         params.hosttags = values.hosttags
         params.oscategoryid = values.oscategoryid
+        params.migrationip = values.migrationip
         if (values.istagarule !== undefined) {
           params.istagarule = values.istagarule
         }
