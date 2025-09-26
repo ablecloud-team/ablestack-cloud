@@ -1907,6 +1907,12 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
         _hostDao.update(host.getId(), host);
     }
 
+    private void updateMigratinIp(HostVO host, String migrationIp) {
+        logger.debug("Updating Host use live migataion use ip address to: " + migrationIp);
+        host.setMigrationIp(migrationIp);
+        _hostDao.update(host.getId(), host);
+    }
+
     private void updateHostGuestOSCategory(Long hostId, Long guestOSCategoryId) {
         // Verify that the guest OS Category exists
         if (!(guestOSCategoryId > 0) || _guestOSCategoryDao.findById(guestOSCategoryId) == null) {
@@ -1948,7 +1954,51 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
     @Override
     public Host updateHost(final UpdateHostCmd cmd) throws NoTransitionException {
         return updateHost(cmd.getId(), cmd.getName(), cmd.getOsCategoryId(),
-                cmd.getAllocationState(), cmd.getUrl(), cmd.getHostTags(), cmd.getIsTagARule(), cmd.getAnnotation(), false);
+                cmd.getAllocationState(), cmd.getUrl(), cmd.getHostTags(), cmd.getIsTagARule(), cmd.getAnnotation(), false, cmd.getMigrationIp());
+    }
+
+    private Host updateHost(Long hostId, String name, Long guestOSCategoryId, String allocationState,
+                            String url, List<String> hostTags, Boolean isTagARule, String annotation, boolean isUpdateFromHostHealthCheck, String migrationIp) throws NoTransitionException {
+        // Verify that the host exists
+        final HostVO host = _hostDao.findById(hostId);
+        if (host == null) {
+            throw new InvalidParameterValueException("Host with id " + hostId + " doesn't exist");
+        }
+
+        boolean isUpdateHostAllocation = false;
+        if (StringUtils.isNotBlank(allocationState)) {
+            isUpdateHostAllocation = updateHostAllocationState(host, allocationState, isUpdateFromHostHealthCheck);
+        }
+
+        if (StringUtils.isNotBlank(name)) {
+            updateHostName(host, name);
+        }
+
+        if (guestOSCategoryId != null) {
+            updateHostGuestOSCategory(hostId, guestOSCategoryId);
+        }
+
+        if (hostTags != null) {
+            updateHostTags(host, hostId, hostTags, isTagARule);
+        }
+
+        updateMigratinIp(host, migrationIp);
+
+        if (url != null) {
+            _storageMgr.updateSecondaryStorage(hostId, url);
+        }
+        try {
+            _storageMgr.enableHost(hostId);
+        } catch (StorageUnavailableException | StorageConflictException e) {
+            logger.error(String.format("Failed to setup host %s when enabled", host));
+        }
+
+        final HostVO updatedHost = _hostDao.findById(hostId);
+
+        sendAlertAndAnnotationForAutoEnableDisableKVMHostFeature(host, allocationState,
+                isUpdateFromHostHealthCheck, isUpdateHostAllocation, annotation);
+
+        return updatedHost;
     }
 
     private Host updateHost(Long hostId, String name, Long guestOSCategoryId, String allocationState,
@@ -3593,6 +3643,6 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
 
     @Override
     public ConfigKey<?>[] getConfigKeys() {
-        return new ConfigKey<?>[] {KvmSshToAgentEnabled, HOST_MAINTENANCE_LOCAL_STRATEGY};
+        return new ConfigKey<?>[] {KvmSshToAgentEnabled, KvmSshPort, HOST_MAINTENANCE_LOCAL_STRATEGY};
     }
 }

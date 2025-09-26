@@ -1313,6 +1313,7 @@ public class ApiConstants {
     public static final String CURRENT_VM_ID = "currentvmid";
     public static final String RESULT_REDFISH_DATA = "redfishdata";
     public static final String EXTERNAL_ENTITY = "externalEntity";
+    public static final String MIGRATION_IP = "migrationip";
     public static final String VM_SNAPSHOT_NONCOPY = "noncopy";
 
     /**
