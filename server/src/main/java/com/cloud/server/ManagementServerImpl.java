@@ -721,7 +721,9 @@ import com.cloud.alert.AlertManager;
 import com.cloud.alert.AlertVO;
 import com.cloud.alert.dao.AlertDao;
 import com.cloud.api.ApiDBUtils;
+import com.cloud.api.query.dao.ManagementServerJoinDao;
 import com.cloud.api.query.dao.StoragePoolJoinDao;
+import com.cloud.api.query.vo.ManagementServerJoinVO;
 import com.cloud.api.query.vo.StoragePoolJoinVO;
 import com.cloud.capacity.Capacity;
 import com.cloud.capacity.CapacityVO;
@@ -732,6 +734,7 @@ import com.cloud.configuration.Config;
 import com.cloud.configuration.ConfigurationManagerImpl;
 import com.cloud.consoleproxy.ConsoleProxyManagementState;
 import com.cloud.consoleproxy.ConsoleProxyManager;
+import com.cloud.cpu.CPU;
 import com.cloud.dc.AccountVlanMapVO;
 import com.cloud.dc.ClusterVO;
 import com.cloud.dc.DataCenterVO;
@@ -741,6 +744,7 @@ import com.cloud.dc.Pod;
 import com.cloud.dc.PodVlanMapVO;
 import com.cloud.dc.Vlan;
 import com.cloud.dc.Vlan.VlanType;
+import com.cloud.dc.VlanDetailsVO;
 import com.cloud.dc.VlanVO;
 import com.cloud.dc.dao.AccountVlanMapDao;
 import com.cloud.dc.dao.ClusterDao;
@@ -749,6 +753,7 @@ import com.cloud.dc.dao.DomainVlanMapDao;
 import com.cloud.dc.dao.HostPodDao;
 import com.cloud.dc.dao.PodVlanMapDao;
 import com.cloud.dc.dao.VlanDao;
+import com.cloud.dc.dao.VlanDetailsDao;
 import com.cloud.deploy.DataCenterDeployment;
 import com.cloud.deploy.DeploymentPlanner;
 import com.cloud.deploy.DeploymentPlanner.ExcludeList;
@@ -770,6 +775,8 @@ import com.cloud.exception.PermissionDeniedException;
 import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.exception.VirtualMachineMigrationException;
 import com.cloud.gpu.GPU;
+import com.cloud.gpu.VgpuProfileVO;
+import com.cloud.gpu.dao.VgpuProfileDao;
 import com.cloud.ha.HighAvailabilityManager;
 import com.cloud.host.DetailVO;
 import com.cloud.host.Host;
@@ -796,13 +803,16 @@ import com.cloud.network.dao.IPAddressDao;
 import com.cloud.network.dao.IPAddressVO;
 import com.cloud.network.dao.LoadBalancerDao;
 import com.cloud.network.dao.LoadBalancerVO;
+import com.cloud.network.dao.NetrisProviderDao;
 import com.cloud.network.dao.NetworkAccountDao;
 import com.cloud.network.dao.NetworkAccountVO;
 import com.cloud.network.dao.NetworkDao;
 import com.cloud.network.dao.NetworkDomainDao;
 import com.cloud.network.dao.NetworkDomainVO;
 import com.cloud.network.dao.NetworkVO;
+import com.cloud.network.dao.NsxProviderDao;
 import com.cloud.network.vpc.dao.VpcDao;
+import com.cloud.offering.ServiceOffering;
 import com.cloud.org.Cluster;
 import com.cloud.org.Grouping.AllocationState;
 import com.cloud.projects.Project;
@@ -878,6 +888,7 @@ import com.cloud.utils.fsm.StateMachine2;
 import com.cloud.utils.net.MacAddress;
 import com.cloud.utils.net.NetUtils;
 import com.cloud.utils.nio.TrustAllManager;
+import com.cloud.utils.security.CertificateHelper;
 import com.cloud.utils.ssh.SSHKeysHelper;
 import com.cloud.vm.ConsoleProxyVO;
 import com.cloud.vm.DiskProfile;
@@ -6397,4 +6408,8 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
     }
 
+    @Override
+    public Answer getExternalVmConsole(VirtualMachine vm, Host host) {
+        return extensionsManager.getInstanceConsole(vm, host);
+    }
 }
