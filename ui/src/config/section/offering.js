@@ -321,7 +321,7 @@ export default {
       permission: ['listBackupOfferings'],
       searchFilters: ['zoneid'],
       columns: ['name', 'description', 'zonename'],
-      details: ['name', 'id', 'description', 'externalid', 'zone', 'allowuserdrivenbackups', 'created'],
+      details: ['name', 'id', 'description', 'externalid', 'retentionperiod', 'zone', 'allowuserdrivenbackups', 'created'],
       related: [{
         name: 'vm',
         title: 'label.instances',
