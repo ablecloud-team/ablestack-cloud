@@ -455,11 +455,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             throw new CloudRuntimeException("The selected backup offering does not allow user-defined backup schedule");
         }
 
-        final BackupScheduleVO scheduleExist = backupScheduleDao.findByVM(vmId);
-        if (scheduleExist != null) {
-            throw new CloudRuntimeException("A backup schedule already exists for the virtual machine, and only one backup schedule can be set per virtual machine.");
-        }
-
         final String timezoneId = timeZone.getID();
         if (!timezoneId.equals(cmd.getTimezone())) {
             logger.warn("Using timezone: " + timezoneId + " for running this snapshot policy as an equivalent of " + cmd.getTimezone());
@@ -474,6 +469,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
         final BackupScheduleVO schedule = backupScheduleDao.findByVMAndIntervalType(vmId, intervalType);
         if (schedule == null) {
+            final BackupScheduleVO scheduleExist = backupScheduleDao.findByVM(vmId);
+            if (scheduleExist != null) {
+                throw new CloudRuntimeException("A backup schedule already exists for the virtual machine, and only one backup schedule can be set per virtual machine.");
+            }
             return backupScheduleDao.persist(new BackupScheduleVO(vmId, intervalType, scheduleString, timezoneId, nextDateTime));
         }
 
