@@ -280,7 +280,6 @@ public class SshHelper {
             }
 
             String result = sbResult.toString();
-            LOGGER.info(result);
             if (StringUtils.isBlank(result)) {
                 try {
                     result = IOUtils.toString(stdout, StandardCharsets.UTF_8);
