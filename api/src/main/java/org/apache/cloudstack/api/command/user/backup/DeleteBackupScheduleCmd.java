@@ -26,7 +26,6 @@ import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
-import org.apache.cloudstack.api.response.BackupScheduleResponse;
 import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.api.response.UserVmResponse;
 import org.apache.cloudstack.backup.BackupManager;
@@ -52,9 +51,6 @@ public class DeleteBackupScheduleCmd  extends BaseCmd {
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
 
-    @Parameter(name = ApiConstants.ID, type = CommandType.UUID, entityType = BackupScheduleResponse.class, description = "the Id of the backup schedule")
-    private Long id;
-
     @Parameter(name = ApiConstants.VIRTUAL_MACHINE_ID,
             type = CommandType.UUID,
             entityType = UserVmResponse.class,
@@ -65,10 +61,6 @@ public class DeleteBackupScheduleCmd  extends BaseCmd {
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
-
-    public Long getId() {
-        return id;
-    }
 
     public Long getVmId() {
         return vmId;
@@ -81,7 +73,7 @@ public class DeleteBackupScheduleCmd  extends BaseCmd {
     @Override
     public void execute() throws ResourceUnavailableException, InsufficientCapacityException, ServerApiException, ConcurrentOperationException, ResourceAllocationException, NetworkRuleConflictException {
         try {
-            boolean result = backupManager.deleteBackupSchedule(getId(), getVmId());
+            boolean result = backupManager.deleteBackupSchedule(getVmId());
             if (result) {
                 SuccessResponse response = new SuccessResponse(getCommandName());
                 response.setResponseName(getCommandName());
