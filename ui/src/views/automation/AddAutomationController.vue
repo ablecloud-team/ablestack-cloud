@@ -119,7 +119,7 @@
 </template>
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import store from '@/store'
 import eventBus from '@/config/eventBus'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -182,7 +182,7 @@ export default {
       this.automationController = []
       const params = {}
       this.automationControllerLoading = true
-      api('listAutomationController', params).then(json => {
+      getAPI('listAutomationController', params).then(json => {
         var items = json.listautomationcontrollerresponse.automationcontroller
         if (items != null) {
           // this.controllerVersions = items.filter(it => it.state === 'Enabled')
@@ -199,7 +199,7 @@ export default {
       this.automationControllerVersion = []
       const params = {}
       this.automationControllerVersionLoading = true
-      api('listAutomationControllerVersion', params).then(json => {
+      getAPI('listAutomationControllerVersion', params).then(json => {
         var items = json.listautomationcontrollerversionresponse.automationcontrollerversion
         if (items != null) {
           this.automationControllerVersion = items.filter(it => it.state === 'Enabled')
@@ -215,7 +215,7 @@ export default {
       this.serviceOfferings = []
       const params = {}
       this.serviceOfferingLoading = true
-      api('listServiceOfferings', params).then(json => {
+      getAPI('listServiceOfferings', params).then(json => {
         var items = json.listserviceofferingsresponse.serviceoffering
         if (items != null) {
           this.serviceOfferings = items.filter(it => it.iscustomized === false)
@@ -234,7 +234,7 @@ export default {
         account: store.getters.project && store.getters.project.id ? null : store.getters.userInfo.account,
         listall: true
       }
-      api('listAutomationController', params).then(json => {
+      getAPI('listAutomationController', params).then(json => {
         var items = json.listautomationcontrollerresponse.automationcontroller
         if (items != null) {
           this.controllers.push(items)
@@ -250,7 +250,7 @@ export default {
         account: store.getters.project && store.getters.project.id ? null : store.getters.userInfo.account
       }
       this.networkLoading = true
-      api('listNetworks', params).then(json => {
+      getAPI('listNetworks', params).then(json => {
         const listNetworks = json.listnetworksresponse.network
         if (listNetworks !== null) {
           this.networks = listNetworks.filter(it => it.type.includes('Isolated'))
@@ -287,7 +287,7 @@ export default {
           params.networkid = this.networks[values.network].id
           params.networkname = this.networks[values.network].name
         }
-        api('addAutomationController', params).then(json => {
+        getAPI('addAutomationController', params).then(json => {
           const jobId = json.addautomationcontrollerresponse.jobid
           this.$pollJob({
             jobId,

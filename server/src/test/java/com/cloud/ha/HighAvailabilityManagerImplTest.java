@@ -235,7 +235,7 @@ public class HighAvailabilityManagerImplTest {
         Mockito.when(_podDao.findById(Mockito.anyLong())).thenReturn(Mockito.mock(HostPodVO.class));
         Mockito.when(_dcDao.findById(Mockito.anyLong())).thenReturn(Mockito.mock(DataCenterVO.class));
         Mockito.when(_haDao.findPreviousHA(Mockito.anyLong())).thenReturn(Arrays.asList(Mockito.mock(HaWorkVO.class)));
-        Mockito.when(_haDao.persist((HaWorkVO)Mockito.anyObject())).thenReturn(Mockito.mock(HaWorkVO.class));
+        Mockito.when(_haDao.persist((HaWorkVO)Mockito.any())).thenReturn(Mockito.mock(HaWorkVO.class));
 
         ConfigKey<Boolean> haEnabled = Mockito.mock(ConfigKey.class);
         highAvailabilityManager.VmHaEnabled = haEnabled;

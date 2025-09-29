@@ -23,7 +23,7 @@
   </a>
 </template>
 <script>
-import { api } from '@/api'
+import { getAPI } from '@/api'
 export default {
   name: 'WallLinkUrl',
   props: {
@@ -51,7 +51,7 @@ export default {
   },
   methods: {
     urlAction () {
-      api('listConfigurations', { keyword: 'monitoring.wall.portal' }).then(json => {
+      getAPI('listConfigurations', { keyword: 'monitoring.wall.portal' }).then(json => {
         var items = json.listconfigurationsresponse.configuration
         var wallPortalProtocol = items.filter(x => x.name === 'monitoring.wall.portal.protocol')[0]?.value
         const wallPortalPort = items.filter(x => x.name === 'monitoring.wall.portal.port')[0]?.value

@@ -39,7 +39,7 @@
 </template>
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
@@ -85,7 +85,7 @@ export default {
           params.dedup = values.dedup
           params.path = this.resource.path
           this.loading = true
-          api('updateCompressDedup', params)
+          getAPI('updateCompressDedup', params)
             .then((response) => {
               this.$pollJob({
                 jobId: response.updatecompressdedupresponse.jobid,

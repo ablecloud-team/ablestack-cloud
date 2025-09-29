@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { api } from '@/api'
+import { getAPI } from '@/api'
 
 export default {
   name: 'EventSidebar',
@@ -162,13 +162,13 @@ export default {
       }
       try {
         if (this.$store.getters.userInfo.roletype === 'Admin') {
-          const settingsResponse = await api('listConfigurations', { name: 'event.recent.minutes' })
+          const settingsResponse = await getAPI('listConfigurations', { name: 'event.recent.minutes' })
           const eventListBarSetting = settingsResponse?.listconfigurationsresponse?.configuration[0]?.value || 5
           this.eventListBarMinutes = parseInt(eventListBarSetting, 10) * 60 * 1000
         } else {
           this.eventListBarMinutes = parseInt(5, 10) * 60 * 1000
         }
-        const response = await api('listEvents', params)
+        const response = await getAPI('listEvents', params)
         if (response && response.listeventsresponse) {
           const events = response.listeventsresponse.event || []
           const recentEvents = this.filterRecentEvents(events, this.eventListBarMinutes)

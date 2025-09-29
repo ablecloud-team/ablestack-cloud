@@ -197,8 +197,10 @@ export default {
       }
     },
     handleLogout () {
-      return this.Logout({ apiBase: this.$config.apiBase }).then(() => {
-        // this.$router.push('/user/login')
+      this.Logout({}).finally(async () => {
+        sourceToken.init()
+        await applyCustomGuiTheme(null, null)
+        this.$router.push('/user/login')
       }).catch(err => {
         this.$message.error({
           title: 'Failed to Logout',
@@ -211,7 +213,7 @@ export default {
       this.$notification.destroy()
     },
     wallPortalLink () {
-      api('listConfigurations', { keyword: 'monitoring.wall.portal' }).then(json => {
+      getAPI('listConfigurations', { keyword: 'monitoring.wall.portal' }).then(json => {
         const items = json.listconfigurationsresponse.configuration
         const wallPortalProtocol = items.filter(x => x.name === 'monitoring.wall.portal.protocol')[0]?.value
         const wallPortalPort = items.filter(x => x.name === 'monitoring.wall.portal.port')[0]?.value
@@ -234,7 +236,7 @@ export default {
     },
     fetchFaviconStateInterval () {
       return new Promise((resolve, reject) => {
-        api('listConfigurations', {
+        getAPI('listConfigurations', {
           name: 'favicon.state.interval'
         }).then(json => {
           const response = json.listconfigurationsresponse.configuration || []
@@ -249,7 +251,7 @@ export default {
     },
     fetchFaviconStateYellowCapacity () {
       return new Promise((resolve, reject) => {
-        api('listConfigurations', {
+        getAPI('listConfigurations', {
           name: 'favicon.state.yellow.capacity'
         }).then(json => {
           const response = json.listconfigurationsresponse.configuration || []
@@ -264,7 +266,7 @@ export default {
     },
     fetchFaviconStateRedCapacity () {
       return new Promise((resolve, reject) => {
-        api('listConfigurations', {
+        getAPI('listConfigurations', {
           name: 'favicon.state.red.capacity'
         }).then(json => {
           const response = json.listconfigurationsresponse.configuration || []
@@ -280,7 +282,7 @@ export default {
     async fetchHostState () {
       return new Promise((resolve, reject) => {
         setInterval(() => {
-          api('listHostsMetrics', { listall: true }).then(async json => {
+          getAPI('listHostsMetrics', { listall: true }).then(async json => {
             const hosts = json.listhostsmetricsresponse.host || []
             const totalHostCount = json.listhostsmetricsresponse.count
             let errorHostCount = 0

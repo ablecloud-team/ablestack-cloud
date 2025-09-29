@@ -10219,24 +10219,24 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 throw new InvalidParameterValueException("Can't specify network Ids in Basic zone");
             } else {
                 vm = createBasicSecurityGroupVirtualMachine(zone, serviceOffering, template, getSecurityGroupIdList(cmd, zone, template, owner), owner, name, displayName, diskOfferingId,
-                        size, group, cmd.getHypervisor(), cmd.getHttpMethod(), userData, userDataId, userDataDetails, sshKeyPairNames, cmd.getIpToNetworkMap(), addrs, displayVm, keyboard, cmd.getAffinityGroupIdList(),
+                        size, null, group, cmd.getHypervisor(), cmd.getHttpMethod(), userData, userDataId, userDataDetails, sshKeyPairNames, cmd.getIpToNetworkMap(), addrs, displayVm, keyboard, cmd.getAffinityGroupIdList(),
                         cmd.getDetails(), cmd.getCustomId(), cmd.getDhcpOptionsMap(),
-                        dataDiskTemplateToDiskOfferingMap, userVmOVFProperties, dynamicScalingEnabled, overrideDiskOfferingId);
+                        dataDiskTemplateToDiskOfferingMap, userVmOVFProperties, dynamicScalingEnabled, overrideDiskOfferingId, null, null);
             }
         } else {
             if (zone.isSecurityGroupEnabled()) {
                 vm = createAdvancedSecurityGroupVirtualMachine(zone, serviceOffering, template, networkIds, getSecurityGroupIdList(cmd, zone, template, owner), owner, name,
-                        displayName, diskOfferingId, size, group, cmd.getHypervisor(), cmd.getHttpMethod(), userData, userDataId, userDataDetails, sshKeyPairNames, cmd.getIpToNetworkMap(), addrs, displayVm, keyboard,
+                        displayName, diskOfferingId, size, null, group, cmd.getHypervisor(), cmd.getHttpMethod(), userData, userDataId, userDataDetails, sshKeyPairNames, cmd.getIpToNetworkMap(), addrs, displayVm, keyboard,
                         cmd.getAffinityGroupIdList(), cmd.getDetails(), cmd.getCustomId(), cmd.getDhcpOptionsMap(),
-                        dataDiskTemplateToDiskOfferingMap, userVmOVFProperties, dynamicScalingEnabled, overrideDiskOfferingId, null);
+                        dataDiskTemplateToDiskOfferingMap, userVmOVFProperties, dynamicScalingEnabled, overrideDiskOfferingId, null, null, null);
 
             } else {
                 if (cmd.getSecurityGroupIdList() != null && !cmd.getSecurityGroupIdList().isEmpty()) {
                     throw new InvalidParameterValueException("Can't create vm with security groups; security group feature is not enabled per zone");
                 }
-                vm = createAdvancedVirtualMachine(zone, serviceOffering, template, networkIds, owner, name, displayName, diskOfferingId, size, group,
+                vm = createAdvancedVirtualMachine(zone, serviceOffering, template, networkIds, owner, name, displayName, diskOfferingId, size, null, group,
                         cmd.getHypervisor(), cmd.getHttpMethod(), userData, userDataId, userDataDetails, sshKeyPairNames, cmd.getIpToNetworkMap(), addrs, displayVm, keyboard, cmd.getAffinityGroupIdList(), customParameters,
-                        cmd.getCustomId(), cmd.getDhcpOptionsMap(), dataDiskTemplateToDiskOfferingMap, userVmOVFProperties, dynamicScalingEnabled, null, overrideDiskOfferingId);
+                        cmd.getCustomId(), cmd.getDhcpOptionsMap(), dataDiskTemplateToDiskOfferingMap, userVmOVFProperties, dynamicScalingEnabled, null, overrideDiskOfferingId, null, null);
             }
         }
 
@@ -10317,14 +10317,14 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             podId = adminCmd.getPodId();
             clusterId = adminCmd.getClusterId();
         }
-        VMInstanceDetailVO uefiDetail = userVmDetailsDao.findDetail(cmd.getEntityId(), ApiConstants.BootType.UEFI.toString());
+        VMInstanceDetailVO uefiDetail = vmInstanceDetailsDao.findDetail(cmd.getEntityId(), ApiConstants.BootType.UEFI.toString());
         if (uefiDetail != null) {
             addVmUefiBootOptionsToParams(additionalParams, uefiDetail.getName(), uefiDetail.getValue());
         }
         if (cmd.getBootIntoSetup() != null) {
             additionalParams.put(VirtualMachineProfile.Param.BootIntoSetup, cmd.getBootIntoSetup());
         }
-        VMInstanceDetailVO tpmDetail = userVmDetailsDao.findDetail(cmd.getEntityId(), ApiConstants.TPM_VERSION);
+        VMInstanceDetailVO tpmDetail = vmInstanceDetailsDao.findDetail(cmd.getEntityId(), ApiConstants.TPM_VERSION);
         if (tpmDetail != null){
             additionalParams.put(VirtualMachineProfile.Param.TpmVersion, tpmDetail.getValue());
         }
@@ -10656,7 +10656,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         getDestinationHost(hostId, true, false);
         Long zoneId = curVm.getDataCenterId();
         DataCenter dataCenter = _entityMgr.findById(DataCenter.class, zoneId);
-        Map<String, String> customParameters = userVmDetailsDao.listDetailsKeyPairs(curVm.getId());
+        Map<String, String> customParameters = vmInstanceDetailsDao.listDetailsKeyPairs(curVm.getId());
         String keyboard = customParameters.get(VmDetailConstants.KEYBOARD);
         Long size = null; // mutual exclusive with disk offering id
         if (rootVolumeId != null) {
@@ -10702,13 +10702,13 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             logger.info("Clone VM >> creating a clone virtual machine");
             if (dataCenter.getNetworkType() == NetworkType.Basic) {
                 vmResult = createBasicSecurityGroupVirtualMachine(dataCenter, serviceOffering, template, securityGroupIdList, curAccount, name, displayName, null,
-                        size, group, hypervisorType, cmd.getHttpMethod(), userData, null, null, null, ipToNetoworkMap, addr, isDisplayVM, keyboard, affinityGroupIdList,
-                        customParameters, null, new HashMap<>(),
-                        null, new HashMap<>(), dynamicScalingEnabled, null);
+                        size, null, group, hypervisorType, cmd.getHttpMethod(), userData, null, null, null, ipToNetoworkMap, addr, isDisplayVM, keyboard, affinityGroupIdList,
+                        customParameters, null, null,
+                        null, new HashMap<>(), dynamicScalingEnabled, null, null, null);
             } else {
-                vmResult = createAdvancedVirtualMachine(dataCenter, serviceOffering, template, networkIds, curAccount, name, displayName, null, size, group,
+                vmResult = createAdvancedVirtualMachine(dataCenter, serviceOffering, template, networkIds, curAccount, name, displayName, null, size, null, group,
                         hypervisorType, cmd.getHttpMethod(), userData, null, null, null, ipToNetoworkMap, addr, isDisplayVM, keyboard, affinityGroupIdList, customParameters,
-                        null, new HashMap<>(), null, new HashMap<>(), dynamicScalingEnabled, null, null);
+                        null, new HashMap<>(), null, new HashMap<>(), dynamicScalingEnabled, null, null, null, null);
             }
         } catch (CloudRuntimeException e) {
             // _templateMgr.delete(curAccount.getId(), template.getId(), zoneId);

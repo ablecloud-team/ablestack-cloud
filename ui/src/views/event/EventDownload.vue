@@ -436,7 +436,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import { mixinDevice } from '@/utils/mixin.js'
 import { genericCompare } from '@/utils/sort.js'
 import store from '@/store'
@@ -705,7 +705,7 @@ export default {
       if (!projectId || !projectId.length || projectId.length !== 36) {
         return
       }
-      api('listProjects', { id: projectId, listall: true, details: 'min' }).then(json => {
+      getAPI('listProjects', { id: projectId, listall: true, details: 'min' }).then(json => {
         if (!json || !json.listprojectsresponse || !json.listprojectsresponse.project) return
         const project = json.listprojectsresponse.project[0]
         this.$store.dispatch('SetProject', project)
@@ -910,7 +910,7 @@ export default {
         delete params.listall
       }
 
-      api(this.apiName, params).then(json => {
+      getAPI(this.apiName, params).then(json => {
         var responseName
         var objectName
         for (const key in json) {
@@ -1178,7 +1178,7 @@ export default {
       if (showIcon) {
         params.showicon = true
       }
-      api(possibleApi, params).then(json => {
+      getAPI(possibleApi, params).then(json => {
         param.loading = false
         for (const obj in json) {
           if (obj.includes('response')) {
@@ -1324,7 +1324,7 @@ export default {
     callGroupApi (params, resourceName) {
       return new Promise((resolve, reject) => {
         const action = this.currentAction
-        api(action.api, params).then(json => {
+        getAPI(action.api, params).then(json => {
           resolve(this.handleResponse(json, resourceName, this.getDataIdentifier(params), action, false))
           this.closeAction()
         }).catch(error => {
@@ -1469,7 +1469,7 @@ export default {
         } else {
           args = [action.api, params]
         }
-        api(...args).then(json => {
+        getAPI(...args).then(json => {
           var response = this.handleResponse(json, resourceName, this.getDataIdentifier(params), action)
           if (!response) {
             this.fetchData()

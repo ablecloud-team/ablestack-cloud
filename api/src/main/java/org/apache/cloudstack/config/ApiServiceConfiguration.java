@@ -32,8 +32,8 @@ public class ApiServiceConfiguration implements Configurable {public static fina
             "", "Monitoring Service Wall Portal Domain.(ex: id or domain)", true);
     public static final ConfigKey<String> ApiAllowedSourceIp = new ConfigKey<>(String.class, "api.allowed.source.ip", "Advanced",
             "0.0.0.0", "Comma separated list of IPv4/IPv6 CIDRs from which API calls can be performed. Can be set on Global and Account levels.", true, ConfigKey.Scope.Account, null, null, null, null, null, ConfigKey.Kind.CSV, null);
-    public static final ConfigKey<String> ApiAllowedSourceCidr = new ConfigKey<String>("Advanced", String.class, "api.allowed.source.cidr",
-            "0", "A cidr setting that allows you to make api calls.", true, ConfigKey.Scope.Account);
+    public static final ConfigKey<String> ApiAllowedSourceCidrList = new ConfigKey<>(String.class, "api.allowed.source.cidr.list", "Advanced",
+            "0.0.0.0/0,::/0", "Comma separated list of IPv4/IPv6 CIDRs from which API calls can be performed. Can be set on Global and Account levels.", true, ConfigKey.Scope.Account, null, null, null, null, null, ConfigKey.Kind.CSV, null);
     public static final ConfigKey<String> MonitoringWallPortalPort = new ConfigKey<String>("Advanced", String.class, "monitoring.wall.portal.port",
             "3000", "Monitoring Service Wall Portal Port.(ex:3000)", true);
     public static final ConfigKey<String> MonitoringWallPortalVmUri = new ConfigKey<String>("Advanced", String.class, "monitoring.wall.portal.vm.uri",
@@ -52,7 +52,7 @@ public class ApiServiceConfiguration implements Configurable {public static fina
 
     @Override
     public ConfigKey<?>[] getConfigKeys() {
-        return new ConfigKey<?>[] {ManagementServerAddresses, ApiServletPath, DefaultUIPageSize, ApiSourceCidrChecksEnabled, ApiAllowedSourceIp, ApiAllowedSourceCidr, MonitoringWallPortalProtocol, MonitoringWallPortalDomain, MonitoringWallPortalPort, MonitoringWallPortalVmUri, MonitoringWallPortalHostUri, MonitoringWallPortalClusterUri, EventDeleteEnabled};
+        return new ConfigKey<?>[] {ManagementServerAddresses, ApiServletPath, DefaultUIPageSize, ApiSourceCidrChecksEnabled, ApiAllowedSourceIp, ApiAllowedSourceCidrList, MonitoringWallPortalProtocol, MonitoringWallPortalDomain, MonitoringWallPortalPort, MonitoringWallPortalVmUri, MonitoringWallPortalHostUri, MonitoringWallPortalClusterUri, EventDeleteEnabled};
     }
 
 }

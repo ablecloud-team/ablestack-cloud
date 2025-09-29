@@ -419,7 +419,7 @@ const user = {
           commit('SET_INFO', result)
           commit('SET_NAME', result.firstname + ' ' + result.lastname)
           commit('SET_AVATAR', result.icon?.base64image || '')
-          //store.dispatch('SetCsLatestVersion', result.rolename)
+          store.dispatch('SetCsLatestVersion', result.rolename)
         }).catch(error => {
           reject(error)
         })

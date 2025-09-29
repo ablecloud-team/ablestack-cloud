@@ -320,7 +320,7 @@ public class HostMO extends BaseMO implements VmwareHypervisorHost {
         AboutInfo aboutInfo = getHostAboutInfo();
         if (aboutInfo == null) {
             String msg = "no type info about host known, assuming ESXi";
-            s_logger.warn(msg);
+            logger.warn(msg);
             return VmwareHostType.ESXi;
         }
         if ("VMware ESXi".equals(aboutInfo.getName()))

@@ -37,7 +37,7 @@
 
 <script>
 import { ref, reactive } from 'vue'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import Status from '@/components/widgets/Status'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
@@ -89,7 +89,7 @@ export default {
     },
     fetchData () {
       this.loading = true
-      api('getSecurityCheck', { managementserverid: this.resource.id }).then(json => {
+      getAPI('getSecurityCheck', { managementserverid: this.resource.id }).then(json => {
         this.securityChecks = json.getsecuritycheckresponse.securitychecks.securitychecks
       }).catch(error => {
         this.$notifyError(error)

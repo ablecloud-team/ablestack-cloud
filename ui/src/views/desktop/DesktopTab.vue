@@ -168,7 +168,7 @@
 
 <script>
 import { ref } from 'vue'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import { mixinDevice } from '@/utils/mixin.js'
 import ResourceLayout from '@/layouts/ResourceLayout'
 import Status from '@/components/widgets/Status'
@@ -342,7 +342,7 @@ export default {
       if (!this.vm || !this.vm.id) {
         return
       }
-      api('listNetworks', { id: this.resource.networkid }).then(json => {
+      getAPI('listNetworks', { id: this.resource.networkid }).then(json => {
         this.desktopnetworks = json.listnetworksresponse.network
         if (this.desktopnetworks) {
           this.desktopnetworks.sort((a, b) => { return a.deviceid - b.deviceid })
@@ -350,7 +350,7 @@ export default {
         // this.$set(this.resource, 'desktopnetworks', this.desktopnetworks)
       }).finally(() => {
       })
-      api('listDesktopClusterIpRanges', { listall: true, desktopclusterid: this.resource.id }).then(json => {
+      getAPI('listDesktopClusterIpRanges', { listall: true, desktopclusterid: this.resource.id }).then(json => {
         this.iprange = json.listdesktopclusteriprangesresponse.desktopclusteriprange
         if (this.iprange) {
           this.iprange.sort((a, b) => { return a.deviceid - b.deviceid })
@@ -359,7 +359,7 @@ export default {
       })
     },
     removeIpRange (id) {
-      api('deleteDesktopClusterIpRanges', { id: id }).then(json => {
+      getAPI('deleteDesktopClusterIpRanges', { id: id }).then(json => {
       }).finally(() => {
         this.fetchData()
       })
@@ -390,7 +390,7 @@ export default {
         params.endip = values.endip
         this.showAddIpModal = false
         this.loadingNic = true
-        api('addDesktopClusterIpRanges', params).then(response => {
+        getAPI('addDesktopClusterIpRanges', params).then(response => {
           this.$pollJob({
             jobId: response.adddesktopclusteriprangesresponse.jobid,
             successMessage: this.$t('message.success.add.desktop.ip'),

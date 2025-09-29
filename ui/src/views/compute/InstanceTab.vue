@@ -275,7 +275,6 @@ export default {
       currentTab: 'details',
       showUpdateSecurityGroupsModal: false,
       showAddVolumeModal: false,
-      showUpdateSecurityGroupsModal: false,
       diskOfferings: [],
       showAddMirrorVMModal: false,
       showDrSimulationTestModal: false,
@@ -351,7 +350,7 @@ export default {
           this.annotations = json.listannotationsresponse.annotation
         }
       })
-      api('listNetworks', { supportedservices: 'SecurityGroup' }).then(json => {
+      getAPI('listNetworks', { supportedservices: 'SecurityGroup' }).then(json => {
         if (json.listnetworksresponse && json.listnetworksresponse.network) {
           for (const net of json.listnetworksresponse.network) {
             if (this.securityGroupNetworkProviderUseThisVM) {
@@ -362,7 +361,7 @@ export default {
               networkid: net.id,
               listall: true
             }
-            api('listVirtualMachines', listVmParams).then(json => {
+            getAPI('listVirtualMachines', listVmParams).then(json => {
               if (json.listvirtualmachinesresponse && json.listvirtualmachinesresponse?.virtualmachine?.length > 0) {
                 this.securityGroupNetworkProviderUseThisVM = true
               }
@@ -478,7 +477,7 @@ export default {
             try {
               let hostId = this.vm.hostid || this.vm.lastHostId
               if (!hostId) {
-                const zoneResponse = await api('listHosts', {
+                const zoneResponse = await getAPI('listHosts', {
                   zoneid: this.vm.zoneid,
                   type: 'Routing',
                   state: 'Up'
@@ -501,7 +500,7 @@ export default {
                 return
               }
 
-              const response = await api('listHostDevices', {
+              const response = await getAPI('listHostDevices', {
                 id: hostId
               })
 
@@ -550,7 +549,7 @@ export default {
           return
         }
 
-        const response = await api('listHostDevices', {
+        const response = await getAPI('listHostDevices', {
           id: this.vm.hostid
         })
 

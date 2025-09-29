@@ -350,7 +350,7 @@ export default {
       }
     },
     updateConfiguration (name, value) {
-      api('updateConfiguration', {
+      getAPI('updateConfiguration', {
         name: name,
         value: value
       }).then(response => {

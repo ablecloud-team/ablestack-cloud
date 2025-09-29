@@ -2494,14 +2494,6 @@ export default {
               if (key === 'count') {
                 this.rowCount[name] = response
                 return
-            }
-            if (!responseKey.includes('response')) {
-              return resolve(null)
-            }
-            _.map(responseItem, (response, key) => {
-              if (key === 'count') {
-                this.rowCount[name] = response
-                return
               }
               if (!responseKey.includes('response')) {
                 return resolve(null)

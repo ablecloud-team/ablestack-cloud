@@ -257,7 +257,7 @@ export default {
       return new Promise((resolve) => {
         this.diskOffering = []
         for (var i = 0; i < volumes.length; i++) {
-          api('listDiskOfferings', {
+          getAPI('listDiskOfferings', {
             id: volumes[i].diskofferingid
           }).then((response) => {
             this.diskOffering.push(response.listdiskofferingsresponse.diskoffering[0])

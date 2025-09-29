@@ -2221,25 +2221,6 @@ public class LibvirtVMDef {
         }
     }
 
-    public static class TPMDef {
-        private String version = "2.0";
-
-        public TPMDef(String version) {
-            this.version = version;
-        }
-
-        public TPMDef() {
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder tpmBuilder = new StringBuilder();
-            tpmBuilder.append("<tpm model='tpm-tis'>");
-            tpmBuilder.append(String.format("<backend type='emulator' version='%s'/>\n",this.version ) );
-            tpmBuilder.append("</tpm>\n");
-            return tpmBuilder.toString();
-        }
-    }
     public static class InputDef {
         private final String _type; /* tablet, mouse */
         private final String _bus; /* ps2, usb, xen */

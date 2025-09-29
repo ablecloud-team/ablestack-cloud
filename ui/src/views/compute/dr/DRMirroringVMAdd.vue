@@ -130,7 +130,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import ResourceIcon from '@/components/view/ResourceIcon.vue'
 import TooltipLabel from '@/components/widgets/TooltipLabel.vue'
 export default {
@@ -236,7 +236,7 @@ export default {
     fetchDRClusterList () {
       this.loading = true
       var drName = ''
-      api('getDisasterRecoveryClusterList', { drclustertype: 'secondary' }).then(json => {
+      getAPI('getDisasterRecoveryClusterList', { drclustertype: 'secondary' }).then(json => {
         this.drCluster = json.getdisasterrecoveryclusterlistresponse.disasterrecoverycluster
         for (const dr of this.drCluster) {
           for (const vm of dr.drclustervmmap) {
@@ -295,7 +295,7 @@ export default {
       }
     },
     SecDRClusterInfoList (selectId) {
-      api('getDisasterRecoveryClusterList', { id: selectId, drclustertype: 'secondary' }).then(json => {
+      getAPI('getDisasterRecoveryClusterList', { id: selectId, drclustertype: 'secondary' }).then(json => {
         const response = json.getdisasterrecoveryclusterlistresponse
         const clusters = response ? response.disasterrecoverycluster : null
         if (clusters && clusters.length > 0) {
@@ -406,7 +406,7 @@ export default {
     updateSelectedOfferingId (selectOff) {
       this.loading = true
       this.isCustomized = false
-      api('getDisasterRecoveryClusterList', { id: this.selectedClusterId, drclustertype: 'secondary' }).then(json => {
+      getAPI('getDisasterRecoveryClusterList', { id: this.selectedClusterId, drclustertype: 'secondary' }).then(json => {
         const response = json.getdisasterrecoveryclusterlistresponse
         const clusters = response ? response.disasterrecoverycluster : null
         if (clusters && clusters.length > 0) {
@@ -462,7 +462,7 @@ export default {
           params.cpunumber = this.cpuNumberInputValue
           params.memory = this.memoryInputValue
         }
-        api('createDisasterRecoveryClusterVm', params).then(response => {
+        getAPI('createDisasterRecoveryClusterVm', params).then(response => {
           this.$pollJob({
             jobId: response.createdisasterrecoveryclustervmresponse.jobid,
             title: this.$t('message.success.create.disaster.recovery.cluster.vm'),

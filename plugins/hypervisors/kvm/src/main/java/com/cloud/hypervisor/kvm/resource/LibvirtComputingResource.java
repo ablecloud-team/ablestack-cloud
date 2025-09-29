@@ -204,7 +204,6 @@ import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.RngDef.RngBackendModel;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.SCSIDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.SerialDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.SoundDef;
-import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.TPMDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.TermPolicy;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.TpmDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.VideoDef;
@@ -3239,13 +3238,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             addExtraConfigComponent(extraConfig, vm);
         }
     }
-    /**
-     * Adds TPM device component to VM
-     */
-    protected TPMDef createTpmDef(String tpmversion){
 
-        return new TPMDef(tpmversion);
-    }
     /**
      * Adds devices components to VM.
      */
@@ -3285,9 +3278,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         if (isGuestAarch64()) {
             createArm64UsbDef(devices);
         }
-        if (!tpmversion.equalsIgnoreCase("NONE") && isTpmEnabled) {
-            devices.addDevice(createTpmDef(tpmversion));
-        }
+
         DiskDef.DiskBus busT = getDiskModelFromVMDetail(vmTO);
         if (busT == null) {
             busT = getGuestDiskModel(vmTO.getPlatformEmulator(), isUefiEnabled);
@@ -3295,13 +3286,9 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
         if (busT == DiskDef.DiskBus.SCSI) {
             Map<String, String> details = vmTO.getDetails();
-
-            int socket = getCoresPerSocket(vcpus, details);
             boolean isIothreadsEnabled = details != null && details.containsKey(VmDetailConstants.IOTHREADS);
             addSCSIControllers(devices, vcpus, vmTO.getDisks().length, isIothreadsEnabled);
         }
-
-
         return devices;
     }
 

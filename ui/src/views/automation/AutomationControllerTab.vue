@@ -71,7 +71,7 @@
 
 <script>
 import { ref } from 'vue'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import { mixinDevice } from '@/utils/mixin.js'
 import ResourceLayout from '@/layouts/ResourceLayout'
 import Status from '@/components/widgets/Status'
@@ -192,7 +192,7 @@ export default {
       if (!this.vm || !this.vm.id) {
         return
       }
-      api('listNetworks', { id: this.resource.networkid }).then(json => {
+      getAPI('listNetworks', { id: this.resource.networkid }).then(json => {
         this.genienetworks = json.listnetworksresponse.network
         if (this.genienetworks) {
           this.genienetworks.sort((a, b) => { return a.deviceid - b.deviceid })

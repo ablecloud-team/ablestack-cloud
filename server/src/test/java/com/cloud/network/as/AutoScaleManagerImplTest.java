@@ -2275,7 +2275,7 @@ public class AutoScaleManagerImplTest {
     @Test
     public void getVmStatsByIdFromHost2() {
         List<Long> vmIds = List.of(virtualMachineId);
-        VmStatsEntry vmStats = new VmStatsEntry(virtualMachineId, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, "vm");
+        VmStatsEntry vmStats = new VmStatsEntry(virtualMachineId, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, "vm");
         HashMap<Long, VmStatsEntry> vmStatsById = new HashMap<>();
         vmStatsById.put(virtualMachineId, vmStats);
         when(hostDao.findById(hostId)).thenReturn(hostMock);

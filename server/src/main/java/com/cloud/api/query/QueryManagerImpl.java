@@ -4595,7 +4595,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         Account account = CallContext.current().getCallingAccount();
         Long domainId = cmd.getDomainId();
         Long zoneId = cmd.getId();
-        if( ! AllowUserViewAllDataCenters.valueInDomain(account.getDomainId())) {
+        if( ! AllowUserViewAllDataCenters.valueInScope(ConfigKey.Scope.Domain, account.getDomainId())) {
             zoneId = accountMgr.checkAccessAndSpecifyAuthority(CallContext.current().getCallingAccount(), zoneId);
             logger.debug("not allowing users to view all zones ; selected zone is = {}", zoneId);
         }
@@ -4657,8 +4657,8 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             // one VM running there
             Boolean available = cmd.isAvailable();
             if (account != null) {
-                if ((available != null) && Boolean.FALSE.equals(available)) {
-                    Set<Long> dcIds = new HashSet<Long>(); // data centers with
+                if (Boolean.FALSE.equals(available)) {
+                    Set<Long> dcIds = new HashSet<>(); // data centers with
                     // at least one VM
                     // running
                     List<DomainRouterVO> routers = _routerDao.listBy(account.getId());
@@ -4920,7 +4920,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
                 null, cmd.getPageSizeVal(), cmd.getStartIndex(), cmd.getZoneId(), cmd.getStoragePoolId(),
                 cmd.getImageStoreId(), hypervisorType, showDomr, cmd.listInReadyState(), permittedAccounts, caller,
                 listProjectResourcesCriteria, tags, showRemovedTmpl, cmd.getIds(), parentTemplateId, cmd.getShowUnique(),
-                templateType, isVnf, cmd.getArch(), cmd.getOsCategoryId(), forCks, cmd.getKvdoEnable(), cmd.getExtensionId(), domainId, isRecursive);
+                templateType, isVnf, domainId, isRecursive, cmd.getArch(), cmd.getOsCategoryId(), forCks, cmd.getKvdoEnable(), cmd.getExtensionId());
     }
 
     private Pair<List<TemplateJoinVO>, Integer> searchForTemplatesInternal(Long templateId, String name, String keyword,
@@ -4929,7 +4929,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             boolean showDomr, boolean onlyReady, List<Account> permittedAccounts, Account caller,
             ListProjectResourcesCriteria listProjectResourcesCriteria, Map<String, String> tags,
             boolean showRemovedTmpl, List<Long> ids, Long parentTemplateId, Boolean showUnique, String templateType,
-            Boolean isVnf, CPU.CPUArch arch, Long osCategoryId, Boolean forCks, Boolean kvdoEnable, Long extensionId, Long domainId, boolean isRecursive) {
+            Boolean isVnf, Long domainId, boolean isRecursive, CPU.CPUArch arch, Long osCategoryId, Boolean forCks, Boolean kvdoEnable, Long extensionId) {
 
         // check if zone is configured, if not, just return empty list
         List<HypervisorType> hypers = null;
@@ -5394,7 +5394,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
                 cmd.getPageSizeVal(), cmd.getStartIndex(), cmd.getZoneId(), cmd.getStoragePoolId(), cmd.getImageStoreId(),
                 hypervisorType, true, cmd.listInReadyState(), permittedAccounts, caller, listProjectResourcesCriteria,
                 tags, showRemovedISO, null, null, cmd.getShowUnique(), null, null,
-                cmd.getArch(), cmd.getOsCategoryId(), null, null, domainId, isRecursive);
+                domainId, isRecursive, cmd.getArch(), cmd.getOsCategoryId(), null, null, null);
     }
 
     @Override
