@@ -1330,6 +1330,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (backupOfferingVO == null) {
             throw new InvalidParameterValueException(String.format("Unable to find Backup Offering with id: [%s].", id));
         }
+        String externalId = backupOfferingVO.getExternalId();
+        Long zoneId = backupOfferingVO.getZoneId();
+
         logger.debug("Trying to update Backup Offering {} to {}.",
                 ReflectionToStringBuilderUtils.reflectOnlySelectedFields(backupOfferingVO, "uuid", "name", "description", "userDrivenBackupAllowed", "retentionPeriod"),
                 ReflectionToStringBuilderUtils.reflectOnlySelectedFields(updateBackupOfferingCmd, "name", "description", "allowUserDrivenBackups", "retentionPeriod"));
@@ -1346,12 +1349,17 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             fields.add("description: " + description);
         }
 
-        if (allowUserDrivenBackups != null){
+        if (allowUserDrivenBackups != null) {
             offering.setUserDrivenBackupAllowed(allowUserDrivenBackups);
             fields.add("allowUserDrivenBackups: " + allowUserDrivenBackups);
         }
 
-        if (retentionPeriod != null){
+        if (retentionPeriod != null) {
+            final BackupProvider provider = getBackupProvider(zoneId);
+            boolean result = provider.updateBackupPlan(zoneId, retentionPeriod, externalId);
+            if (!result) {
+                throw new CloudRuntimeException("Failed to update plan retention period.");
+            }
             offering.setRetentionPeriod(retentionPeriod);
             fields.add("retentionPeriod: " + retentionPeriod);
         }

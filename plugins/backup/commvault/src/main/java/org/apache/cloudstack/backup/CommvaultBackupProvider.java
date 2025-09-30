@@ -432,6 +432,25 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
+    public boolean updateBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) {
+        final CommvaultClient client = getClient(zoneId);
+        String type = "updateRpo";
+        String planEntity = client.getScheduleTaskId(type, externalId);
+        JSONObject jsonObject = new JSONObject(planEntity);
+        String planType = String.valueOf(jsonObject.get("planType"));
+        String planName = String.valueOf(jsonObject.get("planName"));
+        String planSubtype = String.valueOf(jsonObject.get("planSubtype"));
+        String planId = String.valueOf(jsonObject.get("planId"));
+        JSONObject entityInfo = jsonObject.getJSONObject("entityInfo");
+        String companyId = String.valueOf(entityInfo.get("companyId"));
+        String storagePolicyId = client.getStoragePolicyId(planName);
+        if (storagePolicyId == null) {
+            throw new CloudRuntimeException("Failed to get plan storage policy id commvault api");
+        }
+        return client.getStoragePolicyDetails(planId, storagePolicyId, retentionPeriod);
+    }
+
+    @Override
     public List<BackupOffering> listBackupOfferings(Long zoneId) {
         return getClient(zoneId).listPlans();
     }
