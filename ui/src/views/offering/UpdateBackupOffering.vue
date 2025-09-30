@@ -178,6 +178,7 @@ export default {
         if (this.resource.provider === 'commvault') {
           params.retentionperiod = this.retentionPeriodInDays
         }
+        params.id = this.resource.id
         params.allowuserdrivenbackups = values.allowuserdrivenbackups
         this.loading = true
         const title = this.$t('label.update.offering')
