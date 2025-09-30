@@ -845,7 +845,7 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
             getRuntimeData(newEntry);
             getMemoryData(newEntry);
             // newEntry must now include a pid!
-//            getProcFileSystemData(newEntry);
+            getProcFileSystemData(newEntry);
             // proc memory data has precedence over mbean memory data
             getCpuData(newEntry);
             getFileSystemData(newEntry);
