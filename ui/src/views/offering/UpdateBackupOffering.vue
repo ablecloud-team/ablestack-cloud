@@ -131,7 +131,7 @@ export default {
       this.form = reactive({
         name: this.resource.name,
         description: this.resource.description,
-        allowuserdrivenbackups: true,
+        allowuserdrivenbackups: this.resource.allowuserdrivenbackups,
         retentionPeriodValue: this.resource.retentionperiod,
         retentionPeriodUnit: 'Day'
       })
@@ -181,7 +181,7 @@ export default {
         params.id = this.resource.id
         params.allowuserdrivenbackups = values.allowuserdrivenbackups
         this.loading = true
-        const title = this.$t('label.update.offering')
+        const title = this.$t('label.update.backupoffering')
         api('updateBackupOffering', params).then(json => {
           this.$emit('refresh-data')
           this.$notification.success({
