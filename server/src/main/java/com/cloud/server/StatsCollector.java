@@ -312,6 +312,15 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
 
     protected static ConfigKey<Integer> vmDiskStatsMaxRetentionTime = new ConfigKey<>("Advanced", Integer.class, "vm.disk.stats.max.retention.time", "720",
             "The maximum time (in minutes) for keeping VM disks stats records in the database. The VM disks stats cleanup process will be disabled if this is set to 0 or less than 0.", true);
+    protected static final ConfigKey<Boolean> MANAGEMENT_DB_AUTODELETE_ENABLED_BY_THRESHOLD =
+            new ConfigKey<>(
+                    "Advanced",
+                    Boolean.class,
+                    "management.db.autodelete.enabled.by.threshold",
+                    "false",
+                    "Enable automatic deletion of oldest records in the 'event' table when DB filesystem usage exceeds threshold.",
+                    true
+            );
 
     private static StatsCollector s_instance = null;
 
@@ -1085,13 +1094,56 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
         }
 
         private void checkDBCapacityThreshold(@NotNull ManagementServerHostStatsEntry newEntry) {
-            // Check mysql server storage capacity exceeds a set threshold
-            String managementServerDatabaseStorageCapacityThreshold = (_configDao.getValue(Config.ManagementServerDatabaseStorageCapacityThreshold.key()).replace(".", ""));
+            // ON/OFF 설정 읽기
+            final boolean isAutoDeleteEnabled = Boolean.TRUE.equals(MANAGEMENT_DB_AUTODELETE_ENABLED_BY_THRESHOLD.value());
+            // 비활성화면 즉시 종료 (플래그 해제 + 로그)
+            if (!isAutoDeleteEnabled) {
+                DELETE_EVENT_ACTIVE = false;
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Auto-delete disabled (management.db.autodelete.enabled.by.threshold=false). Skipping delete.");
+                }
+                return;
+            }
+            // DB 삭제 임계치 추출
+            String rawThreshold = _configDao.getValue(Config.ManagementServerDatabaseStorageCapacityThreshold.key()).trim();
+            double th = Double.parseDouble(rawThreshold);
+            String managementServerDatabaseStorageCapacityThreshold = Integer.toString(
+                    (int) Math.round(th <= 1.0 ? th * 100.0 : th));
             int intMysqlThreshold = Integer.parseInt(managementServerDatabaseStorageCapacityThreshold);
-            // Percent free of the Filesystem mounted with that path(var: mysqlDataDir).
-            String mysqlDataDir = "/var/lib/mysql/";
-            String mysqlDuThreshold = (Script.runSimpleBashScript("df -h "+mysqlDataDir+" | awk 'NR==2 {print $5}'").replace("%", ""));
-            int intDfThreshold = Integer.parseInt(mysqlDuThreshold);
+            // mysql 경로 추출
+            String mysqlDataDir = null;
+            TransactionLegacy txn0 = TransactionLegacy.open("getDatadir");
+            try {
+                txn0.start();
+                Connection conn = txn0.getConnection();
+                try (PreparedStatement ps = conn.prepareStatement("SELECT @@datadir");
+                     ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        mysqlDataDir = rs.getString(1);
+                    }
+                }
+                txn0.commit();
+            } catch (Exception e) {
+                logger.warn("Failed to read @@datadir, fallback to /var/lib/mysql/: " + e.getMessage());
+            } finally {
+                try { if (txn0 != null) { txn0.close(); } } catch (Exception ignore) { }
+            }
+            if (mysqlDataDir == null || mysqlDataDir.isEmpty()) {
+                mysqlDataDir = "/var/lib/mysql/";
+            }
+            // mysql 경로 파티션 용량 추출
+            String cmd = "LC_ALL=C df -P \"" + mysqlDataDir + "\" | awk 'NR==2 {gsub(/%/, \"\"); print $5}'";
+            String mysqlDuThreshold = Script.runSimpleBashScript(cmd);
+            mysqlDuThreshold = mysqlDuThreshold == null ? "" : mysqlDuThreshold.trim();
+            int intDfThreshold;
+            try {
+                intDfThreshold = Integer.parseInt(mysqlDuThreshold);
+            } catch (NumberFormatException e) {
+                logger.warn("Cannot parse df percent for " + mysqlDataDir + ": '" + mysqlDuThreshold + "'. Skip this cycle.", e);
+                return;
+            }
+            intDfThreshold = Math.max(0, Math.min(100, intDfThreshold));
+            DELETE_EVENT_ACTIVE = false;
             if (intDfThreshold > intMysqlThreshold) {
                 DELETE_EVENT_ACTIVE = true;
                 // Every 720 minutes(= 12 hours)
@@ -2415,7 +2467,8 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
             vmStatsIncrementMetrics, vmStatsMaxRetentionTime, vmStatsCollectUserVMOnly, vmDiskStatsRetentionEnabled, vmDiskStatsMaxRetentionTime,
                 MANAGEMENT_SERVER_STATUS_COLLECTION_INTERVAL,
                 DATABASE_SERVER_STATUS_COLLECTION_INTERVAL,
-                DATABASE_SERVER_LOAD_HISTORY_RETENTION_NUMBER};
+                DATABASE_SERVER_LOAD_HISTORY_RETENTION_NUMBER,
+                MANAGEMENT_DB_AUTODELETE_ENABLED_BY_THRESHOLD};
     }
 
     public double getImageStoreCapacityThreshold() {
