@@ -5164,6 +5164,8 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         if (isCallerAdmin) {
             capabilities.put(ApiConstants.EXTENSIONS_PATH, extensionsManager.getExtensionsPath());
         }
+        capabilities.put(ApiConstants.ADDITONAL_CONFIG_ENABLED, UserVmManager.EnableAdditionalVmConfig.valueIn(caller.getId()));
+
 
         return capabilities;
     }
