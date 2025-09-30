@@ -1357,7 +1357,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (retentionPeriod != null) {
             final BackupProvider provider = getBackupProvider(zoneId);
             if (!provider.getName().equalsIgnoreCase("commvault")){
-                throw new CloudRuntimeException("Failed to update plan retention period, Because the backup offering provider is not set to commvault.");
+                throw new CloudRuntimeException("Failed to update backup offering, Because the backup offering provider is not set to commvault.");
             }
             boolean result = provider.updateBackupPlan(zoneId, retentionPeriod, externalId);
             if (!result) {
