@@ -4885,5 +4885,6 @@
 "label.month": "Month",
 "label.years": "Years",
 "label.infinite": "Infinite",
+"label.update.backupoffering": "Update Backup Offering",
 "message.error.import.backup.offering": "For Commvuault backups, only one backup offering can be imported, and the backup offering already exists."
 }

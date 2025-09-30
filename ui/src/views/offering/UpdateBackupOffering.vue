@@ -183,14 +183,10 @@ export default {
         this.loading = true
         const title = this.$t('label.update.offering')
         api('updateBackupOffering', params).then(json => {
-          const jobId = json.updatebackupofferingresponse.jobid
-          this.$pollJob({
-            jobId,
-            title,
-            description: values.name,
-            successMessage: `${title} ${params.name}`,
-            loadingMessage: `${title} ${this.$t('label.in.progress')} ${this.$t('label.for')} ${params.name}`,
-            catchMessage: this.$t('error.fetching.async.job.result')
+          this.$emit('refresh-data')
+          this.$notification.success({
+            message: `${title} ${params.name}`,
+            description: values.name
           })
           this.closeAction()
         }).catch(error => {
