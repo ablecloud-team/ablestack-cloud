@@ -1393,8 +1393,6 @@ export default {
         }
         if (this.$route.path.startsWith('/vmsnapshot/')) {
           params.vmsnapshotid = this.$route.params.id
-        } else if (this.$route.path.startsWith('/ldapsetting/')) {
-          params.hostname = this.$route.params.id
         }
         if (this.$route.path.startsWith('/tungstenpolicy/')) {
           params.policyuuid = this.$route.params.id
@@ -1506,9 +1504,6 @@ export default {
             if (func && typeof func === 'function') {
               this.items[idx][key] = func(this.items[idx])
             }
-          }
-          if (this.$route.path.startsWith('/ldapsetting')) {
-            this.items[idx].id = this.items[idx].hostname
           }
         }
         if (this.items.length > 0) {
