@@ -2898,6 +2898,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         devices.addDevice(createGraphicDef(vmTO));
         devices.addDevice(createTabletInputDef());
         devices.addDevice(createSoundDef(vmTO));
+        devices.addDevice(new LibvirtVMDef.USBDef());
 
         if (isGuestAarch64()) {
             createArm64UsbDef(devices);
@@ -2952,7 +2953,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     protected void createArm64UsbDef(DevicesDef devices) {
         devices.addDevice(new InputDef(KEYBOARD, USB));
         devices.addDevice(new InputDef(MOUSE, USB));
-        devices.addDevice(new LibvirtVMDef.USBDef((short)0, 0, 5, 0, 0));
+        // devices.addDevice(new LibvirtVMDef.USBDef((short)0, 0, 5, 0, 0));
     }
 
     protected InputDef createTabletInputDef() {
