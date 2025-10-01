@@ -2196,6 +2196,7 @@ public class LibvirtVMDef {
         private int bus = 0;
         private int slot = 9;
         private int function = 0;
+        private boolean specify = true;
 
         public USBDef(short index, int domain, int bus, int slot, int function) {
             this.index = index;
@@ -2206,6 +2207,7 @@ public class LibvirtVMDef {
         }
 
         public USBDef() {
+            this.specify = false;
         }
 
         @Override
@@ -2213,9 +2215,12 @@ public class LibvirtVMDef {
             StringBuilder scsiBuilder = new StringBuilder();
 
             scsiBuilder.append(String.format("<controller type='usb' index='%d' model='qemu-xhci'>\n", this.index));
-            scsiBuilder.append("<alias name='usb'/>");
-            scsiBuilder.append(String.format("<address type='pci' domain='0x%04X' bus='0x%02X' slot='0x%02X' function='0x%01X'/>\n",
-                    this.domain, this.bus, this.slot, this.function ) );
+            if (this.specify) {
+                // when not specify, put it to the next available slot
+                scsiBuilder.append("<alias name='usb'/>");
+                scsiBuilder.append(String.format("<address type='pci' domain='0x%04X' bus='0x%02X' slot='0x%02X' function='0x%01X'/>\n",
+                        this.domain, this.bus, this.slot, this.function ) );
+            }
             scsiBuilder.append("</controller>\n");
             return scsiBuilder.toString();
         }
