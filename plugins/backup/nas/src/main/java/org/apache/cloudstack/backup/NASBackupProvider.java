@@ -595,4 +595,16 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
     public String getConfigComponentName() {
         return BackupService.class.getSimpleName();
     }
+
+    @Override
+    public boolean checkBackupAgent(final Long zoneId) { return true; }
+
+    @Override
+    public boolean installBackupAgent(final Long zoneId) { return true; }
+
+    @Override
+    public boolean importBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
+
+    @Override
+    public boolean updateBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
 }

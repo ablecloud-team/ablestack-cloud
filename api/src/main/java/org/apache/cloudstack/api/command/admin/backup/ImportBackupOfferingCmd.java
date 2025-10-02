@@ -76,6 +76,10 @@ public class ImportBackupOfferingCmd extends BaseAsyncCmd {
             description = "Whether users are allowed to create adhoc backups and backup schedules", required = true)
     private Boolean userDrivenBackups;
 
+    @Parameter(name = ApiConstants.RETENTION_PERIOD, type = CommandType.STRING, required = false,
+            description = "Retention period of backup data")
+    private String retentionPeriod;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -98,6 +102,10 @@ public class ImportBackupOfferingCmd extends BaseAsyncCmd {
 
     public Boolean getUserDrivenBackups() {
         return userDrivenBackups == null ? false : userDrivenBackups;
+    }
+
+    public String getRetentionPeriod() {
+        return retentionPeriod;
     }
 
     /////////////////////////////////////////////////////

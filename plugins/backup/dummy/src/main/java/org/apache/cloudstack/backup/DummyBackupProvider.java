@@ -71,8 +71,8 @@ public class DummyBackupProvider extends AdapterBase implements BackupProvider {
     @Override
     public List<BackupOffering> listBackupOfferings(Long zoneId) {
         logger.debug("Listing backup policies on Dummy B&R Plugin");
-        BackupOffering policy1 = new BackupOfferingVO(1, "gold-policy", "dummy", "Golden Policy", "Gold description", true);
-        BackupOffering policy2 = new BackupOfferingVO(1, "silver-policy", "dummy", "Silver Policy", "Silver description", true);
+        BackupOffering policy1 = new BackupOfferingVO(1, "gold-policy", "dummy", "Golden Policy", "Gold description", true, "-1");
+        BackupOffering policy2 = new BackupOfferingVO(1, "silver-policy", "dummy", "Silver Policy", "Silver description", true, "-1");
         return Arrays.asList(policy1, policy2);
     }
 
@@ -207,4 +207,16 @@ public class DummyBackupProvider extends AdapterBase implements BackupProvider {
     public Pair<Boolean, String> restoreBackupToVM(VirtualMachine vm, Backup backup, String hostIp, String dataStoreUuid) {
         return new Pair<>(true, null);
     }
+
+    @Override
+    public boolean checkBackupAgent(final Long zoneId) { return true; }
+
+    @Override
+    public boolean installBackupAgent(final Long zoneId) { return true; }
+
+    @Override
+    public boolean importBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
+
+    @Override
+    public boolean updateBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
 }

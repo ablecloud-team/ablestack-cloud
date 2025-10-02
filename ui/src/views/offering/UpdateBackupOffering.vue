@@ -38,54 +38,13 @@
         </template>
         <a-input v-model:value="form.description"/>
       </a-form-item>
-      <a-form-item name="zoneid" ref="zoneid">
-        <template #label>
-          <tooltip-label :title="$t('label.zoneid')" :tooltip="apiParams.zoneid.description"/>
-        </template>
-        <a-select
-          allowClear
-          v-model:value="form.zoneid"
-          :loading="zones.loading"
-          @change="onChangeZone"
-          showSearch
-          optionFilterProp="label"
-          :filterOption="(input, option) => {
-            return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }" >
-          <a-select-option v-for="zone in zones.opts" :key="zone.name" :label="zone.name">
-            <span>
-              <resource-icon v-if="zone.icon" :image="zone.icon.base64image" size="1x" style="margin-right: 5px"/>
-              <global-outlined v-else style="margin-right: 5px"/>
-              {{ zone.name }}
-            </span>
-          </a-select-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item name="externalid" ref="externalid">
-        <template #label>
-          <tooltip-label :title="$t('label.externalid')" :tooltip="apiParams.externalid.description"/>
-        </template>
-        <a-select
-          allowClear
-          v-model:value="form.externalid"
-          :loading="externals.loading"
-          showSearch
-          optionFilterProp="label"
-          :filterOption="(input, option) => {
-            return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }" >
-          <a-select-option v-for="opt in externals.opts" :key="opt.id" :label="opt.name">
-            {{ opt.name }}
-          </a-select-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups" v-if="provider!=='commvault'">
+      <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups" v-if="resource.provider!=='commvault'">
         <template #label>
           <tooltip-label :title="$t('label.allowuserdrivenbackups')" :tooltip="apiParams.allowuserdrivenbackups.description"/>
         </template>
         <a-switch v-model:checked="form.allowuserdrivenbackups"/>
       </a-form-item>
-      <a-form-item name="retentionperiod" ref="retentionperiod" v-if="provider==='commvault'">
+      <a-form-item name="retentionperiod" ref="retentionperiod" v-if="resource.provider==='commvault'">
         <template #label>
           <tooltip-label :title="$t('label.retentionperiod')" :tooltip="apiParams.retentionperiod.description"/>
         </template>
@@ -109,7 +68,7 @@
         </a-input-group>
       </a-form-item>
       <div :span="24" class="action-button">
-        <a-button :loading="loading" @click="closeAction">{{ this.$t('label.cancel') }}</a-button>
+        <a-button @click="closeAction">{{ this.$t('label.cancel') }}</a-button>
         <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ this.$t('label.ok') }}</a-button>
       </div>
     </a-form>
@@ -118,38 +77,34 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { getAPI, postAPI } from '@/api'
+import { api } from '@/api'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
-  name: 'ImportBackupOffering',
+  name: 'UpdateBackupOffering',
   components: {
     TooltipLabel,
     ResourceIcon
   },
+  props: {
+    resource: {
+      type: Object,
+      required: true
+    }
+  },
   data () {
     return {
       loading: false,
-      zones: {
-        loading: false,
-        opts: []
-      },
-      externals: {
-        loading: false,
-        opts: []
-      },
-      useCommvault: false,
       provider: ''
     }
   },
   beforeCreate () {
-    this.apiParams = this.$getApiParams('importBackupOffering')
+    this.apiParams = this.$getApiParams('updateBackupOffering')
   },
   created () {
     this.initForm()
     this.fetchData()
-    this.checkBackupOffering()
   },
   computed: {
     retentionPeriodInDays () {
@@ -174,15 +129,13 @@ export default {
     initForm () {
       this.formRef = ref()
       this.form = reactive({
-        allowuserdrivenbackups: true,
-        retentionPeriodValue: '',
+        name: this.resource.name,
+        description: this.resource.description,
+        allowuserdrivenbackups: this.resource.allowuserdrivenbackups,
+        retentionPeriodValue: this.resource.retentionperiod,
         retentionPeriodUnit: 'Day'
       })
       this.rules = reactive({
-        name: [{ required: true, message: this.$t('message.error.required.input') }],
-        description: [{ required: true, message: this.$t('message.error.required.input') }],
-        zoneid: [{ required: true, message: this.$t('message.error.select') }],
-        externalid: [{ required: true, message: this.$t('message.error.select') }],
         retentionperiod: [{
           validator: (rule, value) => {
             if (this.form.retentionPeriodUnit === 'Infinite') {
@@ -197,49 +150,13 @@ export default {
       })
     },
     fetchData () {
-      this.fetchZone()
       this.isCommvault()
-    },
-    fetchZone () {
-      this.zones.loading = true
-      getAPI('listZones', { available: true, showicon: true }).then(json => {
-        this.zones.opts = json.listzonesresponse.zone || []
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(f => {
-        this.zones.loading = false
-      })
-    },
-    checkBackupOffering () {
-      api('listBackupOfferings').then(json => {
-        var backupOff = json.listbackupofferingsresponse.backupoffering || []
-        for (const off of backupOff) {
-          if (off.provider === 'commvault') {
-            this.useCommvault = true
-            return
-          }
-        }
-      })
     },
     isCommvault () {
       api('listConfigurations', { name: 'backup.framework.provider.plugin' }).then(json => {
         if (json.listconfigurationsresponse.configuration[0]) {
           this.provider = json.listconfigurationsresponse.configuration[0].value
         }
-      })
-    },
-    fetchExternal (zoneId) {
-      if (!zoneId) {
-        this.externals.opts = []
-        return
-      }
-      this.externals.loading = true
-      getAPI('listBackupProviderOfferings', { zoneid: zoneId }).then(json => {
-        this.externals.opts = json.listbackupproviderofferingsresponse.backupoffering || []
-      }).catch(error => {
-        this.$notifyError(error)
-      }).finally(f => {
-        this.externals.loading = false
       })
     },
     forceUpdateRetentionValue () {
@@ -252,38 +169,24 @@ export default {
       e.preventDefault()
       if (this.loading) return
       this.formRef.value.validate().then(() => {
-        if (this.useCommvault && this.provider === 'commvault') {
-          this.$notification.error({
-            message: this.$t('message.request.failed'),
-            description: this.$t('message.error.import.backup.offering')
-          })
-          return
-        }
         const values = toRaw(this.form)
         const params = {}
         for (const key in values) {
           const input = values[key]
-          if (key === 'zoneid') {
-            params[key] = this.zones.opts.filter(zone => zone.name === input)[0].id || null
-          } else {
-            params[key] = input
-          }
+          params[key] = input
         }
-        if (this.provider === 'commvault') {
+        if (this.resource.provider === 'commvault') {
           params.retentionperiod = this.retentionPeriodInDays
         }
+        params.id = this.resource.id
         params.allowuserdrivenbackups = values.allowuserdrivenbackups
         this.loading = true
-        const title = this.$t('label.import.offering')
-        postAPI('importBackupOffering', params).then(json => {
-          const jobId = json.importbackupofferingresponse.jobid
-          this.$pollJob({
-            jobId,
-            title,
-            description: values.name,
-            successMessage: `${title} ${params.name}`,
-            loadingMessage: `${title} ${this.$t('label.in.progress')} ${this.$t('label.for')} ${params.name}`,
-            catchMessage: this.$t('error.fetching.async.job.result')
+        const title = this.$t('label.update.backupoffering')
+        api('updateBackupOffering', params).then(json => {
+          this.$emit('refresh-data')
+          this.$notification.success({
+            message: `${title} ${params.name}`,
+            description: values.name
           })
           this.closeAction()
         }).catch(error => {
@@ -294,14 +197,6 @@ export default {
       }).catch(error => {
         this.formRef.value.scrollToField(error.errorFields[0].name)
       })
-    },
-    onChangeZone (value) {
-      if (!value) {
-        this.externals.opts = []
-        return
-      }
-      const zoneId = this.zones.opts.filter(zone => zone.name === value)[0].id || null
-      this.fetchExternal(zoneId)
     },
     closeAction () {
       this.$emit('close-action')

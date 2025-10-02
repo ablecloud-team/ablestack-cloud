@@ -62,7 +62,7 @@ public class BackupVO implements Backup {
     @Column(name = "vm_id")
     private Long vmId;
 
-    @Column(name = "external_id")
+    @Column(name = "external_id", length = 4096)
     private String externalId;
 
     @Column(name = "type")
@@ -105,6 +105,9 @@ public class BackupVO implements Backup {
 
     @Transient
     Map<String, String> details;
+    
+    @Column(name = "snapshot_id")
+    private String snapshotId;
 
     public BackupVO() {
         this.uuid = UUID.randomUUID().toString();
@@ -287,5 +290,13 @@ public class BackupVO implements Backup {
 
     public void setBackupScheduleId(Long backupScheduleId) {
         this.backupScheduleId = backupScheduleId;
+    }
+    
+    public String getSnapshotId() {
+        return snapshotId;
+    }
+
+    public void setSnapshotId(String snapshotId) {
+        this.snapshotId = snapshotId;
     }
 }
