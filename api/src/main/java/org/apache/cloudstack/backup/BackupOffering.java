@@ -29,4 +29,5 @@ public interface BackupOffering extends InternalIdentity, Identity {
     boolean isUserDrivenBackupAllowed();
     String getProvider();
     Date getCreated();
+    String getRetentionPeriod();
 }

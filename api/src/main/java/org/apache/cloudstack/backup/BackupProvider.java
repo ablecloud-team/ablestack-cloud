@@ -79,7 +79,7 @@ public interface BackupProvider {
 
     /**
      * Delete an existing backup
-     * @param backuo The backup to exclude
+     * @param backup The backup to exclude
      * @param forced Indicates if backup will be force removed or not
      * @return
      */
@@ -109,4 +109,24 @@ public interface BackupProvider {
      * @param metric
      */
     void syncBackups(VirtualMachine vm, Backup.Metric metric);
+
+    /**
+     * check commvault backup agent
+     */
+    boolean checkBackupAgent(Long zoneId);
+
+    /**
+     * install commvault backup agent
+     */
+    boolean installBackupAgent(Long zoneId);
+
+    /**
+     * import commvault backup plan
+     */
+    boolean importBackupPlan(Long zoneId, String retentionPeriod, String externalId);
+
+    /**
+     * update commvault backup plan
+     */
+    boolean updateBackupPlan(Long zoneId, String retentionPeriod, String externalId);
 }
