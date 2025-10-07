@@ -4182,7 +4182,7 @@
 "message.zone.step.3.desc": "Please enter the following info to add a new pod",
 "message.zonewizard.enable.local.storage": "WARNING: If you enable local storage for this zone, you must do the following, depending on where you would like your system VMs to launch:<br/><br/>1. If system VMs need to be launched in shared primary storage, shared primary storage needs to be added to the zone after creation. You must also start the zone in a disabled state.<br/><br/>2. If system VMs need to be launched in local primary storage, system.vm.use.local.storage needs to be set to true before you enable the zone.<br/><br/><br/>Would you like to continue?",
 "messgae.validate.min": "Please enter a value greater than or equal to {0}.",
-"message.warn.importing.instance.without.nic": "WARNING: this Instance is being imported without NICs and many network resources will not be available. Consider creating a NIC via VCenter before importing or as soon as the instance is imported.",
+"message.warn.importing.instance.without.nic": "WARNING: This Instance is being imported without NICs and many Network resources will not be available. Consider creating a NIC via vCenter before importing or as soon as the Instance is imported. For KVM host, allocate a NIC to Instance after import.",
 "message.warn.select.template": "Please select a Template for Registration.",
 "message.warn.zone.mtu.update": "Please note that this limit won't affect pre-existing Network’s MTU settings",
 "message.webhook.deliveries.time.filter": "Webhook deliveries list can be filtered based on date-time. Select 'Custom' for specifying start and end date range.",
