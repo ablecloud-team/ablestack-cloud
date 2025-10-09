@@ -604,6 +604,7 @@ public class DiskOfferingVO implements DiskOffering {
     @Override
     public void setEncrypt(boolean encrypt) { this.encrypt = encrypt; }
 
+    @Override
     public boolean isShared() {
         return !useLocalStorage;
     }
