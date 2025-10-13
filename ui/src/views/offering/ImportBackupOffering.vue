@@ -236,7 +236,7 @@ export default {
         this.zones.opts = json.listzonesresponse.zone || []
       }).catch(error => {
         this.$notifyError(error)
-      }).finally(f => {
+      }).finally(() => {
         this.zones.loading = false
       })
     },
@@ -261,7 +261,7 @@ export default {
         this.providers.opts = json.listbackupprovidersforzoneresponse.providers || []
       }).catch(error => {
         this.$notifyError(error)
-      }).finally(f => {
+      }).finally(() => {
         this.providers.loading = false
       })
     },
@@ -275,7 +275,7 @@ export default {
         this.externals.opts = json.listbackupproviderofferingsresponse.backupoffering || []
       }).catch(error => {
         this.$notifyError(error)
-      }).finally(f => {
+      }).finally(() => {
         this.externals.loading = false
       })
     },
