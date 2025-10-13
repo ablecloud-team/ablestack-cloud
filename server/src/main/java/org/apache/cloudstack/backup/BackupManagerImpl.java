@@ -1023,21 +1023,16 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
     public List<BackupProvider> getBackupProvidersForZone(final Long zoneId) {
         final String providersConfig = BackupProviderPlugin.valueIn(zoneId);
-        logger.info(providersConfig);
         if (StringUtils.isEmpty(providersConfig)) {
             throw new CloudRuntimeException("No backup providers configured for zone: " + zoneId);
         }
         List<BackupProvider> providers = new ArrayList<>();
         String[] providerNames = providersConfig.split(",");
-        logger.info(providerNames);
         for (String name : providerNames) {
             String trimmedName = name.trim();
-            logger.info(trimmedName);
             if (!StringUtils.isEmpty(trimmedName)) {
-                logger.info("!StringUtils.isEmpty(trimmedName)");
                 try {
                     BackupProvider provider = getBackupProvider(trimmedName);
-                    logger.info(provider);
                     providers.add(provider);
                 } catch (CloudRuntimeException e) {
                     logger.warn("Failed to load backup provider: " + trimmedName + " for zone: " + zoneId, e);
@@ -1047,7 +1042,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (providers.isEmpty()) {
             throw new CloudRuntimeException("No valid backup providers found for zone: " + zoneId);
         }
-        logger.info(providers);
         return providers;
     }
 
@@ -1058,7 +1052,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (!backupProvidersMap.containsKey(name)) {
             throw new CloudRuntimeException("Failed to find backup provider by the name: " + name);
         }
-        logger.info(backupProvidersMap);
         return backupProvidersMap.get(name);
     }
 
@@ -1118,12 +1111,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
     private void initializeBackupProviderMap() {
         if (backupProviders != null) {
-            logger.info("initializeBackupProviderMap");
-            logger.info(backupProviders);
             for (final BackupProvider backupProvider : backupProviders) {
                 backupProvidersMap.put(backupProvider.getName().toLowerCase(), backupProvider);
             }
-            logger.info(backupProvidersMap);
         }
     }
 
