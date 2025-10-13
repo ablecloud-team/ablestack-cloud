@@ -24,7 +24,7 @@ import javax.inject.Inject;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiConstants;
-import org.apache.cloudstack.api.BaseListCmd;
+import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.response.BackupProviderResponse;
 import org.apache.cloudstack.api.response.ListResponse;
@@ -38,7 +38,7 @@ import com.cloud.user.Account;
         description = "Lists Backup and Recovery providers for zone",
         responseObject = BackupProviderResponse.class, since = "4.14.0",
         authorized = {RoleType.Admin})
-public class ListBackupProvidersForZoneCmd extends BaseListCmd {
+public class ListBackupProvidersForZoneCmd extends BaseCmd {
 
     @Inject
     private BackupManager backupManager;
@@ -71,7 +71,7 @@ public class ListBackupProvidersForZoneCmd extends BaseListCmd {
         final ListResponse<BackupProviderResponse> response = new ListResponse<>();
         final List<BackupProviderResponse> responses = new ArrayList<>();
         for (final BackupProvider provider : providers) {
-            if (provider == null || (getZoneId() != null)) {
+            if (provider == null) {
                 continue;
             }
             final BackupProviderResponse backupProviderResponse = new BackupProviderResponse();
