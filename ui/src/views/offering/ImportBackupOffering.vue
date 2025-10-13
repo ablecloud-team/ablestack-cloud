@@ -69,6 +69,7 @@
           allowClear
           v-model:value="form.provider"
           :loading="provider.loading"
+          @change="onChangeProvider"
           showSearch
           optionFilterProp="label"
           :filterOption="(input, option) => {
@@ -341,7 +342,15 @@ export default {
       }
       const zoneId = this.zones.opts.filter(zone => zone.name === value)[0].id || null
       this.fetchProvider(zoneId)
-      // this.fetchExternal(zoneId)
+    },
+    onChangeProvider (value) {
+      if (!value) {
+        this.providers.opts = []
+        this.externals.opts = []
+        return
+      }
+      const zoneId = this.zones.opts.filter(zone => zone.name === value)[0].id || null
+      this.fetchExternal(zoneId)
     },
     closeAction () {
       this.$emit('close-action')

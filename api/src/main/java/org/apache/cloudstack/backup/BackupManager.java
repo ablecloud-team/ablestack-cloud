@@ -59,8 +59,9 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
     /**
      * List backup provider offerings
      * @param zoneId zone id
+     * @param provider provider name
      */
-    List<BackupOffering> listBackupProviderOfferings(final Long zoneId);
+    List<BackupOffering> listBackupProviderOfferings(final Long zoneId, final String provider);
 
     /**
      * Add a new Backup and Recovery policy to CloudStack by mapping an existing external backup offering to a name and description

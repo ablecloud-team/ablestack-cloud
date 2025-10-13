@@ -186,7 +186,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     @Override
-    public List<BackupOffering> listBackupProviderOfferings(final Long zoneId) {
+    public List<BackupOffering> listBackupProviderOfferings(final Long zoneId, final String providerName) {
         if (zoneId == null || zoneId < 1) {
             throw new CloudRuntimeException("Invalid zone ID passed");
         }
@@ -199,14 +199,16 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         List<BackupProvider> providers = getBackupProvidersForZone(zoneId);
 
         for (BackupProvider provider : providers) {
-            try {
-                logger.debug("Listing external backup offerings for provider {} in zone {}", provider.getName(), zoneId);
-                List<BackupOffering> offerings = provider.listBackupOfferings(zoneId);
-                if (offerings != null && !offerings.isEmpty()) {
-                    allOfferings.addAll(offerings);
+            if (provider.getName().equalsIgnoreCase(providerName)) {
+                try {
+                    logger.debug("Listing external backup offerings for provider {} in zone {}", provider.getName(), zoneId);
+                    List<BackupOffering> offerings = provider.listBackupOfferings(zoneId);
+                    if (offerings != null && !offerings.isEmpty()) {
+                        allOfferings.addAll(offerings);
+                    }
+                } catch (Exception e) {
+                    logger.warn("Failed to list offerings from provider {} in zone {}: {}", provider.getName(), zoneId, e.getMessage());
                 }
-            } catch (Exception e) {
-                logger.warn("Failed to list offerings from provider {} in zone {}: {}", provider.getName(), zoneId, e.getMessage());
             }
         }
         return allOfferings;
