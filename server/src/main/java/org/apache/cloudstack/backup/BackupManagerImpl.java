@@ -197,11 +197,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         List<BackupOffering> allOfferings = new ArrayList<>();
         List<BackupProvider> providers = getBackupProvidersForZone(zoneId);
-        
+
         for (BackupProvider provider : providers) {
             try {
-                logger.debug("Listing external backup offerings for provider {} in zone {}", 
-                    provider.getName(), zoneId);
+                logger.debug("Listing external backup offerings for provider {} in zone {}", provider.getName(), zoneId);
                 List<BackupOffering> offerings = provider.listBackupOfferings(zoneId);
                 if (offerings != null && !offerings.isEmpty()) {
                     allOfferings.addAll(offerings);
@@ -210,7 +209,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 logger.warn("Failed to list offerings from provider {} in zone {}: {}", provider.getName(), zoneId, e.getMessage());
             }
         }
-        
         return allOfferings;
     }
 
@@ -219,18 +217,16 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     public BackupOffering importBackupOffering(final ImportBackupOfferingCmd cmd) {
         validateForZone(cmd.getZoneId());
 
-        String providerName = cmd.getProvider(); // ImportBackupOfferingCmd에 추가 필요
+        String providerName = cmd.getProvider();
         if (StringUtils.isEmpty(providerName)) {
             throw new CloudRuntimeException("Provider name must be specified");
         }
 
         List<BackupProvider> zoneProviders = getBackupProvidersForZone(cmd.getZoneId());
-        boolean providerFound = zoneProviders.stream()
-            .anyMatch(p -> p.getName().equalsIgnoreCase(providerName));
+        boolean providerFound = zoneProviders.stream().anyMatch(p -> p.getName().equalsIgnoreCase(providerName));
 
         if (!providerFound) {
-            throw new CloudRuntimeException("Provider " + providerName + 
-                " is not enabled for zone " + cmd.getZoneId());
+            throw new CloudRuntimeException("Provider " + providerName + " is not enabled for zone " + cmd.getZoneId());
         }
 
         final BackupOffering existingOffering = backupOfferingDao.findByExternalId(cmd.getExternalId(), cmd.getZoneId());
@@ -347,7 +343,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
 
         validateForZone(vm.getDataCenterId());
-
         accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
 
         if (vm.getBackupOfferingId() != null) {
