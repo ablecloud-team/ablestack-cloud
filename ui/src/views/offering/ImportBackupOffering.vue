@@ -258,7 +258,6 @@ export default {
       }
       this.providers.loading = true
       api('listBackupProvidersForZone', { zoneid: zoneId }).then(json => {
-        console.log(json)
         this.providers.opts = json.listbackupprovidersforzoneresponse.providers || []
       }).catch(error => {
         this.$notifyError(error)
@@ -273,7 +272,6 @@ export default {
       }
       this.externals.loading = true
       api('listBackupProviderOfferings', { zoneid: zoneId, provider: providerName }).then(json => {
-        console.log(json)
         this.externals.opts = json.listbackupproviderofferingsresponse.backupoffering || []
       }).catch(error => {
         this.$notifyError(error)
