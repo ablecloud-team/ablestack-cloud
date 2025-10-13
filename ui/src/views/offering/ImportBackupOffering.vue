@@ -61,6 +61,24 @@
           </a-select-option>
         </a-select>
       </a-form-item>
+      <a-form-item name="provider" ref="provider">
+        <template #label>
+          <tooltip-label :title="$t('label.provider')" :tooltip="apiParams.provider.description"/>
+        </template>
+        <a-select
+          allowClear
+          v-model:value="form.provider"
+          :loading="provider.loading"
+          showSearch
+          optionFilterProp="label"
+          :filterOption="(input, option) => {
+            return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+          }" >
+          <a-select-option v-for="provider in providers.opts" :key="provider.name" :label="provider.name">
+            {{ provider.name }}
+          </a-select-option>
+        </a-select>
+      </a-form-item>
       <a-form-item name="externalid" ref="externalid">
         <template #label>
           <tooltip-label :title="$t('label.externalid')" :tooltip="apiParams.externalid.description"/>
@@ -135,6 +153,10 @@ export default {
         loading: false,
         opts: []
       },
+      providers: {
+        loading: false,
+        opts: []
+      },
       externals: {
         loading: false,
         opts: []
@@ -182,6 +204,7 @@ export default {
         name: [{ required: true, message: this.$t('message.error.required.input') }],
         description: [{ required: true, message: this.$t('message.error.required.input') }],
         zoneid: [{ required: true, message: this.$t('message.error.select') }],
+        provider: [{ required: true, message: this.$t('message.error.select') }],
         externalid: [{ required: true, message: this.$t('message.error.select') }],
         retentionperiod: [{
           validator: (rule, value) => {
@@ -226,6 +249,21 @@ export default {
         if (json.listconfigurationsresponse.configuration[0]) {
           this.provider = json.listconfigurationsresponse.configuration[0].value
         }
+      })
+    },
+    fetchProvider (zoneId) {
+      if (!zoneId) {
+        this.providers.opts = []
+        return
+      }
+      this.providers.loading = true
+      api('listBackupProvidersForZone', { zoneid: zoneId }).then(json => {
+        console.log(json)
+        this.providers.opts = json.listbackupprovidersforzoneresponse.providers || []
+      }).catch(error => {
+        this.$notifyError(error)
+      }).finally(f => {
+        this.providers.loading = false
       })
     },
     fetchExternal (zoneId) {
@@ -297,11 +335,13 @@ export default {
     },
     onChangeZone (value) {
       if (!value) {
+        this.providers.opts = []
         this.externals.opts = []
         return
       }
       const zoneId = this.zones.opts.filter(zone => zone.name === value)[0].id || null
-      this.fetchExternal(zoneId)
+      this.fetchProvider(zoneId)
+      // this.fetchExternal(zoneId)
     },
     closeAction () {
       this.$emit('close-action')
