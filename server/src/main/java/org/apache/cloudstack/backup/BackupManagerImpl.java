@@ -1019,7 +1019,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         return getBackupProvider(offering.getProvider());
     }
 
-    @Override
     public List<BackupProvider> getBackupProvidersForZone(final Long zoneId) {
         final String providersConfig = BackupProviderPlugin.valueIn(zoneId);
         if (StringUtils.isEmpty(providersConfig)) {
