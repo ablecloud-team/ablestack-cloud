@@ -71,7 +71,7 @@ public class ListBackupProvidersForZoneCmd extends BaseListCmd {
         final ListResponse<BackupProviderResponse> response = new ListResponse<>();
         final List<BackupProviderResponse> responses = new ArrayList<>();
         for (final BackupProvider provider : providers) {
-            if (provider == null || (getName() != null && !provider.getName().equals(getName()))) {
+            if (provider == null || (getZoneId() != null && !provider.getZoneId().equals(getZoneId()))) {
                 continue;
             }
             final BackupProviderResponse backupProviderResponse = new BackupProviderResponse();
