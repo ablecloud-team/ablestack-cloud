@@ -303,7 +303,7 @@ export default {
         params.name = values.name
         params.description = values.description
         params.zoneid = this.selectedZoneId
-        params.providername = this.selectedProviderName
+        params.provider = this.selectedProviderName
         params.externalid = values.externalid
         params.allowuserdrivenbackups = values.allowuserdrivenbackups
         if (this.isCommvaultProvider) {
