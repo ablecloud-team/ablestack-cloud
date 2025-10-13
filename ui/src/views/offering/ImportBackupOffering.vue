@@ -305,7 +305,6 @@ export default {
         params.zoneid = this.selectedZoneId
         params.provider = this.selectedProviderName
         params.externalid = values.externalid
-        params.allowuserdrivenbackups = values.allowuserdrivenbackups
         if (this.isCommvaultProvider) {
           params.retentionperiod = this.retentionPeriodInDays
           params.allowuserdrivenbackups = true
