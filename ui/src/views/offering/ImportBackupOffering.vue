@@ -312,7 +312,6 @@ export default {
         } else {
           params.allowuserdrivenbackups = values.allowuserdrivenbackups
         }
-        console.log(params)
         this.loading = true
         const title = this.$t('label.import.offering')
         api('importBackupOffering', params).then(json => {
@@ -341,11 +340,15 @@ export default {
         this.selectedProviderName = null
         this.providers.opts = []
         this.externals.opts = []
+        this.form.providername = undefined
+        this.form.externalid = undefined
         return
       }
       const zone = this.zones.opts.find(zone => zone.name === value)
       this.selectedZoneId = zone ? zone.id : null
       this.selectedProviderName = null
+      this.form.providername = undefined
+      this.form.externalid = undefined
       this.externals.opts = []
       this.fetchProvider(this.selectedZoneId)
     },
@@ -353,10 +356,12 @@ export default {
       if (!value) {
         this.selectedProviderName = null
         this.externals.opts = []
+        this.form.externalid = undefined
         return
       }
       const provider = this.providers.opts.find(provider => provider.name === value)
       this.selectedProviderName = provider ? provider.name : null
+      this.form.externalid = undefined
       this.externals.opts = []
       if (this.selectedZoneId && this.selectedProviderName) {
         this.fetchExternal(this.selectedZoneId, this.selectedProviderName)
