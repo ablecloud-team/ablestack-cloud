@@ -291,7 +291,7 @@ export default {
       e.preventDefault()
       if (this.loading) return
       this.formRef.value.validate().then(() => {
-        if (this.useCommvault) {
+        if (this.useCommvault && this.selectedProviderName === 'commvault') {
           this.$notification.error({
             message: this.$t('message.request.failed'),
             description: this.$t('message.error.import.backup.offering')
