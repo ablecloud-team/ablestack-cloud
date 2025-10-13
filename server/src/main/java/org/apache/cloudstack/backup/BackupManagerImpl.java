@@ -1025,10 +1025,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (StringUtils.isEmpty(providersConfig)) {
             throw new CloudRuntimeException("No backup providers configured for zone: " + zoneId);
         }
-        
         List<BackupProvider> providers = new ArrayList<>();
         String[] providerNames = providersConfig.split(",");
-        
         for (String name : providerNames) {
             String trimmedName = name.trim();
             if (!StringUtils.isEmpty(trimmedName)) {
@@ -1040,11 +1038,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 }
             }
         }
-        
         if (providers.isEmpty()) {
             throw new CloudRuntimeException("No valid backup providers found for zone: " + zoneId);
         }
-        
         return providers;
     }
 
@@ -1328,8 +1324,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                         try {
                             syncProviderBackups(dataCenter, backupProvider);
                         } catch (Exception e) {
-                            logger.error("Failed to sync backups for provider {} in zone {}: {}", 
-                                backupProvider.getName(), dataCenter.getId(), e.getMessage(), e);
+                            logger.error("Failed to sync backups for provider {} in zone {}: {}", backupProvider.getName(), dataCenter.getId(), e.getMessage(), e);
                         }
                     }
                 }
@@ -1359,8 +1354,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 .filter(vm -> {
                     if (vm.getBackupOfferingId() == null) return false;
                     BackupOfferingVO offering = backupOfferingDao.findById(vm.getBackupOfferingId());
-                    return offering != null && 
-                        offering.getProvider().equalsIgnoreCase(backupProvider.getName());
+                    return offering != null && offering.getProvider().equalsIgnoreCase(backupProvider.getName());
                 })
                 .collect(Collectors.toList());
 
