@@ -62,9 +62,9 @@ public class ImportBackupOfferingCmd extends BaseAsyncCmd {
             description = "the description of the backup offering")
     private String description;
 
-    @Parameter(name = ApiConstants.PROVIDER, type = CommandType.STRING, required = true, 
+    @Parameter(name = ApiConstants.PROVIDER, type = CommandType.STRING, required = true,
             description = "The backup provider name")
-    private String provider;        
+    private String provider;
 
     @Parameter(name = ApiConstants.EXTERNAL_ID,
             type = CommandType.STRING,
