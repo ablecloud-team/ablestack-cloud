@@ -2819,11 +2819,13 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
     @Override
     public Host updateHost(final UpdateHostCmd cmd) throws NoTransitionException {
         return updateHost(cmd.getId(), cmd.getName(), cmd.getOsCategoryId(),
-                cmd.getAllocationState(), cmd.getUrl(), cmd.getHostTags(), cmd.getIsTagARule(), cmd.getAnnotation(), false, cmd.getExternalDetails(), cmd.getMigrationIp());
+                cmd.getAllocationState(), cmd.getUrl(), cmd.getHostTags(), cmd.getIsTagARule(), cmd.getAnnotation(), false, 
+                cmd.getExternalDetails(), cmd.isCleanupExternalDetails(), cmd.getMigrationIp());
     }
 
     private Host updateHost(Long hostId, String name, Long guestOSCategoryId, String allocationState,
-                            String url, List<String> hostTags, Boolean isTagARule, String annotation, boolean isUpdateFromHostHealthCheck, String migrationIp) throws NoTransitionException {
+                            String url, List<String> hostTags, Boolean isTagARule, String annotation, boolean isUpdateFromHostHealthCheck,
+                            boolean cleanupExternalDetails, String migrationIp) throws NoTransitionException {
         // Verify that the host exists
         final HostVO host = _hostDao.findById(hostId);
         if (host == null) {
@@ -2849,50 +2851,12 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
 
         updateMigratinIp(host, migrationIp);
 
-        if (url != null) {
-            _storageMgr.updateSecondaryStorage(hostId, url);
-        }
-        try {
-            _storageMgr.enableHost(hostId);
-        } catch (StorageUnavailableException | StorageConflictException e) {
-            logger.error(String.format("Failed to setup host %s when enabled", host));
-        }
-
-        final HostVO updatedHost = _hostDao.findById(hostId);
-
-        sendAlertAndAnnotationForAutoEnableDisableKVMHostFeature(host, allocationState,
-                isUpdateFromHostHealthCheck, isUpdateHostAllocation, annotation);
-
-        return updatedHost;
-    }
-
-    private Host updateHost(Long hostId, String name, Long guestOSCategoryId, String allocationState,
-                            String url, List<String> hostTags, Boolean isTagARule, String annotation, boolean isUpdateFromHostHealthCheck, Map<String, String> externalDetails) throws NoTransitionException {
-        // Verify that the host exists
-        final HostVO host = _hostDao.findById(hostId);
-        if (host == null) {
-            throw new InvalidParameterValueException("Host with id " + hostId + " doesn't exist");
-        }
-
-        boolean isUpdateHostAllocation = false;
-        if (StringUtils.isNotBlank(allocationState)) {
-            isUpdateHostAllocation = updateHostAllocationState(host, allocationState, isUpdateFromHostHealthCheck);
-        }
-
-        if (StringUtils.isNotBlank(name)) {
-            updateHostName(host, name);
-        }
-
-        if (guestOSCategoryId != null) {
-            updateHostGuestOSCategory(hostId, guestOSCategoryId);
-        }
-
-        if (hostTags != null) {
-            updateHostTags(host, hostId, hostTags, isTagARule);
-        }
-
-        if (MapUtils.isNotEmpty(externalDetails)) {
-            _hostDetailsDao.replaceExternalDetails(hostId, externalDetails);
+        if (cleanupExternalDetails) {
+            _hostDetailsDao.removeExternalDetails(hostId);
+        } else {
+            if (MapUtils.isNotEmpty(externalDetails)) {
+                _hostDetailsDao.replaceExternalDetails(hostId, externalDetails);
+            }
         }
 
         if (url != null) {
@@ -2951,7 +2915,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
 
     @Override
     public Host autoUpdateHostAllocationState(Long hostId, ResourceState.Event resourceEvent) throws NoTransitionException {
-        return updateHost(hostId, null, null, resourceEvent.toString(), null, null, null, null, true, null);
+        return updateHost(hostId, null, null, resourceEvent.toString(), null, null, null, null, true, null, false);
     }
 
     @Override

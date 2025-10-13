@@ -75,6 +75,14 @@ public class UpdateHostCmd extends BaseCmd {
     @Parameter(name = ApiConstants.MIGRATION_IP, type = CommandType.STRING, description = "Add an migration ip to this host", since = "4.20")
     private String migrationIp;
 
+    @Parameter(name = ApiConstants.CLEAN_UP_EXTERNAL_DETAILS,
+            type = CommandType.BOOLEAN,
+            description = "Optional boolean field, which indicates if external details should be cleaned up or not " +
+                    "(If set to true, external details removed for this host, externaldetails field ignored; " +
+                    "if false or not set, no action)",
+            since = "4.22.0")
+    protected Boolean cleanupExternalDetails;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -117,6 +125,10 @@ public class UpdateHostCmd extends BaseCmd {
     
     public String getMigrationIp() {
         return migrationIp;
+    }
+
+    public boolean isCleanupExternalDetails() {
+        return Boolean.TRUE.equals(cleanupExternalDetails);
     }
 
     /////////////////////////////////////////////////////
