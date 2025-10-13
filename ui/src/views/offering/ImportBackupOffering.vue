@@ -61,14 +61,14 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item name="provider" ref="provider">
+      <a-form-item name="providername" ref="providername">
         <template #label>
           <tooltip-label :title="$t('label.provider')" :tooltip="apiParams.provider.description"/>
         </template>
         <a-select
           allowClear
-          v-model:value="form.provider"
-          :loading="provider.loading"
+          v-model:value="form.providername"
+          :loading="providers.loading"
           @change="onChangeProvider"
           showSearch
           optionFilterProp="label"
@@ -98,13 +98,13 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups" v-if="provider!=='commvault'">
+      <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups" v-if="!isCommvaultProvider">
         <template #label>
           <tooltip-label :title="$t('label.allowuserdrivenbackups')" :tooltip="apiParams.allowuserdrivenbackups.description"/>
         </template>
         <a-switch v-model:checked="form.allowuserdrivenbackups"/>
       </a-form-item>
-      <a-form-item name="retentionperiod" ref="retentionperiod" v-if="provider==='commvault'">
+      <a-form-item name="retentionperiod" ref="retentionperiod" v-if="isCommvaultProvider">
         <template #label>
           <tooltip-label :title="$t('label.retentionperiod')" :tooltip="apiParams.retentionperiod.description"/>
         </template>
@@ -162,8 +162,9 @@ export default {
         loading: false,
         opts: []
       },
-      useCommvault: false,
-      provider: ''
+      selectedZoneId: null,
+      selectedProviderName: null,
+      useCommvault: false
     }
   },
   beforeCreate () {
@@ -175,6 +176,9 @@ export default {
     this.checkBackupOffering()
   },
   computed: {
+    isCommvaultProvider () {
+      return this.selectedProviderName && this.selectedProviderName.toLowerCase() === 'commvault'
+    },
     retentionPeriodInDays () {
       const value = parseInt(this.form.retentionPeriodValue)
       switch (this.form.retentionPeriodUnit) {
@@ -205,10 +209,13 @@ export default {
         name: [{ required: true, message: this.$t('message.error.required.input') }],
         description: [{ required: true, message: this.$t('message.error.required.input') }],
         zoneid: [{ required: true, message: this.$t('message.error.select') }],
-        provider: [{ required: true, message: this.$t('message.error.select') }],
+        providername: [{ required: true, message: this.$t('message.error.select') }],
         externalid: [{ required: true, message: this.$t('message.error.select') }],
         retentionperiod: [{
           validator: (rule, value) => {
+            if (!this.isCommvaultProvider) {
+              return Promise.resolve()
+            }
             if (this.form.retentionPeriodUnit === 'Infinite') {
               return Promise.resolve()
             }
@@ -222,7 +229,6 @@ export default {
     },
     fetchData () {
       this.fetchZone()
-      this.isCommvault()
     },
     fetchZone () {
       this.zones.loading = true
@@ -245,13 +251,6 @@ export default {
         }
       })
     },
-    isCommvault () {
-      api('listConfigurations', { name: 'backup.framework.provider.plugin' }).then(json => {
-        if (json.listconfigurationsresponse.configuration[0]) {
-          this.provider = json.listconfigurationsresponse.configuration[0].value
-        }
-      })
-    },
     fetchProvider (zoneId) {
       if (!zoneId) {
         this.providers.opts = []
@@ -267,13 +266,14 @@ export default {
         this.providers.loading = false
       })
     },
-    fetchExternal (zoneId) {
-      if (!zoneId) {
+    fetchExternal (zoneId, providerName) {
+      if (!zoneId || !providerName) {
         this.externals.opts = []
         return
       }
       this.externals.loading = true
-      api('listBackupProviderOfferings', { zoneid: zoneId }).then(json => {
+      api('listBackupProviderOfferings', { zoneid: zoneId, provider: providerName }).then(json => {
+        console.log(json)
         this.externals.opts = json.listbackupproviderofferingsresponse.backupoffering || []
       }).catch(error => {
         this.$notifyError(error)
@@ -291,7 +291,7 @@ export default {
       e.preventDefault()
       if (this.loading) return
       this.formRef.value.validate().then(() => {
-        if (this.useCommvault && this.provider === 'commvault') {
+        if (this.useCommvault) {
           this.$notification.error({
             message: this.$t('message.request.failed'),
             description: this.$t('message.error.import.backup.offering')
@@ -300,18 +300,19 @@ export default {
         }
         const values = toRaw(this.form)
         const params = {}
-        for (const key in values) {
-          const input = values[key]
-          if (key === 'zoneid') {
-            params[key] = this.zones.opts.filter(zone => zone.name === input)[0].id || null
-          } else {
-            params[key] = input
-          }
-        }
-        if (this.provider === 'commvault') {
-          params.retentionperiod = this.retentionPeriodInDays
-        }
+        params.name = values.name
+        params.description = values.description
+        params.zoneid = this.selectedZoneId
+        params.providername = this.selectedProviderName
+        params.externalid = values.externalid
         params.allowuserdrivenbackups = values.allowuserdrivenbackups
+        if (this.isCommvaultProvider) {
+          params.retentionperiod = this.retentionPeriodInDays
+          params.allowuserdrivenbackups = true
+        } else {
+          params.allowuserdrivenbackups = values.allowuserdrivenbackups
+        }
+        console.log(params)
         this.loading = true
         const title = this.$t('label.import.offering')
         api('importBackupOffering', params).then(json => {
@@ -336,21 +337,30 @@ export default {
     },
     onChangeZone (value) {
       if (!value) {
+        this.selectedZoneId = null
+        this.selectedProviderName = null
         this.providers.opts = []
         this.externals.opts = []
         return
       }
-      const zoneId = this.zones.opts.filter(zone => zone.name === value)[0].id || null
-      this.fetchProvider(zoneId)
+      const zone = this.zones.opts.find(zone => zone.name === value)
+      this.selectedZoneId = zone ? zone.id : null
+      this.selectedProviderName = null
+      this.externals.opts = []
+      this.fetchProvider(this.selectedZoneId)
     },
     onChangeProvider (value) {
       if (!value) {
-        this.providers.opts = []
+        this.selectedProviderName = null
         this.externals.opts = []
         return
       }
-      const zoneId = this.zones.opts.filter(zone => zone.name === value)[0].id || null
-      this.fetchExternal(zoneId)
+      const provider = this.providers.opts.find(provider => provider.name === value)
+      this.selectedProviderName = provider ? provider.name : null
+      this.externals.opts = []
+      if (this.selectedZoneId && this.selectedProviderName) {
+        this.fetchExternal(this.selectedZoneId, this.selectedProviderName)
+      }
     },
     closeAction () {
       this.$emit('close-action')
