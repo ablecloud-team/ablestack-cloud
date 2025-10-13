@@ -85,6 +85,12 @@ public interface UserVmManager extends UserVmService {
     ConfigKey<Boolean> EnableVmNetwokFilterAllowAllTraffic = new ConfigKey<Boolean>("Advanced", Boolean.class, "enable.vm.network.filter.allow.all.traffic", "true",
             "If true, the network security feature is enabled when creating a virtual machine, tag: <filterref filter='allow-all-traffic'/> item is enabled.", true);
 
+    ConfigKey<String> VmDistinctHostNameScope = new ConfigKey<>(String.class, "vm.distinct.hostname.scope", ConfigKey.CATEGORY_ADVANCED,
+            "network",
+            "Defines the scope for enforcing unique VM hostnames which determines the resource boundary within which VM hostnames must be unique. Possible values: global, domain, subdomain, account, network.",
+            true, ConfigKey.Scope.Global, null, "VM distinct hostname scope", null, null, null, ConfigKey.Kind.Select,
+            "global,domain,subdomain,account,network");
+
     ConfigKey<Boolean> EnableAdditionalVmConfig = new ConfigKey<>(
             "Advanced",
             Boolean.class,
@@ -93,6 +99,7 @@ public interface UserVmManager extends UserVmService {
             "allow additional arbitrary configuration to vm",
             true,
             ConfigKey.Scope.Account);
+
 
     static final int MAX_USER_DATA_LENGTH_BYTES = 2048;
 
