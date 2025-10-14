@@ -2595,9 +2595,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
         excludeLocalStorageIfNeeded(volumeToAttach);
 
-        checkForVMSnapshots(vmId, vm);
-
-        checkForBackups(vm, true);
+        checkForDevicesInCopies(vmId, vm);
 
         checkRightsToAttach(caller, volumeToAttach, vm);
 
@@ -2699,11 +2697,17 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         }
     }
 
-    private void checkForVMSnapshots(Long vmId, UserVmVO vm) {
+    private void checkForDevicesInCopies(Long vmId, UserVmVO vm) {
         // if target VM has associated VM snapshots
         List<VMSnapshotVO> vmSnapshots = _vmSnapshotDao.findByVm(vmId);
         if (vmSnapshots.size() > 0) {
             throw new InvalidParameterValueException(String.format("Unable to attach volume to VM %s/%s, please specify a VM that does not have VM snapshots", vm.getName(), vm.getUuid()));
+        }
+
+        // if target VM has backups
+        List<Backup> backups = backupDao.listByVmId(vm.getDataCenterId(), vm.getId());
+        if (vm.getBackupOfferingId() != null && !backups.isEmpty()) {
+            throw new InvalidParameterValueException(String.format("Unable to attach volume to VM %s/%s, please specify a VM that does not have any backups", vm.getName(), vm.getUuid()));
         }
     }
 
@@ -2807,7 +2811,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         return volumeToAttach;
     }
 
-    protected void checkForBackups(UserVmVO vm, boolean attach) {
+    protected void validateIfVmHasBackups(UserVmVO vm, boolean attach) {
         if ((vm.getBackupOfferingId() == null || CollectionUtils.isEmpty(vm.getBackupVolumeList())) || BooleanUtils.isTrue(BackupManager.BackupEnableAttachDetachVolumes.value())) {
             return;
         }
@@ -3046,7 +3050,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             throw new InvalidParameterValueException("Unable to detach volume, please specify a VM that does not have VM snapshots");
         }
 
-        checkForBackups(vm, false);
+        validateIfVmHasBackups(vm, false);
 
         AsyncJobExecutionContext asyncExecutionContext = AsyncJobExecutionContext.getCurrentExecutionContext();
         if (asyncExecutionContext != null) {
