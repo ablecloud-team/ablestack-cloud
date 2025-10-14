@@ -1007,12 +1007,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     @Override
-    public BackupProvider getBackupProvider(final Long zoneId) {
-        final String name = BackupProviderPlugin.valueIn(zoneId);
-        return getBackupProvider(name);
-    }
-
-    @Override
     public BackupProvider getBackupProviderForOffering(final Long offeringId) {
         final BackupOfferingVO offering = backupOfferingDao.findById(offeringId);
         if (offering == null) {
