@@ -1314,9 +1314,8 @@ public class ApiConstants {
     public static final String EXTERNAL_ENTITY = "externalEntity";
     public static final String MIGRATION_IP = "migrationip";
 
+    public static final String OPERATOR = "operator";
 
-
-    public static final String listWallAlertRules = "listwallalertrules";
 
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.

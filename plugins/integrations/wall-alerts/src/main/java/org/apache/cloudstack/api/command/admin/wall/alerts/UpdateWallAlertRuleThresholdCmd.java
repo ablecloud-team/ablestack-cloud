@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import com.cloud.user.Account;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
+import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.Parameter;
@@ -35,9 +36,17 @@ public class UpdateWallAlertRuleThresholdCmd extends BaseCmd {
             description = "Rule key in 'group:title' format")
     private String id;
 
+    @Parameter(name = ApiConstants.OPERATOR, type = CommandType.STRING, required = true,
+            description = "Threshold operator (gt, lt, between, outside)")
+    private String operator;
+
     @Parameter(name = "threshold", type = CommandType.DOUBLE, required = true,
             description = "New threshold value (single-threshold operators)")
     private Double threshold;
+
+    @Parameter(name = "threshold2", type = CommandType.DOUBLE, required = false,
+            description = "Upper threshold value (only for between/outside operators)")
+    private Double threshold2;
 
     @Override
     public String getCommandName() {
@@ -63,5 +72,11 @@ public class UpdateWallAlertRuleThresholdCmd extends BaseCmd {
     }
 
     public String getId() { return id; }
+    public String getOperator() {
+        return operator;
+    }
     public Double getThreshold() { return threshold; }
+    public Double getThreshold2() {
+        return threshold2;
+    }
 }

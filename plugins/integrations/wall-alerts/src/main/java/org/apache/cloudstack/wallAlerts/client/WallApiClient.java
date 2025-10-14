@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.cloudstack.wallAlerts.model.SilenceDto;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -30,11 +31,32 @@ public interface WallApiClient {
      * @param newThreshold  새 임계값(단일 임계형)
      * @return true=성공, false=실패
      */
-    boolean updateRuleThreshold(String namespaceHint, String groupName, String ruleTitle, double newThreshold);
+    boolean updateRuleThreshold(String namespaceHint, String groupName, String ruleTitle,
+                                String operator, Double newThreshold, Double threshold2);
 
     boolean pauseRule(String namespaceHint, String groupName, String ruleUid, boolean paused);
 
     boolean pauseByUid(String ruleUid, boolean paused);
+
+    /**
+     * Alertmanager v2 사일런스 목록을 가져옵니다.
+     * 서버는 전체 목록을 반환하므로 state 필터는 클라이언트에서 적용합니다.
+     *
+     * @param stateFilter optional: active|pending|expired
+     * @return silences
+     */
+    List<SilenceDto> listSilences(String stateFilter);
+
+    SilenceDto getSilence(String id, boolean ruleMetadata, boolean accessControl);
+
+    /**
+     * 특정 사일런스를 만료(삭제)합니다.
+     *
+     * @param silenceId silence id
+     */
+    void expireSilence(String silenceId);
+
+
 
     // -------------------- DTOs (Rules API) --------------------
 

@@ -37,6 +37,9 @@ public class WallAlertRuleResponse extends BaseResponse {
     private String operator;
     @SerializedName("threshold")       @Param(description = "Threshold value (optional)")
     private Double threshold;
+    @SerializedName("threshold2")
+    @Param(description = "Upper threshold (for between/outside operators)")
+    private Double threshold2;
     @SerializedName("query")           @Param(description = "Query expression")
     private String query;
     @SerializedName("health")          @Param(description = "Rule health (ok|nodata|error)")
@@ -64,12 +67,17 @@ public class WallAlertRuleResponse extends BaseResponse {
     @SerializedName("description")
     @Param(description = "Description (HTML)")
     private String description;
-
-
     @JsonProperty("paused")
     public Boolean paused;
     @JsonProperty("grafana_alert")
     public Alert grafanaAlert;
+    @SerializedName("ruleUid")
+    @Param(description = "Grafana alert rule UID (__alert_rule_uid__)")
+    private String ruleUid;
+    @SerializedName("silenced")
+    @Param(description = "Whether this rule is currently silenced by Alertmanager")
+    private Boolean silenced;
+
 
     // ---추가: 인스턴스 상세(도메인/엔드포인트 등 라벨 포함) ---
     @SerializedName("instances")
@@ -91,6 +99,9 @@ public class WallAlertRuleResponse extends BaseResponse {
     }
     public String getOperator() { return this.operator; }
     public Double getThreshold() { return this.threshold; }
+    public Double getThreshold2() {
+        return threshold2;
+    }
     public String getPanel() { return this.panel; }
     public java.util.Map<String, String> getLabels() { return this.labels; }
     public java.util.Map<String, String> getAnnotations() { return this.annotations; }
@@ -102,6 +113,8 @@ public class WallAlertRuleResponse extends BaseResponse {
     public String getIspaused() { return ispaused; }
     public String getSummary() { return summary; }
     public String getDescription() { return description; }
+    public String getRuleUid() { return this.ruleUid; }
+    public Boolean getSilenced() { return this.silenced; }
 
     public static class Alert {
         @com.fasterxml.jackson.annotation.JsonProperty("isPaused")
@@ -120,14 +133,10 @@ public class WallAlertRuleResponse extends BaseResponse {
         // 일부 버전은 rule 루트에도 pause가 박힙니다
         @JsonProperty("isPaused")
         public Boolean isPaused;
-
         @JsonProperty("paused")
         public Boolean paused;
-
         @JsonProperty("grafana_alert")
         public WallApiClient.RulerRulesResponse.GrafanaAlert alert;
-
-        // uid, title, expr, labels, annotations, alert(grafana_alert) 등 기존 그대로…
     }
 
     // --- setters (기존과 동일, 여기에 instances 세터만 추가) ---
@@ -144,6 +153,9 @@ public class WallAlertRuleResponse extends BaseResponse {
     public void setKind(final String kind) { this.kind = kind; }
     public void setOperator(final String operator) { this.operator = operator; }
     public void setThreshold(final Double threshold) { this.threshold = threshold; }
+    public void setThreshold2(Double threshold2) {
+        this.threshold2 = threshold2;
+    }
     public void setQuery(final String query) { this.query = query; }
     public void setHealth(final String health) { this.health = health; }
     public void setType(final String type) { this.type = type; }
@@ -159,6 +171,8 @@ public class WallAlertRuleResponse extends BaseResponse {
     public void setIspaused(final String ispaused) { this.ispaused = ispaused; }
     public void setSummary(final String summary) { this.summary = summary; }
     public void setDescription(final String description) { this.description = description; }
+    public void setRuleUid(final String ruleUid) { this.ruleUid = ruleUid; }
+    public void setSilenced(final Boolean silenced) { this.silenced = silenced; }
 }
 
 

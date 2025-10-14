@@ -1,18 +1,26 @@
 package org.apache.cloudstack.wallAlerts.service;
 
 import com.cloud.utils.component.ManagerBase;
+import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.ServerApiException;
+import org.apache.cloudstack.api.command.admin.wall.alerts.ExpireWallAlertSilenceCmd;
 import org.apache.cloudstack.api.command.admin.wall.alerts.ListWallAlertRulesCmd;
+import org.apache.cloudstack.api.command.admin.wall.alerts.ListWallAlertSilencesCmd;
 import org.apache.cloudstack.api.command.admin.wall.alerts.PauseWallAlertRuleCmd;
 import org.apache.cloudstack.api.command.admin.wall.alerts.UpdateWallAlertRuleThresholdCmd;
 import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.api.response.WallAlertRuleResponse;
 import org.apache.cloudstack.api.response.WallAlertRuleResponse.AlertInstanceResponse;
+import org.apache.cloudstack.api.response.WallSilenceResponse;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.wallAlerts.client.WallApiClient;
 import org.apache.cloudstack.wallAlerts.client.WallApiClient.GrafanaRulesResponse;
 import org.apache.cloudstack.wallAlerts.client.WallApiClient.RulerRulesResponse;
 import org.apache.cloudstack.wallAlerts.config.WallConfigKeys;
+import org.apache.cloudstack.wallAlerts.model.SilenceDto;
+import org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto;
+import org.apache.cloudstack.wallAlerts.mapper.WallMappers;
 import org.apache.log4j.Logger;
 
 import javax.inject.Inject;
@@ -25,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Rules API(상태/인스턴스) + Ruler API(임계치/연산자/expr/for)를 병합합니다.
@@ -190,7 +200,9 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                                 final String q   = r.query    == null ? "" : r.query.toLowerCase(Locale.ROOT);
                                 final String op  = (def != null && def.operator  != null) ? def.operator.toLowerCase(Locale.ROOT) : "";
                                 final String th  = (def != null && def.threshold != null) ? String.valueOf(def.threshold).toLowerCase(Locale.ROOT) : "";
-                                if (!(nm.contains(keywordL) || grp.contains(keywordL) || q.contains(keywordL) || op.contains(keywordL) || th.contains(keywordL))) {
+                                final String th2 = (def != null && def.threshold2 != null) ? String.valueOf(def.threshold2).toLowerCase(Locale.ROOT) : "";
+                                if (!(nm.contains(keywordL) || grp.contains(keywordL) || q.contains(keywordL)
+                                        || op.contains(keywordL) || th.contains(keywordL) || th2.contains(keywordL))) {
                                     continue;
                                 }
                             }
@@ -243,6 +255,9 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                                 }
                                 if (def.threshold != null) {
                                     resp.setThreshold(def.threshold);
+                                }
+                                if (def.threshold2 != null) {
+                                    resp.setThreshold2(def.threshold2);
                                 }
                             } else {
                                 LOG.warn("[Ruler][no-match] group=" + groupName
@@ -309,6 +324,8 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
             throws ServerApiException {
         final String id = cmd.getId();
         final Double newThreshold = cmd.getThreshold();
+        final Double threshold2 = cmd.getThreshold2();
+        final String operator = cmd.getOperator();
 
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("id는 'group:title' 또는 'dashboardUid:panelId' 형식이어야 합니다.");
@@ -351,10 +368,17 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
             );
         }
 
-        // 4) 임계치 업데이트 실행
-        final boolean ok = wallApiClient.updateRuleThreshold(m.namespace, m.group, m.title, newThreshold.doubleValue());
-        if (!ok) {
-            throw new RuntimeException("Failed to update threshold for '" + id + "'.");
+        // 4) 임계치 업데이트 실행 (operator/threshold2 전달)
+        final String opInput = (operator == null || operator.isBlank()) ? "gt" : operator.trim();
+        final String op = normalizeOperator(opInput);
+        boolean ok;
+        if ("between".equals(op) || "outside".equals(op)) {
+            if (threshold2 == null) {
+                throw new IllegalArgumentException("operator가 '" + op + "'일 때 threshold2는 필수입니다.");
+            }
+            ok = wallApiClient.updateRuleThreshold(m.namespace, m.group, m.title, op, newThreshold, threshold2);
+        } else {
+            ok = wallApiClient.updateRuleThreshold(m.namespace, m.group, m.title, op, newThreshold, null);
         }
 
         // 5) 응답
@@ -363,6 +387,10 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         resp.setId(id);
         resp.setRuleGroup(m.group);
         resp.setName(m.title);
+        resp.setOperator(operator == null ? null : operator.trim());
+        if (threshold2 != null) {
+            resp.setThreshold2(threshold2);
+        }
         resp.setThreshold(newThreshold);
         return resp;
     }
@@ -427,6 +455,239 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         if (ruleUid == null || ruleUid.isBlank()) return false;
         // Client의 직행 메서드로 바로 처리
         return wallApiClient.pauseByUid(ruleUid, paused);
+    }
+
+    /** UI/호출 파라미터의 operator 문자열을 내부 표준으로 정규화합니다.
+     *  - within_range -> between, outside_range -> outside
+     *  - 기호(>, <, >=, <=)는 각각 gt, lt, gte, lte로 변환합니다.
+     */
+    private static String normalizeOperator(final String op) {
+        if (op == null) return "gt";
+        final String t = op.trim().toLowerCase(java.util.Locale.ROOT);
+        if (t.isEmpty()) return "gt";
+        switch (t) {
+            case "within_range": return "between";
+            case "outside_range": return "outside";
+            case ">": return "gt";
+            case "<": return "lt";
+            case ">=": return "gte";
+            case "<=": return "lte";
+            default: return t;
+        }
+    }
+
+    @Override
+    public ListResponse<WallSilenceResponse> listWallAlertSilences(final ListWallAlertSilencesCmd cmd) {
+        final Map<String, String> rawLabels = cmd.getLabels();
+        final Map<String, String> labels = normalizeLabels(rawLabels);
+        final String stateFilter = cmd.getState();
+
+        // 1) 서버에서 목록 가져오기 (상태 필터 적용 시도)
+        List<SilenceDto> all = wallApiClient.listSilences(stateFilter);
+
+        //폴백: 필터 호출이 빈 배열을 돌려줄 때, 무필터로 전체 받아서 나중에 상태/라벨로
+        if ((all == null || all.isEmpty()) && stateFilter != null && !stateFilter.isBlank()) {
+            all = wallApiClient.listSilences(null);
+            if (all == null) all = java.util.Collections.emptyList();
+        }
+
+        // 2) 라벨 매칭 (기존 매칭 함수 그대로 사용)
+        final java.util.List<SilenceDto> matched = new java.util.ArrayList<>();
+        for (final SilenceDto s : all) {
+            if (matchesAlertLabels(s, labels)) {
+                matched.add(s);
+            } else if (LOG.isDebugEnabled()) {
+                LOG.debug("[Wall][Silence][skip] id={} not matched. uid(silence)={}, labels.uid={}"
+                );
+            }
+        }
+
+        // (선택) 메타/권한 풍부화: matched 상위 N개만 getSilence(id, true, true)로 상세 채우기 (이미 구현했다면 그대로)
+
+        // 3) 매핑 + 응답
+        final java.util.List<WallSilenceResponse> out = new java.util.ArrayList<>(matched.size());
+        for (final SilenceDto s : matched) {
+            out.add(WallMappers.toResponse(s));
+        }
+        final ListResponse<WallSilenceResponse> resp = new ListResponse<>();
+        resp.setResponses(out, out.size());
+        return resp;
+    }
+
+    @Override
+    public SuccessResponse expireWallAlertSilence(final ExpireWallAlertSilenceCmd cmd) {
+        final String id = cmd.getId();
+        if (id == null || id.isEmpty()) {
+            throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "id is required");
+        }
+        wallApiClient.expireSilence(id);
+        return new SuccessResponse(cmd.getCommandName());
+    }
+
+    // ---------------- Helper: Silence matcher 평가 ----------------
+
+    private static String preview(final String s) {
+        if (s == null) return "null";
+        final String t = s.replaceAll("\\s+", " ").trim();
+        return t.length() > 180 ? t.substring(0, 180) + "..." : t;
+    }
+
+    /**
+     * CloudStack MAP 파라미터 정규화:
+     *  labels[0].key=a, labels[0].value=b ... 로 들어오면
+     *  서버에서 { "0": {"key":"a","value":"b"}, ... } 로 잡히는 경우가 있음.
+     *  이걸 {"a":"b", ...} 로 평탄화한다.
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, String> normalizeLabels(final Map<String, String> raw) {
+        if (raw == null || raw.isEmpty()) return java.util.Collections.emptyMap();
+
+        // 이미 평탄화된 케이스 감지: 어느 값이든 내부 map이 아니고 문자열이면 그대로 사용
+        boolean needsFlatten = false;
+        for (Map.Entry<String, String> e : raw.entrySet()) {
+            final Object v = e.getValue();
+            if (v instanceof Map) { needsFlatten = true; break; }
+        }
+        if (!needsFlatten) return raw;
+
+        final Map<String, String> flat = new HashMap<>();
+        for (Map.Entry<String, String> e : raw.entrySet()) {
+            final Object v = e.getValue();
+            if (v instanceof Map) {
+                final Map<Object, Object> inner = (Map<Object, Object>) v;
+                final Object k0 = inner.get("key");
+                final Object v0 = inner.get("value");
+                if (k0 != null && v0 != null) {
+                    flat.put(String.valueOf(k0), String.valueOf(v0));
+                }
+            } else if (v != null) {
+                flat.put(String.valueOf(e.getKey()), String.valueOf(v));
+            }
+        }
+        return flat;
+    }
+
+    // --- 라벨에서 키를 '대소문자 무시'로 가져오기 ---
+    private String getLabelCI(final Map<String, String> labels, final String name) {
+        if (labels == null || labels.isEmpty() || name == null) return null;
+        for (Map.Entry<String, String> e : labels.entrySet()) {
+            final String k = e.getKey();
+            if (k != null && k.equalsIgnoreCase(name)) {
+                return e.getValue();
+            }
+        }
+        return null;
+    }
+
+    // --- 여러 동의어 중 첫 번째로 존재하는 라벨 값 찾기(대소문자 무시) ---
+    private String getAny(final Map<String, String> labels, final String... keys) {
+        if (labels == null || keys == null) return null;
+        for (final String k : keys) {
+            final String v = getLabelCI(labels, k);
+            if (v != null && !v.isEmpty()) return v;
+        }
+        return null;
+    }
+
+    // --- 입력 라벨에서 Rule UID 추출(동의어+대소문자 무시) ---
+    private String extractRuleUidFromLabels(final Map<String, String> labels) {
+        return getAny(labels,
+                "__alert_rule_uid__", "rule_uid", "ruleUid", "__rule_uid__",
+                "grafana_rule_uid", "grafanaRuleUid", "__alert_rule_uid");
+    }
+
+    // --- 입력 라벨에서 Rule Title(알럿 이름) 후보 추출 ---
+    private String extractRuleTitleFromLabels(final Map<String, String> labels) {
+        return getAny(labels,
+                "alertname", "alert_name", "rule_title", "ruleTitle",
+                "rulename", "title", "name");
+    }
+
+    // --- 사일런스 매처들에서 UID 값 추출 ---
+    private String silenceRuleUid(final SilenceDto s) {
+        if (s == null || s.getMatchers() == null) return null;
+        for (final SilenceMatcherDto m : s.getMatchers()) {
+            if (m != null && "__alert_rule_uid__".equals(m.getName())) {
+                return m.getValue();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Alertmanager 규칙: 사일런스의 '모든' 매처가 알럿 라벨을 만족해야 매칭.
+     * 보강:
+     *  - 빠른 경로: UID 직접 비교
+     *  - 폴백: UID가 라벨에 없으면 라벨의 alertname(~rule_title 계열)과 사일런스 metadata.rule_title 비교
+     */
+    private boolean matchesAlertLabels(final SilenceDto s, final Map<String, String> labels) {
+        if (s == null || labels == null || labels.isEmpty()) return false;
+
+        // 1) 빠른 경로 — UID 직접 비교
+        final String silenceUid = silenceRuleUid(s);
+        final String labelUid = extractRuleUidFromLabels(labels);
+        if (silenceUid != null && labelUid != null && silenceUid.equalsIgnoreCase(labelUid)) {
+            return true;
+        }
+
+        // 2) 폴백 — Rule Title 비교
+        if (labelUid == null) {
+            final String labelTitle = extractRuleTitleFromLabels(labels); // 예: alertname
+            if (labelTitle != null && !labelTitle.isEmpty()) {
+                String ruleTitle = null;
+                if (s.getMetadata() != null && s.getMetadata().getRuleTitle() != null) {
+                    ruleTitle = s.getMetadata().getRuleTitle();
+                } else {
+                    // metadata가 없으면 단건 조회로 보강 (ruleMetadata만 켬)
+                    try {
+                        final SilenceDto one = wallApiClient.getSilence(s.getId(), true, false);
+                        if (one != null && one.getMetadata() != null) {
+                            ruleTitle = one.getMetadata().getRuleTitle();
+                            s.setMetadata(one.getMetadata()); // 캐시
+                        }
+                    } catch (Exception ignore) { }
+                }
+                if (ruleTitle != null && ruleTitle.equalsIgnoreCase(labelTitle)) {
+                    return true;
+                }
+            }
+        }
+
+        // 3) 일반 경로 — 모든 매처 평가(라벨 키 대소문자 무시, 정규식은 find로 유연하게)
+        final java.util.List<SilenceMatcherDto> ms = s.getMatchers();
+        if (ms == null || ms.isEmpty()) return false;
+
+        for (final SilenceMatcherDto m : ms) {
+            if (m == null) return false;
+
+            final String key = m.getName();
+            final String right = m.getValue();
+            if (key == null || key.isEmpty() || right == null) return false;
+
+            final String left = getLabelCI(labels, key); // 라벨에서 '대소문자 무시'로 키 찾기
+            if (left == null) {
+                return false; // 해당 라벨 자체가 없으면 불일치
+            }
+
+            final boolean isRegex = Boolean.TRUE.equals(m.getIsRegex()); // null → false
+            final boolean isEqual = (m.getIsEqual() == null) || Boolean.TRUE.equals(m.getIsEqual()); // null → true
+
+            boolean hit;
+            if (isRegex) {
+                try {
+                    final Pattern p = Pattern.compile(right);
+                    hit = p.matcher(left).find();  // Prometheus 느낌에 가깝게 find() 사용
+                } catch (PatternSyntaxException e) {
+                    hit = false;
+                }
+            } else {
+                hit = left.equals(right);
+            }
+
+            final boolean ok = isEqual ? hit : !hit;
+            if (!ok) return false;  // 하나라도 실패하면 전체 불일치
+        }
+        return true;
     }
 
     /** id="dashboardUid:panelId" → (namespace/group/title/ruleUid) 해석 */
@@ -525,8 +786,10 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
     public List<Class<?>> getCommands() {
         final List<Class<?>> cmds = new ArrayList<>();
         cmds.add(ListWallAlertRulesCmd.class);
-        cmds.add(UpdateWallAlertRuleThresholdCmd.class); // 구현 시 노출
-        cmds.add(PauseWallAlertRuleCmd.class); // 구현 시 노출
+        cmds.add(UpdateWallAlertRuleThresholdCmd.class);
+        cmds.add(PauseWallAlertRuleCmd.class);
+        cmds.add(ListWallAlertSilencesCmd.class);
+        cmds.add(ExpireWallAlertSilenceCmd.class);
         return cmds;
     }
 
@@ -585,7 +848,8 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
 
     private static class ThresholdDef {
         String operator;   // gt/gte/lt/lte/within_range/outside_range ...
-        Double threshold;  // 단일 임계값(범위형은 null 유지)
+        Double threshold;  // 하한(단일형도 여기에 저장)
+        Double threshold2; // 상한(범위형일 때만 사용)
         String forText;    // "5m"
         String expr;       // prom expr
         String title;      // grafana_alert.title
@@ -616,6 +880,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                         final ThresholdDef def = new ThresholdDef();
                         def.operator = extractOperator(r);
                         def.threshold = extractThreshold(r);
+                        def.threshold2 = extractThreshold2(r);
                         def.forText = r.forText;
                         def.expr = extractExpr(r);
                         def.title = (r.alert != null ? r.alert.title : r.title);
@@ -734,8 +999,28 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         }
         return thresholdType != null ? thresholdType : last;
     }
+    private static Double extractThreshold2(final RulerRulesResponse.Rule r) {
+        if (r == null || r.alert == null || r.alert.data == null) return null;
+        Double best = null, last = null;
+        for (RulerRulesResponse.DataNode dn : r.alert.data) {
+            if (dn == null || dn.model == null || dn.model.conditions == null) continue;
+            for (RulerRulesResponse.Condition c : dn.model.conditions) {
+                if (c == null || c.evaluator == null || c.evaluator.params == null) continue;
+                if (c.evaluator.params.size() >= 2) {
+                    final Double v = safeDouble(c.evaluator.params.get(1));
+                    if (v != null) {
+                        last = v;
+                        if ("threshold".equalsIgnoreCase(dn.model.type)) {
+                            best = v; // threshold 노드가 최우선
+                        }
+                    }
+                }
+            }
+        }
+        return best != null ? best : last;
+    }
 
-    /** 단일 임계치([x])만 컬럼에 채웁니다(범위형은 상세에서 두 값 노출 권장). */
+
     private static Double extractThreshold(final RulerRulesResponse.Rule r) {
         if (r == null || r.alert == null || r.alert.data == null) return null;
         Double best = null, last = null;
@@ -743,12 +1028,12 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
             if (dn == null || dn.model == null || dn.model.conditions == null) continue;
             for (RulerRulesResponse.Condition c : dn.model.conditions) {
                 if (c == null || c.evaluator == null || c.evaluator.params == null) continue;
-                if (c.evaluator.params.size() == 1) {
-                    Double v = safeDouble(c.evaluator.params.get(0));
-                    if (v != null) {
-                        last = v;
+                if (c.evaluator.params.size() >= 1) {
+                    final Double v0 = safeDouble(c.evaluator.params.get(0)); // 하한
+                    if (v0 != null) {
+                        last = v0;
                         if ("threshold".equalsIgnoreCase(dn.model.type)) {
-                            best = v;
+                            best = v0; // threshold 노드 우선
                         }
                     }
                 }

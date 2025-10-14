@@ -168,6 +168,14 @@
             <div v-if="dataResource[item]" v-html="dataResource[item]"></div>
             <span v-else>—</span>
           </div>
+          <!-- 연산자 라벨(기호 X) -->
+          <div v-else-if="$route.path.includes('/alertRules') && item === 'operator'">
+            {{ formatOperatorLabel(dataResource.operator) }}
+          </div>
+          <!-- 임계치 라벨: 단일/범위 통합 표기 -->
+          <div v-else-if="$route.path.includes('/alertRules') && item === 'threshold'">
+            {{ formatThresholdLabel(dataResource.operator, dataResource.threshold, dataResource.threshold2) }}
+          </div>
           <div v-else>{{ dataResource[item] }}</div>
         </div>
       </a-list-item>
@@ -538,6 +546,47 @@ export default {
         return value
       }
       return `0${value}`
+    },
+    formatOperatorLabel (op) {
+      const o = op == null ? '' : String(op).toLowerCase()
+      if (o === 'within_range') return this.$t('label.operator.within')
+      if (o === 'outside_range') return this.$t('label.operator.outside')
+      if (o === 'gte') return this.$t('label.operator.above')
+      if (o === 'lte') return this.$t('label.operator.below')
+      if (o === 'between') return this.$t('label.operator.within')
+      if (o === 'outside') return this.$t('label.operator.outside')
+      if (o === 'gt') return this.$t('label.operator.above')
+      if (o === 'lt') return this.$t('label.operator.below')
+      return o
+    },
+
+    formatThresholdLabel (op, t1, t2) {
+      const o = op == null ? '' : String(op).toLowerCase()
+      const v1 = t1 === null || t1 === undefined ? null : String(t1)
+      // 범위 상한이 누락된 환경 대비 보강
+      let v2 = t2 === null || t2 === undefined ? null : String(t2)
+      if (!v2 && this.dataResource) {
+        const alt = this.dataResource.upper || this.dataResource.thresholdUpper
+        if (alt !== null && alt !== undefined) v2 = String(alt)
+      }
+
+      const above = this.$t('label.operator.above')
+      const below = this.$t('label.operator.below')
+      const within = this.$t('label.operator.within')
+      const outside = this.$t('label.operator.outside')
+
+      if (o === 'within_range' || o === 'between') {
+        return v1 && v2 ? `${v1}-${v2} ${within}` : '—'
+      }
+      if (o === 'outside_range' || o === 'outside') {
+        return v1 && v2 ? `${v1} ${below} 또는 ${v2} ${above}` : outside
+      }
+
+      if (!v1) return '—'
+      if (o === 'gt' || o === 'gte') return `${v1} ${above}`
+      if (o === 'lt' || o === 'lte') return `${v1} ${below}`
+
+      return v2 ? `${v1}-${v2}` : v1
     }
   }
 }

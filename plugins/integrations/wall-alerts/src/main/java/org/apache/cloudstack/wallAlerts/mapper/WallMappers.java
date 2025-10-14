@@ -11,6 +11,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import java.time.OffsetDateTime;
+import java.util.StringJoiner;
+import org.apache.cloudstack.api.response.WallSilenceResponse;
+import org.apache.cloudstack.api.response.WallSilenceResponse.SilenceMatcherResponse;
+import org.apache.cloudstack.wallAlerts.model.SilenceDto;
+import org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto;
+
 public final class WallMappers {
     private WallMappers() {}
 
@@ -178,5 +185,70 @@ public final class WallMappers {
         if (items == null) return null;
         for (T it : items) if (it != null) return it;
         return null;
+    }
+
+    public static WallSilenceResponse toResponse(final SilenceDto s) {
+        final WallSilenceResponse r = new WallSilenceResponse();
+        if (s == null) {
+            return r;
+        }
+        r.setId(s.getId());
+        r.setState(s.getStatus() != null ? s.getStatus().getState() : null);
+        r.setCreatedBy(s.getCreatedBy());
+        r.setComment(s.getComment());
+        r.setStartsAt(fmtIso(s.getStartsAt()));
+        r.setEndsAt(fmtIso(s.getEndsAt()));
+        r.setCreatedAt(fmtIso(s.getCreatedAt()));
+        r.setUpdatedAt(fmtIso(s.getUpdatedAt()));
+
+        final List<SilenceMatcherDto> ms = s.getMatchers();
+        if (ms != null && !ms.isEmpty()) {
+            r.setMatchers(ms.stream()
+                    .map(WallMappers::toResponse)
+                    .collect(Collectors.toList()));
+            r.setMatchersText(joinMatchersText(ms));
+        }
+        return r;
+    }
+
+    // SilenceMatcherDto -> SilenceMatcherResponse
+    public static SilenceMatcherResponse toResponse(final SilenceMatcherDto m) {
+        final SilenceMatcherResponse r = new SilenceMatcherResponse();
+        if (m == null) {
+            return r;
+        }
+        r.setName(m.getName());
+        r.setValue(m.getValue());
+        r.setIsRegex(Boolean.TRUE.equals(m.getIsRegex()));
+        // Alertmanager v2에서 isEqual null은 true로 간주
+        r.setIsEqual(m.getIsEqual() == null ? Boolean.TRUE : m.getIsEqual());
+        return r;
+    }
+
+    // UI 표시용 matcher 문자열 생성: name(=,!=,=~,!~)value 조합
+    private static String joinMatchersText(final List<SilenceMatcherDto> matchers) {
+        final StringJoiner sj = new StringJoiner(", ");
+        for (final SilenceMatcherDto m : matchers) {
+            if (m == null) {
+                continue;
+            }
+            final boolean isRegex = Boolean.TRUE.equals(m.getIsRegex());
+            final boolean isEqual = m.getIsEqual() == null ? true : m.getIsEqual();
+            final String op;
+            if (isRegex) {
+                op = isEqual ? "=~" : "!~";
+            } else {
+                op = isEqual ? "=" : "!=";
+            }
+            final String name = m.getName() == null ? "" : m.getName();
+            final String value = m.getValue() == null ? "" : m.getValue();
+            sj.add(name + op + value);
+        }
+        return sj.toString();
+    }
+
+    // OffsetDateTime -> ISO 문자열(기존 포맷터가 있다면 그걸로 교체 가능)
+    private static String fmtIso(final OffsetDateTime t) {
+        return t == null ? null : t.toString();
     }
 }

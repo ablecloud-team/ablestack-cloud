@@ -16,49 +16,55 @@ export default {
     'ispaused',
     'state', // ALERTING/PENDING/OK/NODATA
     'threshold',
+    'threshold2',
+    'operator',
     'rulegroup',
     'kind', // HOST/STORAGE/CLOUD/USER
     'lastEvaluation'
   ],
-  details: ['name', 'id', 'state', 'ispaused', 'threshold', 'rulegroup', 'kind', 'lastEvaluation', 'summary', 'description'],
+  details: [
+    'name',
+    'id',
+    'state',
+    'ispaused',
+    'threshold',
+    'threshold2',
+    'rulegroup',
+    'kind',
+    'lastEvaluation',
+    'summary',
+    'description',
+    'silenceStartsAt',
+    'silenceEndsAt',
+    'silencePeriod'
+  ],
   dataMap: (item) => ({
     ...item,
     rawState: item.state,
-    state: item?.ispaused ? 'stopped' : 'running'
+    state: item?.ispaused ? 'stopped' : 'running',
+    silenceStartsAt: item?.silenceStartsAt || '-',
+    silenceEndsAt: item?.silenceEndsAt || '-',
+    silencePeriod: item?.silencePeriod || '-'
   }),
   tabs: [{
     name: 'details',
     component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
+  }, {
+    name: 'silence',
+    component: shallowRef(defineAsyncComponent(() => import('@/views/infra/WallAlertSilenceTab.vue')))
   }],
   actions: [
     {
       api: 'updateWallAlertRuleThreshold',
+      permission: ['updateWallAlertRuleThreshold'],
       icon: 'edit-outlined',
       label: 'label.update.threshold',
-      message: 'message.confirm.update.threshold',
+      message: 'message.action.update.threshold',
       dataView: true,
-      // 팝업 폼 사용
+      groupAction: true,
       popup: true,
-      // 단건 수정
-      groupAction: false,
-      // API에 보낼 파라미터
-      args: ['id', 'threshold'],
-      mapping: {
-        id: {
-          value: (record) => record.id
-        }
-      },
-      fields: [
-        {
-          name: 'threshold',
-          title: 'label.threshold',
-          type: 'number',
-          required: true,
-          min: 0,
-          step: 'any'
-        }
-      ],
-      successMessage: 'label.threshold.updated'
+      args: ['id'],
+      component: shallowRef(defineAsyncComponent(() => import('@/views/infra/WallThresholdEditor.vue')))
     },
     {
       api: 'pauseWallAlertRule',

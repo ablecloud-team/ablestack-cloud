@@ -11,6 +11,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.cloudstack.wallAlerts.config.WallConfigKeys;
 import org.apache.cloudstack.wallAlerts.exception.WallApiException;
+import org.apache.cloudstack.wallAlerts.model.SilenceDto;
 import org.apache.log4j.Logger;
 
 import java.net.CookieManager;
@@ -238,10 +239,16 @@ public class WallApiClientImpl implements WallApiClient {
     public boolean updateRuleThreshold(final String folderName,
                                        final String groupName,
                                        final String ruleTitle,
-                                       final double newThreshold) {
+                                       final String operator,
+                                       final Double newThreshold,
+                                       final Double threshold2) {
         try {
             if (groupName == null || groupName.isBlank() || ruleTitle == null || ruleTitle.isBlank()) {
                 LOG.warn("[Ruler][update] groupName and ruleTitle are required");
+                return false;
+            }
+            if (newThreshold == null) {
+                LOG.warn("[Ruler][update] threshold (newThreshold) is required");
                 return false;
             }
 
@@ -284,14 +291,16 @@ public class WallApiClientImpl implements WallApiClient {
                 return false;
             }
 
-            // 4) 임계치 수정(그 자리만)
-            final boolean touched = mutateThresholdRaw(groupJson, ruleTitle, newThreshold);
+            // 4) 임계치/연산자 수정(그 자리만)
+            final String op = (operator == null || operator.isBlank()) ? "gt" : operator.trim();
+            final boolean touched = mutateThresholdRaw(groupJson, ruleTitle, op, newThreshold, threshold2);
 
-            // (A) 전송 직전 검증 로그: 대상 룰의 threshold 파라미터 값 출력
+            // (A) 전송 직전 검증 로그
             try {
                 final String target = ruleTitle;
                 final JsonNode rules = groupJson.path("rules");
-                double val = Double.NaN;
+                String evalType = null;
+                double p0 = Double.NaN, p1 = Double.NaN;
                 for (JsonNode rn : rules) {
                     final String t1 = rn.path("title").asText(null);
                     final String t2 = rn.at("/grafana_alert/title").asText(null);
@@ -302,9 +311,11 @@ public class WallApiClientImpl implements WallApiClient {
                             for (JsonNode dn : data) {
                                 final String refId = dn.path("refId").asText("");
                                 if (condKey.equals(refId)) {
+                                    evalType = dn.at("/model/conditions/0/evaluator/type").asText(null);
                                     final JsonNode params = dn.at("/model/conditions/0/evaluator/params");
                                     if (params.isArray() && params.size() > 0) {
-                                        val = params.get(0).asDouble(Double.NaN);
+                                        p0 = params.get(0).asDouble(Double.NaN);
+                                        if (params.size() > 1) p1 = params.get(1).asDouble(Double.NaN);
                                     }
                                     break;
                                 }
@@ -313,11 +324,11 @@ public class WallApiClientImpl implements WallApiClient {
                         break;
                     }
                 }
-                LOG.warn("[Ruler][update][preflight] group=" + groupName + " title=" + ruleTitle + " newThresholdInJson=" + val);
+                LOG.warn("[Ruler][update][preflight] group=" + groupName + " title=" + ruleTitle + " evalType=" + evalType + " p0=" + p0 + " p1=" + p1);
             } catch (Exception ignore) { /* no-op */ }
 
             if (!touched) {
-                LOG.warn("[Ruler][update] no single-threshold evaluator found: nsKey=" + nsKeyForUrl + ", group=" + groupName + ", title=" + ruleTitle);
+                LOG.warn("[Ruler][update] evaluator not updated: nsKey=" + nsKeyForUrl + ", group=" + groupName + ", title=" + ruleTitle);
                 return false;
             }
 
@@ -325,7 +336,7 @@ public class WallApiClientImpl implements WallApiClient {
             if (groupJson.get("name") == null || groupJson.get("name").asText().isBlank()) {
                 groupJson.put("name", groupName);
             }
-            sanitizeGroupForWrite(groupJson); // null/ro 필드 정리 + title 보정(아래 2) 패치 반영되어야 함)
+            sanitizeGroupForWrite(groupJson);
 
             // (B) rule.uid 없고 grafana_alert.uid만 있으면 rule.uid로 복사 (UID 재발급 방지)
             try {
@@ -345,12 +356,12 @@ public class WallApiClientImpl implements WallApiClient {
                 LOG.warn("[Ruler][update] uid backfill failed: " + e.getMessage());
             }
 
-            // 바디 2종: (A) 그룹 단독 바디, (B) 네임스페이스 래핑 바디
-            final String groupBody     = groupJson.toString();               // PUT /rules/{ns}/{group}, POST/PUT /rules/{ns} 에도 사용(권장)
-            final String jsonGroupsObj = buildGroupsWrappedBody(groupJson);  // 폴백용
+            // 바디 2종
+            final String groupBody     = groupJson.toString();
+            final String jsonGroupsObj = buildGroupsWrappedBody(groupJson);
 
             final String base = baseUrlNow();
-            LOG.warn("[Ruler][update][payload] " + trimBody(groupBody, 1200)); // 디버그는 그룹 바디 위주
+            LOG.warn("[Ruler][update][payload] " + trimBody(groupBody, 1200));
 
             // 6) ns 후보 구성 (UID 우선)
             final java.util.LinkedHashSet<String> nsSet = new java.util.LinkedHashSet<>();
@@ -359,13 +370,12 @@ public class WallApiClientImpl implements WallApiClient {
             nsSet.add(replaceSpacesWithHyphen(nsKeyForUrl));
             nsSet.add(slugify(nsKeyForUrl).toLowerCase(java.util.Locale.ROOT));
 
-            // 7) 전송 — (1) 그룹 PUT → (2) 네임스페이스 POST(그룹 바디) → (3) 네임스페이스 POST(래핑) → (4) 네임스페이스 PUT(그룹 바디) → (5) 네임스페이스 PUT(래핑)
+            // 7) 전송
             for (String nsCand : nsSet) {
                 if (nsCand == null || nsCand.isBlank()) continue;
                 final String encNs = encodePathSegment(nsCand);
                 final String encGroup = encodePathSegment(groupName);
 
-                // (1) 그룹 단위 PUT (버전에 따라 404 가능)
                 final String[] putGroupUrls = new String[] {
                         base + "/api/ruler/grafana/api/v1/rules/" + encNs + "/" + encGroup + "?subtype=cortex",
                         base + "/api/ruler/grafana/api/v1/rules/" + encNs + "/" + encGroup
@@ -374,7 +384,6 @@ public class WallApiClientImpl implements WallApiClient {
                     if (trySend(u, "PUT", "application/json; charset=utf-8", groupBody)) return true;
                 }
 
-                // (2) 네임스페이스 POST — ★ 그룹 바디 우선
                 final String[] postNsUrls = new String[] {
                         base + "/api/ruler/grafana/api/v1/rules/" + encNs + "?subtype=cortex",
                         base + "/api/ruler/grafana/api/v1/rules/" + encNs
@@ -382,18 +391,12 @@ public class WallApiClientImpl implements WallApiClient {
                 for (String u : postNsUrls) {
                     if (trySend(u, "POST", "application/json; charset=utf-8", groupBody)) return true;
                 }
-
-                // (3) 네임스페이스 POST — 래핑 바디 폴백
                 for (String u : postNsUrls) {
                     if (trySend(u, "POST", "application/json; charset=utf-8", jsonGroupsObj)) return true;
                 }
-
-                // (4) 네임스페이스 PUT — 그룹 바디 폴백
                 for (String u : postNsUrls) {
                     if (trySend(u, "PUT", "application/json; charset=utf-8", groupBody)) return true;
                 }
-
-                // (5) 네임스페이스 PUT — 래핑 바디 최후 폴백
                 for (String u : postNsUrls) {
                     if (trySend(u, "PUT", "application/json; charset=utf-8", jsonGroupsObj)) return true;
                 }
@@ -632,8 +635,207 @@ public class WallApiClientImpl implements WallApiClient {
     }
 
 
+    // -------------------- Silences --------------------
+    @Override
+    public List<SilenceDto> listSilences(final String stateFilter) {
+        try {
+            final StringBuilder sb = new StringBuilder();
+            sb.append(baseUrl).append("/api/alertmanager/grafana/api/v2/silences");
+            boolean hasQuery = false;
+            if (stateFilter != null && !stateFilter.isBlank()) {
+                // ✅ Alertmanager v2는 state 필터를 filter=state=active 로 받는다.
+                sb.append(hasQuery ? "&" : "?")
+                        .append("filter=")
+                        .append(URLEncoder.encode("state=" + stateFilter.toLowerCase(java.util.Locale.ROOT),
+                                java.nio.charset.StandardCharsets.UTF_8));
+                hasQuery = true;
+            }
+            final String url = sb.toString();
+
+            // GET + Org 헤더 포함
+            final String body = tryGetForBody(url);
+            List<SilenceDto> list = parseSilenceArray(body);
+            // 폴백: 혹시 위 필터가 안 먹는 Grafana/프록시 환경이면 무필터 호출 후 자바에서 상태로 거른다.
+            if ((list == null || list.isEmpty()) && stateFilter != null && !stateFilter.isBlank()) {
+                final String body2 = tryGetForBody(baseUrl + "/api/alertmanager/grafana/api/v2/silences");
+                list = parseSilenceArray(body2);
+                if (list == null) list = java.util.Collections.emptyList();
+                final String want = stateFilter.toLowerCase(java.util.Locale.ROOT);
+                final java.util.List<SilenceDto> filtered = new java.util.ArrayList<>();
+                for (final SilenceDto s : list) {
+                    final String st = (s.getStatus() != null && s.getStatus().getState() != null)
+                            ? s.getStatus().getState().toLowerCase(java.util.Locale.ROOT) : "";
+                    if (want.equals(st)) filtered.add(s);
+                }
+                return filtered;
+            }
+            return (list != null) ? list : java.util.Collections.emptyList();
+        } catch (Exception e) {
+            LOG.warn("[Silence][list] failed: {}");
+            return java.util.Collections.emptyList();
+        }
+    }
+
+    @Override
+    public void expireSilence(final String silenceId) {
+        if (silenceId == null || silenceId.isBlank()) {
+            throw new IllegalArgumentException("silenceId must not be null/empty");
+        }
+        final String enc = URLEncoder.encode(silenceId, StandardCharsets.UTF_8);
+        final String url = baseUrl + "/api/alertmanager/grafana/api/v2/silence/" + enc;
+        final boolean ok = trySend(url, "DELETE", null, null);
+        if (!ok) {
+            throw new RuntimeException("Failed to expire silence: " + silenceId);
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("[Silences] expired {}");
+        }
+    }
+
+
 
     // --------------------------- 내부 헬퍼 ---------------------------
+
+
+    private List<SilenceDto> parseSilenceArray(final String body) {
+        try {
+            if (body == null || body.isBlank()) return java.util.Collections.emptyList();
+            final SilenceDto[] arr = om.readValue(body, SilenceDto[].class);
+            if (arr == null || arr.length == 0) return java.util.Collections.emptyList();
+            final java.util.List<SilenceDto> out = new java.util.ArrayList<>(arr.length);
+            for (final SilenceDto s : arr) if (s != null) out.add(s);
+            return out;
+        } catch (Exception e) {
+            LOG.warn("[Silence][parse] {}");
+            return java.util.Collections.emptyList();
+        }
+    }
+
+    /**
+     * 기존 trySend는 boolean만 반환하므로, GET 응답 바디가 필요한 조회 전용 헬퍼를 추가합니다.
+     * trySend를 수정하지 않습니다.
+     */
+    private String tryGetForBody(final String url) {
+        try {
+            final HttpRequest.Builder rb = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofMillis(readTimeoutMs))
+                    .header("Accept", "application/json")
+                    .header("X-Grafana-Org-Id", "1")
+                    .header("X-Scope-OrgID", "1");
+
+            String b = null;
+            try { b = bearerNow(); } catch (Throwable ignore) {}
+            if (b == null || b.isBlank()) b = bearer;
+            if (b != null && !b.isBlank()) {
+                rb.header("Authorization", "Bearer " + b);
+            }
+
+            final HttpResponse<String> res =
+                    http.send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
+            final int sc = res.statusCode();
+            if (sc >= 200 && sc < 300) {
+                return res.body();
+            }
+            LOG.warn("[Silence][get] {} -> {} (preview: {})");
+            return null;
+        } catch (Exception e) {
+            LOG.warn("[Silence][get] {} failed: {}");
+            return null;
+        }
+    }
+
+    @Override
+    public SilenceDto getSilence(final String id, final boolean ruleMetadata, final boolean accessControl) {
+        try {
+            if (id == null || id.isEmpty()) return null;
+
+            final StringBuilder sb = new StringBuilder();
+            sb.append(baseUrl)
+                    .append("/api/alertmanager/grafana/api/v2/silence/")
+                    .append(URLEncoder.encode(id, StandardCharsets.UTF_8.name()));
+
+            boolean first = true;
+            if (ruleMetadata) {
+                sb.append(first ? "?" : "&").append("ruleMetadata=true");
+                first = false;
+            }
+            if (accessControl) {
+                sb.append(first ? "?" : "&").append("accesscontrol=true");
+                first = false;
+            }
+            final String url = sb.toString();
+
+            final String body = tryGetForBody(url);
+            if (body == null || body.isBlank()) return null;
+
+            // ObjectMapper 인스턴스가 필드로 있다면 그대로 사용 (예: om)
+            return om.readValue(body, SilenceDto.class);
+
+        } catch (Exception e) {
+            LOG.warn("[Silence][get] id={} failed: {}");
+            return null;
+        }
+    }
+
+    private boolean mutateThresholdRaw(final ObjectNode groupJson,
+                                       final String ruleTitle,
+                                       final String operator,
+                                       final Double newThreshold,
+                                       final Double threshold2) {
+        if (groupJson == null || ruleTitle == null || newThreshold == null) return false;
+
+        final JsonNode rules = groupJson.path("rules");
+        if (!rules.isArray()) return false;
+
+        final String op = (operator == null || operator.isBlank()) ? "gt" : operator.trim();
+        final String evalType =
+                "between".equals(op) || "within_range".equals(op) ? "within_range" :
+                        "outside".equals(op) || "outside_range".equals(op) ? "outside_range" :
+                                "lte".equals(op) ? "lte" :
+                                        "gte".equals(op) ? "gte" :
+                                                "lt".equals(op)  ? "lt"  : "gt";
+
+        for (JsonNode rn : rules) {
+            final String t1 = rn.path("title").asText(null);
+            final String t2 = rn.at("/grafana_alert/title").asText(null);
+            if (!(ruleTitle.equals(t1) || ruleTitle.equals(t2))) continue;
+
+            final String condKey = rn.at("/grafana_alert/condition").asText("C");
+            final JsonNode data = rn.at("/grafana_alert/data");
+            if (!data.isArray()) continue;
+
+            for (JsonNode dn : data) {
+                if (!condKey.equals(dn.path("refId").asText(""))) continue;
+
+                final JsonNode conds = dn.at("/model/conditions");
+                if (!conds.isArray() || conds.size() == 0) continue;
+
+                final JsonNode c0 = conds.get(0);
+                if (!(c0 instanceof ObjectNode)) continue;
+
+                final ObjectNode evaluator = (ObjectNode) c0.path("evaluator");
+                if (evaluator == null) continue;
+
+                evaluator.put("type", evalType);
+                final ArrayNode params = evaluator.withArray("params");
+                params.removeAll();
+
+                if ("within_range".equals(evalType) || "outside_range".equals(evalType)) {
+                    if (threshold2 == null) return false;
+                    final double lo = Math.min(newThreshold, threshold2);
+                    final double hi = Math.max(newThreshold, threshold2);
+                    params.add(lo);
+                    params.add(hi);
+                } else {
+                    params.add(newThreshold);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private boolean pauseByRuntimeApi(final String uid, final boolean paused) {
         if (uid == null || uid.isBlank()) return false;
