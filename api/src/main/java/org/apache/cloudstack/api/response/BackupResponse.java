@@ -106,6 +106,10 @@ public class BackupResponse extends BaseResponse {
     @Param(description = "snapshot id")
     private String snapshotId;
 
+    @SerializedName(ApiConstants.PROVIDER)
+    @Param(description = "provider name")
+    private String provider;
+
     public String getId() {
         return id;
     }
@@ -256,5 +260,13 @@ public class BackupResponse extends BaseResponse {
 
     public void setSnapshotId(String snapshotId) {
         this.snapshotId = snapshotId;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 }

@@ -181,6 +181,7 @@ public class BackupDaoImpl extends GenericDaoBase<BackupVO, Long> implements Bac
         response.setDomain(domain.getName());
         response.setZoneId(zone.getUuid());
         response.setZone(zone.getName());
+        response.setProvider(offering.getProvider());
         response.setObjectName("backup");
         return response;
     }
