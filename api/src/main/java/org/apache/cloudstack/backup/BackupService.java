@@ -29,9 +29,23 @@ public interface BackupService {
     List<BackupProvider> listBackupProviders();
 
     /**
+     * Lists backup and recovery provider plugins for zone
+     * @param zoneId zone id
+     * @return list of providers for zone
+     */
+    List<BackupProvider> listBackupProvidersForZone(final Long zoneId);
+
+    /**
      * Find backup provider by zone ID
      * @param zoneId zone id
      * @return backup provider
      */
     BackupProvider getBackupProvider(final Long zoneId);
+
+    /**
+     * Find backup provider by offering ID
+     * @param offeringId offering id
+     * @return backup provider
+     */
+    BackupProvider getBackupProviderForOffering(final Long offeringId);
 }

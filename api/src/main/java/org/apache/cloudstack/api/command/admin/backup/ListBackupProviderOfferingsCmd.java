@@ -55,12 +55,20 @@ public class ListBackupProviderOfferingsCmd extends BaseBackupListCmd {
             required = true, description = "The zone ID")
     private Long zoneId;
 
+    @Parameter(name = ApiConstants.PROVIDER, type = CommandType.STRING, required = true,
+            description = "The backup provider name")
+    private String provider;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
 
     public Long getZoneId() {
         return zoneId;
+    }
+
+    public String getProvider() {
+        return provider;
     }
 
     /////////////////////////////////////////////////////
@@ -77,7 +85,7 @@ public class ListBackupProviderOfferingsCmd extends BaseBackupListCmd {
     public void execute() throws ResourceUnavailableException, ServerApiException, ConcurrentOperationException {
         validateParameters();
         try {
-            final List<BackupOffering> backupOfferings = backupManager.listBackupProviderOfferings(getZoneId());
+            final List<BackupOffering> backupOfferings = backupManager.listBackupProviderOfferings(getZoneId(), getProvider());
             setupResponseBackupOfferingsList(backupOfferings, backupOfferings.size());
         } catch (InvalidParameterValueException e) {
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, e.getMessage());
