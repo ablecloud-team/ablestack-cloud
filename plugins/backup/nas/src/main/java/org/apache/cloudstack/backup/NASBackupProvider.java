@@ -340,7 +340,14 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
             DataStore dataStore = dataStoreMgr.getDataStore(storagePool.getId(), DataStoreRole.Primary);
             volumePools.add(dataStore != null ? (PrimaryDataStoreTO)dataStore.getTO() : null);
 
-            String volumePathPrefix = getVolumePathPrefix(storagePool);
+            String volumePathPrefix;
+            if (ScopeType.HOST.equals(storagePool.getScope())) {
+                volumePathPrefix = storagePool.getPath();
+            } else if (Storage.StoragePoolType.SharedMountPoint.equals(storagePool.getPoolType())) {
+                volumePathPrefix = storagePool.getPath();
+            } else {
+                volumePathPrefix = String.format("/mnt/%s", storagePool.getUuid());
+            }
             volumePaths.add(String.format("%s/%s", volumePathPrefix, volume.getPath()));
         }
         return new Pair<>(volumePools, volumePaths);
