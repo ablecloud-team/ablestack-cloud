@@ -62,6 +62,10 @@ public class ImportBackupOfferingCmd extends BaseAsyncCmd {
             description = "the description of the backup offering")
     private String description;
 
+    @Parameter(name = ApiConstants.PROVIDER, type = CommandType.STRING, required = true,
+            description = "The backup provider name")
+    private String provider;
+
     @Parameter(name = ApiConstants.EXTERNAL_ID,
             type = CommandType.STRING,
             required = true,
@@ -86,6 +90,10 @@ public class ImportBackupOfferingCmd extends BaseAsyncCmd {
 
     public String getName() {
         return name;
+    }
+
+    public String getProvider() {
+        return provider;
     }
 
     public String getExternalId() {

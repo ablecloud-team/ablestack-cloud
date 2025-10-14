@@ -891,7 +891,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         BackupVO backup = new BackupVO();
                         backup.setVmId(vm.getId());
                         backup.setExternalId(externalId);
-                        backup.setType(type);
+                        backup.setType(type.toUpperCase());
                         try {
                             backup.setDate(formatterDateTime.parse(formattedString));
                         } catch (ParseException e) {

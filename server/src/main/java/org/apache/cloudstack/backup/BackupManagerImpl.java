@@ -44,6 +44,7 @@ import org.apache.cloudstack.api.InternalIdentity;
 import org.apache.cloudstack.api.command.admin.backup.DeleteBackupOfferingCmd;
 import org.apache.cloudstack.api.command.admin.backup.ImportBackupOfferingCmd;
 import org.apache.cloudstack.api.command.admin.backup.ListBackupProviderOfferingsCmd;
+import org.apache.cloudstack.api.command.admin.backup.ListBackupProvidersForZoneCmd;
 import org.apache.cloudstack.api.command.admin.backup.ListBackupProvidersCmd;
 import org.apache.cloudstack.api.command.admin.backup.UpdateBackupOfferingCmd;
 import org.apache.cloudstack.api.command.admin.vm.CreateVMFromBackupCmdByAdmin;
@@ -258,7 +259,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     @Override
-    public List<BackupOffering> listBackupProviderOfferings(final Long zoneId) {
+    public List<BackupOffering> listBackupProviderOfferings(final Long zoneId, final String providerName) {
         if (zoneId == null || zoneId < 1) {
             throw new CloudRuntimeException("Invalid zone ID passed");
         }
@@ -267,15 +268,42 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (!accountService.isRootAdmin(account.getId())) {
             throw new PermissionDeniedException("Parameter external can only be specified by a Root Admin, permission denied");
         }
-        final BackupProvider backupProvider = getBackupProvider(zoneId);
-        logger.debug("Listing external backup offerings for the backup provider configured for zone {}", dataCenterDao.findById(zoneId));
-        return backupProvider.listBackupOfferings(zoneId);
+        List<BackupOffering> allOfferings = new ArrayList<>();
+        List<BackupProvider> providers = getBackupProvidersForZone(zoneId);
+
+        for (BackupProvider provider : providers) {
+            if (provider.getName().equalsIgnoreCase(providerName)) {
+                try {
+                    logger.debug("Listing external backup offerings for provider {} in zone {}", provider.getName(), zoneId);
+                    List<BackupOffering> offerings = provider.listBackupOfferings(zoneId);
+                    if (offerings != null && !offerings.isEmpty()) {
+                        allOfferings.addAll(offerings);
+                    }
+                } catch (Exception e) {
+                    logger.warn("Failed to list offerings from provider {} in zone {}: {}", provider.getName(), zoneId, e.getMessage());
+                }
+            }
+        }
+        return allOfferings;
     }
 
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_IMPORT_OFFERING, eventDescription = "importing backup offering", async = true)
     public BackupOffering importBackupOffering(final ImportBackupOfferingCmd cmd) {
-        validateBackupForZone(cmd.getZoneId());
+        validateForZone(cmd.getZoneId());
+
+        String providerName = cmd.getProvider();
+        if (StringUtils.isEmpty(providerName)) {
+            throw new CloudRuntimeException("Provider name must be specified");
+        }
+
+        List<BackupProvider> zoneProviders = getBackupProvidersForZone(cmd.getZoneId());
+        boolean providerFound = zoneProviders.stream().anyMatch(p -> p.getName().equalsIgnoreCase(providerName));
+
+        if (!providerFound) {
+            throw new CloudRuntimeException("Provider " + providerName + " is not enabled for zone " + cmd.getZoneId());
+        }
+
         final BackupOffering existingOffering = backupOfferingDao.findByExternalId(cmd.getExternalId(), cmd.getZoneId());
         if (existingOffering != null) {
             throw new CloudRuntimeException("A backup offering with external ID " + cmd.getExternalId() + " already exists");
@@ -284,7 +312,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             throw new CloudRuntimeException("A backup offering with the same name already exists in this zone");
         }
 
-        final BackupProvider provider = getBackupProvider(cmd.getZoneId());
+        final BackupProvider provider = getBackupProvider(providerName);
         if (!provider.isValidProviderOffering(cmd.getZoneId(), cmd.getExternalId())) {
             throw new CloudRuntimeException("Backup offering '" + cmd.getExternalId() + "' does not exist on provider " + provider.getName() + " on zone " + cmd.getZoneId());
         }
@@ -460,8 +488,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             throw new CloudRuntimeException("VM is not in running or stopped state");
         }
 
-        validateBackupForZone(vm.getDataCenterId());
-
+        validateForZone(vm.getDataCenterId());
         accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
 
         if (vm.getBackupOfferingId() != null) {
@@ -1667,9 +1694,48 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     @Override
+    public List<BackupProvider> listBackupProvidersForZone(final Long zoneId) {
+        validateForZone(zoneId);
+        return getBackupProvidersForZone(zoneId);
+    }
+
+    @Override
     public BackupProvider getBackupProvider(final Long zoneId) {
         final String name = BackupProviderPlugin.valueIn(zoneId);
         return getBackupProvider(name);
+    }
+
+    @Override
+    public BackupProvider getBackupProviderForOffering(final Long offeringId) {
+        final BackupOfferingVO offering = backupOfferingDao.findById(offeringId);
+        if (offering == null) {
+            throw new CloudRuntimeException("Backup offering not found: " + offeringId);
+        }
+        return getBackupProvider(offering.getProvider());
+    }
+
+    public List<BackupProvider> getBackupProvidersForZone(final Long zoneId) {
+        final String providersConfig = BackupProviderPlugin.valueIn(zoneId);
+        if (StringUtils.isEmpty(providersConfig)) {
+            throw new CloudRuntimeException("No backup providers configured for zone: " + zoneId);
+        }
+        List<BackupProvider> providers = new ArrayList<>();
+        String[] providerNames = providersConfig.split(",");
+        for (String name : providerNames) {
+            String trimmedName = name.trim();
+            if (!StringUtils.isEmpty(trimmedName)) {
+                try {
+                    BackupProvider provider = getBackupProvider(trimmedName);
+                    providers.add(provider);
+                } catch (CloudRuntimeException e) {
+                    logger.warn("Failed to load backup provider: " + trimmedName + " for zone: " + zoneId, e);
+                }
+            }
+        }
+        if (providers.isEmpty()) {
+            throw new CloudRuntimeException("No valid backup providers found for zone: " + zoneId);
+        }
+        return providers;
     }
 
     public BackupProvider getBackupProvider(final String name) {
@@ -1691,6 +1757,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
         // Offerings
         cmdList.add(ListBackupProvidersCmd.class);
+        cmdList.add(ListBackupProvidersForZoneCmd.class);
         cmdList.add(ListBackupProviderOfferingsCmd.class);
         cmdList.add(ImportBackupOfferingCmd.class);
         cmdList.add(ListBackupOfferingsCmd.class);
@@ -1961,20 +2028,12 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                         logger.debug("Backup Sync Task is not enabled in zone [{}]. Skipping this zone!", dataCenter == null ? "NULL Zone!" : dataCenter);
                         continue;
                     }
-
-                    final BackupProvider backupProvider = getBackupProvider(dataCenter.getId());
-                    if (backupProvider == null) {
-                        logger.warn("Backup provider not available or configured for zone {}", dataCenter);
-                        continue;
-                    }
-                    if (backupProvider.getName().equalsIgnoreCase("commvault")) {
-                        boolean check = backupProvider.checkBackupAgent(dataCenter.getId());
-                        if (!check) {
-                            boolean install = false;
-                            while(!install) {
-                                logger.info("Commvault Backup Agent will attempt to install....");
-                                install = backupProvider.installBackupAgent(dataCenter.getId());
-                            }
+                    List<BackupProvider> providers = getBackupProvidersForZone(dataCenter.getId());
+                    for (BackupProvider backupProvider : providers) {
+                        try {
+                            syncProviderBackups(dataCenter, backupProvider);
+                        } catch (Exception e) {
+                            logger.error("Failed to sync backups for provider {} in zone {}: {}", backupProvider.getName(), dataCenter.getId(), e.getMessage(), e);
                         }
                     }
 
@@ -2004,6 +2063,48 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 } catch (final Exception e) {
                     logger.error("Failed to sync backup usage metrics and out-of-band backups of VM [{}] due to: [{}].", vm, e.getMessage(), e);
                 }
+            }
+        }
+        
+        private void syncProviderBackups(DataCenter dataCenter, BackupProvider backupProvider) {
+            if (backupProvider.getName().equalsIgnoreCase("commvault")) {
+                boolean check = backupProvider.checkBackupAgent(dataCenter.getId());
+                if (!check) {
+                    boolean install = false;
+                    while(!install) {
+                        logger.info("Commvault Backup Agent will attempt to install....");
+                        install = backupProvider.installBackupAgent(dataCenter.getId());
+                    }
+                }
+            }
+
+            List<VMInstanceVO> vms = vmInstanceDao.listByZoneWithBackups(dataCenter.getId(), null);
+            if (vms == null || vms.isEmpty()) {
+                return;
+            }
+
+            List<VMInstanceVO> providerVMs = vms.stream()
+                .filter(vm -> {
+                    if (vm.getBackupOfferingId() == null) return false;
+                    BackupOfferingVO offering = backupOfferingDao.findById(vm.getBackupOfferingId());
+                    return offering != null && offering.getProvider().equalsIgnoreCase(backupProvider.getName());
+                })
+                .collect(Collectors.toList());
+
+            if (providerVMs.isEmpty()) {
+                return;
+            }
+
+            final Map<VirtualMachine, Backup.Metric> metrics = backupProvider.getBackupMetrics(dataCenter.getId(), new ArrayList<>(providerVMs));
+            syncBackupMetrics(backupProvider, metrics);
+        }
+
+        /**
+         * Tries to sync the VM backups. If one backup synchronization fails, only this VM backups are skipped, and the entire process does not stop.
+         */
+        private void syncBackupMetrics(final BackupProvider backupProvider, final Map<VirtualMachine, Backup.Metric> metrics) {
+            for (final VirtualMachine vm : metrics.keySet()) {
+                tryToSyncVMBackups(backupProvider, metrics, vm);
             }
         }
 
