@@ -79,21 +79,23 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
 
         String newVolumeId = null;
         try {
-            String mountDirectory = mountBackupDirectory(backupRepoAddress, backupRepoType, mountOptions, mountTimeout);
             if (Objects.isNull(vmExists)) {
-                PrimaryDataStoreTO volumePool = restoreVolumePools.get(0);
-                String volumePath = restoreVolumePaths.get(0);
+                String volumePath = volumePaths.get(0);
                 int lastIndex = volumePath.lastIndexOf("/");
                 newVolumeId = volumePath.substring(lastIndex + 1);
-                restoreVolume(storagePoolMgr, backupPath, volumePool, volumePath, diskType, restoreVolumeUuid,
-                        new Pair<>(vmName, command.getVmState()), mountDirectory, timeout);
+                restoreVolume(backupPath, backupRepoType, backupRepoAddress, volumePath, diskType, restoreVolumeUuid,
+                        new Pair<>(vmName, command.getVmState()), mountOptions);
             } else if (Boolean.TRUE.equals(vmExists)) {
-                restoreVolumesOfExistingVM(storagePoolMgr, restoreVolumePools, restoreVolumePaths, backedVolumeUUIDs, backupPath, mountDirectory, timeout);
+                restoreVolumesOfExistingVM(volumePaths, backupPath, backupRepoType, backupRepoAddress, mountOptions);
             } else {
-                restoreVolumesOfDestroyedVMs(storagePoolMgr, restoreVolumePools, restoreVolumePaths, vmName, backupPath, mountDirectory, timeout);
+                restoreVolumesOfDestroyedVMs(volumePaths, vmName, backupPath, backupRepoType, backupRepoAddress, mountOptions);
             }
         } catch (CloudRuntimeException e) {
-            String errorMessage = e.getMessage() != null ? e.getMessage() : "";
+            String errorMessage = "Failed to restore backup for VM: " + vmName + ".";
+            if (e.getMessage() != null && !e.getMessage().isEmpty()) {
+                errorMessage += " Details: " + e.getMessage();
+            }
+            logger.error(errorMessage);
             return new BackupAnswer(command, false, errorMessage);
         }
 
@@ -119,9 +121,8 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
                 String backupVolumeUuid = backedVolumesUUIDs.get(idx);
                 Pair<String, String> bkpPathAndVolUuid = getBackupPath(mountDirectory, null, backupPath, diskType, backupVolumeUuid);
                 diskType = "datadisk";
-                verifyBackupFile(bkpPathAndVolUuid.first(), bkpPathAndVolUuid.second());
-                if (!replaceVolumeWithBackup(storagePoolMgr, restoreVolumePool, restoreVolumePath, bkpPathAndVolUuid.first(), timeout)) {
-                    throw new CloudRuntimeException(String.format("Unable to restore contents from the backup volume [%s].", bkpPathAndVolUuid.second()));
+                if (!replaceVolumeWithBackup(volumePath, bkpPathAndVolUuid.first())) {
+                    throw new CloudRuntimeException(String.format("Unable to restore backup for volume [%s].", bkpPathAndVolUuid.second()));
                 }
             }
         } finally {
@@ -138,9 +139,8 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
                 String volumePath = volumePaths.get(i);
                 Pair<String, String> bkpPathAndVolUuid = getBackupPath(mountDirectory, volumePath, backupPath, diskType, null);
                 diskType = "datadisk";
-                verifyBackupFile(bkpPathAndVolUuid.first(), bkpPathAndVolUuid.second());
-                if (!replaceVolumeWithBackup(storagePoolMgr, volumePool, volumePath, bkpPathAndVolUuid.first(), timeout)) {
-                    throw new CloudRuntimeException(String.format("Unable to restore contents from the backup volume [%s].", bkpPathAndVolUuid.second()));
+                if (!replaceVolumeWithBackup(volumePath, bkpPathAndVolUuid.first())) {
+                    throw new CloudRuntimeException(String.format("Unable to restore backup for volume [%s].", bkpPathAndVolUuid.second()));
                 }
             }
         } finally {
@@ -154,12 +154,11 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
         Pair<String, String> bkpPathAndVolUuid;
         try {
             bkpPathAndVolUuid = getBackupPath(mountDirectory, volumePath, backupPath, diskType, volumeUUID);
-            verifyBackupFile(bkpPathAndVolUuid.first(), bkpPathAndVolUuid.second());
-            if (!replaceVolumeWithBackup(storagePoolMgr, volumePool, volumePath, bkpPathAndVolUuid.first(), timeout, true)) {
-                throw new CloudRuntimeException(String.format("Unable to restore contents from the backup volume [%s].", bkpPathAndVolUuid.second()));
+            if (!replaceVolumeWithBackup(volumePath, bkpPathAndVolUuid.first())) {
+                throw new CloudRuntimeException(String.format("Unable to restore backup for volume [%s].", bkpPathAndVolUuid.second()));
             }
             if (VirtualMachine.State.Running.equals(vmNameAndState.second())) {
-                if (!attachVolumeToVm(storagePoolMgr, vmNameAndState.first(), volumePool, volumePath)) {
+                if (!attachVolumeToVm(vmNameAndState.first(), volumePath)) {
                     throw new CloudRuntimeException(String.format("Failed to attach volume to VM: %s", vmNameAndState.first()));
                 }
             }
@@ -227,8 +226,8 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
         return new Pair<>(bkpPath, volUuid);
     }
 
-    private boolean checkBackupFileImage(String backupPath) {
-        int exitValue = Script.runSimpleBashScriptForExitValue(String.format("qemu-img check %s", backupPath));
+    private boolean replaceVolumeWithBackup(String volumePath, String backupPath) {
+        int exitValue = Script.runSimpleBashScriptForExitValue(String.format(RSYNC_COMMAND, backupPath, volumePath));
         return exitValue == 0;
     }
 
