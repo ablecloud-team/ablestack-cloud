@@ -123,7 +123,7 @@ export default {
           }
         }
       } catch (error) {
-        console.error('Failed to check current allocation:', error)
+        // Failed to check current allocation
       }
     },
 
@@ -148,8 +148,7 @@ export default {
                 instanceId: vm.instancename ? vm.instancename.split('-')[2] : null
               }))
             })
-            .catch(error => {
-              console.error(`Error fetching VMs with state ${state}:`, error)
+            .catch(() => {
               return []
             })
         })),
@@ -172,13 +171,7 @@ export default {
 
         // 할당되지 않은 VM만 필터링
         this.virtualmachines = vms.filter(vm => !allocatedVmIds.has(vm.instanceId?.toString()))
-
-        // VM 정보 로깅
-        this.virtualmachines.forEach(vm => {
-          console.log(`Available VM: ${vm.name || vm.displayname} (ID: ${vm.id}, State: ${vm.state})`)
-        })
       }).catch(error => {
-        console.error('Error in refreshVMList:', error)
         this.$notifyError(error.message || 'Failed to fetch VMs')
       }).finally(() => {
         this.loading = false
@@ -224,24 +217,20 @@ export default {
         let vmNumericId = null
         if (typeof vmUuid === 'number') {
           vmNumericId = vmUuid
-          console.log('VM ID is already numeric:', vmNumericId)
         } else if (typeof vmUuid === 'string') {
           // UUID인 경우 인스턴스 이름에서 숫자 ID 추출
           let instanceNumber = null
           if (selectedVM.instancename) {
             const parts = selectedVM.instancename.split('-')
             if (parts.length >= 3) instanceNumber = parts[2]
-            console.log('Extracted instance number from instancename:', instanceNumber, 'from:', selectedVM.instancename)
           }
           if (!instanceNumber) {
             const numberFromName = (selectedVM.name || selectedVM.displayname || '').match(/(\d+)/)
             if (numberFromName) instanceNumber = numberFromName[1]
-            console.log('Extracted instance number from name:', instanceNumber, 'from:', selectedVM.name || selectedVM.displayname)
           }
           vmNumericId = instanceNumber && !Number.isNaN(parseInt(instanceNumber, 10))
             ? parseInt(instanceNumber, 10)
             : null
-          console.log('Final numeric ID:', vmNumericId, 'from UUID:', vmUuid)
         }
 
         const xmlConfig = this.generateVhbaAllocationXmlConfig()
@@ -412,7 +401,7 @@ export default {
       }
 
       return `
-        <hostdev mode='subsystem' type='scsi' rawio='yes'>
+        <hostdev mode='subsystem' type='scsi'>
           <source>
             <adapter name='${adapterName}'/>
             <address bus='${bus}' target='${target}' unit='${unit}'/>
@@ -460,7 +449,7 @@ export default {
       }
 
       return `
-        <hostdev mode='subsystem' type='scsi' rawio='yes'>
+        <hostdev mode='subsystem' type='scsi'>
           <source>
             <adapter name='${adapterName}'/>
             <address bus='${bus}' target='${target}' unit='${unit}'/>

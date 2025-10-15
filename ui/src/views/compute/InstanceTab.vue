@@ -117,31 +117,75 @@
       </a-tab-pane>
       <a-tab-pane
         :tab="$t('label.listhostdevices')"
-        key="pcidevices"
+        key="hostdevices"
       >
-        <a-tabs v-model:activeKey="hostDeviceTabKey" style="margin-bottom: 16px;">
-          <a-tab-pane v-if="pciDevices.length > 0" key="pci" :tab="$t('label.other.devices')">
-            <a-table :columns="pciColumns" :dataSource="pciDevices" :pagination="false" :loading="loading" />
-          </a-tab-pane>
-          <a-tab-pane v-if="hbaDevices.length > 0" key="hba" :tab="$t('label.hba.devices')">
-            <a-table :columns="hbaColumns" :dataSource="hbaDevices" :pagination="false" :loading="loading" />
-          </a-tab-pane>
-          <a-tab-pane v-if="vhbaDevices.length > 0 && hbaDevices.length === 0" key="vhba" :tab="$t('label.vhba.devices')">
-            <a-table :columns="vhbaColumns" :dataSource="vhbaDevices" :pagination="false" :loading="loading" />
-          </a-tab-pane>
-          <a-tab-pane v-if="usbDevices.length > 0" key="usb" :tab="$t('label.usb.devices')">
-            <a-table :columns="usbColumns" :dataSource="usbDevices" :pagination="false" :loading="loading" />
-          </a-tab-pane>
-          <a-tab-pane v-if="lunDevices.length > 0" key="lun" :tab="$t('label.lun.devices')">
-            <a-table :columns="lunColumns" :dataSource="lunDevices" :pagination="false" :loading="loading" />
-          </a-tab-pane>
-          <a-tab-pane v-if="scsiDevices.length > 0" key="scsi" :tab="$t('label.scsi.devices')">
-            <a-table :columns="scsiColumns" :dataSource="scsiDevices" :pagination="false" :loading="loading" />
-          </a-tab-pane>
-          <a-tab-pane v-if="hasNoDevices" key="no-devices" :tab="$t('label.no.devices')">
-            <a-empty :description="$t('message.no.devices.found')" />
-          </a-tab-pane>
-        </a-tabs>
+        <div class="host-devices-container">
+          <!-- 기타 장치 (PCI) -->
+          <div class="device-section">
+            <h3 class="section-title">{{ $t('label.other.devices') }}</h3>
+            <a-table
+              :columns="deviceColumns"
+              :dataSource="pciDevices"
+              :pagination="false"
+              size="small"
+              :loading="loading" />
+          </div>
+
+          <!-- HBA 디바이스 -->
+          <div class="device-section">
+            <h3 class="section-title">{{ $t('label.hba.devices') }}</h3>
+            <a-table
+              :columns="deviceColumns"
+              :dataSource="hbaDevices"
+              :pagination="false"
+              size="small"
+              :loading="loading" />
+          </div>
+
+          <!-- VHBA 디바이스 -->
+          <div class="device-section">
+            <h3 class="section-title">{{ $t('label.vhba.devices') }}</h3>
+            <a-table
+              :columns="deviceColumns"
+              :dataSource="vhbaDevices"
+              :pagination="false"
+              size="small"
+              :loading="loading" />
+          </div>
+
+          <!-- USB 디바이스 -->
+          <div class="device-section">
+            <h3 class="section-title">{{ $t('label.usb.devices') }}</h3>
+            <a-table
+              :columns="deviceColumns"
+              :dataSource="usbDevices"
+              :pagination="false"
+              size="small"
+              :loading="loading" />
+          </div>
+
+          <!-- LUN 디바이스 -->
+          <div class="device-section">
+            <h3 class="section-title">{{ $t('label.lun.devices') }}</h3>
+            <a-table
+              :columns="deviceColumns"
+              :dataSource="lunDevices"
+              :pagination="false"
+              size="small"
+              :loading="loading" />
+          </div>
+
+          <!-- SCSI 디바이스 -->
+          <div class="device-section">
+            <h3 class="section-title">{{ $t('label.scsi.devices') }}</h3>
+            <a-table
+              :columns="deviceColumns"
+              :dataSource="scsiDevices"
+              :pagination="false"
+              size="small"
+              :loading="loading" />
+          </div>
+        </div>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.settings')" key="settings">
         <DetailSettings :resource="dataResource" :loading="loading" />
@@ -298,97 +342,34 @@ export default {
       hbaDevices: [],
       vhbaDevices: [],
       scsiDevices: [],
-      pciColumns: [
+      // 디바이스 데이터 캐싱을 위한 플래그들
+      devicesLoaded: false,
+      deviceLoadingStates: {
+        pci: false,
+        usb: false,
+        lun: false,
+        hba: false,
+        vhba: false,
+        scsi: false
+      },
+      deviceColumns: [
         {
           title: this.$t('label.name'),
           dataIndex: 'hostDevicesName',
-          key: 'hostDevicesName'
+          key: 'hostDevicesName',
+          customRender: ({ text }) => {
+            return h('div', { style: 'white-space: pre-line; line-height: 1.4; min-height: 50px; padding-top: 8px;' }, this.formatDeviceName(text))
+          }
         },
         {
           title: this.$t('label.details'),
           dataIndex: 'hostDevicesText',
           key: 'hostDevicesText',
           customRender: ({ text }) => {
-            return h('div', { style: 'white-space: pre-wrap; word-break: break-word;' }, text)
+            return h('div', { style: 'white-space: pre-wrap; word-break: break-word; min-height: 40px;' }, text)
           }
         }
-      ],
-      usbColumns: [
-        {
-          title: this.$t('label.name'),
-          dataIndex: 'hostDevicesName',
-          key: 'hostDevicesName'
-        },
-        {
-          title: this.$t('label.details'),
-          dataIndex: 'hostDevicesText',
-          key: 'hostDevicesText',
-          customRender: ({ text }) => {
-            return h('div', { style: 'white-space: pre-wrap; word-break: break-word;' }, text)
-          }
-        }
-      ],
-      lunColumns: [
-        {
-          title: this.$t('label.name'),
-          dataIndex: 'hostDevicesName',
-          key: 'hostDevicesName'
-        },
-        {
-          title: this.$t('label.details'),
-          dataIndex: 'hostDevicesText',
-          key: 'hostDevicesText',
-          customRender: ({ text }) => {
-            return h('div', { style: 'white-space: pre-wrap; word-break: break-word;' }, text)
-          }
-        }
-      ],
-      hbaColumns: [
-        {
-          title: this.$t('label.name'),
-          dataIndex: 'hostDevicesName',
-          key: 'hostDevicesName'
-        },
-        {
-          title: this.$t('label.details'),
-          dataIndex: 'hostDevicesText',
-          key: 'hostDevicesText',
-          customRender: ({ text }) => {
-            return h('div', { style: 'white-space: pre-wrap; word-break: break-word;' }, text)
-          }
-        }
-      ],
-      vhbaColumns: [
-        {
-          title: this.$t('label.name'),
-          dataIndex: 'hostDevicesName',
-          key: 'hostDevicesName'
-        },
-        {
-          title: this.$t('label.details'),
-          dataIndex: 'hostDevicesText',
-          key: 'hostDevicesText',
-          customRender: ({ text }) => {
-            return h('div', { style: 'white-space: break-word;' }, text)
-          }
-        }
-      ],
-      scsiColumns: [
-        {
-          title: this.$t('label.name'),
-          dataIndex: 'hostDevicesName',
-          key: 'hostDevicesName'
-        },
-        {
-          title: this.$t('label.details'),
-          dataIndex: 'hostDevicesText',
-          key: 'hostDevicesText',
-          customRender: ({ text }) => {
-            return h('div', { style: 'white-space: pre-wrap; word-break: break-word;' }, text)
-          }
-        }
-      ],
-      hostDeviceTabKey: 'pci'
+      ]
     }
   },
   created () {
@@ -405,45 +386,44 @@ export default {
       deep: true,
       handler (newData, oldData) {
         if (newData !== oldData) {
+          const oldHostId = this.dataResource?.hostid
+          const newHostId = newData?.hostid
+
           this.dataResource = newData
           this.vm = this.dataResource
-          this.fetchData()
+
+          // 호스트가 변경되었거나 리소스가 변경되면 디바이스 캐시 초기화
+          if (oldHostId !== newHostId || !this.devicesLoaded) {
+            this.resetDeviceCache()
+            this.fetchData()
+          }
         }
       }
     },
     '$route.fullPath': function () {
       this.setCurrentTab()
-    },
-    hostDeviceTabKey (newKey) {
-      if (newKey === 'pci') {
-        this.fetchPciDevices()
-      } else if (newKey === 'usb') {
-        this.fetchUsbDevices()
-      } else if (newKey === 'lun') {
-        this.fetchLunDevices()
-      } else if (newKey === 'hba') {
-        this.fetchHbaDevices()
-      } else if (newKey === 'vhba') {
-        this.fetchVhbaDevices()
-      } else if (newKey === 'scsi') {
-        this.fetchScsiDevices()
-      }
     }
   },
   computed: {
-    hasNoDevices () {
-      return this.pciDevices.length === 0 &&
-             this.hbaDevices.length === 0 &&
-             (this.vhbaDevices.length === 0 || this.hbaDevices.length > 0) &&
-             this.usbDevices.length === 0 &&
-             this.lunDevices.length === 0 &&
-             this.scsiDevices.length === 0
-    }
   },
   mounted () {
     this.setCurrentTab()
   },
   methods: {
+    // 디바이스 이름을 포맷팅하여 괄호 안의 내용을 줄바꿈으로 표시
+    formatDeviceName (deviceName) {
+      if (!deviceName) return ''
+
+      // 괄호가 있는 경우 줄바꿈으로 분리
+      const match = deviceName.match(/^(.+?)\s*\((.+?)\)$/)
+      if (match) {
+        const [, mainName, bracketContent] = match
+        const result = `${mainName.trim()}\n(${bracketContent})`
+        return result
+      }
+
+      return deviceName
+    },
     setCurrentTab () {
       this.currentTab = this.$route.query.tab ? this.$route.query.tab : 'details'
     },
@@ -477,33 +457,18 @@ export default {
         }
       })
 
-      console.log('Fetching device data for VM:', this.vm.name, 'State:', this.vm.state)
+      if (!this.devicesLoaded) {
+        // 모든 디바이스 타입을 병렬로 로드
+        await Promise.all([
+          this.fetchPciDevices(),
+          this.fetchUsbDevices(),
+          this.fetchLunDevices(),
+          this.fetchHbaDevices(),
+          this.fetchVhbaDevices(),
+          this.fetchScsiDevices()
+        ])
 
-      await this.fetchPciDevices()
-      await this.fetchUsbDevices()
-      await this.fetchLunDevices()
-      await this.fetchHbaDevices()
-      await this.fetchVhbaDevices()
-      await this.fetchScsiDevices()
-
-      console.log('Device counts - PCI:', this.pciDevices.length, 'USB:', this.usbDevices.length, 'LUN:', this.lunDevices.length, 'HBA:', this.hbaDevices.length, 'VHBA:', this.vhbaDevices.length, 'SCSI:', this.scsiDevices.length)
-
-      // 디바이스가 있는 첫 번째 탭을 선택
-      if (this.pciDevices.length > 0) {
-        this.hostDeviceTabKey = 'pci'
-      } else if (this.hbaDevices.length > 0) {
-        this.hostDeviceTabKey = 'hba'
-      } else if (this.vhbaDevices.length > 0 && this.hbaDevices.length === 0) {
-        this.hostDeviceTabKey = 'vhba'
-      } else if (this.usbDevices.length > 0) {
-        this.hostDeviceTabKey = 'usb'
-      } else if (this.lunDevices.length > 0) {
-        this.hostDeviceTabKey = 'lun'
-      } else if (this.scsiDevices.length > 0) {
-        this.hostDeviceTabKey = 'scsi'
-      } else {
-        // 디바이스가 없으면 "No Devices" 탭 선택
-        this.hostDeviceTabKey = 'no-devices'
+        this.devicesLoaded = true
       }
     },
     listDiskOfferings () {
@@ -558,92 +523,106 @@ export default {
       this.showRemoveMirrorVMModal = true
     },
     async handleChangeTab (activeKey) {
-      if (activeKey === 'pcidevices') {
-        await this.fetchPciDevices()
-        await this.fetchUsbDevices()
-        await this.fetchLunDevices()
-        await this.fetchHbaDevices()
-        await this.fetchVhbaDevices()
-        await this.fetchScsiDevices()
+      // 디바이스 탭으로 변경될 때만 필요한 경우에만 데이터 로드
+      if (activeKey === 'hostdevices') {
+        // 디바이스 탭이 처음 열릴 때 또는 마이그레이션으로 인해 장치 데이터가 없는 경우 데이터 로드
+        if (!this.devicesLoaded) {
+          await this.fetchData()
+        }
       }
+
       if (this.currentTab !== activeKey) {
         this.currentTab = activeKey
+
+        // URL 쿼리 파라미터 업데이트
+        const query = Object.assign({}, this.$route.query)
+        query.tab = activeKey
+        const queryString = Object.keys(query).map(key => {
+          return encodeURIComponent(key) + '=' + encodeURIComponent(query[key])
+        }).join('&')
+
+        history.pushState({}, null, '#' + this.$route.path + '?' + queryString)
       }
     },
+    resetDeviceCache () {
+      this.devicesLoaded = false
+      this.deviceLoadingStates = {
+        pci: false,
+        usb: false,
+        lun: false,
+        hba: false,
+        vhba: false,
+        scsi: false
+      }
+      // 장치 데이터 초기화
+      this.pciDevices = []
+      this.usbDevices = []
+      this.lunDevices = []
+      this.hbaDevices = []
+      this.vhbaDevices = []
+      this.scsiDevices = []
+    },
     async fetchPciDevices () {
+      if (this.deviceLoadingStates.pci) return
+
+      this.deviceLoadingStates.pci = true
       this.pciDevices = []
 
       try {
         const vmNumericId = this.vm.instancename?.split('-')[2]
         if (!vmNumericId) {
-          console.log('No VM numeric ID found, skipping PCI device fetch')
           return
         }
 
-        console.log('Fetching PCI devices for VM ID:', vmNumericId, 'VM State:', this.vm.state)
+        // 모든 호스트 목록 가져오기
+        const hostsResponse = await api('listHosts', {})
+        const hosts = hostsResponse?.listhostsresponse?.host || []
 
-        // VM이 정지된 상태에서는 모든 호스트에서 디바이스 할당 정보를 찾아야 함
-        if (!this.vm.hostid) {
-          console.log('VM is stopped, searching all hosts for device allocations')
+        // 각 호스트에서 디바이스 할당 정보 확인
+        for (const host of hosts) {
+          try {
+            const response = await api('listHostDevices', { id: host.id })
 
-          // 모든 호스트 목록 가져오기
-          const hostsResponse = await api('listHosts', {})
-          const hosts = hostsResponse?.listhostsresponse?.host || []
-          console.log('Found hosts:', hosts.length)
+            // API 응답 에러 확인 (530 에러는 지원되지 않는 명령)
+            if (response?.listhostdevicesresponse?.errorcode === 530) {
+              continue
+            }
+            if (response?.listhostdevicesresponse?.errorcode) {
+              continue
+            }
 
-          // 각 호스트에서 디바이스 할당 정보 확인
-          for (const host of hosts) {
-            try {
-              const response = await api('listHostDevices', { id: host.id })
-              const devices = response?.listhostdevicesresponse?.listhostdevices?.[0]
+            const devices = response?.listhostdevicesresponse?.listhostdevices?.[0]
 
-              if (devices && devices.vmallocations && devices.hostdevicesname && devices.hostdevicestext) {
-                Object.entries(devices.vmallocations).forEach(([deviceName, vmId]) => {
-                  if (vmId === vmNumericId) {
-                    const deviceIndex = devices.hostdevicesname.findIndex(name => name === deviceName)
-                    if (deviceIndex !== -1 && devices.hostdevicestext[deviceIndex]) {
+            if (devices && devices.vmallocations && devices.hostdevicesname && devices.hostdevicestext) {
+              Object.entries(devices.vmallocations).forEach(([deviceName, vmId]) => {
+                if (vmId === vmNumericId) {
+                  const deviceIndex = devices.hostdevicesname.findIndex(name => name === deviceName)
+                  if (deviceIndex !== -1 && devices.hostdevicestext[deviceIndex]) {
+                    // 중복 디바이스 방지
+                    const existingDevice = this.pciDevices.find(device => device.hostDevicesName === deviceName)
+                    if (!existingDevice) {
                       this.pciDevices.push({
-                        key: deviceName,
+                        key: `${host.id}-${deviceName}`,
                         hostDevicesName: devices.hostdevicesname[deviceIndex],
                         hostDevicesText: devices.hostdevicestext[deviceIndex]
                       })
-                      console.log('Added PCI device from host:', host.name, 'Device:', deviceName)
                     }
                   }
-                })
-              }
-            } catch (error) {
-              console.warn('Error checking host:', host.name, error.message)
+                }
+              })
+            }
+          } catch (error) {
+            // API가 지원되지 않거나 에러가 발생한 경우 조용히 건너뛰기
+            if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
+            } else {
+              console.warn('Error checking PCI devices on host:', host.name, error.message)
             }
           }
-        } else {
-          // VM이 실행 중인 경우 기존 방식 사용
-          console.log('VM is running, using hostid:', this.vm.hostid)
-          const response = await api('listHostDevices', { id: this.vm.hostid })
-          const devices = response?.listhostdevicesresponse?.listhostdevices?.[0]
-
-          if (devices && devices.vmallocations && devices.hostdevicesname && devices.hostdevicestext) {
-            console.log('Found VM allocations:', devices.vmallocations)
-            Object.entries(devices.vmallocations).forEach(([deviceName, vmId]) => {
-              console.log('Checking device:', deviceName, 'VM ID:', vmId, 'Expected:', vmNumericId)
-              if (vmId === vmNumericId) {
-                const deviceIndex = devices.hostdevicesname.findIndex(name => name === deviceName)
-                if (deviceIndex !== -1 && devices.hostdevicestext[deviceIndex]) {
-                  this.pciDevices.push({
-                    key: deviceName,
-                    hostDevicesName: devices.hostdevicesname[deviceIndex],
-                    hostDevicesText: devices.hostdevicestext[deviceIndex]
-                  })
-                  console.log('Added PCI device:', deviceName)
-                }
-              }
-            })
-          }
         }
-
-        console.log('Total PCI devices found:', this.pciDevices.length)
       } catch (error) {
-        console.warn('Error fetching PCI devices:', error.message)
+        console.warn('Error in fetchPciDevices:', error.message)
+      } finally {
+        this.deviceLoadingStates.pci = false
       }
     },
     getVmNumericId () {
@@ -652,239 +631,179 @@ export default {
       return parts.length > 2 ? parts[2] : null
     },
     async fetchUsbDevices () {
+      if (this.deviceLoadingStates.usb) return
+
+      this.deviceLoadingStates.usb = true
       this.usbDevices = []
 
       try {
         const vmNumericId = this.getVmNumericId()
         if (!vmNumericId) {
-          console.log('No VM numeric ID found, skipping USB device fetch')
           return
         }
 
-        console.log('Fetching USB devices for VM ID:', vmNumericId, 'VM State:', this.vm.state)
+        // 모든 호스트 목록 가져오기
+        const hostsResponse = await api('listHosts', {})
+        const hosts = hostsResponse?.listhostsresponse?.host || []
 
-        if (!this.vm.hostid) {
-          console.log('VM is stopped, searching all hosts for USB device allocations')
+        // 각 호스트에서 USB 디바이스 할당 정보 확인
+        for (const host of hosts) {
+          try {
+            const usbRes = await api('listHostUsbDevices', { id: host.id })
 
-          // 모든 호스트 목록 가져오기
-          const hostsResponse = await api('listHosts', {})
-          const hosts = hostsResponse?.listhostsresponse?.host || []
-          console.log('Found hosts for USB search:', hosts.length)
+            // API 응답 에러 확인 (530 에러는 지원되지 않는 명령)
+            if (usbRes?.listhostusbdevicesresponse?.errorcode === 530) {
+              continue
+            }
+            if (usbRes?.listhostusbdevicesresponse?.errorcode) {
+              continue
+            }
 
-          // 각 호스트에서 USB 디바이스 할당 정보 확인
-          for (const host of hosts) {
-            try {
-              const usbRes = await api('listHostUsbDevices', { id: host.id })
-              const usbData = usbRes?.listhostusbdevicesresponse?.listhostusbdevices?.[0]
+            const usbData = usbRes?.listhostusbdevicesresponse?.listhostusbdevices?.[0]
 
-              if (usbData && usbData.vmallocations && usbData.hostdevicesname && usbData.hostdevicestext) {
-                for (const [devName, vmId] of Object.entries(usbData.vmallocations)) {
-                  if (vmId && String(vmId) === String(vmNumericId)) {
-                    const deviceIndex = usbData.hostdevicesname.indexOf(devName)
-                    if (deviceIndex !== -1 && usbData.hostdevicestext[deviceIndex]) {
+            if (usbData && usbData.vmallocations && usbData.hostdevicesname && usbData.hostdevicestext) {
+              for (const [devName, vmId] of Object.entries(usbData.vmallocations)) {
+                if (vmId && String(vmId) === String(vmNumericId)) {
+                  const deviceIndex = usbData.hostdevicesname.indexOf(devName)
+                  if (deviceIndex !== -1 && usbData.hostdevicestext[deviceIndex]) {
+                    // 중복 디바이스 방지
+                    const existingDevice = this.usbDevices.find(device => device.hostDevicesName === devName)
+                    if (!existingDevice) {
                       this.usbDevices.push({
                         hostDevicesName: devName,
                         hostDevicesText: usbData.hostdevicestext[deviceIndex]
                       })
-                      console.log('Added USB device from host:', host.name, 'Device:', devName)
                     }
                   }
                 }
               }
-            } catch (error) {
+            }
+          } catch (error) {
+            // API가 지원되지 않거나 에러가 발생한 경우 조용히 건너뛰기
+            if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
+            } else {
               console.warn('Error checking USB devices on host:', host.name, error.message)
             }
           }
-        } else {
-          // VM이 실행 중인 경우 기존 방식 사용
-          console.log('VM is running, using hostid for USB:', this.vm.hostid)
-          const usbRes = await api('listHostUsbDevices', { id: this.vm.hostid })
-          const usbData = usbRes?.listhostusbdevicesresponse?.listhostusbdevices?.[0]
-
-          if (usbData && usbData.vmallocations && usbData.hostdevicesname && usbData.hostdevicestext) {
-            for (const [devName, vmId] of Object.entries(usbData.vmallocations)) {
-              if (vmId && String(vmId) === String(vmNumericId)) {
-                const deviceIndex = usbData.hostdevicesname.indexOf(devName)
-                if (deviceIndex !== -1 && usbData.hostdevicestext[deviceIndex]) {
-                  this.usbDevices.push({
-                    hostDevicesName: devName,
-                    hostDevicesText: usbData.hostdevicestext[deviceIndex]
-                  })
-                  console.log('Added USB device:', devName)
-                }
-              }
-            }
-          }
         }
-
-        console.log('Total USB devices found:', this.usbDevices.length)
       } catch (error) {
-        console.warn('Error fetching USB devices:', error.message)
+        console.warn('Error in fetchUsbDevices:', error.message)
+      } finally {
+        this.deviceLoadingStates.usb = false
       }
     },
     async fetchLunDevices () {
+      if (this.deviceLoadingStates.lun) return
+
+      this.deviceLoadingStates.lun = true
       this.lunDevices = []
 
       try {
         const vmNumericId = this.getVmNumericId()
         if (!vmNumericId) {
-          console.log('No VM numeric ID found, skipping LUN device fetch')
           return
         }
 
-        console.log('Fetching LUN devices for VM ID:', vmNumericId, 'VM State:', this.vm.state)
+        // 모든 호스트 목록 가져오기
+        const hostsResponse = await api('listHosts', {})
+        const hosts = hostsResponse?.listhostsresponse?.host || []
 
-        if (!this.vm.hostid) {
-          console.log('VM is stopped, searching all hosts for LUN device allocations')
+        // 각 호스트에서 LUN 디바이스 할당 정보 확인
+        for (const host of hosts) {
+          try {
+            const lunRes = await api('listHostLunDevices', { id: host.id })
 
-          // 모든 호스트 목록 가져오기
-          const hostsResponse = await api('listHosts', {})
-          const hosts = hostsResponse?.listhostsresponse?.host || []
-          console.log('Found hosts for LUN search:', hosts.length)
+            // API 응답 에러 확인 (530 에러는 지원되지 않는 명령)
+            if (lunRes?.listhostlundevicesresponse?.errorcode === 530) {
+              continue
+            }
+            if (lunRes?.listhostlundevicesresponse?.errorcode) {
+              continue
+            }
 
-          // 각 호스트에서 LUN 디바이스 할당 정보 확인
-          for (const host of hosts) {
-            try {
-              const lunRes = await api('listHostLunDevices', { id: host.id })
-              const lunData = lunRes?.listhostlundevicesresponse?.listhostlundevices?.[0]
+            const lunData = lunRes?.listhostlundevicesresponse?.listhostlundevices?.[0]
 
-              if (lunData && lunData.vmallocations && lunData.hostdevicesname && lunData.hostdevicestext) {
-                for (const [devName, vmId] of Object.entries(lunData.vmallocations)) {
-                  if (vmId && String(vmId) === String(vmNumericId)) {
-                    const deviceIndex = lunData.hostdevicesname.indexOf(devName)
-                    if (deviceIndex !== -1 && lunData.hostdevicestext[deviceIndex]) {
+            if (lunData && lunData.vmallocations && lunData.hostdevicesname && lunData.hostdevicestext) {
+              for (const [devName, vmId] of Object.entries(lunData.vmallocations)) {
+                if (vmId && String(vmId) === String(vmNumericId)) {
+                  const deviceIndex = lunData.hostdevicesname.indexOf(devName)
+                  if (deviceIndex !== -1 && lunData.hostdevicestext[deviceIndex]) {
+                    // 중복 디바이스 방지
+                    const existingDevice = this.lunDevices.find(device => device.hostDevicesName === devName)
+                    if (!existingDevice) {
                       this.lunDevices.push({
                         hostDevicesName: devName,
                         hostDevicesText: lunData.hostdevicestext[deviceIndex]
                       })
-                      console.log('Added LUN device from host:', host.name, 'Device:', devName)
                     }
                   }
                 }
               }
-            } catch (error) {
+            }
+          } catch (error) {
+            // API가 지원되지 않거나 에러가 발생한 경우 조용히 건너뛰기
+            if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
+            } else {
               console.warn('Error checking LUN devices on host:', host.name, error.message)
             }
           }
-        } else {
-          // VM이 실행 중인 경우 기존 방식 사용
-          console.log('VM is running, using hostid for LUN:', this.vm.hostid)
-          const lunRes = await api('listHostLunDevices', { id: this.vm.hostid })
-          const lunData = lunRes?.listhostlundevicesresponse?.listhostlundevices?.[0]
-
-          if (lunData && lunData.vmallocations && lunData.hostdevicesname && lunData.hostdevicestext) {
-            for (const [devName, vmId] of Object.entries(lunData.vmallocations)) {
-              if (vmId && String(vmId) === String(vmNumericId)) {
-                const deviceIndex = lunData.hostdevicesname.indexOf(devName)
-                if (deviceIndex !== -1 && lunData.hostdevicestext[deviceIndex]) {
-                  this.lunDevices.push({
-                    hostDevicesName: devName,
-                    hostDevicesText: lunData.hostdevicestext[deviceIndex]
-                  })
-                  console.log('Added LUN device:', devName)
-                }
-              }
-            }
-          }
         }
-
-        console.log('Total LUN devices found:', this.lunDevices.length)
       } catch (error) {
         console.warn('Error fetching LUN devices:', error.message)
+      } finally {
+        this.deviceLoadingStates.lun = false
       }
     },
     async fetchHbaDevices () {
+      if (this.deviceLoadingStates.hba) return
+
+      this.deviceLoadingStates.hba = true
       this.hbaDevices = []
 
       try {
         const vmNumericId = this.getVmNumericId()
         if (!vmNumericId) {
-          console.log('No VM numeric ID found, skipping HBA device fetch')
           return
         }
 
-        console.log('Fetching HBA devices for VM ID:', vmNumericId, 'VM State:', this.vm.state)
+        // VM이 실제로 가지고 있는 모든 HBA 디바이스를 찾기 위해 모든 호스트를 검색
 
-        if (!this.vm.hostid) {
-          console.log('VM is stopped, searching all hosts for HBA device allocations')
+        // 모든 호스트 목록 가져오기
+        const hostsResponse = await api('listHosts', {})
+        const hosts = hostsResponse?.listhostsresponse?.host || []
 
-          // 모든 호스트 목록 가져오기
-          const hostsResponse = await api('listHosts', {})
-          const hosts = hostsResponse?.listhostsresponse?.host || []
-          console.log('Found hosts for HBA search:', hosts.length)
-
-          // HBA API 지원 여부를 먼저 확인
-          let hbaApiSupported = false
-          for (const host of hosts) {
-            try {
-              const testRes = await api('listHostHbaDevices', { id: host.id })
-              if (!testRes?.listhosthbadevicesresponse?.errorcode) {
-                hbaApiSupported = true
-                console.log(`HBA API is supported on host ${host.name}`)
-                break
-              }
-            } catch (error) {
-              if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
-                console.log(`HBA API not supported on host ${host.name}, trying next host...`)
-                continue
-              }
-            }
-          }
-
-          // HBA API가 지원되지 않으면 조기 종료
-          if (!hbaApiSupported) {
-            console.log('HBA API is not supported on any host, skipping HBA device search')
-            return
-          }
-
-          // 각 호스트에서 HBA 디바이스 할당 정보 확인
-          for (const host of hosts) {
-            try {
-              const hbaRes = await api('listHostHbaDevices', { id: host.id })
-
-              // API 응답에서 에러 코드 확인
-              if (hbaRes?.listhosthbadevicesresponse?.errorcode) {
-                console.log(`HBA API not supported on host ${host.name}, skipping...`)
-                continue
-              }
-
-              const hbaData = hbaRes?.listhosthbadevicesresponse?.listhosthbadevices?.[0]
-
-              // 할당된 디바이스만 처리
-              if (hbaData && hbaData.vmallocations && hbaData.hostdevicesname && hbaData.hostdevicestext) {
-                for (const [devName, vmId] of Object.entries(hbaData.vmallocations)) {
-                  // VM ID가 있고 현재 VM과 일치하는 경우만 처리
-                  if (vmId && String(vmId) === String(vmNumericId)) {
-                    const deviceIndex = hbaData.hostdevicesname.indexOf(devName)
-                    if (deviceIndex !== -1 && hbaData.hostdevicestext[deviceIndex]) {
-                      this.hbaDevices.push({
-                        hostDevicesName: devName,
-                        hostDevicesText: hbaData.hostdevicestext[deviceIndex]
-                      })
-                      console.log('Added HBA device from host:', host.name, 'Device:', devName)
-                    }
-                  }
-                }
-              }
-            } catch (error) {
-              // API가 지원되지 않는 경우 조용히 건너뛰기
-              if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
-                console.log(`HBA devices not supported on host ${host.name}, skipping...`)
-              } else {
-                console.warn('Error checking HBA devices on host:', host.name, error.message)
-              }
-            }
-          }
-        } else {
-          // VM이 실행 중인 경우 기존 방식 사용
-          console.log('VM is running, using hostid for HBA:', this.vm.hostid)
+        // HBA API 지원 여부를 먼저 확인
+        let hbaApiSupported = false
+        for (const host of hosts) {
           try {
-            const hbaRes = await api('listHostHbaDevices', { id: this.vm.hostid })
+            const testRes = await api('listHostHbaDevices', { id: host.id })
+            if (!testRes?.listhosthbadevicesresponse?.errorcode) {
+              hbaApiSupported = true
+              break
+            }
+          } catch (error) {
+            if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
+              continue
+            }
+          }
+        }
 
-            // API 응답에서 에러 코드 확인
+        // HBA API가 지원되지 않으면 조기 종료
+        if (!hbaApiSupported) {
+          return
+        }
+
+        // 각 호스트에서 HBA 디바이스 할당 정보 확인
+        for (const host of hosts) {
+          try {
+            const hbaRes = await api('listHostHbaDevices', { id: host.id })
+
+            // API 응답에서 에러 코드 확인 (530 에러는 지원되지 않는 명령)
+            if (hbaRes?.listhosthbadevicesresponse?.errorcode === 530) {
+              continue
+            }
             if (hbaRes?.listhosthbadevicesresponse?.errorcode) {
-              console.log('HBA API not supported, skipping...')
-              return
+              continue
             }
 
             const hbaData = hbaRes?.listhosthbadevicesresponse?.listhosthbadevices?.[0]
@@ -896,11 +815,14 @@ export default {
                 if (vmId && String(vmId) === String(vmNumericId)) {
                   const deviceIndex = hbaData.hostdevicesname.indexOf(devName)
                   if (deviceIndex !== -1 && hbaData.hostdevicestext[deviceIndex]) {
-                    this.hbaDevices.push({
-                      hostDevicesName: devName,
-                      hostDevicesText: hbaData.hostdevicestext[deviceIndex]
-                    })
-                    console.log('Added HBA device:', devName)
+                    // 중복 디바이스 방지
+                    const existingDevice = this.hbaDevices.find(device => device.hostDevicesName === devName)
+                    if (!existingDevice) {
+                      this.hbaDevices.push({
+                        hostDevicesName: devName,
+                        hostDevicesText: hbaData.hostdevicestext[deviceIndex]
+                      })
+                    }
                   }
                 }
               }
@@ -908,110 +830,67 @@ export default {
           } catch (error) {
             // API가 지원되지 않는 경우 조용히 건너뛰기
             if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
-              console.log('HBA devices not supported, skipping...')
             } else {
-              console.warn('Error fetching HBA devices:', error.message)
+              console.warn('Error checking HBA devices on host:', host.name, error.message)
             }
           }
         }
-
-        console.log('Total HBA devices found:', this.hbaDevices.length)
       } catch (error) {
         console.warn('Error in fetchHbaDevices:', error.message)
+      } finally {
+        this.deviceLoadingStates.hba = false
       }
     },
     async fetchVhbaDevices () {
+      if (this.deviceLoadingStates.vhba) return
+
+      this.deviceLoadingStates.vhba = true
       this.vhbaDevices = []
 
       try {
         const vmNumericId = this.getVmNumericId()
         if (!vmNumericId) {
-          console.log('No VM numeric ID found, skipping VHBA device fetch')
           return
         }
 
-        console.log('Fetching VHBA devices for VM ID:', vmNumericId, 'VM State:', this.vm.state)
+        // VM이 실제로 가지고 있는 모든 VHBA 디바이스를 찾기 위해 모든 호스트를 검색
 
-        if (!this.vm.hostid) {
-          console.log('VM is stopped, searching all hosts for VHBA device allocations')
+        // 모든 호스트 목록 가져오기
+        const hostsResponse = await api('listHosts', {})
+        const hosts = hostsResponse?.listhostsresponse?.host || []
 
-          // 모든 호스트 목록 가져오기
-          const hostsResponse = await api('listHosts', {})
-          const hosts = hostsResponse?.listhostsresponse?.host || []
-          console.log('Found hosts for VHBA search:', hosts.length)
-
-          // VHBA API 지원 여부를 먼저 확인
-          let vhbaApiSupported = false
-          for (const host of hosts) {
-            try {
-              const testRes = await api('listVhbaDevices', { hostid: host.id })
-              if (!testRes?.listvhbadevicesresponse?.errorcode) {
-                vhbaApiSupported = true
-                console.log(`VHBA API is supported on host ${host.name}`)
-                break
-              }
-            } catch (error) {
-              if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
-                console.log(`VHBA API not supported on host ${host.name}, trying next host...`)
-                continue
-              }
-            }
-          }
-
-          // VHBA API가 지원되지 않으면 조기 종료
-          if (!vhbaApiSupported) {
-            console.log('VHBA API is not supported on any host, skipping VHBA device search')
-            return
-          }
-
-          // 각 호스트에서 VHBA 디바이스 할당 정보 확인
-          for (const host of hosts) {
-            try {
-              const vhbaRes = await api('listVhbaDevices', { hostid: host.id })
-
-              // API 응답에서 에러 코드 확인
-              if (vhbaRes?.listvhbadevicesresponse?.errorcode) {
-                console.log(`VHBA API not supported on host ${host.name}, skipping...`)
-                continue
-              }
-
-              const vhbaData = vhbaRes?.listvhbadevicesresponse?.listvhbadevices?.[0]
-
-              // 할당된 디바이스만 처리
-              if (vhbaData && vhbaData.vmallocations && vhbaData.hostdevicesname && vhbaData.hostdevicestext) {
-                for (const [devName, vmId] of Object.entries(vhbaData.vmallocations)) {
-                  // VM ID가 있고 현재 VM과 일치하는 경우만 처리
-                  if (vmId && String(vmId) === String(vmNumericId)) {
-                    const deviceIndex = vhbaData.hostdevicesname.indexOf(devName)
-                    if (deviceIndex !== -1 && vhbaData.hostdevicestext[deviceIndex]) {
-                      this.vhbaDevices.push({
-                        hostDevicesName: devName,
-                        hostDevicesText: vhbaData.hostdevicestext[deviceIndex]
-                      })
-                      console.log('Added VHBA device from host:', host.name, 'Device:', devName)
-                    }
-                  }
-                }
-              }
-            } catch (error) {
-              // API가 지원되지 않는 경우 조용히 건너뛰기
-              if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
-                console.log(`VHBA devices not supported on host ${host.name}, skipping...`)
-              } else {
-                console.warn('Error checking VHBA devices on host:', host.name, error.message)
-              }
-            }
-          }
-        } else {
-          // VM이 실행 중인 경우 기존 방식 사용
-          console.log('VM is running, using hostid for VHBA:', this.vm.hostid)
+        // VHBA API 지원 여부를 먼저 확인
+        let vhbaApiSupported = false
+        for (const host of hosts) {
           try {
-            const vhbaRes = await api('listVhbaDevices', { hostid: this.vm.hostid })
+            const testRes = await api('listVhbaDevices', { hostid: host.id })
+            if (!testRes?.listvhbadevicesresponse?.errorcode) {
+              vhbaApiSupported = true
+              break
+            }
+          } catch (error) {
+            if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
+              continue
+            }
+          }
+        }
 
-            // API 응답에서 에러 코드 확인
+        // VHBA API가 지원되지 않으면 조기 종료
+        if (!vhbaApiSupported) {
+          return
+        }
+
+        // 각 호스트에서 VHBA 디바이스 할당 정보 확인
+        for (const host of hosts) {
+          try {
+            const vhbaRes = await api('listVhbaDevices', { hostid: host.id })
+
+            // API 응답에서 에러 코드 확인 (530 에러는 지원되지 않는 명령)
+            if (vhbaRes?.listvhbadevicesresponse?.errorcode === 530) {
+              continue
+            }
             if (vhbaRes?.listvhbadevicesresponse?.errorcode) {
-              console.log('VHBA API not supported, skipping...')
-              return
+              continue
             }
 
             const vhbaData = vhbaRes?.listvhbadevicesresponse?.listvhbadevices?.[0]
@@ -1023,122 +902,80 @@ export default {
                 if (vmId && String(vmId) === String(vmNumericId)) {
                   const deviceIndex = vhbaData.hostdevicesname.indexOf(devName)
                   if (deviceIndex !== -1 && vhbaData.hostdevicestext[deviceIndex]) {
-                    this.vhbaDevices.push({
-                      hostDevicesName: devName,
-                      hostDevicesText: vhbaData.hostdevicestext[deviceIndex]
-                    })
-                    console.log('Added VHBA device:', devName)
+                    // 중복 디바이스 방지
+                    const existingDevice = this.vhbaDevices.find(device => device.hostDevicesName === devName)
+                    if (!existingDevice) {
+                      this.vhbaDevices.push({
+                        hostDevicesName: devName,
+                        hostDevicesText: vhbaData.hostdevicestext[deviceIndex]
+                      })
+                    }
                   }
                 }
               }
             }
           } catch (error) {
+            // API가 지원되지 않는 경우 조용히 건너뛰기
             if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
-              console.log('VHBA devices not supported, skipping...')
             } else {
-              console.warn('Error fetching VHBA devices:', error.message)
+              console.warn('Error checking VHBA devices on host:', host.name, error.message)
             }
           }
         }
-
-        console.log('Total VHBA devices found:', this.vhbaDevices.length)
       } catch (error) {
         console.warn('Error in fetchVhbaDevices:', error.message)
+      } finally {
+        this.deviceLoadingStates.vhba = false
       }
     },
     async fetchScsiDevices () {
+      if (this.deviceLoadingStates.scsi) return
+
+      this.deviceLoadingStates.scsi = true
       this.scsiDevices = []
 
       try {
         const vmNumericId = this.getVmNumericId()
         if (!vmNumericId) {
-          console.error('Failed to get VM numeric ID')
           return
         }
 
-        console.log('Fetching SCSI devices for VM ID:', vmNumericId, 'VM State:', this.vm.state)
+        // 모든 호스트 목록 가져오기
+        const hostsResponse = await api('listHosts', {})
+        const hosts = hostsResponse?.listhostsresponse?.host || []
 
-        // VM이 정지된 상태에서는 모든 호스트에서 디바이스 할당 정보를 찾아야 함
-        if (!this.vm.hostid) {
-          console.log('VM is stopped, searching all hosts for SCSI device allocations')
-
-          // 모든 호스트 목록 가져오기
-          const hostsResponse = await api('listHosts', {})
-          const hosts = hostsResponse?.listhostsresponse?.host || []
-          console.log('Found hosts for SCSI search:', hosts.length)
-
-          // SCSI API 지원 여부를 먼저 확인
-          let scsiApiSupported = false
-          for (const host of hosts) {
-            try {
-              const testRes = await api('listHostScsiDevices', { id: host.id })
-              if (!testRes?.listhostscsidevicesresponse?.errorcode) {
-                scsiApiSupported = true
-                console.log(`SCSI API is supported on host ${host.name}`)
-                break
-              }
-            } catch (error) {
-              if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
-                console.log(`SCSI API not supported on host ${host.name}, trying next host...`)
-                continue
-              }
-            }
-          }
-
-          // SCSI API가 지원되지 않으면 조기 종료
-          if (!scsiApiSupported) {
-            console.log('SCSI API is not supported on any host, skipping SCSI device search')
-            return
-          }
-
-          // 각 호스트에서 SCSI 디바이스 할당 정보 확인
-          for (const host of hosts) {
-            try {
-              const scsiRes = await api('listHostScsiDevices', { id: host.id })
-
-              // API 응답에서 에러 코드 확인
-              if (scsiRes?.listhostscsidevicesresponse?.errorcode) {
-                console.log(`SCSI API not supported on host ${host.name}, skipping...`)
-                continue
-              }
-
-              const scsiData = scsiRes?.listhostscsidevicesresponse?.listhostscsidevices?.[0]
-
-              // 할당된 디바이스만 처리
-              if (scsiData && scsiData.vmallocations && scsiData.hostdevicesname && scsiData.hostdevicestext) {
-                for (const [devName, vmId] of Object.entries(scsiData.vmallocations)) {
-                  // VM ID가 있고 현재 VM과 일치하는 경우만 처리
-                  if (vmId && String(vmId) === String(vmNumericId)) {
-                    const deviceIndex = scsiData.hostdevicesname.indexOf(devName)
-                    if (deviceIndex !== -1 && scsiData.hostdevicestext[deviceIndex]) {
-                      this.scsiDevices.push({
-                        hostDevicesName: devName,
-                        hostDevicesText: scsiData.hostdevicestext[deviceIndex]
-                      })
-                      console.log('Added SCSI device from host:', host.name, 'Device:', devName)
-                    }
-                  }
-                }
-              }
-            } catch (error) {
-              // API가 지원되지 않는 경우 조용히 건너뛰기
-              if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
-                console.log(`SCSI devices not supported on host ${host.name}, skipping...`)
-              } else {
-                console.warn('Error checking SCSI devices on host:', host.name, error.message)
-              }
-            }
-          }
-        } else {
-          // VM이 실행 중인 경우 기존 방식 사용
-          console.log('VM is running, using hostid for SCSI:', this.vm.hostid)
+        // SCSI API 지원 여부를 먼저 확인
+        let scsiApiSupported = false
+        for (const host of hosts) {
           try {
-            const scsiRes = await api('listHostScsiDevices', { id: this.vm.hostid })
+            const testRes = await api('listHostScsiDevices', { id: host.id })
+            if (!testRes?.listhostscsidevicesresponse?.errorcode) {
+              scsiApiSupported = true
+              break
+            }
+          } catch (error) {
+            if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
+              continue
+            }
+          }
+        }
 
-            // API 응답에서 에러 코드 확인
+        // SCSI API가 지원되지 않으면 조기 종료
+        if (!scsiApiSupported) {
+          return
+        }
+
+        // 각 호스트에서 SCSI 디바이스 할당 정보 확인
+        for (const host of hosts) {
+          try {
+            const scsiRes = await api('listHostScsiDevices', { id: host.id })
+
+            // API 응답에서 에러 코드 확인 (530 에러는 지원되지 않는 명령)
+            if (scsiRes?.listhostscsidevicesresponse?.errorcode === 530) {
+              continue
+            }
             if (scsiRes?.listhostscsidevicesresponse?.errorcode) {
-              console.log('SCSI API not supported, skipping...')
-              return
+              continue
             }
 
             const scsiData = scsiRes?.listhostscsidevicesresponse?.listhostscsidevices?.[0]
@@ -1150,11 +987,14 @@ export default {
                 if (vmId && String(vmId) === String(vmNumericId)) {
                   const deviceIndex = scsiData.hostdevicesname.indexOf(devName)
                   if (deviceIndex !== -1 && scsiData.hostdevicestext[deviceIndex]) {
-                    this.scsiDevices.push({
-                      hostDevicesName: devName,
-                      hostDevicesText: scsiData.hostdevicestext[deviceIndex]
-                    })
-                    console.log('Added SCSI device:', devName)
+                    // 중복 디바이스 방지
+                    const existingDevice = this.scsiDevices.find(device => device.hostDevicesName === devName)
+                    if (!existingDevice) {
+                      this.scsiDevices.push({
+                        hostDevicesName: devName,
+                        hostDevicesText: scsiData.hostdevicestext[deviceIndex]
+                      })
+                    }
                   }
                 }
               }
@@ -1162,16 +1002,15 @@ export default {
           } catch (error) {
             // API가 지원되지 않는 경우 조용히 건너뛰기
             if (error.response?.status === 530 || error.message?.includes('BadCommand') || error.message?.includes('Unsupported command')) {
-              console.log('SCSI devices not supported, skipping...')
             } else {
-              console.warn('Error fetching SCSI devices:', error.message)
+              console.warn('Error checking SCSI devices on host:', host.name, error.message)
             }
           }
         }
-
-        console.log('Total SCSI devices found:', this.scsiDevices.length)
       } catch (error) {
         console.warn('Error in fetchScsiDevices:', error.message)
+      } finally {
+        this.deviceLoadingStates.scsi = false
       }
     }
   }
@@ -1312,4 +1151,22 @@ export default {
   padding-top: 12px;
   padding-bottom: 12px;
 }
+
+.host-devices-container .device-section {
+  margin-bottom: 32px;
+}
+
+.host-devices-container .device-section:last-child {
+  margin-bottom: 0;
+}
+
+.host-devices-container .device-section .section-title {
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1890ff;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+
 </style>

@@ -106,11 +106,11 @@ export default {
         api('listVirtualMachines', params)
           .then(vmResponse => {
             const vms = vmResponse.listvirtualmachinesresponse?.virtualmachine || []
-            console.log(`Fetched ${vms.length} Running VMs`)
+            // console.log(`Fetched ${vms.length} Running VMs`)
 
             // 인스턴스 이름이 있는 VM만 필터링
             const validVms = vms.filter(vm => vm.instancename && vm.instancename.trim() !== '')
-            console.log(`Valid VMs with instance name: ${validVms.length}`)
+            // console.log(`Valid VMs with instance name: ${validVms.length}`)
 
             return validVms.map(vm => ({
               ...vm,
@@ -124,7 +124,7 @@ export default {
         // 현재 HBA 디바이스 할당 상태 가져오기
         api('listHostHbaDevices', { id: this.resource.id })
       ]).then(async ([vms, hbaResponse]) => {
-        console.log('Total valid VMs fetched:', vms.length)
+        // console.log('Total valid VMs fetched:', vms.length)
 
         // HBA 할당 상태 확인
         const hbaData = hbaResponse?.listhosthbadevicesresponse?.listhosthbadevices?.[0]
@@ -158,7 +158,7 @@ export default {
                     xmlconfig: xmlConfig,
                     isattach: false
                   })
-                  console.log(`Automatically deallocated HBA device ${deviceName} from deleted/expunging VM ${vmId}`)
+                  // console.log(`Automatically deallocated HBA device ${deviceName} from deleted/expunging VM ${vmId}`)
                 } catch (error) {
                   console.error(`Failed to automatically deallocate HBA device ${deviceName}:`, error)
                 }
@@ -175,7 +175,7 @@ export default {
                   xmlconfig: xmlConfig,
                   isattach: false
                 })
-                console.log(`Automatically deallocated HBA device ${deviceName} after VM check error`)
+                // console.log(`Automatically deallocated HBA device ${deviceName} after VM check error`)
               } catch (detachError) {
                 console.error(`Failed to automatically deallocate HBA device ${deviceName} after error:`, detachError)
               }
@@ -184,7 +184,7 @@ export default {
           }
         }
 
-        console.log('All allocated VM IDs:', Array.from(allocatedVmIds))
+        // console.log('All allocated VM IDs:', Array.from(allocatedVmIds))
 
         // HBA 디바이스는 같은 이름으로도 여러 할당이 가능하므로 모든 VM을 표시
         // 백엔드에서 같은 HBA 디바이스 이름으로도 여러 할당을 허용하므로 필터링하지 않음
@@ -265,14 +265,14 @@ export default {
       }
 
       if (this.resource && this.resource.deviceType === 'physical') {
-        return `<hostdev mode='subsystem' type='scsi' rawio='yes'>
+        return `<hostdev mode='subsystem' type='scsi'>
   <source>
     <adapter name='${adapterName}'/>
     <address bus='${bus}' target='${target}' unit='${unit}'/>
   </source>
 </hostdev>`
       } else {
-        return `<hostdev mode='subsystem' type='scsi' rawio='yes'>
+        return `<hostdev mode='subsystem' type='scsi'>
   <source>
     <adapter name='${adapterName}'/>
     <address bus='${bus}' target='${target}' unit='${unit}'/>
@@ -315,7 +315,7 @@ export default {
       }
 
       return `
-        <hostdev mode='subsystem' type='scsi' rawio='yes'>
+        <hostdev mode='subsystem' type='scsi'>
           <source>
             <adapter name='${adapterName}'/>
             <address bus='${bus}' target='${target}' unit='${unit}'/>
@@ -414,8 +414,8 @@ export default {
         const hbaResponse = await api('listHostHbaDevices', { id: this.resource.id })
         const hbaDevices = hbaResponse.listhosthbadevicesresponse?.listhosthbadevices?.[0]
 
-        console.log('HBA Devices response:', hbaResponse)
-        console.log('HBA Devices data:', hbaDevices)
+        // console.log('HBA Devices response:', hbaResponse)
+        // console.log('HBA Devices data:', hbaDevices)
 
         let scsiAddress = null
         let deviceType = null
@@ -436,7 +436,7 @@ export default {
             // 디바이스 텍스트에서 SCSI 주소 및 WWN 정보 추출
             if (hbaDevices.hostdevicestext[deviceIndex]) {
               const deviceText = hbaDevices.hostdevicestext[deviceIndex]
-              console.log('Found device text for', this.resource.hostDevicesName, ':', deviceText)
+              // console.log('Found device text for', this.resource.hostDevicesName, ':', deviceText)
 
               // SCSI 주소 패턴 매칭
               const scsiMatch = deviceText.match(/SCSI Address:\s*([0-9:]+)/i) ||
@@ -477,8 +477,8 @@ export default {
           }
 
           scsiAddress = this.extractScsiAddress(deviceText)
-          console.log('Device text:', deviceText)
-          console.log('Extracted SCSI address:', scsiAddress)
+          // console.log('Device text:', deviceText)
+          // console.log('Extracted SCSI address:', scsiAddress)
 
           const xmlConfig = this.generateXmlConfig(this.resource.hostDevicesName, scsiAddress)
           console.log('Generated XML config:', xmlConfig)
@@ -511,7 +511,7 @@ export default {
             allocationParams.devicetype = 'virtual'
           }
 
-          console.log('Allocating with params:', allocationParams)
+          // console.log('Allocating with params:', allocationParams)
 
           const allocationResponse = await api('updateHostHbaDevices', allocationParams)
 

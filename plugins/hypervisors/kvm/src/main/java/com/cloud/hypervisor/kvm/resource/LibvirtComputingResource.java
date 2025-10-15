@@ -185,7 +185,7 @@ import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.SoundDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.TPMDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.TermPolicy;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.VideoDef;
-import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.VideoDef2;
+// import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.VideoDef2;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.WatchDogDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.WatchDogDef.WatchDogAction;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.WatchDogDef.WatchDogModel;
@@ -3010,6 +3010,30 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             if (details.containsKey(VmDetailConstants.VIDEO_HARDWARE)) {
                 videoHw = details.get(VmDetailConstants.VIDEO_HARDWARE);
             }
+
+            for (int i = 1; i <= 4; i++) {
+                String hwKey = "video.hardware" + i;
+                String ramKey = "video.ram" + i;
+                if (details.containsKey(hwKey)) {
+                    String v = details.get(hwKey);
+                    if (v != null && !v.isEmpty()) {
+                        videoHw = v;
+                    }
+                    if (details.containsKey(ramKey)) {
+                        try {
+                            videoRam = Integer.parseInt(details.get(ramKey));
+                        } catch (NumberFormatException ignore) {
+                        }
+                    }
+                    break;
+                }
+            }
+            if (details.containsKey("video.ram")) {
+                try {
+                    videoRam = Integer.parseInt(details.get("video.ram"));
+                } catch (NumberFormatException ignore) {
+                }
+            }
         }
         return new VideoDef(videoHw, videoRam);
     }
@@ -5527,7 +5551,6 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     }
 
     public Answer listHostDevices(ListHostDeviceCommand command) {
-        logger.info("listpci: " + command.getId());
         if (command.getId() != null) {
             return listHostDevices();
         } else {
@@ -5536,9 +5559,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     }
 
     public Answer listHostUsbDevices(ListHostUsbDeviceCommand command) {
-        logger.info("listusb: " + command.getId());
         if (command.getId() != null) {
-            // 상위 클래스의 메서드를 호출
             return super.listHostUsbDevices(command);
         } else {
             throw new IllegalArgumentException("Host ID cannot be null");
@@ -5546,9 +5567,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     }
 
     public Answer listHostLunDevices(ListHostLunDeviceCommand command) {
-        logger.info("listlun: " + command.getId());
         if (command.getId() != null) {
-            // 상위 클래스의 메서드를 호출
             return super.listHostLunDevices(command);
         } else {
             throw new IllegalArgumentException("Host ID cannot be null");
@@ -5556,7 +5575,6 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     }
 
     public Answer listHostHbaDevices(ListHostHbaDeviceCommand command) {
-        logger.info("listhba: " + command.getId());
         if (command.getId() != null) {
             return super.listHostHbaDevices(command);
         } else {
@@ -5565,7 +5583,6 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     }
 
     public Answer listHostVHbaDevices(ListVhbaDevicesCommand command) {
-        logger.info("listvhba: " + command.getHostId());
         if (command.getHostId() != null) {
             return super.listHostVHbaDevices(command);
         } else {
@@ -5574,9 +5591,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     }
 
     public Answer listHostScsiDevices(ListHostScsiDeviceCommand command) {
-        logger.info("listscsi: " + command.getId());
         if (command.getId() != null) {
-            // 상위 클래스의 메서드를 호출
             return super.listHostScsiDevices(command);
         } else {
             throw new IllegalArgumentException("Host ID cannot be null");
@@ -5585,7 +5600,6 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
     @Override
     public Answer createHostVHbaDevice(CreateVhbaDeviceCommand command, String parentHbaName, String wwnn, String wwpn, String vhbaName, String xmlContent) {
-        logger.info("createvhba: " + command.getHostId());
         if (command.getHostId() != null) {
             return super.createHostVHbaDevice(command, parentHbaName, wwnn, wwpn, vhbaName, xmlContent);
         } else {
@@ -5595,7 +5609,6 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
     @Override
     public Answer deleteHostVHbaDevice(DeleteVhbaDeviceCommand command) {
-        logger.info("deletevhba: " + command.getHostId());
         if (command.getHostId() != null) {
             return super.deleteHostVHbaDevice(command);
         } else {
@@ -5604,31 +5617,22 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     }
 
     public Answer updateHostVHbaDevices(UpdateHostVhbaDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
-        logger.info("updatevhba: " + command.getHostId());
         return super.updateHostVHbaDevices(command, vmName, xmlConfig, isAttach);
     }
 
     public Answer updateHostUsbDevices(UpdateHostUsbDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
-        logger.info("Received USB device update command - VM: {}, isAttach: {}, xmlConfig: {}",
-            vmName, isAttach, xmlConfig);
         return super.updateHostUsbDevices(command, vmName, xmlConfig, isAttach);
     }
 
     public Answer updateHostLunDevices(UpdateHostLunDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
-        logger.info("Received LUN device update command - VM: {}, isAttach: {}, xmlConfig: {}",
-            vmName, isAttach, xmlConfig);
         return super.updateHostLunDevices(command, vmName, xmlConfig, isAttach);
     }
 
     public Answer updateHostHbaDevices(UpdateHostHbaDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
-        logger.info("Received HBA device update command - VM: {}, isAttach: {}, xmlConfig: {}",
-            vmName, isAttach, xmlConfig);
         return super.updateHostHbaDevices(command, vmName, xmlConfig, isAttach);
     }
 
     public Answer updateHostScsiDevices(UpdateHostScsiDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
-        logger.info("Received SCSI device update command - VM: {}, isAttach: {}, xmlConfig: {}",
-            vmName, isAttach, xmlConfig);
         return super.updateHostScsiDevices(command, vmName, xmlConfig, isAttach);
     }
 

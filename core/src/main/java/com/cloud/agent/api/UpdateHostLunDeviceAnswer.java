@@ -37,6 +37,19 @@ public class UpdateHostLunDeviceAnswer extends Answer {
         this.isAttach = isAttach;
     }
 
+    public UpdateHostLunDeviceAnswer(boolean successMessage, String details) {
+        super(null, successMessage, details);
+        this.successMessage = successMessage;
+    }
+
+    public UpdateHostLunDeviceAnswer(boolean successMessage, String vmName, String xmlConfig, boolean isAttach, String details) {
+        super(null, successMessage, details);
+        this.successMessage = successMessage;
+        this.vmName = vmName;
+        this.xmlConfig = xmlConfig;
+        this.isAttach = isAttach;
+    }
+
     public String getVmName() {
         return vmName;
     }

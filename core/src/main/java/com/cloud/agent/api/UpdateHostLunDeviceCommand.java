@@ -24,6 +24,7 @@ public class UpdateHostLunDeviceCommand extends Command {
     private String vmName;
     private String xmlConfig;
     private boolean isAttach;
+    private String hostDeviceName;
 
     public UpdateHostLunDeviceCommand() {
     }
@@ -32,6 +33,13 @@ public class UpdateHostLunDeviceCommand extends Command {
         this.vmName = vmName;
         this.xmlConfig = xmlConfig;
         this.isAttach = isAttach;
+    }
+
+    public UpdateHostLunDeviceCommand(String vmName, String xmlConfig, boolean isAttach, String hostDeviceName) {
+        this.vmName = vmName;
+        this.xmlConfig = xmlConfig;
+        this.isAttach = isAttach;
+        this.hostDeviceName = hostDeviceName;
     }
 
     @Override
@@ -61,5 +69,13 @@ public class UpdateHostLunDeviceCommand extends Command {
 
     public void setIsAttach(boolean isAttach) {
         this.isAttach = isAttach;
+    }
+
+    public String getHostDeviceName() {
+        return hostDeviceName;
+    }
+
+    public void setHostDeviceName(String hostDeviceName) {
+        this.hostDeviceName = hostDeviceName;
     }
 }

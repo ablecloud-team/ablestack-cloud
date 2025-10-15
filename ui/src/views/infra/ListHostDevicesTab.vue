@@ -115,7 +115,7 @@
                     </template>
                   </a-button>
                   <span v-if="record.isVhba" style="color: #1890ff;"> </span>
-                  {{ record.hostDevicesName }}
+                  <div style="white-space: pre-line; line-height: 1.4; min-height: 40px;">{{ formatDeviceName(record.hostDevicesName) }}</div>
                 </template>
               </div>
             </template>
@@ -287,7 +287,9 @@
             </template>
           </template>
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'hostDevicesName'">{{ record.hostDevicesName }}</template>
+            <template v-if="column.key === 'hostDevicesName'">
+              <div style="white-space: pre-line; line-height: 1.4; min-height: 40px;">{{ formatDeviceName(record.hostDevicesName) }}</div>
+            </template>
             <template v-if="column.key === 'hostDevicesText'"><span v-html="formatHostDevicesText(record.hostDevicesText)"></span></template>
             <template v-if="column.dataIndex === 'vmName'">
               <a-spin v-if="vmNameLoading" size="small" />
@@ -364,7 +366,7 @@
           </template>
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'hostDevicesName'">
-              {{ record.hostDevicesName }}
+              <div style="white-space: pre-line; line-height: 1.4; min-height: 40px;">{{ formatDeviceName(record.hostDevicesName) }}</div>
             </template>
             <template v-if="column.key === 'hostDevicesText'">
               <div style="white-space: pre-line;">{{ record.hostDevicesText }}</div>
@@ -718,7 +720,11 @@ export default {
       return this.tableSource.filter(item => {
         const deviceName = String(item.hostDevicesName || '')
         const deviceText = String(item.hostDevicesText || '')
-        const isLun = deviceName.startsWith('/dev/')
+        const isLun = deviceName.startsWith('/dev/') ||
+                     deviceName.startsWith('wwn-') ||
+                     deviceName.startsWith('scsi-') ||
+                     deviceName.startsWith('dm-') ||
+                     deviceName.startsWith('nvme-')
         if (!query) return isLun
         return isLun && (
           deviceName.toLowerCase().includes(query) ||
@@ -779,6 +785,20 @@ export default {
     this.fetchHostInfo()
   },
   methods: {
+    // 디바이스 이름을 포맷팅하여 괄호 안의 내용을 줄바꿈으로 표시
+    formatDeviceName (deviceName) {
+      if (!deviceName) return ''
+
+      // 괄호가 있는 경우 줄바꿈으로 분리
+      const match = deviceName.match(/^(.+?)\s*\((.+?)\)$/)
+      if (match) {
+        const [, mainName, bracketContent] = match
+        const result = `${mainName.trim()}\n(${bracketContent})`
+        return result
+      }
+
+      return deviceName
+    },
     setupVMEventListeners () {
       const eventTypes = ['DestroyVM', 'ExpungeVM', 'StopVM', 'RebootVM', 'StartVM']
 
@@ -788,7 +808,6 @@ export default {
           callback: async (event) => {
             try {
               const vmId = event.id
-              console.log(`VM event received: ${eventType} for VM ${vmId}`)
 
               // VM 삭제 이벤트인 경우에만 디바이스 할당 해제 처리
               if (eventType === 'DestroyVM' || eventType === 'ExpungeVM') {
@@ -826,7 +845,7 @@ export default {
                 }
               }
             } catch (error) {
-              console.error('Error handling VM event:', error)
+              // Error handling VM event
             }
           }
         })
@@ -906,7 +925,6 @@ export default {
                 throw new Error(updateResponse?.error?.errortext || 'Failed to update host device')
               }
             } catch (error) {
-              console.error('Failed to update host device:', deviceName, error)
               this.$notification.error({
                 message: this.$t('label.error'),
                 description: error.message || this.$t('message.update.host.device.failed')
@@ -918,7 +936,6 @@ export default {
         }
         return false
       } catch (error) {
-        console.error(`Error in deallocateDevicesOnVmDelete for ${listApiMethod}:`, error)
         return false
       }
     },
@@ -973,21 +990,18 @@ export default {
 
         this.$message.info(this.$t('message.device.allocation.removed.vm.deleted'))
       } catch (error) {
-        console.error('Error refreshing data after VM delete:', error)
+        // Error refreshing data after VM delete
       }
     },
 
     // VM 시작 시 extraconfig에서 디바이스 복원
     async restoreDevicesFromExtraConfig (vmId) {
       try {
-        console.log(`Restoring devices from extraconfig for VM: ${vmId}`)
-
         // VM의 extraconfig 조회
         const vmResponse = await api('listVirtualMachines', { id: vmId })
         const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
 
         if (!vm || !vm.details) {
-          console.log('No VM details found for device restoration')
           return
         }
 
@@ -1000,18 +1014,15 @@ export default {
         })
 
         if (deviceConfigs.length === 0) {
-          console.log('No device configurations found in extraconfig')
           return
         }
-
-        console.log(`Found ${deviceConfigs.length} device configurations to restore`)
 
         // 각 디바이스 설정을 복원
         for (const config of deviceConfigs) {
           try {
             await this.restoreDeviceFromConfig(vmId, config.value)
           } catch (error) {
-            console.error(`Error restoring device config ${config.key}:`, error)
+            // Error restoring device config
           }
         }
 
@@ -1020,60 +1031,49 @@ export default {
 
         this.$message.success(this.$t('message.device.restored.from.extraconfig'))
       } catch (error) {
-        console.error('Error restoring devices from extraconfig:', error)
         this.$message.error(this.$t('message.device.restore.failed'))
       }
     },
 
     // 개별 디바이스 설정 복원
     async restoreDeviceFromConfig (vmId, xmlConfig) {
-      try {
-        // XML 설정에서 디바이스 타입과 정보 추출
-        const deviceInfo = this.parseDeviceXmlConfig(xmlConfig)
+      // XML 설정에서 디바이스 타입과 정보 추출
+      const deviceInfo = this.parseDeviceXmlConfig(xmlConfig)
 
-        if (!deviceInfo) {
-          console.log('Could not parse device XML config')
-          return
-        }
-
-        console.log(`Restoring ${deviceInfo.type} device:`, deviceInfo)
-
-        // 디바이스 타입에 따라 적절한 API 호출
-        const params = {
-          hostid: this.resource.id,
-          hostdevicesname: deviceInfo.deviceName,
-          virtualmachineid: vmId,
-          xmlconfig: xmlConfig
-        }
-
-        let apiMethod
-        switch (deviceInfo.type) {
-          case 'usb':
-            apiMethod = 'updateHostUsbDevices'
-            break
-          case 'hba':
-            apiMethod = 'updateHostHbaDevices'
-            break
-          case 'lun':
-            apiMethod = 'updateHostLunDevices'
-            break
-          case 'scsi':
-            apiMethod = 'updateHostScsiDevices'
-            break
-          case 'vhba':
-            apiMethod = 'updateHostVhbaDevices'
-            break
-          default:
-            console.log(`Unknown device type: ${deviceInfo.type}`)
-            return
-        }
-
-        const response = await api(apiMethod, params)
-        console.log(`Device restoration response for ${deviceInfo.type}:`, response)
-      } catch (error) {
-        console.error(`Error restoring device:`, error)
-        throw error
+      if (!deviceInfo) {
+        return
       }
+
+      // 디바이스 타입에 따라 적절한 API 호출
+      const params = {
+        hostid: this.resource.id,
+        hostdevicesname: deviceInfo.deviceName,
+        virtualmachineid: vmId,
+        xmlconfig: xmlConfig
+      }
+
+      let apiMethod
+      switch (deviceInfo.type) {
+        case 'usb':
+          apiMethod = 'updateHostUsbDevices'
+          break
+        case 'hba':
+          apiMethod = 'updateHostHbaDevices'
+          break
+        case 'lun':
+          apiMethod = 'updateHostLunDevices'
+          break
+        case 'scsi':
+          apiMethod = 'updateHostScsiDevices'
+          break
+        case 'vhba':
+          apiMethod = 'updateHostVhbaDevices'
+          break
+        default:
+          return
+      }
+
+      await api(apiMethod, params)
     },
 
     // XML 설정에서 디바이스 정보 파싱
@@ -1147,7 +1147,6 @@ export default {
 
         return null
       } catch (error) {
-        console.error('Error parsing device XML config:', error)
         return null
       }
     },
@@ -1184,7 +1183,7 @@ export default {
           }, 100)
         })
       } catch (error) {
-        console.error('Error refreshing data after VM start:', error)
+        // Error refreshing data after VM start
       }
     },
     async fetchData () {
@@ -1215,6 +1214,7 @@ export default {
                   vmNameMap[vmId] = vm.displayname || vm.name
                 }
               } catch (error) {
+                // Error fetching VM
               }
             }
           }
@@ -1399,7 +1399,6 @@ export default {
           this.showPciDeleteModal = true
           this.fetchPciConfigs(record)
         } catch (error) {
-          console.error('Error fetching VM details:', error)
           this.$notifyError(error)
         }
       }
@@ -1541,14 +1540,12 @@ export default {
                     })
 
                     if (!updateResponse || updateResponse.error) {
-                      console.error('Failed to update LUN device:', name, updateResponse?.error)
                     }
                   } catch (error) {
-                    console.error('Failed to update LUN device:', name, error)
+                    // Failed to update LUN device
                   }
                 }
               } catch (error) {
-                console.error('Error fetching VM for LUN device:', name, error)
                 // VM 조회 실패 시에도 할당 해제 시도
                 try {
                   const xmlConfig = this.generateXmlLunConfig(name)
@@ -1559,7 +1556,7 @@ export default {
                     xmlconfig: xmlConfig
                   })
                 } catch (detachError) {
-                  console.error('Failed to detach LUN device after VM fetch error:', name, detachError)
+                  // Failed to detach LUN device after VM fetch error
                 }
               }
             }
@@ -1574,71 +1571,72 @@ export default {
             isAssigned: Boolean(lunData.vmallocations && lunData.vmallocations[name]),
             hasPartitions: (lunData.haspartitions && typeof lunData.haspartitions[name] !== 'undefined') ? lunData.haspartitions[name] : false
           }))
-          for (const device of lunDevices) {
-            // SCSI 탭에서 할당된 디바이스 확인
+          // SCSI 주소 기반 교차 매핑: SCSI 텍스트에서 주소→VM ID 매핑 만들기
+          const scsiAddrToVmId = {}
+          try {
             const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
             const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
-            if (scsiData?.vmallocations) {
+            if (scsiData && Array.isArray(scsiData.hostdevicesname)) {
               for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
-                const scsiText = scsiData.hostdevicestext[i]
-                const deviceMatch = scsiText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
+                const stext = scsiData.hostdevicestext[i] || ''
+                const saddr = this.extractScsiAddressString(stext)
+                if (saddr) {
+                  const vmId = scsiData.vmallocations?.[scsiData.hostdevicesname[i]] || null
+                  if (vmId) scsiAddrToVmId[saddr] = vmId
+                }
+              }
+            }
+          } catch (e) {}
 
-                if (deviceMatch && deviceMatch[1] === device.hostDevicesName) {
-                  const sgDevice = scsiData.hostdevicesname[i]
+          // 각 LUN의 텍스트에서 SCSI 주소를 추출하여, SCSI 매핑과 일치 시 교차 할당으로 표시
+          for (const device of lunDevices) {
+            const laddr = this.extractScsiAddressString(device.hostDevicesText)
+            const mappedVmId = laddr ? scsiAddrToVmId[laddr] : null
 
-                  const allocatedVmId = scsiData.vmallocations[sgDevice]
-                  if (allocatedVmId) {
-                    // VM 정보 가져오기
-                    const vmResponse = await api('listVirtualMachines', { id: allocatedVmId, listall: true })
-                    const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-
-                    if (vm && vm.state !== 'Expunging') {
-                      device.allocatedInOtherTab = {
-                        isAllocated: true,
-                        vmName: vm.displayname || vm.name,
-                        vmId: allocatedVmId,
-                        tabType: 'SCSI'
-                      }
-                      device.vmName = vm.displayname || vm.name
-                      device.virtualmachineid = allocatedVmId
-                      device.isAssigned = true
-                    } else {
-                      // VM이 Expunging 상태면 SCSI 디바이스 할당도 해제
-                      try {
-                        const xmlConfig = this.generateScsiXmlConfig(sgDevice)
-                        await api('updateHostScsiDevices', {
-                          hostid: this.resource.id,
-                          hostdevicesname: sgDevice,
-                          virtualmachineid: null,
-                          currentvmid: allocatedVmId,
-                          xmlconfig: xmlConfig
-                        })
-                        console.log(`Automatically deallocated SCSI device ${sgDevice} from expunging VM ${allocatedVmId}`)
-
-                        // UI 상태 업데이트: 할당 해제된 상태로 설정
-                        device.isAssigned = false
-                        device.virtualmachineid = null
-                        device.vmName = null
-                        device.allocatedInOtherTab = null
-                      } catch (error) {
-                        console.error(`Failed to deallocate SCSI device ${sgDevice}:`, error)
-                      }
-                    }
+            // 기존 경로 기반 매핑 보조 확인
+            let vmIdByPath = null
+            try {
+              const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+              const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
+              if (scsiData?.vmallocations) {
+                for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
+                  const scsiText = scsiData.hostdevicestext[i]
+                  const deviceMatch = scsiText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
+                  if (deviceMatch && deviceMatch[1] === device.hostDevicesName) {
+                    const sgDevice = scsiData.hostdevicesname[i]
+                    vmIdByPath = scsiData.vmallocations[sgDevice] || null
                     break
-                  } else {
                   }
                 }
               }
-            } else {
-            }
+            } catch (e) {}
 
-            if (!device.isAssigned && !device.allocatedInOtherTab) {
+            const finalVmId = mappedVmId || vmIdByPath
+            if (finalVmId) {
+              const vmResponse = await api('listVirtualMachines', { id: finalVmId, listall: true })
+              const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+              if (vm && vm.state !== 'Expunging') {
+                device.allocatedInOtherTab = {
+                  isAllocated: true,
+                  vmName: vm.displayname || vm.name,
+                  vmId: finalVmId,
+                  tabType: 'SCSI'
+                }
+                device.vmName = vm.displayname || vm.name
+                device.virtualmachineid = finalVmId
+                device.isAssigned = true
+              }
             }
           }
 
-          // LUN 디바이스만 필터링하여 설정
+          // LUN 디바이스만 필터링하여 설정 (ID 값이 있는 디바이스들 포함)
           this.dataItems = lunDevices.filter(device =>
-            device.hostDevicesName && device.hostDevicesName.startsWith('/dev/') &&
+            device.hostDevicesName &&
+            (device.hostDevicesName.startsWith('/dev/') ||
+             device.hostDevicesName.startsWith('wwn-') ||
+             device.hostDevicesName.startsWith('scsi-') ||
+             device.hostDevicesName.startsWith('dm-') ||
+             device.hostDevicesName.startsWith('nvme-')) &&
             !device.hostDevicesName.startsWith('/dev/sg')
           )
         } else {
@@ -1814,7 +1812,6 @@ export default {
                     // selectedDevices에서도 제거
                     this.selectedDevices = this.selectedDevices.filter(device => device !== deviceName)
                   } catch (error) {
-                    console.error('Failed to update host device:', deviceName, error)
                     this.$notification.error({
                       message: this.$t('label.error'),
                       description: error.message || this.$t('message.update.host.device.failed')
@@ -1822,7 +1819,6 @@ export default {
                   }
                 }
               } catch (error) {
-                console.error('Error processing device:', deviceName, error)
                 vmNamesMap[deviceName] = this.$t(' ')
               }
             }
@@ -1859,7 +1855,7 @@ export default {
           }
         }
       } catch (error) {
-        console.error('Error in updateVmNames:', error)
+        // Error in updateVmNames
       } finally {
         this.vmNameLoading = false
       }
@@ -1921,7 +1917,6 @@ export default {
                     // selectedDevices에서도 제거
                     this.selectedDevices = this.selectedDevices.filter(device => device !== deviceName)
                   } catch (error) {
-                    console.error('Failed to update USB device:', deviceName, error)
                     this.$notification.error({
                       message: this.$t('label.error'),
                       description: error.message || this.$t('message.update.usb.device.failed')
@@ -1929,7 +1924,6 @@ export default {
                   }
                 }
               } catch (error) {
-                console.error('Error fetching VM name for USB device:', deviceName, error)
                 vmNamesMap[deviceName] = this.$t(' ')
               }
             }
@@ -1967,7 +1961,7 @@ export default {
           }
         }
       } catch (error) {
-        console.error('Error in updateUsbVmNames:', error)
+        // Error in updateUsbVmNames
       } finally {
         this.vmNameLoading = false
       }
@@ -1999,15 +1993,7 @@ export default {
         const vmAllocations = devices?.vmallocations || {}
         const vmId = String(vmAllocations[hostDevicesName]) // 문자열로 변환
 
-        console.log('USB device deallocation debug:', {
-          hostDevicesName,
-          vmAllocations,
-          vmId,
-          vmIdType: typeof vmId
-        })
-
         if (!vmId || vmId === 'null' || vmId === 'undefined') {
-          console.error('No VM allocation found for device:', hostDevicesName)
           throw new Error('No VM allocation found for this device')
         }
 
@@ -2026,26 +2012,17 @@ export default {
               const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
 
               if (!vm) {
-                console.log('VM not found, proceeding with deallocation')
+                // VM not found, proceeding with deallocation
               } else if (vm.state === 'Expunging') {
-                console.log('VM is in Expunging state, proceeding with deallocation')
+                // VM is in Expunging state, proceeding with deallocation
               } else if (vm.state !== 'Running' && vm.state !== 'Stopped') {
-                console.log(`VM is in ${vm.state} state, proceeding with deallocation`)
+                // VM is in other state, proceeding with deallocation
               }
             } catch (vmError) {
-              console.log('Failed to check VM state, proceeding with deallocation:', vmError)
+              // Failed to check VM state, proceeding with deallocation
             }
 
             const xmlConfig = this.generateXmlUsbConfig(hostDevicesName)
-
-            console.log('USB device deallocation API call:', {
-              hostid: this.resource.id,
-              hostdevicesname: hostDevicesName,
-              virtualmachineid: null,
-              currentvmid: vmId,
-              currentvmidType: typeof vmId,
-              xmlconfig: xmlConfig
-            })
 
             const detachResponse = await api('updateHostUsbDevices', {
               hostid: this.resource.id,
@@ -2056,7 +2033,6 @@ export default {
             })
 
             if (!detachResponse || detachResponse.error) {
-              console.error('Failed to detach USB device:', detachResponse?.error?.errortext)
               throw new Error(detachResponse?.error?.errortext || 'Failed to detach USB device')
             }
 
@@ -2077,7 +2053,6 @@ export default {
           }
         })
       } catch (error) {
-        console.error('Error during USB device deallocation:', error)
         this.$notifyError(error.message || 'Failed to deallocate USB device')
       } finally {
         this.loading = false
@@ -2086,8 +2061,6 @@ export default {
 
     generateXmlUsbConfig (hostDeviceName) {
       try {
-        console.log('Generating XML config for USB device:', hostDeviceName)
-
         let bus = '0x001'
         let device = '0x01'
 
@@ -2101,7 +2074,6 @@ export default {
           if (!isNaN(busNum) && !isNaN(deviceNum)) {
             bus = '0x' + busNum.toString(16).padStart(3, '0')
             device = '0x' + deviceNum.toString(16).padStart(2, '0')
-            console.log('Matched "001 Device 003" format - Bus:', bus, 'Device:', device)
           }
         } else {
           // 2. "001:003" 형식
@@ -2113,7 +2085,6 @@ export default {
             if (!isNaN(busNum) && !isNaN(deviceNum)) {
               bus = '0x' + busNum.toString(16).padStart(3, '0')
               device = '0x' + deviceNum.toString(16).padStart(2, '0')
-              console.log('Matched "001:003" format - Bus:', bus, 'Device:', device)
             }
           } else {
             // 3. "001.003" 형식
@@ -2125,7 +2096,6 @@ export default {
               if (!isNaN(busNum) && !isNaN(deviceNum)) {
                 bus = '0x' + busNum.toString(16).padStart(3, '0')
                 device = '0x' + deviceNum.toString(16).padStart(2, '0')
-                console.log('Matched "001.003" format - Bus:', bus, 'Device:', device)
               }
             } else {
               // 4. 기존 정규식 (숫자+문자+숫자)
@@ -2137,56 +2107,101 @@ export default {
                 if (!isNaN(busNum) && !isNaN(deviceNum)) {
                   bus = '0x' + busNum.toString(16).padStart(3, '0')
                   device = '0x' + deviceNum.toString(16).padStart(2, '0')
-                  console.log('Matched generic format - Bus:', bus, 'Device:', device)
                 }
               }
             }
           }
         }
 
-        // 최종 검증
-        if (bus === '0x001' && device === '0x01') {
-          console.warn('Using default values for USB device:', hostDeviceName)
-        }
-
-        console.log('Final USB XML config - Bus:', bus, 'Device:', device)
-
         return `
-          <hostdev mode='subsystem' type='usb'>
-            <source>
-              <address type='usb' bus='${bus}' device='${device}' />
-            </source>
-          </hostdev>
+        <hostdev mode='subsystem' type='usb'>
+          <source>
+            <address type='usb' bus='${bus}' device='${device}' />
+          </source>
+        </hostdev>
         `.trim()
       } catch (error) {
-        console.error('Error generating USB XML config for device:', hostDeviceName, error)
         // 기본값 반환
         return `
-          <hostdev mode='subsystem' type='usb'>
-            <source>
-              <address type='usb' bus='0x001' device='0x01' />
-            </source>
-          </hostdev>
+        <hostdev mode='subsystem' type='usb'>
+          <source>
+            <address type='usb' bus='0x001' device='0x01' />
+          </source>
+        </hostdev>
         `.trim()
       }
     },
     generateXmlLunConfig (hostDeviceName) {
-      let targetDev = 'sdc'
-      const match = hostDeviceName.match(/\/dev\/([a-z]+[a-z0-9]*)$/)
-      if (match) {
-        targetDev = match[1]
+      // 표시명에서 베이스 경로와 by-id 추출
+      const basePath = (hostDeviceName || '').split(' (')[0]
+      const byIdMatch = (hostDeviceName || '').match(/\(([^)]+)\)/)
+
+      // dm으로 시작하는 디바이스인지 확인
+      const isDmDevice = basePath.includes('dm-') || basePath.includes('dm-uuid-')
+
+      // by-id 값을 우선적으로 사용 (불일치 방지)
+      let actualDevicePath = ''
+      if (byIdMatch && byIdMatch[1]) {
+        actualDevicePath = `/dev/disk/by-id/${byIdMatch[1]}`
+      } else if (basePath && basePath.startsWith('/dev/disk/by-id/')) {
+        actualDevicePath = basePath
       } else {
-        // 기본값
-        targetDev = 'sdc'
+        actualDevicePath = basePath
       }
+
+      // dm 디바이스는 <disk> (target 없이)
+      if (isDmDevice) {
+        const dmDevicePath = this.getDmDevicePath(basePath, byIdMatch)
+        return `
+          <disk type='block' device='lun'>
+            <driver name='qemu' type='raw' cache='none'/>
+            <source dev='${dmDevicePath}'/>
+          </disk>
+        `.trim()
+      }
+
+      // 일반 LUN도 <disk> 사용 (attach 시와 동일 포맷)
+      const targetDev = (basePath || '').replace('/dev/', '')
+      const scsiAddr = this.extractScsiAddressString(this.resource?.hostDevicesText || '')
+      const addressTag = scsiAddr
+        ? `<address type='drive' controller='${scsiAddr.split(':')[0]}' bus='${scsiAddr.split(':')[1]}' target='${scsiAddr.split(':')[2]}' unit='${scsiAddr.split(':')[3]}'/>`
+        : ''
       return `
         <disk type='block' device='lun'>
-          <driver name='qemu' type='raw'/>
-          <source dev='${hostDeviceName}'/>
+          <driver name='qemu' type='raw' io='native' cache='none'/>
+          <source dev='${actualDevicePath}'/>
           <target dev='${targetDev}' bus='scsi'/>
-          <address type='drive' controller='0' bus='0' target='1' unit='0'/>
+          ${addressTag}
+          <!-- Fallback device path: ${basePath} -->
         </disk>
       `.trim()
+    },
+
+    getDmDevicePath (basePath, byIdMatch) {
+      // dm 디바이스는 by-id 대신 실제 디바이스 경로 사용
+      if (basePath && basePath.startsWith('/dev/dm-')) {
+        // 이미 /dev/dm-X 형태면 그대로 사용
+        return basePath
+      } else if (basePath && basePath.includes('dm-uuid-')) {
+        // dm-uuid가 포함된 경우 실제 dm-X 경로로 변환
+        // UI에서는 기본적으로 /dev/dm-10 사용 (실제 변환은 백엔드에서 수행)
+        return '/dev/dm-10'
+      } else if (byIdMatch && byIdMatch[1]) {
+        // by-id에서 실제 dm-X 경로로 변환
+        return '/dev/dm-10'
+      } else {
+        // 기본값
+        return basePath || '/dev/dm-10'
+      }
+    },
+
+    getSafeTargetDev () {
+      // 안전한 target dev 후보들 (sdc 충돌 방지를 위해 sdd부터 시작)
+      const candidates = ['sdd', 'sde', 'sdf', 'sdg', 'sdh', 'sdi', 'sdj', 'sdk', 'sdl', 'sdm', 'sdn', 'sdo', 'sdp', 'sdq', 'sdr', 'sds', 'sdt', 'sdu', 'sdv', 'sdw', 'sdx', 'sdy', 'sdz', 'sdc']
+
+      // 기본적으로 sdd를 반환 (실제 검증은 백엔드에서 수행)
+      // UI에서는 기본값만 제공하고, 백엔드에서 실제 사용 가능한 dev를 할당
+      return candidates[0] // sdd
     },
 
     generateScsiXmlConfig (hostDeviceName) {
@@ -2204,7 +2219,7 @@ export default {
       const unit = 0
 
       return `
-        <hostdev mode='subsystem' type='scsi' rawio='yes'>
+        <hostdev mode='subsystem' type='scsi'>
           <source>
             <adapter name='scsi_host${host}'/>
             <address bus='${bus}' target='${target}' unit='${unit}'/>
@@ -2229,15 +2244,7 @@ export default {
         const vmAllocations = devices?.vmallocations || {}
         const vmId = String(vmAllocations[hostDevicesName]) // 문자열로 변환
 
-        console.log('USB device deallocation debug:', {
-          hostDevicesName,
-          vmAllocations,
-          vmId,
-          vmIdType: typeof vmId
-        })
-
         if (!vmId || vmId === 'null' || vmId === 'undefined') {
-          console.error('No VM allocation found for device:', hostDevicesName)
           throw new Error('No VM allocation found for this device')
         }
 
@@ -2250,26 +2257,17 @@ export default {
           const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
 
           if (!vm) {
-            console.log('VM not found, proceeding with deallocation')
+            // VM not found, proceeding with deallocation
           } else if (vm.state === 'Expunging') {
-            console.log('VM is in Expunging state, proceeding with deallocation')
+            // VM is in Expunging state, proceeding with deallocation
           } else if (vm.state !== 'Running' && vm.state !== 'Stopped') {
-            console.log(`VM is in ${vm.state} state, proceeding with deallocation`)
+            // VM is in other state, proceeding with deallocation
           }
         } catch (vmError) {
-          console.log('Failed to check VM state, proceeding with deallocation:', vmError)
+          // Failed to check VM state, proceeding with deallocation
         }
 
         const xmlConfig = this.generateXmlUsbConfig(hostDevicesName)
-
-        console.log('USB device deallocation API call:', {
-          hostid: this.resource.id,
-          hostdevicesname: hostDevicesName,
-          virtualmachineid: null,
-          currentvmid: vmId,
-          currentvmidType: typeof vmId,
-          xmlconfig: xmlConfig
-        })
 
         const detachResponse = await api('updateHostUsbDevices', {
           hostid: this.resource.id,
@@ -2280,7 +2278,6 @@ export default {
         })
 
         if (!detachResponse || detachResponse.error) {
-          // console.error('Failed to detach USB device:', detachResponse?.error?.errortext)
           throw new Error(detachResponse?.error?.errortext || 'Failed to detach USB device')
         }
 
@@ -2289,7 +2286,6 @@ export default {
         this.$emit('allocation-completed')
         this.$emit('close-action')
       } catch (error) {
-        console.error('Error during USB device deallocation:', error)
         this.$notifyError(error.message || 'Failed to deallocate USB device')
       } finally {
         this.loading = false
@@ -2324,12 +2320,11 @@ export default {
               const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
 
               if (scsiData?.vmallocations) {
-                // SCSI 디바이스 중에서 현재 LUN 디바이스와 매핑되는 것 찾기
+                const laddr = this.extractScsiAddressString(record.hostDevicesText)
                 for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
                   const scsiText = scsiData.hostdevicestext[i]
-                  const deviceMatch = scsiText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
-
-                  if (deviceMatch && deviceMatch[1] === hostDevicesName) {
+                  const saddr = this.extractScsiAddressString(scsiText)
+                  if (laddr && saddr && laddr === saddr) {
                     const sgDevice = scsiData.hostdevicesname[i]
                     vmId = scsiData.vmallocations[sgDevice]
                     break
@@ -2354,29 +2349,20 @@ export default {
               const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
 
               if (scsiData?.vmallocations) {
-                // SCSI 디바이스 중에서 현재 LUN 디바이스와 매핑되는 것 찾기
+                const laddr = this.extractScsiAddressString(record.hostDevicesText)
                 for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
                   const scsiText = scsiData.hostdevicestext[i]
-                  const deviceMatch = scsiText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
-
-                  if (deviceMatch && deviceMatch[1] === hostDevicesName) {
+                  const saddr = this.extractScsiAddressString(scsiText)
+                  if (laddr && saddr && laddr === saddr) {
                     const sgDevice = scsiData.hostdevicesname[i]
                     vmId = scsiData.vmallocations[sgDevice]
                     if (vmId) {
                       isScsiAllocated = true
-                      // VM 이름도 가져오기
                       try {
-                        const vmResponse = await api('listVirtualMachines', {
-                          id: vmId,
-                          listall: true
-                        })
+                        const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
                         const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-                        if (vm) {
-                          vmName = vm.name || vm.displayname
-                        }
-                      } catch (vmError) {
-                        // VM 이름 조회 실패
-                      }
+                        if (vm) vmName = vm.name || vm.displayname
+                      } catch (vmError) {}
                       break
                     }
                   }
@@ -2412,15 +2398,39 @@ export default {
                   }
 
                   let scsiDeviceFound = false
+                  let actualLunDeviceName = hostDevicesName
+
+                  // hostDevicesName이 /dev/sg로 시작하면 실제 LUN 디바이스를 찾아야 함
+                  if (hostDevicesName.startsWith('/dev/sg')) {
+                    // LUN 디바이스 목록에서 같은 SCSI 주소를 가진 실제 LUN 디바이스 찾기
+                    const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
+                    const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
+
+                    if (lunData && Array.isArray(lunData.hostdevicesname)) {
+                      const scsiAddrFromName = this.extractScsiAddressString(record.hostDevicesText)
+                      for (let j = 0; j < lunData.hostdevicesname.length; j++) {
+                        const lunText = lunData.hostdevicestext[j]
+                        const lunScsiAddr = this.extractScsiAddressString(lunText)
+                        if (scsiAddrFromName && lunScsiAddr && scsiAddrFromName === lunScsiAddr) {
+                          actualLunDeviceName = lunData.hostdevicesname[j]
+                          break
+                        }
+                      }
+                    }
+                  }
+
+                  // SCSI 주소 기반으로 매칭 시도
+                  const lunAddr = this.extractScsiAddressString(record.hostDevicesText)
+
                   for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
                     const scsiText = scsiData.hostdevicestext[i]
-                    const deviceMatch = scsiText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
+                    const scsiAddr = this.extractScsiAddressString(scsiText)
+                    const sgDevice = scsiData.hostdevicesname[i]
 
-                    if (deviceMatch && deviceMatch[1] === hostDevicesName) {
-                      const sgDevice = scsiData.hostdevicesname[i]
-
-                      // SCSI 디바이스 해제
-                      const xmlConfig = this.generateScsiXmlConfig(sgDevice)
+                    // SCSI 주소로 매칭
+                    if (lunAddr && scsiAddr && lunAddr === scsiAddr) {
+                      // LUN 형태의 XML 사용 (실제 물리적 디바이스 정보 포함)
+                      const xmlConfig = this.generateXmlLunConfig(actualLunDeviceName)
 
                       const detachResponse = await api('updateHostScsiDevices', {
                         hostid: this.resource.id,
@@ -2432,7 +2442,6 @@ export default {
                       })
 
                       if (!detachResponse || detachResponse.error) {
-                        console.error('SCSI 디바이스 해제 실패:', detachResponse?.error)
                         throw new Error(detachResponse?.error?.errortext || 'Failed to detach SCSI device')
                       }
                       scsiDeviceFound = true
@@ -2456,7 +2465,6 @@ export default {
                   })
 
                   if (!detachResponse || detachResponse.error) {
-                    console.error('LUN 디바이스 해제 실패:', detachResponse?.error)
                     throw new Error(detachResponse?.error?.errortext || 'Failed to detach LUN device')
                   }
                 }
@@ -2478,7 +2486,6 @@ export default {
                 // allocation-completed 이벤트 제거 (탭 전환 방지)
                 this.$emit('close-action')
               } catch (error) {
-                console.error('디바이스 해제 중 오류:', error)
                 this.$notification.error({
                   message: this.$t('label.error'),
                   description: error.message || 'Failed to deallocate device'
@@ -2490,7 +2497,6 @@ export default {
           })
         }
       } catch (error) {
-        console.error('deallocateLunDevice 오류:', error)
         this.$notifyError(error.message || 'Failed to deallocate LUN device')
       } finally {
         this.loading = false
@@ -2529,7 +2535,41 @@ export default {
         this.loading = false
       }
     },
-    openLunModal (record) {
+    async openLunModal (record) {
+      // LUN 할당 전에 SCSI에서 이미 할당되었는지 확인
+      const isAllocatedInScsi = await this.checkDeviceAllocationInScsi(record.hostDevicesName)
+      if (isAllocatedInScsi) {
+        // 알림 대신 즉시 삭제 모드로 전환되도록 테이블 데이터 갱신
+        try {
+          const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+          const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
+          if (scsiData?.vmallocations) {
+            for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
+              const scsiText = scsiData.hostdevicestext[i]
+              const deviceMatch = scsiText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
+              if (deviceMatch && deviceMatch[1] === record.hostDevicesName) {
+                const sgDevice = scsiData.hostdevicesname[i]
+                const vmId = scsiData.vmallocations[sgDevice]
+                if (vmId) {
+                  const vmRes = await api('listVirtualMachines', { id: vmId, listall: true })
+                  const vm = vmRes.listvirtualmachinesresponse?.virtualmachine?.[0]
+                  const vmName = vm ? (vm.displayname || vm.name) : ''
+                  // 해당 LUN 레코드를 다른 탭에서 할당된 상태로 표시하여 버튼이 삭제로 전환되게 함
+                  record.allocatedInOtherTab = { isAllocated: true, vmName, vmId, tabType: 'SCSI' }
+                  record.vmName = vmName
+                  record.virtualmachineid = vmId
+                  record.isAssigned = true
+                  // 즉시 삭제 플로우 실행 (사용자 무반응 이슈 방지)
+                  await this.deallocateLunDevice(record)
+                  this.$forceUpdate()
+                }
+              }
+            }
+          }
+        } catch (e) {}
+        return
+      }
+
       this.selectedResource = { ...this.resource, hostDevicesName: record.hostDevicesName }
       this.showAddModal = true
     },
@@ -2651,14 +2691,13 @@ export default {
                     })
 
                     if (!updateResponse || updateResponse.error) {
-                      console.error('Failed to update SCSI device:', name, updateResponse?.error)
+                      // Failed to update SCSI device
                     }
                   } catch (error) {
-                    console.error('Failed to update SCSI device:', name, error)
+                    // Failed to update SCSI device
                   }
                 }
               } catch (error) {
-                console.error('Error fetching VM for SCSI device:', name, error)
                 // VM 조회 실패 시에도 할당 해제 시도
                 try {
                   const xmlConfig = this.generateScsiXmlConfig(name)
@@ -2671,7 +2710,7 @@ export default {
                     isattach: false
                   })
                 } catch (detachError) {
-                  console.error('Failed to detach SCSI device after VM fetch error:', name, detachError)
+                  // Failed to detach SCSI device after VM fetch error
                 }
               }
             }
@@ -2775,7 +2814,6 @@ export default {
           this.dataItems = []
         }
       } catch (error) {
-        console.error('Error fetching HBA devices:', error)
         this.$notification.error({
           message: this.$t('label.error'),
           description: error.message || this.$t('message.error.fetch.hba.devices')
@@ -2873,7 +2911,6 @@ export default {
                     // selectedDevices에서도 제거
                     this.selectedDevices = this.selectedDevices.filter(device => device !== deviceName)
                   } catch (error) {
-                    console.error('Failed to update HBA device:', deviceName, error)
                     this.$notification.error({
                       message: this.$t('label.error'),
                       description: error.message || this.$t('message.update.hba.device.failed')
@@ -2881,7 +2918,6 @@ export default {
                   }
                 }
               } catch (error) {
-                console.error('Error fetching VM name for HBA device:', deviceName, error)
                 vmNamesMap[deviceName] = this.$t(' ')
               }
             }
@@ -2896,7 +2932,7 @@ export default {
           await this.updateVhbaVmNames()
         }
       } catch (error) {
-        console.error('Error in updateHbaVmNames:', error)
+        // Error in updateHbaVmNames
       } finally {
         this.vmNameLoading = false
       }
@@ -2962,7 +2998,6 @@ export default {
                     // selectedDevices에서도 제거
                     this.selectedDevices = this.selectedDevices.filter(device => device !== deviceName)
                   } catch (error) {
-                    console.error('Failed to update vHBA device:', deviceName, error)
                     this.$notification.error({
                       message: this.$t('label.error'),
                       description: error.message || this.$t('message.update.vhba.device.failed')
@@ -2970,7 +3005,6 @@ export default {
                   }
                 }
               } catch (error) {
-                console.error('Error fetching VM name for vHBA device:', deviceName, error)
                 vmNamesMap[deviceName] = this.$t(' ')
               }
             }
@@ -2982,7 +3016,7 @@ export default {
           }
         }
       } catch (error) {
-        console.error('Error in updateVhbaVmNames:', error)
+        // Error in updateVhbaVmNames
       } finally {
         this.vmNameLoading = false
       }
@@ -3009,7 +3043,7 @@ export default {
           this.$forceUpdate()
         })
       } catch (error) {
-        console.error('Failed to refresh vHBA device list:', error)
+        // Failed to refresh vHBA device list
       }
     },
 
@@ -3220,7 +3254,6 @@ export default {
           onCancel () {}
         })
       } catch (error) {
-        console.error('Error deleting vHBA:', error)
         this.$notification.error({
           message: this.$t('label.error'),
           description: error.message || this.$t('message.error.delete.vhba')
@@ -3243,7 +3276,6 @@ export default {
         }
         this.showVhbaCreateModal = true
       } catch (error) {
-        console.error('Error preparing vHBA info:', error)
         this.$notification.error({
           message: this.$t('label.error'),
           description: error.message || this.$t('message.error.prepare.vhba.info')
@@ -3365,11 +3397,9 @@ export default {
             await this.fetchHbaDevices()
           }, 500)
         } else {
-          console.error('API 응답에 에러 있음:', response?.error)
           throw new Error(response?.error?.errortext || this.$t('message.error.create.vhba'))
         }
       } catch (error) {
-        console.error('createVhba 메서드에서 에러 발생:', error)
         this.$notification.error({
           message: this.$t('label.error'),
           description: error.message || this.$t('message.error.create.vhba')
@@ -3385,7 +3415,7 @@ export default {
         if (response && response.listvhbadevicesresponse && response.listvhbadevicesresponse.vhbadevices) {
         }
       } catch (error) {
-        console.error('listVhbaDevices API 호출 에러:', error)
+        // listVhbaDevices API error
       }
     },
 
@@ -3469,7 +3499,6 @@ export default {
           pciAddress: hbaDeviceName
         }
       } catch (error) {
-        console.error('Error getting HBA device info:', error)
         return {
           name: hbaDeviceName,
           description: '',
@@ -3628,7 +3657,7 @@ export default {
     // vHBA 해제용 XML 설정 생성
     generateVhbaDeallocationXmlConfig (vhbaDeviceName) {
       return `
-        <hostdev mode='subsystem' type='scsi' rawio='yes'>
+        <hostdev mode='subsystem' type='scsi'>
           <source>
             <adapter name='${vhbaDeviceName}'/>
             <address bus='0' target='0' unit='0'/>
@@ -3640,7 +3669,7 @@ export default {
     // 물리 HBA 할당 해제용 XML 설정 생성
     generateHbaDeallocationXmlConfig (hostDeviceName) {
       return `
-        <hostdev mode='subsystem' type='scsi' rawio='yes'>
+        <hostdev mode='subsystem' type='scsi'>
           <source>
             <adapter name='${hostDeviceName}'/>
             <address bus='0' target='0' unit='0'/>
@@ -3681,7 +3710,6 @@ export default {
           wwnn: null
         }
       } catch (error) {
-        console.error('Error getting vHBA device info:', error)
         return {
           name: vhbaDeviceName,
           description: '',
@@ -3809,7 +3837,7 @@ export default {
                     vmNamesMap[vmId] = vm.name || vm.displayname
                   }
                 } catch (error) {
-                  console.error(`Failed to fetch VM name for ID ${vmId}:`, error)
+                  // Failed to fetch VM name
                 }
               }
 
@@ -3892,7 +3920,6 @@ export default {
           this.vhbaDevicesData[hbaName] = []
         }
       } catch (error) {
-        console.error('Error fetching vHBA devices for HBA:', hbaName, error)
         this.$notification.error({
           message: this.$t('label.error'),
           description: error.message || this.$t('message.error.fetch.vhba.devices')
@@ -3958,14 +3985,13 @@ export default {
                     })
 
                     if (!updateResponse || updateResponse.error) {
-                      console.error('Failed to update SCSI device:', name, updateResponse?.error)
+                      // Failed to update SCSI device
                     }
                   } catch (error) {
-                    console.error('Failed to update SCSI device:', name, error)
+                    // Failed to update SCSI device
                   }
                 }
               } catch (error) {
-                console.error('Error fetching VM for SCSI device:', name, error)
                 // VM 조회 실패 시에도 할당 해제 시도
                 try {
                   const xmlConfig = this.generateScsiXmlConfig(name)
@@ -3978,7 +4004,7 @@ export default {
                     isattach: false
                   })
                 } catch (detachError) {
-                  console.error('Failed to detach SCSI device after VM fetch error:', name, detachError)
+                  // Failed to detach SCSI device after VM fetch error
                 }
               }
             }
@@ -3993,64 +4019,59 @@ export default {
             isAssigned: Boolean(scsiData.vmallocations && scsiData.vmallocations[name])
           }))
 
-          for (const device of scsiDevices) {
-            const deviceMatch = device.hostDevicesText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
-
-            if (deviceMatch) {
-              const lunDevice = deviceMatch[1]
-
-              // LUN 탭에서 할당된 디바이스 확인
-              const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
-              const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
-
-              if (lunData?.vmallocations) {
-                const allocatedVmId = lunData.vmallocations[lunDevice]
-
-                if (allocatedVmId) {
-                  // VM 정보 가져오기
-                  const vmResponse = await api('listVirtualMachines', { id: allocatedVmId, listall: true })
-                  const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-
-                  if (vm && vm.state !== 'Expunging') {
-                    device.allocatedInOtherTab = {
-                      isAllocated: true,
-                      vmName: vm.displayname || vm.name,
-                      vmId: allocatedVmId,
-                      tabType: 'LUN'
-                    }
-                    device.vmName = vm.displayname || vm.name
-                    device.virtualmachineid = allocatedVmId
-                    device.isAssigned = true
-                  } else {
-                    // VM이 Expunging 상태면 LUN 디바이스 할당도 해제
-                    try {
-                      const xmlConfig = this.generateXmlLunConfig(lunDevice)
-                      await api('updateHostLunDevices', {
-                        hostid: this.resource.id,
-                        hostdevicesname: lunDevice,
-                        virtualmachineid: null,
-                        xmlconfig: xmlConfig,
-                        isattach: false
-                      })
-                      console.log(`Automatically deallocated LUN device ${lunDevice} from expunging VM ${allocatedVmId}`)
-
-                      // UI 상태 업데이트: 할당 해제된 상태로 설정
-                      device.isAssigned = false
-                      device.virtualmachineid = null
-                      device.vmName = null
-                      device.allocatedInOtherTab = null
-                    } catch (error) {
-                      console.error(`Failed to deallocate LUN device ${lunDevice}:`, error)
-                    }
-                  }
-                } else {
-                  console.log(`LUN 디바이스 ${lunDevice}는 할당되지 않음`)
+          // LUN 쪽 SCSI 주소 기반 매핑 준비: LUN 텍스트에서 SCSI_ADDRESS 추출 -> VM ID 매핑
+          const lunAddrToVmId = {}
+          try {
+            const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
+            const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
+            if (lunData && Array.isArray(lunData.hostdevicesname)) {
+              for (let i = 0; i < lunData.hostdevicesname.length; i++) {
+                const ltxt = lunData.hostdevicestext[i] || ''
+                const addr = this.extractScsiAddressString(ltxt)
+                if (addr) {
+                  const vmId = lunData.vmallocations?.[lunData.hostdevicesname[i]] || null
+                  if (vmId) lunAddrToVmId[addr] = vmId
                 }
-              } else {
-                console.log(`LUN 디바이스 할당 정보가 없음`)
               }
-            } else {
-              console.log(`SCSI 디바이스 ${device.hostDevicesName}에서 LUN 매핑을 찾을 수 없음`)
+            }
+          } catch (e) {}
+
+          // SCSI 텍스트에서 SCSI_ADDRESS를 추출해, LUN 주소 매핑과 일치 시 교차 할당으로 표시
+          for (const device of scsiDevices) {
+            const scsiAddr = this.extractScsiAddressString(device.hostDevicesText)
+            const mappedVmId = scsiAddr ? lunAddrToVmId[scsiAddr] : null
+
+            // 기존 경로 기반 매핑도 보조로 확인
+            let lunDevice = null
+            const deviceMatch = device.hostDevicesText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
+            if (deviceMatch) {
+              lunDevice = deviceMatch[1]
+            }
+
+            let vmIdByPath = null
+            if (lunDevice) {
+              try {
+                const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
+                const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
+                vmIdByPath = lunData?.vmallocations?.[lunDevice] || null
+              } catch (e) {}
+            }
+
+            const finalVmId = mappedVmId || vmIdByPath
+            if (finalVmId) {
+              const vmResponse = await api('listVirtualMachines', { id: finalVmId, listall: true })
+              const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+              if (vm && vm.state !== 'Expunging') {
+                device.allocatedInOtherTab = {
+                  isAllocated: true,
+                  vmName: vm.displayname || vm.name,
+                  vmId: finalVmId,
+                  tabType: 'LUN'
+                }
+                device.vmName = vm.displayname || vm.name
+                device.virtualmachineid = finalVmId
+                device.isAssigned = true
+              }
             }
           }
 
@@ -4071,7 +4092,49 @@ export default {
       }
     },
 
-    openScsiModal (record) {
+    // 공통 SCSI 주소 파서: "SCSI_ADDRESS: h:b:t:u" 또는 "[h:b:t:u]"를 지원
+    extractScsiAddressString (text) {
+      if (!text) return null
+      let m = text.match(/SCSI_ADDRESS:\s*(\d+:\d+:\d+:\d+)/)
+      if (m && m[1]) return m[1]
+      m = text.match(/\[(\d+):(\d+):(\d+):(\d+)\]/)
+      if (m) return `${m[1]}:${m[2]}:${m[3]}:${m[4]}`
+      return null
+    },
+
+    async openScsiModal (record) {
+      // SCSI 할당 전에 LUN에서 이미 할당되었는지 확인
+      const isAllocatedInLun = await this.checkDeviceAllocationInLun(record.hostDevicesName)
+      if (isAllocatedInLun) {
+        // 알림 대신 즉시 삭제 모드로 전환되도록 테이블 데이터 갱신
+        try {
+          const lunResp = await api('listHostLunDevices', { id: this.resource.id })
+          const lun = lunResp?.listhostlundevicesresponse?.listhostlundevices?.[0]
+          if (lun && lun.vmallocations && Array.isArray(lun.hostdevicesname)) {
+            // SCSI 텍스트에서 LUN 블록 디바이스 추출
+            const deviceMatch = record.hostDevicesText && record.hostDevicesText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
+            const lunDevice = deviceMatch ? deviceMatch[1] : null
+            if (lunDevice) {
+              const vmId = lun.vmallocations[lunDevice]
+              if (vmId) {
+                const vmRes = await api('listVirtualMachines', { id: vmId, listall: true })
+                const vm = vmRes.listvirtualmachinesresponse?.virtualmachine?.[0]
+                const vmName = vm ? (vm.displayname || vm.name) : ''
+                // 해당 SCSI 레코드를 다른 탭에서 할당된 상태로 표시하여 버튼이 삭제로 전환되게 함
+                record.allocatedInOtherTab = { isAllocated: true, vmName, vmId, tabType: 'LUN' }
+                record.vmName = vmName
+                record.virtualmachineid = vmId
+                record.isAssigned = true
+                // 즉시 삭제 플로우 실행 (사용자 무반응 이슈 방지)
+                await this.deallocateScsiDevice(record)
+                this.$forceUpdate()
+              }
+            }
+          }
+        } catch (e) {}
+        return
+      }
+
       this.selectedResource = { ...this.resource, hostDevicesName: record.hostDevicesName }
       this.showAddModal = true
     },
@@ -4122,8 +4185,6 @@ export default {
         }
 
         if (!vmId) {
-          console.error(`VM 할당 정보를 찾을 수 없음: ${hostDevicesName}`)
-          console.error(`record:`, record)
           throw new Error('No VM allocation found for this device')
         }
 
@@ -4135,14 +4196,51 @@ export default {
             try {
               // 다른 탭에서 할당된 경우 LUN 디바이스 해제
               if (isLunAllocated) {
-                // SCSI 디바이스 텍스트에서 LUN 디바이스 찾기
+                // SCSI 디바이스 텍스트에서 LUN 디바이스 기본 경로 찾기
                 const deviceMatch = record.hostDevicesText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
 
                 if (!deviceMatch) {
                   throw new Error(`LUN device mapping not found in SCSI device text: ${record.hostDevicesText}`)
                 }
 
-                lunDeviceName = deviceMatch[1]
+                const baseDevicePath = deviceMatch[1]
+
+                // LUN 디바이스 목록에서 실제 디바이스 이름 찾기
+                const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
+                const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
+
+                if (!lunData || !Array.isArray(lunData.hostdevicesname)) {
+                  throw new Error('Failed to get LUN device list')
+                }
+
+                // SCSI 주소 기반으로 매칭
+                const scsiAddr = this.extractScsiAddressString(record.hostDevicesText)
+
+                let foundLunDeviceName = null
+                for (let i = 0; i < lunData.hostdevicesname.length; i++) {
+                  const lunName = lunData.hostdevicesname[i]
+                  const lunText = lunData.hostdevicestext[i] || ''
+                  const lunAddr = this.extractScsiAddressString(lunText)
+
+                  // SCSI 주소로 매칭
+                  if (scsiAddr && lunAddr && scsiAddr === lunAddr) {
+                    foundLunDeviceName = lunName
+                    break
+                  }
+
+                  // 경로로도 매칭 시도 (괄호 제거해서 비교)
+                  const lunBasePath = lunName.split(' (')[0]
+                  if (lunBasePath === baseDevicePath) {
+                    foundLunDeviceName = lunName
+                    break
+                  }
+                }
+
+                if (!foundLunDeviceName) {
+                  throw new Error(`LUN device not found for path: ${baseDevicePath}`)
+                }
+
+                lunDeviceName = foundLunDeviceName
 
                 // LUN 디바이스 해제
                 const xmlConfig = this.generateXmlLunConfig(lunDeviceName)
@@ -4157,7 +4255,6 @@ export default {
                 })
 
                 if (!detachResponse || detachResponse.error) {
-                  console.error('LUN 디바이스 해제 실패:', detachResponse?.error)
                   throw new Error(detachResponse?.error?.errortext || 'Failed to detach LUN device')
                 }
               } else {
@@ -4174,7 +4271,6 @@ export default {
                 })
 
                 if (!detachResponse || detachResponse.error) {
-                  console.error('SCSI 디바이스 해제 실패:', detachResponse?.error)
                   throw new Error(detachResponse?.error?.errortext || 'Failed to detach SCSI device')
                 }
               }
@@ -4194,7 +4290,6 @@ export default {
               this.$emit('device-allocated')
               this.$emit('close-action')
             } catch (error) {
-              console.error('디바이스 해제 중 오류:', error)
               this.$notification.error({
                 message: this.$t('label.error'),
                 description: error.message || 'Failed to deallocate device'
@@ -4205,7 +4300,6 @@ export default {
           }
         })
       } catch (error) {
-        console.error('deallocateScsiDevice 오류:', error)
         this.$notifyError(error.message || 'Failed to deallocate SCSI device')
       } finally {
         this.loading = false
@@ -4286,7 +4380,6 @@ export default {
 
         return { isAllocated: false }
       } catch (error) {
-        console.error('Error checking device allocation in other tabs:', error)
         return { isAllocated: false }
       }
     },
@@ -4351,6 +4444,104 @@ export default {
       formattedText = formattedText.replace(/IN_USE:\s*true/gi, this.$t('label.in.use'))
 
       return formattedText
+    },
+
+    async checkDeviceAllocationInScsi (deviceName) {
+      try {
+        // 모든 호스트에서 SCSI 디바이스 할당 상태 확인
+        const hostsResponse = await api('listHosts', {})
+        const hosts = hostsResponse?.listhostsresponse?.host || []
+
+        for (const host of hosts) {
+          try {
+            const scsiResponse = await api('listHostScsiDevices', { id: host.id })
+            const scsiDevices = scsiResponse?.listhostscsidevicesresponse?.listhostscsidevices?.[0]
+
+            if (scsiDevices && scsiDevices.vmallocations) {
+              for (const [scsiDeviceName, vmId] of Object.entries(scsiDevices.vmallocations)) {
+                if (vmId && this.isSamePhysicalDevice(deviceName, scsiDeviceName)) {
+                  return true
+                }
+              }
+            }
+          } catch (error) {
+            // SCSI API가 지원되지 않는 호스트는 건너뛰기
+            if (error.response?.status === 530) {
+              continue
+            }
+          }
+        }
+        return false
+      } catch (error) {
+        return false
+      }
+    },
+
+    async checkDeviceAllocationInLun (deviceName) {
+      try {
+        // 모든 호스트에서 LUN 디바이스 할당 상태 확인
+        const hostsResponse = await api('listHosts', {})
+        const hosts = hostsResponse?.listhostsresponse?.host || []
+
+        for (const host of hosts) {
+          try {
+            const lunResponse = await api('listHostLunDevices', { id: host.id })
+            const lunDevices = lunResponse?.listhostlundevicesresponse?.listhostlundevices?.[0]
+
+            if (lunDevices && lunDevices.vmallocations) {
+              for (const [lunDeviceName, vmId] of Object.entries(lunDevices.vmallocations)) {
+                if (vmId && this.isSamePhysicalDevice(deviceName, lunDeviceName)) {
+                  return true
+                }
+              }
+            }
+          } catch (error) {
+            // LUN API가 지원되지 않는 호스트는 건너뛰기
+            if (error.response?.status === 530) {
+              continue
+            }
+          }
+        }
+        return false
+      } catch (error) {
+        return false
+      }
+    },
+
+    isSamePhysicalDevice (device1, device2) {
+      // 디바이스 이름에서 물리적 디바이스 경로 추출
+      const base1 = this.extractDeviceBase(device1)
+      const base2 = this.extractDeviceBase(device2)
+
+      // 같은 물리적 디바이스인지 확인
+      return base1 === base2 || this.areRelatedDevices(base1, base2)
+    },
+
+    extractDeviceBase (deviceName) {
+      // 디바이스 이름에서 기본 경로 추출
+      if (deviceName.includes('(')) {
+        // 괄호 안의 by-id 값에서 기본 디바이스 추출
+        const match = deviceName.match(/\(([^)]+)\)/)
+        if (match) {
+          const byIdName = match[1]
+          // by-id 이름에서 실제 디바이스 경로 추출
+          if (byIdName.startsWith('scsi-')) {
+            return byIdName
+          }
+        }
+      }
+
+      // 직접적인 디바이스 경로인 경우
+      if (deviceName.startsWith('/dev/')) {
+        return deviceName
+      }
+
+      return deviceName
+    },
+
+    areRelatedDevices (device1, device2) {
+      // SCSI 주소 기반으로 관련 디바이스인지 확인
+      return device1 === device2
     }
   }
 }
