@@ -152,11 +152,11 @@ public class SAMLUtils {
         return null;
     }
 
-    public static String buildAuthnRequestUrl(final String authnId, final SAMLProviderMetadata spMetadata, final SAMLProviderMetadata idpMetadata, final String signatureAlgorithm) {
+    public static String buildAuthnRequestUrl(final String authnId, final SAMLProviderMetadata spMetadata, final SAMLProviderMetadata idpMetadata, final String signatureAlgorithm, final String autoLoginValue) {
         String redirectUrl = "";
         try {
             DefaultBootstrap.bootstrap();
-            AuthnRequest authnRequest = SAMLUtils.buildAuthnRequestObject(authnId, spMetadata.getEntityId(), idpMetadata.getSsoUrl(), spMetadata.getSsoUrl());
+            AuthnRequest authnRequest = SAMLUtils.buildAuthnRequestObject(authnId, spMetadata.getEntityId(), idpMetadata.getSsoUrl(), spMetadata.getSsoUrl(), autoLoginValue);
             PrivateKey privateKey = null;
             if (spMetadata.getKeyPair() != null) {
                 privateKey = spMetadata.getKeyPair().getPrivate();
@@ -169,7 +169,7 @@ public class SAMLUtils {
         return redirectUrl;
     }
 
-    public static AuthnRequest buildAuthnRequestObject(final String authnId, final String spId, final String idpUrl, final String consumerUrl) {
+    public static AuthnRequest buildAuthnRequestObject(final String authnId, final String spId, final String idpUrl, final String consumerUrl, final String autoLoginValue) {
         // Issuer object
         IssuerBuilder issuerBuilder = new IssuerBuilder();
         Issuer issuer = issuerBuilder.buildObject();
@@ -195,7 +195,7 @@ public class SAMLUtils {
         authnRequest.setDestination(idpUrl);
         authnRequest.setVersion(SAMLVersion.VERSION_20);
         authnRequest.setForceAuthn(SAML2AuthManager.SAMLForceAuthn.value());
-        authnRequest.setIsPassive(false);
+        authnRequest.setIsPassive("true".equalsIgnoreCase(autoLoginValue));
         authnRequest.setIssueInstant(new DateTime());
         authnRequest.setProtocolBinding(SAMLConstants.SAML2_POST_BINDING_URI);
         authnRequest.setAssertionConsumerServiceURL(consumerUrl);
@@ -291,6 +291,7 @@ public class SAMLUtils {
         resp.addCookie(new Cookie("username", URLEncoder.encode(loginResponse.getUsername(), HttpUtils.UTF_8)));
         resp.addCookie(new Cookie("account", URLEncoder.encode(loginResponse.getAccount(), HttpUtils.UTF_8)));
         resp.addCookie(new Cookie("isSAML", URLEncoder.encode("true", HttpUtils.UTF_8)));
+        resp.addCookie(new Cookie("idpid", URLEncoder.encode(loginResponse.getExternalEntity(), HttpUtils.UTF_8)));
         resp.addCookie(new Cookie("twoFaEnabled", URLEncoder.encode(loginResponse.is2FAenabled(), HttpUtils.UTF_8)));
         String providerFor2FA = loginResponse.getProviderFor2FA();
         if (StringUtils.isNotEmpty(providerFor2FA)) {

@@ -360,9 +360,9 @@ export default {
           show: (record, store) => {
             return ['Running'].includes(record.state) && ['Admin'].includes(store.userInfo.roletype) && !record.kvdoinuse
           },
-          disabled: (record) => {
-            return record.details && 'extraconfig-1' in record.details
-          },
+          // disabled: (record) => {
+          //   return record.details && 'extraconfig-1' in record.details
+          // },
           tooltip: (record) => {
             if (record.details && 'extraconfig-1' in record.details) {
               return 'label.enable.host'

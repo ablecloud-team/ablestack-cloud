@@ -865,6 +865,7 @@ NetworkMigrationResponder, AggregatedCommandExecutor, RedundantResource, DnsServ
             return null;
         }
         element = new VirtualRouterProviderVO(nspId, providerType);
+        element.setEnabled(true);
         _vrProviderDao.persist(element);
         return element;
     }

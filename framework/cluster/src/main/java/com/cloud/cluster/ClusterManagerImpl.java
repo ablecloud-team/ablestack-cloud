@@ -829,7 +829,7 @@ public class ClusterManagerImpl extends ManagerBase implements ClusterManager, C
                 queueNotification(new ClusterManagerMessage(ClusterManagerMessage.MessageType.nodeRemoved, downHostList));
             }
         } else {
-            logger.info("No inactive management server node found");
+            logger.debug("No inactive management server node found");
         }
     }
 
@@ -1016,7 +1016,7 @@ public class ClusterManagerImpl extends ManagerBase implements ClusterManager, C
                 }
             }
         } else {
-            logger.info("No inactive management server node found");
+            logger.debug("No inactive management server node found");
         }
     }
 

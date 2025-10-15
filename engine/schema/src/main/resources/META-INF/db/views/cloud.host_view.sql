@@ -42,6 +42,7 @@ SELECT
     host.speed,
     host.ram,
     host.arch,
+    host.migration_ip,
     cluster.id cluster_id,
     cluster.uuid cluster_uuid,
     cluster.name cluster_name,

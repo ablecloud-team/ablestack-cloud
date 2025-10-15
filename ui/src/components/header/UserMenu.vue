@@ -190,8 +190,8 @@ export default {
       }
     },
     handleLogout () {
-      return this.Logout({}).then(() => {
-        this.$router.push('/user/login')
+      return this.Logout({ apiBase: this.$config.apiBase }).then(() => {
+        // this.$router.push('/user/login')
       }).catch(err => {
         this.$message.error({
           title: 'Failed to Logout',

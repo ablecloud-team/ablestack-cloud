@@ -1464,6 +1464,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
         Long snapshotId = payload.getSnapshotId();
         Account snapshotOwner = payload.getAccount();
+        boolean backup = payload.getBackup();
         SnapshotInfo snapshot = snapshotFactory.getSnapshot(snapshotId, volume.getDataStore());
         snapshot.addPayload(payload);
         try {
@@ -1475,8 +1476,14 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
             SnapshotInfo snapshotOnPrimary = snapshotStrategy.takeSnapshot(snapshot);
             boolean backupSnapToSecondary = isBackupSnapshotToSecondaryForZone(snapshot.getDataCenterId());
-            if (backupSnapToSecondary) {
-                backupSnapshotToSecondary(payload.getAsyncBackup(), snapshotStrategy, snapshotOnPrimary, payload.getZoneIds());
+            // 백업을 위한 API인 경우 2차 스토리지에 백업하지 않도록 추가
+            if (!backup) {
+                if (backupSnapToSecondary) {
+                    backupSnapshotToSecondary(payload.getAsyncBackup(), snapshotStrategy, snapshotOnPrimary, payload.getZoneIds());
+                } else {
+                    logger.debug("skipping backup of snapshot [{}] to secondary due to configuration", snapshot);
+                    snapshotOnPrimary.markBackedUp();
+                }
             } else {
                 logger.debug("skipping backup of snapshot [{}] to secondary due to configuration", snapshot);
                 snapshotOnPrimary.markBackedUp();
@@ -1487,7 +1494,6 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                 snapshotZoneDao.addSnapshotToZone(snapshotId, snapshot.getDataCenterId());
 
                 DataStoreRole dataStoreRole = backupSnapToSecondary ? snapshotHelper.getDataStoreRole(snapshot) : DataStoreRole.Primary;
-
                 List<SnapshotDataStoreVO> snapshotStoreRefs = _snapshotStoreDao.listReadyBySnapshot(snapshotId, dataStoreRole);
                 if (CollectionUtils.isEmpty(snapshotStoreRefs)) {
                     throw new CloudRuntimeException(String.format("Could not find snapshot %s on [%s]", snapshot.getSnapshotVO(), snapshot.getLocationType()));
@@ -1503,7 +1509,9 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                 _resourceLimitMgr.decrementResourceCount(snapshotOwner.getId(), ResourceType.secondary_storage, new Long(volume.getSize() - snapshotStoreRef.getPhysicalSize()));
 
                 if (!payload.getAsyncBackup() && backupSnapToSecondary) {
-                    copyNewSnapshotToZones(snapshotId, snapshot.getDataCenterId(), payload.getZoneIds());
+                    if (!backup) {
+                        copyNewSnapshotToZones(snapshotId, snapshot.getDataCenterId(), payload.getZoneIds());
+                    }
                 }
             } catch (Exception e) {
                 logger.debug("post process snapshot failed", e);

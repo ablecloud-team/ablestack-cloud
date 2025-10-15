@@ -68,6 +68,7 @@
                   :min="minMemory"
                   :max="maxMemory"
                   v-model:value="memoryInputValue"
+                  :step="1024"
                   @change="($event) => updateComputeMemory($event)"
                 />
               </a-col>
@@ -76,6 +77,7 @@
                   v-model:value="memoryInputValue"
                   :min="minMemory"
                   :max="maxMemory"
+                  :step="1024"
                   @change="($event) => updateComputeMemory($event)"
                 />
               </a-col>
@@ -121,11 +123,11 @@ export default {
     },
     curCpu: {
       type: Number,
-      default: 1
+      default: 0
     },
     curMemory: {
       type: Number,
-      default: 1
+      default: 0
     },
     maxCpu: {
       type: Number,
@@ -133,11 +135,11 @@ export default {
     },
     minMemory: {
       type: Number,
-      default: 512
+      default: 1024
     },
     maxMemory: {
       type: Number,
-      default: 512
+      default: 1024
     },
     cpuNumberInputDecorator: {
       type: String,
@@ -212,8 +214,10 @@ export default {
   },
   methods: {
     fillValue () {
-      this.cpuNumberInputValue = this.curCpu || this.minCpu
-      this.memoryInputValue = this.curMemory || this.minMemory
+      console.log('this.curMemory :>> ', this.curMemory)
+      console.log('this.minMemory :>> ', this.minMemory)
+      this.cpuNumberInputValue = this.curCpu > 1 ? this.curCpu : this.minCpu
+      this.memoryInputValue = this.curMemory > 1 ? this.curMemory : this.minMemory
       this.cpuSpeedInputValue = this.cpuSpeed
 
       if (!this.preFillContent) {
