@@ -2674,6 +2674,8 @@ public abstract class ServerResourceBase implements ServerResource {
                         descBuilder.append("SCSI Address: ").append(scsiAddress);
                     } else {
                     }
+                    // description 변수에 descBuilder 내용 할당
+                    description = descBuilder.toString();
                 }
 
                 boolean shouldInclude = true;
