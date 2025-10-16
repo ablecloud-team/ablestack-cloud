@@ -314,6 +314,7 @@ import com.cloud.network.security.SecurityGroup;
 import com.cloud.network.security.SecurityGroupManager;
 import com.cloud.network.security.SecurityGroupVO;
 import com.cloud.network.security.SecurityGroupService;
+
 import com.cloud.network.security.dao.SecurityGroupDao;
 import com.cloud.network.vpc.VpcManager;
 import com.cloud.offering.DiskOffering;
@@ -327,6 +328,7 @@ import com.cloud.org.Grouping;
 import com.cloud.resource.ResourceManager;
 import com.cloud.resource.ResourceState;
 import com.cloud.resourcelimit.CheckedReservation;
+import com.cloud.server.ManagementServer;
 import com.cloud.server.ManagementService;
 import com.cloud.server.ResourceTag;
 import com.cloud.server.StatsCollector;
@@ -617,6 +619,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     private BackupDao backupDao;
     @Inject
     private BackupManager backupManager;
+    @Inject
+    private ManagementServer _managementServer;
     @Inject
     private SnapshotApiService _snapshotService;
     @Inject
@@ -2594,6 +2598,13 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
             autoScaleManager.removeVmFromVmGroup(vm.getId());
 
+            // VM expunge 시 할당된 모든 디바이스 자동 해제
+            try {
+                _managementServer.deallocateAllDevicesOnVmDestroy(vm.getId());
+            } catch (Exception e) {
+                logger.error("Failed to deallocate devices for expunged VM {}: {}", vm.getId(), e.getMessage(), e);
+            }
+
             releaseNetworkResourcesOnExpunge(vm.getId());
 
             List<VolumeVO> rootVol = _volsDao.findByInstanceAndType(vm.getId(), Volume.Type.ROOT);
@@ -3047,6 +3058,21 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 }
 
                 details.entrySet().removeIf(detail -> isExtraConfig(detail.getKey()));
+
+                // (ABLESTACK) video.hardware 자동 확장 처리
+                // 전달된 details에 'video.hardware'가 있으면 'video.hardware1~4'와 'video.ram1~4'를 자동 생성한다.
+                if (details.containsKey("video.hardware")) {
+                    final String videoHardwareValue = details.get("video.hardware");
+                    // 기존 관련 키 제거 (중복 방지)
+                    details.keySet().removeIf(k -> k != null && (k.startsWith("video.hardware") || k.startsWith("video.ram")));
+                    // 1~4 자동 생성
+                    for (int i = 1; i <= 4; i++) {
+                        details.put("video.hardware" + i, videoHardwareValue);
+                        details.put("video.ram" + i, "0");
+                    }
+                    // 원본 키 제거
+                    details.remove("video.hardware");
+                }
 
                 if (caller != null && caller.getType() != Account.Type.ADMIN) {
                     // Ensure denied or read-only detail is not passed by non-root-admin user
@@ -6137,6 +6163,15 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             }
 
             if (status) {
+                // VM 삭제 시 할당된 모든 디바이스 자동 해제
+                try {
+                    logger.info("Deallocating all devices for destroyed VM: {}", vmId);
+                    _managementServer.deallocateAllDevicesOnVmDestroy(vmId);
+                } catch (Exception e) {
+                    logger.error("Failed to deallocate devices for destroyed VM {}: {}", vmId, e.getMessage(), e);
+                    // 디바이스 해제 실패해도 VM 삭제는 계속 진행
+                }
+
                 // Mark the account's volumes as destroyed
                 List<VolumeVO> volumes = _volsDao.findByInstance(vmId);
                 for (VolumeVO volume : volumes) {

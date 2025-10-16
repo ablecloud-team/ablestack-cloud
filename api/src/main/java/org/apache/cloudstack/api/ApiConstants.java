@@ -1487,6 +1487,11 @@ public class ApiConstants {
     public static final String MIGRATION_IP = "migrationip";
     public static final String VM_SNAPSHOT_NONCOPY = "noncopy";
 
+    public static final String PARENT_HB_NAME = "parenthbaname";
+    public static final String WWNN = "wwnn";
+    public static final String WWPN = "wwpn";
+    public static final String VHBA_NAME = "vhbaname";
+
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.
      * Qemu guests support "threads" and "native" options Since 0.8.8 ; "io_uring" is supported Since 6.3.0 (QEMU 5.0).
