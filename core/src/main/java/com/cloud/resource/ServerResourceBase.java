@@ -1848,7 +1848,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 if (tokens.length < 7) continue;
                 String scsiAddr = tokens[0];
                 String sgdev = tokens[6];
-                String name = sgdev; 
+                String name = sgdev;
 
                 StringBuilder text = new StringBuilder();
                 text.append("SCSI Address: ").append(scsiAddr).append("\n");
@@ -2418,7 +2418,7 @@ public abstract class ServerResourceBase implements ServerResource {
         }
 
         String[] lines = output.split("\\n");
-        for (String line : lines) { 
+        for (String line : lines) {
             if (line.contains("Node device") && line.contains("created from")) {
                 String[] parts = line.split(" ");
                 for (int i = 0; i < parts.length; i++) {
