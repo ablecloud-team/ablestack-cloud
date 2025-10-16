@@ -1048,15 +1048,13 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
 
                 String basePath = findBasePathForById(byIdValue);
                 if (basePath != null) {
-                    if (createSymbolicLink(basePath, byIdPath)) {
-                        logger.debug("Created symbolic link from {} to {} for migration", basePath, byIdPath);
-                    } else {
-                        logger.warn("Could not create symbolic link for by-id: {}, but keeping by-id path anyway", byIdValue);
-                    }
-                    matcher.appendReplacement(result, byIdPath);
+                    logger.info("Replacing by-id path {} with base device path {} for migration of VM: {}", byIdPath, basePath, vmName);
+                    // by-id 경로 대신 실제 디바이스 경로를 사용합니다
+                    // 이렇게 하면 타겟 호스트에서 by-id 경로가 다르거나 존재하지 않아도 동작합니다
+                    matcher.appendReplacement(result, java.util.regex.Matcher.quoteReplacement(basePath));
                 } else {
-                    logger.warn("Could not find base path for by-id: {}, keeping original by-id path", byIdValue);
-                    matcher.appendReplacement(result, byIdPath);
+                    logger.warn("Could not find base path for by-id: {}, keeping original by-id path (may cause migration failure)", byIdValue);
+                    matcher.appendReplacement(result, java.util.regex.Matcher.quoteReplacement(byIdPath));
                 }
             }
             matcher.appendTail(result);
@@ -1064,7 +1062,7 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
             if (!found) {
                 logger.debug("No by-id paths found in XML for VM: {}", vmName);
             } else {
-                logger.debug("LUN device path replacement completed for VM: {}", vmName);
+                logger.info("LUN device path replacement completed for VM: {}", vmName);
             }
 
             return result.toString();
@@ -1087,107 +1085,33 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
     }
 
     /**
-     * by-id 값에 해당하는 기본 경로를 찾습니다.
+     * by-id 값에 해당하는 실제 디바이스 경로를 찾습니다.
+     * 소스 호스트의 /dev/disk/by-id/ 디렉토리에서 심볼릭 링크를 따라 실제 경로를 반환합니다.
      */
     private String findBasePathForById(String byIdValue) {
         try {
-            logger.debug("Finding base path for by-id: {}", byIdValue);
+            logger.debug("Finding base device path for by-id: {}", byIdValue);
 
             // /dev/disk/by-id/ 디렉토리에서 심볼릭 링크 확인
-            java.io.File byIdDir = new java.io.File("/dev/disk/by-id");
-            if (byIdDir.exists() && byIdDir.isDirectory()) {
-                java.io.File[] files = byIdDir.listFiles();
-                if (files != null) {
-                    for (java.io.File file : files) {
-                        if (file.getName().equals(byIdValue)) {
-                            try {
-                                String targetPath = file.getCanonicalPath();
-                                logger.debug("Found target path for {}: {}", byIdValue, targetPath);
-                                return targetPath;
-                            } catch (Exception e) {
-                                logger.debug("Could not resolve canonical path for {}: {}", byIdValue, e.getMessage());
-                            }
-                        }
-                    }
+            java.io.File byIdFile = new java.io.File("/dev/disk/by-id/" + byIdValue);
+            if (byIdFile.exists()) {
+                try {
+                    // 심볼릭 링크의 실제 경로를 가져옵니다 (canonical path)
+                    String targetPath = byIdFile.getCanonicalPath();
+                    logger.info("Resolved by-id {} to actual device path: {}", byIdValue, targetPath);
+                    return targetPath;
+                } catch (Exception e) {
+                    logger.warn("Could not resolve canonical path for by-id {}: {}", byIdValue, e.getMessage());
                 }
-            }
-
-            String[] possiblePaths = {"/dev/sda", "/dev/sdb", "/dev/sdc", "/dev/sdd", "/dev/sde", "/dev/sdf", "/dev/sdg", "/dev/sdh"};
-            for (String path : possiblePaths) {
-                if (isDevicePathExists(path)) {
-                    // 해당 디바이스가 by-id 값과 연결되어 있는지 확인
-                    if (isDeviceLinkedToById(path, byIdValue)) {
-                        logger.debug("Found linked device {} for by-id {}", path, byIdValue);
-                        return path;
-                    }
-                }
-            }
-
-            logger.debug("Could not find specific base path for by-id {}, using default /dev/sdg", byIdValue);
-            return "/dev/sdg";
-        } catch (Exception e) {
-            logger.debug("Error finding base path for by-id {}: {}", byIdValue, e.getMessage());
-            return "/dev/sdg";
-        }
-    }
-
-    private boolean createSymbolicLink(String targetPath, String linkPath) {
-        try {
-            logger.debug("Creating symbolic link from {} to {}", targetPath, linkPath);
-
-            // /dev/disk/by-id/ 디렉토리가 존재하는지 확인
-            java.io.File byIdDir = new java.io.File("/dev/disk/by-id");
-            if (!byIdDir.exists()) {
-                logger.warn("/dev/disk/by-id directory does not exist");
-                return false;
-            }
-
-            // 기존 링크가 있으면 제거
-            java.io.File linkFile = new java.io.File(linkPath);
-            if (linkFile.exists()) {
-                linkFile.delete();
-            }
-
-            // 심볼릭 링크 생성
-            ProcessBuilder pb = new ProcessBuilder("ln", "-s", targetPath, linkPath);
-            Process process = pb.start();
-            int exitCode = process.waitFor();
-
-            if (exitCode == 0) {
-                logger.debug("Successfully created symbolic link from {} to {}", targetPath, linkPath);
-                return true;
             } else {
-                logger.warn("Failed to create symbolic link from {} to {}, exit code: {}", targetPath, linkPath, exitCode);
-                return false;
-            }
-        } catch (Exception e) {
-            logger.warn("Error creating symbolic link from {} to {}: {}", targetPath, linkPath, e.getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * 디바이스가 특정 by-id 값과 연결되어 있는지 확인합니다.
-     */
-    private boolean isDeviceLinkedToById(String devicePath, String byIdValue) {
-        try {
-            // ls -l /dev/disk/by-id/ | grep devicePath 명령으로 확인
-            ProcessBuilder pb = new ProcessBuilder("ls", "-l", "/dev/disk/by-id/");
-            Process process = pb.start();
-
-            java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.contains(byIdValue) && line.contains(devicePath)) {
-                    return true;
-                }
+                logger.warn("by-id file does not exist: /dev/disk/by-id/{}", byIdValue);
             }
 
-            process.waitFor();
-            return false;
+            // by-id 파일이 없거나 경로를 찾을 수 없는 경우 null 반환
+            return null;
         } catch (Exception e) {
-            logger.debug("Error checking device link for {} and {}: {}", devicePath, byIdValue, e.getMessage());
-            return false;
+            logger.warn("Error finding base path for by-id {}: {}", byIdValue, e.getMessage());
+            return null;
         }
     }
 }
