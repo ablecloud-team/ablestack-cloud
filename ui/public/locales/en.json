@@ -5018,7 +5018,7 @@
 "message.success.update.vm": "Host device applied",
 "label.select.vm": "Please select a virtual machine",
 "label.listhostdevices": "Devices",
-"message.warning.host.devices": "Applies only when the virtual machine is completely stopped and started. (You must set the active.additional.vm.configur ratio to true in global settings)",
+"message.warning.host.devices": "You must completely stop and start the virtual machine for this to take effect. (You must set enable.additional.vm.configuration to true in global settings.)",
 "label.recent.events": "Recent Events",
 "dr.create": "DR.CREATE",
 "dr.test.connect": "DR.TEST.CONNECT",
