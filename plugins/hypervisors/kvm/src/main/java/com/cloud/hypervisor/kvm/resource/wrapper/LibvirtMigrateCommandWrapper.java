@@ -183,6 +183,7 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
             if (newCdromIsoPath != null && !newCdromIsoPath.equals(oldCdromIsoPath)) {
                 xmlDesc = replaceCdromIsoPath(xmlDesc, vmName, oldCdromIsoPath, newCdromIsoPath);
             }
+            xmlDesc = replaceLunDevicePathsForMigration(xmlDesc, vmName);
 
             // delete the metadata of vm snapshots before migration
             vmsnapshots = libvirtComputingResource.cleanVMSnapshotMetadata(dm);
@@ -909,5 +910,89 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
             }
         }
         return false;
+    }
+
+    private String replaceLunDevicePathsForMigration(String xmlDesc, String vmName) {
+        try {
+
+            // by-id 경로 패턴 찾기
+            java.util.regex.Pattern byIdPattern = java.util.regex.Pattern.compile("/dev/disk/by-id/([^\"'\\s>]+)");
+            java.util.regex.Matcher matcher = byIdPattern.matcher(xmlDesc);
+
+            StringBuffer result = new StringBuffer();
+            boolean found = false;
+            while (matcher.find()) {
+                found = true;
+                String byIdPath = matcher.group(0);
+                String byIdValue = matcher.group(1);
+                logger.debug("Found by-id path in XML: {}", byIdPath);
+
+                String basePath = findBasePathForById(byIdValue);
+                if (basePath != null) {
+                    logger.info("Replacing by-id path {} with base device path {} for migration of VM: {}", byIdPath, basePath, vmName);
+                    // by-id 경로 대신 실제 디바이스 경로를 사용합니다
+                    // 이렇게 하면 타겟 호스트에서 by-id 경로가 다르거나 존재하지 않아도 동작합니다
+                    matcher.appendReplacement(result, java.util.regex.Matcher.quoteReplacement(basePath));
+                } else {
+                    logger.warn("Could not find base path for by-id: {}, keeping original by-id path (may cause migration failure)", byIdValue);
+                    matcher.appendReplacement(result, java.util.regex.Matcher.quoteReplacement(byIdPath));
+                }
+            }
+            matcher.appendTail(result);
+
+            if (!found) {
+                logger.debug("No by-id paths found in XML for VM: {}", vmName);
+            } else {
+                logger.info("LUN device path replacement completed for VM: {}", vmName);
+            }
+
+            return result.toString();
+        } catch (Exception e) {
+            logger.warn("Error replacing LUN device paths for VM {}: {}", vmName, e.getMessage());
+            return xmlDesc;
+        }
+    }
+
+    /**
+     * 디바이스 경로가 실제로 존재하는지 확인합니다.
+     */
+    private boolean isDevicePathExists(String devicePath) {
+        try {
+            java.io.File deviceFile = new java.io.File(devicePath);
+            return deviceFile.exists();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * by-id 값에 해당하는 실제 디바이스 경로를 찾습니다.
+     * 소스 호스트의 /dev/disk/by-id/ 디렉토리에서 심볼릭 링크를 따라 실제 경로를 반환합니다.
+     */
+    private String findBasePathForById(String byIdValue) {
+        try {
+            logger.debug("Finding base device path for by-id: {}", byIdValue);
+
+            // /dev/disk/by-id/ 디렉토리에서 심볼릭 링크 확인
+            java.io.File byIdFile = new java.io.File("/dev/disk/by-id/" + byIdValue);
+            if (byIdFile.exists()) {
+                try {
+                    // 심볼릭 링크의 실제 경로를 가져옵니다 (canonical path)
+                    String targetPath = byIdFile.getCanonicalPath();
+                    logger.info("Resolved by-id {} to actual device path: {}", byIdValue, targetPath);
+                    return targetPath;
+                } catch (Exception e) {
+                    logger.warn("Could not resolve canonical path for by-id {}: {}", byIdValue, e.getMessage());
+                }
+            } else {
+                logger.warn("by-id file does not exist: /dev/disk/by-id/{}", byIdValue);
+            }
+
+            // by-id 파일이 없거나 경로를 찾을 수 없는 경우 null 반환
+            return null;
+        } catch (Exception e) {
+            logger.warn("Error finding base path for by-id {}: {}", byIdValue, e.getMessage());
+            return null;
+        }
     }
 }

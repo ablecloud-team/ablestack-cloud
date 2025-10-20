@@ -1008,12 +1008,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     @Override
-    public BackupProvider getBackupProvider(final Long zoneId) {
-        final String name = BackupProviderPlugin.valueIn(zoneId);
-        return getBackupProvider(name);
-    }
-
-    @Override
     public BackupProvider getBackupProviderForOffering(final Long offeringId) {
         final BackupOfferingVO offering = backupOfferingDao.findById(offeringId);
         if (offering == null) {
@@ -1416,6 +1410,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         String externalId = backupOfferingVO.getExternalId();
         Long zoneId = backupOfferingVO.getZoneId();
+        String providerName = backupOfferingVO.getProvider();
 
         logger.debug("Trying to update Backup Offering {} to {}.",
                 ReflectionToStringBuilderUtils.reflectOnlySelectedFields(backupOfferingVO, "uuid", "name", "description", "userDrivenBackupAllowed", "retentionPeriod"),
@@ -1439,7 +1434,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
 
         if (retentionPeriod != null) {
-            final BackupProvider provider = getBackupProvider(zoneId);
+            final BackupProvider provider = getBackupProvider(providerName);
             if (!provider.getName().equalsIgnoreCase("commvault")){
                 throw new CloudRuntimeException("Failed to update backup offering, Because the backup offering provider is not set to commvault.");
             }
