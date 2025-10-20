@@ -43,6 +43,7 @@ SELECT
     host.ram,
     host.arch,
     host.storage_access_groups,
+    host.migration_ip,
     cluster.id cluster_id,
     cluster.uuid cluster_uuid,
     cluster.name cluster_name,

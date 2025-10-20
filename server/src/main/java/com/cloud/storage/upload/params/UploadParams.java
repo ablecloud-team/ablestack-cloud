@@ -50,4 +50,6 @@ public interface UploadParams {
     boolean isKvdoEnable();
     boolean isDeployAsIs();
     CPU.CPUArch getArch();
+    boolean isForCks();
+    String getTemplateType();
 }
