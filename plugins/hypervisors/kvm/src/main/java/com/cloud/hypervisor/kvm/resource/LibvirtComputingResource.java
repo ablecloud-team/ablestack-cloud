@@ -145,6 +145,11 @@ import com.cloud.agent.api.ListHostHbaDeviceCommand;
 import com.cloud.agent.api.ListHostLunDeviceCommand;
 import com.cloud.agent.api.ListHostScsiDeviceCommand;
 import com.cloud.agent.api.ListHostUsbDeviceCommand;
+import com.cloud.agent.api.UpdateHostLunDeviceCommand;
+import com.cloud.agent.api.UpdateHostScsiDeviceCommand;
+import com.cloud.agent.api.UpdateHostUsbDeviceCommand;
+import com.cloud.agent.api.UpdateHostHbaDeviceCommand;
+import com.cloud.agent.api.ListVhbaDevicesCommand;
 import com.cloud.agent.api.PingAnswer;
 import com.cloud.agent.api.PingCommand;
 import com.cloud.agent.api.PingRoutingCommand;
@@ -155,11 +160,6 @@ import com.cloud.agent.api.StartupCommand;
 import com.cloud.agent.api.StartupRoutingCommand;
 import com.cloud.agent.api.StartupStorageCommand;
 import com.cloud.agent.api.VgpuTypesInfo;
-import com.cloud.agent.api.UpdateHostHbaDeviceCommand;
-import com.cloud.agent.api.UpdateHostLunDeviceCommand;
-import com.cloud.agent.api.UpdateHostScsiDeviceCommand;
-import com.cloud.agent.api.UpdateHostUsbDeviceCommand;
-import com.cloud.agent.api.ListVhbaDevicesCommand;
 import com.cloud.agent.api.CreateVhbaDeviceCommand;
 import com.cloud.agent.api.DeleteVhbaDeviceCommand;
 import com.cloud.agent.api.UpdateHostVhbaDeviceCommand;
@@ -216,7 +216,6 @@ import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.SoundDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.TermPolicy;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.TpmDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.VideoDef;
-// import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.VideoDef2;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.WatchDogDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.WatchDogDef.WatchDogAction;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.WatchDogDef.WatchDogModel;
@@ -7184,6 +7183,22 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return uuid;
     }
 
+    public void createRBDSecretKeyFileIfNoExist(String uuid, String localPath, String skey) {
+        File file = new File(localPath + File.separator + uuid);
+        try {
+            // 파일이 존재하지 않을 때만 생성
+            if (!file.exists()) {
+                boolean isCreated = file.createNewFile();
+                if (isCreated) {
+                    // 파일 생성 후 내용 작성
+                    FileWriter writer = new FileWriter(file);
+                    writer.write(skey);
+                    writer.close();
+                }
+            }
+        } catch (IOException e) {}
+    }
+
     @Override
     public void disconnected() {
         LOGGER.info("Detected agent disconnect event, running through " + _disconnectHooks.size() + " disconnect hooks");
@@ -7242,22 +7257,6 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 storagePoolManager.disconnectPhysicalDisk(primaryStore.getPoolType(), primaryStore.getUuid(), volumePath);
             }
         }
-    }
-
-    public void createRBDSecretKeyFileIfNoExist(String uuid, String localPath, String skey) {
-        File file = new File(localPath + File.separator + uuid);
-        try {
-            // 파일이 존재하지 않을 때만 생성
-            if (!file.exists()) {
-                boolean isCreated = file.createNewFile();
-                if (isCreated) {
-                    // 파일 생성 후 내용 작성
-                    FileWriter writer = new FileWriter(file);
-                    writer.write(skey);
-                    writer.close();
-                }
-            }
-        } catch (IOException e) {}
     }
 
     public String getHypervisorPath() {

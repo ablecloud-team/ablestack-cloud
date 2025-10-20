@@ -7994,95 +7994,83 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         synchronized (getVmExtraConfigLock(vmId)) {
             try {
                 // 현재 시점의 최신 extraconfig 목록 가져오기
-                List<VMInstanceDetailVO> existingConfigs = _vmInstanceDetailsDao.listDetails(vmId);
-                int nextConfigNum = 1;
-                Set<Integer> usedNums = new HashSet<>();
+                List<UserVmDetailVO> existingConfigs = _vmDetailsDao.listDetails(vmId);
 
-                // 기존 extraconfig 번호들 수집
-                for (VMInstanceDetailVO detail : existingConfigs) {
-                    if (detail.getName().startsWith("extraconfig-")) {
-                        try {
-                            int num = Integer.parseInt(detail.getName().split("-")[1]);
-                            usedNums.add(num);
-                        } catch (NumberFormatException e) {
-                            logger.warn("Invalid extraconfig number format: {}", detail.getName());
+                for (UserVmDetailVO detail : existingConfigs) {
+                    if (detail.getName().startsWith("extraconfig-") && detail.getValue() != null) {
+                        String value = detail.getValue();
+                        boolean shouldRemove = false;
+
+                        if (isPciDevice(deviceName)) {
+                            String pciAddress = extractPciAddress(deviceName);
+                            if (pciAddress != null) {
+                                String pciAddressInValue = extractPciAddressFromXml(value);
+                                if (pciAddressInValue != null && pciAddressInValue.equals(pciAddress)) {
+                                    shouldRemove = true;
+                                } else if (value.contains(pciAddress)) {
+                                    shouldRemove = true;
+                                } else if (value.contains(deviceName)) {
+                                    shouldRemove = true;
+                                }
+                            } else if (value.contains(deviceName)) {
+                                shouldRemove = true;
+                            }
+                        } else if (isUsbDevice(deviceName)) {
+                            if (matchUsbDevice(value, deviceName)) {
+                                shouldRemove = true;
+                            }
+                        } else if (isScsiDevice(deviceName)) {
+
+                            String normalizedStoredXml = value.replaceAll("\\s+", "").toLowerCase();
+                            String normalizedInputXml = xmlConfig.replaceAll("\\s+", "").toLowerCase();
+
+                            if (normalizedStoredXml.equals(normalizedInputXml)) {
+                                shouldRemove = true;
+                            }
+                        } else if (isHbaDevice(deviceName)) {
+                            if (matchHbaDevice(value, deviceName)) {
+                                shouldRemove = true;
+                            }
+                        } else if (isVhbaDevice(deviceName)) {
+                            if (matchVhbaDevice(value, deviceName)) {
+                                shouldRemove = true;
+                            }
+                        } else if (isLunDevice(deviceName)) {
+                            if (matchLunDevice(value, deviceName)) {
+                                shouldRemove = true;
+                            }
+                        }
+
+                        if (shouldRemove) {
+                            _vmDetailsDao.remove(detail.getId());
+                            break;
                         }
                     }
                 }
 
-                // 사용 가능한 다음 번호 찾기
+                int nextConfigNum = 1;
+                Set<Integer> usedNums = new HashSet<>();
+
+                for (UserVmDetailVO detail : existingConfigs) {
+                    if (detail.getName().startsWith("extraconfig-") && detail.getName().matches("extraconfig-\\d+")) {
+                        try {
+                            int num = Integer.parseInt(detail.getName().split("-")[1]);
+                            usedNums.add(num);
+                        } catch (NumberFormatException e) {
+                        }
+                    }
+                }
+
                 while (usedNums.contains(nextConfigNum)) {
                     nextConfigNum++;
                 }
 
                 String extraConfigKey = "extraconfig-" + nextConfigNum;
 
-                // 중복 체크를 위한 재시도 로직
-                int maxRetries = 5;
-                int retryCount = 0;
-                boolean success = false;
-
-                while (!success && retryCount < maxRetries) {
-                    try {
-                        // 다시 한 번 최신 상태 확인 (동시 할당 방지)
-                        List<VMInstanceDetailVO> latestConfigs = _vmInstanceDetailsDao.listDetails(vmId);
-                        boolean keyExists = false;
-
-                        for (VMInstanceDetailVO detail : latestConfigs) {
-                            if (extraConfigKey.equals(detail.getName())) {
-                                keyExists = true;
-                                break;
-                            }
-                        }
-
-                        if (keyExists) {
-                            // 키가 이미 존재하면 다음 번호로 이동
-                            nextConfigNum++;
-                            extraConfigKey = "extraconfig-" + nextConfigNum;
-                            retryCount++;
-                            logger.debug("Extraconfig key {} already exists, trying {}",
-                                       "extraconfig-" + (nextConfigNum - 1), extraConfigKey);
-                            continue;
-                        }
-
-                        // 키 추가 시도
-                        _vmInstanceDetailsDao.addDetail(vmId, extraConfigKey, xmlConfig, true);
-                        success = true;
-
-                        logger.info("Added device {} configuration to VM {} with extraconfig key: {} (attempt {})",
-                                   deviceName, vmId, extraConfigKey, retryCount + 1);
-
-                    } catch (Exception e) {
-                        retryCount++;
-                        if (retryCount >= maxRetries) {
-                            logger.error("Failed to add device {} to VM {} extraconfig after {} retries: {}",
-                                       deviceName, vmId, maxRetries, e.getMessage());
-                            throw e;
-                        }
-                        logger.warn("Failed to add device {} to VM {} extraconfig (attempt {}): {}, retrying...",
-                                  deviceName, vmId, retryCount, e.getMessage());
-
-                        // 잠시 대기 후 재시도
-                        try {
-                            Thread.sleep(100 * retryCount); // 백오프 전략
-                        } catch (InterruptedException ie) {
-                            Thread.currentThread().interrupt();
-                            throw new CloudRuntimeException("Interrupted while waiting to retry extraconfig addition", ie);
-                        }
-
-                        nextConfigNum++;
-                        extraConfigKey = "extraconfig-" + nextConfigNum;
-                    }
-                }
-
-                if (!success) {
-                    throw new CloudRuntimeException("Failed to add device " + deviceName +
-                                                  " to VM " + vmId + " extraconfig after maximum retries");
-                }
-
+                // extraconfig에 디바이스 설정 추가
+                _vmDetailsDao.addDetail(vmId, extraConfigKey, xmlConfig, true);
             } catch (Exception e) {
-                logger.error("Failed to add device {} to VM {} extraconfig: {}", deviceName, vmId, e.getMessage(), e);
-                throw new CloudRuntimeException("Failed to add device configuration to VM extraconfig", e);
+                throw new CloudRuntimeException("Failed to add device " + deviceName + " to VM " + vmId + " extraconfig: " + e.getMessage(), e);
             }
         }
     }
