@@ -28,6 +28,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,12 +40,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.naming.ConfigurationException;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -249,8 +252,7 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = cmd.execute(parser);
 
-            if (result != null) {
-                logger.error("Failed to execute lsblk command: " + result);
+            if (result != null || parser.getLines() == null || parser.getLines().trim().isEmpty()) {
                 return new ListHostLunDeviceAnswer(false, hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses);
             }
 
@@ -285,28 +287,21 @@ public abstract class ServerResourceBase implements ServerResource {
             List<String> scsiAddresses = new ArrayList<>();
 
             Map<String, String> scsiAddressCache = getScsiAddressesFromSysfs();
-            Map<java.nio.file.Path, String> realToById = buildByIdReverseMap();
+            Map<Path, String> realToById = buildByIdReverseMap();
 
-            java.io.File sysBlock = new java.io.File("/sys/block");
-            java.io.File[] entries = sysBlock.listFiles();
+            File sysBlock = new File("/sys/block");
+            File[] entries = sysBlock.listFiles();
             if (entries == null) {
-                logger.debug("No entries found in /sys/block");
                 return null;
             }
 
-            logger.debug("Found " + entries.length + " entries in /sys/block");
-
             // 통합된 디바이스 수집으로 변경
             collectAllLunDevicesUnified(names, texts, hasPartitions, scsiAddresses, scsiAddressCache, realToById);
-
-            logger.debug("Final LUN device count: " + names.size());
             for (int i = 0; i < names.size(); i++) {
-                logger.debug("LUN device " + i + ": " + names.get(i));
             }
 
             return new ListHostLunDeviceAnswer(true, names, texts, hasPartitions, scsiAddresses);
         } catch (Exception e) {
-            logger.debug("Fast sysfs scan failed, falling back: " + e.getMessage());
             return null;
         }
     }
@@ -316,16 +311,16 @@ public abstract class ServerResourceBase implements ServerResource {
      */
     private void collectAllLunDevicesUnified(List<String> names, List<String> texts, List<Boolean> hasPartitions,
                                            List<String> scsiAddresses, Map<String, String> scsiAddressCache,
-                                           Map<java.nio.file.Path, String> realToById) {
-        java.io.File sysBlock = new java.io.File("/sys/block");
-        java.io.File[] entries = sysBlock.listFiles();
+                                           Map<Path, String> realToById) {
+        File sysBlock = new File("/sys/block");
+        File[] entries = sysBlock.listFiles();
         if (entries == null) return;
 
         // 중복 제거를 위한 Set
         Set<String> addedDevices = new HashSet<>();
 
         // 1. 직접 디바이스 수집
-        for (java.io.File entry : entries) {
+        for (File entry : entries) {
             String bname = entry.getName();
             if (!(bname.startsWith("sd") || bname.startsWith("vd") || bname.startsWith("xvd") ||
                   bname.startsWith("nvme") || bname.startsWith("dm-"))) {
@@ -352,7 +347,7 @@ public abstract class ServerResourceBase implements ServerResource {
     /**
      * 디바이스를 리스트에 추가하는 공통 메서드
      */
-    private void addDeviceToList(String devPath, String preferred, java.io.File entry,
+    private void addDeviceToList(String devPath, String preferred, File entry,
                                List<String> names, List<String> texts, List<Boolean> hasPartitionsList,
                                List<String> scsiAddresses, Map<String, String> scsiAddressCache, String bname) {
         StringBuilder info = new StringBuilder();
@@ -381,14 +376,12 @@ public abstract class ServerResourceBase implements ServerResource {
             String byIdName = preferred.substring(preferred.lastIndexOf('/') + 1);
             String displayName = devPath + " (" + byIdName + ")";
 
-            logger.debug("Adding LUN device: " + displayName + " (path: " + preferred + ", hasPartitions: " + deviceHasPartitions + ")");
             names.add(displayName);
             texts.add(info.toString());
             hasPartitionsList.add(deviceHasPartitions);
             scsiAddresses.add(scsiAddr != null ? scsiAddr : "");
         } else {
             // ID 값이 없는 경우 리스트에 추가하지 않음
-            logger.debug("Skipping LUN device (no ID): " + devPath + " (preferred: " + preferred + ")");
         }
     }
 
@@ -425,7 +418,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
         } catch (Exception e) {
-            logger.debug("Error collecting multipath devices: " + e.getMessage());
+            // Error collecting multipath devices
         }
     }
 
@@ -460,14 +453,12 @@ public abstract class ServerResourceBase implements ServerResource {
             String byIdName = preferredName.substring(preferredName.lastIndexOf('/') + 1);
             String displayName = devicePath + " (" + byIdName + ")";
 
-            logger.debug("Adding multipath LUN device: " + displayName + " (path: " + preferredName + ", hasPartitions: " + hasPartition + ")");
             names.add(displayName);
             texts.add(deviceInfo.toString());
             hasPartitionsList.add(hasPartition);
             scsiAddresses.add(scsiAddress != null ? scsiAddress : "");
         } else {
             // ID 값이 없는 경우 리스트에 추가하지 않음
-            logger.debug("Skipping multipath LUN device (no ID): " + devicePath + " (preferred: " + preferredName + ")");
         }
     }
 
@@ -482,22 +473,22 @@ public abstract class ServerResourceBase implements ServerResource {
             }
         }
 
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("dm-\\d+");
-        java.util.regex.Matcher matcher = pattern.matcher(line);
+        Pattern pattern = Pattern.compile("dm-\\d+");
+        Matcher matcher = pattern.matcher(line);
         if (matcher.find()) {
             return matcher.group();
         }
 
         return null;
     }
-    private Map<java.nio.file.Path, String> buildByIdReverseMap() {
-        Map<java.nio.file.Path, String> map = new java.util.HashMap<>();
-        java.nio.file.Path byIdDir = java.nio.file.Paths.get("/dev/disk/by-id");
+    private Map<Path, String> buildByIdReverseMap() {
+        Map<Path, String> map = new HashMap<>();
+        Path byIdDir = Path.of("/dev/disk/by-id");
         try {
-            if (!java.nio.file.Files.isDirectory(byIdDir)) return map;
-            try (java.util.stream.Stream<java.nio.file.Path> s = java.nio.file.Files.list(byIdDir)) {
-                s.filter(java.nio.file.Files::isSymbolicLink).forEach(p -> {
-                    java.nio.file.Path rp = safeRealPath(p);
+            if (!Files.isDirectory(byIdDir)) return map;
+            try (Stream<Path> s = Files.list(byIdDir)) {
+                s.filter(Files::isSymbolicLink).forEach(p -> {
+                    Path rp = safeRealPath(p);
                     if (rp != null) {
                         String byIdPath = byIdDir.resolve(p.getFileName()).toString();
                         map.put(rp, byIdPath);
@@ -510,9 +501,9 @@ public abstract class ServerResourceBase implements ServerResource {
         return map;
     }
 
-    private String resolveById(Map<java.nio.file.Path, String> realToById, String devicePath) {
+    private String resolveById(Map<Path, String> realToById, String devicePath) {
         try {
-            java.nio.file.Path real = java.nio.file.Paths.get(devicePath).toRealPath();
+            Path real = Path.of(devicePath).toRealPath();
             String byId = realToById.get(real);
             if (byId != null) {
                 // LUN 디바이스는 전체 디스크를 사용해야 하므로 파티션 부분 제거
@@ -530,25 +521,22 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    private boolean sysHasPartitions(java.io.File sysBlockEntry) {
+    private boolean sysHasPartitions(File sysBlockEntry) {
         try {
             String name = sysBlockEntry.getName();
-            java.io.File[] children = sysBlockEntry.listFiles();
+            File[] children = sysBlockEntry.listFiles();
             if (children == null) return false;
 
-            logger.debug("Checking partitions for device: " + name);
-            for (java.io.File child : children) {
+            for (File child : children) {
                 String childName = child.getName();
-                logger.debug("Checking child: " + childName);
 
                 // 파티션 디렉토리인지 확인 (예: sda1, sda2 등)
                 if (childName.startsWith(name) && childName.length() > name.length()) {
                     String suffix = childName.substring(name.length());
                     // 숫자로만 구성된 경우 파티션으로 간주
                     if (suffix.matches("\\d+")) {
-                        java.io.File partFile = new java.io.File(child, "partition");
+                        File partFile = new File(child, "partition");
                         if (partFile.exists()) {
-                            logger.debug("Found partition: " + childName);
                             return true;
                         }
                     }
@@ -557,12 +545,17 @@ public abstract class ServerResourceBase implements ServerResource {
 
             // 추가로 lsblk 명령어로도 확인 (예외 처리 강화)
             try {
+                // 디바이스가 존재하는지 먼저 확인
+                File deviceFile = new File("/dev/" + name);
+                if (!deviceFile.exists()) {
+                    return false;
+                }
                 Script lsblkCmd = new Script("/usr/bin/lsblk");
                 lsblkCmd.add("--json", "--paths", "--output", "NAME,TYPE", "/dev/" + name);
                 OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
                 String result = lsblkCmd.execute(parser);
 
-                if (result == null && parser.getLines() != null) {
+                if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                     try {
                         JSONObject json = new JSONObject(parser.getLines());
                         JSONArray blockdevices = json.getJSONArray("blockdevices");
@@ -574,56 +567,53 @@ public abstract class ServerResourceBase implements ServerResource {
                                     JSONObject child = jsonChildren.getJSONObject(i);
                                     String childType = child.optString("type", "");
                                     if ("part".equals(childType)) {
-                                        logger.debug("Found partition via lsblk: " + child.optString("name", ""));
                                         return true;
                                     }
                                 }
                             }
                         }
                     } catch (Exception e) {
-                        logger.debug("Error parsing lsblk output: " + e.getMessage());
+                        // Error parsing lsblk output
                     }
                 }
             } catch (Exception e) {
-                logger.debug("Error executing lsblk command for device {}: {}", name, e.getMessage());
                 // lsblk 실패 시 sysfs 기반 결과만 사용
             }
 
-            logger.debug("No partitions found for device: " + name);
             return false;
         } catch (Exception e) {
-            logger.debug("Error checking partitions for " + sysBlockEntry.getName() + ": " + e.getMessage());
+            // Error checking partitions
             return false;
         }
     }
 
-    private String sysGetSizeHuman(java.io.File sysBlockEntry) {
+    private String sysGetSizeHuman(File sysBlockEntry) {
         try {
-            java.io.File sizeFile = new java.io.File(sysBlockEntry, "size");
+            File sizeFile = new File(sysBlockEntry, "size");
             if (!sizeFile.exists()) return null;
-            String content = new String(java.nio.file.Files.readAllBytes(sizeFile.toPath())).trim();
+            String content = new String(Files.readAllBytes(sizeFile.toPath())).trim();
             if (content.isEmpty()) return null;
             long sectors = Long.parseLong(content);
             double gib = (sectors * 512.0) / 1024 / 1024 / 1024;
-            return String.format(java.util.Locale.ROOT, "%.2fG", gib);
+            return String.format(Locale.ROOT, "%.2fG", gib);
         } catch (Exception ignore) {
             return null;
         }
     }
 
     private Map<String, String> getScsiAddressesFromSysfs() {
-        Map<String, String> map = new java.util.HashMap<>();
+        Map<String, String> map = new HashMap<>();
         try {
-            java.io.File sysBlock = new java.io.File("/sys/block");
-            java.io.File[] entries = sysBlock.listFiles();
+            File sysBlock = new File("/sys/block");
+            File[] entries = sysBlock.listFiles();
             if (entries == null) return map;
-            for (java.io.File e : entries) {
+            for (File e : entries) {
                 String name = e.getName();
                 if (!(name.startsWith("sd") || name.startsWith("vd") || name.startsWith("xvd"))) continue;
-                java.nio.file.Path devLink = java.nio.file.Paths.get(e.getAbsolutePath(), "device");
+                Path devLink = Path.of(e.getAbsolutePath(), "device");
                 try {
-                    java.nio.file.Path real = java.nio.file.Files.readSymbolicLink(devLink);
-                    java.nio.file.Path resolved = devLink.getParent().resolve(real).normalize();
+                    Path real = Files.readSymbolicLink(devLink);
+                    Path resolved = devLink.getParent().resolve(real).normalize();
                     String scsi = resolved.getFileName().toString();
                     map.put("/dev/" + name, scsi);
                 } catch (Exception ignore) {}
@@ -654,7 +644,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 String byIdName = preferredName.substring(preferredName.lastIndexOf('/') + 1);
                 String displayName = name + " (" + byIdName + ")";
 
-                logger.debug("Adding LUN device: " + displayName + " (path: " + preferredName + ", hasPartitions: " + hasPartition + ")");
                 names.add(displayName);
                 StringBuilder deviceInfo = new StringBuilder();
                 deviceInfo.append("TYPE: ").append(type);
@@ -674,7 +663,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 scsiAddresses.add(scsiAddress != null ? scsiAddress : "");
             } else {
                 // ID 값이 없는 경우 리스트에 추가하지 않음
-                logger.debug("Skipping LUN device (no ID): " + name + " (preferred: " + preferredName + ")");
             }
         }
 
@@ -697,17 +685,17 @@ public abstract class ServerResourceBase implements ServerResource {
                 return devicePath;
             }
 
-            java.nio.file.Path device = java.nio.file.Paths.get(devicePath).toRealPath();
-            java.nio.file.Path byIdDir = java.nio.file.Paths.get("/dev/disk/by-id");
+            Path device = Path.of(devicePath).toRealPath();
+            Path byIdDir = Path.of("/dev/disk/by-id");
 
-            if (!java.nio.file.Files.isDirectory(byIdDir)) {
+            if (!Files.isDirectory(byIdDir)) {
                 return devicePath;
             }
 
-            try (java.util.stream.Stream<java.nio.file.Path> stream = java.nio.file.Files.list(byIdDir)) {
-                java.util.Optional<String> firstMatch = stream
-                    .filter(java.nio.file.Files::isSymbolicLink)
-                    .map(p -> new java.util.AbstractMap.SimpleEntry<>(p, safeRealPath(p)))
+            try (Stream<Path> stream = Files.list(byIdDir)) {
+                Optional<String> firstMatch = stream
+                    .filter(Files::isSymbolicLink)
+                    .map(p -> new AbstractMap.SimpleEntry<>(p, safeRealPath(p)))
                     .filter(e -> e.getValue() != null && e.getValue().equals(device))
                     .map(e -> byIdDir.resolve(e.getKey().getFileName()).toString())
                     .findFirst();
@@ -727,11 +715,11 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    private java.nio.file.Path safeRealPath(java.nio.file.Path link) {
+    private Path safeRealPath(Path link) {
         try {
-            java.nio.file.Path target = java.nio.file.Files.readSymbolicLink(link);
+            Path target = Files.readSymbolicLink(link);
             // 상대 링크일 수 있음
-            java.nio.file.Path resolved = link.getParent().resolve(target).normalize();
+            Path resolved = link.getParent().resolve(target).normalize();
             return resolved.toRealPath();
         } catch (Exception e) {
             return null;
@@ -824,7 +812,7 @@ public abstract class ServerResourceBase implements ServerResource {
                     }
                 }
             } else {
-                logger.warn("Failed to execute multipath -l command: " + result);
+                // Failed to execute multipath -l command
             }
 
         } catch (Exception e) {
@@ -925,7 +913,7 @@ public abstract class ServerResourceBase implements ServerResource {
             Path target = Files.readSymbolicLink(file.toPath());
             return target.toString();
         } catch (Exception e) {
-            logger.debug("Error reading symbolic link " + file.getPath() + ": " + e.getMessage());
+            // Error reading symbolic link
             return null;
         }
     }
@@ -1029,7 +1017,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
         } catch (Exception e) {
-            logger.debug("Failed to resolve dm-uuid {}: {}", dmUuid, e.getMessage());
+            // Failed to resolve dm-uuid
         }
         return null;
     }
@@ -1050,7 +1038,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 return parser.getLines().trim();
             }
         } catch (Exception e) {
-            logger.debug("Failed to resolve by-id path {}: {}", byIdPath, e.getMessage());
+            // Failed to resolve by-id path
         }
         return null;
     }
@@ -1074,7 +1062,6 @@ public abstract class ServerResourceBase implements ServerResource {
             }
 
             // 모든 후보가 사용 중이면 sdd 반환 (fallback)
-            logger.warn("All target dev candidates are in use, using sdd as fallback for device: {}", devicePath);
             return "sdd";
 
         } catch (Exception e) {
@@ -1120,13 +1107,12 @@ public abstract class ServerResourceBase implements ServerResource {
                                 }
                             }
                         } catch (Exception e) {
-                            logger.debug("Error checking target devs for VM {}: {}", vmName, e.getMessage());
+                            // Error checking target devs for VM
                         }
                     }
                 }
             }
 
-            logger.debug("Currently used target devs: {}", usedDevs);
             return usedDevs;
 
         } catch (Exception e) {
@@ -1201,7 +1187,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
         } catch (Exception e) {
-            logger.debug("Failed to extract SCSI address from device {}: {}", devicePath, e.getMessage());
+            // Failed to extract SCSI address from device
         }
 
         return null;
@@ -1308,6 +1294,12 @@ public abstract class ServerResourceBase implements ServerResource {
      */
     private boolean hasPartitionRecursiveForDevice(String devicePath) {
         try {
+            // 디바이스가 존재하는지 먼저 확인
+            File deviceFile = new File(devicePath);
+            if (!deviceFile.exists()) {
+                return false;
+            }
+
             Script cmd = new Script("/usr/bin/lsblk");
             cmd.add("--json", "--paths", "--output", "NAME,TYPE", devicePath);
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
@@ -1315,11 +1307,11 @@ public abstract class ServerResourceBase implements ServerResource {
             try {
                 result = cmd.execute(parser);
             } catch (Exception e) {
-                logger.debug("Error executing lsblk command for device {}: {}", devicePath, e.getMessage());
+                // Error executing lsblk command for device
                 return false;
             }
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 try {
                     JSONObject json = new JSONObject(parser.getLines());
                     JSONArray blockdevices = json.getJSONArray("blockdevices");
@@ -1329,12 +1321,12 @@ public abstract class ServerResourceBase implements ServerResource {
                         return hasPartitionRecursive(device);
                     }
                 } catch (Exception e) {
-                    logger.debug("Error parsing lsblk JSON output for device {}: {}", devicePath, e.getMessage());
+                    // Error parsing lsblk JSON output for device
                 }
             }
 
         } catch (Exception e) {
-            logger.debug("Error executing lsblk command for device {}: {}", devicePath, e.getMessage());
+            // Error executing lsblk command for device
         }
 
         return false;
@@ -1345,12 +1337,18 @@ public abstract class ServerResourceBase implements ServerResource {
      */
     private String getDeviceSize(String devicePath) {
         try {
+            // 디바이스가 존재하는지 먼저 확인
+            File deviceFile = new File(devicePath);
+            if (!deviceFile.exists()) {
+                return null;
+            }
+
             Script cmd = new Script("/usr/bin/lsblk");
             cmd.add("--json", "--paths", "--output", "NAME,SIZE", devicePath);
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = cmd.execute(parser);
 
-            if (result == null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 JSONObject json = new JSONObject(parser.getLines());
                 JSONArray blockdevices = json.getJSONArray("blockdevices");
 
@@ -1361,7 +1359,7 @@ public abstract class ServerResourceBase implements ServerResource {
             }
 
         } catch (Exception e) {
-            logger.debug("Error getting size for device " + devicePath + ": " + e.getMessage());
+            // Error getting size for device
         }
 
         return null;
@@ -1377,16 +1375,13 @@ public abstract class ServerResourceBase implements ServerResource {
 
         if ("lvm".equals(deviceType) || deviceName.startsWith("/dev/mapper/")) {
             if (deviceName.contains("ceph--") && deviceName.contains("--osd--block--")) {
-                logger.debug("Ceph OSD device, no partitions: " + deviceName);
                 return false;
             }
-            logger.debug("LVM device, has partitions: " + deviceName);
             return true;
         }
 
         if (device.has("children")) {
             JSONArray children = device.getJSONArray("children");
-            logger.debug("Device has " + children.length() + " children: " + deviceName);
 
             for (int i = 0; i < children.length(); i++) {
                 JSONObject child = children.getJSONObject(i);
@@ -1400,7 +1395,6 @@ public abstract class ServerResourceBase implements ServerResource {
 
                 // LVM 볼륨이 있으면 true
                 if ("lvm".equals(childType)) {
-                    logger.debug("Found LVM child: " + childName);
                     return true;
                 }
 
@@ -1409,7 +1403,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
         } else {
-            logger.debug("Device has no children: " + deviceName);
+            // Device has no children
         }
         return false;
     }
@@ -1444,7 +1438,7 @@ public abstract class ServerResourceBase implements ServerResource {
                     }
                 }
             } catch (Exception e) {
-                logger.debug("Error executing lsscsi command in batch: {}", e.getMessage());
+                // Error executing lsscsi command in batch
             }
 
             // sysfs에서 추가 정보 수집 (lsscsi에서 찾지 못한 디바이스들)
@@ -1472,12 +1466,12 @@ public abstract class ServerResourceBase implements ServerResource {
                         }
                     }
                 }
-            } catch (Exception e) {
-                logger.debug("Error reading sysfs SCSI addresses: " + e.getMessage());
-            }
+                } catch (Exception e) {
+                    // Error reading sysfs SCSI addresses
+                }
 
         } catch (Exception e) {
-            logger.debug("Error getting SCSI addresses batch: " + e.getMessage());
+            // Error getting SCSI addresses batch
         }
 
         return scsiAddressMap;
@@ -1495,7 +1489,7 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = listCommand.execute(parser);
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 String[] vmIds = parser.getLines().split("\\n");
                 for (String vmId : vmIds) {
                     vmId = vmId.trim();
@@ -1520,7 +1514,7 @@ public abstract class ServerResourceBase implements ServerResource {
                                 }
                             }
                         } catch (Exception e) {
-                            logger.debug("Error processing VM " + vmId + ": " + e.getMessage());
+                            // Error processing VM
                         }
                     }
                 }
@@ -1544,11 +1538,11 @@ public abstract class ServerResourceBase implements ServerResource {
                     }
                 }
             } catch (Exception e) {
-                logger.debug("Error getting mounted devices: " + e.getMessage());
+                // Error getting mounted devices
             }
 
         } catch (Exception e) {
-            logger.debug("Error getting devices in use batch: " + e.getMessage());
+            // Error getting devices in use batch
         }
 
         return devicesInUse;
@@ -1564,11 +1558,10 @@ public abstract class ServerResourceBase implements ServerResource {
             } catch (java.util.concurrent.TimeoutException te) {
                 timedOut.set(true);
                 fut.cancel(true);
-                logger.warn("getDevicesInUseBatch timed out after " + timeoutMs + "ms; returning partial/empty set");
                 return new HashSet<>();
             }
         } catch (Exception e) {
-            logger.debug("getDevicesInUseBatch with timeout failed: " + e.getMessage());
+            // getDevicesInUseBatch with timeout failed
             return new HashSet<>();
         } finally {
             es.shutdownNow();
@@ -1580,7 +1573,6 @@ public abstract class ServerResourceBase implements ServerResource {
         try {
             // Ceph OSD 디바이스인지 확인
             if (deviceName.contains("ceph--") && deviceName.contains("--osd--block--")) {
-                logger.debug("Ceph OSD device detected: {}", deviceName);
                 return generateVirtualScsiAddressForCeph(deviceName);
             }
 
@@ -1597,7 +1589,7 @@ public abstract class ServerResourceBase implements ServerResource {
                     return scsiAddress;
                 }
             } catch (Exception e) {
-                logger.debug("Error reading SCSI device file {}: {}", scsiDevicePath, e.getMessage());
+                // Error reading SCSI device file
             }
 
             try {
@@ -1620,7 +1612,7 @@ public abstract class ServerResourceBase implements ServerResource {
                     }
                 }
             } catch (Exception e) {
-                logger.debug("Error executing lsscsi command for device {}: {}", deviceName, e.getMessage());
+                // Error executing lsscsi command for device
             }
 
             return null;
@@ -1716,7 +1708,7 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = cmd.execute(parser);
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 String[] devices = parser.getLines().split("\\n");
                 for (String device : devices) {
                     device = device.trim();
@@ -1805,7 +1797,7 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = listCommand.execute(parser);
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 boolean isAllocated = parser.getLines().trim().equals("allocated");
                 if (isAllocated) {
                 }
@@ -1829,7 +1821,7 @@ public abstract class ServerResourceBase implements ServerResource {
             if (fast != null && fast.getResult()) {
                 return fast;
             }
-            Map<java.nio.file.Path, String> realToById = buildByIdReverseMap();
+            Map<Path, String> realToById = buildByIdReverseMap();
 
             Script cmd = new Script("/usr/bin/lsscsi");
             cmd.add("-g");
@@ -1883,10 +1875,10 @@ public abstract class ServerResourceBase implements ServerResource {
 
             // LUN과 동일한 최적화: 배치로 정보 수집
             Map<String, String> scsiAddressCache = getScsiAddressesBatch();
-            Map<java.nio.file.Path, String> realToById = buildByIdReverseMap();
+            Map<Path, String> realToById = buildByIdReverseMap();
 
-            java.io.File sysBlock = new java.io.File("/sys/block");
-            java.io.File[] entries = sysBlock.listFiles();
+            File sysBlock = new File("/sys/block");
+            File[] entries = sysBlock.listFiles();
             if (entries == null) {
                 return null;
             }
@@ -1894,12 +1886,12 @@ public abstract class ServerResourceBase implements ServerResource {
             // 통합된 디바이스 수집 (LUN과 동일한 패턴)
             collectAllScsiDevicesUnified(names, texts, hasPartitions, scsiAddressCache, realToById);
             for (int i = 0; i < names.size(); i++) {
-                logger.debug("SCSI device " + i + ": " + names.get(i));
+                // SCSI device
             }
 
             return new com.cloud.agent.api.ListHostScsiDeviceAnswer(true, names, texts, hasPartitions);
         } catch (Exception ex) {
-            logger.debug("Fast SCSI sysfs scan failed: " + ex.getMessage());
+            // Fast SCSI sysfs scan failed
             return null;
         }
     }
@@ -1908,13 +1900,13 @@ public abstract class ServerResourceBase implements ServerResource {
      * 모든 SCSI 디바이스를 통합적으로 수집하는 메서드 (LUN과 동일한 최적화)
      */
     private void collectAllScsiDevicesUnified(List<String> names, List<String> texts, List<Boolean> hasPartitions,
-                                            Map<String, String> scsiAddressCache, Map<java.nio.file.Path, String> realToById) {
+                                            Map<String, String> scsiAddressCache, Map<Path, String> realToById) {
         try {
-            java.io.File sysBlock = new java.io.File("/sys/block");
-            java.io.File[] entries = sysBlock.listFiles();
+            File sysBlock = new File("/sys/block");
+            File[] entries = sysBlock.listFiles();
             if (entries == null) return;
 
-            for (java.io.File e : entries) {
+            for (File e : entries) {
                 String bname = e.getName();
                 if (!(bname.startsWith("sd") || bname.startsWith("vd") || bname.startsWith("xvd"))) {
                     continue;
@@ -1925,8 +1917,8 @@ public abstract class ServerResourceBase implements ServerResource {
                 // sg 매핑
                 String sg = null;
                 try {
-                    java.io.File sgDir = new java.io.File(e, "device/scsi_generic");
-                    java.io.File[] sgs = sgDir.listFiles();
+                    File sgDir = new File(e, "device/scsi_generic");
+                    File[] sgs = sgDir.listFiles();
                     if (sgs != null && sgs.length > 0) {
                         sg = "/dev/" + sgs[0].getName();
                     }
@@ -1936,17 +1928,17 @@ public abstract class ServerResourceBase implements ServerResource {
                 String scsiAddress = scsiAddressCache.get(dev);
                 if (scsiAddress == null) {
                     try {
-                        java.nio.file.Path devLink = java.nio.file.Paths.get(e.getAbsolutePath(), "device");
-                        java.nio.file.Path real = java.nio.file.Files.readSymbolicLink(devLink);
-                        java.nio.file.Path resolved = devLink.getParent().resolve(real).normalize();
+                        Path devLink = Path.of(e.getAbsolutePath(), "device");
+                        Path real = Files.readSymbolicLink(devLink);
+                        Path resolved = devLink.getParent().resolve(real).normalize();
                         scsiAddress = resolved.getFileName().toString();
                     } catch (Exception ignore) {}
                 }
 
                 // 벤더/모델/리비전 (배치 읽기)
-                String vendor = readFirstLineQuiet(new java.io.File(e, "device/vendor"));
-                String model = readFirstLineQuiet(new java.io.File(e, "device/model"));
-                String rev = readFirstLineQuiet(new java.io.File(e, "device/rev"));
+                String vendor = readFirstLineQuiet(new File(e, "device/vendor"));
+                String model = readFirstLineQuiet(new File(e, "device/model"));
+                String rev = readFirstLineQuiet(new File(e, "device/rev"));
 
                 String byId = resolveById(realToById, dev);
 
@@ -1971,14 +1963,14 @@ public abstract class ServerResourceBase implements ServerResource {
                 hasPartitions.add(false);
             }
         } catch (Exception e) {
-            logger.debug("Error collecting SCSI devices unified: " + e.getMessage());
+            // Error collecting SCSI devices unified
         }
     }
 
-    private String readFirstLineQuiet(java.io.File f) {
+    private String readFirstLineQuiet(File f) {
         try {
             if (!f.exists()) return null;
-            String s = new String(java.nio.file.Files.readAllBytes(f.toPath())).trim();
+            String s = new String(Files.readAllBytes(f.toPath())).trim();
             return s.isEmpty() ? null : s;
         } catch (Exception ignore) {
             return null;
@@ -2028,13 +2020,12 @@ public abstract class ServerResourceBase implements ServerResource {
                         // 해당 scsi_host에 대한 SCSI 주소 정보 저장
                         if (!scsiAddressMap.containsKey(scsiHostName)) {
                             scsiAddressMap.put(scsiHostName, scsiAddress);
-                            logger.debug("Mapped " + scsiHostName + " to SCSI address: " + scsiAddress);
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            logger.debug("SCSI 디바이스 조회 중 오류 발생: " + e.getMessage());
+            // SCSI 디바이스 조회 중 오류 발생
         }
 
         // 2. virsh nodedev-list --cap vports로 vHBA 지원 물리 HBA 조회 (화면에 표시)
@@ -2065,17 +2056,17 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
         } catch (Exception e) {
-            logger.debug("vHBA 지원 HBA 조회 중 오류 발생: " + e.getMessage());
+            // vHBA 지원 HBA 조회 중 오류 발생
         }
 
         // 3. virsh nodedev-list | grep vhba로 vHBA 추가
         try {
             Script vhbaCommand = new Script("/bin/bash");
             vhbaCommand.add("-c");
-            vhbaCommand.add("virsh nodedev-list | grep vhba");
+            vhbaCommand.add("virsh nodedev-list | grep vhba || true");
             OutputInterpreter.AllLinesParser vhbaParser = new OutputInterpreter.AllLinesParser();
             String vhbaResult = vhbaCommand.execute(vhbaParser);
-            if (vhbaResult == null && vhbaParser.getLines() != null) {
+            if (vhbaResult == null && vhbaParser.getLines() != null && !vhbaParser.getLines().trim().isEmpty()) {
                 String[] vhbaLines = vhbaParser.getLines().split("\\n");
                 for (String vhbaLine : vhbaLines) {
                     String vhbaName = vhbaLine.trim();
@@ -2132,7 +2123,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
         } catch (Exception e) {
-            logger.debug("vHBA 조회 중 오류 발생: " + e.getMessage());
+            // vHBA 조회 중 오류 발생
         }
         return new ListHostHbaDeviceAnswer(true, hostDevicesNames, hostDevicesText, deviceTypes, parentHbaNames);
     }
@@ -2274,7 +2265,7 @@ public abstract class ServerResourceBase implements ServerResource {
                     try (FileWriter writer = new FileWriter(backupFilePath)) {
                         writer.write(actualVhbaXml);
                     } catch (IOException e) {
-                        logger.warn("vHBA 백업 파일 생성 실패: " + e.getMessage());
+                        // vHBA 백업 파일 생성 실패
                     }
                 } else {
                 }
@@ -2344,7 +2335,7 @@ public abstract class ServerResourceBase implements ServerResource {
             if (backupFile.exists()) {
                 if (backupFile.delete()) {
                 } else {
-                    logger.warn("vHBA 백업 파일 삭제 실패: " + backupFilePath);
+                    // vHBA 백업 파일 삭제 실패
                 }
             } else {
             }
@@ -2375,12 +2366,12 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = checkCommand.execute(parser);
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 return parser.getLines().trim().equals("allocated");
             }
             return false;
         } catch (Exception e) {
-            logger.debug("vHBA 할당 상태 확인 중 오류: " + e.getMessage());
+            // vHBA 할당 상태 확인 중 오류
             return false;
         }
     }
@@ -2394,7 +2385,7 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = vportsCommand.execute(parser);
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 String[] lines = parser.getLines().split("\\n");
                 for (String line : lines) {
                     String hbaName = line.trim();
@@ -2404,10 +2395,8 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
 
-            logger.warn("부모 HBA가 vports 지원 목록에 없음: " + parentHbaName);
             return false;
         } catch (Exception e) {
-            logger.debug("부모 HBA vports 검증 중 오류: " + e.getMessage());
             return false;
         }
     }
@@ -2430,7 +2419,6 @@ public abstract class ServerResourceBase implements ServerResource {
             }
         }
 
-        logger.warn("생성된 디바이스명을 찾을 수 없음. 출력: " + output);
         return null;
     }
 
@@ -2443,13 +2431,13 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = validateCommand.execute(parser);
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 String count = parser.getLines().trim();
                 return !count.equals("0");
             }
             return false;
         } catch (Exception e) {
-            logger.debug("생성된 vHBA 검증 중 오류: " + e.getMessage());
+            // 생성된 vHBA 검증 중 오류
             return false;
         }
     }
@@ -2499,17 +2487,17 @@ public abstract class ServerResourceBase implements ServerResource {
                         }
                     }
                 } catch (Exception e) {
-                    logger.debug("특정 물리 HBA vHBA 조회 중 오류: " + e.getMessage());
+                    // 특정 물리 HBA vHBA 조회 중 오류
                 }
             } else {
                 try {
                     Script scsiHostCommand = new Script("/bin/bash");
                     scsiHostCommand.add("-c");
-                    scsiHostCommand.add("virsh nodedev-list | grep scsi_host");
+                    scsiHostCommand.add("virsh nodedev-list | grep scsi_host || true");
                     OutputInterpreter.AllLinesParser scsiHostParser = new OutputInterpreter.AllLinesParser();
                     String scsiHostResult = scsiHostCommand.execute(scsiHostParser);
 
-                    if (scsiHostResult == null && scsiHostParser.getLines() != null) {
+                    if (scsiHostResult == null && scsiHostParser.getLines() != null && !scsiHostParser.getLines().trim().isEmpty()) {
                         String[] scsiHostLines = scsiHostParser.getLines().split("\\n");
 
                         for (String scsiHostLine : scsiHostLines) {
@@ -2542,13 +2530,12 @@ public abstract class ServerResourceBase implements ServerResource {
                                 String vhbaName = extractVhbaNameFromPath(vhbaPath);
                                 if (vhbaName != null) {
                                     vhbaNames.add(vhbaName);
-                                    logger.debug("fc_remote_ports에서 발견된 vHBA: " + vhbaName);
                                 }
                             }
                         }
                     }
                 } catch (Exception e) {
-                    logger.debug("fc_remote_ports 조회 중 오류: " + e.getMessage());
+                    // fc_remote_ports 조회 중 오류
                 }
             }
 
@@ -2599,11 +2586,11 @@ public abstract class ServerResourceBase implements ServerResource {
                         // vHBA 이름으로 검색
                         Script scsiAddressCommand = new Script("/bin/bash");
                         scsiAddressCommand.add("-c");
-                        scsiAddressCommand.add("lsscsi | grep -E '\\[.*:.*:.*:.*\\].*" + vhbaName + "' | head -1");
+                        scsiAddressCommand.add("lsscsi | grep -E '\\[.*:.*:.*:.*\\].*" + vhbaName + "' | head -1 || true");
                         OutputInterpreter.AllLinesParser scsiAddressParser = new OutputInterpreter.AllLinesParser();
                         String scsiAddressResult = scsiAddressCommand.execute(scsiAddressParser);
 
-                        if (scsiAddressResult == null && scsiAddressParser.getLines() != null) {
+                        if (scsiAddressResult == null && scsiAddressParser.getLines() != null && !scsiAddressParser.getLines().trim().isEmpty()) {
                             String scsiLine = scsiAddressParser.getLines().trim();
                             if (!scsiLine.isEmpty()) {
                                 // lsscsi 출력에서 SCSI 주소 추출: [18:0:0:0] -> 18:0:0:0
@@ -2690,11 +2677,11 @@ public abstract class ServerResourceBase implements ServerResource {
                 // vHBA 상태 확인
                 Script statusCommand = new Script("/bin/bash");
                 statusCommand.add("-c");
-                statusCommand.add("virsh nodedev-info " + vhbaName + " | grep State");
+                statusCommand.add("virsh nodedev-info " + vhbaName + " | grep State || true");
                 OutputInterpreter.AllLinesParser statusParser = new OutputInterpreter.AllLinesParser();
                 String statusResult = statusCommand.execute(statusParser);
 
-                if (statusResult == null && statusParser.getLines() != null) {
+                if (statusResult == null && statusParser.getLines() != null && !statusParser.getLines().trim().isEmpty()) {
                     String statusLine = statusParser.getLines().trim();
                     if (statusLine.contains("State:")) {
                         status = statusLine.replaceAll(".*State:\\s*([^\\s]+).*", "$1").trim();
@@ -2725,13 +2712,13 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = checkCommand.execute(parser);
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 String count = parser.getLines().trim();
                 return !count.equals("0");
             }
             return false;
         } catch (Exception e) {
-            logger.debug("vHBA 확인 중 오류: " + e.getMessage());
+            // vHBA 확인 중 오류
             return false;
         }
     }
@@ -2746,7 +2733,7 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = extractCommand.execute(parser);
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 String scsiHostPath = parser.getLines().trim();
                 if (!scsiHostPath.isEmpty()) {
                     return scsiHostPath.substring(scsiHostPath.lastIndexOf('/') + 1);
@@ -2754,7 +2741,7 @@ public abstract class ServerResourceBase implements ServerResource {
             }
             return null;
         } catch (Exception e) {
-            logger.debug("vHBA 이름 추출 중 오류: " + e.getMessage());
+            // vHBA 이름 추출 중 오류
             return null;
         }
     }
@@ -2771,7 +2758,7 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = vportsCommand.execute(parser);
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 String[] lines = parser.getLines().split("\\n");
                 for (String line : lines) {
                     String hbaName = line.trim();
@@ -2822,7 +2809,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
         } catch (Exception e) {
-            logger.debug("vHBA 지원 HBA 조회 중 오류 발생: " + e.getMessage());
+            // vHBA 지원 HBA 조회 중 오류 발생
         }
 
         return new ListHostHbaDeviceAnswer(true, hostDevicesNames, hostDevicesText);
@@ -3172,7 +3159,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 virshCmd.add("attach-device", vmName, usbXmlPath);
             } else {
                 if (!isUsbDeviceActuallyAttachedToVm(vmName, xmlConfig)) {
-                    logger.warn("USB device is not actually attached to VM: {}. Skipping detach operation.", vmName);
+                    // USB device is not actually attached to VM. Skipping detach operation.
                     return new UpdateHostUsbDeviceAnswer(true, vmName, xmlConfig, isAttach);
                 }
                 virshCmd.add("detach-device", vmName, usbXmlPath);
@@ -3187,7 +3174,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 return new UpdateHostUsbDeviceAnswer(false, vmName, xmlConfig, isAttach);
             }
 
-            String action = isAttach ? "attached to" : "detached from";
             return new UpdateHostUsbDeviceAnswer(true, vmName, xmlConfig, isAttach);
 
         } catch (Exception e) {
@@ -3230,7 +3216,6 @@ public abstract class ServerResourceBase implements ServerResource {
             if (devicePath != null && isAttach) {
                 // LUN과 SCSI 간 상호 배타적 할당 검증
                 if (isDeviceAllocatedInOtherType(devicePath, vmName, "LUN")) {
-                    logger.warn("Device {} is already allocated as SCSI device in another VM", devicePath);
                     return new UpdateHostLunDeviceAnswer(false, "Device is already allocated as SCSI device in another VM. Please remove it from SCSI allocation first.");
                 }
 
@@ -3274,15 +3259,11 @@ public abstract class ServerResourceBase implements ServerResource {
 
                         if (baseGuess != null) {
                             String altById = findExistingByIdForBaseDevice(baseGuess);
-                            if (altById != null) {
-                                xmlConfig = xmlConfig.replace(devicePath, altById);
-                                devicePath = altById;
-                            } else {
-                                logger.warn("No alternative by-id found for base: {}", baseGuess);
-                            }
-                        } else {
-                            logger.warn("Could not extract baseGuess from XML config");
+                        if (altById != null) {
+                            xmlConfig = xmlConfig.replace(devicePath, altById);
+                            devicePath = altById;
                         }
+                    }
 
                     }
                 } catch (Exception e) {
@@ -3351,8 +3332,7 @@ public abstract class ServerResourceBase implements ServerResource {
 
                     String scsiResult = scsiVirshCmd.execute();
                     if (scsiResult != null) {
-                        logger.warn("Failed to {} mapped SCSI device {}: {}",
-                                   isAttach ? "attach" : "detach", mappedScsiDevice, scsiResult);
+                        // Failed to attach/detach mapped SCSI device
                     } else {
                     }
 
@@ -3360,11 +3340,10 @@ public abstract class ServerResourceBase implements ServerResource {
                     new java.io.File(scsiXmlPath).delete();
 
                 } catch (Exception e) {
-                    logger.warn("Error processing mapped SCSI device {}: {}", mappedScsiDevice, e.getMessage());
+                    // Error processing mapped SCSI device
                 }
             }
 
-            String action = isAttach ? "attached to" : "detached from";
             return new UpdateHostLunDeviceAnswer(true, vmName, xmlConfig, isAttach);
 
         } catch (Exception e) {
@@ -3393,7 +3372,6 @@ public abstract class ServerResourceBase implements ServerResource {
             } else {
                 // detach 시도 전에 실제 VM에 해당 디바이스가 붙어있는지 확인
                 if (!isDeviceActuallyAttachedToVm(vmName, xmlConfig)) {
-                    logger.warn("Device is not actually attached to VM: {}. Skipping detach operation.", vmName);
                     // 실제로 붙어있지 않아도 성공으로 처리 (DB 상태만 정리)
                     return new UpdateHostHbaDeviceAnswer(true, vmName, xmlConfig, isAttach);
                 }
@@ -3409,7 +3387,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 return new UpdateHostHbaDeviceAnswer(false, vmName, xmlConfig, isAttach);
             }
 
-            String action = isAttach ? "attached to" : "detached from";
             return new UpdateHostHbaDeviceAnswer(true, vmName, xmlConfig, isAttach);
 
         } catch (Exception e) {
@@ -3439,7 +3416,6 @@ public abstract class ServerResourceBase implements ServerResource {
             } else {
                 // detach 시도 전에 실제 VM에 해당 디바이스가 붙어있는지 확인
                 if (!isVhbaDeviceActuallyAttachedToVm(vmName, xmlConfig)) {
-                    logger.warn("vHBA device is not actually attached to VM: {}. Skipping detach operation.", vmName);
                     // 실제로 붙어있지 않아도 성공으로 처리 (DB 상태만 정리)
                     return new UpdateHostVhbaDeviceAnswer(true, vhbaDeviceName, vmName, xmlConfig, isAttach);
                 }
@@ -3478,7 +3454,6 @@ public abstract class ServerResourceBase implements ServerResource {
 
             // SCSI와 LUN 간 상호 배타적 할당 검증
             if (isAttach && isDeviceAllocatedInOtherType(devicePath, vmName, "SCSI")) {
-                logger.warn("Device {} is already allocated as LUN device in another VM", devicePath);
                 return new UpdateHostScsiDeviceAnswer(false, "Device is already allocated as LUN device in another VM. Please remove it from LUN allocation first.");
             }
 
@@ -3498,7 +3473,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 virshCmd.add("attach-device", vmName, scsiXmlPath);
             } else {
                 if (!isScsiDeviceActuallyAttachedToVm(vmName, xmlConfig)) {
-                    logger.warn("SCSI device is not actually attached to VM: {}. Skipping detach operation.", vmName);
                     return new UpdateHostScsiDeviceAnswer(true, vmName, xmlConfig, isAttach);
                 }
                 virshCmd.add("detach-device", vmName, scsiXmlPath);
@@ -3511,7 +3485,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 String action = isAttach ? "attach" : "detach";
                 String lower = result.toLowerCase();
                 if (!isAttach && (lower.contains("device not found") || lower.contains("host scsi device") && lower.contains("not found"))) {
-                    logger.warn("virsh reported device not found during detach; treating as success. Details: {}", result);
                     return new UpdateHostScsiDeviceAnswer(true, vmName, xmlConfig, isAttach);
                 }
                 logger.error("Failed to {} SCSI device: {}", action, result);
@@ -3535,22 +3508,15 @@ public abstract class ServerResourceBase implements ServerResource {
                         lunVirshCmd.add("detach-device", vmName, lunXmlPath);
                     }
 
-                    String lunResult = lunVirshCmd.execute();
-                    if (lunResult != null) {
-                        logger.warn("Failed to {} mapped LUN device {}: {}",
-                                   isAttach ? "attach" : "detach", mappedLunDevice, lunResult);
-                    } else {
-                    }
-
+                    lunVirshCmd.execute();
                     // 임시 파일 정리
                     new java.io.File(lunXmlPath).delete();
 
                 } catch (Exception e) {
-                    logger.warn("Error processing mapped LUN device {}: {}", mappedLunDevice, e.getMessage());
+                    logger.error("Error processing mapped LUN device {}: {}", mappedLunDevice, e.getMessage());
                 }
             }
 
-            String action = isAttach ? "attached to" : "detached from";
             return new UpdateHostScsiDeviceAnswer(true, vmName, xmlConfig, isAttach);
 
         } catch (Exception e) {
@@ -3573,7 +3539,6 @@ public abstract class ServerResourceBase implements ServerResource {
             // 해당 XML 파일이 존재하는지 확인
             File xmlFile = new File(hbaXmlPath);
             if (!xmlFile.exists()) {
-                logger.warn("XML file does not exist for device check: {}", hbaXmlPath);
                 return false;
             }
 
@@ -3584,20 +3549,17 @@ public abstract class ServerResourceBase implements ServerResource {
             String result = dumpCommand.execute(parser);
 
             if (result != null) {
-                logger.warn("Failed to get VM XML for device check: {}", result);
                 return false;
             }
 
             String vmXml = parser.getLines();
             if (vmXml == null || vmXml.isEmpty()) {
-                logger.warn("Empty VM XML for device check");
                 return false;
             }
 
             // XML에서 adapter name 추출
             String adapterName = extractAdapterNameFromXml(xmlConfig);
             if (adapterName == null) {
-                logger.warn("Could not extract adapter name from XML config");
                 return false;
             }
 
@@ -3752,16 +3714,16 @@ public abstract class ServerResourceBase implements ServerResource {
         }
 
         try {
-            java.io.File device = new java.io.File(devicePath);
+            File device = new File(devicePath);
             if (!device.exists()) {
                 return false;
             }
 
             // 심볼릭 링크인 경우 실제 타겟 확인
-            if (java.nio.file.Files.isSymbolicLink(device.toPath())) {
+            if (Files.isSymbolicLink(device.toPath())) {
                 try {
-                    java.nio.file.Path realPath = device.toPath().toRealPath();
-                    java.io.File realDevice = realPath.toFile();
+                    Path realPath = device.toPath().toRealPath();
+                    File realDevice = realPath.toFile();
                     if (!realDevice.exists()) {
                         return false;
                     }
@@ -3778,7 +3740,7 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = statCommand.execute(parser);
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 String fileType = parser.getLines().trim();
                 return fileType.contains("block special file");
             }
@@ -3795,7 +3757,7 @@ public abstract class ServerResourceBase implements ServerResource {
     private boolean isPartitionDevice(String devicePath) {
         try {
             // /dev/sda1, /dev/sdb2 등 파티션 번호가 있는지 확인
-            String deviceName = new java.io.File(devicePath).getName();
+            String deviceName = new File(devicePath).getName();
 
             // 숫자로 끝나는 디바이스명이 파티션인지 확인
             if (deviceName.matches(".*\\d+$")) {
@@ -3833,7 +3795,7 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = listCommand.execute(parser);
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 return parser.getLines().trim().equals("allocated");
             }
             return false;
@@ -3904,7 +3866,7 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = roCommand.execute(parser);
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 String roValue = parser.getLines().trim();
                 return "1".equals(roValue);
             }
@@ -3923,7 +3885,7 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = sizeCommand.execute(parser);
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 String sizeStr = parser.getLines().trim();
                 return Long.parseLong(sizeStr);
             }
@@ -3946,7 +3908,6 @@ public abstract class ServerResourceBase implements ServerResource {
             // 해당 XML 파일이 존재하는지 확인
             File xmlFile = new File(lunXmlPath);
             if (!xmlFile.exists()) {
-                logger.warn("XML file does not exist for device check: {}", lunXmlPath);
                 return false;
             }
 
@@ -3957,20 +3918,17 @@ public abstract class ServerResourceBase implements ServerResource {
             String result = dumpCommand.execute(parser);
 
             if (result != null) {
-                logger.warn("Failed to get VM XML for device check: {}", result);
                 return false;
             }
 
             String vmXml = parser.getLines();
             if (vmXml == null || vmXml.isEmpty()) {
-                logger.warn("Empty VM XML for device check");
                 return false;
             }
 
             // XML에서 source dev 추출
             String sourceDev = extractDeviceNameFromLunXml(xmlConfig);
             if (sourceDev == null) {
-                logger.warn("Could not extract source dev from XML config");
                 return false;
             }
 
@@ -4014,7 +3972,6 @@ public abstract class ServerResourceBase implements ServerResource {
             // 해당 XML 파일이 존재하는지 확인
             File xmlFile = new File(scsiXmlPath);
             if (!xmlFile.exists()) {
-                logger.warn("XML file does not exist for device check: {}", scsiXmlPath);
                 return false;
             }
 
@@ -4025,20 +3982,17 @@ public abstract class ServerResourceBase implements ServerResource {
             String result = dumpCommand.execute(parser);
 
             if (result != null) {
-                logger.warn("Failed to get VM XML for device check: {}", result);
                 return false;
             }
 
             String vmXml = parser.getLines();
             if (vmXml == null || vmXml.isEmpty()) {
-                logger.warn("Empty VM XML for device check");
                 return false;
             }
 
             // XML에서 adapter name 추출
             String adapterName = extractDeviceNameFromScsiXml(xmlConfig);
             if (adapterName == null) {
-                logger.warn("Could not extract adapter name from XML config");
                 return false;
             }
 
@@ -4071,7 +4025,7 @@ public abstract class ServerResourceBase implements ServerResource {
 
             return null;
         } catch (Exception e) {
-            logger.debug("Error extracting device name from vHBA XML: {}", e.getMessage());
+            // Error extracting device name from vHBA XML
             return null;
         }
     }
@@ -4085,13 +4039,11 @@ public abstract class ServerResourceBase implements ServerResource {
             String result = dumpCommand.execute(parser);
 
             if (result != null) {
-                logger.warn("Failed to get VM XML for USB device check: {}", result);
                 return false;
             }
 
             String vmXml = parser.getLines();
             if (vmXml == null || vmXml.isEmpty()) {
-                logger.warn("Empty VM XML for USB device check");
                 return false;
             }
 
@@ -4099,7 +4051,6 @@ public abstract class ServerResourceBase implements ServerResource {
             String deviceMatch = extractDeviceFromUsbXml(xmlConfig);
 
             if (busMatch == null || deviceMatch == null) {
-                logger.warn("Could not extract bus/device from USB XML config");
                 return false;
             }
             boolean deviceFound = vmXml.contains("bus='" + busMatch + "'") &&
@@ -4127,7 +4078,6 @@ public abstract class ServerResourceBase implements ServerResource {
             // 해당 XML 파일이 존재하는지 확인
             File xmlFile = new File(vhbaXmlPath);
             if (!xmlFile.exists()) {
-                logger.warn("XML file does not exist for device check: {}", vhbaXmlPath);
                 return false;
             }
 
@@ -4138,20 +4088,17 @@ public abstract class ServerResourceBase implements ServerResource {
             String result = dumpCommand.execute(parser);
 
             if (result != null) {
-                logger.warn("Failed to get VM XML for device check: {}", result);
                 return false;
             }
 
             String vmXml = parser.getLines();
             if (vmXml == null || vmXml.isEmpty()) {
-                logger.warn("Empty VM XML for device check");
                 return false;
             }
 
             // XML에서 대상 이름 추출 (parent 또는 adapter name)
             String targetName = extractDeviceNameFromVhbaXml(xmlConfig);
             if (targetName == null) {
-                logger.warn("Could not extract device/parent name from XML config");
                 return false;
             }
 
@@ -4257,11 +4204,11 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = dumpCommand.execute(parser);
 
-            if (result == null && parser.getLines() != null) {
+            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 String xmlContent = parser.getLines();
                 return xmlContent;
             } else {
-                logger.warn("vHBA dumpxml 가져오기 실패: " + vhbaName + " - " + result);
+                // vHBA dumpxml 가져오기 실패
                 return null;
             }
         } catch (Exception e) {
@@ -4373,17 +4320,17 @@ public abstract class ServerResourceBase implements ServerResource {
     private String resolvePhysicalDeviceFromScsiAddress(String scsiAddress) {
         try {
             // /sys/class/scsi_device에서 SCSI 주소로 디바이스 찾기
-            java.io.File scsiClassDir = new java.io.File("/sys/class/scsi_device");
-            java.io.File[] scsiDevices = scsiClassDir.listFiles();
+            File scsiClassDir = new File("/sys/class/scsi_device");
+            File[] scsiDevices = scsiClassDir.listFiles();
 
             if (scsiDevices != null) {
-                for (java.io.File scsiDevice : scsiDevices) {
+                for (File scsiDevice : scsiDevices) {
                     String deviceName = scsiDevice.getName();
                     if (deviceName.equals(scsiAddress)) {
                         // device/block 디렉토리에서 실제 블록 디바이스 찾기
-                        java.io.File blockDir = new java.io.File(scsiDevice, "device/block");
+                        File blockDir = new File(scsiDevice, "device/block");
                         if (blockDir.exists()) {
-                            java.io.File[] blockDevices = blockDir.listFiles();
+                            File[] blockDevices = blockDir.listFiles();
                             if (blockDevices != null && blockDevices.length > 0) {
                                 String blockDeviceName = blockDevices[0].getName();
                                 return "/dev/" + blockDeviceName;
@@ -4730,4 +4677,3 @@ public abstract class ServerResourceBase implements ServerResource {
         return null;
     }
 }
-
