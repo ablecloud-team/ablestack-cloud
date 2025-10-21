@@ -31,7 +31,6 @@ public final class LibvirtlistHostUsbDevicesCommandWrapper
     @Override
     public Answer execute(final ListHostUsbDeviceCommand command,
             final LibvirtComputingResource libvirtComputingResource) {
-        return null;
-        // libvirtComputingResource.listHostUsbDevices(command);
+        return libvirtComputingResource.listHostUsbDevices(command);
     }
 }

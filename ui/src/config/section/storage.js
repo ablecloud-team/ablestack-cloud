@@ -494,6 +494,8 @@ export default {
           component: shallowRef(defineAsyncComponent(() => import('@/components/view/BackupMetadata.vue')))
         }
       ],
+      columns: [{ name: (record) => { return record.virtualmachinename } }, 'status', 'size', 'virtualsize', 'type', 'backupofferingname', 'created', 'account', 'domain', 'zone'],
+      details: ['virtualmachinename', 'id', 'type', 'externalid', 'size', 'virtualsize', 'volumes', 'backupofferingname', 'zone', 'account', 'domain', 'created'],
       actions: [
         {
           api: 'restoreBackup',

@@ -199,4 +199,5 @@ public interface Backup extends ControlledEntity, InternalIdentity, Identity {
     Map<String, String> getDetails();
     String getDetail(String name);
     Long getBackupScheduleId();
+    String getSnapshotId();
 }

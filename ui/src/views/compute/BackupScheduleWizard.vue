@@ -63,7 +63,9 @@ export default {
   },
   provide () {
     return {
-      refreshSchedule: this.fetchData,
+      refreshSchedule: () => {
+        this.fetchData()
+      },
       closeSchedule: this.closeAction
     }
   },

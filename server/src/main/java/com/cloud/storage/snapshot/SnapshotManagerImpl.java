@@ -1649,6 +1649,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         Long snapshotId = payload.getSnapshotId();
         Account snapshotOwner = payload.getAccount();
 
+        boolean backup = payload.getBackup();
         SnapshotInfo snapshot = snapshotFactory.getSnapshot(snapshotId, volume.getDataStore());
         StoragePool storagePool = _storagePoolDao.findById(volume.getPoolId());
 
@@ -1702,7 +1703,6 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                 snapshotZoneDao.addSnapshotToZone(snapshotId, snapshot.getDataCenterId());
 
                 DataStoreRole dataStoreRole = backupSnapToSecondary ? snapshotHelper.getDataStoreRole(snapshot) : DataStoreRole.Primary;
-
                 List<SnapshotDataStoreVO> snapshotStoreRefs = _snapshotStoreDao.listReadyBySnapshot(snapshotId, dataStoreRole);
                 if (CollectionUtils.isEmpty(snapshotStoreRefs)) {
                     throw new CloudRuntimeException(String.format("Could not find snapshot %s on [%s]", snapshot.getSnapshotVO(), snapshot.getLocationType()));
@@ -1724,6 +1724,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                     if (CollectionUtils.isNotEmpty(payload.getStoragePoolIds())) {
                         copyNewSnapshotToZonesOnPrimary(payload, snapshot);
                     }
+                    
                 }
             } catch (Exception e) {
                 logger.debug("post process snapshot failed", e);
