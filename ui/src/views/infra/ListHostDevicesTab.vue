@@ -855,7 +855,7 @@ export default {
     // VM 삭제 시 디바이스 할당 해제 처리
     async deallocateDevicesOnVmDelete (vmId, listApiMethod, updateApiMethod) {
       try {
-        const response = await api(listApiMethod, { id: this.resource.id })
+        const response = await getAPI(listApiMethod, { id: this.resource.id })
         const devices = this.extractDevicesFromResponse(response)
 
         if (devices?.vmallocations) {
@@ -870,7 +870,7 @@ export default {
               // 디바이스 타입에 맞는 API 호출
               let updateResponse
               if (listApiMethod === 'listHostDevices') {
-                updateResponse = await api('updateHostDevices', {
+                updateResponse = await getAPI('updateHostDevices', {
                   hostid: this.resource.id,
                   hostdevicesname: deviceName,
                   virtualmachineid: null
@@ -878,7 +878,7 @@ export default {
               } else if (listApiMethod === 'listHostHbaDevices') {
                 // HBA 디바이스의 경우 XML 설정도 함께 전달
                 const xmlConfig = this.generateHbaDeallocationXmlConfig(deviceName)
-                updateResponse = await api('updateHostHbaDevices', {
+                updateResponse = await getAPI('updateHostHbaDevices', {
                   hostid: this.resource.id,
                   hostdevicesname: deviceName,
                   virtualmachineid: null,
@@ -886,7 +886,7 @@ export default {
                 })
               } else if (listApiMethod === 'listHostUsbDevices') {
                 const xmlConfig = this.generateXmlUsbConfig(deviceName)
-                updateResponse = await api('updateHostUsbDevices', {
+                updateResponse = await getAPI('updateHostUsbDevices', {
                   hostid: this.resource.id,
                   hostdevicesname: deviceName,
                   virtualmachineid: null,
@@ -895,7 +895,7 @@ export default {
                 })
               } else if (listApiMethod === 'listHostLunDevices') {
                 const xmlConfig = this.generateXmlLunConfig(deviceName)
-                updateResponse = await api('updateHostLunDevices', {
+                updateResponse = await getAPI('updateHostLunDevices', {
                   hostid: this.resource.id,
                   hostdevicesname: deviceName,
                   virtualmachineid: null,
@@ -903,7 +903,7 @@ export default {
                 })
               } else if (listApiMethod === 'listHostScsiDevices') {
                 const xmlConfig = this.generateScsiXmlConfig(deviceName)
-                updateResponse = await api('updateHostScsiDevices', {
+                updateResponse = await getAPI('updateHostScsiDevices', {
                   hostid: this.resource.id,
                   hostdevicesname: deviceName,
                   virtualmachineid: null,
@@ -912,7 +912,7 @@ export default {
                 })
               } else if (listApiMethod === 'listVhbaDevices') {
                 const xmlConfig = this.generateVhbaDeallocationXmlConfig(deviceName)
-                updateResponse = await api('updateHostVhbaDevices', {
+                updateResponse = await getAPI('updateHostVhbaDevices', {
                   hostid: this.resource.id,
                   hostdevicesname: deviceName,
                   virtualmachineid: null,
@@ -998,7 +998,7 @@ export default {
     async restoreDevicesFromExtraConfig (vmId) {
       try {
         // VM의 extraconfig 조회
-        const vmResponse = await api('listVirtualMachines', { id: vmId })
+        const vmResponse = await getAPI('listVirtualMachines', { id: vmId })
         const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
 
         if (!vm || !vm.details) {
@@ -1073,7 +1073,7 @@ export default {
           return
       }
 
-      await api(apiMethod, params)
+      await getAPI(apiMethod, params)
     },
 
     // XML 설정에서 디바이스 정보 파싱
@@ -1371,7 +1371,7 @@ export default {
         this.showAddModal = true
       } else {
         try {
-          const response = await api('listHostDevices', { id: this.resource.id })
+          const response = await getAPI('listHostDevices', { id: this.resource.id })
           const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
           const vmAllocations = devices?.vmallocations || {}
           const vmId = vmAllocations[record.hostDevicesName]
@@ -1524,7 +1524,7 @@ export default {
             const vmId = vmAllocations[name]
             if (vmId) {
               try {
-                const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+                const vmResponse = await getAPI('listVirtualMachines', { id: vmId, listall: true })
                 const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
                 if (vm && vm.state !== 'Expunging') {
                   vmNameMap[name] = vm.displayname || vm.name
@@ -1532,7 +1532,7 @@ export default {
                   // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
                   try {
                     const xmlConfig = this.generateXmlLunConfig(name)
-                    const updateResponse = await api('updateHostLunDevices', {
+                    const updateResponse = await getAPI('updateHostLunDevices', {
                       hostid: this.resource.id,
                       hostdevicesname: name,
                       virtualmachineid: null,
@@ -1549,7 +1549,7 @@ export default {
                 // VM 조회 실패 시에도 할당 해제 시도
                 try {
                   const xmlConfig = this.generateXmlLunConfig(name)
-                  await api('updateHostLunDevices', {
+                  await getAPI('updateHostLunDevices', {
                     hostid: this.resource.id,
                     hostdevicesname: name,
                     virtualmachineid: null,
@@ -1574,7 +1574,7 @@ export default {
           // SCSI 주소 기반 교차 매핑: SCSI 텍스트에서 주소→VM ID 매핑 만들기
           const scsiAddrToVmId = {}
           try {
-            const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+            const scsiResponse = await getAPI('listHostScsiDevices', { id: this.resource.id })
             const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
             if (scsiData && Array.isArray(scsiData.hostdevicesname)) {
               for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
@@ -1596,7 +1596,7 @@ export default {
             // 기존 경로 기반 매핑 보조 확인
             let vmIdByPath = null
             try {
-              const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+              const scsiResponse = await getAPI('listHostScsiDevices', { id: this.resource.id })
               const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
               if (scsiData?.vmallocations) {
                 for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
@@ -1613,7 +1613,7 @@ export default {
 
             const finalVmId = mappedVmId || vmIdByPath
             if (finalVmId) {
-              const vmResponse = await api('listVirtualMachines', { id: finalVmId, listall: true })
+              const vmResponse = await getAPI('listVirtualMachines', { id: finalVmId, listall: true })
               const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
               if (vm && vm.state !== 'Expunging') {
                 device.allocatedInOtherTab = {
@@ -1783,7 +1783,7 @@ export default {
                 } else {
                   // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
                   try {
-                    const updateResponse = await api('updateHostDevices', {
+                    const updateResponse = await getAPI('updateHostDevices', {
                       hostid: this.resource.id,
                       hostdevicesname: deviceName,
                       virtualmachineid: null,
@@ -1863,7 +1863,7 @@ export default {
     async updateUsbVmNames () {
       this.vmNameLoading = true
       try {
-        const response = await api('listHostUsbDevices', { id: this.resource.id })
+        const response = await getAPI('listHostUsbDevices', { id: this.resource.id })
         const devices = response.listhostusbdevicesresponse?.listhostusbdevices?.[0]
 
         if (devices?.vmallocations) {
@@ -1874,7 +1874,7 @@ export default {
           for (const [deviceName, vmId] of entries) {
             if (vmId && !processedDevices.has(deviceName)) {
               try {
-                const vmResponse = await api('listVirtualMachines', {
+                const vmResponse = await getAPI('listVirtualMachines', {
                   id: vmId,
                   listall: true
                 })
@@ -1886,7 +1886,7 @@ export default {
                   // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
                   try {
                     const xmlConfig = this.generateXmlUsbConfig(deviceName)
-                    const updateResponse = await api('updateHostUsbDevices', {
+                    const updateResponse = await getAPI('updateHostUsbDevices', {
                       hostid: this.resource.id,
                       hostdevicesname: deviceName,
                       virtualmachineid: null,
@@ -1986,7 +1986,7 @@ export default {
 
       try {
         // 1. USB 디바이스의 현재 할당 상태 확인
-        const response = await api('listHostUsbDevices', {
+        const response = await getAPI('listHostUsbDevices', {
           id: this.resource.id
         })
         const devices = response.listhostusbdevicesresponse?.listhostusbdevices?.[0]
@@ -2005,7 +2005,7 @@ export default {
           onOk: async () => {
             // VM 상태 확인
             try {
-              const vmResponse = await api('listVirtualMachines', {
+              const vmResponse = await getAPI('listVirtualMachines', {
                 id: vmId,
                 listall: true
               })
@@ -2024,7 +2024,7 @@ export default {
 
             const xmlConfig = this.generateXmlUsbConfig(hostDevicesName)
 
-            const detachResponse = await api('updateHostUsbDevices', {
+            const detachResponse = await getAPI('updateHostUsbDevices', {
               hostid: this.resource.id,
               hostdevicesname: hostDevicesName,
               virtualmachineid: null,
@@ -2237,7 +2237,7 @@ export default {
       const hostDevicesName = this.selectedUsbDevice.hostDevicesName
 
       try {
-        const response = await api('listHostUsbDevices', {
+        const response = await getAPI('listHostUsbDevices', {
           id: this.resource.id
         })
         const devices = response.listhostusbdevicesresponse?.listhostusbdevices?.[0]
@@ -2250,7 +2250,7 @@ export default {
 
         // VM 상태 확인
         try {
-          const vmResponse = await api('listVirtualMachines', {
+          const vmResponse = await getAPI('listVirtualMachines', {
             id: vmId,
             listall: true
           })
@@ -2269,7 +2269,7 @@ export default {
 
         const xmlConfig = this.generateXmlUsbConfig(hostDevicesName)
 
-        const detachResponse = await api('updateHostUsbDevices', {
+        const detachResponse = await getAPI('updateHostUsbDevices', {
           hostid: this.resource.id,
           hostdevicesname: hostDevicesName,
           virtualmachineid: null,
@@ -2316,7 +2316,7 @@ export default {
           if (!vmId) {
             if (isScsiAllocated) {
               // SCSI 탭에서 할당 정보 확인
-              const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+              const scsiResponse = await getAPI('listHostScsiDevices', { id: this.resource.id })
               const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
 
               if (scsiData?.vmallocations) {
@@ -2335,7 +2335,7 @@ export default {
           }
         } else {
           // 현재 탭에서 할당된 경우
-          const response = await api('listHostLunDevices', {
+          const response = await getAPI('listHostLunDevices', {
             id: this.resource.id
           })
           const devices = response.listhostlundevicesresponse?.listhostlundevices?.[0]
@@ -2345,7 +2345,7 @@ export default {
 
           if (!vmId) {
             try {
-              const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+              const scsiResponse = await getAPI('listHostScsiDevices', { id: this.resource.id })
               const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
 
               if (scsiData?.vmallocations) {
@@ -2359,7 +2359,7 @@ export default {
                     if (vmId) {
                       isScsiAllocated = true
                       try {
-                        const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+                        const vmResponse = await getAPI('listVirtualMachines', { id: vmId, listall: true })
                         const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
                         if (vm) vmName = vm.name || vm.displayname
                       } catch (vmError) {}
@@ -2390,7 +2390,7 @@ export default {
                 // 다른 탭에서 할당된 경우 SCSI 디바이스 해제
                 if (isScsiAllocated) {
                   // SCSI 디바이스에서 해당 LUN 디바이스 찾기
-                  const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+                  const scsiResponse = await getAPI('listHostScsiDevices', { id: this.resource.id })
                   const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
 
                   if (!scsiData) {
@@ -2403,7 +2403,7 @@ export default {
                   // hostDevicesName이 /dev/sg로 시작하면 실제 LUN 디바이스를 찾아야 함
                   if (hostDevicesName.startsWith('/dev/sg')) {
                     // LUN 디바이스 목록에서 같은 SCSI 주소를 가진 실제 LUN 디바이스 찾기
-                    const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
+                    const lunResponse = await getAPI('listHostLunDevices', { id: this.resource.id })
                     const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
 
                     if (lunData && Array.isArray(lunData.hostdevicesname)) {
@@ -2432,7 +2432,7 @@ export default {
                       // LUN 형태의 XML 사용 (실제 물리적 디바이스 정보 포함)
                       const xmlConfig = this.generateXmlLunConfig(actualLunDeviceName)
 
-                      const detachResponse = await api('updateHostScsiDevices', {
+                      const detachResponse = await getAPI('updateHostScsiDevices', {
                         hostid: this.resource.id,
                         hostdevicesname: sgDevice,
                         virtualmachineid: null,
@@ -2455,7 +2455,7 @@ export default {
                 } else {
                   // 현재 탭에서 할당된 경우 LUN 디바이스 해제
                   const xmlConfig = this.generateXmlLunConfig(hostDevicesName)
-                  const detachResponse = await api('updateHostLunDevices', {
+                  const detachResponse = await getAPI('updateHostLunDevices', {
                     hostid: this.resource.id,
                     hostdevicesname: hostDevicesName,
                     virtualmachineid: null,
@@ -2514,7 +2514,7 @@ export default {
       this.loading = true
       const hostDevicesName = this.selectedLunDevice.hostDevicesName
       try {
-        const response = await api('updateHostLunDevices', {
+        const response = await getAPI('updateHostLunDevices', {
           hostid: this.resource.id,
           hostdevicesname: hostDevicesName,
           virtualmachineid: null
@@ -2541,7 +2541,7 @@ export default {
       if (isAllocatedInScsi) {
         // 알림 대신 즉시 삭제 모드로 전환되도록 테이블 데이터 갱신
         try {
-          const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+          const scsiResponse = await getAPI('listHostScsiDevices', { id: this.resource.id })
           const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
           if (scsiData?.vmallocations) {
             for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
@@ -2551,7 +2551,7 @@ export default {
                 const sgDevice = scsiData.hostdevicesname[i]
                 const vmId = scsiData.vmallocations[sgDevice]
                 if (vmId) {
-                  const vmRes = await api('listVirtualMachines', { id: vmId, listall: true })
+                  const vmRes = await getAPI('listVirtualMachines', { id: vmId, listall: true })
                   const vm = vmRes.listvirtualmachinesresponse?.virtualmachine?.[0]
                   const vmName = vm ? (vm.displayname || vm.name) : ''
                   // 해당 LUN 레코드를 다른 탭에서 할당된 상태로 표시하여 버튼이 삭제로 전환되게 함
@@ -2582,7 +2582,7 @@ export default {
       const hostDevicesName = record.hostDevicesName
       try {
         // 1. PCI 디바이스의 현재 할당 상태 확인
-        const response = await api('listHostDevices', {
+        const response = await getAPI('listHostDevices', {
           id: this.resource.id
         })
         const devices = response.listhostdevicesresponse?.listhostdevices?.[0]
@@ -2593,7 +2593,7 @@ export default {
         }
 
         // 2. VM 상태 확인 - 실행 중인 경우 할당 해제 불가
-        const vmResponse = await api('listVirtualMachines', {
+        const vmResponse = await getAPI('listVirtualMachines', {
           id: vmId,
           listall: true
         })
@@ -2615,7 +2615,7 @@ export default {
           content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
           onOk: async () => {
             // PCI 디바이스 할당 해제 (서버에서 자동으로 extraconfig 삭제)
-            await api('updateHostDevices', {
+            await getAPI('updateHostDevices', {
               hostid: this.resource.id,
               hostdevicesname: hostDevicesName,
               virtualmachineid: null,
@@ -2658,7 +2658,7 @@ export default {
     async fetchHbaDevices () {
       this.loading = true
       try {
-        const response = await api('listHostHbaDevices', {
+        const response = await getAPI('listHostHbaDevices', {
           id: this.resource.id
         })
 
@@ -2673,7 +2673,7 @@ export default {
             const vmId = vmAllocations[name]
             if (vmId) {
               try {
-                const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+                const vmResponse = await getAPI('listVirtualMachines', { id: vmId, listall: true })
                 const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
                 if (vm && vm.state !== 'Expunging') {
                   vmNameMap[name] = vm.displayname || vm.name
@@ -2681,7 +2681,7 @@ export default {
                   // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
                   try {
                     const xmlConfig = this.generateScsiXmlConfig(name)
-                    const updateResponse = await api('updateHostScsiDevices', {
+                    const updateResponse = await getAPI('updateHostScsiDevices', {
                       hostid: this.resource.id,
                       hostdevicesname: name,
                       virtualmachineid: null,
@@ -2701,7 +2701,7 @@ export default {
                 // VM 조회 실패 시에도 할당 해제 시도
                 try {
                   const xmlConfig = this.generateScsiXmlConfig(name)
-                  await api('updateHostScsiDevices', {
+                  await getAPI('updateHostScsiDevices', {
                     hostid: this.resource.id,
                     hostdevicesname: name,
                     virtualmachineid: null,
@@ -2858,7 +2858,7 @@ export default {
     async updateHbaVmNames () {
       this.vmNameLoading = true
       try {
-        const response = await api('listHostHbaDevices', { id: this.resource.id })
+        const response = await getAPI('listHostHbaDevices', { id: this.resource.id })
         const devices = response.listhosthbadevicesresponse?.listhosthbadevices?.[0]
 
         if (devices?.vmallocations) {
@@ -2869,7 +2869,7 @@ export default {
           for (const [deviceName, vmId] of entries) {
             if (vmId && !processedDevices.has(deviceName)) {
               try {
-                const vmResponse = await api('listVirtualMachines', {
+                const vmResponse = await getAPI('listVirtualMachines', {
                   id: vmId,
                   listall: true
                 })
@@ -2881,7 +2881,7 @@ export default {
                   // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
                   try {
                     const xmlConfig = this.generateHbaDeallocationXmlConfig(deviceName)
-                    const updateResponse = await api('updateHostHbaDevices', {
+                    const updateResponse = await getAPI('updateHostHbaDevices', {
                       hostid: this.resource.id,
                       hostdevicesname: deviceName,
                       virtualmachineid: null,
@@ -2944,7 +2944,7 @@ export default {
 
       this.vmNameLoading = true
       try {
-        const response = await api('listVhbaDevices', {
+        const response = await getAPI('listVhbaDevices', {
           hostid: this.resource.id
         })
 
@@ -2959,7 +2959,7 @@ export default {
           for (const [deviceName, vmId] of Object.entries(vmAllocations)) {
             if (vmId && !processedDevices.has(deviceName)) {
               try {
-                const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+                const vmResponse = await getAPI('listVirtualMachines', { id: vmId, listall: true })
                 const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
 
                 if (vm && vm.state !== 'Expunging') {
@@ -2968,7 +2968,7 @@ export default {
                   // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
                   try {
                     const xmlConfig = this.generateVhbaDeallocationXmlConfig(deviceName)
-                    const updateResponse = await api('updateHostVhbaDevices', {
+                    const updateResponse = await getAPI('updateHostVhbaDevices', {
                       hostid: this.resource.id,
                       hostdevicesname: deviceName,
                       virtualmachineid: null,
@@ -3055,7 +3055,7 @@ export default {
       this.loading = true
       try {
         // 1. HBA 디바이스의 현재 할당 상태 확인
-        const response = await api('listHostHbaDevices', {
+        const response = await getAPI('listHostHbaDevices', {
           id: this.resource.id
         })
         const devices = response.listhosthbadevicesresponse?.listhosthbadevices?.[0]
@@ -3107,7 +3107,7 @@ export default {
           content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
           onOk: async () => {
             const xmlConfig = this.generateHbaDeallocationXmlConfig(record.hostDevicesName)
-            const detachResponse = await api('updateHostHbaDevices', {
+            const detachResponse = await getAPI('updateHostHbaDevices', {
               hostid: this.resource.id,
               hostdevicesname: record.hostDevicesName,
               virtualmachineid: null,
@@ -3228,7 +3228,7 @@ export default {
               params.hostdevicesname = record.hostDevicesName
             }
 
-            const response = await api('deleteVhbaDevice', params)
+            const response = await getAPI('deleteVhbaDevice', params)
 
             if (response && !response.error) {
               this.$message.success(this.$t('message.success.delete.vhba'))
@@ -3343,7 +3343,7 @@ export default {
           xmlconfig: xmlContent
         }
 
-        const response = await api('createVhbaDevice', params)
+        const response = await getAPI('createVhbaDevice', params)
 
         if (response && !response.error) {
           const realVhbaName = response.result || response.createdDeviceName || response.data || response.vhbaName
@@ -3411,7 +3411,7 @@ export default {
 
     async fetchVhbaDevices () {
       try {
-        const response = await api('listVhbaDevices', { hostid: this.resource.id })
+        const response = await getAPI('listVhbaDevices', { hostid: this.resource.id })
         if (response && response.listvhbadevicesresponse && response.listvhbadevicesresponse.vhbadevices) {
         }
       } catch (error) {
@@ -3433,7 +3433,7 @@ export default {
 
     async getHbaDeviceInfo (hbaDeviceName) {
       try {
-        const response = await api('listHostHbaDevices', {
+        const response = await getAPI('listHostHbaDevices', {
           id: this.resource.id
         })
 
@@ -3578,7 +3578,7 @@ export default {
       }
       this.loading = true
       try {
-        const response = await api('listVhbaDevices', {
+        const response = await getAPI('listVhbaDevices', {
           hostid: this.resource.id
         })
         const devices = response.listvhbadevicesresponse?.listvhbadevices?.[0]
@@ -3589,7 +3589,7 @@ export default {
           throw new Error('No VM allocation found for this vHBA device')
         }
 
-        const vmResponse = await api('listVirtualMachines', {
+        const vmResponse = await getAPI('listVirtualMachines', {
           id: vmId,
           listall: true
         })
@@ -3606,7 +3606,7 @@ export default {
           onOk: async () => {
             const xmlConfig = this.generateVhbaDeallocationXmlConfig(record.hostDevicesName)
 
-            const detachResponse = await api('updateHostVhbaDevices', {
+            const detachResponse = await getAPI('updateHostVhbaDevices', {
               hostid: this.resource.id,
               hostdevicesname: record.hostDevicesName,
               virtualmachineid: null,
@@ -3680,7 +3680,7 @@ export default {
 
     async getVhbaDeviceInfo (vhbaDeviceName) {
       try {
-        const response = await api('listVhbaDevices', {
+        const response = await getAPI('listVhbaDevices', {
           hostid: this.resource.id
         })
 
@@ -3779,7 +3779,7 @@ export default {
       this.vhbaLoading[hbaName] = true
 
       try {
-        const response = await api('listVhbaDevices', {
+        const response = await getAPI('listVhbaDevices', {
           hostid: this.resource.id,
           keyword: hbaName
         })
@@ -3828,7 +3828,7 @@ export default {
               const vmIdArray = Array.from(allocatedVmIds)
               for (const vmId of vmIdArray) {
                 try {
-                  const vmResponse = await api('listVirtualMachines', {
+                  const vmResponse = await getAPI('listVirtualMachines', {
                     id: vmId,
                     listall: true
                   })
@@ -3958,7 +3958,7 @@ export default {
     async fetchScsiDevices () {
       this.loading = true
       try {
-        const response = await api('listHostScsiDevices', { id: this.resource.id })
+        const response = await getAPI('listHostScsiDevices', { id: this.resource.id })
         if (response.listhostscsidevicesresponse?.listhostscsidevices?.[0]) {
           const scsiData = response.listhostscsidevicesresponse.listhostscsidevices[0]
           const vmAllocations = scsiData.vmallocations || {}
@@ -3967,7 +3967,7 @@ export default {
             const vmId = vmAllocations[name]
             if (vmId) {
               try {
-                const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+                const vmResponse = await getAPI('listVirtualMachines', { id: vmId, listall: true })
                 const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
                 if (vm && vm.state !== 'Expunging') {
                   vmNameMap[name] = vm.displayname || vm.name
@@ -3975,7 +3975,7 @@ export default {
                   // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
                   try {
                     const xmlConfig = this.generateScsiXmlConfig(name)
-                    const updateResponse = await api('updateHostScsiDevices', {
+                    const updateResponse = await getAPI('updateHostScsiDevices', {
                       hostid: this.resource.id,
                       hostdevicesname: name,
                       virtualmachineid: null,
@@ -3995,7 +3995,7 @@ export default {
                 // VM 조회 실패 시에도 할당 해제 시도
                 try {
                   const xmlConfig = this.generateScsiXmlConfig(name)
-                  await api('updateHostScsiDevices', {
+                  await getAPI('updateHostScsiDevices', {
                     hostid: this.resource.id,
                     hostdevicesname: name,
                     virtualmachineid: null,
@@ -4022,7 +4022,7 @@ export default {
           // LUN 쪽 SCSI 주소 기반 매핑 준비: LUN 텍스트에서 SCSI_ADDRESS 추출 -> VM ID 매핑
           const lunAddrToVmId = {}
           try {
-            const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
+            const lunResponse = await getAPI('listHostLunDevices', { id: this.resource.id })
             const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
             if (lunData && Array.isArray(lunData.hostdevicesname)) {
               for (let i = 0; i < lunData.hostdevicesname.length; i++) {
@@ -4051,7 +4051,7 @@ export default {
             let vmIdByPath = null
             if (lunDevice) {
               try {
-                const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
+                const lunResponse = await getAPI('listHostLunDevices', { id: this.resource.id })
                 const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
                 vmIdByPath = lunData?.vmallocations?.[lunDevice] || null
               } catch (e) {}
@@ -4059,7 +4059,7 @@ export default {
 
             const finalVmId = mappedVmId || vmIdByPath
             if (finalVmId) {
-              const vmResponse = await api('listVirtualMachines', { id: finalVmId, listall: true })
+              const vmResponse = await getAPI('listVirtualMachines', { id: finalVmId, listall: true })
               const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
               if (vm && vm.state !== 'Expunging') {
                 device.allocatedInOtherTab = {
@@ -4108,7 +4108,7 @@ export default {
       if (isAllocatedInLun) {
         // 알림 대신 즉시 삭제 모드로 전환되도록 테이블 데이터 갱신
         try {
-          const lunResp = await api('listHostLunDevices', { id: this.resource.id })
+          const lunResp = await getAPI('listHostLunDevices', { id: this.resource.id })
           const lun = lunResp?.listhostlundevicesresponse?.listhostlundevices?.[0]
           if (lun && lun.vmallocations && Array.isArray(lun.hostdevicesname)) {
             // SCSI 텍스트에서 LUN 블록 디바이스 추출
@@ -4117,7 +4117,7 @@ export default {
             if (lunDevice) {
               const vmId = lun.vmallocations[lunDevice]
               if (vmId) {
-                const vmRes = await api('listVirtualMachines', { id: vmId, listall: true })
+                const vmRes = await getAPI('listVirtualMachines', { id: vmId, listall: true })
                 const vm = vmRes.listvirtualmachinesresponse?.virtualmachine?.[0]
                 const vmName = vm ? (vm.displayname || vm.name) : ''
                 // 해당 SCSI 레코드를 다른 탭에서 할당된 상태로 표시하여 버튼이 삭제로 전환되게 함
@@ -4160,7 +4160,7 @@ export default {
 
           if (!vmId) {
             if (isLunAllocated) {
-              const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
+              const lunResponse = await getAPI('listHostLunDevices', { id: this.resource.id })
               const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
 
               if (lunData?.vmallocations) {
@@ -4175,7 +4175,7 @@ export default {
           }
         } else {
           // 현재 탭에서 할당된 경우
-          const response = await api('listHostScsiDevices', {
+          const response = await getAPI('listHostScsiDevices', {
             id: this.resource.id
           })
           const devices = response.listhostscsidevicesresponse?.listhostscsidevices?.[0]
@@ -4206,7 +4206,7 @@ export default {
                 const baseDevicePath = deviceMatch[1]
 
                 // LUN 디바이스 목록에서 실제 디바이스 이름 찾기
-                const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
+                const lunResponse = await getAPI('listHostLunDevices', { id: this.resource.id })
                 const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
 
                 if (!lunData || !Array.isArray(lunData.hostdevicesname)) {
@@ -4245,7 +4245,7 @@ export default {
                 // LUN 디바이스 해제
                 const xmlConfig = this.generateXmlLunConfig(lunDeviceName)
 
-                const detachResponse = await api('updateHostLunDevices', {
+                const detachResponse = await getAPI('updateHostLunDevices', {
                   hostid: this.resource.id,
                   hostdevicesname: lunDeviceName,
                   virtualmachineid: null,
@@ -4261,7 +4261,7 @@ export default {
                 // 현재 탭에서 할당된 경우 SCSI 디바이스 해제
                 const xmlConfig = this.generateScsiXmlConfig(hostDevicesName)
 
-                const detachResponse = await api('updateHostScsiDevices', {
+                const detachResponse = await getAPI('updateHostScsiDevices', {
                   hostid: this.resource.id,
                   hostdevicesname: hostDevicesName,
                   virtualmachineid: null,
@@ -4316,7 +4316,7 @@ export default {
         for (const [tabKey, apiMethod] of Object.entries(otherTabs)) {
           if (tabKey === currentTab) continue
 
-          const response = await api(apiMethod, { id: this.resource.id })
+          const response = await getAPI(apiMethod, { id: this.resource.id })
           const key = `list${apiMethod.replace('listHost', '').toLowerCase()}response`
           const res = response[key]
           const devices = res?.listhostdevices?.[0] ||
@@ -4330,7 +4330,7 @@ export default {
 
             if (!allocatedVmId && currentTab === '5' && tabKey === '3') {
               // SCSI 디바이스의 실제 블록 디바이스 찾기
-              const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+              const scsiResponse = await getAPI('listHostScsiDevices', { id: this.resource.id })
               const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
               if (scsiData) {
                 const scsiIndex = scsiData.hostdevicesname.indexOf(deviceName)
@@ -4347,7 +4347,7 @@ export default {
 
             if (!allocatedVmId && currentTab === '3' && tabKey === '5') {
               // LUN 디바이스에 해당하는 SCSI 디바이스 찾기
-              const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+              const scsiResponse = await getAPI('listHostScsiDevices', { id: this.resource.id })
               const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
               if (scsiData) {
                 for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
@@ -4364,7 +4364,7 @@ export default {
 
             if (allocatedVmId) {
               // 할당된 VM 정보 가져오기
-              const vmResponse = await api('listVirtualMachines', { id: allocatedVmId, listall: true })
+              const vmResponse = await getAPI('listVirtualMachines', { id: allocatedVmId, listall: true })
               const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
               if (vm) {
                 return {
@@ -4394,7 +4394,7 @@ export default {
       return true
     },
     async fetchHostInfo () {
-      const hostResponse = await api('listHosts', { id: this.resource.id })
+      const hostResponse = await getAPI('listHosts', { id: this.resource.id })
       const host = hostResponse.listhostsresponse?.host?.[0]
       this.numericHostId = host.id
     },
@@ -4449,12 +4449,12 @@ export default {
     async checkDeviceAllocationInScsi (deviceName) {
       try {
         // 모든 호스트에서 SCSI 디바이스 할당 상태 확인
-        const hostsResponse = await api('listHosts', {})
+        const hostsResponse = await getAPI('listHosts', {})
         const hosts = hostsResponse?.listhostsresponse?.host || []
 
         for (const host of hosts) {
           try {
-            const scsiResponse = await api('listHostScsiDevices', { id: host.id })
+            const scsiResponse = await getAPI('listHostScsiDevices', { id: host.id })
             const scsiDevices = scsiResponse?.listhostscsidevicesresponse?.listhostscsidevices?.[0]
 
             if (scsiDevices && scsiDevices.vmallocations) {
@@ -4480,12 +4480,12 @@ export default {
     async checkDeviceAllocationInLun (deviceName) {
       try {
         // 모든 호스트에서 LUN 디바이스 할당 상태 확인
-        const hostsResponse = await api('listHosts', {})
+        const hostsResponse = await getAPI('listHosts', {})
         const hosts = hostsResponse?.listhostsresponse?.host || []
 
         for (const host of hosts) {
           try {
-            const lunResponse = await api('listHostLunDevices', { id: host.id })
+            const lunResponse = await getAPI('listHostLunDevices', { id: host.id })
             const lunDevices = lunResponse?.listhostlundevicesresponse?.listhostlundevices?.[0]
 
             if (lunDevices && lunDevices.vmallocations) {

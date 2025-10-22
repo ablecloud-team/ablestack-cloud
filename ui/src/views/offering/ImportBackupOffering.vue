@@ -241,7 +241,7 @@ export default {
       })
     },
     checkBackupOffering () {
-      api('listBackupOfferings').then(json => {
+      getAPI('listBackupOfferings').then(json => {
         var backupOff = json.listbackupofferingsresponse.backupoffering || []
         for (const off of backupOff) {
           if (off.provider === 'commvault') {
@@ -257,7 +257,7 @@ export default {
         return
       }
       this.providers.loading = true
-      api('listBackupProvidersForZone', { zoneid: zoneId }).then(json => {
+      getAPI('listBackupProvidersForZone', { zoneid: zoneId }).then(json => {
         this.providers.opts = json.listbackupprovidersforzoneresponse.providers || []
       }).catch(error => {
         this.$notifyError(error)
@@ -271,7 +271,7 @@ export default {
         return
       }
       this.externals.loading = true
-      api('listBackupProviderOfferings', { zoneid: zoneId, provider: providerName }).then(json => {
+      getAPI('listBackupProviderOfferings', { zoneid: zoneId, provider: providerName }).then(json => {
         this.externals.opts = json.listbackupproviderofferingsresponse.backupoffering || []
       }).catch(error => {
         this.$notifyError(error)
