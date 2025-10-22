@@ -591,7 +591,7 @@ public class HostVO implements Host {
     public void setLastManagementServerId(Long lastManagementServerId) {
         this.lastManagementServerId = lastManagementServerId;
     }
-    
+
     public void setMigrationIp(String migrationIp) {
         this.migrationIp = migrationIp;
     }

@@ -1724,7 +1724,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                     if (CollectionUtils.isNotEmpty(payload.getStoragePoolIds())) {
                         copyNewSnapshotToZonesOnPrimary(payload, snapshot);
                     }
-                    
+
                 }
             } catch (Exception e) {
                 logger.debug("post process snapshot failed", e);

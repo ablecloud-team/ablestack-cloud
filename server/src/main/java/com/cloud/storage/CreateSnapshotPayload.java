@@ -98,7 +98,7 @@ public class CreateSnapshotPayload {
     public void setStoragePoolIds(List<Long> storagePoolIds) {
         this.storagePoolIds = storagePoolIds;
     }
-    
+
     public boolean getBackup() {
         return this.backup;
     }

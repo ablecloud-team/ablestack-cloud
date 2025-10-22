@@ -2059,7 +2059,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
     }
 
 
-    private void updateMigratinIp(HostVO host, String migrationIp) {
+    private void updateMigrationIp(HostVO host, String migrationIp) {
         logger.debug("Updating Host use live migataion use ip address to: " + migrationIp);
         host.setMigrationIp(migrationIp);
         _hostDao.update(host.getId(), host);
@@ -2844,13 +2844,14 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
                 Boolean.TRUE.equals(cmd.getIsTagARule()));
 
         return updateHost(cmd.getId(), cmd.getName(), cmd.getOsCategoryId(),
-                cmd.getAllocationState(), cmd.getUrl(), cmd.getHostTags(), cmd.getIsTagARule(), cmd.getAnnotation(), false, 
+                cmd.getAllocationState(), cmd.getUrl(), cmd.getHostTags(), cmd.getIsTagARule(), cmd.getAnnotation(), false,
                 cmd.getExternalDetails(), cmd.isCleanupExternalDetails(), cmd.getMigrationIp());
     }
 
     private Host updateHost(Long hostId, String name, Long guestOSCategoryId, String allocationState,
-                            String url, List<String> hostTags, Boolean isTagARule, String annotation, boolean isUpdateFromHostHealthCheck,
-                            boolean cleanupExternalDetails, String migrationIp) throws NoTransitionException {
+            String url, List<String> hostTags, Boolean isTagARule, String annotation,
+            boolean isUpdateFromHostHealthCheck, Map<String, String> externalDetails,
+            boolean cleanupExternalDetails, String migrationIp) throws NoTransitionException {
         // Verify that the host exists
         final HostVO host = _hostDao.findById(hostId);
         if (host == null) {
@@ -2874,7 +2875,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
             updateHostTags(host, hostId, hostTags, isTagARule);
         }
 
-        updateMigratinIp(host, migrationIp);
+        updateMigrationIp(host, migrationIp);
 
         if (cleanupExternalDetails) {
             _hostDetailsDao.removeExternalDetails(hostId);
@@ -2940,7 +2941,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
 
     @Override
     public Host autoUpdateHostAllocationState(Long hostId, ResourceState.Event resourceEvent) throws NoTransitionException {
-        return updateHost(hostId, null, null, resourceEvent.toString(), null, null, null, null, true, null, false);
+        return updateHost(hostId, null, null, resourceEvent.toString(), null, null, null, null, true, null, false, null);
     }
 
     @Override
@@ -4606,8 +4607,8 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
     @Override
     public ConfigKey<?>[] getConfigKeys() {
         return new ConfigKey<?>[] {
-                KvmSshToAgentEnabled, 
-                KvmSshPort, 
+                KvmSshToAgentEnabled,
+                KvmSshPort,
                 HOST_MAINTENANCE_LOCAL_STRATEGY,
                 SystemVmPreferredArchitecture
         };

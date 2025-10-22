@@ -793,7 +793,7 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
                 msHostStatsEntry = getDataFrom(mshost);
                 managementServerHostStats.put(mshost.getUuid(), msHostStatsEntry);
                 // send to other hosts
-                clusterManager.publishStatus(msStatsGson.toJson(hostStatsEntry));
+                clusterManager.publishStatus(msStatsGson.toJson(msHostStatsEntry));
             } catch (Throwable t) {
                 // pokemon catch to make sure the thread stays running
                 logger.error("Error trying to retrieve management server host statistics", t);

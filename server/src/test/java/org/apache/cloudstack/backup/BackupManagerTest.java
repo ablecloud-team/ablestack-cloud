@@ -1,3 +1,4 @@
+
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -1098,7 +1099,7 @@ public class BackupManagerTest {
         when(backupOfferingDao.findByExternalId("external-id", 1L)).thenReturn(null);
         when(backupOfferingDao.findByName("Test Offering", 1L)).thenReturn(null);
 
-        BackupOfferingVO offering = new BackupOfferingVO(1L, "external-id", "testbackupprovider", "Test Offering", "Test Description", true);
+        BackupOfferingVO offering = new BackupOfferingVO(1L, "external-id", "testbackupprovider", "Test Offering", "Test Description", true, null);
         when(backupOfferingDao.persist(any(BackupOfferingVO.class))).thenReturn(offering);
         when(backupProvider.isValidProviderOffering(cmd.getZoneId(), cmd.getExternalId())).thenReturn(true);
 

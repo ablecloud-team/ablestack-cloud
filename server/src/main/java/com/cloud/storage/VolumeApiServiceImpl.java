@@ -4096,6 +4096,9 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             if (CollectionUtils.isNotEmpty(zoneIds)) {
                 payload.setZoneIds(zoneIds);
             }
+            if (CollectionUtils.isNotEmpty(poolIds)) {
+                payload.setStoragePoolIds(poolIds);
+            }
             volume.addPayload(payload);
             return volService.takeSnapshot(volume);
         }
@@ -4192,9 +4195,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             payload.setAsyncBackup(asyncBackup);
             if (CollectionUtils.isNotEmpty(zoneIds)) {
                 payload.setZoneIds(zoneIds);
-            }
-            if (CollectionUtils.isNotEmpty(poolIds)) {
-                payload.setStoragePoolIds(poolIds);
             }
             payload.setBackup(backup);
             volume.addPayload(payload);
@@ -4382,6 +4382,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         }
         return snapshotMgr.allocSnapshot(volumeId, policyId, snapshotName, locationType, false, zoneIds);
     }
+
 
     private boolean canCopyOnPrimary(List<Long> poolIds, VolumeInfo volume, boolean isPoolIdsEmpty) {
         if (!isPoolIdsEmpty) {

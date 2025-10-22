@@ -34,7 +34,6 @@ import org.apache.cloudstack.storage.to.VolumeObjectTO;
 import org.apache.cloudstack.utils.qemu.QemuImg;
 import org.apache.cloudstack.utils.qemu.QemuImgException;
 import org.apache.cloudstack.utils.qemu.QemuImgFile;
-import org.apache.log4j.Logger;
 import org.joda.time.Duration;
 import org.libvirt.LibvirtException;
 
@@ -42,7 +41,6 @@ import org.libvirt.LibvirtException;
 public final class LinstorRevertBackupSnapshotCommandWrapper
     extends CommandWrapper<LinstorRevertBackupSnapshotCommand, CopyCmdAnswer, LibvirtComputingResource>
 {
-    private static final Logger s_logger = Logger.getLogger(LinstorRevertBackupSnapshotCommandWrapper.class);
 
     private void convertQCow2ToRAW(
             KVMStoragePool pool, final String srcPath, final String dstUuid, int waitMilliSeconds)

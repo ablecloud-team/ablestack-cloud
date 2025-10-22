@@ -71,7 +71,7 @@ public class UpdateHostCmd extends BaseCmd {
 
     @Parameter(name = ApiConstants.EXTERNAL_DETAILS, type = CommandType.MAP, description = "Details in key/value pairs using format externaldetails[i].keyname=keyvalue. Example: externaldetails[0].endpoint.url=urlvalue", since = "4.21.0")
     protected Map externalDetails;
-    
+
     @Parameter(name = ApiConstants.MIGRATION_IP, type = CommandType.STRING, description = "Add an migration ip to this host", since = "4.20")
     private String migrationIp;
 
@@ -122,7 +122,7 @@ public class UpdateHostCmd extends BaseCmd {
     public Map<String, String> getExternalDetails() {
         return convertExternalDetailsToMap(externalDetails);
     }
-    
+
     public String getMigrationIp() {
         return migrationIp;
     }

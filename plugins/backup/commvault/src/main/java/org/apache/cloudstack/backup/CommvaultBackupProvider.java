@@ -593,9 +593,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
-    public Pair<Boolean, String> restoreBackedUpVolume(Backup backup, String volumeUuid, String hostIp, String dataStoreUuid, Pair<String, VirtualMachine.State> vmNameAndState) {
+    public Pair<Boolean, String> restoreBackedUpVolume(Backup backup, Backup.VolumeInfo backupVolumeInfo, String hostIp, String dataStoreUuid, Pair<String, VirtualMachine.State> vmNameAndState) {
+        final VolumeVO volume = volumeDao.findByUuid(backupVolumeInfo.getUuid());
         List<Backup.VolumeInfo> backedVolumes = backup.getBackedUpVolumes();
-        VolumeVO volume = volumeDao.findByUuid(volumeUuid);
+
         try {
             String commvaultServer = getUrlDomain(CommvaultUrl.value());
         } catch (URISyntaxException e) {
@@ -629,7 +630,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         if (backupsetGUID == null) {
             throw new CloudRuntimeException("Failed to get vm backup set guid commvault api");
         }
-        LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volumeUuid, backup));
+        LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volume.getUuid(), backup));
         // 복원 실행
         HostVO hostVO = hostDao.findByName(clientName);
         Ternary<String, String, String> credentials = getKVMHyperisorCredentials(hostVO);
@@ -654,7 +655,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             Long restoredVolumeDiskSize = 0L;
                             // Find volume size  from backup vols
                             for (Backup.VolumeInfo VMVolToRestore : backupSourceVm.getBackupVolumeList()) {
-                                if (VMVolToRestore.getUuid().equals(volumeUuid))
+                                if (VMVolToRestore.getUuid().equals(volume.getUuid()))
                                     restoredVolumeDiskSize = (VMVolToRestore.getSize());
                             }
                             VolumeVO restoredVolume = new VolumeVO(Volume.Type.DATADISK, null, backup.getZoneId(),
@@ -737,7 +738,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
-    public boolean takeBackup(VirtualMachine vm) {
+    public Pair<Boolean, Backup> takeBackup(VirtualMachine vm, Boolean quiesceVM) {
         String hostName = null;
         try {
             String commvaultServer = getUrlDomain(CommvaultUrl.value());
@@ -795,7 +796,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     }
                 }
                 LOG.error("Failed to request createSnapshot Mold-API.");
-                return false;
+                return new Pair<>(false, null);
             } else {
                 JSONObject jsonObject = new JSONObject(createSnapResult);
                 String jobId = jsonObject.get("jobid").toString();
@@ -817,7 +818,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         }
                     }
                     LOG.error("createSnapshot Mold-API async job resulted in failure.");
-                    return false;
+                    return new Pair<>(false, null);
                 }
                 checkResult.put(vol.getId(), snapId);
                 SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findLatestSnapshotForVolume(vol.getId(), DataStoreRole.Primary);
@@ -927,7 +928,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             moldCommand = "deleteSnapshot";
                             moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
                         }
-                        return true;
+                        return new Pair<>(true, backup);
                     } else {
                         // 백업 실패
                         if (!checkResult.isEmpty()) {
@@ -940,7 +941,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             }
                         }
                         LOG.error("createBackup commvault api resulted in " + jobStatus);
-                        return false;
+                        return new Pair<>(false, null);
                     }
                 } else {
                     // 백업 실패
@@ -954,7 +955,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         }
                     }
                     LOG.error("createBackup commvault api resulted in " + jobStatus);
-                    return false;
+                    return new Pair<>(false, null);
                 }
             } else {
                 // 백업 실패
@@ -968,7 +969,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     }
                 }
                 LOG.error("failed request createBackup commvault api");
-                return false;
+                return new Pair<>(false, null);
             }
         } else {
             // 백업 경로 업데이트 실패
@@ -982,7 +983,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 }
             }
             LOG.error("updateBackupSet commvault api resulted in failure.");
-            return false;
+            return new Pair<>(false, null);
         }
     }
 
@@ -1008,27 +1009,27 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
     }
 
-    @Override
-    public Map<VirtualMachine, Backup.Metric> getBackupMetrics(Long zoneId, List<VirtualMachine> vms) {
-        final Map<VirtualMachine, Backup.Metric> metrics = new HashMap<>();
-        if (CollectionUtils.isEmpty(vms)) {
-            LOG.warn("Unable to get VM Backup Metrics because the list of VMs is empty.");
-            return metrics;
-        }
+    // @Override
+    // public Map<VirtualMachine, Backup.Metric> getBackupMetrics(Long zoneId, List<VirtualMachine> vms) {
+    //     final Map<VirtualMachine, Backup.Metric> metrics = new HashMap<>();
+    //     if (CollectionUtils.isEmpty(vms)) {
+    //         LOG.warn("Unable to get VM Backup Metrics because the list of VMs is empty.");
+    //         return metrics;
+    //     }
 
-        for (final VirtualMachine vm : vms) {
-            Long vmBackupSize = 0L;
-            Long vmBackupProtectedSize = 0L;
-            for (final Backup backup: backupDao.listByVmId(null, vm.getId())) {
-                vmBackupSize += backup.getSize();
-                vmBackupProtectedSize += backup.getProtectedSize();
-            }
-            Backup.Metric vmBackupMetric = new Backup.Metric(vmBackupSize,vmBackupProtectedSize);
-            LOG.debug("Metrics for VM {} is [backup size: {}, data size: {}].", vm, vmBackupMetric.getBackupSize(), vmBackupMetric.getDataSize());
-            metrics.put(vm, vmBackupMetric);
-        }
-        return metrics;
-    }
+    //     for (final VirtualMachine vm : vms) {
+    //         Long vmBackupSize = 0L;
+    //         Long vmBackupProtectedSize = 0L;
+    //         for (final Backup backup: backupDao.listByVmId(null, vm.getId())) {
+    //             vmBackupSize += backup.getSize();
+    //             vmBackupProtectedSize += backup.getProtectedSize();
+    //         }
+    //         Backup.Metric vmBackupMetric = new Backup.Metric(vmBackupSize,vmBackupProtectedSize);
+    //         LOG.debug("Metrics for VM {} is [backup size: {}, data size: {}].", vm, vmBackupMetric.getBackupSize(), vmBackupMetric.getDataSize());
+    //         metrics.put(vm, vmBackupMetric);
+    //     }
+    //     return metrics;
+    // }
 
     @Override
     public void syncBackups(VirtualMachine vm, Backup.Metric metric) {
@@ -1070,13 +1071,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             }
         }
         return;
-    }
-
-    @Override
-    // 하위 클라이언트 삭제 시 백업본 데이터는 그대로 남아있지만, 해당 하위 클라이언트가 삭제되었기 때문에 스케줄도 삭제시켜야하며
-    // 남아있는 백업본 데이터는 mold에서 관리하지 않고, commvault 의 plan 보존기간에 따라 데이터 에이징 됨.
-    public boolean willDeleteBackupsOnOfferingRemoval() {
-        return true;
     }
 
     protected static String moldCreateSnapshotBackupAPI(String region, String command, String method, String apiKey, String secretKey, Map<String, String> params) {
@@ -1411,4 +1405,49 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             return false;
         }
     }
+
+    @Override
+    public boolean supportsInstanceFromBackup() {
+        return false;
+    }
+
+    @Override
+    public Pair<Long, Long> getBackupStorageStats(Long zoneId) {
+        return new Pair<>(0L, 0L);
+    }
+
+    @Override
+    public void syncBackupStorageStats(Long zoneId) {
+    }
+
+    // 하위 클라이언트 삭제 시 백업본 데이터는 그대로 남아있지만, 해당 하위 클라이언트가 삭제되었기 때문에 스케줄도 삭제시켜야하며
+    // 남아있는 백업본 데이터는 mold에서 관리하지 않고, commvault 의 plan 보존기간에 따라 데이터 에이징 됨.
+    @Override
+    public boolean willDeleteBackupsOnOfferingRemoval() {
+        return true;
+    }
+
+    @Override
+    public Pair<Boolean, String> restoreBackupToVM(VirtualMachine vm, Backup backup, String hostIp, String dataStoreUuid) {
+        return new Pair<>(true, null);
+    }
+
+    @Override
+    public List<Backup.RestorePoint> listRestorePoints(VirtualMachine vm) {
+        return null;
+    }
+
+    @Override
+    public Backup createNewBackupEntryForRestorePoint(Backup.RestorePoint restorePoint, VirtualMachine vm) {
+        return null;
+    }
+
+    public void syncBackupMetrics(Long zoneId) {
+    }
+
+    @Override
+    public Boolean crossZoneInstanceCreationEnabled(BackupOffering backupOffering) {
+        return false;
+    }
+
 }

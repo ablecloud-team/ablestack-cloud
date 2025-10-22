@@ -137,6 +137,11 @@ public interface BackupProvider {
      */
     void syncBackupStorageStats(Long zoneId);
 
+    /**
+     * This method should reconcile and create backup entries for any backups created out-of-band
+     * @param vm
+     * @param metric
+     */
     void syncBackups(VirtualMachine vm, Backup.Metric metric);
 
     /**
