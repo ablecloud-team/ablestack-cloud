@@ -5131,6 +5131,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             options.put(VmDetailConstants.IOTHREADS, Arrays.asList("enabled"));
             options.put(VmDetailConstants.NIC_MULTIQUEUE_NUMBER, Collections.emptyList());
             options.put(VmDetailConstants.NIC_PACKED_VIRTQUEUES_ENABLED, Arrays.asList("true", "false"));
+            options.put(VmDetailConstants.BOOT_ORDER, Arrays.asList("cdrom", "hd"));
         }
 
         if (HypervisorType.VMware.equals(hypervisorType)) {
