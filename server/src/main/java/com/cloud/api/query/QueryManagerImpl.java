@@ -5487,6 +5487,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             options.put(VmDetailConstants.VIRTUAL_TPM_VERSION, Arrays.asList("1.2", "2.0"));
             options.put(VmDetailConstants.GUEST_CPU_MODE, Arrays.asList("custom", "host-model", "host-passthrough"));
             options.put(VmDetailConstants.GUEST_CPU_MODEL, Collections.emptyList());
+            options.put(VmDetailConstants.BOOT_ORDER, Arrays.asList("cdrom", "hd"));
         }
 
         if (HypervisorType.VMware.equals(hypervisorType)) {
