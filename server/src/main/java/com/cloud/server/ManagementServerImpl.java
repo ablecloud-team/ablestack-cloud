@@ -2378,7 +2378,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 hostDevicesNames.add(parts[0].trim());
                 pciDescriptions.add(parts[1].trim());
             } else {
-                logger.warn("Unexpected PCI info format: " + hostDevicesText);
+                // Unexpected PCI info format
             }
         }
 
@@ -2608,7 +2608,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 hostDevicesNames.add(parts[0].trim());
                 pciDescriptions.add(parts[1].trim());
             } else {
-                logger.warn("Unexpected PCI info format: " + hostDevicesText);
+                // Unexpected PCI info format
             }
         }
 
@@ -2724,8 +2724,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             }
         }
 
-        logger.info("Updating host device allocation - hostId: {}, hostDeviceName: {}, virtualMachineId: {}",
-            hostId, hostDeviceName, vmId);
 
         try {
             DetailVO currentAllocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
@@ -2752,7 +2750,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     }
                     // DB에서 해당 디바이스 레코드 삭제
                     _hostDetailsDao.remove(currentAllocation.getId());
-                    logger.info("Successfully removed device {} allocation from host {}", hostDeviceName, hostId);
                 }
             } else {
                // 새로운 할당
@@ -2782,15 +2779,11 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 while (usedNums.contains(nextConfigNum)) {
                     nextConfigNum++;
                 }
-                logger.info("Successfully added device configuration to VM {} with config number {}",
-                    vmInstance.getInstanceName(), nextConfigNum);
 
                 // DB에 할당 정보 저장
                 Map<String, String> details = new HashMap<>();
                 details.put(hostDeviceName, vmId.toString());
                 _hostDetailsDao.persist(hostId, details);
-                logger.info("Successfully allocated device {} to VM {} on host {}",
-                    hostDeviceName, vmId, hostId);
             }
         } catch (Exception e) {
             logger.error("Error during device allocation/deallocation - hostDeviceName: {}, error: {}",
@@ -2852,8 +2845,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 }
             }
 
-            logger.info("Updating host device allocation - hostId: {}, hostDeviceName: {}, virtualMachineId: {}",
-                hostId, hostDeviceName, vmId);
 
             try {
                 DetailVO currentAllocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
@@ -2983,8 +2974,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 }
             }
 
-            logger.info("Updating host device allocation - hostId: {}, hostDeviceName: {}, virtualMachineId: {}",
-                hostId, hostDeviceName, vmId);
 
             try {
                 // 같은 디바이스 이름의 모든 할당을 가져오기
@@ -3013,7 +3002,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                                 }
                             }
                             if (!found) {
-                                logger.warn("Device {} is not allocated to the specified VM {}", hostDeviceName, currentVmId);
                                 // 특정 VM에 할당되지 않았다면 첫 번째 할당을 사용
                                 vmIdToUse = currentAllocations.get(0).getValue();
                             }
@@ -3034,7 +3022,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                             }
                         }
                     } else {
-                        logger.warn("No current allocations found for device: {}", hostDeviceName);
                     }
                 } else {
                     if (!currentAllocations.isEmpty()) {
@@ -3092,8 +3079,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                                 // VM extraconfig에서 해당 디바이스 설정 제거
                                 removeDeviceFromVmExtraConfig(Long.parseLong(currentVmId), hostDeviceName, xmlConfig);
 
-                                logger.info("Removed specific allocation for device: " + hostDeviceName +
-                                          " from VM: " + currentVmId);
                                 break;
                             }
                         }
@@ -3106,17 +3091,12 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                             // VM extraconfig에서 해당 디바이스 설정 제거
                             removeDeviceFromVmExtraConfig(Long.parseLong(firstAllocation.getValue()), hostDeviceName, xmlConfig);
 
-                            logger.info("Removed first allocation for device: " + hostDeviceName +
-                                      " from VM: " + firstAllocation.getValue());
                         }
                     }
                 } else {
                     // LUN 디바이스는 같은 이름으로도 여러 할당 가능하도록 허용
                     // 기존 할당이 있어도 새로 할당 (덮어쓰지 않고 추가)
                     if (!currentAllocations.isEmpty()) {
-                        logger.info("Device is already allocated to VMs: " +
-                                  currentAllocations.stream().map(DetailVO::getValue).collect(Collectors.joining(", ")) +
-                                  ". Allowing multiple allocations for same LUN device.");
                     }
 
                     // LUN 디바이스를 host_details 테이블에 저장 (같은 이름으로도 여러 할당 가능)
@@ -3126,8 +3106,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     // VM extraconfig에 디바이스 설정 추가
                     addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlConfig);
 
-                    logger.info("Created allocation for device: " + hostDeviceName +
-                              " to VM: " + vmId + " (multiple allocations allowed)");
                 }
 
                 // 응답 생성
@@ -3185,8 +3163,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 }
             }
 
-            logger.info("Updating host device allocation - hostId: {}, hostDeviceName: {}, virtualMachineId: {}",
-                hostId, hostDeviceName, vmId);
 
             try {
                 // 같은 디바이스 이름의 모든 할당을 가져오기
@@ -3217,7 +3193,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                                 }
                             }
                             if (!found) {
-                                logger.warn("Device {} is not allocated to the specified VM {}", hostDeviceName, currentVmId);
                                 // 특정 VM에 할당되지 않았다면 첫 번째 할당을 사용
                                 vmIdToUse = currentAllocations.get(0).getValue();
                             }
@@ -3243,7 +3218,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                             logger.error("Error retrieving VM with ID: {}", vmIdToUse, e);
                         }
                     } else {
-                        logger.warn("No VM ID found for deallocation of device: {}", hostDeviceName);
                     }
                 } else {
                     // SCSI 디바이스는 같은 VM에 여러 개 할당 가능하므로 기존 할당 확인만 하고 계속 진행
@@ -3302,8 +3276,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                                 // VM extraconfig에서 해당 디바이스 설정 제거
                                 removeDeviceFromVmExtraConfig(Long.parseLong(currentVmId), hostDeviceName, xmlConfig);
 
-                                logger.info("Removed specific allocation for device: " + hostDeviceName +
-                                          " from VM: " + currentVmId);
                                 break;
                             }
                         }
@@ -3316,17 +3288,12 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                             // VM extraconfig에서 해당 디바이스 설정 제거
                             removeDeviceFromVmExtraConfig(Long.parseLong(firstAllocation.getValue()), hostDeviceName, xmlConfig);
 
-                            logger.info("Removed first allocation for device: " + hostDeviceName +
-                                      " from VM: " + firstAllocation.getValue());
                         }
                     }
                 } else {
                     // SCSI 디바이스는 같은 이름으로도 여러 할당 가능하도록 허용
                     // 기존 할당이 있어도 새로 할당 (덮어쓰지 않고 추가)
                     if (!currentAllocations.isEmpty()) {
-                        logger.info("Device is already allocated to VMs: " +
-                                  currentAllocations.stream().map(DetailVO::getValue).collect(Collectors.joining(", ")) +
-                                  ". Allowing multiple allocations for same SCSI device.");
                     }
 
                     // SCSI 디바이스를 host_details 테이블에 저장 (같은 이름으로도 여러 할당 가능)
@@ -3336,8 +3303,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     // VM extraconfig에 디바이스 설정 추가
                     addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlConfig);
 
-                    logger.info("Created allocation for device: " + hostDeviceName +
-                              " to VM: " + vmId + " (multiple allocations allowed)");
                 }
 
                 // 응답 생성
@@ -3421,8 +3386,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 throw new CloudRuntimeException("XML configuration is required for HBA device allocation");
             }
 
-            logger.info("Updating host device allocation - hostId: {}, hostDeviceName: {}, virtualMachineId: {}, isAttach: {}",
-                hostId, hostDeviceName, vmId, isAttach);
 
             try {
                 // 같은 디바이스 이름의 모든 할당을 가져오기
@@ -3459,9 +3422,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 } else {
                     // HBA 디바이스는 같은 VM에 여러 개 할당 가능하므로 기존 할당 확인만 하고 계속 진행
                     if (!currentAllocations.isEmpty()) {
-                        logger.info("Device is already allocated to VMs: " +
-                                  currentAllocations.stream().map(DetailVO::getValue).collect(Collectors.joining(", ")) +
-                                  ". Allowing multiple HBA allocation to same VM.");
                     }
                     vmInternalName = vmInstance.getInstanceName();
                 }
@@ -3470,10 +3430,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     throw new CloudRuntimeException("Unable to get VM instance name");
                 }
 
-                // 호스트에 명령 전송 전 디버그 로그 (XML 포함)
-                String compactXml = xmlConfig != null ? xmlConfig.replaceAll("\\s+", " ") : "";
-                logger.info("Sending UpdateHostHbaDeviceCommand: vmName=" + vmInternalName +
-                    ", hostDeviceName=" + hostDeviceName + ", isAttach=" + isAttach + ", xmlConfig=" + compactXml);
 
                UpdateHostHbaDeviceCommand hbaCmd = new UpdateHostHbaDeviceCommand(vmInternalName, xmlConfig, isAttach);
                 Answer answer;
@@ -3488,18 +3444,11 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 if (answer == null) {
                     throw new CloudRuntimeException("Answer is null");
                 }
-                if (!answer.getResult()) {
-                    String errorDetails = (answer.getDetails() != null) ?
-                        answer.getDetails() : "No additional details available";
-                    throw new CloudRuntimeException("Failed to update HBA device. Details: " + errorDetails);
-                }
                 if (!(answer instanceof UpdateHostHbaDeviceAnswer)) {
                     throw new CloudRuntimeException("Answer is not an instance of UpdateHostHbaDeviceAnswer");
                 }
 
                 UpdateHostHbaDeviceAnswer hbaAnswer = (UpdateHostHbaDeviceAnswer) answer;
-                logger.info("Received UpdateHostHbaDeviceAnswer: success=" + hbaAnswer.isSuccessMessage() +
-                    ", vmName=" + hbaAnswer.getVmName() + ", details=" + (hbaAnswer.getDetails() != null ? hbaAnswer.getDetails() : "") );
                 if (!hbaAnswer.isSuccessMessage()) {
                     String agentDetails = hbaAnswer.getDetails() != null ? hbaAnswer.getDetails() : "No additional details available";
                     throw new CloudRuntimeException("Failed to update HBA device for VM: " + hbaAnswer.getVmName() + ". Details: " + agentDetails);
@@ -3518,8 +3467,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                                 // VM extraconfig에서 해당 디바이스 설정 제거
                                 removeDeviceFromVmExtraConfig(Long.parseLong(currentVmId), hostDeviceName, xmlConfig);
 
-                                logger.info("Removed specific allocation for device: " + hostDeviceName +
-                                          " from VM: " + currentVmId);
                                 break;
                             }
                         }
@@ -3532,17 +3479,12 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                             // VM extraconfig에서 해당 디바이스 설정 제거
                             removeDeviceFromVmExtraConfig(Long.parseLong(firstAllocation.getValue()), hostDeviceName, xmlConfig);
 
-                            logger.info("Removed first allocation for device: " + hostDeviceName +
-                                      " from VM: " + firstAllocation.getValue());
                         }
                     }
                 } else {
                     // HBA 디바이스는 같은 이름으로도 여러 할당 가능하도록 허용
                     // 기존 할당이 있어도 새로 할당 (덮어쓰지 않고 추가)
                     if (!currentAllocations.isEmpty()) {
-                        logger.info("Device is already allocated to VMs: " +
-                                  currentAllocations.stream().map(DetailVO::getValue).collect(Collectors.joining(", ")) +
-                                  ". Allowing multiple allocations for same HBA device.");
                     }
 
                     // HBA 디바이스를 host_details 테이블에 저장 (같은 이름으로도 여러 할당 가능)
@@ -3552,8 +3494,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     // VM extraconfig에 디바이스 설정 추가
                     addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlConfig);
 
-                    logger.info("Created allocation for device: " + hostDeviceName +
-                              " to VM: " + vmId + " (multiple allocations allowed)");
                 }
 
                 // 응답 생성
@@ -3597,8 +3537,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             String vhbaName = cmd.getVhbaName();
             String xmlContent = cmd.getXmlContent();
 
-            logger.info("createVhbaDevice 호출됨 - hostId: {}, parentHbaName: {}, vhbaName: {}, wwnn: {}, wwpn: {}",
-                hostId, parentHbaName, vhbaName, wwnn, wwpn);
 
             // 1. 호스트 존재 여부 확인
             HostVO hostVO = _hostDao.findById(hostId);
@@ -3621,20 +3559,13 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 throw new CloudRuntimeException(errorMsg);
             }
 
-            logger.info("호스트 정보 - ID: {}, 이름: {}, 상태: {}", hostVO.getId(), hostVO.getName(), hostVO.getStatus());
-
             // 3. CreateVhbaDeviceCommand 생성
             CreateVhbaDeviceCommand hbaCmd = new CreateVhbaDeviceCommand(hostId, parentHbaName, wwnn, wwpn, vhbaName, xmlContent);
-
-            logger.info("CreateVhbaDeviceCommand 생성 완료 - hostId: {}, parentHbaName: {}, vhbaName: {}",
-                hbaCmd.getHostId(), hbaCmd.getParentHbaName(), hbaCmd.getVhbaName());
 
             // 4. 에이전트로 명령 전송
             Answer answer;
             try {
-                logger.info("에이전트로 명령 전송 시작 - hostId: {}", hostVO.getId());
                 answer = _agentMgr.send(hostVO.getId(), hbaCmd);
-                logger.info("에이전트로부터 응답 수신");
             } catch (Exception e) {
                 String errorMsg = "Error sending CreateVhbaDeviceCommand: " + e.getMessage();
                 logger.error(errorMsg, e);
@@ -3647,8 +3578,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 logger.error(errorMsg);
                 throw new CloudRuntimeException(errorMsg);
             }
-
-            logger.info("응답 결과: {}, 상세: {}", answer.getResult(), answer.getDetails());
 
             if (!answer.getResult()) {
                 String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
@@ -3666,9 +3595,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
             // 6. 응답 처리
             CreateVhbaDeviceAnswer hbaAnswer = (CreateVhbaDeviceAnswer) answer;
-            logger.info("vHBA 생성 결과 - 성공: {}, vHBA 이름: {}, 생성된 디바이스: {}",
-                hbaAnswer.isSuccess(), hbaAnswer.getVhbaName(), hbaAnswer.getCreatedDeviceName());
-
             List<CreateVhbaDeviceResponse> responses = new ArrayList<>();
             ListResponse<CreateVhbaDeviceResponse> listResponse = new ListResponse<>();
 
@@ -3680,7 +3606,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             responses.add(response);
             listResponse.setResponses(responses);
 
-            logger.info("createVhbaDevice 완료 - 응답 생성 완료");
             return listResponse;
         }
 
@@ -3705,9 +3630,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 throw new CloudRuntimeException("VM not found with ID: " + vmId);
             }
         }
-
-        logger.info("Updating vHBA device allocation - hostId: {}, hostDeviceName: {}, virtualMachineId: {}",
-            hostId, hostDeviceName, vmId);
 
         try {
             // 현재 할당 상태 확인 (디바이스 이름으로 모두 조회 후 hostId로 필터)
@@ -3985,9 +3907,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
         Answer answer;
         try {
-            logger.info("에이전트로 명령 전송 시작 - hostId: {}", hostVO.getId());
             answer = _agentMgr.send(hostVO.getId(), deleteCmd);
-            logger.info("에이전트로부터 응답 수신");
         } catch (Exception e) {
             String errorMsg = "Error sending DeleteVhbaDeviceCommand: " + e.getMessage();
             logger.error(errorMsg, e);
@@ -4000,8 +3920,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             logger.error(errorMsg);
             throw new CloudRuntimeException(errorMsg);
         }
-
-        logger.info("응답 결과: {}, 상세: {}", answer.getResult(), answer.getDetails());
 
         if (!answer.getResult()) {
             String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
@@ -4019,8 +3937,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
         // 7. 응답 처리
         DeleteVhbaDeviceAnswer deleteAnswer = (DeleteVhbaDeviceAnswer) answer;
-        logger.info("vHBA 삭제 결과 - 성공: {}, vHBA 이름: {}, 상세: {}",
-            deleteAnswer.getResult(), deleteAnswer.getVhbaName(), deleteAnswer.getDetails());
 
         List<DeleteVhbaDeviceResponse> responses = new ArrayList<>();
         ListResponse<DeleteVhbaDeviceResponse> listResponse = new ListResponse<>();
@@ -4033,7 +3949,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         responses.add(response);
         listResponse.setResponses(responses);
 
-        logger.info("deleteVhbaDevice 완료 - 응답 생성 완료");
         return listResponse;
     }
 
@@ -8089,27 +8004,21 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
      */
     private String findVmIdFromLunAllocation(Long hostId, String scsiDeviceName, String currentVmId) {
         try {
-            logger.debug("Looking for LUN allocation for SCSI device: {}", scsiDeviceName);
 
             // SCSI 디바이스에서 물리적 디바이스 경로 추출
             String physicalDevicePath = extractPhysicalDeviceFromScsi(scsiDeviceName);
             if (physicalDevicePath == null) {
-                logger.debug("Could not extract physical device path from SCSI device: {}", scsiDeviceName);
                 return null;
             }
-
-            logger.debug("Extracted physical device path: {}", physicalDevicePath);
 
             // 호스트의 모든 LUN 디바이스 할당 확인 (findByName으로 모든 할당을 찾고 호스트 ID로 필터링)
             List<DetailVO> allLunAllocations = _hostDetailsDao.findByName(physicalDevicePath);
             for (DetailVO detail : allLunAllocations) {
                 if (detail.getHostId() == hostId) {
                     String lunDeviceName = detail.getName();
-                    logger.debug("Checking LUN device: {}", lunDeviceName);
 
                     // 같은 물리적 디바이스인지 확인
                     if (isSamePhysicalDevice(lunDeviceName, physicalDevicePath)) {
-                        logger.info("Found matching LUN device: {} for SCSI device: {}", lunDeviceName, scsiDeviceName);
 
                         if (currentVmId != null) {
                             // 특정 VM ID가 요청되었으면 해당 VM의 할당만 확인
@@ -8124,7 +8033,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 }
             }
 
-            logger.debug("No matching LUN allocation found for SCSI device: {}", scsiDeviceName);
             return null;
 
         } catch (Exception e) {
@@ -8140,29 +8048,15 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         try {
             // SCSI 디바이스 이름이 /dev/로 시작하면 직접 반환 (LUN과 같은 물리적 디바이스)
             if (scsiDeviceName.startsWith("/dev/")) {
-                logger.debug("SCSI device is already a physical device path: {}", scsiDeviceName);
                 return scsiDeviceName;
             }
 
-            // SCSI 디바이스 이름 형태: "scsi_host0:0:0:0" 또는 "scsi_host0:0:1:0"
-            // 이를 /dev/sdX 형태로 변환해야 함
-            // 실제 구현에서는 더 정교한 매핑이 필요할 수 있음
-
             if (scsiDeviceName.startsWith("scsi_host")) {
-                // SCSI 주소에서 물리적 디바이스 경로 추출
-                // 이는 하이퍼바이저별로 다를 수 있음
-                logger.debug("Extracting physical device from SCSI address: {}", scsiDeviceName);
-
-                // 간단한 예시: scsi_host0:0:0:0 -> /dev/sda
-                // 실제로는 더 복잡한 매핑 로직이 필요
                 String[] parts = scsiDeviceName.split(":");
                 if (parts.length >= 4) {
                     try {
                         int target = Integer.parseInt(parts[2]);
                         int lun = Integer.parseInt(parts[3]);
-
-                        // target과 lun을 기반으로 물리적 디바이스 경로 생성
-                        // 이는 하드코딩된 예시이며, 실제로는 호스트의 디바이스 정보를 확인해야 함
                         char deviceLetter = (char) ('a' + target);
                         return "/dev/" + deviceLetter;
                     } catch (NumberFormatException e) {
@@ -8192,8 +8086,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             if (lunBasePath == null) {
                 lunBasePath = lunDeviceName;
             }
-
-            logger.debug("Comparing LUN device: {} with physical path: {}", lunBasePath, physicalDevicePath);
 
             // 직접 경로 비교
             if (lunBasePath.equals(physicalDevicePath)) {
@@ -8331,9 +8223,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 boolean busMatch = xmlValue.contains(busPattern);
                 boolean deviceMatch = xmlValue.contains(devicePattern);
 
-                logger.debug("USB device match - deviceName: {}, bus: {}, device: {}, busMatch: {}, deviceMatch: {}",
-                           deviceName, bus, device, busMatch, deviceMatch);
-
                 return busMatch && deviceMatch;
             }
         } catch (Exception e) {
@@ -8344,12 +8233,8 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
     private boolean matchHbaDevice(String xmlValue, String deviceName) {
         try {
-            // "scsi_host18" -> adapter name="scsi_host18"
             String adapterPattern = "adapter name='" + deviceName + "'";
             boolean match = xmlValue.contains(adapterPattern);
-
-            logger.debug("HBA device match - deviceName: {}, adapterPattern: {}, match: {}",
-                       deviceName, adapterPattern, match);
 
             return match;
         } catch (Exception e) {
@@ -8360,12 +8245,8 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
     private boolean matchVhbaDevice(String xmlValue, String deviceName) {
         try {
-            // "scsi_host18" -> adapter name="scsi_host18"
             String adapterPattern = "adapter name='" + deviceName + "'";
             boolean match = xmlValue.contains(adapterPattern);
-
-            logger.debug("vHBA device match - deviceName: {}, adapterPattern: {}, match: {}",
-                       deviceName, adapterPattern, match);
 
             return match;
         } catch (Exception e) {
@@ -8376,9 +8257,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
     private boolean matchScsiDevice(String xmlValue, String deviceName) {
         try {
-            // "/dev/sg33" -> scsi_host 번호 추출하여 매칭
-            // 실제로는 동적으로 생성된 SCSI 주소를 사용하므로 XML 내용으로 매칭
-            // 이 경우는 xmlConfig 매개변수를 사용하는 것이 더 안전
             return xmlValue.contains(deviceName);
         } catch (Exception e) {
             logger.warn("Error matching SCSI device {}: {}", deviceName, e.getMessage());
@@ -8388,11 +8266,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
     private boolean matchLunDevice(String xmlValue, String deviceName) {
         try {
-            logger.debug("Matching LUN device - deviceName: {}, xmlValue: {}", deviceName, xmlValue);
-
-            // LUN 디바이스 이름은 다음과 같은 형태일 수 있음:
-            // "/dev/sdc (scsi-360000000000000000000000000000000)"
-            // "/dev/dm-10 (dm-uuid-360000000000000000000000000000000)"
 
             // 1. XML에서 실제 사용되는 경로를 우선적으로 매칭
             if (xmlValue.contains("/dev/disk/by-id/")) {
@@ -8401,7 +8274,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 java.util.regex.Matcher byIdMatcher = byIdPattern.matcher(xmlValue);
                 if (byIdMatcher.find()) {
                     String xmlByIdPath = byIdMatcher.group(1);
-                    logger.debug("Found by-id path in XML: {}", xmlByIdPath);
 
                     // 디바이스 이름에서 추출한 by-id 값과 비교
                     String byIdValue = extractByIdFromDeviceName(deviceName);
@@ -8410,14 +8282,12 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                         String[] prefixes = {"wwn-", "scsi-", "scsi-SATA_", "dm-uuid-"};
                         for (String prefix : prefixes) {
                             if (xmlByIdPath.equals(prefix + byIdValue)) {
-                                logger.debug("XML by-id path match found: {}", xmlByIdPath);
                                 return true;
                             }
                         }
 
                         // 접두사 없이도 매칭 시도
                         if (xmlByIdPath.equals(byIdValue)) {
-                            logger.debug("XML by-id path match found (no prefix): {}", xmlByIdPath);
                             return true;
                         }
                     }
@@ -8426,7 +8296,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
             // 2. 직접적인 경로 매칭
             if (xmlValue.contains(deviceName)) {
-                logger.debug("Direct device name match found");
                 return true;
             }
 
@@ -8437,7 +8306,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 if (byIdValue != null) {
                     String byIdPath = "/dev/disk/by-id/" + byIdValue;
                     if (xmlValue.contains(byIdPath)) {
-                        logger.debug("DM by-ID path match found: {}", byIdPath);
                         return true;
                     }
                 }
@@ -8446,7 +8314,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 if (deviceName.contains("dm-uuid-")) {
                     String dmPath = convertDmUuidToDmPath(deviceName);
                     if (dmPath != null && xmlValue.contains(dmPath)) {
-                        logger.debug("DM path match found: {}", dmPath);
                         return true;
                     }
                 }
@@ -8454,12 +8321,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 // 4. dm이 아닌 디바이스의 경우 기본 경로 우선 매칭 (마이그레이션 호환성)
                 String basePath = extractBasePathFromDeviceName(deviceName);
                 if (basePath != null && xmlValue.contains(basePath)) {
-                    logger.debug("Base path match found: {}", basePath);
                     return true;
                 }
             }
 
-            logger.debug("No LUN device match found");
             return false;
         } catch (Exception e) {
             logger.warn("Error matching LUN device {}: {}", deviceName, e.getMessage());
@@ -8469,48 +8334,37 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
     private String extractByIdFromDeviceName(String deviceName) {
         try {
-            // "/dev/sdc (scsi-360000000000000000000000000000000)" -> "scsi-360000000000000000000000000000000"
-            // "/dev/sdc (wwn-0x5ace42e4350075f6)" -> "wwn-0x5ace42e4350075f6"
-            // "/dev/sdc (scsi-SATA_HFS3T8G3H2X069N_KJD3N4392I0903D2S)" -> "scsi-SATA_HFS3T8G3H2X069N_KJD3N4392I0903D2S"
             java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\(([^)]+)\\)");
             java.util.regex.Matcher matcher = pattern.matcher(deviceName);
             if (matcher.find()) {
                 String byIdValue = matcher.group(1);
-                // 접두사가 있는 경우 접두사 제거하여 순수 ID만 반환
                 if (byIdValue.startsWith("wwn-") || byIdValue.startsWith("scsi-") || byIdValue.startsWith("dm-uuid-")) {
-                    // scsi-SATA_ 같은 복합 접두사의 경우 첫 번째 '-' 이후의 모든 내용을 ID로 사용
                     return byIdValue.substring(byIdValue.indexOf('-') + 1);
                 }
                 return byIdValue;
             }
         } catch (Exception e) {
-            logger.debug("Error extracting by-id from device name: {}", e.getMessage());
         }
         return null;
     }
 
     private String extractBasePathFromDeviceName(String deviceName) {
         try {
-            // "/dev/sdc (scsi-360000000000000000000000000000000)" -> "/dev/sdc"
             if (deviceName.contains(" (")) {
                 return deviceName.split(" \\(")[0];
             }
             return deviceName;
         } catch (Exception e) {
-            logger.debug("Error extracting base path from device name: {}", e.getMessage());
         }
         return null;
     }
 
     private String convertDmUuidToDmPath(String deviceName) {
         try {
-            // dm-uuid가 포함된 경우 일반적으로 /dev/dm-X 형태로 변환
-            // 실제 구현에서는 백엔드에서 동적으로 변환하므로 여기서는 일반적인 패턴 사용
             if (deviceName.contains("dm-uuid-")) {
-                return "/dev/dm-10"; // 일반적인 dm 디바이스 경로
+                return "/dev/dm-10";
             }
         } catch (Exception e) {
-            logger.debug("Error converting dm-uuid to dm path: {}", e.getMessage());
         }
         return null;
     }
@@ -8524,8 +8378,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             logger.warn("VM ID is null, skipping device deallocation");
             return;
         }
-
-        logger.info("Deallocating all devices for VM: {}", vmId);
 
         try {
             // VM 정보 조회
@@ -8541,8 +8393,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             if (hostId == null) {
                 hostId = vm.getLastHostId();
             }
-
-            logger.info("VM {} (instance: {}) on host: {}", vmId, vmInstanceName, hostId);
 
             // 1. PCI 디바이스 해제
             deallocatePciDevicesForVm(vmIdStr, hostId);
@@ -8562,7 +8412,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             // 6. vHBA 디바이스 해제
             deallocateVhbaDevicesForVm(vmIdStr, vmInstanceName, hostId);
 
-            logger.info("Successfully deallocated all devices for VM: {}", vmId);
 
         } catch (Exception e) {
             logger.error("Error deallocating devices for VM {}: {}", vmId, e.getMessage(), e);
@@ -8582,7 +8431,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             for (DetailVO allocation : allocations) {
                 String deviceName = allocation.getName();
                 if (isPciDevice(deviceName)) {
-                    logger.info("Deallocating PCI device {} from VM {}", deviceName, vmId);
                     _hostDetailsDao.remove(allocation.getId());
 
                     // extraconfig 삭제
@@ -8610,7 +8458,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             for (DetailVO allocation : allocations) {
                 String deviceName = allocation.getName();
                 if (isUsbDevice(deviceName)) {
-                    logger.info("Deallocating USB device {} from VM {}", deviceName, vmId);
                     _hostDetailsDao.remove(allocation.getId());
 
                     // extraconfig 삭제
@@ -8638,7 +8485,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             for (DetailVO allocation : allocations) {
                 String deviceName = allocation.getName();
                 if (isHbaDevice(deviceName)) {
-                    logger.info("Deallocating HBA device {} from VM {}", deviceName, vmId);
                     _hostDetailsDao.remove(allocation.getId());
 
                     // extraconfig 삭제
@@ -8666,7 +8512,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             for (DetailVO allocation : allocations) {
                 String deviceName = allocation.getName();
                 if (isLunDevice(deviceName)) {
-                    logger.info("Deallocating LUN device {} from VM {}", deviceName, vmId);
                     _hostDetailsDao.remove(allocation.getId());
 
                     // extraconfig 삭제
@@ -8694,7 +8539,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             for (DetailVO allocation : allocations) {
                 String deviceName = allocation.getName();
                 if (isScsiDevice(deviceName)) {
-                    logger.info("Deallocating SCSI device {} from VM {}", deviceName, vmId);
                     _hostDetailsDao.remove(allocation.getId());
 
                     // extraconfig 삭제
@@ -8722,14 +8566,14 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             for (DetailVO allocation : allocations) {
                 String deviceName = allocation.getName();
                 if (isVhbaDevice(deviceName)) {
-                    logger.info("Deallocating vHBA device {} from VM {}", deviceName, vmId);
+                    // Deallocating vHBA device
                     _hostDetailsDao.remove(allocation.getId());
 
                     // extraconfig 삭제
                     try {
                         removeDeviceFromVmExtraConfig(Long.parseLong(vmId), deviceName, "");
                     } catch (Exception e) {
-                        logger.warn("Failed to remove vHBA device {} from extraconfig: {}", deviceName, e.getMessage());
+                        // Failed to remove vHBA device from extraconfig
                     }
                 }
             }

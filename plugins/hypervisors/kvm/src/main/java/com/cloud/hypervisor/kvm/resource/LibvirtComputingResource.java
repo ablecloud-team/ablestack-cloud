@@ -4258,7 +4258,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             enableOVSDriver = true;
         }
 
-        if (!nic.isSecurityGroupEnabled() && !enableOVSDriver && nic.getNwfilter()) {
+        if (!nic.isSecurityGroupEnabled() && !enableOVSDriver) {
             interfaceDef.setFilterrefFilterTag();
         }
         if (vmSpec.getDetails() != null) {
@@ -6458,7 +6458,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             try {
                 createKvdoCmdLine(splitPoolImage[0], pool.getAuthUserName(), splitPoolImage[1], String.valueOf(disk.getSize()));
                 device = "/dev/mapper/vg_"+splitPoolImage[1].replace("-","")+"-ablestack_kvdo";
-                logger.info("device name : "+device);
+                // device name
             } catch (InternalErrorException e) {
                 logger.info("createKvdoCmdLine Action Error : "+e);
             }
@@ -6480,7 +6480,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     String vgName = "vg_"+splitPoolImage[1].replace("-","");
                     Script.runSimpleBashScript("vgchange -an " + vgName);
                 } catch (Exception e) {
-                    logger.info("unmapRbdDevice Action error : "+e);
+                    // unmapRbdDevice Action error
                 }
             }
             createRBDSecretKeyFileIfNoExist(pool.getUuid(), DEFAULT_LOCAL_STORAGE_PATH, pool.getAuthSecret());
