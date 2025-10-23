@@ -501,7 +501,6 @@ public class DefaultVMSnapshotStrategy extends ManagerBase implements VMSnapshot
         return StrategyPriority.DEFAULT;
     }
 
-    @Override
     private boolean vmHasKvmDiskOnlySnapshot(UserVm vm) {
         if (!Hypervisor.HypervisorType.KVM.equals(vm.getHypervisorType())) {
             return false;
@@ -516,7 +515,7 @@ public class DefaultVMSnapshotStrategy extends ManagerBase implements VMSnapshot
 
         return false;
     }
-    
+
     @Override
     public void updateOperationFailed(VMSnapshot vmSnapshot) throws NoTransitionException {
         try {

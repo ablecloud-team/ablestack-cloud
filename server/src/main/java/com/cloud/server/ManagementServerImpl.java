@@ -57,18 +57,6 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
-import com.cloud.cpu.CPU;
-import com.cloud.dc.VlanDetailsVO;
-import com.cloud.dc.dao.VlanDetailsDao;
-import com.cloud.network.dao.NetrisProviderDao;
-import com.cloud.network.dao.NsxProviderDao;
-import com.cloud.network.dao.PublicIpQuarantineDao;
-import com.cloud.utils.security.CertificateHelper;
-import com.cloud.api.query.dao.ManagementServerJoinDao;
-import com.cloud.api.query.vo.ManagementServerJoinVO;
-import com.cloud.gpu.VgpuProfileVO;
-import com.cloud.gpu.dao.VgpuProfileDao;
-import com.cloud.offering.ServiceOffering;
 import org.apache.cloudstack.acl.ControlledEntity;
 import org.apache.cloudstack.acl.SecurityChecker;
 import org.apache.cloudstack.affinity.AffinityGroupProcessor;
@@ -854,14 +842,12 @@ import com.cloud.network.dao.IPAddressDao;
 import com.cloud.network.dao.IPAddressVO;
 import com.cloud.network.dao.LoadBalancerDao;
 import com.cloud.network.dao.LoadBalancerVO;
-import com.cloud.network.dao.NetrisProviderDao;
 import com.cloud.network.dao.NetworkAccountDao;
 import com.cloud.network.dao.NetworkAccountVO;
 import com.cloud.network.dao.NetworkDao;
 import com.cloud.network.dao.NetworkDomainDao;
 import com.cloud.network.dao.NetworkDomainVO;
 import com.cloud.network.dao.NetworkVO;
-import com.cloud.network.dao.NsxProviderDao;
 import com.cloud.network.vpc.dao.VpcDao;
 import com.cloud.offering.ServiceOffering;
 import com.cloud.org.Cluster;
@@ -1148,10 +1134,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     private BackupManager backupManager;
     @Inject
     protected ManagementServerJoinDao managementServerJoinDao;
-
-    @Inject
-    private PublicIpQuarantineDao publicIpQuarantineDao;
-
     @Inject
     ClusterManager _clusterMgr;
 
@@ -1160,18 +1142,12 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     @Inject
     ResourceLimitService resourceLimitService;
     @Inject
-    NsxProviderDao nsxProviderDao;
-    @Inject
-    NetrisProviderDao netrisProviderDao;
-    @Inject
     ExtensionsManager extensionsManager;
 
     @Inject
     private HAConfigManager haConfigManager;
-
     @Inject
     private HAConfigDao haConfigDao;
-
     @Inject
     private HostDetailsDao _hostDetailsDao;
 
@@ -6648,7 +6624,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         final boolean isCallerAdmin = _accountService.isAdmin(caller.getId());
         boolean securityGroupsEnabled = false;
         boolean elasticLoadBalancerEnabled = false;
-        boolean KVMSnapshotEnabled = false;
         String supportELB = "false";
         final List<NetworkVO> networks = networkDao.listSecurityGroupEnabledNetworks();
         if (networks != null && !networks.isEmpty()) {
@@ -8008,7 +7983,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 "The parameter %s cannot be set to true as JS interpretation is disabled",
                 paramName));
     }
-    
+
     /**
      * VM extraconfig에 디바이스 설정을 추가합니다.
      * PCI 디바이스와 동일한 방식으로 extraconfig-N 형태로 저장합니다.
@@ -8019,12 +7994,12 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         synchronized (getVmExtraConfigLock(vmId)) {
             try {
                 // 현재 시점의 최신 extraconfig 목록 가져오기
-                List<UserVmDetailVO> existingConfigs = _vmDetailsDao.listDetails(vmId);
+                List<VMInstanceDetailVO> existingConfigs = _vmInstanceDetailsDao.listDetails(vmId);
                 int nextConfigNum = 1;
                 Set<Integer> usedNums = new HashSet<>();
 
                 // 기존 extraconfig 번호들 수집
-                for (UserVmDetailVO detail : existingConfigs) {
+                for (VMInstanceDetailVO detail : existingConfigs) {
                     if (detail.getName().startsWith("extraconfig-")) {
                         try {
                             int num = Integer.parseInt(detail.getName().split("-")[1]);
@@ -8050,10 +8025,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 while (!success && retryCount < maxRetries) {
                     try {
                         // 다시 한 번 최신 상태 확인 (동시 할당 방지)
-                        List<UserVmDetailVO> latestConfigs = _vmDetailsDao.listDetails(vmId);
+                        List<VMInstanceDetailVO> latestConfigs = _vmInstanceDetailsDao.listDetails(vmId);
                         boolean keyExists = false;
 
-                        for (UserVmDetailVO detail : latestConfigs) {
+                        for (VMInstanceDetailVO detail : latestConfigs) {
                             if (extraConfigKey.equals(detail.getName())) {
                                 keyExists = true;
                                 break;
@@ -8071,7 +8046,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                         }
 
                         // 키 추가 시도
-                        _vmDetailsDao.addDetail(vmId, extraConfigKey, xmlConfig, true);
+                        _vmInstanceDetailsDao.addDetail(vmId, extraConfigKey, xmlConfig, true);
                         success = true;
 
                         logger.info("Added device {} configuration to VM {} with extraconfig key: {} (attempt {})",
@@ -8255,11 +8230,11 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
      */
     private void removeDeviceFromVmExtraConfig(Long vmId, String deviceName, String xmlConfig) {
         try {
-            List<UserVmDetailVO> existingConfigs = _vmDetailsDao.listDetails(vmId);
+            List<VMInstanceDetailVO> existingConfigs = _vmInstanceDetailsDao.listDetails(vmId);
             logger.info("Removing device {} from VM {} extraconfig, total configs: {}",
                        deviceName, vmId, existingConfigs.size());
 
-            for (UserVmDetailVO detail : existingConfigs) {
+            for (VMInstanceDetailVO detail : existingConfigs) {
                 if (detail.getName().startsWith("extraconfig-") && detail.getValue() != null) {
                     String value = detail.getValue();
                     boolean shouldRemove = false;
@@ -8311,7 +8286,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     }
 
                     if (shouldRemove) {
-                        _vmDetailsDao.remove(detail.getId());
+                        _vmInstanceDetailsDao.remove(detail.getId());
                         logger.info("Removed device {} configuration from VM {} extraconfig key: {} (reason: {})",
                                    deviceName, vmId, detail.getName(), matchReason);
                         break;

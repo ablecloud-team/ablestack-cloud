@@ -461,7 +461,7 @@ public class LinstorUtil {
                         } );
             }
         } catch (ApiException apiExc) {
-            s_logger.error(apiExc.getMessage());
+            LOGGER.error(apiExc.getMessage());
         }
         return false;
     }

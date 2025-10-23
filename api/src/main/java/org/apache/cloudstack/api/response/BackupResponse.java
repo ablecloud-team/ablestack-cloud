@@ -126,7 +126,7 @@ public class BackupResponse extends BaseResponse {
     @SerializedName(ApiConstants.IS_BACKUP_VM_EXPUNGED)
     @Param(description = "Indicates whether the VM from which the backup was taken is expunged or not", since = "4.22.0")
     private Boolean isVmExpunged;
-    
+
     @SerializedName(ApiConstants.SNAPSHOT_ID)
     @Param(description = "snapshot id")
     private String snapshotId;
@@ -318,7 +318,7 @@ public class BackupResponse extends BaseResponse {
     public void setVmExpunged(Boolean isVmExpunged) {
         this.isVmExpunged = isVmExpunged;
     }
-    
+
     public String getSanpshotId() {
         return snapshotId;
     }

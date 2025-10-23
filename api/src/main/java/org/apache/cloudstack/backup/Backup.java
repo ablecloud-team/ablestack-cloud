@@ -141,6 +141,13 @@ public interface Backup extends ControlledEntity, InternalIdentity, Identity {
             this.maxIops = maxIops;
         }
 
+        public VolumeInfo(String uuid, String path, Volume.Type type, Long size) {
+            this.uuid = uuid;
+            this.type = type;
+            this.size = size;
+            this.path = path;
+        }
+
         public String getUuid() {
             return uuid;
         }

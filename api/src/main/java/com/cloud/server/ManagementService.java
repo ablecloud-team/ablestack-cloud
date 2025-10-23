@@ -585,7 +585,7 @@ public interface ManagementService {
     LicenseCheckerResponse checkLicense(LicenseCheckCmd cmd);
 
     boolean removeManagementServer(RemoveManagementServerCmd cmd);
-    
+
     void checkJsInterpretationAllowedIfNeededForParameterValue(String paramName, boolean paramValue);
 
 }

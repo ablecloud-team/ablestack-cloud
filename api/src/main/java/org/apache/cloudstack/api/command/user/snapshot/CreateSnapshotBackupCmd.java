@@ -216,7 +216,7 @@ public class CreateSnapshotBackupCmd extends BaseAsyncCreateCmd {
 
     @Override
     public void create() throws ResourceAllocationException {
-        Snapshot snapshot = _volumeService.allocSnapshot(getVolumeId(), getPolicyId(), getSnapshotName(), getLocationType(), getZoneIds());
+        Snapshot snapshot = _volumeService.allocSnapshot(getVolumeId(), getPolicyId(), getSnapshotName(), getLocationType(), getZoneIds(), null, null);
         if (snapshot != null) {
             setEntityId(snapshot.getId());
             setEntityUuid(snapshot.getUuid());

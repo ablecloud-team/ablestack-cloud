@@ -338,7 +338,7 @@ public class HostResponse extends BaseResponseWithAnnotations {
     @SerializedName(ApiConstants.EXTENSION_NAME)
     @Param(description="The name of extension for this cluster", since = "4.21.0")
     private String extensionName;
-    
+
     @SerializedName(ApiConstants.MIGRATION_IP)
     @Param(description = "Live Migration Ip of the host", since = "4.21")
     private String migrationIp;

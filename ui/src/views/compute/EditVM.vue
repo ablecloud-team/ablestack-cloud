@@ -91,7 +91,6 @@
         <a-textarea v-model:value="form.userdata">
         </a-textarea>
       </a-form-item>
-      <a-form-item ref="securitygroupids" name="securitygroupids" :label="$t('label.security.groups')" v-if="securityGroupNetworkProviderUseThisVM">
       <a-form-item v-if="extraConfigEnabled">
         <template #label>
           <tooltip-label :title="$t('label.extraconfig')" :tooltip="$t('label.extraconfig.tooltip')"/>
@@ -101,6 +100,7 @@
       <a-form-item ref="securitygroupids" name="securitygroupids" :label="$t('label.security.groups')" v-if="securityGroupsEnabled">
         <a-select
           mode="multiple"
+          :placeholder="$t('label.select.security.groups')"
           v-model:value="form.securitygroupids"
           showSearch
           optionFilterProp="label"
@@ -425,7 +425,7 @@ export default {
           if (values.leaseexpiryaction !== undefined) {
             params.leaseexpiryaction = values.leaseexpiryaction
           }
-        }        
+        }
         if (values.extraconfig && values.extraconfig.length > 0) {
           params.extraconfig = encodeURIComponent(values.extraconfig)
         }

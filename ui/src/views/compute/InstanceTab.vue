@@ -272,7 +272,6 @@
 
 import { getAPI, postAPI } from '@/api'
 import { h } from 'vue'
-import { api } from '@/api'
 import { mixinDevice } from '@/utils/mixin.js'
 import ResourceLayout from '@/layouts/ResourceLayout'
 import DetailsTab from '@/components/view/DetailsTab'
@@ -587,13 +586,13 @@ export default {
         }
 
         // 모든 호스트 목록 가져오기
-        const hostsResponse = await api('listHosts', {})
+        const hostsResponse = await getAPI('listHosts', {})
         const hosts = hostsResponse?.listhostsresponse?.host || []
 
         // 각 호스트에서 디바이스 할당 정보 확인
         for (const host of hosts) {
           try {
-            const response = await api('listHostDevices', { id: host.id })
+            const response = await getAPI('listHostDevices', { id: host.id })
 
             // API 응답 에러 확인 (530 에러는 지원되지 않는 명령)
             if (response?.listhostdevicesresponse?.errorcode === 530) {
@@ -655,13 +654,13 @@ export default {
         }
 
         // 모든 호스트 목록 가져오기
-        const hostsResponse = await api('listHosts', {})
+        const hostsResponse = await getAPI('listHosts', {})
         const hosts = hostsResponse?.listhostsresponse?.host || []
 
         // 각 호스트에서 USB 디바이스 할당 정보 확인
         for (const host of hosts) {
           try {
-            const usbRes = await api('listHostUsbDevices', { id: host.id })
+            const usbRes = await getAPI('listHostUsbDevices', { id: host.id })
 
             // API 응답 에러 확인 (530 에러는 지원되지 않는 명령)
             if (usbRes?.listhostusbdevicesresponse?.errorcode === 530) {
@@ -717,13 +716,13 @@ export default {
         }
 
         // 모든 호스트 목록 가져오기
-        const hostsResponse = await api('listHosts', {})
+        const hostsResponse = await getAPI('listHosts', {})
         const hosts = hostsResponse?.listhostsresponse?.host || []
 
         // 각 호스트에서 LUN 디바이스 할당 정보 확인
         for (const host of hosts) {
           try {
-            const lunRes = await api('listHostLunDevices', { id: host.id })
+            const lunRes = await getAPI('listHostLunDevices', { id: host.id })
 
             // API 응답 에러 확인 (530 에러는 지원되지 않는 명령)
             if (lunRes?.listhostlundevicesresponse?.errorcode === 530) {
@@ -781,14 +780,14 @@ export default {
         // VM이 실제로 가지고 있는 모든 HBA 디바이스를 찾기 위해 모든 호스트를 검색
 
         // 모든 호스트 목록 가져오기
-        const hostsResponse = await api('listHosts', {})
+        const hostsResponse = await getAPI('listHosts', {})
         const hosts = hostsResponse?.listhostsresponse?.host || []
 
         // HBA API 지원 여부를 먼저 확인
         let hbaApiSupported = false
         for (const host of hosts) {
           try {
-            const testRes = await api('listHostHbaDevices', { id: host.id })
+            const testRes = await getAPI('listHostHbaDevices', { id: host.id })
             if (!testRes?.listhosthbadevicesresponse?.errorcode) {
               hbaApiSupported = true
               break
@@ -808,7 +807,7 @@ export default {
         // 각 호스트에서 HBA 디바이스 할당 정보 확인
         for (const host of hosts) {
           try {
-            const hbaRes = await api('listHostHbaDevices', { id: host.id })
+            const hbaRes = await getAPI('listHostHbaDevices', { id: host.id })
 
             // API 응답에서 에러 코드 확인 (530 에러는 지원되지 않는 명령)
             if (hbaRes?.listhosthbadevicesresponse?.errorcode === 530) {
@@ -868,14 +867,14 @@ export default {
         // VM이 실제로 가지고 있는 모든 VHBA 디바이스를 찾기 위해 모든 호스트를 검색
 
         // 모든 호스트 목록 가져오기
-        const hostsResponse = await api('listHosts', {})
+        const hostsResponse = await getAPI('listHosts', {})
         const hosts = hostsResponse?.listhostsresponse?.host || []
 
         // VHBA API 지원 여부를 먼저 확인
         let vhbaApiSupported = false
         for (const host of hosts) {
           try {
-            const testRes = await api('listVhbaDevices', { hostid: host.id })
+            const testRes = await getAPI('listVhbaDevices', { hostid: host.id })
             if (!testRes?.listvhbadevicesresponse?.errorcode) {
               vhbaApiSupported = true
               break
@@ -895,7 +894,7 @@ export default {
         // 각 호스트에서 VHBA 디바이스 할당 정보 확인
         for (const host of hosts) {
           try {
-            const vhbaRes = await api('listVhbaDevices', { hostid: host.id })
+            const vhbaRes = await getAPI('listVhbaDevices', { hostid: host.id })
 
             // API 응답에서 에러 코드 확인 (530 에러는 지원되지 않는 명령)
             if (vhbaRes?.listvhbadevicesresponse?.errorcode === 530) {
@@ -953,14 +952,14 @@ export default {
         }
 
         // 모든 호스트 목록 가져오기
-        const hostsResponse = await api('listHosts', {})
+        const hostsResponse = await getAPI('listHosts', {})
         const hosts = hostsResponse?.listhostsresponse?.host || []
 
         // SCSI API 지원 여부를 먼저 확인
         let scsiApiSupported = false
         for (const host of hosts) {
           try {
-            const testRes = await api('listHostScsiDevices', { id: host.id })
+            const testRes = await getAPI('listHostScsiDevices', { id: host.id })
             if (!testRes?.listhostscsidevicesresponse?.errorcode) {
               scsiApiSupported = true
               break
@@ -980,7 +979,7 @@ export default {
         // 각 호스트에서 SCSI 디바이스 할당 정보 확인
         for (const host of hosts) {
           try {
-            const scsiRes = await api('listHostScsiDevices', { id: host.id })
+            const scsiRes = await getAPI('listHostScsiDevices', { id: host.id })
 
             // API 응답에서 에러 코드 확인 (530 에러는 지원되지 않는 명령)
             if (scsiRes?.listhostscsidevicesresponse?.errorcode === 530) {
