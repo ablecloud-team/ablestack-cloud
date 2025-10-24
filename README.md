@@ -1,4 +1,33 @@
-# Apache CloudStack [![Build Status](https://github.com/apache/cloudstack/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/apache/cloudstack/actions/workflows/build.yml) [![UI Build](https://github.com/apache/cloudstack/actions/workflows/ui.yml/badge.svg)](https://github.com/apache/cloudstack/actions/workflows/ui.yml) [![License Check](https://github.com/apache/cloudstack/actions/workflows/rat.yml/badge.svg?branch=main)](https://github.com/apache/cloudstack/actions/workflows/rat.yml) [![Simulator CI](https://github.com/apache/cloudstack/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/apache/cloudstack/actions/workflows/ci.yml) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=apache_cloudstack&metric=alert_status)](https://sonarcloud.io/dashboard?id=apache_cloudstack) [![codecov](https://codecov.io/gh/apache/cloudstack/branch/main/graph/badge.svg)](https://codecov.io/gh/apache/cloudstack)
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ -->
+
+# Apache CloudStack
+
+[![Build Status](https://github.com/apache/cloudstack/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/apache/cloudstack/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/apache/cloudstack/branch/main/graph/badge.svg)](https://codecov.io/gh/apache/cloudstack)
+[![Docker CloudStack Simulator Status](https://github.com/apache/cloudstack/actions/workflows/docker-cloudstack-simulator.yml/badge.svg?branch=main)](https://github.com/apache/cloudstack/actions/workflows/docker-cloudstack-simulator.yml)
+[![License Check](https://github.com/apache/cloudstack/actions/workflows/rat.yml/badge.svg?branch=main)](https://github.com/apache/cloudstack/actions/workflows/rat.yml)
+[![Linter Status](https://github.com/apache/cloudstack/actions/workflows/linter.yml/badge.svg)](https://github.com/apache/cloudstack/actions/workflows/linter.yml)
+[![Merge Conflict Checker Status](https://github.com/apache/cloudstack/actions/workflows/merge-conflict-checker.yml/badge.svg?branch=main)](https://github.com/apache/cloudstack/actions/workflows/merge-conflict-checker.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=apache_cloudstack&metric=alert_status)](https://sonarcloud.io/dashboard?id=apache_cloudstack)
+[![Simulator CI](https://github.com/apache/cloudstack/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/apache/cloudstack/actions/workflows/ci.yml)
+[![UI Build](https://github.com/apache/cloudstack/actions/workflows/ui.yml/badge.svg?branch=main)](https://github.com/apache/cloudstack/actions/workflows/ui.yml)
 
 [![Apache CloudStack](tools/logo/apache_cloudstack.png)](https://cloudstack.apache.org/)
 
