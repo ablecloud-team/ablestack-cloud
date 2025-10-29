@@ -56,7 +56,8 @@ public final class LibvirtRestoreVMSnapshotCommandWrapper extends CommandWrapper
                 return new RestoreVMSnapshotAnswer(cmd, false,
                         "Restore VM Snapshot Failed due to can not find vm: " + vmName);
             }
-            String xmlDesc = dm.getXMLDesc(0);
+            final int XML_SECURE = 1; // Domain.XML_SECURE
+            String xmlDesc = dm.getXMLDesc(XML_SECURE);  // SECURE XML 사용 (graphics passwd 포함)
 
             List<VMSnapshotTO> snapshots = cmd.getSnapshots();
             Map<Long, VMSnapshotTO> snapshotAndParents = cmd.getSnapshotAndParents();
