@@ -24,11 +24,17 @@ public class PauseWallAlertRuleCmd extends BaseCmd {
 
     public static final String APINAME = "pauseWallAlertRule";
 
-    // ✅ Optional 로 수정
+    // (호환) dashUid:panelId
     @Parameter(name = ApiConstants.ID, type = CommandType.STRING, required = false,
             description = "ID in the form 'dashboardUid:panelId' (e.g., dec041amqw4cge:77)")
     private String id;
 
+    // ★ 신규: UID 전용(프런트 사용)
+    @Parameter(name = "uid", type = CommandType.STRING, required = false,
+            description = "Grafana rule UID to pause/resume (preferred).")
+    private String uid;
+
+    // (선택 힌트: 옛 경로)
     @Parameter(name = "namespace", type = CommandType.STRING, required = false,
             description = "Folder / namespace hint (name or uid)")
     private String namespace;
@@ -37,8 +43,9 @@ public class PauseWallAlertRuleCmd extends BaseCmd {
             description = "Ruler group name")
     private String group;
 
+    // (호환) 과거 클라이언트가 쓰던 이름
     @Parameter(name = "ruleUid", type = CommandType.STRING, required = false,
-            description = "Grafana alert rule UID (preferred)")
+            description = "[Deprecated] Use 'uid' instead.")
     private String ruleUid;
 
     @Parameter(name = "paused", type = CommandType.BOOLEAN, required = true,
@@ -49,6 +56,7 @@ public class PauseWallAlertRuleCmd extends BaseCmd {
     public String getNamespace() { return namespace; }
     public String getGroup() { return group; }
     public String getRuleUid() { return ruleUid; }
+    public String getUid() { return uid; } // ★ 추가
     public Boolean getPaused() { return paused; }
 
     @Inject
@@ -60,19 +68,23 @@ public class PauseWallAlertRuleCmd extends BaseCmd {
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "'paused' is required");
         }
 
+        // ★ uid 우선, ruleUid는 호환용 폴백
+        final String effectiveUid = (uid != null && !uid.isBlank()) ? uid
+                : (ruleUid != null && !ruleUid.isBlank() ? ruleUid : null);
+
         final boolean ok;
-        if (id != null && !id.isBlank()) {
+        if (effectiveUid != null) {
+            ok = wallAlertsService.pauseWallAlertRuleByUid(effectiveUid, paused);
+        } else if (id != null && !id.isBlank()) {
+            // 레거시 호환: id=dashUid:panelId
             ok = wallAlertsService.pauseWallAlertRuleById(id, paused);
-        } else if (ruleUid != null && !ruleUid.isBlank()   // ruleUid만으로도 허용
-                && (namespace == null || namespace.isBlank())
-                && (group == null || group.isBlank())) {
-            ok = wallAlertsService.pauseWallAlertRuleByUid(ruleUid, paused);
         } else {
+            // 완전 레거시 루트(ns+group+ruleUid) — 유지하되 메시지 갱신
             if (namespace == null || namespace.isBlank()
                     || group == null || group.isBlank()
                     || ruleUid == null || ruleUid.isBlank()) {
                 throw new ServerApiException(ApiErrorCode.PARAM_ERROR,
-                        "Provide 'id', or just 'ruleUid', or full 'namespace','group','ruleUid'.");
+                        "Provide 'uid' (preferred), or 'id', or full triple 'namespace','group','ruleUid'.");
             }
             ok = wallAlertsService.pauseWallAlertRule(namespace, group, ruleUid, paused);
         }

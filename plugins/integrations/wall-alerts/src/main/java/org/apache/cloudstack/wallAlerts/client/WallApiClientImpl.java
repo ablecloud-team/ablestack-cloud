@@ -683,12 +683,120 @@ public class WallApiClientImpl implements WallApiClient {
         }
         final String enc = URLEncoder.encode(silenceId, StandardCharsets.UTF_8);
         final String url = baseUrl + "/api/alertmanager/grafana/api/v2/silence/" + enc;
-        final boolean ok = trySend(url, "DELETE", null, null);
+        final boolean ok = tryDelete(url);
         if (!ok) {
             throw new RuntimeException("Failed to expire silence: " + silenceId);
         }
         if (LOG.isDebugEnabled()) {
             LOG.debug("[Silences] expired {}");
+        }
+    }
+
+    @Override
+    public SilenceDto createSilence(final WallApiClient.SilenceCreateRequest req) {
+        if (req == null) {
+            throw new IllegalArgumentException("SilenceCreateRequest must not be null");
+        }
+        final String url = baseUrlNow() + "/api/alertmanager/grafana/api/v2/silences";
+
+        try {
+            // 1) Alertmanager v2 스키마에 맞게 안전하게 바디 구성
+            final ObjectNode root = om.createObjectNode();
+
+            // 시작/종료 시간은 ISO-8601 문자열로 보냅니다.
+            if (req.getStartsAt() != null) root.put("startsAt", req.getStartsAt().toString());
+            if (req.getEndsAt()   != null) root.put("endsAt",   req.getEndsAt().toString());
+
+            if (req.getCreatedBy() != null && !req.getCreatedBy().isBlank()) {
+                root.put("createdBy", req.getCreatedBy());
+            }
+            if (req.getComment() != null && !req.getComment().isBlank()) {
+                root.put("comment", req.getComment());
+            }
+            if (req.getMetadata() != null && !req.getMetadata().isEmpty()) {
+                root.set("metadata", om.valueToTree(req.getMetadata()));
+            }
+
+            // matchers: key → name 보정, 기본값 보강
+            final ArrayNode matchers = om.createArrayNode();
+            if (req.getMatchers() != null) {
+                for (org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto m : req.getMatchers()) {
+                    if (m == null) continue;
+                    final ObjectNode mo = om.valueToTree(m);
+
+                    // Alertmanager는 name/value/isRegex/(isEqual) 을 기대합니다.
+                    if (mo.has("key") && !mo.has("name")) {
+                        mo.set("name", mo.get("key"));
+                        mo.remove("key");
+                    }
+                    if (!mo.has("isRegex")) mo.put("isRegex", false);
+                    if (!mo.has("isEqual")) mo.put("isEqual", true);
+
+                    final String name  = mo.path("name").asText(null);
+                    final String value = mo.path("value").asText(null);
+                    if (name == null || name.isBlank() || value == null || value.isBlank()) continue;
+
+                    matchers.add(mo);
+                }
+            }
+            root.set("matchers", matchers);
+
+            final String payload = root.toString();
+
+            // 2) POST 요청 (기존 헤더 정책 유지)
+            final HttpRequest.Builder rb = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofMillis(readTimeoutMs))
+                    .header("Accept", "application/json")
+                    .header("Content-Type", "application/json; charset=utf-8")
+                    .header("X-Grafana-Org-Id", "1")
+                    .header("X-Scope-OrgID", "1");
+
+            String b = null;
+            try { b = bearerNow(); } catch (Throwable ignore) {}
+            if (b == null || b.isBlank()) b = bearer;
+            if (b != null && !b.isBlank()) {
+                rb.header("Authorization", "Bearer " + b);
+            }
+
+            final HttpRequest httpReq = rb
+                    .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8))
+                    .build();
+
+            final HttpResponse<String> res = http.send(httpReq, HttpResponse.BodyHandlers.ofString());
+            final int sc = res.statusCode();
+            if (sc < 200 || sc >= 300) {
+                final String preview = res.body() == null ? "null" : trimBody(res.body(), 300);
+                LOG.warn("[Silence][create] POST " + url + " -> " + sc + " (preview: " + preview + ")");
+                throw new RuntimeException("Failed to create silence: HTTP " + sc);
+            }
+
+            // 3) 응답 처리: 바디 우선, 없으면 Location 헤더로 재조회
+            final String body = res.body();
+            if (body != null && !body.isBlank()) {
+                return om.readValue(body, SilenceDto.class);
+            }
+
+            final String loc = res.headers().firstValue("Location").orElse(null);
+            if (loc != null && !loc.isBlank()) {
+                String id = null;
+                try {
+                    final int p = loc.lastIndexOf('/');
+                    if (p >= 0) id = loc.substring(p + 1);
+                } catch (Exception ignore) { /* no-op */ }
+                if (id != null && !id.isBlank()) {
+                    final SilenceDto dto = getSilence(id, false, false);
+                    if (dto != null) return dto;
+                }
+            }
+
+            throw new RuntimeException("Failed to create silence: empty response");
+
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            LOG.warn("[Silence][create] failed: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to create silence: " + e.getMessage(), e);
         }
     }
 
@@ -1310,6 +1418,39 @@ public class WallApiClientImpl implements WallApiClient {
             return false;
         } catch (Exception e) {
             LOG.warn("[Ruler][send] {} {} failed: {}");
+            return false;
+        }
+    }
+
+    private boolean tryDelete(final String url) {
+        try {
+            final HttpRequest.Builder rb = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofMillis(readTimeoutMs))
+                    .header("Accept", "application/json")
+                    .header("X-Grafana-Org-Id", "1")
+                    .header("X-Scope-OrgID", "1");
+
+            String b = null;
+            try { b = bearerNow(); } catch (Throwable ignore) {}
+            if (b == null || b.isBlank()) b = bearer;
+            if (b != null && !b.isBlank()) {
+                rb.header("Authorization", "Bearer " + b);
+            }
+
+            final HttpResponse<String> res = http.send(rb.DELETE().build(), HttpResponse.BodyHandlers.ofString());
+            final int sc = res.statusCode();
+            if (sc >= 200 && sc < 300) { // 200/202 모두 성공 처리
+                LOG.info("[Ruler][delete] {} -> {}");
+                return true;
+            }
+            return false;
+
+        } catch (IllegalArgumentException iae) {
+            LOG.warn("[Ruler][delete] invalid URI for {} ({})");
+            return false;
+        } catch (Exception e) {
+            LOG.warn("[Ruler][delete] {} failed: {}");
             return false;
         }
     }

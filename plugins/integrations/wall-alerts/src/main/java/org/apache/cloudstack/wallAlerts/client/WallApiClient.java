@@ -55,7 +55,53 @@ public interface WallApiClient {
      * @param silenceId silence id
      */
     void expireSilence(String silenceId);
+    /**
+     * Alertmanager v2 사일런스를 생성합니다.
+     * 구현체는 POST /api/alertmanager/grafana/api/v2/silences 로 전송합니다.
+     */
+    SilenceDto createSilence(SilenceCreateRequest req);
 
+    // -------------------- DTOs (Alertmanager: create request) --------------------
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    final class SilenceCreateRequest {
+        /** 사일런스 시작 시각(미지정 시 now()를 서비스 계층에서 채웁니다) */
+        private OffsetDateTime startsAt;
+
+        /** 사일런스 종료 시각(시작 + durationMinutes로 서비스 계층에서 채웁니다) */
+        private OffsetDateTime endsAt;
+
+        /** 매칭 조건(UID 우선: __alert_rule_uid__, 필요 시 alertname/instance 등) */
+        private List<org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto> matchers;
+
+        /** 생성자(감사 목적) */
+        private String createdBy;
+
+        /** 코멘트(감사 목적) */
+        private String comment;
+
+        /** 선택 메타데이터(서버가 무시해도 무해, 추적용) */
+        private Map<String, String> metadata;
+
+        // ---------- Getters/Setters ----------
+        public OffsetDateTime getStartsAt() { return startsAt; }
+        public void setStartsAt(final OffsetDateTime startsAt) { this.startsAt = startsAt; }
+
+        public OffsetDateTime getEndsAt() { return endsAt; }
+        public void setEndsAt(final OffsetDateTime endsAt) { this.endsAt = endsAt; }
+
+        public List<org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto> getMatchers() { return matchers; }
+        public void setMatchers(final List<org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto> matchers) { this.matchers = matchers; }
+
+        public String getCreatedBy() { return createdBy; }
+        public void setCreatedBy(final String createdBy) { this.createdBy = createdBy; }
+
+        public String getComment() { return comment; }
+        public void setComment(final String comment) { this.comment = comment; }
+
+        public Map<String, String> getMetadata() { return metadata; }
+        public void setMetadata(final Map<String, String> metadata) { this.metadata = metadata; }
+    }
 
 
     // -------------------- DTOs (Rules API) --------------------

@@ -21,7 +21,7 @@
     :loading="loading"
     :columns="isOrderUpdatable() ? columns : columns.filter(x => x.dataIndex !== 'order')"
     :dataSource="items"
-    :rowKey="(record, idx) => record.id || record.name || record.usageType || idx + '-' + Math.random()"
+    :rowKey="(record, idx) => record.uid || (record.metadata && record.metadata.rule_uid) || record.id || record.name || record.usageType || (idx + '-' + Math.random())"
     :pagination="false"
     :rowSelection="explicitlyAllowRowSelection || enableGroupAction() || $route.name === 'event' ? {selectedRowKeys: selectedRowKeys, onChange: onSelectChange, columnWidth: 30} : null"
     :rowClassName="getRowClassName"
@@ -77,9 +77,15 @@
             <router-link :to="{ path: $route.path + '/' + record.name , query: { account: record.account, domainid: record.domainid }}" >{{ $t(text.toLowerCase()) }}</router-link>
           </span>
           <span v-else-if="$route.path.startsWith('/globalsetting')">{{ text }}</span>
+          <span v-else-if="$route.path.startsWith('/alertRules')">
+            <router-link :to="{ path: $route.path + '/' + (record.uid || record.id || record.name) }">
+              {{ text }}
+            </router-link>
+          </span>
           <span v-else-if="$route.path.startsWith('/alert')">
-            <router-link :to="{ path: $route.path + '/' + record.id }" v-if="record.id">{{ $t(text.toLowerCase()) }}</router-link>
-            <router-link :to="{ path: $route.path + '/' + record.name }" v-else>{{ $t(text.toLowerCase()) }}</router-link>
+            <router-link :to="{ path: $route.path + '/' + (record.id || record.name) }">
+              {{ $t(text.toLowerCase()) }}
+            </router-link>
           </span>
           <span v-else-if="$route.path.startsWith('/tungstenfabric')">
             <router-link :to="{ path: $route.path + '/' + record.id }" v-if="record.id">{{ $t(text.toLowerCase()) }}</router-link>

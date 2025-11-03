@@ -50,6 +50,9 @@ public class ListWallAlertRulesCmd extends BaseListCmd {
             description = "Rule identifier (e.g., dashboardUid:panelId) to filter by")
     private String id;
 
+    @Parameter(name = "uid", type = CommandType.STRING, description = "Grafana rule UID")
+    private String uid;
+
     @Parameter(name = ApiConstants.KEYWORD, type = CommandType.STRING,
             description = "Keyword to search (applies to name/group/query/operator/threshold)")
     private String keyword;
@@ -80,6 +83,7 @@ public class ListWallAlertRulesCmd extends BaseListCmd {
 
     // ---------- Getters ----------
     public String getId() { return id; }
+    public String getUid() { return id; }
     public String getKeyword() { return keyword; }
     public String getName() { return name; }
     public String getState() { return state; }

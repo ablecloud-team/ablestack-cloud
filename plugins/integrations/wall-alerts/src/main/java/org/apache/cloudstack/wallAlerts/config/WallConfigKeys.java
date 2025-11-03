@@ -11,7 +11,7 @@ public final class WallConfigKeys {
 
     public static final ConfigKey<String> WALL_BASE_URL =
             new ConfigKey<>("Advanced", String.class, "wall.base.url", "http://localhost:3000",
-                    "Base URL of Wall.", true, WALL_ALERT_ENABLED.key());
+                    "Base URL of Wall.", false, WALL_ALERT_ENABLED.key());
 
     public static final ConfigKey<String> WALL_API_TOKEN =
             new ConfigKey<>("Secure", String.class, "wall.api.token", "",

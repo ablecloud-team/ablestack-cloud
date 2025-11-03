@@ -48,7 +48,7 @@
     size="small"
     :dataSource="fetchDetails()">
     <template #renderItem="{item}">
-      <a-list-item v-if="(item in dataResource && !customDisplayItems.includes(item)) || (offeringDetails.includes(item) && dataResource.serviceofferingdetails)">
+      <a-list-item v-if="(item in dataResource && !customDisplayItems.includes(item)) || (offeringDetails.includes(item) && dataResource.serviceofferingdetails)|| ($route.path.includes('/alertRules') && ['summary', 'description'].includes(item))">
         <div style="width: 100%">
           <strong>{{ item === 'service' ? $t('label.supportedservices') : $t(getDetailTitle(item)) }}</strong>
           <a-tooltip v-if="['volume', 'snapshot', 'template', 'iso'].includes($route.meta.name) && item === 'usedfsbytes'"><template #title>{{ $t('message.usedfsbytes') }}</template><QuestionCircleOutlined style="margin-left: 8px;"/></a-tooltip>
@@ -164,9 +164,10 @@
           <div v-else-if="item === 'usersource'">
             {{ $t(getUserSourceLabel(dataResource[item])) }}
           </div>
-          <div v-else-if="['summary', 'description'].includes(item)">
-            <div v-if="dataResource[item]" v-html="dataResource[item]"></div>
-            <span v-else>—</span>
+          <div v-else-if="item === 'summary' || item === 'description'">
+            <div :class="{ preline: $route.path.startsWith('/alertRules') }">
+              {{ getSummaryOrDescriptionPlain(item) }}
+            </div>
           </div>
           <!-- 연산자 라벨(기호 X) -->
           <div v-else-if="$route.path.includes('/alertRules') && item === 'operator'">
@@ -410,6 +411,9 @@ export default {
     if (['host'].includes(this.$route.meta.name)) {
       this.fetchLicenseInfo()
     }
+    if (this.$route.path.includes('/alertRules')) {
+      this.ensureAlertRuleLoaded()
+    }
   },
   watch: {
     resource: {
@@ -419,12 +423,14 @@ export default {
         if ('account' in this.dataResource && this.dataResource.account.startsWith('PrjAcct-')) {
           this.projectname = this.dataResource.account.substring(this.dataResource.account.indexOf('-') + 1, this.dataResource.account.lastIndexOf('-'))
           this.dataResource.projectname = this.projectname
+          this.ensureAlertRuleLoaded()
         }
       }
     },
     $route () {
       this.dedicatedSectionActive = this.dedicatedRoutes.includes(this.$route.meta.name)
       this.fetchProjectAdmins()
+      this.ensureAlertRuleLoaded()
     }
   },
   methods: {
@@ -587,7 +593,104 @@ export default {
       if (o === 'lt' || o === 'lte') return `${v1} ${below}`
 
       return v2 ? `${v1}-${v2}` : v1
+    },
+    // ▼ 추가: uid로 들어온 경우 스스로 단건을 로드해 dataResource를 보정
+    async ensureAlertRuleLoaded () {
+      // /alertRules 상세 화면에서만 동작
+      if (!this.$route.path.startsWith('/alertRules')) return
+
+      const routeKey = String(this.$route.params.id || '')
+      if (!routeKey) return
+
+      // 이미 prop으로 받은 resource가 일치하면 그대로 사용
+      const r = this.resource || {}
+      const currUid = r?.metadata?.rule_uid || r?.uid
+      if (r && (r.id === routeKey || currUid === routeKey || r.name === routeKey)) {
+        this.dataResource = r
+        return
+      }
+
+      const takeFirst = (res) => {
+        const list =
+          res?.listwallalertrulesresponse?.wallalertrule ||
+          res?.listwallalertrulesresponse?.wallalertruleresponse || []
+        return Array.isArray(list) && list.length ? list[0] : null
+      }
+
+      try {
+        let found = null
+
+        // 1) uid로 조회 (routeKey에 ':' 없으면 uid로 간주)
+        if (!routeKey.includes(':')) {
+          const r1 = await api('listWallAlertRules', {
+            listall: true, page: 1, pagesize: 1, uid: routeKey
+          })
+          found = takeFirst(r1)
+        }
+
+        // 2) id로 조회 (콜론 포함 키 or 1단계 실패시)
+        if (!found) {
+          const r2 = await api('listWallAlertRules', {
+            listall: true, page: 1, pagesize: 1, id: routeKey
+          })
+          found = takeFirst(r2)
+        }
+
+        // 3) 최종 폴백: 전체 받아서 프론트에서 uid/id/name 매칭
+        if (!found) {
+          const r3 = await api('listWallAlertRules', {
+            listall: true, page: 1, pagesize: 2000
+          })
+          const all =
+            r3?.listwallalertrulesresponse?.wallalertrule ||
+            r3?.listwallalertrulesresponse?.wallalertruleresponse || []
+          found = all.find(x =>
+            x?.uid === routeKey ||
+            x?.metadata?.rule_uid === routeKey ||
+            x?.id === routeKey ||
+            x?.name === routeKey
+          )
+        }
+
+        if (found) {
+          this.dataResource = found
+        } else {
+          this.$notification.warning({
+            message: '규칙을 찾지 못했습니다',
+            description: `키=${routeKey} 에 해당하는 항목이 없습니다.`
+          })
+        }
+      } catch (e) {
+        // 조용히 실패 처리(콘솔만)
+        /* eslint-disable no-console */
+        console.warn('[DetailsTab] ensureAlertRuleLoaded failed:', e)
+        /* eslint-enable no-console */
+      }
+    },
+    getSummaryOrDescriptionPlain (key) {
+      const hasValue = (v) => v !== null && v !== undefined && v !== ''
+      const top = this.dataResource && this.dataResource[key]
+      if (hasValue(top)) {
+        return String(top)
+      }
+      const ann = this.dataResource && this.dataResource.annotations ? this.dataResource.annotations : {}
+      if (key === 'summary') {
+        const v = ann.summary || ann.__summary__ || ann.message || ''
+        return hasValue(v) ? String(v) : '—'
+      }
+      if (key === 'description') {
+        const v = ann.description || ann.__description__ || ''
+        return hasValue(v) ? String(v) : '—'
+      }
+      return '—'
     }
   }
 }
 </script>
+
+<style scoped>
+.preline {
+  white-space: pre-line;
+  word-break: break-word;
+}
+</style>

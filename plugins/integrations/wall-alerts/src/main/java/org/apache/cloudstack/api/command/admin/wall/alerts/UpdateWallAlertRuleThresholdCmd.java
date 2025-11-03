@@ -32,9 +32,13 @@ public class UpdateWallAlertRuleThresholdCmd extends BaseCmd {
     @Inject
     private WallAlertsService wallAlertsService;
 
-    @Parameter(name = "id", type = CommandType.STRING, required = true,
+    @Parameter(name = "id", type = CommandType.STRING, required = false,
             description = "Rule key in 'group:title' format")
     private String id;
+
+    @Parameter(name = ApiConstants.UID, type = CommandType.STRING, required = true,
+            description = "권장 방식: Grafana alert rule UID")
+    private String uid;
 
     @Parameter(name = ApiConstants.OPERATOR, type = CommandType.STRING, required = true,
             description = "Threshold operator (gt, lt, between, outside)")
@@ -61,17 +65,19 @@ public class UpdateWallAlertRuleThresholdCmd extends BaseCmd {
     @Override
     public void execute() throws ServerApiException {
         try {
-            final WallAlertRuleResponse response = wallAlertsService.updateWallAlertRuleThreshold(this);
-            response.setResponseName(getCommandName());
-            setResponseObject(response);
-        } catch (IllegalArgumentException iae) {
-            throw new ServerApiException(ApiErrorCode.PARAM_ERROR, iae.getMessage());
+            if ((id == null || id.isBlank()) && (uid == null || uid.isBlank())) {
+                throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "id 또는 uid 중 하나는 필수입니다.");
+            }
+            final WallAlertRuleResponse resp = wallAlertsService.updateWallAlertRuleThreshold(this);
+            setResponseObject(resp);
+            resp.setResponseName(getCommandName());
         } catch (RuntimeException re) {
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, re.getMessage());
         }
     }
 
     public String getId() { return id; }
+    public String getUid() { return uid; }
     public String getOperator() {
         return operator;
     }

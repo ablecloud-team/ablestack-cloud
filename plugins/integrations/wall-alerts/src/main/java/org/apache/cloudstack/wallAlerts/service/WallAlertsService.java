@@ -2,6 +2,7 @@ package org.apache.cloudstack.wallAlerts.service;
 
 import com.cloud.utils.component.Manager;
 import com.cloud.utils.component.PluggableService;
+import org.apache.cloudstack.api.command.admin.wall.alerts.CreateWallAlertSilenceCmd;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.WallAlertRuleResponse;
 import org.apache.cloudstack.api.command.admin.wall.alerts.ListWallAlertRulesCmd;
@@ -29,4 +30,5 @@ public interface WallAlertsService extends Manager, PluggableService, Configurab
 
     ListResponse<WallSilenceResponse> listWallAlertSilences(ListWallAlertSilencesCmd cmd);
     SuccessResponse expireWallAlertSilence(ExpireWallAlertSilenceCmd cmd);
+    WallSilenceResponse createWallAlertSilence(CreateWallAlertSilenceCmd cmd);
 }

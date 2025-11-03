@@ -3,6 +3,7 @@ package org.apache.cloudstack.wallAlerts.service;
 import com.cloud.utils.component.ManagerBase;
 import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.ServerApiException;
+import org.apache.cloudstack.api.command.admin.wall.alerts.CreateWallAlertSilenceCmd;
 import org.apache.cloudstack.api.command.admin.wall.alerts.ExpireWallAlertSilenceCmd;
 import org.apache.cloudstack.api.command.admin.wall.alerts.ListWallAlertRulesCmd;
 import org.apache.cloudstack.api.command.admin.wall.alerts.ListWallAlertSilencesCmd;
@@ -69,7 +70,11 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
 
     @Override
     public ListResponse<WallAlertRuleResponse> listWallAlertRules(final ListWallAlertRulesCmd cmd) {
-        final String cacheKey = buildRulesCacheKey(cmd);
+        // ★ UID 전용 필터
+        final String uidFilter = cmd.getUid();
+
+        // 캐시 키에 uid 반영(최소 변경: 기존 키에 덧붙임)
+        final String cacheKey = buildRulesCacheKey(cmd) + "|uid=" + (uidFilter == null ? "" : uidFilter);
         final long now = System.currentTimeMillis();
 
         // 1) 캐시 확인 (같은 필터면 TTL 동안 wall API 재호출 안 함)
@@ -80,11 +85,38 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                     && now < WALL_RULES_CACHE_EXPIRES_AT) {
                 base = WALL_RULES_CACHE_LIST;
             } else {
-                // ===== 새로 빌드(정렬 없음, 네가 준 코드 그대로) =====
+                // ===== 새로 빌드(정렬 없음, 기존 흐름 유지) =====
                 final GrafanaRulesResponse rulesNow = wallApiClient.fetchRules();
+                final RulerRulesResponse rulerAll = wallApiClient.fetchRulerRules();
                 final ThresholdIndex tIndex = buildThresholdIndexSafe();
 
-                final String idFilter    = cmd.getId();
+                final Map<String, SilenceDto> activeSilenceByUid = new HashMap<>();
+                try {
+                    final List<SilenceDto> activeSilences = wallApiClient.listSilences("active");
+                    if (activeSilences != null) {
+                        final OffsetDateTime nowTs = OffsetDateTime.now();
+                        for (final SilenceDto s : activeSilences) {
+                            final String uid = silenceRuleUid(s); // 이미 클래스에 구현되어 있음
+                            if (uid == null || uid.isBlank()) continue;
+
+                            // 시간상 지금 활성인지 최종 체크 (API가 active를 주더라도 안전망)
+                            final OffsetDateTime st = s.getStartsAt();
+                            final OffsetDateTime en = s.getEndsAt();
+                            final boolean isActive = (st == null || !nowTs.isBefore(st)) && (en == null || nowTs.isBefore(en));
+                            if (!isActive) continue;
+
+                            // 여러 개면 "가장 빨리 끝나는" 사일런스를 선택 (UI 표시가 직관적)
+                            final SilenceDto prev = activeSilenceByUid.get(uid);
+                            if (prev == null || (prev.getEndsAt() != null && en != null && en.isBefore(prev.getEndsAt()))) {
+                                activeSilenceByUid.put(uid, s);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    LOG.warn("[Wall][Silence] active list fetch failed: " + e.getMessage(), e);
+                }
+
+                // 기존 필터 (id 제외)
                 final String nameFilter  = cmd.getName();
                 final String stateFilter = cmd.getState();
                 final String kindFilter  = cmd.getKind();
@@ -104,7 +136,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                         }
 
                         for (GrafanaRulesResponse.Rule r : g.rules) {
-                            // 기본 키/메타
+                            // 기본 키/메타(dashboard URL 구성용으로는 유지)
                             final String dashUid = r.annotations == null ? null : r.annotations.get("__dashboardUid__");
                             final String panelId = r.annotations == null ? null : r.annotations.get("__panelId__");
                             final String key = (dashUid != null && panelId != null)
@@ -170,12 +202,25 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                                 }
                             }
 
-                            // ----- ▼ 필터 판정(응답 생성 전) ▼ -----
-                            if (idFilter != null && !idFilter.isBlank()) {
-                                if (key == null || !key.equals(idFilter)) {
+                            // ----- ▼ UID 필터 적용(최우선) ▼ -----
+                            final String resolvedUid = firstNonBlank(
+                                    resolveUidSmart(rulerAll, groupName, ruleTitle, ruleExprN, dashUid, panelId, ruleKind),
+                                    (def != null ? def.ruleUid : null),
+                                    findUidByGroupTitle(rulerAll, groupName, ruleTitle)
+                            );
+
+                            if (uidFilter != null && !uidFilter.isBlank()) {
+                                if (resolvedUid == null || !resolvedUid.equals(uidFilter)) {
                                     continue;
                                 }
                             }
+                            // ----- ▲ UID 필터 끝 ▲ -----
+                            if (resolvedUid != null && !resolvedUid.isBlank()) {
+                                final ThresholdDef defByUid = tIndex.byUid.get(resolvedUid);
+                                if (defByUid != null) def = defByUid;
+                            }
+
+                            // 나머지 필터들(name/state/kind/keyword) 유지
                             if (nameFilterL != null && !nameFilterL.isBlank()) {
                                 final String nm = ruleTitle == null ? "" : ruleTitle.toLowerCase(Locale.ROOT);
                                 if (!nm.equals(nameFilterL)) {
@@ -211,11 +256,17 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                             // 응답 객체 구성 (정렬 안 함, 받은 순서대로 추가)
                             final WallAlertRuleResponse resp = new WallAlertRuleResponse();
 
+                            // UID 세팅
+                            if (resolvedUid != null && !resolvedUid.isBlank()) {
+                                resp.setUid(sanitizeXmlText(resolvedUid));
+                            }
+
                             final String safeKey   = sanitizeXmlText(key);
                             final String safeName  = sanitizeXmlText(ruleTitle);
                             final String safeGroup = sanitizeXmlText(groupName);
 
-                            resp.setId(safeKey);
+                            // ★ id는 uid로 통일(레거시 id 충돌 방지)
+                            resp.setId(resolvedUid != null && !resolvedUid.isBlank() ? sanitizeXmlText(resolvedUid) : safeKey);
                             resp.setName(safeName);
                             resp.setRuleGroup(safeGroup);
 
@@ -230,9 +281,12 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                             String q = (r.query == null || r.query.isBlank()) && def != null && def.expr != null ? def.expr : r.query;
                             resp.setQuery(sanitizeXmlText(q));
 
-                            if (r.lastEvaluation != null) {
+                            if (r.lastEvaluation != null && !isZeroTime(r.lastEvaluation)) {
                                 final String lastEvalKst = KST_YMD_HM.format(r.lastEvaluation.atZoneSameInstant(KST));
                                 resp.setLastEvaluation(sanitizeXmlText(lastEvalKst));
+                            } else {
+                                // 미평가면 UI에서 하이픈(또는 공백)으로 보이도록 null 유지
+                                resp.setLastEvaluation(null);
                             }
 
                             resp.setEvaluationTime(r.evaluationTime);
@@ -245,9 +299,27 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                             resp.setAnnotations(sanitizeXmlMap(r.annotations));
                             resp.setKind(sanitizeXmlText(ruleKind));
                             // pause 상태 반영: Ruler 인덱스(def)에서 가져와 내려줍니다
-                            final boolean paused = (def != null && def.paused != null) ? def.paused : false;
+                            Boolean pausedB = pausedFromRulerByUid(rulerAll, resolvedUid);
+                            if (pausedB == null && def != null) {
+                                pausedB = def.paused;
+                            }
+                            final boolean paused = Boolean.TRUE.equals(pausedB);
+
                             resp.setIspaused(paused ? "Stopped" : "Running");
                             resp.setIsPaused(Boolean.valueOf(paused));
+
+                            SilenceDto sil = (resolvedUid == null) ? null : activeSilenceByUid.get(resolvedUid);
+                            final boolean silencedNow = (sil != null);
+                            resp.setSilenced(Boolean.valueOf(silencedNow));
+                            if (silencedNow) {
+                                resp.setSilenceStartsAt(fmtKst(sil.getStartsAt()));     // "yyyy-MM-dd HH:mm" KST
+                                resp.setSilenceEndsAt(fmtKst(sil.getEndsAt()));
+                                resp.setSilencePeriod(periodKst(sil.getStartsAt(), sil.getEndsAt())); // "start ~ end"
+                            } else {
+                                resp.setSilenceStartsAt(null);
+                                resp.setSilenceEndsAt(null);
+                                resp.setSilencePeriod(null);
+                            }
 
                             if (def != null) {
                                 if (def.operator != null) {
@@ -284,10 +356,12 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                             resp.setFiringCount(agg.firing);
                             resp.setPendingCount(agg.pending);
                             resp.setState(sanitizeXmlText(computedState));
-                            if (agg.lastActiveAt != null) {
+                            if (agg.lastActiveAt != null && !isZeroTime(agg.lastActiveAt)) {
                                 resp.setLastTriggeredAt(KST_YMD_HM.format(agg.lastActiveAt.atZoneSameInstant(KST)));
-                            } else if (r.lastEvaluation != null) {
+                            } else if (r.lastEvaluation != null && !isZeroTime(r.lastEvaluation)) {
                                 resp.setLastTriggeredAt(KST_YMD_HM.format(r.lastEvaluation.atZoneSameInstant(KST)));
+                            } else {
+                                resp.setLastTriggeredAt(null);
                             }
 
                             filtered.add(resp);
@@ -298,7 +372,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                 // 캐시에 저장(정렬 없이, 받은 순서 그대로)
                 base = java.util.Collections.unmodifiableList(filtered);
                 WALL_RULES_CACHE_LIST = base;
-                WALL_RULES_CACHE_KEY = cacheKey;
+                WALL_RULES_CACHE_KEY = cacheKey;                // ★ uid 포함된 키로 보관
                 WALL_RULES_CACHE_EXPIRES_AT = now + WALL_RULES_CACHE_TTL_MS;
             }
         }
@@ -319,60 +393,84 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
     }
 
 
+
     @Override
     public WallAlertRuleResponse updateWallAlertRuleThreshold(final UpdateWallAlertRuleThresholdCmd cmd)
             throws ServerApiException {
         final String id = cmd.getId();
+        final String uid = cmd.getUid();
         final Double newThreshold = cmd.getThreshold();
         final Double threshold2 = cmd.getThreshold2();
         final String operator = cmd.getOperator();
 
-        if (id == null || id.isBlank()) {
-            throw new IllegalArgumentException("id는 'group:title' 또는 'dashboardUid:panelId' 형식이어야 합니다.");
+        if ((id == null || id.isBlank()) && (uid == null || uid.isBlank())) {
+            throw new IllegalArgumentException("id 또는 uid 중 하나는 필수입니다.");
         }
         if (newThreshold == null) {
             throw new IllegalArgumentException("threshold는 필수입니다.");
         }
 
-        final int sep = id.indexOf(':');
-        if (sep <= 0 || sep >= id.length() - 1) {
-            throw new IllegalArgumentException("id 형식이 올바르지 않습니다. 예) group:title 또는 dashboardUid:panelId");
-        }
-        final String left = id.substring(0, sep).trim();
-        final String right = id.substring(sep + 1).trim();
-
-        // 1) Ruler 전체 로드
         final RulerRulesResponse rulerAll = wallApiClient.fetchRulerRules();
         if (rulerAll == null || rulerAll.folders == null) {
             throw new RuntimeException("Ruler rules를 불러오지 못했습니다.");
         }
 
-        // 2) 'group:title' 직접 매칭
-        Mapping m = mapGroupTitle(rulerAll, left, right);
+        Mapping m = null;
 
-        // 3) 못 찾으면 'dashboardUid:panelId' 역매핑 (Ruler → 실패 시 Rules → 다시 Ruler)
-        if (m == null && looksLikeDashboardUid(left) && looksLikePanelId(right)) {
-            m = mapDashPanelFromRuler(rulerAll, left, right);
+        // ★ uid 우선 매핑(그대로)
+        if (uid != null && !uid.isBlank()) {
+            m = mapByRuleUid(rulerAll, uid);
             if (m == null) {
-                final GrafanaRulesResponse rulesAll = wallApiClient.fetchRules();
-                final DashPanel dp = mapDashPanelFromRules(rulesAll, left, right);
-                if (dp != null) {
-                    m = mapGroupTitle(rulerAll, dp.group, dp.title);
+                throw new IllegalArgumentException("해당 uid('" + uid + "')로 룰을 찾지 못했습니다.");
+            }
+        } else {
+            // ▼ 기존 id 경로 유지
+            final int sep = id.indexOf(':');
+            if (sep < 0) {
+                // 콜론이 없으면 uid로 간주
+                m = mapByRuleUid(rulerAll, id);
+                if (m == null) {
+                    throw new IllegalArgumentException("해당 uid('" + id + "')로 룰을 찾지 못했습니다.");
+                }
+            } else {
+                if (sep >= id.length() - 1) {
+                    throw new IllegalArgumentException("id 형식이 올바르지 않습니다. 예) group:title 또는 dashboardUid:panelId");
+                }
+                final String left = id.substring(0, sep).trim();
+                final String right = id.substring(sep + 1).trim();
+
+                // 2) 'group:title'
+                m = mapGroupTitle(rulerAll, left, right);
+
+                // 3) 못 찾으면 'dashboardUid:panelId' 역매핑 (Ruler → 실패 시 Rules → 다시 Ruler)
+                if (m == null && looksLikeDashboardUid(left) && looksLikePanelId(right)) {
+                    m = mapDashPanelFromRuler(rulerAll, left, right);
+                    if (m == null) {
+                        final GrafanaRulesResponse rulesAll = wallApiClient.fetchRules();
+                        final DashPanel dp = mapDashPanelFromRules(rulesAll, left, right);
+                        if (dp != null) {
+                            m = mapGroupTitle(rulerAll, dp.group, dp.title);
+                        }
+                    }
+                }
+
+                if (m == null) {
+                    throw new IllegalArgumentException(
+                            "해당 id('" + id + "')로 룰을 찾지 못했습니다. group:title이 정확한지 또는 dashboardUid/panelId가 실제 룰 주석과 일치하는지 확인해 주세요."
+                    );
                 }
             }
         }
 
-        if (m == null) {
-            throw new IllegalArgumentException(
-                    "해당 id('" + id + "')로 룰을 찾지 못했습니다. group:title이 정확한지 또는 dashboardUid/panelId가 실제 룰 주석과 일치하는지 확인해 주세요."
-            );
-        }
-
-        // 4) 임계치 업데이트 실행 (operator/threshold2 전달)
         final String opInput = (operator == null || operator.isBlank()) ? "gt" : operator.trim();
         final String op = normalizeOperator(opInput);
-        boolean ok;
-        if ("between".equals(op) || "outside".equals(op)) {
+
+        final boolean isRange =
+                "between".equals(op) || "outside".equals(op) ||
+                        "within_range".equals(op) || "outside_range".equals(op);
+
+        final boolean ok;
+        if (isRange) {
             if (threshold2 == null) {
                 throw new IllegalArgumentException("operator가 '" + op + "'일 때 threshold2는 필수입니다.");
             }
@@ -381,10 +479,10 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
             ok = wallApiClient.updateRuleThreshold(m.namespace, m.group, m.title, op, newThreshold, null);
         }
 
-        // 5) 응답
         final WallAlertRuleResponse resp = new WallAlertRuleResponse();
         resp.setObjectName("wallalertrule");
-        resp.setId(id);
+        resp.setId(id != null && !id.isBlank() ? id : (m.group + ":" + m.title));
+        resp.setUid((uid != null && !uid.isBlank()) ? uid : m.ruleUid);
         resp.setRuleGroup(m.group);
         resp.setName(m.title);
         resp.setOperator(operator == null ? null : operator.trim());
@@ -395,14 +493,30 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         return resp;
     }
 
-
     @Override
     public boolean pauseWallAlertRule(final String namespaceHint,
                                       final String groupName,
                                       final String ruleUid,
                                       final boolean paused) {
-        // WallApiClientImpl 에 이미 구현한 pauseRule(...) 호출
-        return wallApiClient.pauseRule(namespaceHint, groupName, ruleUid, paused);
+        // 1) UID 직행 우선
+        if (ruleUid != null && !ruleUid.isBlank()) {
+            try {
+                final boolean okDirect = wallApiClient.pauseByUid(ruleUid, paused);
+                if (okDirect) { invalidateRulesCache(); return true; }
+            } catch (Exception e) {
+                LOG.warn("[Pause][ns/group] pauseByUid failed, fallback to pauseRule: " + e.getMessage(), e);
+            }
+        }
+        // 2) 폴더/그룹 기반 폴백
+        try {
+            final boolean ok = wallApiClient.pauseRule(namespaceHint, groupName, ruleUid, paused);
+            if (ok) invalidateRulesCache();
+            return ok;
+        } catch (Exception e) {
+            LOG.warn("[Pause][ns/group] pauseRule failed: ns=" + namespaceHint + ", group=" + groupName
+                    + ", uid=" + ruleUid + ", err=" + e.getMessage(), e);
+            return false;
+        }
     }
 
     @Override
@@ -410,25 +524,28 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         if (id == null || id.isBlank()) return false;
         LOG.warn("[Pause][Svc.in] rawId=" + id + ", paused=" + paused);
 
-        // 1) 인덱스(byKey) 빠른 경로
+        if (id.indexOf(':') < 0) {
+            final boolean ok = pauseWallAlertRuleByUid(id, paused);
+            if (ok) invalidateRulesCache();
+            return ok;
+        }
+
         final ThresholdIndex tIndex = buildThresholdIndexSafe();
         final ThresholdDef defQuick = (tIndex != null) ? tIndex.byKey.get(id) : null;
         if (defQuick != null && defQuick.ruleUid != null) {
             LOG.warn("[Pause][fast] uid=" + defQuick.ruleUid + ", ns=" + defQuick.folder + ", group=" + defQuick.group);
-            // 가장 확실한 경로: UID 직행
             final boolean okDirect = wallApiClient.pauseByUid(defQuick.ruleUid, paused);
-            if (okDirect) return true;
-            // 실패 시에만 기존 Ruler 경로로 폴백
-            return pauseWallAlertRule(defQuick.folder, defQuick.group, defQuick.ruleUid, paused);
+            if (okDirect) { invalidateRulesCache(); return true; }
+            final boolean okFallback = pauseWallAlertRule(defQuick.folder, defQuick.group, defQuick.ruleUid, paused);
+            if (okFallback) invalidateRulesCache();
+            return okFallback;
         }
 
-        // 2) 전체 스캔 매핑
         final Mapping m = resolveMappingFromId(id);
         if (m == null || isBlank(m.group) || isBlank(m.namespace)) {
             LOG.warn("[Pause][byId] mapping not found or incomplete for id=" + id);
             return false;
         }
-        // ruleUid 우선(없으면 제목으로 보강)
         String uid = m.ruleUid;
         if (isBlank(uid)) {
             uid = resolveUidByTitle(m.namespace, m.group, m.title);
@@ -439,22 +556,44 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
             }
         }
 
-        // 먼저 UID 직행
         final boolean okDirect = wallApiClient.pauseByUid(uid, paused);
-        if (okDirect) return true;
+        if (okDirect) { invalidateRulesCache(); return true; }
 
-        // 실패 시 Ruler 폴백(환경/버전에 따라 PUT/POST 404/400/403 나오는 경우가 있어서 보조 루트로만 사용)
         final boolean ok = pauseWallAlertRule(m.namespace, m.group, uid, paused);
         LOG.warn("[Pause][byId] ns=" + m.namespace + ", group=" + m.group + ", uid=" + uid
                 + ", paused=" + paused + ", ok=" + ok);
+        if (ok) invalidateRulesCache();
         return ok;
     }
 
     @Override
     public boolean pauseWallAlertRuleByUid(final String ruleUid, final boolean paused) {
         if (ruleUid == null || ruleUid.isBlank()) return false;
-        // Client의 직행 메서드로 바로 처리
-        return wallApiClient.pauseByUid(ruleUid, paused);
+
+        // 1) UID 직행
+        try {
+            final boolean okDirect = wallApiClient.pauseByUid(ruleUid, paused);
+            if (okDirect) { invalidateRulesCache(); return true; }
+        } catch (Exception e) {
+            LOG.warn("[Pause][byUid] direct failed: uid=" + ruleUid + ", err=" + e.getMessage(), e);
+        }
+
+        // 2) 폴백: Ruler에서 uid→(namespace, group) 매핑 후 pauseRule
+        try {
+            final RulerRulesResponse rr = wallApiClient.fetchRulerRules();
+            final Mapping m = mapByRuleUid(rr, ruleUid);   // 이미 클래스에 구현되어 있음
+            if (m != null) {
+                final boolean ok = wallApiClient.pauseRule(m.namespace, m.group, ruleUid, paused);
+                if (ok) { invalidateRulesCache(); return true; }
+                LOG.warn("[Pause][byUid->ruler] fallback failed: ns=" + m.namespace + ", group=" + m.group + ", uid=" + ruleUid);
+            } else {
+                LOG.warn("[Pause][byUid] cannot map uid to namespace/group: uid=" + ruleUid);
+            }
+        } catch (Exception e) {
+            LOG.warn("[Pause][byUid] fallback exception: uid=" + ruleUid + ", err=" + e.getMessage(), e);
+        }
+
+        return false;
     }
 
     /** UI/호출 파라미터의 operator 문자열을 내부 표준으로 정규화합니다.
@@ -521,15 +660,222 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "id is required");
         }
         wallApiClient.expireSilence(id);
+        synchronized (WALL_RULES_CACHE_LOCK) { WALL_RULES_CACHE_EXPIRES_AT = 0L; }
         return new SuccessResponse(cmd.getCommandName());
     }
 
+    @Override
+    public WallSilenceResponse createWallAlertSilence(final CreateWallAlertSilenceCmd cmd) {
+        // 0) 파라미터 검증 + 정규화
+        final Map<String, String> labels = normalizeLabels(cmd.getLabels()); // labels[] 평탄화
+        Long minutes = cmd.getDurationMinutes();
+        if (minutes == null || minutes <= 0) {
+            final Long parsed = parseDurationToMinutes(cmd.getDuration());
+            if (parsed != null && parsed > 0) {
+                minutes = parsed;
+            }
+        }
+        if (minutes == null || minutes <= 0) {
+            throw new IllegalArgumentException(
+                    "durationMinutes는 1 이상의 정수여야 하며, 또는 duration 문자열(예: 30m, 1h, 1d, 1w, 1M)을 제공해야 합니다.");
+        }
+
+        // 1) 시작/종료 시각
+        final java.time.OffsetDateTime now = java.time.OffsetDateTime.now();
+        java.time.OffsetDateTime startsAt;
+        if (cmd.getStartsAt() != null && !cmd.getStartsAt().isBlank()) {
+            try {
+                startsAt = java.time.OffsetDateTime.parse(cmd.getStartsAt());
+            } catch (Exception e) {
+                throw new IllegalArgumentException("startsAt은 ISO-8601 형식이어야 합니다. 예: 2025-10-20T01:23:45Z");
+            }
+        } else {
+            startsAt = now;
+        }
+        final java.time.OffsetDateTime endsAt = startsAt.plusMinutes(minutes);
+
+        // 2) 매처 구성 (최소: UID 있으면 UID 고정, 없으면 alertname 고정; instance 있으면 인스턴스 단위로 범위 축소)
+        final java.util.List<org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto> matchers = new java.util.ArrayList<>();
+
+        // UID 최우선 추출
+        final String ruleUid = extractRuleUidFromLabels(labels); // "__alert_rule_uid__", "rule_uid" 등 동의어 처리
+        if (ruleUid != null && !ruleUid.isBlank()) {
+            final org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto m = new org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto();
+            m.setName("__alert_rule_uid__");
+            m.setValue(ruleUid);
+            m.setIsRegex(Boolean.FALSE);
+            m.setIsEqual(Boolean.TRUE);
+            matchers.add(m);
+        } else {
+            // 폴백: alertname(=룰 타이틀 후보) 고정
+            final String title = extractRuleTitleFromLabels(labels);
+            if (title == null || title.isBlank()) {
+                throw new IllegalArgumentException("labels에는 rule UID 또는 alertname(=rule title)이 포함되어야 합니다.");
+            }
+            final org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto m = new org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto();
+            m.setName("alertname");
+            m.setValue(title);
+            m.setIsRegex(Boolean.FALSE);
+            m.setIsEqual(Boolean.TRUE);
+            matchers.add(m);
+        }
+
+        // 인스턴스 단위로 제한 (있을 때만)
+        final String inst = getAny(labels, "instance", "host", "hostname", "node", "pod");
+        if (inst != null && !inst.isBlank()) {
+            final org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto m = new org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto();
+            m.setName("instance");
+            m.setValue(inst);
+            m.setIsRegex(Boolean.FALSE);
+            m.setIsEqual(Boolean.TRUE);
+            matchers.add(m);
+        }
+
+        // 3) 요청 DTO 구성
+        final org.apache.cloudstack.wallAlerts.client.WallApiClient.SilenceCreateRequest req =
+                new org.apache.cloudstack.wallAlerts.client.WallApiClient.SilenceCreateRequest();
+        req.setStartsAt(startsAt);
+        req.setEndsAt(endsAt);
+        req.setMatchers(matchers);
+        // 생성자/코멘트
+        String createdBy = "CloudStack"; // 필요 시 CallContext에서 사용자 표시명 추출 가능
+        final org.apache.cloudstack.context.CallContext ctx = org.apache.cloudstack.context.CallContext.current();
+        if (ctx != null && ctx.getCallingAccount() != null) {
+            createdBy = ctx.getCallingAccount().getAccountName();
+        }
+        req.setCreatedBy(createdBy);
+        req.setComment(firstNonBlank(cmd.getComment(), "Created via CloudStack"));
+
+        // (선택) 메타데이터 힌트 – 나중 매칭/표시에 도움 (서버가 무시해도 무해)
+        final java.util.Map<String, String> meta = new java.util.HashMap<>();
+        if (ruleUid != null) meta.put("rule_uid", ruleUid);
+        final String title = extractRuleTitleFromLabels(labels);
+        if (title != null)  meta.put("rule_title", title);
+        req.setMetadata(meta);
+
+        // 4) 생성 호출
+        final org.apache.cloudstack.wallAlerts.model.SilenceDto created = wallApiClient.createSilence(req);
+
+        // 5) 캐시 무효화 (만료와 동일 처리)
+        synchronized (WALL_RULES_CACHE_LOCK) { WALL_RULES_CACHE_EXPIRES_AT = 0L; } // 동일 패턴 유지
+        // ↑ expireWallAlertSilence에서도 같은 방식으로 캐시 무효화합니다. :contentReference[oaicite:9]{index=9}
+
+        // 6) 매핑하여 반환
+        return org.apache.cloudstack.wallAlerts.mapper.WallMappers.toResponse(created);
+    }
+
+
     // ---------------- Helper: Silence matcher 평가 ----------------
+
+    /**
+     * 현재 Rules API의 한 행(r)에 대해, Ruler 응답 안에서 가장 잘 맞는 UID를 찾는다.
+     * 가중치:
+     *  - dashUid:panelId 완전일치 = +100
+     *  - expr(normalized) 일치   = +50
+     *  - kind(label) 일치       = +10
+     * 동점이면 먼저 발견한 항목을 선택. 아무 점수도 없으면 group+title 첫 일치로 폴백.
+     */
+    private String resolveUidSmart(final RulerRulesResponse all,
+                                   final String groupName,
+                                   final String ruleTitle,
+                                   final String exprN,
+                                   final String dashUid,
+                                   final String panelId,
+                                   final String ruleKind) {
+        if (all == null || all.folders == null || groupName == null || ruleTitle == null) return null;
+
+        String bestUid = null;
+        int bestScore = -1;
+
+        for (final var f : all.folders) {
+            if (f == null || f.groups == null) continue;
+            for (final var g : f.groups) {
+                if (g == null || g.rules == null) continue;
+                if (!groupName.equals(g.name)) continue;
+
+                for (final var r2 : g.rules) {
+                    if (r2 == null) continue;
+
+                    final String t2 = (r2.alert != null && r2.alert.title != null) ? r2.alert.title : r2.title;
+                    if (!ruleTitle.equals(t2)) continue;
+
+                    final String uid2 = (r2.uid != null && !r2.uid.isBlank())
+                            ? r2.uid
+                            : (r2.alert != null && r2.alert.uid != null && !r2.alert.uid.isBlank() ? r2.alert.uid : null);
+                    if (uid2 == null || uid2.isBlank()) continue;
+
+                    int score = 0;
+
+                    // 1) dashUid:panelId 정확 매칭
+                    final String aDash = r2.annotations == null ? null : r2.annotations.get("__dashboardUid__");
+                    final String aPanel = r2.annotations == null ? null : r2.annotations.get("__panelId__");
+                    if (dashUid != null && panelId != null && dashUid.equals(aDash) && panelId.equals(aPanel)) {
+                        score += 100;
+                    }
+
+                    // 2) expr(normalized) 매칭
+                    final String expr2 = extractExpr(r2);
+                    final String expr2N = normExpr(expr2);
+                    if (exprN != null && exprN.equals(expr2N)) {
+                        score += 50;
+                    }
+
+                    // 3) kind(label) 매칭
+                    final String kind2 = (r2.labels != null ? r2.labels.get("kind") : null);
+                    if (ruleKind != null && ruleKind.equals(kind2)) {
+                        score += 10;
+                    }
+
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestUid = uid2;
+                        // 완전 매칭이면 더 볼 필요 없음(선택)
+                        if (score >= 160) { // 100+50+10 모두 맞으면
+                            return bestUid;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 점수 매칭 실패 시(=동일 title만 있고 다른 단서 없음), 첫 일치라도 반환
+        if (bestUid != null) return bestUid;
+
+        // 마지막 폴백: group+title 첫 일치
+        return findUidByGroupTitle(all, groupName, ruleTitle);
+    }
+
+    private Mapping mapByRuleUid(final RulerRulesResponse all, final String targetUid) {
+        if (all == null || all.folders == null || targetUid == null || targetUid.isBlank()) return null;
+        for (final RulerRulesResponse.Folder f : all.folders) {
+            if (f == null || f.groups == null) continue;
+            for (final RulerRulesResponse.Group g : f.groups) {
+                if (g == null || g.rules == null) continue;
+                for (final RulerRulesResponse.Rule r : g.rules) {
+                    if (r == null) continue;
+                    // r.uid 또는 r.alert.uid 중 존재하는 쪽 사용
+                    final String ruUid =
+                            (r.uid != null && !r.uid.isBlank()) ? r.uid :
+                                    (r.alert != null && r.alert.uid != null ? r.alert.uid : null);
+                    if (targetUid.equals(ruUid)) {
+                        final String title =
+                                (r.alert != null && r.alert.title != null) ? r.alert.title : r.title;
+                        return new Mapping(f.name, g.name, title /*, 필요시 namespace 등*/);
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
     private static String preview(final String s) {
         if (s == null) return "null";
         final String t = s.replaceAll("\\s+", " ").trim();
         return t.length() > 180 ? t.substring(0, 180) + "..." : t;
+    }
+
+    private static boolean isZeroTime(final OffsetDateTime t) {
+        return t != null && t.getYear() <= 1;
     }
 
     /**
@@ -790,6 +1136,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         cmds.add(PauseWallAlertRuleCmd.class);
         cmds.add(ListWallAlertSilencesCmd.class);
         cmds.add(ExpireWallAlertSilenceCmd.class);
+        cmds.add(CreateWallAlertSilenceCmd.class);
         return cmds;
     }
 
@@ -809,6 +1156,88 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
 
     // ---------------- 내부 유틸 ----------------
 
+    private static Long parseDurationToMinutes(final String s) {
+        if (s == null) return null;
+        final String t = s.trim();
+        if (t.isEmpty()) return null;
+        final java.util.regex.Matcher m =
+                java.util.regex.Pattern.compile("^(\\d+)\\s*([mhdwM]?)$").matcher(t);
+        if (!m.matches()) return null;
+        final long n = Long.parseLong(m.group(1));
+        if (n <= 0) return null;
+        final char u = m.group(2).isEmpty() ? 'm' : m.group(2).charAt(0);
+        switch (u) {
+            case 'm': return n;
+            case 'h': return n * 60;
+            case 'd': return n * 60 * 24;
+            case 'w': return n * 60 * 24 * 7;
+            case 'M': return n * 60 * 24 * 30; // 1M=30일 가정
+            default:  return null;
+        }
+    }
+
+    // KST 포맷 헬퍼 (클래스 상단에 이미 KST, KST_YMD_HM 존재)
+    private static String fmtKst(OffsetDateTime t) {
+        if (t == null) return null;
+        return KST_YMD_HM.format(t.atZoneSameInstant(KST));
+    }
+    private static String periodKst(OffsetDateTime s, OffsetDateTime e) {
+        final String ss = fmtKst(s);
+        final String ee = fmtKst(e);
+        if (ss == null && ee == null) return null;
+        if (ss == null) return " ~ " + ee;
+        if (ee == null) return ss + " ~ ";
+        return ss + " ~ " + ee;
+    }
+
+    // 현재 Ruler 응답에서 특정 UID의 pause 상태를 직접 조회
+    private Boolean pausedFromRulerByUid(final RulerRulesResponse all, final String uid) {
+        if (all == null || all.folders == null || uid == null || uid.isBlank()) return null;
+        for (final var f : all.folders) {
+            if (f == null || f.groups == null) continue;
+            for (final var g : f.groups) {
+                if (g == null || g.rules == null) continue;
+                for (final var r : g.rules) {
+                    if (r == null) continue;
+                    final String ruUid = (r.uid != null && !r.uid.isBlank())
+                            ? r.uid
+                            : (r.alert != null && r.alert.uid != null && !r.alert.uid.isBlank() ? r.alert.uid : null);
+                    if (uid.equals(ruUid)) {
+                        return (r.alert != null) ? r.alert.paused : null;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private void invalidateRulesCache() {
+        synchronized (WALL_RULES_CACHE_LOCK) {
+            WALL_RULES_CACHE_EXPIRES_AT = 0L;
+        }
+    }
+
+    private String findUidByGroupTitle(final RulerRulesResponse all, final String group, final String title) {
+        if (all == null || all.folders == null || group == null || title == null) return null;
+        for (var f : all.folders) {
+            if (f == null || f.groups == null) continue;
+            for (var g : f.groups) {
+                if (g == null || g.rules == null) continue;
+                if (!group.equals(g.name)) continue; // 그룹명 일치
+
+                for (var r : g.rules) {
+                    if (r == null || r.alert == null) continue;
+                    final String t = r.alert.title;        // Ruler 쪽 타이틀
+                    final String u = r.alert.uid;          // Ruler 쪽 UID
+                    if (t != null && t.equals(title) && u != null && !u.isBlank()) {
+                        return u;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     // 필터 기준 캐시 키(페이지 파라미터 제외)
     private String buildRulesCacheKey(final ListWallAlertRulesCmd cmd) {
         final String id    = cmd.getId();
@@ -816,6 +1245,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         final String state = cmd.getState();
         final String kind  = cmd.getKind();
         final String kw    = cmd.getKeyword();
+        final String uid   = cmd.getUid();
 
         long callerId = -1L;
         final org.apache.cloudstack.context.CallContext ctx = org.apache.cloudstack.context.CallContext.current();
@@ -828,7 +1258,8 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                 + "|name="  + (name  == null ? "" : name.toLowerCase(java.util.Locale.ROOT))
                 + "|state=" + (state == null ? "" : state.toLowerCase(java.util.Locale.ROOT))
                 + "|kind="  + (kind  == null ? "" : kind.toLowerCase(java.util.Locale.ROOT))
-                + "|kw="    + (kw    == null ? "" : kw.toLowerCase(java.util.Locale.ROOT));
+                + "|kw="    + (kw    == null ? "" : kw.toLowerCase(java.util.Locale.ROOT))
+                + "|uid="   + (uid   == null ? "" : uid);
     }
 
     private static class Agg {
@@ -839,11 +1270,12 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
 
     /** Ruler 인덱스 묶음(여러 보조 인덱스 포함) */
     private static class ThresholdIndex {
-        Map<String, ThresholdDef> byKey = new HashMap<>();                      // dashUid:panelId
-        Map<String, ThresholdDef> byTitle = new HashMap<>();                    // title
+        Map<String, ThresholdDef> byUid = new HashMap<>();            // ★ 추가: UID → 정의
+        Map<String, ThresholdDef> byKey = new HashMap<>();            // dashUid:panelId
+        Map<String, ThresholdDef> byTitle = new HashMap<>();          // title
         Map<String, Map<String, ThresholdDef>> byGroupTitle = new HashMap<>();  // group -> title -> def
         Map<String, Map<String, ThresholdDef>> byGroupKind = new HashMap<>();   // group -> kind  -> def
-        Map<String, ThresholdDef> byExpr = new HashMap<>();                     // expr(normalized) -> def
+        Map<String, ThresholdDef> byExpr = new HashMap<>();           // expr(normalized) -> def
     }
 
     private static class ThresholdDef {
@@ -898,6 +1330,10 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                         def.ruleUid = (r.uid != null && !r.uid.isBlank())
                                 ? r.uid
                                 : (r.alert != null && r.alert.uid != null && !r.alert.uid.isBlank() ? r.alert.uid : null);
+
+                        if (def.ruleUid != null && !def.ruleUid.isBlank()) {
+                            out.byUid.putIfAbsent(def.ruleUid, def);
+                        }
 
                         // byKey
                         if (def.dashUid != null && def.panelId != null) {

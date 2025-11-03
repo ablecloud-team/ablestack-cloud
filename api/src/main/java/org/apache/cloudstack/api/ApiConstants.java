@@ -691,6 +691,7 @@ public class ApiConstants {
     public static final String ENABLED = "enabled";
     public static final String SERVICE_NAME = "servicename";
     public static final String DHCP_RANGE = "dhcprange";
+    public static final String UID = "uid";
     public static final String UUID = "uuid";
     public static final String SECURITY_GROUP_EANBLED = "securitygroupenabled";
     public static final String LOCAL_STORAGE_ENABLED = "localstorageenabled";

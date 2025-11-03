@@ -13,6 +13,8 @@ public class WallAlertRuleResponse extends BaseResponse {
 
     @SerializedName("id")              @Param(description = "Rule UID")
     private String id;
+    @SerializedName("uid")             @Param(description = "Grafana rule UID (stable unique key)")
+    private String uid;
     @SerializedName("name")            @Param(description = "Rule title")
     private String name;
     @SerializedName("for")             @Param(description = "Evaluation duration, e.g. 300s")
@@ -77,6 +79,15 @@ public class WallAlertRuleResponse extends BaseResponse {
     @SerializedName("silenced")
     @Param(description = "Whether this rule is currently silenced by Alertmanager")
     private Boolean silenced;
+    @SerializedName("silenceStartsAt")
+    @Param(description = "Silence starts at (KST yyyy-MM-dd HH:mm)")
+    private String silenceStartsAt;
+    @SerializedName("silenceEndsAt")
+    @Param(description = "Silence ends at (KST yyyy-MM-dd HH:mm)")
+    private String silenceEndsAt;
+    @SerializedName("silencePeriod")
+    @Param(description = "Silence period (KST, 'start ~ end')")
+    private String silencePeriod;
 
 
     // ---추가: 인스턴스 상세(도메인/엔드포인트 등 라벨 포함) ---
@@ -94,6 +105,7 @@ public class WallAlertRuleResponse extends BaseResponse {
 
     public WallAlertRuleResponse() { setObjectName("wallalertruleresponse"); }
 
+    public String getUid() { return uid; }
     public String getQuery() {
         return this.query;
     }
@@ -115,6 +127,9 @@ public class WallAlertRuleResponse extends BaseResponse {
     public String getDescription() { return description; }
     public String getRuleUid() { return this.ruleUid; }
     public Boolean getSilenced() { return this.silenced; }
+    public String getSilenceStartsAt() { return silenceStartsAt; }
+    public String getSilenceEndsAt() { return silenceEndsAt; }
+    public String getSilencePeriod() { return silencePeriod; }
 
     public static class Alert {
         @com.fasterxml.jackson.annotation.JsonProperty("isPaused")
@@ -141,6 +156,7 @@ public class WallAlertRuleResponse extends BaseResponse {
 
     // --- setters (기존과 동일, 여기에 instances 세터만 추가) ---
     public void setId(final String id) { this.id = id; }
+    public void setUid(String uid) { this.uid = uid; }
     public void setName(final String name) { this.name = name; }
     public void setDurationFor(final String durationFor) { this.durationFor = durationFor; }
     public void setRuleGroup(final String ruleGroup) { this.ruleGroup = ruleGroup; }
@@ -173,6 +189,9 @@ public class WallAlertRuleResponse extends BaseResponse {
     public void setDescription(final String description) { this.description = description; }
     public void setRuleUid(final String ruleUid) { this.ruleUid = ruleUid; }
     public void setSilenced(final Boolean silenced) { this.silenced = silenced; }
+    public void setSilenceStartsAt(final String v) { this.silenceStartsAt = v; }
+    public void setSilenceEndsAt(final String v) { this.silenceEndsAt = v; }
+    public void setSilencePeriod(final String v) { this.silencePeriod = v; }
 }
 
 

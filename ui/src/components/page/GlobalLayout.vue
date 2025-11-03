@@ -18,6 +18,7 @@
 <template>
   <div>
     <announcement-banner />
+    <AutoAlertBanner ref="autoBanner" />
     <a-affix v-if="this.$store.getters.shutdownTriggered">
       <a-alert :message="$t('message.shutdown.triggered')" type="error" banner :showIcon="false" class="shutdownHeader" />
     </a-affix>
@@ -239,6 +240,12 @@ export default {
     if (countNotify && countNotify > 0) {
       this.showClear = true
     }
+    try {
+      // eslint-disable-next-line no-console
+      console.debug('[GlobalLayout] AutoAlertBanner present?', !!this.$refs.autoBanner)
+      // eslint-disable-next-line no-console
+      console.debug('[GlobalLayout] registered components:', Object.keys(this.$options.components || {}))
+    } catch (e) {}
   },
   unmounted () {
     document.body.classList.remove('dark')
