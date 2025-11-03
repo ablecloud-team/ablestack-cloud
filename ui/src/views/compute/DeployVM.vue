@@ -2045,23 +2045,7 @@ export default {
       this.form.defaultnetworkid = id
     },
     updateNetworkConfig (networks) {
-      console.log('networks :>> ', networks)
       this.networkConfig = networks
-      if (this.networks.length > 0) {
-        this.networks.forEach((el, idx) => {
-          console.log('::선택된 net::>> ', el.id)
-          networks.forEach(el2 => {
-            if (el.id === el2.key) {
-              console.log('::값바꾼 net::>> ', el2.key)
-              this.networks[idx].linkState = el2.linkstate ? el2.linkState : false
-              this.networks[idx].ipAddress = el2.ipAddress ? el2.ipAddress : ''
-              this.networks[idx].macAddress = el2.macAddress ? el2.macAddress : ''
-            }
-          })
-        })
-        // this.networks[0].linkstate = true
-        // console.log(this.networks[0].linkstate)
-      }
     },
     updateSshKeyPairs (names) {
       this.form.keypairs = names
