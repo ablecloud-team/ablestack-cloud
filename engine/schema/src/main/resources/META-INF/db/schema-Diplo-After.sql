@@ -54,3 +54,4 @@ CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.host', 'migration_ip', 'VARCHAR(45)'
 -- backup offering table update
 CALL `cloud`.`ADD_COL`('backup_offering', 'retention_period', 'VARCHAR(255) DEFAULT null');
 CALL `cloud`.`ADD_COL`('backups', 'snapshot_id', 'VARCHAR(255) DEFAULT null');
+ALTER TABLE `cloud`.`backups` MODIFY COLUMN `external_id` varchar(4096) DEFAULT NULL COMMENT 'external ID';

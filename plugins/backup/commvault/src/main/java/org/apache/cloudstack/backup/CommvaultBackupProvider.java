@@ -25,7 +25,6 @@ import com.cloud.host.HostVO;
 import com.cloud.host.Status;
 import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor;
-import com.cloud.storage.StoragePoolHostVO;
 import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
@@ -87,6 +86,7 @@ import java.util.StringTokenizer;
 import java.util.StringJoiner;
 import java.util.Properties;
 import java.util.Collections;
+import java.util.Comparator;
 import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -143,6 +143,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     private static final String RSYNC_COMMAND = "rsync -az %s %s";
     private static final String RM_COMMAND = "rm -rf %s";
+    private static final String CURRRENT_DEVICE = "virsh domblklist --domain %s | tail -n 3 | head -n 1 | awk '{print $1}'";
+    private static final String ATTACH_DISK_COMMAND = " virsh attach-disk %s %s %s --driver qemu --subdriver qcow2 --cache none";
 
     @Inject
     private BackupDao backupDao;
@@ -316,6 +318,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     boolean installJob = client.getInstallActiveJob(host.getPrivateIpAddress());
                     boolean checkInstall = client.getClientProps(checkHost);
                     if (installJob || !checkInstall) {
+                        if (!checkInstall) {
+                            LOG.error("The host is registered with the client, but the readiness status is not normal and you must manually check the client status.");
+                        }
                         return false;
                     }
                 }
@@ -361,19 +366,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         return false;
                     }
                 } else {
-                    // 호스트가 클라이언트에는 등록되었지만 구성이 정상적으로 되지 않은 경우
-                    boolean checkInstall = client.getClientProps(checkHost);
+                    // 호스트가 클라이언트에는 등록되었지만 구성이 정상적으로 되지 않은 경우 준비 상태 체크
+                    boolean checkInstall = client.getClientCheckReadiness(checkHost);
                     if (!checkInstall) {
-                        String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
-                        if (jobId != null) {
-                            String jobStatus = client.getJobStatus(jobId);
-                            if (!jobStatus.equalsIgnoreCase("Completed")) {
-                                LOG.error("installing agent on the Commvault Backup Provider failed jogId : " + jobId + " , jobStatus : " + jobStatus);
-                                failResult.put(host.getPrivateIpAddress(), jobId);
-                            }
-                        } else {
-                            return false;
-                        }
+                        LOG.error("The host is registered with the client, but the readiness status is not normal and you must manually check the client status.");
+                        return false;
                     }
                 }
             }
@@ -435,6 +432,25 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
+    public boolean updateBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) {
+        final CommvaultClient client = getClient(zoneId);
+        String type = "updateRpo";
+        String planEntity = client.getScheduleTaskId(type, externalId);
+        JSONObject jsonObject = new JSONObject(planEntity);
+        String planType = String.valueOf(jsonObject.get("planType"));
+        String planName = String.valueOf(jsonObject.get("planName"));
+        String planSubtype = String.valueOf(jsonObject.get("planSubtype"));
+        String planId = String.valueOf(jsonObject.get("planId"));
+        JSONObject entityInfo = jsonObject.getJSONObject("entityInfo");
+        String companyId = String.valueOf(entityInfo.get("companyId"));
+        String storagePolicyId = client.getStoragePolicyId(planName);
+        if (storagePolicyId == null) {
+            throw new CloudRuntimeException("Failed to get plan storage policy id commvault api");
+        }
+        return client.getStoragePolicyDetails(planId, storagePolicyId, retentionPeriod);
+    }
+
+    @Override
     public List<BackupOffering> listBackupOfferings(Long zoneId) {
         return getClient(zoneId).listPlans();
     }
@@ -485,7 +501,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     @Override
     public boolean restoreVMFromBackup(VirtualMachine vm, Backup backup) {
         List<Backup.VolumeInfo> backedVolumes = backup.getBackedUpVolumes();
-        List<VolumeVO> volumes = backedVolumes.stream().map(volume -> volumeDao.findByUuid(volume.getUuid())).collect(Collectors.toList());
+        List<VolumeVO> volumes = backedVolumes.stream()
+                .map(volume -> volumeDao.findByUuid(volume.getUuid()))
+                .sorted((v1, v2) -> Long.compare(v1.getDeviceId(), v2.getDeviceId()))
+                .collect(Collectors.toList());
         try {
             String commvaultServer = getUrlDomain(CommvaultUrl.value());
         } catch (URISyntaxException e) {
@@ -631,9 +650,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findDestroyedReferenceBySnapshot(snapshot.getSnapshotId(), DataStoreRole.Primary);
                         String snapshotPath = snapshotStore.getInstallPath();
                         if (volumes.getPath().equalsIgnoreCase(volume.getPath())) {
-                            LOG.info("volume이 같은 경우");
                             VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
-                            StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
                             Long restoredVolumeDiskSize = 0L;
                             // Find volume size  from backup vols
                             for (Backup.VolumeInfo VMVolToRestore : backupSourceVm.getBackupVolumeList()) {
@@ -649,7 +666,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             restoredVolume.setUuid(UUID.randomUUID().toString());
                             restoredVolume.setRemoved(null);
                             restoredVolume.setDisplayVolume(true);
-                            restoredVolume.setPoolId(dataStore.getPoolId());
+                            restoredVolume.setPoolId(volumes.getPoolId());
                             restoredVolume.setPath(restoredVolume.getUuid());
                             restoredVolume.setState(Volume.State.Copying);
                             restoredVolume.setSize(restoredVolumeDiskSize);
@@ -659,11 +676,37 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             } catch (Exception e) {
                                 throw new CloudRuntimeException("Unable to craft restored volume due to: "+e);
                             }
-                            String command = String.format(RSYNC_COMMAND, snapshotPath, volumePath);
+                            String reVolumePath = String.format("%s/%s", storagePool.getPath(), restoredVolume.getUuid());
+                            String command = String.format(RSYNC_COMMAND, snapshotPath, reVolumePath);
                             LOG.info(command);
                             if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), command)) {
                                 Date restoreJobEnd = new Date();
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
+                                if (VirtualMachine.State.Running.equals(vmNameAndState.second())) {
+                                    final VMInstanceVO vm = vmInstanceDao.findVMByInstanceName(vmNameAndState.first());
+                                    HostVO rvHostVO = hostDao.findById(vm.getHostId());
+                                    Ternary<String, String, String> rvCredentials = getKVMHyperisorCredentials(rvHostVO);
+                                    command = String.format(CURRRENT_DEVICE, vmNameAndState.first());
+                                    String currentDevice = executeDeviceCommand(rvHostVO, rvCredentials.first(), rvCredentials.second(), command);
+                                    if (currentDevice == null || currentDevice.contains("error")) {
+                                        volumeDao.expunge(restoredVolume.getId());
+                                        command = String.format(RM_COMMAND, snapshotPath);
+                                        executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
+                                        throw new CloudRuntimeException("Failed to get current device execute command VM to location " + volume.getPath());
+                                    } else {
+                                        currentDevice = currentDevice.replaceAll("\\s", "");
+                                        char lastChar = currentDevice.charAt(currentDevice.length() - 1);
+                                        char incrementedChar = (char) (lastChar + 1);
+                                        String rvDevice = currentDevice.substring(0, currentDevice.length() - 1) + incrementedChar;
+                                        command = String.format(ATTACH_DISK_COMMAND, vmNameAndState.first(), reVolumePath, rvDevice);
+                                        if (!executeAttachCommand(rvHostVO, rvCredentials.first(), rvCredentials.second(), command)) {
+                                            volumeDao.expunge(restoredVolume.getId());
+                                            command = String.format(RM_COMMAND, snapshotPath);
+                                            executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
+                                            throw new CloudRuntimeException(String.format("Failed to attach volume to VM: %s", vmNameAndState.first()));
+                                        }
+                                    }
+                                }
                                 checkResult.put(snapshots[i], volumePath);
                                 restoreVolume = restoredVolume.getUuid();
                             } else {
@@ -673,17 +716,14 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                 executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                             }
                         } else {
-                            LOG.info("volume이 다른 경우");
                             String command = String.format(RM_COMMAND, snapshotPath);
                             LOG.info(command);
                             executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                         }
                     }
                     if (!checkResult.isEmpty()) {
-                        LOG.info("!checkResult.isEmpty()");
                         return new Pair<>(true,restoreVolume);
                     } else {
-                        LOG.info("checkResult.isEmpty()");
                         throw new CloudRuntimeException("Failed to restore VM to location " + volume.getPath());
                     }
                 }
@@ -736,6 +776,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         UserVmJoinVO userVM = userVmJoinDao.findById(vm.getId());
         List<VolumeVO> volumes = volumeDao.findByInstance(userVM.getId());
+        volumes.sort(Comparator.comparing(Volume::getDeviceId));
         StringJoiner joiner = new StringJoiner(",");
         Map<Object, String> checkResult = new HashMap<>();
         for (VolumeVO vol : volumes) {
@@ -837,55 +878,70 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 String jobStatus = client.getJobStatus(jobId);
                 if (jobStatus.equalsIgnoreCase("Completed")) {
                     String jobDetails = client.getJobDetails(jobId);
-                    JSONObject jsonObject2 = new JSONObject(jobDetails);
-                    String endTime = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
-                    long timestamp = Long.parseLong(endTime) * 1000L;
-                    Date endDate = new Date(timestamp);
-                    SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-                    String formattedString = formatterDateTime.format(endDate);
-                    String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
-                    String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
-                    String externalId = path + "," + jobId;
-                    BackupVO backup = new BackupVO();
-                    backup.setVmId(vm.getId());
-                    backup.setExternalId(externalId);
-                    backup.setType(type);
-                    try {
-                        backup.setDate(formatterDateTime.parse(formattedString));
-                    } catch (ParseException e) {
-                        String msg = String.format("Unable to parse date [%s].", endTime);
-                        LOG.error(msg, e);
-                        throw new CloudRuntimeException(msg, e);
-                    }
-                    backup.setSize(Long.parseLong(size));
-                    long virtualSize = 0L;
-                    for (final Volume volume: volumeDao.findByInstance(vm.getId())) {
-                        if (Volume.State.Ready.equals(volume.getState())) {
-                            virtualSize += volume.getSize();
+                    if (jobDetails != null) {
+                        JSONObject jsonObject2 = new JSONObject(jobDetails);
+                        String endTime = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
+                        long timestamp = Long.parseLong(endTime) * 1000L;
+                        Date endDate = new Date(timestamp);
+                        SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                        String formattedString = formatterDateTime.format(endDate);
+                        String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
+                        String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
+                        String externalId = path + "," + jobId;
+                        BackupVO backup = new BackupVO();
+                        backup.setVmId(vm.getId());
+                        backup.setExternalId(externalId);
+                        backup.setType(type.toUpperCase());
+                        try {
+                            backup.setDate(formatterDateTime.parse(formattedString));
+                        } catch (ParseException e) {
+                            String msg = String.format("Unable to parse date [%s].", endTime);
+                            LOG.error(msg, e);
+                            throw new CloudRuntimeException(msg, e);
                         }
+                        backup.setSize(Long.parseLong(size));
+                        long virtualSize = 0L;
+                        for (final Volume volume: volumeDao.findByInstance(vm.getId())) {
+                            if (Volume.State.Ready.equals(volume.getState())) {
+                                virtualSize += volume.getSize();
+                            }
+                        }
+                        backup.setProtectedSize(Long.valueOf(virtualSize));
+                        backup.setStatus(org.apache.cloudstack.backup.Backup.Status.BackedUp);
+                        backup.setBackupOfferingId(vm.getBackupOfferingId());
+                        backup.setAccountId(vm.getAccountId());
+                        backup.setDomainId(vm.getDomainId());
+                        backup.setZoneId(vm.getDataCenterId());
+                        backup.setBackedUpVolumes(BackupManagerImpl.createVolumeInfoFromVolumes(volumeDao.findByInstance(vm.getId()), checkResult));
+                        StringJoiner snapshots = new StringJoiner(",");
+                        for (String value : checkResult.values()) {
+                            snapshots.add(value);
+                        }
+                        backup.setSnapshotId(snapshots.toString());
+                        backupDao.persist(backup);
+                        // 백업 성공 후 스냅샷 삭제
+                        for (String value : checkResult.values()) {
+                            Map<String, String> snapshotParams = new HashMap<>();
+                            snapshotParams.put("id", value);
+                            moldMethod = "GET";
+                            moldCommand = "deleteSnapshot";
+                            moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+                        }
+                        return true;
+                    } else {
+                        // 백업 실패
+                        if (!checkResult.isEmpty()) {
+                            for (String value : checkResult.values()) {
+                                Map<String, String> snapshotParams = new HashMap<>();
+                                snapshotParams.put("id", value);
+                                moldMethod = "GET";
+                                moldCommand = "deleteSnapshot";
+                                moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+                            }
+                        }
+                        LOG.error("createBackup commvault api resulted in " + jobStatus);
+                        return false;
                     }
-                    backup.setProtectedSize(Long.valueOf(virtualSize));
-                    backup.setStatus(org.apache.cloudstack.backup.Backup.Status.BackedUp);
-                    backup.setBackupOfferingId(vm.getBackupOfferingId());
-                    backup.setAccountId(vm.getAccountId());
-                    backup.setDomainId(vm.getDomainId());
-                    backup.setZoneId(vm.getDataCenterId());
-                    backup.setBackedUpVolumes(BackupManagerImpl.createVolumeInfoFromVolumes(volumeDao.findByInstance(vm.getId()), checkResult));
-                    StringJoiner snapshots = new StringJoiner(",");
-                    for (String value : checkResult.values()) {
-                        snapshots.add(value);
-                    }
-                    backup.setSnapshotId(snapshots.toString());
-                    backupDao.persist(backup);
-                    // 백업 성공 후 스냅샷 삭제
-                    for (String value : checkResult.values()) {
-                        Map<String, String> snapshotParams = new HashMap<>();
-                        snapshotParams.put("id", value);
-                        moldMethod = "GET";
-                        moldCommand = "deleteSnapshot";
-                        moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                    }
-                    return true;
                 } else {
                     // 백업 실패
                     if (!checkResult.isEmpty()) {
@@ -1277,6 +1333,38 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return serverInfo;
     }
 
+    private String executeDeviceCommand(HostVO host, String username, String password, String command) {
+        try {
+            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), 22,
+                    username, null, password, command, 120000, 120000, 3600000);
+
+            if (!response.first()) {
+                LOG.error(String.format("get current device failed on HYPERVISOR %s due to: %s", host, response.second()));
+            } else {
+                return response.second();
+            }
+        } catch (final Exception e) {
+            throw new CloudRuntimeException(String.format("Failed to get current device backup on host %s due to: %s", host.getName(), e.getMessage()));
+        }
+        return null;
+    }
+
+    private boolean executeAttachCommand(HostVO host, String username, String password, String command) {
+        try {
+            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), 22,
+                    username, null, password, command, 120000, 120000, 3600000);
+
+            if (!response.first()) {
+                LOG.error(String.format("Attach voulme failed on HYPERVISOR %s due to: %s", host, response.second()));
+            } else {
+                return true;
+            }
+        } catch (final Exception e) {
+            throw new CloudRuntimeException(String.format("Failed to attach volume backup on host %s due to: %s", host.getName(), e.getMessage()));
+        }
+        return false;
+    }
+
     private boolean executeRestoreCommand(HostVO host, String username, String password, String command) {
         try {
             Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), 22,
@@ -1285,7 +1373,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             if (!response.first()) {
                 LOG.error(String.format("Restore failed on HYPERVISOR %s due to: %s", host, response.second()));
             } else {
-                LOG.info(String.format("Commvault Restore Results: %s", response.second()));
                 return true;
             }
         } catch (final Exception e) {
@@ -1302,7 +1389,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             if (!response.first()) {
                 LOG.error(String.format("Restore failed on HYPERVISOR %s due to: %s", host, response.second()));
             } else {
-                LOG.info(String.format("Commvault Restore Results: %s", response.second()));
                 return true;
             }
         } catch (final Exception e) {

@@ -275,8 +275,6 @@ public class CommvaultClient {
             JsonNode planNode = root.path("plan");
             if (type.equals("deleteRpo")) {
                 JsonNode scheduleTaskIdNode = planNode.path("schedule").path("task").path("taskId");
-                // JsonNode scheduleLogTaskIdNode = planNode.path("database").path("scheduleLog").path("task").path("taskId");
-                // JsonNode snapTaskIdNode = planNode.path("snapInfo").path("snapTask").path("task").path("taskId");
                 if (!scheduleTaskIdNode.isMissingNode()) {
                     return scheduleTaskIdNode.asText();
                 }
@@ -618,7 +616,7 @@ public class CommvaultClient {
     }
 
     // GET https://<commserveIp>/commandcenter/api/client/<clientId>
-    // client properties 조회하는 API 설치가 정상적으로 된 경우 true, 안된 경우 false 반환
+    // client properties 조회하는 API 설치 및 준비상태가 정상적인 경우 true 반환
     public boolean getClientProps(String clientId) {
         try {
             final HttpResponse response = get("/client/" + clientId);
@@ -631,9 +629,11 @@ public class CommvaultClient {
                 for (JsonNode clientProp : clientProperties) {
                     JsonNode clientReadiness = clientProp.get("clientReadiness");
                     if (!clientReadiness.isMissingNode()) {
-                        String status = "Not Ready";
-                        if (clientReadiness.get("readinessStatus").asText().contains(status)) {
-                            return false;
+                        String status = "Ready.";
+                        if (clientReadiness.get("readinessStatus").asText().equalsIgnoreCase(status)) {
+                            return true;
+                        } else {
+                            return getClientCheckReadiness(clientId);
                         }
                     }
                 }
@@ -642,7 +642,35 @@ public class CommvaultClient {
             LOG.error("Failed to request getClientProps commvault api due to : ", e);
             checkResponseTimeOut(e);
         }
-        return true;
+        return false;
+    }
+
+    // GET https://<commserveIp>/commandcenter/api/Client/<clientId>/CheckReadiness?network=true&resourceCapacity=true&includeDisabledClients=true&NeedXmlResp=true&ApplicationReadinessOption=1
+    // client 준비상태 체크하는 API로 status가 Ready 일 때만 true 반환
+    public boolean getClientCheckReadiness(String clientId) {
+        try {
+            final HttpResponse response = get("/client/" + clientId + "/CheckReadiness?network=true&resourceCapacity=true&includeDisabledClients=false&NeedXmlResp=true&ApplicationReadinessOption=1");
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            JsonNode summary = root.get("summary");
+            if (summary != null && summary.isArray()) {
+                for (JsonNode entity : summary) {
+                    JsonNode status = entity.get("status");
+                    if (!status.isMissingNode()) {
+                        String ready = "Ready.";
+                        if (status.asText().equalsIgnoreCase(ready)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to request getClientCheckReadiness commvault api due to : ", e);
+            checkResponseTimeOut(e);
+        }
+        return false;
     }
 
     // GET https://<commserveIp>/commandcenter/api/plan/<planId>
@@ -827,11 +855,11 @@ public class CommvaultClient {
         return null;
     }
 
-    // POST https://10.10.255.56/commandcenter/api/subclient/<backupsetId>
+    // POST https://10.10.255.56/commandcenter/api/subclient/<subclientId>
     // 호스트의 backupset 콘텐츠 경로를 변경하는 API로 없는 경우 null, 있는 경우 backupsetId 반환
     public boolean updateBackupSet(String path, String subclientId, String clientId, String planName, String applicationId, String backupsetId, String instanceId, String subclientName, String backupsetName) {
         HttpURLConnection connection = null;
-        String postUrl = apiURI.toString() + "/subclient/" + backupsetId;
+        String postUrl = apiURI.toString() + "/subclient/" + subclientId;
         String[] paths = path.split(",");
         StringBuilder contentBuilder = new StringBuilder();
         for (int i = 0; i < paths.length; i++) {
@@ -1048,7 +1076,6 @@ public class CommvaultClient {
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setRequestProperty("Accept", "application/json");
                 connection.setRequestProperty("Authorization", accessToken);
-                connection.setConnectTimeout(10000);
                 connection.setReadTimeout(180000);
                 connection.setDoOutput(true);
                 String jsonBody = String.format(

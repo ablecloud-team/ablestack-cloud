@@ -434,4 +434,7 @@ public class VeeamBackupProvider extends AdapterBase implements BackupProvider, 
 
     @Override
     public boolean importBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
+
+    @Override
+    public boolean updateBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
 }

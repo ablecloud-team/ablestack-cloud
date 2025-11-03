@@ -1913,6 +1913,13 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
         _hostDao.update(host.getId(), host);
     }
 
+
+    private void updateMigrationIp(HostVO host, String migrationIp) {
+        logger.debug("Updating Host use live migataion use ip address to: " + migrationIp);
+        host.setMigrationIp(migrationIp);
+        _hostDao.update(host.getId(), host);
+    }
+
     private void updateHostGuestOSCategory(Long hostId, Long guestOSCategoryId) {
         // Verify that the guest OS Category exists
         if (!(guestOSCategoryId > 0) || _guestOSCategoryDao.findById(guestOSCategoryId) == null) {
@@ -1982,7 +1989,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
             updateHostTags(host, hostId, hostTags, isTagARule);
         }
 
-        updateMigratinIp(host, migrationIp);
+        updateMigrationIp(host, migrationIp);
 
         if (url != null) {
             _storageMgr.updateSecondaryStorage(hostId, url);

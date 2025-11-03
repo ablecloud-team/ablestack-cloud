@@ -74,4 +74,10 @@ public interface ManagementServer extends ManagementService, PluggableService {
 
     Pair<Boolean, String> updateSystemVM(VMInstanceVO systemVM, boolean forced);
 
+    /**
+     * VM 삭제 시 해당 VM에 할당된 모든 디바이스를 자동으로 해제합니다.
+     * @param vmId VM ID
+     */
+    void deallocateAllDevicesOnVmDestroy(Long vmId);
+
 }

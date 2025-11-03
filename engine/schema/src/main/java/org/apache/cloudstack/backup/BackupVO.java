@@ -53,7 +53,7 @@ public class BackupVO implements Backup {
     @Column(name = "vm_id")
     private long vmId;
 
-    @Column(name = "external_id")
+    @Column(name = "external_id", length = 4096)
     private String externalId;
 
     @Column(name = "type")
