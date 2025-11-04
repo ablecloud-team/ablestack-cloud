@@ -1907,6 +1907,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
         _hostDao.update(host.getId(), host);
     }
 
+
     private void updateMigrationIp(HostVO host, String migrationIp) {
         logger.debug("Updating Host use live migataion use ip address to: " + migrationIp);
         host.setMigrationIp(migrationIp);
