@@ -256,7 +256,7 @@ public class LibvirtVMDef {
                 }
                 if (_loader != null) {
                     if (_bootmode == BootMode.LEGACY) {
-                        guestDef.append("<loader readonly='yes' secure='no' type='pflash'>" + _loader + "</loader>\n");
+                        guestDef.append("<loader readonly='yes' secure='no' type='pflash' format='qcow2'>" + _loader + "</loader>\n");
                     } else if (_bootmode == BootMode.SECURE) {
                         guestDef.append("<loader readonly='yes' secure='yes' type='pflash'>" + _loader + "</loader>\n");
                     }
@@ -919,11 +919,11 @@ public class LibvirtVMDef {
             _diskFmtType = diskFmtType;
 
             if (isWindowsOS) {
-                _diskLabel = getDevLabel(devId, DiskBus.SATA, false); // Windows Secure VM
-                _bus = DiskBus.SATA;
+                _diskLabel = getDevLabel(devId, DiskBus.SCSI, false); // Windows Secure VM
+                _bus = DiskBus.SCSI;
             } else {
-                _diskLabel = getDevLabel(devId, DiskBus.VIRTIO, false); // Linux Secure VM
-                _bus = DiskBus.VIRTIO;
+                _diskLabel = getDevLabel(devId, DiskBus.SCSI, false); // Linux Secure VM
+                _bus = DiskBus.SCSI;
             }
         }
 
