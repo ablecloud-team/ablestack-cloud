@@ -1252,6 +1252,15 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
                     resp.setClusterName(cluster.getName());
                 }
             }
+            
+            // 마지막 호스트 ID 설정 (VM이 정지 상태일 때 사용)
+            if (vm.getLastHostId() != null) {
+                HostVO lastHost = hostDao.findById(vm.getLastHostId());
+                if (lastHost != null) {
+                    resp.setLastHostId(lastHost.getUuid());
+                }
+            }
+            
             responsesList.add(resp);
         }
         response.setResponses(responsesList, vms.second());
@@ -5124,8 +5133,6 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             options.put(VmDetailConstants.DATA_DISK_CONTROLLER, Arrays.asList("osdefault", "ide", "scsi", "virtio", "sata"));
             options.put(VmDetailConstants.SOUND, Arrays.asList("ich6"));
             options.put(VmDetailConstants.VIDEO_HARDWARE, Arrays.asList("cirrus", "vga", "qxl", "virtio"));
-            options.put(VmDetailConstants.VIDEO_HARDWARE_2, Arrays.asList("virtio"));
-            options.put(VmDetailConstants.VIDEO_RAM, Collections.emptyList());
             options.put("tpmversion", Arrays.asList(ApiConstants.TpmVersion.NONE.toString(), ApiConstants.TpmVersion.V2_0.toString()));
             options.put(VmDetailConstants.IO_POLICY, Arrays.asList("threads", "native", "io_uring", "storage_specific"));
             options.put(VmDetailConstants.IOTHREADS, Arrays.asList("enabled"));
