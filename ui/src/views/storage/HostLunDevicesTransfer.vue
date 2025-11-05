@@ -83,6 +83,17 @@ export default {
   },
   created () {
     if (this.resource && this.resource.id) {
+      // LUN이나 dm이 포함된 디바이스는 할당 불가
+      const deviceName = String(this.resource.hostDevicesName || '')
+      if (deviceName.toUpperCase().includes('LUN') || deviceName.toLowerCase().includes('dm')) {
+        this.$notification.warning({
+          message: this.$t('label.warning'),
+          description: 'LUN 또는 dm이 포함된 디바이스는 할당할 수 없습니다.'
+        })
+        this.$emit('close-action')
+        return
+      }
+
       this.fetchVMs()
       this.fetchCurrentAllocation()
     }
@@ -408,6 +419,22 @@ export default {
           throw new Error('No VM allocation found for this device')
         }
 
+        // VM 상태 확인 - 실행 중인 경우 할당 해제 불가
+        const vmResponse = await api('listVirtualMachines', {
+          id: vmId,
+          listall: true
+        })
+        const vm = vmResponse?.listvirtualmachinesresponse?.virtualmachine?.[0]
+
+        if (vm && vm.state === 'Running') {
+          this.$notification.warning({
+            message: this.$t('label.warning'),
+            description: this.$t('message.cannot.remove.device.vm.running')
+          })
+          this.loading = false
+          return
+        }
+
         const xmlConfig = this.generateXmlConfig(hostDevicesName)
 
         const detachResponse = await api('updateHostLunDevices', {
@@ -490,71 +517,25 @@ export default {
       const basePath = (targetDevicePath || '').split(' (')[0]
       const byIdMatch = (targetDevicePath || '').match(/\(([^)]+)\)/)
 
-      // dm으로 시작하는 디바이스인지 확인
-      const isDmDevice = basePath.includes('dm-') || basePath.includes('dm-uuid-')
-
-      // by-id 값을 우선적으로 사용하되, 백엔드 호환성을 위해 실제 경로도 함께 전달
+      // by-id 값을 우선적으로 사용
       let actualDevicePath = ''
       if (byIdMatch && byIdMatch[1]) {
-        // 괄호 안의 by-id 값을 우선 사용하되, 실제 경로도 함께 전달
-        // 백엔드에서 by-id를 찾지 못하면 실제 경로로 대체할 수 있도록
         actualDevicePath = `/dev/disk/by-id/${byIdMatch[1]}`
-      } else if (basePath && basePath.includes('dm-uuid-')) {
-        // dm-uuid가 포함된 경우 by-id 경로로 처리
-        actualDevicePath = basePath.startsWith('/dev/disk/by-id/') ? basePath : `/dev/disk/by-id/${basePath.split('/').pop()}`
+      } else if (basePath && basePath.startsWith('/dev/disk/by-id/')) {
+        actualDevicePath = basePath
       } else {
-        // 기본 경로 사용
         actualDevicePath = basePath
       }
 
-      // dm 디바이스는 <disk> 방식 사용, 일반 LUN은 <disk> 방식 사용
-      if (isDmDevice) {
-        // dm 디바이스는 <disk> 방식으로 XML 생성
-        const dmDevicePath = this.getDmDevicePath(basePath, byIdMatch)
-        return `
-          <disk type='block' device='lun'>
-            <driver name='qemu' type='raw' cache='none'/>
-            <source dev='${dmDevicePath}'/>
-          </disk>
-        `.trim()
-      } else {
-        // 일반 LUN은 <disk> 방식 사용 (by-id 경로 사용)
-        const targetDev = basePath.replace('/dev/', '')
-        return `
-          <disk type='block' device='lun'>
-            <driver name='qemu' type='raw' io='native' cache='none'/>
-            <source dev='${actualDevicePath}'/>
-            <target dev='${targetDev}' bus='scsi'/>
-          </disk>
-        `.trim()
-      }
-    },
-
-    getDmDevicePath (basePath, byIdMatch) {
-      // dm 디바이스는 by-id 대신 실제 디바이스 경로 사용
-      if (basePath && basePath.startsWith('/dev/dm-')) {
-        // 이미 /dev/dm-X 형태면 그대로 사용
-        return basePath
-      } else if (basePath && basePath.includes('dm-uuid-')) {
-        // dm-uuid가 포함된 경우 실제 dm-X 경로로 변환
-        // UI에서는 기본적으로 /dev/dm-10 사용 (실제 변환은 백엔드에서 수행)
-        return '/dev/dm-10'
-      } else if (byIdMatch && byIdMatch[1]) {
-        // by-id에서 실제 dm-X 경로로 변환
-        return '/dev/dm-10'
-      } else {
-        // 기본값
-        return basePath || '/dev/dm-10'
-      }
-    },
-
-    getSafeTargetDev () {
-      // 안전한 target dev 후보들 (sdc 충돌 방지를 위해 sdd부터 시작)
-      const candidates = ['sdd', 'sde', 'sdf', 'sdg', 'sdh', 'sdi', 'sdj', 'sdk', 'sdl', 'sdm', 'sdn', 'sdo', 'sdp', 'sdq', 'sdr', 'sds', 'sdt', 'sdu', 'sdv', 'sdw', 'sdx', 'sdy', 'sdz', 'sdc']
-
-      // 기본적으로 sdd를 반환 (실제 검증은 백엔드에서 수행)
-      // UI에서는 기본값만 제공하고, 백엔드에서 실제 사용 가능한 dev를 할당
-      return candidates[0] // sdd
+      // LUN 디바이스 XML 생성 (target은 백엔드에서 동적 할당)
+      const targetDev = basePath.replace('/dev/', '')
+      return `
+        <disk type='block' device='lun'>
+          <driver name='qemu' type='raw' io='native' cache='none'/>
+          <source dev='${actualDevicePath}'/>
+          <target dev='${targetDev}' bus='scsi'/>
+        </disk>
+      `.trim()
     },
 
     extractScsiAddressFromHostDevicesText () {
@@ -625,31 +606,20 @@ export default {
 
     async checkDeviceAllocationInScsi (deviceName) {
       try {
-        // 모든 호스트에서 SCSI 디바이스 할당 상태 확인
-        const hostsResponse = await api('listHosts', {})
-        const hosts = hostsResponse?.listhostsresponse?.host || []
-
-        for (const host of hosts) {
-          try {
-            const scsiResponse = await api('listHostScsiDevices', { id: host.id })
-            const scsiDevices = scsiResponse?.listhostscsidevicesresponse?.listhostscsidevices?.[0]
-
-            if (scsiDevices && scsiDevices.vmallocations) {
-              for (const [scsiDeviceName, vmId] of Object.entries(scsiDevices.vmallocations)) {
-                if (vmId && this.isSamePhysicalDevice(deviceName, scsiDeviceName)) {
-                  return true
-                }
-              }
-            }
-          } catch (error) {
-            // SCSI API가 지원되지 않는 호스트는 건너뛰기
-            if (error.response?.status === 530) {
-              continue
+        // 현재 선택된 호스트에서만 SCSI 디바이스 할당 상태 확인
+        if (!this.resource?.id) return false
+        const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+        const scsiDevices = scsiResponse?.listhostscsidevicesresponse?.listhostscsidevices?.[0]
+        if (scsiDevices && scsiDevices.vmallocations) {
+          for (const [scsiDeviceName, vmId] of Object.entries(scsiDevices.vmallocations)) {
+            if (vmId && this.isSamePhysicalDevice(deviceName, scsiDeviceName)) {
+              return true
             }
           }
         }
         return false
       } catch (error) {
+        // 미지원 호스트 등은 교차 할당 없음으로 처리
         return false
       }
     },

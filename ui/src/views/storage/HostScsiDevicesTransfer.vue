@@ -76,7 +76,9 @@ export default {
       isDeleteMode: false,
       deleteTargetType: null, // 'scsi' | 'lun'
       deleteTargetName: null,
-      deleteTargetVmId: null
+      deleteTargetVmId: null,
+      // 교차 확인으로 LUN API 호출 시 미지원 호스트에서 오류가 발생하므로 SCSI 플로우에서는 비활성화
+      skipLunCrossCheck: true
     }
   },
   created () {
@@ -138,7 +140,10 @@ export default {
                 } else {
                   // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
                   try {
-                    const xmlConfig = this.generateXmlConfig(deviceName, '')
+                    // 실제 디바이스 정보 조회
+                    const deviceIndex = scsiDevices.hostdevicesname?.indexOf(deviceName)
+                    const deviceText = deviceIndex !== -1 ? scsiDevices.hostdevicestext?.[deviceIndex] : ''
+                    const xmlConfig = await this.generateXmlConfig(deviceName, deviceText)
                     await api('updateHostScsiDevices', {
                       hostid: this.resource.id,
                       hostdevicesname: deviceName,
@@ -154,7 +159,10 @@ export default {
               } catch (error) {
                 // VM 조회 실패 시에도 할당 해제 시도
                 try {
-                  const xmlConfig = this.generateXmlConfig(deviceName, '')
+                  // 실제 디바이스 정보 조회
+                  const deviceIndex = scsiDevices.hostdevicesname?.indexOf(deviceName)
+                  const deviceText = deviceIndex !== -1 ? scsiDevices.hostdevicestext?.[deviceIndex] : ''
+                  const xmlConfig = await this.generateXmlConfig(deviceName, deviceText)
                   await api('updateHostScsiDevices', {
                     hostid: this.resource.id,
                     hostdevicesname: deviceName,
@@ -203,20 +211,20 @@ export default {
 
       this.loading = true
       try {
-        // SCSI 할당 전에 LUN에서 이미 할당되었는지 확인
-        const isAllocatedInLun = await this.checkDeviceAllocationInLun(this.resource.hostDevicesName)
-        if (isAllocatedInLun) {
-          // 알림 대신 즉시 삭제 모드로 전환
-          this.isDeleteMode = true
-          this.deleteTargetType = 'lun'
-          this.deleteTargetName = this.resource.hostDevicesName
-          // 교차 타입의 vmid 조회
-          try {
-            const lunResp = await api('listHostLunDevices', { id: this.resource.id })
-            const lun = lunResp?.listhostlundevicesresponse?.listhostlundevices?.[0]
-            this.deleteTargetVmId = lun?.vmallocations?.[this.resource.hostDevicesName] || null
-          } catch (e) {}
-          return
+        // LUN 교차 확인은 스킵하여 미지원 호스트에서의 오류를 차단
+        if (!this.skipLunCrossCheck) {
+          const isAllocatedInLun = await this.checkDeviceAllocationInLun(this.resource.hostDevicesName)
+          if (isAllocatedInLun) {
+            this.isDeleteMode = true
+            this.deleteTargetType = 'lun'
+            this.deleteTargetName = this.resource.hostDevicesName
+            try {
+              const lunResp = await api('listHostLunDevices', { id: this.resource.id })
+              const lun = lunResp?.listhostlundevicesresponse?.listhostlundevices?.[0]
+              this.deleteTargetVmId = lun?.vmallocations?.[this.resource.hostDevicesName] || null
+            } catch (e) {}
+            return
+          }
         }
 
         // SCSI 디바이스의 상세 정보를 다시 조회
@@ -235,7 +243,7 @@ export default {
           }
         }
 
-        const xmlConfig = this.generateXmlConfig(this.resource.hostDevicesName, hostDevicesText)
+        const xmlConfig = await this.generateXmlConfig(this.resource.hostDevicesName, hostDevicesText)
 
         await api('updateHostScsiDevices', {
           hostid: this.resource.id,
@@ -276,6 +284,25 @@ export default {
       if (this.deleteTargetType === 'scsi') {
         try {
           this.loading = true
+
+          // VM 상태 확인 - 실행 중인 경우 할당 해제 불가
+          if (this.deleteTargetVmId) {
+            const vmResponse = await api('listVirtualMachines', {
+              id: this.deleteTargetVmId,
+              listall: true
+            })
+            const vm = vmResponse?.listvirtualmachinesresponse?.virtualmachine?.[0]
+
+            if (vm && vm.state === 'Running') {
+              this.$notification.warning({
+                message: this.$t('label.warning'),
+                description: this.$t('message.cannot.remove.device.vm.running')
+              })
+              this.loading = false
+              return
+            }
+          }
+
           // LUN으로 동일 SCSI 주소가 붙어있다면 먼저 LUN 해제 시도
           const detachedLun = await this.tryDetachLunIfAllocatedByAddress()
           if (detachedLun) {
@@ -284,7 +311,20 @@ export default {
             this.$emit('close-action')
             return
           }
-          const xmlConfig = this.generateXmlConfig(this.resource.hostDevicesName, this.resource.hostDevicesText || '')
+
+          // 해제 시에는 현재 SCSI 디바이스 목록을 다시 조회하여 정확한 정보 사용
+          const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+          const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
+
+          let actualDeviceText = this.resource.hostDevicesText || ''
+          if (scsiData && scsiData.hostdevicesname) {
+            const deviceIndex = scsiData.hostdevicesname.indexOf(this.deleteTargetName || this.resource.hostDevicesName)
+            if (deviceIndex !== -1 && scsiData.hostdevicestext) {
+              actualDeviceText = scsiData.hostdevicestext[deviceIndex] || actualDeviceText
+            }
+          }
+
+          const xmlConfig = await this.generateXmlConfig(this.deleteTargetName || this.resource.hostDevicesName, actualDeviceText)
           await api('updateHostScsiDevices', {
             hostid: this.resource.id,
             hostdevicesname: this.deleteTargetName || this.resource.hostDevicesName,
@@ -306,6 +346,25 @@ export default {
       if (this.deleteTargetType === 'lun') {
         try {
           this.loading = true
+
+          // VM 상태 확인 - 실행 중인 경우 할당 해제 불가
+          if (this.deleteTargetVmId) {
+            const vmResponse = await api('listVirtualMachines', {
+              id: this.deleteTargetVmId,
+              listall: true
+            })
+            const vm = vmResponse?.listvirtualmachinesresponse?.virtualmachine?.[0]
+
+            if (vm && vm.state === 'Running') {
+              this.$notification.warning({
+                message: this.$t('label.warning'),
+                description: this.$t('message.cannot.remove.device.vm.running')
+              })
+              this.loading = false
+              return
+            }
+          }
+
           // 최소 LUN XML
           const lunXml = `
             <disk type='block' device='lun'>
@@ -334,6 +393,9 @@ export default {
 
     // SCSI_ADDRESS 기준으로 같은 물리 디바이스가 LUN에 할당되어 있으면 LUN을 먼저 해제
     async tryDetachLunIfAllocatedByAddress () {
+      if (this.skipLunCrossCheck) {
+        return false
+      }
       try {
         const scsiAddr = this.extractAddressStringFromText(this.resource.hostDevicesText)
         if (!scsiAddr) {
@@ -406,8 +468,20 @@ export default {
           actualDevicePath = basePath || '/dev/null'
         }
 
-        // target dev 추출
-        const targetDev = (basePath || 'sda').replace('/dev/', '')
+        // target dev 추출 - 디바이스 경로에서 추출하거나 SCSI 주소 정보에서 유추
+        let targetDev = 'vda' // 기본값
+        if (basePath) {
+          // /dev/sda -> sda, /dev/sdb -> sdb
+          targetDev = basePath.replace('/dev/', '').split(/[0-9]/)[0]
+        } else {
+          // basePath가 없으면 SCSI 주소 정보에서 유추
+          const scsiAddr = this.extractAddressStringFromText(deviceText)
+          if (scsiAddr) {
+            const target = parseInt(scsiAddr.split(':')[2])
+            // target 번호를 기반으로 sd[a-z] 생성
+            targetDev = 'sd' + String.fromCharCode(97 + (target % 26))
+          }
+        }
 
         // SCSI 주소 추출
         const scsiAddr = this.extractAddressStringFromText(deviceText)
@@ -456,20 +530,22 @@ export default {
           return
         }
 
-        // 2) LUN 쪽에 같은 물리 디바이스가 할당되어 있으면 LUN 삭제 모드
-        const lunResp = await api('listHostLunDevices', { id: this.resource.id })
-        const lun = lunResp?.listhostlundevicesresponse?.listhostlundevices?.[0]
-        if (lun && lun.vmallocations && Array.isArray(lun.hostdevicesname)) {
-          for (let i = 0; i < lun.hostdevicesname.length; i++) {
-            const lunName = lun.hostdevicesname[i]
-            const lvm = lun.vmallocations[lunName]
-            if (!lvm) continue
-            if (this.isSamePhysicalDevice(this.resource.hostDevicesName, lunName)) {
-              this.isDeleteMode = true
-              this.deleteTargetType = 'lun'
-              this.deleteTargetName = lunName
-              this.deleteTargetVmId = lvm
-              return
+        // 2) (옵션) LUN 교차 확인은 비활성화됨
+        if (!this.skipLunCrossCheck) {
+          const lunResp = await api('listHostLunDevices', { id: this.resource.id })
+          const lun = lunResp?.listhostlundevicesresponse?.listhostlundevices?.[0]
+          if (lun && lun.vmallocations && Array.isArray(lun.hostdevicesname)) {
+            for (let i = 0; i < lun.hostdevicesname.length; i++) {
+              const lunName = lun.hostdevicesname[i]
+              const lvm = lun.vmallocations[lunName]
+              if (!lvm) continue
+              if (this.isSamePhysicalDevice(this.resource.hostDevicesName, lunName)) {
+                this.isDeleteMode = true
+                this.deleteTargetType = 'lun'
+                this.deleteTargetName = lunName
+                this.deleteTargetVmId = lvm
+                return
+              }
             }
           }
         }
@@ -478,31 +554,35 @@ export default {
       }
     },
 
-    generateXmlConfig (hostDeviceName, hostDevicesText) {
-      // hostDevicesText가 undefined인 경우 처리
-      if (!hostDevicesText) {
-        return `
-          <hostdev mode='subsystem' type='scsi'>
-            <source>
-              <adapter name='scsi_host0'/>
-              <address bus='0' target='0' unit='0'/>
-            </source>
-          </hostdev>
-        `.trim()
+    async generateXmlConfig (hostDeviceName, hostDevicesText) {
+      // hostDevicesText가 없으면 API를 통해 다시 조회
+      let actualDeviceText = hostDevicesText
+
+      if (!actualDeviceText) {
+        try {
+          const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+          const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
+
+          if (scsiData && scsiData.hostdevicesname) {
+            const deviceIndex = scsiData.hostdevicesname.indexOf(hostDeviceName)
+            if (deviceIndex !== -1 && scsiData.hostdevicestext) {
+              actualDeviceText = scsiData.hostdevicestext[deviceIndex]
+            }
+          }
+        } catch (error) {
+          console.warn(`[SCSI] Failed to fetch device text for ${hostDeviceName}:`, error)
+        }
       }
 
-      // hostDevicesText에서 [host:bus:target:unit] 추출
-      const match = hostDevicesText.match(/\[(\d+):(\d+):(\d+):(\d+)\]/)
+      // 여전히 텍스트가 없으면 에러
+      if (!actualDeviceText) {
+        throw new Error(`Cannot generate SCSI XML: no device information available for ${hostDeviceName}`)
+      }
+
+      // actualDeviceText에서 [host:bus:target:unit] 추출
+      const match = actualDeviceText.match(/\[(\d+):(\d+):(\d+):(\d+)\]/)
       if (!match) {
-        // 기본값 사용
-        return `
-          <hostdev mode='subsystem' type='scsi'>
-            <source>
-              <adapter name='scsi_host0'/>
-              <address bus='0' target='0' unit='0'/>
-            </source>
-          </hostdev>
-        `.trim()
+        throw new Error(`Cannot extract SCSI address from device text: ${actualDeviceText}`)
       }
 
       const host = match[1]
@@ -532,31 +612,20 @@ export default {
 
     async checkDeviceAllocationInLun (deviceName) {
       try {
-        // 모든 호스트에서 LUN 디바이스 할당 상태 확인
-        const hostsResponse = await api('listHosts', {})
-        const hosts = hostsResponse?.listhostsresponse?.host || []
-
-        for (const host of hosts) {
-          try {
-            const lunResponse = await api('listHostLunDevices', { id: host.id })
-            const lunDevices = lunResponse?.listhostlundevicesresponse?.listhostlundevices?.[0]
-
-            if (lunDevices && lunDevices.vmallocations) {
-              for (const [lunDeviceName, vmId] of Object.entries(lunDevices.vmallocations)) {
-                if (vmId && this.isSamePhysicalDevice(deviceName, lunDeviceName)) {
-                  return true
-                }
-              }
-            }
-          } catch (error) {
-            // LUN API가 지원되지 않는 호스트는 건너뛰기
-            if (error.response?.status === 530) {
-              continue
+        // 현재 선택된 호스트에서만 LUN 디바이스 할당 상태 확인
+        if (!this.resource?.id) return false
+        const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
+        const lunDevices = lunResponse?.listhostlundevicesresponse?.listhostlundevices?.[0]
+        if (lunDevices && lunDevices.vmallocations) {
+          for (const [lunDeviceName, vmId] of Object.entries(lunDevices.vmallocations)) {
+            if (vmId && this.isSamePhysicalDevice(deviceName, lunDeviceName)) {
+              return true
             }
           }
         }
         return false
       } catch (error) {
+        // 미지원 호스트 등은 교차 할당 없음으로 처리
         return false
       }
     },

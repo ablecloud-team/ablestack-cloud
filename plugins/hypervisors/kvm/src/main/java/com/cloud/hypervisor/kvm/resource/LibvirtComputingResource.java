@@ -2896,7 +2896,13 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
         devices.addDevice(createChannelDef(vmTO));
         devices.addDevice(createWatchDogDef());
-        devices.addDevice(createVideoDef(vmTO));
+
+        // Add multiple video devices if configured
+        List<VideoDef> videoDefs = createVideoDefs(vmTO);
+        for (VideoDef videoDef : videoDefs) {
+            devices.addDevice(videoDef);
+        }
+
         devices.addDevice(createConsoleDef());
         devices.addDevice(createGraphicDef(vmTO));
         devices.addDevice(createTabletInputDef());
@@ -3002,41 +3008,67 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return new ConsoleDef(PTY, null, null, (short)0);
     }
 
-    protected VideoDef createVideoDef(VirtualMachineTO vmTO) {
+    protected java.util.List<VideoDef> createVideoDefs(VirtualMachineTO vmTO) {
+        List<VideoDef> videoDefs = new ArrayList<>();
         Map<String, String> details = vmTO.getDetails();
-        String videoHw = this.videoHw;
-        int videoRam = this.videoRam;
 
-        if (details != null) {
+        if (details == null) {
+            // No details, use default single video device
+            videoDefs.add(new VideoDef(this.videoHw, this.videoRam));
+            return videoDefs;
+        }
+
+        // Check if there are indexed video.hardware1~4 settings
+        boolean hasIndexedVideoHardware = false;
+        for (int i = 1; i <= 4; i++) {
+            String hwKey = "video.hardware" + i;
+            if (details.containsKey(hwKey)) {
+                hasIndexedVideoHardware = true;
+                String videoHw = details.get(hwKey);
+                int videoRam = this.videoRam; // default
+
+                // Look for corresponding video.ram{i}
+                String ramKey = "video.ram" + i;
+                if (details.containsKey(ramKey)) {
+                    try {
+                        videoRam = Integer.parseInt(details.get(ramKey));
+                    } catch (NumberFormatException ignore) {
+                        // Use default
+                    }
+                }
+
+                if (videoHw != null && !videoHw.isEmpty()) {
+                    videoDefs.add(new VideoDef(videoHw, videoRam));
+                }
+            }
+        }
+
+        // If no indexed video hardware found, check for legacy video.hardware setting
+        if (!hasIndexedVideoHardware) {
+            String videoHw = this.videoHw;
+            int videoRam = this.videoRam;
+
             if (details.containsKey(VmDetailConstants.VIDEO_HARDWARE)) {
                 videoHw = details.get(VmDetailConstants.VIDEO_HARDWARE);
             }
 
-            for (int i = 1; i <= 4; i++) {
-                String hwKey = "video.hardware" + i;
-                String ramKey = "video.ram" + i;
-                if (details.containsKey(hwKey)) {
-                    String v = details.get(hwKey);
-                    if (v != null && !v.isEmpty()) {
-                        videoHw = v;
-                    }
-                    if (details.containsKey(ramKey)) {
-                        try {
-                            videoRam = Integer.parseInt(details.get(ramKey));
-                        } catch (NumberFormatException ignore) {
-                        }
-                    }
-                    break;
-                }
-            }
             if (details.containsKey("video.ram")) {
                 try {
                     videoRam = Integer.parseInt(details.get("video.ram"));
                 } catch (NumberFormatException ignore) {
                 }
             }
+
+            videoDefs.add(new VideoDef(videoHw, videoRam));
         }
-        return new VideoDef(videoHw, videoRam);
+
+        return videoDefs;
+    }
+
+    protected VideoDef createVideoDef(VirtualMachineTO vmTO) {
+        // Legacy method - returns first video device
+        List<VideoDef> videoDefs = createVideoDefs(vmTO);
+        return videoDefs.isEmpty() ? new VideoDef(this.videoHw, this.videoRam) : videoDefs.get(0);
     }
 
     protected SoundDef createSoundDef(VirtualMachineTO vmTO) {
@@ -6402,3 +6434,4 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         } catch (IOException e) {}
     }
 }
+
