@@ -1252,15 +1252,6 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
                     resp.setClusterName(cluster.getName());
                 }
             }
-            
-            // 마지막 호스트 ID 설정 (VM이 정지 상태일 때 사용)
-            if (vm.getLastHostId() != null) {
-                HostVO lastHost = hostDao.findById(vm.getLastHostId());
-                if (lastHost != null) {
-                    resp.setLastHostId(lastHost.getUuid());
-                }
-            }
-            
             responsesList.add(resp);
         }
         response.setResponses(responsesList, vms.second());
@@ -5138,7 +5129,6 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             options.put(VmDetailConstants.IOTHREADS, Arrays.asList("enabled"));
             options.put(VmDetailConstants.NIC_MULTIQUEUE_NUMBER, Collections.emptyList());
             options.put(VmDetailConstants.NIC_PACKED_VIRTQUEUES_ENABLED, Arrays.asList("true", "false"));
-            options.put(VmDetailConstants.BOOT_ORDER, Arrays.asList("cdrom", "hd"));
         }
 
         if (HypervisorType.VMware.equals(hypervisorType)) {
