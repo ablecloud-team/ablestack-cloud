@@ -3868,7 +3868,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             enableOVSDriver = true;
         }
 
-        if (!nic.isSecurityGroupEnabled() && !enableOVSDriver) {
+        if (!nic.isSecurityGroupEnabled() && !enableOVSDriver && nic.getNwfilter()) {
             interfaceDef.setFilterrefFilterTag();
         }
         if (vmSpec.getDetails() != null) {
