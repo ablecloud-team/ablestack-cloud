@@ -47,6 +47,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.crypto.Mac;
@@ -971,6 +973,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     private static final VirtualMachine.Type []systemVmTypes = { VirtualMachine.Type.SecondaryStorageVm, VirtualMachine.Type.ConsoleProxy};
     private static final List<HypervisorType> LIVE_MIGRATION_SUPPORTING_HYPERVISORS = List.of(HypervisorType.Hyperv, HypervisorType.KVM,
             HypervisorType.LXC, HypervisorType.Ovm, HypervisorType.Ovm3, HypervisorType.Simulator, HypervisorType.VMware, HypervisorType.XenServer);
+
+    // 디바이스 매칭을 위한 정규식 패턴
+    private static final String BY_ID_PATH_PATTERN = "/dev/disk/by-id/([^'\"\\s]+)";
+    private static final String PARENTHESES_CONTENT_PATTERN = "\\(([^)]+)\\)";
 
     @Inject
     public AccountManager _accountMgr;
@@ -2348,20 +2354,27 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         if (answer == null) {
             throw new CloudRuntimeException("Answer is null");
         }
-        if (!answer.getResult()) {
-            String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
-                    : "No additional details available";
-            String errorMsg = "Answer result is false. Details: " + errorDetails;
-            logger.error(errorMsg);
-            throw new CloudRuntimeException(errorMsg);
-        }
-        if (!(answer instanceof ListHostUsbDeviceAnswer)) {
-            throw new CloudRuntimeException("Answer is not an instance of listHostUsbDeviceAnswer");
-        }
 
-        ListHostUsbDeviceAnswer usbAnswer = (ListHostUsbDeviceAnswer) answer;
-        if (!usbAnswer.isSuccessMessage()) {
-            throw new IllegalArgumentException("Failed to list VM USB objects.");
+        ListHostUsbDeviceAnswer usbAnswer;
+        if (!answer.getResult() && answer.getDetails() != null
+                && answer.getDetails().contains("Unsupported command issued")) {
+            // 에이전트가 미지원이면 조용히 빈 목록으로 응답
+            usbAnswer = new ListHostUsbDeviceAnswer(true, new ArrayList<>(), new ArrayList<>());
+        } else {
+            if (!answer.getResult()) {
+                String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
+                        : "No additional details available";
+                String errorMsg = "Answer result is false. Details: " + errorDetails;
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+            if (!(answer instanceof ListHostUsbDeviceAnswer)) {
+                throw new CloudRuntimeException("Answer is not an instance of listHostUsbDeviceAnswer");
+            }
+            usbAnswer = (ListHostUsbDeviceAnswer) answer;
+            if (!usbAnswer.isSuccessMessage()) {
+                throw new IllegalArgumentException("Failed to list VM USB objects.");
+            }
         }
 
         List<ListHostUsbDevicesResponse> responses = new ArrayList<>();
@@ -2378,7 +2391,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 hostDevicesNames.add(parts[0].trim());
                 pciDescriptions.add(parts[1].trim());
             } else {
-                // Unexpected PCI info format
+                logger.warn("Unexpected PCI info format: " + hostDevicesText);
             }
         }
 
@@ -2412,6 +2425,21 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             throw new CloudRuntimeException("Host not found with ID: " + id);
         }
 
+        // 지원 하이퍼바이저 타입 검증: LUN 디바이스 조회/부착은 현재 KVM만 지원
+        if (hostVO.getHypervisorType() == null || hostVO.getHypervisorType() != HypervisorType.KVM) {
+            ListResponse<ListHostLunDevicesResponse> listResponse = new ListResponse<>();
+            List<ListHostLunDevicesResponse> responses = new ArrayList<>();
+
+            ListHostLunDevicesResponse response = new ListHostLunDevicesResponse();
+            response.setHostDevicesNames(new ArrayList<>());
+            response.setHostDevicesTexts(new ArrayList<>());
+            response.setVmAllocations(new HashMap<>());
+
+            responses.add(response);
+            listResponse.setResponses(responses);
+            return listResponse;
+        }
+
         ListHostLunDeviceCommand lunCmd = new ListHostLunDeviceCommand(id);
         Answer answer;
         try {
@@ -2422,8 +2450,15 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             throw new CloudRuntimeException(errorMsg, e);
         }
 
-        validateLunAnswer(answer);
-        ListHostLunDeviceAnswer lunAnswer = (ListHostLunDeviceAnswer) answer;
+        ListHostLunDeviceAnswer lunAnswer;
+        if (answer != null && !answer.getResult() && answer.getDetails() != null
+                && answer.getDetails().contains("Unsupported command issued")) {
+            // 에이전트가 미지원이면 조용히 빈 목록으로 응답
+            lunAnswer = new ListHostLunDeviceAnswer(true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        } else {
+            validateLunAnswer(answer);
+            lunAnswer = (ListHostLunDeviceAnswer) answer;
+        }
 
         ListResponse<ListHostLunDevicesResponse> listResponse = new ListResponse<>();
         List<ListHostLunDevicesResponse> responses = new ArrayList<>();
@@ -2486,8 +2521,15 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             throw new CloudRuntimeException(errorMsg, e);
         }
 
-        validateScsiAnswer(answer);
-        ListHostScsiDeviceAnswer scsiAnswer = (ListHostScsiDeviceAnswer) answer;
+        ListHostScsiDeviceAnswer scsiAnswer;
+        if (answer != null && !answer.getResult() && answer.getDetails() != null
+                && answer.getDetails().contains("Unsupported command issued")) {
+            // 에이전트가 미지원이면 조용히 빈 목록으로 응답
+            scsiAnswer = new ListHostScsiDeviceAnswer(true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        } else {
+            validateScsiAnswer(answer);
+            scsiAnswer = (ListHostScsiDeviceAnswer) answer;
+        }
 
         ListResponse<ListHostScsiDevicesResponse> listResponse = new ListResponse<>();
         List<ListHostScsiDevicesResponse> responses = new ArrayList<>();
@@ -2578,20 +2620,27 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         if (answer == null) {
             throw new CloudRuntimeException("Answer is null");
         }
-        if (!answer.getResult()) {
-            String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
-                    : "No additional details available";
-            String errorMsg = "Answer result is false. Details: " + errorDetails;
-            logger.error(errorMsg);
-            throw new CloudRuntimeException(errorMsg);
-        }
-        if (!(answer instanceof ListHostDeviceAnswer)) {
-            throw new CloudRuntimeException("Answer is not an instance of listHostDeviceAnswer");
-        }
 
-        ListHostDeviceAnswer pciAnswer = (ListHostDeviceAnswer) answer;
-        if (!pciAnswer.isSuccessMessage()) {
-            throw new IllegalArgumentException("Failed to list VM PCI objects.");
+        ListHostDeviceAnswer pciAnswer;
+        if (!answer.getResult() && answer.getDetails() != null
+                && answer.getDetails().contains("Unsupported command issued")) {
+            // 에이전트가 미지원이면 조용히 빈 목록으로 응답
+            pciAnswer = new ListHostDeviceAnswer(true, new ArrayList<>(), new ArrayList<>());
+        } else {
+            if (!answer.getResult()) {
+                String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
+                        : "No additional details available";
+                String errorMsg = "Answer result is false. Details: " + errorDetails;
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+            if (!(answer instanceof ListHostDeviceAnswer)) {
+                throw new CloudRuntimeException("Answer is not an instance of listHostDeviceAnswer");
+            }
+            pciAnswer = (ListHostDeviceAnswer) answer;
+            if (!pciAnswer.isSuccessMessage()) {
+                throw new IllegalArgumentException("Failed to list VM PCI objects.");
+            }
         }
 
         List<ListHostDevicesResponse> responses = new ArrayList<>();
@@ -2608,7 +2657,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 hostDevicesNames.add(parts[0].trim());
                 pciDescriptions.add(parts[1].trim());
             } else {
-                // Unexpected PCI info format
             }
         }
 
@@ -2655,20 +2703,27 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         if (answer == null) {
             throw new CloudRuntimeException("Answer is null");
         }
-        if (!answer.getResult()) {
-            String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
-                    : "No additional details available";
-            String errorMsg = "Answer result is false. Details: " + errorDetails;
-            logger.error(errorMsg);
-            throw new CloudRuntimeException(errorMsg);
-        }
-        if (!(answer instanceof ListHostHbaDeviceAnswer)) {
-            throw new CloudRuntimeException("Answer is not an instance of listHostHbaDeviceAnswer");
-        }
 
-        ListHostHbaDeviceAnswer hbaAnswer = (ListHostHbaDeviceAnswer) answer;
-        if (!hbaAnswer.isSuccessMessage()) {
-            throw new IllegalArgumentException("Failed to list VM HBA objects.");
+        ListHostHbaDeviceAnswer hbaAnswer;
+        if (!answer.getResult() && answer.getDetails() != null
+                && answer.getDetails().contains("Unsupported command issued")) {
+            // 에이전트가 미지원이면 조용히 빈 목록으로 응답
+            hbaAnswer = new ListHostHbaDeviceAnswer(true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        } else {
+            if (!answer.getResult()) {
+                String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
+                        : "No additional details available";
+                String errorMsg = "Answer result is false. Details: " + errorDetails;
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+            if (!(answer instanceof ListHostHbaDeviceAnswer)) {
+                throw new CloudRuntimeException("Answer is not an instance of listHostHbaDeviceAnswer");
+            }
+            hbaAnswer = (ListHostHbaDeviceAnswer) answer;
+            if (!hbaAnswer.isSuccessMessage()) {
+                throw new IllegalArgumentException("Failed to list VM HBA objects.");
+            }
         }
 
         List<ListHostHbaDevicesResponse> responses = new ArrayList<>();
@@ -2724,7 +2779,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             }
         }
 
-
         try {
             DetailVO currentAllocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
 
@@ -2771,7 +2825,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                             int num = Integer.parseInt(detail.getName().split("-")[1]);
                             usedNums.add(num);
                         } catch (NumberFormatException e) {
-                            logger.warn("Invalid extraconfig number format: {}", detail.getName());
                         }
                     }
                 }
@@ -2786,8 +2839,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 _hostDetailsDao.persist(hostId, details);
             }
         } catch (Exception e) {
-            logger.error("Error during device allocation/deallocation - hostDeviceName: {}, error: {}",
-                hostDeviceName, e.getMessage(), e);
             throw new CloudRuntimeException("Failed to update device allocation: " + e.getMessage(), e);
         }
 
@@ -2845,7 +2896,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 }
             }
 
-
             try {
                 DetailVO currentAllocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
                 String vmInternalName = null;
@@ -2873,8 +2923,34 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     }
                 } else {
                     // 새로운 할당
+                    // 디바이스가 이미 다른 VM에 할당되어 있는 경우, 먼저 해제
                     if (currentAllocation != null) {
-                        throw new CloudRuntimeException("Device is already allocated to VM: " + currentAllocation.getValue());
+                        String currentVmIdStr = currentAllocation.getValue();
+                        VMInstanceVO currentVm = _vmInstanceDao.findById(Long.parseLong(currentVmIdStr));
+
+                        if (currentVm != null) {
+                            String currentVmName = currentVm.getInstanceName();
+
+                            // 기존 VM에서 디바이스 해제
+                            UpdateHostUsbDeviceCommand detachCmd = new UpdateHostUsbDeviceCommand(currentVmName, xmlConfig, false);
+                            try {
+                                Answer detachAnswer = _agentMgr.send(hostVO.getId(), detachCmd);
+                                if (detachAnswer == null || !detachAnswer.getResult()) {
+                                    // 계속 진행 (강제로 재할당 시도)
+                                }
+                            } catch (Exception e) {
+                                // 계속 진행 (강제로 재할당 시도)
+                            }
+
+                            // 기존 VM의 extraconfig에서 제거
+                            try {
+                                removeDeviceFromVmExtraConfig(currentVm.getId(), hostDeviceName, xmlConfig);
+                            } catch (Exception e) {
+                            }
+
+                            // DB에서 기존 할당 제거
+                            _hostDetailsDao.remove(currentAllocation.getId());
+                        }
                     }
                     vmInternalName = vmInstance.getInstanceName();
                 }
@@ -2923,6 +2999,12 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     }
                 } else {
                     // 새로운 할당
+                    // 다시 한번 확인 (동시성 문제 방지)
+                    DetailVO existingAllocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
+                    if (existingAllocation != null) {
+                        _hostDetailsDao.remove(existingAllocation.getId());
+                    }
+
                     DetailVO detail = new DetailVO(hostId, hostDeviceName, vmId.toString());
                     _hostDetailsDao.persist(detail);
 
@@ -2946,671 +3028,13 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 return response;
 
             } catch (Exception e) {
-                logger.error("Error during USB device allocation/deallocation - hostDeviceName: {}, error: {}",
-                    hostDeviceName, e.getMessage(), e);
                 throw new CloudRuntimeException("Failed to update USB device allocation: " + e.getMessage(), e);
             }
-        }
-        // VM에 디바이스가 할당될 때 호출되는 메서드
-        @Override
-        public ListResponse<UpdateHostLunDevicesResponse> updateHostLunDevices(UpdateHostLunDevicesCmd cmd) {
-            Long hostId = cmd.getHostId();
-            String hostDeviceName = cmd.getHostDeviceName();
-            Long vmId = cmd.getVirtualMachineId();
-            String xmlConfig = cmd.getXmlConfig();
-
-            // 호스트 존재 여부 확인
-            HostVO hostVO = _hostDao.findById(hostId);
-            if (hostVO == null) {
-                throw new CloudRuntimeException("Host not found with ID: " + hostId);
-            }
-
-            // VM 존재 여부 확인 (vmId가 null이 아닌 경우)
-            VMInstanceVO vmInstance = null;
-            if (vmId != null) {
-                vmInstance = _vmInstanceDao.findById(vmId);
-                if (vmInstance == null) {
-                    throw new CloudRuntimeException("VM not found with ID: " + vmId);
-                }
-            }
-
-
-            try {
-                // 같은 디바이스 이름의 모든 할당을 가져오기
-                List<DetailVO> currentAllocations = _hostDetailsDao.findByName(hostDeviceName);
-                // 현재 호스트의 할당만 필터링
-                currentAllocations = currentAllocations.stream()
-                    .filter(allocation -> allocation.getHostId() == hostId)
-                    .collect(Collectors.toList());
-                String vmInternalName = null;
-                boolean isAttach = (vmId != null);
-
-                if (!isAttach) {
-                    // 디바이스 할당 해제
-                    String currentVmId = cmd.getCurrentVmId();
-
-                    if (!currentAllocations.isEmpty()) {
-                        String vmIdToUse = (currentVmId != null) ? currentVmId : currentAllocations.get(0).getValue();
-
-                        if (currentVmId != null) {
-                            // 특정 VM에 대한 할당이 있는지 확인
-                            boolean found = false;
-                            for (DetailVO allocation : currentAllocations) {
-                                if (allocation.getValue().equals(currentVmId)) {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found) {
-                                // 특정 VM에 할당되지 않았다면 첫 번째 할당을 사용
-                                vmIdToUse = currentAllocations.get(0).getValue();
-                            }
-                        }
-
-                        if (vmIdToUse != null && !vmIdToUse.isEmpty()) {
-                            try {
-                                VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(vmIdToUse));
-                                if (vm != null) {
-                                    vmInternalName = vm.getInstanceName();
-                                } else {
-                                    logger.warn("VM not found with ID: {}", vmIdToUse);
-                                }
-                            } catch (NumberFormatException e) {
-                                logger.error("Invalid VM ID format: {}", vmIdToUse, e);
-                            } catch (Exception e) {
-                                logger.error("Error retrieving VM with ID: {}", vmIdToUse, e);
-                            }
-                        }
-                    } else {
-                    }
-                } else {
-                    if (!currentAllocations.isEmpty()) {
-                    }
-
-                    if (vmInstance != null) {
-                        vmInternalName = vmInstance.getInstanceName();
-                    } else {
-                        logger.error("vmInstance is null during allocation");
-                    }
-                }
-
-                if (vmInternalName == null) {
-                    throw new CloudRuntimeException("Unable to get VM instance name");
-                }
-
-                // 호스트에 명령 전송
-               UpdateHostLunDeviceCommand lunCmd = new UpdateHostLunDeviceCommand(vmInternalName, xmlConfig, isAttach, hostDeviceName);
-                Answer answer;
-                try {
-                    answer = _agentMgr.send(hostVO.getId(), lunCmd);
-                } catch (Exception e) {
-                    String errorMsg = "Error sending UpdateHostLunDeviceCommand: " + e.getMessage();
-                    logger.error(errorMsg, e);
-                    throw new CloudRuntimeException(errorMsg, e);
-                }
-
-                if (answer == null) {
-                    throw new CloudRuntimeException("Answer is null");
-                }
-                if (!answer.getResult()) {
-                    String errorDetails = (answer.getDetails() != null) ?
-                        answer.getDetails() : "No additional details available";
-                    throw new CloudRuntimeException("Failed to update LUN device. Details: " + errorDetails);
-                }
-                if (!(answer instanceof UpdateHostLunDeviceAnswer)) {
-                    throw new CloudRuntimeException("Answer is not an instance of UpdateHostLunDeviceAnswer");
-                }
-
-                UpdateHostLunDeviceAnswer lunAnswer = (UpdateHostLunDeviceAnswer) answer;
-                if (!lunAnswer.isSuccessMessage()) {
-                    throw new CloudRuntimeException("Failed to update LUN device for VM: " + lunAnswer.getVmName());
-                }
-
-                // DB 업데이트
-                if (!isAttach) {
-                    // 할당 해제 - 같은 LUN 디바이스의 특정 VM 할당만 해제
-                    String currentVmId = cmd.getCurrentVmId();
-                    if (currentVmId != null) {
-                        // 특정 VM에 대한 할당을 찾아서 제거
-                        for (DetailVO allocation : currentAllocations) {
-                            if (allocation.getValue().equals(currentVmId)) {
-                                _hostDetailsDao.remove(allocation.getId());
-
-                                // VM extraconfig에서 해당 디바이스 설정 제거
-                                removeDeviceFromVmExtraConfig(Long.parseLong(currentVmId), hostDeviceName, xmlConfig);
-
-                                break;
-                            }
-                        }
-                    } else {
-                        // currentVmId가 null이면 첫 번째 할당을 제거 (기존 로직 유지)
-                        if (!currentAllocations.isEmpty()) {
-                            DetailVO firstAllocation = currentAllocations.get(0);
-                            _hostDetailsDao.remove(firstAllocation.getId());
-
-                            // VM extraconfig에서 해당 디바이스 설정 제거
-                            removeDeviceFromVmExtraConfig(Long.parseLong(firstAllocation.getValue()), hostDeviceName, xmlConfig);
-
-                        }
-                    }
-                } else {
-                    // LUN 디바이스는 같은 이름으로도 여러 할당 가능하도록 허용
-                    // 기존 할당이 있어도 새로 할당 (덮어쓰지 않고 추가)
-                    if (!currentAllocations.isEmpty()) {
-                    }
-
-                    // LUN 디바이스를 host_details 테이블에 저장 (같은 이름으로도 여러 할당 가능)
-                    DetailVO detail = new DetailVO(hostId, hostDeviceName, vmId.toString());
-                    _hostDetailsDao.persist(detail);
-
-                    // VM extraconfig에 디바이스 설정 추가
-                    addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlConfig);
-
-                }
-
-                // 응답 생성
-                ListResponse<UpdateHostLunDevicesResponse> response = new ListResponse<>();
-                List<UpdateHostLunDevicesResponse> responses = new ArrayList<>();
-                UpdateHostLunDevicesResponse deviceResponse = new UpdateHostLunDevicesResponse();
-
-                // 현재 할당 상태 확인 (여러 할당이 있을 수 있음)
-                List<DetailVO> currentAllocationsForResponse = _hostDetailsDao.findByName(hostDeviceName);
-                // 현재 호스트의 할당만 필터링
-                currentAllocationsForResponse = currentAllocationsForResponse.stream()
-                    .filter(allocation -> allocation.getHostId() == hostId)
-                    .collect(Collectors.toList());
-                deviceResponse.setHostDeviceName(hostDeviceName);
-                if (!currentAllocationsForResponse.isEmpty()) {
-                    // 여러 할당이 있을 수 있으므로 첫 번째 할당을 표시
-                    deviceResponse.setVirtualMachineId(currentAllocationsForResponse.get(0).getValue());
-                    deviceResponse.setAllocated(true);
-                } else {
-                    deviceResponse.setVirtualMachineId(null);
-                    deviceResponse.setAllocated(false);
-                }
-
-                responses.add(deviceResponse);
-                response.setResponses(responses);
-
-                return response;
-
-            } catch (Exception e) {
-                logger.error("Error during LUN device allocation/deallocation - hostDeviceName: {}, error: {}",
-                    hostDeviceName, e.getMessage(), e);
-                throw new CloudRuntimeException("Failed to update LUN device allocation: " + e.getMessage(), e);
-            }
-        }
-
-        @Override
-        public ListResponse<UpdateHostScsiDevicesResponse> updateHostScsiDevices(UpdateHostScsiDevicesCmd cmd) {
-            Long hostId = cmd.getHostId();
-            String hostDeviceName = cmd.getHostDeviceName();
-            Long vmId = cmd.getVirtualMachineId();
-            String xmlConfig = cmd.getXmlConfig();
-
-            // 호스트 존재 여부 확인
-            HostVO hostVO = _hostDao.findById(hostId);
-            if (hostVO == null) {
-                throw new CloudRuntimeException("Host not found with ID: " + hostId);
-            }
-
-            // VM 존재 여부 확인 (vmId가 null이 아닌 경우)
-            VMInstanceVO vmInstance = null;
-            if (vmId != null) {
-                vmInstance = _vmInstanceDao.findById(vmId);
-                if (vmInstance == null) {
-                    throw new CloudRuntimeException("VM not found with ID: " + vmId);
-                }
-            }
-
-
-            try {
-                // 같은 디바이스 이름의 모든 할당을 가져오기
-                List<DetailVO> currentAllocations = _hostDetailsDao.findByName(hostDeviceName);
-                // 현재 호스트의 할당만 필터링
-                currentAllocations = currentAllocations.stream()
-                    .filter(allocation -> allocation.getHostId() == hostId)
-                    .collect(Collectors.toList());
-                String vmInternalName = null;
-                boolean isAttach = (vmId != null);
-
-                if (!isAttach) {
-                    // 디바이스 할당 해제
-                    String currentVmId = cmd.getCurrentVmId();
-
-                    String vmIdToUse = null;
-
-                    if (!currentAllocations.isEmpty()) {
-                        vmIdToUse = (currentVmId != null) ? currentVmId : currentAllocations.get(0).getValue();
-
-                        if (currentVmId != null) {
-                            // 특정 VM에 대한 할당이 있는지 확인
-                            boolean found = false;
-                            for (DetailVO allocation : currentAllocations) {
-                                if (allocation.getValue().equals(currentVmId)) {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found) {
-                                // 특정 VM에 할당되지 않았다면 첫 번째 할당을 사용
-                                vmIdToUse = currentAllocations.get(0).getValue();
-                            }
-                        }
-                    } else {
-                        // SCSI 디바이스에 직접 할당이 없으면, 같은 물리적 디바이스의 LUN 할당을 찾아보기
-                        vmIdToUse = findVmIdFromLunAllocation(hostId, hostDeviceName, currentVmId);
-                        if (vmIdToUse != null) {
-                        }
-                    }
-
-                    if (vmIdToUse != null && !vmIdToUse.isEmpty()) {
-                        try {
-                            VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(vmIdToUse));
-                            if (vm != null) {
-                                vmInternalName = vm.getInstanceName();
-                            } else {
-                                logger.warn("VM not found with ID: {}", vmIdToUse);
-                            }
-                        } catch (NumberFormatException e) {
-                            logger.error("Invalid VM ID format: {}", vmIdToUse, e);
-                        } catch (Exception e) {
-                            logger.error("Error retrieving VM with ID: {}", vmIdToUse, e);
-                        }
-                    } else {
-                    }
-                } else {
-                    // SCSI 디바이스는 같은 VM에 여러 개 할당 가능하므로 기존 할당 확인만 하고 계속 진행
-                    if (!currentAllocations.isEmpty()) {
-                    }
-
-                    if (vmInstance != null) {
-                        vmInternalName = vmInstance.getInstanceName();
-                    } else {
-                        logger.error("vmInstance is null during allocation");
-                    }
-                }
-
-                if (vmInternalName == null) {
-                    throw new CloudRuntimeException("Unable to get VM instance name");
-                }
-
-                // 호스트에 명령 전송
-               UpdateHostScsiDeviceCommand scsiCmd = new UpdateHostScsiDeviceCommand(vmInternalName, xmlConfig, isAttach);
-                Answer answer;
-                try {
-                    answer = _agentMgr.send(hostVO.getId(), scsiCmd);
-                } catch (Exception e) {
-                    String errorMsg = "Error sending UpdateHostScsiDeviceCommand: " + e.getMessage();
-                    logger.error(errorMsg, e);
-                    throw new CloudRuntimeException(errorMsg, e);
-                }
-
-                if (answer == null) {
-                    throw new CloudRuntimeException("Answer is null");
-                }
-                if (!answer.getResult()) {
-                    String errorDetails = (answer.getDetails() != null) ?
-                        answer.getDetails() : "No additional details available";
-                    throw new CloudRuntimeException("Failed to update SCSI device. Details: " + errorDetails);
-                }
-                if (!(answer instanceof UpdateHostScsiDeviceAnswer)) {
-                    throw new CloudRuntimeException("Answer is not an instance of UpdateHostScsiDeviceAnswer");
-                }
-
-                UpdateHostScsiDeviceAnswer scsiAnswer = (UpdateHostScsiDeviceAnswer) answer;
-                if (!scsiAnswer.isSuccessMessage()) {
-                    throw new CloudRuntimeException("Failed to update SCSI device for VM: " + scsiAnswer.getVmName());
-                }
-
-                // DB 업데이트
-                if (!isAttach) {
-                    // 할당 해제 - 같은 SCSI 디바이스의 특정 VM 할당만 해제
-                    String currentVmId = cmd.getCurrentVmId();
-                    if (currentVmId != null) {
-                        // 특정 VM에 대한 할당을 찾아서 제거
-                        for (DetailVO allocation : currentAllocations) {
-                            if (allocation.getValue().equals(currentVmId)) {
-                                _hostDetailsDao.remove(allocation.getId());
-
-                                // VM extraconfig에서 해당 디바이스 설정 제거
-                                removeDeviceFromVmExtraConfig(Long.parseLong(currentVmId), hostDeviceName, xmlConfig);
-
-                                break;
-                            }
-                        }
-                    } else {
-                        // currentVmId가 null이면 첫 번째 할당을 제거 (기존 로직 유지)
-                        if (!currentAllocations.isEmpty()) {
-                            DetailVO firstAllocation = currentAllocations.get(0);
-                            _hostDetailsDao.remove(firstAllocation.getId());
-
-                            // VM extraconfig에서 해당 디바이스 설정 제거
-                            removeDeviceFromVmExtraConfig(Long.parseLong(firstAllocation.getValue()), hostDeviceName, xmlConfig);
-
-                        }
-                    }
-                } else {
-                    // SCSI 디바이스는 같은 이름으로도 여러 할당 가능하도록 허용
-                    // 기존 할당이 있어도 새로 할당 (덮어쓰지 않고 추가)
-                    if (!currentAllocations.isEmpty()) {
-                    }
-
-                    // SCSI 디바이스를 host_details 테이블에 저장 (같은 이름으로도 여러 할당 가능)
-                    DetailVO detail = new DetailVO(hostId, hostDeviceName, vmId.toString());
-                    _hostDetailsDao.persist(detail);
-
-                    // VM extraconfig에 디바이스 설정 추가
-                    addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlConfig);
-
-                }
-
-                // 응답 생성
-                ListResponse<UpdateHostScsiDevicesResponse> response = new ListResponse<>();
-                List<UpdateHostScsiDevicesResponse> responses = new ArrayList<>();
-                UpdateHostScsiDevicesResponse deviceResponse = new UpdateHostScsiDevicesResponse();
-
-                // 현재 할당 상태 확인 (여러 할당이 있을 수 있음)
-                List<DetailVO> currentAllocationsForResponse = _hostDetailsDao.findByName(hostDeviceName);
-                // 현재 호스트의 할당만 필터링
-                currentAllocationsForResponse = currentAllocationsForResponse.stream()
-                    .filter(allocation -> allocation.getHostId() == hostId)
-                    .collect(Collectors.toList());
-                deviceResponse.setHostDeviceName(hostDeviceName);
-                if (!currentAllocationsForResponse.isEmpty()) {
-                    // 여러 할당이 있을 수 있으므로 첫 번째 할당을 표시
-                    deviceResponse.setVirtualMachineId(currentAllocationsForResponse.get(0).getValue());
-                    deviceResponse.setAllocated(true);
-                } else {
-                    deviceResponse.setVirtualMachineId(null);
-                    deviceResponse.setAllocated(false);
-                }
-
-                responses.add(deviceResponse);
-                response.setResponses(responses);
-
-                return response;
-
-            } catch (Exception e) {
-                logger.error("Error during SCSI device allocation/deallocation - hostDeviceName: {}, error: {}",
-                    hostDeviceName, e.getMessage(), e);
-                throw new CloudRuntimeException("Failed to update SCSI device allocation: " + e.getMessage(), e);
-            }
-        }
-
-
-        @Override
-        public ListResponse<UpdateHostHbaDevicesResponse> updateHostHbaDevices(UpdateHostHbaDevicesCmd cmd) {
-            Long hostId = cmd.getHostId();
-            String hostDeviceName = cmd.getHostDeviceName();
-            Long vmId = cmd.getVirtualMachineId();
-            String xmlConfig = cmd.getXmlConfig();
-
-            // 호스트 존재 여부 확인
-            HostVO hostVO = _hostDao.findById(hostId);
-            if (hostVO == null) {
-                throw new CloudRuntimeException("Host not found with ID: " + hostId);
-            }
-
-            // 할당/해제 여부 확인
-            boolean isAttach = (vmId != null);
-
-            // VM 존재 여부 확인 및 상태 검증
-            VMInstanceVO vmInstance = null;
-            VMInstanceVO targetVmInstance = null;
-
-            if (isAttach && vmId != null) {
-                vmInstance = _vmInstanceDao.findById(vmId);
-                if (vmInstance == null) {
-                    throw new CloudRuntimeException("VM not found with ID: " + vmId);
-                }
-                targetVmInstance = vmInstance;
-            } else if (!isAttach) {
-                // 해제 시에는 currentVmId를 사용
-                String currentVmId = cmd.getCurrentVmId();
-                if (currentVmId != null) {
-                    targetVmInstance = _vmInstanceDao.findById(Long.parseLong(currentVmId));
-                    if (targetVmInstance == null) {
-                        throw new CloudRuntimeException("VM not found with ID: " + currentVmId);
-                    }
-                }
-            }
-
-            // VM 상태 검증 - Running 상태일 때만 HBA 디바이스 조작 가능
-            if (targetVmInstance != null && targetVmInstance.getState() != VirtualMachine.State.Running) {
-                throw new CloudRuntimeException("VM must be in Running state for HBA device operations. Current state: " + targetVmInstance.getState());
-            }
-
-            // XML 설정 검증
-            if (xmlConfig == null || xmlConfig.trim().isEmpty()) {
-                throw new CloudRuntimeException("XML configuration is required for HBA device allocation");
-            }
-
-
-            try {
-                // 같은 디바이스 이름의 모든 할당을 가져오기
-                List<DetailVO> currentAllocations = _hostDetailsDao.findByName(hostDeviceName);
-                // 현재 호스트의 할당만 필터링
-                currentAllocations = currentAllocations.stream()
-                    .filter(allocation -> allocation.getHostId() == hostId)
-                    .collect(Collectors.toList());
-                String vmInternalName = null;
-
-                if (!isAttach) {
-                    // 디바이스 할당 해제
-                    String currentVmId = cmd.getCurrentVmId();
-                    if (!currentAllocations.isEmpty()) {
-                        String vmIdToUse = (currentVmId != null) ? currentVmId : currentAllocations.get(0).getValue();
-                        if (currentVmId != null) {
-                            // 특정 VM에 대한 할당이 있는지 확인
-                            boolean found = false;
-                            for (DetailVO allocation : currentAllocations) {
-                                if (allocation.getValue().equals(currentVmId)) {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found) {
-                                throw new CloudRuntimeException("Device is not allocated to the specified VM");
-                            }
-                        }
-                        VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(vmIdToUse));
-                        if (vm != null) {
-                            vmInternalName = vm.getInstanceName();
-                        }
-                    }
-                } else {
-                    // HBA 디바이스는 같은 VM에 여러 개 할당 가능하므로 기존 할당 확인만 하고 계속 진행
-                    if (!currentAllocations.isEmpty()) {
-                    }
-                    vmInternalName = vmInstance.getInstanceName();
-                }
-
-                if (vmInternalName == null) {
-                    throw new CloudRuntimeException("Unable to get VM instance name");
-                }
-
-
-               UpdateHostHbaDeviceCommand hbaCmd = new UpdateHostHbaDeviceCommand(vmInternalName, xmlConfig, isAttach);
-                Answer answer;
-                try {
-                    answer = _agentMgr.send(hostVO.getId(), hbaCmd);
-                } catch (Exception e) {
-                    String errorMsg = "Error sending UpdateHostHbaDeviceCommand: " + e.getMessage();
-                    logger.error(errorMsg, e);
-                    throw new CloudRuntimeException(errorMsg, e);
-                }
-
-                if (answer == null) {
-                    throw new CloudRuntimeException("Answer is null");
-                }
-                if (!(answer instanceof UpdateHostHbaDeviceAnswer)) {
-                    throw new CloudRuntimeException("Answer is not an instance of UpdateHostHbaDeviceAnswer");
-                }
-
-                UpdateHostHbaDeviceAnswer hbaAnswer = (UpdateHostHbaDeviceAnswer) answer;
-                if (!hbaAnswer.isSuccessMessage()) {
-                    String agentDetails = hbaAnswer.getDetails() != null ? hbaAnswer.getDetails() : "No additional details available";
-                    throw new CloudRuntimeException("Failed to update HBA device for VM: " + hbaAnswer.getVmName() + ". Details: " + agentDetails);
-                }
-
-                // DB 업데이트
-                if (!isAttach) {
-                    // 할당 해제 - 같은 HBA 디바이스의 특정 VM 할당만 해제
-                    String currentVmId = cmd.getCurrentVmId();
-                    if (currentVmId != null) {
-                        // 특정 VM에 대한 할당을 찾아서 제거
-                        for (DetailVO allocation : currentAllocations) {
-                            if (allocation.getValue().equals(currentVmId)) {
-                                _hostDetailsDao.remove(allocation.getId());
-
-                                // VM extraconfig에서 해당 디바이스 설정 제거
-                                removeDeviceFromVmExtraConfig(Long.parseLong(currentVmId), hostDeviceName, xmlConfig);
-
-                                break;
-                            }
-                        }
-                    } else {
-                        // currentVmId가 null이면 첫 번째 할당을 제거 (기존 로직 유지)
-                        if (!currentAllocations.isEmpty()) {
-                            DetailVO firstAllocation = currentAllocations.get(0);
-                            _hostDetailsDao.remove(firstAllocation.getId());
-
-                            // VM extraconfig에서 해당 디바이스 설정 제거
-                            removeDeviceFromVmExtraConfig(Long.parseLong(firstAllocation.getValue()), hostDeviceName, xmlConfig);
-
-                        }
-                    }
-                } else {
-                    // HBA 디바이스는 같은 이름으로도 여러 할당 가능하도록 허용
-                    // 기존 할당이 있어도 새로 할당 (덮어쓰지 않고 추가)
-                    if (!currentAllocations.isEmpty()) {
-                    }
-
-                    // HBA 디바이스를 host_details 테이블에 저장 (같은 이름으로도 여러 할당 가능)
-                    DetailVO detail = new DetailVO(hostId, hostDeviceName, vmId.toString());
-                    _hostDetailsDao.persist(detail);
-
-                    // VM extraconfig에 디바이스 설정 추가
-                    addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlConfig);
-
-                }
-
-                // 응답 생성
-                ListResponse<UpdateHostHbaDevicesResponse> response = new ListResponse<>();
-                List<UpdateHostHbaDevicesResponse> responses = new ArrayList<>();
-                UpdateHostHbaDevicesResponse deviceResponse = new UpdateHostHbaDevicesResponse();
-
-                // 현재 할당 상태 확인 (여러 할당이 있을 수 있음)
-                List<DetailVO> currentAllocationsForResponse = _hostDetailsDao.findByName(hostDeviceName);
-                // 현재 호스트의 할당만 필터링
-                currentAllocationsForResponse = currentAllocationsForResponse.stream()
-                    .filter(allocation -> allocation.getHostId() == hostId)
-                    .collect(Collectors.toList());
-                deviceResponse.setHostDeviceName(hostDeviceName);
-                if (!currentAllocationsForResponse.isEmpty()) {
-                    // 여러 할당이 있을 수 있으므로 첫 번째 할당을 표시
-                    deviceResponse.setVirtualMachineId(currentAllocationsForResponse.get(0).getValue());
-                    deviceResponse.setAllocated(true);
-                } else {
-                    deviceResponse.setVirtualMachineId(null);
-                    deviceResponse.setAllocated(false);
-                }
-
-                responses.add(deviceResponse);
-                response.setResponses(responses);
-                return response;
-
-            } catch (Exception e) {
-                logger.error("Error during HBA device allocation/deallocation - hostDeviceName: {}, error: {}",
-                    hostDeviceName, e.getMessage(), e);
-                throw new CloudRuntimeException("Failed to update HBA device allocation: " + e.getMessage(), e);
-            }
-        }
-
-        @Override
-        public ListResponse<CreateVhbaDeviceResponse> createVhbaDevice(CreateVhbaDeviceCmd cmd) {
-            Long hostId = cmd.getHostId();
-            String parentHbaName = cmd.getParentHbaName();
-            String wwnn = cmd.getWwnn();
-            String wwpn = cmd.getWwpn();
-            String vhbaName = cmd.getVhbaName();
-            String xmlContent = cmd.getXmlContent();
-
-
-            // 1. 호스트 존재 여부 확인
-            HostVO hostVO = _hostDao.findById(hostId);
-            if (hostVO == null) {
-                String errorMsg = "Host not found with ID: " + hostId;
-                logger.error(errorMsg);
-                throw new CloudRuntimeException(errorMsg);
-            }
-
-            // 2. 필수 파라미터 검증
-            if (parentHbaName == null || parentHbaName.trim().isEmpty()) {
-                String errorMsg = "Parent HBA name is required";
-                logger.error(errorMsg);
-                throw new CloudRuntimeException(errorMsg);
-            }
-
-            if (vhbaName == null || vhbaName.trim().isEmpty()) {
-                String errorMsg = "vHBA name is required";
-                logger.error(errorMsg);
-                throw new CloudRuntimeException(errorMsg);
-            }
-
-            // 3. CreateVhbaDeviceCommand 생성
-            CreateVhbaDeviceCommand hbaCmd = new CreateVhbaDeviceCommand(hostId, parentHbaName, wwnn, wwpn, vhbaName, xmlContent);
-
-            // 4. 에이전트로 명령 전송
-            Answer answer;
-            try {
-                answer = _agentMgr.send(hostVO.getId(), hbaCmd);
-            } catch (Exception e) {
-                String errorMsg = "Error sending CreateVhbaDeviceCommand: " + e.getMessage();
-                logger.error(errorMsg, e);
-                throw new CloudRuntimeException(errorMsg, e);
-            }
-
-            // 5. 응답 검증
-            if (answer == null) {
-                String errorMsg = "Answer is null";
-                logger.error(errorMsg);
-                throw new CloudRuntimeException(errorMsg);
-            }
-
-            if (!answer.getResult()) {
-                String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
-                        : "No additional details available";
-                String errorMsg = "Answer result is false. Details: " + errorDetails;
-                logger.error(errorMsg);
-                throw new CloudRuntimeException(errorMsg);
-            }
-
-            if (!(answer instanceof CreateVhbaDeviceAnswer)) {
-                String errorMsg = "Answer is not an instance of CreateVhbaDeviceAnswer. Actual type: " + answer.getClass().getSimpleName();
-                logger.error(errorMsg);
-                throw new CloudRuntimeException(errorMsg);
-            }
-
-            // 6. 응답 처리
-            CreateVhbaDeviceAnswer hbaAnswer = (CreateVhbaDeviceAnswer) answer;
-            List<CreateVhbaDeviceResponse> responses = new ArrayList<>();
-            ListResponse<CreateVhbaDeviceResponse> listResponse = new ListResponse<>();
-
-            CreateVhbaDeviceResponse response = new CreateVhbaDeviceResponse();
-            response.setVhbaName(hbaAnswer.getVhbaName());
-            response.setDetails(hbaAnswer.getCreatedDeviceName());
-            response.setSuccess(hbaAnswer.isSuccess());
-
-            responses.add(response);
-            listResponse.setResponses(responses);
-
-            return listResponse;
-        }
-
-        @Override
-    public ListResponse<UpdateHostVhbaDevicesResponse> updateHostVhbaDevices(UpdateHostVhbaDevicesCmd cmd) {
+    }
+
+    // VM에 디바이스가 할당될 때 호출되는 메서드
+    @Override
+    public ListResponse<UpdateHostLunDevicesResponse> updateHostLunDevices(UpdateHostLunDevicesCmd cmd) {
         Long hostId = cmd.getHostId();
         String hostDeviceName = cmd.getHostDeviceName();
         Long vmId = cmd.getVirtualMachineId();
@@ -3632,45 +3056,64 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         }
 
         try {
-            // 현재 할당 상태 확인 (디바이스 이름으로 모두 조회 후 hostId로 필터)
+            // 같은 디바이스 이름의 모든 할당을 가져오기
             List<DetailVO> currentAllocations = _hostDetailsDao.findByName(hostDeviceName);
-            if (currentAllocations != null) {
-                currentAllocations = currentAllocations.stream()
-                    .filter(allocation -> allocation.getHostId() == hostId)
-                    .collect(java.util.stream.Collectors.toList());
-            }
+            // 현재 호스트의 할당만 필터링
+            currentAllocations = currentAllocations.stream()
+                .filter(allocation -> allocation.getHostId() == hostId)
+                .collect(Collectors.toList());
             String vmInternalName = null;
             boolean isAttach = (vmId != null);
 
             if (!isAttach) {
                 // 디바이스 할당 해제
                 String currentVmId = cmd.getCurrentVmId();
-                if (currentAllocations != null && !currentAllocations.isEmpty()) {
-                    DetailVO targetAllocation = null;
+
+                if (!currentAllocations.isEmpty()) {
+                    String vmIdToUse = (currentVmId != null) ? currentVmId : currentAllocations.get(0).getValue();
 
                     if (currentVmId != null) {
-                        // 특정 VM에서 해제
+                        // 특정 VM에 대한 할당이 있는지 확인
+                        boolean found = false;
                         for (DetailVO allocation : currentAllocations) {
-                            if (currentVmId.equals(allocation.getValue())) {
-                                targetAllocation = allocation;
+                            if (allocation.getValue().equals(currentVmId)) {
+                                found = true;
                                 break;
                             }
                         }
-                    } else {
-                        // 첫 번째 할당 해제
-                        targetAllocation = currentAllocations.get(0);
-                    }
-
-                    if (targetAllocation != null) {
-                        VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(targetAllocation.getValue()));
-                        if (vm != null) {
-                            vmInternalName = vm.getInstanceName();
+                        if (!found) {
+                            logger.warn("Device {} is not allocated to the specified VM {}", hostDeviceName, currentVmId);
+                            // 특정 VM에 할당되지 않았다면 첫 번째 할당을 사용
+                            vmIdToUse = currentAllocations.get(0).getValue();
                         }
                     }
+
+                    if (vmIdToUse != null && !vmIdToUse.isEmpty()) {
+                        try {
+                            VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(vmIdToUse));
+                            if (vm != null) {
+                                vmInternalName = vm.getInstanceName();
+                            } else {
+                                logger.warn("VM not found with ID: {}", vmIdToUse);
+                            }
+                        } catch (NumberFormatException e) {
+                            logger.error("Invalid VM ID format: {}", vmIdToUse, e);
+                        } catch (Exception e) {
+                            logger.error("Error retrieving VM with ID: {}", vmIdToUse, e);
+                        }
+                    }
+                } else {
+                    logger.warn("No current allocations found for device: {}", hostDeviceName);
                 }
             } else {
-                // 새로운 할당
-                vmInternalName = vmInstance.getInstanceName();
+                if (!currentAllocations.isEmpty()) {
+                }
+
+                if (vmInstance != null) {
+                    vmInternalName = vmInstance.getInstanceName();
+                } else {
+                    logger.error("vmInstance is null during allocation");
+                }
             }
 
             if (vmInternalName == null) {
@@ -3678,12 +3121,12 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             }
 
             // 호스트에 명령 전송
-            UpdateHostVhbaDeviceCommand vhbaCmd = new UpdateHostVhbaDeviceCommand(hostId, hostDeviceName, vmInternalName, xmlConfig, isAttach);
-            Answer answer;
-            try {
-                answer = _agentMgr.send(hostVO.getId(), vhbaCmd);
+            UpdateHostLunDeviceCommand lunCmd = new UpdateHostLunDeviceCommand(vmInternalName, xmlConfig, isAttach, hostDeviceName);
+                Answer answer;
+                try {
+                    answer = _agentMgr.send(hostVO.getId(), lunCmd);
             } catch (Exception e) {
-                String errorMsg = "Error sending UpdateHostVhbaDeviceCommand: " + e.getMessage();
+                String errorMsg = "Error sending UpdateHostLunDeviceCommand: " + e.getMessage();
                 logger.error(errorMsg, e);
                 throw new CloudRuntimeException(errorMsg, e);
             }
@@ -3694,72 +3137,87 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             if (!answer.getResult()) {
                 String errorDetails = (answer.getDetails() != null) ?
                     answer.getDetails() : "No additional details available";
-                throw new CloudRuntimeException("Failed to update vHBA device. Details: " + errorDetails);
+                throw new CloudRuntimeException("Failed to update LUN device. Details: " + errorDetails);
             }
-            if (!(answer instanceof UpdateHostVhbaDeviceAnswer)) {
-                throw new CloudRuntimeException("Answer is not an instance of UpdateHostVhbaDeviceAnswer");
+            if (!(answer instanceof UpdateHostLunDeviceAnswer)) {
+                throw new CloudRuntimeException("Answer is not an instance of UpdateHostLunDeviceAnswer");
             }
 
-            UpdateHostVhbaDeviceAnswer vhbaAnswer = (UpdateHostVhbaDeviceAnswer) answer;
-            if (!vhbaAnswer.isSuccess()) {
-                throw new CloudRuntimeException("Failed to update vHBA device for VM: " + vhbaAnswer.getVmName());
+            UpdateHostLunDeviceAnswer lunAnswer = (UpdateHostLunDeviceAnswer) answer;
+            if (!lunAnswer.isSuccessMessage()) {
+                throw new CloudRuntimeException("Failed to update LUN device for VM: " + lunAnswer.getVmName());
             }
 
             // DB 업데이트
             if (!isAttach) {
-                // 할당 해제
+                // 할당 해제 - 같은 LUN 디바이스의 특정 VM 할당만 해제
                 String currentVmId = cmd.getCurrentVmId();
                 if (currentVmId != null) {
-                    // 특정 VM에서 해제
+                    // 특정 VM에 대한 할당을 찾아서 제거
                     for (DetailVO allocation : currentAllocations) {
-                        if (currentVmId.equals(allocation.getValue())) {
+                        if (allocation.getValue().equals(currentVmId)) {
                             _hostDetailsDao.remove(allocation.getId());
 
                             // VM extraconfig에서 해당 디바이스 설정 제거
                             removeDeviceFromVmExtraConfig(Long.parseLong(currentVmId), hostDeviceName, xmlConfig);
 
+                            logger.info("Removed specific allocation for device: " + hostDeviceName +
+                                      " from VM: " + currentVmId);
                             break;
                         }
                     }
                 } else {
-                    // 첫 번째 할당 해제
+                    // currentVmId가 null이면 첫 번째 할당을 제거 (기존 로직 유지)
                     if (!currentAllocations.isEmpty()) {
                         DetailVO firstAllocation = currentAllocations.get(0);
                         _hostDetailsDao.remove(firstAllocation.getId());
 
                         // VM extraconfig에서 해당 디바이스 설정 제거
                         removeDeviceFromVmExtraConfig(Long.parseLong(firstAllocation.getValue()), hostDeviceName, xmlConfig);
+
+                        logger.info("Removed first allocation for device: " + hostDeviceName +
+                                  " from VM: " + firstAllocation.getValue());
                     }
                 }
             } else {
-                // 새로운 할당 (다중 할당 허용)
+                // LUN 디바이스는 같은 이름으로도 여러 할당 가능하도록 허용
+                // 기존 할당이 있어도 새로 할당 (덮어쓰지 않고 추가)
+                if (!currentAllocations.isEmpty()) {
+                    logger.info("Device is already allocated to VMs: " +
+                              currentAllocations.stream().map(DetailVO::getValue).collect(Collectors.joining(", ")) +
+                              ". Allowing multiple allocations for same LUN device.");
+                }
+
+                // LUN 디바이스를 host_details 테이블에 저장 (같은 이름으로도 여러 할당 가능)
                 DetailVO detail = new DetailVO(hostId, hostDeviceName, vmId.toString());
                 _hostDetailsDao.persist(detail);
 
                 // VM extraconfig에 디바이스 설정 추가
                 addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlConfig);
+
+                logger.info("Created allocation for device: " + hostDeviceName +
+                          " to VM: " + vmId + " (multiple allocations allowed)");
             }
 
             // 응답 생성
-            ListResponse<UpdateHostVhbaDevicesResponse> response = new ListResponse<>();
-            List<UpdateHostVhbaDevicesResponse> responses = new ArrayList<>();
-            UpdateHostVhbaDevicesResponse deviceResponse = new UpdateHostVhbaDevicesResponse();
+            ListResponse<UpdateHostLunDevicesResponse> response = new ListResponse<>();
+            List<UpdateHostLunDevicesResponse> responses = new ArrayList<>();
+            UpdateHostLunDevicesResponse deviceResponse = new UpdateHostLunDevicesResponse();
 
-            // 현재 할당 상태 조회 (응답은 HBA와 동일하게 단일 VM/플래그로 표기)
-            List<DetailVO> allocations = _hostDetailsDao.findByName(hostDeviceName);
-            if (allocations != null) {
-                allocations = allocations.stream()
-                    .filter(allocation -> allocation.getHostId() == hostId)
-                    .collect(java.util.stream.Collectors.toList());
-            }
-
-            deviceResponse.setVhbaName(hostDeviceName);
-            if (allocations != null && !allocations.isEmpty()) {
-                deviceResponse.setVirtualMachineId(allocations.get(0).getValue());
-                deviceResponse.setIsAttached(true);
+            // 현재 할당 상태 확인 (여러 할당이 있을 수 있음)
+            List<DetailVO> currentAllocationsForResponse = _hostDetailsDao.findByName(hostDeviceName);
+            // 현재 호스트의 할당만 필터링
+            currentAllocationsForResponse = currentAllocationsForResponse.stream()
+                .filter(allocation -> allocation.getHostId() == hostId)
+                .collect(Collectors.toList());
+            deviceResponse.setHostDeviceName(hostDeviceName);
+            if (!currentAllocationsForResponse.isEmpty()) {
+                // 여러 할당이 있을 수 있으므로 첫 번째 할당을 표시
+                deviceResponse.setVirtualMachineId(currentAllocationsForResponse.get(0).getValue());
+                deviceResponse.setAllocated(true);
             } else {
                 deviceResponse.setVirtualMachineId(null);
-                deviceResponse.setIsAttached(false);
+                deviceResponse.setAllocated(false);
             }
 
             responses.add(deviceResponse);
@@ -3768,9 +3226,702 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             return response;
 
         } catch (Exception e) {
-            logger.error("Error during vHBA device allocation/deallocation - hostDeviceName: {}, error: {}",
+            logger.error("Error during LUN device allocation/deallocation - hostDeviceName: {}, error: {}",
+            hostDeviceName, e.getMessage(), e);
+            throw new CloudRuntimeException("Failed to update LUN device allocation: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ListResponse<UpdateHostScsiDevicesResponse> updateHostScsiDevices(UpdateHostScsiDevicesCmd cmd) {
+        Long hostId = cmd.getHostId();
+        String hostDeviceName = cmd.getHostDeviceName();
+        Long vmId = cmd.getVirtualMachineId();
+        String xmlConfig = cmd.getXmlConfig();
+
+        // 호스트 존재 여부 확인
+        HostVO hostVO = _hostDao.findById(hostId);
+        if (hostVO == null) {
+            throw new CloudRuntimeException("Host not found with ID: " + hostId);
+        }
+
+        // VM 존재 여부 확인 (vmId가 null이 아닌 경우)
+        VMInstanceVO vmInstance = null;
+        if (vmId != null) {
+            vmInstance = _vmInstanceDao.findById(vmId);
+            if (vmInstance == null) {
+                throw new CloudRuntimeException("VM not found with ID: " + vmId);
+            }
+        }
+
+        try {
+            // 같은 디바이스 이름의 모든 할당을 가져오기
+            List<DetailVO> currentAllocations = _hostDetailsDao.findByName(hostDeviceName);
+            // 현재 호스트의 할당만 필터링
+            currentAllocations = currentAllocations.stream()
+                .filter(allocation -> allocation.getHostId() == hostId)
+                .collect(Collectors.toList());
+            String vmInternalName = null;
+            boolean isAttach = (vmId != null);
+
+            if (!isAttach) {
+                // 디바이스 할당 해제
+                String currentVmId = cmd.getCurrentVmId();
+
+                String vmIdToUse = null;
+
+                if (!currentAllocations.isEmpty()) {
+                    vmIdToUse = (currentVmId != null) ? currentVmId : currentAllocations.get(0).getValue();
+
+                    if (currentVmId != null) {
+                        // 특정 VM에 대한 할당이 있는지 확인
+                        boolean found = false;
+                        for (DetailVO allocation : currentAllocations) {
+                            if (allocation.getValue().equals(currentVmId)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            logger.warn("Device {} is not allocated to the specified VM {}", hostDeviceName, currentVmId);
+                            // 특정 VM에 할당되지 않았다면 첫 번째 할당을 사용
+                            vmIdToUse = currentAllocations.get(0).getValue();
+                        }
+                    }
+                } else {
+                    // SCSI 디바이스에 직접 할당이 없으면, 같은 물리적 디바이스의 LUN 할당을 찾아보기
+                    vmIdToUse = findVmIdFromLunAllocation(hostId, hostDeviceName, currentVmId);
+                    if (vmIdToUse != null) {
+                    }
+                }
+
+                if (vmIdToUse != null && !vmIdToUse.isEmpty()) {
+                    try {
+                        VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(vmIdToUse));
+                        if (vm != null) {
+                            vmInternalName = vm.getInstanceName();
+                        } else {
+                            logger.warn("VM not found with ID: {}", vmIdToUse);
+                        }
+                    } catch (NumberFormatException e) {
+                        logger.error("Invalid VM ID format: {}", vmIdToUse, e);
+                    } catch (Exception e) {
+                        logger.error("Error retrieving VM with ID: {}", vmIdToUse, e);
+                    }
+                } else {
+                    logger.warn("No VM ID found for deallocation of device: {}", hostDeviceName);
+                }
+            } else {
+                // SCSI 디바이스는 같은 VM에 여러 개 할당 가능하므로 기존 할당 확인만 하고 계속 진행
+                if (!currentAllocations.isEmpty()) {
+                }
+
+                if (vmInstance != null) {
+                    vmInternalName = vmInstance.getInstanceName();
+                } else {
+                    logger.error("vmInstance is null during allocation");
+                }
+            }
+
+            if (vmInternalName == null) {
+                throw new CloudRuntimeException("Unable to get VM instance name");
+            }
+
+            // 호스트에 명령 전송
+            UpdateHostScsiDeviceCommand scsiCmd = new UpdateHostScsiDeviceCommand(vmInternalName, xmlConfig, isAttach);
+            Answer answer;
+            try {
+                answer = _agentMgr.send(hostVO.getId(), scsiCmd);
+            } catch (Exception e) {
+                String errorMsg = "Error sending UpdateHostScsiDeviceCommand: " + e.getMessage();
+                logger.error(errorMsg, e);
+                throw new CloudRuntimeException(errorMsg, e);
+            }
+
+            if (answer == null) {
+                throw new CloudRuntimeException("Answer is null");
+            }
+            if (!answer.getResult()) {
+                String errorDetails = (answer.getDetails() != null) ?
+                    answer.getDetails() : "No additional details available";
+                throw new CloudRuntimeException("Failed to update SCSI device. Details: " + errorDetails);
+            }
+            if (!(answer instanceof UpdateHostScsiDeviceAnswer)) {
+                throw new CloudRuntimeException("Answer is not an instance of UpdateHostScsiDeviceAnswer");
+            }
+
+            UpdateHostScsiDeviceAnswer scsiAnswer = (UpdateHostScsiDeviceAnswer) answer;
+            if (!scsiAnswer.isSuccessMessage()) {
+                throw new CloudRuntimeException("Failed to update SCSI device for VM: " + scsiAnswer.getVmName());
+            }
+
+            // DB 업데이트
+            logger.info("[UPDATE SCSI] DB Update starting - isAttach: {}, currentVmId: {}", isAttach, cmd.getCurrentVmId());
+
+            if (!isAttach) {
+                // 할당 해제 - 같은 SCSI 디바이스의 특정 VM 할당만 해제
+                String currentVmId = cmd.getCurrentVmId();
+                logger.info("[UPDATE SCSI] Deallocation: currentVmId={}, allocations count={}", currentVmId, currentAllocations.size());
+
+                if (currentVmId != null) {
+                    // 특정 VM에 대한 할당을 찾아서 제거
+                    for (DetailVO allocation : currentAllocations) {
+                        if (allocation.getValue().equals(currentVmId)) {
+                            _hostDetailsDao.remove(allocation.getId());
+
+                            // VM extraconfig에서 해당 디바이스 설정 제거
+                            logger.info("[UPDATE SCSI] Calling removeDeviceFromVmExtraConfig for VM: {}, device: '{}', xmlConfig length: {}",
+                                       currentVmId, hostDeviceName, xmlConfig != null ? xmlConfig.length() : 0);
+                            removeDeviceFromVmExtraConfig(Long.parseLong(currentVmId), hostDeviceName, xmlConfig);
+
+                            logger.info("Removed specific allocation for device: " + hostDeviceName +
+                                      " from VM: " + currentVmId);
+                            break;
+                        }
+                    }
+                } else {
+                    // currentVmId가 null이면 첫 번째 할당을 제거 (기존 로직 유지)
+                    if (!currentAllocations.isEmpty()) {
+                        DetailVO firstAllocation = currentAllocations.get(0);
+                        _hostDetailsDao.remove(firstAllocation.getId());
+
+                        // VM extraconfig에서 해당 디바이스 설정 제거
+                        logger.info("[UPDATE SCSI] Calling removeDeviceFromVmExtraConfig (first allocation) for VM: {}, device: '{}', xmlConfig length: {}",
+                                   firstAllocation.getValue(), hostDeviceName, xmlConfig != null ? xmlConfig.length() : 0);
+                        removeDeviceFromVmExtraConfig(Long.parseLong(firstAllocation.getValue()), hostDeviceName, xmlConfig);
+
+                        logger.info("Removed first allocation for device: " + hostDeviceName +
+                                  " from VM: " + firstAllocation.getValue());
+                    }
+                }
+            } else {
+                // SCSI 디바이스는 같은 이름으로도 여러 할당 가능하도록 허용
+                // 기존 할당이 있어도 새로 할당 (덮어쓰지 않고 추가)
+                if (!currentAllocations.isEmpty()) {
+                    logger.info("Device is already allocated to VMs: " +
+                              currentAllocations.stream().map(DetailVO::getValue).collect(Collectors.joining(", ")) +
+                              ". Allowing multiple allocations for same SCSI device.");
+                }
+
+                // SCSI 디바이스를 host_details 테이블에 저장 (같은 이름으로도 여러 할당 가능)
+                DetailVO detail = new DetailVO(hostId, hostDeviceName, vmId.toString());
+                _hostDetailsDao.persist(detail);
+
+                // VM extraconfig에 디바이스 설정 추가
+                addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlConfig);
+
+                logger.info("Created allocation for device: " + hostDeviceName +
+                          " to VM: " + vmId + " (multiple allocations allowed)");
+            }
+
+            // 응답 생성
+            ListResponse<UpdateHostScsiDevicesResponse> response = new ListResponse<>();
+            List<UpdateHostScsiDevicesResponse> responses = new ArrayList<>();
+            UpdateHostScsiDevicesResponse deviceResponse = new UpdateHostScsiDevicesResponse();
+
+            // 현재 할당 상태 확인 (여러 할당이 있을 수 있음)
+            List<DetailVO> currentAllocationsForResponse = _hostDetailsDao.findByName(hostDeviceName);
+            // 현재 호스트의 할당만 필터링
+            currentAllocationsForResponse = currentAllocationsForResponse.stream()
+                .filter(allocation -> allocation.getHostId() == hostId)
+                .collect(Collectors.toList());
+            deviceResponse.setHostDeviceName(hostDeviceName);
+            if (!currentAllocationsForResponse.isEmpty()) {
+                // 여러 할당이 있을 수 있으므로 첫 번째 할당을 표시
+                deviceResponse.setVirtualMachineId(currentAllocationsForResponse.get(0).getValue());
+                deviceResponse.setAllocated(true);
+            } else {
+                deviceResponse.setVirtualMachineId(null);
+                deviceResponse.setAllocated(false);
+            }
+
+            responses.add(deviceResponse);
+            response.setResponses(responses);
+
+            return response;
+
+        } catch (Exception e) {
+            logger.error("Error during SCSI device allocation/deallocation - hostDeviceName: {}, error: {}",
                 hostDeviceName, e.getMessage(), e);
-            throw new CloudRuntimeException("Failed to update vHBA device allocation: " + e.getMessage(), e);
+            throw new CloudRuntimeException("Failed to update SCSI device allocation: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ListResponse<UpdateHostHbaDevicesResponse> updateHostHbaDevices(UpdateHostHbaDevicesCmd cmd) {
+        Long hostId = cmd.getHostId();
+        String hostDeviceName = cmd.getHostDeviceName();
+        Long vmId = cmd.getVirtualMachineId();
+        String xmlConfig = cmd.getXmlConfig();
+
+        // 호스트 존재 여부 확인
+        HostVO hostVO = _hostDao.findById(hostId);
+        if (hostVO == null) {
+            throw new CloudRuntimeException("Host not found with ID: " + hostId);
+        }
+
+        // 할당/해제 여부 확인
+        boolean isAttach = (vmId != null);
+
+        // VM 존재 여부 확인 및 상태 검증
+        VMInstanceVO vmInstance = null;
+        VMInstanceVO targetVmInstance = null;
+
+        if (isAttach && vmId != null) {
+            vmInstance = _vmInstanceDao.findById(vmId);
+            if (vmInstance == null) {
+                throw new CloudRuntimeException("VM not found with ID: " + vmId);
+            }
+            targetVmInstance = vmInstance;
+        } else if (!isAttach) {
+            // 해제 시에는 currentVmId를 사용
+            String currentVmId = cmd.getCurrentVmId();
+            if (currentVmId != null) {
+                targetVmInstance = _vmInstanceDao.findById(Long.parseLong(currentVmId));
+                if (targetVmInstance == null) {
+                    throw new CloudRuntimeException("VM not found with ID: " + currentVmId);
+                }
+            }
+        }
+
+        // VM 상태 검증 - Running 상태일 때만 HBA 디바이스 조작 가능
+        if (targetVmInstance != null && targetVmInstance.getState() != VirtualMachine.State.Running) {
+            throw new CloudRuntimeException("VM must be in Running state for HBA device operations. Current state: " + targetVmInstance.getState());
+        }
+
+        // XML 설정 검증
+        if (xmlConfig == null || xmlConfig.trim().isEmpty()) {
+            throw new CloudRuntimeException("XML configuration is required for HBA device allocation");
+        }
+
+        logger.info("Updating host device allocation - hostId: {}, hostDeviceName: {}, virtualMachineId: {}, isAttach: {}",
+            hostId, hostDeviceName, vmId, isAttach);
+
+        try {
+            // 같은 디바이스 이름의 모든 할당을 가져오기
+            List<DetailVO> currentAllocations = _hostDetailsDao.findByName(hostDeviceName);
+            // 현재 호스트의 할당만 필터링
+            currentAllocations = currentAllocations.stream()
+                .filter(allocation -> allocation.getHostId() == hostId)
+                .collect(Collectors.toList());
+            String vmInternalName = null;
+
+            if (!isAttach) {
+                // 디바이스 할당 해제
+                String currentVmId = cmd.getCurrentVmId();
+                if (!currentAllocations.isEmpty()) {
+                    String vmIdToUse = (currentVmId != null) ? currentVmId : currentAllocations.get(0).getValue();
+                    if (currentVmId != null) {
+                        // 특정 VM에 대한 할당이 있는지 확인
+                        boolean found = false;
+                        for (DetailVO allocation : currentAllocations) {
+                            if (allocation.getValue().equals(currentVmId)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            throw new CloudRuntimeException("Device is not allocated to the specified VM");
+                        }
+                    }
+                    VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(vmIdToUse));
+                    if (vm != null) {
+                        vmInternalName = vm.getInstanceName();
+                    }
+                }
+            } else {
+                // HBA 디바이스는 같은 VM에 여러 개 할당 가능하므로 기존 할당 확인만 하고 계속 진행
+                if (!currentAllocations.isEmpty()) {
+                    logger.info("Device is already allocated to VMs: " +
+                              currentAllocations.stream().map(DetailVO::getValue).collect(Collectors.joining(", ")) +
+                              ". Allowing multiple HBA allocation to same VM.");
+                }
+                vmInternalName = vmInstance.getInstanceName();
+            }
+
+            if (vmInternalName == null) {
+                throw new CloudRuntimeException("Unable to get VM instance name");
+            }
+
+            // 호스트에 명령 전송 전 디버그 로그 (XML 포함)
+            String compactXml = xmlConfig != null ? xmlConfig.replaceAll("\\s+", " ") : "";
+            logger.info("Sending UpdateHostHbaDeviceCommand: vmName=" + vmInternalName +
+                ", hostDeviceName=" + hostDeviceName + ", isAttach=" + isAttach + ", xmlConfig=" + compactXml);
+
+           UpdateHostHbaDeviceCommand hbaCmd = new UpdateHostHbaDeviceCommand(vmInternalName, xmlConfig, isAttach);
+            Answer answer;
+            try {
+                answer = _agentMgr.send(hostVO.getId(), hbaCmd);
+            } catch (Exception e) {
+                String errorMsg = "Error sending UpdateHostHbaDeviceCommand: " + e.getMessage();
+                logger.error(errorMsg, e);
+                throw new CloudRuntimeException(errorMsg, e);
+            }
+
+            if (answer == null) {
+                throw new CloudRuntimeException("Answer is null");
+            }
+            if (!answer.getResult()) {
+                String errorDetails = (answer.getDetails() != null) ?
+                    answer.getDetails() : "No additional details available";
+                throw new CloudRuntimeException("Failed to update HBA device. Details: " + errorDetails);
+            }
+            if (!(answer instanceof UpdateHostHbaDeviceAnswer)) {
+                throw new CloudRuntimeException("Answer is not an instance of UpdateHostHbaDeviceAnswer");
+            }
+
+            UpdateHostHbaDeviceAnswer hbaAnswer = (UpdateHostHbaDeviceAnswer) answer;
+            logger.info("Received UpdateHostHbaDeviceAnswer: success=" + hbaAnswer.isSuccessMessage() +
+                ", vmName=" + hbaAnswer.getVmName() + ", details=" + (hbaAnswer.getDetails() != null ? hbaAnswer.getDetails() : "") );
+            if (!hbaAnswer.isSuccessMessage()) {
+                String agentDetails = hbaAnswer.getDetails() != null ? hbaAnswer.getDetails() : "No additional details available";
+                throw new CloudRuntimeException("Failed to update HBA device for VM: " + hbaAnswer.getVmName() + ". Details: " + agentDetails);
+            }
+
+            // DB 업데이트
+            if (!isAttach) {
+                // 할당 해제 - 같은 HBA 디바이스의 특정 VM 할당만 해제
+                String currentVmId = cmd.getCurrentVmId();
+                if (currentVmId != null) {
+                    // 특정 VM에 대한 할당을 찾아서 제거
+                    for (DetailVO allocation : currentAllocations) {
+                        if (allocation.getValue().equals(currentVmId)) {
+                            _hostDetailsDao.remove(allocation.getId());
+
+                            // VM extraconfig에서 해당 디바이스 설정 제거
+                            removeDeviceFromVmExtraConfig(Long.parseLong(currentVmId), hostDeviceName, xmlConfig);
+
+                            logger.info("Removed specific allocation for device: " + hostDeviceName +
+                                      " from VM: " + currentVmId);
+                            break;
+                        }
+                    }
+                } else {
+                    // currentVmId가 null이면 첫 번째 할당을 제거 (기존 로직 유지)
+                    if (!currentAllocations.isEmpty()) {
+                        DetailVO firstAllocation = currentAllocations.get(0);
+                        _hostDetailsDao.remove(firstAllocation.getId());
+
+                        // VM extraconfig에서 해당 디바이스 설정 제거
+                        removeDeviceFromVmExtraConfig(Long.parseLong(firstAllocation.getValue()), hostDeviceName, xmlConfig);
+
+                        logger.info("Removed first allocation for device: " + hostDeviceName +
+                                  " from VM: " + firstAllocation.getValue());
+                    }
+                }
+            } else {
+                // HBA 디바이스는 같은 이름으로도 여러 할당 가능하도록 허용
+                // 기존 할당이 있어도 새로 할당 (덮어쓰지 않고 추가)
+                if (!currentAllocations.isEmpty()) {
+                    logger.info("Device is already allocated to VMs: " +
+                              currentAllocations.stream().map(DetailVO::getValue).collect(Collectors.joining(", ")) +
+                              ". Allowing multiple allocations for same HBA device.");
+                }
+
+                // HBA 디바이스를 host_details 테이블에 저장 (같은 이름으로도 여러 할당 가능)
+                DetailVO detail = new DetailVO(hostId, hostDeviceName, vmId.toString());
+                _hostDetailsDao.persist(detail);
+
+                // VM extraconfig에 디바이스 설정 추가
+                addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlConfig);
+
+                logger.info("Created allocation for device: " + hostDeviceName +
+                          " to VM: " + vmId + " (multiple allocations allowed)");
+            }
+
+            // 응답 생성
+            ListResponse<UpdateHostHbaDevicesResponse> response = new ListResponse<>();
+            List<UpdateHostHbaDevicesResponse> responses = new ArrayList<>();
+            UpdateHostHbaDevicesResponse deviceResponse = new UpdateHostHbaDevicesResponse();
+
+            // 현재 할당 상태 확인 (여러 할당이 있을 수 있음)
+            List<DetailVO> currentAllocationsForResponse = _hostDetailsDao.findByName(hostDeviceName);
+            // 현재 호스트의 할당만 필터링
+            currentAllocationsForResponse = currentAllocationsForResponse.stream()
+                .filter(allocation -> allocation.getHostId() == hostId)
+                .collect(Collectors.toList());
+            deviceResponse.setHostDeviceName(hostDeviceName);
+            if (!currentAllocationsForResponse.isEmpty()) {
+                // 여러 할당이 있을 수 있으므로 첫 번째 할당을 표시
+                deviceResponse.setVirtualMachineId(currentAllocationsForResponse.get(0).getValue());
+                deviceResponse.setAllocated(true);
+            } else {
+                deviceResponse.setVirtualMachineId(null);
+                deviceResponse.setAllocated(false);
+            }
+
+            responses.add(deviceResponse);
+            response.setResponses(responses);
+            return response;
+
+        } catch (Exception e) {
+            logger.error("Error during HBA device allocation/deallocation - hostDeviceName: {}, error: {}",
+                hostDeviceName, e.getMessage(), e);
+            throw new CloudRuntimeException("Failed to update HBA device allocation: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ListResponse<CreateVhbaDeviceResponse> createVhbaDevice(CreateVhbaDeviceCmd cmd) {
+        Long hostId = cmd.getHostId();
+        String parentHbaName = cmd.getParentHbaName();
+        String wwnn = cmd.getWwnn();
+        String wwpn = cmd.getWwpn();
+        String vhbaName = cmd.getVhbaName();
+        String xmlContent = cmd.getXmlContent();
+
+        logger.info("createVhbaDevice 호출됨 - hostId: {}, parentHbaName: {}, vhbaName: {}, wwnn: {}, wwpn: {}",
+            hostId, parentHbaName, vhbaName, wwnn, wwpn);
+
+        // 1. 호스트 존재 여부 확인
+        HostVO hostVO = _hostDao.findById(hostId);
+        if (hostVO == null) {
+            String errorMsg = "Host not found with ID: " + hostId;
+            logger.error(errorMsg);
+            throw new CloudRuntimeException(errorMsg);
+        }
+
+        // 2. 필수 파라미터 검증
+        if (parentHbaName == null || parentHbaName.trim().isEmpty()) {
+            String errorMsg = "Parent HBA name is required";
+            logger.error(errorMsg);
+            throw new CloudRuntimeException(errorMsg);
+        }
+
+        if (vhbaName == null || vhbaName.trim().isEmpty()) {
+            String errorMsg = "vHBA name is required";
+            logger.error(errorMsg);
+            throw new CloudRuntimeException(errorMsg);
+        }
+
+        logger.info("호스트 정보 - ID: {}, 이름: {}, 상태: {}", hostVO.getId(), hostVO.getName(), hostVO.getStatus());
+
+        // 3. CreateVhbaDeviceCommand 생성
+        CreateVhbaDeviceCommand hbaCmd = new CreateVhbaDeviceCommand(hostId, parentHbaName, wwnn, wwpn, vhbaName, xmlContent);
+
+        logger.info("CreateVhbaDeviceCommand 생성 완료 - hostId: {}, parentHbaName: {}, vhbaName: {}",
+            hbaCmd.getHostId(), hbaCmd.getParentHbaName(), hbaCmd.getVhbaName());
+
+        // 4. 에이전트로 명령 전송
+        Answer answer;
+        try {
+            logger.info("에이전트로 명령 전송 시작 - hostId: {}", hostVO.getId());
+            answer = _agentMgr.send(hostVO.getId(), hbaCmd);
+            logger.info("에이전트로부터 응답 수신");
+        } catch (Exception e) {
+            String errorMsg = "Error sending CreateVhbaDeviceCommand: " + e.getMessage();
+            logger.error(errorMsg, e);
+            throw new CloudRuntimeException(errorMsg, e);
+        }
+
+        // 5. 응답 검증
+        if (answer == null) {
+            String errorMsg = "Answer is null";
+            logger.error(errorMsg);
+            throw new CloudRuntimeException(errorMsg);
+        }
+
+        logger.info("응답 결과: {}, 상세: {}", answer.getResult(), answer.getDetails());
+
+        if (!answer.getResult()) {
+            String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
+                    : "No additional details available";
+            String errorMsg = "Answer result is false. Details: " + errorDetails;
+            logger.error(errorMsg);
+            throw new CloudRuntimeException(errorMsg);
+        }
+
+        if (!(answer instanceof CreateVhbaDeviceAnswer)) {
+            String errorMsg = "Answer is not an instance of CreateVhbaDeviceAnswer. Actual type: " + answer.getClass().getSimpleName();
+            logger.error(errorMsg);
+            throw new CloudRuntimeException(errorMsg);
+        }
+
+        // 6. 응답 처리
+        CreateVhbaDeviceAnswer hbaAnswer = (CreateVhbaDeviceAnswer) answer;
+        logger.info("vHBA 생성 결과 - 성공: {}, vHBA 이름: {}, 생성된 디바이스: {}",
+            hbaAnswer.isSuccess(), hbaAnswer.getVhbaName(), hbaAnswer.getCreatedDeviceName());
+
+        List<CreateVhbaDeviceResponse> responses = new ArrayList<>();
+        ListResponse<CreateVhbaDeviceResponse> listResponse = new ListResponse<>();
+
+        CreateVhbaDeviceResponse response = new CreateVhbaDeviceResponse();
+        response.setVhbaName(hbaAnswer.getVhbaName());
+        response.setDetails(hbaAnswer.getCreatedDeviceName());
+        response.setSuccess(hbaAnswer.isSuccess());
+
+        responses.add(response);
+        listResponse.setResponses(responses);
+
+        logger.info("createVhbaDevice 완료 - 응답 생성 완료");
+        return listResponse;
+        }
+
+        @Override
+    public ListResponse<UpdateHostVhbaDevicesResponse> updateHostVhbaDevices(UpdateHostVhbaDevicesCmd cmd) {
+        Long hostId = cmd.getHostId();
+        String hostDeviceName = cmd.getHostDeviceName();
+        Long vmId = cmd.getVirtualMachineId();
+        String xmlConfig = cmd.getXmlConfig();
+
+        // 호스트 존재 여부 확인
+        HostVO hostVO = _hostDao.findById(hostId);
+        if (hostVO == null) {
+        throw new CloudRuntimeException("Host not found with ID: " + hostId);
+        }
+
+        // VM 존재 여부 확인 (vmId가 null이 아닌 경우)
+        VMInstanceVO vmInstance = null;
+        if (vmId != null) {
+        vmInstance = _vmInstanceDao.findById(vmId);
+        if (vmInstance == null) {
+            throw new CloudRuntimeException("VM not found with ID: " + vmId);
+        }
+        }
+
+        logger.info("Updating vHBA device allocation - hostId: {}, hostDeviceName: {}, virtualMachineId: {}",
+        hostId, hostDeviceName, vmId);
+
+        try {
+        // 현재 할당 상태 확인 (디바이스 이름으로 모두 조회 후 hostId로 필터)
+        List<DetailVO> currentAllocations = _hostDetailsDao.findByName(hostDeviceName);
+        if (currentAllocations != null) {
+            currentAllocations = currentAllocations.stream()
+                .filter(allocation -> allocation.getHostId() == hostId)
+                .collect(Collectors.toList());
+        }
+        String vmInternalName = null;
+        boolean isAttach = (vmId != null);
+
+        if (!isAttach) {
+            // 디바이스 할당 해제
+            String currentVmId = cmd.getCurrentVmId();
+            if (currentAllocations != null && !currentAllocations.isEmpty()) {
+                DetailVO targetAllocation = null;
+
+                if (currentVmId != null) {
+                    // 특정 VM에서 해제
+                    for (DetailVO allocation : currentAllocations) {
+                        if (currentVmId.equals(allocation.getValue())) {
+                            targetAllocation = allocation;
+                            break;
+                        }
+                    }
+                } else {
+                    // 첫 번째 할당 해제
+                    targetAllocation = currentAllocations.get(0);
+                }
+
+                if (targetAllocation != null) {
+                    VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(targetAllocation.getValue()));
+                    if (vm != null) {
+                        vmInternalName = vm.getInstanceName();
+                    }
+                }
+            }
+        } else {
+            // 새로운 할당
+            vmInternalName = vmInstance.getInstanceName();
+        }
+
+        if (vmInternalName == null) {
+            throw new CloudRuntimeException("Unable to get VM instance name");
+        }
+
+        // 호스트에 명령 전송
+        UpdateHostVhbaDeviceCommand vhbaCmd = new UpdateHostVhbaDeviceCommand(hostId, hostDeviceName, vmInternalName, xmlConfig, isAttach);
+        Answer answer;
+        try {
+            answer = _agentMgr.send(hostVO.getId(), vhbaCmd);
+        } catch (Exception e) {
+            String errorMsg = "Error sending UpdateHostVhbaDeviceCommand: " + e.getMessage();
+            logger.error(errorMsg, e);
+            throw new CloudRuntimeException(errorMsg, e);
+        }
+
+        if (answer == null) {
+            throw new CloudRuntimeException("Answer is null");
+        }
+        if (!answer.getResult()) {
+            String errorDetails = (answer.getDetails() != null) ?
+                answer.getDetails() : "No additional details available";
+            throw new CloudRuntimeException("Failed to update vHBA device. Details: " + errorDetails);
+        }
+        if (!(answer instanceof UpdateHostVhbaDeviceAnswer)) {
+            throw new CloudRuntimeException("Answer is not an instance of UpdateHostVhbaDeviceAnswer");
+        }
+
+        UpdateHostVhbaDeviceAnswer vhbaAnswer = (UpdateHostVhbaDeviceAnswer) answer;
+        if (!vhbaAnswer.isSuccess()) {
+            throw new CloudRuntimeException("Failed to update vHBA device for VM: " + vhbaAnswer.getVmName());
+        }
+
+        // DB 업데이트
+        if (!isAttach) {
+            // 할당 해제
+            String currentVmId = cmd.getCurrentVmId();
+            if (currentVmId != null) {
+                // 특정 VM에서 해제
+                for (DetailVO allocation : currentAllocations) {
+                    if (currentVmId.equals(allocation.getValue())) {
+                        _hostDetailsDao.remove(allocation.getId());
+
+                        // VM extraconfig에서 해당 디바이스 설정 제거
+                        removeDeviceFromVmExtraConfig(Long.parseLong(currentVmId), hostDeviceName, xmlConfig);
+
+                        break;
+                    }
+                }
+            } else {
+                // 첫 번째 할당 해제
+                if (!currentAllocations.isEmpty()) {
+                    DetailVO firstAllocation = currentAllocations.get(0);
+                    _hostDetailsDao.remove(firstAllocation.getId());
+
+                    // VM extraconfig에서 해당 디바이스 설정 제거
+                    removeDeviceFromVmExtraConfig(Long.parseLong(firstAllocation.getValue()), hostDeviceName, xmlConfig);
+                }
+            }
+        } else {
+            // 새로운 할당 (다중 할당 허용)
+            DetailVO detail = new DetailVO(hostId, hostDeviceName, vmId.toString());
+            _hostDetailsDao.persist(detail);
+
+            // VM extraconfig에 디바이스 설정 추가
+            addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlConfig);
+        }
+
+        // 응답 생성
+        ListResponse<UpdateHostVhbaDevicesResponse> response = new ListResponse<>();
+        List<UpdateHostVhbaDevicesResponse> responses = new ArrayList<>();
+        UpdateHostVhbaDevicesResponse deviceResponse = new UpdateHostVhbaDevicesResponse();
+
+        // 현재 할당 상태 조회 (응답은 HBA와 동일하게 단일 VM/플래그로 표기)
+        List<DetailVO> allocations = _hostDetailsDao.findByName(hostDeviceName);
+        if (allocations != null) {
+            allocations = allocations.stream()
+                .filter(allocation -> allocation.getHostId() == hostId)
+                .collect(Collectors.toList());
+        }
+
+        deviceResponse.setVhbaName(hostDeviceName);
+        if (allocations != null && !allocations.isEmpty()) {
+            deviceResponse.setVirtualMachineId(allocations.get(0).getValue());
+            deviceResponse.setIsAttached(true);
+        } else {
+            deviceResponse.setVirtualMachineId(null);
+            deviceResponse.setIsAttached(false);
+        }
+
+        responses.add(deviceResponse);
+        response.setResponses(responses);
+
+        return response;
+
+        } catch (Exception e) {
+        logger.error("Error during vHBA device allocation/deallocation - hostDeviceName: {}, error: {}",
+            hostDeviceName, e.getMessage(), e);
+        throw new CloudRuntimeException("Failed to update vHBA device allocation: " + e.getMessage(), e);
         }
     }
 
@@ -3781,34 +3932,41 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
         HostVO hostVO = _hostDao.findById(hostId);
         if (hostVO == null) {
-            throw new CloudRuntimeException("Host not found with ID: " + hostId);
+        throw new CloudRuntimeException("Host not found with ID: " + hostId);
         }
 
         ListVhbaDevicesCommand vhbaCmd = new ListVhbaDevicesCommand(hostId, keyword);
         Answer answer;
         try {
-            answer = _agentMgr.send(hostVO.getId(), vhbaCmd);
+        answer = _agentMgr.send(hostVO.getId(), vhbaCmd);
         } catch (Exception e) {
-            String errorMsg = "Error sending ListVhbaDevicesCommand: " + e.getMessage();
-            logger.error(errorMsg, e);
-            throw new CloudRuntimeException(errorMsg, e);
+        String errorMsg = "Error sending ListVhbaDevicesCommand: " + e.getMessage();
+        logger.error(errorMsg, e);
+        throw new CloudRuntimeException(errorMsg, e);
         }
 
         if (answer == null) {
-            throw new CloudRuntimeException("Answer is null");
-        }
-        if (!answer.getResult()) {
-            String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
-                    : "No additional details available";
-            String errorMsg = "Answer result is false. Details: " + errorDetails;
-            logger.error(errorMsg);
-            throw new CloudRuntimeException(errorMsg);
-        }
-        if (!(answer instanceof ListVhbaDevicesAnswer)) {
-            throw new CloudRuntimeException("Answer is not an instance of ListVhbaDevicesAnswer");
+        throw new CloudRuntimeException("Answer is null");
         }
 
-        ListVhbaDevicesAnswer vhbaAnswer = (ListVhbaDevicesAnswer) answer;
+        ListVhbaDevicesAnswer vhbaAnswer;
+        if (!answer.getResult() && answer.getDetails() != null
+                && answer.getDetails().contains("Unsupported command issued")) {
+            // 에이전트가 미지원이면 조용히 빈 목록으로 응답
+            vhbaAnswer = new ListVhbaDevicesAnswer(true, new ArrayList<>());
+        } else {
+            if (!answer.getResult()) {
+                String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
+                        : "No additional details available";
+                String errorMsg = "Answer result is false. Details: " + errorDetails;
+                logger.error(errorMsg);
+                throw new CloudRuntimeException(errorMsg);
+            }
+            if (!(answer instanceof ListVhbaDevicesAnswer)) {
+                throw new CloudRuntimeException("Answer is not an instance of ListVhbaDevicesAnswer");
+            }
+            vhbaAnswer = (ListVhbaDevicesAnswer) answer;
+        }
 
        // 집합 응답용 컨테이너들
         List<String> hostDevicesNames = new ArrayList<>();
@@ -3821,7 +3979,8 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         List<String> statuses = new ArrayList<>();
         Map<String, String> vmAllocations = new HashMap<>();
 
-        for (ListVhbaDevicesCommand.VhbaDeviceInfo vhbaInfo : vhbaAnswer.getVhbaDevices()) {
+        if (vhbaAnswer.getVhbaDevices() != null) {
+            for (ListVhbaDevicesCommand.VhbaDeviceInfo vhbaInfo : vhbaAnswer.getVhbaDevices()) {
             String name = vhbaInfo.getVhbaName();
             String parent = vhbaInfo.getParentHbaName();
             String desc = vhbaInfo.getDescription() != null ? vhbaInfo.getDescription() : "";
@@ -3842,6 +4001,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             String vmId = getDeviceAllocation(hostId, name);
             if (vmId != null) {
                 vmAllocations.put(name, vmId);
+            }
             }
         }
 
@@ -3874,69 +4034,75 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
         HostVO hostVO = _hostDao.findById(hostId);
         if (hostVO == null) {
-            String errorMsg = "Host not found with ID: " + hostId;
-            logger.error(errorMsg);
-            throw new CloudRuntimeException(errorMsg);
+        String errorMsg = "Host not found with ID: " + hostId;
+        logger.error(errorMsg);
+        throw new CloudRuntimeException(errorMsg);
         }
 
         if ((hostDeviceName == null || hostDeviceName.trim().isEmpty()) &&
-            (wwnn == null || wwnn.trim().isEmpty())) {
-            String errorMsg = "Either host device name or WWNN is required";
-            logger.error(errorMsg);
-            throw new CloudRuntimeException(errorMsg);
+        (wwnn == null || wwnn.trim().isEmpty())) {
+        String errorMsg = "Either host device name or WWNN is required";
+        logger.error(errorMsg);
+        throw new CloudRuntimeException(errorMsg);
         }
 
 
         DetailVO currentAllocation = _hostDetailsDao.findDetail(hostId, hostDeviceName);
         if (currentAllocation != null) {
-            String errorMsg = "vHBA device is currently allocated to a VM. Please deallocate it first.";
-            logger.error(errorMsg);
-            throw new CloudRuntimeException(errorMsg);
+        String errorMsg = "vHBA device is currently allocated to a VM. Please deallocate it first.";
+        logger.error(errorMsg);
+        throw new CloudRuntimeException(errorMsg);
         }
 
         DeleteVhbaDeviceCommand deleteCmd;
         if (wwnn != null && !wwnn.trim().isEmpty()) {
-            deleteCmd = new DeleteVhbaDeviceCommand(hostId, hostDeviceName, wwnn);
-                deleteCmd.getHostId();
-                deleteCmd.getWwnn();
+        deleteCmd = new DeleteVhbaDeviceCommand(hostId, hostDeviceName, wwnn);
+            deleteCmd.getHostId();
+            deleteCmd.getWwnn();
         } else {
-            deleteCmd = new DeleteVhbaDeviceCommand(hostId, hostDeviceName);
-                deleteCmd.getHostId();
-                deleteCmd.getVhbaName();
+        deleteCmd = new DeleteVhbaDeviceCommand(hostId, hostDeviceName);
+            deleteCmd.getHostId();
+            deleteCmd.getVhbaName();
         }
 
         Answer answer;
         try {
-            answer = _agentMgr.send(hostVO.getId(), deleteCmd);
+        logger.info("에이전트로 명령 전송 시작 - hostId: {}", hostVO.getId());
+        answer = _agentMgr.send(hostVO.getId(), deleteCmd);
+        logger.info("에이전트로부터 응답 수신");
         } catch (Exception e) {
-            String errorMsg = "Error sending DeleteVhbaDeviceCommand: " + e.getMessage();
-            logger.error(errorMsg, e);
-            throw new CloudRuntimeException(errorMsg, e);
+        String errorMsg = "Error sending DeleteVhbaDeviceCommand: " + e.getMessage();
+        logger.error(errorMsg, e);
+        throw new CloudRuntimeException(errorMsg, e);
         }
 
         // 6. 응답 검증
         if (answer == null) {
-            String errorMsg = "Answer is null";
-            logger.error(errorMsg);
-            throw new CloudRuntimeException(errorMsg);
+        String errorMsg = "Answer is null";
+        logger.error(errorMsg);
+        throw new CloudRuntimeException(errorMsg);
         }
 
+        logger.info("응답 결과: {}, 상세: {}", answer.getResult(), answer.getDetails());
+
         if (!answer.getResult()) {
-            String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
-                    : "No additional details available";
-            String errorMsg = "Answer result is false. Details: " + errorDetails;
-            logger.error(errorMsg);
-            throw new CloudRuntimeException(errorMsg);
+        String errorDetails = (answer.getDetails() != null) ? answer.getDetails()
+                : "No additional details available";
+        String errorMsg = "Answer result is false. Details: " + errorDetails;
+        logger.error(errorMsg);
+        throw new CloudRuntimeException(errorMsg);
         }
 
         if (!(answer instanceof DeleteVhbaDeviceAnswer)) {
-            String errorMsg = "Answer is not an instance of DeleteVhbaDeviceAnswer. Actual type: " + answer.getClass().getSimpleName();
-            logger.error(errorMsg);
-            throw new CloudRuntimeException(errorMsg);
+        String errorMsg = "Answer is not an instance of DeleteVhbaDeviceAnswer. Actual type: " + answer.getClass().getSimpleName();
+        logger.error(errorMsg);
+        throw new CloudRuntimeException(errorMsg);
         }
 
         // 7. 응답 처리
         DeleteVhbaDeviceAnswer deleteAnswer = (DeleteVhbaDeviceAnswer) answer;
+        logger.info("vHBA 삭제 결과 - 성공: {}, vHBA 이름: {}, 상세: {}",
+        deleteAnswer.getResult(), deleteAnswer.getVhbaName(), deleteAnswer.getDetails());
 
         List<DeleteVhbaDeviceResponse> responses = new ArrayList<>();
         ListResponse<DeleteVhbaDeviceResponse> listResponse = new ListResponse<>();
@@ -3949,6 +4115,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         responses.add(response);
         listResponse.setResponses(responses);
 
+        logger.info("deleteVhbaDevice 완료 - 응답 생성 완료");
         return listResponse;
     }
 
@@ -8011,6 +8178,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 return null;
             }
 
+
             // 호스트의 모든 LUN 디바이스 할당 확인 (findByName으로 모든 할당을 찾고 호스트 ID로 필터링)
             List<DetailVO> allLunAllocations = _hostDetailsDao.findByName(physicalDevicePath);
             for (DetailVO detail : allLunAllocations) {
@@ -8036,7 +8204,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             return null;
 
         } catch (Exception e) {
-            logger.error("Error finding VM ID from LUN allocation for SCSI device {}: {}", scsiDeviceName, e.getMessage(), e);
             return null;
         }
     }
@@ -8052,6 +8219,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             }
 
             if (scsiDeviceName.startsWith("scsi_host")) {
+
                 String[] parts = scsiDeviceName.split(":");
                 if (parts.length >= 4) {
                     try {
@@ -8060,14 +8228,12 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                         char deviceLetter = (char) ('a' + target);
                         return "/dev/" + deviceLetter;
                     } catch (NumberFormatException e) {
-                        logger.warn("Invalid SCSI address format: {}", scsiDeviceName);
                     }
                 }
             }
 
             return null;
         } catch (Exception e) {
-            logger.error("Error extracting physical device from SCSI device {}: {}", scsiDeviceName, e.getMessage());
             return null;
         }
     }
@@ -8100,7 +8266,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
             return false;
         } catch (Exception e) {
-            logger.error("Error comparing devices {} and {}: {}", lunDeviceName, physicalDevicePath, e.getMessage());
             return false;
         }
     }
@@ -8120,7 +8285,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     boolean shouldRemove = false;
                     String matchReason = "";
 
-                    // 디바이스 타입별 매칭 로직
+                    // 디바이스 타입별 매칭 로직 (더 구체적인 조건을 먼저 체크)
                     if (isPciDevice(deviceName)) {
                         // PCI 디바이스: 디바이스 이름으로 직접 매칭
                         if (value.contains(deviceName)) {
@@ -8132,6 +8297,19 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                         if (matchUsbDevice(value, deviceName)) {
                             shouldRemove = true;
                             matchReason = "USB device bus/device match";
+                        }
+                    } else if (isScsiDevice(deviceName)) {
+
+                        // SCSI 디바이스: XML을 정규화해서 직접 비교
+                        if (xmlConfig != null && !xmlConfig.trim().isEmpty()) {
+                            // 공백/줄바꿈 제거 후 비교
+                            String normalizedStoredXml = value.replaceAll("\\s+", "").toLowerCase();
+                            String normalizedInputXml = xmlConfig.replaceAll("\\s+", "").toLowerCase();
+
+                            if (normalizedStoredXml.equals(normalizedInputXml)) {
+                                shouldRemove = true;
+                                matchReason = "SCSI XML exact match";
+                            }
                         }
                     } else if (isHbaDevice(deviceName)) {
                         // HBA 디바이스: adapter name으로 매칭
@@ -8151,15 +8329,9 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                             shouldRemove = true;
                             matchReason = "LUN device path match";
                         }
-                    } else if (isScsiDevice(deviceName)) {
-                        // SCSI 디바이스: adapter name으로 매칭
-                        if (matchScsiDevice(value, deviceName)) {
-                            shouldRemove = true;
-                            matchReason = "SCSI device adapter name match";
-                        }
                     } else {
                         // 기타 디바이스: XML 내용으로 매칭 (기존 방식)
-                        if (value.contains(xmlConfig.trim())) {
+                        if (xmlConfig != null && value.contains(xmlConfig.trim())) {
                             shouldRemove = true;
                             matchReason = "XML content match";
                         }
@@ -8174,7 +8346,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 }
             }
         } catch (Exception e) {
-            logger.error("Failed to remove device {} from VM {} extraconfig: {}", deviceName, vmId, e.getMessage());
         }
     }
 
@@ -8210,47 +8381,63 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
      */
     private boolean matchUsbDevice(String xmlValue, String deviceName) {
         try {
-            // "001 Device 004" -> bus="001", device="004"
+            // 1. 직접적인 디바이스 이름 매칭
+            if (xmlValue.contains(deviceName)) {
+                return true;
+            }
+
             String[] parts = deviceName.split(" ");
             if (parts.length >= 3) {
-                String bus = parts[0];
-                String device = parts[2];
+                try {
+                    int busNumber = Integer.parseInt(parts[0]);
+                    int deviceNumber = Integer.parseInt(parts[2]);
 
-                // XML에서 bus와 device 번호 추출하여 매칭
-                String busPattern = "bus='0x" + bus + "'";
-                String devicePattern = "device='0x" + device + "'";
+                    // 16진수로 변환
+                    String busHex = Integer.toHexString(busNumber);
+                    String deviceHex = Integer.toHexString(deviceNumber);
 
-                boolean busMatch = xmlValue.contains(busPattern);
-                boolean deviceMatch = xmlValue.contains(devicePattern);
+                    String busHexPadded = String.format("%03x", busNumber);
+                    String deviceHexPadded = String.format("%02x", deviceNumber);
 
-                return busMatch && deviceMatch;
+                    String busPattern1 = "bus='0x" + busHex + "'";
+                    String busPattern2 = "bus='0x" + busHexPadded + "'";
+                    String devicePattern1 = "device='0x" + deviceHex + "'";
+                    String devicePattern2 = "device='0x" + deviceHexPadded + "'";
+
+                    boolean busMatch = xmlValue.contains(busPattern1) || xmlValue.contains(busPattern2);
+                    boolean deviceMatch = xmlValue.contains(devicePattern1) || xmlValue.contains(devicePattern2);
+
+                    return busMatch && deviceMatch;
+
+                } catch (NumberFormatException e) {
+                }
             }
+
+            return false;
         } catch (Exception e) {
-            logger.warn("Error matching USB device {}: {}", deviceName, e.getMessage());
         }
         return false;
     }
 
     private boolean matchHbaDevice(String xmlValue, String deviceName) {
         try {
+            // "scsi_host18" -> adapter name="scsi_host18"
             String adapterPattern = "adapter name='" + deviceName + "'";
             boolean match = xmlValue.contains(adapterPattern);
 
             return match;
         } catch (Exception e) {
-            logger.warn("Error matching HBA device {}: {}", deviceName, e.getMessage());
         }
         return false;
     }
 
     private boolean matchVhbaDevice(String xmlValue, String deviceName) {
         try {
+            // "scsi_host18" -> adapter name="scsi_host18"
             String adapterPattern = "adapter name='" + deviceName + "'";
             boolean match = xmlValue.contains(adapterPattern);
-
             return match;
         } catch (Exception e) {
-            logger.warn("Error matching vHBA device {}: {}", deviceName, e.getMessage());
         }
         return false;
     }
@@ -8259,19 +8446,15 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         try {
             return xmlValue.contains(deviceName);
         } catch (Exception e) {
-            logger.warn("Error matching SCSI device {}: {}", deviceName, e.getMessage());
+            return false;
         }
-        return false;
     }
 
     private boolean matchLunDevice(String xmlValue, String deviceName) {
         try {
-
-            // 1. XML에서 실제 사용되는 경로를 우선적으로 매칭
             if (xmlValue.contains("/dev/disk/by-id/")) {
-                // XML에서 by-id 경로 추출하여 매칭
-                java.util.regex.Pattern byIdPattern = java.util.regex.Pattern.compile("/dev/disk/by-id/([^\"'\\s>]+)");
-                java.util.regex.Matcher byIdMatcher = byIdPattern.matcher(xmlValue);
+                Pattern byIdPattern = Pattern.compile(BY_ID_PATH_PATTERN);
+                Matcher byIdMatcher = byIdPattern.matcher(xmlValue);
                 if (byIdMatcher.find()) {
                     String xmlByIdPath = byIdMatcher.group(1);
 
@@ -8327,18 +8510,19 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
             return false;
         } catch (Exception e) {
-            logger.warn("Error matching LUN device {}: {}", deviceName, e.getMessage());
         }
         return false;
     }
 
     private String extractByIdFromDeviceName(String deviceName) {
         try {
-            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\(([^)]+)\\)");
-            java.util.regex.Matcher matcher = pattern.matcher(deviceName);
+            Pattern pattern = Pattern.compile(PARENTHESES_CONTENT_PATTERN);
+            Matcher matcher = pattern.matcher(deviceName);
             if (matcher.find()) {
                 String byIdValue = matcher.group(1);
+                // 접두사가 있는 경우 접두사 제거하여 순수 ID만 반환
                 if (byIdValue.startsWith("wwn-") || byIdValue.startsWith("scsi-") || byIdValue.startsWith("dm-uuid-")) {
+                    // scsi-SATA_ 같은 복합 접두사의 경우 첫 번째 '-' 이후의 모든 내용을 ID로 사용
                     return byIdValue.substring(byIdValue.indexOf('-') + 1);
                 }
                 return byIdValue;
@@ -8375,7 +8559,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     @Override
     public void deallocateAllDevicesOnVmDestroy(Long vmId) {
         if (vmId == null) {
-            logger.warn("VM ID is null, skipping device deallocation");
             return;
         }
 
@@ -8383,7 +8566,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             // VM 정보 조회
             VMInstanceVO vm = _vmInstanceDao.findById(vmId);
             if (vm == null) {
-                logger.warn("VM not found with ID: {}, skipping device deallocation", vmId);
                 return;
             }
 
@@ -8411,10 +8593,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
             // 6. vHBA 디바이스 해제
             deallocateVhbaDevicesForVm(vmIdStr, vmInstanceName, hostId);
-
-
         } catch (Exception e) {
-            logger.error("Error deallocating devices for VM {}: {}", vmId, e.getMessage(), e);
         }
     }
 
@@ -8437,12 +8616,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     try {
                         removeDeviceFromVmExtraConfig(Long.parseLong(vmId), deviceName, "");
                     } catch (Exception e) {
-                        logger.warn("Failed to remove PCI device {} from extraconfig: {}", deviceName, e.getMessage());
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("Error deallocating PCI devices for VM {}: {}", vmId, e.getMessage());
         }
     }
 
@@ -8464,12 +8641,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     try {
                         removeDeviceFromVmExtraConfig(Long.parseLong(vmId), deviceName, "");
                     } catch (Exception e) {
-                        logger.warn("Failed to remove USB device {} from extraconfig: {}", deviceName, e.getMessage());
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("Error deallocating USB devices for VM {}: {}", vmId, e.getMessage());
         }
     }
 
@@ -8491,12 +8666,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     try {
                         removeDeviceFromVmExtraConfig(Long.parseLong(vmId), deviceName, "");
                     } catch (Exception e) {
-                        logger.warn("Failed to remove HBA device {} from extraconfig: {}", deviceName, e.getMessage());
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("Error deallocating HBA devices for VM {}: {}", vmId, e.getMessage());
         }
     }
 
@@ -8518,12 +8691,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     try {
                         removeDeviceFromVmExtraConfig(Long.parseLong(vmId), deviceName, "");
                     } catch (Exception e) {
-                        logger.warn("Failed to remove LUN device {} from extraconfig: {}", deviceName, e.getMessage());
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("Error deallocating LUN devices for VM {}: {}", vmId, e.getMessage());
         }
     }
 
@@ -8545,12 +8716,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     try {
                         removeDeviceFromVmExtraConfig(Long.parseLong(vmId), deviceName, "");
                     } catch (Exception e) {
-                        logger.warn("Failed to remove SCSI device {} from extraconfig: {}", deviceName, e.getMessage());
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("Error deallocating SCSI devices for VM {}: {}", vmId, e.getMessage());
         }
     }
 
@@ -8566,19 +8735,16 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             for (DetailVO allocation : allocations) {
                 String deviceName = allocation.getName();
                 if (isVhbaDevice(deviceName)) {
-                    // Deallocating vHBA device
                     _hostDetailsDao.remove(allocation.getId());
 
                     // extraconfig 삭제
                     try {
                         removeDeviceFromVmExtraConfig(Long.parseLong(vmId), deviceName, "");
                     } catch (Exception e) {
-                        // Failed to remove vHBA device from extraconfig
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("Error deallocating vHBA devices for VM {}: {}", vmId, e.getMessage());
         }
     }
 }

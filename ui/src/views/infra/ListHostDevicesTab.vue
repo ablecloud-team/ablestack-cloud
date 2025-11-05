@@ -720,10 +720,15 @@ export default {
       return this.tableSource.filter(item => {
         const deviceName = String(item.hostDevicesName || '')
         const deviceText = String(item.hostDevicesText || '')
+
+        // "LUN" 또는 "dm" 포함된 디바이스 이름 필터링
+        if (deviceName.toUpperCase().includes('LUN') || deviceName.toLowerCase().includes('dm')) {
+          return false
+        }
+
         const isLun = deviceName.startsWith('/dev/') ||
                      deviceName.startsWith('wwn-') ||
                      deviceName.startsWith('scsi-') ||
-                     deviceName.startsWith('dm-') ||
                      deviceName.startsWith('nvme-')
         if (!query) return isLun
         return isLun && (
@@ -1241,6 +1246,8 @@ export default {
         }
       } catch (error) {
         this.$notifyError(error)
+        this.dataItems = []
+        this.selectedDevices = []
       } finally {
         this.loading = false
       }
@@ -2083,8 +2090,8 @@ export default {
             const deviceNum = parseInt(match[2], 10)
 
             if (!isNaN(busNum) && !isNaN(deviceNum)) {
-              bus = '0x' + busNum.toString(16).padStart(3, '0')
-              device = '0x' + deviceNum.toString(16).padStart(2, '0')
+              bus = '0x' + busNum.toString(16)
+              device = '0x' + deviceNum.toString(16)
             }
           } else {
             // 3. "001.003" 형식
@@ -2094,8 +2101,8 @@ export default {
               const deviceNum = parseInt(match[2], 10)
 
               if (!isNaN(busNum) && !isNaN(deviceNum)) {
-                bus = '0x' + busNum.toString(16).padStart(3, '0')
-                device = '0x' + deviceNum.toString(16).padStart(2, '0')
+                bus = '0x' + busNum.toString(16)
+                device = '0x' + deviceNum.toString(16)
               }
             } else {
               // 4. 기존 정규식 (숫자+문자+숫자)
@@ -2105,8 +2112,8 @@ export default {
                 const deviceNum = parseInt(match[2], 10)
 
                 if (!isNaN(busNum) && !isNaN(deviceNum)) {
-                  bus = '0x' + busNum.toString(16).padStart(3, '0')
-                  device = '0x' + deviceNum.toString(16).padStart(2, '0')
+                  bus = '0x' + busNum.toString(16)
+                  device = '0x' + deviceNum.toString(16)
                 }
               }
             }
@@ -2125,7 +2132,7 @@ export default {
         return `
         <hostdev mode='subsystem' type='usb'>
           <source>
-            <address type='usb' bus='0x001' device='0x01' />
+            <address type='usb' bus='0x1' device='0x1' />
           </source>
         </hostdev>
         `.trim()
@@ -2135,9 +2142,6 @@ export default {
       // 표시명에서 베이스 경로와 by-id 추출
       const basePath = (hostDeviceName || '').split(' (')[0]
       const byIdMatch = (hostDeviceName || '').match(/\(([^)]+)\)/)
-
-      // dm으로 시작하는 디바이스인지 확인
-      const isDmDevice = basePath.includes('dm-') || basePath.includes('dm-uuid-')
 
       // by-id 값을 우선적으로 사용 (불일치 방지)
       let actualDevicePath = ''
@@ -2149,18 +2153,7 @@ export default {
         actualDevicePath = basePath
       }
 
-      // dm 디바이스는 <disk> (target 없이)
-      if (isDmDevice) {
-        const dmDevicePath = this.getDmDevicePath(basePath, byIdMatch)
-        return `
-          <disk type='block' device='lun'>
-            <driver name='qemu' type='raw' cache='none'/>
-            <source dev='${dmDevicePath}'/>
-          </disk>
-        `.trim()
-      }
-
-      // 일반 LUN도 <disk> 사용 (attach 시와 동일 포맷)
+      // LUN 디바이스 XML 생성 (target은 백엔드에서 동적 할당)
       const targetDev = (basePath || '').replace('/dev/', '')
       const scsiAddr = this.extractScsiAddressString(this.resource?.hostDevicesText || '')
       const addressTag = scsiAddr
@@ -2174,57 +2167,6 @@ export default {
           ${addressTag}
           <!-- Fallback device path: ${basePath} -->
         </disk>
-      `.trim()
-    },
-
-    getDmDevicePath (basePath, byIdMatch) {
-      // dm 디바이스는 by-id 대신 실제 디바이스 경로 사용
-      if (basePath && basePath.startsWith('/dev/dm-')) {
-        // 이미 /dev/dm-X 형태면 그대로 사용
-        return basePath
-      } else if (basePath && basePath.includes('dm-uuid-')) {
-        // dm-uuid가 포함된 경우 실제 dm-X 경로로 변환
-        // UI에서는 기본적으로 /dev/dm-10 사용 (실제 변환은 백엔드에서 수행)
-        return '/dev/dm-10'
-      } else if (byIdMatch && byIdMatch[1]) {
-        // by-id에서 실제 dm-X 경로로 변환
-        return '/dev/dm-10'
-      } else {
-        // 기본값
-        return basePath || '/dev/dm-10'
-      }
-    },
-
-    getSafeTargetDev () {
-      // 안전한 target dev 후보들 (sdc 충돌 방지를 위해 sdd부터 시작)
-      const candidates = ['sdd', 'sde', 'sdf', 'sdg', 'sdh', 'sdi', 'sdj', 'sdk', 'sdl', 'sdm', 'sdn', 'sdo', 'sdp', 'sdq', 'sdr', 'sds', 'sdt', 'sdu', 'sdv', 'sdw', 'sdx', 'sdy', 'sdz', 'sdc']
-
-      // 기본적으로 sdd를 반환 (실제 검증은 백엔드에서 수행)
-      // UI에서는 기본값만 제공하고, 백엔드에서 실제 사용 가능한 dev를 할당
-      return candidates[0] // sdd
-    },
-
-    generateScsiXmlConfig (hostDeviceName) {
-      // SCSI 디바이스 이름에서 SCSI 주소 추출 (예: /dev/sg33 -> [host:bus:target:unit])
-      const scsiAddressMatch = hostDeviceName.match(/\/dev\/sg(\d+)/)
-      if (!scsiAddressMatch) {
-        throw new Error(`Invalid SCSI device name: ${hostDeviceName}`)
-      }
-
-      const sgNumber = parseInt(scsiAddressMatch[1])
-
-      const host = 0
-      const bus = 0
-      const target = sgNumber % 256
-      const unit = 0
-
-      return `
-        <hostdev mode='subsystem' type='scsi'>
-          <source>
-            <adapter name='scsi_host${host}'/>
-            <address bus='${bus}' target='${target}' unit='${unit}'/>
-          </source>
-        </hostdev>
       `.trim()
     },
     async handleUsbDeviceDelete () {
@@ -2372,14 +2314,16 @@ export default {
               // SCSI 디바이스 조회 실패
             }
           }
-          if (!vmId) {
-            // 더 자세한 에러 메시지 제공
-            let errorMessage = `VM 할당 정보를 찾을 수 없습니다: ${hostDevicesName}`
-            if (record.allocatedInOtherTab) {
-              errorMessage += ` (다른 탭에서 할당됨: ${record.allocatedInOtherTab.tabType})`
-            }
-            throw new Error(errorMessage)
+        }
+
+        if (!vmId) {
+          // 더 자세한 에러 메시지 제공
+          let errorMessage = `VM 할당 정보를 찾을 수 없습니다: ${hostDevicesName}`
+          if (record.allocatedInOtherTab) {
+            errorMessage += ` (다른 탭에서 할당됨: ${record.allocatedInOtherTab.tabType})`
           }
+          throw new Error(errorMessage)
+        }
 
           // 2. 할당 해제 확인 및 실행
           this.$confirm({
@@ -2393,12 +2337,26 @@ export default {
                   const scsiResponse = await getAPI('listHostScsiDevices', { id: this.resource.id })
                   const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
 
-                  if (!scsiData) {
-                    throw new Error('Failed to fetch SCSI devices data')
-                  }
+        if (vm && vm.state === 'Running') {
+          this.$notification.warning({
+            message: this.$t('label.warning'),
+            description: this.$t('message.cannot.remove.device.vm.running')
+          })
+          this.loading = false
+          return
+        }
 
-                  let scsiDeviceFound = false
-                  let actualLunDeviceName = hostDevicesName
+        // 2. 할당 해제 확인 및 실행
+        this.$confirm({
+          title: `${vmName} ${this.$t('message.delete.device.allocation')}`,
+          content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
+          onOk: async () => {
+            try {
+              // 다른 탭에서 할당된 경우 SCSI 디바이스 해제
+              if (isScsiAllocated) {
+                // SCSI 디바이스에서 해당 LUN 디바이스 찾기
+                const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+                const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
 
                   // hostDevicesName이 /dev/sg로 시작하면 실제 LUN 디바이스를 찾아야 함
                   if (hostDevicesName.startsWith('/dev/sg')) {
@@ -2406,15 +2364,23 @@ export default {
                     const lunResponse = await getAPI('listHostLunDevices', { id: this.resource.id })
                     const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
 
-                    if (lunData && Array.isArray(lunData.hostdevicesname)) {
-                      const scsiAddrFromName = this.extractScsiAddressString(record.hostDevicesText)
-                      for (let j = 0; j < lunData.hostdevicesname.length; j++) {
-                        const lunText = lunData.hostdevicestext[j]
-                        const lunScsiAddr = this.extractScsiAddressString(lunText)
-                        if (scsiAddrFromName && lunScsiAddr && scsiAddrFromName === lunScsiAddr) {
-                          actualLunDeviceName = lunData.hostdevicesname[j]
-                          break
-                        }
+                let scsiDeviceFound = false
+                let actualLunDeviceName = hostDevicesName
+
+                // hostDevicesName이 /dev/sg로 시작하면 실제 LUN 디바이스를 찾아야 함
+                if (hostDevicesName.startsWith('/dev/sg')) {
+                  // LUN 디바이스 목록에서 같은 SCSI 주소를 가진 실제 LUN 디바이스 찾기
+                  const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
+                  const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
+
+                  if (lunData && Array.isArray(lunData.hostdevicesname)) {
+                    const scsiAddrFromName = this.extractScsiAddressString(record.hostDevicesText)
+                    for (let j = 0; j < lunData.hostdevicesname.length; j++) {
+                      const lunText = lunData.hostdevicestext[j]
+                      const lunScsiAddr = this.extractScsiAddressString(lunText)
+                      if (scsiAddrFromName && lunScsiAddr && scsiAddrFromName === lunScsiAddr) {
+                        actualLunDeviceName = lunData.hostdevicesname[j]
+                        break
                       }
                     }
                   }
@@ -2469,33 +2435,82 @@ export default {
                   }
                 }
 
-                // UI 상태 업데이트
-                this.dataItems = this.dataItems.map(item =>
-                  item.hostDevicesName === hostDevicesName
-                    ? { ...item, virtualmachineid: null, vmName: '', isAssigned: false, allocatedInOtherTab: null }
-                    : item
-                )
+                // SCSI 주소 기반으로 매칭 시도
+                const lunAddr = this.extractScsiAddressString(record.hostDevicesText)
 
-                this.$message.success(this.$t('message.success.remove.allocation'))
+                for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
+                  const scsiText = scsiData.hostdevicestext[i]
+                  const scsiAddr = this.extractScsiAddressString(scsiText)
+                  const sgDevice = scsiData.hostdevicesname[i]
 
-                // 현재 탭만 새로고침 (LUN 탭에서 해제한 경우 LUN 탭만)
-                await this.fetchLunDevices()
+                  // SCSI 주소로 매칭
+                  if (lunAddr && scsiAddr && lunAddr === scsiAddr) {
+                    // LUN 형태의 XML 사용 (실제 물리적 디바이스 정보 포함)
+                    const xmlConfig = this.generateXmlLunConfig(actualLunDeviceName)
 
-                this.vmNames = {}
-                this.$emit('device-allocated')
-                // allocation-completed 이벤트 제거 (탭 전환 방지)
-                this.$emit('close-action')
-              } catch (error) {
-                this.$notification.error({
-                  message: this.$t('label.error'),
-                  description: error.message || 'Failed to deallocate device'
+                    const detachResponse = await api('updateHostScsiDevices', {
+                      hostid: this.resource.id,
+                      hostdevicesname: sgDevice,
+                      virtualmachineid: null,
+                      currentvmid: vmId,
+                      xmlconfig: xmlConfig,
+                      isattach: false
+                    })
+
+                    if (!detachResponse || detachResponse.error) {
+                      throw new Error(detachResponse?.error?.errortext || 'Failed to detach SCSI device')
+                    }
+                    scsiDeviceFound = true
+                    break
+                  }
+                }
+
+                if (!scsiDeviceFound) {
+                  throw new Error(`SCSI device mapping not found for LUN device: ${hostDevicesName}`)
+                }
+              } else {
+                // 현재 탭에서 할당된 경우 LUN 디바이스 해제
+                const xmlConfig = this.generateXmlLunConfig(hostDevicesName)
+                const detachResponse = await api('updateHostLunDevices', {
+                  hostid: this.resource.id,
+                  hostdevicesname: hostDevicesName,
+                  virtualmachineid: null,
+                  currentvmid: vmId,
+                  xmlconfig: xmlConfig,
+                  isattach: false
                 })
+
+                if (!detachResponse || detachResponse.error) {
+                  throw new Error(detachResponse?.error?.errortext || 'Failed to detach LUN device')
+                }
               }
-            },
-            onCancel () {
+
+              // UI 상태 업데이트
+              this.dataItems = this.dataItems.map(item =>
+                item.hostDevicesName === hostDevicesName
+                  ? { ...item, virtualmachineid: null, vmName: '', isAssigned: false, allocatedInOtherTab: null }
+                  : item
+              )
+
+              this.$message.success(this.$t('message.success.remove.allocation'))
+
+              // 현재 탭만 새로고침 (LUN 탭에서 해제한 경우 LUN 탭만)
+              await this.fetchLunDevices()
+
+              this.vmNames = {}
+              this.$emit('device-allocated')
+              // allocation-completed 이벤트 제거 (탭 전환 방지)
+              this.$emit('close-action')
+            } catch (error) {
+              this.$notification.error({
+                message: this.$t('label.error'),
+                description: error.message || 'Failed to deallocate device'
+              })
             }
-          })
-        }
+          },
+          onCancel () {
+          }
+        })
       } catch (error) {
         this.$notifyError(error.message || 'Failed to deallocate LUN device')
       } finally {
@@ -2691,10 +2706,10 @@ export default {
                     })
 
                     if (!updateResponse || updateResponse.error) {
-                      // Failed to update SCSI device
+                      // Failed to update HBA device
                     }
                   } catch (error) {
-                    // Failed to update SCSI device
+                    // Failed to update HBA device
                   }
                 }
               } catch (error) {
@@ -2710,7 +2725,7 @@ export default {
                     isattach: false
                   })
                 } catch (detachError) {
-                  // Failed to detach SCSI device after VM fetch error
+                  // Failed to detach HBA device after VM fetch error
                 }
               }
             }
@@ -4087,6 +4102,7 @@ export default {
           message: this.$t('label.error'),
           description: error.message || this.$t('message.error.fetch.scsi.devices')
         })
+        this.dataItems = []
       } finally {
         this.loading = false
       }
@@ -4188,6 +4204,22 @@ export default {
           throw new Error('No VM allocation found for this device')
         }
 
+        // VM 상태 확인 - 실행 중인 경우 할당 해제 불가
+        const vmResponse = await api('listVirtualMachines', {
+          id: vmId,
+          listall: true
+        })
+        const vm = vmResponse?.listvirtualmachinesresponse?.virtualmachine?.[0]
+
+        if (vm && vm.state === 'Running') {
+          this.$notification.warning({
+            message: this.$t('label.warning'),
+            description: this.$t('message.cannot.remove.device.vm.running')
+          })
+          this.loading = false
+          return
+        }
+
         // 2. 할당 해제 확인 및 실행
         this.$confirm({
           title: `${vmName} ${this.$t('message.delete.device.allocation')}`,
@@ -4259,7 +4291,20 @@ export default {
                 }
               } else {
                 // 현재 탭에서 할당된 경우 SCSI 디바이스 해제
-                const xmlConfig = this.generateScsiXmlConfig(hostDevicesName)
+                // 해제 시에는 현재 SCSI 디바이스 정보를 다시 조회하여 정확한 XML 생성
+                const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+                const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
+
+                let actualDeviceText = record.hostDevicesText || ''
+                if (scsiData && scsiData.hostdevicesname) {
+                  const deviceIndex = scsiData.hostdevicesname.indexOf(hostDevicesName)
+                  if (deviceIndex !== -1 && scsiData.hostdevicestext) {
+                    actualDeviceText = scsiData.hostdevicestext[deviceIndex] || actualDeviceText
+                  }
+                }
+
+                // actualDeviceText에서 [host:bus:target:unit] 추출하여 XML 생성
+                const xmlConfig = this.generateScsiXmlFromText(hostDevicesName, actualDeviceText)
 
                 const detachResponse = await getAPI('updateHostScsiDevices', {
                   hostid: this.resource.id,
@@ -4386,6 +4431,14 @@ export default {
 
     // 디바이스 할당 버튼 표시 여부 결정
     shouldShowAllocationButton (record) {
+      // LUN 탭에서 "LUN" 또는 "dm" 포함된 디바이스는 버튼 숨김
+      if (this.activeKey === '4') {
+        const deviceName = String(record.hostDevicesName || '')
+        if (deviceName.toUpperCase().includes('LUN') || deviceName.toLowerCase().includes('dm')) {
+          return false
+        }
+      }
+
       // 할당된 경우 (현재 탭이든 다른 탭이든) 해제 버튼 표시
       if (this.isDeviceAssigned(record) || record.allocatedInOtherTab) {
         return true
@@ -4542,6 +4595,35 @@ export default {
     areRelatedDevices (device1, device2) {
       // SCSI 주소 기반으로 관련 디바이스인지 확인
       return device1 === device2
+    },
+
+    // SCSI 디바이스 텍스트에서 정확한 XML 생성 (할당 시와 동일한 형식)
+    generateScsiXmlFromText (hostDeviceName, hostDevicesText) {
+      if (!hostDevicesText) {
+        throw new Error(`Cannot generate SCSI XML: no device text provided for ${hostDeviceName}`)
+      }
+
+      // hostDevicesText에서 [host:bus:target:unit] 추출
+      const match = hostDevicesText.match(/\[(\d+):(\d+):(\d+):(\d+)\]/)
+      if (!match) {
+        throw new Error(`Cannot extract SCSI address from device text for ${hostDeviceName}: ${hostDevicesText}`)
+      }
+
+      const host = match[1]
+      const bus = match[2]
+      const target = match[3]
+      const unit = match[4]
+
+      const adapterName = `scsi_host${host}`
+
+      return `
+        <hostdev mode='subsystem' type='scsi'>
+          <source>
+            <adapter name='${adapterName}'/>
+            <address bus='${bus}' target='${target}' unit='${unit}'/>
+          </source>
+        </hostdev>
+      `.trim()
     }
   }
 }

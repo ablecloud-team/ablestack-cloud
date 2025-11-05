@@ -3059,20 +3059,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
                 details.entrySet().removeIf(detail -> isExtraConfig(detail.getKey()));
 
-                // (ABLESTACK) video.hardware 자동 확장 처리
-                // 전달된 details에 'video.hardware'가 있으면 'video.hardware1~4'와 'video.ram1~4'를 자동 생성한다.
-                if (details.containsKey("video.hardware")) {
-                    final String videoHardwareValue = details.get("video.hardware");
-                    // 기존 관련 키 제거 (중복 방지)
-                    details.keySet().removeIf(k -> k != null && (k.startsWith("video.hardware") || k.startsWith("video.ram")));
-                    // 1~4 자동 생성
-                    for (int i = 1; i <= 4; i++) {
-                        details.put("video.hardware" + i, videoHardwareValue);
-                        details.put("video.ram" + i, "0");
-                    }
-                    // 원본 키 제거
-                    details.remove("video.hardware");
-                }
+                // video.hardware와 video.ram을 개별적으로 처리 (자동 연동 제거)
 
                 if (caller != null && caller.getType() != Account.Type.ADMIN) {
                     // Ensure denied or read-only detail is not passed by non-root-admin user
@@ -7320,6 +7307,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
     }
 
+    @Override
     public boolean isVMUsingLocalStorage(VMInstanceVO vm) {
         List<VolumeVO> volumes = _volsDao.findByInstance(vm.getId());
         return isAnyVmVolumeUsingLocalStorage(volumes);
@@ -10153,6 +10141,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
     }
 
+    @Override
     public Boolean getDestroyRootVolumeOnVmDestruction(Long domainId){
         return DestroyRootVolumeOnVmDestruction.valueIn(domainId);
     }
