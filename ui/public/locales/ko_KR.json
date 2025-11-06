@@ -3976,7 +3976,7 @@
 "label.gluefs.secret": "GlueFS \uc2dc\ud06c\ub9bf",
 "label.gluefs.user": "GlueFS \uc0ac\uc6a9\uc790",
 "label.gluefs.path": "GlueFS \uacbd\ub85c",
-"label.gluefs.path.tooltip": "/mnt \uacbd\ub85c \uc544\ub798 \ub9c8\uc6b4\ud2b8\ub420 path\ub97c \uc785\ub825\ud558\uc138\uc694.(\uc608\uc2dc: 'gluefs', '/gluefs' \uac00\ub2a5, \ub2e8 '/' \ub9cc\uc73c\ub85c \uc785\ub825\uc740 \ubd88\uac00\ud568)",
+"label.gluefs.path.tooltip": "\ub9c8\uc6b4\ud2b8\ub420 path\ub97c \uc785\ub825\ud558\uc138\uc694.(\uc608\uc2dc: '/mnt/gluefs', \ub2e8 '/' \ub9cc\uc73c\ub85c \uc785\ub825\uc740 \ubd88\uac00)",
 "label.gluefs.name": "GlueFS \uba85",
 "label.glueblock.monitor": "Glue Block \ubaa8\ub2c8\ud130",
 "label.glueblock.pool": "Glue Block \ud480",
