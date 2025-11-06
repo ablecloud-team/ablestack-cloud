@@ -5009,11 +5009,11 @@
 "label.gule.images": "Glue Images",
 "label.clonetype": "Clone Type",
 "message.clone.vm": "For the Full type, image flattening occurs in the process background. For the Linked type, image flattening does not occur.",
-"label.create.host.devices": "transfer host device",
+"label.create.host.devices": "assign host device",
 "message.restart.vm.host.update.settings": "Applies only when the virtual machine is rebooted",
 "message.success.update.vm": "Host device applied",
 "label.listhostdevices": "Devices",
-"message.warning.host.devices": "You must completely stop and start the virtual machine for this to take effect. (You must set enable.additional.vm.configuration to true in global settings.)",
+"message.warning.host.devices": "After assigning the host device, you must completely stop and start the virtual machine. (You must set enable.additional.vm.configuration to true in global settings.)",
 "label.recent.events": "Recent Events",
 "dr.create": "DR.CREATE",
 "dr.test.connect": "DR.TEST.CONNECT",
@@ -5268,5 +5268,6 @@
 "label.has.partitions": "Has partitions",
 "label.not.in.use": "Not in use",
 "label.in.use": "In use",
-"message.success.hba.device.allocated": "HBA device allocation completed"
+"message.success.hba.device.allocated": "HBA device allocation completed",
+"message.warning.host.device": "You must set enable.additional.vm.configuration to true in global settings."
 }
