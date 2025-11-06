@@ -258,7 +258,7 @@ public class BridgeVifDriver extends VifDriverBase {
             intf.setPxeDisable(true);
         }
 
-        if (nic.getNwfilter()) {
+        if (!nic.isSecurityGroupEnabled() && nic.getNwfilter()) {
             intf.setFilterrefFilterTag();
         }
 
