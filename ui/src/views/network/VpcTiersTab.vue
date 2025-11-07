@@ -619,15 +619,15 @@ export default {
         this.networkOfferings = json.listnetworkofferingsresponse.networkoffering || []
         var filteredOfferings = []
         const vpcLbServiceIndex = this.resource.service.map(svc => { return svc.name }).indexOf('Lb')
+        const vpcLbServiceProviders = vpcLbServiceIndex === -1 ? [] : ((this.resource.service[vpcLbServiceIndex].provider || []).map(p => p.name))
         for (var index in this.networkOfferings) {
           const offering = this.networkOfferings[index]
           const idx = offering.service.map(svc => { return svc.name }).indexOf('Lb')
-          if (this.publicLBExists && (idx === -1 || this.lbProviderMap.publicLb.vpc.indexOf(offering.service.map(svc => { return svc.provider[0].name })[idx]) === -1)) {
+          const offeringLbServiceProviders = idx === -1 ? [] : ((offering.service[idx].provider || []).map(p => p.name))
+          if (this.publicLBExists && (idx === -1 || !offeringLbServiceProviders.some(p => this.lbProviderMap.publicLb.vpc.indexOf(p) !== -1))) {
             filteredOfferings.push(offering)
           } else if (!this.publicLBExists && vpcLbServiceIndex > -1) {
-            const vpcLbServiceProvider = vpcLbServiceIndex === -1 ? undefined : this.resource.service[vpcLbServiceIndex].provider[0].name
-            const offeringLbServiceProvider = idx === -1 ? undefined : offering.service[idx].provider[0].name
-            if (vpcLbServiceProvider && (!offeringLbServiceProvider || (offeringLbServiceProvider && vpcLbServiceProvider === offeringLbServiceProvider))) {
+            if (vpcLbServiceProviders.length > 0 && (offeringLbServiceProviders.length === 0 || offeringLbServiceProviders.some(p => vpcLbServiceProviders.indexOf(p) !== -1))) {
               filteredOfferings.push(offering)
             }
           } else {
