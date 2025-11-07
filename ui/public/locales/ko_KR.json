@@ -3976,7 +3976,7 @@
 "label.gluefs.secret": "GlueFS \uc2dc\ud06c\ub9bf",
 "label.gluefs.user": "GlueFS \uc0ac\uc6a9\uc790",
 "label.gluefs.path": "GlueFS \uacbd\ub85c",
-"label.gluefs.path.tooltip": "/mnt \uacbd\ub85c \uc544\ub798 \ub9c8\uc6b4\ud2b8\ub420 path\ub97c \uc785\ub825\ud558\uc138\uc694.(\uc608\uc2dc: 'gluefs', '/gluefs' \uac00\ub2a5, \ub2e8 '/' \ub9cc\uc73c\ub85c \uc785\ub825\uc740 \ubd88\uac00\ud568)",
+"label.gluefs.path.tooltip": "\ub9c8\uc6b4\ud2b8\ub420 path\ub97c \uc785\ub825\ud558\uc138\uc694.(\uc608\uc2dc: '/mnt/gluefs', \ub2e8 '/' \ub9cc\uc73c\ub85c \uc785\ub825\uc740 \ubd88\uac00)",
 "label.gluefs.name": "GlueFS \uba85",
 "label.glueblock.monitor": "Glue Block \ubaa8\ub2c8\ud130",
 "label.glueblock.pool": "Glue Block \ud480",
@@ -4642,12 +4642,12 @@
 "label.gule.images": "Glue \uc774\ubbf8\uc9c0",
 "label.clonetype": "\ubcf5\uc81c \uc720\ud615",
 "message.clone.vm": "Full \uc720\ud615\uc740 \ud504\ub85c\uc138\uc2a4 \ubc31\uadf8\ub77c\uc6b4\ub4dc\uc5d0\uc11c \uc774\ubbf8\uc9c0 \ubcd1\ud569 \uc791\uc5c5(flatten)\uc774 \uc9c4\ud589\ub418\uba70<br>Linked \uc720\ud615\uc740 \uc774\ubbf8\uc9c0 \ubcd1\ud569 \uc791\uc5c5\uc744 \uc9c4\ud589\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.",
-"label.create.host.devices": "\ud638\uc2a4\ud2b8 \ub514\ubc14\uc774\uc2a4 \uc774\uad00",
+"label.create.host.devices": "\ud638\uc2a4\ud2b8 \ub514\ubc14\uc774\uc2a4 \ud560\ub2f9",
 "message.restart.vm.host.update.settings": "\uac00\uc0c1\uba38\uc2e0\uc744 \uc7ac\ubd80\ud305 \ud574\uc57c \uc801\uc6a9\ub429\ub2c8\ub2e4.",
 "message.success.update.vm": "\ud638\uc2a4\ud2b8 \ub514\ubc14\uc774\uc2a4\uac00 \uc801\uc6a9\ub418\uc5c8\uc2b5\ub2c8\ub2e4.",
 "label.select.vm": "\uac00\uc0c1\uba38\uc2e0\ub97c \uc120\ud0dd\ud574\uc8fc\uc138\uc694.",
 "label.listhostdevices": "\uc7a5\uce58",
-"message.warning.host.devices": "\uac00\uc0c1\uba38\uc2e0\uc744 \uc644\uc804\ud788 \uc815\uc9c0 \ud6c4 \uc2dc\uc791\ud558\uc154\uc57c \uc801\uc6a9\uc774 \ub429\ub2c8\ub2e4. (\uae00\ub85c\ubc8c \uc124\uc815\uc5d0\uc11c enable.additional.vm.configuration\ub97c true\ub85c \uc124\uc815\ud574\uc57c\ud569\ub2c8\ub2e4.)",
+"message.warning.host.devices": "\ud638\uc2a4\ud2b8 \uc7a5\uce58\ub97c \ud560\ub2f9 \ud6c4 \uac00\uc0c1\uba38\uc2e0\uc744 \uc644\uc804\ud788 \uc815\uc9c0 \ud6c4 \uc2dc\uc791\ud558\uc154\uc57c \uc801\uc6a9\uc774 \ub429\ub2c8\ub2e4. (\uae00\ub85c\ubc8c \uc124\uc815\uc5d0\uc11c enable.additional.vm.configuration\ub97c true\ub85c \uc124\uc815\ud574\uc57c\ud569\ub2c8\ub2e4.)",
 "label.recent.events": "\ucd5c\uadfc \uc774\ubca4\ud2b8",
 "dr.create": "DR.\uc0dd\uc131",
 "dr.test.connect": "DR.\uc5f0\uacb0.\ud14c\uc2a4\ud2b8",
@@ -4902,5 +4902,6 @@
 "label.in.use": "\uc0ac\uc6a9 \uc911",
 "message.success.hba.device.allocated": "HBA \uc7a5\uce58\uac00 \uc131\uacf5\uc801\uc73c\ub85c \ud560\ub2f9\ub418\uc5c8\uc2b5\ub2c8\ub2e4.",
 "label.no.devices": "\uc7a5\uce58 \uc5c6\uc74c",
-"label.vhba.devices": "vHBA \uc7a5\uce58"
+"label.vhba.devices": "vHBA \uc7a5\uce58",
+"message.warning.host.device": "\uae00\ub85c\ubc8c \uc124\uc815\uc5d0\uc11c enable.additional.vm.configuration\ub97c true\ub85c \uc124\uc815\ud574\uc57c\ud569\ub2c8\ub2e4."
 }
