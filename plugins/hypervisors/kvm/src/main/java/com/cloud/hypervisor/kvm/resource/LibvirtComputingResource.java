@@ -71,6 +71,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import com.cloud.agent.api.to.VirtualMachineMetadataTO;
 import org.apache.cloudstack.api.ApiConstants.IoDriverPolicy;
 import org.apache.cloudstack.command.CommandInfo;
 import org.apache.cloudstack.command.ReconcileCommandService;
@@ -220,6 +221,7 @@ import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.VideoDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.WatchDogDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.WatchDogDef.WatchDogAction;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.WatchDogDef.WatchDogModel;
+import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.MetadataDef;
 import com.cloud.hypervisor.kvm.resource.rolling.maintenance.RollingMaintenanceAgentExecutor;
 import com.cloud.hypervisor.kvm.resource.rolling.maintenance.RollingMaintenanceExecutor;
 import com.cloud.hypervisor.kvm.resource.rolling.maintenance.RollingMaintenanceServiceExecutor;
@@ -3241,7 +3243,6 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         vm.addComp(createTermPolicy());
         vm.addComp(createClockDef(vmTO));
 
-
         boolean isTpmEnabled = false;
         String tpmversion = "";
         if(customParams.containsKey("tpmversion")) {
@@ -3257,7 +3258,18 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             isTpmEnabled = false;
         }
         vm.addComp(createDevicesDef(vmTO, guest, vcpus, isUefiEnabled, isTpmEnabled, tpmversion));
+        
+        MetadataDef metaDef;
+        if ((metaDef = createMetadataDef(vmTO)) != null) {
+            vm.addComp(metaDef);
+        }
+
         addExtraConfigsToVM(vmTO, vm, extraConfig);
+    }
+
+    protected MetadataDef createMetadataDef(VirtualMachineTO vmTO) {
+        VirtualMachineMetadataTO metadata = vmTO.getMetadata();
+        return (metadata != null) ? new MetadataDef(metadata) : null;
     }
 
     /**
