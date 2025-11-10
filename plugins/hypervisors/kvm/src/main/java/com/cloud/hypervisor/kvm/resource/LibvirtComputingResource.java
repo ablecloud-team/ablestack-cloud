@@ -2896,7 +2896,13 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
         devices.addDevice(createChannelDef(vmTO));
         devices.addDevice(createWatchDogDef());
-        devices.addDevice(createVideoDef(vmTO));
+
+        // Add multiple video devices if configured
+        List<VideoDef> videoDefs = createVideoDefs(vmTO);
+        for (VideoDef videoDef : videoDefs) {
+            devices.addDevice(videoDef);
+        }
+
         devices.addDevice(createConsoleDef());
         devices.addDevice(createGraphicDef(vmTO));
         devices.addDevice(createTabletInputDef());
@@ -2999,41 +3005,67 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return new ConsoleDef(PTY, null, null, (short)0);
     }
 
-    protected VideoDef createVideoDef(VirtualMachineTO vmTO) {
+    protected java.util.List<VideoDef> createVideoDefs(VirtualMachineTO vmTO) {
+        List<VideoDef> videoDefs = new ArrayList<>();
         Map<String, String> details = vmTO.getDetails();
-        String videoHw = this.videoHw;
-        int videoRam = this.videoRam;
 
-        if (details != null) {
+        if (details == null) {
+            // No details, use default single video device
+            videoDefs.add(new VideoDef(this.videoHw, this.videoRam));
+            return videoDefs;
+        }
+
+        // Check if there are indexed video.hardware1~4 settings
+        boolean hasIndexedVideoHardware = false;
+        for (int i = 1; i <= 4; i++) {
+            String hwKey = "video.hardware" + i;
+            if (details.containsKey(hwKey)) {
+                hasIndexedVideoHardware = true;
+                String videoHw = details.get(hwKey);
+                int videoRam = this.videoRam; // default
+
+                // Look for corresponding video.ram{i}
+                String ramKey = "video.ram" + i;
+                if (details.containsKey(ramKey)) {
+                    try {
+                        videoRam = Integer.parseInt(details.get(ramKey));
+                    } catch (NumberFormatException ignore) {
+                        // Use default
+                    }
+                }
+
+                if (videoHw != null && !videoHw.isEmpty()) {
+                    videoDefs.add(new VideoDef(videoHw, videoRam));
+                }
+            }
+        }
+
+        // If no indexed video hardware found, check for legacy video.hardware setting
+        if (!hasIndexedVideoHardware) {
+            String videoHw = this.videoHw;
+            int videoRam = this.videoRam;
+
             if (details.containsKey(VmDetailConstants.VIDEO_HARDWARE)) {
                 videoHw = details.get(VmDetailConstants.VIDEO_HARDWARE);
             }
 
-            for (int i = 1; i <= 4; i++) {
-                String hwKey = "video.hardware" + i;
-                String ramKey = "video.ram" + i;
-                if (details.containsKey(hwKey)) {
-                    String v = details.get(hwKey);
-                    if (v != null && !v.isEmpty()) {
-                        videoHw = v;
-                    }
-                    if (details.containsKey(ramKey)) {
-                        try {
-                            videoRam = Integer.parseInt(details.get(ramKey));
-                        } catch (NumberFormatException ignore) {
-                        }
-                    }
-                    break;
-                }
-            }
             if (details.containsKey("video.ram")) {
                 try {
                     videoRam = Integer.parseInt(details.get("video.ram"));
                 } catch (NumberFormatException ignore) {
                 }
             }
+
+            videoDefs.add(new VideoDef(videoHw, videoRam));
         }
-        return new VideoDef(videoHw, videoRam);
+
+        return videoDefs;
+    }
+
+    protected VideoDef createVideoDef(VirtualMachineTO vmTO) {
+        // Legacy method - returns first video device
+        List<VideoDef> videoDefs = createVideoDefs(vmTO);
+        return videoDefs.isEmpty() ? new VideoDef(this.videoHw, this.videoRam) : videoDefs.get(0);
     }
 
     protected SoundDef createSoundDef(VirtualMachineTO vmTO) {
@@ -3192,21 +3224,38 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 }
             }
             guest.setIothreads(customParams.containsKey(VmDetailConstants.IOTHREADS));
-        }
-        customParams.forEach((strKey, strValue)->{
-        });
-        if (MapUtils.isNotEmpty(customParams)) {
-            if(customParams.containsKey(GuestDef.TpmVersion.V1_2.toString())){
-                guest.setTPMVersion(GuestDef.TpmVersion.V1_2);
-            }else if (customParams.containsKey(GuestDef.TpmVersion.V2_0.toString())){
-
-                guest.setTPMVersion(GuestDef.TpmVersion.V2_0);
-            }
+            configureBootOrder(guest, customParams);
+        } else {
+            configureBootOrder(guest, null);
         }
         guest.setUuid(uuid);
-        guest.setBootOrder(GuestDef.BootOrder.HARDISK);
-        guest.setBootOrder(GuestDef.BootOrder.CDROM);
         return guest;
+    }
+
+    private void configureBootOrder(GuestDef guest, Map<String, String> customParams) {
+        String bootOrderValue = null;
+        if (MapUtils.isNotEmpty(customParams) && customParams.containsKey(VmDetailConstants.BOOT_ORDER)) {
+            bootOrderValue = customParams.get(VmDetailConstants.BOOT_ORDER);
+        }
+
+        if (StringUtils.isNotBlank(bootOrderValue)) {
+            // null, 공백 방지 및 대소문자 무시 비교
+            if (bootOrderValue.equalsIgnoreCase(GuestDef.BootOrder.HARDISK.toString()) || "hd".equalsIgnoreCase(bootOrderValue)) {
+                guest.setBootOrder(GuestDef.BootOrder.HARDISK);
+                guest.setBootOrder(GuestDef.BootOrder.CDROM);
+            } else if (bootOrderValue.equalsIgnoreCase(GuestDef.BootOrder.CDROM.toString()) || "cdrom".equalsIgnoreCase(bootOrderValue)) {
+                guest.setBootOrder(GuestDef.BootOrder.CDROM);
+                guest.setBootOrder(GuestDef.BootOrder.HARDISK);
+            } else {
+                // 유효하지 않은 값이면 기본 부팅 순서로 fallback
+                guest.setBootOrder(GuestDef.BootOrder.HARDISK);
+                guest.setBootOrder(GuestDef.BootOrder.CDROM);
+            }
+        } else {
+            // 기본 부팅 순서 (customParams가 null이거나 키가 없는 경우)
+            guest.setBootOrder(GuestDef.BootOrder.HARDISK);
+            guest.setBootOrder(GuestDef.BootOrder.CDROM);
+        }
     }
 
     protected void configureGuestAndVMHypervisorType(VirtualMachineTO vmTO, LibvirtVMDef vm, GuestDef guest) {
@@ -3589,11 +3638,12 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     if (volume.getType() == Volume.Type.DATADISK && !(isWindowsTemplate && isUefiEnabled)) {
                         disk.defFileBasedDisk(physicalDisk.getPath(), devId, diskBusTypeData, DiskDef.DiskFmtType.QCOW2);
                     } else {
-                        if (isSecureBoot) {
-                            disk.defFileBasedDisk(physicalDisk.getPath(), devId, DiskDef.DiskFmtType.QCOW2, isWindowsTemplate);
-                        } else {
-                            disk.defFileBasedDisk(physicalDisk.getPath(), devId, diskBusType, DiskDef.DiskFmtType.QCOW2);
-                        }
+                        disk.defFileBasedDisk(physicalDisk.getPath(), devId, diskBusType, DiskDef.DiskFmtType.QCOW2);
+                        // if (isSecureBoot) {
+                        //     disk.defFileBasedDisk(physicalDisk.getPath(), devId, DiskDef.DiskFmtType.QCOW2, isWindowsTemplate);
+                        // } else {
+                        //     disk.defFileBasedDisk(physicalDisk.getPath(), devId, diskBusType, DiskDef.DiskFmtType.QCOW2);
+                        // }
                     }
                 }
                 pool.customizeLibvirtDiskDef(disk);
@@ -3815,7 +3865,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             enableOVSDriver = true;
         }
 
-        if (!nic.isSecurityGroupEnabled() && !enableOVSDriver) {
+        if (!nic.isSecurityGroupEnabled() && !enableOVSDriver && nic.getNwfilter()) {
             interfaceDef.setFilterrefFilterTag();
         }
         if (vmSpec.getDetails() != null) {
@@ -4793,7 +4843,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                         "Fedora", "CentOS", "Red Hat Enterprise Linux", "Debian GNU/Linux", "FreeBSD", "Oracle", "Other PV", "Windows", "Rocky", "Alma")) {
             return DiskDef.DiskBus.SCSI;
         } else if (isUefiEnabled && StringUtils.startsWithAny(platformEmulator, "Other")) {
-            return DiskDef.DiskBus.SATA;
+            return DiskDef.DiskBus.SCSI;
         } else if (guestCpuArch != null && guestCpuArch.equals("aarch64")) {
             return DiskDef.DiskBus.SCSI;
         } else {
@@ -5891,7 +5941,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             try {
                 createKvdoCmdLine(splitPoolImage[0], pool.getAuthUserName(), splitPoolImage[1], String.valueOf(disk.getSize()));
                 device = "/dev/mapper/vg_"+splitPoolImage[1].replace("-","")+"-ablestack_kvdo";
-                logger.info("device name : "+device);
+                // device name
             } catch (InternalErrorException e) {
                 logger.info("createKvdoCmdLine Action Error : "+e);
             }
@@ -5913,7 +5963,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     String vgName = "vg_"+splitPoolImage[1].replace("-","");
                     Script.runSimpleBashScript("vgchange -an " + vgName);
                 } catch (Exception e) {
-                    logger.info("unmapRbdDevice Action error : "+e);
+                    // unmapRbdDevice Action error
                 }
             }
             createRBDSecretKeyFileIfNoExist(pool.getUuid(), DEFAULT_LOCAL_STORAGE_PATH, pool.getAuthSecret());
@@ -6399,3 +6449,4 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         } catch (IOException e) {}
     }
 }
+
