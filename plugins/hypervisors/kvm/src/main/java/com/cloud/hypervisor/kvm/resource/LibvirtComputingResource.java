@@ -2923,34 +2923,10 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         if (busT == DiskDef.DiskBus.SCSI) {
             Map<String, String> details = vmTO.getDetails();
 
-            int socket = getCoresPerSocket(vcpus, details);
             boolean isIothreadsEnabled = details != null && details.containsKey(VmDetailConstants.IOTHREADS);
             addSCSIControllers(devices, vcpus, vmTO.getDisks().length, isIothreadsEnabled);
         }
-
-
         return devices;
-    }
-
-    private int getCoresPerSocket(int vcpus, Map<String, String> details) {
-        int numCoresPerSocket = -1;
-        if (details != null) {
-            final String coresPerSocket = details.get(VmDetailConstants.CPU_CORE_PER_SOCKET);
-            final int intCoresPerSocket = NumbersUtil.parseInt(coresPerSocket, numCoresPerSocket);
-            if (intCoresPerSocket > 0 && vcpus % intCoresPerSocket == 0) {
-                numCoresPerSocket = intCoresPerSocket;
-            }
-        }
-        if (numCoresPerSocket <= 0) {
-            if (vcpus % 6 == 0) {
-                numCoresPerSocket = 6;
-            } else if (vcpus % 4 == 0) {
-                numCoresPerSocket = 4;
-            } else {
-                numCoresPerSocket = vcpus;
-            }
-        }
-        return numCoresPerSocket;
     }
 
     protected WatchDogDef createWatchDogDef() {
@@ -6174,42 +6150,30 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
               AgentProperties.ENABLE_MANUALLY_SETTING_CPU_TOPOLOGY_ON_KVM_VM.getName(), enableManuallySettingCpuTopologyOnKvmVm));
             return;
         }
-
-        int numCoresPerSocket = 1;
+        int numCoresPerSocket = vCpusInDef;
         int numThreadsPerCore = 1;
 
         if (details != null) {
-            numCoresPerSocket = NumbersUtil.parseInt(details.get(VmDetailConstants.CPU_CORE_PER_SOCKET), 1);
+            numCoresPerSocket = NumbersUtil.parseInt(details.get(VmDetailConstants.CPU_CORE_PER_SOCKET), vCpusInDef);
             numThreadsPerCore = NumbersUtil.parseInt(details.get(VmDetailConstants.CPU_THREAD_PER_CORE), 1);
         }
 
         if ((numCoresPerSocket * numThreadsPerCore) > vCpusInDef) {
             LOGGER.warn(String.format("cores per socket (%d) * threads per core (%d) exceeds total VM cores. Ignoring extra topology", numCoresPerSocket, numThreadsPerCore));
-            numCoresPerSocket = 1;
+            numCoresPerSocket = vCpusInDef;
             numThreadsPerCore = 1;
         }
 
         if (vCpusInDef % (numCoresPerSocket * numThreadsPerCore) != 0) {
             LOGGER.warn(String.format("cores per socket(%d) * threads per core(%d) doesn't divide evenly into total VM cores(%d). Ignoring extra topology", numCoresPerSocket, numThreadsPerCore, vCpusInDef));
-            numCoresPerSocket = 1;
+            numCoresPerSocket = vCpusInDef;
             numThreadsPerCore = 1;
         }
 
-        // Set default coupling (makes 4 or 6 core sockets for larger core configs)
-        int numTotalSockets = 1;
-        if (numCoresPerSocket == 1 && numThreadsPerCore == 1) {
-            if (vCpusInDef % 6 == 0) {
-                numCoresPerSocket = 6;
-            } else if (vCpusInDef % 4 == 0) {
-                numCoresPerSocket = 4;
-            }
-            numTotalSockets = vCpusInDef / numCoresPerSocket;
-        } else {
-            int nTotalCores = vCpusInDef / numThreadsPerCore;
-            numTotalSockets = nTotalCores / numCoresPerSocket;
-        }
-
+        int nTotalCores = vCpusInDef / numThreadsPerCore;
+        int numTotalSockets = nTotalCores / numCoresPerSocket;
         cmd.setTopology(numCoresPerSocket, numThreadsPerCore, numTotalSockets);
+        logger.debug(String.format("[CPU Topology] TotalCores=%d | Cores/Socket=%d | Threads/Core=%d | Sockets=%d", nTotalCores, numCoresPerSocket, numThreadsPerCore, numTotalSockets));
     }
 
     public void setBackingFileFormat(String volPath) {
