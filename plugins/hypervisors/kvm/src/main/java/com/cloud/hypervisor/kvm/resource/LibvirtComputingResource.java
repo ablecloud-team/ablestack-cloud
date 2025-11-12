@@ -28,6 +28,8 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -230,6 +232,8 @@ import com.cloud.utils.ssh.SshHelper;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.VirtualMachine.PowerState;
 import com.cloud.vm.VmDetailConstants;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -3161,6 +3165,10 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             guest.setNvramTemplate(uefiProperties.getProperty(GuestDef.GUEST_NVRAM_TEMPLATE_SECURE));
         } else if (isUefiPropertieNotNull(GuestDef.GUEST_NVRAM_TEMPLATE_LEGACY)) {
             guest.setNvramTemplate(uefiProperties.getProperty(GuestDef.GUEST_NVRAM_TEMPLATE_LEGACY));
+
+            // UEFI Lagacy 실행 파일 포맷 설정
+            String exeFormat = getExecutableFormat();
+            guest.setUefiLagacyFormat("format='" + exeFormat + "'"); // 예: qcow2 또는 raw
         }
     }
 
@@ -3176,6 +3184,26 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
     private boolean isGuestAarch64() {
         return AARCH64.equals(guestCpuArch);
+    }
+
+    private String getExecutableFormat() {
+        String firmwareJson = "/usr/share/qemu/firmware/50-edk2-ovmf-x64-nosb.json";
+        try (java.io.InputStream in = Files.newInputStream(Path.of(firmwareJson))) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(in);
+            JsonNode fmtNode = root.path("mapping").path("executable").path("format");
+            String rawValue = fmtNode.isMissingNode() || fmtNode.isNull() ? "" : fmtNode.asText("");
+            String value = rawValue == null ? "" : rawValue.trim().toLowerCase(java.util.Locale.ROOT);
+
+            if (value.isEmpty()) {
+                return "qcow2";
+            }
+            LOGGER.debug("Executable format from firmware json [{}]: {}", firmwareJson, value);
+            return value;
+        } catch (IOException e) {
+            LOGGER.warn("Failed to read executable format from firmware json [{}]: {}", firmwareJson, e.getMessage());
+            return "qcow2";
+        }
     }
 
     /**
