@@ -130,8 +130,8 @@ public class LibvirtVMDef {
         private String _nvram;
         private String _nvramTemplate;
         private boolean iothreads;
-
         private TpmVersion _tpmversion;
+        private String uefiLagacyFormat;
 
         public static final String GUEST_LOADER_SECURE = "guest.loader.secure";
         public static final String GUEST_LOADER_LEGACY = "guest.loader.legacy";
@@ -228,6 +228,10 @@ public class LibvirtVMDef {
             this.iothreads = iothreads;
         }
 
+        public void setUefiLagacyFormat(String uefiLagacyFormat) {
+            this.uefiLagacyFormat = uefiLagacyFormat;
+        }
+
         @Override
         public String toString() {
             if (_type == GuestType.KVM) {
@@ -256,7 +260,7 @@ public class LibvirtVMDef {
                 }
                 if (_loader != null) {
                     if (_bootmode == BootMode.LEGACY) {
-                        guestDef.append("<loader readonly='yes' secure='no' type='pflash' format='qcow2'>" + _loader + "</loader>\n");
+                        guestDef.append("<loader readonly='yes' secure='no' type='pflash' " + uefiLagacyFormat + ">" + _loader + "</loader>\n");
                     } else if (_bootmode == BootMode.SECURE) {
                         guestDef.append("<loader readonly='yes' secure='yes' type='pflash'>" + _loader + "</loader>\n");
                     }
