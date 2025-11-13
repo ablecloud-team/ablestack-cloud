@@ -89,11 +89,10 @@ export default {
   z-index: 10;
   height: auto;
 
+  /* (원래 동작 유지) 비고정 상태: 기본은 숨기고 hover 시 스크롤 */
   :deep(.ant-layout-sider-children) {
     overflow-y: hidden;
-    &:hover {
-      overflow-y: auto;
-    }
+    &:hover { overflow-y: auto; }
   }
 
   :deep(.ant-menu-vertical) .ant-menu-item {
@@ -101,31 +100,30 @@ export default {
     margin-bottom: 0px;
   }
 
-  :deep(.ant-menu-inline) .ant-menu-item:not(:last-child) {
-    margin-bottom: 0px;
-  }
+  :deep(.ant-menu-inline) .ant-menu-item:not(:last-child) { margin-bottom: 0px; }
+  :deep(.ant-menu-inline) .ant-menu-item { margin-top: 0px; }
 
-  :deep(.ant-menu-inline) .ant-menu-item {
-    margin-top: 0px;
-  }
-
+  /* ✅ 고정 사이드바: 배너 높이만큼 아래서 시작 + 하단까지 채움 */
   &.ant-fixed-sidemenu {
     position: fixed;
-    height: 100%;
+    top: var(--affixTopHeader, 0px); /* [추가] 배너 높이 반영 */
+    bottom: 0;                       /* [추가] 하단 고정 */
+    height: auto;                    /* [변경] 100% → auto (top/bottom로 계산) */
+
+    /* ✅ 고정 상태에서는 내부 컨테이너가 자체 스크롤을 가짐 */
+    :deep(.ant-layout-sider-children) {
+      height: calc(100vh - var(--affixTopHeader, 0px)); /* 배너만큼 뺀 가시 높이 */
+      min-height: 0;
+      overflow-y: auto;               /* 항상 스크롤 가능 */
+      overscroll-behavior: contain;   /* 스크롤 튐 방지 */
+    }
   }
 
   &.light {
     box-shadow: 2px 0px 8px 0px rgba(29, 35, 41, 0.05);
-
-    .ant-menu-light {
-      border-right-color: transparent;
-    }
+    .ant-menu-light { border-right-color: transparent; }
   }
 
-  &.dark {
-    .ant-menu-dark {
-      border-right-color: transparent;
-    }
-  }
+  &.dark { .ant-menu-dark { border-right-color: transparent; } }
 }
 </style>

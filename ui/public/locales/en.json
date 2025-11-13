@@ -4974,5 +4974,6 @@
 "label.pause.confirm.ack": "I have reviewed the details and want to pause this rule.",
 "message.confirm.pause.rule.title": "Pause this rule?",
 "message.confirm.pause.rule.desc": "Pausing stops notifications until you resume. Evaluations continue and you can resume at any time.",
-"message.confirm.resume.rule.desc": "Resuming re-enables notifications immediately. Evaluations continue as usual. Active silences still suppress notifications until they expire."
+"message.confirm.resume.rule.desc": "Resuming re-enables notifications immediately. Evaluations continue as usual. Active silences still suppress notifications until they expire.",
+"label.uid": "UID"
 }

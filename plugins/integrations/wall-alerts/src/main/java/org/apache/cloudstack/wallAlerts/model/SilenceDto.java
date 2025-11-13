@@ -33,7 +33,7 @@ public class SilenceDto {
     @JsonProperty("updatedAt")
     private OffsetDateTime updatedAt;
 
-    // ✅ 새 파일 없이 내부 클래스로 메타/권한 수용
+    //  새 파일 없이 내부 클래스로 메타/권한 수용
     @JsonProperty("metadata")
     private Metadata metadata;
 

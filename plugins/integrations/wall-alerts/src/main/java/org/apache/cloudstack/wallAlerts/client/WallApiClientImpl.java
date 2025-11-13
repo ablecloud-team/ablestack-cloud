@@ -643,7 +643,7 @@ public class WallApiClientImpl implements WallApiClient {
             sb.append(baseUrl).append("/api/alertmanager/grafana/api/v2/silences");
             boolean hasQuery = false;
             if (stateFilter != null && !stateFilter.isBlank()) {
-                // ✅ Alertmanager v2는 state 필터를 filter=state=active 로 받는다.
+                //  Alertmanager v2는 state 필터를 filter=state=active 로 받는다.
                 sb.append(hasQuery ? "&" : "?")
                         .append("filter=")
                         .append(URLEncoder.encode("state=" + stateFilter.toLowerCase(java.util.Locale.ROOT),

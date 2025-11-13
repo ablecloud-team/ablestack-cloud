@@ -1,5 +1,6 @@
 package org.apache.cloudstack.wallAlerts.service;
 
+import com.cloud.alert.AlertManager;
 import com.cloud.utils.component.ManagerBase;
 import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.ServerApiException;
@@ -34,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -45,6 +47,13 @@ import java.util.regex.PatternSyntaxException;
 public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsService {
 
     private static final Logger LOG = Logger.getLogger(WallAlertsServiceImpl.class);
+
+    @Inject
+    private AlertManager alertMgr;
+    // UID별 중복 전송 방지 캐시
+    private final Map<String, Long> recentAlertSentAtMs = new ConcurrentHashMap<>();
+    // 중복 억제 TTL (예: 10분)
+    private static final long DEFAULT_WALL_ALERT_THROTTLE_MS = 600_000L;
 
     @Inject
     private WallApiClient wallApiClient;
@@ -362,6 +371,18 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                                 resp.setLastTriggeredAt(KST_YMD_HM.format(r.lastEvaluation.atZoneSameInstant(KST)));
                             } else {
                                 resp.setLastTriggeredAt(null);
+                            }
+
+                            // ALERTING & !paused & !silenced ⇒ listAlerts 등록
+                            final boolean ruleIsAlerting = "ALERTING".equalsIgnoreCase(normalizeState(computedState));
+                            if (resolvedUid != null && ruleIsAlerting && !paused && !silencedNow) {
+                                // ▼ 이미 위에서 채운 def(임계/연산자) 그대로 사용
+                                final String op   = (def != null ? def.operator  : null);
+                                final Double th1  = (def != null ? def.threshold : null);
+                                final Double th2  = (def != null ? def.threshold2: null);
+                                // ruleName = ruleTitle 그대로 전달(중복 프리픽스/UID는 내부에서 정리)
+                                // zoneId/podId 매핑값이 없으면 0L/null 유지
+                                maybeSendWallAlert(resolvedUid, ruleTitle, op, th1, th2, 0L, null);
                             }
 
                             filtered.add(resp);
@@ -764,6 +785,102 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         return org.apache.cloudstack.wallAlerts.mapper.WallMappers.toResponse(created);
     }
 
+    private void maybeSendWallAlert(final String uid,
+                                    final String ruleName,
+                                    final String operator,
+                                    final long zoneId,
+                                    final Long podId) {
+        maybeSendWallAlert(uid, ruleName, operator, null, null, zoneId, podId, System.currentTimeMillis());
+    }
+
+    private void maybeSendWallAlert(final String uid,
+                                    final String ruleName,
+                                    final String operator,
+                                    final Double threshold,
+                                    final Double thresholdMax,
+                                    final long zoneId,
+                                    final Long podId) {
+        maybeSendWallAlert(uid, ruleName, operator, threshold, thresholdMax, zoneId, podId, System.currentTimeMillis());
+    }
+
+    // AlertManager로 listAlerts 등록 (UID TTL 중복 억제)
+    private void maybeSendWallAlert(final String uid,
+                                    final String ruleName,
+                                    final String operator,
+                                    final Double threshold,
+                                    final Double thresholdMax,
+                                    final long zoneId,
+                                    final Long podId,
+                                    final long now) {
+        try {
+            final Long last = recentAlertSentAtMs.get(uid);
+            if (last != null && now - last < DEFAULT_WALL_ALERT_THROTTLE_MS) {
+                return;
+            }
+
+            final String title = cleanTitle(ruleName);              // 프리픽스/UID 꼬리 제거
+            final String tail  = opPhrase(operator, threshold, thresholdMax);
+            final String subject = (tail == null || tail.isEmpty())
+                    ? String.format("Wall Alert: %s", title)
+                    : String.format("Wall Alert: %s — %s", title, tail);
+            final String content = subject;
+
+            alertMgr.sendPersistentAlert(
+                    AlertManager.AlertType.ALERT_TYPE_WALL_RULE,
+                    zoneId, podId, subject, content);
+
+            recentAlertSentAtMs.put(uid, now);
+            if (LOG.isInfoEnabled()) {
+                LOG.info(String.format("[WallAlerts] persisted alert: uid=%s, subject=%s", uid, subject));
+            }
+        } catch (Throwable t) {
+            LOG.warn(String.format("[WallAlerts] maybeSendWallAlert failed uid=%s: %s", uid, t.getMessage()), t);
+        }
+    }
+
+    private static String cleanTitle(final String raw) {
+        if (raw == null) return "";
+        String s = raw.trim();
+        // 앞의 "Wall Alert:" 류 제거 (대소문자/공백 내성)
+        s = s.replaceFirst("(?i)^\\s*wall\\s*alert\\s*:\\s*", "");
+        // 뒤의 " (uid=...)" 제거
+        s = s.replaceFirst("\\s*\\(uid=[^)]+\\)\\s*$", "");
+        return s.trim();
+    }
+
+    private static String opPhrase(final String op, final Double t1, final Double t2) {
+        final String o = op == null ? "" : op.trim().toLowerCase();
+        // 범위형
+        if (("outside_range".equals(o) || "range_outside".equals(o) || "not_between".equals(o)) && t1 != null && t2 != null) {
+            return String.format("out of range (%s–%s)", stripTrailingZeros(t1), stripTrailingZeros(t2));
+        }
+        if (("within_range".equals(o) || "in_range".equals(o) || "between".equals(o)) && t1 != null && t2 != null) {
+            return String.format("within range (%s–%s)", stripTrailingZeros(t1), stripTrailingZeros(t2));
+        }
+        // 단일 임계 비교
+        if ("gt".equals(o) || "greater_than".equals(o)) {
+            return t1 != null ? String.format("exceeded %s", stripTrailingZeros(t1)) : "exceeded threshold";
+        }
+        if ("gte".equals(o) || "greater_or_equal".equals(o)) {
+            return t1 != null ? String.format("≥ %s", stripTrailingZeros(t1)) : "≥ threshold";
+        }
+        if ("lt".equals(o) || "less_than".equals(o)) {
+            return t1 != null ? String.format("below %s", stripTrailingZeros(t1)) : "below threshold";
+        }
+        if ("lte".equals(o) || "less_or_equal".equals(o)) {
+            return t1 != null ? String.format("≤ %s", stripTrailingZeros(t1)) : "≤ threshold";
+        }
+        // 미지정/기타
+        if (t1 != null && t2 != null) return String.format("threshold (%s–%s) breached", stripTrailingZeros(t1), stripTrailingZeros(t2));
+        if (t1 != null) return String.format("threshold %s breached", stripTrailingZeros(t1));
+        return "threshold breached";
+    }
+
+    private static String stripTrailingZeros(final Double v) {
+        if (v == null) return "";
+        String s = new java.math.BigDecimal(v.toString()).stripTrailingZeros().toPlainString();
+        return s;
+    }
 
     // ---------------- Helper: Silence matcher 평가 ----------------
 

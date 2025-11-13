@@ -17,14 +17,14 @@
           style="margin-bottom: 12px"
         >
           <template #message>
-            {{ tOr('label.silence.infoTitle', '사일런스 적용 시 영향') }}
+            {{ $t('label.silence.infoTitle', '사일런스 적용 시 영향') }}
           </template>
           <template #description>
             <ul class="bullet">
-              <li>{{ tOr('message.silence.info.1', '설정한 기간 동안 해당 경고의 알림(배너/토스트/통지)이 차단됩니다.') }}</li>
-              <li>{{ tOr('message.silence.info.2', '경고 평가와 상태는 계속 갱신되며 규칙 자체는 바뀌지 않습니다.') }}</li>
-              <li>{{ tOr('message.silence.info.3', '기간이 끝나면 사일런스가 자동 해제됩니다.') }}</li>
-              <li>{{ tOr('message.silence.info.4', '활성 사일런스 시 버튼이 숨겨져 중복 생성이 방지됩니다.') }}</li>
+              <li>{{ $t('message.silence.info.1', '설정한 기간 동안 해당 경고의 알림(배너/알림)이 차단됩니다.') }}</li>
+              <li>{{ $t('message.silence.info.2', '경고 평가와 상태는 계속 갱신되며 규칙 자체는 바뀌지 않습니다.') }}</li>
+              <li>{{ $t('message.silence.info.3', '기간이 끝나면 사일런스가 자동 해제됩니다.') }}</li>
+              <li>{{ $t('message.silence.info.4', '활성 사일런스 시 버튼이 숨겨져 중복 생성이 방지됩니다.') }}</li>
             </ul>
           </template>
         </a-alert>
@@ -242,4 +242,14 @@ export default {
 .sub { margin-top: 2px; font-size: 12px; color: rgba(0, 0, 0, 0.45); }
 
 .actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+.form-layout { padding-right: 5px; }
+.form-layout { padding-left: 13px; }
+@media (max-width: 600px) { .form-layout { padding-right: 35px; } }
+</style>
+
+<style>
+/* Ant Design Vue 모달 크롬은 컴포넌트 스코프 밖에 렌더링되므로 전역에서 오버라이드합니다. */
+.ant-modal .ant-modal-close { top: -10px;}
+.ant-modal .ant-modal-close .ant-modal-close-x { padding-left: 20px; top: -10px;}
 </style>
