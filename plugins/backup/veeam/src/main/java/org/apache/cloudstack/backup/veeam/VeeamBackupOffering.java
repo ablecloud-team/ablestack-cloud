@@ -75,4 +75,9 @@ public class VeeamBackupOffering implements BackupOffering {
     public long getId() {
         return -1;
     }
+
+    @Override
+    public String getRetentionPeriod() {
+        return null;
+    }
 }

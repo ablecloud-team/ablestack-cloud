@@ -332,7 +332,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
     }
 
     private StoragePool createGluefsSharedStoragePool(Connect conn, String uuid, String host, String path) {
-        String mountPoint = _mountPoint + File.separator + path;
+        String mountPoint = path;
 
         if (!_storageLayer.exists(mountPoint)) {
             logger.error(mountPoint + " does not exists. Check local.storage.path in agent.properties.");
@@ -1827,8 +1827,8 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
     }
 
     private boolean createGluefsMount(String host, String path, String userInfo, Map<String, String> details) {
-        String targetPath = _mountPoint + File.separator + path;
-        int mountpointResult = Script.runSimpleBashScriptForExitValue("mountpoint -q " + _mountPoint + File.separator + path);
+        String targetPath = path;
+        int mountpointResult = Script.runSimpleBashScriptForExitValue("mountpoint -q " + targetPath);
         // if the pool is mounted, try to unmount it
         if(mountpointResult == 0) {
             logger.info("Attempting to unmount old mount at " + targetPath);
@@ -1839,7 +1839,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                 logger.error("Failed in unmounting storage");
             }
         }
-        if (createPathFolder(path)) {
+        if (createPathFolder(targetPath)) {
             logger.debug("mkdir path [" + targetPath + "]");
         }
         String kernelVer = Script.runSimpleBashScript("uname -r | cut -d - -f 1 ");
@@ -1873,7 +1873,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
     private boolean createPathFolder(String path) {
         // String mountPoint = _mountPoint + File.separator + path;
 
-        File f = new File(_mountPoint + File.separator + path);
+        File f = new File(path);
         if (!f.exists()) {
             f.mkdirs();
         }

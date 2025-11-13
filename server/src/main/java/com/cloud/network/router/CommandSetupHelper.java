@@ -220,6 +220,8 @@ public class CommandSetupHelper {
     ASNumberDao asNumberDao;
     @Inject
     BgpPeerDetailsDao bgpPeerDetailsDao;
+    @Inject
+    ConfigurationDao configDao;
 
     @Autowired
     @Qualifier("networkHelper")
@@ -1390,6 +1392,8 @@ public class CommandSetupHelper {
         nicTO.setNetworkRateMbps(_configMgr.getNetworkOfferingNetworkRate(networkOfferingVO.getId(), network.getDataCenterId()));
         nicTO.setSecurityGroupEnabled(_networkModel.isSecurityGroupSupportedInNetwork(network));
         nicTO.setDetails(getNicDetails(network));
+        nicTO.setNwfilter(Boolean.parseBoolean(configDao.getValueAndInitIfNotExist("enable.vm.network.filter.allow.all.traffic", "Advanced", "false")));
+
 
         ipAddress.setNicTO(nicTO);
     }

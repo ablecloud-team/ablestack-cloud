@@ -539,7 +539,7 @@ export default {
       permission: ['listVMSnapshot'],
       resourceType: 'VMSnapshot',
       columns: () => {
-        const fields = ['displayname', 'state', 'name', 'type', 'current', 'parentName', 'created']
+        const fields = ['displayname', 'state', 'virtualmachinename', 'type', 'current', 'parentName', 'created']
         if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
           fields.push('account')
           if (store.getters.listAllProjects) {
@@ -551,7 +551,7 @@ export default {
         }
         return fields
       },
-      details: ['name', 'id', 'displayname', 'description', 'type', 'current', 'parentName', 'virtualmachineid', 'account', 'domain', 'created'],
+      details: ['name', 'id', 'displayname', 'description', 'type', 'current', 'parentName', 'virtualmachineid', 'virtualmachinename', 'account', 'domain', 'created'],
       searchFilters: ['name', 'domainid', 'account', 'tags'],
       tabs: [
         {
