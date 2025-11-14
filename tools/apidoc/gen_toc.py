@@ -300,6 +300,11 @@ known_categories = {
     'listDomains.xml': 'Domain',
     'listDomainChildren.xml': 'Domain',
     'licenseCheck.xml': 'License',
+    'createVhbaDevice.xml': 'Storage',
+    'listVhbaDevices.xml': 'Storage',
+    'listHostScsiDevices.xml': 'Storage',
+    'updateHostScsiDevices.xml': 'Storage',
+    'deleteVhbaDevice.xml': 'Storage'
 }
 
 

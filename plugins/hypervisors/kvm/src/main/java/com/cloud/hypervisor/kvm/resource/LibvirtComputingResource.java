@@ -28,6 +28,8 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -113,9 +115,13 @@ import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.Command;
 import com.cloud.agent.api.HostVmStateReportEntry;
 import com.cloud.agent.api.ListHostDeviceCommand;
-// import com.cloud.agent.api.ListHostLunDeviceCommand;
-// import com.cloud.agent.api.ListHostUsbDeviceCommand;
-// import com.cloud.agent.api.UpdateHostUsbDeviceCommand;
+import com.cloud.agent.api.ListHostHbaDeviceCommand;
+import com.cloud.agent.api.ListHostLunDeviceCommand;
+import com.cloud.agent.api.ListHostScsiDeviceCommand;
+import com.cloud.agent.api.ListHostUsbDeviceCommand;
+import com.cloud.agent.api.UpdateHostLunDeviceCommand;
+import com.cloud.agent.api.UpdateHostScsiDeviceCommand;
+import com.cloud.agent.api.UpdateHostUsbDeviceCommand;
 import com.cloud.agent.api.PingCommand;
 import com.cloud.agent.api.PingRoutingCommand;
 import com.cloud.agent.api.PingRoutingWithNwGroupsCommand;
@@ -124,6 +130,11 @@ import com.cloud.agent.api.SetupGuestNetworkCommand;
 import com.cloud.agent.api.StartupCommand;
 import com.cloud.agent.api.StartupRoutingCommand;
 import com.cloud.agent.api.StartupStorageCommand;
+import com.cloud.agent.api.UpdateHostHbaDeviceCommand;
+import com.cloud.agent.api.ListVhbaDevicesCommand;
+import com.cloud.agent.api.CreateVhbaDeviceCommand;
+import com.cloud.agent.api.DeleteVhbaDeviceCommand;
+import com.cloud.agent.api.UpdateHostVhbaDeviceCommand;
 import com.cloud.agent.api.VmDiskStatsEntry;
 import com.cloud.agent.api.VmNetworkStatsEntry;
 import com.cloud.agent.api.VmStatsEntry;
@@ -176,7 +187,7 @@ import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.SoundDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.TPMDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.TermPolicy;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.VideoDef;
-import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.VideoDef2;
+// import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.VideoDef2;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.WatchDogDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.WatchDogDef.WatchDogAction;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.WatchDogDef.WatchDogModel;
@@ -221,6 +232,8 @@ import com.cloud.utils.ssh.SshHelper;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.VirtualMachine.PowerState;
 import com.cloud.vm.VmDetailConstants;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -431,7 +444,6 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     protected String guestCpuModel;
     protected boolean noKvmClock;
     protected String videoHw;
-    protected String videoHw2;
     protected String sound;
     protected int videoRam;
     protected Pair<Integer,Integer> hostOsVersion;
@@ -1214,12 +1226,8 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         manualCpuSpeed = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.HOST_CPU_MANUAL_SPEED_MHZ);
 
         videoHw = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.VM_VIDEO_HARDWARE);
-
-        videoHw2 = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.VM_VIDEO_HARDWARE_2);
-
+        // videoHw2 로딩 제거 (미사용)
         sound = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.SOUND);
-
-        videoRam = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.VM_VIDEO_RAM);
 
         // Reserve 1GB unless admin overrides
         dom0MinMem = ByteScaleUtils.mebibytesToBytes(AgentPropertiesFileHandler.getPropertyValue(AgentProperties.HOST_RESERVED_MEM_MB));
@@ -2892,12 +2900,18 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
         devices.addDevice(createChannelDef(vmTO));
         devices.addDevice(createWatchDogDef());
-        devices.addDevice(createVideoDef(vmTO));
-        devices.addDevice(createVideoDef2(vmTO));
+
+        // Add multiple video devices if configured
+        List<VideoDef> videoDefs = createVideoDefs(vmTO);
+        for (VideoDef videoDef : videoDefs) {
+            devices.addDevice(videoDef);
+        }
+
         devices.addDevice(createConsoleDef());
         devices.addDevice(createGraphicDef(vmTO));
         devices.addDevice(createTabletInputDef());
         devices.addDevice(createSoundDef(vmTO));
+        devices.addDevice(new LibvirtVMDef.USBDef());
 
         if (isGuestAarch64()) {
             createArm64UsbDef(devices);
@@ -2913,36 +2927,10 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         if (busT == DiskDef.DiskBus.SCSI) {
             Map<String, String> details = vmTO.getDetails();
 
-            int socket = getCoresPerSocket(vcpus, details);
             boolean isIothreadsEnabled = details != null && details.containsKey(VmDetailConstants.IOTHREADS);
-            for (int i = 0; i < socket; i++) {
-                devices.addDevice(createSCSIDef(i, i, vcpus, isIothreadsEnabled));
-            }
+            addSCSIControllers(devices, vcpus, vmTO.getDisks().length, isIothreadsEnabled);
         }
-
-
         return devices;
-    }
-
-    private int getCoresPerSocket(int vcpus, Map<String, String> details) {
-        int numCoresPerSocket = -1;
-        if (details != null) {
-            final String coresPerSocket = details.get(VmDetailConstants.CPU_CORE_PER_SOCKET);
-            final int intCoresPerSocket = NumbersUtil.parseInt(coresPerSocket, numCoresPerSocket);
-            if (intCoresPerSocket > 0 && vcpus % intCoresPerSocket == 0) {
-                numCoresPerSocket = intCoresPerSocket;
-            }
-        }
-        if (numCoresPerSocket <= 0) {
-            if (vcpus % 6 == 0) {
-                numCoresPerSocket = 6;
-            } else if (vcpus % 4 == 0) {
-                numCoresPerSocket = 4;
-            } else {
-                numCoresPerSocket = vcpus;
-            }
-        }
-        return numCoresPerSocket;
     }
 
     protected WatchDogDef createWatchDogDef() {
@@ -2952,7 +2940,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     protected void createArm64UsbDef(DevicesDef devices) {
         devices.addDevice(new InputDef(KEYBOARD, USB));
         devices.addDevice(new InputDef(MOUSE, USB));
-        devices.addDevice(new LibvirtVMDef.USBDef((short)0, 0, 5, 0, 0));
+        // devices.addDevice(new LibvirtVMDef.USBDef((short)0, 0, 5, 0, 0));
     }
 
     protected InputDef createTabletInputDef() {
@@ -2978,58 +2966,86 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
      * Creates Virtio SCSI controller. <br>
      * The respective Virtio SCSI XML definition is generated only if the VM's Disk Bus is of ISCSI.
      */
-    protected SCSIDef createSCSIDef(int index, int function ,int vcpus) {
-        return new SCSIDef((short)index, 0, 0, 9, function, vcpus);
+    protected SCSIDef createSCSIDef(short index, int vcpus, boolean isIothreadsEnabled) {
+        return new SCSIDef(index, 0, 0, 9 + index, 0, vcpus, isIothreadsEnabled);
     }
 
-    protected SCSIDef createSCSIDef(int vcpus) {
-        return new SCSIDef((short)0, 0, 0, 9, 0, vcpus);
-    }
 
-    protected SCSIDef createSCSIDef(int index, int function, int vcpus, boolean isIothreadsEnabled) {
-        return new SCSIDef((short)index, 0, 0, 9, function, vcpus, isIothreadsEnabled);
-    }
-
-    protected SCSIDef createSCSIDef(int vcpus, boolean isIothreadsEnabled) {
-        return new SCSIDef((short)0, 0, 0, 9, 0, vcpus, isIothreadsEnabled);
+    private void addSCSIControllers(DevicesDef devices, int vcpus, int diskCount, boolean isIothreadsEnabled) {
+        int controllers = diskCount / 7;
+        if (diskCount % 7 != 0) {
+            controllers++;
+        }
+        for (int i = 0; i < controllers; i++) {
+            devices.addDevice(createSCSIDef((short)i, vcpus, isIothreadsEnabled));
+        }
     }
 
     protected ConsoleDef createConsoleDef() {
         return new ConsoleDef(PTY, null, null, (short)0);
     }
 
-    protected VideoDef createVideoDef(VirtualMachineTO vmTO) {
+    protected java.util.List<VideoDef> createVideoDefs(VirtualMachineTO vmTO) {
+        List<VideoDef> videoDefs = new ArrayList<>();
         Map<String, String> details = vmTO.getDetails();
-        String videoHw = this.videoHw;
-        int videoRam = this.videoRam;
 
-        if (details != null) {
+        if (details == null) {
+            // No details, use default single video device
+            videoDefs.add(new VideoDef(this.videoHw, this.videoRam));
+            return videoDefs;
+        }
+
+        // Check if there are indexed video.hardware1~4 settings
+        boolean hasIndexedVideoHardware = false;
+        for (int i = 1; i <= 4; i++) {
+            String hwKey = "video.hardware" + i;
+            if (details.containsKey(hwKey)) {
+                hasIndexedVideoHardware = true;
+                String videoHw = details.get(hwKey);
+                int videoRam = this.videoRam; // default
+
+                // Look for corresponding video.ram{i}
+                String ramKey = "video.ram" + i;
+                if (details.containsKey(ramKey)) {
+                    try {
+                        videoRam = Integer.parseInt(details.get(ramKey));
+                    } catch (NumberFormatException ignore) {
+                        // Use default
+                    }
+                }
+
+                if (videoHw != null && !videoHw.isEmpty()) {
+                    videoDefs.add(new VideoDef(videoHw, videoRam));
+                }
+            }
+        }
+
+        // If no indexed video hardware found, check for legacy video.hardware setting
+        if (!hasIndexedVideoHardware) {
+            String videoHw = this.videoHw;
+            int videoRam = this.videoRam;
+
             if (details.containsKey(VmDetailConstants.VIDEO_HARDWARE)) {
                 videoHw = details.get(VmDetailConstants.VIDEO_HARDWARE);
             }
-            if (details.containsKey(VmDetailConstants.VIDEO_RAM)) {
-                String value = details.get(VmDetailConstants.VIDEO_RAM);
-                videoRam = NumbersUtil.parseInt(value, videoRam);
+
+            if (details.containsKey("video.ram")) {
+                try {
+                    videoRam = Integer.parseInt(details.get("video.ram"));
+                } catch (NumberFormatException ignore) {
+                }
             }
+
+            videoDefs.add(new VideoDef(videoHw, videoRam));
         }
-        return new VideoDef(videoHw, videoRam);
+
+        return videoDefs;
     }
 
-    protected VideoDef2 createVideoDef2(VirtualMachineTO vmTO) {
-        Map<String, String> details = vmTO.getDetails();
-        String videoHw2 = this.videoHw2;
-        int videoRam = this.videoRam;
-
-        if (details != null) {
-            if (details.containsKey(VmDetailConstants.VIDEO_HARDWARE_2)) {
-                videoHw2 = details.get(VmDetailConstants.VIDEO_HARDWARE_2);
-            }
-            if (details.containsKey(VmDetailConstants.VIDEO_RAM)) {
-                String value = details.get(VmDetailConstants.VIDEO_RAM);
-                videoRam = NumbersUtil.parseInt(value, videoRam);
-            }
-        }
-        return new VideoDef2(videoHw2, videoRam);
+    protected VideoDef createVideoDef(VirtualMachineTO vmTO) {
+        // Legacy method - returns first video device
+        List<VideoDef> videoDefs = createVideoDefs(vmTO);
+        return videoDefs.isEmpty() ? new VideoDef(this.videoHw, this.videoRam) : videoDefs.get(0);
     }
 
     protected SoundDef createSoundDef(VirtualMachineTO vmTO) {
@@ -3149,6 +3165,10 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             guest.setNvramTemplate(uefiProperties.getProperty(GuestDef.GUEST_NVRAM_TEMPLATE_SECURE));
         } else if (isUefiPropertieNotNull(GuestDef.GUEST_NVRAM_TEMPLATE_LEGACY)) {
             guest.setNvramTemplate(uefiProperties.getProperty(GuestDef.GUEST_NVRAM_TEMPLATE_LEGACY));
+
+            // UEFI Lagacy 실행 파일 포맷 설정
+            String exeFormat = getExecutableFormat();
+            guest.setUefiLagacyFormat("format='" + exeFormat + "'"); // 예: qcow2 또는 raw
         }
     }
 
@@ -3164,6 +3184,26 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
     private boolean isGuestAarch64() {
         return AARCH64.equals(guestCpuArch);
+    }
+
+    private String getExecutableFormat() {
+        String firmwareJson = "/usr/share/qemu/firmware/50-edk2-ovmf-x64-nosb.json";
+        try (java.io.InputStream in = Files.newInputStream(Path.of(firmwareJson))) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(in);
+            JsonNode fmtNode = root.path("mapping").path("executable").path("format");
+            String rawValue = fmtNode.isMissingNode() || fmtNode.isNull() ? "" : fmtNode.asText("");
+            String value = rawValue == null ? "" : rawValue.trim().toLowerCase(java.util.Locale.ROOT);
+
+            if (value.isEmpty()) {
+                return "qcow2";
+            }
+            LOGGER.debug("Executable format from firmware json [{}]: {}", firmwareJson, value);
+            return value;
+        } catch (IOException e) {
+            LOGGER.warn("Failed to read executable format from firmware json [{}]: {}", firmwareJson, e.getMessage());
+            return "qcow2";
+        }
     }
 
     /**
@@ -3188,21 +3228,38 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 }
             }
             guest.setIothreads(customParams.containsKey(VmDetailConstants.IOTHREADS));
-        }
-        customParams.forEach((strKey, strValue)->{
-        });
-        if (MapUtils.isNotEmpty(customParams)) {
-            if(customParams.containsKey(GuestDef.TpmVersion.V1_2.toString())){
-                guest.setTPMVersion(GuestDef.TpmVersion.V1_2);
-            }else if (customParams.containsKey(GuestDef.TpmVersion.V2_0.toString())){
-
-                guest.setTPMVersion(GuestDef.TpmVersion.V2_0);
-            }
+            configureBootOrder(guest, customParams);
+        } else {
+            configureBootOrder(guest, null);
         }
         guest.setUuid(uuid);
-        guest.setBootOrder(GuestDef.BootOrder.HARDISK);
-        guest.setBootOrder(GuestDef.BootOrder.CDROM);
         return guest;
+    }
+
+    private void configureBootOrder(GuestDef guest, Map<String, String> customParams) {
+        String bootOrderValue = null;
+        if (MapUtils.isNotEmpty(customParams) && customParams.containsKey(VmDetailConstants.BOOT_ORDER)) {
+            bootOrderValue = customParams.get(VmDetailConstants.BOOT_ORDER);
+        }
+
+        if (StringUtils.isNotBlank(bootOrderValue)) {
+            // null, 공백 방지 및 대소문자 무시 비교
+            if (bootOrderValue.equalsIgnoreCase(GuestDef.BootOrder.HARDISK.toString()) || "hd".equalsIgnoreCase(bootOrderValue)) {
+                guest.setBootOrder(GuestDef.BootOrder.HARDISK);
+                guest.setBootOrder(GuestDef.BootOrder.CDROM);
+            } else if (bootOrderValue.equalsIgnoreCase(GuestDef.BootOrder.CDROM.toString()) || "cdrom".equalsIgnoreCase(bootOrderValue)) {
+                guest.setBootOrder(GuestDef.BootOrder.CDROM);
+                guest.setBootOrder(GuestDef.BootOrder.HARDISK);
+            } else {
+                // 유효하지 않은 값이면 기본 부팅 순서로 fallback
+                guest.setBootOrder(GuestDef.BootOrder.HARDISK);
+                guest.setBootOrder(GuestDef.BootOrder.CDROM);
+            }
+        } else {
+            // 기본 부팅 순서 (customParams가 null이거나 키가 없는 경우)
+            guest.setBootOrder(GuestDef.BootOrder.HARDISK);
+            guest.setBootOrder(GuestDef.BootOrder.CDROM);
+        }
     }
 
     protected void configureGuestAndVMHypervisorType(VirtualMachineTO vmTO, LibvirtVMDef vm, GuestDef guest) {
@@ -3272,17 +3329,56 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
      */
     protected void addExtraConfigComponent(Map<String, String> extraConfig, LibvirtVMDef vm) {
         if (MapUtils.isNotEmpty(extraConfig)) {
-            StringBuilder extraConfigBuilder = new StringBuilder();
+            StringBuilder deviceConfigBuilder = new StringBuilder();
+            StringBuilder otherConfigBuilder = new StringBuilder();
+
             for (String key : extraConfig.keySet()) {
                 if (!key.startsWith(DpdkHelper.DPDK_INTERFACE_PREFIX) && !key.equals(DpdkHelper.DPDK_VHOST_USER_MODE)) {
-                    extraConfigBuilder.append(extraConfig.get(key));
+                    String snippet = extraConfig.get(key);
+                    if (StringUtils.isBlank(snippet)) {
+                        continue;
+                    }
+
+                    // 디바이스 관련 XML인지 확인 (hostdev, disk 등)
+                    if (isDeviceSnippet(snippet)) {
+                        deviceConfigBuilder.append(snippet).append("\n");
+                    } else {
+                        otherConfigBuilder.append(snippet);
+                    }
                 }
             }
-            String comp = extraConfigBuilder.toString();
-            if (StringUtils.isNotBlank(comp)) {
-                vm.addComp(comp);
+
+            // 디바이스 XML이 있으면 하나의 <devices> 블록으로 감싸서 추가
+            String deviceConfig = deviceConfigBuilder.toString().trim();
+            if (StringUtils.isNotBlank(deviceConfig)) {
+                String wrappedDeviceConfig = "<devices>\n" + deviceConfig + "\n</devices>";
+                vm.addComp(wrappedDeviceConfig);
+            }
+
+            // 기타 설정은 그대로 추가
+            String otherConfig = otherConfigBuilder.toString();
+            if (StringUtils.isNotBlank(otherConfig)) {
+                vm.addComp(otherConfig);
             }
         }
+    }
+
+    /**
+     * 디바이스 관련 XML 스니펫인지 확인
+     */
+    private boolean isDeviceSnippet(String snippet) {
+        if (StringUtils.isBlank(snippet)) {
+            return false;
+        }
+
+        String trimmed = snippet.trim();
+        return trimmed.startsWith("<hostdev") ||
+               trimmed.startsWith("<disk") ||
+               trimmed.startsWith("<interface") ||
+               trimmed.startsWith("<controller") ||
+               trimmed.startsWith("<input") ||
+               trimmed.startsWith("<graphics") ||
+               trimmed.startsWith("<tpm");
     }
 
     public void createVifs(final VirtualMachineTO vmSpec, final LibvirtVMDef vm) throws InternalErrorException, LibvirtException {
@@ -3546,11 +3642,12 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     if (volume.getType() == Volume.Type.DATADISK && !(isWindowsTemplate && isUefiEnabled)) {
                         disk.defFileBasedDisk(physicalDisk.getPath(), devId, diskBusTypeData, DiskDef.DiskFmtType.QCOW2);
                     } else {
-                        if (isSecureBoot) {
-                            disk.defFileBasedDisk(physicalDisk.getPath(), devId, DiskDef.DiskFmtType.QCOW2, isWindowsTemplate);
-                        } else {
-                            disk.defFileBasedDisk(physicalDisk.getPath(), devId, diskBusType, DiskDef.DiskFmtType.QCOW2);
-                        }
+                        disk.defFileBasedDisk(physicalDisk.getPath(), devId, diskBusType, DiskDef.DiskFmtType.QCOW2);
+                        // if (isSecureBoot) {
+                        //     disk.defFileBasedDisk(physicalDisk.getPath(), devId, DiskDef.DiskFmtType.QCOW2, isWindowsTemplate);
+                        // } else {
+                        //     disk.defFileBasedDisk(physicalDisk.getPath(), devId, diskBusType, DiskDef.DiskFmtType.QCOW2);
+                        // }
                     }
                 }
                 pool.customizeLibvirtDiskDef(disk);
@@ -4750,7 +4847,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                         "Fedora", "CentOS", "Red Hat Enterprise Linux", "Debian GNU/Linux", "FreeBSD", "Oracle", "Other PV", "Windows", "Rocky", "Alma")) {
             return DiskDef.DiskBus.SCSI;
         } else if (isUefiEnabled && StringUtils.startsWithAny(platformEmulator, "Other")) {
-            return DiskDef.DiskBus.SATA;
+            return DiskDef.DiskBus.SCSI;
         } else if (guestCpuArch != null && guestCpuArch.equals("aarch64")) {
             return DiskDef.DiskBus.SCSI;
         } else {
@@ -5506,7 +5603,6 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     }
 
     public Answer listHostDevices(ListHostDeviceCommand command) {
-        logger.info("listpci: " + command.getId());
         if (command.getId() != null) {
             return listHostDevices();
         } else {
@@ -5514,30 +5610,83 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         }
     }
 
-    // public Answer listHostUsbDevices(ListHostUsbDeviceCommand command) {
-    //     logger.info("listusb: " + command.getId());
-    //     if (command.getId() != null) {
-    //         // 상위 클래스의 메서드를 호출
-    //         return super.listHostUsbDevices(command);
-    //     } else {
-    //         throw new IllegalArgumentException("Host ID cannot be null");
-    //     }
-    // }
+    public Answer listHostUsbDevices(ListHostUsbDeviceCommand command) {
+        if (command.getId() != null) {
+            return super.listHostUsbDevices(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
 
-    // public Answer listHostLunDevices(ListHostLunDeviceCommand command) {
-    //     logger.info("listlun: " + command.getId());
-    //     if (command.getId() != null) {
-    //         // 상위 클래스의 메서드를 호출
-    //         return super.listHostLunDevices(command);
-    //     } else {
-    //         throw new IllegalArgumentException("Host ID cannot be null");
-    //     }
-    // }
-    // public Answer updateHostUsbDevices(UpdateHostUsbDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
-    //     logger.info("Received USB device update command - VM: {}, isAttach: {}, xmlConfig: {}",
-    //         vmName, isAttach, xmlConfig);
-    //     return super.updateHostUsbDevices(command, vmName, xmlConfig, isAttach);
-    // }
+    public Answer listHostLunDevices(ListHostLunDeviceCommand command) {
+        if (command.getId() != null) {
+            return super.listHostLunDevices(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    public Answer listHostHbaDevices(ListHostHbaDeviceCommand command) {
+        if (command.getId() != null) {
+            return super.listHostHbaDevices(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    public Answer listHostVHbaDevices(ListVhbaDevicesCommand command) {
+        if (command.getHostId() != null) {
+            return super.listHostVHbaDevices(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    public Answer listHostScsiDevices(ListHostScsiDeviceCommand command) {
+        if (command.getId() != null) {
+            return super.listHostScsiDevices(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    @Override
+    public Answer createHostVHbaDevice(CreateVhbaDeviceCommand command, String parentHbaName, String wwnn, String wwpn, String vhbaName, String xmlContent) {
+        if (command.getHostId() != null) {
+            return super.createHostVHbaDevice(command, parentHbaName, wwnn, wwpn, vhbaName, xmlContent);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    @Override
+    public Answer deleteHostVHbaDevice(DeleteVhbaDeviceCommand command) {
+        if (command.getHostId() != null) {
+            return super.deleteHostVHbaDevice(command);
+        } else {
+            throw new IllegalArgumentException("Host ID cannot be null");
+        }
+    }
+
+    public Answer updateHostVHbaDevices(UpdateHostVhbaDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        return super.updateHostVHbaDevices(command, vmName, xmlConfig, isAttach);
+    }
+
+    public Answer updateHostUsbDevices(UpdateHostUsbDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        return super.updateHostUsbDevices(command, vmName, xmlConfig, isAttach);
+    }
+
+    public Answer updateHostLunDevices(UpdateHostLunDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        return super.updateHostLunDevices(command, vmName, xmlConfig, isAttach);
+    }
+
+    public Answer updateHostHbaDevices(UpdateHostHbaDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        return super.updateHostHbaDevices(command, vmName, xmlConfig, isAttach);
+    }
+
+    public Answer updateHostScsiDevices(UpdateHostScsiDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
+        return super.updateHostScsiDevices(command, vmName, xmlConfig, isAttach);
+    }
 
     public Answer listFilesAtPath(ListDataStoreObjectsCommand command) {
         DataStoreTO store = command.getStore();
@@ -5796,7 +5945,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             try {
                 createKvdoCmdLine(splitPoolImage[0], pool.getAuthUserName(), splitPoolImage[1], String.valueOf(disk.getSize()));
                 device = "/dev/mapper/vg_"+splitPoolImage[1].replace("-","")+"-ablestack_kvdo";
-                logger.info("device name : "+device);
+                // device name
             } catch (InternalErrorException e) {
                 logger.info("createKvdoCmdLine Action Error : "+e);
             }
@@ -5818,7 +5967,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     String vgName = "vg_"+splitPoolImage[1].replace("-","");
                     Script.runSimpleBashScript("vgchange -an " + vgName);
                 } catch (Exception e) {
-                    logger.info("unmapRbdDevice Action error : "+e);
+                    // unmapRbdDevice Action error
                 }
             }
             createRBDSecretKeyFileIfNoExist(pool.getUuid(), DEFAULT_LOCAL_STORAGE_PATH, pool.getAuthSecret());
@@ -6029,42 +6178,30 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
               AgentProperties.ENABLE_MANUALLY_SETTING_CPU_TOPOLOGY_ON_KVM_VM.getName(), enableManuallySettingCpuTopologyOnKvmVm));
             return;
         }
-
-        int numCoresPerSocket = 1;
+        int numCoresPerSocket = vCpusInDef;
         int numThreadsPerCore = 1;
 
         if (details != null) {
-            numCoresPerSocket = NumbersUtil.parseInt(details.get(VmDetailConstants.CPU_CORE_PER_SOCKET), 1);
+            numCoresPerSocket = NumbersUtil.parseInt(details.get(VmDetailConstants.CPU_CORE_PER_SOCKET), vCpusInDef);
             numThreadsPerCore = NumbersUtil.parseInt(details.get(VmDetailConstants.CPU_THREAD_PER_CORE), 1);
         }
 
         if ((numCoresPerSocket * numThreadsPerCore) > vCpusInDef) {
             LOGGER.warn(String.format("cores per socket (%d) * threads per core (%d) exceeds total VM cores. Ignoring extra topology", numCoresPerSocket, numThreadsPerCore));
-            numCoresPerSocket = 1;
+            numCoresPerSocket = vCpusInDef;
             numThreadsPerCore = 1;
         }
 
         if (vCpusInDef % (numCoresPerSocket * numThreadsPerCore) != 0) {
             LOGGER.warn(String.format("cores per socket(%d) * threads per core(%d) doesn't divide evenly into total VM cores(%d). Ignoring extra topology", numCoresPerSocket, numThreadsPerCore, vCpusInDef));
-            numCoresPerSocket = 1;
+            numCoresPerSocket = vCpusInDef;
             numThreadsPerCore = 1;
         }
 
-        // Set default coupling (makes 4 or 6 core sockets for larger core configs)
-        int numTotalSockets = 1;
-        if (numCoresPerSocket == 1 && numThreadsPerCore == 1) {
-            if (vCpusInDef % 6 == 0) {
-                numCoresPerSocket = 6;
-            } else if (vCpusInDef % 4 == 0) {
-                numCoresPerSocket = 4;
-            }
-            numTotalSockets = vCpusInDef / numCoresPerSocket;
-        } else {
-            int nTotalCores = vCpusInDef / numThreadsPerCore;
-            numTotalSockets = nTotalCores / numCoresPerSocket;
-        }
-
+        int nTotalCores = vCpusInDef / numThreadsPerCore;
+        int numTotalSockets = nTotalCores / numCoresPerSocket;
         cmd.setTopology(numCoresPerSocket, numThreadsPerCore, numTotalSockets);
+        logger.debug(String.format("[CPU Topology] TotalCores=%d | Cores/Socket=%d | Threads/Core=%d | Sockets=%d", nTotalCores, numCoresPerSocket, numThreadsPerCore, numTotalSockets));
     }
 
     public void setBackingFileFormat(String volPath) {
@@ -6287,6 +6424,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return uuid;
     }
 
+    @Override
     public void createRBDSecretKeyFileIfNoExist(String uuid, String localPath, String skey) {
         File file = new File(localPath + File.separator + uuid);
         try {
@@ -6303,3 +6441,4 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         } catch (IOException e) {}
     }
 }
+

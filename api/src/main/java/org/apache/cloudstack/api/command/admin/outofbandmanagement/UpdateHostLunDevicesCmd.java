@@ -23,16 +23,16 @@ import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.BaseListCmd;
 import org.apache.cloudstack.api.Parameter;
+import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.UpdateHostLunDevicesResponse;
 import org.apache.cloudstack.context.CallContext;
-// import org.apache.cloudstack.api.response.ListResponse;
 // import org.apache.cloudstack.api.response.HostResponse;
 
 @APICommand(name = "updateHostLunDevices", description = "list Host Lun Devices'.", since = "4.20.0.0", responseObject = UpdateHostLunDevicesResponse.class, requestHasSensitiveInfo = false, responseHasSensitiveInfo = false, authorized = {
         RoleType.Admin })
 public class UpdateHostLunDevicesCmd extends BaseListCmd {
 
-    private static final String UPDATEHOSTDEVICES = "updatehostdevices";
+    private static final String UPDATEHOSTLUNDEVICES = "updatehostlundevices";
 
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////
@@ -51,8 +51,7 @@ public class UpdateHostLunDevicesCmd extends BaseListCmd {
             required = false, description = "VM ID to allocate the device to")
     private Long vmId;
 
-    @Parameter(name = ApiConstants.XML_CONFIG, type = CommandType.STRING, required = false,
-            description = "XML configuration for device attachment")
+    @Parameter(name = ApiConstants.XML_CONFIG, type = CommandType.STRING, length = 2048, description = "xml config for device")
     private String xmlConfig;
 
     @Parameter(name = ApiConstants.CURRENT_VM_ID, type = CommandType.STRING, required = false,
@@ -106,9 +105,9 @@ public class UpdateHostLunDevicesCmd extends BaseListCmd {
 
     @Override
     public void execute() {
-        // ListResponse<UpdateHostLunDevicesResponse> response = _mgr.updateHostLunDevices(this);
-        // response.setResponseName(getCommandName());
-        // response.setObjectName(getCommandName());
-        // this.setResponseObject(response);
+        ListResponse<UpdateHostLunDevicesResponse> response = _mgr.updateHostLunDevices(this);
+        response.setResponseName(getCommandName());
+        response.setObjectName(getCommandName());
+        this.setResponseObject(response);
     }
 }
