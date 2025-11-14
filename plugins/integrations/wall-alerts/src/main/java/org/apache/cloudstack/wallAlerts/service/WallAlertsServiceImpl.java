@@ -788,14 +788,6 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
     private void maybeSendWallAlert(final String uid,
                                     final String ruleName,
                                     final String operator,
-                                    final long zoneId,
-                                    final Long podId) {
-        maybeSendWallAlert(uid, ruleName, operator, null, null, zoneId, podId, System.currentTimeMillis());
-    }
-
-    private void maybeSendWallAlert(final String uid,
-                                    final String ruleName,
-                                    final String operator,
                                     final Double threshold,
                                     final Double thresholdMax,
                                     final long zoneId,
@@ -983,12 +975,6 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
             }
         }
         return null;
-    }
-
-    private static String preview(final String s) {
-        if (s == null) return "null";
-        final String t = s.replaceAll("\\s+", " ").trim();
-        return t.length() > 180 ? t.substring(0, 180) + "..." : t;
     }
 
     private static boolean isZeroTime(final OffsetDateTime t) {
@@ -1805,7 +1791,6 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         }
         return null;
     }
-
 }
 
 
