@@ -28,6 +28,8 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -230,6 +232,8 @@ import com.cloud.utils.ssh.SshHelper;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.VirtualMachine.PowerState;
 import com.cloud.vm.VmDetailConstants;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -2923,36 +2927,10 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         if (busT == DiskDef.DiskBus.SCSI) {
             Map<String, String> details = vmTO.getDetails();
 
-            int socket = getCoresPerSocket(vcpus, details);
             boolean isIothreadsEnabled = details != null && details.containsKey(VmDetailConstants.IOTHREADS);
-            for (int i = 0; i < socket; i++) {
-                devices.addDevice(createSCSIDef(i, i, vcpus, isIothreadsEnabled));
-            }
+            addSCSIControllers(devices, vcpus, vmTO.getDisks().length, isIothreadsEnabled);
         }
-
-
         return devices;
-    }
-
-    private int getCoresPerSocket(int vcpus, Map<String, String> details) {
-        int numCoresPerSocket = -1;
-        if (details != null) {
-            final String coresPerSocket = details.get(VmDetailConstants.CPU_CORE_PER_SOCKET);
-            final int intCoresPerSocket = NumbersUtil.parseInt(coresPerSocket, numCoresPerSocket);
-            if (intCoresPerSocket > 0 && vcpus % intCoresPerSocket == 0) {
-                numCoresPerSocket = intCoresPerSocket;
-            }
-        }
-        if (numCoresPerSocket <= 0) {
-            if (vcpus % 6 == 0) {
-                numCoresPerSocket = 6;
-            } else if (vcpus % 4 == 0) {
-                numCoresPerSocket = 4;
-            } else {
-                numCoresPerSocket = vcpus;
-            }
-        }
-        return numCoresPerSocket;
     }
 
     protected WatchDogDef createWatchDogDef() {
@@ -2988,20 +2966,19 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
      * Creates Virtio SCSI controller. <br>
      * The respective Virtio SCSI XML definition is generated only if the VM's Disk Bus is of ISCSI.
      */
-    protected SCSIDef createSCSIDef(int index, int function ,int vcpus) {
-        return new SCSIDef((short)index, 0, 0, 9, function, vcpus);
+    protected SCSIDef createSCSIDef(short index, int vcpus, boolean isIothreadsEnabled) {
+        return new SCSIDef(index, 0, 0, 9 + index, 0, vcpus, isIothreadsEnabled);
     }
 
-    protected SCSIDef createSCSIDef(int vcpus) {
-        return new SCSIDef((short)0, 0, 0, 9, 0, vcpus);
-    }
 
-    protected SCSIDef createSCSIDef(int index, int function, int vcpus, boolean isIothreadsEnabled) {
-        return new SCSIDef((short)index, 0, 0, 9, function, vcpus, isIothreadsEnabled);
-    }
-
-    protected SCSIDef createSCSIDef(int vcpus, boolean isIothreadsEnabled) {
-        return new SCSIDef((short)0, 0, 0, 9, 0, vcpus, isIothreadsEnabled);
+    private void addSCSIControllers(DevicesDef devices, int vcpus, int diskCount, boolean isIothreadsEnabled) {
+        int controllers = diskCount / 7;
+        if (diskCount % 7 != 0) {
+            controllers++;
+        }
+        for (int i = 0; i < controllers; i++) {
+            devices.addDevice(createSCSIDef((short)i, vcpus, isIothreadsEnabled));
+        }
     }
 
     protected ConsoleDef createConsoleDef() {
@@ -3188,6 +3165,10 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             guest.setNvramTemplate(uefiProperties.getProperty(GuestDef.GUEST_NVRAM_TEMPLATE_SECURE));
         } else if (isUefiPropertieNotNull(GuestDef.GUEST_NVRAM_TEMPLATE_LEGACY)) {
             guest.setNvramTemplate(uefiProperties.getProperty(GuestDef.GUEST_NVRAM_TEMPLATE_LEGACY));
+
+            // UEFI Lagacy 실행 파일 포맷 설정
+            String exeFormat = getExecutableFormat();
+            guest.setUefiLagacyFormat("format='" + exeFormat + "'"); // 예: qcow2 또는 raw
         }
     }
 
@@ -3203,6 +3184,26 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
     private boolean isGuestAarch64() {
         return AARCH64.equals(guestCpuArch);
+    }
+
+    private String getExecutableFormat() {
+        String firmwareJson = "/usr/share/qemu/firmware/50-edk2-ovmf-x64-nosb.json";
+        try (java.io.InputStream in = Files.newInputStream(Path.of(firmwareJson))) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(in);
+            JsonNode fmtNode = root.path("mapping").path("executable").path("format");
+            String rawValue = fmtNode.isMissingNode() || fmtNode.isNull() ? "" : fmtNode.asText("");
+            String value = rawValue == null ? "" : rawValue.trim().toLowerCase(java.util.Locale.ROOT);
+
+            if (value.isEmpty()) {
+                return "qcow2";
+            }
+            LOGGER.debug("Executable format from firmware json [{}]: {}", firmwareJson, value);
+            return value;
+        } catch (IOException e) {
+            LOGGER.warn("Failed to read executable format from firmware json [{}]: {}", firmwareJson, e.getMessage());
+            return "qcow2";
+        }
     }
 
     /**
@@ -6177,42 +6178,30 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
               AgentProperties.ENABLE_MANUALLY_SETTING_CPU_TOPOLOGY_ON_KVM_VM.getName(), enableManuallySettingCpuTopologyOnKvmVm));
             return;
         }
-
-        int numCoresPerSocket = 1;
+        int numCoresPerSocket = vCpusInDef;
         int numThreadsPerCore = 1;
 
         if (details != null) {
-            numCoresPerSocket = NumbersUtil.parseInt(details.get(VmDetailConstants.CPU_CORE_PER_SOCKET), 1);
+            numCoresPerSocket = NumbersUtil.parseInt(details.get(VmDetailConstants.CPU_CORE_PER_SOCKET), vCpusInDef);
             numThreadsPerCore = NumbersUtil.parseInt(details.get(VmDetailConstants.CPU_THREAD_PER_CORE), 1);
         }
 
         if ((numCoresPerSocket * numThreadsPerCore) > vCpusInDef) {
             LOGGER.warn(String.format("cores per socket (%d) * threads per core (%d) exceeds total VM cores. Ignoring extra topology", numCoresPerSocket, numThreadsPerCore));
-            numCoresPerSocket = 1;
+            numCoresPerSocket = vCpusInDef;
             numThreadsPerCore = 1;
         }
 
         if (vCpusInDef % (numCoresPerSocket * numThreadsPerCore) != 0) {
             LOGGER.warn(String.format("cores per socket(%d) * threads per core(%d) doesn't divide evenly into total VM cores(%d). Ignoring extra topology", numCoresPerSocket, numThreadsPerCore, vCpusInDef));
-            numCoresPerSocket = 1;
+            numCoresPerSocket = vCpusInDef;
             numThreadsPerCore = 1;
         }
 
-        // Set default coupling (makes 4 or 6 core sockets for larger core configs)
-        int numTotalSockets = 1;
-        if (numCoresPerSocket == 1 && numThreadsPerCore == 1) {
-            if (vCpusInDef % 6 == 0) {
-                numCoresPerSocket = 6;
-            } else if (vCpusInDef % 4 == 0) {
-                numCoresPerSocket = 4;
-            }
-            numTotalSockets = vCpusInDef / numCoresPerSocket;
-        } else {
-            int nTotalCores = vCpusInDef / numThreadsPerCore;
-            numTotalSockets = nTotalCores / numCoresPerSocket;
-        }
-
+        int nTotalCores = vCpusInDef / numThreadsPerCore;
+        int numTotalSockets = nTotalCores / numCoresPerSocket;
         cmd.setTopology(numCoresPerSocket, numThreadsPerCore, numTotalSockets);
+        logger.debug(String.format("[CPU Topology] TotalCores=%d | Cores/Socket=%d | Threads/Core=%d | Sockets=%d", nTotalCores, numCoresPerSocket, numThreadsPerCore, numTotalSockets));
     }
 
     public void setBackingFileFormat(String volPath) {
