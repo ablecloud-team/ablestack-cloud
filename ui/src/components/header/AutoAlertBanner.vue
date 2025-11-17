@@ -238,6 +238,11 @@ export default {
       try { window.dispatchEvent(new CustomEvent('auto-alert-banner:closed')) } catch (_) {}
     }
 
+    // ===== [MOD] 모바일 판별 헬퍼 =====
+    const isMobile = () => {
+      try { return window.matchMedia && window.matchMedia('(max-width: 768px)').matches } catch (e) { return false }
+    }
+
     // ===== 링크 유틸 =====
     const hrefHostDetail = (id) => `${ORIGIN}${HOST_BASE}/#/host/${id}`
     const hrefHostList = (keyword) => `${ORIGIN}${HOST_BASE}/#/hosts${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ''}`
@@ -1107,10 +1112,31 @@ export default {
       }
     }
 
-    // ===== 배너 닫힘 핸들러(누락으로 인한 ESLint 오류 해결) =====
+    // ===== 배너 닫힘 핸들러(모바일 즉시 차감 + ESLint 정리) =====
     const onAlertCloseStart = (it) => {
       const k = keyOf(it)
       if (!k) { return }
+
+      // [MOD] 모바일에서는 닫기 시작 순간 해당 카드 높이를 즉시 총합에서 차감합니다.
+      if (isMobile()) {
+        try {
+          const root = listRef.value
+          const el = root && root.querySelector(`[data-key="${k}"]`)
+          if (el) {
+            const h = Math.ceil(el.getBoundingClientRect().height || 0)
+            if (h > 0 && lastHeight.value >= 0) {
+              const nextH = Math.max(0, lastHeight.value - h)
+              lastHeight.value = nextH
+              if (typeof window !== 'undefined') {
+                document.documentElement.style.setProperty('--autoBannerHeight', `${nextH}px`)
+                window.dispatchEvent(new CustomEvent('auto-alert-banner:height', { detail: { height: nextH } }))
+              }
+              maskOn.value = nextH > 0
+            }
+          }
+        } catch (_) {}
+      }
+
       emitClosing()
       softCloseByUid(k)
     }
@@ -1252,7 +1278,7 @@ export default {
 .auto-alert-banner-container > * { position: relative; z-index: 1; }
 
 /* 리스트 */
-.banner-list { display: flex; flex-direction: column; gap: 8px; padding: 4px 8px 6px; }
+.banner-list { display: flex; flex-direction: column; gap: 5px; padding: 4px 8px 6px; }
 .banner-list:empty { padding: 0; }
 
 /* Ant Alert 오버라이드 */

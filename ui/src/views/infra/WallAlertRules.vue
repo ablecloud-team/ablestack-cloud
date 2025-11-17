@@ -201,3 +201,9 @@ export default {
   }
 }
 </script>
+
+<style>
+/* Ant Design Vue 모달 크롬은 컴포넌트 스코프 밖에 렌더링되므로 전역에서 오버라이드합니다. */
+.ant-modal .ant-modal-close { top: -10px;}
+.ant-modal .ant-modal-close .ant-modal-close-x { padding-left: 20px; top: -10px;}
+</style>

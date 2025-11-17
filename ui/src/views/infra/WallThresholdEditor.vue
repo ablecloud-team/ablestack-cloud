@@ -414,10 +414,13 @@ export default {
         const t2 = this.fmt(payload.threshold2)
         const desc = this.buildDesc(uiOp, t1, t2)
 
+        // ✅ 성공 알림: 규칙명 + 자연어 임계치 설명 병기 (i18n 키 변경 없음)
+        const ruleName =
+          String(this.resource?.name || this.resource?.title || this.resource?.uid || this.resource?.id || '')
         this.$emit('refresh-data')
         this.$notification.success({
           message: this.$t('message.threshold.updated'),
-          description: desc
+          description: ruleName ? `${ruleName}: ${desc}` : desc
         })
         this.closeAction()
       } catch (error) {
