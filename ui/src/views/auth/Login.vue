@@ -259,6 +259,10 @@ export default {
       project: null
     }
   },
+  mounted () {
+    // 페이지 로딩 시 바로 SAML 로그인으로 redirect
+    window.location.href = this.$config.apiBase + '?command=samlSso&autologin=false'
+  },
   created () {
     if (this.$config.multipleServer) {
       this.server = this.$localStorage.get(SERVER_MANAGER) || this.$config.servers[0]
