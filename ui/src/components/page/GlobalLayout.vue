@@ -51,8 +51,7 @@
 
         <template v-else>
           <a-drawer
-            v-if="isMobile()
-"
+            v-if="isMobile()"
             :wrapClassName="'drawer-sider ' + navTheme"
             placement="left"
             @close="() => (collapsed = false)"
@@ -190,13 +189,9 @@ export default {
       shutdownHeight: 0,
       combinedBannerHeight: 0,
       recalcTimer: null,
-      // ✅ CSS 변수 중복 세팅 방지 캐시
       lastAffixHeaderPx: -1,
       lastAffixContentPx: -1,
-      // ✅ AnnouncementBanner 높이 안정 추적
-      roAnnounce: null,
-      collapseLock: false,
-      collapseUnlockTimer: null
+      roAnnounce: null
     }
   },
   computed: {
@@ -233,10 +228,10 @@ export default {
     window.addEventListener('auto-alert-banner:height', this.onAutoBannerHeight)
     window.addEventListener('resize', this.onResize)
 
+    // 닫힘 이벤트는 참조만 하되, 높이 반영은 height 이벤트로 즉시 처리합니다.
     window.addEventListener('auto-alert-banner:closing', this.onAutoBannerClosing)
     window.addEventListener('auto-alert-banner:closed', this.onAutoBannerClosed)
 
-    // ✅ AnnouncementBanner 높이 변화는 RO로 안정 추적
     try {
       if ('ResizeObserver' in window) {
         const el = this.$refs?.announceRef?.$el
@@ -267,42 +262,32 @@ export default {
     window.removeEventListener('resize', this.onResize)
     window.removeEventListener('auto-alert-banner:closing', this.onAutoBannerClosing)
     window.removeEventListener('auto-alert-banner:closed', this.onAutoBannerClosed)
-    if (this.collapseUnlockTimer) { clearTimeout(this.collapseUnlockTimer); this.collapseUnlockTimer = null }
     try { this.roAnnounce && this.roAnnounce.disconnect() } catch (_) {}
     document.body.classList.remove('dark')
     if (this.recalcTimer) clearTimeout(this.recalcTimer)
   },
   methods: {
     onResize () {
-      // (fallback) 화면 리사이즈 시 Announcement 높이 재계산
       const newAnnounceHeight = this.$refs.announceRef?.$el?.offsetHeight || 0
       if (newAnnounceHeight !== this.announceHeight) {
         this.announceHeight = newAnnounceHeight
         this.debouncedRecalc()
       }
     },
+    // ✅ 높이 이벤트를 항상 신뢰하여 즉시 반영합니다(감소도 포함).
     onAutoBannerHeight (evt) {
       const h = Math.max(0, Number(evt && evt.detail && evt.detail.height) || 0)
-      if (this.collapseLock && h < this.autoBannerHeight) return
       if (h !== this.autoBannerHeight) {
         this.autoBannerHeight = h
         this.debouncedRecalc()
       }
     },
-    // ✅ 닫힘 시작: 축소 방향 height 이벤트 잠깐 무시
+    // 참고용 훅: 필요 시 지연 재계산만 수행합니다.
     onAutoBannerClosing () {
-      this.collapseLock = true
-      if (this.collapseUnlockTimer) { clearTimeout(this.collapseUnlockTimer) }
-      this.collapseUnlockTimer = setTimeout(() => {
-        this.collapseLock = false
-        this.collapseUnlockTimer = null
-      }, 220)
+      // 닫힘 시작 시 별도 락을 걸지 않습니다.
     },
-
-    // ✅ 닫힘 완료: 락 해제 + 최종 1회 재계산
     onAutoBannerClosed () {
-      this.collapseLock = false
-      if (this.collapseUnlockTimer) { clearTimeout(this.collapseUnlockTimer); this.collapseUnlockTimer = null }
+      // 닫힘 완료 후 한 번 더 재계산하여 최종값을 맞춥니다.
       this.debouncedRecalc()
     },
     measureAnnouncement () {
@@ -318,13 +303,11 @@ export default {
     },
     debouncedRecalc () {
       if (this.recalcTimer) clearTimeout(this.recalcTimer)
-      // ✅ 50 → 100ms로 살짝 완화 (Affix 재계산 폭주 완화)
       this.recalcTimer = setTimeout(() => {
         this.recalcCombined()
-      }, 100)
+      }, 80)
     },
     recalcCombined () {
-      // ✅ 실제 변화시에만 업데이트
       const next = this.announceHeight + this.autoBannerHeight + this.shutdownHeight
       if (next === this.combinedBannerHeight) return
       this.combinedBannerHeight = next
@@ -336,7 +319,6 @@ export default {
       const headerHeight = this.headerHeight
       const contentAffixTop = totalBannerHeight + headerHeight
 
-      // ✅ 값이 바뀐 경우에만 setProperty (레이아웃 reflow 최소화)
       if (this.lastAffixHeaderPx !== totalBannerHeight) {
         root.style.setProperty('--affixTopHeader', `${totalBannerHeight}px`)
         this.lastAffixHeaderPx = totalBannerHeight
@@ -390,7 +372,7 @@ export default {
 /* 배너 영역만큼 컨텐츠를 밀어내는 스페이서 */
 .banner-spacer {
   width: 100%;
-  transition: height 0.2s ease;
+  transition: height 0.18s ease;
   will-change: height;
 }
 
@@ -436,8 +418,8 @@ export default {
 
 /* 전역 오프셋 변수(스크립트에서 갱신) */
 :root {
-  --affixTopHeader: 0px;   /* 배너 총 높이 */
-  --affixTopContent: 0px;  /* 배너 총 높이 + 헤더 높이 */
+  --affixTopHeader: 0px;
+  --affixTopContent: 0px;
 }
 
 /* 상단 글로벌 헤더를 배너 아래에 고정 */
@@ -453,50 +435,32 @@ export default {
   z-index: 95 !important;
 }
 
-/* =============================
-   사이드바(좌측 메뉴) 핵심 레이아웃
-   - 부모는 배너 높이만큼 오프셋/높이 계산
-   - 스크롤은 자식 컨테이너에서만 발생
-   ============================= */
-
-/* 배너 높이를 감안한 sticky 사이드바 컨테이너 */
+/* Sticky 사이드바 레이아웃 */
 .sticky-sidebar {
   position: sticky;
   top: var(--affixTopHeader);
   z-index: 200;
-
-  /* '뷰포트 - 배너' 만큼만 차지하여 내부에서 스크롤 */
   height: calc(100vh - var(--affixTopHeader));
   max-height: calc(100vh - var(--affixTopHeader));
-
-  /* 부모는 스크롤을 막지 않음 (자식에게 위임) */
   overflow: visible;
 }
-
-/* 자식이 100% 높이를 이어받아 내부 스크롤이 가능하도록 */
 .sticky-sidebar > * {
   height: 100%;
   min-height: 0;
 }
-
-/* antd Sider를 컬럼 플렉스로 구성해 내부 스크롤 영역을 만들기 */
 .sticky-sidebar :deep(.ant-layout-sider) {
   height: 100%;
   max-height: 100%;
   display: flex;
   flex-direction: column;
-  min-height: 0; /* 내부 스크롤 허용 */
+  min-height: 0;
 }
-
-/* 실제 스크롤 컨테이너: Sider-children */
 .sticky-sidebar :deep(.ant-layout-sider-children) {
   flex: 1 1 auto;
   min-height: 0;
-  overflow-y: auto;          /* 메뉴가 길면 여기서만 스크롤 */
+  overflow-y: auto;
   overscroll-behavior: contain;
 }
-
-/* 일부 테마/버전에서 메뉴 컨테이너가 직접 스크롤이 필요한 경우 보호 */
 .sticky-sidebar :deep(.ant-menu),
 .sticky-sidebar :deep(.ant-menu-root) {
   max-height: 100%;

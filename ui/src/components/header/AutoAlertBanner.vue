@@ -1,4 +1,4 @@
-<!-- AutoAlertBanner.vue (닫기 즉시 제거 + 측정 완료 후에만 상단 마스크/오프셋 적용) -->
+<!-- AutoAlertBanner.vue (사일런스·일시정지 시 즉시 소프트클로즈 + 높이 반영 / ESLint 오류 수정본) -->
 <template>
   <teleport to="body">
     <div
@@ -34,13 +34,15 @@
                       v-for="lnk in hostLinkList(it)"
                       :key="lnk.key"
                       class="tag-link"
-                      @click.prevent="goToHost(lnk.keyword)">
+                      @click.prevent="goToHost(lnk.keyword)"
+                    >
                       {{ lnk.label }}
                     </a-tag>
                     <a-tag
                       v-if="hostMoreCount(it) > 0"
                       class="tag-more"
-                      @click="openUrl(hostMoreHref)">
+                      @click="openUrl(hostMoreHref)"
+                    >
                       +{{ hostMoreCount(it) }}
                     </a-tag>
                   </span>
@@ -56,7 +58,8 @@
                       class="tag-link"
                       :data-vmindex="vmIndexVersion"
                       @click.prevent.stop="goToVm(lnk.keyword)"
-                      :title="`${$t('tooltip.goto.vm.detail') || 'VM 상세로 이동'}: ${displayVm(lnk.label)}`">
+                      :title="`${$t('tooltip.goto.vm.detail') || 'VM 상세로 이동'}: ${displayVm(lnk.label)}`"
+                    >
                       {{ displayVm(lnk.label) }}
                     </a-tag>
 
@@ -65,7 +68,8 @@
                       trigger="hover"
                       placement="bottomRight"
                       :overlayStyle="{ zIndex: 2147483649 }"
-                      :getPopupContainer="getPopupParent">
+                      :getPopupContainer="getPopupParent"
+                    >
                       <template #content>
                         <div class="vm-more-pop">
                           <a-tag
@@ -73,7 +77,8 @@
                             :key="lnk.key"
                             class="tag-link"
                             @click.prevent.stop="goToVm(lnk.keyword)"
-                            :title="`${$t('tooltip.goto.vm.detail') || 'VM 상세로 이동'}: ${displayVm(lnk.label)}`">
+                            :title="`${$t('tooltip.goto.vm.detail') || 'VM 상세로 이동'}: ${displayVm(lnk.label)}`"
+                          >
                             {{ displayVm(lnk.label) }}
                           </a-tag>
                         </div>
@@ -91,7 +96,8 @@
                       v-for="lnk in storageLinkList(it)"
                       :key="lnk.key"
                       class="tag-link"
-                      @click="openUrlBlank(lnk.url)">
+                      @click="openUrlBlank(lnk.url)"
+                    >
                       {{ lnk.label }}
                     </a-tag>
                   </span>
@@ -106,7 +112,8 @@
                       :key="lnk.key"
                       class="tag-link"
                       @click="openUrl(lnk.url)"
-                      :title="$t('tooltip.goto.management') || '관리 서버로 이동'">
+                      :title="$t('tooltip.goto.management') || '관리 서버로 이동'"
+                    >
                       {{ lnk.label }}
                     </a-tag>
                   </span>
@@ -115,7 +122,11 @@
 
               <!-- 액션 영역 -->
               <a-space class="banner-actions" :size="8" align="center" wrap>
-                <a :href="hrefAlertRule(it)" class="router-link-button" :title="`${$t('label.goto.the.alertRule') || '경고 규칙으로 이동'}: ${it?.title || ''}`">
+                <a
+                  :href="hrefAlertRule(it)"
+                  class="router-link-button"
+                  :title="`${$t('label.goto.the.alertRule') || '경고 규칙으로 이동'}: ${it?.title || ''}`"
+                >
                   <a-button size="small" type="link">
                     <template #icon><LinkOutlined /></template>
                     {{ $t('label.goto.the.alertRules') || '경고 규칙으로 이동' }}
@@ -219,6 +230,7 @@ export default {
     const HOST_BASE = ''
     const VM_BASE = '/client'
 
+    // ===== 전역 알림 이벤트(글로벌 레이아웃이 듣습니다) =====
     const emitClosing = () => {
       try { window.dispatchEvent(new CustomEvent('auto-alert-banner:closing')) } catch (_) {}
     }
@@ -226,6 +238,7 @@ export default {
       try { window.dispatchEvent(new CustomEvent('auto-alert-banner:closed')) } catch (_) {}
     }
 
+    // ===== 링크 유틸 =====
     const hrefHostDetail = (id) => `${ORIGIN}${HOST_BASE}/#/host/${id}`
     const hrefHostList = (keyword) => `${ORIGIN}${HOST_BASE}/#/hosts${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ''}`
     const hrefVmDetail = (id) => `${ORIGIN}${VM_BASE}/#/vm/${id}`
@@ -240,6 +253,7 @@ export default {
     const vmMoreHref = hrefVmList('')
     const MAX_LINKS = 3
 
+    // ===== 상태 =====
     const loading = ref(false)
     const rules = ref([])
     const refreshInFlight = ref(false)
@@ -250,6 +264,7 @@ export default {
 
     const maskOn = ref(false)
 
+    // ===== 폴링 =====
     const POLL_MS = 60000
     const MIN_DELAY_MS = 5000
     let pollHandle = null
@@ -265,9 +280,7 @@ export default {
     async function pollTick () {
       if (pollBusy || refreshInFlight.value) { scheduleNextPoll(); return }
       pollBusy = true
-      try { await refresh() } catch (_) {
-        /* noop */
-      } finally { pollBusy = false; scheduleNextPoll() }
+      try { await refresh() } catch (_) {} finally { pollBusy = false; scheduleNextPoll() }
     }
 
     function startPoll () {
@@ -276,14 +289,12 @@ export default {
       if (delay < MIN_DELAY_MS) { delay = MIN_DELAY_MS }
       pollHandle = setTimeout(pollTick, delay)
     }
-
     function stopPoll () { if (pollHandle) { clearTimeout(pollHandle); pollHandle = null } }
 
-    function onVisibility () {
-      if (document.hidden) { stopPoll() } else { pollTick(); startPoll() }
-    }
+    function onVisibility () { if (document.hidden) { stopPoll() } else { pollTick(); startPoll() } }
     function onFocus () { if (!document.hidden) { pollTick() } }
 
+    // ===== 사일런스 캐시(로컬/원격) =====
     const LS_KEY = 'autoAlertBanner.silencedByUid'
     const localSilenced = ref(loadLocalSilences())
     const remoteSilenced = ref({})
@@ -307,6 +318,7 @@ export default {
       return !!(exp && Date.now() <= exp)
     }
 
+    // ===== 치수 측정 =====
     const containerRef = ref(null)
     const listRef = ref(null)
     let ro = null
@@ -328,10 +340,8 @@ export default {
           window.dispatchEvent(new CustomEvent('auto-alert-banner:height', { detail: { height: h } }))
         }
         maskOn.value = h > 0
-        try { document.documentElement.classList.remove('banner-measuring') } catch (_) { /* noop */ }
-      } catch (_) {
-        /* noop */
-      }
+        try { document.documentElement.classList.remove('banner-measuring') } catch (_) {}
+      } catch (_) {}
     }
 
     const scheduleMeasure = () => {
@@ -339,6 +349,7 @@ export default {
       rafId = requestAnimationFrame(() => { rafId = 0; measureAndNotifyHeight() })
     }
 
+    // ===== 개별 배너 소프트 클로즈 =====
     const runCloseAnimation = (k) => {
       try {
         const root = listRef.value
@@ -352,7 +363,7 @@ export default {
         el.style.overflow = 'hidden'
         el.style.transition = 'height 150ms ease, opacity 150ms ease'
 
-        // 레이아웃 강제 확정(리플로우)
+        // 강제 리플로우
         el.getBoundingClientRect()
 
         el.style.height = '0px'
@@ -360,9 +371,7 @@ export default {
 
         setTimeout(scheduleMeasure, 16)
         setTimeout(scheduleMeasure, 180)
-      } catch (_) {
-        /* noop */
-      }
+      } catch (_) {}
     }
 
     const softCloseByUid = (uid) => {
@@ -372,21 +381,7 @@ export default {
       scheduleMeasure()
     }
 
-    const keyOf = (it) => (it && (it.uid || it.id)) || null
-    const onAlertCloseStart = it => {
-      const k = keyOf(it)
-      if (!k) return
-      emitClosing()
-      runCloseAnimation(k)
-      closedUntil.value.set(k, Date.now() + CLOSE_TTL_MS)
-      nextTick(() => scheduleMeasure())
-    }
-
-    const onAlertClosed = () => {
-      emitClosed()
-      nextTick(() => scheduleMeasure())
-    }
-
+    // ===== 각종 파서 =====
     const UC = (v) => (v == null ? '' : String(v).toUpperCase())
     const pickState = (obj) => {
       if (!obj) { return '' }
@@ -423,6 +418,7 @@ export default {
       return ''
     }
 
+    // ===== CloudStack 인덱스(호스트/VM) =====
     const extractHosts = (resp) => {
       const wrap = resp?.listhostsresponse || resp?.listHostsResponse || resp?.data || resp || {}
       let list = wrap?.host || wrap?.hosts || wrap?.items || wrap?.list
@@ -431,7 +427,6 @@ export default {
       }
       return Array.isArray(list) ? list : []
     }
-
     const extractVMs = (resp) => {
       const wrap = resp?.listvirtualmachinesresponse || resp?.listVirtualMachinesResponse || resp?.data || resp || {}
       let list = wrap?.virtualmachine || wrap?.virtualMachine || wrap?.virtualmachines || wrap?.virtualMachines || wrap?.items || wrap?.list
@@ -507,6 +502,7 @@ export default {
       }
     }
 
+    // ===== 호스트 힌트(이름<->IP) =====
     const hostHints = { byIpName: new Map() }
     const hintHostNameByIp = (ip) => {
       if (!ip) { return '' }
@@ -526,6 +522,7 @@ export default {
       }
     }
 
+    // ===== 응답 파서 =====
     const extractRules = (resp) => {
       const wrap = resp?.listwallalertrulesresponse || resp?.listWallAlertRulesResponse || resp?.data || resp || {}
       const inner = wrap.wallalertruleresponse || wrap.wallalertrules || wrap.wallAlertRules || wrap.rules || wrap.items || wrap.list || wrap
@@ -563,6 +560,7 @@ export default {
     }
     const ruleTitle = (r) => (r && (r.name || r.title || (r.metadata && r.metadata.rule_title) || r.ruleName)) || 'Alert'
 
+    // ===== 로컬 사일런스 저장/정리 =====
     function loadLocalSilences () {
       try {
         const raw = localStorage.getItem(LS_KEY)
@@ -571,7 +569,7 @@ export default {
       } catch (_) { return {} }
     }
     function saveLocalSilences () {
-      try { localStorage.setItem(LS_KEY, JSON.stringify(localSilenced.value || {})) } catch (_) { /* noop */ }
+      try { localStorage.setItem(LS_KEY, JSON.stringify(localSilenced.value || {})) } catch (_) {}
     }
     function cleanupLocalSilences () {
       const now = Date.now()
@@ -641,6 +639,7 @@ export default {
       remoteSilencedLoaded.value = true
     }
 
+    // ===== 엔티티 링크 구성 =====
     const VM_NAME_RE = /^i-\d+-\d+-VM$/i
     const VM_NAME_FUZZY_RE = /-VM$/i
     const labelBag = (a) => (a && (a.labels || a.metric || a.tags || a)) || {}
@@ -849,6 +848,7 @@ export default {
       )
     }
 
+    // ===== 렌더 목록 =====
     const alerting = computed(() => {
       const out = []
       const seen = new Set()
@@ -914,12 +914,11 @@ export default {
         vmIndexCache.byInstanceName.get(k1) ||
         vmIndexCache.byInstanceName.get(k2) ||
         vmIndexCache.byInstanceName.get(k3)
-      if (hit) {
-        return hit
-      }
+      if (hit) { return hit }
       return String(raw)
     }
 
+    // ===== 데이터 갱신 =====
     const refresh = async () => {
       if (refreshInFlight.value) { return }
       refreshInFlight.value = true
@@ -953,6 +952,7 @@ export default {
       }
     }
 
+    // ===== 모달 열고 닫기 =====
     const silenceModal = ref({ visible: false, target: null })
     const openSilence = (it) => {
       const title = (it && it.title) || (it && it.rule && ruleTitle(it.rule)) || it?.name || ''
@@ -960,10 +960,36 @@ export default {
       silenceModal.value = { visible: true, target }
     }
     const closeSilence = () => { silenceModal.value = { visible: false, target: null } }
-    const onSilenceRefresh = async () => {
-      closeSilence()
-      await refresh()
-      message.success(window.$t?.('message.silence.applied') || '사일런스 적용')
+
+    // ✅ 사일런스 적용 직후: 해당 UID 소프트클로즈 + 로컬 캐시 반영 + 새로고침
+    const onSilenceRefresh = async (info) => {
+      try {
+        const uidFromModal = info && (info.uid || info.ruleUid)
+        const uidFromTarget = (silenceModal.value && silenceModal.value.target && (silenceModal.value.target.uid || silenceModal.value.target.id)) || null
+        const uid = uidFromModal || uidFromTarget
+
+        if (uid) {
+          // 즉시 소프트 클로즈
+          onAlertCloseStart({ uid })
+
+          // 로컬 사일런스 캐시(정보가 없으면 3분 보호)
+          const now = Date.now()
+          let endMs = 0
+          if (info && typeof info.endsAt === 'string') { endMs = Date.parse(info.endsAt) || 0 }
+          if (!endMs && info && typeof info.endMs === 'number') { endMs = info.endMs }
+          if (!endMs && info && typeof info.durationMinutes === 'number') { endMs = now + Math.max(1, info.durationMinutes) * 60 * 1000 }
+          if (!endMs) { endMs = now + 3 * 60 * 1000 }
+
+          localSilenced.value[uid] = endMs
+          saveLocalSilences()
+        }
+
+        closeSilence()
+        await refresh()
+        message.success(window.$t?.('message.silence.applied') || '사일런스 적용')
+      } catch (_) {
+        closeSilence()
+      }
     }
 
     const pauseModal = ref({ visible: false, target: null })
@@ -976,19 +1002,16 @@ export default {
     const closePause = () => { pauseModal.value = { visible: false, target: null } }
     const onPauseRefresh = async () => {
       const uid = keyOf(pauseModal.value && pauseModal.value.target)
-      if (uid) { softCloseByUid(uid) }
+      if (uid) { onAlertCloseStart({ uid }) }
       closePause()
       await refresh()
       message.success(window.$t?.('message.pause.applied') || '일시정지 적용')
     }
 
-    function openUrl (url) {
-      try { window.location.href = String(url) } catch (_) { /* noop */ }
-    }
+    // ===== 내비게이션 =====
+    function openUrl (url) { try { window.location.href = String(url) } catch (_) {} }
     function openUrlBlank (url) {
-      try {
-        window.open(String(url), '_blank', 'noopener,noreferrer')
-      } catch (_) {
+      try { window.open(String(url), '_blank', 'noopener,noreferrer') } catch (_) {
         try {
           const a = document.createElement('a')
           a.href = String(url)
@@ -997,9 +1020,7 @@ export default {
           document.body.appendChild(a)
           a.click()
           document.body.removeChild(a)
-        } catch (e) {
-          window.location.href = String(url)
-        }
+        } catch (e) { window.location.href = String(url) }
       }
     }
 
@@ -1070,21 +1091,35 @@ export default {
       const id = await resolveVmId(keyword)
       const url = id ? hrefVmDetail(id) : hrefVmList(keyword)
       if (!id) { message.warning(t('message.vm.resolve.fallback') || '정확한 VM ID를 찾지 못해 목록으로 이동합니다.') }
-      try {
-        window.location.href = url
-      } catch (e) {
+      try { window.location.href = url } catch (e) {
         message.warning(t('message.link.open.failed') || '링크 열기에 실패했습니다. 콘솔 로그의 URL을 확인하세요.')
       }
     }
 
+    // ===== 공용 =====
+    const keyOf = (it) => (it && (it.uid || it.id)) || null
     function getPopupParent (triggerNode) {
       try {
-        return (triggerNode && triggerNode.ownerDocument && triggerNode.ownerDocument.body) || document.body
+        const parent = triggerNode && triggerNode.ownerDocument && triggerNode.ownerDocument.body
+        return parent || document.body
       } catch (e) {
         return typeof document !== 'undefined' ? document.body : undefined
       }
     }
 
+    // ===== 배너 닫힘 핸들러(누락으로 인한 ESLint 오류 해결) =====
+    const onAlertCloseStart = (it) => {
+      const k = keyOf(it)
+      if (!k) { return }
+      emitClosing()
+      softCloseByUid(k)
+    }
+    const onAlertClosed = () => {
+      emitClosed()
+      scheduleMeasure()
+    }
+
+    // ===== 라이프사이클 =====
     onMounted(async () => {
       try { document.documentElement.style.setProperty('--autoBannerHeight', '0px') } catch (_) {}
       try { document.documentElement.classList.add('banner-measuring') } catch (_) {}
@@ -1101,7 +1136,7 @@ export default {
       try {
         if (typeof window !== 'undefined' && 'ResizeObserver' in window) {
           ro = new ResizeObserver(() => scheduleMeasure())
-          if (listRef.value) ro.observe(listRef.value)
+          if (listRef.value) { ro.observe(listRef.value) }
         }
       } catch (_) {}
 
@@ -1117,7 +1152,7 @@ export default {
       document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('focus', onFocus)
       stopPoll()
-      try { if (ro) { ro.disconnect() } } catch (_) { /* noop */ }
+      try { if (ro) { ro.disconnect() } } catch (_) {}
       if (rafId) { cancelAnimationFrame(rafId) }
       if (hideTimer) { clearTimeout(hideTimer); hideTimer = null }
       if (typeof window !== 'undefined') {
@@ -1125,9 +1160,10 @@ export default {
         document.documentElement.style.setProperty('--autoBannerHeight', '0px')
       }
       maskOn.value = false
-      try { document.documentElement.classList.remove('banner-measuring') } catch (_) { /* noop */ }
+      try { document.documentElement.classList.remove('banner-measuring') } catch (_) {}
     })
 
+    // ===== 반응 =====
     watch(showBanner, (v) => {
       if (!v && typeof window !== 'undefined') {
         document.documentElement.style.setProperty('--autoBannerHeight', '0px')
@@ -1137,6 +1173,7 @@ export default {
     })
     watch(visibleAlerts, () => scheduleMeasure(), { deep: true })
 
+    // ===== 노출 =====
     return {
       loading,
       silenceModal,
@@ -1336,27 +1373,6 @@ export default {
 
 <style>
 :root { --autoBannerHeight: 0px; }
-
-:root { --autoBannerHeight: 0px; }
-
-/* 모달/드로어 상단 오프셋 */
-.ant-modal-wrap,
-.ant-modal-mask {
-  top: var(--autoBannerHeight, 0px) !important;
-}
-
-.ant-image-preview-wrap,
-.ant-drawer,
-.ant-drawer-mask {
-  top: var(--autoBannerHeight, 0px) !important;
-}
-
-/* Notification/Message 상단 오프셋 */
-.ant-notification-top,
-.ant-notification-topRight,
-.ant-notification-topLeft {
-  top: calc(24px + var(--autoBannerHeight, 0px)) !important;
-}
 
 /* 모달/드로어 상단 오프셋 */
 .ant-modal-wrap,

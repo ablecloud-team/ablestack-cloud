@@ -3883,7 +3883,6 @@
 "state.stopped": "Stopped",
 "state.stopping": "Stopping",
 "state.suspended": "Suspended",
-"state.ok": "OK",
 "state.nodata": "Nodata",
 "state.alerting": "Alerting",
 "user.login": "Login",
@@ -4975,8 +4974,7 @@
 "message.confirm.pause.rule.title": "Pause this rule?",
 "message.confirm.pause.rule.desc": "Pausing stops notifications until you resume. Evaluations continue and you can resume at any time.",
 "message.confirm.resume.rule.desc": "Resuming re-enables notifications immediately. Evaluations continue as usual. Active silences still suppress notifications until they expire.",
-"label.uid": "UID"
-}
+"label.uid": "UID",
 "label.retentionperiod": "Retention Period",
 "label.week": "Week",
 "label.month": "Month",
