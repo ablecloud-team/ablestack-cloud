@@ -197,10 +197,10 @@ export default {
       }
     },
     handleLogout () {
-      this.Logout({}).finally(async () => {
+      this.Logout({ apiBase: this.$config.apiBase }).finally(async () => {
         sourceToken.init()
         await applyCustomGuiTheme(null, null)
-        this.$router.push('/user/login')
+        // this.$router.push('/user/login')
       }).catch(err => {
         this.$message.error({
           title: 'Failed to Logout',
