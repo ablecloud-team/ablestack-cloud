@@ -230,10 +230,36 @@ public abstract class ServerResourceBase implements ServerResource {
         if (result == null && parser.getLines() != null) {
             String[] lines = parser.getLines().split("\\n");
             for (String line : lines) {
-                String[] parts = line.split("\\s+", 2);
-                if (parts.length >= 2) {
-                    hostDevicesNames.add(parts[0].trim());
-                    hostDevicesText.add(parts[1].trim());
+                line = line.trim();
+                if (line.isEmpty()) continue;
+
+                // lsusb 출력 형식: "Bus 002 Device 002: ID 346d:5678 USB Disk 20"
+                // 이름: "002 Device 002" (Bus 번호와 Device 번호)
+                // 상세: "ID 346d:5678 USB Disk 20" (ID 이후 부분)
+
+                if (line.startsWith("Bus ")) {
+                    // "Bus 002 Device 002: ID 346d:5678 USB Disk 20" 형식 파싱
+                    String[] colonParts = line.split(":", 2);
+                    if (colonParts.length == 2) {
+                        String busDevicePart = colonParts[0].trim(); // "Bus 002 Device 002"
+                        String detailPart = colonParts[1].trim(); // "ID 346d:5678 USB Disk 20"
+
+                        // "Bus 002 Device 002"에서 "002 Device 002" 추출
+                        String deviceName = busDevicePart.replaceFirst("^Bus\\s+", "");
+                        hostDevicesNames.add(deviceName);
+                        hostDevicesText.add(detailPart);
+                    } else {
+                        // 형식이 맞지 않으면 전체를 사용
+                        hostDevicesNames.add(line);
+                        hostDevicesText.add("");
+                    }
+                } else {
+                    // 기타 형식
+                    String[] parts = line.split("\\s+", 2);
+                    if (parts.length >= 2) {
+                        hostDevicesNames.add(parts[0].trim());
+                        hostDevicesText.add(parts[1].trim());
+                    }
                 }
             }
         }
@@ -1583,71 +1609,8 @@ public abstract class ServerResourceBase implements ServerResource {
         } catch (Exception e) {
         }
 
-        // 3. virsh nodedev-list | grep vhba로 vHBA 추가
-        try {
-            Script vhbaCommand = new Script("/bin/bash");
-            vhbaCommand.add("-c");
-            vhbaCommand.add("virsh nodedev-list | grep vhba || true");
-            OutputInterpreter.AllLinesParser vhbaParser = new OutputInterpreter.AllLinesParser();
-            String vhbaResult = vhbaCommand.execute(vhbaParser);
-            if (vhbaResult == null && vhbaParser.getLines() != null && !vhbaParser.getLines().trim().isEmpty()) {
-                String[] vhbaLines = vhbaParser.getLines().split("\\n");
-                for (String vhbaLine : vhbaLines) {
-                    String vhbaName = vhbaLine.trim();
-                    if (!vhbaName.isEmpty() && !hostDevicesNames.contains(vhbaName)) {
-                        // vHBA 상세 정보 조회
-                        Script vhbaInfoCommand = new Script("/bin/bash");
-                        vhbaInfoCommand.add("-c");
-                        vhbaInfoCommand.add("virsh nodedev-dumpxml " + vhbaName);
-                        OutputInterpreter.AllLinesParser vhbaInfoParser = new OutputInterpreter.AllLinesParser();
-                        String vhbaInfoResult = vhbaInfoCommand.execute(vhbaInfoParser);
-                        String vhbaDescription = "";
-                        String parentHbaName = "";
-                        String wwnn = "";
-                        String wwpn = "";
-                        String fabricWwn = "";
-
-                        if (vhbaInfoResult == null && vhbaInfoParser.getLines() != null) {
-                            String[] infoLines = vhbaInfoParser.getLines().split("\\n");
-                            for (String infoLine : infoLines) {
-                                if (infoLine.contains("<parent>")) {
-                                    parentHbaName = infoLine.replaceAll("<[^>]*>", "").trim();
-                                } else if (infoLine.contains("<wwnn>")) {
-                                    wwnn = infoLine.replaceAll("<[^>]*>", "").trim();
-                                } else if (infoLine.contains("<wwpn>")) {
-                                    wwpn = infoLine.replaceAll("<[^>]*>", "").trim();
-                                } else if (infoLine.contains("<fabric_wwn>")) {
-                                    fabricWwn = infoLine.replaceAll("<[^>]*>", "").trim();
-                                }
-                            }
-
-                            StringBuilder descBuilder = new StringBuilder();
-                            if (!wwnn.isEmpty()) {
-                                descBuilder.append("WWNN: ").append(wwnn);
-                            }
-                            if (!wwpn.isEmpty()) {
-                                if (descBuilder.length() > 0) {
-                                    descBuilder.append("\n");
-                                }
-                                descBuilder.append("WWPN: ").append(wwpn);
-                            }
-                            if (!fabricWwn.isEmpty() && !fabricWwn.equals("0")) {
-                                if (descBuilder.length() > 0) {
-                                    descBuilder.append("\n");
-                                }
-                                descBuilder.append("Fabric WWN: ").append(fabricWwn);
-                            }
-                            vhbaDescription = descBuilder.toString();
-                        }
-                        hostDevicesNames.add(vhbaName);
-                        hostDevicesText.add(vhbaDescription);
-                        deviceTypes.add("virtual");
-                        parentHbaNames.add(parentHbaName);
-                    }
-                }
-            }
-        } catch (Exception e) {
-        }
+        // 3. vHBA는 별도의 listVhbaDevices API로 조회하므로 HBA 리스트에서는 제외
+        // (vHBA는 HBA 리스트에 포함하지 않음)
         return new ListHostHbaDeviceAnswer(true, hostDevicesNames, hostDevicesText, deviceTypes, parentHbaNames);
     }
 

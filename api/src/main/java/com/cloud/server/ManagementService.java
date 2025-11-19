@@ -101,6 +101,7 @@ import org.apache.cloudstack.api.command.user.userdata.DeleteUserDataCmd;
 import org.apache.cloudstack.api.command.user.userdata.ListUserDataCmd;
 import org.apache.cloudstack.api.command.user.userdata.RegisterUserDataCmd;
 import org.apache.cloudstack.api.command.user.vm.GetVMPasswordCmd;
+import org.apache.cloudstack.api.command.user.vm.ListVmDeviceAssignmentsCmd;
 import org.apache.cloudstack.api.command.user.vmgroup.UpdateVMGroupCmd;
 import org.apache.cloudstack.api.response.CreateVhbaDeviceResponse;
 import org.apache.cloudstack.api.response.DeleteVhbaDeviceResponse;
@@ -118,6 +119,7 @@ import org.apache.cloudstack.api.response.UpdateHostLunDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostScsiDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostUsbDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostVhbaDevicesResponse;
+import org.apache.cloudstack.api.response.VmDeviceAssignmentResponse;
 import org.apache.cloudstack.config.Configuration;
 import org.apache.cloudstack.config.ConfigurationGroup;
 
@@ -549,6 +551,8 @@ public interface ManagementService {
     ListResponse<ListVhbaDevicesResponse> listVhbaDevices(ListVhbaDevicesCmd cmd);
 
     ListResponse<UpdateHostVhbaDevicesResponse> updateHostVhbaDevices(UpdateHostVhbaDevicesCmd cmd);
+
+    ListResponse<VmDeviceAssignmentResponse> listVmDeviceAssignments(ListVmDeviceAssignmentsCmd cmd);
 
     LicenseCheckerResponse checkLicense(LicenseCheckCmd cmd);
 

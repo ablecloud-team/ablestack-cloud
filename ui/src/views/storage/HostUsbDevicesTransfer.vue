@@ -247,6 +247,7 @@ export default {
         const response = await api('updateHostUsbDevices', {
           hostid: this.resource.id,
           hostdevicesname: this.resource.hostDevicesName,
+          hostdevicestext: this.resource.hostDevicesText || '',
           virtualmachineid: this.form.virtualmachineid,
           xmlconfig: xmlConfig
         })

@@ -41,7 +41,7 @@
             <template v-if="column.key === 'hostDevicesName'">
               {{ record.hostDevicesName }}
             </template>
-            <template v-if="column.key === 'hostDevicesText'"><span v-html="record.hostDevicesText"></span></template>
+            <template v-if="column.key === 'hostDevicesText'"><span v-html="formatHostDevicesText(record.hostDevicesText)"></span></template>
             <template v-if="column.key === 'vmName'">
               <a-spin v-if="vmNameLoading" size="small" />
               <span v-else>{{ vmNames[record.hostDevicesName] || $t(' ') }}</span>
@@ -122,7 +122,7 @@
             <template v-if="column.key === 'hostDevicesText'">
               <div :style="{ paddingLeft: record.indent ? '20px' : '0px' }">
                 <template v-if="!record.isSummary">
-                  <span v-html="record.hostDevicesText"></span>
+                  <span v-html="formatHostDevicesText(record.hostDevicesText)"></span>
                 </template>
               </div>
             </template>
@@ -237,7 +237,7 @@
               {{ record.hostDevicesName }}
             </template>
             <template v-if="column.key === 'hostDevicesText'">
-              <span v-html="record.hostDevicesText"></span>
+              <span v-html="formatHostDevicesText(record.hostDevicesText)"></span>
             </template>
             <template v-if="column.dataIndex === 'vmName'">
               <a-spin v-if="vmNameLoading" size="small" />
@@ -4459,6 +4459,8 @@ export default {
       // 기존 IN_USE 필드 처리 (하위 호환성)
       formattedText = formattedText.replace(/IN_USE:\s*false/gi, this.$t('label.not.in.use'))
       formattedText = formattedText.replace(/IN_USE:\s*true/gi, this.$t('label.in.use'))
+
+      formattedText = formattedText.replace(/(?:\r\n|\r|\n)/g, '<br/>')
 
       return formattedText
     },
