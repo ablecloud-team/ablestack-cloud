@@ -1277,6 +1277,7 @@ public class ApiConstants {
     public static final String LISTHOSTDEVICES = "listhostdevices";
     public static final String HOSTDEVICES_NAME = "hostdevicesname";
     public static final String HOSTDEVICES_TEXT = "hostdevicestext";
+    public static final String HOSTDEVICES_TYPE = "hostdevicestype";
     public static final String DEVICE_TYPE = "devicetype";
 
     public static final String PARAMETER_DESCRIPTION_ACTIVATION_RULE = "Quota tariff's activation rule. It can receive a JS script that results in either " +

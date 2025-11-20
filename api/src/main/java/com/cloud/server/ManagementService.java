@@ -66,6 +66,7 @@ import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostLunDe
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostScsiDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListHostUsbDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListVhbaDevicesCmd;
+import org.apache.cloudstack.api.command.admin.outofbandmanagement.ListVmHostDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostHbaDevicesCmd;
 import org.apache.cloudstack.api.command.admin.outofbandmanagement.UpdateHostLunDevicesCmd;
@@ -113,6 +114,7 @@ import org.apache.cloudstack.api.response.ListHostScsiDevicesResponse;
 import org.apache.cloudstack.api.response.ListHostUsbDevicesResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.ListVhbaDevicesResponse;
+import org.apache.cloudstack.api.response.ListVmHostDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostHbaDevicesResponse;
 import org.apache.cloudstack.api.response.UpdateHostLunDevicesResponse;
@@ -553,6 +555,8 @@ public interface ManagementService {
     ListResponse<UpdateHostVhbaDevicesResponse> updateHostVhbaDevices(UpdateHostVhbaDevicesCmd cmd);
 
     ListResponse<VmDeviceAssignmentResponse> listVmDeviceAssignments(ListVmDeviceAssignmentsCmd cmd);
+
+    ListResponse<ListVmHostDevicesResponse> listVmHostDevices(ListVmHostDevicesCmd cmd);
 
     LicenseCheckerResponse checkLicense(LicenseCheckCmd cmd);
 
