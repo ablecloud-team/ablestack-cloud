@@ -293,10 +293,11 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
         String templateName = (isKVM) ? KVM_VM_IMPORT_DEFAULT_TEMPLATE_NAME : VM_IMPORT_DEFAULT_TEMPLATE_NAME;
         VMTemplateVO template = null;
         try {
-            template = VMTemplateVO.createSystemIso(templateDao.getNextInSequence(Long.class, "id"), templateName, templateName, true,
+            template = VMTemplateVO.createSystemRaw(templateDao.getNextInSequence(Long.class, "id"), templateName, templateName, true,
                     "", true, 64, Account.ACCOUNT_ID_SYSTEM, "",
-                    "VM Import Default Template", false, 1);
+                    "Glue Image Default Template", false, 1, Hypervisor.HypervisorType.KVM);
             template.setState(VirtualMachineTemplate.State.Inactive);
+            template.setDynamicallyScalable(true);
             template = templateDao.persist(template);
             if (template == null) {
                 return null;
