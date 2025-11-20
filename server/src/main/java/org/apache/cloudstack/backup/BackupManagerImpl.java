@@ -1580,7 +1580,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (offering == null) {
             throw new CloudRuntimeException(String.format("Backup offering with ID [%s] does not exist.", backup.getBackupOfferingId()));
         }
-        final BackupProvider backupProvider = getBackupProvider(backup.getZoneId());
+        final BackupProvider backupProvider = getBackupProvider(offering.getProvider());
         boolean result = backupProvider.deleteBackup(backup, forced);
         if (result) {
             resourceLimitMgr.decrementResourceCount(backup.getAccountId(), Resource.ResourceType.backup);
@@ -1725,12 +1725,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             throw new CloudRuntimeException("No valid backup providers found for zone: " + zoneId);
         }
         return providers;
-    }
-
-    @Override
-    public BackupProvider getBackupProvider(final Long zoneId) {
-        final String name = BackupProviderPlugin.valueIn(zoneId);
-        return getBackupProvider(name);
     }
 
     public BackupProvider getBackupProvider(final String name) {
@@ -2372,9 +2366,19 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (isDisabled(zoneId)) {
             return new CapacityVO(null, zoneId, null, null, 0L, 0L, Capacity.CAPACITY_TYPE_BACKUP_STORAGE);
         }
-        final BackupProvider backupProvider = getBackupProvider(zoneId);
-        Pair<Long, Long> backupUsage = backupProvider.getBackupStorageStats(zoneId);
-        return new CapacityVO(null, zoneId, null, null, backupUsage.first(), backupUsage.second(), Capacity.CAPACITY_TYPE_BACKUP_STORAGE);
+        long totalUsed = 0L;
+        long totalCapacity = 0L;
+        final List<BackupProvider> providers = getBackupProvidersForZone(zoneId);
+        for (BackupProvider backupProvider : providers) {
+            Pair<Long, Long> backupUsage = backupProvider.getBackupStorageStats(zoneId);
+            if (backupUsage != null) {
+                Long used = backupUsage.first();
+                Long capacity = backupUsage.second();
+                if (used != null) totalUsed += used;
+                if (capacity != null) totalCapacity += capacity;
+            }
+        }
+        return new CapacityVO(null, zoneId, null, null, totalUsed, totalCapacity, Capacity.CAPACITY_TYPE_BACKUP_STORAGE);
     }
 
     @Override
