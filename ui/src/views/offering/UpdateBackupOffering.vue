@@ -77,7 +77,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
@@ -95,8 +95,7 @@ export default {
   },
   data () {
     return {
-      loading: false,
-      provider: ''
+      loading: false
     }
   },
   beforeCreate () {
@@ -104,7 +103,6 @@ export default {
   },
   created () {
     this.initForm()
-    this.fetchData()
   },
   computed: {
     retentionPeriodInDays () {
@@ -149,16 +147,6 @@ export default {
         }]
       })
     },
-    fetchData () {
-      this.isCommvault()
-    },
-    isCommvault () {
-      api('listConfigurations', { name: 'backup.framework.provider.plugin' }).then(json => {
-        if (json.listconfigurationsresponse.configuration[0]) {
-          this.provider = json.listconfigurationsresponse.configuration[0].value
-        }
-      })
-    },
     forceUpdateRetentionValue () {
       if (this.$refs.retentionInput) {
         const inputValue = this.$refs.retentionInput.$el.querySelector('input').value
@@ -182,7 +170,7 @@ export default {
         params.allowuserdrivenbackups = values.allowuserdrivenbackups
         this.loading = true
         const title = this.$t('label.update.backupoffering')
-        api('updateBackupOffering', params).then(json => {
+        getAPI('updateBackupOffering', params).then(json => {
           this.$emit('refresh-data')
           this.$notification.success({
             message: `${title} ${params.name}`,
