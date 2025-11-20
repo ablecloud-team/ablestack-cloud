@@ -2024,17 +2024,16 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                         continue;
                     }
 
-                    final BackupProvider backupProvider = getBackupProvider(dataCenter.getId());
-                    if (backupProvider == null) {
-                        logger.warn("Backup provider not available or configured for zone {}", dataCenter);
-                        continue;
+                    List<BackupProvider> providers = getBackupProvidersForZone(dataCenter.getId());
+                    for (BackupProvider backupProvider : providers) {
+                        try {
+                            backupProvider.syncBackupStorageStats(dataCenter.getId());
+                            syncOutOfBandBackups(backupProvider, dataCenter);
+                            updateBackupUsageRecords(backupProvider, dataCenter);
+                        } catch (Exception e) {
+                            logger.error("Failed to sync backups for provider {} in zone {}: {}", backupProvider.getName(), dataCenter.getId(), e.getMessage(), e);
+                        }
                     }
-
-                    backupProvider.syncBackupStorageStats(dataCenter.getId());
-
-                    syncOutOfBandBackups(backupProvider, dataCenter);
-
-                    updateBackupUsageRecords(backupProvider, dataCenter);
                 }
             } catch (final Throwable t) {
                 logger.error(String.format("Error trying to run backup-sync background task due to: [%s].", t.getMessage()), t);
@@ -2061,9 +2060,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             backupProvider.syncBackupMetrics(dataCenter.getId());
             for (final VMInstanceVO vm : vms) {
                 try {
-                     logger.debug(String.format("Trying to sync backups of VM [%s] using backup provider [%s].", vm, backupProvider.getName()));
-                     // Sync out-of-band backups
-                     syncBackups(backupProvider, vm);
+                    logger.debug(String.format("Trying to sync backups of VM [%s] using backup provider [%s].", vm, backupProvider.getName()));
+                    // Sync out-of-band backups
+                    syncBackups(backupProvider, vm);
                 } catch (final Exception e) {
                     logger.error("Failed to sync backup usage metrics and out-of-band backups of VM [{}] due to: [{}].", vm, e.getMessage(), e);
                 }
