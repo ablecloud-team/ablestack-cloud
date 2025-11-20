@@ -1285,7 +1285,7 @@
 "label.isuserdefined": "\uc0ac\uc6a9\uc790 \uc815\uc758",
 "label.isvolatile": "\ud718\ubc1c\uc131 \uc5ec\ubd80",
 "label.items": "\uac1c \ud56d\ubaa9",
-"label.items.selected": "\uc120\ud0dd\ud55c \ud56d\ubaa9",
+"label.items.selected": "(\uac1c) \uc120\ud0dd",
 "label.japanese.keyboard": "\uc77c\ubcf8\uc5b4 \ud0a4\ubcf4\ub4dc",
 "label.javadistribution": "Java Runtime \ubc30\ud3ec",
 "label.javaversion": "Java Runtime Version",
