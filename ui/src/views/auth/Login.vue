@@ -331,21 +331,6 @@ export default {
             return 0
           })
           this.form.idp = this.idps[0].id || ''
-
-          const urlParams = new URLSearchParams(window.location.href.split('?')[1])
-          const ssoLoginFailed = urlParams.get('ssoLogin') === 'false'
-
-          // 이미 실패한 적 있으면 autologin 시도 안 함
-          if (ssoLoginFailed) {
-            console.log('SAML autologin disabled due to previous failure.')
-            return
-          }
-
-          // idp 목록이 존재하면 SAML 로그인 URL로 이동
-          if (this.idps.length > 0) {
-            const samlUrl = this.$config.apiBase + '?command=samlSso&idpid=' + this.form.idp + '&autologin=true'
-            window.location.href = samlUrl
-          }
         }
       })
       getAPI('listOauthProvider', {}).then(response => {
@@ -466,7 +451,7 @@ export default {
             })
         } else if (this.customActiveKey === 'saml') {
           this.state.loginBtn = false
-          var samlUrl = this.$config.apiBase + '?command=samlSso&autologin=false'
+          var samlUrl = this.$config.apiBase + '?command=samlSso'
           if (values.idp) {
             samlUrl += ('&idpid=' + values.idp)
           }
