@@ -185,6 +185,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     @Inject
     private PrimaryDataStoreDao primaryDataStoreDao;
 
+    @Inject
+    private BackupManager backupManager;
+
     private static String getUrlDomain(String url) throws URISyntaxException {
         URI uri;
         try {
@@ -913,7 +916,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         backup.setAccountId(vm.getAccountId());
                         backup.setDomainId(vm.getDomainId());
                         backup.setZoneId(vm.getDataCenterId());
-                        backup.setBackedUpVolumes(BackupManagerImpl.createVolumeInfoFromVolumes(volumeDao.findByInstance(vm.getId())));
+                        List<Volume> vols = new ArrayList<>(volumeDao.findByInstance(vm.getId()));
+                        backup.setBackedUpVolumes(backupManager.createVolumeInfoFromVolumes(vols));
                         StringJoiner snapshots = new StringJoiner(",");
                         for (String value : checkResult.values()) {
                             snapshots.add(value);
