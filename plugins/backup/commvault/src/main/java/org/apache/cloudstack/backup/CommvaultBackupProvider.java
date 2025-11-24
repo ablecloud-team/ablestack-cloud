@@ -661,16 +661,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         String snapshotPath = snapshotStore.getInstallPath();
                         if (volumes.getPath().equalsIgnoreCase(volume.getPath())) {
                             VMInstanceVO backupSourceVm = vmInstanceDao.findById(backup.getVmId());
-                            Long restoredVolumeDiskSize = 0L;
-                            // Find volume size  from backup vols
-                            for (Backup.VolumeInfo VMVolToRestore : backupSourceVm.getBackupVolumeList()) {
-                                if (VMVolToRestore.getUuid().equals(volume.getUuid()))
-                                    restoredVolumeDiskSize = (VMVolToRestore.getSize());
-                            }
                             VolumeVO restoredVolume = new VolumeVO(Volume.Type.DATADISK, null, backup.getZoneId(),
                                     backup.getDomainId(), backup.getAccountId(), 0, null,
                                     backup.getSize(), null, null, null);
-                            restoredVolume.setName("RV-"+volume.getName());
+                            String volumeName = volume != null ? volume.getName() : backupVolumeInfo.getUuid();
+                            restoredVolume.setName("RV-"+volumeName);
                             restoredVolume.setProvisioningType(diskOffering.getProvisioningType());
                             restoredVolume.setUpdated(new Date());
                             restoredVolume.setUuid(UUID.randomUUID().toString());
@@ -679,7 +674,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             restoredVolume.setPoolId(pool.getId());
                             restoredVolume.setPath(restoredVolume.getUuid());
                             restoredVolume.setState(Volume.State.Copying);
-                            restoredVolume.setSize(restoredVolumeDiskSize);
+                            restoredVolume.setSize(backupVolumeInfo.getSize());
                             restoredVolume.setDiskOfferingId(diskOffering.getId());
                             try {
                                 volumeDao.persist(restoredVolume);
@@ -793,6 +788,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             Map<String, String> snapParams = new HashMap<>();
             snapParams.put("volumeid", Long.toString(vol.getId()));
             snapParams.put("backup", "true");
+            snapParams.put("quiescevm", String.valueOf(quiesceVM));
             String createSnapResult = moldCreateSnapshotBackupAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapParams);
             if (createSnapResult == null) {
                 if (!checkResult.isEmpty()) {
@@ -1021,28 +1017,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             throw new CloudRuntimeException("Failed to request backup job detail commvault api");
         }
     }
-
-    // @Override
-    // public Map<VirtualMachine, Backup.Metric> getBackupMetrics(Long zoneId, List<VirtualMachine> vms) {
-    //     final Map<VirtualMachine, Backup.Metric> metrics = new HashMap<>();
-    //     if (CollectionUtils.isEmpty(vms)) {
-    //         LOG.warn("Unable to get VM Backup Metrics because the list of VMs is empty.");
-    //         return metrics;
-    //     }
-
-    //     for (final VirtualMachine vm : vms) {
-    //         Long vmBackupSize = 0L;
-    //         Long vmBackupProtectedSize = 0L;
-    //         for (final Backup backup: backupDao.listByVmId(null, vm.getId())) {
-    //             vmBackupSize += backup.getSize();
-    //             vmBackupProtectedSize += backup.getProtectedSize();
-    //         }
-    //         Backup.Metric vmBackupMetric = new Backup.Metric(vmBackupSize,vmBackupProtectedSize);
-    //         LOG.debug("Metrics for VM {} is [backup size: {}, data size: {}].", vm, vmBackupMetric.getBackupSize(), vmBackupMetric.getDataSize());
-    //         metrics.put(vm, vmBackupMetric);
-    //     }
-    //     return metrics;
-    // }
 
     @Override
     public void syncBackups(VirtualMachine vm, Backup.Metric metric) {
