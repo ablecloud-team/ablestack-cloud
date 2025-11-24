@@ -225,6 +225,14 @@ export default {
     }
   },
   mounted () {
+    try {
+      const bootH = Number(localStorage.getItem('autoAlertBanner.lastHeight') || 0)
+      if (!Number.isNaN(bootH) && bootH >= 0) {
+        this.autoBannerHeight = bootH
+        document.documentElement.style.setProperty('--autoBannerHeight', bootH + 'px')
+        this.debouncedRecalc && this.debouncedRecalc()
+      }
+    } catch (_) {}
     window.addEventListener('auto-alert-banner:height', this.onAutoBannerHeight)
     window.addEventListener('resize', this.onResize)
 

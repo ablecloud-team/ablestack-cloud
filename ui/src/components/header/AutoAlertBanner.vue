@@ -230,6 +230,15 @@ export default {
     const HOST_BASE = ''
     const VM_BASE = '/client'
 
+    // ===== 부팅 시 높이 복원(레이아웃 깨짐 완화) =====
+    const LS_H_KEY = 'autoAlertBanner.lastHeight'
+    try {
+      const bootH = Number(localStorage.getItem(LS_H_KEY) || 0)
+      if (!Number.isNaN(bootH) && bootH >= 0) {
+        document.documentElement.style.setProperty('--autoBannerHeight', bootH + 'px')
+      }
+    } catch (_) {}
+
     // ===== 전역 알림 이벤트(글로벌 레이아웃이 듣습니다) =====
     const emitClosing = () => {
       try { window.dispatchEvent(new CustomEvent('auto-alert-banner:closing')) } catch (_) {}
@@ -1129,6 +1138,13 @@ export default {
               lastHeight.value = nextH
               if (typeof window !== 'undefined') {
                 document.documentElement.style.setProperty('--autoBannerHeight', `${nextH}px`)
+                // 마지막 높이 로컬 저장 → 새 로그인/강력 새로고침 때 초기 깜빡임 완화
+                try { localStorage.setItem(LS_H_KEY, String(h)) } catch (_) {}
+
+                // 모바일(특히 iOS Safari)에서 닫힘 후 수축이 늦는 현상 보정
+                if (typeof navigator !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent)) {
+                  requestAnimationFrame(() => { try { window.dispatchEvent(new Event('resize')) } catch (_) {} })
+                }
                 window.dispatchEvent(new CustomEvent('auto-alert-banner:height', { detail: { height: nextH } }))
               }
               maskOn.value = nextH > 0
@@ -1193,6 +1209,8 @@ export default {
     watch(showBanner, (v) => {
       if (!v && typeof window !== 'undefined') {
         document.documentElement.style.setProperty('--autoBannerHeight', '0px')
+        try { localStorage.setItem(LS_H_KEY, '0') } catch (_) {}
+        try { window.dispatchEvent(new Event('resize')) } catch (_) {}
       }
       if (!v) { maskOn.value = false }
       scheduleMeasure()
