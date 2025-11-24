@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-<template>
+<!-- <template>
   <a-form
     id="formLogin"
     class="user-layout-login"
@@ -212,15 +212,15 @@
       </div>
     </div>
   </a-form>
-</template>
+</template> -->
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import store from '@/store'
 import { mapActions } from 'vuex'
-import { sourceToken } from '@/utils/request'
-import { SERVER_MANAGER } from '@/store/mutation-types'
+// import { sourceToken } from '@/utils/request'
+// import { SERVER_MANAGER } from '@/store/mutation-types'
 import TranslationMenu from '@/components/header/TranslationMenu'
 import semver from 'semver'
 import { getParsedVersion } from '@/utils/util'
@@ -260,19 +260,20 @@ export default {
     }
   },
   created () {
-    if (this.$config.multipleServer) {
-      this.server = this.$localStorage.get(SERVER_MANAGER) || this.$config.servers[0]
-    }
-    this.initForm()
-    if (store.getters.logoutFlag) {
-      if (store.getters.readyForShutdownPollingJob !== '' || store.getters.readyForShutdownPollingJob !== undefined) {
-        clearInterval(store.getters.readyForShutdownPollingJob)
-      }
-      sourceToken.init()
-      this.fetchData()
-    } else {
-      this.fetchData()
-    }
+    // if (this.$config.multipleServer) {
+    //   this.server = this.$localStorage.get(SERVER_MANAGER) || this.$config.servers[0]
+    // }
+    // this.initForm()
+    // if (store.getters.logoutFlag) {
+    //   if (store.getters.readyForShutdownPollingJob !== '' || store.getters.readyForShutdownPollingJob !== undefined) {
+    //     clearInterval(store.getters.readyForShutdownPollingJob)
+    //   }
+    //   sourceToken.init()
+    //   this.fetchData()
+    // } else {
+    //   this.fetchData()
+    // }
+    window.location.href = this.$config.apiBase + '?command=samlSso&autologin=false'
   },
   methods: {
     ...mapActions(['Login', 'Logout', 'OauthLogin']),
@@ -330,21 +331,6 @@ export default {
             return 0
           })
           this.form.idp = this.idps[0].id || ''
-
-          const urlParams = new URLSearchParams(window.location.href.split('?')[1])
-          const ssoLoginFailed = urlParams.get('ssoLogin') === 'false'
-
-          // 이미 실패한 적 있으면 autologin 시도 안 함
-          if (ssoLoginFailed) {
-            console.log('SAML autologin disabled due to previous failure.')
-            return
-          }
-
-          // idp 목록이 존재하면 SAML 로그인 URL로 이동
-          if (this.idps.length > 0) {
-            const samlUrl = this.$config.apiBase + '?command=samlSso&idpid=' + this.form.idp + '&autologin=true'
-            window.location.href = samlUrl
-          }
         }
       })
       getAPI('listOauthProvider', {}).then(response => {
@@ -465,7 +451,7 @@ export default {
             })
         } else if (this.customActiveKey === 'saml') {
           this.state.loginBtn = false
-          var samlUrl = this.$config.apiBase + '?command=samlSso&autologin=false'
+          var samlUrl = this.$config.apiBase + '?command=samlSso'
           if (values.idp) {
             samlUrl += ('&idpid=' + values.idp)
           }

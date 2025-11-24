@@ -333,6 +333,7 @@ public class SAMLUtils {
         resp.addCookie(newCookie(domain, path,"username", URLEncoder.encode(loginResponse.getUsername(), HttpUtils.UTF_8)));
         resp.addCookie(newCookie(domain, path,"account", URLEncoder.encode(loginResponse.getAccount(), HttpUtils.UTF_8)));
         resp.addCookie(newCookie(domain, path,"isSAML", URLEncoder.encode("true", HttpUtils.UTF_8)));
+        resp.addCookie(newCookie(domain, path, "idpid", URLEncoder.encode(loginResponse.getExternalEntity(), HttpUtils.UTF_8)));
         resp.addCookie(newCookie(domain, path,"twoFaEnabled", URLEncoder.encode(loginResponse.is2FAenabled(), HttpUtils.UTF_8)));
         resp.addCookie(newCookie(domain, path,"userfullname", URLEncoder.encode(loginResponse.getFirstName() + " " + loginResponse.getLastName(), HttpUtils.UTF_8).replace("+", "%20")));
     }
