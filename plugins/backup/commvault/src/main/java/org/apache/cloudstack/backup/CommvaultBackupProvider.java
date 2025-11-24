@@ -913,7 +913,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         backup.setAccountId(vm.getAccountId());
                         backup.setDomainId(vm.getDomainId());
                         backup.setZoneId(vm.getDataCenterId());
-                        backup.setBackedUpVolumes(BackupManagerImpl.createVolumeInfoFromVolumes(volumeDao.findByInstance(vm.getId()), checkResult));
+                        backup.setBackedUpVolumes(BackupManagerImpl.createVolumeInfoFromVolumes(volumeDao.findByInstance(vm.getId())));
                         StringJoiner snapshots = new StringJoiner(",");
                         for (String value : checkResult.values()) {
                             snapshots.add(value);
