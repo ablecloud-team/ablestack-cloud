@@ -80,6 +80,7 @@ import com.cloud.agent.api.DeleteVhbaDeviceCommand;
 
 import com.cloud.agent.api.ListHostHbaDeviceAnswer;
 import com.cloud.agent.api.ListHostLunDeviceAnswer;
+import com.cloud.agent.api.ListHostScsiDeviceAnswer;
 import com.cloud.agent.api.ListHostUsbDeviceAnswer;
 import com.cloud.agent.api.ListVhbaDevicesCommand;
 
@@ -211,11 +212,33 @@ public abstract class ServerResourceBase implements ServerResource {
         if (result == null && parser.getLines() != null) {
             String[] lines = parser.getLines().split("\\n");
             for (String line : lines) {
-                if (!line.contains("System peripheral") && !line.contains("PIC")
-                        && !line.contains("Performance counters")) {
-                    String hostDevicesTexts = line;
-                    hostDevicesText.add(hostDevicesTexts);
+                if (line == null) {
+                    continue;
                 }
+                line = line.trim();
+                if (line.isEmpty()) {
+                    continue;
+                }
+                if (line.contains("System peripheral") || line.contains("PIC")
+                        || line.contains("Performance counters")) {
+                    continue;
+                }
+                String deviceName = line;
+                String deviceText = "";
+
+                Pattern pattern = Pattern.compile(
+                        "^((?:[0-9a-fA-F]{4}:)?[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\\.[0-7])\\s+([^:]+):\\s*(.+)$");
+                Matcher matcher = pattern.matcher(line);
+                if (matcher.matches()) {
+                    String address = matcher.group(1).trim();
+                    String type = matcher.group(2).trim();
+                    String detail = matcher.group(3).trim();
+                    deviceName = address + " " + type;
+                    deviceText = detail;
+                }
+
+                hostDevicesNames.add(deviceName);
+                hostDevicesText.add(deviceText);
             }
         }
         return new ListHostDeviceAnswer(true, hostDevicesNames, hostDevicesText);
@@ -233,28 +256,21 @@ public abstract class ServerResourceBase implements ServerResource {
                 line = line.trim();
                 if (line.isEmpty()) continue;
 
-                // lsusb 출력 형식: "Bus 002 Device 002: ID 346d:5678 USB Disk 20"
-                // 이름: "002 Device 002" (Bus 번호와 Device 번호)
-                // 상세: "ID 346d:5678 USB Disk 20" (ID 이후 부분)
-
                 if (line.startsWith("Bus ")) {
-                    // "Bus 002 Device 002: ID 346d:5678 USB Disk 20" 형식 파싱
                     String[] colonParts = line.split(":", 2);
                     if (colonParts.length == 2) {
-                        String busDevicePart = colonParts[0].trim(); // "Bus 002 Device 002"
-                        String detailPart = colonParts[1].trim(); // "ID 346d:5678 USB Disk 20"
+                        String busDevicePart = colonParts[0].trim();
+                        String detailPart = colonParts[1].trim();
 
-                        // "Bus 002 Device 002"에서 "002 Device 002" 추출
                         String deviceName = busDevicePart.replaceFirst("^Bus\\s+", "");
                         hostDevicesNames.add(deviceName);
                         hostDevicesText.add(detailPart);
                     } else {
-                        // 형식이 맞지 않으면 전체를 사용
                         hostDevicesNames.add(line);
                         hostDevicesText.add("");
                     }
                 } else {
-                    // 기타 형식
+
                     String[] parts = line.split("\\s+", 2);
                     if (parts.length >= 2) {
                         hostDevicesNames.add(parts[0].trim());
@@ -268,7 +284,6 @@ public abstract class ServerResourceBase implements ServerResource {
 
     public Answer listHostLunDevices(Command command) {
         try {
-            // 빠른 sysfs 스캐너 우선 시도
             ListHostLunDeviceAnswer fast = listHostLunDevicesFast();
             if (fast != null && fast.getResult()) {
                 return fast;
@@ -292,7 +307,7 @@ public abstract class ServerResourceBase implements ServerResource {
             JSONObject json = new JSONObject(parser.getLines());
             JSONArray blockdevices = json.getJSONArray("blockdevices");
 
-            // 성능 최적화: 배치로 정보 수집
+
             Map<String, String> scsiAddressCache = getScsiAddressesBatch();
 
             for (int i = 0; i < blockdevices.length(); i++) {
@@ -300,7 +315,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 addLunDeviceRecursiveOptimized(device, hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses, scsiAddressCache);
             }
 
-            // multipath 장치들 추가 (통합된 메서드 사용)
+
             Set<String> addedDevices = new HashSet<>();
             collectMultipathDevicesUnified(hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses, scsiAddressCache, addedDevices);
 
@@ -321,14 +336,13 @@ public abstract class ServerResourceBase implements ServerResource {
             Map<String, String> scsiAddressCache = getScsiAddressesFromSysfs();
             Map<java.nio.file.Path, String> realToById = buildByIdReverseMap();
 
-            java.io.File sysBlock = new java.io.File("/sys/block");
-            java.io.File[] entries = sysBlock.listFiles();
+            File sysBlock = new File("/sys/block");
+            File[] entries = sysBlock.listFiles();
             if (entries == null) {
                 return null;
             }
 
 
-            // 통합된 디바이스 수집으로 변경
             collectAllLunDevicesUnified(names, texts, hasPartitions, scsiAddresses, scsiAddressCache, realToById);
 
             return new ListHostLunDeviceAnswer(true, names, texts, hasPartitions, scsiAddresses);
@@ -337,9 +351,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    /**
-     * 모든 LUN 디바이스를 통합적으로 수집하는 메서드
-     */
     private void collectAllLunDevicesUnified(List<String> names, List<String> texts, List<Boolean> hasPartitions,
                                            List<String> scsiAddresses, Map<String, String> scsiAddressCache,
                                            Map<Path, String> realToById) {
@@ -347,10 +358,8 @@ public abstract class ServerResourceBase implements ServerResource {
         File[] entries = sysBlock.listFiles();
         if (entries == null) return;
 
-        // 중복 제거를 위한 Set
         Set<String> addedDevices = new HashSet<>();
 
-        // 1. 직접 디바이스 수집
         for (File entry : entries) {
             String bname = entry.getName();
             if (!(bname.startsWith("sd") || bname.startsWith("vd") || bname.startsWith("xvd") ||
@@ -361,7 +370,6 @@ public abstract class ServerResourceBase implements ServerResource {
             String devPath = "/dev/" + bname;
             String preferred = resolveById(realToById, devPath);
 
-            // 중복 체크: 이미 ID로 추가된 디바이스인지 확인
             String deviceKey = preferred.startsWith("/dev/disk/by-id/") ?
                 preferred.substring(preferred.lastIndexOf('/') + 1) : devPath;
 
@@ -371,13 +379,9 @@ public abstract class ServerResourceBase implements ServerResource {
             }
         }
 
-        // 2. multipath 디바이스 수집 (중복 제거)
         collectMultipathDevicesUnified(names, texts, hasPartitions, scsiAddresses, scsiAddressCache, addedDevices);
     }
 
-    /**
-     * 디바이스를 리스트에 추가하는 공통 메서드
-     */
     private void addDeviceToList(String devPath, String preferred, File entry,
                                List<String> names, List<String> texts, List<Boolean> hasPartitionsList,
                                List<String> scsiAddresses, Map<String, String> scsiAddressCache, String bname) {
@@ -391,19 +395,17 @@ public abstract class ServerResourceBase implements ServerResource {
 
         String size = sysGetSizeHuman(entry);
         if (size != null) {
-            info.append("\nSIZE: ").append(size);
+            info.append(" SIZE: ").append(size);
         }
 
-        info.append("\nHAS_PARTITIONS: ").append(deviceHasPartitions ? "true" : "false");
+        info.append(" HAS_PARTITIONS: ").append(deviceHasPartitions ? "true" : "false");
 
         String scsiAddr = scsiAddressCache.getOrDefault(devPath, scsiAddressCache.get(preferred));
         if (scsiAddr != null) {
-            info.append("\nSCSI_ADDRESS: ").append(scsiAddr);
+            info.append(" SCSI_ADDRESS: ").append(scsiAddr);
         }
 
-        // ID 값이 있는 경우에만 리스트에 추가
         if (!preferred.equals(devPath) && preferred.startsWith("/dev/disk/by-id/")) {
-            // ID 값이 있는 경우 경로와 ID를 함께 표시
             String byIdName = preferred.substring(preferred.lastIndexOf('/') + 1);
             String displayName = devPath + " (" + byIdName + ")";
 
@@ -412,13 +414,9 @@ public abstract class ServerResourceBase implements ServerResource {
             hasPartitionsList.add(deviceHasPartitions);
             scsiAddresses.add(scsiAddr != null ? scsiAddr : "");
         } else {
-            // ID 값이 없는 경우 리스트에 추가하지 않음
         }
     }
 
-    /**
-     * multipath 디바이스를 통합적으로 수집하는 메서드
-     */
     private void collectMultipathDevicesUnified(List<String> names, List<String> texts, List<Boolean> hasPartitionsList,
                                                List<String> scsiAddresses, Map<String, String> scsiAddressCache, Set<String> addedDevices) {
         try {
@@ -437,7 +435,6 @@ public abstract class ServerResourceBase implements ServerResource {
                         String devicePath = "/dev/mapper/" + dmDevice;
                         String preferredName = resolveDevicePathToById(devicePath);
 
-                        // 중복 체크: 이미 추가된 디바이스인지 확인
                         String deviceKey = preferredName.startsWith("/dev/disk/by-id/") ?
                             preferredName.substring(preferredName.lastIndexOf('/') + 1) : devicePath;
 
@@ -452,9 +449,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    /**
-     * multipath 디바이스를 리스트에 추가하는 메서드
-     */
     private void addMultipathDeviceToList(String devicePath, String preferredName,
                                         List<String> names, List<String> texts, List<Boolean> hasPartitionsList,
                                         List<String> scsiAddresses, Map<String, String> scsiAddressCache) {
@@ -465,21 +459,19 @@ public abstract class ServerResourceBase implements ServerResource {
 
         String size = getDeviceSize(devicePath);
         if (size != null) {
-            deviceInfo.append("\nSIZE: ").append(size);
+            deviceInfo.append(" SIZE: ").append(size);
         }
 
-        deviceInfo.append("\nHAS_PARTITIONS: ").append(hasPartition ? "true" : "false");
+        deviceInfo.append(" HAS_PARTITIONS: ").append(hasPartition ? "true" : "false");
 
         String scsiAddress = scsiAddressCache.get(devicePath);
         if (scsiAddress != null) {
-            deviceInfo.append("\nSCSI_ADDRESS: ").append(scsiAddress);
+            deviceInfo.append(" SCSI_ADDRESS: ").append(scsiAddress);
         }
 
-        deviceInfo.append("\nMULTIPATH_DEVICE: true");
+        deviceInfo.append(" MULTIPATH_DEVICE: true");
 
-        // ID 값이 있는 경우에만 리스트에 추가
         if (!preferredName.equals(devicePath) && preferredName.startsWith("/dev/disk/by-id/")) {
-            // ID 값이 있는 경우 경로와 ID를 함께 표시
             String byIdName = preferredName.substring(preferredName.lastIndexOf('/') + 1);
             String displayName = devicePath + " (" + byIdName + ")";
 
@@ -488,13 +480,9 @@ public abstract class ServerResourceBase implements ServerResource {
             hasPartitionsList.add(hasPartition);
             scsiAddresses.add(scsiAddress != null ? scsiAddress : "");
         } else {
-            // ID 값이 없는 경우 리스트에 추가하지 않음
         }
     }
 
-    /**
-     * multipath 라인에서 dm 디바이스 추출
-     */
     private String extractDmDeviceFromLine(String line) {
         String[] parts = line.trim().split("\\s+");
         for (String part : parts) {
@@ -503,8 +491,8 @@ public abstract class ServerResourceBase implements ServerResource {
             }
         }
 
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("dm-\\d+");
-        java.util.regex.Matcher matcher = pattern.matcher(line);
+        Pattern pattern = Pattern.compile("dm-\\d+");
+        Matcher matcher = pattern.matcher(line);
         if (matcher.find()) {
             return matcher.group();
         }
@@ -536,11 +524,9 @@ public abstract class ServerResourceBase implements ServerResource {
             Path real = Path.of(devicePath).toRealPath();
             String byId = realToById.get(real);
             if (byId != null) {
-                // LUN 디바이스는 전체 디스크를 사용해야 하므로 파티션 부분 제거
                 if (byId.contains("-part")) {
                     byId = byId.replaceAll("-part\\d+$", "");
                 }
-                // 디버깅: HFS3T8G3H2X069N 관련 디바이스 로깅
                 if (byId.contains("HFS3T8G3H2X069N")) {
                 }
                 return byId;
@@ -560,10 +546,8 @@ public abstract class ServerResourceBase implements ServerResource {
             for (File child : children) {
                 String childName = child.getName();
 
-                // 파티션 디렉토리인지 확인 (예: sda1, sda2 등)
                 if (childName.startsWith(name) && childName.length() > name.length()) {
                     String suffix = childName.substring(name.length());
-                    // 숫자로만 구성된 경우 파티션으로 간주
                     if (suffix.matches("\\d+")) {
                         File partFile = new File(child, "partition");
                         if (partFile.exists()) {
@@ -573,12 +557,8 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
 
-            // lsblk 명령어는 Stream closed 에러로 인해 비활성화
-            // sysfs 기반 체크만 사용
-
             return false;
         } catch (Exception e) {
-            // 조용히 처리 (에러 로그 출력 안함)
             return false;
         }
     }
@@ -618,7 +598,6 @@ public abstract class ServerResourceBase implements ServerResource {
         return map;
     }
 
-    // 최적화된 LUN 디바이스 추가 메서드 (배치 처리된 정보 사용)
     private void addLunDeviceRecursiveOptimized(JSONObject device, List<String> names, List<String> texts,
             List<Boolean> hasPartitions, List<String> scsiAddresses,
             Map<String, String> scsiAddressCache) {
@@ -627,16 +606,13 @@ public abstract class ServerResourceBase implements ServerResource {
         String size = device.optString("size", "");
 
         if (!"part".equals(type)
-            && !name.contains("/dev/mapper/ceph--") // Ceph OSD 블록 디바이스 제외
+            && !name.contains("/dev/mapper/ceph--")
         ) {
             boolean hasPartition = hasPartitionRecursive(device);
 
-            // 경로 방식으로 디바이스 추가 (가능하면 /dev/disk/by-id/* 로 변환)
             String preferredName = resolveDevicePathToById(name);
 
-            // by-id가 있으면 경로와 ID를 함께 표시, 없으면 리스트에 추가하지 않음
             if (!preferredName.equals(name) && preferredName.startsWith("/dev/disk/by-id/")) {
-                // by-id 경로에서 파일명만 추출하여 경로와 ID를 함께 표시
                 String byIdName = preferredName.substring(preferredName.lastIndexOf('/') + 1);
                 String displayName = name + " (" + byIdName + ")";
 
@@ -644,21 +620,19 @@ public abstract class ServerResourceBase implements ServerResource {
                 StringBuilder deviceInfo = new StringBuilder();
                 deviceInfo.append("TYPE: ").append(type);
                 if (!size.isEmpty()) {
-                    deviceInfo.append("\nSIZE: ").append(size);
+                    deviceInfo.append(" SIZE: ").append(size);
                 }
-                deviceInfo.append("\nHAS_PARTITIONS: ").append(hasPartition ? "true" : "false");
+                deviceInfo.append(" HAS_PARTITIONS: ").append(hasPartition ? "true" : "false");
 
-                // 캐시된 SCSI 주소 정보 사용
                 String scsiAddress = scsiAddressCache.get(name);
                 if (scsiAddress != null) {
-                    deviceInfo.append("\nSCSI_ADDRESS: ").append(scsiAddress);
+                    deviceInfo.append(" SCSI_ADDRESS: ").append(scsiAddress);
                 }
 
                 texts.add(deviceInfo.toString());
                 hasPartitions.add(hasPartition);
                 scsiAddresses.add(scsiAddress != null ? scsiAddress : "");
             } else {
-                // ID 값이 없는 경우 리스트에 추가하지 않음
             }
         }
 
@@ -670,11 +644,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    /**
-     * 주어진 블록 디바이스 경로를 가능한 경우 안정 식별자인 /dev/disk/by-id/* 경로로 변환한다.
-     * - 심볼릭 링크 대상(realpath)이 동일한 첫 번째 by-id 항목을 우선 사용
-     * - 없으면 원 경로를 그대로 반환
-     */
     private String resolveDevicePathToById(String devicePath) {
         try {
             if (devicePath == null || !devicePath.startsWith("/dev/")) {
@@ -698,7 +667,6 @@ public abstract class ServerResourceBase implements ServerResource {
 
                 String byIdPath = firstMatch.orElse(devicePath);
 
-                // LUN 디바이스는 전체 디스크를 사용해야 하므로 파티션 부분 제거
                 if (byIdPath.contains("-part")) {
                     byIdPath = byIdPath.replaceAll("-part\\d+$", "");
                 }
@@ -706,7 +674,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 return byIdPath;
             }
         } catch (Exception ignore) {
-            // 원래 경로 반환
             return devicePath;
         }
     }
@@ -714,7 +681,6 @@ public abstract class ServerResourceBase implements ServerResource {
     private Path safeRealPath(Path link) {
         try {
             Path target = Files.readSymbolicLink(link);
-            // 상대 링크일 수 있음
             Path resolved = link.getParent().resolve(target).normalize();
             return resolved.toRealPath();
         } catch (Exception e) {
@@ -728,30 +694,22 @@ public abstract class ServerResourceBase implements ServerResource {
         String size = device.optString("size", "");
 
         if (!"part".equals(type)
-            && !name.contains("/dev/mapper/ceph--") // Ceph OSD 블록 디바이스 제외
+            && !name.contains("/dev/mapper/ceph--")
         ) {
             boolean hasPartition = hasPartitionRecursive(device);
 
 
-            // 경로 방식으로 디바이스 추가
             names.add(name);
             StringBuilder deviceInfo = new StringBuilder();
             deviceInfo.append("TYPE: ").append(type);
             if (!size.isEmpty()) {
-                deviceInfo.append("\nSIZE: ").append(size);
+                deviceInfo.append(" SIZE: ").append(size);
             }
-            deviceInfo.append("\nHAS_PARTITIONS: ").append(hasPartition ? "true" : "false");
+            deviceInfo.append(" HAS_PARTITIONS: ").append(hasPartition ? "true" : "false");
 
-            // 추가 정보: 디바이스가 사용 중인지 여부 (동적 확인)
-            boolean isInUse = isDeviceInUse(name);
-            String usageStatus = isInUse ? "사용중" : "사용안함";
-            deviceInfo.append("\nIN_USE: ").append(isInUse ? "true" : "false");
-            deviceInfo.append("\nUSAGE_STATUS: ").append(usageStatus);
-
-            // SCSI 주소 정보 추가
             String scsiAddress = getScsiAddress(name);
             if (scsiAddress != null) {
-                deviceInfo.append("\nSCSI_ADDRESS: ").append(scsiAddress);
+                deviceInfo.append(" SCSI_ADDRESS: ").append(scsiAddress);
             }
 
             texts.add(deviceInfo.toString());
@@ -770,19 +728,14 @@ public abstract class ServerResourceBase implements ServerResource {
         Map<String, Map<String, List<String>>> dmMap = new LinkedHashMap<>();
 
         try {
-            // 1. multipath -l 명령어로 dm-* 장치 리스트 추출
             Set<String> dmDevices = getDmDevices();
 
-            // 2. /dev/disk/by-id 내부 링크 분류 및 매핑
             dmMap = mapLinksByDm(dmDevices);
         } catch (Exception e) {
         }
         return dmMap;
     }
 
-    /**
-     * multipath -l 명령어로 dm-* 장치 리스트 추출
-     */
     private Set<String> getDmDevices() {
         Set<String> dmDevices = new HashSet<>();
 
@@ -796,10 +749,9 @@ public abstract class ServerResourceBase implements ServerResource {
                 String[] lines = parser.getLines().split("\n");
                 for (String line : lines) {
                     if (line.contains("mpath")) {
-                        // mpath line에서 dm-* 장치명 추출
                         String[] parts = line.trim().split("\\s+");
                         if (parts.length >= 3) {
-                            String dmDevice = parts[2]; // dm-2 형태
+                            String dmDevice = parts[2];
                             if (dmDevice.startsWith("dm-")) {
                                 dmDevices.add(dmDevice);
                             }
@@ -815,9 +767,6 @@ public abstract class ServerResourceBase implements ServerResource {
         return dmDevices;
     }
 
-    /**
-     * /dev/disk/by-id 내부 링크 분류 및 매핑
-     */
     private Map<String, Map<String, List<String>>> mapLinksByDm(Set<String> dmDevices) {
         Map<String, Map<String, List<String>>> dmMap = new LinkedHashMap<>();
         String byIdPath = "/dev/disk/by-id";
@@ -836,10 +785,9 @@ public abstract class ServerResourceBase implements ServerResource {
                         String target = getSymbolicLinkTarget(entry);
 
                         if (target != null) {
-                            String targetBasename = new File(target).getName(); // ../../dm-2 → dm-2
+                            String targetBasename = new File(target).getName();
 
                             if (dmDevices.contains(targetBasename)) {
-                                // 분류
                                 dmMap.computeIfAbsent(targetBasename, k -> {
                                     Map<String, List<String>> categories = new HashMap<>();
                                     categories.put("multipath_id", new ArrayList<>());
@@ -886,9 +834,6 @@ public abstract class ServerResourceBase implements ServerResource {
         return dmMap;
     }
 
-    /**
-     * 파일이 심볼릭 링크인지 확인
-     */
     private boolean isSymbolicLink(File file) {
         try {
             return Files.isSymbolicLink(file.toPath());
@@ -897,9 +842,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    /**
-     * 심볼릭 링크의 타겟 경로 가져오기
-     */
     private String getSymbolicLinkTarget(File file) {
         try {
             Path target = Files.readSymbolicLink(file.toPath());
@@ -910,21 +852,11 @@ public abstract class ServerResourceBase implements ServerResource {
     }
 
 
-    /**
-     * 특정 디바이스의 파티션 여부를 확인하는 메서드
-     */
     private boolean hasPartitionRecursiveForDevice(String devicePath) {
-        // lsblk 명령어는 Stream closed 에러로 인해 비활성화
-        // 파티션이 없다고 가정
         return false;
     }
 
-    /**
-     * 디바이스 크기를 가져오는 메서드
-     */
     private String getDeviceSize(String devicePath) {
-        // lsblk 명령어는 Stream closed 에러로 인해 비활성화
-        // 크기 정보 없음
         return null;
     }
 
@@ -951,12 +883,10 @@ public abstract class ServerResourceBase implements ServerResource {
                 String childType = child.optString("type", "");
                 String childName = child.optString("name", "");
 
-                // 파티션이 있으면 true
                 if ("part".equals(childType)) {
                     return true;
                 }
 
-                // LVM 볼륨이 있으면 true
                 if ("lvm".equals(childType)) {
                     return true;
                 }
@@ -970,12 +900,10 @@ public abstract class ServerResourceBase implements ServerResource {
         return false;
     }
 
-    // 배치로 SCSI 주소들을 가져오는 메서드 (성능 최적화)
     private Map<String, String> getScsiAddressesBatch() {
         Map<String, String> scsiAddressMap = new HashMap<>();
 
         try {
-            // lsscsi -g 명령어를 한 번만 실행하여 모든 SCSI 주소 정보 수집
             try {
                 Script lsscsiCmd = new Script("/usr/bin/lsscsi");
                 lsscsiCmd.add("-g");
@@ -1002,7 +930,6 @@ public abstract class ServerResourceBase implements ServerResource {
             } catch (Exception e) {
             }
 
-            // sysfs에서 추가 정보 수집 (lsscsi에서 찾지 못한 디바이스들)
             try {
                 File sysBlockDir = new File("/sys/block");
                 if (sysBlockDir.exists() && sysBlockDir.isDirectory()) {
@@ -1036,12 +963,10 @@ public abstract class ServerResourceBase implements ServerResource {
         return scsiAddressMap;
     }
 
-    // 배치로 사용 중인 디바이스들을 가져오는 메서드 (성능 최적화)
     private Set<String> getDevicesInUseBatch() {
         Set<String> devicesInUse = new HashSet<>();
 
         try {
-            // virsh list --all을 한 번만 실행하여 모든 VM의 디바이스 정보 수집
             Script listCommand = new Script("/bin/bash");
             listCommand.add("-c");
             listCommand.add("virsh list --all | grep -v 'Id' | grep -v '^-' | awk '{print $1}' | grep -v '^$'");
@@ -1054,7 +979,6 @@ public abstract class ServerResourceBase implements ServerResource {
                     vmId = vmId.trim();
                     if (!vmId.isEmpty()) {
                         try {
-                            // 각 VM의 XML에서 디바이스 정보 추출
                             Script dumpCommand = new Script("virsh");
                             dumpCommand.add("dumpxml", vmId);
                             OutputInterpreter.AllLinesParser dumpParser = new OutputInterpreter.AllLinesParser();
@@ -1062,9 +986,8 @@ public abstract class ServerResourceBase implements ServerResource {
 
                             if (dumpResult == null && dumpParser.getLines() != null) {
                                 String vmXml = dumpParser.getLines();
-                                // 디바이스 경로들 추출
-                                java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("dev=['\"]([^'\"]+)['\"]");
-                                java.util.regex.Matcher matcher = pattern.matcher(vmXml);
+                                Pattern pattern = Pattern.compile("dev=['\"]([^'\"]+)['\"]");
+                                Matcher matcher = pattern.matcher(vmXml);
                                 while (matcher.find()) {
                                     String devicePath = matcher.group(1);
                                     if (devicePath.startsWith("/dev/")) {
@@ -1078,7 +1001,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
 
-            // 마운트된 디바이스들도 추가
             try {
                 Script mountCommand = new Script("/bin/bash");
                 mountCommand.add("-c");
@@ -1123,24 +1045,20 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // SCSI 주소를 가져오는 메서드
     private String getScsiAddress(String deviceName) {
         try {
-            // Ceph OSD 디바이스인지 확인
             if (deviceName.contains("ceph--") && deviceName.contains("--osd--block--")) {
                 return generateVirtualScsiAddressForCeph(deviceName);
             }
 
             String blockDevice = deviceName.replace("/dev/", "");
 
-            // 괄호가 포함된 경우 (예: "sg5 (lvm-pv-uuid-...)") 기본 디바이스명만 추출
             if (blockDevice.contains("(")) {
                 blockDevice = blockDevice.substring(0, blockDevice.indexOf("(")).trim();
             }
 
             String scsiDevicePath = "/sys/block/" + blockDevice + "/device/scsi_device";
 
-            // sysfs 파일 읽기 (Script 대신 직접 파일 읽기로 변경하여 Stream closed 에러 방지)
             try {
                 File scsiDeviceFile = new File(scsiDevicePath);
                 if (scsiDeviceFile.exists() && scsiDeviceFile.canRead()) {
@@ -1181,10 +1099,8 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // Ceph OSD 디바이스를 위한 가상 SCSI 주소 생성
     private String generateVirtualScsiAddressForCeph(String deviceName) {
         try {
-            // Ceph OSD 디바이스의 실제 물리 디바이스 찾기
             Script cmd = new Script("/bin/bash");
             cmd.add("-c");
             cmd.add("lsblk -no NAME " + deviceName + " | head -1");
@@ -1194,12 +1110,10 @@ public abstract class ServerResourceBase implements ServerResource {
             if (result == null && parser.getLines() != null && !parser.getLines().isEmpty()) {
                 String physicalDevice = parser.getLines().trim();
 
-                // 물리 디바이스의 SCSI 주소 가져오기
                 String physicalScsiAddress = getPhysicalScsiAddress(physicalDevice);
                 if (physicalScsiAddress != null) {
                     String[] parts = physicalScsiAddress.split(":");
                     if (parts.length >= 4) {
-                        // unit 번호를 1씩 증가시켜 가상 주소 생성
                         int unit = Integer.parseInt(parts[3]) + 1;
                         String virtualAddress = parts[0] + ":" + parts[1] + ":" + parts[2] + ":" + unit;
                         return virtualAddress;
@@ -1207,24 +1121,20 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
 
-            // 물리 디바이스를 찾지 못한 경우 기본 가상 주소 생성
-            String defaultVirtualAddress = "0:0:277:1"; // Ceph OSD용 기본 주소
+            String defaultVirtualAddress = "0:0:277:1";
 
             return defaultVirtualAddress;
 
         } catch (Exception e) {
 
-            return "0:0:277:1"; // 기본값
+            return "0:0:277:1";
         }
     }
 
-    // 물리 디바이스의 SCSI 주소 가져오기
     private String getPhysicalScsiAddress(String deviceName) {
         try {
-            // /sys/block/{device}/device/scsi_device 파일에서 SCSI 주소 읽기
             String scsiDevicePath = "/sys/block/" + deviceName + "/device/scsi_device";
 
-            // Script 대신 직접 파일 읽기로 변경하여 Stream closed 에러 방지
             File scsiDeviceFile = new File(scsiDevicePath);
             if (scsiDeviceFile.exists() && scsiDeviceFile.canRead()) {
                 String scsiAddress = new String(Files.readAllBytes(scsiDeviceFile.toPath())).trim();
@@ -1239,7 +1149,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // 기본 vHBA XML 생성 (WWNN/WWPN 없이)
     private String generateBasicVhbaXml(String parentHbaName) {
         try {
             StringBuilder xml = new StringBuilder();
@@ -1256,10 +1165,8 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // WWNN으로 vHBA 디바이스 찾기
     private String findVhbaDeviceByWwnn(String wwnn) {
         try {
-            // virsh nodedev-list --cap scsi_host로 모든 SCSI 호스트 디바이스 조회
             Script cmd = new Script("/bin/bash");
             cmd.add("-c");
             cmd.add("/usr/bin/virsh nodedev-list --cap scsi_host");
@@ -1272,7 +1179,6 @@ public abstract class ServerResourceBase implements ServerResource {
                     device = device.trim();
                     if (device.isEmpty()) continue;
 
-                    // 각 디바이스의 XML 덤프에서 WWNN 확인
                     String deviceXml = getVhbaDumpXml(device);
                     if (deviceXml != null && deviceXml.contains("<wwnn>" + wwnn + "</wwnn>")) {
                         return device;
@@ -1285,15 +1191,12 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // 디바이스가 사용 중인지 확인하는 메서드 (LUN 디바이스용)
     private boolean isDeviceInUse(String deviceName) {
         try {
-            // 1. VM 할당 상태 확인 (가장 중요)
             if (isLunDeviceAllocatedToVm(deviceName)) {
                 return true;
             }
 
-            // 2. 마운트 포인트 확인
             Script mountCommand = new Script("/bin/bash");
             mountCommand.add("-c");
             mountCommand.add("mount | grep -q '" + deviceName + "'");
@@ -1302,16 +1205,14 @@ public abstract class ServerResourceBase implements ServerResource {
                 return true;
             }
 
-            // 3. LVM 사용 확인
             Script lvmCommand = new Script("/bin/bash");
             lvmCommand.add("-c");
             lvmCommand.add("lvs --noheadings -o lv_name,vg_name 2>/dev/null | grep -q '" + deviceName + "'");
             String lvmResult = lvmCommand.execute(null);
             if (lvmResult == null) {
-                return true; // LVM에서 사용 중
+                return true;
             }
 
-            // 4. 스왑 확인
             Script swapCommand = new Script("/bin/bash");
             swapCommand.add("-c");
             swapCommand.add("swapon --show | grep -q '" + deviceName + "'");
@@ -1320,7 +1221,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 return true; // 스왑으로 사용 중
             }
 
-            // 5. 파티션 테이블 확인
             Script partCommand = new Script("/bin/bash");
             partCommand.add("-c");
             partCommand.add("fdisk -l " + deviceName + " 2>/dev/null | grep -q 'Disklabel type:'");
@@ -1335,7 +1235,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // LUN 디바이스가 VM에 할당되어 있는지 확인하는 메서드
     private boolean isLunDeviceAllocatedToVm(String deviceName) {
         try {
             Script listCommand = new Script("/bin/bash");
@@ -1366,14 +1265,13 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // 최적화된 SCSI 디바이스 정보 조회 메서드
     public Answer listHostScsiDevices(Command command) {
         List<String> hostDevicesNames = new ArrayList<>();
         List<String> hostDevicesText = new ArrayList<>();
         List<Boolean> hasPartitions = new ArrayList<>();
 
         try {
-            com.cloud.agent.api.ListHostScsiDeviceAnswer fast = listHostScsiDevicesFast();
+            ListHostScsiDeviceAnswer fast = listHostScsiDevicesFast();
             if (fast != null && fast.getResult()) {
                 return fast;
             }
@@ -1385,7 +1283,7 @@ public abstract class ServerResourceBase implements ServerResource {
             String result = cmd.execute(parser);
 
             if (result != null) {
-                return new com.cloud.agent.api.ListHostScsiDeviceAnswer(false, hostDevicesNames, hostDevicesText, hasPartitions);
+                return new ListHostScsiDeviceAnswer(false, hostDevicesNames, hostDevicesText, hasPartitions);
             }
 
             String[] lines = parser.getLines().split("\n");
@@ -1399,14 +1297,14 @@ public abstract class ServerResourceBase implements ServerResource {
                 String name = sgdev;
 
                 StringBuilder text = new StringBuilder();
-                text.append("SCSI Address: ").append(scsiAddr).append("\n");
+                text.append("SCSI Address: ").append(scsiAddr);
 
                 String displayName = name;
                 try {
                     String dev = tokens[5];
                     String byId = resolveById(realToById, dev);
                     if (byId != null && !byId.equals(dev)) {
-                        text.append("BY_ID: ").append(byId).append("\n");
+                        text.append(" BY_ID: ").append(byId);
                         String byIdName = byId.substring(byId.lastIndexOf('/') + 1);
                         displayName = name + " (" + byIdName + ")";
                     }
@@ -1416,19 +1314,18 @@ public abstract class ServerResourceBase implements ServerResource {
                 hasPartitions.add(false);
             }
 
-            return new com.cloud.agent.api.ListHostScsiDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions);
+            return new ListHostScsiDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions);
         } catch (Exception e) {
-            return new com.cloud.agent.api.ListHostScsiDeviceAnswer(false, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            return new ListHostScsiDeviceAnswer(false, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         }
     }
 
-    private com.cloud.agent.api.ListHostScsiDeviceAnswer listHostScsiDevicesFast() {
+    private ListHostScsiDeviceAnswer listHostScsiDevicesFast() {
         try {
             List<String> names = new ArrayList<>();
             List<String> texts = new ArrayList<>();
             List<Boolean> hasPartitions = new ArrayList<>();
 
-            // LUN과 동일한 최적화: 배치로 정보 수집
             Map<String, String> scsiAddressCache = getScsiAddressesBatch();
             Map<Path, String> realToById = buildByIdReverseMap();
 
@@ -1438,20 +1335,16 @@ public abstract class ServerResourceBase implements ServerResource {
                 return null;
             }
 
-            // 통합된 디바이스 수집 (LUN과 동일한 패턴)
             collectAllScsiDevicesUnified(names, texts, hasPartitions, scsiAddressCache, realToById);
             for (int i = 0; i < names.size(); i++) {
             }
 
-            return new com.cloud.agent.api.ListHostScsiDeviceAnswer(true, names, texts, hasPartitions);
+            return new ListHostScsiDeviceAnswer(true, names, texts, hasPartitions);
         } catch (Exception ex) {
             return null;
         }
     }
 
-    /**
-     * 모든 SCSI 디바이스를 통합적으로 수집하는 메서드 (LUN과 동일한 최적화)
-     */
     private void collectAllScsiDevicesUnified(List<String> names, List<String> texts, List<Boolean> hasPartitions,
                                             Map<String, String> scsiAddressCache, Map<Path, String> realToById) {
         try {
@@ -1467,7 +1360,6 @@ public abstract class ServerResourceBase implements ServerResource {
 
                 String dev = "/dev/" + bname;
 
-                // sg 매핑
                 String sg = null;
                 try {
                     File sgDir = new File(e, "device/scsi_generic");
@@ -1477,7 +1369,6 @@ public abstract class ServerResourceBase implements ServerResource {
                     }
                 } catch (Exception ignore) {}
 
-                // SCSI 주소 (캐시에서 우선 확인)
                 String scsiAddress = scsiAddressCache.get(dev);
                 if (scsiAddress == null) {
                     try {
@@ -1488,7 +1379,6 @@ public abstract class ServerResourceBase implements ServerResource {
                     } catch (Exception ignore) {}
                 }
 
-                // 벤더/모델/리비전 (배치 읽기)
                 String vendor = readFirstLineQuiet(new File(e, "device/vendor"));
                 String model = readFirstLineQuiet(new File(e, "device/model"));
                 String rev = readFirstLineQuiet(new File(e, "device/rev"));
@@ -1496,15 +1386,14 @@ public abstract class ServerResourceBase implements ServerResource {
                 String byId = resolveById(realToById, dev);
 
                 StringBuilder text = new StringBuilder();
-                text.append("SCSI Address: ").append(scsiAddress != null ? ("["+scsiAddress+"]") : "").append("\n");
-                text.append("Type: disk\n");
-                if (vendor != null) text.append("Vendor: ").append(vendor).append("\n");
-                if (model != null) text.append("Model: ").append(model).append("\n");
-                if (rev != null) text.append("Revision: ").append(rev).append("\n");
-                text.append("Device: ").append(dev).append("\n");
-                if (!byId.equals(dev)) text.append("BY_ID: ").append(byId).append("\n");
+                text.append("SCSI Address: ").append(scsiAddress != null ? ("["+scsiAddress+"]") : "");
+                text.append(" Type: disk");
+                if (vendor != null) text.append(" Vendor: ").append(vendor);
+                if (model != null) text.append(" Model: ").append(model);
+                if (rev != null) text.append(" Revision: ").append(rev);
+                text.append(" Device: ").append(dev);
+                if (!byId.equals(dev)) text.append(" BY_ID: ").append(byId);
 
-                // by-id가 있으면 괄호로 표시, 없으면 원래 경로 사용
                 String displayName = sg != null ? sg : dev;
                 if (!byId.equals(dev)) {
                     String byIdName = byId.substring(byId.lastIndexOf('/') + 1);
@@ -1560,16 +1449,13 @@ public abstract class ServerResourceBase implements ServerResource {
                     String dev = tokens[5];
                     String sgdev = tokens[6];
 
-                    // SCSI 주소에서 대괄호 제거
                     String scsiAddress = scsiAddr.replaceAll("[\\[\\]]", "");
 
-                    // SCSI 주소에서 host 번호 추출 (예: 13:0:0:2 -> 13)
                     String[] scsiParts = scsiAddress.split(":");
                     if (scsiParts.length >= 4) {
                         String hostNum = scsiParts[0];
                         String scsiHostName = "scsi_host" + hostNum;
 
-                        // 해당 scsi_host에 대한 SCSI 주소 정보 저장
                         if (!scsiAddressMap.containsKey(scsiHostName)) {
                             scsiAddressMap.put(scsiHostName, scsiAddress);
                         }
@@ -1579,7 +1465,6 @@ public abstract class ServerResourceBase implements ServerResource {
         } catch (Exception e) {
         }
 
-        // 2. virsh nodedev-list --cap vports로 vHBA 지원 물리 HBA 조회 (화면에 표시)
         try {
             Script vportsCommand = new Script("/bin/bash");
             vportsCommand.add("-c");
@@ -1592,8 +1477,6 @@ public abstract class ServerResourceBase implements ServerResource {
                     String hbaName = vportsLine.trim();
                     if (!hbaName.isEmpty() && !hostDevicesNames.contains(hbaName)) {
                         String detailedInfo = getHbaDeviceDetailsFromVports(hbaName);
-
-                        // SCSI 주소 정보가 있으면 추가
                         String scsiAddress = scsiAddressMap.get(hbaName);
                         if (scsiAddress != null) {
                             detailedInfo += "\nSCSI Address: " + scsiAddress;
@@ -1609,19 +1492,14 @@ public abstract class ServerResourceBase implements ServerResource {
         } catch (Exception e) {
         }
 
-        // 3. vHBA는 별도의 listVhbaDevices API로 조회하므로 HBA 리스트에서는 제외
-        // (vHBA는 HBA 리스트에 포함하지 않음)
         return new ListHostHbaDeviceAnswer(true, hostDevicesNames, hostDevicesText, deviceTypes, parentHbaNames);
     }
 
-
-    // vHBA 지원 물리 HBA 디바이스의 상세 정보 조회
     private String getHbaDeviceDetailsFromVports(String hbaName) {
         StringBuilder details = new StringBuilder();
         details.append(hbaName);
 
         try {
-            // HBA 상세 정보 조회
             Script hbaInfoCommand = new Script("/bin/bash");
             hbaInfoCommand.add("-c");
             hbaInfoCommand.add("virsh nodedev-dumpxml " + hbaName);
@@ -1648,16 +1526,16 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
 
                 if (!maxVports.isEmpty()) {
-                    details.append("\n(Max vPorts: ").append(maxVports).append(")");
+                    details.append(" (Max vPorts: ").append(maxVports).append(")");
                 }
                 if (!wwnn.isEmpty()) {
-                    details.append("\nWWNN: ").append(wwnn);
+                    details.append(" WWNN: ").append(wwnn);
                 }
                 if (!wwpn.isEmpty()) {
-                    details.append("\nWWPN: ").append(wwpn);
+                    details.append(" WWPN: ").append(wwpn);
                 }
                 if (!fabricWwn.isEmpty() && !fabricWwn.equals("0")) {
-                    details.append("\nFabric WWN: ").append(fabricWwn);
+                    details.append(" Fabric WWN: ").append(fabricWwn);
                 }
             }
         } catch (Exception e) {
@@ -1670,7 +1548,6 @@ public abstract class ServerResourceBase implements ServerResource {
     public Answer createHostVHbaDevice(CreateVhbaDeviceCommand command, String parentHbaName, String wwnn, String wwpn, String vhbaName, String xmlContent) {
 
         try {
-            // 1. 입력 파라미터 검증
             if (parentHbaName == null || parentHbaName.trim().isEmpty()) {
                 return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "부모 HBA 이름이 필요합니다");
             }
@@ -1678,18 +1555,15 @@ public abstract class ServerResourceBase implements ServerResource {
                 wwnn = "";
             }
 
-            // 2. 부모 HBA의 유효성 검증 (virsh nodedev-list --cap vports에서 나온 값인지 확인)
             if (!validateParentHbaFromVports(parentHbaName)) {
                 return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "부모 HBA가 vports를 지원하지 않습니다: " + parentHbaName);
             }
 
-            // 3. 기본 XML 생성 (WWNN/WWPN 없이)
             String basicXmlContent = generateBasicVhbaXml(parentHbaName);
             if (basicXmlContent == null) {
                 return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "기본 XML 생성 실패");
             }
 
-            // 4. 임시 XML 파일 경로 설정
             String xmlFilePath = String.format("/tmp/vhba_%s.xml", vhbaName);
 
             try (FileWriter writer = new FileWriter(xmlFilePath)) {
@@ -1698,7 +1572,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "XML 파일 생성 실패: " + e.getMessage());
             }
 
-            // 5. virsh nodedev-create 명령 실행
             Script createCommand = new Script("/bin/bash");
             createCommand.add("-c");
             createCommand.add("/usr/bin/virsh nodedev-create " + xmlFilePath);
@@ -1710,23 +1583,19 @@ public abstract class ServerResourceBase implements ServerResource {
                 return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "vHBA 생성 실패: " + result);
             }
 
-            // 6. 생성된 디바이스 이름 추출 (Node device scsi_host5 created from vhba_host3.xml 형태에서 파싱)
             String createdDeviceName = extractCreatedDeviceNameFromOutput(parser.getLines());
             if (createdDeviceName == null) {
                 cleanupXmlFile(xmlFilePath);
                 return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "디바이스 이름 추출 실패");
             }
 
-            // 7. 생성된 vHBA 검증
             if (!validateCreatedVhba(createdDeviceName)) {
                 cleanupXmlFile(xmlFilePath);
                 return new com.cloud.agent.api.CreateVhbaDeviceAnswer(false, vhbaName, "vHBA 검증 실패");
             }
 
-            // 8. 생성된 vHBA의 실제 dumpxml을 /etc/vhba에 백업
             String actualVhbaXml = getVhbaDumpXml(createdDeviceName);
             if (actualVhbaXml != null && !actualVhbaXml.isEmpty()) {
-                // /etc/vhba 디렉토리 생성 (존재하지 않는 경우)
                 File vhbaDir = new File("/etc/vhba");
                 if (!vhbaDir.exists()) {
                     if (vhbaDir.mkdirs()) {
@@ -1734,15 +1603,12 @@ public abstract class ServerResourceBase implements ServerResource {
                     }
                 }
 
-                // dumpxml에서 WWNN 추출하여 백업 파일명 생성
                 String extractedWwnn = extractWwnnFromXml(actualVhbaXml);
                 String backupFilePath;
 
                 if (extractedWwnn != null && !extractedWwnn.trim().isEmpty()) {
-                    // WWNN 기반 백업 파일 경로
                     backupFilePath = String.format("/etc/vhba/vhba_%s.xml", extractedWwnn);
                 } else {
-                    // 기본 백업 파일 경로
                     backupFilePath = String.format("/etc/vhba/%s.xml", createdDeviceName);
                 }
 
@@ -1757,7 +1623,6 @@ public abstract class ServerResourceBase implements ServerResource {
             } else {
             }
 
-            // 9. 임시 XML 파일 정리
             cleanupXmlFile(xmlFilePath);
 
             return new com.cloud.agent.api.CreateVhbaDeviceAnswer(true, vhbaName, createdDeviceName);
@@ -1774,7 +1639,6 @@ public abstract class ServerResourceBase implements ServerResource {
         try {
             String targetDeviceName = null;
 
-            // WWNN이 제공된 경우 WWNN으로 디바이스 찾기
             if (wwnn != null && !wwnn.trim().isEmpty()) {
                 targetDeviceName = findVhbaDeviceByWwnn(wwnn);
                 if (targetDeviceName == null) {
@@ -1787,12 +1651,10 @@ public abstract class ServerResourceBase implements ServerResource {
                 targetDeviceName = vhbaName;
             }
 
-            // vHBA가 VM에 할당되어 있는지 확인
             if (isVhbaAllocatedToVm(targetDeviceName)) {
                 return new DeleteVhbaDeviceAnswer(command, false, "vHBA가 VM에 할당되어 있어 삭제할 수 없습니다. 먼저 할당을 해제해주세요.");
             }
 
-            // virsh nodedev-destroy 명령 실행
             Script destroyCommand = new Script("/bin/bash");
             destroyCommand.add("-c");
             destroyCommand.add("/usr/bin/virsh nodedev-destroy " + targetDeviceName);
@@ -1803,7 +1665,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 return new DeleteVhbaDeviceAnswer(command, false, "vHBA 삭제 실패: " + result);
             }
 
-            // /etc/vhba 경로의 백업 파일 삭제
             String backupFilePath;
             if (wwnn != null && !wwnn.trim().isEmpty()) {
                 backupFilePath = String.format("/etc/vhba/vhba_%s.xml", wwnn);
@@ -1826,7 +1687,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // vHBA가 VM에 할당되어 있는지 확인
     private boolean isVhbaAllocatedToVm(String vhbaName) {
         try {
             Script checkCommand = new Script("/bin/bash");
@@ -1853,7 +1713,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // virsh nodedev-list --cap vports에서 나온 부모 HBA 유효성 검증
     private boolean validateParentHbaFromVports(String parentHbaName) {
         try {
             Script vportsCommand = new Script("/bin/bash");
@@ -1899,7 +1758,6 @@ public abstract class ServerResourceBase implements ServerResource {
         return null;
     }
 
-    // 생성된 vHBA 검증
     private boolean validateCreatedVhba(String deviceName) {
         try {
             Script validateCommand = new Script("/bin/bash");
@@ -1918,7 +1776,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // XML 파일 정리
     private void cleanupXmlFile(String xmlFilePath) {
         try {
             File xmlFile = new File(xmlFilePath);
@@ -2010,10 +1867,8 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
 
-            // 발견된 vHBA 디바이스들의 상세 정보 조회
             for (String vhbaName : vhbaNames) {
 
-                // vHBA 상세 정보 조회
                 Script vhbaInfoCommand = new Script("/bin/bash");
                 vhbaInfoCommand.add("-c");
                 vhbaInfoCommand.add("virsh nodedev-dumpxml " + vhbaName);
@@ -2042,9 +1897,7 @@ public abstract class ServerResourceBase implements ServerResource {
                         }
                     }
 
-                    // SCSI 주소 추출 - 실제 lsscsi 명령어로 추출
                     try {
-                        // 먼저 전체 lsscsi 출력을 확인
                         Script lsscsiAllCommand = new Script("/bin/bash");
                         lsscsiAllCommand.add("-c");
                         lsscsiAllCommand.add("lsscsi");
@@ -2054,7 +1907,6 @@ public abstract class ServerResourceBase implements ServerResource {
                         if (lsscsiAllResult == null && lsscsiAllParser.getLines() != null) {
                         }
 
-                        // vHBA 이름으로 검색
                         Script scsiAddressCommand = new Script("/bin/bash");
                         scsiAddressCommand.add("-c");
                         scsiAddressCommand.add("lsscsi | grep -E '\\[.*:.*:.*:.*\\].*" + vhbaName + "' | head -1");
@@ -2064,7 +1916,6 @@ public abstract class ServerResourceBase implements ServerResource {
                         if (scsiAddressResult == null && scsiAddressParser.getLines() != null) {
                             String scsiLine = scsiAddressParser.getLines().trim();
                             if (!scsiLine.isEmpty()) {
-                                // lsscsi 출력에서 SCSI 주소 추출: [18:0:0:0] -> 18:0:0:0
                                 String[] parts = scsiLine.split("\\s+");
                                 if (parts.length > 0) {
                                     String scsiPart = parts[0];
@@ -2078,16 +1929,13 @@ public abstract class ServerResourceBase implements ServerResource {
                         } else {
                         }
 
-                        // lsscsi에서 찾지 못한 경우, sysfs에서 직접 확인
                         if (scsiAddress.isEmpty()) {
 
-                            // vHBA 이름에서 호스트 번호 추출
                             String hostNum = vhbaName.replace("scsi_host", "");
 
                             if (hostNum.matches("\\d+")) {
                                 scsiAddress = hostNum + ":0:1:0";
 
-                                // 실제로 해당 호스트가 존재하는지 확인
                                 Script hostCheckCommand = new Script("/bin/bash");
                                 hostCheckCommand.add("-c");
                                 hostCheckCommand.add("ls /sys/class/scsi_host/" + vhbaName + " 2>/dev/null || echo 'not_found'");
@@ -2114,19 +1962,19 @@ public abstract class ServerResourceBase implements ServerResource {
                     }
                     if (!wwpn.isEmpty()) {
                         if (descBuilder.length() > 0) {
-                            descBuilder.append("\n");
+                            descBuilder.append(" ");
                         }
                         descBuilder.append("WWPN: ").append(wwpn);
                     }
                     if (!fabricWwn.isEmpty() && !fabricWwn.equals("0")) {
                         if (descBuilder.length() > 0) {
-                            descBuilder.append("\n");
+                            descBuilder.append(" ");
                         }
                         descBuilder.append("Fabric WWN: ").append(fabricWwn);
                     }
                     if (!scsiAddress.isEmpty()) {
                         if (descBuilder.length() > 0) {
-                            descBuilder.append("\n");
+                            descBuilder.append(" ");
                         }
                         descBuilder.append("SCSI Address: ").append(scsiAddress);
                     } else {
@@ -2144,9 +1992,6 @@ public abstract class ServerResourceBase implements ServerResource {
                     continue;
                 }
 
-                // vHBA 상태 확인은 Stream closed 에러 방지를 위해 제거
-                // 기본값인 "Active" 사용
-
                 com.cloud.agent.api.ListVhbaDevicesCommand.VhbaDeviceInfo vhbaInfo =
                     new com.cloud.agent.api.ListVhbaDevicesCommand.VhbaDeviceInfo(
                         vhbaName, parentHbaName, wwnn, wwpn, description, status
@@ -2161,7 +2006,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // scsi_host 디바이스가 vHBA인지 확인하는 메서드
     private boolean isVhbaDevice(String deviceName) {
         try {
             Script checkCommand = new Script("/bin/bash");
@@ -2180,10 +2024,9 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // 경로에서 vHBA 이름 추출하는 메서드
     private String extractVhbaNameFromPath(String path) {
         try {
-            // /sys/class/fc_remote_ports/rport-1:0-0 형태에서 scsi_host 이름 추출
+
             Script extractCommand = new Script("/bin/bash");
             extractCommand.add("-c");
             extractCommand.add("find /sys/class/fc_remote_ports -name '$(basename " + path + ")' -exec dirname {} \\; | grep scsi_host | head -1");
@@ -2207,7 +2050,7 @@ public abstract class ServerResourceBase implements ServerResource {
         List<String> hostDevicesNames = new ArrayList<>();
 
         try {
-            // vHBA를 지원하는 HBA 조회
+
             Script vportsCommand = new Script("/bin/bash");
             vportsCommand.add("-c");
             vportsCommand.add("virsh nodedev-list --cap vports");
@@ -2248,13 +2091,13 @@ public abstract class ServerResourceBase implements ServerResource {
 
                             StringBuilder descBuilder = new StringBuilder(hbaName);
                             if (!maxVports.isEmpty()) {
-                                descBuilder.append("\n(Max vPorts: ").append(maxVports).append(")");
+                                descBuilder.append(" (Max vPorts: ").append(maxVports).append(")");
                             }
                             if (!wwnn.isEmpty()) {
-                                descBuilder.append("\nWWNN: ").append(wwnn);
+                                descBuilder.append(" WWNN: ").append(wwnn);
                             }
                             if (!wwpn.isEmpty()) {
-                                descBuilder.append("\nWWPN: ").append(wwpn);
+                                descBuilder.append(" WWPN: ").append(wwpn);
                             }
                             hbaDescription = descBuilder.toString();
                         }
@@ -2612,8 +2455,6 @@ public abstract class ServerResourceBase implements ServerResource {
             if (isAttach) {
                 virshCmd.add("attach-device", vmName, usbXmlPath);
             } else {
-                // detach 시도 전에 실제 VM에 해당 디바이스가 붙어있는지 확인
-                // 실제로 붙어있지 않아도 성공으로 처리 (LUN과 동일한 패턴)
                 virshCmd.add("detach-device", vmName, usbXmlPath);
             }
 
@@ -2623,7 +2464,6 @@ public abstract class ServerResourceBase implements ServerResource {
             if (result != null) {
                 String action = isAttach ? "attach" : "detach";
                 String lower = result.toLowerCase();
-                // detach 시 "device not found" 에러는 성공으로 처리
                 if (!isAttach && (lower.contains("device not found") || lower.contains("not found"))) {
                     return new UpdateHostUsbDeviceAnswer(true, vmName, xmlConfig, isAttach);
                 }
@@ -2640,37 +2480,30 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
     protected Answer updateHostLunDevices(Command command, String vmName, String xmlConfig, boolean isAttach) {
-        // UpdateHostLunDeviceCommand에서 hostDeviceName 추출
         String hostDeviceName = null;
         if (command instanceof UpdateHostLunDeviceCommand) {
             UpdateHostLunDeviceCommand lunCmd = (UpdateHostLunDeviceCommand) command;
             hostDeviceName = lunCmd.getHostDeviceName();
         }
 
-        // LUN 디바이스 이름을 추출하여 고유한 파일명 생성
         String lunDeviceName = extractDeviceNameFromLunXml(xmlConfig);
         if (lunDeviceName == null) {
             lunDeviceName = "unknown";
         }
         String lunXmlPath = String.format("/tmp/lun_device_%s_%s.xml", vmName, lunDeviceName);
         try {
-            // 디바이스 경로 추출 및 검증
             String devicePath = extractDevicePathFromLunXml(xmlConfig);
 
             if (devicePath != null && isAttach) {
-                // LUN과 SCSI 간 상호 배타적 할당 검증
                 if (isDeviceAllocatedInOtherType(devicePath, vmName, "LUN")) {
                     return new UpdateHostLunDeviceAnswer(false, "Device is already allocated as SCSI device in another VM. Please remove it from SCSI allocation first.");
                 }
 
-                // by-id 경로가 존재하지 않으면, 요청의 hostdevicesname에서 베이스 경로를 추출하여 대체 by-id를 찾고 XML을 보정
                 try {
                     if (devicePath.startsWith("/dev/disk/by-id/") && !isDeviceExists(devicePath)) {
 
-                        // hostDeviceName에서 베이스 경로 추출 (우선순위 1)
                         String baseGuess = null;
                         if (hostDeviceName != null && !hostDeviceName.isEmpty()) {
-                            // hostDeviceName에서 베이스 경로 추출 (예: "/dev/sdf (scsi-35ace42e4350075fa)" -> "/dev/sdf")
                             Pattern hostNamePattern = Pattern.compile("(/dev/\\S+)");
                             Matcher hostNameMatcher = hostNamePattern.matcher(hostDeviceName);
                             if (hostNameMatcher.find()) {
@@ -2678,7 +2511,6 @@ public abstract class ServerResourceBase implements ServerResource {
                             }
                         }
 
-                        // XML에서 베이스 경로 추출 (우선순위 2)
                         if (baseGuess == null) {
                             Pattern patternName = Pattern.compile("(/dev/[^<\\n]+) \\\\(");
                             Matcher mName = patternName.matcher(xmlConfig);
@@ -2687,14 +2519,12 @@ public abstract class ServerResourceBase implements ServerResource {
                             }
                         }
                         if (baseGuess == null) {
-                            // table에선 base만 전달된 경우도 있어 괄호가 없을 수 있음
                             Matcher mBase = Pattern.compile("(/dev/\\S+)").matcher(xmlConfig);
                             if (mBase.find()) {
                                 baseGuess = mBase.group(1);
                             }
                         }
                         if (baseGuess == null) {
-                            // XML 주석에서 fallback 경로 추출
                             Matcher mFallback = Pattern.compile("<!-- Fallback device path: (/dev/\\S+) -->").matcher(xmlConfig);
                             if (mFallback.find()) {
                                 baseGuess = mFallback.group(1);
@@ -2724,7 +2554,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
 
-            // 매핑된 SCSI 디바이스도 함께 처리
             Map<String, DeviceMapping> mappings = buildDeviceMapping();
             DeviceMapping mapping = findMappedDevice(devicePath, mappings);
             String mappedScsiDevice = null;
@@ -2732,10 +2561,8 @@ public abstract class ServerResourceBase implements ServerResource {
                 mappedScsiDevice = mapping.getScsiDevicePath();
             }
 
-            // target dev 충돌 방지: 현재 VM에서 미사용인 안전한 이름으로 보정
             xmlConfig = ensureUniqueLunTargetDev(vmName, xmlConfig);
 
-            // XML 파일 생성 (기존 파일이 있어도 덮어씀 - 고유한 파일명이므로 안전)
             try (PrintWriter writer = new PrintWriter(lunXmlPath)) {
                 writer.write(xmlConfig);
             }
@@ -2744,7 +2571,6 @@ public abstract class ServerResourceBase implements ServerResource {
             if (isAttach) {
                 virshCmd.add("attach-device", vmName, lunXmlPath);
             } else {
-                // detach 시도 전에 실제 VM에 해당 디바이스가 붙어있는지 확인
                 if (!isLunDeviceActuallyAttachedToVm(vmName, xmlConfig)) {
                     return new UpdateHostLunDeviceAnswer(true, vmName, xmlConfig, isAttach);
                 }
@@ -2759,10 +2585,8 @@ public abstract class ServerResourceBase implements ServerResource {
                 return new UpdateHostLunDeviceAnswer(false, vmName, xmlConfig, isAttach, result);
             }
 
-            // 매핑된 SCSI 디바이스가 있으면 함께 처리
             if (mappedScsiDevice != null) {
                 try {
-                    // SCSI 디바이스용 XML 생성
                     String scsiXmlConfig = generateScsiXmlFromLunXml(xmlConfig, mappedScsiDevice);
                     String scsiXmlPath = String.format("/tmp/scsi_device_%s_%s.xml", vmName, lunDeviceName);
 
@@ -2785,14 +2609,13 @@ public abstract class ServerResourceBase implements ServerResource {
                     }
 
                     // 임시 파일 정리
-                    new java.io.File(scsiXmlPath).delete();
+                    new File(scsiXmlPath).delete();
 
                 } catch (Exception e) {
-                    logger.warn("Error processing mapped SCSI device {}: {}", mappedScsiDevice, e.getMessage());
+                        logger.warn("Error processing mapped SCSI device {}: {}", mappedScsiDevice, e.getMessage());
                 }
             }
 
-            String action = isAttach ? "attached to" : "detached from";
             return new UpdateHostLunDeviceAnswer(true, vmName, xmlConfig, isAttach);
 
         } catch (Exception e) {
@@ -2802,14 +2625,12 @@ public abstract class ServerResourceBase implements ServerResource {
     }
 
     protected Answer updateHostHbaDevices(Command command, String vmName, String xmlConfig, boolean isAttach) {
-        // HBA 디바이스 이름을 추출하여 고유한 파일명 생성
         String hbaDeviceName = extractAdapterNameFromXml(xmlConfig);
         if (hbaDeviceName == null) {
             hbaDeviceName = "unknown";
         }
         String hbaXmlPath = String.format("/tmp/hba_device_%s_%s.xml", vmName, hbaDeviceName);
         try {
-            // XML 파일 생성 (기존 파일이 있어도 덮어씀 - 고유한 파일명이므로 안전)
             try (PrintWriter writer = new PrintWriter(hbaXmlPath)) {
                 writer.write(xmlConfig);
             }
@@ -2818,9 +2639,7 @@ public abstract class ServerResourceBase implements ServerResource {
             if (isAttach) {
                 virshCmd.add("attach-device", vmName, hbaXmlPath);
             } else {
-                // detach 시도 전에 실제 VM에 해당 디바이스가 붙어있는지 확인
                 if (!isDeviceActuallyAttachedToVm(vmName, xmlConfig)) {
-                    // 실제로 붙어있지 않아도 성공으로 처리 (DB 상태만 정리)
                     return new UpdateHostHbaDeviceAnswer(true, vmName, xmlConfig, isAttach);
                 }
                 virshCmd.add("detach-device", vmName, hbaXmlPath);
@@ -2845,7 +2664,6 @@ public abstract class ServerResourceBase implements ServerResource {
     }
 
         protected Answer updateHostVHbaDevices(Command command, String vmName, String xmlConfig, boolean isAttach) {
-        // vHBA 디바이스 이름을 추출하여 고유한 파일명 생성
         String vhbaDeviceName = extractDeviceNameFromVhbaXml(xmlConfig);
         if (vhbaDeviceName == null) {
             vhbaDeviceName = "unknown";
@@ -2853,7 +2671,6 @@ public abstract class ServerResourceBase implements ServerResource {
         String vhbaXmlPath = String.format("/tmp/vhba_device_%s_%s.xml", vmName, vhbaDeviceName);
 
         try {
-            // XML 파일 생성 (기존 파일이 있어도 덮어씀 - 고유한 파일명이므로 안전)
             try (PrintWriter writer = new PrintWriter(vhbaXmlPath)) {
                 writer.write(xmlConfig);
             }
@@ -2862,9 +2679,7 @@ public abstract class ServerResourceBase implements ServerResource {
             if (isAttach) {
                 virshCmd.add("attach-device", vmName, vhbaXmlPath);
             } else {
-                // detach 시도 전에 실제 VM에 해당 디바이스가 붙어있는지 확인
                 if (!isVhbaDeviceActuallyAttachedToVm(vmName, xmlConfig)) {
-                    // 실제로 붙어있지 않아도 성공으로 처리 (DB 상태만 정리)
                     return new UpdateHostVhbaDeviceAnswer(true, vhbaDeviceName, vmName, xmlConfig, isAttach);
                 }
                 virshCmd.add("detach-device", vmName, vhbaXmlPath);
@@ -2889,17 +2704,14 @@ public abstract class ServerResourceBase implements ServerResource {
     }
 
     protected Answer updateHostScsiDevices(UpdateHostScsiDeviceCommand command, String vmName, String xmlConfig, boolean isAttach) {
-        // SCSI 디바이스 이름을 추출하여 고유한 파일명 생성
         String scsiDeviceName = extractDeviceNameFromScsiXml(xmlConfig);
         if (scsiDeviceName == null) {
             scsiDeviceName = "unknown";
         }
         String scsiXmlPath = String.format("/tmp/scsi_device_%s_%s.xml", vmName, scsiDeviceName);
         try {
-            // 디바이스 경로 추출 및 매핑된 LUN 디바이스 확인
             String devicePath = extractDeviceNameFromScsiXml(xmlConfig);
 
-            // SCSI와 LUN 간 상호 배타적 할당 검증
             if (isAttach && isDeviceAllocatedInOtherType(devicePath, vmName, "SCSI")) {
                 return new UpdateHostScsiDeviceAnswer(false, "Device is already allocated as LUN device in another VM. Please remove it from LUN allocation first.");
             }
@@ -2940,7 +2752,6 @@ public abstract class ServerResourceBase implements ServerResource {
 
             if (mappedLunDevice != null) {
                 try {
-                    // LUN 디바이스용 XML 생성
                     String lunXmlConfig = generateLunXmlFromScsiXml(xmlConfig, mappedLunDevice);
                     String lunXmlPath = String.format("/tmp/lun_device_%s_%s.xml", vmName, scsiDeviceName);
 
@@ -2961,7 +2772,7 @@ public abstract class ServerResourceBase implements ServerResource {
                     }
 
                     // 임시 파일 정리
-                    new java.io.File(lunXmlPath).delete();
+                    new File(lunXmlPath).delete();
 
                 } catch (Exception e) {
                     logger.warn("Error processing mapped LUN device {}: {}", mappedLunDevice, e.getMessage());
@@ -2977,17 +2788,14 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // VM에 실제로 디바이스가 붙어있는지 확인하는 메서드
     private boolean isDeviceActuallyAttachedToVm(String vmName, String xmlConfig) {
         try {
-            // HBA 디바이스 이름을 추출하여 고유한 파일명 생성
             String hbaDeviceName = extractAdapterNameFromXml(xmlConfig);
             if (hbaDeviceName == null) {
                 hbaDeviceName = "unknown";
             }
             String hbaXmlPath = String.format("/tmp/hba_device_%s_%s.xml", vmName, hbaDeviceName);
 
-            // 해당 XML 파일이 존재하는지 확인
             File xmlFile = new File(hbaXmlPath);
             if (!xmlFile.exists()) {
                 return false;
@@ -3008,13 +2816,11 @@ public abstract class ServerResourceBase implements ServerResource {
                 return false;
             }
 
-            // XML에서 adapter name 추출
             String adapterName = extractAdapterNameFromXml(xmlConfig);
             if (adapterName == null) {
                 return false;
             }
 
-            // VM XML에 해당 adapter가 있는지 확인
             boolean deviceFound = vmXml.contains("<adapter name='" + adapterName + "'/>") ||
                                 vmXml.contains("<adapter name=\"" + adapterName + "\"/>");
             return deviceFound;
@@ -3024,10 +2830,8 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // XML에서 adapter name 추출 (HBA용)
     private String extractAdapterNameFromXml(String xmlConfig) {
         try {
-            // <adapter name='scsi_host14'/> 형태에서 scsi_host14 추출
             Pattern pattern = Pattern.compile("name=['\"]([^'\"]+)['\"]");
             Matcher matcher = pattern.matcher(xmlConfig);
             if (matcher.find()) {
@@ -3039,15 +2843,12 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // LUN XML에서 디바이스 이름 추출
     private String extractDeviceNameFromLunXml(String xmlConfig) {
         try {
-            // <source dev='/dev/sdc'/> 형태에서 sdc 추출
             Pattern pattern = Pattern.compile("dev=['\"]([^'\"]+)['\"]");
             Matcher matcher = pattern.matcher(xmlConfig);
             if (matcher.find()) {
                 String devicePath = matcher.group(1);
-                // 경로에서 디바이스 이름만 추출
                 String[] parts = devicePath.split("/");
                 if (parts.length > 0) {
                     return parts[parts.length - 1];
@@ -3059,10 +2860,8 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // LUN XML에서 디바이스 경로 추출
     private String extractDevicePathFromLunXml(String xmlConfig) {
         try {
-            // <source dev='/dev/sdc'/> 형태에서 전체 경로 추출
             Pattern pattern = Pattern.compile("dev=['\"]([^'\"]+)['\"]");
             Matcher matcher = pattern.matcher(xmlConfig);
             if (matcher.find()) {
@@ -3076,7 +2875,6 @@ public abstract class ServerResourceBase implements ServerResource {
 
     private String extractUuidFromLunXml(String xmlConfig) {
         try {
-            // <serial>WWN</serial> 형태에서 UUID 추출
             Pattern pattern = Pattern.compile("<serial>([^<]+)</serial>");
             Matcher matcher = pattern.matcher(xmlConfig);
             if (matcher.find()) {
@@ -3088,25 +2886,20 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // LUN 디바이스 할당 가능성 검증 (매핑된 SCSI 디바이스도 함께 확인)
     private String validateLunDeviceForAttachment(String devicePath, String vmName) {
         try {
-            // 1. 디바이스 존재 여부 확인
             if (!isDeviceExists(devicePath)) {
                 return "디바이스가 존재하지 않습니다: " + devicePath;
             }
 
-            // 2. 파티션 여부 확인 (파티션은 할당할 수 없음)
             if (isPartitionDevice(devicePath)) {
                 return "파티션 디바이스는 할당할 수 없습니다. 전체 디스크를 사용해주세요: " + devicePath;
             }
 
-            // 3. 이미 다른 VM에 할당되어 있는지 확인 (LUN 디바이스)
             if (isLunDeviceAllocatedToOtherVm(devicePath, vmName)) {
                 return "디바이스가 이미 다른 VM에 할당되어 있습니다: " + devicePath;
             }
 
-            // 4. 매핑된 SCSI 디바이스가 다른 VM에 할당되어 있는지 확인
             Map<String, DeviceMapping> mappings = buildDeviceMapping();
             DeviceMapping mapping = findMappedDevice(devicePath, mappings);
             if (mapping != null && mapping.getScsiDevicePath() != null) {
@@ -3115,45 +2908,37 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
 
-            // 5. 마운트되어 있는지 확인
             if (isDeviceMounted(devicePath)) {
                 return "디바이스가 마운트되어 있어 할당할 수 없습니다: " + devicePath;
             }
 
-            // 6. LVM에서 사용 중인지 확인
             if (isDeviceUsedByLvm(devicePath)) {
                 return "디바이스가 LVM에서 사용 중이어 할당할 수 없습니다: " + devicePath;
             }
 
-            // 7. 스왑으로 사용 중인지 확인
             if (isDeviceUsedAsSwap(devicePath)) {
                 return "디바이스가 스왑으로 사용 중이어 할당할 수 없습니다: " + devicePath;
             }
 
-            // 7. 파티션 테이블이 있는지 확인 (파티션이 있는 디스크는 할당 불가)
             if (hasPartitionTable(devicePath)) {
                 return "디스크에 파티션 테이블이 있어 할당할 수 없습니다. 파티션을 삭제한 후 시도해주세요: " + devicePath;
             }
 
-            // 8. 디바이스가 읽기 전용인지 확인
             if (isDeviceReadOnly(devicePath)) {
                 return "디바이스가 읽기 전용이어 할당할 수 없습니다: " + devicePath;
             }
 
-            // 9. 디바이스 크기가 너무 작은지 확인 (최소 1MB)
             if (getDeviceSizeBytes(devicePath) < 1024 * 1024) {
                 return "디바이스 크기가 너무 작아 할당할 수 없습니다 (최소 1MB 필요): " + devicePath;
             }
 
-            return null; // 검증 통과
+            return null;
         } catch (Exception e) {
             return "디바이스 검증 중 오류가 발생했습니다: " + e.getMessage();
         }
     }
 
-    // 디바이스 존재 여부 확인
     private boolean isDeviceExists(String devicePath) {
-        // by-id 경로에 대해서는 검증을 우회하여 항상 true 반환
         if (devicePath != null && devicePath.startsWith("/dev/disk/by-id/")) {
             return true;
         }
@@ -3177,7 +2962,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
 
-            // 블록 디바이스인지 확인 (stat 명령어 사용)
             Script statCommand = new Script("/bin/bash");
             statCommand.add("-c");
             statCommand.add("stat -c '%F' " + devicePath + " 2>/dev/null");
@@ -3189,7 +2973,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 return fileType.contains("block special file");
             }
 
-            // stat 명령어가 실패하면 기본적으로 파일 존재 여부만 확인
             return device.isFile();
         } catch (Exception e) {
             logger.debug("Error checking device existence {}: {}", devicePath, e.getMessage());
@@ -3197,20 +2980,14 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // 파티션 디바이스인지 확인
     private boolean isPartitionDevice(String devicePath) {
         try {
-            // /dev/sda1, /dev/sdb2 등 파티션 번호가 있는지 확인
             String deviceName = new File(devicePath).getName();
 
-            // 숫자로 끝나는 디바이스명이 파티션인지 확인
             if (deviceName.matches(".*\\d+$")) {
-                // 하지만 nvme 디바이스는 예외 (nvme0n1p1 형태)
                 if (deviceName.startsWith("nvme")) {
-                    // nvme 디바이스는 p가 포함된 경우만 파티션
                     return deviceName.contains("p") && deviceName.matches(".*p\\d+$");
                 }
-                // sd, vd, xvd 등은 숫자로 끝나면 파티션
                 return deviceName.matches("(sd|vd|xvd|hd).*\\d+$");
             }
 
@@ -3221,7 +2998,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // 다른 VM에 할당되어 있는지 확인
     private boolean isLunDeviceAllocatedToOtherVm(String devicePath, String currentVmName) {
         try {
             Script listCommand = new Script("/bin/bash");
@@ -3249,7 +3025,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // 디바이스가 마운트되어 있는지 확인
     private boolean isDeviceMounted(String devicePath) {
         try {
             Script mountCommand = new Script("/bin/bash");
@@ -3262,7 +3037,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // LVM에서 사용 중인지 확인
     private boolean isDeviceUsedByLvm(String devicePath) {
         try {
             Script lvmCommand = new Script("/bin/bash");
@@ -3275,7 +3049,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // 스왑으로 사용 중인지 확인
     private boolean isDeviceUsedAsSwap(String devicePath) {
         try {
             Script swapCommand = new Script("/bin/bash");
@@ -3288,7 +3061,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // 파티션 테이블이 있는지 확인
     private boolean hasPartitionTable(String devicePath) {
         try {
             Script partCommand = new Script("/bin/bash");
@@ -3301,7 +3073,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // 디바이스가 읽기 전용인지 확인
     private boolean isDeviceReadOnly(String devicePath) {
         try {
             Script roCommand = new Script("/bin/bash");
@@ -3320,7 +3091,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // 디바이스 크기 확인 (바이트 단위)
     private long getDeviceSizeBytes(String devicePath) {
         try {
             Script sizeCommand = new Script("/bin/bash");
@@ -3339,24 +3109,20 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // LUN 디바이스가 VM에 실제로 붙어있는지 확인하는 메서드
     private boolean isLunDeviceActuallyAttachedToVm(String vmName, String xmlConfig) {
         try {
-            // LUN 디바이스 이름을 추출하여 고유한 파일명 생성
             String lunDeviceName = extractDeviceNameFromLunXml(xmlConfig);
             if (lunDeviceName == null) {
                 lunDeviceName = "unknown";
             }
             String lunXmlPath = String.format("/tmp/lun_device_%s_%s.xml", vmName, lunDeviceName);
 
-            // 해당 XML 파일이 존재하는지 확인
             File xmlFile = new File(lunXmlPath);
             if (!xmlFile.exists()) {
                 logger.warn("XML file does not exist for device check: {}", lunXmlPath);
                 return false;
             }
 
-            // virsh dumpxml로 VM의 현재 상태 확인
             Script dumpCommand = new Script("virsh");
             dumpCommand.add("dumpxml", vmName);
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
@@ -3373,14 +3139,12 @@ public abstract class ServerResourceBase implements ServerResource {
                 return false;
             }
 
-            // XML에서 source dev 추출
             String sourceDev = extractDeviceNameFromLunXml(xmlConfig);
             if (sourceDev == null) {
                 logger.warn("Could not extract source dev from XML config");
                 return false;
             }
 
-            // VM XML에 해당 디바이스가 있는지 확인
             boolean deviceFound = vmXml.contains("dev='" + sourceDev + "'") ||
                                 vmXml.contains("dev=\"" + sourceDev + "\"");
             return deviceFound;
@@ -3391,10 +3155,8 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // SCSI XML에서 디바이스 이름 추출
     private String extractDeviceNameFromScsiXml(String xmlConfig) {
         try {
-            // <adapter name='scsi_host14'/> 형태에서 scsi_host14 추출
             Pattern pattern = Pattern.compile("name=['\"]([^'\"]+)['\"]");
             Matcher matcher = pattern.matcher(xmlConfig);
             if (matcher.find()) {
@@ -3406,23 +3168,19 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // SCSI 디바이스가 VM에 실제로 붙어있는지 확인하는 메서드
     private boolean isScsiDeviceActuallyAttachedToVm(String vmName, String xmlConfig) {
         try {
-            // SCSI 디바이스 이름을 추출하여 고유한 파일명 생성
             String scsiDeviceName = extractDeviceNameFromScsiXml(xmlConfig);
             if (scsiDeviceName == null) {
                 scsiDeviceName = "unknown";
             }
             String scsiXmlPath = String.format("/tmp/scsi_device_%s_%s.xml", vmName, scsiDeviceName);
 
-            // 해당 XML 파일이 존재하는지 확인
             File xmlFile = new File(scsiXmlPath);
             if (!xmlFile.exists()) {
                 return false;
             }
 
-            // virsh dumpxml로 VM의 현재 상태 확인
             Script dumpCommand = new Script("virsh");
             dumpCommand.add("dumpxml", vmName);
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
@@ -3437,7 +3195,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 return false;
             }
 
-            // XML에서 adapter name 추출
             String adapterName = extractDeviceNameFromScsiXml(xmlConfig);
             if (adapterName == null) {
                 return false;
@@ -3454,7 +3211,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // vHBA XML에서 디바이스 이름 추출
     private String extractDeviceNameFromVhbaXml(String xmlConfig) {
         try {
             Pattern parentPattern = Pattern.compile("<parent>([^<]+)</parent>");
@@ -3475,7 +3231,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // USB 디바이스가 VM에 실제로 붙어있는지 확인하는 메서드
     private boolean isUsbDeviceActuallyAttachedToVm(String vmName, String xmlConfig) {
         try {
             Script dumpCommand = new Script("virsh");
@@ -3508,24 +3263,19 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // vHBA 디바이스가 VM에 실제로 붙어있는지 확인하는 메서드
     private boolean isVhbaDeviceActuallyAttachedToVm(String vmName, String xmlConfig) {
         try {
-            // vHBA 디바이스 이름을 추출하여 고유한 파일명 생성
             String vhbaDeviceName = extractDeviceNameFromVhbaXml(xmlConfig);
             if (vhbaDeviceName == null) {
                 vhbaDeviceName = "unknown";
             }
-            // updateHostVHbaDevices에서 생성하는 경로와 접두어를 동일하게 사용
             String vhbaXmlPath = String.format("/tmp/vhba_device_%s_%s.xml", vmName, vhbaDeviceName);
 
-            // 해당 XML 파일이 존재하는지 확인
             File xmlFile = new File(vhbaXmlPath);
             if (!xmlFile.exists()) {
                 return false;
             }
 
-            // virsh dumpxml로 VM의 현재 상태 확인
             Script dumpCommand = new Script("virsh");
             dumpCommand.add("dumpxml", vmName);
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
@@ -3540,13 +3290,11 @@ public abstract class ServerResourceBase implements ServerResource {
                 return false;
             }
 
-            // XML에서 대상 이름 추출 (parent 또는 adapter name)
             String targetName = extractDeviceNameFromVhbaXml(xmlConfig);
             if (targetName == null) {
                 return false;
             }
 
-            // VM XML에 해당 adapter/parent 흔적이 있는지 확인
             boolean deviceFound = vmXml.contains("<adapter name='" + targetName + "'/>") ||
                                   vmXml.contains("<adapter name=\"" + targetName + "\"/>") ||
                                   vmXml.contains("<parent>" + targetName + "</parent>");
@@ -3557,7 +3305,6 @@ public abstract class ServerResourceBase implements ServerResource {
             return false;
         }
     }
-    // USB XML에서 bus 주소 추출
     private String extractBusFromUsbXml(String xmlConfig) {
         try {
             Pattern pattern = Pattern.compile("bus='(0x[0-9A-Fa-f]+)'");
@@ -3571,7 +3318,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // USB XML에서 device 주소 추출
     private String extractDeviceFromUsbXml(String xmlConfig) {
         try {
             Pattern pattern = Pattern.compile("device='(0x[0-9A-Fa-f]+)'");
@@ -3587,7 +3333,6 @@ public abstract class ServerResourceBase implements ServerResource {
 
     private String extractWwnnFromXml(String xmlContent) {
         try {
-            // XML에서 wwnn 속성 또는 태그 찾기
             String[] patterns = {
                 "wwnn=['\"]([0-9A-Fa-f]{16})['\"]",
                 "<wwnn>([0-9A-Fa-f]{16})</wwnn>",
@@ -3607,7 +3352,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // vHBA 백업 파일 목록 조회 메서드
     public Answer listVhbaBackups() {
 
         try {
@@ -3634,7 +3378,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    // 생성된 vHBA의 실제 dumpxml 가져오기
     private String getVhbaDumpXml(String vhbaName) {
         try {
             Script dumpCommand = new Script("/bin/bash");
@@ -3654,9 +3397,6 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    /**
-     * LUN과 SCSI 디바이스 간의 매핑을 관리하는 클래스
-     */
     public static class DeviceMapping {
         private String lunDevicePath;
         private String scsiDevicePath;
@@ -3688,14 +3428,11 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    /**
-     * 시스템의 모든 디바이스 매핑 정보를 수집하는 메서드
-     */
     protected Map<String, DeviceMapping> buildDeviceMapping() {
         Map<String, DeviceMapping> deviceMappings = new HashMap<>();
 
         try {
-            // LUN 디바이스 정보 수집
+
             ListHostLunDeviceAnswer lunAnswer = listHostLunDevicesFast();
             if (lunAnswer != null && lunAnswer.getResult()) {
                 List<String> lunNames = lunAnswer.getHostDevicesNames();
@@ -3706,7 +3443,7 @@ public abstract class ServerResourceBase implements ServerResource {
                     String scsiAddress = lunScsiAddresses.get(i);
 
                     if (scsiAddress != null && !scsiAddress.isEmpty()) {
-                        // SCSI 주소로부터 실제 물리적 디바이스 경로 찾기
+
                         String physicalPath = resolvePhysicalDeviceFromScsiAddress(scsiAddress);
                         DeviceMapping mapping = new DeviceMapping(lunDevice, null, scsiAddress, physicalPath);
                         deviceMappings.put(lunDevice, mapping);
@@ -3714,8 +3451,8 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
 
-            // SCSI 디바이스 정보 수집
-            com.cloud.agent.api.ListHostScsiDeviceAnswer scsiAnswer = listHostScsiDevicesFast();
+
+            ListHostScsiDeviceAnswer scsiAnswer = listHostScsiDevicesFast();
             if (scsiAnswer != null && scsiAnswer.getResult()) {
                 List<String> scsiNames = scsiAnswer.getHostDevicesNames();
 
@@ -3724,17 +3461,14 @@ public abstract class ServerResourceBase implements ServerResource {
                     if (scsiAddress != null && !scsiAddress.isEmpty()) {
                         String physicalPath = resolvePhysicalDeviceFromScsiAddress(scsiAddress);
 
-                        // 기존 LUN 매핑과 같은 물리적 디바이스인지 확인
                         DeviceMapping existingMapping = findMappingByPhysicalPath(deviceMappings, physicalPath);
                         if (existingMapping != null) {
-                            // 기존 매핑에 SCSI 디바이스 정보 추가
                             existingMapping = new DeviceMapping(existingMapping.getLunDevicePath(),
                                                                scsiDevice,
                                                                scsiAddress,
                                                                physicalPath);
                             deviceMappings.put(existingMapping.getLunDevicePath(), existingMapping);
                         } else {
-                            // 새로운 매핑 생성
                             DeviceMapping mapping = new DeviceMapping(null, scsiDevice, scsiAddress, physicalPath);
                             deviceMappings.put(scsiDevice, mapping);
                         }
@@ -3751,12 +3485,8 @@ public abstract class ServerResourceBase implements ServerResource {
         return deviceMappings;
     }
 
-    /**
-     * SCSI 주소로부터 실제 물리적 디바이스 경로를 찾는 메서드
-     */
     private String resolvePhysicalDeviceFromScsiAddress(String scsiAddress) {
         try {
-            // /sys/class/scsi_device에서 SCSI 주소로 디바이스 찾기
             File scsiClassDir = new File("/sys/class/scsi_device");
             File[] scsiDevices = scsiClassDir.listFiles();
 
@@ -3764,7 +3494,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 for (File scsiDevice : scsiDevices) {
                     String deviceName = scsiDevice.getName();
                     if (deviceName.equals(scsiAddress)) {
-                        // device/block 디렉토리에서 실제 블록 디바이스 찾기
                         File blockDir = new File(scsiDevice, "device/block");
                         if (blockDir.exists()) {
                             File[] blockDevices = blockDir.listFiles();
@@ -3777,15 +3506,11 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
         } catch (Exception e) {
-            logger.debug("Error resolving physical device from SCSI address: " + e.getMessage());
         }
 
         return null;
     }
 
-    /**
-     * 물리적 디바이스 경로로 기존 매핑을 찾는 메서드
-     */
     private DeviceMapping findMappingByPhysicalPath(Map<String, DeviceMapping> mappings, String physicalPath) {
         if (physicalPath == null) return null;
 
@@ -3797,17 +3522,14 @@ public abstract class ServerResourceBase implements ServerResource {
         return null;
     }
 
-    /**
-     * 디바이스 경로로 매핑된 다른 타입의 디바이스를 찾는 메서드
-     */
+
     protected DeviceMapping findMappedDevice(String devicePath, Map<String, DeviceMapping> mappings) {
-        // 직접 매핑에서 찾기
+
         DeviceMapping directMapping = mappings.get(devicePath);
         if (directMapping != null) {
             return directMapping;
         }
 
-        // 물리적 디바이스 경로로 매핑 찾기
         String physicalPath = resolvePhysicalDeviceFromScsiAddress(getScsiAddress(devicePath));
         if (physicalPath != null) {
             return findMappingByPhysicalPath(mappings, physicalPath);
@@ -3816,9 +3538,6 @@ public abstract class ServerResourceBase implements ServerResource {
         return null;
     }
 
-    /**
-     * 디바이스가 다른 타입으로도 할당되어 있는지 확인하는 메서드
-     */
     protected boolean isDeviceAllocatedInOtherType(String devicePath, String currentVmName, String deviceType) {
         try {
             Map<String, DeviceMapping> mappings = buildDeviceMapping();
@@ -3828,12 +3547,10 @@ public abstract class ServerResourceBase implements ServerResource {
                 return false;
             }
 
-            // LUN 디바이스인 경우 SCSI 디바이스 할당 상태 확인
             if ("LUN".equals(deviceType) && mapping.getScsiDevicePath() != null) {
                 return isScsiDeviceAllocatedToVm(mapping.getScsiDevicePath(), currentVmName);
             }
 
-            // SCSI 디바이스인 경우 LUN 디바이스 할당 상태 확인
             if ("SCSI".equals(deviceType) && mapping.getLunDevicePath() != null) {
                 return isLunDeviceAllocatedToVm(mapping.getLunDevicePath(), currentVmName);
             }
@@ -3841,17 +3558,13 @@ public abstract class ServerResourceBase implements ServerResource {
             return false;
 
         } catch (Exception e) {
-            logger.error("Error checking device allocation in other type: " + e.getMessage(), e);
+
             return false;
         }
     }
 
-    /**
-     * SCSI 디바이스가 다른 VM에 할당되어 있는지 확인
-     */
     private boolean isScsiDeviceAllocatedToVm(String scsiDevicePath, String currentVmName) {
         try {
-            // 모든 호스트에서 SCSI 디바이스 할당 상태 확인
             Script cmd = new Script("/bin/bash");
             cmd.add("-c");
             cmd.add("find /var/lib/libvirt/qemu/ -name '*.xml' -exec grep -l '" + scsiDevicePath + "' {} \\; 2>/dev/null");
@@ -3862,10 +3575,9 @@ public abstract class ServerResourceBase implements ServerResource {
                 String[] xmlFiles = parser.getLines().trim().split("\n");
                 for (String xmlFile : xmlFiles) {
                     if (xmlFile.contains(currentVmName)) {
-                        continue; // 현재 VM은 제외
+                        continue;
                     }
 
-                    // XML 파일에서 SCSI 디바이스가 실제로 할당되어 있는지 확인
                     if (isScsiDeviceInXml(xmlFile, scsiDevicePath)) {
                         return true;
                     }
@@ -3882,7 +3594,6 @@ public abstract class ServerResourceBase implements ServerResource {
      */
     private boolean isLunDeviceAllocatedToVm(String lunDevicePath, String currentVmName) {
         try {
-            // 모든 호스트에서 LUN 디바이스 할당 상태 확인
             Script cmd = new Script("/bin/bash");
             cmd.add("-c");
             cmd.add("find /var/lib/libvirt/qemu/ -name '*.xml' -exec grep -l '" + lunDevicePath + "' {} \\; 2>/dev/null");
@@ -3896,7 +3607,6 @@ public abstract class ServerResourceBase implements ServerResource {
                         continue; // 현재 VM은 제외
                     }
 
-                    // XML 파일에서 LUN 디바이스가 실제로 할당되어 있는지 확인
                     if (isLunDeviceInXml(xmlFile, lunDevicePath)) {
                         return true;
                     }
@@ -3960,7 +3670,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 return null;
             }
 
-            // SCSI XML 생성
             StringBuilder scsiXml = new StringBuilder();
             scsiXml.append("<hostdev mode='subsystem' type='scsi' managed='yes'>\n");
             scsiXml.append("  <source>\n");
@@ -3984,13 +3693,11 @@ public abstract class ServerResourceBase implements ServerResource {
      */
     private String generateLunXmlFromScsiXml(String scsiXmlConfig, String lunDevicePath) {
         try {
-            // SCSI XML에서 기본 구조 추출
             String scsiDeviceName = extractDeviceNameFromScsiXml(scsiXmlConfig);
             if (scsiDeviceName == null) {
                 return null;
             }
 
-            // LUN XML 생성
             StringBuilder lunXml = new StringBuilder();
             lunXml.append("<disk type='block' device='disk'>\n");
             lunXml.append("  <driver name='qemu' type='raw' cache='none'/>\n");
