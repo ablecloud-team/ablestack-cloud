@@ -102,6 +102,19 @@ public class CreateSnapshotBackupCmd extends BaseAsyncCreateCmd {
             since = "4.19.0")
     protected List<Long> zoneIds;
 
+    @Parameter(name = ApiConstants.STORAGE_ID_LIST,
+            type=CommandType.LIST,
+            collectionType = CommandType.UUID,
+            entityType = StoragePoolResponse.class,
+            authorized = RoleType.Admin,
+            description = "A comma-separated list of IDs of the storage pools in other zones in which the snapshot will be made available. " +
+                    "The snapshot will always be made available in the zone in which the volume is present.",
+            since = "4.21.0")
+    protected List<Long> storagePoolIds;
+
+    @Parameter (name = ApiConstants.USE_STORAGE_REPLICATION, type=CommandType.BOOLEAN, required = false, description = "This parameter enables the option the snapshot to be copied to supported primary storage")
+    protected Boolean useStorageReplication;
+
     private String syncObjectType = BaseAsyncCmd.snapshotHostSyncObject;
 
     // ///////////////////////////////////////////////////
@@ -168,6 +181,17 @@ public class CreateSnapshotBackupCmd extends BaseAsyncCreateCmd {
         return zoneIds;
     }
 
+    public List<Long> getStoragePoolIds() {
+        return storagePoolIds == null ? new ArrayList<>() : storagePoolIds;
+    }
+
+    public Boolean useStorageReplication() {
+        if (useStorageReplication == null) {
+            return false;
+        }
+        return useStorageReplication;
+    }
+
     // ///////////////////////////////////////////////////
     // ///////////// API Implementation///////////////////
     // ///////////////////////////////////////////////////
@@ -216,7 +240,7 @@ public class CreateSnapshotBackupCmd extends BaseAsyncCreateCmd {
 
     @Override
     public void create() throws ResourceAllocationException {
-        Snapshot snapshot = _volumeService.allocSnapshot(getVolumeId(), getPolicyId(), getSnapshotName(), getLocationType(), getZoneIds(), null, null);
+        Snapshot snapshot = _volumeService.allocSnapshot(getVolumeId(), getPolicyId(), getSnapshotName(), getLocationType(), getZoneIds(), getStoragePoolIds(), useStorageReplication());
         if (snapshot != null) {
             setEntityId(snapshot.getId());
             setEntityUuid(snapshot.getUuid());
@@ -230,7 +254,7 @@ public class CreateSnapshotBackupCmd extends BaseAsyncCreateCmd {
         Snapshot snapshot;
         try {
             snapshot =
-                _volumeService.takeSnapshot(getVolumeId(), getPolicyId(), getEntityId(), _accountService.getAccount(getEntityOwnerId()), getQuiescevm(), getLocationType(), getAsyncBackup(), getTags(), getZoneIds(), getBackup());
+                _volumeService.takeSnapshot(getVolumeId(), getPolicyId(), getEntityId(), _accountService.getAccount(getEntityOwnerId()), getQuiescevm(), getLocationType(), getAsyncBackup(), getTags(), getZoneIds(), getStoragePoolIds(), useStorageReplication(), getBackup());
 
             if (snapshot != null) {
                 SnapshotResponse response = _responseGenerator.createSnapshotResponse(snapshot);

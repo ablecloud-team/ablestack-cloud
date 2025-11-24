@@ -3990,9 +3990,9 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_SNAPSHOT_CREATE, eventDescription = "taking snapshot", async = true)
     public Snapshot takeSnapshot(Long volumeId, Long policyId, Long snapshotId, Account account, boolean quiescevm,
-         Snapshot.LocationType locationType, boolean asyncBackup, Map<String, String> tags, List<Long> zoneIds, boolean backup)
+         Snapshot.LocationType locationType, boolean asyncBackup, Map<String, String> tags, List<Long> zoneIds, List<Long> poolIds, Boolean useStorageReplication, boolean backup)
             throws ResourceAllocationException {
-        final Snapshot snapshot = takeSnapshotInternal(volumeId, policyId, snapshotId, account, quiescevm, locationType, asyncBackup, zoneIds, backup);
+        final Snapshot snapshot = takeSnapshotInternal(volumeId, policyId, snapshotId, account, quiescevm, locationType, asyncBackup, zoneIds, poolIds, useStorageReplication, backup);
         if (snapshot != null && MapUtils.isNotEmpty(tags)) {
             taggedResourceService.createTags(Collections.singletonList(snapshot.getUuid()), ResourceTag.ResourceObjectType.Snapshot, tags, null);
         }
@@ -4105,10 +4105,12 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     private Snapshot takeSnapshotInternal(Long volumeId, Long policyId, Long snapshotId, Account account,
-          boolean quiescevm, Snapshot.LocationType locationType, boolean asyncBackup, List<Long> zoneIds, boolean backup)
+          boolean quiescevm, Snapshot.LocationType locationType, boolean asyncBackup, List<Long> zoneIds, List<Long> poolIds, Boolean useStorageReplication, boolean backup)
             throws ResourceAllocationException {
         Account caller = CallContext.current().getCallingAccount();
         VolumeInfo volume = volFactory.getVolume(volumeId);
+        poolIds = snapshotHelper.addStoragePoolsForCopyToPrimary(volume, zoneIds, poolIds, useStorageReplication);
+        canCopyOnPrimary(poolIds, volume,CollectionUtils.isEmpty(poolIds));
         if (volume == null) {
             throw new InvalidParameterValueException("Creating snapshot failed due to volume:" + volumeId + " doesn't exist");
         }
@@ -4118,6 +4120,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             }
             List<SnapshotPolicyDetailVO> details = snapshotPolicyDetailsDao.findDetails(policyId, ApiConstants.ZONE_ID);
             zoneIds = details.stream().map(d -> Long.valueOf(d.getValue())).collect(Collectors.toList());
+            poolIds = getPoolIdsByPolicy(policyId, poolIds);
         }
         if (CollectionUtils.isNotEmpty(zoneIds)) {
             for (Long destZoneId : zoneIds) {
@@ -4156,14 +4159,14 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 placeHolder = createPlaceHolderWork(vm.getId());
                 try {
                     return orchestrateTakeVolumeSnapshot(volumeId, policyId, snapshotId, account, quiescevm,
-                            locationType, asyncBackup, zoneIds, backup);
+                            locationType, asyncBackup, zoneIds, poolIds, backup);
                 } finally {
                     _workJobDao.expunge(placeHolder.getId());
                 }
 
             } else {
                 Outcome<Snapshot> outcome = takeVolumeSnapshotThroughJobQueue(vm.getId(), volumeId, policyId,
-                        snapshotId, account.getId(), quiescevm, locationType, asyncBackup, zoneIds, backup);
+                        snapshotId, account.getId(), quiescevm, locationType, asyncBackup, zoneIds, poolIds, backup);
 
                 try {
                     outcome.get();
@@ -4195,6 +4198,9 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             payload.setAsyncBackup(asyncBackup);
             if (CollectionUtils.isNotEmpty(zoneIds)) {
                 payload.setZoneIds(zoneIds);
+            }
+            if (CollectionUtils.isNotEmpty(poolIds)) {
+                payload.setStoragePoolIds(poolIds);
             }
             payload.setBackup(backup);
             volume.addPayload(payload);
@@ -4253,7 +4259,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     private Snapshot orchestrateTakeVolumeSnapshot(Long volumeId, Long policyId, Long snapshotId, Account account,
-        boolean quiescevm, Snapshot.LocationType locationType, boolean asyncBackup, List<Long> zoneIds, boolean backup)
+        boolean quiescevm, Snapshot.LocationType locationType, boolean asyncBackup, List<Long> zoneIds, List<Long> poolIds, boolean backup)
             throws ResourceAllocationException {
         VolumeInfo volume = volFactory.getVolume(volumeId);
 
@@ -4282,6 +4288,9 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         payload.setBackup(backup);
         if (CollectionUtils.isNotEmpty(zoneIds)) {
             payload.setZoneIds(zoneIds);
+        }
+        if (CollectionUtils.isNotEmpty(poolIds)) {
+            payload.setStoragePoolIds(poolIds);
         }
         volume.addPayload(payload);
 
@@ -5570,7 +5579,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     public Outcome<Snapshot> takeVolumeSnapshotThroughJobQueue(final Long vmId, final Long volumeId, final Long policyId, final Long snapshotId, final Long accountId, final boolean quiesceVm,
-                                                               final Snapshot.LocationType locationType, final boolean asyncBackup, final List<Long> zoneIds, final boolean backup) {
+                                                               final Snapshot.LocationType locationType, final boolean asyncBackup, final List<Long> zoneIds, List<Long> poolIds, final boolean backup) {
         final CallContext context = CallContext.current();
         final User callingUser = context.getCallingUser();
         final Account callingAccount = context.getCallingAccount();
@@ -5591,7 +5600,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
         // save work context info (there are some duplications)
         VmWorkTakeVolumeSnapshotBackup workInfo = new VmWorkTakeVolumeSnapshotBackup(callingUser.getId(), accountId != null ? accountId : callingAccount.getId(), vm.getId(),
-                VolumeApiServiceImpl.VM_WORK_JOB_HANDLER, volumeId, policyId, snapshotId, quiesceVm, locationType, asyncBackup, zoneIds, backup);
+                VolumeApiServiceImpl.VM_WORK_JOB_HANDLER, volumeId, policyId, snapshotId, quiesceVm, locationType, asyncBackup, zoneIds, poolIds, backup);
         workJob.setCmdInfo(VmWorkSerializer.serialize(workInfo));
 
         _jobMgr.submitAsyncJob(workJob, VmWorkConstants.VM_WORK_QUEUE, vm.getId());
@@ -5650,7 +5659,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     private Pair<JobInfo.Status, String> orchestrateTakeVolumeSnapshot(VmWorkTakeVolumeSnapshotBackup work) throws Exception {
         Account account = _accountDao.findById(work.getAccountId());
         orchestrateTakeVolumeSnapshot(work.getVolumeId(), work.getPolicyId(), work.getSnapshotId(), account,
-                work.isQuiesceVm(), work.getLocationType(), work.isAsyncBackup(), work.getZoneIds(), work.getBackup());
+                work.isQuiesceVm(), work.getLocationType(), work.isAsyncBackup(), work.getZoneIds(), work.getPoolIds(), work.getBackup());
         return new Pair<JobInfo.Status, String>(JobInfo.Status.SUCCEEDED, _jobMgr.marshallResultObject(work.getSnapshotId()));
     }
 

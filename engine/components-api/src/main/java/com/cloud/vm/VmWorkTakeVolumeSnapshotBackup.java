@@ -30,13 +30,15 @@ public class VmWorkTakeVolumeSnapshotBackup extends VmWork {
     private boolean quiesceVm;
     private Snapshot.LocationType locationType;
     private boolean asyncBackup;
+    private boolean useStorageReplication;
     private boolean backup;
 
     private List<Long> zoneIds;
+    private List<Long> storagePoolIds;
 
     public VmWorkTakeVolumeSnapshotBackup(long userId, long accountId, long vmId, String handlerName,
             Long volumeId, Long policyId, Long snapshotId, boolean quiesceVm, Snapshot.LocationType locationType,
-            boolean asyncBackup, List<Long> zoneIds, boolean backup) {
+            boolean asyncBackup, List<Long> zoneIds, List<Long> storagePoolIds, boolean useStorageReplication, boolean backup) {
         super(userId, accountId, vmId, handlerName);
         this.volumeId = volumeId;
         this.policyId = policyId;
@@ -45,6 +47,8 @@ public class VmWorkTakeVolumeSnapshotBackup extends VmWork {
         this.locationType = locationType;
         this.asyncBackup = asyncBackup;
         this.zoneIds = zoneIds;
+        this.storagePoolIds = storagePoolIds;
+        this.useStorageReplication = useStorageReplication;
         this.backup = backup;
     }
 
@@ -72,6 +76,14 @@ public class VmWorkTakeVolumeSnapshotBackup extends VmWork {
 
     public List<Long> getZoneIds() {
         return zoneIds;
+    }
+
+    public List<Long> getStoragePoolIds() {
+        return storagePoolIds;
+    }
+
+    public boolean getUseStorageReplication() {
+        return useStorageReplication;
     }
 
     public boolean getBackup() {
