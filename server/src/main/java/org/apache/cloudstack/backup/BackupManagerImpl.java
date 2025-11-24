@@ -465,15 +465,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         return new Gson().toJson(list.toArray(), Backup.VolumeInfo[].class);
     }
 
-    public static String createVolumeInfoFromVolumes(List<VolumeVO> vmVolumes, Map<Object, String> checkResult) {
-        List<Backup.VolumeInfo> list = new ArrayList<>();
-        vmVolumes.sort(Comparator.comparing(VolumeVO::getDeviceId));
-        for (VolumeVO vol : vmVolumes) {
-            list.add(new Backup.VolumeInfo(vol.getUuid(), vol.getPath(), vol.getVolumeType(), vol.getSize()));
-        }
-        return new Gson().toJson(list.toArray(), Backup.VolumeInfo[].class);
-    }
-
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_OFFERING_ASSIGN, eventDescription = "assign VM to backup offering", async = true)
     public boolean assignVMToBackupOffering(Long vmId, Long offeringId) {
