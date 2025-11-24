@@ -15,9 +15,8 @@ export default {
     'name', // 규칙명
     'ispaused',
     'silenceEndsAt',
-    'state', // ALERTING/PENDING/OK/NODATA
+    { field: 'state', customTitle: 'alert.state' },
     'threshold',
-    'operator',
     'rulegroup',
     'kind', // HOST/STORAGE/CLOUD/USER
     'lastEvaluation'
@@ -29,6 +28,7 @@ export default {
     'state',
     'ispaused',
     'threshold',
+    'operator',
     'rulegroup',
     'kind',
     'lastEvaluation',
@@ -44,7 +44,6 @@ export default {
       ...item,
       summary: summary || '-',
       description: description || '-',
-      rawState: item.state,
       state: item && item.ispaused ? 'stopped' : 'running',
       silenceStartsAt: item && item.silenceStartsAt ? item.silenceStartsAt : '-',
       silenceEndsAt: item && item.silenceEndsAt ? item.silenceEndsAt : '-',
