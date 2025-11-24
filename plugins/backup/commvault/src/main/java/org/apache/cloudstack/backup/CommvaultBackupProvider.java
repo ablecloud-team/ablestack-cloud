@@ -599,7 +599,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     public Pair<Boolean, String> restoreBackedUpVolume(Backup backup, Backup.VolumeInfo backupVolumeInfo, String hostIp, String dataStoreUuid, Pair<String, VirtualMachine.State> vmNameAndState) {
         final VolumeVO volume = volumeDao.findByUuid(backupVolumeInfo.getUuid());
         List<Backup.VolumeInfo> backedVolumes = backup.getBackedUpVolumes();
-
+        final DiskOffering diskOffering = diskOfferingDao.findByUuid(backupVolumeInfo.getDiskOfferingId());
+        final StoragePoolVO pool = primaryDataStoreDao.findByUuid(dataStoreUuid);
         try {
             String commvaultServer = getUrlDomain(CommvaultUrl.value());
         } catch (URISyntaxException e) {
@@ -665,16 +666,16 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                     backup.getDomainId(), backup.getAccountId(), 0, null,
                                     backup.getSize(), null, null, null);
                             restoredVolume.setName("RV-"+volume.getName());
-                            restoredVolume.setProvisioningType(volume.getProvisioningType());
+                            restoredVolume.setProvisioningType(diskOffering.getProvisioningType());
                             restoredVolume.setUpdated(new Date());
                             restoredVolume.setUuid(UUID.randomUUID().toString());
                             restoredVolume.setRemoved(null);
                             restoredVolume.setDisplayVolume(true);
-                            restoredVolume.setPoolId(volumes.getPoolId());
+                            restoredVolume.setPoolId(pool.getId());
                             restoredVolume.setPath(restoredVolume.getUuid());
                             restoredVolume.setState(Volume.State.Copying);
                             restoredVolume.setSize(restoredVolumeDiskSize);
-                            restoredVolume.setDiskOfferingId(volume.getDiskOfferingId());
+                            restoredVolume.setDiskOfferingId(diskOffering.getId());
                             try {
                                 volumeDao.persist(restoredVolume);
                             } catch (Exception e) {
@@ -916,8 +917,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         backup.setAccountId(vm.getAccountId());
                         backup.setDomainId(vm.getDomainId());
                         backup.setZoneId(vm.getDataCenterId());
+                        backup.setName(backupManager.getBackupNameFromVM(vm));
                         List<Volume> vols = new ArrayList<>(volumeDao.findByInstance(vm.getId()));
                         backup.setBackedUpVolumes(backupManager.createVolumeInfoFromVolumes(vols));
+                        Map<String, String> details = backupManager.getBackupDetailsFromVM(vm);
+                        backup.setDetails(details);
                         StringJoiner snapshots = new StringJoiner(",");
                         for (String value : checkResult.values()) {
                             snapshots.add(value);
