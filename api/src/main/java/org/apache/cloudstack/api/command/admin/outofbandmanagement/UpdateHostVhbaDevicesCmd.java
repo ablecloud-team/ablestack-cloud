@@ -53,6 +53,10 @@ public class UpdateHostVhbaDevicesCmd extends BaseCmd {
             description = "XML configuration for device attachment")
     private String xmlConfig;
 
+    @Parameter(name = ApiConstants.HOSTDEVICES_TEXT, type = CommandType.STRING, required = false,
+            description = "Device detail text")
+    private String hostDeviceText;
+
     @Parameter(name = ApiConstants.CURRENT_VM_ID, type = CommandType.STRING, required = false,
             description = "Current VM ID")
     private String currentVmId;
@@ -76,6 +80,10 @@ public class UpdateHostVhbaDevicesCmd extends BaseCmd {
 
     public String getXmlConfig() {
         return xmlConfig;
+    }
+
+    public String getHostDeviceText() {
+        return hostDeviceText;
     }
 
     public void setXmlConfig(String xmlConfig) {

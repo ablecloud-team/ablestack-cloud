@@ -248,6 +248,7 @@ export default {
         await api('updateHostScsiDevices', {
           hostid: this.resource.id,
           hostdevicesname: this.resource.hostDevicesName,
+          hostdevicestext: hostDevicesText || '',
           virtualmachineid: this.form.virtualmachineid,
           xmlconfig: xmlConfig,
           isattach: true
