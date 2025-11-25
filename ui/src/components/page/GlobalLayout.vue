@@ -230,6 +230,8 @@ export default {
       if (!Number.isNaN(bootH) && bootH >= 0) {
         this.autoBannerHeight = bootH
         document.documentElement.style.setProperty('--autoBannerHeight', bootH + 'px')
+        // ✅ 추가: 첫 프레임부터 --affixTopHeader를 맞춰 메뉴/헤더 정렬
+        this.updateAffixTopVars() // ← 이 한 줄을 debouncedRecalc() 이전에 호출
         this.debouncedRecalc && this.debouncedRecalc()
       }
     } catch (_) {}
@@ -273,6 +275,7 @@ export default {
     try { this.roAnnounce && this.roAnnounce.disconnect() } catch (_) {}
     document.body.classList.remove('dark')
     if (this.recalcTimer) clearTimeout(this.recalcTimer)
+    try { localStorage.setItem('autoAlertBanner.lastHeight', '0') } catch (_) {}
   },
   methods: {
     onResize () {
@@ -282,12 +285,15 @@ export default {
         this.debouncedRecalc()
       }
     },
-    // ✅ 높이 이벤트를 항상 신뢰하여 즉시 반영합니다(감소도 포함).
+    // 높이 이벤트를 항상 신뢰하여 즉시 반영합니다(감소도 포함).
     onAutoBannerHeight (evt) {
       const h = Math.max(0, Number(evt && evt.detail && evt.detail.height) || 0)
       if (h !== this.autoBannerHeight) {
         this.autoBannerHeight = h
-        this.debouncedRecalc()
+        // 선택(권장): 캐시 최신화
+        try { localStorage.setItem('autoAlertBanner.lastHeight', String(h)) } catch (_) {}
+        // 지연 없이 즉시 반영
+        this.recalcCombined()
       }
     },
     // 참고용 훅: 필요 시 지연 재계산만 수행합니다.

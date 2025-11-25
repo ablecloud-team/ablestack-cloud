@@ -92,6 +92,7 @@ Licensed to the Apache Software Foundation (ASF) ...
         </a-form-item>
 
         <div class="action-button">
+          <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button
             html-type="submit"
             :loading="loading || submitting"
@@ -210,7 +211,7 @@ export default {
               return Promise.reject(new Error(this.$t('error.number.required')))
             }
             if (this.isPercentRule && (a < 0 || a > 100)) {
-              return Promise.reject(new Error(this.tOr('error.percent.range', '0~100 범위여야 합니다')))
+              return Promise.reject(new Error(this.$t('error.percent.range')))
             }
             return Promise.resolve()
           }
@@ -228,11 +229,11 @@ export default {
               return Promise.reject(new Error(this.$t('error.number.required')))
             }
             if (this.isPercentRule && (a < 0 || a > 100 || b < 0 || b > 100)) {
-              return Promise.reject(new Error(this.tOr('error.percent.range', '0~100 범위여야 합니다')))
+              return Promise.reject(new Error(this.$t('error.percent.range')))
             }
             // 퍼센트 + outside + 0~100 전체 범위는 모순 → 금지
             if (this.isPercentRule && this.form.operator === 'outside' && a <= 0 && b >= 100) {
-              return Promise.reject(new Error(this.tOr('error.percent.outside.full', '0~100 전체 범위를 벗어난 조건은 만들 수 없습니다. 범위를 좁혀주세요.')))
+              return Promise.reject(new Error(this.$t('error.percent.outside.full')))
             }
             if (b < a) {
               return Promise.reject(new Error(this.$t('error.range.invalid')))
@@ -414,7 +415,7 @@ export default {
         const t2 = this.fmt(payload.threshold2)
         const desc = this.buildDesc(uiOp, t1, t2)
 
-        // ✅ 성공 알림: 규칙명 + 자연어 임계치 설명 병기 (i18n 키 변경 없음)
+        //  성공 알림: 규칙명 + 자연어 임계치 설명 병기 (i18n 키 변경 없음)
         const ruleName =
           String(this.resource?.name || this.resource?.title || this.resource?.uid || this.resource?.id || '')
         this.$emit('refresh-data')

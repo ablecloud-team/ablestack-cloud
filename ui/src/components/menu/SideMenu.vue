@@ -103,14 +103,14 @@ export default {
   :deep(.ant-menu-inline) .ant-menu-item:not(:last-child) { margin-bottom: 0px; }
   :deep(.ant-menu-inline) .ant-menu-item { margin-top: 0px; }
 
-  /* ✅ 고정 사이드바: 배너 높이만큼 아래서 시작 + 하단까지 채움 */
+  /*  고정 사이드바: 배너 높이만큼 아래서 시작 + 하단까지 채움 */
   &.ant-fixed-sidemenu {
     position: fixed;
     top: var(--affixTopHeader, 0px); /* [추가] 배너 높이 반영 */
     bottom: 0;                       /* [추가] 하단 고정 */
     height: auto;                    /* [변경] 100% → auto (top/bottom로 계산) */
 
-    /* ✅ 고정 상태에서는 내부 컨테이너가 자체 스크롤을 가짐 */
+    /*  고정 상태에서는 내부 컨테이너가 자체 스크롤을 가짐 */
     :deep(.ant-layout-sider-children) {
       height: calc(100vh - var(--affixTopHeader, 0px)); /* 배너만큼 뺀 가시 높이 */
       min-height: 0;

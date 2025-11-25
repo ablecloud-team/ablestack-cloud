@@ -16,7 +16,7 @@
           style="margin-bottom: 12px"
         >
           <template #message>
-            {{ tOr('label.pause.infoTitle', '경고 규칙 일시 중지 시 영향') }}
+            {{ $t('label.pause.infoTitle') }}
           </template>
           <template #description>
             <ul class="bullet">
@@ -30,7 +30,7 @@
         <!-- 동의 체크 -->
         <a-form-item>
           <a-checkbox v-model:checked="ackChecked">
-            {{ tOr('label.pause.confirm.ack', '위 내용을 확인했으며 일시 중지를 적용합니다.') }}
+            {{ $t('label.pause.confirm.ack') }}
           </a-checkbox>
         </a-form-item>
 

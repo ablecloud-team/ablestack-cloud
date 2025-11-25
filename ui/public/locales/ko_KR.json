@@ -3274,7 +3274,7 @@
 "message.error.zone.for.cluster": "\ucfe0\ubc84\ub124\ud2f0\uc2a4 \ud074\ub7ec\uc2a4\ud130\uc5d0 \ub300\ud55c Zone\uc744 \uc120\ud0dd\ud558\uc2ed\uc2dc\uc624.",
 "message.error.zone.name": "Zone \uc774\ub984\uc744 \uc785\ub825\ud558\uc2ed\uc2dc\uc624.",
 "message.error.zone.type": "Zone \uc720\ud615\uc744 \uc120\ud0dd\ud558\uc2ed\uc2dc\uc624.",
-"message.error.linstor.resourcegroup": "Linstor \ub9ac\uc18c\uc2a4 \uadf8\ub8f9\uc744 \uc785\ub825\ud558\uc2ed\uc2dc\uc624.",  
+"message.error.linstor.resourcegroup": "Linstor \ub9ac\uc18c\uc2a4 \uadf8\ub8f9\uc744 \uc785\ub825\ud558\uc2ed\uc2dc\uc624.",
 "message.error.fixed.offering.kvm": "\uace0\uc815 \ucef4\ud4e8\ud305 \uc624\ud37c\ub9c1\uc73c\ub85c KVM \ud558\uc774\ud37c\ubc14\uc774\uc800\ub97c \ud65c\uc6a9\ud558\ub294 VM\uc744 \uc2a4\ucf00\uc77c\uc5c5 \ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.",
 "message.error.create.webhook.local.account": "\ub85c\uceec \ubc94\uc704\uc758 Webhook\uc744 \uc0dd\uc131\ud558\ub824\uba74 \uacc4\uc815\uc774 \uc81c\uacf5\ub418\uc5b4\uc57c \ud569\ub2c8\ub2e4.",
 "message.error.create.webhook.name": "Webhook\uc744 \uc0dd\uc131\ud558\ub824\uba74 \uc774\ub984\uc744 \uc81c\uacf5\ud574\uc57c \ud569\ub2c8\ub2e4.",
@@ -4996,5 +4996,12 @@
 "label.no.devices": "\uc7a5\uce58 \uc5c6\uc74c",
 "label.vhba.devices": "vHBA \uc7a5\uce58",
 "message.warning.host.device": "\uae00\ub85c\ubc8c \uc124\uc815\uc5d0\uc11c enable.additional.vm.configuration\ub97c true\ub85c \uc124\uc815\ud574\uc57c\ud569\ub2c8\ub2e4.",
-"label.alert.state": "\ud3c9\uac00\u0020\uc0c1\ud0dc"
+"label.alert.state": "\ud3c9\uac00\u0020\uc0c1\ud0dc",
+"label.silenceperiod.select": "\uc0ac\uc77c\ub7f0\uc2a4 \uae30\uac04 \uc120\ud0dd",
+"label.silence.duration.minutes": "{0}\ubd84 \ub3d9\uc548 \uc0ac\uc77c\ub7f0\uc2a4",
+"label.silence.duration.hours": "{0}\uc2dc\uac04 \ub3d9\uc548 \uc0ac\uc77c\ub7f0\uc2a4",
+"label.silence.duration.days": "{0}\uc77c \ub3d9\uc548 \uc0ac\uc77c\ub7f0\uc2a4",
+"label.silence.duration.weeks": "{0}\uc8fc \ub3d9\uc548 \uc0ac\uc77c\ub7f0\uc2a4",
+"label.silence.duration.months": "{0}\uac1c\uc6d4 \ub3d9\uc548 \uc0ac\uc77c\ub7f0\uc2a4",
+"alert.wall.rule": "\u0057\u0061\u006c\u006c\u002e\uacbd\uace0\u002e\uaddc\uce59"
 }

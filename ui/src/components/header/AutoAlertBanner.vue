@@ -975,7 +975,7 @@ export default {
     }
     const closeSilence = () => { silenceModal.value = { visible: false, target: null } }
 
-    // ✅ 사일런스 적용 직후: 해당 UID 소프트클로즈 + 로컬 캐시 반영 + 새로고침
+    //  사일런스 적용 직후: 해당 UID 소프트클로즈 + 로컬 캐시 반영 + 새로고침
     const onSilenceRefresh = async (info) => {
       try {
         const uidFromModal = info && (info.uid || info.ruleUid)
