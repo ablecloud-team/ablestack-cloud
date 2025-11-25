@@ -3,7 +3,7 @@ const fs = require('fs')
 const path = require('path')
 
 const CONFIG_PATH = path.resolve(__dirname, './public/config.json')
-const VERSION_PATH = '/mnt/versionInfo.txt'
+const VERSION_PATH = '/mnt/version.txt'
 const TMP_PATH = CONFIG_PATH + '.tmp'
 
 function readJSON (file) {

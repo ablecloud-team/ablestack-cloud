@@ -828,8 +828,6 @@ public class ClusterManagerImpl extends ManagerBase implements ClusterManager, C
             if (downHostList.size() > 0) {
                 queueNotification(new ClusterManagerMessage(ClusterManagerMessage.MessageType.nodeRemoved, downHostList));
             }
-        } else {
-            logger.debug("No inactive management server node found");
         }
     }
 
@@ -1015,8 +1013,6 @@ public class ClusterManagerImpl extends ManagerBase implements ClusterManager, C
                     _mshostDao.update(host.getId(), host);
                 }
             }
-        } else {
-            logger.debug("No inactive management server node found");
         }
     }
 
