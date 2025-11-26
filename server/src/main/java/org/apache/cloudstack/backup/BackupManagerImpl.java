@@ -126,6 +126,8 @@ import com.cloud.storage.DiskOfferingVO;
 import com.cloud.storage.GuestOSVO;
 import com.cloud.storage.ScopeType;
 import com.cloud.storage.Storage;
+import com.cloud.storage.StoragePoolStatus;
+import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeApiService;
 import com.cloud.storage.VolumeVO;
@@ -308,6 +310,19 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
 
         final BackupProvider provider = getBackupProvider(providerName);
+        if ("commvault".equals(providerName)) {
+            List<StoragePoolVO> pools = primaryDataStoreDao.listByDataCenterId(cmd.getZoneId());
+            boolean validPool = false;
+            for (StoragePoolVO pool : pools) {
+                if (pool.getStatus() == StoragePoolStatus.Up && pool.getPoolType() == StoragePoolType.SharedMountPoint) {
+                    validPool = true;
+                    break;
+                }
+            }
+            if (!validPool) {
+                throw new CloudRuntimeException("The backup offering cannot be imported because storage of type SharedMountPoint with storage status Up does not exist.");
+            }
+        }
         if (!provider.isValidProviderOffering(cmd.getZoneId(), cmd.getExternalId())) {
             throw new CloudRuntimeException("Backup offering '" + cmd.getExternalId() + "' does not exist on provider " + provider.getName() + " on zone " + cmd.getZoneId());
         }
