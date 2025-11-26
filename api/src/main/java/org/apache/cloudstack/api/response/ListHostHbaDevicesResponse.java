@@ -50,6 +50,10 @@ public class ListHostHbaDevicesResponse extends BaseResponse {
     @Param(description = "List of parent HBA names for vHBA devices")
     private List<String> parentHbaNames;
 
+    @SerializedName("devicedetails")
+    @Param(description = "Map of device to device details")
+    private Map<String, String> deviceDetails;
+
     public ListHostHbaDevicesResponse(List<String> hostDevicesName, List<String> hostDevicesText) {
         this.hostDevicesName = hostDevicesName;
         this.hostDevicesText = hostDevicesText;
@@ -106,6 +110,14 @@ public class ListHostHbaDevicesResponse extends BaseResponse {
 
     public Map<String, String> getVmAllocations() {
         return this.vmAllocations;
+    }
+
+    public Map<String, String> getDeviceDetails() {
+        return this.deviceDetails;
+    }
+
+    public void setDeviceDetails(Map<String, String> deviceDetails) {
+        this.deviceDetails = deviceDetails;
     }
 
 }

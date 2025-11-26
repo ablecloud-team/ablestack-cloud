@@ -42,6 +42,10 @@ public class ListHostUsbDevicesResponse extends BaseResponse {
     @Param(description = "Map of device to VM allocations")
     private Map<String, String> vmAllocations;
 
+    @SerializedName("devicedetails")
+    @Param(description = "Map of device to device details")
+    private Map<String, String> deviceDetails;
+
     public ListHostUsbDevicesResponse(List<String> hostDevicesName, List<String> hostDevicesText) {
         this.hostDevicesName = hostDevicesName;
         this.hostDevicesText = hostDevicesText;
@@ -74,6 +78,14 @@ public class ListHostUsbDevicesResponse extends BaseResponse {
 
     public Map<String, String> getVmAllocations() {
         return this.vmAllocations;
+    }
+
+    public Map<String, String> getDeviceDetails() {
+        return this.deviceDetails;
+    }
+
+    public void setDeviceDetails(Map<String, String> deviceDetails) {
+        this.deviceDetails = deviceDetails;
     }
 
 }
