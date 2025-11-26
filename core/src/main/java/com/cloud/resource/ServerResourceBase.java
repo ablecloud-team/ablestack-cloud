@@ -1297,7 +1297,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 String name = sgdev;
 
                 StringBuilder text = new StringBuilder();
-                text.append("SCSI Address: ").append(scsiAddr);
+                text.append("SCSI_Address: ").append(scsiAddr);
 
                 String displayName = name;
                 try {
@@ -1386,7 +1386,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 String byId = resolveById(realToById, dev);
 
                 StringBuilder text = new StringBuilder();
-                text.append("SCSI Address: ").append(scsiAddress != null ? ("["+scsiAddress+"]") : "");
+                text.append("SCSI_Address: ").append(scsiAddress != null ? ("["+scsiAddress+"]") : "");
                 text.append(" Type: disk");
                 if (vendor != null) text.append(" Vendor: ").append(vendor);
                 if (model != null) text.append(" Model: ").append(model);
@@ -1479,7 +1479,7 @@ public abstract class ServerResourceBase implements ServerResource {
                         String detailedInfo = getHbaDeviceDetailsFromVports(hbaName);
                         String scsiAddress = scsiAddressMap.get(hbaName);
                         if (scsiAddress != null) {
-                            detailedInfo += "\nSCSI Address: " + scsiAddress;
+                            detailedInfo += "\nSCSI_Address: " + scsiAddress;
                         }
 
                         hostDevicesNames.add(hbaName);
@@ -1535,7 +1535,7 @@ public abstract class ServerResourceBase implements ServerResource {
                     details.append(" WWPN: ").append(wwpn);
                 }
                 if (!fabricWwn.isEmpty() && !fabricWwn.equals("0")) {
-                    details.append(" Fabric WWN: ").append(fabricWwn);
+                    details.append(" Fabric_WWN: ").append(fabricWwn);
                 }
             }
         } catch (Exception e) {
@@ -1970,13 +1970,13 @@ public abstract class ServerResourceBase implements ServerResource {
                         if (descBuilder.length() > 0) {
                             descBuilder.append(" ");
                         }
-                        descBuilder.append("Fabric WWN: ").append(fabricWwn);
+                        descBuilder.append("Fabric_WWN: ").append(fabricWwn);
                     }
                     if (!scsiAddress.isEmpty()) {
                         if (descBuilder.length() > 0) {
                             descBuilder.append(" ");
                         }
-                        descBuilder.append("SCSI Address: ").append(scsiAddress);
+                        descBuilder.append("SCSI_Address: ").append(scsiAddress);
                     } else {
                     }
                     // description 변수에 descBuilder 내용 할당

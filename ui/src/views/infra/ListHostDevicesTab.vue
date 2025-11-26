@@ -41,7 +41,7 @@
             <template v-if="column.key === 'hostDevicesName'">
               {{ record.hostDevicesName }}
             </template>
-            <template v-if="column.key === 'hostDevicesText'"><span v-html="formatHostDevicesText(record.hostDevicesText)"></span></template>
+            <template v-if="column.key === 'hostDevicesText'"><span v-html="formatHostDevicesText(record.hostDevicesText)" style="white-space: pre-line; line-height: 1.6; display: block;"></span></template>
             <template v-if="column.key === 'vmName'">
               <a-spin v-if="vmNameLoading" size="small" />
               <span v-else>{{ vmNames[record.hostDevicesName] || $t(' ') }}</span>
@@ -122,7 +122,7 @@
             <template v-if="column.key === 'hostDevicesText'">
               <div :style="{ paddingLeft: record.indent ? '20px' : '0px' }">
                 <template v-if="!record.isSummary">
-                  <span v-html="formatHostDevicesText(record.hostDevicesText)"></span>
+                  <span v-html="formatHostDevicesText(record.hostDevicesText)" style="white-space: pre-line; line-height: 1.6; display: block;"></span>
                 </template>
               </div>
             </template>
@@ -237,7 +237,7 @@
               {{ record.hostDevicesName }}
             </template>
             <template v-if="column.key === 'hostDevicesText'">
-              <span v-html="formatHostDevicesText(record.hostDevicesText)"></span>
+              <span v-html="formatHostDevicesText(record.hostDevicesText)" style="white-space: pre-line; line-height: 1.6; display: block;"></span>
             </template>
             <template v-if="column.dataIndex === 'vmName'">
               <a-spin v-if="vmNameLoading" size="small" />
@@ -290,7 +290,7 @@
             <template v-if="column.key === 'hostDevicesName'">
               <div style="white-space: pre-line; line-height: 1.4; min-height: 40px;">{{ formatDeviceName(record.hostDevicesName) }}</div>
             </template>
-            <template v-if="column.key === 'hostDevicesText'"><span v-html="formatHostDevicesText(record.hostDevicesText)"></span></template>
+            <template v-if="column.key === 'hostDevicesText'"><span v-html="formatHostDevicesText(record.hostDevicesText)" style="white-space: pre-line; line-height: 1.6; display: block;"></span></template>
             <template v-if="column.dataIndex === 'vmName'">
               <a-spin v-if="vmNameLoading" size="small" />
               <span v-else>
@@ -369,7 +369,7 @@
               <div style="white-space: pre-line; line-height: 1.4; min-height: 40px;">{{ formatDeviceName(record.hostDevicesName) }}</div>
             </template>
             <template v-if="column.key === 'hostDevicesText'">
-              <div style="white-space: pre-line;">{{ record.hostDevicesText }}</div>
+              <span v-html="formatHostDevicesText(record.hostDevicesText)" style="white-space: pre-line; line-height: 1.6; display: block;"></span>
             </template>
             <template v-if="column.dataIndex === 'vmName'">
               <a-spin v-if="vmNameLoading" size="small" />
@@ -2947,11 +2947,13 @@ export default {
       }
 
       return `
+      <devices>
         <hostdev mode='subsystem' type='pci' managed='yes'>
           <source>
             <address domain='0x0000' bus='${bus}' slot='${slot}' function='${func}'/>
           </source>
         </hostdev>
+      </devices>
       `.trim()
     },
     isVhbaDevice (record) {
@@ -4196,8 +4198,29 @@ export default {
 
       formattedText = formattedText.replace(/IN_USE:\s*false/gi, this.$t('label.not.in.use'))
       formattedText = formattedText.replace(/IN_USE:\s*true/gi, this.$t('label.in.use'))
+      const hasExistingLineBreaks = /[\r\n]/.test(formattedText)
 
       formattedText = formattedText.replace(/(?:\r\n|\r|\n)/g, '<br/>')
+      let changed = true
+      let loopCount = 0
+      while (changed && loopCount < 20) {
+        const before = formattedText
+        loopCount++
+        formattedText = formattedText.replace(/Fabric(\s*<br\/?>\s*)+WWN/gi, 'Fabric WWN')
+        formattedText = formattedText.replace(/SCSI(\s*<br\/?>\s*)+Address/gi, 'SCSI Address')
+
+        changed = (before !== formattedText)
+      }
+
+      if (!hasExistingLineBreaks) {
+        formattedText = formattedText.replace(/([^<])\s+(TYPE|SIZE|SCSI_ADDRESS|SCSI\s+Address|Vendor|Model|Revision|Device|BY_ID|WWNN|WWPN|Fabric\s+WWN|Max\s+vPorts)\s*:/gi, '$1<br/>$2:')
+        formattedText = formattedText.replace(/([^<])\s+(파티션\s*(없음|있음))/gi, '$1<br/>$2')
+        formattedText = formattedText.replace(/([^<]):\s*([^:\n<]+?)\s+([A-Z][A-Za-z_]{1,}\s*:)/g, '$1: $2<br/>$3')
+        formattedText = formattedText.replace(/([^<])\s+([A-Z][A-Za-z_]{2,}\s*:)/g, '$1<br/>$2')
+      } else {
+        formattedText = formattedText.replace(/([^<]):\s*([^:\n<]+?)(\s+)(TYPE|SIZE|SCSI_ADDRESS|SCSI\s+Address|Vendor|Model|Revision|Device|BY_ID|WWNN|WWPN|Fabric\s+WWN|Max\s+vPorts)\s*:/gi, '$1: $2<br/>$4:')
+        formattedText = formattedText.replace(/([^<]):\s*([^:\n<]+?)(\s+)(파티션\s*(없음|있음))/gi, '$1: $2<br/>$4')
+      }
 
       return formattedText
     },
