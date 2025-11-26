@@ -984,7 +984,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     private static final String DEVICE_DETAIL_SEPARATOR = ",";
     private static final String PCI_DEVICE_LINE_PATTERN_STR = "^(?<address>(?:[0-9a-fA-F]{4}:)?[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\\.[0-7])\\s+(?<description>.+)$";
     private static final Pattern PCI_DEVICE_LINE_PATTERN = Pattern.compile(PCI_DEVICE_LINE_PATTERN_STR);
-    private static final String PCI_ADDRESS_PATTERN_STR = "(?:\\d{1,4}:)?\\d{2}:\\d{2}\\.\\d";
+    private static final String PCI_ADDRESS_PATTERN_STR = "(?:[0-9a-fA-F]{1,4}:)?[0-9a-fA-F]{1,2}:[0-9a-fA-F]{1,2}\\.[0-9a-fA-F]";
     private static final Pattern PCI_ADDRESS_PATTERN = Pattern.compile(PCI_ADDRESS_PATTERN_STR);
 
     @Inject
@@ -2940,6 +2940,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         String hostDeviceName = cmd.getHostDeviceName();
         Long vmId = cmd.getVirtualMachineId();
         String deviceDetail = cmd.getHostDeviceText();
+        String xmlConfig = cmd.getXmlConfig();
 
         HostVO hostVO = _hostDao.findById(hostId);
         if (hostVO == null) {
@@ -2960,19 +2961,39 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             if (vmId == null) {
                 if (currentAllocation != null) {
                     String currentVmId = currentAllocation.getValue();
-                    VMInstanceVO vm = _vmInstanceDao.findById(Long.parseLong(currentVmId));
-                    if (vm != null) {
-                        // 해당 VM의 모든 extraconfig 항목 조회
-                        List<VMInstanceDetailVO> existingConfigs = _vmInstanceDetailsDao.listDetails(vm.getId());
+                    if (StringUtils.isNotBlank(currentVmId)) {
+                        Long vmIdLong = null;
+                        try {
+                            vmIdLong = Long.parseLong(currentVmId);
+                        } catch (NumberFormatException e) {
+                            VMInstanceVO vm = _vmInstanceDao.findByUuid(currentVmId);
+                            if (vm != null) {
+                                vmIdLong = vm.getId();
+                            } else {
+                                logger.warn("Unable to find VM with UUID {} for PCI device deallocation", currentVmId);
+                            }
+                        }
 
-                        // 현재 디바이스의 설정 찾기 및 제거
-                        for (VMInstanceDetailVO detail : existingConfigs) {
-                            if (detail.getName().startsWith("extraconfig-") &&
-                                detail.getValue().contains(hostDeviceName)) {
-                                _vmInstanceDetailsDao.removeDetail(vm.getId(), detail.getName());
-                                logger.info("Successfully removed device configuration {} from VM {}",
-                                    detail.getName(), vm.getInstanceName());
-                                break;
+                        if (vmIdLong != null) {
+                            String storedDeviceName = extractDeviceNameFromStoredKey(currentAllocation.getName());
+                            if (StringUtils.isBlank(storedDeviceName)) {
+                                storedDeviceName = hostDeviceName;
+                            }
+
+                            String deviceNameForRemoval = storedDeviceName;
+                            String deviceType = resolveDeviceType(storedDeviceName);
+                            if ("pci".equals(deviceType)) {
+                                Pair<String, String> normalized = normalizePciDeviceNameAndDetail(storedDeviceName, null);
+                                deviceNameForRemoval = normalized.first();
+                                if (StringUtils.isBlank(deviceNameForRemoval)) {
+                                    deviceNameForRemoval = storedDeviceName;
+                                }
+                            }
+
+                            try {
+                                removeDeviceFromVmExtraConfig(vmIdLong, deviceNameForRemoval, "");
+                            } catch (Exception e) {
+                                logger.warn("Failed to remove PCI extraconfig for VM " + currentVmId + ", device " + deviceNameForRemoval + ": " + e.getMessage(), e);
                             }
                         }
                     }
@@ -3075,6 +3096,16 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     }
                     DetailVO allocationDetail = new DetailVO(hostId, detailKey, vmId.toString());
                     _hostDetailsDao.persist(allocationDetail);
+                }
+
+                if (StringUtils.isNotBlank(xmlConfig)) {
+                    try {
+                        addDeviceToVmExtraConfig(vmInstance.getId(), actualDeviceName, xmlConfig);
+                    } catch (Exception e) {
+                        throw new CloudRuntimeException("Failed to persist PCI extraconfig for device " + actualDeviceName + ": " + e.getMessage(), e);
+                    }
+                } else {
+                    logger.warn("PCI device {} allocated to VM {} without xmlConfig; extraconfig entry not created.", actualDeviceName, vmInstance.getInstanceName());
                 }
             }
         } catch (Exception e) {
@@ -9301,7 +9332,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     }
 
     /**
-     * VM extraconfig에서 디바이스 설정을 제거합니다.
+     * Removes device configuration from VM extraconfig.
      */
     private void removeDeviceFromVmExtraConfig(Long vmId, String deviceName, String xmlConfig) {
         try {
@@ -9309,7 +9340,9 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             logger.info("Removing device {} from VM {} extraconfig, total configs: {}",
                        deviceName, vmId, existingConfigs.size());
 
-            for (VMInstanceDetailVO detail : existingConfigs) {
+            boolean removed = false;
+
+            for (UserVmDetailVO detail : existingConfigs) {
                 if (detail.getName().startsWith("extraconfig-") && detail.getValue() != null) {
                     String value = detail.getValue();
                     boolean shouldRemove = false;
@@ -9317,10 +9350,34 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
 
                     if (isPciDevice(deviceName)) {
+                        String pciAddress = extractPciAddress(deviceName);
+                        if (pciAddress != null) {
+                            String pciAddressInValue = extractPciAddressFromXml(value);
 
-                        if (value.contains(deviceName)) {
-                            shouldRemove = true;
-                            matchReason = "PCI device name match";
+                            String normalizedPciAddress = normalizePciAddressForComparison(pciAddress);
+                            String normalizedPciAddressInValue = pciAddressInValue != null ? normalizePciAddressForComparison(pciAddressInValue) : null;
+
+                            if (normalizedPciAddressInValue != null && normalizedPciAddressInValue.equals(normalizedPciAddress)) {
+                                shouldRemove = true;
+                                matchReason = "PCI device address match in XML";
+                            } else if (value.contains(pciAddress)) {
+                                shouldRemove = true;
+                                matchReason = "PCI device address match";
+                            } else if (normalizedPciAddressInValue != null && value.contains(normalizedPciAddress)) {
+                                shouldRemove = true;
+                                matchReason = "PCI device address match (normalized)";
+                            } else if (value.contains(deviceName)) {
+                                shouldRemove = true;
+                                matchReason = "PCI device name match";
+                            } else {
+                            }
+                        } else {
+                            Pair<String, String> normalized = normalizePciDeviceNameAndDetail(deviceName, null);
+                            String normalizedName = normalized.first();
+                            if (value.contains(deviceName) || (StringUtils.isNotBlank(normalizedName) && value.contains(normalizedName))) {
+                                shouldRemove = true;
+                                matchReason = "PCI device name match";
+                            }
                         }
                     } else if (isUsbDevice(deviceName)) {
 
@@ -9368,14 +9425,30 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     }
 
                     if (shouldRemove) {
-                        _vmInstanceDetailsDao.remove(detail.getId());
-                        logger.info("Removed device {} configuration from VM {} extraconfig key: {} (reason: {})",
-                                   deviceName, vmId, detail.getName(), matchReason);
+                        removed = true;
+                        _vmDetailsDao.remove(detail.getId());
+                        try {
+                            VMInstanceVO vm = _vmInstanceDao.findById(vmId);
+                            if (vm != null && vm.getType() == VirtualMachine.Type.User) {
+                                UserVmVO userVm = _userVmDao.findById(vmId);
+                                if (userVm != null) {
+                                    _userVmDao.loadDetails(userVm);
+                                    _userVmDao.saveDetails(userVm);
+                                }
+                            }
+                        } catch (Exception e) {
+                            logger.warn("Failed to update VM details after removing extraconfig for device " + deviceName + ": " + e.getMessage(), e);
+                        }
                         break;
                     }
                 }
             }
+
+            if (!removed) {
+                logger.warn("No matching extraconfig entry found for VM {}, device: {}. Extraconfig may not exist or matching failed.", vmId, deviceName);
+            }
         } catch (Exception e) {
+            logger.warn("Failed to remove device from VM extraconfig: " + e.getMessage(), e);
         }
     }
 
@@ -9530,8 +9603,71 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         return null;
     }
 
+    private String normalizePciAddressForComparison(String pciAddress) {
+        if (StringUtils.isBlank(pciAddress)) {
+            return pciAddress;
+        }
+        String trimmed = pciAddress.trim();
+
+        try {
+            if (trimmed.matches("^0000:[0-9a-fA-F]{1,2}:[0-9a-fA-F]{1,2}\\.[0-9a-fA-F]$")) {
+                String withoutDomain = trimmed.substring(5);
+                String[] parts = withoutDomain.split(":");
+                if (parts.length == 2) {
+                    String bus = parts[0];
+                    String slotFunc = parts[1];
+                    String[] slotFuncParts = slotFunc.split("\\.");
+                    if (slotFuncParts.length == 2) {
+                        String slot = slotFuncParts[0];
+                        String func = slotFuncParts[1];
+                        int busInt = Integer.parseInt(bus, 16);
+                        int slotInt = Integer.parseInt(slot, 16);
+                        int funcInt = Integer.parseInt(func, 16);
+                        return String.format("%02x:%02x.%x", busInt, slotInt, funcInt);
+                    }
+                }
+                return withoutDomain;
+            }
+            if (trimmed.matches("^[0-9a-fA-F]{1,2}:[0-9a-fA-F]{1,2}\\.[0-9a-fA-F]$")) {
+                return trimmed;
+            }
+        } catch (Exception e) {
+        }
+
+        return trimmed;
+    }
+
     private boolean isPciDevice(String deviceName) {
         return extractPciAddress(deviceName) != null;
+    }
+
+    private String extractPciAddressFromXml(String xmlValue) {
+        if (StringUtils.isBlank(xmlValue)) {
+            return null;
+        }
+        try {
+            Pattern busPattern = Pattern.compile("bus=['\"]0x([0-9a-fA-F]+)['\"]", Pattern.CASE_INSENSITIVE);
+            Pattern slotPattern = Pattern.compile("slot=['\"]0x([0-9a-fA-F]+)['\"]", Pattern.CASE_INSENSITIVE);
+            Pattern funcPattern = Pattern.compile("function=['\"]0x([0-9a-fA-F]+)['\"]", Pattern.CASE_INSENSITIVE);
+
+            Matcher busMatcher = busPattern.matcher(xmlValue);
+            Matcher slotMatcher = slotPattern.matcher(xmlValue);
+            Matcher funcMatcher = funcPattern.matcher(xmlValue);
+
+            if (busMatcher.find() && slotMatcher.find() && funcMatcher.find()) {
+                try {
+                    int bus = Integer.parseInt(busMatcher.group(1), 16);
+                    int slot = Integer.parseInt(slotMatcher.group(1), 16);
+                    int func = Integer.parseInt(funcMatcher.group(1), 16);
+
+                    return String.format("0000:%02x:%02x.%x", bus, slot, func);
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            }
+        } catch (Exception e) {
+        }
+        return null;
     }
 
     private boolean isUsbDevice(String deviceName) {
@@ -9728,9 +9864,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             Matcher matcher = pattern.matcher(deviceName);
             if (matcher.find()) {
                 String byIdValue = matcher.group(1);
-                // 접두사가 있는 경우 접두사 제거하여 순수 ID만 반환
                 if (byIdValue.startsWith("wwn-") || byIdValue.startsWith("scsi-") || byIdValue.startsWith("dm-uuid-")) {
-                    // scsi-SATA_ 같은 복합 접두사의 경우 첫 번째 '-' 이후의 모든 내용을 ID로 사용
                     return byIdValue.substring(byIdValue.indexOf('-') + 1);
                 }
                 return byIdValue;
@@ -9815,19 +9949,41 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             sc.addAnd("value", SearchCriteria.Op.EQ, vmId);
             List<DetailVO> allocations = _hostDetailsDao.search(sc, null);
 
+            Long vmIdLong = null;
+            try {
+                vmIdLong = Long.parseLong(vmId);
+            } catch (NumberFormatException e) {
+                VMInstanceVO vm = _vmInstanceDao.findByUuid(vmId);
+                if (vm != null) {
+                    vmIdLong = vm.getId();
+                } else {
+                    logger.warn("Unable to find VM with UUID {} for PCI device deallocation", vmId);
+                }
+            }
+
             for (DetailVO allocation : allocations) {
                 String deviceName = extractDeviceNameFromStoredKey(allocation.getName());
                 if (isPciDevice(deviceName)) {
                     _hostDetailsDao.remove(allocation.getId());
 
-                    // extraconfig 삭제
-                    try {
-                        removeDeviceFromVmExtraConfig(Long.parseLong(vmId), deviceName, "");
-                    } catch (Exception e) {
+                    if (vmIdLong != null) {
+                        try {
+                            Pair<String, String> normalized = normalizePciDeviceNameAndDetail(deviceName, null);
+                            String normalizedDeviceName = normalized.first();
+                            if (StringUtils.isBlank(normalizedDeviceName)) {
+                                normalizedDeviceName = deviceName;
+                            }
+                            removeDeviceFromVmExtraConfig(vmIdLong, normalizedDeviceName, "");
+                        } catch (Exception e) {
+                            logger.warn("Failed to remove PCI extraconfig for VM " + vmId + ", device " + deviceName + ": " + e.getMessage(), e);
+                        }
+                    } else {
+                        logger.warn("Skipping extraconfig removal for PCI device {} - unable to resolve VM ID {}", deviceName, vmId);
                     }
                 }
             }
         } catch (Exception e) {
+            logger.warn("Error during PCI device deallocation for VM " + vmId + ": " + e.getMessage(), e);
         }
     }
 
