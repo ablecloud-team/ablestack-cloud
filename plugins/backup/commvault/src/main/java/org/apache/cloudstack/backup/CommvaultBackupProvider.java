@@ -841,12 +841,12 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 storagePool = primaryDataStoreDao.findById(rootVolumesOfVm.get(0).getPoolId());
                 storagePath = storagePool.getPath();
                 command = String.format(
-                    "mkdir -p //%1$s && " +
-                    "virsh -c qemu:///system dumpxml %1$s > %1$s/domain-config.xml && " +
-                    "virsh -c qemu:///system dominfo %1$s > %1$s/dominfo.xml && " +
-                    "virsh -c qemu:///system domiflist %1$s > %1$s/domiflist.xml && " +
-                    "virsh -c qemu:///system domblklist %1$s > %1$s/domblklist.xml",
-                    storagePath + "/" + vm.getInstanceName()
+                    "mkdir -p %1$s && " +
+                    "virsh -c qemu:///system dumpxml '%2$s' > %1$s/domain-config.xml && " +
+                    "virsh -c qemu:///system dominfo '%2$s' > %1$s/dominfo.xml && " +
+                    "virsh -c qemu:///system domiflist '%2$s' > %1$s/domiflist.xml && " +
+                    "virsh -c qemu:///system domblklist '%2$s' > %1$s/domblklist.xml",
+                    storagePath + "/" + vm.getInstanceName(), vm.getInstanceName()
                 );
                 if (!executeTakeBackupCommand(hostVO, credentials.first(), credentials.second(), command)) {
                     LOG.info("-------------xml파일 백업 명령 실패");
