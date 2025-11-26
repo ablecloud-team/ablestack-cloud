@@ -23,8 +23,18 @@
           <template #message>
             <div class="banner-content" style="display:flex; justify-content:flex-end; align-items:center; gap:12px; flex-wrap:wrap; text-align:right;">
               <span class="banner-text">
-                <ExclamationCircleFilled class="banner-error-icon" />
-                {{ $t('label.alert') || '경고' }} "{{ it && it.title ? it.title : ($t('label.alert') || '경고') }}" {{ $t('message.alerting') || '경고 발생 중입니다.' }}
+                <span class="banner-label">
+                  <ExclamationCircleFilled class="banner-error-icon" />
+                  {{ $t('label.alert') || '경고' }}
+                </span>
+                <span class="banner-main">
+                  <span class="banner-rule-name">
+                    "{{ it && it.title ? it.title : ($t('label.alert') || '경고') }}"
+                  </span>
+                  <span class="banner-status">
+                    {{ $t('message.alerting') || '경고 발생 중입니다.' }}
+                  </span>
+                </span>
 
                 <!-- 문제 호스트 -->
                 <span v-if="hostLinkList(it).length" class="banner-field banner-hosts">
@@ -1435,5 +1445,45 @@ export default {
 .ant-notification-topRight,
 .ant-notification-topLeft {
   top: calc(24px + var(--autoBannerHeight, 0px)) !important;
+}
+
+/* 전체 문구 정렬 */
+.banner-text {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* 규칙 이름 + 상태 문구 */
+.banner-main {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* 아이콘 + '알림' 배지 */
+.banner-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+/* 배지 안의 아이콘 */
+.banner-error-icon {
+  font-size: 16px;
+}
+
+/* 경고 상태 문구 */
+.banner-status {
+  font-size: 14px;
+  opacity: 0.95;
 }
 </style>
