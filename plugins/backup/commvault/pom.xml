@@ -35,11 +35,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.cloudstack</groupId>
-            <artifactId>cloud-framework-config</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${cs.commons-lang3.version}</version>

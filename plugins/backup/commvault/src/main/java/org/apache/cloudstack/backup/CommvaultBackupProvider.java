@@ -190,8 +190,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     @Inject
     private ConfigurationDao configDao;
 
-    private final int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
-
     private static String getUrlDomain(String url) throws URISyntaxException {
         URI uri;
         try {
@@ -546,6 +544,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         LOG.info(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
         // 복원 실행
+        int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
         HostVO hostVO = hostDao.findByName(clientName);
         Ternary<String, String, String> credentials = getKVMHyperisorCredentials(hostVO);
         String jobId2 = client.restoreFullVM(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, path);
@@ -638,6 +637,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volumeUuid, backup));
         // 복원 실행
+        int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
         HostVO hostVO = hostDao.findByName(clientName);
         Ternary<String, String, String> credentials = getKVMHyperisorCredentials(hostVO);
         String jobId2 = client.restoreFullVM(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, path);
@@ -837,6 +837,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String storagePath = null;
         String command = null;
         Ternary<String, String, String> credentials = null;
+        int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
         if (vm.getState() == VirtualMachine.State.Running) {
             hostVO = getRunningVMHypervisorHost(vm);
             credentials = getKVMHyperisorCredentials(hostVO);
