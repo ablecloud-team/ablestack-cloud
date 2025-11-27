@@ -42,6 +42,7 @@ import com.cloud.utils.ssh.SshHelper;
 import com.cloud.utils.component.AdapterBase;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
+import com.cloud.utils.NumbersUtil;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
@@ -55,6 +56,7 @@ import org.apache.cloudstack.backup.dao.BackupOfferingDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDaoImpl;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
+import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
 import org.apache.cloudstack.utils.security.SSLUtils;
 import org.apache.cloudstack.utils.identity.ManagementServerNode;
 import org.apache.commons.collections.CollectionUtils;
@@ -184,6 +186,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     @Inject
     private PrimaryDataStoreDao primaryDataStoreDao;
+
+    @Inject
+    private ConfigurationDao configDao;
+
+    private final int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
 
     private static String getUrlDomain(String url) throws URISyntaxException {
         URI uri;
@@ -557,7 +564,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findDestroyedReferenceBySnapshot(snapshot.getSnapshotId(), DataStoreRole.Primary);
                         String snapshotPath = snapshotStore.getInstallPath();
                         String command = String.format(RSYNC_COMMAND, snapshotPath, volumePath);
-                        if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), command)) {
+                        if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), sshPort, command)) {
                             Date restoreJobEnd = new Date();
                             if (snapshots.length > 1) {
                                 String[] paths = path.split(",");
@@ -569,7 +576,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             if (!checkResult.isEmpty()) {
                                 for (String value : checkResult.values()) {
                                     command = String.format(RM_COMMAND, value);
-                                    executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
+                                    executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                                 }
                             }
                             return false;
@@ -578,7 +585,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     if (!checkResult.isEmpty()) {
                         for (String value : checkResult.values()) {
                             String command = String.format(RM_COMMAND, value);
-                            executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
+                            executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                         }
                     }
                     return true;
@@ -678,7 +685,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             }
                             String reVolumePath = String.format("%s/%s", storagePool.getPath(), restoredVolume.getUuid());
                             String command = String.format(RSYNC_COMMAND, snapshotPath, reVolumePath);
-                            if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), command)) {
+                            if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), sshPort, command)) {
                                 Date restoreJobEnd = new Date();
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
                                 if (VirtualMachine.State.Running.equals(vmNameAndState.second())) {
@@ -686,11 +693,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                     HostVO rvHostVO = hostDao.findById(vm.getHostId());
                                     Ternary<String, String, String> rvCredentials = getKVMHyperisorCredentials(rvHostVO);
                                     command = String.format(CURRRENT_DEVICE, vmNameAndState.first());
-                                    String currentDevice = executeDeviceCommand(rvHostVO, rvCredentials.first(), rvCredentials.second(), command);
+                                    String currentDevice = executeDeviceCommand(rvHostVO, rvCredentials.first(), rvCredentials.second(), sshPort, command);
                                     if (currentDevice == null || currentDevice.contains("error")) {
                                         volumeDao.expunge(restoredVolume.getId());
                                         command = String.format(RM_COMMAND, snapshotPath);
-                                        executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
+                                        executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                                         throw new CloudRuntimeException("Failed to get current device execute command VM to location " + volume.getPath());
                                     } else {
                                         currentDevice = currentDevice.replaceAll("\\s", "");
@@ -698,10 +705,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                         char incrementedChar = (char) (lastChar + 1);
                                         String rvDevice = currentDevice.substring(0, currentDevice.length() - 1) + incrementedChar;
                                         command = String.format(ATTACH_DISK_COMMAND, vmNameAndState.first(), reVolumePath, rvDevice);
-                                        if (!executeAttachCommand(rvHostVO, rvCredentials.first(), rvCredentials.second(), command)) {
+                                        if (!executeAttachCommand(rvHostVO, rvCredentials.first(), rvCredentials.second(), sshPort, command)) {
                                             volumeDao.expunge(restoredVolume.getId());
                                             command = String.format(RM_COMMAND, snapshotPath);
-                                            executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
+                                            executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                                             throw new CloudRuntimeException(String.format("Failed to attach volume to VM: %s", vmNameAndState.first()));
                                         }
                                     }
@@ -712,11 +719,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                 volumeDao.expunge(restoredVolume.getId());
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed failed.");
                                 command = String.format(RM_COMMAND, snapshotPath);
-                                executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
+                                executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                             }
                         } else {
                             String command = String.format(RM_COMMAND, snapshotPath);
-                            executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
+                            executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                         }
                     }
                     if (!checkResult.isEmpty()) {
@@ -845,9 +852,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     "virsh -c qemu:///system domblklist '%2$s' > %1$s/domblklist.xml",
                     storagePath + "/" + vm.getInstanceName(), vm.getInstanceName()
                 );
-                if (!executeTakeBackupCommand(hostVO, credentials.first(), credentials.second(), command)) {
+                if (!executeTakeBackupCommand(hostVO, credentials.first(), credentials.second(), sshPort, command)) {
                     command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                    executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
+                    executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                 } else {
                     joiner.add(storagePath + "/" + vm.getInstanceName());
                     path = joiner.toString();
@@ -868,7 +875,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 }
                 if (vm.getState() == VirtualMachine.State.Running) {
                     command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                    executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
+                    executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                 }
             }
             throw new CloudRuntimeException("Failed to get subclient info commvault api");
@@ -904,7 +911,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     }
                     if (vm.getState() == VirtualMachine.State.Running) {
                         command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                        executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
+                        executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                     }
                 }
                 throw new CloudRuntimeException("Failed to get storage Policy id commvault api");
@@ -966,7 +973,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         }
                         if (vm.getState() == VirtualMachine.State.Running) {
                             command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                            executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
+                            executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                         }
                         return true;
                     } else {
@@ -982,7 +989,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         }
                         if (vm.getState() == VirtualMachine.State.Running) {
                             command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                            executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
+                            executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                         }
                         LOG.error("createBackup commvault api resulted in " + jobStatus);
                         return false;
@@ -1000,7 +1007,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     }
                     if (vm.getState() == VirtualMachine.State.Running) {
                         command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                        executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
+                        executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                     }
                     LOG.error("createBackup commvault api resulted in " + jobStatus);
                     return false;
@@ -1018,7 +1025,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 }
                 if (vm.getState() == VirtualMachine.State.Running) {
                     command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                    executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
+                    executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                 }
                 LOG.error("failed request createBackup commvault api");
                 return false;
@@ -1036,7 +1043,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             }
             if (vm.getState() == VirtualMachine.State.Running) {
                 command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
+                executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
             }
             LOG.error("updateBackupSet commvault api resulted in failure.");
             return false;
@@ -1390,9 +1397,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return serverInfo;
     }
 
-    private boolean executeTakeBackupCommand(HostVO host, String username, String password, String command) {
+    private boolean executeTakeBackupCommand(HostVO host, String username, String password, int port, String command) {
         try {
-            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), 22,
+            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), port,
                     username, null, password, command, 120000, 120000, 3600000);
 
             if (!response.first()) {
@@ -1406,9 +1413,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return false;
     }
 
-    private boolean executeDeleteXmlCommand(HostVO host, String username, String password, String command) {
+    private boolean executeDeleteXmlCommand(HostVO host, String username, String password, int port, String command) {
         try {
-            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), 22,
+            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), port,
                     username, null, password, command, 120000, 120000, 3600000);
 
             if (!response.first()) {
@@ -1422,9 +1429,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return false;
     }
 
-    private String executeDeviceCommand(HostVO host, String username, String password, String command) {
+    private String executeDeviceCommand(HostVO host, String username, String password, int port, String command) {
         try {
-            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), 22,
+            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), port,
                     username, null, password, command, 120000, 120000, 3600000);
 
             if (!response.first()) {
@@ -1438,9 +1445,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return null;
     }
 
-    private boolean executeAttachCommand(HostVO host, String username, String password, String command) {
+    private boolean executeAttachCommand(HostVO host, String username, String password, int port, String command) {
         try {
-            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), 22,
+            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), port,
                     username, null, password, command, 120000, 120000, 3600000);
 
             if (!response.first()) {
@@ -1454,9 +1461,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return false;
     }
 
-    private boolean executeRestoreCommand(HostVO host, String username, String password, String command) {
+    private boolean executeRestoreCommand(HostVO host, String username, String password, int port, String command) {
         try {
-            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), 22,
+            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), port,
                     username, null, password, command, 120000, 120000, 3600000);
 
             if (!response.first()) {
@@ -1470,9 +1477,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return false;
     }
 
-    private boolean executeDeleteSnapshotCommand(HostVO host, String username, String password, String command) {
+    private boolean executeDeleteSnapshotCommand(HostVO host, String username, String password, int port, String command) {
         try {
-            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), 22,
+            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), port,
                     username, null, password, command, 120000, 120000, 3600000);
 
             if (!response.first()) {
