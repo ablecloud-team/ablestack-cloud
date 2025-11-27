@@ -49,9 +49,10 @@ public class ListWallAlertSilencesCmd extends BaseListCmd {
     private WallAlertsService wallAlertsService;
 
     // ---------- 필수/선택 파라미터 ----------
-    @Parameter(name = "labels", type = CommandType.MAP,
-            description = "Alert instance label map to evaluate (name=value). Only silences matching these labels will be returned.",
-            required = true)
+    @Parameter(name = "labels", type = CommandType.MAP, required = false,
+            description = "Labels to match for filtering silences. " +
+                    "When omitted, all silences for the given state are returned. " +
+                    "When used from UI, labels[0].key='__alert_rule_uid__' and labels[0].value='<rule-uid>' is strongly recommended.")
     private Map<String, String> labels;
 
     @Parameter(name = "state", type = CommandType.STRING,

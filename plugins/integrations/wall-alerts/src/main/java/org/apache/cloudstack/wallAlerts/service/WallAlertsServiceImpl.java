@@ -1070,7 +1070,15 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
      *  - 폴백: UID가 라벨에 없으면 라벨의 alertname(~rule_title 계열)과 사일런스 metadata.rule_title 비교
      */
     private boolean matchesAlertLabels(final SilenceDto s, final Map<String, String> labels) {
-        if (s == null || labels == null || labels.isEmpty()) return false;
+        if (s == null) {
+            return false;
+        }
+
+        // 라벨이 없으면 필터링을 하지 않고 항상 매칭된 것으로 간주합니다.
+        // (listWallAlertSilences를 라벨 없이 호출하는 경우 전체 사일런스를 조회하기 위함입니다.)
+        if (labels == null || labels.isEmpty()) {
+            return true;
+        }
 
         // 1) 빠른 경로 — UID 직접 비교
         final String silenceUid = silenceRuleUid(s);
@@ -1094,7 +1102,9 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                             ruleTitle = one.getMetadata().getRuleTitle();
                             s.setMetadata(one.getMetadata()); // 캐시
                         }
-                    } catch (Exception ignore) { }
+                    } catch (Exception ignore) {
+                        // noop
+                    }
                 }
                 if (ruleTitle != null && ruleTitle.equalsIgnoreCase(labelTitle)) {
                     return true;
@@ -1104,14 +1114,20 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
 
         // 3) 일반 경로 — 모든 매처 평가(라벨 키 대소문자 무시, 정규식은 find로 유연하게)
         final java.util.List<SilenceMatcherDto> ms = s.getMatchers();
-        if (ms == null || ms.isEmpty()) return false;
+        if (ms == null || ms.isEmpty()) {
+            return false;
+        }
 
         for (final SilenceMatcherDto m : ms) {
-            if (m == null) return false;
+            if (m == null) {
+                return false;
+            }
 
             final String key = m.getName();
             final String right = m.getValue();
-            if (key == null || key.isEmpty() || right == null) return false;
+            if (key == null || key.isEmpty() || right == null) {
+                return false;
+            }
 
             final String left = getLabelCI(labels, key); // 라벨에서 '대소문자 무시'로 키 찾기
             if (left == null) {
@@ -1134,7 +1150,9 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
             }
 
             final boolean ok = isEqual ? hit : !hit;
-            if (!ok) return false;  // 하나라도 실패하면 전체 불일치
+            if (!ok) {
+                return false;  // 하나라도 실패하면 전체 불일치
+            }
         }
         return true;
     }

@@ -1,4 +1,4 @@
-<!-- AutoAlertBanner.vue (사일런스·일시정지 시 즉시 소프트클로즈 + 높이 반영 / ESLint 오류 수정본) -->
+<!-- AutoAlertBanner.vue (사일런스·일시정지 시 즉시 소프트클로즈 + 관리서버 상세 이동/ESLint 정리본) -->
 <template>
   <teleport to="body">
     <div
@@ -113,7 +113,7 @@
                   </span>
                 </span>
 
-                <!-- 문제 클라우드 -->
+                <!-- 문제 클라우드 (관리 서버) -->
                 <span v-if="cloudLinkList(it).length" class="banner-field banner-cloud">
                   <span class="field-key">{{ $t('label.targets.management') || '대상 관리 서버' }}</span>
                   <span class="chip-wrap">
@@ -121,8 +121,8 @@
                       v-for="lnk in cloudLinkList(it)"
                       :key="lnk.key"
                       class="tag-link"
-                      @click="openUrl(lnk.url)"
-                      :title="$t('tooltip.goto.management') || '관리 서버로 이동'"
+                      @click.prevent.stop="goToManagement(lnk.keyword)"
+                      :title="`${$t('tooltip.goto.management') || '관리 서버 상세로 이동'}: ${lnk.label}`"
                     >
                       {{ lnk.label }}
                     </a-tag>
@@ -178,6 +178,7 @@
     <!-- RuleSilenceModal -->
     <a-modal
       v-model:visible="silenceModal.visible"
+      :title="$t('label.action.silence')"
       :footer="null"
       :destroyOnClose="true"
       :maskClosable="false"
@@ -198,6 +199,7 @@
     <!-- RulePauseModal -->
     <a-modal
       v-model:visible="pauseModal.visible"
+      :title="$t('label.alert.rule.pause')"
       :footer="null"
       :destroyOnClose="true"
       :maskClosable="false"
@@ -240,7 +242,7 @@ export default {
     const HOST_BASE = ''
     const VM_BASE = '/client'
 
-    // ===== 부팅 시 높이 복원(레이아웃 깨짐 완화) =====
+    // ===== 부팅 시 높이 복원 =====
     const LS_H_KEY = 'autoAlertBanner.lastHeight'
     try {
       const bootH = Number(localStorage.getItem(LS_H_KEY) || 0)
@@ -249,20 +251,30 @@ export default {
       }
     } catch (_) {}
 
-    // ===== 전역 알림 이벤트(글로벌 레이아웃이 듣습니다) =====
+    // ===== 전역 이벤트 =====
     const emitClosing = () => {
-      try { window.dispatchEvent(new CustomEvent('auto-alert-banner:closing')) } catch (_) {}
+      try {
+        window.dispatchEvent(new CustomEvent('auto-alert-banner:closing'))
+      } catch (_) {}
     }
     const emitClosed = () => {
-      try { window.dispatchEvent(new CustomEvent('auto-alert-banner:closed')) } catch (_) {}
+      try {
+        window.dispatchEvent(new CustomEvent('auto-alert-banner:closed'))
+      } catch (_) {}
     }
 
-    // ===== [MOD] 모바일 판별 헬퍼 =====
+    // ===== 모바일 판별 =====
     const isMobile = () => {
-      try { return window.matchMedia && window.matchMedia('(max-width: 768px)').matches } catch (e) { return false }
+      try {
+        return window.matchMedia && window.matchMedia('(max-width: 768px)').matches
+      } catch (e) {
+        return false
+      }
     }
 
     // ===== 링크 유틸 =====
+    const hrefManagementDetail = (id) => `${ORIGIN}/#/managementserver/${id}?tab=details`
+    const hrefManagementList = (keyword) => `${ORIGIN}/#/managementserver${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ''}`
     const hrefHostDetail = (id) => `${ORIGIN}${HOST_BASE}/#/host/${id}`
     const hrefHostList = (keyword) => `${ORIGIN}${HOST_BASE}/#/hosts${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ''}`
     const hrefVmDetail = (id) => `${ORIGIN}${VM_BASE}/#/vm/${id}`
@@ -295,30 +307,62 @@ export default {
     let pollBusy = false
 
     function scheduleNextPoll () {
-      if (pollHandle) { clearTimeout(pollHandle); pollHandle = null }
+      if (pollHandle) {
+        clearTimeout(pollHandle)
+        pollHandle = null
+      }
       let delay = POLL_MS - (Date.now() % POLL_MS)
-      if (delay < MIN_DELAY_MS) { delay += POLL_MS }
+      if (delay < MIN_DELAY_MS) {
+        delay += POLL_MS
+      }
       pollHandle = setTimeout(pollTick, delay)
     }
 
     async function pollTick () {
-      if (pollBusy || refreshInFlight.value) { scheduleNextPoll(); return }
+      if (pollBusy || refreshInFlight.value) {
+        scheduleNextPoll()
+        return
+      }
       pollBusy = true
-      try { await refresh() } catch (_) {} finally { pollBusy = false; scheduleNextPoll() }
+      try {
+        await refresh()
+      } catch (_) {
+      } finally {
+        pollBusy = false
+        scheduleNextPoll()
+      }
     }
 
     function startPoll () {
       stopPoll()
       let delay = POLL_MS - (Date.now() % POLL_MS)
-      if (delay < MIN_DELAY_MS) { delay = MIN_DELAY_MS }
+      if (delay < MIN_DELAY_MS) {
+        delay = MIN_DELAY_MS
+      }
       pollHandle = setTimeout(pollTick, delay)
     }
-    function stopPoll () { if (pollHandle) { clearTimeout(pollHandle); pollHandle = null } }
+    function stopPoll () {
+      if (pollHandle) {
+        clearTimeout(pollHandle)
+        pollHandle = null
+      }
+    }
 
-    function onVisibility () { if (document.hidden) { stopPoll() } else { pollTick(); startPoll() } }
-    function onFocus () { if (!document.hidden) { pollTick() } }
+    function onVisibility () {
+      if (document.hidden) {
+        stopPoll()
+      } else {
+        pollTick()
+        startPoll()
+      }
+    }
+    function onFocus () {
+      if (!document.hidden) {
+        pollTick()
+      }
+    }
 
-    // ===== 사일런스 캐시(로컬/원격) =====
+    // ===== 사일런스 캐시 =====
     const LS_KEY = 'autoAlertBanner.silencedByUid'
     const localSilenced = ref(loadLocalSilences())
     const remoteSilenced = ref({})
@@ -333,7 +377,9 @@ export default {
       if (!closedUntil.value || closedUntil.value.size === 0) { return }
       const now = Date.now()
       for (const [k, exp] of closedUntil.value.entries()) {
-        if (now > exp) { closedUntil.value.delete(k) }
+        if (now > exp) {
+          closedUntil.value.delete(k)
+        }
       }
     }
     const isClosedNow = (k) => {
@@ -364,16 +410,23 @@ export default {
           window.dispatchEvent(new CustomEvent('auto-alert-banner:height', { detail: { height: h } }))
         }
         maskOn.value = h > 0
-        try { document.documentElement.classList.remove('banner-measuring') } catch (_) {}
+        try {
+          document.documentElement.classList.remove('banner-measuring')
+        } catch (_) {}
       } catch (_) {}
     }
 
     const scheduleMeasure = () => {
-      if (rafId) { cancelAnimationFrame(rafId) }
-      rafId = requestAnimationFrame(() => { rafId = 0; measureAndNotifyHeight() })
+      if (rafId) {
+        cancelAnimationFrame(rafId)
+      }
+      rafId = requestAnimationFrame(() => {
+        rafId = 0
+        measureAndNotifyHeight()
+      })
     }
 
-    // ===== 개별 배너 소프트 클로즈 =====
+    // ===== 소프트 클로즈 =====
     const runCloseAnimation = (k) => {
       try {
         const root = listRef.value
@@ -385,7 +438,7 @@ export default {
         el.style.height = h + 'px'
         el.style.opacity = '1'
         el.style.overflow = 'hidden'
-        el.style.transition = 'height 150ms ease, opacity 150ms ease'
+        el.style.transition = 'height 150ms ease, opacity 150ms.ease'
 
         // 강제 리플로우
         el.getBoundingClientRect()
@@ -405,7 +458,7 @@ export default {
       scheduleMeasure()
     }
 
-    // ===== 각종 파서 =====
+    // ===== 파서/유틸 =====
     const UC = (v) => (v == null ? '' : String(v).toUpperCase())
     const pickState = (obj) => {
       if (!obj) { return '' }
@@ -442,20 +495,73 @@ export default {
       return ''
     }
 
-    // ===== CloudStack 인덱스(호스트/VM) =====
+    // ===== CloudStack 인덱스 =====
     const extractHosts = (resp) => {
-      const wrap = resp?.listhostsresponse || resp?.listHostsResponse || resp?.data || resp || {}
-      let list = wrap?.host || wrap?.hosts || wrap?.items || wrap?.list
+      // listHostsMetrics / listHosts 모두 대응
+      const wrap =
+        resp?.listhostsmetricsresponse ||
+        resp?.listHostsMetricsResponse ||
+        resp?.listhostsresponse ||
+        resp?.listHostsResponse ||
+        resp?.data ||
+        resp ||
+        {}
+
+      let list =
+        wrap.host ||
+        wrap.hosts ||
+        wrap.items ||
+        wrap.list
+
       if (!Array.isArray(list)) {
-        for (const k in wrap) { if (Array.isArray(wrap[k])) { list = wrap[k]; break } }
+        for (const k in wrap) {
+          if (Object.prototype.hasOwnProperty.call(wrap, k) && Array.isArray(wrap[k])) {
+            list = wrap[k]
+            break
+          }
+        }
       }
+
       return Array.isArray(list) ? list : []
     }
+
+    // 호스트 목록을 불러오는 헬퍼(listHostsMetrics 우선, 안 되면 listHosts 폴백)
+    const fetchHosts = async (params) => {
+      // 1차: listHostsMetrics
+      try {
+        const resp1 = await api('listHostsMetrics', params)
+        const rows1 = extractHosts(resp1)
+        if (Array.isArray(rows1) && rows1.length > 0) {
+          return rows1
+        }
+      } catch (_) {
+        // noop
+      }
+
+      // 2차: 일반 listHosts 폴백
+      try {
+        const resp2 = await api('listHosts', params)
+        const rows2 = extractHosts(resp2)
+        if (Array.isArray(rows2) && rows2.length > 0) {
+          return rows2
+        }
+      } catch (_) {
+        // noop
+      }
+
+      return []
+    }
+
     const extractVMs = (resp) => {
       const wrap = resp?.listvirtualmachinesresponse || resp?.listVirtualMachinesResponse || resp?.data || resp || {}
       let list = wrap?.virtualmachine || wrap?.virtualMachine || wrap?.virtualmachines || wrap?.virtualMachines || wrap?.items || wrap?.list
       if (!Array.isArray(list)) {
-        for (const k in wrap) { if (Array.isArray(wrap[k])) { list = wrap[k]; break } }
+        for (const k in wrap) {
+          if (Array.isArray(wrap[k])) {
+            list = wrap[k]
+            break
+          }
+        }
       }
       return Array.isArray(list) ? list : []
     }
@@ -466,22 +572,37 @@ export default {
     const ensureHostIndex = async () => {
       const now = Date.now()
       if (hostIndexCache.until > now) { return }
+
       try {
         const params = { listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 }
-        const resp = await api('listHosts', params)
-        const rows = extractHosts(resp)
+        const rows = await fetchHosts(params)
+
         hostIndexCache.byIp = new Map()
         hostIndexCache.byName = new Map()
+
         for (let i = 0; i < rows.length; i += 1) {
           const h = rows[i] || {}
           const id = takeFirst(h.id, h.uuid)
           const name = takeFirst(h.name, h.hostname, h.hostName)
-          const ip = takeFirst(h.ipaddress, h.ipAddress, h.hostip, h.hostIp, h.privateipaddress, h.privateIpAddress)
+          const ip = takeFirst(
+            h.ipaddress,
+            h.ipAddress,
+            h.hostip,
+            h.hostIp,
+            h.privateipaddress,
+            h.privateIpAddress
+          )
           if (!id) { continue }
+
           const info = { id: String(id), name: name ? String(name) : '' }
-          if (name) { hostIndexCache.byName.set(String(name), info) }
-          if (ip) { hostIndexCache.byIp.set(String(ip), info) }
+          if (name) {
+            hostIndexCache.byName.set(String(name), info)
+          }
+          if (ip) {
+            hostIndexCache.byIp.set(String(ip), info)
+          }
         }
+
         hostIndexCache.until = now + 5 * 60 * 1000
       } catch (_) {
         hostIndexCache.until = now + 60 * 1000
@@ -526,7 +647,7 @@ export default {
       }
     }
 
-    // ===== 호스트 힌트(이름<->IP) =====
+    // ===== 호스트 힌트 =====
     const hostHints = { byIpName: new Map() }
     const hintHostNameByIp = (ip) => {
       if (!ip) { return '' }
@@ -546,6 +667,47 @@ export default {
       }
     }
 
+    const resolveManagementId = async (keyword) => {
+      try {
+        const key = String(keyword).trim()
+        // 1차: name으로 정확 일치
+        let resp = await api('listManagementServers', { name: key, listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 })
+        let list = (resp?.listmanagementserversresponse?.managementserver) || (resp?.data?.items) || []
+        if (!Array.isArray(list)) { list = list ? [list] : [] }
+        for (let i = 0; i < list.length; i += 1) {
+          const it = list[i] || {}
+          const nm = takeFirst(it.name, it.hostname, it.hostName)
+          if (nm === key) { return takeFirst(it.id, it.uuid) }
+        }
+        // 2차: keyword / 부분 일치 + IP 후보
+        resp = await api('listManagementServers', { keyword: key, listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 })
+        list = (resp?.listmanagementserversresponse?.managementserver) || (resp?.data?.items) || []
+        if (!Array.isArray(list)) { list = list ? [list] : [] }
+        const ip = parseIp(key)
+        for (let i = 0; i < list.length; i += 1) {
+          const it = list[i] || {}
+          const nm = takeFirst(it.name, it.hostname, it.hostName)
+          const hip = takeFirst(it.ipaddress, it.ipAddress, it.managementip, it.managementIp)
+          if (nm === key || (ip && hip === ip) || String(nm).toLowerCase().includes(key.toLowerCase())) {
+            return takeFirst(it.id, it.uuid)
+          }
+        }
+        return null
+      } catch (_) {
+        return null
+      }
+    }
+
+    const goToManagement = async (keyword) => {
+      const id = await resolveManagementId(keyword)
+      const url = id ? hrefManagementDetail(id) : hrefManagementList(keyword)
+      try {
+        window.location.href = url
+      } catch (e) {
+        message.warning(t('message.link.open.failed') || '링크 열기에 실패했습니다. 콘솔 로그의 URL을 확인하세요.')
+      }
+    }
+
     // ===== 응답 파서 =====
     const extractRules = (resp) => {
       const wrap = resp?.listwallalertrulesresponse || resp?.listWallAlertRulesResponse || resp?.data || resp || {}
@@ -553,7 +715,12 @@ export default {
       if (Array.isArray(inner)) { return inner }
       let rows = inner?.wallalertrule || inner?.wallAlertRule || inner?.rule || inner?.rules || inner?.items || inner?.list || []
       if (!Array.isArray(rows) && inner && typeof inner === 'object') {
-        for (const k of Object.keys(inner)) { if (Array.isArray(inner[k])) { rows = inner[k]; break } }
+        for (const k of Object.keys(inner)) {
+          if (Array.isArray(inner[k])) {
+            rows = inner[k]
+            break
+          }
+        }
       }
       if (!Array.isArray(rows)) { rows = rows ? [rows] : [] }
       return rows
@@ -584,23 +751,32 @@ export default {
     }
     const ruleTitle = (r) => (r && (r.name || r.title || (r.metadata && r.metadata.rule_title) || r.ruleName)) || 'Alert'
 
-    // ===== 로컬 사일런스 저장/정리 =====
+    // ===== 로컬 사일런스 =====
     function loadLocalSilences () {
       try {
         const raw = localStorage.getItem(LS_KEY)
         const obj = raw ? JSON.parse(raw) : {}
         return typeof obj === 'object' && obj ? obj : {}
-      } catch (_) { return {} }
+      } catch (_) {
+        return {}
+      }
     }
+
     function saveLocalSilences () {
-      try { localStorage.setItem(LS_KEY, JSON.stringify(localSilenced.value || {})) } catch (_) {}
+      try {
+        localStorage.setItem(LS_KEY, JSON.stringify(localSilenced.value || {}))
+      } catch (_) {}
     }
+
     function cleanupLocalSilences () {
       const now = Date.now()
       const next = {}
       for (const k in localSilenced.value) {
-        if (Object.prototype.hasOwnProperty.call(localSilenced.value, k)) {
-          if (localSilenced.value[k] > now) { next[k] = localSilenced.value[k] }
+        if (!Object.prototype.hasOwnProperty.call(localSilenced.value, k)) {
+          continue
+        }
+        if (localSilenced.value[k] > now) {
+          next[k] = localSilenced.value[k]
         }
       }
       localSilenced.value = next
@@ -608,57 +784,166 @@ export default {
     }
 
     const extractSilences = (resp) => {
-      const wrap = resp?.listwallalertsilencesresponse || resp?.listWallAlertSilencesResponse || resp?.data || resp || {}
-      let list = wrap?.silences || wrap?.silence || wrap?.items || wrap?.list
+      const wrap =
+        resp?.listwallalertsilencesresponse ||
+        resp?.listWallAlertSilencesResponse ||
+        resp?.data ||
+        resp ||
+        {}
+
+      let list =
+        wrap.silences ||
+        wrap.silence ||
+        wrap.items ||
+        wrap.list
+
       if (!Array.isArray(list)) {
-        for (const k in wrap) { if (Array.isArray(wrap[k])) { list = wrap[k]; break } }
+        for (const k in wrap) {
+          if (Object.prototype.hasOwnProperty.call(wrap, k) && Array.isArray(wrap[k])) {
+            list = wrap[k]
+            break
+          }
+        }
       }
+
       return Array.isArray(list) ? list : []
     }
 
+    const UID_LABEL_KEY = '__alert_rule_uid__'
+
+    // Silence 하나에서 "__alert_rule_uid__" 값 추출 (labels / matchers 둘 다 방어)
+    const silenceUidFromLabels = (s) => {
+      if (!s) { return null }
+
+      const arr = Array.isArray(s.labels)
+        ? s.labels
+        : (Array.isArray(s.matchers) ? s.matchers : [])
+
+      for (let i = 0; i < arr.length; i += 1) {
+        const m = arr[i] || {}
+        const key = m.key || m.name || m.label
+        const val = m.value || m.val
+        if (key === UID_LABEL_KEY && val) {
+          return String(val)
+        }
+      }
+
+      return null
+    }
+
+    // ===== 사일런스 동기화 (백엔드 전체 조회 지원 버전: listWallAlertSilences 1회 호출) =====
     const syncRemoteSilencesByUidList = async (uids) => {
       remoteSilencedLoaded.value = false
-      if (!Array.isArray(uids) || !uids.length) { remoteSilenced.value = {}; remoteSilencedLoaded.value = true; return }
+
+      if (!Array.isArray(uids) || !uids.length) {
+        remoteSilenced.value = {}
+        remoteSilencedLoaded.value = true
+        return
+      }
+
       const uniq = Array.from(new Set(uids.map(String).filter(Boolean)))
       const now = Date.now()
-      const needFetch = []
+
       const mapFromCache = {}
+      const needFetch = []
+
+      // 1차: 메모리 캐시에서 살아 있는 값만 복구
       for (let i = 0; i < uniq.length; i += 1) {
         const uid = uniq[i]
         const cached = silenceCache.get(uid)
         if (cached && cached.until > now) {
-          if (cached.end > now) { mapFromCache[uid] = cached.end }
+          if (cached.end > now) {
+            mapFromCache[uid] = cached.end
+          }
         } else {
           needFetch.push(uid)
         }
       }
-      const CONC = 4
-      const chunks = []
-      for (let i = 0; i < needFetch.length; i += CONC) { chunks.push(needFetch.slice(i, i + CONC)) }
-      for (let c = 0; c < chunks.length; c += 1) {
-        const group = chunks[c]
-        await Promise.all(group.map(async (u) => {
-          try {
-            const params = { page: 1, pageSize: 200, 'labels[0].key': '__alert_rule_uid__', 'labels[0].value': u }
-            const resp = await api('listWallAlertSilences', params)
-            const list = extractSilences(resp)
-            let activeEnd = 0
-            for (let i2 = 0; i2 < list.length; i2 += 1) {
-              const s = list[i2] || {}
-              const state = String(s.state || '').toLowerCase()
-              const startLike = s.startMs || s.startTime || s.startsAt || s.start || s.createdAt
-              const endLike = s.endMs || s.endTime || s.endsAt || s.end || s.expiresAt
-              const start = typeof startLike === 'number' ? startLike : (startLike ? Date.parse(startLike) : 0)
-              const end = typeof endLike === 'number' ? endLike : (endLike ? Date.parse(endLike) : 0)
-              if ((state === 'active' || (start && start <= now)) && end > now) { activeEnd = Math.max(activeEnd, end) }
-            }
-            silenceCache.set(u, { end: activeEnd, until: Date.now() + SILENCE_TTL_MS })
-            if (activeEnd > now) { mapFromCache[u] = activeEnd }
-          } catch (_) {
-            silenceCache.set(u, { end: 0, until: Date.now() + 10 * 1000 })
-          }
-        }))
+
+      // 전부 캐시로 해결되면 API 호출 안 함
+      if (!needFetch.length) {
+        remoteSilenced.value = mapFromCache
+        remoteSilencedLoaded.value = true
+        return
       }
+
+      try {
+        // ★ 백엔드 변경 전제:
+        //   - labels 없이도 전체 사일런스 조회 가능
+        //   - states=active 로 active 상태만 필터 가능 (필요 없으면 빼도 됩니다)
+        const paramsAll = {
+          page: 1,
+          pageSize: 1000,
+          pagesize: 1000,
+          states: 'active'
+        }
+        const respAll = await api('listWallAlertSilences', paramsAll)
+        const listAll = extractSilences(respAll)
+
+        const want = new Set(uniq)
+        const perUidEnd = {}
+
+        for (let i = 0; i < listAll.length; i += 1) {
+          const s = listAll[i] || {}
+          const uid = silenceUidFromLabels(s)
+          if (!uid || !want.has(uid)) {
+            continue
+          }
+
+          const state = String(s.state || '').toLowerCase()
+
+          const startLike =
+            s.startMs ||
+            s.startTime ||
+            s.startsAt ||
+            s.start ||
+            s.createdAt
+
+          const endLike =
+            s.endMs ||
+            s.endTime ||
+            s.endsAt ||
+            s.end ||
+            s.expiresAt
+
+          const start = typeof startLike === 'number'
+            ? startLike
+            : (startLike ? Date.parse(startLike) : 0)
+
+          const end = typeof endLike === 'number'
+            ? endLike
+            : (endLike ? Date.parse(endLike) : 0)
+
+          const active =
+            (state === 'active' || (start && start <= now)) &&
+            end > now
+
+          if (!active) {
+            continue
+          }
+
+          const prev = perUidEnd[uid] || 0
+          const next = end > prev ? end : prev
+          perUidEnd[uid] = next
+        }
+
+        // batch 결과를 캐시 + mapFromCache 에 반영
+        for (let i = 0; i < uniq.length; i += 1) {
+          const uid = uniq[i]
+          const end = perUidEnd[uid] || 0
+          silenceCache.set(uid, {
+            end,
+            until: Date.now() + SILENCE_TTL_MS
+          })
+          if (end > now) {
+            mapFromCache[uid] = end
+          }
+        }
+      } catch (_) {
+        // 전체 조회 실패 시에는 새 정보 없이 캐시만 사용
+        // 필요하면 여기에서 per-UID 폴백을 다시 붙일 수 있습니다.
+      }
+
       remoteSilenced.value = mapFromCache
       remoteSilencedLoaded.value = true
     }
@@ -764,25 +1049,36 @@ export default {
 
       const domainName = L.domain ? String(L.domain) : ''
       if (isVmKind(finalKind) || (domainName && /-VM$/i.test(domainName))) {
-        if (domainName) { return { kind: 'vm', keyword: domainName } }
+        if (domainName) {
+          return { kind: 'vm', keyword: domainName }
+        }
         const vmByOther = bestVmOfInstance(a)
-        if (vmByOther) { return { kind: 'vm', keyword: vmByOther } }
+        if (vmByOther) {
+          return { kind: 'vm', keyword: vmByOther }
+        }
       }
 
       if (isStorageKind(finalKind)) {
         const label = storageLabel(a)
         const url = storageUrlByInstance(a)
-        if (label && url) { return { kind: 'storage', label, url } }
+        if (label && url) {
+          return { kind: 'storage', label, url }
+        }
       }
 
       if (isCloudKind(finalKind)) {
         const label = cloudLabel(a)
+        const keyword = label
         const url = cloudUrl()
-        if (label && url) { return { kind: 'cloud', label, url } }
+        if (label && url) {
+          return { kind: 'cloud', label, keyword, url }
+        }
       }
 
       const host = bestHostOfInstance(a)
-      if (host) { return { kind: 'host', keyword: host } }
+      if (host) {
+        return { kind: 'host', keyword: host }
+      }
       return null
     }
 
@@ -824,7 +1120,14 @@ export default {
           const key = 'cloud@' + String(cls.label).toLowerCase()
           if (seen.has(key)) { continue }
           seen.add(key)
-          out.push({ key, kind: 'cloud', label: cls.label, url: cls.url })
+          out.push({
+            key,
+            kind: 'cloud',
+            label: cls.label,
+            url: cls.url,
+            // 관리서버 상세 이동용 키워드 (이름/IP)
+            keyword: cls.keyword || cls.label
+          })
         }
       }
       return out
@@ -846,7 +1149,9 @@ export default {
       try {
         const fn = (typeof window !== 'undefined' && typeof window.$t === 'function') ? window.$t : null
         return fn ? fn(k, params) : null
-      } catch (_) { return null }
+      } catch (_) {
+        return null
+      }
     }
 
     const isRulePaused = (r) => {
@@ -950,7 +1255,10 @@ export default {
       if (Array.isArray(visibleAlerts.value) && visibleAlerts.value.length > 0) {
         keepShowing.value = true
       }
-      if (hideTimer) { clearTimeout(hideTimer); hideTimer = null }
+      if (hideTimer) {
+        clearTimeout(hideTimer)
+        hideTimer = null
+      }
 
       loading.value = true
       try {
@@ -976,7 +1284,7 @@ export default {
       }
     }
 
-    // ===== 모달 열고 닫기 =====
+    // ===== 모달 =====
     const silenceModal = ref({ visible: false, target: null })
     const openSilence = (it) => {
       const title = (it && it.title) || (it && it.rule && ruleTitle(it.rule)) || it?.name || ''
@@ -985,7 +1293,6 @@ export default {
     }
     const closeSilence = () => { silenceModal.value = { visible: false, target: null } }
 
-    //  사일런스 적용 직후: 해당 UID 소프트클로즈 + 로컬 캐시 반영 + 새로고침
     const onSilenceRefresh = async (info) => {
       try {
         const uidFromModal = info && (info.uid || info.ruleUid)
@@ -993,10 +1300,8 @@ export default {
         const uid = uidFromModal || uidFromTarget
 
         if (uid) {
-          // 즉시 소프트 클로즈
           onAlertCloseStart({ uid })
 
-          // 로컬 사일런스 캐시(정보가 없으면 3분 보호)
           const now = Date.now()
           let endMs = 0
           if (info && typeof info.endsAt === 'string') { endMs = Date.parse(info.endsAt) || 0 }
@@ -1033,9 +1338,15 @@ export default {
     }
 
     // ===== 내비게이션 =====
-    function openUrl (url) { try { window.location.href = String(url) } catch (_) {} }
+    function openUrl (url) {
+      try {
+        window.location.href = String(url)
+      } catch (_) {}
+    }
     function openUrlBlank (url) {
-      try { window.open(String(url), '_blank', 'noopener,noreferrer') } catch (_) {
+      try {
+        window.open(String(url), '_blank', 'noopener,noreferrer')
+      } catch (_) {
         try {
           const a = document.createElement('a')
           a.href = String(url)
@@ -1044,36 +1355,100 @@ export default {
           document.body.appendChild(a)
           a.click()
           document.body.removeChild(a)
-        } catch (e) { window.location.href = String(url) }
+        } catch (e) {
+          window.location.href = String(url)
+        }
+      }
+    }
+
+    // 호스트 ID 해석 유틸 (이름/호스트명/IP 전부 시도)
+    const resolveHostId = async (keyword) => {
+      try {
+        const key = String(keyword || '').trim()
+        if (!key) { return null }
+
+        // 1) 인덱스(캐시)에서 먼저 찾기
+        await ensureHostIndex()
+        const info = resolveHostInfo(key)
+        if (info && info.id) { return info.id }
+
+        const ip = parseIp(key)
+
+        const pickIdFromHosts = (rows, strict) => {
+          for (let i = 0; i < rows.length; i += 1) {
+            const h = rows[i] || {}
+            const id = takeFirst(h.id, h.uuid)
+            const name = takeFirst(h.name, h.hostname, h.hostName)
+            const hip = takeFirst(
+              h.ipaddress,
+              h.ipAddress,
+              h.hostip,
+              h.hostIp,
+              h.privateipaddress,
+              h.privateIpAddress
+            )
+            if (!id) { continue }
+
+            if (strict) {
+              // 이름 정확 일치 또는 IP 정확 일치
+              if (name === key || (ip && hip === ip)) { return id }
+            } else {
+              // 이름 부분 일치까지 허용
+              const lowerKey = key.toLowerCase()
+              const lowerName = String(name || '').toLowerCase()
+              if (
+                name === key ||
+                (ip && hip === ip) ||
+                lowerName.includes(lowerKey)
+              ) {
+                return id
+              }
+            }
+          }
+          return null
+        }
+
+        // 2) name 기반 조회(정확 일치 위주)
+        let rows = await fetchHosts({
+          name: key,
+          listAll: true,
+          listall: true,
+          page: 1,
+          pageSize: 50,
+          pagesize: 50
+        })
+        let found = pickIdFromHosts(rows, true)
+        if (found) { return found }
+
+        // 3) keyword 기반 조회(부분 일치 포함)
+        rows = await fetchHosts({
+          keyword: key,
+          listAll: true,
+          listall: true,
+          page: 1,
+          pageSize: 50,
+          pagesize: 50
+        })
+        found = pickIdFromHosts(rows, false)
+        if (found) { return found }
+
+        // 4) 그래도 못 찾는데 결과가 1건이면 그걸로 폴백
+        if (Array.isArray(rows) && rows.length === 1) {
+          const h0 = rows[0] || {}
+          return takeFirst(h0.id, h0.uuid) || null
+        }
+
+        return null
+      } catch (_) {
+        return null
       }
     }
 
     const goToHost = async (keyword) => {
+      const id = await resolveHostId(keyword)
+      const url = id ? hrefHostDetail(id) : hrefHostList(keyword)
+      console.log(url)
       try {
-        await ensureHostIndex()
-        let id = null
-        const info = resolveHostInfo(keyword)
-        if (info && info.id) { id = info.id }
-        if (!id) {
-          const ip = parseIp(String(keyword))
-          const hintName = ip ? hintHostNameByIp(ip) : ''
-          const terms = [String(keyword)]
-          if (hintName) { terms.push(hintName) }
-          for (let tIdx = 0; tIdx < terms.length && !id; tIdx += 1) {
-            const resp = await api('listHosts', { keyword: terms[tIdx], listAll: true, listall: true, page: 1, pageSize: 50, pagesize: 50 })
-            const rows = extractHosts(resp)
-            for (let i = 0; i < rows.length; i += 1) {
-              const h = rows[i] || {}
-              const name = takeFirst(h.name, h.hostname, h.hostName)
-              const hip = takeFirst(h.ipaddress, h.ipAddress, h.hostip, h.hostIp, h.privateipaddress, h.privateIpAddress)
-              if (name === terms[tIdx] || hip === terms[tIdx] || (ip && hip === ip)) {
-                id = takeFirst(h.id, h.uuid)
-                if (id) { break }
-              }
-            }
-          }
-        }
-        const url = id ? hrefHostDetail(id) : hrefHostList(keyword)
         window.location.href = url
       } catch (_) {
         window.location.href = hrefHostList(keyword)
@@ -1108,14 +1483,20 @@ export default {
           if (String(nm).toLowerCase().includes(key.toLowerCase())) { return takeFirst(v.id, v.uuid) }
         }
         return null
-      } catch (_) { return null }
+      } catch (_) {
+        return null
+      }
     }
 
     const goToVm = async (keyword) => {
       const id = await resolveVmId(keyword)
       const url = id ? hrefVmDetail(id) : hrefVmList(keyword)
-      if (!id) { message.warning(t('message.vm.resolve.fallback') || '정확한 VM ID를 찾지 못해 목록으로 이동합니다.') }
-      try { window.location.href = url } catch (e) {
+      if (!id) {
+        message.warning(t('message.vm.resolve.fallback') || '정확한 VM ID를 찾지 못해 목록으로 이동합니다.')
+      }
+      try {
+        window.location.href = url
+      } catch (e) {
         message.warning(t('message.link.open.failed') || '링크 열기에 실패했습니다. 콘솔 로그의 URL을 확인하세요.')
       }
     }
@@ -1131,12 +1512,11 @@ export default {
       }
     }
 
-    // ===== 배너 닫힘 핸들러(모바일 즉시 차감 + ESLint 정리) =====
+    // ===== 닫힘 핸들러 =====
     const onAlertCloseStart = (it) => {
       const k = keyOf(it)
       if (!k) { return }
 
-      // [MOD] 모바일에서는 닫기 시작 순간 해당 카드 높이를 즉시 총합에서 차감합니다.
       if (isMobile()) {
         try {
           const root = listRef.value
@@ -1148,12 +1528,11 @@ export default {
               lastHeight.value = nextH
               if (typeof window !== 'undefined') {
                 document.documentElement.style.setProperty('--autoBannerHeight', `${nextH}px`)
-                // 마지막 높이 로컬 저장 → 새 로그인/강력 새로고침 때 초기 깜빡임 완화
                 try { localStorage.setItem(LS_H_KEY, String(h)) } catch (_) {}
-
-                // 모바일(특히 iOS Safari)에서 닫힘 후 수축이 늦는 현상 보정
                 if (typeof navigator !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent)) {
-                  requestAnimationFrame(() => { try { window.dispatchEvent(new Event('resize')) } catch (_) {} })
+                  requestAnimationFrame(() => {
+                    try { window.dispatchEvent(new Event('resize')) } catch (_) {}
+                  })
                 }
                 window.dispatchEvent(new CustomEvent('auto-alert-banner:height', { detail: { height: nextH } }))
               }
@@ -1267,7 +1646,10 @@ export default {
       listRef,
       onAlertCloseStart,
       onAlertClosed,
-      maskOn
+      maskOn,
+      goToManagement,
+      hrefManagementList,
+      hrefManagementDetail
     }
   }
 }
