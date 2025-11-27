@@ -811,9 +811,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
     private Backup.VolumeInfo getVolumeInfo(List<Backup.VolumeInfo> backedUpVolumes, String volumeUuid) {
         for (Backup.VolumeInfo volInfo : backedUpVolumes) {
-            logger.info("------------------------------getVolumeInfo");
-            logger.info(volInfo.getUuid());
-            logger.info(volumeUuid);
             if (volInfo.getUuid().equals(volumeUuid)) {
                 return volInfo;
             }
@@ -982,9 +979,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     private boolean attachVolumeToVM(Long zoneId, String restoredVolumeLocation, List<Backup.VolumeInfo> backedUpVolumes,
                                      String volumeUuid, VMInstanceVO vm, String datastoreUuid, Backup backup) throws Exception {
         HypervisorGuru guru = hypervisorGuruManager.getGuru(vm.getHypervisorType());
-        logger.info("------------------------------attachVolumeToVM");
-        logger.info(backedUpVolumes.toString());
-        logger.info(volumeUuid);
         Backup.VolumeInfo volumeInfo = getVolumeInfo(backedUpVolumes, volumeUuid);
         if (volumeInfo == null) {
             throw new CloudRuntimeException("Failed to find volume in the backedup volumes of ID " + volumeUuid);
