@@ -678,7 +678,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             }
                             String reVolumePath = String.format("%s/%s", storagePool.getPath(), restoredVolume.getUuid());
                             String command = String.format(RSYNC_COMMAND, snapshotPath, reVolumePath);
-                            LOG.info(command);
                             if (executeRestoreCommand(hostVO, credentials.first(), credentials.second(), command)) {
                                 Date restoreJobEnd = new Date();
                                 LOG.info("Restore Job for jobID " + jobId2 + " completed successfully at " + restoreJobEnd);
@@ -717,7 +716,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             }
                         } else {
                             String command = String.format(RM_COMMAND, snapshotPath);
-                            LOG.info(command);
                             executeDeleteSnapshotCommand(hostVO, credentials.first(), credentials.second(), command);
                         }
                     }
@@ -833,7 +831,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String command = null;
         Ternary<String, String, String> credentials = null;
         if (vm.getState() == VirtualMachine.State.Running) {
-            LOG.info("-------------가상머신이 실행중인 경우 가상머신 xml파일 함께 백업");
             hostVO = getRunningVMHypervisorHost(vm);
             credentials = getKVMHyperisorCredentials(hostVO);
             List<VolumeVO> rootVolumesOfVm = volumeDao.findByInstanceAndType(userVM.getId(), Volume.Type.ROOT);
@@ -849,21 +846,14 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     storagePath + "/" + vm.getInstanceName(), vm.getInstanceName()
                 );
                 if (!executeTakeBackupCommand(hostVO, credentials.first(), credentials.second(), command)) {
-                    LOG.info("-------------xml파일 백업 명령 실패");
                     command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                    LOG.info(command);
                     executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
                 } else {
-                    LOG.info("-------------xml파일 백업 명령 성공");
                     joiner.add(storagePath + "/" + vm.getInstanceName());
                     path = joiner.toString();
                 }
             }
         }
-        LOG.info("-------------가상머신이 실행중인 경우 가상머신 xml파일 함께 백업 정보");
-        LOG.info("storagePath : " + storagePath);
-        LOG.info("path : " + path);
-        LOG.info("backupPath : " + backupPath);
         // 생성된 스냅샷의 경로로 해당 백업 세트의 백업 콘텐츠 경로 업데이트
         String clientId = client.getClientId(hostName);
         String subClientEntity = client.getSubclient(clientId, vm.getInstanceName());
@@ -877,9 +867,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
                 }
                 if (vm.getState() == VirtualMachine.State.Running) {
-                    LOG.info("-------------가상머신이 실행중인 경우 가상머신 xml파일 함께 삭제1");
                     command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                    LOG.info(command);
                     executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
                 }
             }
@@ -915,9 +903,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
                     }
                     if (vm.getState() == VirtualMachine.State.Running) {
-                        LOG.info("-------------가상머신이 실행중인 경우 가상머신 xml파일 함께 삭제2");
                         command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                        LOG.info(command);
                         executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
                     }
                 }
@@ -979,9 +965,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
                         }
                         if (vm.getState() == VirtualMachine.State.Running) {
-                            LOG.info("-------------가상머신이 실행중인 경우 가상머신 xml파일 함께 삭제3--백업성공케이스");
                             command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                            LOG.info(command);
                             executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
                         }
                         return true;
@@ -997,9 +981,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             }
                         }
                         if (vm.getState() == VirtualMachine.State.Running) {
-                            LOG.info("-------------가상머신이 실행중인 경우 가상머신 xml파일 함께 삭제4");
                             command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                            LOG.info(command);
                             executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
                         }
                         LOG.error("createBackup commvault api resulted in " + jobStatus);
@@ -1017,9 +999,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         }
                     }
                     if (vm.getState() == VirtualMachine.State.Running) {
-                        LOG.info("-------------가상머신이 실행중인 경우 가상머신 xml파일 함께 삭제5");
                         command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                        LOG.info(command);
                         executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
                     }
                     LOG.error("createBackup commvault api resulted in " + jobStatus);
@@ -1037,9 +1017,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     }
                 }
                 if (vm.getState() == VirtualMachine.State.Running) {
-                    LOG.info("-------------가상머신이 실행중인 경우 가상머신 xml파일 함께 삭제6");
                     command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                    LOG.info(command);
                     executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
                 }
                 LOG.error("failed request createBackup commvault api");
@@ -1057,9 +1035,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 }
             }
             if (vm.getState() == VirtualMachine.State.Running) {
-                LOG.info("-------------가상머신이 실행중인 경우 가상머신 xml파일 함께 삭제7");
                 command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                LOG.info(command);
                 executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), command);
             }
             LOG.error("updateBackupSet commvault api resulted in failure.");
