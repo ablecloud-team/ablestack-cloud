@@ -4903,5 +4903,6 @@
 "message.success.hba.device.allocated": "HBA \uc7a5\uce58\uac00 \uc131\uacf5\uc801\uc73c\ub85c \ud560\ub2f9\ub418\uc5c8\uc2b5\ub2c8\ub2e4.",
 "label.no.devices": "\uc7a5\uce58 \uc5c6\uc74c",
 "label.vhba.devices": "vHBA \uc7a5\uce58",
-"message.warning.host.device": "\uae00\ub85c\ubc8c \uc124\uc815\uc5d0\uc11c enable.additional.vm.configuration\ub97c true\ub85c \uc124\uc815\ud574\uc57c\ud569\ub2c8\ub2e4."
+"message.warning.host.device": "\uae00\ub85c\ubc8c \uc124\uc815\uc5d0\uc11c enable.additional.vm.configuration\ub97c true\ub85c \uc124\uc815\ud574\uc57c\ud569\ub2c8\ub2e4.",
+"message.vm.name.no.underscore": "\uac00\uc0c1\uba38\uc2e0 \uc774\ub984\uc5d0\ub294 \uc5b8\ub354\uc2a4\ucf54\uc5b4(_)\ub97c \uc0ac\uc6a9\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4."
 }

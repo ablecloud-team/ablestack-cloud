@@ -4903,5 +4903,6 @@
 "label.not.in.use": "Not in use",
 "label.in.use": "In use",
 "message.success.hba.device.allocated": "HBA device allocation completed",
-"message.warning.host.device": "You must set enable.additional.vm.configuration to true in global settings."
+"message.warning.host.device": "You must set enable.additional.vm.configuration to true in global settings.",
+"message.vm.name.no.underscore": "Virtual machine names cannot contain underscores (_)."
 }
