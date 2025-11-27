@@ -5270,5 +5270,6 @@
 "label.no.devices": "No devices",
 "label.vhba.devices": "vHBA devices",
 "message.warning.host.device": "You must set enable.additional.vm.configuration to true in global settings.",
-"message.ip.edit.l2.disabled": "You cannot modify the IP address of an L2 network NIC."
+"message.ip.edit.l2.disabled": "You cannot modify the IP address of an L2 network NIC.",
+"message.vm.name.no.underscore": "The virtual machine name cannot contain an underscore (_)."
 }
