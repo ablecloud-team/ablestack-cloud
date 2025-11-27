@@ -43,11 +43,10 @@
             icon="check-square-outlined" />
         </a-popconfirm>
         <tooltip-button
-          v-if="record.nic.type !== 'L2'"
           class="action-button"
           :shape="'round'"
           tooltipPlacement="bottom"
-          :tooltip="$t('label.change.ip.address')"
+          :tooltip="$t('label.change.ipaddress.or.macaddress')"
           icon="swap-outlined"
           :disabled="!('updateVmNicIp' in $store.getters.apis)"
           @onClick="onChangeIPAddress(record)" />
@@ -68,7 +67,7 @@
           <tooltip-button
             class="action-button"
             :shape="'round'"
-            tooltipPlacement="top"
+            tooltipPlacement="bottom"
             :tooltip="$t('label.action.nic.linkstate')"
             :type="record.nic.linkstate ? 'primary' : ''"
             icon="wifi-outlined" />
@@ -100,13 +99,22 @@
       :closable="true"
       :footer="null"
       @cancel="closeModals">
-      {{ $t('message.network.addvm.desc') }}
-      <a-form @finish="submitAddNetwork" v-ctrl-enter="submitAddNetwork">
-        <div class="modal-form">
-          <p class="modal-form__label">{{ $t('label.network') }}:</p>
+      <a-form
+        class="form-layout"
+        layout="vertical"
+        @finish="submitAddNetwork"
+        v-ctrl-enter="submitAddNetwork">
+        <a-alert style="margin-bottom: 5px" type="info" show-icon>
+          <template #message>
+            <span v-html="$t('message.network.addvm.desc')" />
+          </template>
+        </a-alert><br>
+        <a-form-item name="networkid">
+          <template #label>
+            <tooltip-label :title="$t('label.network')"/>
+          </template>
           <a-select
-            :value="addNetworkData.network"
-            @change="e => addNetworkData.network = e"
+            v-model:value="addNetworkData.network"
             v-focus="true"
             showSearch
             optionFilterProp="label"
@@ -125,15 +133,18 @@
               </span>
             </a-select-option>
           </a-select>
-          <p class="modal-form__label">{{ $t('label.ipaddress') }}:</p>
+        </a-form-item>
+        <a-form-item name="ipaddress">
+          <template #label>
+            <tooltip-label :title="$t('label.ipaddress')"/>
+          </template>
           <a-input v-model:value="addNetworkData.ip"></a-input>
-          <br>
+        </a-form-item>
+        <a-form-item name="makedefault">
           <a-checkbox v-model:checked="addNetworkData.makedefault">
             {{ $t('label.make.default') }}
           </a-checkbox>
-          <br>
-        </div>
-
+        </a-form-item>
         <div :span="24" class="action-button">
           <a-button @click="closeModals">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="submitAddNetwork">{{ $t('label.ok') }}</a-button>
@@ -142,21 +153,33 @@
     </a-modal>
 
     <a-modal
-      :visible="showUpdateIpModal"
-      :title="$t('label.change.ipaddress')"
+      :visible="showUpdateIpMacModal"
+      :title="$t('label.change.ipaddress.or.macaddress')"
       :maskClosable="false"
       :closable="true"
       :footer="null"
       @cancel="closeModals"
     >
-      {{ $t('message.network.updateip') }}
-
-      <a-form @finish="submitUpdateIP" v-ctrl-enter="submitUpdateIP">
-        <div class="modal-form">
-          <p class="modal-form__label">{{ $t('label.ipaddress') }}:</p>
+      <a-form
+        class="form-layout"
+        layout="vertical"
+        :ref="formRef"
+        :model="form"
+        :rules="rules"
+        @finish="submitUpdateIPMac"
+        v-ctrl-enter="submitUpdateIPMac">
+        <a-alert style="margin-bottom: 5px" type="warning" show-icon>
+          <template #message>
+            <span v-html="$t('message.network.updateip.or.macaddress')" />
+          </template>
+        </a-alert><br>
+        <a-form-item name="ipaddress" ref="ipaddress">
+          <template #label>
+            <tooltip-label :title="$t('label.ipaddress')"/>
+          </template>
           <a-select
             v-if="editNicResource.type==='Shared'"
-            v-model:value="editIpAddressValue"
+            v-model:value="form.ipaddress"
             :loading="listIps.loading"
             v-focus="editNicResource.type==='Shared'"
             showSearch
@@ -168,15 +191,29 @@
               {{ ip.ipaddress }}
             </a-select-option>
           </a-select>
+          <a-tooltip :title="$t('message.ip.edit.l2.disabled')" v-else-if="editNicResource.type === 'L2'">
+            <a-input
+              v-model:value="form.ipaddress"
+              :disabled="true"
+              v-focus="editNicResource.type!=='Shared'"/>
+          </a-tooltip>
           <a-input
             v-else
-            v-model:value="editIpAddressValue"
-            v-focus="editNicResource.type!=='Shared'"></a-input>
-        </div>
+            v-model:value="form.ipaddress"
+            v-focus="editNicResource.type!=='Shared'"/>
+        </a-form-item>
+        <a-form-item name="macaddress" ref="macaddress">
+          <template #label>
+            <tooltip-label :title="$t('label.macaddress')"/>
+          </template>
+          <a-input
+            v-model:value="form.macaddress"
+            :placeholder="$t('label.macaddress')"></a-input>
+        </a-form-item>
 
         <div :span="24" class="action-button">
           <a-button @click="closeModals">{{ $t('label.cancel') }}</a-button>
-          <a-button type="primary" ref="submit" @click="submitUpdateIP">{{ $t('label.ok') }}</a-button>
+          <a-button type="primary" ref="submit" @click="submitUpdateIPMac">{{ $t('label.ok') }}</a-button>
         </div>
       </a-form>
     </a-modal>
@@ -188,15 +225,21 @@
       :footer="null"
       :closable="false"
       class="wide-modal"
-      @cancel="closeModals"
     >
-      <p>
-        {{ $t('message.network.secondaryip') }}
-      </p>
-      <a-divider />
-      <div v-ctrl-enter="submitSecondaryIP">
-        <div class="modal-form">
-          <p class="modal-form__label">{{ $t('label.ipaddress') }}:</p>
+      <a-form
+        class="form-layout"
+        layout="vertical"
+        @finish="submitSecondaryIP"
+        v-ctrl-enter="submitSecondaryIP">
+        <a-alert style="margin-bottom: 5px" type="info" show-icon>
+          <template #message>
+            <span v-html="$t('message.network.secondaryip')" />
+          </template>
+        </a-alert><br>
+        <a-form-item name="secondaryip">
+          <template #label>
+            <tooltip-label :title="$t('label.ipaddress')"/>
+          </template>
           <a-select
             v-if="editNicResource.type==='Shared'"
             v-model:value="newSecondaryIp"
@@ -216,25 +259,24 @@
             :placeholder="$t('label.new.secondaryip.description')"
             v-model:value="newSecondaryIp"
             v-focus="editNicResource.type!=='Shared'"></a-input>
+        </a-form-item>
+        <div :span="24" class="action-button">
+          <a-button @click="closeModals">{{ $t('label.cancel') }}</a-button>
+          <a-button type="primary" ref="submit" @click="submitSecondaryIP">{{ $t('label.add.secondary.ip') }}</a-button>
         </div>
-
-        <div style="margin-top: 10px; display: flex; justify-content:flex-end;">
-          <a-button @click="submitSecondaryIP" ref="submit" type="primary" style="margin-right: 10px;">{{ $t('label.add.secondary.ip') }}</a-button>
-          <a-button @click="closeModals">{{ $t('label.close') }}</a-button>
-        </div>
-      </div>
+      </a-form>
 
       <a-divider />
       <a-list itemLayout="vertical">
         <a-list-item v-for="(ip, index) in secondaryIPs" :key="index">
           <a-popconfirm
-            :title="`${$t('label.action.release.ip')}?`"
+            :title="$t('message.action.release.ip')"
             @confirm="removeSecondaryIP(ip.id)"
             :okText="$t('label.yes')"
             :cancelText="$t('label.no')"
           >
             <tooltip-button
-              tooltipPlacement="top"
+              tooltipPlacement="bottom"
               :tooltip="$t('label.action.release.ip')"
               type="primary"
               :danger="true"
@@ -249,16 +291,19 @@
 
 <script>
 import { api } from '@/api'
+import { ref, reactive } from 'vue'
 import NicsTable from '@/views/network/NicsTable'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import ResourceIcon from '@/components/view/ResourceIcon'
+import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
   name: 'NicsTab',
   components: {
     NicsTable,
     TooltipButton,
-    ResourceIcon
+    ResourceIcon,
+    TooltipLabel
   },
   props: {
     resource: {
@@ -276,7 +321,7 @@ export default {
       vm: {},
       nic: {},
       showAddNetworkModal: false,
-      showUpdateIpModal: false,
+      showUpdateIpMacModal: false,
       showSecondaryIpModal: false,
       addNetworkData: {
         allNetworks: [],
@@ -286,7 +331,12 @@ export default {
       },
       loadingNic: false,
       editIpAddressNic: '',
-      editIpAddressValue: '',
+      formRef: 'updateNicForm',
+      form: {
+        ipaddress: '',
+        macaddress: ''
+      },
+      rules: {},
       editNetworkId: '',
       secondaryIPs: [],
       selectedNicId: '',
@@ -297,6 +347,9 @@ export default {
         opts: []
       }
     }
+  },
+  beforeCreate () {
+    this.apiParams = this.$getApiParams('updateVmNicIp')
   },
   created () {
     this.vm = this.resource
@@ -356,18 +409,29 @@ export default {
     },
     closeModals () {
       this.showAddNetworkModal = false
-      this.showUpdateIpModal = false
+      this.showUpdateIpMacModal = false
       this.showSecondaryIpModal = false
       this.addNetworkData.network = ''
       this.addNetworkData.ip = ''
       this.addNetworkData.makedefault = false
-      this.editIpAddressValue = ''
+      this.form = {
+        ipaddress: '',
+        macaddress: ''
+      }
+      this.formRef = 'updateNicForm'
+      this.rules = {}
       this.newSecondaryIp = ''
     },
     onChangeIPAddress (record) {
+      this.formRef = ref()
+      this.form = reactive({
+        ipaddress: record.nic.ipaddress,
+        macaddress: record.nic.macaddress
+      })
+      this.rules = reactive({})
       this.editNicResource = record.nic
       this.editIpAddressNic = record.nic.id
-      this.showUpdateIpModal = true
+      this.showUpdateIpMacModal = true
       if (record.nic.type === 'Shared') {
         this.fetchPublicIps(record.nic.networkid)
       }
@@ -467,15 +531,18 @@ export default {
         this.loadingNic = false
       })
     },
-    submitUpdateIP () {
+    submitUpdateIPMac () {
       if (this.loadingNic) return
       this.loadingNic = true
-      this.showUpdateIpModal = false
+      this.showUpdateIpMacModal = false
       const params = {
         nicId: this.editIpAddressNic
       }
-      if (this.editIpAddressValue) {
-        params.ipaddress = this.editIpAddressValue
+      if (this.form && this.form.ipaddress) {
+        params.ipaddress = this.form.ipaddress
+      }
+      if (this.form && this.form.macaddress) {
+        params.macaddress = this.form.macaddress
       }
       api('updateVmNicIp', params).then(response => {
         this.$pollJob({
@@ -595,7 +662,6 @@ export default {
           catchMethod: () => {
             this.loadingNic = false
             this.fetchSecondaryIPs(this.selectedNicId)
-            this.$emit('refresh')
           }
         })
       }).catch(error => {
@@ -640,6 +706,23 @@ export default {
 </script>
 
 <style scoped>
+.form-layout {
+  width: 80vw;
+
+  @media (min-width: 600px) {
+    width: 450px;
+  }
+
+  .action-button {
+    text-align: right;
+    margin-top: 20px;
+
+    button {
+      margin-right: 5px;
+    }
+  }
+}
+
 .modal-form {
   display: flex;
   flex-direction: column;
@@ -651,22 +734,6 @@ export default {
 
     &--no-margin {
       margin-top: 0;
-    }
-  }
-}
-
-.action-button {
-  display: flex;
-  flex-wrap: wrap;
-
-  button {
-    padding: 5px;
-    height: auto;
-    margin-bottom: 10px;
-    align-self: flex-start;
-
-    &:not(:last-child) {
-      margin-right: 10px;
     }
   }
 }
