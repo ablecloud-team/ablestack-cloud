@@ -2467,7 +2467,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
                                 .isSecurityGroupSupportedInNetwork(network), _networkModel.getNetworkTag(vmProfile.getHypervisorType(), network));
                         if (guru.release(profile, vmProfile, nic.getReservationId())) {
                             logger.debug("The nic {} on {} was released according to {} by guru {}, now updating record.", nic, profile, vmProfile, guru);
-                            applyProfileToNicForRelease(nic, profile);
+                            // applyProfileToNicForRelease(nic, profile);
                             nic.setState(Nic.State.Allocated);
                             if (originalState == Nic.State.Reserved) {
                                 updateNic(nic, network, -1);

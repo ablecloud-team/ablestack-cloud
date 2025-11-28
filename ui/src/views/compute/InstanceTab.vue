@@ -127,6 +127,7 @@
               :columns="deviceColumns"
               :dataSource="pciDevices"
               :pagination="false"
+              :scroll="{ x: 'max-content' }"
               size="small"
               :loading="loading" />
           </div>
@@ -138,6 +139,7 @@
               :columns="deviceColumns"
               :dataSource="hbaDevices"
               :pagination="false"
+              :scroll="{ x: 'max-content' }"
               size="small"
               :loading="loading" />
           </div>
@@ -149,6 +151,7 @@
               :columns="deviceColumns"
               :dataSource="vhbaDevices"
               :pagination="false"
+              :scroll="{ x: 'max-content' }"
               size="small"
               :loading="loading" />
           </div>
@@ -160,6 +163,7 @@
               :columns="deviceColumns"
               :dataSource="usbDevices"
               :pagination="false"
+              :scroll="{ x: 'max-content' }"
               size="small"
               :loading="loading" />
           </div>
@@ -171,6 +175,7 @@
               :columns="deviceColumns"
               :dataSource="lunDevices"
               :pagination="false"
+              :scroll="{ x: 'max-content' }"
               size="small"
               :loading="loading" />
           </div>
@@ -182,6 +187,7 @@
               :columns="deviceColumns"
               :dataSource="scsiDevices"
               :pagination="false"
+              :scroll="{ x: 'max-content' }"
               size="small"
               :loading="loading" />
           </div>
@@ -350,13 +356,17 @@ export default {
         lun: false,
         hba: false,
         vhba: false,
-        scsi: false
+        scsi: false,
+        fetching: false
       },
+      deviceAssignmentsPromise: null,
       deviceColumns: [
         {
           title: this.$t('label.name'),
           dataIndex: 'hostDevicesName',
           key: 'hostDevicesName',
+          fixed: 'left',
+          width: 250,
           customRender: ({ text }) => {
             return h('div', { style: 'white-space: pre-line; line-height: 1.4; min-height: 50px; padding-top: 8px;' }, this.formatDeviceName(text))
           }
@@ -365,8 +375,12 @@ export default {
           title: this.$t('label.details'),
           dataIndex: 'hostDevicesText',
           key: 'hostDevicesText',
+          width: 500,
           customRender: ({ text }) => {
-            return h('div', { style: 'white-space: pre-wrap; word-break: break-word; min-height: 40px;' }, text)
+            return h('div', {
+              style: 'white-space: pre-wrap; word-break: break-word; min-height: 40px;',
+              innerHTML: this.formatHostDevicesText(text)
+            })
           }
         }
       ]
@@ -429,6 +443,45 @@ export default {
 
       return deviceName
     },
+    formatHostDevicesText (text) {
+      if (!text) {
+        return ''
+      }
+
+      let formattedText = String(text)
+
+      // 각 항목 앞에 줄바꿈 추가
+      formattedText = formattedText.replace(/\s+SIZE:/g, '\nSIZE:')
+      formattedText = formattedText.replace(/\s+HAS_PARTITIONS:/g, '\nHAS_PARTITIONS:')
+      formattedText = formattedText.replace(/\s+SCSI_ADDRESS:/g, '\nSCSI_ADDRESS:')
+      formattedText = formattedText.replace(/\s+SCSI\s+Address:/g, '\nSCSI Address:')
+      formattedText = formattedText.replace(/\s+Type:/g, '\nType:')
+      formattedText = formattedText.replace(/\s+Vendor:/g, '\nVendor:')
+      formattedText = formattedText.replace(/\s+Model:/g, '\nModel:')
+      formattedText = formattedText.replace(/\s+Revision:/g, '\nRevision:')
+      formattedText = formattedText.replace(/\s+Device:/g, '\nDevice:')
+      formattedText = formattedText.replace(/\s+BY_ID:/g, '\nBY_ID:')
+      formattedText = formattedText.replace(/\s+파티션\s+없음/g, '\n파티션 없음')
+      formattedText = formattedText.replace(/\s+파티션\s+있음/g, '\n파티션 있음')
+      formattedText = formattedText.replace(/\s+WWNN:/g, '\nWWNN:')
+      formattedText = formattedText.replace(/\s+WWPN:/g, '\nWWPN:')
+      formattedText = formattedText.replace(/\s+Fabric\s+WWN:/g, '\nFabric WWN:')
+      formattedText = formattedText.replace(/\s+Max\s+vPorts:/g, '\nMax vPorts:')
+      formattedText = formattedText.replace(/\s+ID\s+/g, '\nID ')
+
+      formattedText = formattedText.replace(/HAS_PARTITIONS:\s*false/gi, this.$t('label.no.partitions'))
+      formattedText = formattedText.replace(/HAS_PARTITIONS:\s*true/gi, this.$t('label.has.partitions'))
+
+      formattedText = formattedText.replace(/USAGE_STATUS:\s*사용안함/gi, '사용안함')
+      formattedText = formattedText.replace(/USAGE_STATUS:\s*사용중/gi, '사용중')
+
+      formattedText = formattedText.replace(/IN_USE:\s*false/gi, this.$t('label.not.in.use'))
+      formattedText = formattedText.replace(/IN_USE:\s*true/gi, this.$t('label.in.use'))
+
+      formattedText = formattedText.replace(/(?:\r\n|\r|\n)/g, '<br/>')
+
+      return formattedText
+    },
     setCurrentTab () {
       this.currentTab = this.$route.query.tab ? this.$route.query.tab : 'details'
     },
@@ -463,16 +516,7 @@ export default {
       })
 
       if (!this.devicesLoaded) {
-        // 모든 디바이스 타입을 병렬로 로드
-        await Promise.all([
-          this.fetchPciDevices(),
-          this.fetchUsbDevices(),
-          this.fetchLunDevices(),
-          this.fetchHbaDevices(),
-          this.fetchVhbaDevices(),
-          this.fetchScsiDevices()
-        ])
-
+        await this.loadDevicesFromDb()
         this.devicesLoaded = true
       }
     },
@@ -556,8 +600,10 @@ export default {
         lun: false,
         hba: false,
         vhba: false,
-        scsi: false
+        scsi: false,
+        fetching: false
       }
+      this.deviceAssignmentsPromise = null
       // 장치 데이터 초기화
       this.pciDevices = []
       this.usbDevices = []
@@ -566,507 +612,116 @@ export default {
       this.vhbaDevices = []
       this.scsiDevices = []
     },
-    async fetchPciDevices () {
-      if (this.deviceLoadingStates.pci) return
-
-      this.deviceLoadingStates.pci = true
-      this.pciDevices = []
-
-      try {
-        const vmNumericId = this.vm.instancename?.split('-')[2]
-        if (!vmNumericId) {
-          return
-        }
-
-        // VM의 클러스터에 속한 호스트만 가져오기 (성능 최적화)
-        const params = { zoneid: this.vm.zoneid }
-        if (this.vm.clusterid) {
-          params.clusterid = this.vm.clusterid
-        }
-        const hostsResponse = await api('listHosts', params)
-        const hosts = hostsResponse?.listhostsresponse?.host || []
-
-        // 호스트가 없으면 종료
-        if (hosts.length === 0) {
-          return
-        }
-
-        // 첫 번째 호스트로 PCI API 지원 여부 확인
-        try {
-          const testRes = await api('listHostDevices', { id: hosts[0].id })
-          if (testRes?.listhostdevicesresponse?.errorcode) {
-            // PCI API가 지원되지 않으면 조기 종료
-            return
-          }
-        } catch (error) {
-          // API가 지원되지 않으면 조기 종료
-          return
-        }
-
-        // 각 호스트에서 디바이스 할당 정보 확인 (병렬 처리)
-        const devicePromises = hosts.map(async (host) => {
-          try {
-            const response = await api('listHostDevices', { id: host.id })
-
-            // API 응답 에러 확인
-            if (response?.listhostdevicesresponse?.errorcode) {
-              return null
-            }
-
-            const devices = response?.listhostdevicesresponse?.listhostdevices?.[0]
-            if (devices && devices.vmallocations && devices.hostdevicesname && devices.hostdevicestext) {
-              const foundDevices = []
-              Object.entries(devices.vmallocations).forEach(([deviceName, vmId]) => {
-                if (vmId === vmNumericId) {
-                  const deviceIndex = devices.hostdevicesname.findIndex(name => name === deviceName)
-                  if (deviceIndex !== -1 && devices.hostdevicestext[deviceIndex]) {
-                    foundDevices.push({
-                      key: `${host.id}-${deviceName}`,
-                      hostDevicesName: devices.hostdevicesname[deviceIndex],
-                      hostDevicesText: devices.hostdevicestext[deviceIndex]
-                    })
-                  }
-                }
-              })
-              return foundDevices
-            }
-          } catch (error) {
-            // 에러 조용히 처리
-          }
-          return null
-        })
-
-        const results = await Promise.all(devicePromises)
-        results.forEach(devices => {
-          if (devices) {
-            devices.forEach(device => {
-              const existingDevice = this.pciDevices.find(d => d.hostDevicesName === device.hostDevicesName)
-              if (!existingDevice) {
-                this.pciDevices.push(device)
-              }
-            })
-          }
-        })
-      } catch (error) {
-        // 에러 조용히 처리
-      } finally {
-        this.deviceLoadingStates.pci = false
+    async loadDevicesFromDb () {
+      if (this.deviceAssignmentsPromise) {
+        return this.deviceAssignmentsPromise
       }
+
+      const deviceTypes = ['pci', 'usb', 'lun', 'hba', 'vhba', 'scsi']
+      this.deviceAssignmentsPromise = (async () => {
+        this.deviceLoadingStates.fetching = true
+        deviceTypes.forEach(type => { this.deviceLoadingStates[type] = true })
+
+        try {
+          const response = await api('listVmDeviceAssignments', { virtualmachineid: this.vm.id })
+          const assignments = response?.listvmdeviceassignmentsresponse?.vmdeviceassignment
+          const assignmentList = Array.isArray(assignments)
+            ? assignments
+            : assignments
+              ? [assignments]
+              : []
+
+          const categorized = {
+            pci: [],
+            usb: [],
+            lun: [],
+            hba: [],
+            vhba: [],
+            scsi: []
+          }
+
+          const addUnique = (list, device) => {
+            if (!list.some(existing =>
+              existing.hostDevicesName === device.hostDevicesName &&
+              existing.hostId === device.hostId)) {
+              list.push(device)
+            }
+          }
+
+          assignmentList.forEach(item => {
+            const type = (item.devicetype || '').toLowerCase()
+            if (!['pci', 'usb', 'lun', 'hba', 'vhba', 'scsi'].includes(type)) {
+              return
+            }
+            const device = {
+              key: `${item.hostid || 'na'}-${item.hostdevicesname}`,
+              hostDevicesName: item.hostdevicesname,
+              hostDevicesText: item.hostdevicestext || '',
+              hostId: item.hostid
+            }
+
+            switch (type) {
+              case 'pci':
+                addUnique(categorized.pci, device)
+                break
+              case 'usb':
+                addUnique(categorized.usb, device)
+                break
+              case 'lun':
+                addUnique(categorized.lun, device)
+                break
+              case 'hba':
+                addUnique(categorized.hba, device)
+                break
+              case 'vhba':
+                addUnique(categorized.vhba, device)
+                break
+              case 'scsi':
+                addUnique(categorized.scsi, device)
+                break
+            }
+          })
+
+          this.pciDevices = categorized.pci
+          this.usbDevices = categorized.usb
+          this.lunDevices = categorized.lun
+          this.hbaDevices = categorized.hba
+          this.vhbaDevices = categorized.vhba
+          this.scsiDevices = categorized.scsi
+        } catch (error) {
+          console.error('Failed to load VM device assignments', error)
+          this.pciDevices = []
+          this.usbDevices = []
+          this.lunDevices = []
+          this.hbaDevices = []
+          this.vhbaDevices = []
+          this.scsiDevices = []
+        } finally {
+          deviceTypes.forEach(type => { this.deviceLoadingStates[type] = false })
+          this.deviceLoadingStates.fetching = false
+          this.deviceAssignmentsPromise = null
+        }
+      })()
+
+      return this.deviceAssignmentsPromise
     },
-    getVmNumericId () {
-      if (!this.vm.instancename) return null
-      const parts = this.vm.instancename.split('-')
-      return parts.length > 2 ? parts[2] : null
+    async fetchPciDevices () {
+      await this.loadDevicesFromDb()
     },
     async fetchUsbDevices () {
-      if (this.deviceLoadingStates.usb) return
-
-      this.deviceLoadingStates.usb = true
-      this.usbDevices = []
-
-      try {
-        const vmNumericId = this.getVmNumericId()
-        if (!vmNumericId) {
-          return
-        }
-
-        // VM의 클러스터에 속한 호스트만 가져오기
-        const params = { zoneid: this.vm.zoneid }
-        if (this.vm.clusterid) {
-          params.clusterid = this.vm.clusterid
-        }
-        const hostsResponse = await api('listHosts', params)
-        const hosts = hostsResponse?.listhostsresponse?.host || []
-
-        if (hosts.length === 0) {
-          return
-        }
-
-        // 첫 번째 호스트로 USB API 지원 여부 확인
-        try {
-          const testRes = await api('listHostUsbDevices', { id: hosts[0].id })
-          if (testRes?.listhostusbdevicesresponse?.errorcode) {
-            return
-          }
-        } catch (error) {
-          return
-        }
-
-        // 각 호스트에서 USB 디바이스 할당 정보 확인 (병렬 처리)
-        const devicePromises = hosts.map(async (host) => {
-          try {
-            const usbRes = await api('listHostUsbDevices', { id: host.id })
-
-            if (usbRes?.listhostusbdevicesresponse?.errorcode) {
-              return null
-            }
-
-            const usbData = usbRes?.listhostusbdevicesresponse?.listhostusbdevices?.[0]
-            if (usbData && usbData.vmallocations && usbData.hostdevicesname && usbData.hostdevicestext) {
-              const foundDevices = []
-              for (const [devName, vmId] of Object.entries(usbData.vmallocations)) {
-                if (vmId && String(vmId) === String(vmNumericId)) {
-                  const deviceIndex = usbData.hostdevicesname.indexOf(devName)
-                  if (deviceIndex !== -1 && usbData.hostdevicestext[deviceIndex]) {
-                    foundDevices.push({
-                      hostDevicesName: devName,
-                      hostDevicesText: usbData.hostdevicestext[deviceIndex]
-                    })
-                  }
-                }
-              }
-              return foundDevices
-            }
-          } catch (error) {
-            // 에러 조용히 처리
-          }
-          return null
-        })
-
-        const results = await Promise.all(devicePromises)
-        results.forEach(devices => {
-          if (devices) {
-            devices.forEach(device => {
-              const existingDevice = this.usbDevices.find(d => d.hostDevicesName === device.hostDevicesName)
-              if (!existingDevice) {
-                this.usbDevices.push(device)
-              }
-            })
-          }
-        })
-      } catch (error) {
-        // 에러 조용히 처리
-      } finally {
-        this.deviceLoadingStates.usb = false
-      }
+      await this.loadDevicesFromDb()
     },
     async fetchLunDevices () {
-      if (this.deviceLoadingStates.lun) return
-
-      this.deviceLoadingStates.lun = true
-      this.lunDevices = []
-
-      try {
-        const vmNumericId = this.getVmNumericId()
-        if (!vmNumericId) {
-          return
-        }
-
-        // VM의 클러스터에 속한 호스트만 가져오기
-        const params = { zoneid: this.vm.zoneid }
-        if (this.vm.clusterid) {
-          params.clusterid = this.vm.clusterid
-        }
-        const hostsResponse = await api('listHosts', params)
-        const hosts = hostsResponse?.listhostsresponse?.host || []
-
-        if (hosts.length === 0) {
-          return
-        }
-
-        // 첫 번째 호스트로 LUN API 지원 여부 확인
-        try {
-          const testRes = await api('listHostLunDevices', { id: hosts[0].id })
-          if (testRes?.listhostlundevicesresponse?.errorcode) {
-            return
-          }
-        } catch (error) {
-          return
-        }
-
-        // 각 호스트에서 LUN 디바이스 할당 정보 확인 (병렬 처리)
-        const devicePromises = hosts.map(async (host) => {
-          try {
-            const lunRes = await api('listHostLunDevices', { id: host.id })
-
-            if (lunRes?.listhostlundevicesresponse?.errorcode) {
-              return null
-            }
-
-            const lunData = lunRes?.listhostlundevicesresponse?.listhostlundevices?.[0]
-            if (lunData && lunData.vmallocations && lunData.hostdevicesname && lunData.hostdevicestext) {
-              const foundDevices = []
-              for (const [devName, vmId] of Object.entries(lunData.vmallocations)) {
-                if (vmId && String(vmId) === String(vmNumericId)) {
-                  const deviceIndex = lunData.hostdevicesname.indexOf(devName)
-                  if (deviceIndex !== -1 && lunData.hostdevicestext[deviceIndex]) {
-                    foundDevices.push({
-                      hostDevicesName: devName,
-                      hostDevicesText: lunData.hostdevicestext[deviceIndex]
-                    })
-                  }
-                }
-              }
-              return foundDevices
-            }
-          } catch (error) {
-            // 에러 조용히 처리
-          }
-          return null
-        })
-
-        const results = await Promise.all(devicePromises)
-        results.forEach(devices => {
-          if (devices) {
-            devices.forEach(device => {
-              const existingDevice = this.lunDevices.find(d => d.hostDevicesName === device.hostDevicesName)
-              if (!existingDevice) {
-                this.lunDevices.push(device)
-              }
-            })
-          }
-        })
-      } catch (error) {
-        // 에러 조용히 처리
-      } finally {
-        this.deviceLoadingStates.lun = false
-      }
+      await this.loadDevicesFromDb()
     },
     async fetchHbaDevices () {
-      if (this.deviceLoadingStates.hba) return
-
-      this.deviceLoadingStates.hba = true
-      this.hbaDevices = []
-
-      try {
-        const vmNumericId = this.getVmNumericId()
-        if (!vmNumericId) {
-          return
-        }
-
-        // VM의 클러스터에 속한 호스트만 가져오기
-        const params = { zoneid: this.vm.zoneid }
-        if (this.vm.clusterid) {
-          params.clusterid = this.vm.clusterid
-        }
-        const hostsResponse = await api('listHosts', params)
-        const hosts = hostsResponse?.listhostsresponse?.host || []
-
-        if (hosts.length === 0) {
-          return
-        }
-
-        // 첫 번째 호스트로 HBA API 지원 여부 확인
-        try {
-          const testRes = await api('listHostHbaDevices', { id: hosts[0].id })
-          if (testRes?.listhosthbadevicesresponse?.errorcode) {
-            return
-          }
-        } catch (error) {
-          return
-        }
-
-        // 각 호스트에서 HBA 디바이스 할당 정보 확인 (병렬 처리)
-        const devicePromises = hosts.map(async (host) => {
-          try {
-            const hbaRes = await api('listHostHbaDevices', { id: host.id })
-
-            if (hbaRes?.listhosthbadevicesresponse?.errorcode) {
-              return null
-            }
-
-            const hbaData = hbaRes?.listhosthbadevicesresponse?.listhosthbadevices?.[0]
-            if (hbaData && hbaData.vmallocations && hbaData.hostdevicesname && hbaData.hostdevicestext) {
-              const foundDevices = []
-              for (const [devName, vmId] of Object.entries(hbaData.vmallocations)) {
-                if (vmId && String(vmId) === String(vmNumericId)) {
-                  const deviceIndex = hbaData.hostdevicesname.indexOf(devName)
-                  if (deviceIndex !== -1 && hbaData.hostdevicestext[deviceIndex]) {
-                    foundDevices.push({
-                      hostDevicesName: devName,
-                      hostDevicesText: hbaData.hostdevicestext[deviceIndex]
-                    })
-                  }
-                }
-              }
-              return foundDevices
-            }
-          } catch (error) {
-            // 에러 조용히 처리
-          }
-          return null
-        })
-
-        const results = await Promise.all(devicePromises)
-        results.forEach(devices => {
-          if (devices) {
-            devices.forEach(device => {
-              const existingDevice = this.hbaDevices.find(d => d.hostDevicesName === device.hostDevicesName)
-              if (!existingDevice) {
-                this.hbaDevices.push(device)
-              }
-            })
-          }
-        })
-      } catch (error) {
-        // 에러 조용히 처리
-      } finally {
-        this.deviceLoadingStates.hba = false
-      }
+      await this.loadDevicesFromDb()
     },
     async fetchVhbaDevices () {
-      if (this.deviceLoadingStates.vhba) return
-
-      this.deviceLoadingStates.vhba = true
-      this.vhbaDevices = []
-
-      try {
-        const vmNumericId = this.getVmNumericId()
-        if (!vmNumericId) {
-          return
-        }
-
-        // VM의 클러스터에 속한 호스트만 가져오기
-        const params = { zoneid: this.vm.zoneid }
-        if (this.vm.clusterid) {
-          params.clusterid = this.vm.clusterid
-        }
-        const hostsResponse = await api('listHosts', params)
-        const hosts = hostsResponse?.listhostsresponse?.host || []
-
-        if (hosts.length === 0) {
-          return
-        }
-
-        // 첫 번째 호스트로 VHBA API 지원 여부 확인
-        try {
-          const testRes = await api('listVhbaDevices', { hostid: hosts[0].id })
-          if (testRes?.listvhbadevicesresponse?.errorcode) {
-            return
-          }
-        } catch (error) {
-          return
-        }
-
-        // 각 호스트에서 VHBA 디바이스 할당 정보 확인 (병렬 처리)
-        const devicePromises = hosts.map(async (host) => {
-          try {
-            const vhbaRes = await api('listVhbaDevices', { hostid: host.id })
-
-            if (vhbaRes?.listvhbadevicesresponse?.errorcode) {
-              return null
-            }
-
-            const vhbaData = vhbaRes?.listvhbadevicesresponse?.listvhbadevices?.[0]
-            if (vhbaData && vhbaData.vmallocations && vhbaData.hostdevicesname && vhbaData.hostdevicestext) {
-              const foundDevices = []
-              for (const [devName, vmId] of Object.entries(vhbaData.vmallocations)) {
-                if (vmId && String(vmId) === String(vmNumericId)) {
-                  const deviceIndex = vhbaData.hostdevicesname.indexOf(devName)
-                  if (deviceIndex !== -1 && vhbaData.hostdevicestext[deviceIndex]) {
-                    foundDevices.push({
-                      hostDevicesName: devName,
-                      hostDevicesText: vhbaData.hostdevicestext[deviceIndex]
-                    })
-                  }
-                }
-              }
-              return foundDevices
-            }
-          } catch (error) {
-            // 에러 조용히 처리
-          }
-          return null
-        })
-
-        const results = await Promise.all(devicePromises)
-        results.forEach(devices => {
-          if (devices) {
-            devices.forEach(device => {
-              const existingDevice = this.vhbaDevices.find(d => d.hostDevicesName === device.hostDevicesName)
-              if (!existingDevice) {
-                this.vhbaDevices.push(device)
-              }
-            })
-          }
-        })
-      } catch (error) {
-        // 에러 조용히 처리
-      } finally {
-        this.deviceLoadingStates.vhba = false
-      }
+      await this.loadDevicesFromDb()
     },
     async fetchScsiDevices () {
-      if (this.deviceLoadingStates.scsi) return
-
-      this.deviceLoadingStates.scsi = true
-      this.scsiDevices = []
-
-      try {
-        const vmNumericId = this.getVmNumericId()
-        if (!vmNumericId) {
-          return
-        }
-
-        // VM의 클러스터에 속한 호스트만 가져오기
-        const params = { zoneid: this.vm.zoneid }
-        if (this.vm.clusterid) {
-          params.clusterid = this.vm.clusterid
-        }
-        const hostsResponse = await api('listHosts', params)
-        const hosts = hostsResponse?.listhostsresponse?.host || []
-
-        if (hosts.length === 0) {
-          return
-        }
-
-        // 첫 번째 호스트로 SCSI API 지원 여부 확인
-        try {
-          const testRes = await api('listHostScsiDevices', { id: hosts[0].id })
-          if (testRes?.listhostscsidevicesresponse?.errorcode) {
-            return
-          }
-        } catch (error) {
-          return
-        }
-
-        // 각 호스트에서 SCSI 디바이스 할당 정보 확인 (병렬 처리)
-        const devicePromises = hosts.map(async (host) => {
-          try {
-            const scsiRes = await api('listHostScsiDevices', { id: host.id })
-
-            if (scsiRes?.listhostscsidevicesresponse?.errorcode) {
-              return null
-            }
-
-            const scsiData = scsiRes?.listhostscsidevicesresponse?.listhostscsidevices?.[0]
-            if (scsiData && scsiData.vmallocations && scsiData.hostdevicesname && scsiData.hostdevicestext) {
-              const foundDevices = []
-              for (const [devName, vmId] of Object.entries(scsiData.vmallocations)) {
-                if (vmId && String(vmId) === String(vmNumericId)) {
-                  const deviceIndex = scsiData.hostdevicesname.indexOf(devName)
-                  if (deviceIndex !== -1 && scsiData.hostdevicestext[deviceIndex]) {
-                    foundDevices.push({
-                      hostDevicesName: devName,
-                      hostDevicesText: scsiData.hostdevicestext[deviceIndex]
-                    })
-                  }
-                }
-              }
-              return foundDevices
-            }
-          } catch (error) {
-            // 에러 조용히 처리
-          }
-          return null
-        })
-
-        const results = await Promise.all(devicePromises)
-        results.forEach(devices => {
-          if (devices) {
-            devices.forEach(device => {
-              const existingDevice = this.scsiDevices.find(d => d.hostDevicesName === device.hostDevicesName)
-              if (!existingDevice) {
-                this.scsiDevices.push(device)
-              }
-            })
-          }
-        })
-      } catch (error) {
-        // 에러 조용히 처리
-      } finally {
-        this.deviceLoadingStates.scsi = false
-      }
+      await this.loadDevicesFromDb()
     }
   }
 }
@@ -1222,6 +877,10 @@ export default {
   color: #1890ff;
   border-bottom: 2px solid #f0f0f0;
   padding-bottom: 8px;
+}
+
+.host-devices-container .device-section :deep(.ant-table-cell:nth-child(2)) {
+  white-space: pre-line;
 }
 
 </style>

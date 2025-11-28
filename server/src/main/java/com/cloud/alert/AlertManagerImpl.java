@@ -831,6 +831,7 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
         AlertVO alert = null;
         Long clusterId = cluster == null ? null : cluster.getId();
         Long podId = pod == null ? null : pod.getId();
+        long dcId = dataCenter == null ? 0L : dataCenter.getId();
         if ((alertType != AlertManager.AlertType.ALERT_TYPE_HOST) && (alertType != AlertManager.AlertType.ALERT_TYPE_USERVM)
                 && (alertType != AlertManager.AlertType.ALERT_TYPE_DOMAIN_ROUTER) && (alertType != AlertManager.AlertType.ALERT_TYPE_CONSOLE_PROXY)
                 && (alertType != AlertManager.AlertType.ALERT_TYPE_SSVM) && (alertType != AlertManager.AlertType.ALERT_TYPE_STORAGE_MISC)
@@ -848,7 +849,7 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
             newAlert.setContent(content);
             newAlert.setClusterId(clusterId);
             newAlert.setPodId(podId);
-            newAlert.setDataCenterId(dataCenter.getId());
+            newAlert.setDataCenterId(dcId);
             newAlert.setSentCount(1);
             newAlert.setLastSent(new Date());
             newAlert.setName(alertType.getName());

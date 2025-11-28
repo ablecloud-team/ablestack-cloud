@@ -502,6 +502,7 @@ export default {
           const allocationParams = {
             hostid: this.resource.id,
             hostdevicesname: this.resource.hostDevicesName,
+            hostdevicestext: this.resource.hostDevicesText || '',
             virtualmachineid: selectedVM.id,
             xmlconfig: xmlConfig
           }

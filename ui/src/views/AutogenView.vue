@@ -181,13 +181,13 @@
                 type="error">
                 <template #message>
                   <exclamation-circle-outlined style="color: red; fontSize: 30px; display: inline-flex" />
-                  <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+                  <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>&nbsp`" />
                   <span v-html="$t(currentAction.message)" />
                 </template>
               </a-alert>
               <a-alert v-else type="warning">
                 <template #message>
-                  <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+                  <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>&nbsp`" />
                   <span v-html="$t(currentAction.message)" />
                 </template>
               </a-alert>
@@ -387,7 +387,7 @@
         :maskClosable="false"
         :footer="null"
         style="top: 20px;"
-        :width="modalWidth"
+        :width="currentAction.groupAction ? modalWidth : '30vw'"
         :ok-button-props="getOkProps()"
         ok-text="111"
         :cancel-button-props="getCancelProps()"
@@ -407,19 +407,19 @@
         </template>
         <a-spin :spinning="actionLoading" v-ctrl-enter="handleSubmit">
           <span v-if="currentAction.message">
-            <div v-if="selectedRowKeys.length > 0">
+            <div v-if="selectedRowKeys.length > 0 && currentAction.groupAction">
               <a-alert
                 v-if="['delete-outlined', 'DeleteOutlined', 'poweroff-outlined', 'PoweroffOutlined'].includes(currentAction.icon)"
                 type="error">
                 <template #message>
                   <exclamation-circle-outlined style="color: red; fontSize: 30px; display: inline-flex" />
-                  <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+                  <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length}` + $t('label.items.selected') + `. </b>&nbsp`" />
                   <span v-html="currentAction.message" />
                 </template>
               </a-alert>
               <a-alert v-else type="warning">
                 <template #message>
-                  <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+                  <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length}` + $t('label.items.selected') + `. </b>&nbsp`" />
                   <span v-html="currentAction.message" />
                 </template>
               </a-alert>
@@ -431,7 +431,7 @@
                 </template>
               </a-alert>
             </div>
-            <div v-if="selectedRowKeys.length > 0">
+            <div v-if="selectedRowKeys.length > 0 && currentAction.groupAction">
               <a-divider />
               <a-table
                 v-if="selectedRowKeys.length > 0"
@@ -1227,7 +1227,8 @@ export default {
         return ![this.$t('label.state'), this.$t('label.hostname'), this.$t('label.hostid'), this.$t('label.zonename'),
           this.$t('label.zone'), this.$t('label.zoneid'), this.$t('label.ip'), this.$t('label.ipaddress'), this.$t('label.privateip'),
           this.$t('label.linklocalip'), this.$t('label.size'), this.$t('label.sizegb'), this.$t('label.current'),
-          this.$t('label.created'), this.$t('label.order'), this.$t('label.networkname')].includes(column.title)
+          this.$t('label.created'), this.$t('label.order'), this.$t('label.networkname'), this.$t('label.kvdoenable'),
+          this.$t('label.usedfsbytes'), this.$t('label.qemuagentversion')].includes(column.title)
       })
       this.chosenColumns.splice(this.chosenColumns.length - 1, 1)
 
@@ -1452,6 +1453,7 @@ export default {
       } else {
         this.modalWidth = '30vw'
       }
+      // this.modalWidth = '45vw'
 
       this.setModalWidthByScreen()
     },

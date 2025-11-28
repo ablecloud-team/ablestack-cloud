@@ -254,6 +254,7 @@ export default {
         await api('updateHostLunDevices', {
           hostid: this.resource.id,
           hostdevicesname: this.resource.hostDevicesName,
+          hostdevicestext: this.resource.hostDevicesText || '',
           virtualmachineid: this.form.virtualmachineid,
           xmlconfig: xmlConfig,
           isattach: true
