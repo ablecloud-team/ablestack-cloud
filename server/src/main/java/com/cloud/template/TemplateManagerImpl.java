@@ -2518,7 +2518,7 @@ public class TemplateManagerImpl extends ManagerBase implements TemplateManager,
             } else if ((cmd instanceof RegisterVnfTemplateCmd || cmd instanceof UpdateVnfTemplateCmd) && !TemplateType.VNF.equals(templateType)) {
                 throw new InvalidParameterValueException("The template type must be VNF for VNF templates, but the actual type is " + templateType);
             }
-        } else if (cmd instanceof RegisterTemplateCmd) {
+        } else if ((cmd instanceof RegisterTemplateCmd) || (cmd instanceof GetUploadParamsForTemplateCmd)) {
             boolean isRouting = Boolean.TRUE.equals(isRoutingType);
             templateType = (cmd instanceof RegisterVnfTemplateCmd) ? TemplateType.VNF : (isRouting ? TemplateType.ROUTING : TemplateType.USER);
         }
