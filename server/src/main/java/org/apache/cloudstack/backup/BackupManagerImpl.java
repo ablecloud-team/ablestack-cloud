@@ -845,6 +845,12 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (vmFromBackup == null) {
             throw new CloudRuntimeException("VM reference for the provided VM backup not found");
         }
+        // 복원하여 볼륨 생성하기 전에 미리 validation 체크
+        Backup.VolumeInfo volumeInfo = getVolumeInfo(vmFromBackup.getBackupVolumeList(), backedUpVolumeUuid);
+        if (volumeInfo == null) {
+            throw new CloudRuntimeException("Failed to find volume in the backedup volumes of ID " + backedUpVolumeUuid);
+        }
+
         accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vmFromBackup);
         final BackupOffering offering = backupOfferingDao.findByIdIncludingRemoved(backup.getBackupOfferingId());
         if (offering == null) {
