@@ -801,6 +801,7 @@ public class ApiConstants {
     public static final String ENABLED = "enabled";
     public static final String SERVICE_NAME = "servicename";
     public static final String DHCP_RANGE = "dhcprange";
+    public static final String UID = "uid";
     public static final String UUID = "uuid";
     public static final String SECURITY_GROUP_EANBLED = "securitygroupenabled";
     public static final String LOCAL_STORAGE_ENABLED = "localstorageenabled";
@@ -1493,6 +1494,8 @@ public class ApiConstants {
     public static final String WWNN = "wwnn";
     public static final String WWPN = "wwpn";
     public static final String VHBA_NAME = "vhbaname";
+
+    public static final String OPERATOR = "operator";
 
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.

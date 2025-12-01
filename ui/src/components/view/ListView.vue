@@ -21,7 +21,7 @@
     :loading="loading"
     :columns="isOrderUpdatable() ? columns : columns.filter(x => x.dataIndex !== 'order')"
     :dataSource="items"
-    :rowKey="(record, idx) => record.id || record.name || record.usageType || idx + '-' + Math.random()"
+    :rowKey="(record, idx) => record.uid || (record.metadata && record.metadata.rule_uid) || record.id || record.name || record.usageType || (idx + '-' + Math.random())"
     :pagination="false"
     :rowSelection="explicitlyAllowRowSelection || enableGroupAction() || $route.name === 'event' ? {selectedRowKeys: selectedRowKeys, onChange: onSelectChange, columnWidth: 30} : null"
     :rowClassName="getRowClassName"
@@ -117,15 +117,15 @@
             <router-link :to="{ path: $route.path + '/' + record.name , query: { account: record.account, domainid: record.domainid }}" >{{ $t(text.toLowerCase()) }}</router-link>
           </span>
           <span v-else-if="$route.path.startsWith('/globalsetting')">{{ text }}</span>
+          <span v-else-if="$route.path.startsWith('/alertRules')">
+            <router-link :to="{ path: $route.path + '/' + (record.uid || record.id || record.name) }">
+              {{ text }}
+            </router-link>
+          </span>
           <span v-else-if="$route.path.startsWith('/alert')">
-            <router-link
-              :to="{ path: $route.path + '/' + record.id }"
-              v-if="record.id"
-            >{{ $t(text.toLowerCase()) }}</router-link>
-            <router-link
-              :to="{ path: $route.path + '/' + record.name }"
-              v-else
-            >{{ $t(text.toLowerCase()) }}</router-link>
+            <router-link :to="{ path: $route.path + '/' + (record.id || record.name) }">
+              {{ $t(text.toLowerCase()) }}
+            </router-link>
           </span>
           <span v-else-if="$route.path.startsWith('/tungstenfabric')">
             <router-link
@@ -524,7 +524,6 @@
         <span>{{ record.serviceofferingdetails?.mincpunumber && record.serviceofferingdetails?.maxcpunumber ?
           `${record.serviceofferingdetails.mincpunumber} - ${record.serviceofferingdetails.maxcpunumber}` :
           record.cpunumber }}</span>
-      </template>
       <template v-if="column.key === 'memory' && $route.path.split('/')[1] !== 'kubernetes'">
         <span>{{ record.serviceofferingdetails?.minmemory && record.serviceofferingdetails?.maxmemory ?
           `${record.serviceofferingdetails.minmemory} - ${record.serviceofferingdetails.maxmemory}` : record.memory
@@ -1058,6 +1057,12 @@
       <template v-if="column.key === 'vgpuActions'">
         <slot name="actionButtons" :record="record" :actions="actions"></slot>
       </template>
+      <template v-if="column.key === 'operator'">
+        <span>{{ formatOperator(text) }}</span>
+      </template>
+      <template v-if="column.key === 'threshold' && $route.path.split('/')[1] === 'alertRules'">
+        <span>{{ formatThresholdLabelSafe(record) }}</span>
+      </template>
     </template>
     <template #footer>
       <span v-if="hasSelected">
@@ -1219,7 +1224,7 @@ export default {
         '/zone', '/pod', '/cluster', '/host', '/storagepool', '/imagestore', '/systemvm', '/router', '/ilbvm', '/annotation',
         '/computeoffering', '/systemoffering', '/diskoffering', '/backupoffering', '/networkoffering', '/vpcoffering',
         '/tungstenfabric', '/oauthsetting', '/guestos', '/guestoshypervisormapping', '/webhook', 'webhookdeliveries', '/quotatariff', '/sharedfs',
-        '/ipv4subnets', '/disasterrecoverycluster', '/managementserver', '/gpucard', '/gpudevices', '/vgpuprofile', '/extension', '/snapshotpolicy', '/backupschedule'].join('|'))
+        '/ipv4subnets', '/disasterrecoverycluster', '/managementserver', '/gpucard', '/gpudevices', '/vgpuprofile', '/extension', '/snapshotpolicy', '/backupschedule', '/alertRules'].join('|'))
         .test(this.$route.path)
     },
     enableGroupAction () {
@@ -1579,6 +1584,59 @@ export default {
         return '#ffbf00'
       } else {
         return '#fd7e14'
+      }
+    },
+    formatOperator (op) {
+      if (op == null) return ''
+      const raw = String(op)
+      if (raw.startsWith('label.operator.')) return this.$t(raw)
+      const key = ({
+        gt: 'label.operator.above',
+        gte: 'label.operator.above',
+        lt: 'label.operator.below',
+        lte: 'label.operator.below',
+        between: 'label.operator.within',
+        within: 'label.operator.within',
+        within_range: 'label.operator.within',
+        outside: 'label.operator.outside',
+        outside_range: 'label.operator.outside'
+      })[raw.toLowerCase()]
+      return key ? this.$t(key) : raw
+    },
+    formatThresholdLabel (op, t1, t2) {
+      const o = op == null ? '' : String(op).toLowerCase()
+      const v1 = t1 === null || t1 === undefined ? null : String(t1)
+      const v2 = t2 === null || t2 === undefined ? null : String(t2)
+
+      const above = this.$t('label.operator.above')
+      const below = this.$t('label.operator.below')
+      const within = this.$t('label.operator.within')
+      const outside = this.$t('label.operator.outside')
+
+      if (o === 'within_range' || o === 'between') {
+        return v1 && v2 ? `${v1}-${v2} ${within}` : '—'
+      }
+      if (o === 'outside_range' || o === 'outside') {
+        return v1 && v2 ? `${v1} ${below} 또는 ${v2} ${above}` : outside
+      }
+
+      if (!v1) return '—'
+      if (o === 'gt' || o === '>') return `${v1} ${above}`
+      if (o === 'gte' || o === '>=') return `${v1} ${above}`
+      if (o === 'lt' || o === '<') return `${v1} ${below}`
+      if (o === 'lte' || o === '<=') return `${v1} ${below}`
+
+      return v2 ? `${v1}-${v2}` : v1
+    },
+
+    // 렌더 오류가 나도 페이지 전체가 죽지 않도록 방어
+    formatThresholdLabelSafe (record) {
+      try {
+        return this.formatThresholdLabel(record?.operator, record?.threshold, record?.threshold2)
+      } catch (e) {
+        console.error('[threshold-render]', e)
+        const v = record && record.threshold != null ? String(record.threshold) : '—'
+        return v
       }
     }
   }
