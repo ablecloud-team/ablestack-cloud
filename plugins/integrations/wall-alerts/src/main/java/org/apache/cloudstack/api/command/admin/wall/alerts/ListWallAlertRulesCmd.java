@@ -38,7 +38,7 @@ import org.apache.cloudstack.wallAlerts.service.WallAlertsService;
         description = "Lists Wall(Grafana) alert rules",
         responseObject = WallAlertRuleResponse.class,
         responseView = ResponseObject.ResponseView.Restricted,
-        authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
+        authorized = {RoleType.Admin, RoleType.ResourceAdmin})
 public class ListWallAlertRulesCmd extends BaseListCmd {
     public static final String APINAME = "listWallAlertRules";
 
