@@ -24,7 +24,7 @@ import org.apache.cloudstack.wallAlerts.service.WallAlertsService;
         responseObject = WallAlertRuleResponse.class,
         requestHasSensitiveInfo = false,
         responseHasSensitiveInfo = false,
-        authorized = { RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin }
+        authorized = { RoleType.Admin, RoleType.ResourceAdmin }
 )
 public class UpdateWallAlertRuleThresholdCmd extends BaseCmd {
     public static final String APINAME = "updateWallAlertRuleThreshold";

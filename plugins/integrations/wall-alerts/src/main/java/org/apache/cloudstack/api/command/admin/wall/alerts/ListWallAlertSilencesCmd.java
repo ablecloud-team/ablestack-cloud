@@ -41,7 +41,7 @@ import org.apache.cloudstack.wallAlerts.service.WallAlertsService;
         description = "Lists Alertmanager silences that match the given alert's labels",
         responseObject = WallSilenceResponse.class,
         responseView = ResponseObject.ResponseView.Restricted,
-        authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
+        authorized = {RoleType.Admin, RoleType.ResourceAdmin })
 public class ListWallAlertSilencesCmd extends BaseListCmd {
     public static final String APINAME = "listWallAlertSilences";
 
