@@ -546,13 +546,6 @@
       <template v-if="column.key === 'drclusterstatus'">
         <status :text="text ? text : ''" displayText />
       </template>
-      <template v-if="column.key === 'vmstate'">
-        <status
-          :text="text ? text : ''"
-          displayText
-          vmState
-        />
-      </template>
       <template v-if="column.key === 'offerha'">
         {{ text ? $t('state.enabled') : $t('state.disabled')}}
       </template>
