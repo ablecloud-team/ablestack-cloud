@@ -20,7 +20,7 @@ import java.util.Map;
         responseObject = WallSilenceResponse.class,
         requestHasSensitiveInfo = false,
         responseHasSensitiveInfo = false,
-        authorized = { RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User }
+        authorized = { RoleType.Admin, RoleType.ResourceAdmin }
 )
 public class CreateWallAlertSilenceCmd extends BaseCmd {
     public static final String APINAME = "createWallAlertSilence";
