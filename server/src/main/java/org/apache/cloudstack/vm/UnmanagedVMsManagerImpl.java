@@ -550,12 +550,11 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
             List<StoragePoolVO> pools = primaryDataStoreDao.listPoolsByCluster(cluster.getId());
             pools.addAll(primaryDataStoreDao.listByDataCenterId(zone.getId()));
             for (StoragePool pool : pools) {
-                if (pool.getUuid().equals(dsName)) {
-                    StoragePoolVO spool = primaryDataStoreDao.findByUuid(dsName);
-                    if (spool != null) {
-                        storagePool = pool;
-                        break;
-                    }
+                if (pool.getUuid().equals(dsName) || pool.getName().equals(dsName)) {
+                    logger.debug(String.format("Matched datastore %s to storage pool id:%s (uuid:%s name:%s)",
+                            dsName, pool.getId(), pool.getUuid(), pool.getName()));
+                    storagePool = pool;
+                    break;
                 }
             }
         }
