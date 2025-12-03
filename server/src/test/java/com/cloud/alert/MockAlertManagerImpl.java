@@ -74,6 +74,19 @@ public class MockAlertManagerImpl extends ManagerBase implements AlertManager {
 
     }
 
+    @Override
+    public void sendPersistentAlert(AlertType alertType, long dataCenterId, Long podId, String subject, String body) {
+        // no-op (mock)
+    }
+
+    /**
+     * WALL 전용(오버로드): 클러스터 ID 포함 버전(모의 환경에서는 no-op)입니다.
+     */
+    @Override
+    public void sendPersistentAlert(AlertType alertType, long dataCenterId, Long podId, Long clusterId, String subject, String body) {
+        // no-op (mock)
+    }
+
     /* (non-Javadoc)
      * @see com.cloud.alert.AlertManager#recalculateCapacity()
      */

@@ -1814,6 +1814,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     public UserVm updateNicIpForVirtualMachine(UpdateVmNicIpCmd cmd) {
         Long nicId = cmd.getNicId();
         String ipaddr = cmd.getIpaddress();
+        String macAddress = cmd.getMacAddress();
         Account caller = CallContext.current().getCallingAccount();
 
         //check whether the nic belongs to user vm.
@@ -1841,6 +1842,29 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                     + Network.State.Setup);
         }
 
+        String currentNicIp = nicVO.getIPv4Address();
+        String currentNicMac = nicVO.getMacAddress();
+        boolean ipProvided = StringUtils.isNotBlank(ipaddr);
+        boolean ipSameAsCurrent = ipProvided && StringUtils.equals(ipaddr, currentNicIp);
+        boolean ipChangeRequested = !ipProvided || !ipSameAsCurrent;
+
+        boolean macProvided = StringUtils.isNotBlank(macAddress);
+        String normalizedMacAddress = null;
+        boolean macSameAsCurrent = false;
+        if (macProvided) {
+            if (!NetUtils.isValidMac(macAddress)) {
+                throw new InvalidParameterValueException(String.format("Invalid MAC address %s provided for network %s", macAddress, network.getUuid()));
+            }
+            normalizedMacAddress = NetUtils.standardizeMacAddress(macAddress);
+            String currentNormalizedMac = StringUtils.isNotBlank(currentNicMac) ? NetUtils.standardizeMacAddress(currentNicMac) : null;
+            macSameAsCurrent = StringUtils.equalsIgnoreCase(normalizedMacAddress, currentNormalizedMac);
+        }
+
+        if (!ipChangeRequested && (!macProvided || macSameAsCurrent)) {
+            logger.debug("Requested IP/MAC values match current NIC configuration for NIC {}", nicVO.getUuid());
+            return vm;
+        }
+
         NetworkOfferingVO offering = _networkOfferingDao.findByIdIncludingRemoved(network.getNetworkOfferingId());
         if (offering == null) {
             throw new InvalidParameterValueException("There is no network offering with the network");
@@ -1857,69 +1881,73 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         Account ipOwner = _accountDao.findByIdIncludingRemoved(vm.getAccountId());
 
         // verify ip address
-        logger.debug("Calling the ip allocation ...");
         DataCenter dc = _dcDao.findById(network.getDataCenterId());
         if (dc == null) {
             throw new InvalidParameterValueException("There is no dc with the nic");
         }
-        if (dc.getNetworkType() == NetworkType.Advanced && network.getGuestType() == Network.GuestType.Isolated) {
-            try {
-                ipaddr = _ipAddrMgr.allocateGuestIP(network, ipaddr);
-            } catch (InsufficientAddressCapacityException e) {
-                throw new InvalidParameterValueException(String.format("Allocating ip to guest nic %s failed, for insufficient address capacity", nicVO));
-            }
-            if (ipaddr == null) {
-                throw new InvalidParameterValueException(String.format("Allocating ip to guest nic %s failed, please choose another ip", nicVO));
-            }
-
-            if (nicVO.getIPv4Address() != null) {
-                updatePublicIpDnatVmIp(vm.getId(), network.getId(), nicVO.getIPv4Address(), ipaddr);
-                updateLoadBalancerRulesVmIp(vm.getId(), network.getId(), nicVO.getIPv4Address(), ipaddr);
-                updatePortForwardingRulesVmIp(vm.getId(), network.getId(), nicVO.getIPv4Address(), ipaddr);
-            }
-
-        } else if (dc.getNetworkType() == NetworkType.Basic || network.getGuestType()  == Network.GuestType.Shared) {
-            //handle the basic networks here
-            //for basic zone, need to provide the podId to ensure proper ip alloation
-            Long podId = null;
-            if (dc.getNetworkType() == NetworkType.Basic) {
-                podId = vm.getPodIdToDeployIn();
-                if (podId == null) {
-                    throw new InvalidParameterValueException("vm pod id is null in Basic zone; can't decide the range for ip allocation");
+        if (ipChangeRequested) {
+            logger.debug("Calling the ip allocation ...");
+            if (dc.getNetworkType() == NetworkType.Advanced && network.getGuestType() == Network.GuestType.Isolated) {
+                try {
+                    ipaddr = _ipAddrMgr.allocateGuestIP(network, ipaddr);
+                } catch (InsufficientAddressCapacityException e) {
+                    throw new InvalidParameterValueException(String.format("Allocating ip to guest nic %s failed, for insufficient address capacity", nicVO));
                 }
-            }
-
-            try {
-                ipaddr = _ipAddrMgr.allocatePublicIpForGuestNic(network, podId, ipOwner, ipaddr);
-                if (ipaddr == null) {
-                    throw new InvalidParameterValueException("Allocating ip to guest nic " + nicVO.getUuid() + " failed, please choose another ip");
+                if (ipaddr != null && nicVO.getIPv4Address() != null) {
+                    updatePublicIpDnatVmIp(vm.getId(), network.getId(), nicVO.getIPv4Address(), ipaddr);
+                    updateLoadBalancerRulesVmIp(vm.getId(), network.getId(), nicVO.getIPv4Address(), ipaddr);
+                    updatePortForwardingRulesVmIp(vm.getId(), network.getId(), nicVO.getIPv4Address(), ipaddr);
+                }
+            } else if (dc.getNetworkType() == NetworkType.Basic || network.getGuestType()  == Network.GuestType.Shared) {
+                //handle the basic networks here
+                //for basic zone, need to provide the podId to ensure proper ip alloation
+                Long podId = null;
+                if (dc.getNetworkType() == NetworkType.Basic) {
+                    podId = vm.getPodIdToDeployIn();
+                    if (podId == null) {
+                        throw new InvalidParameterValueException("vm pod id is null in Basic zone; can't decide the range for ip allocation");
+                    }
                 }
 
-                final IPAddressVO newIp = _ipAddressDao.findByIpAndSourceNetworkId(network.getId(), ipaddr);
-                final Vlan vlan = _vlanDao.findById(newIp.getVlanId());
-                nicVO.setIPv4Gateway(vlan.getVlanGateway());
-                nicVO.setIPv4Netmask(vlan.getVlanNetmask());
+                try {
+                    ipaddr = _ipAddrMgr.allocatePublicIpForGuestNic(network, podId, ipOwner, ipaddr);
+                    if (ipaddr == null) {
+                        throw new InvalidParameterValueException("Allocating ip to guest nic " + nicVO.getUuid() + " failed, please choose another ip");
+                    }
 
-                final IPAddressVO ip = _ipAddressDao.findByIpAndSourceNetworkId(nicVO.getNetworkId(), nicVO.getIPv4Address());
-                if (ip != null) {
-                    Transaction.execute(new TransactionCallbackNoReturn() {
-                        @Override
-                        public void doInTransactionWithoutResult(TransactionStatus status) {
-                            _ipAddrMgr.markIpAsUnavailable(ip.getId());
-                            _ipAddressDao.unassignIpAddress(ip.getId());
-                        }
-                    });
+                    final IPAddressVO newIp = _ipAddressDao.findByIpAndSourceNetworkId(network.getId(), ipaddr);
+                    final Vlan vlan = _vlanDao.findById(newIp.getVlanId());
+                    nicVO.setIPv4Gateway(vlan.getVlanGateway());
+                    nicVO.setIPv4Netmask(vlan.getVlanNetmask());
+
+                    final IPAddressVO ip = _ipAddressDao.findByIpAndSourceNetworkId(nicVO.getNetworkId(), nicVO.getIPv4Address());
+                    if (ip != null) {
+                        Transaction.execute(new TransactionCallbackNoReturn() {
+                            @Override
+                            public void doInTransactionWithoutResult(TransactionStatus status) {
+                                _ipAddrMgr.markIpAsUnavailable(ip.getId());
+                                _ipAddressDao.unassignIpAddress(ip.getId());
+                            }
+                        });
+                    }
+                } catch (InsufficientAddressCapacityException e) {
+                    logger.error("Allocating ip to guest nic {} failed, for insufficient address capacity", nicVO);
+                    return null;
                 }
-            } catch (InsufficientAddressCapacityException e) {
-                logger.error("Allocating ip to guest nic {} failed, for insufficient address capacity", nicVO);
-                return null;
+            } else {
+                throw new InvalidParameterValueException("UpdateVmNicIpCmd is not supported in L2 network");
             }
+
+            logger.debug("Updating IPv4 address of NIC " + nicVO + " to " + ipaddr + "/" + nicVO.getIPv4Netmask() + " with gateway " + nicVO.getIPv4Gateway());
+            nicVO.setIPv4Address(ipaddr);
         } else {
-            throw new InvalidParameterValueException("UpdateVmNicIpCmd is not supported in L2 network");
+            logger.debug("Requested IPv4 address [{}] matches current address for NIC {}, skipping IP update", ipaddr, nicVO.getUuid());
         }
 
-        logger.debug("Updating IPv4 address of NIC " + nicVO + " to " + ipaddr + "/" + nicVO.getIPv4Netmask() + " with gateway " + nicVO.getIPv4Gateway());
-        nicVO.setIPv4Address(ipaddr);
+        if (macProvided && !macSameAsCurrent) {
+            logger.debug(String.format("Updating MAC address of NIC %s from %s to %s", nicVO.getUuid(), nicVO.getMacAddress(), normalizedMacAddress));
+            nicVO.setMacAddress(normalizedMacAddress);
+        }
         _nicDao.persist(nicVO);
 
         return vm;
@@ -10046,8 +10074,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                         null, new HashMap<>(), null, new HashMap<>(), dynamicScalingEnabled, null, null);
             }
         } catch (CloudRuntimeException e) {
-            // _templateMgr.delete(curAccount.getId(), template.getId(), zoneId);
-            throw new CloudRuntimeException("Unable to create the clone VM record");
+            logger.error("Clone VM >> createCloneVM() failed with {}: {}", e.getClass().getName(), e.getMessage(), e);
+            throw new CloudRuntimeException("Clone VM >> createCloneVM() failed : " + e.getMessage(), e);
         }
         return vmResult;
     }

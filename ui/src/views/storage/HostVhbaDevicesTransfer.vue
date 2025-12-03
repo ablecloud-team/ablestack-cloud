@@ -242,6 +242,7 @@ export default {
           response = await api('updateHostVhbaDevices', {
             hostid: this.resource.id,
             hostdevicesname: this.resource.hostDevicesName,
+            hostdevicestext: this.resource.hostDevicesText || '',
             virtualmachineid: vmNumericId,
             xmlconfig: xmlConfig
           })
@@ -251,6 +252,7 @@ export default {
             response = await api('updateHostVhbaDevices', {
               hostid: this.resource.id,
               hostdevicesname: this.resource.hostDevicesName,
+              hostdevicestext: this.resource.hostDevicesText || '',
               virtualmachineid: vmUuid,
               xmlconfig: xmlConfig
             })
