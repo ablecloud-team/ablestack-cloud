@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.regex.Matcher;
 
 /**
  * Rules API(상태/인스턴스) + Ruler API(임계치/연산자/expr/for)를 병합합니다.
@@ -48,12 +49,16 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
 
     private static final Logger LOG = Logger.getLogger(WallAlertsServiceImpl.class);
 
+    // VM 이름 패턴: i-숫자-숫자-VM 형태와, 이름 끝이 -VM인 경우
+    private static final Pattern VM_NAME_PATTERN = Pattern.compile("(?i)^i-\\d+-\\d+-vm$");
+    private static final Pattern VM_NAME_FUZZY_PATTERN = Pattern.compile("(?i)-vm$");
+
     @Inject
     private AlertManager alertMgr;
     // UID별 중복 전송 방지 캐시
     private final Map<String, Long> recentAlertSentAtMs = new ConcurrentHashMap<>();
-    // 중복 억제 TTL (예: 10분)
-    private static final long DEFAULT_WALL_ALERT_THROTTLE_MS = 600_000L;
+    // 중복 억제 TTL (예: 5분)
+    private static final long DEFAULT_WALL_ALERT_THROTTLE_MS = 300_000L;
 
     @Inject
     private WallApiClient wallApiClient;
@@ -373,16 +378,20 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                                 resp.setLastTriggeredAt(null);
                             }
 
-                            // ALERTING & !paused & !silenced ⇒ listAlerts 등록
+                            // ALERTING & !paused & !silenced ⇒ AlertManager로 영속 알림 등록
                             final boolean ruleIsAlerting = "ALERTING".equalsIgnoreCase(normalizeState(computedState));
                             if (resolvedUid != null && ruleIsAlerting && !paused && !silencedNow) {
-                                // ▼ 이미 위에서 채운 def(임계/연산자) 그대로 사용
-                                final String op   = (def != null ? def.operator  : null);
-                                final Double th1  = (def != null ? def.threshold : null);
-                                final Double th2  = (def != null ? def.threshold2: null);
-                                // ruleName = ruleTitle 그대로 전달(중복 프리픽스/UID는 내부에서 정리)
-                                // zoneId/podId 매핑값이 없으면 0L/null 유지
-                                maybeSendWallAlert(resolvedUid, ruleTitle, op, th1, th2, 0L, null);
+                                // 이미 위에서 채운 def(임계/연산자)를 그대로 사용합니다.
+                                final String op   = (def != null ? def.operator   : null);
+                                final Double th1  = (def != null ? def.threshold  : null);
+                                final Double th2  = (def != null ? def.threshold2 : null);
+
+                                // 인스턴스 라벨을 기반으로 대상 요약 문자열을 생성합니다.
+                                // resp.getInstances()는 우리가 바로 위에서 채운 instList입니다.
+                                final String targets = buildTargetInfo(ruleKind, resp.getInstances());
+
+                                // zoneId, podId 매핑값이 없으면 0L / null 유지
+                                maybeSendWallAlert(resolvedUid, ruleTitle, op, th1, th2, 0L, null, targets);
                             }
 
                             filtered.add(resp);
@@ -792,7 +801,24 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                                     final Double thresholdMax,
                                     final long zoneId,
                                     final Long podId) {
-        maybeSendWallAlert(uid, ruleName, operator, threshold, thresholdMax, zoneId, podId, System.currentTimeMillis());
+        maybeSendWallAlert(uid, ruleName, operator, threshold, thresholdMax, zoneId, podId, System.currentTimeMillis(), null);
+    }
+
+    /**
+     * 새로 추가한 오버로드입니다.
+     * listWallAlertRules 안에서 사용하는
+     *   maybeSendWallAlert(uid, title, op, th1, th2, 0L, null, targets)
+     * 이 시그니처와 정확히 매칭됩니다.
+     */
+    private void maybeSendWallAlert(final String uid,
+                                    final String ruleName,
+                                    final String operator,
+                                    final Double threshold,
+                                    final Double thresholdMax,
+                                    final long zoneId,
+                                    final Long podId,
+                                    final String targetInfo) {
+        maybeSendWallAlert(uid, ruleName, operator, threshold, thresholdMax, zoneId, podId, System.currentTimeMillis(), targetInfo);
     }
 
     // AlertManager로 listAlerts 등록 (UID TTL 중복 억제)
@@ -803,30 +829,53 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                                     final Double thresholdMax,
                                     final long zoneId,
                                     final Long podId,
-                                    final long now) {
+                                    final long now,
+                                    final String targetInfo) {
         try {
             final Long last = recentAlertSentAtMs.get(uid);
             if (last != null && now - last < DEFAULT_WALL_ALERT_THROTTLE_MS) {
+                // TTL 내 중복 전송 방지
                 return;
             }
 
-            final String title = cleanTitle(ruleName);              // 프리픽스/UID 꼬리 제거
+            // 프리픽스/UID 꼬리 제거
+            final String title = cleanTitle(ruleName);
+
+            // 임계 연산자/값을 사람 읽기 좋은 꼬리 문구로 변환
             final String tail  = opPhrase(operator, threshold, thresholdMax);
-            final String subject = (tail == null || tail.isEmpty())
+
+            // 1) 기본 메시지(예전 subject 느낌)
+            final String base = (tail == null || tail.isEmpty())
                     ? String.format("Wall Alert: %s", title)
                     : String.format("Wall Alert: %s — %s", title, tail);
-            final String content = subject;
 
+            // 2) 타깃 정보까지 포함한 “최종 메시지”
+            //    - 여기 안에 "Targets — ..." 가 들어갑니다.
+            final String message = buildAlertContent(base, targetInfo);
+
+            // 3) CloudStack 쪽에서 description을 subject 기준으로 뽑기 때문에
+            //    subject와 content 모두에 message를 동일하게 넣어줍니다.
             alertMgr.sendPersistentAlert(
                     AlertManager.AlertType.ALERT_TYPE_WALL_RULE,
-                    zoneId, podId, subject, content);
+                    zoneId,
+                    podId,
+                    message,  // subject
+                    message   // content
+            );
 
             recentAlertSentAtMs.put(uid, now);
+
             if (LOG.isInfoEnabled()) {
-                LOG.info(String.format("[WallAlerts] persisted alert: uid=%s, subject=%s", uid, subject));
+                LOG.info(String.format(
+                        "[WallAlerts] persisted alert: uid=%s, message=%s",
+                        uid, message
+                ));
             }
         } catch (Throwable t) {
-            LOG.warn(String.format("[WallAlerts] maybeSendWallAlert failed uid=%s: %s", uid, t.getMessage()), t);
+            LOG.warn(String.format(
+                    "[WallAlerts] maybeSendWallAlert failed uid=%s: %s",
+                    uid, t.getMessage()
+            ), t);
         }
     }
 
@@ -839,6 +888,300 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         s = s.replaceFirst("\\s*\\(uid=[^)]+\\)\\s*$", "");
         return s.trim();
     }
+
+    // 제목(subject)과 대상 정보(targetInfo)를 합쳐서 description에 넣을 문자열을 만듭니다.
+    private static String buildAlertContent(final String subject, final String targetInfo) {
+        if (targetInfo == null || targetInfo.trim().isEmpty()) {
+            // 대상 정보가 없으면 예전처럼 subject만 그대로 사용합니다.
+            return subject;
+        }
+
+        final StringBuilder sb = new StringBuilder();
+        sb.append(subject);
+
+        // 보기 좋게 한 줄 띄우고 대상 정보 추가
+        sb.append(System.lineSeparator())
+                .append(System.lineSeparator())
+                .append(targetInfo.trim());
+
+        return sb.toString();
+    }
+
+    /**
+     * 규칙 종류(kind) + 인스턴스 라벨에서 "타깃 요약 문자열"을 생성합니다.
+     * 예시:
+     *   Targets — VM: i-2-3-VM, i-2-4-VM | Host: ablecube32-1
+     */
+    private String buildTargetInfo(final String ruleKind,
+                                   final List<AlertInstanceResponse> instances) {
+        if (instances == null || instances.isEmpty()) {
+            return "";
+        }
+
+        final java.util.Set<String> vmNames = new java.util.LinkedHashSet<>();
+        final java.util.Set<String> hostNames = new java.util.LinkedHashSet<>();
+        final java.util.Set<String> storageNames = new java.util.LinkedHashSet<>();
+        final java.util.Set<String> cloudNames = new java.util.LinkedHashSet<>();
+
+        final String normalizedRuleKind = normalizeKind(ruleKind);
+
+        for (final AlertInstanceResponse inst : instances) {
+            if (inst == null) {
+                continue;
+            }
+
+            // AlertInstanceResponse 는 public 필드(labels)를 그대로 씁니다.
+            final Map<String, String> labels = inst.labels;
+            if (labels == null || labels.isEmpty()) {
+                continue;
+            }
+
+            // kind 라벨이 따로 있으면 우선 사용하고, 없으면 규칙 kind를 씁니다.
+            final String labelKind = getLabelValueIgnoreCase(labels, "kind");
+            final String instKind = normalizeKind(
+                    firstNonBlank(labelKind, normalizedRuleKind)
+            );
+
+            final String vm   = extractVmNameFromLabels(labels);
+            final String host = extractHostNameFromLabels(labels);
+
+            // 규칙 종류에 따라 우선 분류
+            if (isVmKind(instKind)) {
+                if (!isBlank(vm)) {
+                    vmNames.add(vm);
+                } else if (!isBlank(host)) {
+                    hostNames.add(host);
+                }
+                continue;
+            }
+
+            if (isStorageKind(instKind)) {
+                final String name = firstNonBlank(host, vm);
+                if (!isBlank(name)) {
+                    storageNames.add(name);
+                }
+                continue;
+            }
+
+            if (isCloudKind(instKind)) {
+                final String name = firstNonBlank(host, vm);
+                if (!isBlank(name)) {
+                    cloudNames.add(name);
+                }
+                continue;
+            }
+
+            // kind를 확실히 알 수 없으면 VM/Host 후보에 최대한 채워 둡니다.
+            if (!isBlank(vm)) {
+                vmNames.add(vm);
+            }
+            if (!isBlank(host)) {
+                hostNames.add(host);
+            }
+        }
+
+        final java.util.List<String> parts = new java.util.ArrayList<>();
+
+        if (!vmNames.isEmpty()) {
+            parts.add("VM: " + String.join(", ", vmNames));
+        }
+        if (!hostNames.isEmpty()) {
+            parts.add("Host: " + String.join(", ", hostNames));
+        }
+        if (!storageNames.isEmpty()) {
+            parts.add("Storage: " + String.join(", ", storageNames));
+        }
+        if (!cloudNames.isEmpty()) {
+            parts.add("Management: " + String.join(", ", cloudNames));
+        }
+
+        // ---------- 폴백 정책 변경 포인트 ----------
+        // 1) VM/Host/Storage/Management 어느 것도 못 뽑았으면
+        //    의미 없는 Grafana 메타 라벨(__grafana_*, grafana_folder, alertname, kind 등)
+        //    은 전부 버리고, "실질적인" 라벨만 남겼을 때도 아무것도 없으면
+        //    Targets 줄 자체를 생성하지 않습니다.
+        if (parts.isEmpty()) {
+            final java.util.List<String> rawLabels = new java.util.ArrayList<>();
+            final AlertInstanceResponse first = instances.get(0);
+            if (first != null && first.labels != null) {
+                for (Map.Entry<String, String> e : first.labels.entrySet()) {
+                    final String k = e.getKey();
+                    final String v = e.getValue();
+                    if (k == null || v == null) {
+                        continue;
+                    }
+
+                    final String keyLc = k.toLowerCase(java.util.Locale.ROOT);
+
+                    // Grafana/Alertmanager 메타 라벨들은 모두 스킵합니다.
+                    if (keyLc.startsWith("__grafana_")) {
+                        continue;
+                    }
+                    if ("grafana_folder".equals(keyLc) || "grafana_folder_uid".equals(keyLc)) {
+                        continue;
+                    }
+                    if ("grafana_receiver".equals(keyLc)) {
+                        continue;
+                    }
+                    if ("alertname".equals(keyLc)) {
+                        continue;
+                    }
+                    if ("kind".equals(keyLc)) {
+                        continue;
+                    }
+                    if ("severity".equals(keyLc)) {
+                        continue;
+                    }
+                    if ("__alert_rule_uid__".equals(keyLc)
+                            || "rule_uid".equals(keyLc)
+                            || "__alert_rule_uid".equals(keyLc)) {
+                        continue;
+                    }
+
+                    rawLabels.add(k + "=" + v);
+                }
+            }
+
+            // 의미 있는 라벨이 하나도 없으면 Targets 문구를 아예 빼버립니다.
+            if (rawLabels.isEmpty()) {
+                return "";
+            }
+
+            // (다른 경우에는 여전히 라벨 문자열을 폴백으로 사용합니다.)
+            return "Targets — " + String.join(", ", rawLabels);
+        }
+        // ---------- 폴백 끝 ----------
+
+        return "Targets — " + String.join(" | ", parts);
+    }
+
+    /**
+     * 라벨에서 VM 이름을 추출합니다.
+     * 우선 vm, vm_name, display_name 등 키를 보고,
+     * 값이 i-숫자-숫자-VM 또는 *-VM 형태인지 확인합니다.
+     */
+    private String extractVmNameFromLabels(final Map<String, String> labels) {
+        final String[] keys = new String[] {
+                "vm", "vmname", "vm_name", "displayname", "display_name", "guest", "domain"
+        };
+        for (final String key : keys) {
+            final String v = getLabelValueIgnoreCase(labels, key);
+            if (isBlank(v)) {
+                continue;
+            }
+            final String trimmed = v.trim();
+            if (VM_NAME_PATTERN.matcher(trimmed).find()
+                    || VM_NAME_FUZZY_PATTERN.matcher(trimmed).find()) {
+                return trimmed;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 라벨에서 호스트 이름을 추출합니다.
+     * nodename, host, hostname, host_name, host_ip, hostip, node, machine, server 순으로 시도하고,
+     * 없으면 instance에서 포트를 제거한 값을 사용합니다.
+     */
+    private String extractHostNameFromLabels(final Map<String, String> labels) {
+        // 1차 후보: 다양한 host 관련 키들
+        final String[] keys = new String[] {
+                "nodename",
+                "host",
+                "hostname",
+                "host_name",
+                "hostip",
+                "host_ip",
+                "node",
+                "machine",
+                "server"
+        };
+
+        for (final String key : keys) {
+            final String v = getLabelValueIgnoreCase(labels, key);
+            if (!isBlank(v)) {
+                return v.trim();
+            }
+        }
+
+        // 2차 후보: instance에서 포트 제거 (예: ablecube32-1:9100 → ablecube32-1)
+        final String instance = getLabelValueIgnoreCase(labels, "instance");
+        if (!isBlank(instance)) {
+            final String trimmed = instance.trim();
+            final Matcher m = Pattern.compile(":\\d+$").matcher(trimmed);
+            return m.replaceFirst("");
+        }
+
+        return null;
+    }
+
+    // 문자열이 비어 있는지 확인하는 헬퍼입니다.
+    private static boolean isBlank(final String v) {
+        return v == null || v.trim().isEmpty();
+    }
+
+    // 여러 값 중 처음으로 비어 있지 않은 문자열을 반환합니다.
+    private static String firstNonBlank(final String... values) {
+        if (values == null) {
+            return null;
+        }
+        for (final String v : values) {
+            if (!isBlank(v)) {
+                return v;
+            }
+        }
+        return null;
+    }
+
+    // kind를 비교하기 쉽게 소문자 + 공백 제거 형태로 정규화합니다.
+    private static String normalizeKind(final String v) {
+        if (v == null) {
+            return "";
+        }
+        return v.replaceAll("\\s+", "").toLowerCase(Locale.ROOT);
+    }
+
+    private static boolean isVmKind(final String v) {
+        final String k = normalizeKind(v);
+        return k.equals("사용자vm")
+                || k.equals("virtualmachine")
+                || k.equals("vm")
+                || k.contains("uservm")
+                || k.contains("guest");
+    }
+
+    private static boolean isStorageKind(final String v) {
+        final String k = normalizeKind(v);
+        return k.equals("스토리지")
+                || k.equals("storage")
+                || k.contains("scvm");
+    }
+
+    private static boolean isCloudKind(final String v) {
+        final String k = normalizeKind(v);
+        return k.equals("클라우드")
+                || k.equals("cloud")
+                || k.equals("management")
+                || k.equals("managementserver");
+    }
+
+    /**
+     * 라벨 키를 대소문자 구분 없이 찾아 값을 반환합니다.
+     */
+    private static String getLabelValueIgnoreCase(final Map<String, String> labels,
+                                                  final String key) {
+        if (labels == null || labels.isEmpty() || key == null) {
+            return null;
+        }
+        for (Map.Entry<String, String> e : labels.entrySet()) {
+            if (e.getKey() != null && e.getKey().equalsIgnoreCase(key)) {
+                return e.getValue();
+            }
+        }
+        return null;
+    }
+
+
 
     private static String opPhrase(final String op, final Double t1, final Double t2) {
         final String o = op == null ? "" : op.trim().toLowerCase();
@@ -1203,8 +1546,6 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         }
         return null;
     }
-
-    private boolean isBlank(String s) { return s == null || s.isBlank(); }
 
     /** 제목→UID 보강 (필요할 때만) */
     private String resolveUidByTitle(final String namespaceHint, final String groupName, final String ruleTitle) {
@@ -1689,14 +2030,6 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
     private static boolean looksLikePanelId(final String s) {
         // 패널 ID는 대부분 정수 형태입니다.
         return s != null && s.matches("\\d{1,6}");
-    }
-
-    private static String firstNonBlank(final String... vs) {
-        if (vs == null) return null;
-        for (String v : vs) {
-            if (v != null && !v.isBlank()) return v;
-        }
-        return null;
     }
 
     private static String get(final Map<String, String> m, final String k) {
