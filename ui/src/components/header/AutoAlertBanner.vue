@@ -438,7 +438,7 @@ export default {
         el.style.height = h + 'px'
         el.style.opacity = '1'
         el.style.overflow = 'hidden'
-        el.style.transition = 'height 150ms ease, opacity 150ms.ease'
+        el.style.transition = 'height 150ms ease, opacity 150ms ease'
 
         // 강제 리플로우
         el.getBoundingClientRect()
@@ -568,6 +568,7 @@ export default {
 
     const hostIndexCache = { until: 0, byIp: new Map(), byName: new Map() }
     const vmIndexCache = { until: 0, byIp: new Map(), byName: new Map(), byInstanceName: new Map() }
+    const vmIndexReady = ref(false)
 
     const ensureHostIndex = async () => {
       const now = Date.now()
@@ -627,7 +628,9 @@ export default {
           const friendly = takeFirst(v.displayname, v.displayName, v.name)
           const inst = takeFirst(v.instancename, v.instanceName)
           if (id) {
-            if (friendly) { vmIndexCache.byName.set(String(friendly), String(id)) }
+            if (friendly) {
+              vmIndexCache.byName.set(String(friendly), String(id))
+            }
             if (inst && friendly) {
               const k1 = String(inst)
               const k2 = k1.toLowerCase()
@@ -641,9 +644,12 @@ export default {
             }
           }
         }
+
         vmIndexCache.until = now + 5 * 60 * 1000
+        vmIndexReady.value = true // ★ 인덱스 준비 완료입니다.
       } catch (_) {
         vmIndexCache.until = now + 60 * 1000
+        vmIndexReady.value = false // ★ 실패하면 필터링을 하지 않도록 표시합니다.
       }
     }
 
@@ -1132,9 +1138,29 @@ export default {
       }
       return out
     }
-
+    const vmEntityLinksRaw = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'vm')
+    const filterKnownVmLinks = (it) => {
+      const rawList = vmEntityLinksRaw(it)
+      if (!Array.isArray(rawList) || rawList.length === 0) {
+        return []
+      }
+      if (!vmIndexReady.value) {
+        return rawList
+      }
+      return rawList.filter((lnk) => {
+        const label = String(lnk && (lnk.label || lnk.keyword || '')).trim()
+        if (!label) {
+          return false
+        }
+        if (!VM_NAME_RE.test(label)) {
+          return true
+        }
+        const shown = displayVm(label)
+        return shown !== label
+      })
+    }
     const hostEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'host')
-    const vmEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'vm')
+    const vmEntityLinks = (it) => filterKnownVmLinks(it)
     const storageEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'storage')
     const cloudEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'cloud')
     const hostLinkList = (it) => hostEntityLinks(it).slice(0, MAX_LINKS)
@@ -1205,10 +1231,21 @@ export default {
       for (let i = 0; i < list.length; i += 1) {
         const it = list[i]
         const uid = it && (it.uid || it.id)
-        if (!uid || seen.has(uid)) { continue }
-        if (isClosedNow(uid)) { seen.add(uid); continue }
-        if (isKeySilencedNow(uid)) { seen.add(uid); continue }
-        if (isRulePaused(it.rule)) { seen.add(uid); continue }
+        if (!uid || seen.has(uid)) {
+          continue
+        }
+        if (isClosedNow(uid)) {
+          seen.add(uid)
+          continue
+        }
+        if (isKeySilencedNow(uid)) {
+          seen.add(uid)
+          continue
+        }
+        if (isRulePaused(it.rule)) {
+          seen.add(uid)
+          continue
+        }
         out.push(it)
         seen.add(uid)
       }
