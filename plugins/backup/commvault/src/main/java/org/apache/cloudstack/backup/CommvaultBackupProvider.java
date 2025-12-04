@@ -382,7 +382,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         String jobStatus = client.getJobStatus(jobId);
                         if (!jobStatus.equalsIgnoreCase("Completed")) {
                             LOG.error("installing agent on the Commvault Backup Provider failed jogId : " + jobId + " , jobStatus : " + jobStatus);
-                            ActionEventUtils.onActionEvent(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, Domain.ROOT_DOMAIN, EventTypes.EVENT_HOST_COMMVAULT_INSTALL,
+                            ActionEventUtils.onActionEvent(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, Domain.ROOT_DOMAIN, EventTypes.EVENT_HOST_AGENT_INSTALL,
                                 "Failed install the commvault client agent on the host : " + host.getPrivateIpAddress(), User.UID_SYSTEM, ApiCommandResourceType.Host.toString());
                             failResult.put(host.getPrivateIpAddress(), jobId);
                         }
@@ -394,7 +394,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     boolean checkInstall = client.getClientCheckReadiness(checkHost);
                     if (!checkInstall) {
                         LOG.error("The host is registered with the client, but the readiness status is not normal and you must manually check the client status.");
-                        ActionEventUtils.onActionEvent(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, Domain.ROOT_DOMAIN, EventTypes.EVENT_HOST_COMMVAULT_INSTALL,
+                        ActionEventUtils.onActionEvent(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, Domain.ROOT_DOMAIN, EventTypes.EVENT_HOST_AGENT_INSTALL,
                             "Failed check readiness the commvault client agent on the host : " + host.getPrivateIpAddress(), User.UID_SYSTEM, ApiCommandResourceType.Host.toString());
                         return false;
                     }
