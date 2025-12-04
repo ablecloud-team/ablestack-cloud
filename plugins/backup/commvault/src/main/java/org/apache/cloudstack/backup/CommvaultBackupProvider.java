@@ -21,6 +21,7 @@ import com.cloud.api.query.dao.UserVmJoinDao;
 import com.cloud.cluster.ManagementServerHostVO;
 import com.cloud.cluster.dao.ManagementServerHostDao;
 import com.cloud.dc.dao.ClusterDao;
+import com.cloud.domain.Domain;
 import com.cloud.host.HostVO;
 import com.cloud.host.Status;
 import com.cloud.host.dao.HostDao;
@@ -32,7 +33,9 @@ import com.cloud.storage.SnapshotVO;
 import com.cloud.storage.dao.SnapshotDao;
 import com.cloud.storage.dao.StoragePoolHostDao;
 import com.cloud.storage.dao.VolumeDao;
+import com.cloud.user.User;
 import com.cloud.user.UserAccount;
+import com.cloud.user.Account;
 import com.cloud.user.AccountService;
 import com.cloud.utils.PropertiesUtil;
 import com.cloud.utils.server.ServerProperties;
@@ -44,10 +47,12 @@ import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
 import com.cloud.utils.NumbersUtil;
 import com.cloud.event.ActionEvent;
+import com.cloud.event.ActionEventUtils;
 import com.cloud.event.EventTypes;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
+import org.apache.cloudstack.api.ApiCommandResourceType;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreVO;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreDao;
@@ -348,7 +353,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
-    @ActionEvent(eventType = EventTypes.EVENT_HOST_COMMVAULT_INSTALL, eventDescription = "install the commvault client agent on the host")
     public boolean installBackupAgent(final Long zoneId) {
         Map<String, String> failResult = new HashMap<>();
         final CommvaultClient client = getClient(zoneId);
@@ -379,6 +383,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         String jobStatus = client.getJobStatus(jobId);
                         if (!jobStatus.equalsIgnoreCase("Completed")) {
                             LOG.error("installing agent on the Commvault Backup Provider failed jogId : " + jobId + " , jobStatus : " + jobStatus);
+                            ActionEventUtils.onActionEvent(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, Domain.ROOT_DOMAIN, EventTypes.EVENT_HOST_COMMVAULT_INSTALL,
+                                "Failed install the commvault client agent on the host : " + host.getPrivateIpAddress(), User.UID_SYSTEM, ApiCommandResourceType.Host.toString());
                             failResult.put(host.getPrivateIpAddress(), jobId);
                         }
                     } else {
@@ -389,6 +395,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     boolean checkInstall = client.getClientCheckReadiness(checkHost);
                     if (!checkInstall) {
                         LOG.error("The host is registered with the client, but the readiness status is not normal and you must manually check the client status.");
+                        ActionEventUtils.onActionEvent(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, Domain.ROOT_DOMAIN, EventTypes.EVENT_HOST_COMMVAULT_INSTALL,
+                            "Failed check readiness the commvault client agent on the host : " + host.getPrivateIpAddress(), User.UID_SYSTEM, ApiCommandResourceType.Host.toString());
                         return false;
                     }
                 }
