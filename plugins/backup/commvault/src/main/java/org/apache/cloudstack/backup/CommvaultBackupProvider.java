@@ -1525,12 +1525,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     public static boolean versionCheck(String csVersionInfo) {
-        // 버전 체크 (ex:"11 SP32.89")
+        // 버전 체크 기준 : 11 SP32.89
         if (csVersionInfo == null) {
             throw new CloudRuntimeException("commvault version must not be null.");
         }
-        // 테스트 코드 작성
-        csVersionInfo = "11 SP32.102";
         String v = csVersionInfo.trim();
         if (v.startsWith("\"") && v.endsWith("\"") && v.length() > 1) {
             v = v.substring(1, v.length() - 1);
