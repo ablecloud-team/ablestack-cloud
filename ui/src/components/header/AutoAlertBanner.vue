@@ -1705,6 +1705,7 @@ export default {
   --banner-radius: 6px;
   --field-radius: 6px;
   --chip-radius: 5px;
+  font-size: 0.7em;
 }
 
 /* 측정 완료(.mask-on)일 때만 마스크 적용 */
@@ -1725,7 +1726,7 @@ export default {
 .auto-alert-banner-container > * { position: relative; z-index: 1; }
 
 /* 리스트 */
-.banner-list { display: flex; flex-direction: column; gap: 5px; padding: 4px 8px 6px; }
+.banner-list { display: flex; flex-direction: column; gap: 4px; padding: 2px 8px 4px; }
 .banner-list:empty { padding: 0; }
 
 /* Ant Alert 오버라이드 */
@@ -1737,10 +1738,13 @@ export default {
   width: 100%;
   position: relative;
   padding-right: 44px !important;
-  min-height: 35px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  min-height: 0px;
   border-radius: var(--banner-radius);
   overflow: hidden;
 }
+
 .auto-alert-banner-container :deep(.ant-alert-with-icon) { padding-left: 0 !important; }
 .auto-alert-banner-container :deep(.ant-alert-icon) {
   position: static !important;
@@ -1752,12 +1756,9 @@ export default {
   display: flex !important;
   justify-content: flex-end !important;
   align-items: center !important;
-  padding-top: 4px !important;
-  padding-bottom: 6px !important;
 }
 .auto-alert-banner-container :deep(.ant-alert-close-icon) {
   position: absolute !important;
-  top: 6px;
   right: 8px;
   margin-left: 0 !important;
   cursor: pointer;
@@ -1768,18 +1769,16 @@ export default {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
-  align-items: flex-start;
-  gap: 10px;
-  line-height: 1.6;
+  align-items: center;
+  gap: 8px;
+  line-height: normal;
   text-align: left;
 }
 .banner-text {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  max-width: 100%;
-  text-align: left;
-  pointer-events: auto;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 /* 필드 캡슐 */
@@ -1819,15 +1818,25 @@ export default {
 .auto-alert-banner-container :deep(.ant-tag.tag-more) { border-style: dashed; opacity: 0.9; }
 
 /* 아이콘/버튼 */
-.banner-error-icon { font-size: 16px; color: #ff4d4f; flex: 0 0 auto; }
+.banner-error-icon { font-size: 15px; color: #ff4d4f; flex: 0 0 auto; }
 .icon-stack { position: relative; display: inline-flex; width: 16px; height: 16px; margin-right: 4px; vertical-align: -2px; }
-.icon-stack .icon-sound { font-size: 16px; line-height: 16px; }
+.icon-stack .icon-sound { font-size: 15px; line-height: 16px; }
 
-/* Pause 버튼(컴팩트) */
-:deep(.pause-btn.pause-compact.ant-btn) { height: 22px; padding: 0 6px; font-size: 14px; line-height: 18px; }
+/* Slience Pause 버튼(컴팩트) */
+:deep(.pause-btn.pause-compact.ant-btn) { height: 22px; padding: 0 6px; font-size: 13px; line-height: 18px; } /* 정지버튼 */
+:deep(.silence-menu.ant-btn) { height: 22px; padding: 0 6px; font-size: 13px; line-height: 18px; } /* 사일러스버튼 */
+:deep(.ant-btn-link) { font-size: 13px; } /* 링크 텍스트 */
+:deep(.field-key) { font-size: 13px; } /* 대상 텍스트 */
 
 /* 액션 우측 정렬 */
-.banner-actions { margin-left: auto; display: flex; flex-wrap: wrap; gap: 10px; }
+.banner-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;   /* 버튼들 세로 가운데 정렬 */
+  gap: 8px;
+  transform: translateY(-4px);
+  font-size: 11px;
+}
 
 /* 다크 모드 */
 @media (prefers-color-scheme: dark) {
@@ -1880,6 +1889,7 @@ export default {
   align-items: center;
   flex-wrap: wrap;
   gap: 4px;
+  font-size: 13px;
 }
 
 /* 아이콘 + '알림' 배지 */
@@ -1887,7 +1897,7 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   padding: 2px 10px;
   border-radius: 999px;
@@ -1897,12 +1907,12 @@ export default {
 
 /* 배지 안의 아이콘 */
 .banner-error-icon {
-  font-size: 16px;
+  font-size: 1.2em;
 }
 
 /* 경고 상태 문구 */
 .banner-status {
-  font-size: 14px;
+  font-size: 1em;
   opacity: 0.95;
 }
 </style>
