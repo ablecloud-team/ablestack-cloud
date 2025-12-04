@@ -21,6 +21,7 @@ import com.cloud.api.query.dao.UserVmJoinDao;
 import com.cloud.cluster.ManagementServerHostVO;
 import com.cloud.cluster.dao.ManagementServerHostDao;
 import com.cloud.dc.dao.ClusterDao;
+import com.cloud.domain.Domain;
 import com.cloud.host.HostVO;
 import com.cloud.host.Status;
 import com.cloud.host.dao.HostDao;
@@ -32,7 +33,9 @@ import com.cloud.storage.SnapshotVO;
 import com.cloud.storage.dao.SnapshotDao;
 import com.cloud.storage.dao.StoragePoolHostDao;
 import com.cloud.storage.dao.VolumeDao;
+import com.cloud.user.User;
 import com.cloud.user.UserAccount;
+import com.cloud.user.Account;
 import com.cloud.user.AccountService;
 import com.cloud.utils.PropertiesUtil;
 import com.cloud.utils.server.ServerProperties;
@@ -43,9 +46,13 @@ import com.cloud.utils.component.AdapterBase;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
 import com.cloud.utils.NumbersUtil;
+import com.cloud.event.ActionEvent;
+import com.cloud.event.ActionEventUtils;
+import com.cloud.event.EventTypes;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
+import org.apache.cloudstack.api.ApiCommandResourceType;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreVO;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreDao;
@@ -89,6 +96,8 @@ import java.util.StringJoiner;
 import java.util.Properties;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -147,6 +156,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     private static final String RM_COMMAND = "rm -rf %s";
     private static final String CURRRENT_DEVICE = "virsh domblklist --domain %s | tail -n 3 | head -n 1 | awk '{print $1}'";
     private static final String ATTACH_DISK_COMMAND = " virsh attach-disk %s %s %s --driver qemu --subdriver qcow2 --cache none";
+    private static final int BASE_MAJOR = 11;
+    private static final int BASE_FR = 32;
+    private static final int BASE_MT = 89;
+    private static final Pattern VERSION_PATTERN = Pattern.compile("^(\\d+)\\s*SP\\s*(\\d+)(?:\\.(\\d+))?$", Pattern.CASE_INSENSITIVE);
 
     @Inject
     private BackupDao backupDao;
@@ -313,25 +326,30 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     public boolean checkBackupAgent(final Long zoneId) {
         Map<String, String> checkResult = new HashMap<>();
         final CommvaultClient client = getClient(zoneId);
-        List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
-        for (final HostVO host : Hosts) {
-            if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
-                String checkHost = client.getClientId(host.getName());
-                if (checkHost == null) {
-                    return false;
-                } else {
-                    boolean installJob = client.getInstallActiveJob(host.getPrivateIpAddress());
-                    boolean checkInstall = client.getClientProps(checkHost);
-                    if (installJob || !checkInstall) {
-                        if (!checkInstall) {
-                            LOG.error("The host is registered with the client, but the readiness status is not normal and you must manually check the client status.");
-                        }
+        String csVersionInfo = client.getCvtVersion();
+        boolean version = versionCheck(csVersionInfo);
+        if (version) {
+            List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
+            for (final HostVO host : Hosts) {
+                if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
+                    String checkHost = client.getClientId(host.getName());
+                    if (checkHost == null) {
                         return false;
+                    } else {
+                        boolean installJob = client.getInstallActiveJob(host.getPrivateIpAddress());
+                        boolean checkInstall = client.getClientProps(checkHost);
+                        if (installJob || !checkInstall) {
+                            if (!checkInstall) {
+                                LOG.error("The host is registered with the client, but the readiness status is not normal and you must manually check the client status.");
+                            }
+                            return false;
+                        }
                     }
                 }
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -365,6 +383,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         String jobStatus = client.getJobStatus(jobId);
                         if (!jobStatus.equalsIgnoreCase("Completed")) {
                             LOG.error("installing agent on the Commvault Backup Provider failed jogId : " + jobId + " , jobStatus : " + jobStatus);
+                            ActionEventUtils.onActionEvent(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, Domain.ROOT_DOMAIN, EventTypes.EVENT_HOST_COMMVAULT_INSTALL,
+                                "Failed install the commvault client agent on the host : " + host.getPrivateIpAddress(), User.UID_SYSTEM, ApiCommandResourceType.Host.toString());
                             failResult.put(host.getPrivateIpAddress(), jobId);
                         }
                     } else {
@@ -375,6 +395,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     boolean checkInstall = client.getClientCheckReadiness(checkHost);
                     if (!checkInstall) {
                         LOG.error("The host is registered with the client, but the readiness status is not normal and you must manually check the client status.");
+                        ActionEventUtils.onActionEvent(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, Domain.ROOT_DOMAIN, EventTypes.EVENT_HOST_COMMVAULT_INSTALL,
+                            "Failed check readiness the commvault client agent on the host : " + host.getPrivateIpAddress(), User.UID_SYSTEM, ApiCommandResourceType.Host.toString());
                         return false;
                     }
                 }
@@ -1511,5 +1533,31 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             LOG.info("parsing error: " + e.getMessage());
             return false;
         }
+    }
+
+    public static boolean versionCheck(String csVersionInfo) {
+        // 버전 체크 기준 : 11 SP32.89
+        if (csVersionInfo == null) {
+            throw new CloudRuntimeException("commvault version must not be null.");
+        }
+        String v = csVersionInfo.trim();
+        if (v.startsWith("\"") && v.endsWith("\"") && v.length() > 1) {
+            v = v.substring(1, v.length() - 1);
+        }
+        Matcher m = VERSION_PATTERN.matcher(v);
+        if (!m.matches()) {
+            throw new CloudRuntimeException("Unexpected commvault version format: " + csVersionInfo);
+        }
+        int major = Integer.parseInt(m.group(1));
+        int fr = Integer.parseInt(m.group(2));
+        int mt = Integer.parseInt(m.group(3));
+        if (major < BASE_MAJOR) {
+            throw new CloudRuntimeException("The major version of the commvault you are trying to connect to is low. Supports versions 11.32.89 and higher.");
+        } else if (major == BASE_MAJOR && fr < BASE_FR) {
+            throw new CloudRuntimeException("The feature release version of the commvault you are trying to connect to is low. Supports versions 11.32.89 and higher.");
+        } else if (major == BASE_MAJOR && fr == BASE_FR && mt < BASE_MT) {
+            throw new CloudRuntimeException("The maintenance version of the commvault you are trying to connect to is low. Supports versions 11.32.89 and higher.");
+        }
+        return true;
     }
 }

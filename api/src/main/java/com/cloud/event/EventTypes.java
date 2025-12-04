@@ -33,6 +33,7 @@ import org.apache.cloudstack.ha.HAConfig;
 import org.apache.cloudstack.network.BgpPeer;
 import org.apache.cloudstack.network.Ipv4GuestSubnetNetworkMap;
 import org.apache.cloudstack.quota.QuotaTariff;
+import org.apache.cloudstack.backup.Backup;
 import org.apache.cloudstack.storage.sharedfs.SharedFS;
 import org.apache.cloudstack.storage.object.Bucket;
 import org.apache.cloudstack.storage.object.ObjectStore;
@@ -799,6 +800,9 @@ public class EventTypes {
     // DISASTER RECOVERY
     public static final String EVENT_DISASTER_RECOVERY_CLUSTER = "DISASTER.RECOVERY.CLUSTER";
 
+    // Backup
+    public static final String EVENT_HOST_COMMVAULT_INSTALL = "HOST.COMMVAULT.INSTACLL";
+
     static {
 
         // TODO: need a way to force author adding event types to declare the entity details as well, with out braking
@@ -1294,6 +1298,9 @@ public class EventTypes {
 
         // Disaster Recovery Cluster
         entityEventDetails.put(EVENT_DISASTER_RECOVERY_CLUSTER, "DisasterRecoveryCluster");
+
+        // Backup
+        entityEventDetails.put(EVENT_HOST_COMMVAULT_INSTALL, Backup.class);
     }
 
     public static boolean isNetworkEvent(String eventType) {
