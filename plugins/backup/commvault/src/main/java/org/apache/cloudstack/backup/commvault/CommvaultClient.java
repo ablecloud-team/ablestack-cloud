@@ -1453,9 +1453,7 @@ public class CommvaultClient {
             String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonString);
-            LOG.info("getCvtVersion root::::::::::::: " + root.toString());
             JsonNode csVersionInfo = root.path("csVersionInfo");
-            LOG.info("getCvtVersion csVersionInfo::::::::::::: " + csVersionInfo.toString());
             if (!csVersionInfo.isMissingNode()) {
                 return csVersionInfo.toString();
             }

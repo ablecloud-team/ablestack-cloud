@@ -320,9 +320,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         Map<String, String> checkResult = new HashMap<>();
         final CommvaultClient client = getClient(zoneId);
         String csVersionInfo = client.getCvtVersion();
-        LOG.info("checkBackupAgent csVersionInfo::::::::::::: " + csVersionInfo);
         boolean version = versionCheck(csVersionInfo);
-        LOG.info("checkBackupAgent csVersionInfo::::::::::::: " + version);
         if (version) {
             List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
             for (final HostVO host : Hosts) {
@@ -1531,6 +1529,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         if (csVersionInfo == null) {
             throw new CloudRuntimeException("commvault version must not be null.");
         }
+        // 테스트 코드 작성
+        csVersionInfo = "11 SP28.34";
         String v = csVersionInfo.trim();
         if (v.startsWith("\"") && v.endsWith("\"") && v.length() > 1) {
             v = v.substring(1, v.length() - 1);
@@ -1542,9 +1542,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         int major = Integer.parseInt(m.group(1));
         int fr = Integer.parseInt(m.group(2));
         int mt = Integer.parseInt(m.group(3));
-        LOG.info("versionCheck major ::::::::::::::::::: " + major);
-        LOG.info("versionCheck fr ::::::::::::::::::: " + fr);
-        LOG.info("versionCheck mt ::::::::::::::::::: " + mt);
         if (major < BASE_MAJOR) {
             throw new CloudRuntimeException("The major version of the commvault you are trying to connect to is low. Supports versions 11.32.89 and higher.");
         } else if (major == BASE_MAJOR && fr < BASE_FR) {
