@@ -44,7 +44,6 @@ import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
 import com.cloud.utils.NumbersUtil;
 import com.cloud.event.ActionEvent;
-import com.cloud.event.ActionEventUtils;
 import com.cloud.event.EventTypes;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
