@@ -151,6 +151,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     private static final String ATTACH_DISK_COMMAND = " virsh attach-disk %s %s %s --driver qemu --subdriver qcow2 --cache none";
     private static final int BASE_MAJOR = 11;
     private static final int BASE_FR = 32;
+    private static final int BASE_MT = 89;
     private static final Pattern VERSION_PATTERN = Pattern.compile("^(\\d+)\\s*SP\\s*(\\d+)(?:\\.(\\d+))?$", Pattern.CASE_INSENSITIVE);
 
     @Inject
@@ -1536,11 +1537,16 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         int major = Integer.parseInt(m.group(1));
         int fr = Integer.parseInt(m.group(2));
-        // String maintenance = m.group(3);
+        int mt = Integer.parseInt(m.group(3));
+        LOG.info("versionCheck major ::::::::::::::::::: " + major);
+        LOG.info("versionCheck fr ::::::::::::::::::: " + fr);
+        LOG.info("versionCheck mt ::::::::::::::::::: " + mt);
         if (major < BASE_MAJOR) {
-            throw new CloudRuntimeException("The major version of the commvault you are trying to connect to is low. This version is not supported.");
+            throw new CloudRuntimeException("The major version of the commvault you are trying to connect to is low. Supports versions 11.32.89 and higher.");
         } else if (major == BASE_MAJOR && fr < BASE_FR) {
-            throw new CloudRuntimeException("The feature release version of the commvault you are trying to connect to is low. This version is not supported.");
+            throw new CloudRuntimeException("The feature release version of the commvault you are trying to connect to is low. Supports versions 11.32.89 and higher.");
+        } else if (major == BASE_MAJOR && fr == BASE_FR && mt < BASE_MT) {
+            throw new CloudRuntimeException("The maintenance version of the commvault you are trying to connect to is low. Supports versions 11.32.89 and higher.");
         }
         return true;
     }
