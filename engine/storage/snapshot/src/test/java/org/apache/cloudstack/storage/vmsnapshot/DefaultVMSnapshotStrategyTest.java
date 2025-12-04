@@ -94,7 +94,7 @@ public class DefaultVMSnapshotStrategyTest {
         Mockito.when(storagePoolVO.getId()).thenReturn(newPoolId);
         Mockito.when(primaryDataStoreDao.findPoolByUUID(newDSUuid)).thenReturn(storagePoolVO);
         Mockito.when(volumeDao.findById(volumeId)).thenReturn(volumeVO);
-        defaultVMSnapshotStrategy.updateVolumePath(List.of(vol1, vol2));
+        defaultVMSnapshotStrategy.updateVolumePath(List.of(vol1, vol2), null);
         Assert.assertEquals(1, persistedVolumes.size());
         VolumeVO persistedVolume = persistedVolumes.get(0);
         Assert.assertNotNull(persistedVolume);
