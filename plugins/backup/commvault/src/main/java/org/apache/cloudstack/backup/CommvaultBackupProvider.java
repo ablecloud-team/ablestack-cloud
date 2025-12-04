@@ -89,6 +89,8 @@ import java.util.StringJoiner;
 import java.util.Properties;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -147,6 +149,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     private static final String RM_COMMAND = "rm -rf %s";
     private static final String CURRRENT_DEVICE = "virsh domblklist --domain %s | tail -n 3 | head -n 1 | awk '{print $1}'";
     private static final String ATTACH_DISK_COMMAND = " virsh attach-disk %s %s %s --driver qemu --subdriver qcow2 --cache none";
+    private static final int BASE_MAJOR = 11;
+    private static final int BASE_FR = 32;
+    private static final Pattern VERSION_PATTERN = Pattern.compile("^(\\d+)\\s*SP\\s*(\\d+)(?:\\.(\\d+))?$", Pattern.CASE_INSENSITIVE);
 
     @Inject
     private BackupDao backupDao;
@@ -313,25 +318,32 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     public boolean checkBackupAgent(final Long zoneId) {
         Map<String, String> checkResult = new HashMap<>();
         final CommvaultClient client = getClient(zoneId);
-        List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
-        for (final HostVO host : Hosts) {
-            if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
-                String checkHost = client.getClientId(host.getName());
-                if (checkHost == null) {
-                    return false;
-                } else {
-                    boolean installJob = client.getInstallActiveJob(host.getPrivateIpAddress());
-                    boolean checkInstall = client.getClientProps(checkHost);
-                    if (installJob || !checkInstall) {
-                        if (!checkInstall) {
-                            LOG.error("The host is registered with the client, but the readiness status is not normal and you must manually check the client status.");
-                        }
+        String csVersionInfo = client.getCvtVersion();
+        LOG.info("checkBackupAgent csVersionInfo::::::::::::: " + csVersionInfo);
+        boolean version = versionCheck(csVersionInfo);
+        LOG.info("checkBackupAgent csVersionInfo::::::::::::: " + version);
+        if (version) {
+            List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
+            for (final HostVO host : Hosts) {
+                if (host.getStatus() == Status.Up && host.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
+                    String checkHost = client.getClientId(host.getName());
+                    if (checkHost == null) {
                         return false;
+                    } else {
+                        boolean installJob = client.getInstallActiveJob(host.getPrivateIpAddress());
+                        boolean checkInstall = client.getClientProps(checkHost);
+                        if (installJob || !checkInstall) {
+                            if (!checkInstall) {
+                                LOG.error("The host is registered with the client, but the readiness status is not normal and you must manually check the client status.");
+                            }
+                            return false;
+                        }
                     }
                 }
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -1511,5 +1523,25 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             LOG.info("parsing error: " + e.getMessage());
             return false;
         }
+    }
+
+    public static boolean versionCheck(String csVersionInfo) {
+        // 버전 체크 (ex:"11 SP32.89") 
+        if (csVersionInfo == null) {
+            throw new CloudRuntimeException("commvault version must not be null.");
+        }
+        Matcher m = VERSION_PATTERN.matcher(csVersionInfo.trim());
+        if (!m.matches()) {
+            throw new CloudRuntimeException("Unexpected commvault version format: " + csVersionInfo);
+        }
+        int major = Integer.parseInt(m.group(1));
+        int fr = Integer.parseInt(m.group(2));
+        // String maintenance = m.group(3);
+        if (major < BASE_MAJOR) {
+            throw new CloudRuntimeException("The major version of the commvault you are trying to connect to is low. This version is not supported.");
+        } else if (major == BASE_MAJOR && fr < BASE_FR) {
+            throw new CloudRuntimeException("The feature release version of the commvault you are trying to connect to is low. This version is not supported.");
+        }
+        return true;
     }
 }
