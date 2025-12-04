@@ -43,6 +43,9 @@ import com.cloud.utils.component.AdapterBase;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
 import com.cloud.utils.NumbersUtil;
+import com.cloud.event.ActionEvent;
+import com.cloud.event.ActionEventUtils;
+import com.cloud.event.EventTypes;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
@@ -346,6 +349,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
+    @ActionEvent(eventType = EventTypes.EVENT_HOST_COMMVAULT_INSTALL, eventDescription = "install the commvault client agent on the host")
     public boolean installBackupAgent(final Long zoneId) {
         Map<String, String> failResult = new HashMap<>();
         final CommvaultClient client = getClient(zoneId);

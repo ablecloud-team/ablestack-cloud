@@ -798,6 +798,9 @@ public class EventTypes {
 
     // DISASTER RECOVERY
     public static final String EVENT_DISASTER_RECOVERY_CLUSTER = "DISASTER.RECOVERY.CLUSTER";
+    
+    // Backup
+    public static final String EVENT_HOST_COMMVAULT_INSTALL = "HOST.COMMVAULT.INSTACLL";
 
     static {
 
@@ -1294,6 +1297,9 @@ public class EventTypes {
 
         // Disaster Recovery Cluster
         entityEventDetails.put(EVENT_DISASTER_RECOVERY_CLUSTER, "DisasterRecoveryCluster");
+
+        // Backup
+        entityEventDetails.put(EVENT_HOST_COMMVAULT_INSTALL, Backup.class);
     }
 
     public static boolean isNetworkEvent(String eventType) {
