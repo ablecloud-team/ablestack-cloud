@@ -1531,7 +1531,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         if (csVersionInfo == null) {
             throw new CloudRuntimeException("commvault version must not be null.");
         }
-        Matcher m = VERSION_PATTERN.matcher(csVersionInfo.trim());
+        String v = csVersionInfo.trim();
+        if (v.startsWith("\"") && v.endsWith("\"") && v.length() > 1) {
+            v = v.substring(1, v.length() - 1);
+        }
+        Matcher m = VERSION_PATTERN.matcher(v);
         if (!m.matches()) {
             throw new CloudRuntimeException("Unexpected commvault version format: " + csVersionInfo);
         }
