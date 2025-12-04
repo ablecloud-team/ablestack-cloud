@@ -798,7 +798,7 @@ public class EventTypes {
 
     // DISASTER RECOVERY
     public static final String EVENT_DISASTER_RECOVERY_CLUSTER = "DISASTER.RECOVERY.CLUSTER";
-    
+
     // Backup
     public static final String EVENT_HOST_COMMVAULT_INSTALL = "HOST.COMMVAULT.INSTACLL";
 
