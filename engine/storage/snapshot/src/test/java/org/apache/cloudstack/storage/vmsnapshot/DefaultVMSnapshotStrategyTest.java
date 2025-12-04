@@ -77,6 +77,7 @@ public class DefaultVMSnapshotStrategyTest {
         String newVolPath = "new";
         String oldVolChain = "old-chain";
         String newVolChain = "new-chain";
+        String type = "type";
         Long vmSnapshotChainSize = 1000L;
         Long oldPoolId = 1L;
         Long newPoolId = 2L;
@@ -94,7 +95,7 @@ public class DefaultVMSnapshotStrategyTest {
         Mockito.when(storagePoolVO.getId()).thenReturn(newPoolId);
         Mockito.when(primaryDataStoreDao.findPoolByUUID(newDSUuid)).thenReturn(storagePoolVO);
         Mockito.when(volumeDao.findById(volumeId)).thenReturn(volumeVO);
-        defaultVMSnapshotStrategy.updateVolumePath(List.of(vol1, vol2));
+        defaultVMSnapshotStrategy.updateVolumePath(List.of(vol1, vol2),type);
         Assert.assertEquals(1, persistedVolumes.size());
         VolumeVO persistedVolume = persistedVolumes.get(0);
         Assert.assertNotNull(persistedVolume);
