@@ -385,6 +385,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         String jobStatus = client.getJobStatus(jobId);
                         if (!jobStatus.equalsIgnoreCase("Completed")) {
                             LOG.error("installing agent on the Commvault Backup Provider failed jogId : " + jobId + " , jobStatus : " + jobStatus);
+                            ActionEventUtils.onActionEvent(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, Domain.ROOT_DOMAIN, EventTypes.EVENT_HOST_AGENT_INSTALL,
+                                "Failed install the commvault client agent on the host : " + host.getPrivateIpAddress(), User.UID_SYSTEM, ApiCommandResourceType.Host.toString());
                             failResult.put(host.getPrivateIpAddress(), jobId);
                         }
                     } else {
@@ -395,6 +397,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     boolean checkInstall = client.getClientCheckReadiness(checkHost);
                     if (!checkInstall) {
                         LOG.error("The host is registered with the client, but the readiness status is not normal and you must manually check the client status.");
+                        ActionEventUtils.onActionEvent(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, Domain.ROOT_DOMAIN, EventTypes.EVENT_HOST_AGENT_INSTALL,
+                            "Failed check readiness the commvault client agent on the host : " + host.getPrivateIpAddress(), User.UID_SYSTEM, ApiCommandResourceType.Host.toString());
                         return false;
                     }
                 }
@@ -1408,6 +1412,32 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             LOG.info("parsing error: " + e.getMessage());
             return false;
         }
+    }
+
+    public static boolean versionCheck(String csVersionInfo) {
+        // 버전 체크 기준 : 11 SP32.89
+        if (csVersionInfo == null) {
+            throw new CloudRuntimeException("commvault version must not be null.");
+        }
+        String v = csVersionInfo.trim();
+        if (v.startsWith("\"") && v.endsWith("\"") && v.length() > 1) {
+            v = v.substring(1, v.length() - 1);
+        }
+        Matcher m = VERSION_PATTERN.matcher(v);
+        if (!m.matches()) {
+            throw new CloudRuntimeException("Unexpected commvault version format: " + csVersionInfo);
+        }
+        int major = Integer.parseInt(m.group(1));
+        int fr = Integer.parseInt(m.group(2));
+        int mt = Integer.parseInt(m.group(3));
+        if (major < BASE_MAJOR) {
+            throw new CloudRuntimeException("The major version of the commvault you are trying to connect to is low. Supports versions 11.32.89 and higher.");
+        } else if (major == BASE_MAJOR && fr < BASE_FR) {
+            throw new CloudRuntimeException("The feature release version of the commvault you are trying to connect to is low. Supports versions 11.32.89 and higher.");
+        } else if (major == BASE_MAJOR && fr == BASE_FR && mt < BASE_MT) {
+            throw new CloudRuntimeException("The maintenance version of the commvault you are trying to connect to is low. Supports versions 11.32.89 and higher.");
+        }
+        return true;
     }
 
     @Override
