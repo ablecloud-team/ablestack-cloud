@@ -56,6 +56,15 @@
             :options="detailValues"
             :placeholder="$t('label.value')"
             @change="e => onAddInputChange(e, 'newValue')" />
+          <a-input
+            v-if="newKey === 'video.hardware'"
+            v-model:value="videoHardwareCount"
+            type="number"
+            :min="1"
+            :max="4"
+            :placeholder="$t('label.count')"
+            style="width: 80px"
+            @change="e => onVideoHardwareCountChange(e.target.value)" />
           <tooltip-button :tooltip="$t('label.add.setting')" :shape="null" icon="check-outlined" @onClick="addDetail" buttonClass="detail-button" />
           <tooltip-button :tooltip="$t('label.cancel')" :shape="null" icon="close-outlined" @onClick="closeDetail" buttonClass="detail-button" />
         </a-input-group>
@@ -63,7 +72,7 @@
       </div>
     </div>
     <a-list size="large">
-      <a-list-item :key="index" v-for="(item, index) in details">
+      <a-list-item :key="item.name" v-for="item in displayedDetails">
         <a-list-item-meta>
           <template #title>
             {{ item.name }}
@@ -74,19 +83,19 @@
                 style="width: 100%"
                 v-model:value="item.value"
                 :options="getDetailOptions(detailOptions[item.name])"
-                @change="val => handleInputChange(val, index)"
-                @pressEnter="e => updateDetail(index)" />
+                @change="val => handleInputChange(val, item.name)"
+                @pressEnter="e => updateDetail(item.name)" />
               <tooltip-button
                 buttonClass="edit-button"
                 :tooltip="$t('label.cancel')"
-                @onClick="hideEditDetail(index)"
+                @onClick="hideEditDetail(item.name)"
                 v-if="item.edit"
                 iconType="close-circle-two-tone"
                 iconTwoToneColor="#f5222d" />
               <tooltip-button
                 buttonClass="edit-button"
                 :tooltip="$t('label.ok')"
-                @onClick="updateDetail(index)"
+                @onClick="updateDetail(item.name)"
                 v-if="item.edit"
                 iconType="check-circle-two-tone"
                 iconTwoToneColor="#52c41a" />
@@ -102,13 +111,13 @@
               icon="edit-outlined"
               :disabled="deployasistemplate === true"
               v-if="!item.edit"
-              @onClick="showEditDetail(index)" />
+              @onClick="showEditDetail(item.name)" />
           </div>
           <div
             v-if="!disableSettings && isAdminOrOwner() && allowEditOfDetail(item.name) && hasSettingUpdatePermission()">
             <a-popconfirm
               :title="`${$t('label.delete.setting')}?`"
-              @confirm="deleteDetail(index)"
+              @confirm="deleteDetail(item.name)"
               :okText="$t('label.yes')"
               :cancelText="$t('label.no')"
               placement="left"
@@ -146,7 +155,8 @@ export default {
       loading: false,
       resourceType: 'UserVm',
       deployasistemplate: false,
-      error: false
+      error: false,
+      videoHardwareCount: '1'
     }
   },
   watch: {
@@ -159,14 +169,18 @@ export default {
   },
   computed: {
     detailKeys () {
-      return Object.keys(this.detailOptions).map(key => {
+      // video.hardware만 표시, _2, _3, _4는 모달에서 처리
+      const keys = Object.keys(this.detailOptions).map(key => {
         return { value: key }
       })
+
+      return keys
     },
     detailValues () {
       if (!this.newKey) {
         return []
       }
+
       if (!Array.isArray(this.detailOptions[this.newKey])) {
         if (this.detailOptions[this.newKey]) {
           return { value: this.detailOptions[this.newKey] }
@@ -177,6 +191,20 @@ export default {
       return this.detailOptions[this.newKey].map(value => {
         return { value: value }
       })
+    },
+    displayedDetails () {
+      // 모든 details 표시 (이미 updateResource에서 정렬됨)
+      console.log('=== DISPLAYED DETAILS ===')
+      this.details.forEach((d, idx) => {
+        console.log(`  Display[${idx}] ${d.name} = ${d.value}`)
+      })
+      return this.details
+    },
+    videoHardwareOptions () {
+      if (this.detailOptions && this.detailOptions['video.hardware']) {
+        return this.detailOptions['video.hardware']
+      }
+      return ['cirrus', 'vga', 'qxl', 'virtio']
     }
   },
   created () {
@@ -200,7 +228,33 @@ export default {
       }
       this.resourceType = this.$route.meta.resourceType
       if (resource.details) {
-        this.details = Object.keys(resource.details).map(k => {
+        // video.hardware와 video.ram을 올바른 순서로 정렬
+        const detailKeys = Object.keys(resource.details)
+
+        const getVideoNumber = (key) => {
+          if (key === 'video.hardware' || key === 'video.ram') {
+            return 0 // 숫자 없는 기본값
+          }
+          const match = key.match(/video\.(hardware|ram)(\d+)/)
+          return match ? parseInt(match[2]) : 0
+        }
+
+        const videoHardwareKeys = detailKeys
+          .filter(k => k.startsWith('video.hardware'))
+          .sort((a, b) => getVideoNumber(a) - getVideoNumber(b))
+
+        const videoRamKeys = detailKeys
+          .filter(k => k.startsWith('video.ram'))
+          .sort((a, b) => getVideoNumber(a) - getVideoNumber(b))
+
+        const otherKeys = detailKeys.filter(k => !k.startsWith('video.'))
+
+        // video.hardware, video.ram, 기타 순서로 배열 생성
+        const orderedKeys = [...videoHardwareKeys, ...videoRamKeys, ...otherKeys]
+
+        console.log('Ordered keys:', orderedKeys)
+
+        this.details = orderedKeys.map(k => {
           return { name: k, value: resource.details[k], edit: false }
         })
       }
@@ -220,16 +274,25 @@ export default {
       }
       return true
     },
-    showEditDetail (index) {
-      this.details[index].edit = true
-      this.details[index].originalValue = this.details[index].value
+    showEditDetail (name) {
+      const item = this.details.find(d => d.name === name)
+      if (item) {
+        item.edit = true
+        item.originalValue = item.value
+      }
     },
-    hideEditDetail (index) {
-      this.details[index].edit = false
-      this.details[index].value = this.details[index].originalValue
+    hideEditDetail (name) {
+      const item = this.details.find(d => d.name === name)
+      if (item) {
+        item.edit = false
+        item.value = item.originalValue
+      }
     },
-    handleInputChange (val, index) {
-      this.details[index].value = val
+    handleInputChange (val, name) {
+      const item = this.details.find(d => d.name === name)
+      if (item) {
+        item.value = val
+      }
     },
     getDetailOptions (values) {
       if (!values) {
@@ -241,6 +304,15 @@ export default {
     onAddInputChange (val, obj) {
       this.error = false
       this[obj] = val
+
+      // video.hardware 선택 시 개수 초기화
+      if (obj === 'newKey' && val === 'video.hardware') {
+        const existingCount = this.details.filter(item => item.name.startsWith('video.hardware')).length
+        this.videoHardwareCount = existingCount > 0 ? existingCount.toString() : '1'
+      }
+    },
+    onVideoHardwareCountChange (val) {
+      this.videoHardwareCount = val
     },
     isAdminOrOwner () {
       return ['Admin'].includes(this.$store.getters.userInfo.roletype) ||
@@ -297,7 +369,35 @@ export default {
         } else if (this.resourceType === 'DisasterRecoveryCluster' && json.updatedisasterrecoveryclusterresponse.disasterrecoverycluster.details) {
           details = json.updatedisasterrecoveryclusterresponse.disasterrecoverycluster.details
         }
-        this.details = Object.keys(details).map(k => {
+
+        // 서버 응답을 올바른 순서로 정렬
+        const detailKeys = Object.keys(details)
+
+        // 번호 추출 함수 (숫자 없으면 0으로 간주)
+        const getVideoNumber = (key) => {
+          if (key === 'video.hardware' || key === 'video.ram') {
+            return 0 // 숫자 없는 기본값
+          }
+          const match = key.match(/video\.(hardware|ram)(\d+)/)
+          return match ? parseInt(match[2]) : 0
+        }
+
+        const videoHardwareKeys = detailKeys
+          .filter(k => k.startsWith('video.hardware'))
+          .sort((a, b) => getVideoNumber(a) - getVideoNumber(b))
+
+        const videoRamKeys = detailKeys
+          .filter(k => k.startsWith('video.ram'))
+          .sort((a, b) => getVideoNumber(a) - getVideoNumber(b))
+
+        const otherKeys = detailKeys.filter(k => !k.startsWith('video.'))
+
+        // video.hardware, video.ram, 기타 순서로 배열 생성
+        const orderedKeys = [...videoHardwareKeys, ...videoRamKeys, ...otherKeys]
+
+        console.log('API Response - Ordered keys:', orderedKeys)
+
+        this.details = orderedKeys.map(k => {
           return { name: k, value: details[k], edit: false }
         })
       }).catch(error => {
@@ -310,24 +410,122 @@ export default {
       })
     },
     addDetail () {
-      if (this.newKey === '' || this.newValue === '') {
+      if (this.newKey === '') {
         this.error = this.$t('message.error.provide.setting')
         return
       }
-      if (!this.allowEditOfDetail(this.newKey)) {
-        this.error = this.$t('error.unable.to.proceed')
-        return
+
+      // video.hardware 처리
+      if (this.newKey === 'video.hardware') {
+        if (this.newValue === '') {
+          this.error = this.$t('message.error.provide.setting')
+          return
+        }
+
+        // 개수 확인
+        const count = parseInt(this.videoHardwareCount)
+        if (isNaN(count) || count < 1 || count > 4) {
+          this.error = this.$t('message.video.hardware.count.error')
+          return
+        }
+
+        // 기존 video.hardware 및 video.ram 관련 항목 모두 제거
+        this.details = this.details.filter(item =>
+          !item.name.startsWith('video.hardware') && !item.name.startsWith('video.ram')
+        )
+
+        // 개수만큼 video.hardware 항목 추가
+        for (let i = 1; i <= count; i++) {
+          const key = i === 1 ? 'video.hardware' : `video.hardware${i}`
+          this.details.push({
+            name: key,
+            value: this.newValue,
+            edit: false
+          })
+        }
+
+        // 개수만큼 video.ram 항목 추가 (각 디바이스당 16384)
+        for (let i = 1; i <= count; i++) {
+          const ramKey = i === 1 ? 'video.ram' : `video.ram${i}`
+          this.details.push({
+            name: ramKey,
+            value: '16384',
+            edit: false
+          })
+        }
+      } else {
+        // 일반 설정은 값이 필요함
+        if (this.newValue === '') {
+          this.error = this.$t('message.error.provide.setting')
+          return
+        }
+
+        if (!this.allowEditOfDetail(this.newKey)) {
+          this.error = this.$t('error.unable.to.proceed')
+          return
+        }
+
+        this.details.push({ name: this.newKey, value: this.newValue })
       }
+
       this.error = false
-      this.details.push({ name: this.newKey, value: this.newValue })
       this.runApi()
     },
-    updateDetail (index) {
+    updateDetail (name) {
+      const item = this.details.find(d => d.name === name)
+      if (item) {
+        item.edit = false
+      }
       this.runApi()
     },
-    deleteDetail (index) {
-      this.details.splice(index, 1)
+    deleteDetail (name) {
+      console.log('=== DELETE DETAIL DEBUG ===')
+      console.log('Trying to delete:', name)
+      console.log('Current details array:')
+      this.details.forEach((d, idx) => {
+        console.log(`  [${idx}] ${d.name} = ${d.value}`)
+      })
+
+      const index = this.details.findIndex(d => d.name === name)
+      console.log('Found at index:', index)
+
+      if (index !== -1) {
+        const deletedItem = this.details[index]
+        console.log('Deleting item:', deletedItem.name, '=', deletedItem.value)
+        this.details.splice(index, 1)
+
+        console.log('After deletion:')
+        this.details.forEach((d, idx) => {
+          console.log(`  [${idx}] ${d.name} = ${d.value}`)
+        })
+      } else {
+        console.error('ERROR: Could not find item with name:', name)
+      }
+
       this.runApi()
+    },
+    updateVideoRam () {
+      // video.hardware 개수를 세어서 video.ram 자동 설정
+      const videoHardwareCount = this.details.filter(item =>
+        item.name.startsWith('video.hardware')
+      ).length
+
+      // 기존 video.ram 관련 항목 모두 제거
+      this.details = this.details.filter(item =>
+        !item.name.startsWith('video.ram')
+      )
+
+      // video.hardware가 있으면 개수만큼 video.ram 자동 추가
+      if (videoHardwareCount > 0) {
+        for (let i = 1; i <= videoHardwareCount; i++) {
+          const ramKey = i === 1 ? 'video.ram' : `video.ram${i}`
+          this.details.push({
+            name: ramKey,
+            value: '16384',
+            edit: false
+          })
+        }
+      }
     },
     onShowAddDetail () {
       this.showAddDetail = true
@@ -340,6 +538,7 @@ export default {
       this.newValue = ''
       this.error = false
       this.showAddDetail = false
+      this.videoHardwareCount = '1'
     },
     hasSettingUpdatePermission () {
       return (

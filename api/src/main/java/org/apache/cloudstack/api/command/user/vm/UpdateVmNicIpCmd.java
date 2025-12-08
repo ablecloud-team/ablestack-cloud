@@ -60,6 +60,10 @@ public class UpdateVmNicIpCmd extends BaseAsyncCmd {
             description = "Secondary IP Address")
             private String ipAddr;
 
+    @Parameter(name = ApiConstants.MAC_ADDRESS, type = CommandType.STRING, required = false,
+            description = "Mac Address")
+            private String macAddr;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -95,6 +99,10 @@ public class UpdateVmNicIpCmd extends BaseAsyncCmd {
 
     public Long getNicId() {
         return nicId;
+    }
+
+    public String getMacAddress() {
+        return macAddr;
     }
 
     public String getIpaddress () {
@@ -145,6 +153,10 @@ public class UpdateVmNicIpCmd extends BaseAsyncCmd {
             if (!NetUtils.isValidIp4(ip)) {
                 throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Invalid ip address " + ip);
             }
+        }
+        String mac = getMacAddress();
+        if (mac != null && !NetUtils.isValidMac(mac)) {
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Invalid mac address " + mac);
         }
 
         UserVm vm = _userVmService.updateNicIpForVirtualMachine(this);

@@ -5476,8 +5476,6 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             options.put(VmDetailConstants.DATA_DISK_CONTROLLER, Arrays.asList("osdefault", "ide", "sata", "scsi", "virtio", "virtio-blk"));
             options.put(VmDetailConstants.SOUND, Arrays.asList("ich6"));
             options.put(VmDetailConstants.VIDEO_HARDWARE, Arrays.asList("cirrus", "vga", "qxl", "virtio"));
-            options.put(VmDetailConstants.VIDEO_HARDWARE_2, Arrays.asList("virtio"));
-            options.put(VmDetailConstants.VIDEO_RAM, Collections.emptyList());
             options.put("tpmversion", Arrays.asList(ApiConstants.TpmVersion.NONE.toString(), ApiConstants.TpmVersion.V2_0.toString()));
             options.put(VmDetailConstants.IO_POLICY, Arrays.asList("threads", "native", "io_uring", "storage_specific"));
             options.put(VmDetailConstants.IOTHREADS, Arrays.asList("enabled"));
@@ -5487,6 +5485,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             options.put(VmDetailConstants.VIRTUAL_TPM_VERSION, Arrays.asList("1.2", "2.0"));
             options.put(VmDetailConstants.GUEST_CPU_MODE, Arrays.asList("custom", "host-model", "host-passthrough"));
             options.put(VmDetailConstants.GUEST_CPU_MODEL, Collections.emptyList());
+            options.put(VmDetailConstants.BOOT_ORDER, Arrays.asList("cdrom", "hd"));
         }
 
         if (HypervisorType.VMware.equals(hypervisorType)) {

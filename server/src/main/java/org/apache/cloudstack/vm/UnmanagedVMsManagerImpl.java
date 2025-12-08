@@ -324,10 +324,11 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
         String templateName = (isKVM) ? KVM_VM_IMPORT_DEFAULT_TEMPLATE_NAME : VM_IMPORT_DEFAULT_TEMPLATE_NAME;
         VMTemplateVO template = null;
         try {
-            template = VMTemplateVO.createSystemIso(templateDao.getNextInSequence(Long.class, "id"), templateName, templateName, true,
+            template = VMTemplateVO.createSystemRaw(templateDao.getNextInSequence(Long.class, "id"), templateName, templateName, true,
                     "", true, 64, Account.ACCOUNT_ID_SYSTEM, "",
-                    "VM Import Default Template", false, 1);
+                    "Glue Image Default Template", false, 1, Hypervisor.HypervisorType.KVM);
             template.setState(VirtualMachineTemplate.State.Inactive);
+            template.setDynamicallyScalable(true);
             template = templateDao.persist(template);
             if (template == null) {
                 return null;
@@ -575,7 +576,20 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
         final String dsPath = disk.getDatastorePath();
         final String dsType = disk.getDatastoreType();
         final String dsName = disk.getDatastoreName();
-        if (dsType != null) {
+        logger.debug(String.format("### DataStore [Host:%s, Path:%s, Type:%s, Name:%s]" , dsHost, dsPath, dsType, dsName));
+        if (dsName != null) {
+            List<StoragePoolVO> pools = primaryDataStoreDao.listPoolsByCluster(cluster.getId());
+            pools.addAll(primaryDataStoreDao.listByDataCenterId(zone.getId()));
+            for (StoragePool pool : pools) {
+                if (pool.getUuid().equals(dsName) || pool.getName().equals(dsName)) {
+                    logger.debug(String.format("Matched datastore %s to storage pool id:%s (uuid:%s name:%s)",
+                            dsName, pool.getId(), pool.getUuid(), pool.getName()));
+                    storagePool = pool;
+                    break;
+                }
+            }
+        }
+        if (storagePool == null) {
             List<StoragePoolVO> pools = primaryDataStoreDao.listPoolByHostPath(dsHost, dsPath);
             for (StoragePool pool : pools) {
                 if (pool.getDataCenterId() == zone.getId() &&
