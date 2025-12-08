@@ -39,6 +39,7 @@ import org.apache.cloudstack.ha.HAConfig;
 import org.apache.cloudstack.network.BgpPeer;
 import org.apache.cloudstack.network.Ipv4GuestSubnetNetworkMap;
 import org.apache.cloudstack.quota.QuotaTariff;
+import org.apache.cloudstack.backup.Backup;
 import org.apache.cloudstack.storage.object.Bucket;
 import org.apache.cloudstack.storage.object.ObjectStore;
 import org.apache.cloudstack.storage.sharedfs.SharedFS;
@@ -870,6 +871,7 @@ public class EventTypes {
     // Backup Repository
     public static final String EVENT_BACKUP_REPOSITORY_ADD = "BACKUP.REPOSITORY.ADD";
     public static final String EVENT_BACKUP_REPOSITORY_UPDATE = "BACKUP.REPOSITORY.UPDATE";
+    public static final String EVENT_HOST_AGENT_INSTALL = "HOST.AGENT.INSTALL";
 
     static {
 
@@ -1415,6 +1417,7 @@ public class EventTypes {
         // Backup Repository
         entityEventDetails.put(EVENT_BACKUP_REPOSITORY_ADD, BackupRepositoryService.class);
         entityEventDetails.put(EVENT_BACKUP_REPOSITORY_UPDATE, BackupRepositoryService.class);
+        entityEventDetails.put(EVENT_HOST_AGENT_INSTALL, Backup.class);
     }
 
     public static boolean isNetworkEvent(String eventType) {

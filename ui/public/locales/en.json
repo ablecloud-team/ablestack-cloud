@@ -4712,6 +4712,7 @@
 "sg.assign": "SG.ASSIGN",
 "sg.remove": "SG.REMOVE",
 "sg.update": "SG.UPDATE",
+"host.agent.install": "HOST.AGENT.INSTALL",
 "host.reconnect": "HOST.RECONNECT",
 "host.declare.degraded": "HOST.DECLARE.DEGRADED",
 "host.cancel.degraded": "HOST.CANCEL.DEGRADED",
