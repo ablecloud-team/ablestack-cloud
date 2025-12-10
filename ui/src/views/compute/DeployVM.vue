@@ -1753,7 +1753,14 @@ export default {
       this.rules = reactive({
         zoneid: [{ required: true, message: `${this.$t('message.error.select')}` }],
         hypervisor: [{ required: true, message: `${this.$t('message.error.select')}` }],
-        leaseduration: [this.naturalNumberRule]
+        name: [{
+          validator: async (rule, value) => {
+            if (value && value.includes('_')) {
+              return Promise.reject(this.$t('message.vm.name.no.underscore') || '가상머신 이름에는 언더스코어(_)를 사용할 수 없습니다.')
+            }
+            return Promise.resolve()
+          }
+        }]
       })
 
       if (this.zoneSelected) {

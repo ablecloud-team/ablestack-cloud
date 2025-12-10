@@ -25,7 +25,7 @@
     >
       <a-alert type="warning">
         <template #message>
-          <span v-html="$t('message.warning.host.devices')" />
+          <span v-html="$t('message.warning.host.device')" />
         </template>
       </a-alert>
       <br>
@@ -502,6 +502,7 @@ export default {
           const allocationParams = {
             hostid: this.resource.id,
             hostdevicesname: this.resource.hostDevicesName,
+            hostdevicestext: this.resource.hostDevicesText || '',
             virtualmachineid: selectedVM.id,
             xmlconfig: xmlConfig
           }

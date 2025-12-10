@@ -59,7 +59,7 @@
                     <template #suffixIcon><filter-outlined class="ant-select-suffix" /></template>
                     <a-select-option
                       v-if="['Admin', 'DomainAdmin'].includes($store.getters.userInfo.roletype) &&
-                      ['vm', 'iso', 'template', 'pod', 'cluster', 'host', 'systemvm', 'router', 'storagepool', 'kubernetes', 'computeoffering', 'systemoffering', 'diskoffering', 'sharedfs', 'extension'].includes($route.name) ||
+                      ['vm', 'iso', 'template', 'pod', 'cluster', 'host', 'systemvm', 'router', 'storagepool', 'kubernetes', 'computeoffering', 'systemoffering', 'diskoffering', 'sharedfs', 'extension', 'alertRules'].includes($route.name) ||
                       ['account'].includes($route.name)"
                       key="all"
                       :label="$t('label.all')"
@@ -205,13 +205,13 @@
                 type="error">
                 <template #message>
                   <exclamation-circle-outlined style="color: red; fontSize: 30px; display: inline-flex" />
-                  <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+                  <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>&nbsp`" />
                   <span v-html="$t(currentAction.message)" />
                 </template>
               </a-alert>
               <a-alert v-else type="warning">
                 <template #message>
-                  <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+                  <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>&nbsp`" />
                   <span v-html="$t(currentAction.message)" />
                 </template>
               </a-alert>
@@ -411,7 +411,7 @@
         :maskClosable="false"
         :footer="null"
         style="top: 20px;"
-        :width="modalWidth"
+        :width="currentAction.groupAction ? modalWidth : '30vw'"
         :ok-button-props="getOkProps()"
         ok-text="111"
         :cancel-button-props="getCancelProps()"
@@ -435,17 +435,14 @@
           v-ctrl-enter="handleSubmit"
         >
           <span v-if="currentAction.message">
-            <div v-if="selectedRowKeys.length > 0">
+            <div v-if="selectedRowKeys.length > 0 && currentAction.groupAction">
               <a-alert
                 v-if="['delete-outlined', 'DeleteOutlined', 'poweroff-outlined', 'PoweroffOutlined'].includes(currentAction.icon)"
                 type="error"
               >
                 <template #message>
                   <exclamation-circle-outlined style="color: red; fontSize: 30px; display: inline-flex" />
-                  <span
-                    style="padding-left: 5px"
-                    v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`"
-                  />
+                  <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length}` + $t('label.items.selected') + `. </b>&nbsp`" />
                   <span v-html="currentAction.message" />
                 </template>
               </a-alert>
@@ -454,10 +451,7 @@
                 type="warning"
               >
                 <template #message>
-                  <span
-                    v-if="selectedRowKeys.length > 0"
-                    v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`"
-                  />
+                  <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length}` + $t('label.items.selected') + `. </b>&nbsp`" />
                   <span v-html="currentAction.message" />
                 </template>
               </a-alert>
@@ -469,7 +463,7 @@
                 </template>
               </a-alert>
             </div>
-            <div v-if="selectedRowKeys.length > 0">
+            <div v-if="selectedRowKeys.length > 0 && currentAction.groupAction">
               <a-divider />
               <a-table
                 v-if="selectedRowKeys.length > 0"
@@ -1113,6 +1107,9 @@ export default {
       if (['event', 'computeoffering', 'systemoffering', 'diskoffering', 'quotatariff'].includes(routeName)) {
         return 'active'
       }
+      if (['alertRules'].includes(routeName)) {
+        return 'all'
+      }
       return 'self'
     }
   },
@@ -1194,6 +1191,9 @@ export default {
       })
     },
     fetchData (params = {}) {
+      // [ADD] 모든 반복 전 배열 보장 유틸
+      const asArray = (v) => Array.isArray(v) ? v : []
+
       if (['deployVirtualMachine', 'usage'].includes(this.$route.name)) {
         return
       }
@@ -1202,6 +1202,7 @@ export default {
         this.items = []
       }
       if (!this.routeName) {
+        // 원본 로직 유지
         this.routeName = this.$route.matched[this.$route.matched.length - 1].meta.name
       }
       this.apiName = ''
@@ -1231,7 +1232,8 @@ export default {
         'isofilter' in params && this.routeName === 'iso') {
         params.isofilter = 'all'
       }
-      if (['Admin', 'DomainAdmin'].includes(this.$store.getters.userInfo.roletype) && ['computeoffering', 'systemoffering', 'diskoffering'].includes(this.routeName) && this.$route.params.id) {
+      if (['Admin', 'DomainAdmin'].includes(this.$store.getters.userInfo.roletype) &&
+        ['computeoffering', 'systemoffering', 'diskoffering'].includes(this.routeName) && this.$route.params.id) {
         params.state = 'all'
       }
       if (Object.keys(this.$route.query).length > 0) {
@@ -1252,7 +1254,6 @@ export default {
       if (typeof this.filters === 'function') {
         this.filters = this.filters()
       }
-
       if (typeof this.searchFilters === 'function') {
         this.searchFilters = this.searchFilters()
       }
@@ -1271,11 +1272,6 @@ export default {
         params.listsystemvms = true
       }
 
-      // console.log('this.$refs :>> ', this.$refs)
-      // if ('listview' in this.$refs && this.$refs.listview) {
-      //   this.$refs.listview.resetSelection()
-      // }
-
       if (this.$route && this.$route.meta && this.$route.meta.permission) {
         this.apiName = this.$route.meta.permission[0]
         if (!store.getters.metrics && !this.dataView &&
@@ -1283,17 +1279,21 @@ export default {
             store.getters.apis[this.apiName.replace(/Metrics$/, '')]) {
           this.apiName = this.apiName.replace(/Metrics$/, '')
         }
+
+        // [CHANGE] meta.columns → 항상 배열 보정
         if (this.$route.meta.columns) {
           const columns = this.$route.meta.columns
           if (columns && typeof columns === 'function') {
-            this.columnKeys = columns(this.$store.getters)
+            this.columnKeys = asArray(columns(this.$store.getters))
           } else {
-            this.columnKeys = columns
+            this.columnKeys = asArray(columns)
           }
         }
 
+        // [CHANGE] meta.actions → 항상 배열 보정
         if (this.$route.meta.actions) {
-          this.actions = this.$route.meta.actions
+          const acts = this.$route.meta.actions
+          this.actions = asArray(typeof acts === 'function' ? acts(this.$store.getters) : acts)
         }
       }
 
@@ -1302,7 +1302,10 @@ export default {
       }
 
       if (!this.columnKeys || this.columnKeys.length === 0) {
-        for (const field of store.getters.apis[this.apiName].response) {
+        // [CHANGE] API 메타 응답 반복 안전화
+        const apiMeta = store.getters && store.getters.apis && store.getters.apis[this.apiName]
+        const respFields = apiMeta && apiMeta.response
+        for (const field of asArray(respFields)) {
           this.columnKeys.push(field.name)
         }
         this.columnKeys = [...new Set(this.columnKeys)]
@@ -1315,7 +1318,8 @@ export default {
       }
 
       const customRender = {}
-      for (var columnKey of this.columnKeys) {
+      // [CHANGE] 컬럼 루프 안전화
+      for (const columnKey of asArray(this.columnKeys)) {
         let key = columnKey
         let title = columnKey === 'cidr' && this.columnKeys.includes('ip6cidr') ? 'ipv4.cidr' : columnKey
         if (typeof columnKey === 'object') {
@@ -1356,14 +1360,14 @@ export default {
         return ![this.$t('label.state'), this.$t('label.hostname'), this.$t('label.hostid'), this.$t('label.zonename'),
           this.$t('label.zone'), this.$t('label.zoneid'), this.$t('label.ip'), this.$t('label.ipaddress'), this.$t('label.privateip'),
           this.$t('label.linklocalip'), this.$t('label.size'), this.$t('label.sizegb'), this.$t('label.current'),
-          this.$t('label.created'), this.$t('label.order'), this.$t('label.networkname')].includes(column.title)
+          this.$t('label.created'), this.$t('label.order'), this.$t('label.networkname'), this.$t('label.kvdoenable'),
+          this.$t('label.usedfsbytes'), this.$t('label.qemuagentversion')].includes(column.title)
       })
       this.chosenColumns.splice(this.chosenColumns.length - 1, 1)
 
       if (['listTemplates', 'listIsos'].includes(this.apiName) && this.dataView) {
         delete params.showunique
       }
-
       if (['listVirtualMachinesMetrics'].includes(this.apiName) && this.dataView) {
         delete params.details
         delete params.isvnf
@@ -1445,7 +1449,7 @@ export default {
             break
           }
         }
-        var apiItemCount = 0
+        let apiItemCount = 0
         for (const key in json[responseName]) {
           if (key === 'count') {
             apiItemCount = json[responseName].count
@@ -1497,7 +1501,7 @@ export default {
           })
         }
 
-        for (let idx = 0; idx < this.items.length; idx++) {
+        for (let idx = 0; idx < this.items.length; idx += 1) {
           this.items[idx].key = idx
           for (const key in customRender) {
             const func = customRender[key]
@@ -1540,11 +1544,9 @@ export default {
         if ([405].includes(error.response.status)) {
           this.$router.push({ path: '/dashboard' })
         }
-
         if ([430, 431, 432].includes(error.response.status)) {
           this.$router.push({ path: '/dashboard' })
         }
-
         if ([530, 531, 532, 533, 534, 535, 536, 537].includes(error.response.status)) {
           this.$router.push({ path: '/dashboard' })
         }
@@ -1553,9 +1555,10 @@ export default {
         this.searchParams = params
       })
 
+      // [CHANGE] 라우터 쿼리 action 루프 안전화
       if ('action' in this.$route.query) {
         const actionName = this.$route.query.action
-        for (const action of this.actions) {
+        for (const action of asArray(this.actions)) {
           if (action.listView && action.api === actionName) {
             this.execAction(action, false)
             const query = Object.assign({}, this.$route.query)
@@ -1585,6 +1588,7 @@ export default {
       } else {
         this.modalWidth = '30vw'
       }
+      // this.modalWidth = '45vw'
 
       this.setModalWidthByScreen()
     },
@@ -2243,6 +2247,12 @@ export default {
           delete query.allocationstate
         } else {
           query.allocationstate = filter
+        }
+      } else if (this.$route.name === 'alertRules') {
+        if (filter === 'all') {
+          delete query.state
+        } else {
+          query.state = String(filter).toUpperCase()
         }
       } else if (['host'].includes(this.$route.name)) {
         if (filter === 'all') {
