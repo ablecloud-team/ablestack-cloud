@@ -996,7 +996,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         backupDao.persist(backup);
                         // 백업 오퍼링 할당 시의 볼륨 정보만 담겨있어서 이후 추가된 볼륨에 대해 복원 시 오류로 백업 시 볼륨 정보 업데이트
                         VMInstanceVO vmInstance = vmInstanceDao.findByIdIncludingRemoved(vm.getId());
-                        vmInstance.setBackupVolumes(BackupManagerImpl.createVolumeInfoFromVolumes(volumeDao.findByInstance(vm.getId()), checkResult));
+                        vmInstance.setBackupVolumes(backupManager.createVolumeInfoFromVolumes(vols));
                         vmInstanceDao.update(vm.getId(), vmInstance);
                         // 백업 성공 후 스냅샷 삭제
                         for (String value : checkResult.values()) {

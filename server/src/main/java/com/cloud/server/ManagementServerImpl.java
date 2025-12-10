@@ -941,6 +941,7 @@ import com.cloud.vm.DomainRouterVO;
 import com.cloud.vm.InstanceGroupVO;
 import com.cloud.vm.NicVO;
 import com.cloud.vm.SecondaryStorageVmVO;
+import com.cloud.vm.UserVmDetailVO;
 import com.cloud.vm.UserVmManager;
 import com.cloud.vm.UserVmVO;
 import com.cloud.vm.VMInstanceDetailVO;
@@ -1165,6 +1166,8 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     private HAConfigDao haConfigDao;
     @Inject
     private HostDetailsDao _hostDetailsDao;
+    @Inject
+    private UserVmDetailsDao _vmDetailsDao;
 
     private LockControllerListener _lockControllerListener;
     private final ScheduledExecutorService _eventExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("EventChecker"));
