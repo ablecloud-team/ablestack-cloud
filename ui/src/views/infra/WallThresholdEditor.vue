@@ -312,10 +312,43 @@ export default {
     // 성공 메시지 자연어 빌드(단위 포함)
     buildDesc (uiOp, t1, t2) {
       const unit = this.isPercentRule ? '%' : ''
-      if (uiOp === 'gt') return `${t1}${unit} 이상`
-      if (uiOp === 'lt') return `${t1}${unit} 이하`
-      if (uiOp === 'between') return `${t1}${unit} ~ ${t2}${unit} 사이`
-      if (uiOp === 'outside') return `${t1}${unit} 미만 또는 ${t2}${unit} 초과`
+      const op = String(uiOp || '').toLowerCase()
+
+      const greater = this.$t('label.operator.greater') // 초과
+      const greaterOrEqual = this.$t('label.operator.greater.or.equal') // 이상
+      const less = this.$t('label.operator.less') // 미만
+      const lessOrEqual = this.$t('label.operator.less.or.equal') // 이하
+      const equal = this.$t('label.operator.equal') // 같음
+
+      // 단일 연산자들
+      if (op === 'gt') {
+        return `${t1}${unit} ${greater}`
+      }
+      if (op === 'lt') {
+        return `${t1}${unit} ${less}`
+      }
+      if (op === 'gte') {
+        return `${t1}${unit} ${greaterOrEqual}`
+      }
+      if (op === 'lte') {
+        return `${t1}${unit} ${lessOrEqual}`
+      }
+      if (op === 'eq' || op === 'equal') {
+        return `${t1}${unit} ${equal}`
+      }
+
+      // 범위 연산자들
+      if (op === 'between' || op === 'within_range') {
+        // 예: 10 이상 ~ 20 이하
+        return `${t1}${unit} ${greaterOrEqual} ~ ${t2}${unit} ${lessOrEqual}`
+      }
+      if (op === 'outside' || op === 'outside_range') {
+        // 예: 10 이하 또는 20 이상
+        const left = `${t1}${unit} ${lessOrEqual}`
+        const right = `${t2}${unit} ${greaterOrEqual}`
+        return `${left} 또는 ${right}`
+      }
+      // 알 수 없는 연산자는 값+단위만
       return `${t1}${unit}`
     },
     opLabelKey (op) {
