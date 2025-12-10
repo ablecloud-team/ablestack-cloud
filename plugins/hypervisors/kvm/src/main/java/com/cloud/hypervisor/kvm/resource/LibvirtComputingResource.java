@@ -3618,6 +3618,10 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return AARCH64.equals(guestCpuArch);
     }
 
+    private boolean isGuestS390x() {
+        return S390X.equals(guestCpuArch);
+    }
+
     private String getExecutableFormat() {
         String firmwareJson = "/usr/share/qemu/firmware/50-edk2-ovmf-x64-nosb.json";
         try (java.io.InputStream in = Files.newInputStream(Path.of(firmwareJson))) {
