@@ -180,6 +180,7 @@
           </div>
           <div v-else-if="item === 'allowedroletypes' && Array.isArray(dataResource[item])">
             {{ dataResource[item].join(', ') }}
+          </div>
           <div v-else-if="item === 'summary' || item === 'description'">
             <div :class="{ preline: $route.path.startsWith('/alertRules') }">
               {{ getSummaryOrDescriptionPlain(item) }}

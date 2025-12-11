@@ -524,6 +524,7 @@
         <span>{{ record.serviceofferingdetails?.mincpunumber && record.serviceofferingdetails?.maxcpunumber ?
           `${record.serviceofferingdetails.mincpunumber} - ${record.serviceofferingdetails.maxcpunumber}` :
           record.cpunumber }}</span>
+      </template>
       <template v-if="column.key === 'memory' && $route.path.split('/')[1] !== 'kubernetes'">
         <span>{{ record.serviceofferingdetails?.minmemory && record.serviceofferingdetails?.maxmemory ?
           `${record.serviceofferingdetails.minmemory} - ${record.serviceofferingdetails.maxmemory}` : record.memory
