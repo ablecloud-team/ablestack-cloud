@@ -108,7 +108,7 @@ Licensed to the Apache Software Foundation (ASF) ...
 
 <script>
 import { reactive } from 'vue'
-import { api } from '@/api'
+import { postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
@@ -410,7 +410,7 @@ export default {
       this.loading = true
       try {
         const payload = this.buildUpdatePayload()
-        const res = await api('updateWallAlertRuleThreshold', payload)
+        const res = await postAPI('updateWallAlertRuleThreshold', payload)
 
         /* eslint-disable no-console */
         console.log('[WallThresholdEditor] UPDATE res <-', res)

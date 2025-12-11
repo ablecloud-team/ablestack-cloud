@@ -225,7 +225,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, defineAsyncComponent, watch, nextTick } from 'vue'
 import { LinkOutlined, ExclamationCircleFilled, SoundOutlined, PauseCircleOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 
 export default {
   name: 'AutoAlertBanner',
@@ -529,7 +529,7 @@ export default {
     const fetchHosts = async (params) => {
       // 1차: listHostsMetrics
       try {
-        const resp1 = await api('listHostsMetrics', params)
+        const resp1 = await getAPI('listHostsMetrics', params)
         const rows1 = extractHosts(resp1)
         if (Array.isArray(rows1) && rows1.length > 0) {
           return rows1
@@ -540,7 +540,7 @@ export default {
 
       // 2차: 일반 listHosts 폴백
       try {
-        const resp2 = await api('listHosts', params)
+        const resp2 = await getAPI('listHosts', params)
         const rows2 = extractHosts(resp2)
         if (Array.isArray(rows2) && rows2.length > 0) {
           return rows2
@@ -614,7 +614,7 @@ export default {
       if (vmIndexCache.until > now) { return }
       try {
         const params = { listAll: true, listall: true, details: 'all', page: 1, pageSize: 200, pagesize: 200 }
-        const resp = await api('listVirtualMachines', params)
+        const resp = await getAPI('listVirtualMachines', params)
         const rows = extractVMs(resp)
 
         vmIndexCache.byIp = new Map()
@@ -671,7 +671,7 @@ export default {
       try {
         const key = String(keyword).trim()
         // 1차: name으로 정확 일치
-        let resp = await api('listManagementServers', { name: key, listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 })
+        let resp = await getAPI('listManagementServers', { name: key, listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 })
         let list = (resp?.listmanagementserversresponse?.managementserver) || (resp?.data?.items) || []
         if (!Array.isArray(list)) { list = list ? [list] : [] }
         for (let i = 0; i < list.length; i += 1) {
@@ -680,7 +680,7 @@ export default {
           if (nm === key) { return takeFirst(it.id, it.uuid) }
         }
         // 2차: keyword / 부분 일치 + IP 후보
-        resp = await api('listManagementServers', { keyword: key, listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 })
+        resp = await getAPI('listManagementServers', { keyword: key, listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 })
         list = (resp?.listmanagementserversresponse?.managementserver) || (resp?.data?.items) || []
         if (!Array.isArray(list)) { list = list ? [list] : [] }
         const ip = parseIp(key)
@@ -877,7 +877,7 @@ export default {
           pagesize: 1000,
           states: 'active'
         }
-        const respAll = await api('listWallAlertSilences', paramsAll)
+        const respAll = await getAPI('listWallAlertSilences', paramsAll)
         const listAll = extractSilences(respAll)
 
         const want = new Set(uniq)
@@ -1263,7 +1263,7 @@ export default {
       loading.value = true
       try {
         const params = { includeStatus: true, includestatus: true, listAll: true, listall: true, state: '', kind: '', name: '', page: 1, pageSize: 200, pagesize: 200 }
-        const resp = await api('listWallAlertRules', params)
+        const resp = await getAPI('listWallAlertRules', params)
         rules.value = extractRules(resp)
 
         await Promise.all([ensureHostIndex(), ensureVmIndex()])
@@ -1462,14 +1462,14 @@ export default {
         if (vmIndexCache.byName.has(key)) { return vmIndexCache.byName.get(key) }
         const ip = parseIp(key)
         if (ip && vmIndexCache.byIp.has(ip)) { return vmIndexCache.byIp.get(ip) }
-        let resp = await api('listVirtualMachines', { name: key, listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 })
+        let resp = await getAPI('listVirtualMachines', { name: key, listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 })
         let rows = extractVMs(resp)
         for (let i = 0; i < rows.length; i += 1) {
           const v = rows[i] || {}
           const nm = takeFirst(v.name, v.displayname, v.displayName)
           if (nm === key) { return takeFirst(v.id, v.uuid) }
         }
-        resp = await api('listVirtualMachines', { keyword: key, listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 })
+        resp = await getAPI('listVirtualMachines', { keyword: key, listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 })
         rows = extractVMs(resp)
         for (let i = 0; i < rows.length; i += 1) {
           const v = rows[i] || {}

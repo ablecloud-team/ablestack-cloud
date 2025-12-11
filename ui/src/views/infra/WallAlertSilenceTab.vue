@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 
 export default {
   name: 'WallAlertSilenceTab',
@@ -221,21 +221,21 @@ export default {
       if (!rec?.id) return null
 
       try {
-        const resp1 = await api('listWallAlertRules', { id: rec.id })
+        const resp1 = await getAPI('listWallAlertRules', { id: rec.id })
         const rule1 = this.pickFirstRule(resp1)
         const alerts1 = this.pickAlerts(rule1)
         for (const a of alerts1) { if (a?.labels && typeof a.labels === 'object') return a.labels }
         const uid1 = rule1?.uid || rule1?.ruleUid || (rule1?.metadata && rule1.metadata.rule_uid)
         if (uid1) return { __alert_rule_uid__: uid1 }
 
-        const resp2 = await api('listWallAlertRules', { id: rec.id, includestatus: true })
+        const resp2 = await getAPI('listWallAlertRules', { id: rec.id, includestatus: true })
         const rule2 = this.pickFirstRule(resp2)
         const alerts2 = this.pickAlerts(rule2)
         for (const a of alerts2) { if (a?.labels && typeof a.labels === 'object') return a.labels }
         const uid2 = rule2?.uid || rule2?.ruleUid || (rule2?.metadata && rule2.metadata.rule_uid)
         if (uid2) return { __alert_rule_uid__: uid2 }
 
-        const resp3 = await api('listWallAlertRules', { keyword: rec.id, includestatus: true })
+        const resp3 = await getAPI('listWallAlertRules', { keyword: rec.id, includestatus: true })
         const r3 = resp3?.listwallalertrulesresponse || resp3?.listWallAlertRulesResponse
         let list3 = []
         if (r3) {
@@ -274,7 +274,7 @@ export default {
         const params = { ...this.buildMapParams('labels', labelMap), state: this.state || undefined }
         console.log('[WallAlertSilenceTab] >>> CALL listWallAlertSilences', params)
 
-        const resp = await api('listWallAlertSilences', params)
+        const resp = await getAPI('listWallAlertSilences', params)
 
         const r0 = resp?.listwallalertsilencesresponse
         let rows =
@@ -343,7 +343,7 @@ export default {
     async expireOne (row) {
       this.expiring = true
       try {
-        await api('expireWallAlertSilence', { id: row.id })
+        await postAPI('expireWallAlertSilence', { id: row.id })
         const rec = this.getCurrentRecord()
         if (rec) {
           rec.silenceStartsAt = '-'
@@ -365,7 +365,7 @@ export default {
       try {
         for (let i = 0; i < this.selectedRowKeys.length; i += 1) {
           const id = this.selectedRowKeys[i]
-          await api('expireWallAlertSilence', { id })
+          await postAPI('expireWallAlertSilence', { id })
         }
         this.selectedRowKeys = []
 

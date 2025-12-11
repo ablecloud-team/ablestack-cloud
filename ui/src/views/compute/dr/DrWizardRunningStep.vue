@@ -61,7 +61,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 const STATUS_PROCESS = 'process'
 const STATUS_FINISH = 'finish'
 const STATUS_FAILED = 'error'
@@ -243,7 +243,7 @@ export default {
     async pollJob (jobId) {
       return new Promise(resolve => {
         const asyncJobInterval = setInterval(() => {
-          api('queryAsyncJobResult', { jobId }).then(async json => {
+          getAPI('queryAsyncJobResult', { jobId }).then(async json => {
             const result = json.queryasyncjobresultresponse
             if (result.jobstatus === 0) {
               return
@@ -257,7 +257,7 @@ export default {
     async drJob () {
       return new Promise(resolve => {
         const drJobInterval = setInterval(() => {
-          api('getDisasterRecoveryClusterList', { drclustertype: 'secondary' }).then(async json => {
+          getAPI('getDisasterRecoveryClusterList', { drclustertype: 'secondary' }).then(async json => {
             this.drClusterList = json.getdisasterrecoveryclusterlistresponse.disasterrecoverycluster || []
             for (const cluster of this.drClusterList) {
               const vmList = cluster.drclustervmmap
@@ -278,7 +278,7 @@ export default {
     },
     drInfo () {
       return new Promise((resolve, reject) => {
-        api('getDisasterRecoveryClusterList', {
+        getAPI('getDisasterRecoveryClusterList', {
           drclustertype: 'secondary'
         }).then(json => {
           this.drClusterList = json.getdisasterrecoveryclusterlistresponse.disasterrecoverycluster || []
@@ -303,7 +303,7 @@ export default {
         const params = {}
         params.id = this.resource.id
         params.forced = true
-        api('stopVirtualMachine', params).then(async json => {
+        postAPI('stopVirtualMachine', params).then(async json => {
           const jobId = json.stopvirtualmachineresponse.jobid
           if (jobId) {
             const result = await this.pollJob(jobId)
@@ -326,7 +326,7 @@ export default {
         const params = {}
         params.virtualmachineid = this.resource.id
         params.drclustername = this.clusters.name
-        api('stopDisasterRecoveryClusterVm', params).then(json => {
+        postAPI('stopDisasterRecoveryClusterVm', params).then(json => {
           resolve()
         }).catch(error => {
           message = error.response.headers['x-description']
@@ -339,7 +339,7 @@ export default {
         let message = ''
         const params = {}
         params.virtualmachineid = this.resource.id
-        api('takeSnapshotDisasterRecoveryClusterVm', params).then(json => {
+        postAPI('takeSnapshotDisasterRecoveryClusterVm', params).then(json => {
           resolve()
         }).catch(error => {
           message = error.response.headers['x-description']
@@ -353,7 +353,7 @@ export default {
         const params = {}
         params.virtualmachineid = this.resource.id
         params.drclustername = this.clusters.name
-        api('demoteDisasterRecoveryClusterVm', params).then(async json => {
+        postAPI('demoteDisasterRecoveryClusterVm', params).then(async json => {
           await this.drJob()
           resolve()
         }).catch(error => {
@@ -368,7 +368,7 @@ export default {
         const params = {}
         params.virtualmachineid = this.resource.id
         params.drclustername = this.clusters.name
-        api('startDisasterRecoveryClusterVm', params).then(json => {
+        postAPI('startDisasterRecoveryClusterVm', params).then(json => {
           resolve()
         }).catch(error => {
           message = error.response.headers['x-description']
@@ -390,7 +390,7 @@ export default {
         const params = {}
         params.virtualmachineid = this.resource.id
         params.drclustername = this.clusters.name
-        api('promoteDisasterRecoveryClusterVm', params).then(json => {
+        postAPI('promoteDisasterRecoveryClusterVm', params).then(json => {
           setTimeout(() => {
             // 3 min status check
             resolve()
@@ -407,7 +407,7 @@ export default {
         const params = {}
         params.id = this.resource.id
         params.considerlasthost = true
-        api('startVirtualMachine', params).then(async json => {
+        postAPI('startVirtualMachine', params).then(async json => {
           const jobId = json.startvirtualmachineresponse.jobid
           if (jobId) {
             const result = await this.pollJob(jobId)

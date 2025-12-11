@@ -53,7 +53,7 @@
 
 <script>
 import { reactive } from 'vue'
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 
 export default {
   name: 'HostVhbaDevicesTransfer',
@@ -96,7 +96,7 @@ export default {
       }
 
       try {
-        const response = await api('listVhbaDevices', {
+        const response = await getAPI('listVhbaDevices', {
           hostid: this.resource.id
         })
 
@@ -140,7 +140,7 @@ export default {
       return Promise.all([
         // 다양한 상태의 VM 목록 가져오기
         Promise.all(vmStates.map(state => {
-          return api('listVirtualMachines', { ...params, state })
+          return getAPI('listVirtualMachines', { ...params, state })
             .then(vmResponse => {
               const vms = vmResponse.listvirtualmachinesresponse?.virtualmachine || []
               return vms.map(vm => ({
@@ -153,7 +153,7 @@ export default {
             })
         })),
         // 현재 vHBA 디바이스 할당 상태 가져오기
-        api('listHostHbaDevices', { id: this.resource.id })
+        getAPI('listHostHbaDevices', { id: this.resource.id })
       ]).then(([vmArrays, hbaResponse]) => {
         const vms = vmArrays.flat()
 
@@ -239,7 +239,7 @@ export default {
         let response
         if (vmNumericId != null) {
           // 숫자 ID가 있으면 바로 사용
-          response = await api('updateHostVhbaDevices', {
+          response = await postAPI('updateHostVhbaDevices', {
             hostid: this.resource.id,
             hostdevicesname: this.resource.hostDevicesName,
             hostdevicestext: this.resource.hostDevicesText || '',
@@ -249,7 +249,7 @@ export default {
         } else {
           // 숫자 ID가 없으면 UUID로 시도 후 재시도
           try {
-            response = await api('updateHostVhbaDevices', {
+            response = await postAPI('updateHostVhbaDevices', {
               hostid: this.resource.id,
               hostdevicesname: this.resource.hostDevicesName,
               hostdevicestext: this.resource.hostDevicesText || '',
@@ -313,7 +313,7 @@ export default {
       const hostDevicesName = record.hostDevicesName || this.resource.hostDevicesName
       try {
         // 1. vHBA 디바이스의 현재 할당 상태 확인
-        const response = await api('listHostHbaDevices', { id: this.resource.id })
+        const response = await getAPI('listHostHbaDevices', { id: this.resource.id })
         const devices = response.listhosthbadevicesresponse?.listhosthbadevices?.[0]
         const vmAllocations = devices?.vmallocations || {}
         const vmId = vmAllocations[hostDevicesName]
@@ -323,7 +323,7 @@ export default {
         const xmlConfig = this.generateVhbaDeallocationXmlConfig()
 
         // 3. 해제 API 호출
-        const detachResponse = await api('updateHostVhbaDevices', {
+        const detachResponse = await postAPI('updateHostVhbaDevices', {
           hostid: this.resource.id,
           hostdevicesname: hostDevicesName,
           virtualmachineid: null,

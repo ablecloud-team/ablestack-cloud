@@ -68,7 +68,7 @@
 
 <script>
 import { reactive, ref, computed } from 'vue'
-import { api } from '@/api'
+import { postAPI } from '@/api'
 
 export default {
   name: 'RuleSilenceModal',
@@ -182,7 +182,7 @@ export default {
             durationMinutes: minutes,
             comment: `action:silence:${form.duration}`
           }
-          await api('createWallAlertSilence', params)
+          await postAPI('createWallAlertSilence', params)
         }
         emit('refresh-data')
         emit('close-action')

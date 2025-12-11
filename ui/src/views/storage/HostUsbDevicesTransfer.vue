@@ -53,7 +53,7 @@
 
 <script>
 import { reactive } from 'vue'
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 
 export default {
   name: 'HostUsbDevicesTransfer',
@@ -101,7 +101,7 @@ export default {
         const [vmArrays, usbResponse] = await Promise.all([
           // 실행 중인 VM 목록 가져오기
           Promise.all(vmStates.map(state => {
-            return api('listVirtualMachines', { ...params, state })
+            return getAPI('listVirtualMachines', { ...params, state })
               .then(vmResponse => {
                 const vms = vmResponse.listvirtualmachinesresponse?.virtualmachine || []
                 return vms.map(vm => {
@@ -116,7 +116,7 @@ export default {
               })
           })),
           // 현재 USB 디바이스 할당 상태 가져오기
-          api('listHostUsbDevices', { id: this.resource.id })
+          getAPI('listHostUsbDevices', { id: this.resource.id })
         ])
 
         const vms = vmArrays.flat()
@@ -131,7 +131,7 @@ export default {
             if (vmId && !processedDevices.has(deviceName)) {
               try {
                 // VM이 실제로 존재하는지 확인
-                const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+                const vmResponse = await getAPI('listVirtualMachines', { id: vmId, listall: true })
                 const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
 
                 if (vm && vm.state !== 'Expunging') {
@@ -146,7 +146,7 @@ export default {
                   // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
                   try {
                     const xmlConfig = this.generateXmlConfig(deviceName)
-                    await api('updateHostUsbDevices', {
+                    await postAPI('updateHostUsbDevices', {
                       hostid: this.resource.id,
                       hostdevicesname: deviceName,
                       virtualmachineid: null,
@@ -161,7 +161,7 @@ export default {
                 // VM 조회 실패 시에도 할당 해제 시도
                 try {
                   const xmlConfig = this.generateXmlConfig(deviceName)
-                  await api('updateHostUsbDevices', {
+                  await postAPI('updateHostUsbDevices', {
                     hostid: this.resource.id,
                     hostdevicesname: deviceName,
                     virtualmachineid: null,
@@ -183,7 +183,7 @@ export default {
           if (currentVmId) {
             try {
               // 현재 VM의 인스턴스 번호 가져오기
-              const currentVmResponse = await api('listVirtualMachines', { id: currentVmId, listall: true })
+              const currentVmResponse = await getAPI('listVirtualMachines', { id: currentVmId, listall: true })
               const currentVm = currentVmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
 
               if (currentVm && currentVm.instancename) {
@@ -244,7 +244,7 @@ export default {
       try {
         const xmlConfig = this.generateXmlConfig(this.resource.hostDevicesName)
 
-        const response = await api('updateHostUsbDevices', {
+        const response = await postAPI('updateHostUsbDevices', {
           hostid: this.resource.id,
           hostdevicesname: this.resource.hostDevicesName,
           hostdevicestext: this.resource.hostDevicesText || '',
@@ -279,7 +279,7 @@ export default {
       this.loading = true
       try {
         const hostDevicesName = this.resource.hostDevicesName
-        const response = await api('listHostUsbDevices', {
+        const response = await getAPI('listHostUsbDevices', {
           id: this.resource.id
         })
         const devices = response.listhostusbdevicesresponse?.listhostusbdevices?.[0]
@@ -292,7 +292,7 @@ export default {
 
         // VM 상태 확인
         try {
-          const vmResponse = await api('listVirtualMachines', {
+          const vmResponse = await getAPI('listVirtualMachines', {
             id: vmId,
             listall: true
           })
@@ -311,7 +311,7 @@ export default {
 
         const xmlConfig = this.generateXmlConfig(hostDevicesName)
 
-        const detachResponse = await api('updateHostUsbDevices', {
+        const detachResponse = await postAPI('updateHostUsbDevices', {
           hostid: this.resource.id,
           hostdevicesname: hostDevicesName,
           virtualmachineid: null,
