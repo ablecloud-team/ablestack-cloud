@@ -1108,7 +1108,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
-    public void syncBackups(VirtualMachine vm, Backup.Metric metric) {
+    public void syncBackups(VirtualMachine vm) {
         try {
             String commvaultServer = getUrlDomain(CommvaultUrl.value());
         } catch (URISyntaxException e) {

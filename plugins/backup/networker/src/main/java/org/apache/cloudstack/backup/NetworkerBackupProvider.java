@@ -641,6 +641,10 @@ public class NetworkerBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
+    public void syncBackups(VirtualMachine vm) {
+    }
+
+    @Override
     public boolean checkBackupAgent(final Long zoneId) { return true; }
 
     @Override
@@ -652,6 +656,4 @@ public class NetworkerBackupProvider extends AdapterBase implements BackupProvid
     @Override
     public boolean updateBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
 
-    @Override
-    public void syncBackups(VirtualMachine vm, Metric metric) {}
 }

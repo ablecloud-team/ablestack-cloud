@@ -2063,6 +2063,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     logger.debug(String.format("Trying to sync backups of VM [%s] using backup provider [%s].", vm, backupProvider.getName()));
                     // Sync out-of-band backups
                     syncBackups(backupProvider, vm);
+                    backupProvider.syncBackups(vm);
                 } catch (final Exception e) {
                     logger.error("Failed to sync backup usage metrics and out-of-band backups of VM [{}] due to: [{}].", vm, e.getMessage(), e);
                 }

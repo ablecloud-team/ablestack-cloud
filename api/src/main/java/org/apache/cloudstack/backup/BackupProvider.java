@@ -124,6 +124,10 @@ public interface BackupProvider {
      */
     boolean supportsInstanceFromBackup();
 
+    default boolean supportsMemoryVmSnapshot() {
+        return true;
+    }
+
     /**
      * Returns the backup storage usage (Used, Total) for a backup provider
      * @param zoneId the zone for which to return metrics
@@ -138,11 +142,9 @@ public interface BackupProvider {
     void syncBackupStorageStats(Long zoneId);
 
     /**
-     * This method should reconcile and create backup entries for any backups created out-of-band
-     * @param vm
-     * @param metric
+     * sync commvault backup
      */
-    void syncBackups(VirtualMachine vm, Backup.Metric metric);
+    void syncBackups(VirtualMachine vm);
 
     /**
      * check commvault backup agent
