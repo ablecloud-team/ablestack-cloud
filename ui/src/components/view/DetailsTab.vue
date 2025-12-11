@@ -694,7 +694,7 @@ export default {
 
         // 1) uid로 조회 (routeKey에 ':' 없으면 uid로 간주)
         if (!routeKey.includes(':')) {
-          const r1 = await api('listWallAlertRules', {
+          const r1 = await getAPI('listWallAlertRules', {
             listall: true, page: 1, pagesize: 1, uid: routeKey
           })
           found = takeFirst(r1)
@@ -702,7 +702,7 @@ export default {
 
         // 2) id로 조회 (콜론 포함 키 or 1단계 실패시)
         if (!found) {
-          const r2 = await api('listWallAlertRules', {
+          const r2 = await getAPI('listWallAlertRules', {
             listall: true, page: 1, pagesize: 1, id: routeKey
           })
           found = takeFirst(r2)
@@ -710,7 +710,7 @@ export default {
 
         // 3) 최종 폴백: 전체 받아서 프론트에서 uid/id/name 매칭
         if (!found) {
-          const r3 = await api('listWallAlertRules', {
+          const r3 = await getAPI('listWallAlertRules', {
             listall: true, page: 1, pagesize: 2000
           })
           const all =

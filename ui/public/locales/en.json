@@ -5364,7 +5364,6 @@
 "label.not.in.use": "Not in use",
 "label.in.use": "In use",
 "message.success.hba.device.allocated": "HBA device allocation completed",
-"message.warning.host.device": "You must set enable.additional.vm.configuration to true in global settings.",
 "label.alert.state": "evaluation status",
 "label.silenceperiod.select": "Select Silence Period",
 "label.silence.duration.minutes": "Mute for {0} minutes",
