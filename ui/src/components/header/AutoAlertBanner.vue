@@ -1089,8 +1089,23 @@ export default {
     }
 
     const entityLinksForAlert = (it) => {
-      const parentKind = pickKindFromRule(it.rule || {})
-      const arr = Array.isArray(it?.alerts) ? it.alerts : []
+      const parentKind = pickKindFromRule(it && it.rule ? it.rule : {})
+
+      // 1차: 배너에서 미리 계산한 ALERTING 인스턴스 사용
+      let arr = Array.isArray(it && it.alerts) ? it.alerts : []
+
+      // 2차: alerts 가 비어 있으면,
+      //      전체 인스턴스(it.instances)로 폴백
+      if ((!arr || arr.length === 0) && it && Array.isArray(it.instances)) {
+        arr = it.instances
+      }
+
+      // 3차: 그래도 비어 있으면,
+      //      룰 원본에서 다시 인스턴스를 뽑아서 사용
+      if ((!arr || arr.length === 0) && it && it.rule) {
+        arr = ruleInstances(it.rule)
+      }
+
       const seen = new Set()
       const out = []
 
@@ -1102,7 +1117,12 @@ export default {
           const key = hostDedupKey(cls.keyword)
           if (seen.has(key)) { continue }
           seen.add(key)
-          out.push({ key, kind: 'host', label: hostDisplayLabel(cls.keyword), keyword: cls.keyword })
+          out.push({
+            key,
+            kind: 'host',
+            label: hostDisplayLabel(cls.keyword),
+            keyword: cls.keyword
+          })
           continue
         }
 
@@ -1110,7 +1130,12 @@ export default {
           const key = 'vm@' + String(cls.keyword).toLowerCase()
           if (seen.has(key)) { continue }
           seen.add(key)
-          out.push({ key, kind: 'vm', label: String(cls.keyword), keyword: cls.keyword })
+          out.push({
+            key,
+            kind: 'vm',
+            label: String(cls.keyword),
+            keyword: cls.keyword
+          })
           continue
         }
 
@@ -1118,7 +1143,12 @@ export default {
           const key = 'storage@' + String(cls.label).toLowerCase()
           if (seen.has(key)) { continue }
           seen.add(key)
-          out.push({ key, kind: 'storage', label: cls.label, url: cls.url })
+          out.push({
+            key,
+            kind: 'storage',
+            label: cls.label,
+            url: cls.url
+          })
           continue
         }
 
@@ -1131,13 +1161,15 @@ export default {
             kind: 'cloud',
             label: cls.label,
             url: cls.url,
-            // 관리서버 상세 이동용 키워드 (이름/IP)
+            // 관리서버 상세 이동용 키워드
             keyword: cls.keyword || cls.label
           })
         }
       }
+
       return out
     }
+
     const vmEntityLinksRaw = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'vm')
     const filterKnownVmLinks = (it) => {
       const rawList = vmEntityLinksRaw(it)
@@ -1208,18 +1240,40 @@ export default {
       const out = []
       const seen = new Set()
       const rs = Array.isArray(rules.value) ? rules.value : []
+
       for (let i = 0; i < rs.length; i += 1) {
         const r = rs[i] || {}
+
+        // 1) 룰에서 전체 인스턴스 목록을 뽑습니다.
         const inst = ruleInstances(r)
-        const on = inst.filter((a) => ['ALERTING', 'FIRING'].includes(UC(instanceState(a))) && !isNoiseLike(instanceState(a)))
+
+        // 2) 그중 ALERTING/FIRING 인 것만 필터링합니다.
+        const on = inst.filter(a => {
+          const st = instanceState(a)
+          return ['ALERTING', 'FIRING'].includes(UC(st)) && !isNoiseLike(st)
+        })
+
+        // 3) 룰 전체 상태도 같이 검사합니다.
         const rState = ruleState(r)
         const ruleIsAlerting = ['ALERTING', 'FIRING'].includes(UC(rState)) && !isNoiseLike(rState)
+
         if (!on.length && !ruleIsAlerting) { continue }
+
         const uid = ruleUid(r) || r.id || r.ruleId
         if (!uid || seen.has(uid)) { continue }
         seen.add(uid)
-        out.push({ id: r.id || r.ruleId || uid, uid, title: ruleTitle(r), rule: r, alerts: on })
+
+        // ★ 여기서 'alerts'와 함께 'instances'도 같이 실어 보냅니다.
+        out.push({
+          id: r.id || r.ruleId || uid,
+          uid,
+          title: ruleTitle(r),
+          rule: r,
+          alerts: on, // ALERTING 인스턴스
+          instances: inst // 원본 전체 인스턴스
+        })
       }
+
       return out
     })
 
