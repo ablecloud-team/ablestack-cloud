@@ -3258,7 +3258,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             isTpmEnabled = false;
         }
         vm.addComp(createDevicesDef(vmTO, guest, vcpus, isUefiEnabled, isTpmEnabled, tpmversion));
-        
+
         MetadataDef metaDef;
         if ((metaDef = createMetadataDef(vmTO)) != null) {
             vm.addComp(metaDef);
