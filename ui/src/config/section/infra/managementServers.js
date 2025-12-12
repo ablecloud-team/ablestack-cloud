@@ -26,7 +26,7 @@ export default {
   permission: ['listManagementServersMetrics'],
   resourceType: 'ManagementServer',
   columns: () => {
-    const fields = ['name', 'state', 'ipaddress', 'version', 'osdistribution', 'pendingjobscount', 'agentscount']
+    const fields = ['name', 'state', 'serviceip', 'ipaddress', 'version', 'osdistribution', 'pendingjobscount', 'agentscount']
     const metricsFields = ['collectiontime', 'availableprocessors', 'cpuload', 'heapmemoryused']
     if (store.getters.metrics) {
       fields.push(...metricsFields)
