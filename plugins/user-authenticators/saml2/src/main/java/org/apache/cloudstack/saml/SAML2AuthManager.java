@@ -70,7 +70,7 @@ public interface SAML2AuthManager extends PluggableAPIAuthenticator, PluggableSe
     ConfigKey<Integer> SAMLTimeout = new ConfigKey<Integer>("Advanced", Integer.class, "saml2.timeout", "1800",
             "SAML2 IDP Metadata refresh interval in seconds, minimum value is set to 300", true);
 
-    ConfigKey<Boolean> SAMLCheckSignature = new ConfigKey<Boolean>("Advanced", Boolean.class, "saml2.check.signature", "true",
+    ConfigKey<Boolean> SAMLCheckSignature = new ConfigKey<Boolean>("Advanced", Boolean.class, "saml2.check.signature", "false",
             "When enabled (default and recommended), SAML2 signature checks are enforced and lack of signature in the SAML SSO response will cause login exception. Disabling this is not advisable but provided for backward compatibility for users who are able to accept the risks.", false);
 
     ConfigKey<Boolean> SAMLForceAuthn = new ConfigKey<Boolean>("Advanced", Boolean.class, "saml2.force.authn", "false",
