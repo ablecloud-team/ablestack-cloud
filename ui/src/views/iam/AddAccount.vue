@@ -397,7 +397,6 @@ export default {
       if (this.loading) return
       this.formRef.value.validate().then(() => {
         const values = toRaw(this.form)
-
         this.loading = true
         const params = {
           roleid: values.roleid,
@@ -406,7 +405,8 @@ export default {
           email: values.email,
           firstname: values.firstname,
           lastname: values.lastname,
-          domainid: values.domainid
+          domainid: values.domainid,
+          enable: values.samlenable
         }
         if (this.isValidValueForKey(values, 'account') && values.account.length > 0) {
           params.account = values.account

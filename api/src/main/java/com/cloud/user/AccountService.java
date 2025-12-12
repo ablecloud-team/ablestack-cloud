@@ -46,7 +46,7 @@ public interface AccountService {
     UserAccount createUserAccount(CreateAccountCmd accountCmd);
 
     UserAccount createUserAccount(String userName, String password, String firstName, String lastName, String email, String timezone, String accountName, Account.Type accountType,
-                                  Long roleId, Long domainId, String networkDomain, Map<String, String> details, String accountUUID, String userUUID, User.Source source);
+                                  Long roleId, Long domainId, String networkDomain, Map<String, String> details, String accountUUID, String userUUID, User.Source source, boolean enable);
 
     /**
      * Locks a user by userId. A locked user cannot access the API, but will still have running VMs/IP addresses
