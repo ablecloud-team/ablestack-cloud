@@ -76,6 +76,11 @@ public class GetUploadParamsForIsoCmd extends AbstractGetUploadParamsCmd {
             description = "the ID of the OS type that best represents the OS of this ISO. If the ISO is bootable this parameter needs to be passed")
     private Long osTypeId;
 
+    @Parameter(name = ApiConstants.IS_DYNAMICALLY_SCALABLE,
+            type = BaseCmd.CommandType.BOOLEAN,
+            description = "true if ISO contains XS/VMWare tools in order to support dynamic scaling of VM CPU/memory")
+    private Boolean isDynamicallyScalable;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -102,6 +107,10 @@ public class GetUploadParamsForIsoCmd extends AbstractGetUploadParamsCmd {
 
     public Long getOsTypeId() {
         return osTypeId;
+    }
+
+    public Boolean isDynamicallyScalable() {
+        return isDynamicallyScalable == null ? Boolean.FALSE : isDynamicallyScalable;
     }
 
 
