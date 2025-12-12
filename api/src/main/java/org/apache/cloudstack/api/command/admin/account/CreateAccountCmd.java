@@ -99,7 +99,7 @@ public class CreateAccountCmd extends BaseCmd {
     @Parameter(name = ApiConstants.USER_ID, type = CommandType.STRING, description = "User UUID, required for adding account from external provisioning system")
     private String userUUID;
 
-    @Parameter(name = ApiConstants.ENABLE, type = CommandType.BOOLEAN, required = true, description = "If true, authorizes user to be able to use SAML for Single Sign. If False, disable user to user SAML SSO.")
+    @Parameter(name = ApiConstants.ENABLE, type = CommandType.BOOLEAN, description = "If true, authorizes user to be able to use SAML for Single Sign. If False, disable user to user SAML SSO.")
     private Boolean enable;
 
     /////////////////////////////////////////////////////
