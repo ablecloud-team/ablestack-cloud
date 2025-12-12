@@ -20,11 +20,11 @@ package org.apache.cloudstack.api.response;
 import com.cloud.host.Host;
 import com.cloud.serializer.Param;
 import com.google.gson.annotations.SerializedName;
-import org.apache.cloudstack.api.BaseResponse;
-import org.apache.cloudstack.api.EntityReference;
-import org.apache.cloudstack.api.ApiConstants;
 import java.util.List;
 import java.util.Map;
+import org.apache.cloudstack.api.ApiConstants;
+import org.apache.cloudstack.api.BaseResponse;
+import org.apache.cloudstack.api.EntityReference;
 
 @EntityReference(value = Host.class)
 public class ListVhbaDevicesResponse extends BaseResponse {
@@ -68,6 +68,10 @@ public class ListVhbaDevicesResponse extends BaseResponse {
     @SerializedName("statuses")
     @Param(description = "List of vHBA device statuses")
     private List<String> statuses;
+
+    @SerializedName("devicedetails")
+    @Param(description = "Map of device to device details")
+    private Map<String, String> deviceDetails;
 
     public ListVhbaDevicesResponse(List<String> hostDevicesName, List<String> hostDevicesText, String parentHbaName, List<String> wwnns, List<String> wwpns, List<String> descriptions, List<String> statuses) {
         this.hostDevicesName = hostDevicesName;
@@ -160,5 +164,13 @@ public class ListVhbaDevicesResponse extends BaseResponse {
 
     public List<String> getParentHbaNames() {
         return this.parentHbaNames;
+    }
+
+    public Map<String, String> getDeviceDetails() {
+        return this.deviceDetails;
+    }
+
+    public void setDeviceDetails(Map<String, String> deviceDetails) {
+        this.deviceDetails = deviceDetails;
     }
 }

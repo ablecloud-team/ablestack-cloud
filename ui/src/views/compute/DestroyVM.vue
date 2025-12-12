@@ -82,7 +82,7 @@
           <a-alert type="error">
             <message-outlined type="exclamation-circle" style="color: red; fontSize: 30px; display: inline-flex" />
             <template #message>
-              <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+              <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>&nbsp`" />
               <span v-html="$t(action.currentAction.message)" />
             </template>
           </a-alert>

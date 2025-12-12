@@ -134,6 +134,8 @@ import com.cloud.storage.dao.GuestOSDao;
 import com.cloud.storage.dao.VMTemplateDao;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.template.VirtualMachineTemplate;
+import com.cloud.storage.StoragePoolStatus;
+import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.user.Account;
 import com.cloud.user.AccountManager;
 import com.cloud.user.AccountService;
@@ -169,6 +171,7 @@ import com.cloud.vm.dao.UserVmDao;
 import com.cloud.vm.dao.VMInstanceDao;
 import com.cloud.vm.dao.VMInstanceDetailsDao;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -308,6 +311,19 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
 
         final BackupProvider provider = getBackupProvider(providerName);
+        if ("commvault".equals(providerName)) {
+            List<StoragePoolVO> pools = primaryDataStoreDao.listByDataCenterId(cmd.getZoneId());
+            boolean validPool = false;
+            for (StoragePoolVO pool : pools) {
+                if (pool.getStatus() == StoragePoolStatus.Up && pool.getPoolType() == StoragePoolType.SharedMountPoint) {
+                    validPool = true;
+                    break;
+                }
+            }
+            if (!validPool) {
+                throw new CloudRuntimeException("The backup offering cannot be imported because storage of type SharedMountPoint with storage status Up does not exist.");
+            }
+        }
         if (!provider.isValidProviderOffering(cmd.getZoneId(), cmd.getExternalId())) {
             throw new CloudRuntimeException("Backup offering '" + cmd.getExternalId() + "' does not exist on provider " + provider.getName() + " on zone " + cmd.getZoneId());
         }
@@ -436,7 +452,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             settings.put(detail.getName(), detail.getValue());
         }
         if (!settings.isEmpty()) {
-            details.put(ApiConstants.VM_SETTINGS, new Gson().toJson(settings));
+            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+            details.put(ApiConstants.VM_SETTINGS, gson.toJson(settings));
         }
 
         String nicsJson = getNicDetailsAsJson(vm.getId());
@@ -455,12 +472,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     public String createVolumeInfoFromVolumes(List<Volume> vmVolumes) {
         List<Backup.VolumeInfo> list = new ArrayList<>();
-        vmVolumes.sort(Comparator.comparing(Volume::getDeviceId));
-        for (Volume vol : vmVolumes) {
-            DiskOfferingVO diskOffering = diskOfferingDao.findById(vol.getDiskOfferingId());
-            Backup.VolumeInfo volumeInfo = new Backup.VolumeInfo(vol.getUuid(), vol.getPath(), vol.getVolumeType(), vol.getSize(),
-                vol.getDeviceId(), diskOffering.getUuid(), vol.getMinIops(), vol.getMaxIops());
-            list.add(volumeInfo);
+        vmVolumes.sort(Comparator.comparing(VolumeVO::getDeviceId));
+        for (VolumeVO vol : vmVolumes) {
+            list.add(new Backup.VolumeInfo(vol.getUuid(), vol.getPath(), vol.getVolumeType(), vol.getSize()));
         }
         return new Gson().toJson(list.toArray(), Backup.VolumeInfo[].class);
     }

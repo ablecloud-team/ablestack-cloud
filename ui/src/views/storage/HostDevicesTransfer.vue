@@ -213,6 +213,7 @@ export default {
             return api('updateHostDevices', {
               hostid: this.resource.id,
               hostdevicesname: hostDevicesName,
+              hostdevicestext: this.resource.hostDevicesText || '',
               virtualmachineid: this.form.virtualmachineid
             })
           })

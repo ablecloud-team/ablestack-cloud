@@ -56,6 +56,7 @@ import org.apache.cloudstack.framework.config.Configurable;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -195,6 +196,12 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
             throw new CloudRuntimeException("No valid backup repository found for the VM, please check the attached backup offering");
         }
 
+        if (CollectionUtils.isNotEmpty(vmSnapshotDao.findByVmAndByType(vm.getId(), VMSnapshot.Type.DiskAndMemory))) {
+            logger.debug("NAS backup provider cannot take backups of a VM [{}] with disk-and-memory VM snapshots. Restoring the backup will corrupt any newer disk-and-memory " +
+                    "VM snapshots.", vm);
+            throw new CloudRuntimeException(String.format("Cannot take backup of VM [%s] as it has disk-and-memory VM snapshots.", vm.getUuid()));
+        }
+
         final Date creationDate = new Date();
         final String backupPath = String.format("%s/%s", vm.getInstanceName(),
                 new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(creationDate));
@@ -209,9 +216,8 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         if (VirtualMachine.State.Stopped.equals(vm.getState())) {
             List<VolumeVO> vmVolumes = volumeDao.findByInstance(vm.getId());
             vmVolumes.sort(Comparator.comparing(Volume::getDeviceId));
-            Pair<List<PrimaryDataStoreTO>, List<String>> volumePoolsAndPaths = getVolumePoolsAndPaths(vmVolumes);
-            command.setVolumePools(volumePoolsAndPaths.first());
-            command.setVolumePaths(volumePoolsAndPaths.second());
+            List<String> volumePaths = getVolumePaths(vmVolumes);
+            command.setVolumePaths(volumePaths);
         }
 
         BackupAnswer answer;
@@ -286,17 +292,10 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
 
     @Override
     public boolean restoreVMFromBackup(VirtualMachine vm, Backup backup) {
-        return restoreVMBackup(vm, backup).first();
-    }
-
-    private Pair<Boolean, String> restoreVMBackup(VirtualMachine vm, Backup backup) {
-        List<String> backedVolumesUUIDs = backup.getBackedUpVolumes().stream()
-                .sorted(Comparator.comparingLong(Backup.VolumeInfo::getDeviceId))
-                .map(Backup.VolumeInfo::getUuid)
-                .collect(Collectors.toList());
-
-        List<VolumeVO> restoreVolumes = volumeDao.findByInstance(vm.getId()).stream()
-                .sorted(Comparator.comparingLong(VolumeVO::getDeviceId))
+        List<Backup.VolumeInfo> backedVolumes = backup.getBackedUpVolumes();
+        List<VolumeVO> volumes = backedVolumes.stream()
+                .map(volume -> volumeDao.findByUuid(volume.getUuid()))
+                .sorted((v1, v2) -> Long.compare(v1.getDeviceId(), v2.getDeviceId()))
                 .collect(Collectors.toList());
 
         LOG.debug("Restoring vm {} from backup {} on the NAS Backup Provider", vm, backup);
@@ -336,10 +335,6 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
             if (Objects.isNull(storagePool)) {
                 throw new CloudRuntimeException("Unable to find storage pool associated to the volume");
             }
-
-            DataStore dataStore = dataStoreMgr.getDataStore(storagePool.getId(), DataStoreRole.Primary);
-            volumePools.add(dataStore != null ? (PrimaryDataStoreTO)dataStore.getTO() : null);
-
             String volumePathPrefix;
             if (ScopeType.HOST.equals(storagePool.getScope())) {
                 volumePathPrefix = storagePool.getPath();
@@ -412,6 +407,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         restoreCommand.setVmExists(null);
         restoreCommand.setVmState(vmNameAndState.second());
         restoreCommand.setRestoreVolumeUUID(backupVolumeInfo.getUuid());
+        restoreCommand.setMountTimeout(NASBackupRestoreMountTimeout.value());
 
         BackupAnswer answer;
         try {
@@ -521,6 +517,11 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
     @Override
     public boolean supportsInstanceFromBackup() {
         return true;
+    }
+
+    @Override
+    public boolean supportsMemoryVmSnapshot() {
+        return false;
     }
 
     @Override

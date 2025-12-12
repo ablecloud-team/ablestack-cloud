@@ -25,7 +25,7 @@
     >
       <a-alert type="warning">
         <template #message>
-          <span v-html="$t('message.warning.host.devices')" />
+          <span v-html="$t('message.warning.host.device')" />
         </template>
       </a-alert>
       <br>
@@ -247,6 +247,7 @@ export default {
         const response = await api('updateHostUsbDevices', {
           hostid: this.resource.id,
           hostdevicesname: this.resource.hostDevicesName,
+          hostdevicestext: this.resource.hostDevicesText || '',
           virtualmachineid: this.form.virtualmachineid,
           xmlconfig: xmlConfig
         })

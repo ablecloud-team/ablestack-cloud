@@ -120,14 +120,17 @@ public class MigrateKVMAsync implements Callable<Domain> {
         }
 
         if (migrateStorage) {
-            if (migrateNonSharedInc) {
-                flags |= VIR_MIGRATE_PERSIST_DEST;
-                flags |= VIR_MIGRATE_NON_SHARED_INC;
-                logger.debug("Setting VIR_MIGRATE_NON_SHARED_INC for linked clone migration.");
-            } else {
-                flags |= VIR_MIGRATE_NON_SHARED_DISK;
-                logger.debug("Setting VIR_MIGRATE_NON_SHARED_DISK for full clone migration.");
-            }
+            // full clone 강제하도록 수정 20251104
+            flags |= VIR_MIGRATE_NON_SHARED_DISK;
+            logger.debug("Setting VIR_MIGRATE_NON_SHARED_DISK for full clone migration.");
+            // if (migrateNonSharedInc) {
+            //     flags |= VIR_MIGRATE_PERSIST_DEST;
+            //     flags |= VIR_MIGRATE_NON_SHARED_INC;
+            //     logger.debug("Setting VIR_MIGRATE_NON_SHARED_INC for linked clone migration.");
+            // } else {
+            //     flags |= VIR_MIGRATE_NON_SHARED_DISK;
+            //     logger.debug("Setting VIR_MIGRATE_NON_SHARED_DISK for full clone migration.");
+            // }
         }
 
         if (autoConvergence && dconn.getLibVirVersion() >= LIBVIRT_VERSION_SUPPORTS_AUTO_CONVERGE) {

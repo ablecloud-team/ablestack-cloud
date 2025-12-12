@@ -55,4 +55,7 @@ public interface AlertManager extends Manager, AlertService {
 
     void sendAlert(AlertType alertType, long dataCenterId, Long podId, String subject, String body);
 
+    void sendPersistentAlert(AlertType alertType, long dataCenterId, Long podId, String subject, String body);
+    void sendPersistentAlert(AlertType alertType, long dataCenterId, Long podId, Long clusterId, String subject, String body);
+
 }

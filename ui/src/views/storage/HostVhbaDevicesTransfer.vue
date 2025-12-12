@@ -25,7 +25,7 @@
     >
       <a-alert type="warning">
         <template #message>
-          <span v-html="$t('message.warning.host.devices')" />
+          <span v-html="$t('message.warning.host.device')" />
         </template>
       </a-alert>
       <br>
@@ -242,6 +242,7 @@ export default {
           response = await api('updateHostVhbaDevices', {
             hostid: this.resource.id,
             hostdevicesname: this.resource.hostDevicesName,
+            hostdevicestext: this.resource.hostDevicesText || '',
             virtualmachineid: vmNumericId,
             xmlconfig: xmlConfig
           })
@@ -251,6 +252,7 @@ export default {
             response = await api('updateHostVhbaDevices', {
               hostid: this.resource.id,
               hostdevicesname: this.resource.hostDevicesName,
+              hostdevicestext: this.resource.hostDevicesText || '',
               virtualmachineid: vmUuid,
               xmlconfig: xmlConfig
             })

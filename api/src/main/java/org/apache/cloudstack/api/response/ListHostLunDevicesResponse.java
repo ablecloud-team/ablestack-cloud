@@ -46,6 +46,10 @@ public class ListHostLunDevicesResponse extends BaseResponse {
     @Param(description = "Map of devices indicating whether they have partitions")
     private Map<String, Boolean> partitionInfo = new HashMap<>();
 
+    @SerializedName("devicedetails")
+    @Param(description = "Map of device to device details")
+    private Map<String, String> deviceDetails;
+
     public ListHostLunDevicesResponse(List<String> hostDevicesName, List<String> hostDevicesText) {
         this.hostDevicesName = hostDevicesName;
         this.hostDevicesText = hostDevicesText;
@@ -93,5 +97,13 @@ public class ListHostLunDevicesResponse extends BaseResponse {
             this.partitionInfo = new HashMap<>();
         }
         this.partitionInfo.put(deviceName, hasPartition);
+    }
+
+    public Map<String, String> getDeviceDetails() {
+        return this.deviceDetails;
+    }
+
+    public void setDeviceDetails(Map<String, String> deviceDetails) {
+        this.deviceDetails = deviceDetails;
     }
 }

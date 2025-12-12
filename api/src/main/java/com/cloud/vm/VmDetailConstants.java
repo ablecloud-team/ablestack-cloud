@@ -96,6 +96,9 @@ public interface VmDetailConstants {
     String OFFERING = "offering";
     String TEMPLATE = "template";
 
+    // boot order details
+    String BOOT_ORDER = "bootOrder";
+
     // VMware to KVM VM migrations specific
     String VMWARE_TO_KVM_PREFIX = "vmware-to-kvm";
     String VMWARE_VCENTER_HOST = String.format("%s-vcenter", VMWARE_TO_KVM_PREFIX);

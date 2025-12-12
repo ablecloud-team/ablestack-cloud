@@ -130,7 +130,9 @@ public class StorageNetworkGuru extends PodBasedNetworkGuru implements NetworkGu
 
         vlan = ip.getVlan();
         nic.setIPv4Address(ip.getIpAddress());
-        nic.setMacAddress(NetUtils.long2Mac(NetUtils.createSequenceBasedMacAddress(ip.getMac(), NetworkModel.MACIdentifier.value())));
+        if (nic.getMacAddress() == null || nic.getMacAddress().isEmpty()) {
+            nic.setMacAddress(NetUtils.long2Mac(NetUtils.createSequenceBasedMacAddress(ip.getMac(), NetworkModel.MACIdentifier.value())));
+        }
         nic.setFormat(AddressFormat.Ip4);
         nic.setIPv4Netmask(ip.getNetmask());
         nic.setBroadcastType(BroadcastDomainType.Storage);

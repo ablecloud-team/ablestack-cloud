@@ -801,6 +801,7 @@ public class ApiConstants {
     public static final String ENABLED = "enabled";
     public static final String SERVICE_NAME = "servicename";
     public static final String DHCP_RANGE = "dhcprange";
+    public static final String UID = "uid";
     public static final String UUID = "uuid";
     public static final String SECURITY_GROUP_EANBLED = "securitygroupenabled";
     public static final String LOCAL_STORAGE_ENABLED = "localstorageenabled";
@@ -1415,6 +1416,8 @@ public class ApiConstants {
     public static final String OBJECT_STORAGE_AVAILABLE = "objectstorageavailable";
     public static final String OBJECT_STORAGE_LIMIT = "objectstoragelimit";
     public static final String OBJECT_STORAGE_TOTAL = "objectstoragetotal";
+    public static final String HOSTDEVICES_TYPE = "hostdevicestype";
+    public static final String DEVICE_TYPE = "devicetype";
 
     public static final String PARAMETER_DESCRIPTION_ACTIVATION_RULE = "Quota tariff's activation rule. It can receive a JS script that results in either " +
             "a boolean or a numeric value: if it results in a boolean value, the tariff value will be applied according to the result; if it results in a numeric value, the " +
@@ -1491,6 +1494,8 @@ public class ApiConstants {
     public static final String WWNN = "wwnn";
     public static final String WWPN = "wwpn";
     public static final String VHBA_NAME = "vhbaname";
+
+    public static final String OPERATOR = "operator";
 
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.
