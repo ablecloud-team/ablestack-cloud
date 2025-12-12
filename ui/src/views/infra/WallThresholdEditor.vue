@@ -108,7 +108,7 @@ Licensed to the Apache Software Foundation (ASF) ...
 
 <script>
 import { reactive } from 'vue'
-import { api } from '@/api'
+import { postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
@@ -300,12 +300,18 @@ export default {
       if (!this.isRange) {
         this.form.threshold2 = undefined
         this.$nextTick(() => {
-          this.$refs.formRef?.clearValidate?.(['threshold', 'thresholdRange'])
+          if (this.$refs.formRef?.clearValidate) {
+            this.$refs.formRef.clearValidate(['threshold', 'thresholdRange'])
+          }
         })
       } else {
         this.$nextTick(() => {
-          this.$refs.formRef?.clearValidate?.(['thresholdRange'])
-          this.$refs.formRef?.validateFields?.(['thresholdRange']).catch(() => {})
+          if (this.$refs.formRef?.clearValidate) {
+            this.$refs.formRef.clearValidate(['thresholdRange'])
+          }
+          if (this.$refs.formRef?.validateFields) {
+            this.$refs.formRef.validateFields(['thresholdRange']).catch(() => {})
+          }
         })
       }
     },
@@ -404,7 +410,7 @@ export default {
       this.loading = true
       try {
         const payload = this.buildUpdatePayload()
-        const res = await api('updateWallAlertRuleThreshold', payload)
+        const res = await postAPI('updateWallAlertRuleThreshold', payload)
 
         /* eslint-disable no-console */
         console.log('[WallThresholdEditor] UPDATE res <-', res)

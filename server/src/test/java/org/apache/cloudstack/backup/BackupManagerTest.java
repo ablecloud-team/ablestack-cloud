@@ -1355,8 +1355,9 @@ public class BackupManagerTest {
     @Test
     public void testGetBackupStorageUsedStats() {
         Long zoneId = 1L;
+        String providerName = "testbackupprovider";
         overrideBackupFrameworkConfigValue();
-        when(backupManager.getBackupProvider(zoneId)).thenReturn(backupProvider);
+        when(backupManager.getBackupProvider(providerName)).thenReturn(backupProvider);
         when(backupProvider.getBackupStorageStats(zoneId)).thenReturn(new Pair<>(100L, 200L));
 
         CapacityVO capacity = backupManager.getBackupStorageUsedStats(zoneId);

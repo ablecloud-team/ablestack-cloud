@@ -394,6 +394,10 @@ public class VeeamBackupProvider extends AdapterBase implements BackupProvider, 
     }
 
     @Override
+    public void syncBackups(VirtualMachine vm) {
+    }
+
+    @Override
     public boolean checkBackupAgent(final Long zoneId) { return true; }
 
     @Override
@@ -405,6 +409,4 @@ public class VeeamBackupProvider extends AdapterBase implements BackupProvider, 
     @Override
     public boolean updateBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
 
-    @Override
-    public void syncBackups(VirtualMachine vm, Backup.Metric metric) {}
 }

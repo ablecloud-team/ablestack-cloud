@@ -216,8 +216,9 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         if (VirtualMachine.State.Stopped.equals(vm.getState())) {
             List<VolumeVO> vmVolumes = volumeDao.findByInstance(vm.getId());
             vmVolumes.sort(Comparator.comparing(Volume::getDeviceId));
-            List<String> volumePaths = getVolumePaths(vmVolumes);
-            command.setVolumePaths(volumePaths);
+            Pair<List<PrimaryDataStoreTO>, List<String>> volumePoolsAndPaths = getVolumePoolsAndPaths(vmVolumes);
+            command.setVolumePools(volumePoolsAndPaths.first());
+            command.setVolumePaths(volumePoolsAndPaths.second());
         }
 
         BackupAnswer answer;
@@ -292,10 +293,17 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
 
     @Override
     public boolean restoreVMFromBackup(VirtualMachine vm, Backup backup) {
-        List<Backup.VolumeInfo> backedVolumes = backup.getBackedUpVolumes();
-        List<VolumeVO> volumes = backedVolumes.stream()
-                .map(volume -> volumeDao.findByUuid(volume.getUuid()))
-                .sorted((v1, v2) -> Long.compare(v1.getDeviceId(), v2.getDeviceId()))
+        return restoreVMBackup(vm, backup).first();
+    }
+
+    private Pair<Boolean, String> restoreVMBackup(VirtualMachine vm, Backup backup) {
+        List<String> backedVolumesUUIDs = backup.getBackedUpVolumes().stream()
+                .sorted(Comparator.comparingLong(Backup.VolumeInfo::getDeviceId))
+                .map(Backup.VolumeInfo::getUuid)
+                .collect(Collectors.toList());
+
+        List<VolumeVO> restoreVolumes = volumeDao.findByInstance(vm.getId()).stream()
+                .sorted(Comparator.comparingLong(VolumeVO::getDeviceId))
                 .collect(Collectors.toList());
 
         LOG.debug("Restoring vm {} from backup {} on the NAS Backup Provider", vm, backup);
@@ -335,14 +343,11 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
             if (Objects.isNull(storagePool)) {
                 throw new CloudRuntimeException("Unable to find storage pool associated to the volume");
             }
-            String volumePathPrefix;
-            if (ScopeType.HOST.equals(storagePool.getScope())) {
-                volumePathPrefix = storagePool.getPath();
-            } else if (Storage.StoragePoolType.SharedMountPoint.equals(storagePool.getPoolType())) {
-                volumePathPrefix = storagePool.getPath();
-            } else {
-                volumePathPrefix = String.format("/mnt/%s", storagePool.getUuid());
-            }
+
+            DataStore dataStore = dataStoreMgr.getDataStore(storagePool.getId(), DataStoreRole.Primary);
+            volumePools.add(dataStore != null ? (PrimaryDataStoreTO)dataStore.getTO() : null);
+
+            String volumePathPrefix = getVolumePathPrefix(storagePool);
             volumePaths.add(String.format("%s/%s", volumePathPrefix, volume.getPath()));
         }
         return new Pair<>(volumePools, volumePaths);
@@ -605,6 +610,10 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
     }
 
     @Override
+    public void syncBackups(VirtualMachine vm) {
+    }
+
+    @Override
     public boolean checkBackupAgent(final Long zoneId) { return true; }
 
     @Override
@@ -616,7 +625,4 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
     @Override
     public boolean updateBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
 
-    @Override
-    public void syncBackups(VirtualMachine vm, Backup.Metric metric) {
-    }
 }

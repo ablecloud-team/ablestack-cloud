@@ -126,6 +126,8 @@ import com.cloud.storage.DiskOfferingVO;
 import com.cloud.storage.GuestOSVO;
 import com.cloud.storage.ScopeType;
 import com.cloud.storage.Storage;
+import com.cloud.storage.StoragePoolStatus;
+import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeApiService;
 import com.cloud.storage.VolumeVO;
@@ -134,8 +136,6 @@ import com.cloud.storage.dao.GuestOSDao;
 import com.cloud.storage.dao.VMTemplateDao;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.template.VirtualMachineTemplate;
-import com.cloud.storage.StoragePoolStatus;
-import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.user.Account;
 import com.cloud.user.AccountManager;
 import com.cloud.user.AccountService;
@@ -472,18 +472,12 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     public String createVolumeInfoFromVolumes(List<Volume> vmVolumes) {
         List<Backup.VolumeInfo> list = new ArrayList<>();
-        vmVolumes.sort(Comparator.comparing(VolumeVO::getDeviceId));
-        for (VolumeVO vol : vmVolumes) {
-            list.add(new Backup.VolumeInfo(vol.getUuid(), vol.getPath(), vol.getVolumeType(), vol.getSize()));
-        }
-        return new Gson().toJson(list.toArray(), Backup.VolumeInfo[].class);
-    }
-
-    public static String createVolumeInfoFromVolumes(List<VolumeVO> vmVolumes, Map<Object, String> checkResult) {
-        List<Backup.VolumeInfo> list = new ArrayList<>();
-        vmVolumes.sort(Comparator.comparing(VolumeVO::getDeviceId));
-        for (VolumeVO vol : vmVolumes) {
-            list.add(new Backup.VolumeInfo(vol.getUuid(), vol.getPath(), vol.getVolumeType(), vol.getSize()));
+        vmVolumes.sort(Comparator.comparing(Volume::getDeviceId));
+        for (Volume vol : vmVolumes) {
+            DiskOfferingVO diskOffering = diskOfferingDao.findById(vol.getDiskOfferingId());
+            Backup.VolumeInfo volumeInfo = new Backup.VolumeInfo(vol.getUuid(), vol.getPath(), vol.getVolumeType(), vol.getSize(),
+                vol.getDeviceId(), diskOffering.getUuid(), vol.getMinIops(), vol.getMaxIops());
+            list.add(volumeInfo);
         }
         return new Gson().toJson(list.toArray(), Backup.VolumeInfo[].class);
     }
@@ -1594,7 +1588,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (offering == null) {
             throw new CloudRuntimeException(String.format("Backup offering with ID [%s] does not exist.", backup.getBackupOfferingId()));
         }
-        final BackupProvider backupProvider = getBackupProvider(backup.getZoneId());
+        final BackupProvider backupProvider = getBackupProvider(offering.getProvider());
         boolean result = backupProvider.deleteBackup(backup, forced);
         if (result) {
             resourceLimitMgr.decrementResourceCount(backup.getAccountId(), Resource.ResourceType.backup);
@@ -1739,12 +1733,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             throw new CloudRuntimeException("No valid backup providers found for zone: " + zoneId);
         }
         return providers;
-    }
-
-    @Override
-    public BackupProvider getBackupProvider(final Long zoneId) {
-        final String name = BackupProviderPlugin.valueIn(zoneId);
-        return getBackupProvider(name);
     }
 
     public BackupProvider getBackupProvider(final String name) {
@@ -2038,17 +2026,16 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                         continue;
                     }
 
-                    final BackupProvider backupProvider = getBackupProvider(dataCenter.getId());
-                    if (backupProvider == null) {
-                        logger.warn("Backup provider not available or configured for zone {}", dataCenter);
-                        continue;
+                    List<BackupProvider> providers = getBackupProvidersForZone(dataCenter.getId());
+                    for (BackupProvider backupProvider : providers) {
+                        try {
+                            backupProvider.syncBackupStorageStats(dataCenter.getId());
+                            syncOutOfBandBackups(backupProvider, dataCenter);
+                            updateBackupUsageRecords(backupProvider, dataCenter);
+                        } catch (Exception e) {
+                            logger.error("Failed to sync backups for provider {} in zone {}: {}", backupProvider.getName(), dataCenter.getId(), e.getMessage(), e);
+                        }
                     }
-
-                    backupProvider.syncBackupStorageStats(dataCenter.getId());
-
-                    syncOutOfBandBackups(backupProvider, dataCenter);
-
-                    updateBackupUsageRecords(backupProvider, dataCenter);
                 }
             } catch (final Throwable t) {
                 logger.error(String.format("Error trying to run backup-sync background task due to: [%s].", t.getMessage()), t);
@@ -2075,9 +2062,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             backupProvider.syncBackupMetrics(dataCenter.getId());
             for (final VMInstanceVO vm : vms) {
                 try {
-                     logger.debug(String.format("Trying to sync backups of VM [%s] using backup provider [%s].", vm, backupProvider.getName()));
-                     // Sync out-of-band backups
-                     syncBackups(backupProvider, vm);
+                    logger.debug(String.format("Trying to sync backups of VM [%s] using backup provider [%s].", vm, backupProvider.getName()));
+                    // Sync out-of-band backups
+                    syncBackups(backupProvider, vm);
+                    backupProvider.syncBackups(vm);
                 } catch (final Exception e) {
                     logger.error("Failed to sync backup usage metrics and out-of-band backups of VM [{}] due to: [{}].", vm, e.getMessage(), e);
                 }
@@ -2387,9 +2375,19 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (isDisabled(zoneId)) {
             return new CapacityVO(null, zoneId, null, null, 0L, 0L, Capacity.CAPACITY_TYPE_BACKUP_STORAGE);
         }
-        final BackupProvider backupProvider = getBackupProvider(zoneId);
-        Pair<Long, Long> backupUsage = backupProvider.getBackupStorageStats(zoneId);
-        return new CapacityVO(null, zoneId, null, null, backupUsage.first(), backupUsage.second(), Capacity.CAPACITY_TYPE_BACKUP_STORAGE);
+        long totalUsed = 0L;
+        long totalCapacity = 0L;
+        final List<BackupProvider> providers = getBackupProvidersForZone(zoneId);
+        for (BackupProvider backupProvider : providers) {
+            Pair<Long, Long> backupUsage = backupProvider.getBackupStorageStats(zoneId);
+            if (backupUsage != null) {
+                Long used = backupUsage.first();
+                Long capacity = backupUsage.second();
+                if (used != null) totalUsed += used;
+                if (capacity != null) totalCapacity += capacity;
+            }
+        }
+        return new CapacityVO(null, zoneId, null, null, totalUsed, totalCapacity, Capacity.CAPACITY_TYPE_BACKUP_STORAGE);
     }
 
     @Override
