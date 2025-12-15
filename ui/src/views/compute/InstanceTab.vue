@@ -276,7 +276,7 @@
 
 <script>
 
-import { getAPI, postAPI } from '@/api'
+import { getAPI, postAPI, api } from '@/api'
 import { h } from 'vue'
 import { mixinDevice } from '@/utils/mixin.js'
 import ResourceLayout from '@/layouts/ResourceLayout'

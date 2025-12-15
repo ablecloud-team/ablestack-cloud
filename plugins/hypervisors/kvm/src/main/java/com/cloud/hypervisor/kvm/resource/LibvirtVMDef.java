@@ -16,8 +16,6 @@
 // under the License.
 package com.cloud.hypervisor.kvm.resource;
 
-import com.cloud.agent.properties.AgentProperties;
-import com.cloud.agent.properties.AgentPropertiesFileHandler;
 import java.io.File;
 import java.io.StringWriter;
 import java.time.Instant;

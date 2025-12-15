@@ -180,6 +180,7 @@
           </div>
           <div v-else-if="item === 'allowedroletypes' && Array.isArray(dataResource[item])">
             {{ dataResource[item].join(', ') }}
+          </div>
           <div v-else-if="item === 'summary' || item === 'description'">
             <div :class="{ preline: $route.path.startsWith('/alertRules') }">
               {{ getSummaryOrDescriptionPlain(item) }}
@@ -287,7 +288,7 @@ import VmwareData from './VmwareData'
 import ObjectListTable from '@/components/view/ObjectListTable'
 import ExternalConfigurationDetails from '@/views/extension/ExternalConfigurationDetails'
 import { genericCompare } from '@/utils/sort'
-import { getAPI } from '@/api'
+import { getAPI, api } from '@/api'
 
 export default {
   name: 'DetailsTab',
