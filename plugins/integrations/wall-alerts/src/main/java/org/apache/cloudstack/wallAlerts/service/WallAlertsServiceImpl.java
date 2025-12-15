@@ -1,6 +1,7 @@
 package org.apache.cloudstack.wallAlerts.service;
 
 import com.cloud.alert.AlertManager;
+import com.cloud.utils.StringUtils;
 import com.cloud.utils.component.ManagerBase;
 import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.ServerApiException;
@@ -84,6 +85,10 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
 
     @Override
     public ListResponse<WallAlertRuleResponse> listWallAlertRules(final ListWallAlertRulesCmd cmd) {
+
+        // 설정 검증 (토큰 유무)
+        ensureWallConfiguredForRules();
+
         // ★ UID 전용 필터
         final String uidFilter = cmd.getUid();
 
@@ -794,6 +799,29 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         return org.apache.cloudstack.wallAlerts.mapper.WallMappers.toResponse(created);
     }
 
+    private void ensureWallConfiguredForRules() {
+        final String baseUrl = WallConfigKeys.WALL_BASE_URL.value();
+        final String token = WallConfigKeys.WALL_API_TOKEN.value();
+
+        if (StringUtils.isBlank(baseUrl)) {
+            throw new ServerApiException(
+                    ApiErrorCode.INTERNAL_ERROR,
+                    "Wall base URL (wall.base.url) is not configured."
+            );
+        }
+
+        // ★ 여기: enable=true 인데 토큰이 없으면 바로 오류
+        if (WallConfigKeys.WALL_ALERT_ENABLED.value()) {
+            if (StringUtils.isBlank(token)) {
+                throw new ServerApiException(
+                        ApiErrorCode.UNSUPPORTED_ACTION_ERROR,
+                        "Wall API token (wall.api.token) is not configured. " +
+                                "Please set a valid service account token to use Wall Alerts."
+                );
+            }
+        }
+    }
+
     private void maybeSendWallAlert(final String uid,
                                     final String ruleName,
                                     final String operator,
@@ -911,12 +939,32 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
      * 규칙 종류(kind) + 인스턴스 라벨에서 "타깃 요약 문자열"을 생성합니다.
      * 예시:
      *   Targets — VM: i-2-3-VM, i-2-4-VM | Host: ablecube32-1
+     *
+     * - 우선 ALERTING/FIRING 상태인 인스턴스만 사용하고
+     * - 아무 것도 없을 때만 전체 인스턴스를 폴백으로 사용합니다.
+     * - 호스트 규칙인데 호스트/VM 이름을 못 찾으면 메타 라벨은 버리고 Targets를 생략합니다.
      */
     private String buildTargetInfo(final String ruleKind,
                                    final List<AlertInstanceResponse> instances) {
         if (instances == null || instances.isEmpty()) {
             return "";
         }
+
+        // 1) ALERTING/FIRING 상태 인스턴스만 우선 사용합니다.
+        final java.util.List<AlertInstanceResponse> firingInstances = new java.util.ArrayList<>();
+        for (final AlertInstanceResponse inst : instances) {
+            if (inst == null) {
+                continue;
+            }
+            final String norm = normalizeState(inst.state);
+            if ("ALERTING".equals(norm)) {
+                firingInstances.add(inst);
+            }
+        }
+
+        // firing 인스턴스가 하나라도 있으면 그것만 사용, 없으면 전체 인스턴스로 폴백합니다.
+        final java.util.List<AlertInstanceResponse> src =
+                firingInstances.isEmpty() ? instances : firingInstances;
 
         final java.util.Set<String> vmNames = new java.util.LinkedHashSet<>();
         final java.util.Set<String> hostNames = new java.util.LinkedHashSet<>();
@@ -925,12 +973,11 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
 
         final String normalizedRuleKind = normalizeKind(ruleKind);
 
-        for (final AlertInstanceResponse inst : instances) {
+        for (final AlertInstanceResponse inst : src) {
             if (inst == null) {
                 continue;
             }
 
-            // AlertInstanceResponse 는 public 필드(labels)를 그대로 씁니다.
             final Map<String, String> labels = inst.labels;
             if (labels == null || labels.isEmpty()) {
                 continue;
@@ -942,7 +989,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                     firstNonBlank(labelKind, normalizedRuleKind)
             );
 
-            final String vm   = extractVmNameFromLabels(labels);
+            final String vm = extractVmNameFromLabels(labels);
             final String host = extractHostNameFromLabels(labels);
 
             // 규칙 종류에 따라 우선 분류
@@ -971,7 +1018,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                 continue;
             }
 
-            // kind를 확실히 알 수 없으면 VM/Host 후보에 최대한 채워 둡니다.
+            // kind 를 확실히 알 수 없으면 VM/Host 후보에 최대한 채워 둡니다.
             if (!isBlank(vm)) {
                 vmNames.add(vm);
             }
@@ -995,64 +1042,37 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
             parts.add("Management: " + String.join(", ", cloudNames));
         }
 
-        // ---------- 폴백 정책 변경 포인트 ----------
-        // 1) VM/Host/Storage/Management 어느 것도 못 뽑았으면
-        //    의미 없는 Grafana 메타 라벨(__grafana_*, grafana_folder, alertname, kind 등)
-        //    은 전부 버리고, "실질적인" 라벨만 남겼을 때도 아무것도 없으면
-        //    Targets 줄 자체를 생성하지 않습니다.
+        // 위의 분류로 아무 것도 못 뽑았으면 폴백 처리합니다.
         if (parts.isEmpty()) {
-            final java.util.List<String> rawLabels = new java.util.ArrayList<>();
-            final AlertInstanceResponse first = instances.get(0);
-            if (first != null && first.labels != null) {
-                for (Map.Entry<String, String> e : first.labels.entrySet()) {
-                    final String k = e.getKey();
-                    final String v = e.getValue();
-                    if (k == null || v == null) {
-                        continue;
-                    }
-
-                    final String keyLc = k.toLowerCase(java.util.Locale.ROOT);
-
-                    // Grafana/Alertmanager 메타 라벨들은 모두 스킵합니다.
-                    if (keyLc.startsWith("__grafana_")) {
-                        continue;
-                    }
-                    if ("grafana_folder".equals(keyLc) || "grafana_folder_uid".equals(keyLc)) {
-                        continue;
-                    }
-                    if ("grafana_receiver".equals(keyLc)) {
-                        continue;
-                    }
-                    if ("alertname".equals(keyLc)) {
-                        continue;
-                    }
-                    if ("kind".equals(keyLc)) {
-                        continue;
-                    }
-                    if ("severity".equals(keyLc)) {
-                        continue;
-                    }
-                    if ("__alert_rule_uid__".equals(keyLc)
-                            || "rule_uid".equals(keyLc)
-                            || "__alert_rule_uid".equals(keyLc)) {
-                        continue;
-                    }
-
-                    rawLabels.add(k + "=" + v);
-                }
-            }
-
-            // 의미 있는 라벨이 하나도 없으면 Targets 문구를 아예 빼버립니다.
-            if (rawLabels.isEmpty()) {
+            // 호스트 규칙인데 이름을 못 찾은 경우:
+            // __grafana_autogenerated__, grafana_folder 같은 메타 라벨은
+            // 오히려 지저분하므로 Targets 자체를 생략합니다.
+            if (isHostKind(normalizedRuleKind)) {
                 return "";
             }
 
-            // (다른 경우에는 여전히 라벨 문자열을 폴백으로 사용합니다.)
+            // 그 외 규칙은 이전처럼 "라벨 한 번이라도 보여주는" 폴백을 유지합니다.
+            final java.util.List<String> rawLabels = new java.util.ArrayList<>();
+            final AlertInstanceResponse first = src.get(0);
+            if (first != null && first.labels != null) {
+                for (Map.Entry<String, String> e : first.labels.entrySet()) {
+                    rawLabels.add(e.getKey() + "=" + e.getValue());
+                }
+            }
+            if (rawLabels.isEmpty()) {
+                return "";
+            }
             return "Targets — " + String.join(", ", rawLabels);
         }
-        // ---------- 폴백 끝 ----------
 
         return "Targets — " + String.join(" | ", parts);
+    }
+
+    private static boolean isHostKind(final String v) {
+        final String k = normalizeKind(v);
+        return k.equals("호스트")
+                || k.equals("host")
+                || k.contains("hypervisor");
     }
 
     /**
