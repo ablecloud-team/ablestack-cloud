@@ -210,7 +210,6 @@ export default {
         case 'download complete':
         case 'enabled':
         case 'implemented':
-        case 'ok':
         case 'on':
         case 'readwrite':
         case 'ready':

@@ -16,9 +16,16 @@
 // under the License.
 package com.cloud.user;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,6 +48,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import javax.naming.ConfigurationException;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 
 import org.apache.cloudstack.acl.APIChecker;
 import org.apache.cloudstack.acl.ControlledEntity;
@@ -56,6 +66,8 @@ import org.apache.cloudstack.affinity.dao.AffinityGroupDao;
 import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiCommandResourceType;
 import org.apache.cloudstack.api.ApiConstants;
+import org.apache.cloudstack.api.ApiErrorCode;
+import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.command.admin.account.CreateAccountCmd;
 import org.apache.cloudstack.api.command.admin.account.UpdateAccountCmd;
 import org.apache.cloudstack.api.command.admin.user.DeleteUserCmd;
@@ -82,12 +94,15 @@ import org.apache.cloudstack.region.gslb.GlobalLoadBalancerRuleDao;
 import org.apache.cloudstack.resourcedetail.UserDetailVO;
 import org.apache.cloudstack.resourcedetail.dao.UserDetailsDao;
 import org.apache.cloudstack.utils.baremetal.BaremetalUtils;
+import org.apache.cloudstack.utils.security.SSLUtils;
 import org.apache.cloudstack.webhook.WebhookHelper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import com.cloud.alert.AlertManager;
@@ -196,6 +211,8 @@ import com.cloud.utils.db.TransactionCallbackNoReturn;
 import com.cloud.utils.db.TransactionStatus;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.net.NetUtils;
+import com.cloud.utils.nio.TrustAllManager;
+import com.cloud.utils.script.Script;
 import com.cloud.vm.InstanceGroupVO;
 import com.cloud.vm.ReservationContext;
 import com.cloud.vm.ReservationContextImpl;
@@ -211,6 +228,7 @@ import com.cloud.vm.snapshot.VMSnapshot;
 import com.cloud.vm.snapshot.VMSnapshotManager;
 import com.cloud.vm.snapshot.VMSnapshotVO;
 import com.cloud.vm.snapshot.dao.VMSnapshotDao;
+import org.apache.cloudstack.saml.SAML2Config;
 
 public class AccountManagerImpl extends ManagerBase implements AccountManager, Manager {
 
@@ -910,6 +928,15 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
             return false;
         }
 
+        // Delete Keycloak User & Glue User
+        try {
+            deleteKeycloakUser(account);
+            deleteGlueUser(account.getAccountName());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return false;
+        }
+
         account.setState(State.REMOVED);
         _accountDao.update(accountId, account);
 
@@ -918,6 +945,100 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
         }
 
         return cleanupAccount(account, callerUserId, caller);
+    }
+
+    public void deleteKeycloakUser(AccountVO account) throws Exception {
+        String KEYCLOAK_URL = SAML2Config.SAMLIdentityProviderPortalUrl.value();
+        String REALM = "saml";
+
+        // Admin Token 발급
+        String token = getAdminToken();
+        // Keycloak에서 사용자 조회 (username 기준)
+        String username = account.getAccountName();
+        URL searchUrl = new URL(KEYCLOAK_URL + "/admin/realms/" + REALM + "/users?username=" + URLEncoder.encode(username, "UTF-8"));
+        HttpURLConnection searchConn = (HttpURLConnection) searchUrl.openConnection();
+        searchConn.setRequestMethod("GET");
+        searchConn.setRequestProperty("Authorization", "Bearer " + token);
+
+        int searchCode = searchConn.getResponseCode();
+        if (searchCode < 200 || searchCode >= 300) {
+            throw new Exception("Failed to search Keycloak user, HTTP code: " + searchCode);
+        }
+
+        String searchResult = new String(searchConn.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        JSONArray users = new JSONArray(searchResult);
+        if (users.isEmpty()) {
+            logger.debug("Keycloak user not found, skip delete: {}", username);
+            return;
+        }
+
+        JSONObject userObj = users.getJSONObject(0);
+        String userId = userObj.getString("id");
+        logger.debug("Keycloak delete target userId: {}", userId);
+
+        // Delete Keycloak User
+        URL deleteUrl = new URL(KEYCLOAK_URL + "/admin/realms/" + REALM + "/users/" + userId);
+        HttpURLConnection deleteConn = (HttpURLConnection) deleteUrl.openConnection();
+        deleteConn.setRequestMethod("DELETE");
+        deleteConn.setRequestProperty("Authorization", "Bearer " + token);
+
+        int deleteCode = deleteConn.getResponseCode();
+        if (deleteCode < 200 || deleteCode >= 300) {
+            throw new Exception("Failed to delete Keycloak user, HTTP code: " + deleteCode);
+        }
+
+        logger.debug("Keycloak user deleted: {} (ID={})", username, userId);
+    }
+
+    public void deleteGlueUser(String userName) throws Exception {
+        String ipList = Script.runSimpleBashScript("cat /etc/hosts | grep -E 'scvm.*-mngt' | awk '{print $1}' | tr '\n' ','");
+        if (ipList != null || !ipList.isEmpty()) {
+            ipList = ipList.replaceAll(",$", "");
+            String[] array = ipList.split(",");
+            for (int i=0; i < array.length; i++) {
+                String glueIp = array[i];
+                excuteGlueApi(glueIp, "user", "DELETE", userName);
+            }
+        }
+
+        logger.debug("Glue user deleted: {}", userName);
+    }
+
+    private String getAdminToken() throws Exception {
+        String KEYCLOAK_URL = SAML2Config.SAMLIdentityProviderPortalUrl.value();
+        String ADMIN_PASSWORD = SAML2Config.SAMLIdentityProviderPassword.value();
+        String ADMIN_USERNAME = "admin";
+        String CLIENT_ID = "admin-cli";
+
+        String urlParameters = "username=" + ADMIN_USERNAME +
+                "&password=" + ADMIN_PASSWORD +
+                "&grant_type=password&client_id=" + CLIENT_ID;
+
+        URL url = new URL(KEYCLOAK_URL + "/realms/master/protocol/openid-connect/token");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(urlParameters.getBytes());
+        }
+
+        int status = conn.getResponseCode();
+
+        InputStream is;
+        if (status >= 200 && status < 300) {
+            is = conn.getInputStream();
+        } else {
+            is = conn.getErrorStream();
+            String errorMsg = new String(is.readAllBytes());
+            throw new Exception("Failed to get admin token (HTTP " + status + "): " + errorMsg);
+        }
+
+        // InputStream is = conn.getInputStream();
+        String result = new String(is.readAllBytes());
+        JSONObject json = new JSONObject(result);
+        return json.getString("access_token");
     }
 
     protected void cleanupPluginsResourcesIfNeeded(Account account) {
@@ -1303,7 +1424,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
                 accountCmd.getLastName(), accountCmd.getEmail(), accountCmd.getTimeZone(), accountCmd.getAccountName(),
                 accountCmd.getAccountType(), accountCmd.getRoleId(), accountCmd.getDomainId(),
                 accountCmd.getNetworkDomain(), accountCmd.getDetails(), accountCmd.getAccountUUID(),
-                accountCmd.getUserUUID(), User.Source.UNKNOWN);
+                accountCmd.getUserUUID(), User.Source.UNKNOWN, accountCmd.getEnable());
     }
 
     // ///////////////////////////////////////////////////
@@ -1318,7 +1439,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
                                          final String lastName, final String email, final String timezone,
                                          String accountName, final Account.Type accountType, final Long roleId, Long domainId,
                                          final String networkDomain, final Map<String, String> details,
-                                         String accountUUID, final String userUUID, final User.Source source) {
+                                         String accountUUID, final String userUUID, final User.Source source, final boolean enable) {
 
         if (accountName == null) {
             accountName = userName;
@@ -1361,6 +1482,17 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
         }
 
         final String accountNameFinal = accountName;
+
+        // Create Keycloak User & Glue User
+        if (enable) {
+            try {
+                createKeycloakUser(userName, email, firstName, lastName, password);
+                createGlueUser(userName);
+            } catch (Exception e) {
+                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
+            }
+        }
+
         final Long domainIdFinal = domainId;
         final String accountUUIDFinal = accountUUID;
         Pair<Long, Account> pair = Transaction.execute(new TransactionCallback<>() {
@@ -1407,6 +1539,98 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
         return _userAccountDao.findById(userId);
     }
 
+    public void createKeycloakUser(String userName, String email, String firstName, String lastName, String password) throws Exception {
+        String KEYCLOAK_URL = SAML2Config.SAMLIdentityProviderPortalUrl.value();
+        String REALM = "saml";
+
+        // Admin Token 발급
+        String token = getAdminToken();
+        // Create Keycloak User
+        JSONObject userJson = new JSONObject();
+        userJson.put("username", userName);
+        userJson.put("email", email);
+        userJson.put("firstName", firstName);
+        userJson.put("lastName", lastName);
+        userJson.put("enabled", true);
+
+        JSONArray credentials = new JSONArray();
+        JSONObject cred = new JSONObject();
+        cred.put("type", "password");
+        cred.put("temporary", false);
+        cred.put("value", password);
+        credentials.put(cred);
+        userJson.put("credentials", credentials);
+
+        URL url = new URL(KEYCLOAK_URL + "/admin/realms/" + REALM + "/users");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Authorization", "Bearer " + token);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(userJson.toString().getBytes());
+        }
+
+        int code = conn.getResponseCode();
+        if (code < 200 || code >= 300) {
+            throw new Exception("Failed to create Keycloak user, HTTP code: " + code);
+        }
+
+        logger.debug("Keycloak user created: {}", userName);
+    }
+
+    public void createGlueUser(String userName) throws Exception {
+        String ipList = Script.runSimpleBashScript("cat /etc/hosts | grep -E 'scvm.*-mngt' | awk '{print $1}' | tr '\n' ','");
+        if (ipList != null || !ipList.isEmpty()) {
+            ipList = ipList.replaceAll(",$", "");
+            String[] array = ipList.split(",");
+            for (int i=0; i < array.length; i++) {
+                String glueIp = array[i];
+                excuteGlueApi(glueIp, "user", "POST", userName);
+            }
+        }
+
+        logger.debug("Glue user created: {}", userName);
+    }
+
+    public void excuteGlueApi(String host, String action, String method, String userName) throws Exception {
+
+        HttpsURLConnection connection = null;
+        try {
+            String glueEndpoint = "https://" + host + ":8080/api/v1/" + action + "/" + userName;
+
+            // SSL 인증서 에러 우회 처리
+            final SSLContext sslContext = SSLUtils.getSSLContext();
+            sslContext.init(null, new TrustManager[]{new TrustAllManager()}, new SecureRandom());
+
+            URL url = new URL(glueEndpoint);
+            connection = (HttpsURLConnection) url.openConnection();
+            connection.setSSLSocketFactory(sslContext.getSocketFactory());
+            connection.setDoOutput(true);
+            connection.setRequestMethod(method);
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(180000);
+            connection.setRequestProperty("Accept", "application/json");
+
+            // 연결 시도 전에 소켓 설정
+            System.setProperty("sun.net.client.defaultConnectTimeout", "5000");
+            System.setProperty("sun.net.client.defaultReadTimeout", "15000");
+
+            // int responseCode = connection.getResponseCode();
+            // if (responseCode != 200) {
+            //     throw new Exception("Failed to create Glue user, HTTP code: " + responseCode);
+            // }
+        } catch (SocketTimeoutException e) {
+            logger.error("Connection timed out while controlling agent for host: " + host, e);
+        } catch (Exception e) {
+            logger.error("Error controlling agent for host: " + host, e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
     /*
      Role change should follow the below conditions:
      - Caller should not be of Unknown role type

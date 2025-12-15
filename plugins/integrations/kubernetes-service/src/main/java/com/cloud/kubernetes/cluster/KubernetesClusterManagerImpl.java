@@ -1885,7 +1885,7 @@ private void logMessage(final Level logLevel, final String message, final Except
             UserAccount userAccount = accountService.createUserAccount(accountName,
                     UUID.randomUUID().toString(), PROJECT_KUBERNETES_ACCOUNT_FIRST_NAME,
                     PROJECT_KUBERNETES_ACCOUNT_LAST_NAME, null, null, accountName, Account.Type.NORMAL, role.getId(),
-                    project.getDomainId(), null, null, null, null, User.Source.NATIVE);
+                    project.getDomainId(), null, null, null, null, User.Source.NATIVE, true);
             projectManager.assignAccountToProject(project, userAccount.getAccountId(), ProjectAccount.Role.Regular,
                     userAccount.getId(), null);
             Account account = accountService.getAccount(userAccount.getAccountId());
