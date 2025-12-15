@@ -257,7 +257,7 @@
 </template>
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import store from '@/store'
 import eventBus from '@/config/eventBus'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -338,7 +338,7 @@ export default {
       this.controllerVersions = []
       const params = {}
       this.controllerVersionLoading = true
-      api('listDesktopControllerVersions', params).then(json => {
+      getAPI('listDesktopControllerVersions', params).then(json => {
         var items = json.listdesktopcontrollerversionsresponse.desktopcontrollerversion
         if (items != null) {
           this.controllerVersions = items.filter(it => it.state === 'Enabled')
@@ -356,7 +356,7 @@ export default {
       this.serviceOfferings = []
       const params = {}
       this.serviceOfferingLoading = true
-      api('listServiceOfferings', params).then(json => {
+      getAPI('listServiceOfferings', params).then(json => {
         var items = json.listserviceofferingsresponse.serviceoffering
         if (items != null) {
           this.serviceOfferings = items.filter(it => it.iscustomized === false)
@@ -375,7 +375,7 @@ export default {
         account: store.getters.project && store.getters.project.id ? null : store.getters.userInfo.account,
         listall: true
       }
-      api('listDesktopClusters', params).then(json => {
+      getAPI('listDesktopClusters', params).then(json => {
         var items = json.listdesktopclustersresponse.desktopcluster
         if (items != null) {
           this.clusters.push(items)
@@ -392,7 +392,7 @@ export default {
       }
       this.networkLoading = true
       this.handleNetworkChange(null)
-      api('listNetworks', params).then(json => {
+      getAPI('listNetworks', params).then(json => {
         var items = json.listnetworksresponse.network
         if (items !== null) {
           if (this.accessType === 'internal') this.networks = items.filter(it => it.type.includes('L2'))
@@ -470,7 +470,7 @@ export default {
           params.templateid = values.mastertemplate
         }
 
-        api('createDesktopCluster', params).then(json => {
+        postAPI('createDesktopCluster', params).then(json => {
           const jobId = json.createdesktopclusterresponse.jobid
           this.$pollJob({
             jobId,

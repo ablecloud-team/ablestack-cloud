@@ -33,7 +33,7 @@ public interface BackupService {
      * @param zoneId zone id
      * @return backup provider
      */
-    BackupProvider getBackupProvider(final Long zoneId);
+    // BackupProvider getBackupProvider(final Long zoneId);
 
     /**
      * Find backup provider by name

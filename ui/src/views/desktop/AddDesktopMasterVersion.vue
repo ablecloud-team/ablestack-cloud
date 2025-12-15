@@ -239,7 +239,7 @@ import { reactive, ref, toRaw } from 'vue'
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { getAPI } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import store from '@/store'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
@@ -538,7 +538,7 @@ export default {
           params.templateid = values.mastertemplate
         }
 
-        getAPI('addDesktopMasterVersion', params).then(json => {
+        postAPI('addDesktopMasterVersion', params).then(json => {
           this.$notification.success({
             message: this.$t('label.register.template'),
             description: `${this.$t('message.success.register.master.template.version')}`

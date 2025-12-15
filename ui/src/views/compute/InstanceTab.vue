@@ -634,7 +634,7 @@ export default {
         deviceTypes.forEach(type => { this.deviceLoadingStates[type] = true })
 
         try {
-          const response = await api('listVmDeviceAssignments', { virtualmachineid: this.vm.id })
+          const response = await getAPI('listVmDeviceAssignments', { virtualmachineid: this.vm.id })
           const assignments = response?.listvmdeviceassignmentsresponse?.vmdeviceassignment
           const assignmentList = Array.isArray(assignments)
             ? assignments

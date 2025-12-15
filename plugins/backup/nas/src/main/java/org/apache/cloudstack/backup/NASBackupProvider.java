@@ -344,14 +344,11 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
             if (Objects.isNull(storagePool)) {
                 throw new CloudRuntimeException("Unable to find storage pool associated to the volume");
             }
-            String volumePathPrefix;
-            if (ScopeType.HOST.equals(storagePool.getScope())) {
-                volumePathPrefix = storagePool.getPath();
-            } else if (Storage.StoragePoolType.SharedMountPoint.equals(storagePool.getPoolType())) {
-                volumePathPrefix = storagePool.getPath();
-            } else {
-                volumePathPrefix = String.format("/mnt/%s", storagePool.getUuid());
-            }
+
+            DataStore dataStore = dataStoreMgr.getDataStore(storagePool.getId(), DataStoreRole.Primary);
+            volumePools.add(dataStore != null ? (PrimaryDataStoreTO)dataStore.getTO() : null);
+
+            String volumePathPrefix = getVolumePathPrefix(storagePool);
             volumePaths.add(String.format("%s/%s", volumePathPrefix, volume.getPath()));
         }
         return new Pair<>(volumePools, volumePaths);
@@ -614,6 +611,10 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
     }
 
     @Override
+    public void syncBackups(VirtualMachine vm) {
+    }
+
+    @Override
     public boolean checkBackupAgent(final Long zoneId) { return true; }
 
     @Override
@@ -625,7 +626,4 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
     @Override
     public boolean updateBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
 
-    @Override
-    public void syncBackups(VirtualMachine vm, Backup.Metric metric) {
-    }
 }

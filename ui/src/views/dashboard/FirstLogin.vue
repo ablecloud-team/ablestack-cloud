@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import { ref, reactive, toRaw } from 'vue'
 import Cookies from 'js-cookie'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -128,7 +128,7 @@ export default {
           { validator: this.validateTwoPassword }
         ]
       })
-      api('listUsers', { username: Cookies.get('username'), listall: true }).then(response => {
+      getAPI('listUsers', { username: Cookies.get('username'), listall: true }).then(response => {
         const result = response.listusersresponse.user[0]
         this.$store.commit('SET_INFO', result)
       }).catch(error => {
@@ -163,7 +163,7 @@ export default {
           id: this.$store.getters.userInfo.id,
           password: values.password
         }
-        api('updateUser', {}, 'POST', params).then(json => {
+        postAPI('updateUser', params).then(json => {
           this.firstLoginresponse = true
           if (this.firstLoginresponse) {
             this.$notification.destroy()

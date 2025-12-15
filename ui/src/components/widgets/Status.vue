@@ -225,7 +225,6 @@ export default {
         case 'primary':
         case 'managed':
         case 'yes':
-        case 'ok':
         case 'redundant':
         case 'goodinuse':
           status = 'success'
