@@ -3258,7 +3258,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             isTpmEnabled = false;
         }
         vm.addComp(createDevicesDef(vmTO, guest, vcpus, isUefiEnabled, isTpmEnabled, tpmversion));
-        
+
         MetadataDef metaDef;
         if ((metaDef = createMetadataDef(vmTO)) != null) {
             vm.addComp(metaDef);
@@ -3628,6 +3628,10 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
     public boolean isGuestAarch64() {
         return AARCH64.equals(guestCpuArch);
+    }
+
+    private boolean isGuestS390x() {
+        return S390X.equals(guestCpuArch);
     }
 
     private String getExecutableFormat() {
