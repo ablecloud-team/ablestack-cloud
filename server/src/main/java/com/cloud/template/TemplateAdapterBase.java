@@ -373,7 +373,8 @@ public abstract class TemplateAdapterBase extends AdapterBase implements Templat
         UploadParams params = new IsoUploadParams(CallContext.current().getCallingUserId(), cmd.getName(),
                 cmd.getDisplayText(), BooleanUtils.toBoolean(cmd.isPublic()), BooleanUtils.toBoolean(cmd.isFeatured()),
                 BooleanUtils.toBoolean(cmd.isExtractable()), cmd.getOsTypeId(),
-                cmd.getZoneId(), BooleanUtils.toBoolean(cmd.isBootable()), cmd.getEntityOwnerId());
+                cmd.getZoneId(), BooleanUtils.toBoolean(cmd.isBootable()), cmd.getEntityOwnerId(),
+                BooleanUtils.toBoolean(cmd.isDynamicallyScalable()));
         return prepareUploadParamsInternal(params);
     }
 
