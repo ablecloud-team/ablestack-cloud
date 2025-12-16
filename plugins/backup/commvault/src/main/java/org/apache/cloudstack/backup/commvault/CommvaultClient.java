@@ -1444,6 +1444,26 @@ public class CommvaultClient {
         return null;
     }
 
+    // GET https://<commserveIp>/commandcenter/api/commserv
+    // commvault 버전 정보 조회 API
+    public String getCvtVersion() {
+        try {
+            final HttpResponse response = get("/commserv");
+            checkResponseOK(response);
+            String jsonString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+            JsonNode csVersionInfo = root.path("csVersionInfo");
+            if (!csVersionInfo.isMissingNode()) {
+                return csVersionInfo.toString();
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to request getCvtVersion commvault api due to : ", e);
+            checkResponseTimeOut(e);
+        }
+        return null;
+    }
+
     // POST https://<commserveIp>/commandcenter/api/createtask
     // commvault 에이전트 설치 API
     public String installAgent(String clientName, String commCellId, String commServeHostName, String userName, String password) {

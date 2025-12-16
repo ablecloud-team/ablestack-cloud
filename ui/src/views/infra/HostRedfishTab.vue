@@ -352,7 +352,7 @@
   </a-spin>
 </template>
 <script>
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import Status from '@/components/widgets/Status'
 export default {
   name: 'HostRedfishTab',
@@ -807,7 +807,7 @@ export default {
     fetchData () {
       this.spinning = true
       this.dataMap[this.category] = []
-      api('listHostRedfishData', { category: this.category, hostid: this.resource.id }).then(json => {
+      getAPI('listHostRedfishData', { category: this.category, hostid: this.resource.id }).then(json => {
         var items = json.listhostredfishdataresponse.outofbandmanagement
         this.jsonObject = JSON.parse(items.redfishdata)
       }).finally(() => {

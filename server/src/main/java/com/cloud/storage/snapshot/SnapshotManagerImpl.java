@@ -1680,11 +1680,24 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             }
 
             SnapshotInfo snapshotOnPrimary = snapshotStrategy.takeSnapshot(snapshot);
-            if (backupSnapToSecondary) {
-                if (!isKvmAndFileBasedStorage) {
-                    backupSnapshotToSecondary(payload.getAsyncBackup(), snapshotStrategy, snapshotOnPrimary, payload.getZoneIds(), payload.getStoragePoolIds());
+            // 백업을 위한 API인 경우 2차 스토리지에 백업하지 않도록 추가
+            if (!backup) {
+                if (backupSnapToSecondary) {
+                    if (!isKvmAndFileBasedStorage) {
+                        backupSnapshotToSecondary(payload.getAsyncBackup(), snapshotStrategy, snapshotOnPrimary, payload.getZoneIds(), payload.getStoragePoolIds());
+                    } else {
+                        postSnapshotDirectlyToSecondary(snapshot, snapshotOnPrimary, snapshotId);
+                    }
                 } else {
-                    postSnapshotDirectlyToSecondary(snapshot, snapshotOnPrimary, snapshotId);
+                    logger.debug("Skipping backup of snapshot [{}] to secondary due to configuration [{}].", snapshotOnPrimary.getUuid(), SnapshotInfo.BackupSnapshotAfterTakingSnapshot.key());
+
+                    if (CollectionUtils.isNotEmpty(payload.getStoragePoolIds()) && payload.getAsyncBackup()) {
+                        snapshotStrategy = _storageStrategyFactory.getSnapshotStrategy(snapshot, SnapshotOperation.COPY);
+                        if (snapshotStrategy != null) {
+                            backupSnapshotExecutor.schedule(new BackupSnapshotTask(snapshotOnPrimary, snapshotBackupRetries - 1, snapshotStrategy, payload.getZoneIds(), payload.getStoragePoolIds()), 0, TimeUnit.SECONDS);
+                        }
+                    }
+                    snapshotOnPrimary.markBackedUp();
                 }
             } else {
                 logger.debug("Skipping backup of snapshot [{}] to secondary due to configuration [{}].", snapshotOnPrimary.getUuid(), SnapshotInfo.BackupSnapshotAfterTakingSnapshot.key());

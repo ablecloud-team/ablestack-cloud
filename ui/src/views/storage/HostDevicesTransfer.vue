@@ -53,7 +53,7 @@
 
 <script>
 import { reactive } from 'vue'
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 
 export default {
   name: 'HostDevicesTransfer',
@@ -98,13 +98,13 @@ export default {
       const vmStates = ['Running']
 
       return Promise.all(vmStates.map(state => {
-        return api('listVirtualMachines', { ...params, state })
+        return getAPI('listVirtualMachines', { ...params, state })
           .then(vmResponse => vmResponse.listvirtualmachinesresponse.virtualmachine || [])
       })).then(vmArrays => {
         const vms = vmArrays.flat()
 
         return Promise.all(vms.map(vm => {
-          return api('listVirtualMachines', {
+          return getAPI('listVirtualMachines', {
             id: vm.id,
             details: 'all'
           }).then(detailResponse => {
@@ -124,7 +124,7 @@ export default {
           })
         }))
       }).then(detailedVms => {
-        return api('listHostDevices', {
+        return getAPI('listHostDevices', {
           id: this.resource.id
         }).then(latestResponse => {
           const latestDevices = latestResponse.listhostdevicesresponse?.listhostdevices?.[0]
@@ -172,7 +172,7 @@ export default {
       this.loading = true
       const hostDevicesName = this.resource.hostDevicesName
 
-      api('listVirtualMachines', {
+      getAPI('listVirtualMachines', {
         id: this.form.virtualmachineid,
         details: 'all'
       }).then(response => {
@@ -208,9 +208,9 @@ export default {
           }
         })
 
-        return api('updateVirtualMachine', params)
+        return postAPI('updateVirtualMachine', params)
           .then(() => {
-            return api('updateHostDevices', {
+            return postAPI('updateHostDevices', {
               hostid: this.resource.id,
               hostdevicesname: hostDevicesName,
               hostdevicestext: this.resource.hostDevicesText || '',
@@ -241,7 +241,7 @@ export default {
             try {
               if (eventType === 'UpdateVirtualMachine') {
                 // VM의 현재 상태 확인
-                const response = await api('listVirtualMachines', {
+                const response = await getAPI('listVirtualMachines', {
                   id: vmId,
                   details: 'all'
                 })
@@ -257,7 +257,7 @@ export default {
               }
 
               // 디비에서 호스트 디바이스 할당 정보 삭제
-              await api('updateHostDevices', {
+              await postAPI('updateHostDevices', {
                 hostid: this.resource.id,
                 hostdevicesname: hostDevicesName,
                 virtualmachineid: vmId

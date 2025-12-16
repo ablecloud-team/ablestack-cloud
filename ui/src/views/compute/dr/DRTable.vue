@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import ResourceIcon from '@/components/view/ResourceIcon.vue'
 import Status from '@/components/widgets/Status.vue'
 export default {
@@ -159,7 +159,7 @@ export default {
     },
     getDrClusterList () {
       this.loading = true
-      api('getDisasterRecoveryClusterList').then(json => {
+      getAPI('getDisasterRecoveryClusterList').then(json => {
         this.drClusterList = json.getdisasterrecoveryclusterlistresponse.disasterrecoverycluster || []
         for (const cluster of this.drClusterList) {
           const clusterId = cluster.id

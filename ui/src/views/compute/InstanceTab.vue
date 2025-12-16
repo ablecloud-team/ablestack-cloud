@@ -276,7 +276,7 @@
 
 <script>
 
-import { getAPI, postAPI, api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import { h } from 'vue'
 import { mixinDevice } from '@/utils/mixin.js'
 import ResourceLayout from '@/layouts/ResourceLayout'
@@ -634,7 +634,7 @@ export default {
         deviceTypes.forEach(type => { this.deviceLoadingStates[type] = true })
 
         try {
-          const response = await api('listVmDeviceAssignments', { virtualmachineid: this.vm.id })
+          const response = await getAPI('listVmDeviceAssignments', { virtualmachineid: this.vm.id })
           const assignments = response?.listvmdeviceassignmentsresponse?.vmdeviceassignment
           const assignmentList = Array.isArray(assignments)
             ? assignments

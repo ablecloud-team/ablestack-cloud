@@ -58,7 +58,7 @@
 
 <script>
 import { reactive } from 'vue'
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 
 export default {
   name: 'HostHbaDevicesTransfer',
@@ -103,7 +103,7 @@ export default {
 
       return Promise.all([
         // Running 상태의 VM 목록만 가져오기
-        api('listVirtualMachines', params)
+        getAPI('listVirtualMachines', params)
           .then(vmResponse => {
             const vms = vmResponse.listvirtualmachinesresponse?.virtualmachine || []
             // console.log(`Fetched ${vms.length} Running VMs`)
@@ -122,7 +122,7 @@ export default {
             return []
           }),
         // 현재 HBA 디바이스 할당 상태 가져오기
-        api('listHostHbaDevices', { id: this.resource.id })
+        getAPI('listHostHbaDevices', { id: this.resource.id })
       ]).then(async ([vms, hbaResponse]) => {
         // console.log('Total valid VMs fetched:', vms.length)
 
@@ -142,7 +142,7 @@ export default {
           if (vmId && !processedDevices.has(deviceName)) {
             try {
               // VM이 실제로 존재하는지 확인
-              const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+              const vmResponse = await getAPI('listVirtualMachines', { id: vmId, listall: true })
               const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
 
               if (vm && vm.state !== 'Expunging') {
@@ -151,7 +151,7 @@ export default {
                 // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
                 try {
                   const xmlConfig = this.generateHbaDeallocationXmlConfig(deviceName)
-                  await api('updateHostHbaDevices', {
+                  await postAPI('updateHostHbaDevices', {
                     hostid: this.resource.id,
                     hostdevicesname: deviceName,
                     virtualmachineid: null,
@@ -168,7 +168,7 @@ export default {
               // VM 조회 실패 시에도 할당 해제 시도
               try {
                 const xmlConfig = this.generateHbaDeallocationXmlConfig(deviceName)
-                await api('updateHostHbaDevices', {
+                await postAPI('updateHostHbaDevices', {
                   hostid: this.resource.id,
                   hostdevicesname: deviceName,
                   virtualmachineid: null,
@@ -224,7 +224,7 @@ export default {
 
     // HBA 정보 조회 함수 추가
     async getHbaInfo (hostDevicesName) {
-      const response = await api('listHostHbaDevices', { id: this.resource.id })
+      const response = await getAPI('listHostHbaDevices', { id: this.resource.id })
       const hbaData = response.listhosthbadevicesresponse?.listhosthbadevices?.[0]
       if (!hbaData) return {}
       const idx = hbaData.hostdevicesname.indexOf(hostDevicesName)
@@ -360,7 +360,7 @@ export default {
 
       // VM 상태 확인
       try {
-        const vmResponse = await api('listVirtualMachines', {
+        const vmResponse = await getAPI('listVirtualMachines', {
           id: this.form.virtualmachineid,
           listall: true
         })
@@ -411,7 +411,7 @@ export default {
           return
         }
 
-        const hbaResponse = await api('listHostHbaDevices', { id: this.resource.id })
+        const hbaResponse = await getAPI('listHostHbaDevices', { id: this.resource.id })
         const hbaDevices = hbaResponse.listhosthbadevicesresponse?.listhosthbadevices?.[0]
 
         // console.log('HBA Devices response:', hbaResponse)
@@ -484,7 +484,7 @@ export default {
           console.log('Generated XML config:', xmlConfig)
 
           // VM 상태 재확인
-          const vmStatusResponse = await api('listVirtualMachines', {
+          const vmStatusResponse = await getAPI('listVirtualMachines', {
             id: selectedVM.id,
             details: 'all'
           })
@@ -514,7 +514,7 @@ export default {
 
           // console.log('Allocating with params:', allocationParams)
 
-          const allocationResponse = await api('updateHostHbaDevices', allocationParams)
+          const allocationResponse = await postAPI('updateHostHbaDevices', allocationParams)
 
           if (allocationResponse.error) {
             throw new Error(allocationResponse.error.errortext || 'Failed to allocate HBA device')
