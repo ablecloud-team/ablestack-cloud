@@ -323,7 +323,7 @@ public class RegisterTemplateCmd extends BaseCmd implements UserCmd {
     }
 
     public String getTemplateTag() {
-        return templateTag;
+        return StringUtils.isBlank(templateTag) ? null : templateTag;
     }
 
     public Long getZoneId() {
