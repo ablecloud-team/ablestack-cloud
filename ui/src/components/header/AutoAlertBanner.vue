@@ -1905,10 +1905,6 @@ export default {
   .banner-content { justify-content: flex-start; }
   .banner-actions { width: 100%; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
 }
-</style>
-
-<style>
-:root { --autoBannerHeight: 0px; }
 
 /* 모달/드로어 상단 오프셋 */
 .ant-modal-wrap,
@@ -1928,6 +1924,10 @@ export default {
 .ant-notification-topLeft {
   top: calc(24px + var(--autoBannerHeight, 0px)) !important;
 }
+</style>
+
+<style>
+:root { --autoBannerHeight: 0px; }
 
 /* 전체 문구 정렬 */
 .banner-text {
