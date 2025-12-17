@@ -271,7 +271,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import store from '@/store'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 export default {
@@ -363,7 +363,7 @@ export default {
       this.zones.loading = true
       this.zones.opts = []
 
-      api('listZones', params).then(json => {
+      getAPI('listZones', params).then(json => {
         const listZonesResponse = json.listzonesresponse.zone
         listZones = listZones.concat(listZonesResponse)
         this.zones.opts = listZones
@@ -377,7 +377,7 @@ export default {
       this.hyperVisor.loading = true
       let listhyperVisors = this.hyperVisor.opts || []
 
-      api('listHypervisors', params).then(json => {
+      getAPI('listHypervisors', params).then(json => {
         const listResponse = json.listhypervisorsresponse.hypervisor || []
         if (listResponse) {
           listhyperVisors = listhyperVisors.concat(listResponse)
@@ -394,7 +394,7 @@ export default {
       this.osTypes.opts = []
       this.osTypes.loading = true
 
-      api('listOsTypes', params).then(json => {
+      getAPI('listOsTypes', params).then(json => {
         const listOsTypes = json.listostypesresponse.ostype
         this.osTypes.opts = listOsTypes
         this.defaultOsType = this.osTypes.opts[1].description
@@ -410,7 +410,7 @@ export default {
       params.listall = true
       this.template.loading = true
       this.template.opts = []
-      api('listTemplates', params).then(json => {
+      getAPI('listTemplates', params).then(json => {
         const listTemplatesResponse = json.listtemplatesresponse.template
         listTemplates = listTemplates.concat(listTemplatesResponse)
         this.template.opts = listTemplates
@@ -570,7 +570,7 @@ export default {
           params.workstemplateid = values.workstemplate
         }
 
-        api('addDesktopControllerVersion', params).then(json => {
+        postAPI('addDesktopControllerVersion', params).then(json => {
           this.$notification.success({
             message: this.$t('label.register.template'),
             description: `${this.$t('message.success.register.contoller.template.version')}`

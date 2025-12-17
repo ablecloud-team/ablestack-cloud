@@ -105,7 +105,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { api } from '@/api'
+import { postAPI } from '@/api'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel.vue'
 import eventBus from '@/config/eventBus'
@@ -183,7 +183,7 @@ export default {
           drclustersecretkey: values.secretkey,
           drclusterglueipaddress: values.glueip
         }
-        api('connectivityTestsDisasterRecovery', params).then(json => {
+        postAPI('connectivityTestsDisasterRecovery', params).then(json => {
           this.testConnResult = json.connectivitytestsdisasterrecoveryresponse
           if (this.testConnResult === false) {
             return
@@ -232,7 +232,7 @@ export default {
             drclusterglueipaddress: values.glueip,
             drclustertype: 'secondary'
           }
-          api('createDisasterRecoveryCluster', params).then(json => {
+          postAPI('createDisasterRecoveryCluster', params).then(json => {
             const jobId = json.createdisasterrecoveryclusterresponse.jobid
             this.$pollJob({
               jobId,

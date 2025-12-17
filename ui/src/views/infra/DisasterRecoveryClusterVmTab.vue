@@ -127,7 +127,7 @@
 
 <script>
 import { mixinDevice } from '@/utils/mixin.js'
-import { api } from '@/api'
+import { getAPI } from '@/api'
 import Status from '@/components/widgets/Status'
 
 export default {
@@ -307,7 +307,7 @@ export default {
         return
       }
       this.loading = true
-      api('getDisasterRecoveryClusterList', { name: this.resource.name }).then(json => {
+      getAPI('getDisasterRecoveryClusterList', { name: this.resource.name }).then(json => {
         this.drCluster = json.getdisasterrecoveryclusterlistresponse.disasterrecoverycluster
         this.disasterrecoveryclustervmlist = this.drCluster[0].drclustervmmap || []
         for (const clusterVm of this.disasterrecoveryclustervmlist) {

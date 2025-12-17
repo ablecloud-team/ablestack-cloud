@@ -53,7 +53,7 @@
 
 <script>
 import { ref, computed } from 'vue'
-import { api } from '@/api'
+import { postAPI } from '@/api'
 
 export default {
   name: 'RulePauseModal',
@@ -129,7 +129,7 @@ export default {
           const rec = targets[i]
           const id = getUidOrId(rec)
           if (!id) continue
-          await api('pauseWallAlertRule', { id, paused: true })
+          await postAPI('pauseWallAlertRule', { id, paused: true })
         }
         emit('refresh-data')
         emit('close-action')
