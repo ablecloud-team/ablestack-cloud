@@ -14,7 +14,7 @@ public final class WallConfigKeys {
                     "Base URL of Wall.", false, WALL_ALERT_ENABLED.key());
 
     public static final ConfigKey<String> WALL_API_TOKEN =
-            new ConfigKey<>("Secure", String.class, "wall.api.token", "",
+            new ConfigKey<>("Secure", String.class, "wall.api.token", "raIpjQklz6EE2aK6YWX1N2KJvyyNrO3mG32nYDmUcEeB5i4NHcGFqIS8V69DWduDZmmWYwXi2TQnZxA4AwaxC5+wsr+EL1EUscc=",
                     "Service account token for Wall.", true, WALL_ALERT_ENABLED.key());
 
     public static final ConfigKey<Integer> CONNECT_TIMEOUT_MS =
