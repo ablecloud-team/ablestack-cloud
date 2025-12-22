@@ -277,8 +277,8 @@ public class OVFHelper {
         if (StringUtils.isNotBlank(path)) {
             File f = new File(path);
             if (!f.exists() || f.isDirectory()) {
-                logger.error("One of the attached disk or iso does not exists {}", path);
-                throw new InternalErrorException("One of the attached disk or iso as stated on OVF does not exists " + path);
+                logger.error("One of the attached disk or ISO does not exists " + path);
+                throw new InternalErrorException("One of the attached disk or ISO as stated on OVF does not exists " + path);
             }
         }
         Long capacity = disk != null ? disk._capacity : file._size;
@@ -333,7 +333,9 @@ public class OVFHelper {
             od._controller = getControllerType(items, od._diskId);
             vd.add(od);
         }
-        logger.trace("Found {} disk definitions", vd.size());
+        if (logger.isTraceEnabled()) {
+            logger.trace(String.format("Found %d disk definitions", vd.size()));
+        }
         return vd;
     }
 
@@ -363,7 +365,9 @@ public class OVFHelper {
                 vf.add(of);
             }
         }
-        logger.trace("Found {} file definitions in {}", vf.size(), ovfFile.getPath());
+        if (logger.isTraceEnabled()) {
+            logger.trace(String.format("Found %d file definitions in %s", vf.size(), ovfFile.getPath()));
+        }
         return vf;
     }
 
@@ -517,7 +521,9 @@ public class OVFHelper {
 
     public List<OVFNetworkTO> getNetPrerequisitesFromDocument(Document doc) throws InternalErrorException {
         if (doc == null) {
-            logger.trace("No document to parse; returning no prerequisite networks");
+            if (logger.isTraceEnabled()) {
+                logger.trace("No document to parse; returning no prerequisite Networks");
+            }
             return Collections.emptyList();
         }
 
@@ -533,7 +539,9 @@ public class OVFHelper {
     private void matchNicsToNets(Map<String, OVFNetworkTO> nets, Node systemElement) {
         final DocumentTraversal traversal = (DocumentTraversal) systemElement;
         final NodeIterator iterator = traversal.createNodeIterator(systemElement, NodeFilter.SHOW_ELEMENT, null, true);
-        logger.trace("Starting out with {} network-prerequisites, parsing hardware", nets.size());
+        if (logger.isTraceEnabled()) {
+            logger.trace(String.format("Starting out with %d network-prerequisites, parsing hardware",nets.size()));
+        }
         int nicCount = 0;
         for (Node n = iterator.nextNode(); n != null; n = iterator.nextNode()) {
             final Element e = (Element) n;
@@ -541,7 +549,9 @@ public class OVFHelper {
                 nicCount++;
                 String name = e.getTextContent(); // should be in our nets
                 if(nets.get(name) == null) {
-                    logger.info("Found a nic definition without a network definition by name {}, adding it to the list.", name);
+                    if(logger.isInfoEnabled()) {
+                        logger.info(String.format("Found a NIC definition without a Network definition by name %s, adding it to the list.", name));
+                    }
                     nets.put(name, new OVFNetworkTO());
                 }
                 OVFNetworkTO thisNet = nets.get(name);
@@ -550,7 +560,9 @@ public class OVFHelper {
                 }
             }
         }
-        logger.trace("Ending up with {} network-prerequisites, parsed {} nics", nets.size(), nicCount);
+        if (logger.isTraceEnabled()) {
+            logger.trace(String.format("Ending up with %d network-prerequisites, parsed %d NICs", nets.size(), nicCount));
+        }
     }
 
     /**
@@ -617,7 +629,9 @@ public class OVFHelper {
 
             nets.put(networkName,network);
         }
-        logger.trace("Found {} networks in template", nets.size());
+        if (logger.isTraceEnabled()) {
+            logger.trace(String.format("Found %d Networks in Template", nets.size()));
+        }
         return nets;
     }
 
