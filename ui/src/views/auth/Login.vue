@@ -15,8 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-<!-- <template>
+<template>
   <a-form
+    v-if="!samlEnabled"
     id="formLogin"
     class="user-layout-login"
     :ref="formRef"
@@ -212,15 +213,15 @@
       </div>
     </div>
   </a-form>
-</template> -->
+</template>
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import store from '@/store'
 import { mapActions } from 'vuex'
-// import { sourceToken } from '@/utils/request'
-// import { SERVER_MANAGER } from '@/store/mutation-types'
+import { sourceToken } from '@/utils/request'
+import { SERVER_MANAGER } from '@/store/mutation-types'
 import TranslationMenu from '@/components/header/TranslationMenu'
 import semver from 'semver'
 import { getParsedVersion } from '@/utils/util'
@@ -231,6 +232,7 @@ export default {
   },
   data () {
     return {
+      samlEnabled: false,
       idps: [],
       customActiveKey: 'cs',
       customActiveKeyOauth: false,
@@ -260,20 +262,21 @@ export default {
     }
   },
   created () {
-    // if (this.$config.multipleServer) {
-    //   this.server = this.$localStorage.get(SERVER_MANAGER) || this.$config.servers[0]
-    // }
-    // this.initForm()
-    // if (store.getters.logoutFlag) {
-    //   if (store.getters.readyForShutdownPollingJob !== '' || store.getters.readyForShutdownPollingJob !== undefined) {
-    //     clearInterval(store.getters.readyForShutdownPollingJob)
-    //   }
-    //   sourceToken.init()
-    //   this.fetchData()
-    // } else {
-    //   this.fetchData()
-    // }
-    window.location.href = this.$config.apiBase + '?command=samlSso&autologin=false'
+    if (this.$config.multipleServer) {
+      this.server = this.$localStorage.get(SERVER_MANAGER) || this.$config.servers[0]
+    }
+    this.initForm()
+    if (store.getters.logoutFlag) {
+      if (store.getters.readyForShutdownPollingJob !== '' || store.getters.readyForShutdownPollingJob !== undefined) {
+        clearInterval(store.getters.readyForShutdownPollingJob)
+      }
+      sourceToken.init()
+      this.fetchData()
+    } else {
+      this.fetchData()
+    }
+
+    // window.location.href = this.$config.apiBase + '?command=samlSso&autologin=false'
   },
   methods: {
     ...mapActions(['Login', 'Logout', 'OauthLogin']),
@@ -331,6 +334,16 @@ export default {
             return 0
           })
           this.form.idp = this.idps[0].id || ''
+
+          // SAML 비활성화 시 CS 로그인, SAML 활성화 시 SAML 로그인화면으로 리디렉션
+          this.samlEnabled = this.idps.length > 0 && this.idps[0].enable === true
+
+          if (this.samlEnabled) {
+            window.location.href = this.$config.apiBase + '?command=samlSso&autologin=false'
+            return
+          }
+
+          this.customActiveKey = 'cs'
         }
       })
       getAPI('listOauthProvider', {}).then(response => {
