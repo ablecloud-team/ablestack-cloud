@@ -16,13 +16,19 @@
 // under the License.
 package com.cloud.user;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -228,6 +234,8 @@ import com.cloud.vm.snapshot.VMSnapshot;
 import com.cloud.vm.snapshot.VMSnapshotManager;
 import com.cloud.vm.snapshot.VMSnapshotVO;
 import com.cloud.vm.snapshot.dao.VMSnapshotDao;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.cloudstack.saml.SAML2Config;
 
 public class AccountManagerImpl extends ManagerBase implements AccountManager, Manager {
@@ -932,6 +940,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
         try {
             deleteKeycloakUser(account);
             deleteGlueUser(account.getAccountName());
+            deleteWallUser(account.getAccountName());
         } catch (Exception e) {
             logger.error(e.getMessage());
             return false;
@@ -1002,6 +1011,62 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
         }
 
         logger.debug("Glue user deleted: {}", userName);
+    }
+
+    public void deleteWallUser(String userName) throws Exception {
+        final String WALL_BASE_URL = "http://localhost:3000";
+
+        // Wall 계정 id 찾기
+        String adminUser = _configDao.getValue("wall.admin.user");
+        String adminPass = _configDao.getValue("wall.admin.password");
+        String auth = adminUser + ":" + adminPass;
+        String encodedAuth = Base64.encodeBase64String(auth.getBytes());
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request_lookup = HttpRequest.newBuilder()
+                .uri(new URI(WALL_BASE_URL + "/api/users"))
+                .header("Authorization", "Basic " + encodedAuth)
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response_lookup = client.send(request_lookup, HttpResponse.BodyHandlers.ofString());
+        checkResponse(response_lookup, "Failed to lookup Wall user");
+
+        JSONArray users = new JSONArray(response_lookup.body());
+
+        Integer userId = null;
+
+        for (int i = 0; i < users.length(); i++) {
+            JSONObject user = users.getJSONObject(i);
+            if (userName.equals(user.getString("login"))) {
+                userId = user.getInt("id");
+                break;
+            }
+        }
+
+        if (userId != null) {
+            logger.debug("Wall user found: {}, {}", userName, userId);
+        } else {
+            logger.debug("Wall user not found: {}, {}", userName, userId);
+            throw new Exception("Wall user not found: " + userName + ", " + userId + ", HTTP code: " + 500);
+        }
+
+        // ObjectMapper mapper = new ObjectMapper();
+        // int userId = mapper.readTree(response_lookup.body()).get("id").asInt();
+
+        // Wall 계정삭제
+        HttpRequest request_delete = HttpRequest.newBuilder()
+                .uri(new URI(WALL_BASE_URL + "/api/admin/users/" + userId))
+                .header("Authorization", "Basic " + encodedAuth)
+                .header("Content-Type", "application/json")
+                .DELETE()
+                .build();
+
+        HttpResponse<String> response_delete = client.send(request_delete, HttpResponse.BodyHandlers.ofString());
+        checkResponse(response_delete, "Failed to delete Wall user");
+
+        logger.debug("Wall user deleted: {}", userName);
     }
 
     private String getAdminToken() throws Exception {
@@ -1488,6 +1553,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
             try {
                 createKeycloakUser(userName, email, firstName, lastName, password);
                 createGlueUser(userName);
+                createWallUser(userName, email, firstName, password);
             } catch (Exception e) {
                 throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
             }
@@ -1594,11 +1660,113 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
         logger.debug("Glue user created: {}", userName);
     }
 
+    public void createWallUser(String userName, String email, String firstName, String password) throws Exception {
+        final String WALL_BASE_URL = "http://localhost:3000";
+
+        // 1. Wall 계정생성
+        String adminUser = _configDao.getValue("wall.admin.user");
+        String adminPass = _configDao.getValue("wall.admin.password");
+        String auth = adminUser + ":" + adminPass;
+        String encodedAuth = Base64.encodeBase64String(auth.getBytes());
+
+        String jsonBody = "{"
+                + "\"name\":\"" + firstName + "\","
+                + "\"email\":\"" + email + "\","
+                + "\"login\":\"" + userName + "\","
+                + "\"password\":\"" + password + "\""
+                + "}";
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(WALL_BASE_URL + "/api/admin/users"))
+                .header("Authorization", "Basic " + encodedAuth)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
+
+        HttpResponse<String> response_create = client.send(request, HttpResponse.BodyHandlers.ofString());
+        checkResponse(response_create, "Failed to create Wall user");
+
+        // 2. Wall 계정 id
+        ObjectMapper mapper = new ObjectMapper();
+        int userId = mapper.readTree(response_create.body()).get("id").asInt();
+
+        // 3. admin 권한으로 변경
+        String jsonBody_permission = "{ \"isGrafanaAdmin\": true }";
+
+        HttpRequest request_permission = HttpRequest.newBuilder()
+                .uri(new URI(WALL_BASE_URL + "/api/admin/users/" + userId + "/permissions"))
+                .header("Authorization", "Basic " + encodedAuth)
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(jsonBody_permission))
+                .build();
+
+        HttpResponse<String> response_permission = client.send(request_permission, HttpResponse.BodyHandlers.ofString());
+        checkResponse(response_permission, "Failed to permissions Wall user");
+
+        // 4. Keycloak 사용자 ID(auth_id) 조회 후, wall oauth 연동
+        String KEYCLOAK_URL = SAML2Config.SAMLIdentityProviderPortalUrl.value();
+        String REALM = "saml";
+
+        // 4-1. Admin Token 발급
+        String token = getAdminToken();
+        // 4-2. Get Keycloak User
+        URL url = new URL(KEYCLOAK_URL + "/admin/realms/" + REALM + "/users?username=" + URLEncoder.encode(userName, "UTF-8"));
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Authorization", "Bearer " + token);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+
+        int code_getUser = conn.getResponseCode();
+        if (code_getUser < 200 || code_getUser >= 300) {
+            throw new Exception("Failed to get Keycloak user id, HTTP code: " + code_getUser);
+        }
+
+        String response;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+            response = reader.lines().collect(Collectors.joining());
+        }
+
+        JSONArray usersArray = new JSONArray(response);
+        if (usersArray.isEmpty()) {
+            throw new Exception("Keycloak user not found: " + userName);
+        }
+
+        JSONObject userObj = usersArray.getJSONObject(0);
+        String keycloak_userId = userObj.getString("id");
+
+        logger.debug("Keycloak User ID for '" + userName + "': " + keycloak_userId + ", Wall User ID : " + userId);
+
+        // 4-3. Wall oauth 연동
+        String jsonOauthBody = "{ \"auth_module\": \"oauth_generic_oauth\", \"auth_id\": \"" + keycloak_userId + "\" }";
+
+        HttpRequest request_oauth = HttpRequest.newBuilder()
+            .uri(new URI(WALL_BASE_URL + "/api/admin/users/" + userId + "/oauth"))
+            .header("Authorization", "Basic " + encodedAuth)
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(jsonOauthBody))
+            .build();
+
+        HttpResponse<String> response_oauth = client.send(request_oauth, HttpResponse.BodyHandlers.ofString());
+        checkResponse(response_oauth, "Failed to link OAuth");
+
+        logger.debug("Wall user created: {}", userName);
+    }
+
+    private void checkResponse(HttpResponse<?> response, String message) throws Exception {
+        int code = response.statusCode();
+        if (code < 200 || code >= 300) {
+            throw new Exception(message + ", HTTP code: " + code);
+        }
+    }
+
     public void excuteGlueApi(String host, String action, String method, String userName) throws Exception {
 
         HttpsURLConnection connection = null;
         try {
             String glueEndpoint = "https://" + host + ":8080/api/v1/" + action + "/" + userName;
+            logger.debug("glueEndpoint: {}", glueEndpoint);
 
             // SSL 인증서 에러 우회 처리
             final SSLContext sslContext = SSLUtils.getSSLContext();
@@ -1617,10 +1785,11 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
             System.setProperty("sun.net.client.defaultConnectTimeout", "5000");
             System.setProperty("sun.net.client.defaultReadTimeout", "15000");
 
-            // int responseCode = connection.getResponseCode();
-            // if (responseCode != 200) {
-            //     throw new Exception("Failed to create Glue user, HTTP code: " + responseCode);
-            // }
+            int responseCode = connection.getResponseCode();
+            logger.debug("responseCode: {}", responseCode);
+            if (responseCode != 200) {
+                throw new Exception("Failed to create Glue user, HTTP code: " + responseCode);
+            }
         } catch (SocketTimeoutException e) {
             logger.error("Connection timed out while controlling agent for host: " + host, e);
         } catch (Exception e) {
