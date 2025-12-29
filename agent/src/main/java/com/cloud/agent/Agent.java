@@ -27,6 +27,7 @@ import java.net.UnknownHostException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -306,11 +307,45 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         long completedTasks = executor.getCompletedTaskCount();
         long pendingTasks = Math.max(0, taskCount - completedTasks);
         if (queueSize > 0 || executor.getActiveCount() > executor.getPoolSize()) {
-            logger.warn("{}작업 큐 부하 경고 [{}]: active/pool={} / {}, queueSize={}, pendingTasks={}, completedTasks={}{}",
-                    ANSI_RED, context, executor.getActiveCount(), executor.getPoolSize(), queueSize, pendingTasks, completedTasks, ANSI_RESET);
+            logger.warn("{}작업 상태 부하 경고 [{}]:  Workers={} | Active={} | QueueSize={} | PendingTasks={} | CompletedTasks={}{}",
+                    ANSI_RED, context, executor.getPoolSize(), executor.getActiveCount(), queueSize, pendingTasks, completedTasks, ANSI_RESET);
+            logPendingTaskStacks(context, pendingTasks);
         } else {
-            logger.info("{}작업 큐 정보 [{}]: active/pool={} / {}, queueSize={}, pendingTasks={}, completedTasks={}{}",
-                    ANSI_GREEN, context, executor.getActiveCount(), executor.getPoolSize(), queueSize, pendingTasks, completedTasks, ANSI_RESET);
+            logger.info("{}작업 상태 정보 [{}]: Workers={} | Active={} | QueueSize={} | PendingTasks={} | CompletedTasks={}{}",
+                    ANSI_GREEN, context, executor.getPoolSize(), executor.getActiveCount(), queueSize, pendingTasks, completedTasks, ANSI_RESET);
+            if (pendingTasks > 0) {
+                logPendingTaskStacks(context, pendingTasks);
+            }
+        }
+    }
+
+    /**
+     * When tasks remain pending, log short stack traces of executor threads to see what is stuck.
+     */
+    private void logPendingTaskStacks(String context, long pendingTasks) {
+        if (pendingTasks <= 0) {
+            return;
+        }
+        EnumSet<Thread.State> pendingStates = EnumSet.of(Thread.State.BLOCKED, Thread.State.TIMED_WAITING);
+        String threadNamePrefix = context + "-Handler-"; // Basic-Agent-Handler- or Stats-Agent-Handler-
+        for (Map.Entry<Thread, StackTraceElement[]> entry : Thread.getAllStackTraces().entrySet()) {
+            Thread thread = entry.getKey();
+            if (!thread.getName().startsWith(threadNamePrefix)) {
+                continue;
+            }
+            if (!pendingStates.contains(thread.getState())) {
+                continue;
+            }
+            StringBuilder trace = new StringBuilder();
+            StackTraceElement[] stack = entry.getValue();
+            int limit = Math.min(stack.length, 8);
+            for (int i = 0; i < limit; i++) {
+                trace.append(stack[i].toString());
+                if (i < limit - 1) {
+                    trace.append(" <- ");
+                }
+            }
+            logger.warn("{}보류중인 작업 상태 [{}]: State={} | Stack={}{}", ANSI_RED, thread.getName(), thread.getState(), trace, ANSI_RESET);
         }
     }
 
