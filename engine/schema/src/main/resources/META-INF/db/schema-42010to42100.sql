@@ -321,11 +321,11 @@ CREATE TABLE IF NOT EXISTS `cloud`.`netris_providers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Drop the Tungsten and NSX columns from the network offerings (replaced by checking the provider on the ntwk_offering_service_map table)
-SET @sql := (SELECT IF(COUNT(*)>0,'ALTER TABLE `cloud`.`network_offerings` DROP COLUMN `for_tungsten`','SELECT 1') FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='cloud' AND TABLE_NAME='network_offerings' AND COLUMN_NAME='for_tungsten'); PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
-SET @sql := (SELECT IF(COUNT(*)>0,'ALTER TABLE `cloud`.`network_offerings` DROP COLUMN `for_nsx`','SELECT 1') FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='cloud' AND TABLE_NAME='network_offerings' AND COLUMN_NAME='for_nsx'); PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+CALL `cloud`.`IDEMPOTENT_DROP_COLUMN`('cloud.network_offerings', 'for_tungsten');
+CALL `cloud`.`IDEMPOTENT_DROP_COLUMN`('cloud.network_offerings', 'for_nsx');
 
 -- Drop the Tungsten and NSX columns from the VPC offerings (replaced by checking the provider on the vpc_offering_service_map table)
-SET @sql := (SELECT IF(COUNT(*)>0,'ALTER TABLE `cloud`.`vpc_offerings` DROP COLUMN `for_nsx`','SELECT 1') FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='cloud' AND TABLE_NAME='vpc_offerings' AND COLUMN_NAME='for_nsx'); PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+CALL `cloud`.`IDEMPOTENT_DROP_COLUMN`('cloud.vpc_offerings', 'for_nsx');
 
 -- Add next_hop to the static_routes table
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.static_routes', 'next_hop', 'varchar(50) COMMENT "next hop of the static route" AFTER `vpc_gateway_id`');
