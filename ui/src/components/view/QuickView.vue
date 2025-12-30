@@ -16,7 +16,12 @@
 // under the License.
 
 <template>
-  <a-popover v-if="enabled && actionsExist" triggers="hover" placement="topLeft" v-model="visible">
+  <a-popover
+    v-if="enabled && actionsExist"
+    :trigger="triggerList"
+    placement="topLeft"
+    :visible="currentVisible"
+    @visibleChange="handleVisibleChange">
     <template #content>
       <action-button
         :size="size"
@@ -57,6 +62,14 @@ export default {
       default () {
         return {}
       }
+    },
+    visible: {
+      type: Boolean,
+      default: undefined
+    },
+    trigger: {
+      type: [String, Array],
+      default: 'hover'
     }
   },
   watch: {
@@ -70,16 +83,34 @@ export default {
   data () {
     return {
       actionsExist: false,
-      visible: false
+      internalVisible: false
     }
   },
   mounted () {
     this.actionsExist = this.doActionsExist()
   },
+  computed: {
+    triggerList () {
+      return Array.isArray(this.trigger) ? this.trigger : [this.trigger]
+    },
+    currentVisible () {
+      return this.visible === undefined ? this.internalVisible : this.visible
+    }
+  },
   methods: {
     execAction (action) {
-      this.visible = false
+      this.setPopoverVisible(false)
       this.$emit('exec-action', action)
+    },
+    handleVisibleChange (value) {
+      this.setPopoverVisible(value)
+    },
+    setPopoverVisible (value) {
+      if (this.visible === undefined) {
+        this.internalVisible = value
+      } else {
+        this.$emit('update:visible', value)
+      }
     },
     doActionsExist () {
       return this.actions.filter(x =>
