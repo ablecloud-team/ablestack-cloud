@@ -288,7 +288,7 @@ import VmwareData from './VmwareData'
 import ObjectListTable from '@/components/view/ObjectListTable'
 import ExternalConfigurationDetails from '@/views/extension/ExternalConfigurationDetails'
 import { genericCompare } from '@/utils/sort'
-import { getAPI, api } from '@/api'
+import { getAPI } from '@/api'
 
 export default {
   name: 'DetailsTab',
