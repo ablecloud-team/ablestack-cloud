@@ -60,9 +60,6 @@ export default {
       },
       show: (record) => {
         return !(record.archived)
-      },
-      groupShow: (selectedItems) => {
-        return selectedItems.filter(x => { return !(x.archived) }).length > 0
       }
     },
     {
@@ -90,7 +87,7 @@ export default {
       docHelp: 'adminguide/events.html#deleting-and-archiving-events-and-alerts',
       dataView: true,
       successMessage: 'label.event.deleted',
-      groupAction: false,
+      groupAction: true,
       show: () => { return (store.getters.features.eventdeleteenabled) },
       groupMap: (selection) => { return [{ ids: selection.join(',') }] },
       args: ['ids'],

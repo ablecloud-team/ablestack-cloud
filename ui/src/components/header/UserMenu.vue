@@ -273,7 +273,7 @@ export default {
     async fetchHostState () {
       return new Promise((resolve, reject) => {
         setInterval(() => {
-          api('listHostsMetrics', { listall: true }).then(async json => {
+          api('listHostsMetrics', {}).then(async json => {
             const hosts = json.listhostsmetricsresponse.host || []
             const totalHostCount = json.listhostsmetricsresponse.count
             let errorHostCount = 0

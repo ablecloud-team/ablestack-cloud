@@ -83,7 +83,7 @@ public abstract class UploadParamsBase implements UploadParams {
     }
 
     UploadParamsBase(long userId, String name, String displayText, boolean isPublic, boolean isFeatured,
-                               boolean isExtractable, Long osTypeId, Long zoneId, boolean bootable, long ownerId) {
+                               boolean isExtractable, Long osTypeId, Long zoneId, boolean bootable, long ownerId, boolean isDynamicallyScalable) {
         this.userId = userId;
         this.name = name;
         this.displayText = displayText;
@@ -94,6 +94,7 @@ public abstract class UploadParamsBase implements UploadParams {
         this.zoneId = zoneId;
         this.bootable = bootable;
         this.templateOwnerId = ownerId;
+        this.isDynamicallyScalable = isDynamicallyScalable;
     }
 
     @Override

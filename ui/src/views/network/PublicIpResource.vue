@@ -18,16 +18,6 @@
 <template>
   <div>
     <autogen-view @change-resource="changeResource">
-      <template #action>
-        <action-button
-          :style="{ float: device === 'mobile' ? 'left' : 'right' }"
-          :loading="loading"
-          :actions="actions"
-          :selectedRowKeys="selectedRowKeys"
-          :dataView="true"
-          :resource="resource"
-          @exec-action="(action) => execAction(action, action.groupAction && !dataView)" />
-      </template>
       <template #resource>
         <resource-view
           v-if="isPublicIpAddress && 'id' in resource"
@@ -35,6 +25,8 @@
           :resource="resource"
           :historyTab="activeTab"
           :tabs="tabs"
+          :actions="actions"
+          @exec-action="(action) => execAction(action, action.groupAction && !dataView)"
           @onTabChange="(tab) => { activeTab = tab }" />
       </template>
     </autogen-view>
@@ -48,14 +40,12 @@ import { mixinDevice } from '@/utils/mixin.js'
 import eventBus from '@/config/eventBus'
 import AutogenView from '@/views/AutogenView.vue'
 import ResourceView from '@/components/view/ResourceView'
-import ActionButton from '@/components/view/ActionButton'
 
 export default {
   name: 'PublicIpResource',
   components: {
     AutogenView,
-    ResourceView,
-    ActionButton
+    ResourceView
   },
   data () {
     return {

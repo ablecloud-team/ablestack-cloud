@@ -27,16 +27,20 @@ import java.net.UnknownHostException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
 
 import javax.naming.ConfigurationException;
 
@@ -135,7 +139,7 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
     String _uuid;
     String _name;
 
-    Timer _timer = new Timer("Agent Timer");
+    Timer _timer = new Timer("AgentTaskCheckTimer");
     Timer certTimer;
     Timer hostLBTimer;
 
@@ -151,7 +155,13 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
     boolean _reconnectAllowed = true;
     //For time sentitive task, e.g. PingTask
     ThreadPoolExecutor _ugentTaskPool;
-    ExecutorService _executor;
+    ExecutorService _basicExecutor;
+    ExecutorService _statsExecutor;
+    private static final long EXECUTOR_MONITOR_INTERVAL_MS = 10000L;
+    private static final String ANSI_GREEN = "\u001B[92m";
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_RESET = "\u001B[0m";
+    private final Set<String> executorMonitorContexts = ConcurrentHashMap.newKeySet();
 
     Thread _shutdownThread = new ShutdownThread(this);
 
@@ -171,7 +181,7 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
                 new ThreadPoolExecutor(shell.getPingRetries(), 2 * shell.getPingRetries(), 10, TimeUnit.MINUTES, new SynchronousQueue<Runnable>(), new NamedThreadFactory(
                         "UgentTask"));
 
-        _executor =
+        _basicExecutor =
                 new ThreadPoolExecutor(_shell.getWorkers(), 5 * _shell.getWorkers(), 1, TimeUnit.DAYS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
                         "agentRequest-Handler"));
     }
@@ -212,9 +222,14 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
                 new ThreadPoolExecutor(shell.getPingRetries(), 2 * shell.getPingRetries(), 10, TimeUnit.MINUTES, new SynchronousQueue<Runnable>(), new NamedThreadFactory(
                         "UgentTask"));
 
-        _executor =
-                new ThreadPoolExecutor(_shell.getWorkers(), 5 * _shell.getWorkers(), 1, TimeUnit.DAYS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
-                        "agentRequest-Handler"));
+        _basicExecutor =
+                new ThreadPoolExecutor(_shell.getWorkers(), _shell.getWorkers(), 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
+                        "Basic-Agent-Handler"));
+        _statsExecutor =
+                new ThreadPoolExecutor(_shell.getWorkers(), 5 * _shell.getWorkers(), 30, TimeUnit.DAYS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
+                        "Stats-Agent-Handler"));
+        scheduleExecutorMonitoring("Basic-Agent", _basicExecutor);
+        scheduleExecutorMonitoring("Stats-Agent", _statsExecutor);
 
         logger.info("Agent [id = {}, uuid: {}, name: {}] : type = {} : zone = {} : pod = {} : workers = {} : host = {} : port = {}",
                 ObjectUtils.defaultIfNull(_id, "new"), _uuid, _name, getResourceName(),
@@ -254,13 +269,120 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         return _resource.getClass().getSimpleName();
     }
 
+    private void scheduleExecutorMonitoring(String context, ExecutorService executorService) {
+        if (!(executorService instanceof ThreadPoolExecutor)) {
+            return;
+        }
+        if (_timer == null) {
+            _timer = new Timer("AgentTaskCheckTimer");
+        }
+        if (!executorMonitorContexts.add(context)) {
+            return;
+        }
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) executorService;
+        logAgentExecutorMetrics(context, executor);
+        _timer.scheduleAtFixedRate(new AgentExecutorMonitorTask(context, executor), EXECUTOR_MONITOR_INTERVAL_MS, EXECUTOR_MONITOR_INTERVAL_MS);
+    }
+
+    /**
+    executor.getActiveCount()
+    현재 풀에서 실제 작업을 실행 중인 스레드 수입니다. 스레드들이 Runnable을 처리하고 있으면 이 숫자가 올라가고, 대기 중이면 내려갑니다. 즉, “지금 바쁘게 일하는 스레드가 몇 개냐”를 나타냅니다.
+
+    executor.getPoolSize()
+    풀에 현재 생성돼 있는 전체 스레드 수입니다. 코어 스레드 수보다 많아질 수 있고, 작업이 줄면 줄어들기도 합니다. “지금 풀에 몇 개의 워커 스레드가 살아 있나”를 보여줍니다.
+
+    queueSize
+    내부 대기열(예: LinkedBlockingQueue)에 쌓여, 아직 스레드가 꺼내지 않은 작업 개수입니다. 이 값이 크다면 스레드가 부족해서 작업이 밀리고 있다는 뜻입니다.
+
+    pendingTasks
+    총 제출된 작업 수에서 완료된 작업 수를 뺀 값으로, 아직 처리 중이거나 큐에 남아 있는 미완료 작업 수입니다. queueSize와 비슷하지만, 현재 실행 중인 작업까지 포함합니다.
+
+    completedTasks
+    해당 executor가 시작된 이후 성공적으로 끝낸 작업 누적 수입니다. 어떤 시점까지 몇 개의 작업을 처리했는지 확인할 때 사용합니다.
+     */
+    private void logAgentExecutorMetrics(String context, ThreadPoolExecutor executor) {
+        BlockingQueue<?> queue = executor.getQueue();
+        int queueSize = queue.size();
+        long taskCount = executor.getTaskCount();
+        long completedTasks = executor.getCompletedTaskCount();
+        long pendingTasks = Math.max(0, taskCount - completedTasks);
+        if (queueSize > 0 || executor.getActiveCount() > executor.getPoolSize()) {
+            logger.warn("{}작업 상태 부하 경고 [{}]:  Workers={} | Active={} | QueueSize={} | PendingTasks={} | CompletedTasks={}{}",
+                    ANSI_RED, context, executor.getPoolSize(), executor.getActiveCount(), queueSize, pendingTasks, completedTasks, ANSI_RESET);
+            logPendingTaskStacks(context, pendingTasks);
+        } else {
+            logger.info("{}작업 상태 정보 [{}]: Workers={} | Active={} | QueueSize={} | PendingTasks={} | CompletedTasks={}{}",
+                    ANSI_GREEN, context, executor.getPoolSize(), executor.getActiveCount(), queueSize, pendingTasks, completedTasks, ANSI_RESET);
+            if (pendingTasks > 0) {
+                logPendingTaskStacks(context, pendingTasks);
+            }
+        }
+    }
+
+    /**
+     * When tasks remain pending, log short stack traces of executor threads to see what is stuck.
+     */
+    private void logPendingTaskStacks(String context, long pendingTasks) {
+        if (pendingTasks <= 0) {
+            return;
+        }
+        EnumSet<Thread.State> pendingStates = EnumSet.of(Thread.State.BLOCKED, Thread.State.TIMED_WAITING);
+        String threadNamePrefix = context + "-Handler-"; // Basic-Agent-Handler- or Stats-Agent-Handler-
+        for (Map.Entry<Thread, StackTraceElement[]> entry : Thread.getAllStackTraces().entrySet()) {
+            Thread thread = entry.getKey();
+            if (!thread.getName().startsWith(threadNamePrefix)) {
+                continue;
+            }
+            if (!pendingStates.contains(thread.getState())) {
+                continue;
+            }
+            StringBuilder trace = new StringBuilder();
+            StackTraceElement[] stack = entry.getValue();
+            int limit = Math.min(stack.length, 8);
+            for (int i = 0; i < limit; i++) {
+                trace.append(stack[i].toString());
+                if (i < limit - 1) {
+                    trace.append(" <- ");
+                }
+            }
+            logger.warn("{}보류중인 작업 상태 [{}]: State={} | Stack={}{}", ANSI_RED, thread.getName(), thread.getState(), trace, ANSI_RESET);
+        }
+    }
+
+    private ExecutorService selectExecutorForRequest(Request request) {
+        if (requestContainsStatsCommand(request)) {
+            return _statsExecutor != null ? _statsExecutor : _basicExecutor;
+        }
+        return _basicExecutor != null ? _basicExecutor : _statsExecutor;
+    }
+
+    private boolean requestContainsStatsCommand(Request request) {
+        if (request == null) {
+            return false;
+        }
+        Command[] commands = request.getCommands();
+        if (commands == null) {
+            return false;
+        }
+        for (Command command : commands) {
+            if (command != null && command.getClass().getSimpleName().contains("StatsCommand")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * In case of a software based agent restart, this method
      * can help to perform explicit garbage collection of any old
      * agent instances and its inner objects.
      */
     private void scavengeOldAgentObjects() {
-        _executor.submit(new Runnable() {
+        ExecutorService executor = _basicExecutor != null ? _basicExecutor : _statsExecutor;
+        if (executor == null) {
+            return;
+        }
+        executor.submit(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -356,15 +478,21 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
             _ugentTaskPool = null;
         }
 
-        if (_executor != null) {
-            _executor.shutdown();
-            _executor = null;
+        if (_basicExecutor != null) {
+            _basicExecutor.shutdown();
+            _basicExecutor = null;
+        }
+
+        if (_statsExecutor != null) {
+            _statsExecutor.shutdown();
+            _statsExecutor = null;
         }
 
         if (_timer != null) {
             _timer.cancel();
             _timer = null;
         }
+        executorMonitorContexts.clear();
 
         if (hostLBTimer != null) {
             hostLBTimer.cancel();
@@ -1065,6 +1193,21 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         }
     }
 
+    private class AgentExecutorMonitorTask extends ManagedContextTimerTask {
+        private final String context;
+        private final ThreadPoolExecutor executor;
+
+        AgentExecutorMonitorTask(String context, ThreadPoolExecutor executor) {
+            this.context = context;
+            this.executor = executor;
+        }
+
+        @Override
+        protected void runInContext() {
+            logAgentExecutorMetrics(context, executor);
+        }
+    }
+
     public class WatchTask extends ManagedContextTimerTask {
         protected Request _request;
         protected Agent _agent;
@@ -1163,8 +1306,13 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
                         processResponse((Response)request, task.getLink());
                     } else {
                         //put the requests from mgt server into another thread pool, as the request may take a longer time to finish. Don't block the NIO main thread pool
-                        //processRequest(request, task.getLink());
-                        _executor.submit(new AgentRequestHandler(getType(), getLink(), request));
+                        ExecutorService executor = selectExecutorForRequest(request);
+                        if (executor != null) {
+                            executor.submit(new AgentRequestHandler(getType(), getLink(), request));
+                        } else {
+                            logger.warn("No executor available for request {}, processing inline", request);
+                            processRequest(request, task.getLink());
+                        }
                     }
                 } catch (final ClassNotFoundException e) {
                     logger.error("Unable to find this request ");
