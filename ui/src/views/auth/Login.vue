@@ -17,6 +17,7 @@
 
 <template>
   <a-form
+    v-if="!samlEnabled"
     id="formLogin"
     class="user-layout-login"
     :ref="formRef"
@@ -231,6 +232,7 @@ export default {
   },
   data () {
     return {
+      samlEnabled: false,
       idps: [],
       customActiveKey: 'cs',
       customActiveKeyOauth: false,
@@ -273,6 +275,8 @@ export default {
     } else {
       this.fetchData()
     }
+
+    // window.location.href = this.$config.apiBase + '?command=samlSso&autologin=false'
   },
   methods: {
     ...mapActions(['Login', 'Logout', 'OauthLogin']),
@@ -330,6 +334,16 @@ export default {
             return 0
           })
           this.form.idp = this.idps[0].id || ''
+
+          // SAML 비활성화 시 CS 로그인, SAML 활성화 시 SAML 로그인화면으로 리디렉션
+          this.samlEnabled = this.idps.length > 0 && this.idps[0].enable === true
+
+          if (this.samlEnabled) {
+            window.location.href = this.$config.apiBase + '?command=samlSso&autologin=false'
+            return
+          }
+
+          this.customActiveKey = 'cs'
         }
       })
       getAPI('listOauthProvider', {}).then(response => {

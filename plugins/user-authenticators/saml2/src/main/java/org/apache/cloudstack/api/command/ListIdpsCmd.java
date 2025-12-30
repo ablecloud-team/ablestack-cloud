@@ -65,6 +65,7 @@ public class ListIdpsCmd extends BaseCmd implements APIAuthenticator {
 
     @Override
     public String authenticate(String command, Map<String, Object[]> params, HttpSession session, InetAddress remoteAddress, String responseType, StringBuilder auditTrailSb, HttpServletRequest req, HttpServletResponse resp) throws ServerApiException {
+        boolean samlEnabled = SAML2AuthManager.SAMLIsPluginEnabled.value();
         ListResponse<IdpResponse> response = new ListResponse<IdpResponse>();
         List<IdpResponse> idpResponseList = new ArrayList<IdpResponse>();
         for (SAMLProviderMetadata metadata: _samlAuthManager.getAllIdPMetadata()) {
@@ -79,9 +80,19 @@ public class ListIdpsCmd extends BaseCmd implements APIAuthenticator {
                 idpResponse.setOrgName(metadata.getOrganizationName());
             }
             idpResponse.setOrgUrl(metadata.getOrganizationUrl());
+            idpResponse.setEnable(samlEnabled);
             idpResponse.setObjectName("idp");
             idpResponseList.add(idpResponse);
         }
+
+        if (_samlAuthManager.getAllIdPMetadata() == null || _samlAuthManager.getAllIdPMetadata().isEmpty()) {
+            IdpResponse idpResponse = new IdpResponse();
+            idpResponse.setEnable(samlEnabled);
+            idpResponse.setObjectName("idp");
+
+            idpResponseList.add(idpResponse);
+        }
+
         response.setResponses(idpResponseList, idpResponseList.size());
         response.setResponseName(getCommandName());
         return ApiResponseSerializer.toSerializedString(response, responseType);

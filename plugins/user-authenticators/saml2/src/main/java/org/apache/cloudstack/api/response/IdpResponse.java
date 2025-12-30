@@ -32,6 +32,10 @@ public class IdpResponse extends AuthenticationCmdResponse {
     @Param(description = "The IdP Organization URL")
     private String orgUrl;
 
+    @SerializedName("enable")
+    @Param(description = "the SAML Login Enable")
+    private Boolean enable;
+
     public IdpResponse() {
         super();
     }
@@ -58,5 +62,13 @@ public class IdpResponse extends AuthenticationCmdResponse {
 
     public void setOrgUrl(String orgUrl) {
         this.orgUrl = orgUrl;
+    }
+
+    public Boolean getEnable() {
+        return enable;
+    }
+
+    public void setEnable(Boolean enable) {
+        this.enable = enable;
     }
 }
