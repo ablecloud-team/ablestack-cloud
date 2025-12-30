@@ -41,6 +41,7 @@
               :checkStrictly="true"
               @select="onSelect"
               @expand="onExpand"
+              @rightClick="handleContextMenu"
               :expandedKeys="arrExpand">
               <template #icon="{data}">
                 <block-outlined v-if="data.isLeaf" />
@@ -71,11 +72,13 @@
                     :resourceType="tab.resourceType"
                     :loading="loading"
                     :tab="tabActive"
+                    :actions="actions"
                     :bordered="false" />
                   <component
                     v-else
                     :is="tab.component"
                     :resource="resource"
+                    :actions="actions"
                     :items="items"
                     :tab="tabActive"
                     :loading="loading"
@@ -88,6 +91,21 @@
       </a-spin>
     </template>
   </resource-layout>
+  <div
+    v-if="showContextQuickView"
+    ref="contextQuickViewMenu"
+    class="quickview-context-menu"
+    :style="{ top: contextQuickViewPosition.y + 'px', left: contextQuickViewPosition.x + 'px' }"
+    @click.stop
+    @contextmenu.stop.prevent>
+    <ActionButton
+      :actions="contextMenuActions"
+      :resource="contextQuickViewRecord"
+      :dataView="true"
+      :show-resource-title="true"
+      size="default"
+      @exec-action="handleContextAction" />
+  </div>
 </template>
 
 <script>
@@ -97,12 +115,14 @@ import DetailsTab from '@/components/view/DetailsTab'
 import ResourceView from '@/components/view/ResourceView'
 import ResourceLayout from '@/layouts/ResourceLayout'
 import eventBus from '@/config/eventBus'
+import ActionButton from '@/components/view/ActionButton'
 
 export default {
   name: 'TreeView',
   components: {
     ResourceLayout,
-    ResourceView
+    ResourceView,
+    ActionButton
   },
   props: {
     treeData: {
@@ -141,6 +161,12 @@ export default {
     treeDeletedKey: {
       type: String,
       default: null
+    },
+    actions: {
+      type: Array,
+      default () {
+        return []
+      }
     }
   },
   provide: function () {
@@ -171,7 +197,11 @@ export default {
       oldSearchQuery: '',
       searchQuery: '',
       arrExpand: [],
-      rootKey: ''
+      rootKey: '',
+      contextQuickViewVisible: false,
+      contextQuickViewRecord: null,
+      contextQuickViewPosition: { x: 0, y: 0 },
+      contextMenuListenerRegistered: false
     }
   },
   created: function () {
@@ -181,6 +211,9 @@ export default {
     eventBus.on('refresh-domain-icon', () => {
       this.getDetailResource(this.selectedTreeKey)
     })
+  },
+  beforeUnmount () {
+    this.removeContextMenuListeners()
   },
   watch: {
     loading () {
@@ -251,6 +284,29 @@ export default {
           }
         }
       }
+    }
+  },
+  computed: {
+    contextMenuActions () {
+      if (!this.actions || this.actions.length === 0 || !this.contextQuickViewRecord) {
+        return []
+      }
+      return this.actions.map(action => {
+        if (!(action.api in this.$store.getters.apis)) {
+          return null
+        }
+        const canShow = 'show' in action ? action.show(this.contextQuickViewRecord, this.$store.getters) : true
+        if (!canShow) {
+          return null
+        }
+        if (!action.dataView && !action.listView) {
+          return null
+        }
+        return { ...action, dataView: action.dataView || action.listView || false }
+      }).filter(Boolean)
+    },
+    showContextQuickView () {
+      return this.contextQuickViewVisible && this.contextQuickViewRecord && this.contextMenuActions.length > 0
     }
   },
   methods: {
@@ -590,6 +646,71 @@ export default {
       }
 
       return items
+    },
+    handleContextMenu ({ event, node }) {
+      const record = node?.dataRef
+      if (!record) {
+        return
+      }
+      this.contextQuickViewRecord = record
+      if (this.contextMenuActions.length === 0) {
+        this.closeContextQuickView()
+        return
+      }
+      event.preventDefault()
+      event.stopPropagation()
+      this.contextQuickViewPosition = { x: event.clientX, y: event.clientY }
+      this.contextQuickViewVisible = true
+      this.$nextTick(() => {
+        this.adjustContextMenuPosition()
+      })
+      this.addContextMenuListeners()
+    },
+    addContextMenuListeners () {
+      if (this.contextMenuListenerRegistered) {
+        return
+      }
+      document.addEventListener('click', this.closeContextQuickView)
+      this.contextMenuListenerRegistered = true
+    },
+    removeContextMenuListeners () {
+      if (!this.contextMenuListenerRegistered) {
+        return
+      }
+      document.removeEventListener('click', this.closeContextQuickView)
+      this.contextMenuListenerRegistered = false
+    },
+    closeContextQuickView () {
+      this.contextQuickViewVisible = false
+      this.contextQuickViewRecord = null
+      this.removeContextMenuListeners()
+    },
+    adjustContextMenuPosition () {
+      const padding = 8
+      const menu = this.$refs.contextQuickViewMenu
+      if (!menu) {
+        return
+      }
+      const rect = menu.getBoundingClientRect()
+      let x = this.contextQuickViewPosition.x
+      let y = this.contextQuickViewPosition.y
+      const maxX = window.innerWidth - rect.width - padding
+      const maxY = window.innerHeight - rect.height - padding
+      if (x > maxX) {
+        x = Math.max(padding, maxX)
+      }
+      if (y > maxY) {
+        y = Math.max(padding, maxY)
+      }
+      x = Math.max(padding, x)
+      y = Math.max(padding, y)
+      if (x !== this.contextQuickViewPosition.x || y !== this.contextQuickViewPosition.y) {
+        this.contextQuickViewPosition = { x, y }
+      }
+    },
+    handleContextAction (action) {
+      this.closeContextQuickView()
+      this.$emit('exec-action', action)
     }
   }
 }
@@ -670,5 +791,15 @@ export default {
 :deep(.ant-tree-show-line) .ant-tree-indent-unit:before {
   bottom: -2px;
   top: -5px;
+}
+
+.quickview-context-menu {
+  position: fixed;
+  z-index: 2000;
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 </style>
