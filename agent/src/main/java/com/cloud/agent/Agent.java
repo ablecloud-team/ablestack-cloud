@@ -227,16 +227,16 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
 
         _basicExecutor =
                 new ThreadPoolExecutor(_shell.getWorkers(), 5 * _shell.getWorkers(), 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
-                        "Basic-Agent-Handler"));
+                        "Basic-Worker"));
         _statsExecutor =
                 new ThreadPoolExecutor(_shell.getStatsWorkers(), 5 * _shell.getStatsWorkers(), 5, TimeUnit.DAYS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
-                        "Stats-Agent-Handler"));
+                        "Stats-Worker"));
         _haExecutor =
                 new ThreadPoolExecutor(_shell.getHaWorkers(), 5 * _shell.getHaWorkers(), 5, TimeUnit.DAYS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
-                        "HA-Agent-Handler"));
-        scheduleExecutorMonitoring("Basic-Agent", _basicExecutor);
-        scheduleExecutorMonitoring("Stats-Agent", _statsExecutor);
-        scheduleExecutorMonitoring("HA-Agent", _haExecutor);
+                        "HA-Worker"));
+        scheduleExecutorMonitoring("Basic-Worker", _basicExecutor);
+        scheduleExecutorMonitoring("Stats-Worker", _statsExecutor);
+        scheduleExecutorMonitoring("HA-Worker", _haExecutor);
 
         logger.info("Agent [id = {}, uuid: {}, name: {}] : type = {} : zone = {} : pod = {} : workers = {} : stats.workers = {} : ha.workers = {} : host = {} : port = {}",
                 ObjectUtils.defaultIfNull(_id, "new"), _uuid, _name, getResourceName(),
