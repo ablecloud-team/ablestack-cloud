@@ -917,6 +917,16 @@
           @pressEnter="saveValue(record)"
         >
         </a-input>
+        <template v-else-if="['webhook'].includes($route.path.split('/')[1])">
+          <span style="word-break: break-all">{{ text }}</span>
+          <QuickView
+            style="margin-left: 5px"
+            :actions="actions"
+            :resource="record"
+            :enabled="quickViewEnabled() && actions.length > 0"
+            @exec-action="$parent.execAction"
+          />
+        </template>
         <div
           v-else
           style="width: 200px; word-break: break-all"
@@ -1366,7 +1376,7 @@ export default {
         '/project', '/account', 'buckets', 'objectstore', 'hypervisorcapability', 'role',
         '/zone', '/pod', '/cluster', '/host', '/storagepool', '/imagestore', '/systemvm', '/router', '/ilbvm', '/annotation',
         '/computeoffering', '/systemoffering', '/diskoffering', '/backupoffering', '/networkoffering', '/vpcoffering',
-        '/tungstenfabric', '/oauthsetting', '/guestos', '/guestoshypervisormapping', '/webhook', 'webhookdeliveries', '/quotatariff', '/sharedfs',
+        '/tungstenfabric', '/oauthsetting', '/guestos', '/guestoshypervisormapping', '/webhook', 'webhookdeliveries', 'webhookfilters', '/quotatariff', '/sharedfs',
         '/ipv4subnets', '/disasterrecoverycluster', '/managementserver', '/gpucard', '/gpudevices', '/vgpuprofile', '/extension', '/snapshotpolicy', '/backupschedule', '/alertRules', '/alert', ''].join('|'))
         .test(this.$route.path)
     },
