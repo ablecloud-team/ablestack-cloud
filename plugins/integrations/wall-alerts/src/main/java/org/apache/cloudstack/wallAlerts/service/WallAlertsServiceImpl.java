@@ -1,7 +1,6 @@
 package org.apache.cloudstack.wallAlerts.service;
 
 import com.cloud.alert.AlertManager;
-import com.cloud.utils.StringUtils;
 import com.cloud.utils.component.ManagerBase;
 import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.ServerApiException;
@@ -800,26 +799,36 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
     }
 
     private void ensureWallConfiguredForRules() {
-        final String baseUrl = WallConfigKeys.WALL_BASE_URL.value();
-        final String token = WallConfigKeys.WALL_API_TOKEN.value();
+        final String baseUrl = org.apache.cloudstack.wallAlerts.config.WallConfigKeys.WALL_BASE_URL.value();
+        final String token = wallTokenNow();
 
-        if (StringUtils.isBlank(baseUrl)) {
-            throw new ServerApiException(
-                    ApiErrorCode.INTERNAL_ERROR,
+        if (org.apache.commons.lang3.StringUtils.isBlank(baseUrl)) {
+            throw new org.apache.cloudstack.api.ServerApiException(
+                    org.apache.cloudstack.api.ApiErrorCode.INTERNAL_ERROR,
                     "Wall base URL (wall.base.url) is not configured."
             );
         }
 
-        // ★ 여기: enable=true 인데 토큰이 없으면 바로 오류
-        if (WallConfigKeys.WALL_ALERT_ENABLED.value()) {
-            if (StringUtils.isBlank(token)) {
-                throw new ServerApiException(
-                        ApiErrorCode.UNSUPPORTED_ACTION_ERROR,
+        // enable=true 인데 토큰이 없으면 바로 오류입니다.
+        // 여기서 토큰은 “글로벌 설정 우선, 없으면 env 폴백” 결과입니다.
+        if (org.apache.cloudstack.wallAlerts.config.WallConfigKeys.WALL_ALERT_ENABLED.value()) {
+            if (org.apache.commons.lang3.StringUtils.isBlank(token)) {
+                throw new org.apache.cloudstack.api.ServerApiException(
+                        org.apache.cloudstack.api.ApiErrorCode.UNSUPPORTED_ACTION_ERROR,
                         "Wall API token (wall.api.token) is not configured. " +
-                                "Please set a valid service account token to use Wall Alerts."
+                                "Please set a valid service account token in global settings " +
+                                "or provide WALL_API_TOKEN environment variable."
                 );
             }
         }
+    }
+
+    private String wallTokenNow() {
+        final String fromGlobal = org.apache.cloudstack.wallAlerts.config.WallConfigKeys.WALL_API_TOKEN.value();
+        if (fromGlobal != null && !fromGlobal.isBlank()) {
+            return fromGlobal;
+        }
+        return System.getenv("WALL_API_TOKEN");
     }
 
     private void maybeSendWallAlert(final String uid,
