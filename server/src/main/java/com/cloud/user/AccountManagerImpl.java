@@ -1014,7 +1014,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
     }
 
     public void deleteWallUser(String userName) throws Exception {
-        final String WALL_BASE_URL = "http://localhost:3000";
+        final String WALL_BASE_URL = _configDao.getValue("wall.base.url");
 
         // Wall 계정 id 찾기
         String adminUser = _configDao.getValue("wall.admin.user");
@@ -1661,7 +1661,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
     }
 
     public void createWallUser(String userName, String email, String firstName, String password) throws Exception {
-        final String WALL_BASE_URL = "http://localhost:3000";
+        final String WALL_BASE_URL = _configDao.getValue("wall.base.url");
 
         // 1. Wall 계정생성
         String adminUser = _configDao.getValue("wall.admin.user");
