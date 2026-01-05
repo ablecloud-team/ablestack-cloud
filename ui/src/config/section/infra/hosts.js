@@ -41,7 +41,7 @@ export default {
     fields.push('zonename')
     return fields
   },
-  details: ['name', 'id', 'resourcestate', 'ipaddress', 'hypervisor', 'arch', 'type', 'clustername', 'podname', 'zonename', 'disconnected', 'created'],
+  details: ['name', 'id', 'resourcestate', 'ipaddress', 'migrationip', 'hypervisor', 'arch', 'type', 'clustername', 'podname', 'zonename', 'disconnected', 'created'],
   tabs: [{
     name: 'details',
     component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
@@ -51,6 +51,12 @@ export default {
   }, {
     name: 'outofbandmanagement',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/OobmTab.vue')))
+  }, {
+    name: 'hostredfishdata',
+    component: shallowRef(defineAsyncComponent(() => import('@/views/infra/HostRedfishTab.vue'))),
+    show: (record) => {
+      return record.outofbandmanagement?.driver === 'redfish' && record.outofbandmanagement?.powerstate === 'On'
+    }
   }, {
     name: 'listhostdevices',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/ListHostDevicesTab.vue')))

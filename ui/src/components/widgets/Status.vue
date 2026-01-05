@@ -52,7 +52,9 @@ export default {
         var state = this.text
         switch (state.toLowerCase()) {
           case 'enabled':
-            state = this.$t('state.enabled')
+          case 'active':
+          case 'ok':
+            state = this.$t('state.ok')
             break
           case 'disabled':
             state = this.$t('state.disabled')
@@ -105,9 +107,6 @@ export default {
           case 'maintenance':
             state = this.$t('state.maintenance')
             break
-          case 'active':
-            state = this.$t('state.enabled')
-            break
           case 'inactive':
             state = this.$t('state.disabled')
             break
@@ -156,6 +155,33 @@ export default {
           case 'completed':
             state = this.$t('state.completed')
             break
+          case 'redundant':
+            state = this.$t('state.redundant')
+            break
+          case 'nonredundant':
+            state = this.$t('state.nonredundant')
+            break
+          case 'unavailable':
+            state = this.$t('state.unavailable')
+            break
+          case 'critical':
+            state = this.$t('state.critical')
+            break
+          case 'notpresent':
+            state = this.$t('state.notpresent')
+            break
+          case 'goodinuse':
+            state = this.$t('state.goodinuse')
+            break
+          case 'absent':
+            state = this.$t('state.absent')
+            break
+          case 'alerting':
+            state = this.$t('state.alerting')
+            break
+          case 'nodata':
+            state = this.$t('state.nodata')
+            break
         }
         return state.charAt(0).toUpperCase() + state.slice(1)
       }
@@ -171,6 +197,7 @@ export default {
         case 'download complete':
         case 'enabled':
         case 'implemented':
+        case 'ok':
         case 'on':
         case 'readwrite':
         case 'ready':
@@ -183,9 +210,12 @@ export default {
         case 'success':
         case 'poweron':
         case 'syncing':
+        case 'redundant':
+        case 'goodinuse':
           status = 'success'
           break
         case 'alert':
+        case 'alerting':
         case 'declined':
         case 'disabled':
         case 'disconnected':
@@ -197,6 +227,7 @@ export default {
         case 'poweroff':
         case 'stopped':
         case 'failed':
+        case 'critical':
           status = 'error'
           break
         case 'migrating':
@@ -226,6 +257,7 @@ export default {
         case 'warning':
         case 'free':
         case 'scheduled':
+        case 'notredundant':
           status = 'warning'
           break
       }

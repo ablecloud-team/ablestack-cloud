@@ -144,6 +144,7 @@ public class HostJoinDaoImpl extends GenericDaoBase<HostJoinVO, Long> implements
         hostResponse.setIpAddress(host.getPrivateIpAddress());
         hostResponse.setVersion(host.getVersion());
         hostResponse.setCreated(host.getCreated());
+        hostResponse.setMigrationIp(host.getMigrationIp());
 
         List<HostGpuGroupsVO> gpuGroups = ApiDBUtils.getGpuGroups(host.getId());
         if (gpuGroups != null && !gpuGroups.isEmpty()) {

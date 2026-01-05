@@ -58,6 +58,9 @@ public class BackupOfferingVO implements BackupOffering {
     @Column(name = "provider")
     private String provider;
 
+    @Column(name = "retention_period")
+    private String retentionPeriod;
+
     @Column(name = "created")
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date created;
@@ -70,7 +73,7 @@ public class BackupOfferingVO implements BackupOffering {
         this.uuid = UUID.randomUUID().toString();
     }
 
-    public BackupOfferingVO(final long zoneId, final String externalId, final String provider, final String name, final String description, final boolean userDrivenBackupAllowed) {
+    public BackupOfferingVO(final long zoneId, final String externalId, final String provider, final String name, final String description, final boolean userDrivenBackupAllowed, final String retentionPeriod) {
         this();
         this.name = name;
         this.description = description;
@@ -78,6 +81,7 @@ public class BackupOfferingVO implements BackupOffering {
         this.provider = provider;
         this.externalId = externalId;
         this.userDrivenBackupAllowed = userDrivenBackupAllowed;
+        this.retentionPeriod = retentionPeriod;
         this.created = new Date();
     }
 
@@ -126,6 +130,14 @@ public class BackupOfferingVO implements BackupOffering {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getRetentionPeriod() {
+        return retentionPeriod;
+    }
+
+    public void setRetentionPeriod(String retentionPeriod) {
+        this.retentionPeriod = retentionPeriod;
     }
 
     public Date getCreated() {

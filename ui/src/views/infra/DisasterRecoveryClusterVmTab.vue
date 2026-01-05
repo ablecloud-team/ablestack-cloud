@@ -42,7 +42,7 @@
             :dataSource="this.priList"
             :rowKey="item => item.priVmName"
             :pagination="false"
-          >
+            :expandRowByClick="true">
             <template #name="{record}">
               <router-link :to="{ path: '/vm/' + record.priVmId }">{{ record.priVmName }}</router-link>
             </template>
@@ -79,7 +79,8 @@
           :columns="secDrVmColumns"
           :dataSource="this.secList"
           :rowKey="item => item.secVmName"
-          :pagination="false">
+          :pagination="false"
+          :expandRowByClick="true">
             <template #state="{text}">
               <status :text="text ? text : ''" displayText />
             </template>

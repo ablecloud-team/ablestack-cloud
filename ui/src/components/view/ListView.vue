@@ -16,18 +16,19 @@
 // under the License.
 
 <template>
-  <a-table
-    size="middle"
-    :loading="loading"
-    :columns="isOrderUpdatable() ? columns : columns.filter(x => x.dataIndex !== 'order')"
-    :dataSource="items"
-    :rowKey="(record, idx) => record.id || record.name || record.usageType || idx + '-' + Math.random()"
-    :pagination="false"
-    :rowSelection="explicitlyAllowRowSelection || enableGroupAction() || $route.name === 'event' ? {selectedRowKeys: selectedRowKeys, onChange: onSelectChange, columnWidth: 30} : null"
-    :rowClassName="getRowClassName"
-    @resizeColumn="handleResizeColumn"
-    :style="{ 'overflow-y': this.$route.name === 'usage' ? 'hidden' : 'auto' }"
-  >
+  <div class="list-view-table-wrapper" @contextmenu="handleGlobalContextMenu">
+    <a-table
+      size="middle"
+      :loading="loading"
+      :columns="isOrderUpdatable() ? columns : columns.filter(x => x.dataIndex !== 'order')"
+      :dataSource="items"
+      :rowKey="(record, idx) => record.uid || (record.metadata && record.metadata.rule_uid) || record.id || record.name || record.usageType || (idx + '-' + Math.random())"
+      :pagination="false"
+      :rowSelection="explicitlyAllowRowSelection || enableGroupAction() || $route.name === 'event' ? {selectedRowKeys: selectedRowKeys, onChange: onSelectChange, columnWidth: 30} : null"
+      :rowClassName="getRowClassName"
+      @resizeColumn="handleResizeColumn"
+      :style="{ 'overflow-y': this.$route.name === 'usage' ? 'hidden' : 'auto' }"
+    >
     <template #customFilterDropdown>
       <div style="padding: 8px" class="filter-dropdown">
         <a-menu>
@@ -47,12 +48,6 @@
           <os-logo v-else :osId="record.ostypeid" :osName="record.osdisplayname" size="xl" />
         </span>
         <span style="min-width: 120px" >
-          <QuickView
-            style="margin-left: 5px"
-            :actions="actions"
-            :resource="record"
-            :enabled="quickViewEnabled() && actions.length > 0 && columns && ['name', 'provider'].includes(columns[0].dataIndex)"
-            @exec-action="$parent.execAction"/>
           <span v-if="$route.path.startsWith('/project')" style="margin-right: 5px">
             <tooltip-button type="dashed" size="small" icon="LoginOutlined" @onClick="changeProject(record)" />
           </span>
@@ -77,9 +72,15 @@
             <router-link :to="{ path: $route.path + '/' + record.name , query: { account: record.account, domainid: record.domainid }}" >{{ $t(text.toLowerCase()) }}</router-link>
           </span>
           <span v-else-if="$route.path.startsWith('/globalsetting')">{{ text }}</span>
+          <span v-else-if="$route.path.startsWith('/alertRules')">
+            <router-link :to="{ path: $route.path + '/' + (record.uid || record.id || record.name) }">
+              {{ text }}
+            </router-link>
+          </span>
           <span v-else-if="$route.path.startsWith('/alert')">
-            <router-link :to="{ path: $route.path + '/' + record.id }" v-if="record.id">{{ $t(text.toLowerCase()) }}</router-link>
-            <router-link :to="{ path: $route.path + '/' + record.name }" v-else>{{ $t(text.toLowerCase()) }}</router-link>
+            <router-link :to="{ path: $route.path + '/' + (record.id || record.name) }">
+              {{ $t(text.toLowerCase()) }}
+            </router-link>
           </span>
           <span v-else-if="$route.path.startsWith('/tungstenfabric')">
             <router-link :to="{ path: $route.path + '/' + record.id }" v-if="record.id">{{ $t(text.toLowerCase()) }}</router-link>
@@ -120,12 +121,6 @@
           ({{ generateHumanReadableSchedule(text) }})
       </template>
       <template v-if="column.key === 'displayname'">
-        <QuickView
-          style="margin-left: 5px"
-          :actions="actions"
-          :resource="record"
-          :enabled="quickViewEnabled() && actions.length > 0 && columns && columns[0].dataIndex === 'displayname' "
-          @exec-action="$parent.execAction"/>
         <router-link :to="{ path: $route.path + '/' + record.id }">{{ text }}</router-link>
       </template>
       <template v-if="column.key === 'username'">
@@ -159,6 +154,10 @@
         <span v-if="record.isstaticnat">
           &nbsp;
           <a-tag>static-nat</a-tag>
+        </span>
+        <span v-if="record.issystem">
+          &nbsp;
+          <a-tag>system</a-tag>
         </span>
       </template>
       <template v-if="column.key === 'ip6address'" href="javascript:;">
@@ -208,12 +207,6 @@
           <router-link :to="{ path: $route.path + '/' + record.id }">{{ text }}</router-link>
         </span>
         <span v-else-if="$route.name === 'guestoshypervisormapping'">
-          <QuickView
-            style="margin-left: 5px"
-            :actions="actions"
-            :resource="record"
-            :enabled="quickViewEnabled() && actions.length > 0 && columns && columns[0].dataIndex === 'hypervisor' "
-            @exec-action="$parent.execAction"/>
           <router-link :to="{ path: $route.path + '/' + record.id }">{{ text }}</router-link>
         </span>
         <span v-else>{{ text }}</span>
@@ -241,6 +234,9 @@
         <status :text="text ? text : ''" displayText />
       </template>
       <template v-if="column.key === 'agentstate'">
+        <status :text="text ? text : ''" displayText />
+      </template>
+      <template v-if="column.key === 'ispaused'">
         <status :text="text ? text : ''" displayText />
       </template>
       <template v-if="column.key === 'cpunumber'">
@@ -424,7 +420,7 @@
         <status :text="record.enabled ? record.enabled.toString() : 'false'" />
         {{ record.enabled ? 'Enabled' : 'Disabled' }}
       </template>
-      <template v-if="['created', 'sent', 'removed', 'effectiveDate', 'endDate'].includes(column.key) || (['startdate'].includes(column.key) && ['webhook'].includes($route.path.split('/')[1])) || (column.key === 'allocated' && ['asnumbers', 'publicip', 'ipv4subnets'].includes($route.meta.name) && text)">
+      <template v-if="['created', 'sent', 'removed', 'effectiveDate', 'endDate', 'allocated'].includes(column.key) || (['startdate'].includes(column.key) && ['webhook'].includes($route.path.split('/')[1])) || (column.key === 'allocated' && ['asnumbers', 'publicip', 'ipv4subnets'].includes($route.meta.name) && text)">
         {{ $toLocaleDate(text) }}
       </template>
       <template v-if="['startdate', 'enddate'].includes(column.key) && ['vm', 'vnfapp'].includes($route.path.split('/')[1])">
@@ -448,12 +444,6 @@
       <template v-if="column.key === 'payload'">
         <router-link v-if="$router.resolve('/webhookdeliveries/' + record.id).matched[0].redirect !== '/exception/404'" :to="{ path: '/webhookdeliveries/' + record.id }">{{ getTrimmedText(text, 48) }}</router-link>
         <span v-else>  {{ getTrimmedText(text, 48) }} </span>
-        <QuickView
-          style="margin-left: 5px"
-          :actions="actions"
-          :resource="record"
-          :enabled="quickViewEnabled() && actions.length > 0"
-          @exec-action="$parent.execAction"/>
       </template>
       <template v-if="column.key === 'webhookname'">
         <router-link v-if="$router.resolve('/webhook/' + record.webhookid).matched[0].redirect !== '/exception/404'" :to="{ path: '/webhook/' + record.webhookid }">{{ text }}</router-link>
@@ -599,18 +589,43 @@
           type="primary"
           @onClick="removeVMSchedule(record)" />
       </template>
+      <template v-if="column.key === 'operator'">
+        <span>{{ formatOperator(text) }}</span>
+      </template>
+      <template v-if="column.key === 'threshold' && $route.path.split('/')[1] === 'alertRules'">
+        <span>{{ formatThresholdLabelSafe(record) }}</span>
+      </template>
     </template>
     <template #footer>
       <span v-if="hasSelected">
         {{ `Selected ${selectedRowKeys.length} items` }}
       </span>
     </template>
-  </a-table>
+    </a-table>
+  </div>
+  <div
+    v-if="showContextQuickView"
+    ref="contextQuickViewMenu"
+    class="quickview-context-menu"
+    :style="{ top: contextQuickViewPosition.y + 'px', left: contextQuickViewPosition.x + 'px' }"
+    @click.stop
+    @contextmenu.stop.prevent>
+    <ActionButton
+      :actions="contextMenuActions"
+      :resource="contextQuickViewRecord"
+      :dataView="true"
+      :selectedRowKeys="selectedRowKeys"
+      :selectedItems="selectedItems"
+      :show-resource-title="true"
+      :titleOverride="contextMenuTitle"
+      size="default"
+      @exec-action="handleContextAction" />
+  </div>
 </template>
 
 <script>
 import { api } from '@/api'
-import QuickView from '@/components/view/QuickView'
+import ActionButton from '@/components/view/ActionButton'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import CopyLabel from '@/components/widgets/CopyLabel'
 import OsLogo from '@/components/widgets/OsLogo'
@@ -627,7 +642,7 @@ export default {
   components: {
     OsLogo,
     Status,
-    QuickView,
+    ActionButton,
     CopyLabel,
     TooltipButton,
     ResourceIcon,
@@ -719,7 +734,14 @@ export default {
         }
       },
       usageTypeMap: {},
-      resourceIdToValidLinksMap: {}
+      resourceIdToValidLinksMap: {},
+      contextQuickViewVisible: false,
+      contextQuickViewRecord: null,
+      contextQuickViewPosition: {
+        x: 0,
+        y: 0
+      },
+      contextMenuListenerRegistered: false
     }
   },
   watch: {
@@ -731,17 +753,171 @@ export default {
           this.resourceIdToValidLinksMap[record.id] = validateLinks(this.$router, false, record)
         })
       }
+    },
+    selectedRowKeys (newVal, oldVal) {
+      if (newVal === oldVal) {
+        return
+      }
+      // Close any open context menu when selection changes
+      this.closeContextQuickView()
+    },
+    '$route.fullPath' () {
+      // Clear selection when navigating between routes or revisiting list screens
+      this.resetSelection()
+      this.closeContextQuickView()
     }
   },
   created () {
     this.getUsageTypes()
   },
+  beforeUnmount () {
+    this.removeContextMenuListeners()
+  },
   computed: {
     hasSelected () {
       return this.selectedRowKeys.length > 0
+    },
+    showContextQuickView () {
+      return this.contextQuickViewVisible && this.contextMenuActions.length > 0
+    },
+    selectionList () {
+      return this.selectedItems || []
+    },
+    contextMenuActions () {
+      if (!this.actions || this.actions.length === 0) {
+        return []
+      }
+      if (this.selectedRowKeys.length > 1) {
+        return this.actions.filter(action =>
+          action.groupAction &&
+          action.api in this.$store.getters.apis &&
+          ('groupShow' in action ? action.groupShow(this.selectionList, this.$store.getters) : true)
+        )
+      }
+      if (!this.contextQuickViewRecord) {
+        return []
+      }
+      return this.actions.filter(action =>
+        action.dataView &&
+        action.api in this.$store.getters.apis &&
+        ('show' in action ? action.show(this.contextQuickViewRecord, this.$store.getters) : true)
+      )
+    },
+    contextMenuTitle () {
+      if (this.selectedRowKeys.length > 1) {
+        const first = this.getFirstSelectedItem()
+        const suffix = this.$t('label.items.more', [this.selectedRowKeys.length - 1])
+        const firstName = first?.displayname || first?.name || first?.displaytext || first?.displaytext || first?.hostname || first?.vmname || first?.annotation || first?.hypervisor || first?.type || first?.username || first?.ipaddress || first?.uuid || first?.id || ''
+        return `${firstName} ${suffix}`
+      }
+      return null
     }
   },
   methods: {
+    getFirstSelectedItem () {
+      const list = this.selectionList || []
+      if (list.length > 0) {
+        return this.selectionList[0]
+      }
+      if (this.selectedRowKeys.length > 0 && this.items && this.items.length > 0) {
+        const key = this.selectedRowKeys[0]
+        return this.items.find(item => this.generateRowKeyValue(item) === key || String(this.generateRowKeyValue(item)) === String(key))
+      }
+      return null
+    },
+    handleGlobalContextMenu (event) {
+      if (!event || !event.target) {
+        return
+      }
+      const rowElement = event.target.closest('tr.ant-table-row')
+      // Allow context menu even when multiple items selected; fall back to first selected item
+      const selectionCount = this.selectedRowKeys.length
+      const hasSelection = selectionCount > 0
+      if (!rowElement && !hasSelection) {
+        this.closeContextQuickView()
+        return
+      }
+      if (!this.quickViewEnabled() || !this.actions || this.actions.length === 0) {
+        return
+      }
+      let record = null
+      if (selectionCount > 0) {
+        record = this.getFirstSelectedItem() || {}
+      }
+      if (!record && rowElement) {
+        const rowKey = rowElement.getAttribute('data-row-key')
+        record = this.items.find(item => String(this.generateRowKeyValue(item)) === rowKey)
+      }
+      if (!record) {
+        this.closeContextQuickView()
+        return
+      }
+      event.preventDefault()
+      event.stopPropagation()
+      this.contextQuickViewRecord = record
+      this.contextQuickViewPosition = {
+        x: event.clientX,
+        y: event.clientY
+      }
+      if (this.contextMenuActions.length === 0) {
+        this.closeContextQuickView()
+        return
+      }
+      this.contextQuickViewVisible = true
+      this.$nextTick(() => {
+        this.adjustContextMenuPosition()
+      })
+      this.addContextMenuListeners()
+    },
+    addContextMenuListeners () {
+      if (this.contextMenuListenerRegistered) {
+        return
+      }
+      document.addEventListener('click', this.closeContextQuickView)
+      this.contextMenuListenerRegistered = true
+    },
+    removeContextMenuListeners () {
+      if (!this.contextMenuListenerRegistered) {
+        return
+      }
+      document.removeEventListener('click', this.closeContextQuickView)
+      this.contextMenuListenerRegistered = false
+    },
+    closeContextQuickView () {
+      this.contextQuickViewVisible = false
+      this.contextQuickViewRecord = null
+      this.removeContextMenuListeners()
+    },
+    adjustContextMenuPosition () {
+      const padding = 8
+      const menu = this.$refs.contextQuickViewMenu
+      if (!menu) {
+        return
+      }
+      const rect = menu.getBoundingClientRect()
+      let x = this.contextQuickViewPosition.x
+      let y = this.contextQuickViewPosition.y
+      const maxX = window.innerWidth - rect.width - padding
+      const maxY = window.innerHeight - rect.height - padding
+      if (x > maxX) {
+        x = Math.max(padding, maxX)
+      }
+      if (y > maxY) {
+        y = Math.max(padding, maxY)
+      }
+      x = Math.max(padding, x)
+      y = Math.max(padding, y)
+      if (x !== this.contextQuickViewPosition.x || y !== this.contextQuickViewPosition.y) {
+        this.contextQuickViewPosition = { x, y }
+      }
+    },
+    handleContextAction (action) {
+      this.closeContextQuickView()
+      this.$parent.execAction(action)
+    },
+    generateRowKeyValue (record) {
+      return record.uid || (record.metadata && record.metadata.rule_uid) || record.id || record.name || record.usageType
+    },
     isTungstenPath () {
       return ['/tungstennetworkroutertable', '/tungstenpolicy', '/tungsteninterfaceroutertable',
         '/tungstenpolicyset', '/tungstenroutingpolicy', '/firewallrule', '/tungstenfirewallpolicy'].includes(this.$route.path)
@@ -749,14 +925,14 @@ export default {
     createPathBasedOnVmType: createPathBasedOnVmType,
     quickViewEnabled () {
       return new RegExp(['/vm', '/desktop', '/kubernetes', '/ssh', '/userdata', '/vmgroup', '/affinitygroup', '/autoscalevmgroup',
-        '/volume', '/snapshot', '/vmsnapshot', '/backup',
-        '/guestnetwork', '/vpc', '/vpncustomergateway', '/vnfapp',
+        '/volume', '/snapshot', '/vmsnapshot', '/backup', '/event', '/publicip', '/comment', '/asnumbers', '/guestvlans',
+        '/guestnetwork', '/vpc', '/vpncustomergateway', '/vnfapp', '/securitygroups', '/quotasummary',
         '/template', '/controllertemplate', '/mastertemplate', '/automationtemplate', '/automationcontroller', '/iso',
-        '/project', '/account', 'buckets', 'objectstore',
+        '/project', '/account', 'buckets', 'objectstore', 'hypervisorcapability', 'role',
         '/zone', '/pod', '/cluster', '/host', '/storagepool', '/imagestore', '/systemvm', '/router', '/ilbvm', '/annotation',
         '/computeoffering', '/systemoffering', '/diskoffering', '/backupoffering', '/networkoffering', '/vpcoffering',
         '/tungstenfabric', '/oauthsetting', '/guestos', '/guestoshypervisormapping', '/webhook', 'webhookdeliveries', '/quotatariff', '/sharedfs',
-        '/ipv4subnets', '/disasterrecoverycluster'].join('|'))
+        '/ipv4subnets', '/disasterrecoverycluster', '/alertRules', '/managementserver', '/alert', ''].join('|'))
         .test(this.$route.path)
     },
     enableGroupAction () {
@@ -1091,6 +1267,59 @@ export default {
           }
         })
       }
+    },
+    formatOperator (op) {
+      if (op == null) return ''
+      const raw = String(op)
+      if (raw.startsWith('label.operator.')) return this.$t(raw)
+      const key = ({
+        gt: 'label.operator.above',
+        gte: 'label.operator.above',
+        lt: 'label.operator.below',
+        lte: 'label.operator.below',
+        between: 'label.operator.within',
+        within: 'label.operator.within',
+        within_range: 'label.operator.within',
+        outside: 'label.operator.outside',
+        outside_range: 'label.operator.outside'
+      })[raw.toLowerCase()]
+      return key ? this.$t(key) : raw
+    },
+    formatThresholdLabel (op, t1, t2) {
+      const o = op == null ? '' : String(op).toLowerCase()
+      const v1 = t1 === null || t1 === undefined ? null : String(t1)
+      const v2 = t2 === null || t2 === undefined ? null : String(t2)
+
+      const above = this.$t('label.operator.above')
+      const below = this.$t('label.operator.below')
+      const within = this.$t('label.operator.within')
+      const outside = this.$t('label.operator.outside')
+
+      if (o === 'within_range' || o === 'between') {
+        return v1 && v2 ? `${v1}-${v2} ${within}` : '—'
+      }
+      if (o === 'outside_range' || o === 'outside') {
+        return v1 && v2 ? `${v1} ${below} 또는 ${v2} ${above}` : outside
+      }
+
+      if (!v1) return '—'
+      if (o === 'gt' || o === '>') return `${v1} ${above}`
+      if (o === 'gte' || o === '>=') return `${v1} ${above}`
+      if (o === 'lt' || o === '<') return `${v1} ${below}`
+      if (o === 'lte' || o === '<=') return `${v1} ${below}`
+
+      return v2 ? `${v1}-${v2}` : v1
+    },
+
+    // 렌더 오류가 나도 페이지 전체가 죽지 않도록 방어
+    formatThresholdLabelSafe (record) {
+      try {
+        return this.formatThresholdLabel(record?.operator, record?.threshold, record?.threshold2)
+      } catch (e) {
+        console.error('[threshold-render]', e)
+        const v = record && record.threshold != null ? String(record.threshold) : '—'
+        return v
+      }
     }
   }
 }
@@ -1151,5 +1380,15 @@ export default {
     background-color: rgba(255, 190, 190, 0.75);
     color: #f50000;
     padding: 10%;
+  }
+
+  .quickview-context-menu {
+    position: fixed;
+    z-index: 2000;
+    background-color: #fff;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    padding: 10px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   }
 </style>

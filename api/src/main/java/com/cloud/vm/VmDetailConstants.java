@@ -93,6 +93,9 @@ public interface VmDetailConstants {
     String KEY_PAIR_NAMES = "keypairnames";
     String CKS_CONTROL_NODE_LOGIN_USER = "controlNodeLoginUser";
 
+    // boot order details
+    String BOOT_ORDER = "bootOrder";
+
     // VMware to KVM VM migrations specific
     String VMWARE_TO_KVM_PREFIX = "vmware-to-kvm";
     String VMWARE_VCENTER_HOST = String.format("%s-vcenter", VMWARE_TO_KVM_PREFIX);

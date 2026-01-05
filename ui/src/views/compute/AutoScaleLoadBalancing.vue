@@ -32,7 +32,8 @@
       :columns="columns"
       :dataSource="lbRules"
       :pagination="false"
-      :rowKey="record => record.id">
+      :rowKey="record => record.id"
+      :expandRowByClick="true">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'algorithm'">
         {{ returnAlgorithmName(record.algorithm) }}

@@ -62,6 +62,10 @@ public class ImportBackupOfferingCmd extends BaseAsyncCmd {
             description = "the description of the backup offering")
     private String description;
 
+    @Parameter(name = ApiConstants.PROVIDER, type = CommandType.STRING, required = true,
+            description = "The backup provider name")
+    private String provider;
+
     @Parameter(name = ApiConstants.EXTERNAL_ID,
             type = CommandType.STRING,
             required = true,
@@ -76,12 +80,20 @@ public class ImportBackupOfferingCmd extends BaseAsyncCmd {
             description = "Whether users are allowed to create adhoc backups and backup schedules", required = true)
     private Boolean userDrivenBackups;
 
+    @Parameter(name = ApiConstants.RETENTION_PERIOD, type = CommandType.STRING, required = false,
+            description = "Retention period of backup data")
+    private String retentionPeriod;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
 
     public String getName() {
         return name;
+    }
+
+    public String getProvider() {
+        return provider;
     }
 
     public String getExternalId() {
@@ -98,6 +110,10 @@ public class ImportBackupOfferingCmd extends BaseAsyncCmd {
 
     public Boolean getUserDrivenBackups() {
         return userDrivenBackups == null ? false : userDrivenBackups;
+    }
+
+    public String getRetentionPeriod() {
+        return retentionPeriod;
     }
 
     /////////////////////////////////////////////////////

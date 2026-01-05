@@ -40,13 +40,13 @@
           type="error">
           <template #message>
             <exclamation-circle-outlined style="color: red; fontSize: 30px; display: inline-flex" />
-            <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+            <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>&nbsp`" />
             <span v-html="$t(message.confirmMessage)" />
           </template>
         </a-alert>
         <a-alert v-else type="warning">
           <template #message>
-            <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+            <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>&nbsp`" />
             <span v-html="$t(message.confirmMessage)" />
           </template>
         </a-alert>

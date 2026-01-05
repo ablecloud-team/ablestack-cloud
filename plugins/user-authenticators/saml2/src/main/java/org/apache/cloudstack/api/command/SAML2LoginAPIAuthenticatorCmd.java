@@ -153,7 +153,15 @@ public class SAML2LoginAPIAuthenticatorCmd extends BaseCmd implements APIAuthent
     @Override
     public String authenticate(final String command, final Map<String, Object[]> params, final HttpSession session, final InetAddress remoteAddress, final String responseType, final StringBuilder auditTrailSb, final HttpServletRequest req, final HttpServletResponse resp) throws ServerApiException {
         try {
-            if (!params.containsKey(SAMLPluginConstants.SAML_RESPONSE) && !params.containsKey("SAMLart")) {
+            String autoLoginValue = null;
+            if (params.containsKey("autologin")) {
+                String[] autoLoginArray = (String[]) params.get("autologin");
+                if (autoLoginArray != null && autoLoginArray.length > 0) {
+                    autoLoginValue = autoLoginArray[0];
+                }
+            }
+
+            if ((!params.containsKey(SAMLPluginConstants.SAML_RESPONSE) && !params.containsKey("SAMLart")) || (params.containsKey(SAMLPluginConstants.SAML_RESPONSE) && "true".equals(autoLoginValue))) {
                 String idpId = null;
                 String domainPath = null;
 
@@ -190,7 +198,7 @@ public class SAML2LoginAPIAuthenticatorCmd extends BaseCmd implements APIAuthent
                 String authnId = SAMLUtils.generateSecureRandomId();
                 samlAuthManager.saveToken(authnId, domainPath, idpMetadata.getEntityId());
                 logger.debug("Sending SAMLRequest id=" + authnId);
-                String redirectUrl = SAMLUtils.buildAuthnRequestUrl(authnId, spMetadata, idpMetadata, SAML2AuthManager.SAMLSignatureAlgorithm.value());
+                String redirectUrl = SAMLUtils.buildAuthnRequestUrl(authnId, spMetadata, idpMetadata, SAML2AuthManager.SAMLSignatureAlgorithm.value(), autoLoginValue);
                 resp.sendRedirect(redirectUrl);
                 return "";
             } if (params.containsKey("SAMLart")) {
@@ -202,9 +210,17 @@ public class SAML2LoginAPIAuthenticatorCmd extends BaseCmd implements APIAuthent
                 Response processedSAMLResponse = this.processSAMLResponse(samlResponse);
                 String statusCode = processedSAMLResponse.getStatus().getStatusCode().getValue();
                 if (!statusCode.equals(StatusCode.SUCCESS_URI)) {
-                    throw new ServerApiException(ApiErrorCode.ACCOUNT_ERROR, apiServer.getSerializedApiError(ApiErrorCode.ACCOUNT_ERROR.getHttpCode(),
-                            "Identity Provider send a non-successful authentication status code",
-                            params, responseType));
+                    // throw new ServerApiException(ApiErrorCode.ACCOUNT_ERROR, apiServer.getSerializedApiError(ApiErrorCode.ACCOUNT_ERROR.getHttpCode(),
+                    //         "Identity Provider send a non-successful authentication status code",
+                    //         params, responseType));
+
+                    String saml2RedirectUrl = SAML2AuthManager.SAMLFailedLoginRedirectUrl.value();
+                    if (StringUtils.isBlank(saml2RedirectUrl)) {
+                        throw new ServerApiException(ApiErrorCode.ACCOUNT_ERROR, apiServer.getSerializedApiError(ApiErrorCode.ACCOUNT_ERROR.getHttpCode(),
+                                "Your authenticated user is not authorized for SAML Single Sign-On, please contact your administrator", params, responseType));
+                    } else {
+                        resp.sendRedirect(saml2RedirectUrl);
+                    }
                 }
 
                 String username = null;

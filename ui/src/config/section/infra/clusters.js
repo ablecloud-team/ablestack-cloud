@@ -180,7 +180,8 @@ export default {
       message: 'label.ha.enable',
       dataView: true,
       show: (record) => {
-        return record?.resourcedetails?.resourceHAEnabled === 'false'
+        const haEnabled = record?.resourcedetails?.resourceHAEnabled
+        return !(haEnabled === true || haEnabled === 'true')
       },
       args: ['clusterid', 'includehost'],
       mapping: {
@@ -196,7 +197,8 @@ export default {
       message: 'label.ha.disable',
       dataView: true,
       show: (record) => {
-        return !(record?.resourcedetails?.resourceHAEnabled === 'false')
+        const haEnabled = record?.resourcedetails?.resourceHAEnabled
+        return haEnabled === true || haEnabled === 'true'
       },
       args: ['clusterid', 'includehost'],
       mapping: {

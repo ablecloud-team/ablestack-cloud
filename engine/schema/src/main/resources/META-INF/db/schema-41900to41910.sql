@@ -46,8 +46,7 @@ CREATE TABLE IF NOT EXISTS `cloud_usage`.`usage_networks` (
 ) ENGINE=InnoDB CHARSET=utf8;
 
 -- allow for bigger urls
-
-ALTER TABLE `cloud`.`vm_template` MODIFY COLUMN `url` VARCHAR(1024) DEFAULT NULL COMMENT 'the url where the template exists externally';
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.vm_template','url','url','VARCHAR(1024) DEFAULT NULL COMMENT ''the url where the template exists externally''');
 
 -- PR #7235 - [Usage] Create VPC billing
 CREATE TABLE IF NOT EXISTS `cloud_usage`.`usage_vpc` (
@@ -67,6 +66,7 @@ CALL `cloud_usage`.`IDEMPOTENT_ADD_COLUMN`('cloud_usage.cloud_usage', 'state', '
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.user_data', 'removed', 'datetime COMMENT "date removed or null, if still present"');
 
 -- Update options for config - host.allocators.order
-UPDATE `cloud`.`configuration` SET
-    `options` = 'FirstFitRouting,RandomAllocator,TestingAllocator,FirstFitAllocator,RecreateHostAllocator'
-WHERE `name` = 'host.allocators.order';
+UPDATE `cloud`.`configuration`
+SET `options` = 'FirstFitRouting,RandomAllocator,TestingAllocator,FirstFitAllocator,RecreateHostAllocator'
+WHERE `name` = 'host.allocators.order'
+  AND COALESCE(`options`, '') <> 'FirstFitRouting,RandomAllocator,TestingAllocator,FirstFitAllocator,RecreateHostAllocator';

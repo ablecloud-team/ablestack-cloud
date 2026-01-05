@@ -33,6 +33,7 @@ import org.apache.cloudstack.ha.HAConfig;
 import org.apache.cloudstack.network.BgpPeer;
 import org.apache.cloudstack.network.Ipv4GuestSubnetNetworkMap;
 import org.apache.cloudstack.quota.QuotaTariff;
+import org.apache.cloudstack.backup.Backup;
 import org.apache.cloudstack.storage.sharedfs.SharedFS;
 import org.apache.cloudstack.storage.object.Bucket;
 import org.apache.cloudstack.storage.object.ObjectStore;
@@ -452,6 +453,7 @@ public class EventTypes {
     public static final String EVENT_HOST_OUTOFBAND_MANAGEMENT_ACTION = "HOST.OOBM.ACTION";
     public static final String EVENT_HOST_OUTOFBAND_MANAGEMENT_CHANGE_PASSWORD = "HOST.OOBM.CHANGEPASSWORD";
     public static final String EVENT_HOST_OUTOFBAND_MANAGEMENT_POWERSTATE_TRANSITION = "HOST.OOBM.POWERSTATE.TRANSITION";
+    public static final String EVENT_HOST_OUTOFBAND_MANAGEMENT_GET_REDFISH_DATA = "HOST.OOBM.FETCH.REDFISH.DATA";
 
     // HA
     public static final String EVENT_HA_RESOURCE_ENABLE = "HA.RESOURCE.ENABLE";
@@ -797,6 +799,9 @@ public class EventTypes {
 
     // DISASTER RECOVERY
     public static final String EVENT_DISASTER_RECOVERY_CLUSTER = "DISASTER.RECOVERY.CLUSTER";
+
+    // Backup
+    public static final String EVENT_HOST_AGENT_INSTALL = "HOST.AGENT.INSTALL";
 
     static {
 
@@ -1293,6 +1298,9 @@ public class EventTypes {
 
         // Disaster Recovery Cluster
         entityEventDetails.put(EVENT_DISASTER_RECOVERY_CLUSTER, "DisasterRecoveryCluster");
+
+        // Backup
+        entityEventDetails.put(EVENT_HOST_AGENT_INSTALL, Backup.class);
     }
 
     public static boolean isNetworkEvent(String eventType) {

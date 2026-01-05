@@ -28,7 +28,8 @@
           :columns="columns"
           :dataSource="dataSource"
           :rowKey="(record, index) => record.projectid + '-' + index"
-          :pagination="false">
+          :pagination="false"
+          :expandRowByClick="true">
           <template #expandedRowRender="{ record }">
             <ProjectRolePermissionTab class="table" :resource="resource" :role="record"/>
           </template>

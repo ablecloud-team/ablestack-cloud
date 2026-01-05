@@ -410,6 +410,9 @@ public class HostVO implements Host {
     @Column(name = "version")
     private String version;
 
+    @Column(name = "migration_ip")
+    private String migrationIp;
+
     @Column(name = GenericDao.CREATED_COLUMN)
     private Date created;
 
@@ -568,6 +571,14 @@ public class HostVO implements Host {
 
     public void setManagementServerId(Long managementServerId) {
         this.managementServerId = managementServerId;
+    }
+
+    public void setMigrationIp(String migrationIp) {
+        this.migrationIp = migrationIp;
+    }
+
+    public String getMigrationIp() {
+        return migrationIp;
     }
 
     @Override

@@ -51,7 +51,10 @@ export default {
         const metricsFields = ['cpunumber', 'cputotal', 'cpuused', 'memorytotal',
           {
             memoryused: (record) => {
-              return record.memorykbs && record.memoryintusablekbs ? parseFloat(100.0 * (record.memorykbs - record.memoryintusablekbs) / record.memorykbs).toFixed(2) + '%' : '0.0%'
+              if (!record.memoryintfreekbs || record.memoryintfreekbs <= 0 || record.memorykbs <= 0) {
+                return ''
+              }
+              return parseFloat(100.0 * (record.memorykbs - record.memoryintfreekbs) / record.memorykbs).toFixed(2) + '%'
             }
           },
           'networkread', 'networkwrite', 'diskread', 'diskwrite', 'diskiopstotal']
@@ -185,7 +188,7 @@ export default {
           docHelp: 'adminguide/virtual_machines.html#cloning-vms',
           dataView: true,
           popup: true,
-          show: (record) => { return ['Running', 'Stopped'].includes(record.state) },
+          show: (record) => { return ['Running', 'Stopped'].includes(record.state) && record.vmtype !== 'sharedfsvm' },
           disabled: (record) => { return record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM' },
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/CloneVM.vue')))
         },
@@ -360,9 +363,9 @@ export default {
           show: (record, store) => {
             return ['Running'].includes(record.state) && ['Admin'].includes(store.userInfo.roletype) && !record.kvdoinuse
           },
-          disabled: (record) => {
-            return record.details && 'extraconfig-1' in record.details
-          },
+          // disabled: (record) => {
+          //   return record.details && 'extraconfig-1' in record.details
+          // },
           tooltip: (record) => {
             if (record.details && 'extraconfig-1' in record.details) {
               return 'label.enable.host'
@@ -476,7 +479,7 @@ export default {
           dataView: true,
           popup: true,
           args: ['virtualmachineid'],
-          show: (record) => { return ['Running', 'Stopped'].includes(record.state) && record.vbmcport === 'None' },
+          show: (record) => { return ['Running', 'Stopped'].includes(record.state) && record.vbmcport === 'None' && record.vmtype !== 'sharedfsvm' },
           mapping: {
             virtualmachineid: {
               value: (record, params) => { return record.id }
@@ -491,7 +494,7 @@ export default {
           dataView: true,
           popup: true,
           args: ['virtualmachineid'],
-          show: (record) => { return record.vbmcport !== 'None' },
+          show: (record) => { return record.vbmcport !== 'None' && record.vmtype !== 'sharedfsvm' },
           mapping: {
             virtualmachineid: {
               value: (record, params) => { return record.id }
@@ -539,7 +542,7 @@ export default {
       permission: ['listVMSnapshot'],
       resourceType: 'VMSnapshot',
       columns: () => {
-        const fields = ['displayname', 'state', 'name', 'type', 'current', 'parentName', 'created']
+        const fields = ['displayname', 'state', 'virtualmachinename', 'type', 'current', 'parentName', 'created']
         if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
           fields.push('account')
           if (store.getters.listAllProjects) {
@@ -551,7 +554,7 @@ export default {
         }
         return fields
       },
-      details: ['name', 'id', 'displayname', 'description', 'type', 'current', 'parentName', 'virtualmachineid', 'account', 'domain', 'created'],
+      details: ['name', 'id', 'displayname', 'description', 'type', 'current', 'parentName', 'virtualmachineid', 'virtualmachinename', 'account', 'domain', 'created'],
       searchFilters: ['name', 'domainid', 'account', 'tags'],
       tabs: [
         {

@@ -1,0 +1,15 @@
+[Unit]
+Description=CloudStack VHBA Restore Service
+After=libvirtd.service
+Requires=libvirtd.service
+Wants=libvirtd.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/restore-vhba
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target 

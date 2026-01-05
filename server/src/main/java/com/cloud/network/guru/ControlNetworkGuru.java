@@ -159,7 +159,9 @@ public class ControlNetworkGuru extends PodBasedNetworkGuru implements NetworkGu
         logger.debug(String.format("Reserved NIC for %s [ipv4:%s netmask:%s gateway:%s]", vm.getInstanceName(), ip, netmask, _gateway));
 
         nic.setIPv4Address(ip);
-        nic.setMacAddress(NetUtils.long2Mac(NetUtils.ip2Long(ip) | (14l << 40)));
+        if (nic.getMacAddress() == null || nic.getMacAddress().isEmpty()) {
+            nic.setMacAddress(NetUtils.long2Mac(NetUtils.ip2Long(ip) | (14l << 40)));
+        }
         nic.setIPv4Netmask(netmask);
         nic.setFormat(AddressFormat.Ip4);
         nic.setIPv4Gateway(_gateway);

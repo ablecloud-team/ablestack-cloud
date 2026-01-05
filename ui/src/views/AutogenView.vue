@@ -51,7 +51,7 @@
                     <template #suffixIcon><filter-outlined class="ant-select-suffix" /></template>
                     <a-select-option
                       v-if="['Admin', 'DomainAdmin'].includes($store.getters.userInfo.roletype) &&
-                      ['vm', 'iso', 'template', 'pod', 'cluster', 'host', 'systemvm', 'router', 'storagepool', 'kubernetes', 'computeoffering', 'systemoffering', 'diskoffering', 'sharedfs'].includes($route.name) ||
+                      ['vm', 'iso', 'template', 'pod', 'cluster', 'host', 'systemvm', 'router', 'storagepool', 'kubernetes', 'computeoffering', 'systemoffering', 'diskoffering', 'sharedfs', 'alertRules'].includes($route.name) ||
                       ['account'].includes($route.name)"
                       key="all"
                       :label="$t('label.all')">
@@ -86,17 +86,48 @@
           <a-col
             :span="device === 'mobile' ? 24 : 12"
             :style="device === 'mobile' ? { float: 'right', 'margin-top': '12px', 'margin-bottom': '-6px', display: 'table' } : { float: 'right', display: 'table', 'margin-top': '6px' }" >
-            <slot name="action" v-if="dataView && $route.path.startsWith('/publicip')"></slot>
-            <action-button
-              v-else
-              :style="dataView ? { float: device === 'mobile' ? 'left' : 'right' } : { 'margin-right': '10px', display: getStyle() }"
-              :loading="loading"
-              :actions="actions"
-              :selectedRowKeys="selectedRowKeys"
-              :selectedItems="selectedItems"
-              :dataView="dataView"
-              :resource="resource"
-              @exec-action="(action) => execAction(action, action.groupAction && !dataView)"/>
+            <slot name="action" v-if="dataView && $route.path.startsWith('/publicip') && $slots.action"></slot>
+            <template v-else>
+              <div
+                v-if="dataView && visibleDataViewActions.length > 0"
+                class="autogen-action-dropdown__trigger"
+                :style="{ float: device === 'mobile' ? 'left' : 'right' }">
+                <a-dropdown
+                  v-model:visible="detailActionsVisible"
+                  :trigger="['click']"
+                  placement="bottomRight"
+                  overlayClassName="autogen-action-dropdown">
+                  <template #overlay>
+                    <div class="autogen-action-dropdown__content">
+                      <action-button
+                        :loading="loading"
+                        :actions="visibleDataViewActions"
+                        :selectedRowKeys="selectedRowKeys"
+                        :selectedItems="selectedItems"
+                        :dataView="true"
+                        :resource="resource"
+                        @exec-action="handleDataViewAction"/>
+                    </div>
+                  </template>
+                  <a-button type="primary" class="autogen-action-dropdown__button">
+                    <template #icon>
+                      <down-outlined />
+                    </template>
+                    {{ $t('label.actions') }}
+                  </a-button>
+                </a-dropdown>
+              </div>
+              <action-button
+                v-else-if="!dataView && visibleListActions.length > 0"
+                :style="{ 'margin-right': '10px', display: getStyle() }"
+                :loading="loading"
+                :actions="visibleListActions"
+                :selectedRowKeys="selectedRowKeys"
+                :selectedItems="selectedItems"
+                :dataView="false"
+                :resource="resource"
+                @exec-action="(action) => execAction(action, action.groupAction && !dataView)"/>
+            </template>
             <search-view
               v-if="!dataView"
               :searchFilters="searchFilters"
@@ -181,13 +212,13 @@
                 type="error">
                 <template #message>
                   <exclamation-circle-outlined style="color: red; fontSize: 30px; display: inline-flex" />
-                  <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+                  <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>&nbsp`" />
                   <span v-html="$t(currentAction.message)" />
                 </template>
               </a-alert>
               <a-alert v-else type="warning">
                 <template #message>
-                  <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+                  <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>&nbsp`" />
                   <span v-html="$t(currentAction.message)" />
                 </template>
               </a-alert>
@@ -387,7 +418,7 @@
         :maskClosable="false"
         :footer="null"
         style="top: 20px;"
-        :width="modalWidth"
+        :width="currentAction.groupAction ? modalWidth : '30vw'"
         :ok-button-props="getOkProps()"
         ok-text="111"
         :cancel-button-props="getCancelProps()"
@@ -407,19 +438,19 @@
         </template>
         <a-spin :spinning="actionLoading" v-ctrl-enter="handleSubmit">
           <span v-if="currentAction.message">
-            <div v-if="selectedRowKeys.length > 0">
+            <div v-if="selectedRowKeys.length > 0 && currentAction.groupAction">
               <a-alert
                 v-if="['delete-outlined', 'DeleteOutlined', 'poweroff-outlined', 'PoweroffOutlined'].includes(currentAction.icon)"
                 type="error">
                 <template #message>
                   <exclamation-circle-outlined style="color: red; fontSize: 30px; display: inline-flex" />
-                  <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+                  <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length}` + $t('label.items.selected') + `. </b>&nbsp`" />
                   <span v-html="currentAction.message" />
                 </template>
               </a-alert>
               <a-alert v-else type="warning">
                 <template #message>
-                  <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+                  <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length}` + $t('label.items.selected') + `. </b>&nbsp`" />
                   <span v-html="currentAction.message" />
                 </template>
               </a-alert>
@@ -431,7 +462,7 @@
                 </template>
               </a-alert>
             </div>
-            <div v-if="selectedRowKeys.length > 0">
+            <div v-if="selectedRowKeys.length > 0 && currentAction.groupAction">
               <a-divider />
               <a-table
                 v-if="selectedRowKeys.length > 0"
@@ -640,7 +671,9 @@
           v-else
           :resource="resource"
           :loading="loading"
-          :tabs="$route.meta.tabs" />
+          :tabs="$route.meta.tabs"
+          :actions="actions"
+          @exec-action="handleDataViewAction" />
       </div>
       <div class="row-element" v-else>
         <list-view
@@ -737,7 +770,7 @@ export default {
     return {
       apiName: '',
       loading: false,
-      IntervalLoading: false,
+      // IntervalLoading: false,
       actionLoading: false,
       columnKeys: [],
       allColumns: [],
@@ -768,7 +801,10 @@ export default {
       confirmDirty: false,
       firstIndex: 0,
       modalWidth: '30vw',
-      promises: []
+      promises: [],
+      detailActionsVisible: false,
+      autoRefreshTimer: null,
+      autoRefreshInterval: 10000
     }
   },
   beforeUnmount () {
@@ -779,6 +815,7 @@ export default {
     eventBus.off('resource-request-refresh-data')
     eventBus.off('automation-refresh-data')
     eventBus.off('dr-refresh-data')
+    this.clearAutoRefresh()
   },
   mounted () {
     eventBus.on('exec-action', (args) => {
@@ -897,6 +934,7 @@ export default {
       this.switchProject(this.$route.query.projectid)
     }
     this.setModalWidthByScreen()
+    this.scheduleAutoRefresh()
   },
   beforeRouteUpdate (to, from, next) {
     this.currentPath = this.$route.fullPath
@@ -907,13 +945,14 @@ export default {
     sourceToken.cancel()
     sourceToken.init()
     this.currentPath = this.$route.fullPath
+    this.resetSelection()
+    this.clearAutoRefresh()
     next()
   },
   watch: {
     '$route' (to, from) {
-      clearInterval(this.refreshInterval)
-      this.IntervalLoading = true
       if (to.fullPath !== from.fullPath && !to.fullPath.includes('action/') && to?.query?.tab !== 'browser') {
+        this.resetSelection()
         if ('page' in to.query) {
           this.page = Number(to.query.page)
           this.pageSize = Number(to.query.pagesize)
@@ -921,14 +960,9 @@ export default {
           this.page = 1
         }
         this.itemCount = 0
-        if ('listview' in this.$refs && this.$refs.listview) {
-          this.$refs.listview.resetSelection()
-        }
+        this.clearAutoRefresh()
         this.fetchData()
-        if (Object.keys(to.params).length === 0) {
-          this.refreshInterval = setInterval(this.fetchData, 5000)
-          this.IntervalLoading = false
-        }
+        this.scheduleAutoRefresh()
         if ('projectid' in to.query) {
           this.switchProject(to.query.projectid)
         }
@@ -937,6 +971,14 @@ export default {
     '$i18n.locale' (to, from) {
       if (to !== from) {
         this.fetchData()
+      }
+    },
+    dataView (newVal, oldVal) {
+      if (newVal) {
+        this.detailActionsVisible = false
+        this.clearAutoRefresh()
+      } else {
+        this.scheduleAutoRefresh()
       }
     },
     '$store.getters.metrics' (oldVal, newVal) {
@@ -976,10 +1018,68 @@ export default {
       if (['event', 'computeoffering', 'systemoffering', 'diskoffering', 'quotatariff'].includes(routeName)) {
         return 'active'
       }
+      if (['alertRules'].includes(routeName)) {
+        return 'all'
+      }
       return 'self'
+    },
+    visibleDataViewActions () {
+      if (!this.actions || !this.dataView) {
+        return []
+      }
+      return this.actions.filter(action => {
+        if (!(action.api in this.$store.getters.apis)) {
+          return false
+        }
+        if (!action.dataView) {
+          return false
+        }
+        return 'show' in action ? action.show(this.resource, this.$store.getters) : true
+      })
+    },
+    visibleListActions () {
+      if (!this.actions || this.actions.length === 0 || this.dataView) {
+        return []
+      }
+      const selectionCount = this.selectedRowKeys.length
+      return this.actions.filter(action => {
+        if (!(action.api in this.$store.getters.apis)) {
+          return false
+        }
+        if (selectionCount > 0) {
+          // Hide group actions from toolbar; will be shown via context menu
+          return action.listView && !action.groupAction && ('show' in action ? action.show(this.resource, this.$store.getters) : true)
+        }
+        const showOnList = action.listView && ('show' in action ? action.show(this.resource, this.$store.getters) : true)
+        const showOnGroup = action.groupAction && selectionCount > 0 &&
+          ('groupShow' in action ? action.groupShow(this.selectedItems, this.$store.getters) : true)
+        return showOnList || showOnGroup
+      })
     }
   },
   methods: {
+    resetSelection () {
+      this.selectedRowKeys = []
+      this.selectedItems = []
+    },
+    shouldAutoRefresh () {
+      return !this.dataView && this.autoRefreshInterval > 0
+    },
+    scheduleAutoRefresh () {
+      this.clearAutoRefresh()
+      if (!this.shouldAutoRefresh()) {
+        return
+      }
+      this.autoRefreshTimer = setInterval(() => {
+        this.fetchData({ irefresh: true, autoscheduled: true })
+      }, this.autoRefreshInterval)
+    },
+    clearAutoRefresh () {
+      if (this.autoRefreshTimer) {
+        clearInterval(this.autoRefreshTimer)
+        this.autoRefreshTimer = null
+      }
+    },
     getStyle () {
       if (['snapshot', 'vmsnapshot', 'publicip'].includes(this.$route.name)) {
         return 'table-cell'
@@ -1057,6 +1157,9 @@ export default {
       })
     },
     fetchData (params = {}) {
+      // [ADD] 모든 반복 전 배열 보장 유틸
+      const asArray = (v) => Array.isArray(v) ? v : []
+
       if (['deployVirtualMachine', 'usage'].includes(this.$route.name)) {
         return
       }
@@ -1065,6 +1168,7 @@ export default {
         this.items = []
       }
       if (!this.routeName) {
+        // 원본 로직 유지
         this.routeName = this.$route.matched[this.$route.matched.length - 1].meta.name
       }
       this.apiName = ''
@@ -1073,9 +1177,10 @@ export default {
       this.columnKeys = []
       this.selectedColumns = []
       const refreshed = ('irefresh' in params)
+      const isAutoScheduled = Boolean(params.autoscheduled)
 
       params.listall = true
-      if (this.$route.meta.params) {
+      if (this.$route.meta && this.$route.meta.params) {
         const metaParams = this.$route.meta.params
         if (typeof metaParams === 'function') {
           Object.assign(params, metaParams())
@@ -1091,7 +1196,8 @@ export default {
         'isofilter' in params && this.routeName === 'iso') {
         params.isofilter = 'all'
       }
-      if (['Admin', 'DomainAdmin'].includes(this.$store.getters.userInfo.roletype) && ['computeoffering', 'systemoffering', 'diskoffering'].includes(this.routeName) && this.$route.params.id) {
+      if (['Admin', 'DomainAdmin'].includes(this.$store.getters.userInfo.roletype) &&
+        ['computeoffering', 'systemoffering', 'diskoffering'].includes(this.routeName) && this.$route.params.id) {
         params.state = 'all'
       }
       if (Object.keys(this.$route.query).length > 0) {
@@ -1106,13 +1212,13 @@ export default {
       delete params.q
       delete params.filter
       delete params.irefresh
+      delete params.autoscheduled
 
       this.searchFilters = this.$route && this.$route.meta && this.$route.meta.searchFilters
       this.filters = this.$route && this.$route.meta && this.$route.meta.filters
       if (typeof this.filters === 'function') {
         this.filters = this.filters()
       }
-
       if (typeof this.searchFilters === 'function') {
         this.searchFilters = this.searchFilters()
       }
@@ -1136,24 +1242,23 @@ export default {
         params.listsystemvms = true
       }
 
-      // console.log('this.$refs :>> ', this.$refs)
-      // if ('listview' in this.$refs && this.$refs.listview) {
-      //   this.$refs.listview.resetSelection()
-      // }
-
       if (this.$route && this.$route.meta && this.$route.meta.permission) {
         this.apiName = (this.$route.meta.getApiToCall && this.$route.meta.getApiToCall()) || this.$route.meta.permission[0]
+
+        // [CHANGE] meta.columns → 항상 배열 보정
         if (this.$route.meta.columns) {
           const columns = this.$route.meta.columns
           if (columns && typeof columns === 'function') {
-            this.columnKeys = columns(this.$store.getters)
+            this.columnKeys = asArray(columns(this.$store.getters))
           } else {
-            this.columnKeys = columns
+            this.columnKeys = asArray(columns)
           }
         }
 
+        // [CHANGE] meta.actions → 항상 배열 보정
         if (this.$route.meta.actions) {
-          this.actions = this.$route.meta.actions
+          const acts = this.$route.meta.actions
+          this.actions = asArray(typeof acts === 'function' ? acts(this.$store.getters) : acts)
         }
       }
 
@@ -1162,7 +1267,10 @@ export default {
       }
 
       if (!this.columnKeys || this.columnKeys.length === 0) {
-        for (const field of store.getters.apis[this.apiName].response) {
+        // [CHANGE] API 메타 응답 반복 안전화
+        const apiMeta = store.getters && store.getters.apis && store.getters.apis[this.apiName]
+        const respFields = apiMeta && apiMeta.response
+        for (const field of asArray(respFields)) {
           this.columnKeys.push(field.name)
         }
         this.columnKeys = [...new Set(this.columnKeys)]
@@ -1175,7 +1283,8 @@ export default {
       }
 
       const customRender = {}
-      for (var columnKey of this.columnKeys) {
+      // [CHANGE] 컬럼 루프 안전화
+      for (const columnKey of asArray(this.columnKeys)) {
         let key = columnKey
         let title = columnKey === 'cidr' && this.columnKeys.includes('ip6cidr') ? 'ipv4.cidr' : columnKey
         if (typeof columnKey === 'object') {
@@ -1216,21 +1325,23 @@ export default {
         return ![this.$t('label.state'), this.$t('label.hostname'), this.$t('label.hostid'), this.$t('label.zonename'),
           this.$t('label.zone'), this.$t('label.zoneid'), this.$t('label.ip'), this.$t('label.ipaddress'), this.$t('label.privateip'),
           this.$t('label.linklocalip'), this.$t('label.size'), this.$t('label.sizegb'), this.$t('label.current'),
-          this.$t('label.created'), this.$t('label.order'), this.$t('label.networkname')].includes(column.title)
+          this.$t('label.created'), this.$t('label.order'), this.$t('label.networkname'), this.$t('label.kvdoenable'),
+          this.$t('label.usedfsbytes'), this.$t('label.qemuagentversion')].includes(column.title)
       })
       this.chosenColumns.splice(this.chosenColumns.length - 1, 1)
 
       if (['listTemplates', 'listIsos'].includes(this.apiName) && this.dataView) {
         delete params.showunique
       }
-
       if (['listVirtualMachinesMetrics'].includes(this.apiName) && this.dataView) {
         delete params.details
         delete params.isvnf
         params.details = 'group,nics,secgrp,tmpl,servoff,diskoff,iso,volume,affgrp,backoff'
       }
 
-      this.loading = this.IntervalLoading
+      if (!(refreshed && isAutoScheduled)) {
+        this.loading = true
+      }
       if (this.$route.params && this.$route.params.id) {
         params.id = this.$route.params.id
         if (['listSSHKeyPairs'].includes(this.apiName)) {
@@ -1292,15 +1403,15 @@ export default {
       }
 
       api(this.apiName, params).then(json => {
-        var responseName
-        var objectName
+        let responseName
+        let objectName
         for (const key in json) {
           if (key.includes('response')) {
             responseName = key
             break
           }
         }
-        var apiItemCount = 0
+        let apiItemCount = 0
         for (const key in json[responseName]) {
           if (key === 'count') {
             apiItemCount = json[responseName].count
@@ -1352,7 +1463,7 @@ export default {
           })
         }
 
-        for (let idx = 0; idx < this.items.length; idx++) {
+        for (let idx = 0; idx < this.items.length; idx += 1) {
           this.items[idx].key = idx
           for (const key in customRender) {
             const func = customRender[key]
@@ -1371,7 +1482,7 @@ export default {
           }
         } else {
           if (this.dataView) {
-            this.$router.push({ path: '/exception/404' })
+            this.$router.push({ path: '/dashboard' })
           }
         }
       }).catch(error => {
@@ -1396,24 +1507,23 @@ export default {
         this.$notifyError(error)
 
         if ([405].includes(error.response.status)) {
-          this.$router.push({ path: '/exception/403' })
+          this.$router.push({ path: '/dashboard' })
         }
-
         if ([430, 431, 432].includes(error.response.status)) {
-          this.$router.push({ path: '/exception/404' })
+          this.$router.push({ path: '/dashboard' })
         }
-
         if ([530, 531, 532, 533, 534, 535, 536, 537].includes(error.response.status)) {
-          this.$router.push({ path: '/exception/500' })
+          this.$router.push({ path: '/dashboard' })
         }
       }).finally(f => {
         this.loading = false
         this.searchParams = params
       })
 
+      // [CHANGE] 라우터 쿼리 action 루프 안전화
       if ('action' in this.$route.query) {
         const actionName = this.$route.query.action
-        for (const action of this.actions) {
+        for (const action of asArray(this.actions)) {
           if (action.listView && action.api === actionName) {
             this.execAction(action, false)
             const query = Object.assign({}, this.$route.query)
@@ -1443,8 +1553,13 @@ export default {
       } else {
         this.modalWidth = '30vw'
       }
+      // this.modalWidth = '45vw'
 
       this.setModalWidthByScreen()
+    },
+    handleDataViewAction (action) {
+      this.detailActionsVisible = false
+      this.execAction(action, false)
     },
     execAction (action, isGroupAction) {
       this.formRef = ref()
@@ -2063,6 +2178,12 @@ export default {
         } else {
           query.allocationstate = filter
         }
+      } else if (this.$route.name === 'alertRules') {
+        if (filter === 'all') {
+          delete query.state
+        } else {
+          query.state = String(filter).toUpperCase()
+        }
       } else if (['host'].includes(this.$route.name)) {
         if (filter === 'all') {
           delete query.resourcestate
@@ -2343,6 +2464,29 @@ export default {
 :deep(.ant-alert-message) {
   display: flex;
   align-items: center;
+}
+
+.autogen-action-dropdown__trigger {
+  display: inline-block;
+}
+
+.autogen-action-dropdown__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.autogen-action-dropdown__content {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 12px;
+}
+
+.autogen-action-dropdown__content :deep(.row-action-button--dataview) {
+  width: max-content;
+  min-width: 0;
 }
 
 .hide {

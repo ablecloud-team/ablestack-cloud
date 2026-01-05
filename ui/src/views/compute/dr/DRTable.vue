@@ -24,7 +24,8 @@
       :columns="drColumns"
       :dataSource="this.drCluster"
       :rowKey="item => item.id"
-      :pagination="false">
+      :pagination="false"
+      :expandRowByClick="true">
       <template #expandedRowRender="{ record }">
         <a-table
           style="margin: 10px 0;"

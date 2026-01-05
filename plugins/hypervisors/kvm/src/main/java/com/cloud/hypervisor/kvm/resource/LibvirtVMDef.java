@@ -129,8 +129,8 @@ public class LibvirtVMDef {
         private String _nvram;
         private String _nvramTemplate;
         private boolean iothreads;
-
         private TpmVersion _tpmversion;
+        private String uefiLagacyFormat;
 
         public static final String GUEST_LOADER_SECURE = "guest.loader.secure";
         public static final String GUEST_LOADER_LEGACY = "guest.loader.legacy";
@@ -227,6 +227,10 @@ public class LibvirtVMDef {
             this.iothreads = iothreads;
         }
 
+        public void setUefiLagacyFormat(String uefiLagacyFormat) {
+            this.uefiLagacyFormat = uefiLagacyFormat;
+        }
+
         @Override
         public String toString() {
             if (_type == GuestType.KVM) {
@@ -255,7 +259,7 @@ public class LibvirtVMDef {
                 }
                 if (_loader != null) {
                     if (_bootmode == BootMode.LEGACY) {
-                        guestDef.append("<loader readonly='yes' secure='no' type='pflash'>" + _loader + "</loader>\n");
+                        guestDef.append("<loader readonly='yes' secure='no' type='pflash' " + uefiLagacyFormat + ">" + _loader + "</loader>\n");
                     } else if (_bootmode == BootMode.SECURE) {
                         guestDef.append("<loader readonly='yes' secure='yes' type='pflash'>" + _loader + "</loader>\n");
                     }
@@ -915,11 +919,11 @@ public class LibvirtVMDef {
             _diskFmtType = diskFmtType;
 
             if (isWindowsOS) {
-                _diskLabel = getDevLabel(devId, DiskBus.SATA, false); // Windows Secure VM
-                _bus = DiskBus.SATA;
+                _diskLabel = getDevLabel(devId, DiskBus.SCSI, false); // Windows Secure VM
+                _bus = DiskBus.SCSI;
             } else {
-                _diskLabel = getDevLabel(devId, DiskBus.VIRTIO, false); // Linux Secure VM
-                _bus = DiskBus.VIRTIO;
+                _diskLabel = getDevLabel(devId, DiskBus.SCSI, false); // Linux Secure VM
+                _bus = DiskBus.SCSI;
             }
         }
 
@@ -2192,6 +2196,7 @@ public class LibvirtVMDef {
         private int bus = 0;
         private int slot = 9;
         private int function = 0;
+        private boolean specify = true;
 
         public USBDef(short index, int domain, int bus, int slot, int function) {
             this.index = index;
@@ -2202,6 +2207,7 @@ public class LibvirtVMDef {
         }
 
         public USBDef() {
+            this.specify = false;
         }
 
         @Override
@@ -2209,9 +2215,12 @@ public class LibvirtVMDef {
             StringBuilder scsiBuilder = new StringBuilder();
 
             scsiBuilder.append(String.format("<controller type='usb' index='%d' model='qemu-xhci'>\n", this.index));
-            scsiBuilder.append("<alias name='usb'/>");
-            scsiBuilder.append(String.format("<address type='pci' domain='0x%04X' bus='0x%02X' slot='0x%02X' function='0x%01X'/>\n",
-                    this.domain, this.bus, this.slot, this.function ) );
+            if (this.specify) {
+                // when not specify, put it to the next available slot
+                scsiBuilder.append("<alias name='usb'/>");
+                scsiBuilder.append(String.format("<address type='pci' domain='0x%04X' bus='0x%02X' slot='0x%02X' function='0x%01X'/>\n",
+                        this.domain, this.bus, this.slot, this.function ) );
+            }
             scsiBuilder.append("</controller>\n");
             return scsiBuilder.toString();
         }

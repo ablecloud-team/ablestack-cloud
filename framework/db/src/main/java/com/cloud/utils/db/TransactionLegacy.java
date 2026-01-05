@@ -29,6 +29,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.sql.DataSource;
@@ -52,6 +55,7 @@ import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.mgmt.JmxUtil;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.HikariPoolMXBean;
 
 /**
  * Transaction abstracts away the Connection object in JDBC.  It allows the
@@ -87,6 +91,16 @@ public class TransactionLegacy implements Closeable {
 
     public static final short CONNECTED_DB = -1;
     public static final String CONNECTION_PARAMS = "scrollTolerantForwardOnly=true";
+    private static final java.util.concurrent.atomic.AtomicBoolean POOL_MONITOR_STARTED = new java.util.concurrent.atomic.AtomicBoolean(false);
+    private static ScheduledExecutorService poolLogger = Executors.newSingleThreadScheduledExecutor();
+
+    // Hikari DS 보관용(있다면)
+    private static com.zaxxer.hikari.HikariDataSource hikariCloudDS;
+    private static com.zaxxer.hikari.HikariDataSource hikariUsageDS;
+
+    // ---- pool 증감 표시용 간단 상태 ----
+    private static final Prev prevCloud = new Prev();
+    private static final Prev prevUsage = new Prev();
 
     private static AtomicLong s_id = new AtomicLong();
     private static final TransactionMBeanImpl s_mbean = new TransactionMBeanImpl();
@@ -1162,6 +1176,7 @@ public class TransactionLegacy implements Closeable {
             } catch (Exception e) {
                 LOGGER.debug("Simulator DB properties are not available. Not initializing simulator DS");
             }
+            startPoolMonitorOnce();
         } catch (final Exception e) {
             s_ds = getDefaultDataSource(dbProps.getProperty("db.cloud.connectionPoolLib"), "cloud");
             s_usageDS = getDefaultDataSource(dbProps.getProperty("db.usage.connectionPoolLib"), "cloud_usage");
@@ -1169,6 +1184,7 @@ public class TransactionLegacy implements Closeable {
             LOGGER.warn(
                     "Unable to load db configuration, using defaults with 5 connections. Falling back on assumed datasource on localhost:3306 using username:password=cloud:cloud. Please check your configuration",
                     e);
+            startPoolMonitorOnce();
         }
     }
 
@@ -1314,6 +1330,12 @@ public class TransactionLegacy implements Closeable {
         config.addDataSourceProperty("maintainTimeStats", "false");
 
         HikariDataSource dataSource = new HikariDataSource(config);
+        if ("cloud".equals(dsName)) {
+            hikariCloudDS = dataSource;
+        } else if ("usage".equals(dsName)) {
+            hikariUsageDS = dataSource;
+        }
+
         return dataSource;
     }
 
@@ -1439,4 +1461,93 @@ public class TransactionLegacy implements Closeable {
         }
     }
 
+    private static final class Prev {
+        int active = Integer.MIN_VALUE;
+        int idle   = Integer.MIN_VALUE;
+        int total  = Integer.MIN_VALUE;
+    }
+
+    private static String arrow(int now, int prev) {
+        if (prev == Integer.MIN_VALUE) return "→ 0"; // 첫 호출
+        int d = now - prev;
+        if (d > 0)  return "▲ +" + d;  // 증가
+        if (d < 0)  return "▼ "  + d;  // 감소
+        return "→ 0";                  // 변화 없음
+    }
+
+    private static void startPoolMonitorOnce() {
+        if (POOL_MONITOR_STARTED.compareAndSet(false, true)) {
+            startPoolMonitor(); // ← 이미 만들어둔 1분 주기 로거
+            LOGGER.debug("Started HikariCP pool monitor.");
+        }
+    }
+
+    public static void startPoolMonitor() {
+        poolLogger.scheduleAtFixedRate(() -> {
+            try {
+                logPoolStats();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, 0, 30, TimeUnit.SECONDS);
+    }
+
+    public static void logPoolStats() {
+        final String RESET = "\u001B[0m";
+        final String GRAY  = "\u001B[90m";
+        final String RED   = "\u001B[31m";
+        final String GREEN = "\u001B[32m";
+        final String BLUE  = "\u001B[34m";
+        final String YEL   = "\u001B[93m";
+
+        // helper
+        java.util.function.BiConsumer<String, HikariDataSource> logOne = (name, ds) -> {
+            if (ds == null) return;
+            HikariPoolMXBean bean = ds.getHikariPoolMXBean();
+            int act = bean.getActiveConnections();
+            int idle = bean.getIdleConnections();
+            int tot  = bean.getTotalConnections();
+            int max  = Math.max(ds.getMaximumPoolSize(), 1); // 0 보호
+
+            // Active 컬러: 80% 이상이면 RED, 아니면 GREEN
+            boolean isHigh = (act * 100 / max) >= 80;
+            String actColor = isHigh ? RED : GREEN;
+
+            // 이전값 선택
+            boolean isCloud = name.equals("HIKARI-POOL-CLOUD-DB");
+            int prevAct  = isCloud ? prevCloud.active : prevUsage.active;
+            int prevIdle = isCloud ? prevCloud.idle   : prevUsage.idle;
+            int prevTot  = isCloud ? prevCloud.total  : prevUsage.total;
+
+            // Util: act / max (%)
+            int util = act * 100 / max;
+            String utilColor = util >= 80 ? RED : (util >= 60 ? YEL : GREEN);
+
+            String msg = String.format(
+                "%s[%s]%s | %sActive=%-3d (%-5s)%s | %sIdle=%-3d (%-5s)%s | %sTotal=%-3d (%-5s)%s | %sMax=%d%s | %sUtil=%3d%%%s",
+                GRAY, name, RESET,
+                actColor, act,  arrow(act,  prevAct),  RESET,
+                BLUE,     idle, arrow(idle, prevIdle), RESET,
+                YEL,      tot,  arrow(tot,  prevTot),  RESET,
+                GRAY,     max,  RESET,
+                utilColor, util, RESET
+            );
+
+            if (isHigh) {
+                LOGGER.warn(msg + " ⚠️ HIGH UTILIZATION");
+            } else {
+                LOGGER.debug(msg);
+            }
+
+            // 이전값 저장
+            if (isCloud) {
+                prevCloud.active = act; prevCloud.idle = idle; prevCloud.total = tot;
+            } else {
+                prevUsage.active = act; prevUsage.idle = idle; prevUsage.total = tot;
+            }
+        };
+
+        logOne.accept("HIKARI-POOL-CLOUD-DB", hikariCloudDS);
+        logOne.accept("HIKARI-POOL-USAGE-DB", hikariUsageDS);
+    }
 }

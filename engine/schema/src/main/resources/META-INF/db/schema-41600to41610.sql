@@ -19,10 +19,12 @@
 -- Schema upgrade from 4.16.0.0 to 4.16.1.0
 --;
 
-ALTER TABLE `cloud`.`vm_work_job` ADD COLUMN `secondary_object` char(100) COMMENT 'any additional item that must be checked during queueing' AFTER `vm_instance_id`;
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.vm_work_job','secondary_object', 'CHAR(100) COMMENT ''any additional item that must be checked during queueing'' AFTER `vm_instance_id`');
 
 -- Add PK to cloud.op_user_stats_log
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.op_user_stats_log', 'id', 'BIGINT(20) NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`)');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.op_user_stats_log','id', 'BIGINT(20) NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`)');
+
 
 -- Add PK to cloud_usage.usage_ip_address
 CALL `cloud_usage`.`IDEMPOTENT_DROP_INDEX`('id','cloud_usage.usage_ip_address');
@@ -74,8 +76,9 @@ CALL `cloud_usage`.`IDEMPOTENT_ADD_UNIQUE_INDEX`('cloud_usage.usage_volume', 'id
 -- Add PK to cloud_usage.usage_vpn_user
 CALL `cloud_usage`.`IDEMPOTENT_ADD_COLUMN`('cloud_usage.usage_vpn_user', 'id', 'BIGINT(20) NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`)');
 
-UPDATE `cloud`.`vm_template` SET deploy_as_is = 0 WHERE id = 8;
+UPDATE `cloud`.`vm_template` SET deploy_as_is = 0 WHERE id = 8 AND COALESCE(deploy_as_is,0) <> 0;
 
+DROP PROCEDURE IF EXISTS `cloud`.`UPDATE_KUBERNETES_NODE_DETAILS`;
 CREATE PROCEDURE `cloud`.`UPDATE_KUBERNETES_NODE_DETAILS`()
 BEGIN
   DECLARE vmid BIGINT

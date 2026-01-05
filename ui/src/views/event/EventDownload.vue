@@ -88,10 +88,10 @@
             :style="device === 'mobile' ? { float: 'right', 'margin-top': '12px', 'margin-bottom': '-6px', display: 'table' } : { float: 'right', display: 'table', 'margin-bottom': '-6px' }" >
             <slot name="action" v-if="dataView && $route.path.startsWith('/publicip')"></slot>
             <action-button
-              v-else
+              v-else-if="visibleActions.length > 0"
               :style="dataView ? { float: device === 'mobile' ? 'left' : 'right' } : { 'margin-right': '10px', display: getStyle(), padding: '5px' }"
               :loading="loading"
-              :actions="actions"
+              :actions="visibleActions"
               :selectedRowKeys="selectedRowKeys"
               :selectedItems="selectedItems"
               :dataView="dataView"
@@ -182,13 +182,13 @@
                 type="error">
                 <template #message>
                   <exclamation-circle-outlined style="color: red; fontSize: 30px; display: inline-flex" />
-                  <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+                  <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>&nbsp`" />
                   <span v-html="$t(currentAction.message)" />
                 </template>
               </a-alert>
               <a-alert v-else type="warning">
                 <template #message>
-                  <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>`" />
+                  <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>&nbsp`" />
                   <span v-html="$t(currentAction.message)" />
                 </template>
               </a-alert>
@@ -390,7 +390,9 @@
         v-else
         :resource="resource"
         :loading="loading"
-        :tabs="$route.meta.tabs" />
+        :tabs="$route.meta.tabs"
+        :actions="actions"
+        @exec-action="(action) => execAction(action, action.groupAction && !dataView)" />
     </div>
     <div class="row-element" v-else>
       <list-view
@@ -678,6 +680,23 @@ export default {
       return [...new Set(sizes)].sort(function (a, b) {
         return a - b
       }).map(String)
+    },
+    visibleActions () {
+      if (!this.actions || this.actions.length === 0) {
+        return []
+      }
+      return this.actions.filter(action => {
+        if (!(action.api in this.$store.getters.apis)) {
+          return false
+        }
+        if (this.dataView) {
+          return action.dataView && ('show' in action ? action.show(this.resource, this.$store.getters) : true)
+        }
+        const showOnList = action.listView && ('show' in action ? action.show(this.resource, this.$store.getters) : true)
+        const showOnGroup = action.groupAction && this.selectedRowKeys.length > 0 &&
+          ('groupShow' in action ? action.groupShow(this.selectedItems, this.$store.getters) : true)
+        return showOnList || showOnGroup
+      })
     }
   },
   methods: {
@@ -976,7 +995,7 @@ export default {
           }
         } else {
           if (this.dataView) {
-            this.$router.push({ path: '/exception/404' })
+            this.$router.push({ path: '/dashboard' })
           }
         }
       }).catch(error => {
@@ -997,15 +1016,15 @@ export default {
         this.$notifyError(error)
 
         if ([405].includes(error.response.status)) {
-          this.$router.push({ path: '/exception/403' })
+          this.$router.push({ path: '/dashboard' })
         }
 
         if ([430, 431, 432].includes(error.response.status)) {
-          this.$router.push({ path: '/exception/404' })
+          this.$router.push({ path: '/dashboard' })
         }
 
         if ([530, 531, 532, 533, 534, 535, 536, 537].includes(error.response.status)) {
-          this.$router.push({ path: '/exception/500' })
+          this.$router.push({ path: '/dashboard' })
         }
       }).finally(f => {
         this.loading = false

@@ -29,6 +29,7 @@ import org.apache.cloudstack.outofbandmanagement.dao.OutOfBandManagementDao;
 import org.apache.cloudstack.outofbandmanagement.driver.OutOfBandManagementDriverChangePasswordCommand;
 import org.apache.cloudstack.outofbandmanagement.driver.OutOfBandManagementDriverCommand;
 import org.apache.cloudstack.outofbandmanagement.driver.OutOfBandManagementDriverPowerCommand;
+import org.apache.cloudstack.outofbandmanagement.driver.OutOfBandManagementDriverRedfishDataCommand;
 import org.apache.cloudstack.outofbandmanagement.driver.OutOfBandManagementDriverResponse;
 import org.apache.cloudstack.utils.redfish.RedfishClient;
 import org.apache.cloudstack.utils.redfish.RedfishClient.RedfishResetCmd;
@@ -64,7 +65,9 @@ public class RedfishOutOfBandManagementDriver extends AdapterBase implements Out
             response = execute((OutOfBandManagementDriverPowerCommand)cmd);
         } else if (cmd instanceof OutOfBandManagementDriverChangePasswordCommand) {
             response = execute((OutOfBandManagementDriverChangePasswordCommand)cmd);
-        } else {
+        } else if (cmd instanceof OutOfBandManagementDriverRedfishDataCommand) {
+            response = execute((OutOfBandManagementDriverRedfishDataCommand)cmd);
+        }  else {
             throw new CloudRuntimeException(String.format("Operation [%s] not supported by the Redfish out-of-band management driver", cmd.getClass().getSimpleName()));
         }
         return response;
@@ -108,6 +111,21 @@ public class RedfishOutOfBandManagementDriver extends AdapterBase implements Out
 
         OutOfBandManagementDriverResponse response = new OutOfBandManagementDriverResponse(HTTP_STATUS_OK, null, true);
 
+        return response;
+    }
+
+    private OutOfBandManagementDriverResponse execute(final OutOfBandManagementDriverRedfishDataCommand cmd) {
+        ImmutableMap<OutOfBandManagement.Option, String> outOfBandOptions = cmd.getOptions();
+        String username = outOfBandOptions.get(OutOfBandManagement.Option.USERNAME);
+        String password = outOfBandOptions.get(OutOfBandManagement.Option.PASSWORD);
+        String hostAddress = outOfBandOptions.get(OutOfBandManagement.Option.ADDRESS);
+        RedfishClient redfishClient = new RedfishClient(username, password, USE_HTTPS.value(), IGNORE_SSL_CERTIFICATE.value(), REDFISHT_REQUEST_MAX_RETRIES.value());
+
+        String redfishData = redfishClient.executeRedfishData(hostAddress, cmd.getCategory());
+        logger.info("responseRedfishData :: " + redfishData);
+
+        OutOfBandManagementDriverResponse response = new OutOfBandManagementDriverResponse(HTTP_STATUS_OK, null, true);
+        response.setRedfishData(redfishData);
         return response;
     }
 

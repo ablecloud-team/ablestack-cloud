@@ -102,6 +102,10 @@ public class BackupResponse extends BaseResponse {
     @Param(description = "zone name")
     private String zone;
 
+    @SerializedName(ApiConstants.SNAPSHOT_ID)
+    @Param(description = "snapshot id")
+    private String snapshotId;
+
     public String getId() {
         return id;
     }
@@ -244,5 +248,13 @@ public class BackupResponse extends BaseResponse {
 
     public void setZone(String zone) {
         this.zone = zone;
+    }
+
+    public String getSanpshotId() {
+        return snapshotId;
+    }
+
+    public void setSnapshotId(String snapshotId) {
+        this.snapshotId = snapshotId;
     }
 }

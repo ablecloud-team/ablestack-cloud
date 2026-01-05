@@ -171,6 +171,7 @@ public class BackupDaoImpl extends GenericDaoBase<BackupVO, Long> implements Bac
         } else {
             backedUpVolumes = new Gson().toJson(backup.getBackedUpVolumes().toArray(), Backup.VolumeInfo[].class);
         }
+        response.setSnapshotId(backup.getSnapshotId());
         response.setVolumes(backedUpVolumes);
         response.setBackupOfferingId(offering.getUuid());
         response.setBackupOffering(offering.getName());

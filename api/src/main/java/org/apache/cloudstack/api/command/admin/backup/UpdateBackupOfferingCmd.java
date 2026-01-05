@@ -57,6 +57,9 @@ public class UpdateBackupOfferingCmd extends BaseCmd {
     @Parameter(name = ApiConstants.ALLOW_USER_DRIVEN_BACKUPS, type = CommandType.BOOLEAN, description = "Whether to allow user driven backups or not")
     private Boolean allowUserDrivenBackups;
 
+    @Parameter(name = ApiConstants.RETENTION_PERIOD, type = CommandType.STRING, required = false, description = "Retention period of backup data")
+    private String retentionPeriod;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -76,6 +79,10 @@ public class UpdateBackupOfferingCmd extends BaseCmd {
         return allowUserDrivenBackups;
     }
 
+    public String getRetentionPeriod() {
+        return retentionPeriod;
+    }
+
     /////////////////////////////////////////////////////
     /////////////// API Implementation///////////////////
     /////////////////////////////////////////////////////
@@ -91,7 +98,7 @@ public class UpdateBackupOfferingCmd extends BaseCmd {
 
             if (result == null) {
                 throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, String.format("Failed to update backup offering %s.",
-                        ReflectionToStringBuilderUtils.reflectOnlySelectedFields(this, "id", "name", "description", "allowUserDrivenBackups")));
+                        ReflectionToStringBuilderUtils.reflectOnlySelectedFields(this, "id", "name", "description", "allowUserDrivenBackups", "retentionPeriod")));
             }
             BackupOfferingResponse response = _responseGenerator.createBackupOfferingResponse(result);
             response.setResponseName(getCommandName());

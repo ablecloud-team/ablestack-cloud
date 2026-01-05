@@ -240,7 +240,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
     protected void runScript(Connection conn, InputStream file) {
 
         try (InputStreamReader reader = new InputStreamReader(file)) {
-            ScriptRunner runner = new ScriptRunner(conn, false, true);
+            ScriptRunner runner = new ScriptRunner(conn, false, false);
             runner.runScript(reader);
         } catch (IOException e) {
             LOGGER.error("Unable to read upgrade script", e);
@@ -257,7 +257,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
 
         checkArgument(dbVersion != null);
         checkArgument(currentVersion != null);
-        checkArgument(currentVersion.compareTo(dbVersion) > 0);
+        checkArgument(currentVersion.compareTo(dbVersion) >= 0);
 
         final DbUpgrade[] upgrades = hierarchy.getPath(dbVersion, currentVersion);
 
@@ -305,9 +305,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
     protected void upgrade(CloudStackVersion dbVersion, CloudStackVersion currentVersion) {
         executeProcedureScripts();
         final DbUpgrade[] upgrades = executeUpgrades(dbVersion, currentVersion);
-
-        executeViewScripts();
-        updateSystemVmTemplates(upgrades);
+        // updateSystemVmTemplates(upgrades); // 템플릿` 업데이트 자동 동작 제거
     }
 
     protected void executeProcedureScripts() {
@@ -453,8 +451,16 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
             try {
                 initializeDatabaseEncryptors();
 
-                final CloudStackVersion dbVersion = CloudStackVersion.parse(_dao.getCurrentVersion());
+                // 1) 코드(설치될) 버전 먼저 파싱
                 final String currentVersionValue = this.getClass().getPackage().getImplementationVersion();
+                if (StringUtils.isBlank(currentVersionValue)) return;
+                final CloudStackVersion currentVersion = CloudStackVersion.parse(currentVersionValue);
+
+                // 2) DB 최신 버전 읽기
+                final CloudStackVersion dbLatestVersion = CloudStackVersion.parse(_dao.getCurrentVersion());
+
+                // 3) 베이스라인 보장 + (db==code) 같으면 삭제 스킵
+                enforceBaselineThenDeleteLastVersionIfNeeded(dbLatestVersion, currentVersion);
 
                 ///////////////////// Ablestack 업그레이드 //////////////////////////
                 beforeUpgradeAblestack("Bronto");
@@ -462,25 +468,18 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                 beforeUpgradeAblestack("Diplo");
                 ///////////////////// Ablestack 업그레이드 //////////////////////////
 
-                if (StringUtils.isBlank(currentVersionValue)) {
-                    return;
-                }
+                // 4) 재조회 후 본 업그레이드 진행
+                final CloudStackVersion dbVersion = CloudStackVersion.parse(_dao.getCurrentVersion());
+                LOGGER.info("After enforcement, DB version = {} , Code version = {}", dbVersion, currentVersion);
 
                 String csVersion = SystemVmTemplateRegistration.parseMetadataFile();
                 final CloudStackVersion sysVmVersion = CloudStackVersion.parse(csVersion);
-                final  CloudStackVersion currentVersion = CloudStackVersion.parse(currentVersionValue);
                 SystemVmTemplateRegistration.CS_MAJOR_VERSION  = String.valueOf(sysVmVersion.getMajorRelease()) + "." + String.valueOf(sysVmVersion.getMinorRelease());
                 SystemVmTemplateRegistration.CS_TINY_VERSION = String.valueOf(sysVmVersion.getPatchRelease());
 
-                LOGGER.info("DB version = " + dbVersion + " Code Version = " + currentVersion);
-
+                // 역전 방지 체크
                 if (dbVersion.compareTo(currentVersion) > 0) {
                     throw new CloudRuntimeException("Database version " + dbVersion + " is higher than management software version " + currentVersionValue);
-                }
-
-                if (dbVersion.compareTo(currentVersion) == 0) {
-                    LOGGER.info("DB version and code version matches so no upgrade needed.");
-                    return;
                 }
 
                 upgrade(dbVersion, currentVersion);
@@ -498,6 +497,86 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
             lock.releaseRef();
         }
     }
+
+    private void enforceBaselineThenDeleteLastVersionIfNeeded(final CloudStackVersion dbLatestVersion,
+                                                          final CloudStackVersion currentVersion) {
+        final String BASELINE_VERSION = "4.0.0";
+        final TransactionLegacy txn = TransactionLegacy.open("enforce-baseline-then-delete-last");
+        txn.start();
+        try {
+            final Connection conn = txn.getConnection();
+
+            // 0) DB 최신버전 == 코드버전이면 삭제/삽입 모두 스킵
+            final boolean sameAsCode = (dbLatestVersion != null
+                    && currentVersion != null
+                    && dbLatestVersion.compareTo(currentVersion) == 0);
+            if (sameAsCode) {
+                LOGGER.info("DB latest version equals code version (db={}, code={}). Skipping baseline insert and deletion.",
+                        dbLatestVersion, currentVersion);
+                txn.commit();
+                return;
+            }
+
+            // 1) sameAsCode == false 인 경우에만 베이스라인 보장 (없으면 삽입)
+            final String insertIfMissingSql =
+                    "INSERT INTO `cloud`.`version` (`version`, `step`, `updated`) " +
+                    "SELECT ?, 'Complete', NOW() FROM DUAL " +
+                    "WHERE NOT EXISTS (SELECT 1 FROM `cloud`.`version` WHERE `version` = ?)";
+            try (PreparedStatement ins = conn.prepareStatement(insertIfMissingSql)) {
+                ins.setString(1, BASELINE_VERSION);
+                ins.setString(2, BASELINE_VERSION);
+                int inserted = ins.executeUpdate();
+                if (inserted > 0) {
+                    LOGGER.info("Inserted baseline version row: {}", BASELINE_VERSION);
+                    txn.commit();
+                    return; // 여기서 종료
+                }
+            }
+
+            // 2) 삭제 대상: dbLatestVersion 의 최신 1건 (단, 베이스라인이면 삭제 금지)
+            if (dbLatestVersion != null
+                    && currentVersion != null
+                    && dbLatestVersion.compareTo(currentVersion) != 0
+                    && !BASELINE_VERSION.equals(dbLatestVersion.toString())) {
+
+                final String deleteLatestOneSql =
+                        "DELETE FROM `cloud`.`version` " +
+                        "WHERE `id` IN ( " +
+                        "  SELECT id FROM ( " +
+                        "    SELECT `id` " +
+                        "    FROM `cloud`.`version` " +
+                        "    WHERE `version` = ? AND (`step` IS NULL OR `step` = 'Complete') " +
+                        "    ORDER BY COALESCE(`updated`, FROM_UNIXTIME(0)) DESC " +
+                        "    LIMIT 1 " +
+                        "  ) AS _x " +
+                        ")";
+                try (PreparedStatement delLatest = conn.prepareStatement(deleteLatestOneSql)) {
+                    delLatest.setString(1, dbLatestVersion.toString());
+                    int deleted = delLatest.executeUpdate();
+                    if (deleted > 0) {
+                        LOGGER.warn("Deleted {} latest row for version {}", deleted, dbLatestVersion.toString());
+                        txn.commit();
+                        return;
+                    } else {
+                        LOGGER.info("No deletable row found for targetVersion={}; skipping targeted delete.",
+                                dbLatestVersion.toString());
+                    }
+                }
+            } else {
+                // null-safe 로깅
+                LOGGER.info("Target version is baseline or null ({}). Skipping targeted delete.",
+                        String.valueOf(dbLatestVersion));
+            }
+
+            txn.commit();
+        } catch (SQLException e) {
+            txn.rollback();
+            LOGGER.error("Failed in enforceBaselineThenDeleteLastVersionIfNeeded", e);
+        } finally {
+            txn.close();
+        }
+    }
+
     // Cloudstack DB 업데이트 전 Ablestack DB 업데이트 진행
     public void beforeUpgradeAblestack (String ablestackVersion) {
         TransactionLegacy txn = TransactionLegacy.open("Upgrade");

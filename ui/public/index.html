@@ -18,48 +18,67 @@
 -->
 <!DOCTYPE html>
 <html lang="en-gb">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link id="favicon" rel="icon" href="<%= BASE_URL %>assets/ablestack-favicon.png">
-    <title id="title" ></title>
-    <style>
-      .loader {
-        border: 16px solid #F3F3F3;
-        border-top: 16px solid #39A7DE;
-        border-radius: 50%;
-        width: 80px;
-        height: 80px;
-        animation: spin 1s linear infinite;
-        position: fixed;
-        left: 0; right: 0;
-        top: 0; bottom: 0;
-        margin: auto;
-        max-width: 100%;
-        max-height: 100%;
-        overflow: hidden;
-      }
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    </style>
-  </head>
-  <body>
-    <noscript>
-      <strong>We're sorry but ABLESTACK UI needs JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app">
-      <div class="loader"></div>
-    </div>
-  </body>
-  <script type="text/javascript">
-    fetch('./config.json')
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById("favicon").setAttribute("href", data.loginFavicon);
-        document.getElementById("title").innerHTML = data.loginTitle;
-      }).catch((err) => {});
-  </script>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link id="favicon" rel="icon" href="<%= BASE_URL %>assets/ablestack-favicon.png">
+  <title id="title"></title>
+  <style>
+    .loader {
+      border: 16px solid #F3F3F3;
+      border-top: 16px solid #39A7DE;
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      animation: spin 1s linear infinite;
+      position: fixed;
+      left: 0; right: 0;
+      top: 0; bottom: 0;
+      margin: auto;
+      max-width: 100%;
+      max-height: 100%;
+      overflow: hidden;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg) }
+      100% { transform: rotate(360deg) }
+    }
+
+    /* ===== 최소 변경: 초기 한순간 레이아웃 깜빡임/밀림 가리기 ===== */
+    :root { --autoBannerHeight: 0px }
+    html.__prebanner .sticky-header,
+    html.__prebanner .sticky-sidebar,
+    html.__prebanner .layout-content {
+      visibility: hidden
+    }
+  </style>
+</head>
+<body>
+<!-- ===== 최소 변경: 배너 높이 수신 전까지 상단 레이아웃만 잠깐 숨김 ===== -->
+<script>
+  document.documentElement.classList.add('__prebanner')
+  function __clearPrebanner () {
+    document.documentElement.classList.remove('__prebanner')
+  }
+  window.addEventListener('auto-alert-banner:height', __clearPrebanner, { once: true })
+  setTimeout(__clearPrebanner, 700)
+</script>
+
+<noscript>
+  <strong>We're sorry but ABLESTACK UI needs JavaScript enabled. Please enable it to continue.</strong>
+</noscript>
+<div id="app">
+  <div class="loader"></div>
+</div>
+</body>
+<script type="text/javascript">
+  fetch('./config.json')
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('favicon').setAttribute('href', data.loginFavicon)
+      document.getElementById('title').innerHTML = data.loginTitle
+    })
+    .catch((err) => {})
+</script>
 </html>

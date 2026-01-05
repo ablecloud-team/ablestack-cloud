@@ -213,6 +213,7 @@ export default {
             return api('updateHostDevices', {
               hostid: this.resource.id,
               hostdevicesname: hostDevicesName,
+              hostdevicestext: this.resource.hostDevicesText || '',
               virtualmachineid: this.form.virtualmachineid
             })
           })
@@ -291,6 +292,13 @@ export default {
 
     filterOption (input, option) {
       return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+    },
+
+    showConfirmModal (device) {
+      // vmName을 강제로 할당
+      const vmName = this.vmNames[device.hostDevicesName] || ''
+      this.selectedPciDevice = { ...device, vmName }
+      this.showPciDeleteModal = true
     }
   }
 }

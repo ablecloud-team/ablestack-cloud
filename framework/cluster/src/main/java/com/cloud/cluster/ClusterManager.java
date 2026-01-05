@@ -26,7 +26,7 @@ import com.cloud.utils.component.Manager;
  */
 public interface ClusterManager extends Manager {
     static final String ALERT_SUBJECT = "cluster-alert";
-    final ConfigKey<Integer> HeartbeatInterval = new ConfigKey<Integer>(Integer.class, "cluster.heartbeat.interval", "management-server", "1500",
+    final ConfigKey<Integer> HeartbeatInterval = new ConfigKey<Integer>(Integer.class, "cluster.heartbeat.interval", "management-server", "10000",
         "Interval (in milliseconds) to check for the heart beat between management server nodes", false);
     final ConfigKey<Integer> HeartbeatThreshold = new ConfigKey<Integer>(Integer.class, "cluster.heartbeat.threshold", "management-server", "150000",
         "Threshold (in milliseconds) before self-fence the management server. The threshold should be larger than management.server.stats.interval", true);

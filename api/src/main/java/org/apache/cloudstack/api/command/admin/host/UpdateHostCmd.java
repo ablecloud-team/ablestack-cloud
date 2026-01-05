@@ -67,6 +67,9 @@ public class UpdateHostCmd extends BaseCmd {
     @Parameter(name = ApiConstants.ANNOTATION, type = CommandType.STRING, description = "Add an annotation to this host", since = "4.11", authorized = {RoleType.Admin})
     private String annotation;
 
+    @Parameter(name = ApiConstants.MIGRATION_IP, type = CommandType.STRING, description = "Add an migration ip to this host", since = "4.20")
+    private String migrationIp;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -101,6 +104,10 @@ public class UpdateHostCmd extends BaseCmd {
 
     public String getAnnotation() {
         return annotation;
+    }
+
+    public String getMigrationIp() {
+        return migrationIp;
     }
 
     /////////////////////////////////////////////////////

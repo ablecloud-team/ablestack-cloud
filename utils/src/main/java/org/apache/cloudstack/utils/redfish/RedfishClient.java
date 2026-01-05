@@ -18,6 +18,14 @@
 //
 package org.apache.cloudstack.utils.redfish;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Credentials;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +35,15 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
@@ -35,6 +51,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import com.cloud.utils.nio.TrustAllManager;
 import org.apache.commons.httpclient.HttpStatus;
@@ -57,6 +74,7 @@ import org.apache.logging.log4j.LogManager;
 import com.cloud.utils.net.NetUtils;
 import com.google.common.net.InternetDomainName;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -76,6 +94,9 @@ public class RedfishClient {
     private int redfishRequestMaxRetries;
 
     private final static String SYSTEMS_URL_PATH = "redfish/v1/Systems/";
+    private final static String MANAGERS_URL_PATH = "redfish/v1/Managers/";
+    private final static String CHASSIS_URL_PATH = "redfish/v1/Chassis/";
+    private final static String FIRMWARE_URL_PATH = "redfish/v1/UpdateService/FirmwareInventory/";
     private final static String COMPUTER_SYSTEM_RESET_URL_PATH = "/Actions/ComputerSystem.Reset";
     private final static String REDFISH_RESET_TYPE = "ResetType";
     private final static String POWER_STATE = "PowerState";
@@ -86,6 +107,13 @@ public class RedfishClient {
     private final static String EXPECTED_HTTP_STATUS = "2XX";
     private final static int WAIT_FOR_REQUEST_RETRY = 2;
 
+    // --- 싱글톤 자원 추가 ---
+    private static final int THREAD_POOL_SIZE = 50;
+    private static final ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+
+    // OkHttpClient (SSL 옵션 별로 2개)
+    private static final OkHttpClient safeClient = new OkHttpClient();
+    private static final OkHttpClient unsafeClient = createUnsafeClient();
 
     /**
      * Redfish Command type: </br>
@@ -95,7 +123,7 @@ public class RedfishClient {
      */
     public enum
     RedfishCmdType {
-        ComputerSystemReset, GetSystemId, GetPowerState
+        ComputerSystemReset, GetSystemId, GetPowerState, GetManagerId, getChassisId
     }
 
     /**
@@ -261,6 +289,10 @@ public class RedfishClient {
         switch (cmd) {
         case GetSystemId:
             return SYSTEMS_URL_PATH;
+        case GetManagerId:
+            return MANAGERS_URL_PATH;
+        case getChassisId:
+            return CHASSIS_URL_PATH;
         case GetPowerState:
             if (StringUtils.isBlank(resourceId)) {
                 throw new RedfishException(String.format("Command '%s' requires a valid resource ID '%s'.", cmd, resourceId));
@@ -412,5 +444,486 @@ public class RedfishClient {
         HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
         SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext, allHostsValid);
         return HttpClientBuilder.create().setSSLSocketFactory(socketFactory).build();
+    }
+
+    public String getManagerOrChassisId(String hostAddress, RedfishCmdType type) {
+        String url = buildRequestUrl(hostAddress, type, null);
+        CloseableHttpResponse response = (CloseableHttpResponse)executeGetRequest(url);
+
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode != HttpStatus.SC_OK) {
+            throw new RedfishException(String.format("Failed to get System ID for host '%s' with request '%s: %s'. HTTP status code expected '%s' but it got '%s'.", hostAddress,
+                    HttpGet.METHOD_NAME, url, HttpStatus.SC_OK, statusCode));
+        }
+
+        String systemId = processGetSystemIdResponse(response);
+
+        logger.debug(String.format("Retrieved System ID '%s' with request '%s: %s'", systemId, HttpGet.METHOD_NAME, url));
+
+        return systemId;
+    }
+
+    protected String buildRequestCustomUrl(String hostAddress, String requestPath) {
+        String urlHostAddress = validateAddressAndPrepareForUrl(hostAddress);
+
+        requestPath = requestPath.startsWith("/") ? requestPath.substring(1) : requestPath;
+        if (useHttps) {
+            return String.format("https://%s/%s", urlHostAddress, requestPath);
+        } else {
+            return String.format("http://%s/%s", urlHostAddress, requestPath);
+        }
+    }
+
+    public String executeRedfishData(String hostAddress, String category) {
+        String systemId = getSystemId(hostAddress);
+        String managerId = getManagerOrChassisId(hostAddress, RedfishCmdType.GetManagerId);
+        String chassisId = getManagerOrChassisId(hostAddress, RedfishCmdType.getChassisId);
+        String url;
+        CloseableHttpResponse response;
+        JsonObject root;
+        JsonArray retArray = new JsonArray();
+        JsonObject retObj = new JsonObject();
+
+        switch (category.toLowerCase()) {
+            case "summary":
+                logger.info(":::::SUMMARY DATA::::::::");
+                url = buildRequestCustomUrl(hostAddress, String.format("%s%s", SYSTEMS_URL_PATH, systemId));
+                response = (CloseableHttpResponse) executeGetRequest(url);
+                root = parseRedfishJsonResponse(response);
+                return root.toString();
+            case "processor":
+                logger.info(":::::PROCESSOR DATA::::::::");
+                url = buildRequestCustomUrl(hostAddress, String.format("%s%s/%s", SYSTEMS_URL_PATH, systemId, "Processors"));
+
+                try {
+                    // OkHttp로 Members 병렬 상세조회
+                    JsonObject processorRoot = getAsync(url).join();
+                    if (processorRoot.has("Members") && processorRoot.get("Members").isJsonArray()) {
+                        JsonArray members = processorRoot.getAsJsonArray("Members");
+                        List<CompletableFuture<JsonObject>> futures = new ArrayList<>();
+                        for (JsonElement member : members) {
+                            String odataId = member.getAsJsonObject().get("@odata.id").getAsString();
+                            String detailUrl = buildRequestCustomUrl(hostAddress, odataId);
+                            futures.add(getAsync(detailUrl));
+                        }
+                        CompletableFuture<Void> allDone = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+                        allDone.join();
+
+                        JsonArray resultArray = new JsonArray();
+                        for (CompletableFuture<JsonObject> future : futures) {
+                            resultArray.add(future.join());
+                        }
+                        return resultArray.toString();
+                    } else {
+                        return "{}";
+                    }
+                } catch (Exception ex) {
+                    logger.error("Redfish processors fetch failed", ex);
+                    return "{}";
+                }
+            case "memory":
+                logger.info(":::::MEMORY DATA::::::::");
+                url = buildRequestCustomUrl(hostAddress, String.format("%s%s/%s", SYSTEMS_URL_PATH, systemId, "Memory"));
+                try {
+                    JsonObject memoryRoot = getAsync(url).join();
+
+                    // OEM 정보
+                    if (memoryRoot.has("Oem")) {
+                        JsonObject oem = memoryRoot.getAsJsonObject("Oem");
+                        if (oem.has("Hpe")) {
+                            JsonObject hpe = oem.getAsJsonObject("Hpe");
+                            retObj.add("memmorysummary", hpe);
+                        }
+                    }
+
+                    // Members 상세 병렬 조회
+                    if (memoryRoot.has("Members") && memoryRoot.get("Members").isJsonArray()) {
+                        JsonArray members = memoryRoot.getAsJsonArray("Members");
+                        List<CompletableFuture<JsonObject>> futures = new ArrayList<>();
+                        for (JsonElement member : members) {
+                            String odataId = member.getAsJsonObject().get("@odata.id").getAsString();
+                            String detailUrl = buildRequestCustomUrl(hostAddress, odataId);
+                            futures.add(getAsync(detailUrl));
+                        }
+                        CompletableFuture<Void> allDone = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+                        allDone.join();
+
+                        JsonArray memListInfo = new JsonArray();
+                        for (CompletableFuture<JsonObject> future : futures) {
+                            memListInfo.add(future.join());
+                        }
+                        retObj.add("memlistinfo", memListInfo);
+                        return retObj.toString();
+                    } else {
+                        return "{}";
+                    }
+                } catch (Exception ex) {
+                    logger.error("Redfish memory fetch failed", ex);
+                    return "{}";
+                }
+            case "network":
+                logger.info(":::::NETWORK DATA::::::::");
+                    url = buildRequestCustomUrl(hostAddress, String.format("%s%s/%s", CHASSIS_URL_PATH, chassisId, "NetworkAdapters"));
+                    root = getAsyncSync(url);
+
+                    if (root.has("Members") && root.get("Members").isJsonArray()) {
+                        JsonArray members = root.getAsJsonArray("Members");
+                        List<CompletableFuture<JsonObject>> futures = new ArrayList<>();
+
+                        for (JsonElement member : members) {
+                            String odataId = member.getAsJsonObject().get("@odata.id").getAsString();
+                            String detailUrl = buildRequestCustomUrl(hostAddress, odataId);
+                            // NetworkAdapter 상세 조회
+                            futures.add(CompletableFuture.supplyAsync(() -> {
+                                JsonObject netDetail = getAsyncSync(detailUrl);
+                                // 포트 정보 병렬 조회
+                                JsonArray portArray = new JsonArray();
+                                if (netDetail.has("Controllers")) {
+                                    JsonObject controllers = netDetail.getAsJsonArray("Controllers").get(0).getAsJsonObject();
+                                    if (controllers.has("Links")) {
+                                        JsonObject links = controllers.getAsJsonObject("Links");
+                                        String portsKey = links.has("Ports") ? "Ports" : "NetworkPorts";
+                                        if (links.has(portsKey)) {
+                                            JsonArray ports = links.getAsJsonArray(portsKey);
+                                            List<CompletableFuture<JsonObject>> portFutures = new ArrayList<>();
+                                            for (JsonElement portElem : ports) {
+                                                String portOdataId = portElem.getAsJsonObject().get("@odata.id").getAsString();
+                                                String portUrl = buildRequestCustomUrl(hostAddress, portOdataId);
+                                                portFutures.add(CompletableFuture.supplyAsync(() -> getAsyncSync(portUrl), executor));
+                                            }
+                                            CompletableFuture.allOf(portFutures.toArray(new CompletableFuture[0])).join();
+                                            for (CompletableFuture<JsonObject> pf : portFutures) {
+                                                portArray.add(pf.join());
+                                            }
+                                        }
+                                    }
+                                }
+                                netDetail.add("port", portArray);
+                                return netDetail;
+                            }, executor));
+                        }
+                        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+                        JsonArray resultArray = new JsonArray();
+                        for (CompletableFuture<JsonObject> f : futures) {
+                            resultArray.add(f.join());
+                        }
+                        return resultArray.toString();
+                    } else {
+                        return "{}";
+                    }
+            case "storage":
+                logger.info(":::::STORAGE DATA::::::::");
+                url = buildRequestCustomUrl(hostAddress, String.format("%s%s/%s", SYSTEMS_URL_PATH, systemId, "Storage"));
+                root = getAsyncSync(url);
+
+                JsonArray controllerList = new JsonArray();
+                JsonArray volumeList = new JsonArray();
+                JsonArray driveList = new JsonArray();
+                JsonArray enclosureList = new JsonArray();
+
+                Set<String> controllerSet = new HashSet<>();
+                Set<String> volumeSet = new HashSet<>();
+                Set<String> driveSet = new HashSet<>();
+                Set<String> enclosureSet = new HashSet<>();
+
+                retObj = new JsonObject();
+
+                if (root.has("Members") && root.get("Members").isJsonArray()) {
+                    JsonArray storageMembers = root.getAsJsonArray("Members");
+                    List<CompletableFuture<JsonObject>> sMemberFutures = new ArrayList<>();
+
+                    for (JsonElement sMember : storageMembers) {
+                        String sOdataId = sMember.getAsJsonObject().get("@odata.id").getAsString();
+                        String sDetailUrl = buildRequestCustomUrl(hostAddress, sOdataId);
+                        sMemberFutures.add(CompletableFuture.supplyAsync(() -> getAsyncSync(sDetailUrl), executor));
+                    }
+                    CompletableFuture.allOf(sMemberFutures.toArray(new CompletableFuture[0])).join();
+
+                    for (int i = 0; i < sMemberFutures.size(); i++) {
+                        JsonObject rootObj = sMemberFutures.get(i).join();
+                        String sOdataId = storageMembers.get(i).getAsJsonObject().get("@odata.id").getAsString();
+
+                        // Controller
+                        String controllerUrl = buildRequestCustomUrl(hostAddress, sOdataId + "/Controllers");
+                        JsonObject controllerObj = getAsyncSync(controllerUrl);
+                        if (controllerObj.has("Members") && controllerObj.get("Members").isJsonArray()) {
+                            JsonArray ctrlMembers = controllerObj.getAsJsonArray("Members");
+                            List<CompletableFuture<JsonObject>> ctrlFutures = new ArrayList<>();
+                            for (JsonElement ctrl : ctrlMembers) {
+                                String ctrlOdataId = ctrl.getAsJsonObject().get("@odata.id").getAsString();
+                                if (controllerSet.add(ctrlOdataId)) {
+                                    String ctrlUrl = buildRequestCustomUrl(hostAddress, ctrlOdataId);
+                                    ctrlFutures.add(CompletableFuture.supplyAsync(() -> getAsyncSync(ctrlUrl), executor));
+                                }
+                            }
+                            CompletableFuture.allOf(ctrlFutures.toArray(new CompletableFuture[0])).join();
+                            for (CompletableFuture<JsonObject> cf : ctrlFutures) controllerList.add(cf.join());
+                        }
+
+                        // Volume
+                        if (rootObj.has("Volumes")) {
+                            JsonObject volumesObj = rootObj.getAsJsonObject("Volumes");
+                            if (volumesObj.has("@odata.id")) {
+                                String volumesOdataId = volumesObj.get("@odata.id").getAsString();
+                                String volumesUrl = buildRequestCustomUrl(hostAddress, volumesOdataId);
+                                JsonObject volumesObjDetail = getAsyncSync(volumesUrl);
+                                if (volumesObjDetail.has("Members") && volumesObjDetail.get("Members").isJsonArray()) {
+                                    JsonArray volMembers = volumesObjDetail.getAsJsonArray("Members");
+                                    List<CompletableFuture<JsonObject>> volFutures = new ArrayList<>();
+                                    for (JsonElement vol : volMembers) {
+                                        String volOdataId = vol.getAsJsonObject().get("@odata.id").getAsString();
+                                        if (volumeSet.add(volOdataId)) {
+                                            String volUrl = buildRequestCustomUrl(hostAddress, volOdataId);
+                                            volFutures.add(CompletableFuture.supplyAsync(() -> getAsyncSync(volUrl), executor));
+                                        }
+                                    }
+                                    CompletableFuture.allOf(volFutures.toArray(new CompletableFuture[0])).join();
+                                    for (CompletableFuture<JsonObject> vf : volFutures) volumeList.add(vf.join());
+                                }
+                            }
+                        }
+                        // Drive
+                        if (rootObj.has("Drives") && rootObj.get("Drives").isJsonArray()) {
+                            JsonArray drivesMembers = rootObj.getAsJsonArray("Drives");
+                            List<CompletableFuture<JsonObject>> drvFutures = new ArrayList<>();
+                            for (JsonElement drive : drivesMembers) {
+                                String driveOdataId = drive.getAsJsonObject().get("@odata.id").getAsString();
+                                if (driveSet.add(driveOdataId)) {
+                                    String drvUrl = buildRequestCustomUrl(hostAddress, driveOdataId);
+                                    drvFutures.add(CompletableFuture.supplyAsync(() -> getAsyncSync(drvUrl), executor));
+                                }
+                            }
+                            CompletableFuture.allOf(drvFutures.toArray(new CompletableFuture[0])).join();
+                            for (CompletableFuture<JsonObject> df : drvFutures) driveList.add(df.join());
+                        }
+                        // Enclosure
+                        if (rootObj.has("Links")) {
+                            JsonObject links = rootObj.getAsJsonObject("Links");
+                            if (links.has("Enclosures")) {
+                                JsonArray enclosures = links.getAsJsonArray("Enclosures");
+                                List<CompletableFuture<JsonObject>> encFutures = new ArrayList<>();
+                                for (JsonElement enc : enclosures) {
+                                    String encOdataId = enc.getAsJsonObject().get("@odata.id").getAsString();
+                                    if (enclosureSet.add(encOdataId)) {
+                                        String encUrl = buildRequestCustomUrl(hostAddress, encOdataId);
+                                        encFutures.add(CompletableFuture.supplyAsync(() -> getAsyncSync(encUrl), executor));
+                                    }
+                                }
+                                CompletableFuture.allOf(encFutures.toArray(new CompletableFuture[0])).join();
+                                for (CompletableFuture<JsonObject> ef : encFutures) enclosureList.add(ef.join());
+                            }
+                        }
+                    }
+                    retObj.add("controllerList", controllerList);
+                    retObj.add("volumeList", volumeList);
+                    retObj.add("driveList", driveList);
+                    retObj.add("enclosureList", enclosureList);
+                    return retObj.toString();
+                } else {
+                    return "{}";
+                }
+            case "device":
+                logger.info(":::::DEVICE DATA::::::::");
+                // HPE/PCIe 분기 처리
+                url = buildRequestCustomUrl(hostAddress, String.format("%s%s", CHASSIS_URL_PATH, chassisId));
+                root = getAsyncSync(url);
+
+                if (root.has("Oem") && root.getAsJsonObject("Oem").has("Hpe")) {
+                    url = buildRequestCustomUrl(hostAddress, String.format("%s%s/%s", CHASSIS_URL_PATH, chassisId, "Devices"));
+                    root = getAsyncSync(url);
+                } else {
+                    url = buildRequestCustomUrl(hostAddress, String.format("%s%s/%s", CHASSIS_URL_PATH, chassisId, "PCIeDevices"));
+                    root = getAsyncSync(url);
+                }
+
+                if (root.has("Members") && root.get("Members").isJsonArray()) {
+                    JsonArray members = root.getAsJsonArray("Members");
+                    List<CompletableFuture<JsonObject>> futures = new ArrayList<>();
+
+                    for (JsonElement member : members) {
+                        String odataId = member.getAsJsonObject().get("@odata.id").getAsString();
+                        String detailUrl = buildRequestCustomUrl(hostAddress, odataId);
+                        futures.add(CompletableFuture.supplyAsync(() -> getAsyncSync(detailUrl), executor));
+                    }
+                    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+                    JsonArray resultArray = new JsonArray();
+                    for (CompletableFuture<JsonObject> f : futures) {
+                        resultArray.add(f.join());
+                    }
+                    retObj.add("devicelist", resultArray);
+                    return retObj.toString();
+                } else {
+                    return "{}";
+                }
+            case "firmware":
+                logger.info(":::::FIRMWARE DATA::::::::");
+                url = buildRequestCustomUrl(hostAddress, FIRMWARE_URL_PATH);
+                root = getAsyncSync(url);
+                if (root.has("Members") && root.get("Members").isJsonArray()) {
+                    JsonArray members = root.getAsJsonArray("Members");
+                    List<CompletableFuture<JsonObject>> futures = new ArrayList<>();
+
+                    for (JsonElement member : members) {
+                        String odataId = member.getAsJsonObject().get("@odata.id").getAsString();
+                        String detailUrl = buildRequestCustomUrl(hostAddress, odataId);
+                        futures.add(CompletableFuture.supplyAsync(() -> getAsyncSync(detailUrl), executor));
+                    }
+                    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+                    JsonArray resultArray = new JsonArray();
+                    for (CompletableFuture<JsonObject> f : futures) {
+                        resultArray.add(f.join());
+                    }
+                    retObj.add("firmwarelist", resultArray);
+                    return retObj.toString();
+                } else {
+                    return "{}";
+                }
+            case "log":
+                 logger.info(":::::LOG DATA::::::::");
+
+                // 1. SYSTEMS_URL_PATH 쪽 LogServices 먼저 시도
+                url = buildRequestCustomUrl(hostAddress, String.format("%s%s/%s", SYSTEMS_URL_PATH, systemId, "LogServices"));
+                JsonObject logRoot = getAsync(url).join();
+                boolean hasMembers = logRoot.has("Members") && logRoot.get("Members").isJsonArray();
+
+                // 2. Members가 없으면 MANAGERS_URL_PATH 쪽 LogServices 시도
+                if (!hasMembers) {
+                    url = buildRequestCustomUrl(hostAddress, String.format("%s%s/%s", MANAGERS_URL_PATH, managerId, "LogServices"));
+                    logRoot = getAsync(url).join();
+                    hasMembers = logRoot.has("Members") && logRoot.get("Members").isJsonArray();
+                    if (!hasMembers) {
+                        return "{}";
+                    }
+                }
+
+                // 3. Members 상세 Entries 비동기 병렬 조회
+                JsonArray members = logRoot.getAsJsonArray("Members");
+                List<CompletableFuture<JsonObject>> futures = new ArrayList<>();
+                for (JsonElement member : members) {
+                    String odataId = member.getAsJsonObject().get("@odata.id").getAsString();
+
+                    String lastPart = odataId.substring(odataId.lastIndexOf('/') + 1);
+                    if (lastPart.contains("Event") || lastPart.contains("Fault")) continue;
+
+                    String logServiceUrl = buildRequestCustomUrl(hostAddress, odataId);
+
+                    // 3-1. LogService 정보 병렬 조회 (name 속성 포함)
+                    CompletableFuture<JsonObject> logServiceFuture = getAsync(logServiceUrl);
+
+                    // 3-2. LogEntries 정보 병렬 조회
+                    String entriesUrl = buildRequestCustomUrl(hostAddress, odataId + "/Entries");
+                    CompletableFuture<JsonObject> logEntriesFuture = getAsync(entriesUrl);
+
+                    // 3-3. 두 요청 모두 완료되면 name 속성 주입하여 logEntriesObj 반환
+                    CompletableFuture<JsonObject> combinedFuture = logServiceFuture.thenCombine(logEntriesFuture, (logServiceObj, logEntriesObj) -> {
+                        if (logServiceObj.has("Name")) {
+                            logEntriesObj.addProperty("name", logServiceObj.get("Name").getAsString());
+                        }
+                        return logEntriesObj;
+                    });
+
+                    futures.add(combinedFuture);
+                }
+
+                // 모든 비동기 요청 완료까지 대기
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+                for (CompletableFuture<JsonObject> f : futures) {
+                    retArray.add(f.join());
+                }
+                retObj.add("loglist", retArray);
+                return retObj.toString();
+            default:
+                throw new IllegalArgumentException("Unknown category: " + category);
+        }
+    }
+
+    // Util: JsonObject 반환 메서드 (한 번만 InputStream 읽도록)
+    protected JsonObject parseRedfishJsonResponse(CloseableHttpResponse response) {
+        try (
+            InputStream in = response.getEntity().getContent();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))
+        ) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            return new JsonParser().parse(sb.toString()).getAsJsonObject();
+        } catch (UnsupportedOperationException | IOException e) {
+            throw new RedfishException("Failed to process system response due to exception", e);
+        }
+    }
+    private OkHttpClient getClient() {
+        return ignoreSsl ? unsafeClient : safeClient;
+    }
+
+    private CompletableFuture<JsonObject> getAsync(String url) {
+        OkHttpClient client = getClient();
+        Request.Builder builder = new Request.Builder()
+            .url(url)
+            .header("Accept", "application/json");
+        if (username != null && !username.isEmpty()) {
+            String credential = Credentials.basic(username, password);
+            builder.header("Authorization", credential);
+        }
+        Request request = builder.build();
+
+        CompletableFuture<JsonObject> future = new CompletableFuture<>();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                future.completeExceptionally(e);
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    String body = responseBody != null ? responseBody.string() : "";
+                    JsonObject json = new JsonParser().parse(body).getAsJsonObject();
+                    future.complete(json);
+                } catch (Exception e) {
+                    future.completeExceptionally(e);
+                }
+            }
+        });
+        return future;
+    }
+
+    private JsonObject getAsyncSync(String url) {
+        try {
+            return getAsync(url).get();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void shutdownExecutor() {
+        executor.shutdown();
+    }
+
+    // 싱글톤 unsafe OkHttpClient 생성 메서드
+    private static OkHttpClient createUnsafeClient() {
+        try {
+            final TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+                    public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+                    public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+                }
+            };
+            final SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+            return new OkHttpClient.Builder()
+                    .sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0])
+                    .hostnameVerifier((hostname, session) -> true)
+                    .connectTimeout(300, TimeUnit.SECONDS)
+                    .readTimeout(300, TimeUnit.SECONDS)
+                    .writeTimeout(300, TimeUnit.SECONDS)
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

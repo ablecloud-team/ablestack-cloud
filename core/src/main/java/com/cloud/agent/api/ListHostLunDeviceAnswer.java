@@ -21,17 +21,28 @@ package com.cloud.agent.api;
 
 // import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 
 public class ListHostLunDeviceAnswer extends Answer {
     private List<String> hostDevicesNames;
     private List<String> hostDevicesTexts;
     private List<Boolean> hasPartitions;
+    private List<String> scsiAddresses;
 
     public ListHostLunDeviceAnswer(boolean success, List<String> hostDevicesNames, List<String> hostDevicesTexts, List<Boolean> hasPartitions) {
         super();
         this.hostDevicesNames = hostDevicesNames;
         this.hostDevicesTexts = hostDevicesTexts;
         this.hasPartitions = hasPartitions;
+        this.scsiAddresses = new ArrayList<>();
+    }
+
+    public ListHostLunDeviceAnswer(boolean success, List<String> hostDevicesNames, List<String> hostDevicesTexts, List<Boolean> hasPartitions, List<String> scsiAddresses) {
+        super();
+        this.hostDevicesNames = hostDevicesNames;
+        this.hostDevicesTexts = hostDevicesTexts;
+        this.hasPartitions = hasPartitions;
+        this.scsiAddresses = scsiAddresses;
     }
 
     // Getters and setters
@@ -53,6 +64,14 @@ public class ListHostLunDeviceAnswer extends Answer {
 
     public List<Boolean> getHasPartitions() {
         return hasPartitions;
+    }
+
+    public List<String> getScsiAddresses() {
+        return scsiAddresses;
+    }
+
+    public void setScsiAddresses(List<String> scsiAddresses) {
+        this.scsiAddresses = scsiAddresses;
     }
 
 }

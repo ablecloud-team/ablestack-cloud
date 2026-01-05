@@ -43,6 +43,7 @@ import com.cloud.resource.DiscovererBase;
 import com.cloud.resource.ResourceStateAdapter;
 import com.cloud.resource.ServerResource;
 import com.cloud.resource.UnableDeleteHostException;
+import com.cloud.utils.NumbersUtil;
 import com.cloud.utils.PasswordGenerator;
 import com.cloud.utils.StringUtils;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -257,7 +258,8 @@ public abstract class LibvirtServerDiscoverer extends DiscovererBase implements 
                 }
             }
 
-            sshConnection = new Connection(agentIp, 22);
+            int port = NumbersUtil.parseInt(_configDao.getValue("kvm.ssh.port"), 22);
+            sshConnection = new Connection(agentIp, port);
 
             sshConnection.connect(null, 60000, 60000);
 

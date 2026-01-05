@@ -276,7 +276,7 @@ public class DefaultVMSnapshotStrategy extends ManagerBase implements VMSnapshot
 
     protected void finalizeDelete(VMSnapshotVO vmSnapshot, List<VolumeObjectTO> volumeTOs) {
         // update volumes path
-        updateVolumePath(volumeTOs);
+        updateVolumePath(volumeTOs, "finalizeDelete");
 
         // update children's parent snapshots
         List<VMSnapshotVO> children = vmSnapshotDao.listByParent(vmSnapshot.getId());
@@ -298,7 +298,7 @@ public class DefaultVMSnapshotStrategy extends ManagerBase implements VMSnapshot
 
     protected void finalizeCreate(VMSnapshotVO vmSnapshot, List<VolumeObjectTO> volumeTOs) {
         // update volumes path
-        updateVolumePath(volumeTOs);
+        updateVolumePath(volumeTOs, "finalizeCreate");
 
         vmSnapshot.setCurrent(true);
 
@@ -313,7 +313,7 @@ public class DefaultVMSnapshotStrategy extends ManagerBase implements VMSnapshot
 
     protected void finalizeRevert(VMSnapshotVO vmSnapshot, List<VolumeObjectTO> volumeToList) {
         // update volumes path
-        updateVolumePath(volumeToList);
+        updateVolumePath(volumeToList, "finalizeRevert");
 
         // update current snapshot, current snapshot is the one reverted to
         VMSnapshotVO previousCurrent = vmSnapshotDao.findCurrentSnapshotByVmId(vmSnapshot.getVmId());
@@ -325,7 +325,7 @@ public class DefaultVMSnapshotStrategy extends ManagerBase implements VMSnapshot
         vmSnapshotDao.persist(vmSnapshot);
     }
 
-    protected void updateVolumePath(List<VolumeObjectTO> volumeTOs) {
+    protected void updateVolumePath(List<VolumeObjectTO> volumeTOs, String type) {
         for (VolumeObjectTO volume : volumeTOs) {
             if (StringUtils.isAllEmpty(volume.getDataStoreUuid(), volume.getPath(), volume.getChainInfo())) {
                 continue;
@@ -343,7 +343,17 @@ public class DefaultVMSnapshotStrategy extends ManagerBase implements VMSnapshot
             if (StringUtils.isNotEmpty(volume.getChainInfo())) {
                 volumeVO.setChainInfo(volume.getChainInfo());
             }
-            volumeVO.setVmSnapshotChainSize(volume.getSize());
+            if ("finalizeCreate".equals(type)) {
+                long vmSnapshotChainSize = volumeVO.getVmSnapshotChainSize() == null ? 0 : volumeVO.getVmSnapshotChainSize();
+                vmSnapshotChainSize += volumeVO.getSize();
+                volumeVO.setVmSnapshotChainSize(vmSnapshotChainSize);
+            } else if ("finalizeDelete".equals(type)) {
+                long vmSnapshotChainSize = volumeVO.getVmSnapshotChainSize() - volumeVO.getSize();
+                volumeVO.setVmSnapshotChainSize(vmSnapshotChainSize);
+            } else {
+                long vmSnapshotChainSize = volumeVO.getVmSnapshotChainSize() == null ? 0 : volumeVO.getVmSnapshotChainSize();
+                volumeVO.setVmSnapshotChainSize(vmSnapshotChainSize);
+            }
             volumeDao.persist(volumeVO);
         }
     }

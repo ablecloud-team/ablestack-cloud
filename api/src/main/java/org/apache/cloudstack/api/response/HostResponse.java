@@ -298,6 +298,18 @@ public class HostResponse extends BaseResponseWithAnnotations {
     @Param(description = "CPU Arch of the host", since = "4.20")
     private String arch;
 
+    @SerializedName(ApiConstants.MIGRATION_IP)
+    @Param(description = "Live Migration Ip of the host", since = "4.21")
+    private String migrationIp;
+
+    public String getMigrationIp() {
+        return migrationIp;
+    }
+
+    public void setMigrationIp(String migrationIp) {
+        this.migrationIp = migrationIp;
+    }
+
     @Override
     public String getObjectId() {
         return this.getId();

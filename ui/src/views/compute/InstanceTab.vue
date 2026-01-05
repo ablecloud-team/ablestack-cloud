@@ -115,17 +115,82 @@
           :virtualmachine="vm"
           :loading="loading"/>
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.listhostdevices')" key="pcidevices" v-if="shouldShowPciDevicesTab">
-        <div v-if="pciDevices.length > 0">
-          <a-table
-            :columns="pciColumns"
-            :dataSource="pciDevices"
-            :pagination="false"
-            :loading="loading">
-          </a-table>
-        </div>
-        <div v-else>
-          {{ $t('label.no.pci.devices') }}
+      <a-tab-pane
+        :tab="$t('label.listhostdevices')"
+        key="hostdevices"
+      >
+        <div class="host-devices-container">
+          <!-- 기타 장치 (PCI) -->
+          <div class="device-section">
+            <h3 class="section-title">{{ $t('label.other.devices') }}</h3>
+            <a-table
+              :columns="deviceColumns"
+              :dataSource="pciDevices"
+              :pagination="false"
+              :scroll="{ x: 'max-content' }"
+              size="small"
+              :loading="loading" />
+          </div>
+
+          <!-- HBA 디바이스 -->
+          <div class="device-section">
+            <h3 class="section-title">{{ $t('label.hba.devices') }}</h3>
+            <a-table
+              :columns="deviceColumns"
+              :dataSource="hbaDevices"
+              :pagination="false"
+              :scroll="{ x: 'max-content' }"
+              size="small"
+              :loading="loading" />
+          </div>
+
+          <!-- VHBA 디바이스 -->
+          <div class="device-section">
+            <h3 class="section-title">{{ $t('label.vhba.devices') }}</h3>
+            <a-table
+              :columns="deviceColumns"
+              :dataSource="vhbaDevices"
+              :pagination="false"
+              :scroll="{ x: 'max-content' }"
+              size="small"
+              :loading="loading" />
+          </div>
+
+          <!-- USB 디바이스 -->
+          <div class="device-section">
+            <h3 class="section-title">{{ $t('label.usb.devices') }}</h3>
+            <a-table
+              :columns="deviceColumns"
+              :dataSource="usbDevices"
+              :pagination="false"
+              :scroll="{ x: 'max-content' }"
+              size="small"
+              :loading="loading" />
+          </div>
+
+          <!-- LUN 디바이스 -->
+          <div class="device-section">
+            <h3 class="section-title">{{ $t('label.lun.devices') }}</h3>
+            <a-table
+              :columns="deviceColumns"
+              :dataSource="lunDevices"
+              :pagination="false"
+              :scroll="{ x: 'max-content' }"
+              size="small"
+              :loading="loading" />
+          </div>
+
+          <!-- SCSI 디바이스 -->
+          <div class="device-section">
+            <h3 class="section-title">{{ $t('label.scsi.devices') }}</h3>
+            <a-table
+              :columns="deviceColumns"
+              :dataSource="scsiDevices"
+              :pagination="false"
+              :scroll="{ x: 'max-content' }"
+              size="small"
+              :loading="loading" />
+          </div>
         </div>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.settings')" key="settings">
@@ -202,6 +267,7 @@
 
 <script>
 
+import { h } from 'vue'
 import { api } from '@/api'
 import { mixinDevice } from '@/utils/mixin.js'
 import ResourceLayout from '@/layouts/ResourceLayout'
@@ -276,18 +342,46 @@ export default {
       dataPreFill: {},
       securitygroupids: [],
       securityGroupNetworkProviderUseThisVM: false,
-      hasPciDevices: false,
+      usbDevices: [],
+      lunDevices: [],
       pciDevices: [],
-      pciColumns: [
+      hbaDevices: [],
+      vhbaDevices: [],
+      scsiDevices: [],
+      // 디바이스 데이터 캐싱을 위한 플래그들
+      devicesLoaded: false,
+      deviceLoadingStates: {
+        pci: false,
+        usb: false,
+        lun: false,
+        hba: false,
+        vhba: false,
+        scsi: false,
+        fetching: false
+      },
+      deviceAssignmentsPromise: null,
+      deviceColumns: [
         {
           title: this.$t('label.name'),
           dataIndex: 'hostDevicesName',
-          key: 'hostDevicesName'
+          key: 'hostDevicesName',
+          fixed: 'left',
+          width: 250,
+          customRender: ({ text }) => {
+            return h('div', { style: 'white-space: pre-line; line-height: 1.4; min-height: 50px; padding-top: 8px;' }, this.formatDeviceName(text))
+          }
         },
         {
           title: this.$t('label.details'),
           dataIndex: 'hostDevicesText',
-          key: 'hostDevicesText'
+          key: 'hostDevicesText',
+          width: 500,
+          customRender: ({ text }) => {
+            return h('div', {
+              style: 'white-space: pre-wrap; word-break: break-word; min-height: 40px;',
+              innerHTML: this.formatHostDevicesText(text)
+            })
+          }
         }
       ]
     }
@@ -306,9 +400,22 @@ export default {
       deep: true,
       handler (newData, oldData) {
         if (newData !== oldData) {
+          const oldHostId = this.dataResource?.hostid
+          const oldState = this.dataResource?.state
+          const newHostId = newData?.hostid
+          const newState = newData?.state
+
           this.dataResource = newData
           this.vm = this.dataResource
-          this.fetchData()
+
+          // 호스트가 변경되었거나, VM 상태가 변경되면 디바이스 캐시 초기화
+          if (oldHostId !== newHostId || oldState !== newState) {
+            this.resetDeviceCache()
+            // 디바이스 탭이 열려있으면 즉시 새로고침
+            if (this.currentTab === 'hostdevices') {
+              this.fetchData()
+            }
+          }
         }
       }
     },
@@ -316,16 +423,65 @@ export default {
       this.setCurrentTab()
     }
   },
+  computed: {
+  },
   mounted () {
     this.setCurrentTab()
-    this.fetchPciDevices()
-  },
-  computed: {
-    shouldShowPciDevicesTab () {
-      return this.pciDevices.length > 0
-    }
   },
   methods: {
+    // 디바이스 이름을 포맷팅하여 괄호 안의 내용을 줄바꿈으로 표시
+    formatDeviceName (deviceName) {
+      if (!deviceName) return ''
+
+      // 괄호가 있는 경우 줄바꿈으로 분리
+      const match = deviceName.match(/^(.+?)\s*\((.+?)\)$/)
+      if (match) {
+        const [, mainName, bracketContent] = match
+        const result = `${mainName.trim()}\n(${bracketContent})`
+        return result
+      }
+
+      return deviceName
+    },
+    formatHostDevicesText (text) {
+      if (!text) {
+        return ''
+      }
+
+      let formattedText = String(text)
+
+      // 각 항목 앞에 줄바꿈 추가
+      formattedText = formattedText.replace(/\s+SIZE:/g, '\nSIZE:')
+      formattedText = formattedText.replace(/\s+HAS_PARTITIONS:/g, '\nHAS_PARTITIONS:')
+      formattedText = formattedText.replace(/\s+SCSI_ADDRESS:/g, '\nSCSI_ADDRESS:')
+      formattedText = formattedText.replace(/\s+SCSI\s+Address:/g, '\nSCSI Address:')
+      formattedText = formattedText.replace(/\s+Type:/g, '\nType:')
+      formattedText = formattedText.replace(/\s+Vendor:/g, '\nVendor:')
+      formattedText = formattedText.replace(/\s+Model:/g, '\nModel:')
+      formattedText = formattedText.replace(/\s+Revision:/g, '\nRevision:')
+      formattedText = formattedText.replace(/\s+Device:/g, '\nDevice:')
+      formattedText = formattedText.replace(/\s+BY_ID:/g, '\nBY_ID:')
+      formattedText = formattedText.replace(/\s+파티션\s+없음/g, '\n파티션 없음')
+      formattedText = formattedText.replace(/\s+파티션\s+있음/g, '\n파티션 있음')
+      formattedText = formattedText.replace(/\s+WWNN:/g, '\nWWNN:')
+      formattedText = formattedText.replace(/\s+WWPN:/g, '\nWWPN:')
+      formattedText = formattedText.replace(/\s+Fabric\s+WWN:/g, '\nFabric WWN:')
+      formattedText = formattedText.replace(/\s+Max\s+vPorts:/g, '\nMax vPorts:')
+      formattedText = formattedText.replace(/\s+ID\s+/g, '\nID ')
+
+      formattedText = formattedText.replace(/HAS_PARTITIONS:\s*false/gi, this.$t('label.no.partitions'))
+      formattedText = formattedText.replace(/HAS_PARTITIONS:\s*true/gi, this.$t('label.has.partitions'))
+
+      formattedText = formattedText.replace(/USAGE_STATUS:\s*사용안함/gi, '사용안함')
+      formattedText = formattedText.replace(/USAGE_STATUS:\s*사용중/gi, '사용중')
+
+      formattedText = formattedText.replace(/IN_USE:\s*false/gi, this.$t('label.not.in.use'))
+      formattedText = formattedText.replace(/IN_USE:\s*true/gi, this.$t('label.in.use'))
+
+      formattedText = formattedText.replace(/(?:\r\n|\r|\n)/g, '<br/>')
+
+      return formattedText
+    },
     setCurrentTab () {
       this.currentTab = this.$route.query.tab ? this.$route.query.tab : 'details'
     },
@@ -359,14 +515,9 @@ export default {
         }
       })
 
-      this.hasPciDevices = false
-      if (this.vm.details) {
-        for (const [key, value] of Object.entries(this.vm.details)) {
-          if (key.startsWith('extraconfig-') && (value.includes('<hostdev') || value.includes('pci'))) {
-            this.hasPciDevices = true
-            break
-          }
-        }
+      if (!this.devicesLoaded) {
+        await this.loadDevicesFromDb()
+        this.devicesLoaded = true
       }
     },
     listDiskOfferings () {
@@ -421,145 +572,156 @@ export default {
       this.showRemoveMirrorVMModal = true
     },
     async handleChangeTab (activeKey) {
-      if (activeKey === 'pcidevices') {
-        await this.fetchPciDevices()
-        if (this.pciDevices.length === 0) {
-          this.currentTab = 'details'
-          return
-        }
+      // 디바이스 탭으로 변경될 때 데이터 로드
+      if (activeKey === 'hostdevices') {
+        // VM 상태가 변경되었을 수 있으므로 항상 캐시 초기화 후 데이터 로드
+        this.resetDeviceCache()
+        await this.fetchData()
       }
+
       if (this.currentTab !== activeKey) {
         this.currentTab = activeKey
+
+        // URL 쿼리 파라미터 업데이트
+        const query = Object.assign({}, this.$route.query)
+        query.tab = activeKey
+        const queryString = Object.keys(query).map(key => {
+          return encodeURIComponent(key) + '=' + encodeURIComponent(query[key])
+        }).join('&')
+
+        history.pushState({}, null, '#' + this.$route.path + '?' + queryString)
       }
     },
-    async fetchPciDevices () {
+    resetDeviceCache () {
+      this.devicesLoaded = false
+      this.deviceLoadingStates = {
+        pci: false,
+        usb: false,
+        lun: false,
+        hba: false,
+        vhba: false,
+        scsi: false,
+        fetching: false
+      }
+      this.deviceAssignmentsPromise = null
+      // 장치 데이터 초기화
       this.pciDevices = []
-      if (!this.vm.hostid) {
-        // VM이 정지된 상태에서도 PCI 디바이스 정보 표시
-        if (this.vm.details) {
-          const pciAddresses = []
-
-          for (const [key, value] of Object.entries(this.vm.details)) {
-            if (key.startsWith('extraconfig-') && value.includes('<hostdev')) {
-              const sourceMatch = value.match(/<source>\s*<address[^>]*domain='([^']*)'[^>]*bus='([^']*)'[^>]*slot='([^']*)'[^>]*function='([^']*)'[^>]*\/>\s*<\/source>/)
-              if (sourceMatch) {
-                const [, domain, bus, slot, function_] = sourceMatch
-
-                const domainHex = domain.replace('0x', '')
-                const busHex = bus.replace('0x', '')
-                const slotHex = slot.replace('0x', '')
-                const functionHex = function_.replace('0x', '')
-                const pciAddress = `${busHex.padStart(2, '0')}:${slotHex.padStart(2, '0')}.${functionHex}`
-                pciAddresses.push({
-                  key: key,
-                  pciAddress: pciAddress,
-                  domain: domainHex,
-                  bus: busHex,
-                  slot: slotHex,
-                  function: functionHex
-                })
-              } else {
-              }
-            }
-          }
-          if (pciAddresses.length > 0) {
-            try {
-              let hostId = this.vm.hostid || this.vm.lastHostId
-              if (!hostId) {
-                const zoneResponse = await api('listHosts', {
-                  zoneid: this.vm.zoneid,
-                  type: 'Routing',
-                  state: 'Up'
-                })
-
-                if (zoneResponse?.listhostsresponse?.host && zoneResponse.listhostsresponse.host.length > 0) {
-                  hostId = zoneResponse.listhostsresponse.host[0].id
-                }
-              }
-
-              if (!hostId) {
-                console.error('No hostId available for PCI device lookup')
-                pciAddresses.forEach(addr => {
-                  this.pciDevices.push({
-                    key: addr.key,
-                    hostDevicesName: `PCI Device at ${addr.pciAddress}`,
-                    hostDevicesText: `Domain: ${addr.domain}, Bus: ${addr.bus}, Slot: ${addr.slot}, Function: ${addr.function}`
-                  })
-                })
-                return
-              }
-
-              const response = await api('listHostDevices', {
-                id: hostId
-              })
-
-              const devices = response?.listhostdevicesresponse?.listhostdevices?.[0]
-              if (devices && devices.hostdevicesname && devices.hostdevicestext) {
-                for (let i = 0; i < devices.hostdevicesname.length; i++) {
-                  const deviceName = devices.hostdevicesname[i]
-                  const deviceText = devices.hostdevicestext[i]
-                  const pciMatch = deviceName.match(/^([0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F])/)
-                  if (pciMatch) {
-                    const devicePciAddress = pciMatch[1].toLowerCase()
-
-                    const matchingAddress = pciAddresses.find(addr => {
-                      const addrLower = addr.pciAddress.toLowerCase()
-                      return addrLower === devicePciAddress
-                    })
-                    if (matchingAddress) {
-                      console.log('Found matching device:', deviceName)
-                      this.pciDevices.push({
-                        key: matchingAddress.key,
-                        hostDevicesName: deviceName,
-                        hostDevicesText: deviceText
-                      })
-                    }
-                  }
-                }
-              }
-            } catch (error) {
-              pciAddresses.forEach(addr => {
-                this.pciDevices.push({
-                  key: addr.key,
-                  hostDevicesName: `PCI Device at ${addr.pciAddress}`,
-                  hostDevicesText: `Domain: ${addr.domain}, Bus: ${addr.bus}, Slot: ${addr.slot}, Function: ${addr.function}`
-                })
-              })
-            }
-          }
-        }
-        return
+      this.usbDevices = []
+      this.lunDevices = []
+      this.hbaDevices = []
+      this.vhbaDevices = []
+      this.scsiDevices = []
+    },
+    async loadDevicesFromDb () {
+      if (this.deviceAssignmentsPromise) {
+        return this.deviceAssignmentsPromise
       }
 
-      try {
-        const vmNumericId = this.vm.instancename.split('-')[2]
-        if (!vmNumericId) {
-          console.error('Failed to get VM numeric ID')
-          return
-        }
+      const deviceTypes = ['pci', 'usb', 'lun', 'hba', 'vhba', 'scsi']
+      this.deviceAssignmentsPromise = (async () => {
+        this.deviceLoadingStates.fetching = true
+        deviceTypes.forEach(type => { this.deviceLoadingStates[type] = true })
 
-        const response = await api('listHostDevices', {
-          id: this.vm.hostid
-        })
+        try {
+          const response = await api('listVmDeviceAssignments', { virtualmachineid: this.vm.id })
+          const assignments = response?.listvmdeviceassignmentsresponse?.vmdeviceassignment
+          const assignmentList = Array.isArray(assignments)
+            ? assignments
+            : assignments
+              ? [assignments]
+              : []
 
-        const devices = response?.listhostdevicesresponse?.listhostdevices?.[0]
-        if (devices && devices.vmallocations) {
-          Object.entries(devices.vmallocations).forEach(([deviceName, vmId]) => {
-            if (vmId === vmNumericId) {
-              const deviceIndex = devices.hostdevicesname.findIndex(name => name === deviceName)
-              if (deviceIndex !== -1) {
-                this.pciDevices.push({
-                  key: deviceName,
-                  hostDevicesName: devices.hostdevicesname[deviceIndex],
-                  hostDevicesText: devices.hostdevicestext[deviceIndex]
-                })
-              }
+          const categorized = {
+            pci: [],
+            usb: [],
+            lun: [],
+            hba: [],
+            vhba: [],
+            scsi: []
+          }
+
+          const addUnique = (list, device) => {
+            if (!list.some(existing =>
+              existing.hostDevicesName === device.hostDevicesName &&
+              existing.hostId === device.hostId)) {
+              list.push(device)
+            }
+          }
+
+          assignmentList.forEach(item => {
+            const type = (item.devicetype || '').toLowerCase()
+            if (!['pci', 'usb', 'lun', 'hba', 'vhba', 'scsi'].includes(type)) {
+              return
+            }
+            const device = {
+              key: `${item.hostid || 'na'}-${item.hostdevicesname}`,
+              hostDevicesName: item.hostdevicesname,
+              hostDevicesText: item.hostdevicestext || '',
+              hostId: item.hostid
+            }
+
+            switch (type) {
+              case 'pci':
+                addUnique(categorized.pci, device)
+                break
+              case 'usb':
+                addUnique(categorized.usb, device)
+                break
+              case 'lun':
+                addUnique(categorized.lun, device)
+                break
+              case 'hba':
+                addUnique(categorized.hba, device)
+                break
+              case 'vhba':
+                addUnique(categorized.vhba, device)
+                break
+              case 'scsi':
+                addUnique(categorized.scsi, device)
+                break
             }
           })
+
+          this.pciDevices = categorized.pci
+          this.usbDevices = categorized.usb
+          this.lunDevices = categorized.lun
+          this.hbaDevices = categorized.hba
+          this.vhbaDevices = categorized.vhba
+          this.scsiDevices = categorized.scsi
+        } catch (error) {
+          console.error('Failed to load VM device assignments', error)
+          this.pciDevices = []
+          this.usbDevices = []
+          this.lunDevices = []
+          this.hbaDevices = []
+          this.vhbaDevices = []
+          this.scsiDevices = []
+        } finally {
+          deviceTypes.forEach(type => { this.deviceLoadingStates[type] = false })
+          this.deviceLoadingStates.fetching = false
+          this.deviceAssignmentsPromise = null
         }
-      } catch (error) {
-        console.error('Error fetching PCI devices:', error)
-      }
+      })()
+
+      return this.deviceAssignmentsPromise
+    },
+    async fetchPciDevices () {
+      await this.loadDevicesFromDb()
+    },
+    async fetchUsbDevices () {
+      await this.loadDevicesFromDb()
+    },
+    async fetchLunDevices () {
+      await this.loadDevicesFromDb()
+    },
+    async fetchHbaDevices () {
+      await this.loadDevicesFromDb()
+    },
+    async fetchVhbaDevices () {
+      await this.loadDevicesFromDb()
+    },
+    async fetchScsiDevices () {
+      await this.loadDevicesFromDb()
     }
   }
 }
@@ -699,4 +861,26 @@ export default {
   padding-top: 12px;
   padding-bottom: 12px;
 }
+
+.host-devices-container .device-section {
+  margin-bottom: 32px;
+}
+
+.host-devices-container .device-section:last-child {
+  margin-bottom: 0;
+}
+
+.host-devices-container .device-section .section-title {
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1890ff;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+
+.host-devices-container .device-section :deep(.ant-table-cell:nth-child(2)) {
+  white-space: pre-line;
+}
+
 </style>

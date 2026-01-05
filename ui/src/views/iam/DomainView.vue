@@ -36,14 +36,29 @@
         </a-col>
         <a-col :span="10">
           <span style="float: right">
-            <action-button
-              :style="dataView ? { float: device === 'mobile' ? 'left' : 'right' } : { 'margin-right': '10px', display: 'inline-flex' }"
-              :loading="loading"
-              :actions="actions"
-              :selectedRowKeys="selectedRowKeys"
-              :dataView="dataView"
-              :resource="resource"
-              @exec-action="execAction"/>
+            <a-dropdown
+              v-if="menuActions.length > 0"
+              v-model:visible="detailActionsVisible"
+              :trigger="['click']"
+              placement="bottomRight"
+              overlayClassName="autogen-action-dropdown"
+              class="autogen-action-dropdown__trigger">
+              <template #overlay>
+                <div class="autogen-action-dropdown__content">
+                  <action-button
+                    :loading="loading"
+                    :actions="menuActions"
+                    :selectedRowKeys="selectedRowKeys"
+                    :dataView="true"
+                    :resource="resource"
+                    @exec-action="handleDropdownAction"/>
+                </div>
+              </template>
+              <a-button type="primary" class="autogen-action-dropdown__button">
+                <template #icon><down-outlined /></template>
+                {{ $t('label.actions') }}
+              </a-button>
+            </a-dropdown>
           </span>
         </a-col>
       </a-row>
@@ -54,7 +69,9 @@
         v-if="dataView"
         :resource="resource"
         :loading="loading"
-        :tabs="$route.meta.tabs" />
+        :tabs="$route.meta.tabs"
+        :actions="actions"
+        @exec-action="execAction" />
       <tree-view
         :key="treeViewKey"
         :treeData="treeData"
@@ -63,8 +80,10 @@
         :loading="loading"
         :tabs="$route.meta.tabs"
         :treeDeletedKey="treeDeletedKey"
+        :actions="actions"
         @change-resource="changeResource"
-        @change-tree-store="changeDomainStore"/>
+        @change-tree-store="changeDomainStore"
+        @exec-action="execAction"/>
     </div>
 
     <div v-if="showAction">
@@ -110,7 +129,8 @@ export default {
       action: {},
       dataView: false,
       domainStore: {},
-      treeDeletedKey: null
+      treeDeletedKey: null,
+      detailActionsVisible: false
     }
   },
   computed: {
@@ -122,6 +142,26 @@ export default {
         }
       }
       return actions
+    },
+    menuActions () {
+      if (!this.actions || this.actions.length === 0) {
+        return []
+      }
+      return this.actions.filter(action => {
+        if (!(action.api in this.$store.getters.apis)) {
+          return false
+        }
+        const usable = action.dataView || action.listView
+        if (!usable) {
+          return false
+        }
+        return 'show' in action ? action.show(this.resource, this.$store.getters) : true
+      }).map(action => {
+        if (!action.dataView) {
+          return { ...action, dataView: true }
+        }
+        return action
+      })
     }
   },
   beforeRouteUpdate (to, from, next) {
@@ -148,53 +188,12 @@ export default {
     }
   },
   methods: {
-    fetchData () {
-      this.treeData = []
-      this.treeSelected = {}
-      const params = { listall: true }
-      if (this.$route && this.$route.params && this.$route.params.id) {
-        this.resource = {}
-        this.dataView = true
-        params.id = this.$route.params.id
-      } else {
-        this.dataView = false
-        params.id = this.$store.getters.userInfo.domainid
-      }
-
-      this.loading = true
-      params.showicon = true
-      api('listDomains', params).then(json => {
-        const domains = json.listdomainsresponse.domain || []
-        this.treeData = this.generateTreeData(domains)
-        this.resource = domains[0] || {}
-        this.treeSelected = domains[0] || {}
-      }).catch(error => {
-        if ([401].includes(error.response.status)) {
-          return
-        }
-
-        this.$notification.error({
-          message: this.$t('message.request.failed'),
-          description: error.response.headers['x-description'],
-          duration: 0
-        })
-
-        if ([405].includes(error.response.status)) {
-          this.$router.push({ path: '/exception/403' })
-        }
-
-        if ([430, 431, 432].includes(error.response.status)) {
-          this.$router.push({ path: '/exception/404' })
-        }
-
-        if ([530, 531, 532, 533, 534, 535, 536, 537].includes(error.response.status)) {
-          this.$router.push({ path: '/exception/500' })
-        }
-      }).finally(f => {
-        this.loading = false
-      })
+    handleDropdownAction (action) {
+      this.detailActionsVisible = false
+      this.execAction(action)
     },
     execAction (action) {
+      this.detailActionsVisible = false
       this.treeDeletedKey = action.api === 'deleteDomain' ? this.resource.key : null
       this.actionData = []
       this.action = action
@@ -232,6 +231,52 @@ export default {
         }
       }
       this.action.loading = false
+    },
+    fetchData () {
+      this.treeData = []
+      this.treeSelected = {}
+      const params = { listall: true }
+      if (this.$route && this.$route.params && this.$route.params.id) {
+        this.resource = {}
+        this.dataView = true
+        params.id = this.$route.params.id
+      } else {
+        this.dataView = false
+        params.id = this.$store.getters.userInfo.domainid
+      }
+
+      this.loading = true
+      params.showicon = true
+      api('listDomains', params).then(json => {
+        const domains = json.listdomainsresponse.domain || []
+        this.treeData = this.generateTreeData(domains)
+        this.resource = domains[0] || {}
+        this.treeSelected = domains[0] || {}
+      }).catch(error => {
+        if ([401].includes(error.response.status)) {
+          return
+        }
+
+        this.$notification.error({
+          message: this.$t('message.request.failed'),
+          description: error.response.headers['x-description'],
+          duration: 0
+        })
+
+        if ([405].includes(error.response.status)) {
+          this.$router.push({ path: '/dashboard' })
+        }
+
+        if ([430, 431, 432].includes(error.response.status)) {
+          this.$router.push({ path: '/dashboard' })
+        }
+
+        if ([530, 531, 532, 533, 534, 535, 536, 537].includes(error.response.status)) {
+          this.$router.push({ path: '/dashboard' })
+        }
+      }).finally(f => {
+        this.loading = false
+      })
     },
     listUuidOpts (param) {
       if (this.action.mapping && param.name in this.action.mapping && !this.action.mapping[param.name].api) {
@@ -335,5 +380,28 @@ export default {
 
   .ant-breadcrumb .anticon {
     margin-left: 8px;
+  }
+
+  .autogen-action-dropdown__trigger {
+    display: inline-block;
+  }
+
+  .autogen-action-dropdown__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .autogen-action-dropdown__content {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #d9d9d9;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    padding: 12px;
+  }
+
+  .autogen-action-dropdown__content :deep(.row-action-button--dataview) {
+    width: max-content;
+    min-width: 0;
   }
 </style>

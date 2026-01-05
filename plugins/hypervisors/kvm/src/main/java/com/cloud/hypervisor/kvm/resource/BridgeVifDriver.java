@@ -258,6 +258,10 @@ public class BridgeVifDriver extends VifDriverBase {
             intf.setPxeDisable(true);
         }
 
+        if (!nic.isSecurityGroupEnabled() && nic.getNwfilter()) {
+            intf.setFilterrefFilterTag();
+        }
+
         return intf;
     }
 

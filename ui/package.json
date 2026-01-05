@@ -49,6 +49,7 @@
     "chartjs-adapter-moment": "^1.0.0",
     "core-js": "^3.21.1",
     "cronstrue": "^2.26.0",
+    "dompurify": "^3.2.6",
     "enquire.js": "^2.1.6",
     "js-cookie": "^2.2.1",
     "lodash": "^4.17.15",
@@ -92,7 +93,7 @@
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
     "babel-plugin-import": "^1.13.3",
-    "eslint": "^6.7.2",
+    "eslint": "^7.32.0",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
@@ -120,6 +121,7 @@
       "parser": "babel-eslint"
     },
     "rules": {
+      "template-curly-spacing": "off",
       "generator-star-spacing": "off",
       "no-mixed-operators": 0,
       "vue/max-attributes-per-line": [

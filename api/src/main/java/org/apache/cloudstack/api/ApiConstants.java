@@ -51,6 +51,7 @@ public class ApiConstants {
     public static final String AVAILABLE = "available";
     public static final String AVAILABLE_SUBNETS = "availablesubnets";
     public static final String AVAILABLE_VIRTUAL_MACHINE_COUNT = "availablevirtualmachinecount";
+    public static final String BACKUP = "backup";
     public static final String BACKUP_ID = "backupid";
     public static final String BACKUP_OFFERING_NAME = "backupofferingname";
     public static final String BACKUP_OFFERING_ID = "backupofferingid";
@@ -691,6 +692,7 @@ public class ApiConstants {
     public static final String ENABLED = "enabled";
     public static final String SERVICE_NAME = "servicename";
     public static final String DHCP_RANGE = "dhcprange";
+    public static final String UID = "uid";
     public static final String UUID = "uuid";
     public static final String SECURITY_GROUP_EANBLED = "securitygroupenabled";
     public static final String LOCAL_STORAGE_ENABLED = "localstorageenabled";
@@ -836,6 +838,7 @@ public class ApiConstants {
     public static final String DEST_NETWORK_UUID = "destnetworkuuid";
     public static final String LOGICAL_ROUTER_UUID = "logicalrouteruuid";
     public static final String RETRY = "retry";
+    public static final String RETENTION_PERIOD = "retentionperiod";
     public static final String HTTP_METHOD = "httpmethodtype";
     public static final String EXPECTED_CODE = "expectedcode";
     public static final String URL_PATH = "urlpath";
@@ -1275,6 +1278,8 @@ public class ApiConstants {
     public static final String LISTHOSTDEVICES = "listhostdevices";
     public static final String HOSTDEVICES_NAME = "hostdevicesname";
     public static final String HOSTDEVICES_TEXT = "hostdevicestext";
+    public static final String HOSTDEVICES_TYPE = "hostdevicestype";
+    public static final String DEVICE_TYPE = "devicetype";
 
     public static final String PARAMETER_DESCRIPTION_ACTIVATION_RULE = "Quota tariff's activation rule. It can receive a JS script that results in either " +
             "a boolean or a numeric value: if it results in a boolean value, the tariff value will be applied according to the result; if it results in a numeric value, the " +
@@ -1309,6 +1314,18 @@ public class ApiConstants {
     public static final String ISSUED_DATE = "issueddate";
     public static final String XML_CONFIG = "xmlconfig";
     public static final String CURRENT_VM_ID = "currentvmid";
+    public static final String RESULT_REDFISH_DATA = "redfishdata";
+    public static final String EXTERNAL_ENTITY = "externalEntity";
+    public static final String MIGRATION_IP = "migrationip";
+    public static final String VM_SNAPSHOT_NONCOPY = "noncopy";
+
+    public static final String PARENT_HB_NAME = "parenthbaname";
+    public static final String WWNN = "wwnn";
+    public static final String WWPN = "wwpn";
+    public static final String VHBA_NAME = "vhbaname";
+
+    public static final String OPERATOR = "operator";
+
     /**
      * This enum specifies IO Drivers, each option controls specific policies on I/O.
      * Qemu guests support "threads" and "native" options Since 0.8.8 ; "io_uring" is supported Since 6.3.0 (QEMU 5.0).

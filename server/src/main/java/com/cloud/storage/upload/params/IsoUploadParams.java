@@ -22,8 +22,8 @@ import com.cloud.storage.Storage;
 public class IsoUploadParams extends UploadParamsBase {
 
     public IsoUploadParams(long userId, String name, String displayText, Boolean isPublic, Boolean isFeatured,
-                           Boolean isExtractable, Long osTypeId, Long zoneId, Boolean bootable, long ownerId) {
-        super(userId, name, displayText, isPublic, isFeatured, isExtractable, osTypeId, zoneId, bootable, ownerId);
+                           Boolean isExtractable, Long osTypeId, Long zoneId, Boolean bootable, long ownerId, boolean dynamicallyScalable) {
+        super(userId, name, displayText, isPublic, isFeatured, isExtractable, osTypeId, zoneId, bootable, ownerId, dynamicallyScalable);
         setIso(true);
         setBits(64);
         setFormat(Storage.ImageFormat.ISO.toString());

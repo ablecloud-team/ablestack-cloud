@@ -320,7 +320,7 @@ public enum Config {
             ManagementServer.class,
             Integer.class,
             "vm.network.throttling.rate",
-            "200",
+            "10000",
             "Default data transfer rate in megabits per second allowed in User vm's default network.",
             null),
 

@@ -25,7 +25,7 @@ import org.apache.cloudstack.api.BaseListCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.response.ListHostLunDevicesResponse;
 import org.apache.cloudstack.context.CallContext;
-// import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.ListResponse;
 
 
 
@@ -65,9 +65,9 @@ public class ListHostLunDevicesCmd extends BaseListCmd {
 
     @Override
     public void execute() {
-    //     ListResponse<ListHostLunDevicesResponse> response = _mgr.listHostLunDevices(this);
-    //     response.setResponseName(getCommandName());
-    //     response.setObjectName(getCommandName());
-    //     this.setResponseObject(response);
+        ListResponse<ListHostLunDevicesResponse> response = _mgr.listHostLunDevices(this);
+        response.setResponseName(getCommandName());
+        response.setObjectName(getCommandName());
+        this.setResponseObject(response);
     }
 }

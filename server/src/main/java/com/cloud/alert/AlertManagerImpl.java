@@ -693,6 +693,87 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
         }
     }
 
+    @Override
+    public void sendPersistentAlert(final AlertType alertType,
+                                    final long dataCenterId,
+                                    final Long podId,
+                                    final String subject,
+                                    final String body) {
+        // zoneId가 0이면 조회 결과는 null일 수 있으므로 그대로 null 허용합니다.
+        final com.cloud.dc.DataCenterVO zone = (dataCenterId > 0L) ? _dcDao.findById(dataCenterId) : null;
+        final com.cloud.dc.HostPodVO pod = (podId == null ? null : _podDao.findById(podId));
+        final com.cloud.dc.ClusterVO cluster = null;
+        sendPersistentAlert(alertType, zone, pod, cluster, subject, body);
+    }
+
+    @Override
+    public void sendPersistentAlert(final AlertType alertType,
+                                    final long dataCenterId,
+                                    final Long podId,
+                                    final Long clusterId,
+                                    final String subject,
+                                    final String body) {
+        // zoneId가 0이면 조회 결과는 null일 수 있으므로 그대로 null 허용합니다.
+        final com.cloud.dc.DataCenterVO zone = (dataCenterId > 0L) ? _dcDao.findById(dataCenterId) : null;
+        final com.cloud.dc.HostPodVO pod = (podId == null ? null : _podDao.findById(podId));
+        final com.cloud.dc.ClusterVO cluster = (clusterId == null ? null : _clusterDao.findById(clusterId));
+        sendPersistentAlert(alertType, zone, pod, cluster, subject, body);
+    }
+
+    // ---------- 아래는 private 헬퍼(전용 Persist Only) ----------
+    private void sendPersistentAlert(final AlertType alertType,
+                                     final com.cloud.dc.DataCenter dataCenter,
+                                     final com.cloud.dc.Pod pod,
+                                     final com.cloud.org.Cluster cluster,
+                                     final String subject,
+                                     final String content) {
+        try {
+            // 안전한 ID 계산(Zone이 null이어도 0L로 동작)
+            final long zoneId  = (dataCenter != null ? dataCenter.getId() : 0L);
+            final Long podId   = (pod == null ? null : pod.getId());
+            final Long clusterId = (cluster == null ? null : cluster.getId());
+
+            // 이벤트 버스 전파
+            com.cloud.event.AlertGenerator.publishAlertOnEventBus(
+                    alertType.getName(), zoneId, podId, subject, content);
+
+            // 마지막 알림 조회(항상 zoneId를 사용해 NPE 방지)
+            com.cloud.alert.AlertVO last =
+                    _alertDao.getLastAlert(alertType.getType(), zoneId, podId, clusterId);
+
+            // 중복 억제: 동일 subject의 미해결 알림이 이미 있으면 새 행을 만들지 않고 메타만 갱신
+            if (last != null && last.getResolved() == null
+                    && subject != null && subject.equals(last.getSubject())) {
+                com.cloud.alert.AlertVO updated = _alertDao.createForUpdate();
+                updated.setLastSent(new java.util.Date());
+                Integer cnt = last.getSentCount();
+                updated.setSentCount(cnt == null ? 1 : cnt + 1);
+                _alertDao.update(last.getId(), updated);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Duplicate persist suppressed for subject='" + subject + "', only bumped lastSent/sentCount.");
+                }
+                return;
+            }
+
+            // 새 알림 persist
+            final com.cloud.alert.AlertVO newAlert = new com.cloud.alert.AlertVO();
+            newAlert.setType(alertType.getType());
+            newAlert.setSubject(subject);
+            newAlert.setContent(content);
+            newAlert.setClusterId(clusterId);
+            newAlert.setPodId(podId);
+            newAlert.setDataCenterId(zoneId); // 객체 없이도 안전
+            newAlert.setSentCount(1);
+            newAlert.setLastSent(new java.util.Date());
+            newAlert.setName(alertType.getName());
+            _alertDao.persist(newAlert);
+
+            // persist-only: 이메일 송신 없음
+        } catch (Throwable t) {
+            logger.warn("sendPersistentAlert failed: " + String.valueOf(t.getMessage()), t);
+        }
+    }
+
     private List<Short> getCapacityTypesAtZoneLevel() {
 
         List<Short> dataCenterCapacityTypes = new ArrayList<Short>();
@@ -750,6 +831,7 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
         AlertVO alert = null;
         Long clusterId = cluster == null ? null : cluster.getId();
         Long podId = pod == null ? null : pod.getId();
+        long dcId = dataCenter == null ? 0L : dataCenter.getId();
         if ((alertType != AlertManager.AlertType.ALERT_TYPE_HOST) && (alertType != AlertManager.AlertType.ALERT_TYPE_USERVM)
                 && (alertType != AlertManager.AlertType.ALERT_TYPE_DOMAIN_ROUTER) && (alertType != AlertManager.AlertType.ALERT_TYPE_CONSOLE_PROXY)
                 && (alertType != AlertManager.AlertType.ALERT_TYPE_SSVM) && (alertType != AlertManager.AlertType.ALERT_TYPE_STORAGE_MISC)
@@ -767,7 +849,7 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
             newAlert.setContent(content);
             newAlert.setClusterId(clusterId);
             newAlert.setPodId(podId);
-            newAlert.setDataCenterId(dataCenter.getId());
+            newAlert.setDataCenterId(dcId);
             newAlert.setSentCount(1);
             newAlert.setLastSent(new Date());
             newAlert.setName(alertType.getName());
