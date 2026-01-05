@@ -79,8 +79,19 @@ public class WallApiClientImpl implements WallApiClient {
     }
 
     private String bearerNow() {
-        final String v = org.apache.cloudstack.wallAlerts.config.WallConfigKeys.WALL_API_TOKEN.value();
+        final String v = wallTokenNow();
         return (v == null || v.isBlank()) ? null : v.trim();
+    }
+
+    private String wallTokenNow() {
+        // 1) 글로벌 설정(Mold 글로벌 설정값) 우선입니다.
+        final String fromGlobal = org.apache.cloudstack.wallAlerts.config.WallConfigKeys.WALL_API_TOKEN.value();
+        if (fromGlobal != null && !fromGlobal.isBlank()) {
+            return fromGlobal;
+        }
+
+        // 2) 글로벌 설정이 비어있을 때만 환경변수로 폴백합니다.
+        return System.getenv("WALL_API_TOKEN");
     }
 
     // 매 호출 시 글로벌 세팅에서 Base URL을 읽습니다(비어있으면 생성자 값 사용).
