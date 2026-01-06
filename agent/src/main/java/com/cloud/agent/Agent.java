@@ -76,6 +76,8 @@ import com.cloud.agent.api.ReadyCommand;
 import com.cloud.agent.api.ShutdownCommand;
 import com.cloud.agent.api.StartupAnswer;
 import com.cloud.agent.api.StartupCommand;
+import com.cloud.agent.api.CheckOnHostCommand;
+import com.cloud.agent.api.CheckVMActivityOnStoragePoolCommand;
 import com.cloud.agent.transport.Request;
 import com.cloud.agent.transport.Response;
 import com.cloud.exception.AgentControlChannelException;
@@ -157,6 +159,7 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
     ThreadPoolExecutor _ugentTaskPool;
     ExecutorService _basicExecutor;
     ExecutorService _statsExecutor;
+    ExecutorService _haExecutor;
     private static final long EXECUTOR_MONITOR_INTERVAL_MS = 10000L;
     private static final String ANSI_GREEN = "\u001B[92m";
     private static final String ANSI_RED = "\u001B[31m";
@@ -223,17 +226,21 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
                         "UgentTask"));
 
         _basicExecutor =
-                new ThreadPoolExecutor(_shell.getWorkers(), _shell.getWorkers(), 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
-                        "Basic-Agent-Handler"));
+                new ThreadPoolExecutor(_shell.getWorkers(), 5 * _shell.getWorkers(), 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
+                        "Basic-Worker"));
         _statsExecutor =
-                new ThreadPoolExecutor(_shell.getWorkers(), 5 * _shell.getWorkers(), 30, TimeUnit.DAYS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
-                        "Stats-Agent-Handler"));
-        scheduleExecutorMonitoring("Basic-Agent", _basicExecutor);
-        scheduleExecutorMonitoring("Stats-Agent", _statsExecutor);
+                new ThreadPoolExecutor(_shell.getStatsWorkers(), 5 * _shell.getStatsWorkers(), 5, TimeUnit.DAYS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
+                        "Stats-Worker"));
+        _haExecutor =
+                new ThreadPoolExecutor(_shell.getHaWorkers(), 5 * _shell.getHaWorkers(), 5, TimeUnit.DAYS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
+                        "HA-Worker"));
+        scheduleExecutorMonitoring("Basic-Worker", _basicExecutor);
+        scheduleExecutorMonitoring("Stats-Worker", _statsExecutor);
+        scheduleExecutorMonitoring("HA-Worker", _haExecutor);
 
-        logger.info("Agent [id = {}, uuid: {}, name: {}] : type = {} : zone = {} : pod = {} : workers = {} : host = {} : port = {}",
+        logger.info("Agent [id = {}, uuid: {}, name: {}] : type = {} : zone = {} : pod = {} : workers = {} : stats.workers = {} : ha.workers = {} : host = {} : port = {}",
                 ObjectUtils.defaultIfNull(_id, "new"), _uuid, _name, getResourceName(),
-                _shell.getZone(), _shell.getPod(), _shell.getWorkers(), host, _shell.getPort());
+                _shell.getZone(), _shell.getPod(), _shell.getWorkers(), _shell.getStatsWorkers(), _shell.getHaWorkers(), host, _shell.getPort());
     }
 
     public String getVersion() {
@@ -350,6 +357,9 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
     }
 
     private ExecutorService selectExecutorForRequest(Request request) {
+        if (requestContainsHaCommand(request)) {
+            return _haExecutor != null ? _haExecutor : (_basicExecutor != null ? _basicExecutor : _statsExecutor);
+        }
         if (requestContainsStatsCommand(request)) {
             return _statsExecutor != null ? _statsExecutor : _basicExecutor;
         }
@@ -372,13 +382,30 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         return false;
     }
 
+    private boolean requestContainsHaCommand(Request request) {
+        if (request == null) {
+            return false;
+        }
+        Command[] commands = request.getCommands();
+        if (commands == null) {
+            return false;
+        }
+        for (Command command : commands) {
+            if (command instanceof CheckOnHostCommand
+                    || command instanceof CheckVMActivityOnStoragePoolCommand) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * In case of a software based agent restart, this method
      * can help to perform explicit garbage collection of any old
      * agent instances and its inner objects.
      */
     private void scavengeOldAgentObjects() {
-        ExecutorService executor = _basicExecutor != null ? _basicExecutor : _statsExecutor;
+        ExecutorService executor = _basicExecutor != null ? _basicExecutor : (_statsExecutor != null ? _statsExecutor : _haExecutor);
         if (executor == null) {
             return;
         }
@@ -486,6 +513,10 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         if (_statsExecutor != null) {
             _statsExecutor.shutdown();
             _statsExecutor = null;
+        }
+        if (_haExecutor != null) {
+            _haExecutor.shutdown();
+            _haExecutor = null;
         }
 
         if (_timer != null) {
