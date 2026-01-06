@@ -527,7 +527,7 @@ export default {
           this.data.totalHosts = 0
         }
       })
-      getAPI('listHosts', { zoneid: zone.id, listall: true, details: 'min', type: 'routing', state: 'alert', page: 1, pagesize: 1 }).then(json => {
+      getAPI('listHosts', { zoneid: zone.id, listall: true, details: 'min', type: 'routing' }).then(json => {
         this.loading = false
         this.data.alertHosts = 0
         for (var i = 0; i < json?.listhostsresponse?.count; i++) {

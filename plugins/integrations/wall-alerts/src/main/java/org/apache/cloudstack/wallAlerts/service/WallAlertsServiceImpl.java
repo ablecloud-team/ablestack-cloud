@@ -1271,7 +1271,9 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                 WallConfigKeys.WALL_BASE_URL,
                 WallConfigKeys.WALL_API_TOKEN,
                 WallConfigKeys.CONNECT_TIMEOUT_MS,
-                WallConfigKeys.READ_TIMEOUT_MS
+                WallConfigKeys.READ_TIMEOUT_MS,
+                WallConfigKeys.WALL_ADMIN_USER,
+                WallConfigKeys.WALL_ADMIN_PASSWORD
         };
     }
 
