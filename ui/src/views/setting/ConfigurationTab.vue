@@ -93,7 +93,6 @@ import OsLogo from '@/components/widgets/OsLogo'
 import Status from '@/components/widgets/Status'
 import ActionButton from '@/components/view/ActionButton'
 import InfoCard from '@/components/view/InfoCard'
-import QuickView from '@/components/view/QuickView'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import ConfigurationHierarchy from './ConfigurationHierarchy'
 import ConfigurationTable from './ConfigurationTable'
@@ -106,7 +105,6 @@ export default {
     Status,
     ActionButton,
     InfoCard,
-    QuickView,
     TooltipButton,
     ConfigurationHierarchy,
     ConfigurationTable

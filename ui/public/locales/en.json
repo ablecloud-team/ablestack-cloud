@@ -1413,6 +1413,7 @@
 "label.isvolatile": "Volatile",
 "label.items": "items",
 "label.items.selected": "item(s) selected",
+"label.items.more": "{0} more item(s)",
 "label.japanese.keyboard": "Japanese keyboard",
 "label.javadistribution": "Java Runtime Distribution",
 "label.javaversion": "Java Runtime Version",

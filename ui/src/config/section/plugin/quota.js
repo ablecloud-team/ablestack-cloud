@@ -61,6 +61,7 @@ export default {
           icon: 'plus-outlined',
           docHelp: 'plugins/quota.html#quota-credits',
           label: 'label.quota.add.credits',
+          listView: true,
           dataView: true,
           args: ['value', 'min_balance', 'quota_enforce'],
           mapping: {

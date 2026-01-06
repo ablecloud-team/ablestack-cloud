@@ -99,23 +99,49 @@
           </a-col>
           <a-col
             :span="device === 'mobile' ? 24 : 12"
-            :style="device === 'mobile' ? { float: 'right', 'margin-top': '12px', 'margin-bottom': '-6px', display: 'table' } : { float: 'right', display: 'table', 'margin-top': '6px' }"
-          >
-            <slot
-              name="action"
-              v-if="dataView && $route.path.startsWith('/publicip')"
-            ></slot>
-            <action-button
-              v-else
-              :style="dataView ? { float: device === 'mobile' ? 'left' : 'right' } : { 'margin-right': '10px', display: getStyle() }"
-              :loading="loading"
-              :actions="actions"
-              :selectedRowKeys="selectedRowKeys"
-              :selectedItems="selectedItems"
-              :dataView="dataView"
-              :resource="resource"
-              @exec-action="(action) => execAction(action, action.groupAction && !dataView)"
-            />
+            :style="device === 'mobile' ? { float: 'right', 'margin-top': '12px', 'margin-bottom': '-6px', display: 'table' } : { float: 'right', display: 'table', 'margin-top': '6px' }" >
+            <slot name="action" v-if="dataView && $route.path.startsWith('/publicip') && $slots.action"></slot>
+            <template v-else>
+              <div
+                v-if="dataView && visibleDataViewActions.length > 0"
+                class="autogen-action-dropdown__trigger"
+                :style="{ float: device === 'mobile' ? 'left' : 'right' }">
+                <a-dropdown
+                  v-model:visible="detailActionsVisible"
+                  :trigger="['click']"
+                  placement="bottomRight"
+                  overlayClassName="autogen-action-dropdown">
+                  <template #overlay>
+                    <div class="autogen-action-dropdown__content">
+                      <action-button
+                        :loading="loading"
+                        :actions="visibleDataViewActions"
+                        :selectedRowKeys="selectedRowKeys"
+                        :selectedItems="selectedItems"
+                        :dataView="true"
+                        :resource="resource"
+                        @exec-action="handleDataViewAction"/>
+                    </div>
+                  </template>
+                  <a-button type="primary" class="autogen-action-dropdown__button">
+                    <template #icon>
+                      <down-outlined />
+                    </template>
+                    {{ $t('label.actions') }}
+                  </a-button>
+                </a-dropdown>
+              </div>
+              <action-button
+                v-else-if="!dataView && visibleListActions.length > 0"
+                :style="{ 'margin-right': '10px', display: getStyle() }"
+                :loading="loading"
+                :actions="visibleListActions"
+                :selectedRowKeys="selectedRowKeys"
+                :selectedItems="selectedItems"
+                :dataView="false"
+                :resource="resource"
+                @exec-action="(action) => execAction(action, action.groupAction && !dataView)"/>
+            </template>
             <search-view
               v-if="!dataView"
               :searchFilters="searchFilters"
@@ -759,7 +785,8 @@
           :resource="resource"
           :loading="loading"
           :tabs="$route.meta.tabs"
-        />
+          :actions="actions"
+          @exec-action="handleDataViewAction" />
       </div>
       <div
         class="row-element"
@@ -894,7 +921,10 @@ export default {
       confirmDirty: false,
       firstIndex: 0,
       modalWidth: '30vw',
-      promises: []
+      promises: [],
+      detailActionsVisible: false,
+      autoRefreshTimer: null,
+      autoRefreshInterval: 10000
     }
   },
   beforeUnmount () {
@@ -905,6 +935,7 @@ export default {
     eventBus.off('resource-request-refresh-data')
     eventBus.off('automation-refresh-data')
     eventBus.off('dr-refresh-data')
+    this.clearAutoRefresh()
   },
   mounted () {
     eventBus.on('exec-action', (args) => {
@@ -1027,6 +1058,7 @@ export default {
       this.switchProject(this.$route.query.projectid)
     }
     this.setModalWidthByScreen()
+    this.scheduleAutoRefresh()
   },
   beforeRouteUpdate (to, from, next) {
     this.currentPath = this.$route.fullPath
@@ -1037,13 +1069,14 @@ export default {
     sourceToken.cancel()
     sourceToken.init()
     this.currentPath = this.$route.fullPath
+    this.resetSelection()
+    this.clearAutoRefresh()
     next()
   },
   watch: {
     '$route' (to, from) {
-      // clearInterval(this.refreshInterval)
-      // this.IntervalLoading = true
       if (to.fullPath !== from.fullPath && !to.fullPath.includes('action/') && to?.query?.tab !== 'browser') {
+        this.resetSelection()
         if ('page' in to.query) {
           this.page = Number(to.query.page)
           this.pageSize = Number(to.query.pagesize)
@@ -1051,15 +1084,9 @@ export default {
           this.page = 1
         }
         this.itemCount = 0
-        // if ('listview' in this.$refs && this.$refs.listview) {
-        //   this.$refs.listview.resetSelection()
-        // }
+        this.clearAutoRefresh()
         this.fetchData()
-        // if (Object.keys(to.params).length === 0) {
-        //   clearInterval(this.refreshInterval)
-        //   this.refreshInterval = setInterval(this.fetchData, 5000)
-        //   this.IntervalLoading = false
-        // }
+        this.scheduleAutoRefresh()
         if ('projectid' in to.query) {
           this.switchProject(to.query.projectid)
         }
@@ -1068,6 +1095,14 @@ export default {
     '$i18n.locale' (to, from) {
       if (to !== from) {
         this.fetchData()
+      }
+    },
+    dataView (newVal, oldVal) {
+      if (newVal) {
+        this.detailActionsVisible = false
+        this.clearAutoRefresh()
+      } else {
+        this.scheduleAutoRefresh()
       }
     },
     '$store.getters.metrics' (oldVal, newVal) {
@@ -1111,9 +1146,64 @@ export default {
         return 'all'
       }
       return 'self'
+    },
+    visibleDataViewActions () {
+      if (!this.actions || !this.dataView) {
+        return []
+      }
+      return this.actions.filter(action => {
+        if (!(action.api in this.$store.getters.apis)) {
+          return false
+        }
+        if (!action.dataView) {
+          return false
+        }
+        return 'show' in action ? action.show(this.resource, this.$store.getters) : true
+      })
+    },
+    visibleListActions () {
+      if (!this.actions || this.actions.length === 0 || this.dataView) {
+        return []
+      }
+      const selectionCount = this.selectedRowKeys.length
+      return this.actions.filter(action => {
+        if (!(action.api in this.$store.getters.apis)) {
+          return false
+        }
+        if (selectionCount > 0) {
+          // Hide group actions from toolbar; will be shown via context menu
+          return action.listView && !action.groupAction && ('show' in action ? action.show(this.resource, this.$store.getters) : true)
+        }
+        const showOnList = action.listView && ('show' in action ? action.show(this.resource, this.$store.getters) : true)
+        const showOnGroup = action.groupAction && selectionCount > 0 &&
+          ('groupShow' in action ? action.groupShow(this.selectedItems, this.$store.getters) : true)
+        return showOnList || showOnGroup
+      })
     }
   },
   methods: {
+    resetSelection () {
+      this.selectedRowKeys = []
+      this.selectedItems = []
+    },
+    shouldAutoRefresh () {
+      return !this.dataView && this.autoRefreshInterval > 0
+    },
+    scheduleAutoRefresh () {
+      this.clearAutoRefresh()
+      if (!this.shouldAutoRefresh()) {
+        return
+      }
+      this.autoRefreshTimer = setInterval(() => {
+        this.fetchData({ irefresh: true, autoscheduled: true })
+      }, this.autoRefreshInterval)
+    },
+    clearAutoRefresh () {
+      if (this.autoRefreshTimer) {
+        clearInterval(this.autoRefreshTimer)
+        this.autoRefreshTimer = null
+      }
+    },
     getStyle () {
       if (['snapshot', 'vmsnapshot', 'publicip'].includes(this.$route.name)) {
         return 'table-cell'
@@ -1211,6 +1301,7 @@ export default {
       this.columnKeys = []
       this.selectedColumns = []
       const refreshed = ('irefresh' in params)
+      const isAutoScheduled = Boolean(params.autoscheduled)
 
       params.listall = true
 
@@ -1248,6 +1339,7 @@ export default {
       delete params.q
       delete params.filter
       delete params.irefresh
+      delete params.autoscheduled
 
       this.searchFilters = this.$route && this.$route.meta && this.$route.meta.searchFilters
       this.filters = this.$route && this.$route.meta && this.$route.meta.filters
@@ -1374,10 +1466,12 @@ export default {
         params.details = 'group,nics,secgrp,tmpl,servoff,diskoff,iso,volume,affgrp,backoff'
       }
 
-      this.loading = true
       if (this.$route.path.startsWith('/cniconfiguration')) {
         params.forcks = true
         console.log('here')
+      }
+      if (!(refreshed && isAutoScheduled)) {
+        this.loading = true
       }
       if (this.$route.params && this.$route.params.id) {
         params.id = this.$route.params.id
@@ -1591,6 +1685,10 @@ export default {
       // this.modalWidth = '45vw'
 
       this.setModalWidthByScreen()
+    },
+    handleDataViewAction (action) {
+      this.detailActionsVisible = false
+      this.execAction(action, false)
     },
     execAction (action, isGroupAction) {
       this.formRef = ref()
@@ -2543,6 +2641,29 @@ export default {
 :deep(.ant-alert-message) {
   display: flex;
   align-items: center;
+}
+
+.autogen-action-dropdown__trigger {
+  display: inline-block;
+}
+
+.autogen-action-dropdown__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.autogen-action-dropdown__content {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 12px;
+}
+
+.autogen-action-dropdown__content :deep(.row-action-button--dataview) {
+  width: max-content;
+  min-width: 0;
 }
 
 .hide {

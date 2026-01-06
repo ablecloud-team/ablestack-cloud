@@ -65,6 +65,11 @@ public final class LibvirtCheckVMActivityOnStoragePoolCommandWrapper extends Com
                 vmActivityCheckPath = libvirtComputingResource.getVmActivityCheckPathClvm();
             }
 
+            if (haStoragePool == null) {
+                executors.shutdownNow();
+                return new Answer(command, false, "Unsupported Storage or HA pool not found");
+            }
+
             final KVMHAVMActivityChecker ha = new KVMHAVMActivityChecker(haStoragePool, command.getHost(), command.getVolumeList(), vmActivityCheckPath, command.getSuspectTimeInSeconds());
             final Future<Boolean> future = executors.submit(ha);
             try {
@@ -75,11 +80,15 @@ public final class LibvirtCheckVMActivityOnStoragePoolCommandWrapper extends Com
                     return new Answer(command);
                 }
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 return new Answer(command, false, "CheckVMActivityOnStoragePoolCommand: can't get status of host: InterruptedException");
             } catch (ExecutionException e) {
                 return new Answer(command, false, "CheckVMActivityOnStoragePoolCommand: can't get status of host: ExecutionException");
+            } finally {
+                executors.shutdownNow();
             }
         }
+        executors.shutdownNow();
         return new Answer(command, false, "Unsupported Storage");
     }
 }
