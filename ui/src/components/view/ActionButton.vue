@@ -190,7 +190,6 @@
 
 <script>
 import { postAPI } from '@/api'
-import { getAPI } from '@/api'
 
 export default {
   name: 'ActionButton',
@@ -372,7 +371,7 @@ export default {
         return
       }
       const params = { virtualmachineid: this.resource.id }
-      getAPI('createConsoleEndpoint', params).then(json => {
+      postAPI('createConsoleEndpoint', params).then(json => {
         const response = json?.createconsoleendpointresponse?.consoleendpoint
         const url = response?.url || '#/exception/404'
         if (response?.success) {
@@ -400,7 +399,7 @@ export default {
         this.wallLinkUrl = ''
         return
       }
-      getAPI('listConfigurations', { keyword: 'monitoring.wall.portal' }).then(json => {
+      postAPI('listConfigurations', { keyword: 'monitoring.wall.portal' }).then(json => {
         const items = json?.listconfigurationsresponse?.configuration || []
         const getValue = (name) => {
           const config = items.find(item => item.name === name)

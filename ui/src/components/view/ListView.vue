@@ -1058,7 +1058,6 @@
 import { getAPI, postAPI } from '@/api'
 import OsLogo from '@/components/widgets/OsLogo'
 import Status from '@/components/widgets/Status'
-import QuickView from '@/components/view/QuickView'
 import ActionButton from '@/components/view/ActionButton'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import CopyLabel from '@/components/widgets/CopyLabel'

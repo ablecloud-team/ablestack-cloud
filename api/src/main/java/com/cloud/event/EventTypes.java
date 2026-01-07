@@ -43,7 +43,6 @@ import org.apache.cloudstack.backup.Backup;
 import org.apache.cloudstack.storage.sharedfs.SharedFS;
 import org.apache.cloudstack.storage.object.Bucket;
 import org.apache.cloudstack.storage.object.ObjectStore;
-import org.apache.cloudstack.storage.sharedfs.SharedFS;
 import org.apache.cloudstack.usage.Usage;
 import org.apache.cloudstack.vm.schedule.VMSchedule;
 
