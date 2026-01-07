@@ -217,6 +217,10 @@ export default {
       this.routes = {}
       for (const section of this.sections) {
         const route = section === 'backuprepositories' ? 'backuprepository' : section.substring(0, section.length - 1)
+        // Skip sections the current user cannot access (route not registered)
+        if (!router.hasRoute(route)) {
+          continue
+        }
         if (router.resolve('/' + route).matched[0].redirect === '/exception/404') {
           continue
         }

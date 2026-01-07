@@ -3161,7 +3161,7 @@ export default {
     },
     handleSearchFilter (name, options) {
       if (name === 'serviceOfferings') {
-        this.params[name].options.kvdoenable = this.template.kvdoenable
+        this.params[name].options.kvdoenable = this.template?.kvdoenable
       }
       this.params[name].options = { ...this.params[name].options, ...options }
       this.fetchOptions(this.params[name], name)
