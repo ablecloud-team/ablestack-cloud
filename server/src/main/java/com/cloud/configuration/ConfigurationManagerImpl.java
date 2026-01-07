@@ -53,6 +53,9 @@ import com.cloud.consoleproxy.ConsoleProxyManager;
 import com.cloud.network.router.VirtualNetworkApplianceManager;
 import com.cloud.storage.secondary.SecondaryStorageVmManager;
 import com.cloud.vm.VirtualMachineManager;
+import com.cloud.exception.UnsupportedServiceException;
+import com.cloud.network.as.AutoScaleManager;
+import com.cloud.user.AccountManagerImpl;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.acl.SecurityChecker;
 import org.apache.cloudstack.affinity.AffinityGroup;
@@ -3939,6 +3942,12 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         // Filter child domains when both parent and child domains are present
         List<Long> filteredDomainIds = filterChildSubDomains(domainIds);
         Collections.sort(filteredDomainIds);
+
+        // avoid domain update of service offering if any instance is associated to it
+        int instanceCount = _vmInstanceDao.getVmCountByOfferingNotInDomain(offeringHandle.getId(), filteredDomainIds);
+        if (instanceCount > 0) {
+            throw new UnsupportedServiceException("There are Instances associated to this service offering outside of the specified domains.");
+        }
 
         List<Long> filteredZoneIds = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(zoneIds)) {
