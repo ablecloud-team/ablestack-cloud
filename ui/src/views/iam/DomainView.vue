@@ -36,14 +36,29 @@
         </a-col>
         <a-col :span="10">
           <span style="float: right">
-            <action-button
-              :style="dataView ? { float: device === 'mobile' ? 'left' : 'right' } : { 'margin-right': '10px', display: 'inline-flex' }"
-              :loading="loading"
-              :actions="actions"
-              :selectedRowKeys="selectedRowKeys"
-              :dataView="dataView"
-              :resource="resource"
-              @exec-action="execAction"/>
+            <a-dropdown
+              v-if="menuActions.length > 0"
+              v-model:visible="detailActionsVisible"
+              :trigger="['click']"
+              placement="bottomRight"
+              overlayClassName="autogen-action-dropdown"
+              class="autogen-action-dropdown__trigger">
+              <template #overlay>
+                <div class="autogen-action-dropdown__content">
+                  <action-button
+                    :loading="loading"
+                    :actions="menuActions"
+                    :selectedRowKeys="selectedRowKeys"
+                    :dataView="true"
+                    :resource="resource"
+                    @exec-action="handleDropdownAction"/>
+                </div>
+              </template>
+              <a-button type="primary" class="autogen-action-dropdown__button">
+                <template #icon><down-outlined /></template>
+                {{ $t('label.actions') }}
+              </a-button>
+            </a-dropdown>
           </span>
         </a-col>
       </a-row>
@@ -54,7 +69,9 @@
         v-if="dataView"
         :resource="resource"
         :loading="loading"
-        :tabs="$route.meta.tabs" />
+        :tabs="$route.meta.tabs"
+        :actions="actions"
+        @exec-action="execAction" />
       <tree-view
         v-else
         :key="treeViewKey"
@@ -64,8 +81,10 @@
         :loading="loading"
         :tabs="$route.meta.tabs"
         :treeDeletedKey="treeDeletedKey"
+        :actions="actions"
         @change-resource="changeResource"
-        @change-tree-store="changeDomainStore"/>
+        @change-tree-store="changeDomainStore"
+        @exec-action="execAction"/>
     </div>
 
     <div v-if="showAction">
@@ -111,7 +130,8 @@ export default {
       action: {},
       dataView: false,
       domainStore: {},
-      treeDeletedKey: null
+      treeDeletedKey: null,
+      detailActionsVisible: false
     }
   },
   computed: {
@@ -123,6 +143,26 @@ export default {
         }
       }
       return actions
+    },
+    menuActions () {
+      if (!this.actions || this.actions.length === 0) {
+        return []
+      }
+      return this.actions.filter(action => {
+        if (!(action.api in this.$store.getters.apis)) {
+          return false
+        }
+        const usable = action.dataView || action.listView
+        if (!usable) {
+          return false
+        }
+        return 'show' in action ? action.show(this.resource, this.$store.getters) : true
+      }).map(action => {
+        if (!action.dataView) {
+          return { ...action, dataView: true }
+        }
+        return action
+      })
     }
   },
   beforeRouteUpdate (to, from, next) {
@@ -158,6 +198,50 @@ export default {
     }
   },
   methods: {
+    handleDropdownAction (action) {
+      this.detailActionsVisible = false
+      this.execAction(action)
+    },
+    execAction (action) {
+      this.detailActionsVisible = false
+      this.treeDeletedKey = action.api === 'deleteDomain' ? this.resource.key : null
+      this.actionData = []
+      this.action = action
+      this.action.params = store.getters.apis[this.action.api].params
+      const paramFields = this.action.params
+      paramFields.sort(function (a, b) {
+        if (a.name === 'name' && b.name !== 'name') { return -1 }
+        if (a.name !== 'name' && b.name === 'name') { return -1 }
+        if (a.name === 'id') { return -1 }
+        if (a.name < b.name) { return -1 }
+        if (a.name > b.name) { return 1 }
+        return 0
+      })
+      this.action.paramFields = []
+      if (action.args) {
+        var args = action.args
+        if (typeof action.args === 'function') {
+          args = action.args(action.resource, this.$store.getters)
+        }
+        if (args.length > 0) {
+          this.action.paramFields = args.map(function (arg) {
+            return paramFields.filter(function (param) {
+              return param.name.toLowerCase() === arg.toLowerCase()
+            })[0]
+          })
+        }
+      }
+      this.showAction = true
+      for (const param of this.action.paramFields) {
+        if (param.type === 'list' && ['tags', 'hosttags'].includes(param.name)) {
+          param.type = 'string'
+        }
+        if (param.type === 'uuid' || param.type === 'list' || param.name === 'account' || (this.action.mapping && param.name in this.action.mapping)) {
+          this.listUuidOpts(param)
+        }
+      }
+      this.action.loading = false
+    },
     fetchData () {
       this.treeData = []
       this.treeSelected = {}
@@ -203,45 +287,6 @@ export default {
       }).finally(f => {
         this.loading = false
       })
-    },
-    execAction (action) {
-      this.treeDeletedKey = action.api === 'deleteDomain' ? this.resource.key : null
-      this.actionData = []
-      this.action = action
-      this.action.params = store.getters.apis[this.action.api].params
-      const paramFields = this.action.params
-      paramFields.sort(function (a, b) {
-        if (a.name === 'name' && b.name !== 'name') { return -1 }
-        if (a.name !== 'name' && b.name === 'name') { return -1 }
-        if (a.name === 'id') { return -1 }
-        if (a.name < b.name) { return -1 }
-        if (a.name > b.name) { return 1 }
-        return 0
-      })
-      this.action.paramFields = []
-      if (action.args) {
-        var args = action.args
-        if (typeof action.args === 'function') {
-          args = action.args(action.resource, this.$store.getters)
-        }
-        if (args.length > 0) {
-          this.action.paramFields = args.map(function (arg) {
-            return paramFields.filter(function (param) {
-              return param.name.toLowerCase() === arg.toLowerCase()
-            })[0]
-          })
-        }
-      }
-      this.showAction = true
-      for (const param of this.action.paramFields) {
-        if (param.type === 'list' && ['tags', 'hosttags'].includes(param.name)) {
-          param.type = 'string'
-        }
-        if (param.type === 'uuid' || param.type === 'list' || param.name === 'account' || (this.action.mapping && param.name in this.action.mapping)) {
-          this.listUuidOpts(param)
-        }
-      }
-      this.action.loading = false
     },
     listUuidOpts (param) {
       if (this.action.mapping && param.name in this.action.mapping && !this.action.mapping[param.name].api) {
@@ -342,5 +387,28 @@ export default {
 
   .ant-breadcrumb .anticon {
     margin-left: 8px;
+  }
+
+  .autogen-action-dropdown__trigger {
+    display: inline-block;
+  }
+
+  .autogen-action-dropdown__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .autogen-action-dropdown__content {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #d9d9d9;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    padding: 12px;
+  }
+
+  .autogen-action-dropdown__content :deep(.row-action-button--dataview) {
+    width: max-content;
+    min-width: 0;
   }
 </style>

@@ -14,7 +14,7 @@ public final class WallConfigKeys {
                     "Base URL of Wall.", false, WALL_ALERT_ENABLED.key());
 
     public static final ConfigKey<String> WALL_API_TOKEN =
-            new ConfigKey<>("Secure", String.class, "wall.api.token", "",
+            new ConfigKey<>("Advanced", String.class, "wall.api.token", "",
                     "Service account token for Wall.", true, WALL_ALERT_ENABLED.key());
 
     public static final ConfigKey<Integer> CONNECT_TIMEOUT_MS =
@@ -24,4 +24,12 @@ public final class WallConfigKeys {
     public static final ConfigKey<Integer> READ_TIMEOUT_MS =
             new ConfigKey<>("Advanced", Integer.class, "wall.read.timeout.ms", "10000",
                     "HTTP read timeout in milliseconds.", true, WALL_ALERT_ENABLED.key());
+
+    public static final ConfigKey<Integer> WALL_ADMIN_USER =
+            new ConfigKey<>("Advanced", Integer.class, "wall.admin.user", "admin",
+                    "Service account for Create Wall User.", true, WALL_ALERT_ENABLED.key());
+
+    public static final ConfigKey<Integer> WALL_ADMIN_PASSWORD =
+            new ConfigKey<>("Secure", Integer.class, "wall.admin.password", "admin",
+                    "Service account password for Create Wall User.", true, WALL_ALERT_ENABLED.key());
 }

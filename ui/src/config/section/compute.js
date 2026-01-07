@@ -194,7 +194,7 @@ export default {
           docHelp: 'adminguide/virtual_machines.html#cloning-vms',
           dataView: true,
           popup: true,
-          show: (record) => { return ['Running', 'Stopped'].includes(record.state) },
+          show: (record) => { return ['Running', 'Stopped'].includes(record.state) && record.vmtype !== 'sharedfsvm' },
           disabled: (record) => { return record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM' },
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/CloneVM.vue')))
         },
@@ -500,7 +500,7 @@ export default {
           dataView: true,
           popup: true,
           args: ['virtualmachineid'],
-          show: (record) => { return ['Running', 'Stopped'].includes(record.state) && record.vbmcport === 'None' },
+          show: (record) => { return ['Running', 'Stopped'].includes(record.state) && record.vbmcport === 'None' && record.vmtype !== 'sharedfsvm' },
           mapping: {
             virtualmachineid: {
               value: (record, params) => { return record.id }
@@ -515,7 +515,7 @@ export default {
           dataView: true,
           popup: true,
           args: ['virtualmachineid'],
-          show: (record) => { return record.vbmcport !== 'None' },
+          show: (record) => { return record.vbmcport !== 'None' && record.vmtype !== 'sharedfsvm' },
           mapping: {
             virtualmachineid: {
               value: (record, params) => { return record.id }

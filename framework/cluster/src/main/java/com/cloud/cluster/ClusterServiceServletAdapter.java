@@ -50,6 +50,7 @@ public class ClusterServiceServletAdapter extends AdapterBase implements Cluster
     private ClusterServiceServletContainer _servletContainer;
 
     private int _clusterServicePort = DEFAULT_SERVICE_PORT;
+    private volatile boolean initialized = false;
 
     public ClusterServiceServletAdapter() {
         setRunLevel(ComponentLifecycle.RUN_LEVEL_COMPONENT);
@@ -120,13 +121,21 @@ public class ClusterServiceServletAdapter extends AdapterBase implements Cluster
     }
 
     private void init() throws ConfigurationException {
-        if (_mshostDao != null)
+        if (initialized) {
             return;
+        }
+        synchronized (this) {
+            if (initialized) {
+                return;
+            }
 
-        Properties dbProps = DbProperties.getDbProperties();
+            Properties dbProps = DbProperties.getDbProperties();
 
-        _clusterServicePort = NumbersUtil.parseInt(dbProps.getProperty("cluster.servlet.port"), DEFAULT_SERVICE_PORT);
-        if (logger.isInfoEnabled())
-            logger.info("Cluster servlet port : " + _clusterServicePort);
+            _clusterServicePort = NumbersUtil.parseInt(dbProps.getProperty("cluster.servlet.port"), DEFAULT_SERVICE_PORT);
+            if (logger.isInfoEnabled()) {
+                logger.info("Cluster servlet port : " + _clusterServicePort);
+            }
+            initialized = true;
+        }
     }
 }
