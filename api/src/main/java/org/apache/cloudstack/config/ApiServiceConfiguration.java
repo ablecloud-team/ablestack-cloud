@@ -27,7 +27,7 @@ public class ApiServiceConfiguration implements Configurable {public static fina
     public static final ConfigKey<Boolean> ApiSourceCidrChecksEnabled = new ConfigKey<>("Advanced", Boolean.class, "api.source.cidr.checks.enabled",
             "true", "Are the source checks on API calls enabled (true) or not (false)? See api.allowed.source.ip", true, ConfigKey.Scope.Global);
     public static final ConfigKey<String> MonitoringWallPortalProtocol = new ConfigKey<String>("Advanced", String.class, "monitoring.wall.portal.protocol",
-            "http", "Monitoring Service Wall Portal Protocol.(ex: http or https)", true);
+            "https", "Monitoring Service Wall Portal Protocol.(ex: http or https)", true);
     public static final ConfigKey<String> MonitoringWallPortalDomain = new ConfigKey<String>("Advanced", String.class, "monitoring.wall.portal.domain",
             "", "Monitoring Service Wall Portal Domain.(ex: id or domain)", true);
     public static final ConfigKey<String> ApiAllowedSourceIp = new ConfigKey<>(String.class, "api.allowed.source.ip", "Advanced",
@@ -35,7 +35,7 @@ public class ApiServiceConfiguration implements Configurable {public static fina
     public static final ConfigKey<String> ApiAllowedSourceCidrList = new ConfigKey<>(String.class, "api.allowed.source.cidr.list", "Advanced",
             "0.0.0.0/0,::/0", "Comma separated list of IPv4/IPv6 CIDRs from which API calls can be performed. Can be set on Global and Account levels.", true, ConfigKey.Scope.Account, null, null, null, null, null, ConfigKey.Kind.CSV, null);
     public static final ConfigKey<String> MonitoringWallPortalPort = new ConfigKey<String>("Advanced", String.class, "monitoring.wall.portal.port",
-            "3000", "Monitoring Service Wall Portal Port.(ex:3000)", true);
+            "8081", "Monitoring Service Wall Portal Port.(ex:3000)", true);
     public static final ConfigKey<String> MonitoringWallPortalVmUri = new ConfigKey<String>("Advanced", String.class, "monitoring.wall.portal.vm.uri",
             "/d/uservm?kiosk", "Monitoring Service Wall Portal VM Uri.(ex:/d/uservm?kiosk)", true);
     public static final ConfigKey<String> MonitoringWallPortalHostUri = new ConfigKey<String>("Advanced", String.class, "monitoring.wall.portal.host.uri",
