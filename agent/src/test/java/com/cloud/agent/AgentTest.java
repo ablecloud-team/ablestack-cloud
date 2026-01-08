@@ -21,6 +21,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -117,7 +119,7 @@ public class AgentTest {
         agent.setupShutdownHookAndInitExecutors();
         assertNotNull(agent.selfTaskExecutor);
         assertNotNull(agent.outRequestHandler);
-        assertNotNull(agent.requestHandler);
+        assertNotNull(agent.basicExecutor);
     }
 
     @Test

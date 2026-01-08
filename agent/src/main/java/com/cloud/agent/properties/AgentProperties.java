@@ -55,14 +55,14 @@ public class AgentProperties{
      * Data type: Integer.<br>
      * Default value: workers
      */
-    public static final Property<Integer> STATS_WORKERS = new Property<>("stats.workers", 3, Integer.class);
+    public static final Property<Integer> STATS_WORKERS = new Property<>("stats.workers", 2, Integer.class);
 
     /**
      * The number of threads dedicated to HA health-check commands.<br>
      * Data type: Integer.<br>
      * Default value: workers
      */
-    public static final Property<Integer> HA_WORKERS = new Property<>("ha.workers", 3, Integer.class);
+    public static final Property<Integer> HA_WORKERS = new Property<>("ha.workers", 1, Integer.class);
 
     /**
      * The IP address of the management server.<br>
