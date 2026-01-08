@@ -224,7 +224,6 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         _ugentTaskPool =
                 new ThreadPoolExecutor(shell.getPingRetries(), 2 * shell.getPingRetries(), 10, TimeUnit.MINUTES, new SynchronousQueue<Runnable>(), new NamedThreadFactory(
                         "UgentTask"));
-
         _basicExecutor =
                 new ThreadPoolExecutor(_shell.getWorkers(), 5 * _shell.getWorkers(), 10, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory(
                         "Basic-Worker"), new ThreadPoolExecutor.CallerRunsPolicy());
@@ -234,9 +233,12 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         _haExecutor =
                 new ThreadPoolExecutor(_shell.getHaWorkers(), 5 * _shell.getHaWorkers(), 10, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory(
                         "HA-Worker"), new ThreadPoolExecutor.CallerRunsPolicy());
-        scheduleExecutorMonitoring("Basic-Worker", _basicExecutor);
-        scheduleExecutorMonitoring("Stats-Worker", _statsExecutor);
-        scheduleExecutorMonitoring("HA-Worker", _haExecutor);
+
+        if (isHostResource()) { // 호스트 리소스인 경우에만 모티터링용 로그 실행(LibvirtComputingResource)
+            scheduleExecutorMonitoring("Basic-Worker", _basicExecutor);
+            scheduleExecutorMonitoring("Stats-Worker", _statsExecutor);
+            scheduleExecutorMonitoring("HA-Worker", _haExecutor);
+        }
 
         logger.info("Agent [id = {}, uuid: {}, name: {}] : type = {} : zone = {} : pod = {} : workers = {} : stats.workers = {} : ha.workers = {} : host = {} : port = {}",
                 ObjectUtils.defaultIfNull(_id, "new"), _uuid, _name, getResourceName(),
@@ -274,6 +276,10 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
 
     public String getResourceName() {
         return _resource.getClass().getSimpleName();
+    }
+
+    private boolean isHostResource() {
+        return _resource != null && "com.cloud.hypervisor.kvm.resource.LibvirtComputingResource".equals(_resource.getClass().getName());
     }
 
     private void scheduleExecutorMonitoring(String context, ExecutorService executorService) {
