@@ -734,7 +734,11 @@ export default {
       deploymentPlannerLoading: false,
       plannerModeVisible: false,
       plannerMode: '',
-      selectedGpu: '',
+      selectedGpuCard: '',
+      gpuCards: [],
+      gpuCardLoading: false,
+      vgpuProfiles: [],
+      vgpuProfileLoading: false,
       showDiskOfferingModal: false,
       gpuTypes: [
         {
@@ -922,14 +926,20 @@ export default {
     },
     fetchGPUCards () {
       this.gpuCardLoading = true
-      getAPI('listGpuCards', {
-      }).then(json => {
-        this.gpuCards = json.listgpucardsresponse.gpucard || []
-        // Add a "None" option at the beginning
-        this.gpuCards.unshift({
+      getAPI('listGpuCards').then(json => {
+        const cards = json?.listgpucardsresponse?.gpucard || []
+        this.gpuCards = [
+          { id: '', name: this.$t('label.none') },
+          ...cards
+        ]
+      }).catch(error => {
+        if (this.$notifyError) {
+          this.$notifyError(error)
+        }
+        this.gpuCards = [{
           id: '',
           name: this.$t('label.none')
-        })
+        }]
       }).finally(() => {
         this.gpuCardLoading = false
       })

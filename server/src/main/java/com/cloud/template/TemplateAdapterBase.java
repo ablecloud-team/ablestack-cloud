@@ -533,7 +533,7 @@ public abstract class TemplateAdapterBase extends AdapterBase implements Templat
                 BooleanUtils.toBoolean(cmd.isExtractable()), cmd.getOsTypeId(),
                 cmd.getZoneId(), BooleanUtils.toBoolean(cmd.isBootable()), cmd.getEntityOwnerId(),
                 BooleanUtils.toBoolean(cmd.isDynamicallyScalable()));
-        return prepareUploadParamsInternal(params);
+        return prepareUploadParamsInternal(cmd, params);
     }
 
     @Override

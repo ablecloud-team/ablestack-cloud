@@ -568,6 +568,7 @@ export default {
 
     const hostIndexCache = { until: 0, byIp: new Map(), byName: new Map() }
     const vmIndexCache = { until: 0, byIp: new Map(), byName: new Map(), byInstanceName: new Map() }
+    const vmIndexReady = ref(false)
 
     const ensureHostIndex = async () => {
       const now = Date.now()
@@ -1186,7 +1187,7 @@ export default {
       })
     }
     const hostEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'host')
-    const vmEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'vm')
+    const vmEntityLinks = (it) => filterKnownVmLinks(it)
     const storageEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'storage')
     const cloudEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'cloud')
     const hostLinkList = (it) => hostEntityLinks(it).slice(0, MAX_LINKS)
