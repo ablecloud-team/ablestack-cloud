@@ -210,12 +210,12 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         selfTaskExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("Agent-SelfTask"));
         outRequestHandler = new ThreadPoolExecutor(shell.getPingRetries(), 2 * shell.getPingRetries(), 10, TimeUnit.MINUTES,
                 new SynchronousQueue<>(), new NamedThreadFactory("AgentOutRequest-Handler"));
-        basicExecutor = new ThreadPoolExecutor(shell.getWorkers(), 5 * shell.getWorkers(), 5, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(), new NamedThreadFactory("Basic-Worker"));
-        statsExecutor = new ThreadPoolExecutor(statsWorkers, 5 * statsWorkers, 5, TimeUnit.DAYS,
-                new LinkedBlockingQueue<>(), new NamedThreadFactory("Stats-Worker"));
-        haExecutor = new ThreadPoolExecutor(haWorkers, 5 * haWorkers, 5, TimeUnit.DAYS,
-                new LinkedBlockingQueue<>(), new NamedThreadFactory("HA-Worker"));
+        basicExecutor = new ThreadPoolExecutor(shell.getWorkers(), 5 * shell.getWorkers(), 10, TimeUnit.SECONDS,
+                new SynchronousQueue<>(), new NamedThreadFactory("Basic-Worker"), new ThreadPoolExecutor.CallerRunsPolicy());
+        statsExecutor = new ThreadPoolExecutor(statsWorkers, 5 * statsWorkers, 10, TimeUnit.SECONDS,
+                new SynchronousQueue<>(), new NamedThreadFactory("Stats-Worker"), new ThreadPoolExecutor.CallerRunsPolicy());
+        haExecutor = new ThreadPoolExecutor(haWorkers, 5 * haWorkers, 10, TimeUnit.SECONDS,
+                new SynchronousQueue<>(), new NamedThreadFactory("HA-Worker"), new ThreadPoolExecutor.CallerRunsPolicy());
         executorMonitorTimer = new Timer("AgentTaskCheckTimer");
         scheduleExecutorMonitoring("Basic-Worker", basicExecutor);
         scheduleExecutorMonitoring("Stats-Worker", statsExecutor);
