@@ -325,6 +325,10 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         return Math.max(1, NumbersUtil.parseInt(haWorkersConfig, shell.getWorkers()));
     }
 
+    private boolean isHostResource() {
+        return _resource != null && "com.cloud.hypervisor.kvm.resource.LibvirtComputingResource".equals(_resource.getClass().getName());
+    }
+
     private void scheduleExecutorMonitoring(String context, ExecutorService executorService) {
         if (!(executorService instanceof ThreadPoolExecutor)) {
             return;
@@ -346,13 +350,15 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         long taskCount = executor.getTaskCount();
         long completedTasks = executor.getCompletedTaskCount();
         long pendingTasks = Math.max(0, taskCount - completedTasks);
-        if (queueSize > 0 || executor.getActiveCount() > executor.getPoolSize()) {
-            logger.warn("{}Executor load warning [{}]: Workers={} | Active={} | QueueSize={} | PendingTasks={} | CompletedTasks={}{}",
-                    ANSI_RED, context, executor.getPoolSize(), executor.getActiveCount(), queueSize, pendingTasks, completedTasks, ANSI_RESET);
+        int currentPool = executor.getPoolSize();
+        int largestPool = executor.getLargestPoolSize();
+        if (queueSize > 0 || executor.getActiveCount() > currentPool) {
+            logger.warn("{}작업 상태 부하 경고 [{}]:  Workers={} | Active={} | Queue={} | Pending={} | Completed={} | LargestWorkers={}{}",
+                    ANSI_RED, context, currentPool, executor.getActiveCount(), queueSize, pendingTasks, completedTasks, largestPool, ANSI_RESET);
             logPendingTaskStacks(context, pendingTasks);
         } else {
-            logger.info("{}Executor status [{}]: Workers={} | Active={} | QueueSize={} | PendingTasks={} | CompletedTasks={}{}",
-                    ANSI_GREEN, context, executor.getPoolSize(), executor.getActiveCount(), queueSize, pendingTasks, completedTasks, ANSI_RESET);
+            logger.info("{}작업 상태 정보 [{}]: Workers={} | Active={} | Queue={} | Pending={} | Completed={} | LargestWorkers={}{}",
+                    ANSI_GREEN, context, currentPool, executor.getActiveCount(), queueSize, pendingTasks, completedTasks, largestPool, ANSI_RESET);
             if (pendingTasks > 0) {
                 logPendingTaskStacks(context, pendingTasks);
             }
