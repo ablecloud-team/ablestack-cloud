@@ -3065,7 +3065,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
     }
 
     protected void migrate(final VMInstanceVO vm, final long srcHostId, final DeployDestination dest) throws ResourceUnavailableException, ConcurrentOperationException {
-        logger.info("Migrating {} to {}", vm, dest);
+        logger.info("Start preparing migration of the VM: {} to {}", vm, dest);
         final long dstHostId = dest.getHost().getId();
         final Host fromHost = _hostDao.findById(srcHostId);
         String provider = "";
@@ -3131,9 +3131,11 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
             if (pfma == null || !pfma.getResult()) {
                 final String details = pfma != null ? pfma.getDetails() : "null answer returned";
                 final String msg = "Unable to prepare for migration due to " + details;
+                logger.error("Failed to prepare destination host {} for migration of VM {} : {}", dstHostId, vm.getInstanceName(), details);
                 pfma = null;
                 throw new AgentUnavailableException(msg, dstHostId);
             }
+            logger.debug("Successfully prepared destination host {} for migration of VM {} ", dstHostId, vm.getInstanceName());
         } catch (final OperationTimedoutException e1) {
             throw new AgentUnavailableException("Operation timed out", dstHostId);
         } finally {
@@ -3154,18 +3156,23 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
                     volumeMgr.release(vm.getId(), dstHostId);
                 }
 
-                logger.info("Migration cancelled because state has changed: {}", vm);
-                throw new ConcurrentOperationException("Migration cancelled because state has changed: " + vm);
+                String msg = "Migration cancelled because state has changed: " + vm;
+                logger.warn(msg);
+                throw new ConcurrentOperationException(msg);
             }
         } catch (final NoTransitionException e1) {
             _networkMgr.rollbackNicForMigration(vmSrc, profile);
             volumeMgr.release(vm.getId(), dstHostId);
-            logger.info("Migration cancelled because {}", e1.getMessage());
+            String msg = String.format("Migration cancelled for VM %s due to state transition failure: %s",
+                    vm.getInstanceName(), e1.getMessage());
+            logger.warn(msg, e1);
             throw new ConcurrentOperationException("Migration cancelled because " + e1.getMessage());
         } catch (final CloudRuntimeException e2) {
             _networkMgr.rollbackNicForMigration(vmSrc, profile);
             volumeMgr.release(vm.getId(), dstHostId);
-            logger.info("Migration cancelled because {}", e2.getMessage());
+            String msg = String.format("Migration cancelled for VM %s due to runtime exception: %s",
+                    vm.getInstanceName(), e2.getMessage());
+            logger.error(msg, e2);
             work.setStep(Step.Done);
             _workDao.update(work.getId(), work);
             try {
@@ -3185,8 +3192,12 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
                 final Answer ma = _agentMgr.send(vm.getLastHostId(), mc);
                 if (ma == null || !ma.getResult()) {
                     final String details = ma != null ? ma.getDetails() : "null answer returned";
+                    String msg = String.format("Migration command failed for VM %s on source host id=%s to destination host %s: %s",
+                            vm.getInstanceName(), vm.getLastHostId(), dstHostId, details);
+                    logger.error(msg);
                     throw new CloudRuntimeException(details);
                 }
+                logger.info("Migration command successful for VM {}", vm.getInstanceName());
             } catch (final OperationTimedoutException e) {
                 boolean success = false;
                 if (HypervisorType.KVM.equals(vm.getHypervisorType())) {
@@ -3223,7 +3234,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
 
             try {
                 if (!checkVmOnHost(vm, dstHostId)) {
-                    logger.error("Unable to complete migration for {}", vm);
+                    logger.error("Migration verification failed for VM {} : VM not found on destination host {} ", vm.getInstanceName(), dstHostId);
                     try {
                         _agentMgr.send(srcHostId, new Commands(cleanup(vm, dpdkInterfaceMapping)), null);
                     } catch (final AgentUnavailableException e) {
@@ -3238,7 +3249,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
             migrated = true;
         } finally {
             if (!migrated) {
-                logger.info("Migration was unsuccessful.  Cleaning up: {}", vm);
+                logger.info("Migration was unsuccessful. Cleaning up: {}", vm);
                 _networkMgr.rollbackNicForMigration(vmSrc, profile);
                 volumeMgr.release(vm.getId(), dstHostId);
                 // deallocate GPU devices for the VM on the destination host
@@ -3250,7 +3261,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
                 try {
                     _agentMgr.send(dstHostId, new Commands(cleanup(vm, dpdkInterfaceMapping)), null);
                 } catch (final AgentUnavailableException ae) {
-                    logger.warn("Looks like the destination Host is unavailable for cleanup", ae);
+                    logger.warn("Destination host {} unavailable for cleanup after failed migration of VM {}", dstHostId, vm.getInstanceName(), ae);
                 }
                 _networkMgr.setHypervisorHostname(profile, dest, false);
                 try {
@@ -3259,6 +3270,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
                     logger.warn(e.getMessage());
                 }
             } else {
+                logger.info("Migration completed successfully for VM %s" + vm);
                 _networkMgr.commitNicForMigration(vmSrc, profile);
                 volumeMgr.release(vm.getId(), srcHostId);
                 // deallocate GPU devices for the VM on the src host after migration is complete
@@ -3294,6 +3306,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
             migrateCommand.setVlanToPersistenceMap(vlanToPersistenceMap);
         }
 
+        logger.debug("Setting auto convergence to: {}", StorageManager.KvmAutoConvergence.value());
         migrateCommand.setAutoConvergence(StorageManager.KvmAutoConvergence.value());
         migrateCommand.setHostGuid(destination.getHost().getGuid());
 

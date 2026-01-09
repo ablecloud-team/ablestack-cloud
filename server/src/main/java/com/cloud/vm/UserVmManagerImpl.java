@@ -7427,6 +7427,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             throw new CloudRuntimeException("Unable to find suitable destination to migrate VM " + vm.getInstanceName());
         }
 
+        logger.info("Starting migration of VM {} from host {} to host {} ", vm.getInstanceName(), srcHostId, dest.getHost().getId());
         collectVmDiskAndNetworkStatistics(vmId, State.Running);
         _itMgr.migrate(vm.getUuid(), srcHostId, dest);
         return findMigratedVm(vm.getId(), vm.getType());
@@ -7498,6 +7499,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
     private DeployDestination checkVmMigrationDestination(VMInstanceVO vm, Host srcHost, Host destinationHost) throws VirtualMachineMigrationException {
         if (destinationHost == null) {
+            logger.error("Destination host is null for migration of VM: {}", vm.getInstanceName());
             return null;
         }
         if (destinationHost.getId() == srcHost.getId()) {
