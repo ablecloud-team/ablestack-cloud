@@ -2374,6 +2374,7 @@ export default {
         const httpMethod = deployVmData.userdata ? 'POST' : 'GET'
 
         if (values.vmNumber) {
+          let anySuccess = false
           for (var num = 1; num <= Number(values.vmNumber); num++) {
             let args = ''
             let data = ''
@@ -2403,6 +2404,7 @@ export default {
               } else {
                 jobId = await this.deployVM(args, httpMethod, data)
               }
+              anySuccess = true
               if (num === 1) {
                 this.$pollJob({
                   jobId,
@@ -2443,16 +2445,19 @@ export default {
                 await this.$notifyError(error)
               }
               this.loading.deploy = false
+              break
             }
             if (values.templateKvdoEnable && values.vmNumber > 1) {
               await new Promise(resolve => setTimeout(resolve, 6000)).then(() => {})
             }
           }
-          await new Promise(resolve => setTimeout(resolve, 3000)).then(() => {
-            eventBus.emit('vm-refresh-data')
-          })
-          if (!values.stayonpage) {
-            await this.$router.back()
+          if (anySuccess) {
+            await new Promise(resolve => setTimeout(resolve, 3000)).then(() => {
+              eventBus.emit('vm-refresh-data')
+            })
+            if (!values.stayonpage) {
+              await this.$router.back()
+            }
           }
           this.form.stayonpage = false
           this.loading.deploy = false
