@@ -224,19 +224,21 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         _ugentTaskPool =
                 new ThreadPoolExecutor(shell.getPingRetries(), 2 * shell.getPingRetries(), 10, TimeUnit.MINUTES, new SynchronousQueue<Runnable>(), new NamedThreadFactory(
                         "UgentTask"));
-
         _basicExecutor =
-                new ThreadPoolExecutor(_shell.getWorkers(), 5 * _shell.getWorkers(), 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
-                        "Basic-Worker"));
+                new ThreadPoolExecutor(_shell.getWorkers(), 5 * _shell.getWorkers(), 10, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory(
+                        "Basic-Worker"), new ThreadPoolExecutor.CallerRunsPolicy());
         _statsExecutor =
-                new ThreadPoolExecutor(_shell.getStatsWorkers(), 5 * _shell.getStatsWorkers(), 5, TimeUnit.DAYS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
-                        "Stats-Worker"));
+                new ThreadPoolExecutor(_shell.getStatsWorkers(), 5 * _shell.getStatsWorkers(), 10, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory(
+                        "Stats-Worker"), new ThreadPoolExecutor.CallerRunsPolicy());
         _haExecutor =
-                new ThreadPoolExecutor(_shell.getHaWorkers(), 5 * _shell.getHaWorkers(), 5, TimeUnit.DAYS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(
-                        "HA-Worker"));
-        scheduleExecutorMonitoring("Basic-Worker", _basicExecutor);
-        scheduleExecutorMonitoring("Stats-Worker", _statsExecutor);
-        scheduleExecutorMonitoring("HA-Worker", _haExecutor);
+                new ThreadPoolExecutor(_shell.getHaWorkers(), 5 * _shell.getHaWorkers(), 10, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory(
+                        "HA-Worker"), new ThreadPoolExecutor.CallerRunsPolicy());
+
+        if (isHostResource()) { // 호스트 리소스인 경우에만 모티터링용 로그 실행(LibvirtComputingResource)
+            scheduleExecutorMonitoring("Basic-Worker", _basicExecutor);
+            scheduleExecutorMonitoring("Stats-Worker", _statsExecutor);
+            scheduleExecutorMonitoring("HA-Worker", _haExecutor);
+        }
 
         logger.info("Agent [id = {}, uuid: {}, name: {}] : type = {} : zone = {} : pod = {} : workers = {} : stats.workers = {} : ha.workers = {} : host = {} : port = {}",
                 ObjectUtils.defaultIfNull(_id, "new"), _uuid, _name, getResourceName(),
@@ -276,6 +278,10 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         return _resource.getClass().getSimpleName();
     }
 
+    private boolean isHostResource() {
+        return _resource != null && "com.cloud.hypervisor.kvm.resource.LibvirtComputingResource".equals(_resource.getClass().getName());
+    }
+
     private void scheduleExecutorMonitoring(String context, ExecutorService executorService) {
         if (!(executorService instanceof ThreadPoolExecutor)) {
             return;
@@ -313,13 +319,15 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         long taskCount = executor.getTaskCount();
         long completedTasks = executor.getCompletedTaskCount();
         long pendingTasks = Math.max(0, taskCount - completedTasks);
-        if (queueSize > 0 || executor.getActiveCount() > executor.getPoolSize()) {
-            logger.warn("{}작업 상태 부하 경고 [{}]:  Workers={} | Active={} | QueueSize={} | PendingTasks={} | CompletedTasks={}{}",
-                    ANSI_RED, context, executor.getPoolSize(), executor.getActiveCount(), queueSize, pendingTasks, completedTasks, ANSI_RESET);
+        int currentPool = executor.getPoolSize();
+        int largestPool = executor.getLargestPoolSize();
+        if (queueSize > 0 || executor.getActiveCount() > currentPool) {
+            logger.warn("{}작업 상태 부하 경고 [{}]:  Workers={} | Active={} | Queue={} | Pending={} | Completed={} | LargestWorkers={}{}",
+                    ANSI_RED, context, currentPool, executor.getActiveCount(), queueSize, pendingTasks, completedTasks, largestPool, ANSI_RESET);
             logPendingTaskStacks(context, pendingTasks);
         } else {
-            logger.info("{}작업 상태 정보 [{}]: Workers={} | Active={} | QueueSize={} | PendingTasks={} | CompletedTasks={}{}",
-                    ANSI_GREEN, context, executor.getPoolSize(), executor.getActiveCount(), queueSize, pendingTasks, completedTasks, ANSI_RESET);
+            logger.info("{}작업 상태 정보 [{}]: Workers={} | Active={} | Queue={} | Pending={} | Completed={} | LargestWorkers={}{}",
+                    ANSI_GREEN, context, currentPool, executor.getActiveCount(), queueSize, pendingTasks, completedTasks, largestPool, ANSI_RESET);
             if (pendingTasks > 0) {
                 logPendingTaskStacks(context, pendingTasks);
             }
