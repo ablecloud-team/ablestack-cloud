@@ -568,6 +568,7 @@ export default {
 
     const hostIndexCache = { until: 0, byIp: new Map(), byName: new Map() }
     const vmIndexCache = { until: 0, byIp: new Map(), byName: new Map(), byInstanceName: new Map() }
+    const vmIndexReady = ref(false)
 
     const ensureHostIndex = async () => {
       const now = Date.now()
@@ -1083,8 +1084,23 @@ export default {
     }
 
     const entityLinksForAlert = (it) => {
-      const parentKind = pickKindFromRule(it.rule || {})
-      const arr = Array.isArray(it?.alerts) ? it.alerts : []
+      const parentKind = pickKindFromRule(it && it.rule ? it.rule : {})
+
+      // 1차: 배너에서 미리 계산한 ALERTING 인스턴스 사용
+      let arr = Array.isArray(it && it.alerts) ? it.alerts : []
+
+      // 2차: alerts 가 비어 있으면,
+      //      전체 인스턴스(it.instances)로 폴백
+      if ((!arr || arr.length === 0) && it && Array.isArray(it.instances)) {
+        arr = it.instances
+      }
+
+      // 3차: 그래도 비어 있으면,
+      //      룰 원본에서 다시 인스턴스를 뽑아서 사용
+      if ((!arr || arr.length === 0) && it && it.rule) {
+        arr = ruleInstances(it.rule)
+      }
+
       const seen = new Set()
       const out = []
 
@@ -1096,7 +1112,12 @@ export default {
           const key = hostDedupKey(cls.keyword)
           if (seen.has(key)) { continue }
           seen.add(key)
-          out.push({ key, kind: 'host', label: hostDisplayLabel(cls.keyword), keyword: cls.keyword })
+          out.push({
+            key,
+            kind: 'host',
+            label: hostDisplayLabel(cls.keyword),
+            keyword: cls.keyword
+          })
           continue
         }
 
@@ -1104,7 +1125,12 @@ export default {
           const key = 'vm@' + String(cls.keyword).toLowerCase()
           if (seen.has(key)) { continue }
           seen.add(key)
-          out.push({ key, kind: 'vm', label: String(cls.keyword), keyword: cls.keyword })
+          out.push({
+            key,
+            kind: 'vm',
+            label: String(cls.keyword),
+            keyword: cls.keyword
+          })
           continue
         }
 
@@ -1112,7 +1138,12 @@ export default {
           const key = 'storage@' + String(cls.label).toLowerCase()
           if (seen.has(key)) { continue }
           seen.add(key)
-          out.push({ key, kind: 'storage', label: cls.label, url: cls.url })
+          out.push({
+            key,
+            kind: 'storage',
+            label: cls.label,
+            url: cls.url
+          })
           continue
         }
 
@@ -1125,16 +1156,38 @@ export default {
             kind: 'cloud',
             label: cls.label,
             url: cls.url,
-            // 관리서버 상세 이동용 키워드 (이름/IP)
+            // 관리서버 상세 이동용 키워드
             keyword: cls.keyword || cls.label
           })
         }
       }
+
       return out
     }
 
+    const vmEntityLinksRaw = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'vm')
+    const filterKnownVmLinks = (it) => {
+      const rawList = vmEntityLinksRaw(it)
+      if (!Array.isArray(rawList) || rawList.length === 0) {
+        return []
+      }
+      if (!vmIndexReady.value) {
+        return rawList
+      }
+      return rawList.filter((lnk) => {
+        const label = String(lnk && (lnk.label || lnk.keyword || '')).trim()
+        if (!label) {
+          return false
+        }
+        if (!VM_NAME_RE.test(label)) {
+          return true
+        }
+        const shown = displayVm(label)
+        return shown !== label
+      })
+    }
     const hostEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'host')
-    const vmEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'vm')
+    const vmEntityLinks = (it) => filterKnownVmLinks(it)
     const storageEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'storage')
     const cloudEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'cloud')
     const hostLinkList = (it) => hostEntityLinks(it).slice(0, MAX_LINKS)
@@ -1182,18 +1235,40 @@ export default {
       const out = []
       const seen = new Set()
       const rs = Array.isArray(rules.value) ? rules.value : []
+
       for (let i = 0; i < rs.length; i += 1) {
         const r = rs[i] || {}
+
+        // 1) 룰에서 전체 인스턴스 목록을 뽑습니다.
         const inst = ruleInstances(r)
-        const on = inst.filter((a) => ['ALERTING', 'FIRING'].includes(UC(instanceState(a))) && !isNoiseLike(instanceState(a)))
+
+        // 2) 그중 ALERTING/FIRING 인 것만 필터링합니다.
+        const on = inst.filter(a => {
+          const st = instanceState(a)
+          return ['ALERTING', 'FIRING'].includes(UC(st)) && !isNoiseLike(st)
+        })
+
+        // 3) 룰 전체 상태도 같이 검사합니다.
         const rState = ruleState(r)
         const ruleIsAlerting = ['ALERTING', 'FIRING'].includes(UC(rState)) && !isNoiseLike(rState)
+
         if (!on.length && !ruleIsAlerting) { continue }
+
         const uid = ruleUid(r) || r.id || r.ruleId
         if (!uid || seen.has(uid)) { continue }
         seen.add(uid)
-        out.push({ id: r.id || r.ruleId || uid, uid, title: ruleTitle(r), rule: r, alerts: on })
+
+        // ★ 여기서 'alerts'와 함께 'instances'도 같이 실어 보냅니다.
+        out.push({
+          id: r.id || r.ruleId || uid,
+          uid,
+          title: ruleTitle(r),
+          rule: r,
+          alerts: on, // ALERTING 인스턴스
+          instances: inst // 원본 전체 인스턴스
+        })
       }
+
       return out
     })
 
@@ -1668,6 +1743,7 @@ export default {
   --banner-radius: 6px;
   --field-radius: 6px;
   --chip-radius: 5px;
+  font-size: 0.7em;
 }
 
 /* 측정 완료(.mask-on)일 때만 마스크 적용 */
@@ -1688,7 +1764,7 @@ export default {
 .auto-alert-banner-container > * { position: relative; z-index: 1; }
 
 /* 리스트 */
-.banner-list { display: flex; flex-direction: column; gap: 5px; padding: 4px 8px 6px; }
+.banner-list { display: flex; flex-direction: column; gap: 4px; padding: 2px 8px 4px; }
 .banner-list:empty { padding: 0; }
 
 /* Ant Alert 오버라이드 */
@@ -1700,10 +1776,13 @@ export default {
   width: 100%;
   position: relative;
   padding-right: 44px !important;
-  min-height: 35px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  min-height: 0px;
   border-radius: var(--banner-radius);
   overflow: hidden;
 }
+
 .auto-alert-banner-container :deep(.ant-alert-with-icon) { padding-left: 0 !important; }
 .auto-alert-banner-container :deep(.ant-alert-icon) {
   position: static !important;
@@ -1715,12 +1794,9 @@ export default {
   display: flex !important;
   justify-content: flex-end !important;
   align-items: center !important;
-  padding-top: 4px !important;
-  padding-bottom: 6px !important;
 }
 .auto-alert-banner-container :deep(.ant-alert-close-icon) {
   position: absolute !important;
-  top: 6px;
   right: 8px;
   margin-left: 0 !important;
   cursor: pointer;
@@ -1731,18 +1807,16 @@ export default {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
-  align-items: flex-start;
-  gap: 10px;
-  line-height: 1.6;
+  align-items: center;
+  gap: 8px;
+  line-height: normal;
   text-align: left;
 }
 .banner-text {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  max-width: 100%;
-  text-align: left;
-  pointer-events: auto;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 /* 필드 캡슐 */
@@ -1782,15 +1856,25 @@ export default {
 .auto-alert-banner-container :deep(.ant-tag.tag-more) { border-style: dashed; opacity: 0.9; }
 
 /* 아이콘/버튼 */
-.banner-error-icon { font-size: 16px; color: #ff4d4f; flex: 0 0 auto; }
+.banner-error-icon { font-size: 15px; color: #ff4d4f; flex: 0 0 auto; }
 .icon-stack { position: relative; display: inline-flex; width: 16px; height: 16px; margin-right: 4px; vertical-align: -2px; }
-.icon-stack .icon-sound { font-size: 16px; line-height: 16px; }
+.icon-stack .icon-sound { font-size: 15px; line-height: 16px; }
 
-/* Pause 버튼(컴팩트) */
-:deep(.pause-btn.pause-compact.ant-btn) { height: 22px; padding: 0 6px; font-size: 14px; line-height: 18px; }
+/* Slience Pause 버튼(컴팩트) */
+:deep(.pause-btn.pause-compact.ant-btn) { height: 22px; padding: 0 6px; font-size: 13px; line-height: 18px; } /* 정지버튼 */
+:deep(.silence-menu.ant-btn) { height: 22px; padding: 0 6px; font-size: 13px; line-height: 18px; } /* 사일러스버튼 */
+:deep(.ant-btn-link) { font-size: 13px; } /* 링크 텍스트 */
+:deep(.field-key) { font-size: 13px; } /* 대상 텍스트 */
 
 /* 액션 우측 정렬 */
-.banner-actions { margin-left: auto; display: flex; flex-wrap: wrap; gap: 10px; }
+.banner-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;   /* 버튼들 세로 가운데 정렬 */
+  gap: 8px;
+  transform: translateY(-4px);
+  font-size: 11px;
+}
 
 /* 다크 모드 */
 @media (prefers-color-scheme: dark) {
@@ -1805,10 +1889,6 @@ export default {
   .banner-content { justify-content: flex-start; }
   .banner-actions { width: 100%; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
 }
-</style>
-
-<style>
-:root { --autoBannerHeight: 0px; }
 
 /* 모달/드로어 상단 오프셋 */
 .ant-modal-wrap,
@@ -1828,6 +1908,10 @@ export default {
 .ant-notification-topLeft {
   top: calc(24px + var(--autoBannerHeight, 0px)) !important;
 }
+</style>
+
+<style>
+:root { --autoBannerHeight: 0px; }
 
 /* 전체 문구 정렬 */
 .banner-text {
@@ -1843,6 +1927,7 @@ export default {
   align-items: center;
   flex-wrap: wrap;
   gap: 4px;
+  font-size: 13px;
 }
 
 /* 아이콘 + '알림' 배지 */
@@ -1850,7 +1935,7 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   padding: 2px 10px;
   border-radius: 999px;
@@ -1860,12 +1945,12 @@ export default {
 
 /* 배지 안의 아이콘 */
 .banner-error-icon {
-  font-size: 16px;
+  font-size: 1.2em;
 }
 
 /* 경고 상태 문구 */
 .banner-status {
-  font-size: 14px;
+  font-size: 1em;
   opacity: 0.95;
 }
 </style>

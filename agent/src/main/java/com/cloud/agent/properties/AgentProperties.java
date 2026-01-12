@@ -51,6 +51,20 @@ public class AgentProperties{
     protected final Property<Integer> workers = new Property<>("workers", 5);
 
     /**
+     * The number of threads dedicated to statistics commands.<br>
+     * Data type: Integer.<br>
+     * Default value: workers
+     */
+    public static final Property<Integer> STATS_WORKERS = new Property<>("stats.workers", 2, Integer.class);
+
+    /**
+     * The number of threads dedicated to HA health-check commands.<br>
+     * Data type: Integer.<br>
+     * Default value: workers
+     */
+    public static final Property<Integer> HA_WORKERS = new Property<>("ha.workers", 1, Integer.class);
+
+    /**
      * The IP address of the management server.<br>
      * Data type: String.<br>
      * Default value: <code>localhost</code>

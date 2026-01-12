@@ -44,6 +44,10 @@ public interface IAgentShell {
 
     int getWorkers();
 
+    int getStatsWorkers();
+
+    int getHaWorkers();
+
     int getProxyPort();
 
     String getGuid();

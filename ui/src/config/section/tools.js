@@ -29,7 +29,7 @@ export default {
       docHelp: 'adminguide/events.html',
       permission: ['listAnnotations'],
       columns: () => {
-        const cols = ['entityid', 'entitytype', 'annotation', 'created', 'username']
+        const cols = ['annotation', 'entityid', 'entitytype', 'created', 'username']
         if (['Admin'].includes(store.getters.userInfo.roletype)) {
           cols.push('adminsonly')
         }
@@ -47,7 +47,7 @@ export default {
           icon: 'delete-outlined',
           label: 'label.remove.annotation',
           message: 'message.remove.annotation',
-          dataView: false,
+          dataView: true,
           groupAction: true,
           popup: true,
           groupShow: (selectedItems, storegetters) => {

@@ -19,7 +19,11 @@
   <resource-layout>
     <template #left>
       <slot name="info-card">
-        <info-card :resource="resource" :loading="loading" />
+        <info-card
+          :resource="resource"
+          :loading="loading"
+          :actions="actions"
+          @exec-action="$emit('exec-action', $event)" />
       </slot>
     </template>
     <template #right>
@@ -86,6 +90,12 @@ export default {
     loading: {
       type: Boolean,
       default: false
+    },
+    actions: {
+      type: Array,
+      default: function () {
+        return []
+      }
     },
     tabs: {
       type: Array,

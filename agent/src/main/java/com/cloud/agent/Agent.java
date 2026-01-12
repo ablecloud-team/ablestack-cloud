@@ -28,9 +28,12 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,6 +41,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -66,8 +71,10 @@ import org.apache.logging.log4j.ThreadContext;
 import com.cloud.agent.api.AgentControlAnswer;
 import com.cloud.agent.api.AgentControlCommand;
 import com.cloud.agent.api.Answer;
+import com.cloud.agent.api.CheckOnHostCommand;
 import com.cloud.agent.api.Command;
 import com.cloud.agent.api.CronCommand;
+import com.cloud.agent.api.CheckVMActivityOnStoragePoolCommand;
 import com.cloud.agent.api.MaintainAnswer;
 import com.cloud.agent.api.MaintainCommand;
 import com.cloud.agent.api.MigrateAgentConnectionAnswer;
@@ -154,12 +161,20 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
 
     private final AtomicReference<StartupTask> startupTask = new AtomicReference<>();
     private static final long DEFAULT_STARTUP_WAIT = 180;
+    private static final long EXECUTOR_MONITOR_INTERVAL_MS = 10000L;
+    private static final String ANSI_GREEN = "\u001B[92m";
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_RESET = "\u001B[0m";
     long startupWait = DEFAULT_STARTUP_WAIT;
     boolean reconnectAllowed = true;
+    Timer executorMonitorTimer;
+    private final Set<String> executorMonitorContexts = ConcurrentHashMap.newKeySet();
 
     //For time sensitive task, e.g. PingTask
     ThreadPoolExecutor outRequestHandler;
-    ExecutorService requestHandler;
+    ThreadPoolExecutor basicExecutor;
+    ThreadPoolExecutor statsExecutor;
+    ThreadPoolExecutor haExecutor;
 
     Thread shutdownThread = new ShutdownThread(this);
 
@@ -190,11 +205,21 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
     protected void setupShutdownHookAndInitExecutors() {
         logger.trace("Adding shutdown hook");
         Runtime.getRuntime().addShutdownHook(shutdownThread);
+        int statsWorkers = resolveStatsWorkers();
+        int haWorkers = resolveHaWorkers();
         selfTaskExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("Agent-SelfTask"));
         outRequestHandler = new ThreadPoolExecutor(shell.getPingRetries(), 2 * shell.getPingRetries(), 10, TimeUnit.MINUTES,
                 new SynchronousQueue<>(), new NamedThreadFactory("AgentOutRequest-Handler"));
-        requestHandler = new ThreadPoolExecutor(shell.getWorkers(), 5 * shell.getWorkers(), 1, TimeUnit.DAYS,
-                new LinkedBlockingQueue<>(), new NamedThreadFactory("AgentRequest-Handler"));
+        basicExecutor = new ThreadPoolExecutor(shell.getWorkers(), 5 * shell.getWorkers(), 10, TimeUnit.SECONDS,
+                new SynchronousQueue<>(), new NamedThreadFactory("Basic-Worker"), new ThreadPoolExecutor.CallerRunsPolicy());
+        statsExecutor = new ThreadPoolExecutor(statsWorkers, 5 * statsWorkers, 10, TimeUnit.SECONDS,
+                new SynchronousQueue<>(), new NamedThreadFactory("Stats-Worker"), new ThreadPoolExecutor.CallerRunsPolicy());
+        haExecutor = new ThreadPoolExecutor(haWorkers, 5 * haWorkers, 10, TimeUnit.SECONDS,
+                new SynchronousQueue<>(), new NamedThreadFactory("HA-Worker"), new ThreadPoolExecutor.CallerRunsPolicy());
+        executorMonitorTimer = new Timer("AgentTaskCheckTimer");
+        scheduleExecutorMonitoring("Basic-Worker", basicExecutor);
+        scheduleExecutorMonitoring("Stats-Worker", statsExecutor);
+        scheduleExecutorMonitoring("HA-Worker", haExecutor);
     }
 
     /**
@@ -290,13 +315,135 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         return serverResource.getClass().getSimpleName();
     }
 
+    private int resolveStatsWorkers() {
+        String statsWorkersConfig = shell.getProperties() != null ? shell.getProperties().getProperty("stats.workers") : null;
+        return Math.max(1, NumbersUtil.parseInt(statsWorkersConfig, shell.getWorkers()));
+    }
+
+    private int resolveHaWorkers() {
+        String haWorkersConfig = shell.getProperties() != null ? shell.getProperties().getProperty("ha.workers") : null;
+        return Math.max(1, NumbersUtil.parseInt(haWorkersConfig, shell.getWorkers()));
+    }
+
+    private void scheduleExecutorMonitoring(String context, ExecutorService executorService) {
+        if (!(executorService instanceof ThreadPoolExecutor)) {
+            return;
+        }
+        if (executorMonitorTimer == null) {
+            executorMonitorTimer = new Timer("AgentTaskCheckTimer");
+        }
+        if (!executorMonitorContexts.add(context)) {
+            return;
+        }
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) executorService;
+        logAgentExecutorMetrics(context, executor);
+        executorMonitorTimer.scheduleAtFixedRate(new AgentExecutorMonitorTask(context, executor), EXECUTOR_MONITOR_INTERVAL_MS, EXECUTOR_MONITOR_INTERVAL_MS);
+    }
+
+    private void logAgentExecutorMetrics(String context, ThreadPoolExecutor executor) {
+        BlockingQueue<?> queue = executor.getQueue();
+        int queueSize = queue.size();
+        long taskCount = executor.getTaskCount();
+        long completedTasks = executor.getCompletedTaskCount();
+        long pendingTasks = Math.max(0, taskCount - completedTasks);
+        if (queueSize > 0 || executor.getActiveCount() > executor.getPoolSize()) {
+            logger.warn("{}Executor load warning [{}]: Workers={} | Active={} | QueueSize={} | PendingTasks={} | CompletedTasks={}{}",
+                    ANSI_RED, context, executor.getPoolSize(), executor.getActiveCount(), queueSize, pendingTasks, completedTasks, ANSI_RESET);
+            logPendingTaskStacks(context, pendingTasks);
+        } else {
+            logger.info("{}Executor status [{}]: Workers={} | Active={} | QueueSize={} | PendingTasks={} | CompletedTasks={}{}",
+                    ANSI_GREEN, context, executor.getPoolSize(), executor.getActiveCount(), queueSize, pendingTasks, completedTasks, ANSI_RESET);
+            if (pendingTasks > 0) {
+                logPendingTaskStacks(context, pendingTasks);
+            }
+        }
+    }
+
+    private void logPendingTaskStacks(String context, long pendingTasks) {
+        if (pendingTasks <= 0) {
+            return;
+        }
+        EnumSet<Thread.State> pendingStates = EnumSet.of(Thread.State.BLOCKED, Thread.State.TIMED_WAITING);
+        for (Map.Entry<Thread, StackTraceElement[]> entry : Thread.getAllStackTraces().entrySet()) {
+            Thread thread = entry.getKey();
+            if (!thread.getName().startsWith(context)) {
+                continue;
+            }
+            if (!pendingStates.contains(thread.getState())) {
+                continue;
+            }
+            StringBuilder trace = new StringBuilder();
+            StackTraceElement[] stack = entry.getValue();
+            int limit = Math.min(stack.length, 8);
+            for (int i = 0; i < limit; i++) {
+                trace.append(stack[i].toString());
+                if (i < limit - 1) {
+                    trace.append(" <- ");
+                }
+            }
+            logger.warn("{}Pending task state [{}]: State={} | Stack={}{}", ANSI_RED, thread.getName(), thread.getState(), trace, ANSI_RESET);
+        }
+    }
+
+    private ThreadPoolExecutor selectExecutorForRequest(Request request) {
+        if (requestContainsHaCommand(request) && haExecutor != null) {
+            return haExecutor;
+        }
+        if (requestContainsStatsCommand(request) && statsExecutor != null) {
+            return statsExecutor;
+        }
+        if (basicExecutor != null) {
+            return basicExecutor;
+        }
+        if (statsExecutor != null) {
+            return statsExecutor;
+        }
+        return haExecutor;
+    }
+
+    private boolean requestContainsStatsCommand(Request request) {
+        if (request == null) {
+            return false;
+        }
+        Command[] commands = request.getCommands();
+        if (commands == null) {
+            return false;
+        }
+        for (Command command : commands) {
+            if (command != null && command.getClass().getSimpleName().contains("StatsCommand")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean requestContainsHaCommand(Request request) {
+        if (request == null) {
+            return false;
+        }
+        Command[] commands = request.getCommands();
+        if (commands == null) {
+            return false;
+        }
+        for (Command command : commands) {
+            if (command instanceof CheckOnHostCommand || command instanceof CheckVMActivityOnStoragePoolCommand) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * In case of a software based agent restart, this method
      * can help to perform explicit garbage collection of any old
      * agent instances and its inner objects.
      */
     private void scavengeOldAgentObjects() {
-        requestHandler.submit(() -> {
+        ExecutorService executorService = selectExecutorForRequest(null);
+        if (executorService == null || executorService.isShutdown()) {
+            return;
+        }
+        executorService.submit(() -> {
             try {
                 Thread.sleep(2000L);
             } catch (final InterruptedException ignored) {
@@ -385,9 +532,26 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
             outRequestHandler = null;
         }
 
-        if (requestHandler != null) {
-            requestHandler.shutdown();
-            requestHandler = null;
+        if (basicExecutor != null) {
+            basicExecutor.shutdown();
+            basicExecutor = null;
+        }
+
+        if (statsExecutor != null) {
+            statsExecutor.shutdown();
+            statsExecutor = null;
+        }
+
+        if (haExecutor != null) {
+            haExecutor.shutdown();
+            haExecutor = null;
+        }
+
+        if (executorMonitorTimer != null) {
+            executorMonitorTimer.cancel();
+            executorMonitorTimer.purge();
+            executorMonitorTimer = null;
+            executorMonitorContexts.clear();
         }
 
         if (selfTaskExecutor != null) {
@@ -1226,6 +1390,21 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         }
     }
 
+    private class AgentExecutorMonitorTask extends ManagedContextTimerTask {
+        private final String context;
+        private final ThreadPoolExecutor executor;
+
+        AgentExecutorMonitorTask(String context, ThreadPoolExecutor executor) {
+            this.context = context;
+            this.executor = executor;
+        }
+
+        @Override
+        protected void runInContext() {
+            logAgentExecutorMetrics(context, executor);
+        }
+    }
+
     public class WatchTask implements Runnable {
         protected Request _request;
         protected Agent _agent;
@@ -1322,7 +1501,14 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
                         processResponse((Response)request, task.getLink());
                     } else {
                         //put the requests from mgt server into another thread pool, as the request may take a longer time to finish. Don't block the NIO main thread pool
-                        requestHandler.submit(new AgentRequestHandler(getType(), getLink(), request));
+                        //processRequest(request, task.getLink());
+                        ThreadPoolExecutor executor = selectExecutorForRequest(request);
+                        if (executor == null) {
+                            logger.warn("No executor available to process request {}; running inline", request);
+                            processRequest(request, task.getLink());
+                            return;
+                        }
+                        executor.submit(new AgentRequestHandler(getType(), getLink(), request));
                     }
                 } catch (final ClassNotFoundException e) {
                     logger.error("Unable to find this request ");
@@ -1331,14 +1517,13 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
                 }
             } else if (task.getType() == Task.Type.DISCONNECT) {
                 try {
-                    // an issue has been found if reconnect immediately after disconnecting.
+                    // an issue has been found if reconnect immediately after disconnecting. please refer to https://github.com/apache/cloudstack/issues/8517
                     // wait 5 seconds before reconnecting
-                    logger.debug("Wait for 5 secs before reconnecting, disconnect task - {}", () -> getLinkLog(task.getLink()));
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
                 }
                 shell.setConnectionTransfer(false);
-                logger.debug("Executing disconnect task - {} and reconnecting", () -> getLinkLog(task.getLink()));
+                logger.debug("Executing disconnect task - {}", () -> getLinkLog(task.getLink()));
                 reconnect(task.getLink());
             } else if (task.getType() == Task.Type.OTHER) {
                 processOtherTask(task);

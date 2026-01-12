@@ -71,6 +71,8 @@ public class AgentShell implements IAgentShell, Daemon {
     private int _port;
     private int _proxyPort;
     private int _workers;
+    private int _statsWorkers;
+    private int _haWorkers;
     private String _guid;
     private int _hostCounter = 0;
     private int _nextAgentId = 1;
@@ -196,6 +198,16 @@ public class AgentShell implements IAgentShell, Daemon {
     }
 
     @Override
+    public int getStatsWorkers() {
+        return _statsWorkers;
+    }
+
+    @Override
+    public int getHaWorkers() {
+        return _haWorkers;
+    }
+
+    @Override
     public String getGuid() {
         return _guid;
     }
@@ -296,6 +308,8 @@ public class AgentShell implements IAgentShell, Daemon {
 
         _port = getPortOrWorkers(port, AgentProperties.PORT);
         _workers = getWorkers(workers);
+        _statsWorkers = getOptionalWorkers(AgentProperties.STATS_WORKERS, _workers);
+        _haWorkers = getOptionalWorkers(AgentProperties.HA_WORKERS, _workers);
         _zone = getZoneOrPod(zone, AgentProperties.ZONE);
         _pod = getZoneOrPod(pod, AgentProperties.POD);
 
@@ -358,6 +372,14 @@ public class AgentShell implements IAgentShell, Daemon {
         }
 
         return workers;
+    }
+
+    protected int getOptionalWorkers(AgentProperties.Property<Integer> property, int fallback) {
+        Integer val = AgentPropertiesFileHandler.getPropertyValue(property);
+        if (val == null || val <= 0) {
+            return fallback;
+        }
+        return val;
     }
 
     protected int getPortOrWorkers(String portOrWorkers, AgentProperties.Property<Integer> property) {
