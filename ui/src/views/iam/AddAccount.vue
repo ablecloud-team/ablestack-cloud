@@ -406,7 +406,7 @@ export default {
           firstname: values.firstname,
           lastname: values.lastname,
           domainid: values.domainid,
-          enable: values.samlenable
+          enable: values.samlenable !== undefined ? values.samlenable : false
         }
         if (this.isValidValueForKey(values, 'account') && values.account.length > 0) {
           params.account = values.account

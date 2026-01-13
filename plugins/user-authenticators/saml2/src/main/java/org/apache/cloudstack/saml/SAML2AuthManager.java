@@ -43,13 +43,13 @@ public interface SAML2AuthManager extends PluggableAPIAuthenticator, PluggableSe
     ConfigKey<String> SAMLServiceProviderOrgUrl = new ConfigKey<String>("Advanced", String.class, "saml2.sp.org.url", "http://cloudstack.apache.org",
             "SAML2 Service Provider Organization URL", true);
 
-    ConfigKey<String> SAMLServiceProviderSingleSignOnURL = new ConfigKey<String>("Advanced", String.class, "saml2.sp.sso.url", "http://localhost:8080/client/api?command=samlSso",
+    ConfigKey<String> SAMLServiceProviderSingleSignOnURL = new ConfigKey<String>("Advanced", String.class, "saml2.sp.sso.url", "http://localhost:19300/client/api?command=samlSso",
             "SAML2 CloudStack Service Provider Single Sign On URL", true);
 
-    ConfigKey<String> SAMLServiceProviderSingleLogOutURL = new ConfigKey<String>("Advanced", String.class, "saml2.sp.slo.url", "http://localhost:8080/client/",
+    ConfigKey<String> SAMLServiceProviderSingleLogOutURL = new ConfigKey<String>("Advanced", String.class, "saml2.sp.slo.url", "http://localhost:19300/client/",
             "SAML2 CloudStack Service Provider Single Log Out URL", true);
 
-    ConfigKey<String> SAMLCloudStackRedirectionUrl = new ConfigKey<String>("Advanced", String.class, "saml2.redirect.url", "http://localhost:8080/client",
+    ConfigKey<String> SAMLCloudStackRedirectionUrl = new ConfigKey<String>("Advanced", String.class, "saml2.redirect.url", "http://localhost:19300/client",
             "The CloudStack UI url the SSO should redirected to when successful", true);
 
     ConfigKey<String> SAMLUserAttributeName = new ConfigKey<String>("Advanced", String.class, "saml2.user.attribute", "uid",
@@ -79,7 +79,7 @@ public interface SAML2AuthManager extends PluggableAPIAuthenticator, PluggableSe
     ConfigKey<String> SAMLUserSessionKeyPathAttribute = new ConfigKey<String>("Advanced", String.class, "saml2.user.sessionkey.path", "",
             "The Path attribute of sessionkey cookie when SAML users have logged in. If not set, it will be set to the path of SAML redirection URL (saml2.redirect.url).", true);
 
-    ConfigKey<String> SAMLFailedLoginRedirectUrl = new ConfigKey<String>("Advanced", String.class, "saml2.failed.login.redirect.url", "http://localhost:8080/client/#/user/login?ssoLogin=false",
+    ConfigKey<String> SAMLFailedLoginRedirectUrl = new ConfigKey<String>("Advanced", String.class, "saml2.failed.login.redirect.url", "http://localhost:19300/client/#/user/login?ssoLogin=false",
             "The URL to redirect the SAML2 login failed message.", true);
 
     ConfigKey<Boolean> SAMLRequirePasswordLogin = new ConfigKey<Boolean>("Advanced", Boolean.class, "saml2.require.password", "true",
