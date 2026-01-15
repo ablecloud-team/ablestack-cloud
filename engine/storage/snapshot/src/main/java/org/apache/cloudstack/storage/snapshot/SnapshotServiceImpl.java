@@ -486,8 +486,7 @@ public class SnapshotServiceImpl implements SnapshotService {
             if (res.isFailed()) {
                 throw new CloudRuntimeException(res.getResult());
             }
-            SnapshotInfo destSnapshot = res.getSnapshot();
-            return destSnapshot;
+            return res.getSnapshot();
         } catch (InterruptedException e) {
             logger.debug("failed copy snapshot", e);
             throw new CloudRuntimeException("Failed to copy snapshot", e);
@@ -495,7 +494,6 @@ public class SnapshotServiceImpl implements SnapshotService {
             logger.debug("Failed to copy snapshot", e);
             throw new CloudRuntimeException("Failed to copy snapshot", e);
         }
-
     }
 
     protected Void copySnapshotAsyncCallback(AsyncCallbackDispatcher<SnapshotServiceImpl, CopyCommandResult> callback, CopySnapshotContext<CommandResult> context) {
@@ -583,7 +581,6 @@ public class SnapshotServiceImpl implements SnapshotService {
     }
 
     protected Void deleteSnapshotCallback(AsyncCallbackDispatcher<SnapshotServiceImpl, CommandResult> callback, DeleteSnapshotContext<CommandResult> context) {
-
         CommandResult result = callback.getResult();
         AsyncCallFuture<SnapshotResult> future = context.future;
         SnapshotInfo snapshot = context.snapshot;
@@ -741,7 +738,7 @@ public class SnapshotServiceImpl implements SnapshotService {
 
         if (snapshot != null) {
             if (snapshot.getState() != Snapshot.State.BackedUp) {
-                List<SnapshotDataStoreVO> snapshotDataStoreVOs = _snapshotStoreDao.findBySnapshotId(snapshotId);
+                List<SnapshotDataStoreVO> snapshotDataStoreVOs = _snapshotStoreDao.findBySnapshotIdWithNonDestroyedState(snapshotId);
                 for (SnapshotDataStoreVO snapshotDataStoreVO : snapshotDataStoreVOs) {
                     logger.debug("Remove snapshot {}, status {} on snapshot_store_ref table with id: {}", snapshot, snapshotDataStoreVO.getState(), snapshotDataStoreVO.getId());
 
@@ -846,7 +843,6 @@ public class SnapshotServiceImpl implements SnapshotService {
                     SnapshotObject srcSnapshot = (SnapshotObject)snapshot;
                     srcSnapshot.processEvent(Event.DestroyRequested);
                     srcSnapshot.processEvent(Event.OperationSucceeded);
-
                     srcSnapshot.processEvent(Snapshot.Event.OperationFailed);
 
                     _snapshotDetailsDao.removeDetail(srcSnapshot.getId(), AsyncJob.Constants.MS_ID);
@@ -857,7 +853,6 @@ public class SnapshotServiceImpl implements SnapshotService {
                 }
             }
         });
-
     }
 
     @Override

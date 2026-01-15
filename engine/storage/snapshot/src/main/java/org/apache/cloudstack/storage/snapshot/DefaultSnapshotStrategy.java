@@ -303,7 +303,7 @@ public class DefaultSnapshotStrategy extends SnapshotStrategyBase {
         }
 
         if (Snapshot.State.Error.equals(snapshotVO.getState())) {
-            List<SnapshotDataStoreVO> storeRefs = snapshotStoreDao.findBySnapshotId(snapshotId);
+            List<SnapshotDataStoreVO> storeRefs = snapshotStoreDao.findBySnapshotIdWithNonDestroyedState(snapshotId);
             List<Long> deletedRefs = new ArrayList<>();
             for (SnapshotDataStoreVO ref : storeRefs) {
                 boolean refZoneIdMatch = false;
@@ -436,6 +436,9 @@ public class DefaultSnapshotStrategy extends SnapshotStrategyBase {
         DataStore dataStore = snapshotInfo.getDataStore();
         String storageToString = String.format("%s {uuid: \"%s\", name: \"%s\"}", dataStore.getRole().name(), dataStore.getUuid(), dataStore.getName());
         List<SnapshotDataStoreVO> snapshotStoreRefs = snapshotStoreDao.findBySnapshotIdAndNotInDestroyedHiddenState(snapshotVo.getId());
+        if (CollectionUtils.isEmpty(snapshotStoreRefs)) {
+            snapshotStoreRefs = snapshotStoreDao.findBySnapshotIdWithNonDestroyedState(snapshotVo.getId());
+        }
         boolean isLastSnapshotRef = CollectionUtils.isEmpty(snapshotStoreRefs) || snapshotStoreRefs.size() == 1;
         try {
             SnapshotObject snapshotObject = castSnapshotInfoToSnapshotObject(snapshotInfo);
