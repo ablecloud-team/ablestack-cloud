@@ -5042,8 +5042,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
                 DiskTO disk = storageMgr.getDiskWithThrottling(volTO, volumeToAttach.getVolumeType(), deviceId, volumeToAttach.getPath(), vm.getServiceOfferingId(),
                         volumeToAttach.getDiskOfferingId());
-                DiskOfferingVO diskOff = _diskOfferingDao.findById(volumeToAttach.getDiskOfferingId());
-                disk.setCacheMode(diskOff.getCacheMode());
 
                 AttachCommand cmd = new AttachCommand(disk, vm.getInstanceName());
 
