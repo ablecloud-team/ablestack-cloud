@@ -17,7 +17,7 @@
 
   <template>
   <div class="create-backup-schedule-layout">
-    <div v-if="!isVMResource" class="vm-selection">
+    <div class="vm-selection">
       <a-form layout="vertical">
         <a-form-item :label="$t('label.virtualmachine')" required>
           <a-select
@@ -39,15 +39,15 @@
         </a-form-item>
       </a-form>
     </div>
-    <div v-if="currentVMResource && currentVMResource.id">
+    <div v-if="selectedVM && selectedVM.id">
       <BackupScheduleWizard
         ref="backupScheduleWizard"
-        :resource="currentVMResource"
+        :resource="selectedVM"
         @close-action="closeAction"
         @refresh="handleRefresh"
       />
     </div>
-    <div v-if="!currentVMResource || !currentVMResource.id" class="no-vm-selected">
+    <div v-else class="no-vm-selected">
       <div class="empty-state">
         <p>{{ $t('message.select.vm.to.continue') }}</p>
       </div>
@@ -64,53 +64,12 @@ export default {
   components: {
     BackupScheduleWizard
   },
-  props: {
-    resource: {
-      type: Object,
-      required: false,
-      default: () => null
-    }
-  },
-  inject: ['parentFetchData'],
   data () {
     return {
       vms: [],
       vmsLoading: false,
       selectedVMId: null,
       selectedVM: null
-    }
-  },
-  computed: {
-    resourceType () {
-      if (!this.resource) return 'none'
-
-      if (this.resource.vmstate !== undefined ||
-        this.resource.guestosid !== undefined ||
-        this.resource.hypervisor !== undefined ||
-        this.resource.backupofferingid !== undefined ||
-        this.resource.serviceofferingid !== undefined) {
-        return 'vm'
-      }
-      if (this.resource.intervaltype !== undefined &&
-          this.resource.schedule !== undefined) {
-        return 'backupschedule'
-      }
-
-      if (this.resource.virtualmachineid !== undefined) {
-        return 'backupschedule'
-      }
-
-      return 'unknown'
-    },
-    isVMResource () {
-      return this.resourceType === 'vm'
-    },
-    currentVMResource () {
-      if (this.isVMResource) {
-        return this.resource
-      } else {
-        return this.selectedVM
-      }
     }
   },
   created () {
