@@ -59,6 +59,7 @@ public class ListBackupScheduleCmd extends BaseListProjectAndAccountResourcesCmd
     @Parameter(name = ApiConstants.VIRTUAL_MACHINE_ID,
             type = CommandType.UUID,
             entityType = UserVmResponse.class,
+            required = true,
             description = "ID of the VM")
     private Long vmId;
 
