@@ -30,6 +30,7 @@ import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.ScopeType;
 import com.cloud.storage.Storage;
 import com.cloud.storage.Volume;
+import com.cloud.storage.Volume.Type;
 import com.cloud.storage.VolumeApiServiceImpl;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.DiskOfferingDao;
@@ -371,8 +372,14 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         final VolumeVO volume = volumeDao.findByUuid(backupVolumeInfo.getUuid());
         final DiskOffering diskOffering = diskOfferingDao.findByUuid(backupVolumeInfo.getDiskOfferingId());
         String cacheMode = null;
-        if (diskOffering.getCacheMode() != null) {
-            cacheMode = diskOffering.getCacheMode().toString();
+        final VMInstanceVO vm = vmInstanceDao.findVMByInstanceName(vmNameAndState.first());
+        List<VolumeVO> listVolumes = volumeDao.findByInstanceAndType(vm.getId(), Type.ROOT);
+        if(CollectionUtils.isNotEmpty(listVolumes)) {
+            VolumeVO rootDisk = volumes.get(0);
+            DiskOffering baseDiskOffering = diskOfferingDao.findByUuid(rootDisk.getDiskOfferingId());
+            if (baseDiskOffering.getCacheMode() != null) {
+                cacheMode = baseDiskOffering.getCacheMode().toString();
+            }
         }
         final StoragePoolVO pool = primaryDataStoreDao.findByUuid(dataStoreUuid);
         final HostVO hostVO = hostDao.findByIp(hostIp);
