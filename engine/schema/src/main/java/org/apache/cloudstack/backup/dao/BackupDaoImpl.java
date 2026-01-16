@@ -233,4 +233,12 @@ public class BackupDaoImpl extends GenericDaoBase<BackupVO, Long> implements Bac
         response.setObjectName("backup");
         return response;
     }
+
+    public static class SumCount {
+        public long sum;
+        public long count;
+
+        public SumCount() {
+        }
+    }
 }
