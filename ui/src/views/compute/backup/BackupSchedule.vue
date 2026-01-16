@@ -132,6 +132,11 @@ export default {
           dataIndex: 'interval'
         },
         {
+          key: 'keep',
+          title: this.$t('label.keep'),
+          dataIndex: 'maxbackups'
+        },
+        {
           key: 'timezone',
           title: this.$t('label.timezone'),
           dataIndex: 'timezone'
