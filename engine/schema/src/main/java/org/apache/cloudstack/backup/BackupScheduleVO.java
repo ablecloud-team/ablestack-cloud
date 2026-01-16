@@ -18,6 +18,7 @@
 package org.apache.cloudstack.backup;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,6 +42,9 @@ public class BackupScheduleVO implements BackupSchedule {
 
     @Column(name = "vm_id")
     private Long vmId;
+
+    @Column(name = "uuid", nullable = false)
+    private String uuid = UUID.randomUUID().toString();
 
     @Column(name = "schedule_type")
     private Short scheduleType;
@@ -82,6 +86,11 @@ public class BackupScheduleVO implements BackupSchedule {
     @Override
     public long getId() {
         return id;
+    }
+
+    @Override
+    public String getUuid() {
+        return uuid;
     }
 
     public Long getVmId() {
