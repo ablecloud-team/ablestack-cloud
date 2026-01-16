@@ -2445,4 +2445,12 @@ public abstract class GenericDaoBase<T, ID extends Serializable> extends Compone
         }
     }
 
+    public static class SumCount {
+        public long sum;
+        public long count;
+
+        public SumCount() {
+        }
+    }
+
 }
