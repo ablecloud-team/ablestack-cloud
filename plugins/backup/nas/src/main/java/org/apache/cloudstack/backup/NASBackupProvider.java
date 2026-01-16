@@ -40,6 +40,7 @@ import com.cloud.utils.Pair;
 import com.cloud.utils.component.AdapterBase;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.VirtualMachine;
+import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.dao.VMInstanceDao;
 import com.cloud.vm.snapshot.VMSnapshot;
 import com.cloud.vm.snapshot.VMSnapshotDetailsVO;
@@ -375,8 +376,8 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         final VMInstanceVO vm = vmInstanceDao.findVMByInstanceName(vmNameAndState.first());
         List<VolumeVO> listVolumes = volumeDao.findByInstanceAndType(vm.getId(), Type.ROOT);
         if(CollectionUtils.isNotEmpty(listVolumes)) {
-            VolumeVO rootDisk = volumes.get(0);
-            DiskOffering baseDiskOffering = diskOfferingDao.findByUuid(rootDisk.getDiskOfferingId());
+            VolumeVO rootDisk = listVolumes.get(0);
+            DiskOffering baseDiskOffering = diskOfferingDao.findById(rootDisk.getDiskOfferingId());
             if (baseDiskOffering.getCacheMode() != null) {
                 cacheMode = baseDiskOffering.getCacheMode().toString();
             }
