@@ -51,10 +51,16 @@ public class ApiConstants {
     public static final String AVAILABLE = "available";
     public static final String AVAILABLE_SUBNETS = "availablesubnets";
     public static final String AVAILABLE_VIRTUAL_MACHINE_COUNT = "availablevirtualmachinecount";
+    public static final String BACKUP_AVAILABLE = "backupavailable";
     public static final String BACKUP = "backup";
     public static final String BACKUP_ID = "backupid";
+    public static final String BACKUP_LIMIT = "backuplimit";
     public static final String BACKUP_OFFERING_NAME = "backupofferingname";
     public static final String BACKUP_OFFERING_ID = "backupofferingid";
+    public static final String BACKUP_STORAGE_AVAILABLE = "backupstorageavailable";
+    public static final String BACKUP_STORAGE_LIMIT = "backupstoragelimit";
+    public static final String BACKUP_STORAGE_TOTAL = "backupstoragetotal";
+    public static final String BACKUP_TOTAL = "backuptotal";
     public static final String BASE64_IMAGE = "base64image";
     public static final String BGP_PEERS = "bgppeers";
     public static final String BGP_PEER_IDS = "bgppeerids";
@@ -330,6 +336,7 @@ public class ApiConstants {
     public static final String MAC_ADDRESS = "macaddress";
     public static final String MAX = "max";
     public static final String MAX_SNAPS = "maxsnaps";
+    public static final String MAX_BACKUPS = "maxbackups";
     public static final String MAX_CPU_NUMBER = "maxcpunumber";
     public static final String MAX_MEMORY = "maxmemory";
     public static final String MIN_CPU_NUMBER = "mincpunumber";
@@ -444,6 +451,7 @@ public class ApiConstants {
     public static final String QUALIFIERS = "qualifiers";
     public static final String QUERY_FILTER = "queryfilter";
     public static final String SCHEDULE = "schedule";
+    public static final String SCHEDULE_ID = "scheduleid";
     public static final String SCOPE = "scope";
     public static final String SEARCH_BASE = "searchbase";
     public static final String SECONDARY_IP = "secondaryip";
@@ -1215,7 +1223,6 @@ public class ApiConstants {
     public static final String MTU = "mtu";
     public static final String AUTO_ENABLE_KVM_HOST = "autoenablekvmhost";
     public static final String LIST_APIS = "listApis";
-    public static final String OBJECT_STORAGE_ID = "objectstorageid";
     public static final String VERSIONING = "versioning";
     public static final String OBJECT_LOCKING = "objectlocking";
     public static final String ENCRYPTION = "encryption";
@@ -1229,7 +1236,6 @@ public class ApiConstants {
     public static final String DISK_PATH = "diskpath";
     public static final String IMPORT_SOURCE = "importsource";
     public static final String TEMP_PATH = "temppath";
-    public static final String OBJECT_STORAGE = "objectstore";
 
     public static final String FIRST_LOGIN = "firstlogin";
 
@@ -1278,8 +1284,19 @@ public class ApiConstants {
     public static final String LISTHOSTDEVICES = "listhostdevices";
     public static final String HOSTDEVICES_NAME = "hostdevicesname";
     public static final String HOSTDEVICES_TEXT = "hostdevicestext";
+
     public static final String HOSTDEVICES_TYPE = "hostdevicestype";
     public static final String DEVICE_TYPE = "devicetype";
+
+    // Object Storage related
+    public static final String BUCKET_AVAILABLE = "bucketavailable";
+    public static final String BUCKET_LIMIT = "bucketlimit";
+    public static final String BUCKET_TOTAL = "buckettotal";
+    public static final String OBJECT_STORAGE_ID = "objectstorageid";
+    public static final String OBJECT_STORAGE = "objectstore";
+    public static final String OBJECT_STORAGE_AVAILABLE = "objectstorageavailable";
+    public static final String OBJECT_STORAGE_LIMIT = "objectstoragelimit";
+    public static final String OBJECT_STORAGE_TOTAL = "objectstoragetotal";
 
     public static final String PARAMETER_DESCRIPTION_ACTIVATION_RULE = "Quota tariff's activation rule. It can receive a JS script that results in either " +
             "a boolean or a numeric value: if it results in a boolean value, the tariff value will be applied according to the result; if it results in a numeric value, the " +
