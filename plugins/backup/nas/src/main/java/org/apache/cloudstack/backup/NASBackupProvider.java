@@ -370,6 +370,10 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
     public Pair<Boolean, String> restoreBackedUpVolume(Backup backup, Backup.VolumeInfo backupVolumeInfo, String hostIp, String dataStoreUuid, Pair<String, VirtualMachine.State> vmNameAndState) {
         final VolumeVO volume = volumeDao.findByUuid(backupVolumeInfo.getUuid());
         final DiskOffering diskOffering = diskOfferingDao.findByUuid(backupVolumeInfo.getDiskOfferingId());
+        String cacheMode = null;
+        if (diskOffering.getCacheMode() != null) {
+            cacheMode = diskOffering.getCacheMode();
+        }
         final StoragePoolVO pool = primaryDataStoreDao.findByUuid(dataStoreUuid);
         final HostVO hostVO = hostDao.findByIp(hostIp);
 
@@ -413,6 +417,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         restoreCommand.setVmState(vmNameAndState.second());
         restoreCommand.setRestoreVolumeUUID(backupVolumeInfo.getUuid());
         restoreCommand.setMountTimeout(NASBackupRestoreMountTimeout.value());
+        restoreCommand.setCacheMode(cacheMode);
 
         BackupAnswer answer;
         try {

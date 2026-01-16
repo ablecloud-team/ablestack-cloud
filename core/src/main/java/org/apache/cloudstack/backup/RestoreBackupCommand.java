@@ -39,6 +39,7 @@ public class RestoreBackupCommand extends Command  {
     private String restoreVolumeUUID;
     private VirtualMachine.State vmState;
     private Integer mountTimeout;
+    private String cacheMode;
 
     protected RestoreBackupCommand() {
         super();
@@ -154,5 +155,13 @@ public class RestoreBackupCommand extends Command  {
 
     public void setMountTimeout(Integer mountTimeout) {
         this.mountTimeout = mountTimeout;
+    }
+
+    public String getCacheMode() {
+        return cacheMode;
+    }
+
+    public void setCacheMode(String cacheMode) {
+        this.cacheMode = cacheMode;
     }
 }
