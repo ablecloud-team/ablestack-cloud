@@ -313,10 +313,10 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
         diskBuilder.append(">\n");
 
         diskBuilder.append("<driver name='qemu' type='raw'");
-        if (StringUtils.isNotBlank(cacheMode)) {
-            diskBuilder.append(" cache='").append(cacheMode).append("'");
+        if (StringUtils.isBlank(cacheMode)) {
+            cacheMode = "none";
         }
-        diskBuilder.append("/>\n");
+        diskBuilder.append(" cache='").append(cacheMode).append("'/> \n");
 
         diskBuilder.append("<source ");
         diskBuilder.append(" protocol='rbd'");
