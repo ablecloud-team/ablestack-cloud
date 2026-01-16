@@ -1559,4 +1559,16 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         return true;
     }
+
+    @Override
+    public List<Backup.RestorePoint> listRestorePoints(VirtualMachine vm) {
+        return null;
+    }
+
+
+    @Override
+    public Backup createNewBackupEntryForRestorePoint(Backup.RestorePoint restorePoint, VirtualMachine vm, Backup.Metric metric) {
+        return null;
+    }
+
 }
