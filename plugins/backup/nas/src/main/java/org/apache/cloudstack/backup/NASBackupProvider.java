@@ -372,7 +372,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         final DiskOffering diskOffering = diskOfferingDao.findByUuid(backupVolumeInfo.getDiskOfferingId());
         String cacheMode = null;
         if (diskOffering.getCacheMode() != null) {
-            cacheMode = diskOffering.getCacheMode();
+            cacheMode = diskOffering.getCacheMode().toString();
         }
         final StoragePoolVO pool = primaryDataStoreDao.findByUuid(dataStoreUuid);
         final HostVO hostVO = hostDao.findByIp(hostIp);
