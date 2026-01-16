@@ -35,7 +35,6 @@ import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
 
-import org.apache.cloudstack.backup.Backup.Metric;
 import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDaoImpl;
 import org.apache.cloudstack.backup.networker.NetworkerClient;
@@ -628,6 +627,6 @@ public class NetworkerBackupProvider extends AdapterBase implements BackupProvid
     public boolean updateBackupPlan(final Long zoneId, final String retentionPeriod, final String externalId) { return true; }
 
     @Override
-    public void syncBackups(VirtualMachine vm, Metric metric) {
+    public void syncBackups(VirtualMachine vm, Backup.Metric metric) {
     }
 }

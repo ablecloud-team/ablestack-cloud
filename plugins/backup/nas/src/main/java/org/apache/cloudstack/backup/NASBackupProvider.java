@@ -462,6 +462,10 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
     }
 
     @Override
+    public void syncBackups(VirtualMachine vm, Backup.Metric metric) {
+    }
+
+    @Override
     public boolean checkBackupAgent(final Long zoneId) { return true; }
 
     @Override
