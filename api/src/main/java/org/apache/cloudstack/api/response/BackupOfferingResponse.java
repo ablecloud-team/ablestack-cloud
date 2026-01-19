@@ -61,6 +61,16 @@ public class BackupOfferingResponse extends BaseResponse {
     @Param(description = "Zone name")
     private String zoneName;
 
+    @SerializedName(ApiConstants.DOMAIN_ID)
+    @Param(description = "the domain ID(s) this backup offering belongs to.",
+    since = "4.23.0")
+    private String domainId;
+
+    @SerializedName(ApiConstants.DOMAIN)
+    @Param(description = "the domain name(s) this backup offering belongs to.",
+    since = "4.23.0")
+    private String domain;
+
     @SerializedName(ApiConstants.CROSS_ZONE_INSTANCE_CREATION)
     @Param(description = "the backups with this offering can be used to create Instances on all Zones", since = "4.22.0")
     private Boolean crossZoneInstanceCreation;
@@ -116,4 +126,13 @@ public class BackupOfferingResponse extends BaseResponse {
     public void setRetentionPeriod(String retentionPeriod) {
         this.retentionPeriod = retentionPeriod;
     }
+    
+    public void setDomainId(String domainId) {
+        this.domainId = domainId;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
 }
