@@ -197,6 +197,6 @@ public interface VolumeApiService {
     Volume cloneVolumeFromSnapshot(Volume volume, long snapshotId, Long vmId) throws StorageUnavailableException;
 
     Volume updateCompressDedupVolume(UpdateCompressDedupCmd cmd);
-
+    
     Long getVolumePhysicalSize(Storage.ImageFormat format, String path, String chainInfo);
 }
