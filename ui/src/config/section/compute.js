@@ -47,7 +47,7 @@ export default {
         return filters
       },
       columns: () => {
-        const fields = ['name', 'state', 'qemuagentversion', 'ipaddress']
+        const fields = ['name', 'displayname', 'state', 'qemuagentversion', 'ipaddress']
         const metricsFields = ['cpunumber', 'cputotal', 'cpuused', 'memorytotal',
           {
             memoryused: (record) => {

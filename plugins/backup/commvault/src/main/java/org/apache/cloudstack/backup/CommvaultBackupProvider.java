@@ -763,7 +763,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     @Override
-    public boolean takeBackup(VirtualMachine vm) {
+    public Pair<Boolean, Backup> takeBackup(VirtualMachine vm) {
         String hostName = null;
         try {
             String commvaultServer = getUrlDomain(CommvaultUrl.value());
@@ -821,7 +821,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     }
                 }
                 LOG.error("Failed to request createSnapshot Mold-API.");
-                return false;
+                return new Pair<>(false, null);
             } else {
                 JSONObject jsonObject = new JSONObject(createSnapResult);
                 String jobId = jsonObject.get("jobid").toString();
@@ -843,7 +843,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         }
                     }
                     LOG.error("createSnapshot Mold-API async job resulted in failure.");
-                    return false;
+                    return new Pair<>(false, null);
                 }
                 checkResult.put(vol.getId(), snapId);
                 SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findLatestSnapshotForVolume(vol.getId(), DataStoreRole.Primary);
@@ -1001,7 +1001,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
                             executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                         }
-                        return true;
+                        return new Pair<>(true, backup);
                     } else {
                         // 백업 실패
                         if (!checkResult.isEmpty()) {
@@ -1018,7 +1018,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                             executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                         }
                         LOG.error("createBackup commvault api resulted in " + jobStatus);
-                        return false;
+                        return new Pair<>(false, null);
                     }
                 } else {
                     // 백업 실패
@@ -1036,7 +1036,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                     }
                     LOG.error("createBackup commvault api resulted in " + jobStatus);
-                    return false;
+                    return new Pair<>(false, null);
                 }
             } else {
                 // 백업 실패
@@ -1054,7 +1054,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
                 }
                 LOG.error("failed request createBackup commvault api");
-                return false;
+                return new Pair<>(false, null);
             }
         } else {
             // 백업 경로 업데이트 실패
@@ -1072,7 +1072,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
             }
             LOG.error("updateBackupSet commvault api resulted in failure.");
-            return false;
+            return new Pair<>(false, null);
         }
     }
 
@@ -1559,4 +1559,16 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         return true;
     }
+
+    @Override
+    public List<Backup.RestorePoint> listRestorePoints(VirtualMachine vm) {
+        return null;
+    }
+
+
+    @Override
+    public Backup createNewBackupEntryForRestorePoint(Backup.RestorePoint restorePoint, VirtualMachine vm, Backup.Metric metric) {
+        return null;
+    }
+
 }
