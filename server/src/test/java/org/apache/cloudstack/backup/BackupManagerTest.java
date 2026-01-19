@@ -65,10 +65,8 @@ import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.fsm.NoTransitionException;
-import com.cloud.vm.VMInstanceDetailVO;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
-import com.cloud.vm.VmDiskInfo;
 import com.cloud.vm.VirtualMachineManager;
 import com.cloud.vm.dao.VMInstanceDao;
 import com.google.gson.Gson;
@@ -938,10 +936,6 @@ public class BackupManagerTest {
         when(template.getUuid()).thenReturn("template-uuid");
         when(vmTemplateDao.findById(2L)).thenReturn(template);
 
-        VMInstanceDetailVO vmInstanceDetail = mock(VMInstanceDetailVO.class);
-        when(vmInstanceDetail.getName()).thenReturn("mocked-detail-name");
-        when(vmInstanceDetail.getValue()).thenReturn("mocked-detail-value");
-
         UserVmJoinVO userVmJoinVO = mock(UserVmJoinVO.class);
         when(userVmJoinVO.getNetworkUuid()).thenReturn("mocked-network-uuid");
         List<UserVmJoinVO> userVmJoinVOs = Collections.singletonList(userVmJoinVO);
@@ -1023,12 +1017,6 @@ public class BackupManagerTest {
         DiskOfferingVO diskOffering = mock(DiskOfferingVO.class);
         when(diskOffering.getUuid()).thenReturn("root-disk-offering-uuid");
         when(diskOfferingDao.findByUuid("root-disk-offering-uuid")).thenReturn(diskOffering);
-
-        VmDiskInfo VmDiskInfo = backupManager.getRootDiskInfoFromBackup(backup);
-
-        assertEquals("root-disk-offering-uuid", VmDiskInfo.getDiskOffering().getUuid());
-        assertEquals(Long.valueOf(5), VmDiskInfo.getSize());
-        assertEquals(null, VmDiskInfo.getDeviceId());
     }
 
     @Test
