@@ -353,8 +353,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     private BackupDao backupDao;
     @Inject
     private StatsCollector statsCollector;
-    @Inject
-    HostPodDao podDao;
 
     protected Gson _gson;
 
