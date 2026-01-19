@@ -7213,6 +7213,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         final String host = _configDao.getValue("host");
         final boolean balancingServiceEnabled = Boolean.parseBoolean(_configDao.getValue("cloud.balancing.service.enabled"));
         final boolean eventDeleteEnabled = Boolean.parseBoolean(_configDao.getValue("event.delete.enabled"));
+        final boolean wallAlertsEnabled = Boolean.parseBoolean(_configDao.getValue("wall.alerts.enable"));
 
         // check if region-wide secondary storage is used
         boolean regionSecondaryEnabled = false;
@@ -7250,6 +7251,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         capabilities.put("host", host);
         capabilities.put("balancingServiceEnabled", balancingServiceEnabled);
         capabilities.put("eventDeleteEnabled", eventDeleteEnabled);
+        capabilities.put("wallAlertsEnabled", wallAlertsEnabled);
         capabilities.put(ApiServiceConfiguration.DefaultUIPageSize.key(), ApiServiceConfiguration.DefaultUIPageSize.value());
 
         capabilities.put(ApiConstants.INSTANCES_STATS_RETENTION_TIME, StatsCollector.vmStatsMaxRetentionTime.value());

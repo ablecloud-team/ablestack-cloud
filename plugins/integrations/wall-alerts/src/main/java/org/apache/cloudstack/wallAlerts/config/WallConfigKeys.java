@@ -7,7 +7,7 @@ public final class WallConfigKeys {
 
     public static final ConfigKey<Boolean> WALL_ALERT_ENABLED =
             new ConfigKey<>("Advanced", Boolean.class, "wall.alerts.enable", "true",
-                    "Enable Wall alerts integration.", true);
+                    "Enable Wall alerts integration.", false);
 
     public static final ConfigKey<String> WALL_BASE_URL =
             new ConfigKey<>("Advanced", String.class, "wall.base.url", "http://localhost:3000",
