@@ -114,12 +114,4 @@ public class BucketDaoImpl extends GenericDaoBase<BucketVO, Long> implements Buc
         Long totalQuota = customSearch(sc, null).get(0).sum;
         return (totalQuota * Resource.ResourceType.bytesToGiB);
     }
-
-    public static class SumCount {
-        public long sum;
-        public long count;
-
-        public SumCount() {
-        }
-    }
 }
