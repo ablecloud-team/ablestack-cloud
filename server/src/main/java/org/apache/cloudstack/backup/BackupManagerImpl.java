@@ -1650,6 +1650,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             Transaction.execute(new TransactionCallbackNoReturn() {
                 @Override
                 public void doInTransactionWithoutResult(TransactionStatus status) {
+                    backupProvider.syncBackups(vm, metric);
                     final List<Backup> backupsInDb = backupDao.listByVmId(null, vm.getId());
                     List<Backup.RestorePoint> restorePoints = backupProvider.listRestorePoints(vm);
                     if (restorePoints == null) {
