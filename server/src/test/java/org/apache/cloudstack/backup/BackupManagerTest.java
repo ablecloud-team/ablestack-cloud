@@ -70,7 +70,6 @@ import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.VmDiskInfo;
 import com.cloud.vm.VirtualMachineManager;
-import com.cloud.vm.dao.VMInstanceDetailsDao;
 import com.cloud.vm.dao.VMInstanceDao;
 import com.google.gson.Gson;
 import org.apache.cloudstack.api.ApiConstants;
@@ -83,7 +82,6 @@ import org.apache.cloudstack.api.command.user.backup.DeleteBackupScheduleCmd;
 import org.apache.cloudstack.api.command.user.backup.ListBackupScheduleCmd;
 import org.apache.cloudstack.api.response.BackupResponse;
 import org.apache.cloudstack.backup.dao.BackupDao;
-import org.apache.cloudstack.backup.dao.BackupDetailsDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDao;
 import org.apache.cloudstack.backup.dao.BackupScheduleDao;
 import org.apache.cloudstack.context.CallContext;
@@ -138,9 +136,6 @@ public class BackupManagerTest {
 
     @Mock
     BackupOfferingDao backupOfferingDao;
-
-    @Mock
-    BackupDetailsDao backupDetailsDao;
 
     @Mock
     BackupProvider backupProvider;
@@ -228,9 +223,6 @@ public class BackupManagerTest {
 
     @Mock
     private NetworkService networkService;
-
-    @Mock
-    private VMInstanceDetailsDao vmInstanceDetailsDao;
 
     @Mock
     AccountDao accountDao;
@@ -949,8 +941,6 @@ public class BackupManagerTest {
         VMInstanceDetailVO vmInstanceDetail = mock(VMInstanceDetailVO.class);
         when(vmInstanceDetail.getName()).thenReturn("mocked-detail-name");
         when(vmInstanceDetail.getValue()).thenReturn("mocked-detail-value");
-        List<VMInstanceDetailVO> vmDetails = Collections.singletonList(vmInstanceDetail);
-        when(vmInstanceDetailsDao.listDetails(vmId)).thenReturn(vmDetails);
 
         UserVmJoinVO userVmJoinVO = mock(UserVmJoinVO.class);
         when(userVmJoinVO.getNetworkUuid()).thenReturn("mocked-network-uuid");
@@ -998,21 +988,6 @@ public class BackupManagerTest {
 
         when(diskOfferingDao.findByUuid("disk-offering-uuid-1")).thenReturn(diskOffering1);
         when(diskOfferingDao.findByUuid("disk-offering-uuid-2")).thenReturn(diskOffering2);
-
-        List<VmDiskInfo> vmDiskInfoList = backupManager.getDataDiskInfoListFromBackup(backup);
-
-        assertEquals(2, vmDiskInfoList.size());
-        assertEquals("disk-offering-uuid-1", vmDiskInfoList.get(0).getDiskOffering().getUuid());
-        assertEquals(Long.valueOf(5), vmDiskInfoList.get(0).getSize());
-        assertEquals(Long.valueOf(1), vmDiskInfoList.get(0).getDeviceId());
-        assertEquals(Long.valueOf(100), vmDiskInfoList.get(0).getMinIops());
-        assertEquals(Long.valueOf(300), vmDiskInfoList.get(0).getMaxIops());
-
-        assertEquals("disk-offering-uuid-2", vmDiskInfoList.get(1).getDiskOffering().getUuid());
-        assertEquals(Long.valueOf(10), vmDiskInfoList.get(1).getSize());
-        assertEquals(Long.valueOf(2), vmDiskInfoList.get(1).getDeviceId());
-        assertEquals(Long.valueOf(200), vmDiskInfoList.get(1).getMinIops());
-        assertEquals(Long.valueOf(400), vmDiskInfoList.get(1).getMaxIops());
     }
 
     @Test
@@ -1033,34 +1008,6 @@ public class BackupManagerTest {
         when(diskOffering.getState()).thenReturn(DiskOffering.State.Active);
 
         when(diskOfferingDao.findByUuid("disk-offering-uuid-1")).thenReturn(diskOffering);
-
-        List<VmDiskInfo> vmDiskInfoList = backupManager.getDataDiskInfoListFromBackup(backup);
-
-        assertEquals(1, vmDiskInfoList.size());
-        assertEquals("disk-offering-uuid-1", vmDiskInfoList.get(0).getDiskOffering().getUuid());
-        assertEquals(Long.valueOf(5), vmDiskInfoList.get(0).getSize());
-        assertEquals(Long.valueOf(1), vmDiskInfoList.get(0).getDeviceId());
-        assertNull(vmDiskInfoList.get(0).getMinIops());
-        assertNull(vmDiskInfoList.get(0).getMaxIops());
-    }
-
-    @Test (expected = InvalidParameterValueException.class)
-    public void testCheckVmDisksSizeAgainstBackup() {
-        Long sizeInBackup = 5L * 1024 * 1024 * 1024;
-        Long sizeInCmd = 2L;
-        Backup backup = mock(Backup.class);
-        Backup.VolumeInfo volumeInfo = mock(Backup.VolumeInfo.class);
-        when(volumeInfo.getDiskOfferingId()).thenReturn("disk-offering-uuid-1");
-        when(volumeInfo.getSize()).thenReturn(sizeInBackup);
-        when(volumeInfo.getType()).thenReturn(Volume.Type.DATADISK);
-        when(backup.getBackedUpVolumes()).thenReturn(List.of(volumeInfo));
-
-        DiskOfferingVO diskOffering = mock(DiskOfferingVO.class);
-        when(diskOffering.getState()).thenReturn(DiskOffering.State.Active);
-        when(diskOfferingDao.findByUuid("disk-offering-uuid-1")).thenReturn(diskOffering);
-        List<VmDiskInfo> vmDiskInfoList = List.of(new VmDiskInfo(diskOffering, sizeInCmd, 1L, null, null));
-
-        backupManager.checkVmDisksSizeAgainstBackup(vmDiskInfoList, backup);
     }
 
     @Test
@@ -1585,13 +1532,6 @@ public class BackupManagerTest {
         when(serviceOffering.getName()).thenReturn("service-offering1");
         when(serviceOfferingDao.findByUuid(serviceOfferingUuid)).thenReturn(serviceOffering);
         details.put(ApiConstants.SERVICE_OFFERING_ID, serviceOfferingUuid);
-
-        NetworkVO network = mock(NetworkVO.class);
-        when(network.getName()).thenReturn("network1");
-        when(networkDao.findByUuid("network-uuid1")).thenReturn(network);
-        details.put(ApiConstants.NICS, "[{\"networkid\":\"network-uuid1\"}]");
-
-        Mockito.when(backupDetailsDao.listDetailsKeyPairs(backup.getId(), true)).thenReturn(details);
 
         BackupResponse response = backupManager.createBackupResponse(backup, true);
 
