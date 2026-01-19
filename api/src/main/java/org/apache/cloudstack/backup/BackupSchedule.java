@@ -31,5 +31,4 @@ public interface BackupSchedule extends InternalIdentity {
     Date getScheduledTimestamp();
     Long getAsyncJobId();
     int getMaxBackups();
-    String getUuid();
 }
