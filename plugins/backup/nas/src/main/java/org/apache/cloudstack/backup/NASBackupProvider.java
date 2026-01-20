@@ -273,7 +273,15 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         final VolumeVO volume = volumeDao.findByUuid(volumeUuid);
         final VirtualMachine backupSourceVm = vmInstanceDao.findById(backup.getVmId());
         final StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
-        final HostVO hostVO = hostDao.findByIp(hostIp);
+        LOG.info("NASBackupProvider.java restoreBackedUpVolume:::::");
+        LOG.info("hostIP: " +hostIp);
+        HostVO hostVO = hostDao.findByIp(hostIp);
+        LOG.info("hostVO: " +hostVO);
+        if(hostVO == null) {
+            LOG.info("hostVO == null");
+            hostVO = hostDao.findByName(hostIp);
+            LOG.info("hostVO: " +hostVO);
+        }
 
         Optional<Backup.VolumeInfo> matchingVolume = getBackedUpVolumeInfo(backupSourceVm.getBackupVolumeList(), volumeUuid);
         Long backedUpVolumeSize = matchingVolume.isPresent() ? matchingVolume.get().getSize() : 0L;
