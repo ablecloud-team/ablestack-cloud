@@ -1809,21 +1809,17 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
 
     protected String getStoragePoolNonDestroyedVolumesLog(long storagePoolId) {
         StringBuilder sb = new StringBuilder();
-        List<VolumeVO> nonDestroyedVols = volumeDao.findNonDestroyedVolumesByPoolId(storagePoolId, null);
+        List<VolumeVO> nonDestroyedVols = volumeDao.findByPoolId(storagePoolId, null);
         VMInstanceVO volInstance;
         List<String> logMessageInfo = new ArrayList<>();
 
         sb.append("[");
         for (VolumeVO vol : nonDestroyedVols) {
-            if (vol.getInstanceId() != null) {
-                volInstance = _vmInstanceDao.findById(vol.getInstanceId());
-                if (volInstance != null) {
-                    logMessageInfo.add(String.format("Volume [%s] (attached to VM [%s])", vol.getUuid(), volInstance.getUuid()));
-                } else {
-                    logMessageInfo.add(String.format("Volume [%s] (attached VM with ID [%d] doesn't exists)", vol.getUuid(), vol.getInstanceId()));
-                }
+            volInstance = _vmInstanceDao.findById(vol.getInstanceId());
+            if (volInstance != null) {
+                logMessageInfo.add(String.format("Volume [%s] (attached to VM [%s])", vol.getUuid(), volInstance.getUuid()));
             } else {
-                logMessageInfo.add(String.format("Volume [%s] (not attached to any VM)", vol.getUuid()));
+                logMessageInfo.add(String.format("Volume [%s]", vol.getUuid()));
             }
         }
         sb.append(String.join(", ", logMessageInfo));
