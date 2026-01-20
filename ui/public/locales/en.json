@@ -4830,6 +4830,7 @@
 "backup.schedule.delete": "BACKUP.SCHEDULE.DELETE",
 "backup.usage.metric": "BACKUP.USAGE.METRIC",
 "backup.offering.edit": "BACKUP.OFFERING.EDIT",
+"backup.repository.add": "BACKUP.REPOSITORY.ADD",
 "physical.nvpcontroller.add": "PHYSICAL.NVPCONTROLLER.ADD",
 "physical.nvpcontroller.delete": "PHYSICAL.NVPCONTROLLER.DELETE",
 "physical.nvpcontroller.configure": "PHYSICAL.NVPCONTROLLER.CONFIGURE",
