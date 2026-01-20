@@ -326,6 +326,7 @@ export default {
             description: this.$t('message.success.config.backup.schedule')
           })
           this.refreshSchedule()
+          this.closeSchedule()
           this.resetForm()
         }).catch(error => {
           this.$notifyError(error)

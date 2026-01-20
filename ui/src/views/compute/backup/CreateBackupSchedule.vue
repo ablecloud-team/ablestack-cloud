@@ -104,7 +104,6 @@ export default {
     },
     handleRefresh () {
       this.$emit('refresh')
-      this.parentFetchData()
     },
     filterOption (input, option) {
       return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
