@@ -29,4 +29,4 @@ CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.console_session', 'console_endpoint_
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.console_session', 'client_address', 'VARCHAR(45)');
 
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.backup_schedule', 'uuid', 'VARCHAR(40) NOT NULL');
-UPDATE `cloud`.`backup_schedule` SET uuid = UUID();
+UPDATE `cloud`.`backup_schedule` SET uuid = UUID() WHERE uuid IS NULL;
