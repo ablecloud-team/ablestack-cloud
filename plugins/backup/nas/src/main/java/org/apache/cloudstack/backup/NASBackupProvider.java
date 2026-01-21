@@ -27,10 +27,8 @@ import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor;
 import com.cloud.storage.ScopeType;
 import com.cloud.storage.Storage;
-import com.cloud.storage.StoragePoolHostVO;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
-import com.cloud.storage.dao.StoragePoolHostDao;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.utils.Pair;
 import com.cloud.utils.component.AdapterBase;
@@ -83,9 +81,6 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
 
     @Inject
     private VolumeDao volumeDao;
-
-    @Inject
-    private StoragePoolHostDao storagePoolHostDao;
 
     @Inject
     private VMInstanceDao vmInstanceDao;
@@ -268,12 +263,28 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         return volumePaths;
     }
 
+    private String getVolumePathPrefix(StoragePoolVO storagePool) {
+        String volumePathPrefix;
+        if (ScopeType.HOST.equals(storagePool.getScope()) ||
+                Storage.StoragePoolType.SharedMountPoint.equals(storagePool.getPoolType()) ||
+                Storage.StoragePoolType.RBD.equals(storagePool.getPoolType())) {
+            volumePathPrefix = storagePool.getPath();
+        } else {
+            // Should be Storage.StoragePoolType.NetworkFilesystem
+            volumePathPrefix = String.format("/mnt/%s", storagePool.getUuid());
+        }
+        return volumePathPrefix;
+    }
+
     @Override
     public Pair<Boolean, String> restoreBackedUpVolume(Backup backup, String volumeUuid, String hostIp, String dataStoreUuid, Pair<String, VirtualMachine.State> vmNameAndState) {
         final VolumeVO volume = volumeDao.findByUuid(volumeUuid);
         final VirtualMachine backupSourceVm = vmInstanceDao.findById(backup.getVmId());
-        final StoragePoolHostVO dataStore = storagePoolHostDao.findByUuid(dataStoreUuid);
-        final HostVO hostVO = hostDao.findByIp(hostIp);
+        final StoragePoolVO pool = primaryDataStoreDao.findByUuid(dataStoreUuid);
+        HostVO hostVO = hostDao.findByIp(hostIp);
+        if(hostVO == null) {
+            hostVO = hostDao.findByName(hostIp);
+        }
 
         Optional<Backup.VolumeInfo> matchingVolume = getBackedUpVolumeInfo(backupSourceVm.getBackupVolumeList(), volumeUuid);
         Long backedUpVolumeSize = matchingVolume.isPresent() ? matchingVolume.get().getSize() : 0L;
@@ -291,7 +302,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         restoredVolume.setUuid(volumeUUID);
         restoredVolume.setRemoved(null);
         restoredVolume.setDisplayVolume(true);
-        restoredVolume.setPoolId(dataStore.getPoolId());
+        restoredVolume.setPoolId(pool.getId());
         restoredVolume.setPath(restoredVolume.getUuid());
         restoredVolume.setState(Volume.State.Copying);
         restoredVolume.setFormat(Storage.ImageFormat.QCOW2);
@@ -303,7 +314,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         restoreCommand.setBackupRepoType(backupRepository.getType());
         restoreCommand.setBackupRepoAddress(backupRepository.getAddress());
         restoreCommand.setVmName(vmNameAndState.first());
-        restoreCommand.setVolumePaths(Collections.singletonList(String.format("%s/%s", dataStore.getLocalPath(), volumeUUID)));
+        restoreCommand.setVolumePaths(Collections.singletonList(String.format("%s/%s", getVolumePathPrefix(pool), volumeUUID)));
         restoreCommand.setDiskType(volume.getVolumeType().name().toLowerCase(Locale.ROOT));
         restoreCommand.setVmExists(null);
         restoreCommand.setVmState(vmNameAndState.second());
