@@ -22,4 +22,15 @@ import org.apache.cloudstack.jobs.JobInfo;
 
 @EntityReference(value = JobInfo.class)
 public class UpgradeRouterTemplateResponse extends BaseResponse {
+    @SerializedName(ApiConstants.JOB_ID)
+    @Param(description = "The ID of AsyncJob")
+    private String asyncJobId;
+
+    public String getAsyncJobId() {
+        return asyncJobId;
+    }
+
+    public void setAsyncJobId(String asyncJobId) {
+        this.asyncJobId = asyncJobId;
+    }
 }

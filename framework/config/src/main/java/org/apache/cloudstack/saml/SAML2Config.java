@@ -22,7 +22,7 @@ import org.apache.cloudstack.framework.config.ConfigKey;
 public class SAML2Config {
     public static final ConfigKey<String> SAMLIdentityProviderPortalUrl =
         new ConfigKey<>("Advanced", String.class, "saml2.idp.portal.url",
-            "http://localhost:7070", "SAML2 IDP Portal URL", true);
+            "http://localhost:19000", "SAML2 IDP Portal URL", true);
 
     public static final ConfigKey<String> SAMLIdentityProviderPassword =
         new ConfigKey<>("Secure", String.class, "saml2.idp.admin.password",
