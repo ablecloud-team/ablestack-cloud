@@ -366,32 +366,52 @@ export default {
       }
       this.$emit('exec-action', action)
     },
-    openConsole (copyUrlToClipboard) {
+    async openConsole (copyUrlToClipboard) {
+      console.log('copyUrlToClipboard :>> ', copyUrlToClipboard)
       if (!this.resource || !this.resource.id) {
         return
       }
-      const params = { virtualmachineid: this.resource.id }
-      postAPI('createConsoleEndpoint', params).then(json => {
-        const response = json?.createconsoleendpointresponse?.consoleendpoint
-        const url = response?.url || '#/exception/404'
-        if (response?.success) {
-          if (copyUrlToClipboard) {
-            this.$copyText(url)
-            this.$message.success({
-              content: this.$t('label.copied.clipboard')
-            })
-          } else {
-            window.open(url, '_blank')
-          }
-        } else {
-          this.$notification.error({
-            message: this.$t('error.execute.api.failed') + ' ' + 'createConsoleEndpoint',
-            description: response?.details
+
+      const externalUrl = this.resource?.details?.['External:console_url']
+      if (externalUrl) {
+        this.url = externalUrl
+        if (copyUrlToClipboard) {
+          this.$copyText(this.url)
+          this.$message.success({
+            content: this.$t('label.copied.clipboard')
           })
+        } else {
+          window.open(this.url, '_blank')
         }
-      }).catch(error => {
-        this.$notifyError(error)
-      })
+        return
+      }
+
+      const params = { virtualmachineid: this.resource.id }
+      const json = await postAPI('createConsoleEndpoint', params)
+
+      this.url = (json && json.createconsoleendpointresponse)
+        ? json.createconsoleendpointresponse.consoleendpoint.url
+        : '#/exception/404'
+      console.log('url 2222:>> ', this.url)
+      console.log('url 2222:>> ', json.createconsoleendpointresponse.consoleendpoint.result)
+
+      if (json.createconsoleendpointresponse.consoleendpoint.result) {
+        if (copyUrlToClipboard) {
+          this.$copyText(this.url)
+          this.$message.success({
+            content: this.$t('label.copied.clipboard')
+          })
+        } else {
+          window.open(this.url, '_blank')
+        }
+      } else {
+        console.log('url 9999:>> ')
+        this.$notification.error({
+          message: this.$t('error.execute.api.failed') + ' ' + 'createConsoleEndpoint',
+          description: json.createconsoleendpointresponse.consoleendpoint.details
+        })
+      }
+      console.log('copyUrlToClipboard 2222:>> ', copyUrlToClipboard)
     },
     updateWallLinkUrl () {
       if (!this.shouldShowWallLink) {
