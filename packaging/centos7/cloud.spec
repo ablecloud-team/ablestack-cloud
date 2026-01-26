@@ -83,7 +83,7 @@ Requires: sudo
 Requires: /sbin/service
 Requires: /sbin/chkconfig
 Requires: /usr/bin/ssh-keygen
-Requires: genisoimage
+Requires: (genisoimage or mkisofs or xorrisofs)
 Requires: ipmitool
 Requires: %{name}-common = %{_ver}
 Requires: iptables-services
