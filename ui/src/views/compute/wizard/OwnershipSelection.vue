@@ -195,7 +195,7 @@ export default {
     fetchAccounts () {
       this.loading = true
       const currentToken = this.incrementAndGetRequestToken()
-      api('listAccounts', {
+      getAPI('listAccounts', {
         response: 'json',
         domainId: this.selectedDomain,
         showicon: true,
@@ -230,7 +230,7 @@ export default {
     fetchProjects () {
       this.loading = true
       const currentToken = this.incrementAndGetRequestToken()
-      api('listProjects', {
+      getAPI('listProjects', {
         response: 'json',
         domainId: this.selectedDomain,
         state: 'Active',
