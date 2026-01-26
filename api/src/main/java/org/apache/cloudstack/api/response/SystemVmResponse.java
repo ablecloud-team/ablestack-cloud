@@ -38,14 +38,6 @@ public class SystemVmResponse extends BaseResponseWithAnnotations {
     @Param(description = "The System VM type")
     private String systemVmType;
 
-    @SerializedName("jobid")
-    @Param(description = "The job ID associated with the System VM. This is only displayed if the router listed is part of a currently running asynchronous job.")
-    private String jobId;
-
-    @SerializedName("jobstatus")
-    @Param(description = "The job status associated with the System VM.  This is only displayed if the router listed is part of a currently running asynchronous job.")
-    private Integer jobStatus;
-
     @SerializedName("zoneid")
     @Param(description = "The Zone ID for the System VM")
     private String zoneId;

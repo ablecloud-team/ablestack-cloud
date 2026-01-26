@@ -1,3 +1,4 @@
+
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -97,11 +98,6 @@ public class ListBackupScheduleCmd extends BaseListProjectAndAccountResourcesCmd
                 for (BackupSchedule schedule : schedules) {
                     scheduleResponses.add(_responseGenerator.createBackupScheduleResponse(schedule));
                 }
-                response.setResponses(scheduleResponses, schedules.size());
-                response.setResponseName(getCommandName());
-                setResponseObject(response);
-            } else {
-                throw new CloudRuntimeException("No backup schedule exists for the Instance");
             }
             response.setResponses(scheduleResponses, schedules.size());
             response.setResponseName(getCommandName());

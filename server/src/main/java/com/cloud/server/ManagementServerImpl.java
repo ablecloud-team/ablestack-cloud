@@ -1639,7 +1639,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     }
 
     protected Pair<Boolean, List<HostVO>> filterUefiHostsForMigration(List<HostVO> allHosts, List<HostVO> filteredHosts, VirtualMachine vm) {
-        UserVmDetailVO userVmDetailVO = _UserVmDetailsDao.findDetail(vm.getId(), ApiConstants.BootType.UEFI.toString());
+        VMInstanceDetailVO userVmDetailVO = _vmInstanceDetailsDao.findDetail(vm.getId(), ApiConstants.BootType.UEFI.toString());
         if (userVmDetailVO != null &&
                 (ApiConstants.BootMode.LEGACY.toString().equalsIgnoreCase(userVmDetailVO.getValue()) ||
                         ApiConstants.BootMode.SECURE.toString().equalsIgnoreCase(userVmDetailVO.getValue()))) {

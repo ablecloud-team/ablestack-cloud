@@ -60,7 +60,7 @@ public class QuotaSummaryResponse extends BaseResponse {
     @SerializedName("quota")
     @Param(description = "Quota usage of this period")
     private BigDecimal quota;
-    
+
     @SerializedName("startdate")
     @Param(description = "Start date")
     private Date startDate = null;

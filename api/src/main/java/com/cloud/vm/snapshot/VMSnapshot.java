@@ -31,7 +31,8 @@ public interface VMSnapshot extends ControlledEntity, Identity, InternalIdentity
     enum State {
         Allocated("The Instance Snapshot is allocated but has not been created yet."), Creating("The Instance Snapshot is being created."), Ready(
                 "The Instance Snapshot is ready to be used."), Reverting("The Instance Snapshot is being used to revert"), Expunging("The volume is being expunging"), Removed(
-                "The volume is destroyed, and can't be recovered."), Error("The volume is in error state, and can't be recovered");
+                "The volume is destroyed, and can't be recovered."), Error("The volume is in error state, and can't be recovered"),
+        Hidden("The Instance snapshot is hidden from the user and cannot be recovered.");
 
         String _description;
 

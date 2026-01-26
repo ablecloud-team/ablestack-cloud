@@ -235,7 +235,7 @@ export default {
       this.form = reactive({
         allowuserdrivenbackups: true,
         retentionPeriodValue: '',
-        retentionPeriodUnit: 'Day'
+        retentionPeriodUnit: 'Day',
         ispublic: true
       })
       this.rules = reactive({

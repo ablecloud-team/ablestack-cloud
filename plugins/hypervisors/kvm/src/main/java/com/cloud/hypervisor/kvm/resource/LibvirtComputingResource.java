@@ -3243,21 +3243,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         vm.addComp(createTermPolicy());
         vm.addComp(createClockDef(vmTO));
 
-        boolean isTpmEnabled = false;
-        String tpmversion = "";
-        if(customParams.containsKey("tpmversion")) {
-            tpmversion = customParams.get("tpmversion");
-
-            if (tpmversion.equalsIgnoreCase("NONE")){
-                isTpmEnabled = false;
-            }else{
-                isTpmEnabled = true;
-            }
-        }else{
-            tpmversion = GuestDef.TpmVersion.NONE.toString();
-            isTpmEnabled = false;
-        }
-        vm.addComp(createDevicesDef(vmTO, guest, vcpus, isUefiEnabled, isTpmEnabled, tpmversion));
+        vm.addComp(createDevicesDef(vmTO, guest, vcpus, isUefiEnabled));
 
         MetadataDef metaDef;
         if ((metaDef = createMetadataDef(vmTO)) != null) {
@@ -3285,7 +3271,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     /**
      * Adds devices components to VM.
      */
-    protected DevicesDef createDevicesDef(VirtualMachineTO vmTO, GuestDef guest, int vcpus, boolean isUefiEnabled, boolean isTpmEnabled, String tpmversion) {
+    protected DevicesDef createDevicesDef(VirtualMachineTO vmTO, GuestDef guest, int vcpus, boolean isUefiEnabled) {
         DevicesDef devices = new DevicesDef();
         devices.setEmulatorPath(hypervisorPath);
         devices.setGuestType(guest.getGuestType());
@@ -4140,7 +4126,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                         //     disk.defFileBasedDisk(physicalDisk.getPath(), devId, diskBusType, DiskDef.DiskFmtType.QCOW2);
                         // }
                     }
-                    
+
                     defineDiskForDefaultPoolType(disk, volume, isWindowsTemplate, isUefiEnabled, isSecureBoot,
                             physicalDisk, devId, diskBusType, diskBusTypeData, details);
                 }

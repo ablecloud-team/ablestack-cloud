@@ -2081,9 +2081,9 @@ public class NfsSecondaryStorageResource extends ServerResourceBase implements S
             // snapshot file name. If so, since backupSnapshot process has already deleted snapshot in cache, so we just do nothing
             // and return true.
             String fullSnapPath = parent + snapshotPath;
-            File snapDir = new File(fullSnapPath);
-            if (snapDir.exists() && snapDir.isDirectory()) {
-                logger.debug("Snapshot path " + snapshotPath + " is a directory, already deleted during backup Snapshot, so no need to delete");
+            File snapshotFile = new File(fullSnapPath);
+            if (snapshotFile.exists() && snapshotFile.isDirectory()) {
+                logger.debug("Snapshot path {} is a directory, already deleted during backup Snapshot, so no need to delete", snapshotPath);
                 return new Answer(cmd, true, null);
             }
             // check if snapshot directory exists
@@ -2096,10 +2096,15 @@ public class NfsSecondaryStorageResource extends ServerResourceBase implements S
                 return new Answer(cmd, true, details);
             }
             // delete snapshot in the directory if exists
-            String lPath = getSnapshotFilepathForDelete(absoluteSnapshotPath, snapshotName);
-            String result = deleteLocalFile(lPath);
-            if (result != null) {
-                details = "Failed to delete Snapshot " + lPath + " , err=" + result;
+            String lPath = absoluteSnapshotDirPath + "/*" + snapshotFile.getName() + "*";
+            String snapshotDeleteResult = deleteLocalFile(lPath);
+            String checkpointDeleteResult = null;
+            if (obj instanceof SnapshotObjectTO) {
+                checkpointDeleteResult = deleteCheckpointIfExists(obj, parent);
+            }
+
+            if (snapshotDeleteResult != null || checkpointDeleteResult != null) {
+                details = String.format("Failed to delete Snapshot [%s]. Snapshot delete result = [%s], Checkpoint delete result = [%s].", lPath, snapshotDeleteResult, checkpointDeleteResult);
                 logger.warn(details);
                 return new Answer(cmd, false, details);
             }

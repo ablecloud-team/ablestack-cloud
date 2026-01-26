@@ -211,14 +211,6 @@ public class NetworkResponse extends BaseResponseWithAssociatedNetwork implement
     @Param(description = "Name of the VPC to which this Network belongs", since = "4.15")
     private String vpcName;
 
-    @SerializedName(ApiConstants.ASSOCIATED_NETWORK_ID)
-    @Param(description = "The ID of the Network associated with this Network")
-    private String associatedNetworkId;
-
-    @SerializedName(ApiConstants.ASSOCIATED_NETWORK)
-    @Param(description = "The name of the Network associated with this Network")
-    private String associatedNetworkName;
-
     @SerializedName(ApiConstants.TUNGSTEN_VIRTUAL_ROUTER_UUID)
     @Param(description = "Tungsten-Fabric virtual router the Network belongs to")
     private String tungstenVirtualRouterUuid;

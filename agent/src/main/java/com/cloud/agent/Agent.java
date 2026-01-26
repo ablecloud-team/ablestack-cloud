@@ -37,7 +37,6 @@ import java.util.Timer;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.SynchronousQueue;
@@ -217,9 +216,11 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
         haExecutor = new ThreadPoolExecutor(haWorkers, 5 * haWorkers, 10, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), new NamedThreadFactory("HA-Worker"), new ThreadPoolExecutor.CallerRunsPolicy());
         executorMonitorTimer = new Timer("AgentTaskCheckTimer");
-        scheduleExecutorMonitoring("Basic-Worker", basicExecutor);
-        scheduleExecutorMonitoring("Stats-Worker", statsExecutor);
-        scheduleExecutorMonitoring("HA-Worker", haExecutor);
+        if (isHostResource()) { // 호스트 리소스인 경우에만 모티터링용 로그 실행(LibvirtComputingResource)
+            scheduleExecutorMonitoring("Basic-Worker", basicExecutor);
+            scheduleExecutorMonitoring("Stats-Worker", statsExecutor);
+            scheduleExecutorMonitoring("HA-Worker", haExecutor);
+        }
     }
 
     /**
@@ -326,7 +327,7 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
     }
 
     private boolean isHostResource() {
-        return _resource != null && "com.cloud.hypervisor.kvm.resource.LibvirtComputingResource".equals(_resource.getClass().getName());
+        return serverResource != null && "com.cloud.hypervisor.kvm.resource.LibvirtComputingResource".equals(serverResource.getClass().getName());
     }
 
     private void scheduleExecutorMonitoring(String context, ExecutorService executorService) {
