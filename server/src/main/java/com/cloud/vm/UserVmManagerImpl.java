@@ -2014,9 +2014,14 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         return vm;
     }
 
+    private void updatePublicIpDnatVmIp(long vmId, long networkId, String oldIp, String newIp) {
+        if (!_networkModel.areServicesSupportedInNetwork(networkId, Service.StaticNat)) {
+            return;
+        }
         List<IPAddressVO> publicIps = _ipAddressDao.listByAssociatedVmId(vmId);
         for (IPAddressVO publicIp : publicIps) {
             if (oldIp.equals(publicIp.getVmIp()) && publicIp.getAssociatedWithNetworkId() == networkId) {
+                publicIp.setVmIp(newIp);
                 _ipAddressDao.persist(publicIp);
             }
         }

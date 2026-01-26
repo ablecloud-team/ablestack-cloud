@@ -181,8 +181,8 @@ public class KubernetesClusterResponse extends BaseResponseWithAnnotations imple
     private String consoleEndpoint;
 
     @SerializedName(ApiConstants.VIRTUAL_MACHINES)
-    @Param(description = "The list of virtualmachine associated with this Kubernetes cluster")
-    private List<UserVmResponse> virtualMachines;
+    @Param(description = "The list of virtualmachines associated with this Kubernetes cluster")
+    private List<KubernetesUserVmResponse> virtualMachines;
 
     @SerializedName(ApiConstants.IP_ADDRESS)
     @Param(description = "Public IP Address of the cluster")

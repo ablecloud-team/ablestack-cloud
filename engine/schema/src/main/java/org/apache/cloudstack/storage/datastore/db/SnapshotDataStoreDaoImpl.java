@@ -1,3 +1,4 @@
+
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -471,7 +472,7 @@ public class SnapshotDataStoreDaoImpl extends GenericDaoBase<SnapshotDataStoreVO
 
     @Override
     public List<SnapshotDataStoreVO> findBySnapshotIdWithNonDestroyedState(long snapshotId) {
-        SearchCriteria<SnapshotDataStoreVO> sc = idStateNeqSearch.create();
+        SearchCriteria<SnapshotDataStoreVO> sc = idStateNinSearch.create();
         sc.setParameters(SNAPSHOT_ID, snapshotId);
         sc.setParameters(STATE, State.Destroyed.name());
         return listBy(sc);

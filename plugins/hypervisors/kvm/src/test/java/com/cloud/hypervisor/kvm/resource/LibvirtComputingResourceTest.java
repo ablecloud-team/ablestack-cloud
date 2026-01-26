@@ -61,12 +61,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import com.cloud.cpu.CPU;
-import com.cloud.utils.net.NetUtils;
-
-import com.cloud.vm.VmDetailConstants;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import org.apache.cloudstack.api.ApiConstants.IoDriverPolicy;
 import org.apache.cloudstack.storage.command.AttachAnswer;
 import org.apache.cloudstack.storage.command.AttachCommand;
@@ -186,6 +183,7 @@ import com.cloud.agent.api.to.VolumeTO;
 import com.cloud.agent.properties.AgentProperties;
 import com.cloud.agent.properties.AgentPropertiesFileHandler;
 import com.cloud.agent.resource.virtualnetwork.VirtualRoutingResource;
+import com.cloud.cpu.CPU;
 import com.cloud.exception.InternalErrorException;
 import com.cloud.hypervisor.Hypervisor.HypervisorType;
 import com.cloud.hypervisor.kvm.resource.KVMHABase.HAStoragePool;
@@ -490,7 +488,7 @@ public class LibvirtComputingResourceTest {
         GuestDef guest = new GuestDef();
         guest.setGuestType(GuestType.KVM);
 
-        DevicesDef devicesDef = libvirtComputingResourceSpy.createDevicesDef(to, guest, to.getCpus() + 1, false, false,"V2_0");
+        DevicesDef devicesDef = libvirtComputingResourceSpy.createDevicesDef(to, guest, to.getCpus() + 1, false);
         verifyDevices(devicesDef, to);
     }
 
@@ -506,7 +504,7 @@ public class LibvirtComputingResourceTest {
         GuestDef guest = new GuestDef();
         guest.setGuestType(GuestType.KVM);
 
-        DevicesDef devicesDef = libvirtComputingResourceSpy.createDevicesDef(to, guest, to.getCpus() + 1, false, false,"V2_0");
+        DevicesDef devicesDef = libvirtComputingResourceSpy.createDevicesDef(to, guest, to.getCpus() + 1, false);
         verifyDevices(devicesDef, to);
 
         Document domainDoc = parse(devicesDef.toString());
@@ -7160,7 +7158,7 @@ public class LibvirtComputingResourceTest {
         Assert.assertEquals("-mmx", cpuFeatures.get(2));
         Assert.assertEquals("hle", cpuFeatures.get(3));
     }
-    
+
     @Test
     public void defineDiskForDefaultPoolTypeSkipsForceDiskController() {
         Map<String, String> details = new HashMap<>();

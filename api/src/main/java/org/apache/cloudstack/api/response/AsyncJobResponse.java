@@ -1,3 +1,4 @@
+
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -55,10 +56,6 @@ public class AsyncJobResponse extends BaseResponse {
     @Param(description = "The async command executed")
     private String cmd;
 
-    @SerializedName("jobstatus")
-    @Param(description = "The current job status-should be 0 for PENDING")
-    private Integer jobStatus;
-
     @SerializedName("jobprocstatus")
     @Param(description = "The progress information of the PENDING job")
     private Integer jobProcStatus;
@@ -83,9 +80,13 @@ public class AsyncJobResponse extends BaseResponse {
     @Param(description = "The unique ID of the Instance/entity object related to the job")
     private String jobInstanceId;
 
-    @SerializedName("managementserverid")
-    @Param(description = "The msid of the management server on which the job is running", since = "4.19")
-    private Long msid;
+    @SerializedName(ApiConstants.MANAGEMENT_SERVER_ID)
+    @Param(description = "The MSID of the management server on which the job is running", since = "4.19")
+    private String managementServerId;
+
+    @SerializedName(ApiConstants.MANAGEMENT_SERVER_NAME)
+    @Param(description = "the management server name of the host", since = "4.21.0")
+    private String managementServerName;
 
     @SerializedName(ApiConstants.CREATED)
     @Param(description = "The created date of the job")

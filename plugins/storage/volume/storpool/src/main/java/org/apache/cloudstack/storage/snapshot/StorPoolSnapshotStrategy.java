@@ -181,7 +181,7 @@ public class StorPoolSnapshotStrategy implements SnapshotStrategy {
             StorPoolUtil.spLog("StorpoolSnapshotStrategy.deleteSnapshot: executed successfully=%s, snapshot uuid=%s, name=%s", res, snapshotVO.getUuid(), name);
         }
         if (res) {
-            processResult(snapshotInfos, Event.OperationSuccessed);
+            processResult(snapshotInfos, Event.OperationSucceeded);
             cleanUpDestroyedRecords(snapshotId);
         } else {
             processResult(snapshotInfos, Event.OperationFailed);

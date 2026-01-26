@@ -1850,23 +1850,23 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             try {
                 logger.debug("Value of attempts is " + (snapshotBackupRetries - attempts));
                 if (Boolean.TRUE.equals(SnapshotInfo.BackupSnapshotAfterTakingSnapshot.value()) && CollectionUtils.isEmpty(poolIds)) {
-                    SnapshotInfo backupedSnapshot = snapshotStrategy.backupSnapshot(snapshot);
+                    SnapshotInfo backupedSnapshot = snapshotStrategy.backupSnapshot(snapshotOnPrimary);
 
                     if (backupedSnapshot != null) {
-                        snapshotStrategy.postSnapshotCreation(snapshot);
-                        copyNewSnapshotToZones(snapshot.getId(), snapshot.getDataCenterId(), zoneIds);
+                        snapshotStrategy.postSnapshotCreation(snapshotOnPrimary);
+                        copyNewSnapshotToZones(snapshotOnPrimary.getId(), snapshotOnPrimary.getDataCenterId(), zoneIds);
                     }
                 }
 
                 if (CollectionUtils.isNotEmpty(poolIds)) {
                     for (Long poolId: poolIds) {
-                        copySnapshotOnPool(snapshot, snapshotStrategy, poolId);
+                        copySnapshotOnPool(snapshotOnPrimary, snapshotStrategy, poolId);
                     }
                 }
             } catch (final Exception e) {
                 if (attempts >= 0) {
                     logger.debug("Backing up of snapshot failed, for snapshot {}, left with {} more attempts", snapshotOnPrimary, attempts);
-                    backupSnapshotExecutor.schedule(new BackupSnapshotTask(snapshotOnPrimary, --attempts, snapshotStrategy, zoneIds), snapshotBackupRetryInterval, TimeUnit.SECONDS);
+                    backupSnapshotExecutor.schedule(new BackupSnapshotTask(snapshotOnPrimary, --attempts, snapshotStrategy, zoneIds, poolIds), snapshotBackupRetryInterval, TimeUnit.SECONDS);
                 } else {
                     logger.debug("Done with {} attempts in  backing up of snapshot {}", snapshotBackupRetries, snapshotOnPrimary.getSnapshotVO());
                     snapshotSrv.cleanupOnSnapshotBackupFailure(snapshotOnPrimary);
@@ -1876,11 +1876,11 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
         private void decriseBackupSnapshotAttempts() {
             if (attempts >= 0) {
-                logger.debug("Backing up of snapshot failed, for snapshot {}, left with {} more attempts", snapshot, attempts);
-                backupSnapshotExecutor.schedule(new BackupSnapshotTask(snapshot, --attempts, snapshotStrategy, zoneIds, poolIds), snapshotBackupRetryInterval, TimeUnit.SECONDS);
+                logger.debug("Backing up of snapshot failed, for snapshot {}, left with {} more attempts", snapshotOnPrimary, attempts);
+                backupSnapshotExecutor.schedule(new BackupSnapshotTask(snapshotOnPrimary, --attempts, snapshotStrategy, zoneIds, poolIds), snapshotBackupRetryInterval, TimeUnit.SECONDS);
             } else {
-                logger.debug("Done with {} attempts in  backing up of snapshot {}", snapshotBackupRetries, snapshot.getSnapshotVO());
-                snapshotSrv.cleanupOnSnapshotBackupFailure(snapshot);
+                logger.debug("Done with {} attempts in  backing up of snapshot {}", snapshotBackupRetries, snapshotOnPrimary.getSnapshotVO());
+                snapshotSrv.cleanupOnSnapshotBackupFailure(snapshotOnPrimary);
             }
         }
     }

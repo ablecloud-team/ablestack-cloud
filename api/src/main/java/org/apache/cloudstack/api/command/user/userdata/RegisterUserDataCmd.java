@@ -46,22 +46,6 @@ public class RegisterUserDataCmd extends BaseRegisterUserDataCmd {
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
 
-    @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, required = true, description = "Name of the User Data")
-    private String name;
-
-    //Owner information
-    @Parameter(name = ApiConstants.ACCOUNT, type = CommandType.STRING, description = "An optional Account for the User Data. Must be used with domainId.")
-    private String accountName;
-
-    @Parameter(name = ApiConstants.DOMAIN_ID,
-            type = CommandType.UUID,
-            entityType = DomainResponse.class,
-            description = "An optional domainId for the User Data. If the Account parameter is used, domainId must also be used.")
-    private Long domainId;
-
-    @Parameter(name = ApiConstants.PROJECT_ID, type = CommandType.UUID, entityType = ProjectResponse.class, description = "An optional project for the User Data")
-    private Long projectId;
-
     @Parameter(name = ApiConstants.USER_DATA,
             type = CommandType.STRING,
             required = true,
@@ -70,31 +54,11 @@ public class RegisterUserDataCmd extends BaseRegisterUserDataCmd {
                     "Using HTTP POST (via POST body), you can send up to 32KB of data after base64 encoding, " +
                     "which can be increased upto 1MB using the vm.userdata.max.length setting",
             length = 1048576)
-    private String userData;
-
-    @Parameter(name = ApiConstants.PARAMS, type = CommandType.STRING, description = "Comma separated list of variables declared in the User Data content")
-    private String params;
-
+    protected String userData;
 
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
-
-    public String getName() {
-        return name;
-    }
-
-    public String getAccountName() {
-        return accountName;
-    }
-
-    public Long getDomainId() {
-        return domainId;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
 
     public String getUserData() {
         return userData;

@@ -126,7 +126,7 @@ public class BackupOfferingResponse extends BaseResponse {
     public void setRetentionPeriod(String retentionPeriod) {
         this.retentionPeriod = retentionPeriod;
     }
-    
+
     public void setDomainId(String domainId) {
         this.domainId = domainId;
     }

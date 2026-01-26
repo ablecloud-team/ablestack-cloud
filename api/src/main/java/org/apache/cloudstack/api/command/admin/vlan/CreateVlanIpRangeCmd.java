@@ -164,7 +164,7 @@ public class CreateVlanIpRangeCmd extends BaseCmd {
     }
 
     public String getVlan() {
-        if (StringUtils.isBlank(vlan) && !isForNsx()) {
+        if (StringUtils.isBlank(vlan) && !ConfigurationService.IsIpRangeForProvider(getProvider())) {
             vlan = "untagged";
         }
         return vlan;
