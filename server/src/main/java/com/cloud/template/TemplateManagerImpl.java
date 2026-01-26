@@ -123,6 +123,7 @@ import com.cloud.agent.api.to.DatadiskTO;
 import com.cloud.agent.api.to.DiskTO;
 import com.cloud.agent.api.to.NfsTO;
 import com.cloud.agent.api.to.VirtualMachineTO;
+import com.cloud.agent.api.to.deployasis.OVFNetworkTO;
 import com.cloud.api.ApiDBUtils;
 import com.cloud.api.ApiResponseHelper;
 import com.cloud.api.query.dao.UserVmJoinDao;
@@ -134,6 +135,7 @@ import com.cloud.dc.DataCenter;
 import com.cloud.dc.DataCenterVO;
 import com.cloud.dc.dao.DataCenterDao;
 import com.cloud.deploy.DeployDestination;
+import com.cloud.deployasis.dao.TemplateDeployAsIsDetailsDao;
 import com.cloud.domain.Domain;
 import com.cloud.domain.dao.DomainDao;
 import com.cloud.event.ActionEvent;
@@ -317,6 +319,8 @@ public class TemplateManagerImpl extends ManagerBase implements TemplateManager,
     protected SnapshotHelper snapshotHelper;
     @Inject
     VnfTemplateManager vnfTemplateManager;
+    @Inject
+    TemplateDeployAsIsDetailsDao templateDeployAsIsDetailsDao;
 
     @Inject
     private SecondaryStorageHeuristicDao secondaryStorageHeuristicDao;
@@ -2352,6 +2356,11 @@ public class TemplateManagerImpl extends ManagerBase implements TemplateManager,
             templateType = validateTemplateType(cmd, isAdmin, template.isCrossZones(), template.getHypervisorType());
             if (cmd instanceof UpdateVnfTemplateCmd) {
                 VnfTemplateUtils.validateApiCommandParams(cmd, template);
+                UpdateVnfTemplateCmd updateCmd = (UpdateVnfTemplateCmd) cmd;
+                if (template.isDeployAsIs() && CollectionUtils.isNotEmpty(updateCmd.getVnfNics())) {
+                    List<OVFNetworkTO> ovfNetworks = templateDeployAsIsDetailsDao.listNetworkRequirementsByTemplateId(template.getId());
+                    VnfTemplateUtils.validateDeployAsIsTemplateVnfNics(ovfNetworks, updateCmd.getVnfNics());
+                }
                 vnfTemplateManager.updateVnfTemplate(template.getId(), (UpdateVnfTemplateCmd) cmd);
             }
             templateTag = ((UpdateTemplateCmd)cmd).getTemplateTag();
