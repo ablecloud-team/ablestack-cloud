@@ -52,10 +52,6 @@ public class HostMetricsResponse extends HostResponse {
     @Param(description = "The total cpu allocated in Ghz")
     private String cpuAllocated;
 
-    @SerializedName("cpuloadaverage")
-    @Param(description = "The average cpu load the last minute")
-    private Double loadAverage;
-
     @SerializedName("memorytotalgb")
     @Param(description = "The total memory capacity in GiB")
     private String memTotal;
