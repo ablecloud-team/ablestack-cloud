@@ -45,8 +45,8 @@ UPDATE `cloud`.`ldap_configuration` SET uuid = UUID() WHERE uuid IS NULL OR uuid
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.backup_repository', 'cross_zone_instance_creation', 'TINYINT(1) DEFAULT NULL COMMENT ''Backup Repository can be used for disaster recovery on another zone''');
 
 -- Updated display to false for password/token detail of the storage pool details
-UPDATE `cloud`.`storage_pool_details` SET display = 0 WHERE name LIKE '%password%';
-UPDATE `cloud`.`storage_pool_details` SET display = 0 WHERE name LIKE '%token%';
+UPDATE `cloud`.`storage_pool_details` SET display = 0 WHERE name LIKE '%password%' AND display <> 0;
+UPDATE `cloud`.`storage_pool_details` SET display = 0 WHERE name LIKE '%token%' AND display <> 0;
 
 -- Add csi_enabled column to kubernetes_cluster table to indicate if the cluster is using csi or not
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.kubernetes_cluster', 'csi_enabled', 'TINYINT(1) unsigned NOT NULL DEFAULT 0 COMMENT "true if kubernetes cluster is using csi, false otherwise" ');
