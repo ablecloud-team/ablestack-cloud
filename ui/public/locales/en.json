@@ -468,6 +468,8 @@
 "label.auto.assign.diskoffering.disk.size": "Automatically assign offering matching the disk size",
 "label.auto.assign.random.ip": "Automatically assign a random IP address",
 "label.autoscale.vm.groups": "AutoScale Instance Groups",
+"label.auto.refresh.statistics": "Period between auto refreshes",
+"label.auto.refresh.statistics.none": "None",
 "label.autoscale.vm.profile": "AutoScale Instance Profile",
 "label.autoscalingenabled": "Auto scaling",
 "label.availability": "Availability",
