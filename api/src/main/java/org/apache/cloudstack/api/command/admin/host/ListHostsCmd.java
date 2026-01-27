@@ -119,6 +119,9 @@ public class ListHostsCmd extends BaseListCmd {
             since = "4.21.0")
     private String storageAccessGroup;
 
+    @Parameter(name = ApiConstants.VERSION, type = CommandType.STRING, description = "the host version", since = "4.20.3")
+    private String version;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -215,12 +218,12 @@ public class ListHostsCmd extends BaseListCmd {
         return storageAccessGroup;
     }
 
-    public ListHostsCmd() {
-
-    }
-
     public ListHostsCmd(String storageAccessGroup) {
         this.storageAccessGroup = storageAccessGroup;
+    }
+    
+    public String getVersion() {
+        return version;
     }
 
     /////////////////////////////////////////////////////
