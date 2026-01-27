@@ -353,7 +353,6 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
     private final HashMap<String, ResourceStateAdapter> _resourceStateAdapters = new HashMap<>();
 
     private final HashMap<Integer, List<ResourceListener>> _lifeCycleListeners = new HashMap<>();
-    private HypervisorType _defaultSystemVMHypervisor;
 
     private static final int ACQUIRE_GLOBAL_LOCK_TIMEOUT_FOR_COOPERATION = 30; // seconds
 
@@ -2956,7 +2955,6 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
 
     @Override
     public boolean configure(final String name, final Map<String, Object> params) throws ConfigurationException {
-        _defaultSystemVMHypervisor = HypervisorType.getType(_configDao.getValue(Config.SystemVMDefaultHypervisor.toString()));
         _gson = GsonHelper.getGson();
 
         _hypervisorsInDC = _hostDao.createSearchBuilder(String.class);
@@ -3002,10 +3000,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
 
     @Override
     public HypervisorType getDefaultHypervisor(final long zoneId) {
-        HypervisorType defaultHyper = HypervisorType.None;
-        if (_defaultSystemVMHypervisor != HypervisorType.None) {
-            defaultHyper = _defaultSystemVMHypervisor;
-        }
+        HypervisorType systemVMDefaultHypervisor = HypervisorType.getType(ResourceManager.SystemVMDefaultHypervisor.value());
 
         final DataCenterVO dc = _dcDao.findById(zoneId);
         if (dc == null) {
@@ -3014,27 +3009,27 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
         _dcDao.loadDetails(dc);
         final String defaultHypervisorInZone = dc.getDetail("defaultSystemVMHypervisorType");
         if (defaultHypervisorInZone != null) {
-            defaultHyper = HypervisorType.getType(defaultHypervisorInZone);
+            systemVMDefaultHypervisor = HypervisorType.getType(defaultHypervisorInZone);
         }
 
         final List<VMTemplateVO> systemTemplates = _templateDao.listAllSystemVMTemplates();
         boolean isValid = false;
         for (final VMTemplateVO template : systemTemplates) {
-            if (template.getHypervisorType() == defaultHyper) {
+            if (template.getHypervisorType() == systemVMDefaultHypervisor) {
                 isValid = true;
                 break;
             }
         }
 
         if (isValid) {
-            final List<ClusterVO> clusters = _clusterDao.listByDcHyType(zoneId, defaultHyper.toString());
+            final List<ClusterVO> clusters = _clusterDao.listByDcHyType(zoneId, systemVMDefaultHypervisor.toString());
             if (clusters.isEmpty()) {
                 isValid = false;
             }
         }
 
         if (isValid) {
-            return defaultHyper;
+            return systemVMDefaultHypervisor;
         } else {
             return HypervisorType.None;
         }
@@ -4630,7 +4625,8 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
                 KvmSshToAgentEnabled,
                 KvmSshPort,
                 HOST_MAINTENANCE_LOCAL_STRATEGY,
-                SystemVmPreferredArchitecture
+                SystemVmPreferredArchitecture,
+                SystemVMDefaultHypervisor
         };
     }
 }
