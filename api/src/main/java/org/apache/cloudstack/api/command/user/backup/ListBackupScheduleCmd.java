@@ -1,3 +1,4 @@
+
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -44,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @APICommand(name = "listBackupSchedule",
-        description = "List backup schedule of a VM",
+        description = "List backup schedule of an Instance",
         responseObject = BackupScheduleResponse.class, since = "4.14.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class ListBackupScheduleCmd extends BaseListProjectAndAccountResourcesCmd {
@@ -59,7 +60,8 @@ public class ListBackupScheduleCmd extends BaseListProjectAndAccountResourcesCmd
     @Parameter(name = ApiConstants.VIRTUAL_MACHINE_ID,
             type = CommandType.UUID,
             entityType = UserVmResponse.class,
-            description = "ID of the VM")
+            required = true,
+            description = "ID of the Instance")
     private Long vmId;
 
     @Parameter(name = ApiConstants.ID,

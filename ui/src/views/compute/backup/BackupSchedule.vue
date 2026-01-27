@@ -99,7 +99,7 @@ export default {
       default: false
     },
     dataSource: {
-      type: Object,
+      type: Array,
       required: true
     },
     deleteFn: {
