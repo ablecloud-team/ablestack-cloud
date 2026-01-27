@@ -47,6 +47,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.naming.ConfigurationException;
 
+import com.cloud.configuration.Resource;
+import com.cloud.user.ResourceLimitService;
 import org.apache.cloudstack.acl.ControlledEntity;
 import org.apache.cloudstack.acl.Role;
 import org.apache.cloudstack.acl.RolePermissionEntity;
@@ -257,7 +259,7 @@ import com.cloud.vm.dao.VMInstanceDao;
 
 public class KubernetesClusterManagerImpl extends ManagerBase implements KubernetesClusterService {
 
-    private static final String DEFAULT_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_NAME = "쿠버네테스 서비스에 대한 기본 네트워크오퍼링";
+    private static final String DEFAULT_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_NAME = "DefaultNetworkOfferingforKubernetesService";
     private static final List<Class<?>> PROJECT_KUBERNETES_ACCOUNT_ROLE_ALLOWED_APIS = Arrays.asList(
             QueryAsyncJobResultCmd.class,
             ListVMsCmd.class,
@@ -398,8 +400,10 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
     public ProjectManager projectManager;
     @Inject
     RoleService roleService;
+    @Inject
+    ResourceLimitService resourceLimitService;
 
-private void logMessage(final Level logLevel, final String message, final Exception e) {
+    private void logMessage(final Level logLevel, final String message, final Exception e) {
         if (logLevel == Level.WARN) {
             if (e != null) {
                 logger.warn(message, e);
@@ -637,7 +641,7 @@ private void logMessage(final Level logLevel, final String message, final Except
             throw new InvalidParameterValueException(String.format("Custom service offerings are not supported for creating clusters, service offering ID: %s", serviceOffering.getUuid()));
         }
         if (serviceOffering.getCpu() < MIN_KUBERNETES_CLUSTER_NODE_CPU || serviceOffering.getRamSize() < MIN_KUBERNETES_CLUSTER_NODE_RAM_SIZE) {
-            throw new InvalidParameterValueException(String.format("Kubernetes cluster cannot be created with service offering ID: %s, Kubernetes cluster template needs minimum %d vCPUs and %d MB RAM", serviceOffering.getUuid(), MIN_KUBERNETES_CLUSTER_NODE_CPU, MIN_KUBERNETES_CLUSTER_NODE_RAM_SIZE));
+            throw new InvalidParameterValueException(String.format("Kubernetes cluster cannot be created with service offering ID: %s, Kubernetes cluster Template needs minimum %d vCPUs and %d MB RAM", serviceOffering.getUuid(), MIN_KUBERNETES_CLUSTER_NODE_CPU, MIN_KUBERNETES_CLUSTER_NODE_RAM_SIZE));
         }
         if (serviceOffering.getCpu() < version.getMinimumCpu()) {
             throw new InvalidParameterValueException(String.format("Kubernetes cluster cannot be created with service offering ID: %s, Kubernetes version ID: %s needs minimum %d vCPUs", serviceOffering.getUuid(), version.getUuid(), version.getMinimumCpu()));
@@ -905,15 +909,6 @@ private void logMessage(final Level logLevel, final String message, final Except
         return response;
     }
 
-    private void validateEndpointUrl() {
-        String csUrl = ApiServiceConfiguration.ApiServletPath.value();
-        if (csUrl == null || csUrl.contains("localhost")) {
-            String error = String.format("Global setting %s has to be set to the Management Server's API end point",
-                ApiServiceConfiguration.ApiServletPath.key());
-            throw new InvalidParameterValueException(error);
-        }
-    }
-
     private DataCenter validateAndGetZoneForKubernetesCreateParameters(Long zoneId, Long networkId) {
         DataCenter zone = dataCenterDao.findById(zoneId);
         if (zone == null) {
@@ -1008,7 +1003,7 @@ private void logMessage(final Level logLevel, final String message, final Except
     }
 
     private void validateManagedKubernetesClusterCreateParameters(final CreateKubernetesClusterCmd cmd) throws CloudRuntimeException {
-        validateEndpointUrl();
+        ApiServiceConfiguration.validateEndpointUrl();
         final String name = cmd.getName();
         final Long zoneId = cmd.getZoneId();
         final Long kubernetesVersionId = cmd.getKubernetesVersionId();
@@ -1245,7 +1240,7 @@ private void logMessage(final Level logLevel, final String message, final Except
         if (clusterSize > kubernetesCluster.getNodeCount()) { // Upscale
             VMTemplateVO template = templateDao.findById(kubernetesCluster.getTemplateId());
             if (template == null) {
-                throw new InvalidParameterValueException(String.format("Invalid template associated with Kubernetes cluster : %s",  kubernetesCluster.getName()));
+                throw new InvalidParameterValueException(String.format("Invalid Template associated with Kubernetes cluster : %s",  kubernetesCluster.getName()));
             }
             if (CollectionUtils.isEmpty(templateJoinDao.newTemplateView(template, zone.getId(), true))) {
                 throw new InvalidParameterValueException(String.format("Template : %s associated with Kubernetes cluster : %s is not in Ready state for datacenter : %s", template.getName(), kubernetesCluster.getName(), zone.getName()));
@@ -1308,7 +1303,7 @@ private void logMessage(final Level logLevel, final String message, final Except
                     KubernetesVersionManagerImpl.MINIMUN_AUTOSCALER_SUPPORTED_VERSION ));
             }
 
-            validateEndpointUrl();
+            ApiServiceConfiguration.validateEndpointUrl();
 
             if (minSize == null || maxSize == null) {
                 throw new InvalidParameterValueException("Autoscaling requires minsize and maxsize to be passed");
@@ -1350,7 +1345,57 @@ private void logMessage(final Level logLevel, final String message, final Except
         validateServiceOfferingsForNodeTypesScale(serviceOfferingNodeTypeMap, defaultServiceOfferingId, kubernetesCluster, clusterVersion);
 
         validateKubernetesClusterScaleSize(kubernetesCluster, clusterSize, maxClusterSize, zone);
+
+        ensureResourceLimitsForScale(kubernetesCluster, serviceOfferingNodeTypeMap,
+                clusterSize != null ? clusterSize : null,
+                kubernetesCluster.getAccountId());
     }
+
+    protected void ensureResourceLimitsForScale(final KubernetesClusterVO cluster,
+                                                final Map<String, Long> requestedServiceOfferingIds,
+                                                final Long targetNodeCounts,
+                                                final Long accountId) {
+
+        long totalAdditionalVms = 0L;
+        long totalAdditionalCpuUnits = 0L;
+        long totalAdditionalRamMb = 0L;
+
+
+        List<KubernetesClusterVmMapVO> clusterVmMapVOS = kubernetesClusterVmMapDao.listByClusterIdAndVmType(cluster.getId(), WORKER);
+        long currentCount = clusterVmMapVOS != null ? clusterVmMapVOS.size() : 0L;
+        long desiredCount = targetNodeCounts != null ? targetNodeCounts : currentCount;
+        long additional = Math.max(0L, desiredCount - currentCount);
+        if (additional == 0L) {
+            return;
+        }
+
+        Long offeringId = (requestedServiceOfferingIds != null && requestedServiceOfferingIds.containsKey(WORKER.name())) ?
+                requestedServiceOfferingIds.get(WORKER.name()) :
+                getExistingServiceOfferingIdForNodeType(WORKER.name(), cluster);
+
+        if (offeringId == null) {
+            offeringId = cluster.getServiceOfferingId();
+        }
+
+        ServiceOffering so = serviceOfferingDao.findById(offeringId);
+        if (so == null) {
+            throw new InvalidParameterValueException(String.format("Invalid service offering for node type %s", WORKER.name()));
+        }
+
+        totalAdditionalVms += additional;
+        long effectiveCpu = (long) so.getCpu() * so.getSpeed();
+        totalAdditionalCpuUnits += effectiveCpu * additional;
+        totalAdditionalRamMb += so.getRamSize() * additional;
+
+        try {
+            resourceLimitService.checkResourceLimit(accountDao.findById(accountId), Resource.ResourceType.user_vm, totalAdditionalVms);
+            resourceLimitService.checkResourceLimit(accountDao.findById(accountId), Resource.ResourceType.cpu, totalAdditionalCpuUnits);
+            resourceLimitService.checkResourceLimit(accountDao.findById(accountId), Resource.ResourceType.memory, totalAdditionalRamMb);
+        } catch (Exception e) {
+            throw new CloudRuntimeException("Resource limits prevent scaling the cluster: " + e.getMessage(), e);
+        }
+    }
+
 
     protected void validateServiceOfferingsForNodeTypesScale(Map<String, Long> map, Long defaultServiceOfferingId, KubernetesClusterVO kubernetesCluster, KubernetesSupportedVersion clusterVersion) {
         for (String key : CLUSTER_NODES_TYPES_LIST) {
@@ -1413,7 +1458,7 @@ private void logMessage(final Level logLevel, final String message, final Except
 
     private void validateKubernetesClusterUpgradeParameters(UpgradeKubernetesClusterCmd cmd) {
         // Validate parameters
-        validateEndpointUrl();
+        ApiServiceConfiguration.validateEndpointUrl();
 
         final Long kubernetesClusterId = cmd.getId();
         final Long upgradeVersionId = cmd.getKubernetesVersionId();
@@ -2644,11 +2689,11 @@ private void logMessage(final Level logLevel, final String message, final Except
         createNetworkOfferingForKubernetes(DEFAULT_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_NAME,
                 DEFAULT_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_DISPLAY_TEXT, false, false);
 
-        // createNetworkOfferingForKubernetes(DEFAULT_NSX_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_NAME,
-        //         DEFAULT_NSX_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_DISPLAY_TEXT, true, false);
+        createNetworkOfferingForKubernetes(DEFAULT_NSX_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_NAME,
+                DEFAULT_NSX_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_DISPLAY_TEXT, true, false);
 
-        // createNetworkOfferingForKubernetes(DEFAULT_NSX_VPC_TIER_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_NAME,
-        //         DEFAULT_NSX_VPC_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_DISPLAY_TEXT , true, true);
+        createNetworkOfferingForKubernetes(DEFAULT_NSX_VPC_TIER_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_NAME,
+                DEFAULT_NSX_VPC_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_DISPLAY_TEXT , true, true);
 
         getProjectKubernetesAccountRole();
 

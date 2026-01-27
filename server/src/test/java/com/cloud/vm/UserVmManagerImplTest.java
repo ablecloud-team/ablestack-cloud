@@ -61,6 +61,7 @@ import java.util.UUID;
 
 import com.cloud.storage.StorageManager;
 import com.cloud.network.NetworkService;
+import com.cloud.domain.Domain;
 import com.cloud.storage.dao.SnapshotPolicyDao;
 import org.apache.cloudstack.acl.ControlledEntity;
 import org.apache.cloudstack.acl.SecurityChecker;
@@ -3112,7 +3113,7 @@ public class UserVmManagerImplTest {
 
         configureDoNothingForMethodsThatWeDoNotWantToTest();
 
-        doThrow(PermissionDeniedException.class).when(accountManager).checkAccess(Mockito.any(Account.class), Mockito.any());
+        doThrow(PermissionDeniedException.class).when(accountManager).checkAccess(Mockito.any(Account.class), Mockito.any(Domain.class));
 
         Assert.assertThrows(PermissionDeniedException.class, () -> userVmManagerImpl.moveVmToUser(assignVmCmdMock));
     }

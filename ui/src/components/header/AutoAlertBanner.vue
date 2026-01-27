@@ -16,7 +16,6 @@
           :show-icon="false"
           :closable="true"
           :banner="true"
-          :style="[{ border: '1px solid #ffa39e', background: '#fff1f0' }]"
           @close="() => onAlertCloseStart(it)"
           @afterClose="() => onAlertClosed(it)"
         >

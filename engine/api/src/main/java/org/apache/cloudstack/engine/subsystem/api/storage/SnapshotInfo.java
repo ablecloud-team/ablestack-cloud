@@ -24,8 +24,8 @@ import com.cloud.storage.Snapshot;
 import com.cloud.utils.exception.CloudRuntimeException;
 
 public interface SnapshotInfo extends DataObject, Snapshot {
-    ConfigKey<Boolean> BackupSnapshotAfterTakingSnapshot = new ConfigKey<>(Boolean.class, "snapshot.backup.to.secondary",  "Snapshots", "false", "Indicates whether to always"
-            + " backup primary storage snapshot to secondary storage. Keeping snapshots only on Primary storage is applicable for KVM + Ceph only.", false, ConfigKey.Scope.Global,
+    ConfigKey<Boolean> BackupSnapshotAfterTakingSnapshot = new ConfigKey<>(Boolean.class, "snapshot.backup.to.secondary",  "Snapshots", "true", "Indicates whether to always"
+            + " backup primary storage Snapshot to secondary storage. Keeping Snapshots only on Primary storage is applicable for KVM + Ceph only.", false, ConfigKey.Scope.Global,
             null);
 
     SnapshotInfo getParent();

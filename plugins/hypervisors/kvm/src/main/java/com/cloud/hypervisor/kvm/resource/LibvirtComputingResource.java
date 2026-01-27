@@ -3243,21 +3243,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         vm.addComp(createTermPolicy());
         vm.addComp(createClockDef(vmTO));
 
-        boolean isTpmEnabled = false;
-        String tpmversion = "";
-        if(customParams.containsKey("tpmversion")) {
-            tpmversion = customParams.get("tpmversion");
-
-            if (tpmversion.equalsIgnoreCase("NONE")){
-                isTpmEnabled = false;
-            }else{
-                isTpmEnabled = true;
-            }
-        }else{
-            tpmversion = GuestDef.TpmVersion.NONE.toString();
-            isTpmEnabled = false;
-        }
-        vm.addComp(createDevicesDef(vmTO, guest, vcpus, isUefiEnabled, isTpmEnabled, tpmversion));
+        vm.addComp(createDevicesDef(vmTO, guest, vcpus, isUefiEnabled));
 
         MetadataDef metaDef;
         if ((metaDef = createMetadataDef(vmTO)) != null) {
@@ -3285,7 +3271,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     /**
      * Adds devices components to VM.
      */
-    protected DevicesDef createDevicesDef(VirtualMachineTO vmTO, GuestDef guest, int vcpus, boolean isUefiEnabled, boolean isTpmEnabled, String tpmversion) {
+    protected DevicesDef createDevicesDef(VirtualMachineTO vmTO, GuestDef guest, int vcpus, boolean isUefiEnabled) {
         DevicesDef devices = new DevicesDef();
         devices.setEmulatorPath(hypervisorPath);
         devices.setGuestType(guest.getGuestType());
@@ -3891,6 +3877,44 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return useBLOCKDiskType(physicalDisk) ? DiskDef.DiskType.BLOCK : DiskDef.DiskType.FILE;
     }
 
+    /**
+     * Defines the disk configuration for the default pool type based on the provided parameters.
+     * It determines the appropriate disk settings depending on whether the disk is a data disk, whether
+     * it's a Windows template, whether UEFI is enabled, and whether secure boot is active.
+     *
+     * @param disk The disk definition object that will be configured with the disk settings.
+     * @param volume The volume (disk) object, containing information about the type of disk.
+     * @param isWindowsTemplate Flag indicating whether the template is a Windows template.
+     * @param isUefiEnabled Flag indicating whether UEFI is enabled.
+     * @param isSecureBoot Flag indicating whether secure boot is enabled.
+     * @param physicalDisk The physical disk object that contains the path to the disk.
+     * @param devId The device ID for the disk.
+     * @param diskBusType The disk bus type to use if not skipping force disk controller.
+     * @param diskBusTypeData The disk bus type to use for data disks, if applicable.
+     * @param details A map of VM details containing additional configuration values, such as whether to skip force
+     *                disk controller.
+     */
+    protected void defineDiskForDefaultPoolType(DiskDef disk, DiskTO volume, boolean isWindowsTemplate,
+                    boolean isUefiEnabled, boolean isSecureBoot, KVMPhysicalDisk physicalDisk, int devId,
+                    DiskDef.DiskBus diskBusType, DiskDef.DiskBus diskBusTypeData, Map<String, String> details) {
+        boolean skipForceDiskController = MapUtils.getBoolean(details, VmDetailConstants.KVM_SKIP_FORCE_DISK_CONTROLLER,
+                false);
+        if (skipForceDiskController) {
+            disk.defFileBasedDisk(physicalDisk.getPath(), devId, Volume.Type.DATADISK.equals(volume.getType()) ?
+                    diskBusTypeData : diskBusType, DiskDef.DiskFmtType.QCOW2);
+            return;
+        }
+        if (volume.getType() == Volume.Type.DATADISK && !(isWindowsTemplate && isUefiEnabled)) {
+            disk.defFileBasedDisk(physicalDisk.getPath(), devId, diskBusTypeData, DiskDef.DiskFmtType.QCOW2);
+        } else {
+            if (isSecureBoot) {
+                disk.defFileBasedDisk(physicalDisk.getPath(), devId, DiskDef.DiskFmtType.QCOW2, isWindowsTemplate);
+            } else {
+                disk.defFileBasedDisk(physicalDisk.getPath(), devId, diskBusType, DiskDef.DiskFmtType.QCOW2);
+            }
+        }
+    }
+
     public void createVbd(final Connect conn, final VirtualMachineTO vmSpec, final String vmName, final LibvirtVMDef vm) throws InternalErrorException, LibvirtException, URISyntaxException {
         final Map<String, String> details = vmSpec.getDetails();
         final List<DiskTO> disks = Arrays.asList(vmSpec.getDisks());
@@ -4102,6 +4126,9 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                         //     disk.defFileBasedDisk(physicalDisk.getPath(), devId, diskBusType, DiskDef.DiskFmtType.QCOW2);
                         // }
                     }
+
+                    defineDiskForDefaultPoolType(disk, volume, isWindowsTemplate, isUefiEnabled, isSecureBoot,
+                            physicalDisk, devId, diskBusType, diskBusTypeData, details);
                 }
                 pool.customizeLibvirtDiskDef(disk);
             }
@@ -4920,7 +4947,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 dm = conn.domainLookupByID(ids[i]);
                 domainNames.add(dm.getName());
             } catch (final LibvirtException e) {
-                LOGGER.warn("Unable to get vms", e);
+                LOGGER.warn("Unable to get Instances", e);
             } finally {
                 try {
                     if (dm != null) {
@@ -5001,7 +5028,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     vmStates.put(vmName, new HostVmStateReportEntry(state, conn.getHostName()));
                 }
             } catch (final LibvirtException e) {
-                LOGGER.warn("Unable to get vms", e);
+                LOGGER.warn("Unable to get Instances", e);
             } finally {
                 try {
                     if (dm != null) {
@@ -5031,7 +5058,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     vmStates.put(vmName, new HostVmStateReportEntry(state, conn.getHostName()));
                 }
             } catch (final LibvirtException e) {
-                LOGGER.warn("Unable to get vms", e);
+                LOGGER.warn("Unable to get Instances", e);
             } finally {
                 try {
                     if (dm != null) {
@@ -6558,11 +6585,11 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     }
 
     public List<Ternary<String, Boolean, String>> cleanVMSnapshotMetadata(Domain dm) throws LibvirtException {
-        LOGGER.debug("Cleaning the metadata of vm snapshots of vm " + dm.getName());
+        LOGGER.debug("Cleaning the metadata of Instance Snapshots of Instance " + dm.getName());
         List<Ternary<String, Boolean, String>> vmsnapshots = new ArrayList<Ternary<String, Boolean, String>>();
         if (dm.snapshotNum() == 0) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("VM [%s] does not have any snapshots. Skipping cleanup of snapshots for this VM.", dm.getName()));
+                LOGGER.debug(String.format("Instance [%s] does not have any Snapshots. Skipping cleanup of Snapshots for this Instance.", dm.getName()));
             }
             return vmsnapshots;
         }
@@ -6636,12 +6663,12 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     }
 
     public void restoreVMSnapshotMetadata(Domain dm, String vmName, List<Ternary<String, Boolean, String>> vmsnapshots) {
-        LOGGER.debug("Restoring the metadata of vm snapshots of vm " + vmName);
+        LOGGER.debug("Restoring the metadata of Instance Snapshots of Instance " + vmName);
         for (Ternary<String, Boolean, String> vmsnapshot: vmsnapshots) {
             String snapshotName = vmsnapshot.first();
             Boolean isCurrent = vmsnapshot.second();
             String snapshotXML = vmsnapshot.third();
-            LOGGER.debug("Restoring vm snapshot " + snapshotName + " on " + vmName + " with XML:\n " + snapshotXML);
+            LOGGER.debug("Restoring Instance Snapshot " + snapshotName + " on " + vmName + " with XML:\n " + snapshotXML);
             try {
                 int flags = 1; // VIR_DOMAIN_SNAPSHOT_CREATE_REDEFINE = 1
                 if (isCurrent) {
@@ -6649,7 +6676,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 }
                 dm.snapshotCreateXML(snapshotXML, flags);
             } catch (LibvirtException e) {
-                LOGGER.debug("Failed to restore vm snapshot " + snapshotName + ", continue");
+                LOGGER.debug("Failed to restore Instance Snapshot " + snapshotName + ", continue");
                 continue;
             }
         }

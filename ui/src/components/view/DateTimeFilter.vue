@@ -62,6 +62,7 @@
 <script>
 import { ref, reactive, toRaw } from 'vue'
 // import moment from 'moment'
+import dayjs from 'dayjs'
 
 export default {
   name: 'DateTimeFilter',
@@ -97,19 +98,27 @@ export default {
       submitButtonLabel: this.$t('label.ok')
     }
   },
-  updated () {
-    this.form.startDate = this.startDate
-    this.form.endDate = this.endDate
-  },
   created () {
     this.initForm()
+  },
+  watch: {
+    startDateProp (newVal) {
+      this.form.startDate = newVal ? dayjs(newVal) : null
+    },
+    endDateProp (newVal) {
+      this.form.endDate = newVal ? dayjs(newVal) : null
+    }
   },
   methods: {
     initForm () {
       this.formRef = ref()
+      // Use dayjs instead of moment - Ant Design Vue requires dayjs
+      const startDate = this.startDateProp ? dayjs(this.startDateProp) : null
+      const endDate = this.endDateProp ? dayjs(this.endDateProp) : null
+
       this.form = reactive({
-        startDate: this.startDate,
-        endDate: this.endDate
+        startDate: startDate,
+        endDate: endDate
       })
     },
     handleSubmit (e) {
@@ -117,7 +126,12 @@ export default {
       this.formRef.value.validate().then(() => {
         this.submitButtonLabel = this.$t('label.refresh')
         const values = toRaw(this.form)
-        this.$emit('onSubmit', values)
+        // Convert dayjs objects back to JavaScript Date objects
+        const result = {
+          startDate: values.startDate ? values.startDate.toDate() : null,
+          endDate: values.endDate ? values.endDate.toDate() : null
+        }
+        this.$emit('onSubmit', result)
       }).catch(error => {
         this.formRef.value.scrollToField(error.errorFields[0].name)
       })

@@ -692,7 +692,7 @@ export default {
       })
     },
     fetchCustomHypervisorName () {
-      if (!('listConfigurations' in store.getters.apis)) {
+      if (!('listConfigurations' in this.$store.getters.apis)) {
         return
       }
       const params = {
