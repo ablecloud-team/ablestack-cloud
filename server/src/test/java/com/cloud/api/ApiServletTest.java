@@ -17,6 +17,32 @@
 package com.cloud.api;
 
 import static org.mockito.ArgumentMatchers.nullable;
+import com.cloud.api.auth.ListUserTwoFactorAuthenticatorProvidersCmd;
+import com.cloud.api.auth.SetupUserTwoFactorAuthenticationCmd;
+import com.cloud.api.auth.ValidateUserTwoFactorAuthenticationCodeCmd;
+import com.cloud.server.ManagementServer;
+import com.cloud.user.Account;
+import com.cloud.user.AccountManagerImpl;
+import com.cloud.user.AccountService;
+import com.cloud.user.User;
+import com.cloud.user.UserAccount;
+import com.cloud.utils.HttpUtils;
+import com.cloud.vm.UserVmManager;
+import org.apache.cloudstack.api.ApiConstants;
+import org.apache.cloudstack.api.auth.APIAuthenticationManager;
+import org.apache.cloudstack.api.auth.APIAuthenticationType;
+import org.apache.cloudstack.api.auth.APIAuthenticator;
+import org.apache.cloudstack.api.command.admin.config.ListCfgsByCmd;
+import org.apache.cloudstack.framework.config.ConfigKey;
+import org.apache.cloudstack.framework.config.impl.ConfigDepotImpl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -105,17 +131,20 @@ public class ApiServletTest {
     @Mock
     AccountService accountMgr;
 
-    @Mock ConfigKey<Boolean> useForwardHeader;
+    @Mock
+    ConfigDepotImpl mockConfigDepot;
+
     StringWriter responseWriter;
 
     ApiServlet servlet;
-    ApiServlet spyServlet;
+
+    private ConfigDepotImpl originalConfigDepot;
+
     @SuppressWarnings("unchecked")
     @Before
     public void setup() throws SecurityException, NoSuchFieldException,
-    IllegalArgumentException, IllegalAccessException, IOException, UnknownHostException {
+            IllegalArgumentException, IllegalAccessException, IOException {
         servlet = new ApiServlet();
-        spyServlet = Mockito.spy(servlet);
         responseWriter = new StringWriter();
         Mockito.when(response.getWriter()).thenReturn(
                 new PrintWriter(responseWriter));
@@ -139,6 +168,7 @@ public class ApiServletTest {
         apiServerField.setAccessible(true);
         apiServerField.set(servlet, apiServer);
 
+        setupConfigDepotMock();
     }
 
     /**
@@ -159,6 +189,33 @@ public class ApiServletTest {
         Field smsField = ApiDBUtils.class.getDeclaredField("s_ms");
         smsField.setAccessible(true);
         smsField.set(null, null);
+        restoreConfigDepot();
+    }
+
+    private void setupConfigDepotMock() throws NoSuchFieldException, IllegalAccessException {
+        Field depotField = ConfigKey.class.getDeclaredField("s_depot");
+        depotField.setAccessible(true);
+        originalConfigDepot = (ConfigDepotImpl) depotField.get(null);
+        depotField.set(null, mockConfigDepot);
+        Mockito.when(mockConfigDepot.getConfigStringValue(
+            Mockito.anyString(),
+            Mockito.any(ConfigKey.Scope.class),
+            Mockito.any()
+        )).thenReturn(null);
+    }
+
+    private void restoreConfigDepot() throws Exception {
+        Field depotField = ConfigKey.class.getDeclaredField("s_depot");
+        depotField.setAccessible(true);
+        depotField.set(null, originalConfigDepot);
+    }
+
+    private void setConfigValue(String configName, String value) {
+        Mockito.when(mockConfigDepot.getConfigStringValue(
+            Mockito.eq(configName),
+            Mockito.eq(ConfigKey.Scope.Global),
+            Mockito.isNull()
+        )).thenReturn(value);
     }
 
     @Test
@@ -269,43 +326,40 @@ public class ApiServletTest {
 
     @Test
     public void getClientAddressWithXForwardedFor() throws UnknownHostException {
-        String[] proxynet = {"127.0.0.0/8"};
-        Mockito.when(spyServlet.proxyNets()).thenReturn(proxynet);
-        Mockito.when(spyServlet.doUseForwardHeaders()).thenReturn(true);
+        setConfigValue("proxy.header.verify", "true");
+        setConfigValue("proxy.cidr", "127.0.0.0/8");
+        Mockito.when(request.getRemoteAddr()).thenReturn("127.0.0.1");
         Mockito.when(request.getHeader(Mockito.eq("X-Forwarded-For"))).thenReturn("192.168.1.1");
-        Assert.assertEquals(InetAddress.getByName("192.168.1.1"), spyServlet.getClientAddress(request));
+        Assert.assertEquals(InetAddress.getByName("192.168.1.1"), ApiServlet.getClientAddress(request));
     }
 
     @Test
     public void getClientAddressWithHttpXForwardedFor() throws UnknownHostException {
-        String[] proxynet = {"127.0.0.0/8"};
-        Mockito.when(spyServlet.proxyNets()).thenReturn(proxynet);
-        Mockito.when(spyServlet.doUseForwardHeaders()).thenReturn(true);
+        setConfigValue("proxy.header.verify", "true");
+        setConfigValue("proxy.cidr", "127.0.0.0/8");
         Mockito.when(request.getHeader(Mockito.eq("HTTP_X_FORWARDED_FOR"))).thenReturn("192.168.1.1");
-        Assert.assertEquals(InetAddress.getByName("192.168.1.1"), spyServlet.getClientAddress(request));
+        Assert.assertEquals(InetAddress.getByName("192.168.1.1"), ApiServlet.getClientAddress(request));
     }
 
     @Test
     public void getClientAddressWithRemoteAddr() throws UnknownHostException {
-        String[] proxynet = {"127.0.0.0/8"};
-        Mockito.when(spyServlet.proxyNets()).thenReturn(proxynet);
-        Mockito.when(spyServlet.doUseForwardHeaders()).thenReturn(true);
-        Assert.assertEquals(InetAddress.getByName("127.0.0.1"), spyServlet.getClientAddress(request));
+        setConfigValue("proxy.header.verify", "true");
+        setConfigValue("proxy.cidr", "127.0.0.0/8");
+        Assert.assertEquals(InetAddress.getByName("127.0.0.1"), ApiServlet.getClientAddress(request));
     }
 
     @Test
     public void getClientAddressWithHttpClientIp() throws UnknownHostException {
-        String[] proxynet = {"127.0.0.0/8"};
-        Mockito.when(spyServlet.proxyNets()).thenReturn(proxynet);
-        Mockito.when(spyServlet.doUseForwardHeaders()).thenReturn(true);
+        setConfigValue("proxy.header.verify", "true");
+        setConfigValue("proxy.cidr", "127.0.0.0/8");
         Mockito.when(request.getHeader(Mockito.eq("HTTP_CLIENT_IP"))).thenReturn("192.168.1.1");
-        Assert.assertEquals(InetAddress.getByName("192.168.1.1"), spyServlet.getClientAddress(request));
+        Assert.assertEquals(InetAddress.getByName("192.168.1.1"), ApiServlet.getClientAddress(request));
     }
 
     @Test
     public void getClientAddressDefault() throws UnknownHostException {
         Mockito.when(request.getRemoteAddr()).thenReturn("127.0.0.1");
-        Assert.assertEquals(InetAddress.getByName("127.0.0.1"), spyServlet.getClientAddress(request));
+        Assert.assertEquals(InetAddress.getByName("127.0.0.1"), ApiServlet.getClientAddress(request));
     }
 
     @Test
