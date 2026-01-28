@@ -370,16 +370,15 @@ public class DefaultVMSnapshotStrategy extends ManagerBase implements VMSnapshot
             if (StringUtils.isNotEmpty(volume.getChainInfo())) {
                 volumeVO.setChainInfo(volume.getChainInfo());
             }
+            long currentVmSnapshotChainSize = volumeVO.getVmSnapshotChainSize() == null ? 0 : volumeVO.getVmSnapshotChainSize();
+            long volumeSize = volumeVO.getSize() == null ? 0 : volumeVO.getSize();
             if ("finalizeCreate".equals(type)) {
-                long vmSnapshotChainSize = volumeVO.getVmSnapshotChainSize() == null ? 0 : volumeVO.getVmSnapshotChainSize();
-                vmSnapshotChainSize += volumeVO.getSize();
-                volumeVO.setVmSnapshotChainSize(vmSnapshotChainSize);
+                volumeVO.setVmSnapshotChainSize(currentVmSnapshotChainSize + volumeSize);
             } else if ("finalizeDelete".equals(type)) {
-                long vmSnapshotChainSize = volumeVO.getVmSnapshotChainSize() - volumeVO.getSize();
-                volumeVO.setVmSnapshotChainSize(vmSnapshotChainSize);
+                long updatedVmSnapshotChainSize = currentVmSnapshotChainSize - volumeSize;
+                volumeVO.setVmSnapshotChainSize(Math.max(0, updatedVmSnapshotChainSize));
             } else {
-                long vmSnapshotChainSize = volumeVO.getVmSnapshotChainSize() == null ? 0 : volumeVO.getVmSnapshotChainSize();
-                volumeVO.setVmSnapshotChainSize(vmSnapshotChainSize);
+                volumeVO.setVmSnapshotChainSize(currentVmSnapshotChainSize);
             }
             volumeDao.persist(volumeVO);
         }
