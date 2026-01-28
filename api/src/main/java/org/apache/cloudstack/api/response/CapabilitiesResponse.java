@@ -191,6 +191,10 @@ public class CapabilitiesResponse extends BaseResponse {
     @Param(description = "Excluded and obsolete VPN customer gateway cryptographic parameters")
     private Map<String, Object> vpnCustomerGatewayParameters;
 
+    @SerializedName("wallalertsenabled")
+    @Param(description = "Whether Wall Alerts integration is enabled")
+    private boolean wallAlertsEnabled;
+
     public void setSecurityGroupsEnabled(boolean securityGroupsEnabled) {
         this.securityGroupsEnabled = securityGroupsEnabled;
     }
@@ -352,5 +356,9 @@ public class CapabilitiesResponse extends BaseResponse {
 
     public void setVpnCustomerGatewayParameters(Map<String, Object> vpnCustomerGatewayParameters) {
         this.vpnCustomerGatewayParameters = vpnCustomerGatewayParameters;
+    }
+
+    public void setWallAlertsEnabled(boolean wallAlertsEnabled) {
+        this.wallAlertsEnabled = wallAlertsEnabled;
     }
 }
