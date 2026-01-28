@@ -75,6 +75,7 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
         String restoreVolumeUuid = command.getRestoreVolumeUUID();
         Integer mountTimeout = command.getMountTimeout() * 1000;
         int timeout = command.getWait();
+        String cacheMode = command.getCacheMode();
         KVMStoragePoolManager storagePoolMgr = serverResource.getStoragePoolMgr();
 
         String newVolumeId = null;
@@ -86,7 +87,7 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
                 int lastIndex = volumePath.lastIndexOf("/");
                 newVolumeId = volumePath.substring(lastIndex + 1);
                 restoreVolume(storagePoolMgr, backupPath, volumePool, volumePath, diskType, restoreVolumeUuid,
-                        new Pair<>(vmName, command.getVmState()), mountDirectory, timeout);
+                        new Pair<>(vmName, command.getVmState()), mountDirectory, timeout, cacheMode);
             } else if (Boolean.TRUE.equals(vmExists)) {
                 restoreVolumesOfExistingVM(storagePoolMgr, restoreVolumePools, restoreVolumePaths, backedVolumeUUIDs, backupPath, mountDirectory, timeout);
             } else {
@@ -150,7 +151,7 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
     }
 
     private void restoreVolume(KVMStoragePoolManager storagePoolMgr, String backupPath, PrimaryDataStoreTO volumePool, String volumePath, String diskType, String volumeUUID,
-                               Pair<String, VirtualMachine.State> vmNameAndState, String mountDirectory, int timeout) {
+                               Pair<String, VirtualMachine.State> vmNameAndState, String mountDirectory, int timeout, String cacheMode) {
         Pair<String, String> bkpPathAndVolUuid;
         try {
             bkpPathAndVolUuid = getBackupPath(mountDirectory, volumePath, backupPath, diskType, volumeUUID);
@@ -159,7 +160,7 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
                 throw new CloudRuntimeException(String.format("Unable to restore contents from the backup volume [%s].", bkpPathAndVolUuid.second()));
             }
             if (VirtualMachine.State.Running.equals(vmNameAndState.second())) {
-                if (!attachVolumeToVm(storagePoolMgr, vmNameAndState.first(), volumePool, volumePath)) {
+                if (!attachVolumeToVm(storagePoolMgr, vmNameAndState.first(), volumePool, volumePath, cacheMode)) {
                     throw new CloudRuntimeException(String.format("Failed to attach volume to VM: %s", vmNameAndState.first()));
                 }
             }
@@ -284,13 +285,13 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
         return true;
     }
 
-    private boolean attachVolumeToVm(KVMStoragePoolManager storagePoolMgr, String vmName, PrimaryDataStoreTO volumePool, String volumePath) {
+    private boolean attachVolumeToVm(KVMStoragePoolManager storagePoolMgr, String vmName, PrimaryDataStoreTO volumePool, String volumePath, String cacheMode) {
         String deviceToAttachDiskTo = getDeviceToAttachDisk(vmName);
         int exitValue;
         if (volumePool.getPoolType() != Storage.StoragePoolType.RBD) {
             exitValue = Script.runSimpleBashScriptForExitValue(String.format(ATTACH_QCOW2_DISK_COMMAND, vmName, volumePath, deviceToAttachDiskTo));
         } else {
-            String xmlForRbdDisk = getXmlForRbdDisk(storagePoolMgr, volumePool, volumePath, deviceToAttachDiskTo);
+            String xmlForRbdDisk = getXmlForRbdDisk(storagePoolMgr, volumePool, volumePath, deviceToAttachDiskTo, cacheMode);
             logger.debug("RBD disk xml to attach: {}", xmlForRbdDisk);
             exitValue = Script.runSimpleBashScriptForExitValue(String.format(ATTACH_RBD_DISK_XML_COMMAND, vmName, xmlForRbdDisk));
         }
@@ -304,12 +305,18 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
         return currentDevice.substring(0, currentDevice.length() - 1) + incrementedChar;
     }
 
-    private String getXmlForRbdDisk(KVMStoragePoolManager storagePoolMgr, PrimaryDataStoreTO volumePool, String volumePath, String deviceToAttachDiskTo) {
+    private String getXmlForRbdDisk(KVMStoragePoolManager storagePoolMgr, PrimaryDataStoreTO volumePool, String volumePath, String deviceToAttachDiskTo, String cacheMode) {
         StringBuilder diskBuilder = new StringBuilder();
         diskBuilder.append("\n<disk ");
         diskBuilder.append(" device='disk'");
         diskBuilder.append(" type='network'");
         diskBuilder.append(">\n");
+
+        diskBuilder.append("<driver name='qemu' type='raw'");
+        if (StringUtils.isBlank(cacheMode)) {
+            cacheMode = "none";
+        }
+        diskBuilder.append(" cache='").append(cacheMode).append("'/> \n");
 
         diskBuilder.append("<source ");
         diskBuilder.append(" protocol='rbd'");
