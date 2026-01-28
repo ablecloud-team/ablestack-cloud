@@ -939,6 +939,13 @@ export default {
           display: {
             secondaryStorageProvider: ['Swift']
           }
+        },
+        {
+          title: 'label.copy.templates.from.other.secondary.storages.add.zone',
+          key: 'copyTemplatesFromOtherSecondaryStorages',
+          required: false,
+          switch: true,
+          checked: this.copytemplate
         }
       ]
     }
@@ -962,7 +969,8 @@ export default {
       }],
       storageProviders: [],
       currentStep: null,
-      options: ['primaryStorageScope', 'primaryStorageProtocol', 'provider', 'primaryStorageProvider']
+      options: ['primaryStorageScope', 'primaryStorageProtocol', 'provider', 'primaryStorageProvider'],
+      copytemplate: true
     }
   },
   created () {
@@ -987,6 +995,7 @@ export default {
           primaryStorageScope: null
         })
       }
+      this.applyCopyTemplatesOptionFromGlobalSettingDuringSecondaryStorageAddition()
     }
   },
   watch: {
@@ -1216,6 +1225,20 @@ export default {
           storageProviders.push({ id: 'Swift', description: 'Swift' })
         }
         this.storageProviders = storageProviders
+      })
+    },
+    applyCopyTemplatesOptionFromGlobalSettingDuringSecondaryStorageAddition () {
+      api('listConfigurations', {
+        name: 'copy.templates.from.other.secondary.storages'
+      }).then(json => {
+        const config = json?.listconfigurationsresponse?.configuration?.[0]
+
+        if (!config || config.value === undefined) {
+          return
+        }
+
+        const value = String(config.value).toLowerCase() === 'true'
+        this.copytemplate = value
       })
     },
     fetchPrimaryStorageProvider () {
