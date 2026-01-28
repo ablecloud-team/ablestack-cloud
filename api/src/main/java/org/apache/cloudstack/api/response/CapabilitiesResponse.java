@@ -168,6 +168,10 @@ public class CapabilitiesResponse extends BaseResponse {
     @Param(description = "the min Ram size for the service offering used by the shared filesystem instance", since = "4.20.0")
     private Integer sharedFsVmMinRamSize;
 
+    @SerializedName("wallalertsenabled")
+    @Param(description = "Whether Wall Alerts integration is enabled")
+    private boolean wallAlertsEnabled;
+
     public void setSecurityGroupsEnabled(boolean securityGroupsEnabled) {
         this.securityGroupsEnabled = securityGroupsEnabled;
     }
@@ -309,5 +313,9 @@ public class CapabilitiesResponse extends BaseResponse {
 
     public void setSharedFsVmMinRamSize(Integer sharedFsVmMinRamSize) {
         this.sharedFsVmMinRamSize = sharedFsVmMinRamSize;
+    }
+
+    public void setWallAlertsEnabled(boolean wallAlertsEnabled) {
+        this.wallAlertsEnabled = wallAlertsEnabled;
     }
 }

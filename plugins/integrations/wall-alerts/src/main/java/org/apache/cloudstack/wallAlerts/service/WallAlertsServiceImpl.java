@@ -798,10 +798,18 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         return org.apache.cloudstack.wallAlerts.mapper.WallMappers.toResponse(created);
     }
 
+    // 와일드카드 임포트 금지 선호에 맞춰 FQN 그대로 사용했습니다.
     private void ensureWallConfiguredForRules() {
-        final String baseUrl = org.apache.cloudstack.wallAlerts.config.WallConfigKeys.WALL_BASE_URL.value();
-        final String token = wallTokenNow();
+        // 1) 기능이 꺼져 있으면 모든 룰 관련 API를 즉시 차단합니다.
+        if (!org.apache.cloudstack.wallAlerts.config.WallConfigKeys.WALL_ALERT_ENABLED.value()) {
+            throw new org.apache.cloudstack.api.ServerApiException(
+                    org.apache.cloudstack.api.ApiErrorCode.UNSUPPORTED_ACTION_ERROR,
+                    "Wall Alerts is disabled by configuration (wall.alerts.enable=false)."
+            );
+        }
 
+        // 2) 켜져 있을 때만 URL/토큰 유효성을 검사합니다.
+        final String baseUrl = org.apache.cloudstack.wallAlerts.config.WallConfigKeys.WALL_BASE_URL.value();
         if (org.apache.commons.lang3.StringUtils.isBlank(baseUrl)) {
             throw new org.apache.cloudstack.api.ServerApiException(
                     org.apache.cloudstack.api.ApiErrorCode.INTERNAL_ERROR,
@@ -809,17 +817,15 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
             );
         }
 
-        // enable=true 인데 토큰이 없으면 바로 오류입니다.
-        // 여기서 토큰은 “글로벌 설정 우선, 없으면 env 폴백” 결과입니다.
-        if (org.apache.cloudstack.wallAlerts.config.WallConfigKeys.WALL_ALERT_ENABLED.value()) {
-            if (org.apache.commons.lang3.StringUtils.isBlank(token)) {
-                throw new org.apache.cloudstack.api.ServerApiException(
-                        org.apache.cloudstack.api.ApiErrorCode.UNSUPPORTED_ACTION_ERROR,
-                        "Wall API token (wall.api.token) is not configured. " +
-                                "Please set a valid service account token in global settings " +
-                                "or provide WALL_API_TOKEN environment variable."
-                );
-            }
+        // enable=true 인데 토큰이 없으면 오류입니다.
+        final String token = wallTokenNow();
+        if (org.apache.commons.lang3.StringUtils.isBlank(token)) {
+            throw new org.apache.cloudstack.api.ServerApiException(
+                    org.apache.cloudstack.api.ApiErrorCode.UNSUPPORTED_ACTION_ERROR,
+                    "Wall API token (wall.api.token) is not configured. " +
+                            "Please set a valid service account token in global settings " +
+                            "or provide WALL_API_TOKEN environment variable."
+            );
         }
     }
 
@@ -1622,6 +1628,10 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
     @Override
     public List<Class<?>> getCommands() {
         final List<Class<?>> cmds = new ArrayList<>();
+        // 기능이 꺼져 있으면 어떤 API도 등록하지 않습니다.
+        if (!WallConfigKeys.WALL_ALERT_ENABLED.value()) {
+            return cmds;
+        }
         cmds.add(ListWallAlertRulesCmd.class);
         cmds.add(UpdateWallAlertRuleThresholdCmd.class);
         cmds.add(PauseWallAlertRuleCmd.class);
