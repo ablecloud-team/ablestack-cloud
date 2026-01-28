@@ -73,6 +73,9 @@ export default {
     name: 'physical.network',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/zone/PhysicalNetworksTab.vue')))
   }, {
+    name: 'zone.rack',
+    component: shallowRef(defineAsyncComponent(() => import('@/views/plugins/IFrameRack.vue')))
+  }, {
     name: 'ipv4.subnets',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/zone/Ipv4GuestSubnetsTab.vue'))),
     show: (record) => { return record.routedmodeenabled && 'listIpv4SubnetsForZone' in store.getters.apis }
