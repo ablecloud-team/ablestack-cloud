@@ -127,9 +127,10 @@ export default {
       message: 'message.enable.user',
       dataView: true,
       show: (record, store) => {
-        return ['Admin', 'DomainAdmin'].includes(store.userInfo.roletype) && !record.isdefault &&
-          !(record.domain === 'ROOT' && record.account === 'admin' && record.accounttype === 1) &&
-          ['disabled', 'locked'].includes(record.state)
+        if (!['disabled', 'locked'].includes(record.state) || record.isdefault || !['Admin', 'DomainAdmin'].includes(store.userInfo.roletype)) {
+          return false
+        }
+        return ![1, 4].includes(record.accounttype) || store.userInfo.roletype === 'Admin'
       }
     },
     {
@@ -139,9 +140,10 @@ export default {
       message: 'message.disable.user',
       dataView: true,
       show: (record, store) => {
-        return ['Admin', 'DomainAdmin'].includes(store.userInfo.roletype) && !record.isdefault &&
-          !(record.domain === 'ROOT' && record.account === 'admin' && record.accounttype === 1) &&
-          record.state === 'enabled'
+        if (record.state !== 'enabled' || record.isdefault || !['Admin', 'DomainAdmin'].includes(store.userInfo.roletype)) {
+          return false
+        }
+        return ![1, 4].includes(record.accounttype) || (store.userInfo.roletype === 'Admin' && record.id !== store.userInfo.id)
       }
     },
     {
@@ -153,9 +155,10 @@ export default {
       dataView: true,
       popup: true,
       show: (record, store) => {
-        return ['Admin', 'DomainAdmin'].includes(store.userInfo.roletype) && !record.isdefault &&
-          !(record.domain === 'ROOT' && record.account === 'admin' && record.accounttype === 1) &&
-          record.state === 'enabled'
+        if (record.state !== 'enabled' || record.isdefault || !['Admin', 'DomainAdmin'].includes(store.userInfo.roletype)) {
+          return false
+        }
+        return ![1, 4].includes(record.accounttype) || (store.userInfo.roletype === 'Admin' && record.id !== store.userInfo.id)
       }
     },
     {
