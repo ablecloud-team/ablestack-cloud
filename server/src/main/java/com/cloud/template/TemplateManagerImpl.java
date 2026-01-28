@@ -1185,7 +1185,7 @@ public class TemplateManagerImpl extends ManagerBase implements TemplateManager,
         if (virtualMachine == null || (isVirtualRouter && virtualMachine.getType() != VirtualMachine.Type.DomainRouter)) {
             throw new InvalidParameterValueException("Please specify a valid VM.");
         }
-        
+
         // Verify input parameters
         UserVmVO vmInstanceCheck = _userVmDao.findById(vmId);
         if (vmInstanceCheck == null) {

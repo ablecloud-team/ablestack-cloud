@@ -128,7 +128,7 @@ public class DomainResponse extends BaseResponseWithAnnotations implements Resou
     @SerializedName(ApiConstants.BACKUP_STORAGE_AVAILABLE)
     @Param(description = "The total backup storage space (in GiB) available to the domain", since = "4.21.0")
     private String backupStorageAvailable;
-  
+
     @SerializedName("templatelimit") @Param(description = "The total number of Templates which can be created by this domain")
     private String templateLimit;
 

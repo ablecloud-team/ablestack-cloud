@@ -30,6 +30,7 @@ import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.ScopeType;
 import com.cloud.storage.Storage;
 import com.cloud.storage.Volume;
+import com.cloud.storage.Volume.Type;
 import com.cloud.storage.VolumeApiServiceImpl;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.DiskOfferingDao;
@@ -39,6 +40,7 @@ import com.cloud.utils.Pair;
 import com.cloud.utils.component.AdapterBase;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.VirtualMachine;
+import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.dao.VMInstanceDao;
 import com.cloud.vm.snapshot.VMSnapshot;
 import com.cloud.vm.snapshot.VMSnapshotDetailsVO;
@@ -370,6 +372,16 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
     public Pair<Boolean, String> restoreBackedUpVolume(Backup backup, Backup.VolumeInfo backupVolumeInfo, String hostIp, String dataStoreUuid, Pair<String, VirtualMachine.State> vmNameAndState) {
         final VolumeVO volume = volumeDao.findByUuid(backupVolumeInfo.getUuid());
         final DiskOffering diskOffering = diskOfferingDao.findByUuid(backupVolumeInfo.getDiskOfferingId());
+        String cacheMode = null;
+        final VMInstanceVO vm = vmInstanceDao.findVMByInstanceName(vmNameAndState.first());
+        List<VolumeVO> listVolumes = volumeDao.findByInstanceAndType(vm.getId(), Type.ROOT);
+        if(CollectionUtils.isNotEmpty(listVolumes)) {
+            VolumeVO rootDisk = listVolumes.get(0);
+            DiskOffering baseDiskOffering = diskOfferingDao.findById(rootDisk.getDiskOfferingId());
+            if (baseDiskOffering.getCacheMode() != null) {
+                cacheMode = baseDiskOffering.getCacheMode().toString();
+            }
+        }
         final StoragePoolVO pool = primaryDataStoreDao.findByUuid(dataStoreUuid);
         final HostVO hostVO = hostDao.findByIp(hostIp);
 
@@ -413,6 +425,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         restoreCommand.setVmState(vmNameAndState.second());
         restoreCommand.setRestoreVolumeUUID(backupVolumeInfo.getUuid());
         restoreCommand.setMountTimeout(NASBackupRestoreMountTimeout.value());
+        restoreCommand.setCacheMode(cacheMode);
 
         BackupAnswer answer;
         try {

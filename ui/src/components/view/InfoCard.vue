@@ -16,7 +16,11 @@
 // under the License.
 <template>
   <a-spin :spinning="loading">
-    <a-card class="spin-content" :bordered="bordered" :title="title">
+    <a-card
+      class="spin-content"
+      :bordered="bordered"
+      :title="title"
+      @contextmenu="handleContextMenu">
       <div class="card-body">
         <div class="card-content">
           <div>

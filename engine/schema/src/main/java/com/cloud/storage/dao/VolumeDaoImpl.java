@@ -947,7 +947,7 @@ public class VolumeDaoImpl extends GenericDaoBase<VolumeVO, Long> implements Vol
         sc.and(sc.entity().getState(), SearchCriteria.Op.IN,  (Object[]) states);
         return sc.find();
     }
-    
+
     @Override
     public int getVolumeCountByOfferingId(long diskOfferingId) {
         SearchCriteria<Integer> sc = CountByOfferingId.create();

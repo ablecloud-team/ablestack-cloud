@@ -330,7 +330,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             filteredDomainIds = domainHelper.filterChildSubDomains(filteredDomainIds);
         }
 
-        final BackupProvider provider = getBackupProvider(cmd.getZoneId());
+        final BackupProvider provider = getBackupProvider(providerName);
         if ("commvault".equals(providerName)) {
             List<StoragePoolVO> pools = primaryDataStoreDao.listByDataCenterId(cmd.getZoneId());
             boolean validPool = false;
@@ -344,7 +344,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 throw new CloudRuntimeException("The backup offering cannot be imported because storage of type SharedMountPoint with storage status Up does not exist.");
             }
         }
-        
+
         if (!provider.isValidProviderOffering(cmd.getZoneId(), cmd.getExternalId())) {
             throw new CloudRuntimeException("Backup offering '" + cmd.getExternalId() + "' does not exist on provider " + provider.getName() + " on zone " + cmd.getZoneId());
         }

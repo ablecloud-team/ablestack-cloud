@@ -64,7 +64,7 @@ public class UpdateBackupOfferingCmd extends BaseCmd implements DomainAndZoneIdR
 
     @Parameter(name = ApiConstants.RETENTION_PERIOD, type = CommandType.STRING, required = false, description = "Retention period of backup data")
     private String retentionPeriod;
-    
+
     @Parameter(name = ApiConstants.DOMAIN_ID,
             type = CommandType.STRING,
             description = "the ID of the containing domain(s) as comma separated string, public for public offerings",

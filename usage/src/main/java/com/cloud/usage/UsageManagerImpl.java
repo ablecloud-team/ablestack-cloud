@@ -944,114 +944,12 @@ public class UsageManagerImpl extends ManagerBase implements UsageManager, Runna
     private boolean parseHelperTables(AccountVO account, Date currentStartDate, Date currentEndDate) {
         boolean parsed = false;
 
-        parsed = VMInstanceUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("Instance usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
+        for (UsageParser parser : usageParsers) {
+            parsed = parser.doParsing(account, currentStartDate, currentEndDate);
+
+            logger.debug("{} usage was {} parsed for [{}].", parser.getParserName(), parsed ? "successfully" : "not successfully", account);
         }
 
-        parsed = NetworkUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("Network usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
-        }
-
-        parsed = VmDiskUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("Instance disk usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
-        }
-
-        parsed = VolumeUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("Volume usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
-        }
-
-        parsed = StorageUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("Storage usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
-        }
-
-        parsed = SecurityGroupUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("Security Group usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
-        }
-
-        parsed = LoadBalancerUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("Load balancer usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
-        }
-
-        parsed = PortForwardingUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("Port forwarding usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
-        }
-
-        parsed = NetworkOfferingUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("Network offering usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
-        }
-
-        parsed = IPAddressUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("IPAddress usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
-        }
-        parsed = VPNUserUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("VPN user usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
-        }
-        parsed = VMSnapshotUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("Instance Snapshot usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
-        }
-        parsed = VMSnapshotOnPrimaryParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("Instance Snapshot on primary usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
-        }
-        parsed = BackupUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("Instance Backup usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
-        }
-        parsed = BucketUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (logger.isDebugEnabled()) {
-            if (!parsed) {
-                logger.debug("Bucket usage successfully parsed? " + parsed + " (for Account: " + account.getAccountName() + ", id: " + account.getId() + ")");
-            }
-        }
-        parsed = NetworksUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (!parsed) {
-            logger.debug("Networks usage not parsed for Account [{}}].", account);
-        }
-
-        parsed = VpcUsageParser.parse(account, currentStartDate, currentEndDate);
-        if (!parsed) {
-            logger.debug(String.format("VPC usage failed to parse for Account [%s].", account));
-        }
         return parsed;
     }
 
@@ -1577,11 +1475,17 @@ public class UsageManagerImpl extends ManagerBase implements UsageManager, Runna
             volumesVOs = _usageVolumeDao.listByVolumeId(volId, event.getAccountId());
             if (volumesVOs.size() > 0) {
                 //This is a safeguard to avoid double counting of volumes.
-                logger.error("Found duplicate usage entry for volume: " + volId + " assigned to Account: " + event.getAccountId() + "; marking as deleted...");
+                logger.error("Found duplicate usage entry for volume: {} assigned to Account: ; marking as deleted...", volId, event.getAccountId());
+                deleteExistingVolumeUsage(volId, event.getAccountId(), event.getCreateDate());
             }
 
             logger.debug("Creating a new entry in usage_volume for volume with id: {} for account: {}", volId, event.getAccountId());
+            volumeVO = new UsageVolumeVO(volId, event.getZoneId(), event.getAccountId(), acct.getDomainId(), event.getOfferingId(), event.getTemplateId(), null, event.getSize(), event.getCreateDate(), null);
+            _usageVolumeDao.persist(volumeVO);
+
+            if (event.getVmId() != null) {
                 volumeVO = new UsageVolumeVO(volId, event.getZoneId(), event.getAccountId(), acct.getDomainId(), event.getOfferingId(), event.getTemplateId(), event.getVmId(), event.getSize(), event.getCreateDate(), null);
+                _usageVolumeDao.persist(volumeVO);
             }
             break;
 
@@ -1737,7 +1641,6 @@ public class UsageManagerImpl extends ManagerBase implements UsageManager, Runna
         long zoneId = -1L;
 
         long snapId = event.getResourceId();
-
         if (EventTypes.EVENT_SNAPSHOT_CREATE.equals(event.getType())) {
             if (usageSnapshotSelection){
                 snapSize =  event.getVirtualSize();
