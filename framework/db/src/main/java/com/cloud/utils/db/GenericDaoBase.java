@@ -1171,6 +1171,8 @@ public abstract class GenericDaoBase<T, ID extends Serializable> extends Compone
                 if (filter.getLimit() != null) {
                     sql.append(", ").append(filter.getLimit());
                 }
+            } else if (filter.getLimit() != null) {
+                sql.append(" LIMIT ").append(filter.getLimit());
             }
         }
     }
@@ -1332,7 +1334,7 @@ public abstract class GenericDaoBase<T, ID extends Serializable> extends Compone
         Filter filter = null;
         final long batchSizeFinal = ObjectUtils.defaultIfNull(batchSize, 0L);
         if (batchSizeFinal > 0) {
-            filter = new Filter(batchSizeFinal);
+            filter = new Filter(null, batchSizeFinal);
         }
         int expunged = 0;
         int currentExpunged = 0;
