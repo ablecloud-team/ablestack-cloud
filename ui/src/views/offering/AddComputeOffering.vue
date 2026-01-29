@@ -726,7 +726,7 @@ export default {
       domainLoading: false,
       zones: [],
       zoneLoading: false,
-      selectedDeployementPlanner: null,
+      selectedDeploymentPlanner: null,
       storagePolicies: null,
       storageTags: [],
       storageTagLoading: false,
@@ -735,50 +735,9 @@ export default {
       plannerModeVisible: false,
       plannerMode: '',
       selectedGpuCard: '',
-      gpuCards: [],
-      gpuCardLoading: false,
-      vgpuProfiles: [],
-      vgpuProfileLoading: false,
       showDiskOfferingModal: false,
-      gpuTypes: [
-        {
-          value: '',
-          title: this.$t('label.none'),
-          vgpu: []
-        },
-        {
-          value: 'Group of NVIDIA Corporation GV100GL [TESLA V100] GPUs',
-          title: 'NVIDIA TESLA V100',
-          vgpu: ['', 'passthrough', 'GRID V100D-1A', 'GRID V100D-1B', 'GRID V100D-1Q', 'GRID V100D-2A', 'GRID V100D-2B', 'GRID V100D-2B4', 'GRID V100D-2Q', 'GRID V100D-4A', 'GRID V100D-4Q', 'GRID V100D-8A', 'GRID V100D-8Q', 'GRID V100D-16A', 'GRID V100D-16Q', 'GRID V100D-32A', 'GRID V100D-32Q']
-        },
-        {
-          value: 'Group of Nvidia Corporation TU104GL [Tesla T4] GPUs',
-          title: 'NVIDIA TESLA T4',
-          vgpu: ['', 'passthrough', 'GRID T4-1A', 'GRID T4-1B', 'GRID T4-1Q', 'GRID T4-2A', 'GRID T4-2B', 'GRID T4-2B4', 'GRID T4-2Q', 'GRID T4-4A', 'GRID T4-4Q', 'GRID T4-8A', 'GRID T4-8Q', 'GRID T4-16A', 'GRID T4-16Q']
-        },
-        {
-          value: 'Group of Nvidia Corporation GA102 [RTX A5500] GPUs',
-          title: 'NVIDIA RTX A5500',
-          vgpu: ['', 'passthrough', 'NVIDIA RTXA5500-1A', 'NVIDIA RTXA5500-1B', 'NVIDIA RTXA5500-1Q', 'NVIDIA RTXA5500-2A', 'NVIDIA RTXA5500-2B', 'NVIDIA RTXA5500-2Q', 'NVIDIA RTXA5500-3A', 'NVIDIA RTXA5500-3Q', 'NVIDIA RTXA5500-4A', 'NVIDIA RTXA5500-4Q', 'NVIDIA RTXA5500-6A', 'NVIDIA RTXA5500-6Q', 'NVIDIA RTXA5500-8A', 'NVIDIA RTXA5500-8Q', 'NVIDIA RTXA5500-12A', 'NVIDIA RTXA5500-12Q', 'NVIDIA RTXA5500-24A', 'NVIDIA RTXA5500-24Q']
-        },
-        {
-          value: 'Group of NVIDIA Corporation GA102GL [A40] GPUs',
-          title: 'NVIDIA RTX A40',
-          vgpu: ['', 'passthrough', 'NVIDIA A40-1A', 'NVIDIA A40-1B', 'NVIDIA A40-1Q', 'NVIDIA A40-2A', 'NVIDIA A40-2B', 'NVIDIA A40-2Q', 'NVIDIA A40-3A', 'NVIDIA A40-3Q', 'NVIDIA A40-4A', 'NVIDIA A40-4Q', 'NVIDIA A40-6A', 'NVIDIA A40-6Q', 'NVIDIA A40-8A', 'NVIDIA A40-8Q', 'NVIDIA A40-12A', 'NVIDIA A40-12Q', 'NVIDIA A40-16A', 'NVIDIA A40-16Q', 'NVIDIA A40-24A', 'NVIDIA A40-24Q', 'NVIDIA A40-48A', 'NVIDIA A40-48Q']
-        },
-        {
-          value: 'Group of NVIDIA Corporation GA107 [NVIDIA A16/NVIDIA A2] GPUs',
-          title: 'NVIDIA RTX A2',
-          vgpu: ['', 'passthrough', 'NVIDIA A2-1A', 'NVIDIA A2-1B', 'NVIDIA A2-1Q', 'NVIDIA A2-2A', 'NVIDIA A2-2B', 'NVIDIA A2-2Q', 'NVIDIA A2-4A', 'NVIDIA A2-4Q', 'NVIDIA A2-8A', 'NVIDIA A2-8Q', 'NVIDIA A2-16A', 'NVIDIA A2-16Q']
-        },
-        {
-          value: 'Group of NVIDIA Corporation GA102GL [A10] GPUs',
-          title: 'NVIDIA RTX A10',
-          vgpu: ['', 'passthrough', 'NVIDIA A10-1A', 'NVIDIA A10-1B', 'NVIDIA A10-1Q', 'NVIDIA A10-2A', 'NVIDIA A10-2B', 'NVIDIA A10-2Q', 'NVIDIA A10-3A', 'NVIDIA A10-3Q', 'NVIDIA A10-4A', 'NVIDIA A10-4Q', 'NVIDIA A10-6A', 'NVIDIA A10-6Q', 'NVIDIA A10-8A', 'NVIDIA A10-8Q', 'NVIDIA A10-12A', 'NVIDIA A10-12Q', 'NVIDIA A10-24A', 'NVIDIA A10-24Q']
-        }
-      ],
-      vGpuVisible: false,
-      vGpuTypes: [],
+      gpuCardLoading: false,
+      gpuCards: [],
       loading: false,
       dynamicscalingenabled: true,
       diskofferingstrictness: false,
@@ -795,7 +754,10 @@ export default {
       defaultLeaseDuration: 90,
       defaultLeaseExpiryAction: 'STOP',
       leaseduration: undefined,
-      leaseexpiryaction: undefined
+      leaseexpiryaction: undefined,
+      vgpuProfiles: [],
+      vgpuProfileLoading: false,
+      externalDetailsEnabled: false
     }
   },
   beforeCreate () {
@@ -926,20 +888,14 @@ export default {
     },
     fetchGPUCards () {
       this.gpuCardLoading = true
-      getAPI('listGpuCards').then(json => {
-        const cards = json?.listgpucardsresponse?.gpucard || []
-        this.gpuCards = [
-          { id: '', name: this.$t('label.none') },
-          ...cards
-        ]
-      }).catch(error => {
-        if (this.$notifyError) {
-          this.$notifyError(error)
-        }
-        this.gpuCards = [{
+      getAPI('listGpuCards', {
+      }).then(json => {
+        this.gpuCards = json.listgpucardsresponse.gpucard || []
+        // Add a "None" option at the beginning
+        this.gpuCards.unshift({
           id: '',
           name: this.$t('label.none')
-        }]
+        })
       }).finally(() => {
         this.gpuCardLoading = false
       })
@@ -1083,9 +1039,9 @@ export default {
       this.qosType = val
     },
     handleDeploymentPlannerChange (planner) {
-      this.selectedDeployementPlanner = planner
+      this.selectedDeploymentPlanner = planner
       this.plannerModeVisible = false
-      if (this.selectedDeployementPlanner === 'ImplicitDedicationPlanner') {
+      if (this.selectedDeploymentPlanner === 'ImplicitDedicationPlanner') {
         this.plannerModeVisible = isAdmin()
       }
     },
