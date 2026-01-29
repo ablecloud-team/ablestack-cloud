@@ -1380,28 +1380,29 @@ public class KVMStorageProcessor implements StorageProcessor {
 
     /**
      * Attaches or detaches a disk to an instance.
-     * @param conn libvirt connection
-     * @param attach boolean that determines whether the device will be attached or detached
-     * @param vmName instance name
-     * @param attachingDisk kvm physical disk
-     * @param devId device id in instance
+     * @param conn                    libvirt connection
+     * @param attach                  boolean that determines whether the device will be attached or detached
+     * @param vmName                  instance name
+     * @param attachingDisk           kvm physical disk
+     * @param devId                   device id in instance
      * @param serial
-     * @param bytesReadRate bytes read rate
-     * @param bytesReadRateMax bytes read rate max
-     * @param bytesReadRateMaxLength bytes read rate max length
-     * @param bytesWriteRate bytes write rate
-     * @param bytesWriteRateMax bytes write rate amx
+     * @param bytesReadRate           bytes read rate
+     * @param bytesReadRateMax        bytes read rate max
+     * @param bytesReadRateMaxLength  bytes read rate max length
+     * @param bytesWriteRate          bytes write rate
+     * @param bytesWriteRateMax       bytes write rate amx
      * @param bytesWriteRateMaxLength bytes write rate max length
-     * @param iopsReadRate iops read rate
-     * @param iopsReadRateMax iops read rate max
-     * @param iopsReadRateMaxLength iops read rate max length
-     * @param iopsWriteRate iops write rate
-     * @param iopsWriteRateMax iops write rate max
-     * @param iopsWriteRateMaxLength iops write rate max length
-     * @param cacheMode cache mode
-     * @param encryptDetails encrypt details
-     * @param provider Storage Provider
-     * @param krbdpath krbd physical host side path
+     * @param iopsReadRate            iops read rate
+     * @param iopsReadRateMax         iops read rate max
+     * @param iopsReadRateMaxLength   iops read rate max length
+     * @param iopsWriteRate           iops write rate
+     * @param iopsWriteRateMax        iops write rate max
+     * @param iopsWriteRateMaxLength  iops write rate max length
+     * @param cacheMode               cache mode
+     * @param encryptDetails          encrypt details
+     * @param provider                Storage Provider
+     * @param krbdpath                krbd physical host side path
+     * @param controllerInfo
      * @throws LibvirtException
      * @throws InternalErrorException
      */
@@ -1409,40 +1410,42 @@ public class KVMStorageProcessor implements StorageProcessor {
                                                    final String serial, final Long bytesReadRate, final Long bytesReadRateMax, final Long bytesReadRateMaxLength,
                                                    final Long bytesWriteRate, final Long bytesWriteRateMax, final Long bytesWriteRateMaxLength, final Long iopsReadRate,
                                                    final Long iopsReadRateMax, final Long iopsReadRateMaxLength, final Long iopsWriteRate, final Long iopsWriteRateMax,
-                                                   final Long iopsWriteRateMaxLength, final String cacheMode, final DiskDef.LibvirtDiskEncryptDetails encryptDetails,
-                                                   final String provider, final String krbdpath, boolean shareable, boolean kvdoEnable, Map<String, String> details)
+                                                   final Long iopsWriteRateMaxLength, final String cacheMode, final DiskDef.LibvirtDiskEncryptDetails encryptDetails, 
+                                                   final String provider, final String krbdpath, boolean shareable, boolean kvdoEnable, Map<String, String> details, 
+                                                   Map<String, String> controllerInfo)
             throws LibvirtException, InternalErrorException {
         attachOrDetachDisk(conn, attach, vmName, attachingDisk, devId, serial, bytesReadRate, bytesReadRateMax, bytesReadRateMaxLength,
                 bytesWriteRate, bytesWriteRateMax, bytesWriteRateMaxLength, iopsReadRate, iopsReadRateMax, iopsReadRateMaxLength, iopsWriteRate,
-                iopsWriteRateMax, iopsWriteRateMaxLength, cacheMode, encryptDetails, provider, krbdpath, 0l, shareable, kvdoEnable, details);
+                iopsWriteRateMax, iopsWriteRateMaxLength, cacheMode, encryptDetails, provider, krbdpath, 0l, shareable, kvdoEnable, details, controllerInfo);
     }
 
     /**
      *
      * Attaches or detaches a disk to an instance.
-     * @param conn libvirt connection
-     * @param attach boolean that determines whether the device will be attached or detached
-     * @param vmName instance name
-     * @param attachingDisk kvm physical disk
-     * @param devId device id in instance
+     * @param conn                    libvirt connection
+     * @param attach                  boolean that determines whether the device will be attached or detached
+     * @param vmName                  instance name
+     * @param attachingDisk           kvm physical disk
+     * @param devId                   device id in instance
      * @param serial
-     * @param bytesReadRate bytes read rate
-     * @param bytesReadRateMax bytes read rate max
-     * @param bytesReadRateMaxLength bytes read rate max length
-     * @param bytesWriteRate bytes write rate
-     * @param bytesWriteRateMax bytes write rate amx
+     * @param bytesReadRate           bytes read rate
+     * @param bytesReadRateMax        bytes read rate max
+     * @param bytesReadRateMaxLength  bytes read rate max length
+     * @param bytesWriteRate          bytes write rate
+     * @param bytesWriteRateMax       bytes write rate amx
      * @param bytesWriteRateMaxLength bytes write rate max length
-     * @param iopsReadRate iops read rate
-     * @param iopsReadRateMax iops read rate max
-     * @param iopsReadRateMaxLength iops read rate max length
-     * @param iopsWriteRate iops write rate
-     * @param iopsWriteRateMax iops write rate max
-     * @param iopsWriteRateMaxLength iops write rate max length
-     * @param cacheMode cache mode
-     * @param encryptDetails encrypt details
-     * @param provider Storage Provider
-     * @param krbdpath krbd physical host side path
-     * @param waitDetachDevice value set in milliseconds to wait before assuming device removal failed
+     * @param iopsReadRate            iops read rate
+     * @param iopsReadRateMax         iops read rate max
+     * @param iopsReadRateMaxLength   iops read rate max length
+     * @param iopsWriteRate           iops write rate
+     * @param iopsWriteRateMax        iops write rate max
+     * @param iopsWriteRateMaxLength  iops write rate max length
+     * @param cacheMode               cache mode
+     * @param encryptDetails          encrypt details
+     * @param provider                Storage Provider
+     * @param krbdpath.               krbd physical host side path
+     * @param waitDetachDevice        value set in milliseconds to wait before assuming device removal failed
+     * @param controllerInfo
      * @throws LibvirtException
      * @throws InternalErrorException
      */
@@ -1451,7 +1454,8 @@ public class KVMStorageProcessor implements StorageProcessor {
                                                    final Long bytesWriteRate, final Long bytesWriteRateMax, final Long bytesWriteRateMaxLength, final Long iopsReadRate,
                                                    final Long iopsReadRateMax, final Long iopsReadRateMaxLength, final Long iopsWriteRate, final Long iopsWriteRateMax,
                                                    final Long iopsWriteRateMaxLength, final String cacheMode, final DiskDef.LibvirtDiskEncryptDetails encryptDetails,
-                                                   final String provider, final String krbdpath, long waitDetachDevice, boolean shareable, boolean kvdoEnable, Map<String, String> details)
+                                                   final String provider, final String krbdpath, long waitDetachDevice, boolean shareable, boolean kvdoEnable, 
+                                                   long waitDetachDevice, Map<String, String> details, Map<String, String> controllerInfo)
             throws LibvirtException, InternalErrorException {
 
         List<DiskDef> disks = null;
@@ -1504,17 +1508,7 @@ public class KVMStorageProcessor implements StorageProcessor {
                     return;
                 }
             } else {
-                DiskDef.DiskBus busT = DiskDef.DiskBus.VIRTIO;
-                for (final DiskDef disk : disks) {
-                    if (disk.getDeviceType() == DeviceType.DISK) {
-                        if (disk.getBusType() == DiskDef.DiskBus.SCSI) {
-                            busT = DiskDef.DiskBus.SCSI;
-                        } else if (disk.getBusType() == DiskDef.DiskBus.VIRTIOBLK) {
-                            busT = DiskDef.DiskBus.VIRTIOBLK;
-                        }
-                        break;
-                    }
-                }
+                DiskDef.DiskBus busT = getAttachDiskBusType(devId, disks, controllerInfo);
                 diskdef = new DiskDef();
                 if (busT == DiskDef.DiskBus.SCSI || busT == DiskDef.DiskBus.VIRTIOBLK) {
                     diskdef.setQemuDriver(true);
@@ -1652,6 +1646,28 @@ public class KVMStorageProcessor implements StorageProcessor {
         }
     }
 
+    protected DiskDef.DiskBus getAttachDiskBusType(int deviceId, List<DiskDef> disks, Map<String, String> controllerInfo) {
+        String controllerKey = deviceId == 0 ? VmDetailConstants.ROOT_DISK_CONTROLLER : VmDetailConstants.DATA_DISK_CONTROLLER;
+        String diskController = MapUtils.getString(controllerInfo, controllerKey);
+        DiskDef.DiskBus busType = DiskDef.DiskBus.fromValue(diskController);
+        if (diskController != null) {
+            logger.debug("Using controller '{}' from command specified as {} while attaching disk (deviceId={})",
+                    diskController, controllerKey, deviceId);
+            return busType;
+        }
+        for (final DiskDef disk : disks) {
+            if (disk.getDeviceType() != DeviceType.DISK) {
+                continue;
+            }
+            if (disk.getBusType() == DiskDef.DiskBus.SCSI) {
+                return DiskDef.DiskBus.SCSI;
+            } else if (disk.getBusType() == DiskDef.DiskBus.VIRTIOBLK) {
+                return DiskDef.DiskBus.VIRTIOBLK;
+            }
+        }
+        return DiskDef.DiskBus.VIRTIO;
+    }
+
     @Override
     public Answer attachVolume(final AttachCommand cmd) {
         final DiskTO disk = cmd.getDisk();
@@ -1684,9 +1700,9 @@ public class KVMStorageProcessor implements StorageProcessor {
                     vol.getBytesWriteRate(), vol.getBytesWriteRateMax(), vol.getBytesWriteRateMaxLength(),
                     vol.getIopsReadRate(), vol.getIopsReadRateMax(), vol.getIopsReadRateMaxLength(),
                     vol.getIopsWriteRate(), vol.getIopsWriteRateMax(), vol.getIopsWriteRateMaxLength(), volCacheMode, encryptDetails,
-                    primaryStore.getProvider(), primaryStore.getKrbdPath(), vol.getShareable(), vol.getKvdoEnable(), disk.getDetails());
+                    primaryStore.getProvider(), primaryStore.getKrbdPath(), vol.getShareable(), vol.getKvdoEnable(), disk.getDetails(), cmd.getControllerInfo());
 
-            resource.recreateCheckpointsOnVm(List.of((VolumeObjectTO) disk.getData()), vmName, conn);
+            resource.recreateCheckpointsOnVm(List.of((VolumeObjectTO) disk.getData()), vmName, conn, cmd.getControllerInfo());
 
             return new AttachAnswer(disk);
         } catch (final LibvirtException e) {
@@ -1727,8 +1743,8 @@ public class KVMStorageProcessor implements StorageProcessor {
                     vol.getBytesReadRate(), vol.getBytesReadRateMax(), vol.getBytesReadRateMaxLength(),
                     vol.getBytesWriteRate(), vol.getBytesWriteRateMax(), vol.getBytesWriteRateMaxLength(),
                     vol.getIopsReadRate(), vol.getIopsReadRateMax(), vol.getIopsReadRateMaxLength(),
-                    vol.getIopsWriteRate(), vol.getIopsWriteRateMax(), vol.getIopsWriteRateMaxLength(), volCacheMode, null,
-                    primaryStore.getProvider(), primaryStore.getKrbdPath(), waitDetachDevice, vol.getShareable(), vol.getKvdoEnable(), null);
+                    vol.getIopsWriteRate(), vol.getIopsWriteRateMax(), vol.getIopsWriteRateMaxLength(), volCacheMode, null, 
+                    primaryStore.getProvider(), primaryStore.getKrbdPath(), waitDetachDevice, vol.getShareable(), vol.getKvdoEnable(), waitDetachDevice, null, null);
 
             storagePoolMgr.disconnectPhysicalDisk(primaryStore.getPoolType(), primaryStore.getUuid(), vol.getPath());
 
