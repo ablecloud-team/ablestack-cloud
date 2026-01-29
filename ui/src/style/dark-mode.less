@@ -1135,10 +1135,10 @@
 
   .quickview-context-menu,
   .autogen-action-dropdown__content {
-    background: @dropdown-bgColor;
-    border-color: @dark-border-color;
-    box-shadow: 0 8px 24px @box-shadow-1;
-    color: @dark-text-color-4;
+    background: @dropdown-bgColor !important;
+    border-color: @dark-border-color !important;
+    box-shadow: 0 8px 24px @box-shadow-1 !important;
+    color: @dark-text-color-4 !important;
   }
 
   .quickview-context-menu .action-button-title,
@@ -1163,10 +1163,17 @@
     background: rgba(0, 0, 0, 0.50)
   }
 
-  .field-key,
-  .banner-label,
-  .banner-main {
+  .auto-alert-banner-container .banner-field {
+      background: rgba(0, 0, 0, 0.85);
+  }
+
+  .banner-main,
+  .field-key {
     color: #cfc9c9;
-    background-color: rgb(150 96 96 / 50%);
+  }
+
+  .banner-label {
+    color: #cfc9c9;
+    background-color: rgba(150, 96, 96, 0.5);
   }
 }
