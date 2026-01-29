@@ -94,7 +94,7 @@ export default {
         }
       ],
       searchFilters: () => {
-        var filters = ['name', 'zoneid', 'domainid', 'account', 'state', 'tags', 'serviceofferingid', 'diskofferingid', 'isencrypted']
+        const filters = ['name', 'zoneid', 'domainid', 'account', 'state', 'tags', 'serviceofferingid', 'diskofferingid', 'isencrypted']
         if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
           filters.push('storageid')
         }
@@ -326,7 +326,10 @@ export default {
       permission: ['listSnapshots'],
       resourceType: 'Snapshot',
       columns: () => {
-        var fields = ['name', 'state', 'volumename', 'intervaltype', 'physicalsize', 'created']
+        const fields = ['name', 'state', 'volumename', 'intervaltype', 'physicalsize', 'created']
+        if (store.getters.features.snapshotshowchainsize) {
+          fields.splice(fields.indexOf('created'), 0, 'chainsize', 'parentname')
+        }
         if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
           fields.push('account')
           if (store.getters.listAllProjects) {
@@ -339,7 +342,13 @@ export default {
         fields.push('zonename')
         return fields
       },
-      details: ['name', 'id', 'volumename', 'volumetype', 'snapshottype', 'intervaltype', 'physicalsize', 'virtualsize', 'chainsize', 'account', 'domain', 'created'],
+      details: () => {
+        const fields = ['name', 'id', 'volumename', 'volumetype', 'snapshottype', 'intervaltype', 'physicalsize', 'virtualsize', 'account', 'domain', 'created']
+        if (store.getters.features.snapshotshowchainsize) {
+          fields.splice(fields.indexOf('account'), 0, 'chainsize', 'parentname')
+        }
+        return fields
+      },
       tabs: [
         {
           name: 'details',
@@ -361,7 +370,7 @@ export default {
         }
       ],
       searchFilters: () => {
-        var filters = ['name', 'domainid', 'account', 'tags', 'zoneid']
+        const filters = ['name', 'domainid', 'account', 'tags', 'zoneid']
         if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
           filters.push('storageid')
           filters.push('imagestoreid')
