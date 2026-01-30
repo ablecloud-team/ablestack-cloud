@@ -718,13 +718,10 @@ export default {
         const deviceName = String(item.hostDevicesName || '')
         const deviceText = String(item.hostDevicesText || '')
 
-        if (deviceName.toUpperCase().includes('LUN') || deviceName.toLowerCase().includes('dm')) {
-          return false
-        }
-
         const isLun = deviceName.startsWith('/dev/') ||
                      deviceName.startsWith('wwn-') ||
                      deviceName.startsWith('scsi-') ||
+                     deviceName.startsWith('dm-') ||
                      deviceName.startsWith('nvme-')
         if (!query) return isLun
         return isLun && (

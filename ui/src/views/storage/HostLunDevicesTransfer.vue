@@ -528,8 +528,23 @@ export default {
         actualDevicePath = basePath
       }
 
-      // LUN 디바이스 XML 생성 (target은 백엔드에서 동적 할당)
-      const targetDev = basePath.replace('/dev/', '')
+      // 멀티패스: hostDevicesText 'TYPE: multipath' 또는 경로가 /dev/mapper/mpath* (예: mpatha1)
+      const pathStr = basePath || targetDevicePath || (this.resource?.hostDevicesName || '')
+      const isMultipath =
+        (this.resource?.hostDevicesText || '').includes('TYPE: multipath') ||
+        (String(pathStr).includes('mapper') && /mpath[a-z0-9]*/i.test(String(pathStr)))
+
+      // 멀티패스일 때만 아래 형식 사용 (target bus='scsi'만, dev 없음)
+      if (isMultipath) {
+        return `<disk type='block' device='lun'>
+            <driver name='qemu' type='raw' io='native' cache='none'/>
+            <source dev='${actualDevicePath}'/>
+            <target dev='sdb' bus='scsi'/>
+          </disk>`.trim()
+      }
+
+      // 비멀티패스: 기존 LUN 패스스루 (target dev 포함)
+      const targetDev = (basePath || '').replace('/dev/', '')
       return `
         <disk type='block' device='lun'>
           <driver name='qemu' type='raw' io='native' cache='none'/>
