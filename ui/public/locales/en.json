@@ -5403,5 +5403,7 @@
 "label.silence.duration.months": "Mute for {0} months",
 "alert.wall.rule": "Mute for {0} months",
 "message.ip.edit.l2.disabled": "You cannot modify the IP address of an L2 network NIC.",
-"message.vm.name.no.underscore": "The virtual machine name cannot contain an underscore (_)."
+"message.vm.name.no.underscore": "The virtual machine name cannot contain an underscore (_).",
+"message.confirm.delete.usbdevice": "Please deallocate after running the virtual machine.",
+"message.cannot.remove.device.vm.stop": "Stopped virtual machines cannot be removed"
 }

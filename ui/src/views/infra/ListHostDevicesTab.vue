@@ -1907,24 +1907,39 @@ export default {
           throw new Error('No VM allocation found for this device')
         }
 
+        const vmResponse = await getAPI('listVirtualMachines', {
+          id: vmId,
+          listall: true
+        })
+        const vm = vmResponse?.listvirtualmachinesresponse?.virtualmachine?.[0]
+
+        if (vm && vm.state !== 'Running') {
+          this.$notification.warning({
+            message: this.$t('label.warning'),
+            description: this.$t('message.cannot.remove.device.vm.stop')
+          })
+          this.loading = false
+          return
+        }
+
         const vmName = this.vmNames[hostDevicesName] || 'Unknown VM'
         this.$confirm({
           title: `${vmName} ${this.$t('message.delete.device.allocation')}`,
-          content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
+          content: `${vmName} ${this.$t('message.confirm.delete.usbdevice')}`,
           onOk: async () => {
-            try {
-              const vmResponse = await getAPI('listVirtualMachines', {
-                id: vmId,
-                listall: true
-              })
-              const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+            // try {
+            //   const vmResponse = await getAPI('listVirtualMachines', {
+            //     id: vmId,
+            //     listall: true
+            //   })
+            //   const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
 
-              if (!vm) {
-              } else if (vm.state === 'Expunging') {
-              } else if (vm.state !== 'Running' && vm.state !== 'Stopped') {
-              }
-            } catch (vmError) {
-            }
+            //   if (!vm) {
+            //   } else if (vm.state === 'Expunging') {
+            //   } else if (vm.state !== 'Running' && vm.state !== 'Stopped') {
+            //   }
+            // } catch (vmError) {
+            // }
 
             const xmlConfig = this.generateXmlUsbConfig(hostDevicesName)
 
