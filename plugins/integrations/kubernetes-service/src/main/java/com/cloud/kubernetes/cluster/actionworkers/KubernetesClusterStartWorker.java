@@ -144,7 +144,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
     private Pair<String, String> getKubernetesControlNodeConfig(final String controlNodeIp, final String serverIp,
                                                                 final List<Network.IpAddresses> etcdIps, final String hostName, final boolean haSupported,
                                                                 final boolean ejectIso, final boolean externalCni, final boolean setupCsi) throws IOException {
-        String k8sControlNodeConfig = readK8sConfigFile("/conf/k8s-control-node.yml");
+        String k8sControlNodeConfig = readResourceFile("/conf/k8s-control-node.yml");
         final String apiServerCert = "{{ k8s_control_node.apiserver.crt }}";
         final String apiServerKey = "{{ k8s_control_node.apiserver.key }}";
         final String caCert = "{{ k8s_control_node.ca.crt }}";
@@ -303,7 +303,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
     }
 
     private String getKubernetesAdditionalControlNodeConfig(final String joinIp, final boolean ejectIso) throws IOException {
-        String k8sControlNodeConfig = readK8sConfigFile("/conf/k8s-control-node-add.yml");
+        String k8sControlNodeConfig = readResourceFile("/conf/k8s-control-node-add.yml");
         final String joinIpKey = "{{ k8s_control_node.join_ip }}";
         final String clusterTokenKey = "{{ k8s_control_node.cluster.token }}";
         final String sshPubKey = "{{ k8s.ssh.pub.key }}";
@@ -375,7 +375,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
 
     private String getEtcdNodeConfig(final List<String> ipAddresses, final List<String> hostnames, final int etcdNodeIndex,
                                      final boolean ejectIso) throws IOException {
-        String k8sEtcdNodeConfig = readK8sConfigFile("/conf/etcd-node.yml");
+        String k8sEtcdNodeConfig = readResourceFile("/conf/etcd-node.yml");
         final String sshPubKey = "{{ k8s.ssh.pub.key }}";
         final String ejectIsoKey = "{{ k8s.eject.iso }}";
         final String installWaitTime = "{{ k8s.install.wait.time }}";
