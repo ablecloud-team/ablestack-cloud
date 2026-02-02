@@ -155,7 +155,7 @@ export default {
       })
     },
     fetchData () {
-      this.userId = this.$route.params.id || null
+      this.userId = this.$route.params.id || this.resource.id
       this.fetchTimeZone()
       this.fillEditFormFieldValues()
     },
