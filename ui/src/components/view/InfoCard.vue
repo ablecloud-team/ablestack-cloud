@@ -16,11 +16,7 @@
 // under the License.
 <template>
   <a-spin :spinning="loading">
-    <a-card
-      class="spin-content"
-      :bordered="bordered"
-      :title="title"
-      @contextmenu="handleContextMenu">
+    <a-card class="spin-content" :bordered="bordered" :title="title">
       <div class="card-body">
         <div class="card-content">
           <div>
@@ -38,8 +34,11 @@
                     <span v-if="resourceIcon && !['router', 'systemvm', 'volume'].includes($route.path.split('/')[1])">
                       <resource-icon :image="resourceIcon" size="4x" style="margin-right: 5px"/>
                     </span>
+                    <span v-else-if="resource.vmtype === 'sharedfsvm'">
+                      <file-text-outlined style="font-size: 36px;" />
+                    </span>
                     <span v-else>
-                      <os-logo v-if="resource.ostypeid || resource.ostypename || ['guestoscategory'].includes($route.path.split('/')[1])" :osId="resource.ostypeid" :osName="resource.ostypename || resource.name" size="3x" @update-osname="setResourceOsType"/>
+                      <os-logo v-if="resource.ostypeid || resource.ostypename || ['guestoscategory'].includes($route.path.split('/')[1])" :osId="resource.ostypeid" :osName="resource.ostypename || resource.osdisplayname || resource.name" size="3x" />
                       <render-icon v-else-if="typeof $route.meta.icon ==='string'" style="font-size: 36px" :icon="$route.meta.icon" />
                       <font-awesome-icon
                         v-else-if="$route.meta.icon && Array.isArray($route.meta.icon)"
@@ -185,18 +184,18 @@
                 <span style="margin-left: 10px;"><copy-label :label="resource.id" /></span>
               </div>
             </div>
-            <div class="resource-detail-item" v-if="resource.ostypename && resource.ostypeid">
+            <div class="resource-detail-item" v-if="(resource.ostypename || resource.osdisplayname) && resource.ostypeid">
               <div class="resource-detail-item__label">{{ $t('label.ostypename') }}</div>
               <div class="resource-detail-item__details">
                 <span v-if="images.guestoscategory">
                   <resource-icon :image="images.guestoscategory" size="1x" style="margin-right: 5px"/>
                 </span>
-                <os-logo v-else :osId="resource.ostypeid" :osName="resource.ostypename" size="lg" style="margin-left: -1px" />
+                <os-logo v-else :osId="resource.ostypeid" :osName="resource.ostypename || resource.osdisplayname" size="lg" style="margin-left: -1px" />
                 <span style="margin-left: 8px">
                   <router-link v-if="$router.resolve('/guestos/' + resource.ostypeid).matched[0].redirect !== '/exception/404'" :to="{ path: '/guestos/' + resource.ostypeid }">
-                    {{ resource.ostypename }}
+                    {{ resource.ostypename || resource.osdisplayname }}
                   </router-link>
-                  <span v-else>{{ resource.ostypename }}</span>
+                  <span v-else>{{ resource.ostypename || resource.osdisplayname }}</span>
                 </span>
               </div>
             </div>
@@ -274,22 +273,13 @@
                 {{ resource.memory + ' ' + $t('label.mb.memory') }}
               </div>
               <div>
-                <span v-if="resource.memorykbs && resource.memoryintusablekbs">
+                <span v-if="resource.memorykbs && resource.memoryintfreekbs">
                   <a-progress
                     class="progress-bar"
                     size="small"
                     status="active"
-                    :percent="Number(parseFloat(100.0 * (resource.memorykbs - resource.memoryintusablekbs) / resource.memorykbs).toFixed(2))"
+                    :percent="Number(parseFloat(100.0 * (resource.memorykbs - resource.memoryintfreekbs) / resource.memorykbs).toFixed(2))"
                     :format="(percent, successPercent) => parseFloat(percent).toFixed(2) + '% ' + $t('label.used')"
-                  />
-                </span>
-                <span v-if="resource.memorykbs && resource.memoryintfreekbs && resource.hypervisor === 'KVM' && $store.getters.userInfo.roletype === 'Admin'">
-                  <a-progress
-                    class="progress-bar"
-                    size="small"
-                    status="active"
-                    :percent="Number(parseFloat(100.0 * resource.memoryintfreekbs / resource.memorykbs).toFixed(2))"
-                    :format="(percent, successPercent) => parseFloat(percent).toFixed(2) + '% ' + $t('label.reserved')"
                   />
                 </span>
               </div>
@@ -337,23 +327,22 @@
                     <bulb-outlined />{{ resource.memorytotal + ' ' + $t('label.memory') }}
                   </div>
                   <div>
-                    <span v-if="resource.cpuused">
+                    <span
+                      v-if="resource.memoryused">
                       <a-progress
-                        v-if="resource.cpuused"
                         class="progress-bar"
                         size="small"
                         status="active"
-                        :percent="parseFloat(resource.cpuused)"
-                        :format="(percent, successPercent) => parseFloat(percent).toFixed(2) + '% ' + $t('label.used')"
-                      />
+                        :percent="parseFloat(resource.memoryused)"
+                        :format="(percent, successPercent) => parseFloat(percent).toFixed(2) + '% ' + $t('label.used')" />
                     </span>
-                    <span v-if="resource.cpuallocated">
+                    <span
+                      v-if="resource.memoryallocated">
                       <a-progress
                         class="progress-bar"
                         size="small"
-                        :percent="parseFloat(resource.cpuallocated)"
-                        :format="(percent, successPercent) => parseFloat(percent).toFixed(2) + '% ' + $t('label.allocated')"
-                      />
+                        :percent="parseFloat(resource.memoryallocated)"
+                        :format="(percent, successPercent) => parseFloat(percent).toFixed(2) + '% ' + $t('label.allocated')" />
                     </span>
                   </div>
                 </div>
@@ -565,7 +554,7 @@
               <div class="resource-detail-item__label">{{ $t('label.vmname') }}</div>
               <div class="resource-detail-item__details">
                 <desktop-outlined />
-                <router-link :to="{ path: createPathBasedOnVmType(resource.vmtype, resource.virtualmachineid) }">{{ resource.vmname || resource.vm || resource.virtualmachinename || resource.virtualmachineid }} </router-link>
+                <router-link :to="{ path: createPathBasedOnVmType(resource.vmtype || resource.virtualmachinetype, resource.virtualmachineid) }">{{ resource.vmname || resource.vm || resource.virtualmachinename || resource.virtualmachineid }} </router-link>
                 <status class="status status--end" :text="resource.vmstate" v-if="resource.vmstate"/>
               </div>
             </div>
@@ -789,7 +778,7 @@
               </div>
             </div>
             <div class="resource-detail-item" v-if="resource.userdataname">
-              <div class="resource-detail-item__label">{{ $t('label.userdata') }}</div>
+              <div class="resource-detail-item__label">{{ $t('label.user.data') }}</div>
               <div class="resource-detail-item__details">
                 <solution-outlined />
                 <router-link v-if="!isStatic && $router.resolve('/userdata/' + resource.userdataid).matched[0].redirect !== '/exception/404'" :to="{ path: '/userdata/' + resource.userdataid }">{{ resource.userdataname || resource.userdataid }}</router-link>
@@ -1025,7 +1014,6 @@
             </a-spin>
           </div>
         </div>
-
         <div class="card-footer" v-if="footerVisible">
           <slot name="footer-content"></slot>
         </div>
@@ -1067,7 +1055,7 @@ import { FileTextOutlined } from '@ant-design/icons-vue'
 import ActionButton from '@/components/view/ActionButton'
 
 export default {
-  name: 'InfoCardInfoCardInfoCard',
+  name: 'InfoCard',
   components: {
     Console,
     OsLogo,
@@ -1183,7 +1171,7 @@ export default {
       return ['UserVm', 'Template', 'ISO', 'Volume', 'RbdImages', 'Snapshot', 'Backup', 'Network',
         'LoadBalancer', 'PortForwardingRule', 'FirewallRule', 'SecurityGroup', 'SecurityGroupRule',
         'PublicIpAddress', 'Project', 'Account', 'Vpc', 'NetworkACL', 'StaticRoute', 'VMSnapshot',
-        'RemoteAccessVpn', 'User', 'SnapshotPolicy', 'VpcOffering']
+        'RemoteAccessVpn', 'User', 'SnapshotPolicy', 'VpcOffering', 'Domain']
     },
     name () {
       return this.resource.displayname || this.resource.name || this.resource.displaytext || this.resource.username ||
