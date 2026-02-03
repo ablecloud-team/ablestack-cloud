@@ -108,6 +108,9 @@ public abstract class BaseDeployVMCmd extends BaseAsyncCreateCustomIdCmd impleme
     @Parameter(name = ApiConstants.BOOT_INTO_SETUP, type = CommandType.BOOLEAN, required = false, description = "Boot into hardware setup or not (ignored if startVm = false, only valid for vmware)", since = "4.15.0.0")
     private Boolean bootIntoSetup;
 
+    @Parameter(name = ApiConstants.TPM_VERSION, type = CommandType.STRING, required = false, description = "Boot with TPM", since = "4.18.0.0")
+    private String tpmversion;
+
     //DataDisk information
     @ACL
     @Parameter(name = ApiConstants.DISK_OFFERING_ID, type = CommandType.UUID, entityType = DiskOfferingResponse.class, description = "the ID of the disk offering for the virtual machine. If the template is of ISO format,"
