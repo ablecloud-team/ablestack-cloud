@@ -2368,7 +2368,7 @@ public class TemplateManagerImpl extends ManagerBase implements TemplateManager,
                   templateTag == null &&
                   forCks == null &&
                   arch == null &&
-                  (! cleanupDetails && details == null) //update details in every case except this one
+                  (!cleanupDetails && details == null) //update details in every case except this one
                   );
         if (!updateNeeded) {
             return template;
@@ -2472,8 +2472,7 @@ public class TemplateManagerImpl extends ManagerBase implements TemplateManager,
         if (cleanupDetails) {
             template.setDetails(null);
             _tmpltDetailsDao.removeDetails(id);
-        }
-        else if (details != null && !details.isEmpty()) {
+        } else if (details != null && !details.isEmpty()) {
             template.setDetails(details);
             _tmpltDao.saveDetails(template);
         }
