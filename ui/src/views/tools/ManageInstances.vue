@@ -79,7 +79,7 @@
                         @change="selected => { onSelectHypervisor(selected.target.value) }"
                         buttonStyle="solid">
                         <a-radio-button value="vmware" style="width: 50%; text-align: center">
-                          {{ $t('label.vmware') }}
+                          VMware
                         </a-radio-button>
                         <a-radio-button value="kvm" style="width: 50%; text-align: center">
                           {{ $t('label.app.name') }}
@@ -335,7 +335,7 @@
           <a-divider />
 
           <a-tabs v-model:activeKey="activeTabKey" @change="onTabChange">
-            <a-tab-pane :key=1 tab="Instances Listing">
+            <a-tab-pane :key=1 :tab="$t('label.instances.listing')">
               <a-row :gutter="12">
                 <a-col v-if="!isDiskImport" :md="24" :lg="(!isMigrateFromVmware && showManagedInstances) ? 12 : 24">
                   <a-card class="instances-card">
@@ -583,7 +583,7 @@ export default {
     const AllSourceActions = [
       {
         name: 'unmanaged',
-        label: 'Manage/Unmanage existing instances',
+        label: this.$t('label.manage.unmanage.instances'),
         sourceDestHypervisors: {
           vmware: 'vmware',
           kvm: 'kvm'
@@ -593,7 +593,7 @@ export default {
       },
       {
         name: 'vmware',
-        label: 'Migrate existing instances to ' + this.$t('label.app.name'),
+        label: this.$t('label.desc.importmigratefromvmwarewizard'),
         sourceDestHypervisors: {
           vmware: 'kvm'
         },
@@ -602,7 +602,7 @@ export default {
       },
       {
         name: 'external',
-        label: 'Import Instance from remote KVM host',
+        label: this.$t('label.desc.import.ext.kvm.wizard'),
         sourceDestHypervisors: {
           kvm: 'kvm'
         },
@@ -611,7 +611,7 @@ export default {
       },
       {
         name: 'local',
-        label: 'Import QCOW2 image from Local Storage',
+        label: this.$t('label.desc.import.local.kvm.wizard'),
         sourceDestHypervisors: {
           kvm: 'kvm'
         },
@@ -620,7 +620,7 @@ export default {
       },
       {
         name: 'shared',
-        label: 'Import QCOW2 image from Shared Storage',
+        label: this.$t('label.desc.import.shared.kvm.wizard'),
         sourceDestHypervisors: {
           kvm: 'kvm'
         },
