@@ -80,7 +80,7 @@ export default {
           ? json.createconsoleendpointresponse.consoleendpoint.url
           : '#/exception/404'
 
-        if (json.createconsoleendpointresponse.consoleendpoint.success) {
+        if (json.createconsoleendpointresponse.consoleendpoint.result) {
           if (this.copyUrlToClipboard) {
             this.$copyText(this.url)
             this.$message.success({

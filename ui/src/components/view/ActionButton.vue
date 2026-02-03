@@ -392,8 +392,6 @@ export default {
       this.url = (json && json.createconsoleendpointresponse)
         ? json.createconsoleendpointresponse.consoleendpoint.url
         : '#/exception/404'
-      console.log('url 2222:>> ', this.url)
-      console.log('url 2222:>> ', json.createconsoleendpointresponse.consoleendpoint.result)
 
       if (json.createconsoleendpointresponse.consoleendpoint.result) {
         if (copyUrlToClipboard) {
@@ -405,13 +403,11 @@ export default {
           window.open(this.url, '_blank')
         }
       } else {
-        console.log('url 9999:>> ')
         this.$notification.error({
           message: this.$t('error.execute.api.failed') + ' ' + 'createConsoleEndpoint',
           description: json.createconsoleendpointresponse.consoleendpoint.details
         })
       }
-      console.log('copyUrlToClipboard 2222:>> ', copyUrlToClipboard)
     },
     updateWallLinkUrl () {
       if (!this.shouldShowWallLink) {

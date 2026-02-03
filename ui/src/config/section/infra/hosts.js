@@ -34,7 +34,7 @@ export default {
   columns: () => {
     const fields = [
       'name', 'state', 'resourcestate', 'ipaddress', 'arch', 'hypervisor',
-      'version', 'version', 'haenable', 'hastate'
+      'version', 'haenable', 'hastate'
     ]
     const metricsFields = [{ field: 'systeminstances', customTitle: 'system.vms' }, 'instances', 'powerstate', 'cpunumber', 'cputotalghz', 'cpuusedghz', 'cpuallocatedghz', 'memorytotalgb', 'memoryusedgb', 'memoryallocatedgb', 'gputotal', 'gpuused', 'networkread', 'networkwrite']
     if (store.getters.metrics) {

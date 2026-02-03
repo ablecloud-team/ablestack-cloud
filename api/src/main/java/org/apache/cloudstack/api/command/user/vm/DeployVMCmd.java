@@ -16,6 +16,7 @@
 // under the License.
 package org.apache.cloudstack.api.command.user.vm;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -82,6 +83,15 @@ public class DeployVMCmd extends BaseDeployVMCmd {
 
     public Long getSnapshotId() {
         return snapshotId;
+    }
+
+    @Override
+    public Map<String, String> getDetails() {
+        Map<String, String> details = super.getDetails();
+        if (volumeId != null) {
+            details.put("volumeId", String.valueOf(volumeId));
+        }
+        return details;
     }
 
     public boolean isVolumeOrSnapshotProvided() {

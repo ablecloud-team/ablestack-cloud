@@ -79,6 +79,25 @@
               <a-select-option value="redfish">redfish</a-select-option>
             </a-select>
         </a-form-item>
+        <a-form-item name="manageconsoleprotocol" ref="manageconsoleprotocol">
+          <template #label>
+            <tooltip-label :title="$t('label.manageconsoleprotocol')" :tooltip="apiParams.manageconsoleprotocol.description"/>
+          </template>
+          <a-select v-model:value="form.manageconsoleprotocol" style="width: 100%;">
+            <a-select-option value="http">http</a-select-option>
+            <a-select-option value="https">https</a-select-option>
+          </a-select>
+        </a-form-item>
+
+        <a-form-item name="manageconsoleport" ref="manageconsoleport">
+          <template #label>
+            <tooltip-label
+              :title="$t('label.manageconsoleport')"
+              :tooltip="apiParams.manageconsoleport.description"/>
+          </template>
+          <a-input v-model:value="form.manageconsoleport" />
+        </a-form-item>
+
       </div>
       <div :span="24" class="action-button">
         <a-button @click="onCloseAction">{{ $t('label.cancel') }}</a-button>
@@ -122,14 +141,17 @@ export default {
         port: this.resource.outofbandmanagement.port || '',
         username: this.resource.outofbandmanagement.username || '',
         password: '',
-        driver: this.resource.outofbandmanagement.driver || ''
+        driver: this.resource.outofbandmanagement.driver || '',
+        manageconsoleprotocol: this.resource.outofbandmanagement.manageconsoleprotocol || 'http',
+        manageconsoleport: this.resource.outofbandmanagement.manageconsoleport || ''
       })
       this.rules = reactive({
         address: [{ required: true, message: this.$t('message.error.required.input') }],
         port: [{ required: true, message: this.$t('message.error.required.input') }],
         username: [{ required: true, message: this.$t('message.error.required.input') }],
         password: [{ required: true, message: this.$t('message.error.required.input') }],
-        driver: [{ required: true, message: this.$t('message.error.required.input') }]
+        driver: [{ required: true, message: this.$t('message.error.required.input') }],
+        manageconsoleprotocol: [{ required: true, message: this.$t('message.error.required.input') }]
       })
     },
     handleSubmit (e) {
@@ -142,7 +164,12 @@ export default {
           port: values.port,
           username: values.username,
           password: values.password,
-          driver: values.driver
+          driver: values.driver,
+          manageconsoleprotocol: values.manageconsoleprotocol
+        }
+
+        if (values.manageconsoleport) {
+          params.manageconsoleport = values.manageconsoleport
         }
 
         postAPI('configureOutOfBandManagement', params).then(_ => {

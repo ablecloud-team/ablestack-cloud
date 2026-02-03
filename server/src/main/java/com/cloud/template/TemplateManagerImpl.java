@@ -2488,7 +2488,7 @@ public class TemplateManagerImpl extends ManagerBase implements TemplateManager,
 
     @Override
     public TemplateType validateTemplateType(BaseCmd cmd, boolean isAdmin, boolean isCrossZones, HypervisorType hypervisorType) {
-        if (!(cmd instanceof UpdateTemplateCmd) && !(cmd instanceof RegisterTemplateCmd) && !(cmd instanceof GetUploadParamsForTemplateCmd)) {
+        if (!(cmd instanceof UpdateTemplateCmd) && !(cmd instanceof RegisterTemplateCmd) && !(cmd instanceof GetUploadParamsForTemplateCmd) && !(cmd instanceof GetUploadParamsForIsoCmd)) {
             return null;
         }
         TemplateType templateType = null;
@@ -2523,6 +2523,8 @@ public class TemplateManagerImpl extends ManagerBase implements TemplateManager,
         } else if ((cmd instanceof RegisterTemplateCmd) || (cmd instanceof GetUploadParamsForTemplateCmd)) {
             boolean isRouting = Boolean.TRUE.equals(isRoutingType);
             templateType = (cmd instanceof RegisterVnfTemplateCmd) ? TemplateType.VNF : (isRouting ? TemplateType.ROUTING : TemplateType.USER);
+        } else if (cmd instanceof GetUploadParamsForIsoCmd) {
+            templateType = TemplateType.USER;
         }
         validateExternalHypervisorTemplateType(hypervisorType, templateType);
         if (templateType != null && !isAdmin && !Arrays.asList(TemplateType.USER, TemplateType.VNF).contains(templateType)) {

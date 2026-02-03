@@ -19,6 +19,8 @@
 -- Schema upgrade from 4.22.1.0 to 4.23.0.0
 --;
 
+CALL `cloud`.`ADD_GUEST_OS_AND_HYPERVISOR_MAPPING` (13, 'Rocky Linux 10', 'KVM', 'default', 'Rocky Linux 10');
+
 CREATE TABLE IF NOT EXISTS `cloud`.`backup_offering_details` (
     `id` bigint unsigned NOT NULL auto_increment,
     `backup_offering_id` bigint unsigned NOT NULL COMMENT 'Backup offering id',
