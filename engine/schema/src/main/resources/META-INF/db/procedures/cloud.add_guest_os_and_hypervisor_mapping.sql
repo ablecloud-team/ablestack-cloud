@@ -27,23 +27,29 @@ CREATE PROCEDURE `cloud`.`ADD_GUEST_OS_AND_HYPERVISOR_MAPPING` (
     IN guest_os_hypervisor_guest_os_name VARCHAR(255)
         )
 BEGIN
-INSERT  INTO cloud.guest_os (uuid, category_id, display_name, created)
-SELECT 	UUID(), guest_os_category_id, guest_os_display_name, now()
-FROM    DUAL
-WHERE 	not exists( SELECT  1
-                     FROM    cloud.guest_os
-                     WHERE   cloud.guest_os.category_id = guest_os_category_id
-                       AND     cloud.guest_os.display_name = guest_os_display_name)
+    DECLARE existing_guest_os_id BIGINT(20) UNSIGNED DEFAULT NULL;
 
-;	INSERT  INTO cloud.guest_os_hypervisor (uuid, hypervisor_type, hypervisor_version, guest_os_name, guest_os_id, created)
-     SELECT 	UUID(), guest_os_hypervisor_hypervisor_type, guest_os_hypervisor_hypervisor_version, guest_os_hypervisor_guest_os_name, guest_os.id, now()
-     FROM 	cloud.guest_os
-     WHERE 	guest_os.category_id = guest_os_category_id
-       AND 	guest_os.display_name = guest_os_display_name
-       AND	NOT EXISTS (SELECT  1
-                          FROM    cloud.guest_os_hypervisor as hypervisor
-                          WHERE   hypervisor_type = guest_os_hypervisor_hypervisor_type
-                            AND     hypervisor_version = guest_os_hypervisor_hypervisor_version
-                            AND     hypervisor.guest_os_id = guest_os.id
-                            AND     hypervisor.guest_os_name = guest_os_hypervisor_guest_os_name)
-;END;
+    SELECT id INTO existing_guest_os_id
+    FROM cloud.guest_os
+    WHERE category_id = guest_os_category_id
+      AND display_name = guest_os_display_name
+    ORDER BY id
+    LIMIT 1;
+
+    IF existing_guest_os_id IS NULL THEN
+        INSERT INTO cloud.guest_os (uuid, category_id, display_name, created)
+        VALUES (UUID(), guest_os_category_id, guest_os_display_name, now());
+        SET existing_guest_os_id = LAST_INSERT_ID();
+    END IF;
+
+    IF NOT EXISTS (SELECT 1
+                   FROM cloud.guest_os_hypervisor AS hypervisor
+                   WHERE hypervisor.hypervisor_type = guest_os_hypervisor_hypervisor_type
+                     AND hypervisor.hypervisor_version = guest_os_hypervisor_hypervisor_version
+                     AND hypervisor.guest_os_id = existing_guest_os_id
+                     AND hypervisor.guest_os_name = guest_os_hypervisor_guest_os_name) THEN
+        INSERT INTO cloud.guest_os_hypervisor (uuid, hypervisor_type, hypervisor_version, guest_os_name, guest_os_id, created)
+        VALUES (UUID(), guest_os_hypervisor_hypervisor_type, guest_os_hypervisor_hypervisor_version,
+                guest_os_hypervisor_guest_os_name, existing_guest_os_id, now());
+    END IF;
+END;
