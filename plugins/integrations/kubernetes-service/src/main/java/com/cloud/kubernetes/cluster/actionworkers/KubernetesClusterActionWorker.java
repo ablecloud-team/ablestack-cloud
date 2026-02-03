@@ -927,7 +927,7 @@ public class KubernetesClusterActionWorker {
     }
 
     public String getKubernetesNodeConfig(final String joinIp, final boolean ejectIso, final boolean mountCksIsoOnVR) throws IOException {
-        String k8sNodeConfig = readResourceFile("/conf/k8s-node.yml");
+        String k8sNodeConfig = readK8sConfigFile("/conf/k8s-node.yml");
         final String sshPubKey = "{{ k8s.ssh.pub.key }}";
         final String joinIpKey = "{{ k8s_control_node.join_ip }}";
         final String clusterTokenKey = "{{ k8s_control_node.cluster.token }}";
