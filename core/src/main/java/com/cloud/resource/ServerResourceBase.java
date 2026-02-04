@@ -4217,9 +4217,27 @@ public abstract class ServerResourceBase implements ServerResource {
             if (res == null) {
                 String xml = parser.getLines();
                 if (xml != null) {
-                    Matcher m = Pattern.compile("<target\\s+dev='(sd[a-z]+)'\\s+bus='scsi'").matcher(xml);
+                    Matcher m = Pattern.compile("<target\\s+dev=['\"](sd[a-z]+)['\"]\\s+bus=['\"]scsi['\"]").matcher(xml);
                     while (m.find()) {
                         used.add(m.group(1));
+                    }
+                    // SCSI controller 상의 address unit (hostdev, disk 등) → 해당 슬롯 점유 (unit 0=sda, 1=sdb)
+                    for (Pattern p : new Pattern[] {
+                        Pattern.compile("type='drive'[^>]*unit='(\\d+)'"),
+                        Pattern.compile("unit='(\\d+)'[^>]*type='drive'"),
+                        Pattern.compile("type='drive'[^>]*unit=\"(\\d+)\""),
+                        Pattern.compile("unit=\"(\\d+)\"[^>]*type='drive'")
+                    }) {
+                        Matcher addr = p.matcher(xml);
+                        while (addr.find()) {
+                            try {
+                                int unit = Integer.parseInt(addr.group(1));
+                                if (unit >= 0 && unit < 26 + 26 * 26) {
+                                    used.add(indexToScsiDev(unit));
+                                }
+                            } catch (NumberFormatException ignored) {
+                            }
+                        }
                     }
                 }
             }
@@ -4228,24 +4246,83 @@ public abstract class ServerResourceBase implements ServerResource {
         return used;
     }
 
-    private String pickAvailableScsiTargetDev(Set<String> used) {
-        // Prefer from sdc to sdz, then sdaa..sdaz
-        for (char c = 'c'; c <= 'z'; c++) {
-            String dev = "sd" + c;
-            if (!used.contains(dev)) return dev;
+    /** 할당 가능한 SCSI target dev 이름 전체 (sda~sdz, sdaa~sdzz) 순서대로 */
+    private List<String> getAllAssignableScsiTargetDevs() {
+        List<String> list = new ArrayList<>();
+        for (char c = 'a'; c <= 'z'; c++) {
+            list.add("sd" + c);
         }
         for (char c1 = 'a'; c1 <= 'z'; c1++) {
             for (char c2 = 'a'; c2 <= 'z'; c2++) {
-                String dev = "sd" + c1 + c2;
-                if (!used.contains(dev)) return dev;
+                list.add("sd" + c1 + c2);
             }
+        }
+        return list;
+    }
+
+    private String pickAvailableScsiTargetDev(Set<String> used) {
+        List<String> assignable = getAllAssignableScsiTargetDevs();
+        for (String dev : assignable) {
+            if (!used.contains(dev)) return dev;
         }
         return "sdz"; // Fallback
     }
 
+    private int scsiDevToIndex(String dev) {
+        if (dev == null || !dev.startsWith("sd") || dev.length() < 3) return -1;
+        String suffix = dev.substring(2);
+        if (suffix.length() == 1) {
+            return suffix.charAt(0) - 'a';
+        }
+        if (suffix.length() == 2) {
+            return 26 + (suffix.charAt(0) - 'a') * 26 + (suffix.charAt(1) - 'a');
+        }
+        return -1;
+    }
+
+    private String indexToScsiDev(int index) {
+        if (index < 0) return "sda";
+        if (index < 26) return "sd" + (char) ('a' + index);
+        index -= 26;
+        return "sd" + (char) ('a' + index / 26) + (char) ('a' + index % 26);
+    }
+
+    private String pickNextScsiTargetDevAfterMax(Set<String> used) {
+        List<String> assignable = getAllAssignableScsiTargetDevs();
+        int maxIndex = -1;
+        for (String d : used) {
+            int idx = scsiDevToIndex(d);
+            if (idx >= 0 && idx > maxIndex) maxIndex = idx;
+        }
+        for (String dev : assignable) {
+            int idx = scsiDevToIndex(dev);
+            if (idx < 0) continue;
+            if (idx > maxIndex && !used.contains(dev)) return dev;
+        }
+        return pickAvailableScsiTargetDev(used);
+    }
+
     private String ensureUniqueLunTargetDev(String vmName, String xmlConfig) {
         try {
-            // 멀티패스: <target bus='scsi'/> (dev 없음) → 그대로 유지
+            Set<String> used = getUsedScsiTargetDevs(vmName);
+            boolean isLun = xmlConfig.contains("device='lun'");
+
+            if (isLun) {
+                String nextDev = pickNextScsiTargetDevAfterMax(used);
+                String replacement = "<target dev='" + nextDev + "' bus='scsi'/>";
+                // dev 없음: <target bus='scsi'/>
+                if (Pattern.compile("<target\\s+bus='scsi'\\s*/?>").matcher(xmlConfig).find()) {
+                    return xmlConfig.replaceFirst("<target\\s+bus='scsi'\\s*/?>", replacement);
+                }
+                // dev 있음: <target dev='...' bus='scsi'/> 또는 <target dev="..." bus="scsi"/> → 전체 target 태그를 nextDev로 교체
+                Pattern targetWithDev = Pattern.compile("<target\\s+[^>]*bus=['\"]scsi['\"][^>]*/?>");
+                Matcher matcher = targetWithDev.matcher(xmlConfig);
+                if (matcher.find()) {
+                    return matcher.replaceFirst(Matcher.quoteReplacement(replacement));
+                }
+            }
+
+            // dev 없음 (비멀티패스 등)
             if (Pattern.compile("<target\\s+bus='scsi'\\s*/?>").matcher(xmlConfig).find()) {
                 return xmlConfig;
             }
@@ -4254,12 +4331,8 @@ public abstract class ServerResourceBase implements ServerResource {
             if (m.find()) {
                 current = m.group(1);
             }
-            Set<String> used = getUsedScsiTargetDevs(vmName);
             if (current == null) {
-                // target 없음: device='lun'(멀티패스)이면 dev 없이, 아니면 dev 주입
-                String inject = xmlConfig.contains("device='lun'")
-                    ? "<target bus='scsi'/>"
-                    : "<target dev='" + pickAvailableScsiTargetDev(used) + "' bus='scsi'/>";
+                String inject = "<target dev='" + pickAvailableScsiTargetDev(used) + "' bus='scsi'/>";
                 return xmlConfig.replaceFirst("(</source>\\s*)", "$1\n  " + inject + "\n");
             }
             if (used.contains(current)) {

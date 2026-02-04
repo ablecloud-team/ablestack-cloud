@@ -528,28 +528,30 @@ export default {
         actualDevicePath = basePath
       }
 
-      // 멀티패스: hostDevicesText 'TYPE: multipath' 또는 경로가 /dev/mapper/mpath* (예: mpatha1)
+      // 멀티패스: hostDevicesText 'TYPE: multipath' 또는 경로가 /dev/mapper/mpath* 또는 target이 sdX가 아님(mapper/mpatha1 등)
       const pathStr = basePath || targetDevicePath || (this.resource?.hostDevicesName || '')
+      const targetDevFromPath = (basePath || '').replace('/dev/', '')
+      const isValidScsiTarget = /^sd[a-z]{1,2}$/.test(targetDevFromPath)
       const isMultipath =
         (this.resource?.hostDevicesText || '').includes('TYPE: multipath') ||
-        (String(pathStr).includes('mapper') && /mpath[a-z0-9]*/i.test(String(pathStr)))
+        (String(pathStr).includes('mapper') && /mpath[a-z0-9]*/i.test(String(pathStr))) ||
+        !isValidScsiTarget
 
-      // 멀티패스일 때만 아래 형식 사용 (target bus='scsi'만, dev 없음)
+      // 멀티패스: target dev는 백엔드에서 VM domain XML 기준으로 다음 장치(sde,sdf→sdg) 자동 할당
       if (isMultipath) {
         return `<disk type='block' device='lun'>
             <driver name='qemu' type='raw' io='native' cache='none'/>
             <source dev='${actualDevicePath}'/>
-            <target dev='sdb' bus='scsi'/>
+            <target bus='scsi'/>
           </disk>`.trim()
       }
 
-      // 비멀티패스: 기존 LUN 패스스루 (target dev 포함)
-      const targetDev = (basePath || '').replace('/dev/', '')
+      // 비멀티패스: sdX 형태인 경우만 target dev 사용
       return `
         <disk type='block' device='lun'>
           <driver name='qemu' type='raw' io='native' cache='none'/>
           <source dev='${actualDevicePath}'/>
-          <target dev='${targetDev}' bus='scsi'/>
+          <target dev='${targetDevFromPath}' bus='scsi'/>
         </disk>
       `.trim()
     },

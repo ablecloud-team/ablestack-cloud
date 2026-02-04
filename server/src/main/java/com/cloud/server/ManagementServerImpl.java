@@ -3680,8 +3680,16 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     _hostDetailsDao.persist(allocationDetail);
                 }
 
-                // VM extraconfig에 디바이스 설정 추가
-                addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlConfig);
+                String xmlToStore = lunAnswer.getXmlConfig() != null ? lunAnswer.getXmlConfig() : xmlConfig;
+                boolean invalidLunTarget = xmlToStore != null && xmlToStore.contains("device='lun'")
+                    && (xmlToStore.contains("dev='mapper/") || xmlToStore.contains("dev=\"mapper/")
+                        || (xmlToStore.contains("mpath") && xmlToStore.contains("<target")));
+                if (invalidLunTarget) {
+                    xmlToStore = null;
+                }
+                if (xmlToStore != null) {
+                    addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlToStore);
+                }
 
             }
 
