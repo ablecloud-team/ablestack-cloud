@@ -78,6 +78,7 @@ import org.apache.cloudstack.api.command.admin.account.UpdateAccountCmd;
 import org.apache.cloudstack.api.command.admin.address.AcquirePodIpCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.address.AssociateIPAddrCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.address.ListPublicIpAddressesCmdByAdmin;
+import org.apache.cloudstack.api.command.admin.address.ReleasePodIpCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.affinitygroup.UpdateVMAffinityGroupCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.alert.GenerateAlertCmd;
 import org.apache.cloudstack.api.command.admin.autoscale.CreateCounterCmd;
@@ -96,6 +97,7 @@ import org.apache.cloudstack.api.command.admin.config.UpdateHypervisorCapabiliti
 import org.apache.cloudstack.api.command.admin.direct.download.ListTemplateDirectDownloadCertificatesCmd;
 import org.apache.cloudstack.api.command.admin.direct.download.ProvisionTemplateDirectDownloadCertificateCmd;
 import org.apache.cloudstack.api.command.admin.direct.download.RevokeTemplateDirectDownloadCertificateCmd;
+import org.apache.cloudstack.api.command.admin.direct.download.UploadTemplateDirectDownloadCertificateCmd;
 import org.apache.cloudstack.api.command.admin.domain.CreateDomainCmd;
 import org.apache.cloudstack.api.command.admin.domain.DeleteDomainCmd;
 import org.apache.cloudstack.api.command.admin.domain.ListDomainChildrenCmd;
@@ -145,11 +147,13 @@ import org.apache.cloudstack.api.command.admin.management.ListMgmtsCmd;
 import org.apache.cloudstack.api.command.admin.management.RemoveManagementServerCmd;
 import org.apache.cloudstack.api.command.admin.network.AddNetworkDeviceCmd;
 import org.apache.cloudstack.api.command.admin.network.AddNetworkServiceProviderCmd;
+import org.apache.cloudstack.api.command.admin.network.CreateManagementNetworkIpRangeCmd;
 import org.apache.cloudstack.api.command.admin.network.CreateNetworkCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.network.CreateNetworkOfferingCmd;
 import org.apache.cloudstack.api.command.admin.network.CreatePhysicalNetworkCmd;
 import org.apache.cloudstack.api.command.admin.network.CreateStorageNetworkIpRangeCmd;
 import org.apache.cloudstack.api.command.admin.network.DedicateGuestVlanRangeCmd;
+import org.apache.cloudstack.api.command.admin.network.DeleteManagementNetworkIpRangeCmd;
 import org.apache.cloudstack.api.command.admin.network.DeleteNetworkDeviceCmd;
 import org.apache.cloudstack.api.command.admin.network.DeleteNetworkOfferingCmd;
 import org.apache.cloudstack.api.command.admin.network.DeleteNetworkServiceProviderCmd;
@@ -160,12 +164,14 @@ import org.apache.cloudstack.api.command.admin.network.ListGuestVlansCmd;
 import org.apache.cloudstack.api.command.admin.network.ListNetworkDeviceCmd;
 import org.apache.cloudstack.api.command.admin.network.ListNetworkIsolationMethodsCmd;
 import org.apache.cloudstack.api.command.admin.network.ListNetworkServiceProvidersCmd;
+import org.apache.cloudstack.api.command.admin.network.ListNetworksCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.network.ListPhysicalNetworksCmd;
 import org.apache.cloudstack.api.command.admin.network.ListStorageNetworkIpRangeCmd;
 import org.apache.cloudstack.api.command.admin.network.ListSupportedNetworkServicesCmd;
 import org.apache.cloudstack.api.command.admin.network.MigrateNetworkCmd;
 import org.apache.cloudstack.api.command.admin.network.MigrateVPCCmd;
 import org.apache.cloudstack.api.command.admin.network.ReleaseDedicatedGuestVlanRangeCmd;
+import org.apache.cloudstack.api.command.admin.network.UpdateNetworkCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.network.UpdateNetworkOfferingCmd;
 import org.apache.cloudstack.api.command.admin.network.UpdateNetworkServiceProviderCmd;
 import org.apache.cloudstack.api.command.admin.network.UpdatePhysicalNetworkCmd;
@@ -353,10 +359,12 @@ import org.apache.cloudstack.api.command.admin.volume.ResizeVolumeCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.volume.UpdateVolumeCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.volume.UploadVolumeCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vpc.CreatePrivateGatewayByAdminCmd;
+import org.apache.cloudstack.api.command.admin.vpc.CreateVPCCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vpc.CreateVPCOfferingCmd;
 import org.apache.cloudstack.api.command.admin.vpc.DeletePrivateGatewayCmd;
 import org.apache.cloudstack.api.command.admin.vpc.DeleteVPCOfferingCmd;
 import org.apache.cloudstack.api.command.admin.vpc.ListPrivateGatewaysCmdByAdminCmd;
+import org.apache.cloudstack.api.command.admin.vpc.ListVPCsCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vpc.UpdateVPCCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vpc.UpdateVPCOfferingCmd;
 import org.apache.cloudstack.api.command.admin.zone.CreateZoneCmd;
@@ -378,6 +386,7 @@ import org.apache.cloudstack.api.command.user.address.ReleaseIPAddrCmd;
 import org.apache.cloudstack.api.command.user.address.RemoveQuarantinedIpCmd;
 import org.apache.cloudstack.api.command.user.address.ReserveIPAddrCmd;
 import org.apache.cloudstack.api.command.user.address.UpdateIPAddrCmd;
+import org.apache.cloudstack.api.command.user.address.UpdateQuarantinedIpCmd;
 import org.apache.cloudstack.api.command.user.affinitygroup.CreateAffinityGroupCmd;
 import org.apache.cloudstack.api.command.user.affinitygroup.DeleteAffinityGroupCmd;
 import org.apache.cloudstack.api.command.user.affinitygroup.ListAffinityGroupTypesCmd;
@@ -6767,7 +6776,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(ExpungeVMCmd.class);
         cmdList.add(GetVMPasswordCmd.class);
         cmdList.add(ListVMsCmd.class);
-        cmdList.add(CloneVMCmd.class);
         cmdList.add(ScaleVMCmd.class);
         cmdList.add(RebootVMCmd.class);
         cmdList.add(RemoveNicFromVMCmd.class);
@@ -6778,7 +6786,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(StartVMCmd.class);
         cmdList.add(StopVMCmd.class);
         cmdList.add(UpdateDefaultNicForVMCmd.class);
-        cmdList.add(UpdateVmNicLinkStateCmd.class);
         cmdList.add(UpdateVMCmd.class);
         cmdList.add(UpgradeVMCmd.class);
         cmdList.add(CreateVMGroupCmd.class);
@@ -6798,7 +6805,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(UploadVolumeCmd.class);
         cmdList.add(DestroyVolumeCmd.class);
         cmdList.add(RecoverVolumeCmd.class);
-        cmdList.add(UpdateCompressDedupCmd.class);
         cmdList.add(ChangeOfferingForVolumeCmd.class);
         cmdList.add(CreateStaticRouteCmd.class);
         cmdList.add(CreateVPCCmd.class);
@@ -6839,7 +6845,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(ArchiveAlertsCmd.class);
         cmdList.add(DeleteAlertsCmd.class);
         cmdList.add(ArchiveEventsCmd.class);
-        cmdList.add(DownloadEventsCmd.class);
         cmdList.add(DeleteEventsCmd.class);
         cmdList.add(CreateGlobalLoadBalancerRuleCmd.class);
         cmdList.add(DeleteGlobalLoadBalancerRuleCmd.class);
@@ -6906,6 +6911,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(UpdateVpnConnectionCmd.class);
         cmdList.add(UpdateVpnGatewayCmd.class);
         cmdList.add(ListQuarantinedIpsCmd.class);
+        cmdList.add(UpdateQuarantinedIpCmd.class);
         cmdList.add(RemoveQuarantinedIpCmd.class);
         // separated admin commands
         cmdList.add(ListAccountsCmdByAdmin.class);
@@ -6929,8 +6935,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(ListLoadBalancerRuleInstancesCmdByAdmin.class);
         cmdList.add(DeployVMCmdByAdmin.class);
         cmdList.add(DestroyVMCmdByAdmin.class);
-        cmdList.add(DeployVMVolumeCmdByAdmin.class);
-        cmdList.add(DeployVMVolumeCmd.class);
         cmdList.add(RebootVMCmdByAdmin.class);
         cmdList.add(ResetVMPasswordCmdByAdmin.class);
         cmdList.add(ResetVMSSHKeyCmdByAdmin.class);
@@ -6955,9 +6959,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(AssociateIPAddrCmdByAdmin.class);
         cmdList.add(ListPublicIpAddressesCmdByAdmin.class);
         cmdList.add(CreateNetworkCmdByAdmin.class);
-        // cmdList.add(ListNetworksCmdByAdmin.class);
-        // cmdList.add(CreateVPCCmdByAdmin.class);
-        // cmdList.add(ListVPCsCmdByAdmin.class);
+        cmdList.add(UpdateNetworkCmdByAdmin.class);
+        cmdList.add(ListNetworksCmdByAdmin.class);
+        cmdList.add(CreateVPCCmdByAdmin.class);
+        cmdList.add(ListVPCsCmdByAdmin.class);
         cmdList.add(UpdateVPCCmdByAdmin.class);
         cmdList.add(CreatePrivateGatewayByAdminCmd.class);
         cmdList.add(ListPrivateGatewaysCmdByAdminCmd.class);
@@ -6968,6 +6973,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(MigrateNetworkCmd.class);
         cmdList.add(MigrateVPCCmd.class);
         cmdList.add(AcquirePodIpCmdByAdmin.class);
+        cmdList.add(ReleasePodIpCmdByAdmin.class);
+        cmdList.add(CreateManagementNetworkIpRangeCmd.class);
+        cmdList.add(DeleteManagementNetworkIpRangeCmd.class);
+        cmdList.add(UploadTemplateDirectDownloadCertificateCmd.class);
         cmdList.add(RevokeTemplateDirectDownloadCertificateCmd.class);
         cmdList.add(ListTemplateDirectDownloadCertificatesCmd.class);
         cmdList.add(ProvisionTemplateDirectDownloadCertificateCmd.class);
@@ -7022,7 +7031,19 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(ListCniConfigurationCmd.class);
         cmdList.add(DeleteCniConfigurationCmd.class);
 
-        //vbmc for vm APIs
+        //object store APIs
+        cmdList.add(AddObjectStoragePoolCmd.class);
+        cmdList.add(ListObjectStoragePoolsCmd.class);
+        cmdList.add(UpdateObjectStoragePoolCmd.class);
+        cmdList.add(DeleteObjectStoragePoolCmd.class);
+        cmdList.add(CreateBucketCmd.class);
+        cmdList.add(UpdateBucketCmd.class);
+        cmdList.add(DeleteBucketCmd.class);
+        cmdList.add(ListBucketsCmd.class);
+
+        //ABLESTACK Made APIs
+        cmdList.add(DeployVMVolumeCmdByAdmin.class);
+        cmdList.add(DeployVMVolumeCmd.class);
         cmdList.add(AllocateVbmcToVMCmd.class);
         cmdList.add(RemoveVbmcToVMCmd.class);
         cmdList.add(ListHostDevicesCmd.class);
@@ -7040,17 +7061,13 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(UpdateHostScsiDevicesCmd.class);
         cmdList.add(ListVmDeviceAssignmentsCmd.class);
         cmdList.add(DeleteVhbaDeviceCmd.class);
-        //object store APIs
-        cmdList.add(AddObjectStoragePoolCmd.class);
-        cmdList.add(ListObjectStoragePoolsCmd.class);
-        cmdList.add(UpdateObjectStoragePoolCmd.class);
-        cmdList.add(DeleteObjectStoragePoolCmd.class);
-        cmdList.add(CreateBucketCmd.class);
-        cmdList.add(UpdateBucketCmd.class);
-        cmdList.add(DeleteBucketCmd.class);
-        cmdList.add(ListBucketsCmd.class);
         cmdList.add(LicenseCheckCmd.class);
         cmdList.add(ListHostRedfishDataCmd.class);
+        cmdList.add(DownloadEventsCmd.class);
+        cmdList.add(UpdateCompressDedupCmd.class);
+        cmdList.add(UpdateVmNicLinkStateCmd.class);
+        cmdList.add(CloneVMCmd.class);
+        cmdList.add(UpdateVmNicLinkStateCmd.class);
 
         return cmdList;
     }
