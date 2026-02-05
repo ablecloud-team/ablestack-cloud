@@ -16,6 +16,7 @@
 // under the License.
 
 <template>
+  <a-divider style="margin-top: 0px; margin-bottom: 0px;"/>
   <a-list-item v-if="dedicatedDomainId">
     <div>
       <div style="margin-bottom: 10px;">
