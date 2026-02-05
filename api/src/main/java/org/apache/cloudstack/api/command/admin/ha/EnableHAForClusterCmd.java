@@ -96,8 +96,8 @@ public final class EnableHAForClusterCmd extends BaseAsyncCmd {
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "Unable to find cluster by ID: " + getClusterId());
         }
 
-        final boolean result = haConfigManager.enableHA(cluster, includeHost());
-        CallContext.current().setEventDetails("Cluster Id:" + cluster.getId() + " HA enabled: true");
+        final boolean result = haConfigManager.enableHA(cluster);
+        CallContext.current().setEventDetails("Cluster ID:" + cluster.getUuid() + " HA enabled: true");
         CallContext.current().putContextParameter(Cluster.class, cluster.getUuid());
 
         setupResponse(result);
@@ -110,6 +110,6 @@ public final class EnableHAForClusterCmd extends BaseAsyncCmd {
 
     @Override
     public String getEventDescription() {
-        return "Enable HA for cluster: " + getClusterId();
+        return "Enabling HA for cluster with ID: " + getResourceUuid(ApiConstants.CLUSTER_ID);
     }
 }

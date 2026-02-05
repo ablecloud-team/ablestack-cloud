@@ -694,7 +694,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 volume.setDomainId((owner == null) ? Domain.ROOT_DOMAIN : owner.getDomainId());
                 volume.setFormat(ImageFormat.valueOf(format));
                 volume = _volsDao.persist(volume);
-                CallContext.current().setEventDetails("Volume Id: " + volume.getUuid());
+                CallContext.current().setEventDetails("Volume ID: " + volume.getUuid());
                 CallContext.current().putContextParameter(Volume.class, volume.getUuid());
 
                 // Increment resource count during allocation; if actual creation fails,
@@ -1030,7 +1030,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                     }
                 }
 
-                CallContext.current().setEventDetails("Volume Id: " + volume.getUuid());
+                CallContext.current().setEventDetails("Volume ID: " + volume.getUuid());
                 CallContext.current().putContextParameter(Volume.class, volume.getId());
                 // Increment resource count during allocation; if actual creation fails,
                 // decrement it
@@ -4556,7 +4556,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         Optional<String> extractUrl = setExtractVolumeSearchCriteria(sc, volume);
         if (extractUrl.isPresent()) {
             String url = extractUrl.get();
-            CallContext.current().setEventDetails(String.format("Download URL: %s, volume ID: %s", url, volume.getUuid()));
+            CallContext.current().setEventDetails(String.format("Download URL: %s, Volume ID: %s", url, volume.getUuid()));
             return url;
         }
 
@@ -4575,7 +4575,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 placeHolder = createPlaceHolderWork(vm.getId());
                 try {
                     String url = orchestrateExtractVolume(volume.getId(), zoneId);
-                    CallContext.current().setEventDetails(String.format("Download URL: %s, volume ID: %s", url, volume.getUuid()));
+                    CallContext.current().setEventDetails(String.format("Download URL: %s, Volume ID: %s", url, volume.getUuid()));
                     return url;
                 } finally {
                     _workJobDao.expunge(placeHolder.getId());
@@ -4606,7 +4606,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 // retrieve the entity url from job result
                 if (jobResult != null && jobResult instanceof String) {
                     String url = (String) jobResult;
-                    CallContext.current().setEventDetails(String.format("Download URL: %s, volume ID: %s", url, volume.getUuid()));
+                    CallContext.current().setEventDetails(String.format("Download URL: %s, Volume ID: %s", url, volume.getUuid()));
                     return url;
                 }
                 return null;
@@ -4614,7 +4614,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         }
 
         String url = orchestrateExtractVolume(volume.getId(), zoneId);
-        CallContext.current().setEventDetails(String.format("Download URL: %s, volume ID: %s", url, volume.getUuid()));
+        CallContext.current().setEventDetails(String.format("Download URL: %s, Volume ID: %s", url, volume.getUuid()));
         return url;
     }
 

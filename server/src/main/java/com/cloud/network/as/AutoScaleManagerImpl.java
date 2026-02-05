@@ -1489,7 +1489,7 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
         logger.debug("Adding Counter " + name);
         counter = counterDao.persist(new CounterVO(src, name, value, provider));
 
-        CallContext.current().setEventDetails(" Id: " + counter.getId() + " Name: " + name);
+        CallContext.current().setEventDetails(" ID: " + counter.getUuid() + " Name: " + name);
         return counter;
     }
 
@@ -1530,7 +1530,7 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
         condition = conditionDao.persist(new ConditionVO(cid, threshold, owner.getAccountId(), owner.getDomainId(), op));
         logger.info("Successfully created condition: {}", condition);
 
-        CallContext.current().setEventDetails(" Id: " + condition.getId());
+        CallContext.current().setEventDetails(" ID: " + condition.getUuid());
         return condition;
     }
 
@@ -2018,7 +2018,7 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
 
     private UserVmVO startNewVM(long vmId) {
         try {
-            CallContext.current().setEventDetails("Vm Id: " + vmId);
+            CallContext.current().setEventDetails("Instance ID: " + vmId);
             return userVmMgr.startVirtualMachine(vmId, null, new HashMap<>(), null).first();
         } catch (final ResourceUnavailableException ex) {
             logger.warn("Exception: ", ex);

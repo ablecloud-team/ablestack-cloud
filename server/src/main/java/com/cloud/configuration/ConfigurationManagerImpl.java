@@ -3680,7 +3680,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                 _serviceOfferingDetailsDao.saveDetails(detailsVOList);
             }
 
-            CallContext.current().setEventDetails("Service offering id=" + serviceOffering.getId());
+            CallContext.current().setEventDetails("Service offering ID: " + serviceOffering.getUuid());
             CallContext.current().putContextParameter(ServiceOffering.class, serviceOffering.getId());
             return serviceOffering;
         } else {
@@ -4080,7 +4080,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             }
         }
         offering = _serviceOfferingDao.findById(id);
-        CallContext.current().setEventDetails("Service offering id=" + offering.getId());
+        CallContext.current().setEventDetails("Service offering ID:" + offering.getUuid());
         return offering;
     }
 
@@ -4198,7 +4198,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         newDiskOffering.setHypervisorSnapshotReserve(hypervisorSnapshotReserve);
         newDiskOffering.setDiskSizeStrictness(diskSizeStrictness);
 
-        CallContext.current().setEventDetails("Disk offering id=" + newDiskOffering.getId());
+        CallContext.current().setEventDetails("Disk offering ID: " + newDiskOffering.getUuid());
         final DiskOfferingVO offering = _diskOfferingDao.persist(newDiskOffering);
         if (offering != null) {
             List<DiskOfferingDetailVO> detailsVO = new ArrayList<>();
@@ -4223,7 +4223,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             if (!detailsVO.isEmpty()) {
                 diskOfferingDetailsDao.saveDetails(detailsVO);
             }
-            CallContext.current().setEventDetails("Disk offering id=" + newDiskOffering.getId());
+            CallContext.current().setEventDetails("Disk offering ID: " + newDiskOffering.getUuid());
             CallContext.current().putContextParameter(DiskOffering.class, newDiskOffering.getId());
             return offering;
         }
@@ -4500,7 +4500,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                 diskOfferingDetailsDao.persist(detailVO);
             }
         }
-        CallContext.current().setEventDetails("Disk offering id=" + diskOffering.getId());
+        CallContext.current().setEventDetails("Disk offering ID: " + diskOffering.getUuid());
         return _diskOfferingDao.findById(diskOfferingId);
     }
 
@@ -4758,7 +4758,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         annotationDao.removeByEntityType(AnnotationService.EntityType.DISK_OFFERING.name(), offering.getUuid());
         offering.setState(DiskOffering.State.Inactive);
         if (_diskOfferingDao.update(offering.getId(), offering)) {
-            CallContext.current().setEventDetails("Disk offering id=" + diskOfferingId);
+            CallContext.current().setEventDetails("Disk offering ID: " + offering.getUuid());
             return true;
         } else {
             return false;
@@ -4838,7 +4838,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         }
         offering.setState(ServiceOffering.State.Inactive);
         if (_serviceOfferingDao.update(offeringId, offering)) {
-            CallContext.current().setEventDetails("Service offering id=" + offeringId);
+            CallContext.current().setEventDetails("Service offering ID: " + offering.getUuid());
             return true;
         } else {
             return false;
@@ -6964,7 +6964,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             offering.setPublicLb(false);
             _networkOfferingDao.update(offering.getId(), offering);
         }
-        CallContext.current().setEventDetails(" Id: " + offering.getId() + " Name: " + name);
+        CallContext.current().setEventDetails(" ID: " + offering.getUuid() + " Name: " + name);
         CallContext.current().putContextParameter(NetworkOffering.class, offering.getId());
         return offering;
     }
@@ -7819,7 +7819,6 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     @ActionEvent(eventType = EventTypes.EVENT_NETWORK_OFFERING_DELETE, eventDescription = "deleting network offering")
     public boolean deleteNetworkOffering(final DeleteNetworkOfferingCmd cmd) {
         final Long offeringId = cmd.getId();
-        CallContext.current().setEventDetails(" Id: " + offeringId);
 
         // Verify network offering id
         final NetworkOfferingVO offering = _networkOfferingDao.findById(offeringId);
@@ -7828,6 +7827,8 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         } else if (offering.getRemoved() != null || offering.isSystemOnly()) {
             throw new InvalidParameterValueException("unable to find network offering " + offeringId);
         }
+
+        CallContext.current().setEventDetails(" ID: " + offering.getUuid());
 
         // Don't allow to delete default network offerings
         if (offering.isDefault() == true) {
@@ -7867,13 +7868,14 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         final String tags = cmd.getTags();
         final List<Long> domainIds = cmd.getDomainIds();
         final List<Long> zoneIds = cmd.getZoneIds();
-        CallContext.current().setEventDetails(" Id: " + id);
 
         // Verify input parameters
         final NetworkOfferingVO offeringToUpdate = _networkOfferingDao.findById(id);
         if (offeringToUpdate == null) {
             throw new InvalidParameterValueException("unable to find network offering " + id);
         }
+
+        CallContext.current().setEventDetails(" ID: " + offeringToUpdate.getUuid());
 
         List<Long> existingDomainIds = networkOfferingDetailsDao.findDomainIds(id);
         Collections.sort(existingDomainIds);
@@ -8079,7 +8081,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         acctForUpdate.setDefaultZoneId(defaultZoneId);
 
         if (_accountDao.update(account.getId(), acctForUpdate)) {
-            CallContext.current().setEventDetails("Default zone id= " + defaultZoneId);
+            CallContext.current().setEventDetails("Default zone ID: " + defaultZoneId);
             return _accountDao.findById(account.getId());
         } else {
             return null;
