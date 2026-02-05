@@ -217,11 +217,13 @@ export default {
     resource: {
       deep: true,
       handler (newItem, oldItem) {
-        if (this.resource) {
-          this.host = this.resource
-          if (this.resource.id && newItem && newItem.id !== oldItem.id) {
-            this.fetchData()
-          }
+        if (!newItem || !newItem.id) {
+          return
+        }
+        const oldId = oldItem && oldItem.id
+        if (!oldId || newItem.id !== oldId) {
+          this.host = newItem
+          this.fetchData()
         }
       }
     }
