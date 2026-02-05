@@ -76,25 +76,31 @@
           v-if="isAdmin && (isDevelopmentMode || allowSettingTheme)"
         >
           <template #handler>
-            <a-button type="primary" size="large">
-              <close-outlined v-if="showSetting" />
-              <setting-outlined v-else />
-            </a-button>
+            <div style="position: absolute; bottom: 25px; display: flex; flex-direction: column; gap: 0; align-items: flex-end; z-index: 1001; pointer-events: auto;">
+
+              <a-button
+                type="primary"
+                @click.stop="toggleSidebar"
+                style="width: 40px; height: 40px; padding: 0; background: #aaa; border: none; color: #fff; border-radius: 4px 4px 0 0; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+              >
+                <ScheduleOutlined />
+              </a-button>
+
+              <a-button
+                type="primary"
+                size="large"
+                style="width: 40px; height: 40px; border-radius: 0 0 4px 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+              >
+                <close-outlined v-if="showSetting" />
+                <setting-outlined v-else :style="{ fontSize: '20px' }" />
+              </a-button>
+
+            </div>
           </template>
           <template #drawer>
             <setting :visible="showSetting" />
           </template>
         </drawer>
-      </div>
-
-      <div style="position: fixed; bottom: 45px; right: 0; z-index: 100;">
-        <a-button
-          type="primary"
-          @click="toggleSidebar"
-          style="width: 40px; height: 40px; padding: 0; background: #aaa; border: none; color: #fff;"
-        >
-          <ScheduleOutlined />
-        </a-button>
       </div>
 
       <event-sidebar
@@ -230,7 +236,7 @@ export default {
       if (!Number.isNaN(bootH) && bootH >= 0) {
         this.autoBannerHeight = bootH
         document.documentElement.style.setProperty('--autoBannerHeight', bootH + 'px')
-        // ✅ 추가: 첫 프레임부터 --affixTopHeader를 맞춰 메뉴/헤더 정렬
+        // 추가: 첫 프레임부터 --affixTopHeader를 맞춰 메뉴/헤더 정렬
         this.updateAffixTopVars() // ← 이 한 줄을 debouncedRecalc() 이전에 호출
         this.debouncedRecalc && this.debouncedRecalc()
       }
@@ -480,4 +486,39 @@ export default {
   max-height: 100%;
   overflow-y: auto;
 }
+@media (max-width: 768px) {
+  /* 1. 사이드바를 공중에 띄워서 공간 차지를 못하게 만듦 */
+  .ant-layout.layout.mobile .sticky-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible; /* 삐져나온 버튼(핸들러)은 보여야 함 */
+    z-index: 900;      /* 내용물보다는 위에, 배너보다는 아래 */
+  }
+  /* 1. 사용자 메뉴 배경 투명화 */
+  .user-menu {
+    background-color: transparent;
+    z-index: 999;
+  }
+
+  /* 2. 텍스트 숨기기 (부모 요소) */
+  .user-menu .action {
+    font-size: 0; /* 글자 크기 0으로 숨김 */
+  }
+
+  /* 3. ★ 아이콘 심폐소생술 (여기가 중요!) ★ */
+  /* .anticon: 번역 아이콘 등 / .ant-avatar: 사용자 프로필 */
+  .user-menu .action .anticon,
+  .user-menu .action .ant-avatar {
+    font-size: 16px;      /* 아이콘 크기 강제 복구 */
+    display: inline-flex; /* 가려지지 않게 표시 */
+    vertical-align: middle;
+    color: rgba(0, 0, 0, 0.65);      /* (선택) 아이콘 색상이 흐리다면 추가 */
+  }
+}
+
 </style>

@@ -1,178 +1,571 @@
-<!-- AutoAlertBanner.vue (사일런스·일시정지 시 즉시 소프트클로즈 + 관리서버 상세 이동/ESLint 정리본) -->
+<!-- AutoAlertBanner.vue (미사용 제거/연결 누락 보완/ESLint 정리본) -->
 <template>
   <teleport to="body">
     <div
       v-if="showBanner"
       class="auto-alert-banner-container"
       :class="{ 'has-banner': showBanner, 'mask-on': maskOn }"
-      ref="containerRef"
     >
       <div class="banner-list" ref="listRef">
         <a-alert
-          v-for="it in visibleAlerts"
-          :key="it.uid || it.id"
-          :data-key="it.uid || it.id"
+          class="alert-summary"
           :type="'error'"
           :show-icon="false"
-          :closable="true"
+          :closable="false"
           :banner="true"
-          @close="() => onAlertCloseStart(it)"
-          @afterClose="() => onAlertClosed(it)"
+          :style="[{ border: '1px solid #ffccc7', background: '#ffffff', borderRadius: '10px', boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)' }]"
         >
           <template #message>
-            <div class="banner-content" style="display:flex; justify-content:flex-end; align-items:center; gap:12px; flex-wrap:wrap; text-align:right;">
-              <span class="banner-text">
-                <span class="banner-label">
-                  <ExclamationCircleFilled class="banner-error-icon" />
-                  {{ $t('label.alert') || '경고' }}
-                </span>
-                <span class="banner-main">
-                  <span class="banner-rule-name">
-                    "{{ it && it.title ? it.title : ($t('label.alert') || '경고') }}"
-                  </span>
-                  <span class="banner-status">
-                    {{ $t('message.alerting') || '경고 발생 중입니다.' }}
-                  </span>
-                </span>
+            <div class="summary-modern">
+              <div class="summary-modern-left">
+                <div class="summary-modern-icon">
+                  <ExclamationCircleFilled />
+                </div>
 
-                <!-- 문제 호스트 -->
-                <span v-if="hostLinkList(it).length" class="banner-field banner-hosts">
-                  <span class="field-key">{{ $t('label.targets.hosts') || '대상 호스트' }}</span>
-                  <span class="chip-wrap">
-                    <a-tag
-                      v-for="lnk in hostLinkList(it)"
-                      :key="lnk.key"
-                      class="tag-link"
-                      @click.prevent="goToHost(lnk.keyword)"
-                    >
-                      {{ lnk.label }}
-                    </a-tag>
-                    <a-tag
-                      v-if="hostMoreCount(it) > 0"
-                      class="tag-more"
-                      @click="openUrl(hostMoreHref)"
-                    >
-                      +{{ hostMoreCount(it) }}
-                    </a-tag>
-                  </span>
-                </span>
+                <div class="summary-modern-text">
+                  <div class="summary-modern-title">
+                    <span class="summary-modern-title-text">
+                      {{ tr('message.alerting.title', '경보: 시스템 경고 감지') }}
+                    </span>
+                    <span class="summary-modern-count">
+                      ({{ alertingCount }}{{ trCountUnit() }})
+                    </span>
+                  </div>
 
-                <!-- 문제 VM -->
-                <span v-if="vmLinkList(it).length" class="banner-field banner-vms">
-                  <span class="field-key">{{ $t('label.targets.vms') || '대상 VM' }}</span>
-                  <span class="chip-wrap">
-                    <a-tag
-                      v-for="lnk in vmLinkList(it)"
-                      :key="lnk.key"
-                      class="tag-link"
-                      :data-vmindex="vmIndexVersion"
-                      @click.prevent.stop="goToVm(lnk.keyword)"
-                      :title="`${$t('tooltip.goto.vm.detail') || 'VM 상세로 이동'}: ${displayVm(lnk.label)}`"
-                    >
-                      {{ displayVm(lnk.label) }}
-                    </a-tag>
+                  <div class="summary-modern-desc">
+                    <span class="summary-bullet">-</span>
+                    <span class="summary-desc-text">
+                      {{ tr('message.alerting.desc', '주요 시스템 리소스 임계치 초과 및 상태 변경이 감지되어 확인이 필요합니다.') }}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-                    <a-popover
-                      v-if="vmMoreCount(it) > 0"
-                      trigger="hover"
-                      placement="bottomRight"
-                      :overlayStyle="{ zIndex: 2147483649 }"
-                      :getPopupContainer="getPopupParent"
-                    >
-                      <template #content>
-                        <div class="vm-more-pop">
-                          <a-tag
-                            v-for="lnk in vmRestList(it)"
-                            :key="lnk.key"
-                            class="tag-link"
-                            @click.prevent.stop="goToVm(lnk.keyword)"
-                            :title="`${$t('tooltip.goto.vm.detail') || 'VM 상세로 이동'}: ${displayVm(lnk.label)}`"
-                          >
-                            {{ displayVm(lnk.label) }}
-                          </a-tag>
-                        </div>
-                      </template>
-                      <a-tag class="tag-more">+{{ vmMoreCount(it) }}</a-tag>
-                    </a-popover>
-                  </span>
-                </span>
-
-                <!-- 문제 스토리지 -->
-                <span v-if="storageLinkList(it).length" class="banner-field banner-storage">
-                  <span class="field-key">{{ $t('label.targets.storage.controller') || '대상 스토리지 컨트롤러' }}</span>
-                  <span class="chip-wrap">
-                    <a-tag
-                      v-for="lnk in storageLinkList(it)"
-                      :key="lnk.key"
-                      class="tag-link"
-                      @click="openUrlBlank(lnk.url)"
-                    >
-                      {{ lnk.label }}
-                    </a-tag>
-                  </span>
-                </span>
-
-                <!-- 문제 클라우드 (관리 서버) -->
-                <span v-if="cloudLinkList(it).length" class="banner-field banner-cloud">
-                  <span class="field-key">{{ $t('label.targets.management') || '대상 관리 서버' }}</span>
-                  <span class="chip-wrap">
-                    <a-tag
-                      v-for="lnk in cloudLinkList(it)"
-                      :key="lnk.key"
-                      class="tag-link"
-                      @click.prevent.stop="goToManagement(lnk.keyword)"
-                      :title="`${$t('tooltip.goto.management') || '관리 서버 상세로 이동'}: ${lnk.label}`"
-                    >
-                      {{ lnk.label }}
-                    </a-tag>
-                  </span>
-                </span>
-              </span>
-
-              <!-- 액션 영역 -->
-              <a-space class="banner-actions" :size="8" align="center" wrap>
-                <a
-                  :href="hrefAlertRule(it)"
-                  class="router-link-button"
-                  :title="`${$t('label.goto.the.alertRule') || '경고 규칙으로 이동'}: ${it?.title || ''}`"
-                >
-                  <a-button size="small" type="link">
-                    <template #icon><LinkOutlined /></template>
-                    {{ $t('label.goto.the.alertRules') || '경고 규칙으로 이동' }}
+              <div class="summary-modern-actions">
+                <a-space :size="8" align="center">
+                  <a-button size="small" type="primary" danger @click.stop="drawerVisible = true">
+                    {{ tr('label.take.action', '세부 경보 내용 확인') }}
                   </a-button>
-                </a>
 
-                <!-- Silence -->
-                <a-button
-                  v-if="!isKeySilencedNow(it && it.uid)"
-                  size="small"
-                  class="silence-menu"
-                  :disabled="!it || !it.uid"
-                  @click.stop="openSilence(it)"
-                >
-                  <span class="icon-stack">
-                    <SoundOutlined class="icon-sound" />
-                  </span>
-                  {{ $t('label.action.silence') || 'Silence' }}
-                </a-button>
-
-                <!-- Pause -->
-                <a-button
-                  size="small"
-                  class="pause-btn pause-compact"
-                  danger
-                  :disabled="!it || !it.uid"
-                  @click.stop="openPause(it)"
-                >
-                  <template #icon><PauseCircleOutlined /></template>
-                  {{ $t('label.alert.rule.pause') || 'Pause' }}
-                </a-button>
-              </a-space>
+                  <a-button size="small" @click.stop="goToAlertRulesMenu">
+                    {{ tr('label.goto.the.alertRules', '경보 규칙 메뉴 이동') }}
+                  </a-button>
+                </a-space>
+              </div>
             </div>
           </template>
         </a-alert>
       </div>
     </div>
+
+    <!-- AlertListDrawer -->
+    <a-drawer
+      v-model:visible="drawerVisible"
+      class="wall-alert-drawer"
+      placement="right"
+      :width="470"
+      :bodyStyle="{ padding: '0px', overflow: 'hidden' }"
+      :zIndex="2147483648"
+      :getContainer="getPopupParent"
+      :maskClosable="true"
+      :destroyOnClose="false"
+    >
+      <template #title>
+        <div class="drawer-title">
+          <span class="drawer-title-icon">
+            <ExclamationCircleFilled />
+          </span>
+          <div class="drawer-title-text">
+            <div class="drawer-title-main">
+              {{ tr('message.alerting.title', '조치가 필요한 경고') }}
+              <span class="drawer-title-count">({{ alertingCount }}{{ trCountUnit() }})</span>
+            </div>
+
+            <div class="drawer-title-sub">
+              <div>
+                - {{ tr('message.alerting.desc.1', '각 항목에서 현재값·임계값을 확인하고 해결방안을 확인하세요.') }}
+              </div>
+              <div>
+                - {{ tr('message.alerting.desc.2', '반복 알림은 사일런스(임시) 또는 일시 정지로 제어하세요.') }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <div class="drawer-stack drawer-stack--modern">
+        <div class="drawer-toolbar">
+          <a-button size="small" type="link" @click.stop="markAllAsRead">
+            {{ tr('label.mark.all.read', '모두 읽음 처리') }}
+          </a-button>
+          <a-space :size="10" align="center">
+            <a-button size="small" type="link" @click.stop="drawerVisible = false">
+              {{ tr('label.close', '닫기') }}
+            </a-button>
+          </a-space>
+        </div>
+
+        <div class="drawer-alert-viewport drawer-alert-viewport--modern">
+          <!-- ★ soft-close 애니메이션이 Drawer에서도 동작하도록 ref 연결합니다 -->
+          <div class="drawer-list-card" ref="drawerListRef">
+            <a-alert
+              v-for="it in visibleAlerts"
+              :key="it.uid || it.id"
+              :data-key="it.uid || it.id"
+              class="drawer-item-alert"
+              :type="'error'"
+              :show-icon="false"
+              :closable="true"
+              :banner="false"
+              @close="() => onAlertCloseStart(it)"
+              @afterClose="() => onAlertClosed(it)"
+            >
+              <template #message>
+                <div class="drawer-item">
+                  <div class="drawer-item-icon">
+                    <span class="drawer-item-icon-circle">
+                      <ExclamationCircleFilled />
+                    </span>
+                  </div>
+
+                  <div class="drawer-item-body">
+                    <div class="drawer-item-header">
+                      <div
+                        class="drawer-item-title drawer-item-title--link"
+                        role="button"
+                        tabindex="0"
+                        :title="`${tr('label.goto.the.alertRules', '경보 규칙으로 이동')}: ${(it && it.title) ? it.title : ''}`"
+                        @click.prevent.stop="goToAlertRule(it)"
+                        @keydown.enter.prevent.stop="goToAlertRule(it)"
+                      >
+                        {{ it && it.title ? it.title : tr('label.alert', '경보') }}
+                      </div>
+
+                      <div
+                        v-if="drawerItemMetricLineText(it) || drawerItemAgeText(it)"
+                        class="drawer-item-meta-row"
+                      >
+                        <div v-if="drawerItemMetricLineText(it)" class="drawer-item-meta-left">
+                          <a-popover
+                            trigger="hover"
+                            placement="bottomLeft"
+                            :overlayStyle="{ zIndex: 2147483650 }"
+                            :getPopupContainer="getPopupParent"
+                          >
+                            <template #content>
+                              <div class="target-more-popover">
+                                <template v-if="breachedCountByKind(it, 'host') > 0">
+                                  <div
+                                    v-for="lnk in breachedLinksByKind(it, 'host')"
+                                    :key="lnk.key"
+                                    class="target-more-item"
+                                  >
+                                    <a
+                                      class="target-more-link"
+                                      href="#"
+                                      @click.prevent.stop="openEntityLink(lnk)"
+                                    >
+                                      {{ lnk.label }}
+                                    </a>
+                                    <span v-if="lnk.valueText" class="target-value-metric">
+                                      ({{ lnk.valueText }})
+                                    </span>
+                                  </div>
+                                </template>
+
+                                <template v-if="breachedCountByKind(it, 'vm') > 0">
+                                  <div
+                                    v-for="lnk in breachedLinksByKind(it, 'vm')"
+                                    :key="lnk.key"
+                                    class="target-more-item"
+                                  >
+                                    <a
+                                      class="target-more-link"
+                                      href="#"
+                                      @click.prevent.stop="openEntityLink(lnk)"
+                                    >
+                                      {{ lnk.label }}
+                                    </a>
+                                    <span v-if="lnk.valueText" class="target-value-metric">
+                                      ({{ lnk.valueText }})
+                                    </span>
+                                  </div>
+                                </template>
+
+                                <template v-if="breachedCountByKind(it, 'storage') > 0">
+                                  <div
+                                    v-for="lnk in breachedLinksByKind(it, 'storage')"
+                                    :key="lnk.key"
+                                    class="target-more-item"
+                                  >
+                                    <a
+                                      class="target-more-link"
+                                      href="#"
+                                      @click.prevent.stop="openEntityLink(lnk)"
+                                    >
+                                      {{ lnk.label }}
+                                    </a>
+                                    <span v-if="lnk.valueText" class="target-value-metric">
+                                      ({{ lnk.valueText }})
+                                    </span>
+                                  </div>
+                                </template>
+
+                                <template v-if="breachedCountByKind(it, 'cloud') > 0">
+                                  <div
+                                    v-for="lnk in breachedLinksByKind(it, 'cloud')"
+                                    :key="lnk.key"
+                                    class="target-more-item"
+                                  >
+                                    <a
+                                      class="target-more-link"
+                                      href="#"
+                                      @click.prevent.stop="openEntityLink(lnk)"
+                                    >
+                                      {{ lnk.label }}
+                                    </a>
+                                    <span v-if="lnk.valueText" class="target-value-metric">
+                                      ({{ lnk.valueText }})
+                                    </span>
+                                  </div>
+                                </template>
+                              </div>
+                            </template>
+
+                            <span class="drawer-item-metric-hover">
+                              <template v-if="drawerItemMetricUi(it).kind === 'binary'">
+                                <span class="metric-binary">
+                                  {{ drawerItemMetricUi(it).text }}
+                                </span>
+                              </template>
+
+                              <template v-else>
+                                <span v-if="drawerItemMetricUi(it).hasCur" class="metric-kv">
+                                  <span class="metric-k">
+                                    {{ tr('label.max', '최대') }}
+                                  </span>
+                                  <span class="metric-v metric-current">
+                                    {{ drawerItemMetricUi(it).curText }}
+                                  </span>
+                                </span>
+
+                                <span
+                                  v-if="drawerItemMetricUi(it).hasCur && drawerItemMetricUi(it).hasThr"
+                                  class="metric-sep"
+                                >·</span>
+
+                                <span v-if="drawerItemMetricUi(it).hasThr" class="metric-kv">
+                                  <span class="metric-k">
+                                    {{ tr('label.threshold.value', '임계값') }}
+                                  </span>
+                                  <span class="metric-v metric-threshold">
+                                    {{ drawerItemMetricUi(it).thrText }}
+                                  </span>
+                                </span>
+                              </template>
+                            </span>
+                          </a-popover>
+                        </div>
+                        <div v-if="drawerItemAgeText(it)" class="drawer-item-meta-right">
+                          {{ drawerItemAgeText(it) }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="drawer-item-divider" />
+
+                    <!-- 대상 호스트 -->
+                    <div v-if="hostLinkList(it).length" class="drawer-item-target-line">
+                      <span class="target-label">
+                        {{ tr('label.targets.hosts', '대상 호스트') }}:
+                      </span>
+
+                      <span class="target-values">
+                        <template v-for="(lnk, idx) in hostLinkList(it)" :key="lnk.key">
+                          <a
+                            class="target-value-link"
+                            href="#"
+                            @click.prevent.stop="goToHost(lnk.keyword)"
+                          >
+                            {{ lnk.label }}
+                          </a>
+                          <span v-if="idx < hostLinkList(it).length - 1" class="target-sep"> | </span>
+                        </template>
+
+                        <a-popover
+                          v-if="hostMoreCount(it) > 0"
+                          trigger="hover"
+                          placement="bottomRight"
+                          :overlayStyle="{ zIndex: 2147483650 }"
+                          :getPopupContainer="getPopupParent"
+                        >
+                          <template #content>
+                            <div class="more-pop-list">
+                              <div
+                                v-for="lnk in hostRestList(it)"
+                                :key="lnk.key"
+                                class="more-pop-item"
+                              >
+                                <a
+                                  class="target-value-link"
+                                  href="#"
+                                  @click.prevent.stop="goToHost(lnk.keyword)"
+                                >
+                                  {{ lnk.label }}
+                                </a>
+                              </div>
+                            </div>
+                          </template>
+
+                          <a class="target-more" href="#" @click.prevent.stop>
+                            +{{ hostMoreCount(it) }}
+                          </a>
+                        </a-popover>
+                      </span>
+
+                    </div>
+
+                    <!-- 대상 VM -->
+                    <div v-if="vmLinkList(it).length" class="drawer-item-target-line">
+                      <span class="target-label">
+                        {{ tr('label.targets.vms', '대상 VM') }}:
+                      </span>
+
+                      <span class="target-values">
+                        <template v-for="(lnk, idx) in vmLinkList(it)" :key="lnk.key">
+                          <a
+                            class="target-value-link"
+                            href="#"
+                            :data-vmindex="vmIndexVersion"
+                            @click.prevent.stop="goToVm(lnk.keyword)"
+                          >
+                            {{ lnk.label }}
+                          </a>
+                          <span v-if="idx < vmLinkList(it).length - 1" class="target-sep"> | </span>
+                        </template>
+
+                        <a-popover
+                          v-if="vmMoreCount(it) > 0"
+                          trigger="hover"
+                          placement="bottomRight"
+                          :overlayStyle="{ zIndex: 2147483650 }"
+                          :getPopupContainer="getPopupParent"
+                        >
+                          <template #content>
+                            <div class="more-pop-list">
+                              <div
+                                v-for="lnk in vmRestList(it)"
+                                :key="lnk.key"
+                                class="more-pop-item"
+                              >
+                                <a
+                                  class="target-value-link"
+                                  href="#"
+                                  :data-vmindex="vmIndexVersion"
+                                  @click.prevent.stop="goToVm(lnk.keyword)"
+                                >
+                                  {{ lnk.label }}
+                                </a>
+                              </div>
+                            </div>
+                          </template>
+
+                          <a class="target-more" href="#" @click.prevent.stop>
+                            +{{ vmMoreCount(it) }}
+                          </a>
+                        </a-popover>
+                      </span>
+
+                    </div>
+
+                    <!-- 대상 스토리지 컨트롤러 -->
+                    <div v-if="storageLinkList(it).length" class="drawer-item-target-line">
+                      <span class="target-label">
+                        {{ tr('label.targets.storage.controller', '대상 스토리지 컨트롤러') }}:
+                      </span>
+
+                      <span class="target-values">
+                        <template v-for="(lnk, idx) in storageLinkList(it)" :key="lnk.key">
+                          <a
+                            class="target-value-link"
+                            href="#"
+                            @click.prevent.stop="openUrlBlank(lnk.url)"
+                          >
+                            {{ lnk.label }}
+                          </a>
+                          <span v-if="idx < storageLinkList(it).length - 1" class="target-sep"> | </span>
+                        </template>
+
+                        <a-popover
+                          v-if="storageMoreCount(it) > 0"
+                          trigger="hover"
+                          placement="bottomRight"
+                          :overlayStyle="{ zIndex: 2147483650 }"
+                          :getPopupContainer="getPopupParent"
+                        >
+                          <template #content>
+                            <div class="more-pop-list">
+                              <div
+                                v-for="lnk in storageRestList(it)"
+                                :key="lnk.key"
+                                class="more-pop-item"
+                              >
+                                <a
+                                  class="target-value-link"
+                                  href="#"
+                                  @click.prevent.stop="openUrlBlank(lnk.url)"
+                                >
+                                  {{ lnk.label }}
+                                </a>
+                              </div>
+                            </div>
+                          </template>
+
+                          <a class="target-more" href="#" @click.prevent.stop>
+                            +{{ storageMoreCount(it) }}
+                          </a>
+                        </a-popover>
+                      </span>
+
+                    </div>
+
+                    <!-- 대상 관리 서버 -->
+                    <div v-if="cloudLinkList(it).length" class="drawer-item-target-line">
+                      <span class="target-label">
+                        {{ tr('label.targets.management', '대상 관리 서버') }}:
+                      </span>
+
+                      <span class="target-values">
+                        <template v-for="(lnk, idx) in cloudLinkList(it)" :key="lnk.key">
+                          <a
+                            class="target-value-link"
+                            href="#"
+                            :title="`${tr('tooltip.goto.management', '관리 서버 상세로 이동')}: ${lnk.label}`"
+                            @click.prevent.stop="goToManagement(lnk.keyword)"
+                          >
+                            {{ lnk.label }}
+                          </a>
+                          <span v-if="idx < cloudLinkList(it).length - 1" class="target-sep"> | </span>
+                        </template>
+
+                        <a-popover
+                          v-if="cloudMoreCount(it) > 0"
+                          trigger="hover"
+                          placement="bottomRight"
+                          :overlayStyle="{ zIndex: 2147483650 }"
+                          :getPopupContainer="getPopupParent"
+                        >
+                          <template #content>
+                            <div class="more-pop-list">
+                              <div
+                                v-for="lnk in cloudRestList(it)"
+                                :key="lnk.key"
+                                class="more-pop-item"
+                              >
+                                <a
+                                  class="target-value-link"
+                                  href="#"
+                                  :title="`${tr('tooltip.goto.management', '관리 서버 상세로 이동')}: ${lnk.label}`"
+                                  @click.prevent.stop="goToManagement(lnk.keyword)"
+                                >
+                                  {{ lnk.label }}
+                                </a>
+                              </div>
+                            </div>
+                          </template>
+
+                          <a class="target-more" href="#" @click.prevent.stop>
+                            +{{ cloudMoreCount(it) }}
+                          </a>
+                        </a-popover>
+                      </span>
+
+                    </div>
+
+                    <div class="drawer-item-actions">
+                      <a-space class="banner-actions" :size="10" align="center">
+                        <!-- Solution -->
+                        <a-popover
+                          placement="topLeft"
+                          :trigger="['click']"
+                          :overlayClassName="'solution-popover'"
+                          :overlayStyle="{ zIndex: 2147483650 }"
+                          :getPopupContainer="getPopupParent"
+                        >
+                          <template #content>
+                            <div class="solution-popover-title">
+                              {{ tr('label.solution', '해결 방안') }}
+                            </div>
+
+                            <div class="solution-popover-section">
+                              <div class="solution-popover-label">
+                                {{ tr('label.summary', '요약') }}
+                              </div>
+                              <div class="solution-popover-text">
+                                {{ solutionSummaryText(it) }}
+                              </div>
+                            </div>
+
+                            <div class="solution-popover-section">
+                              <div class="solution-popover-label">
+                                {{ tr('label.description', '설명') }}
+                              </div>
+                              <div class="solution-popover-text">
+                                {{ solutionDescriptionText(it) }}
+                              </div>
+                            </div>
+                          </template>
+
+                          <a-button
+                            size="small"
+                            type="default"
+                            class="solution-menu"
+                          >
+                            <span class="icon-stack">
+                              <LinkOutlined class="icon-link" />
+                            </span>
+                            {{ tr('label.action.solution', '해결방안 보기') }}
+                          </a-button>
+                        </a-popover>
+
+                        <!-- Silence -->
+                        <a-button
+                          size="small"
+                          class="silence-menu"
+                          :disabled="!it || !it.uid || isKeySilencedNow(it.uid)"
+                          @click.stop="openSilence(it)"
+                        >
+                          <span class="icon-stack">
+                            <SoundOutlined class="icon-sound" />
+                          </span>
+                          {{ isKeySilencedNow(it && it.uid) ? tr('label.silenced', '사일런스 중') : tr('label.action.silence', '사일런스') }}
+                        </a-button>
+
+                        <!-- Pause -->
+                        <a-button
+                          size="small"
+                          class="pause-btn pause-compact"
+                          danger
+                          :disabled="!it || !it.uid"
+                          @click.stop="openPause(it)"
+                        >
+                          <template #icon><PauseCircleOutlined /></template>
+                          {{ tr('label.alert.rule.pause', '일시 정지') }}
+                        </a-button>
+                      </a-space>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </a-alert>
+
+            <div v-if="!visibleAlerts.length" class="drawer-empty">
+              {{ tr('message.no.alerts', '현재 표시할 경고가 없습니다.') }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </a-drawer>
 
     <!-- RuleSilenceModal -->
     <a-modal
@@ -221,18 +614,27 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onBeforeUnmount, defineAsyncComponent, watch, nextTick } from 'vue'
-import { LinkOutlined, ExclamationCircleFilled, SoundOutlined, PauseCircleOutlined } from '@ant-design/icons-vue'
+import {
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  defineAsyncComponent,
+  watch,
+  nextTick,
+  getCurrentInstance
+} from 'vue'
+import { ExclamationCircleFilled, SoundOutlined, PauseCircleOutlined, LinkOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { api } from '@/api'
 
 export default {
   name: 'AutoAlertBanner',
   components: {
-    LinkOutlined,
     ExclamationCircleFilled,
     SoundOutlined,
     PauseCircleOutlined,
+    LinkOutlined,
     RuleSilenceModal: defineAsyncComponent(() => import('@/views/infra/RuleSilenceModal.vue')),
     RulePauseModal: defineAsyncComponent(() => import('@/views/infra/RulePauseModal.vue'))
   },
@@ -240,6 +642,27 @@ export default {
     const ORIGIN = typeof window !== 'undefined' ? window.location.origin : ''
     const HOST_BASE = ''
     const VM_BASE = '/client'
+
+    // ===== i18n 안전 호출 =====
+    const instance = getCurrentInstance()
+    const tFn =
+      (instance && instance.proxy && typeof instance.proxy.$t === 'function' ? instance.proxy.$t : null) ||
+      (typeof window !== 'undefined' && typeof window.$t === 'function' ? window.$t : null)
+
+    const tr = (key, fallback, params) => {
+      try {
+        const v = tFn ? tFn(key, params) : null
+        if (!v || v === key) { return fallback }
+        return v
+      } catch (_) {
+        return fallback
+      }
+    }
+
+    const trCountUnit = () => {
+      const v = tr('label.count.unit', '건')
+      return v || '건'
+    }
 
     // ===== 부팅 시 높이 복원 =====
     const LS_H_KEY = 'autoAlertBanner.lastHeight'
@@ -256,6 +679,7 @@ export default {
         window.dispatchEvent(new CustomEvent('auto-alert-banner:closing'))
       } catch (_) {}
     }
+
     const emitClosed = () => {
       try {
         window.dispatchEvent(new CustomEvent('auto-alert-banner:closed'))
@@ -266,7 +690,7 @@ export default {
     const isMobile = () => {
       try {
         return window.matchMedia && window.matchMedia('(max-width: 768px)').matches
-      } catch (e) {
+      } catch (_) {
         return false
       }
     }
@@ -278,26 +702,41 @@ export default {
     const hrefHostList = (keyword) => `${ORIGIN}${HOST_BASE}/#/hosts${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ''}`
     const hrefVmDetail = (id) => `${ORIGIN}${VM_BASE}/#/vm/${id}`
     const hrefVmList = (keyword) => `${ORIGIN}${VM_BASE}/#/vm${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ''}`
-    const hrefCloudPage = () => `${ORIGIN}/#/managementserver`
+
     const alertRulesHref = `${ORIGIN}/#/alertRules`
+    const goToAlertRulesMenu = () => {
+      try {
+        window.location.href = alertRulesHref
+      } catch (_) {}
+    }
+
     const hrefAlertRule = (item) => {
       const uid = item && (item.uid || ruleUid(item.rule) || item.id)
       return uid ? `${ORIGIN}/#/alertRules/${encodeURIComponent(uid)}` : `${ORIGIN}/#/alertRules`
     }
-    const hostMoreHref = hrefHostList('')
-    const vmMoreHref = hrefVmList('')
+
+    const goToAlertRule = (item) => {
+      const href = hrefAlertRule(item)
+      if (!href) { return }
+      try {
+        window.location.href = href
+      } catch (_) {}
+    }
+
     const MAX_LINKS = 3
 
     // ===== 상태 =====
-    const loading = ref(false)
     const rules = ref([])
     const refreshInFlight = ref(false)
-
     const keepShowing = ref(false)
+
     const HIDE_GRACE_MS = 150
     let hideTimer = null
 
     const maskOn = ref(false)
+
+    // ===== Drawer =====
+    const drawerVisible = ref(false)
 
     // ===== 폴링 =====
     const POLL_MS = 60000
@@ -340,6 +779,7 @@ export default {
       }
       pollHandle = setTimeout(pollTick, delay)
     }
+
     function stopPoll () {
       if (pollHandle) {
         clearTimeout(pollHandle)
@@ -355,6 +795,7 @@ export default {
         startPoll()
       }
     }
+
     function onFocus () {
       if (!document.hidden) {
         pollTick()
@@ -381,6 +822,7 @@ export default {
         }
       }
     }
+
     const isClosedNow = (k) => {
       if (!k) { return false }
       const exp = closedUntil.value.get(k)
@@ -388,8 +830,8 @@ export default {
     }
 
     // ===== 치수 측정 =====
-    const containerRef = ref(null)
     const listRef = ref(null)
+    const drawerListRef = ref(null)
     let ro = null
     let rafId = 0
     const lastHeight = ref(-1)
@@ -428,9 +870,13 @@ export default {
     // ===== 소프트 클로즈 =====
     const runCloseAnimation = (k) => {
       try {
-        const root = listRef.value
-        if (!root || !k) { return }
-        const el = root.querySelector(`[data-key="${k}"]`)
+        if (!k) { return }
+        const roots = [drawerListRef.value, listRef.value].filter(Boolean)
+        let el = null
+        for (let i = 0; i < roots.length; i += 1) {
+          const found = roots[i].querySelector(`[data-key="${k}"]`)
+          if (found) { el = found; break }
+        }
         if (!el) { return }
 
         const h = el.getBoundingClientRect().height
@@ -439,7 +885,6 @@ export default {
         el.style.overflow = 'hidden'
         el.style.transition = 'height 150ms ease, opacity 150ms ease'
 
-        // 강제 리플로우
         el.getBoundingClientRect()
 
         el.style.height = '0px'
@@ -455,6 +900,75 @@ export default {
       runCloseAnimation(uid)
       closedUntil.value.set(uid, Date.now() + CLOSE_TTL_MS)
       scheduleMeasure()
+    }
+
+    // ===== Drawer UI 유틸 =====
+    const pickTimeLikeMs = (obj) => {
+      if (!obj || typeof obj !== 'object') { return 0 }
+      const keys = [
+        'activeAt',
+        'startsAt',
+        'startTime',
+        'start',
+        'createdAt',
+        'firedAt',
+        'lastEvaluation',
+        'lastEvaluationTime',
+        'updatedAt',
+        'timestamp',
+        'time'
+      ]
+      for (let i = 0; i < keys.length; i += 1) {
+        const k = keys[i]
+        const v = obj[k]
+        if (typeof v === 'number' && Number.isFinite(v)) {
+          return v > 10_000_000_000 ? v : v * 1000
+        }
+        if (typeof v === 'string' && v) {
+          const ms = Date.parse(v)
+          if (Number.isFinite(ms) && ms > 0) { return ms }
+        }
+      }
+      return 0
+    }
+
+    const formatAgo = (ms) => {
+      if (!ms) { return '' }
+      const now = Date.now()
+      const diff = Math.max(0, now - ms)
+      const sec = Math.floor(diff / 1000)
+      if (sec < 60) { return tr('label.just.now', '방금') }
+      const min = Math.floor(sec / 60)
+      if (min < 60) { return `${min}${tr('label.minute', '분')} ${tr('label.ago', '전')}` }
+      const hour = Math.floor(min / 60)
+      if (hour < 24) { return `${hour}${tr('label.hour', '시간')} ${tr('label.ago', '전')}` }
+      const day = Math.floor(hour / 24)
+      if (day < 7) { return `${day}${tr('label.day', '일')} ${tr('label.ago', '전')}` }
+      try {
+        const d = new Date(ms)
+        const y = d.getFullYear()
+        const mm = String(d.getMonth() + 1).padStart(2, '0')
+        const dd = String(d.getDate()).padStart(2, '0')
+        return `${y}-${mm}-${dd}`
+      } catch (_) {
+        return ''
+      }
+    }
+
+    const drawerItemAgeText = (it) => {
+      const inst = it && Array.isArray(it.alerts) && it.alerts.length ? it.alerts[0] : null
+      const ms = pickTimeLikeMs(inst) || pickTimeLikeMs(it && it.rule) || 0
+      return ms ? formatAgo(ms) : ''
+    }
+
+    const markAllAsRead = () => {
+      const list = Array.isArray(visibleAlerts.value) ? visibleAlerts.value : []
+      for (let i = 0; i < list.length; i += 1) {
+        const it = list[i]
+        const k = it && (it.uid || it.id)
+        if (k) { softCloseByUid(k) }
+      }
+      drawerVisible.value = false
     }
 
     // ===== 파서/유틸 =====
@@ -476,16 +990,19 @@ export default {
       if (obj.alert && typeof obj.alert.state === 'object' && typeof obj.alert.state.state === 'string') { return obj.alert.state.state }
       return ''
     }
+
     const normState = (v) => UC(pickState(v)).replace(/\s+/g, '')
     const isNoiseLike = (v) => {
       const s = normState(v)
       return s === 'NODATA' || s === 'UNKNOWN' || s === 'PENDING' || s === 'OK' || s === 'NORMAL' || s === 'INACTIVE'
     }
+
     const parseIp = (s) => {
       if (!s) { return '' }
       const m = String(s).match(/(\d{1,3}(?:\.\d{1,3}){3})/)
       return m ? m[1] : ''
     }
+
     function takeFirst (...args) {
       for (let i = 0; i < args.length; i += 1) {
         const v = args[i]
@@ -494,9 +1011,369 @@ export default {
       return ''
     }
 
+    const solutionSummaryText = (it) => {
+      // visibleAlerts 아이템은 래퍼이므로 실제 룰은 it.rule 입니다.
+      const r = (it && it.rule) ? it.rule : it
+      // 인스턴스(alerts[0]) 쪽에도 summary/message가 올 수 있어 폴백으로 같이 봅니다.
+      const a = (it && Array.isArray(it.alerts) && it.alerts.length) ? it.alerts[0] : null
+
+      const annR = (r && r.annotations) ? r.annotations : {}
+      const annA = (a && a.annotations) ? a.annotations : {}
+
+      const summary = (r && r.summary)
+        ? r.summary
+        : takeFirst(
+          annR.summary,
+          annR.__summary__,
+          annR.message,
+          annA.summary,
+          annA.__summary__,
+          annA.message,
+          ''
+        )
+
+      return (summary && String(summary).trim()) ? String(summary).trim() : '-'
+    }
+
+    const solutionDescriptionText = (it) => {
+      const r = (it && it.rule) ? it.rule : it
+      const a = (it && Array.isArray(it.alerts) && it.alerts.length) ? it.alerts[0] : null
+
+      const annR = (r && r.annotations) ? r.annotations : {}
+      const annA = (a && a.annotations) ? a.annotations : {}
+
+      const description = (r && r.description)
+        ? r.description
+        : takeFirst(
+          annR.description,
+          annR.__description__,
+          annA.description,
+          annA.__description__,
+          ''
+        )
+
+      return (description && String(description).trim()) ? String(description).trim() : '-'
+    }
+
+    // ===== 배너 표시: 현재/임계(현재 값이 없으면 임계만 표시) =====
+    function pickNumberLike (v) {
+      if (v == null) { return null }
+
+      if (typeof v === 'number' && Number.isFinite(v)) { return v }
+
+      if (typeof v === 'string') {
+        const s = v.trim()
+        if (!s) { return null }
+        const n = Number(s.replace(/%$/, ''))
+        if (Number.isFinite(n)) { return n }
+        return null
+      }
+
+      if (Array.isArray(v) && v.length > 0) {
+        return pickNumberLike(v[0])
+      }
+
+      if (typeof v === 'object') {
+        if (v.value != null) { return pickNumberLike(v.value) }
+        if (v.values != null) { return pickNumberLike(v.values) }
+
+        const keys = Object.keys(v)
+        for (let i = 0; i < keys.length; i += 1) {
+          const n = pickNumberLike(v[keys[i]])
+          if (n != null) { return n }
+        }
+      }
+
+      return null
+    }
+
+    function metricUnitOf (it) {
+      const title = String((it && it.title) || '').trim()
+      const r = it && it.rule ? it.rule : null
+
+      const explicit = takeFirst(
+        it && it.unit,
+        r && r.unit,
+        r && r.units,
+        r && r.thresholdUnit,
+        r && r.valueUnit
+      )
+      if (explicit) { return String(explicit) }
+
+      // 온도 단위(°C/℃) 우선 처리합니다.
+      if (title.includes('°C') || title.includes('℃') || title.includes('온도')) { return '°C' }
+
+      // 퍼센트 단위입니다.
+      if (title.includes('%') || title.includes('(%)') || title.includes('사용률')) { return '%' }
+
+      // 제목 끝의 괄호 단위를 일반적으로 추출합니다. 예: "(MB/s)", "(ms)"
+      const m = title.match(/\(([^)]+)\)\s*$/)
+      if (m && m[1]) { return m[1].trim() }
+
+      return ''
+    }
+
+    function resolveCurrentMetric (it) {
+      const a = it && Array.isArray(it.alerts) && it.alerts.length ? it.alerts[0] : null
+      const r = it && it.rule ? it.rule : null
+
+      const n0 = pickNumberLike(it && (it.currentValue || it.current || it.value || it.lastValue))
+      if (n0 != null) { return n0 }
+
+      const n1 = pickNumberLike(r && (r.currentValue || r.current || r.value || r.lastValue))
+      if (n1 != null) { return n1 }
+
+      const n2 = pickNumberLike(a && (a.value || a.values || a.val || a.sample))
+      if (n2 != null) { return n2 }
+
+      const n3 = pickNumberLike(a && a.annotations && (a.annotations.current || a.annotations.value))
+      if (n3 != null) { return n3 }
+
+      return null
+    }
+
+    function resolveCurrentMaxMetric (it) {
+      // Drawer의 '현재' 값은 대상별 currentTargets 중 최대값을 사용합니다.
+      // - currentTargets 가 없으면 null 입니다.
+      const rows = currentTargetsOf(it)
+      if (!Array.isArray(rows) || rows.length === 0) { return null }
+
+      let max = null
+      for (let i = 0; i < rows.length; i += 1) {
+        const row = rows[i] || {}
+        const n = pickNumberLike(takeFirst(row.value, row.val, row.current, row.currentValue))
+        if (typeof n !== 'number' || !Number.isFinite(n)) { continue }
+        if (max == null || n > max) { max = n }
+      }
+
+      return max
+    }
+
+    function resolveThresholdMetric (it) {
+      const r = it && it.rule ? it.rule : null
+
+      const cand = takeFirst(
+        it && (it.thresholdValue || it.threshold || it.thresholdvalue),
+        r && (r.thresholdValue || r.threshold || r.thresholdvalue),
+        r && r.thresholds,
+        r && r.evaluatorParams,
+        r && r.evaluator && r.evaluator.params,
+        r && r.condition && r.condition.evaluator && r.condition.evaluator.params,
+        r && r.conditions && r.conditions[0] && r.conditions[0].evaluator && r.conditions[0].evaluator.params
+      )
+
+      const n = pickNumberLike(cand)
+      if (n != null) { return n }
+
+      if (Array.isArray(cand) && cand.length > 0) {
+        return pickNumberLike(cand[0])
+      }
+
+      return null
+    }
+
+    function formatMetric (n, unit) {
+      if (n == null || !Number.isFinite(n)) { return '' }
+
+      let v = n
+      // 0~1 사이 비율(0.1533)을 %로 전달하는 케이스 보정합니다.
+      if (unit === '%' && v >= 0 && v <= 1) { v = v * 100 }
+
+      const abs = Math.abs(v)
+      let s = ''
+
+      if (unit && /sec\/sec/i.test(unit)) {
+        const trimZeros = (x) => String(x).replace(/0+$/, '').replace(/\.$/, '')
+
+        let decimals = 0
+        if (abs >= 100) decimals = 0
+        else if (abs >= 10) decimals = 1
+        else if (abs >= 1) decimals = 2
+        else if (abs >= 0.1) decimals = 3
+        else if (abs >= 0.01) decimals = 4
+        else if (abs >= 0.001) decimals = 5
+        else decimals = 6 // 0.00014 같은 값이 0.00014로 보이게 됩니다.
+
+        s = trimZeros(v.toFixed(decimals))
+      } else {
+        // 일반 수치: 화면 공간을 아끼되, 필요한 자릿수는 유지합니다.
+        if (abs >= 100) {
+          s = String(Math.round(v))
+        } else if (abs >= 10) {
+          s = String(Math.round(v * 10) / 10).replace(/\.0$/, '')
+        } else {
+          s = String(Math.round(v * 100) / 100).replace(/\.00$/, '').replace(/(\.\d)0$/, '$1')
+        }
+      }
+
+      if (!unit) { return s }
+
+      // 기호 단위(%, °C)는 붙여 쓰고, 문자열 단위(sec/sec 등)는 공백을 둡니다.
+      const noSpaceUnits = { '%': true, '°C': true, '℃': true }
+      const sep = (noSpaceUnits[unit] || unit.length <= 2) ? '' : ' '
+      return `${s}${sep}${unit}`
+    }
+
+    const drawerItemMetricInlineText = (it) => {
+      // 상태형(0/1) 규칙은 숫자 표시 대신 상태만 표시합니다.
+      if (isBinaryTargetRule(it)) {
+        const hasBad = breachedKeysOf(it).length > 0
+        return hasBad ? tr('label.current.bad', '현재 상태 이상') : tr('label.current.ok', '현재 정상')
+      }
+
+      const unit = metricUnitOf(it)
+
+      // 현재값: 대상별 값 중 최대값입니다.
+      const curMax = resolveCurrentMaxMetric(it)
+
+      // 평균값: 백엔드가 내려주는 currentValue(평균)입니다.
+      const curAvg = resolveCurrentMetric(it)
+
+      const thr = resolveThresholdMetric(it)
+
+      const hasCurMax = typeof curMax === 'number' && Number.isFinite(curMax)
+      const hasCurAvg = typeof curAvg === 'number' && Number.isFinite(curAvg)
+      const hasThr = typeof thr === 'number' && Number.isFinite(thr)
+
+      const maxText = hasCurMax ? formatMetric(curMax, unit) : ''
+      const avgText = hasCurAvg ? formatMetric(curAvg, unit) : ''
+      const curText = hasCurMax
+        ? (hasCurAvg ? `${maxText} (평균 ${avgText})` : `${maxText}`)
+        : ''
+
+      if (hasCurMax && hasThr) {
+        return `${tr('label.max', '최대')} ${curText} · ${tr('label.threshold.value', '임계값')} ${formatMetric(thr, unit)}`
+      }
+
+      if (hasThr) {
+        return `${tr('label.threshold.value', '임계값')} ${formatMetric(thr, unit)}`
+      }
+
+      if (hasCurMax) {
+        return `${tr('label.max', '최대')} ${curText}`
+      }
+
+      return ''
+    }
+
+    const drawerItemMetricInlineTitle = (it) => {
+      const t = drawerItemMetricInlineText(it)
+      return t || ''
+    }
+
+    const drawerItemMetricLineText = (it) => {
+      if (isBinaryTargetRule(it)) {
+        const hasBad = breachedKeysOf(it).length > 0
+        return hasBad ? tr('label.current.state.bad', '현재 상태 이상') : tr('label.current.state.ok', '현재 상태 정상')
+      }
+
+      const unit = metricUnitOf(it)
+
+      const curMax = resolveCurrentMaxMetric(it)
+      const curAvg = resolveCurrentMetric(it)
+      const thr = resolveThresholdMetric(it)
+
+      const hasCurMax = typeof curMax === 'number' && Number.isFinite(curMax)
+      const hasCurAvg = typeof curAvg === 'number' && Number.isFinite(curAvg)
+      const hasThr = typeof thr === 'number' && Number.isFinite(thr)
+
+      const maxText = hasCurMax ? formatMetric(curMax, unit) : ''
+      const avgText = hasCurAvg ? formatMetric(curAvg, unit) : ''
+      const curText = hasCurMax
+        ? (hasCurAvg ? `${maxText} (평균 ${avgText})` : `${maxText}`)
+        : ''
+
+      if (hasCurMax && hasThr) {
+        return `${tr('label.max', '최대')} ${curText} · ${tr('label.threshold.value', '임계값')} ${formatMetric(thr, unit)}`
+      }
+
+      if (hasThr) {
+        return `${tr('label.threshold.value', '임계값')} ${formatMetric(thr, unit)}`
+      }
+
+      if (hasCurMax) {
+        return `${tr('label.max', '최대')} ${curText}`
+      }
+
+      return ''
+    }
+
+    const drawerItemMetricUi = (it) => {
+      // 템플릿에서 부분 스타일 적용이 가능하도록, 현재/임계값을 분리한 구조를 반환합니다.
+      if (isBinaryTargetRule(it)) {
+        const hasBad = breachedKeysOf(it).length > 0
+        return {
+          kind: 'binary',
+          text: hasBad ? tr('label.current.state.bad', '현재 상태 이상') : tr('label.current.state.ok', '현재 상태 정상')
+        }
+      }
+
+      const unit = metricUnitOf(it)
+
+      // 현재값: 대상별 값 중 최대값입니다.
+      const curMax = resolveCurrentMaxMetric(it)
+
+      // 평균값: 백엔드가 내려주는 currentValue(평균)입니다.
+      const curAvg = resolveCurrentMetric(it)
+
+      const thr = resolveThresholdMetric(it)
+
+      const hasCurMax = typeof curMax === 'number' && Number.isFinite(curMax)
+      const hasCurAvg = typeof curAvg === 'number' && Number.isFinite(curAvg)
+      const hasThr = typeof thr === 'number' && Number.isFinite(thr)
+
+      const maxText = hasCurMax ? formatMetric(curMax, unit) : ''
+      const avgText = hasCurAvg ? formatMetric(curAvg, unit) : ''
+      const curText = hasCurMax
+        ? (hasCurAvg ? `${maxText} (평균 ${avgText})` : `${maxText}`)
+        : ''
+
+      return {
+        kind: 'metric',
+        hasCur: hasCurMax,
+        hasThr,
+        curText,
+        thrText: hasThr ? formatMetric(thr, unit) : ''
+      }
+    }
+
+    const drawerItemMetaText = (it) => {
+      const metric = drawerItemMetricLineText(it)
+      const age = drawerItemAgeText(it)
+
+      if (metric && age) { return `${metric} · ${age}` }
+      if (metric) { return metric }
+      if (age) { return age }
+
+      return ''
+    }
+
+    // ===== 해결방안(런북) =====
+    function solutionUrlOf (it) {
+      const r = it && it.rule ? it.rule : null
+      const a = it && Array.isArray(it.alerts) && it.alerts.length ? it.alerts[0] : null
+
+      return String(takeFirst(
+        it && (it.solutionUrl || it.solution_url || it.runbookUrl || it.runbook_url),
+        r && (r.solutionUrl || r.solution_url || r.runbookUrl || r.runbook_url),
+        r && r.annotations && (r.annotations.runbook_url || r.annotations.runbookUrl || r.annotations.solution_url || r.annotations.solutionUrl),
+        a && a.annotations && (a.annotations.runbook_url || a.annotations.runbookUrl || a.annotations.solution_url || a.annotations.solutionUrl)
+      ) || '').trim()
+    }
+
+    const hasSolutionUrl = (it) => {
+      const url = solutionUrlOf(it)
+      return !!url
+    }
+
+    const openSolution = (it) => {
+      const url = solutionUrlOf(it)
+      if (!url) { return }
+      openUrlBlank(url)
+    }
+
     // ===== CloudStack 인덱스 =====
     const extractHosts = (resp) => {
-      // listHostsMetrics / listHosts 모두 대응
       const wrap =
         resp?.listhostsmetricsresponse ||
         resp?.listHostsMetricsResponse ||
@@ -524,29 +1401,22 @@ export default {
       return Array.isArray(list) ? list : []
     }
 
-    // 호스트 목록을 불러오는 헬퍼(listHostsMetrics 우선, 안 되면 listHosts 폴백)
     const fetchHosts = async (params) => {
-      // 1차: listHostsMetrics
       try {
         const resp1 = await api('listHostsMetrics', params)
         const rows1 = extractHosts(resp1)
         if (Array.isArray(rows1) && rows1.length > 0) {
           return rows1
         }
-      } catch (_) {
-        // noop
-      }
+      } catch (_) {}
 
-      // 2차: 일반 listHosts 폴백
       try {
         const resp2 = await api('listHosts', params)
         const rows2 = extractHosts(resp2)
         if (Array.isArray(rows2) && rows2.length > 0) {
           return rows2
         }
-      } catch (_) {
-        // noop
-      }
+      } catch (_) {}
 
       return []
     }
@@ -584,23 +1454,12 @@ export default {
           const h = rows[i] || {}
           const id = takeFirst(h.id, h.uuid)
           const name = takeFirst(h.name, h.hostname, h.hostName)
-          const ip = takeFirst(
-            h.ipaddress,
-            h.ipAddress,
-            h.hostip,
-            h.hostIp,
-            h.privateipaddress,
-            h.privateIpAddress
-          )
+          const ip = takeFirst(h.ipaddress, h.ipAddress, h.hostip, h.hostIp, h.privateipaddress, h.privateIpAddress)
           if (!id) { continue }
 
           const info = { id: String(id), name: name ? String(name) : '' }
-          if (name) {
-            hostIndexCache.byName.set(String(name), info)
-          }
-          if (ip) {
-            hostIndexCache.byIp.set(String(ip), info)
-          }
+          if (name) { hostIndexCache.byName.set(String(name), info) }
+          if (ip) { hostIndexCache.byIp.set(String(ip), info) }
         }
 
         hostIndexCache.until = now + 5 * 60 * 1000
@@ -626,29 +1485,29 @@ export default {
           const id = takeFirst(v.id, v.uuid)
           const friendly = takeFirst(v.displayname, v.displayName, v.name)
           const inst = takeFirst(v.instancename, v.instanceName)
-          if (id) {
-            if (friendly) {
-              vmIndexCache.byName.set(String(friendly), String(id))
-            }
-            if (inst && friendly) {
-              const k1 = String(inst)
-              const k2 = k1.toLowerCase()
-              vmIndexCache.byInstanceName.set(k1, String(friendly))
-              vmIndexCache.byInstanceName.set(k2, String(friendly))
-            }
-            const nics = Array.isArray(v.nic) ? v.nic : (Array.isArray(v.nics) ? v.nics : [])
-            for (let j = 0; j < nics.length; j += 1) {
-              const ip = takeFirst(nics[j]?.ipaddress, nics[j]?.ipAddress, nics[j]?.ip)
-              if (ip) { vmIndexCache.byIp.set(String(ip), String(id)) }
-            }
+          if (!id) { continue }
+
+          if (friendly) { vmIndexCache.byName.set(String(friendly), String(id)) }
+
+          if (inst && friendly) {
+            const k1 = String(inst)
+            const k2 = k1.toLowerCase()
+            vmIndexCache.byInstanceName.set(k1, String(friendly))
+            vmIndexCache.byInstanceName.set(k2, String(friendly))
+          }
+
+          const nics = Array.isArray(v.nic) ? v.nic : (Array.isArray(v.nics) ? v.nics : [])
+          for (let j = 0; j < nics.length; j += 1) {
+            const ip = takeFirst(nics[j]?.ipaddress, nics[j]?.ipAddress, nics[j]?.ip)
+            if (ip) { vmIndexCache.byIp.set(String(ip), String(id)) }
           }
         }
 
         vmIndexCache.until = now + 5 * 60 * 1000
-        vmIndexReady.value = true // ★ 인덱스 준비 완료입니다.
+        vmIndexReady.value = true
       } catch (_) {
         vmIndexCache.until = now + 60 * 1000
-        vmIndexReady.value = false // ★ 실패하면 필터링을 하지 않도록 표시합니다.
+        vmIndexReady.value = false
       }
     }
 
@@ -659,6 +1518,19 @@ export default {
       const val = hostHints.byIpName.get(String(ip))
       return val ? String(val) : ''
     }
+
+    const ruleInstances = (r) => {
+      if (!r) { return [] }
+      const st = r.status && typeof r.status === 'object' ? r.status : null
+      if (st && Array.isArray(st.alerts)) { return st.alerts }
+      if (st && Array.isArray(st.instances)) { return st.instances }
+      if (Array.isArray(r.alerts)) { return r.alerts }
+      if (Array.isArray(r.instances)) { return r.instances }
+      return []
+    }
+
+    const labelBag = (a) => (a && (a.labels || a.metric || a.tags || a)) || {}
+
     const harvestHostHintsFromRules = (arrRules) => {
       for (let i = 0; i < arrRules.length; i += 1) {
         const insts = ruleInstances(arrRules[i])
@@ -672,10 +1544,11 @@ export default {
       }
     }
 
+    // ===== 관리서버 이동 =====
     const resolveManagementId = async (keyword) => {
       try {
         const key = String(keyword).trim()
-        // 1차: name으로 정확 일치
+
         let resp = await api('listManagementServers', { name: key, listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 })
         let list = (resp?.listmanagementserversresponse?.managementserver) || (resp?.data?.items) || []
         if (!Array.isArray(list)) { list = list ? [list] : [] }
@@ -684,7 +1557,7 @@ export default {
           const nm = takeFirst(it.name, it.hostname, it.hostName)
           if (nm === key) { return takeFirst(it.id, it.uuid) }
         }
-        // 2차: keyword / 부분 일치 + IP 후보
+
         resp = await api('listManagementServers', { keyword: key, listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 })
         list = (resp?.listmanagementserversresponse?.managementserver) || (resp?.data?.items) || []
         if (!Array.isArray(list)) { list = list ? [list] : [] }
@@ -697,6 +1570,7 @@ export default {
             return takeFirst(it.id, it.uuid)
           }
         }
+
         return null
       } catch (_) {
         return null
@@ -708,12 +1582,12 @@ export default {
       const url = id ? hrefManagementDetail(id) : hrefManagementList(keyword)
       try {
         window.location.href = url
-      } catch (e) {
-        message.warning(t('message.link.open.failed') || '링크 열기에 실패했습니다. 콘솔 로그의 URL을 확인하세요.')
+      } catch (_) {
+        message.warning(tr('message.link.open.failed', '링크 열기에 실패했습니다. 콘솔 로그의 URL을 확인하세요.'))
       }
     }
 
-    // ===== 응답 파서 =====
+    // ===== rules 파싱 =====
     const extractRules = (resp) => {
       const wrap = resp?.listwallalertrulesresponse || resp?.listWallAlertRulesResponse || resp?.data || resp || {}
       const inner = wrap.wallalertruleresponse || wrap.wallalertrules || wrap.wallAlertRules || wrap.rules || wrap.items || wrap.list || wrap
@@ -731,17 +1605,9 @@ export default {
       return rows
     }
 
-    const ruleInstances = (r) => {
-      if (!r) { return [] }
-      const st = r.status && typeof r.status === 'object' ? r.status : null
-      if (st && Array.isArray(st.alerts)) { return st.alerts }
-      if (st && Array.isArray(st.instances)) { return st.instances }
-      if (Array.isArray(r.alerts)) { return r.alerts }
-      if (Array.isArray(r.instances)) { return r.instances }
-      return []
-    }
     const instanceState = (a) => normState(pickState(a) || pickState(a && a.evaluationState) || pickState(a && a.health) || pickState(a && a.status))
     const ruleState = (r) => normState(pickState(r && r.state) || pickState(r && r.status) || pickState(r && r.evaluationState) || pickState(r && r.health) || pickState(r))
+
     const ruleUid = (r) => {
       return takeFirst(
         r && r.uid,
@@ -754,6 +1620,7 @@ export default {
         r && r.labels && (r.labels.__alert_rule_uid__ || r.labels.uid)
       ) || null
     }
+
     const ruleTitle = (r) => (r && (r.name || r.title || (r.metadata && r.metadata.rule_title) || r.ruleName)) || 'Alert'
 
     // ===== 로컬 사일런스 =====
@@ -777,31 +1644,17 @@ export default {
       const now = Date.now()
       const next = {}
       for (const k in localSilenced.value) {
-        if (!Object.prototype.hasOwnProperty.call(localSilenced.value, k)) {
-          continue
-        }
-        if (localSilenced.value[k] > now) {
-          next[k] = localSilenced.value[k]
-        }
+        if (!Object.prototype.hasOwnProperty.call(localSilenced.value, k)) { continue }
+        if (localSilenced.value[k] > now) { next[k] = localSilenced.value[k] }
       }
       localSilenced.value = next
       saveLocalSilences()
     }
 
     const extractSilences = (resp) => {
-      const wrap =
-        resp?.listwallalertsilencesresponse ||
-        resp?.listWallAlertSilencesResponse ||
-        resp?.data ||
-        resp ||
-        {}
+      const wrap = resp?.listwallalertsilencesresponse || resp?.listWallAlertSilencesResponse || resp?.data || resp || {}
 
-      let list =
-        wrap.silences ||
-        wrap.silence ||
-        wrap.items ||
-        wrap.list
-
+      let list = wrap.silences || wrap.silence || wrap.items || wrap.list
       if (!Array.isArray(list)) {
         for (const k in wrap) {
           if (Object.prototype.hasOwnProperty.call(wrap, k) && Array.isArray(wrap[k])) {
@@ -810,20 +1663,14 @@ export default {
           }
         }
       }
-
       return Array.isArray(list) ? list : []
     }
 
     const UID_LABEL_KEY = '__alert_rule_uid__'
 
-    // Silence 하나에서 "__alert_rule_uid__" 값 추출 (labels / matchers 둘 다 방어)
     const silenceUidFromLabels = (s) => {
       if (!s) { return null }
-
-      const arr = Array.isArray(s.labels)
-        ? s.labels
-        : (Array.isArray(s.matchers) ? s.matchers : [])
-
+      const arr = Array.isArray(s.labels) ? s.labels : (Array.isArray(s.matchers) ? s.matchers : [])
       for (let i = 0; i < arr.length; i += 1) {
         const m = arr[i] || {}
         const key = m.key || m.name || m.label
@@ -832,11 +1679,9 @@ export default {
           return String(val)
         }
       }
-
       return null
     }
 
-    // ===== 사일런스 동기화 (백엔드 전체 조회 지원 버전: listWallAlertSilences 1회 호출) =====
     const syncRemoteSilencesByUidList = async (uids) => {
       remoteSilencedLoaded.value = false
 
@@ -852,7 +1697,6 @@ export default {
       const mapFromCache = {}
       const needFetch = []
 
-      // 1차: 메모리 캐시에서 살아 있는 값만 복구
       for (let i = 0; i < uniq.length; i += 1) {
         const uid = uniq[i]
         const cached = silenceCache.get(uid)
@@ -865,7 +1709,6 @@ export default {
         }
       }
 
-      // 전부 캐시로 해결되면 API 호출 안 함
       if (!needFetch.length) {
         remoteSilenced.value = mapFromCache
         remoteSilencedLoaded.value = true
@@ -873,15 +1716,7 @@ export default {
       }
 
       try {
-        // ★ 백엔드 변경 전제:
-        //   - labels 없이도 전체 사일런스 조회 가능
-        //   - states=active 로 active 상태만 필터 가능 (필요 없으면 빼도 됩니다)
-        const paramsAll = {
-          page: 1,
-          pageSize: 1000,
-          pagesize: 1000,
-          states: 'active'
-        }
+        const paramsAll = { page: 1, pageSize: 1000, pagesize: 1000, states: 'active' }
         const respAll = await api('listWallAlertSilences', paramsAll)
         const listAll = extractSilences(respAll)
 
@@ -891,63 +1726,32 @@ export default {
         for (let i = 0; i < listAll.length; i += 1) {
           const s = listAll[i] || {}
           const uid = silenceUidFromLabels(s)
-          if (!uid || !want.has(uid)) {
-            continue
-          }
+          if (!uid || !want.has(uid)) { continue }
 
           const state = String(s.state || '').toLowerCase()
 
-          const startLike =
-            s.startMs ||
-            s.startTime ||
-            s.startsAt ||
-            s.start ||
-            s.createdAt
+          const startLike = s.startMs || s.startTime || s.startsAt || s.start || s.createdAt
+          const endLike = s.endMs || s.endTime || s.endsAt || s.end || s.expiresAt
 
-          const endLike =
-            s.endMs ||
-            s.endTime ||
-            s.endsAt ||
-            s.end ||
-            s.expiresAt
+          const start = typeof startLike === 'number' ? startLike : (startLike ? Date.parse(startLike) : 0)
+          const end = typeof endLike === 'number' ? endLike : (endLike ? Date.parse(endLike) : 0)
 
-          const start = typeof startLike === 'number'
-            ? startLike
-            : (startLike ? Date.parse(startLike) : 0)
-
-          const end = typeof endLike === 'number'
-            ? endLike
-            : (endLike ? Date.parse(endLike) : 0)
-
-          const active =
-            (state === 'active' || (start && start <= now)) &&
-            end > now
-
-          if (!active) {
-            continue
-          }
+          const active = (state === 'active' || (start && start <= now)) && end > now
+          if (!active) { continue }
 
           const prev = perUidEnd[uid] || 0
-          const next = end > prev ? end : prev
-          perUidEnd[uid] = next
+          perUidEnd[uid] = end > prev ? end : prev
         }
 
-        // batch 결과를 캐시 + mapFromCache 에 반영
         for (let i = 0; i < uniq.length; i += 1) {
           const uid = uniq[i]
           const end = perUidEnd[uid] || 0
-          silenceCache.set(uid, {
-            end,
-            until: Date.now() + SILENCE_TTL_MS
-          })
+          silenceCache.set(uid, { end, until: Date.now() + SILENCE_TTL_MS })
           if (end > now) {
             mapFromCache[uid] = end
           }
         }
-      } catch (_) {
-        // 전체 조회 실패 시에는 새 정보 없이 캐시만 사용
-        // 필요하면 여기에서 per-UID 폴백을 다시 붙일 수 있습니다.
-      }
+      } catch (_) {}
 
       remoteSilenced.value = mapFromCache
       remoteSilencedLoaded.value = true
@@ -956,19 +1760,30 @@ export default {
     // ===== 엔티티 링크 구성 =====
     const VM_NAME_RE = /^i-\d+-\d+-VM$/i
     const VM_NAME_FUZZY_RE = /-VM$/i
-    const labelBag = (a) => (a && (a.labels || a.metric || a.tags || a)) || {}
 
     const bestHostOfInstance = (a) => {
       const L = labelBag(a)
+
+      const target = takeFirst(
+        L && L.pingip,
+        L && L.target,
+        L && L.dst,
+        L && L.destination,
+        L && L.remote,
+        L && L.remote_ip,
+        L && L.peer
+      )
+      if (target) { return String(target) }
+
       const prefers = ['nodename', 'host', 'hostname', 'node', 'machine', 'server']
       for (let i = 0; i < prefers.length; i += 1) {
         const k = prefers[i]
         if (L && L[k]) { return String(L[k]) }
       }
+
       if (L && L.instance) { return String(L.instance).replace(/:\d+$/, '') }
       return ''
     }
-
     const bestVmOfInstance = (a) => {
       const L = labelBag(a)
       const keys = ['vm', 'vmname', 'vm_name', 'displayname', 'display_name', 'guest', 'domain']
@@ -995,7 +1810,6 @@ export default {
       return k === '클라우드' || k === 'cloud' || k === 'management' || k === 'managementserver'
     }
 
-    const labelBag2 = (a) => (a && (a.labels || a.metric || a.tags || a)) || {}
     const resolveHostInfo = (keyword) => {
       if (!keyword) { return null }
       const key = String(keyword)
@@ -1006,6 +1820,7 @@ export default {
       if (hostIndexCache.byName.has(key)) { return hostIndexCache.byName.get(key) }
       return null
     }
+
     const hostDisplayLabel = (keyword) => {
       const info = resolveHostInfo(keyword)
       if (info && info.name) { return info.name }
@@ -1014,6 +1829,7 @@ export default {
       if (hinted) { return hinted }
       return ip || String(keyword)
     }
+
     const hostDedupKey = (keyword) => {
       const info = resolveHostInfo(keyword)
       if (info && info.id) { return 'host#' + info.id }
@@ -1027,6 +1843,7 @@ export default {
       const ip = parseIp(takeFirst(L.instance, L.ip, L.address))
       return name || ip || ''
     }
+
     const storageUrlByInstance = (a) => {
       const ip = parseIp(takeFirst(labelBag(a).instance, labelBag(a).ip, labelBag(a).address))
       return ip ? `https://${ip}:9090/` : ''
@@ -1038,7 +1855,6 @@ export default {
       const ip = parseIp(takeFirst(L.instance, L.ip, L.address))
       return name || ip || 'management'
     }
-    const cloudUrl = () => hrefCloudPage()
 
     const pickKindFromRule = (r) => {
       const k1 = r && r.kind
@@ -1048,59 +1864,41 @@ export default {
     }
 
     const classifyInstance = (a, parentKind) => {
-      const L = labelBag2(a)
+      const L = labelBag(a)
       const ownKind = L.kind || L.KIND
       const finalKind = takeFirst(ownKind, parentKind)
 
       const domainName = L.domain ? String(L.domain) : ''
       if (isVmKind(finalKind) || (domainName && /-VM$/i.test(domainName))) {
-        if (domainName) {
-          return { kind: 'vm', keyword: domainName }
-        }
+        if (domainName) { return { kind: 'vm', keyword: domainName } }
         const vmByOther = bestVmOfInstance(a)
-        if (vmByOther) {
-          return { kind: 'vm', keyword: vmByOther }
-        }
+        if (vmByOther) { return { kind: 'vm', keyword: vmByOther } }
       }
 
       if (isStorageKind(finalKind)) {
         const label = storageLabel(a)
         const url = storageUrlByInstance(a)
-        if (label && url) {
-          return { kind: 'storage', label, url }
-        }
+        if (label && url) { return { kind: 'storage', label, url } }
       }
 
       if (isCloudKind(finalKind)) {
         const label = cloudLabel(a)
-        const keyword = label
-        const url = cloudUrl()
-        if (label && url) {
-          return { kind: 'cloud', label, keyword, url }
-        }
+        if (label) { return { kind: 'cloud', label, keyword: label } }
       }
 
       const host = bestHostOfInstance(a)
-      if (host) {
-        return { kind: 'host', keyword: host }
-      }
+      if (host) { return { kind: 'host', keyword: host } }
       return null
     }
 
     const entityLinksForAlert = (it) => {
       const parentKind = pickKindFromRule(it && it.rule ? it.rule : {})
-
-      // 1차: 배너에서 미리 계산한 ALERTING 인스턴스 사용
       let arr = Array.isArray(it && it.alerts) ? it.alerts : []
 
-      // 2차: alerts 가 비어 있으면,
-      //      전체 인스턴스(it.instances)로 폴백
       if ((!arr || arr.length === 0) && it && Array.isArray(it.instances)) {
         arr = it.instances
       }
 
-      // 3차: 그래도 비어 있으면,
-      //      룰 원본에서 다시 인스턴스를 뽑아서 사용
       if ((!arr || arr.length === 0) && it && it.rule) {
         arr = ruleInstances(it.rule)
       }
@@ -1116,12 +1914,7 @@ export default {
           const key = hostDedupKey(cls.keyword)
           if (seen.has(key)) { continue }
           seen.add(key)
-          out.push({
-            key,
-            kind: 'host',
-            label: hostDisplayLabel(cls.keyword),
-            keyword: cls.keyword
-          })
+          out.push({ key, kind: 'host', label: hostDisplayLabel(cls.keyword), keyword: cls.keyword })
           continue
         }
 
@@ -1129,12 +1922,7 @@ export default {
           const key = 'vm@' + String(cls.keyword).toLowerCase()
           if (seen.has(key)) { continue }
           seen.add(key)
-          out.push({
-            key,
-            kind: 'vm',
-            label: String(cls.keyword),
-            keyword: cls.keyword
-          })
+          out.push({ key, kind: 'vm', label: String(cls.keyword), keyword: cls.keyword })
           continue
         }
 
@@ -1142,12 +1930,7 @@ export default {
           const key = 'storage@' + String(cls.label).toLowerCase()
           if (seen.has(key)) { continue }
           seen.add(key)
-          out.push({
-            key,
-            kind: 'storage',
-            label: cls.label,
-            url: cls.url
-          })
+          out.push({ key, kind: 'storage', label: cls.label, url: cls.url })
           continue
         }
 
@@ -1155,14 +1938,7 @@ export default {
           const key = 'cloud@' + String(cls.label).toLowerCase()
           if (seen.has(key)) { continue }
           seen.add(key)
-          out.push({
-            key,
-            kind: 'cloud',
-            label: cls.label,
-            url: cls.url,
-            // 관리서버 상세 이동용 키워드
-            keyword: cls.keyword || cls.label
-          })
+          out.push({ key, kind: 'cloud', label: cls.label, keyword: cls.keyword })
         }
       }
 
@@ -1170,45 +1946,189 @@ export default {
     }
 
     const vmEntityLinksRaw = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'vm')
+
     const filterKnownVmLinks = (it) => {
       const rawList = vmEntityLinksRaw(it)
-      if (!Array.isArray(rawList) || rawList.length === 0) {
-        return []
-      }
-      if (!vmIndexReady.value) {
-        return rawList
-      }
+      if (!Array.isArray(rawList) || rawList.length === 0) { return [] }
+      if (!vmIndexReady.value) { return rawList }
+
       return rawList.filter((lnk) => {
         const label = String(lnk && (lnk.label || lnk.keyword || '')).trim()
-        if (!label) {
-          return false
-        }
-        if (!VM_NAME_RE.test(label)) {
-          return true
-        }
+        if (!label) { return false }
+        if (!VM_NAME_RE.test(label)) { return true }
         const shown = displayVm(label)
         return shown !== label
       })
     }
+
     const hostEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'host')
     const vmEntityLinks = (it) => filterKnownVmLinks(it)
     const storageEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'storage')
     const cloudEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'cloud')
+
     const hostLinkList = (it) => hostEntityLinks(it).slice(0, MAX_LINKS)
+    const hostRestList = (it) => hostEntityLinks(it).slice(MAX_LINKS)
+
     const vmLinkList = (it) => vmEntityLinks(it).slice(0, MAX_LINKS)
-    const storageLinkList = (it) => storageEntityLinks(it)
-    const cloudLinkList = (it) => cloudEntityLinks(it)
-    const hostMoreCount = (it) => Math.max(0, hostEntityLinks(it).length - MAX_LINKS)
-    const vmMoreCount = (it) => Math.max(0, vmEntityLinks(it).length - MAX_LINKS)
     const vmRestList = (it) => vmEntityLinks(it).slice(MAX_LINKS)
 
-    const t = (k, params) => {
-      try {
-        const fn = (typeof window !== 'undefined' && typeof window.$t === 'function') ? window.$t : null
-        return fn ? fn(k, params) : null
-      } catch (_) {
-        return null
+    const storageLinkList = (it) => storageEntityLinks(it).slice(0, MAX_LINKS)
+    const storageRestList = (it) => storageEntityLinks(it).slice(MAX_LINKS)
+
+    const cloudLinkList = (it) => cloudEntityLinks(it).slice(0, MAX_LINKS)
+    const cloudRestList = (it) => cloudEntityLinks(it).slice(MAX_LINKS)
+
+    const hostMoreCount = (it) => Math.max(0, hostEntityLinks(it).length - MAX_LINKS)
+    const vmMoreCount = (it) => Math.max(0, vmEntityLinks(it).length - MAX_LINKS)
+    const storageMoreCount = (it) => Math.max(0, storageEntityLinks(it).length - MAX_LINKS)
+    const cloudMoreCount = (it) => Math.max(0, cloudEntityLinks(it).length - MAX_LINKS)
+
+    // ===== 이상 대상(임계 초과/실패) =====
+    const normalizeTargetKey = (v) => String(v || '').trim().toLowerCase()
+
+    const currentTargetsOf = (it) => {
+      const r = it && it.rule ? it.rule : null
+      const cand = takeFirst(
+        r && r.currentTargets,
+        r && r.currenttargets,
+        it && it.currentTargets,
+        it && it.currenttargets
+      )
+      return Array.isArray(cand) ? cand : []
+    }
+
+    const breachedTargetsOf = (it) => {
+      const r = it && it.rule ? it.rule : null
+      const cand = takeFirst(
+        r && r.breachedTargets,
+        r && r.breachedtargets,
+        it && it.breachedTargets,
+        it && it.breachedtargets
+      )
+      return Array.isArray(cand) ? cand : []
+    }
+
+    const breachedKeysOf = (it) => {
+      const fromExplicit = breachedTargetsOf(it)
+      if (Array.isArray(fromExplicit) && fromExplicit.length > 0) {
+        return fromExplicit.map((x) => String(x || '').trim()).filter((x) => !!x)
       }
+
+      const rows = currentTargetsOf(it)
+      const out = []
+      for (let i = 0; i < rows.length; i += 1) {
+        const row = rows[i] || {}
+        const k = takeFirst(row.key, row.target, row.name, row.label)
+        if (!k) { continue }
+        const breached = !!takeFirst(row.breached, row.isBreached, row.isbreached)
+        if (breached) { out.push(String(k).trim()) }
+      }
+      return out
+    }
+
+    const isBinaryTargetRule = (it) => {
+      const rows = currentTargetsOf(it)
+      let seen = 0
+      for (let i = 0; i < rows.length; i += 1) {
+        const row = rows[i] || {}
+        const n = pickNumberLike(takeFirst(row.value, row.val, row.current, row.currentValue))
+        if (typeof n !== 'number' || !Number.isFinite(n)) { continue }
+        seen += 1
+        if (!(Math.abs(n - 0) < 1e-9 || Math.abs(n - 1) < 1e-9)) { return false }
+      }
+      return seen > 0
+    }
+
+    const breachedLabelText = (it) => {
+      if (isBinaryTargetRule(it)) {
+        return tr('label.targets.failed', '실패 대상')
+      }
+      return tr('label.targets.breached', '이상 대상')
+    }
+
+    const breachedEntityLinks = (it) => {
+      const keys = breachedKeysOf(it)
+      if (!Array.isArray(keys) || keys.length === 0) { return [] }
+
+      const unit = metricUnitOf(it)
+      const rows = currentTargetsOf(it)
+      const valueMap = new Map()
+
+      for (let i = 0; i < rows.length; i += 1) {
+        const row = rows[i] || {}
+        const k = takeFirst(row.key, row.target, row.name, row.label)
+        if (!k) { continue }
+        const n = pickNumberLike(takeFirst(row.value, row.val, row.current, row.currentValue))
+        if (n == null) { continue }
+        valueMap.set(normalizeTargetKey(k), n)
+      }
+
+      const binary = isBinaryTargetRule(it)
+      const ents = entityLinksForAlert(it)
+      const entMap = new Map()
+
+      for (let i = 0; i < ents.length; i += 1) {
+        const e = ents[i] || {}
+        const k1 = e.keyword ? normalizeTargetKey(e.keyword) : ''
+        const k2 = e.label ? normalizeTargetKey(e.label) : ''
+        if (k1) { entMap.set(k1, e) }
+        if (k2) { entMap.set(k2, e) }
+      }
+
+      const out = []
+      for (let i = 0; i < keys.length; i += 1) {
+        const raw = String(keys[i] || '').trim()
+        if (!raw) { continue }
+
+        const nk = normalizeTargetKey(raw)
+        const matched = entMap.get(nk)
+        const kind = matched && matched.kind ? matched.kind : 'host'
+        const label = matched && matched.label ? matched.label : hostDisplayLabel(raw)
+        const keyword = matched && matched.keyword ? matched.keyword : raw
+        const url = matched && matched.url ? matched.url : ''
+
+        let valueText = ''
+        if (binary) {
+          valueText = tr('label.bad.state', '상태 이상')
+        } else {
+          const n = valueMap.get(nk)
+          if (typeof n === 'number' && Number.isFinite(n)) {
+            valueText = formatMetric(n, unit)
+          }
+        }
+
+        out.push({ key: `breach@${kind}@${nk}`, kind, label, keyword, url, valueText })
+      }
+
+      return out
+    }
+
+    const breachedLinkList = (it) => breachedEntityLinks(it).slice(0, MAX_LINKS)
+    const breachedRestList = (it) => breachedEntityLinks(it).slice(MAX_LINKS)
+    const breachedMoreCount = (it) => Math.max(0, breachedEntityLinks(it).length - MAX_LINKS)
+
+    const breachedLinksByKind = (it, kind) => breachedEntityLinks(it).filter((x) => x.kind === kind)
+    const breachedCountByKind = (it, kind) => breachedLinksByKind(it, kind).length
+
+    const openEntityLink = (lnk) => {
+      if (!lnk) { return }
+
+      if (lnk.kind === 'vm') {
+        goToVm(lnk.keyword)
+        return
+      }
+
+      if (lnk.kind === 'storage') {
+        if (lnk.url) { openUrlBlank(lnk.url) }
+        return
+      }
+
+      if (lnk.kind === 'cloud') {
+        goToManagement(lnk.keyword)
+        return
+      }
+
+      goToHost(lnk.keyword)
     }
 
     const isRulePaused = (r) => {
@@ -1242,17 +2162,13 @@ export default {
 
       for (let i = 0; i < rs.length; i += 1) {
         const r = rs[i] || {}
-
-        // 1) 룰에서 전체 인스턴스 목록을 뽑습니다.
         const inst = ruleInstances(r)
 
-        // 2) 그중 ALERTING/FIRING 인 것만 필터링합니다.
-        const on = inst.filter(a => {
+        const on = inst.filter((a) => {
           const st = instanceState(a)
           return ['ALERTING', 'FIRING'].includes(UC(st)) && !isNoiseLike(st)
         })
 
-        // 3) 룰 전체 상태도 같이 검사합니다.
         const rState = ruleState(r)
         const ruleIsAlerting = ['ALERTING', 'FIRING'].includes(UC(rState)) && !isNoiseLike(rState)
 
@@ -1262,14 +2178,13 @@ export default {
         if (!uid || seen.has(uid)) { continue }
         seen.add(uid)
 
-        // ★ 여기서 'alerts'와 함께 'instances'도 같이 실어 보냅니다.
         out.push({
           id: r.id || r.ruleId || uid,
           uid,
           title: ruleTitle(r),
           rule: r,
-          alerts: on, // ALERTING 인스턴스
-          instances: inst // 원본 전체 인스턴스
+          alerts: on,
+          instances: inst
         })
       }
 
@@ -1281,27 +2196,21 @@ export default {
       const list = Array.isArray(alerting.value) ? alerting.value : []
       const seen = new Set()
       const out = []
+
       for (let i = 0; i < list.length; i += 1) {
         const it = list[i]
         const uid = it && (it.uid || it.id)
-        if (!uid || seen.has(uid)) {
-          continue
-        }
-        if (isClosedNow(uid)) {
+        if (!uid || seen.has(uid)) { continue }
+
+        if (isClosedNow(uid) || isKeySilencedNow(uid) || isRulePaused(it.rule)) {
           seen.add(uid)
           continue
         }
-        if (isKeySilencedNow(uid)) {
-          seen.add(uid)
-          continue
-        }
-        if (isRulePaused(it.rule)) {
-          seen.add(uid)
-          continue
-        }
+
         out.push(it)
         seen.add(uid)
       }
+
       return out
     })
 
@@ -1324,15 +2233,18 @@ export default {
         t = t.split('.')[0]
         return t
       }
+
       const k0 = String(raw)
       const k1 = trimBasics(k0)
       const k2 = k1.toLowerCase()
       const k3 = k0.toLowerCase()
+
       const hit =
         vmIndexCache.byInstanceName.get(k0) ||
         vmIndexCache.byInstanceName.get(k1) ||
         vmIndexCache.byInstanceName.get(k2) ||
         vmIndexCache.byInstanceName.get(k3)
+
       if (hit) { return hit }
       return String(raw)
     }
@@ -1350,7 +2262,6 @@ export default {
         hideTimer = null
       }
 
-      loading.value = true
       try {
         const params = { includeStatus: true, includestatus: true, listAll: true, listall: true, state: '', kind: '', name: '', page: 1, pageSize: 200, pagesize: 200 }
         const resp = await api('listWallAlertRules', params)
@@ -1367,7 +2278,6 @@ export default {
         cleanupLocalSilences()
         pruneClosed()
       } finally {
-        loading.value = false
         refreshInFlight.value = false
         hideTimer = setTimeout(() => { keepShowing.value = false }, HIDE_GRACE_MS)
         measureAndNotifyHeight()
@@ -1419,6 +2329,7 @@ export default {
       pauseModal.value = { visible: true, target }
     }
     const closePause = () => { pauseModal.value = { visible: false, target: null } }
+
     const onPauseRefresh = async () => {
       const uid = keyOf(pauseModal.value && pauseModal.value.target)
       if (uid) { onAlertCloseStart({ uid }) }
@@ -1428,11 +2339,6 @@ export default {
     }
 
     // ===== 내비게이션 =====
-    function openUrl (url) {
-      try {
-        window.location.href = String(url)
-      } catch (_) {}
-    }
     function openUrlBlank (url) {
       try {
         window.open(String(url), '_blank', 'noopener,noreferrer')
@@ -1451,13 +2357,11 @@ export default {
       }
     }
 
-    // 호스트 ID 해석 유틸 (이름/호스트명/IP 전부 시도)
     const resolveHostId = async (keyword) => {
       try {
         const key = String(keyword || '').trim()
         if (!key) { return null }
 
-        // 1) 인덱스(캐시)에서 먼저 찾기
         await ensureHostIndex()
         const info = resolveHostInfo(key)
         if (info && info.id) { return info.id }
@@ -1469,28 +2373,15 @@ export default {
             const h = rows[i] || {}
             const id = takeFirst(h.id, h.uuid)
             const name = takeFirst(h.name, h.hostname, h.hostName)
-            const hip = takeFirst(
-              h.ipaddress,
-              h.ipAddress,
-              h.hostip,
-              h.hostIp,
-              h.privateipaddress,
-              h.privateIpAddress
-            )
+            const hip = takeFirst(h.ipaddress, h.ipAddress, h.hostip, h.hostIp, h.privateipaddress, h.privateIpAddress)
             if (!id) { continue }
 
             if (strict) {
-              // 이름 정확 일치 또는 IP 정확 일치
               if (name === key || (ip && hip === ip)) { return id }
             } else {
-              // 이름 부분 일치까지 허용
               const lowerKey = key.toLowerCase()
               const lowerName = String(name || '').toLowerCase()
-              if (
-                name === key ||
-                (ip && hip === ip) ||
-                lowerName.includes(lowerKey)
-              ) {
+              if (name === key || (ip && hip === ip) || lowerName.includes(lowerKey)) {
                 return id
               }
             }
@@ -1498,31 +2389,14 @@ export default {
           return null
         }
 
-        // 2) name 기반 조회(정확 일치 위주)
-        let rows = await fetchHosts({
-          name: key,
-          listAll: true,
-          listall: true,
-          page: 1,
-          pageSize: 50,
-          pagesize: 50
-        })
+        let rows = await fetchHosts({ name: key, listAll: true, listall: true, page: 1, pageSize: 50, pagesize: 50 })
         let found = pickIdFromHosts(rows, true)
         if (found) { return found }
 
-        // 3) keyword 기반 조회(부분 일치 포함)
-        rows = await fetchHosts({
-          keyword: key,
-          listAll: true,
-          listall: true,
-          page: 1,
-          pageSize: 50,
-          pagesize: 50
-        })
+        rows = await fetchHosts({ keyword: key, listAll: true, listall: true, page: 1, pageSize: 50, pagesize: 50 })
         found = pickIdFromHosts(rows, false)
         if (found) { return found }
 
-        // 4) 그래도 못 찾는데 결과가 1건이면 그걸로 폴백
         if (Array.isArray(rows) && rows.length === 1) {
           const h0 = rows[0] || {}
           return takeFirst(h0.id, h0.uuid) || null
@@ -1552,6 +2426,7 @@ export default {
         if (vmIndexCache.byName.has(key)) { return vmIndexCache.byName.get(key) }
         const ip = parseIp(key)
         if (ip && vmIndexCache.byIp.has(ip)) { return vmIndexCache.byIp.get(ip) }
+
         let resp = await api('listVirtualMachines', { name: key, listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 })
         let rows = extractVMs(resp)
         for (let i = 0; i < rows.length; i += 1) {
@@ -1559,6 +2434,7 @@ export default {
           const nm = takeFirst(v.name, v.displayname, v.displayName)
           if (nm === key) { return takeFirst(v.id, v.uuid) }
         }
+
         resp = await api('listVirtualMachines', { keyword: key, listAll: true, listall: true, page: 1, pageSize: 200, pagesize: 200 })
         rows = extractVMs(resp)
         for (let i = 0; i < rows.length; i += 1) {
@@ -1567,11 +2443,13 @@ export default {
           const iname = String(v.instancename || v.instanceName || '')
           if (iname === key || nm === key) { return takeFirst(v.id, v.uuid) }
         }
+
         for (let i = 0; i < rows.length; i += 1) {
           const v = rows[i] || {}
           const nm = takeFirst(v.name, v.displayname, v.displayName, v.instancename, v.instanceName)
           if (String(nm).toLowerCase().includes(key.toLowerCase())) { return takeFirst(v.id, v.uuid) }
         }
+
         return null
       } catch (_) {
         return null
@@ -1582,22 +2460,23 @@ export default {
       const id = await resolveVmId(keyword)
       const url = id ? hrefVmDetail(id) : hrefVmList(keyword)
       if (!id) {
-        message.warning(t('message.vm.resolve.fallback') || '정확한 VM ID를 찾지 못해 목록으로 이동합니다.')
+        message.warning(tr('message.vm.resolve.fallback', '정확한 VM ID를 찾지 못해 목록으로 이동합니다.'))
       }
       try {
         window.location.href = url
-      } catch (e) {
-        message.warning(t('message.link.open.failed') || '링크 열기에 실패했습니다. 콘솔 로그의 URL을 확인하세요.')
+      } catch (_) {
+        message.warning(tr('message.link.open.failed', '링크 열기에 실패했습니다. 콘솔 로그의 URL을 확인하세요.'))
       }
     }
 
     // ===== 공용 =====
     const keyOf = (it) => (it && (it.uid || it.id)) || null
+
     function getPopupParent (triggerNode) {
       try {
         const parent = triggerNode && triggerNode.ownerDocument && triggerNode.ownerDocument.body
         return parent || document.body
-      } catch (e) {
+      } catch (_) {
         return typeof document !== 'undefined' ? document.body : undefined
       }
     }
@@ -1618,7 +2497,7 @@ export default {
               lastHeight.value = nextH
               if (typeof window !== 'undefined') {
                 document.documentElement.style.setProperty('--autoBannerHeight', `${nextH}px`)
-                try { localStorage.setItem(LS_H_KEY, String(h)) } catch (_) {}
+                try { localStorage.setItem(LS_H_KEY, String(nextH)) } catch (_) {}
                 if (typeof navigator !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent)) {
                   requestAnimationFrame(() => {
                     try { window.dispatchEvent(new Event('resize')) } catch (_) {}
@@ -1635,6 +2514,7 @@ export default {
       emitClosing()
       softCloseByUid(k)
     }
+
     const onAlertClosed = () => {
       emitClosed()
       scheduleMeasure()
@@ -1669,23 +2549,28 @@ export default {
         try { clearTimeout(killMeasure) } catch (_) {}
       }, 400)
     })
+
     onBeforeUnmount(() => {
       document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('focus', onFocus)
       stopPoll()
+
       try { if (ro) { ro.disconnect() } } catch (_) {}
       if (rafId) { cancelAnimationFrame(rafId) }
       if (hideTimer) { clearTimeout(hideTimer); hideTimer = null }
+
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('auto-alert-banner:height', { detail: { height: 0 } }))
         document.documentElement.style.setProperty('--autoBannerHeight', '0px')
       }
+
       maskOn.value = false
       try { document.documentElement.classList.remove('banner-measuring') } catch (_) {}
     })
 
     // ===== 반응 =====
     watch(showBanner, (v) => {
+      if (!v) { drawerVisible.value = false }
       if (!v && typeof window !== 'undefined') {
         document.documentElement.style.setProperty('--autoBannerHeight', '0px')
         try { localStorage.setItem(LS_H_KEY, '0') } catch (_) {}
@@ -1694,11 +2579,14 @@ export default {
       if (!v) { maskOn.value = false }
       scheduleMeasure()
     })
+
     watch(visibleAlerts, () => scheduleMeasure(), { deep: true })
 
     // ===== 노출 =====
     return {
-      loading,
+      drawerVisible,
+      drawerListRef,
+      listRef,
       silenceModal,
       openSilence,
       closeSilence,
@@ -1711,19 +2599,26 @@ export default {
       alertingCount: computed(() => (Array.isArray(visibleAlerts.value) ? visibleAlerts.value.length : 0)),
       visibleAlerts,
       hostLinkList,
+      hostRestList,
       hostMoreCount,
       vmLinkList,
       vmRestList,
       vmMoreCount,
       storageLinkList,
+      storageRestList,
+      storageMoreCount,
       cloudLinkList,
-      hrefHostList,
-      hrefVmList,
-      hostMoreHref,
-      vmMoreHref,
-      alertRulesHref,
-      hrefAlertRule,
-      openUrl,
+      cloudRestList,
+      cloudMoreCount,
+      breachedLinkList,
+      breachedRestList,
+      breachedMoreCount,
+      breachedLinksByKind,
+      breachedCountByKind,
+      breachedLabelText,
+      openEntityLink,
+      goToAlertRulesMenu,
+      goToAlertRule,
       openUrlBlank,
       goToHost,
       goToVm,
@@ -1732,21 +2627,30 @@ export default {
       isKeySilencedNow,
       vmIndexVersion,
       displayVm,
-      containerRef,
-      listRef,
       onAlertCloseStart,
       onAlertClosed,
       maskOn,
       goToManagement,
-      hrefManagementList,
-      hrefManagementDetail
+      tr,
+      trCountUnit,
+      drawerItemMetricInlineText,
+      drawerItemMetricInlineTitle,
+      drawerItemMetricLineText,
+      drawerItemMetricUi,
+      drawerItemMetaText,
+      hasSolutionUrl,
+      openSolution,
+      drawerItemAgeText,
+      markAllAsRead,
+      solutionSummaryText,
+      solutionDescriptionText
     }
   }
 }
 </script>
 
 <style scoped>
-/* 컨테이너/토큰 */
+/* 컨테이너 */
 .auto-alert-banner-container {
   position: fixed;
   top: 0;
@@ -1755,13 +2659,9 @@ export default {
   z-index: 2147483647;
   width: 100%;
   isolation: isolate;
-  --banner-radius: 6px;
-  --field-radius: 6px;
-  --chip-radius: 5px;
   font-size: 0.7em;
 }
 
-/* 측정 완료(.mask-on)일 때만 마스크 적용 */
 .auto-alert-banner-container.mask-on::before {
   content: "";
   position: fixed;
@@ -1776,196 +2676,850 @@ export default {
   transition: height 180ms ease;
 }
 
-.auto-alert-banner-container > * { position: relative; z-index: 1; }
+.auto-alert-banner-container > * {
+  position: relative;
+  z-index: 1;
+}
 
 /* 리스트 */
-.banner-list { display: flex; flex-direction: column; gap: 4px; padding: 2px 8px 4px; }
-.banner-list:empty { padding: 0; }
+.banner-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 2px 8px 4px;
+}
+.banner-list:empty {
+  padding: 0;
+}
 
-/* Ant Alert 오버라이드 */
-.auto-alert-banner-container :deep(.ant-alert) {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 8px !important;
+/* ===== 요약(상단) 배너 ===== */
+.auto-alert-banner-container :deep(.ant-alert.alert-summary) {
+  padding: 10px 12px !important;
+}
+.auto-alert-banner-container :deep(.ant-alert.alert-summary .ant-alert-message) {
   width: 100%;
-  position: relative;
-  padding-right: 44px !important;
-  padding-top: 6px;
-  padding-bottom: 6px;
-  min-height: 0px;
-  border-radius: var(--banner-radius);
+}
+
+.summary-modern {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: nowrap;
+}
+
+.summary-modern-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.summary-modern-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ff4d4f;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 18px;
+}
+
+.summary-modern-text {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.summary-modern-title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.summary-modern-title-text {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 20px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summary-modern-count {
+  font-size: 18px;
+  font-weight: 700;
+  color: #cf1322;
+  flex: 0 0 auto;
+}
+
+.summary-modern-desc {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.65);
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+
+.summary-desc-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summary-modern-actions {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* ===== Drawer Theme ===== */
+
+.drawer-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.drawer-title-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff1f0;
+  border: 1px solid #ffccc7;
+  color: #ff4d4f;
+  flex: 0 0 auto;
+}
+
+.drawer-title-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.drawer-title-main {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.88);
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.drawer-title-count {
+  margin-left: 6px;
+  color: #cf1322;
+  font-weight: 700;
+}
+
+.drawer-title-sub {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.55);
+  line-height: 1.35;
+}
+
+.drawer-stack {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.drawer-alert-viewport--modern {
+  padding: 12px 16px;
+  overflow: auto;
+}
+
+.drawer-list-card {
+  border: none;
+  background: transparent;
+  overflow: visible;
+  box-shadow: none;
+}
+
+.drawer-empty {
+  padding: 18px 12px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 13px;
+}
+
+/* ===== Drawer Item Card ===== */
+.drawer-item-alert {
+  position: relative !important;
+  background: #fff !important;
+  border: 1px solid #f0f0f0 !important;
+  border-radius: 14px !important;
+  margin-bottom: 4px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  padding: 0 !important;
   overflow: hidden;
 }
 
-.auto-alert-banner-container :deep(.ant-alert-with-icon) { padding-left: 0 !important; }
-.auto-alert-banner-container :deep(.ant-alert-icon) {
-  position: static !important;
-  float: none !important;
-  margin: 0 8px 0 0 !important;
+:deep(.drawer-item-alert .ant-alert-content) {
+  width: 100%;
+  margin: 0 !important;
 }
-.auto-alert-banner-container :deep(.ant-alert-content) {
-  margin-left: auto !important;
-  display: flex !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
+
+:deep(.drawer-item-alert .ant-alert-message) {
+  width: 100%;
 }
-.auto-alert-banner-container :deep(.ant-alert-close-icon) {
+
+/* 닫기(X) 아이콘 */
+:deep(.drawer-item-alert .ant-alert-close-icon) {
   position: absolute !important;
-  right: 8px;
-  margin-left: 0 !important;
+  top: 11px !important;
+  right: 12px !important;
+  left: auto !important;
+  margin: 0 !important;
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.45);
+  border-radius: 50%;
+  transition: all 0.2s ease;
   cursor: pointer;
 }
 
-/* 콘텐츠 레이아웃 */
-.banner-content {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 8px;
-  line-height: normal;
-  text-align: left;
-}
-.banner-text {
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
+:deep(.drawer-item-alert .ant-alert-close-icon .anticon) {
+  font-size: 16px;
+  font-weight: 600;
 }
 
-/* 필드 캡슐 */
-.auto-alert-banner-container .banner-field {
+:deep(.drawer-item-alert .ant-alert-close-icon:hover) {
+  background-color: rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.88);
+}
+
+:deep(.drawer-item-alert .ant-alert-close-icon:active) {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+/* Drawer Item Layout */
+.drawer-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  padding-right: 25px;
+}
+
+.drawer-item-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
   display: inline-flex;
-  flex: 0 0 auto;
-  width: auto;
-  max-width: 100%;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  background: #fff1f0;
+  border: 1px solid #ffccc7;
+  color: #ff4d4f;
+}
+
+.drawer-item-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.drawer-item-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.drawer-item-meta {
+  font-size: 12px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawer-item-meta-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.drawer-item-meta-left {
+  min-width: 0;
+  flex: 1 1 auto;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  word-break: break-word;
+}
+
+.drawer-item-metric-hover {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-left: 8px;
-  padding: 2px 8px;
-  background: rgba(0, 0, 0, 0.035);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: var(--field-radius);
-  line-height: 1.5;
-  padding-right: 0px;
-}
-.auto-alert-banner-container .banner-field .chip-wrap {
-  display: inline-flex;
-  flex: 0 0 auto;
-  min-width: auto;
-  max-width: 100%;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-left: 0;
+  color: inherit;
+  cursor: pointer;
 }
 
-/* 칩 */
-.auto-alert-banner-container :deep(.ant-tag.tag-link),
-.auto-alert-banner-container :deep(.ant-tag.tag-more) {
+.drawer-item-metric-hover .metric-k {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.60);
+  margin-right: 4px;
+}
+
+.drawer-item-metric-hover .metric-sep {
+  margin: 0 4px;
+  color: rgba(0, 0, 0, 0.35);
+}
+
+.drawer-item-metric-hover .metric-binary {
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.drawer-item-meta-right {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.drawer-item-divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  margin: 10px 0;
+}
+
+.drawer-item-target-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.target-label {
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.88);
+  white-space: nowrap;
+}
+
+.target-values {
+  min-width: 0;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.target-metric-popover-title {
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.target-more-section-title {
+  margin: 10px 0 4px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.target-more-popover {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px 0;
+  min-width: 180px;
+}
+
+.target-more-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.target-more-link {
+  color: rgba(0, 0, 0, 0.88);
+  text-decoration: none;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.target-value-link {
+  color: rgba(0, 0, 0, 0.88);
+  text-decoration: none;
+}
+
+.target-value-link:hover {
+  text-decoration: underline;
+}
+
+.target-line-breached {
+  margin-top: 2px;
+}
+
+.target-label-breached {
+  color: #cf1322;
+}
+
+.target-value-link-breached {
+  color: #cf1322;
+  font-weight: 700;
+}
+
+.target-value-metric {
+  margin-left: 4px;
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.target-sep {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.target-more {
+  margin-left: 6px;
+  color: rgba(0, 0, 0, 0.6);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.target-more:hover {
+  text-decoration: underline;
+}
+
+.more-pop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.more-pop-item {
+  line-height: 20px;
+}
+
+.drawer-item-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.drawer-item-title-left {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.drawer-item-metric {
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawer-item-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.88);
+  padding-right: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drawer-item-title--link {
+  cursor: pointer;
+}
+.drawer-item-title--link:hover {
+  text-decoration: underline;
+}
+
+.drawer-item-time {
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* Targets */
+.drawer-item-targets {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.target-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* '대상 호스트/대상 VM'은 태그 형태를 제거하고 라벨 텍스트로만 표시합니다 */
+.target-kind {
+  flex: 0 0 auto;
+  padding-top: 2px;
+  line-height: 20px;
+}
+
+.target-kind-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+}
+
+.target-chip-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* 실제 대상(호스트/VM)은 클릭 가능한 '칩'으로 표시합니다 */
+.tag-link {
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 999px;
+  padding: 0 8px;
+  font-size: 11px;
+  line-height: 22px;
   cursor: pointer;
   user-select: none;
-  border-radius: var(--chip-radius);
 }
-.auto-alert-banner-container :deep(.ant-tag.tag-more) { border-style: dashed; opacity: 0.9; }
+
+.tag-link:hover {
+  border-color: rgba(0, 0, 0, 0.28);
+}
+
+.tag-more {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  border: 1px dashed rgba(0, 0, 0, 0.22);
+  border-radius: 999px;
+  padding: 0 8px;
+  font-size: 11px;
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.6);
+  user-select: none;
+}
+
+/* Drawer Actions */
+.drawer-item-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* 버튼 줄바꿈 방지 */
 
 /* 아이콘/버튼 */
-.banner-error-icon { font-size: 15px; color: #ff4d4f; flex: 0 0 auto; }
-.icon-stack { position: relative; display: inline-flex; width: 16px; height: 16px; margin-right: 4px; vertical-align: -2px; }
-.icon-stack .icon-sound { font-size: 15px; line-height: 16px; }
-
-/* Slience Pause 버튼(컴팩트) */
-:deep(.pause-btn.pause-compact.ant-btn) { height: 22px; padding: 0 6px; font-size: 13px; line-height: 18px; } /* 정지버튼 */
-:deep(.silence-menu.ant-btn) { height: 22px; padding: 0 6px; font-size: 13px; line-height: 18px; } /* 사일러스버튼 */
-:deep(.ant-btn-link) { font-size: 13px; } /* 링크 텍스트 */
-:deep(.field-key) { font-size: 13px; } /* 대상 텍스트 */
-
-/* 액션 우측 정렬 */
-.banner-actions {
-  margin-left: auto;
+.icon-stack {
+  position: relative;
   display: inline-flex;
-  align-items: center;   /* 버튼들 세로 가운데 정렬 */
-  gap: 8px;
-  transform: translateY(-4px);
-  font-size: 11px;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  vertical-align: -2px;
 }
 
-/* 다크 모드 */
-@media (prefers-color-scheme: dark) {
-  .auto-alert-banner-container.mask-on::before { background: var(--layout-bg, #0b0b0b); }
+.icon-stack .icon-sound {
+  font-size: 15px;
+  line-height: 16px;
+}
+
+.icon-stack .icon-link {
+  font-size: 15px;
+  line-height: 16px;
+}
+
+/* banner-actions 중복 제거: 이 정의 하나만 사용 */
+.banner-actions {
+  margin-left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transform: none;
+  font-size: 11px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+/* 버튼 크기/정렬을 균일하게 유지합니다 */
+.solution-menu,
+.silence-menu,
+.pause-btn {
+  min-width: 108px;
+  justify-content: center;
+}
+/* Popover */
+.more-pop {
+  max-width: 280px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 /* 반응형 */
-@media (max-width: 1100px) {
-  .banner-actions { width: 100%; justify-content: flex-end; }
-}
 @media (max-width: 768px) {
-  .banner-content { justify-content: flex-start; }
-  .banner-actions { width: 100%; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+
+  .banner-actions {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .ant-layout.layout.mobile .sticky-sidebar > div {
+    height: 0 !important;
+    min-height: 0 !important;
+  }
 }
 
-/* 모달/드로어 상단 오프셋 */
-.ant-modal-wrap,
-.ant-modal-mask {
-  top: var(--autoBannerHeight, 0px) !important;
+.solution-popover {
+  max-width: 460px;
 }
 
-.ant-image-preview-wrap,
-.ant-drawer,
-.ant-drawer-mask {
-  top: var(--autoBannerHeight, 0px) !important;
+.solution-popover-title {
+  font-weight: 600;
+  margin-bottom: 8px;
 }
 
-/* Notification/Message 상단 오프셋 */
-.ant-notification-top,
-.ant-notification-topRight,
-.ant-notification-topLeft {
-  top: calc(24px + var(--autoBannerHeight, 0px)) !important;
+.solution-popover-section {
+  margin-bottom: 10px;
+}
+
+.solution-popover-label {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.55);
+  margin-bottom: 4px;
+}
+
+.solution-popover-text {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.88);
+  white-space: pre-line;
+  word-break: break-word;
+}
+/* =========================================================
+ * Wall Alerts (AutoAlertBanner + Drawer + Popover) Dark Mode
+ * - body.dark-mode 기반
+ * ========================================================= */
+
+/* -------------------------
+ * 1) 상단 메인 배너(요약)
+ * ------------------------- */
+body.dark-mode .auto-alert-banner-container .alert-summary {
+  background: #141414 !important;
+  border-color: #303030 !important;
+}
+
+body.dark-mode .auto-alert-banner-container .summary-modern-title-text,
+body.dark-mode .auto-alert-banner-container .summary-modern-desc,
+body.dark-mode .auto-alert-banner-container .summary-bullet,
+body.dark-mode .auto-alert-banner-container .summary-modern-count {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+body.dark-mode .auto-alert-banner-container .ant-btn,
+body.dark-mode .auto-alert-banner-container .ant-btn > span,
+body.dark-mode .auto-alert-banner-container .ant-btn .anticon {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* --------------------------------
+ * 2) Drawer 헤더(전체 ant-drawer)
+ * - “상단이 안 보임” 해결을 위해 전역으로 강제
+ * -------------------------------- */
+body.dark-mode .ant-drawer-header,
+body.dark-mode .ant-drawer-wrapper-body {
+  background: #0f0f0f !important;
+}
+
+body.dark-mode .ant-drawer-header {
+  background: #141414 !important;
+  border-bottom: 1px solid #303030 !important;
+}
+
+body.dark-mode .ant-drawer-close,
+body.dark-mode .ant-drawer-close *,
+body.dark-mode .ant-drawer-close-icon,
+body.dark-mode .ant-drawer-close-icon * {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+/* --------------------------------
+ * 3) AutoAlertBanner Drawer 본문 (wall-alert-drawer 범위)
+ * -------------------------------- */
+body.dark-mode .wall-alert-drawer .ant-drawer-body {
+  background: #0f0f0f !important;
+}
+
+/* Drawer 상단 툴바(“모두 읽음 처리/닫기” 영역이 있으면) */
+body.dark-mode .wall-alert-drawer .drawer-toolbar {
+  background: #141414 !important;
+  border-bottom: 1px solid #303030 !important;
+}
+
+body.dark-mode .wall-alert-drawer .drawer-toolbar,
+body.dark-mode .wall-alert-drawer .drawer-toolbar * {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+body.dark-mode .wall-alert-drawer .drawer-toolbar .ant-btn-link,
+body.dark-mode .wall-alert-drawer .drawer-toolbar .ant-btn-link > span {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+/* 카드(각 경고 항목) */
+body.dark-mode .wall-alert-drawer .drawer-item-alert,
+body.dark-mode .wall-alert-drawer .ant-alert.drawer-item-alert {
+  background: #141414 !important;
+  border: 1px solid #303030 !important;
+}
+
+/* 카드 타이틀 */
+body.dark-mode .wall-alert-drawer .drawer-item-title,
+body.dark-mode .wall-alert-drawer .drawer-item-title * {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+/* 메타 텍스트(최대/평균/임계값/시간 등) */
+body.dark-mode .wall-alert-drawer .drawer-item-meta-row,
+body.dark-mode .wall-alert-drawer .drawer-item-meta-left,
+body.dark-mode .wall-alert-drawer .drawer-item-meta-right,
+body.dark-mode .wall-alert-drawer .drawer-item-meta-row * {
+  color: rgba(255, 255, 255, 0.74) !important;
+}
+
+/* 메트릭 값은 조금 더 선명하게 */
+body.dark-mode .wall-alert-drawer .metric-v,
+body.dark-mode .wall-alert-drawer .metric-current,
+body.dark-mode .wall-alert-drawer .metric-threshold {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* 카드 내부 구분선 */
+body.dark-mode .wall-alert-drawer .drawer-item-divider {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* 대상 라인(라벨/값 링크) */
+body.dark-mode .wall-alert-drawer .drawer-item-target-line,
+body.dark-mode .wall-alert-drawer .drawer-item-target-line * {
+  color: rgba(255, 255, 255, 0.84) !important;
+}
+
+body.dark-mode .wall-alert-drawer .target-label {
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+
+body.dark-mode .wall-alert-drawer .target-value-link {
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-decoration-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* Drawer 버튼(해결방안/사일런스/일시정지) */
+body.dark-mode .wall-alert-drawer .ant-btn {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+body.dark-mode .wall-alert-drawer .ant-btn > span,
+body.dark-mode .wall-alert-drawer .ant-btn .anticon {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+body.dark-mode .wall-alert-drawer .ant-btn:hover,
+body.dark-mode .wall-alert-drawer .ant-btn:focus {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+/* -------------------------
+ * 4) Popover(해결방안/대상/메트릭)
+ * ------------------------- */
+body.dark-mode .solution-popover .ant-popover-inner {
+  background: #141414 !important;
+  border: 1px solid #303030 !important;
+}
+
+body.dark-mode .solution-popover .ant-popover-inner-content,
+body.dark-mode .solution-popover .solution-popover-title,
+body.dark-mode .solution-popover .solution-popover-label,
+body.dark-mode .solution-popover .solution-popover-text {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+body.dark-mode .target-more-popover,
+body.dark-mode .target-more-popover * {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+body.dark-mode .solution-popover .ant-popover-arrow-content,
+body.dark-mode .ant-popover .ant-popover-arrow-content {
+  background: #141414 !important;
 }
 </style>
 
 <style>
 :root { --autoBannerHeight: 0px; }
 
-/* 전체 문구 정렬 */
-.banner-text {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
+body.dark-mode .ant-drawer-header,
+body.dark-mode .ant-drawer-header-title {
+  background: #141414 !important;
+  border-bottom: 1px solid #303030 !important;
 }
 
-/* 규칙 이름 + 상태 문구 */
-.banner-main {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px;
-  font-size: 13px;
+body.dark-mode .ant-drawer-close,
+body.dark-mode .ant-drawer-close * {
+  color: rgba(255, 255, 255, 0.88) !important;
 }
-
-/* 아이콘 + '알림' 배지 */
-.banner-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 2px 10px;
-  border-radius: 999px;
-  background-color: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-/* 배지 안의 아이콘 */
-.banner-error-icon {
-  font-size: 1.2em;
-}
-
-/* 경고 상태 문구 */
-.banner-status {
-  font-size: 1em;
-  opacity: 0.95;
+body.dark-mode .drawer-title-main,
+body.dark-mode .drawer-title-sub {
+  color: rgba(255, 255, 255, 0.88) !important;
 }
 </style>

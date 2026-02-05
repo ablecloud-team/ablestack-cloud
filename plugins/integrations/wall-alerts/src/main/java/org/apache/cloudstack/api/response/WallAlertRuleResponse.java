@@ -42,6 +42,18 @@ public class WallAlertRuleResponse extends BaseResponse {
     @SerializedName("threshold2")
     @Param(description = "Upper threshold (for between/outside operators)")
     private Double threshold2;
+    @SerializedName("currentValue")    @Param(description = "Current evaluated value (avg across instances)")
+    private Double currentValue;
+    @SerializedName("currentCount")    @Param(description = "Number of samples used for currentValue")
+    private Integer currentCount;
+    @SerializedName("currentTargets")  @Param(description = "Per-target evaluated values (key/value/breached). For binary(0/1) rules, may include only breached targets.")
+    private List<CurrentTargetValueResponse> currentTargets;
+    @SerializedName("breachedTargets") @Param(description = "Targets that breach the threshold/operator")
+    private List<String> breachedTargets;
+    @SerializedName("breachedCount")   @Param(description = "Number of breached targets")
+    private Integer breachedCount;
+
+
     @SerializedName("query")           @Param(description = "Query expression")
     private String query;
     @SerializedName("health")          @Param(description = "Rule health (ok|nodata|error)")
@@ -103,6 +115,15 @@ public class WallAlertRuleResponse extends BaseResponse {
         @SerializedName("activeAt")    public String activeAt;  // RFC3339 문자열 그대로
     }
 
+    public static class CurrentTargetValueResponse {
+        @SerializedName("key")      @Param(description = "Target key (nodename/pingip/instance ...)")
+        public String key;
+        @SerializedName("value")    @Param(description = "Evaluated numeric value for the target")
+        public Double value;
+        @SerializedName("breached") @Param(description = "Whether the target breaches threshold/operator")
+        public Boolean breached;
+    }
+
     public WallAlertRuleResponse() { setObjectName("wallalertruleresponse"); }
 
     public String getUid() { return uid; }
@@ -114,6 +135,8 @@ public class WallAlertRuleResponse extends BaseResponse {
     public Double getThreshold2() {
         return threshold2;
     }
+    public Double getCurrentValue() { return this.currentValue; }
+    public Integer getCurrentCount() { return this.currentCount; }
     public String getPanel() { return this.panel; }
     public java.util.Map<String, String> getLabels() { return this.labels; }
     public java.util.Map<String, String> getAnnotations() { return this.annotations; }
@@ -172,6 +195,11 @@ public class WallAlertRuleResponse extends BaseResponse {
     public void setThreshold2(Double threshold2) {
         this.threshold2 = threshold2;
     }
+    public void setCurrentValue(final Double currentValue) { this.currentValue = currentValue; }
+    public void setCurrentCount(final Integer currentCount) { this.currentCount = currentCount; }
+    public void setCurrentTargets(final List<CurrentTargetValueResponse> currentTargets) { this.currentTargets = currentTargets; }
+    public void setBreachedTargets(final List<String> breachedTargets) { this.breachedTargets = breachedTargets; }
+    public void setBreachedCount(final Integer breachedCount) { this.breachedCount = breachedCount; }
     public void setQuery(final String query) { this.query = query; }
     public void setHealth(final String health) { this.health = health; }
     public void setType(final String type) { this.type = type; }
@@ -193,5 +221,3 @@ public class WallAlertRuleResponse extends BaseResponse {
     public void setSilenceEndsAt(final String v) { this.silenceEndsAt = v; }
     public void setSilencePeriod(final String v) { this.silencePeriod = v; }
 }
-
-
