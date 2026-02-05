@@ -33,7 +33,7 @@
               :key="volume.id"
               :value="volume.id"
             >
-              {{ volume.name }} ({{ volume.sizegb }}GB)
+              {{ volume.name }} ({{ (volume.size / 1024 / 1024 / 1024).toFixed(2) }} GB)
             </a-select-option>
           </a-select>
         </a-form-item>
