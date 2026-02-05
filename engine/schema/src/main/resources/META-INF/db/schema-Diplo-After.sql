@@ -49,6 +49,20 @@ INSERT IGNORE INTO `cloud`.`vbmc_port` (id, port) VALUES (19, 6248);
 INSERT IGNORE INTO `cloud`.`vbmc_port` (id, port) VALUES (20, 6249);
 INSERT IGNORE INTO `cloud`.`vbmc_port` (id, port) VALUES (21, 6250);
 
+
+-- BEGIN TABLE rackml_config
+CREATE TABLE IF NOT EXISTS `rackml_config` (
+    `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'primary key',
+    `zone_id` bigint unsigned NOT NULL COMMENT 'foreign key to data_center.id',
+    `name` varchar(100) NOT NULL COMMENT 'config name (e.g. default)',
+    `content` text NOT NULL COMMENT 'RackML content',
+    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'last update time',
+PRIMARY KEY (`id`),
+UNIQUE KEY `uc_rackml_zone_name` (`zone_id`, `name`),
+CONSTRAINT `fk_rackml__zone` FOREIGN KEY (`zone_id`) REFERENCES `data_center` (`id`)
+                                                          ON DELETE RESTRICT
+                                                          ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.host', 'migration_ip', 'VARCHAR(45)');
 
 -- backup offering table update
