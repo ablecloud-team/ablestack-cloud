@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -3615,6 +3616,35 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     // VM extraconfig에서 해당 디바이스 설정 제거
                     if (vmIdToRemove != null && !vmIdToRemove.trim().isEmpty()) {
                         removeDeviceFromVmExtraConfig(Long.parseLong(vmIdToRemove), hostDeviceName, xmlConfig);
+
+                        // LUN 디바이스 삭제 시 함께 삭제되는 SCSI 디바이스의 extraconfig도 삭제
+                        try {
+                            // 같은 VM에 할당된 모든 디바이스 할당 정보 조회
+                            SearchCriteria<DetailVO> sc = _hostDetailsDao.createSearchCriteria();
+                            sc.addAnd("hostId", SearchCriteria.Op.EQ, hostId);
+                            sc.addAnd("value", SearchCriteria.Op.EQ, vmIdToRemove);
+                            List<DetailVO> allAllocations = _hostDetailsDao.search(sc, null);
+
+                            // SCSI 디바이스 중에서 같은 물리 디바이스에 매핑된 것 찾기
+                            for (DetailVO allocation : allAllocations) {
+                                String deviceName = extractDeviceNameFromStoredKey(allocation.getName());
+                                if (isScsiDevice(deviceName)) {
+                                    // SCSI 디바이스의 물리 경로 추출
+                                    String scsiPhysicalPath = extractPhysicalDeviceFromScsi(deviceName);
+                                    if (scsiPhysicalPath != null) {
+                                        // LUN 디바이스 이름과 SCSI 디바이스의 물리 경로를 비교하여 같은 물리 디바이스인지 확인
+                                        if (isSamePhysicalDevice(hostDeviceName, scsiPhysicalPath)) {
+                                            // 같은 물리 디바이스에 매핑된 SCSI 디바이스의 extraconfig 삭제
+                                            removeDeviceFromVmExtraConfig(Long.parseLong(vmIdToRemove), deviceName, "");
+                                            // host_details에서 SCSI 할당 레코드도 삭제 (가상머신 설정과 동기화)
+                                            _hostDetailsDao.remove(allocation.getId());
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            logger.warn("Error removing SCSI device extraconfig for LUN device {}: {}", hostDeviceName, e.getMessage());
+                        }
                     }
                 }
             } else {
@@ -3650,8 +3680,16 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     _hostDetailsDao.persist(allocationDetail);
                 }
 
-                // VM extraconfig에 디바이스 설정 추가
-                addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlConfig);
+                String xmlToStore = lunAnswer.getXmlConfig() != null ? lunAnswer.getXmlConfig() : xmlConfig;
+                boolean invalidLunTarget = xmlToStore != null && xmlToStore.contains("device='lun'")
+                    && (xmlToStore.contains("dev='mapper/") || xmlToStore.contains("dev=\"mapper/")
+                        || (xmlToStore.contains("mpath") && xmlToStore.contains("<target")));
+                if (invalidLunTarget) {
+                    xmlToStore = null;
+                }
+                if (xmlToStore != null) {
+                    addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlToStore);
+                }
 
             }
 
@@ -9001,6 +9039,71 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     }
 
     /**
+     * SCSI hostdev XML 값에서 source dev 경로를 추출합니다.
+     * e.g. &lt;source dev='/dev/sg2'/&gt; or &lt;source dev="/dev/sg2"/&gt;
+     */
+    private String extractScsiDevPathFromXml(String xmlValue) {
+        if (xmlValue == null || xmlValue.isEmpty()) {
+            return null;
+        }
+        try {
+            int devIdx = xmlValue.indexOf("dev='");
+            if (devIdx >= 0) {
+                int start = devIdx + 5;
+                int end = xmlValue.indexOf("'", start);
+                if (end > start) {
+                    return xmlValue.substring(start, end).trim();
+                }
+            }
+            devIdx = xmlValue.indexOf("dev=\"");
+            if (devIdx >= 0) {
+                int start = devIdx + 5;
+                int end = xmlValue.indexOf("\"", start);
+                if (end > start) {
+                    return xmlValue.substring(start, end).trim();
+                }
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+        return null;
+    }
+
+    /**
+     * SCSI hostdev XML에서 adapter 이름과 address(bus/target/unit) 조합을 추출해
+     * 하나의 키 문자열로 반환한다.
+     * 예) "scsi_host16|0:0:1"
+     */
+    private String extractScsiAdapterAddressKey(String xmlValue) {
+        if (xmlValue == null || xmlValue.isEmpty()) {
+            return null;
+        }
+        try {
+            Pattern adapterPattern = Pattern.compile("<adapter\\s+name=['\"]([^'\"]+)['\"][^>]*>", Pattern.CASE_INSENSITIVE);
+            Pattern addressPattern = Pattern.compile(
+                    "<address\\s+[^>]*bus=['\"]([^'\"]+)['\"][^>]*target=['\"]([^'\"]+)['\"][^>]*unit=['\"]([^'\"]+)['\"][^>]*>",
+                    Pattern.CASE_INSENSITIVE);
+
+            Matcher adapterMatcher = adapterPattern.matcher(xmlValue);
+            Matcher addressMatcher = addressPattern.matcher(xmlValue);
+
+            if (adapterMatcher.find() && addressMatcher.find()) {
+                String adapter = adapterMatcher.group(1).trim();
+                String bus = addressMatcher.group(1).trim();
+                String target = addressMatcher.group(2).trim();
+                String unit = addressMatcher.group(3).trim();
+
+                if (!adapter.isEmpty() && !bus.isEmpty() && !target.isEmpty() && !unit.isEmpty()) {
+                    return (adapter + "|" + bus + ":" + target + ":" + unit).toLowerCase();
+                }
+            }
+        } catch (Exception e) {
+            // 패턴 파싱 실패는 무시하고 null 반환
+        }
+        return null;
+    }
+
+    /**
      * Removes device configuration from VM extraconfig.
      */
     private void removeDeviceFromVmExtraConfig(Long vmId, String deviceName, String xmlConfig) {
@@ -9008,6 +9111,9 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             List<UserVmDetailVO> existingConfigs = _vmDetailsDao.listDetails(vmId);
 
             boolean removed = false;
+            // SCSI extraconfig 후보들을 모아두었다가, 어떤 것도 매칭되지 않을 경우
+            // "단 하나만 존재하는 SCSI extraconfig" 라면 안전하게 제거하기 위한 리스트
+            List<UserVmDetailVO> scsiCandidates = new ArrayList<>();
 
             for (UserVmDetailVO detail : existingConfigs) {
                 if (detail.getName().startsWith("extraconfig-") && detail.getValue() != null) {
@@ -9054,15 +9160,91 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                         }
                     } else if (isScsiDevice(deviceName)) {
 
+                        // 1) LUN 경로에서 매핑된 SCSI extraconfig를 정리할 때:
+                        //    xmlConfig 는 비어 있고, 이미 상위 로직에서 "같은 물리 디바이스"인 SCSI 만 선별한 상태이므로
+                        //    여기서는 해당 VM 의 SCSI extraconfig 를 과감하게 제거해도 안전하다.
+                        if (!shouldRemove && (xmlConfig == null || xmlConfig.trim().isEmpty())) {
+                            if (value != null &&
+                                    (value.contains("type='scsi'") || value.contains("type=\"scsi\""))) {
+                                shouldRemove = true;
+                                matchReason = "SCSI extraconfig for mapped LUN device";
+                            }
+                        }
 
-                        if (xmlConfig != null && !xmlConfig.trim().isEmpty()) {
-
+                        // 2) SCSI 탭에서 직접 삭제하는 경우 등, xmlConfig 가 넘어오는 경우:
+                        //    2-1) XML 전체 문자열 비교
+                        //    2-2) adapter name + address(bus/target/unit) 조합으로 매칭
+                            if (!shouldRemove && xmlConfig != null && !xmlConfig.trim().isEmpty()) {
                             String normalizedStoredXml = value.replaceAll("\\s+", "").toLowerCase();
                             String normalizedInputXml = xmlConfig.replaceAll("\\s+", "").toLowerCase();
 
                             if (normalizedStoredXml.equals(normalizedInputXml)) {
                                 shouldRemove = true;
                                 matchReason = "SCSI XML exact match";
+                            }
+
+                            if (!shouldRemove) {
+                                String storedKey = extractScsiAdapterAddressKey(value);
+                                String inputKey = extractScsiAdapterAddressKey(xmlConfig);
+                                if (storedKey != null && storedKey.equals(inputKey)) {
+                                    shouldRemove = true;
+                                    matchReason = "SCSI adapter/address match";
+                                }
+                            }
+
+                            // 2-3) 어댑터/어드레스 키를 만들지 못한 경우(속성 순서 변경 등)를 위한 보강 매칭
+                            if (!shouldRemove) {
+                                String inputKey = extractScsiAdapterAddressKey(xmlConfig);
+                                if (inputKey != null) {
+                                    String[] parts = inputKey.split("\\|");
+                                    if (parts.length == 2) {
+                                        String adapter = parts[0];
+                                        String addr = parts[1]; // bus:target:unit
+                                        String[] addrParts = addr.split(":");
+                                        if (addrParts.length == 3) {
+                                            String bus = addrParts[0];
+                                            String target = addrParts[1];
+                                            String unit = addrParts[2];
+
+                                            String storedLower = value.toLowerCase();
+                                            boolean adapterMatch = storedLower.contains("<adapter") && storedLower.contains("name='" + adapter + "'")
+                                                    || storedLower.contains("name=\"" + adapter + "\"");
+                                            boolean busMatch = storedLower.contains("bus='" + bus + "'") || storedLower.contains("bus=\"" + bus + "\"");
+                                            boolean targetMatch = storedLower.contains("target='" + target + "'") || storedLower.contains("target=\"" + target + "\"");
+                                            boolean unitMatch = storedLower.contains("unit='" + unit + "'") || storedLower.contains("unit=\"" + unit + "\"");
+
+                                            if (adapterMatch && busMatch && targetMatch && unitMatch) {
+                                                shouldRemove = true;
+                                                matchReason = "SCSI adapter/address attribute match (order-insensitive)";
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // 3) 그래도 못 찾으면 마지막으로 디바이스 이름 / dev 경로 기반 매칭 시도
+                        if (!shouldRemove) {
+                            // SCSI 디바이스 이름이 XML에 포함되어 있는지 확인
+                            if (value.contains(deviceName)) {
+                                shouldRemove = true;
+                                matchReason = "SCSI device name match";
+                            } else {
+                                // extraconfig XML에서 source dev 경로를 추출하여 해당 SCSI 디바이스와 일치하는지 확인
+                                String devPathInXml = extractScsiDevPathFromXml(value);
+                                if (devPathInXml != null && devPathInXml.equals(deviceName)) {
+                                    shouldRemove = true;
+                                    matchReason = "SCSI device path match from XML";
+                                }
+                            }
+                        }
+
+                        // 매칭에 실패했지만, SCSI hostdev XML 인 경우 후보로 모아둔다.
+                        // 나중에 후보가 하나뿐이면 보수적으로 제거한다.
+                        if (!shouldRemove) {
+                            String lower = value.toLowerCase(Locale.ROOT);
+                            if (lower.contains("<hostdev") && (lower.contains("type='scsi'") || lower.contains("type=\"scsi\""))) {
+                                scsiCandidates.add(detail);
                             }
                         }
                     } else if (isHbaDevice(deviceName)) {
@@ -9108,6 +9290,20 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                         }
                         break;
                     }
+                }
+            }
+
+            // SCSI 디바이스인데 위의 매칭으로도 아무것도 지우지 못했고,
+            // extraconfig 안에 SCSI hostdev 가 단 하나만 있다면,
+            // 그 엔트리가 이 디바이스에 해당하는 것으로 보고 제거한다.
+            if (!removed && isScsiDevice(deviceName) && scsiCandidates.size() == 1) {
+                UserVmDetailVO only = scsiCandidates.get(0);
+                try {
+                    _vmDetailsDao.remove(only.getId());
+                    removed = true;
+                    logger.info("Removed lone SCSI extraconfig entry for VM {}, device: {} as a safe fallback.", vmId, deviceName);
+                } catch (Exception ex) {
+                    logger.warn("Failed to remove lone SCSI extraconfig entry for VM " + vmId + ", device " + deviceName + ": " + ex.getMessage(), ex);
                 }
             }
 
