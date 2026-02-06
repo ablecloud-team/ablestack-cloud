@@ -5877,12 +5877,11 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     }
 
     public boolean recreateCheckpointsOnVm(List<VolumeObjectTO> volumes, String vmName, Connect conn) {
-        LOGGER.info("정지중인 가상머신 gfs 증분 스냅샷 takeIncrementalVolumeSnapshotOfStoppedVm recreateCheckpointsOnVm LibvirtComputingResource.java start");
-        LOGGER.debug("Trying to recreate checkpoints on VM [{}] with volumes [{}].", vmName, volumes);
+        logger.debug("Trying to recreate checkpoints on VM [{}] with volumes [{}].", vmName, volumes);
         try {
             validateLibvirtAndQemuVersionForIncrementalSnapshots();
         } catch (CloudRuntimeException e) {
-            LOGGER.warn("Will not recreate the checkpoints on VM as {}", e.getMessage(), e);
+            logger.warn("Will not recreate the checkpoints on VM as {}", e.getMessage(), e);
             return false;
         }
         List<DiskDef> diskDefs = getDisks(conn, vmName);
@@ -5896,8 +5895,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             recreateCheckpointsOfDisk(vmName, volume, mapDiskToDiskDef);
             disconnectAllVolumeSnapshotSecondaryStorages(storagePoolSet);
         }
-        LOGGER.info("정지중인 가상머신 gfs 증분 스냅샷 takeIncrementalVolumeSnapshotOfStoppedVm recreateCheckpointsOnVm LibvirtComputingResource.java end");
-        LOGGER.debug("Successfully recreated all checkpoints on VM [{}].", vmName);
+        logger.debug("Successfully recreated all checkpoints on VM [{}].", vmName);
         return true;
     }
 

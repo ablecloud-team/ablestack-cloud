@@ -1920,37 +1920,25 @@ public class KVMStorageProcessor implements StorageProcessor {
 
             String diskPath = disk.getPath();
             String snapshotPath = diskPath + File.separator + snapshotName;
-            logger.info("KVMStorageProcessor.java createSnapshot");
-            logger.info("diskPath : " + diskPath);
-            logger.info("snapshotPath : " + snapshotPath);
             SnapshotObjectTO newSnapshot = new SnapshotObjectTO();
             if (DomainInfo.DomainState.VIR_DOMAIN_RUNNING.equals(state) && !primaryPool.isExternalSnapshot()) {
-                logger.info("if 1:::::::::::::실행중인 가상머신");
                 if (snapshotTO.isKvmIncrementalSnapshot()) {
-                    logger.info("if 1-1::::::::::::::::::::::::::::::::::실행중인 가상머신 증분 스냅샷");
                     newSnapshot = takeIncrementalVolumeSnapshotOfRunningVm(snapshotTO, primaryPool, secondaryPool, imageStoreTo != null ? imageStoreTo.getUrl() : null, snapshotName, volume, vm, conn, cmd.getWait());
                 } else {
-                    logger.info("if 1-2::::::::::::::::::::::::::::::::::");
                     newSnapshot = takeFullVolumeSnapshotOfRunningVm(cmd, primaryPool, secondaryPool, disk, snapshotName, conn, vmName, diskPath, vm, volume, snapshotPath);
                 }
             } else {
-                logger.info("else 1::::::::::::::::::::::::::::::::::정지중인 가상머신");
                 if (primaryPool.getType() == StoragePoolType.RBD) {
-                    logger.info("else 1-1::::::::::::::::::::::::::::::::::정지중인 가상머신 rbd");
                     takeRbdVolumeSnapshotOfStoppedVm(primaryPool, disk, snapshotName);
                     newSnapshot.setPath(snapshotPath);
                 } else if (primaryPool.getType() == StoragePoolType.CLVM) {
-                    logger.info("else 1-2::::::::::::::::::::::::::::::::::");
                     CreateObjectAnswer result = takeClvmVolumeSnapshotOfStoppedVm(disk, snapshotName);
                     if (result != null) return result;
                     newSnapshot.setPath(snapshotPath);
                 } else {
-                    logger.info("else 1-3::::::::::::::::::::::::::::::::::정지중인 가상머신 gfs");
                     if (snapshotTO.isKvmIncrementalSnapshot()) {
-                        logger.info("else 1-3-1::::::::::::::::::::::::::::::::::정지중인 가상머신 gfs 증분 스냅샷");
                         newSnapshot = takeIncrementalVolumeSnapshotOfStoppedVm(snapshotTO, primaryPool, secondaryPool, imageStoreTo != null ? imageStoreTo.getUrl() : null, snapshotName, volume, conn, cmd.getWait());
                     } else {
-                        logger.info("else 1-3-2::::::::::::::::::::::::::::::::::정지중인 가상머신 gfs FULL 스냅샷");
                         newSnapshot = takeFullVolumeSnapshotOfStoppedVm(cmd, primaryPool, secondaryPool, snapshotName, disk, volume);
                     }
                 }
@@ -1990,7 +1978,6 @@ public class KVMStorageProcessor implements StorageProcessor {
                                                                       String secondaryPoolUrl, String snapshotName, VolumeObjectTO volumeObjectTo, Connect conn, int wait) throws LibvirtException {
         resource.validateLibvirtAndQemuVersionForIncrementalSnapshots();
         Domain vm = null;
-        logger.info("else 1-3-1::::::::::::::::::::::::::::::::::정지중인 가상머신 gfs 증분 스냅샷 takeIncrementalVolumeSnapshotOfStoppedVm");
         logger.debug("Taking incremental volume snapshot of volume [{}]. Snapshot will be copied to [{}].", volumeObjectTo,
                 ObjectUtils.defaultIfNull(secondaryPool, primaryPool));
         try {
@@ -2004,7 +1991,7 @@ public class KVMStorageProcessor implements StorageProcessor {
             vm = resource.getDomain(conn, vmName);
 
             resource.recreateCheckpointsOnVm(List.of(volumeObjectTo), vmName, conn);
-            logger.info("정지중인 가상머신 gfs 증분 스냅샷 takeIncrementalVolumeSnapshotOfStoppedVm recreateCheckpointsOnVm");
+
             return takeIncrementalVolumeSnapshotOfRunningVm(snapshotObjectTO, primaryPool, secondaryPool, secondaryPoolUrl, snapshotName, volumeObjectTo, vm, conn, wait);
         } catch (InternalErrorException | LibvirtException | CloudRuntimeException e) {
             logger.error("Failed to take incremental volume snapshot of volume [{}] due to {}.", volumeObjectTo, e.getMessage(), e);
@@ -2024,10 +2011,11 @@ public class KVMStorageProcessor implements StorageProcessor {
     }
 
     private SnapshotObjectTO takeIncrementalVolumeSnapshotOfRunningVm(SnapshotObjectTO snapshotObjectTO, KVMStoragePool primaryPool, KVMStoragePool secondaryPool,
-                                                                      String secondaryPoolUrl, String snapshotName, VolumeObjectTO volumeObjectTo, Domain vm, Connect conn, int wait) {                                                                        logger.debug("Taking incremental volume snapshot of volume [{}] attached to running VM [{}]. Snapshot will be copied to [{}].", volumeObjectTo, volumeObjectTo.getVmName(),
+                                                                      String secondaryPoolUrl, String snapshotName, VolumeObjectTO volumeObjectTo, Domain vm, Connect conn, int wait) {
+        logger.debug("Taking incremental volume snapshot of volume [{}] attached to running VM [{}]. Snapshot will be copied to [{}].", volumeObjectTo, volumeObjectTo.getVmName(),
                 ObjectUtils.defaultIfNull(secondaryPool, primaryPool));
         resource.validateLibvirtAndQemuVersionForIncrementalSnapshots();
-        logger.info("else 1-3-1::::::::::::::::::::::::::::::::::정지중인 가상머신 gfs 증분 스냅샷 takeIncrementalVolumeSnapshotOfRunningVm");
+
         Pair<String, String> fullSnapshotPathAndDirPath = getFullSnapshotOrCheckpointPathAndDirPathOnCorrectStorage(primaryPool, secondaryPool, snapshotName, volumeObjectTo, false);
 
         String diskLabel;
@@ -2044,28 +2032,20 @@ public class KVMStorageProcessor implements StorageProcessor {
         String[] parents = snapshotObjectTO.getParents();
         String fullSnapshotPath = fullSnapshotPathAndDirPath.first();
 
-        logger.info("takeIncrementalVolumeSnapshotOfRunningVm");
-        logger.info("fullSnapshotPath : " + fullSnapshotPath);
         String backupXml = generateBackupXml(volumeObjectTo, parents, diskLabel, fullSnapshotPath);
         String checkpointXml = String.format(CHECKPOINT_XML, snapshotName, diskLabel);
-        logger.info("backupXml : " + backupXml);
-        logger.info("checkpointXml : " + checkpointXml);
+
         Path backupXmlPath = createFileAndWrite(backupXml, BACKUP_XML_TEMP_DIR, snapshotName);
-        logger.info("backupXmlPath.toString() : " + backupXmlPath.toString());
         Path checkpointXmlPath = createFileAndWrite(checkpointXml, CHECKPOINT_XML_TEMP_DIR, snapshotName);
-        logger.info("checkpointXmlPath.toString() : " + checkpointXmlPath.toString());
 
         String backupCommand = String.format(BACKUP_BEGIN_COMMAND, vmName, backupXmlPath.toString(), checkpointXmlPath.toString());
 
-        logger.info("takeIncrementalVolumeSnapshotOfRunningVm createFolderOnCorrectStorage start");
         createFolderOnCorrectStorage(primaryPool, secondaryPool, fullSnapshotPathAndDirPath);
-        logger.info("takeIncrementalVolumeSnapshotOfRunningVm createFolderOnCorrectStorage end");
+
         if (Script.runSimpleBashScript(backupCommand) == null) {
-            logger.info("Script.runSimpleBashScript(backupCommand) == null");
             throw new CloudRuntimeException(String.format("Error backing up using backupXML [%s], checkpointXML [%s] for volume [%s].", backupXml, checkpointXml,
                     volumeObjectTo));
         }
-        logger.info("waitForBackup");
 
         try {
             waitForBackup(vmName);
@@ -2074,7 +2054,6 @@ public class KVMStorageProcessor implements StorageProcessor {
             throw ex;
         }
 
-        logger.info("rebaseSnapshot");
         rebaseSnapshot(snapshotObjectTO, secondaryPool, secondaryPoolUrl, fullSnapshotPath, snapshotName, parents, wait);
 
         try {
@@ -2084,7 +2063,7 @@ public class KVMStorageProcessor implements StorageProcessor {
         }
 
         String checkpointPath = dumpCheckpoint(primaryPool, secondaryPool, snapshotName, volumeObjectTo, vmName, parents);
-        logger.info("checkpointPath");
+
         SnapshotObjectTO result = createSnapshotToAndUpdatePathAndSize(secondaryPool == null ? fullSnapshotPath : fullSnapshotPathAndDirPath.second() + File.separator + snapshotName,
                 fullSnapshotPath);
 
@@ -2095,13 +2074,9 @@ public class KVMStorageProcessor implements StorageProcessor {
 
     protected void createFolderOnCorrectStorage(KVMStoragePool primaryPool, KVMStoragePool secondaryPool, Pair<String, String> fullSnapshotPathAndDirPath) {
         if (secondaryPool == null) {
-            logger.info("createFolderOnCorrectStorage : 1");
             primaryPool.createFolder(fullSnapshotPathAndDirPath.second());
-            logger.info("createFolderOnCorrectStorage : 111");
         } else {
-            logger.info("createFolderOnCorrectStorage : 2");
             secondaryPool.createFolder(fullSnapshotPathAndDirPath.second());
-            logger.info("createFolderOnCorrectStorage : 222");
         }
     }
 
@@ -2469,20 +2444,15 @@ public class KVMStorageProcessor implements StorageProcessor {
         String dirPath;
 
         if (secondaryPool == null) {
-            logger.info("getFullSnapshotOrCheckpointPathAndDirPathOnCorrectStorage :::: 1");
             fullSnapshotPath = getSnapshotOrCheckpointPathInPrimaryStorage(primaryPool.getLocalPath(), snapshotName, checkpoint);
             dirPath = checkpoint ? TemplateConstants.DEFAULT_CHECKPOINT_ROOT_DIR : TemplateConstants.DEFAULT_SNAPSHOT_ROOT_DIR;
         } else {
-            logger.info("getFullSnapshotOrCheckpointPathAndDirPathOnCorrectStorage :::: 2");
             Pair<String, String> fullPathAndDirectoryPath = getSnapshotOrCheckpointPathAndDirectoryPathInSecondaryStorage(secondaryPool.getLocalPath(), snapshotName,
                     volume.getAccountId(), volume.getVolumeId(), checkpoint);
 
             fullSnapshotPath = fullPathAndDirectoryPath.first();
             dirPath = fullPathAndDirectoryPath.second();
         }
-        logger.info("else 1-3-1::::::::::::::::::::::::::::::::::정지중인 가상머신 gfs 증분 스냅샷 getFullSnapshotOrCheckpointPathAndDirPathOnCorrectStorage");
-        logger.info("fullSnapshotPath : " + fullSnapshotPath);
-        logger.info("dirPath : " + dirPath);
         return new Pair<>(fullSnapshotPath, dirPath);
     }
 
