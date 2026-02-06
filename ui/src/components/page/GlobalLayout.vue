@@ -76,25 +76,26 @@
           v-if="isAdmin && (isDevelopmentMode || allowSettingTheme)"
         >
           <template #handler>
-            <div style="position: absolute; bottom: 25px; display: flex; flex-direction: column; gap: 0; align-items: flex-end; z-index: 1001; pointer-events: auto;">
-
+            <div
+              style="position: absolute; bottom: 55px; display: flex; flex-direction: column; gap: 0; align-items: flex-end; z-index: 1001; pointer-events: auto;"
+            >
               <a-button
+                v-show="!showSetting"
                 type="primary"
                 @click.stop="toggleSidebar"
                 style="width: 40px; height: 40px; padding: 0; background: #aaa; border: none; color: #fff; border-radius: 4px 4px 0 0; display: flex; align-items: center; justify-content: center; cursor: pointer;"
               >
                 <ScheduleOutlined />
               </a-button>
-
               <a-button
                 type="primary"
                 size="large"
+                @click.stop="toggleSetting(!showSetting)"
                 style="width: 40px; height: 40px; border-radius: 0 0 4px 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
               >
                 <close-outlined v-if="showSetting" />
-                <setting-outlined v-else :style="{ fontSize: '20px' }" />
+                <setting-outlined v-else />
               </a-button>
-
             </div>
           </template>
           <template #drawer>
@@ -520,5 +521,4 @@ export default {
     color: rgba(0, 0, 0, 0.65);      /* (선택) 아이콘 색상이 흐리다면 추가 */
   }
 }
-
 </style>
