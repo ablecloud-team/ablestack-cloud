@@ -2395,8 +2395,6 @@ export default {
           deployVmData.boottype = values.boottype
           deployVmData.bootmode = values.bootmode
         }
-        console.log('values.tpmversion')
-        console.log(values.tpmversion)
         deployVmData.tpmversion = values.tpmversion
         deployVmData.dynamicscalingenabled = values.dynamicscalingenabled
         deployVmData.iothreadsenabled = values.iothreadsenabled
