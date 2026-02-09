@@ -333,6 +333,21 @@ public abstract class BaseDeployVMCmd extends BaseAsyncCreateCustomIdCmd impleme
         return null;
     }
 
+    public ApiConstants.TpmVersion getTpmVersion() {
+        if (StringUtils.isNotBlank(tpmversion)) {
+            try {
+                String type = tpmversion.trim().toUpperCase();
+                return ApiConstants.TpmVersion.valueOf(type);
+            } catch (IllegalArgumentException e) {
+                String errMesg = "Invalid TpmVersion " + tpmversion + "Specified for vm " + getName()
+                        + " Valid values are: " + Arrays.toString(ApiConstants.BootType.values());
+                logger.warn(errMesg);
+                throw new InvalidParameterValueException(errMesg);
+            }
+        }
+        return null;
+    }
+
     public Map<String, String> getDetails() {
         Map<String, String> customparameterMap = convertDetailsToMap(details);
 
@@ -342,6 +357,16 @@ public abstract class BaseDeployVMCmd extends BaseAsyncCreateCustomIdCmd impleme
 
         if (rootdisksize != null && !customparameterMap.containsKey(VmDetailConstants.ROOT_DISK_SIZE)) {
             customparameterMap.put(VmDetailConstants.ROOT_DISK_SIZE, rootdisksize.toString());
+        }
+
+        if(customparameterMap.containsKey(ApiConstants.TpmVersion.V2_0.toString())){
+            customparameterMap.put("tpmversion", customparameterMap.get(ApiConstants.TpmVersion.V2_0.toString()));
+        }else if(customparameterMap.containsKey("tpmversion")){
+            customparameterMap.put("tpmversion", customparameterMap.get("tpmversion"));
+        }else if(getTpmVersion() != null){
+            customparameterMap.put("tpmversion", getTpmVersion().toString());
+        }else{
+            customparameterMap.put("tpmversion", "NONE");
         }
 
         IoDriverPolicy ioPolicy = getIoDriverPolicy();
