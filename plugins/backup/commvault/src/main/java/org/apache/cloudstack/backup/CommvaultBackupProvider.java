@@ -767,8 +767,59 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return new Pair<>(false,null);
     }
 
+    protected Host getVMHypervisorHostForBackup(VirtualMachine vm) {
+        Long hostId = vm.getHostId();
+        if (hostId == null && VirtualMachine.State.Running.equals(vm.getState())) {
+            throw new CloudRuntimeException(String.format("Unable to find the hypervisor host for %s. Make sure the virtual machine is running", vm.getName()));
+        }
+        if (VirtualMachine.State.Stopped.equals(vm.getState())) {
+            hostId = vm.getLastHostId();
+        }
+        if (hostId == null) {
+            throw new CloudRuntimeException(String.format("Unable to find the hypervisor host for stopped VM: %s", vm));
+        }
+        final Host host = hostDao.findById(hostId);
+        if (host == null || !Status.Up.equals(host.getStatus()) || !Hypervisor.HypervisorType.KVM.equals(host.getHypervisorType())) {
+            throw new CloudRuntimeException("Unable to contact backend control plane to initiate backup");
+        }
+        return host;
+    }
+
+    private BackupVO createBackupObject(VirtualMachine vm, String backupPath) {
+        BackupVO backup = new BackupVO();
+        backup.setVmId(vm.getId());
+        backup.setExternalId(backupPath);
+        backup.setType("FULL");
+        backup.setDate(new Date());
+        long virtualSize = 0L;
+        for (final Volume volume: volumeDao.findByInstance(vm.getId())) {
+            if (Volume.State.Ready.equals(volume.getState())) {
+                virtualSize += volume.getSize();
+            }
+        }
+        backup.setProtectedSize(virtualSize);
+        backup.setStatus(Backup.Status.BackingUp);
+        backup.setBackupOfferingId(vm.getBackupOfferingId());
+        backup.setAccountId(vm.getAccountId());
+        backup.setDomainId(vm.getDomainId());
+        backup.setZoneId(vm.getDataCenterId());
+        backup.setName(backupManager.getBackupNameFromVM(vm));
+        Map<String, String> details = backupManager.getBackupDetailsFromVM(vm);
+        backup.setDetails(details);
+
+        return backupDao.persist(backup);
+    }
+
     @Override
     public Pair<Boolean, Backup> takeBackup(VirtualMachine vm, Boolean quiesceVM) {
+        final Host vmHost = getVMHypervisorHostForBackup(vm);
+
+        if (CollectionUtils.isNotEmpty(vmSnapshotDao.findByVmAndByType(vm.getId(), VMSnapshot.Type.DiskAndMemory))) {
+            logger.debug("Commvault backup provider cannot take backups of a VM [{}] with disk-and-memory VM snapshots. Restoring the backup will corrupt any newer disk-and-memory " +
+                    "VM snapshots.", vm);
+            throw new CloudRuntimeException(String.format("Cannot take backup of VM [%s] as it has disk-and-memory VM snapshots.", vm.getUuid()));
+        }
+
         String hostName = null;
         try {
             String commvaultServer = getUrlDomain(CommvaultUrl.value());
@@ -793,295 +844,145 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         BackupOfferingVO vmBackupOffering = new BackupOfferingDaoImpl().findById(vm.getBackupOfferingId());
         String planId = vmBackupOffering.getExternalId();
-        // 스냅샷 생성 mold-API 호출
-        String[] properties = getServerProperties();
-        ManagementServerHostVO msHost = msHostDao.findByMsid(ManagementServerNode.getManagementServerId());
-        String moldUrl = properties[1] + "://" + msHost.getServiceIP() + ":" + properties[0] + "/client/api/";
-        String moldMethod = "POST";
-        String moldCommand = "createSnapshotBackup";
-        UserAccount user = accountService.getActiveUserAccount("admin", 1L);
-        String apiKey = user.getApiKey();
-        String secretKey = user.getSecretKey();
-        if (apiKey == null || secretKey == null) {
-            throw new CloudRuntimeException("Failed because the API key and Secret key for the admin account do not exist.");
+
+        final Date creationDate = new Date();
+        final String backupPath = String.format("%s/%s", vm.getInstanceName(),
+                new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(creationDate));
+
+        BackupVO backupVO = createBackupObject(vm, backupPath);
+        CommvaultTakeBackupCommand command = new CommvaultTakeBackupCommand(vm.getInstanceName(), backupPath);
+        command.setQuiesce(quiesceVM);
+
+        if (VirtualMachine.State.Stopped.equals(vm.getState())) {
+            List<VolumeVO> vmVolumes = volumeDao.findByInstance(vm.getId());
+            vmVolumes.sort(Comparator.comparing(Volume::getDeviceId));
+            Pair<List<PrimaryDataStoreTO>, List<String>> volumePoolsAndPaths = getVolumePoolsAndPaths(vmVolumes);
+            command.setVolumePools(volumePoolsAndPaths.first());
+            command.setVolumePaths(volumePoolsAndPaths.second());
         }
-        UserVmJoinVO userVM = userVmJoinDao.findById(vm.getId());
-        List<VolumeVO> volumes = volumeDao.findByInstance(userVM.getId());
-        volumes.sort(Comparator.comparing(Volume::getDeviceId));
-        StringJoiner joiner = new StringJoiner(",");
-        Map<Object, String> checkResult = new HashMap<>();
-        for (VolumeVO vol : volumes) {
-            Map<String, String> snapParams = new HashMap<>();
-            snapParams.put("volumeid", Long.toString(vol.getId()));
-            snapParams.put("backup", "true");
-            // snapParams.put("quiescevm", String.valueOf(quiesceVM));
-            String createSnapResult = moldCreateSnapshotBackupAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapParams);
-            if (createSnapResult == null) {
-                if (!checkResult.isEmpty()) {
-                    for (String value : checkResult.values()) {
-                        Map<String, String> snapshotParams = new HashMap<>();
-                        snapshotParams.put("id", value);
-                        moldMethod = "GET";
-                        moldCommand = "deleteSnapshot";
-                        moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                    }
-                }
-                LOG.error("Failed to request createSnapshot Mold-API.");
-                return new Pair<>(false, null);
-            } else {
-                JSONObject jsonObject = new JSONObject(createSnapResult);
-                String jobId = jsonObject.get("jobid").toString();
-                String snapId = jsonObject.get("id").toString();
-                int jobStatus = getAsyncJobResult(moldUrl, apiKey, secretKey, jobId);
-                if (jobStatus == 2) {
-                    Map<String, String> snapshotParams = new HashMap<>();
-                    snapshotParams.put("id", snapId);
-                    moldMethod = "GET";
-                    moldCommand = "deleteSnapshot";
-                    moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                    if (!checkResult.isEmpty()) {
-                        for (String value : checkResult.values()) {
-                            snapshotParams = new HashMap<>();
-                            snapshotParams.put("id", value);
-                            moldMethod = "GET";
-                            moldCommand = "deleteSnapshot";
-                            moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                        }
-                    }
-                    LOG.error("createSnapshot Mold-API async job resulted in failure.");
-                    return new Pair<>(false, null);
-                }
-                checkResult.put(vol.getId(), snapId);
-                SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findLatestSnapshotForVolume(vol.getId(), DataStoreRole.Primary);
-                joiner.add(snapshotStore.getInstallPath());
-            }
+
+        BackupAnswer answer;
+        try {
+            answer = (BackupAnswer) agentManager.send(vmHost.getId(), command);
+        } catch (AgentUnavailableException e) {
+            logger.error("Unable to contact backend control plane to initiate backup for VM {}", vm.getInstanceName());
+            backupVO.setStatus(Backup.Status.Failed);
+            backupDao.remove(backupVO.getId());
+            throw new CloudRuntimeException("Unable to contact backend control plane to initiate backup");
+        } catch (OperationTimedoutException e) {
+            logger.error("Operation to initiate backup timed out for VM {}", vm.getInstanceName());
+            backupVO.setStatus(Backup.Status.Failed);
+            backupDao.remove(backupVO.getId());
+            throw new CloudRuntimeException("Operation to initiate backup timed out, please try again");
         }
-        String path = joiner.toString();
-        String backupPath = path;
-        // 가상머신이 실행중인 경우 가상머신 xml 파일 함께 백업
-        HostVO hostVO = null;
-        StoragePoolVO storagePool = null;
-        String storagePath = null;
-        String command = null;
-        Ternary<String, String, String> credentials = null;
-        int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
-        if (vm.getState() == VirtualMachine.State.Running) {
-            hostVO = getRunningVMHypervisorHost(vm);
-            credentials = getKVMHyperisorCredentials(hostVO);
-            List<VolumeVO> rootVolumesOfVm = volumeDao.findByInstanceAndType(userVM.getId(), Volume.Type.ROOT);
-            if (!rootVolumesOfVm.isEmpty()) {
-                storagePool = primaryDataStoreDao.findById(rootVolumesOfVm.get(0).getPoolId());
-                storagePath = storagePool.getPath();
-                command = String.format(
-                    "mkdir -p %1$s && " +
-                    "virsh -c qemu:///system dumpxml '%2$s' > %1$s/domain-config.xml && " +
-                    "virsh -c qemu:///system dominfo '%2$s' > %1$s/dominfo.xml && " +
-                    "virsh -c qemu:///system domiflist '%2$s' > %1$s/domiflist.xml && " +
-                    "virsh -c qemu:///system domblklist '%2$s' > %1$s/domblklist.xml",
-                    storagePath + "/" + vm.getInstanceName(), vm.getInstanceName()
-                );
-                if (!executeTakeBackupCommand(hostVO, credentials.first(), credentials.second(), sshPort, command)) {
-                    command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                    executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
-                } else {
-                    joiner.add(storagePath + "/" + vm.getInstanceName());
-                    path = joiner.toString();
-                }
+
+        if (answer != null && answer.getResult()) {
+            // 생성된 백업 폴더 경로로 해당 백업 세트의 백업 콘텐츠 경로 업데이트
+            String clientId = client.getClientId(hostName);
+            String subClientEntity = client.getSubclient(clientId, vm.getInstanceName());
+            if (subClientEntity == null) {
+                // 백업 폴더 삭제 명령 전송 필요*
+                backupVO.setStatus(Backup.Status.Failed);
+                backupDao.remove(backupVO.getId());
+                throw new CloudRuntimeException("Failed to take backup for VM " + vm.getInstanceName() + " to get subclient info commvault api");
             }
-        }
-        // 생성된 스냅샷의 경로로 해당 백업 세트의 백업 콘텐츠 경로 업데이트
-        String clientId = client.getClientId(hostName);
-        String subClientEntity = client.getSubclient(clientId, vm.getInstanceName());
-        if (subClientEntity == null) {
-            if (!checkResult.isEmpty()) {
-                for (String value : checkResult.values()) {
-                    Map<String, String> snapshotParams = new HashMap<>();
-                    snapshotParams.put("id", value);
-                    moldMethod = "GET";
-                    moldCommand = "deleteSnapshot";
-                    moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
+            JSONObject jsonObject = new JSONObject(subClientEntity);
+            String subclientId = String.valueOf(jsonObject.get("subclientId"));
+            String applicationId = String.valueOf(jsonObject.get("applicationId"));
+            String backupsetId = String.valueOf(jsonObject.get("backupsetId"));
+            String instanceId = String.valueOf(jsonObject.get("instanceId"));
+            String backupsetName = String.valueOf(jsonObject.get("backupsetName"));
+            String displayName = String.valueOf(jsonObject.get("displayName"));
+            String commCellName = String.valueOf(jsonObject.get("commCellName"));
+            String companyId = String.valueOf(jsonObject.getJSONObject("entityInfo").get("companyId"));
+            String companyName = String.valueOf(jsonObject.getJSONObject("entityInfo").get("companyName"));
+            String instanceName = String.valueOf(jsonObject.get("instanceName"));
+            String appName = String.valueOf(jsonObject.get("appName"));
+            String clientName = String.valueOf(jsonObject.get("clientName"));
+            String subclientGUID = String.valueOf(jsonObject.get("subclientGUID"));
+            String subclientName = String.valueOf(jsonObject.get("subclientName"));
+            String csGUID = String.valueOf(jsonObject.get("csGUID"));
+            boolean upResult = client.updateBackupSet(backupPath, subclientId, clientId, planId, applicationId, backupsetId, instanceId, subclientName, backupsetName);
+            if (upResult) {
+                String planName = client.getPlanName(planId);
+                String storagePolicyId = client.getStoragePolicyId(planName);
+                if (planName == null || storagePolicyId == null) {
+                    // 백업 폴더 삭제 명령 전송 필요*
+                    backupVO.setStatus(Backup.Status.Failed);
+                    backupDao.remove(backupVO.getId());
+                    throw new CloudRuntimeException("Failed to take backup for VM " + vm.getInstanceName() + " to get storage policy id commvault api");
                 }
-                if (vm.getState() == VirtualMachine.State.Running) {
-                    command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                    executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
-                }
-            }
-            throw new CloudRuntimeException("Failed to get subclient info commvault api");
-        }
-        JSONObject jsonObject = new JSONObject(subClientEntity);
-        String subclientId = String.valueOf(jsonObject.get("subclientId"));
-        String applicationId = String.valueOf(jsonObject.get("applicationId"));
-        String backupsetId = String.valueOf(jsonObject.get("backupsetId"));
-        String instanceId = String.valueOf(jsonObject.get("instanceId"));
-        String backupsetName = String.valueOf(jsonObject.get("backupsetName"));
-        String displayName = String.valueOf(jsonObject.get("displayName"));
-        String commCellName = String.valueOf(jsonObject.get("commCellName"));
-        String companyId = String.valueOf(jsonObject.getJSONObject("entityInfo").get("companyId"));
-        String companyName = String.valueOf(jsonObject.getJSONObject("entityInfo").get("companyName"));
-        String instanceName = String.valueOf(jsonObject.get("instanceName"));
-        String appName = String.valueOf(jsonObject.get("appName"));
-        String clientName = String.valueOf(jsonObject.get("clientName"));
-        String subclientGUID = String.valueOf(jsonObject.get("subclientGUID"));
-        String subclientName = String.valueOf(jsonObject.get("subclientName"));
-        String csGUID = String.valueOf(jsonObject.get("csGUID"));
-        boolean upResult = client.updateBackupSet(path, subclientId, clientId, planId, applicationId, backupsetId, instanceId, subclientName, backupsetName);
-        if (upResult) {
-            String planName = client.getPlanName(planId);
-            String storagePolicyId = client.getStoragePolicyId(planName);
-            if (planName == null || storagePolicyId == null) {
-                if (!checkResult.isEmpty()) {
-                    for (String value : checkResult.values()) {
-                        Map<String, String> snapshotParams = new HashMap<>();
-                        snapshotParams.put("id", value);
-                        moldMethod = "GET";
-                        moldCommand = "deleteSnapshot";
-                        moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                    }
-                    if (vm.getState() == VirtualMachine.State.Running) {
-                        command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                        executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
-                    }
-                }
-                throw new CloudRuntimeException("Failed to get storage Policy id commvault api");
-            }
-            // 백업 실행
-            String jobId = client.createBackup(subclientId, storagePolicyId, displayName, commCellName, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, subclientGUID, subclientName, csGUID, backupsetName);
-            if (jobId != null) {
-                String jobStatus = client.getJobStatus(jobId);
-                if (jobStatus.equalsIgnoreCase("Completed")) {
-                    String jobDetails = client.getJobDetails(jobId);
-                    if (jobDetails != null) {
-                        JSONObject jsonObject2 = new JSONObject(jobDetails);
-                        String endTime = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
-                        long timestamp = Long.parseLong(endTime) * 1000L;
-                        Date endDate = new Date(timestamp);
-                        SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-                        String formattedString = formatterDateTime.format(endDate);
-                        String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
-                        String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
-                        String externalId = backupPath + "," + jobId;
-                        BackupVO backup = new BackupVO();
-                        backup.setVmId(vm.getId());
-                        backup.setExternalId(externalId);
-                        backup.setType(type.toUpperCase());
-                        try {
-                            backup.setDate(formatterDateTime.parse(formattedString));
-                        } catch (ParseException e) {
-                            String msg = String.format("Unable to parse date [%s].", endTime);
-                            LOG.error(msg, e);
-                            throw new CloudRuntimeException(msg, e);
-                        }
-                        backup.setSize(Long.parseLong(size));
-                        long virtualSize = 0L;
-                        for (final Volume volume: volumeDao.findByInstance(vm.getId())) {
-                            if (Volume.State.Ready.equals(volume.getState())) {
-                                virtualSize += volume.getSize();
+                // 백업 실행
+                String jobId = client.createBackup(subclientId, storagePolicyId, displayName, commCellName, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, subclientGUID, subclientName, csGUID, backupsetName);
+                if (jobId != null) {
+                    String jobStatus = client.getJobStatus(jobId);
+                    if (jobStatus.equalsIgnoreCase("Completed")) {
+                        String jobDetails = client.getJobDetails(jobId);
+                        if (jobDetails != null) {
+                            JSONObject jsonObject2 = new JSONObject(jobDetails);
+                            String endTime = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("endTime"));
+                            long timestamp = Long.parseLong(endTime) * 1000L;
+                            Date endDate = new Date(timestamp);
+                            SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                            String formattedString = formatterDateTime.format(endDate);
+                            String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
+                            String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
+                            String externalId = backupPath + "," + jobId;
+                            backupVO.setExternalId(externalId);
+                            backupVO.setType(type.toUpperCase());
+                            try {
+                                backupVO.setDate(formatterDateTime.parse(formattedString));
+                            } catch (ParseException e) {
+                                String msg = String.format("Unable to parse date [%s].", endTime);
+                                LOG.error(msg, e);
+                                throw new CloudRuntimeException(msg, e);
                             }
+                            backupVO.setSize(Long.parseLong(size));
+                            backupVO.setStatus(Backup.Status.BackedUp);
+                            List<Volume> vols = new ArrayList<>(volumeDao.findByInstance(vm.getId()));
+                            backupVO.setBackedUpVolumes(backupManager.createVolumeInfoFromVolumes(vols));
+                            if (backupDao.update(backupVO.getId(), backupVO)) {
+                                return new Pair<>(true, backupVO);
+                            } else {
+                                throw new CloudRuntimeException("Failed to update backup");
+                            }      
+                        } else {
+                            backupVO.setStatus(Backup.Status.Failed);
+                            backupDao.remove(backupVO.getId());
+                            logger.error("Failed to take backup for VM " + vm.getInstanceName() + " to get details job commvault api");
+                            return new Pair<>(false, null);
                         }
-                        backup.setProtectedSize(Long.valueOf(virtualSize));
-                        backup.setStatus(org.apache.cloudstack.backup.Backup.Status.BackedUp);
-                        backup.setBackupOfferingId(vm.getBackupOfferingId());
-                        backup.setAccountId(vm.getAccountId());
-                        backup.setDomainId(vm.getDomainId());
-                        backup.setZoneId(vm.getDataCenterId());
-                        backup.setName(backupManager.getBackupNameFromVM(vm));
-                        List<Volume> vols = new ArrayList<>(volumeDao.findByInstance(vm.getId()));
-                        backup.setBackedUpVolumes(backupManager.createVolumeInfoFromVolumes(vols));
-                        Map<String, String> details = backupManager.getBackupDetailsFromVM(vm);
-                        backup.setDetails(details);
-                        StringJoiner snapshots = new StringJoiner(",");
-                        for (String value : checkResult.values()) {
-                            snapshots.add(value);
-                        }
-                        backup.setSnapshotId(snapshots.toString());
-                        backupDao.persist(backup);
-                        // 백업 오퍼링 할당 시의 볼륨 정보만 담겨있어서 이후 추가된 볼륨에 대해 복원 시 오류로 백업 시 볼륨 정보 업데이트
-                        VMInstanceVO vmInstance = vmInstanceDao.findByIdIncludingRemoved(vm.getId());
-                        vmInstance.setBackupVolumes(backupManager.createVolumeInfoFromVolumes(vols));
-                        vmInstanceDao.update(vm.getId(), vmInstance);
-                        // 백업 성공 후 스냅샷 삭제
-                        for (String value : checkResult.values()) {
-                            Map<String, String> snapshotParams = new HashMap<>();
-                            snapshotParams.put("id", value);
-                            moldMethod = "GET";
-                            moldCommand = "deleteSnapshot";
-                            moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                        }
-                        if (vm.getState() == VirtualMachine.State.Running) {
-                            command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                            executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
-                        }
-                        return new Pair<>(true, backup);
                     } else {
-                        // 백업 실패
-                        if (!checkResult.isEmpty()) {
-                            for (String value : checkResult.values()) {
-                                Map<String, String> snapshotParams = new HashMap<>();
-                                snapshotParams.put("id", value);
-                                moldMethod = "GET";
-                                moldCommand = "deleteSnapshot";
-                                moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                            }
-                        }
-                        if (vm.getState() == VirtualMachine.State.Running) {
-                            command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                            executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
-                        }
-                        LOG.error("createBackup commvault api resulted in " + jobStatus);
+                        // 백업 폴더 삭제 명령 전송 필요*
+                        backupVO.setStatus(Backup.Status.Failed);
+                        backupDao.remove(backupVO.getId());
+                        logger.error("Failed to take backup for VM " + vm.getInstanceName() + " to create backup job status is " + jobStatus);
                         return new Pair<>(false, null);
                     }
                 } else {
-                    // 백업 실패
-                    if (!checkResult.isEmpty()) {
-                        for (String value : checkResult.values()) {
-                            Map<String, String> snapshotParams = new HashMap<>();
-                            snapshotParams.put("id", value);
-                            moldMethod = "GET";
-                            moldCommand = "deleteSnapshot";
-                            moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                        }
-                    }
-                    if (vm.getState() == VirtualMachine.State.Running) {
-                        command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                        executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
-                    }
-                    LOG.error("createBackup commvault api resulted in " + jobStatus);
+                    // 백업 폴더 삭제 명령 전송 필요*
+                    backupVO.setStatus(Backup.Status.Failed);
+                    backupDao.remove(backupVO.getId());
+                    logger.error("Failed to take backup for VM " + vm.getInstanceName() + " to create backup job commvault api");
                     return new Pair<>(false, null);
                 }
             } else {
-                // 백업 실패
-                if (!checkResult.isEmpty()) {
-                    for (String value : checkResult.values()) {
-                        Map<String, String> snapshotParams = new HashMap<>();
-                        snapshotParams.put("id", value);
-                        moldMethod = "GET";
-                        moldCommand = "deleteSnapshot";
-                        moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                    }
-                }
-                if (vm.getState() == VirtualMachine.State.Running) {
-                    command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                    executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
-                }
-                LOG.error("failed request createBackup commvault api");
+                // 백업 폴더 삭제 명령 전송 필요*
+                backupVO.setStatus(Backup.Status.Failed);
+                backupDao.remove(backupVO.getId());
+                logger.error("Failed to take backup for VM " + vm.getInstanceName() + " to update backupset content path commvault api");
                 return new Pair<>(false, null);
             }
         } else {
-            // 백업 경로 업데이트 실패
-            if (!checkResult.isEmpty()) {
-                for (String value : checkResult.values()) {
-                    Map<String, String> snapshotParams = new HashMap<>();
-                    snapshotParams.put("id", value);
-                    moldMethod = "GET";
-                    moldCommand = "deleteSnapshot";
-                    moldDeleteSnapshotAPI(moldUrl, moldCommand, moldMethod, apiKey, secretKey, snapshotParams);
-                }
+            logger.error("Failed to take backup for VM {}: {}", vm.getInstanceName(), answer != null ? answer.getDetails() : "No answer received");
+            if (answer.getNeedsCleanup()) {
+                logger.error("Backup cleanup failed for VM {}. Leaving the backup in Error state.", vm.getInstanceName());
+                backupVO.setStatus(Backup.Status.Error);
+                backupDao.update(backupVO.getId(), backupVO);
+            } else {
+                backupVO.setStatus(Backup.Status.Failed);
+                backupDao.remove(backupVO.getId());
             }
-            if (vm.getState() == VirtualMachine.State.Running) {
-                command = String.format(RM_COMMAND, storagePath + "/" + vm.getInstanceName());
-                executeDeleteXmlCommand(hostVO, credentials.first(), credentials.second(), sshPort, command);
-            }
-            LOG.error("updateBackupSet commvault api resulted in failure.");
             return new Pair<>(false, null);
         }
     }
