@@ -1925,7 +1925,7 @@ public class KVMStorageProcessor implements StorageProcessor {
             SnapshotObjectTO newSnapshot = new SnapshotObjectTO();
             logger.info(DomainInfo.DomainState.VIR_DOMAIN_RUNNING.equals(state));
             logger.info(primaryPool.isExternalSnapshot());
-            if (DomainInfo.DomainState.VIR_DOMAIN_RUNNING.equals(state) && !primaryPool.isExternalSnapshot()) {
+            if (DomainInfo.DomainState.VIR_DOMAIN_RUNNING.equals(state) && (!primaryPool.isExternalSnapshot() || primaryPool.getType() == StoragePoolType.SharedMountPoint)) {
                 logger.info("KVMStorageProcessor.java if :::::::::::::::::::::::::::::::");
                 if (snapshotTO.isKvmIncrementalSnapshot()) {
                     logger.info("KVMStorageProcessor.java isKvmIncrementalSnapshot :::::::::::::::::::::::::::::::");
