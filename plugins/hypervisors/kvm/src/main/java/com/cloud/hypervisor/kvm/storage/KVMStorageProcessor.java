@@ -1921,7 +1921,7 @@ public class KVMStorageProcessor implements StorageProcessor {
             String diskPath = disk.getPath();
             String snapshotPath = diskPath + File.separator + snapshotName;
             SnapshotObjectTO newSnapshot = new SnapshotObjectTO();
-            if (DomainInfo.DomainState.VIR_DOMAIN_RUNNING.equals(state) && (!primaryPool.isExternalSnapshot() || primaryPool.getType() == StoragePoolType.SharedMountPoint)) {
+            if (DomainInfo.DomainState.VIR_DOMAIN_RUNNING.equals(state) && !primaryPool.isExternalSnapshot()) {
                 if (snapshotTO.isKvmIncrementalSnapshot()) {
                     newSnapshot = takeIncrementalVolumeSnapshotOfRunningVm(snapshotTO, primaryPool, secondaryPool, imageStoreTo != null ? imageStoreTo.getUrl() : null, snapshotName, volume, vm, conn, cmd.getWait());
                 } else {
