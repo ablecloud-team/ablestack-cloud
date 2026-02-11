@@ -1895,6 +1895,7 @@ public class KVMStorageProcessor implements StorageProcessor {
         final VolumeObjectTO volume = snapshotTO.getVolume();
         final String snapshotName = ("".equals(snapshotTO.getVmSnapshotName()) || snapshotTO.getVmSnapshotName() == null) ? UUID.randomUUID().toString() : snapshotTO.getVmSnapshotName();
         final String vmName = volume.getVmName();
+        logger.info("KVMStorageProcessor.java vmName : " + vmName);
 
         try {
             final Connect conn = LibvirtConnection.getConnectionByVmName(vmName);
@@ -1908,6 +1909,7 @@ public class KVMStorageProcessor implements StorageProcessor {
                     logger.trace("Ignoring libvirt error.", e);
                 }
             }
+            logger.info("KVMStorageProcessor.java state : " + state);
 
             if (DomainInfo.DomainState.VIR_DOMAIN_RUNNING.equals(state) && volume.requiresEncryption()) {
                 throw new CloudRuntimeException("VM is running, encrypted volume snapshots aren't supported");
@@ -1922,9 +1924,12 @@ public class KVMStorageProcessor implements StorageProcessor {
             String snapshotPath = diskPath + File.separator + snapshotName;
             SnapshotObjectTO newSnapshot = new SnapshotObjectTO();
             if (DomainInfo.DomainState.VIR_DOMAIN_RUNNING.equals(state) && !primaryPool.isExternalSnapshot()) {
+                logger.info("KVMStorageProcessor.java if :::::::::::::::::::::::::::::::");
                 if (snapshotTO.isKvmIncrementalSnapshot()) {
+                    logger.info("KVMStorageProcessor.java isKvmIncrementalSnapshot :::::::::::::::::::::::::::::::");
                     newSnapshot = takeIncrementalVolumeSnapshotOfRunningVm(snapshotTO, primaryPool, secondaryPool, imageStoreTo != null ? imageStoreTo.getUrl() : null, snapshotName, volume, vm, conn, cmd.getWait());
                 } else {
+                    logger.info("KVMStorageProcessor.java !isKvmIncrementalSnapshot :::::::::::::::::::::::::::::::");
                     newSnapshot = takeFullVolumeSnapshotOfRunningVm(cmd, primaryPool, secondaryPool, disk, snapshotName, conn, vmName, diskPath, vm, volume, snapshotPath);
                 }
             } else {
@@ -1936,9 +1941,12 @@ public class KVMStorageProcessor implements StorageProcessor {
                     if (result != null) return result;
                     newSnapshot.setPath(snapshotPath);
                 } else {
+                    logger.info("KVMStorageProcessor.java else :::::::::::::::::::::::::::::::");
                     if (snapshotTO.isKvmIncrementalSnapshot()) {
+                        logger.info("KVMStorageProcessor.java isKvmIncrementalSnapshot :::::::::::::::::::::::::::::::");
                         newSnapshot = takeIncrementalVolumeSnapshotOfStoppedVm(snapshotTO, primaryPool, secondaryPool, imageStoreTo != null ? imageStoreTo.getUrl() : null, snapshotName, volume, conn, cmd.getWait());
                     } else {
+                        logger.info("KVMStorageProcessor.java !isKvmIncrementalSnapshot :::::::::::::::::::::::::::::::");
                         newSnapshot = takeFullVolumeSnapshotOfStoppedVm(cmd, primaryPool, secondaryPool, snapshotName, disk, volume);
                     }
                 }
