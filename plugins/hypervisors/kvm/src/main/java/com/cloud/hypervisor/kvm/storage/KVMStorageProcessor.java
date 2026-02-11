@@ -1110,9 +1110,25 @@ public class KVMStorageProcessor implements StorageProcessor {
                     return new CopyCmdAnswer(e.toString());
                 }
             } else if (primaryPool.getType() == StoragePoolType.SharedMountPoint) {
+                final String srcPath = snapshot.getPath();
+                String baseDir;
+                String nameForScript;
+                if (isCreatedFromVmSnapshot) {
+                    baseDir = snapshotDisk.getPath();
+                    nameForScript = snapshotName;
+                } else {
+                    final File f = new File(srcPath);
+                    if (f.isFile()) {
+                        baseDir = f.getParent();
+                        nameForScript = f.getName();
+                    } else {
+                        baseDir = srcPath;
+                        nameForScript = snapshotName;
+                    }
+                }
                 final Script command = new Script(_manageSnapshotPath, cmd.getWaitInMillSeconds(), logger);
-                command.add("-b", isCreatedFromVmSnapshot ? snapshotDisk.getPath() + "@" + snapshot.getPath() : snapshot.getPath());
-                command.add(NAME_OPTION, snapshotName);
+                command.add("-b", baseDir);
+                command.add(NAME_OPTION, nameForScript);
                 command.add("-p", snapshotDestPath);
 
                 descName = UUID.randomUUID().toString();
