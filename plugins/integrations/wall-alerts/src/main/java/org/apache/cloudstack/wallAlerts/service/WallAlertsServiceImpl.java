@@ -131,13 +131,17 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                         final OffsetDateTime nowTs = OffsetDateTime.now();
                         for (final SilenceDto s : activeSilences) {
                             final String uid = silenceRuleUid(s); // 이미 클래스에 구현되어 있음
-                            if (uid == null || uid.isBlank()) continue;
+                            if (uid == null || uid.isBlank()) {
+                                continue;
+                            }
 
                             // 시간상 지금 활성인지 최종 체크 (API가 active를 주더라도 안전망)
                             final OffsetDateTime st = s.getStartsAt();
                             final OffsetDateTime en = s.getEndsAt();
                             final boolean isActive = (st == null || !nowTs.isBefore(st)) && (en == null || nowTs.isBefore(en));
-                            if (!isActive) continue;
+                            if (!isActive) {
+                                continue;
+                            }
 
                             // 여러 개면 "가장 빨리 끝나는" 사일런스를 선택 (UI 표시가 직관적)
                             final SilenceDto prev = activeSilenceByUid.get(uid);
@@ -151,15 +155,15 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                 }
 
                 // 기존 필터 (id 제외)
-                final String nameFilter  = cmd.getName();
+                final String nameFilter = cmd.getName();
                 final String stateFilter = cmd.getState();
-                final String kindFilter  = cmd.getKind();
-                final String keyword     = cmd.getKeyword();
+                final String kindFilter = cmd.getKind();
+                final String keyword = cmd.getKeyword();
 
-                final String nameFilterL  = nameFilter  == null ? null : nameFilter.toLowerCase(Locale.ROOT);
+                final String nameFilterL = nameFilter == null ? null : nameFilter.toLowerCase(Locale.ROOT);
                 final String stateFilterL = stateFilter == null ? null : stateFilter.toLowerCase(Locale.ROOT);
-                final String kindFilterL  = kindFilter  == null ? null : kindFilter.toLowerCase(Locale.ROOT);
-                final String keywordL     = keyword     == null ? null : keyword.toLowerCase(Locale.ROOT);
+                final String kindFilterL = kindFilter == null ? null : kindFilter.toLowerCase(Locale.ROOT);
+                final String keywordL = keyword == null ? null : keyword.toLowerCase(Locale.ROOT);
 
                 final java.util.List<WallAlertRuleResponse> filtered = new java.util.ArrayList<>();
 
@@ -179,7 +183,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
 
                             final String groupName = g.name;
                             final String ruleTitle = r.name;
-                            final String ruleKind  = r.labels != null ? r.labels.get("kind") : null;
+                            final String ruleKind = r.labels != null ? r.labels.get("kind") : null;
                             final String ruleExprN = normExpr(r.query);
 
                             // ----- 임계치/연산자 병합을 위한 정의 찾기 -----
@@ -249,9 +253,12 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                                 }
                             }
                             // ----- ▲ UID 필터 끝 ▲ -----
+
                             if (resolvedUid != null && !resolvedUid.isBlank()) {
                                 final ThresholdDef defByUid = tIndex.byUid.get(resolvedUid);
-                                if (defByUid != null) def = defByUid;
+                                if (defByUid != null) {
+                                    def = defByUid;
+                                }
                             }
 
                             // 나머지 필터들(name/state/kind/keyword) 유지
@@ -274,11 +281,11 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                                 }
                             }
                             if (keywordL != null && !keywordL.isBlank()) {
-                                final String nm  = ruleTitle  == null ? "" : ruleTitle.toLowerCase(Locale.ROOT);
-                                final String grp = groupName  == null ? "" : groupName.toLowerCase(Locale.ROOT);
-                                final String q   = r.query    == null ? "" : r.query.toLowerCase(Locale.ROOT);
-                                final String op  = (def != null && def.operator  != null) ? def.operator.toLowerCase(Locale.ROOT) : "";
-                                final String th  = (def != null && def.threshold != null) ? String.valueOf(def.threshold).toLowerCase(Locale.ROOT) : "";
+                                final String nm = ruleTitle == null ? "" : ruleTitle.toLowerCase(Locale.ROOT);
+                                final String grp = groupName == null ? "" : groupName.toLowerCase(Locale.ROOT);
+                                final String q = r.query == null ? "" : r.query.toLowerCase(Locale.ROOT);
+                                final String op = (def != null && def.operator != null) ? def.operator.toLowerCase(Locale.ROOT) : "";
+                                final String th = (def != null && def.threshold != null) ? String.valueOf(def.threshold).toLowerCase(Locale.ROOT) : "";
                                 final String th2 = (def != null && def.threshold2 != null) ? String.valueOf(def.threshold2).toLowerCase(Locale.ROOT) : "";
                                 if (!(nm.contains(keywordL) || grp.contains(keywordL) || q.contains(keywordL)
                                         || op.contains(keywordL) || th.contains(keywordL) || th2.contains(keywordL))) {
@@ -295,8 +302,8 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                                 resp.setUid(sanitizeXmlText(resolvedUid));
                             }
 
-                            final String safeKey   = sanitizeXmlText(key);
-                            final String safeName  = sanitizeXmlText(ruleTitle);
+                            final String safeKey = sanitizeXmlText(key);
+                            final String safeName = sanitizeXmlText(ruleTitle);
                             final String safeGroup = sanitizeXmlText(groupName);
 
                             // ★ id는 uid로 통일(레거시 id 충돌 방지)
@@ -332,6 +339,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                             resp.setLabels(sanitizeXmlMap(r.labels));
                             resp.setAnnotations(sanitizeXmlMap(r.annotations));
                             resp.setKind(sanitizeXmlText(ruleKind));
+
                             // pause 상태 반영: Ruler 인덱스(def)에서 가져와 내려줍니다
                             Boolean pausedB = pausedFromRulerByUid(rulerAll, resolvedUid);
                             if (pausedB == null && def != null) {
@@ -413,9 +421,9 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
 
                             if (resolvedUid != null && ruleIsAlerting && !paused && !silencedNow) {
                                 // 이미 위에서 채운 def(임계/연산자)를 그대로 사용합니다.
-                                final String op   = (def != null ? def.operator   : null);
-                                final Double th1  = (def != null ? def.threshold  : null);
-                                final Double th2  = (def != null ? def.threshold2 : null);
+                                final String op = (def != null ? def.operator : null);
+                                final Double th1 = (def != null ? def.threshold : null);
+                                final Double th2 = (def != null ? def.threshold2 : null);
 
                                 // 인스턴스 라벨을 기반으로 대상 요약 문자열을 생성합니다.
                                 // resp.getInstances()는 우리가 바로 위에서 채운 instList입니다.
@@ -439,19 +447,32 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         }
 
         // 2) 페이징(받은 순서 그대로 슬라이스)
-        final int startIndex = (cmd.getStartIndex() == null) ? 0 : Math.max(0, cmd.getStartIndex().intValue());
+        // - UI는 page/pagesize를 보내는 경우가 많고, startIndex가 null/0으로 들어올 수 있습니다.
+        // - page > 1인데 startIndex가 비어 있으면 (page - 1) * pageSize로 보정합니다.
         final Long psv = cmd.getPageSizeVal();
         final int pageSize = (psv == null || psv <= 0L) ? Integer.MAX_VALUE : psv.intValue();
 
+        int startIndex = 0;
+        if (cmd.getStartIndex() != null) {
+            startIndex = Math.max(0, cmd.getStartIndex().intValue());
+        } else {
+            // BaseListCmd가 startIndex를 자동 계산하지 않는/막히는 환경 대비 보정입니다.
+            final Integer page = cmd.getPage();
+            if (page != null && page.intValue() > 1 && pageSize != Integer.MAX_VALUE) {
+                startIndex = (page.intValue() - 1) * pageSize;
+            }
+        }
+
         final int total = base.size();
         final int from = Math.min(startIndex, total);
-        final int to   = Math.min(from + pageSize, total);
+        final int to = Math.min(from + pageSize, total);
         final java.util.List<WallAlertRuleResponse> page = new java.util.ArrayList<>(base.subList(from, to));
 
         final ListResponse<WallAlertRuleResponse> out = new ListResponse<>();
         out.setResponses(page, total);
         return out;
     }
+
 
 
 

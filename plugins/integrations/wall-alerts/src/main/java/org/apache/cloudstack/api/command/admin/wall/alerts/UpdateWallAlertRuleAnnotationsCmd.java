@@ -41,6 +41,11 @@ import org.apache.cloudstack.wallAlerts.service.WallAlertsService;
 public class UpdateWallAlertRuleAnnotationsCmd extends BaseCmd {
     public static final String APINAME = "updateWallAlertRuleAnnotations";
 
+    // CloudStack 기본 파라미터 길이(255)에 걸려 긴 마크다운 저장이 실패하므로,
+    // summary/description 길이를 명시적으로 크게 늘립니다.
+    // (실제 저장은 Grafana Ruler JSON에 들어가므로 서버/프록시 바디 제한만 허용되면 길게 저장 가능합니다.)
+    private static final int LONG_TEXT_LEN = 262144;
+
     @Inject
     private WallAlertsService wallAlertsService;
 
@@ -61,21 +66,34 @@ public class UpdateWallAlertRuleAnnotationsCmd extends BaseCmd {
     @Parameter(
             name = "summary",
             type = CommandType.STRING,
-            description = "Rule summary text. If omitted, it will not be changed."
+            description = "Rule summary text. If omitted, it will not be changed.",
+            length = LONG_TEXT_LEN
     )
     private String summary;
 
     @Parameter(
             name = "description",
             type = CommandType.STRING,
-            description = "Rule description text. If omitted, it will not be changed."
+            description = "Rule description text. If omitted, it will not be changed.",
+            length = LONG_TEXT_LEN
     )
     private String description;
 
-    public String getId() { return id; }
-    public String getUid() { return uid; }
-    public String getSummary() { return summary; }
-    public String getDescription() { return description; }
+    public String getId() {
+        return id;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 
     @Override
     public void execute() {

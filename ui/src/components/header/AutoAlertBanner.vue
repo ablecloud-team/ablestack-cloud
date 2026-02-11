@@ -25,7 +25,7 @@
                 <div class="summary-modern-text">
                   <div class="summary-modern-title">
                     <span class="summary-modern-title-text">
-                      {{ tr('message.alerting.title', '경보: 시스템 경고 감지') }}
+                      {{ tr('message.alerting.title', '주요 시스템 경보 감지') }}
                     </span>
                     <span class="summary-modern-count">
                       ({{ alertingCount }}{{ trCountUnit() }})
@@ -35,7 +35,7 @@
                   <div class="summary-modern-desc">
                     <span class="summary-bullet">-</span>
                     <span class="summary-desc-text">
-                      {{ tr('message.alerting.desc', '주요 시스템 리소스 임계치 초과 및 상태 변경이 감지되어 확인이 필요합니다.') }}
+                      {{ tr('message.alerting.desc', '주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.') }}
                     </span>
                   </div>
                 </div>
@@ -68,22 +68,21 @@
       :zIndex="2147483648"
       :getContainer="getPopupParent"
       :maskClosable="true"
+      :closable="false"
+      :closeIcon="null"
       :destroyOnClose="false"
     >
       <template #title>
         <div class="drawer-title">
-          <span class="drawer-title-icon">
-            <ExclamationCircleFilled />
-          </span>
           <div class="drawer-title-text">
             <div class="drawer-title-main">
-              {{ tr('message.alerting.title', '조치가 필요한 경고') }}
+              {{ tr('message.alerting.title', '조치가 필요한 경보') }}
               <span class="drawer-title-count">({{ alertingCount }}{{ trCountUnit() }})</span>
             </div>
 
             <div class="drawer-title-sub">
               <div>
-                - {{ tr('message.alerting.desc.1', '각 항목에서 현재값·임계값을 확인하고 해결방안을 확인하세요.') }}
+                - {{ tr('message.alerting.desc.1', '각 항목에서 최대값·임계값을 확인하고 해결방안을 확인하세요.') }}
               </div>
               <div>
                 - {{ tr('message.alerting.desc.2', '반복 알림은 사일런스(임시) 또는 일시 정지로 제어하세요.') }}
@@ -115,7 +114,7 @@
               class="drawer-item-alert"
               :type="'error'"
               :show-icon="false"
-              :closable="true"
+              :closable="false"
               :banner="false"
               @close="() => onAlertCloseStart(it)"
               @afterClose="() => onAlertClosed(it)"
@@ -487,31 +486,52 @@
                         <!-- Solution -->
                         <a-popover
                           placement="topLeft"
-                          :trigger="['click']"
-                          :overlayClassName="'solution-popover'"
-                          :overlayStyle="{ zIndex: 2147483650 }"
-                          :getPopupContainer="getPopupParent"
+                          trigger="hover"
+                          overlayClassName="solution-popover"
+                          :getPopupContainer="getPopupContainerBody"
+                          :overlayStyle="getSolutionOverlayStyle()"
+                          :visible="isSolutionPopoverVisible(it)"
+                          @visible-change="onSolutionVisibleChange($event, it)"
+                          :mouse-enter-delay="0"
+                          :mouse-leave-delay="0.5"
                         >
                           <template #content>
-                            <div class="solution-popover-title">
-                              {{ tr('label.solution', '해결 방안') }}
-                            </div>
+                            <div class="solution-popover-unified">
+                              <!-- Header -->
+                              <div class="solution-popover-header" :class="solutionSeverityHeaderClass(it)">
+                                <div class="sp-header-kicker">
+                                  TROUBLESHOOTING
+                                </div>
 
-                            <div class="solution-popover-section">
-                              <div class="solution-popover-label">
-                                {{ tr('label.summary', '요약') }}
+                                <div class="sp-header-row">
+                                  <div class="sp-header-title">
+                                    {{ solutionHeaderTitle(it) }}
+                                  </div>
+                                </div>
                               </div>
-                              <div class="solution-popover-text">
-                                {{ solutionSummaryText(it) }}
-                              </div>
-                            </div>
 
-                            <div class="solution-popover-section">
-                              <div class="solution-popover-label">
-                                {{ tr('label.description', '설명') }}
-                              </div>
-                              <div class="solution-popover-text">
-                                {{ solutionDescriptionText(it) }}
+                              <!-- Body (scroll) -->
+                              <div class="solution-popover-body">
+                                <div class="sp-body-section">
+                                  <div class="sp-body-label-chip">
+                                    {{ tr('label.summary', '요약') }}
+                                  </div>
+                                  <div class="sp-body-box">
+                                    {{ solutionSummaryText(it) }}
+                                  </div>
+                                </div>
+
+                                <div class="sp-body-section">
+                                  <div class="sp-body-label-chip">
+                                    {{ tr('label.solution', '해결 방안') }}
+                                  </div>
+                                  <div class="sp-body-box sp-body-box--md">
+                                    <div
+                                      class="solution-popover-text"
+                                      v-html="renderSolutionDescriptionHtml(it)"
+                                    ></div>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </template>
@@ -520,11 +540,9 @@
                             size="small"
                             type="default"
                             class="solution-menu"
+                            @click.stop="goSolutionTab(it)"
                           >
-                            <span class="icon-stack">
-                              <LinkOutlined class="icon-link" />
-                            </span>
-                            {{ tr('label.action.solution', '해결방안 보기') }}
+                            {{ tr('label.action.solution', '해결 방안') }}
                           </a-button>
                         </a-popover>
 
@@ -560,7 +578,7 @@
             </a-alert>
 
             <div v-if="!visibleAlerts.length" class="drawer-empty">
-              {{ tr('message.no.alerts', '현재 표시할 경고가 없습니다.') }}
+              {{ tr('message.no.alerts', '현재 표시할 경보가 없습니다.') }}
             </div>
           </div>
         </div>
@@ -627,6 +645,8 @@ import {
 import { ExclamationCircleFilled, SoundOutlined, PauseCircleOutlined, LinkOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { api } from '@/api'
+import MarkdownIt from 'markdown-it'
+import DOMPurify from 'dompurify'
 
 export default {
   name: 'AutoAlertBanner',
@@ -637,6 +657,168 @@ export default {
     LinkOutlined,
     RuleSilenceModal: defineAsyncComponent(() => import('@/views/infra/RuleSilenceModal.vue')),
     RulePauseModal: defineAsyncComponent(() => import('@/views/infra/RulePauseModal.vue'))
+  },
+  created () {
+    this.md = new MarkdownIt({
+      html: false,
+      linkify: true,
+      breaks: false
+    })
+  },
+  data () {
+    return {
+      solutionPopoverUid: '',
+      solutionPopoverOverlayStyle: { zIndex: 2147483650 }
+    }
+  },
+  methods: {
+    solutionHeaderTitle (it) {
+      // 규칙명 우선, 없으면 uid/kind로 대체합니다.
+      const name = (it && it.name) || (it && it.rule && it.rule.name) || ''
+      if (name) {
+        return name
+      }
+
+      const uid = (it && it.uid) || (it && it.rule && it.rule.uid) || ''
+      const kind = (it && it.kind) || ''
+      return uid || (kind || this.tr('label.solution', '해결 방안'))
+    },
+
+    solutionSeverityText (it) {
+      const state = (it && it.state) || (it && it.rule && it.rule.state) || ''
+      if (state === 'ALERTING' || state === 'FIRING') {
+        return 'Critical'
+      }
+      if (state === 'PENDING') {
+        return 'Warning'
+      }
+      if (state === 'NODATA') {
+        return 'NoData'
+      }
+      return 'Info'
+    },
+
+    solutionSeverityHeaderClass (it) {
+      const sev = this.solutionSeverityText(it)
+      if (sev === 'Critical') {
+        return 'sp-header--critical'
+      }
+      if (sev === 'Warning') {
+        return 'sp-header--warning'
+      }
+      if (sev === 'NoData') {
+        return 'sp-header--nodata'
+      }
+      return 'sp-header--info'
+    },
+
+    getPopupContainerBody () {
+      return document.body
+    },
+
+    getItemUid (it) {
+      // it 래퍼/원본 모두 대응합니다.
+      return (it && it.uid) || (it && it.rule && it.rule.uid) || ''
+    },
+
+    isSolutionPopoverVisible (it) {
+      const uid = this.getItemUid(it)
+      return !!uid && this.solutionPopoverUid === uid
+    },
+
+    onSolutionVisibleChange (visible, it) {
+      const uid = this.getItemUid(it)
+      if (!uid) {
+        return
+      }
+
+      this.solutionPopoverUid = visible ? uid : ''
+    },
+
+    getDrawerTopZIndex () {
+      // drawer/mask 중 가장 높은 z-index를 찾아 그 위로 올립니다.
+      const nodes = document.querySelectorAll('.ant-drawer, .ant-drawer-mask')
+      let maxZ = 1000
+
+      nodes.forEach((el) => {
+        const z = parseInt(window.getComputedStyle(el).zIndex, 10)
+        if (Number.isFinite(z) && z > maxZ) {
+          maxZ = z
+        }
+      })
+
+      return maxZ
+    },
+
+    getSolutionOverlayStyle () {
+      return { zIndex: this.getDrawerTopZIndex() + 50 }
+    },
+
+    closeDrawerForNavigation () {
+      // 기존 닫기 로직이 있으면 그 로직을 최우선으로 재사용합니다.
+      if (typeof this.onDrawerClose === 'function') {
+        this.onDrawerClose()
+        return
+      }
+
+      if (typeof this.closeDrawer === 'function') {
+        this.closeDrawer()
+        return
+      }
+
+      // 파일마다 이름이 달라도 안전하게 닫히도록 흔한 상태값만 정리합니다.
+      if (Object.prototype.hasOwnProperty.call(this, 'drawerVisible')) {
+        this.drawerVisible = false
+      }
+
+      if (Object.prototype.hasOwnProperty.call(this, 'drawerOpen')) {
+        this.drawerOpen = false
+      }
+
+      if (Object.prototype.hasOwnProperty.call(this, 'maskOn')) {
+        this.maskOn = false
+      }
+    },
+    renderMarkdownSafe (text) {
+      const src = (text || '').trim()
+      if (!src) {
+        return '<div class="solution-empty">내용이 없습니다.</div>'
+      }
+
+      const html = this.md.render(src)
+      return DOMPurify.sanitize(html)
+    },
+    renderSolutionDescriptionHtml (it) {
+      return this.renderMarkdownSafe(this.solutionDescriptionText(it))
+    },
+
+    goSolutionTab (it) {
+      const uid = this.getItemUid(it)
+      if (!uid) {
+        return
+      }
+
+      // 1) popover는 즉시 닫습니다.
+      this.solutionPopoverUid = ''
+
+      // 2) drawer도 즉시 닫습니다.
+      this.closeDrawerForNavigation()
+
+      // 3) 그 다음 탭 이동 라우팅을 수행합니다.
+      const path = `/alertRules/${encodeURIComponent(uid)}`
+      const query = { tab: 'solution' }
+
+      if (this.$router && typeof this.$router.push === 'function') {
+        this.$router.push({ path, query }).catch((e) => {
+          if (e && e.name !== 'NavigationDuplicated') {
+            console.log(e)
+          }
+        })
+        return
+      }
+
+      window.location.hash = `#/alertRules/${encodeURIComponent(uid)}?tab=solution`
+    }
   },
   setup () {
     const ORIGIN = typeof window !== 'undefined' ? window.location.origin : ''
@@ -2693,12 +2875,6 @@ export default {
 }
 
 /* ===== 요약(상단) 배너 ===== */
-.auto-alert-banner-container :deep(.ant-alert.alert-summary) {
-  padding: 10px 12px !important;
-}
-.auto-alert-banner-container :deep(.ant-alert.alert-summary .ant-alert-message) {
-  width: 100%;
-}
 
 .summary-modern {
   width: 100%;
@@ -2790,19 +2966,6 @@ export default {
   min-width: 0;
 }
 
-.drawer-title-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #fff1f0;
-  border: 1px solid #ffccc7;
-  color: #ff4d4f;
-  flex: 0 0 auto;
-}
-
 .drawer-title-text {
   display: flex;
   flex-direction: column;
@@ -2811,7 +2974,7 @@ export default {
 }
 
 .drawer-title-main {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   color: rgba(0, 0, 0, 0.88);
   line-height: 1.2;
@@ -2876,46 +3039,7 @@ export default {
   overflow: hidden;
 }
 
-:deep(.drawer-item-alert .ant-alert-content) {
-  width: 100%;
-  margin: 0 !important;
-}
-
-:deep(.drawer-item-alert .ant-alert-message) {
-  width: 100%;
-}
-
 /* 닫기(X) 아이콘 */
-:deep(.drawer-item-alert .ant-alert-close-icon) {
-  position: absolute !important;
-  top: 11px !important;
-  right: 12px !important;
-  left: auto !important;
-  margin: 0 !important;
-  width: 12px;
-  height: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(0, 0, 0, 0.45);
-  border-radius: 50%;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-:deep(.drawer-item-alert .ant-alert-close-icon .anticon) {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-:deep(.drawer-item-alert .ant-alert-close-icon:hover) {
-  background-color: rgba(0, 0, 0, 0.08);
-  color: rgba(0, 0, 0, 0.88);
-}
-
-:deep(.drawer-item-alert .ant-alert-close-icon:active) {
-  background-color: rgba(0, 0, 0, 0.15);
-}
 
 /* Drawer Item Layout */
 .drawer-item {
@@ -2948,15 +3072,6 @@ export default {
   flex-direction: column;
   gap: 4px;
   min-width: 0;
-}
-
-.drawer-item-meta {
-  font-size: 12px;
-  line-height: 18px;
-  color: rgba(0, 0, 0, 0.55);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .drawer-item-meta-row {
@@ -3037,21 +3152,6 @@ export default {
   color: rgba(0, 0, 0, 0.88);
 }
 
-.target-metric-popover-title {
-  margin-bottom: 8px;
-  color: rgba(0, 0, 0, 0.65);
-  font-size: 12px;
-  line-height: 18px;
-}
-
-.target-more-section-title {
-  margin: 10px 0 4px;
-  font-size: 12px;
-  line-height: 18px;
-  font-weight: 700;
-  color: rgba(0, 0, 0, 0.65);
-}
-
 .target-more-popover {
   display: flex;
   flex-direction: column;
@@ -3083,19 +3183,6 @@ export default {
 
 .target-value-link:hover {
   text-decoration: underline;
-}
-
-.target-line-breached {
-  margin-top: 2px;
-}
-
-.target-label-breached {
-  color: #cf1322;
-}
-
-.target-value-link-breached {
-  color: #cf1322;
-  font-weight: 700;
 }
 
 .target-value-metric {
@@ -3131,32 +3218,6 @@ export default {
   line-height: 20px;
 }
 
-.drawer-item-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.drawer-item-title-left {
-  min-width: 0;
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  overflow: hidden;
-}
-
-.drawer-item-metric {
-  flex: 0 0 auto;
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.45);
-  white-space: nowrap;
-  max-width: 220px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .drawer-item-title {
   font-size: 14px;
   font-weight: 700;
@@ -3175,77 +3236,11 @@ export default {
   text-decoration: underline;
 }
 
-.drawer-item-time {
-  flex: 0 0 auto;
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.45);
-}
-
 /* Targets */
-.drawer-item-targets {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.target-block {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  min-width: 0;
-}
 
 /* '대상 호스트/대상 VM'은 태그 형태를 제거하고 라벨 텍스트로만 표시합니다 */
-.target-kind {
-  flex: 0 0 auto;
-  padding-top: 2px;
-  line-height: 20px;
-}
-
-.target-kind-label {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.55);
-  white-space: nowrap;
-}
-
-.target-chip-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  min-width: 0;
-}
 
 /* 실제 대상(호스트/VM)은 클릭 가능한 '칩'으로 표시합니다 */
-.tag-link {
-  border: 1px solid rgba(0, 0, 0, 0.14);
-  background: rgba(0, 0, 0, 0.02);
-  border-radius: 999px;
-  padding: 0 8px;
-  font-size: 11px;
-  line-height: 22px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.tag-link:hover {
-  border-color: rgba(0, 0, 0, 0.28);
-}
-
-.tag-more {
-  display: inline-flex;
-  align-items: center;
-  height: 22px;
-  border: 1px dashed rgba(0, 0, 0, 0.22);
-  border-radius: 999px;
-  padding: 0 8px;
-  font-size: 11px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.6);
-  user-select: none;
-}
 
 /* Drawer Actions */
 .drawer-item-actions {
@@ -3272,11 +3267,6 @@ export default {
   line-height: 16px;
 }
 
-.icon-stack .icon-link {
-  font-size: 15px;
-  line-height: 16px;
-}
-
 /* banner-actions 중복 제거: 이 정의 하나만 사용 */
 .banner-actions {
   margin-left: 0;
@@ -3297,12 +3287,6 @@ export default {
   justify-content: center;
 }
 /* Popover */
-.more-pop {
-  max-width: 280px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
 
 /* 반응형 */
 @media (max-width: 768px) {
@@ -3318,30 +3302,12 @@ export default {
   }
 }
 
-.solution-popover {
-  max-width: 460px;
-}
+/* 요약/설명 내용을 박스로 감싸서 “구분”을 만듭니다 */
 
-.solution-popover-title {
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.solution-popover-section {
-  margin-bottom: 10px;
-}
-
-.solution-popover-label {
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.55);
-  margin-bottom: 4px;
-}
-
-.solution-popover-text {
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.88);
-  white-space: pre-line;
+.solution-popover-box .solution-popover-text {
+  white-space: normal;
   word-break: break-word;
+  line-height: 1.5;
 }
 /* =========================================================
  * Wall Alerts (AutoAlertBanner + Drawer + Popover) Dark Mode
@@ -3351,51 +3317,15 @@ export default {
 /* -------------------------
  * 1) 상단 메인 배너(요약)
  * ------------------------- */
-body.dark-mode .auto-alert-banner-container .alert-summary {
-  background: #141414 !important;
-  border-color: #303030 !important;
-}
-
-body.dark-mode .auto-alert-banner-container .summary-modern-title-text,
-body.dark-mode .auto-alert-banner-container .summary-modern-desc,
-body.dark-mode .auto-alert-banner-container .summary-bullet,
-body.dark-mode .auto-alert-banner-container .summary-modern-count {
-  color: rgba(255, 255, 255, 0.88) !important;
-}
-
-body.dark-mode .auto-alert-banner-container .ant-btn,
-body.dark-mode .auto-alert-banner-container .ant-btn > span,
-body.dark-mode .auto-alert-banner-container .ant-btn .anticon {
-  color: rgba(255, 255, 255, 0.9) !important;
-}
 
 /* --------------------------------
  * 2) Drawer 헤더(전체 ant-drawer)
  * - “상단이 안 보임” 해결을 위해 전역으로 강제
  * -------------------------------- */
-body.dark-mode .ant-drawer-header,
-body.dark-mode .ant-drawer-wrapper-body {
-  background: #0f0f0f !important;
-}
-
-body.dark-mode .ant-drawer-header {
-  background: #141414 !important;
-  border-bottom: 1px solid #303030 !important;
-}
-
-body.dark-mode .ant-drawer-close,
-body.dark-mode .ant-drawer-close *,
-body.dark-mode .ant-drawer-close-icon,
-body.dark-mode .ant-drawer-close-icon * {
-  color: rgba(255, 255, 255, 0.88) !important;
-}
 
 /* --------------------------------
  * 3) AutoAlertBanner Drawer 본문 (wall-alert-drawer 범위)
  * -------------------------------- */
-body.dark-mode .wall-alert-drawer .ant-drawer-body {
-  background: #0f0f0f !important;
-}
 
 /* Drawer 상단 툴바(“모두 읽음 처리/닫기” 영역이 있으면) */
 body.dark-mode .wall-alert-drawer .drawer-toolbar {
@@ -3408,17 +3338,7 @@ body.dark-mode .wall-alert-drawer .drawer-toolbar * {
   color: rgba(255, 255, 255, 0.85) !important;
 }
 
-body.dark-mode .wall-alert-drawer .drawer-toolbar .ant-btn-link,
-body.dark-mode .wall-alert-drawer .drawer-toolbar .ant-btn-link > span {
-  color: rgba(255, 255, 255, 0.88) !important;
-}
-
-/* 카드(각 경고 항목) */
-body.dark-mode .wall-alert-drawer .drawer-item-alert,
-body.dark-mode .wall-alert-drawer .ant-alert.drawer-item-alert {
-  background: #141414 !important;
-  border: 1px solid #303030 !important;
-}
+/* 카드(각 경보 항목) */
 
 /* 카드 타이틀 */
 body.dark-mode .wall-alert-drawer .drawer-item-title,
@@ -3435,11 +3355,6 @@ body.dark-mode .wall-alert-drawer .drawer-item-meta-row * {
 }
 
 /* 메트릭 값은 조금 더 선명하게 */
-body.dark-mode .wall-alert-drawer .metric-v,
-body.dark-mode .wall-alert-drawer .metric-current,
-body.dark-mode .wall-alert-drawer .metric-threshold {
-  color: rgba(255, 255, 255, 0.9) !important;
-}
 
 /* 카드 내부 구분선 */
 body.dark-mode .wall-alert-drawer .drawer-item-divider {
@@ -3462,64 +3377,410 @@ body.dark-mode .wall-alert-drawer .target-value-link {
 }
 
 /* Drawer 버튼(해결방안/사일런스/일시정지) */
-body.dark-mode .wall-alert-drawer .ant-btn {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border-color: rgba(255, 255, 255, 0.18) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-body.dark-mode .wall-alert-drawer .ant-btn > span,
-body.dark-mode .wall-alert-drawer .ant-btn .anticon {
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-body.dark-mode .wall-alert-drawer .ant-btn:hover,
-body.dark-mode .wall-alert-drawer .ant-btn:focus {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.28) !important;
-}
 
 /* -------------------------
  * 4) Popover(해결방안/대상/메트릭)
  * ------------------------- */
-body.dark-mode .solution-popover .ant-popover-inner {
-  background: #141414 !important;
-  border: 1px solid #303030 !important;
-}
-
-body.dark-mode .solution-popover .ant-popover-inner-content,
-body.dark-mode .solution-popover .solution-popover-title,
-body.dark-mode .solution-popover .solution-popover-label,
-body.dark-mode .solution-popover .solution-popover-text {
-  color: rgba(255, 255, 255, 0.88) !important;
-}
 
 body.dark-mode .target-more-popover,
 body.dark-mode .target-more-popover * {
   color: rgba(255, 255, 255, 0.88) !important;
 }
 
-body.dark-mode .solution-popover .ant-popover-arrow-content,
-body.dark-mode .ant-popover .ant-popover-arrow-content {
-  background: #141414 !important;
+.solution-popover-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 헤더: 과한 컬러 제거, 기존 템플릿 톤(연한 배경/보더)로 통일 */
+:deep(.solution-popover-header) {
+  padding: 12px 14px;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+/* 상태별 포인트는 “왼쪽 얇은 라인”으로만 줍니다 */
+:deep(.solution-popover-header.sp-header--critical) {
+  border-left: 3px solid #ff4d4f;
+}
+:deep(.solution-popover-header.sp-header--warning) {
+  border-left: 3px solid #faad14;
+}
+:deep(.solution-popover-header.sp-header--nodata) {
+  border-left: 3px solid #8c8c8c;
+}
+:deep(.solution-popover-header.sp-header--info) {
+  border-left: 3px solid #1677ff;
+}
+
+:deep(.sp-header-kicker) {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: rgba(0, 0, 0, 0.45);
+  margin-bottom: 6px;
+}
+
+:deep(.sp-header-row) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+:deep(.sp-header-title) {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.25;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:deep(.sp-header-sub) {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(0, 0, 0, 0.60);
+}
+
+/* 배지: Ant 팔레트처럼 “은은한 배경+보더” */
+:deep(.sp-severity) {
+  flex: 0 0 auto;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 22px;
+  border: 1px solid transparent;
+}
+
+:deep(.sp-severity--critical) {
+  background: #fff1f0;
+  border-color: #ffccc7;
+  color: #cf1322;
+}
+
+:deep(.sp-severity--warning) {
+  background: #fff7e6;
+  border-color: #ffd591;
+  color: #d48806;
+}
+
+:deep(.sp-severity--nodata) {
+  background: #f5f5f5;
+  border-color: #d9d9d9;
+  color: #595959;
+}
+
+:deep(.sp-severity--info) {
+  background: #e6f4ff;
+  border-color: #91caff;
+  color: #1677ff;
+}
+
+/* 다크모드: 헤더도 과하지 않게 */
+:deep(body.dark-mode .solution-popover-header) {
+  background: #141414;
+  border-bottom-color: #303030;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+:deep(body.dark-mode .sp-header-kicker) {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+:deep(body.dark-mode .sp-header-sub) {
+  color: rgba(255, 255, 255, 0.70);
+}
+
+:deep(body.dark-mode .sp-severity--critical) {
+  background: rgba(255, 77, 79, 0.12);
+  border-color: rgba(255, 77, 79, 0.30);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+:deep(body.dark-mode .sp-severity--warning) {
+  background: rgba(250, 173, 20, 0.12);
+  border-color: rgba(250, 173, 20, 0.30);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+:deep(body.dark-mode .sp-severity--nodata) {
+  background: rgba(140, 140, 140, 0.18);
+  border-color: rgba(140, 140, 140, 0.30);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+:deep(body.dark-mode .sp-severity--info) {
+  background: rgba(22, 119, 255, 0.12);
+  border-color: rgba(22, 119, 255, 0.30);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+:deep(.solution-popover .ant-popover-inner-content) {
+  max-width: calc(100vw - 48px);
+  max-height: 560px;
+  overflow: auto;
+  padding: 0;
+}
+
+/* unified 래퍼는 더 이상 높이/스크롤을 가지지 않습니다 */
+:deep(.solution-popover-unified) {
+  width: 700px;
+  max-width: calc(100vw - 48px);
+}
+
+:deep(.solution-popover-body) {
+  flex: 1 1 auto;
+  min-height: 0;        /* flex 내부 overflow 필수 */
+  overflow: auto;
+  max-height: none;     /* 기존 max-height 있으면 제거 */
+}
+
+:deep(.solution-popover-header) {
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 </style>
 
 <style>
 :root { --autoBannerHeight: 0px; }
 
+body.dark-mode .drawer-title-main,
+body.dark-mode .drawer-title-sub {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+/* 팝오버 외곽 폭 제한 */
+.solution-popover.ant-popover {
+  width: 700px;
+  max-width: calc(100vw - 48px);
+}
+
+/* 스크롤 컨테이너는 inner-content가 담당 */
+.solution-popover.ant-popover .ant-popover-inner-content {
+  box-sizing: border-box;
+  padding: 12px;
+  max-height: 560px;
+  overflow: auto;
+}
+
+/* 카드 래퍼 */
+.solution-popover .solution-popover-unified {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+/* 헤더: 스크롤 중에도 상단 고정 */
+.solution-popover .solution-popover-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: inherit;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 12px 14px;
+}
+
+/* body는 스크롤을 만들지 않음(스크롤은 inner-content가 담당) */
+.solution-popover .solution-popover-body {
+  overflow: visible;
+  max-height: none;
+  padding: 12px 14px;
+}
+
+/* 라벨 칩 */
+.solution-popover .sp-body-label-chip {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 32px;
+  color: rgba(0, 0, 0, 0.88);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-left: 3px solid rgba(0, 0, 0, 0.18);
+  margin: 0 0 8px;
+}
+
+/* 요약/해결방안 박스 */
+.solution-popover .sp-body-box {
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fafafa;
+  color: rgba(0, 0, 0, 0.88);
+  line-height: 1.45;
+}
+
+/* 섹션 간격 */
+.solution-popover .sp-body-section {
+  margin-bottom: 12px;
+}
+.solution-popover .sp-body-section:last-child {
+  margin-bottom: 0;
+}
+
+/* 라벨 대비 내용만 살짝 안쪽으로(요약/해결방안 공통) */
+.solution-popover .sp-body-section .sp-body-box {
+  margin-left: 12px;
+}
+
+/* 들여쓰기로 인해 너무 답답하면 폭을 살짝 보정 */
+.solution-popover .sp-body-section .sp-body-box {
+  width: calc(100% - 12px);
+}
+
+.solution-popover .sp-body-label-chip {
+  margin-bottom: 6px;
+}
+
+/* 다크 모드 */
+body.dark-mode .solution-popover .solution-popover-unified {
+  background: #0f0f0f;
+}
+
+body.dark-mode .solution-popover .solution-popover-header {
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+body.dark-mode .solution-popover .sp-body-label-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  border-left-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+body.dark-mode .solution-popover .sp-body-box {
+  background: #141414;
+  border-color: #303030;
+  color: rgba(255, 255, 255, 0.88);
+}
+/* 1) 상단 메인 배너(요약)도 어둡게 강제 */
+body.dark-mode .auto-alert-banner-container .ant-alert.alert-summary {
+  background: #141414 !important;
+  border-color: #303030 !important;
+}
+
+body.dark-mode .auto-alert-banner-container .summary-modern-title-text,
+body.dark-mode .auto-alert-banner-container .summary-modern-desc,
+body.dark-mode .auto-alert-banner-container .summary-modern-count,
+body.dark-mode .auto-alert-banner-container .summary-modern-actions .ant-btn,
+body.dark-mode .auto-alert-banner-container .summary-modern-actions .ant-btn > span,
+body.dark-mode .auto-alert-banner-container .summary-modern-actions .ant-btn .anticon {
+  color: rgba(255, 255, 255, 0.90) !important;
+}
+
+body.dark-mode .auto-alert-banner-container .summary-modern-actions .ant-btn:not(.ant-btn-primary):not(.ant-btn-dangerous) {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+/* 2) Drawer 바탕 */
+body.dark-mode .wall-alert-drawer .ant-drawer-body {
+  background: #0f0f0f !important;
+}
+
+/* 3) 카드(각 경보 항목) - 흰 배경 !important를 다크에서 강제 덮어씀 */
+body.dark-mode .wall-alert-drawer .drawer-item-alert,
+body.dark-mode .wall-alert-drawer .ant-alert.drawer-item-alert {
+  background: #141414 !important;
+  border-color: #303030 !important;
+}
+
+/* 4) 카드 텍스트/구분선/링크 */
+body.dark-mode .wall-alert-drawer .drawer-item-title,
+body.dark-mode .wall-alert-drawer .drawer-item-title * {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+body.dark-mode .wall-alert-drawer .drawer-item-meta-row,
+body.dark-mode .wall-alert-drawer .drawer-item-meta-left,
+body.dark-mode .wall-alert-drawer .drawer-item-meta-right,
+body.dark-mode .wall-alert-drawer .drawer-item-meta-row * {
+  color: rgba(255, 255, 255, 0.74) !important;
+}
+
+body.dark-mode .wall-alert-drawer .drawer-item-divider {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.dark-mode .wall-alert-drawer .drawer-item-target-line,
+body.dark-mode .wall-alert-drawer .drawer-item-target-line * {
+  color: rgba(255, 255, 255, 0.84) !important;
+}
+
+body.dark-mode .wall-alert-drawer .target-value-link {
+  color: rgba(255, 255, 255, 0.90) !important;
+  text-decoration-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* 5) 카드 하단 버튼(해결방안/사일런스/일시정지) */
+body.dark-mode .wall-alert-drawer .drawer-item-actions .ant-btn {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: rgba(255, 255, 255, 0.90) !important;
+}
+
+body.dark-mode .wall-alert-drawer .drawer-item-actions .ant-btn > span,
+body.dark-mode .wall-alert-drawer .drawer-item-actions .ant-btn .anticon {
+  color: rgba(255, 255, 255, 0.90) !important;
+}
+
+/* 6) 해결방안 팝오버 헤더 텍스트 */
+body.dark-mode .solution-popover .sp-header-kicker {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+body.dark-mode .solution-popover .sp-header-title {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+/* Ant Drawer 헤더/타이틀 영역을 전역으로 강제 */
 body.dark-mode .ant-drawer-header,
-body.dark-mode .ant-drawer-header-title {
+body.dark-mode .ant-drawer-title,
+body.dark-mode .ant-drawer-close,
+body.dark-mode .ant-drawer-close .anticon {
+  background: #141414 !important;
+  border-bottom-color: #303030 !important;
+  color: rgba(255, 255, 255, 0.90) !important;
+}
+
+/* 헤더 내부 텍스트(커스텀 title 슬롯 포함) */
+body.dark-mode .ant-drawer-header * {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+/* wall-alert-drawer 범위의 drawer-title 텍스트는 더 선명하게 */
+body.dark-mode .wall-alert-drawer .drawer-title-main,
+body.dark-mode .wall-alert-drawer .drawer-title-main * {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+body.dark-mode .wall-alert-drawer .drawer-title-sub,
+body.dark-mode .wall-alert-drawer .drawer-title-sub * {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+/* 상단 툴바(모두 읽음/닫기 줄)도 배경/보더 통일 */
+body.dark-mode .wall-alert-drawer .drawer-toolbar {
   background: #141414 !important;
   border-bottom: 1px solid #303030 !important;
 }
 
-body.dark-mode .ant-drawer-close,
-body.dark-mode .ant-drawer-close * {
-  color: rgba(255, 255, 255, 0.88) !important;
-}
-body.dark-mode .drawer-title-main,
-body.dark-mode .drawer-title-sub {
+body.dark-mode .wall-alert-drawer .drawer-toolbar .ant-btn-link,
+body.dark-mode .wall-alert-drawer .drawer-toolbar .ant-btn-link > span,
+body.dark-mode .wall-alert-drawer .drawer-toolbar .ant-btn-link .anticon {
   color: rgba(255, 255, 255, 0.88) !important;
 }
 </style>

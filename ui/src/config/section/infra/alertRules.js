@@ -56,6 +56,9 @@ export default {
   }, {
     name: 'silence',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/WallAlertSilenceTab.vue')))
+  }, {
+    name: 'solution',
+    component: shallowRef(defineAsyncComponent(() => import('@/views/infra/WallAlertSolutionTab.vue')))
   }],
   actions: [
     {
@@ -69,20 +72,6 @@ export default {
       popup: true,
       args: ['uid'],
       component: shallowRef(defineAsyncComponent(() => import('@/views/infra/WallThresholdEditor.vue')))
-    },
-    {
-      api: 'updateWallAlertRuleAnnotations',
-      permission: ['updateWallAlertRuleAnnotations'],
-      icon: 'form-outlined',
-      label: 'label.action.edit.solution',
-      message: 'message.action.edit.solution',
-      dataView: true,
-      groupAction: false, // 여러 개 동시 편집은 비권장
-      popup: true,
-      args: ['uid'],
-      component: shallowRef(
-        defineAsyncComponent(() => import('@/views/infra/WallAlertAnnotationsEditor.vue'))
-      )
     },
     {
       api: 'pauseWallAlertRule',
