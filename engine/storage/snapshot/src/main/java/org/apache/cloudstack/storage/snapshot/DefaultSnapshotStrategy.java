@@ -60,6 +60,7 @@ import com.cloud.event.UsageEventUtils;
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.hypervisor.Hypervisor;
 import com.cloud.hypervisor.Hypervisor.HypervisorType;
+import com.cloud.storage.CreateSnapshotPayload;
 import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.Snapshot;
 import com.cloud.storage.SnapshotVO;
@@ -545,15 +546,18 @@ public class DefaultSnapshotStrategy extends SnapshotStrategyBase {
     @DB
     public SnapshotInfo takeSnapshot(SnapshotInfo snapshot) {
         SnapshotInfo snapshotOnPrimary = null;
-        // #10265 PR로 quiescevm 옵션 활성화한 경우 예외처리되어 임시 주석 처리
-        // Object payload = snapshot.getPayload();
-        // CreateSnapshotPayload createSnapshotPayload = null;
-        // if (payload != null) {
-        //     createSnapshotPayload = (CreateSnapshotPayload)payload;
-        //     if (createSnapshotPayload.getQuiescevm()) {
-        //         throw new InvalidParameterValueException("can't handle quiescevm equal true for volume snapshot");
-        //     }
-        // }
+        Object payload = snapshot.getPayload();
+        CreateSnapshotPayload createSnapshotPayload = null;
+        if (payload != null) {
+            createSnapshotPayload = (CreateSnapshotPayload)payload;
+            if (createSnapshotPayload.getQuiescevm()) {
+                // #10265 PR로 quiescevm 옵션 활성화한 경우 예외처리 제외
+                VolumeInfo volumeInfo = snapshot.getBaseVolume();
+                if (volumeInfo.getFormat() != ImageFormat.QCOW2) {
+                    throw new InvalidParameterValueException("can't handle quiescevm equal true for volume snapshot that are not of type qcow2.");
+                }
+            }
+        }
 
         SnapshotVO snapshotVO = snapshotDao.acquireInLockTable(snapshot.getId());
         if (snapshotVO == null) {
