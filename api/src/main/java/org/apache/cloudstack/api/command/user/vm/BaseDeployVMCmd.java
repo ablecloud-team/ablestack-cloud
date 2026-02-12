@@ -108,6 +108,9 @@ public abstract class BaseDeployVMCmd extends BaseAsyncCreateCustomIdCmd impleme
     @Parameter(name = ApiConstants.BOOT_INTO_SETUP, type = CommandType.BOOLEAN, required = false, description = "Boot into hardware setup or not (ignored if startVm = false, only valid for vmware)", since = "4.15.0.0")
     private Boolean bootIntoSetup;
 
+    @Parameter(name = ApiConstants.TPM_VERSION, type = CommandType.STRING, required = false, description = "Boot with TPM", since = "4.18.0.0")
+    private String tpmversion;
+
     //DataDisk information
     @ACL
     @Parameter(name = ApiConstants.DISK_OFFERING_ID, type = CommandType.UUID, entityType = DiskOfferingResponse.class, description = "the ID of the disk offering for the virtual machine. If the template is of ISO format,"
@@ -330,6 +333,21 @@ public abstract class BaseDeployVMCmd extends BaseAsyncCreateCustomIdCmd impleme
         return null;
     }
 
+    public ApiConstants.TpmVersion getTpmVersion() {
+        if (StringUtils.isNotBlank(tpmversion)) {
+            try {
+                String type = tpmversion.trim().toUpperCase();
+                return ApiConstants.TpmVersion.valueOf(type);
+            } catch (IllegalArgumentException e) {
+                String errMesg = "Invalid TpmVersion " + tpmversion + "Specified for vm " + getName()
+                        + " Valid values are: " + Arrays.toString(ApiConstants.BootType.values());
+                logger.warn(errMesg);
+                throw new InvalidParameterValueException(errMesg);
+            }
+        }
+        return null;
+    }
+
     public Map<String, String> getDetails() {
         Map<String, String> customparameterMap = convertDetailsToMap(details);
 
@@ -339,6 +357,16 @@ public abstract class BaseDeployVMCmd extends BaseAsyncCreateCustomIdCmd impleme
 
         if (rootdisksize != null && !customparameterMap.containsKey(VmDetailConstants.ROOT_DISK_SIZE)) {
             customparameterMap.put(VmDetailConstants.ROOT_DISK_SIZE, rootdisksize.toString());
+        }
+
+        if(customparameterMap.containsKey(ApiConstants.TpmVersion.V2_0.toString())){
+            customparameterMap.put("tpmversion", customparameterMap.get(ApiConstants.TpmVersion.V2_0.toString()));
+        }else if(customparameterMap.containsKey("tpmversion")){
+            customparameterMap.put("tpmversion", customparameterMap.get("tpmversion"));
+        }else if(getTpmVersion() != null){
+            customparameterMap.put("tpmversion", getTpmVersion().toString());
+        }else{
+            customparameterMap.put("tpmversion", "NONE");
         }
 
         IoDriverPolicy ioPolicy = getIoDriverPolicy();
