@@ -601,6 +601,13 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
             throw new CloudRuntimeException("Create Instance to Snapshot failed due to Instance: " + userVm + " has root disk in " + rootVolume.getState() + " state");
         }
 
+        List<VolumeVO> volumes = _volumeDao.findByInstance(userVm.getId());
+        for (VolumeVO volume : volumes) {
+            if (userVm.getHypervisorType() == Hypervisor.HypervisorType.KVM && volume.getFormat() != Storage.ImageFormat.QCOW2 && quiescevm) {
+                throw new CloudRuntimeException("The quiesce option for VM snapshots is only allowed for QCOW2 format for KVM hypervisors.");
+            }
+        }
+
         VMSnapshotVO vmSnapshot = _vmSnapshotDao.findById(vmSnapshotId);
         if (vmSnapshot == null) {
             throw new CloudRuntimeException("Instance Snapshot id: " + vmSnapshotId + " can not be found");
