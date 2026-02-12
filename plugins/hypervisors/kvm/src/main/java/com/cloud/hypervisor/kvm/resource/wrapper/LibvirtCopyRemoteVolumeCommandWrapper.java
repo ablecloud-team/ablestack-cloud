@@ -47,7 +47,7 @@ import java.util.Map;
 @ResourceWrapper(handles = CopyRemoteVolumeCommand.class)
 public final class LibvirtCopyRemoteVolumeCommandWrapper extends CommandWrapper<CopyRemoteVolumeCommand, Answer, LibvirtComputingResource> {
 
-    private static final List<Storage.StoragePoolType> STORAGE_POOL_TYPES_SUPPORTED = Arrays.asList(Storage.StoragePoolType.Filesystem, Storage.StoragePoolType.NetworkFilesystem);
+    private static final List<Storage.StoragePoolType> STORAGE_POOL_TYPES_SUPPORTED = Arrays.asList(Storage.StoragePoolType.Filesystem, Storage.StoragePoolType.NetworkFilesystem, Storage.StoragePoolType.SharedMountPoint, Storage.StoragePoolType.RBD);
 
     @Override
     public Answer execute(final CopyRemoteVolumeCommand command, final LibvirtComputingResource libvirtComputingResource) {

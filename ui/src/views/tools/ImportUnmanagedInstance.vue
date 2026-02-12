@@ -256,9 +256,9 @@
                   :cpuNumberInputDecorator="cpuNumberKey"
                   :cpuSpeedInputDecorator="cpuSpeedKey"
                   :memoryInputDecorator="memoryKey"
-                  :serviceofferingId="computeOffering.id"
-                  :preFillContent="dataPreFill"
-                  :isConstrained="'serviceofferingdetails' in computeOffering"
+                  :computeOfferingId="computeOffering.id"
+                  :preFillContent="resource"
+                  :isConstrained="isOfferingConstrained(computeOffering)"
                   :minCpu="getMinCpu()"
                   :maxCpu="getMaxCpu()"
                   :minMemory="getMinMemory()"
@@ -756,7 +756,6 @@ export default {
       this.rules = reactive({
         displayname: [{ required: true, message: this.$t('message.error.input.value') }],
         templateid: [{ required: this.templateType !== 'auto', message: this.$t('message.error.input.value') }],
-        serviceofferingid: [{ required: true, message: this.$t('message.error.input.value') }],
         rootdiskid: [{ required: this.templateType !== 'auto', message: this.$t('message.error.input.value') }]
       })
     },
@@ -801,6 +800,8 @@ export default {
       return meta
     },
     getMinCpu () {
+      console.log('this.resource.cpunumber :>> ', this.resource.cpunumber)
+      console.log('this.computeOffering.serviceofferingdetails.mincpunumber :>> ', this.computeOffering.serviceofferingdetails.mincpunumber)
       if (this.isVmRunning) {
         return this.resource.cpunumber
       }
@@ -900,8 +901,10 @@ export default {
       if (this.computeOffering.iscustomized) {
         if (this.computeOffering.serviceofferingdetails) {
           this.updateFieldValue(this.cpuSpeedKey, this.computeOffering.cpuspeed)
+          console.log('111objethis.computeOffering.cpuspeedct :>> ', this.computeOffering.cpuspeed)
         } else {
           this.updateFieldValue(this.cpuSpeedKey, value)
+          console.log('222value :>> ', value)
         }
       }
     },
@@ -909,7 +912,7 @@ export default {
       this.form[name] = value
     },
     updateComputeOffering (id) {
-      this.updateFieldValue('serviceofferingid', id)
+      this.updateFieldValue('computeofferingid', id)
       this.computeOffering = this.computeOfferings.filter(x => x.id === id)[0]
       if (this.computeOffering && !this.computeOffering.iscustomizediops) {
         this.updateFieldValue(this.minIopsKey, undefined)
@@ -936,7 +939,6 @@ export default {
       this.rules = reactive({
         displayname: [{ required: true, message: this.$t('message.error.input.value') }],
         templateid: [{ required: this.templateType !== 'auto', message: this.$t('message.error.input.value') }],
-        serviceofferingid: [{ required: true, message: this.$t('message.error.input.value') }],
         rootdiskid: [{ required: this.templateType !== 'auto', message: this.$t('message.error.input.value') }]
       })
     },
@@ -1136,10 +1138,13 @@ export default {
           })
           return
         }
-        params.serviceofferingid = values.serviceofferingid
+        params.serviceofferingid = values.computeofferingid
         if (this.computeOffering.iscustomized) {
           var details = [this.cpuNumberKey, this.cpuSpeedKey, this.memoryKey]
           for (var detail of details) {
+            console.log('detail :>> ', detail)
+            console.log('values[detail] :>> ', values[detail])
+            console.log('this.computeOffering[detail] :>> ', this.computeOffering[detail])
             if (!(values[detail] || this.computeOffering[detail])) {
               this.$notification.error({
                 message: this.$t('message.request.failed'),
@@ -1293,7 +1298,6 @@ export default {
               successMethod: result => {
                 this.$emit('refresh-data')
                 resolve(result)
-                this.closeAction()
               },
               errorMethod: (result) => {
                 this.updateLoading(false)
@@ -1304,7 +1308,7 @@ export default {
             this.updateLoading(false)
             this.$notifyError(error)
           }).finally(() => {
-            // this.closeAction()
+            this.closeAction()
             this.updateLoading(false)
           })
         })
@@ -1317,7 +1321,7 @@ export default {
       this.$emit('loading-changed', value)
     },
     resetForm () {
-      var fields = ['displayname', 'hostname', 'domainid', 'account', 'projectid', 'serviceofferingid']
+      var fields = ['displayname', 'hostname', 'domainid', 'account', 'projectid', 'computeofferingid']
       for (var field of fields) {
         this.updateFieldValue(field, undefined)
       }
@@ -1327,6 +1331,11 @@ export default {
     },
     closeAction () {
       this.$emit('close-action')
+    },
+    isOfferingConstrained (serviceOffering) {
+      return 'serviceofferingdetails' in serviceOffering && 'mincpunumber' in serviceOffering.serviceofferingdetails &&
+        'maxmemory' in serviceOffering.serviceofferingdetails && 'maxcpunumber' in serviceOffering.serviceofferingdetails &&
+        'minmemory' in serviceOffering.serviceofferingdetails
     }
   }
 }
