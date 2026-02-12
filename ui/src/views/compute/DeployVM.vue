@@ -2110,6 +2110,11 @@ export default {
         this.form.volumeid = null
         this.form.snapshotid = null
         let iso = null
+        this.defaultBootType = 'UEFI'
+        this.form.boottype = this.defaultBootType
+        this.fetchBootModes(this.form.boottype)
+        this.defaultBootMode = this.options.bootModes?.[1]?.id || undefined
+        this.form.bootmode = this.defaultBootMode
         for (const entry of Object.values(this.options.isos)) {
           iso = entry?.iso.find(option => option.id === value)
           if (iso) {
