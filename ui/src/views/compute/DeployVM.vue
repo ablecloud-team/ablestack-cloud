@@ -1991,6 +1991,11 @@ export default {
         this.form.isoid = value
         this.form.templateid = null
         this.form.volumeId = null
+        this.defaultBootType = 'UEFI'
+        this.form.boottype = this.defaultBootType
+        this.fetchBootModes(this.form.boottype)
+        this.defaultBootMode = this.options.bootModes?.[1]?.id || undefined
+        this.form.bootmode = this.defaultBootMode
         this.updateTemplateLinkedUserData(this.iso.userdataid)
         this.userdataDefaultOverridePolicy = this.iso.userdatapolicy
       } else if (name === 'volumeId') {
