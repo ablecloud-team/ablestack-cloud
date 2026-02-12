@@ -4596,7 +4596,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 if (zone.getId() != volume.getDataCenterId()) {
                     throw new InvalidParameterValueException(String.format("The volume's zone [%s] is not the same as the provided zone [%s]", volume.getDataCenterId(), zone.getId()));
                 }
-            } else (snapshot != null) {
+            } else if (snapshot != null) {
                 List<SnapshotInfo> snapshotsOnZone = snapshotDataFactory.getSnapshots(snapshot.getId(), zone.getId());
                 if (CollectionUtils.isEmpty(snapshotsOnZone)) {
                     throw new InvalidParameterValueException("The snapshot does not exist on zone " + zone.getId());
