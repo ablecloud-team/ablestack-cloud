@@ -4593,26 +4593,22 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 throw new InvalidParameterValueException(String.format("Unable to use system template %s to deploy a user vm", template));
             }
 
-            // apache#9873 ) kvm-default-vm-import-dummy-template 을 이용한 가상머신 생성을 위해 임시 주석처리
-            // List<VMTemplateZoneVO> listZoneTemplate = _templateZoneDao.listByZoneTemplate(zone.getId(), template.getId());
-            // if (listZoneTemplate == null || listZoneTemplate.isEmpty()) {
-            //     throw new InvalidParameterValueException(String.format("The template %s is not available for use", template));
-            // }
             if (volume != null) {
                 if (zone.getId() != volume.getDataCenterId()) {
                     throw new InvalidParameterValueException(String.format("The volume's zone [%s] is not the same as the provided zone [%s]", volume.getDataCenterId(), zone.getId()));
                 }
-            } else if (snapshot != null) {
+            } else (snapshot != null) {
                 List<SnapshotInfo> snapshotsOnZone = snapshotDataFactory.getSnapshots(snapshot.getId(), zone.getId());
                 if (CollectionUtils.isEmpty(snapshotsOnZone)) {
                     throw new InvalidParameterValueException("The snapshot does not exist on zone " + zone.getId());
                 }
-            } else {
-                List<VMTemplateZoneVO> listZoneTemplate = _templateZoneDao.listByZoneTemplate(zone.getId(), template.getId());
-                if (listZoneTemplate == null || listZoneTemplate.isEmpty()) {
-                    throw new InvalidParameterValueException("The template " + template.getId() + " is not available for use");
-                }
             }
+            //    kvm-default-vm-import-dummy-template 을 이용한 가상머신 생성을 위해 임시 주석처리
+            //    List<VMTemplateZoneVO> listZoneTemplate = _templateZoneDao.listByZoneTemplate(zone.getId(), template.getId());
+            //    if (listZoneTemplate == null || listZoneTemplate.isEmpty()) {
+            //        throw new InvalidParameterValueException("The template " + template.getId() + " is not available for use");
+            //    }
+
 
             if (isIso && !template.isBootable()) {
                 throw new InvalidParameterValueException(String.format("Installing from ISO requires an ISO that is bootable: %s", template));
