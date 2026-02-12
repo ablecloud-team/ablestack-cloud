@@ -10692,7 +10692,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             if (vmSnapshot == null) {
                 throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to create vm snapshot");
             }
-            vmSnapshot = _vmSnapshotMgr.createVMSnapshot(curVm.getId(), vmSnapshot.getId(), true);
+            vmSnapshot = _vmSnapshotMgr.createVMSnapshot(curVm.getId(), vmSnapshot.getId(), false);
             if (vmSnapshot == null) {
                 throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to create vm snapshot due to an internal error creating snapshot for vm " + curVm.getId());
             }
