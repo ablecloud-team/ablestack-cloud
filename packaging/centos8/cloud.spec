@@ -244,6 +244,7 @@ cp -r plugins/network-elements/cisco-vnmc/src/main/scripts/network/cisco/* ${RPM
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/lib
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/setup
+mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/cks/conf
 mkdir -p ${RPM_BUILD_ROOT}%{_localstatedir}/log/%{name}/management
 mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/management
 mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/systemd/system/%{name}-management.service.d
@@ -273,6 +274,7 @@ chmod +x ${RPM_BUILD_ROOT}%{_bindir}/cmk
 cp -r client/target/utilities/scripts/db/* ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/setup
 
 cp -r client/target/cloud-client-ui-%{_maventag}.jar ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/
+cp -r plugins/integrations/kubernetes-service/src/main/resources/conf/* ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/cks/conf
 cp -r client/target/classes/META-INF/webapp ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/webapp
 cp ui/dist/config.json ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/management/
 cp -r ui/dist/* ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/webapp/
@@ -306,6 +308,11 @@ install -D server/target/conf/cloudstack-sudoers ${RPM_BUILD_ROOT}%{_sysconfdir}
 touch ${RPM_BUILD_ROOT}%{_localstatedir}/run/%{name}-management.pid
 #install -D server/target/conf/cloudstack-catalina.logrotate ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d/%{name}-catalina
 install -D server/target/conf/cloudstack-management.logrotate ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d/%{name}-management
+
+install -D plugins/integrations/kubernetes-service/src/main/resources/conf/etcd-node.yml ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/cks/conf/etcd-node.yml
+install -D plugins/integrations/kubernetes-service/src/main/resources/conf/k8s-control-node.yml ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/cks/conf/k8s-control-node.yml
+install -D plugins/integrations/kubernetes-service/src/main/resources/conf/k8s-control-node-add.yml ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/cks/conf/k8s-control-node-add.yml
+install -D plugins/integrations/kubernetes-service/src/main/resources/conf/k8s-node.yml ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/cks/conf/k8s-node.yml
 
 # SystemVM template
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/templates/systemvm
@@ -617,6 +624,7 @@ pip3 install --upgrade /usr/share/cloudstack-marvin/Marvin-*.tar.gz
 %attr(0755,root,root) %{_bindir}/mold
 %attr(0755,root,root) %{_bindir}/mold-update-dbpassword
 %attr(0755,root,root) %{_bindir}/cmk
+%{_datadir}/%{name}-management/cks/conf/*.yml
 %{_datadir}/%{name}-management/setup/*.sql
 %{_datadir}/%{name}-management/setup/*.sh
 %{_datadir}/%{name}-management/setup/server-setup.xml
