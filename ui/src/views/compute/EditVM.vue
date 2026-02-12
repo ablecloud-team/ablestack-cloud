@@ -199,7 +199,6 @@ export default {
         loading: false,
         opts: []
       },
-      securityGroupNetworkProviderUseThisVM: false,
       isLeaseEditable: this.$store.getters.features.instanceleaseenabled && this.resource.leaseduration > -1,
       showLeaseOptions: false,
       leaseduration: this.resource.leaseduration === undefined ? 90 : this.resource.leaseduration,
@@ -256,7 +255,7 @@ export default {
       this.fetchZoneDetails()
       this.fetchSecurityGroups()
       this.fetchOsTypes()
-      this.fetchInstaceGroups()
+      this.fetchInstanceGroups()
       this.fetchServiceOfferingData()
       this.fetchTemplateData()
       this.fetchUserData()
@@ -336,7 +335,7 @@ export default {
         this.$notifyError(error)
       }).finally(() => { this.osTypes.loading = false })
     },
-    fetchInstaceGroups () {
+    fetchInstanceGroups () {
       this.groups.loading = true
       this.groups.opts = []
       const params = {
@@ -400,10 +399,8 @@ export default {
         params.name = values.name
         params.displayname = values.displayname
         params.ostypeid = values.ostypeid
-        if (this.securityGroupNetworkProviderUseThisVM) {
-          if (values.securitygroupids) {
-            params.securitygroupids = values.securitygroupids
-          }
+        if (this.securityGroupsEnabled && Array.isArray(values.securitygroupids) && values.securitygroupids.length > 0) {
+          params.securitygroupids = values.securitygroupids
         }
         if (values.isdynamicallyscalable !== undefined) {
           params.isdynamicallyscalable = values.isdynamicallyscalable
@@ -428,6 +425,8 @@ export default {
         }
         if (values.extraconfig && values.extraconfig.length > 0) {
           params.extraconfig = encodeURIComponent(values.extraconfig)
+        } else if (this.combinedExtraConfig) {
+          params.cleanupextraconfig = true
         }
         this.loading = true
 
