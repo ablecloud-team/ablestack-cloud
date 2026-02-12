@@ -604,6 +604,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
         List<VolumeVO> volumes = _volumeDao.findByInstance(userVm.getId());
         for (VolumeVO volume : volumes) {
             if (userVm.getHypervisorType() == Hypervisor.HypervisorType.KVM && volume.getFormat() != Storage.ImageFormat.QCOW2 && quiescevm) {
+                _vmSnapshotDao.remove(vmSnapshotId);
                 throw new CloudRuntimeException("The quiesce option for VM snapshots is only allowed for QCOW2 format for KVM hypervisors.");
             }
         }
