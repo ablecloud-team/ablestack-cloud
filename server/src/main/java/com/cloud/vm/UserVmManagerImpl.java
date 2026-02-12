@@ -351,7 +351,6 @@ import com.cloud.storage.StoragePool;
 import com.cloud.storage.StoragePoolStatus;
 import com.cloud.storage.VMTemplateStorageResourceAssoc;
 import com.cloud.storage.VMTemplateVO;
-import com.cloud.storage.VMTemplateZoneVO;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeApiService;
 import com.cloud.storage.VolumeVO;
@@ -4608,7 +4607,6 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             //    if (listZoneTemplate == null || listZoneTemplate.isEmpty()) {
             //        throw new InvalidParameterValueException("The template " + template.getId() + " is not available for use");
             //    }
-
 
             if (isIso && !template.isBootable()) {
                 throw new InvalidParameterValueException(String.format("Installing from ISO requires an ISO that is bootable: %s", template));
