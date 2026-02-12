@@ -9538,7 +9538,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             boolean removed = false;
             // SCSI extraconfig 후보들을 모아두었다가, 어떤 것도 매칭되지 않을 경우
             // "단 하나만 존재하는 SCSI extraconfig" 라면 안전하게 제거하기 위한 리스트
-            List<UserVmDetailVO> scsiCandidates = new ArrayList<>();
+            List<VMInstanceDetailVO> scsiCandidates = new ArrayList<>();
 
             for (VMInstanceDetailVO detail : existingConfigs) {
                 if (detail.getName().startsWith("extraconfig-") && detail.getValue() != null) {
@@ -9722,9 +9722,9 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             // extraconfig 안에 SCSI hostdev 가 단 하나만 있다면,
             // 그 엔트리가 이 디바이스에 해당하는 것으로 보고 제거한다.
             if (!removed && isScsiDevice(deviceName) && scsiCandidates.size() == 1) {
-                UserVmDetailVO only = scsiCandidates.get(0);
+                VMInstanceDetailVO only = scsiCandidates.get(0);
                 try {
-                    _vmDetailsDao.remove(only.getId());
+                    _vmInstanceDetailsDao.remove(only.getId());
                     removed = true;
                     logger.info("Removed lone SCSI extraconfig entry for VM {}, device: {} as a safe fallback.", vmId, deviceName);
                 } catch (Exception ex) {

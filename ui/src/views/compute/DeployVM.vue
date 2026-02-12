@@ -738,7 +738,7 @@
                                             :items="options.userDatas"
                                             :row-count="rowCount.userDatas"
                                             :zoneId="zoneId"
-                                            :disabled="template.userdatapolicy === 'DENYOVERRIDE'"
+                                            :disabled="template && template.userdatapolicy === 'DENYOVERRIDE'"
                                             :loading="loading.userDatas"
                                             :preFillContent="dataPreFill"
                                             @select-user-data-item="($event) => updateUserData($event)"
