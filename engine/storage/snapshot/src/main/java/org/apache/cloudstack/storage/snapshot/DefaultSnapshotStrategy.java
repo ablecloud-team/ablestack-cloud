@@ -546,14 +546,15 @@ public class DefaultSnapshotStrategy extends SnapshotStrategyBase {
     @DB
     public SnapshotInfo takeSnapshot(SnapshotInfo snapshot) {
         SnapshotInfo snapshotOnPrimary = null;
-        Object payload = snapshot.getPayload();
-        CreateSnapshotPayload createSnapshotPayload = null;
-        if (payload != null) {
-            createSnapshotPayload = (CreateSnapshotPayload)payload;
-            if (createSnapshotPayload.getQuiescevm()) {
-                throw new InvalidParameterValueException("can't handle quiescevm equal true for volume snapshot");
-            }
-        }
+        // #10265 PR로 quiescevm 옵션 활성화한 경우 예외처리되어 임시 주석 처리
+        // Object payload = snapshot.getPayload();
+        // CreateSnapshotPayload createSnapshotPayload = null;
+        // if (payload != null) {
+        //     createSnapshotPayload = (CreateSnapshotPayload)payload;
+        //     if (createSnapshotPayload.getQuiescevm()) {
+        //         throw new InvalidParameterValueException("can't handle quiescevm equal true for volume snapshot");
+        //     }
+        // }
 
         SnapshotVO snapshotVO = snapshotDao.acquireInLockTable(snapshot.getId());
         if (snapshotVO == null) {
