@@ -16,10 +16,9 @@
 // under the License.
 package org.apache.cloudstack.backup;
 
-import com.cloud.api.query.vo.UserVmJoinVO;
-import com.cloud.api.query.dao.UserVmJoinDao;
-import com.cloud.cluster.ManagementServerHostVO;
-import com.cloud.cluster.dao.ManagementServerHostDao;
+import com.cloud.agent.AgentManager;
+import com.cloud.exception.AgentUnavailableException;
+import com.cloud.exception.OperationTimedoutException;
 import com.cloud.dc.dao.ClusterDao;
 import com.cloud.domain.Domain;
 import com.cloud.host.Host;
@@ -28,64 +27,59 @@ import com.cloud.host.Status;
 import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor;
 import com.cloud.offering.DiskOffering;
+import com.cloud.resource.ResourceManager;
 import com.cloud.storage.DataStoreRole;
+import com.cloud.storage.ScopeType;
+import com.cloud.storage.Storage;
 import com.cloud.storage.Volume;
+import com.cloud.storage.Volume.Type;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.DiskOfferingDao;
-import com.cloud.storage.SnapshotVO;
-import com.cloud.storage.dao.SnapshotDao;
 import com.cloud.storage.dao.StoragePoolHostDao;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.user.User;
-import com.cloud.user.UserAccount;
 import com.cloud.user.Account;
 import com.cloud.user.AccountService;
 import com.cloud.utils.NumbersUtil;
-import com.cloud.utils.PropertiesUtil;
-import com.cloud.utils.server.ServerProperties;
 import com.cloud.utils.Pair;
 import com.cloud.utils.Ternary;
 import com.cloud.utils.ssh.SshHelper;
 import com.cloud.utils.component.AdapterBase;
 import com.cloud.utils.exception.CloudRuntimeException;
-import com.cloud.utils.nio.TrustAllManager;
 import com.cloud.event.ActionEventUtils;
 import com.cloud.event.EventTypes;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
+import com.cloud.vm.snapshot.VMSnapshot;
+import com.cloud.vm.snapshot.dao.VMSnapshotDao;
 import org.apache.cloudstack.api.ApiCommandResourceType;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
-import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreVO;
 import org.apache.cloudstack.storage.datastore.db.SnapshotDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
+import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.backup.commvault.CommvaultClient;
 import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDaoImpl;
+import org.apache.cloudstack.engine.subsystem.api.storage.DataStore;
+import org.apache.cloudstack.engine.subsystem.api.storage.DataStoreManager;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
 import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
-import org.apache.cloudstack.utils.security.SSLUtils;
-import org.apache.cloudstack.utils.identity.ManagementServerNode;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.xml.utils.URI;
 import org.json.JSONObject;
-import org.json.XML;
-import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Date;
@@ -93,26 +87,13 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.StringTokenizer;
-import java.util.StringJoiner;
-import java.util.Properties;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.File;
-import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import javax.inject.Inject;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.HttpsURLConnection;
-import javax.crypto.spec.SecretKeySpec;
-import javax.crypto.Mac;
+
+import static org.apache.cloudstack.backup.BackupManager.BackupFrameworkEnabled;
 
 public class CommvaultBackupProvider extends AdapterBase implements BackupProvider, Configurable {
 
@@ -123,7 +104,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     private static final int BASE_MT = 89;
     private static final Pattern VERSION_PATTERN = Pattern.compile("^(\\d+)\\s*SP\\s*(\\d+)(?:\\.(\\d+))?$", Pattern.CASE_INSENSITIVE);
     private static final String COMMVAULT_DIRECTORY = "/tmp/mold/backup";
-
 
     public ConfigKey<String> CommvaultUrl = new ConfigKey<>("Advanced", String.class,
             "backup.plugin.commvault.url", "https://localhost/commandcenter/api",
@@ -193,16 +173,16 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     private VMInstanceDao vmInstanceDao;
 
     @Inject
-    private ManagementServerHostDao msHostDao;
-
-    @Inject
     private AccountService accountService;
 
     @Inject
-    private UserVmJoinDao userVmJoinDao;
+    DataStoreManager dataStoreMgr;
 
     @Inject
-    private SnapshotDao snapshotDao;
+    private AgentManager agentManager;
+
+    @Inject
+    private VMSnapshotDao vmSnapshotDao;
 
     @Inject
     private PrimaryDataStoreDao primaryDataStoreDao;
@@ -214,8 +194,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     private BackupManager backupManager;
 
     @Inject
-    private DiskOfferingDao diskOfferingDao;
+    ResourceManager resourceManager;
 
+    @Inject
+    private DiskOfferingDao diskOfferingDao;
 
     private Long getClusterIdFromRootVolume(VirtualMachine vm) {
         VolumeVO rootVolume = volumeDao.getInstanceRootVolume(vm.getId());
@@ -273,7 +255,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return host;
     }
 
-    // 백업
     @Override
     public Pair<Boolean, Backup> takeBackup(VirtualMachine vm, Boolean quiesceVM) {
         final Host vmHost = getVMHypervisorHostForBackup(vm);
@@ -403,7 +384,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                         return new Pair<>(true, backupVO);
                                     } else {
                                         throw new CloudRuntimeException("Failed to update backup");
-                                    }      
+                                    }
                                 } else {
                                     LOG.error("Failed to take backup for VM " + vm.getInstanceName() + " to get details job commvault api");
                                 }
@@ -422,7 +403,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             backupDao.remove(backupVO.getId());
             int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
             Ternary<String, String, String> credentials = getKVMHyperisorCredentials(vmHost);
-            String cmd = String.format(RM_COMMAND, backupPath); 
+            String cmd = String.format(RM_COMMAND, backupPath);
             executeDeleteBackupPathCommand(vmHost, credentials.first(), credentials.second(), sshPort, cmd);
             return new Pair<>(false, null);
         } else {
@@ -529,7 +510,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 LOG.debug("Restoring vm {} from backup {} on the Commvault Backup Provider", vm, backup);
                 // 가상머신이 실행중인 호스트 정의
                 final Host vmHost = getVMHypervisorHost(vm);
-                CommvaultRestoreBackupCommand restoreCommand = new RestoreBackupCommand();
+                CommvaultRestoreBackupCommand restoreCommand = new CommvaultRestoreBackupCommand();
                 restoreCommand.setBackupPath(backup.getExternalId());
                 restoreCommand.setVmName(vm.getName());
                 restoreCommand.setBackupVolumesUUIDs(backedVolumesUUIDs);
@@ -553,11 +534,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 if (!answer.getResult()) {
                     int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
                     Ternary<String, String, String> credentials = getKVMHyperisorCredentials(vmHost);
-                    String command = String.format(RM_COMMAND, path); 
+                    String command = String.format(RM_COMMAND, path);
                     executeDeleteBackupPathCommand(vmHost, credentials.first(), credentials.second(), sshPort, command);
                     if (restoreHost.getId() != vmHost.getId()) {
                         credentials = getKVMHyperisorCredentials(restoreHost);
-                        command = String.format(RM_COMMAND, path); 
+                        command = String.format(RM_COMMAND, path);
                         executeDeleteBackupPathCommand(restoreHost, credentials.first(), credentials.second(), sshPort, command);
                     }
                 }
@@ -637,7 +618,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         if (backupsetGUID == null) {
             throw new CloudRuntimeException("Failed to get vm backup set guid commvault api");
         }
-        LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volume.getUuid(), backup));
         // 복원 실행
         String jobId2 = client.restoreFullVM(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, path);
         if (jobId2 != null) {
@@ -660,6 +640,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 final HostVO vmHost = hostDao.findByIp(hostIp);
                 // 복원된 호스트 정의
                 final HostVO restoreHost = hostDao.findByName(clientName);
+                LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volume.getUuid(), backup));
                 LOG.debug("Restoring vm volume {} from backup {} on the Commvault Backup Provider", backupVolumeInfo, backup);
                 VolumeVO restoredVolume = new VolumeVO(Volume.Type.DATADISK, null, backup.getZoneId(),
                         backup.getDomainId(), backup.getAccountId(), 0, null,
@@ -701,7 +682,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
                 BackupAnswer answer;
                 try {
-                    answer = (BackupAnswer) agentManager.send(hostVO.getId(), restoreCommand);
+                    answer = (BackupAnswer) agentManager.send(vmHost.getId(), restoreCommand);
                 } catch (AgentUnavailableException e) {
                     throw new CloudRuntimeException("Unable to contact backend control plane to initiate backup");
                 } catch (OperationTimedoutException e) {
@@ -718,11 +699,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 } else {
                     int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
                     Ternary<String, String, String> credentials = getKVMHyperisorCredentials(vmHost);
-                    String command = String.format(RM_COMMAND, path); 
+                    String command = String.format(RM_COMMAND, path);
                     executeDeleteBackupPathCommand(vmHost, credentials.first(), credentials.second(), sshPort, command);
                     if (restoreHost.getId() != vmHost.getId()) {
                         credentials = getKVMHyperisorCredentials(restoreHost);
-                        command = String.format(RM_COMMAND, path); 
+                        command = String.format(RM_COMMAND, path);
                         executeDeleteBackupPathCommand(restoreHost, credentials.first(), credentials.second(), sshPort, command);
                     }
                 }
@@ -765,7 +746,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     public void syncBackupMetrics(Long zoneId) {
     }
-    
+
     @Override
     public List<Backup.RestorePoint> listRestorePoints(VirtualMachine vm) {
         return null;
@@ -780,7 +761,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     public boolean assignVMToBackupOffering(VirtualMachine vm, BackupOffering backupOffering) {
         final CommvaultClient client = getClient(vm.getDataCenterId());
         final Host host = getVMHypervisorHostForBackup(vm);
-        String clientId = client.getClientId(hostVO.getName());
+        String clientId = client.getClientId(host.getName());
         String applicationId = client.getApplicationId(clientId);
         return client.createBackupSet(vm.getInstanceName(), applicationId, clientId, backupOffering.getExternalId());
     }

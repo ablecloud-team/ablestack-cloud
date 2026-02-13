@@ -37,7 +37,6 @@ import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.utils.qemu.QemuImg;
 import org.apache.cloudstack.utils.qemu.QemuImgException;
 import org.apache.cloudstack.utils.qemu.QemuImgFile;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.libvirt.LibvirtException;
 
@@ -56,6 +55,8 @@ public class LibvirtCommvaultRestoreBackupCommandWrapper extends CommandWrapper<
     private static final String ATTACH_RBD_DISK_XML_COMMAND = " virsh attach-device %s /dev/stdin <<EOF%sEOF";
     private static final String CURRRENT_DEVICE = "virsh domblklist --domain %s | tail -n 3 | head -n 1 | awk '{print $1}'";
     private static final String RSYNC_COMMAND = "rsync -az %s %s";
+    private static final String MKDIR_P = "mkdir -p %s";
+    private static final String RSYNC_DIR_FROM_REMOTE = "rsync -az -e \"ssh -o StrictHostKeyChecking=no\" %s:%s/ %s/";
 
     @Override
     public Answer execute(CommvaultRestoreBackupCommand command, LibvirtComputingResource serverResource) {
@@ -69,10 +70,14 @@ public class LibvirtCommvaultRestoreBackupCommandWrapper extends CommandWrapper<
         String restoreVolumeUuid = command.getRestoreVolumeUUID();
         int timeout = command.getWait();
         String cacheMode = command.getCacheMode();
+        String hostName = command.getHostName();
         KVMStoragePoolManager storagePoolMgr = serverResource.getStoragePoolMgr();
 
         String newVolumeId = null;
         try {
+            if (hostName != null) {
+                fetchBackupFile(hostName, backupPath);
+            }
             if (Objects.isNull(vmExists)) {
                 PrimaryDataStoreTO volumePool = restoreVolumePools.get(0);
                 String volumePath = restoreVolumePaths.get(0);
@@ -103,7 +108,7 @@ public class LibvirtCommvaultRestoreBackupCommandWrapper extends CommandWrapper<
     }
 
     private void restoreVolumesOfExistingVM(KVMStoragePoolManager storagePoolMgr, List<PrimaryDataStoreTO> restoreVolumePools, List<String> restoreVolumePaths, List<String> backedVolumesUUIDs,
-                                            String backupPath, String mountDirectory, int timeout) {
+                                            String backupPath, int timeout) {
         String diskType = "root";
         try {
             for (int idx = 0; idx < restoreVolumePaths.size(); idx++) {
@@ -122,7 +127,7 @@ public class LibvirtCommvaultRestoreBackupCommandWrapper extends CommandWrapper<
         }
     }
 
-    private void restoreVolumesOfDestroyedVMs(KVMStoragePoolManager storagePoolMgr, List<PrimaryDataStoreTO> volumePools, List<String> volumePaths, String vmName, String backupPath, String mountDirectory, int timeout) {
+    private void restoreVolumesOfDestroyedVMs(KVMStoragePoolManager storagePoolMgr, List<PrimaryDataStoreTO> volumePools, List<String> volumePaths, String vmName, String backupPath, int timeout) {
         String diskType = "root";
         try {
             for (int i = 0; i < volumePaths.size(); i++) {
@@ -294,5 +299,22 @@ public class LibvirtCommvaultRestoreBackupCommandWrapper extends CommandWrapper<
         diskBuilder.append("/>\n");
         diskBuilder.append("</disk>\n");
         return diskBuilder.toString();
+    }
+
+    private void fetchBackupFile(String hostName, String backupPath) {
+        int mkdirExit = Script.runSimpleBashScriptForExitValue(String.format(MKDIR_P, backupPath));
+        if (mkdirExit != 0) {
+            throw new CloudRuntimeException(String.format("Failed to create local backup directory: %s", backupPath));
+        }
+
+        String cmd = String.format(RSYNC_DIR_FROM_REMOTE, hostName, backupPath, backupPath);
+        logger.debug("Fetching commvault backup directory from remote host. cmd={}", cmd);
+
+        int exit = Script.runSimpleBashScriptForExitValue(cmd);
+        if (exit != 0) {
+            throw new CloudRuntimeException(String.format(
+                    "Failed to fetch backup directory from remote host [%s]. remotePath=[%s], localPath=[%s]",
+                    hostName, backupPath, backupPath));
+        }
     }
 }

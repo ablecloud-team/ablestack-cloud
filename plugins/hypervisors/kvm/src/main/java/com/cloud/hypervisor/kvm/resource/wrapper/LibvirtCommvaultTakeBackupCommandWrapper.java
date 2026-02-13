@@ -19,7 +19,6 @@
 
 package com.cloud.hypervisor.kvm.resource.wrapper;
 
-import com.amazonaws.util.CollectionUtils;
 import com.cloud.agent.api.Answer;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.hypervisor.kvm.storage.KVMPhysicalDisk;
@@ -30,12 +29,11 @@ import com.cloud.resource.ResourceWrapper;
 import com.cloud.storage.Storage;
 import com.cloud.utils.Pair;
 import com.cloud.utils.script.Script;
-import org.apache.cloudstack.backup.CommvaultBackupAnswer;
+import org.apache.cloudstack.backup.BackupAnswer;
 import org.apache.cloudstack.backup.CommvaultTakeBackupCommand;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
