@@ -38,6 +38,7 @@ public class CommvaultRestoreBackupCommand extends Command  {
     private VirtualMachine.State vmState;
     private Integer timeout;
     private String cacheMode;
+    private String hostName;
 
     protected CommvaultRestoreBackupCommand() {
         super();
@@ -137,5 +138,13 @@ public class CommvaultRestoreBackupCommand extends Command  {
 
     public void setCacheMode(String cacheMode) {
         this.cacheMode = cacheMode;
+    }
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
     }
 }

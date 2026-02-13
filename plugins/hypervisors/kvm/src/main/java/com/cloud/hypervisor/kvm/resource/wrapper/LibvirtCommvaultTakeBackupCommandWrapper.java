@@ -78,8 +78,8 @@ public class LibvirtCommvaultTakeBackupCommandWrapper extends CommandWrapper<Com
         Pair<Integer, String> result = Script.executePipedCommands(commands, libvirtComputingResource.getCmdsTimeout());
 
         if (result.first() != 0) {
-            logger.debug("Failed to take VM backup: " + result.second());
-            BackupAnswer answer = new BackupAnswer(command, false, result.second().trim());
+            logger.debug("Failed to take VM backup");
+            BackupAnswer answer = new BackupAnswer(command, false, null);
             if (result.first() == EXIT_CLEANUP_FAILED) {
                 logger.debug("Backup cleanup failed");
                 answer.setNeedsCleanup(true);
@@ -87,21 +87,7 @@ public class LibvirtCommvaultTakeBackupCommandWrapper extends CommandWrapper<Com
             return answer;
         }
 
-        long backupSize = 0L;
-        if (CollectionUtils.isNullOrEmpty(diskPaths)) {
-            List<String> outputLines = Arrays.asList(result.second().trim().split("\n"));
-            if (!outputLines.isEmpty()) {
-                backupSize = Long.parseLong(outputLines.get(outputLines.size() - 1).trim());
-            }
-        } else {
-            String[] outputLines = result.second().trim().split("\n");
-            for(String line : outputLines) {
-                backupSize = backupSize + Long.parseLong(line.split(" ")[0].trim());
-            }
-        }
-
-        BackupAnswer answer = new BackupAnswer(command, true, result.second().trim());
-        answer.setSize(backupSize);
+        BackupAnswer answer = new BackupAnswer(command, true, "success");
         return answer;
     }
 }
