@@ -226,7 +226,7 @@ backup_snapshot() {
       return 2
     fi
   elif [ -f ${disk} ]; then
-    if [[ $disk == *"@"* ]]; then
+    if [[ $disk == *"/snapshots/"* ]]; then
       #Backup volume snapshot
       $qemu_img convert $forceShareFlag -f qcow2 -O qcow2 $disk $destPath/$destName >& /dev/null
       ret_code=$?

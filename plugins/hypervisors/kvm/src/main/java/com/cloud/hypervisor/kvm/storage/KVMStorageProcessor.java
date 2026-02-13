@@ -1109,24 +1109,6 @@ public class KVMStorageProcessor implements StorageProcessor {
                             " to " + snapshotFile + " the error was: " + e.getMessage());
                     return new CopyCmdAnswer(e.toString());
                 }
-            } else if (primaryPool.getType() == StoragePoolType.SharedMountPoint) {
-                final Script command = new Script(_manageSnapshotPath, cmd.getWaitInMillSeconds(), logger);
-                command.add("-b", isCreatedFromVmSnapshot ? snapshotDisk.getPath() + "@" + snapshot.getPath() : snapshot.getPath());
-                command.add(NAME_OPTION, snapshotName);
-                command.add("-p", snapshotDestPath);
-
-                descName = UUID.randomUUID().toString();
-
-                command.add("-t", descName);
-                final String result = command.execute();
-                if (result != null) {
-                    logger.debug("Failed to backup snaptshot: " + result);
-                    return new CopyCmdAnswer(result);
-                }
-                final File snapFile = new File(snapshotDestPath + "/" + descName);
-                if(snapFile.exists()){
-                    size = snapFile.length();
-                }
             } else {
                 final Script command = new Script(_manageSnapshotPath, cmd.getWaitInMillSeconds(), logger);
 
@@ -2818,8 +2800,7 @@ public class KVMStorageProcessor implements StorageProcessor {
 
         PrimaryDataStoreTO primaryStore = (PrimaryDataStoreTO) imageStore;
         KVMStoragePool srcPool = storagePoolMgr.getStoragePool(primaryStore.getPoolType(), primaryStore.getUuid());
-
-        KVMPhysicalDisk snapshotDisk = srcPool.getPhysicalDisk(snapshotName);
+        KVMPhysicalDisk snapshotDisk = srcPool.getPhysicalDisk(volume.getPath());
         VolumeObjectTO newVol = (VolumeObjectTO) destData;
 
         final KVMStoragePool primaryPool = storagePoolMgr.getStoragePool(pool.getPoolType(), pool.getUuid());
