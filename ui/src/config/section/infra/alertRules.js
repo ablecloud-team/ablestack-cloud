@@ -33,8 +33,7 @@ export default {
     'kind',
     'lastEvaluation',
     'silencePeriod',
-    'summary',
-    'description'
+    'summary'
   ],
   dataMap: (item) => {
     const ann = item && item.annotations ? item.annotations : {}

@@ -1,4 +1,3 @@
-<!-- WallAlertSolutionTab.vue (보기 모드에서 description을 마크다운 렌더링) -->
 <template>
   <div class="p-2">
     <a-spin :spinning="loading">
@@ -66,7 +65,7 @@
             <div v-if="solutionDescription" class="block">
               <div class="block-title">{{ $t('label.description') || '설명' }}</div>
 
-              <!-- ✅ 여기만 바뀜: 마크다운 렌더링 출력 -->
+              <!-- 보기 모드 마크다운 렌더링 -->
               <div
                 class="md-viewer"
                 v-html="renderedSolutionHtml"
@@ -75,27 +74,28 @@
           </div>
         </div>
 
-        <!-- 편집 모드 (그대로 유지) -->
+        <!-- 편집 모드 -->
         <div v-show="editing">
           <a-form layout="vertical">
             <a-form-item :label="$t('label.summary') || '요약'">
-              <a-textarea
-                :value="draft.summary"
-                :auto-size="{ minRows: 2, maxRows: 6 }"
-                allow-clear
+              <textarea
+                v-model="draft.summary"
+                class="ant-input"
+                rows="3"
                 :placeholder="$t('message.solution.summary.placeholder') || '요약을 입력합니다.'"
-                @input="onSummaryInput"
-              />
+                style="resize: vertical;"
+              ></textarea>
             </a-form-item>
 
             <a-form-item :label="$t('label.description') || '설명(마크다운)'">
-              <a-textarea
-                :value="draft.description"
-                :auto-size="{ minRows: 14, maxRows: 34 }"
-                allow-clear
+              <textarea
+                v-model="draft.description"
+                class="ant-input"
+                rows="14"
                 :placeholder="$t('message.solution.description.placeholder') || '마크다운으로 해결 방안을 입력합니다.'"
-                @input="onDescriptionInput"
-              />
+                style="resize: vertical;"
+                height="580"
+              ></textarea>
             </a-form-item>
           </a-form>
 
@@ -173,7 +173,7 @@ export default {
       return Boolean((this.solutionSummary || '').trim() || (this.solutionDescription || '').trim())
     },
 
-    // 편집 프리뷰(기존 그대로)
+    // 편집 프리뷰
     renderedDescriptionHtml () {
       const raw = (this.draft.description || '').trim()
       if (!raw) return ''
@@ -181,7 +181,7 @@ export default {
       return DOMPurify.sanitize(html, { USE_PROFILES: { html: true } })
     },
 
-    // ✅ 보기 모드 렌더링(새로 추가): 저장된 solutionDescription을 마크다운 렌더링
+    // 보기 모드 렌더링
     renderedSolutionHtml () {
       const raw = (this.solutionDescription || '').trim()
       if (!raw) return ''
@@ -194,15 +194,6 @@ export default {
     record: { immediate: true, deep: false, handler () { this.initAndRefresh() } }
   },
   methods: {
-    onSummaryInput (e) {
-      const v = e && e.target ? e.target.value : ''
-      this.draft.summary = v
-    },
-    onDescriptionInput (e) {
-      const v = e && e.target ? e.target.value : ''
-      this.draft.description = v
-    },
-
     initAndRefresh () {
       const cur = this.getCurrentRecord()
       this.initFromAny(cur)
@@ -466,7 +457,6 @@ export default {
 .md-preview { border: 1px solid #f0f0f0; border-radius: 10px; padding: 10px; background: #fafafa; word-break: break-word; }
 .empty-preview { padding: 10px; border: 1px dashed #d9d9d9; border-radius: 10px; background: #fafafa; color: #8c8c8c; }
 
-/* ✅ 보기 모드 마크다운 렌더 영역 */
 .md-viewer { border: 1px solid #f0f0f0; border-radius: 10px; padding: 10px; background: #fafafa; word-break: break-word; }
 
 .pc-title { font-weight: 600; }
