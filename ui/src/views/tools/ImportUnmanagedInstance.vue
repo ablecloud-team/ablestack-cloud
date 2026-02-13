@@ -801,11 +801,15 @@ export default {
     },
     getMinCpu () {
       console.log('this.resource.cpunumber :>> ', this.resource.cpunumber)
-      console.log('this.computeOffering.serviceofferingdetails.mincpunumber :>> ', this.computeOffering.serviceofferingdetails.mincpunumber)
+      // console.log('this.computeOffering.serviceofferingdetails.mincpunumber :>> ', this.computeOffering.serviceofferingdetails.mincpunumber)
       if (this.isVmRunning) {
         return this.resource.cpunumber
       }
-      return 'serviceofferingdetails' in this.computeOffering ? this.computeOffering.serviceofferingdetails.mincpunumber * 1 : 1
+      if (this.computeOffering && 'serviceofferingdetails' in this.computeOffering &&
+        this.computeOffering.serviceofferingdetails && 'mincpunumber' in this.computeOffering.serviceofferingdetails) {
+        return this.computeOffering.serviceofferingdetails.mincpunumber * 1
+      }
+      return this.resource.cpunumber || 1
     },
     getMinMemory () {
       if (this.isVmRunning) {
