@@ -20,7 +20,6 @@
 package org.apache.cloudstack.backup;
 
 import com.cloud.agent.api.Command;
-import com.cloud.agent.api.LogLevel;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 
 import java.util.List;
@@ -31,7 +30,6 @@ public class CommvaultTakeBackupCommand extends Command {
     private List<PrimaryDataStoreTO> volumePools;
     private List<String> volumePaths;
     private Boolean quiesce;
-    @LogLevel(LogLevel.Log4jLevel.Off)
 
     public CommvaultTakeBackupCommand(String vmName, String backupPath) {
         super();
