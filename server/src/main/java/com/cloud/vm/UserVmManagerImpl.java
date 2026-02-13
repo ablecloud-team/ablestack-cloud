@@ -351,7 +351,6 @@ import com.cloud.storage.StoragePool;
 import com.cloud.storage.StoragePoolStatus;
 import com.cloud.storage.VMTemplateStorageResourceAssoc;
 import com.cloud.storage.VMTemplateVO;
-import com.cloud.storage.VMTemplateZoneVO;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeApiService;
 import com.cloud.storage.VolumeVO;
@@ -1402,7 +1401,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 if ((cpuSpeed == null) || (NumbersUtil.parseInt(cpuSpeed, -1) <= 0)) {
                     throw new InvalidParameterValueException("Invalid CPU speed value, specify a value between 1 and " + Integer.MAX_VALUE);
                 }
-            } else if (!serviceOffering.isCustomCpuSpeedSupported() && customParameters.containsKey(UsageEventVO.DynamicParameters.cpuSpeed.name())) {
+            } else if (!serviceOffering.isCustomized() && customParameters.containsKey(UsageEventVO.DynamicParameters.cpuSpeed.name())) {
                 throw new InvalidParameterValueException("The CPU speed of this offering id:" + serviceOffering.getUuid()
                 + " is not customizable. This is predefined in the Template.");
             }
@@ -4593,11 +4592,6 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 throw new InvalidParameterValueException(String.format("Unable to use system template %s to deploy a user vm", template));
             }
 
-            // apache#9873 ) kvm-default-vm-import-dummy-template 을 이용한 가상머신 생성을 위해 임시 주석처리
-            // List<VMTemplateZoneVO> listZoneTemplate = _templateZoneDao.listByZoneTemplate(zone.getId(), template.getId());
-            // if (listZoneTemplate == null || listZoneTemplate.isEmpty()) {
-            //     throw new InvalidParameterValueException(String.format("The template %s is not available for use", template));
-            // }
             if (volume != null) {
                 if (zone.getId() != volume.getDataCenterId()) {
                     throw new InvalidParameterValueException(String.format("The volume's zone [%s] is not the same as the provided zone [%s]", volume.getDataCenterId(), zone.getId()));
@@ -4607,12 +4601,12 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 if (CollectionUtils.isEmpty(snapshotsOnZone)) {
                     throw new InvalidParameterValueException("The snapshot does not exist on zone " + zone.getId());
                 }
-            } else {
-                List<VMTemplateZoneVO> listZoneTemplate = _templateZoneDao.listByZoneTemplate(zone.getId(), template.getId());
-                if (listZoneTemplate == null || listZoneTemplate.isEmpty()) {
-                    throw new InvalidParameterValueException("The template " + template.getId() + " is not available for use");
-                }
             }
+            //    kvm-default-vm-import-dummy-template 을 이용한 가상머신 생성을 위해 임시 주석처리
+            //    List<VMTemplateZoneVO> listZoneTemplate = _templateZoneDao.listByZoneTemplate(zone.getId(), template.getId());
+            //    if (listZoneTemplate == null || listZoneTemplate.isEmpty()) {
+            //        throw new InvalidParameterValueException("The template " + template.getId() + " is not available for use");
+            //    }
 
             if (isIso && !template.isBootable()) {
                 throw new InvalidParameterValueException(String.format("Installing from ISO requires an ISO that is bootable: %s", template));
@@ -10692,7 +10686,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             if (vmSnapshot == null) {
                 throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to create vm snapshot");
             }
-            vmSnapshot = _vmSnapshotMgr.createVMSnapshot(curVm.getId(), vmSnapshot.getId(), true);
+            vmSnapshot = _vmSnapshotMgr.createVMSnapshot(curVm.getId(), vmSnapshot.getId(), false);
             if (vmSnapshot == null) {
                 throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to create vm snapshot due to an internal error creating snapshot for vm " + curVm.getId());
             }

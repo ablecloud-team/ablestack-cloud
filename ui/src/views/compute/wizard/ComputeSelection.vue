@@ -19,7 +19,7 @@
   <a-card v-if="isCustomized">
     <a-col>
       <a-row>
-        <a-col :md="colContraned" :lg="colContraned" v-if="isCustomized">
+        <a-col :md="computeColSpan" :lg="computeColSpan" v-if="isCustomized">
           <a-form-item
             :label="$t('label.cpunumber')"
             :validate-status="errors.cpu.status"
@@ -45,7 +45,7 @@
             </a-row>
           </a-form-item>
         </a-col>
-        <a-col :md="8" :lg="8" v-show="!isConstrained" v-if="isCustomized">
+        <a-col :md="computeColSpan" :lg="computeColSpan" v-show="!isConstrained" v-if="isCustomized">
           <a-form-item
             :label="$t('label.cpuspeed')"
             :validate-status="errors.cpuspeed.status"
@@ -57,7 +57,7 @@
             />
           </a-form-item>
         </a-col>
-        <a-col :md="colContraned" :lg="colContraned" v-if="isCustomized">
+        <a-col :md="computeColSpan" :lg="computeColSpan" v-if="isCustomized">
           <a-form-item
             :label="$t('label.memory.mb')"
             :validate-status="errors.memory.status"
@@ -169,7 +169,7 @@ export default {
   data () {
     return {
       cpuNumberInputValue: 0,
-      cpuSpeedInputValue: 0,
+      cpuSpeedInputValue: 1000,
       memoryInputValue: 0,
       errors: {
         cpu: {
@@ -192,12 +192,14 @@ export default {
     }
   },
   computed: {
-    colContraned () {
-      if (this.isConstrained && this.maxCpu && !isNaN(this.maxCpu)) {
-        return 12
+    computeFieldCount () {
+      return this.isCustomized ? 3 : 0
+    },
+    computeColSpan () {
+      if (this.computeFieldCount <= 0) {
+        return 24
       }
-
-      return 8
+      return Math.floor(24 / this.computeFieldCount)
     }
   },
   watch: {
@@ -214,11 +216,13 @@ export default {
   },
   methods: {
     fillValue () {
-      console.log('this.curMemory :>> ', this.curMemory)
-      console.log('this.minMemory :>> ', this.minMemory)
-      this.cpuNumberInputValue = this.curCpu > 1 ? this.curCpu : this.minCpu
-      this.memoryInputValue = this.curMemory > 1 ? this.curMemory : this.minMemory
-      this.cpuSpeedInputValue = this.cpuSpeed
+      this.cpuNumberInputValue = this.minCpu === 0 || isNaN(this.minCpu) ? 1 : this.minCpu
+      this.memoryInputValue = this.minMemory === 0 || isNaN(this.minMemory) ? 1024 : this.minMemory
+      this.cpuSpeedInputValue = this.cpuSpeed === 0 || isNaN(this.cpuSpeed) ? 1000 : this.cpuSpeed
+      console.log('this.cpuNumberInputValue :>> ', this.cpuNumberInputValue)
+      console.log('this.memoryInputValue :>> ', this.memoryInputValue)
+      console.log('this.cpuSpeedInputValue :>> ', this.cpuSpeedInputValue)
+      console.log('this.preFillContent.cpuspeed :>> ', this.preFillContent.cpuspeed)
 
       if (!this.preFillContent) {
         this.updateComputeCpuNumber(this.cpuNumberInputValue)
@@ -247,6 +251,7 @@ export default {
       this.$emit('update-compute-cpunumber', this.cpuNumberInputDecorator, value)
     },
     updateComputeCpuSpeed (value) {
+      console.log('value :>> ', value)
       this.$emit('update-compute-cpuspeed', this.cpuSpeedInputDecorator, value)
     },
     updateComputeMemory (value) {
