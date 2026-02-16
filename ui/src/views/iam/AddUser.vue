@@ -133,11 +133,16 @@
             </a-select-option>
           </a-select>
         </a-form-item>
+        <a-form-item v-if="isAdminOrDomainAdmin() && !samlEnable" name="passwordChangeRequired" ref="passwordChangeRequired">
+            <a-checkbox v-model:checked="form.passwordChangeRequired">
+              {{ $t('label.change.password.onlogin') }}
+            </a-checkbox>
+        </a-form-item>
         <div v-if="samlAllowed">
-          <a-form-item name="samlenable" ref="samlenable" :label="$t('label.samlenable')">
-            <a-switch v-model:checked="form.samlenable" />
+          <a-form-item name="samlEnable" ref="samlEnable" :label="$t('label.samlenable')">
+            <a-switch v-model:checked="samlEnable" />
           </a-form-item>
-          <a-form-item name="samlentity" ref="samlentity" v-if="form.samlenable">
+          <a-form-item name="samlentity" ref="samlentity" v-if="samlEnable">
             <template #label>
               <tooltip-label :title="$t('label.samlentity')" :tooltip="apiParams.entityid.description"/>
             </template>
@@ -197,6 +202,13 @@ export default {
     this.apiParams = this.$getApiParams('createUser', 'authorizeSamlSso')
     this.initForm()
     this.fetchData()
+  },
+  watch: {
+    samlEnable (newVal) {
+      if (newVal) {
+        this.form.passwordChangeRequired = false
+      }
+    }
   },
   computed: {
     samlAllowed () {
@@ -294,6 +306,30 @@ export default {
         } else if (values.account) {
           params.account = values.account
         }
+        
+      await this.formRef.value.validate()
+        .catch(error => this.formRef.value.scrollToField(error.errorFields[0].name))
+
+      this.loading = true
+      try {
+        const userCreationResponse = await this.createUser(values)
+        this.$notification.success({
+          message: this.$t('label.create.user'),
+          description: `${this.$t('message.success.create.user')} ${values.username}`
+        })
+
+        const user = userCreationResponse?.createuserresponse?.user
+        if (this.samlEnable && user) {
+          await postAPI('authorizeSamlSso', {
+            enable: this.samlEnable,
+            entityid: values.samlentity,
+            userid: user.id
+          })
+          this.$notification.success({
+            message: this.$t('label.samlenable'),
+            description: this.$t('message.success.enable.saml.auth')
+          })
+        }
 
         // Domain: use route query domainid if available, otherwise use form value
         if (this.domainid) {
@@ -369,6 +405,9 @@ export default {
 
       if (this.isValidValueForKey(rawParams, 'timezone') && rawParams.timezone.length > 0) {
         params.timezone = rawParams.timezone
+      }
+      if (this.isAdminOrDomainAdmin() && rawParams.passwordChangeRequired === true) {
+        params.passwordchangerequired = rawParams.passwordChangeRequired
       }
 
       return postAPI('createUser', params)
