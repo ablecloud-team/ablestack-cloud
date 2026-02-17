@@ -50,7 +50,6 @@ github:
     rebase: false
 
   collaborators:
-    - acs-robot
     - gpordeus
     - hsato03
     - abh1sar
