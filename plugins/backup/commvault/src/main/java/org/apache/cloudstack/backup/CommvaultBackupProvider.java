@@ -1105,8 +1105,8 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     }
 
     private boolean executeDeleteBackupPathCommand(Host host, String username, String password, int port, String command) {
+        HostVO hostVO = hostDao.findById(host.getId());
         try {
-            HostVO hostVO = hostDao.findById(host.getId());
             Pair<Boolean, String> response = SshHelper.sshExecute(hostVO.getPrivateIpAddress(), port,
                     username, null, password, command, 120000, 120000, 3600000);
 
