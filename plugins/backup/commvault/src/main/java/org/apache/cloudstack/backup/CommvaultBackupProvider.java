@@ -355,7 +355,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         String jobId = client.createBackup(subclientId, storagePolicyId, displayName, commCellName, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, subclientGUID, subclientName, csGUID, backupsetName);
                         if (jobId != null) {
                             String jobStatus = client.getJobStatus(jobId);
-                            if (jobStatus.equalsIgnoreCase("Completed")) {
+                            if (jobStatus.contains("Completed")) {
                                 String jobDetails = client.getJobDetails(jobId);
                                 if (jobDetails != null) {
                                     JSONObject jsonObject2 = new JSONObject(jobDetails);
@@ -497,7 +497,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String jobId2 = client.restoreFullVM(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, path);
         if (jobId2 != null) {
             String jobStatus = client.getJobStatus(jobId2);
-            if (jobStatus.equalsIgnoreCase("Completed")) {
+            if (jobStatus.contains("Completed")) {
                 List<String> backedVolumesUUIDs = backup.getBackedUpVolumes().stream()
                         .sorted(Comparator.comparingLong(Backup.VolumeInfo::getDeviceId))
                         .map(Backup.VolumeInfo::getUuid)
@@ -622,7 +622,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String jobId2 = client.restoreFullVM(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, path);
         if (jobId2 != null) {
             String jobStatus = client.getJobStatus(jobId2);
-            if (jobStatus.equalsIgnoreCase("Completed")) {
+            if (jobStatus.contains("Completed")) {
                 final VolumeVO volume = volumeDao.findByUuid(backupVolumeInfo.getUuid());
                 final DiskOffering diskOffering = diskOfferingDao.findByUuid(backupVolumeInfo.getDiskOfferingId());
                 String cacheMode = null;
@@ -963,7 +963,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
                     if (jobId != null) {
                         String jobStatus = client.getJobStatus(jobId);
-                        if (!jobStatus.equalsIgnoreCase("Completed")) {
+                        if (!jobStatus.contains("Completed")) {
                             LOG.error("installing agent on the Commvault Backup Provider failed jogId : " + jobId + " , jobStatus : " + jobStatus);
                             ActionEventUtils.onActionEvent(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, Domain.ROOT_DOMAIN, EventTypes.EVENT_HOST_AGENT_INSTALL,
                                 "Failed install the commvault client agent on the host : " + host.getPrivateIpAddress(), User.UID_SYSTEM, ApiCommandResourceType.Host.toString());
