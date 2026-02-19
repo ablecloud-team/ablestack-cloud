@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import io.netty.util.IllegalReferenceCountException;
 import org.apache.cloudstack.storage.template.UploadEntity;
 import org.apache.cloudstack.utils.imagestore.ImageStoreUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +61,7 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder.ErrorDataDecoderException;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData.HttpDataType;
+import io.netty.util.IllegalReferenceCountException;
 import io.netty.util.CharsetUtil;
 
 public class HttpUploadServerHandler extends SimpleChannelInboundHandler<HttpObject> {
@@ -127,9 +127,7 @@ public class HttpUploadServerHandler extends SimpleChannelInboundHandler<HttpObj
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-        if (decoder != null) {
-            decoder.cleanFiles();
-        }
+        destroyDecoder();
         requestProcessed = false;
     }
 
