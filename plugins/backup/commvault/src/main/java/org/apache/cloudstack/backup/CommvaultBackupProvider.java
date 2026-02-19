@@ -258,6 +258,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
     @Override
     public Pair<Boolean, Backup> takeBackup(VirtualMachine vm, Boolean quiesceVM) {
         final Host vmHost = getVMHypervisorHostForBackup(vm);
+        final HostVO vmHostVO = hostDao.findById(vmHost.getId());
         if (CollectionUtils.isNotEmpty(vmSnapshotDao.findByVmAndByType(vm.getId(), VMSnapshot.Type.DiskAndMemory))) {
             LOG.debug("Commvault backup provider cannot take backups of a VM [{}] with disk-and-memory VM snapshots. Restoring the backup will corrupt any newer disk-and-memory " +
                     "VM snapshots.", vm);
@@ -323,7 +324,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
         if (answer != null && answer.getResult()) {
             int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
-            Ternary<String, String, String> credentials = getKVMHyperisorCredentials(vmHost);
+            Ternary<String, String, String> credentials = getKVMHyperisorCredentials(vmHostVO);
             String cmd = String.format(RM_COMMAND, backupPath);
             // 생성된 백업 폴더 경로로 해당 백업 세트의 백업 콘텐츠 경로 업데이트
             String clientId = client.getClientId(vmHost.getName());
@@ -384,10 +385,15 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                     List<Volume> vols = new ArrayList<>(volumeDao.findByInstance(vm.getId()));
                                     backupVO.setBackedUpVolumes(backupManager.createVolumeInfoFromVolumes(vols));
                                     if (backupDao.update(backupVO.getId(), backupVO)) {
-                                        executeDeleteBackupPathCommand(vmHost, credentials.first(), credentials.second(), sshPort, cmd);
+                                        LOG.info(vmHostVO);
+                                        LOG.info(credentials.first());
+                                        LOG.info(credentials.second());
+                                        LOG.info(sshPort);
+                                        LOG.info(cmd);
+                                        executeDeleteBackupPathCommand(vmHostVO, credentials.first(), credentials.second(), sshPort, cmd);
                                         return new Pair<>(true, backupVO);
                                     } else {
-                                        executeDeleteBackupPathCommand(vmHost, credentials.first(), credentials.second(), sshPort, cmd);
+                                        executeDeleteBackupPathCommand(vmHostVO, credentials.first(), credentials.second(), sshPort, cmd);
                                         throw new CloudRuntimeException("Failed to update backup");
                                     }
                                 } else {
@@ -408,7 +414,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             }
             backupVO.setStatus(Backup.Status.Failed);
             backupDao.remove(backupVO.getId());
-            executeDeleteBackupPathCommand(vmHost, credentials.first(), credentials.second(), sshPort, cmd);
+            executeDeleteBackupPathCommand(vmHostVO, credentials.first(), credentials.second(), sshPort, cmd);
             return new Pair<>(false, null);
         } else {
             LOG.error("Failed to take backup for VM {}: {}", vm.getInstanceName(), answer != null ? answer.getDetails() : "No answer received");
@@ -496,6 +502,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
         // 복원된 호스트 정의
         final HostVO restoreHost = hostDao.findByName(clientName);
+        final HostVO restoreHostVO = hostDao.findById(restoreHost.getId());
         LOG.info(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
         // 복원 실행
         String jobId2 = client.restoreFullVM(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, path);
@@ -514,6 +521,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 LOG.debug("Restoring vm {} from backup {} on the Commvault Backup Provider", vm, backup);
                 // 가상머신이 실행중인 호스트 정의
                 final Host vmHost = getVMHypervisorHost(vm);
+                final HostVO vmHostVO = hostDao.findById(vmHost.getId());
                 CommvaultRestoreBackupCommand restoreCommand = new CommvaultRestoreBackupCommand();
                 restoreCommand.setBackupPath(backup.getExternalId());
                 restoreCommand.setVmName(vm.getName());
@@ -537,13 +545,13 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 }
                 if (!answer.getResult()) {
                     int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
-                    Ternary<String, String, String> credentials = getKVMHyperisorCredentials(vmHost);
+                    Ternary<String, String, String> credentials = getKVMHyperisorCredentials(vmHostVO);
                     String command = String.format(RM_COMMAND, path);
-                    executeDeleteBackupPathCommand(vmHost, credentials.first(), credentials.second(), sshPort, command);
+                    executeDeleteBackupPathCommand(vmHostVO, credentials.first(), credentials.second(), sshPort, command);
                     if (restoreHost.getId() != vmHost.getId()) {
-                        credentials = getKVMHyperisorCredentials(restoreHost);
+                        credentials = getKVMHyperisorCredentials(restoreHostVO);
                         command = String.format(RM_COMMAND, path);
-                        executeDeleteBackupPathCommand(restoreHost, credentials.first(), credentials.second(), sshPort, command);
+                        executeDeleteBackupPathCommand(restoreHostVO, credentials.first(), credentials.second(), sshPort, command);
                     }
                 }
                 return new Pair<>(answer.getResult(), answer.getDetails());
@@ -642,8 +650,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 final StoragePoolVO pool = primaryDataStoreDao.findByUuid(dataStoreUuid);
                 // 백업 볼륨 복원 및 연결 시 연결할 가상머신이 실행중인 경우 해당 호스트, 정지중인 경우 랜덤 호스트 정의백업
                 final HostVO vmHost = hostDao.findByIp(hostIp);
+                final HostVO vmHostVO = hostDao.findById(vmHost.getId());
                 // 복원된 호스트 정의
                 final HostVO restoreHost = hostDao.findByName(clientName);
+                final HostVO restoreHostVO = hostDao.findById(restoreHost.getId());
                 LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volume.getUuid(), backup));
                 LOG.debug("Restoring vm volume {} from backup {} on the Commvault Backup Provider", backupVolumeInfo, backup);
                 VolumeVO restoredVolume = new VolumeVO(Volume.Type.DATADISK, null, backup.getZoneId(),
@@ -702,13 +712,13 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     return new Pair<>(answer.getResult(), answer.getDetails());
                 } else {
                     int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
-                    Ternary<String, String, String> credentials = getKVMHyperisorCredentials(vmHost);
+                    Ternary<String, String, String> credentials = getKVMHyperisorCredentials(vmHostVO);
                     String command = String.format(RM_COMMAND, path);
-                    executeDeleteBackupPathCommand(vmHost, credentials.first(), credentials.second(), sshPort, command);
+                    executeDeleteBackupPathCommand(vmHostVO, credentials.first(), credentials.second(), sshPort, command);
                     if (restoreHost.getId() != vmHost.getId()) {
-                        credentials = getKVMHyperisorCredentials(restoreHost);
+                        credentials = getKVMHyperisorCredentials(restoreHostVO);
                         command = String.format(RM_COMMAND, path);
-                        executeDeleteBackupPathCommand(restoreHost, credentials.first(), credentials.second(), sshPort, command);
+                        executeDeleteBackupPathCommand(restoreHostVO, credentials.first(), credentials.second(), sshPort, command);
                     }
                 }
             } else {
@@ -1086,37 +1096,35 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         throw new CloudRuntimeException("Failed to build Commvault API client");
     }
 
-    protected Ternary<String, String, String> getKVMHyperisorCredentials(Host host) {
+    protected Ternary<String, String, String> getKVMHyperisorCredentials(HostVO host) {
 
         String username = null;
         String password = null;
-        HostVO hostVO = hostDao.findById(host.getId());
 
-        if (hostVO != null && hostVO.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
-            hostDao.loadDetails(hostVO);
-            password = hostVO.getDetail("password");
-            username = hostVO.getDetail("username");
+        if (host != null && hostVO.getHypervisorType() == Hypervisor.HypervisorType.KVM) {
+            hostDao.loadDetails(host);
+            password = host.getDetail("password");
+            username = host.getDetail("username");
         }
         if ( password == null  || username == null) {
-            throw new CloudRuntimeException("Cannot find login credentials for HYPERVISOR " + Objects.requireNonNull(hostVO).getUuid());
+            throw new CloudRuntimeException("Cannot find login credentials for HYPERVISOR " + Objects.requireNonNull(host).getUuid());
         }
 
         return new Ternary<>(username, password, null);
     }
 
-    private boolean executeDeleteBackupPathCommand(Host host, String username, String password, int port, String command) {
-        HostVO hostVO = hostDao.findById(host.getId());
+    private boolean executeDeleteBackupPathCommand(HostVO host, String username, String password, int port, String command) {
         try {
-            Pair<Boolean, String> response = SshHelper.sshExecute(hostVO.getPrivateIpAddress(), port,
+            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), port,
                     username, null, password, command, 120000, 120000, 3600000);
 
             if (!response.first()) {
-                LOG.error(String.format("failed on HYPERVISOR %s due to: %s", hostVO, response.second()));
+                LOG.error(String.format("failed on HYPERVISOR %s due to: %s", host, response.second()));
             } else {
                 return true;
             }
         } catch (final Exception e) {
-            throw new CloudRuntimeException(String.format("Failed to delete backup path on host %s due to: %s", hostVO.getName(), e.getMessage()));
+            throw new CloudRuntimeException(String.format("Failed to delete backup path on host %s due to: %s", host.getName(), e.getMessage()));
         }
         return false;
     }
