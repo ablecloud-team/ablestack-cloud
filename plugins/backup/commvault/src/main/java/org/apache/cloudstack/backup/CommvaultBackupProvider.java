@@ -322,6 +322,9 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         }
 
         if (answer != null && answer.getResult()) {
+            int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
+            Ternary<String, String, String> credentials = getKVMHyperisorCredentials(vmHost);
+            String cmd = String.format(RM_COMMAND, backupPath);
             // 생성된 백업 폴더 경로로 해당 백업 세트의 백업 콘텐츠 경로 업데이트
             String clientId = client.getClientId(vmHost.getName());
             String subClientEntity = client.getSubclient(clientId, vm.getInstanceName());
@@ -381,8 +384,10 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                     List<Volume> vols = new ArrayList<>(volumeDao.findByInstance(vm.getId()));
                                     backupVO.setBackedUpVolumes(backupManager.createVolumeInfoFromVolumes(vols));
                                     if (backupDao.update(backupVO.getId(), backupVO)) {
+                                        executeDeleteBackupPathCommand(vmHost, credentials.first(), credentials.second(), sshPort, cmd);
                                         return new Pair<>(true, backupVO);
                                     } else {
+                                        executeDeleteBackupPathCommand(vmHost, credentials.first(), credentials.second(), sshPort, cmd);
                                         throw new CloudRuntimeException("Failed to update backup");
                                     }
                                 } else {
@@ -403,9 +408,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
             }
             backupVO.setStatus(Backup.Status.Failed);
             backupDao.remove(backupVO.getId());
-            int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
-            Ternary<String, String, String> credentials = getKVMHyperisorCredentials(vmHost);
-            String cmd = String.format(RM_COMMAND, backupPath);
             executeDeleteBackupPathCommand(vmHost, credentials.first(), credentials.second(), sshPort, cmd);
             return new Pair<>(false, null);
         } else {
