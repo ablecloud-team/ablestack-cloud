@@ -1101,7 +1101,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         String username = null;
         String password = null;
 
-        if (host != null && host.getHypervisorType() ==  ypervisor.HypervisorType.KVM) {
+        if (host != null && host.getHypervisorType() ==  Hypervisor.HypervisorType.KVM) {
             hostDao.loadDetails(host);
             password = host.getDetail("password");
             username = host.getDetail("username");
