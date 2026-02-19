@@ -61,6 +61,7 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder.ErrorDataDecoderException;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData.HttpDataType;
+import io.netty.util.IllegalReferenceCountException;
 import io.netty.util.CharsetUtil;
 
 public class HttpUploadServerHandler extends SimpleChannelInboundHandler<HttpObject> {
@@ -126,9 +127,7 @@ public class HttpUploadServerHandler extends SimpleChannelInboundHandler<HttpObj
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-        if (decoder != null) {
-            decoder.cleanFiles();
-        }
+        destroyDecoder();
         requestProcessed = false;
     }
 
@@ -230,8 +229,20 @@ public class HttpUploadServerHandler extends SimpleChannelInboundHandler<HttpObj
     private void reset() {
         request = null;
         // destroy the decoder to release all resources
-        decoder.destroy();
-        decoder = null;
+        destroyDecoder();
+    }
+
+    private void destroyDecoder() {
+        if (decoder == null) {
+            return;
+        }
+        try {
+            decoder.destroy();
+        } catch (IllegalReferenceCountException e) {
+            logger.debug("Decoder already destroyed", e);
+        } finally {
+            decoder = null;
+        }
     }
 
     private HttpResponseStatus readFileUploadData() throws IOException {
