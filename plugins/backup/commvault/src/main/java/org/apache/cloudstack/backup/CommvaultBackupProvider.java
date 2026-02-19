@@ -355,6 +355,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                         String jobId = client.createBackup(subclientId, storagePolicyId, displayName, commCellName, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, subclientGUID, subclientName, csGUID, backupsetName);
                         if (jobId != null) {
                             String jobStatus = client.getJobStatus(jobId);
+                            String externalId = backupPath + "," + jobId;
                             if (jobStatus.contains("Completed")) {
                                 String jobDetails = client.getJobDetails(jobId);
                                 if (jobDetails != null) {
@@ -366,7 +367,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                     String formattedString = formatterDateTime.format(endDate);
                                     String size = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("detailInfo").get("sizeOfApplication"));
                                     String type = String.valueOf(jsonObject2.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("backupType"));
-                                    String externalId = backupPath + "," + jobId;
                                     backupVO.setExternalId(externalId);
                                     backupVO.setType(type.toUpperCase());
                                     try {
@@ -386,9 +386,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                         throw new CloudRuntimeException("Failed to update backup");
                                     }
                                 } else {
+                                    backupVO.setExternalId(externalId);
                                     LOG.error("Failed to take backup for VM " + vm.getInstanceName() + " to get details job commvault api");
                                 }
                             } else {
+                                backupVO.setExternalId(externalId);
                                 LOG.error("Failed to take backup for VM " + vm.getInstanceName() + " to create backup job status is " + jobStatus);
                             }
                         } else {
