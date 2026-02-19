@@ -65,7 +65,7 @@ public class LibvirtCommvaultTakeBackupCommandWrapper extends CommandWrapper<Com
 
         List<String[]> commands = new ArrayList<>();
         commands.add(new String[]{
-                libvirtComputingResource.getNasBackupPath(),
+                libvirtComputingResource.getCvtBackupPath(),
                 "-o", "backup",
                 "-v", vmName,
                 "-p", backupPath,
