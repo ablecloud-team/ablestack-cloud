@@ -1106,16 +1106,17 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
 
     private boolean executeDeleteBackupPathCommand(Host host, String username, String password, int port, String command) {
         try {
-            Pair<Boolean, String> response = SshHelper.sshExecute(host.getPrivateIpAddress(), port,
+            HostVO hostVO = hostDao.findById(host.getId());
+            Pair<Boolean, String> response = SshHelper.sshExecute(hostVO.getPrivateIpAddress(), port,
                     username, null, password, command, 120000, 120000, 3600000);
 
             if (!response.first()) {
-                LOG.error(String.format("failed on HYPERVISOR %s due to: %s", host, response.second()));
+                LOG.error(String.format("failed on HYPERVISOR %s due to: %s", hostVO, response.second()));
             } else {
                 return true;
             }
         } catch (final Exception e) {
-            throw new CloudRuntimeException(String.format("Failed to delete backup path on host %s due to: %s", host.getName(), e.getMessage()));
+            throw new CloudRuntimeException(String.format("Failed to delete backup path on host %s due to: %s", hostVO.getName(), e.getMessage()));
         }
         return false;
     }
