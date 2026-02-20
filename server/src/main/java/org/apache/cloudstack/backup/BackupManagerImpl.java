@@ -695,8 +695,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
         final int maxBackups = validateAndGetDefaultBackupRetentionIfRequired(cmd.getMaxBackups(), offering, vm);
 
-        if (!"nas".equals(offering.getProvider()) && cmd.getQuiesceVM() != null) {
-            throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS backup provider");
+        if ((!"nas".equals(offering.getProvider()) && !"commvault".equals(offering.getProvider())) && cmd.getQuiesceVM() != null) {
+            throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS, Commvault backup provider");
         }
 
         final String timezoneId = timeZone.getID();
@@ -897,8 +897,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             throw new CloudRuntimeException("The assigned backup offering does not allow ad-hoc user backup");
         }
 
-        if (!"nas".equals(offering.getProvider()) && cmd.getQuiesceVM() != null) {
-            throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS backup provider");
+        if ((!"nas".equals(offering.getProvider()) && !"commvault".equals(offering.getProvider())) && cmd.getQuiesceVM() != null) {
+            throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS, Commvault backup provider");
         }
 
         Long backupScheduleId = getBackupScheduleId(job);
@@ -1497,7 +1497,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
             String host = null;
             String dataStore = null;
-            if (!"nas".equals(offering.getProvider())) {
+            if (!"nas".equals(offering.getProvider()) && !"commvault".equals(offering.getProvider())) {
                 Pair<HostVO, StoragePoolVO> restoreInfo = getRestoreVolumeHostAndDatastore(vm);
                 host = restoreInfo.first().getPrivateIpAddress();
                 dataStore = restoreInfo.second().getUuid();
