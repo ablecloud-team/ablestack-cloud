@@ -631,6 +631,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         if (jobId2 != null) {
             String jobStatus = client.getJobStatus(jobId2);
             if (jobStatus.contains("Completed")) {
+                final int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
                 final VolumeVO volume = volumeDao.findByUuid(backupVolumeInfo.getUuid());
                 final DiskOffering diskOffering = diskOfferingDao.findByUuid(backupVolumeInfo.getDiskOfferingId());
                 String cacheMode = null;
@@ -708,9 +709,13 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                     } catch (Exception e) {
                         throw new CloudRuntimeException("Unable to create restored volume due to: " + e);
                     }
+                    if (restoreHost.getId() != vmHost.getId()) {
+                        Ternary<String, String, String> credentials = getKVMHyperisorCredentials(restoreHostVO);
+                        String command = String.format(RM_COMMAND, path);
+                        executeDeleteBackupPathCommand(restoreHostVO, credentials.first(), credentials.second(), sshPort, command);
+                    }
                     return new Pair<>(answer.getResult(), answer.getDetails());
                 } else {
-                    int sshPort = NumbersUtil.parseInt(configDao.getValue("kvm.ssh.port"), 22);
                     Ternary<String, String, String> credentials = getKVMHyperisorCredentials(vmHostVO);
                     String command = String.format(RM_COMMAND, path);
                     executeDeleteBackupPathCommand(vmHostVO, credentials.first(), credentials.second(), sshPort, command);
