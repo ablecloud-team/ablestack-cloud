@@ -1575,7 +1575,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         BackupProvider backupProvider = getBackupProvider(offering.getProvider());
         VolumeVO backedUpVolume = volumeDao.findByUuid(backedUpVolumeUuid);
         Pair<HostVO, StoragePoolVO> restoreInfo;
-        if (!"nas".equals(offering.getProvider()) || (backedUpVolume == null)) {
+        if ((!"nas".equals(offering.getProvider()) && !"commvault".equals(offering.getProvider())) || backedUpVolume == null) {
             restoreInfo = getRestoreVolumeHostAndDatastore(vm);
         } else {
             restoreInfo = getRestoreVolumeHostAndDatastoreForNas(vm, backedUpVolume);
