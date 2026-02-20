@@ -385,11 +385,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                                     List<Volume> vols = new ArrayList<>(volumeDao.findByInstance(vm.getId()));
                                     backupVO.setBackedUpVolumes(backupManager.createVolumeInfoFromVolumes(vols));
                                     if (backupDao.update(backupVO.getId(), backupVO)) {
-                                        LOG.info(vmHostVO);
-                                        LOG.info(credentials.first());
-                                        LOG.info(credentials.second());
-                                        LOG.info(sshPort);
-                                        LOG.info(cmd);
                                         executeDeleteBackupPathCommand(vmHostVO, credentials.first(), credentials.second(), sshPort, cmd);
                                         return new Pair<>(true, backupVO);
                                     } else {
