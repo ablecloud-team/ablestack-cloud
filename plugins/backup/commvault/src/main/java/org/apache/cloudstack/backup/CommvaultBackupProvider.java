@@ -523,7 +523,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 final Host vmHost = getVMHypervisorHost(vm);
                 final HostVO vmHostVO = hostDao.findById(vmHost.getId());
                 CommvaultRestoreBackupCommand restoreCommand = new CommvaultRestoreBackupCommand();
-                restoreCommand.setBackupPath(backup.getExternalId());
+                restoreCommand.setBackupPath(path);
                 restoreCommand.setVmName(vm.getName());
                 restoreCommand.setBackupVolumesUUIDs(backedVolumesUUIDs);
                 Pair<List<PrimaryDataStoreTO>, List<String>> volumePoolsAndPaths = getVolumePoolsAndPaths(restoreVolumes);
