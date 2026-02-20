@@ -101,6 +101,7 @@ backup_running_vm() {
 
   local thaw=0
   if [[ ${QUIESCE} == "true" ]]; then
+    log -ne "Pause option is enabled on a running virtual machine"
     if virsh -c qemu:///system qemu-agent-command "$VM" '{"execute":"guest-fsfreeze-freeze"}' > /dev/null 2>/dev/null; then
       thaw=1
     fi
