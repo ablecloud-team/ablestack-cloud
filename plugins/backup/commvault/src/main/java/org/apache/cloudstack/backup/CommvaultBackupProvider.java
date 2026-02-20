@@ -471,7 +471,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         final CommvaultClient client = getClient(vm.getDataCenterId());
         final String externalId = backup.getExternalId();
         String jobId = externalId.substring(externalId.lastIndexOf(',') + 1).trim();
-        String path = externalId.substring(0, externalId.lastIndexOf(','));
+        final String path = externalId.substring(0, externalId.lastIndexOf(','));
         String jobDetails = client.getJobDetails(jobId);
         if (jobDetails == null) {
             throw new CloudRuntimeException("Failed to get job details commvault api");
@@ -518,6 +518,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 final Host vmHost = getVMHypervisorHost(vm);
                 final HostVO vmHostVO = hostDao.findById(vmHost.getId());
                 CommvaultRestoreBackupCommand restoreCommand = new CommvaultRestoreBackupCommand();
+                LOG.info(path);
                 restoreCommand.setBackupPath(path);
                 restoreCommand.setVmName(vm.getName());
                 restoreCommand.setBackupVolumesUUIDs(backedVolumesUUIDs);
