@@ -602,7 +602,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         final Long zoneId = backup.getZoneId();
         final CommvaultClient client = getClient(zoneId);
         String jobId = externalId.substring(externalId.lastIndexOf(',') + 1).trim();
-        String path = externalId.substring(0, externalId.lastIndexOf(','));
+        final String path = externalId.substring(0, externalId.lastIndexOf(','));
         String jobDetails = client.getJobDetails(jobId);
         if (jobDetails == null) {
             throw new CloudRuntimeException("Failed to get job details commvault api");
@@ -647,9 +647,11 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 // 백업 볼륨 복원 및 연결 시 연결할 가상머신이 실행중인 경우 해당 호스트, 정지중인 경우 랜덤 호스트 정의백업
                 final HostVO vmHost = hostDao.findByIp(hostIp);
                 final HostVO vmHostVO = hostDao.findById(vmHost.getId());
+                LOG.info("연결할 가상머신이 실행중이라면 실행중인호스트, 정지중이라면 랜덤호스트" + vmHost);
                 // 복원된 호스트 정의
                 final HostVO restoreHost = hostDao.findByName(clientName);
                 final HostVO restoreHostVO = hostDao.findById(restoreHost.getId());
+                LOG.info("백업본이 저장된 호스트 즉, 복원된 호스트" + restoreHost);
                 LOG.info(String.format("Restoring volume %s from backup %s on the Commvault Backup Provider", volume.getUuid(), backup));
                 LOG.debug("Restoring vm volume {} from backup {} on the Commvault Backup Provider", backupVolumeInfo, backup);
                 VolumeVO restoredVolume = new VolumeVO(Volume.Type.DATADISK, null, backup.getZoneId(),
@@ -689,6 +691,7 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
                 restoreCommand.setCacheMode(cacheMode);
                 // 복원된 호스트와 가상머신이 실행중인 호스트가 같은 경우 null, 다른 경우 추가
                 restoreCommand.setHostName(restoreHost.getId() == vmHost.getId() ? null : restoreHost.getName());
+                LOG.info("복원된 호스트와 가상머신이 실행중인 호스트가 같은 경우 null, 다른 경우 추가" + restoreHost.getId() == vmHost.getId() ? null : restoreHost.getName());
 
                 BackupAnswer answer;
                 try {
