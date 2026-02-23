@@ -61,6 +61,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
+import com.cloud.network.vpc.VpcVO;
 import org.apache.cloudstack.acl.ControlledEntity;
 import org.apache.cloudstack.acl.SecurityChecker;
 import org.apache.cloudstack.affinity.AffinityGroupProcessor;
@@ -5347,12 +5348,21 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         }
 
         if (associatedNetworkId != null) {
-            _accountMgr.checkAccess(caller, null, false, networkDao.findById(associatedNetworkId));
-            sc.setParameters("associatedNetworkIdEq", associatedNetworkId);
+            NetworkVO associatedNetwork = networkDao.findById(associatedNetworkId);
+
+            if (associatedNetwork != null) {
+                _accountMgr.checkAccess(caller, null, false, associatedNetwork);
+                sc.setParameters("associatedNetworkIdEq", associatedNetworkId);
+            }
         }
+
         if (vpcId != null) {
-            _accountMgr.checkAccess(caller, null, false, _vpcDao.findById(vpcId));
-            sc.setParameters("vpcId", vpcId);
+            VpcVO vpc = _vpcDao.findById(vpcId);
+
+            if (vpc != null) {
+                _accountMgr.checkAccess(caller, null, false, vpc);
+                sc.setParameters("vpcId", vpcId);
+            }
         }
 
         addrs = _publicIpAddressDao.search(sc, searchFilter); // Allocated
@@ -5369,13 +5379,16 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             }
             if (associatedNetworkId != null) {
                 NetworkVO guestNetwork = networkDao.findById(associatedNetworkId);
-                if (zoneId == null) {
-                    zoneId = guestNetwork.getDataCenterId();
-                } else if (zoneId != guestNetwork.getDataCenterId()) {
-                    InvalidParameterValueException ex = new InvalidParameterValueException("Please specify a valid associated network id in the specified zone.");
-                    throw ex;
+
+                if (guestNetwork != null) {
+                    if (zoneId == null) {
+                        zoneId = guestNetwork.getDataCenterId();
+                    } else if (zoneId != guestNetwork.getDataCenterId()) {
+                        InvalidParameterValueException ex = new InvalidParameterValueException("Please specify a valid associated network id in the specified zone.");
+                        throw ex;
+                    }
+                    owner = _accountDao.findById(guestNetwork.getAccountId());
                 }
-                owner = _accountDao.findById(guestNetwork.getAccountId());
             }
             List<DataCenterVO> dcList = new ArrayList<>();
             if (zoneId == null){
