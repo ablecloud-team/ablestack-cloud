@@ -718,13 +718,10 @@ export default {
         const deviceName = String(item.hostDevicesName || '')
         const deviceText = String(item.hostDevicesText || '')
 
-        if (deviceName.toUpperCase().includes('LUN') || deviceName.toLowerCase().includes('dm')) {
-          return false
-        }
-
         const isLun = deviceName.startsWith('/dev/') ||
                      deviceName.startsWith('wwn-') ||
                      deviceName.startsWith('scsi-') ||
+                     deviceName.startsWith('dm-') ||
                      deviceName.startsWith('nvme-')
         if (!query) return isLun
         return isLun && (
@@ -2042,16 +2039,21 @@ export default {
         actualDevicePath = basePath
       }
 
-      const targetDev = (basePath || '').replace('/dev/', '')
+      const targetDevFromPath = (basePath || '').replace('/dev/', '')
+      const isValidScsiTarget = /^sd[a-z]{1,2}$/.test(targetDevFromPath)
       const scsiAddr = this.extractScsiAddressString(this.resource?.hostDevicesText || '')
       const addressTag = scsiAddr
         ? `<address type='drive' controller='${scsiAddr.split(':')[0]}' bus='${scsiAddr.split(':')[1]}' target='${scsiAddr.split(':')[2]}' unit='${scsiAddr.split(':')[3]}'/>`
         : ''
+      // 멀티패스(mapper/mpatha1 등): target dev는 백엔드에서 VM XML 기준 sdX로 채움. dev 넣으면 할당 실패
+      const targetTag = isValidScsiTarget
+        ? `<target dev='${targetDevFromPath}' bus='scsi'/>`
+        : `<target bus='scsi'/>`
       return `
         <disk type='block' device='lun'>
           <driver name='qemu' type='raw' io='native' cache='none'/>
           <source dev='${actualDevicePath}'/>
-          <target dev='${targetDev}' bus='scsi'/>
+          ${targetTag}
           ${addressTag}
           <!-- Fallback device path: ${basePath} -->
         </disk>

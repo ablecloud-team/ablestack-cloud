@@ -318,6 +318,14 @@ export default {
       const decodedData = Buffer.from(userdata, 'base64')
       return decodedData.toString('utf-8')
     },
+    normalizeSecurityGroupIds (securityGroupIds = []) {
+      return [...new Set(securityGroupIds)].sort()
+    },
+    hasSecurityGroupsChanged (currentSecurityGroupIds = []) {
+      const initialSecurityGroupIds = this.normalizeSecurityGroupIds((this.resource.securitygroup || []).map(x => x.id))
+      const currentIds = this.normalizeSecurityGroupIds(currentSecurityGroupIds)
+      return initialSecurityGroupIds.join(',') !== currentIds.join(',')
+    },
     fetchUserData () {
       let networkId
       this.resource.nic.forEach(nic => {
@@ -359,8 +367,8 @@ export default {
         params.displayname = values.displayname
         params.ostypeid = values.ostypeid
         if (this.securityGroupNetworkProviderUseThisVM) {
-          if (values.securitygroupids) {
-            params.securitygroupids = values.securitygroupids
+          if (this.hasSecurityGroupsChanged(values.securitygroupids || [])) {
+            params.securitygroupids = values.securitygroupids || []
           }
         }
         if (values.isdynamicallyscalable !== undefined) {

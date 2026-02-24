@@ -24,6 +24,8 @@ import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import com.cloud.utils.db.Filter;
+import com.cloud.utils.db.GenericSearchBuilder;
 import org.apache.cloudstack.api.response.BackupResponse;
 import org.apache.cloudstack.backup.Backup;
 import org.apache.cloudstack.backup.BackupOffering;
@@ -60,6 +62,9 @@ public class BackupDaoImpl extends GenericDaoBase<BackupVO, Long> implements Bac
     BackupOfferingDao backupOfferingDao;
 
     private SearchBuilder<BackupVO> backupSearch;
+    private GenericSearchBuilder<BackupVO, Long> CountBackupsByAccount;
+    private GenericSearchBuilder<BackupVO, SumCount> CalculateBackupStorageByAccount;
+    private SearchBuilder<BackupVO> listBackupsBySchedule;
 
     public BackupDaoImpl() {
     }
@@ -72,6 +77,26 @@ public class BackupDaoImpl extends GenericDaoBase<BackupVO, Long> implements Bac
         backupSearch.and("backup_offering_id", backupSearch.entity().getBackupOfferingId(), SearchCriteria.Op.EQ);
         backupSearch.and("zone_id", backupSearch.entity().getZoneId(), SearchCriteria.Op.EQ);
         backupSearch.done();
+
+        CountBackupsByAccount = createSearchBuilder(Long.class);
+        CountBackupsByAccount.select(null, SearchCriteria.Func.COUNT, null);
+        CountBackupsByAccount.and("account", CountBackupsByAccount.entity().getAccountId(), SearchCriteria.Op.EQ);
+        CountBackupsByAccount.and("status", CountBackupsByAccount.entity().getStatus(), SearchCriteria.Op.NIN);
+        CountBackupsByAccount.and("removed", CountBackupsByAccount.entity().getRemoved(), SearchCriteria.Op.NULL);
+        CountBackupsByAccount.done();
+
+        CalculateBackupStorageByAccount = createSearchBuilder(SumCount.class);
+        CalculateBackupStorageByAccount.select("sum", SearchCriteria.Func.SUM, CalculateBackupStorageByAccount.entity().getSize());
+        CalculateBackupStorageByAccount.and("account", CalculateBackupStorageByAccount.entity().getAccountId(), SearchCriteria.Op.EQ);
+        CalculateBackupStorageByAccount.and("status", CalculateBackupStorageByAccount.entity().getStatus(), SearchCriteria.Op.NIN);
+        CalculateBackupStorageByAccount.and("removed", CalculateBackupStorageByAccount.entity().getRemoved(), SearchCriteria.Op.NULL);
+        CalculateBackupStorageByAccount.done();
+
+        listBackupsBySchedule = createSearchBuilder();
+        listBackupsBySchedule.and("backup_schedule_id", listBackupsBySchedule.entity().getBackupScheduleId(), SearchCriteria.Op.EQ);
+        listBackupsBySchedule.and("status", listBackupsBySchedule.entity().getStatus(), SearchCriteria.Op.EQ);
+        listBackupsBySchedule.and("removed", listBackupsBySchedule.entity().getRemoved(), SearchCriteria.Op.NULL);
+        listBackupsBySchedule.done();
     }
 
     @Override
@@ -140,6 +165,30 @@ public class BackupDaoImpl extends GenericDaoBase<BackupVO, Long> implements Bac
             persist(backupVO);
         }
         return listByVmId(zoneId, vmId);
+    }
+
+    @Override
+    public Long countBackupsForAccount(long accountId) {
+        SearchCriteria<Long> sc = CountBackupsByAccount.create();
+        sc.setParameters("account", accountId);
+        sc.setParameters("status", Backup.Status.Error, Backup.Status.Failed, Backup.Status.Removed, Backup.Status.Expunged);
+        return customSearch(sc, null).get(0);
+    }
+
+    @Override
+    public Long calculateBackupStorageForAccount(long accountId) {
+        SearchCriteria<SumCount> sc = CalculateBackupStorageByAccount.create();
+        sc.setParameters("account", accountId);
+        sc.setParameters("status", Backup.Status.Error, Backup.Status.Failed, Backup.Status.Removed, Backup.Status.Expunged);
+        return customSearch(sc, null).get(0).sum;
+    }
+
+    @Override
+    public List<BackupVO> listBySchedule(Long backupScheduleId) {
+        SearchCriteria<BackupVO> sc = listBackupsBySchedule.create();
+        sc.setParameters("backup_schedule_id", backupScheduleId);
+        sc.setParameters("status", Backup.Status.BackedUp);
+        return listBy(sc, new Filter(BackupVO.class, "date", true));
     }
 
     @Override

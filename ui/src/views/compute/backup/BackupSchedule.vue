@@ -132,6 +132,11 @@ export default {
           dataIndex: 'interval'
         },
         {
+          key: 'keep',
+          title: this.$t('label.keep'),
+          dataIndex: 'maxbackups'
+        },
+        {
           key: 'timezone',
           title: this.$t('label.timezone'),
           dataIndex: 'timezone'
@@ -167,7 +172,7 @@ export default {
   methods: {
     handleClickDelete (record) {
       const params = {}
-      params.virtualmachineid = record.virtualmachineid
+      params.id = record.id
       this.actionLoading = true
       api('deleteBackupSchedule', params).then(json => {
         if (json.deletebackupscheduleresponse.success) {

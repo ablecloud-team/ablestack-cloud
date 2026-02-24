@@ -91,6 +91,9 @@ public class BackupVO implements Backup {
     @Column(name = "backed_volumes", length = 65535)
     protected String backedUpVolumes;
 
+    @Column(name = "backup_schedule_id")
+    private Long backupScheduleId;
+
     @Column(name = "snapshot_id")
     private String snapshotId;
 
@@ -241,6 +244,14 @@ public class BackupVO implements Backup {
     }
 
     @Override
+    public Long getBackupScheduleId() {
+        return backupScheduleId;
+    }
+
+    public void setBackupScheduleId(Long backupScheduleId) {
+        this.backupScheduleId = backupScheduleId;
+    }
+
     public String getSnapshotId() {
         return snapshotId;
     }
