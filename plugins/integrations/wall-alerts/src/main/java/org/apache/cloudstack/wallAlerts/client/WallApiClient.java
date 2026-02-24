@@ -34,6 +34,11 @@ public interface WallApiClient {
     boolean updateRuleThreshold(String namespaceHint, String groupName, String ruleTitle,
                                 String operator, Double newThreshold, Double threshold2);
 
+    boolean updateRuleAnnotations(String folderName,
+                                  String groupName,
+                                  String ruleUid,
+                                  Map<String, String> annotationsPatch);
+
     boolean pauseRule(String namespaceHint, String groupName, String ruleUid, boolean paused);
 
     boolean pauseByUid(String ruleUid, boolean paused);
@@ -60,6 +65,11 @@ public interface WallApiClient {
      * 구현체는 POST /api/alertmanager/grafana/api/v2/silences 로 전송합니다.
      */
     SilenceDto createSilence(SilenceCreateRequest req);
+
+    JsonNode fetchProvisioningAlertRule(String uid);
+
+    JsonNode queryDs(JsonNode reqBody);
+
 
     // -------------------- DTOs (Alertmanager: create request) --------------------
 

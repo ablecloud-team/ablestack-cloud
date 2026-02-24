@@ -73,7 +73,7 @@
           </span>
           <span v-else-if="$route.path.startsWith('/globalsetting')">{{ text }}</span>
           <span v-else-if="$route.path.startsWith('/alertRules')">
-            <router-link :to="{ path: $route.path + '/' + (record.uid || record.id || record.name) }">
+            <router-link :to="{ path: $route.path + '/' + (record.uid || record.id || record.name), query: { tab: 'solution' } }">
               {{ text }}
             </router-link>
           </span>
