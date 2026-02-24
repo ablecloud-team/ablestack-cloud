@@ -278,15 +278,21 @@ export default {
         this.zones.loading = false
       })
     },
-    checkBackupOffering () {
-      getAPI('listBackupOfferings').then(json => {
-        var backupOff = json.listbackupofferingsresponse.backupoffering || []
-        for (const off of backupOff) {
-          if (off.provider === 'commvault') {
-            this.useCommvault = true
-            return
-          }
-        }
+    async checkBackupOffering () {
+      if (!this.selectedZoneId || !this.selectedProviderName) {
+        this.useCommvault = false
+        return
+      }
+      const json = await getAPI('listBackupOfferings')
+      const backupOff = json.listbackupofferingsresponse.backupoffering || []
+
+      const selProvider = (this.selectedProviderName || '').toLowerCase()
+      const selZoneId = this.selectedZoneId
+
+      this.useCommvault = backupOff.some(off => {
+        const offProvider = (off.provider || '').toLowerCase()
+        const offZoneId = off.zoneid || off.zoneId
+        return offProvider === selProvider && offZoneId === selZoneId
       })
     },
     fetchProvider (zoneId) {
@@ -339,8 +345,9 @@ export default {
     handleSubmit (e) {
       e.preventDefault()
       if (this.loading) return
-      this.formRef.value.validate().then(() => {
-        if (this.useCommvault && this.selectedProviderName === 'commvault') {
+      this.formRef.value.validate().then(async () => {
+        await this.checkBackupOffering()
+        if (this.useCommvault) {
           this.$notification.error({
             message: this.$t('message.request.failed'),
             description: this.$t('message.error.import.backup.offering')
@@ -414,6 +421,7 @@ export default {
       this.form.externalid = undefined
       this.externals.opts = []
       this.fetchProvider(this.selectedZoneId)
+      this.checkBackupOffering()
     },
     onChangeProvider (value) {
       if (!value) {
@@ -429,6 +437,7 @@ export default {
       if (this.selectedZoneId && this.selectedProviderName) {
         this.fetchExternal(this.selectedZoneId, this.selectedProviderName)
       }
+      this.checkBackupOffering()
     },
     closeAction () {
       this.$emit('close-action')

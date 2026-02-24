@@ -128,8 +128,6 @@ import com.cloud.storage.DiskOfferingVO;
 import com.cloud.storage.GuestOSVO;
 import com.cloud.storage.ScopeType;
 import com.cloud.storage.Storage;
-import com.cloud.storage.StoragePoolStatus;
-import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeApiService;
 import com.cloud.storage.VolumeVO;
@@ -331,20 +329,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
 
         final BackupProvider provider = getBackupProvider(providerName);
-        if ("commvault".equals(providerName)) {
-            List<StoragePoolVO> pools = primaryDataStoreDao.listByDataCenterId(cmd.getZoneId());
-            boolean validPool = false;
-            for (StoragePoolVO pool : pools) {
-                if (pool.getStatus() == StoragePoolStatus.Up && pool.getPoolType() == StoragePoolType.SharedMountPoint) {
-                    validPool = true;
-                    break;
-                }
-            }
-            if (!validPool) {
-                throw new CloudRuntimeException("The backup offering cannot be imported because storage of type SharedMountPoint with storage status Up does not exist.");
-            }
-        }
-
         if (!provider.isValidProviderOffering(cmd.getZoneId(), cmd.getExternalId())) {
             throw new CloudRuntimeException("Backup offering '" + cmd.getExternalId() + "' does not exist on provider " + provider.getName() + " on zone " + cmd.getZoneId());
         }
@@ -711,8 +695,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
         final int maxBackups = validateAndGetDefaultBackupRetentionIfRequired(cmd.getMaxBackups(), offering, vm);
 
-        if (!"nas".equals(offering.getProvider()) && cmd.getQuiesceVM() != null) {
-            throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS backup provider");
+        if ((!"nas".equals(offering.getProvider()) && !"commvault".equals(offering.getProvider())) && cmd.getQuiesceVM() != null) {
+            throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS, Commvault backup provider");
         }
 
         final String timezoneId = timeZone.getID();
@@ -913,8 +897,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             throw new CloudRuntimeException("The assigned backup offering does not allow ad-hoc user backup");
         }
 
-        if (!"nas".equals(offering.getProvider()) && cmd.getQuiesceVM() != null) {
-            throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS backup provider");
+        if ((!"nas".equals(offering.getProvider()) && !"commvault".equals(offering.getProvider())) && cmd.getQuiesceVM() != null) {
+            throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS, Commvault backup provider");
         }
 
         Long backupScheduleId = getBackupScheduleId(job);
@@ -1513,7 +1497,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
             String host = null;
             String dataStore = null;
-            if (!"nas".equals(offering.getProvider())) {
+            if (!"nas".equals(offering.getProvider()) && !"commvault".equals(offering.getProvider())) {
                 Pair<HostVO, StoragePoolVO> restoreInfo = getRestoreVolumeHostAndDatastore(vm);
                 host = restoreInfo.first().getPrivateIpAddress();
                 dataStore = restoreInfo.second().getUuid();
@@ -1591,7 +1575,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         BackupProvider backupProvider = getBackupProvider(offering.getProvider());
         VolumeVO backedUpVolume = volumeDao.findByUuid(backedUpVolumeUuid);
         Pair<HostVO, StoragePoolVO> restoreInfo;
-        if (!"nas".equals(offering.getProvider()) || (backedUpVolume == null)) {
+        if ((!"nas".equals(offering.getProvider()) && !"commvault".equals(offering.getProvider())) || backedUpVolume == null) {
             restoreInfo = getRestoreVolumeHostAndDatastore(vm);
         } else {
             restoreInfo = getRestoreVolumeHostAndDatastoreForNas(vm, backedUpVolume);
