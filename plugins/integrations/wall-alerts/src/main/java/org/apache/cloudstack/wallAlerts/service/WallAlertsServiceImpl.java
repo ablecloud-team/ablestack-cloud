@@ -2833,7 +2833,12 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
             return null;
         }
 
+        // ★ 수정: VM 관련 라벨(domain, vmname, vm, displayname)을 최우선 순위로 맨 앞에 추가
         final String[] keys = new String[]{
+                "domain",
+                "vmname",
+                "vm",
+                "displayname",
                 "nodename",
                 "node",
                 "hostname",
@@ -2873,8 +2878,12 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
             return null;
         }
 
-        // 우선순위 key 후보
+        // ★ 수정: VM 관련 라벨을 최우선 순위로 추가
         final String[] pri = new String[]{
+                "domain",
+                "vmname",
+                "vm",
+                "displayname",
                 "nodename",
                 "node",
                 "hostname",

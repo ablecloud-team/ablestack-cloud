@@ -485,11 +485,12 @@
                       <a-space class="banner-actions" :size="10" align="center">
                         <!-- Solution -->
                         <a-popover
-                          placement="topLeft"
+                          placement="leftTop"
                           trigger="hover"
                           overlayClassName="solution-popover"
                           :getPopupContainer="getPopupContainerBody"
                           :overlayStyle="getSolutionOverlayStyle()"
+                          :align="{ offset: [-80, 0] }"
                           :visible="isSolutionPopoverVisible(it)"
                           @visible-change="onSolutionVisibleChange($event, it)"
                           :mouse-enter-delay="0"
@@ -1315,19 +1316,45 @@ export default {
     }
 
     function resolveCurrentMaxMetric (it) {
-      // Drawer의 '현재' 값은 대상별 currentTargets 중 최대값을 사용합니다.
-      // - currentTargets 가 없으면 null 입니다.
-      const rows = currentTargetsOf(it)
-      if (!Array.isArray(rows) || rows.length === 0) { return null }
-
       let max = null
-      for (let i = 0; i < rows.length; i += 1) {
-        const row = rows[i] || {}
-        const n = pickNumberLike(takeFirst(row.value, row.val, row.current, row.currentValue))
-        if (typeof n !== 'number' || !Number.isFinite(n)) { continue }
-        if (max == null || n > max) { max = n }
+      const unit = metricUnitOf(it)
+
+      const rows = currentTargetsOf(it)
+      if (Array.isArray(rows) && rows.length > 0) {
+        for (let i = 0; i < rows.length; i += 1) {
+          const row = rows[i] || {}
+          const n = pickNumberLike(takeFirst(row.value, row.val, row.current, row.currentValue))
+          if (typeof n === 'number' && Number.isFinite(n)) {
+            if (max == null || n > max) max = n
+          }
+        }
       }
 
+      const arr = Array.isArray(it && it.alerts) ? it.alerts : ruleInstances(it && it.rule)
+      if (arr && arr.length > 0) {
+        for (let i = 0; i < arr.length; i += 1) {
+          const a = arr[i]
+          let n = null
+
+          if (a.annotations) {
+            const annStr = JSON.stringify(a.annotations)
+            const vals = [...annStr.matchAll(/value=([0-9.]+)/g)].map(m => Number(m[1]))
+            const validVals = vals.filter(v => v !== 1) // 상태값 1 제외
+            if (validVals.length > 0) {
+              n = Math.max(...validVals)
+            }
+          }
+
+          if (n == null) {
+            n = pickNumberLike(takeFirst(a.annotations && a.annotations.current, a.annotations && a.annotations.value, a.value))
+          }
+
+          if (typeof n === 'number' && Number.isFinite(n)) {
+            if (n === 1 && unit === '%' && max != null) continue
+            if (max == null || n > max) max = n
+          }
+        }
+      }
       return max
     }
 
@@ -2231,45 +2258,106 @@ export default {
     }
 
     const breachedEntityLinks = (it) => {
-      const keys = breachedKeysOf(it)
-      if (!Array.isArray(keys) || keys.length === 0) { return [] }
+      const parentKindRaw = pickKindFromRule(it && it.rule ? it.rule : it)
+      const parentKind = isCloudKind(parentKindRaw) ? 'cloud' : (isVmKind(parentKindRaw) ? 'vm' : (isStorageKind(parentKindRaw) ? 'storage' : 'host'))
 
       const unit = metricUnitOf(it)
+      const binary = isBinaryTargetRule(it)
+      const out = []
+      const seen = new Set()
+
       const rows = currentTargetsOf(it)
       const valueMap = new Map()
-
       for (let i = 0; i < rows.length; i += 1) {
         const row = rows[i] || {}
         const k = takeFirst(row.key, row.target, row.name, row.label)
-        if (!k) { continue }
+        if (!k) continue
         const n = pickNumberLike(takeFirst(row.value, row.val, row.current, row.currentValue))
-        if (n == null) { continue }
-        valueMap.set(normalizeTargetKey(k), n)
+        if (n != null) valueMap.set(normalizeTargetKey(k), n)
       }
 
-      const binary = isBinaryTargetRule(it)
-      const ents = entityLinksForAlert(it)
-      const entMap = new Map()
+      const arr = Array.isArray(it && it.alerts) ? it.alerts : ruleInstances(it && it.rule)
+      if (arr && arr.length > 0) {
+        for (let i = 0; i < arr.length; i += 1) {
+          const a = arr[i]
+          const cls = classifyInstance(a, parentKindRaw) || {}
 
-      for (let i = 0; i < ents.length; i += 1) {
-        const e = ents[i] || {}
-        const k1 = e.keyword ? normalizeTargetKey(e.keyword) : ''
-        const k2 = e.label ? normalizeTargetKey(e.label) : ''
-        if (k1) { entMap.set(k1, e) }
-        if (k2) { entMap.set(k2, e) }
+          const kind = parentKind
+          // ★ const가 아닌 let으로 선언하여 빈칸일 때 채워넣을 수 있게 합니다.
+          let keyword = cls.keyword || ''
+
+          let label = ''
+          if (kind === 'cloud') {
+            label = cloudLabel(a) || keyword || 'management'
+          } else if (kind === 'vm') {
+            label = cls.label || bestVmOfInstance(a) || (a.labels && a.labels.domain) || keyword
+          } else if (kind === 'storage') {
+            label = cls.label || storageLabel(a) || keyword
+          } else {
+            label = cls.label || hostDisplayLabel(keyword) || keyword
+          }
+
+          if (!label && !keyword) continue
+
+          // ★ 핵심: UI에서 대상을 렌더링할 때 keyword를 사용하는데, VM은 비어있어 안 보이는 현상 수정
+          if (!keyword) {
+            keyword = label
+          }
+
+          const nk = normalizeTargetKey(keyword || label)
+          const key = `breach@${kind}@${nk}`
+          if (seen.has(key)) continue
+          seen.add(key)
+
+          let valueText = ''
+          if (binary) {
+            valueText = tr('label.bad.state')
+          } else {
+            const L = (a && (a.labels || a.metric || a.tags || a)) || {}
+
+            const rawKeysToTry = [
+              keyword, label,
+              L.domain, L.vm, L.name,
+              L.instance ? String(L.instance).replace(/:\d+$/, '') : '',
+              L.instance, L.nodename, L.host, L.hostname
+            ].map(x => normalizeTargetKey(x)).filter(x => x)
+
+            let n = null
+            for (let j = 0; j < rawKeysToTry.length; j += 1) {
+              if (valueMap.has(rawKeysToTry[j])) {
+                n = valueMap.get(rawKeysToTry[j])
+                break
+              }
+            }
+
+            if (n == null) {
+              const annCur = takeFirst(a.annotations && a.annotations.current, a.annotations && a.annotations.value, a.value, a.values)
+              n = pickNumberLike(annCur)
+            }
+
+            if (typeof n === 'number' && Number.isFinite(n)) {
+              valueText = formatMetric(n, unit)
+            }
+          }
+
+          out.push({ key, kind, label, keyword, url: cls.url || '', valueText })
+        }
       }
 
-      const out = []
+      if (out.length > 0) {
+        return out.sort((a, b) => String(a.label || '').localeCompare(String(b.label || '')))
+      }
+
+      const keys = breachedKeysOf(it)
+      if (!Array.isArray(keys) || keys.length === 0) return []
+
       for (let i = 0; i < keys.length; i += 1) {
         const raw = String(keys[i] || '').trim()
-        if (!raw) { continue }
+        if (!raw) continue
 
         const nk = normalizeTargetKey(raw)
-        const matched = entMap.get(nk)
-        const kind = matched && matched.kind ? matched.kind : 'host'
-        const label = matched && matched.label ? matched.label : hostDisplayLabel(raw)
-        const keyword = matched && matched.keyword ? matched.keyword : raw
-        const url = matched && matched.url ? matched.url : ''
+        const kind = parentKind
+        const label = kind === 'cloud' ? raw : (kind === 'host' ? hostDisplayLabel(raw) || raw : raw)
 
         let valueText = ''
         if (binary) {
@@ -2280,11 +2368,9 @@ export default {
             valueText = formatMetric(n, unit)
           }
         }
-
-        out.push({ key: `breach@${kind}@${nk}`, kind, label, keyword, url, valueText })
+        out.push({ key: `breach@${kind}@${nk}`, kind, label, keyword: raw, url: '', valueText })
       }
-
-      return out
+      return out.sort((a, b) => String(a.label || '').localeCompare(String(b.label || '')))
     }
 
     const breachedLinkList = (it) => breachedEntityLinks(it).slice(0, MAX_LINKS)
@@ -3124,6 +3210,7 @@ export default {
 .drawer-item-meta-right {
   flex: 0 0 auto;
   white-space: nowrap;
+  margin-left: auto;
 }
 
 .drawer-item-divider {
