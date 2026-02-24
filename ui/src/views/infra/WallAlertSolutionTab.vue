@@ -527,4 +527,61 @@ export default {
 .solution-save-popconfirm.ant-popover-placement-topLeft {
   transform: translateX(-8px);
 }
+
+/* ===== 다크모드 대응 (WallAlertSolutionTab) ===== */
+body.dark-mode .panel {
+  background: #141414;
+  border-color: #303030;
+}
+
+body.dark-mode .empty,
+body.dark-mode .empty-preview {
+  background: #1f1f1f;
+  border-color: #434343;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+body.dark-mode .plain,
+body.dark-mode .md-viewer,
+body.dark-mode .md-preview {
+  background: #1f1f1f;
+  border-color: #303030;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+body.dark-mode .block-title,
+body.dark-mode .preview-title {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+body.dark-mode .solution-top__metaLine,
+body.dark-mode .solution-top__metaText {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+body.dark-mode .solution-top__metaIcon {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+body.dark-mode .hint {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+body.dark-mode .preview-wrap {
+  border-top-color: #303030;
+}
+
+/* 편집 모드 Textarea 배경/글자색 보정 */
+body.dark-mode textarea.ant-input {
+  background-color: #141414;
+  border-color: #434343;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* 마크다운 내부 인라인 코드(code) 블럭 다크모드 보정 */
+body.dark-mode :deep(.md-viewer code),
+body.dark-mode :deep(.md-preview code) {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #e6e6e6;
+}
 </style>
