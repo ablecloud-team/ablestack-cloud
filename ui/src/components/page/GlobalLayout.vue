@@ -487,6 +487,22 @@ export default {
   max-height: 100%;
   overflow-y: auto;
 }
+/* Ant Design 알림창(Notification) 위치 및 높이 제어 */
+.ant-notification {
+  /* 1. 배너(z-index: ~21억)보다 무조건 위에 오도록 설정 */
+  z-index: 2147483655 !important;
+
+  /* 2. 위치 동적 계산: 기본 24px + 배너 높이만큼 아래로 이동
+        배너가 없으면(--autoBannerHeight: 0px) 자동으로 24px이 됨 */
+  top: calc(24px + var(--autoBannerHeight, 0px)) !important;
+}
+.ant-message {
+  /* 배너(z-index: ~21억)보다 위로 노출 */
+  z-index: 2147483655 !important;
+
+  /* 배너 높이만큼 밑으로 내려서 겹치지 않게 처리 */
+  top: calc(24px + var(--autoBannerHeight, 0px)) !important;
+}
 @media (max-width: 768px) {
   /* 1. 사이드바를 공중에 띄워서 공간 차지를 못하게 만듦 */
   .ant-layout.layout.mobile .sticky-sidebar {

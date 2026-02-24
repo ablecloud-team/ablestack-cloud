@@ -25,7 +25,7 @@
                 <div class="summary-modern-text">
                   <div class="summary-modern-title">
                     <span class="summary-modern-title-text">
-                      {{ tr('message.alerting.title', '주요 시스템 경보 감지') }}
+                      {{ tr('message.alerting.title') }}
                     </span>
                     <span class="summary-modern-count">
                       ({{ alertingCount }}{{ trCountUnit() }})
@@ -35,7 +35,7 @@
                   <div class="summary-modern-desc">
                     <span class="summary-bullet">-</span>
                     <span class="summary-desc-text">
-                      {{ tr('message.alerting.desc', '주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.') }}
+                      {{ tr('message.alerting.desc') }}
                     </span>
                   </div>
                 </div>
@@ -44,11 +44,11 @@
               <div class="summary-modern-actions">
                 <a-space :size="8" align="center">
                   <a-button size="small" type="primary" danger @click.stop="drawerVisible = true">
-                    {{ tr('label.take.action', '세부 경보 내용 확인') }}
+                    {{ tr('label.take.action') }}
                   </a-button>
 
                   <a-button size="small" @click.stop="goToAlertRulesMenu">
-                    {{ tr('label.goto.the.alertRules', '경보 규칙 메뉴 이동') }}
+                    {{ tr('label.goto.the.alertRules') }}
                   </a-button>
                 </a-space>
               </div>
@@ -76,16 +76,16 @@
         <div class="drawer-title">
           <div class="drawer-title-text">
             <div class="drawer-title-main">
-              {{ tr('message.alerting.title', '조치가 필요한 경보') }}
+              {{ tr('message.alerting.title') }}
               <span class="drawer-title-count">({{ alertingCount }}{{ trCountUnit() }})</span>
             </div>
 
             <div class="drawer-title-sub">
               <div>
-                - {{ tr('message.alerting.desc.1', '각 항목에서 최대값·임계값을 확인하고 해결방안을 확인하세요.') }}
+                - {{ tr('message.alerting.desc.1') }}
               </div>
               <div>
-                - {{ tr('message.alerting.desc.2', '반복 알림은 사일런스(임시) 또는 일시 정지로 제어하세요.') }}
+                - {{ tr('message.alerting.desc.2') }}
               </div>
             </div>
           </div>
@@ -95,11 +95,11 @@
       <div class="drawer-stack drawer-stack--modern">
         <div class="drawer-toolbar">
           <a-button size="small" type="link" @click.stop="markAllAsRead">
-            {{ tr('label.mark.all.read', '모두 읽음 처리') }}
+            {{ tr('label.mark.all.read') }}
           </a-button>
           <a-space :size="10" align="center">
             <a-button size="small" type="link" @click.stop="drawerVisible = false">
-              {{ tr('label.close', '닫기') }}
+              {{ tr('label.close') }}
             </a-button>
           </a-space>
         </div>
@@ -133,11 +133,11 @@
                         class="drawer-item-title drawer-item-title--link"
                         role="button"
                         tabindex="0"
-                        :title="`${tr('label.goto.the.alertRules', '경보 규칙으로 이동')}: ${(it && it.title) ? it.title : ''}`"
+                        :title="`${tr('label.goto.the.alertRules')}: ${(it && it.title) ? it.title : ''}`"
                         @click.prevent.stop="goToAlertRule(it)"
                         @keydown.enter.prevent.stop="goToAlertRule(it)"
                       >
-                        {{ it && it.title ? it.title : tr('label.alert', '경보') }}
+                        {{ it && it.title ? it.title : tr('label.alert') }}
                       </div>
 
                       <div
@@ -241,7 +241,7 @@
                               <template v-else>
                                 <span v-if="drawerItemMetricUi(it).hasCur" class="metric-kv">
                                   <span class="metric-k">
-                                    {{ tr('label.max', '최대') }}
+                                    {{ tr('label.max') }}
                                   </span>
                                   <span class="metric-v metric-current">
                                     {{ drawerItemMetricUi(it).curText }}
@@ -255,7 +255,7 @@
 
                                 <span v-if="drawerItemMetricUi(it).hasThr" class="metric-kv">
                                   <span class="metric-k">
-                                    {{ tr('label.threshold.value', '임계값') }}
+                                    {{ tr('label.threshold.value') }}
                                   </span>
                                   <span class="metric-v metric-threshold">
                                     {{ drawerItemMetricUi(it).thrText }}
@@ -276,7 +276,7 @@
                     <!-- 대상 호스트 -->
                     <div v-if="hostLinkList(it).length" class="drawer-item-target-line">
                       <span class="target-label">
-                        {{ tr('label.targets.hosts', '대상 호스트') }}:
+                        {{ tr('label.targets.hosts') }}:
                       </span>
 
                       <span class="target-values">
@@ -327,7 +327,7 @@
                     <!-- 대상 VM -->
                     <div v-if="vmLinkList(it).length" class="drawer-item-target-line">
                       <span class="target-label">
-                        {{ tr('label.targets.vms', '대상 VM') }}:
+                        {{ tr('label.targets.vms') }}:
                       </span>
 
                       <span class="target-values">
@@ -380,7 +380,7 @@
                     <!-- 대상 스토리지 컨트롤러 -->
                     <div v-if="storageLinkList(it).length" class="drawer-item-target-line">
                       <span class="target-label">
-                        {{ tr('label.targets.storage.controller', '대상 스토리지 컨트롤러') }}:
+                        {{ tr('label.targets.storage.controller') }}:
                       </span>
 
                       <span class="target-values">
@@ -431,7 +431,7 @@
                     <!-- 대상 관리 서버 -->
                     <div v-if="cloudLinkList(it).length" class="drawer-item-target-line">
                       <span class="target-label">
-                        {{ tr('label.targets.management', '대상 관리 서버') }}:
+                        {{ tr('label.targets.management') }}:
                       </span>
 
                       <span class="target-values">
@@ -439,7 +439,7 @@
                           <a
                             class="target-value-link"
                             href="#"
-                            :title="`${tr('tooltip.goto.management', '관리 서버 상세로 이동')}: ${lnk.label}`"
+                            :title="`${tr('tooltip.goto.management')}: ${lnk.label}`"
                             @click.prevent.stop="goToManagement(lnk.keyword)"
                           >
                             {{ lnk.label }}
@@ -464,7 +464,7 @@
                                 <a
                                   class="target-value-link"
                                   href="#"
-                                  :title="`${tr('tooltip.goto.management', '관리 서버 상세로 이동')}: ${lnk.label}`"
+                                  :title="`${tr('tooltip.goto.management')}: ${lnk.label}`"
                                   @click.prevent.stop="goToManagement(lnk.keyword)"
                                 >
                                   {{ lnk.label }}
@@ -514,7 +514,7 @@
                               <div class="solution-popover-body">
                                 <div class="sp-body-section">
                                   <div class="sp-body-label-chip">
-                                    {{ tr('label.summary', '요약') }}
+                                    {{ tr('label.summary') }}
                                   </div>
                                   <div class="sp-body-box">
                                     {{ solutionSummaryText(it) }}
@@ -523,7 +523,7 @@
 
                                 <div class="sp-body-section">
                                   <div class="sp-body-label-chip">
-                                    {{ tr('label.solution', '해결 방안') }}
+                                    {{ tr('label.solution') }}
                                   </div>
                                   <div class="sp-body-box sp-body-box--md">
                                     <div
@@ -542,7 +542,7 @@
                             class="solution-menu"
                             @click.stop="goSolutionTab(it)"
                           >
-                            {{ tr('label.action.solution', '해결 방안') }}
+                            {{ tr('label.solution') }}
                           </a-button>
                         </a-popover>
 
@@ -556,7 +556,7 @@
                           <span class="icon-stack">
                             <SoundOutlined class="icon-sound" />
                           </span>
-                          {{ isKeySilencedNow(it && it.uid) ? tr('label.silenced', '사일런스 중') : tr('label.action.silence', '사일런스') }}
+                          {{ isKeySilencedNow(it && it.uid) ? tr('label.silenced') : tr('label.action.silence') }}
                         </a-button>
 
                         <!-- Pause -->
@@ -568,7 +568,7 @@
                           @click.stop="openPause(it)"
                         >
                           <template #icon><PauseCircleOutlined /></template>
-                          {{ tr('label.alert.rule.pause', '일시 정지') }}
+                          {{ tr('label.alert.rule.pause') }}
                         </a-button>
                       </a-space>
                     </div>
@@ -578,7 +578,7 @@
             </a-alert>
 
             <div v-if="!visibleAlerts.length" class="drawer-empty">
-              {{ tr('message.no.alerts', '현재 표시할 경보가 없습니다.') }}
+              {{ tr('message.no.alerts') }}
             </div>
           </div>
         </div>
@@ -681,7 +681,7 @@ export default {
 
       const uid = (it && it.uid) || (it && it.rule && it.rule.uid) || ''
       const kind = (it && it.kind) || ''
-      return uid || (kind || this.tr('label.solution', '해결 방안'))
+      return uid || (kind || this.tr('label.solution'))
     },
 
     solutionSeverityText (it) {
@@ -842,7 +842,7 @@ export default {
     }
 
     const trCountUnit = () => {
-      const v = tr('label.count.unit', '건')
+      const v = tr('label.count.unit')
       return v || '건'
     }
 
@@ -1119,13 +1119,13 @@ export default {
       const now = Date.now()
       const diff = Math.max(0, now - ms)
       const sec = Math.floor(diff / 1000)
-      if (sec < 60) { return tr('label.just.now', '방금') }
+      if (sec < 60) { return tr('label.just.now') }
       const min = Math.floor(sec / 60)
-      if (min < 60) { return `${min}${tr('label.minute', '분')} ${tr('label.ago', '전')}` }
+      if (min < 60) { return `${min}${tr('label.minute')} ${tr('label.ago')}` }
       const hour = Math.floor(min / 60)
-      if (hour < 24) { return `${hour}${tr('label.hour', '시간')} ${tr('label.ago', '전')}` }
+      if (hour < 24) { return `${hour}${tr('label.hour')} ${tr('label.ago')}` }
       const day = Math.floor(hour / 24)
-      if (day < 7) { return `${day}${tr('label.day', '일')} ${tr('label.ago', '전')}` }
+      if (day < 7) { return `${day}${tr('label.day')} ${tr('label.ago')}` }
       try {
         const d = new Date(ms)
         const y = d.getFullYear()
@@ -1400,7 +1400,7 @@ export default {
       // 상태형(0/1) 규칙은 숫자 표시 대신 상태만 표시합니다.
       if (isBinaryTargetRule(it)) {
         const hasBad = breachedKeysOf(it).length > 0
-        return hasBad ? tr('label.current.bad', '현재 상태 이상') : tr('label.current.ok', '현재 정상')
+        return hasBad ? tr('label.current.bad') : tr('label.current.ok')
       }
 
       const unit = metricUnitOf(it)
@@ -1424,15 +1424,15 @@ export default {
         : ''
 
       if (hasCurMax && hasThr) {
-        return `${tr('label.max', '최대')} ${curText} · ${tr('label.threshold.value', '임계값')} ${formatMetric(thr, unit)}`
+        return `${tr('label.max')} ${curText} · ${tr('label.threshold.value')} ${formatMetric(thr, unit)}`
       }
 
       if (hasThr) {
-        return `${tr('label.threshold.value', '임계값')} ${formatMetric(thr, unit)}`
+        return `${tr('label.threshold.value')} ${formatMetric(thr, unit)}`
       }
 
       if (hasCurMax) {
-        return `${tr('label.max', '최대')} ${curText}`
+        return `${tr('label.max')} ${curText}`
       }
 
       return ''
@@ -1446,7 +1446,7 @@ export default {
     const drawerItemMetricLineText = (it) => {
       if (isBinaryTargetRule(it)) {
         const hasBad = breachedKeysOf(it).length > 0
-        return hasBad ? tr('label.current.state.bad', '현재 상태 이상') : tr('label.current.state.ok', '현재 상태 정상')
+        return hasBad ? tr('label.current.state.bad') : tr('label.current.state.ok')
       }
 
       const unit = metricUnitOf(it)
@@ -1466,15 +1466,15 @@ export default {
         : ''
 
       if (hasCurMax && hasThr) {
-        return `${tr('label.max', '최대')} ${curText} · ${tr('label.threshold.value', '임계값')} ${formatMetric(thr, unit)}`
+        return `${tr('label.max')} ${curText} · ${tr('label.threshold.value')} ${formatMetric(thr, unit)}`
       }
 
       if (hasThr) {
-        return `${tr('label.threshold.value', '임계값')} ${formatMetric(thr, unit)}`
+        return `${tr('label.threshold.value')} ${formatMetric(thr, unit)}`
       }
 
       if (hasCurMax) {
-        return `${tr('label.max', '최대')} ${curText}`
+        return `${tr('label.max')} ${curText}`
       }
 
       return ''
@@ -1486,7 +1486,7 @@ export default {
         const hasBad = breachedKeysOf(it).length > 0
         return {
           kind: 'binary',
-          text: hasBad ? tr('label.current.state.bad', '현재 상태 이상') : tr('label.current.state.ok', '현재 상태 정상')
+          text: hasBad ? tr('label.current.state.bad') : tr('label.current.state.ok')
         }
       }
 
@@ -1765,7 +1765,7 @@ export default {
       try {
         window.location.href = url
       } catch (_) {
-        message.warning(tr('message.link.open.failed', '링크 열기에 실패했습니다. 콘솔 로그의 URL을 확인하세요.'))
+        message.warning(tr('message.link.open.failed'))
       }
     }
 
@@ -2143,10 +2143,12 @@ export default {
       })
     }
 
-    const hostEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'host')
-    const vmEntityLinks = (it) => filterKnownVmLinks(it)
-    const storageEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'storage')
-    const cloudEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'cloud')
+    const sortByLabel = (a, b) => String(a.label || '').localeCompare(String(b.label || ''))
+
+    const hostEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'host').sort(sortByLabel)
+    const vmEntityLinks = (it) => filterKnownVmLinks(it).sort(sortByLabel)
+    const storageEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'storage').sort(sortByLabel)
+    const cloudEntityLinks = (it) => entityLinksForAlert(it).filter((x) => x.kind === 'cloud').sort(sortByLabel)
 
     const hostLinkList = (it) => hostEntityLinks(it).slice(0, MAX_LINKS)
     const hostRestList = (it) => hostEntityLinks(it).slice(MAX_LINKS)
@@ -2223,9 +2225,9 @@ export default {
 
     const breachedLabelText = (it) => {
       if (isBinaryTargetRule(it)) {
-        return tr('label.targets.failed', '실패 대상')
+        return tr('label.targets.failed')
       }
-      return tr('label.targets.breached', '이상 대상')
+      return tr('label.targets.breached')
     }
 
     const breachedEntityLinks = (it) => {
@@ -2271,7 +2273,7 @@ export default {
 
         let valueText = ''
         if (binary) {
-          valueText = tr('label.bad.state', '상태 이상')
+          valueText = tr('label.bad.state')
         } else {
           const n = valueMap.get(nk)
           if (typeof n === 'number' && Number.isFinite(n)) {
@@ -2642,12 +2644,12 @@ export default {
       const id = await resolveVmId(keyword)
       const url = id ? hrefVmDetail(id) : hrefVmList(keyword)
       if (!id) {
-        message.warning(tr('message.vm.resolve.fallback', '정확한 VM ID를 찾지 못해 목록으로 이동합니다.'))
+        message.warning(tr('message.vm.resolve.fallback'))
       }
       try {
         window.location.href = url
       } catch (_) {
-        message.warning(tr('message.link.open.failed', '링크 열기에 실패했습니다. 콘솔 로그의 URL을 확인하세요.'))
+        message.warning(tr('message.link.open.failed'))
       }
     }
 

@@ -28,6 +28,9 @@
 
             <a-popconfirm
               v-if="editing"
+              placement="bottomLeft"
+              overlayClassName="solution-save-popconfirm"
+              :getPopupContainer="getPopconfirmContainer"
               :ok-text="$t('label.ok') || 'OK'"
               :cancel-text="$t('label.cancel') || 'Cancel'"
               @confirm="save"
@@ -91,10 +94,9 @@
               <textarea
                 v-model="draft.description"
                 class="ant-input"
-                rows="14"
+                rows="22"
                 :placeholder="$t('message.solution.description.placeholder') || '마크다운으로 해결 방안을 입력합니다.'"
                 style="resize: vertical;"
-                height="580"
               ></textarea>
             </a-form-item>
           </a-form>
@@ -412,7 +414,7 @@ export default {
         this.$emit('refresh-data')
         this.$notification?.success?.({
           message: this.$t('message.wall.alert.annotations.updated') || '해결 방안 수정 완료',
-          description: uid
+          description: this.resource?.name || this.record?.name || uid
         })
       } catch (e) {
         this.$notification?.error?.({
@@ -425,6 +427,9 @@ export default {
       } finally {
         this.saving = false
       }
+    },
+    getPopconfirmContainer (trigger) {
+      return (trigger && trigger.parentNode) ? trigger.parentNode : document.body
     }
   }
 }
@@ -460,5 +465,66 @@ export default {
 .md-viewer { border: 1px solid #f0f0f0; border-radius: 10px; padding: 10px; background: #fafafa; word-break: break-word; }
 
 .pc-title { font-weight: 600; }
-.pc-desc { margin-top: 4px; color: rgba(0, 0, 0, 0.65); white-space: normal; max-width: 360px; }
+.pc-desc { margin-top: 4px; color: rgba(0, 0, 0, 0.65); white-space: normal; max-width: 560px; }
+
+/* ✅ [추가됨] 마크다운 내부 코드 블럭 스타일 개선 (다크 모드 스타일) */
+:deep(.md-viewer pre),
+:deep(.md-preview pre) {
+  background-color: #333333; /* 어두운 배경 */
+  color: #ffffff; /* 흰색 글자 */
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: monospace;
+  margin: 10px 0;
+}
+
+:deep(.md-viewer code),
+:deep(.md-preview code) {
+  font-family: monospace;
+  background-color: rgba(0, 0, 0, 0.08); /* 인라인 코드 배경 */
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+:deep(.md-viewer pre code),
+:deep(.md-preview pre code) {
+  background-color: transparent; /* pre 내부 code는 배경 투명 */
+  padding: 0;
+  margin: 0;
+  color: inherit;
+}
+</style>
+
+<style>
+/* Popconfirm(저장 확인) 크게 + 여백 확보 */
+.solution-save-popconfirm.ant-popover {
+  width: 320px;
+  max-width: calc(100vw - 32px);
+}
+
+.solution-save-popconfirm.ant-popover .ant-popover-inner-content {
+  padding: 14px 16px;
+}
+
+.solution-save-popconfirm .pc-title {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.solution-save-popconfirm .pc-desc {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.65);
+  white-space: normal;
+}
+
+/* “오른쪽에 딱 붙는 느낌”이 남으면 살짝 왼쪽으로 오프셋 */
+.solution-save-popconfirm.ant-popover-placement-bottomLeft,
+.solution-save-popconfirm.ant-popover-placement-topLeft {
+  transform: translateX(-8px);
+}
 </style>
