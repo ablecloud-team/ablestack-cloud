@@ -2667,6 +2667,7 @@ export default {
                         duration: 0
                       })
                     }
+                    this.performPostDeployBackupActions(vm)
                     if (!values.stayonpage) {
                       // eventBus.emit('vm-refresh-data')
                     }
