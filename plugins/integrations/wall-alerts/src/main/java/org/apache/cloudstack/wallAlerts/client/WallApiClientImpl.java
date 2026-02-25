@@ -422,8 +422,150 @@ public class WallApiClientImpl implements WallApiClient {
         }
     }
 
-
     @Override
+    public boolean updateRuleAnnotations(final String folderName,
+                                         final String groupName,
+                                         final String ruleUid,
+                                         final Map<String, String> annotationsPatch) {
+        try {
+            if (groupName == null || groupName.isBlank() || ruleUid == null || ruleUid.isBlank()) {
+                LOG.warn("[Ruler][ann] groupName and ruleUid are required");
+                return false;
+            }
+            if (annotationsPatch == null || annotationsPatch.isEmpty()) {
+                LOG.warn("[Ruler][ann] annotationsPatch is empty");
+                return false;
+            }
+
+            // 1) 네임스페이스(표시명) 확보: folderName 힌트 우선, 없으면 groupName 기반 해석
+            final String nsRaw;
+            if (folderName != null && !folderName.isBlank()) {
+                nsRaw = folderName;
+            } else {
+                nsRaw = resolveNamespaceByGroupName(groupName);
+            }
+            if (nsRaw == null || nsRaw.isBlank()) {
+                LOG.warn("[Ruler][ann] namespace not resolved, group=" + groupName + ", uid=" + ruleUid);
+                return false;
+            }
+
+            // 2) 그룹 로드(직접) + nsKey 정규화
+            RulerRulesResponse.Group g = fetchRulerGroupDirect(nsRaw, groupName);
+            String nsKeyForUrl;
+            if (g == null) {
+                final RulerRulesResponse all = fetchRulerRules();
+                final GroupWithNs gw = selectGroupWithNsFromAll(all, nsRaw, groupName);
+                if (gw == null) {
+                    LOG.warn("[Ruler][ann] group not found: nsRaw=" + nsRaw + ", group=" + groupName);
+                    return false;
+                }
+                g = gw.group;
+                nsKeyForUrl = gw.nsKey;
+            } else {
+                final RulerRulesResponse all = fetchRulerRules();
+                final GroupWithNs gw = selectGroupWithNsFromAll(all, nsRaw, groupName);
+                nsKeyForUrl = (gw != null && gw.nsKey != null && !gw.nsKey.isBlank()) ? gw.nsKey : nsRaw;
+            }
+
+            // 3) RAW 네임스페이스 JSON에서 해당 그룹만 추출
+            final String folderUid = resolveFolderUidByTitle(nsRaw);
+            ObjectNode groupJson = null;
+            try {
+                groupJson = fetchRulerGroupRawFlexible(nsRaw, nsKeyForUrl, folderUid, groupName);
+            } catch (Exception e) {
+                LOG.warn("[Ruler][ann] fetch RAW failed: " + e.getMessage(), e);
+            }
+            if (groupJson == null) {
+                LOG.warn("[Ruler][ann] RAW group not found: nsRaw=" + nsRaw + ", nsKey=" + nsKeyForUrl
+                        + ", folderUid=" + folderUid + ", group=" + groupName);
+                return false;
+            }
+
+            // 4) annotations 수정(in-place)
+            final boolean touched = mutateAnnotationsRawInPlace(groupJson, ruleUid, annotationsPatch);
+            if (!touched) {
+                LOG.warn("[Ruler][ann] target rule not found: uid=" + ruleUid + ", group=" + groupName);
+                return false;
+            }
+
+            // 5) 그룹 name 보정 + 읽기전용 필드 제거
+            if (groupJson.get("name") == null || groupJson.get("name").asText().isBlank()) {
+                groupJson.put("name", groupName);
+            }
+            sanitizeGroupForWrite(groupJson);
+
+            // 6) UID 보강(rule.uid 비어있고 grafana_alert.uid만 있으면 복사)
+            try {
+                final JsonNode rules = groupJson.path("rules");
+                if (rules.isArray()) {
+                    for (JsonNode rn : rules) {
+                        if (!(rn instanceof ObjectNode)) continue;
+                        final ObjectNode ro = (ObjectNode) rn;
+                        final String ru = ro.path("uid").asText(null);
+                        final String ga = ro.at("/grafana_alert/uid").asText(null);
+                        if ((ru == null || ru.isBlank()) && ga != null && !ga.isBlank()) {
+                            ro.put("uid", ga);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                LOG.warn("[Ruler][ann] uid backfill failed: " + e.getMessage());
+            }
+
+            final String groupBody = groupJson.toString();
+            final String jsonGroupsObj = buildGroupsWrappedBody(groupJson);
+
+            final String base = baseUrlNow();
+            LOG.warn("[Ruler][ann][payload] " + trimBody(groupBody, 1200));
+
+            // 7) ns 후보 구성(UID 우선)
+            final LinkedHashSet<String> nsSet = new LinkedHashSet<>();
+            if (folderUid != null && !folderUid.isBlank()) nsSet.add(folderUid);
+            nsSet.add(nsKeyForUrl);
+            nsSet.add(replaceSpacesWithHyphen(nsKeyForUrl));
+            nsSet.add(slugify(nsKeyForUrl).toLowerCase(Locale.ROOT));
+
+            // 8) 전송(기존 threshold/pause와 동일 폴백 정책)
+            for (String nsCand : nsSet) {
+                if (nsCand == null || nsCand.isBlank()) continue;
+
+                final String encNs = encodePathSegment(nsCand);
+                final String encGroup = encodePathSegment(groupName);
+
+                final String[] putGroupUrls = new String[] {
+                        base + "/api/ruler/grafana/api/v1/rules/" + encNs + "/" + encGroup + "?subtype=cortex",
+                        base + "/api/ruler/grafana/api/v1/rules/" + encNs + "/" + encGroup
+                };
+                for (String u : putGroupUrls) {
+                    if (trySend(u, "PUT", "application/json; charset=utf-8", groupBody)) return true;
+                }
+
+                final String[] postNsUrls = new String[] {
+                        base + "/api/ruler/grafana/api/v1/rules/" + encNs + "?subtype=cortex",
+                        base + "/api/ruler/grafana/api/v1/rules/" + encNs
+                };
+                for (String u : postNsUrls) {
+                    if (trySend(u, "POST", "application/json; charset=utf-8", groupBody)) return true;
+                }
+                for (String u : postNsUrls) {
+                    if (trySend(u, "POST", "application/json; charset=utf-8", jsonGroupsObj)) return true;
+                }
+                for (String u : postNsUrls) {
+                    if (trySend(u, "PUT", "application/json; charset=utf-8", groupBody)) return true;
+                }
+                for (String u : postNsUrls) {
+                    if (trySend(u, "PUT", "application/json; charset=utf-8", jsonGroupsObj)) return true;
+                }
+            }
+
+            LOG.warn("[Ruler][ann] write failed after all fallbacks: nsRaw=" + nsRaw + ", group=" + groupName + ", uid=" + ruleUid);
+            return false;
+        } catch (Exception e) {
+            LOG.warn("[Ruler][ann] update failed: " + e.getMessage(), e);
+            return false;
+        }
+    }
+
     public boolean pauseRule(final String folderName,
                              final String groupName,
                              final String ruleUid,
@@ -1741,6 +1883,76 @@ public class WallApiClientImpl implements WallApiClient {
      * Ruler RAW group JSON 안에서 ruleUid에 해당하는 룰의 pause 값을 in-place로 토글합니다.
      * 이 환경(YAML)에 맞춰서 isPaused/paused/grafana_alert.isPaused 모두 동기화합니다.
      */
+
+    // summary/description 등 annotations 수정 (그룹 JSON in-place 수정)
+    /**
+     * Ruler RAW group JSON 안에서 targetUid에 해당하는 룰의 annotations를 in-place로 수정합니다.
+     * - UID 매칭: rule.uid 또는 grafana_alert.uid
+     * - patch 규칙: value가 null이면 해당 key 제거, 그 외는 값 설정(빈 문자열 포함)
+     */
+    private boolean mutateAnnotationsRawInPlace(final ObjectNode groupJson,
+                                                final String targetUid,
+                                                final Map<String, String> patch) {
+        if (groupJson == null || targetUid == null || targetUid.isBlank() || patch == null || patch.isEmpty()) {
+            return false;
+        }
+        final JsonNode rules = groupJson.path("rules");
+        if (!rules.isArray()) {
+            return false;
+        }
+
+        for (JsonNode rn : rules) {
+            if (!(rn instanceof ObjectNode)) {
+                continue;
+            }
+            final ObjectNode rule = (ObjectNode) rn;
+
+            // UID 매칭: rule.uid 또는 grafana_alert.uid
+            final String uid1 = rule.path("uid").asText(null);
+            final String uid2 = rule.at("/grafana_alert/uid").asText(null);
+            if (!targetUid.equals(uid1) && !targetUid.equals(uid2)) {
+                continue;
+            }
+
+            // Prometheus 룰 annotations
+            final ObjectNode ann = (rule.has("annotations") && rule.get("annotations").isObject())
+                    ? (ObjectNode) rule.get("annotations")
+                    : rule.putObject("annotations");
+
+            // Grafana 룰 annotations(있으면 같이 수정)
+            ObjectNode gaAnn = null;
+            final JsonNode ga = rule.path("grafana_alert");
+            if (ga != null && ga.isObject()) {
+                final ObjectNode gaObj = (ObjectNode) ga;
+                gaAnn = (gaObj.has("annotations") && gaObj.get("annotations").isObject())
+                        ? (ObjectNode) gaObj.get("annotations")
+                        : gaObj.putObject("annotations");
+            }
+
+            for (Map.Entry<String, String> e : patch.entrySet()) {
+                final String k = e.getKey();
+                if (k == null || k.isBlank()) {
+                    continue;
+                }
+                final String v = e.getValue();
+                if (v == null) {
+                    ann.remove(k);
+                    if (gaAnn != null) {
+                        gaAnn.remove(k);
+                    }
+                } else {
+                    ann.put(k, v);
+                    if (gaAnn != null) {
+                        gaAnn.put(k, v);
+                    }
+                }
+            }
+            return true; // 1개만 수정
+        }
+        return false;
+    }
+
+
     private boolean mutatePauseRawInPlace(final ObjectNode groupJson, final String targetUid, final boolean paused) {
         if (groupJson == null || targetUid == null || targetUid.isBlank()) return false;
         final JsonNode rules = groupJson.path("rules");
@@ -1780,6 +1992,89 @@ public class WallApiClientImpl implements WallApiClient {
             break;
         }
         return touched;
+    }
+
+
+
+    // --------------------------- Provisioning / DS Query (Current value) ---------------------------
+
+    /**
+     * Grafana Provisioning API에서 규칙 정의를 UID로 조회합니다.
+     * - /api/v1/provisioning/alert-rules/{uid}
+     */
+    @Override
+    public JsonNode fetchProvisioningAlertRule(final String uid) {
+        if (uid == null || uid.isBlank()) {
+            return null;
+        }
+        final String encUid = URLEncoder.encode(uid, StandardCharsets.UTF_8);
+        final String url = baseUrlNow() + "/api/v1/provisioning/alert-rules/" + encUid;
+
+        try {
+            final HttpRequest.Builder rb = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofMillis(readTimeoutMs))
+                    .header("Accept", "application/json")
+                    .header("Cache-Control", "no-cache");
+
+            final String b = bearerNow();
+            if (b != null && !b.isBlank()) {
+                rb.header("Authorization", "Bearer " + b);
+            }
+
+            final HttpResponse<String> res = http.send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
+            if (res.statusCode() >= 200 && res.statusCode() < 300) {
+                return om.readTree(res.body());
+            }
+
+            LOG.warn("[Provisioning] GET " + url + " -> " + res.statusCode());
+        } catch (Exception e) {
+            LOG.warn("[Provisioning] fetchProvisioningAlertRule failed: " + e.getMessage(), e);
+        }
+
+        return null;
+    }
+
+    /**
+     * Grafana DataSource Query API를 호출하여 규칙의 최종 계산값을 재현합니다.
+     * - /api/ds/query
+     */
+    @Override
+    public JsonNode queryDs(final JsonNode reqBody) {
+        if (reqBody == null) {
+            return null;
+        }
+        final String url = baseUrlNow() + "/api/ds/query";
+
+        try {
+            final String payload = reqBody.toString();
+
+            final HttpRequest.Builder rb = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofMillis(readTimeoutMs))
+                    .header("Accept", "application/json")
+                    .header("Content-Type", "application/json; charset=utf-8")
+                    .header("X-Grafana-Org-Id", "1")
+                    .header("X-Scope-OrgID", "1");
+
+            final String b = bearerNow();
+            if (b != null && !b.isBlank()) {
+                rb.header("Authorization", "Bearer " + b);
+            }
+
+            final HttpRequest req = rb.POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8)).build();
+            final HttpResponse<String> res = http.send(req, HttpResponse.BodyHandlers.ofString());
+
+            if (res.statusCode() >= 200 && res.statusCode() < 300) {
+                return om.readTree(res.body());
+            }
+
+            LOG.warn("[DS] POST " + url + " -> " + res.statusCode());
+        } catch (Exception e) {
+            LOG.warn("[DS] queryDs failed: " + e.getMessage(), e);
+        }
+
+        return null;
     }
 
 }
