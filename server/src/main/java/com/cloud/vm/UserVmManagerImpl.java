@@ -10698,7 +10698,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to create vm snapshot: " + e.getMessage(), e);
         }
 
-        List<VMSnapshotDetailsVO> listSnapshots = vmSnapshotDetailsDao.findDetails(vmSnapshot.getId(), "kvmStorageSnapshot");
+        List<VMSnapshotDetailsVO> listSnapshots = vmSnapshotDetailsDao.findDetails(vmSnapshot.getId(), "kvmFileBasedStorageSnapshot");
 
         Integer countOfCloneVM = cmd.getCount();
         for (int cnt = 1; cnt <= countOfCloneVM; cnt++) {
