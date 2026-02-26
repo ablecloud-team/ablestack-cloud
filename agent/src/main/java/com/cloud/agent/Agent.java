@@ -78,6 +78,7 @@ import com.cloud.agent.api.MaintainAnswer;
 import com.cloud.agent.api.MaintainCommand;
 import com.cloud.agent.api.MigrateAgentConnectionAnswer;
 import com.cloud.agent.api.MigrateAgentConnectionCommand;
+import com.cloud.agent.api.NetworkUsageCommand;
 import com.cloud.agent.api.PingAnswer;
 import com.cloud.agent.api.PingCommand;
 import com.cloud.agent.api.ReadyCommand;
@@ -417,7 +418,7 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
             return false;
         }
         for (Command command : commands) {
-            if (command != null && command.getClass().getSimpleName().contains("StatsCommand")) {
+            if (command != null && (command.getClass().getSimpleName().contains("StatsCommand") || command instanceof NetworkUsageCommand)) {
                 return true;
             }
         }
