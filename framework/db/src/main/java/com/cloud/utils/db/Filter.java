@@ -57,6 +57,7 @@ public class Filter {
     }
 
     public Filter(long limit) {
+<<<<<<< HEAD
         this(limit, false);
     }
 
@@ -70,6 +71,9 @@ public class Filter {
             _orderBy = " ORDER BY RAND()" ;
         }
         _limit = limit;
+=======
+        _orderBy = " ORDER BY RAND() LIMIT " + limit;
+>>>>>>> parent of b7fc7179fc (Add batch deletion support to `removeRawUsageRecords` (#12522))
     }
 
     public Filter(Long offset, Long limit) {

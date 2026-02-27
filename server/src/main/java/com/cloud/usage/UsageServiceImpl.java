@@ -25,7 +25,6 @@ import java.util.TimeZone;
 import javax.inject.Inject;
 import javax.naming.ConfigurationException;
 
-import com.cloud.configuration.ConfigurationManagerImpl;
 import org.apache.cloudstack.api.command.admin.usage.GenerateUsageRecordsCmd;
 import org.apache.cloudstack.api.command.admin.usage.ListUsageRecordsCmd;
 import org.apache.cloudstack.api.command.admin.usage.RemoveRawUsageRecordsCmd;
@@ -476,8 +475,39 @@ public class UsageServiceImpl extends ManagerBase implements UsageService, Manag
     @Override
     public boolean removeRawUsageRecords(RemoveRawUsageRecordsCmd cmd) throws InvalidParameterValueException {
         Integer interval = cmd.getInterval();
+<<<<<<< HEAD
         if (interval == null || interval <= 0) {
             throw new InvalidParameterValueException("Interval should be greater than 0.");
+=======
+        if (interval != null && interval > 0 ) {
+            String jobExecTime = _configDao.getValue(Config.UsageStatsJobExecTime.toString());
+            if (jobExecTime != null ) {
+                String[] segments = jobExecTime.split(":");
+                if (segments.length == 2) {
+                    String timeZoneStr = _configDao.getValue(Config.UsageExecutionTimezone.toString());
+                    if (timeZoneStr == null) {
+                        timeZoneStr = "GMT";
+                    }
+                    TimeZone tz = TimeZone.getTimeZone(timeZoneStr);
+                    Calendar cal = Calendar.getInstance(tz);
+                    cal.setTime(new Date());
+                    long curTS = cal.getTimeInMillis();
+                    cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(segments[0]));
+                    cal.set(Calendar.MINUTE, Integer.parseInt(segments[1]));
+                    cal.set(Calendar.SECOND, 0);
+                    cal.set(Calendar.MILLISECOND, 0);
+                    long execTS = cal.getTimeInMillis();
+                    logger.debug("Trying to remove old raw cloud_usage records older than " + interval + " day(s), current time=" + curTS + " next job execution time=" + execTS);
+                    // Let's avoid cleanup when job runs and around a 15 min interval
+                    if (Math.abs(curTS - execTS) < 15 * 60 * 1000) {
+                        return false;
+                    }
+                }
+            }
+            _usageDao.removeOldUsageRecords(interval);
+        } else {
+            throw new InvalidParameterValueException("Invalid interval value. Interval to remove cloud_usage records should be greater than 0");
+>>>>>>> parent of b7fc7179fc (Add batch deletion support to `removeRawUsageRecords` (#12522))
         }
 
         String jobExecTime = _configDao.getValue(Config.UsageStatsJobExecTime.toString());

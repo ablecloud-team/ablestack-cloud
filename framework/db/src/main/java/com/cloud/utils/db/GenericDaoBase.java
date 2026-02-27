@@ -1172,8 +1172,6 @@ public abstract class GenericDaoBase<T, ID extends Serializable> extends Compone
                 if (filter.getLimit() != null) {
                     sql.append(", ").append(filter.getLimit());
                 }
-            } else if (filter.getLimit() != null) {
-                sql.append(" LIMIT ").append(filter.getLimit());
             }
         }
     }
