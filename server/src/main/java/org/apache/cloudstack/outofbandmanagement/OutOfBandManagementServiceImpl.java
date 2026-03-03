@@ -436,11 +436,13 @@ public class OutOfBandManagementServiceImpl extends ManagerBase implements OutOf
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_HOST_OUTOFBAND_MANAGEMENT_ACTION, eventDescription = "issuing host out-of-band management action", async = true)
     public OutOfBandManagementResponse executePowerOperation(final Host host, final OutOfBandManagement.PowerOperation powerOperation, final Long timeout) {
+
+        CallContext.current().setEventDetails("Host Id: " + host.getId() + " Action: " + powerOperation.toString());
+
         checkOutOfBandManagementEnabledByZoneClusterHost(host);
         final OutOfBandManagement outOfBandManagementConfig = getConfigForHost(host);
         final ImmutableMap<OutOfBandManagement.Option, String> options = getOptions(outOfBandManagementConfig);
         final OutOfBandManagementDriver driver = getDriver(outOfBandManagementConfig);
-        boolean sameStatus = false;
         Long actionTimeOut = timeout;
         if (actionTimeOut == null) {
             actionTimeOut = ActionTimeout.valueIn(host.getClusterId());
