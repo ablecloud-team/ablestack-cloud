@@ -5410,6 +5410,7 @@
 "message.confirm.delete.usbdevice": "Please deallocate after running the virtual machine.",
 "message.cannot.remove.device.vm.stop": "Stopped virtual machines cannot be removed",
 "label.solution": "Solution",
+"label.preview": "Preview",
 "message.confirm.save.solution.title": "Do you want to save the solution?",
 "message.confirm.save.solution.desc": "The modified solution will be saved.",
 "message.wall.alert.annotations.updated": "The solution has been updated.",
@@ -5430,5 +5431,8 @@
 "message.alerting.desc": "A resource threshold was exceeded or a status change was detected in key systems and needs your attention.",
 "message.alerting.desc.1": "Check the max value and the threshold for each item, and review the solution.",
 "message.alerting.desc.2": "Control repeated notifications with Silence (temporary) or Pause.",
-"message.no.alerts": "There are no alerts to display right now."
+"message.no.alerts": "There are no alerts to display right now.",
+"message.solution.description.placeholder": "Enter the solution in Markdown format.",
+"message.solution.preview.empty": "There is no content to preview.",
+"message.solution.summary.placeholder": "Enter a brief summary of the solution."
 }

@@ -101,10 +101,6 @@
             </a-form-item>
           </a-form>
 
-          <div class="hint">
-            {{ $t('message.solution.hint') || '저장 시 요약/설명이 Wall(경보 규칙) annotations에 저장됩니다.' }}
-          </div>
-
           <div class="preview-wrap">
             <div class="preview-title">{{ $t('label.preview') || '미리보기' }}</div>
 
