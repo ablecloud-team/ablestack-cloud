@@ -13,36 +13,24 @@
     <div class="banner-spacer" :style="{ height: combinedBannerHeight + 'px' }" aria-hidden="true"></div>
 
     <a-layout class="layout" :class="[device]">
-      <a-affix style="z-index: 200" :offsetTop="this.$store.getters.maintenanceInitiated || this.$store.getters.shutdownTriggered ? 25 : 0">
-        <div class="sticky-sidebar">
-          <template v-if="isSideMenu()">
-            <a-drawer
-              v-if="isMobile()"
-              :wrapClassName="'drawer-sider ' + navTheme"
-              :closable="false"
-              :visible="collapsed"
-              placement="left"
-              @close="() => (collapsed = false)"
-            >
-              <side-menu
-                :menus="menus"
-                :theme="navTheme"
-                :collapsed="false"
-                :collapsible="true"
-                mode="inline"
-                :style="{ paddingBottom: isSidebarVisible ? '300px' : '0' }"
-                @menuSelect="menuSelect"
-              />
-            </a-drawer>
-
+      <div class="sticky-sidebar">
+        <template v-if="isSideMenu()">
+          <a-drawer
+            v-if="isMobile()"
+            :wrapClassName="'drawer-sider ' + navTheme"
+            :closable="false"
+            :visible="collapsed"
+            placement="left"
+            @close="() => (collapsed = false)"
+          >
             <side-menu
-              v-else
-              mode="inline"
               :menus="menus"
               :theme="navTheme"
-              :collapsed="collapsed"
+              :collapsed="false"
               :collapsible="true"
+              mode="inline"
               :style="{ paddingBottom: isSidebarVisible ? '300px' : '0' }"
+              @menuSelect="menuSelect"
             />
           </a-drawer>
 
@@ -106,6 +94,11 @@
               </a-button>
             </div>
           </template>
+          <template #drawer>
+            <setting :visible="showSetting" />
+          </template>
+        </drawer>
+      </div>
 
       <event-sidebar
         :isVisible="isSidebarVisible"
@@ -119,7 +112,6 @@
       >
         <div class="sticky-header">
           <global-header
-            :style="this.$store.getters.maintenanceInitiated || this.$store.getters.shutdownTriggered ? 'margin-top: 25px;' : null"
             :mode="layoutMode"
             :menus="menus"
             :theme="navTheme"
