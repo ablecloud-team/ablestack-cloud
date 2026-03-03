@@ -80,7 +80,6 @@ import com.cloud.agent.api.MigrateAgentConnectionAnswer;
 import com.cloud.agent.api.MigrateAgentConnectionCommand;
 import com.cloud.agent.api.NetworkUsageCommand;
 import com.cloud.agent.api.PingAnswer;
-import com.cloud.agent.api.NetworkUsageCommand;
 import com.cloud.agent.api.PingCommand;
 import com.cloud.agent.api.ReadyCommand;
 import com.cloud.agent.api.ShutdownCommand;
