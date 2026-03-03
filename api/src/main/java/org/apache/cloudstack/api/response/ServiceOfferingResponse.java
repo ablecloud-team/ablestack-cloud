@@ -196,7 +196,7 @@ public class ServiceOfferingResponse extends BaseResponseWithAnnotations {
     @Param(description = "is true if the offering is customized", since = "4.3.0")
     private Boolean isCustomized;
 
-    @SerializedName("cacheMode")
+    @SerializedName(ApiConstants.CACHE_MODE)
     @Param(description = "the cache mode to use for this disk offering. none, writeback or writethrough", since = "4.14")
     private String cacheMode;
 

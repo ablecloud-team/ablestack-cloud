@@ -71,6 +71,7 @@ import com.cloud.agent.api.Command;
 import com.cloud.agent.api.CronCommand;
 import com.cloud.agent.api.MaintainAnswer;
 import com.cloud.agent.api.MaintainCommand;
+import com.cloud.agent.api.NetworkUsageCommand;
 import com.cloud.agent.api.PingCommand;
 import com.cloud.agent.api.ReadyCommand;
 import com.cloud.agent.api.ShutdownCommand;
@@ -383,7 +384,7 @@ public class Agent implements HandlerFactory, IAgentControl, AgentStatusUpdater 
             return false;
         }
         for (Command command : commands) {
-            if (command != null && command.getClass().getSimpleName().contains("StatsCommand")) {
+            if (command != null && (command.getClass().getSimpleName().contains("StatsCommand") || command instanceof NetworkUsageCommand)) {
                 return true;
             }
         }
