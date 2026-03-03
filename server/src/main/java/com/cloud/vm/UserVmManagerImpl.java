@@ -5065,6 +5065,12 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 continue;
             }
 
+            // Keep template-level TPM setting as first priority.
+            // If the template does not define it, we fallback to the deploy-time value.
+            if (key.equalsIgnoreCase(VmDetailConstants.TPM_VERSION) && StringUtils.isNotBlank(vm.getDetail(VmDetailConstants.TPM_VERSION))) {
+                continue;
+            }
+
             if (!hypervisorType.equals(HypervisorType.KVM)) {
                 if (key.equalsIgnoreCase(VmDetailConstants.IOTHREADS)) {
                     vm.details.remove(VmDetailConstants.IOTHREADS);

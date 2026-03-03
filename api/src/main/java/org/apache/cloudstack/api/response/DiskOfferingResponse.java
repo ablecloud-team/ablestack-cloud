@@ -148,8 +148,8 @@ public class DiskOfferingResponse extends BaseResponseWithAnnotations {
     @Param(description = "Length (in seconds) of the burst")
     private Long iopsWriteRateMaxLength;
 
-    @SerializedName("cacheMode")
-    @Param(description = "The cache mode to use for this disk offering. none, writeback or writethrough", since = "4.4")
+    @SerializedName(ApiConstants.CACHE_MODE)
+    @Param(description = "the cache mode to use for this disk offering. none, writeback or writethrough", since = "4.4")
     private String cacheMode;
 
     @SerializedName("displayoffering")
