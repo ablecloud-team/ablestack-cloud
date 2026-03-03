@@ -5091,6 +5091,12 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 continue;
             }
 
+            // Keep template-level TPM setting as first priority.
+            // If the template does not define it, we fallback to the deploy-time value.
+            if (key.equalsIgnoreCase(VmDetailConstants.TPM_VERSION) && StringUtils.isNotBlank(vm.getDetail(VmDetailConstants.TPM_VERSION))) {
+                continue;
+            }
+
             if (!hypervisorType.equals(HypervisorType.KVM)) {
                 if (key.equalsIgnoreCase(VmDetailConstants.IOTHREADS)) {
                     vm.details.remove(VmDetailConstants.IOTHREADS);
@@ -10725,7 +10731,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to create vm snapshot: " + e.getMessage(), e);
         }
 
-        List<VMSnapshotDetailsVO> listSnapshots = vmSnapshotDetailsDao.findDetails(vmSnapshot.getId(), "kvmStorageSnapshot");
+        List<VMSnapshotDetailsVO> listSnapshots = vmSnapshotDetailsDao.findDetails(vmSnapshot.getId(), "kvmFileBasedStorageSnapshot");
 
         Integer countOfCloneVM = cmd.getCount();
         for (int cnt = 1; cnt <= countOfCloneVM; cnt++) {

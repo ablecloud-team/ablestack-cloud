@@ -169,6 +169,10 @@ public class VolumeResponse extends BaseResponseWithTagInformation implements Co
     @Param(description = "IO requests write rate of the disk volume per the disk offering")
     private Long iopsWriteRate;
 
+    @SerializedName(ApiConstants.CACHE_MODE)
+    @Param(description = "the cache mode to use for this disk offering. none, writeback or writethrough", since = "4.14")
+    private String cacheMode;
+
     @SerializedName(ApiConstants.DISK_KBS_READ)
     @Param(description = "The Instance's disk read in KiB")
     private Long diskKbsRead;
@@ -496,6 +500,14 @@ public class VolumeResponse extends BaseResponseWithTagInformation implements Co
 
     public Long getIopsWriteRate() {
         return iopsWriteRate;
+    }
+
+    public String getCacheMode() {
+        return cacheMode;
+    }
+
+    public void setCacheMode(String cacheMode) {
+        this.cacheMode = cacheMode;
     }
 
     public Long getDiskIORead() {

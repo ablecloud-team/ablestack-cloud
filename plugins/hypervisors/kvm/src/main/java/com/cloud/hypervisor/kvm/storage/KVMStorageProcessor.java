@@ -2793,8 +2793,19 @@ public class KVMStorageProcessor implements StorageProcessor {
 
             final String snapshotFullPath = snapshot.getPath();
             final int index = snapshotFullPath.lastIndexOf("/");
-            final String snapshotPath = snapshotFullPath.substring(0, index);
-            final String snapshotName = snapshotFullPath.substring(index + 1);
+            final String snapshotPath;
+            final String snapshotName;
+            if (index >= 0) {
+                snapshotPath = snapshotFullPath.substring(0, index);
+                snapshotName = snapshotFullPath.substring(index + 1);
+            } else {
+                if (pool.getPoolType() == StoragePoolType.SharedMountPoint) {
+                    snapshotPath = pool.getPath();
+                    snapshotName = snapshotFullPath;
+                } else {
+                    throw new CloudRuntimeException("Invalid snapshot path format: " + snapshotFullPath);
+                }
+            }
             KVMPhysicalDisk disk = null;
             if (imageStore instanceof NfsTO) {
                 disk = createVolumeFromSnapshotOnNFS(cmd, pool, imageStore, volume, snapshotPath, snapshotName);

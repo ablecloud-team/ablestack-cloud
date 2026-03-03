@@ -44,51 +44,68 @@
               :collapsible="true"
               :style="{ paddingBottom: isSidebarVisible ? '300px' : '0' }"
             />
-          </template>
+          </a-drawer>
 
-          <template v-else>
-            <a-drawer
-              v-if="isMobile()"
-              :wrapClassName="'drawer-sider ' + navTheme"
-              placement="left"
-              @close="() => (collapsed = false)"
-              :closable="false"
-              :visible="collapsed"
+          <side-menu
+            v-else
+            mode="inline"
+            :menus="menus"
+            :theme="navTheme"
+            :collapsed="collapsed"
+            :collapsible="true"
+            :style="{ paddingBottom: isSidebarVisible ? '300px' : '0' }"
+          />
+        </template>
+
+        <template v-else>
+          <a-drawer
+            v-if="isMobile()"
+            :wrapClassName="'drawer-sider ' + navTheme"
+            placement="left"
+            @close="() => (collapsed = false)"
+            :closable="false"
+            :visible="collapsed"
+          >
+            <side-menu
+              :menus="menus"
+              :theme="navTheme"
+              :collapsed="false"
+              :collapsible="true"
+              mode="inline"
+              :style="{ paddingBottom: isSidebarVisible ? '300px' : '0' }"
+              @menuSelect="menuSelect"
+            />
+          </a-drawer>
+        </template>
+
+        <drawer
+          :visible="showSetting"
+          placement="right"
+          v-if="isAdmin && (isDevelopmentMode || allowSettingTheme)"
+        >
+          <template #handler>
+            <div
+              style="position: absolute; bottom: 55px; display: flex; flex-direction: column; gap: 0; align-items: flex-end; z-index: 1001; pointer-events: auto;"
             >
-              <side-menu
-                :menus="menus"
-                :theme="navTheme"
-                :collapsed="false"
-                :collapsible="true"
-                mode="inline"
-                :style="{ paddingBottom: isSidebarVisible ? '300px' : '0' }"
-                @menuSelect="menuSelect"
-              />
-            </a-drawer>
-          </template>
-
-          <drawer :visible="showSetting" placement="right" v-if="isAdmin && (isDevelopmentMode || allowSettingTheme)">
-            <template #handler>
-              <a-button type="primary" size="large">
+              <a-button
+                v-show="!showSetting"
+                type="primary"
+                @click.stop="toggleSidebar"
+                style="width: 40px; height: 40px; padding: 0; background: #aaa; border: none; color: #fff; border-radius: 4px 4px 0 0; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+              >
+                <ScheduleOutlined />
+              </a-button>
+              <a-button
+                type="primary"
+                size="large"
+                @click.stop="toggleSetting(!showSetting)"
+                style="width: 40px; height: 40px; border-radius: 0 0 4px 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+              >
                 <close-outlined v-if="showSetting" />
                 <setting-outlined v-else />
               </a-button>
-            </template>
-            <template #drawer>
-              <setting :visible="showSetting" />
-            </template>
-          </drawer>
-        </div>
-      </a-affix>
-      <div style="position: fixed; bottom: 45px; right: 0; z-index: 100;">
-        <a-button
-          type="primary"
-          @click="toggleSidebar"
-          style="width: 40px; height: 40px; padding: 0; background: #aaa; border: none; color: #fff;"
-        >
-          <ScheduleOutlined />
-        </a-button>
-      </div>
+            </div>
+          </template>
 
       <event-sidebar
         :isVisible="isSidebarVisible"
@@ -223,7 +240,7 @@ export default {
       if (!Number.isNaN(bootH) && bootH >= 0) {
         this.autoBannerHeight = bootH
         document.documentElement.style.setProperty('--autoBannerHeight', bootH + 'px')
-        // ✅ 추가: 첫 프레임부터 --affixTopHeader를 맞춰 메뉴/헤더 정렬
+        // 추가: 첫 프레임부터 --affixTopHeader를 맞춰 메뉴/헤더 정렬
         this.updateAffixTopVars() // ← 이 한 줄을 debouncedRecalc() 이전에 호출
         this.debouncedRecalc && this.debouncedRecalc()
       }
@@ -479,5 +496,55 @@ export default {
 .sticky-sidebar :deep(.ant-menu-root) {
   max-height: 100%;
   overflow-y: auto;
+}
+/* Ant Design 알림창(Notification) 위치 및 높이 제어 */
+.ant-notification {
+  /* 1. 배너(z-index: ~21억)보다 무조건 위에 오도록 설정 */
+  z-index: 2147483655 !important;
+
+  /* 2. 위치 동적 계산: 기본 24px + 배너 높이만큼 아래로 이동
+        배너가 없으면(--autoBannerHeight: 0px) 자동으로 24px이 됨 */
+  top: calc(24px + var(--autoBannerHeight, 0px)) !important;
+}
+.ant-message {
+  /* 배너(z-index: ~21억)보다 위로 노출 */
+  z-index: 2147483655 !important;
+
+  /* 배너 높이만큼 밑으로 내려서 겹치지 않게 처리 */
+  top: calc(24px + var(--autoBannerHeight, 0px)) !important;
+}
+@media (max-width: 768px) {
+  /* 1. 사이드바를 공중에 띄워서 공간 차지를 못하게 만듦 */
+  .ant-layout.layout.mobile .sticky-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible; /* 삐져나온 버튼(핸들러)은 보여야 함 */
+    z-index: 900;      /* 내용물보다는 위에, 배너보다는 아래 */
+  }
+  /* 1. 사용자 메뉴 배경 투명화 */
+  .user-menu {
+    background-color: transparent;
+    z-index: 999;
+  }
+
+  /* 2. 텍스트 숨기기 (부모 요소) */
+  .user-menu .action {
+    font-size: 0; /* 글자 크기 0으로 숨김 */
+  }
+
+  /* 3. ★ 아이콘 심폐소생술 (여기가 중요!) ★ */
+  /* .anticon: 번역 아이콘 등 / .ant-avatar: 사용자 프로필 */
+  .user-menu .action .anticon,
+  .user-menu .action .ant-avatar {
+    font-size: 16px;      /* 아이콘 크기 강제 복구 */
+    display: inline-flex; /* 가려지지 않게 표시 */
+    vertical-align: middle;
+    color: rgba(0, 0, 0, 0.65);      /* (선택) 아이콘 색상이 흐리다면 추가 */
+  }
 }
 </style>

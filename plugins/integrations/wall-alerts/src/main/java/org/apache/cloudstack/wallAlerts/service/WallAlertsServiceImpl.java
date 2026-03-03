@@ -2,6 +2,11 @@ package org.apache.cloudstack.wallAlerts.service;
 
 import com.cloud.alert.AlertManager;
 import com.cloud.utils.component.ManagerBase;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.command.admin.wall.alerts.CreateWallAlertSilenceCmd;
@@ -10,6 +15,7 @@ import org.apache.cloudstack.api.command.admin.wall.alerts.ListWallAlertRulesCmd
 import org.apache.cloudstack.api.command.admin.wall.alerts.ListWallAlertSilencesCmd;
 import org.apache.cloudstack.api.command.admin.wall.alerts.PauseWallAlertRuleCmd;
 import org.apache.cloudstack.api.command.admin.wall.alerts.UpdateWallAlertRuleThresholdCmd;
+import org.apache.cloudstack.api.command.admin.wall.alerts.UpdateWallAlertRuleAnnotationsCmd;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.api.response.WallAlertRuleResponse;
@@ -35,7 +41,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.regex.Matcher;
@@ -82,6 +90,14 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
     private static volatile long WALL_RULES_CACHE_EXPIRES_AT;
     private static volatile java.util.List<WallAlertRuleResponse> WALL_RULES_CACHE_LIST;
 
+    // /api/ds/query 기반 "현재값(최종 계산값)" 캐시 (비용이 큰 호출이므로 TTL을 둡니다)
+    private static final Object CURRENT_EVAL_CACHE_LOCK = new Object();
+    private static final long CURRENT_EVAL_CACHE_TTL_MS = 10_000L; // 10초
+    private static final Map<String, CurrentEvalCacheEntry> CURRENT_EVAL_CACHE = new HashMap<>();
+    private static final Semaphore DS_QUERY_SEM = new Semaphore(3);
+    private static final ObjectMapper JSON = new ObjectMapper();
+
+
     @Override
     public ListResponse<WallAlertRuleResponse> listWallAlertRules(final ListWallAlertRulesCmd cmd) {
 
@@ -115,13 +131,17 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                         final OffsetDateTime nowTs = OffsetDateTime.now();
                         for (final SilenceDto s : activeSilences) {
                             final String uid = silenceRuleUid(s); // 이미 클래스에 구현되어 있음
-                            if (uid == null || uid.isBlank()) continue;
+                            if (uid == null || uid.isBlank()) {
+                                continue;
+                            }
 
                             // 시간상 지금 활성인지 최종 체크 (API가 active를 주더라도 안전망)
                             final OffsetDateTime st = s.getStartsAt();
                             final OffsetDateTime en = s.getEndsAt();
                             final boolean isActive = (st == null || !nowTs.isBefore(st)) && (en == null || nowTs.isBefore(en));
-                            if (!isActive) continue;
+                            if (!isActive) {
+                                continue;
+                            }
 
                             // 여러 개면 "가장 빨리 끝나는" 사일런스를 선택 (UI 표시가 직관적)
                             final SilenceDto prev = activeSilenceByUid.get(uid);
@@ -135,15 +155,15 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                 }
 
                 // 기존 필터 (id 제외)
-                final String nameFilter  = cmd.getName();
+                final String nameFilter = cmd.getName();
                 final String stateFilter = cmd.getState();
-                final String kindFilter  = cmd.getKind();
-                final String keyword     = cmd.getKeyword();
+                final String kindFilter = cmd.getKind();
+                final String keyword = cmd.getKeyword();
 
-                final String nameFilterL  = nameFilter  == null ? null : nameFilter.toLowerCase(Locale.ROOT);
+                final String nameFilterL = nameFilter == null ? null : nameFilter.toLowerCase(Locale.ROOT);
                 final String stateFilterL = stateFilter == null ? null : stateFilter.toLowerCase(Locale.ROOT);
-                final String kindFilterL  = kindFilter  == null ? null : kindFilter.toLowerCase(Locale.ROOT);
-                final String keywordL     = keyword     == null ? null : keyword.toLowerCase(Locale.ROOT);
+                final String kindFilterL = kindFilter == null ? null : kindFilter.toLowerCase(Locale.ROOT);
+                final String keywordL = keyword == null ? null : keyword.toLowerCase(Locale.ROOT);
 
                 final java.util.List<WallAlertRuleResponse> filtered = new java.util.ArrayList<>();
 
@@ -163,7 +183,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
 
                             final String groupName = g.name;
                             final String ruleTitle = r.name;
-                            final String ruleKind  = r.labels != null ? r.labels.get("kind") : null;
+                            final String ruleKind = r.labels != null ? r.labels.get("kind") : null;
                             final String ruleExprN = normExpr(r.query);
 
                             // ----- 임계치/연산자 병합을 위한 정의 찾기 -----
@@ -233,9 +253,12 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                                 }
                             }
                             // ----- ▲ UID 필터 끝 ▲ -----
+
                             if (resolvedUid != null && !resolvedUid.isBlank()) {
                                 final ThresholdDef defByUid = tIndex.byUid.get(resolvedUid);
-                                if (defByUid != null) def = defByUid;
+                                if (defByUid != null) {
+                                    def = defByUid;
+                                }
                             }
 
                             // 나머지 필터들(name/state/kind/keyword) 유지
@@ -258,11 +281,11 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                                 }
                             }
                             if (keywordL != null && !keywordL.isBlank()) {
-                                final String nm  = ruleTitle  == null ? "" : ruleTitle.toLowerCase(Locale.ROOT);
-                                final String grp = groupName  == null ? "" : groupName.toLowerCase(Locale.ROOT);
-                                final String q   = r.query    == null ? "" : r.query.toLowerCase(Locale.ROOT);
-                                final String op  = (def != null && def.operator  != null) ? def.operator.toLowerCase(Locale.ROOT) : "";
-                                final String th  = (def != null && def.threshold != null) ? String.valueOf(def.threshold).toLowerCase(Locale.ROOT) : "";
+                                final String nm = ruleTitle == null ? "" : ruleTitle.toLowerCase(Locale.ROOT);
+                                final String grp = groupName == null ? "" : groupName.toLowerCase(Locale.ROOT);
+                                final String q = r.query == null ? "" : r.query.toLowerCase(Locale.ROOT);
+                                final String op = (def != null && def.operator != null) ? def.operator.toLowerCase(Locale.ROOT) : "";
+                                final String th = (def != null && def.threshold != null) ? String.valueOf(def.threshold).toLowerCase(Locale.ROOT) : "";
                                 final String th2 = (def != null && def.threshold2 != null) ? String.valueOf(def.threshold2).toLowerCase(Locale.ROOT) : "";
                                 if (!(nm.contains(keywordL) || grp.contains(keywordL) || q.contains(keywordL)
                                         || op.contains(keywordL) || th.contains(keywordL) || th2.contains(keywordL))) {
@@ -279,8 +302,8 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                                 resp.setUid(sanitizeXmlText(resolvedUid));
                             }
 
-                            final String safeKey   = sanitizeXmlText(key);
-                            final String safeName  = sanitizeXmlText(ruleTitle);
+                            final String safeKey = sanitizeXmlText(key);
+                            final String safeName = sanitizeXmlText(ruleTitle);
                             final String safeGroup = sanitizeXmlText(groupName);
 
                             // ★ id는 uid로 통일(레거시 id 충돌 방지)
@@ -316,6 +339,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                             resp.setLabels(sanitizeXmlMap(r.labels));
                             resp.setAnnotations(sanitizeXmlMap(r.annotations));
                             resp.setKind(sanitizeXmlText(ruleKind));
+
                             // pause 상태 반영: Ruler 인덱스(def)에서 가져와 내려줍니다
                             Boolean pausedB = pausedFromRulerByUid(rulerAll, resolvedUid);
                             if (pausedB == null && def != null) {
@@ -384,11 +408,22 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
 
                             // ALERTING & !paused & !silenced ⇒ AlertManager로 영속 알림 등록
                             final boolean ruleIsAlerting = "ALERTING".equalsIgnoreCase(normalizeState(computedState));
+
+                            // /api/ds/query로 "임계치 판단에 쓰인 최종 계산값"을 조회하여 현재값/대상별 값을 주입합니다.
+                            // - 룰마다 평균/일반/수식이 달라도 provisioning data[]를 그대로 실행하므로 동일 결과가 나옵니다.
+                            // - 비용이 크므로 ALERTING & !paused 에만 수행하고, UID별 10초 TTL 캐시를 적용합니다.
+                            if (ruleIsAlerting && !paused && resolvedUid != null && !resolvedUid.isBlank()) {
+                                final CurrentEvalResult ev = fetchCurrentEvalResult(resolvedUid);
+                                applyCurrentEvalToResponse(resp, ev, def);
+                            } else {
+                                clearCurrentEvalFromResponse(resp);
+                            }
+
                             if (resolvedUid != null && ruleIsAlerting && !paused && !silencedNow) {
                                 // 이미 위에서 채운 def(임계/연산자)를 그대로 사용합니다.
-                                final String op   = (def != null ? def.operator   : null);
-                                final Double th1  = (def != null ? def.threshold  : null);
-                                final Double th2  = (def != null ? def.threshold2 : null);
+                                final String op = (def != null ? def.operator : null);
+                                final Double th1 = (def != null ? def.threshold : null);
+                                final Double th2 = (def != null ? def.threshold2 : null);
 
                                 // 인스턴스 라벨을 기반으로 대상 요약 문자열을 생성합니다.
                                 // resp.getInstances()는 우리가 바로 위에서 채운 instList입니다.
@@ -412,19 +447,32 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         }
 
         // 2) 페이징(받은 순서 그대로 슬라이스)
-        final int startIndex = (cmd.getStartIndex() == null) ? 0 : Math.max(0, cmd.getStartIndex().intValue());
+        // - UI는 page/pagesize를 보내는 경우가 많고, startIndex가 null/0으로 들어올 수 있습니다.
+        // - page > 1인데 startIndex가 비어 있으면 (page - 1) * pageSize로 보정합니다.
         final Long psv = cmd.getPageSizeVal();
         final int pageSize = (psv == null || psv <= 0L) ? Integer.MAX_VALUE : psv.intValue();
 
+        int startIndex = 0;
+        if (cmd.getStartIndex() != null) {
+            startIndex = Math.max(0, cmd.getStartIndex().intValue());
+        } else {
+            // BaseListCmd가 startIndex를 자동 계산하지 않는/막히는 환경 대비 보정입니다.
+            final Integer page = cmd.getPage();
+            if (page != null && page.intValue() > 1 && pageSize != Integer.MAX_VALUE) {
+                startIndex = (page.intValue() - 1) * pageSize;
+            }
+        }
+
         final int total = base.size();
         final int from = Math.min(startIndex, total);
-        final int to   = Math.min(from + pageSize, total);
+        final int to = Math.min(from + pageSize, total);
         final java.util.List<WallAlertRuleResponse> page = new java.util.ArrayList<>(base.subList(from, to));
 
         final ListResponse<WallAlertRuleResponse> out = new ListResponse<>();
         out.setResponses(page, total);
         return out;
     }
+
 
 
 
@@ -523,9 +571,97 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         if (threshold2 != null) {
             resp.setThreshold2(threshold2);
         }
+
+
+
         resp.setThreshold(newThreshold);
         return resp;
     }
+
+    @Override
+    public WallAlertRuleResponse updateWallAlertRuleAnnotations(final UpdateWallAlertRuleAnnotationsCmd cmd)
+            throws ServerApiException {
+
+        final String id = cmd.getId();
+        final String uid = cmd.getUid();
+        final String summary = cmd.getSummary();
+        final String description = cmd.getDescription();
+
+        if ((id == null || id.isBlank()) && (uid == null || uid.isBlank())) {
+            throw new IllegalArgumentException("id 또는 uid 중 하나는 필수입니다.");
+        }
+        if (summary == null && description == null) {
+            throw new IllegalArgumentException("summary 또는 description 중 하나는 필수입니다.");
+        }
+
+        final RulerRulesResponse rulerAll = wallApiClient.fetchRulerRules();
+        if (rulerAll == null || rulerAll.folders == null) {
+            throw new RuntimeException("Ruler rules를 불러오지 못했습니다.");
+        }
+
+        Mapping m = null;
+        String targetUid = null;
+
+        // 1) uid 우선
+        if (uid != null && !uid.isBlank()) {
+            targetUid = uid.trim();
+            m = mapByRuleUid(rulerAll, targetUid);
+            if (m == null) {
+                throw new IllegalArgumentException("해당 uid('" + targetUid + "')로 룰을 찾지 못했습니다.");
+            }
+        } else {
+            // 2) id 경로(레거시/호환)
+            final String rawId = id.trim();
+            if (rawId.indexOf(':') < 0) {
+                // 콜론이 없으면 uid로 간주
+                targetUid = rawId;
+                m = mapByRuleUid(rulerAll, targetUid);
+                if (m == null) {
+                    throw new IllegalArgumentException("해당 uid('" + targetUid + "')로 룰을 찾지 못했습니다.");
+                }
+            } else {
+                // dashboardUid:panelId 기반 매핑(annotations) 또는 기타 id 매핑
+                m = resolveMappingFromId(rawId);
+                if (m == null) {
+                    throw new IllegalArgumentException("해당 id('" + rawId + "')로 룰을 찾지 못했습니다.");
+                }
+                targetUid = m.ruleUid;
+                if (isBlank(targetUid)) {
+                    targetUid = resolveUidByTitle(m.namespace, m.group, m.title);
+                }
+                if (isBlank(targetUid)) {
+                    throw new IllegalArgumentException("해당 id('" + rawId + "')로 UID를 해석하지 못했습니다.");
+                }
+            }
+        }
+
+        // 3) annotations 패치 구성 (null은 '미수정', 빈 문자열은 '비움'으로 취급)
+        final Map<String, String> patch = new HashMap<>();
+        if (summary != null) {
+            patch.put("summary", summary);
+        }
+        if (description != null) {
+            patch.put("description", description);
+        }
+
+        final boolean ok = wallApiClient.updateRuleAnnotations(m.namespace, m.group, targetUid, patch);
+        if (!ok) {
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "annotations 업데이트에 실패했습니다.");
+        }
+
+        invalidateRulesCache();
+
+        final WallAlertRuleResponse resp = new WallAlertRuleResponse();
+        resp.setObjectName("wallalertrule");
+        resp.setId((id != null && !id.isBlank()) ? id : targetUid);
+        resp.setUid(targetUid);
+        resp.setRuleGroup(m.group);
+        resp.setName(m.title);
+        resp.setSummary(summary);
+        resp.setDescription(description);
+        return resp;
+    }
+
 
     @Override
     public boolean pauseWallAlertRule(final String namespaceHint,
@@ -1347,7 +1483,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
                     if (targetUid.equals(ruUid)) {
                         final String title =
                                 (r.alert != null && r.alert.title != null) ? r.alert.title : r.title;
-                        return new Mapping(f.name, g.name, title /*, 필요시 namespace 등*/);
+                        return new Mapping(f.name, g.name, title, ruUid /*ruleUid*/);
                     }
                 }
             }
@@ -1634,6 +1770,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         }
         cmds.add(ListWallAlertRulesCmd.class);
         cmds.add(UpdateWallAlertRuleThresholdCmd.class);
+        cmds.add(UpdateWallAlertRuleAnnotationsCmd.class);
         cmds.add(PauseWallAlertRuleCmd.class);
         cmds.add(ListWallAlertSilencesCmd.class);
         cmds.add(ExpireWallAlertSilenceCmd.class);
@@ -2183,6 +2320,694 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         }
         return null;
     }
+
+
+    // --------------------------- /api/ds/query 기반 현재값 계산 ---------------------------
+
+    private static final class CurrentEvalCacheEntry {
+        private final CurrentEvalResult value;
+        private final long expiresAtMs;
+
+        private CurrentEvalCacheEntry(final CurrentEvalResult value, final long expiresAtMs) {
+            this.value = value;
+            this.expiresAtMs = expiresAtMs;
+        }
+    }
+
+    private static final class CurrentEvalResult {
+        private final Double value;     // rollup(avg) across targets (may be hidden in response)
+        private final Integer count;    // number of targets (or scalar samples in fallback)
+        private final boolean binary01; // all values are 0/1
+        private final Map<String, Double> byTarget;
+
+        private CurrentEvalResult(final Double value, final Integer count, final boolean binary01, final Map<String, Double> byTarget) {
+            this.value = value;
+            this.count = count;
+            this.binary01 = binary01;
+            this.byTarget = byTarget;
+        }
+
+        private static CurrentEvalResult fromScalar(final double v, final Integer count) {
+            return new CurrentEvalResult(Double.valueOf(v), count, false, java.util.Collections.emptyMap());
+        }
+    }
+
+    /**
+     * UID 기준으로 현재값(최종 계산값)을 TTL 캐시로 조회합니다.
+     */
+    private CurrentEvalResult fetchCurrentEvalResult(final String uid) {
+        if (uid == null || uid.isBlank()) {
+            return null;
+        }
+
+        final long now = System.currentTimeMillis();
+        synchronized (CURRENT_EVAL_CACHE_LOCK) {
+            final CurrentEvalCacheEntry hit = CURRENT_EVAL_CACHE.get(uid);
+            if (hit != null && now < hit.expiresAtMs) {
+                return hit.value;
+            }
+        }
+
+        // 동시에 너무 많이 호출되면 Wall이 버거워질 수 있어 제한합니다.
+        if (!DS_QUERY_SEM.tryAcquire()) {
+            return null;
+        }
+
+        try {
+            final CurrentEvalResult computed = computeCurrentEvalResult(uid);
+
+            synchronized (CURRENT_EVAL_CACHE_LOCK) {
+                final long exp = System.currentTimeMillis() + CURRENT_EVAL_CACHE_TTL_MS;
+                CURRENT_EVAL_CACHE.put(uid, new CurrentEvalCacheEntry(computed, exp));
+            }
+
+            return computed;
+        } finally {
+            DS_QUERY_SEM.release();
+        }
+    }
+
+
+    private void clearCurrentEvalFromResponse(final WallAlertRuleResponse resp) {
+        if (resp == null) {
+            return;
+        }
+        resp.setCurrentValue(null);
+        resp.setCurrentCount(null);
+        resp.setCurrentTargets(null);
+        resp.setBreachedTargets(null);
+        resp.setBreachedCount(null);
+    }
+
+    private void applyCurrentEvalToResponse(final WallAlertRuleResponse resp, final CurrentEvalResult ev, final ThresholdDef def) {
+        if (resp == null) {
+            return;
+        }
+        if (ev == null) {
+            clearCurrentEvalFromResponse(resp);
+            return;
+        }
+
+        final String op = (def != null ? def.operator : resp.getOperator());
+        final Double th1 = (def != null ? def.threshold : resp.getThreshold());
+        final Double th2 = (def != null ? def.threshold2 : resp.getThreshold2());
+
+        // rollup 값은 0/1(binary) 의미인 경우 UI 혼선을 피하기 위해 숨깁니다.
+        if (ev.binary01) {
+            resp.setCurrentValue(null);
+        } else {
+            resp.setCurrentValue(ev.value);
+        }
+        resp.setCurrentCount(ev.count);
+
+        // 대상별 값은 UI에서 "어느 개체가 초과/실패인지" 표시하기 위한 용도입니다.
+        if (ev.byTarget == null || ev.byTarget.isEmpty()) {
+            resp.setCurrentTargets(null);
+            resp.setBreachedTargets(null);
+            resp.setBreachedCount(null);
+            return;
+        }
+
+        final java.util.List<WallAlertRuleResponse.CurrentTargetValueResponse> targets = new java.util.ArrayList<>();
+        final java.util.List<String> breachedTargets = new java.util.ArrayList<>();
+
+        for (Map.Entry<String, Double> e : ev.byTarget.entrySet()) {
+            final String key = e.getKey();
+            final Double v = e.getValue();
+            final boolean breached = isBreached(op, v, th1, th2);
+
+            if (breached) {
+                breachedTargets.add(key);
+            }
+
+            // binary(0/1) 룰은 "실패/초과 대상"만 노출하는 쪽이 깔끔합니다.
+            if (ev.binary01 && !breached) {
+                continue;
+            }
+
+            final WallAlertRuleResponse.CurrentTargetValueResponse tv = new WallAlertRuleResponse.CurrentTargetValueResponse();
+            tv.key = key;
+            tv.value = v;
+            tv.breached = Boolean.valueOf(breached);
+            targets.add(tv);
+        }
+
+        resp.setCurrentTargets(targets.isEmpty() ? null : targets);
+        resp.setBreachedTargets(breachedTargets.isEmpty() ? null : breachedTargets);
+        resp.setBreachedCount(Integer.valueOf(breachedTargets.size()));
+    }
+
+    private static boolean isBreached(final String operator, final Double value, final Double th1, final Double th2) {
+        if (value == null || th1 == null) {
+            return false;
+        }
+
+        final String op = operator == null ? "" : operator.trim().toLowerCase(Locale.ROOT);
+
+        // Grafana evaluator.type 기반: gt/gte/lt/lte/within_range/outside_range ...
+        if ("gt".equals(op) || op.contains("above") || op.contains("greater")) {
+            return value.doubleValue() > th1.doubleValue();
+        }
+        if ("gte".equals(op)) {
+            return value.doubleValue() >= th1.doubleValue();
+        }
+        if ("lt".equals(op) || op.contains("below") || op.contains("less")) {
+            return value.doubleValue() < th1.doubleValue();
+        }
+        if ("lte".equals(op)) {
+            return value.doubleValue() <= th1.doubleValue();
+        }
+        if ("within_range".equals(op) || op.contains("between") || op.contains("within")) {
+            if (th2 == null) {
+                return false;
+            }
+            final double lo = Math.min(th1.doubleValue(), th2.doubleValue());
+            final double hi = Math.max(th1.doubleValue(), th2.doubleValue());
+            return value.doubleValue() >= lo && value.doubleValue() <= hi;
+        }
+        if ("outside_range".equals(op) || op.contains("outside")) {
+            if (th2 == null) {
+                return false;
+            }
+            final double lo = Math.min(th1.doubleValue(), th2.doubleValue());
+            final double hi = Math.max(th1.doubleValue(), th2.doubleValue());
+            return value.doubleValue() < lo || value.doubleValue() > hi;
+        }
+
+        // 모르는 연산자는 breach 판단을 하지 않습니다.
+        return false;
+    }
+
+    /**
+     * Provisioning rule(data[])를 /api/ds/query로 실행하여 최종 계산값을 구합니다.
+     * - Grafana-managed alert rule의 Reduce/Math/Threshold 파이프라인을 동일하게 재현합니다.
+     */
+    private CurrentEvalResult computeCurrentEvalResult(final String uid) {
+        try {
+            final JsonNode rule = wallApiClient.fetchProvisioningAlertRule(uid);
+            if (rule == null || rule.isMissingNode()) {
+                return null;
+            }
+
+            final String conditionRefId = textOrNull(rule, "condition");
+            final JsonNode dataNode = rule.path("data");
+            if (!dataNode.isArray()) {
+                return null;
+            }
+
+            final ArrayNode dataArr = (ArrayNode) dataNode;
+            final long lookbackSec = resolveLookbackSeconds(dataArr);
+            final String from = "now-" + lookbackSec + "s";
+            final String to = "now";
+
+            final String valueRefId = resolveValueRefId(dataArr, conditionRefId);
+
+            final ObjectNode req = JSON.createObjectNode();
+            req.put("from", from);
+            req.put("to", to);
+
+            final ArrayNode queries = req.putArray("queries");
+            for (int i = 0; i < dataArr.size(); i += 1) {
+                final JsonNode d = dataArr.get(i);
+                if (d == null || d.isMissingNode()) {
+                    continue;
+                }
+
+                final String refId = textOrNull(d, "refId");
+                final String dsUid = textOrNull(d, "datasourceUid");
+
+                final JsonNode modelNode = d.path("model");
+                final ObjectNode q = modelNode != null && modelNode.isObject()
+                        ? ((ObjectNode) modelNode).deepCopy()
+                        : JSON.createObjectNode();
+
+                if (refId != null && !refId.isBlank()) {
+                    q.put("refId", refId);
+                }
+                if (dsUid != null && !dsUid.isBlank()) {
+                    final ObjectNode ds = q.with("datasource");
+                    ds.put("uid", dsUid);
+                }
+
+                if (!q.has("intervalMs")) {
+                    q.put("intervalMs", 1_000);
+                }
+                if (!q.has("maxDataPoints")) {
+                    q.put("maxDataPoints", 120);
+                }
+
+                queries.add(q);
+            }
+
+            final JsonNode res = wallApiClient.queryDs(req);
+            if (res == null || res.isMissingNode()) {
+                return null;
+            }
+
+            return parseCurrentEvalFromDsQuery(res, valueRefId);
+        } catch (Exception e) {
+            LOG.warn("[DS] computeCurrentEvalResult failed: " + e.getMessage(), e);
+            return null;
+        }
+    }
+
+    private static long resolveLookbackSeconds(final ArrayNode dataArr) {
+        long maxFrom = 300L; // 기본 5분
+        for (int i = 0; i < dataArr.size(); i += 1) {
+            final JsonNode d = dataArr.get(i);
+            if (d == null || d.isMissingNode()) continue;
+
+            final JsonNode rtr = d.path("relativeTimeRange");
+            final long from = rtr.path("from").asLong(0L);
+            if (from > maxFrom) {
+                maxFrom = from;
+            }
+        }
+        return maxFrom;
+    }
+
+    /**
+     * 임계치 판단에 "입력으로 사용된 refId"를 최대한 안전하게 찾아냅니다.
+     * - 일반적으로 condition=C(Threshold)이고, 입력은 B(Reduce) 입니다.
+     */
+    private static String resolveValueRefId(final ArrayNode dataArr, final String conditionRefId) {
+        if (conditionRefId == null || conditionRefId.isBlank()) {
+            return null;
+        }
+
+        JsonNode cond = null;
+        for (int i = 0; i < dataArr.size(); i += 1) {
+            final JsonNode d = dataArr.get(i);
+            if (d == null || d.isMissingNode()) continue;
+
+            final String refId = textOrNull(d, "refId");
+            if (conditionRefId.equals(refId)) {
+                cond = d;
+                break;
+            }
+        }
+
+        if (cond != null) {
+            final JsonNode model = cond.path("model");
+
+            // 1) expression: "B"
+            final String expr = textOrNull(model, "expression");
+            if (isSingleRefId(expr)) {
+                return expr;
+            }
+
+            // 2) query.params[0]: ["B"]
+            final JsonNode params = model.path("query").path("params");
+            final String p0 = firstText(params);
+            if (isSingleRefId(p0)) {
+                return p0;
+            }
+
+            // 3) classic_conditions: conditions[0].query.params[0]
+            final JsonNode conds = model.path("conditions");
+            if (conds.isArray() && conds.size() > 0) {
+                final JsonNode p = conds.get(0).path("query").path("params");
+                final String cp0 = firstText(p);
+                if (isSingleRefId(cp0)) {
+                    return cp0;
+                }
+            }
+        }
+
+        // 못 찾으면 conditionRefId 그대로(폴백)
+        return conditionRefId;
+    }
+
+    private static boolean isSingleRefId(final String s) {
+        if (s == null) return false;
+        final String t = s.trim();
+        return t.length() == 1 && t.charAt(0) >= 'A' && t.charAt(0) <= 'Z';
+    }
+
+    private static String firstText(final JsonNode node) {
+        if (node == null || !node.isArray() || node.size() == 0) {
+            return null;
+        }
+        final JsonNode v = node.get(0);
+        return v == null ? null : v.asText(null);
+    }
+
+    private static String textOrNull(final JsonNode node, final String field) {
+        if (node == null || field == null) {
+            return null;
+        }
+        final JsonNode v = node.get(field);
+        if (v == null || v.isMissingNode() || v.isNull()) {
+            return null;
+        }
+        final String s = v.asText(null);
+        return (s == null || s.isBlank()) ? null : s;
+    }
+
+    /**
+     * /api/ds/query 결과에서 refId의 숫자 값들을 모아 평균을 계산합니다.
+     */
+    private static CurrentEvalResult parseCurrentEvalFromDsQuery(final JsonNode root, final String refId) {
+        if (root == null) {
+            return null;
+        }
+
+        final JsonNode results = root.path("results");
+        if (results == null || !results.isObject()) {
+            return null;
+        }
+
+        JsonNode r = (refId != null && !refId.isBlank()) ? results.path(refId) : null;
+
+        // refId가 없거나 결과가 없으면 첫 번째 결과로 폴백합니다.
+        if (r == null || r.isMissingNode() || r.isNull()) {
+            final Iterator<String> it = results.fieldNames();
+            if (it.hasNext()) {
+                r = results.path(it.next());
+            }
+        }
+        if (r == null || r.isMissingNode() || r.isNull()) {
+            return null;
+        }
+
+        final JsonNode frames = r.path("frames");
+        if (frames == null || !frames.isArray()) {
+            return null;
+        }
+
+        // target -> value
+        final Map<String, Double> byTarget = new java.util.LinkedHashMap<>();
+
+        for (int i = 0; i < frames.size(); i += 1) {
+            final JsonNode f = frames.get(i);
+            if (f == null || f.isMissingNode()) {
+                continue;
+            }
+
+            final JsonNode fields = f.path("schema").path("fields");
+            final JsonNode values = f.path("data").path("values");
+            if (!fields.isArray() || !values.isArray()) {
+                continue;
+            }
+
+            // 1) Prometheus/expr series 형태: numeric field에 labels가 붙어 오는 케이스를 우선 처리합니다.
+            for (int c = 0; c < fields.size() && c < values.size(); c += 1) {
+                final JsonNode field = fields.get(c);
+                final String type = field.path("type").asText("");
+                final String name = field.path("name").asText("");
+                final String typeL = type.toLowerCase(Locale.ROOT);
+
+                if (!typeL.contains("number")) {
+                    continue;
+                }
+                if ("Time".equalsIgnoreCase(name)) {
+                    continue;
+                }
+
+                final String keyFromLabels = resolveTargetKeyFromFieldLabels(field);
+                final Double last = extractLastNumber(values.get(c));
+
+                if (keyFromLabels != null && !keyFromLabels.isBlank() && last != null) {
+                    byTarget.put(keyFromLabels, last);
+                }
+            }
+
+            // 2) Table 형태: key 컬럼 + value 컬럼을 row 단위로 매핑합니다.
+            if (byTarget.isEmpty()) {
+                final Integer keyIdx = resolveKeyColumnIndex(fields);
+                final Integer valIdx = resolveValueColumnIndex(fields);
+
+                if (keyIdx != null && valIdx != null && keyIdx.intValue() < values.size() && valIdx.intValue() < values.size()) {
+                    final JsonNode keyCol = values.get(keyIdx.intValue());
+                    final JsonNode valCol = values.get(valIdx.intValue());
+
+                    if (keyCol != null && keyCol.isArray() && valCol != null && valCol.isArray()) {
+                        final int rows = Math.min(keyCol.size(), valCol.size());
+                        for (int rIdx = 0; rIdx < rows; rIdx += 1) {
+                            final String key = textValue(keyCol.get(rIdx));
+                            final Double v = extractScalarNumber(valCol.get(rIdx));
+                            if (key != null && !key.isBlank() && v != null) {
+                                byTarget.put(key, v);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (byTarget.isEmpty()) {
+            // 최후 폴백: 숫자 샘플들을 전부 평균(기존 로직)
+            double sum = 0.0d;
+            int count = 0;
+
+            for (int i = 0; i < frames.size(); i += 1) {
+                final JsonNode f = frames.get(i);
+                if (f == null || f.isMissingNode()) {
+                    continue;
+                }
+
+                final JsonNode fields = f.path("schema").path("fields");
+                final JsonNode values = f.path("data").path("values");
+                if (!fields.isArray() || !values.isArray()) {
+                    continue;
+                }
+
+                for (int c = 0; c < fields.size() && c < values.size(); c += 1) {
+                    final JsonNode field = fields.get(c);
+                    final String type = field.path("type").asText("");
+                    final String name = field.path("name").asText("");
+                    final String typeL = type.toLowerCase(Locale.ROOT);
+
+                    if (!typeL.contains("number")) {
+                        continue;
+                    }
+                    if ("Time".equalsIgnoreCase(name)) {
+                        continue;
+                    }
+
+                    final JsonNode col = values.get(c);
+                    if (!col.isArray()) {
+                        continue;
+                    }
+
+                    final Double last = extractLastNumber(col);
+                    if (last != null) {
+                        sum += last.doubleValue();
+                        count += 1;
+                    }
+                }
+            }
+
+            if (count <= 0) {
+                return null;
+            }
+
+            final double avg = sum / ((double) count);
+            return CurrentEvalResult.fromScalar(avg, Integer.valueOf(count));
+        }
+
+        double sum = 0.0d;
+        boolean allBinary01 = true;
+
+        for (Double v : byTarget.values()) {
+            if (v == null) {
+                continue;
+            }
+            sum += v.doubleValue();
+            if (!isBinary01(v.doubleValue())) {
+                allBinary01 = false;
+            }
+        }
+
+        final int n = byTarget.size();
+        final double avg = sum / ((double) Math.max(1, n));
+
+        return new CurrentEvalResult(Double.valueOf(avg), Integer.valueOf(n), allBinary01, byTarget);
+    }
+
+    private static String resolveTargetKeyFromFieldLabels(final JsonNode field) {
+        if (field == null) {
+            return null;
+        }
+
+        final JsonNode labels = field.path("labels");
+        if (labels == null || !labels.isObject() || labels.size() <= 0) {
+            return null;
+        }
+
+        // ★ 수정: VM 관련 라벨(domain, vmname, vm, displayname)을 최우선 순위로 맨 앞에 추가
+        final String[] keys = new String[]{
+                "domain",
+                "vmname",
+                "vm",
+                "displayname",
+                "nodename",
+                "node",
+                "hostname",
+                "host",
+                "pingip",
+                "instance",
+                "ip",
+                "address",
+                "name"
+        };
+
+        for (String k : keys) {
+            final JsonNode v = labels.get(k);
+            if (v != null && !v.isNull()) {
+                final String s = v.asText(null);
+                if (s != null && !s.isBlank()) {
+                    return s;
+                }
+            }
+        }
+
+        // fallback: 가장 첫 label value
+        final Iterator<String> it = labels.fieldNames();
+        if (it.hasNext()) {
+            final String k = it.next();
+            final String s = labels.path(k).asText(null);
+            if (s != null && !s.isBlank()) {
+                return s;
+            }
+        }
+
+        return null;
+    }
+
+    private static Integer resolveKeyColumnIndex(final JsonNode fields) {
+        if (fields == null || !fields.isArray()) {
+            return null;
+        }
+
+        // ★ 수정: VM 관련 라벨을 최우선 순위로 추가
+        final String[] pri = new String[]{
+                "domain",
+                "vmname",
+                "vm",
+                "displayname",
+                "nodename",
+                "node",
+                "hostname",
+                "host",
+                "pingip",
+                "instance",
+                "ip",
+                "address",
+                "name"
+        };
+
+        for (int p = 0; p < pri.length; p += 1) {
+            final String want = pri[p];
+            for (int i = 0; i < fields.size(); i += 1) {
+                final JsonNode f = fields.get(i);
+                final String type = f.path("type").asText("");
+                final String name = f.path("name").asText("");
+                if (!type.toLowerCase(Locale.ROOT).contains("string")) {
+                    continue;
+                }
+                if (want.equalsIgnoreCase(name)) {
+                    return Integer.valueOf(i);
+                }
+            }
+        }
+
+        // fallback: 첫 string 컬럼
+        for (int i = 0; i < fields.size(); i += 1) {
+            final JsonNode f = fields.get(i);
+            final String type = f.path("type").asText("");
+            if (type.toLowerCase(Locale.ROOT).contains("string")) {
+                return Integer.valueOf(i);
+            }
+        }
+        return null;
+    }
+
+    private static Integer resolveValueColumnIndex(final JsonNode fields) {
+        if (fields == null || !fields.isArray()) {
+            return null;
+        }
+
+        for (int i = 0; i < fields.size(); i += 1) {
+            final JsonNode f = fields.get(i);
+            final String type = f.path("type").asText("");
+            final String name = f.path("name").asText("");
+            final String typeL = type.toLowerCase(Locale.ROOT);
+            if (!typeL.contains("number")) {
+                continue;
+            }
+            if ("Time".equalsIgnoreCase(name)) {
+                continue;
+            }
+            return Integer.valueOf(i);
+        }
+        return null;
+    }
+
+    private static String textValue(final JsonNode v) {
+        if (v == null || v.isNull() || v.isMissingNode()) {
+            return null;
+        }
+        final String s = v.asText(null);
+        if (s == null) {
+            return null;
+        }
+        final String t = s.trim();
+        return t.isBlank() ? null : t;
+    }
+
+    private static Double extractLastNumber(final JsonNode col) {
+        if (col == null) {
+            return null;
+        }
+
+        if (col.isNumber()) {
+            return Double.valueOf(col.asDouble());
+        }
+
+        if (!col.isArray()) {
+            final String s = col.asText(null);
+            if (s == null || s.isBlank()) {
+                return null;
+            }
+            try {
+                return Double.valueOf(Double.parseDouble(s.trim()));
+            } catch (NumberFormatException ignore) {
+                return null;
+            }
+        }
+
+        // 배열이면 마지막 non-null 숫자를 선택합니다.
+        for (int i = col.size() - 1; i >= 0; i -= 1) {
+            final JsonNode v = col.get(i);
+            final Double d = extractScalarNumber(v);
+            if (d != null) {
+                return d;
+            }
+        }
+        return null;
+    }
+
+    private static Double extractScalarNumber(final JsonNode v) {
+        if (v == null || v.isNull() || v.isMissingNode()) {
+            return null;
+        }
+        if (v.isNumber()) {
+            return Double.valueOf(v.asDouble());
+        }
+        final String s = v.asText(null);
+        if (s == null || s.isBlank()) {
+            return null;
+        }
+        try {
+            return Double.valueOf(Double.parseDouble(s.trim()));
+        } catch (NumberFormatException ignore) {
+            return null;
+        }
+    }
+
+    private static boolean isBinary01(final double v) {
+        final double eps = 1e-9d;
+        return Math.abs(v - 0.0d) < eps || Math.abs(v - 1.0d) < eps;
+    }
 }
-
-
