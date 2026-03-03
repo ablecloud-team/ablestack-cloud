@@ -23,7 +23,7 @@ export default {
   ],
   details: [
     'name',
-    'id',
+    // 'id',
     'uid',
     'state',
     'ispaused',
@@ -33,8 +33,7 @@ export default {
     'kind',
     'lastEvaluation',
     'silencePeriod',
-    'summary',
-    'description'
+    'summary'
   ],
   dataMap: (item) => {
     const ann = item && item.annotations ? item.annotations : {}
@@ -56,6 +55,9 @@ export default {
   }, {
     name: 'silence',
     component: shallowRef(defineAsyncComponent(() => import('@/views/infra/WallAlertSilenceTab.vue')))
+  }, {
+    name: 'solution',
+    component: shallowRef(defineAsyncComponent(() => import('@/views/infra/WallAlertSolutionTab.vue')))
   }],
   actions: [
     {
