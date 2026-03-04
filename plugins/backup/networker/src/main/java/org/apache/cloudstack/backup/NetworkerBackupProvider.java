@@ -606,11 +606,6 @@ public class NetworkerBackupProvider extends AdapterBase implements BackupProvid
     public boolean willDeleteBackupsOnOfferingRemoval() { return false; }
 
     @Override
-    public Pair<Boolean, String> restoreBackupToVM(VirtualMachine vm, Backup backup, String hostIp, String dataStoreUuid) {
-        return new Pair<>(true, null);
-    }
-
-    @Override
     public boolean checkBackupAgent(final Long zoneId) { return true; }
 
     @Override

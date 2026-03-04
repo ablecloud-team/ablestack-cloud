@@ -32,7 +32,6 @@ import org.apache.cloudstack.api.response.BackupResponse;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
 
-import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.storage.Volume;
 import com.cloud.utils.Pair;
 import com.cloud.utils.component.Manager;
@@ -198,11 +197,6 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
      * Restore a full VM from backup
      */
     boolean restoreBackup(final Long backupId);
-
-    /**
-     * Restore a backup to a new Instance
-     */
-    boolean restoreBackupToVM(Long backupId, Long vmId) throws ResourceUnavailableException;
 
     /**
      * Restore a backed up volume and attach it to a VM

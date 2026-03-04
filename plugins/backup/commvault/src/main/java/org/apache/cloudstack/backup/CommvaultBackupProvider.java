@@ -448,12 +448,6 @@ public class CommvaultBackupProvider extends AdapterBase implements BackupProvid
         return backupDao.persist(backup);
     }
 
-    // 백업에서 새 인스턴스 생성
-    @Override
-    public Pair<Boolean, String> restoreBackupToVM(VirtualMachine vm, Backup backup, String hostIp, String dataStoreUuid) {
-        return restoreVMBackup(vm, backup);
-    }
-
     // 가상머신 백업 복원
     @Override
     public boolean restoreVMFromBackup(VirtualMachine vm, Backup backup) {

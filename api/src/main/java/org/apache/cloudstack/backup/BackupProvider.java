@@ -86,8 +86,6 @@ public interface BackupProvider {
      */
     boolean deleteBackup(Backup backup, boolean forced);
 
-    Pair<Boolean, String> restoreBackupToVM(VirtualMachine vm, Backup backup, String hostIp, String dataStoreUuid);
-
     /**
      * Restore VM from backup
      */

@@ -27,7 +27,6 @@ import com.cloud.event.ActionEventUtils;
 import com.cloud.event.EventTypes;
 import com.cloud.event.UsageEventUtils;
 import com.cloud.exception.InvalidParameterValueException;
-import com.cloud.host.HostVO;
 import com.cloud.host.dao.HostDao;
 import com.cloud.storage.DiskOfferingVO;
 import com.cloud.exception.ResourceAllocationException;
@@ -65,7 +64,6 @@ import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.impl.ConfigDepotImpl;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
-import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.apache.cloudstack.framework.jobs.impl.AsyncJobVO;
 import org.junit.After;
 import org.junit.Assert;
@@ -1032,116 +1030,6 @@ public class BackupManagerTest {
 
         boolean result = backupManager.deleteBackupSchedule(cmd);
         assertTrue(result);
-    }
-
-    @Test
-    public void testRestoreBackupToVM() throws NoTransitionException {
-        Long backupId = 1L;
-        Long vmId = 2L;
-        Long hostId = 3L;
-        Long offeringId = 4L;
-        Long poolId = 5L;
-
-        BackupVO backup = mock(BackupVO.class);
-        when(backup.getBackupOfferingId()).thenReturn(offeringId);
-        when(backup.getStatus()).thenReturn(Backup.Status.BackedUp);
-
-        VMInstanceVO vm = mock(VMInstanceVO.class);
-        when(vmInstanceDao.findByIdIncludingRemoved(vmId)).thenReturn(vm);
-        when(vm.getId()).thenReturn(vmId);
-        when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
-        when(vm.getHostId()).thenReturn(hostId);
-
-        BackupOfferingVO offering = mock(BackupOfferingVO.class);
-        BackupProvider backupProvider = mock(BackupProvider.class);
-        when(backupProvider.supportsInstanceFromBackup()).thenReturn(true);
-
-        overrideBackupFrameworkConfigValue();
-
-        when(backupDao.findById(backupId)).thenReturn(backup);
-        when(vmInstanceDao.findByIdIncludingRemoved(vmId)).thenReturn(vm);
-        when(backupOfferingDao.findByIdIncludingRemoved(offeringId)).thenReturn(offering);
-        when(offering.getProvider()).thenReturn("testbackupprovider");
-        when(backupManager.getBackupProvider("testbackupprovider")).thenReturn(backupProvider);
-        when(virtualMachineManager.stateTransitTo(vm, VirtualMachine.Event.RestoringRequested, hostId)).thenReturn(true);
-        when(virtualMachineManager.stateTransitTo(vm, VirtualMachine.Event.RestoringSuccess, hostId)).thenReturn(true);
-
-        VolumeVO rootVolume = mock(VolumeVO.class);
-        when(rootVolume.getPoolId()).thenReturn(poolId);
-        HostVO host = mock(HostVO.class);
-        when(hostDao.findById(hostId)).thenReturn(host);
-        StoragePoolVO pool = mock(StoragePoolVO.class);
-        when(volumeDao.findIncludingRemovedByInstanceAndType(vmId, Volume.Type.ROOT)).thenReturn(List.of(rootVolume));
-        when(primaryDataStoreDao.findById(poolId)).thenReturn(pool);
-        when(rootVolume.getPoolId()).thenReturn(poolId);
-        when(volumeDao.findIncludingRemovedByInstanceAndType(vmId, Volume.Type.ROOT)).thenReturn(List.of(rootVolume));
-        when(primaryDataStoreDao.findById(poolId)).thenReturn(pool);
-        when(backupProvider.restoreBackupToVM(vm, backup, null, null)).thenReturn(new Pair<>(true, "success"));
-
-        try (MockedStatic<ActionEventUtils> utils = Mockito.mockStatic(ActionEventUtils.class)) {
-            boolean result = backupManager.restoreBackupToVM(backupId, vmId);
-
-            assertTrue(result);
-            verify(backupProvider, times(1)).restoreBackupToVM(vm, backup, null, null);
-            verify(virtualMachineManager, times(1)).stateTransitTo(vm, VirtualMachine.Event.RestoringRequested, hostId);
-            verify(virtualMachineManager, times(1)).stateTransitTo(vm, VirtualMachine.Event.RestoringSuccess, hostId);
-        } catch (CloudRuntimeException e) {
-            fail("Test failed due to exception" + e);
-        }
-    }
-
-    @Test
-    public void testRestoreBackupToVMException() throws NoTransitionException {
-        Long backupId = 1L;
-        Long vmId = 2L;
-        Long hostId = 3L;
-        Long offeringId = 4L;
-        Long poolId = 5L;
-
-        BackupVO backup = mock(BackupVO.class);
-        when(backup.getBackupOfferingId()).thenReturn(offeringId);
-        when(backup.getStatus()).thenReturn(Backup.Status.BackedUp);
-
-        VMInstanceVO vm = mock(VMInstanceVO.class);
-        when(vmInstanceDao.findByIdIncludingRemoved(vmId)).thenReturn(vm);
-        when(vm.getId()).thenReturn(vmId);
-        when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
-        when(vm.getHostId()).thenReturn(hostId);
-
-        BackupOfferingVO offering = mock(BackupOfferingVO.class);
-        BackupProvider backupProvider = mock(BackupProvider.class);
-        when(backupProvider.supportsInstanceFromBackup()).thenReturn(true);
-
-        overrideBackupFrameworkConfigValue();
-
-        when(backupDao.findById(backupId)).thenReturn(backup);
-        when(vmInstanceDao.findByIdIncludingRemoved(vmId)).thenReturn(vm);
-        when(backupOfferingDao.findByIdIncludingRemoved(offeringId)).thenReturn(offering);
-        when(offering.getProvider()).thenReturn("testbackupprovider");
-        when(backupManager.getBackupProvider("testbackupprovider")).thenReturn(backupProvider);
-        when(virtualMachineManager.stateTransitTo(vm, VirtualMachine.Event.RestoringRequested, hostId)).thenReturn(true);
-        when(virtualMachineManager.stateTransitTo(vm, VirtualMachine.Event.RestoringFailed, hostId)).thenReturn(true);
-
-        VolumeVO rootVolume = mock(VolumeVO.class);
-        when(rootVolume.getPoolId()).thenReturn(poolId);
-        HostVO host = mock(HostVO.class);
-        when(hostDao.findById(hostId)).thenReturn(host);
-        StoragePoolVO pool = mock(StoragePoolVO.class);
-        when(volumeDao.findIncludingRemovedByInstanceAndType(vmId, Volume.Type.ROOT)).thenReturn(List.of(rootVolume));
-        when(primaryDataStoreDao.findById(poolId)).thenReturn(pool);
-        when(rootVolume.getPoolId()).thenReturn(poolId);
-        when(volumeDao.findIncludingRemovedByInstanceAndType(vmId, Volume.Type.ROOT)).thenReturn(List.of(rootVolume));
-        when(primaryDataStoreDao.findById(poolId)).thenReturn(pool);
-        when(backupProvider.restoreBackupToVM(vm, backup, null, null)).thenReturn(new Pair<>(false, "failed"));
-
-        try (MockedStatic<ActionEventUtils> utils = Mockito.mockStatic(ActionEventUtils.class)) {
-            CloudRuntimeException exception = Assert.assertThrows(CloudRuntimeException.class,
-                    () -> backupManager.restoreBackupToVM(backupId, vmId));
-
-            verify(backupProvider, times(1)).restoreBackupToVM(vm, backup, null, null);
-            verify(virtualMachineManager, times(1)).stateTransitTo(vm, VirtualMachine.Event.RestoringRequested, hostId);
-            verify(virtualMachineManager, times(1)).stateTransitTo(vm, VirtualMachine.Event.RestoringFailed, hostId);
-        }
     }
 
     @Test

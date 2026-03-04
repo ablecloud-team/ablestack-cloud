@@ -286,11 +286,6 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
     }
 
     @Override
-    public Pair<Boolean, String> restoreBackupToVM(VirtualMachine vm, Backup backup, String hostIp, String dataStoreUuid) {
-        return restoreVMBackup(vm, backup);
-    }
-
-    @Override
     public boolean restoreVMFromBackup(VirtualMachine vm, Backup backup) {
         return restoreVMBackup(vm, backup).first();
     }
