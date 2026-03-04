@@ -1,20 +1,20 @@
 #!/usr/bin/bash
-## Licensed to the Apache Software Foundation (ASF) under one
-## or more contributor license agreements.  See the NOTICE file
-## distributed with this work for additional information
-## regarding copyright ownership.  The ASF licenses this file
-## to you under the Apache License, Version 2.0 (the
-## "License"); you may not use this file except in compliance
-## with the License.  You may obtain a copy of the License at
-##
-##   http://www.apache.org/licenses/LICENSE-2.0
-##
-## Unless required by applicable law or agreed to in writing,
-## software distributed under the License is distributed on an
-## "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-## KIND, either express or implied.  See the License for the
-## specific language governing permissions and limitations
-## under the License.
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 
 set -eo pipefail
 
@@ -31,6 +31,7 @@ NAS_ADDRESS=""
 MOUNT_OPTS=""
 BACKUP_DIR=""
 DISK_PATHS=""
+QUIESCE=""
 logFile="/var/log/cloudstack/agent/agent.log"
 
 EXIT_CLEANUP_FAILED=20
@@ -94,17 +95,32 @@ backup_running_vm() {
 
   name="root"
   echo "<domainbackup mode='push'><disks>" > $dest/backup.xml
-  for disk in $(virsh -c qemu:///system domblklist "$VM" --details 2>/dev/null | awk '/disk/{print$3}'); do
-    volpath=$(virsh -c qemu:///system domblklist "$VM" --details | awk "/$disk/{print $4}" | sed 's/.*\///')
+  for disk in $(virsh -c qemu:///system domblklist $VM --details 2>/dev/null | awk '/disk/{print$3}'); do
+    volpath=$(virsh -c qemu:///system domblklist $VM --details | awk "/$disk/{print $4}" | sed 's/.*\///')
     echo "<disk name='$disk' backup='yes' type='file' backupmode='full'><driver type='qcow2'/><target file='$dest/$name.$volpath.qcow2' /></disk>" >> $dest/backup.xml
     name="datadisk"
   done
   echo "</disks></domainbackup>" >> $dest/backup.xml
 
+  local thaw=0
+  if [[ ${QUIESCE} == "true" ]]; then
+    if virsh -c qemu:///system qemu-agent-command "$VM" '{"execute":"guest-fsfreeze-freeze"}' > /dev/null 2>/dev/null; then
+      thaw=1
+    fi
+  fi
+
   # Start push backup
   local backup_begin=0
   if virsh -c qemu:///system backup-begin --domain $VM --backupxml $dest/backup.xml 2>&1 > /dev/null; then
     backup_begin=1;
+  fi
+
+  if [[ $thaw -eq 1 ]]; then
+    if ! response=$(virsh -c qemu:///system qemu-agent-command "$VM" '{"execute":"guest-fsfreeze-thaw"}' 2>&1 > /dev/null); then
+      echo "Failed to thaw the filesystem for vm $VM: $response"
+      cleanup
+      exit 1
+    fi
   fi
 
   if [[ $backup_begin -ne 1 ]]; then
@@ -113,10 +129,10 @@ backup_running_vm() {
   fi
 
   # Backup domain information
-  virsh -c qemu:///system dumpxml "$VM" > $dest/domain-config.xml 2>/dev/null
-  virsh -c qemu:///system dominfo "$VM" > $dest/dominfo.xml 2>/dev/null
-  virsh -c qemu:///system domiflist "$VM" > $dest/domiflist.xml 2>/dev/null
-  virsh -c qemu:///system domblklist "$VM" > $dest/domblklist.xml 2>/dev/null
+  virsh -c qemu:///system dumpxml $VM > $dest/domain-config.xml 2>/dev/null
+  virsh -c qemu:///system dominfo $VM > $dest/dominfo.xml 2>/dev/null
+  virsh -c qemu:///system domiflist $VM > $dest/domiflist.xml 2>/dev/null
+  virsh -c qemu:///system domblklist $VM > $dest/domblklist.xml 2>/dev/null
 
   while true; do
     status=$(virsh -c qemu:///system domjobinfo $VM --completed --keep-completed | awk '/Job type:/ {print $3}')
@@ -134,7 +150,7 @@ backup_running_vm() {
   sync
 
   # Print statistics
-  virsh -c qemu:///system domjobinfo "$VM" --completed
+  virsh -c qemu:///system domjobinfo $VM --completed
   du -sb $dest | cut -f1
 
   umount $mount_point
@@ -217,7 +233,7 @@ cleanup() {
 
 function usage {
   echo ""
-  echo "Usage: $0 -o <operation> -v|--vm <domain name> -t <storage type> -s <storage address> -m <mount options> -p <backup path> -d <disks path>"
+  echo "Usage: $0 -o <operation> -v|--vm <domain name> -t <storage type> -s <storage address> -m <mount options> -p <backup path> -d <disks path> -q|--quiesce <true|false>"
   echo ""
   exit 1
 }
@@ -254,6 +270,11 @@ while [[ $# -gt 0 ]]; do
       shift
       shift
       ;;
+    -q|--quiesce)
+      QUIESCE="$2"
+      shift
+      shift
+      ;;
     -d|--diskpaths)
       DISK_PATHS="$2"
       shift
@@ -274,8 +295,8 @@ done
 sanity_checks
 
 if [ "$OP" = "backup" ]; then
-  STATE=$(virsh -c qemu:///system list | grep "$VM" | awk '{print $3}')
-  if [ "$STATE" = "running" ]; then
+  STATE=$(virsh -c qemu:///system list | awk -v vm="$VM" '$2 == vm {print $3}')
+  if [ -n "$STATE" ] && [ "$STATE" = "running" ]; then
     backup_running_vm
   else
     backup_stopped_vm

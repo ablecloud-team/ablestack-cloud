@@ -27,6 +27,7 @@ import org.apache.cloudstack.api.response.ClusterResponse;
 import org.apache.cloudstack.api.response.HostResponse;
 import org.apache.cloudstack.api.response.PodResponse;
 import org.apache.cloudstack.api.response.ZoneResponse;
+import org.apache.cloudstack.backup.BackupRepositoryService;
 import org.apache.cloudstack.config.Configuration;
 import org.apache.cloudstack.datacenter.DataCenterIpv4GuestSubnet;
 import org.apache.cloudstack.ha.HAConfig;
@@ -614,11 +615,13 @@ public class EventTypes {
     public static final String EVENT_VM_BACKUP_CREATE = "BACKUP.CREATE";
     public static final String EVENT_VM_BACKUP_RESTORE = "BACKUP.RESTORE";
     public static final String EVENT_VM_BACKUP_DELETE = "BACKUP.DELETE";
+    public static final String EVENT_VM_BACKUP_OFFERING_REMOVED_AND_BACKUPS_DELETED = "BACKUP.OFFERING.BACKUPS.DEL";
     public static final String EVENT_VM_BACKUP_RESTORE_VOLUME_TO_VM = "BACKUP.RESTORE.VOLUME.TO.VM";
     public static final String EVENT_VM_BACKUP_SCHEDULE_CONFIGURE = "BACKUP.SCHEDULE.CONFIGURE";
     public static final String EVENT_VM_BACKUP_SCHEDULE_DELETE = "BACKUP.SCHEDULE.DELETE";
     public static final String EVENT_VM_BACKUP_USAGE_METRIC = "BACKUP.USAGE.METRIC";
     public static final String EVENT_VM_BACKUP_EDIT = "BACKUP.OFFERING.EDIT";
+    public static final String EVENT_VM_CREATE_FROM_BACKUP = "VM.CREATE.FROM.BACKUP";
 
     // external network device events
     public static final String EVENT_EXTERNAL_NVP_CONTROLLER_ADD = "PHYSICAL.NVPCONTROLLER.ADD";
@@ -803,7 +806,9 @@ public class EventTypes {
     // Resource Limit
     public static final String EVENT_RESOURCE_LIMIT_UPDATE = "RESOURCE.LIMIT.UPDATE";
 
-    // Backup
+    // Backup Repository
+    public static final String EVENT_BACKUP_REPOSITORY_ADD = "BACKUP.REPOSITORY.ADD";
+    public static final String EVENT_BACKUP_REPOSITORY_UPDATE = "BACKUP.REPOSITORY.UPDATE";
     public static final String EVENT_HOST_AGENT_INSTALL = "HOST.AGENT.INSTALL";
 
     static {
@@ -1303,6 +1308,9 @@ public class EventTypes {
         entityEventDetails.put(EVENT_DISASTER_RECOVERY_CLUSTER, "DisasterRecoveryCluster");
 
         // Backup
+        // Backup Repository
+        entityEventDetails.put(EVENT_BACKUP_REPOSITORY_ADD, BackupRepositoryService.class);
+        entityEventDetails.put(EVENT_BACKUP_REPOSITORY_UPDATE, BackupRepositoryService.class);
         entityEventDetails.put(EVENT_HOST_AGENT_INSTALL, Backup.class);
     }
 

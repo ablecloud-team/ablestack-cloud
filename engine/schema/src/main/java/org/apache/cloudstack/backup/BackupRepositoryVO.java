@@ -140,13 +140,28 @@ public class BackupRepositoryVO implements BackupRepository {
     }
 
     @Override
+    public void setMountOptions(String mountOptions) {
+        this.mountOptions = mountOptions;
+    }
+
+    @Override
     public Long getUsedBytes() {
         return usedBytes;
     }
 
     @Override
+    public void setUsedBytes(Long usedBytes) {
+        this.usedBytes = usedBytes;
+    }
+
+    @Override
     public Long getCapacityBytes() {
         return capacityBytes;
+    }
+
+    @Override
+    public void setCapacityBytes(Long capacityBytes) {
+        this.capacityBytes = capacityBytes;
     }
 
     public Date getCreated() {

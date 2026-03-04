@@ -30,6 +30,7 @@ import org.apache.cloudstack.api.response.BackupResponse;
 import org.apache.cloudstack.backup.Backup;
 import org.apache.cloudstack.backup.BackupOffering;
 import org.apache.cloudstack.backup.BackupVO;
+import org.apache.commons.collections.CollectionUtils;
 
 import com.cloud.dc.DataCenterVO;
 import com.cloud.dc.dao.DataCenterDao;
@@ -65,6 +66,7 @@ public class BackupDaoImpl extends GenericDaoBase<BackupVO, Long> implements Bac
     private GenericSearchBuilder<BackupVO, Long> CountBackupsByAccount;
     private GenericSearchBuilder<BackupVO, SumCount> CalculateBackupStorageByAccount;
     private SearchBuilder<BackupVO> listBackupsBySchedule;
+    private GenericSearchBuilder<BackupVO, Long> backupVmSearchInZone;
 
     public BackupDaoImpl() {
     }
@@ -77,6 +79,11 @@ public class BackupDaoImpl extends GenericDaoBase<BackupVO, Long> implements Bac
         backupSearch.and("backup_offering_id", backupSearch.entity().getBackupOfferingId(), SearchCriteria.Op.EQ);
         backupSearch.and("zone_id", backupSearch.entity().getZoneId(), SearchCriteria.Op.EQ);
         backupSearch.done();
+
+        backupVmSearchInZone = createSearchBuilder(Long.class);
+        backupVmSearchInZone.select(null, SearchCriteria.Func.DISTINCT, backupVmSearchInZone.entity().getVmId());
+        backupVmSearchInZone.and("zone_id", backupVmSearchInZone.entity().getZoneId(), SearchCriteria.Op.EQ);
+        backupVmSearchInZone.done();
 
         CountBackupsByAccount = createSearchBuilder(Long.class);
         CountBackupsByAccount.select(null, SearchCriteria.Func.COUNT, null);
@@ -130,11 +137,34 @@ public class BackupDaoImpl extends GenericDaoBase<BackupVO, Long> implements Bac
         return new ArrayList<>(listBy(sc));
     }
 
+    @Override
+    public List<Backup> listByVmIdAndOffering(Long zoneId, Long vmId, Long offeringId) {
+        SearchCriteria<BackupVO> sc = backupSearch.create();
+        sc.setParameters("vm_id", vmId);
+        if (zoneId != null) {
+            sc.setParameters("zone_id", zoneId);
+        }
+        sc.setParameters("backup_offering_id", offeringId);
+        return new ArrayList<>(listBy(sc));
+    }
+
     private Backup findByExternalId(Long zoneId, String externalId) {
         SearchCriteria<BackupVO> sc = backupSearch.create();
         sc.setParameters("external_id", externalId);
         sc.setParameters("zone_id", zoneId);
         return findOneBy(sc);
+    }
+
+    @Override
+    public List<BackupVO> searchByVmIds(List<Long> vmIds) {
+        if (CollectionUtils.isEmpty(vmIds)) {
+            return new ArrayList<>();
+        }
+        SearchBuilder<BackupVO> sb = createSearchBuilder();
+        sb.and("vmIds", sb.entity().getVmId(), SearchCriteria.Op.IN);
+        SearchCriteria<BackupVO> sc = sb.create();
+        sc.setParameters("vmIds", vmIds.toArray());
+        return search(sc, null);
     }
 
     public BackupVO getBackupVO(Backup backup) {
@@ -156,39 +186,6 @@ public class BackupDaoImpl extends GenericDaoBase<BackupVO, Long> implements Bac
         sc.setParameters("vm_id", vmId);
         sc.setParameters("zone_id", zoneId);
         expunge(sc);
-    }
-
-    @Override
-    public List<Backup> syncBackups(Long zoneId, Long vmId, List<Backup> externalBackups) {
-        for (Backup backup : externalBackups) {
-            BackupVO backupVO = getBackupVO(backup);
-            persist(backupVO);
-        }
-        return listByVmId(zoneId, vmId);
-    }
-
-    @Override
-    public Long countBackupsForAccount(long accountId) {
-        SearchCriteria<Long> sc = CountBackupsByAccount.create();
-        sc.setParameters("account", accountId);
-        sc.setParameters("status", Backup.Status.Error, Backup.Status.Failed, Backup.Status.Removed, Backup.Status.Expunged);
-        return customSearch(sc, null).get(0);
-    }
-
-    @Override
-    public Long calculateBackupStorageForAccount(long accountId) {
-        SearchCriteria<SumCount> sc = CalculateBackupStorageByAccount.create();
-        sc.setParameters("account", accountId);
-        sc.setParameters("status", Backup.Status.Error, Backup.Status.Failed, Backup.Status.Removed, Backup.Status.Expunged);
-        return customSearch(sc, null).get(0).sum;
-    }
-
-    @Override
-    public List<BackupVO> listBySchedule(Long backupScheduleId) {
-        SearchCriteria<BackupVO> sc = listBackupsBySchedule.create();
-        sc.setParameters("backup_schedule_id", backupScheduleId);
-        sc.setParameters("status", Backup.Status.BackedUp);
-        return listBy(sc, new Filter(BackupVO.class, "date", true));
     }
 
     @Override
@@ -232,5 +229,45 @@ public class BackupDaoImpl extends GenericDaoBase<BackupVO, Long> implements Bac
         response.setZone(zone.getName());
         response.setObjectName("backup");
         return response;
+    }
+
+    @Override
+    public List<Backup> syncBackups(Long zoneId, Long vmId, List<Backup> externalBackups) {
+        for (Backup backup : externalBackups) {
+            BackupVO backupVO = getBackupVO(backup);
+            persist(backupVO);
+        }
+        return listByVmId(zoneId, vmId);
+    }
+
+    @Override
+    public Long countBackupsForAccount(long accountId) {
+        SearchCriteria<Long> sc = CountBackupsByAccount.create();
+        sc.setParameters("account", accountId);
+        sc.setParameters("status", Backup.Status.Failed, Backup.Status.Removed, Backup.Status.Expunged);
+        return customSearch(sc, null).get(0);
+    }
+
+    @Override
+    public Long calculateBackupStorageForAccount(long accountId) {
+        SearchCriteria<SumCount> sc = CalculateBackupStorageByAccount.create();
+        sc.setParameters("account", accountId);
+        sc.setParameters("status", Backup.Status.Failed, Backup.Status.Removed, Backup.Status.Expunged);
+        return customSearch(sc, null).get(0).sum;
+    }
+
+    @Override
+    public List<BackupVO> listBySchedule(Long backupScheduleId) {
+        SearchCriteria<BackupVO> sc = listBackupsBySchedule.create();
+        sc.setParameters("backup_schedule_id", backupScheduleId);
+        sc.setParameters("status", Backup.Status.BackedUp);
+        return listBy(sc, new Filter(BackupVO.class, "date", true));
+    }
+
+    @Override
+    public List<Long> listVmIdsWithBackupsInZone(Long zoneId) {
+        SearchCriteria<Long> sc = backupVmSearchInZone.create();
+        sc.setParameters("zone_id", zoneId);
+        return customSearchIncludingRemoved(sc, null);
     }
 }

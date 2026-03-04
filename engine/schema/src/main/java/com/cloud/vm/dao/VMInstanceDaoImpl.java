@@ -630,7 +630,7 @@ public class VMInstanceDaoImpl extends GenericDaoBase<VMInstanceVO, Long> implem
     }
 
     @Override
-    public List<VMInstanceVO> listByZoneWithBackups(Long zoneId, Long backupOfferingId) {
+    public List<VMInstanceVO> listByZoneAndBackupOffering(Long zoneId, Long backupOfferingId) {
         SearchCriteria<VMInstanceVO> sc = BackupSearch.create();
         sc.setParameters("zone_id", zoneId);
         if (backupOfferingId != null) {
@@ -1068,5 +1068,15 @@ public class VMInstanceDaoImpl extends GenericDaoBase<VMInstanceVO, Long> implem
         List<VMInstanceVO> vms = search(sc, null);
         List<VMInstanceVO> uniqueVms = vms.stream().distinct().collect(Collectors.toList());
         return new Pair<>(uniqueVms, uniqueVms.size());
+    }
+
+    @Override
+    public List<VMInstanceVO> listByIdsIncludingRemoved(List<Long> ids) {
+        SearchBuilder<VMInstanceVO> idsSearch = createSearchBuilder();
+        idsSearch.and("ids", idsSearch.entity().getId(), SearchCriteria.Op.IN);
+        idsSearch.done();
+        SearchCriteria<VMInstanceVO> sc = idsSearch.create();
+        sc.setParameters("ids", ids.toArray());
+        return listIncludingRemovedBy(sc);
     }
 }
