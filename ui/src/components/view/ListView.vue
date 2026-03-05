@@ -50,7 +50,7 @@
       </div>
     </template>
     <template #bodyCell="{ column, text, record }">
-      <template v-if="['name', 'provider'].includes(column.key) ">
+      <template v-if="['name', 'provider'].includes(column.key)">
         <span
           v-if="['vm', 'vnfapp'].includes($route.path.split('/')[1])"
           style="margin-right: 5px"
@@ -66,9 +66,24 @@
           </span>
           <os-logo v-else :osId="record.ostypeid" :osName="record.osdisplayname" size="xl" />
         </span>
-        <span style="min-width: 120px" >
-          <span v-if="$route.path.startsWith('/project')" style="margin-right: 5px">
-            <tooltip-button type="dashed" size="small" icon="LoginOutlined" @onClick="changeProject(record)" />
+        <span style="min-width: 120px">
+          <QuickView
+            style="margin-left: 5px"
+            :actions="actions"
+            :resource="record"
+            :enabled="quickViewEnabled(actions, columns, column.key)"
+            @exec-action="$parent.execAction"
+          />
+          <span
+            v-if="$route.path.startsWith('/project')"
+            style="margin-right: 5px"
+          >
+            <tooltip-button
+              type="dashed"
+              size="small"
+              icon="LoginOutlined"
+              @onClick="changeProject(record)"
+            />
           </span>
           <span v-if="$showIcon() && !['vm', 'vnfapp'].includes($route.path.split('/')[1])" style="margin-right: 5px">
             <resource-icon v-if="$showIcon() && record.icon && record.icon.base64image" :image="record.icon.base64image" size="2x"/>
@@ -246,7 +261,7 @@
           style="margin-right: 8px"
           :actions="actions"
           :resource="record"
-          :enabled="quickViewEnabled() && actions.length > 0"
+          :enabled="quickViewEnabled(actions, columns, column.key)"
           @exec-action="$parent.execAction"
         />
         <span v-if="record.intervaltype===0">
@@ -267,6 +282,13 @@
         <label>{{ getTimeZone(record.timezone) }}</label>
       </template>
       <template v-if="column.key === 'displayname'">
+        <QuickView
+          style="margin-left: 5px"
+          :actions="actions"
+          :resource="record"
+          :enabled="quickViewEnabled(actions, columns, column.key)"
+          @exec-action="$parent.execAction"
+        />
         <router-link :to="{ path: $route.path + '/' + record.id }">{{ text }}</router-link>
       </template>
       <template v-if="column.key === 'username'">
@@ -414,6 +436,13 @@
           <router-link :to="{ path: $route.path + '/' + record.id }">{{ text }}</router-link>
         </span>
         <span v-else-if="$route.name === 'guestoshypervisormapping'">
+          <QuickView
+            style="margin-left: 5px"
+            :actions="actions"
+            :resource="record"
+            :enabled="quickViewEnabled(actions, columns, column.key)"
+            @exec-action="$parent.execAction"
+          />
           <router-link :to="{ path: $route.path + '/' + record.id }">{{ text }}</router-link>
         </span>
         <span v-else>{{ text }}</span>
@@ -729,6 +758,20 @@
         >{{ text }}</router-link>
         <span v-else>{{ text }}</span>
       </template>
+      <template v-if="column.key === 'parentname' && ['snapshot'].includes($route.path.split('/')[1])">
+        <router-link
+          v-if="record.parent && $router.resolve('/snapshot/' + record.parent).matched[0].redirect !== '/exception/404'"
+          :to="{ path: '/snapshot/' + record.parent }"
+        >{{ text }}</router-link>
+        <span v-else>{{ text }}</span>
+      </template>
+      <template v-if="column.key === 'parentName' && ['vmsnapshot'].includes($route.path.split('/')[1])">
+        <router-link
+          v-if="record.parent && $router.resolve('/vmsnapshot/' + record.parent).matched[0].redirect !== '/exception/404'"
+          :to="{ path: '/vmsnapshot/' + record.parent }"
+        >{{ text }}</router-link>
+        <span v-else>{{ text }}</span>
+      </template>
       <template v-if="column.key === 'templateversion'">
         <span> {{ record.version }} </span>
       </template>
@@ -803,8 +846,18 @@
         <span v-else>{{ text }}</span>
       </template>
       <template v-if="column.key === 'payload'">
-        <router-link v-if="$router.resolve('/webhookdeliveries/' + record.id).matched[0].redirect !== '/exception/404'" :to="{ path: '/webhookdeliveries/' + record.id }">{{ getTrimmedText(text, 48) }}</router-link>
-        <span v-else>  {{ getTrimmedText(text, 48) }} </span>
+        <router-link
+          v-if="$router.resolve('/webhookdeliveries/' + record.id).matched[0].redirect !== '/exception/404'"
+          :to="{ path: '/webhookdeliveries/' + record.id }"
+        >{{ getTrimmedText(text, 48) }}</router-link>
+        <span v-else> {{ getTrimmedText(text, 48) }} </span>
+        <QuickView
+          style="margin-left: 5px"
+          :actions="actions"
+          :resource="record"
+          :enabled="quickViewEnabled(actions, columns, column.key)"
+          @exec-action="$parent.execAction"
+        />
       </template>
       <template v-if="column.key === 'webhookname'">
         <router-link
@@ -854,6 +907,14 @@
       </template>
       <template v-if="['isfeatured'].includes(column.key) && ['guestoscategory'].includes($route.path.split('/')[1])">
         {{ record.isfeatured ? $t('label.yes') : $t('label.no') }}
+      </template>
+      <template v-if="['agentscount'].includes(column.key)">
+        <router-link
+          v-if="['managementserver'].includes($route.path.split('/')[1]) && $router.resolve('/host').matched[0].redirect !== '/exception/404'"
+          :to="{ path: '/host', query: { managementserverid: record.id } }">
+          {{ text }}
+        </router-link>
+        <span v-else> {{ text }} </span>
       </template>
       <template v-if="column.key === 'order'">
         <div class="shift-btns">
@@ -959,7 +1020,7 @@
           @onClick="$resetConfigurationValueConfirm(item, resetConfig)"
           v-if="editableValueKey !== record.key"
           icon="reload-outlined"
-          :disabled="!('updateConfiguration' in $store.getters.apis)"
+          :disabled="!('resetConfiguration' in $store.getters.apis) || record.value === record.defaultvalue"
         />
       </template>
       <template v-if="column.key === 'gpuDeviceActions'">
@@ -1365,17 +1426,19 @@ export default {
         '/tungstenpolicyset', '/tungstenroutingpolicy', '/firewallrule', '/tungstenfirewallpolicy'].includes(this.$route.path)
     },
     createPathBasedOnVmType: createPathBasedOnVmType,
-    quickViewEnabled () {
-      return new RegExp(['/vm', '/desktop', '/kubernetes', '/ssh', '/userdata', '/vmgroup', '/affinitygroup', '/autoscalevmgroup',
-        '/volume', '/snapshot', '/vmsnapshot', '/backup', '/event', '/publicip', '/comment', '/asnumbers', '/guestvlans',
-        '/guestnetwork', '/vpc', '/vpncustomergateway', '/vnfapp', '/securitygroups', '/quotasummary',
-        '/template', '/controllertemplate', '/mastertemplate', '/automationtemplate', '/automationcontroller', '/iso',
-        '/project', '/account', 'buckets', 'objectstore', 'hypervisorcapability', 'role',
-        '/zone', '/pod', '/cluster', '/host', '/storagepool', '/imagestore', '/systemvm', '/router', '/ilbvm', '/annotation',
-        '/computeoffering', '/systemoffering', '/diskoffering', '/backupoffering', '/networkoffering', '/vpcoffering',
-        '/tungstenfabric', '/oauthsetting', '/guestos', '/guestoshypervisormapping', '/webhook', 'webhookdeliveries', 'webhookfilters', '/quotatariff', '/sharedfs',
-        '/ipv4subnets', '/disasterrecoverycluster', '/managementserver', '/gpucard', '/gpudevices', '/vgpuprofile', '/extension', '/snapshotpolicy', '/backupschedule', '/alertRules', '/alert', ''].join('|'))
-        .test(this.$route.path)
+    quickViewEnabled (actions, columns, key) {
+      return actions.length > 0 &&
+        (columns && key === columns[0].dataIndex) &&
+        new RegExp(['/vm', '/desktop', '/kubernetes', '/ssh', '/userdata', '/vmgroup', '/affinitygroup', '/autoscalevmgroup',
+          '/volume', '/snapshot', '/vmsnapshot', '/backup', '/event', '/publicip', '/comment', '/asnumbers', '/guestvlans',
+          '/guestnetwork', '/vpc', '/vpncustomergateway', '/vnfapp', '/securitygroups', '/quotasummary',
+          '/template', '/controllertemplate', '/mastertemplate', '/automationtemplate', '/automationcontroller', '/iso',
+          '/project', '/account', 'buckets', 'objectstore', 'hypervisorcapability', 'role',
+          '/zone', '/pod', '/cluster', '/host', '/storagepool', '/imagestore', '/systemvm', '/router', '/ilbvm', '/annotation',
+          '/computeoffering', '/systemoffering', '/diskoffering', '/backupoffering', '/networkoffering', '/vpcoffering',
+          '/tungstenfabric', '/oauthsetting', '/guestos', '/guestoshypervisormapping', '/webhook', 'webhookdeliveries', 'webhookfilters', '/quotatariff', '/sharedfs',
+          '/ipv4subnets', '/disasterrecoverycluster', '/managementserver', '/gpucard', '/gpudevices', '/vgpuprofile', '/extension', '/snapshotpolicy', '/backupschedule', '/alertRules', '/alert', ''].join('|'))
+          .test(this.$route.path)
     },
     enableGroupAction () {
       return ['vm', 'alert', 'vmgroup', 'ssh', 'userdata', 'affinitygroup', 'autoscalevmgroup', 'volume', 'snapshot',
@@ -1431,15 +1494,7 @@ export default {
         this.editableValueKey = null
         this.$store.dispatch('RefreshFeatures')
         this.$messageConfigSuccess(`${this.$t('message.setting.updated')} ${record.name}`, record)
-        if (json.updateconfigurationresponse &&
-          json.updateconfigurationresponse.configuration &&
-          !json.updateconfigurationresponse.configuration.isdynamic &&
-          ['Admin'].includes(this.$store.getters.userInfo.roletype)) {
-          this.$notification.warning({
-            message: this.$t('label.status'),
-            description: this.$t('message.restart.mgmt.server')
-          })
-        }
+        this.$notifyConfigurationValueChange(json?.updateconfigurationresponse?.configuration || null)
       }).catch(error => {
         console.error(error)
         this.$message.error(this.$t('message.error.save.setting'))

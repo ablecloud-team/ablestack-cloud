@@ -50,7 +50,6 @@ public class SnapshotObjectTO extends DownloadableObjectTO implements DataTO {
     private String vmSnapshotName;
 
     public SnapshotObjectTO() {
-
     }
 
     @Override

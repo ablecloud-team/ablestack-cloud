@@ -59,7 +59,8 @@ public interface AccountService {
 
     User getSystemUser();
 
-    User createUser(String userName, String password, String firstName, String lastName, String email, String timeZone, String accountName, Long domainId, String userUUID);
+    User createUser(String userName, String password, String firstName, String lastName, String email, String timeZone,
+                    String accountName, Long domainId, String userUUID, boolean isPasswordChangeRequired);
 
     User createUser(String userName, String password, String firstName, String lastName, String email, String timeZone, String accountName, Long domainId, String userUUID,
                     User.Source source);
@@ -124,7 +125,7 @@ public interface AccountService {
 
     void validateAccountHasAccessToResource(Account account, AccessType accessType, Object resource);
 
-    Long finalyzeAccountId(String accountName, Long domainId, Long projectId, boolean enabledOnly);
+    Long finalizeAccountId(String accountName, Long domainId, Long projectId, boolean enabledOnly);
 
     /**
      * returns the user account object for a given user id

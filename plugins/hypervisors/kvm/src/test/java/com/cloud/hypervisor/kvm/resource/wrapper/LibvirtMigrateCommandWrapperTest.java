@@ -658,7 +658,7 @@ public class LibvirtMigrateCommandWrapperTest {
     @Test
     public void testReplaceIpForVNCInDescFile() {
         final String targetIp = "192.168.22.21";
-        final String result = libvirtMigrateCmdWrapper.replaceIpForVNCInDescFileAndNormalizePassword(fullfile, targetIp, null, "");
+        final String result = libvirtMigrateCmdWrapper.replaceIpForVNCInDescFileAndNormalizePassword(fullfile, targetIp, "vncSecretPwd", "");
         assertEquals("transformation does not live up to expectation:\n" + result, targetfile, result);
     }
 
@@ -1090,152 +1090,26 @@ public class LibvirtMigrateCommandWrapperTest {
     }
 
     @Test
-    public void updateGpuDevicesIfNeededTestNoGpuDevice() throws Exception {
-        Mockito.doReturn(virtualMachineTOMock).when(migrateCommandMock).getVirtualMachine();
-        Mockito.doReturn(null).when(virtualMachineTOMock).getGpuDevice();
+    public void testMaskVncPwdDomain() {
+        // Test case 1: Single quotes
+        String xml1 = "<graphics type='vnc' port='5900' passwd='secret123'/>";
+        String expected1 = "<graphics type='vnc' port='5900' passwd='*****'/>";
+        assertEquals(expected1, LibvirtMigrateCommandWrapper.maskSensitiveInfoInXML(xml1));
 
-        String result = libvirtMigrateCmdWrapper.updateGpuDevicesIfNeeded(migrateCommandMock, xmlWithoutGpuDevices, libvirtComputingResourceMock);
+        // Test case 2: Double quotes
+        String xml2 = "<graphics type=\"vnc\" port=\"5901\" passwd=\"mypassword\"/>";
+        String expected2 = "<graphics type=\"vnc\" port=\"5901\" passwd=\"*****\"/>";
+        assertEquals(expected2, LibvirtMigrateCommandWrapper.maskSensitiveInfoInXML(xml2));
 
-        Assert.assertEquals("XML should remain unchanged when no GPU device is present", xmlWithoutGpuDevices, result);
-    }
+        // Test case 3: Non-VNC graphics (should remain unchanged)
+        String xml3 = "<graphics type='spice' port='5902' passwd='notvnc'/>";
+        assertEquals(xml3, LibvirtMigrateCommandWrapper.maskSensitiveInfoInXML(xml3));
 
-    @Test
-    public void updateGpuDevicesIfNeededTestNoDevicesSection() throws Exception {
-        List<VgpuTypesInfo> gpuDevices = createTestMixedGpuDevices();
-        GPUDeviceTO gpuDeviceTO = Mockito.mock(GPUDeviceTO.class);
-        Mockito.doReturn(gpuDevices).when(gpuDeviceTO).getGpuDevices();
-
-        Mockito.doReturn(virtualMachineTOMock).when(migrateCommandMock).getVirtualMachine();
-        Mockito.doReturn(gpuDeviceTO).when(virtualMachineTOMock).getGpuDevice();
-
-        String result = libvirtMigrateCmdWrapper.updateGpuDevicesIfNeeded(migrateCommandMock, xmlNoDevicesSection, libvirtComputingResourceMock);
-
-        Assert.assertEquals("XML should remain unchanged when no devices section is found", xmlNoDevicesSection, result);
-    }
-
-    @Test
-    public void updateGpuDevicesIfNeededTestWithPciDevice() throws Exception {
-        List<VgpuTypesInfo> gpuDevices = createTestPciGpuDevice();
-        GPUDeviceTO gpuDeviceTO = Mockito.mock(GPUDeviceTO.class);
-        Mockito.doReturn(gpuDevices).when(gpuDeviceTO).getGpuDevices();
-
-        Mockito.doReturn(virtualMachineTOMock).when(migrateCommandMock).getVirtualMachine();
-        Mockito.doReturn(gpuDeviceTO).when(virtualMachineTOMock).getGpuDevice();
-
-        String result = libvirtMigrateCmdWrapper.updateGpuDevicesIfNeeded(migrateCommandMock, xmlWithGpuDevices, libvirtComputingResourceMock);
-
-        // Verify that old GPU devices are removed and new ones are added
-        Assert.assertFalse("Old PCI device should be removed", result.contains("bus='0x01' slot='0x00'"));
-        Assert.assertFalse("Old MDEV device should be removed", result.contains("4b20d080-1b54-4048-85b3-a6a62d165c01"));
-        Assert.assertTrue("New PCI device should be added", result.contains("bus=\"0x02\""));
-        Assert.assertTrue("New PCI device should be added", result.contains("slot=\"0x00\""));
-        Assert.assertTrue("PCI device should have vfio driver", result.contains("name=\"vfio\""));
-    }
-
-    @Test
-    public void updateGpuDevicesIfNeededTestWithMdevDevice() throws Exception {
-        List<VgpuTypesInfo> gpuDevices = createTestMdevGpuDevice();
-        GPUDeviceTO gpuDeviceTO = Mockito.mock(GPUDeviceTO.class);
-        Mockito.doReturn(gpuDevices).when(gpuDeviceTO).getGpuDevices();
-
-        Mockito.doReturn(virtualMachineTOMock).when(migrateCommandMock).getVirtualMachine();
-        Mockito.doReturn(gpuDeviceTO).when(virtualMachineTOMock).getGpuDevice();
-
-        String result = libvirtMigrateCmdWrapper.updateGpuDevicesIfNeeded(migrateCommandMock, xmlWithGpuDevices, libvirtComputingResourceMock);
-
-        // Verify that old GPU devices are removed and new ones are added
-        Assert.assertFalse("Old PCI device should be removed", result.contains("bus='0x01' slot='0x00'"));
-        Assert.assertFalse("Old MDEV device should be removed", result.contains("4b20d080-1b54-4048-85b3-a6a62d165c01"));
-        Assert.assertTrue("New MDEV device should be added", result.contains("6f20d080-1b54-4048-85b3-a6a62d165c01"));
-        Assert.assertTrue("MDEV device should have display=off", result.contains("display=\"off\""));
-    }
-
-    @Test
-    public void updateGpuDevicesIfNeededTestWithMixedDevices() throws Exception {
-        List<VgpuTypesInfo> gpuDevices = createTestMixedGpuDevices();
-        GPUDeviceTO gpuDeviceTO = Mockito.mock(GPUDeviceTO.class);
-        Mockito.doReturn(gpuDevices).when(gpuDeviceTO).getGpuDevices();
-
-        Mockito.doReturn(virtualMachineTOMock).when(migrateCommandMock).getVirtualMachine();
-        Mockito.doReturn(gpuDeviceTO).when(virtualMachineTOMock).getGpuDevice();
-
-        String result = libvirtMigrateCmdWrapper.updateGpuDevicesIfNeeded(migrateCommandMock, xmlWithGpuDevices, libvirtComputingResourceMock);
-
-        // Verify both PCI and MDEV devices are added
-        Assert.assertTrue("PCI device should be added", result.contains("bus=\"0x02\""));
-        Assert.assertTrue("PCI device should be added", result.contains("slot=\"0x00\""));
-        Assert.assertTrue("MDEV device should be added", result.contains("6f20d080-1b54-4048-85b3-a6a62d165c01"));
-
-        // Count hostdev elements to ensure we have both
-        long hostdevCount = result.lines().filter(line -> line.contains("<hostdev")).count();
-        Assert.assertEquals("Should have 2 hostdev elements", 2, hostdevCount);
-    }
-
-    @Test
-    public void updateGpuDevicesIfNeededTestRemoveAllGpuDevices() throws Exception {
-        List<VgpuTypesInfo> gpuDevices = new ArrayList<>(); // Empty list
-        GPUDeviceTO gpuDeviceTO = Mockito.mock(GPUDeviceTO.class);
-        Mockito.doReturn(gpuDevices).when(gpuDeviceTO).getGpuDevices();
-
-        Mockito.doReturn(virtualMachineTOMock).when(migrateCommandMock).getVirtualMachine();
-        Mockito.doReturn(gpuDeviceTO).when(virtualMachineTOMock).getGpuDevice();
-
-        String result = libvirtMigrateCmdWrapper.updateGpuDevicesIfNeeded(migrateCommandMock, xmlWithoutGpuDevices, libvirtComputingResourceMock);
-
-        // Verify all GPU devices are removed
-        Assert.assertFalse("Old PCI device should be removed", result.contains("bus=\"0x01\""));
-        Assert.assertFalse("Old PCI device should be removed", result.contains("slot=\"0x00\""));
-        Assert.assertFalse("Old MDEV device should be removed", result.contains("4b20d080-1b54-4048-85b3-a6a62d165c01"));
-
-        // Verify no hostdev elements remain
-        long hostdevCount = result.lines().filter(line -> line.contains("<hostdev")).count();
-        Assert.assertEquals("Should have no hostdev elements", 0, hostdevCount);
-    }
-
-    // Helper methods for creating test GPU devices
-    private List<VgpuTypesInfo> createTestPciGpuDevice() {
-        List<VgpuTypesInfo> devices = new ArrayList<>();
-        VgpuTypesInfo pciDevice = new VgpuTypesInfo(
-                GpuDevice.DeviceType.PCI,
-                "NVIDIA Corporation Tesla T4",
-                "passthrough",
-                "02:00.0", // New bus address for destination host
-                "10de",
-                "NVIDIA Corporation",
-                "1eb8",
-                "Tesla T4"
-        );
-        pciDevice.setDisplay(false);
-        devices.add(pciDevice);
-        return devices;
-    }
-
-    private List<VgpuTypesInfo> createTestMdevGpuDevice() {
-        List<VgpuTypesInfo> devices = new ArrayList<>();
-        VgpuTypesInfo mdevDevice = new VgpuTypesInfo(
-                GpuDevice.DeviceType.MDEV,
-                "nvidia-63",
-                "GRID T4-2Q",
-                "6f20d080-1b54-4048-85b3-a6a62d165c01", // New UUID for destination host
-                "10de",
-                "NVIDIA Corporation",
-                "1eb8",
-                "Tesla T4"
-        );
-        mdevDevice.setDisplay(false);
-        devices.add(mdevDevice);
-        return devices;
-    }
-
-    private List<VgpuTypesInfo> createTestMixedGpuDevices() {
-        List<VgpuTypesInfo> devices = new ArrayList<>();
-
-        // Add PCI device
-        devices.addAll(createTestPciGpuDevice());
-
-        // Add MDEV device
-        devices.addAll(createTestMdevGpuDevice());
-
-        return devices;
+        // Test case 4: Multiple VNC entries in one string
+        String xml4 = "<graphics type='vnc' port='5900' passwd='a'/>\n" +
+                "<graphics type='vnc' port='5901' passwd='b'/>";
+        String expected4 = "<graphics type='vnc' port='5900' passwd='*****'/>\n" +
+                "<graphics type='vnc' port='5901' passwd='*****'/>";
+        assertEquals(expected4, LibvirtMigrateCommandWrapper.maskSensitiveInfoInXML(xml4));
     }
 }

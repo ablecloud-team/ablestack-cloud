@@ -32,7 +32,6 @@ public class ComputeOffering extends GenericPresetVariable {
 
     public void setCustomized(boolean customized) {
         this.customized = customized;
-        fieldNamesToIncludeInToString.add("customized");
     }
 
     public boolean offerHa() {

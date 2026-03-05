@@ -143,7 +143,7 @@ public class CreateSnapshotFromVMSnapshotCmd extends BaseAsyncCreateCmd {
 
     @Override
     public String getEventDescription() {
-        return "Creating Snapshot from Instance Snapshot : " + this._uuidMgr.getUuid(VMSnapshot.class, getVMSnapshotId());
+        return "Creating Snapshot from Instance Snapshot : " + getResourceUuid(ApiConstants.VOLUME_ID);
     }
 
     @Override

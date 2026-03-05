@@ -47,6 +47,9 @@
         <template v-if="column.key === 'endip'">
           {{ record.endip || record.endipv6 }}
         </template>
+        <template v-if="column.key === 'systemvms'">
+          {{ record.systemvms || record.forsystemvms }}
+        </template>
         <template v-if="column.key === 'account' && !basicGuestNetwork">
           <a-button @click="() => handleOpenAccountModal(record)">{{ record.domain === undefined ? `${$t('label.system.ip.pool')}` : `[ ${record.domain}] ${record.account === undefined ? '' : record.account}` }}</a-button>
         </template>
@@ -129,10 +132,6 @@
         <div style="margin-bottom: 10px;">
           <div class="list__label">{{ $t('label.domain') }}</div>
           <div>{{ selectedItem.domain }}</div>
-        </div>
-        <div style="margin-bottom: 10px;">
-          <div class="list__label">{{ $t('label.system.vms') }}</div>
-          <div>{{ selectedItem.forsystemvms }}</div>
         </div>
       </div>
 
@@ -450,6 +449,10 @@ export default {
         {
           key: 'endip',
           title: this.$t('label.endip')
+        },
+        {
+          key: 'systemvms',
+          title: this.$t('label.reserved.system.ip')
         },
         {
           key: 'actions',

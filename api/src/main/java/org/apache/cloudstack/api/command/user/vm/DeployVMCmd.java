@@ -33,6 +33,9 @@ import org.apache.cloudstack.api.response.TemplateResponse;
 import org.apache.cloudstack.api.response.UserVmResponse;
 import org.apache.cloudstack.api.response.VolumeResponse;
 import org.apache.cloudstack.context.CallContext;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.BooleanUtils;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.exception.InsufficientCapacityException;
@@ -41,6 +44,9 @@ import com.cloud.exception.ResourceAllocationException;
 import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.uservm.UserVm;
 import com.cloud.utils.exception.CloudRuntimeException;
+import com.cloud.utils.net.Dhcp;
+import com.cloud.utils.net.NetUtils;
+import com.cloud.utils.StringUtils;
 import com.cloud.vm.VirtualMachine;
 
 @APICommand(name = "deployVirtualMachine", description = "Creates and automatically starts an Instance based on a service offering, disk offering, and Template.", responseObject = UserVmResponse.class, responseView = ResponseView.Restricted, entityType = {VirtualMachine.class},
@@ -68,6 +74,138 @@ public class DeployVMCmd extends BaseDeployVMCmd {
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
+
+    public String getAccountName() {
+        if (accountName == null) {
+            return CallContext.current().getCallingAccount().getAccountName();
+        }
+        return accountName;
+    }
+
+    public Long getDiskOfferingId() {
+        return diskOfferingId;
+    }
+
+    public String getDeploymentPlanner() {
+        return deploymentPlanner;
+    }
+
+    public String getDisplayName() {
+        if (StringUtils.isEmpty(displayName)) {
+            displayName = name;
+        }
+        return displayName;
+    }
+
+    public Long getDomainId() {
+        if (domainId == null) {
+            return CallContext.current().getCallingAccount().getDomainId();
+        }
+        return domainId;
+    }
+
+    public ApiConstants.BootType getBootType() {
+        if (StringUtils.isNotBlank(bootType)) {
+            try {
+                String type = bootType.trim().toUpperCase();
+                return ApiConstants.BootType.valueOf(type);
+            } catch (IllegalArgumentException e) {
+                String errMesg = "Invalid bootType " + bootType + "Specified for Instance " + getName()
+                        + " Valid values are: " + Arrays.toString(ApiConstants.BootType.values());
+                logger.warn(errMesg);
+                throw new InvalidParameterValueException(errMesg);
+            }
+        }
+        return null;
+    }
+
+    public ApiConstants.BootMode getBootMode() {
+        if (StringUtils.isNotBlank(bootMode)) {
+            try {
+                String mode = bootMode.trim().toUpperCase();
+                return ApiConstants.BootMode.valueOf(mode);
+            } catch (IllegalArgumentException e) {
+                String msg = String.format("Invalid %s: %s specified for Instance: %s. Valid values are: %s",
+                        ApiConstants.BOOT_MODE, bootMode, getName(), Arrays.toString(ApiConstants.BootMode.values()));
+                logger.error(msg);
+                throw new InvalidParameterValueException(msg);
+            }
+        }
+        if (ApiConstants.BootType.UEFI.equals(getBootType())) {
+            String msg = String.format("%s must be specified for the Instance with boot type: %s. Valid values are: %s",
+                    ApiConstants.BOOT_MODE, getBootType(), Arrays.toString(ApiConstants.BootMode.values()));
+            logger.error(msg);
+            throw new InvalidParameterValueException(msg);
+        }
+        return null;
+    }
+
+    public Map<String, String> getVmProperties() {
+        Map<String, String> map = new HashMap<>();
+        if (MapUtils.isNotEmpty(vAppProperties)) {
+            Collection parameterCollection = vAppProperties.values();
+            Iterator iterator = parameterCollection.iterator();
+            while (iterator.hasNext()) {
+                HashMap<String, String> entry = (HashMap<String, String>)iterator.next();
+                map.put(entry.get("key"), entry.get("value"));
+            }
+        }
+        return map;
+    }
+
+    public Map<Integer, Long> getVmNetworkMap() {
+        Map<Integer, Long> map = new HashMap<>();
+        if (MapUtils.isNotEmpty(vAppNetworks)) {
+            Collection parameterCollection = vAppNetworks.values();
+            Iterator iterator = parameterCollection.iterator();
+            while (iterator.hasNext()) {
+                HashMap<String, String> entry = (HashMap<String, String>) iterator.next();
+                Integer nic;
+                try {
+                    nic = Integer.valueOf(entry.get(VmDetailConstants.NIC));
+                } catch (NumberFormatException nfe) {
+                    nic = null;
+                }
+                String networkUuid = entry.get(VmDetailConstants.NETWORK);
+                if (logger.isTraceEnabled()) {
+                    logger.trace(String.format("nic, '%s', goes on net, '%s'", nic, networkUuid));
+                }
+                if (nic == null || StringUtils.isEmpty(networkUuid) || _entityMgr.findByUuid(Network.class, networkUuid) == null) {
+                    throw new InvalidParameterValueException(String.format("Network ID: %s for NIC ID: %s is invalid", networkUuid, nic));
+                }
+                map.put(nic, _entityMgr.findByUuid(Network.class, networkUuid).getId());
+            }
+        }
+        return map;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public HypervisorType getHypervisor() {
+        return HypervisorType.getType(hypervisor);
+    }
+
+    public Boolean isDisplayVm() {
+        return displayVm;
+    }
+
+    @Override
+    public boolean isDisplay() {
+        if(displayVm == null)
+            return true;
+        else
+            return displayVm;
+    }
+
+    public List<String> getSecurityGroupNameList() {
+        return securityGroupNameList;
+    }
+
+    public List<Long> getSecurityGroupIdList() {
+        return securityGroupIdList;
+    }
 
     public Long getServiceOfferingId() {
         return serviceOfferingId;
@@ -102,7 +240,7 @@ public class DeployVMCmd extends BaseDeployVMCmd {
     public void execute() {
         UserVm result;
 
-        CallContext.current().setEventDetails("Instance Id: " + getEntityUuid());
+        CallContext.current().setEventDetails("Instance ID: " + getEntityUuid());
         if (getStartVm()) {
             try {
                 result = _userVmService.startVirtualMachine(this);

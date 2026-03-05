@@ -93,6 +93,11 @@
         :resource="resource"
         :action="action"/>
     </div>
+    <domain-delete-confirm
+    v-if="showDeleteConfirm"
+    :domain="deleteDomainResource"
+    @close="showDeleteConfirm = false"
+    @confirm="confirmDeleteDomain" />
   </div>
 </template>
 
@@ -106,6 +111,7 @@ import ActionButton from '@/components/view/ActionButton'
 import TreeView from '@/components/view/TreeView'
 import DomainActionForm from '@/views/iam/DomainActionForm'
 import ResourceView from '@/components/view/ResourceView'
+import DomainDeleteConfirm from '@/components/view/DomainDeleteConfirm'
 import eventBus from '@/config/eventBus'
 
 export default {
@@ -115,7 +121,8 @@ export default {
     ActionButton,
     TreeView,
     DomainActionForm,
-    ResourceView
+    ResourceView,
+    DomainDeleteConfirm
   },
   mixins: [mixinDevice],
   data () {
@@ -131,7 +138,9 @@ export default {
       dataView: false,
       domainStore: {},
       treeDeletedKey: null,
-      detailActionsVisible: false
+      detailActionsVisible: false,
+      showDeleteConfirm: false,
+      deleteDomainResource: null
     }
   },
   computed: {
@@ -204,7 +213,13 @@ export default {
     },
     execAction (action) {
       this.detailActionsVisible = false
+      this.treeDeletedKey = null
       this.treeDeletedKey = action.api === 'deleteDomain' ? this.resource.key : null
+      if (action.api === 'deleteDomain') {
+        this.deleteDomainResource = this.resource
+        this.showDeleteConfirm = true
+        return
+      }
       this.actionData = []
       this.action = action
       this.action.params = store.getters.apis[this.action.api].params
@@ -360,6 +375,42 @@ export default {
     },
     closeAction () {
       this.showAction = false
+    },
+    confirmDeleteDomain () {
+      const domain = this.deleteDomainResource
+      const params = { id: domain.id, cleanup: true }
+
+      callAPI('deleteDomain', params).then(json => {
+        const jobId = json.deletedomainresponse.jobid
+
+        this.$pollJob({
+          jobId,
+          title: this.$t('label.action.delete.domain'),
+          description: domain.name,
+          loadingMessage: `${this.$t('label.action.delete.domain')} ${domain.name}`,
+          successMessage: `${this.$t('label.action.delete.domain')} ${domain.name}`,
+          catchMessage: this.$t('error.fetching.async.job.result'),
+          successMethod: () => {
+            this.$router.replace({ path: '/domain' })
+            this.resource = {}
+            this.treeSelected = {}
+            this.treeDeletedKey = null
+            this.treeViewKey += 1
+            this.$nextTick(() => {
+              this.fetchData()
+            })
+          }
+        })
+      }).catch(error => {
+        this.$notification.error({
+          message: this.$t('message.request.failed'),
+          description: error.response?.headers['x-description'] || this.$t('message.request.failed')
+        })
+      }).finally(() => {
+        this.showDeleteConfirm = false
+        this.deleteDomainResource = null
+        this.treeDeletedKey = null
+      })
     },
     forceRerender () {
       this.treeViewKey += 1

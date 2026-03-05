@@ -275,8 +275,7 @@ public class ImportUnmanagedInstanceCmd extends BaseAsyncCmd {
 
     @Override
     public String getEventDescription() {
-        String vmName = this.name;
-        return String.format("Importing unmanaged Instance: %s", vmName);
+        return "Importing unmanaged Instance: " + name;
     }
 
     public boolean isForced() {
@@ -296,7 +295,7 @@ public class ImportUnmanagedInstanceCmd extends BaseAsyncCmd {
 
     @Override
     public long getEntityOwnerId() {
-        Long accountId = _accountService.finalyzeAccountId(accountName, domainId, projectId, true);
+        Long accountId = _accountService.finalizeAccountId(accountName, domainId, projectId, true);
         if (accountId == null) {
             Account account = CallContext.current().getCallingAccount();
             if (account != null) {
