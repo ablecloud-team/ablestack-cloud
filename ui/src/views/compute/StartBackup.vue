@@ -57,7 +57,7 @@
 <script>
 
 import { ref, reactive, toRaw } from 'vue'
-import { getAPI, postAPI } from '@/api'
+import { api } from '@/api'
 import { mixinForm } from '@/utils/mixin'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
@@ -98,7 +98,7 @@ export default {
     },
     getBackupProvider () {
       this.loading = true
-      getAPI('listBackupOfferings', { id: this.resource.backupofferingid }).then(json => {
+      api('listBackupOfferings', { id: this.resource.backupofferingid }).then(json => {
         this.provider = json.listbackupofferingsresponse.backupoffering[0].provider
         console.log('this.provider', this.provider)
       }).finally(() => {
@@ -122,7 +122,7 @@ export default {
           quiescevm: this.form.quiescevm
         }
         this.loading = true
-        postAPI('createBackup', data).then(response => {
+        api('createBackup', data).then(response => {
           this.$pollJob({
             jobId: response.createbackupresponse.jobid,
             title: this.$t('label.create.bucket'),
