@@ -58,6 +58,12 @@
             {{ `${$t('label.day')} ${record.schedule.split(':')[2]} ${$t('label.of.month')}` }}
           </span>
         </template>
+        <template v-if="column.key === 'quiescevm'" :name="text">
+          <label>
+            <check-outlined v-if="record.quiescevm" />
+            <close-outlined v-else />
+          </label>
+        </template>
         <template v-if="column.key === 'timezone'" :name="text">
           <label>{{ getTimeZone(record.timezone) }}</label>
         </template>
@@ -93,12 +99,12 @@ export default {
       default: false
     },
     dataSource: {
-      type: Object,
+      type: Array,
       required: true
     },
-    resource: {
-      type: Object,
-      required: true
+    deleteFn: {
+      type: Function,
+      default: null
     }
   },
   data () {
@@ -110,7 +116,7 @@ export default {
   },
   computed: {
     columns () {
-      return [
+      const cols = [
         {
           key: 'icon',
           title: '',
@@ -135,7 +141,17 @@ export default {
           key: 'keep',
           title: this.$t('label.keep'),
           dataIndex: 'maxbackups'
-        },
+        }
+      ]
+      const hasQuiesce = this.dataSource.some(item => 'quiescevm' in item)
+      if (hasQuiesce) {
+        cols.push({
+          key: 'quiescevm',
+          title: this.$t('label.quiescevm'),
+          dataIndex: 'quiescevm'
+        })
+      }
+      cols.push(
         {
           key: 'timezone',
           title: this.$t('label.timezone'),
@@ -147,7 +163,8 @@ export default {
           dataIndex: 'actions',
           width: 80
         }
-      ]
+      )
+      return cols
     }
   },
   mounted () {
@@ -171,6 +188,10 @@ export default {
   },
   methods: {
     handleClickDelete (record) {
+      if (this.deleteFn) {
+        this.deleteFn(record)
+        return
+      }
       const params = {}
       params.id = record.id
       this.actionLoading = true

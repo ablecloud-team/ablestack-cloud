@@ -303,10 +303,13 @@ export default {
         if (item === 'isencrypted' && !('listVolumes' in this.$store.getters.apis)) {
           return true
         }
+        if (item === 'backupofferingid' && !('listBackupOfferings' in this.$store.getters.apis)) {
+          return true
+        }
         if (['zoneid', 'domainid', 'imagestoreid', 'storageid', 'state', 'account', 'hypervisor', 'level',
           'clusterid', 'podid', 'groupid', 'entitytype', 'accounttype', 'systemvmtype', 'scope', 'provider',
           'type', 'scope', 'managementserverid', 'serviceofferingid', 'diskofferingid', 'networkid',
-          'usagetype', 'restartrequired', 'guestiptype', 'usersource'].includes(item)
+          'usagetype', 'restartrequired', 'guestiptype', 'usersource', 'backupoffering'].includes(item)
         ) {
           type = 'list'
         } else if (item === 'tags') {
@@ -462,6 +465,7 @@ export default {
       let networkIndex = -1
       let usageTypeIndex = -1
       let volumeIndex = -1
+      let backupOfferingIndex = -1
 
       if (arrayField.includes('type')) {
         if (this.$route.path === '/alert') {
@@ -565,6 +569,12 @@ export default {
         promises.push(await this.fetchVolumes(searchKeyword))
       }
 
+      if (arrayField.includes('backupofferingid')) {
+        backupOfferingIndex = this.fields.findIndex(item => item.name === 'backupofferingid')
+        this.fields[backupOfferingIndex].loading = true
+        promises.push(await this.fetchBackupOfferings(searchKeyword))
+      }
+
       Promise.all(promises).then(response => {
         if (typeIndex > -1) {
           const types = response.filter(item => item.type === 'type')
@@ -661,6 +671,13 @@ export default {
             this.fields[usageTypeIndex].opts = this.sortArray(usageTypes[0].data)
           }
         }
+
+        if (backupOfferingIndex > -1) {
+          const backupOfferings = response.filter(item => item.type === 'backupofferingid')
+          if (backupOfferings?.length > 0) {
+            this.fields[backupOfferingIndex].opts = this.sortArray(backupOfferings[0].data)
+          }
+        }
       }).finally(() => {
         if (typeIndex > -1) {
           this.fields[typeIndex].loading = false
@@ -709,6 +726,9 @@ export default {
         }
         if (networkIndex > -1) {
           this.fields[networkIndex].loading = false
+        }
+        if (backupOfferingIndex > -1) {
+          this.fields[backupOfferingIndex].loading = false
         }
         this.fillFormFieldValues()
       })
@@ -1301,6 +1321,19 @@ export default {
           .catch(error => {
             reject(error.response.headers['x-description'])
           })
+      })
+    },
+    fetchBackupOfferings (searchKeyword) {
+      return new Promise((resolve, reject) => {
+        api('listBackupOfferings').then(json => {
+          const backupOfferings = json.listbackupofferingsresponse.backupoffering
+          resolve({
+            type: 'backupofferingid',
+            data: backupOfferings
+          })
+        }).catch(error => {
+          reject(error.response.headers['x-description'])
+        })
       })
     },
     fetchAvailableUserSourceTypes () {
