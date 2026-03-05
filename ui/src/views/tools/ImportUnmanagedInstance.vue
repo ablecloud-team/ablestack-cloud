@@ -800,8 +800,6 @@ export default {
       return meta
     },
     getMinCpu () {
-      console.log('this.resource.cpunumber :>> ', this.resource.cpunumber)
-      console.log('this.computeOffering.serviceofferingdetails.mincpunumber :>> ', this.computeOffering.serviceofferingdetails.mincpunumber)
       if (this.isVmRunning) {
         return this.resource.cpunumber
       }

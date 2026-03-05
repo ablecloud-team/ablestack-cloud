@@ -100,7 +100,6 @@
       <a-form-item ref="securitygroupids" name="securitygroupids" :label="$t('label.security.groups')" v-if="securityGroupsEnabled">
         <a-select
           mode="multiple"
-          :placeholder="$t('label.select.security.groups')"
           v-model:value="form.securitygroupids"
           showSearch
           optionFilterProp="label"
