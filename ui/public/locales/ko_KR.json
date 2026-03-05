@@ -4572,6 +4572,7 @@
 "alert.cpu": "CPU",
 "alert.storage": "\uc2a4\ud1a0\ub9ac\uc9c0",
 "alert.storage.allocated": "\uc2a4\ud1a0\ub9ac\uc9c0 \ud560\ub2f9",
+"alert.storage.backup": "\ubc31\uc5c5\uc2a4\ud1a0\ub9ac\uc9c0",
 "alert.network.publicip": "\ud37c\ube14\ub9adIP \ub124\ud2b8\uc6cc\ud06c",
 "alert.network.ipv6subnet": "IPv6\uc11c\ube0c\ub137 \ub124\ud2b8\uc6cc\ud06c",
 "alert.network.privateip": "\ud504\ub77c\uc774\ube57IP\uc8fc\uc18c \ub124\ud2b8\uc6cc\ud06c",
