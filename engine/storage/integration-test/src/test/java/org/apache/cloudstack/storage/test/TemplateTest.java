@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.annotations.Test;
@@ -123,8 +123,8 @@ public class TemplateTest extends CloudStackTestNGBase {
         // inject mockito
         LocalHostEndpoint ep = new LocalHostEndpoint();
         ep.setResource(new MockLocalNfsSecondaryStorageResource());
-        Mockito.when(epSelector.select(Matchers.any(DataObject.class))).thenReturn(ep);
-        Mockito.when(epSelector.select(Matchers.any(DataStore.class))).thenReturn(ep);
+        Mockito.when(epSelector.select(ArgumentMatchers.any(DataObject.class))).thenReturn(ep);
+        Mockito.when(epSelector.select(ArgumentMatchers.any(DataStore.class))).thenReturn(ep);
     }
 
     @Test

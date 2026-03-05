@@ -1,48 +1,40 @@
 <template>
   <div>
-    <announcement-banner />
-    <a-affix v-if="this.$store.getters.maintenanceInitiated" >
-      <a-alert :message="$t('message.maintenance.initiated')" type="error" banner :showIcon="false" class="maintenanceHeader" />
-    </a-affix>
-    <a-affix v-else-if="this.$store.getters.shutdownTriggered" >
-      <a-alert :message="$t('message.shutdown.triggered')" type="error" banner :showIcon="false" class="shutdownHeader" />
-    </a-affix>
     <announcement-banner ref="announceRef" />
     <AutoAlertBanner ref="autoRef" />
+
+    <a-affix v-if="isShutdown" :offsetTop="0">
+      <a-alert
+        :message="$t('message.shutdown.triggered')"
+        type="error"
+        banner
+        :showIcon="false"
+        class="shutdownHeader"
+        ref="shutdownRef"
+      />
+    </a-affix>
 
     <div class="banner-spacer" :style="{ height: combinedBannerHeight + 'px' }" aria-hidden="true"></div>
 
     <a-layout class="layout" :class="[device]">
-      <a-affix style="z-index: 200" :offsetTop="this.$store.getters.maintenanceInitiated || this.$store.getters.shutdownTriggered ? 25 : 0">
-        <div class="sticky-sidebar">
-          <template v-if="isSideMenu()">
-            <a-drawer
-              v-if="isMobile()"
-              :wrapClassName="'drawer-sider ' + navTheme"
-              :closable="false"
-              :visible="collapsed"
-              placement="left"
-              @close="() => (collapsed = false)"
-            >
-              <side-menu
-                :menus="menus"
-                :theme="navTheme"
-                :collapsed="false"
-                :collapsible="true"
-                mode="inline"
-                :style="{ paddingBottom: isSidebarVisible ? '300px' : '0' }"
-                @menuSelect="menuSelect"
-              />
-            </a-drawer>
-
+      <div class="sticky-sidebar">
+        <template v-if="isSideMenu()">
+          <a-drawer
+            v-if="isMobile()"
+            :wrapClassName="'drawer-sider ' + navTheme"
+            :closable="false"
+            :visible="collapsed"
+            placement="left"
+            @close="() => (collapsed = false)"
+          >
             <side-menu
-              v-else
-              mode="inline"
               :menus="menus"
               :theme="navTheme"
-              :collapsed="collapsed"
+              :collapsed="false"
               :collapsible="true"
+              mode="inline"
               :style="{ paddingBottom: isSidebarVisible ? '300px' : '0' }"
+              @menuSelect="menuSelect"
             />
           </a-drawer>
 
@@ -106,6 +98,11 @@
               </a-button>
             </div>
           </template>
+          <template #drawer>
+            <setting :visible="showSetting" />
+          </template>
+        </drawer>
+      </div>
 
       <event-sidebar
         :isVisible="isSidebarVisible"
@@ -119,7 +116,6 @@
       >
         <div class="sticky-header">
           <global-header
-            :style="this.$store.getters.maintenanceInitiated || this.$store.getters.shutdownTriggered ? 'margin-top: 25px;' : null"
             :mode="layoutMode"
             :menus="menus"
             :theme="navTheme"
@@ -166,7 +162,7 @@ import { triggerWindowResizeEvent } from '@/utils/util'
 import { mapState, mapActions } from 'vuex'
 import { mixin, mixinDevice } from '@/utils/mixin.js'
 import { isAdmin } from '@/role'
-import { getAPI } from '@/api'
+import { api } from '@/api'
 import Drawer from '@/components/widgets/Drawer'
 import Setting from '@/components/view/Setting.vue'
 import EventSidebar from '@/components/view/EventSidebar.vue'
@@ -217,6 +213,7 @@ export default {
       if (this.sidebarOpened) return '256px'
       return '80px'
     },
+    isShutdown () { return this.$store.getters.shutdownTriggered },
     headerHeight () { return this.fixedHeader ? HEADER_FIXED_PX : 0 }
   },
   watch: {
@@ -380,9 +377,11 @@ export default {
     },
     checkShutdown () {
       if (!this.$store.getters.features.securityfeaturesenabled) {
-        getAPI('readyForShutdown', { managementserverid: this.$store.getters.msId }).then(json => {
-          this.$store.dispatch('SetShutdownTriggered', json.readyforshutdownresponse.readyforshutdown.shutdowntriggered || false)
-          this.$store.dispatch('SetMaintenanceInitiated', json.readyforshutdownresponse.readyforshutdown.maintenanceinitiated || false)
+        api('readyForShutdown', {}).then(json => {
+          this.$store.dispatch(
+            'SetShutdownTriggered',
+            json.readyforshutdownresponse.readyforshutdown.shutdowntriggered || false
+          )
         })
       }
     }
@@ -424,16 +423,7 @@ export default {
   .ant-drawer-body { padding: 0; }
 }
 
-.maintenanceHeader {
-  font-weight: bold;
-  height: 25px;
-  text-align: center;
-  padding: 0px;
-  margin: 0px;
-  width: 100vw;
-  position: absolute;
-}
-
+/* 셧다운 알림 배너 */
 .shutdownHeader {
   font-weight: bold;
   height: 25px;

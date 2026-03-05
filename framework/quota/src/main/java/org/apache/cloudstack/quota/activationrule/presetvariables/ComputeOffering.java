@@ -18,6 +18,7 @@
 package org.apache.cloudstack.quota.activationrule.presetvariables;
 
 import org.apache.cloudstack.quota.constant.QuotaTypes;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 public class ComputeOffering extends GenericPresetVariable {
     @PresetVariableDefinition(description = "A boolean informing if the compute offering is customized or not.")
@@ -40,7 +41,7 @@ public class ComputeOffering extends GenericPresetVariable {
 
     public void setOfferHa(boolean offerHa) {
         this.offerHa = offerHa;
-        fieldNamesToIncludeInToString.add("offerHa");
+        ReflectionToStringBuilder.toString("offerHa");
     }
 
 }

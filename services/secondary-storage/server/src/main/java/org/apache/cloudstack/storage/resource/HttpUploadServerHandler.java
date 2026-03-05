@@ -127,7 +127,9 @@ public class HttpUploadServerHandler extends SimpleChannelInboundHandler<HttpObj
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-        destroyDecoder();
+        if (decoder != null) {
+            decoder.cleanFiles();
+        }
         requestProcessed = false;
     }
 

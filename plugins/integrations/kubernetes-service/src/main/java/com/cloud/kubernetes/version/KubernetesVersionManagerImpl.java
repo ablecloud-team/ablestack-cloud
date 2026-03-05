@@ -381,7 +381,7 @@ public class KubernetesVersionManagerImpl extends ManagerBase implements Kuberne
             }
         }
     }
-    
+
     private void validateImageStoreForZone(Long zoneId, boolean directDownload) {
         if (directDownload) {
             return;

@@ -319,7 +319,7 @@ public class ScaleIOPrimaryDataStoreLifeCycle extends BasePrimaryDataStoreLifeCy
             }
         }
 
-        storagePoolAutomation.maintain(store, details);
+        storagePoolAutomation.maintain(store);
         dataStoreHelper.maintain(store);
         return true;
     }
@@ -345,7 +345,7 @@ public class ScaleIOPrimaryDataStoreLifeCycle extends BasePrimaryDataStoreLifeCy
         }
 
         dataStoreHelper.cancelMaintain(store);
-        storagePoolAutomation.cancelMaintain(store, details);
+        storagePoolAutomation.cancelMaintain(store);
         return true;
     }
 

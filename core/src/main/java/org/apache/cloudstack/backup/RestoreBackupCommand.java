@@ -94,6 +94,14 @@ public class RestoreBackupCommand extends Command  {
         this.restoreVolumePaths = restoreVolumePaths;
     }
 
+    public List<String> getVolumePaths() {
+        return volumePaths;
+    }
+
+    public void setVolumePaths(List<String> volumePaths) {
+        this.volumePaths = volumePaths;
+    }
+
     public List<String> getBackupFiles() {
         return backupFiles;
     }

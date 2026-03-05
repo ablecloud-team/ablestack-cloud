@@ -10957,4 +10957,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             return volume;
         });
     }
+
+    public static ConfigKey<Boolean> getEnableAdditionalVmConfig() {
+        return EnableAdditionalVmConfig;
+    }
 }

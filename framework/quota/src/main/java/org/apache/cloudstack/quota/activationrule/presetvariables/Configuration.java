@@ -18,6 +18,7 @@
 package org.apache.cloudstack.quota.activationrule.presetvariables;
 
 import org.apache.cloudstack.quota.constant.QuotaTypes;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 public class Configuration extends GenericPresetVariable{
 
@@ -30,6 +31,6 @@ public class Configuration extends GenericPresetVariable{
 
     public void setForceHa(boolean forceHa) {
         this.forceHa = forceHa;
-        fieldNamesToIncludeInToString.add("forceHa");
+        ReflectionToStringBuilder.toString("forceHa");
     }
 }

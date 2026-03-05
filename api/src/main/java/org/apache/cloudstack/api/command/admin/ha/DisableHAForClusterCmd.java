@@ -95,7 +95,7 @@ public final class DisableHAForClusterCmd extends BaseAsyncCmd {
         if (cluster == null) {
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "Unable to find cluster by ID: " + getClusterId());
         }
-        final boolean result = haConfigManager.disableHA(cluster);
+        final boolean result = haConfigManager.disableHA(cluster, includeHost());
         CallContext.current().setEventDetails("Cluster ID:" + cluster.getUuid() + " HA enabled: false");
         CallContext.current().putContextParameter(Cluster.class, cluster.getUuid());
 

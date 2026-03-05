@@ -431,9 +431,9 @@ public class VMSnapshotManagerTest {
         _vmSnapshotMgr.revertCustomServiceOfferingDetailsFromVmSnapshot(vmMock, vmSnapshotVO);
 
         verify(_vmSnapshotDetailsDao).listDetails(VM_SNAPSHOT_ID);
-        verify(_userVmDetailsDao, never()).saveDetails(any());
+        verify(_vmInstanceDetailsDao, never()).saveDetails(any());
         ArgumentCaptor<String> detailNameCaptor = ArgumentCaptor.forClass(String.class);
-        verify(_userVmDetailsDao, times(2)).addDetail(eq(TEST_VM_ID), detailNameCaptor.capture(), anyString(), anyBoolean());
+        verify(_vmInstanceDetailsDao, times(2)).addDetail(eq(TEST_VM_ID), detailNameCaptor.capture(), anyString(), anyBoolean());
         List<String> appliedNames = detailNameCaptor.getAllValues();
         assertTrue(appliedNames.contains(VmDetailConstants.CPU_NUMBER));
         assertTrue(appliedNames.contains(VmDetailConstants.MEMORY));
