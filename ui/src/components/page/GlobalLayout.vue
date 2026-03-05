@@ -233,6 +233,7 @@ export default {
   },
   mounted () {
     try {
+      /*
       const bootH = Number(localStorage.getItem('autoAlertBanner.lastHeight') || 0)
       if (!Number.isNaN(bootH) && bootH >= 0) {
         this.autoBannerHeight = bootH
@@ -241,6 +242,10 @@ export default {
         this.updateAffixTopVars() // ← 이 한 줄을 debouncedRecalc() 이전에 호출
         this.debouncedRecalc && this.debouncedRecalc()
       }
+      */
+      this.autoBannerHeight = 0
+      document.documentElement.style.setProperty('--autoBannerHeight', '0px')
+      this.updateAffixTopVars()
     } catch (_) {}
     window.addEventListener('auto-alert-banner:height', this.onAutoBannerHeight)
     window.addEventListener('resize', this.onResize)
@@ -395,6 +400,25 @@ export default {
   width: 100%;
   transition: height 0.18s ease;
   will-change: height;
+}
+
+banner-spacer::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* 배너가 들어올 자리(높이)만큼 완벽하게 덮어줍니다 */
+  height: var(--affixTopHeader, 0px);
+  /* 시스템 배경색으로 칠해서 스크롤되는 본문을 가려줍니다 */
+  background-color: var(--layout-bg, #f0f2f5);
+  z-index: 1490; /* 헤더(1500) 바로 밑, 본문보다는 위에 배치 */
+  pointer-events: none; /* 클릭 방해 금지 */
+}
+
+/* 다크모드가 켜졌을 때 가림막 색상 보정 */
+body.dark-mode .banner-spacer::before {
+  background-color: #141414;
 }
 
 /* 고정 헤더 사용 시 컨텐츠 상단 여백 */
