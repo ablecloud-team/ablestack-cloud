@@ -88,7 +88,7 @@ export default {
   },
   computed: {
     canSetNameAndDescription () {
-      return ['nas', 'dummy'].includes(this.provider)
+      return ['nas', 'dummy', 'commvault'].includes(this.provider)
     }
   },
   methods: {
