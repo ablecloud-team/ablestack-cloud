@@ -159,6 +159,15 @@ export default {
           }
         },
         {
+          api: 'updateBackupRepository',
+          icon: 'edit-outlined',
+          label: 'label.backup.repository.edit',
+          message: 'message.action.edit.backup.repository',
+          args: ['name', 'address', 'mountopts'],
+          dataView: true,
+          popup: true
+        },
+        {
           api: 'deleteBackupRepository',
           icon: 'delete-outlined',
           label: 'label.backup.repository.remove',
