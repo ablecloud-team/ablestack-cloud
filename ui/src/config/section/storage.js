@@ -445,8 +445,12 @@ export default {
       title: 'label.backup',
       icon: 'cloud-upload-outlined',
       permission: ['listBackups'],
-      columns: [{ name: (record) => { return record.virtualmachinename } }, 'status', 'size', 'virtualsize', 'virtualmachinename', 'backupofferingname', 'intervaltype', 'type', 'created', 'account', 'domain', 'zone'],
+      columns: ['name', 'status', 'size', 'virtualsize', 'virtualmachinename', 'backupofferingname', 'intervaltype', 'type', 'created', 'account', 'domain', 'zone'],
       details: ['name', 'description', 'virtualmachinename', 'id', 'intervaltype', 'type', 'externalid', 'size', 'virtualsize', 'volumes', 'backupofferingname', 'zone', 'account', 'domain', 'created'],
+      searchFilters: () => {
+        var filters = ['name', 'zoneid', 'domainid', 'account', 'backupofferingid']
+        return filters
+      },
       actions: [
         {
           api: 'restoreBackup',
