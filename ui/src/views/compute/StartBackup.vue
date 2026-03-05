@@ -40,7 +40,7 @@
             <a-input v-model:value="form.description"/>
           </a-form-item>
         </div>
-        <a-form-item v-if="provider === 'nas'" name="quiescevm" ref="quiescevm">
+        <a-form-item v-if="provider === 'nas' || provider === 'commvault'" name="quiescevm" ref="quiescevm">
           <a-switch v-model:checked="form.quiescevm" />
           <template #label>
             <tooltip-label :title="$t('label.quiescevm')" :tooltip="apiParams.quiescevm.description"/>
