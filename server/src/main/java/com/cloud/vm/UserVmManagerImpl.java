@@ -443,6 +443,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
     private static final String VM_IMPORT_DEFAULT_TEMPLATE_NAME = "system-default-vm-import-dummy-template.iso";
     private static final String KVM_VM_IMPORT_DEFAULT_TEMPLATE_NAME = "kvm-default-vm-import-dummy-template";
+    private static final String KVM_STORAGE_SNAPSHOT_DETAIL = "kvmStorageSnapshot";
+    private static final String KVM_FILE_BASED_STORAGE_SNAPSHOT_DETAIL = "kvmFileBasedStorageSnapshot";
 
     @Inject
     private EntityManager _entityMgr;
@@ -10731,7 +10733,10 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to create vm snapshot: " + e.getMessage(), e);
         }
 
-        List<VMSnapshotDetailsVO> listSnapshots = vmSnapshotDetailsDao.findDetails(vmSnapshot.getId(), "kvmFileBasedStorageSnapshot");
+        List<VMSnapshotDetailsVO> listSnapshots = getVmSnapshotVolumeDetails(vmSnapshot.getId());
+        if (CollectionUtils.isEmpty(listSnapshots)) {
+            throw new CloudRuntimeException("Could not find volume snapshots mapped to VM snapshot");
+        }
 
         Integer countOfCloneVM = cmd.getCount();
         for (int cnt = 1; cnt <= countOfCloneVM; cnt++) {
@@ -10848,6 +10853,24 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             }
         }
         return null;
+    }
+
+    private List<VMSnapshotDetailsVO> getVmSnapshotVolumeDetails(Long vmSnapshotId) {
+        List<VMSnapshotDetailsVO> details = new ArrayList<>();
+        Set<String> uniqueSnapshotIds = new LinkedHashSet<>();
+        for (String detailName : List.of(KVM_STORAGE_SNAPSHOT_DETAIL, KVM_FILE_BASED_STORAGE_SNAPSHOT_DETAIL)) {
+            List<VMSnapshotDetailsVO> found = vmSnapshotDetailsDao.findDetails(vmSnapshotId, detailName);
+            if (CollectionUtils.isEmpty(found)) {
+                continue;
+            }
+            for (VMSnapshotDetailsVO detail : found) {
+                if (detail == null || !uniqueSnapshotIds.add(detail.getValue())) {
+                    continue;
+                }
+                details.add(detail);
+            }
+        }
+        return details;
     }
 
     public UserVm createCloneVM(CloneVMCmd cmd, Long rootVolumeId) throws ConcurrentOperationException, ResourceAllocationException, InsufficientCapacityException, ResourceUnavailableException {

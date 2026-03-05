@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -187,6 +188,9 @@ import com.cloud.vm.snapshot.dao.VMSnapshotDetailsDao;
 
 @Component
 public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implements SnapshotManager, SnapshotApiService, Configurable {
+
+    private static final String KVM_STORAGE_SNAPSHOT_DETAIL = "kvmStorageSnapshot";
+    private static final String KVM_FILE_BASED_STORAGE_SNAPSHOT_DETAIL = "kvmFileBasedStorageSnapshot";
     @Inject
     VMTemplateDao _templateDao;
     @Inject
@@ -712,8 +716,8 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
     private void updateSnapshotInfo(Long volumeId, Long vmSnapshotId, VMSnapshotVO vmSnapshot, SnapshotVO snapshot,
             SnapshotDataStoreVO snapshotOnPrimaryStore, StoragePoolVO storagePool) {
-        if ((storagePool.getPoolType() == StoragePoolType.NetworkFilesystem || storagePool.getPoolType() == StoragePoolType.Filesystem) && vmSnapshot.getType() == VMSnapshot.Type.Disk) {
-            List<VMSnapshotDetailsVO> vmSnapshotDetails = vmSnapshotDetailsDao.findDetails(vmSnapshotId, "kvmStorageSnapshot");
+        if (isFileBasedKvmPrimaryPool(storagePool.getPoolType()) && vmSnapshot.getType() == VMSnapshot.Type.Disk) {
+            List<VMSnapshotDetailsVO> vmSnapshotDetails = getVmSnapshotVolumeDetails(vmSnapshotId);
             for (VMSnapshotDetailsVO vmSnapshotDetailsVO : vmSnapshotDetails) {
                 SnapshotInfo sInfo = snapshotDataFactory.getSnapshot(Long.parseLong(vmSnapshotDetailsVO.getValue()), storagePool.getId(), DataStoreRole.Primary);
                 if (sInfo.getVolumeId() == volumeId) {
@@ -729,6 +733,30 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             snapshotOnPrimaryStore.setInstallPath(vmSnapshot.getName());
             _snapshotStoreDao.update(snapshotOnPrimaryStore.getId(), snapshotOnPrimaryStore);
         }
+    }
+
+    private boolean isFileBasedKvmPrimaryPool(StoragePoolType poolType) {
+        return poolType == StoragePoolType.NetworkFilesystem
+                || poolType == StoragePoolType.Filesystem
+                || poolType == StoragePoolType.SharedMountPoint;
+    }
+
+    private List<VMSnapshotDetailsVO> getVmSnapshotVolumeDetails(Long vmSnapshotId) {
+        List<VMSnapshotDetailsVO> details = new ArrayList<>();
+        Set<String> uniqueSnapshotIds = new LinkedHashSet<>();
+        for (String detailName : List.of(KVM_STORAGE_SNAPSHOT_DETAIL, KVM_FILE_BASED_STORAGE_SNAPSHOT_DETAIL)) {
+            List<VMSnapshotDetailsVO> found = vmSnapshotDetailsDao.findDetails(vmSnapshotId, detailName);
+            if (CollectionUtils.isEmpty(found)) {
+                continue;
+            }
+            for (VMSnapshotDetailsVO detail : found) {
+                if (detail == null || !uniqueSnapshotIds.add(detail.getValue())) {
+                    continue;
+                }
+                details.add(detail);
+            }
+        }
+        return details;
     }
 
     @Override

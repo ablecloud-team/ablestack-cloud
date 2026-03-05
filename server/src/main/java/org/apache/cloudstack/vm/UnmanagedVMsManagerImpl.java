@@ -210,7 +210,7 @@ public class UnmanagedVMsManagerImpl implements UnmanagedVMsManager {
 
     private static final List<Storage.StoragePoolType> forceConvertToPoolAllowedTypes =
             Arrays.asList(Storage.StoragePoolType.NetworkFilesystem, Storage.StoragePoolType.Filesystem,
-                    Storage.StoragePoolType.SharedMountPoint);
+                    Storage.StoragePoolType.SharedMountPoint, Storage.StoragePoolType.RBD);
 
     ConfigKey<Boolean> ConvertVmwareInstanceToKvmExtraParamsAllowed = new ConfigKey<>(Boolean.class,
             "convert.vmware.instance.to.kvm.extra.params.allowed",
