@@ -449,16 +449,6 @@ public abstract class ServerResourceBase implements ServerResource {
             OutputInterpreter.AllLinesParser parserLL = new OutputInterpreter.AllLinesParser();
             String resultLL = cmdLL.execute(parserLL);
 
-            if (logger.isDebugEnabled()) {
-                if (resultLL != null) {
-                    logger.debug("multipath -ll command failed: " + resultLL);
-                } else if (parserLL.getLines() != null) {
-                    logger.debug("multipath -ll output: " + parserLL.getLines());
-                } else {
-                    logger.debug("multipath -ll output is null");
-                }
-            }
-
             if (resultLL == null && parserLL.getLines() != null && !parserLL.getLines().trim().isEmpty()) {
                 String[] lines = parserLL.getLines().split("\n");
                 for (String line : lines) {
@@ -497,14 +487,7 @@ public abstract class ServerResourceBase implements ServerResource {
                         }
                         addedMpathGroups.add(groupKey);
                         multipathDevicesAdded.incrementAndGet();
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Added multipath group (one entry): " + chosenPath + ", WWID=" + wwid);
-                        }
                     }
-                }
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("multipath -ll output is empty or failed");
                 }
             }
 
@@ -518,16 +501,6 @@ public abstract class ServerResourceBase implements ServerResource {
             cmd.add("-l");
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = cmd.execute(parser);
-
-            if (logger.isDebugEnabled()) {
-                if (result != null) {
-                    logger.debug("multipath -l command failed: " + result);
-                } else if (parser.getLines() != null) {
-                    logger.debug("multipath -l output: " + parser.getLines());
-                } else {
-                    logger.debug("multipath -l output is null");
-                }
-            }
 
             if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
                 String[] lines = parser.getLines().split("\n");
@@ -651,11 +624,6 @@ public abstract class ServerResourceBase implements ServerResource {
         } catch (Exception e) {
             logger.warn("Error collecting multipath devices", e);
         }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Total multipath devices added: " + multipathDevicesAdded.get());
-            logger.debug("Final device names count: " + names.size());
-        }
     }
 
     private boolean isMultipathDevice(String devicePath) {
@@ -773,20 +741,12 @@ public abstract class ServerResourceBase implements ServerResource {
                 texts.add(deviceInfo.toString());
                 hasPartitionsList.add(hasPartition);
                 scsiAddresses.add(scsiAddress != null ? scsiAddress : "");
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Added multipath device with by-id: " + displayName);
-                }
             } else {
                 // by-id 경로가 없어도 기본 경로로 추가
                 names.add(devicePath);
                 texts.add(deviceInfo.toString());
                 hasPartitionsList.add(hasPartition);
                 scsiAddresses.add(scsiAddress != null ? scsiAddress : "");
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Added multipath device: " + devicePath);
-                }
             }
         } catch (Exception e) {
             logger.warn("Error adding multipath device to list: " + devicePath, e);
@@ -3967,8 +3927,6 @@ public abstract class ServerResourceBase implements ServerResource {
                     }
                 }
             }
-
-            logger.debug("Built device mapping with " + deviceMappings.size() + " entries");
 
         } catch (Exception e) {
             logger.error("Error building device mapping: " + e.getMessage(), e);
