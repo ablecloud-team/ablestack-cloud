@@ -16,6 +16,7 @@
 // under the License.
 package com.cloud.user;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 
 import java.net.InetAddress;
@@ -54,7 +55,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
@@ -1450,7 +1450,7 @@ public class AccountManagerImplTest extends AccountManagentImplTestBase {
         UserAccountVO userAccountVO = new UserAccountVO();
         userAccountVO.setId(1L);
         Mockito.when(userDetailsDaoMock.findDetail(1L, UserDetailVO.Setup2FADetail)).thenReturn(userDetail);
-        Mockito.when(userAccountDao.findById(any())).thenReturn(userAccountVO);
+        Mockito.when(userAccountDao.findById(1L)).thenReturn(userAccountVO);
         UserAccount result = accountManagerImpl.clearUserTwoFactorAuthenticationInSetupStateOnLogin(user);
         Assert.assertNotNull(result);
         Assert.assertFalse(result.isUser2faEnabled());

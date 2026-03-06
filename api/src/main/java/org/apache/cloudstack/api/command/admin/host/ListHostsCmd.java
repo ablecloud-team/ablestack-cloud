@@ -221,7 +221,7 @@ public class ListHostsCmd extends BaseListCmd {
     public ListHostsCmd(String storageAccessGroup) {
         this.storageAccessGroup = storageAccessGroup;
     }
-    
+
     public String getVersion() {
         return version;
     }

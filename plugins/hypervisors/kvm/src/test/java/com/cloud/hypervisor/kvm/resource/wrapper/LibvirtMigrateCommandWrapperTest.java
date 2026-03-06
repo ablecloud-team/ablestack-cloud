@@ -63,15 +63,12 @@ import com.cloud.agent.api.MigrateCommand.MigrateDiskInfo;
 import com.cloud.agent.api.MigrateCommand.MigrateDiskInfo.DiskType;
 import com.cloud.agent.api.MigrateCommand.MigrateDiskInfo.DriverType;
 import com.cloud.agent.api.MigrateCommand.MigrateDiskInfo.Source;
-import com.cloud.agent.api.VgpuTypesInfo;
 import com.cloud.agent.api.to.DpdkTO;
-import com.cloud.agent.api.to.GPUDeviceTO;
 import com.cloud.agent.api.to.VirtualMachineTO;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.hypervisor.kvm.resource.LibvirtConnection;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.DiskDef;
 import com.cloud.utils.exception.CloudRuntimeException;
-import org.apache.cloudstack.gpu.GpuDevice;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LibvirtMigrateCommandWrapperTest {

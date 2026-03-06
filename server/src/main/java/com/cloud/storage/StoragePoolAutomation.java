@@ -18,16 +18,16 @@
  */
 package com.cloud.storage;
 
-import java.util.Map;
+// import java.util.Map;
 
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStore;
 
 public interface StoragePoolAutomation {
     boolean maintain(DataStore store);
 
-    boolean maintain(DataStore store, Map<String,String> details);
+    // boolean maintain(DataStore store, Map<String,String> details);
 
     boolean cancelMaintain(DataStore store);
 
-    boolean cancelMaintain(DataStore store, Map<String,String> details);
+    // boolean cancelMaintain(DataStore store, Map<String,String> details);
 }

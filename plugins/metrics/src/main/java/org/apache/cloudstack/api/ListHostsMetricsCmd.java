@@ -34,6 +34,10 @@ import java.util.List;
         since = "4.9.3", authorized = {RoleType.Admin})
 public class ListHostsMetricsCmd extends ListHostsCmd {
 
+    public ListHostsMetricsCmd() {
+        super(null);
+    }
+
     @Inject
     private MetricsService metricsService;
 

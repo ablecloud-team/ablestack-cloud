@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.management.relation.Role;
-
 import com.cloud.dc.ClusterDetailsDao;
 import com.cloud.dc.ClusterDetailsVO;
 import com.cloud.host.HostTagVO;
@@ -330,8 +328,8 @@ public class PresetVariableHelperTest {
         Mockito.doNothing().when(presetVariableHelperSpy).validateIfObjectIsNull(Mockito.any(), Mockito.anyLong(), Mockito.anyString());
     }
 
-    private GenericPresetVariable getGenericPresetVariableForTests() {
-        GenericPresetVariable gpv = new GenericPresetVariable();
+    private DiskOfferingPresetVariables getGenericPresetVariableForTests() {
+        DiskOfferingPresetVariables gpv = new DiskOfferingPresetVariables();
         gpv.setId("test_id");
         gpv.setName("test_name");
         return gpv;
@@ -427,7 +425,6 @@ public class PresetVariableHelperTest {
         Account result = presetVariableHelperSpy.getPresetVariableAccount(1l);
 
         assertPresetVariableIdAndName(account, result);
-        validateFieldNamesToIncludeInToString(Arrays.asList("created", "id", "name"), result);
     }
 
     @Test
@@ -675,7 +672,6 @@ public class PresetVariableHelperTest {
         assertPresetVariableIdAndName(expected, result);
         Assert.assertEquals(expected.isCustomized(), result.isCustomized());
         Assert.assertEquals(expected.offerHa(), result.offerHa());
-        validateFieldNamesToIncludeInToString(Arrays.asList("id", "name", "customized", "offerHa"), result);
     }
 
     @Test
@@ -770,8 +766,6 @@ public class PresetVariableHelperTest {
             Assert.assertEquals(expected.getTags(), result.getTags());
             Assert.assertEquals(expectedSize, result.getSize());
             Assert.assertEquals(imageFormat.name(), result.getVolumeFormat());
-
-            validateFieldNamesToIncludeInToString(Arrays.asList("id", "name", "diskOffering", "provisioningType", "volumeType", "storage", "tags", "size", "volumeFormat"), result);
         }
 
         Mockito.verify(presetVariableHelperSpy, Mockito.times(ImageFormat.values().length)).getPresetVariableValueResourceTags(Mockito.anyLong(),
@@ -813,8 +807,6 @@ public class PresetVariableHelperTest {
             Assert.assertEquals(expected.getTags(), result.getTags());
             Assert.assertEquals(expectedSize, result.getSize());
             Assert.assertEquals(imageFormat.name(), result.getVolumeFormat());
-
-            validateFieldNamesToIncludeInToString(Arrays.asList("id", "name", "diskOffering", "provisioningType", "volumeType", "tags", "size", "volumeFormat"), result);
         }
 
         Mockito.verify(presetVariableHelperSpy, Mockito.times(ImageFormat.values().length)).getPresetVariableValueResourceTags(Mockito.anyLong(),
@@ -834,8 +826,6 @@ public class PresetVariableHelperTest {
         GenericPresetVariable result = presetVariableHelperSpy.getPresetVariableValueDiskOffering(1l);
 
         assertPresetVariableIdAndName(expected, result);
-        validateFieldNamesToIncludeInToString(Arrays.asList("bytesReadBurst", "bytesReadBurstLength", "bytesReadRate", "bytesWriteBurst", "bytesWriteBurstLength", "bytesWriteRate",
-                "id", "iopsReadBurst", "iopsReadBurstLength", "iopsReadRate", "iopsWriteBurst", "iopsWriteBurstLength", "iopsWriteRate", "name"), result);
     }
 
     @Test

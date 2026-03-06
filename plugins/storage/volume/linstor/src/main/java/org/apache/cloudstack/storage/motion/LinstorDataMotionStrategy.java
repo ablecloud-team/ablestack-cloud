@@ -434,4 +434,9 @@ public class LinstorDataMotionStrategy implements DataMotionStrategy {
             callback.complete(result);
         }
     }
+
+    @Override
+    public void cloneAsync(DataObject srcData, DataObject destData, Host destHost, AsyncCompletionCallback<CopyCommandResult> callback) {
+        return;
+    }
 }

@@ -122,6 +122,7 @@ import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.VirtualMachineManager;
 import com.cloud.vm.VirtualMachineProfile;
+import com.cloud.vm.VmDetailConstants;
 import com.cloud.vm.VmWork;
 import com.cloud.vm.VmWorkConstants;
 import com.cloud.vm.VmWorkJobHandler;
@@ -504,16 +505,10 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
      * @param vmSnapshotId vm snapshot id
      */
     protected void addSupportForCustomServiceOffering(long vmId, long serviceOfferingId, long vmSnapshotId) {
-        ServiceOfferingVO serviceOfferingVO = _serviceOfferingDao.findById(serviceOfferingId);
-        if (serviceOfferingVO.isDynamic()) {
-            List<UserVmDetailVO> vmDetails = _userVmDetailsDao.listDetails(vmId);
-            List<VMSnapshotDetailsVO> vmSnapshotDetails = new ArrayList<VMSnapshotDetailsVO>();
-            for (UserVmDetailVO detail : vmDetails) {
-                if (VM_SNAPSHOT_CUSTOM_SERVICE_OFFERING_DETAILS.contains(detail.getName().toLowerCase())) {
-                    vmSnapshotDetails.add(new VMSnapshotDetailsVO(vmSnapshotId, detail.getName(), detail.getValue(), detail.isDisplay()));
-                }
-            }
-            _vmSnapshotDetailsDao.saveDetails(vmSnapshotDetails);
+        List<VMInstanceDetailVO> vmDetails = _vmInstanceDetailsDao.listDetails(vmId);
+        List<VMSnapshotDetailsVO> vmSnapshotDetails = new ArrayList<VMSnapshotDetailsVO>();
+        for (VMInstanceDetailVO detail : vmDetails) {
+            vmSnapshotDetails.add(new VMSnapshotDetailsVO(vmSnapshotId, detail.getName(), detail.getValue(), detail.isDisplay()));
         }
 
         _vmSnapshotDetailsDao.saveDetails(vmSnapshotDetails);
@@ -995,7 +990,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
             List<VMInstanceDetailVO> userVmDetails = new ArrayList<VMInstanceDetailVO>();
             for (VMSnapshotDetailsVO detail : vmSnapshotDetails) {
                 if (VM_SNAPSHOT_CUSTOM_SERVICE_OFFERING_DETAILS.contains(detail.getName().toLowerCase())) {
-                    _userVmDetailsDao.addDetail(userVm.getId(), detail.getName(), detail.getValue(), detail.isDisplay());
+                    _vmInstanceDetailsDao.addDetail(userVm.getId(), detail.getName(), detail.getValue(), detail.isDisplay());
                 }
             }
             _vmInstanceDetailsDao.saveDetails(userVmDetails);
