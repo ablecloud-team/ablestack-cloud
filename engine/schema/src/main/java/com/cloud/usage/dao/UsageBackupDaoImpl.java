@@ -42,10 +42,11 @@ public class UsageBackupDaoImpl extends GenericDaoBase<UsageBackupVO, Long> impl
             " OR ((created <= ?) AND (removed >= ?)))";
 
     @Override
-    public void updateMetrics(final Long vmId, final Long size, final Long virtualSize) {
+    public void updateMetrics(final Long vmId, Long backupOfferingId, final Long size, final Long virtualSize) {
         try (TransactionLegacy txn = TransactionLegacy.open(TransactionLegacy.USAGE_DB)) {
             SearchCriteria<UsageBackupVO> sc = this.createSearchCriteria();
             sc.addAnd("vmId", SearchCriteria.Op.EQ, vmId);
+            sc.addAnd("backupOfferingId", SearchCriteria.Op.EQ, backupOfferingId);
             UsageBackupVO vo = findOneBy(sc);
             if (vo != null) {
                 vo.setSize(size);
@@ -58,7 +59,7 @@ public class UsageBackupDaoImpl extends GenericDaoBase<UsageBackupVO, Long> impl
     }
 
     @Override
-    public void removeUsage(Long accountId, Long vmId, Date eventDate) {
+    public void removeUsage(Long accountId, Long vmId, Long backupOfferingId, Date eventDate) {
         TransactionLegacy txn = TransactionLegacy.open(TransactionLegacy.USAGE_DB);
         try {
             txn.start();
@@ -67,6 +68,7 @@ public class UsageBackupDaoImpl extends GenericDaoBase<UsageBackupVO, Long> impl
                     pstmt.setString(1, DateUtil.getDateDisplayString(TimeZone.getTimeZone("GMT"), eventDate));
                     pstmt.setLong(2, accountId);
                     pstmt.setLong(3, vmId);
+                    pstmt.setLong(3, backupOfferingId);
                     pstmt.executeUpdate();
                 }
             } catch (SQLException e) {

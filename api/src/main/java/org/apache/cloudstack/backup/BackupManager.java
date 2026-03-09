@@ -19,19 +19,24 @@ package org.apache.cloudstack.backup;
 
 import java.util.List;
 
+import com.cloud.capacity.Capacity;
 import com.cloud.exception.ResourceAllocationException;
 import org.apache.cloudstack.api.command.admin.backup.ImportBackupOfferingCmd;
 import org.apache.cloudstack.api.command.admin.backup.UpdateBackupOfferingCmd;
+import org.apache.cloudstack.api.command.user.backup.CreateBackupCmd;
 import org.apache.cloudstack.api.command.user.backup.CreateBackupScheduleCmd;
 import org.apache.cloudstack.api.command.user.backup.DeleteBackupScheduleCmd;
 import org.apache.cloudstack.api.command.user.backup.ListBackupOfferingsCmd;
 import org.apache.cloudstack.api.command.user.backup.ListBackupsCmd;
+import org.apache.cloudstack.api.response.BackupResponse;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
 
+import com.cloud.storage.Volume;
 import com.cloud.utils.Pair;
 import com.cloud.utils.component.Manager;
 import com.cloud.utils.component.PluggableService;
+import com.cloud.vm.VirtualMachine;
 
 /**
  * Backup and Recover Manager Interface
@@ -46,7 +51,7 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
     ConfigKey<String> BackupProviderPlugin = new ConfigKey<>("Advanced", String.class,
             "backup.framework.provider.plugin",
             "dummy",
-            "The backup and recovery provider plugin (comma-separated). Example: dummy,nas,commvault", true, ConfigKey.Scope.Zone, BackupFrameworkEnabled.key());
+            "The backup and recovery provider plugin (comma-separated). Example: dummy, veeam, networker, nas and commvault", true, ConfigKey.Scope.Zone, BackupFrameworkEnabled.key());
 
     ConfigKey<Long> BackupSyncPollingInterval = new ConfigKey<>("Advanced", Long.class,
             "backup.framework.sync.interval",
@@ -106,6 +111,14 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
             ConfigKey.Scope.Global,
             null);
 
+    ConfigKey<Float> BackupStorageCapacityThreshold = new ConfigKey<>("Alert", Float.class,
+            "zone.backupStorage.capacity.notificationthreshold",
+            "0.75",
+            "Percentage (as a value between 0 and 1) of backup storage utilization above which alerts will be sent about low storage available.",
+            true,
+            ConfigKey.Scope.Zone,
+            null);
+
     /**
      * List backup provider offerings
      * @param zoneId zone id
@@ -160,7 +173,7 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
      */
     List<BackupSchedule> listBackupSchedule(Long vmId);
 
-     /**
+    /**
      * Deletes VM backup schedule for a VM
      * @param cmd
      * @return
@@ -169,11 +182,11 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
 
     /**
      * Creates backup of a VM
-     * @param vmId Virtual Machine ID
+     * @param cmd CreateBackupCmd
      * @param job The async job associated with the backup retention
      * @return returns operation success
      */
-    boolean createBackup(final Long vmId, Object job) throws ResourceAllocationException;
+    boolean createBackup(CreateBackupCmd cmd, Object job) throws ResourceAllocationException;
 
     /**
      * List existing backups for a VM
@@ -198,5 +211,17 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
      */
     boolean deleteBackup(final Long backupId, final Boolean forced);
 
+    void validateBackupForZone(Long zoneId);
+
     BackupOffering updateBackupOffering(UpdateBackupOfferingCmd updateBackupOfferingCmd);
+
+    String createVolumeInfoFromVolumes(List<Volume> vmVolumes);
+
+    String getBackupNameFromVM(VirtualMachine vm);
+
+    BackupResponse createBackupResponse(Backup backup);
+
+    Capacity getBackupStorageUsedStats(Long zoneId);
+
+    void checkAndRemoveBackupOfferingBeforeExpunge(VirtualMachine vm);
 }

@@ -19,6 +19,7 @@ package org.apache.cloudstack.api.command.user.backup;
 
 import javax.inject.Inject;
 
+import com.cloud.vm.VirtualMachine;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiCommandResourceType;
@@ -41,7 +42,7 @@ import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.utils.exception.CloudRuntimeException;
 
 @APICommand(name = "createBackup",
-        description = "Create VM backup",
+        description = "Create Instance backup",
         responseObject = SuccessResponse.class, since = "4.14.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class CreateBackupCmd extends BaseAsyncCreateCmd {
@@ -57,8 +58,29 @@ public class CreateBackupCmd extends BaseAsyncCreateCmd {
             type = CommandType.UUID,
             entityType = UserVmResponse.class,
             required = true,
-            description = "ID of the VM")
+            description = "ID of the Instance")
     private Long vmId;
+
+    @Parameter(name = ApiConstants.NAME,
+            type = CommandType.STRING,
+            description = "the name of the backup",
+            since = "4.21.0")
+    private String name;
+
+    @Parameter(name = ApiConstants.DESCRIPTION,
+            type = CommandType.STRING,
+            description = "the description for the backup",
+            since = "4.21.0")
+    private String description;
+
+    @Parameter(name = ApiConstants.QUIESCE_VM,
+            type = CommandType.BOOLEAN,
+            required = false,
+            description = "Quiesce the instance before checkpointing the disks for backup. Applicable only to NAS backup provider. " +
+                    "The filesystem is frozen before the backup starts and thawed immediately after. " +
+                    "Requires the instance to have the QEMU Guest Agent installed and running.",
+            since = "4.21.0")
+    private Boolean quiesceVM;
 
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
@@ -68,6 +90,18 @@ public class CreateBackupCmd extends BaseAsyncCreateCmd {
         return vmId;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Boolean getQuiesceVM() {
+        return quiesceVM;
+    }
+
     /////////////////////////////////////////////////////
     /////////////// API Implementation///////////////////
     /////////////////////////////////////////////////////
@@ -75,13 +109,13 @@ public class CreateBackupCmd extends BaseAsyncCreateCmd {
     @Override
     public void execute() throws ResourceUnavailableException, InsufficientCapacityException, ServerApiException, ConcurrentOperationException, ResourceAllocationException, NetworkRuleConflictException {
         try {
-            boolean result = backupManager.createBackup(getVmId(), getJob());
+            boolean result = backupManager.createBackup(this, getJob());
             if (result) {
                 SuccessResponse response = new SuccessResponse(getCommandName());
                 response.setResponseName(getCommandName());
                 setResponseObject(response);
             } else {
-                throw new CloudRuntimeException("Error while creating backup of VM");
+                throw new CloudRuntimeException("Error while creating backup of Instance");
             }
         } catch (Exception e) {
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
@@ -105,7 +139,8 @@ public class CreateBackupCmd extends BaseAsyncCreateCmd {
 
     @Override
     public String getEventDescription() {
-        return "Creating backup for VM " + vmId;
+        String vmUuid = _uuidMgr.getUuid(VirtualMachine.class, getVmId());
+        return "Creating backup for Instance " + vmUuid;
     }
 
     @Override

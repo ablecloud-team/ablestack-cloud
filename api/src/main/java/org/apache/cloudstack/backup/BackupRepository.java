@@ -28,7 +28,10 @@ public interface BackupRepository extends InternalIdentity, Identity {
     String getType();
     String getAddress();
     String getMountOptions();
+    void setMountOptions(String mountOptions);
+    void setUsedBytes(Long usedBytes);
     Long getCapacityBytes();
     Long getUsedBytes();
+    void setCapacityBytes(Long capacityBytes);
     Date getCreated();
 }

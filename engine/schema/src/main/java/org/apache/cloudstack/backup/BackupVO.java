@@ -47,11 +47,17 @@ public class BackupVO implements Backup {
     @Column(name = "id")
     private long id;
 
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "description")
+    private String description;
+
     @Column(name = "uuid")
     private String uuid;
 
     @Column(name = "vm_id")
-    private long vmId;
+    private Long vmId;
 
     @Column(name = "external_id", length = 4096)
     private String externalId;
@@ -118,11 +124,11 @@ public class BackupVO implements Backup {
     }
 
     @Override
-    public long getVmId() {
+    public Long getVmId() {
         return vmId;
     }
 
-    public void setVmId(long vmId) {
+    public void setVmId(Long vmId) {
         this.vmId = vmId;
     }
 
@@ -221,7 +227,22 @@ public class BackupVO implements Backup {
 
     @Override
     public String getName() {
-        return null;
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public List<VolumeInfo> getBackedUpVolumes() {

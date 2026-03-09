@@ -95,8 +95,7 @@ export default {
   },
   data () {
     return {
-      loading: false,
-      provider: ''
+      loading: false
     }
   },
   beforeCreate () {
@@ -104,7 +103,6 @@ export default {
   },
   created () {
     this.initForm()
-    this.fetchData()
   },
   computed: {
     retentionPeriodInDays () {
@@ -147,16 +145,6 @@ export default {
             return Promise.resolve()
           }
         }]
-      })
-    },
-    fetchData () {
-      this.isCommvault()
-    },
-    isCommvault () {
-      api('listConfigurations', { name: 'backup.framework.provider.plugin' }).then(json => {
-        if (json.listconfigurationsresponse.configuration[0]) {
-          this.provider = json.listconfigurationsresponse.configuration[0].value
-        }
       })
     },
     forceUpdateRetentionValue () {
