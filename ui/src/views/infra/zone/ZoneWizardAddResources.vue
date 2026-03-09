@@ -1228,7 +1228,7 @@ export default {
       })
     },
     applyCopyTemplatesOptionFromGlobalSettingDuringSecondaryStorageAddition () {
-      api('listConfigurations', {
+      getAPI('listConfigurations', {
         name: 'copy.templates.from.other.secondary.storages'
       }).then(json => {
         const config = json?.listconfigurationsresponse?.configuration?.[0]

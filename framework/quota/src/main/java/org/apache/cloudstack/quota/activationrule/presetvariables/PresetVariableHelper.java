@@ -538,7 +538,7 @@ public class PresetVariableHelper {
         value.setDiskOffering(getPresetVariableValueDiskOffering(volumeVo.getDiskOfferingId()));
         value.setId(volumeVo.getUuid());
         value.setName(volumeVo.getName());
-        value.setProvisioningType(volumeVo.getProvisioningType());
+        value.setProvisioningType(volumeVo.getProvisioningType().toString());
         value.setVolumeType(volumeVo.getVolumeType());
 
         Long poolId = volumeVo.getPoolId();

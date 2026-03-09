@@ -40,7 +40,6 @@ import com.cloud.agent.api.ConvertSnapshotCommand;
 import org.apache.cloudstack.storage.resource.SecondaryStorageResource;
 import org.apache.commons.lang3.StringUtils;
 
-import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.storage.CreateEntityDownloadURLAnswer;
 import com.cloud.agent.api.storage.CreateEntityDownloadURLCommand;
 import com.cloud.agent.api.storage.DeleteEntityDownloadURLCommand;

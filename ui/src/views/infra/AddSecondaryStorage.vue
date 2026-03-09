@@ -251,7 +251,7 @@ export default {
         return
       }
 
-      api('listConfigurations', {
+      getAPI('listConfigurations', {
         name: 'copy.templates.from.other.secondary.storages',
         zoneid: this.form.zone
       }).then(json => {
@@ -272,7 +272,7 @@ export default {
       this.fetchCopyTemplatesConfig()
     },
     listZones () {
-      api('listZones', { showicon: true }).then(json => {
+      getAPI('listZones', { showicon: true }).then(json => {
         this.zones = json.listzonesresponse.zone || []
 
         if (this.zones.length > 0) {
@@ -282,7 +282,7 @@ export default {
       })
     },
     checkOtherSecondaryStorages () {
-      api('listImageStores', { listall: true }).then(json => {
+      getAPI('listImageStores', { listall: true }).then(json => {
         const stores = json?.listimagestoresresponse?.imagestore || []
 
         this.showCopyTemplatesToggle = stores.length > 0

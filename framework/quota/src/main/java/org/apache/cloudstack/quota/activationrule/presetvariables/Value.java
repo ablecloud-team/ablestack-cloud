@@ -20,11 +20,9 @@ package org.apache.cloudstack.quota.activationrule.presetvariables;
 import java.util.List;
 import java.util.Map;
 
-import com.cloud.storage.Snapshot;
-import com.cloud.storage.Storage.ProvisioningType;
 import com.cloud.storage.Volume;
-import com.cloud.vm.snapshot.VMSnapshot;
 import org.apache.cloudstack.quota.constant.QuotaTypes;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 public class Value extends GenericPresetVariable {
 
@@ -250,7 +248,7 @@ public class Value extends GenericPresetVariable {
 
     public void setVolumeType(Volume.Type volumeType) {
         this.volumeType = volumeType;
-        fieldNamesToIncludeInToString.add("volumeType");
+        ReflectionToStringBuilder.toString("volumeType");
     }
 
     public String getState() {

@@ -1418,13 +1418,13 @@ public class KVMStorageProcessor implements StorageProcessor {
                                                    final String serial, final Long bytesReadRate, final Long bytesReadRateMax, final Long bytesReadRateMaxLength,
                                                    final Long bytesWriteRate, final Long bytesWriteRateMax, final Long bytesWriteRateMaxLength, final Long iopsReadRate,
                                                    final Long iopsReadRateMax, final Long iopsReadRateMaxLength, final Long iopsWriteRate, final Long iopsWriteRateMax,
-                                                   final Long iopsWriteRateMaxLength, final String cacheMode, final DiskDef.LibvirtDiskEncryptDetails encryptDetails, 
-                                                   final String provider, final String krbdpath, boolean shareable, boolean kvdoEnable, Map<String, String> details, 
+                                                   final Long iopsWriteRateMaxLength, final String cacheMode, final DiskDef.LibvirtDiskEncryptDetails encryptDetails,
+                                                   final String provider, final String krbdpath, boolean shareable, boolean kvdoEnable, Map<String, String> details,
                                                    Map<String, String> controllerInfo)
             throws LibvirtException, InternalErrorException {
         attachOrDetachDisk(conn, attach, vmName, attachingDisk, devId, serial, bytesReadRate, bytesReadRateMax, bytesReadRateMaxLength,
                 bytesWriteRate, bytesWriteRateMax, bytesWriteRateMaxLength, iopsReadRate, iopsReadRateMax, iopsReadRateMaxLength, iopsWriteRate,
-                iopsWriteRateMax, iopsWriteRateMaxLength, cacheMode, encryptDetails, provider, krbdpath, 0l, shareable, kvdoEnable, details, controllerInfo);
+                iopsWriteRateMax, iopsWriteRateMaxLength, cacheMode, encryptDetails, provider, krbdpath, shareable, kvdoEnable, details, controllerInfo);
     }
 
     /**
@@ -1462,7 +1462,7 @@ public class KVMStorageProcessor implements StorageProcessor {
                                                    final Long bytesWriteRate, final Long bytesWriteRateMax, final Long bytesWriteRateMaxLength, final Long iopsReadRate,
                                                    final Long iopsReadRateMax, final Long iopsReadRateMaxLength, final Long iopsWriteRate, final Long iopsWriteRateMax,
                                                    final Long iopsWriteRateMaxLength, final String cacheMode, final DiskDef.LibvirtDiskEncryptDetails encryptDetails,
-                                                   final String provider, final String krbdpath, long waitDetachDevice, boolean shareable, boolean kvdoEnable, 
+                                                   final String provider, final String krbdpath, boolean shareable, boolean kvdoEnable,
                                                    long waitDetachDevice, Map<String, String> details, Map<String, String> controllerInfo)
             throws LibvirtException, InternalErrorException {
 
@@ -1710,7 +1710,7 @@ public class KVMStorageProcessor implements StorageProcessor {
                     vol.getIopsWriteRate(), vol.getIopsWriteRateMax(), vol.getIopsWriteRateMaxLength(), volCacheMode, encryptDetails,
                     primaryStore.getProvider(), primaryStore.getKrbdPath(), vol.getShareable(), vol.getKvdoEnable(), disk.getDetails(), cmd.getControllerInfo());
 
-            resource.recreateCheckpointsOnVm(List.of((VolumeObjectTO) disk.getData()), vmName, conn, cmd.getControllerInfo());
+            resource.recreateCheckpointsOnVm(List.of((VolumeObjectTO) disk.getData()), vmName, conn);
 
             return new AttachAnswer(disk);
         } catch (final LibvirtException e) {
@@ -1751,8 +1751,8 @@ public class KVMStorageProcessor implements StorageProcessor {
                     vol.getBytesReadRate(), vol.getBytesReadRateMax(), vol.getBytesReadRateMaxLength(),
                     vol.getBytesWriteRate(), vol.getBytesWriteRateMax(), vol.getBytesWriteRateMaxLength(),
                     vol.getIopsReadRate(), vol.getIopsReadRateMax(), vol.getIopsReadRateMaxLength(),
-                    vol.getIopsWriteRate(), vol.getIopsWriteRateMax(), vol.getIopsWriteRateMaxLength(), volCacheMode, null, 
-                    primaryStore.getProvider(), primaryStore.getKrbdPath(), waitDetachDevice, vol.getShareable(), vol.getKvdoEnable(), waitDetachDevice, null, null);
+                    vol.getIopsWriteRate(), vol.getIopsWriteRateMax(), vol.getIopsWriteRateMaxLength(), volCacheMode, null,
+                    primaryStore.getProvider(), primaryStore.getKrbdPath(), vol.getShareable(), vol.getKvdoEnable(), waitDetachDevice, null, null);
 
             storagePoolMgr.disconnectPhysicalDisk(primaryStore.getPoolType(), primaryStore.getUuid(), vol.getPath());
 
@@ -1927,6 +1927,7 @@ public class KVMStorageProcessor implements StorageProcessor {
             String diskPath = disk.getPath();
             String snapshotPath = diskPath + File.separator + snapshotName;
             Long snapshotSize = null;
+            SnapshotObjectTO newSnapshot = new SnapshotObjectTO();
             if (state == DomainInfo.DomainState.VIR_DOMAIN_RUNNING && !primaryPool.isExternalSnapshot()) {
 
                 validateAvailableSizeOnPoolToTakeVolumeSnapshot(primaryPool, disk);
@@ -1935,9 +1936,13 @@ public class KVMStorageProcessor implements StorageProcessor {
                     snapshotPath = getSnapshotPathInPrimaryStorage(primaryPool.getLocalPath(), snapshotName);
 
                     String diskLabel = takeVolumeSnapshot(resource.getDisks(conn, vmName), snapshotName, diskPath, vm);
-                    String convertResult = convertBaseFileToSnapshotFileInPrimaryStorageDir(primaryPool, disk, snapshotPath, volume, cmd.getWait());
+                    Pair<String, String> fullSnapPathAndDirPath = getFullSnapshotOrCheckpointPathAndDirPathOnCorrectStorage(primaryPool, secondaryPool, snapshotName, volume, false);
 
-                    mergeSnapshotIntoBaseFile(vm, diskLabel, diskPath, snapshotName, volume, conn);
+                    snapshotPath = fullSnapPathAndDirPath.first();
+                    String directoryPath = fullSnapPathAndDirPath.second();
+                    String convertResult = convertBaseFileToSnapshotFileInStorageDir(primaryPool, disk, snapshotPath, directoryPath, volume, cmd.getWait());
+
+                    resource.mergeSnapshotIntoBaseFile(vm, diskLabel, diskPath, null, true, snapshotName, volume, conn);
 
                     validateConvertResult(convertResult, snapshotPath);
                 } catch (LibvirtException e) {
@@ -1997,7 +2002,6 @@ public class KVMStorageProcessor implements StorageProcessor {
                 }
             }
 
-            final SnapshotObjectTO newSnapshot = new SnapshotObjectTO();
             newSnapshot.setPath(snapshotPath);
             if (snapshotSize != null) {
                 newSnapshot.setPhysicalSize(snapshotSize);
@@ -2650,6 +2654,10 @@ public class KVMStorageProcessor implements StorageProcessor {
         String fullSnapPath = String.format("%s%s%s%s%s", secondaryStoragePath, File.separator, snapshotParentDirectories, File.separator, snapshotName);
 
         return new Pair<>(fullSnapPath, snapshotParentDirectories);
+    }
+
+    protected String getSnapshotPathInPrimaryStorage(String primaryStoragePath, String snapshotName) {
+        return String.format("%s%s%s%s%s", primaryStoragePath, File.separator, TemplateConstants.DEFAULT_SNAPSHOT_ROOT_DIR, File.separator, snapshotName);
     }
 
     protected String getSnapshotPathInPrimaryStorageGFS(String primaryStoragePath, String snapshotName) {

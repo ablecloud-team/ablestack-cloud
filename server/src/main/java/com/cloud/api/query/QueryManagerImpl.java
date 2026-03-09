@@ -2498,7 +2498,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             hostSearchBuilder.or("storageAccessGroupMiddle", hostSearchBuilder.entity().getStorageAccessGroups(), Op.LIKE);
             hostSearchBuilder.cp();
         }
-        
+
         hostSearchBuilder.and("version", hostSearchBuilder.entity().getVersion(), SearchCriteria.Op.EQ);
 
         if (keyword != null) {
@@ -2603,7 +2603,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
             sc.setParameters("storageAccessGroupSuffix", "%," + storageAccessGroup);
             sc.setParameters("storageAccessGroupMiddle", "%," + storageAccessGroup + ",%");
         }
-        
+
         if (version != null) {
             sc.setParameters("version", version);
         }

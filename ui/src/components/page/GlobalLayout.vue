@@ -1,14 +1,18 @@
 <template>
   <div>
-    <announcement-banner />
-    <a-affix v-if="this.$store.getters.maintenanceInitiated" >
-      <a-alert :message="$t('message.maintenance.initiated')" type="error" banner :showIcon="false" class="maintenanceHeader" />
-    </a-affix>
-    <a-affix v-else-if="this.$store.getters.shutdownTriggered" >
-      <a-alert :message="$t('message.shutdown.triggered')" type="error" banner :showIcon="false" class="shutdownHeader" />
-    </a-affix>
     <announcement-banner ref="announceRef" />
     <AutoAlertBanner ref="autoRef" />
+
+    <a-affix v-if="isShutdown" :offsetTop="0">
+      <a-alert
+        :message="$t('message.shutdown.triggered')"
+        type="error"
+        banner
+        :showIcon="false"
+        class="shutdownHeader"
+        ref="shutdownRef"
+      />
+    </a-affix>
 
     <div class="banner-spacer" :style="{ height: combinedBannerHeight + 'px' }" aria-hidden="true"></div>
 
@@ -209,6 +213,7 @@ export default {
       if (this.sidebarOpened) return '256px'
       return '80px'
     },
+    isShutdown () { return this.$store.getters.shutdownTriggered },
     headerHeight () { return this.fixedHeader ? HEADER_FIXED_PX : 0 }
   },
   watch: {
@@ -372,9 +377,11 @@ export default {
     },
     checkShutdown () {
       if (!this.$store.getters.features.securityfeaturesenabled) {
-        getAPI('readyForShutdown', { managementserverid: this.$store.getters.msId }).then(json => {
-          this.$store.dispatch('SetShutdownTriggered', json.readyforshutdownresponse.readyforshutdown.shutdowntriggered || false)
-          this.$store.dispatch('SetMaintenanceInitiated', json.readyforshutdownresponse.readyforshutdown.maintenanceinitiated || false)
+        getAPI('readyForShutdown', {}).then(json => {
+          this.$store.dispatch(
+            'SetShutdownTriggered',
+            json.readyforshutdownresponse.readyforshutdown.shutdowntriggered || false
+          )
         })
       }
     }
@@ -416,16 +423,7 @@ export default {
   .ant-drawer-body { padding: 0; }
 }
 
-.maintenanceHeader {
-  font-weight: bold;
-  height: 25px;
-  text-align: center;
-  padding: 0px;
-  margin: 0px;
-  width: 100vw;
-  position: absolute;
-}
-
+/* 셧다운 알림 배너 */
 .shutdownHeader {
   font-weight: bold;
   height: 25px;

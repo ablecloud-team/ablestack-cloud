@@ -97,7 +97,7 @@ public class LoginCmdResponse extends AuthenticationCmdResponse {
     @SerializedName(value = ApiConstants.EXTERNAL_ENTITY)
     @Param(description = "externalEntity")
     private String externalEntity;
-    
+
     @SerializedName(value = ApiConstants.PASSWORD_CHANGE_REQUIRED)
     @Param(description = "Indicates whether the User is required to change password on next login.", since = "4.23.0")
     private Boolean passwordChangeRequired;
@@ -251,7 +251,7 @@ public class LoginCmdResponse extends AuthenticationCmdResponse {
     public void setExternalEntity(String externalEntity) {
         this.externalEntity = externalEntity;
     }
-    
+
     public Boolean getPasswordChangeRequired() {
         return passwordChangeRequired;
     }

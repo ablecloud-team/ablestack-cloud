@@ -210,7 +210,7 @@ public class TemplateManagerImplTest {
 
     @Inject
     SnapshotJoinDao snapshotJoinDao;
-    
+
     @Inject
     TemplateDeployAsIsDetailsDao templateDeployAsIsDetailsDao;
 

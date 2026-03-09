@@ -252,7 +252,7 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
     Capacity getBackupStorageUsedStats(Long zoneId);
 
     void checkAndRemoveBackupOfferingBeforeExpunge(VirtualMachine vm);
-    
+
     static void validateBackupProviderConfig(String value) {
         if (value != null && (value.contains(",") || value.trim().contains(" "))) {
             throw new IllegalArgumentException("Multiple backup provider plugins are not supported. Please provide a single plugin value.");
