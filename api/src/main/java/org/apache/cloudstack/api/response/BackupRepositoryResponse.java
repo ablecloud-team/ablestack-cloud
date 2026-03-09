@@ -58,7 +58,7 @@ public class BackupRepositoryResponse extends BaseResponse {
     private String type;
 
     @SerializedName(ApiConstants.MOUNT_OPTIONS)
-    @Param(description = "mount options for the backup repository")
+    @Param(description = "mount options", since = "4.22.1")
     private String mountOptions;
 
     @SerializedName(ApiConstants.CAPACITY_BYTES)
