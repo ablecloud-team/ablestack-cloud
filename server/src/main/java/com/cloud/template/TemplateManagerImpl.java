@@ -2567,7 +2567,7 @@ public class TemplateManagerImpl extends ManagerBase implements TemplateManager,
         throw new InvalidParameterValueException(String.format("Only %s templates supported for %s hypervisor type",
                 TemplateType.USER, HypervisorType.External));
     }
-    
+
     @Override
     public DataStore verifyHeuristicRulesForZone(VMTemplateVO template, Long zoneId) {
         HeuristicType heuristicType;

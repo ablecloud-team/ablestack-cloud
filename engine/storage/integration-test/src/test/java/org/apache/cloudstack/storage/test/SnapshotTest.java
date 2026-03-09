@@ -59,7 +59,7 @@ import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.apache.cloudstack.storage.datastore.db.TemplateDataStoreDao;
 import org.apache.cloudstack.storage.to.TemplateObjectTO;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.AssertJUnit;
@@ -277,12 +277,12 @@ public class SnapshotTest extends CloudStackTestNGBase {
     protected void injectMockito() {
         List<HostVO> hosts = new ArrayList<HostVO>();
         hosts.add(this.host);
-        Mockito.when(resourceMgr.listAllUpAndEnabledHosts((Type)Matchers.any(), Matchers.anyLong(), Matchers.anyLong(), Matchers.anyLong())).thenReturn(hosts);
+        Mockito.when(resourceMgr.listAllUpAndEnabledHosts((Type)ArgumentMatchers.any(), ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong())).thenReturn(hosts);
         remoteEp = RemoteHostEndPoint.getHypervisorHostEndPoint(this.host);
-        Mockito.when(epSelector.select(Matchers.any(DataObject.class), Matchers.any(DataObject.class))).thenReturn(remoteEp);
-        Mockito.when(epSelector.select(Matchers.any(DataObject.class))).thenReturn(remoteEp);
-        Mockito.when(epSelector.select(Matchers.any(DataStore.class))).thenReturn(remoteEp);
-        Mockito.when(hyGuruMgr.getGuruProcessedCommandTargetHost(Matchers.anyLong(), Matchers.any(Command.class))).thenReturn(this.host.getId());
+        Mockito.when(epSelector.select(ArgumentMatchers.any(DataObject.class), ArgumentMatchers.any(DataObject.class))).thenReturn(remoteEp);
+        Mockito.when(epSelector.select(ArgumentMatchers.any(DataObject.class))).thenReturn(remoteEp);
+        Mockito.when(epSelector.select(ArgumentMatchers.any(DataStore.class))).thenReturn(remoteEp);
+        Mockito.when(hyGuruMgr.getGuruProcessedCommandTargetHost(ArgumentMatchers.anyLong(), ArgumentMatchers.any(Command.class))).thenReturn(this.host.getId());
 
     }
 
@@ -430,8 +430,8 @@ public class SnapshotTest extends CloudStackTestNGBase {
 
         // create another snapshot
         for (SnapshotStrategy strategy : this.snapshotStrategies) {
-            if (strategy.canHandle(snapshot, SnapshotOperation.DELETE) != StrategyPriority.CANT_HANDLE) {
-                strategy.deleteSnapshot(newSnapshot.getId());
+            if (strategy.canHandle(snapshot, null, SnapshotOperation.DELETE) != StrategyPriority.CANT_HANDLE) {
+                strategy.deleteSnapshot(newSnapshot.getId(), null);
             }
         }
 
@@ -453,17 +453,17 @@ public class SnapshotTest extends CloudStackTestNGBase {
         AssertJUnit.assertTrue(result);
         LocalHostEndpoint ep = new LocalHostEndpoint();
         ep.setResource(new MockLocalNfsSecondaryStorageResource());
-        Mockito.when(epSelector.select(Matchers.any(DataObject.class), Matchers.any(DataObject.class))).thenReturn(ep);
+        Mockito.when(epSelector.select(ArgumentMatchers.any(DataObject.class), ArgumentMatchers.any(DataObject.class))).thenReturn(ep);
 
         try {
             VMTemplateVO templateVO = createTemplateInDb();
             TemplateInfo tmpl = this.templateFactory.getTemplate(templateVO.getId(), DataStoreRole.Image);
-            DataStore imageStore = this.dataStoreMgr.getImageStore(this.dcId);
+            DataStore imageStore = this.dataStoreMgr.getImageStoresByZoneIds(this.dcId).get(0);
             AsyncCallFuture<TemplateApiResult> templateFuture = this.imageService.createTemplateFromSnapshotAsync(snapshot, tmpl, imageStore);
             TemplateApiResult apiResult = templateFuture.get();
             Assert.assertTrue(apiResult.isSuccess());
         } finally {
-            Mockito.when(epSelector.select(Matchers.any(DataObject.class), Matchers.any(DataObject.class))).thenReturn(remoteEp);
+            Mockito.when(epSelector.select(ArgumentMatchers.any(DataObject.class), ArgumentMatchers.any(DataObject.class))).thenReturn(remoteEp);
         }
     }
 
@@ -483,17 +483,17 @@ public class SnapshotTest extends CloudStackTestNGBase {
 
         LocalHostEndpoint ep = new MockLocalHostEndPoint();
         ep.setResource(new MockLocalNfsSecondaryStorageResource());
-        Mockito.when(epSelector.select(Matchers.any(DataStore.class))).thenReturn(ep);
+        Mockito.when(epSelector.select(ArgumentMatchers.any(DataStore.class))).thenReturn(ep);
 
         try {
             for (SnapshotStrategy strategy : this.snapshotStrategies) {
-                if (strategy.canHandle(snapshot, SnapshotOperation.DELETE) != StrategyPriority.CANT_HANDLE) {
-                    boolean res = strategy.deleteSnapshot(newSnapshot.getId());
+                if (strategy.canHandle(snapshot, null, SnapshotOperation.DELETE) != StrategyPriority.CANT_HANDLE) {
+                    boolean res = strategy.deleteSnapshot(newSnapshot.getId(), null);
                     Assert.assertTrue(res);
                 }
             }
         } finally {
-            Mockito.when(epSelector.select(Matchers.any(DataStore.class))).thenReturn(remoteEp);
+            Mockito.when(epSelector.select(ArgumentMatchers.any(DataStore.class))).thenReturn(remoteEp);
         }
     }
 

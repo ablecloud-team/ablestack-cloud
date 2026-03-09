@@ -122,7 +122,6 @@ import com.cloud.deploy.DataCenterDeployment;
 import com.cloud.deploy.DeployDestination;
 import com.cloud.deploy.DeploymentPlanner;
 import com.cloud.deploy.DeploymentPlanningManager;
-import com.cloud.domain.Domain;
 import com.cloud.domain.DomainVO;
 import com.cloud.domain.dao.DomainDao;
 import com.cloud.event.ActionEventUtils;
@@ -177,7 +176,6 @@ import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.DiskOfferingDao;
 import com.cloud.storage.dao.GuestOSDao;
 import com.cloud.storage.dao.SnapshotDao;
-import com.cloud.storage.dao.SnapshotPolicyDao;
 import com.cloud.storage.dao.VMTemplateDao;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.template.VirtualMachineTemplate;
@@ -3911,7 +3909,7 @@ public class UserVmManagerImplTest {
         when(templateMock.isDeployAsIs()).thenReturn(false);
         when(templateMock.getFormat()).thenReturn(Storage.ImageFormat.QCOW2);
         when(templateMock.getUserDataId()).thenReturn(null);
-        Mockito.doNothing().when(vnfTemplateManager).validateVnfApplianceNics(any(), nullable(List.class));
+        Mockito.doNothing().when(vnfTemplateManager).validateVnfApplianceNics(any(), nullable(List.class), nullable(Map.class));
         when(_dcMock.isLocalStorageEnabled()).thenReturn(false);
         when(_dcMock.getNetworkType()).thenReturn(DataCenter.NetworkType.Basic);
         Mockito.doReturn(userVmVoMock).when(userVmManagerImpl).createBasicSecurityGroupVirtualMachine(any(), any(), any(), any(), any(), any(), any(),
@@ -3949,7 +3947,7 @@ public class UserVmManagerImplTest {
         when(templateMock.isDeployAsIs()).thenReturn(false);
         when(templateMock.getFormat()).thenReturn(Storage.ImageFormat.QCOW2);
         when(templateMock.getUserDataId()).thenReturn(null);
-        Mockito.doNothing().when(vnfTemplateManager).validateVnfApplianceNics(any(), nullable(List.class));
+        Mockito.doNothing().when(vnfTemplateManager).validateVnfApplianceNics(any(), nullable(List.class), nullable(Map.class));
         when(_dcMock.isLocalStorageEnabled()).thenReturn(false);
         when(_dcMock.getNetworkType()).thenReturn(DataCenter.NetworkType.Basic);
         Mockito.doReturn(userVmVoMock).when(userVmManagerImpl).createBasicSecurityGroupVirtualMachine(any(), any(), any(), any(), any(), any(), any(),
@@ -4228,7 +4226,7 @@ public class UserVmManagerImplTest {
         when(userVm.getAccountId()).thenReturn(1L);
         when(userVm.getHypervisorType()).thenReturn(Hypervisor.HypervisorType.KVM);
         doNothing().when(userVmManagerImpl).persistExtraConfigKvm(anyString(), eq(userVm));
-        updateDefaultConfigValue(UserVmManagerImpl.EnableAdditionalVmConfig, true, false);
+        updateDefaultConfigValue(UserVmManagerImpl.getEnableAdditionalVmConfig(), true, false);
 
         userVmManagerImpl.updateVmExtraConfig(userVm, "validConfig", false);
 
@@ -4240,7 +4238,7 @@ public class UserVmManagerImplTest {
     public void updateVmExtraConfigThrowsExceptionWhenConfigDisabled() {
         UserVmVO userVm = mock(UserVmVO.class);
         when(userVm.getAccountId()).thenReturn(1L);
-        updateDefaultConfigValue(UserVmManagerImpl.EnableAdditionalVmConfig, false, false);
+        updateDefaultConfigValue(UserVmManagerImpl.getEnableAdditionalVmConfig(), false, false);
 
         userVmManagerImpl.updateVmExtraConfig(userVm, "validConfig", false);
     }

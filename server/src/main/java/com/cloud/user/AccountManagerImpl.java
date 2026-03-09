@@ -1526,7 +1526,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
         // Check permissions
         checkAccess(getCurrentCallingAccount(), domain);
 
-        if (!userAllowMultipleAccounts.valueInDomain(domainId) && !userAccountDao.validateUsernameInDomain(userName, domainId)) {
+        if (!userAllowMultipleAccounts.valueInScope(ConfigKey.Scope.Domain, domainId) && !userAccountDao.validateUsernameInDomain(userName, domainId)) {
             throw new InvalidParameterValueException(String.format("The user %s already exists in domain %s", userName, domain));
         }
 
@@ -1933,7 +1933,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
             throw new PermissionDeniedException(String.format("Account: %s is a system account, can't add a user to it", account));
         }
 
-        if (!userAllowMultipleAccounts.valueInDomain(domainId) && !userAccountDao.validateUsernameInDomain(userName, domainId)) {
+        if (!userAllowMultipleAccounts.valueInScope(ConfigKey.Scope.Domain, domainId) && !userAccountDao.validateUsernameInDomain(userName, domainId)) {
             throw new CloudRuntimeException("The user " + userName + " already exists in domain " + domainId);
         }
         List<UserVO> duplicatedUsers = _userDao.findUsersByName(userName);
@@ -4261,11 +4261,11 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
                     @Override
                     public void doInTransactionWithoutResult(TransactionStatus status) {
                         UserAccountVO user = null;
-                        user = _userAccountDao.lockRow(_user.getId(), true);
+                        user = userAccountDao.lockRow(_user.getId(), true);
                         if (user.getState().equals(State.DISABLED.toString())) {
                             user.setLoginAttempts(0);
                             user.setState(State.ENABLED.toString());
-                            _userAccountDao.update(_user.getId(), user);
+                            userAccountDao.update(_user.getId(), user);
                             ActionEventUtils.onActionEvent(user.getId(), user.getAccountId(), user.getDomainId(), EventTypes.EVENT_USER_ENABLE, "Activated automatically after 5 minutes of inactivation. UserId : " + user.getId(), user.getId(), ApiCommandResourceType.User.toString());
                         }
                     }

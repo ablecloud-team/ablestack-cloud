@@ -17,32 +17,6 @@
 package com.cloud.api;
 
 import static org.mockito.ArgumentMatchers.nullable;
-import com.cloud.api.auth.ListUserTwoFactorAuthenticatorProvidersCmd;
-import com.cloud.api.auth.SetupUserTwoFactorAuthenticationCmd;
-import com.cloud.api.auth.ValidateUserTwoFactorAuthenticationCodeCmd;
-import com.cloud.server.ManagementServer;
-import com.cloud.user.Account;
-import com.cloud.user.AccountManagerImpl;
-import com.cloud.user.AccountService;
-import com.cloud.user.User;
-import com.cloud.user.UserAccount;
-import com.cloud.utils.HttpUtils;
-import com.cloud.vm.UserVmManager;
-import org.apache.cloudstack.api.ApiConstants;
-import org.apache.cloudstack.api.auth.APIAuthenticationManager;
-import org.apache.cloudstack.api.auth.APIAuthenticationType;
-import org.apache.cloudstack.api.auth.APIAuthenticator;
-import org.apache.cloudstack.api.command.admin.config.ListCfgsByCmd;
-import org.apache.cloudstack.framework.config.ConfigKey;
-import org.apache.cloudstack.framework.config.impl.ConfigDepotImpl;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.PrintWriter;

@@ -134,4 +134,5 @@ public interface VmDetailConstants {
     String EXTERNAL_DETAIL_PREFIX = "External:";
     String CLOUDSTACK_VM_DETAILS = "cloudstack.vm.details";
     String CLOUDSTACK_VLAN = "cloudstack.vlan";
+    String KVM_GUEST_OS_MACHINE_TYPE = "kvm.guest.os.machine.type";
 }

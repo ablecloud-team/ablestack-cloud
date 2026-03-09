@@ -50,7 +50,7 @@ import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.apache.cloudstack.storage.datastore.db.TemplateDataStoreDao;
 import org.apache.cloudstack.storage.to.TemplateObjectTO;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.AssertJUnit;
@@ -252,13 +252,13 @@ public class VolumeTest extends CloudStackTestNGBase {
     protected void injectMockito() {
         List<HostVO> hosts = new ArrayList<HostVO>();
         hosts.add(this.host);
-        Mockito.when(resourceMgr.listAllUpAndEnabledHosts((Type)Matchers.any(), Matchers.anyLong(), Matchers.anyLong(), Matchers.anyLong())).thenReturn(hosts);
+        Mockito.when(resourceMgr.listAllUpAndEnabledHosts((Type)ArgumentMatchers.any(), ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong())).thenReturn(hosts);
 
         RemoteHostEndPoint ep = RemoteHostEndPoint.getHypervisorHostEndPoint(this.host);
-        Mockito.when(epSelector.select(Matchers.any(DataObject.class), Matchers.any(DataObject.class))).thenReturn(ep);
-        Mockito.when(epSelector.select(Matchers.any(DataObject.class))).thenReturn(ep);
-        Mockito.when(epSelector.select(Matchers.any(DataStore.class))).thenReturn(ep);
-        Mockito.when(hyGuruMgr.getGuruProcessedCommandTargetHost(Matchers.anyLong(), Matchers.any(Command.class))).thenReturn(this.host.getId());
+        Mockito.when(epSelector.select(ArgumentMatchers.any(DataObject.class), ArgumentMatchers.any(DataObject.class))).thenReturn(ep);
+        Mockito.when(epSelector.select(ArgumentMatchers.any(DataObject.class))).thenReturn(ep);
+        Mockito.when(epSelector.select(ArgumentMatchers.any(DataStore.class))).thenReturn(ep);
+        Mockito.when(hyGuruMgr.getGuruProcessedCommandTargetHost(ArgumentMatchers.anyLong(), ArgumentMatchers.any(Command.class))).thenReturn(this.host.getId());
     }
 
     public DataStore createPrimaryDataStore() {

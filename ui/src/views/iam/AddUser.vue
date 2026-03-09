@@ -306,30 +306,6 @@ export default {
         } else if (values.account) {
           params.account = values.account
         }
-        
-      await this.formRef.value.validate()
-        .catch(error => this.formRef.value.scrollToField(error.errorFields[0].name))
-
-      this.loading = true
-      try {
-        const userCreationResponse = await this.createUser(values)
-        this.$notification.success({
-          message: this.$t('label.create.user'),
-          description: `${this.$t('message.success.create.user')} ${values.username}`
-        })
-
-        const user = userCreationResponse?.createuserresponse?.user
-        if (this.samlEnable && user) {
-          await postAPI('authorizeSamlSso', {
-            enable: this.samlEnable,
-            entityid: values.samlentity,
-            userid: user.id
-          })
-          this.$notification.success({
-            message: this.$t('label.samlenable'),
-            description: this.$t('message.success.enable.saml.auth')
-          })
-        }
 
         // Domain: use route query domainid if available, otherwise use form value
         if (this.domainid) {
@@ -342,7 +318,7 @@ export default {
           params.timezone = values.timezone
         }
 
-        api('createUser', {}, 'POST', params).then(response => {
+        postAPI('createAccount', params).then(response => {
           this.$emit('refresh-data')
           this.$notification.success({
             message: this.$t('label.create.user'),
@@ -350,7 +326,7 @@ export default {
           })
           const user = response.createuserresponse.user
           if (values.samlenable && user) {
-            api('authorizeSamlSso', {
+            postAPI('authorizeSamlSso', {
               enable: values.samlenable,
               entityid: values.samlentity,
               userid: user.id

@@ -195,7 +195,7 @@ public class HeuristicRuleHelper {
         Volume volumePresetVariable = new Volume();
 
         volumePresetVariable.setName(volumeVO.getName());
-        volumePresetVariable.setFormat(volumeVO.getFormat());
+        volumePresetVariable.setFormat(volumeVO.getFormat().toString());
         volumePresetVariable.setSize(volumeVO.getSize());
 
         return volumePresetVariable;
