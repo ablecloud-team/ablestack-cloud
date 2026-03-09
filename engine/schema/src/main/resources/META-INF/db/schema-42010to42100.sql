@@ -35,7 +35,7 @@ UPDATE `cloud`.`backup_schedule` SET uuid = UUID() WHERE uuid IS NULL;
 -- Add columns name, description and backup_interval_type to backup table
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.backups', 'name', 'VARCHAR(255) NULL COMMENT "name of the backup"');
 UPDATE `cloud`.`backups` backup INNER JOIN `cloud`.`vm_instance` vm ON backup.vm_id = vm.id SET backup.name = vm.name;
-ALTER TABLE `cloud`.`backups` MODIFY COLUMN `name` VARCHAR(255) NOT NULL;
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.backups','name','name','VARCHAR(255) NOT NULL');
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.backups', 'description', 'VARCHAR(1024) COMMENT "description for the backup"');
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.backups', 'backup_interval_type', 'int(5) COMMENT "type of backup, e.g. manual, recurring - hourly, daily, weekly or monthly"');
 
@@ -91,8 +91,9 @@ WHERE vm.backup_offering_id IS NOT NULL;
 
 -- Add column allocated_size to object_store table. Rename column 'used_bytes' to 'used_size'
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.object_store', 'allocated_size', 'bigint unsigned COMMENT "allocated size in bytes"');
-ALTER TABLE `cloud`.`object_store` CHANGE COLUMN `used_bytes` `used_size` BIGINT UNSIGNED COMMENT 'used size in bytes';
-ALTER TABLE `cloud`.`object_store` MODIFY COLUMN `total_size` bigint unsigned COMMENT 'total size in bytes';
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.object_store','used_bytes','used_size','BIGINT UNSIGNED COMMENT ''used size in bytes''');
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.object_store','total_size','total_size','BIGINT UNSIGNED COMMENT ''total size in bytes''');
+
 UPDATE `cloud`.`object_store`
 JOIN (
     SELECT object_store_id, SUM(quota) AS total_quota
