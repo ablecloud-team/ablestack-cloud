@@ -117,7 +117,7 @@ public interface VMInstanceDao extends GenericDao<VMInstanceVO, Long>, StateDao<
 
     List<VMInstanceVO> listVmsMigratingFromHost(Long hostId);
 
-    List<VMInstanceVO> listByZoneWithBackups(Long zoneId, Long backupOfferingId);
+    List<VMInstanceVO> listByZoneAndBackupOffering(Long zoneId, Long backupOfferingId);
 
     public Long countActiveByHostId(long hostId);
 
@@ -170,4 +170,6 @@ public interface VMInstanceDao extends GenericDao<VMInstanceVO, Long>, StateDao<
              List<Long> skippedVmIds);
 
     Pair<List<VMInstanceVO>, Integer> listByVmsNotInClusterUsingPool(long clusterId, long poolId);
+
+    List<VMInstanceVO> listByIdsIncludingRemoved(List<Long> ids);
 }
