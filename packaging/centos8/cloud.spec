@@ -202,9 +202,9 @@ if [ \"%{_temp}\" != "" ]; then
     FLAGS="$FLAGS `rpm --eval %{?_temp}`"
 fi
 
-mvn -Psystemvm,developer -DskipTests $FLAGS clean package
+mvn -T 2C -Psystemvm,developer -DskipTests $FLAGS clean package
 # cd ui && npm install && node build.js && npm run build && cd ..
-cd ui && npm install vue@3.2.31 && npm install && node build.js && npm run build && cd ..
+cd ui && npm install && node build.js && npm run build && cd ..
 
 %install
 [ ${RPM_BUILD_ROOT} != "/" ] && rm -rf ${RPM_BUILD_ROOT}
