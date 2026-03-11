@@ -300,17 +300,19 @@ export default {
       if (!this.isRange) {
         this.form.threshold2 = undefined
         this.$nextTick(() => {
-          if (this.$refs.formRef?.clearValidate) {
-            this.$refs.formRef.clearValidate(['threshold', 'thresholdRange'])
+          const formRef = this.$refs.formRef
+          if (formRef && formRef.clearValidate) {
+            formRef.clearValidate(['threshold', 'thresholdRange'])
           }
         })
       } else {
         this.$nextTick(() => {
-          if (this.$refs.formRef?.clearValidate) {
-            this.$refs.formRef.clearValidate(['thresholdRange'])
+          const formRef = this.$refs.formRef
+          if (formRef && formRef.clearValidate) {
+            formRef.clearValidate(['thresholdRange'])
           }
-          if (this.$refs.formRef?.validateFields) {
-            this.$refs.formRef.validateFields(['thresholdRange']).catch(() => {})
+          if (formRef && formRef.validateFields) {
+            formRef.validateFields(['thresholdRange']).catch(() => {})
           }
         })
       }
