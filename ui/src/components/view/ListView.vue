@@ -1291,20 +1291,36 @@ export default {
         return []
       }
       if (this.selectedRowKeys.length > 1) {
-        return this.actions.filter(action =>
-          action.groupAction &&
-          action.api in this.$store.getters.apis &&
-          ('groupShow' in action ? action.groupShow(this.selectionList, this.$store.getters) : true)
-        )
+        return this.actions.map(action => {
+          if (!(action.api in this.$store.getters.apis)) {
+            return null
+          }
+          if (!action.groupAction) {
+            return null
+          }
+          const canShow = 'groupShow' in action ? action.groupShow(this.selectionList, this.$store.getters) : true
+          if (!canShow) {
+            return null
+          }
+          return { ...action, dataView: true }
+        }).filter(Boolean)
       }
       if (!this.contextQuickViewRecord) {
         return []
       }
-      return this.actions.filter(action =>
-        action.dataView &&
-        action.api in this.$store.getters.apis &&
-        ('show' in action ? action.show(this.contextQuickViewRecord, this.$store.getters) : true)
-      )
+      return this.actions.map(action => {
+        if (!(action.api in this.$store.getters.apis)) {
+          return null
+        }
+        const canShow = 'show' in action ? action.show(this.contextQuickViewRecord, this.$store.getters) : true
+        if (!canShow) {
+          return null
+        }
+        if (!action.dataView && !action.listView) {
+          return null
+        }
+        return { ...action, dataView: action.dataView || action.listView || false }
+      }).filter(Boolean)
     },
     contextMenuTitle () {
       if (this.selectedRowKeys.length > 1) {
@@ -1340,7 +1356,7 @@ export default {
         this.closeContextQuickView()
         return
       }
-      if (!this.quickViewEnabled() || !this.actions || this.actions.length === 0) {
+      if (!this.quickViewEnabled(this.actions) || !this.actions || this.actions.length === 0) {
         return
       }
       let record = null
@@ -1426,9 +1442,11 @@ export default {
         '/tungstenpolicyset', '/tungstenroutingpolicy', '/firewallrule', '/tungstenfirewallpolicy'].includes(this.$route.path)
     },
     createPathBasedOnVmType: createPathBasedOnVmType,
-    quickViewEnabled (actions, columns, key) {
-      return actions.length > 0 &&
-        (columns && key === columns[0].dataIndex) &&
+    quickViewEnabled (actions = this.actions, columns = null, key = null) {
+      const hasActions = Array.isArray(actions) && actions.length > 0
+      const matchesFirstColumn = !columns || !key || (columns[0] && key === columns[0].dataIndex)
+      return hasActions &&
+        matchesFirstColumn &&
         new RegExp(['/vm', '/desktop', '/kubernetes', '/ssh', '/userdata', '/vmgroup', '/affinitygroup', '/autoscalevmgroup',
           '/volume', '/snapshot', '/vmsnapshot', '/backup', '/event', '/publicip', '/comment', '/asnumbers', '/guestvlans',
           '/guestnetwork', '/vpc', '/vpncustomergateway', '/vnfapp', '/securitygroups', '/quotasummary',
