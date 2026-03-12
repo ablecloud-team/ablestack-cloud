@@ -2762,7 +2762,11 @@ public class LibvirtVMDef {
     @Override
     public String toString() {
         StringBuilder vmBuilder = new StringBuilder();
-        vmBuilder.append("<domain type='" + _hvsType + "'>\n");
+        if ("kvm".equalsIgnoreCase(_hvsType)) {
+            vmBuilder.append("<domain type='" + _hvsType + "' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>\n");
+        } else {
+            vmBuilder.append("<domain type='" + _hvsType + "'>\n");
+        }
         vmBuilder.append("<name>" + _domName + "</name>\n");
         if (_domUUID != null) {
             vmBuilder.append("<uuid>" + _domUUID + "</uuid>\n");
