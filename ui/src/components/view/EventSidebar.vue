@@ -39,10 +39,9 @@
     </div>
 
     <a-col :xs="{ span: 24 }" :lg="{ span: 24 }">
-      <chart-card :loading="loading" class="dashboard-card dashboard-event">
+      <!-- <chart-card :loading="loading" class="dashboard-card dashboard-event"> -->
         <a-divider style="margin: 0px 0px; border-width: 0px" />
         <a-table
-          :loading="loading"
           :columns="columns"
           :dataSource="events"
           rowKey="id"
@@ -52,7 +51,7 @@
           class="event-table no-border-table"
         >
         </a-table>
-      </chart-card>
+      <!-- </chart-card> -->
     </a-col>
   </a-drawer>
 </template>
@@ -154,7 +153,6 @@ export default {
       if (!('listEvents' in this.$store.getters.apis)) {
         return
       }
-      this.loading = true
       const params = {
         page: 1,
         pagesize: 20,
@@ -179,7 +177,6 @@ export default {
       } catch (error) {
         console.error('Error getting event list:', error)
       } finally {
-        this.loading = false
       }
     },
     filterRecentEvents (events, timeRange = 5 * 60 * 1000) {
