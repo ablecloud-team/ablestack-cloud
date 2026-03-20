@@ -2565,18 +2565,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
         try {
 
-            if (vm.getBackupOfferingId() != null) {
-                List<Backup> backupsForVm = backupDao.listByVmId(vm.getDataCenterId(), vm.getId());
-                if (CollectionUtils.isEmpty(backupsForVm)) {
-                    backupManager.removeVMFromBackupOffering(vm.getId(), true);
-                } else {
-                    logger.error(String.format("This VM [uuid: %s, name: %s] has a "
-                            + "Backup Offering [id: %s, external id: %s] with %s backups. Please, remove the backup offering "
-                            + "before proceeding to VM exclusion!", vm.getUuid(), vm.getInstanceName(), vm.getBackupOfferingId(),
-                            vm.getBackupExternalId(), backupsForVm.size()));
-                    return false;
-                }
-            }
+            backupManager.checkAndRemoveBackupOfferingBeforeExpunge(vm);
 
             autoScaleManager.removeVmFromVmGroup(vm.getId());
 
@@ -3615,6 +3604,10 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
         final ControlledEntity[] volumesToDelete = volumesToBeDeleted.toArray(new ControlledEntity[0]);
         _accountMgr.checkAccess(ctx.getCallingAccount(), null, true, volumesToDelete);
+
+        if (expunge) {
+            backupManager.checkAndRemoveBackupOfferingBeforeExpunge(vm);
+        }
 
         stopVirtualMachine(vmId, VmDestroyForcestop.value());
 
