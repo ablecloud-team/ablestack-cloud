@@ -1,7 +1,7 @@
 {
   "name": "cloudstack-ui",
   "description": "Modern role-based Apache CloudStack UI",
-  "version": "4.19.0",
+  "version": "4.21.0",
   "homepage": "https://cloudstack.apache.org/",
   "repository": {
     "type": "git",
@@ -54,7 +54,7 @@
     "enquire.js": "^2.1.6",
     "js-cookie": "^2.2.1",
     "lodash": "^4.17.15",
-    "markdown-it": "^14.1.0",
+    "markdown-it": "^14.1.1",
     "md5": "^2.2.1",
     "minio": "^7.0.33",
     "mitt": "^2.1.0",
@@ -95,7 +95,7 @@
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
     "babel-plugin-import": "^1.13.3",
-    "eslint": "^7.32.0",
+    "eslint": "^6.7.2",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
@@ -103,12 +103,17 @@
     "eslint-plugin-vue": "^7.0.0",
     "less": "^3.0.4",
     "less-loader": "^5.0.0",
+    "nan": "2.18.0",
+    "node-gyp": "10.0.1",
     "sass": "^1.49.9",
     "sass-loader": "^8.0.2",
     "uglifyjs-webpack-plugin": "^2.2.0",
     "vue-jest": "^5.0.0-0",
     "vue-svg-loader": "^0.17.0-beta.2",
     "webpack": "^4.46.0"
+  },
+  "resolutions": {
+    "nan": "2.18.0"
   },
   "eslintConfig": {
     "root": true,

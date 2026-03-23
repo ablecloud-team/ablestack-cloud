@@ -33,12 +33,12 @@ public interface HAManager extends HAConfigManager, Configurable {
 
     ConfigKey<Integer> MaxConcurrentHealthCheckOperations = new ConfigKey<>("Advanced", Integer.class,
             "ha.max.concurrent.health.check.operations",
-            "50",
+            "10",
             "The number of concurrent health check operations per management server. This setting determines the size of the thread pool consuming the HEALTH CHECK queue.", true);
 
     ConfigKey<Integer> MaxPendingHealthCheckOperations = new ConfigKey<>("Advanced", Integer.class,
             "ha.max.pending.health.check.operations",
-            "5000",
+            "1000",
             "The number of pending health check operations per management server. This setting determines the size of the HEALTH CHECK queue.", true);
 
     ConfigKey<Integer> MaxConcurrentActivityCheckOperations = new ConfigKey<>("Advanced", Integer.class,

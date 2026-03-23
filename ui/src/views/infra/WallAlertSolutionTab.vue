@@ -101,10 +101,6 @@
             </a-form-item>
           </a-form>
 
-          <div class="hint">
-            {{ $t('message.solution.hint') || '저장 시 요약/설명이 Wall(경보 규칙) annotations에 저장됩니다.' }}
-          </div>
-
           <div class="preview-wrap">
             <div class="preview-title">{{ $t('label.preview') || '미리보기' }}</div>
 
@@ -412,18 +408,22 @@ export default {
         this.editing = false
 
         this.$emit('refresh-data')
-        this.$notification?.success?.({
-          message: this.$t('message.wall.alert.annotations.updated') || '해결 방안 수정 완료',
-          description: this.resource?.name || this.record?.name || uid
-        })
+        if (this.$notification && this.$notification.success) {
+          this.$notification.success({
+            message: this.$t('message.wall.alert.annotations.updated') || '해결 방안 수정 완료',
+            description: this.resource?.name || this.record?.name || uid
+          })
+        }
       } catch (e) {
-        this.$notification?.error?.({
-          message: this.$t('message.request.failed') || '요청 실패',
-          description: (e && e.response && e.response.headers && e.response.headers['x-description'])
-            ? e.response.headers['x-description']
-            : (e && e.message ? e.message : ''),
-          duration: 0
-        })
+        if (this.$notification && this.$notification.error) {
+          this.$notification.error({
+            message: this.$t('message.request.failed') || '요청 실패',
+            description: (e && e.response && e.response.headers && e.response.headers['x-description'])
+              ? e.response.headers['x-description']
+              : (e && e.message ? e.message : ''),
+            duration: 0
+          })
+        }
       } finally {
         this.saving = false
       }

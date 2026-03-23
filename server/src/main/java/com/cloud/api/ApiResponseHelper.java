@@ -75,7 +75,6 @@ import org.apache.cloudstack.api.response.AutoScaleVmGroupResponse;
 import org.apache.cloudstack.api.response.AutoScaleVmProfileResponse;
 import org.apache.cloudstack.api.response.BackupOfferingResponse;
 import org.apache.cloudstack.api.response.BackupRepositoryResponse;
-import org.apache.cloudstack.api.response.BackupResponse;
 import org.apache.cloudstack.api.response.BackupScheduleResponse;
 import org.apache.cloudstack.api.response.BgpPeerResponse;
 import org.apache.cloudstack.api.response.BucketResponse;
@@ -194,7 +193,6 @@ import org.apache.cloudstack.api.response.VpcOfferingResponse;
 import org.apache.cloudstack.api.response.VpcResponse;
 import org.apache.cloudstack.api.response.VpnUsersResponse;
 import org.apache.cloudstack.api.response.ZoneResponse;
-import org.apache.cloudstack.backup.Backup;
 import org.apache.cloudstack.backup.BackupOffering;
 import org.apache.cloudstack.backup.BackupRepository;
 import org.apache.cloudstack.backup.BackupSchedule;
@@ -1439,6 +1437,7 @@ public class ApiResponseHelper implements ResponseGenerator {
         capacities.add(ApiDBUtils.getStoragePoolUsedStats(poolId, clusterId, podId, zoneId));
         if (clusterId == null && podId == null) {
             capacities.add(ApiDBUtils.getSecondaryStorageUsedStats(poolId, zoneId));
+            capacities.add(ApiDBUtils.getObjectStorageUsedStats(zoneId));
         }
 
         List<CapacityResponse> capacityResponses = new ArrayList<CapacityResponse>();
@@ -2081,6 +2080,11 @@ public class ApiResponseHelper implements ResponseGenerator {
         List<CapacityResponse> capacityResponses = new ArrayList<CapacityResponse>();
 
         for (Capacity summedCapacity : result) {
+            if (summedCapacity.getTotalCapacity() == 0 &&
+                    (summedCapacity.getCapacityType() == Capacity.CAPACITY_TYPE_BACKUP_STORAGE ||
+                     summedCapacity.getCapacityType() == Capacity.CAPACITY_TYPE_OBJECT_STORAGE)) {
+                continue;
+            }
             CapacityResponse capacityResponse = new CapacityResponse();
             capacityResponse.setCapacityTotal(summedCapacity.getTotalCapacity());
             if (summedCapacity.getAllocatedCapacity() != null) {
@@ -4968,11 +4972,6 @@ public class ApiResponseHelper implements ResponseGenerator {
         response.setHasAnnotation(annotationDao.hasAnnotations(userData.getUuid(), AnnotationService.EntityType.USER_DATA.name(),
                 _accountMgr.isRootAdmin(CallContext.current().getCallingAccount().getId())));
         return response;
-    }
-
-    @Override
-    public BackupResponse createBackupResponse(Backup backup) {
-        return ApiDBUtils.newBackupResponse(backup);
     }
 
     @Override

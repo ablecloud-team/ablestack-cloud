@@ -39,19 +39,18 @@ import com.cloud.exception.InsufficientCapacityException;
 import com.cloud.exception.NetworkRuleConflictException;
 import com.cloud.exception.ResourceAllocationException;
 import com.cloud.exception.ResourceUnavailableException;
-import com.cloud.utils.exception.CloudRuntimeException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @APICommand(name = "listBackupSchedule",
-        description = "List backup schedule of a VM",
+        description = "List backup schedule of an Instance",
         responseObject = BackupScheduleResponse.class, since = "4.14.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class ListBackupScheduleCmd extends BaseCmd {
 
     @Inject
-    private BackupManager backupManager;
+    BackupManager backupManager;
 
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////
@@ -60,8 +59,8 @@ public class ListBackupScheduleCmd extends BaseCmd {
     @Parameter(name = ApiConstants.VIRTUAL_MACHINE_ID,
             type = CommandType.UUID,
             entityType = UserVmResponse.class,
-            required = true,
-            description = "ID of the VM")
+            required = false,
+            description = "ID of the Instance")
     private Long vmId;
 
     /////////////////////////////////////////////////////
@@ -86,12 +85,10 @@ public class ListBackupScheduleCmd extends BaseCmd {
                 for (BackupSchedule schedule : schedules) {
                     scheduleResponses.add(_responseGenerator.createBackupScheduleResponse(schedule));
                 }
-                response.setResponses(scheduleResponses, schedules.size());
-                response.setResponseName(getCommandName());
-                setResponseObject(response);
-            } else {
-                throw new CloudRuntimeException("No backup schedule exists for the VM");
             }
+            response.setResponses(scheduleResponses, schedules.size());
+            response.setResponseName(getCommandName());
+            setResponseObject(response);
         } catch (Exception e) {
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
         }

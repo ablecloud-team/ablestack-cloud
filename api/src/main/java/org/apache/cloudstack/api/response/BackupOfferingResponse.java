@@ -34,36 +34,36 @@ public class BackupOfferingResponse extends BaseResponse {
     private String id;
 
     @SerializedName(ApiConstants.NAME)
-    @Param(description = "name for the backup offering")
+    @Param(description = "Name for the backup offering")
     private String name;
 
     @SerializedName(ApiConstants.DESCRIPTION)
-    @Param(description = "description for the backup offering")
+    @Param(description = "Description for the backup offering")
     private String description;
 
+    @SerializedName(ApiConstants.PROVIDER)
+    @Param(description = "provider name", since = "4.21.0")
+    private String provider;
+
     @SerializedName(ApiConstants.EXTERNAL_ID)
-    @Param(description = "external ID on the provider side")
+    @Param(description = "External ID on the provider side")
     private String externalId;
 
     @SerializedName(ApiConstants.ALLOW_USER_DRIVEN_BACKUPS)
-    @Param(description = "whether offering allows user driven ad-hoc/scheduled backups")
+    @Param(description = "Whether the offering allows User driven ad-hoc/scheduled backups")
     private Boolean userDrivenBackups;
 
     @SerializedName(ApiConstants.ZONE_ID)
-    @Param(description = "zone ID")
+    @Param(description = "Zone ID")
     private String zoneId;
 
     @SerializedName(ApiConstants.ZONE_NAME)
-    @Param(description = "zone name")
+    @Param(description = "Zone name")
     private String zoneName;
 
     @SerializedName(ApiConstants.CREATED)
-    @Param(description = "the date this backup offering was created")
+    @Param(description = "The date this backup offering was created")
     private Date created;
-
-    @SerializedName(ApiConstants.PROVIDER)
-    @Param(description = "backup provider")
-    private String provider;
 
     @SerializedName(ApiConstants.RETENTION_PERIOD)
     @Param(description = "Retention period of backup data")
@@ -75,6 +75,10 @@ public class BackupOfferingResponse extends BaseResponse {
 
     public void setExternalId(String externalId) {
         this.externalId = externalId;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 
     public void setName(String name) {
@@ -99,10 +103,6 @@ public class BackupOfferingResponse extends BaseResponse {
 
     public void setCreated(Date created) {
         this.created = created;
-    }
-
-    public void setProvider(String provider) {
-        this.provider = provider;
     }
 
     public void setRetentionPeriod(String retentionPeriod) {
