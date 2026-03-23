@@ -300,11 +300,27 @@ public class HypervisorTemplateAdapter extends TemplateAdapterBase {
     }
 
     protected List<DataStore> getImageStoresThrowsExceptionIfNotFound(long zoneId, TemplateProfile profile) {
-        List<DataStore> imageStores = storeMgr.getImageStoresByZoneIds(zoneId);
+        List<DataStore> imageStores = storeMgr.getImageStoresByScopeExcludingReadOnly(new ZoneScope(zoneId));
         if (imageStores == null || imageStores.size() == 0) {
             throw new CloudRuntimeException(String.format("Unable to find image store to download the template [%s].", profile.getTemplate()));
         }
         return imageStores;
+    }
+
+    protected DataStore verifyHeuristicRulesForZone(VMTemplateVO template, Long zoneId) {
+        HeuristicType heuristicType;
+        if (ImageFormat.ISO.equals(template.getFormat())) {
+            heuristicType = HeuristicType.ISO;
+        } else {
+            heuristicType = HeuristicType.TEMPLATE;
+        }
+        DataStore imageStore = heuristicRuleHelper.getImageStoreIfThereIsHeuristicRule(zoneId, heuristicType, template);
+        if (imageStore == null || isWritableImageStore(imageStore, zoneId)) {
+            return imageStore;
+        }
+
+        logger.info("Heuristic rule selected readonly image store [{}] in zone [{}]; skipping it for template upload.", imageStore, zoneId);
+        return null;
     }
 
     protected void standardImageStoreAllocation(List<DataStore> imageStores, VMTemplateVO template) {

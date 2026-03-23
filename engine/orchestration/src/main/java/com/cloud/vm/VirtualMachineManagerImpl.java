@@ -4702,6 +4702,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
 
         _networkMgr.removeNic(vmProfile, nic);
         _nicsDao.remove(nic.getId());
+        cleanupSecurityGroupMappingsIfNeeded(vmVO);
         return true;
     }
 
@@ -4777,10 +4778,23 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
             logger.debug("Successfully released nic {} for vm {}", nic, vm);
 
             _networkMgr.removeNic(vmProfile, nic);
+            cleanupSecurityGroupMappingsIfNeeded(vmVO);
             return true;
         } finally {
             _nicsDao.releaseFromLockTable(lock.getId());
             logger.debug("Lock is released for nic {} as a part of remove vm {} from network {}", lock, vm, network);
+        }
+    }
+
+    private void cleanupSecurityGroupMappingsIfNeeded(final VMInstanceVO vm) {
+        if (vm == null || vm.getType() != VirtualMachine.Type.User || _securityGroupManager.isVmSecurityGroupEnabled(vm.getId())) {
+            return;
+        }
+
+        final UserVmVO userVm = _userVmDao.findById(vm.getId());
+        if (userVm != null) {
+            logger.debug("Removing stale security group mappings for VM {} after NIC removal left no security-group-enabled networks.", vm);
+            _securityGroupManager.removeInstanceFromGroups(userVm);
         }
     }
 
