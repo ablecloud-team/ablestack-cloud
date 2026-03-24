@@ -93,6 +93,7 @@
 "label.action.copy.snapshot": "Copy Snapshot",
 "label.action.copy.template": "Copy Template",
 "label.action.clone.vm": "Clone VM",
+"label.action.create.backup.schedule": "Create Backup Schedule",
 "label.action.create.snapshot.from.vmsnapshot": "Create Snapshot from Instance Snapshot",
 "label.action.create.template.from.volume": "Create Template from volume",
 "label.action.create.volume": "Create volume",

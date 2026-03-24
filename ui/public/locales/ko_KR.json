@@ -93,6 +93,7 @@
 "label.action.copy.snapshot": "\uc2a4\ub0c5\uc0f7 \ubcf5\uc0ac",
 "label.action.copy.template": "\ud15c\ud50c\ub9bf \ubcf5\uc0ac",
 "label.action.clone.vm": "\ubcf5\uc81c",
+"label.action.create.backup.schedule": "\ubc31\uc5c5 \uc77c\uc815 \uc0dd\uc131",
 "label.action.create.snapshot.from.vmsnapshot": "VM \uc2a4\ub0c5\uc0f7\uc5d0\uc11c \uc2a4\ub0c5\uc0f7 \uc0dd\uc131",
 "label.action.create.template.from.volume": "\ud15c\ud50c\ub9bf \uc0dd\uc131",
 "label.action.create.volume": "\ubcfc\ub968 \uc0dd\uc131",
