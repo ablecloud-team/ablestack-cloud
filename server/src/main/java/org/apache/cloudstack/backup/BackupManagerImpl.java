@@ -593,15 +593,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     @Override
-    public List<BackupSchedule> listBackupSchedule(final Long vmId) {
-        final VMInstanceVO vm = findVmById(vmId);
-        validateBackupForZone(vm.getDataCenterId());
-        accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
-
-        return backupScheduleDao.listByVM(vmId).stream().map(BackupSchedule.class::cast).collect(Collectors.toList());
-    }
-
-    @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_SCHEDULE_DELETE, eventDescription = "deleting VM backup schedule")
     public boolean deleteBackupSchedule(DeleteBackupScheduleCmd cmd) {
         Long vmId = cmd.getVmId();
@@ -755,6 +746,36 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         logger.warn(message);
         alertManager.sendAlert(AlertManager.AlertType.ALERT_TYPE_UPDATE_RESOURCE_COUNT, 0L, 0L,
                 message, message + " Please, use the 'updateResourceLimit' API to increase the backup limit.");
+    }
+
+    public List<BackupSchedule> listBackupSchedules(ListBackupScheduleCmd cmd) {
+        Account caller = CallContext.current().getCallingAccount();
+        Long id = cmd.getId();
+        Long vmId = cmd.getVmId();
+
+        if (vmId != null) {
+            final VMInstanceVO vm = findVmById(vmId);
+            validateBackupForZone(vm.getDataCenterId());
+            accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
+        }
+
+        Filter searchFilter = new Filter(BackupScheduleVO.class, "id", true, null, null);
+        SearchBuilder<BackupScheduleVO> searchBuilder = backupScheduleDao.createSearchBuilder();
+        searchBuilder.and("id", searchBuilder.entity().getId(), SearchCriteria.Op.EQ);
+        if (vmId != null) {
+            searchBuilder.and("vmId", searchBuilder.entity().getVmId(), SearchCriteria.Op.EQ);
+        }
+
+        SearchCriteria<BackupScheduleVO> sc = searchBuilder.create();
+        if (id != null) {
+            sc.setParameters("id", id);
+        }
+        if (vmId != null) {
+            sc.setParameters("vmId", vmId);
+        }
+
+        Pair<List<BackupScheduleVO>, Integer> result = backupScheduleDao.searchAndCount(sc, searchFilter);
+        return new ArrayList<>(result.first());
     }
 
     /**

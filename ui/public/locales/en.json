@@ -3561,6 +3561,7 @@
 "message.select.tier": "Please select a tier.",
 "message.select.start.date.and.time": "Select a start date & time.",
 "message.select.temporary.storage.instance.conversion": "(Optional) Select a Storage temporary destination for the converted disks through virt-v2v",
+"message.select.vm.to.continue": "Please select an Instance to continue.",
 "message.select.zone.description": "Select type of zone basic/advanced.",
 "message.select.zone.hint": "This is the type of zone deployment that you want to use. Basic zone: provides a single Network where each Instance is assigned an IP directly from the Network. Guest isolation can be provided through layer-3 means such as security groups (IP address source filtering). Advanced zone: For more sophisticated Network topologies. This Network model provides the most flexibility in defining guest Networks and providing custom Network offerings such as firewall, VPN, or load balancer support.",
 "message.server": "Server : ",
