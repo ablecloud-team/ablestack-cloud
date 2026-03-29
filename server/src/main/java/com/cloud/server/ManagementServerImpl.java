@@ -760,6 +760,7 @@ import com.cloud.configuration.ConfigurationManagerImpl;
 import com.cloud.consoleproxy.ConsoleProxyManagementState;
 import com.cloud.consoleproxy.ConsoleProxyManager;
 import com.cloud.dc.AccountVlanMapVO;
+import com.cloud.dc.ClusterDetailsDao;
 import com.cloud.dc.ClusterVO;
 import com.cloud.dc.DataCenterVO;
 import com.cloud.dc.DomainVlanMapVO;
@@ -989,6 +990,8 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     private PodVlanMapDao _podVlanMapDao;
     @Inject
     private HostDao _hostDao;
+    @Inject
+    private ClusterDetailsDao _clusterDetailsDao;
     @Inject
     protected HostDetailsDao _detailsDao;
     @Inject
@@ -2369,7 +2372,21 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             return listResponse;
         }
 
-        ListHostLunDeviceCommand lunCmd = new ListHostLunDeviceCommand(id);
+        String lunPathMode = cmd.getLunPathMode();
+        if (lunPathMode == null || lunPathMode.trim().isEmpty()) {
+            Map<String, String> hostDetails = _hostDetailsDao.findDetails(hostVO.getId());
+            if (hostDetails != null) {
+                String fromDetail = hostDetails.get(ApiConstants.LUN_PATH_MODE);
+                if (fromDetail != null && !fromDetail.trim().isEmpty()) {
+                    lunPathMode = fromDetail.trim();
+                }
+            }
+        }
+        if (lunPathMode == null || lunPathMode.trim().isEmpty()) {
+            lunPathMode = ListHostLunDeviceCommand.MODE_SINGLE;
+        }
+
+        ListHostLunDeviceCommand lunCmd = new ListHostLunDeviceCommand(id, lunPathMode);
         Answer answer;
         try {
             answer = _agentMgr.send(hostVO.getId(), lunCmd);
@@ -3622,35 +3639,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     // VM extraconfig에서 해당 디바이스 설정 제거
                     if (vmIdToRemove != null && !vmIdToRemove.trim().isEmpty()) {
                         removeDeviceFromVmExtraConfig(Long.parseLong(vmIdToRemove), hostDeviceName, xmlConfig);
-
-                        // LUN 디바이스 삭제 시 함께 삭제되는 SCSI 디바이스의 extraconfig도 삭제
-                        try {
-                            // 같은 VM에 할당된 모든 디바이스 할당 정보 조회
-                            SearchCriteria<DetailVO> sc = _hostDetailsDao.createSearchCriteria();
-                            sc.addAnd("hostId", SearchCriteria.Op.EQ, hostId);
-                            sc.addAnd("value", SearchCriteria.Op.EQ, vmIdToRemove);
-                            List<DetailVO> allAllocations = _hostDetailsDao.search(sc, null);
-
-                            // SCSI 디바이스 중에서 같은 물리 디바이스에 매핑된 것 찾기
-                            for (DetailVO allocation : allAllocations) {
-                                String deviceName = extractDeviceNameFromStoredKey(allocation.getName());
-                                if (isScsiDevice(deviceName)) {
-                                    // SCSI 디바이스의 물리 경로 추출
-                                    String scsiPhysicalPath = extractPhysicalDeviceFromScsi(deviceName);
-                                    if (scsiPhysicalPath != null) {
-                                        // LUN 디바이스 이름과 SCSI 디바이스의 물리 경로를 비교하여 같은 물리 디바이스인지 확인
-                                        if (isSamePhysicalDevice(hostDeviceName, scsiPhysicalPath)) {
-                                            // 같은 물리 디바이스에 매핑된 SCSI 디바이스의 extraconfig 삭제
-                                            removeDeviceFromVmExtraConfig(Long.parseLong(vmIdToRemove), deviceName, "");
-                                            // host_details에서 SCSI 할당 레코드도 삭제 (가상머신 설정과 동기화)
-                                            _hostDetailsDao.remove(allocation.getId());
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            logger.warn("Error removing SCSI device extraconfig for LUN device {}: {}", hostDeviceName, e.getMessage());
-                        }
                     }
                 }
             } else {
