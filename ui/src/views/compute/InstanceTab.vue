@@ -184,7 +184,7 @@
           <div class="device-section">
             <h3 class="section-title">{{ $t('label.scsi.devices') }}</h3>
             <a-table
-              :columns="deviceColumns"
+              :columns="scsiDeviceColumns"
               :dataSource="scsiDevices"
               :pagination="false"
               :scroll="{ x: 'max-content' }"
@@ -383,6 +383,34 @@ export default {
             })
           }
         }
+      ],
+      scsiDeviceColumns: [
+        {
+          title: this.$t('label.name'),
+          dataIndex: 'hostDevicesName',
+          key: 'hostDevicesName',
+          fixed: 'left',
+          width: 250,
+          customRender: ({ record }) => {
+            return h(
+              'div',
+              { style: 'white-space: pre-line; line-height: 1.4; min-height: 50px; padding-top: 8px;' },
+              this.formatDeviceName(record.scsiDisplayName || record.hostDevicesName)
+            )
+          }
+        },
+        {
+          title: this.$t('label.details'),
+          dataIndex: 'hostDevicesText',
+          key: 'hostDevicesText',
+          width: 500,
+          customRender: ({ text }) => {
+            return h('div', {
+              style: 'white-space: pre-wrap; word-break: break-word; min-height: 40px;',
+              innerHTML: this.formatScsiHostDevicesText(text)
+            })
+          }
+        }
       ]
     }
   },
@@ -449,18 +477,19 @@ export default {
       }
 
       let formattedText = String(text)
+      formattedText = formattedText.replace(/(^|\s)USE:\s*/g, '$1TRANSPORT: ')
 
-      // 각 항목 앞에 줄바꿈 추가
       formattedText = formattedText.replace(/\s+SIZE:/g, '\nSIZE:')
       formattedText = formattedText.replace(/\s+HAS_PARTITIONS:/g, '\nHAS_PARTITIONS:')
       formattedText = formattedText.replace(/\s+SCSI_ADDRESS:/g, '\nSCSI_ADDRESS:')
       formattedText = formattedText.replace(/\s+SCSI\s+Address:/g, '\nSCSI Address:')
       formattedText = formattedText.replace(/\s+Type:/g, '\nType:')
       formattedText = formattedText.replace(/\s+Vendor:/g, '\nVendor:')
-      formattedText = formattedText.replace(/\s+Model:/g, '\nModel:')
-      formattedText = formattedText.replace(/\s+Revision:/g, '\nRevision:')
-      formattedText = formattedText.replace(/\s+Device:/g, '\nDevice:')
+      formattedText = formattedText.replace(/\s+Model:/gi, '\nModel:')
+      formattedText = formattedText.replace(/\s+Revision:/gi, '\nRevision:')
+      formattedText = formattedText.replace(/\s+Device:/gi, '\nDevice:')
       formattedText = formattedText.replace(/\s+BY_ID:/g, '\nBY_ID:')
+      formattedText = formattedText.replace(/\s+TRANSPORT:/g, '\nTRANSPORT:')
       formattedText = formattedText.replace(/\s+파티션\s+없음/g, '\n파티션 없음')
       formattedText = formattedText.replace(/\s+파티션\s+있음/g, '\n파티션 있음')
       formattedText = formattedText.replace(/\s+WWNN:/g, '\nWWNN:')
@@ -468,6 +497,8 @@ export default {
       formattedText = formattedText.replace(/\s+Fabric\s+WWN:/g, '\nFabric WWN:')
       formattedText = formattedText.replace(/\s+Max\s+vPorts:/g, '\nMax vPorts:')
       formattedText = formattedText.replace(/\s+ID\s+/g, '\nID ')
+
+      formattedText = formattedText.replace(/(Revision:\s+[^\s\n]+)( +)(?=\S)/gi, '$1\n$2')
 
       formattedText = formattedText.replace(/HAS_PARTITIONS:\s*false/gi, this.$t('label.no.partitions'))
       formattedText = formattedText.replace(/HAS_PARTITIONS:\s*true/gi, this.$t('label.has.partitions'))
@@ -481,6 +512,13 @@ export default {
       formattedText = formattedText.replace(/(?:\r\n|\r|\n)/g, '<br/>')
 
       return formattedText
+    },
+    formatScsiHostDevicesText (text) {
+      if (!text) {
+        return ''
+      }
+      const withoutDevice = String(text).replace(/\s*Device:\s*\S+/gi, '')
+      return this.formatHostDevicesText(withoutDevice)
     },
     setCurrentTab () {
       this.currentTab = this.$route.query.tab ? this.$route.query.tab : 'details'
@@ -658,6 +696,10 @@ export default {
               hostDevicesName: item.hostdevicesname,
               hostDevicesText: item.hostdevicestext || '',
               hostId: item.hostid
+            }
+            if (type === 'scsi') {
+              const devMatch = String(device.hostDevicesText).match(/Device:\s*(\S+)/i)
+              device.scsiDisplayName = devMatch ? devMatch[1] : device.hostDevicesName
             }
 
             switch (type) {

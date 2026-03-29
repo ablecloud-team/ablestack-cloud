@@ -1302,6 +1302,7 @@ public class ApiConstants {
 
     public static final String HOSTDEVICES_TYPE = "hostdevicestype";
     public static final String DEVICE_TYPE = "devicetype";
+    public static final String LUN_PATH_MODE = "lunpathmode";
 
     // Object Storage related
     public static final String BUCKET_AVAILABLE = "bucketavailable";
