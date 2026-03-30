@@ -776,6 +776,7 @@ export default {
       },
       usageTypeMap: {},
       resourceIdToValidLinksMap: {},
+      listDayOfWeek: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
       contextQuickViewVisible: false,
       contextQuickViewRecord: null,
       contextQuickViewPosition: {
