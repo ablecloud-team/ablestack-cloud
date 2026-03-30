@@ -442,7 +442,7 @@ export default {
     },
     {
       name: 'backup',
-      title: 'label.backup',
+      title: 'label.backups',
       icon: 'cloud-upload-outlined',
       permission: ['listBackups'],
       columns: ['name', 'status', 'size', 'virtualsize', 'virtualmachinename', 'backupofferingname', 'intervaltype', 'type', 'created', 'account', 'domain', 'zone'],
