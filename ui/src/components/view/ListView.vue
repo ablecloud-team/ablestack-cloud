@@ -676,6 +676,7 @@ import { createPathBasedOnVmType } from '@/utils/plugins'
 import { validateLinks } from '@/utils/links'
 import cronstrue from 'cronstrue/i18n'
 import moment from 'moment-timezone'
+import { timeZoneName } from '@/utils/timezone'
 
 export default {
   name: 'ListView',
@@ -972,7 +973,7 @@ export default {
         '/zone', '/pod', '/cluster', '/host', '/storagepool', '/imagestore', '/systemvm', '/router', '/ilbvm', '/annotation',
         '/computeoffering', '/systemoffering', '/diskoffering', '/backupoffering', '/networkoffering', '/vpcoffering',
         '/tungstenfabric', '/oauthsetting', '/guestos', '/guestoshypervisormapping', '/webhook', 'webhookdeliveries', '/quotatariff', '/sharedfs',
-        '/ipv4subnets', '/disasterrecoverycluster', '/alertRules', '/managementserver', '/alert', '/backupschedule'].join('|'))
+        '/ipv4subnets', '/disasterrecoverycluster', '/backupschedule', '/alertRules', '/managementserver', '/alert', ''].join('|'))
         .test(this.$route.path)
     },
     enableGroupAction () {
@@ -985,6 +986,13 @@ export default {
     },
     getDateAtTimeZone (date, timezone) {
       return date ? moment(date).tz(timezone).format('YYYY-MM-DD HH:mm:ss') : null
+    },
+    getIntervalTypeText (intervaltype) {
+      const types = { 0: 'HOURLY', 1: 'DAILY', 2: 'WEEKLY', 3: 'MONTHLY' }
+      return types[intervaltype] || intervaltype
+    },
+    getTimeZone (timeZone) {
+      return timeZoneName(timeZone)
     },
     fetchColumns () {
       if (this.isOrderUpdatable()) {
