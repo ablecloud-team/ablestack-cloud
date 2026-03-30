@@ -248,6 +248,12 @@ export default {
           this.handleChangeIntervalType()
         }
       }
+    },
+    'resource.id': {
+      immediate: true,
+      handler () {
+        this.reinitializeForm()
+      }
     }
   },
   inject: ['refreshSchedule', 'closeSchedule'],
@@ -260,15 +266,44 @@ export default {
     initForm () {
       this.formRef = ref()
       this.form = reactive({
-        intervaltype: 'hourly'
+        intervaltype: 'hourly',
+        time: null,
+        timeSelect: null,
+        'day-of-week': null,
+        'day-of-month': null,
+        maxbackups: null,
+        timezone: null,
+        quiescevm: false
       })
-      this.rules = reactive({
+      this.rules = {
         time: [{ type: 'number', required: true, message: this.$t('message.error.required.input') }],
         timeSelect: [{ type: 'object', required: true, message: this.$t('message.error.time') }],
         'day-of-week': [{ type: 'number', required: true, message: `${this.$t('message.error.select')}` }],
         'day-of-month': [{ required: true, message: `${this.$t('message.error.select')}` }],
         timezone: [{ required: true, message: `${this.$t('message.error.select')}` }]
-      })
+      }
+    },
+    reinitializeForm () {
+      this.dayOfWeek = []
+      this.dayOfMonth = []
+      this.backupProvider = null
+
+      this.form = {
+        intervaltype: 'hourly',
+        time: null,
+        timeSelect: null,
+        'day-of-week': null,
+        'day-of-month': null,
+        maxbackups: null,
+        timezone: null,
+        quiescevm: false
+      }
+
+      if (this.formRef && this.formRef.value && this.formRef.value.clearValidate) {
+        this.formRef.value.clearValidate()
+      }
+
+      this.fetchBackupOffering()
     },
     fetchBackupOffering () {
       if ('backupoffering' in this.resource) {
@@ -398,9 +433,22 @@ export default {
       })
     },
     resetForm () {
-      this.formRef.value.resetFields()
-      this.form.intervaltype = 'hourly'
-      this.tags = []
+      this.form = {
+        intervaltype: 'hourly',
+        time: null,
+        timeSelect: null,
+        'day-of-week': null,
+        'day-of-month': null,
+        maxbackups: null,
+        timezone: null,
+        quiescevm: false
+      }
+      this.dayOfWeek = []
+      this.dayOfMonth = []
+
+      if (this.formRef && this.formRef.value && this.formRef.value.clearValidate) {
+        this.formRef.value.clearValidate()
+      }
     },
     closeAction () {
       this.closeSchedule()

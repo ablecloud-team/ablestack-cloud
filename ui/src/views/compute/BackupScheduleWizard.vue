@@ -17,9 +17,10 @@
 
 <template>
   <div class="backup-layout">
-    <a-tabs defaultActiveKey="1" :animated="false">
+    <a-tabs :key="`tabs-${resource?.id}-${innerRenderKey}`" defaultActiveKey="1" :animated="false">
       <a-tab-pane :tab="$t('label.schedule')" key="1">
         <FormSchedule
+          :key="`form-${resource?.id}-${innerRenderKey}`"
           :loading="loading"
           :resource="resource"
           :dataSource="dataSource"
@@ -28,6 +29,7 @@
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.scheduled.backups')" key="2">
         <BackupSchedule
+          :key="`backup-${resource?.id}-${innerRenderKey}`"
           :loading="loading"
           :resource="resource"
           :dataSource="dataSource"
@@ -58,7 +60,8 @@ export default {
   data () {
     return {
       loading: false,
-      dataSource: []
+      dataSource: [],
+      innerRenderKey: 0
     }
   },
   provide () {
@@ -71,6 +74,16 @@ export default {
   },
   created () {
     this.fetchData()
+  },
+  watch: {
+    'resource.id': {
+      immediate: false,
+      handler () {
+        this.dataSource = []
+        this.innerRenderKey++
+        this.fetchData()
+      }
+    }
   },
   methods: {
     fetchData () {

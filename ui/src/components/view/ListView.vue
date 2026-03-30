@@ -116,9 +116,48 @@
       </template>
 
       <template v-if="column.key === 'schedule'">
+        <div v-if="['/snapshotpolicy', '/backupschedule'].some(path => $route.path.endsWith(path))">
+          <label class="interval-content">
+            <span v-if="record.intervaltype===0 || record.intervaltype==='HOURLY'">{{ record.schedule + $t('label.min.past.hour') }}</span>
+            <span v-else>{{ record.schedule.split(':')[1] + ':' + record.schedule.split(':')[0] }}</span>
+          </label>
+          <span v-if="record.intervaltype===2 || record.intervaltype==='WEEKLY'">
+            {{ ` ${$t('label.every')} ${$t(listDayOfWeek[record.schedule.split(':')[2] - 1])}` }}
+          </span>
+          <span v-else-if="record.intervaltype===3 || record.intervaltype==='MONTHLY'">
+            {{ ` ${$t('label.day')} ${record.schedule.split(':')[2]} ${$t('label.of.month')}` }}
+          </span>
+        </div>
+        <div v-else>
           {{ text }}
-          <br/>
+          <br />
           ({{ generateHumanReadableSchedule(text) }})
+        </div>
+      </template>
+      <template v-if="column.key === 'intervaltype' && ['/snapshotpolicy', '/backupschedule'].some(path => $route.path.endsWith(path))">
+        <QuickView
+          style="margin-right: 8px"
+          :actions="actions"
+          :resource="record"
+          :enabled="quickViewEnabled(actions, columns, column.key)"
+          @exec-action="$parent.execAction"
+        />
+        <span v-if="record.intervaltype===0">
+          <clock-circle-outlined />
+        </span>
+        <span class="custom-icon icon-daily" v-else-if="record.intervaltype===1">
+          <calendar-outlined />
+        </span>
+        <span class="custom-icon icon-weekly" v-else-if="record.intervaltype===2">
+          <calendar-outlined />
+        </span>
+        <span class="custom-icon icon-monthly" v-else-if="record.intervaltype===3">
+          <calendar-outlined />
+        </span>
+        {{ getIntervalTypeText(record.intervaltype) }}
+      </template>
+      <template v-if="column.key === 'timezone'">
+        <label>{{ getTimeZone(record.timezone) }}</label>
       </template>
       <template v-if="column.key === 'displayname'">
         <router-link :to="{ path: $route.path + '/' + record.id }">{{ text }}</router-link>
@@ -637,6 +676,7 @@ import { createPathBasedOnVmType } from '@/utils/plugins'
 import { validateLinks } from '@/utils/links'
 import cronstrue from 'cronstrue/i18n'
 import moment from 'moment-timezone'
+import { timeZoneName } from '@/utils/timezone'
 
 export default {
   name: 'ListView',
@@ -736,6 +776,7 @@ export default {
       },
       usageTypeMap: {},
       resourceIdToValidLinksMap: {},
+      listDayOfWeek: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
       contextQuickViewVisible: false,
       contextQuickViewRecord: null,
       contextQuickViewPosition: {
@@ -933,7 +974,7 @@ export default {
         '/zone', '/pod', '/cluster', '/host', '/storagepool', '/imagestore', '/systemvm', '/router', '/ilbvm', '/annotation',
         '/computeoffering', '/systemoffering', '/diskoffering', '/backupoffering', '/networkoffering', '/vpcoffering',
         '/tungstenfabric', '/oauthsetting', '/guestos', '/guestoshypervisormapping', '/webhook', 'webhookdeliveries', '/quotatariff', '/sharedfs',
-        '/ipv4subnets', '/disasterrecoverycluster', '/alertRules', '/managementserver', '/alert', ''].join('|'))
+        '/ipv4subnets', '/disasterrecoverycluster', '/backupschedule', '/alertRules', '/managementserver', '/alert', ''].join('|'))
         .test(this.$route.path)
     },
     enableGroupAction () {
@@ -946,6 +987,13 @@ export default {
     },
     getDateAtTimeZone (date, timezone) {
       return date ? moment(date).tz(timezone).format('YYYY-MM-DD HH:mm:ss') : null
+    },
+    getIntervalTypeText (intervaltype) {
+      const types = { 0: 'HOURLY', 1: 'DAILY', 2: 'WEEKLY', 3: 'MONTHLY' }
+      return types[intervaltype] || intervaltype
+    },
+    getTimeZone (timeZone) {
+      return timeZoneName(timeZone)
     },
     fetchColumns () {
       if (this.isOrderUpdatable()) {

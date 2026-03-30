@@ -63,12 +63,23 @@ public class ListBackupScheduleCmd extends BaseCmd {
             description = "ID of the Instance")
     private Long vmId;
 
+    @Parameter(name = ApiConstants.ID,
+            type = CommandType.UUID,
+            entityType = BackupScheduleResponse.class,
+            description = "the ID of the backup schedule",
+            since = "4.22.0")
+    private Long id;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
 
     public Long getVmId() {
         return vmId;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     /////////////////////////////////////////////////////
@@ -78,7 +89,7 @@ public class ListBackupScheduleCmd extends BaseCmd {
     @Override
     public void execute() throws ResourceUnavailableException, InsufficientCapacityException, ServerApiException, ConcurrentOperationException, ResourceAllocationException, NetworkRuleConflictException {
         try{
-            List<BackupSchedule> schedules = backupManager.listBackupSchedule(getVmId());
+            List<BackupSchedule> schedules = backupManager.listBackupSchedules(this);
             ListResponse<BackupScheduleResponse> response = new ListResponse<>();
             List<BackupScheduleResponse> scheduleResponses = new ArrayList<>();
             if (!CollectionUtils.isNullOrEmpty(schedules)) {

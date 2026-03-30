@@ -442,7 +442,7 @@ export default {
     },
     {
       name: 'backup',
-      title: 'label.backup',
+      title: 'label.backups',
       icon: 'cloud-upload-outlined',
       permission: ['listBackups'],
       columns: ['name', 'status', 'size', 'virtualsize', 'virtualmachinename', 'backupofferingname', 'intervaltype', 'type', 'created', 'account', 'domain', 'zone'],
@@ -499,6 +499,51 @@ export default {
           popup: true,
           groupMap: (selection, values) => { return selection.map(x => { return { id: x, forced: values.forced } }) },
           args: ['forced']
+        }
+      ]
+    },
+    {
+      name: 'backupschedule',
+      title: 'label.backup.schedules',
+      icon: 'build-outlined',
+      docHelp: 'adminguide/storage.html#working-with-volume-snapshots',
+      permission: ['listBackupSchedule'],
+      resourceType: 'backupSchedule',
+      params: { listall: true },
+      columns: () => {
+        var fields = ['intervaltype', 'maxbackups', 'schedule', 'timezone', 'virtualmachinename']
+        return fields
+      },
+      searchFilters: ['virtualmachineid'],
+      actions: [
+        {
+          api: 'createBackupSchedule',
+          icon: 'plus-outlined',
+          docHelp: 'adminguide/storage.html#working-with-volume-snapshots',
+          label: 'label.action.create.backup.schedule',
+          listView: true,
+          show: () => { return 'createBackupSchedule' in store.getters.apis },
+          popup: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/backup/CreateBackupSchedule.vue'))),
+          mapping: {
+            intervaltype: {
+              options: ['HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY']
+            }
+          }
+        },
+        {
+          api: 'deleteBackupSchedule',
+          icon: 'delete-outlined',
+          label: 'label.delete.backup.schedule',
+          message: 'message.action.delete.backup.schedule',
+          dataView: true,
+          show: (record) => true,
+          args: ['id'],
+          mapping: {
+            id: {
+              value: (record) => record.id
+            }
+          }
         }
       ]
     },
