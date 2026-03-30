@@ -101,7 +101,7 @@ export default {
     },
     async onVMChange (vmId) {
       const vm = this.vms.find(v => v.id === vmId)
-      his.selectedVM = null
+      this.selectedVM = null
       this.selectedVMId = vmId
       this.wizardResetSeq++
       await nextTick()
