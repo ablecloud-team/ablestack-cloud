@@ -248,6 +248,12 @@ export default {
           this.handleChangeIntervalType()
         }
       }
+    },
+    'resource.id': {
+      handler () {
+        this.resetForm()
+        this.fetchBackupOffering()
+      }
     }
   },
   inject: ['refreshSchedule', 'closeSchedule'],
@@ -400,6 +406,8 @@ export default {
     resetForm () {
       this.formRef.value.resetFields()
       this.form.intervaltype = 'hourly'
+      this.dayOfWeek = []
+      this.dayOfMonth = []
       this.tags = []
     },
     closeAction () {
