@@ -299,9 +299,9 @@ export default {
         quiescevm: false
       }
 
-      this.$nextTick(() => {
-        this.formRef?.value?.clearValidate?.()
-      })
+      if (this.formRef && this.formRef.value && this.formRef.value.clearValidate) {
+        this.formRef.value.clearValidate()
+      }
 
       this.fetchBackupOffering()
     },
@@ -446,9 +446,9 @@ export default {
       this.dayOfWeek = []
       this.dayOfMonth = []
 
-      this.$nextTick(() => {
-        this.formRef?.value?.clearValidate?.()
-      })
+      if (this.formRef && this.formRef.value && this.formRef.value.clearValidate) {
+        this.formRef.value.clearValidate()
+      }
     },
     closeAction () {
       this.closeSchedule()
