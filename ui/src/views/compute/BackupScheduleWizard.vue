@@ -17,10 +17,10 @@
 
 <template>
   <div class="backup-layout">
-    <a-tabs :key="`tabs-${resource?.id}`" defaultActiveKey="1" :animated="false">
+    <a-tabs :key="`tabs-${resource?.id}-${innerRenderKey}`" defaultActiveKey="1" :animated="false">
       <a-tab-pane :tab="$t('label.schedule')" key="1">
         <FormSchedule
-          :key="`form-${resource?.id}`"
+          :key="`form-${resource?.id}-${innerRenderKey}`"
           :loading="loading"
           :resource="resource"
           :dataSource="dataSource"
@@ -29,7 +29,7 @@
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.scheduled.backups')" key="2">
         <BackupSchedule
-          :key="`backup-${resource?.id}`"
+          :key="`backup-${resource?.id}-${innerRenderKey}`"
           :loading="loading"
           :resource="resource"
           :dataSource="dataSource"
