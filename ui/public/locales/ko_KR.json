@@ -717,6 +717,7 @@
 "label.delete.asnrange": "AS Range \uc0ad\uc81c",
 "label.delete.autoscale.vmgroup": "\uc624\ud1a0\uc2a4\ucf00\uc77c VM \uadf8\ub8f9 \uc0ad\uc81c",
 "label.delete.backup": "\ubc31\uc5c5 \uc0ad\uc81c",
+"label.delete.backup.schedule": "\ubc31\uc5c5 \uc77c\uc815 \uc0ad\uc81c",
 "label.delete.bgp.peer": "BGP \ud53c\uc5b4 \uc0ad\uc81c",
 "label.delete.bigswitchbcf": "BigSwitch BCF \ucee8\ud2b8\ub864\ub7ec \uc0ad\uc81c",
 "label.delete.brocadevcs": "Brocade Vcs \uc2a4\uc704\uce58 \uc0ad\uc81c",

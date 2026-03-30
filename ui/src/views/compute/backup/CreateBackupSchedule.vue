@@ -42,6 +42,7 @@
     <div v-if="selectedVM && selectedVM.id">
       <BackupScheduleWizard
         ref="backupScheduleWizard"
+        :key="selectedVM.id"
         :resource="selectedVM"
         @close-action="closeAction"
         @refresh="handleRefresh"
@@ -93,10 +94,8 @@ export default {
     },
     onVMChange (vmId) {
       const vm = this.vms.find(v => v.id === vmId)
-      if (vm) {
-        this.selectedVM = vm
-        this.selectedVMId = vmId
-      }
+      this.selectedVM = vm ? { ...vm } : null
+      this.selectedVMId = vmId
     },
     closeAction () {
       this.$emit('refresh')

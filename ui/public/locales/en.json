@@ -717,6 +717,7 @@
 "label.delete.asnrange": "Delete AS Range",
 "label.delete.autoscale.vmgroup": "Delete AutoScaling Group",
 "label.delete.backup": "Delete backup",
+"label.delete.backup.schedule": "Delete backup schedule",
 "label.delete.bgp.peer": "Delete BGP peer",
 "label.delete.bigswitchbcf": "Remove BigSwitch BCF controller",
 "label.delete.brocadevcs": "Remove Brocade Vcs switch",
