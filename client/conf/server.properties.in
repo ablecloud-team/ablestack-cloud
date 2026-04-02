@@ -23,7 +23,7 @@
 context.path=/client
 
 # The HTTP port to be used by the management server
-http.enable=true
+http.enable=false
 http.port=8080
 
 # Max inactivity time in minutes for the session
@@ -36,11 +36,11 @@ request.content.size=1048576
 #
 # For the management server to pick up these configuration settings, the configured
 # keystore file should exist and be readable by the management server.
-https.enable=false
-https.port=8443
+https.enable=true
+https.port=443
 
 # The keystore and manager passwords are assumed to be same.
-https.keystore=/etc/cloudstack/management/cloud.jks
+https.keystore=/etc/cloudstack/management/keystore
 # If you want to encrypt the password itself, follow the steps mentioned at:
 http://docs.cloudstack.apache.org/en/latest/adminguide/management.html?highlight=jasypt#changing-the-database-password
 https.keystore.password=vmops.com

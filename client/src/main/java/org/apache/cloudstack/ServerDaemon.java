@@ -91,7 +91,7 @@ public class ServerDaemon implements Daemon {
 
     private boolean httpEnable = true;
     private int httpPort = 8080;
-    private int httpsPort = 8443;
+    private int httpsPort = 443;
     private int sessionTimeout = 10;
     private int maxFormContentSize = DEFAULT_REQUEST_CONTENT_SIZE;
     private boolean httpsEnable = false;
@@ -134,7 +134,7 @@ public class ServerDaemon implements Daemon {
             setHttpEnable(Boolean.valueOf(properties.getProperty(HTTP_ENABLE, "true")));
             setHttpPort(Integer.valueOf(properties.getProperty(HTTP_PORT, "8080")));
             setHttpsEnable(Boolean.valueOf(properties.getProperty(HTTPS_ENABLE, "false")));
-            setHttpsPort(Integer.valueOf(properties.getProperty(HTTPS_PORT, "8443")));
+            setHttpsPort(Integer.valueOf(properties.getProperty(HTTPS_PORT, "443")));
             setKeystoreFile(properties.getProperty(KEYSTORE_FILE));
             setKeystorePassword(properties.getProperty(KEYSTORE_PASSWORD));
             setWebAppLocation(properties.getProperty(WEBAPP_DIR));
