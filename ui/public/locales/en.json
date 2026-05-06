@@ -7585,5 +7585,6 @@
   "message.action.delete.kms.key": "Please confirm that you want to delete this KMS key.",
   "message.action.migrate.volume.to.kms": "Please confirm that you want to migrate this volume's passphrase encryption to KMS. This operation re-encrypts the volume key using the selected KMS key and cannot be undone.",
   "message.action.migrate.volumes.to.kms": "Please confirm that you want to migrate volumes to KMS encryption. This operation re-encrypts volume keys using the selected KMS key and cannot be undone.",
-  "message.kms.key.optional": "Optional: Select a KMS key for encryption. If not selected, legacy passphrase encryption will be used."
+  "message.kms.key.optional": "Optional: Select a KMS key for encryption. If not selected, legacy passphrase encryption will be used.",
+  "label.keep.mac.address.on.public.nic": "Use same MAC address for public NIC of VRs"
 }

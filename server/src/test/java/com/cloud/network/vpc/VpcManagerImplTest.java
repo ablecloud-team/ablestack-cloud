@@ -494,7 +494,7 @@ public class VpcManagerImplTest {
         try {
             doNothing().when(resourceLimitService).checkResourceLimit(account, Resource.ResourceType.vpc);
             manager.createVpc(zoneId, vpcOfferingId, vpcOwnerId, vpcName, vpcName, ip4Cidr, vpcDomain,
-                    ip4Dns[0], null, null, null, true, 1500, null, null, null, false);
+                    ip4Dns[0], null, null, null, true, 1500, null, null, null, false, true);
         } catch (ResourceAllocationException e) {
             Assert.fail(String.format("failure with exception: %s", e.getMessage()));
         }
@@ -506,7 +506,7 @@ public class VpcManagerImplTest {
         try {
             doNothing().when(resourceLimitService).checkResourceLimit(account, Resource.ResourceType.vpc);
             manager.createVpc(zoneId, vpcOfferingId, vpcOwnerId, vpcName, vpcName, ip4Cidr, vpcDomain,
-                    ip4Dns[0], ip4Dns[1], ip6Dns[0], null, true, 1500, null, null, null, false);
+                    ip4Dns[0], ip4Dns[1], ip6Dns[0], null, true, 1500, null, null, null, false, true);
         } catch (ResourceAllocationException e) {
             Assert.fail(String.format("failure with exception: %s", e.getMessage()));
         }
@@ -521,7 +521,7 @@ public class VpcManagerImplTest {
         try (MockedConstruction<CheckedReservation> mockCheckedReservation = Mockito.mockConstruction(CheckedReservation.class)) {
             doNothing().when(resourceLimitService).checkResourceLimit(account, Resource.ResourceType.vpc);
             manager.createVpc(zoneId, vpcOfferingId, vpcOwnerId, vpcName, vpcName, ip4Cidr, vpcDomain,
-                    ip4Dns[0], ip4Dns[1], null, null, true, 1500, null, null, null, false);
+                    ip4Dns[0], ip4Dns[1], null, null, true, 1500, null, null, null, false, true);
         } catch (ResourceAllocationException e) {
             Assert.fail(String.format("failure with exception: %s", e.getMessage()));
         }
@@ -538,7 +538,7 @@ public class VpcManagerImplTest {
         try (MockedConstruction<CheckedReservation> mockCheckedReservation = Mockito.mockConstruction(CheckedReservation.class)) {
             doNothing().when(resourceLimitService).checkResourceLimit(account, Resource.ResourceType.vpc);
             manager.createVpc(zoneId, vpcOfferingId, vpcOwnerId, vpcName, vpcName, ip4Cidr, vpcDomain,
-                    ip4Dns[0], ip4Dns[1], null, null, true, 1500, null, null, null, false);
+                    ip4Dns[0], ip4Dns[1], null, null, true, 1500, null, null, null, false, true);
         } catch (ResourceAllocationException e) {
             Assert.fail(String.format("failure with exception: %s", e.getMessage()));
         }
@@ -561,7 +561,7 @@ public class VpcManagerImplTest {
         try (MockedConstruction<CheckedReservation> mockCheckedReservation = Mockito.mockConstruction(CheckedReservation.class)) {
             doNothing().when(resourceLimitService).checkResourceLimit(account, Resource.ResourceType.vpc);
             manager.createVpc(zoneId, vpcOfferingId, vpcOwnerId, vpcName, vpcName, null, vpcDomain,
-                    ip4Dns[0], ip4Dns[1], null, null, true, 1500, 24, null, bgpPeerIds, false);
+                    ip4Dns[0], ip4Dns[1], null, null, true, 1500, 24, null, bgpPeerIds, false, true);
         } catch (ResourceAllocationException e) {
             Assert.fail(String.format("failure with exception: %s", e.getMessage()));
         }
