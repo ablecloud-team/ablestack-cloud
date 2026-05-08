@@ -7649,5 +7649,6 @@
   "label.external.network.provider": "External Network Provider",
   "label.networkorchestrator": "Network Orchestrator",
   "message.action.update.extension.resource": "Update the extension resource registration details",
-  "message.success.update.extension.resource": "Successfully updated extension resource registration"
+  "message.success.update.extension.resource": "Successfully updated extension resource registration",
+  "label.delete.confirmation": "Enter the exact resource name to proceed with deletion"
 }

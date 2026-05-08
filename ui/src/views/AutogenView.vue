@@ -517,6 +517,12 @@
             </div>
             <br v-if="currentAction.paramFields.length > 0" />
           </span>
+          <div v-if="requiresNameConfirmation" style="margin-bottom: 5px">
+            <a-form-item>
+              <a-input v-model:value="actionConfirmText" :placeholder="resource.name" />
+            </a-form-item>
+            <a-alert type="info" :message="$t('label.delete.confirmation')" />
+          </div>
           <a-form
             :ref="formRef"
             :model="form"
@@ -780,6 +786,7 @@
               <a-button
                 type="primary"
                 @click="handleSubmit"
+                :disabled="isSubmitDisabled"
                 ref="submit"
               >{{ $t('label.ok') }}</a-button>
             </div>
@@ -946,6 +953,7 @@ export default {
       confirmDirty: false,
       firstIndex: 0,
       modalWidth: '30vw',
+      actionConfirmText: '',
       promises: [],
       detailActionsVisible: false,
       autoRefreshTimer: null,
@@ -1242,6 +1250,14 @@ export default {
           ('groupShow' in action ? action.groupShow(this.selectedItems, this.$store.getters) : true)
         return showOnList || showOnGroup
       })
+    },
+    requiresNameConfirmation () {
+      return !!this.currentAction?.requireNameConfirmation &&
+        !(this.currentAction.invokedAsGroupAction && this.selectedRowKeys.length > 0)
+    },
+    isSubmitDisabled () {
+      return this.requiresNameConfirmation &&
+        (!this.resource?.name || this.actionConfirmText.trim() !== this.resource.name.trim())
     }
   },
   methods: {
@@ -1796,6 +1812,7 @@ export default {
       this.actionLoading = false
       this.showAction = false
       this.currentAction = {}
+      this.actionConfirmText = ''
     },
     cancelAction () {
       eventBus.emit('action-closing', { action: this.currentAction })
@@ -1861,6 +1878,7 @@ export default {
         invokedAsGroupAction: !!isGroupAction
       }
       this.currentAction.params = store.getters.apis[this.currentAction.api].params
+      this.actionConfirmText = ''
       this.resource = action.resource
       this.$emit('change-resource', this.resource)
       var paramFields = this.currentAction.params
@@ -2163,7 +2181,7 @@ export default {
       this.message = {}
     },
     handleSubmit (e) {
-      if (this.actionLoading) return
+      if (this.actionLoading || this.isSubmitDisabled) return
       this.promises = []
       if (!this.dataView && this.currentAction.invokedAsGroupAction && this.selectedRowKeys.length > 0) {
         if (this.selectedRowKeys.length > 0) {

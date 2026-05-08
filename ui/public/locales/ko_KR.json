@@ -7532,5 +7532,6 @@
   "label.backedup": "백업 완료",
   "label.backingup": "백업 중",
   "label.queued": "대기 중",
-  "label.restoring": "복원 중"
+  "label.restoring": "복원 중",
+  "label.delete.confirmation": "삭제하려면 리소스 이름을 정확히 입력하세요"
 }
