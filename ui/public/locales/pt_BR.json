@@ -5588,5 +5588,6 @@
   "label.validate": "Validar",
   "label.validationstatus": "Estado de validação",
   "label.validationsteps": "Passos de validação",
-  "label.keep.mac.address.on.public.nic": "Utilizar o mesmo endereço MAC para a NIC pública dos VRs"
+  "label.keep.mac.address.on.public.nic": "Utilizar o mesmo endereço MAC para a NIC pública dos VRs",
+  "message.warn.vpc.offerings": "Ofertas de VPC somente serÃo exibidas caso a conta selecionada possua ao menos uma VPC."
 }
