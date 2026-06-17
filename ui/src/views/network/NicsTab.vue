@@ -283,6 +283,11 @@
             v-model:value="newSecondaryIp"
             v-focus="editNicResource.type!=='Shared'"></a-input>
         </a-form-item>
+        <a-form-item :label="$t('label.secondaryip.description')">
+          <a-input
+            :placeholder="$t('label.new.secondaryip.description.description')"
+            v-model:value="newSecondaryIpDescription" />
+        </a-form-item>
         <div :span="24" class="action-button">
           <a-button @click="closeModals">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="submitSecondaryIP">{{ $t('label.add.secondary.ip') }}</a-button>
@@ -391,6 +396,7 @@ export default {
       secondaryIPs: [],
       selectedNicId: '',
       newSecondaryIp: '',
+      newSecondaryIpDescription: '',
       editNicResource: {},
       listIps: {
         loading: false,
@@ -532,6 +538,7 @@ export default {
       this.rules = {}
       this.newSecondaryIp = ''
       this.listIps.opts = []
+      this.newSecondaryIpDescription = ''
     },
     onChangeIPAddress (record) {
       this.formRef = ref()
@@ -730,6 +737,7 @@ export default {
       if (this.newSecondaryIp) {
         params.ipaddress = this.newSecondaryIp
       }
+      params.description = this.newSecondaryIpDescription
 
       postAPI('addIpToNic', params).then(response => {
         this.$pollJob({
@@ -757,6 +765,7 @@ export default {
         this.loadingNic = false
       }).finally(() => {
         this.newSecondaryIp = null
+        this.newSecondaryIpDescription = null
         this.fetchPublicIps(this.editNetworkId)
       })
     },

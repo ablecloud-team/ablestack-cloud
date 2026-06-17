@@ -4775,6 +4775,7 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
         setResponseIpAddress(result, response);
         response.setNicId(nic.getUuid());
         response.setNwId(network.getUuid());
+        response.setDescription(result.getDescription());
         response.setObjectName("nicsecondaryip");
         return response;
     }
@@ -4861,6 +4862,7 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
                 for (NicSecondaryIpVO ip : secondaryIps) {
                     NicSecondaryIpResponse ipRes = new NicSecondaryIpResponse();
                     ipRes.setId(ip.getUuid());
+                    ipRes.setDescription(ip.getDescription());
                     setResponseIpAddress(ip, ipRes);
                     ipList.add(ipRes);
                 }

@@ -7587,5 +7587,7 @@
   "message.action.migrate.volumes.to.kms": "Please confirm that you want to migrate volumes to KMS encryption. This operation re-encrypts volume keys using the selected KMS key and cannot be undone.",
   "message.kms.key.optional": "Optional: Select a KMS key for encryption. If not selected, legacy passphrase encryption will be used.",
   "label.keep.mac.address.on.public.nic": "Use same MAC address for public NIC of VRs",
-  "message.warn.vpc.offerings": "VPC offerings will only be shown if the selected account has at least one VPC."
+  "message.warn.vpc.offerings": "VPC offerings will only be shown if the selected account has at least one VPC.",
+  "label.new.secondaryip.description.description": "Enter a description for the new secondary IP address",
+  "label.secondaryip.description": "Description"
 }
