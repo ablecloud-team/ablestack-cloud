@@ -134,6 +134,8 @@ public interface NetworkOrchestrationService {
                     "Load Balancer(haproxy) idle timeout in milliseconds. Use 0 for infinite.",
                     true,
                     Scope.Global);
+    ConfigKey<Integer> VmNetworkThrottlingRate = new ConfigKey<Integer>("Network", Integer.class, "vm.network.throttling.rate", "10000",
+            "Default data transfer rate in megabits per second allowed in User vm's default network.", true, ConfigKey.Scope.Zone);
 
     List<? extends Network> setupNetwork(Account owner, NetworkOffering offering, DeploymentPlan plan, String name, String displayText, boolean isDefault)
         throws ConcurrentOperationException;
