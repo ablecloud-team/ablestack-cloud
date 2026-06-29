@@ -905,7 +905,7 @@ public class LoadBalancingRulesManagerImpl<Type> extends ManagerBase implements 
                 success = false;
             }
         } else {
-            _lb2stickinesspoliciesDao.expunge(stickinessPolicyId);
+            _lb2stickinesspoliciesDao.remove(stickinessPolicyId);
         }
         return success;
     }
@@ -1722,6 +1722,12 @@ public class LoadBalancingRulesManagerImpl<Type> extends ManagerBase implements 
                 for (LBHealthCheckPolicyVO lbHealthCheck : hcPolicies) {
                     lbHealthCheck.setRevoke(true);
                     _lb2healthcheckDao.persist(lbHealthCheck);
+                }
+
+                List<LBStickinessPolicyVO> stickinessPolicies = _lb2stickinesspoliciesDao.listByLoadBalancerId(loadBalancerId);
+                for (LBStickinessPolicyVO stickinessPolicy : stickinessPolicies) {
+                    stickinessPolicy.setRevoke(true);
+                    _lb2stickinesspoliciesDao.persist(stickinessPolicy);
                 }
 
                 if (generateUsageEvent) {
@@ -2762,7 +2768,12 @@ public class LoadBalancingRulesManagerImpl<Type> extends ManagerBase implements 
 
     @Override
     public void removeLBRule(LoadBalancer rule) {
-        // remove the rule
+        FirewallRule relatedFirewallRule = _firewallDao.findByRelatedId(rule.getId());
+        if (relatedFirewallRule != null) {
+            logger.debug("Load balancer [{}] has a related firewall rule [{}]. Removing it.", rule.getUuid(), relatedFirewallRule.getUuid());
+            _firewallDao.remove(relatedFirewallRule.getId());
+        }
+
         _lbDao.remove(rule.getId());
     }
 
