@@ -639,10 +639,7 @@ export default {
           delete loginParams.username
           loginParams[!this.state.loginType ? 'email' : 'username'] = values.username
           loginParams.password = values.password
-          loginParams.domain = values.domain
-          if (!loginParams.domain) {
-            loginParams.domain = '/'
-          }
+          loginParams.domain = this.getLoginDomain(values.domain)
           this.Login(loginParams)
             .then((res) => this.loginSuccess(res))
             .catch(() => {
@@ -671,10 +668,7 @@ export default {
         loginParams.email = this.email
         loginParams.provider = provider
         loginParams.secretcode = this.secretcode
-        loginParams.domain = values.domain
-        if (!loginParams.domain) {
-          loginParams.domain = '/'
-        }
+        loginParams.domain = this.getLoginDomain(values.domain)
         this.OauthLogin(loginParams)
           .then((res) => this.loginSuccess(res))
           .catch(err => {
