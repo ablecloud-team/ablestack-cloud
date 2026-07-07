@@ -211,6 +211,9 @@
       <template v-if="column.key === 'templatetype'">
         <router-link :to="{ path: $route.path + '/' + record.templatetype }">{{ text }}</router-link>
       </template>
+      <template v-if="$route.path.startsWith('/dnsserver') && !['name', 'provider', 'state', 'ispublic'].includes(column.key)">
+        <span>{{ text }}</span>
+      </template>
       <template v-if="column.key === 'gpu'">
         <span v-if="record.gpucardname && record.vgpuprofilename">
           {{ record?.gpucount > 0 ? record.gpucount + 'x' : '' }}
@@ -1481,7 +1484,7 @@ export default {
           '/zone', '/pod', '/cluster', '/host', '/storagepool', '/imagestore', '/systemvm', '/router', '/ilbvm', '/annotation',
           '/computeoffering', '/systemoffering', '/diskoffering', '/backupoffering', '/networkoffering', '/vpcoffering',
           '/tungstenfabric', '/oauthsetting', '/guestos', '/guestoshypervisormapping', '/webhook', 'webhookdeliveries', 'webhookfilters', '/quotatariff', '/sharedfs',
-          '/ipv4subnets', '/disasterrecoverycluster', '/managementserver', '/gpucard', '/gpudevices', '/vgpuprofile', '/extension', '/snapshotpolicy', '/backupschedule', '/alertRules', '/alert', '/kmskey', '/hsmprofile', ''].join('|'))
+          '/ipv4subnets', '/disasterrecoverycluster', '/managementserver', '/gpucard', '/gpudevices', '/vgpuprofile', '/extension', '/snapshotpolicy', '/backupschedule', '/alertRules', '/alert', '/kmskey', '/hsmprofile', '/dnsserver', '/dnszone', ''].join('|'))
           .test(this.$route.path)
     },
     enableGroupAction () {

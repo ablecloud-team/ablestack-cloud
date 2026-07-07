@@ -61,6 +61,9 @@
       <a-list-item v-if="record.isolationuri">
         <strong>{{ $t('label.isolationuri') }}</strong> : {{ record.isolationuri }}
       </a-list-item>
+      <a-list-item v-if="record.nicdnsname">
+        <strong>{{ $t('label.dns.name') }}</strong> : {{ record.nicdnsname }}
+      </a-list-item>
     </a-list>
     </template>
     <template #bodyCell="{ column, text, record }">
