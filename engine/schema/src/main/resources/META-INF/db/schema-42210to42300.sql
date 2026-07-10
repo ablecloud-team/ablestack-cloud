@@ -1392,6 +1392,14 @@ WHERE NOT EXISTS (SELECT 1 FROM `cloud`.`configuration` WHERE `name` = 'kvm.cpu.
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.networks', 'keep_mac_address_on_public_nic', 'TINYINT(1) NOT NULL DEFAULT 1');
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.vpc', 'keep_mac_address_on_public_nic', 'TINYINT(1) NOT NULL DEFAULT 1');
 
+-- Increase length of value of extension details from 255 to 4096 to support longer details value
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.extension_details', 'value', 'value', 'VARCHAR(4096)');
+CALL `cloud`.`IDEMPOTENT_CHANGE_COLUMN`('cloud.extension_resource_map_details', 'value', 'value', 'VARCHAR(4096)');
+
+-- Add CustomAction service support to physical_network_service_providers
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.physical_network_service_providers', 'custom_action_service_provided', 'tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT "Is Custom Action service provided" AFTER `networkacl_service_provided`');
+
+
 -- Add description for secondary IP addresses
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.nic_secondary_ips', 'description', 'VARCHAR(2048) DEFAULT NULL');
 

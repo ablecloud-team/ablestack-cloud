@@ -7644,5 +7644,10 @@
   "message.error.fetch.dns.zones": "Could not load DNS zones.",
   "placeholder.dns.record.name": "e.g. www",
   "placeholder.dns.record.type": "Select record type",
-  "placeholder.dns.record.contents": "Type a value and hit Enter"
+  "placeholder.dns.record.contents": "Type a value and hit Enter",
+  "label.action.update.extension.resource": "Update extension resource details",
+  "label.external.network.provider": "External Network Provider",
+  "label.networkorchestrator": "Network Orchestrator",
+  "message.action.update.extension.resource": "Update the extension resource registration details",
+  "message.success.update.extension.resource": "Successfully updated extension resource registration"
 }
