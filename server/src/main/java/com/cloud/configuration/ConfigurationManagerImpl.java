@@ -7337,8 +7337,6 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                     forVpc = false;
                 } else if (service == Service.NetworkACL) {
                     forVpc = true;
-                } else if (service == Service.Firewall) {
-                    forVpc = true;
                 }
             }
 
