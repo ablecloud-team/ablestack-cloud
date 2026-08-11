@@ -205,17 +205,8 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
             throw new CloudRuntimeException("Failed to create the tmp mount directory for restore on the KVM host");
         }
 
-        String mount = String.format(MOUNT_COMMAND, backupRepoType, backupRepoAddress, mountDirectory);
-        if ("cifs".equals(backupRepoType)) {
-            if (Objects.isNull(mountOptions) || mountOptions.trim().isEmpty()) {
-                mountOptions = "nobrl";
-            } else {
-                mountOptions += ",nobrl";
-            }
-        }
-        if (Objects.nonNull(mountOptions) && !mountOptions.trim().isEmpty()) {
-            mount += " -o " + mountOptions;
-        }
+        final String mount = LibvirtBackupRepositoryMountHelper.buildMountCommand(
+                backupRepoAddress, backupRepoType, mountOptions, mountDirectory);
 
         int exitValue = Script.runSimpleBashScriptForExitValue(mount, mountTimeout, false);
         if (exitValue != 0) {

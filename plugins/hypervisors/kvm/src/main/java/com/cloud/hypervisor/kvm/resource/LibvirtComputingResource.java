@@ -400,7 +400,9 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     public static final String WINDOWS_GUEST_CONVERSION_SUPPORTED_PACKAGE = "virtio-win";
     public static final String UBUNTU_WINDOWS_GUEST_CONVERSION_SUPPORTED_CHECK_CMD = "dpkg -l virtio-win";
     public static final String UBUNTU_NBDKIT_PKG_CHECK_CMD = "dpkg -l nbdkit";
-    public static final String VDDK_AUTODETECT_PATH_CMD = "find / -type d -name 'vmware-vix-disklib-distrib' 2>/dev/null | head -n 1";
+    public static final String VDDK_AUTODETECT_PATH_CMD =
+            "find /opt /usr /usr/local -maxdepth 5 -type d -name 'vmware-vix-disklib-distrib' 2>/dev/null | head -n 1";
+    private static final int VDDK_AUTODETECT_TIMEOUT_SECONDS = 15;
 
     public static final int LIBVIRT_CGROUP_CPU_SHARES_MIN = 2;
     public static final int LIBVIRT_CGROUP_CPU_SHARES_MAX = 262144;
@@ -7034,10 +7036,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         if (StringUtils.isBlank(effectiveVddkLibDir)) {
             effectiveVddkLibDir = StringUtils.trimToNull(vddkLibDir);
         }
-        if (StringUtils.isBlank(effectiveVddkLibDir) || !isVddkLibDirValid(effectiveVddkLibDir)) {
-            effectiveVddkLibDir = detectVddkLibDir();
-        }
-        return hostSupportsInstanceConversion() && isVddkLibDirValid(effectiveVddkLibDir) && StringUtils.isNotBlank(detectVddkVersion());
+        return hostSupportsInstanceConversion() && isVddkLibDirValid(effectiveVddkLibDir) && StringUtils.isNotBlank(vddkVersion);
     }
 
     protected boolean isVddkLibDirValid(String path) {
@@ -7053,7 +7052,8 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     }
 
     protected String detectVddkLibDir() {
-        String detectedPath = StringUtils.trimToNull(Script.runSimpleBashScript(VDDK_AUTODETECT_PATH_CMD));
+        String detectedPath = StringUtils.trimToNull(
+                Script.runSimpleBashScript(VDDK_AUTODETECT_PATH_CMD, VDDK_AUTODETECT_TIMEOUT_SECONDS));
         if (StringUtils.isNotBlank(detectedPath) && isVddkLibDirValid(detectedPath)) {
             return detectedPath;
         }

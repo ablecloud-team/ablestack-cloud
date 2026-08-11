@@ -92,6 +92,14 @@ public interface BackupProvider {
     }
 
     /**
+     * Import a Veeam restore point as a NAS backup seed (Ablestack Veeam provider only).
+     */
+    default Pair<Boolean, Backup> importAblestackVeeamBackupSeed(VirtualMachine vm, String veeamRestorePointId,
+            List<String> stagingDiskPaths, String sourceDiskFormat, Boolean bootstrapCheckpoint) {
+        throw new UnsupportedOperationException("Provider " + getName() + " does not support Veeam seed import");
+    }
+
+    /**
      * Delete an existing backup
      * @param backup The backup to exclude
      * @param forced Indicates if backup will be force removed or not

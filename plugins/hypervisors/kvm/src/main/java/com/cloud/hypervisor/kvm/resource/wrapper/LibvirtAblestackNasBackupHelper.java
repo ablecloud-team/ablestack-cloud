@@ -27,7 +27,9 @@ import com.cloud.hypervisor.kvm.storage.KVMStoragePool;
 import com.cloud.hypervisor.kvm.storage.KVMStoragePoolManager;
 import com.cloud.storage.Storage;
 import com.cloud.utils.Pair;
+import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.script.Script;
+import org.apache.cloudstack.backup.AblestackNasImportVeeamSeedCommand;
 import org.apache.cloudstack.backup.AblestackNasTakeBackupCommand;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.utils.security.ParserUtils;
@@ -86,6 +88,16 @@ class LibvirtAblestackNasBackupHelper {
 
     LibvirtAblestackNasBackupHelper(LibvirtComputingResource resource) {
         this.resource = resource;
+    }
+
+    Pair<Integer, String> executeImportVeeamSeed(AblestackNasImportVeeamSeedCommand command, List<String> diskPaths) {
+        if (CollectionUtils.isNullOrEmpty(command.getStagingDiskPaths())) {
+            return new Pair<>(1, "Staging disk paths are required for Veeam seed import");
+        }
+        String[] scriptCommand = buildImportVeeamSeedScriptCommand(command, diskPaths);
+        List<String[]> commands = new ArrayList<>();
+        commands.add(scriptCommand);
+        return Script.executePipedCommands(commands, resource.getCmdsTimeout());
     }
 
     Pair<Integer, String> executeBackup(AblestackNasTakeBackupCommand command) {
@@ -152,6 +164,25 @@ class LibvirtAblestackNasBackupHelper {
 
     private boolean isWholeNumber(String value) {
         return value != null && !value.isEmpty() && value.chars().allMatch(Character::isDigit);
+    }
+
+    private String[] buildImportVeeamSeedScriptCommand(AblestackNasImportVeeamSeedCommand command, List<String> diskPaths) {
+        return new String[] {
+                resource.getAbleNasBackupPath(),
+                "-o", "import-veeam-seed",
+                "-v", command.getVmName(),
+                "-t", command.getBackupRepoType(),
+                "-s", command.getBackupRepoAddress(),
+                "-m", Objects.nonNull(command.getMountOptions()) ? command.getMountOptions() : "",
+                "-p", command.getBackupPath(),
+                "-c", Objects.nonNull(command.getCheckpointName()) ? command.getCheckpointName() : "",
+                "-f", CollectionUtils.isNullOrEmpty(command.getBackupFiles()) ? "" : String.join(",", command.getBackupFiles()),
+                "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths),
+                "--staging-disks", String.join(",", command.getStagingDiskPaths()),
+                "--source-format", Objects.nonNull(command.getSourceFormat()) ? command.getSourceFormat() : "vmdk",
+                "--veeam-restore-point", Objects.nonNull(command.getVeeamRestorePointId()) ? command.getVeeamRestorePointId() : "",
+                "--bootstrap-checkpoint", command.getBootstrapCheckpoint() != null && command.getBootstrapCheckpoint() ? "true" : "false"
+        };
     }
 
     private String[] buildBackupScriptCommand(AblestackNasTakeBackupCommand command, List<String> diskPaths, BackupExecutionMode executionMode) {
@@ -274,14 +305,17 @@ class LibvirtAblestackNasBackupHelper {
 
     private Path mountRepository(AblestackNasTakeBackupCommand command) throws IOException {
         Path mountPoint = Files.createTempDirectory("csbackup.");
-        StringBuilder mount = new StringBuilder()
-                .append("mount -t ").append(shellQuote(command.getBackupRepoType()))
-                .append(" ").append(shellQuote(command.getBackupRepoAddress()))
-                .append(" ").append(shellQuote(mountPoint.toString()));
-        if (command.getMountOptions() != null && !command.getMountOptions().isEmpty()) {
-            mount.append(" -o ").append(shellQuote(command.getMountOptions()));
+        final String mount;
+        try {
+            mount = LibvirtBackupRepositoryMountHelper.buildMountCommand(
+                    command.getBackupRepoAddress(),
+                    command.getBackupRepoType(),
+                    command.getMountOptions(),
+                    mountPoint.toString());
+        } catch (CloudRuntimeException e) {
+            throw new IOException(e.getMessage(), e);
         }
-        if (Script.runSimpleBashScriptForExitValue(mount.toString(), resource.getCmdsTimeout(), false) != 0) {
+        if (Script.runSimpleBashScriptForExitValue(mount, resource.getCmdsTimeout(), false) != 0) {
             throw new IOException("Failed to mount backup repository");
         }
         return mountPoint;

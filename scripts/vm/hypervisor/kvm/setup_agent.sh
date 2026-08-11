@@ -56,6 +56,7 @@ install_cloud_agent() {
             then
                 let retry=retry-1
             else
+                install_mold_veeam_backup_hooks
                 break
             fi
         done
@@ -69,6 +70,7 @@ install_cloud_agent() {
             then
                 let retry=retry-1
             else
+                install_mold_veeam_backup_hooks
                 break
             fi
 
@@ -80,6 +82,22 @@ install_cloud_agent() {
         printf "Failed to install agent"
         exit 2
     fi
+}
+
+# Install Ablestack Veeam backup pre/post hooks (idempotent).
+install_mold_veeam_backup_hooks() {
+    local candidates="
+        /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam/install.sh
+        $(dirname "$0")/veeam/install.sh
+    "
+    local installer
+    for installer in $candidates; do
+        if [ -x "$installer" ]; then
+            "$installer" && return 0
+        fi
+    done
+    printf "Note: mold Veeam backup installer not found (skip)\n"
+    return 0
 }
 
 install_cloud_consoleP() {

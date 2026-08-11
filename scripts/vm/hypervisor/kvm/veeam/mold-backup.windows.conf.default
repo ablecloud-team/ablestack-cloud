@@ -1,0 +1,46 @@
+# Veeam Backup & Replication server configuration
+# Copy to C:\ProgramData\Mold\backup\veeam\mold-backup.windows.conf and edit.
+
+VEEAM_JOB_NAME=""
+VEEAM_SCHEDULE_NAME="default"
+VEEAM_MAX_CHAIN="7"
+# filelevel = KVM Agent SelectedFiles /tmp/mold/veeam (host mode)
+# guest = one Agent job per VM IP (SelectedFiles on guest; pre-job/post-job for Mold hooks)
+VEEAM_BACKUP_MODE="filelevel"
+VEEAM_BACKUP_TARGET="host"
+# Guest mode: libvirt-name:guest-ip pairs (comma-separated)
+VM_TARGETS=""
+VEEAM_GUEST_JOB_PREFIX="Mold VM"
+# Guest VM SSH (Veeam Protection Group — auto Individual computers + rescan)
+GUEST_VM_SSH_USER=root
+GUEST_VM_SSH_PASSWORD=
+# Linux path on KVM — used by setup-veeam-mold-job.ps1 / create-veeam-agent-job.ps1 (host mode only)
+VEEAM_HOST_BACKUP_PATH="/tmp/mold/veeam"
+# Custom protection group for Agent job (PowerShell). Not "Manually Added".
+# guest mode: create in Veeam UI first (Inventory -> Protection Groups)
+VEEAM_PROTECTION_GROUP_NAME="Mold KVM Agents"
+
+VM_NAME=""
+# Windows-only: FLR disk export on B&R server (veeam-job-pre-backup.ps1). Do NOT use for Linux Agent scope.
+STAGING_PATH="D:\veeam-staging"
+
+KVM_HOST=""
+KVM_SSH_USER="root"
+KVM_SSH_KEY=""
+KVM_SSH_PASSWORD=""
+KVM_PRE_NOTIFY_SCRIPT="/etc/ablestack/veeam/ablestack_veeam_pre_notify.sh"
+KVM_POST_NOTIFY_SCRIPT="/etc/ablestack/veeam/ablestack_veeam_post_notify.sh"
+KVM_RESTORE_NOTIFY_SCRIPT="/etc/ablestack/veeam/ablestack_veeam_restore_notify.sh"
+KVM_RESTORE_EVENT_SCRIPT="/etc/ablestack/veeam/ablestack_veeam_restore_event.sh"
+CLEANUP_STAGING_AFTER_BACKUP="true"
+
+VEEAM_RESTORE_POINT_ID=""
+BACKUP_ID=""
+# Per-VM Mold backup UUID for restore-watch / post-restore (libvirt-name:uuid pairs)
+# Example: VM_BACKUP_IDS=i-2-63-VM:2d48660f-de6b-42de-ac47-9f1337b9bfce
+VM_BACKUP_IDS=""
+# Datadisk + Veeam host repo (E:\opt1\veeam\<kvm-host>)
+VEEAM_HOST_REPO_ROOT="E:/opt1/veeam"
+VEEAM_REPO_NAME=""
+# After Veeam UI guest-file restore: Mold datadisk qcow2 only (Veeam already restored files)
+VEEAM_UI_RESTORE_SOURCE="mold-only"

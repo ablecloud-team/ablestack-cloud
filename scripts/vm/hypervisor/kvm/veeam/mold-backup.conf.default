@@ -1,0 +1,79 @@
+# Ablestack Veeam + Mold backup configuration (NetBackup-style)
+# Per-job config: /etc/ablestack/veeam/<JOB>.conf (created by veeam_config.sh)
+
+# --- API ---
+MOLD_API_URL="https://127.0.0.1:8080/client/api"
+MOLD_API_KEY=""
+MOLD_API_SECRET=""
+MOLD_API_SECRET_ENC_FILE="/etc/ablestack/veeam/secrets/secret.enc"
+MOLD_SECRET_KEY_FILE="/root/.ssh/ablestack.key"
+
+# --- Mold backup offering (UI name; separate from Veeam job if needed) ---
+BACKUP_OFFERING_NAME="VeeamBackup"
+
+# --- Job (policy) ---
+VEEAM_JOB_NAME=""
+VEEAM_SCHEDULE_NAME="default"
+VEEAM_MAX_CHAIN="7"
+ZONE_ID=""
+RETENTION_PERIOD="P7D"
+
+# --- VM filter (libvirt names) ---
+VM_INCLUDE="*"
+VM_EXCLUDE=""
+
+# --- Legacy single-VM ---
+VM_UUID=""
+VM_NAME=""
+
+# --- Mold zone / Veeam plugin ---
+VEEAM_URL=""
+VEEAM_USERNAME=""
+VEEAM_PASSWORD=""
+
+# --- Veeam server SSH (restore-watch polls Get-VBRRestoreSession) ---
+VEEAM_SSH_HOST=""
+VEEAM_SSH_USER="administrator"
+VEEAM_SSH_KEY="/root/.ssh/veeam_id_rsa"
+
+# --- Storage model: datadisk (no NAS) ---
+# GFS: qcow2 (libvirt checkpoint)  |  HCI: rbd (rbd export-diff on Ceph primary)
+# BACKUP_STORAGE_ENGINE: auto (detect from VM disks) | qcow2 | rbd
+BACKUP_STORAGE_ENGINE="auto"
+BACKUP_STORAGE_MODE="datadisk"
+BACKUP_REPO_TYPE="local"
+BACKUP_REPO_PROVIDER="localfs"
+MOLD_DATADISK_PATH="/data/backup"
+BACKUP_REPO_ADDRESS="/data/backup"
+BACKUP_REPO_NAME="Ablestack Data Disk"
+NAS_REPO_MOUNT=""
+VEEAM_HOST_REPO_ROOT="E:/opt1/veeam"
+VEEAM_REPO_NAME=""
+
+VEEAM_HOST_BACKUP_PATH="/tmp/mold/veeam"
+STAGING_PATH="/tmp/mold/veeam"
+KVM_PRE_NOTIFY_SCRIPT="/etc/ablestack/veeam/ablestack_veeam_pre_notify.sh"
+KVM_POST_NOTIFY_SCRIPT="/etc/ablestack/veeam/ablestack_veeam_post_notify.sh"
+
+BACKUP_ID=""
+# mold-only = Veeam FLR 후 datadisk(/data/backup)만 VM 볼륨에 반영 — NAS 마운트·Veeam chain export 없음
+RESTORE_SOURCE="mold-only"
+
+KVM_HOSTNAME=""
+RESTORE_WATCH_TRIGGER_MOLD="true"
+VEEAM_UI_RESTORE_SOURCE="mold-only"
+RESTORE_LOCK_DIR=""
+VEEAM_RESTORE_WATCH_WINDOW_MIN="10"
+# Host job FLR: explicit libvirt VM to restore when VM_INCLUDE has multiple VMs
+VEEAM_RESTORE_VM=""
+
+# guest = Veeam Agent on VM; pre/post SSH to KVM for Mold datadisk backup
+# host  = Veeam Linux Agent ON KVM (10.10.31.2) — one job per hypervisor
+BACKUP_MODE="host"
+IMPORT_MODE="auto"
+
+CLEANUP_STAGING_AFTER_BACKUP="true"
+NAS_BACKUP_SCRIPT="/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/ablestack_nasbackup.sh"
+CVT_BACKUP_SCRIPT="/etc/ablestack/veeam/ablestack_cvtbackup.sh"
+LOG_FILE="/var/log/mold/veeam-hook.log"
+LOG_TAG="mold-veeam-hook"

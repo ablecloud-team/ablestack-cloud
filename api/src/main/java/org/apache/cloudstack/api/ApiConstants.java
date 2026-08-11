@@ -535,6 +535,10 @@ public class ApiConstants {
     public static final String QUALIFIERS = "qualifiers";
     public static final String QUERY_FILTER = "queryfilter";
     public static final String QUIESCE_VM = "quiescevm";
+    public static final String STAGING_DISK_PATHS = "stagingdiskpaths";
+    public static final String VEEAM_RESTORE_POINT_ID = "veeamrestorepointid";
+    public static final String SOURCE_DISK_FORMAT = "sourcediskformat";
+    public static final String BOOTSTRAP_CHECKPOINT = "bootstrapcheckpoint";
     public static final String SCHEDULE = "schedule";
     public static final String SCHEDULE_ID = "scheduleid";
     public static final String SCOPE = "scope";

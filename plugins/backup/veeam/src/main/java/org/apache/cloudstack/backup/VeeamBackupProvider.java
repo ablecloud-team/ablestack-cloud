@@ -56,35 +56,35 @@ public class VeeamBackupProvider extends AdapterBase implements BackupProvider, 
 
     public static final String BACKUP_IDENTIFIER = "-CSBKP-";
 
-    public ConfigKey<String> VeeamUrl = new ConfigKey<>("Advanced", String.class,
+    public ConfigKey<String> VeeamUrl = new ConfigKey<String>("Advanced", String.class,
             "backup.plugin.veeam.url", "https://localhost:9398/api/",
             "The Veeam backup and recovery URL.", true, ConfigKey.Scope.Zone);
 
-    public ConfigKey<Integer> VeeamVersion = new ConfigKey<>("Advanced", Integer.class,
+    public ConfigKey<Integer> VeeamVersion = new ConfigKey<Integer>("Advanced", Integer.class,
             "backup.plugin.veeam.version", "0",
             "The version of Veeam backup and recovery. CloudStack will get Veeam server version via PowerShell commands if it is 0 or not set", true, ConfigKey.Scope.Zone);
 
-    private ConfigKey<String> VeeamUsername = new ConfigKey<>("Advanced", String.class,
+    private ConfigKey<String> VeeamUsername = new ConfigKey<String>("Advanced", String.class,
             "backup.plugin.veeam.username", "administrator",
             "The Veeam backup and recovery username.", true, ConfigKey.Scope.Zone);
 
-    private ConfigKey<String> VeeamPassword = new ConfigKey<>("Secure", String.class,
+    private ConfigKey<String> VeeamPassword = new ConfigKey<String>("Secure", String.class,
             "backup.plugin.veeam.password", "",
             "The Veeam backup and recovery password.", true, ConfigKey.Scope.Zone);
 
-    private ConfigKey<Boolean> VeeamValidateSSLSecurity = new ConfigKey<>("Advanced", Boolean.class, "backup.plugin.veeam.validate.ssl", "false",
+    private ConfigKey<Boolean> VeeamValidateSSLSecurity = new ConfigKey<Boolean>("Advanced", Boolean.class, "backup.plugin.veeam.validate.ssl", "false",
             "When set to true, this will validate the SSL certificate when connecting to https/ssl enabled Veeam API service.", true, ConfigKey.Scope.Zone);
 
-    private ConfigKey<Integer> VeeamApiRequestTimeout = new ConfigKey<>("Advanced", Integer.class, "backup.plugin.veeam.request.timeout", "300",
+    private ConfigKey<Integer> VeeamApiRequestTimeout = new ConfigKey<Integer>("Advanced", Integer.class, "backup.plugin.veeam.request.timeout", "300",
             "The Veeam B&R API request timeout in seconds.", true, ConfigKey.Scope.Zone);
 
-    private static ConfigKey<Integer> VeeamRestoreTimeout = new ConfigKey<>("Advanced", Integer.class, "backup.plugin.veeam.restore.timeout", "600",
+    private static ConfigKey<Integer> VeeamRestoreTimeout = new ConfigKey<Integer>("Advanced", Integer.class, "backup.plugin.veeam.restore.timeout", "600",
             "The Veeam B&R API restore backup timeout in seconds.", true, ConfigKey.Scope.Zone);
 
-    private static ConfigKey<Integer> VeeamTaskPollInterval = new ConfigKey<>("Advanced", Integer.class, "backup.plugin.veeam.task.poll.interval", "5",
+    private static ConfigKey<Integer> VeeamTaskPollInterval = new ConfigKey<Integer>("Advanced", Integer.class, "backup.plugin.veeam.task.poll.interval", "5",
             "The time interval in seconds when the management server polls for Veeam task status.", true, ConfigKey.Scope.Zone);
 
-    private static ConfigKey<Integer> VeeamTaskPollMaxRetry = new ConfigKey<>("Advanced", Integer.class, "backup.plugin.veeam.task.poll.max.retry", "120",
+    private static ConfigKey<Integer> VeeamTaskPollMaxRetry = new ConfigKey<Integer>("Advanced", Integer.class, "backup.plugin.veeam.task.poll.max.retry", "120",
             "The max number of retrying times when the management server polls for Veeam task status.", true, ConfigKey.Scope.Zone);
 
     @Inject
@@ -104,7 +104,7 @@ public class VeeamBackupProvider extends AdapterBase implements BackupProvider, 
     @Inject
     private VolumeDao volumeDao;
 
-    private Map<String, Backup.Metric> backupFilesMetricsMap = new HashMap<>();
+    private Map<String, Backup.Metric> backupFilesMetricsMap = new HashMap<String, Backup.Metric>();
 
     protected VeeamClient getClient(final Long zoneId) {
         try {
@@ -113,14 +113,16 @@ public class VeeamBackupProvider extends AdapterBase implements BackupProvider, 
                     VeeamTaskPollInterval.valueIn(zoneId), VeeamTaskPollMaxRetry.valueIn(zoneId));
         } catch (URISyntaxException e) {
             throw new CloudRuntimeException("Failed to parse Veeam API URL: " + e.getMessage());
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+        } catch (NoSuchAlgorithmException e) {
+            logger.error("Failed to build Veeam API client due to: ", e);
+        } catch (KeyManagementException e) {
             logger.error("Failed to build Veeam API client due to: ", e);
         }
         throw new CloudRuntimeException("Failed to build Veeam API client");
     }
 
     public List<BackupOffering> listBackupOfferings(final Long zoneId) {
-        List<BackupOffering> policies = new ArrayList<>();
+        List<BackupOffering> policies = new ArrayList<BackupOffering>();
         for (final BackupOffering policy : getClient(zoneId).listJobs()) {
             if (!policy.getName().contains(BACKUP_IDENTIFIER)) {
                 policies.add(policy);
@@ -222,7 +224,7 @@ public class VeeamBackupProvider extends AdapterBase implements BackupProvider, 
     public Pair<Boolean, Backup> takeBackup(final VirtualMachine vm, Boolean quiesceVM) {
         final VeeamClient client = getClient(vm.getDataCenterId());
         Boolean result = client.startBackupJob(vm.getBackupExternalId());
-        return new Pair<>(result, null);
+        return new Pair<Boolean, Backup>(result, null);
     }
 
     @Override
@@ -321,7 +323,7 @@ public class VeeamBackupProvider extends AdapterBase implements BackupProvider, 
         backup.setDomainId(vm.getDomainId());
         backup.setZoneId(vm.getDataCenterId());
         backup.setName(backupManager.getBackupNameFromVM(vm));
-        List<Volume> volumes = new ArrayList<>(volumeDao.findByInstance(vm.getId()));
+        List<Volume> volumes = new ArrayList<Volume>(volumeDao.findByInstance(vm.getId()));
         backup.setBackedUpVolumes(backupManager.createVolumeInfoFromVolumes(volumes));
         Map<String, String> details = backupManager.getBackupDetailsFromVM(vm);
         backup.setDetails(details);
@@ -351,7 +353,7 @@ public class VeeamBackupProvider extends AdapterBase implements BackupProvider, 
 
     @Override
     public Pair<Long, Long> getBackupStorageStats(Long zoneId) {
-        return new Pair<>(0L, 0L);
+        return new Pair<Long, Long>(0L, 0L);
     }
 
     @Override
