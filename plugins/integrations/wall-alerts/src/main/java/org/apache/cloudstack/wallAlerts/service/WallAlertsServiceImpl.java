@@ -27,6 +27,7 @@ import org.apache.cloudstack.wallAlerts.client.WallApiClient;
 import org.apache.cloudstack.wallAlerts.client.WallApiClient.GrafanaRulesResponse;
 import org.apache.cloudstack.wallAlerts.client.WallApiClient.RulerRulesResponse;
 import org.apache.cloudstack.wallAlerts.config.WallConfigKeys;
+import org.apache.cloudstack.wallAlerts.exception.WallApiException;
 import org.apache.cloudstack.wallAlerts.model.SilenceDto;
 import org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto;
 import org.apache.cloudstack.wallAlerts.mapper.WallMappers;
@@ -178,6 +179,9 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
             } else {
                 // ===== 새로 빌드(정렬 없음, 기존 흐름 유지) =====
                 final GrafanaRulesResponse rulesNow = wallApiClient.fetchRules();
+                if (rulesNow == null || rulesNow.data == null || rulesNow.data.groups == null) {
+                    throw new WallApiException("Wall Rules API response is missing data.groups");
+                }
                 final RulerRulesResponse rulerAll = wallApiClient.fetchRulerRules();
                 final ThresholdIndex tIndex = buildThresholdIndexSafe();
 
