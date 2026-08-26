@@ -171,13 +171,14 @@ public class WallApiClientImpl implements WallApiClient {
                 return om.readValue(res.body(), GrafanaRulesResponse.class);
             }
 
-            LOG.warn("[Rules] GET " + url + " -> " + res.statusCode());
+            throw new WallApiException("Wall Rules API returned HTTP " + res.statusCode()
+                    + " (preview: " + trimBody(res.body(), 600) + ")");
         } catch (WallApiException e) {
             throw e;
         } catch (Exception e) {
             LOG.warn("[Rules] fetchRules failed: " + e.getMessage(), e);
+            throw new WallApiException("Failed to fetch or parse Wall Rules API response: " + e.getMessage(), e);
         }
-        return null;
     }
 
     // --------------------------- Ruler API ---------------------------
