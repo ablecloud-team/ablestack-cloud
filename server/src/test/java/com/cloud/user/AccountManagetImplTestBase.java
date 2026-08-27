@@ -29,6 +29,7 @@ import com.cloud.network.dao.AccountGuestVlanMapDao;
 import com.cloud.network.dao.IPAddressDao;
 import com.cloud.network.dao.NetworkDao;
 import com.cloud.network.dao.RemoteAccessVpnDao;
+import com.cloud.network.dao.SslCertDao;
 import com.cloud.network.dao.VpnUserDao;
 import com.cloud.network.security.SecurityGroupManager;
 import com.cloud.network.security.dao.SecurityGroupDao;
@@ -196,7 +197,8 @@ public class AccountManagetImplTestBase {
     SSHKeyPairDao _sshKeyPairDao;
     @Mock
     UserDataDao userDataDao;
-
+    @Mock
+    SslCertDao sslCertDao;
     @Spy
     @InjectMocks
     AccountManagerImpl accountManagerImpl;

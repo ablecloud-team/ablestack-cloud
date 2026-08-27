@@ -34,19 +34,29 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class KVMHAMonitor extends KVMHABase implements Runnable {
 
+    private static final long SECONDARY_NFS_ISO_MOUNT_CLEANUP_COOLDOWN_MS = 60 * 1000L;
+
     private final Map<String, HAStoragePool> storagePool = new ConcurrentHashMap<>();
     private final Map<String, HAStoragePool> storageGfsPool = new ConcurrentHashMap<>();
     private final Map<String, HAStoragePool> storageRbdPool = new ConcurrentHashMap<>();
     private final Map<String, HAStoragePool> storageClvmPool = new ConcurrentHashMap<>();
     private final boolean rebootHostAndAlertManagementOnHeartbeatTimeout;
+    private final Runnable secondaryNfsIsoMountCleanup;
+    private long lastSecondaryNfsIsoMountCleanupTime;
 
     private final String hostPrivateIp;
 
     public KVMHAMonitor(HAStoragePool pool, String host, String scriptPath, String scriptPathGfs, String scriptPathRbd, String scriptPathClvm) {
+        this(pool, host, scriptPath, scriptPathGfs, scriptPathRbd, scriptPathClvm, null);
+    }
+
+    public KVMHAMonitor(HAStoragePool pool, String host, String scriptPath, String scriptPathGfs, String scriptPathRbd, String scriptPathClvm,
+            Runnable secondaryNfsIsoMountCleanup) {
         if (pool != null) {
             storagePool.put(pool.getPoolUUID(), pool);
         }
         hostPrivateIp = host;
+        this.secondaryNfsIsoMountCleanup = secondaryNfsIsoMountCleanup;
         configureHeartBeatPath(scriptPath, scriptPathGfs, scriptPathRbd, scriptPathClvm);
         rebootHostAndAlertManagementOnHeartbeatTimeout = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.REBOOT_HOST_AND_ALERT_MANAGEMENT_ON_HEARTBEAT_TIMEOUT);
     }
@@ -116,6 +126,19 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
             if (pool != null) {
                 storageClvmPool.remove(uuid);
             }
+        }
+    }
+
+    public void removeStoragePoolFromMonitoring(String uuid) {
+        removeStoragePoolFromMonitoring(storagePool, uuid);
+        removeStoragePoolFromMonitoring(storageGfsPool, uuid);
+        removeStoragePoolFromMonitoring(storageRbdPool, uuid);
+        removeStoragePoolFromMonitoring(storageClvmPool, uuid);
+    }
+
+    private void removeStoragePoolFromMonitoring(Map<String, HAStoragePool> storagePools, String uuid) {
+        synchronized (storagePools) {
+            storagePools.remove(uuid);
         }
     }
 
@@ -236,8 +259,26 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
             if (e.toString().contains("pool not found")) {
                 logger.debug(String.format("Removing pool [%s] from HA monitor since it was deleted.", uuid));
                 removedPools.add(uuid);
+            } else {
+                cleanupSecondaryNfsIsoMountsOnLibvirtFailure(uuid);
             }
         }
+    }
+
+    private void cleanupSecondaryNfsIsoMountsOnLibvirtFailure(String poolUuid) {
+        if (secondaryNfsIsoMountCleanup == null) {
+            return;
+        }
+
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastSecondaryNfsIsoMountCleanupTime < SECONDARY_NFS_ISO_MOUNT_CLEANUP_COOLDOWN_MS) {
+            logger.debug(String.format("Skipping secondary NFS ISO mount cleanup after libvirt lookup failure for pool [%s] because cooldown is active.", poolUuid));
+            return;
+        }
+
+        lastSecondaryNfsIsoMountCleanupTime = currentTime;
+        logger.warn(String.format("Checking secondary NFS ISO mounts after libvirt lookup failure for pool [%s].", poolUuid));
+        secondaryNfsIsoMountCleanup.run();
     }
 
     @Override

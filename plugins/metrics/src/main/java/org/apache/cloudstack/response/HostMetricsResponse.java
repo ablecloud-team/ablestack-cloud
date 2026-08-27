@@ -150,31 +150,31 @@ public class HostMetricsResponse extends HostResponse {
 
     public void setMemTotal(final Long memTotal) {
         if (memTotal != null) {
-            this.memTotal = String.format("%.2f GB", memTotal / (1024.0 * 1024.0 * 1024.0));
+            this.memTotal = String.format("%.2f GiB", memTotal / (1024.0 * 1024.0 * 1024.0));
         }
     }
 
     public void setMemUsed(final Long memUsed) {
         if (memUsed != null) {
-            this.memUsed = String.format("%.2f GB", memUsed / (1024.0 * 1024.0 * 1024.0));
+            this.memUsed = String.format("%.2f GiB", memUsed / (1024.0 * 1024.0 * 1024.0));
         }
     }
 
     public void setMemAllocated(final Long memAllocated) {
         if (memAllocated != null) {
-            this.memAllocated = String.format("%.2f GB", memAllocated / (1024.0 * 1024.0 * 1024.0));
+            this.memAllocated = String.format("%.2f GiB", memAllocated / (1024.0 * 1024.0 * 1024.0));
         }
     }
 
     public void setNetworkRead(final Long networkReadKbs) {
         if (networkReadKbs != null) {
-            this.networkRead = String.format("%.2f GB", networkReadKbs / (1024.0 * 1024.0));
+            this.networkRead = String.format("%.2f GiB", networkReadKbs / (1024.0 * 1024.0));
         }
     }
 
     public void setNetworkWrite(final Long networkWriteKbs) {
         if (networkWriteKbs != null) {
-            this.networkWrite = String.format("%.2f GB", networkWriteKbs / (1024.0 * 1024.0));
+            this.networkWrite = String.format("%.2f GiB", networkWriteKbs / (1024.0 * 1024.0));
         }
     }
 

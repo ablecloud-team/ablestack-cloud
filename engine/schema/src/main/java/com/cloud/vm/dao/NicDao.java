@@ -101,4 +101,8 @@ public interface NicDao extends GenericDao<NicVO, Long> {
 
     List<NicVO> listByNetworkIdAndType(long networkId, VirtualMachine.Type vmType);
     List<NicVO> searchRemovedByVms(List<Long> vmIds, Long batchSize);
+
+    boolean updateSecondaryIpFlag(long nicId, boolean secondaryIp, String expectedPrimaryIp);
+
+    boolean updatePrimaryIpAddress(long nicId, String primaryIp, String expectedPrimaryIp);
 }

@@ -593,15 +593,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     @Override
-    public List<BackupSchedule> listBackupSchedule(final Long vmId) {
-        final VMInstanceVO vm = findVmById(vmId);
-        validateBackupForZone(vm.getDataCenterId());
-        accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
-
-        return backupScheduleDao.listByVM(vmId).stream().map(BackupSchedule.class::cast).collect(Collectors.toList());
-    }
-
-    @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_SCHEDULE_DELETE, eventDescription = "deleting VM backup schedule")
     public boolean deleteBackupSchedule(DeleteBackupScheduleCmd cmd) {
         Long vmId = cmd.getVmId();
@@ -755,6 +746,36 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         logger.warn(message);
         alertManager.sendAlert(AlertManager.AlertType.ALERT_TYPE_UPDATE_RESOURCE_COUNT, 0L, 0L,
                 message, message + " Please, use the 'updateResourceLimit' API to increase the backup limit.");
+    }
+
+    public List<BackupSchedule> listBackupSchedules(ListBackupScheduleCmd cmd) {
+        Account caller = CallContext.current().getCallingAccount();
+        Long id = cmd.getId();
+        Long vmId = cmd.getVmId();
+
+        if (vmId != null) {
+            final VMInstanceVO vm = findVmById(vmId);
+            validateBackupForZone(vm.getDataCenterId());
+            accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
+        }
+
+        Filter searchFilter = new Filter(BackupScheduleVO.class, "id", true, null, null);
+        SearchBuilder<BackupScheduleVO> searchBuilder = backupScheduleDao.createSearchBuilder();
+        searchBuilder.and("id", searchBuilder.entity().getId(), SearchCriteria.Op.EQ);
+        if (vmId != null) {
+            searchBuilder.and("vmId", searchBuilder.entity().getVmId(), SearchCriteria.Op.EQ);
+        }
+
+        SearchCriteria<BackupScheduleVO> sc = searchBuilder.create();
+        if (id != null) {
+            sc.setParameters("id", id);
+        }
+        if (vmId != null) {
+            sc.setParameters("vmId", vmId);
+        }
+
+        Pair<List<BackupScheduleVO>, Integer> result = backupScheduleDao.searchAndCount(sc, searchFilter);
+        return new ArrayList<>(result.first());
     }
 
     /**
@@ -1413,6 +1434,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 BackupFrameworkEnabled,
                 BackupProviderPlugin,
                 BackupSyncPollingInterval,
+                BackupCommandTimeout,
+                BackupRestoreTimeout,
                 BackupEnableAttachDetachVolumes,
                 DefaultMaxAccountBackups,
                 DefaultMaxAccountBackupStorage,
@@ -1681,6 +1704,20 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             backupProvider.syncBackupMetrics(dataCenter.getId());
             for (final VMInstanceVO vm : vms) {
                 try {
+                    Long backupOfferingId = vm.getBackupOfferingId();
+                    if (backupOfferingId == null) {
+                        logger.debug("Skipping VM [{}] because backup offering is not assigned.", vm);
+                        continue;
+                    }
+                    BackupOfferingVO offering = backupOfferingDao.findById(vm.getBackupOfferingId());
+                    if (offering == null) {
+                        logger.debug("Skipping VM [{}] because backup offering [{}] was not found.", vm, backupOfferingId);
+                        continue;
+                    }
+                    if (!backupProvider.getName().equalsIgnoreCase(offering.getProvider())) {
+                        logger.debug("Skipping VM [{}] because backup offering provider [{}] does not match current provider [{}].", vm, offering.getProvider(), backupProvider.getName());
+                        continue;
+                    }
                     logger.debug(String.format("Trying to sync backups of VM [%s] using backup provider [%s].", vm, backupProvider.getName()));
                     // Sync out-of-band backups
                     syncBackups(backupProvider, vm);

@@ -171,13 +171,14 @@ public class WallApiClientImpl implements WallApiClient {
                 return om.readValue(res.body(), GrafanaRulesResponse.class);
             }
 
-            LOG.warn("[Rules] GET " + url + " -> " + res.statusCode());
+            throw new WallApiException("Wall Rules API returned HTTP " + res.statusCode()
+                    + " (preview: " + trimBody(res.body(), 600) + ")");
         } catch (WallApiException e) {
             throw e;
         } catch (Exception e) {
             LOG.warn("[Rules] fetchRules failed: " + e.getMessage(), e);
+            throw new WallApiException("Failed to fetch or parse Wall Rules API response: " + e.getMessage(), e);
         }
-        return null;
     }
 
     // --------------------------- Ruler API ---------------------------
@@ -1245,13 +1246,14 @@ public class WallApiClientImpl implements WallApiClient {
     private String resolveFolderUidByTitle(final String title) {
         if (title == null || title.isBlank()) return null;
         try {
-            final String url = baseUrl + "/api/search?type=dash-folder&query="
+            final String url = baseUrlNow() + "/api/search?type=dash-folder&query="
                     + java.net.URLEncoder.encode(title, java.nio.charset.StandardCharsets.UTF_8);
             HttpRequest.Builder rb = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .timeout(java.time.Duration.ofMillis(readTimeoutMs))
                     .header("Accept", "application/json");
-            if (bearer != null) rb.header("Authorization", "Bearer " + bearer);
+            final String b = bearerNow();
+            if (b != null) rb.header("Authorization", "Bearer " + b);
 
             final java.net.http.HttpResponse<String> res =
                     http.send(rb.GET().build(), java.net.http.HttpResponse.BodyHandlers.ofString());
@@ -1481,9 +1483,10 @@ public class WallApiClientImpl implements WallApiClient {
 
     private RulerRulesResponse.Group fetchRulerGroupDirect(final String namespace, final String groupName) {
         final String encodedFolder = URLEncoder.encode(namespace, StandardCharsets.UTF_8);
+        final String base = baseUrlNow();
         final String[] urls = new String[] {
-                baseUrl + "/api/ruler/grafana/api/v1/rules/" + encodedFolder + "?subtype=cortex",
-                baseUrl + "/api/ruler/grafana/api/v1/rules/" + encodedFolder
+                base + "/api/ruler/grafana/api/v1/rules/" + encodedFolder + "?subtype=cortex",
+                base + "/api/ruler/grafana/api/v1/rules/" + encodedFolder
         };
         for (String url : urls) {
             try {
@@ -1491,7 +1494,8 @@ public class WallApiClientImpl implements WallApiClient {
                         .uri(URI.create(url))
                         .timeout(Duration.ofMillis(readTimeoutMs))
                         .header("Accept", "application/json");
-                if (bearer != null) rb.header("Authorization", "Bearer " + bearer);
+                final String b = bearerNow();
+                if (b != null) rb.header("Authorization", "Bearer " + b);
                 final HttpResponse<String> res = http.send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
                 if (res.statusCode() < 200 || res.statusCode() >= 300) {
                     LOG.warn("[Ruler] GET " + url + " -> " + res.statusCode());
@@ -1559,18 +1563,19 @@ public class WallApiClientImpl implements WallApiClient {
             final int sc = res.statusCode();
             if (sc >= 200 && sc < 300) {
                 // 200/202 모두 성공 처리
-                LOG.info("[Ruler][send] {} {} -> {}");
+                LOG.info("[Ruler][send] " + method + " " + url + " -> " + sc);
                 return true;
             }
-            LOG.warn("[Ruler][send] {} {} -> {} (preview: {})"
-            );
+            LOG.warn("[Ruler][send] " + method + " " + url + " -> " + sc
+                    + " (preview: " + trimBody(res.body(), 600) + ")");
             return false;
 
         } catch (IllegalArgumentException iae) { // URI.create 등
-            LOG.warn("[Ruler][send] invalid URI for {}: {} ({})");
+            LOG.warn("[Ruler][send] invalid URI for " + method + ": " + url
+                    + " (" + iae.getMessage() + ")");
             return false;
         } catch (Exception e) {
-            LOG.warn("[Ruler][send] {} {} failed: {}");
+            LOG.warn("[Ruler][send] " + method + " " + url + " failed: " + e.getMessage(), e);
             return false;
         }
     }
@@ -1630,7 +1635,7 @@ public class WallApiClientImpl implements WallApiClient {
                                                   final String nsKeyForUrl,
                                                   final String folderUid,
                                                   final String groupName) {
-        final String base = baseUrl; // baseUrlNow() 쓰는 구조면 그걸로 교체해도 됨
+        final String base = baseUrlNow();
         final java.util.LinkedHashSet<String> nsSet = buildNsCandidates(nsRaw, nsKeyForUrl, folderUid);
         final String encGroup = encodePathSegment(groupName);
 
@@ -1658,7 +1663,8 @@ public class WallApiClientImpl implements WallApiClient {
                             .uri(URI.create(url))
                             .timeout(java.time.Duration.ofMillis(readTimeoutMs))
                             .header("Accept", "application/json");
-                    if (bearer != null) rb.header("Authorization", "Bearer " + bearer);
+                    final String b = bearerNow();
+                    if (b != null) rb.header("Authorization", "Bearer " + b);
 
                     final HttpResponse<String> res = http.send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
                     final int sc = res.statusCode();
@@ -1740,13 +1746,13 @@ public class WallApiClientImpl implements WallApiClient {
 
     private ObjectNode fetchRulerNamespaceRaw(final String nsKey) {
         try {
-            final String url = baseUrl + "/api/ruler/grafana/api/v1/rules/" + encodePathSegment(nsKey);
-            final HttpRequest req = HttpRequest.newBuilder(URI.create(url))
+            final String url = baseUrlNow() + "/api/ruler/grafana/api/v1/rules/" + encodePathSegment(nsKey);
+            final HttpRequest.Builder rb = HttpRequest.newBuilder(URI.create(url))
                     .timeout(Duration.ofMillis(Math.max(readTimeoutMs, 10000)))
-                    .header("Authorization", "Bearer " + bearer)
-                    .header("Accept", "application/json")
-                    .GET()
-                    .build();
+                    .header("Accept", "application/json");
+            final String b = bearerNow();
+            if (b != null) rb.header("Authorization", "Bearer " + b);
+            final HttpRequest req = rb.GET().build();
             final HttpResponse<String> res = http.send(req, HttpResponse.BodyHandlers.ofString());
 
             if (res.statusCode() / 100 == 2) {

@@ -64,6 +64,7 @@ birdge
 bject
 boardcast
 bootstraper
+browseable
 bu
 cant
 capabilites

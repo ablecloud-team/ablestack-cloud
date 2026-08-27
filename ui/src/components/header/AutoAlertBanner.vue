@@ -13,7 +13,6 @@
           :show-icon="false"
           :closable="false"
           :banner="true"
-          :style="[{ border: '1px solid #ffccc7', background: '#ffffff', borderRadius: '10px', boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)' }]"
         >
           <template #message>
             <div class="summary-modern">
@@ -49,6 +48,17 @@
 
                   <a-button size="small" @click.stop="goToAlertRulesMenu">
                     {{ tr('label.goto.the.alertRules') }}
+                  </a-button>
+
+                  <a-button
+                    size="small"
+                    type="text"
+                    :aria-label="tr('label.close')"
+                    @click.stop="markAllAsRead"
+                  >
+                    <template #icon>
+                      <CloseOutlined />
+                    </template>
                   </a-button>
                 </a-space>
               </div>
@@ -167,7 +177,7 @@
                                       {{ lnk.label }}
                                     </a>
                                     <span v-if="lnk.valueText" class="target-value-metric">
-                                      ({{ lnk.valueText }})
+                                      {{ lnk.valueText }}
                                     </span>
                                   </div>
                                 </template>
@@ -186,7 +196,7 @@
                                       {{ lnk.label }}
                                     </a>
                                     <span v-if="lnk.valueText" class="target-value-metric">
-                                      ({{ lnk.valueText }})
+                                      {{ lnk.valueText }}
                                     </span>
                                   </div>
                                 </template>
@@ -205,7 +215,7 @@
                                       {{ lnk.label }}
                                     </a>
                                     <span v-if="lnk.valueText" class="target-value-metric">
-                                      ({{ lnk.valueText }})
+                                      {{ lnk.valueText }}
                                     </span>
                                   </div>
                                 </template>
@@ -224,7 +234,7 @@
                                       {{ lnk.label }}
                                     </a>
                                     <span v-if="lnk.valueText" class="target-value-metric">
-                                      ({{ lnk.valueText }})
+                                      {{ lnk.valueText }}
                                     </span>
                                   </div>
                                 </template>
@@ -643,7 +653,7 @@ import {
   nextTick,
   getCurrentInstance
 } from 'vue'
-import { ExclamationCircleFilled, SoundOutlined, PauseCircleOutlined, LinkOutlined } from '@ant-design/icons-vue'
+import { ExclamationCircleFilled, SoundOutlined, PauseCircleOutlined, LinkOutlined, CloseOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { api } from '@/api'
 import MarkdownIt from 'markdown-it'
@@ -656,6 +666,7 @@ export default {
     SoundOutlined,
     PauseCircleOutlined,
     LinkOutlined,
+    CloseOutlined,
     RuleSilenceModal: defineAsyncComponent(() => import('@/views/infra/RuleSilenceModal.vue')),
     RulePauseModal: defineAsyncComponent(() => import('@/views/infra/RulePauseModal.vue'))
   },
@@ -1388,6 +1399,25 @@ export default {
       // 0~1 사이 비율(0.1533)을 %로 전달하는 케이스 보정합니다.
       if (unit === '%' && v >= 0 && v <= 1) { v = v * 100 }
 
+      // bytes/sec 계열은 값만 자동 축약하고, 제목의 원 단위는 그대로 둡니다.
+      if (unit && /^(bytes?|b)(\/sec|\/s)$/i.test(String(unit).trim())) {
+        const absBytes = Math.abs(v)
+        const scales = [
+          { div: 1024 * 1024 * 1024, unit: 'GB/s' },
+          { div: 1024 * 1024, unit: 'MB/s' },
+          { div: 1024, unit: 'KB/s' }
+        ]
+
+        for (let i = 0; i < scales.length; i += 1) {
+          const scale = scales[i]
+          if (absBytes >= scale.div) {
+            const scaled = v / scale.div
+            const decimals = Math.abs(scaled) >= 100 ? 0 : (Math.abs(scaled) >= 10 ? 1 : 2)
+            return `${String(scaled.toFixed(decimals)).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1')} ${scale.unit}`
+          }
+        }
+      }
+
       const abs = Math.abs(v)
       let s = ''
 
@@ -1423,9 +1453,19 @@ export default {
       return `${s}${sep}${unit}`
     }
 
+    const isStateLikeRule = (it) => {
+      const r = it && it.rule ? it.rule : it
+      const title = String(takeFirst(it && it.title, r && r.title, r && r.name) || '').toLowerCase()
+      return /(상태|status|sensor|health|agent|에이전트|collector|수집기)/i.test(title)
+    }
+
+    const isDiscreteTargetRule = (it) => {
+      return isBinaryTargetRule(it) || isStateLikeRule(it)
+    }
+
     const drawerItemMetricInlineText = (it) => {
       // 상태형(0/1) 규칙은 숫자 표시 대신 상태만 표시합니다.
-      if (isBinaryTargetRule(it)) {
+      if (isDiscreteTargetRule(it)) {
         const hasBad = breachedKeysOf(it).length > 0
         return hasBad ? tr('label.current.bad') : tr('label.current.ok')
       }
@@ -1471,7 +1511,7 @@ export default {
     }
 
     const drawerItemMetricLineText = (it) => {
-      if (isBinaryTargetRule(it)) {
+      if (isDiscreteTargetRule(it)) {
         const hasBad = breachedKeysOf(it).length > 0
         return hasBad ? tr('label.current.state.bad') : tr('label.current.state.ok')
       }
@@ -1509,7 +1549,7 @@ export default {
 
     const drawerItemMetricUi = (it) => {
       // 템플릿에서 부분 스타일 적용이 가능하도록, 현재/임계값을 분리한 구조를 반환합니다.
-      if (isBinaryTargetRule(it)) {
+      if (isDiscreteTargetRule(it)) {
         const hasBad = breachedKeysOf(it).length > 0
         return {
           kind: 'binary',
@@ -2251,7 +2291,7 @@ export default {
     }
 
     const breachedLabelText = (it) => {
-      if (isBinaryTargetRule(it)) {
+      if (isDiscreteTargetRule(it)) {
         return tr('label.targets.failed')
       }
       return tr('label.targets.breached')
@@ -2262,7 +2302,7 @@ export default {
       const parentKind = isCloudKind(parentKindRaw) ? 'cloud' : (isVmKind(parentKindRaw) ? 'vm' : (isStorageKind(parentKindRaw) ? 'storage' : 'host'))
 
       const unit = metricUnitOf(it)
-      const binary = isBinaryTargetRule(it)
+      const binary = isDiscreteTargetRule(it)
       const out = []
       const seen = new Set()
 
@@ -2310,9 +2350,7 @@ export default {
           seen.add(key)
 
           let valueText = ''
-          if (binary) {
-            valueText = tr('label.bad.state')
-          } else {
+          if (!binary) {
             const L = (a && (a.labels || a.metric || a.tags || a)) || {}
 
             const rawKeysToTry = [
@@ -2360,9 +2398,7 @@ export default {
         const label = kind === 'cloud' ? raw : (kind === 'host' ? hostDisplayLabel(raw) || raw : raw)
 
         let valueText = ''
-        if (binary) {
-          valueText = tr('label.bad.state')
-        } else {
+        if (!binary) {
           const n = valueMap.get(nk)
           if (typeof n === 'number' && Number.isFinite(n)) {
             valueText = formatMetric(n, unit)
@@ -2930,6 +2966,7 @@ export default {
   width: 100%;
   isolation: isolate;
   font-size: 0.7em;
+  background: var(--ui-bg-page);
 }
 
 .auto-alert-banner-container.mask-on::before {
@@ -2939,8 +2976,8 @@ export default {
   left: 0;
   right: 0;
   height: var(--autoBannerHeight, 0px);
-  background: var(--layout-bg, #fff);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06) inset;
+  background: var(--ui-bg-page);
+  box-shadow: 0 1px 0 var(--ui-border) inset;
   pointer-events: none;
   z-index: 0;
   transition: height 180ms ease;
@@ -2957,12 +2994,21 @@ export default {
   flex-direction: column;
   gap: 4px;
   padding: 2px 8px 4px;
+  background: var(--ui-bg-page);
 }
 .banner-list:empty {
   padding: 0;
 }
 
 /* ===== 요약(상단) 배너 ===== */
+
+.alert-summary {
+  color: var(--ui-error-text) !important;
+  background: var(--ui-error-bg) !important;
+  border: 1px solid var(--ui-error-border) !important;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px var(--ui-shadow);
+}
 
 .summary-modern {
   width: 100%;
@@ -3010,6 +3056,7 @@ export default {
   font-size: 18px;
   font-weight: 800;
   line-height: 20px;
+  color: var(--ui-error-text);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3019,7 +3066,7 @@ export default {
 .summary-modern-count {
   font-size: 18px;
   font-weight: 700;
-  color: #cf1322;
+  color: var(--ui-error-icon);
   flex: 0 0 auto;
 }
 
@@ -3027,7 +3074,7 @@ export default {
   margin-top: 2px;
   font-size: 12px;
   line-height: 18px;
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--ui-error-text);
   display: flex;
   gap: 6px;
   min-width: 0;
@@ -3275,8 +3322,8 @@ export default {
 }
 
 .target-value-metric {
-  margin-left: 4px;
-  color: rgba(0, 0, 0, 0.65);
+  margin-left: auto;
+  color: rgba(0, 0, 0, 0.58);
   font-size: 12px;
   white-space: nowrap;
 }
@@ -3755,10 +3802,11 @@ body.dark-mode .solution-popover .sp-body-box {
   border-color: #303030;
   color: rgba(255, 255, 255, 0.88);
 }
-/* 1) 상단 메인 배너(요약)도 어둡게 강제 */
+/* 1) 상단 메인 배너(요약) */
 body.dark-mode .auto-alert-banner-container .ant-alert.alert-summary {
-  background: #141414 !important;
-  border-color: #303030 !important;
+  color: var(--ui-error-text) !important;
+  background: var(--ui-error-bg) !important;
+  border-color: var(--ui-error-border) !important;
 }
 
 body.dark-mode .auto-alert-banner-container .summary-modern-title-text,
@@ -3767,12 +3815,13 @@ body.dark-mode .auto-alert-banner-container .summary-modern-count,
 body.dark-mode .auto-alert-banner-container .summary-modern-actions .ant-btn,
 body.dark-mode .auto-alert-banner-container .summary-modern-actions .ant-btn > span,
 body.dark-mode .auto-alert-banner-container .summary-modern-actions .ant-btn .anticon {
-  color: rgba(255, 255, 255, 0.90) !important;
+  color: var(--ui-error-text) !important;
 }
 
 body.dark-mode .auto-alert-banner-container .summary-modern-actions .ant-btn:not(.ant-btn-primary):not(.ant-btn-dangerous) {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: var(--ui-text-primary) !important;
+  background: var(--ui-bg-elevated) !important;
+  border-color: var(--ui-border-strong) !important;
 }
 
 /* 2) Drawer 바탕 */

@@ -116,6 +116,34 @@ public class SharedFSResponse extends BaseResponseWithTagInformation implements 
     @Param(description = "Network name of the shared filesystem")
     private String networkName;
 
+    @SerializedName("networkmode")
+    @Param(description = "SharedFS VM network addressing mode")
+    private String networkMode;
+
+    @SerializedName("ipcidr")
+    @Param(description = "requested static IPv4 address and prefix")
+    private String ipCidr;
+
+    @SerializedName(ApiConstants.IP_ADDRESS)
+    @Param(description = "requested static IPv4 address")
+    private String ipAddress;
+
+    @SerializedName(ApiConstants.CIDR)
+    @Param(description = "requested static IPv4 CIDR")
+    private String cidr;
+
+    @SerializedName(ApiConstants.GATEWAY)
+    @Param(description = "requested static IPv4 gateway")
+    private String gateway;
+
+    @SerializedName(ApiConstants.DNS1)
+    @Param(description = "requested primary DNS server")
+    private String dns1;
+
+    @SerializedName(ApiConstants.DNS2)
+    @Param(description = "requested secondary DNS server")
+    private String dns2;
+
     @SerializedName(ApiConstants.NIC)
     @Param(description = "the list of nics associated with the shared filesystem", responseObject = NicResponse.class)
     private List<NicResponse> nics;
@@ -256,6 +284,34 @@ public class SharedFSResponse extends BaseResponseWithTagInformation implements 
 
     public void setNetworkName(String networkName) {
         this.networkName = networkName;
+    }
+
+    public void setNetworkMode(String networkMode) {
+        this.networkMode = networkMode;
+    }
+
+    public void setIpCidr(String ipCidr) {
+        this.ipCidr = ipCidr;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    public void setCidr(String cidr) {
+        this.cidr = cidr;
+    }
+
+    public void setGateway(String gateway) {
+        this.gateway = gateway;
+    }
+
+    public void setDns1(String dns1) {
+        this.dns1 = dns1;
+    }
+
+    public void setDns2(String dns2) {
+        this.dns2 = dns2;
     }
 
     public List<NicResponse> getNics() {

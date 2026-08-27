@@ -45,6 +45,7 @@
     </template>
   </a-alert>
   <a-list
+    class="resource-details-list"
     size="small"
     :dataSource="fetchDetails()">
     <template #renderItem="{item}">
@@ -77,6 +78,12 @@
           <div v-else-if="$route.meta.name === 'vm' && item === 'qemuagentversion'">
             {{ dataResource[item] === 'Not Installed' ? $t('label.state.qemuagentversion.notinstalled') : dataResource[item]}}
           </div>
+          <div v-else-if="$route.meta.name === 'vm' && item === 'ipaddress'">
+            {{ activeNicAddresses('ipaddress') }}
+          </div>
+          <div v-else-if="$route.meta.name === 'vm' && item === 'ip6address'">
+            {{ activeNicAddresses('ip6address') }}
+          </div>
           <div v-else-if="$route.meta.name === 'controllertemplate' && item === 'dctemplate'">
             <div v-for="(dctemplate, idx) in dataResource[item]" :key="idx">
               <router-link :to="{ path: '/template/' + dctemplate.id }">{{ dctemplate.name }}</router-link>
@@ -103,6 +110,11 @@
               {{ convertKB(dataResource.size) }}
             </div>
           </div>
+          <div v-else-if="$route.meta.name === 'buckets' && item === 'quota'">
+            <div>
+              {{ dataResource.quota }} GiB
+            </div>
+          </div>
           <div v-else-if="['template', 'iso'].includes($route.meta.name) && item === 'size'">
             <div>
               {{ parseFloat(dataResource.size / (1024.0 * 1024.0 * 1024.0)).toFixed(2) }} GiB
@@ -121,6 +133,11 @@
           <div v-else-if="['volume', 'snapshot', 'template', 'iso'].includes($route.meta.name) && item === 'usedfsbytes'">
             <div>
               {{ parseFloat(dataResource.usedfsbytes / (1024.0 * 1024.0 * 1024.0)).toFixed(2) }} GiB
+            </div>
+          </div>
+          <div v-else-if="$route.meta.name === 'imagestore' && ['disksizetotal', 'disksizeused'].includes(item)">
+            <div>
+              {{ $bytesToHumanReadableSize(dataResource[item]) }}
             </div>
           </div>
           <div v-else-if="['name', 'type'].includes(item)">
@@ -337,7 +354,7 @@ export default {
         }
         const managementIps = []
         for (const nic of this.resource.nic) {
-          if (managementDeviceIds.includes(parseInt(nic.deviceid)) && nic.ipaddress) {
+          if (managementDeviceIds.includes(parseInt(nic.deviceid)) && nic.linkstate !== false && nic.ipaddress) {
             managementIps.push(nic.ipaddress)
             if (nic.publicip) {
               managementIps.push(nic.publicip)
@@ -381,7 +398,7 @@ export default {
     },
     ipV6Address () {
       if (this.dataResource.nic && this.dataResource.nic.length > 0) {
-        return this.dataResource.nic.filter(e => { return e.ip6address }).map(e => { return e.ip6address }).join(', ')
+        return this.dataResource.nic.filter(e => e.linkstate !== false && e.ip6address).map(e => e.ip6address).join(', ')
       }
       return null
     },
@@ -495,6 +512,13 @@ export default {
       if (val < 1024 * 1024 * 1024) return `${(val / 1024 / 1024).toFixed(2)} GB`
       if (val < 1024 * 1024 * 1024 * 1024) return `${(val / 1024 / 1024 / 1024).toFixed(2)} TB`
       return val
+    },
+    activeNicAddresses (field) {
+      if (!this.dataResource.nic || this.dataResource.nic.length === 0) {
+        return this.dataResource[field]
+      }
+
+      return this.dataResource.nic.filter(e => e.linkstate !== false && e[field]).map(e => e[field]).join(', ')
     },
     getUserSourceLabel (source) {
       if (source === 'saml2') {
@@ -690,6 +714,22 @@ export default {
 </script>
 
 <style scoped>
+.resource-details-list {
+  color: var(--ui-text-secondary);
+  background: var(--ui-bg-surface);
+}
+
+:deep(.resource-details-list .ant-list-item) {
+  padding: 12px 8px;
+  color: var(--ui-text-secondary);
+  background: transparent;
+  border-color: var(--ui-border);
+}
+
+:deep(.resource-details-list .ant-list-item strong) {
+  color: var(--ui-text-primary);
+}
+
 .preline {
   white-space: pre-line;
   word-break: break-word;

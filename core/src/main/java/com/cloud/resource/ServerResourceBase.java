@@ -31,10 +31,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,7 +43,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -81,6 +80,7 @@ import com.cloud.agent.api.DeleteVhbaDeviceCommand;
 
 import com.cloud.agent.api.ListHostHbaDeviceAnswer;
 import com.cloud.agent.api.ListHostLunDeviceAnswer;
+import com.cloud.agent.api.ListHostLunDeviceCommand;
 import com.cloud.agent.api.ListHostScsiDeviceAnswer;
 import com.cloud.agent.api.ListHostUsbDeviceAnswer;
 import com.cloud.agent.api.ListVhbaDevicesCommand;
@@ -108,6 +108,7 @@ public abstract class ServerResourceBase implements ServerResource {
     protected NetworkInterface storageNic2;
     protected IAgentControl agentControl;
     protected static final String DEFAULT_LOCAL_STORAGE_PATH = "/var/lib/libvirt/images/";
+    protected static final Pattern RBD_IMAGE_SIZE_PATTERN = Pattern.compile("^\\s*size\\s+([0-9]+(?:\\.[0-9]+)?)\\s+([KMGTPE]?i?B|B)\\b.*$");
 
     @Override
     public String getName() {
@@ -284,8 +285,16 @@ public abstract class ServerResourceBase implements ServerResource {
     }
 
     public Answer listHostLunDevices(Command command) {
+        String lunPathMode = ListHostLunDeviceCommand.MODE_SINGLE;
+        if (command instanceof ListHostLunDeviceCommand) {
+            lunPathMode = ((ListHostLunDeviceCommand) command).getLunPathMode();
+            if (lunPathMode == null || lunPathMode.trim().isEmpty()) {
+                lunPathMode = ListHostLunDeviceCommand.MODE_SINGLE;
+            }
+        }
+
         try {
-            ListHostLunDeviceAnswer fast = listHostLunDevicesFast();
+            ListHostLunDeviceAnswer fast = listHostLunDevicesFast(lunPathMode);
             if (fast != null && fast.getResult()) {
                 return fast;
             }
@@ -295,9 +304,13 @@ public abstract class ServerResourceBase implements ServerResource {
             List<Boolean> hasPartitions = new ArrayList<>();
             List<String> scsiAddresses = new ArrayList<>();
 
-            // lsblk --json 실행
+            // lsblk --json (TRAN/HCTL: 외부 fc·iscsi vs 내장 sas/sata/nvme, HCTL은 SCSI 주소 힌트)
+            // single 모드에서는 multipath 조회를 수행하지 않음
+            MultipathLlParseResult mppSlow = ListHostLunDeviceCommand.MODE_SINGLE.equals(lunPathMode)
+                    ? new MultipathLlParseResult(new ArrayList<>(), new HashSet<>())
+                    : loadMultipathLlParseResult();
             Script cmd = new Script("/usr/bin/lsblk");
-            cmd.add("--json", "--paths", "--output", "NAME,TYPE,SIZE,MOUNTPOINT");
+            cmd.add("--json", "--paths", "--output", "NAME,TYPE,SIZE,MOUNTPOINT,TRAN,HCTL");
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = cmd.execute(parser);
 
@@ -305,20 +318,21 @@ public abstract class ServerResourceBase implements ServerResource {
                 return new ListHostLunDeviceAnswer(false, hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses);
             }
 
+            Map<String, String> scsiAddressCache = getScsiAddressesBatch();
             JSONObject json = new JSONObject(parser.getLines());
             JSONArray blockdevices = json.getJSONArray("blockdevices");
 
-
-            Map<String, String> scsiAddressCache = getScsiAddressesBatch();
-
-            for (int i = 0; i < blockdevices.length(); i++) {
-                JSONObject device = blockdevices.getJSONObject(i);
-                addLunDeviceRecursiveOptimized(device, hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses, scsiAddressCache);
+            if (!ListHostLunDeviceCommand.MODE_MULTIPATH.equals(lunPathMode)) {
+                for (int i = 0; i < blockdevices.length(); i++) {
+                    addLunDeviceRecursiveOptimized(blockdevices.getJSONObject(i), hostDevicesNames, hostDevicesText, hasPartitions,
+                        scsiAddresses, scsiAddressCache, mppSlow.pathBlockDevs);
+                }
             }
 
-
-            Set<String> addedDevices = new HashSet<>();
-            collectMultipathDevicesUnified(hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses, scsiAddressCache, addedDevices);
+            if (!ListHostLunDeviceCommand.MODE_SINGLE.equals(lunPathMode)) {
+                Set<String> addedDevices = new HashSet<>();
+                collectMultipathDevicesUnified(hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses, scsiAddressCache, addedDevices, mppSlow);
+            }
 
             return new ListHostLunDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses);
 
@@ -327,7 +341,10 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    private ListHostLunDeviceAnswer listHostLunDevicesFast() {
+    /**
+     * @param lunPathMode single | multipath, or null to merge (single + multipath) for internal mappings
+     */
+    private ListHostLunDeviceAnswer listHostLunDevicesFast(String lunPathMode) {
         try {
             List<String> names = new ArrayList<>();
             List<String> texts = new ArrayList<>();
@@ -343,8 +360,11 @@ public abstract class ServerResourceBase implements ServerResource {
                 return null;
             }
 
-
-            collectAllLunDevicesUnified(names, texts, hasPartitions, scsiAddresses, scsiAddressCache, realToById);
+            if (lunPathMode == null || lunPathMode.trim().isEmpty()) {
+                collectAllLunDevicesUnified(names, texts, hasPartitions, scsiAddresses, scsiAddressCache, realToById);
+            } else {
+                collectAllLunDevicesUnified(names, texts, hasPartitions, scsiAddresses, scsiAddressCache, realToById, lunPathMode);
+            }
 
             return new ListHostLunDeviceAnswer(true, names, texts, hasPartitions, scsiAddresses);
         } catch (Exception e) {
@@ -352,9 +372,394 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
+    /**
+     * TRAN(전송방식) 기준으로 외부 스토리지(fc, iscsi) 여부 판별.
+     * fc, iscsi → 외부 스토리지 / sas, sata, nvme 등 → 내장 디스크
+     */
+    private boolean isExternalStorageByTransport(File sysBlockEntry) {
+        String bname = sysBlockEntry.getName();
+        if (bname.startsWith("nvme")) {
+            return false;
+        }
+        try {
+            File deviceLink = new File(sysBlockEntry, "device");
+            if (!deviceLink.exists()) {
+                return false;
+            }
+            Path devicePath = deviceLink.toPath().toRealPath();
+            String pathStr = devicePath.toString();
+            Matcher m = Pattern.compile("host(\\d+)").matcher(pathStr);
+            if (!m.find()) {
+                return false;
+            }
+            String hostNum = m.group(1);
+            if (new File("/sys/class/fc_host/host" + hostNum).exists()) {
+                return true;
+            }
+            if (new File("/sys/class/iscsi_host/host" + hostNum).exists()) {
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * dm-* 멀티패스 디바이스가 FC/iSCSI 등 외부 스토리지인지 확인.
+     */
+    private boolean isMultipathExternalStorage(File dmEntry) {
+        try {
+            File slavesDir = new File(dmEntry, "slaves");
+            if (!slavesDir.isDirectory()) {
+                return false;
+            }
+            File[] slaves = slavesDir.listFiles();
+            if (slaves == null || slaves.length == 0) {
+                return false;
+            }
+            for (File slave : slaves) {
+                String slaveName = slave.getName();
+                File slaveBlock = new File("/sys/block", slaveName);
+                if (slaveBlock.exists() && isExternalStorageByTransport(slaveBlock)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static final class MultipathLlGroup {
+        String mpathName;
+        String wwid;
+        String dmDevice;
+        String fullText;
+        final Set<String> pathBlockNames = new HashSet<>();
+    }
+
+    private static final class MultipathLlParseResult {
+        final List<MultipathLlGroup> groups;
+        final Set<String> pathBlockDevs;
+
+        MultipathLlParseResult(List<MultipathLlGroup> groups, Set<String> pathBlockDevs) {
+            this.groups = groups != null ? groups : new ArrayList<>();
+            this.pathBlockDevs = pathBlockDevs != null ? pathBlockDevs : new HashSet<>();
+        }
+    }
+
+    private static final Pattern MULTIPATH_LL_HEADER = Pattern.compile(
+            "^(mpath[a-zA-Z0-9]+)\\s+\\(([^)]+)\\)\\s+(dm-\\d+)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern MULTIPATH_LL_PATH_DEV = Pattern.compile(
+            "\\b(\\d+:\\d+:\\d+:\\d+)\\s+(sd[a-z0-9]+)\\s");
+
+    private MultipathLlParseResult loadMultipathLlParseResult() {
+        List<MultipathLlGroup> groups = new ArrayList<>();
+        Set<String> pathDevs = new HashSet<>();
+        try {
+            // 멀티패스 dm 디바이스가 전혀 없으면 외부 multipath 명령 호출 자체를 생략한다.
+            if (!hasAnyMultipathDmDeviceFromSysfs()) {
+                return new MultipathLlParseResult(groups, pathDevs);
+            }
+            Script cmdLL = null;
+            String[] possiblePaths = {"/usr/sbin/multipath", "/usr/bin/multipath", "/sbin/multipath"};
+            for (String path : possiblePaths) {
+                File f = new File(path);
+                if (f.exists() && f.canExecute()) {
+                    cmdLL = new Script(path);
+                    break;
+                }
+            }
+            if (cmdLL == null) {
+                cmdLL = new Script("/usr/sbin/multipath");
+            }
+            cmdLL.add("-ll");
+            OutputInterpreter.AllLinesParser parserLL = new OutputInterpreter.AllLinesParser();
+            String resultLL = cmdLL.execute(parserLL);
+            if (resultLL == null && parserLL.getLines() != null && !parserLL.getLines().trim().isEmpty()) {
+                groups = parseMultipathLlIntoGroups(parserLL.getLines());
+                for (MultipathLlGroup g : groups) {
+                    pathDevs.addAll(g.pathBlockNames);
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("loadMultipathLlParseResult failed: {}", e.getMessage());
+        }
+        augmentPathBlockDevsFromSysfs(pathDevs);
+        return new MultipathLlParseResult(groups, pathDevs);
+    }
+
+    private boolean hasAnyMultipathDmDeviceFromSysfs() {
+        try {
+            File sysBlock = new File("/sys/block");
+            File[] entries = sysBlock.listFiles();
+            if (entries == null) {
+                return false;
+            }
+            for (File entry : entries) {
+                String name = entry.getName();
+                if (!name.startsWith("dm-")) {
+                    continue;
+                }
+                if (isDmDeviceMultipathTarget(entry)) {
+                    return true;
+                }
+            }
+        } catch (Exception ignore) {
+        }
+        return false;
+    }
+
+    private void augmentPathBlockDevsFromSysfs(Set<String> pathBlockDevs) {
+        if (pathBlockDevs == null) {
+            return;
+        }
+        try {
+            File sysBlock = new File("/sys/block");
+            File[] entries = sysBlock.listFiles();
+            if (entries == null) {
+                return;
+            }
+            for (File dmEntry : entries) {
+                String dmName = dmEntry.getName();
+                if (!dmName.startsWith("dm-")) {
+                    continue;
+                }
+                if (!isDmDeviceMultipathTarget(dmEntry)) {
+                    continue;
+                }
+                File slavesDir = new File(dmEntry, "slaves");
+                if (!slavesDir.isDirectory()) {
+                    continue;
+                }
+                File[] slaves = slavesDir.listFiles();
+                if (slaves == null) {
+                    continue;
+                }
+                for (File s : slaves) {
+                    String sn = s.getName();
+                    if (sn.startsWith("sd") || sn.startsWith("vd") || sn.startsWith("xvd")) {
+                        pathBlockDevs.add(sn);
+                    }
+                }
+            }
+
+            for (File e : entries) {
+                String name = e.getName();
+                if (!(name.startsWith("sd") || name.startsWith("vd") || name.startsWith("xvd"))) {
+                    continue;
+                }
+                if (pathBlockDevs.contains(name)) {
+                    continue;
+                }
+                if (isBlockDeviceSlaveOfMultipathMapper(e)) {
+                    pathBlockDevs.add(name);
+                }
+            }
+        } catch (Exception ex) {
+            logger.debug("augmentPathBlockDevsFromSysfs failed: {}", ex.getMessage());
+        }
+    }
+
+    private boolean isDmDeviceMultipathTarget(File dmSysBlock) {
+        try {
+            if (isDmTableMultipathTarget(dmSysBlock)) {
+                return true;
+            }
+            File uuidFile = new File(dmSysBlock, "dm/uuid");
+            if (uuidFile.exists()) {
+                String uuid = new String(Files.readAllBytes(uuidFile.toPath())).trim().toLowerCase(Locale.ROOT);
+                if (uuid.startsWith("mpath-") || uuid.contains("dm-uuid-mpath") || uuid.contains("mpath")) {
+                    return true;
+                }
+            }
+            File nameFile = new File(dmSysBlock, "dm/name");
+            if (nameFile.exists()) {
+                String n = new String(Files.readAllBytes(nameFile.toPath())).trim().toLowerCase(Locale.ROOT);
+                if (n.startsWith("mpath")) {
+                    return true;
+                }
+            }
+
+        } catch (Exception ignore) {
+        }
+        return false;
+    }
+
+    private boolean isDmTableMultipathTarget(File dmSysBlock) {
+        try {
+            File tableFile = new File(dmSysBlock, "table");
+            if (!tableFile.exists()) {
+                return false;
+            }
+            String content = new String(Files.readAllBytes(tableFile.toPath())).trim();
+            if (content.isEmpty()) {
+                return false;
+            }
+            String firstLine = content.split("\\r?\\n", 2)[0].trim();
+            String[] parts = firstLine.split("\\s+");
+            return parts.length >= 3 && "multipath".equals(parts[2]);
+        } catch (Exception ignore) {
+        }
+        return false;
+    }
+
+    private boolean isBlockDeviceSlaveOfMultipathMapper(File blockEntry) {
+        try {
+            File holdersDir = new File(blockEntry, "holders");
+            if (!holdersDir.isDirectory()) {
+                return false;
+            }
+            File[] holders = holdersDir.listFiles();
+            if (holders == null || holders.length == 0) {
+                return false;
+            }
+            for (File h : holders) {
+                String hName = h.getName();
+                if (!hName.startsWith("dm-")) {
+                    continue;
+                }
+                File dmSys = new File("/sys/block", hName);
+                if (!dmSys.isDirectory()) {
+                    continue;
+                }
+                if (isDmDeviceMultipathTarget(dmSys)) {
+                    return true;
+                }
+            }
+        } catch (Exception ignore) {
+        }
+        return false;
+    }
+
+    private List<MultipathLlGroup> parseMultipathLlIntoGroups(String output) {
+        List<MultipathLlGroup> groups = new ArrayList<>();
+        if (output == null || output.trim().isEmpty()) {
+            return groups;
+        }
+        String[] lines = output.split("\\r?\\n");
+        List<String> buffer = new ArrayList<>();
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (MULTIPATH_LL_HEADER.matcher(trimmed).find() && !buffer.isEmpty()) {
+                groups.add(buildMultipathGroup(buffer));
+                buffer = new ArrayList<>();
+            }
+            buffer.add(line);
+        }
+        if (!buffer.isEmpty()) {
+            groups.add(buildMultipathGroup(buffer));
+        }
+        return groups;
+    }
+
+    private MultipathLlGroup buildMultipathGroup(List<String> lines) {
+        MultipathLlGroup g = new MultipathLlGroup();
+        g.fullText = String.join("\n", lines);
+        if (!lines.isEmpty()) {
+            Matcher mh = MULTIPATH_LL_HEADER.matcher(lines.get(0).trim());
+            if (mh.find()) {
+                g.mpathName = mh.group(1);
+                g.wwid = mh.group(2);
+                g.dmDevice = mh.group(3);
+            }
+        }
+        for (String line : lines) {
+            Matcher mp = MULTIPATH_LL_PATH_DEV.matcher(line);
+            while (mp.find()) {
+                g.pathBlockNames.add(mp.group(2));
+            }
+        }
+        return g;
+    }
+
+    private boolean isDevPathMultipathSlaveBacking(String devPath, Set<String> slaveBlockNames) {
+        if (devPath == null || slaveBlockNames == null || slaveBlockNames.isEmpty()) {
+            return false;
+        }
+        for (String sb : slaveBlockNames) {
+            String prefix = "/dev/" + sb;
+            if (devPath.equals(prefix)) {
+                return true;
+            }
+            if (devPath.startsWith(prefix) && devPath.length() > prefix.length()) {
+                char c = devPath.charAt(prefix.length());
+                if (c >= '0' && c <= '9') {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private Map<String, String> buildLsblkTranHctlHints() {
+        Map<String, String> hints = new HashMap<>();
+        try {
+            Script cmd = new Script("/usr/bin/lsblk");
+            cmd.add("--json", "--paths", "--output", "NAME,TYPE,TRAN,HCTL");
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String result = cmd.execute(parser);
+            if (result != null || parser.getLines() == null) {
+                return hints;
+            }
+            JSONObject json = new JSONObject(parser.getLines());
+            JSONArray roots = json.getJSONArray("blockdevices");
+            for (int i = 0; i < roots.length(); i++) {
+                addLsblkTranHctlRecursive(roots.getJSONObject(i), hints);
+            }
+        } catch (Exception e) {
+            logger.debug("buildLsblkTranHctlHints failed: {}", e.getMessage());
+        }
+        return hints;
+    }
+
+    private void addLsblkTranHctlRecursive(JSONObject device, Map<String, String> hints) {
+        String type = device.optString("type", "");
+        String name = device.optString("name", "");
+        if ("disk".equals(type) && name.startsWith("/dev/")) {
+            String tran = device.optString("tran", "").trim();
+            String hctl = device.optString("hctl", "").trim();
+            StringBuilder ext = new StringBuilder();
+            if (!tran.isEmpty()) {
+                ext.append(" TRAN: ").append(tran);
+            }
+            if (!hctl.isEmpty()) {
+                ext.append(" HCTL: ").append(hctl);
+            }
+            if (ext.length() > 0) {
+                hints.put(name, ext.toString().trim());
+            }
+        }
+        if (device.has("children")) {
+            JSONArray ch = device.getJSONArray("children");
+            for (int i = 0; i < ch.length(); i++) {
+                addLsblkTranHctlRecursive(ch.getJSONObject(i), hints);
+            }
+        }
+    }
+
     private void collectAllLunDevicesUnified(List<String> names, List<String> texts, List<Boolean> hasPartitions,
                                            List<String> scsiAddresses, Map<String, String> scsiAddressCache,
                                            Map<Path, String> realToById) {
+        collectAllLunDevicesUnified(names, texts, hasPartitions, scsiAddresses, scsiAddressCache, realToById, ListHostLunDeviceCommand.MODE_SINGLE);
+        collectAllLunDevicesUnified(names, texts, hasPartitions, scsiAddresses, scsiAddressCache, realToById, ListHostLunDeviceCommand.MODE_MULTIPATH);
+    }
+
+    private void collectAllLunDevicesUnified(List<String> names, List<String> texts, List<Boolean> hasPartitions,
+                                           List<String> scsiAddresses, Map<String, String> scsiAddressCache,
+                                           Map<Path, String> realToById, String lunPathMode) {
+        MultipathLlParseResult mpp = ListHostLunDeviceCommand.MODE_SINGLE.equals(lunPathMode)
+                ? new MultipathLlParseResult(new ArrayList<>(), new HashSet<>())
+                : loadMultipathLlParseResult();
+        Map<String, String> tranHctlHints = buildLsblkTranHctlHints();
+
+        if (ListHostLunDeviceCommand.MODE_MULTIPATH.equals(lunPathMode)) {
+            Set<String> addedDevices = new HashSet<>();
+            collectMultipathDevicesUnified(names, texts, hasPartitions, scsiAddresses, scsiAddressCache, addedDevices, mpp);
+            return;
+        }
+
         File sysBlock = new File("/sys/block");
         File[] entries = sysBlock.listFiles();
         if (entries == null) return;
@@ -365,7 +770,16 @@ public abstract class ServerResourceBase implements ServerResource {
             String bname = entry.getName();
             if (!(bname.startsWith("sd") || bname.startsWith("vd") || bname.startsWith("xvd") ||
                   bname.startsWith("nvme"))) {
-                // dm- 디바이스는 multipath 수집 단계에서 처리하므로 여기서는 건너뜀
+                continue;
+            }
+
+            if (bname.startsWith("nvme")) {
+                continue;
+            }
+            if (!isExternalStorageByTransport(entry)) {
+                continue;
+            }
+            if (mpp.pathBlockDevs.contains(bname)) {
                 continue;
             }
 
@@ -376,18 +790,20 @@ public abstract class ServerResourceBase implements ServerResource {
                 preferred.substring(preferred.lastIndexOf('/') + 1) : devPath;
 
             if (!addedDevices.contains(deviceKey)) {
-                addDeviceToList(devPath, preferred, entry, names, texts, hasPartitions, scsiAddresses, scsiAddressCache, bname);
+                addDeviceToList(devPath, preferred, entry, names, texts, hasPartitions, scsiAddresses, scsiAddressCache, bname, tranHctlHints);
                 addedDevices.add(deviceKey);
             }
         }
 
-        // multipath 디바이스 수집 (dm- 디바이스 포함)
-        collectMultipathDevicesUnified(names, texts, hasPartitions, scsiAddresses, scsiAddressCache, addedDevices);
+        if (!ListHostLunDeviceCommand.MODE_SINGLE.equals(lunPathMode)) {
+            collectMultipathDevicesUnified(names, texts, hasPartitions, scsiAddresses, scsiAddressCache, addedDevices, mpp);
+        }
     }
 
     private void addDeviceToList(String devPath, String preferred, File entry,
                                List<String> names, List<String> texts, List<Boolean> hasPartitionsList,
-                               List<String> scsiAddresses, Map<String, String> scsiAddressCache, String bname) {
+                               List<String> scsiAddresses, Map<String, String> scsiAddressCache, String bname,
+                               Map<String, String> tranHctlHints) {
         StringBuilder info = new StringBuilder();
         info.append("TYPE: ");
         if (bname.startsWith("dm-")) info.append("multipath");
@@ -406,6 +822,12 @@ public abstract class ServerResourceBase implements ServerResource {
         String scsiAddr = scsiAddressCache.getOrDefault(devPath, scsiAddressCache.get(preferred));
         if (scsiAddr != null) {
             info.append(" SCSI_ADDRESS: ").append(scsiAddr);
+        }
+        if (tranHctlHints != null) {
+            String th = tranHctlHints.get(devPath);
+            if (th != null) {
+                info.append(" ").append(th);
+            }
         }
 
         if (!preferred.equals(devPath) && preferred.startsWith("/dev/disk/by-id/")) {
@@ -427,145 +849,188 @@ public abstract class ServerResourceBase implements ServerResource {
 
     private void collectMultipathDevicesUnified(List<String> names, List<String> texts, List<Boolean> hasPartitionsList,
                                                List<String> scsiAddresses, Map<String, String> scsiAddressCache, Set<String> addedDevices) {
+        collectMultipathDevicesUnified(names, texts, hasPartitionsList, scsiAddresses, scsiAddressCache, addedDevices, null);
+    }
+
+    private void collectMultipathDevicesUnified(List<String> names, List<String> texts, List<Boolean> hasPartitionsList,
+                                               List<String> scsiAddresses, Map<String, String> scsiAddressCache, Set<String> addedDevices,
+                                               MultipathLlParseResult mppIn) {
         AtomicInteger multipathDevicesAdded = new AtomicInteger(0);
         Set<String> addedMpathGroups = new HashSet<>();
         try {
-            // multipath -ll 명령어로 상세 정보 수집 (우선 사용)
-            Script cmdLL = null;
+            MultipathLlParseResult mpp = mppIn != null ? mppIn : loadMultipathLlParseResult();
+            Map<Path, String> realToById = buildByIdReverseMap();
             String multipathPath = null;
             String[] possiblePaths = {"/usr/sbin/multipath", "/usr/bin/multipath", "/sbin/multipath"};
             for (String path : possiblePaths) {
                 File f = new File(path);
                 if (f.exists() && f.canExecute()) {
                     multipathPath = path;
-                    cmdLL = new Script(path);
                     break;
                 }
             }
-            if (cmdLL == null) {
-                cmdLL = new Script("/usr/sbin/multipath");
-            }
-            cmdLL.add("-ll");
-            OutputInterpreter.AllLinesParser parserLL = new OutputInterpreter.AllLinesParser();
-            String resultLL = cmdLL.execute(parserLL);
 
-            if (logger.isDebugEnabled()) {
-                if (resultLL != null) {
-                    logger.debug("multipath -ll command failed: " + resultLL);
-                } else if (parserLL.getLines() != null) {
-                    logger.debug("multipath -ll output: " + parserLL.getLines());
-                } else {
-                    logger.debug("multipath -ll output is null");
+            // 멀티패스 dm 디바이스가 없으면 외부 multipath 명령 재시도를 하지 않는다.
+            if (mpp.groups.isEmpty() && !hasAnyMultipathDmDeviceFromSysfs()) {
+                return;
+            }
+
+            boolean hasGroupsFromLl = !mpp.groups.isEmpty();
+            if (hasGroupsFromLl) {
+                for (MultipathLlGroup g : mpp.groups) {
+                    String dmDevice = g.dmDevice;
+                    String mpathName = g.mpathName;
+                    String wwid = g.wwid;
+                    String groupKey = wwid != null ? wwid : (mpathName != null ? mpathName : (dmDevice != null ? dmDevice : null));
+                    if (groupKey == null || addedMpathGroups.contains(groupKey)) {
+                        continue;
+                    }
+
+                    boolean useMapper = mpathName != null;
+                    if (useMapper) {
+                        try {
+                            if (!Files.exists(Path.of("/dev/mapper/" + mpathName))) {
+                                useMapper = false;
+                            }
+                        } catch (Exception e) {
+                            useMapper = false;
+                        }
+                    }
+                    if (!useMapper && dmDevice == null) {
+                        continue;
+                    }
+
+                    File dmEntry = dmDevice != null ? new File("/sys/block", dmDevice) : null;
+                    if (dmEntry == null || !dmEntry.exists() || !isMultipathExternalStorage(dmEntry)) {
+                        continue;
+                    }
+
+                    String chosenPath = useMapper ? "/dev/mapper/" + mpathName : "/dev/" + dmDevice;
+                    String preferredName = resolveMultipathLunDisplayById(chosenPath, realToById);
+                    String chosenKey = preferredName.startsWith("/dev/disk/by-id/") ?
+                        preferredName.substring(preferredName.lastIndexOf('/') + 1) : chosenPath;
+
+                    addMultipathDeviceToList(chosenPath, preferredName, names, texts, hasPartitionsList, scsiAddresses, scsiAddressCache, wwid,
+                        g.fullText);
+                    addedDevices.add(chosenKey);
+                    if (useMapper && dmDevice != null) {
+                        String dmPath = "/dev/" + dmDevice;
+                        String dmPreferred = resolveMultipathLunDisplayById(dmPath, realToById);
+                        String dmKey = dmPreferred.startsWith("/dev/disk/by-id/") ?
+                            dmPreferred.substring(dmPreferred.lastIndexOf('/') + 1) : dmPath;
+                        addedDevices.add(dmKey);
+                    }
+                    addedMpathGroups.add(groupKey);
+                    multipathDevicesAdded.incrementAndGet();
                 }
-            }
+            } else {
+                Script cmdLL = multipathPath != null ? new Script(multipathPath) : new Script("/usr/sbin/multipath");
+                cmdLL.add("-ll");
+                OutputInterpreter.AllLinesParser parserLL = new OutputInterpreter.AllLinesParser();
+                String resultLL = cmdLL.execute(parserLL);
 
-            if (resultLL == null && parserLL.getLines() != null && !parserLL.getLines().trim().isEmpty()) {
-                String[] lines = parserLL.getLines().split("\n");
-                for (String line : lines) {
-                    line = line.trim();
-                    if (line.isEmpty()) continue;
+                if (resultLL == null && parserLL.getLines() != null && !parserLL.getLines().trim().isEmpty()) {
+                    String[] lines = parserLL.getLines().split("\n");
+                    for (String line : lines) {
+                        line = line.trim();
+                        if (line.isEmpty()) continue;
 
-                    // multipath -ll 출력 형식: "mpatha (360014056385a62fd8e80d45f7daf8ed7) dm-3 SYNOLOGY,Storage"
-                    if (line.contains("mpath") && (line.contains("dm-") || line.matches(".*mpath[a-z0-9]+.*"))) {
-                        String dmDevice = extractDmDeviceFromLine(line);
-                        String mpathName = extractMpathNameFromLine(line);
-                        String wwid = extractMpathWwidFromLine(line);
-                        String groupKey = wwid != null ? wwid : (mpathName != null ? mpathName : (dmDevice != null ? dmDevice : null));
-                        if (groupKey == null || addedMpathGroups.contains(groupKey)) continue;
+                        if (line.contains("mpath") && (line.contains("dm-") || line.matches(".*mpath[a-z0-9]+.*"))) {
+                            String dmDevice = extractDmDeviceFromLine(line);
+                            String mpathName = extractMpathNameFromLine(line);
+                            String wwid = extractMpathWwidFromLine(line);
+                            String groupKey = wwid != null ? wwid : (mpathName != null ? mpathName : (dmDevice != null ? dmDevice : null));
+                            if (groupKey == null || addedMpathGroups.contains(groupKey)) continue;
 
-                        boolean useMapper = mpathName != null;
-                        if (useMapper) {
-                            try {
-                                if (!Files.exists(Path.of("/dev/mapper/" + mpathName))) useMapper = false;
-                            } catch (Exception e) { useMapper = false; }
-                        }
-                        if (!useMapper && dmDevice == null) continue;
+                            boolean useMapper = mpathName != null;
+                            if (useMapper) {
+                                try {
+                                    if (!Files.exists(Path.of("/dev/mapper/" + mpathName))) useMapper = false;
+                                } catch (Exception e) { useMapper = false; }
+                            }
+                            if (!useMapper && dmDevice == null) continue;
 
-                        String chosenPath = useMapper ? "/dev/mapper/" + mpathName : "/dev/" + dmDevice;
-                        String preferredName = resolveDevicePathToById(chosenPath);
-                        String chosenKey = preferredName.startsWith("/dev/disk/by-id/") ?
-                            preferredName.substring(preferredName.lastIndexOf('/') + 1) : chosenPath;
+                            File dmEntry = dmDevice != null ? new File("/sys/block", dmDevice) : null;
+                            if (dmEntry == null || !dmEntry.exists() || !isMultipathExternalStorage(dmEntry)) {
+                                continue;
+                            }
 
-                        addMultipathDeviceToList(chosenPath, preferredName, names, texts, hasPartitionsList, scsiAddresses, scsiAddressCache, wwid);
-                        addedDevices.add(chosenKey);
-                        if (useMapper && dmDevice != null) {
-                            String dmPath = "/dev/" + dmDevice;
-                            String dmPreferred = resolveDevicePathToById(dmPath);
-                            String dmKey = dmPreferred.startsWith("/dev/disk/by-id/") ?
-                                dmPreferred.substring(dmPreferred.lastIndexOf('/') + 1) : dmPath;
-                            addedDevices.add(dmKey);
-                        }
-                        addedMpathGroups.add(groupKey);
-                        multipathDevicesAdded.incrementAndGet();
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Added multipath group (one entry): " + chosenPath + ", WWID=" + wwid);
+                            String chosenPath = useMapper ? "/dev/mapper/" + mpathName : "/dev/" + dmDevice;
+                            String preferredName = resolveMultipathLunDisplayById(chosenPath, realToById);
+                            String chosenKey = preferredName.startsWith("/dev/disk/by-id/") ?
+                                preferredName.substring(preferredName.lastIndexOf('/') + 1) : chosenPath;
+
+                            addMultipathDeviceToList(chosenPath, preferredName, names, texts, hasPartitionsList, scsiAddresses, scsiAddressCache, wwid, null);
+                            addedDevices.add(chosenKey);
+                            if (useMapper && dmDevice != null) {
+                                String dmPath = "/dev/" + dmDevice;
+                                String dmPreferred = resolveMultipathLunDisplayById(dmPath, realToById);
+                                String dmKey = dmPreferred.startsWith("/dev/disk/by-id/") ?
+                                    dmPreferred.substring(dmPreferred.lastIndexOf('/') + 1) : dmPath;
+                                addedDevices.add(dmKey);
+                            }
+                            addedMpathGroups.add(groupKey);
+                            multipathDevicesAdded.incrementAndGet();
                         }
                     }
                 }
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("multipath -ll output is empty or failed");
-                }
             }
 
-            // multipath -l 명령어로 mpath 디바이스 수집 (추가 확인)
-            Script cmd = null;
-            if (multipathPath != null) {
-                cmd = new Script(multipathPath);
-            } else {
-                cmd = new Script("/usr/sbin/multipath");
-            }
-            cmd.add("-l");
-            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
-            String result = cmd.execute(parser);
-
-            if (logger.isDebugEnabled()) {
-                if (result != null) {
-                    logger.debug("multipath -l command failed: " + result);
-                } else if (parser.getLines() != null) {
-                    logger.debug("multipath -l output: " + parser.getLines());
+            if (!hasGroupsFromLl) {
+                // multipath -ll 명령어로 mpath 디바이스 수집 (추가 확인)
+                Script cmd = null;
+                if (multipathPath != null) {
+                    cmd = new Script(multipathPath);
                 } else {
-                    logger.debug("multipath -l output is null");
+                    cmd = new Script("/usr/sbin/multipath");
                 }
-            }
+                cmd.add("-ll");
+                OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+                String result = cmd.execute(parser);
 
-            if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
-                String[] lines = parser.getLines().split("\n");
-                for (String line : lines) {
-                    line = line.trim();
-                    if (line.isEmpty()) continue;
+                if (result == null && parser.getLines() != null && !parser.getLines().trim().isEmpty()) {
+                    String[] lines = parser.getLines().split("\n");
+                    for (String line : lines) {
+                        line = line.trim();
+                        if (line.isEmpty()) continue;
 
-                    if (line.contains("mpath") && (line.contains("dm-") || line.matches(".*mpath[a-z0-9]+.*"))) {
-                        String dmDevice = extractDmDeviceFromLine(line);
-                        String mpathName = extractMpathNameFromLine(line);
-                        String wwid = extractMpathWwidFromLine(line);
-                        String groupKey = wwid != null ? wwid : (mpathName != null ? mpathName : (dmDevice != null ? dmDevice : null));
-                        if (groupKey == null || addedMpathGroups.contains(groupKey)) continue;
+                        if (line.contains("mpath") && (line.contains("dm-") || line.matches(".*mpath[a-z0-9]+.*"))) {
+                            String dmDevice = extractDmDeviceFromLine(line);
+                            String mpathName = extractMpathNameFromLine(line);
+                            String wwid = extractMpathWwidFromLine(line);
+                            String groupKey = wwid != null ? wwid : (mpathName != null ? mpathName : (dmDevice != null ? dmDevice : null));
+                            if (groupKey == null || addedMpathGroups.contains(groupKey)) continue;
 
-                        boolean useMapper = mpathName != null;
-                        if (useMapper) {
-                            try {
-                                if (!Files.exists(Path.of("/dev/mapper/" + mpathName))) useMapper = false;
-                            } catch (Exception e) { useMapper = false; }
+                            boolean useMapper = mpathName != null;
+                            if (useMapper) {
+                                try {
+                                    if (!Files.exists(Path.of("/dev/mapper/" + mpathName))) useMapper = false;
+                                } catch (Exception e) { useMapper = false; }
+                            }
+                            if (!useMapper && dmDevice == null) continue;
+
+                            File dmEntry = dmDevice != null ? new File("/sys/block", dmDevice) : null;
+                            if (dmEntry == null || !dmEntry.exists() || !isMultipathExternalStorage(dmEntry)) {
+                                continue;
+                            }
+
+                            String chosenPath = useMapper ? "/dev/mapper/" + mpathName : "/dev/" + dmDevice;
+                            String preferredName = resolveMultipathLunDisplayById(chosenPath, realToById);
+                            String chosenKey = preferredName.startsWith("/dev/disk/by-id/") ?
+                                preferredName.substring(preferredName.lastIndexOf('/') + 1) : chosenPath;
+
+                            addMultipathDeviceToList(chosenPath, preferredName, names, texts, hasPartitionsList, scsiAddresses, scsiAddressCache, wwid);
+                            addedDevices.add(chosenKey);
+                            if (useMapper && dmDevice != null) {
+                                String dmPath = "/dev/" + dmDevice;
+                                String dmPreferred = resolveMultipathLunDisplayById(dmPath, realToById);
+                                String dmKey = dmPreferred.startsWith("/dev/disk/by-id/") ?
+                                    dmPreferred.substring(dmPreferred.lastIndexOf('/') + 1) : dmPath;
+                                addedDevices.add(dmKey);
+                            }
+                            addedMpathGroups.add(groupKey);
+                            multipathDevicesAdded.incrementAndGet();
                         }
-                        if (!useMapper && dmDevice == null) continue;
-
-                        String chosenPath = useMapper ? "/dev/mapper/" + mpathName : "/dev/" + dmDevice;
-                        String preferredName = resolveDevicePathToById(chosenPath);
-                        String chosenKey = preferredName.startsWith("/dev/disk/by-id/") ?
-                            preferredName.substring(preferredName.lastIndexOf('/') + 1) : chosenPath;
-
-                        addMultipathDeviceToList(chosenPath, preferredName, names, texts, hasPartitionsList, scsiAddresses, scsiAddressCache, wwid);
-                        addedDevices.add(chosenKey);
-                        if (useMapper && dmDevice != null) {
-                            String dmPath = "/dev/" + dmDevice;
-                            String dmPreferred = resolveDevicePathToById(dmPath);
-                            String dmKey = dmPreferred.startsWith("/dev/disk/by-id/") ?
-                                dmPreferred.substring(dmPreferred.lastIndexOf('/') + 1) : dmPath;
-                            addedDevices.add(dmKey);
-                        }
-                        addedMpathGroups.add(groupKey);
-                        multipathDevicesAdded.incrementAndGet();
                     }
                 }
             }
@@ -586,16 +1051,20 @@ public abstract class ServerResourceBase implements ServerResource {
 
                                       if (realDeviceName.startsWith("dm-") && realDevicePath.startsWith("/dev/")) {
                                           boolean isMpathLink = linkName.startsWith("mpath");
-                                          boolean isMultipath = isMpathLink || isMultipathDevice(devicePath);
+                                          // 외부 명령 호출(multipath -ll)을 피하기 위해 sysfs 기반으로 판별
+                                          boolean isMultipath = isMpathLink || isDmDeviceMultipathTarget(new File("/sys/block", realDeviceName));
                                           if (!isMultipath) return;
 
-                                          String preferredName = resolveDevicePathToById(devicePath);
+                                          File dmEntry = new File("/sys/block", realDeviceName);
+                                          if (!dmEntry.exists() || !isMultipathExternalStorage(dmEntry)) return;
+
+                                          String preferredName = resolveMultipathLunDisplayById(devicePath, realToById);
                                           String deviceKey = preferredName.startsWith("/dev/disk/by-id/") ?
                                               preferredName.substring(preferredName.lastIndexOf('/') + 1) : devicePath;
                                           if (addedDevices.contains(deviceKey)) return;
 
                                           String dmDevicePath = "/dev/" + realDeviceName;
-                                          String dmPreferred = resolveDevicePathToById(dmDevicePath);
+                                          String dmPreferred = resolveMultipathLunDisplayById(dmDevicePath, realToById);
                                           String dmKey = dmPreferred.startsWith("/dev/disk/by-id/") ?
                                               dmPreferred.substring(dmPreferred.lastIndexOf('/') + 1) : dmDevicePath;
 
@@ -627,13 +1096,13 @@ public abstract class ServerResourceBase implements ServerResource {
                                     String devicePath = "/dev/" + deviceName;
 
                                     // 이미 추가된 디바이스인지 확인
-                                    String preferredName = resolveDevicePathToById(devicePath);
+                                    String preferredName = resolveMultipathLunDisplayById(devicePath, realToById);
                                     String deviceKey = preferredName.startsWith("/dev/disk/by-id/") ?
                                         preferredName.substring(preferredName.lastIndexOf('/') + 1) : devicePath;
 
                                     if (!addedDevices.contains(deviceKey)) {
-                                        // multipath 디바이스인지 확인
-                                        if (isMultipathDevice(devicePath)) {
+                                        // multipath 디바이스이면서 TRAN=fc/iscsi 외부 스토리지인지 확인
+                                        if (isDmDeviceMultipathTarget(entry) && isMultipathExternalStorage(entry)) {
                                             addMultipathDeviceToList(devicePath, preferredName, names, texts, hasPartitionsList, scsiAddresses, scsiAddressCache);
                                             addedDevices.add(deviceKey);
                                         }
@@ -650,11 +1119,6 @@ public abstract class ServerResourceBase implements ServerResource {
             }
         } catch (Exception e) {
             logger.warn("Error collecting multipath devices", e);
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Total multipath devices added: " + multipathDevicesAdded.get());
-            logger.debug("Final device names count: " + names.size());
         }
     }
 
@@ -714,7 +1178,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 }
             }
 
-            // multipath -l 출력에서도 확인
+            // multipath -ll 출력에서도 확인
             Script multipathLCmd = new Script("/usr/sbin/multipath");
             multipathLCmd.add("-l");
             OutputInterpreter.AllLinesParser multipathLParser = new OutputInterpreter.AllLinesParser();
@@ -734,12 +1198,19 @@ public abstract class ServerResourceBase implements ServerResource {
     private void addMultipathDeviceToList(String devicePath, String preferredName,
                                         List<String> names, List<String> texts, List<Boolean> hasPartitionsList,
                                         List<String> scsiAddresses, Map<String, String> scsiAddressCache) {
-        addMultipathDeviceToList(devicePath, preferredName, names, texts, hasPartitionsList, scsiAddresses, scsiAddressCache, null);
+        addMultipathDeviceToList(devicePath, preferredName, names, texts, hasPartitionsList, scsiAddresses, scsiAddressCache, null, null);
     }
 
     private void addMultipathDeviceToList(String devicePath, String preferredName,
                                         List<String> names, List<String> texts, List<Boolean> hasPartitionsList,
                                         List<String> scsiAddresses, Map<String, String> scsiAddressCache, String mpathWwid) {
+        addMultipathDeviceToList(devicePath, preferredName, names, texts, hasPartitionsList, scsiAddresses, scsiAddressCache, mpathWwid, null);
+    }
+
+    private void addMultipathDeviceToList(String devicePath, String preferredName,
+                                        List<String> names, List<String> texts, List<Boolean> hasPartitionsList,
+                                        List<String> scsiAddresses, Map<String, String> scsiAddressCache, String mpathWwid,
+                                        String multipathLlDetail) {
         try {
             boolean hasPartition = hasPartitionRecursiveForDevice(devicePath);
 
@@ -762,7 +1233,11 @@ public abstract class ServerResourceBase implements ServerResource {
             }
 
             if (mpathWwid != null && !mpathWwid.isEmpty()) {
-                deviceInfo.append(" MPATH_WWID: ").append(mpathWwid);
+                deviceInfo.append(" MPATH_UUID: ").append(mpathWwid);
+            }
+
+            if (multipathLlDetail != null && !multipathLlDetail.isEmpty()) {
+                deviceInfo.append("\nMULTIPATH_LL:\n").append(multipathLlDetail);
             }
 
             if (!preferredName.equals(devicePath) && preferredName.startsWith("/dev/disk/by-id/")) {
@@ -773,20 +1248,12 @@ public abstract class ServerResourceBase implements ServerResource {
                 texts.add(deviceInfo.toString());
                 hasPartitionsList.add(hasPartition);
                 scsiAddresses.add(scsiAddress != null ? scsiAddress : "");
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Added multipath device with by-id: " + displayName);
-                }
             } else {
                 // by-id 경로가 없어도 기본 경로로 추가
                 names.add(devicePath);
                 texts.add(deviceInfo.toString());
                 hasPartitionsList.add(hasPartition);
                 scsiAddresses.add(scsiAddress != null ? scsiAddress : "");
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Added multipath device: " + devicePath);
-                }
             }
         } catch (Exception e) {
             logger.warn("Error adding multipath device to list: " + devicePath, e);
@@ -949,10 +1416,20 @@ public abstract class ServerResourceBase implements ServerResource {
 
     private void addLunDeviceRecursiveOptimized(JSONObject device, List<String> names, List<String> texts,
             List<Boolean> hasPartitions, List<String> scsiAddresses,
-            Map<String, String> scsiAddressCache) {
-        String name = device.getString("name");
-        String type = device.getString("type");
+            Map<String, String> scsiAddressCache, Set<String> multipathSlaveBlockNames) {
+        String name = device.optString("name", "");
+        if (isDevPathMultipathSlaveBacking(name, multipathSlaveBlockNames)) {
+            return;
+        }
+
+        String tran = device.optString("tran", "").toLowerCase();
+        if (!tran.isEmpty() && !"fc".equals(tran) && !"iscsi".equals(tran)) {
+            return;
+        }
+
+        String type = device.optString("type", "");
         String size = device.optString("size", "");
+        String hctl = device.optString("hctl", "").trim();
 
         if (!"part".equals(type)
             && !name.contains("/dev/mapper/ceph--")
@@ -960,12 +1437,13 @@ public abstract class ServerResourceBase implements ServerResource {
             boolean hasPartition = hasPartitionRecursive(device);
 
             String preferredName = resolveDevicePathToById(name);
-
+            String displayName = name;
             if (!preferredName.equals(name) && preferredName.startsWith("/dev/disk/by-id/")) {
                 String byIdName = preferredName.substring(preferredName.lastIndexOf('/') + 1);
-                String displayName = name + " (" + byIdName + ")";
+                displayName = name + " (" + byIdName + ")";
+            }
 
-                names.add(displayName);
+            if (name.startsWith("/dev/")) {
                 StringBuilder deviceInfo = new StringBuilder();
                 deviceInfo.append("TYPE: ").append(type);
                 if (!size.isEmpty()) {
@@ -977,20 +1455,175 @@ public abstract class ServerResourceBase implements ServerResource {
                 if (scsiAddress != null) {
                     deviceInfo.append(" SCSI_ADDRESS: ").append(scsiAddress);
                 }
+                if (!tran.isEmpty()) {
+                    deviceInfo.append(" TRAN: ").append(tran);
+                }
+                if (!hctl.isEmpty()) {
+                    deviceInfo.append(" HCTL: ").append(hctl);
+                }
 
+                names.add(displayName);
                 texts.add(deviceInfo.toString());
                 hasPartitions.add(hasPartition);
                 scsiAddresses.add(scsiAddress != null ? scsiAddress : "");
-            } else {
             }
         }
 
         if (device.has("children")) {
             JSONArray children = device.getJSONArray("children");
             for (int i = 0; i < children.length(); i++) {
-                addLunDeviceRecursiveOptimized(children.getJSONObject(i), names, texts, hasPartitions, scsiAddresses, scsiAddressCache);
+                addLunDeviceRecursiveOptimized(children.getJSONObject(i), names, texts, hasPartitions, scsiAddresses, scsiAddressCache,
+                    multipathSlaveBlockNames);
             }
         }
+    }
+
+    private boolean sameBlockDevice(Path a, Path b) {
+        if (a == null || b == null) {
+            return false;
+        }
+        try {
+            if (a.equals(b)) {
+                return true;
+            }
+            if (Files.exists(a) && Files.exists(b) && Files.isSameFile(a, b)) {
+                return true;
+            }
+        } catch (Exception ignore) {
+        }
+        return false;
+    }
+
+    private String resolveDmUuidMpathById(String devicePath) {
+        try {
+            if (devicePath == null || !devicePath.startsWith("/dev/")) {
+                return null;
+            }
+            Path device = Path.of(devicePath).toRealPath();
+            Path byIdDir = Path.of("/dev/disk/by-id");
+            if (!Files.isDirectory(byIdDir)) {
+                return null;
+            }
+            String fromLs = resolveDmUuidMpathByIdFromLsCommand(device, byIdDir);
+            if (fromLs != null) {
+                return fromLs;
+            }
+            return resolveDmUuidMpathByIdFromDirectoryScan(device, byIdDir);
+        } catch (Exception ignore) {
+            return null;
+        }
+    }
+
+    /**
+     * {@code LC_ALL=C ls -all /dev/disk/by-id} 한 줄씩 파싱: {@code name -> target} 형식.
+     */
+    private String resolveDmUuidMpathByIdFromLsCommand(Path device, Path byIdDir) {
+        String lsBin = Files.exists(Path.of("/bin/ls")) ? "/bin/ls" : "/usr/bin/ls";
+        Script cmd = new Script("/bin/sh");
+        cmd.add("-c", "LC_ALL=C LANG=C " + lsBin + " -all /dev/disk/by-id");
+        OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+        String executeResult = cmd.execute(parser);
+        if (executeResult != null) {
+            return null;
+        }
+        String allLines = parser.getLines();
+        if (allLines == null || allLines.trim().isEmpty()) {
+            return null;
+        }
+        List<String> matches = new ArrayList<>();
+        for (String rawLine : allLines.split("\\r?\\n")) {
+            String line = rawLine.trim();
+            if (line.isEmpty() || line.startsWith("total")) {
+                continue;
+            }
+            int arrow = line.indexOf(" -> ");
+            if (arrow < 0) {
+                continue;
+            }
+            String right = line.substring(arrow + 4).trim();
+            String left = line.substring(0, arrow).trim();
+            String[] parts = left.split("\\s+");
+            if (parts.length < 1) {
+                continue;
+            }
+            String fn = parts[parts.length - 1];
+            if (!fn.startsWith("dm-uuid-mpath-")) {
+                continue;
+            }
+            if (fn.contains("-part")) {
+                continue;
+            }
+            try {
+                Path rp = byIdDir.resolve(right).normalize().toRealPath();
+                if (sameBlockDevice(rp, device)) {
+                    String byIdPath = byIdDir.resolve(fn).toString();
+                    if (!matches.contains(byIdPath)) {
+                        matches.add(byIdPath);
+                    }
+                }
+            } catch (Exception ignore) {
+            }
+        }
+        if (matches.isEmpty()) {
+            return null;
+        }
+        matches.sort(String::compareTo);
+        return matches.get(0);
+    }
+
+    private String resolveDmUuidMpathByIdFromDirectoryScan(Path device, Path byIdDir) {
+        try {
+            List<String> matches = new ArrayList<>();
+            try (Stream<Path> stream = Files.list(byIdDir)) {
+                stream.filter(Files::isSymbolicLink).forEach(p -> {
+                    String fn = p.getFileName().toString();
+                    if (!fn.startsWith("dm-uuid-mpath-")) {
+                        return;
+                    }
+                    if (fn.contains("-part")) {
+                        return;
+                    }
+                    Path rp = safeRealPath(p);
+                    if (rp != null && sameBlockDevice(rp, device)) {
+                        String byIdPath = byIdDir.resolve(fn).toString();
+                        if (byIdPath.contains("-part")) {
+                            byIdPath = byIdPath.replaceAll("-part\\d+$", "");
+                        }
+                        if (!matches.contains(byIdPath)) {
+                            matches.add(byIdPath);
+                        }
+                    }
+                });
+            }
+            if (matches.isEmpty()) {
+                return null;
+            }
+            matches.sort(String::compareTo);
+            return matches.get(0);
+        } catch (Exception ignore) {
+            return null;
+        }
+    }
+
+    private String resolveMultipathLunDisplayById(String devicePath) {
+        String dmUuidMpath = resolveDmUuidMpathById(devicePath);
+        if (dmUuidMpath != null) {
+            return dmUuidMpath;
+        }
+        return resolveDevicePathToById(devicePath);
+    }
+
+    private String resolveMultipathLunDisplayById(String devicePath, Map<Path, String> realToById) {
+        try {
+            if (realToById != null && !realToById.isEmpty()) {
+                String byId = resolveById(realToById, devicePath);
+                if (byId != null && !byId.equals(devicePath)) {
+                    return byId;
+                }
+            }
+        } catch (Exception ignore) {
+        }
+        return resolveMultipathLunDisplayById(devicePath);
     }
 
     private String resolveDevicePathToById(String devicePath) {
@@ -1006,25 +1639,51 @@ public abstract class ServerResourceBase implements ServerResource {
                 return devicePath;
             }
 
+            List<String> matches = new ArrayList<>();
             try (Stream<Path> stream = Files.list(byIdDir)) {
-                Optional<String> firstMatch = stream
-                    .filter(Files::isSymbolicLink)
-                    .map(p -> new AbstractMap.SimpleEntry<>(p, safeRealPath(p)))
-                    .filter(e -> e.getValue() != null && e.getValue().equals(device))
-                    .map(e -> byIdDir.resolve(e.getKey().getFileName()).toString())
-                    .findFirst();
-
-                String byIdPath = firstMatch.orElse(devicePath);
-
-                if (byIdPath.contains("-part")) {
-                    byIdPath = byIdPath.replaceAll("-part\\d+$", "");
-                }
-
-                return byIdPath;
+                stream.filter(Files::isSymbolicLink).forEach(p -> {
+                    Path rp = safeRealPath(p);
+                    if (rp != null && sameBlockDevice(rp, device)) {
+                        String byIdPath = byIdDir.resolve(p.getFileName()).toString();
+                        if (byIdPath.contains("-part")) {
+                            byIdPath = byIdPath.replaceAll("-part\\d+$", "");
+                        }
+                        if (!matches.contains(byIdPath)) {
+                            matches.add(byIdPath);
+                        }
+                    }
+                });
             }
+            if (matches.isEmpty()) {
+                return devicePath;
+            }
+            matches.sort(Comparator
+                .comparingInt(this::byIdLinkPriority)
+                .thenComparing(p -> p.substring(p.lastIndexOf('/') + 1)));
+            return matches.get(0);
         } catch (Exception ignore) {
             return devicePath;
         }
+    }
+
+    private int byIdLinkPriority(String fullByIdPath) {
+        String name = fullByIdPath.substring(fullByIdPath.lastIndexOf('/') + 1);
+        if (name.startsWith("dm-uuid-mpath-")) {
+            return 0;
+        }
+        if (name.startsWith("scsi-")) {
+            return 2;
+        }
+        if (name.startsWith("wwn-")) {
+            return 3;
+        }
+        if (name.startsWith("dm-uuid-")) {
+            return 4;
+        }
+        if (name.startsWith("mpath-")) {
+            return 5;
+        }
+        return 10;
     }
 
     private Path safeRealPath(Path link) {
@@ -1090,7 +1749,7 @@ public abstract class ServerResourceBase implements ServerResource {
 
         try {
             Script cmd = new Script("/usr/bin/multipath");
-            cmd.add("-l");
+            cmd.add("-ll");
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = cmd.execute(parser);
 
@@ -1297,11 +1956,11 @@ public abstract class ServerResourceBase implements ServerResource {
             return false;
         }
 
-        if ("lvm".equals(deviceType) || deviceName.startsWith("/dev/mapper/")) {
-            if (deviceName.contains("ceph--") && deviceName.contains("--osd--block--")) {
-                return false;
-            }
-            return true;
+
+        if (deviceName.startsWith("/dev/mapper/")
+            && deviceName.contains("ceph--")
+            && deviceName.contains("--osd--block--")) {
+            return false;
         }
 
         if (device.has("children")) {
@@ -1310,13 +1969,8 @@ public abstract class ServerResourceBase implements ServerResource {
             for (int i = 0; i < children.length(); i++) {
                 JSONObject child = children.getJSONObject(i);
                 String childType = child.optString("type", "");
-                String childName = child.optString("name", "");
 
                 if ("part".equals(childType)) {
-                    return true;
-                }
-
-                if ("lvm".equals(childType)) {
                     return true;
                 }
 
@@ -1705,6 +2359,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 return fast;
             }
             Map<Path, String> realToById = buildByIdReverseMap();
+            Map<String, String> lsblkTranByName = getLsblkNameToTranMap();
 
             Script cmd = new Script("/usr/bin/lsscsi");
             cmd.add("-g");
@@ -1731,6 +2386,7 @@ public abstract class ServerResourceBase implements ServerResource {
                 String displayName = name;
                 try {
                     String dev = tokens[5];
+                    appendScsiTransportFromLsblk(text, dev, lsblkTranByName);
                     String byId = resolveById(realToById, dev);
                     if (byId != null && !byId.equals(dev)) {
                         text.append(" BY_ID: ").append(byId);
@@ -1765,8 +2421,6 @@ public abstract class ServerResourceBase implements ServerResource {
             }
 
             collectAllScsiDevicesUnified(names, texts, hasPartitions, scsiAddressCache, realToById);
-            for (int i = 0; i < names.size(); i++) {
-            }
 
             return new ListHostScsiDeviceAnswer(true, names, texts, hasPartitions);
         } catch (Exception ex) {
@@ -1774,9 +2428,60 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
+    /**
+     * {@code lsblk -l -n -o NAME,TRAN} 결과를 블록 디바이스 이름(예: sda, nvme0n1) → TRAN 으로 매핑.
+     */
+    private Map<String, String> getLsblkNameToTranMap() {
+        Map<String, String> map = new HashMap<>();
+        try {
+            Script cmd = new Script("/usr/bin/lsblk");
+            cmd.add("-l", "-n", "-o", "NAME,TRAN");
+            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+            String err = cmd.execute(parser);
+            if (err != null || parser.getLines() == null) {
+                return map;
+            }
+            for (String line : parser.getLines().split("\\n")) {
+                line = line.trim();
+                if (line.isEmpty()) {
+                    continue;
+                }
+                int sp = line.indexOf(' ');
+                if (sp < 0) {
+                    map.put(line, "");
+                    continue;
+                }
+                String blkName = line.substring(0, sp).trim();
+                String tran = line.substring(sp).trim();
+                map.put(blkName, tran);
+            }
+        } catch (Exception ignore) {
+        }
+        return map;
+    }
+
+    /** lsblk TRAN 값을 상세 텍스트에 {@code TRANSPORT:} 로 기록. */
+    private void appendScsiTransportFromLsblk(StringBuilder text, String devPath, Map<String, String> lsblkTranByName) {
+        if (devPath == null || lsblkTranByName == null || lsblkTranByName.isEmpty()) {
+            return;
+        }
+        int slash = devPath.lastIndexOf('/');
+        String base = slash >= 0 ? devPath.substring(slash + 1) : devPath;
+        String tran = lsblkTranByName.get(base);
+        if (tran == null) {
+            return;
+        }
+        tran = tran.trim();
+        if (tran.isEmpty() || "-".equals(tran)) {
+            return;
+        }
+        text.append(" TRANSPORT: ").append(tran);
+    }
+
     private void collectAllScsiDevicesUnified(List<String> names, List<String> texts, List<Boolean> hasPartitions,
                                             Map<String, String> scsiAddressCache, Map<Path, String> realToById) {
         try {
+            Map<String, String> lsblkTranByName = getLsblkNameToTranMap();
             File sysBlock = new File("/sys/block");
             File[] entries = sysBlock.listFiles();
             if (entries == null) return;
@@ -1786,7 +2491,14 @@ public abstract class ServerResourceBase implements ServerResource {
             for (File e : entries) {
                 String bname = e.getName();
 
-                // 기본 SCSI 디스크(sd/vd/xvd) 처리
+                try {
+                    if (new File(e, "partition").exists()) {
+                        continue;
+                    }
+                } catch (Exception ignore) {
+                }
+
+                // 물리 SCSI 디스크(sd/vd/xvd): 내장·외부 구분 없이 전부 표시 (LUN 탭과 목적 분리)
                 if (bname.startsWith("sd") || bname.startsWith("vd") || bname.startsWith("xvd")) {
                     String dev = "/dev/" + bname;
 
@@ -1822,6 +2534,7 @@ public abstract class ServerResourceBase implements ServerResource {
                     if (model != null) text.append(" Model: ").append(model);
                     if (rev != null) text.append(" Revision: ").append(rev);
                     text.append(" Device: ").append(dev);
+                    appendScsiTransportFromLsblk(text, dev, lsblkTranByName);
                     if (!byId.equals(dev)) text.append(" BY_ID: ").append(byId);
 
                     String displayName = sg != null ? sg : dev;
@@ -1840,62 +2553,32 @@ public abstract class ServerResourceBase implements ServerResource {
                     continue;
                 }
 
-                // 멀티패스(dm-*) 디바이스를 SCSI 목록에 포함
-                if (bname.startsWith("dm-")) {
+                // NVMe 네임스페이스 (nvme0n1 등, 파티션 nvme0n1p1 은 partition 파일로 이미 제외)
+                if (bname.matches("nvme\\d+n\\d+$")) {
                     String dev = "/dev/" + bname;
-
-                    // 멀티패스 디바이스가 아니면 스킵
-                    if (!isMultipathDevice(dev)) {
-                        continue;
-                    }
-
-                    String sg = null;
-                    try {
-                        File sgDir = new File(e, "device/scsi_generic");
-                        File[] sgs = sgDir.listFiles();
-                        if (sgs != null && sgs.length > 0) {
-                            sg = "/dev/" + sgs[0].getName();
-                        }
-                    } catch (Exception ignore) {}
-
-                    String scsiAddress = scsiAddressCache.get(dev);
-                    if (scsiAddress == null) {
-                        try {
-                            Path devLink = Path.of(e.getAbsolutePath(), "device");
-                            Path real = Files.readSymbolicLink(devLink);
-                            Path resolved = devLink.getParent().resolve(real).normalize();
-                            scsiAddress = resolved.getFileName().toString();
-                        } catch (Exception ignore) {}
-                    }
-
-                    String vendor = readFirstLineQuiet(new File(e, "device/vendor"));
                     String model = readFirstLineQuiet(new File(e, "device/model"));
-                    String rev = readFirstLineQuiet(new File(e, "device/rev"));
-
+                    String serial = readFirstLineQuiet(new File(e, "device/serial"));
                     String byId = resolveById(realToById, dev);
 
                     StringBuilder text = new StringBuilder();
-                    text.append("SCSI_Address: ").append(scsiAddress != null ? ("[" + scsiAddress + "]") : "");
-                    text.append(" Type: disk");
-                    text.append(" Multipath: true");
-                    if (vendor != null) text.append(" Vendor: ").append(vendor);
+                    text.append("SCSI_Address: [nvme]");
+                    text.append(" Type: nvme");
                     if (model != null) text.append(" Model: ").append(model);
-                    if (rev != null) text.append(" Revision: ").append(rev);
+                    if (serial != null) text.append(" Serial: ").append(serial);
                     text.append(" Device: ").append(dev);
+                    appendScsiTransportFromLsblk(text, dev, lsblkTranByName);
                     if (!byId.equals(dev)) text.append(" BY_ID: ").append(byId);
 
-                    String displayName = sg != null ? sg : dev;
+                    String displayName = dev;
                     if (!byId.equals(dev)) {
                         String byIdName = byId.substring(byId.lastIndexOf('/') + 1);
-                        displayName = (sg != null ? sg : dev) + " (" + byIdName + ")";
+                        displayName = dev + " (" + byIdName + ")";
                     }
-
-                    String key = displayName;
-                    if (!addedKeys.contains(key)) {
+                    if (!addedKeys.contains(displayName)) {
                         names.add(displayName);
                         texts.add(text.toString());
                         hasPartitions.add(false);
-                        addedKeys.add(key);
+                        addedKeys.add(displayName);
                     }
                 }
             }
@@ -2671,11 +3354,9 @@ public abstract class ServerResourceBase implements ServerResource {
                     if (infoResult == null && infoParser.getLines() != null) {
                         String[] infoLines = infoParser.getLines().split("\\n");
                         for (String infoLine : infoLines) {
-                            if (infoLine.contains("size")) {
-                                String[] part = infoLine.split(" ");
-                                String numberString = part[1];
-                                double number = Double.parseDouble(numberString);
-                                imageSize = (long) (number * 1024 * 1024 * 1024);
+                            Long parsedImageSize = parseRbdImageSizeInBytes(infoLine);
+                            if (parsedImageSize != null) {
+                                imageSize = parsedImageSize;
                                 sizes.add(imageSize);
                             }
                             if (infoLine.contains("modify_timestamp")) {
@@ -2697,6 +3378,47 @@ public abstract class ServerResourceBase implements ServerResource {
             }
         }
         return new ListDataStoreObjectsAnswer(true, count, names, paths, absPaths, isDirs, sizes, modifiedList);
+    }
+
+    protected Long parseRbdImageSizeInBytes(String infoLine) {
+        if (StringUtils.isBlank(infoLine)) {
+            return null;
+        }
+
+        Matcher matcher = RBD_IMAGE_SIZE_PATTERN.matcher(infoLine);
+        if (!matcher.matches()) {
+            return null;
+        }
+
+        double size = Double.parseDouble(matcher.group(1));
+        String unit = matcher.group(2);
+        long multiplier;
+        switch (unit) {
+            case "B":
+                multiplier = 1L;
+                break;
+            case "KiB":
+                multiplier = 1024L;
+                break;
+            case "MiB":
+                multiplier = 1024L * 1024L;
+                break;
+            case "GiB":
+                multiplier = 1024L * 1024L * 1024L;
+                break;
+            case "TiB":
+                multiplier = 1024L * 1024L * 1024L * 1024L;
+                break;
+            case "PiB":
+                multiplier = 1024L * 1024L * 1024L * 1024L * 1024L;
+                break;
+            case "EiB":
+                multiplier = 1024L * 1024L * 1024L * 1024L * 1024L * 1024L;
+                break;
+            default:
+                return null;
+        }
+        return (long) (size * multiplier);
     }
 
     public void createRBDSecretKeyFileIfNoExist(String uuid, String localPath, String skey) {
@@ -3391,15 +4113,17 @@ public abstract class ServerResourceBase implements ServerResource {
                 return "파티션 디바이스는 할당할 수 없습니다. 전체 디스크를 사용해주세요: " + devicePath;
             }
 
-            if (isLunDeviceAllocatedToOtherVm(devicePath, vmName)) {
-                return "디바이스가 이미 다른 VM에 할당되어 있습니다: " + devicePath;
+            String allocatedVmName = findLunDeviceAllocatedVmName(devicePath, vmName);
+            if (allocatedVmName != null) {
+                return "디바이스가 이미 다른 VM에 할당되어 있습니다: " + devicePath + " (VM: " + allocatedVmName + ")";
             }
 
             Map<String, DeviceMapping> mappings = buildDeviceMapping();
             DeviceMapping mapping = findMappedDevice(devicePath, mappings);
             if (mapping != null && mapping.getScsiDevicePath() != null) {
-                if (isLunDeviceAllocatedToOtherVm(mapping.getScsiDevicePath(), vmName)) {
-                    return "매핑된 SCSI 디바이스가 이미 다른 VM에 할당되어 있습니다: " + mapping.getScsiDevicePath();
+                String mappedAllocatedVmName = findLunDeviceAllocatedVmName(mapping.getScsiDevicePath(), vmName);
+                if (mappedAllocatedVmName != null) {
+                    return "매핑된 SCSI 디바이스가 이미 다른 VM에 할당되어 있습니다: " + mapping.getScsiDevicePath() + " (VM: " + mappedAllocatedVmName + ")";
                 }
             }
 
@@ -3494,29 +4218,41 @@ public abstract class ServerResourceBase implements ServerResource {
     }
 
     private boolean isLunDeviceAllocatedToOtherVm(String devicePath, String currentVmName) {
+        return findLunDeviceAllocatedVmName(devicePath, currentVmName) != null;
+    }
+
+    private String findLunDeviceAllocatedVmName(String devicePath, String currentVmName) {
         try {
             Script listCommand = new Script("/bin/bash");
             listCommand.add("-c");
-            listCommand.add("virsh list --all | grep -v 'Id' | grep -v '^-' | while read line; do " +
-                           "vm_id=$(echo $line | awk '{print $1}'); " +
-                           "if [ ! -z \"$vm_id\" ] && [ \"$vm_id\" != \"" + currentVmName + "\" ]; then " +
-                           "virsh dumpxml $vm_id | grep -q '" + devicePath + "'; " +
+            listCommand.add("virsh list --all --name | while read vm_name; do " +
+                           "if [ -z \"$vm_name\" ] || [ \"$vm_name\" = \"" + currentVmName + "\" ]; then " +
+                           "continue; " +
+                           "fi; " +
+                           "virsh dumpxml \"$vm_name\" | grep -Fq \"dev='" + devicePath + "'\"; " +
+                           "if [ $? -ne 0 ]; then " +
+                           "virsh dumpxml \"$vm_name\" | grep -Fq 'dev=\"" + devicePath + "\"'; " +
+                           "fi; " +
                            "if [ $? -eq 0 ]; then " +
                            "echo 'allocated'; " +
+                           "echo \"$vm_name\"; " +
                            "break; " +
-                           "fi; " +
                            "fi; " +
                            "done");
             OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
             String result = listCommand.execute(parser);
 
             if (result == null && parser.getLines() != null) {
-                return parser.getLines().trim().equals("allocated");
+                String[] lines = parser.getLines().trim().split("\\r?\\n");
+                if (lines.length >= 2 && "allocated".equals(lines[0].trim())) {
+                    String vmName = lines[1].trim();
+                    return vmName.isEmpty() ? "unknown" : vmName;
+                }
             }
-            return false;
+            return null;
         } catch (Exception e) {
             logger.debug("Error checking device allocation to other VMs: {}", e.getMessage());
-            return false;
+            return null;
         }
     }
 
@@ -3925,7 +4661,7 @@ public abstract class ServerResourceBase implements ServerResource {
 
         try {
 
-            ListHostLunDeviceAnswer lunAnswer = listHostLunDevicesFast();
+            ListHostLunDeviceAnswer lunAnswer = listHostLunDevicesFast(null);
             if (lunAnswer != null && lunAnswer.getResult()) {
                 List<String> lunNames = lunAnswer.getHostDevicesNames();
                 List<String> lunScsiAddresses = lunAnswer.getScsiAddresses();
@@ -3967,8 +4703,6 @@ public abstract class ServerResourceBase implements ServerResource {
                     }
                 }
             }
-
-            logger.debug("Built device mapping with " + deviceMappings.size() + " entries");
 
         } catch (Exception e) {
             logger.error("Error building device mapping: " + e.getMessage(), e);
@@ -4246,7 +4980,6 @@ public abstract class ServerResourceBase implements ServerResource {
         return used;
     }
 
-    /** 할당 가능한 SCSI target dev 이름 전체 (sda~sdz, sdaa~sdzz) 순서대로 */
     private List<String> getAllAssignableScsiTargetDevs() {
         List<String> list = new ArrayList<>();
         for (char c = 'a'; c <= 'z'; c++) {

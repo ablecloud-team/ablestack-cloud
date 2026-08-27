@@ -1,0 +1,296 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+name: ABLESTACK Branch Development Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Branch, tag, or commit SHA to build for test deployment
+        required: true
+        default: codex/europa-storage-service
+        type: string
+      base_branch:
+        description: Base product line used for branding metadata
+        required: true
+        default: ablestack-europa
+        type: choice
+        options:
+          - ablestack-europa
+          - ablestack-diplo
+      release_label:
+        description: Optional release label. Defaults to a sanitized source_ref.
+        required: false
+        default: ''
+        type: string
+      release_seq:
+        description: RPM release sequence appended after the timestamp
+        required: true
+        default: '1'
+        type: string
+      pack:
+        description: Package variant
+        required: false
+        default: noredist
+        type: choice
+        options:
+          - noredist
+          - oss
+      simulator:
+        description: Include simulator packaging
+        required: false
+        default: default
+        type: choice
+        options:
+          - default
+          - simulator
+      node_version:
+        description: Node.js version injected into the Rocky build container
+        required: false
+        default: 14.21.3
+        type: string
+      build_srpm:
+        description: Build SRPM alongside RPMs
+        required: false
+        default: false
+        type: boolean
+      draft:
+        description: Create the GitHub Release as a draft
+        required: false
+        default: true
+        type: boolean
+
+concurrency:
+  group: branch-dev-release-${{ inputs.source_ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  metadata:
+    runs-on: ubuntu-24.04
+    outputs:
+      brand: ${{ steps.derive.outputs.brand }}
+      package_version: ${{ steps.derive.outputs.package_version }}
+      timestamp_value: ${{ steps.derive.outputs.timestamp_value }}
+      source_commit_sha: ${{ steps.derive.outputs.source_commit_sha }}
+      release_tag: ${{ steps.derive.outputs.release_tag }}
+      release_name: ${{ steps.derive.outputs.release_name }}
+      rpm_artifact_name: ${{ steps.derive.outputs.rpm_artifact_name }}
+      systemvm_artifact_name: ${{ steps.derive.outputs.systemvm_artifact_name }}
+      ref_slug: ${{ steps.derive.outputs.ref_slug }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.source_ref }}
+          fetch-depth: 0
+
+      - id: derive
+        run: |
+          case "${{ inputs.base_branch }}" in
+            ablestack-europa) brand="Mold.Europa" ;;
+            ablestack-diplo) brand="Mold.Diplo" ;;
+            *)
+              echo "::error::Unsupported base branch ${{ inputs.base_branch }}"
+              exit 1
+              ;;
+          esac
+
+          pom_version=$(awk '
+            /<artifactId>cloudstack<\/artifactId>/ { seen=1; next }
+            seen && /<version>/ {
+              line=$0
+              sub(/.*<version>/, "", line)
+              sub(/<\/version>.*/, "", line)
+              print line
+              exit
+            }
+          ' pom.xml)
+
+          if [ -z "$pom_version" ]; then
+            echo "::error::Unable to derive root project version from pom.xml"
+            exit 1
+          fi
+
+          ref_slug="${{ inputs.release_label }}"
+          if [ -z "$ref_slug" ]; then
+            ref_slug=$(printf '%s' "${{ inputs.source_ref }}" \
+              | tr '[:upper:]' '[:lower:]' \
+              | sed -E 's#[^a-z0-9._-]+#-#g; s#^-+##; s#-+$##')
+          fi
+
+          if [ -z "$ref_slug" ]; then
+            echo "::error::Unable to derive release label"
+            exit 1
+          fi
+
+          package_version=${pom_version%%-*}
+          timestamp_value=$(date -u +%Y%m%d%H%M)
+          source_commit_sha=$(git rev-parse HEAD)
+          release_tag="dev-branch-${ref_slug}-latest"
+          release_name="ABLESTACK Branch Dev ${ref_slug} Latest"
+
+          {
+            echo "brand=$brand"
+            echo "package_version=$package_version"
+            echo "timestamp_value=$timestamp_value"
+            echo "source_commit_sha=$source_commit_sha"
+            echo "release_tag=$release_tag"
+            echo "release_name=$release_name"
+            echo "rpm_artifact_name=branch-dev-rocky97-rpm-${{ github.run_id }}"
+            echo "systemvm_artifact_name=branch-dev-systemvm-kvm-${{ github.run_id }}"
+            echo "ref_slug=$ref_slug"
+          } >> "$GITHUB_OUTPUT"
+
+  build-rpm:
+    needs: metadata
+    uses: ./.github/workflows/rocky97-rpm.yml
+    with:
+      ref: ${{ needs.metadata.outputs.source_commit_sha }}
+      pack: ${{ inputs.pack }}
+      simulator: ${{ inputs.simulator }}
+      release: ${{ inputs.release_seq }}
+      brand: ${{ needs.metadata.outputs.brand }}
+      package_version: ${{ needs.metadata.outputs.package_version }}
+      use_timestamp: true
+      timestamp_value: ${{ needs.metadata.outputs.timestamp_value }}
+      build_srpm: ${{ inputs.build_srpm }}
+      templates: kvm
+      node_version: ${{ inputs.node_version }}
+      artifact_name: ${{ needs.metadata.outputs.rpm_artifact_name }}
+
+  build-systemvm-kvm:
+    needs: metadata
+    uses: ./.github/workflows/systemvm-kvm.yml
+    with:
+      ref: ${{ needs.metadata.outputs.source_commit_sha }}
+      version: ${{ needs.metadata.outputs.package_version }}
+      build_number: ${{ github.run_number }}
+      artifact_name: ${{ needs.metadata.outputs.systemvm_artifact_name }}
+
+  publish-release:
+    needs:
+      - metadata
+      - build-rpm
+      - build-systemvm-kvm
+    runs-on: ubuntu-24.04
+    env:
+      DEV_RELEASE_TAG: ${{ needs.metadata.outputs.release_tag }}
+      DEV_RELEASE_NAME: ${{ needs.metadata.outputs.release_name }}
+    steps:
+      - name: Delete previous branch development release and tag
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const tag = process.env.DEV_RELEASE_TAG;
+            const { owner, repo } = context.repo;
+
+            const releases = await github.paginate(github.rest.repos.listReleases, {
+              owner,
+              repo,
+              per_page: 100,
+            });
+            const matchingReleases = releases.filter((release) => release.tag_name === tag);
+
+            if (matchingReleases.length === 0) {
+              core.info(`No existing release found for ${tag}`);
+            } else {
+              for (const release of matchingReleases) {
+                await github.rest.repos.deleteRelease({ owner, repo, release_id: release.id });
+                core.info(`Deleted existing release ${release.id} for ${tag}`);
+              }
+            }
+
+            try {
+              await github.rest.git.deleteRef({ owner, repo, ref: `tags/${tag}` });
+              core.info(`Deleted existing tag ${tag}`);
+            } catch (error) {
+              if (error.status !== 404 && error.status !== 422) {
+                throw error;
+              }
+              core.info(`No existing tag found for ${tag}`);
+            }
+
+      - name: Download RPM artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.metadata.outputs.rpm_artifact_name }}
+          path: download/rpm
+
+      - name: Download KVM System VM artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.metadata.outputs.systemvm_artifact_name }}
+          path: download/systemvm
+
+      - name: Assemble branch development release assets
+        run: |
+          mkdir -p release-assets
+          find download/rpm -type f -exec cp {} release-assets/ \;
+          find download/systemvm -type f \
+            \( -name '*.qcow2.bz2' -o -name 'SYSTEMVM-*' \) \
+            -exec cp {} release-assets/ \;
+          cat > release-assets/DEV-RELEASE.txt <<EOF
+          Release tag: ${DEV_RELEASE_TAG}
+          Release name: ${DEV_RELEASE_NAME}
+          Source ref: ${{ inputs.source_ref }}
+          Base branch metadata: ${{ inputs.base_branch }}
+          Source commit: ${{ needs.metadata.outputs.source_commit_sha }}
+          Package version: ${{ needs.metadata.outputs.package_version }}
+          Package mode: ${{ inputs.pack }}
+          System VM: KVM x86_64 qcow2.bz2
+          Timestamp: ${{ needs.metadata.outputs.timestamp_value }}
+          GitHub run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EOF
+          (
+            cd release-assets
+            rm -f SHA256SUMS
+            checksum_file=$(mktemp)
+            find . -maxdepth 1 -type f ! -name SHA256SUMS -print0 \
+              | sort -z \
+              | xargs -0 sha256sum > "$checksum_file"
+            mv "$checksum_file" SHA256SUMS
+          )
+
+      - name: Summarize branch development release contents
+        run: |
+          systemvm_image=$(find release-assets -maxdepth 1 -type f -name '*.qcow2.bz2' -printf '%f\n')
+          {
+            echo "## ABLESTACK Branch Development Release"
+            echo
+            echo "- Release: \`$DEV_RELEASE_TAG\`"
+            echo "- Source ref: \`${{ inputs.source_ref }}\`"
+            echo "- Source commit: \`${{ needs.metadata.outputs.source_commit_sha }}\`"
+            echo "- Package mode: \`${{ inputs.pack }}\`"
+            echo "- System VM hypervisor: \`KVM\`"
+            echo "- System VM architecture: \`x86_64\`"
+            echo "- System VM format: \`qcow2.bz2\`"
+            echo "- System VM image: \`$systemvm_image\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish branch development GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.DEV_RELEASE_TAG }}
+          target_commitish: ${{ needs.metadata.outputs.source_commit_sha }}
+          name: ${{ env.DEV_RELEASE_NAME }}
+          draft: ${{ inputs.draft }}
+          prerelease: true
+          generate_release_notes: false
+          files: release-assets/*

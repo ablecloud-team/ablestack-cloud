@@ -1074,6 +1074,9 @@ public class TransactionLegacy implements Closeable {
             final String cloudPassword = dbProps.getProperty("db.cloud.password");
             final String cloudValidationQuery = dbProps.getProperty("db.cloud.validationQuery");
             final String cloudIsolationLevel = dbProps.getProperty("db.cloud.isolation.level");
+            final Long cloudLeakDetectionThreshold = parseNumber(dbProps.getProperty("db.cloud.hikari.leakDetectionThreshold"), Long.class) != null ?
+                    parseNumber(dbProps.getProperty("db.cloud.hikari.leakDetectionThreshold"), Long.class) :
+                    parseNumber(dbProps.getProperty("db.cloud.leakDetectionThreshold"), Long.class);
 
             int isolationLevel = Connection.TRANSACTION_READ_COMMITTED;
             if (cloudIsolationLevel == null) {
@@ -1112,7 +1115,7 @@ public class TransactionLegacy implements Closeable {
                     cloudUsername, cloudPassword, cloudMaxActive, cloudMaxIdle, cloudMaxWait,
                     cloudTimeBtwEvictionRunsMillis, cloudMinEvcitableIdleTimeMillis, cloudTestWhileIdle,
                     cloudTestOnBorrow, cloudValidationQuery, cloudMinIdleConnections, cloudConnectionTimeout,
-                    cloudKeepAliveTimeout, isolationLevel, "cloud");
+                    cloudKeepAliveTimeout, isolationLevel, "cloud", cloudLeakDetectionThreshold);
 
             // Configure the usage db
             final Integer usageMaxActive = parseNumber(dbProps.getProperty("db.usage.maxActive"), Integer.class);
@@ -1123,6 +1126,9 @@ public class TransactionLegacy implements Closeable {
             final Long usageKeepAliveTimeout = parseNumber(dbProps.getProperty("db.usage.keepAliveTime"), Long.class);
             final String usageUsername = dbProps.getProperty("db.usage.username");
             final String usagePassword = dbProps.getProperty("db.usage.password");
+            final Long usageLeakDetectionThreshold = parseNumber(dbProps.getProperty("db.usage.hikari.leakDetectionThreshold"), Long.class) != null ?
+                    parseNumber(dbProps.getProperty("db.usage.hikari.leakDetectionThreshold"), Long.class) :
+                    parseNumber(dbProps.getProperty("db.usage.leakDetectionThreshold"), Long.class);
 
             Pair<String, String> usageUriAndDriver = getConnectionUriAndDriver(dbProps, loadBalanceStrategy, useSSL, "usage");
 
@@ -1132,7 +1138,7 @@ public class TransactionLegacy implements Closeable {
             s_usageDS = createDataSource(dbProps.getProperty("db.usage.connectionPoolLib"), usageUriAndDriver.first(),
                     usageUsername, usagePassword, usageMaxActive, usageMaxIdle, usageMaxWait, null,
                     null, null, null, null,
-                    usageMinIdleConnections, usageConnectionTimeout, usageKeepAliveTimeout, isolationLevel, "usage");
+                    usageMinIdleConnections, usageConnectionTimeout, usageKeepAliveTimeout, isolationLevel, "usage", usageLeakDetectionThreshold);
 
             try {
                 // Configure the simulator db
@@ -1144,6 +1150,9 @@ public class TransactionLegacy implements Closeable {
                 final Long simulatorKeepAliveTimeout = parseNumber(dbProps.getProperty("db.simulator.keepAliveTime"), Long.class);
                 final String simulatorUsername = dbProps.getProperty("db.simulator.username");
                 final String simulatorPassword = dbProps.getProperty("db.simulator.password");
+                final Long simulatorLeakDetectionThreshold = parseNumber(dbProps.getProperty("db.simulator.hikari.leakDetectionThreshold"), Long.class) != null ?
+                        parseNumber(dbProps.getProperty("db.simulator.hikari.leakDetectionThreshold"), Long.class) :
+                        parseNumber(dbProps.getProperty("db.simulator.leakDetectionThreshold"), Long.class);
 
                 String simulatorDriver;
                 String simulatorConnectionUri;
@@ -1172,7 +1181,7 @@ public class TransactionLegacy implements Closeable {
                         simulatorConnectionUri, simulatorUsername, simulatorPassword, simulatorMaxActive,
                         simulatorMaxIdle, simulatorMaxWait, null, null, null, null,
                         cloudValidationQuery, simulatorMinIdleConnections, simulatorConnectionTimeout,
-                        simulatorKeepAliveTimeout, isolationLevel, "simulator");
+                        simulatorKeepAliveTimeout, isolationLevel, "simulator", simulatorLeakDetectionThreshold);
             } catch (Exception e) {
                 LOGGER.debug("Simulator DB properties are not available. Not initializing simulator DS");
             }
@@ -1276,7 +1285,7 @@ public class TransactionLegacy implements Closeable {
     private static DataSource createDataSource(String connectionPoolLib, String uri, String username, String password,
                Integer maxActive, Integer maxIdle, Long maxWait, Long timeBtwnEvictionRuns, Long minEvictableIdleTime,
                Boolean testWhileIdle, Boolean testOnBorrow, String validationQuery, Integer minIdleConnections,
-               Long connectionTimeout, Long keepAliveTime, Integer isolationLevel, String dsName) {
+               Long connectionTimeout, Long keepAliveTime, Integer isolationLevel, String dsName, Long leakDetectionThreshold) {
         LOGGER.debug("Creating datasource for database: {} with connection pool lib: {}", dsName,
                 connectionPoolLib);
         if (CONNECTION_POOL_LIB_DBCP.equals(connectionPoolLib)) {
@@ -1284,13 +1293,13 @@ public class TransactionLegacy implements Closeable {
                     minEvictableIdleTime, testWhileIdle, testOnBorrow, validationQuery, isolationLevel);
         }
         return createHikaricpDataSource(uri, username, password, maxActive, maxIdle, maxWait, minIdleConnections,
-                connectionTimeout, keepAliveTime, isolationLevel, dsName);
+                connectionTimeout, keepAliveTime, isolationLevel, dsName, leakDetectionThreshold);
     }
 
     private static DataSource createHikaricpDataSource(String uri, String username, String password,
                                                Integer maxActive, Integer maxIdle, Long maxWait,
                                                Integer minIdleConnections, Long connectionTimeout, Long keepAliveTime,
-                                               Integer isolationLevel, String dsName) {
+                                               Integer isolationLevel, String dsName, Long leakDetectionThreshold) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(uri);
         config.setUsername(username);
@@ -1305,6 +1314,9 @@ public class TransactionLegacy implements Closeable {
         config.setMinimumIdle(ObjectUtils.defaultIfNull(minIdleConnections, 5));
         config.setConnectionTimeout(ObjectUtils.defaultIfNull(connectionTimeout, 30000L));
         config.setKeepaliveTime(ObjectUtils.defaultIfNull(keepAliveTime, 600000L));
+        if (leakDetectionThreshold != null && leakDetectionThreshold > 0) {
+            config.setLeakDetectionThreshold(leakDetectionThreshold);
+        }
 
         String isolationLevelString = "TRANSACTION_READ_COMMITTED";
         if (isolationLevel == Connection.TRANSACTION_SERIALIZABLE) {

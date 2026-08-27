@@ -13,7 +13,7 @@
   software distributed under the License is distributed on an
   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
   KIND, either express or implied. See the License for the
-  specific language governing permissions and limitations
+  specific language govening permissions and limitations
   under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -79,8 +79,8 @@
   <bean id="engineHostPodDaoImpl" class="org.apache.cloudstack.engine.datacenter.entity.api.db.dao.EngineHostPodDaoImpl" />
   <bean id="eventDaoImpl" class="com.cloud.event.dao.EventDaoImpl" />
   <bean id="eventJoinDaoImpl" class="com.cloud.event.dao.EventJoinDaoImpl" />
-  <bean id="externalFirewallDeviceDaoImpl" class="com.cloud.network.dao.ExternalFirewallDeviceDaoImpl" />
-  <bean id="externalLoadBalancerDeviceDaoImpl" class="com.cloud.network.dao.ExternalLoadBalancerDeviceDaoImpl" />
+  <bean id="extenalFirewallDeviceDaoImpl" class="com.cloud.network.dao.ExternalFirewallDeviceDaoImpl" />
+  <bean id="extenalLoadBalancerDeviceDaoImpl" class="com.cloud.network.dao.ExternalLoadBalancerDeviceDaoImpl" />
   <bean id="firewallRulesDaoImpl" class="com.cloud.network.dao.FirewallRulesDaoImpl" />
   <bean id="firewallRulesCidrsDaoImpl" class="com.cloud.network.dao.FirewallRulesCidrsDaoImpl" />
   <bean id="firewallRulesDcidrsDaoImpl" class="com.cloud.network.dao.FirewallRulesDcidrsDaoImpl" />
@@ -125,8 +125,8 @@
   <bean id="networkACLItemCidrsDaoImpl" class="com.cloud.network.vpc.dao.NetworkACLItemCidrsDaoImpl" />
   <bean id="networkDaoImpl" class="com.cloud.network.dao.NetworkDaoImpl" />
   <bean id="networkDomainDaoImpl" class="com.cloud.network.dao.NetworkDomainDaoImpl" />
-  <bean id="networkExternalFirewallDaoImpl" class="com.cloud.network.dao.NetworkExternalFirewallDaoImpl" />
-  <bean id="networkExternalLoadBalancerDaoImpl" class="com.cloud.network.dao.NetworkExternalLoadBalancerDaoImpl" />
+  <bean id="networkExtenalFirewallDaoImpl" class="com.cloud.network.dao.NetworkExternalFirewallDaoImpl" />
+  <bean id="networkExtenalLoadBalancerDaoImpl" class="com.cloud.network.dao.NetworkExternalLoadBalancerDaoImpl" />
   <bean id="networkOfferingJoinDaoImpl" class="com.cloud.api.query.dao.NetworkOfferingJoinDaoImpl" />
   <bean id="networkOpDaoImpl" class="com.cloud.network.dao.NetworkOpDaoImpl" />
   <bean id="networkRuleConfigDaoImpl" class="com.cloud.network.dao.NetworkRuleConfigDaoImpl" />
@@ -301,4 +301,10 @@
   <bean id="BgpPeerNetworkMapDaoImpl" class="org.apache.cloudstack.network.dao.BgpPeerNetworkMapDaoImpl" />
   <bean id="SharedFSDaoImpl" class="org.apache.cloudstack.storage.sharedfs.dao.SharedFSDaoImpl" />
   <bean id="SharedFSJoinDaoImpl" class="org.apache.cloudstack.storage.sharedfs.query.dao.SharedFSJoinDaoImpl" />
+  <bean id="StorageServiceInstanceDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDaoImpl" />
+  <bean id="StorageServiceProtocolDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDaoImpl" />
+  <bean id="StorageFileShareDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDaoImpl" />
+  <bean id="StorageBlockTargetDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDaoImpl" />
+  <bean id="StorageAccessRuleDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDaoImpl" />
+  <bean id="StorageIdentityDomainDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDaoImpl" />
 </beans>

@@ -30,19 +30,13 @@
           <span v-html="$t('message.restart.vm.to.update.settings')" />
         </template>
       </a-alert>
-      <a-form-item name="name" ref="name">
-        <template #label>
-          <tooltip-label :title="$t('label.name')" :tooltip="apiParams.name.description"/>
-        </template>
-        <a-input
-          v-model:value="form.name"
-          v-focus="true" />
-      </a-form-item>
       <a-form-item name="displayname" ref="displayname">
         <template #label>
-          <tooltip-label :title="$t('label.displayname')" :tooltip="apiParams.displayname.description"/>
+          <tooltip-label :title="$t('label.vm.displayname')" :tooltip="apiParams.displayname.description"/>
         </template>
-        <a-input v-model:value="form.displayname" />
+        <a-input
+          v-model:value="form.displayname"
+          v-focus="true" />
       </a-form-item>
       <a-form-item name="ostypeid" ref="ostypeid">
         <template #label>
@@ -363,7 +357,6 @@ export default {
         const values = toRaw(this.form)
         const params = {}
         params.id = this.resource.id
-        params.name = values.name
         params.displayname = values.displayname
         params.ostypeid = values.ostypeid
         if (this.securityGroupNetworkProviderUseThisVM) {

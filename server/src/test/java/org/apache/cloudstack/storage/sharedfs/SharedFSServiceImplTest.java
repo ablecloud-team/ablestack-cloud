@@ -43,6 +43,7 @@ import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao;
 import org.apache.cloudstack.storage.sharedfs.query.dao.SharedFSJoinDao;
 import org.apache.cloudstack.storage.sharedfs.query.vo.SharedFSJoinVO;
+import org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommandDispatcher;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -69,6 +70,7 @@ import com.cloud.exception.ResourceAllocationException;
 import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.exception.VirtualMachineMigrationException;
 import com.cloud.network.Network;
+import com.cloud.network.NetworkModel;
 import com.cloud.network.dao.NetworkDao;
 import com.cloud.network.dao.NetworkVO;
 import com.cloud.org.Grouping;
@@ -88,6 +90,8 @@ import com.cloud.utils.fsm.NoTransitionException;
 import com.cloud.utils.fsm.StateMachine2;
 import com.cloud.vm.NicVO;
 import com.cloud.vm.dao.NicDao;
+import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
+import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SharedFSServiceImplTest {
@@ -111,10 +115,16 @@ public class SharedFSServiceImplTest {
     VolumeDao volumeDao;
 
     @Mock
+    PrimaryDataStoreDao storagePoolDao;
+
+    @Mock
     NicDao nicDao;
 
     @Mock
     NetworkDao networkDao;
+
+    @Mock
+    NetworkModel networkModel;
 
     @Mock
     private ConfigurationManager configMgr;
@@ -127,6 +137,9 @@ public class SharedFSServiceImplTest {
 
     @Mock
     private SharedFSLifeCycle lifeCycle;
+
+    @Mock
+    private StorageServiceGuestCommandDispatcher guestCommandDispatcher;
 
     @Spy
     @InjectMocks
@@ -141,6 +154,7 @@ public class SharedFSServiceImplTest {
     private static final long s_vmId = 7L;
     private static final long s_networkId = 8L;
     private static final long s_sharedFSId = 9L;
+    private static final long s_storageId = 11L;
     private static final long s_size = 10L;
     private static final long s_minIops = 1000L;
     private static final long s_maxIops = 2000L;
@@ -186,6 +200,7 @@ public class SharedFSServiceImplTest {
         when(cmd.getEntityOwnerId()).thenReturn(s_ownerId);
         when(cmd.getZoneId()).thenReturn(s_zoneId);
         when(cmd.getDiskOfferingId()).thenReturn(s_diskOfferingId);
+        when(cmd.getStorageId()).thenReturn(s_storageId);
         when(cmd.getSize()).thenReturn(s_size);
         when(cmd.getMinIops()).thenReturn(s_minIops);
         when(cmd.getMaxIops()).thenReturn(s_maxIops);
@@ -193,6 +208,7 @@ public class SharedFSServiceImplTest {
         when(cmd.getServiceOfferingId()).thenReturn(s_serviceOfferingId);
         when(cmd.getNetworkId()).thenReturn(s_networkId);
         when(cmd.getFsFormat()).thenReturn(s_fsFormat);
+        when(cmd.getNetworkMode()).thenReturn(SharedFS.NetworkMode.DHCP);
         return cmd;
     }
 
@@ -210,7 +226,7 @@ public class SharedFSServiceImplTest {
         when(sharedFSDao.findById(0L)).thenReturn(sharedFS);
 
         Pair<Long, Long> result = new Pair<>(s_volumeId, s_vmId);
-        when(lifeCycle.deploySharedFS(sharedFS, s_networkId, s_diskOfferingId, s_size, s_minIops, s_maxIops)).thenReturn(result);
+        when(lifeCycle.deploySharedFS(sharedFS, s_networkId, s_diskOfferingId, s_storageId, s_size, s_minIops, s_maxIops)).thenReturn(result);
         when(sharedFSDao.update(sharedFS.getId(), sharedFS)).thenReturn(true);
 
         Assert.assertEquals(sharedFSServiceImpl.deploySharedFS(cmd), sharedFS);
@@ -226,7 +242,7 @@ public class SharedFSServiceImplTest {
         SharedFSVO sharedFS = getMockSharedFS();
         when(sharedFSDao.findById(0L)).thenReturn(sharedFS);
 
-        when(lifeCycle.deploySharedFS(sharedFS, s_networkId, s_diskOfferingId, s_size, s_minIops, s_maxIops)).thenThrow(new CloudRuntimeException(""));
+        when(lifeCycle.deploySharedFS(sharedFS, s_networkId, s_diskOfferingId, s_storageId, s_size, s_minIops, s_maxIops)).thenThrow(new CloudRuntimeException(""));
 
         Assert.assertThrows(CloudRuntimeException.class, () -> sharedFSServiceImpl.deploySharedFS(cmd));
         verify(_stateMachine, times(1)).transitTo(sharedFS, SharedFS.Event.OperationFailed, null, sharedFSDao);
@@ -242,20 +258,28 @@ public class SharedFSServiceImplTest {
 
         DataCenterVO zone = mock(DataCenterVO.class);
         when(dataCenterDao.findById(s_zoneId)).thenReturn(zone);
+        when(zone.getId()).thenReturn(s_zoneId);
         when(zone.getAllocationState()).thenReturn(Grouping.AllocationState.Enabled);
 
         DiskOfferingVO diskOfferingVO = mock(DiskOfferingVO.class);
         when(diskOfferingDao.findById(s_diskOfferingId)).thenReturn(diskOfferingVO);
         when(diskOfferingVO.isCustomized()).thenReturn(true);
         when(diskOfferingVO.isCustomizedIops()).thenReturn(true);
+        StoragePoolVO storagePool = mock(StoragePoolVO.class);
+        when(storagePoolDao.findById(s_storageId)).thenReturn(storagePool);
+        when(storagePool.getDataCenterId()).thenReturn(s_zoneId);
+        when(diskOfferingVO.getTags()).thenReturn("rbd");
+        when(volumeApiService.doesTargetStorageSupportDiskOffering(storagePool, "rbd")).thenReturn(true);
 
         SharedFSVO sharedFS = getMockSharedFS();
         ReflectionTestUtils.setField(sharedFS, "id", s_sharedFSId);
 
         when(cmd.getNetworkId()).thenReturn(s_networkId);
         NetworkVO networkVO = mock(NetworkVO.class);
+        when(networkVO.getId()).thenReturn(s_networkId);
         when(networkVO.getGuestType()).thenReturn(Network.GuestType.Isolated);
         when(networkDao.findById(s_networkId)).thenReturn(networkVO);
+        when(networkModel.areServicesSupportedInNetwork(s_networkId, Network.Service.UserData)).thenReturn(true);
 
         sharedFSServiceImpl.allocSharedFS(cmd);
         Assert.assertEquals(Optional.ofNullable(sharedFS.getAccountId()), Optional.ofNullable(s_ownerId));
@@ -299,7 +323,7 @@ public class SharedFSServiceImplTest {
     }
 
     @Test
-    public void testAllocSharedFSInvalidFsFormat() {
+    public void testAllocSharedFSInvalidCustomizedIops() {
         CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
 
         DataCenterVO zone = mock(DataCenterVO.class);
@@ -311,13 +335,141 @@ public class SharedFSServiceImplTest {
         when(diskOfferingVO.isCustomized()).thenReturn(true);
         when(diskOfferingVO.isCustomizedIops()).thenReturn(true);
 
+        when(cmd.getMinIops()).thenReturn(s_minIops);
+        when(cmd.getMaxIops()).thenReturn(null);
+        Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.allocSharedFS(cmd));
+
+        when(cmd.getMinIops()).thenReturn(null);
+        when(cmd.getMaxIops()).thenReturn(s_maxIops);
+        Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.allocSharedFS(cmd));
+
+        when(cmd.getMinIops()).thenReturn(0L);
+        when(cmd.getMaxIops()).thenReturn(s_maxIops);
+        Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.allocSharedFS(cmd));
+
+        when(cmd.getMinIops()).thenReturn(s_maxIops);
+        when(cmd.getMaxIops()).thenReturn(s_minIops);
+        Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.allocSharedFS(cmd));
+    }
+
+    @Test
+    public void testSharedFSStorageServiceReconciliationEligibility() {
+        SharedFSVO ready = mock(SharedFSVO.class);
+        when(ready.getVmId()).thenReturn(s_vmId);
+        when(ready.getVolumeId()).thenReturn(s_volumeId);
+        when(ready.getState()).thenReturn(SharedFS.State.Ready);
+        Assert.assertTrue(sharedFSServiceImpl.shouldReconcileSharedFSToStorageService(ready));
+
+        SharedFSVO destroyed = mock(SharedFSVO.class);
+        when(destroyed.getVmId()).thenReturn(s_vmId);
+        when(destroyed.getVolumeId()).thenReturn(s_volumeId);
+        when(destroyed.getState()).thenReturn(SharedFS.State.Destroyed);
+        Assert.assertFalse(sharedFSServiceImpl.shouldReconcileSharedFSToStorageService(destroyed));
+
+        SharedFSVO unbound = mock(SharedFSVO.class);
+        when(unbound.getVmId()).thenReturn(s_vmId);
+        when(unbound.getVolumeId()).thenReturn(null);
+        Assert.assertFalse(sharedFSServiceImpl.shouldReconcileSharedFSToStorageService(unbound));
+    }
+
+    @Test
+    public void testAllocSharedFSInvalidFsFormat() {
+        CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+
+        DataCenterVO zone = mock(DataCenterVO.class);
+        when(dataCenterDao.findById(s_zoneId)).thenReturn(zone);
+        when(zone.getId()).thenReturn(s_zoneId);
+        when(zone.getAllocationState()).thenReturn(Grouping.AllocationState.Enabled);
+
+        DiskOfferingVO diskOfferingVO = mock(DiskOfferingVO.class);
+        when(diskOfferingDao.findById(s_diskOfferingId)).thenReturn(diskOfferingVO);
+        when(diskOfferingVO.isCustomized()).thenReturn(true);
+        when(diskOfferingVO.isCustomizedIops()).thenReturn(true);
+        when(diskOfferingVO.getTags()).thenReturn("rbd");
+        StoragePoolVO storagePool = mock(StoragePoolVO.class);
+        when(storagePoolDao.findById(s_storageId)).thenReturn(storagePool);
+        when(storagePool.getDataCenterId()).thenReturn(s_zoneId);
+        when(volumeApiService.doesTargetStorageSupportDiskOffering(storagePool, "rbd")).thenReturn(true);
+
         when(cmd.getNetworkId()).thenReturn(s_networkId);
         NetworkVO networkVO = mock(NetworkVO.class);
+        when(networkVO.getId()).thenReturn(s_networkId);
         when(networkVO.getGuestType()).thenReturn(Network.GuestType.Isolated);
         when(networkDao.findById(s_networkId)).thenReturn(networkVO);
+        when(networkModel.areServicesSupportedInNetwork(s_networkId, Network.Service.UserData)).thenReturn(true);
 
         when(cmd.getFsFormat()).thenReturn("ext2");
         Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.allocSharedFS(cmd));
+    }
+
+    @Test
+    public void testAllocSharedFSNetworkMustSupportUserData() {
+        CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+
+        DataCenterVO zone = mock(DataCenterVO.class);
+        when(dataCenterDao.findById(s_zoneId)).thenReturn(zone);
+        when(zone.getId()).thenReturn(s_zoneId);
+        when(zone.getAllocationState()).thenReturn(Grouping.AllocationState.Enabled);
+
+        DiskOfferingVO diskOfferingVO = mock(DiskOfferingVO.class);
+        when(diskOfferingDao.findById(s_diskOfferingId)).thenReturn(diskOfferingVO);
+        when(diskOfferingVO.isCustomized()).thenReturn(true);
+        when(diskOfferingVO.isCustomizedIops()).thenReturn(true);
+        when(diskOfferingVO.getTags()).thenReturn("rbd");
+        StoragePoolVO storagePool = mock(StoragePoolVO.class);
+        when(storagePoolDao.findById(s_storageId)).thenReturn(storagePool);
+        when(storagePool.getDataCenterId()).thenReturn(s_zoneId);
+        when(volumeApiService.doesTargetStorageSupportDiskOffering(storagePool, "rbd")).thenReturn(true);
+
+        NetworkVO networkVO = mock(NetworkVO.class);
+        when(networkVO.getId()).thenReturn(s_networkId);
+        when(networkVO.getUuid()).thenReturn("network-without-userdata");
+        when(networkDao.findById(s_networkId)).thenReturn(networkVO);
+        when(networkModel.areServicesSupportedInNetwork(s_networkId, Network.Service.UserData)).thenReturn(false);
+
+        InvalidParameterValueException exception = Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.allocSharedFS(cmd));
+        Assert.assertEquals("Network network-without-userdata does not support UserData or ConfigDrive. Select STATIC network mode and provide ipcidr for this L2 SharedFS network.",
+                exception.getMessage());
+    }
+
+    @Test
+    public void testStaticNetworkAllowsOptionalGatewayAndDns() {
+        CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+        when(cmd.getNetworkMode()).thenReturn(SharedFS.NetworkMode.STATIC);
+        when(cmd.getIpCidr()).thenReturn("10.10.1.201/24");
+        when(cmd.getGateway()).thenReturn(null);
+        when(cmd.getDns1()).thenReturn(null);
+        when(cmd.getDns2()).thenReturn(null);
+
+        NetworkVO network = mock(NetworkVO.class);
+        when(network.getId()).thenReturn(s_networkId);
+        when(network.getGuestType()).thenReturn(Network.GuestType.L2);
+
+        SharedFSServiceImpl.StaticNetworkConfiguration configuration = sharedFSServiceImpl.validateStaticNetworkConfiguration(cmd, network);
+        Assert.assertEquals("10.10.1.201", configuration.ipAddress);
+        Assert.assertEquals("10.10.1.0/24", configuration.networkCidr);
+    }
+
+    @Test
+    public void testStaticNetworkNormalizesHostPrefixToNetworkCidr() {
+        SharedFSServiceImpl.StaticNetworkConfiguration configuration = sharedFSServiceImpl.parseStaticIpCidr("10.10.15.211/16");
+
+        Assert.assertEquals("10.10.15.211", configuration.ipAddress);
+        Assert.assertEquals("10.10.0.0/16", configuration.networkCidr);
+    }
+
+    @Test
+    public void testStaticNetworkAcceptsHostPrefix() {
+        SharedFSServiceImpl.StaticNetworkConfiguration configuration = sharedFSServiceImpl.parseStaticIpCidr("10.10.1.211/32");
+
+        Assert.assertEquals("10.10.1.211", configuration.ipAddress);
+        Assert.assertEquals("10.10.1.211/32", configuration.networkCidr);
+    }
+
+    @Test
+    public void testStaticNetworkRejectsInvalidIpPrefix() {
+        Assert.assertThrows(InvalidParameterValueException.class,
+                () -> sharedFSServiceImpl.parseStaticIpCidr("10.10.1.211/33"));
     }
 
     @Test

@@ -98,18 +98,35 @@ fi
 
 # 2차 확인 : RBD 이미지 사용 여부 체크
 for img in $(echo "$UUIDList" | tr ',' ' '); do
-   # rbd status 실패 시 다음으로
-   output=$(rbd status "${PoolName}/${img}" \
+   # rbd status 명령어 실행 (5초 타임아웃 적용)
+   output=$(timeout 5 rbd status "${PoolName}/${img}" \
       --id "${PoolAuthUserName}" \
       -m "${SourceHostIP}" \
-      -K "${skeyPath}${PoolAuthSecret}")
+      -K "${skeyPath}${PoolAuthSecret}" 2>&1)
+   res=$?
 
-   # Watchers: none 이 아니면 ALIVE
-   if ! echo "$output" | grep -q '^ *Watchers: none'; then
-      logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | AC 체크 결과(RBD, 스토리지:$PoolName) > [HOST STATE : ALIVE] ${img} 볼륨에 Watcher 모니터 존재"
-      echo "### [HOST STATE : ALIVE] in [PoolType : RBD] ###"
-      exit 0
+   # rbd status 명령어 자체가 실패했거나 (exit code != 0) Watchers: none 인 경우 패스
+   if [ $res -ne 0 ]; then
+      logger -p user.warn -t MOLD-HA-AC "[Checking] 호스트:${HostIP} | rbd status 명령어 실패 (${img}) : $output"
+      continue
    fi
+
+   if echo "$output" | grep -q '^ *Watchers: none'; then
+      continue
+   fi
+
+   # Watcher가 존재할 때, 호스트의 Libvirt 통신 포트 상태를 검증 (유령 Watcher 방지)
+   # 소프트 셧다운 시 Ping(NIC)이 꺼지기까지 수십 초가 걸리지만, Libvirt 서비스는 즉시 종료됩니다.
+   # 즉각적인 DEAD 감지를 위해 CloudStack KVM 기본 포트인 TCP 16509 또는 TLS 16514 개방 여부를 확인합니다.
+   if ! (timeout 1 bash -c "</dev/tcp/$HostIP/16509" >/dev/null 2>&1 || timeout 1 bash -c "</dev/tcp/$HostIP/16514" >/dev/null 2>&1); then
+      logger -p user.warn -t MOLD-HA-AC "[Checking] 호스트:${HostIP} | ${img} 볼륨에 Watcher 존재하나 Libvirt 포트(16509/16514) 닫힘 -> 소프트 셧다운 또는 유령(Stale) Watcher로 간주"
+      continue
+   fi
+
+   # rbd status 성공 + Watcher 존재 + 호스트 Ping 정상 => ALIVE
+   logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | AC 체크 결과(RBD, 스토리지:$PoolName) > [HOST STATE : ALIVE] ${img} 볼륨에 Watcher 모니터 존재 및 네트워크 응답 확인"
+   echo "### [HOST STATE : ALIVE] in [PoolType : RBD] ###"
+   exit 0
 done
 # 끝까지 빠져나왔으면 DEAD
 logger -p user.info -t MOLD-HA-AC "[Result]   호스트:${HostIP} | HB 체크 결과(RBD, 스토리지:$PoolName) > [HOST STATE : DEAD] 볼륨 이미지 목록의 정상 동작을 확인할 수 없음 => 호스트가 다운된 것으로 간주됨"

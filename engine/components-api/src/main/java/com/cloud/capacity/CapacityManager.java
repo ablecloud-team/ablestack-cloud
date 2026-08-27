@@ -76,7 +76,7 @@ public interface CapacityManager {
                     "Storage",
                     Double.class,
                     StorageOverprovisioningFactorCK,
-                    "2",
+                    "1",
                     "Used for storage overprovisioning calculation; available storage will be (actualStorageSize * storage.overprovisioning.factor)",
                     true,
                     ConfigKey.Scope.StoragePool);

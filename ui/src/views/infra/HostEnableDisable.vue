@@ -109,6 +109,12 @@ export default {
           data.annotation = values.reason
         }
         api('updateHost', data).then(_ => {
+          const messageLabel = this.allocationstate === 'Disable' ? 'label.disable.host' : 'label.enable.host'
+          this.$message.success({
+            content: `${this.$t(messageLabel)} - ${this.resource.name}`,
+            duration: 2
+          })
+          this.$emit('refresh-data')
           this.$emit('close-action')
         })
       })

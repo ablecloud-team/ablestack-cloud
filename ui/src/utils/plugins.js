@@ -581,3 +581,14 @@ export function createPathBasedOnVmType (vmtype, virtualmachineid) {
 
   return path + virtualmachineid
 }
+
+export const backupUtilPlugin = {
+  install (app) {
+    app.config.globalProperties.$isBackupProviderSupportsQuiesceVm = function (provider) {
+      if (!provider && typeof provider !== 'string') {
+        return false
+      }
+      return ['nas', 'commvault'].includes(provider.toLowerCase())
+    }
+  }
+}

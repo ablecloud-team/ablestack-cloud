@@ -30,8 +30,12 @@ import org.apache.logging.log4j.Level;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class AutomationControllerStopWorker extends AutomationControllerActionWorker {
+    private static final long AUTOMATION_CONTROLLER_STOP_TIMEOUT_MS = TimeUnit.MINUTES.toMillis(10);
+    private static final long AUTOMATION_CONTROLLER_STOP_RETRY_INTERVAL_MS = TimeUnit.SECONDS.toMillis(5);
+
     public AutomationControllerStopWorker(final AutomationController automationController, final AutomationControllerManagerImpl automationManager) {
         super(automationController, automationManager);
     }
@@ -60,13 +64,42 @@ public class AutomationControllerStopWorker extends AutomationControllerActionWo
             }
         }
         for (final UserVm userVm : automationControllerVMs) {
-            UserVm vm = userVmDao.findById(userVm.getId());
-            if (vm == null || !vm.getState().equals(VirtualMachine.State.Stopped)) {
+            if (!waitForVmStopped(userVm.getId(), AUTOMATION_CONTROLLER_STOP_TIMEOUT_MS,
+                    AUTOMATION_CONTROLLER_STOP_RETRY_INTERVAL_MS)) {
                 logTransitStateAndThrow(Level.ERROR, String.format("Failed to stop VMs in automation controller : %s",
                 automationController.getName()), automationController.getId(), AutomationController.Event.OperationFailed);
             }
         }
         stateTransitTo(automationController.getId(), AutomationController.Event.OperationSucceeded);
         return true;
+    }
+
+    private boolean waitForVmStopped(long vmId, long timeoutMs, long retryIntervalMs) {
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        while (System.currentTimeMillis() < deadline) {
+            UserVm vm = userVmDao.findById(vmId);
+            if (vm != null && vm.getState().equals(VirtualMachine.State.Stopped)) {
+                return true;
+            }
+
+            if (logger.isDebugEnabled()) {
+                String currentState = vm == null ? "null" : vm.getState().toString();
+                logger.debug(String.format("VM %d for automation controller %s is not stopped yet (state=%s)",
+                        vmId, automationController.getName(), currentState));
+            }
+
+            try {
+                Thread.sleep(retryIntervalMs);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                logger.warn(String.format("Interrupted while waiting for automation controller %s VM %d to stop",
+                        automationController.getName(), vmId), e);
+                return false;
+            }
+        }
+
+        logger.warn(String.format("Timed out waiting for automation controller %s VM %d to stop after %d ms",
+                automationController.getName(), vmId, timeoutMs));
+        return false;
     }
 }

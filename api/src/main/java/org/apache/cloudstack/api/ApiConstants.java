@@ -64,6 +64,7 @@ public class ApiConstants {
     public static final String BACKUP_VM_OFFERING_REMOVED = "vmbackupofferingremoved";
     public static final String IS_BACKUP_VM_EXPUNGED = "isbackupvmexpunged";
     public static final String BACKUP_TOTAL = "backuptotal";
+    public static final String BACKEND_SSL = "backendssl";
     public static final String BASE64_IMAGE = "base64image";
     public static final String BGP_PEERS = "bgppeers";
     public static final String BGP_PEER_IDS = "bgppeerids";
@@ -1302,6 +1303,7 @@ public class ApiConstants {
 
     public static final String HOSTDEVICES_TYPE = "hostdevicestype";
     public static final String DEVICE_TYPE = "devicetype";
+    public static final String LUN_PATH_MODE = "lunpathmode";
 
     // Object Storage related
     public static final String BUCKET_AVAILABLE = "bucketavailable";

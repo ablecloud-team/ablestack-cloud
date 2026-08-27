@@ -32,6 +32,7 @@ logpath = "/var/run/cloud/"        # FIXME: Logs should reside in /var/log/cloud
 lock_file = "/var/lock/cloudstack_security_group.lock"
 driver = "qemu:///system"
 lock_handle = None
+SYSTEM_VM_PREFIXES = ('r-', 's-', 'v-')
 
 
 def obtain_file_lock(path):
@@ -194,15 +195,12 @@ def get_bridge_physdev(brname):
 def destroy_network_rules_for_vm(vm_name, vif=None):
     vmchain = iptables_chain_name(vm_name)
     vmchain_egress = egress_chain_name(vm_name)
-    vmchain_default = None
+    vmchain_default = default_chain_name(vm_name)
     vm_ipsetname=ipset_chain_name(vm_name)
 
     delete_rules_for_vm_in_bridge_firewall_chain(vm_name)
-    if 1 in [vm_name.startswith(c) for c in ['r-', 's-', 'v-']]:
+    if is_system_vm_name(vm_name):
         return True
-
-    if vm_name.startswith('i-'):
-        vmchain_default = '-'.join(vm_name.split('-')[:-1]) + "-def"
 
     destroy_ebtables_rules(vm_name, vif)
 
@@ -507,7 +505,7 @@ def ebtables_rules_vmip (vmname, vmmac, ips, action):
 
 def check_default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brname, sec_ips, is_first_nic=False):
     brfw = get_br_fw(brname)
-    vmchain_default = '-'.join(vm_name.split('-')[:-1]) + "-def"
+    vmchain_default = default_chain_name(vm_name)
     try:
         rules = execute("iptables-save |grep -w %s |grep -w %s |grep -w %s" % (brfw, vif, vmchain_default))
     except:
@@ -539,7 +537,7 @@ def default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brname, se
 
     vmchain = iptables_chain_name(vm_name)
     vmchain_egress = egress_chain_name(vm_name)
-    vmchain_default = '-'.join(vmchain.split('-')[:-1]) + "-def"
+    vmchain_default = default_chain_name(vm_name)
     ipv6_link_local = ipv6_link_local_addr(vm_mac)
 
     action = "-A"
@@ -698,7 +696,7 @@ def default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brname, se
 
 
 def post_default_network_rules(vm_name, vm_id, vm_ip, vm_mac, vif, brname, dhcpSvr, hostIp, hostMacAddr):
-    vmchain_default = '-'.join(vm_name.split('-')[:-1]) + "-def"
+    vmchain_default = default_chain_name(vm_name)
     iptables_vmchain=iptables_chain_name(vm_name)
     vmchain_in = iptables_vmchain + "-in"
     vmchain_out = iptables_vmchain + "-out"
@@ -731,11 +729,10 @@ def post_default_network_rules(vm_name, vm_id, vm_ip, vm_mac, vif, brname, dhcpS
 
 def delete_rules_for_vm_in_bridge_firewall_chain(vmName):
     vm_name = vmName
-    if vm_name.startswith('i-'):
-        vm_name=iptables_chain_name(vm_name)
-        vm_name = '-'.join(vm_name.split('-')[:-1]) + "-def"
-
-    vmchain = iptables_chain_name(vm_name)
+    if is_system_vm_name(vm_name):
+        vmchain = iptables_chain_name(vm_name)
+    else:
+        vmchain = default_chain_name(vm_name)
 
     delcmd = """iptables-save | awk '/BF(.*)physdev-is-bridged(.*)%s/ { sub(/-A/, "-D", $1) ; print }'""" % vmchain
     delcmds = [_f for _f in execute(delcmd).split('\n') if _f]
@@ -827,12 +824,12 @@ def network_rules_for_rebooted_vm(vmName):
     else:
         brName = execute("iptables-save |grep physdev-is-bridged |grep FORWARD |grep BF |grep '\-o' |awk '{print $4}' | head -1").strip()
 
-    if 1 in [ vm_name.startswith(c) for c in ['r-', 's-', 'v-'] ]:
+    if is_system_vm_name(vm_name):
         default_network_rules_systemvm(vm_name, brName)
         return True
 
     vmchain = iptables_chain_name(vm_name)
-    vmchain_default = '-'.join(vmchain.split('-')[:-1]) + "-def"
+    vmchain_default = default_chain_name(vm_name)
 
     vifs = get_vifs(vmName)
     logging.debug(vifs, brName)
@@ -874,12 +871,12 @@ def get_rule_logs_for_vms():
     try:
         for name in vms:
             name = name.rstrip()
-            if 1 not in [name.startswith(c) for c in ['r-', 's-', 'v-', 'i-'] ]:
+            if is_system_vm_name(name):
                 continue
             # Move actions on rebooted vm to java code
             # network_rules_for_rebooted_vm(name)
-            if name.startswith('i-'):
-                log = get_rule_log_for_vm(name)
+            log = get_rule_log_for_vm(name)
+            if log:
                 result.append(log)
     except:
         logging.exception("Failed to get rule logs, better luck next time!")
@@ -964,6 +961,24 @@ def cleanup_rules():
 
                 if vmpresent is False:
                     logging.debug("vm " + vm_name + " is not running or paused, cleaning up ebtables rules")
+                    cleanup.append(vm_name)
+
+        if os.path.isdir(logpath):
+            for log_file in os.listdir(logpath):
+                if not log_file.endswith(".log"):
+                    continue
+                vm_name = log_file[:-4]
+                if is_system_vm_name(vm_name):
+                    continue
+
+                vmpresent = False
+                for vm in vmsInHost:
+                    if vm_name in vm:
+                        vmpresent = True
+                        break
+
+                if vmpresent is False:
+                    logging.debug("vm " + vm_name + " is not running or paused, cleaning up logged rules")
                     cleanup.append(vm_name)
 
         cleanup = list(set(cleanup))  # remove duplicates
@@ -1058,6 +1073,17 @@ def iptables_chain_name(vm_name):
 def egress_chain_name(vm_name):
     chain_name = iptables_chain_name(vm_name)
     return chain_name + "-eg"
+
+
+def default_chain_name(vm_name):
+    chain_name = iptables_chain_name(vm_name)
+    if chain_name.startswith('i-') and '-' in chain_name:
+        return '-'.join(chain_name.split('-')[:-1]) + "-def"
+    return chain_name + "-def"
+
+
+def is_system_vm_name(vm_name):
+    return vm_name.startswith(SYSTEM_VM_PREFIXES)
 
 
 def parse_network_rules(rules):
@@ -1468,7 +1494,7 @@ def verify_default_iptables_rules_for_vm(vm_name, vm_id, vm_ips, vm_ip6, vm_mac,
     brfwout = brfw + "-OUT"
     vmchain = iptables_chain_name(vm_name)
     vmchain_egress = egress_chain_name(vm_name)
-    vm_def = '-'.join(vm_name.split('-')[:-1]) + "-def"
+    vm_def = default_chain_name(vm_name)
 
     expected_rules = []
     expected_rules.append("-A %s -m physdev --physdev-in %s --physdev-is-bridged -j %s" % (brfwin, vif, vm_def))

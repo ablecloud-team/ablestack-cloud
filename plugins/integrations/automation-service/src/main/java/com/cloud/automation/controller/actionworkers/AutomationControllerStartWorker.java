@@ -29,13 +29,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.List;
 import java.util.Properties;
-import java.net.InetAddress;
+import java.util.concurrent.TimeUnit;
 
 import com.cloud.api.query.vo.UserAccountJoinVO;
-import com.cloud.automation.version.AutomationControllerVersion;
 import com.cloud.dc.DataCenter;
 import com.cloud.deploy.DeployDestination;
 import com.cloud.exception.ConcurrentOperationException;
@@ -63,7 +61,6 @@ import org.apache.cloudstack.api.command.user.vm.StartVMCmd;
 import org.apache.cloudstack.config.ApiServiceConfiguration;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Level;
 
 import com.cloud.uservm.UserVm;
@@ -77,16 +74,17 @@ import com.cloud.vm.VirtualMachine;
 
 public class AutomationControllerStartWorker extends AutomationControllerResourceModifierActionWorker {
 
-    private AutomationControllerVersion automationControllerVersion;
     private static final long GiB_TO_BYTES = 1024 * 1024 * 1024;
+    private static final int AUTOMATION_CONTROLLER_HTTP_PORT = 80;
+    private static final int HTTP_CONNECT_TIMEOUT_MS = 5000;
+    private static final int HTTP_READ_TIMEOUT_MS = 5000;
+    private static final long AUTOMATION_CONTROLLER_CREATE_READY_TIMEOUT_MS = TimeUnit.MINUTES.toMillis(30);
+    private static final long AUTOMATION_CONTROLLER_READY_TIMEOUT_MS = TimeUnit.MINUTES.toMillis(15);
+    private static final long AUTOMATION_CONTROLLER_READY_RETRY_INTERVAL_MS = TimeUnit.SECONDS.toMillis(5);
+    private static final int AUTOMATION_CONTROLLER_READY_SUCCESS_THRESHOLD = 3;
 
     public AutomationControllerStartWorker(final AutomationController automationController, final AutomationControllerManagerImpl automationManager) {
         super(automationController, automationManager);
-    }
-
-    @Override
-    protected String readResourceFile(String resource) throws IOException {
-        return IOUtils.toString(Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream(resource)), StringUtils.getPreferredCharset());
     }
 
     private void startAutomationControllerVMs() {
@@ -94,6 +92,9 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
         for (final UserVm vm : automationVms) {
             if (vm == null) {
                 logTransitStateAndThrow(Level.ERROR, String.format("Failed to start Control VMs in automation controller : %s", automationController.getName()), automationController.getId(), AutomationController.Event.OperationFailed);
+            }
+            if (VirtualMachine.State.Running.equals(vm.getState())) {
+                continue;
             }
             try {
                 startAutomationVM(vm);
@@ -209,6 +210,9 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
         }
         String username = owner.getAccountName();
         UserAccount user = accountService.getActiveUserAccount(username, owner.getDomainId());
+        if (user == null) {
+            throw new CloudRuntimeException(String.format("Unable to find an active API user for automation controller account %s", username));
+        }
         String[] keys = null;
         String apiKey = user.getApiKey();
         String secretKey = user.getSecretKey();
@@ -216,6 +220,9 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
             keys = accountService.createApiKeyAndSecretKey(user.getId());
         } else {
             keys = new String[]{apiKey, secretKey};
+        }
+        if (keys == null || keys.length < 2 || keys[0] == null || keys[1] == null) {
+            throw new CloudRuntimeException(String.format("Unable to prepare API keys for automation controller account %s", username));
         }
         return keys;
     }
@@ -226,21 +233,26 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
         final String HTTPS_ENABLE = "https.enable";
         final String HTTPS_PORT = "https.port";
         final File confFile = PropertiesUtil.findConfigFile("server.properties");
-        try {
-            InputStream is = new FileInputStream(confFile);
+        if (confFile == null) {
+            throw new CloudRuntimeException("Unable to locate server.properties while preparing Genie cloud-init data");
+        }
+        try (InputStream is = new FileInputStream(confFile)) {
             String port = null;
             String protocol = null;
             final Properties properties = ServerProperties.getServerProperties(is);
-            if (properties.getProperty(HTTPS_ENABLE).equals("true")){
+            if (Boolean.parseBoolean(properties.getProperty(HTTPS_ENABLE, "false"))){
                 port = properties.getProperty(HTTPS_PORT);
                 protocol = "https://";
             } else {
                 port = properties.getProperty(HTTP_PORT);
                 protocol = "http://";
             }
+            if (port == null || port.trim().isEmpty()) {
+                throw new CloudRuntimeException("Management server API port is not configured in server.properties");
+            }
             serverInfo = new String[]{port, protocol};
         } catch (final IOException e) {
-            logger.warn("Failed to read configuration from server.properties file", e);
+            throw new CloudRuntimeException("Failed to read configuration from server.properties file", e);
         }
         return serverInfo;
     }
@@ -250,7 +262,19 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
         String[] info = getServerProperties();
         String automationControllerConfig = readResourceFile("/conf/genie");
         NetworkVO ntwk = networkDao.findByIdIncludingRemoved(automationController.getNetworkId());
-        final String managementIp = ApiServiceConfiguration.ManagementServerAddresses.value();
+        if (ntwk == null) {
+            throw new CloudRuntimeException(String.format("Automation controller network %d was not found",
+                    automationController.getNetworkId()));
+        }
+        if (zone == null) {
+            throw new CloudRuntimeException(String.format("Automation controller zone %d was not found",
+                    automationController.getZoneId()));
+        }
+        final String configuredManagementAddresses = ApiServiceConfiguration.ManagementServerAddresses.value();
+        if (configuredManagementAddresses == null || configuredManagementAddresses.trim().isEmpty()) {
+            throw new CloudRuntimeException("Management server address is not configured");
+        }
+        final String managementIp = configuredManagementAddresses.split(",")[0].trim();
         final String automationControllerId = "{{ automation_controller_id }}";
         final String automationControllerName = "{{ automation_controller_instance_name }}";
         final String acPublicIp = "{{ ac_public_ip }}";
@@ -270,11 +294,17 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
         automationControllerConfig = automationControllerConfig.replace(automationControllerName, automationController.getName()+"-genie");
         if (ntwk.getGuestType() == Network.GuestType.Isolated) {
             List<IPAddressVO> ipAddresses = ipAddressDao.listByAssociatedNetwork(ntwk.getId(), true);
-            if (ipAddresses != null && ipAddresses.size() == 1) {
-                automationControllerConfig = automationControllerConfig.replace(acPublicIp, ipAddresses.get(0).getAddress().addr());
+            IPAddressVO sourceNatIp = findSourceNatIp(ipAddresses);
+            if (sourceNatIp == null) {
+                throw new CloudRuntimeException(String.format("Source NAT IP was not found for automation controller network %s", ntwk.getName()));
             }
+            automationControllerConfig = automationControllerConfig.replace(acPublicIp, sourceNatIp.getAddress().addr());
         }
         List<UserAccountJoinVO> domain = userAccountJoinDao.searchByAccountId(owner.getId());
+        if (domain == null || domain.isEmpty()) {
+            throw new CloudRuntimeException(String.format("Unable to resolve domain information for automation controller account %s",
+                    owner.getAccountName()));
+        }
         automationControllerConfig = automationControllerConfig.replace(zoneUuid, zone.getUuid());
         automationControllerConfig = automationControllerConfig.replace(zoneName, zone.getName());
         automationControllerConfig = automationControllerConfig.replace(networkId, Long.toString(automationController.getNetworkId()));
@@ -298,60 +328,29 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
             InsufficientCapacityException, ManagementServerException, ResourceUnavailableException {
         UserVm genieControlVms = null;
         genieControlVms = createAutomationControllerVM(network);
-        addAutomationControllerVm(automationController.getId(), genieControlVms.getId());
-        startAutomationVM(genieControlVms);
-        genieControlVms = userVmDao.findById(genieControlVms.getId());
         if (genieControlVms == null) {
             throw new ManagementServerException(String.format("Failed to provision VM for automation controller : %s" , automationController.getName()));
         }
+        addAutomationControllerVm(automationController.getId(), genieControlVms.getId());
         if (logger.isInfoEnabled()) {
-            logger.info(String.format("Provisioned Genie Automation Control VM : %s in to the automation controller : %s", genieControlVms.getDisplayName(), automationController.getName()));
+            logger.info(String.format("Created Genie Automation Control VM : %s in the automation controller : %s", genieControlVms.getDisplayName(), automationController.getName()));
         }
         return genieControlVms;
     }
 
-    private boolean setupAutomationControllerNetworkRules(Network network, UserVm genieVm, IpAddress publicIp) throws ManagementServerException {
-//        boolean egress = false;
-//        boolean firewall = false;
-//        boolean firewall2 = false;
-//        boolean portForwarding = false;
-        // Firewall Egress Network
+    private void setupAutomationControllerNetworkRules(Network network) throws ManagementServerException {
         try {
-            provisionEgressFirewallRules(network, owner, AUTOMATION_CONTROLLER_PORT, AUTOMATION_CONTROLLER_PORT);
-//            if (logger.isInfoEnabled()) {
-//                logger.info(String.format("Provisioned egress firewall rule to open up port %d to %d on %s for Automation controller : %s", publicIp.getAddress(), automationController.getName()));
-//            }
+            boolean tcpEgressReady = provisionEgressFirewallRules(network, owner, "TCP", null, null);
+            boolean udpEgressReady = provisionEgressFirewallRules(network, owner, "UDP", null, null);
+            if (!tcpEgressReady || !udpEgressReady) {
+                throw new ManagementServerException(String.format("Unable to apply bootstrap egress rules for automation controller : %s",
+                        automationController.getName()));
+            }
         } catch (NoSuchFieldException | IllegalAccessException | ResourceUnavailableException |
                  NetworkRuleConflictException e) {
-            throw new ManagementServerException(String.format("Failed to provision egress firewall rules for Web access for the Automation controller : %s", automationController.getName()), e);
+            throw new ManagementServerException(String.format("Failed to provision bootstrap egress rules for the Automation controller : %s",
+                    automationController.getName()), e);
         }
-//        // Firewall rule for Web access on GenieVM
-//        if (egress) {
-//            try {
-//                firewall = provisionFirewallRules(publicIp, owner, AUTOMATION_CONTROLLER_PORT, AUTOMATION_CONTROLLER_PORT);
-//                if (logger.isInfoEnabled()) {
-//                    logger.info(String.format("Provisioned firewall rule to open up port %d to %d on %s for Automation controller : %s", AUTOMATION_CONTROLLER_PORT, publicIp.getAddress().addr(), automationController.getName()));
-//                }
-////                firewall2 = provisionFirewallRules(publicIp, owner, CLUSTER_SAMBA_PORT, CLUSTER_SAMBA_PORT);
-////                if (logger.isInfoEnabled()) {
-////                    logger.info(String.format("Provisioned firewall rule to open up port %d to %d on %s for Automation controller : %s", publicIp.getAddress().addr(), automationController.getName()));
-////                }
-//            } catch (NoSuchFieldException | IllegalAccessException | ResourceUnavailableException | NetworkRuleConflictException e) {
-//                throw new ManagementServerException(String.format("Failed to provision firewall rules for Web access for the Automation controller : %s", automationController.getName()), e);
-//            }
-//            if (firewall) {
-//                // Port forwarding rule fo Web access on WorksVM
-//                try {
-//                    portForwarding = provisionPortForwardingRules(publicIp, network, owner, genieVm, AUTOMATION_CONTROLLER_PORT);
-//                } catch (ResourceUnavailableException | NetworkRuleConflictException e) {
-//                    throw new ManagementServerException(String.format("Failed to activate Web port forwarding rules for the Automation controller : %s", automationController.getName()), e);
-//                }
-//                if (portForwarding) {
-//                    return true;
-//                }
-//            }
-//        }
-        return false;
     }
 
     public boolean startAutomationControllerOnCreate() {
@@ -359,7 +358,10 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
         if (logger.isInfoEnabled()) {
             logger.info(String.format("Starting Automation Controller : %s", automationController.getName()));
         }
-        stateTransitTo(automationController.getId(), AutomationController.Event.StartRequested);
+        if (!stateTransitTo(automationController.getId(), AutomationController.Event.StartRequested)) {
+            throw new CloudRuntimeException(String.format("Cannot create automation controller %s from state %s",
+                    automationController.getName(), automationController.getState()));
+        }
         DeployDestination dest = null;
         try {
             dest = plan();
@@ -377,74 +379,27 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
         if (publicIpAddress == null) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to start Automation Controller : %s as no public IP found for the Automation Controller" , automationController.getName()), automationController.getId(), AutomationController.Event.CreateFailed);
         }
-        List<UserVm> automationControllerVMs = new ArrayList<>();
         UserVm genieVM = null;
         try {
             genieVM = provisionAutomationControllerVm(network);
-
         }  catch (CloudRuntimeException | ManagementServerException | ResourceUnavailableException | InsufficientCapacityException e) {
             logTransitStateAndThrow(Level.ERROR, String.format("Provisioning the Automation Controller VM failed in the automation controller : %s, %s", automationController.getName(), e), automationController.getId(), AutomationController.Event.CreateFailed, e);
         }
-        if (genieVM.getState().equals(VirtualMachine.State.Running)) {
-            try {
-                setupAutomationControllerNetworkRules(network, genieVM, publicIpAddress);
-            } catch (ManagementServerException e) {
-                logTransitStateAndThrow(Level.ERROR, String.format("Failed to setup Automation Controller : %s, unable to setup network rules", automationController.getName()), automationController.getId(), AutomationController.Event.CreateFailed, e);
-            }
+        try {
+            setupAutomationControllerNetworkRules(network);
+            startAutomationVM(genieVM);
+            genieVM = userVmDao.findById(genieVM.getId());
+        } catch (ManagementServerException e) {
+            logTransitStateAndThrow(Level.ERROR, String.format("Failed to start Automation Controller : %s after preparing bootstrap network rules",
+                    automationController.getName()), automationController.getId(), AutomationController.Event.CreateFailed, e);
+        }
+        if (genieVM != null && genieVM.getState().equals(VirtualMachine.State.Running)) {
             if (logger.isInfoEnabled()) {
                 logger.info(String.format("automation controller : %s automation controller VMs successfully provisioned", automationController.getName()));
             }
             String publicIpAddressStr = String.valueOf(publicIpAddress.getAddress());
-            try {
-                pingCheck(publicIpAddressStr, 450000);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            boolean urlReachableResult;
-            try {
-                urlReachableResult = urlReachable(publicIpAddressStr, 80);
-                if (urlReachableResult == true) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info(String.format("Starting automation controller : %s", automationController.getName()));
-                    }
-                    stateTransitTo(automationController.getId(), AutomationController.Event.OperationSucceeded);
-                    if (logger.isInfoEnabled()) {
-                        logger.info(String.format("Automation Controller : %s successfully started", automationController.getName()));
-                    }
-                    return true;
-                }else {
-                    if (logger.isInfoEnabled()) {
-                        logger.info(String.format("Starting automation controller : %s", automationController.getName()));
-                    }
-                    stateTransitTo(automationController.getId(), AutomationController.Event.OperationFailed);
-                    if (logger.isInfoEnabled()) {
-                        logger.info(String.format("Automation Controller : %s unsuccessfully started", automationController.getName()));
-                    }
-                    return false;
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return false;
-    }
-
-    public boolean startStoppedAutomationController() throws CloudRuntimeException {
-        init();
-        IpAddress publicIpAddress = null;
-        boolean urlReachableResult = false;
-        publicIpAddress = getAutomationControllerServerIp();
-        String publicIpAddressStr = String.valueOf(publicIpAddress.getAddress());
-        stateTransitTo(automationController.getId(), AutomationController.Event.StartRequested);
-        startAutomationControllerVMs();
-        try {
-            pingCheck(publicIpAddressStr, 450000);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            urlReachableResult = urlReachable(publicIpAddressStr, 80);
-            if (urlReachableResult == true) {
+            if (waitForAutomationControllerReady(publicIpAddressStr, AUTOMATION_CONTROLLER_HTTP_PORT,
+                    AUTOMATION_CONTROLLER_CREATE_READY_TIMEOUT_MS, AUTOMATION_CONTROLLER_READY_RETRY_INTERVAL_MS)) {
                 if (logger.isInfoEnabled()) {
                     logger.info(String.format("Starting automation controller : %s", automationController.getName()));
                 }
@@ -453,7 +408,7 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
                     logger.info(String.format("Automation Controller : %s successfully started", automationController.getName()));
                 }
                 return true;
-            }else {
+            } else {
                 if (logger.isInfoEnabled()) {
                     logger.info(String.format("Starting automation controller : %s", automationController.getName()));
                 }
@@ -463,36 +418,110 @@ public class AutomationControllerStartWorker extends AutomationControllerResourc
                 }
                 return false;
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        }
+        stateTransitTo(automationController.getId(), AutomationController.Event.OperationFailed);
+        return false;
+    }
+
+    public boolean startStoppedAutomationController() throws CloudRuntimeException {
+        init();
+        IpAddress publicIpAddress = getAutomationControllerServerIp();
+        if (publicIpAddress == null) {
+            throw new CloudRuntimeException(String.format("No source NAT IP found for automation controller : %s", automationController.getName()));
+        }
+        String publicIpAddressStr = String.valueOf(publicIpAddress.getAddress());
+        AutomationController.Event startEvent = AutomationController.State.Alert.equals(automationController.getState())
+                ? AutomationController.Event.RecoveryRequested : AutomationController.Event.StartRequested;
+        if (!stateTransitTo(automationController.getId(), startEvent)) {
+            throw new CloudRuntimeException(String.format("Cannot start automation controller %s from state %s",
+                    automationController.getName(), automationController.getState()));
+        }
+        startAutomationControllerVMs();
+        if (waitForAutomationControllerReady(publicIpAddressStr, AUTOMATION_CONTROLLER_HTTP_PORT,
+                AUTOMATION_CONTROLLER_READY_TIMEOUT_MS, AUTOMATION_CONTROLLER_READY_RETRY_INTERVAL_MS)) {
+            if (logger.isInfoEnabled()) {
+                logger.info(String.format("Starting automation controller : %s", automationController.getName()));
+            }
+            stateTransitTo(automationController.getId(), AutomationController.Event.OperationSucceeded);
+            if (logger.isInfoEnabled()) {
+                logger.info(String.format("Automation Controller : %s successfully started", automationController.getName()));
+            }
+            return true;
+        } else {
+            if (logger.isInfoEnabled()) {
+                logger.info(String.format("Starting automation controller : %s", automationController.getName()));
+            }
+            stateTransitTo(automationController.getId(), AutomationController.Event.OperationFailed);
+            if (logger.isInfoEnabled()) {
+                logger.info(String.format("Automation Controller : %s unsuccessfully started", automationController.getName()));
+            }
+            return false;
         }
     }
 
-    public boolean pingCheck(String url, int timeout) throws Exception{
-        InetAddress target = InetAddress.getByName(url);
-        return target.isReachable(timeout);
-    }
-
-    public static boolean urlReachable(String address, int port) throws IOException {
-        try {
-            URL url = new URL("http://"+address+":"+port);
-            URLConnection con = url.openConnection();
-            con.setConnectTimeout(400000);
-            con.setReadTimeout(450000);
-            HttpURLConnection exitCode = (HttpURLConnection)con;
-            if(exitCode.getResponseCode() == 200) {
-                return true;
+    private boolean waitForAutomationControllerReady(String address, int port, long timeoutMs, long retryIntervalMs) {
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        int consecutiveSuccesses = 0;
+        while (System.currentTimeMillis() < deadline) {
+            int responseCode = getHttpResponseCode(address, port);
+            if (responseCode >= 200 && responseCode < 400) {
+                consecutiveSuccesses++;
+                if (consecutiveSuccesses >= AUTOMATION_CONTROLLER_READY_SUCCESS_THRESHOLD) {
+                    return true;
+                }
+            } else {
+                consecutiveSuccesses = 0;
             }
-            else {
+
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Automation controller %s is not ready yet on %s:%d (HTTP %d)",
+                        automationController.getName(), address, port, responseCode));
+            }
+
+            try {
+                Thread.sleep(retryIntervalMs);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                logger.warn(String.format("Interrupted while waiting for automation controller %s readiness", automationController.getName()), e);
                 return false;
             }
-        } catch (java.net.SocketTimeoutException e) {
-            return false;
-        } catch (IOException exception) {
-            return false;
         }
+
+        logger.warn(String.format("Timed out waiting for automation controller %s readiness on %s:%d after %d ms",
+                automationController.getName(), address, port, timeoutMs));
+        return false;
     }
 
+    private IPAddressVO findSourceNatIp(List<IPAddressVO> ipAddresses) {
+        if (ipAddresses == null) {
+            return null;
+        }
+        for (IPAddressVO ipAddress : ipAddresses) {
+            if (ipAddress != null && ipAddress.isSourceNat()) {
+                return ipAddress;
+            }
+        }
+        return null;
+    }
+
+    private static int getHttpResponseCode(String address, int port) {
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL("http://" + address + ":" + port);
+            URLConnection con = url.openConnection();
+            connection = (HttpURLConnection) con;
+            connection.setConnectTimeout(HTTP_CONNECT_TIMEOUT_MS);
+            connection.setReadTimeout(HTTP_READ_TIMEOUT_MS);
+            connection.setInstanceFollowRedirects(false);
+            return connection.getResponseCode();
+        } catch (IOException exception) {
+            return -1;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
 
 
 }

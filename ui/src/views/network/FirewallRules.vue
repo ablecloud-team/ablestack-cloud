@@ -99,7 +99,7 @@
       :columns="columns"
       :dataSource="firewallRules"
       :pagination="false"
-      :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
+      :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange, getCheckboxProps: getCheckboxProps}"
       :rowKey="record => record.id">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'protocol'">
@@ -113,14 +113,18 @@
         </template>
         <template v-if="column.key === 'actions'">
           <div class="actions">
-            <tooltip-button :tooltip="$t('label.edit.tags')" icon="tag-outlined" buttonClass="rule-action" @onClick="() => openTagsModal(record.id)" />
             <tooltip-button
-              :tooltip="$t('label.delete')"
+              :tooltip="$t('label.edit.tags')"
+              icon="tag-outlined"
+              buttonClass="rule-action"
+              @onClick="() => openTagsModal(record.id)" />
+            <tooltip-button
+              :tooltip="isProtectedManagementRule(record) ? $t('message.kubernetes.management.rule.delete.disabled') : $t('label.delete')"
               type="primary"
               :danger="true"
               icon="delete-outlined"
               buttonClass="rule-action"
-              :disabled="!('deleteFirewallRule' in $store.getters.apis)"
+              :disabled="!('deleteFirewallRule' in $store.getters.apis) || isProtectedManagementRule(record)"
               @onClick="deleteRule(record)" />
           </div>
         </template>
@@ -232,6 +236,10 @@ export default {
     resource: {
       type: Object,
       required: true
+    },
+    protectedManagementPorts: {
+      type: Array,
+      default: () => []
     }
   },
   inject: ['parentFetchData', 'parentToggleLoading'],
@@ -250,6 +258,7 @@ export default {
       loading: true,
       addTagLoading: false,
       firewallRules: [],
+      kubernetesManagementPorts: [],
       newRule: {
         protocol: 'tcp',
         cidrlist: null,
@@ -305,6 +314,7 @@ export default {
     this.initForm()
     this.fetchNetworkProtocols()
     this.fetchData()
+    this.fetchKubernetesManagementPorts()
   },
   watch: {
     resource: {
@@ -314,10 +324,37 @@ export default {
           return
         }
         this.fetchData()
+        this.fetchKubernetesManagementPorts()
       }
     }
   },
   methods: {
+    fetchKubernetesManagementPorts () {
+      this.kubernetesManagementPorts = []
+      if (!('listKubernetesClusters' in this.$store.getters.apis) || !this.resource?.id) {
+        return
+      }
+      api('listKubernetesClusters', {
+        listAll: true
+      }).then(response => {
+        const clusters = response.listkubernetesclustersresponse?.kubernetescluster || []
+        const cluster = clusters.find(cluster => {
+          return cluster.ipaddressid === this.resource.id ||
+            cluster.networkid === this.resource.associatednetworkid
+        })
+        if (!cluster) {
+          return
+        }
+        const virtualMachines = cluster.virtualmachines || []
+        const nodeCount = virtualMachines.length || (Number(cluster.controlnodes || 1) + Number(cluster.size || 0))
+        const sshPorts = Array.from({ length: nodeCount }, (item, index) => {
+          return 2222 + index
+        }).filter(port => Number.isInteger(port))
+        this.kubernetesManagementPorts = [...new Set([6443, ...sshPorts])]
+      }).catch(() => {
+        this.kubernetesManagementPorts = []
+      })
+    },
     initForm () {
       this.formRef = ref()
       this.form = reactive({})
@@ -371,11 +408,46 @@ export default {
       })
     },
     setSelection (selection) {
-      this.selectedRowKeys = selection
+      const selectableRows = this.firewallRules.filter(item => !this.isProtectedManagementRule(item))
+      this.selectedRowKeys = selection.filter(id => selectableRows.some(item => item.id === id))
       this.$emit('selection-change', this.selectedRowKeys)
       this.selectedItems = (this.firewallRules.filter(function (item) {
-        return selection.indexOf(item.id) !== -1
-      }))
+        return this.selectedRowKeys.indexOf(item.id) !== -1
+      }, this))
+    },
+    getCheckboxProps (record) {
+      return {
+        disabled: this.isProtectedManagementRule(record)
+      }
+    },
+    rangeIncludesProtectedPort (startPort, endPort) {
+      const protectedPorts = this.effectiveProtectedManagementPorts()
+      if (!protectedPorts.length) {
+        return false
+      }
+      const start = Number(startPort)
+      const end = Number(endPort ?? startPort)
+      if (!Number.isInteger(start) || !Number.isInteger(end)) {
+        return false
+      }
+      const min = Math.min(start, end)
+      const max = Math.max(start, end)
+      return protectedPorts.some(port => {
+        const protectedPort = Number(port)
+        return Number.isInteger(protectedPort) && protectedPort >= min && protectedPort <= max
+      })
+    },
+    effectiveProtectedManagementPorts () {
+      return [...new Set([
+        ...this.protectedManagementPorts,
+        ...this.kubernetesManagementPorts
+      ].map(port => Number(port)).filter(port => Number.isInteger(port)))]
+    },
+    isProtectedManagementRule (rule) {
+      if (!rule || String(rule.protocol || '').toLowerCase() !== 'tcp') {
+        return false
+      }
+      return this.rangeIncludesProtectedPort(rule.startport, rule.endport)
     },
     resetSelection () {
       this.setSelection([])
@@ -422,6 +494,9 @@ export default {
       return val.toUpperCase()
     },
     deleteRule (rule) {
+      if (this.isProtectedManagementRule(rule)) {
+        return
+      }
       this.loading = true
       api('deleteFirewallRule', { id: rule.id }).then(response => {
         const jobId = response.deletefirewallruleresponse.jobid

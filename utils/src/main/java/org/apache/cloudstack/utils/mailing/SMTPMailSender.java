@@ -20,6 +20,7 @@ import com.sun.mail.smtp.SMTPTransport;
 
 import java.io.UnsupportedEncodingException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
@@ -196,7 +197,7 @@ public class SMTPMailSender {
 
         setMailRecipients(message, mailProps.getRecipients(), mailProps.getSubject());
 
-        message.setSubject(mailProps.getSubject());
+        message.setSubject(mailProps.getSubject(), StandardCharsets.UTF_8.name());
         message.setSentDate(mailProps.getSentDate() != null ? mailProps.getSentDate() : new Date());
         message.setContent(mailProps.getContent(), mailProps.getContentType());
         message.saveChanges();

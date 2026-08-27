@@ -174,6 +174,7 @@ known_categories = {
     'removeIpFromNic': 'Nic',
     'updateVmNicIp': 'Nic',
     'UpdateVmNicLinkState': 'Nic',
+    'listAvailableGuestIps': 'Nic',
     'listNics':'Nic',
     'AffinityGroup': 'Affinity Group',
     'ImageStore': 'Image Store',
@@ -305,7 +306,16 @@ known_categories = {
     'listVhbaDevices.xml': 'Storage',
     'listHostScsiDevices.xml': 'Storage',
     'updateHostScsiDevices.xml': 'Storage',
-    'deleteVhbaDevice.xml': 'Storage'
+    'deleteVhbaDevice.xml': 'Storage',
+    'listRackLayouts.xml': 'Rack Management',
+    'updateRackLayout.xml': 'Rack Management',
+    'StorageService': 'Shared FileSystem',
+    'StorageNfs': 'Shared FileSystem',
+    'StorageSmb': 'Shared FileSystem',
+    'StorageIscsi': 'Shared FileSystem',
+    'StorageNvmeOf': 'Shared FileSystem',
+    'StorageFileShare': 'Shared FileSystem',
+    'StorageVolumeToFileShare': 'Shared FileSystem'
 }
 
 

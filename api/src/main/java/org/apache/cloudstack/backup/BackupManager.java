@@ -27,6 +27,7 @@ import org.apache.cloudstack.api.command.user.backup.CreateBackupCmd;
 import org.apache.cloudstack.api.command.user.backup.CreateBackupScheduleCmd;
 import org.apache.cloudstack.api.command.user.backup.DeleteBackupScheduleCmd;
 import org.apache.cloudstack.api.command.user.backup.ListBackupOfferingsCmd;
+import org.apache.cloudstack.api.command.user.backup.ListBackupScheduleCmd;
 import org.apache.cloudstack.api.command.user.backup.ListBackupsCmd;
 import org.apache.cloudstack.api.response.BackupResponse;
 import org.apache.cloudstack.framework.config.ConfigKey;
@@ -57,6 +58,20 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
             "backup.framework.sync.interval",
             "300",
             "The backup and recovery background sync task polling interval in seconds.", true, BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> BackupCommandTimeout = new ConfigKey<>("Advanced", Integer.class,
+            "backup.command.timeout",
+            "3600",
+            "Timeout in seconds for KVM backup commands. A value of 0 uses the global command wait timeout.",
+            true,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> BackupRestoreTimeout = new ConfigKey<>("Advanced", Integer.class,
+            "backup.restore.timeout",
+            "7200",
+            "Timeout in seconds for KVM backup restore commands. A value of 0 uses the global command wait timeout.",
+            true,
+            BackupFrameworkEnabled.key());
 
     ConfigKey<Boolean> BackupEnableAttachDetachVolumes = new ConfigKey<>("Advanced", Boolean.class,
             "backup.enable.attach.detach.of.volumes",
@@ -171,7 +186,7 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
      * @param vmId
      * @return
      */
-    List<BackupSchedule> listBackupSchedule(Long vmId);
+    List<BackupSchedule> listBackupSchedules(ListBackupScheduleCmd cmd);
 
     /**
      * Deletes VM backup schedule for a VM

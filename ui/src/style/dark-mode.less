@@ -1095,62 +1095,64 @@
     font-weight: bold;
   }
 
-  .row-action-button--dataview {
-    background: @dropdown-bgColor;
-    color: @dark-text-color-4;
-  }
+  .ant-modal,
+  .ant-drawer,
+  .ant-popover,
+  .ant-popconfirm {
+    .ant-alert {
+      color: @dark-text-color-4;
+      background: rgba(24, 144, 255, 0.14);
+      border-color: rgba(64, 169, 255, 0.38);
+    }
 
-  .row-action-button--dataview .action-button-title {
-    color: @dark-text-color-4;
-    border-bottom: 1px solid @dark-border-color;
-  }
+    .ant-alert-message,
+    .ant-alert-description {
+      color: inherit;
+    }
 
-  .row-action-button--dataview .action-button-item--dataview.ant-btn-text {
-    color: @dark-text-color-3;
-  }
+    .ant-alert-icon {
+      color: #40a9ff;
+    }
 
-  .row-action-button--dataview .action-button-item--dataview.ant-btn-dashed,
-  .quickview-context-menu .action-button-item--dataview.ant-btn-dashed,
-  .autogen-action-dropdown__content .action-button-item--dataview.ant-btn-dashed {
-    color: rgba(255, 255, 255, 0.25);
-    border-color: rgba(255, 255, 255, 0.1);
-    background: rgba(0, 0, 0, 0.45);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05),
-      inset 0 -2px 4px rgba(0, 0, 0, 0.45);
-  }
+    .ant-alert-info {
+      color: @dark-text-color-4;
+      background: rgba(24, 144, 255, 0.14);
+      border-color: rgba(64, 169, 255, 0.38);
 
-  .row-action-button--dataview .action-button-item--dataview.ant-btn-dashed:disabled,
-  .quickview-context-menu .action-button-item--dataview.ant-btn-dashed:disabled,
-  .autogen-action-dropdown__content .action-button-item--dataview.ant-btn-dashed:disabled {
-    border-color: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.18);
-    background: rgba(0, 0, 0, 0.55);
-  }
+      .ant-alert-icon {
+        color: #40a9ff;
+      }
+    }
 
-  .row-action-button--dataview .action-button-item--dataview:not(.ant-btn-disabled):hover,
-  .row-action-button--dataview .action-button-item--dataview:not(.ant-btn-disabled):focus {
-    background: @dropdown-hover-bgColor;
-    color: #69c0ff;
-  }
+    .ant-alert-warning {
+      color: #ffe7a3;
+      background: rgba(250, 173, 20, 0.14);
+      border-color: rgba(250, 173, 20, 0.52);
 
-  .quickview-context-menu,
-  .autogen-action-dropdown__content {
-    background: @dropdown-bgColor !important;
-    border-color: @dark-border-color !important;
-    box-shadow: 0 8px 24px @box-shadow-1 !important;
-    color: @dark-text-color-4 !important;
-  }
+      .ant-alert-icon {
+        color: #ffc53d;
+      }
+    }
 
-  .quickview-context-menu .action-button-title,
-  .autogen-action-dropdown__content .action-button-title {
-    border-bottom: 1px solid @dark-border-color;
-    color: @dark-text-color-4;
-  }
+    .ant-alert-error {
+      color: #ffd2d2;
+      background: rgba(255, 77, 79, 0.14);
+      border-color: rgba(255, 77, 79, 0.52);
 
-  .quickview-context-menu .action-button-item--dataview:not(.ant-btn-disabled):hover,
-  .autogen-action-dropdown__content .action-button-item--dataview:not(.ant-btn-disabled):hover {
-    background: @dropdown-hover-bgColor;
-    color: #69c0ff;
+      .ant-alert-icon {
+        color: #ff7875;
+      }
+    }
+
+    .ant-alert-success {
+      color: #c7f1d5;
+      background: rgba(82, 196, 26, 0.14);
+      border-color: rgba(82, 196, 26, 0.42);
+
+      .ant-alert-icon {
+        color: #73d13d;
+      }
+    }
   }
 
   .ant-alert-error {
@@ -1159,21 +1161,24 @@
   }
 
   .auto-alert-banner-container {
-    background-color: rgba(51, 42, 33, 0.5);
-    background: rgba(0, 0, 0, 0.50)
+    color: var(--ui-error-text);
+    background: var(--ui-bg-page);
   }
 
   .auto-alert-banner-container .banner-field {
-      background: rgba(0, 0, 0, 0.85);
+    color: var(--ui-error-text);
+    background: var(--ui-error-bg);
+    border-color: var(--ui-error-border);
   }
 
   .banner-main,
   .field-key {
-    color: #cfc9c9;
+    color: var(--ui-error-text);
   }
 
   .banner-label {
-    color: #cfc9c9;
-    background-color: rgba(150, 96, 96, 0.5);
+    color: var(--ui-error-text);
+    background: var(--ui-error-bg);
+    border-color: var(--ui-error-border);
   }
 }

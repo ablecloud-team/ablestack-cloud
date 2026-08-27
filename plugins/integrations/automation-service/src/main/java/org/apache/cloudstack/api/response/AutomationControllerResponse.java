@@ -268,7 +268,9 @@ public class AutomationControllerResponse extends BaseResponse {
     public void setAutomationControllerIp(String automationControllerIp) {
         this.automationControllerIp = automationControllerIp;
     }
-    public void getRemoved(Date removed) {
+
+    public void setRemoved(Date removed) {
+        this.removed = removed;
     }
 
     public String getIpAddress(String ipAddress) {

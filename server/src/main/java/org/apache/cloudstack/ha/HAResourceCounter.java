@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class HAResourceCounter {
     private AtomicLong activityCheckCounter = new AtomicLong(0);
     private AtomicLong activityCheckFailureCounter = new AtomicLong(0);
+    private AtomicLong consecutiveActivityCheckFailureCounter = new AtomicLong(0);
     private AtomicLong recoveryOperationCounter = new AtomicLong(0);
 
     private Long firstHealthCheckFailureTimestamp;
@@ -40,6 +41,10 @@ public final class HAResourceCounter {
         return activityCheckFailureCounter.get();
     }
 
+    public long getConsecutiveActivityCheckFailureCounter() {
+        return consecutiveActivityCheckFailureCounter.get();
+    }
+
     public long getRecoveryCounter() {
         return recoveryOperationCounter.get();
     }
@@ -48,6 +53,9 @@ public final class HAResourceCounter {
         activityCheckCounter.incrementAndGet();
         if (isFailure) {
             activityCheckFailureCounter.incrementAndGet();
+            consecutiveActivityCheckFailureCounter.incrementAndGet();
+        } else {
+            consecutiveActivityCheckFailureCounter.set(0);
         }
     }
 
@@ -58,6 +66,7 @@ public final class HAResourceCounter {
     public synchronized void resetActivityCounter() {
         activityCheckCounter.set(0);
         activityCheckFailureCounter.set(0);
+        consecutiveActivityCheckFailureCounter.set(0);
     }
 
     public synchronized void resetRecoveryCounter() {

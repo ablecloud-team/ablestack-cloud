@@ -22,7 +22,7 @@
 [Unit]
 Description=Mold Agent
 Documentation=http://www.cloudstack.org/
-Requires=libvirtd.service
+Wants=libvirtd.service
 After=libvirtd.service
 
 [Service]

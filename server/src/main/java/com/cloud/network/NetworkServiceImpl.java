@@ -66,6 +66,7 @@ import org.apache.cloudstack.api.command.user.address.RemoveQuarantinedIpCmd;
 import org.apache.cloudstack.api.command.user.address.UpdateQuarantinedIpCmd;
 import org.apache.cloudstack.api.command.user.network.CreateNetworkCmd;
 import org.apache.cloudstack.api.command.user.network.CreateNetworkPermissionsCmd;
+import org.apache.cloudstack.api.command.user.network.ListAvailableGuestIpsCmd;
 import org.apache.cloudstack.api.command.user.network.ListNetworkPermissionsCmd;
 import org.apache.cloudstack.api.command.user.network.ListNetworksCmd;
 import org.apache.cloudstack.api.command.user.network.RemoveNetworkPermissionsCmd;
@@ -74,6 +75,8 @@ import org.apache.cloudstack.api.command.user.network.RestartNetworkCmd;
 import org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd;
 import org.apache.cloudstack.api.command.user.vm.ListNicsCmd;
 import org.apache.cloudstack.api.response.AcquirePodIpCmdResponse;
+import org.apache.cloudstack.api.response.AvailableGuestIpResponse;
+import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.engine.orchestration.service.NetworkOrchestrationService;
 import org.apache.cloudstack.framework.config.ConfigKey;
@@ -2595,6 +2598,42 @@ public class NetworkServiceImpl extends ManagerBase implements NetworkService, C
         }
 
         return new Pair<>(result.first(), result.second());
+    }
+
+    @Override
+    public ListResponse<AvailableGuestIpResponse> listAvailableGuestIps(ListAvailableGuestIpsCmd cmd) {
+        NetworkVO network = _networksDao.findById(cmd.getNetworkId());
+        if (network == null) {
+            throw new InvalidParameterValueException("Invalid network id is given");
+        }
+
+        Account caller = CallContext.current().getCallingAccount();
+        _networkModel.checkNetworkPermissions(caller, network);
+
+        if (!Network.GuestType.Isolated.equals(network.getGuestType())) {
+            throw new InvalidParameterValueException("Available guest IP listing is supported only for Isolated networks");
+        }
+        if (StringUtils.isBlank(network.getCidr())) {
+            throw new InvalidParameterValueException("The network does not have an IPv4 CIDR");
+        }
+
+        List<Long> availableIps = new ArrayList<>(_networkModel.getAvailableIps(network, null));
+        Collections.sort(availableIps);
+
+        int totalCount = availableIps.size();
+        Long startIndex = cmd.getStartIndex();
+        Long pageSize = cmd.getPageSizeVal();
+        int start = startIndex == null ? 0 : Math.min(startIndex.intValue(), totalCount);
+        int end = pageSize == null ? totalCount : Math.min(start + pageSize.intValue(), totalCount);
+
+        List<AvailableGuestIpResponse> responses = new ArrayList<>();
+        for (Long ip : availableIps.subList(start, end)) {
+            responses.add(new AvailableGuestIpResponse(NetUtils.long2Ip(ip)));
+        }
+
+        ListResponse<AvailableGuestIpResponse> response = new ListResponse<>();
+        response.setResponses(responses, totalCount);
+        return response;
     }
 
     private void addAccountSpecificNetworksToSearch(SearchCriteria<NetworkVO> additionalSC, SearchBuilder<NetworkVO> sb,

@@ -17,7 +17,12 @@
 
 <template>
   <div style="display: inline-flex;">
-    <a-tooltip placement="bottom" :title="getTooltip(text)">
+    <a-tooltip placement="bottom">
+      <template #title>
+        <slot name="tooltip">
+          {{ getTooltip(text) }}
+        </slot>
+      </template>
       <a-badge
         :style="getStyle()"
         :title="text"
@@ -182,6 +187,9 @@ export default {
           case 'nodata':
             state = this.$t('state.nodata')
             break
+          case 'created':
+            state = this.$t('state.created')
+            break
         }
         return state.charAt(0).toUpperCase() + state.slice(1)
       }
@@ -190,6 +198,7 @@ export default {
     getBadgeStatus (state) {
       var status = 'default'
       switch (state.toLowerCase()) {
+        case 'created':
         case 'active':
         case 'backedup':
         case 'completed':
@@ -250,7 +259,6 @@ export default {
             status = 'warning'
           }
           break
-        case 'created':
         case 'maintenance':
         case 'pending':
         case 'unsecure':

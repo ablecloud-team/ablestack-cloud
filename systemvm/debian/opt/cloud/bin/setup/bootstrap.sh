@@ -19,6 +19,7 @@ set -x
 PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
 CMDLINE=/var/cache/cloud/cmdline
 PROPERTIES=usr/local/cloud/systemvm/conf/agent.properties
+SECURITY_PATCH_MARKER=/var/cache/cloud/security_patch_systemvm.done
 
 rm -f /var/cache/cloud/enabled_svcs
 rm -f /var/cache/cloud/disabled_svcs
@@ -104,6 +105,27 @@ config_sysctl() {
   sysctl -p
 }
 
+apply_security_patch() {
+  if [ -f "$SECURITY_PATCH_MARKER" ]; then
+    log_it "Security patch already applied, skipping"
+    return 0
+  fi
+
+  if [ ! -f /opt/cloud/bin/setup/security_patch_systemvm.sh ]; then
+    log_it "Security patch script not found, skipping"
+    return 0
+  fi
+
+  log_it "Applying security patch for systemvm type=$TYPE"
+  if bash /opt/cloud/bin/setup/security_patch_systemvm.sh; then
+    touch "$SECURITY_PATCH_MARKER"
+    log_it "Security patch applied successfully"
+  else
+    log_it "Security patch failed"
+    return 1
+  fi
+}
+
 bootstrap() {
   log_it "Bootstrapping systemvm appliance"
 
@@ -116,6 +138,10 @@ bootstrap() {
       /opt/cloud/bin/setup/$TYPE.sh
   else
       /opt/cloud/bin/setup/default.sh
+  fi
+
+  if [ "$TYPE" == "consoleproxy" ] || [ "$TYPE" == "secstorage" ]; then
+      apply_security_patch || exit 1
   fi
 
   log_it "Finished setting up systemvm"

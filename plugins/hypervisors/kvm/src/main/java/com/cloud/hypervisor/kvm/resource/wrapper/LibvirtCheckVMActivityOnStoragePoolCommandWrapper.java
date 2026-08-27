@@ -47,28 +47,15 @@ public final class LibvirtCheckVMActivityOnStoragePoolCommandWrapper extends Com
         final StorageFilerTO pool = command.getPool();
         final KVMStoragePoolManager storagePoolMgr = libvirtComputingResource.getStoragePoolMgr();
 
+        HAStoragePool haStoragePool = getMonitoredStoragePool(monitor, pool);
+        if (haStoragePool == null) {
+            executors.shutdownNow();
+            return new Answer(command, false, "Unsupported Storage or HA pool not found");
+        }
+
         KVMStoragePool primaryPool = storagePoolMgr.getStoragePool(pool.getType(), pool.getUuid());
         if (primaryPool.isPoolSupportHA()){
-            HAStoragePool haStoragePool = null;
-            String vmActivityCheckPath = "";
-            if (Storage.StoragePoolType.NetworkFilesystem == pool.getType()) {
-                haStoragePool = monitor.getStoragePool(pool.getUuid());
-                vmActivityCheckPath = libvirtComputingResource.getVmActivityCheckPath();
-            } else if (Storage.StoragePoolType.SharedMountPoint == pool.getType()) {
-                haStoragePool = monitor.getGfsStoragePool(pool.getUuid());
-                vmActivityCheckPath = libvirtComputingResource.getVmActivityCheckPathGfs();
-            } else if (Storage.StoragePoolType.RBD == pool.getType()) {
-                haStoragePool = monitor.getRbdStoragePool(pool.getUuid());
-                vmActivityCheckPath = libvirtComputingResource.getVmActivityCheckPathRbd();
-            } else if (Storage.StoragePoolType.CLVM == pool.getType()) {
-                haStoragePool = monitor.getClvmStoragePool(pool.getUuid());
-                vmActivityCheckPath = libvirtComputingResource.getVmActivityCheckPathClvm();
-            }
-
-            if (haStoragePool == null) {
-                executors.shutdownNow();
-                return new Answer(command, false, "Unsupported Storage or HA pool not found");
-            }
+            String vmActivityCheckPath = getVmActivityCheckPath(libvirtComputingResource, pool);
 
             final KVMHAVMActivityChecker ha = new KVMHAVMActivityChecker(haStoragePool, command.getHost(), command.getVolumeList(), vmActivityCheckPath, command.getSuspectTimeInSeconds());
             final Future<Boolean> future = executors.submit(ha);
@@ -90,5 +77,31 @@ public final class LibvirtCheckVMActivityOnStoragePoolCommandWrapper extends Com
         }
         executors.shutdownNow();
         return new Answer(command, false, "Unsupported Storage");
+    }
+
+    protected HAStoragePool getMonitoredStoragePool(final KVMHAMonitor monitor, final StorageFilerTO pool) {
+        if (Storage.StoragePoolType.NetworkFilesystem == pool.getType()) {
+            return monitor.getStoragePool(pool.getUuid());
+        } else if (Storage.StoragePoolType.SharedMountPoint == pool.getType()) {
+            return monitor.getGfsStoragePool(pool.getUuid());
+        } else if (Storage.StoragePoolType.RBD == pool.getType()) {
+            return monitor.getRbdStoragePool(pool.getUuid());
+        } else if (Storage.StoragePoolType.CLVM == pool.getType()) {
+            return monitor.getClvmStoragePool(pool.getUuid());
+        }
+        return null;
+    }
+
+    protected String getVmActivityCheckPath(final LibvirtComputingResource libvirtComputingResource, final StorageFilerTO pool) {
+        if (Storage.StoragePoolType.NetworkFilesystem == pool.getType()) {
+            return libvirtComputingResource.getVmActivityCheckPath();
+        } else if (Storage.StoragePoolType.SharedMountPoint == pool.getType()) {
+            return libvirtComputingResource.getVmActivityCheckPathGfs();
+        } else if (Storage.StoragePoolType.RBD == pool.getType()) {
+            return libvirtComputingResource.getVmActivityCheckPathRbd();
+        } else if (Storage.StoragePoolType.CLVM == pool.getType()) {
+            return libvirtComputingResource.getVmActivityCheckPathClvm();
+        }
+        return "";
     }
 }

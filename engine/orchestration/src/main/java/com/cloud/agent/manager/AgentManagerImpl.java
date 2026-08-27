@@ -38,10 +38,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.inject.Inject;
 import javax.naming.ConfigurationException;
 
-import com.cloud.configuration.Config;
-import com.cloud.org.Cluster;
-import com.cloud.utils.NumbersUtil;
-import com.cloud.utils.db.GlobalLock;
+import com.cloud.utils.StringUtils;
 import org.apache.cloudstack.agent.lb.IndirectAgentLB;
 import org.apache.cloudstack.ca.CAManager;
 import org.apache.cloudstack.engine.orchestration.service.NetworkOrchestrationService;
@@ -55,6 +52,7 @@ import org.apache.cloudstack.outofbandmanagement.dao.OutOfBandManagementDao;
 import org.apache.cloudstack.utils.identity.ManagementServerNode;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.logging.log4j.ThreadContext;
 
 import com.cloud.agent.AgentManager;
 import com.cloud.agent.Listener;
@@ -81,6 +79,7 @@ import com.cloud.agent.api.UnsupportedAnswer;
 import com.cloud.agent.transport.Request;
 import com.cloud.agent.transport.Response;
 import com.cloud.alert.AlertManager;
+import com.cloud.configuration.Config;
 import com.cloud.configuration.ManagementServiceConfiguration;
 import com.cloud.dc.ClusterVO;
 import com.cloud.dc.DataCenterVO;
@@ -100,15 +99,18 @@ import com.cloud.host.Status.Event;
 import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor.HypervisorType;
 import com.cloud.hypervisor.HypervisorGuruManager;
+import com.cloud.org.Cluster;
 import com.cloud.resource.Discoverer;
 import com.cloud.resource.ResourceManager;
 import com.cloud.resource.ResourceState;
 import com.cloud.resource.ServerResource;
+import com.cloud.utils.NumbersUtil;
 import com.cloud.utils.Pair;
 import com.cloud.utils.component.ManagerBase;
 import com.cloud.utils.concurrency.NamedThreadFactory;
 import com.cloud.utils.db.DB;
 import com.cloud.utils.db.EntityManager;
+import com.cloud.utils.db.GlobalLock;
 import com.cloud.utils.db.QueryBuilder;
 import com.cloud.utils.db.SearchCriteria.Op;
 import com.cloud.utils.db.TransactionLegacy;
@@ -123,8 +125,6 @@ import com.cloud.utils.nio.Link;
 import com.cloud.utils.nio.NioServer;
 import com.cloud.utils.nio.Task;
 import com.cloud.utils.time.InaccurateClock;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.ThreadContext;
 
 /**
  * Implementation of the Agent Manager. This class controls the connection to the agents.
@@ -1902,7 +1902,8 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
     @Override
     public ConfigKey<?>[] getConfigKeys() {
         return new ConfigKey<?>[] { CheckTxnBeforeSending, Workers, Port, Wait, AlertWait, DirectAgentLoadSize,
-                DirectAgentPoolSize, DirectAgentThreadCap, EnableKVMAutoEnableDisable, ReadyCommandWait, GranularWaitTimeForCommands };
+                DirectAgentPoolSize, DirectAgentThreadCap, EnableKVMAutoEnableDisable, ReadyCommandWait,
+                GranularWaitTimeForCommands, KVMHostDiscoverySshPort };
     }
 
     protected class SetHostParamsListener implements Listener {
@@ -2016,6 +2017,30 @@ public class AgentManagerImpl extends ManagerBase implements AgentManager, Handl
             Map<Long, List<Long>> hostsPerZone = getHostsPerZone();
             sendCommandToAgents(hostsPerZone, params);
         }
+    }
+
+    @Override
+    public boolean transferDirectAgentsFromMS(String fromMsUuid, long fromMsId, long timeoutDurationInMs, boolean excludeHostsInMaintenance) {
+        return true;
+    }
+
+    @Override
+    public int getHostSshPort(HostVO host) {
+        if (host == null) {
+            return KVMHostDiscoverySshPort.value();
+        }
+
+        if (host.getHypervisorType() != HypervisorType.KVM) {
+            return Host.DEFAULT_SSH_PORT;
+        }
+
+        _hostDao.loadDetails(host);
+        String hostPort = host.getDetail(Host.HOST_SSH_PORT);
+        if (StringUtils.isBlank(hostPort)) {
+            return KVMHostDiscoverySshPort.valueIn(host.getClusterId());
+        }
+
+        return Integer.parseInt(hostPort);
     }
 
     private GlobalLock getHostJoinLock(Long hostId) {

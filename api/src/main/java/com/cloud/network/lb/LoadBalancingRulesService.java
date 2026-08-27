@@ -58,6 +58,10 @@ public interface LoadBalancingRulesService {
             Long ipAddrId, String protocol, String algorithm, long networkId, long lbOwnerId, boolean openFirewall, String lbProtocol, Boolean forDisplay, List<String> cidrList) throws NetworkRuleConflictException,
             InsufficientAddressCapacityException;
 
+    LoadBalancer createPublicLoadBalancerRule(String xId, String name, String description, int srcPortStart, int srcPortEnd, int defPortStart, int defPortEnd,
+            Long ipAddrId, String protocol, String algorithm, long networkId, long lbOwnerId, boolean openFirewall, String lbProtocol, Boolean forDisplay, List<String> cidrList,
+            Boolean backendSsl) throws NetworkRuleConflictException, InsufficientAddressCapacityException;
+
     LoadBalancer updateLoadBalancerRule(UpdateLoadBalancerRuleCmd cmd);
 
     boolean deleteLoadBalancerRule(long lbRuleId, boolean apply);
@@ -106,7 +110,7 @@ public interface LoadBalancingRulesService {
 
     boolean applyLoadBalancerConfig(long lbRuleId) throws ResourceUnavailableException;
 
-    boolean assignCertToLoadBalancer(long lbRuleId, Long certId);
+    boolean assignCertToLoadBalancer(long lbRuleId, Long certId, boolean isForced);
 
     boolean removeCertFromLoadBalancer(long lbRuleId);
 

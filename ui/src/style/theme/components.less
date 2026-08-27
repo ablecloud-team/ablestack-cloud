@@ -1,0 +1,214 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+body {
+  .ant-layout,
+  .ant-layout-content,
+  .ant-layout-footer {
+    color: var(--ui-text-secondary);
+    background: var(--ui-bg-page);
+  }
+
+  .ant-card,
+  .ant-collapse,
+  .ant-collapse-content,
+  .ant-descriptions-view,
+  .ant-list,
+  .ant-page-header,
+  .ant-tabs-content-holder {
+    color: var(--ui-text-secondary);
+    background: var(--ui-bg-surface);
+  }
+
+  .ant-card-body,
+  .ant-spin-nested-loading,
+  .ant-spin-container,
+  .ant-tabs-content,
+  .ant-tabs-tabpane {
+    background: inherit;
+  }
+
+  .ant-card,
+  .ant-collapse,
+  .ant-descriptions-view {
+    border-color: var(--ui-border);
+  }
+
+  .ant-modal-content,
+  .ant-modal-header,
+  .ant-modal-footer,
+  .ant-drawer-content,
+  .ant-drawer-header,
+  .ant-popover-inner,
+  .ant-dropdown-menu,
+  .ant-select-dropdown,
+  .ant-picker-dropdown .ant-picker-panel-container {
+    color: var(--ui-text-secondary);
+    background: var(--ui-bg-elevated);
+    border-color: var(--ui-border);
+  }
+
+  .ant-modal-title,
+  .ant-drawer-title,
+  .ant-form-item-label > label,
+  .ant-descriptions-item-label,
+  .ant-table-thead > tr > th,
+  .ant-tabs-tab,
+  .ant-collapse-header,
+  .ant-empty-description {
+    color: var(--ui-text-secondary);
+  }
+
+  .ant-tabs-tab-disabled,
+  .ant-tabs-tab-disabled:hover,
+  .ant-tabs-tab-disabled .anticon {
+    color: var(--ui-text-disabled) !important;
+    opacity: 1;
+  }
+
+  .ant-typography,
+  .ant-descriptions-item-content,
+  .ant-table-tbody > tr > td,
+  .ant-checkbox-wrapper,
+  .ant-radio-wrapper {
+    color: var(--ui-text-secondary);
+  }
+
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-input-number,
+  .ant-picker,
+  .ant-select:not(.ant-select-customize-input) .ant-select-selector,
+  .ant-cascader-picker {
+    color: var(--ui-text-primary);
+    background: var(--ui-bg-input);
+    border-color: var(--ui-border);
+  }
+
+  .ant-input-affix-wrapper > input.ant-input,
+  .ant-input-number-input,
+  .ant-picker-input > input,
+  .ant-select-selection-item {
+    color: var(--ui-text-primary);
+    background: transparent;
+  }
+
+  .ant-input::placeholder,
+  .ant-input-number-input::placeholder,
+  .ant-picker-input > input::placeholder,
+  .ant-select-selection-placeholder {
+    color: var(--ui-text-placeholder);
+    opacity: 1;
+  }
+
+  .ant-input:hover,
+  .ant-input-affix-wrapper:hover,
+  .ant-input-number:hover,
+  .ant-picker:hover,
+  .ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+    border-color: var(--ui-border-strong);
+  }
+
+  .ant-input:focus,
+  .ant-input-focused,
+  .ant-input-affix-wrapper-focused,
+  .ant-input-number-focused,
+  .ant-picker-focused,
+  .ant-select-focused:not(.ant-select-disabled) .ant-select-selector {
+    border-color: var(--ui-focus);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-focus) 18%, transparent);
+  }
+
+  .ant-input[disabled],
+  .ant-input-affix-wrapper-disabled,
+  .ant-input-number-disabled,
+  .ant-picker-disabled,
+  .ant-select-disabled .ant-select-selector,
+  .ant-btn[disabled] {
+    color: var(--ui-text-disabled);
+    background: var(--ui-bg-disabled);
+    border-color: var(--ui-border);
+    opacity: 1;
+  }
+
+  .ant-select-arrow,
+  .ant-picker-suffix,
+  .ant-input-password-icon,
+  .ant-modal-close,
+  .ant-drawer-close {
+    color: var(--ui-text-muted);
+  }
+
+  .ant-dropdown-menu-item,
+  .ant-select-item,
+  .ant-menu-item,
+  .ant-menu-submenu-title {
+    color: var(--ui-text-secondary);
+  }
+
+  .ant-dropdown-menu-item:hover,
+  .ant-select-item-option-active:not(.ant-select-item-option-disabled),
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled),
+  .ant-menu-item-active,
+  .ant-menu-submenu-title:hover {
+    color: var(--ui-text-primary);
+    background: var(--ui-bg-hover);
+  }
+
+  .ant-table,
+  .ant-table-container,
+  .ant-table-content,
+  .ant-table-tbody > tr > td,
+  .ant-table-cell-fix-left,
+  .ant-table-cell-fix-right {
+    color: var(--ui-text-secondary);
+    background: var(--ui-bg-surface);
+    border-color: var(--ui-border);
+  }
+
+  .ant-table-thead > tr > th {
+    background: var(--ui-bg-elevated);
+    border-color: var(--ui-border);
+  }
+
+  .ant-table-tbody > tr:hover > td,
+  .ant-table-tbody > tr:hover > td.ant-table-cell-fix-left,
+  .ant-table-tbody > tr:hover > td.ant-table-cell-fix-right {
+    background: var(--ui-bg-hover);
+  }
+
+  .ant-tabs-nav::before,
+  .ant-modal-header,
+  .ant-modal-footer,
+  .ant-drawer-header,
+  .ant-collapse-item,
+  .ant-list-split .ant-list-item {
+    border-color: var(--ui-border);
+  }
+
+  .ant-btn:not(.ant-btn-primary):not(.ant-btn-dangerous):not([disabled]) {
+    color: var(--ui-text-secondary);
+    background: var(--ui-bg-elevated);
+    border-color: var(--ui-border);
+  }
+
+  .ant-btn:not(.ant-btn-primary):not(.ant-btn-dangerous):not([disabled]):hover,
+  .ant-btn:not(.ant-btn-primary):not(.ant-btn-dangerous):not([disabled]):focus {
+    color: var(--ui-focus);
+    border-color: var(--ui-focus);
+  }
+}

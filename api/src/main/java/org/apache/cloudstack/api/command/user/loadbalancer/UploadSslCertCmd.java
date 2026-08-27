@@ -37,7 +37,7 @@ import com.cloud.exception.ResourceAllocationException;
 import com.cloud.exception.ResourceUnavailableException;
 import org.apache.cloudstack.network.tls.CertService;
 
-@APICommand(name = "uploadSslCert", description = "Upload a certificate to CloudStack", responseObject = SslCertResponse.class,
+@APICommand(name = "uploadSslCert", description = "Upload a certificate to ABLESTACK", responseObject = SslCertResponse.class,
         requestHasSensitiveInfo = false, responseHasSensitiveInfo = false)
 public class UploadSslCertCmd extends BaseCmd {
 
@@ -52,13 +52,17 @@ public class UploadSslCertCmd extends BaseCmd {
     @Parameter(name = ApiConstants.CERTIFICATE, type = CommandType.STRING, required = true, description = "SSL certificate", length = 16384)
     private String cert;
 
-    @Parameter(name = ApiConstants.PRIVATE_KEY, type = CommandType.STRING, required = true, description = "Private key", length = 16384)
+    @Parameter(name = ApiConstants.PRIVATE_KEY, type = CommandType.STRING, required = true,
+            description = "PEM formatted private key. Supported formats: unencrypted PKCS#8, encrypted PKCS#8, and OpenSSL legacy RSA/DSA/EC private keys. " +
+                    "Encrypted keys are decrypted using the password parameter and stored as unencrypted PKCS#8 PEM protected by ABLESTACK encryption.",
+            length = 16384)
     private String key;
 
     @Parameter(name = ApiConstants.CERTIFICATE_CHAIN, type = CommandType.STRING, description = "Certificate chain of trust", length = 2097152)
     private String chain;
 
-    @Parameter(name = ApiConstants.PASSWORD, type = CommandType.STRING, description = "Password for the private key")
+    @Parameter(name = ApiConstants.PASSWORD, type = CommandType.STRING,
+            description = "Password used to decrypt an encrypted private key during upload. The password is not stored after the key is normalized.")
     private String password;
 
     @Parameter(name = ApiConstants.ACCOUNT, type = CommandType.STRING, description = "account that will own the SSL certificate")

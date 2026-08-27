@@ -900,8 +900,8 @@
                 {{ this.form.startvm ? $t('label.launch.vm') : $t('label.create.vm') }}
                 <template #icon><down-outlined /></template>
                 <template #overlay>
-                  <a-menu type="primary" @click="handleSubmitAndStay" theme="dark" class="btn-stay-on-page">
-                    <a-menu-item type="primary" key="1">
+                  <a-menu @click="handleSubmitAndStay">
+                    <a-menu-item key="1">
                       <rocket-outlined />
                       {{ this.form.startvm ? $t('label.launch.vm.and.stay') : $t('label.create.vm.and.stay') }}
                     </a-menu-item>
@@ -3190,13 +3190,5 @@ export default {
 
   .form-item-hidden {
     display: none;
-  }
-
-  .btn-stay-on-page {
-    &.ant-dropdown-menu-dark {
-      .ant-dropdown-menu-item:hover {
-        background: transparent !important;
-      }
-    }
   }
 </style>

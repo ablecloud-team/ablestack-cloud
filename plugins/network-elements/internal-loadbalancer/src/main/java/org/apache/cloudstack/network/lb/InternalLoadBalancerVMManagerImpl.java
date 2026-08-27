@@ -497,6 +497,9 @@ public class InternalLoadBalancerVMManagerImpl extends ManagerBase implements In
         cmd.lbStatsUri = _configDao.getValue(Config.NetworkLBHaproxyStatsUri.key());
         cmd.lbStatsAuth = _configDao.getValue(Config.NetworkLBHaproxyStatsAuth.key());
         cmd.lbStatsPort = _configDao.getValue(Config.NetworkLBHaproxyStatsPort.key());
+        cmd.lbConnectTimeout = VirtualNetworkApplianceManager.NetworkLBHaproxyConnectTimeout.value().toString();
+        cmd.lbClientTimeout = VirtualNetworkApplianceManager.NetworkLBHaproxyClientTimeout.value().toString();
+        cmd.lbServerTimeout = VirtualNetworkApplianceManager.NetworkLBHaproxyServerTimeout.value().toString();
 
         cmd.setAccessDetail(NetworkElementCommand.ROUTER_IP, getInternalLbControlIp(internalLbVm.getId()));
         cmd.setAccessDetail(NetworkElementCommand.ROUTER_GUEST_IP, guestNic.getIPv4Address());

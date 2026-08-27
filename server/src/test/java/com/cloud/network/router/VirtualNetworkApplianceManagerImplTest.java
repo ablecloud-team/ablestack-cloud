@@ -35,11 +35,13 @@ import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor;
 import com.cloud.network.Network;
 import com.cloud.network.NetworkModel;
+import com.cloud.network.PublicIpAddress;
 import com.cloud.network.Site2SiteVpnConnection;
 import com.cloud.network.dao.FirewallRulesDao;
 import com.cloud.network.dao.IPAddressDao;
 import com.cloud.network.dao.LoadBalancerDao;
 import com.cloud.network.dao.LoadBalancerVMMapDao;
+import com.cloud.network.dao.LoadBalancerVO;
 import com.cloud.network.dao.MonitoringServiceDao;
 import com.cloud.network.dao.NetworkDao;
 import com.cloud.network.dao.NetworkVO;
@@ -54,6 +56,8 @@ import com.cloud.network.dao.Site2SiteVpnGatewayDao;
 import com.cloud.network.dao.UserIpv6AddressDao;
 import com.cloud.network.dao.VirtualRouterProviderDao;
 import com.cloud.network.dao.VpnUserDao;
+import com.cloud.network.lb.LoadBalancingRule;
+import com.cloud.network.lb.LoadBalancingRulesManager;
 import com.cloud.network.rules.dao.PortForwardingRulesDao;
 import com.cloud.network.vpc.VpcVO;
 import com.cloud.network.vpc.dao.VpcDao;
@@ -67,6 +71,8 @@ import com.cloud.storage.dao.VolumeDao;
 import com.cloud.user.dao.UserDao;
 import com.cloud.user.dao.UserStatisticsDao;
 import com.cloud.user.dao.UserStatsLogDao;
+import com.cloud.utils.net.Ip;
+import com.cloud.utils.net.NetUtils;
 import com.cloud.vm.DomainRouterVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.VirtualMachineManager;
@@ -259,6 +265,9 @@ public class VirtualNetworkApplianceManagerImplTest {
     @Mock
     private BGPService bgpService;
 
+    @Mock
+    private LoadBalancingRulesManager _lbMgr;
+
     //    @InjectMocks
     //    private VirtualNetworkApplianceManagerImpl virtualNetworkApplianceManagerImpl;
 
@@ -390,5 +399,41 @@ public class VirtualNetworkApplianceManagerImplTest {
         virtualNetworkApplianceManagerImpl.finalizeNetworkRulesForNetwork(cmds, router, Network.Provider.VirtualRouter, guestNetworkId);
 
         Mockito.verify(_commandSetupHelper).createBgpPeersCommands(bgpPeers, router, cmds, network);
+    }
+
+    @Test
+    public void testUpdateWithLbRuleSslCertificates() {
+        StringBuilder loadBalancingData = new StringBuilder();
+        LoadBalancerVO loadBalancer = Mockito.mock(LoadBalancerVO.class);
+        when(loadBalancer.getLbProtocol()).thenReturn(NetUtils.SSL_PROTO);
+        when(loadBalancer.getId()).thenReturn(1L);
+        when(loadBalancer.getSourcePortStart()).thenReturn(443);
+        LoadBalancingRule.LbSslCert lbSslCert = Mockito.mock(LoadBalancingRule.LbSslCert.class);
+        when(lbSslCert.isRevoked()).thenReturn(false);
+        when(_lbMgr.getLbSslCert(1L)).thenReturn(lbSslCert);
+        String sourceIp = "1.2.3.4";
+
+        virtualNetworkApplianceManagerImpl.updateWithLbRuleSslCertificates(loadBalancingData, loadBalancer, sourceIp);
+
+        Assert.assertEquals(",sslcert=1_2_3_4-443.pem",  loadBalancingData.toString());
+    }
+
+    @Test
+    public void testCreateLoadBalancingRulesListIncludesBackendSsl() {
+        List<LoadBalancingRule> lbRules = new ArrayList<>();
+        LoadBalancerVO loadBalancer = Mockito.mock(LoadBalancerVO.class);
+        PublicIpAddress sourceIpAddress = Mockito.mock(PublicIpAddress.class);
+
+        when(loadBalancer.getId()).thenReturn(1L);
+        when(loadBalancer.getLbProtocol()).thenReturn(NetUtils.SSL_PROTO);
+        when(loadBalancer.getSourceIpAddressId()).thenReturn(2L);
+        when(_networkModel.getPublicIpAddress(2L)).thenReturn(sourceIpAddress);
+        when(sourceIpAddress.getAddress()).thenReturn(new Ip("10.10.1.1"));
+        when(_lbMgr.isBackendSslEnabled(1L)).thenReturn(true);
+
+        virtualNetworkApplianceManagerImpl.createLoadBalancingRulesList(lbRules, List.of(loadBalancer));
+
+        Assert.assertEquals(1, lbRules.size());
+        Assert.assertTrue(lbRules.get(0).isBackendSsl());
     }
 }

@@ -21,6 +21,7 @@ package org.apache.cloudstack.storage.object;
 import com.cloud.exception.ResourceAllocationException;
 import com.cloud.user.Account;
 import org.apache.cloudstack.api.command.user.bucket.CreateBucketCmd;
+import org.apache.cloudstack.api.command.user.bucket.SyncBucketUsageCmd;
 import org.apache.cloudstack.api.command.user.bucket.UpdateBucketCmd;
 import org.apache.cloudstack.framework.config.ConfigKey;
 
@@ -98,6 +99,8 @@ public interface BucketApiService {
     boolean deleteBucket(long bucketId, Account caller);
 
     boolean updateBucket(UpdateBucketCmd cmd, Account caller) throws ResourceAllocationException;
+
+    Bucket syncBucketUsage(SyncBucketUsageCmd cmd, Account caller);
 
     void getBucketUsage();
 }

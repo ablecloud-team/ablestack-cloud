@@ -24,7 +24,10 @@
       :dataSource="osList"
       :pagination="false">
       <template #renderItem="{ item, index }">
-        <a-list-item :key="item.id" @click="onClickRow(item)">
+        <a-list-item
+          :key="item.id"
+          :class="{ 'template-iso-row--selected': value === item.id }"
+          @click="onClickRow(item)">
           <a-radio-group
             :key="index"
             v-model:value="value"
@@ -187,5 +190,19 @@ export default {
 
   :deep(.ant-list-split) .ant-list-item {
     cursor: pointer;
+    color: var(--ui-text-secondary);
+    background: var(--ui-bg-surface);
+    border-color: var(--ui-border);
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  :deep(.ant-list-split) .ant-list-item:hover {
+    color: var(--ui-text-primary);
+    background: var(--ui-bg-hover);
+  }
+
+  :deep(.ant-list-split) .ant-list-item.template-iso-row--selected {
+    color: var(--ui-text-primary);
+    background: var(--ui-bg-selected);
   }
 </style>

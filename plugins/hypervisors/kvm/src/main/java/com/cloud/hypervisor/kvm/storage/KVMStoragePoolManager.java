@@ -52,6 +52,7 @@ import com.cloud.vm.VirtualMachine;
 
 public class KVMStoragePoolManager {
     protected Logger logger = LogManager.getLogger(getClass());
+    protected static final String KVM_HA_ON_STORAGE_HEARTBEAT = "kvm.ha.on.storage.heartbeat";
 
     private class StoragePoolInformation {
         String name;
@@ -392,27 +393,40 @@ public class KVMStoragePoolManager {
         StorageAdaptor adaptor = getStorageAdaptor(type);
         KVMStoragePool pool = adaptor.createStoragePool(name, host, port, path, userInfo, type, details, primaryStorage);
 
-        if (MapUtils.isNotEmpty(details) && details.containsKey("kvm.ha.on.storage.heartbeat") && "true".equals(details.get("kvm.ha.on.storage.heartbeat"))) {
-            // LibvirtStorageAdaptor-specific statement
-            if (type == StoragePoolType.NetworkFilesystem && primaryStorage) {
-                KVMHABase.HAStoragePool storagePool = new KVMHABase.HAStoragePool(pool, host, path, PoolType.PrimaryStorage);
-                _haMonitor.addStoragePool(storagePool);
-            } else if (type == StoragePoolType.SharedMountPoint && primaryStorage) {
-                KVMHABase.HAStoragePool gfsPool = new KVMHABase.HAStoragePool(pool, host, path, PoolType.PrimaryStorage);
-                _haMonitor.addGfsStoragePool(gfsPool);
-            } else if (type == StoragePoolType.RBD && primaryStorage) {
-                KVMHABase.HAStoragePool rbdPool = new KVMHABase.HAStoragePool(pool, host, path, pool.getLocalPath(), PoolType.PrimaryStorage, pool.getAuthUserName(), pool.getAuthSecret(), pool.getSourceHost());
-                _haMonitor.addRbdStoragePool(rbdPool);
-            } else if (type == StoragePoolType.CLVM && primaryStorage) {
-                KVMHABase.HAStoragePool clvmPool = new KVMHABase.HAStoragePool(pool, host, path, PoolType.PrimaryStorage);
-                _haMonitor.addClvmStoragePool(clvmPool);
-            }
-        }
-
+        syncStoragePoolHeartbeatMonitoring(pool, host, path, type, details, primaryStorage);
 
         StoragePoolInformation info = new StoragePoolInformation(name, host, port, path, userInfo, type, details, primaryStorage);
         addStoragePool(pool.getUuid(), info);
         return pool;
+    }
+
+    protected void syncStoragePoolHeartbeatMonitoring(KVMStoragePool pool, String host, String path, StoragePoolType type, Map<String, String> details, boolean primaryStorage) {
+        _haMonitor.removeStoragePoolFromMonitoring(pool.getUuid());
+
+        if (!primaryStorage || MapUtils.isEmpty(details) || !details.containsKey(KVM_HA_ON_STORAGE_HEARTBEAT)) {
+            return;
+        }
+
+        if (!"true".equals(details.get(KVM_HA_ON_STORAGE_HEARTBEAT))) {
+            logger.info("Disabled KVM HA storage heartbeat monitoring for storage pool [{}].", pool.getUuid());
+            return;
+        }
+
+        // LibvirtStorageAdaptor-specific statement
+        if (type == StoragePoolType.NetworkFilesystem) {
+            KVMHABase.HAStoragePool storagePool = new KVMHABase.HAStoragePool(pool, host, path, PoolType.PrimaryStorage);
+            _haMonitor.addStoragePool(storagePool);
+        } else if (type == StoragePoolType.SharedMountPoint) {
+            KVMHABase.HAStoragePool gfsPool = new KVMHABase.HAStoragePool(pool, host, path, PoolType.PrimaryStorage);
+            _haMonitor.addGfsStoragePool(gfsPool);
+        } else if (type == StoragePoolType.RBD) {
+            KVMHABase.HAStoragePool rbdPool = new KVMHABase.HAStoragePool(pool, host, path, pool.getLocalPath(), PoolType.PrimaryStorage, pool.getAuthUserName(), pool.getAuthSecret(), pool.getSourceHost());
+            _haMonitor.addRbdStoragePool(rbdPool);
+        } else if (type == StoragePoolType.CLVM) {
+            KVMHABase.HAStoragePool clvmPool = new KVMHABase.HAStoragePool(pool, host, path, PoolType.PrimaryStorage);
+            _haMonitor.addClvmStoragePool(clvmPool);
+        }
+        logger.info("Enabled KVM HA storage heartbeat monitoring for storage pool [{}] of type [{}].", pool.getUuid(), type);
     }
 
     public boolean disconnectPhysicalDisk(StoragePoolType type, String poolUuid, String volPath) {

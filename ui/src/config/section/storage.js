@@ -18,6 +18,14 @@
 import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
 
+const activeFastCloneFlattenStatuses = ['pending', 'running']
+
+const isFastCloneFlattenActive = (record) => {
+  return activeFastCloneFlattenStatuses.includes(
+    String(record?.clonefastflattenstatus || record?.details?.['clone.fast.flatten.status'] || '').toLowerCase()
+  )
+}
+
 export default {
   name: 'storage',
   title: 'label.storage',
@@ -143,7 +151,11 @@ export default {
           label: 'label.action.detach.disk',
           message: 'message.detach.disk',
           dataView: true,
-          show: (record) => { return record.virtualmachineid && ['Running', 'Stopped', 'Destroyed'].includes(record.vmstate) }
+          show: (record) => {
+            return record.virtualmachineid &&
+              ['Running', 'Stopped', 'Destroyed'].includes(record.vmstate) &&
+              !isFastCloneFlattenActive(record)
+          }
         },
         {
           api: 'updateVolume',
@@ -298,22 +310,6 @@ export default {
           }
         },
         {
-          api: 'deleteVolume',
-          icon: 'delete-outlined',
-          label: 'label.action.delete.volume',
-          message: 'message.action.delete.volume',
-          dataView: true,
-          show: (record, store) => {
-            return ['Expunging', 'Expunged', 'UploadError'].includes(record.state) ||
-                ['Allocated', 'Uploaded'].includes(record.state) && record.type !== 'ROOT' && !record.virtualmachineid ||
-                (record.state === 'Ready' && record.type !== 'ROOT' && !record.virtualmachineid) ||
-                ((['Admin', 'DomainAdmin'].includes(store.userInfo.roletype) || store.features.allowuserexpungerecovervolume) && record.state === 'Destroy')
-          },
-          groupAction: true,
-          popup: true,
-          groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
-        },
-        {
           api: 'destroyVolume',
           icon: 'delete-outlined',
           label: 'label.action.destroy.volume',
@@ -327,6 +323,25 @@ export default {
             return !['Destroy', 'Destroyed', 'Expunging', 'Expunged', 'Migrating', 'Uploading', 'UploadError', 'Creating', 'Allocated', 'Uploaded'].includes(record.state) &&
               record.type !== 'ROOT' && !record.virtualmachineid
           }
+        },
+        {
+          api: 'deleteVolume',
+          icon: 'delete-outlined',
+          label: 'label.action.delete.volume',
+          message: 'message.action.delete.volume',
+          dataView: true,
+          show: (record, store) => {
+            const isDetached = !record.virtualmachineid
+            const isDetachedAllocatedRoot = record.state === 'Allocated' && record.type === 'ROOT' && isDetached
+            return ['Expunging', 'Expunged', 'UploadError'].includes(record.state) ||
+                ['Allocated', 'Uploaded'].includes(record.state) && record.type !== 'ROOT' && isDetached ||
+                (record.state === 'Ready' && record.type !== 'ROOT' && isDetached) ||
+                isDetachedAllocatedRoot ||
+                ((['Admin', 'DomainAdmin'].includes(store.userInfo.roletype) || store.features.allowuserexpungerecovervolume) && record.state === 'Destroy')
+          },
+          groupAction: true,
+          popup: true,
+          groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
         }
       ]
     },
@@ -442,7 +457,7 @@ export default {
     },
     {
       name: 'backup',
-      title: 'label.backup',
+      title: 'label.backups',
       icon: 'cloud-upload-outlined',
       permission: ['listBackups'],
       columns: ['name', 'status', 'size', 'virtualsize', 'virtualmachinename', 'backupofferingname', 'intervaltype', 'type', 'created', 'account', 'domain', 'zone'],
@@ -503,12 +518,57 @@ export default {
       ]
     },
     {
+      name: 'backupschedule',
+      title: 'label.backup.schedules',
+      icon: 'build-outlined',
+      docHelp: 'adminguide/storage.html#working-with-volume-snapshots',
+      permission: ['listBackupSchedule'],
+      resourceType: 'backupSchedule',
+      params: { listall: true },
+      columns: () => {
+        var fields = ['intervaltype', 'maxbackups', 'schedule', 'timezone', 'virtualmachinename']
+        return fields
+      },
+      searchFilters: ['virtualmachineid'],
+      actions: [
+        {
+          api: 'createBackupSchedule',
+          icon: 'plus-outlined',
+          docHelp: 'adminguide/storage.html#working-with-volume-snapshots',
+          label: 'label.action.create.backup.schedule',
+          listView: true,
+          show: () => { return 'createBackupSchedule' in store.getters.apis },
+          popup: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/backup/CreateBackupSchedule.vue'))),
+          mapping: {
+            intervaltype: {
+              options: ['HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY']
+            }
+          }
+        },
+        {
+          api: 'deleteBackupSchedule',
+          icon: 'delete-outlined',
+          label: 'label.delete.backup.schedule',
+          message: 'message.action.delete.backup.schedule',
+          dataView: true,
+          show: (record) => true,
+          args: ['id'],
+          mapping: {
+            id: {
+              value: (record) => record.id
+            }
+          }
+        }
+      ]
+    },
+    {
       name: 'buckets',
       title: 'label.buckets',
       icon: 'funnel-plot-outlined',
       permission: ['listBuckets'],
-      columns: ['name', 'state', 'objectstore', 'size', 'account'],
-      details: ['id', 'name', 'state', 'objectstore', 'size', 'url', 'accesskey', 'usersecretkey', 'account', 'domain', 'created', 'quota', 'encryption', 'versioning', 'objectlocking', 'policy'],
+      columns: ['name', 'state', 'objectstore', { field: 'size', customTitle: 'used.capacity' }, { field: 'quota', customTitle: 'total.allocated.capacity' }, 'account'],
+      details: ['id', 'name', 'state', 'objectstore', { field: 'size', customTitle: 'used.capacity' }, 'url', 'accesskey', 'usersecretkey', 'account', 'domain', 'created', { field: 'quota', customTitle: 'total.allocated.capacity' }, 'encryption', 'versioning', 'objectlocking', 'policy'],
       tabs: [
         {
           name: 'details',
@@ -649,16 +709,6 @@ export default {
           popup: true,
           args: ['cleanup'],
           show: (record) => { return ['Stopped', 'Ready', 'Detached'].includes(record.state) }
-        },
-        {
-          api: 'changeSharedFileSystemDiskOffering',
-          icon: 'swap-outlined',
-          docHelp: 'adminguide/storage.html#lifecycle-operations',
-          label: 'label.change.disk.offering',
-          dataView: true,
-          popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/ChangeSharedFSDiskOffering.vue'))),
-          show: (record) => { return ['Stopped', 'Ready'].includes(record.state) }
         },
         {
           api: 'changeSharedFileSystemServiceOffering',

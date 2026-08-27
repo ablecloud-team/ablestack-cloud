@@ -218,9 +218,8 @@ public class AutomationControllerVO implements AutomationController {
 //    public boolean isCheckForGc() {
 //        return checkForGc;
 //    }
-    public AutomationControllerVO(long id, String name, String description, Long automationTemplateId, Long zoneId, Long serviceOfferingId, long networkId, String networkName, long accountId, long domainId, State state, String automationControllerIp) {
+    public AutomationControllerVO(String name, String description, Long automationTemplateId, Long zoneId, Long serviceOfferingId, long networkId, String networkName, long accountId, long domainId, State state, String automationControllerIp) {
         this.uuid = UUID.randomUUID().toString();
-        this.id = id;
         this.name = name;
         this.description = description;
         this.automationTemplateId = automationTemplateId;

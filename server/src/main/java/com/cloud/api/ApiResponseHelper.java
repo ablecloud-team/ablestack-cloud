@@ -218,6 +218,8 @@ import org.apache.cloudstack.network.BgpPeerVO;
 import org.apache.cloudstack.network.RoutedIpv4Manager;
 import org.apache.cloudstack.network.dao.BgpPeerDao;
 import org.apache.cloudstack.network.lb.ApplicationLoadBalancerRule;
+import org.apache.cloudstack.resourcedetail.FirewallRuleDetailVO;
+import org.apache.cloudstack.resourcedetail.dao.FirewallRuleDetailsDao;
 import org.apache.cloudstack.region.PortableIp;
 import org.apache.cloudstack.region.PortableIpRange;
 import org.apache.cloudstack.region.Region;
@@ -501,6 +503,8 @@ public class ApiResponseHelper implements ResponseGenerator {
     NetworkServiceMapDao ntwkSrvcDao;
     @Inject
     FirewallRulesDao firewallRulesDao;
+    @Inject
+    FirewallRuleDetailsDao firewallRuleDetailsDao;
     @Inject
     UserDataDao userDataDao;
     @Inject
@@ -1252,6 +1256,8 @@ public class ApiResponseHelper implements ResponseGenerator {
         lbResponse.setPrivatePort(Integer.toString(loadBalancer.getDefaultPortStart()));
         lbResponse.setAlgorithm(loadBalancer.getAlgorithm());
         lbResponse.setLbProtocol(loadBalancer.getLbProtocol());
+        FirewallRuleDetailVO backendSslDetail = firewallRuleDetailsDao.findDetail(loadBalancer.getId(), ApiConstants.BACKEND_SSL);
+        lbResponse.setBackendSsl(backendSslDetail != null && Boolean.parseBoolean(backendSslDetail.getValue()));
         lbResponse.setForDisplay(loadBalancer.isDisplay());
         FirewallRule.State state = loadBalancer.getState();
         String stateToSet = state.toString();

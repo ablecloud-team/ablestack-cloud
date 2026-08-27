@@ -89,21 +89,15 @@ import org.apache.logging.log4j.LogManager;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.cloud.utils.NumbersUtil.toHumanReadableSize;
 
 public class AutomationControllerActionWorker {
-
-    public static final int CLUSTER_USER_PORTAL_PORT = 8080;
-    public static final int CLUSTER_ADMIN_PORTAL_PORT = 8081;
-    public static final int CLUSTER_API_PORT = 8082;
-    public static final int CLUSTER_SAMBA_PORT = 9017;
-    public static final Integer AUTOMATION_CONTROLLER_PORT = null;
 
     protected Logger logger = LogManager.getLogger(getClass());
 
@@ -195,7 +189,14 @@ public class AutomationControllerActionWorker {
     }
 
     protected String readResourceFile(String resource) throws IOException {
-        return IOUtils.toString(Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream(resource)), StringUtils.getPreferredCharset());
+        String normalizedResource = resource.startsWith("/") ? resource.substring(1) : resource;
+        InputStream resourceStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(normalizedResource);
+        if (resourceStream == null) {
+            throw new IOException(String.format("Automation controller resource not found: %s", resource));
+        }
+        try (InputStream inputStream = resourceStream) {
+            return IOUtils.toString(inputStream, StringUtils.getPreferredCharset());
+        }
     }
 
     protected void logMessage(final Level logLevel, final String message, final Exception e) {
@@ -267,7 +268,7 @@ public class AutomationControllerActionWorker {
     protected List<AutomationControllerVmMapVO> getControlVMMaps() {
         List<AutomationControllerVmMapVO> automationControllerVMs = automationControllerVmMapDao.listByAutomationControllerId(automationController.getId());
         if (!CollectionUtils.isEmpty(automationControllerVMs)) {
-            automationControllerVMs.sort((t1, t2) -> (int)((t1.getId() - t2.getId())/Math.abs(t1.getId() - t2.getId())));
+            automationControllerVMs.sort((t1, t2) -> Long.compare(t1.getId(), t2.getId()));
         }
         return automationControllerVMs;
     }
@@ -285,6 +286,11 @@ public class AutomationControllerActionWorker {
 
     protected boolean stateTransitTo(long automationControllerId, AutomationController.Event e) {
         AutomationControllerVO automationController = automationControllerDao.findById(automationControllerId);
+        if (automationController == null) {
+            logger.warn(String.format("Failed to transition missing automation controller %d on event %s",
+                    automationControllerId, e));
+            return false;
+        }
         try {
             return _stateMachine.transitTo(automationController, e, null, automationControllerDao);
         } catch (NoTransitionException nte) {
@@ -321,15 +327,9 @@ public class AutomationControllerActionWorker {
     protected void removeFirewallIngressRule(final IpAddress publicIp) {
         List<FirewallRuleVO> firewallRules = firewallRulesDao.listByIpAndPurposeAndNotRevoked(publicIp.getId(), FirewallRule.Purpose.Firewall);
         for (FirewallRuleVO firewallRule : firewallRules) {
-            if (firewallRule.getSourcePortStart() != null && firewallRule.getSourcePortEnd() != null) {
-                if (firewallRule.getSourcePortStart() == CLUSTER_USER_PORTAL_PORT &&
-                        firewallRule.getSourcePortEnd() == CLUSTER_API_PORT && firewallRule.getTrafficType() == FirewallRule.TrafficType.Ingress) {
-                    firewallService.revokeIngressFwRule(firewallRule.getId(), true);
-                }
-                if (firewallRule.getSourcePortStart() == CLUSTER_SAMBA_PORT &&
-                        firewallRule.getSourcePortEnd() == CLUSTER_SAMBA_PORT && firewallRule.getTrafficType() == FirewallRule.TrafficType.Ingress) {
-                    firewallService.revokeIngressFwRule(firewallRule.getId(), true);
-                }
+            if (FirewallRule.TrafficType.Ingress.equals(firewallRule.getTrafficType())
+                    && isAutomationControllerFirewallRule(firewallRule)) {
+                firewallService.revokeIngressFwRule(firewallRule.getId(), true);
             }
         }
     }
@@ -337,12 +337,21 @@ public class AutomationControllerActionWorker {
     protected void removeFirewallEgressRule(final Network network) {
         List<FirewallRuleVO> firewallRules = firewallRulesDao.listByNetworkAndPurposeAndNotRevoked(network.getId(), FirewallRule.Purpose.Firewall);
         for (FirewallRuleVO firewallRule : firewallRules) {
-            if (firewallRule.getSourcePortStart() != null && firewallRule.getSourcePortEnd() != null) {
-                if (firewallRule.getSourcePortStart() == CLUSTER_USER_PORTAL_PORT && firewallRule.getSourcePortEnd() == CLUSTER_ADMIN_PORTAL_PORT && firewallRule.getTrafficType() == FirewallRule.TrafficType.Egress) {
-                    firewallService.revokeIngressFwRule(firewallRule.getId(), true);
-                }
+            if (FirewallRule.TrafficType.Egress.equals(firewallRule.getTrafficType())
+                    && isAutomationControllerFirewallRule(firewallRule)) {
+                firewallService.revokeEgressFirewallRule(firewallRule.getId(), true);
             }
         }
+    }
+
+    private boolean isAutomationControllerFirewallRule(FirewallRuleVO firewallRule) {
+        String protocol = firewallRule.getProtocol();
+        if (!("tcp".equalsIgnoreCase(protocol) || "udp".equalsIgnoreCase(protocol) || "icmp".equalsIgnoreCase(protocol))) {
+            return false;
+        }
+        Integer startPort = firewallRule.getSourcePortStart();
+        Integer endPort = firewallRule.getSourcePortEnd();
+        return (startPort == null && endPort == null) || (Integer.valueOf(1).equals(startPort) && Integer.valueOf(65535).equals(endPort));
     }
 
     protected void removePortForwardingRules(final IpAddress publicIp, final Network network, final Account account, final List<Long> removedVMIds) throws ResourceUnavailableException {

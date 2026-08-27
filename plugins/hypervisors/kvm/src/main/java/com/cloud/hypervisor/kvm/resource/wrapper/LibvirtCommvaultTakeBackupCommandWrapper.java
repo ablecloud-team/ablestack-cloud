@@ -46,7 +46,9 @@ public class LibvirtCommvaultTakeBackupCommandWrapper extends CommandWrapper<Com
         final String backupPath = command.getBackupPath();
         List<PrimaryDataStoreTO> volumePools = command.getVolumePools();
         final List<String> volumePaths = command.getVolumePaths();
+        final List<String> volumeUuids = command.getVolumeUuids();
         KVMStoragePoolManager storagePoolMgr = libvirtComputingResource.getStoragePoolMgr();
+        int timeout = command.getWait() > 0 ? command.getWait() * 1000 : libvirtComputingResource.getCmdsTimeout();
 
         List<String> diskPaths = new ArrayList<>();
         if (Objects.nonNull(volumePaths)) {
@@ -70,14 +72,19 @@ public class LibvirtCommvaultTakeBackupCommandWrapper extends CommandWrapper<Com
                 "-v", vmName,
                 "-p", backupPath,
                 "-q", command.getQuiesce() != null && command.getQuiesce() ? "true" : "false",
-                "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths)
+                "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths),
+                "-u", volumeUuids == null || volumeUuids.isEmpty() ? "" : String.join(",", volumeUuids)
         });
 
-        Pair<Integer, String> result = Script.executePipedCommands(commands, libvirtComputingResource.getCmdsTimeout());
+        logger.debug("Starting Commvault backup staging for VM [{}] to path [{}] with timeout [{}] ms and disk paths [{}]",
+                vmName, backupPath, timeout, diskPaths);
+        Pair<Integer, String> result = Script.executePipedCommands(commands, timeout);
 
         if (result.first() != 0) {
-            logger.debug("Failed to take VM backup");
-            BackupAnswer answer = new BackupAnswer(command, false, null);
+            String details = result.second() == null ? "Commvault backup staging command failed without details" : result.second().trim();
+            logger.warn("Failed to take Commvault backup staging for VM [{}] to path [{}]. Exit code [{}], details [{}]",
+                    vmName, backupPath, result.first(), details);
+            BackupAnswer answer = new BackupAnswer(command, false, details);
             if (result.first() == EXIT_CLEANUP_FAILED) {
                 logger.debug("Backup cleanup failed");
                 answer.setNeedsCleanup(true);
@@ -86,6 +93,7 @@ public class LibvirtCommvaultTakeBackupCommandWrapper extends CommandWrapper<Com
         }
 
         BackupAnswer answer = new BackupAnswer(command, true, "success");
+        logger.debug("Completed Commvault backup staging for VM [{}] to path [{}]", vmName, backupPath);
         return answer;
     }
 }

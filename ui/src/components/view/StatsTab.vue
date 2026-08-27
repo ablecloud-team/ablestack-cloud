@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div class="container">
+  <div class="container stats-tab-container">
     <a-modal
       v-model:visible="showFilterStatsModal"
       :title="$t('label.select.period')"
@@ -241,8 +241,13 @@
           </a-col>
         </a-row>
       </div>
-      <div v-else>
-        <a-alert :message="$t('message.no.data.to.show.for.period')" banner />
+      <div v-else class="stats-empty-state">
+        <a-alert
+          class="stats-empty-alert"
+          type="warning"
+          show-icon
+          :message="$t('message.no.data.to.show.for.period')"
+          banner />
       </div>
     </div>
     <a-spin v-else></a-spin>

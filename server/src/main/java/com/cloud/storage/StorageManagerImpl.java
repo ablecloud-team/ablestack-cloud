@@ -192,6 +192,7 @@ import com.cloud.exception.ResourceInUseException;
 import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.exception.StorageConflictException;
 import com.cloud.exception.StorageUnavailableException;
+import com.cloud.ha.HighAvailabilityManager;
 import com.cloud.host.Host;
 import com.cloud.host.HostVO;
 import com.cloud.host.Status;
@@ -1267,10 +1268,30 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
                 }
                 _storagePoolDao.update(id, storagePool);
                 _storagePoolDao.updateDetails(id, details);
+                syncKvmStoragePoolHeartbeatSettingWithHosts(storagePool, inputDetails, details);
             }
         }
 
         return (PrimaryDataStoreInfo)_dataStoreMgr.getDataStore(pool.getId(), DataStoreRole.Primary);
+    }
+
+    protected void syncKvmStoragePoolHeartbeatSettingWithHosts(StoragePoolVO storagePool, Map<String, String> inputDetails, Map<String, String> details) {
+        if (MapUtils.isEmpty(inputDetails) || !inputDetails.containsKey(HighAvailabilityManager.KvmHACheckOnStorage.key())) {
+            return;
+        }
+
+        List<Long> poolIds = new ArrayList<>();
+        poolIds.add(storagePool.getId());
+        List<Long> hostIds = _storagePoolHostDao.findHostsConnectedToPools(poolIds);
+        for (Long hostId : hostIds) {
+            ModifyStoragePoolCommand cmd = new ModifyStoragePoolCommand(true, storagePool, details);
+            Answer answer = _agentMgr.easySend(hostId, cmd);
+            if (answer == null) {
+                logger.warn("Unable to sync KVM HA storage heartbeat setting for pool {} on host {} because the agent returned no answer.", storagePool, _hostDao.findById(hostId));
+            } else if (!answer.getResult()) {
+                logger.warn("Unable to sync KVM HA storage heartbeat setting for pool {} on host {} due to {}.", storagePool, _hostDao.findById(hostId), answer.getDetails());
+            }
+        }
     }
 
     private void changeStoragePoolScopeToZone(StoragePoolVO primaryStorage) {

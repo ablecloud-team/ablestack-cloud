@@ -104,7 +104,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
     private int rbdOrder = 0; /* Order 0 means 4MB blocks (the default) */
 
     private static final Set<StoragePoolType> poolTypesThatEnableCreateDiskFromTemplateBacking = new HashSet<>(Arrays.asList(StoragePoolType.NetworkFilesystem,
-      StoragePoolType.Filesystem));
+      StoragePoolType.Filesystem, StoragePoolType.SharedMountPoint));
 
     public LibvirtStorageAdaptor(StorageLayer storage) {
         _storageLayer = storage;
@@ -171,12 +171,17 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
 
             QemuImg qemu = new QemuImg(timeout);
             qemu.create(destFile, backingFile, options, passphraseObjects);
+            KVMPhysicalDisk disk = new KVMPhysicalDisk(destPath, name, destPool);
+            disk.setFormat(format);
+            disk.setSize(size);
+            disk.setVirtualSize(size);
+            if (keyFile.isSet()) {
+                disk.setQemuEncryptFormat(QemuObject.EncryptFormat.LUKS);
+            }
+            return disk;
         } catch (QemuImgException | LibvirtException | IOException e) {
-            // why don't we throw an exception here? I guess we fail to find the volume later and that results in a failure returned?
-            logger.error(String.format("Failed to create %s in [%s] due to [%s].", volumeDesc, destPath, e.getMessage()), e);
+            throw new CloudRuntimeException(String.format("Failed to create %s in [%s] due to [%s].", volumeDesc, destPath, e.getMessage()), e);
         }
-
-        return null;
     }
 
     /**
@@ -688,7 +693,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
 
             long cap, used, avail;
             if (type == StoragePoolType.RBD) {
-                final String cephPoolName = spd.getSourceDir();
+                final String cephPoolName = resolveRbdDataPoolName(spd.getSourceDir()); // Erasure Coding(EC) Pool 확인
                 if (cephPoolName == null || cephPoolName.isEmpty()) {
                     throw new CloudRuntimeException("Missing RBD pool name (source dir) for " + uuid);
                 }
@@ -714,6 +719,20 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
             logger.debug("Could not find storage pool " + uuid + " in libvirt");
             throw new CloudRuntimeException(e.toString(), e);
         }
+    }
+
+    private String resolveRbdDataPoolName(String fallbackPoolName) {
+        String configuredPoolName = Script.runSimpleBashScript("rbd config pool get " + fallbackPoolName + " rbd_default_data_pool 2>/dev/null");
+        if (StringUtils.isBlank(configuredPoolName)) {
+            return fallbackPoolName;
+        }
+
+        String poolName = configuredPoolName.trim();
+        if (poolName.contains("is not set")) {
+            return fallbackPoolName;
+        }
+
+        return poolName;
     }
 
     /**

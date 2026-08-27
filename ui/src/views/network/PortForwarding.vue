@@ -102,7 +102,7 @@
       :columns="columns"
       :dataSource="portForwardRules"
       :pagination="false"
-      :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
+      :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange, getCheckboxProps: getCheckboxProps}"
       :rowKey="record => record.id">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'privateport'">
@@ -125,14 +125,18 @@
         </template>
         <template v-if="column.key === 'actions'">
           <div class="actions">
-            <tooltip-button :tooltip="$t('label.tags')" icon="tag-outlined" buttonClass="rule-action" @onClick="() => openTagsModal(record.id)" />
             <tooltip-button
-              :tooltip="$t('label.remove.rule')"
+              :tooltip="$t('label.tags')"
+              icon="tag-outlined"
+              buttonClass="rule-action"
+              @onClick="() => openTagsModal(record.id)" />
+            <tooltip-button
+              :tooltip="isProtectedManagementRule(record) ? $t('message.kubernetes.management.rule.delete.disabled') : $t('label.remove.rule')"
               type="primary"
               :danger="true"
               icon="delete-outlined"
               buttonClass="rule-action"
-              :disabled="!('deletePortForwardingRule' in $store.getters.apis)"
+              :disabled="!('deletePortForwardingRule' in $store.getters.apis) || isProtectedManagementRule(record)"
               @onClick="deleteRule(record)" />
           </div>
         </template>
@@ -356,6 +360,10 @@ export default {
     resource: {
       type: Object,
       required: true
+    },
+    protectedManagementPorts: {
+      type: Array,
+      default: () => []
     }
   },
   inject: ['parentFetchData', 'parentToggleLoading'],
@@ -374,6 +382,7 @@ export default {
       },
       loading: true,
       portForwardRules: [],
+      kubernetesManagementPorts: [],
       newRule: {
         protocol: 'tcp',
         privateport: null,
@@ -482,6 +491,7 @@ export default {
     console.log(this.resource)
     this.initForm()
     this.fetchData()
+    this.fetchKubernetesManagementPorts()
   },
   watch: {
     resource: {
@@ -491,10 +501,37 @@ export default {
           return
         }
         this.fetchData()
+        this.fetchKubernetesManagementPorts()
       }
     }
   },
   methods: {
+    fetchKubernetesManagementPorts () {
+      this.kubernetesManagementPorts = []
+      if (!('listKubernetesClusters' in this.$store.getters.apis) || !this.resource?.id) {
+        return
+      }
+      api('listKubernetesClusters', {
+        listAll: true
+      }).then(response => {
+        const clusters = response.listkubernetesclustersresponse?.kubernetescluster || []
+        const cluster = clusters.find(cluster => {
+          return cluster.ipaddressid === this.resource.id ||
+            cluster.networkid === this.resource.associatednetworkid
+        })
+        if (!cluster) {
+          return
+        }
+        const virtualMachines = cluster.virtualmachines || []
+        const nodeCount = virtualMachines.length || (Number(cluster.controlnodes || 1) + Number(cluster.size || 0))
+        const sshPorts = Array.from({ length: nodeCount }, (item, index) => {
+          return 2222 + index
+        }).filter(port => Number.isInteger(port))
+        this.kubernetesManagementPorts = [...new Set([6443, ...sshPorts])]
+      }).catch(() => {
+        this.kubernetesManagementPorts = []
+      })
+    },
     initForm () {
       this.formRef = ref()
       this.form = reactive({})
@@ -543,11 +580,49 @@ export default {
       })
     },
     setSelection (selection) {
-      this.selectedRowKeys = selection
+      const selectableRows = this.portForwardRules.filter(item => !this.isProtectedManagementRule(item))
+      this.selectedRowKeys = selection.filter(id => selectableRows.some(item => item.id === id))
       this.$emit('selection-change', this.selectedRowKeys)
       this.selectedItems = (this.portForwardRules.filter(function (item) {
-        return selection.indexOf(item.id) !== -1
-      }))
+        return this.selectedRowKeys.indexOf(item.id) !== -1
+      }, this))
+    },
+    getCheckboxProps (record) {
+      return {
+        disabled: this.isProtectedManagementRule(record)
+      }
+    },
+    rangeIncludesPort (startPort, endPort, targetPort) {
+      const start = Number(startPort)
+      const end = Number(endPort ?? startPort)
+      const target = Number(targetPort)
+      if (!Number.isInteger(start) || !Number.isInteger(end) || !Number.isInteger(target)) {
+        return false
+      }
+      const min = Math.min(start, end)
+      const max = Math.max(start, end)
+      return target >= min && target <= max
+    },
+    rangeIncludesProtectedPort (startPort, endPort) {
+      const protectedPorts = this.effectiveProtectedManagementPorts()
+      if (!protectedPorts.length) {
+        return false
+      }
+      return protectedPorts.some(port => this.rangeIncludesPort(startPort, endPort, port))
+    },
+    effectiveProtectedManagementPorts () {
+      return [...new Set([
+        ...this.protectedManagementPorts,
+        ...this.kubernetesManagementPorts
+      ].map(port => Number(port)).filter(port => Number.isInteger(port)))]
+    },
+    isProtectedManagementRule (rule) {
+      if (!rule || String(rule.protocol || '').toLowerCase() !== 'tcp') {
+        return false
+      }
+      return (this.rangeIncludesProtectedPort(rule.publicport, rule.publicendport) &&
+        (this.rangeIncludesPort(rule.privateport, rule.privateendport, 22) ||
+          this.rangeIncludesPort(rule.privateport, rule.privateendport, 6443)))
     },
     resetSelection () {
       this.setSelection([])
@@ -594,6 +669,9 @@ export default {
       return val.toUpperCase()
     },
     deleteRule (rule) {
+      if (this.isProtectedManagementRule(rule)) {
+        return
+      }
       this.loading = true
       api('deletePortForwardingRule', { id: rule.id }).then(response => {
         const jobId = response.deleteportforwardingruleresponse.jobid

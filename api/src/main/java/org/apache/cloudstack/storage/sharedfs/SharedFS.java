@@ -75,6 +75,10 @@ public interface SharedFS extends ControlledEntity, Identity, InternalIdentity, 
         NFS
     }
 
+    enum NetworkMode {
+        DHCP, STATIC
+    }
+
     enum State {
         Allocated(false, "The shared filesystem is allocated in db but hasn't been created or started yet."),
         Ready(false, "The shared filesystem is ready to use."),
@@ -180,6 +184,30 @@ public interface SharedFS extends ControlledEntity, Identity, InternalIdentity, 
     Long getServiceOfferingId();
 
     void setServiceOfferingId(Long serviceOfferingId);
+
+    NetworkMode getNetworkMode();
+
+    void setNetworkMode(NetworkMode networkMode);
+
+    String getIpAddress();
+
+    void setIpAddress(String ipAddress);
+
+    String getCidr();
+
+    void setCidr(String cidr);
+
+    String getGateway();
+
+    void setGateway(String gateway);
+
+    String getDns1();
+
+    void setDns1(String dns1);
+
+    String getDns2();
+
+    void setDns2(String dns2);
 
     Date getUpdated();
 

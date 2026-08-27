@@ -17,117 +17,22 @@
 
 <template>
   <span :class="['row-action-button', { 'row-action-button--dataview': dataView }]">
-    <template v-if="dataView">
-      <div
-        v-if="showResourceTitle && displayTitle"
-        class="action-button-title">
-        {{ displayTitle }}
-      </div>
-      <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="showConsoleButtons">
-        <template v-if="!dataView" #title>
-          {{ $t('label.view.console') }}
-        </template>
-        <a-button
-          class="action-button-item action-button-item--dataview"
-          :disabled="consoleButtonDisabled"
-          type="text"
-          @click="openConsole(false)">
-          <code-outlined class="action-button-item__icon" />
-          <span class="action-button-item__label">
-            {{ $t('label.view.console') }}
-          </span>
-        </a-button>
-      </a-tooltip>
-      <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="showConsoleButtons">
-        <template v-if="!dataView" #title>
-          {{ $t('label.copy.consoleurl') }}
-        </template>
-        <a-button
-          class="action-button-item action-button-item--dataview"
-          :disabled="consoleButtonDisabled"
-          type="text"
-          @click="openConsole(true)">
-          <copy-outlined class="action-button-item__icon" />
-          <span class="action-button-item__label">
-            {{ $t('label.copy.consoleurl') }}
-          </span>
-        </a-button>
-      </a-tooltip>
-      <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="showWorksButton">
-        <template v-if="!dataView" #title>
-          {{ $t('label.works.portal.url') }}
-        </template>
-        <a :href="worksUrl" target="_blank">
-          <a-button class="action-button-item action-button-item--dataview" type="text">
-            <LaptopOutlined class="action-button-item__icon" />
-            <span class="action-button-item__label">
-              {{ $t('label.works.portal.url') }}
-            </span>
-          </a-button>
-        </a>
-      </a-tooltip>
-      <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="wallLinkReady">
-        <template v-if="!dataView" #title>
-          {{ $t('label.wall.portal.' + $route.meta.name + '.url') }}
-        </template>
-        <a :href="wallLinkUrl" target="_blank">
-          <a-button class="action-button-item action-button-item--dataview" type="text">
-            <AreaChartOutlined class="action-button-item__icon" />
-            <span class="action-button-item__label">
-              {{ $t('label.wall.portal.' + $route.meta.name + '.url') }}
-            </span>
-          </a-button>
-        </a>
-      </a-tooltip>
-      <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="showGenieButton">
-        <template v-if="!dataView" #title>
-          {{ $t('label.genie.portal.url') }}
-        </template>
-        <a :href="genieUrl" target="_blank">
-          <a-button class="action-button-item action-button-item--dataview" type="text">
-            <LaptopOutlined class="action-button-item__icon" />
-            <span class="action-button-item__label">
-              {{ $t('label.genie.portal.url') }}
-            </span>
-          </a-button>
-        </a>
-      </a-tooltip>
-      <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="showOobmButton">
-        <template v-if="!dataView" #title>
-          {{ $t('label.oobm.portal.url') }}
-        </template>
-        <a :href="oobmUrl" target="_blank">
-          <a-button
-            class="action-button-item action-button-item--dataview"
-            :disabled="oobmButtonDisabled"
-            type="text">
-            <LaptopOutlined class="action-button-item__icon" />
-            <span class="action-button-item__label">
-              {{ $t('label.oobm.portal.url') }}
-            </span>
-          </a-button>
-        </a>
-      </a-tooltip>
-      <a-tooltip arrowPointAtCenter placement="bottomRight" v-if="showCubeButton">
-        <template v-if="!dataView" #title>
-          {{ $t('label.cube.portal.url') }}
-        </template>
-        <a :href="cubeUrl" target="_blank">
-          <a-button class="action-button-item action-button-item--dataview" type="text">
-            <BankOutlined class="action-button-item__icon" />
-            <span class="action-button-item__label">
-              {{ $t('label.cube.portal.url') }}
-            </span>
-          </a-button>
-        </a>
-      </a-tooltip>
-    </template>
+    <ResourceActionMenu
+      v-if="dataView"
+      :entries="dataViewMenuEntries"
+      :title="displayTitle"
+      :show-resource-title="showResourceTitle"
+      @execute="executeDataViewEntry" />
+    <template v-else>
     <a-tooltip
       v-for="(action, actionIndex) in actions"
       :key="actionIndex"
       arrowPointAtCenter
       placement="bottomRight">
-      <template v-if="!dataView && action.hoverLabel" #title>
+      <template v-if="getActionTooltip(action)" #title>
+        {{ getActionTooltip(action) }}
+      </template>
+      <template v-else-if="!dataView && action.hoverLabel" #title>
         {{ $t(action.hoverLabel) }}
       </template>
       <template v-else-if="!dataView" #title>
@@ -142,8 +47,9 @@
             (!dataView && ((action.listView && ('show' in action ? action.show(resource, $store.getters) : true)) || (action.groupAction && selectedRowKeys.length > 0 && ('groupShow' in action ? action.groupShow(selectedItems, $store.getters) : true)))) ||
             (dataView && action.dataView && ('show' in action ? action.show(resource, $store.getters) : true))
           )"
-        :disabled="'disabled' in action ? action.disabled(resource, $store.getters) : false" >
+        :disabled="isActionDisabled(action)" >
         <a-button
+          :disabled="isActionDisabled(action)"
           :type="dataView ? 'text' : (primaryIconList.includes(action.icon) ? 'primary' : 'default')"
           :shape="dataView ? null : (['PlusOutlined', 'plus-outlined'].includes(action.icon) ? 'round' : 'circle')"
           :danger="dangerIconList.includes(action.icon)"
@@ -167,7 +73,7 @@
             (!dataView && ((action.listView && ('show' in action ? action.show(resource, $store.getters) : true)) || (action.groupAction && selectedRowKeys.length > 0 && ('groupShow' in action ? action.groupShow(selectedItems, $store.getters) : true)))) ||
             (dataView && action.dataView && ('show' in action ? action.show(resource, $store.getters) : true))
           )"
-        :disabled="'disabled' in action ? action.disabled(resource, $store.getters) : false"
+        :disabled="isActionDisabled(action)"
         :type="dataView ? 'text' : (primaryIconList.includes(action.icon) ? 'primary' : 'default')"
         :danger="dangerIconList.includes(action.icon)"
         :shape="dataView ? null : (['PlusOutlined', 'plus-outlined', 'UserAddOutlined', 'user-add-outlined'].includes(action.icon) ? 'round' : 'circle')"
@@ -185,14 +91,18 @@
         </span>
       </a-button>
     </a-tooltip>
+    </template>
   </span>
 </template>
 
 <script>
 import { api } from '@/api'
+import ResourceActionMenu from '@/components/view/ResourceActionMenu'
+import { isDangerAction, resolveActionMenuGroup } from '@/utils/actionMenu'
 
 export default {
   name: 'ActionButton',
+  components: { ResourceActionMenu },
   data () {
     return {
       actionBadge: {},
@@ -256,11 +166,60 @@ export default {
         this.onResourceChange(newItem)
       }
     },
-    '$route.meta.name' () {
+    routeName () {
       this.updateWallLinkUrl()
     }
   },
   computed: {
+    routeName () {
+      return this.$route?.meta?.name || this.$route?.name || ''
+    },
+    dataViewMenuEntries () {
+      const entries = []
+      if (this.showConsoleButtons) {
+        entries.push(this.createBuiltInMenuEntry('console', 'label.view.console', 'CodeOutlined', {
+          disabled: this.consoleButtonDisabled,
+          handler: () => this.openConsole(false)
+        }))
+        entries.push(this.createBuiltInMenuEntry('copy-console-url', 'label.copy.consoleurl', 'CopyOutlined', {
+          disabled: this.consoleButtonDisabled,
+          handler: () => this.openConsole(true)
+        }))
+      }
+      if (this.showWorksButton) {
+        entries.push(this.createExternalLinkEntry('works', 'label.works.portal.url', 'LaptopOutlined', this.worksUrl))
+      }
+      if (this.wallLinkReady) {
+        entries.push(this.createExternalLinkEntry('wall', `label.wall.portal.${this.routeName}.url`, 'AreaChartOutlined', this.wallLinkUrl))
+      }
+      if (this.showGenieButton) {
+        entries.push(this.createExternalLinkEntry('genie', 'label.genie.portal.url', 'LaptopOutlined', this.genieUrl))
+      }
+      if (this.showOobmButton) {
+        entries.push(this.createExternalLinkEntry('oobm', 'label.oobm.portal.url', 'LaptopOutlined', this.oobmUrl, this.oobmButtonDisabled))
+      }
+      if (this.showCubeButton) {
+        entries.push(this.createExternalLinkEntry('cube', 'label.cube.portal.url', 'BankOutlined', this.cubeUrl))
+      }
+
+      this.actions.forEach((action, index) => {
+        if (!this.shouldShowDataViewAction(action)) {
+          return
+        }
+        entries.push({
+          key: `action-${action.api || action.label}-${index}`,
+          label: action.label,
+          icon: action.icon,
+          group: resolveActionMenuGroup(action),
+          danger: isDangerAction(action),
+          disabled: this.isActionDisabled(action),
+          tooltip: this.getActionTooltip(action),
+          badge: action.showBadge && this.actionBadge[action.api] ? this.actionBadge[action.api].badgeNum : 0,
+          action
+        })
+      })
+      return entries
+    },
     primaryIconList () {
       return ['PlusOutlined', 'plus-outlined', 'DeleteOutlined', 'delete-outlined', 'UsergroupDeleteOutlined', 'usergroup-delete-outlined']
     },
@@ -285,7 +244,7 @@ export default {
       }
       const requiredApis = ['listVirtualMachines', 'createConsoleEndpoint']
       const hasApis = requiredApis.every(apiName => apiName in this.$store.getters.apis)
-      return hasApis && ['vm', 'systemvm', 'router', 'ilbvm', 'vnfapp'].includes(this.$route.meta.name)
+      return hasApis && ['vm', 'systemvm', 'router', 'ilbvm', 'vnfapp'].includes(this.routeName)
     },
     consoleButtonDisabled () {
       if (!this.resource) {
@@ -295,7 +254,7 @@ export default {
     },
     showWorksButton () {
       return this.resource && this.resource.id && this.resource.worksvmip &&
-        this.$route.meta.name === 'desktopcluster' &&
+        this.routeName === 'desktopcluster' &&
         ('listDesktopClusters' in this.$store.getters.apis)
     },
     worksUrl () {
@@ -308,11 +267,11 @@ export default {
       if (this.selectedRowKeys && this.selectedRowKeys.length > 1) {
         return false
       }
-      return this.resource && this.resource.id && ['vm', 'host', 'cluster'].includes(this.$route.meta.name)
+      return this.resource && this.resource.id && ['vm', 'host', 'cluster'].includes(this.routeName)
     },
     showGenieButton () {
       return this.resource && this.resource.id &&
-        this.$route.meta.name === 'automationcontroller' &&
+        this.routeName === 'automationcontroller' &&
         ('listAutomationController' in this.$store.getters.apis)
     },
     genieUrl () {
@@ -322,7 +281,7 @@ export default {
       return `http://${this.resource.automationcontrollerpublicip}:80`
     },
     showOobmButton () {
-      return this.resource && this.resource.id && this.$route.meta.name === 'host'
+      return this.resource && this.resource.id && this.routeName === 'host'
     },
     oobmButtonDisabled () {
       if (!this.showOobmButton) {
@@ -340,7 +299,7 @@ export default {
       return `${protocol}://${address}:${port}`
     },
     showCubeButton () {
-      return this.resource && this.resource.id && this.$route.meta.name === 'host'
+      return this.resource && this.resource.id && this.routeName === 'host'
     },
     cubeUrl () {
       if (!this.showCubeButton) {
@@ -350,6 +309,46 @@ export default {
     }
   },
   methods: {
+    createBuiltInMenuEntry (key, label, icon, options = {}) {
+      return {
+        key: `built-in-${key}`,
+        label,
+        icon,
+        group: 'ACCESS',
+        danger: false,
+        disabled: Boolean(options.disabled),
+        tooltip: options.tooltip || '',
+        handler: options.handler
+      }
+    },
+    createExternalLinkEntry (key, label, icon, url, disabled = false) {
+      return this.createBuiltInMenuEntry(key, label, icon, {
+        disabled,
+        handler: () => window.open(url, '_blank', 'noopener')
+      })
+    },
+    shouldShowDataViewAction (action) {
+      if (!(action.api in this.$store.getters.apis)) {
+        return false
+      }
+      const isGroupSelection = action.groupAction && this.selectedRowKeys.length > 1
+      if (!action.dataView && !isGroupSelection) {
+        return false
+      }
+      if (isGroupSelection && 'groupShow' in action) {
+        return action.groupShow(this.selectedItems, this.$store.getters)
+      }
+      return 'show' in action ? action.show(this.resource, this.$store.getters) : true
+    },
+    executeDataViewEntry (entry) {
+      if (entry.handler) {
+        entry.handler()
+        return
+      }
+      if (entry.action) {
+        this.execAction(entry.action)
+      }
+    },
     onResourceChange (item) {
       if (!item || !item.id) {
         this.wallLinkReady = false
@@ -360,16 +359,41 @@ export default {
       this.updateWallLinkUrl()
     },
     execAction (action) {
+      if (this.isActionDisabled(action)) {
+        return
+      }
       action.resource = this.resource
       if (action.docHelp) {
         action.docHelp = this.$applyDocHelpMappings(action.docHelp)
       }
       this.$emit('exec-action', action)
     },
+    isActionDisabled (action) {
+      return 'disabled' in action ? action.disabled(this.resource, this.$store.getters, this.selectedItems) : false
+    },
+    getActionTooltip (action) {
+      if (!('tooltip' in action)) {
+        return ''
+      }
+      const tooltip = action.tooltip(this.resource, this.$store.getters, this.selectedItems)
+      return tooltip ? this.$t(tooltip) : ''
+    },
     openConsole (copyUrlToClipboard) {
       if (!this.resource || !this.resource.id) {
         return
       }
+
+      const externalUrl = this.resource?.details?.['External:console_url']
+      if (externalUrl) {
+        if (copyUrlToClipboard) {
+          this.$copyText(externalUrl)
+          this.$message.success({ content: this.$t('label.copied.clipboard') })
+        } else {
+          window.open(externalUrl, '_blank')
+        }
+        return
+      }
+
       const params = { virtualmachineid: this.resource.id }
       api('createConsoleEndpoint', params).then(json => {
         const response = json?.createconsoleendpointresponse?.consoleendpoint
@@ -417,13 +441,13 @@ export default {
         }
 
         let finalUrl = ''
-        if (this.$route.meta.name === 'vm') {
+        if (this.routeName === 'vm') {
           const path = getValue('monitoring.wall.portal.vm.uri') || ''
           finalUrl = `${baseUrl}${path}&var-vm_uuid=${this.resource.id}`
-        } else if (this.$route.meta.name === 'host') {
+        } else if (this.routeName === 'host') {
           const path = getValue('monitoring.wall.portal.host.uri') || ''
           finalUrl = `${baseUrl}${path}&var-host=${this.resource.ipaddress}`
-        } else if (this.$route.meta.name === 'cluster') {
+        } else if (this.routeName === 'cluster') {
           const path = getValue('monitoring.wall.portal.cluster.uri') || ''
           finalUrl = `${baseUrl}${path}`
         }
@@ -488,68 +512,8 @@ export default {
   margin-left: 5px;
 }
 
-:deep(.row-action-button--dataview .button-action-badge) {
-  margin-left: 0;
-}
-
 :deep(.button-action-badge) .ant-badge-count {
   right: 10px;
   z-index: 8;
-}
-
-  .row-action-button--dataview {
-    display: flex;
-    flex-direction: column;
-    width: auto;
-    max-width: none;
-  }
-
-.row-action-button--dataview :deep(.ant-tooltip) {
-  width: 100%;
-}
-
-.action-button-title {
-  font-weight: 600;
-  margin-bottom: 6px;
-  padding: 4px 12px;
-  color: #262626;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-:deep(.action-button-item--dataview) {
-  display: flex !important;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  margin-left: 0 !important;
-  border: none;
-}
-
-:deep(.action-button-item--dataview.ant-btn-text) {
-  padding-left: 12px;
-  padding-right: 12px;
-}
-
-:deep(.action-button-item--dataview:not(.ant-btn-disabled):hover),
-:deep(.action-button-item--dataview:not(.ant-btn-disabled):focus) {
-  background-color: #e6f4ff;
-  border-color: transparent;
-  color: #0958d9;
-}
-
-:deep(.action-button-item__icon) {
-  font-size: 16px;
-}
-
-:deep(.action-button-item__label) {
-  margin-left: 8px;
-  font-weight: 500;
-}
-
-:deep(.action-button-item--dataview:not(.ant-btn-disabled):hover .action-button-item__label),
-:deep(.action-button-item--dataview:not(.ant-btn-disabled):hover .action-button-item__icon),
-:deep(.action-button-item--dataview:not(.ant-btn-disabled):focus .action-button-item__label),
-:deep(.action-button-item--dataview:not(.ant-btn-disabled):focus .action-button-item__icon) {
-  color: #0958d9;
 }
 </style>

@@ -833,8 +833,8 @@
                 {{ $t('label.launch.vnf.appliance') }}
                 <template #icon><down-outlined /></template>
                 <template #overlay>
-                  <a-menu type="primary" @click="handleSubmitAndStay" theme="dark" class="btn-stay-on-page">
-                    <a-menu-item type="primary" key="1">
+                  <a-menu @click="handleSubmitAndStay">
+                    <a-menu-item key="1">
                       <rocket-outlined />
                       {{ $t('label.launch.vnf.appliance.and.stay') }}
                     </a-menu-item>
@@ -2260,20 +2260,30 @@ export default {
           Object.entries(createVnfAppData).filter(([key, value]) => value !== undefined))
 
         var idx = 0
+        const userdataDetailNames = new Set()
         if (this.templateUserDataValues) {
           for (const [key, value] of Object.entries(this.templateUserDataValues)) {
+            if (!this.isSafeUserDataDetailValue(value)) {
+              continue
+            }
             createVnfAppData['userdatadetails[' + idx + '].' + `${key}`] = value
+            userdataDetailNames.add(key)
             idx++
           }
         }
         if (isUserdataAllowed && this.userDataValues) {
           for (const [key, value] of Object.entries(this.userDataValues)) {
+            if (!this.isSafeUserDataDetailValue(value)) {
+              continue
+            }
             createVnfAppData['userdatadetails[' + idx + '].' + `${key}`] = value
+            userdataDetailNames.add(key)
             idx++
           }
         }
+        idx = this.addVnfDetailsToDeployParams(createVnfAppData, idx, userdataDetailNames)
 
-        const httpMethod = createVnfAppData.userdata ? 'POST' : 'GET'
+        const httpMethod = this.hasSensitiveDeployData(createVnfAppData) ? 'POST' : 'GET'
         const args = httpMethod === 'POST' ? {} : createVnfAppData
         const data = httpMethod === 'POST' ? createVnfAppData : {}
 
@@ -2287,18 +2297,20 @@ export default {
               successMethod: result => {
                 const vm = result.jobresult.virtualmachine
                 const name = vm.displayname || vm.name || vm.id
+                const passwordEnabled = this.template?.passwordenabled === true
                 const username = vm.vnfdetails?.username || null
-                const password = vm.vnfdetails?.password || null
+                const password = passwordEnabled ? vm.vnfdetails?.password || null : null
+                const effectivePassword = passwordEnabled ? (vm.password || password) : null
                 const sshUsername = vm.vnfdetails?.ssh_user || null
-                const sshPassword = vm.vnfdetails?.ssh_password || null
+                const sshPassword = passwordEnabled ? vm.vnfdetails?.ssh_password || null : null
                 const webUsername = vm.vnfdetails?.web_user || null
-                const webPassword = vm.vnfdetails?.web_password || null
+                const webPassword = passwordEnabled ? vm.vnfdetails?.web_password || null : null
                 const credentials = []
                 if (username) {
                   credentials.push(this.$t('label.username') + ' : ' + username)
                 }
-                if (password) {
-                  credentials.push(this.$t('label.password.default') + ' : ' + password)
+                if (effectivePassword) {
+                  credentials.push(this.$t('label.password.default') + ' : ' + effectivePassword)
                 }
                 if (webUsername) {
                   credentials.push('Web ' + this.$t('label.username') + ' : ' + webUsername)
@@ -2312,13 +2324,8 @@ export default {
                 if (sshPassword) {
                   credentials.push('SSH ' + this.$t('label.password.default') + ' : ' + sshPassword)
                 }
-                if (vm.password) {
-                  credentials.push('New password : ' + vm.password)
-                }
                 if (credentials.length > 0) {
                   credentials.push(this.$t('message.vnf.credentials.change'))
-                } else {
-                  credentials.push(this.$t('message.vnf.no.credentials'))
                 }
                 this.$notification.success({
                   message: `${this.$t('message.vnf.credentials.default')} ` + name,
@@ -2815,6 +2822,38 @@ export default {
     handleNicsNetworkSelection (nicToNetworkSelection) {
       this.nicToNetworkSelection = nicToNetworkSelection
     },
+    getVnfDetailsForDeploy () {
+      const vnfDetails = this.template?.vnfdetails || {}
+      return Object.fromEntries(Object.entries(vnfDetails).filter(([key, value]) => {
+        return key && value !== undefined && value !== null && value !== ''
+      }))
+    },
+    addVnfDetailsToDeployParams (params, idx, existingDetailNames) {
+      const vnfDetails = this.getVnfDetailsForDeploy()
+      const vmPassword = vnfDetails.password || vnfDetails.ssh_password
+      if (!params.password && vmPassword) {
+        params.password = vmPassword
+      }
+      for (const [key, value] of Object.entries(vnfDetails)) {
+        if (existingDetailNames.has(key) || !this.isSafeUserDataDetailValue(value)) {
+          continue
+        }
+        params['userdatadetails[' + idx + '].' + key] = value
+        existingDetailNames.add(key)
+        idx++
+      }
+      return idx
+    },
+    isSafeUserDataDetailValue (value) {
+      // Backend serializes userdata details as Map.toString() and later splits on comma.
+      return !String(value).includes(',')
+    },
+    hasSensitiveDeployData (params) {
+      if (params.userdata || params.password) {
+        return true
+      }
+      return Object.keys(params).some(key => key.startsWith('userdatadetails[') && key.toLowerCase().includes('password'))
+    },
     getSelectedNetworksWithExistingConfig (networks) {
       for (var i in this.networks) {
         var n = this.networks[i]
@@ -2907,13 +2946,5 @@ export default {
 
   .form-item-hidden {
     display: none;
-  }
-
-  .btn-stay-on-page {
-    &.ant-dropdown-menu-dark {
-      .ant-dropdown-menu-item:hover {
-        background: transparent !important;
-      }
-    }
   }
 </style>

@@ -125,6 +125,7 @@ public class SharedFSJoinDaoImplTest {
         when(sharedFSJoinVO.getFsType()).thenReturn(SharedFS.FileSystemType.valueOf(s_fsFormat));
         when(sharedFSJoinVO.getInstanceState()).thenReturn(vmState);
         when(sharedFSJoinVO.getProvisioningType()).thenReturn(provisioningType);
+        when(sharedFSJoinVO.getDomainName()).thenReturn("/");
 
         NicVO nic = mock(NicVO.class);
         NetworkVO network = mock(NetworkVO.class);
@@ -146,6 +147,8 @@ public class SharedFSJoinDaoImplTest {
             Assert.assertEquals(ReflectionTestUtils.getField(response, "state"), state.toString());
             Assert.assertEquals(ReflectionTestUtils.getField(response, "virtualMachineState"), vmState.toString());
             Assert.assertEquals(ReflectionTestUtils.getField(response, "provisioningType"), provisioningType.toString());
+            Assert.assertEquals("ROOT", ReflectionTestUtils.getField(response, "domainName"));
+            Assert.assertEquals("/", ReflectionTestUtils.getField(response, "domainPath"));
         }
 
     }

@@ -75,8 +75,8 @@ done
 #
 set -e
 
-CREATE_DATE=$(date +"%G%m%e%H%M")
-CREATE_DATE_FMT=$(date +"%G-%m-%e %H:%M")
+CREATE_DATE=$(date +"%G%m%d%H%M")
+CREATE_DATE_FMT=$(date +"%G-%m-%d %H:%M")
 
 ###
 ### Configuration
@@ -159,6 +159,36 @@ function log() {
   fi >&2
 }
 
+function validate_systemvm_qcow2() {
+  local image=${1?}
+  local validator="${BASE_DIR:-$(pwd)}/scripts/validate_systemvm_image.sh"
+
+  log INFO "validating SystemVM qcow2 image: ${image}"
+  qemu-img check "${image}" >/dev/null
+  if [[ -x "${validator}" ]]; then
+    "${validator}" "${image}"
+  elif [[ "${appliance}" == "systemvmtemplate" ]]; then
+    log WARN "SystemVM image validator is missing or not executable: ${validator}"
+  fi
+}
+
+function validate_compressed_systemvm_qcow2() {
+  local source_image=${1?}
+  local compressed_image=${2?}
+  local roundtrip_image
+  roundtrip_image="$(mktemp "/tmp/$(basename "${source_image}").roundtrip.XXXXXX.qcow2")"
+
+  log INFO "validating compressed SystemVM qcow2 round trip: ${compressed_image}"
+  bunzip2 -c "${compressed_image}" > "${roundtrip_image}"
+  if ! cmp -s "${source_image}" "${roundtrip_image}"; then
+    rm -f "${roundtrip_image}"
+    log ERROR "compressed SystemVM image does not match source qcow2: ${compressed_image}"
+    return 1
+  fi
+  validate_systemvm_qcow2 "${roundtrip_image}"
+  rm -f "${roundtrip_image}"
+}
+
 function error() {
   log ERROR $@
   exit 1
@@ -207,7 +237,7 @@ function retry() {
 function create_definition() {
   if [ "${appliance}" != "${appliance_build_name}" ]; then
     cp -r "${appliance}" "${appliance_build_name}"
-    sed ${sed_regex_option} -i -e "s/^CREATE_DATE=/CREATE_DATE='${CREATE_DATE_FMT}'/" \
+    sed ${sed_regex_option} -i -e "s/^CREATE_DATE=.*/CREATE_DATE='${CREATE_DATE_FMT}'/" \
           "${appliance_build_name}/scripts/configure_systemvm_services.sh"
     set +e
     if [ ! -z "${version}" ]; then
@@ -315,7 +345,16 @@ function kvm_export() {
   set +e
   qemu-img convert -o compat=0.10 -f qcow2 -c -O qcow2 "dist/${appliance}" "dist/${appliance_build_name}-kvm-${CREATE_DATE}.qcow2"
   local qemuresult=$?
-  cd dist && bzip2 "${appliance_build_name}-kvm-${CREATE_DATE}.qcow2" && cd ..
+  set -e
+  if [[ ${qemuresult} -ne 0 ]]; then
+    log ERROR "failed to export ${appliance} for KVM"
+    return ${qemuresult}
+  fi
+  validate_systemvm_qcow2 "dist/${appliance_build_name}-kvm-${CREATE_DATE}.qcow2"
+  cd dist && bzip2 -k -f "${appliance_build_name}-kvm-${CREATE_DATE}.qcow2" && cd ..
+  validate_compressed_systemvm_qcow2 \
+    "dist/${appliance_build_name}-kvm-${CREATE_DATE}.qcow2" \
+    "dist/${appliance_build_name}-kvm-${CREATE_DATE}.qcow2.bz2"
   log INFO "${appliance} exported for KVM: dist/${appliance_build_name}-kvm-${CREATE_DATE}.qcow2.bz2"
 }
 

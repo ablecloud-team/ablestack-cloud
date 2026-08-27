@@ -66,4 +66,22 @@ public class NicDaoImplTest {
                 Mockito.any(SearchCriteria.class), Mockito.any(Filter.class), Mockito.eq(null),
                 Mockito.eq(false));
     }
+
+    @Test
+    public void addExpectedPrimaryIpConditionUsesNullOperatorWithoutParameters() {
+        final SearchCriteria<NicVO> criteria = Mockito.mock(SearchCriteria.class);
+
+        nicDaoImplSpy.addExpectedPrimaryIpCondition(criteria, null);
+
+        Mockito.verify(criteria).addAnd("iPv4Address", SearchCriteria.Op.NULL);
+    }
+
+    @Test
+    public void addExpectedPrimaryIpConditionUsesEqualityForPersistedAddress() {
+        final SearchCriteria<NicVO> criteria = Mockito.mock(SearchCriteria.class);
+
+        nicDaoImplSpy.addExpectedPrimaryIpCondition(criteria, "10.10.254.71");
+
+        Mockito.verify(criteria).addAnd("iPv4Address", SearchCriteria.Op.EQ, "10.10.254.71");
+    }
 }

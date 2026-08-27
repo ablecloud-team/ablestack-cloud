@@ -40,6 +40,8 @@ import com.cloud.offering.ServiceOffering;
 import com.cloud.storage.Storage;
 import com.cloud.storage.VMTemplateStorageResourceAssoc.Status;
 import com.cloud.storage.Volume;
+import com.cloud.storage.VolumeDetailVO;
+import com.cloud.storage.dao.VolumeDetailsDao;
 import com.cloud.user.AccountManager;
 import com.cloud.user.VmDiskStatisticsVO;
 import com.cloud.user.dao.VmDiskStatisticsDao;
@@ -48,6 +50,7 @@ import com.cloud.utils.db.SearchCriteria;
 
 @Component
 public class VolumeJoinDaoImpl extends GenericDaoBaseWithTagInformation<VolumeJoinVO, VolumeResponse> implements VolumeJoinDao {
+    private static final String FAST_CLONE_FLATTEN_STATUS = "clone.fast.flatten.status";
 
     @Inject
     private ConfigurationDao  _configDao;
@@ -59,6 +62,8 @@ public class VolumeJoinDaoImpl extends GenericDaoBaseWithTagInformation<VolumeJo
     private PrimaryDataStoreDao primaryDataStoreDao;
     @Inject
     private AnnotationDao annotationDao;
+    @Inject
+    private VolumeDetailsDao volumeDetailsDao;
 
     private final SearchBuilder<VolumeJoinVO> volSearch;
 
@@ -110,6 +115,10 @@ public class VolumeJoinDaoImpl extends GenericDaoBaseWithTagInformation<VolumeJo
             volResponse.setVolumeType(volume.getVolumeType().toString());
         }
         volResponse.setDeviceId(volume.getDeviceId());
+        VolumeDetailVO fastCloneFlattenStatus = volumeDetailsDao.findDetail(volume.getId(), FAST_CLONE_FLATTEN_STATUS);
+        if (fastCloneFlattenStatus != null) {
+            volResponse.setCloneFastFlattenStatus(fastCloneFlattenStatus.getValue());
+        }
 
         volResponse.setKvdoEnable(volume.getKvdoEnable());
 

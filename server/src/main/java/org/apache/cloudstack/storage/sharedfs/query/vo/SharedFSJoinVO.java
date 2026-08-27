@@ -65,6 +65,25 @@ public class SharedFSJoinVO extends BaseViewVO implements InternalIdentity, Iden
     @Enumerated(EnumType.STRING)
     SharedFS.FileSystemType fsType;
 
+    @Column(name = "network_mode")
+    @Enumerated(EnumType.STRING)
+    private SharedFS.NetworkMode networkMode;
+
+    @Column(name = "ip_address")
+    private String ipAddress;
+
+    @Column(name = "cidr")
+    private String cidr;
+
+    @Column(name = "gateway")
+    private String gateway;
+
+    @Column(name = "dns1")
+    private String dns1;
+
+    @Column(name = "dns2")
+    private String dns2;
+
     @Column(name = "size")
     private Long size;
 
@@ -192,6 +211,30 @@ public class SharedFSJoinVO extends BaseViewVO implements InternalIdentity, Iden
 
     public SharedFS.FileSystemType getFsType() {
         return fsType;
+    }
+
+    public SharedFS.NetworkMode getNetworkMode() {
+        return networkMode == null ? SharedFS.NetworkMode.DHCP : networkMode;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public String getCidr() {
+        return cidr;
+    }
+
+    public String getGateway() {
+        return gateway;
+    }
+
+    public String getDns1() {
+        return dns1;
+    }
+
+    public String getDns2() {
+        return dns2;
     }
 
     public Long getSize() {

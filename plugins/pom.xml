@@ -96,12 +96,14 @@
         <module>hypervisors/xenserver</module>
 
         <module>integrations/cloudian</module>
+        <module>integrations/ppurio-alerts</module>
         <module>integrations/prometheus</module>
         <module>integrations/wall-alerts</module>
         <module>integrations/kubernetes-service</module>
         <module>integrations/desktop-service</module>
         <module>integrations/automation-service</module>
         <module>integrations/disaster-recovery</module>
+        <module>integrations/rack-management</module>
         <module>metrics</module>
 
         <module>network-elements/bigswitch</module>

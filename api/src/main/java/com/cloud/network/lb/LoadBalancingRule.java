@@ -38,6 +38,7 @@ public class LoadBalancingRule {
     private List<LbHealthCheckPolicy> healthCheckPolicies;
     private LbSslCert sslCert;
     private String lbProtocol;
+    private boolean backendSsl;
 
     public LoadBalancingRule(LoadBalancer lb, List<LbDestination> destinations, List<LbStickinessPolicy> stickinessPolicies,
             List<LbHealthCheckPolicy> healthCheckPolicies, Ip sourceIp) {
@@ -57,6 +58,12 @@ public class LoadBalancingRule {
         this.sourceIp = sourceIp;
         this.sslCert = sslCert;
         this.lbProtocol = lbProtocol;
+    }
+
+    public LoadBalancingRule(LoadBalancer lb, List<LbDestination> destinations, List<LbStickinessPolicy> stickinessPolicies,
+            List<LbHealthCheckPolicy> healthCheckPolicies, Ip sourceIp, LbSslCert sslCert, String lbProtocol, boolean backendSsl) {
+        this(lb, destinations, stickinessPolicies, healthCheckPolicies, sourceIp, sslCert, lbProtocol);
+        this.backendSsl = backendSsl;
     }
 
     public long getId() {
@@ -145,6 +152,14 @@ public class LoadBalancingRule {
 
     public LbSslCert getLbSslCert() {
         return sslCert;
+    }
+
+    public boolean isBackendSsl() {
+        return backendSsl;
+    }
+
+    public void setBackendSsl(boolean backendSsl) {
+        this.backendSsl = backendSsl;
     }
 
     public interface Destination {

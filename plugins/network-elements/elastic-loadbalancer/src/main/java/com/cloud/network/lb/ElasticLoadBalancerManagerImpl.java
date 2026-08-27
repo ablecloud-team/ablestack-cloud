@@ -73,6 +73,7 @@ import com.cloud.network.lb.LoadBalancingRule.LbHealthCheckPolicy;
 import com.cloud.network.lb.LoadBalancingRule.LbSslCert;
 import com.cloud.network.lb.LoadBalancingRule.LbStickinessPolicy;
 import com.cloud.network.lb.dao.ElasticLbVmMapDao;
+import com.cloud.network.router.VirtualNetworkApplianceManager;
 import com.cloud.network.router.VirtualRouter;
 import com.cloud.network.rules.FirewallRule;
 import com.cloud.network.rules.LoadBalancer;
@@ -215,6 +216,9 @@ public class ElasticLoadBalancerManagerImpl extends ManagerBase implements Elast
         cmd.lbStatsUri = _configDao.getValue(Config.NetworkLBHaproxyStatsUri.key());
         cmd.lbStatsAuth = _configDao.getValue(Config.NetworkLBHaproxyStatsAuth.key());
         cmd.lbStatsPort = _configDao.getValue(Config.NetworkLBHaproxyStatsPort.key());
+        cmd.lbConnectTimeout = VirtualNetworkApplianceManager.NetworkLBHaproxyConnectTimeout.value().toString();
+        cmd.lbClientTimeout = VirtualNetworkApplianceManager.NetworkLBHaproxyClientTimeout.value().toString();
+        cmd.lbServerTimeout = VirtualNetworkApplianceManager.NetworkLBHaproxyServerTimeout.value().toString();
 
         cmds.addCommand(cmd);
 

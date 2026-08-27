@@ -55,6 +55,7 @@ public final class KVMHAProvider extends HAAbstractHostProvider implements HAPro
         if (outOfBandManagementService.isOutOfBandManagementEnabled(host)){
             return !isInMaintenanceMode(host) && !isDisabled(host) &&
                     hostActivityChecker.getNeighbors(host).length > 0 &&
+                    hostActivityChecker.hasStoragePoolHeartbeatEnabled(host) &&
                     (Hypervisor.HypervisorType.KVM.equals(host.getHypervisorType()) ||
                             Hypervisor.HypervisorType.LXC.equals(host.getHypervisorType()));
         }
@@ -93,10 +94,11 @@ public final class KVMHAProvider extends HAAbstractHostProvider implements HAPro
         try {
             if (outOfBandManagementService.isOutOfBandManagementEnabled(r)){
                 final OutOfBandManagement oobm = outOfBandManagementDao.findByHost(r.getId());
-                if (oobm.getPowerState() == PowerState.Unknown || oobm.getPowerState() == PowerState.Off){
+                if (oobm.getPowerState() == PowerState.Unknown){
                     return true;
                 } else {
-                    final OutOfBandManagementResponse resp = outOfBandManagementService.executePowerOperation(r, PowerOperation.OFF, null);
+                    final PowerOperation powerOperation = oobm.getPowerState() == PowerState.Off ? PowerOperation.ON : PowerOperation.CYCLE;
+                    final OutOfBandManagementResponse resp = outOfBandManagementService.executePowerOperation(r, powerOperation, null);
                     return resp.getSuccess();
                 }
             } else {

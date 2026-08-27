@@ -19,48 +19,33 @@ package com.cloud.automation.controller.actionworkers;
 
 import com.cloud.automation.controller.AutomationController;
 import com.cloud.automation.controller.AutomationControllerManagerImpl;
-import com.cloud.automation.controller.AutomationControllerVO;
 import com.cloud.automation.controller.AutomationControllerVmMap;
 import com.cloud.automation.controller.AutomationControllerVmMapVO;
 import com.cloud.automation.resource.AutomationDeployedResourceVO;
-import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.exception.ManagementServerException;
 import com.cloud.exception.PermissionDeniedException;
 import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.network.IpAddress;
 import com.cloud.network.Network;
 import com.cloud.network.dao.NetworkVO;
-import com.cloud.tags.dao.ResourceTagDao;
-import com.cloud.user.AccountManager;
 import com.cloud.uservm.UserVm;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.UserVmVO;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.logging.log4j.Level;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AutomationControllerDestroyWorker extends AutomationControllerActionWorker {
 
-    @Inject
-    protected AccountManager accountManager;
-    @Inject
-    protected ResourceTagDao resourceTagDao;
-
-    private List<AutomationControllerVmMapVO> AutomationControllerVMs;
+    private List<AutomationControllerVmMapVO> automationControllerVMs;
 
     public AutomationControllerDestroyWorker(final AutomationController automationController, final AutomationControllerManagerImpl clusterManager) {
         super(automationController, clusterManager);
     }
 
     private void validateControllerState() {
-        if (!(automationController.getState().equals(AutomationController.State.Running)
-                || automationController.getState().equals(AutomationController.State.Stopped)
-                || automationController.getState().equals(AutomationController.State.Alert)
-                || automationController.getState().equals(AutomationController.State.Error)
-                || automationController.getState().equals(AutomationController.State.Destroying))) {
+        if (AutomationController.State.Enabled.equals(automationController.getState())) {
             String msg = String.format("Cannot perform delete operation on controller : %s in state: %s",
             automationController.getName(), automationController.getState());
             logger.warn(msg);
@@ -82,39 +67,37 @@ public class AutomationControllerDestroyWorker extends AutomationControllerActio
     }
 
     private boolean destroyAutomationControllerVMs() {
-        boolean vmDestroyed = true;
-        //ControlVM removed
-        if (!CollectionUtils.isEmpty(AutomationControllerVMs)) {
-            for (AutomationControllerVmMapVO AutomationControllerVM : AutomationControllerVMs) {
-                long vmID = AutomationControllerVM.getVmId();
+        boolean allVmsDestroyed = true;
+        if (!CollectionUtils.isEmpty(automationControllerVMs)) {
+            for (AutomationControllerVmMapVO automationControllerVM : automationControllerVMs) {
+                long vmID = automationControllerVM.getVmId();
 
-                // delete only if VM exists and is not removed
                 UserVmVO userVM = userVmDao.findById(vmID);
                 if (userVM == null || userVM.isRemoved()) {
+                    automationControllerVmMapDao.expunge(automationControllerVM.getId());
                     continue;
                 }
                 try {
                     UserVm vm = userVmService.destroyVm(vmID, true);
                     if (!userVmManager.expunge(userVM)) {
-                        logger.warn(String.format("Unable to expunge VM %s : %s, destroying automation controller will probably fail",
-                            vm.getInstanceName() , vm.getUuid()));
+                        logger.warn(String.format("Unable to expunge VM %s while destroying automation controller %s",
+                                userVM.getUuid(), automationController.getName()));
+                        allVmsDestroyed = false;
+                        continue;
                     }
-                    automationControllerVmMapDao.expunge(AutomationControllerVM.getId());
+                    automationControllerVmMapDao.expunge(automationControllerVM.getId());
                     if (logger.isInfoEnabled()) {
-                        logger.info(String.format("Destroyed VM : %s as part of automation controller : %s cleanup", vm.getDisplayName(), automationController.getName()));
+                        String vmName = vm == null ? userVM.getDisplayName() : vm.getDisplayName();
+                        logger.info(String.format("Destroyed VM : %s as part of automation controller : %s cleanup", vmName, automationController.getName()));
                     }
-                } catch (ResourceUnavailableException | ConcurrentOperationException e) {
-                    logger.warn(String.format("Failed to destroy VM : %s part of the automation controller : %s cleanup. Moving on with destroying remaining resources provisioned for the automation controller", userVM.getDisplayName(), automationController.getName()), e);
-                    return false;
+                } catch (ResourceUnavailableException | CloudRuntimeException e) {
+                    logger.warn(String.format("Failed to destroy VM : %s as part of automation controller : %s cleanup",
+                            userVM.getDisplayName(), automationController.getName()), e);
+                    allVmsDestroyed = false;
                 }
             }
         }
-        return vmDestroyed;
-    }
-
-    private boolean updateAutomationControllerEntryForGC() {
-        AutomationControllerVO automationControllerVO = automationControllerDao.findById(automationController.getId());
-        return automationControllerDao.update(automationController.getId(), automationControllerVO);
+        return allVmsDestroyed;
     }
 
 
@@ -124,46 +107,52 @@ public class AutomationControllerDestroyWorker extends AutomationControllerActio
             return;
         }
         List<Long> removedVmIds = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(AutomationControllerVMs)) {
-            for (AutomationControllerVmMapVO AutomationControllerVM : AutomationControllerVMs) {
-                removedVmIds.add(AutomationControllerVM.getVmId());
+        if (!CollectionUtils.isEmpty(automationControllerVMs)) {
+            for (AutomationControllerVmMapVO automationControllerVM : automationControllerVMs) {
+                removedVmIds.add(automationControllerVM.getVmId());
             }
         }
         IpAddress publicIp = getSourceNatIp(network);
         if (publicIp == null) {
-            throw new ManagementServerException(String.format("No source NAT IP addresses found for network : %s", network.getName()));
+            logger.warn(String.format("Source NAT IP for network %s is already absent; skipping automation controller network-rule cleanup",
+                    network.getName()));
+            return;
         }
         removeFirewallIngressRule(publicIp);
         removeFirewallEgressRule(network);
         try {
             removePortForwardingRules(publicIp, network, owner, removedVmIds);
         } catch (ResourceUnavailableException e) {
-            // throw new ManagementServerException(String.format("Failed to automation controller port forwarding rules for network : %s", network.getName()));
+            throw new ManagementServerException(String.format("Failed to remove automation controller port forwarding rules for network : %s", network.getName()), e);
         }
     }
 
-    private void validateClusterVMsDestroyed() {
-        if(AutomationControllerVMs!=null  && !AutomationControllerVMs.isEmpty()) { // Wait for few seconds to get all VMs really expunged
+    private boolean validateControllerVMsDestroyed() {
+        if (automationControllerVMs != null && !automationControllerVMs.isEmpty()) {
             final int maxRetries = 3;
             int retryCounter = 0;
             while (retryCounter < maxRetries) {
                 boolean allVMsRemoved = true;
-                for (AutomationControllerVmMap AutomationControllerVM : AutomationControllerVMs) {
-                    UserVmVO userVM = userVmDao.findById(AutomationControllerVM.getVmId());
+                for (AutomationControllerVmMap automationControllerVM : automationControllerVMs) {
+                    UserVmVO userVM = userVmDao.findById(automationControllerVM.getVmId());
                     if (userVM != null && !userVM.isRemoved()) {
                         allVMsRemoved = false;
                         break;
                     }
                 }
                 if (allVMsRemoved) {
-                    break;
+                    return true;
                 }
                 try {
                     Thread.sleep(10000);
-                } catch (InterruptedException ie) {}
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return false;
+                }
                 retryCounter++;
             }
         }
+        return CollectionUtils.isEmpty(automationControllerVMs);
     }
 
     private void checkForRulesToDelete() throws ManagementServerException {
@@ -177,36 +166,36 @@ public class AutomationControllerDestroyWorker extends AutomationControllerActio
         init();
         validateControllerState();
         validateDeployedPackages();
-        this.AutomationControllerVMs = automationControllerVmMapDao.listByAutomationControllerId(automationController.getId());
+        this.automationControllerVMs = automationControllerVmMapDao.listByAutomationControllerId(automationController.getId());
         if (logger.isInfoEnabled()) {
             logger.info(String.format("Destroying automation controller : %s", automationController.getName()));
         }
-        stateTransitTo(automationController.getId(), AutomationController.Event.DestroyRequested);
+        if (!AutomationController.State.Destroyed.equals(automationController.getState())
+                && !stateTransitTo(automationController.getId(), AutomationController.Event.DestroyRequested)) {
+            throw new CloudRuntimeException(String.format("Failed to move automation controller %s into Destroying state",
+                    automationController.getName()));
+        }
         boolean vmsDestroyed = destroyAutomationControllerVMs();
-        // if there are VM's that were not expunged, we can not delete the network
-        if (vmsDestroyed) {
-            validateClusterVMsDestroyed();
-            try {
-                checkForRulesToDelete();
-            } catch (ManagementServerException e) {
-                String msg = String.format("Failed to remove network rules of automation controller : %s", automationController.getName());
-                logger.warn(msg, e);
-                updateAutomationControllerEntryForGC();
-                throw new CloudRuntimeException(msg, e);
-            }
-        } else {
+        if (!vmsDestroyed || !validateControllerVMsDestroyed()) {
             String msg = String.format("Failed to destroy one or more VMs as part of automation controller : %s cleanup",automationController.getName());
             logger.warn(msg);
-            updateAutomationControllerEntryForGC();
             throw new CloudRuntimeException(msg);
         }
-        stateTransitTo(automationController.getId(), AutomationController.Event.OperationSucceeded);
-        final String accessType = "internal";
+        try {
+            checkForRulesToDelete();
+        } catch (ManagementServerException | CloudRuntimeException e) {
+            logger.warn(String.format("Failed to remove one or more network rules of automation controller %s; continuing controller cleanup",
+                    automationController.getName()), e);
+        }
+        if (!AutomationController.State.Destroyed.equals(automationController.getState())
+                && !stateTransitTo(automationController.getId(), AutomationController.Event.OperationSucceeded)) {
+            throw new CloudRuntimeException(String.format("Failed to mark automation controller %s as Destroyed",
+                    automationController.getName()));
+        }
         boolean deleted = automationControllerDao.remove(automationController.getId());
         if (!deleted) {
-            logMessage(Level.WARN, String.format("Failed to delete automation controller : %s", automationController.getName()), null);
-            updateAutomationControllerEntryForGC();
-            return false;
+            throw new CloudRuntimeException(String.format("Failed to delete automation controller : %s. The delete operation can be retried.",
+                    automationController.getName()));
         }
         if (logger.isInfoEnabled()) {
             logger.info(String.format("Automation Controller : %s is successfully deleted", automationController.getName()));

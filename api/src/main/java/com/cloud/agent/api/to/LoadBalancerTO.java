@@ -41,6 +41,7 @@ public class LoadBalancerTO {
     boolean revoked;
     boolean alreadyAdded;
     boolean inline;
+    boolean backendSsl;
     String srcIpVlan;
     String srcIpGateway;
     String srcIpNetmask;
@@ -71,7 +72,7 @@ public class LoadBalancerTO {
         this.destinations = new DestinationTO[destinations.size()];
         this.stickinessPolicies = null;
         this.sslCert = null;
-        this.lbProtocol = null;
+        this.lbProtocol = protocol;
         int i = 0;
         for (LbDestination destination : destinations) {
             this.destinations[i++] = new DestinationTO(destination.getIpAddress(), destination.getDestinationPortStart(), destination.isRevoked(), false);
@@ -177,6 +178,14 @@ public class LoadBalancerTO {
         return inline;
     }
 
+    public boolean isBackendSsl() {
+        return backendSsl;
+    }
+
+    public void setBackendSsl(boolean backendSsl) {
+        this.backendSsl = backendSsl;
+    }
+
     public StickinessPolicyTO[] getStickinessPolicies() {
         return stickinessPolicies;
     }
@@ -203,6 +212,10 @@ public class LoadBalancerTO {
 
     public LbSslCert getSslCert() {
         return this.sslCert;
+    }
+
+    public void setLbSslCert(LbSslCert sslCert) {
+        this.sslCert = sslCert;
     }
 
     public String getSrcIpVlan() {

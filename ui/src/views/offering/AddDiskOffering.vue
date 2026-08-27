@@ -214,14 +214,14 @@
             v-model:value="form.writecachetype"
             buttonStyle="solid"
             @change="selected => { handleWriteCacheTypeChange(selected.target.value) }">
-            <a-radio-button value="none">
-              {{ $t('label.nodiskcache') }}
-            </a-radio-button>
             <a-radio-button value="writeback">
               {{ $t('label.writeback') }}
             </a-radio-button>
             <a-radio-button value="writethrough">
               {{ $t('label.writethrough') }}
+            </a-radio-button>
+            <a-radio-button value="none">
+              {{ $t('label.nodiskcache') }}
             </a-radio-button>
           </a-radio-group>
         </a-form-item>
@@ -377,7 +377,7 @@ export default {
         storagetype: 'shared',
         provisioningtype: 'thin',
         customdisksize: true,
-        writecachetype: 'none',
+        writecachetype: 'writeback',
         qostype: '',
         ispublic: this.isPublic,
         disksizestrictness: this.disksizestrictness,

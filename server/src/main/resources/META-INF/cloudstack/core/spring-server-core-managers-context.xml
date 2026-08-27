@@ -13,7 +13,7 @@
   software distributed under the License is distributed on an
   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
   KIND, either express or implied. See the License for the
-  specific language governing permissions and limitations
+  specific language govening permissions and limitations
   under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -141,9 +141,9 @@
         <property name="secChecker" value="#{securityCheckersRegistry.registered}" />
     </bean>
 
-    <bean id="externalDeviceUsageManagerImpl" class="com.cloud.network.ExternalDeviceUsageManagerImpl" />
+    <bean id="extenalDeviceUsageManagerImpl" class="com.cloud.network.ExternalDeviceUsageManagerImpl" />
 
-    <bean id="externalNetworkDeviceManagerImpl" class="com.cloud.network.ExternalNetworkDeviceManagerImpl" />
+    <bean id="extenalNetworkDeviceManagerImpl" class="com.cloud.network.ExternalNetworkDeviceManagerImpl" />
 
     <bean id="firewallManagerImpl" class="com.cloud.network.firewall.FirewallManagerImpl" >
         <property name="firewallElements" value="#{firewallServiceProvidersRegistry.registered}" />
@@ -386,4 +386,6 @@
     <bean id="sharedFSServiceImpl" class="org.apache.cloudstack.storage.sharedfs.SharedFSServiceImpl">
         <property name="sharedFSProviders" value="#{sharedFSProvidersRegistry.registered}" />
     </bean>
+    <bean id="storageServiceGuestCommandDispatcher" class="org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommandDispatcherImpl" />
+    <bean id="storageServiceManagerImpl" class="org.apache.cloudstack.storage.dataservice.StorageServiceManagerImpl" />
 </beans>

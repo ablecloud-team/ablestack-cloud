@@ -46,8 +46,8 @@ public class HealthCheckTask extends BaseHATask {
         final HAConfig haConfig = getHaConfig();
         final HAResourceCounter counter = haManager.getHACounter(haConfig.getResourceId(), haConfig.getResourceType());
         if (result) {
-            haManager.transitionHAState(HAConfig.Event.HealthCheckPassed, haConfig);
-            if (haConfig.getState() == HAConfig.HAState.Fenced) {
+            final boolean wasFenced = haConfig.getState() == HAConfig.HAState.Fenced;
+            if (haManager.transitionHAState(HAConfig.Event.HealthCheckPassed, haConfig) && wasFenced) {
                 haManager.disableHA(haConfig.getResourceId(), haConfig.getResourceType());
             }
             counter.resetSuspectTimestamp();

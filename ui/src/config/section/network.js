@@ -507,7 +507,7 @@ export default {
         },
         {
           api: 'createSnapshot',
-          icon: ['fas', 'camera-retro'],
+          icon: 'camera-outlined',
           label: 'label.action.vmstoragesnapshot.create',
           docHelp: 'adminguide/virtual_machines.html#virtual-machine-snapshots',
           dataView: true,

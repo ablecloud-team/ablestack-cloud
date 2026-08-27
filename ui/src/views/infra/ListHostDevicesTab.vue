@@ -290,7 +290,28 @@
             <template v-if="column.key === 'hostDevicesName'">
               <div style="white-space: pre-line; line-height: 1.4; min-height: 40px;">{{ formatDeviceName(record.hostDevicesName) }}</div>
             </template>
-            <template v-if="column.key === 'hostDevicesText'"><span v-html="formatHostDevicesText(record.hostDevicesText)" style="white-space: pre-line; line-height: 1.6; display: block;"></span></template>
+            <template v-if="column.key === 'hostDevicesText'">
+              <div>
+                <span v-html="formatLunHostDevicesText(record.hostDevicesText, record)" style="white-space: pre-line; line-height: 1.6; display: block;"></span>
+                <div v-if="record.multipathLlFull" style="margin-top: 8px;">
+                  <a-popover
+                    placement="leftTop"
+                    trigger="click"
+                    :overlay-style="{ maxWidth: 'min(720px, 92vw)' }">
+                    <template #content>
+                      <pre style="white-space: pre-wrap; margin: 0; max-height: 70vh; overflow: auto; font-size: 12px; line-height: 1.45;">{{ record.multipathLlFull }}</pre>
+                    </template>
+                    <a-button
+                      type="default"
+                      size="small"
+                      shape="circle"
+                      :title="$t('label.details') + ' (multipath -ll)'">
+                      <template #icon><plus-outlined /></template>
+                    </a-button>
+                  </a-popover>
+                </div>
+              </div>
+            </template>
             <template v-if="column.dataIndex === 'vmName'">
               <a-spin v-if="vmNameLoading" size="small" />
               <span v-else>
@@ -366,10 +387,10 @@
           </template>
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'hostDevicesName'">
-              <div style="white-space: pre-line; line-height: 1.4; min-height: 40px;">{{ formatDeviceName(record.hostDevicesName) }}</div>
+              <div style="white-space: pre-line; line-height: 1.4; min-height: 40px;">{{ formatDeviceName(record.scsiDisplayName || record.hostDevicesName) }}</div>
             </template>
             <template v-if="column.key === 'hostDevicesText'">
-              <span v-html="formatHostDevicesText(record.hostDevicesText)" style="white-space: pre-line; line-height: 1.6; display: block;"></span>
+              <span v-html="formatScsiHostDevicesText(record.hostDevicesText)" style="white-space: pre-line; line-height: 1.6; display: block;"></span>
             </template>
             <template v-if="column.dataIndex === 'vmName'">
               <a-spin v-if="vmNameLoading" size="small" />
@@ -714,7 +735,8 @@ export default {
 
     filteredLunDevices () {
       const query = this.lunSearchQuery.toLowerCase()
-      return this.tableSource.filter(item => {
+      const items = this.dataItems || []
+      return items.filter(item => {
         const deviceName = String(item.hostDevicesName || '')
         const deviceText = String(item.hostDevicesText || '')
 
@@ -746,15 +768,14 @@ export default {
 
     filteredScsiDevices () {
       const query = this.scsiSearchQuery.toLowerCase()
-      return this.dataItems.filter(item => {
+      return (this.dataItems || []).filter(item => {
         const deviceName = String(item.hostDevicesName || '')
+        const displayName = String(item.scsiDisplayName || '')
         const deviceText = String(item.hostDevicesText || '')
-        const isScsi = deviceName.startsWith('/dev/sg')
-        if (!query) return isScsi
-        return isScsi && (
-          deviceName.toLowerCase().includes(query) ||
-          deviceText.toLowerCase().includes(query)
-        )
+        if (!query) return true
+        return deviceName.toLowerCase().includes(query) ||
+               displayName.toLowerCase().includes(query) ||
+               deviceText.toLowerCase().includes(query)
       })
     },
     vhbaFormRules () {
@@ -1449,137 +1470,153 @@ export default {
         this.loading = false
       })
     },
-    fetchLunDevices () {
+    async fetchLunDevices () {
       this.loading = true
-      api('listHostLunDevices', {
-        id: this.resource.id
-      }).then(async response => {
-        if (response.listhostlundevicesresponse?.listhostlundevices?.[0]) {
-          const lunData = response.listhostlundevicesresponse.listhostlundevices[0]
-          const vmAllocations = lunData.vmallocations || {}
-          const vmNameMap = {}
-          for (const name in vmAllocations) {
-            const vmId = vmAllocations[name]
-            if (vmId) {
-              try {
-                const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
-                const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-                if (vm && vm.state !== 'Expunging') {
-                  vmNameMap[name] = vm.displayname || vm.name
-                } else {
-                  try {
-                    const xmlConfig = this.generateXmlLunConfig(name)
-                    const updateResponse = await api('updateHostLunDevices', {
-                      hostid: this.resource.id,
-                      hostdevicesname: name,
-                      virtualmachineid: null,
-                      xmlconfig: xmlConfig
-                    })
+      try {
+        const [singleSettled, multiSettled] = await Promise.allSettled([
+          api('listHostLunDevices', {
+            id: this.resource.id,
+            lunpathmode: 'single',
+            lunPathMode: 'single'
+          }),
+          api('listHostLunDevices', {
+            id: this.resource.id,
+            lunpathmode: 'multipath',
+            lunPathMode: 'multipath'
+          })
+        ])
+        const singleRes = singleSettled.status === 'fulfilled' ? singleSettled.value : null
+        const multiRes = multiSettled.status === 'fulfilled' ? multiSettled.value : null
 
-                    if (!updateResponse || updateResponse.error) {
-                    }
-                  } catch (error) {
-                  }
-                }
-              } catch (error) {
+        if (singleSettled.status === 'rejected' && multiSettled.status === 'rejected') {
+          throw singleSettled.reason || multiSettled.reason
+        }
+
+        const lun0 = singleRes?.listhostlundevicesresponse?.listhostlundevices?.[0]
+        const lun1 = multiRes?.listhostlundevicesresponse?.listhostlundevices?.[0]
+
+        const multiHasRows = lun1 && Array.isArray(lun1.hostdevicesname) && lun1.hostdevicesname.length > 0
+
+        if (!lun0 && !lun1) {
+          this.dataItems = []
+          return
+        }
+
+        const vmAllocations = { ...((lun0?.vmallocations) || {}), ...((lun1?.vmallocations) || {}) }
+        const mergedPartitions = { ...((lun0?.haspartitions) || {}), ...((lun1?.haspartitions) || {}) }
+
+        const vmNameMap = {}
+        for (const name in vmAllocations) {
+          const vmId = vmAllocations[name]
+          if (vmId) {
+            try {
+              const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
+              const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
+              if (vm && vm.state !== 'Expunging') {
+                vmNameMap[name] = vm.displayname || vm.name
+              } else {
                 try {
                   const xmlConfig = this.generateXmlLunConfig(name)
-                  await api('updateHostLunDevices', {
+                  const updateResponse = await api('updateHostLunDevices', {
                     hostid: this.resource.id,
                     hostdevicesname: name,
                     virtualmachineid: null,
                     xmlconfig: xmlConfig
                   })
-                } catch (detachError) {
-                }
-              }
-            }
-          }
-          this.vmNames = { ...this.vmNames, ...vmNameMap }
-          const lunDevices = lunData.hostdevicesname.map((name, index) => ({
-            key: index,
-            hostDevicesName: name,
-            hostDevicesText: lunData.hostdevicestext[index].replace(/\n/g, '<br>'),
-            virtualmachineid: (lunData.vmallocations && lunData.vmallocations[name]) || null,
-            vmName: vmNameMap[name] || '',
-            isAssigned: Boolean(lunData.vmallocations && lunData.vmallocations[name]),
-            hasPartitions: (lunData.haspartitions && typeof lunData.haspartitions[name] !== 'undefined') ? lunData.haspartitions[name] : false
-          }))
-          const scsiAddrToVmId = {}
-          try {
-            const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
-            const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
-            if (scsiData && Array.isArray(scsiData.hostdevicesname)) {
-              for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
-                const stext = scsiData.hostdevicestext[i] || ''
-                const saddr = this.extractScsiAddressString(stext)
-                if (saddr) {
-                  const vmId = scsiData.vmallocations?.[scsiData.hostdevicesname[i]] || null
-                  if (vmId) scsiAddrToVmId[saddr] = vmId
-                }
-              }
-            }
-          } catch (e) {}
 
-          for (const device of lunDevices) {
-            const laddr = this.extractScsiAddressString(device.hostDevicesText)
-            const mappedVmId = laddr ? scsiAddrToVmId[laddr] : null
-
-            let vmIdByPath = null
-            try {
-              const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
-              const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
-              if (scsiData?.vmallocations) {
-                for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
-                  const scsiText = scsiData.hostdevicestext[i]
-                  const deviceMatch = scsiText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
-                  if (deviceMatch && deviceMatch[1] === device.hostDevicesName) {
-                    const sgDevice = scsiData.hostdevicesname[i]
-                    vmIdByPath = scsiData.vmallocations[sgDevice] || null
-                    break
+                  if (!updateResponse || updateResponse.error) {
                   }
+                } catch (error) {
                 }
               }
-            } catch (e) {}
-
-            const finalVmId = mappedVmId || vmIdByPath
-            if (finalVmId) {
-              const vmResponse = await api('listVirtualMachines', { id: finalVmId, listall: true })
-              const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-              if (vm && vm.state !== 'Expunging') {
-                device.allocatedInOtherTab = {
-                  isAllocated: true,
-                  vmName: vm.displayname || vm.name,
-                  vmId: finalVmId,
-                  tabType: 'SCSI'
-                }
-                device.vmName = vm.displayname || vm.name
-                device.virtualmachineid = finalVmId
-                device.isAssigned = true
+            } catch (error) {
+              try {
+                const xmlConfig = this.generateXmlLunConfig(name)
+                await api('updateHostLunDevices', {
+                  hostid: this.resource.id,
+                  hostdevicesname: name,
+                  virtualmachineid: null,
+                  xmlconfig: xmlConfig
+                })
+              } catch (detachError) {
               }
             }
           }
-
-          this.dataItems = lunDevices.filter(device =>
-            device.hostDevicesName &&
-            (device.hostDevicesName.startsWith('/dev/') ||
-             device.hostDevicesName.startsWith('wwn-') ||
-             device.hostDevicesName.startsWith('scsi-') ||
-             device.hostDevicesName.startsWith('dm-') ||
-             device.hostDevicesName.startsWith('nvme-')) &&
-            !device.hostDevicesName.startsWith('/dev/sg')
-          )
-        } else {
-          this.dataItems = []
         }
-      }).catch(error => {
+        this.vmNames = { ...this.vmNames, ...vmNameMap }
+
+        const rowMap = new Map()
+        const ingestLunBlock = (lunData) => {
+          if (!lunData?.hostdevicesname) return
+          for (let i = 0; i < lunData.hostdevicesname.length; i++) {
+            const name = lunData.hostdevicesname[i]
+            const rawText = lunData.hostdevicestext[i] || ''
+            const mpParts = rawText.split(/\nMULTIPATH_LL:\n/)
+            const tableText = (mpParts[0] || '').replace(/\n/g, '<br>')
+            const multipathLlFull = mpParts.length > 1 ? mpParts.slice(1).join('\nMULTIPATH_LL:\n').trim() : null
+            if (rowMap.has(name)) {
+              const ex = rowMap.get(name)
+              if (multipathLlFull && !ex.multipathLlFull) {
+                ex.multipathLlFull = multipathLlFull
+              }
+            } else {
+              rowMap.set(name, {
+                hostDevicesName: name,
+                hostDevicesText: tableText,
+                multipathLlFull,
+                virtualmachineid: vmAllocations[name] || null,
+                vmName: vmNameMap[name] || '',
+                isAssigned: Boolean(vmAllocations[name]),
+                hasPartitions: typeof mergedPartitions[name] !== 'undefined' ? mergedPartitions[name] : false
+              })
+            }
+          }
+        }
+        // 호스트에 multipath LUN이 하나라도 있으면(mpatha 등) 싱글 경로(sd*)는 목록에 넣지 않음
+        if (multiHasRows) {
+          ingestLunBlock(lun1)
+        } else {
+          ingestLunBlock(lun1)
+          ingestLunBlock(lun0)
+        }
+
+        const lunDevices = Array.from(rowMap.values()).map((r, idx) => ({
+          ...r,
+          key: idx
+        }))
+
+        const baseFiltered = lunDevices.filter(device =>
+          device.hostDevicesName &&
+          (device.hostDevicesName.startsWith('/dev/') ||
+           device.hostDevicesName.startsWith('wwn-') ||
+           device.hostDevicesName.startsWith('scsi-') ||
+           device.hostDevicesName.startsWith('dm-') ||
+           device.hostDevicesName.startsWith('nvme-')) &&
+          !device.hostDevicesName.startsWith('/dev/sg')
+        )
+
+        if (multiHasRows) {
+          this.dataItems = baseFiltered.filter(device => {
+            const name = device.hostDevicesName || ''
+            const text = (device.hostDevicesText || '').replace(/<br\s*\/?>/gi, '\n')
+            if (device.multipathLlFull) return true
+            if (text.includes('TYPE: multipath')) return true
+            if (text.includes('MULTIPATH_LL')) return true
+            if (/\/dev\/mapper\//i.test(name) || /\/dev\/dm-\d+/i.test(name)) return true
+            if (/\bmpath[a-z0-9]*/i.test(name)) return true
+            return false
+          })
+        } else {
+          this.dataItems = baseFiltered
+        }
+      } catch (error) {
         this.$notification.error({
           message: this.$t('label.error'),
           description: error.message || this.$t('message.error.fetch.lun.devices')
         })
-      }).finally(() => {
+      } finally {
         this.loading = false
-      })
+      }
       this.updateDataWithVmNames()
     },
     async handlePciDeviceDelete () {
@@ -2132,76 +2169,24 @@ export default {
       try {
         let vmId = null
         let vmName = 'Unknown VM'
-        let isScsiAllocated = false
 
-        if (record.allocatedInOtherTab) {
-          vmId = record.allocatedInOtherTab.vmId
-          vmName = record.allocatedInOtherTab.vmName
-          isScsiAllocated = record.allocatedInOtherTab.tabType === 'SCSI'
-          if (!vmId) {
-            if (isScsiAllocated) {
-              const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
-              const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
+        const [singleSettled, multiSettled] = await Promise.allSettled([
+          api('listHostLunDevices', { id: this.resource.id, lunpathmode: 'single', lunPathMode: 'single' }),
+          api('listHostLunDevices', { id: this.resource.id, lunpathmode: 'multipath', lunPathMode: 'multipath' })
+        ])
 
-              if (scsiData?.vmallocations) {
-                const laddr = this.extractScsiAddressString(record.hostDevicesText)
-                for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
-                  const scsiText = scsiData.hostdevicestext[i]
-                  const saddr = this.extractScsiAddressString(scsiText)
-                  if (laddr && saddr && laddr === saddr) {
-                    const sgDevice = scsiData.hostdevicesname[i]
-                    vmId = scsiData.vmallocations[sgDevice]
-                    break
-                  }
-                }
-              }
-            }
-          }
-        } else {
-          const response = await api('listHostLunDevices', {
-            id: this.resource.id
-          })
-          const devices = response.listhostlundevicesresponse?.listhostlundevices?.[0]
-          const vmAllocations = devices?.vmallocations || {}
-          vmId = vmAllocations[hostDevicesName]
-          vmName = this.vmNames[hostDevicesName] || 'Unknown VM'
-
-          if (!vmId) {
-            try {
-              const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
-              const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
-
-              if (scsiData?.vmallocations) {
-                const laddr = this.extractScsiAddressString(record.hostDevicesText)
-                for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
-                  const scsiText = scsiData.hostdevicestext[i]
-                  const saddr = this.extractScsiAddressString(scsiText)
-                  if (laddr && saddr && laddr === saddr) {
-                    const sgDevice = scsiData.hostdevicesname[i]
-                    vmId = scsiData.vmallocations[sgDevice]
-                    if (vmId) {
-                      isScsiAllocated = true
-                      try {
-                        const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
-                        const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-                        if (vm) vmName = vm.name || vm.displayname
-                      } catch (vmError) {}
-                      break
-                    }
-                  }
-                }
-              }
-            } catch (scsiError) {
-            }
-          }
-        }
+        const singleLun = singleSettled.status === 'fulfilled'
+          ? singleSettled.value?.listhostlundevicesresponse?.listhostlundevices?.[0]
+          : null
+        const multiLun = multiSettled.status === 'fulfilled'
+          ? multiSettled.value?.listhostlundevicesresponse?.listhostlundevices?.[0]
+          : null
+        const mergedVmAllocations = { ...(singleLun?.vmallocations || {}), ...(multiLun?.vmallocations || {}) }
+        vmId = mergedVmAllocations[hostDevicesName] || record.virtualmachineid || null
+        vmName = this.vmNames[hostDevicesName] || record.vmName || 'Unknown VM'
 
         if (!vmId) {
-          let errorMessage = `VM 할당 정보를 찾을 수 없습니다: ${hostDevicesName}`
-          if (record.allocatedInOtherTab) {
-            errorMessage += ` (다른 탭에서 할당됨: ${record.allocatedInOtherTab.tabType})`
-          }
-          throw new Error(errorMessage)
+          throw new Error(`VM 할당 정보를 찾을 수 없습니다: ${hostDevicesName}`)
         }
 
         const vmResponse = await api('listVirtualMachines', {
@@ -2224,78 +2209,18 @@ export default {
           content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
           onOk: async () => {
             try {
-              if (isScsiAllocated) {
-                const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
-                const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
+              const xmlConfig = this.generateXmlLunConfig(hostDevicesName)
+              const detachResponse = await api('updateHostLunDevices', {
+                hostid: this.resource.id,
+                hostdevicesname: hostDevicesName,
+                virtualmachineid: null,
+                currentvmid: vmId,
+                xmlconfig: xmlConfig,
+                isattach: false
+              })
 
-                if (!scsiData) {
-                  throw new Error('Failed to fetch SCSI devices data')
-                }
-
-                let scsiDeviceFound = false
-                let actualLunDeviceName = hostDevicesName
-
-                if (hostDevicesName.startsWith('/dev/sg')) {
-                  const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
-                  const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
-
-                  if (lunData && Array.isArray(lunData.hostdevicesname)) {
-                    const scsiAddrFromName = this.extractScsiAddressString(record.hostDevicesText)
-                    for (let j = 0; j < lunData.hostdevicesname.length; j++) {
-                      const lunText = lunData.hostdevicestext[j]
-                      const lunScsiAddr = this.extractScsiAddressString(lunText)
-                      if (scsiAddrFromName && lunScsiAddr && scsiAddrFromName === lunScsiAddr) {
-                        actualLunDeviceName = lunData.hostdevicesname[j]
-                        break
-                      }
-                    }
-                  }
-                }
-
-                const lunAddr = this.extractScsiAddressString(record.hostDevicesText)
-
-                for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
-                  const scsiText = scsiData.hostdevicestext[i]
-                  const scsiAddr = this.extractScsiAddressString(scsiText)
-                  const sgDevice = scsiData.hostdevicesname[i]
-
-                  if (lunAddr && scsiAddr && lunAddr === scsiAddr) {
-                    const xmlConfig = this.generateXmlLunConfig(actualLunDeviceName)
-
-                    const detachResponse = await api('updateHostScsiDevices', {
-                      hostid: this.resource.id,
-                      hostdevicesname: sgDevice,
-                      virtualmachineid: null,
-                      currentvmid: vmId,
-                      xmlconfig: xmlConfig,
-                      isattach: false
-                    })
-
-                    if (!detachResponse || detachResponse.error) {
-                      throw new Error(detachResponse?.error?.errortext || 'Failed to detach SCSI device')
-                    }
-                    scsiDeviceFound = true
-                    break
-                  }
-                }
-
-                if (!scsiDeviceFound) {
-                  throw new Error(`SCSI device mapping not found for LUN device: ${hostDevicesName}`)
-                }
-              } else {
-                const xmlConfig = this.generateXmlLunConfig(hostDevicesName)
-                const detachResponse = await api('updateHostLunDevices', {
-                  hostid: this.resource.id,
-                  hostdevicesname: hostDevicesName,
-                  virtualmachineid: null,
-                  currentvmid: vmId,
-                  xmlconfig: xmlConfig,
-                  isattach: false
-                })
-
-                if (!detachResponse || detachResponse.error) {
-                  throw new Error(detachResponse?.error?.errortext || 'Failed to detach LUN device')
-                }
+              if (!detachResponse || detachResponse.error) {
+                throw new Error(detachResponse?.error?.errortext || 'Failed to detach LUN device')
               }
 
               this.dataItems = this.dataItems.map(item =>
@@ -2360,37 +2285,11 @@ export default {
       }
     },
     async openLunModal (record) {
-      const isAllocatedInScsi = await this.checkDeviceAllocationInScsi(record.hostDevicesName)
-      if (isAllocatedInScsi) {
-        try {
-          const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
-          const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
-          if (scsiData?.vmallocations) {
-            for (let i = 0; i < scsiData.hostdevicesname.length; i++) {
-              const scsiText = scsiData.hostdevicestext[i]
-              const deviceMatch = scsiText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
-              if (deviceMatch && deviceMatch[1] === record.hostDevicesName) {
-                const sgDevice = scsiData.hostdevicesname[i]
-                const vmId = scsiData.vmallocations[sgDevice]
-                if (vmId) {
-                  const vmRes = await api('listVirtualMachines', { id: vmId, listall: true })
-                  const vm = vmRes.listvirtualmachinesresponse?.virtualmachine?.[0]
-                  const vmName = vm ? (vm.displayname || vm.name) : ''
-                  record.allocatedInOtherTab = { isAllocated: true, vmName, vmId, tabType: 'SCSI' }
-                  record.vmName = vmName
-                  record.virtualmachineid = vmId
-                  record.isAssigned = true
-                  await this.deallocateLunDevice(record)
-                  this.$forceUpdate()
-                }
-              }
-            }
-          }
-        } catch (e) {}
-        return
+      this.selectedResource = {
+        ...this.resource,
+        hostDevicesName: record.hostDevicesName,
+        hostDevicesText: record.hostDevicesText || ''
       }
-
-      this.selectedResource = { ...this.resource, hostDevicesName: record.hostDevicesName }
       this.showAddModal = true
     },
     async deallocatePciDevice (record) {
@@ -3766,67 +3665,19 @@ export default {
             }
           }
           this.vmNames = { ...this.vmNames, ...vmNameMap }
-          const scsiDevices = scsiData.hostdevicesname.map((name, index) => ({
-            key: index,
-            hostDevicesName: name,
-            hostDevicesText: scsiData.hostdevicestext[index],
-            virtualmachineid: (scsiData.vmallocations && scsiData.vmallocations[name]) || null,
-            vmName: vmNameMap[name] || '',
-            isAssigned: Boolean(scsiData.vmallocations && scsiData.vmallocations[name])
-          }))
-
-          const lunAddrToVmId = {}
-          try {
-            const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
-            const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
-            if (lunData && Array.isArray(lunData.hostdevicesname)) {
-              for (let i = 0; i < lunData.hostdevicesname.length; i++) {
-                const ltxt = lunData.hostdevicestext[i] || ''
-                const addr = this.extractScsiAddressString(ltxt)
-                if (addr) {
-                  const vmId = lunData.vmallocations?.[lunData.hostdevicesname[i]] || null
-                  if (vmId) lunAddrToVmId[addr] = vmId
-                }
-              }
+          const scsiDevices = scsiData.hostdevicesname.map((name, index) => {
+            const txt = scsiData.hostdevicestext[index] || ''
+            const devMatch = txt.match(/Device:\s*(\S+)/i)
+            return {
+              key: index,
+              hostDevicesName: name,
+              scsiDisplayName: devMatch ? devMatch[1] : name,
+              hostDevicesText: txt,
+              virtualmachineid: (scsiData.vmallocations && scsiData.vmallocations[name]) || null,
+              vmName: vmNameMap[name] || '',
+              isAssigned: Boolean(scsiData.vmallocations && scsiData.vmallocations[name])
             }
-          } catch (e) {}
-
-          for (const device of scsiDevices) {
-            const scsiAddr = this.extractScsiAddressString(device.hostDevicesText)
-            const mappedVmId = scsiAddr ? lunAddrToVmId[scsiAddr] : null
-
-            let lunDevice = null
-            const deviceMatch = device.hostDevicesText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
-            if (deviceMatch) {
-              lunDevice = deviceMatch[1]
-            }
-
-            let vmIdByPath = null
-            if (lunDevice) {
-              try {
-                const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
-                const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
-                vmIdByPath = lunData?.vmallocations?.[lunDevice] || null
-              } catch (e) {}
-            }
-
-            const finalVmId = mappedVmId || vmIdByPath
-            if (finalVmId) {
-              const vmResponse = await api('listVirtualMachines', { id: finalVmId, listall: true })
-              const vm = vmResponse.listvirtualmachinesresponse?.virtualmachine?.[0]
-              if (vm && vm.state !== 'Expunging') {
-                device.allocatedInOtherTab = {
-                  isAllocated: true,
-                  vmName: vm.displayname || vm.name,
-                  vmId: finalVmId,
-                  tabType: 'LUN'
-                }
-                device.vmName = vm.displayname || vm.name
-                device.virtualmachineid = finalVmId
-                device.isAssigned = true
-              }
-            }
-          }
+          })
 
           this.dataItems = scsiDevices.filter(device =>
             device.hostDevicesName && device.hostDevicesName.startsWith('/dev/sg')
@@ -3855,33 +3706,6 @@ export default {
     },
 
     async openScsiModal (record) {
-      const isAllocatedInLun = await this.checkDeviceAllocationInLun(record.hostDevicesName)
-      if (isAllocatedInLun) {
-        try {
-          const lunResp = await api('listHostLunDevices', { id: this.resource.id })
-          const lun = lunResp?.listhostlundevicesresponse?.listhostlundevices?.[0]
-          if (lun && lun.vmallocations && Array.isArray(lun.hostdevicesname)) {
-            const deviceMatch = record.hostDevicesText && record.hostDevicesText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
-            const lunDevice = deviceMatch ? deviceMatch[1] : null
-            if (lunDevice) {
-              const vmId = lun.vmallocations[lunDevice]
-              if (vmId) {
-                const vmRes = await api('listVirtualMachines', { id: vmId, listall: true })
-                const vm = vmRes.listvirtualmachinesresponse?.virtualmachine?.[0]
-                const vmName = vm ? (vm.displayname || vm.name) : ''
-                record.allocatedInOtherTab = { isAllocated: true, vmName, vmId, tabType: 'LUN' }
-                record.vmName = vmName
-                record.virtualmachineid = vmId
-                record.isAssigned = true
-                await this.deallocateScsiDevice(record)
-                this.$forceUpdate()
-              }
-            }
-          }
-        } catch (e) {}
-        return
-      }
-
       this.selectedResource = { ...this.resource, hostDevicesName: record.hostDevicesName }
       this.showAddModal = true
     },
@@ -3896,29 +3720,12 @@ export default {
       try {
         let vmId = null
         let vmName = 'Unknown VM'
-        let isLunAllocated = false
-        let lunDeviceName = null
 
-        if (record.allocatedInOtherTab) {
+        if (record.allocatedInOtherTab && record.allocatedInOtherTab.tabType === 'SCSI') {
           vmId = record.allocatedInOtherTab.vmId
           vmName = record.allocatedInOtherTab.vmName
-          isLunAllocated = record.allocatedInOtherTab.tabType === 'LUN'
-
-          if (!vmId) {
-            if (isLunAllocated) {
-              const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
-              const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
-
-              if (lunData?.vmallocations) {
-                const deviceMatch = record.hostDevicesText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
-                if (deviceMatch) {
-                  const lunDevice = deviceMatch[1]
-                  vmId = lunData.vmallocations[lunDevice]
-                }
-              }
-            }
-          }
-        } else {
+        }
+        if (!vmId) {
           const response = await api('listHostScsiDevices', {
             id: this.resource.id
           })
@@ -3952,88 +3759,30 @@ export default {
           content: `${vmName} ${this.$t('message.confirm.delete.device')}`,
           onOk: async () => {
             try {
-              if (isLunAllocated) {
-                const deviceMatch = record.hostDevicesText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
+              const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
+              const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
 
-                if (!deviceMatch) {
-                  throw new Error(`LUN device mapping not found in SCSI device text: ${record.hostDevicesText}`)
+              let actualDeviceText = record.hostDevicesText || ''
+              if (scsiData && scsiData.hostdevicesname) {
+                const deviceIndex = scsiData.hostdevicesname.indexOf(hostDevicesName)
+                if (deviceIndex !== -1 && scsiData.hostdevicestext) {
+                  actualDeviceText = scsiData.hostdevicestext[deviceIndex] || actualDeviceText
                 }
+              }
 
-                const baseDevicePath = deviceMatch[1]
+              const xmlConfig = this.generateScsiXmlFromText(hostDevicesName, actualDeviceText)
 
-                const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
-                const lunData = lunResponse.listhostlundevicesresponse?.listhostlundevices?.[0]
+              const detachResponse = await api('updateHostScsiDevices', {
+                hostid: this.resource.id,
+                hostdevicesname: hostDevicesName,
+                virtualmachineid: null,
+                currentvmid: vmId,
+                xmlconfig: xmlConfig,
+                isattach: false
+              })
 
-                if (!lunData || !Array.isArray(lunData.hostdevicesname)) {
-                  throw new Error('Failed to get LUN device list')
-                }
-
-                const scsiAddr = this.extractScsiAddressString(record.hostDevicesText)
-
-                let foundLunDeviceName = null
-                for (let i = 0; i < lunData.hostdevicesname.length; i++) {
-                  const lunName = lunData.hostdevicesname[i]
-                  const lunText = lunData.hostdevicestext[i] || ''
-                  const lunAddr = this.extractScsiAddressString(lunText)
-
-                  if (scsiAddr && lunAddr && scsiAddr === lunAddr) {
-                    foundLunDeviceName = lunName
-                    break
-                  }
-
-                  const lunBasePath = lunName.split(' (')[0]
-                  if (lunBasePath === baseDevicePath) {
-                    foundLunDeviceName = lunName
-                    break
-                  }
-                }
-
-                if (!foundLunDeviceName) {
-                  throw new Error(`LUN device not found for path: ${baseDevicePath}`)
-                }
-
-                lunDeviceName = foundLunDeviceName
-
-                const xmlConfig = this.generateXmlLunConfig(lunDeviceName)
-
-                const detachResponse = await api('updateHostLunDevices', {
-                  hostid: this.resource.id,
-                  hostdevicesname: lunDeviceName,
-                  virtualmachineid: null,
-                  currentvmid: vmId,
-                  xmlconfig: xmlConfig,
-                  isattach: false
-                })
-
-                if (!detachResponse || detachResponse.error) {
-                  throw new Error(detachResponse?.error?.errortext || 'Failed to detach LUN device')
-                }
-              } else {
-                const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
-                const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
-
-                let actualDeviceText = record.hostDevicesText || ''
-                if (scsiData && scsiData.hostdevicesname) {
-                  const deviceIndex = scsiData.hostdevicesname.indexOf(hostDevicesName)
-                  if (deviceIndex !== -1 && scsiData.hostdevicestext) {
-                    actualDeviceText = scsiData.hostdevicestext[deviceIndex] || actualDeviceText
-                  }
-                }
-
-                const xmlConfig = this.generateScsiXmlFromText(hostDevicesName, actualDeviceText)
-
-                const detachResponse = await api('updateHostScsiDevices', {
-                  hostid: this.resource.id,
-                  hostdevicesname: hostDevicesName,
-                  virtualmachineid: null,
-                  currentvmid: vmId,
-                  xmlconfig: xmlConfig,
-                  isattach: false
-                })
-
-                if (!detachResponse || detachResponse.error) {
-                  throw new Error(detachResponse?.error?.errortext || 'Failed to detach SCSI device')
-                }
+              if (!detachResponse || detachResponse.error) {
+                throw new Error(detachResponse?.error?.errortext || 'Failed to detach SCSI device')
               }
 
               this.dataItems = this.dataItems.map(item =>
@@ -4068,9 +3817,9 @@ export default {
 
     async isDeviceAllocatedInOtherTab (record, currentTab) {
       try {
+        // SCSI 탭에서는 ListHostLunDeviceCommand를 쓰지 않음 — LUN 탭(4) 등에서만 SCSI 할당 여부 조회
         const otherTabs = {
-          3: 'listHostLunDevices', // LUN 탭
-          5: 'listHostScsiDevices' // SCSI 탭
+          5: 'listHostScsiDevices'
         }
 
         for (const [tabKey, apiMethod] of Object.entries(otherTabs)) {
@@ -4088,23 +3837,7 @@ export default {
 
             let allocatedVmId = devices.vmallocations[deviceName]
 
-            if (!allocatedVmId && currentTab === '5' && tabKey === '3') {
-              const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
-              const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
-              if (scsiData) {
-                const scsiIndex = scsiData.hostdevicesname.indexOf(deviceName)
-                if (scsiIndex !== -1) {
-                  const scsiText = scsiData.hostdevicestext[scsiIndex]
-                  const deviceMatch = scsiText.match(/Device:\s*(\/dev\/[^\s\n]+)/)
-                  if (deviceMatch) {
-                    const blockDevice = deviceMatch[1]
-                    allocatedVmId = devices.vmallocations[blockDevice]
-                  }
-                }
-              }
-            }
-
-            if (!allocatedVmId && currentTab === '3' && tabKey === '5') {
+            if (!allocatedVmId && currentTab === '4' && tabKey === '5') {
               const scsiResponse = await api('listHostScsiDevices', { id: this.resource.id })
               const scsiData = scsiResponse.listhostscsidevicesresponse?.listhostscsidevices?.[0]
               if (scsiData) {
@@ -4128,7 +3861,7 @@ export default {
                   isAllocated: true,
                   vmName: vm.displayname || vm.name,
                   vmId: allocatedVmId,
-                  tabType: tabKey === '3' ? 'LUN' : 'SCSI'
+                  tabType: 'SCSI'
                 }
               }
             }
@@ -4142,13 +3875,6 @@ export default {
     },
 
     shouldShowAllocationButton (record) {
-      if (this.activeKey === '4') {
-        const deviceName = String(record.hostDevicesName || '')
-        if (deviceName.toUpperCase().includes('LUN') || deviceName.toLowerCase().includes('dm')) {
-          return false
-        }
-      }
-
       if (this.isDeviceAssigned(record) || record.allocatedInOtherTab) {
         return true
       }
@@ -4187,13 +3913,21 @@ export default {
       return deviceName && deviceName.includes('ceph--') && deviceName.includes('--osd--block--')
     },
 
+    /** SCSI 상세: Device: 줄은 이름 컬럼에 쓰므로 상세에서 제거 후 포맷 */
+    formatScsiHostDevicesText (text) {
+      if (!text) return text
+      let t = String(text)
+      t = t.replace(/\s*Device:\s*\S+/gi, '')
+      return this.formatHostDevicesText(t)
+    },
+
     formatHostDevicesText (text) {
       if (!text) return text
 
       let formattedText = text
 
       formattedText = formattedText.replace(/HAS_PARTITIONS:\s*false/gi, this.$t('label.no.partitions'))
-      formattedText = formattedText.replace(/HAS_PARTITIONS:\s*true/gi, this.$t('label.has.partitions'))
+      formattedText = formattedText.replace(/HAS_PARTITIONS:\s*true/gi, `<span class="lun-partitioned-text">${this.$t('label.has.partitions')}</span>`)
 
       formattedText = formattedText.replace(/USAGE_STATUS:\s*사용안함/gi, '사용안함')
       formattedText = formattedText.replace(/USAGE_STATUS:\s*사용중/gi, '사용중')
@@ -4215,16 +3949,28 @@ export default {
       }
 
       if (!hasExistingLineBreaks) {
-        formattedText = formattedText.replace(/([^<])\s+(TYPE|SIZE|SCSI_ADDRESS|SCSI\s+Address|Vendor|Model|Revision|Device|BY_ID|WWNN|WWPN|Fabric\s+WWN|Max\s+vPorts)\s*:/gi, '$1<br/>$2:')
-        formattedText = formattedText.replace(/([^<])\s+(파티션\s*(없음|있음))/gi, '$1<br/>$2')
+        formattedText = formattedText.replace(/([^<])\s+(TYPE|SIZE|SCSI_ADDRESS|SCSI\s+Address|Vendor|Model|Revision|Device|BY_ID|TRANSPORT|WWNN|WWPN|Fabric\s+WWN|Max\s+vPorts)\s*:/gi, '$1<br/>$2:')
         formattedText = formattedText.replace(/([^<]):\s*([^:\n<]+?)\s+([A-Z][A-Za-z_]{1,}\s*:)/g, '$1: $2<br/>$3')
         formattedText = formattedText.replace(/([^<])\s+([A-Z][A-Za-z_]{2,}\s*:)/g, '$1<br/>$2')
       } else {
-        formattedText = formattedText.replace(/([^<]):\s*([^:\n<]+?)(\s+)(TYPE|SIZE|SCSI_ADDRESS|SCSI\s+Address|Vendor|Model|Revision|Device|BY_ID|WWNN|WWPN|Fabric\s+WWN|Max\s+vPorts)\s*:/gi, '$1: $2<br/>$4:')
-        formattedText = formattedText.replace(/([^<]):\s*([^:\n<]+?)(\s+)(파티션\s*(없음|있음))/gi, '$1: $2<br/>$4')
+        formattedText = formattedText.replace(/([^<]):\s*([^:\n<]+?)(\s+)(TYPE|SIZE|SCSI_ADDRESS|SCSI\s+Address|Vendor|Model|Revision|Device|BY_ID|TRANSPORT|WWNN|WWPN|Fabric\s+WWN|Max\s+vPorts)\s*:/gi, '$1: $2<br/>$4:')
       }
 
+      // SIZE 값 출력 직후 줄바꿈 (다음 필드는 다음 줄)
+      formattedText = formattedText.replace(/(SIZE:\s+[^\s<]+)(?!\s*<br\/?>)(\s+)(?=\S)/gi, '$1<br/>$2')
+
       return formattedText
+    },
+    formatLunHostDevicesText (text, record) {
+      let formatted = this.formatHostDevicesText(text)
+      if (!formatted) return formatted
+      if (this.isDeviceAssigned(record) || record.allocatedInOtherTab) {
+        const hasPartitionsBlue = `<span class="lun-partitioned-text">${this.$t('label.has.partitions')}</span>`
+        const noPartitionsText = this.$t('label.no.partitions')
+        formatted = formatted.split(noPartitionsText).join(hasPartitionsBlue)
+        formatted = formatted.replace(/HAS_PARTITIONS:\s*false/gi, `<span class="lun-partitioned-text">${this.$t('label.has.partitions')}</span>`)
+      }
+      return formatted
     },
 
     async checkDeviceAllocationInScsi (deviceName) {
@@ -4245,22 +3991,9 @@ export default {
       }
     },
 
-    async checkDeviceAllocationInLun (deviceName) {
-      try {
-        if (!this.resource?.id) return false
-        const lunResponse = await api('listHostLunDevices', { id: this.resource.id })
-        const lunDevices = lunResponse?.listhostlundevicesresponse?.listhostlundevices?.[0]
-        if (lunDevices && lunDevices.vmallocations) {
-          for (const [lunDeviceName, vmId] of Object.entries(lunDevices.vmallocations)) {
-            if (vmId && this.isSamePhysicalDevice(deviceName, lunDeviceName)) {
-              return true
-            }
-          }
-        }
-        return false
-      } catch (error) {
-        return false
-      }
+    async checkDeviceAllocationInLun (_deviceName) {
+      // SCSI UI에서는 LUN API를 호출하지 않음
+      return false
     },
 
     isSamePhysicalDevice (device1, device2) {
@@ -4343,5 +4076,10 @@ export default {
     justify-content: space-between;
     align-items: center;
     width: 100%;
+  }
+
+  :deep(.lun-partitioned-text) {
+    color: #1890ff;
+    font-weight: 600;
   }
 </style>

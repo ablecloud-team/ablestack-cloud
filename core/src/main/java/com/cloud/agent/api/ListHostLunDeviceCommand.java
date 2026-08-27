@@ -23,12 +23,23 @@ import java.util.List;
 
 public class ListHostLunDeviceCommand extends Command {
 
+    public static final String MODE_SINGLE = "single";
+    public static final String MODE_MULTIPATH = "multipath";
+
     private final Long id;
+    private String lunPathMode = MODE_SINGLE;
     private List<String> hostDevicesName;
     private List<String> hostDevicesText;
 
     public ListHostLunDeviceCommand(Long id) {
+        this(id, MODE_SINGLE);
+    }
+
+    public ListHostLunDeviceCommand(Long id, String lunPathMode) {
         this.id = id;
+        if (lunPathMode != null && !lunPathMode.trim().isEmpty()) {
+            this.lunPathMode = lunPathMode.trim().toLowerCase();
+        }
     }
 
     @Override
@@ -38,6 +49,16 @@ public class ListHostLunDeviceCommand extends Command {
 
     public Long getId() {
         return id;
+    }
+
+    public String getLunPathMode() {
+        return lunPathMode;
+    }
+
+    public void setLunPathMode(String lunPathMode) {
+        if (lunPathMode != null && !lunPathMode.trim().isEmpty()) {
+            this.lunPathMode = lunPathMode.trim().toLowerCase();
+        }
     }
 
     public List<String> getHostDevicesName() {

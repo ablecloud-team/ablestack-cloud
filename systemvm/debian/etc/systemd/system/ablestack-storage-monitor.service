@@ -1,0 +1,15 @@
+[Unit]
+Description=ABLESTACK Storage Service monitor cache
+After=network-online.target qemu-guest-agent.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment=ABLESTACK_STORAGE_MONITOR_INTERVAL=10
+Environment=ABLESTACK_STORAGE_MONITOR_STALE_AFTER=30
+ExecStart=/usr/local/bin/ablestack-storage-monitor
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

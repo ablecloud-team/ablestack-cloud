@@ -141,7 +141,7 @@
     </a-affix>
 
     <div v-show="showAction">
-      <keep-alive v-if="currentAction.component && (!currentAction.groupAction || selectedRowKeys.length === 0 || (this.selectedRowKeys.length > 0 && currentAction.api === 'destroyVirtualMachine'))">
+      <keep-alive v-if="currentAction.component && (!currentAction.invokedAsGroupAction || (this.selectedRowKeys.length > 0 && currentAction.api === 'destroyVirtualMachine'))">
         <a-modal
           :visible="showAction"
           :closable="true"
@@ -213,20 +213,20 @@
                 <template #message>
                   <exclamation-circle-outlined style="color: red; fontSize: 30px; display: inline-flex" />
                   <span style="padding-left: 5px" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>&nbsp`" />
-                  <span v-html="$t(currentAction.message)" />
+                  <span v-html="currentAction.message" />
                 </template>
               </a-alert>
               <a-alert v-else type="warning">
                 <template #message>
                   <span v-if="selectedRowKeys.length > 0" v-html="`<b>${selectedRowKeys.length} ` + $t('label.items.selected') + `. </b>&nbsp`" />
-                  <span v-html="$t(currentAction.message)" />
+                  <span v-html="currentAction.message" />
                 </template>
               </a-alert>
             </div>
             <div v-else>
               <a-alert type="warning">
                 <template #message>
-                  <span v-html="$t(currentAction.message)" />
+                  <span v-html="currentAction.message" />
                 </template>
               </a-alert>
             </div>
@@ -418,7 +418,7 @@
         :maskClosable="false"
         :footer="null"
         style="top: 20px;"
-        :width="currentAction.groupAction ? modalWidth : '30vw'"
+        :width="currentAction.invokedAsGroupAction ? modalWidth : '30vw'"
         :ok-button-props="getOkProps()"
         ok-text="111"
         :cancel-button-props="getCancelProps()"
@@ -438,7 +438,7 @@
         </template>
         <a-spin :spinning="actionLoading" v-ctrl-enter="handleSubmit">
           <span v-if="currentAction.message">
-            <div v-if="selectedRowKeys.length > 0 && currentAction.groupAction">
+            <div v-if="selectedRowKeys.length > 0 && currentAction.invokedAsGroupAction">
               <a-alert
                 v-if="['delete-outlined', 'DeleteOutlined', 'poweroff-outlined', 'PoweroffOutlined'].includes(currentAction.icon)"
                 type="error">
@@ -462,7 +462,7 @@
                 </template>
               </a-alert>
             </div>
-            <div v-if="selectedRowKeys.length > 0 && currentAction.groupAction">
+            <div v-if="selectedRowKeys.length > 0 && currentAction.invokedAsGroupAction">
               <a-divider />
               <a-table
                 v-if="selectedRowKeys.length > 0"
@@ -673,7 +673,8 @@
           :loading="loading"
           :tabs="$route.meta.tabs"
           :actions="actions"
-          @exec-action="handleDataViewAction" />
+          @exec-action="handleDataViewAction"
+          @change-resource="resource = $event" />
       </div>
       <div class="row-element" v-else>
         <list-view
@@ -990,6 +991,13 @@ export default {
     },
     '$store.getters.listAllProjects' (oldVal, newVal) {
       this.fetchData()
+    },
+    showAction (visible) {
+      if (visible) {
+        this.clearAutoRefresh()
+      } else if (!this.dataView) {
+        this.scheduleAutoRefresh()
+      }
     }
   },
   computed: {
@@ -1062,6 +1070,40 @@ export default {
     }
   },
   methods: {
+    isScheduleListRoute () {
+      return ['/snapshotpolicy', '/backupschedule'].some(path => this.$route.path.endsWith(path))
+    },
+    getScheduleSortValue (record) {
+      const schedule = String(record?.schedule || '')
+      const intervalType = record?.intervaltype
+      if (intervalType === 0 || intervalType === 'HOURLY') {
+        const minute = Number(schedule)
+        return Number.isFinite(minute) ? minute : Number.MAX_SAFE_INTEGER
+      }
+
+      const [minuteValue, hourValue] = schedule.split(':')
+      const minute = Number(minuteValue)
+      const hour = Number(hourValue)
+      if (!Number.isFinite(hour) || !Number.isFinite(minute)) {
+        return Number.MAX_SAFE_INTEGER
+      }
+      return (hour * 60) + minute
+    },
+    getColumnSorter (key) {
+      if (key === 'schedule' && this.isScheduleListRoute()) {
+        return (a, b) => this.getScheduleSortValue(a) - this.getScheduleSortValue(b)
+      }
+      if (key === 'resources') {
+        return (a, b) => {
+          const cpuCompare = Number(a.cpunumber || 0) - Number(b.cpunumber || 0)
+          if (cpuCompare !== 0) {
+            return cpuCompare
+          }
+          return Number(a.memory || 0) - Number(b.memory || 0)
+        }
+      }
+      return (a, b) => genericCompare(a[key] || '', b[key] || '')
+    },
     resetSelection () {
       this.selectedRowKeys = []
       this.selectedItems = []
@@ -1091,7 +1133,7 @@ export default {
       return 'inline-flex'
     },
     getOkProps () {
-      if (this.selectedRowKeys.length > 0 && this.currentAction?.groupAction) {
+      if (this.selectedRowKeys.length > 0 && this.currentAction?.invokedAsGroupAction) {
       } else {
         return { props: { type: 'primary' } }
       }
@@ -1137,7 +1179,7 @@ export default {
       downloadLink.click()
     },
     getCancelProps () {
-      if (this.selectedRowKeys.length > 0 && this.currentAction?.groupAction) {
+      if (this.selectedRowKeys.length > 0 && this.currentAction?.invokedAsGroupAction) {
         return { props: { type: 'primary' } }
       } else {
         return { props: { type: 'default' } }
@@ -1302,11 +1344,12 @@ export default {
             customRender[key] = columnKey[key]
           }
         }
+        const sorter = this.getColumnSorter(key)
         this.columns.push({
           key: key,
           title: this.$t('label.' + String(title).toLowerCase()),
           dataIndex: key,
-          sorter: (a, b) => genericCompare(a[key] || '', b[key] || '')
+          sorter: sorter
         })
         this.selectedColumns.push(key)
       }
@@ -1556,6 +1599,7 @@ export default {
         }))
       } else {
         this.modalWidth = '30vw'
+        this.selectedItems = []
       }
       // this.modalWidth = '45vw'
 
@@ -1589,7 +1633,10 @@ export default {
         this.$router.push({ name: action.api, query })
         return
       }
-      this.currentAction = action
+      this.currentAction = {
+        ...action,
+        invokedAsGroupAction: !!isGroupAction
+      }
       this.currentAction.params = store.getters.apis[this.currentAction.api].params
       this.resource = action.resource
       this.$emit('change-resource', this.resource)
@@ -1604,11 +1651,12 @@ export default {
       })
       this.currentAction.paramFields = []
       this.currentAction.paramFilters = []
-      if ('message' in action) {
-        if (typeof action.message === 'function') {
-          action.message = action.message(action.resource)
+      if ('message' in this.currentAction) {
+        let message = this.currentAction.message
+        if (typeof message === 'function') {
+          message = message(action.resource)
         }
-        action.message = Array.isArray(action.message) ? this.$t(...action.message) : this.$t(action.message)
+        this.currentAction.message = Array.isArray(message) ? this.$t(...message) : this.$t(message)
       }
       this.getArgs(action, isGroupAction, paramFields)
       this.getFilters(action, isGroupAction, paramFields)
@@ -1855,7 +1903,7 @@ export default {
     handleSubmit (e) {
       if (this.actionLoading) return
       this.promises = []
-      if (!this.dataView && this.currentAction.groupAction && this.selectedRowKeys.length > 0) {
+      if (!this.dataView && this.currentAction.invokedAsGroupAction && this.selectedRowKeys.length > 0) {
         if (this.selectedRowKeys.length > 0) {
           this.bulkColumns = this.chosenColumns
           this.selectedItems = this.selectedItems.map(v => ({ ...v, status: 'InProgress' }))
@@ -2481,15 +2529,19 @@ export default {
 }
 
 .autogen-action-dropdown__content {
-  background: #fff;
-  border-radius: 8px;
-  border: 1px solid #d9d9d9;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  padding: 12px;
+  width: 272px;
+  max-height: ~"min(70vh, 640px)";
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 4px;
+  background: var(--ui-bg-elevated);
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px var(--ui-shadow);
 }
 
 .autogen-action-dropdown__content :deep(.row-action-button--dataview) {
-  width: max-content;
+  width: 100%;
   min-width: 0;
 }
 

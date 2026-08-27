@@ -28,7 +28,10 @@
       </template>
       <project-menu />
       <saml-domain-switcher style="margin-left: 20px" />
-      <user-menu :device="device"></user-menu>
+      <user-menu
+        :device="device"
+        @open-activity-panel="$emit('open-activity-panel')"
+        @open-display-settings="$emit('open-display-settings')" />
     </div>
     <div v-else :class="['top-nav-header-index', theme]">
       <div class="header-index-wide">
@@ -47,7 +50,9 @@
         </div>
         <project-menu />
         <saml-domain-switcher style="margin-left: 20px" />
-        <user-menu></user-menu>
+        <user-menu
+          @open-activity-panel="$emit('open-activity-panel')"
+          @open-display-settings="$emit('open-display-settings')" />
       </div>
     </div>
 

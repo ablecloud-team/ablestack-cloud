@@ -189,6 +189,10 @@ public class KVMHostActivityChecker extends AdapterBase implements ActivityCheck
         boolean activityStatus = true;
         HashMap<StoragePool, List<Volume>> poolVolMap = getVolumeUuidOnHost(agent);
         for (StoragePool pool : poolVolMap.keySet()) {
+            if (!isStoragePoolHeartbeatEnabled(pool)) {
+                logger.debug("Skipping VM activity check for {} on storage pool [{}] because KVM HA storage heartbeat is not enabled for the pool.", agent, pool);
+                continue;
+            }
             activityStatus = verifyActivityOfStorageOnHost(poolVolMap, pool, agent, suspectTime, activityStatus);
             if (!activityStatus) {
                 logger.warn("It seems that the storage pool [{}] does not have activity on {}.", pool, agent);
@@ -197,6 +201,24 @@ public class KVMHostActivityChecker extends AdapterBase implements ActivityCheck
         }
 
         return activityStatus;
+    }
+
+    protected boolean isStoragePoolHeartbeatEnabled(StoragePool pool) {
+        if (pool == null) {
+            return false;
+        }
+        return Boolean.TRUE.equals(HighAvailabilityManager.KvmHACheckOnStorage.valueIn(pool.getId()));
+    }
+
+    public boolean hasStoragePoolHeartbeatEnabled(Host agent) {
+        HashMap<StoragePool, List<Volume>> poolVolMap = getVolumeUuidOnHost(agent);
+        for (StoragePool pool : poolVolMap.keySet()) {
+            if (isStoragePoolHeartbeatEnabled(pool)) {
+                return true;
+            }
+        }
+        logger.debug("Host {} is not eligible for KVM HA because no storage pool has {} enabled.", agent, HighAvailabilityManager.KvmHACheckOnStorage.key());
+        return false;
     }
 
     protected boolean verifyActivityOfStorageOnHost(HashMap<StoragePool, List<Volume>> poolVolMap, StoragePool pool, Host agent, DateTime suspectTime, boolean activityStatus) throws HACheckerException, IllegalStateException {

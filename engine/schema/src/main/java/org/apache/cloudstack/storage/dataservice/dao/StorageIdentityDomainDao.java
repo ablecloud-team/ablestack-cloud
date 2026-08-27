@@ -1,4 +1,3 @@
-//
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -13,26 +12,15 @@
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 // KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
+// specific language govening permissions and limitations
 // under the License.
-//
 
-package com.cloud.agent.api;
+package org.apache.cloudstack.storage.dataservice.dao;
 
-public class UpdateHaStateCommand extends Command {
+import org.apache.cloudstack.storage.dataservice.StorageIdentityDomainVO;
 
-    String hostHAState;
+import com.cloud.utils.db.GenericDao;
 
-    public UpdateHaStateCommand(String hostHAState) {
-        this.hostHAState = hostHAState;
-    }
-
-    public String getHostHAState() {
-        return hostHAState;
-    }
-
-    @Override
-    public boolean executeInSequence() {
-        return true;
-    }
+public interface StorageIdentityDomainDao extends GenericDao<StorageIdentityDomainVO, Long> {
+    StorageIdentityDomainVO findByInstanceId(long instanceId);
 }

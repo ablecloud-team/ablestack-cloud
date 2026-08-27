@@ -139,11 +139,13 @@ import org.apache.cloudstack.api.command.admin.loadbalancer.ListLoadBalancerRule
 import org.apache.cloudstack.api.command.admin.management.ListMgmtsCmd;
 import org.apache.cloudstack.api.command.admin.network.AddNetworkDeviceCmd;
 import org.apache.cloudstack.api.command.admin.network.AddNetworkServiceProviderCmd;
+import org.apache.cloudstack.api.command.admin.network.CreateManagementNetworkIpRangeCmd;
 import org.apache.cloudstack.api.command.admin.network.CreateNetworkCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.network.CreateNetworkOfferingCmd;
 import org.apache.cloudstack.api.command.admin.network.CreatePhysicalNetworkCmd;
 import org.apache.cloudstack.api.command.admin.network.CreateStorageNetworkIpRangeCmd;
 import org.apache.cloudstack.api.command.admin.network.DedicateGuestVlanRangeCmd;
+import org.apache.cloudstack.api.command.admin.network.DeleteManagementNetworkIpRangeCmd;
 import org.apache.cloudstack.api.command.admin.network.DeleteNetworkDeviceCmd;
 import org.apache.cloudstack.api.command.admin.network.DeleteNetworkOfferingCmd;
 import org.apache.cloudstack.api.command.admin.network.DeleteNetworkServiceProviderCmd;
@@ -154,6 +156,7 @@ import org.apache.cloudstack.api.command.admin.network.ListGuestVlansCmd;
 import org.apache.cloudstack.api.command.admin.network.ListNetworkDeviceCmd;
 import org.apache.cloudstack.api.command.admin.network.ListNetworkIsolationMethodsCmd;
 import org.apache.cloudstack.api.command.admin.network.ListNetworkServiceProvidersCmd;
+import org.apache.cloudstack.api.command.admin.network.ListNetworksCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.network.ListPhysicalNetworksCmd;
 import org.apache.cloudstack.api.command.admin.network.ListStorageNetworkIpRangeCmd;
 import org.apache.cloudstack.api.command.admin.network.ListSupportedNetworkServicesCmd;
@@ -345,10 +348,12 @@ import org.apache.cloudstack.api.command.admin.volume.ResizeVolumeCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.volume.UpdateVolumeCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.volume.UploadVolumeCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vpc.CreatePrivateGatewayByAdminCmd;
+import org.apache.cloudstack.api.command.admin.vpc.CreateVPCCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vpc.CreateVPCOfferingCmd;
 import org.apache.cloudstack.api.command.admin.vpc.DeletePrivateGatewayCmd;
 import org.apache.cloudstack.api.command.admin.vpc.DeleteVPCOfferingCmd;
 import org.apache.cloudstack.api.command.admin.vpc.ListPrivateGatewaysCmdByAdminCmd;
+import org.apache.cloudstack.api.command.admin.vpc.ListVPCsCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vpc.UpdateVPCCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.vpc.UpdateVPCOfferingCmd;
 import org.apache.cloudstack.api.command.admin.zone.CreateZoneCmd;
@@ -397,6 +402,7 @@ import org.apache.cloudstack.api.command.user.autoscale.UpdateConditionCmd;
 import org.apache.cloudstack.api.command.user.bucket.CreateBucketCmd;
 import org.apache.cloudstack.api.command.user.bucket.DeleteBucketCmd;
 import org.apache.cloudstack.api.command.user.bucket.ListBucketsCmd;
+import org.apache.cloudstack.api.command.user.bucket.SyncBucketUsageCmd;
 import org.apache.cloudstack.api.command.user.bucket.UpdateBucketCmd;
 import org.apache.cloudstack.api.command.user.config.ListCapabilitiesCmd;
 import org.apache.cloudstack.api.command.user.consoleproxy.CreateConsoleEndpointCmd;
@@ -468,6 +474,7 @@ import org.apache.cloudstack.api.command.user.network.CreateNetworkPermissionsCm
 import org.apache.cloudstack.api.command.user.network.DeleteNetworkACLCmd;
 import org.apache.cloudstack.api.command.user.network.DeleteNetworkACLListCmd;
 import org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd;
+import org.apache.cloudstack.api.command.user.network.ListAvailableGuestIpsCmd;
 import org.apache.cloudstack.api.command.user.network.ListNetworkACLListsCmd;
 import org.apache.cloudstack.api.command.user.network.ListNetworkACLsCmd;
 import org.apache.cloudstack.api.command.user.network.ListNetworkOfferingsCmd;
@@ -757,6 +764,7 @@ import com.cloud.configuration.ConfigurationManagerImpl;
 import com.cloud.consoleproxy.ConsoleProxyManagementState;
 import com.cloud.consoleproxy.ConsoleProxyManager;
 import com.cloud.dc.AccountVlanMapVO;
+import com.cloud.dc.ClusterDetailsDao;
 import com.cloud.dc.ClusterVO;
 import com.cloud.dc.DataCenterVO;
 import com.cloud.dc.DomainVlanMapVO;
@@ -941,11 +949,10 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     static final String FOR_SYSTEMVMS = "forsystemvms";
     static final ConfigKey<Integer> vmPasswordLength = new ConfigKey<>("Advanced", Integer.class, "vm.password.length", "6", "Specifies the length of a randomly generated password", false);
     static final ConfigKey<Integer> sshKeyLength = new ConfigKey<>("Advanced", Integer.class, "ssh.key.length", "2048", "Specifies custom SSH key length (bit)", true, ConfigKey.Scope.Global);
-    static final ConfigKey<Integer> LicenseCheckInterval = new ConfigKey<>("Advanced", Integer.class,
-            "license.check.interval", "1",
-            "License check interval (days)", true);
+    static final ConfigKey<Integer> licenseCheckInterval = new ConfigKey<>("Advanced", Integer.class, "license.check.interval", "1", "License check interval (days)", true);
     static final ConfigKey<Boolean> humanReadableSizes = new ConfigKey<>("Advanced", Boolean.class, "display.human.readable.sizes", "true", "Enables outputting human readable byte sizes to logs and usage records.", false, ConfigKey.Scope.Global);
     public static final ConfigKey<String> customCsIdentifier = new ConfigKey<>("Advanced", String.class, "custom.cs.identifier", UUID.randomUUID().toString().split("-")[0].substring(4), "Custom identifier for the cloudstack installation", true, ConfigKey.Scope.Global);
+    public static final ConfigKey<Double> dbAactiveRestartThresholdPercent = new ConfigKey<>("Advanced", Double.class, "mold.db.pool.restart.threshold.percent", "0.98", "Restart the mold management service when active Cloud DB pool usage reaches this ratio of the maximum pool size. Values between 0 and 1 are recommended.", true, ConfigKey.Scope.Global);
     private static final VirtualMachine.Type []systemVmTypes = { VirtualMachine.Type.SecondaryStorageVm, VirtualMachine.Type.ConsoleProxy};
     private static final List<HypervisorType> LIVE_MIGRATION_SUPPORTING_HYPERVISORS = List.of(HypervisorType.Hyperv, HypervisorType.KVM,
             HypervisorType.LXC, HypervisorType.Ovm, HypervisorType.Ovm3, HypervisorType.Simulator, HypervisorType.VMware, HypervisorType.XenServer);
@@ -986,6 +993,8 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
     private PodVlanMapDao _podVlanMapDao;
     @Inject
     private HostDao _hostDao;
+    @Inject
+    private ClusterDetailsDao _clusterDetailsDao;
     @Inject
     protected HostDetailsDao _detailsDao;
     @Inject
@@ -1232,8 +1241,8 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             _alertExecutor.scheduleAtFixedRate(new AlertPurgeTask(), alertPurgeInterval, alertPurgeInterval, TimeUnit.SECONDS);
         }
 
-        if(LicenseCheckInterval.value() > 0) {
-            _licenseExecutor.scheduleAtFixedRate(new LicenseCheckTask(), 0, LicenseCheckInterval.value(), TimeUnit.DAYS);
+        if(licenseCheckInterval.value() > 0) {
+            _licenseExecutor.scheduleAtFixedRate(new LicenseCheckTask(), 0, licenseCheckInterval.value(), TimeUnit.DAYS);
         }
 
         final String[] availableIds = TimeZone.getAvailableIDs();
@@ -2366,7 +2375,21 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
             return listResponse;
         }
 
-        ListHostLunDeviceCommand lunCmd = new ListHostLunDeviceCommand(id);
+        String lunPathMode = cmd.getLunPathMode();
+        if (lunPathMode == null || lunPathMode.trim().isEmpty()) {
+            Map<String, String> hostDetails = _hostDetailsDao.findDetails(hostVO.getId());
+            if (hostDetails != null) {
+                String fromDetail = hostDetails.get(ApiConstants.LUN_PATH_MODE);
+                if (fromDetail != null && !fromDetail.trim().isEmpty()) {
+                    lunPathMode = fromDetail.trim();
+                }
+            }
+        }
+        if (lunPathMode == null || lunPathMode.trim().isEmpty()) {
+            lunPathMode = ListHostLunDeviceCommand.MODE_SINGLE;
+        }
+
+        ListHostLunDeviceCommand lunCmd = new ListHostLunDeviceCommand(id, lunPathMode);
         Answer answer;
         try {
             answer = _agentMgr.send(hostVO.getId(), lunCmd);
@@ -3619,35 +3642,6 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                     // VM extraconfig에서 해당 디바이스 설정 제거
                     if (vmIdToRemove != null && !vmIdToRemove.trim().isEmpty()) {
                         removeDeviceFromVmExtraConfig(Long.parseLong(vmIdToRemove), hostDeviceName, xmlConfig);
-
-                        // LUN 디바이스 삭제 시 함께 삭제되는 SCSI 디바이스의 extraconfig도 삭제
-                        try {
-                            // 같은 VM에 할당된 모든 디바이스 할당 정보 조회
-                            SearchCriteria<DetailVO> sc = _hostDetailsDao.createSearchCriteria();
-                            sc.addAnd("hostId", SearchCriteria.Op.EQ, hostId);
-                            sc.addAnd("value", SearchCriteria.Op.EQ, vmIdToRemove);
-                            List<DetailVO> allAllocations = _hostDetailsDao.search(sc, null);
-
-                            // SCSI 디바이스 중에서 같은 물리 디바이스에 매핑된 것 찾기
-                            for (DetailVO allocation : allAllocations) {
-                                String deviceName = extractDeviceNameFromStoredKey(allocation.getName());
-                                if (isScsiDevice(deviceName)) {
-                                    // SCSI 디바이스의 물리 경로 추출
-                                    String scsiPhysicalPath = extractPhysicalDeviceFromScsi(deviceName);
-                                    if (scsiPhysicalPath != null) {
-                                        // LUN 디바이스 이름과 SCSI 디바이스의 물리 경로를 비교하여 같은 물리 디바이스인지 확인
-                                        if (isSamePhysicalDevice(hostDeviceName, scsiPhysicalPath)) {
-                                            // 같은 물리 디바이스에 매핑된 SCSI 디바이스의 extraconfig 삭제
-                                            removeDeviceFromVmExtraConfig(Long.parseLong(vmIdToRemove), deviceName, "");
-                                            // host_details에서 SCSI 할당 레코드도 삭제 (가상머신 설정과 동기화)
-                                            _hostDetailsDao.remove(allocation.getId());
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            logger.warn("Error removing SCSI device extraconfig for LUN device {}: {}", hostDeviceName, e.getMessage());
-                        }
                     }
                 }
             } else {
@@ -6298,9 +6292,11 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(UpdateHostPasswordCmd.class);
         cmdList.add(AddNetworkDeviceCmd.class);
         cmdList.add(AddNetworkServiceProviderCmd.class);
+        cmdList.add(CreateManagementNetworkIpRangeCmd.class);
         cmdList.add(CreateNetworkOfferingCmd.class);
         cmdList.add(CreatePhysicalNetworkCmd.class);
         cmdList.add(CreateStorageNetworkIpRangeCmd.class);
+        cmdList.add(DeleteManagementNetworkIpRangeCmd.class);
         cmdList.add(DeleteNetworkDeviceCmd.class);
         cmdList.add(DeleteNetworkOfferingCmd.class);
         cmdList.add(DeleteNetworkServiceProviderCmd.class);
@@ -6502,6 +6498,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(ListNetworkPermissionsCmd.class);
         cmdList.add(ListNetworkProtocolsCmd.class);
         cmdList.add(ListNetworksCmd.class);
+        cmdList.add(ListAvailableGuestIpsCmd.class);
         cmdList.add(RestartNetworkCmd.class);
         cmdList.add(UpdateNetworkCmd.class);
         cmdList.add(CreateNetworkPermissionsCmd.class);
@@ -6757,9 +6754,9 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(AssociateIPAddrCmdByAdmin.class);
         cmdList.add(ListPublicIpAddressesCmdByAdmin.class);
         cmdList.add(CreateNetworkCmdByAdmin.class);
-        // cmdList.add(ListNetworksCmdByAdmin.class);
-        // cmdList.add(CreateVPCCmdByAdmin.class);
-        // cmdList.add(ListVPCsCmdByAdmin.class);
+        cmdList.add(ListNetworksCmdByAdmin.class);
+        cmdList.add(CreateVPCCmdByAdmin.class);
+        cmdList.add(ListVPCsCmdByAdmin.class);
         cmdList.add(UpdateVPCCmdByAdmin.class);
         cmdList.add(CreatePrivateGatewayByAdminCmd.class);
         cmdList.add(ListPrivateGatewaysCmdByAdminCmd.class);
@@ -6837,6 +6834,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(UpdateBucketCmd.class);
         cmdList.add(DeleteBucketCmd.class);
         cmdList.add(ListBucketsCmd.class);
+        cmdList.add(SyncBucketUsageCmd.class);
         cmdList.add(LicenseCheckCmd.class);
         cmdList.add(ListHostRedfishDataCmd.class);
 
@@ -6850,7 +6848,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
 
     @Override
     public ConfigKey<?>[] getConfigKeys() {
-        return new ConfigKey<?>[] {vmPasswordLength, sshKeyLength, humanReadableSizes, customCsIdentifier};
+        return new ConfigKey<?>[] {vmPasswordLength, sshKeyLength, humanReadableSizes, customCsIdentifier, dbAactiveRestartThresholdPercent};
     }
 
     protected class EventPurgeTask extends ManagedContextRunnable {

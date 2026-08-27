@@ -132,7 +132,7 @@ public class ZoneMetricsResponse extends ZoneResponse implements HostMetricsSumm
 
     public void setMemTotal(final Long memTotal) {
         if (memTotal != null) {
-            this.memTotal = String.format("%.2f GB", memTotal / (1024.0 * 1024.0 * 1024.0));
+            this.memTotal = String.format("%.2f GiB", memTotal / (1024.0 * 1024.0 * 1024.0));
         }
     }
 

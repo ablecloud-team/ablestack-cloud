@@ -55,6 +55,8 @@ public interface LoadBalancingRulesManager {
 
     LbSslCert getLbSslCert(long lbId);
 
+    boolean isBackendSslEnabled(Long lbRuleId);
+
     /**
      * Remove vm from all load balancers
      * @param vmId

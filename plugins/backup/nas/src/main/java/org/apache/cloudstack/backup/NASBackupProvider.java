@@ -50,6 +50,7 @@ import com.cloud.vm.snapshot.dao.VMSnapshotDetailsDao;
 
 
 import org.apache.cloudstack.backup.dao.BackupDao;
+import org.apache.cloudstack.backup.dao.BackupOfferingDao;
 import org.apache.cloudstack.backup.dao.BackupRepositoryDao;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStore;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStoreManager;
@@ -72,13 +73,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.apache.cloudstack.backup.BackupManager.BackupCommandTimeout;
+import static org.apache.cloudstack.backup.BackupManager.BackupRestoreTimeout;
 import static org.apache.cloudstack.backup.BackupManager.BackupFrameworkEnabled;
 
 public class NASBackupProvider extends AdapterBase implements BackupProvider, Configurable {
     private static final Logger LOG = LogManager.getLogger(NASBackupProvider.class);
+    private static final long STALE_BACKUP_THRESHOLD_MS = TimeUnit.DAYS.toMillis(1);
 
     ConfigKey<Integer> NASBackupRestoreMountTimeout = new ConfigKey<>("Advanced", Integer.class,
             "nas.backup.restore.mount.timeout",
@@ -89,6 +94,9 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
 
     @Inject
     private BackupDao backupDao;
+
+    @Inject
+    private BackupOfferingDao backupOfferingDao;
 
     @Inject
     private BackupRepositoryDao backupRepositoryDao;
@@ -209,19 +217,26 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
 
         BackupVO backupVO = createBackupObject(vm, backupPath);
         TakeBackupCommand command = new TakeBackupCommand(vm.getInstanceName(), backupPath);
+        final int commandTimeout = BackupCommandTimeout.value();
+        if (commandTimeout > 0) {
+            command.setWait(commandTimeout);
+        }
         command.setBackupRepoType(backupRepository.getType());
         command.setBackupRepoAddress(backupRepository.getAddress());
         command.setMountOptions(backupRepository.getMountOptions());
         command.setQuiesce(quiesceVM);
+        List<VolumeVO> vmVolumes = volumeDao.findByInstance(vm.getId());
+        vmVolumes.sort(Comparator.comparing(Volume::getDeviceId));
+        command.setVolumeUuids(vmVolumes.stream().map(VolumeVO::getUuid).collect(Collectors.toList()));
 
         if (VirtualMachine.State.Stopped.equals(vm.getState())) {
-            List<VolumeVO> vmVolumes = volumeDao.findByInstance(vm.getId());
-            vmVolumes.sort(Comparator.comparing(Volume::getDeviceId));
             Pair<List<PrimaryDataStoreTO>, List<String>> volumePoolsAndPaths = getVolumePoolsAndPaths(vmVolumes);
             command.setVolumePools(volumePoolsAndPaths.first());
             command.setVolumePaths(volumePoolsAndPaths.second());
         }
 
+        logger.info("Submitting NAS backup command for VM [{}] on host [{}] with backup [{}], path [{}], state [{}], timeout [{}] seconds, volumes [{}]",
+                vm.getInstanceName(), host.getName(), backupVO.getUuid(), backupPath, vm.getState(), command.getWait(), vmVolumes.size());
         BackupAnswer answer;
         try {
             answer = (BackupAnswer) agentManager.send(host.getId(), command);
@@ -238,6 +253,8 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         }
 
         if (answer != null && answer.getResult()) {
+            logger.info("NAS backup command completed for VM [{}], backup [{}], path [{}], size [{}] bytes",
+                    vm.getInstanceName(), backupVO.getUuid(), backupPath, answer.getSize());
             backupVO.setDate(new Date());
             backupVO.setSize(answer.getSize());
             backupVO.setStatus(Backup.Status.BackedUp);
@@ -317,6 +334,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         restoreCommand.setVmExists(vm.getRemoved() == null);
         restoreCommand.setVmState(vm.getState());
         restoreCommand.setMountTimeout(NASBackupRestoreMountTimeout.value());
+        restoreCommand.setWait(BackupRestoreTimeout.value());
 
         BackupAnswer answer;
         try {
@@ -417,6 +435,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         restoreCommand.setVmState(vmNameAndState.second());
         restoreCommand.setRestoreVolumeUUID(backupVolumeInfo.getUuid());
         restoreCommand.setMountTimeout(NASBackupRestoreMountTimeout.value());
+        restoreCommand.setWait(BackupRestoreTimeout.value());
         restoreCommand.setCacheMode(cacheMode);
 
         BackupAnswer answer;
@@ -481,7 +500,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         }
 
         if (answer != null && answer.getResult()) {
-            return backupDao.remove(backup.getId());
+            return true;
         }
 
         logger.debug("There was an error removing the backup with id {}", backup.getId());
@@ -554,6 +573,10 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
     public void syncBackupStorageStats(Long zoneId) {
         final List<BackupRepository> repositories = backupRepositoryDao.listByZoneAndProvider(zoneId, getName());
         final Host host = resourceManager.findOneRandomRunningHostByHypervisor(Hypervisor.HypervisorType.KVM, zoneId);
+        if (host == null) {
+            LOG.warn("Skipping backup storage stats sync for NAS provider in zone [{}] because no running KVM host was found", zoneId);
+            return;
+        }
         for (final BackupRepository repository : repositories) {
             GetBackupStorageStatsCommand command = new GetBackupStorageStatsCommand(repository.getType(), repository.getAddress(), repository.getMountOptions());
             BackupStorageStatsAnswer answer;
@@ -600,6 +623,11 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         return "NAS Backup Plugin";
     }
 
+    private boolean isBackupManagedByThisProvider(Backup backup) {
+        BackupOffering offering = backupOfferingDao.findByIdIncludingRemoved(backup.getBackupOfferingId());
+        return offering != null && Objects.equals(getName(), offering.getProvider());
+    }
+
     @Override
     public String getConfigComponentName() {
         return BackupService.class.getSimpleName();
@@ -607,6 +635,27 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
 
     @Override
     public void syncBackups(VirtualMachine vm) {
+        for (final Backup backup : backupDao.listByVmId(vm.getDataCenterId(), vm.getId())) {
+            if (!isBackupManagedByThisProvider(backup)) {
+                continue;
+            }
+            if (!(backup instanceof BackupVO) || !Backup.Status.BackingUp.equals(backup.getStatus()) || !isOlderThanOneDay(backup.getDate())) {
+                continue;
+            }
+            LOG.warn("Removing stale NAS backup [{}] for VM [{}] stuck in BackingUp for over one day. Repository path: [{}]",
+                    backup.getUuid(), vm.getInstanceName(), backup.getExternalId());
+            try {
+                if (deleteBackup(backup, true)) {
+                    backupDao.remove(backup.getId());
+                }
+            } catch (Exception e) {
+                LOG.warn("Failed to delete stale NAS backup [{}] for VM [{}]", backup.getUuid(), vm.getInstanceName(), e);
+            }
+        }
+    }
+
+    private boolean isOlderThanOneDay(Date backupDate) {
+        return backupDate != null && backupDate.getTime() <= System.currentTimeMillis() - STALE_BACKUP_THRESHOLD_MS;
     }
 
     @Override

@@ -183,7 +183,7 @@
           </div>
         </template>
         <div>
-          <div v-for="ctype in ['MEMORY', 'CPU', 'CPU_CORE', 'GPU']" :key="ctype" >
+          <div v-for="ctype in computeCapacityTypes" :key="ctype" >
             <div v-if="statsMap[ctype]">
               <div>
                 <strong>{{ $t(ts[ctype]) }}</strong>
@@ -388,6 +388,13 @@ export default {
     }
   },
   computed: {
+    computeCapacityTypes () {
+      const types = ['MEMORY', 'CPU', 'CPU_CORE']
+      if ((this.statsMap.GPU?.capacitytotal || 0) > 0) {
+        types.push('GPU')
+      }
+      return types
+    },
     zoneSelectedKey () {
       if (this.zones.length === 0) {
         return this.zoneSelected.name

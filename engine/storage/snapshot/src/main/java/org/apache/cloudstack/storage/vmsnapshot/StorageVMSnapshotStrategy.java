@@ -39,6 +39,7 @@ import org.apache.cloudstack.engine.subsystem.api.storage.VolumeInfo;
 import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.cloud.agent.api.CreateVMSnapshotAnswer;
 import com.cloud.agent.api.CreateVMSnapshotCommand;
@@ -96,6 +97,7 @@ public class StorageVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
     VMSnapshotDetailsDao vmSnapshotDetailsDao;
 
     private static final String STORAGE_SNAPSHOT = "kvmStorageSnapshot";
+    private static final String CLONE_VM_SNAPSHOT_BACKING_PATH = "clone.vm.snapshot.backing.path.";
 
     @Override
     public boolean configure(String name, Map<String, Object> params) throws ConfigurationException {
@@ -429,7 +431,12 @@ public class StorageVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
                               snapshotName, (short) Snapshot.Type.GROUP.ordinal(),  Snapshot.Type.GROUP.name(),  vol.getSize(), vol.getMinIops(),  vol.getMaxIops(), Hypervisor.HypervisorType.KVM, null);
 
         snapshot = snapshotDao.persist(snapshot);
-        vol.addPayload(setPayload(vol, snapshot));
+        CreateSnapshotPayload payload = setPayload(vol, snapshot);
+        String cloneSnapshotPath = getCloneVmSnapshotBackingPath(vmSnapshot, vol);
+        if (StringUtils.isNotBlank(cloneSnapshotPath)) {
+            payload.setSnapshotPath(cloneSnapshotPath);
+        }
+        vol.addPayload(payload);
         SnapshotInfo snapshotInfo = snapshotDataFactory.getSnapshot(snapshot.getId(), vol.getDataStore());
         snapshotInfo.addPayload(vol.getpayload());
         snapshotInfo.setVmSnapshotName(vmSnapshot.getName());
@@ -446,6 +453,14 @@ public class StorageVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
         vmSnapshotDetailsDao.persist(new VMSnapshotDetailsVO(vmSnapshot.getId(), STORAGE_SNAPSHOT, String.valueOf(snapshot.getId()), true));
         snapshotInfo.markBackedUp();
         return snapshotInfo;
+    }
+
+    protected String getCloneVmSnapshotBackingPath(VMSnapshot vmSnapshot, VolumeInfo vol) {
+        List<VMSnapshotDetailsVO> details = vmSnapshotDetailsDao.findDetails(vmSnapshot.getId(), CLONE_VM_SNAPSHOT_BACKING_PATH + vol.getId());
+        if (CollectionUtils.isEmpty(details)) {
+            return null;
+        }
+        return details.get(0).getValue();
     }
 
     protected CreateSnapshotPayload setPayload(VolumeInfo vol, SnapshotVO snapshotCreate) {

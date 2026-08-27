@@ -64,7 +64,6 @@ import org.apache.cloudstack.management.ManagementServerHost;
 import org.apache.cloudstack.poll.BackgroundPollManager;
 import org.apache.cloudstack.poll.BackgroundPollTask;
 import org.apache.cloudstack.utils.identity.ManagementServerNode;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.cloud.host.HostVO;
@@ -110,7 +109,6 @@ import com.cloud.utils.fsm.StateMachine2;
 import com.google.common.base.Preconditions;
 import org.apache.cloudstack.api.ResponseGenerator;
 import com.cloud.agent.AgentManager;
-import com.cloud.agent.api.UpdateHaStateCommand;
 import com.cloud.api.query.vo.UserVmJoinVO;
 import com.cloud.api.query.dao.UserVmJoinDao;
 
@@ -473,10 +471,6 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
         clusterDetailsDao.persist(cluster.getId(), HA_ENABLED_DETAIL, String.valueOf(true));
 
         List<? extends HAResource> hosts = hostDao.findHypervisorHostInCluster(cluster.getId());
-        if (CollectionUtils.isNotEmpty(hosts)) {
-            UpdateHaStateCommand cmd = new UpdateHaStateCommand("enable");
-            _agentMgr.easySend(hosts.get(0).getId(), cmd);
-        }
         //host enableHA
         if (includeHost) {
             for (HAResource resource : hosts) {
@@ -497,10 +491,6 @@ public final class HAManagerImpl extends ManagerBase implements HAManager, Clust
         clusterDetailsDao.persist(cluster.getId(), HA_ENABLED_DETAIL, String.valueOf(false));
 
         List<? extends HAResource> hosts = hostDao.findHypervisorHostInCluster(cluster.getId());
-        if (CollectionUtils.isNotEmpty(hosts)) {
-            UpdateHaStateCommand cmd = new UpdateHaStateCommand("disable");
-            _agentMgr.easySend(hosts.get(0).getId(), cmd);
-        }
         //host disableHA
         if (includeHost) {
             for (HAResource resource : hosts) {

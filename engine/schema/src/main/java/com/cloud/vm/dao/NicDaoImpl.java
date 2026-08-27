@@ -34,6 +34,7 @@ import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
 import com.cloud.utils.db.SearchCriteria.Func;
 import com.cloud.utils.db.SearchCriteria.Op;
+import com.cloud.utils.db.UpdateBuilder;
 import com.cloud.vm.Nic;
 import com.cloud.vm.Nic.State;
 import com.cloud.vm.NicVO;
@@ -176,6 +177,36 @@ public class NicDaoImpl extends GenericDaoBase<NicVO, Long> implements NicDao {
         sc.addAnd("networkId", SearchCriteria.Op.EQ, networkId);
         sc.addAnd("instanceId", SearchCriteria.Op.EQ, instanceId);
         return findOneIncludingRemovedBy(sc);
+    }
+
+    @Override
+    public boolean updateSecondaryIpFlag(final long nicId, final boolean secondaryIp, final String expectedPrimaryIp) {
+        final NicVO update = createForUpdate();
+        final UpdateBuilder builder = getUpdateBuilder(update);
+        builder.set(update, "secondaryIp", secondaryIp);
+        final SearchCriteria<NicVO> criteria = createSearchCriteria();
+        criteria.addAnd("id", Op.EQ, nicId);
+        addExpectedPrimaryIpCondition(criteria, expectedPrimaryIp);
+        return update(update, criteria) == 1;
+    }
+
+    @Override
+    public boolean updatePrimaryIpAddress(final long nicId, final String primaryIp, final String expectedPrimaryIp) {
+        final NicVO update = createForUpdate();
+        final UpdateBuilder builder = getUpdateBuilder(update);
+        builder.set(update, "iPv4Address", primaryIp);
+        final SearchCriteria<NicVO> criteria = createSearchCriteria();
+        criteria.addAnd("id", Op.EQ, nicId);
+        addExpectedPrimaryIpCondition(criteria, expectedPrimaryIp);
+        return update(update, criteria) == 1;
+    }
+
+    protected void addExpectedPrimaryIpCondition(final SearchCriteria<NicVO> criteria, final String expectedPrimaryIp) {
+        if (expectedPrimaryIp == null) {
+            criteria.addAnd("iPv4Address", Op.NULL);
+        } else {
+            criteria.addAnd("iPv4Address", Op.EQ, expectedPrimaryIp);
+        }
     }
 
     private NicVO findByNetworkIdAndTypeInternal(long networkId, VirtualMachine.Type vmType, boolean includingRemoved) {

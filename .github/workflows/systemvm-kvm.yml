@@ -1,0 +1,244 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+name: KVM System VM Template
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Git ref containing the System VM sources
+        required: true
+        type: string
+      version:
+        description: Product version embedded in the image name
+        required: true
+        type: string
+      build_number:
+        description: Release build number embedded in the image name
+        required: true
+        type: string
+      artifact_name:
+        description: GitHub Actions artifact name
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-systemvm-kvm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    defaults:
+      run:
+        shell: bash
+    env:
+      PACKER_VERSION: 1.9.4
+      SYSTEMVM_REF: ${{ inputs.ref }}
+      SYSTEMVM_VERSION: ${{ inputs.version }}
+      SYSTEMVM_BUILD_NUMBER: ${{ inputs.build_number }}
+      SYSTEMVM_ARTIFACT_NAME: ${{ inputs.artifact_name }}
+      SYSTEMVM_ISO_CACHE: ${{ github.workspace }}/.cache/systemvm
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.SYSTEMVM_REF }}
+          fetch-depth: 0
+
+      - name: Restore Debian installer ISO cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.cache/systemvm
+          key: systemvm-debian-12.12.0-amd64-c93055182057dd19
+
+      - name: Install KVM System VM build prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            bzip2 \
+            curl \
+            jq \
+            qemu-system-x86 \
+            qemu-utils \
+            sharutils \
+            unzip
+
+          packer_archive="packer_${PACKER_VERSION}_linux_amd64.zip"
+          curl -fsSLO "https://releases.hashicorp.com/packer/${PACKER_VERSION}/${packer_archive}"
+          curl -fsSLO "https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_SHA256SUMS"
+          grep " ${packer_archive}$" "packer_${PACKER_VERSION}_SHA256SUMS" | sha256sum -c -
+          sudo unzip -o "$packer_archive" -d /usr/local/bin
+          rm -f "$packer_archive" "packer_${PACKER_VERSION}_SHA256SUMS"
+          packer version
+
+      - name: Download and verify Debian installer ISO
+        run: |
+          template=tools/appliance/systemvmtemplate/template-base_x86_64-target_x86_64.json
+          iso_url=$(jq -r '.builders[0].iso_url' "$template")
+          iso_checksum=$(jq -r '.builders[0].iso_checksum' "$template")
+          iso_checksum=${iso_checksum#sha512:}
+          iso_path="$SYSTEMVM_ISO_CACHE/$(basename "$iso_url")"
+          mkdir -p "$SYSTEMVM_ISO_CACHE"
+
+          if [ -f "$iso_path" ] &&
+             ! printf '%s  %s\n' "$iso_checksum" "$iso_path" | sha512sum -c -; then
+            rm -f "$iso_path"
+          fi
+
+          if [ ! -f "$iso_path" ]; then
+            partial_path="${iso_path}.part"
+            rm -f "$partial_path"
+            curl \
+              --fail \
+              --location \
+              --retry 8 \
+              --retry-delay 15 \
+              --retry-all-errors \
+              --connect-timeout 60 \
+              --max-time 3600 \
+              --output "$partial_path" \
+              "$iso_url"
+            printf '%s  %s\n' "$iso_checksum" "$partial_path" | sha512sum -c -
+            mv "$partial_path" "$iso_path"
+          fi
+
+          local_iso_url=$(python3 -c \
+            'from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve().as_uri())' \
+            "$iso_path")
+          jq --arg iso_url "$local_iso_url" \
+            '.builders[0].iso_url = $iso_url' \
+            "$template" > "${template}.tmp"
+          mv "${template}.tmp" "$template"
+          jq -e '.builders[0].iso_url | startswith("file://")' "$template"
+
+      - name: Validate KVM and NBD support
+        run: |
+          if [ ! -e /dev/kvm ]; then
+            echo "::error::The runner does not provide /dev/kvm; a KVM-capable runner is required"
+            exit 1
+          fi
+          sudo chmod 666 /dev/kvm
+          if [ ! -r /dev/kvm ] || [ ! -w /dev/kvm ]; then
+            echo "::error::The runner cannot access /dev/kvm"
+            exit 1
+          fi
+
+          sudo modprobe nbd max_part=8
+          if [ ! -b /dev/nbd7 ]; then
+            echo "::error::The runner did not create /dev/nbd7 after loading the nbd module"
+            exit 1
+          fi
+
+          qemu-system-x86_64 --version
+          qemu-img --version
+
+      - name: Build KVM System VM template
+        run: |
+          mkdir -p dist/systemvm-kvm
+          set -o pipefail
+          cd tools/appliance
+          sudo -E env \
+            PATH="$PATH" \
+            PACKER_LOG=1 \
+            bash ./build.sh \
+              systemvmtemplate \
+              "$SYSTEMVM_VERSION" \
+              x86_64 \
+              "$SYSTEMVM_BUILD_NUMBER" \
+            2>&1 | tee "$GITHUB_WORKSPACE/dist/systemvm-kvm/systemvm-kvm-build.log"
+          sudo chown -R "$(id -u):$(id -g)" dist "$GITHUB_WORKSPACE/dist/systemvm-kvm"
+
+      - name: Validate and stage KVM System VM artifact
+        run: |
+          mapfile -t images < <(
+            find tools/appliance/dist -maxdepth 1 -type f \
+              -name 'systemvmtemplate-*-x86_64-kvm-*.qcow2.bz2' \
+              -print
+          )
+          if [ "${#images[@]}" -ne 1 ]; then
+            echo "::error::Expected exactly one KVM qcow2.bz2 image, found ${#images[@]}"
+            printf '%s\n' "${images[@]}"
+            exit 1
+          fi
+
+          mapfile -t unexpected_images < <(
+            find tools/appliance/dist -maxdepth 1 -type f \
+              \( -name '*.ova' -o -name '*.vmdk' -o -name '*-xen.*' \
+                 -o -name '*-ovm.*' -o -name '*-hyperv.*' \) \
+              -print
+          )
+          if [ "${#unexpected_images[@]}" -ne 0 ]; then
+            echo "::error::Non-KVM System VM artifacts were generated"
+            printf '%s\n' "${unexpected_images[@]}"
+            exit 1
+          fi
+
+          image="${images[0]}"
+          roundtrip_image=$(mktemp /tmp/systemvm-kvm-roundtrip.XXXXXX.qcow2)
+          trap 'rm -f "$roundtrip_image"' EXIT
+          bunzip2 -c "$image" > "$roundtrip_image"
+          qemu-img check "$roundtrip_image"
+          sudo env SYSTEMVM_VALIDATE_NBD_DEVICE=/dev/nbd7 \
+            tools/appliance/scripts/validate_systemvm_image.sh "$roundtrip_image"
+
+          stage_dir=dist/systemvm-kvm/release
+          mkdir -p "$stage_dir"
+          cp "$image" "$stage_dir/"
+          (
+            cd "$stage_dir"
+            sha256sum "$(basename "$image")" > SYSTEMVM-SHA256SUMS
+          )
+
+          cat > "$stage_dir/SYSTEMVM-BUILD-MANIFEST.txt" <<EOF
+          Source commit: $(git rev-parse HEAD)
+          Version: $SYSTEMVM_VERSION
+          Build number: $SYSTEMVM_BUILD_NUMBER
+          Architecture: x86_64
+          Hypervisor: KVM
+          Format: qcow2.bz2
+          Packer: $(packer version | head -n 1)
+          QEMU: $(qemu-system-x86_64 --version | head -n 1)
+          Image: $(basename "$image")
+          EOF
+
+      - name: Summarize KVM System VM artifact
+        run: |
+          image=$(find dist/systemvm-kvm/release -maxdepth 1 -type f -name '*.qcow2.bz2' -printf '%f\n')
+          {
+            echo "## KVM System VM Template"
+            echo
+            echo "- Ref: \`$SYSTEMVM_REF\`"
+            echo "- Source commit: \`$(git rev-parse HEAD)\`"
+            echo "- Version: \`$SYSTEMVM_VERSION\`"
+            echo "- Build number: \`$SYSTEMVM_BUILD_NUMBER\`"
+            echo "- Hypervisor: \`KVM\`"
+            echo "- Architecture: \`x86_64\`"
+            echo "- Format: \`qcow2.bz2\`"
+            echo "- Image: \`$image\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload KVM System VM build outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.SYSTEMVM_ARTIFACT_NAME }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            dist/systemvm-kvm/release/**
+            dist/systemvm-kvm/systemvm-kvm-build.log

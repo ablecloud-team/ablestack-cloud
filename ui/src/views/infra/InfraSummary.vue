@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <a-row :gutter="12">
+  <a-row :gutter="12" class="infra-summary-root" :class="{ 'is-dark': isDarkMode }">
     <a-col :md="24">
       <a-card class="breadcrumb-card">
         <a-col :md="24" style="display: flex">
@@ -147,23 +147,48 @@
         </a-col>
       </a-card>
     </a-col>
-    <template v-for="(section, index) in sections" :key="index">
-      <a-col
-        :xs="12"
-        :sm="8"
-        :md="6"
-        :style="{ marginBottom: '12px' }"
-        v-if="routes[section]">
-        <chart-card :loading="loading">
-          <div class="chart-card-inner">
-            <router-link :to="{ name: section.substring(0, section.length - 1) }">
-              <h2>{{ $t(routes[section].title) }}</h2>
-              <h2><render-icon :icon="routes[section].icon" /> {{ stats[section] }}</h2>
-            </router-link>
+    <a-col :xs="24">
+      <div class="infra-summary-layout" :class="{ 'is-rack-expanded': rackVisualizationExpanded }">
+        <div class="summary-cards-pane" :aria-hidden="rackVisualizationExpanded">
+          <div
+            v-for="group in visibleSummaryGroups"
+            :key="group.key"
+            class="summary-group"
+          >
+            <div class="summary-group-header">
+              <span class="summary-group-title">{{ getSummaryGroupTitle(group) }}</span>
+            </div>
+            <a-row :gutter="12">
+              <a-col
+                v-for="section in group.items"
+                :key="section"
+                :xs="12"
+                :sm="8"
+                :md="8"
+                :style="{ marginBottom: '12px' }"
+              >
+                <chart-card :loading="loading" class="summary-mini-card">
+                  <div class="chart-card-inner">
+                    <router-link :to="{ name: section.substring(0, section.length - 1) }">
+                      <h2>{{ $t(routes[section].title) }}</h2>
+                      <h2><render-icon :icon="routes[section].icon" /> {{ stats[section] }}</h2>
+                    </router-link>
+                  </div>
+                </chart-card>
+              </a-col>
+            </a-row>
           </div>
-        </chart-card>
-      </a-col>
-    </template>
+        </div>
+        <div class="rack-visualization-pane">
+          <a-card :bordered="false" class="rack-visualization-card">
+            <template #title>{{ $t('rackDiagram.title') }}</template>
+            <rack-diagram-tab
+              @toggle-expand="rackVisualizationExpanded = $event"
+            />
+          </a-card>
+        </div>
+      </div>
+    </a-col>
   </a-row>
 </template>
 
@@ -175,19 +200,29 @@ import router from '@/router'
 import Breadcrumb from '@/components/widgets/Breadcrumb'
 import ChartCard from '@/components/widgets/ChartCard'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
+import RackDiagramTab from '@/views/infra/zone/RackDiagramTab.vue'
 
 export default {
   name: 'InfraSummary',
   components: {
     Breadcrumb,
     ChartCard,
-    TooltipLabel
+    TooltipLabel,
+    RackDiagramTab
   },
   data () {
     return {
       loading: true,
+      rackVisualizationExpanded: false,
       routes: {},
       sections: ['zones', 'pods', 'clusters', 'hosts', 'storagepools', 'imagestores', 'objectstores', 'systemvms', 'routers', 'cpusockets', 'managementservers', 'alerts', 'ilbvms', 'metrics'],
+      summaryGroups: [
+        { key: 'configuration', titleParts: ['label.infrastructure', 'label.configuration'], items: ['zones', 'pods', 'clusters'] },
+        { key: 'compute', title: 'label.compute', items: ['hosts', 'cpusockets', 'systemvms', 'metrics'] },
+        { key: 'network', title: 'label.network', items: ['routers', 'ilbvms'] },
+        { key: 'storage', title: 'label.storage', items: ['storagepools', 'imagestores', 'objectstores'] },
+        { key: 'incident', title: 'label.alerts', items: ['alerts'] }
+      ],
       sslFormVisible: false,
       stats: {},
       intermediateCertificates: [],
@@ -202,7 +237,26 @@ export default {
     this.initForm()
     this.fetchData()
   },
+  computed: {
+    isDarkMode () {
+      return !!this.$store.getters.darkMode
+    },
+    visibleSummaryGroups () {
+      return this.summaryGroups
+        .map(group => {
+          const items = group.items.filter(section => this.routes[section])
+          return { ...group, items }
+        })
+        .filter(group => group.items.length)
+    }
+  },
   methods: {
+    getSummaryGroupTitle (group) {
+      if (group.titleParts) {
+        return group.titleParts.map(key => this.$t(key)).join(' ')
+      }
+      return this.$t(group.title)
+    },
     initForm () {
       this.formRef = ref()
       this.form = reactive({})
@@ -346,10 +400,188 @@ export default {
     margin-bottom: 12px;
   }
 
+  .infra-summary-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: gap 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .summary-cards-pane {
+    width: 34%;
+    max-width: 34%;
+    flex: 0 0 34%;
+    max-height: 5000px;
+    padding: 10px;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid #dfe3e8;
+    background: linear-gradient(180deg, #f8f9fb 0%, #f3f5f8 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+    transition:
+      width 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      max-width 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      flex-basis 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      max-height 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      padding 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.2s ease,
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear;
+  }
+
+  .infra-summary-layout.is-rack-expanded {
+    gap: 0;
+  }
+
+  .infra-summary-layout.is-rack-expanded .summary-cards-pane {
+    width: 0;
+    max-width: 0;
+    flex: 0 0 0;
+    max-height: 0;
+    padding: 0;
+    border-width: 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(-16px);
+    transition-delay: 0s, 0s, 0s, 0s, 0s, 0s, 0s, 0.28s;
+  }
+  .summary-group {
+    padding: 10px 10px 0;
+    border: 1px solid rgba(31, 41, 55, 0.08);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.54);
+  }
+  .summary-group + .summary-group {
+    margin-top: 12px;
+  }
+  .summary-group-header {
+    display: flex;
+    align-items: center;
+    margin: -2px 2px 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(31, 41, 55, 0.06);
+    color: #111827;
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 18px;
+  }
+  .summary-group-title {
+    position: relative;
+    padding-left: 9px;
+  }
+  .summary-group-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 3px;
+    height: 11px;
+    border-radius: 2px;
+    background: #c7d2df;
+  }
+  .infra-summary-root.is-dark {
+    .summary-cards-pane {
+      border-color: #334155;
+      background: linear-gradient(180deg, #17202b 0%, #131b24 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+    .summary-group {
+      border-color: rgba(148, 163, 184, 0.18);
+      background: rgba(15, 23, 42, 0.46);
+    }
+    .summary-group-header {
+      border-bottom-color: rgba(148, 163, 184, 0.18);
+      color: rgba(255, 255, 255, 0.88);
+    }
+    .summary-group-title::before {
+      background: #4f8df7;
+    }
+    .rack-visualization-card {
+      border-color: #334155;
+      background: #151b24;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.24);
+    }
+    .rack-visualization-card :deep(.ant-card-head) {
+      background: #1f2732;
+      border-bottom-color: #334155;
+      color: rgba(255, 255, 255, 0.88);
+    }
+    .rack-visualization-card :deep(.ant-card-body) {
+      padding: 4px;
+      background: #151b24;
+    }
+  }
+  .rack-visualization-pane {
+    width: 66%;
+    flex: 0 0 66%;
+    min-width: 320px;
+    transition:
+      width 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      flex-basis 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .infra-summary-layout.is-rack-expanded .rack-visualization-pane {
+    width: 100%;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
   .chart-card-inner {
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
+  }
+  .summary-mini-card :deep(.ant-card-body) {
+    padding: 12px 14px 6px !important;
+  }
+  .summary-mini-card :deep(.chart-card-content) {
+    margin-top: -28px;
+    margin-bottom: 4px;
+  }
+  .summary-mini-card :deep(.chart-card-total) {
+    margin-top: 2px;
+    font-size: 22px;
+    line-height: 26px;
+    height: 26px;
+  }
+  .summary-mini-card .chart-card-inner h2 {
+    margin: 0;
+    line-height: 1.2;
+  }
+  .summary-mini-card .chart-card-inner h2:first-child {
+    font-size: 20px;
+  }
+  .summary-mini-card .chart-card-inner h2:last-child {
+    margin-top: 4px;
+    font-size: 28px;
+  }
+  .rack-visualization-card :deep(.ant-card-body) {
+    padding: 10px 12px 12px;
+    background: #f6f8fb;
+    border-radius: 10px;
+  }
+  .rack-visualization-card {
+    border: 1px solid #dfe3e8;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+  }
+  @media (max-width: 1200px) {
+    .infra-summary-layout {
+      flex-direction: column;
+    }
+    .summary-cards-pane,
+    .rack-visualization-pane {
+      width: 100%;
+      max-width: 100%;
+      flex: 1 1 100%;
+      min-width: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .infra-summary-layout,
+    .summary-cards-pane,
+    .rack-visualization-pane {
+      transition: none;
+    }
   }
   .intermediate-certificate {
     opacity: 1;

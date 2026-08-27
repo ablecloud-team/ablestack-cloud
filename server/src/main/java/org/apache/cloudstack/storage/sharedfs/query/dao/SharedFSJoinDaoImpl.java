@@ -19,10 +19,12 @@ package org.apache.cloudstack.storage.sharedfs.query.dao;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cloudstack.api.ResponseObject;
 import org.apache.cloudstack.api.response.SharedFSResponse;
 import org.apache.cloudstack.api.response.NicResponse;
@@ -84,6 +86,15 @@ public class SharedFSJoinDaoImpl extends GenericDaoBase<SharedFSJoinVO, Long> im
         response.setState(sharedFS.getState().toString());
         response.setProvider(sharedFS.getProvider());
         response.setFilesystem(sharedFS.getFsType().toString());
+        response.setNetworkMode(sharedFS.getNetworkMode().toString());
+        response.setIpAddress(sharedFS.getIpAddress());
+        if (StringUtils.isNotBlank(sharedFS.getIpAddress()) && StringUtils.contains(sharedFS.getCidr(), "/")) {
+            response.setIpCidr(sharedFS.getIpAddress() + sharedFS.getCidr().substring(sharedFS.getCidr().indexOf('/')));
+        }
+        response.setCidr(sharedFS.getCidr());
+        response.setGateway(sharedFS.getGateway());
+        response.setDns1(sharedFS.getDns1());
+        response.setDns2(sharedFS.getDns2());
         response.setPath(SharedFS.getSharedFSPath());
         response.setObjectName(SharedFS.class.getSimpleName().toLowerCase());
         response.setZoneId(sharedFS.getZoneUuid());
@@ -116,8 +127,14 @@ public class SharedFSJoinDaoImpl extends GenericDaoBase<SharedFSJoinVO, Long> im
         response.setAccountName(sharedFS.getAccountName());
 
         response.setDomainId(sharedFS.getDomainUuid());
-        response.setDomainName(sharedFS.getDomainName());
-        response.setDomainName(sharedFS.getDomainPath());
+        String domainName = sharedFS.getDomainName();
+        String domainPath = sharedFS.getDomainPath();
+        if ("/".equals(domainName)) {
+            domainName = "ROOT";
+            domainPath = domainPath == null ? "/" : domainPath;
+        }
+        response.setDomainName(domainName);
+        response.setDomainPath(domainPath);
 
         response.setProjectId(sharedFS.getProjectUuid());
         response.setProjectName(sharedFS.getProjectName());
@@ -180,6 +197,9 @@ public class SharedFSJoinDaoImpl extends GenericDaoBase<SharedFSJoinVO, Long> im
 
     @Override
     public List<SharedFSJoinVO> searchByIds(Long... sharedFSIds) {
+        if (sharedFSIds == null || sharedFSIds.length == 0) {
+            return Collections.emptyList();
+        }
         SearchCriteria<SharedFSJoinVO> sc = fsIdInSearch.create();
         sc.setParameters("idIN", sharedFSIds);
         return search(sc, null, null, false);

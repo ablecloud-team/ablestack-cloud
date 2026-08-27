@@ -39,6 +39,7 @@ import org.apache.cloudstack.api.command.user.address.RemoveQuarantinedIpCmd;
 import org.apache.cloudstack.api.command.user.address.UpdateQuarantinedIpCmd;
 import org.apache.cloudstack.api.command.user.network.CreateNetworkCmd;
 import org.apache.cloudstack.api.command.user.network.CreateNetworkPermissionsCmd;
+import org.apache.cloudstack.api.command.user.network.ListAvailableGuestIpsCmd;
 import org.apache.cloudstack.api.command.user.network.ListNetworkPermissionsCmd;
 import org.apache.cloudstack.api.command.user.network.ListNetworksCmd;
 import org.apache.cloudstack.api.command.user.network.RemoveNetworkPermissionsCmd;
@@ -47,6 +48,8 @@ import org.apache.cloudstack.api.command.user.network.RestartNetworkCmd;
 import org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd;
 import org.apache.cloudstack.api.command.user.vm.ListNicsCmd;
 import org.apache.cloudstack.api.response.AcquirePodIpCmdResponse;
+import org.apache.cloudstack.api.response.AvailableGuestIpResponse;
+import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.engine.orchestration.service.NetworkOrchestrationService;
 import org.apache.cloudstack.network.element.InternalLoadBalancerElementService;
 import org.springframework.stereotype.Component;
@@ -236,6 +239,11 @@ public class MockNetworkManagerImpl extends ManagerBase implements NetworkOrches
     @Override
     public Pair<List<? extends Network>, Integer> searchForNetworks(ListNetworksCmd cmd) {
         // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ListResponse<AvailableGuestIpResponse> listAvailableGuestIps(ListAvailableGuestIpsCmd cmd) {
         return null;
     }
 

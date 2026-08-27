@@ -42,6 +42,7 @@ import java.util.List;
 public class OutOfBandManagementDaoImpl extends GenericDaoBase<OutOfBandManagementVO, Long> implements OutOfBandManagementDao {
 
     private SearchBuilder<OutOfBandManagementVO> HostSearch;
+    private SearchBuilder<OutOfBandManagementVO> AddressSearch;
     private SearchBuilder<OutOfBandManagementVO> ManagementServerSearch;
     private SearchBuilder<OutOfBandManagementVO> OutOfBandManagementOwnerSearch;
     private SearchBuilder<OutOfBandManagementVO> StateUpdateSearch;
@@ -56,6 +57,10 @@ public class OutOfBandManagementDaoImpl extends GenericDaoBase<OutOfBandManageme
         HostSearch = createSearchBuilder();
         HostSearch.and("hostId", HostSearch.entity().getHostId(), SearchCriteria.Op.EQ);
         HostSearch.done();
+
+        AddressSearch = createSearchBuilder();
+        AddressSearch.and("address", AddressSearch.entity().getAddress(), SearchCriteria.Op.EQ);
+        AddressSearch.done();
 
         ManagementServerSearch = createSearchBuilder();
         ManagementServerSearch.and("server", ManagementServerSearch.entity().getManagementServerId(), SearchCriteria.Op.EQ);
@@ -86,7 +91,8 @@ public class OutOfBandManagementDaoImpl extends GenericDaoBase<OutOfBandManageme
 
     @Override
     public OutOfBandManagementVO findByHostAddress(String address) {
-        SearchCriteria<OutOfBandManagementVO> sc = HostSearch.create("address", address);
+        SearchCriteria<OutOfBandManagementVO> sc = AddressSearch.create();
+        sc.setParameters("address", address);
         return findOneBy(sc);
     }
 

@@ -252,9 +252,6 @@ export default {
     }
     this.initForm()
     if (store.getters.logoutFlag) {
-      if (store.getters.readyForShutdownPollingJob !== '' || store.getters.readyForShutdownPollingJob !== undefined) {
-        clearInterval(store.getters.readyForShutdownPollingJob)
-      }
       sourceToken.init()
       this.fetchData()
     } else {
@@ -545,14 +542,14 @@ export default {
 
     .item-icon {
       font-size: 24px;
-      color: rgba(0, 0, 0, 0.2);
+      color: var(--ui-text-muted);
       margin-left: 16px;
       vertical-align: middle;
       cursor: pointer;
       transition: color 0.3s;
 
       &:hover {
-        color: #1890ff;
+        color: var(--ui-focus);
       }
     }
 
@@ -583,20 +580,21 @@ export default {
       text-align: center;
       font-size: 16px;
       background:
-        linear-gradient(#CCC 0 0) left,
-        linear-gradient(#CCC 0 0) right;
+        linear-gradient(var(--ui-border) 0 0) left,
+        linear-gradient(var(--ui-border) 0 0) right;
       background-size: 40% 1px;
       background-repeat: no-repeat;
     }
     .footer {
-      position: fixed;
+      position: static;
       padding: 0 26px;
-      margin: 200px 0 24px;
+      margin: 64px 0 24px;
       text-align: center;
       transition: all 0.8s ease;
+      color: var(--ui-text-muted);
 
       &.expanded {
-        margin-bottom: 500px;
+        margin-bottom: 160px;
       }
 
       .line {

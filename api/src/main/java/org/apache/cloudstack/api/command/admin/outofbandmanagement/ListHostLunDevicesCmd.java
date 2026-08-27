@@ -24,8 +24,8 @@ import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.BaseListCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.response.ListHostLunDevicesResponse;
-import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.context.CallContext;
 
 
 
@@ -42,12 +42,23 @@ public class ListHostLunDevicesCmd extends BaseListCmd {
             ApiArgValidator.PositiveNumber })
     private Long id;
 
+    @Parameter(name = ApiConstants.LUN_PATH_MODE, type = BaseCmd.CommandType.STRING, description = "LUN listing: single (paths not in multipath -ll) or multipath (dm/mpath from multipath -ll)")
+    private String lunPathMode;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////a
     /////////////////////////////////////////////////////
 
     public Long getId() {
         return id;
+    }
+
+    public String getLunPathMode() {
+        return lunPathMode;
+    }
+
+    public void setLunPathMode(String lunPathMode) {
+        this.lunPathMode = lunPathMode;
     }
 
     /////////////////////////////////////////////////////

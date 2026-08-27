@@ -29,6 +29,7 @@ public class CommvaultTakeBackupCommand extends Command {
     private String backupPath;
     private List<PrimaryDataStoreTO> volumePools;
     private List<String> volumePaths;
+    private List<String> volumeUuids;
     private Boolean quiesce;
 
     public CommvaultTakeBackupCommand(String vmName, String backupPath) {
@@ -67,6 +68,14 @@ public class CommvaultTakeBackupCommand extends Command {
 
     public void setVolumePaths(List<String> volumePaths) {
         this.volumePaths = volumePaths;
+    }
+
+    public List<String> getVolumeUuids() {
+        return volumeUuids;
+    }
+
+    public void setVolumeUuids(List<String> volumeUuids) {
+        this.volumeUuids = volumeUuids;
     }
 
     public Boolean getQuiesce() {

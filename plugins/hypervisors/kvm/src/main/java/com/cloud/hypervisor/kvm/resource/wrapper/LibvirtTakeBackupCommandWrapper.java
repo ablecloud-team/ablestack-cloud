@@ -51,7 +51,9 @@ public class LibvirtTakeBackupCommandWrapper extends CommandWrapper<TakeBackupCo
         final String mountOptions = command.getMountOptions();
         List<PrimaryDataStoreTO> volumePools = command.getVolumePools();
         final List<String> volumePaths = command.getVolumePaths();
+        final List<String> volumeUuids = command.getVolumeUuids();
         KVMStoragePoolManager storagePoolMgr = libvirtComputingResource.getStoragePoolMgr();
+        int timeout = command.getWait() > 0 ? command.getWait() * 1000 : libvirtComputingResource.getCmdsTimeout();
 
         List<String> diskPaths = new ArrayList<>();
         if (Objects.nonNull(volumePaths)) {
@@ -78,14 +80,19 @@ public class LibvirtTakeBackupCommandWrapper extends CommandWrapper<TakeBackupCo
                 "-m", Objects.nonNull(mountOptions) ? mountOptions : "",
                 "-p", backupPath,
                 "-q", command.getQuiesce() != null && command.getQuiesce() ? "true" : "false",
-                "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths)
+                "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths),
+                "-u", volumeUuids == null || volumeUuids.isEmpty() ? "" : String.join(",", volumeUuids)
         });
 
-        Pair<Integer, String> result = Script.executePipedCommands(commands, libvirtComputingResource.getCmdsTimeout());
+        logger.debug("Starting NAS backup for VM [{}] to path [{}] with timeout [{}] ms and disk paths [{}]",
+                vmName, backupPath, timeout, diskPaths);
+        Pair<Integer, String> result = Script.executePipedCommands(commands, timeout);
 
         if (result.first() != 0) {
-            logger.debug("Failed to take VM backup: " + result.second());
-            BackupAnswer answer = new BackupAnswer(command, false, result.second().trim());
+            String details = result.second() == null ? "NAS backup command failed without details" : result.second().trim();
+            logger.warn("Failed to take NAS backup for VM [{}] to path [{}]. Exit code [{}], details [{}]",
+                    vmName, backupPath, result.first(), details);
+            BackupAnswer answer = new BackupAnswer(command, false, details);
             if (result.first() == EXIT_CLEANUP_FAILED) {
                 logger.debug("Backup cleanup failed");
                 answer.setNeedsCleanup(true);
@@ -108,6 +115,7 @@ public class LibvirtTakeBackupCommandWrapper extends CommandWrapper<TakeBackupCo
 
         BackupAnswer answer = new BackupAnswer(command, true, result.second().trim());
         answer.setSize(backupSize);
+        logger.debug("Completed NAS backup for VM [{}] to path [{}]. Backup size [{}] bytes", vmName, backupPath, backupSize);
         return answer;
     }
 }

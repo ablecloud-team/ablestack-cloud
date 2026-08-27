@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div>
+  <div class="template-iso-selection">
     <a-input-search
       class="search-input"
       :placeholder="$t('label.search')"
@@ -171,5 +171,17 @@ export default {
 
   :deep(.ant-tabs-nav-scroll) {
     min-height: 45px;
+  }
+
+  :deep(.ant-tabs-nav::before) {
+    border-color: var(--ui-border);
+  }
+
+  :deep(.ant-tabs-tab) {
+    color: var(--ui-text-secondary);
+  }
+
+  :deep(.ant-tabs-tab-active .ant-tabs-tab-btn) {
+    color: var(--ui-focus);
   }
 </style>

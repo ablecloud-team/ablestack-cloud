@@ -3019,6 +3019,9 @@ class LoadBalancerRule:
         if "openfirewall" in services:
             cmd.openfirewall = services["openfirewall"]
 
+        if "protocol" in services:
+            cmd.protocol = services["protocol"]
+
         if projectid:
             cmd.projectid = projectid
 
@@ -3126,6 +3129,22 @@ class LoadBalancerRule:
 
         [setattr(cmd, k, v) for k, v in list(kwargs.items())]
         return apiclient.listLoadBalancerRuleInstances(cmd)
+
+    def assignCert(self, apiclient, certId, forced=None):
+        """"""
+        cmd = assignCertToLoadBalancer.assignCertToLoadBalancerCmd()
+        cmd.lbruleid = self.id
+        cmd.certid = certId
+        if forced is not None:
+            cmd.forced = forced
+        return apiclient.assignCertToLoadBalancer(cmd)
+
+    def removeCert(self, apiclient):
+        """Removes a certificate from a load balancer rule"""
+
+        cmd = removeCertFromLoadBalancer.removeCertFromLoadBalancerCmd()
+        cmd.lbruleid = self.id
+        return apiclient.removeCertFromLoadBalancer(cmd)
 
 
 class Cluster:
@@ -7688,3 +7707,140 @@ class SharedFS:
         cmd.diskofferingid = diskofferingid
         cmd.size = size
         return (apiclient.changeSharedFileSystemDiskOffering(cmd))
+
+class GpuDevice:
+
+    def __init__(self, items):
+        self.__dict__.update(items)
+
+    """Manage GPU Device"""
+    @classmethod
+    def create(cls, apiclient, services, name, description=None, hostid=None, busaddress=None, gpuCardId=None, vgpuProfileId=None, type=None, parentGpuDeviceId=None, numaNode=None, pciRoot=None):
+        """Create GPU Device"""
+        cmd = createGpuDevice.createGpuDeviceCmd()
+        cmd.name = name
+
+        if description:
+            cmd.description = description
+
+
+        if hostid:
+            cmd.hostid = hostid
+        elif "hostid" in services:
+            cmd.hostid = services["hostid"]
+
+        if busaddress:
+            cmd.busaddress = busaddress
+        elif "busaddress" in services:
+            cmd.busaddress = services["busaddress"]
+
+        if gpuCardId:
+            cmd.gpuCardId = gpuCardId
+        elif "gpuCardId" in services:
+            cmd.gpuCardId = services["gpuCardId"]
+
+        if vgpuProfileId:
+            cmd.vgpuProfileId = vgpuProfileId
+        elif "vgpuProfileId" in services:
+            cmd.vgpuProfileId = services["vgpuProfileId"]
+
+        if type:
+            cmd.type = type
+        elif "type" in services:
+            cmd.type = services["type"]
+
+        if parentGpuDeviceId:
+            cmd.parentGpuDeviceId = parentGpuDeviceId
+        elif "parentGpuDeviceId" in services:
+            cmd.parentGpuDeviceId = services["parentGpuDeviceId"]
+
+        if numaNode:
+            cmd.numaNode = numaNode
+        elif "numaNode" in services:
+            cmd.numaNode = services["numaNode"]
+
+        if pciRoot:
+            cmd.pciRoot = pciRoot
+        elif "pciRoot" in services:
+            cmd.pciRoot = services["pciRoot"]
+
+        return GpuDevice(apiclient.createGpuDevice(cmd).__dict__)
+
+    def delete(self, apiclient, expunge=True, forced=True):
+        """Delete GPU Device"""
+        cmd = deleteGpuDevice.deleteGpuDeviceCmd()
+        cmd.id = self.id
+        cmd.expunge = expunge
+        cmd.forced = forced
+        apiclient.deleteGpuDevice(cmd)
+
+
+    @classmethod
+    def list(cls, apiclient, **kwargs):
+        cmd = listGpuDevices.listGpuDevicesCmd()
+        [setattr(cmd, k, v) for k, v in list(kwargs.items())]
+        return (apiclient.listGpuDevices(cmd))
+
+    def update(self, apiclient, **kwargs):
+        """Update GPU Device"""
+        cmd = updateGpuDevice.updateGpuDeviceCmd()
+        cmd.id = self.id
+        [setattr(cmd, k, v) for k, v in list(kwargs.items())]
+        return (apiclient.updateGpuDevice(cmd))
+
+
+class SslCertificate:
+
+    def __init__(self, items):
+        self.__dict__.update(items)
+
+    @classmethod
+    def create(cls, apiclient, services, name, certificate=None, privatekey=None,
+               certchain=None, password=None, enabledrevocationcheck=None,
+               account=None, domainid=None, projectid=None):
+        """Upload SSL certificate"""
+        cmd = uploadSslCert.uploadSslCertCmd()
+        cmd.name = name
+
+        if certificate:
+            cmd.certificate = certificate
+        elif "certificate" in services:
+            cmd.certificate = services["certificate"]
+
+        if privatekey:
+            cmd.privatekey = privatekey
+        elif "privatekey" in services:
+            cmd.privatekey = services["privatekey"]
+
+        if certchain:
+            cmd.certchain = certchain
+        elif "certchain" in services:
+            cmd.certchain = services["certchain"]
+
+        if password:
+            cmd.password = password
+        elif "password" in services:
+            cmd.password = services["password"]
+
+        if enabledrevocationcheck is not None:
+            cmd.enabledrevocationcheck = enabledrevocationcheck
+        elif "enabledrevocationcheck" in services:
+            cmd.enabledrevocationcheck = services["enabledrevocationcheck"]
+
+        if account:
+            cmd.account = account
+
+        if projectid:
+            cmd.projectid = projectid
+
+        if domainid:
+            cmd.domainid = domainid
+
+        return SslCertificate(apiclient.uploadSslCert(cmd, method='POST').__dict__)
+
+    def delete(self, apiclient):
+        """Delete SSL Certificate"""
+
+        cmd = deleteSslCert.deleteSslCertCmd()
+        cmd.id = self.id
+        apiclient.deleteSslCert(cmd)

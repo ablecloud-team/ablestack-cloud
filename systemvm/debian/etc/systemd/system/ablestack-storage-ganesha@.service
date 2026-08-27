@@ -1,0 +1,17 @@
+[Unit]
+Description=ABLESTACK Storage Service NFS Ganesha endpoint %i
+After=local-fs.target network-online.target rpcbind.service
+Wants=network-online.target rpcbind.service
+
+[Service]
+Type=simple
+ExecStartPre=/bin/mkdir -p /run/ablestack-storage/ganesha /etc/ganesha/ablestack-storage /run/ganesha
+ExecStartPre=/usr/bin/find /run/ganesha -maxdepth 1 -name ganesha.pid -type f -delete
+ExecStart=/usr/bin/ganesha.nfsd -F -p /run/ablestack-storage/ganesha/%i.pid -L /run/ablestack-storage/ganesha/%i.log -f /etc/ganesha/ablestack-storage/%i.conf
+Restart=on-failure
+RestartSec=2
+KillMode=process
+TimeoutStartSec=30
+
+[Install]
+WantedBy=multi-user.target

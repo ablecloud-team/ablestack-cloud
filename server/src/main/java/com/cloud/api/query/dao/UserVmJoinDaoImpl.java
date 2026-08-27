@@ -64,11 +64,13 @@ import com.cloud.storage.Storage.TemplateType;
 import com.cloud.storage.VnfTemplateDetailVO;
 import com.cloud.storage.VnfTemplateNicVO;
 import com.cloud.storage.Volume;
+import com.cloud.storage.VolumeDetailVO;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.DiskOfferingDao;
 import com.cloud.storage.dao.VnfTemplateDetailsDao;
 import com.cloud.storage.dao.VnfTemplateNicDao;
 import com.cloud.storage.dao.VolumeDao;
+import com.cloud.storage.dao.VolumeDetailsDao;
 import com.cloud.user.Account;
 import com.cloud.user.AccountManager;
 import com.cloud.user.User;
@@ -93,6 +95,11 @@ import com.cloud.vm.dao.VbmcDao;
 
 @Component
 public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJoinVO, UserVmResponse> implements UserVmJoinDao {
+    private static final String FAST_CLONE_STATUS = "clone.fast.status";
+    private static final String FAST_CLONE_FLATTEN_STATUS = "clone.fast.flatten.status";
+    private static final String FAST_CLONE_FLATTEN_RUNNING = "running";
+    private static final String FAST_CLONE_FLATTEN_PENDING = "pending";
+    private static final String FAST_CLONE_FLATTEN_PROGRESS = "clone.fast.flatten.progress";
 
     @Inject
     private ConfigurationDao _configDao;
@@ -118,6 +125,8 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
     VbmcDao vbmcDao;
     @Inject
     VolumeDao _volsDao;
+    @Inject
+    VolumeDetailsDao volumeDetailsDao;
     @Inject
     DiskOfferingDao _diskOfferingDao;
 
@@ -170,6 +179,18 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
             userVmResponse.setProjectName(userVm.getProjectName());
         } else {
             userVmResponse.setAccountName(userVm.getAccountName());
+        }
+
+        UserVmDetailVO fastCloneStatus = _userVmDetailsDao.findDetail(userVm.getId(), FAST_CLONE_STATUS);
+        if (fastCloneStatus != null) {
+            userVmResponse.setCloneFastStatus(fastCloneStatus.getValue());
+        }
+        UserVmDetailVO fastCloneFlattenProgress = _userVmDetailsDao.findDetail(userVm.getId(), FAST_CLONE_FLATTEN_PROGRESS);
+        if (fastCloneFlattenProgress != null) {
+            userVmResponse.setCloneFastFlattenProgress(fastCloneFlattenProgress.getValue());
+        }
+        if (isFastCloneFlattenActive(fastCloneStatus)) {
+            setFastCloneFlattenVolume(userVmResponse, userVm.getId());
         }
 
         User user = _userDao.getUser(userVm.getUserId());
@@ -485,6 +506,56 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
         }
 
         return userVmResponse;
+    }
+
+    protected boolean isFastCloneFlattenActive(UserVmDetailVO fastCloneStatus) {
+        if (fastCloneStatus == null) {
+            return false;
+        }
+        return FAST_CLONE_FLATTEN_RUNNING.equalsIgnoreCase(fastCloneStatus.getValue()) ||
+                FAST_CLONE_FLATTEN_PENDING.equalsIgnoreCase(fastCloneStatus.getValue());
+    }
+
+    protected void setFastCloneFlattenVolume(UserVmResponse userVmResponse, long vmId) {
+        VolumeVO volume = findFastCloneFlattenVolume(vmId, FAST_CLONE_FLATTEN_RUNNING);
+        if (volume == null) {
+            volume = findFastCloneFlattenVolume(vmId, FAST_CLONE_FLATTEN_PENDING);
+        }
+        if (volume == null) {
+            return;
+        }
+
+        if (volume.getVolumeType() != null) {
+            userVmResponse.setCloneFastFlattenVolumeType(volume.getVolumeType().toString());
+        }
+        userVmResponse.setCloneFastFlattenVolumeName(volume.getName());
+        userVmResponse.setCloneFastFlattenDeviceId(volume.getDeviceId());
+    }
+
+    protected VolumeVO findFastCloneFlattenVolume(long vmId, String status) {
+        List<VolumeVO> volumes = _volsDao.findByInstance(vmId);
+        if (CollectionUtils.isEmpty(volumes)) {
+            return null;
+        }
+
+        VolumeVO matchedVolume = null;
+        for (VolumeVO volume : volumes) {
+            VolumeDetailVO detail = volumeDetailsDao.findDetail(volume.getId(), FAST_CLONE_FLATTEN_STATUS);
+            if (detail == null || !status.equalsIgnoreCase(detail.getValue())) {
+                continue;
+            }
+            if (matchedVolume == null || compareFastCloneFlattenVolumeOrder(volume, matchedVolume) < 0) {
+                matchedVolume = volume;
+            }
+        }
+        return matchedVolume;
+    }
+
+    protected int compareFastCloneFlattenVolumeOrder(VolumeVO left, VolumeVO right) {
+        if (left.getVolumeType() != right.getVolumeType()) {
+            return left.getVolumeType() == Volume.Type.ROOT ? -1 : 1;
+        }
+        return Long.compare(left.getDeviceId() == null ? 0L : left.getDeviceId(), right.getDeviceId() == null ? 0L : right.getDeviceId());
     }
 
     private void addVnfInfoToserVmResponse(UserVmJoinVO userVm, UserVmResponse userVmResponse) {

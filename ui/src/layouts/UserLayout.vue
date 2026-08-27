@@ -60,6 +60,7 @@ export default {
   watch: {
     '$store.getters.darkMode' (darkMode) {
       document.body.classList.toggle('dark-mode', darkMode)
+      document.documentElement.classList.toggle('dark-mode', darkMode)
       this.logoPath = darkMode ? this.$config.whiteLogo : this.$config.logo
     },
     '$store.getters.countNotify' (countNotify) {
@@ -75,6 +76,7 @@ export default {
       this.$localStorage.set('DARK_MODE', event.matches)
       this.$store.dispatch('SetDarkMode', event.matches)
       document.body.classList.toggle('dark-mode', event.matches)
+      document.documentElement.classList.toggle('dark-mode', event.matches)
     })
 
     // 로컬스토리지 다크 모드 확인 후 변경
@@ -91,6 +93,7 @@ export default {
     this.$store.dispatch('SetDarkMode', isDark)
     this.$config.theme['@layout-mode'] = isDark ? 'dark' : 'light'
     document.body.classList.toggle('dark-mode', isDark)
+    document.documentElement.classList.toggle('dark-mode', isDark)
 
     document.body.classList.add('userLayout')
     const countNotify = this.$store.getters.countNotify
@@ -102,6 +105,7 @@ export default {
   beforeUnmount () {
     document.body.classList.remove('userLayout')
     document.body.classList.remove('dark-mode')
+    document.documentElement.classList.remove('dark-mode')
   },
   methods: {
     onClearNotification () {
@@ -115,17 +119,19 @@ export default {
 <style lang="less" scoped>
 .user-layout {
   height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
 
   &-container {
     padding: 3rem 0;
     width: 100%;
 
-    @media (min-height:600px) {
+    @media (min-height: 600px) {
       padding: 0;
       position: relative;
       top: 50%;
       transform: translateY(-50%);
-      margin-top: -50px;
     }
   }
 

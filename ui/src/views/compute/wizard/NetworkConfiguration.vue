@@ -45,17 +45,25 @@
               style="display: block"
               v-if="record.type !== 'L2'"
               :name="'ipAddress' + record.id">
-              <a-input
+              <a-select
                 style="width: 150px;"
                 v-model:value="form['ipAddress' + record.id]"
+                :loading="ipOptionsLoading[record.id]"
+                allowClear
+                showSearch
+                optionFilterProp="value"
                 :placeholder="record.cidr"
-                @change="($event) => updateNetworkData('ipAddress', record.id, $event.target.value)">
-                <template #suffix>
-                  <a-tooltip :title="getIpRangeDescription(record)">
-                    <info-circle-outlined style="color: rgba(0,0,0,.45)" />
-                  </a-tooltip>
-                </template>
-              </a-input>
+                :filterOption="(input, option) => {
+                  return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }"
+                @change="($event) => updateNetworkData('ipAddress', record.id, $event)">
+                <a-select-option v-for="ip in ipOptions[record.id] || []" :key="ip.ipaddress" :value="ip.ipaddress">
+                  {{ ip.ipaddress }}
+                </a-select-option>
+              </a-select>
+              <a-tooltip :title="getIpRangeDescription(record)">
+                <info-circle-outlined style="color: rgba(0,0,0,.45); margin-left: 6px;" />
+              </a-tooltip>
             </a-form-item>
           </template>
           <template v-if="column.key === 'macAddress'">
@@ -75,7 +83,7 @@
           </template>
           <template v-if="column.key === 'linkState'">
             <a-form-item v-if="record.type === 'L2'" :name="'linkState' + record.id">
-              <a-switch v-model:checked="form[`linkState` + record.id]" @change="($event) => updateNetworkData('linkState', record.id, $event)" style="margin-bottom: 30px"/>
+              <a-switch v-model:checked="form[`linkState` + record.id]" @change="($event) => updateNetworkData('linkstate', record.id, $event)" style="margin-bottom: 30px"/>
             </a-form-item>
           </template>
         </template>
@@ -86,6 +94,8 @@
 
 <script>
 import { ref, reactive } from 'vue'
+import { api } from '@/api'
+
 export default {
   name: 'NetworkConfiguration',
   props: {
@@ -140,6 +150,8 @@ export default {
       ],
       selectedRowKeys: [],
       dataItems: [],
+      ipOptions: {},
+      ipOptionsLoading: {},
       macRegex: /^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/i,
       ipV4Regex: /^(25[0-5]|2[0-4]\d|[01]?\d\d?)\.(25[0-5]|2[0-4]\d|[01]?\d\d?)\.(25[0-5]|2[0-4]\d|[01]?\d\d?)\.(25[0-5]|2[0-4]\d|[01]?\d\d?)$/i
     }
@@ -150,6 +162,7 @@ export default {
   created () {
     this.dataItems = this.items
     this.initForm()
+    this.fetchIpOptions()
     if (this.dataItems.length > 0) {
       this.selectedRowKeys = [this.dataItems[0].id]
       this.$emit('select-default-network-item', this.dataItems[0].id)
@@ -180,6 +193,7 @@ export default {
         if (newData && newData.length > 0) {
           this.dataItems = newData
           this.initForm()
+          this.fetchIpOptions()
           const keyEx = this.dataItems.filter((item) => this.selectedRowKeys.includes(item.id))
           if (!keyEx || keyEx.length === 0) {
             this.selectedRowKeys = [this.dataItems[0].id]
@@ -219,11 +233,54 @@ export default {
           form[macAddressKey] = this.preFillContent.macAddressArray[presetMacAddressIndex]
           presetMacAddressIndex++
         }
-        console.log('record.linkState :>> ', record.linkState)
-        form[linkState] = record.linkState === undefined ? true : record.linkState
+        form[linkState] = record.linkstate === undefined
+          ? (record.linkState === undefined ? true : record.linkState)
+          : record.linkstate
       })
       this.form = reactive(form)
       this.rules = reactive(rules)
+    },
+    fetchIpOptions () {
+      this.dataItems.forEach(record => {
+        if (record.type === 'Shared') {
+          this.fetchPublicIps(record)
+        } else if (record.type === 'Isolated') {
+          this.fetchAvailableGuestIps(record)
+        } else {
+          this.ipOptions[record.id] = []
+        }
+      })
+    },
+    fetchPublicIps (network) {
+      this.ipOptionsLoading[network.id] = true
+      this.ipOptions[network.id] = []
+      api('listPublicIpAddresses', {
+        networkid: network.id,
+        allocatedonly: false,
+        forvirtualnetwork: false
+      }).then(json => {
+        const listPublicIps = json.listpublicipaddressesresponse.publicipaddress || []
+        this.ipOptions[network.id] = listPublicIps
+          .filter(item => item.state === 'Free')
+          .map(item => ({ ipaddress: item.ipaddress }))
+      }).finally(() => {
+        this.ipOptionsLoading[network.id] = false
+      })
+    },
+    fetchAvailableGuestIps (network) {
+      this.ipOptionsLoading[network.id] = true
+      this.ipOptions[network.id] = []
+      api('listAvailableGuestIps', {
+        networkid: network.id,
+        pagesize: -1
+      }).then(json => {
+        const listAvailableGuestIps = json.listavailableguestipsresponse.availableguestip || []
+        this.ipOptions[network.id] = listAvailableGuestIps.map(item => ({ ipaddress: item.ipaddress }))
+      }).catch(error => {
+        this.$notifyError(error)
+      }).finally(() => {
+        this.ipOptionsLoading[network.id] = false
+      })
     },
     onSelectRow (value) {
       this.selectedRowKeys = value

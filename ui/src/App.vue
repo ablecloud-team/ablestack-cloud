@@ -25,14 +25,30 @@
 
 <script>
 import enUS from 'ant-design-vue/lib/locale-provider/en_US'
+import koKRSource from 'ant-design-vue/lib/locale-provider/ko_KR'
 import { AppDeviceEnquire } from '@/utils/mixin'
+
+const koKR = {
+  ...koKRSource,
+  Table: {
+    ...koKRSource.Table,
+    sortTitle: '정렬',
+    triggerDesc: '내림차순으로 정렬',
+    triggerAsc: '오름차순으로 정렬',
+    cancelSort: '정렬 취소'
+  }
+}
 
 export default {
   mixins: [AppDeviceEnquire],
   data () {
     return {
-      locale: enUS,
       configs: {}
+    }
+  },
+  computed: {
+    locale () {
+      return this.$i18n.locale === 'ko_KR' ? koKR : enUS
     }
   },
   created () {

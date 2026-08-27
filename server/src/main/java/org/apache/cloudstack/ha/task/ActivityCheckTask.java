@@ -69,26 +69,40 @@ public class ActivityCheckTask extends BaseHATask {
         }
 
         counter.incrActivityCounter(!result);
-        String message = String.format("[VM Activity Check] Executions : %s/%s | Failures : %s, Failure Rate : %s(Threshold : %s) ",
+
+        long requiredFailures = (long) Math.floor(maxActivityChecks * activityCheckFailureRatio) + 1;
+        long remainingChecks = maxActivityChecks - counter.getActivityCheckCounter();
+        long maxPossibleConsecutiveFailures = counter.getConsecutiveActivityCheckFailureCounter() + remainingChecks;
+
+        int ratioPercent = (int) (activityCheckFailureRatio * 100);
+        String message = String.format("[VM Activity Check] Executions: %d/%d | Consecutive Failures: %d (Threshold: %d, Failure Ratio: %d%%)",
                             counter.getActivityCheckCounter(),
                             maxActivityChecks,
-                            counter.getActivityCheckFailureCounter(),
-                            Math.round((double)counter.getActivityCheckFailureCounter() / maxActivityChecks * 100) +  "%",
-                            Math.round(activityCheckFailureRatio * 100) +  "%");
+                            counter.getConsecutiveActivityCheckFailureCounter(),
+                            requiredFailures,
+                            ratioPercent);
         ActionEventUtils.onActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(),
                                         Domain.ROOT_DOMAIN, EventTypes.EVENT_HA_STATE_TRANSITION, message, haConfig.getResourceId(), ApiCommandResourceType.Host.toString());
+
+        if (counter.getConsecutiveActivityCheckFailureCounter() >= requiredFailures) {
+            haManager.transitionHAState(HAConfig.Event.ActivityCheckFailureOverThresholdRatio, haConfig);
+            counter.resetActivityCounter();
+            return;
+        }
+
+        if (maxPossibleConsecutiveFailures < requiredFailures) {
+            if (haManager.transitionHAState(HAConfig.Event.ActivityCheckFailureUnderThresholdRatio, haConfig)) {
+                counter.markResourceDegraded();
+            }
+            counter.resetActivityCounter();
+            return;
+        }
+
         if (counter.getActivityCheckCounter() < maxActivityChecks) {
             haManager.transitionHAState(HAConfig.Event.TooFewActivityCheckSamples, haConfig);
             return;
         }
 
-        if (counter.hasActivityThresholdExceeded(activityCheckFailureRatio)) {
-            haManager.transitionHAState(HAConfig.Event.ActivityCheckFailureOverThresholdRatio, haConfig);
-        } else {
-            if (haManager.transitionHAState(HAConfig.Event.ActivityCheckFailureUnderThresholdRatio, haConfig)) {
-                counter.markResourceDegraded();
-            }
-        }
         counter.resetActivityCounter();
     }
 }

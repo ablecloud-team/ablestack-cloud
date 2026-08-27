@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -123,6 +124,7 @@ import com.cloud.storage.DiskOfferingVO;
 import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.RegisterVolumePayload;
 import com.cloud.storage.ScopeType;
+import com.cloud.storage.SnapshotVO;
 import com.cloud.storage.Storage;
 import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.StorageManager;
@@ -137,6 +139,8 @@ import com.cloud.storage.Volume.State;
 import com.cloud.storage.VolumeDetailVO;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.DiskOfferingDao;
+import com.cloud.storage.dao.SnapshotDetailsDao;
+import com.cloud.storage.dao.SnapshotDetailsVO;
 import com.cloud.storage.dao.VMTemplateDao;
 import com.cloud.storage.dao.VMTemplatePoolDao;
 import com.cloud.storage.dao.VolumeDao;
@@ -159,6 +163,11 @@ import com.cloud.vm.VirtualMachine;
 @Component
 public class VolumeServiceImpl implements VolumeService {
     protected Logger logger = LogManager.getLogger(getClass());
+    private static final String LINKED_CLONE_BACKING_SNAPSHOT_ID = "linked.clone.backing.snapshot.id";
+    private static final String LINKED_CLONE_BACKING_PATH = "linked.clone.backing.path";
+    private static final String LINKED_CLONE_TYPE = "linked.clone.type";
+    private static final String LINKED_CLONE_TYPE_VALUE = "linked";
+    private static final String CLONE_VM_SNAPSHOT_ID = "clone.vm.snapshot.id";
     @Inject
     protected AgentManager agentMgr;
     @Inject
@@ -205,6 +214,8 @@ public class VolumeServiceImpl implements VolumeService {
     private ClusterDao clusterDao;
     @Inject
     private VolumeDetailsDao _volumeDetailsDao;
+    @Inject
+    private SnapshotDetailsDao snapshotDetailsDao;
     @Inject
     private VMTemplateDao templateDao;
     @Inject
@@ -491,6 +502,7 @@ public class VolumeServiceImpl implements VolumeService {
         try {
             if (result.isSuccess()) {
                 vo.processEvent(Event.OperationSuccessed);
+                cleanupLinkedCloneBackingIfUnused(vo);
 
                 if (vo.getPassphraseId() != null) {
                     vo.deletePassphrase();
@@ -533,6 +545,70 @@ public class VolumeServiceImpl implements VolumeService {
         }
         context.getFuture().complete(apiResult);
         return null;
+    }
+
+    protected void cleanupLinkedCloneBackingIfUnused(VolumeObject volume) {
+        String backingPath = getLinkedCloneBackingPathFromVolumeDetails(volume.getId());
+        if (StringUtils.isBlank(backingPath)) {
+            return;
+        }
+        if (hasOtherActiveLinkedCloneBackingReferences(volume.getId(), backingPath)) {
+            logger.debug("Skipping linked clone backing cleanup for volume {} because backing path [{}] is still referenced.", volume, backingPath);
+            return;
+        }
+
+        try {
+            DeleteCommand deleteCommand = new DeleteCommand(getLinkedCloneBackingVolumeObjectTO(volume, backingPath));
+            EndPoint endPoint = _epSelector.select(volume);
+            if (endPoint == null) {
+                logger.warn("Unable to cleanup linked clone backing path [{}] for volume {} because no endpoint was found.", backingPath, volume);
+                return;
+            }
+            Answer answer = endPoint.sendMessage(deleteCommand);
+            if (answer == null || !answer.getResult()) {
+                logger.warn("Failed to cleanup linked clone backing path [{}] for volume {}. Answer: {}", backingPath, volume, answer);
+                return;
+            }
+            logger.info("Cleaned up linked clone backing path [{}] for volume {}.", backingPath, volume);
+        } catch (Exception e) {
+            logger.warn("Failed to cleanup linked clone backing path [{}] for volume {}.", backingPath, volume, e);
+        }
+    }
+
+    protected String getLinkedCloneBackingPathFromVolumeDetails(long volumeId) {
+        VolumeDetailVO linkedCloneType = _volumeDetailsDao.findDetail(volumeId, LINKED_CLONE_TYPE);
+        if (linkedCloneType == null || !LINKED_CLONE_TYPE_VALUE.equalsIgnoreCase(linkedCloneType.getValue())) {
+            return null;
+        }
+        VolumeDetailVO backingPath = _volumeDetailsDao.findDetail(volumeId, LINKED_CLONE_BACKING_PATH);
+        return backingPath != null ? backingPath.getValue() : null;
+    }
+
+    protected boolean hasOtherActiveLinkedCloneBackingReferences(long currentVolumeId, String backingPath) {
+        List<VolumeDetailVO> references = _volumeDetailsDao.findDetails(LINKED_CLONE_BACKING_PATH, backingPath, false);
+        if (CollectionUtils.isEmpty(references)) {
+            return false;
+        }
+        for (VolumeDetailVO reference : references) {
+            long referencedVolumeId = reference.getResourceId();
+            if (referencedVolumeId == currentVolumeId) {
+                continue;
+            }
+            VolumeVO referencedVolume = volDao.findById(referencedVolumeId);
+            if (referencedVolume == null || referencedVolume.getState() == State.Expunged) {
+                continue;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    protected VolumeObjectTO getLinkedCloneBackingVolumeObjectTO(VolumeObject volume, String backingPath) {
+        VolumeObjectTO backingVolume = new VolumeObjectTO();
+        backingVolume.setPath(backingPath);
+        backingVolume.setDataStore(volume.getDataStore().getTO());
+        backingVolume.setFormat(Storage.ImageFormat.QCOW2);
+        return backingVolume;
     }
 
     @Override
@@ -802,15 +878,22 @@ public class VolumeServiceImpl implements VolumeService {
         private final DataObject templateOnStore;
         private final SnapshotInfo snapshot;
         private final String deployAsIsConfiguration;
+        private final String linkedCloneBackingPath;
 
         public CreateVolumeFromBaseImageContext(AsyncCompletionCallback<T> callback, DataObject vo, DataStore primaryStore, DataObject templateOnStore, AsyncCallFuture<VolumeApiResult> future,
                                                 SnapshotInfo snapshot, String configuration) {
+            this(callback, vo, primaryStore, templateOnStore, future, snapshot, configuration, null);
+        }
+
+        public CreateVolumeFromBaseImageContext(AsyncCompletionCallback<T> callback, DataObject vo, DataStore primaryStore, DataObject templateOnStore, AsyncCallFuture<VolumeApiResult> future,
+                                                SnapshotInfo snapshot, String configuration, String linkedCloneBackingPath) {
             super(callback);
             this.vo = vo;
             this.future = future;
             this.templateOnStore = templateOnStore;
             this.snapshot = snapshot;
             this.deployAsIsConfiguration = configuration;
+            this.linkedCloneBackingPath = linkedCloneBackingPath;
         }
 
         public AsyncCallFuture<VolumeApiResult> getFuture() {
@@ -1661,7 +1744,8 @@ public class VolumeServiceImpl implements VolumeService {
             volumeOnStore.processEvent(Event.CreateOnlyRequested);
             _volumeDetailsDao.addDetail(volume.getId(), SNAPSHOT_ID, Long.toString(snapshot.getId()), false);
 
-            CreateVolumeFromBaseImageContext<VolumeApiResult> context = new CreateVolumeFromBaseImageContext<>(null, volume, store, volumeOnStore, future, snapshot, null);
+            CreateVolumeFromBaseImageContext<VolumeApiResult> context = new CreateVolumeFromBaseImageContext<>(null, volume, store, volumeOnStore, future, snapshot, null,
+                    getLinkedCloneBackingPath(snapshot));
             AsyncCallbackDispatcher<VolumeServiceImpl, CopyCommandResult> caller = AsyncCallbackDispatcher.create(this);
             caller.setCallback(caller.getTarget().createVolumeFromSnapshotCallback(null, null)).setContext(context);
             motionSrv.copyAsync(snapshot, volumeOnStore, caller);
@@ -1684,7 +1768,8 @@ public class VolumeServiceImpl implements VolumeService {
             volumeOnStore.processEvent(Event.CreateOnlyRequested);
             _volumeDetailsDao.addDetail(volume.getId(), SNAPSHOT_ID, Long.toString(snapshot.getId()), false);
 
-            CreateVolumeFromBaseImageContext<VolumeApiResult> context = new CreateVolumeFromBaseImageContext<>(null, volume, store, volumeOnStore, future, snapshot, null);
+            CreateVolumeFromBaseImageContext<VolumeApiResult> context = new CreateVolumeFromBaseImageContext<>(null, volume, store, volumeOnStore, future, snapshot, null,
+                    getLinkedCloneBackingPath(snapshot));
             AsyncCallbackDispatcher<VolumeServiceImpl, CopyCommandResult> caller = AsyncCallbackDispatcher.create(this);
             caller.setCallback(caller.getTarget().createVolumeFromSnapshotCallback(null, null)).setContext(context);
             motionSrv.cloneAsync(snapshot, volumeOnStore, caller);
@@ -1714,6 +1799,7 @@ public class VolumeServiceImpl implements VolumeService {
         try {
             if (result.isSuccess()) {
                 volume.processEvent(event, result.getAnswer());
+                persistLinkedCloneDetailsIfNeeded(volume, snapshot, context.linkedCloneBackingPath);
             } else {
                 volume.processEvent(event);
             }
@@ -1727,6 +1813,62 @@ public class VolumeServiceImpl implements VolumeService {
         AsyncCallFuture<VolumeApiResult> future = context.future;
         future.complete(apiResult);
         return null;
+    }
+
+    protected void persistLinkedCloneDetailsIfNeeded(VolumeInfo volume, SnapshotInfo snapshot, String linkedCloneBackingPath) {
+        if (StringUtils.isBlank(linkedCloneBackingPath)) {
+            return;
+        }
+        _volumeDetailsDao.addDetail(volume.getId(), LINKED_CLONE_TYPE, LINKED_CLONE_TYPE_VALUE, false);
+        _volumeDetailsDao.addDetail(volume.getId(), LINKED_CLONE_BACKING_SNAPSHOT_ID, String.valueOf(snapshot.getId()), false);
+        _volumeDetailsDao.addDetail(volume.getId(), LINKED_CLONE_BACKING_PATH, linkedCloneBackingPath, false);
+    }
+
+    protected String getLinkedCloneBackingPath(SnapshotInfo snapshot) {
+        if (!(snapshot.getSnapshotVO() instanceof SnapshotVO)) {
+            return null;
+        }
+        SnapshotVO snapshotVO = (SnapshotVO)snapshot.getSnapshotVO();
+        if (!LINKED_CLONE_TYPE_VALUE.equalsIgnoreCase(snapshotVO.getCloneType())) {
+            return null;
+        }
+        return String.format("clone/vmsnapshot-%s/%s-%s",
+                getVmSnapshotPathToken(snapshot),
+                sanitizePathToken(getSourceVolumeName(snapshot)),
+                getSourceVolumeUuidShort(snapshot));
+    }
+
+    protected String getVmSnapshotPathToken(SnapshotInfo snapshot) {
+        SnapshotDetailsVO vmSnapshotId = snapshotDetailsDao.findDetail(snapshot.getId(), CLONE_VM_SNAPSHOT_ID);
+        if (vmSnapshotId != null && StringUtils.isNotBlank(vmSnapshotId.getValue())) {
+            return sanitizePathToken(vmSnapshotId.getValue());
+        }
+        return String.valueOf(snapshot.getId());
+    }
+
+    protected String getSourceVolumeName(SnapshotInfo snapshot) {
+        VolumeInfo baseVolume = snapshot.getBaseVolume();
+        if (baseVolume != null && baseVolume.getName() != null) {
+            return baseVolume.getName();
+        }
+        return "volume-" + snapshot.getVolumeId();
+    }
+
+    protected String getSourceVolumeUuidShort(SnapshotInfo snapshot) {
+        VolumeInfo baseVolume = snapshot.getBaseVolume();
+        String uuid = baseVolume != null ? baseVolume.getUuid() : snapshot.getUuid();
+        if (uuid == null) {
+            return String.valueOf(snapshot.getVolumeId());
+        }
+        return uuid.length() <= 8 ? sanitizePathToken(uuid) : sanitizePathToken(uuid.substring(0, 8));
+    }
+
+    protected String sanitizePathToken(String value) {
+        if (value == null) {
+            return "unknown";
+        }
+        String sanitized = value.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "-").replaceAll("(^-+|-+$)", "");
+        return sanitized.isEmpty() ? "unknown" : sanitized;
     }
 
     protected VolumeVO duplicateVolumeOnAnotherStorage(Volume volume, StoragePool pool) {

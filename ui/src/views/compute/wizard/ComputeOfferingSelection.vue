@@ -221,8 +221,7 @@ export default {
   watch: {
     computeItems () {
       if (this.tableSource.length > 0) {
-        this.selectedRowKeys = [this.tableSource[0].key]
-        this.$emit('select-compute-item', this.tableSource[0].key, this.tableSource[0].selectKvdoEnable)
+        this.selectInitialRow()
       }
     },
     value (newValue, oldValue) {
@@ -254,6 +253,22 @@ export default {
     }
   },
   methods: {
+    selectInitialRow () {
+      const selectedId = this.value || this.preFillContent?.computeofferingid
+      const selectedRow = this.tableSource.find(row => row.key === selectedId && !row.disabled)
+      if (selectedId && !selectedRow) {
+        this.selectedRowKeys = [selectedId]
+        return
+      }
+      const fallbackRow = this.tableSource.find(row => !row.disabled)
+      const row = selectedRow || fallbackRow
+      if (!row) {
+        return
+      }
+
+      this.selectedRowKeys = [row.key]
+      this.$emit('select-compute-item', row.key, row.selectKvdoEnable)
+    },
     onSelectRow (value) {
       for (let i = 0; i < this.tableSource.length; i++) {
         if (value[0] === this.tableSource[i].key) {

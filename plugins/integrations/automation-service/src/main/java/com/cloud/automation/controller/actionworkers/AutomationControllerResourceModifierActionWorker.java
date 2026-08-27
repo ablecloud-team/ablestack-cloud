@@ -44,8 +44,6 @@ import com.cloud.network.dao.LoadBalancerDao;
 import com.cloud.network.firewall.FirewallService;
 import com.cloud.network.lb.LoadBalancingRulesService;
 import com.cloud.network.rules.FirewallRule;
-import com.cloud.network.rules.FirewallRule.TrafficType;
-import com.cloud.network.rules.FirewallRuleVO;
 import com.cloud.network.rules.PortForwardingRuleVO;
 import com.cloud.network.rules.RulesService;
 import com.cloud.network.rules.dao.PortForwardingRulesDao;
@@ -193,7 +191,7 @@ public class AutomationControllerResourceModifierActionWorker extends Automation
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("Checking deployment destination for automation controller : %s in zone : %s", automationController.getName(), zone.getName()));
         }
-        final long dest = 2;
+        final long dest = 1;
         return plan(dest, zone, offering);
     }
 
@@ -230,33 +228,6 @@ public class AutomationControllerResourceModifierActionWorker extends Automation
             }
         }
         return null;
-    }
-
-    protected void removeFirewallIngressRule(final IpAddress publicIp) {
-        List<FirewallRuleVO> firewallRules = firewallRulesDao.listByIpAndPurposeAndNotRevoked(publicIp.getId(), FirewallRule.Purpose.Firewall);
-        for (FirewallRuleVO firewallRule : firewallRules) {
-            if (firewallRule.getSourcePortStart() != null && firewallRule.getSourcePortEnd() != null) {
-                if (firewallRule.getSourcePortStart() == CLUSTER_USER_PORTAL_PORT &&
-                        firewallRule.getSourcePortEnd() == CLUSTER_API_PORT && firewallRule.getTrafficType() == TrafficType.Ingress) {
-                    firewallService.revokeIngressFwRule(firewallRule.getId(), true);
-                }
-                if (firewallRule.getSourcePortStart() == CLUSTER_SAMBA_PORT &&
-                        firewallRule.getSourcePortEnd() == CLUSTER_SAMBA_PORT && firewallRule.getTrafficType() == TrafficType.Ingress) {
-                    firewallService.revokeIngressFwRule(firewallRule.getId(), true);
-                }
-            }
-        }
-    }
-
-    protected void removeFirewallEgressRule(final Network network) {
-        List<FirewallRuleVO> firewallRules = firewallRulesDao.listByNetworkAndPurposeAndNotRevoked(network.getId(), FirewallRule.Purpose.Firewall);
-        for (FirewallRuleVO firewallRule : firewallRules) {
-            if (firewallRule.getSourcePortStart() != null && firewallRule.getSourcePortEnd() != null) {
-                if (firewallRule.getSourcePortStart() == CLUSTER_USER_PORTAL_PORT && firewallRule.getSourcePortEnd() == CLUSTER_ADMIN_PORTAL_PORT && firewallRule.getTrafficType() == TrafficType.Egress) {
-                    firewallService.revokeIngressFwRule(firewallRule.getId(), true);
-                }
-            }
-        }
     }
 
     protected void removePortForwardingRules(final IpAddress publicIp, final Network network, final Account account, final List<Long> removedVMIds) throws ResourceUnavailableException {
@@ -309,7 +280,7 @@ public class AutomationControllerResourceModifierActionWorker extends Automation
         return sccuess;
     }
 
-    protected boolean provisionEgressFirewallRules(final Network network, final Account account, Integer startPort, Integer endPort) throws NoSuchFieldException,
+    protected boolean provisionEgressFirewallRules(final Network network, final Account account, String protocol, Integer startPort, Integer endPort) throws NoSuchFieldException,
             IllegalAccessException, ResourceUnavailableException, NetworkRuleConflictException {
         List<String> sourceCidrList = new ArrayList<String>();
         sourceCidrList.add("0.0.0.0/0");
@@ -327,7 +298,7 @@ public class AutomationControllerResourceModifierActionWorker extends Automation
 
         Field protocolField = rule.getClass().getDeclaredField("protocol");
         protocolField.setAccessible(true);
-        protocolField.set(rule, "TCP");
+        protocolField.set(rule, protocol);
 
         Field startPortField = rule.getClass().getDeclaredField("publicStartPort");
         startPortField.setAccessible(true);

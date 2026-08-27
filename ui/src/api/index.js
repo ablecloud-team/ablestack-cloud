@@ -23,6 +23,15 @@ import {
   ACCESS_TOKEN
 } from '@/store/mutation-types'
 
+export function appendApiData (params, data = {}) {
+  Object.entries(data).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      params.append(key, value)
+    }
+  })
+  return params
+}
+
 export function api (command, args = {}, method = 'GET', data = {}) {
   let params = {}
   args.command = command
@@ -30,9 +39,7 @@ export function api (command, args = {}, method = 'GET', data = {}) {
 
   if (data) {
     params = new URLSearchParams()
-    Object.entries(data).forEach(([key, value]) => {
-      params.append(key, value)
-    })
+    appendApiData(params, data)
   }
 
   const sessionkey = vueProps.$localStorage.get(ACCESS_TOKEN) || Cookies.get('sessionkey')
@@ -48,6 +55,14 @@ export function api (command, args = {}, method = 'GET', data = {}) {
     method,
     data: params || {}
   })
+}
+
+export function getAPI (command, args = {}) {
+  return api(command, args)
+}
+
+export function postAPI (command, data = {}) {
+  return api(command, {}, 'POST', data)
 }
 
 export function login (arg) {

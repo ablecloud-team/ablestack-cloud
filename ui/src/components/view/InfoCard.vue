@@ -122,7 +122,67 @@
         <div class="resource-detail-item" v-if="(resource.state || resource.status) && $route.meta.name !== 'zone'">
           <div class="resource-detail-item__label">{{ $t('label.status') }}</div>
           <div class="resource-detail-item__details">
-            <status class="status" :text="resource.state || resource.status" displayText/>
+            <status v-if="isFastCloneSourceFlattenActive(resource)" class="status" :text="resource.state || resource.status" displayText>
+              <template #tooltip>
+                <div class="clone-fast-flatten-source-tooltip">
+                  <div class="clone-fast-flatten-source-tooltip-title">{{ getCloneFastSourceTooltipTitle(resource) }}</div>
+                  <div class="clone-fast-flatten-source-tooltip-description">{{ getCloneFastSourceTooltipDescription(resource) }}</div>
+                </div>
+              </template>
+            </status>
+            <status v-else class="status" :text="resource.state || resource.status" displayText/>
+          </div>
+        </div>
+        <div class="resource-detail-item" v-if="isFastCloneFlattenActive(resource)">
+          <div class="resource-detail-item__label">{{ $t('label.sharedmountpoint.clone.flatten.status') }}</div>
+          <div class="resource-detail-item__details resource-detail-item__details--column">
+            <a-tooltip v-if="isFastCloneFlattenVisible(resource)" placement="topLeft">
+              <template #title>
+                <div class="clone-fast-flatten-tooltip">
+                  <div
+                    v-for="item in getCloneFastFlattenTooltipItems(resource)"
+                    :key="item.label"
+                    class="clone-fast-flatten-tooltip-row">
+                    <span class="clone-fast-flatten-tooltip-label">{{ item.label }} :</span>
+                    <span class="clone-fast-flatten-tooltip-value">{{ item.value }}</span>
+                  </div>
+                </div>
+              </template>
+              <div class="clone-fast-flatten-tooltip-area">
+                <div class="clone-fast-flatten-status-row">
+                  <a-tag :color="getCloneFastStatusTagColor(resource)" class="clone-fast-flatten-status">
+                    {{ getCloneFastStatusLabel(resource) }}
+                  </a-tag>
+                </div>
+                <div
+                  v-if="hasCloneFastFlattenProgress(resource)"
+                  class="clone-fast-flatten-progress-row">
+                  <a-progress
+                    class="progress-bar clone-fast-flatten-progress"
+                    size="small"
+                    :show-info="false"
+                    :status="getCloneFastStatus(resource) === 'running' ? 'active' : 'normal'"
+                    :percent="getCloneFastFlattenProgress(resource)" />
+                  <span
+                    class="clone-fast-flatten-percent">
+                    {{ formatCloneFastFlattenProgress(resource) }}
+                  </span>
+                </div>
+              </div>
+            </a-tooltip>
+            <a-tooltip v-else-if="isFastCloneSourceFlattenActive(resource)" placement="topLeft">
+              <template #title>
+                <div class="clone-fast-flatten-source-tooltip">
+                  <div class="clone-fast-flatten-source-tooltip-title">{{ getCloneFastSourceTooltipTitle(resource) }}</div>
+                  <div class="clone-fast-flatten-source-tooltip-description">{{ getCloneFastSourceTooltipDescription(resource) }}</div>
+                </div>
+              </template>
+              <div class="clone-fast-flatten-source-status-area">
+                <a-tag :color="getCloneFastStatusTagColor(resource)" class="clone-fast-flatten-status">
+                  {{ getCloneFastStatusLabel(resource) }}
+                </a-tag>
+              </div>
+            </a-tooltip>
           </div>
         </div>
         <div class="resource-detail-item" v-if="resource.allocationstate">
@@ -135,6 +195,21 @@
           <div class="resource-detail-item__label">{{ $t('label.resourcestate') }}</div>
           <div class="resource-detail-item__details">
             <status class="status" :text="resource.resourcestate" displayText/>
+          </div>
+        </div>
+        <div class="resource-detail-item" v-if="$route.meta.name === 'buckets' && bucketQuotaKB > 0">
+          <div class="resource-detail-item__label">사용량</div>
+          <div class="resource-detail-item__details">
+            <hdd-outlined />
+            {{ toSize(Number(resource.size || 0)) }} / {{ resource.quota }} GiB
+          </div>
+          <div>
+            <a-progress
+              class="progress-bar"
+              size="small"
+              status="active"
+              :percent="bucketUsagePercent"
+              :format="(percent, successPercent) => parseFloat(percent).toFixed(2) + '% 사용됨'" />
           </div>
         </div>
         <div class="resource-detail-item" v-if="['cluster', 'zone'].includes($route.meta.name) && resource.resourcedetails">
@@ -379,6 +454,21 @@
             <a-tag style="margin-bottom: 5px;">{{ $t('label.write') + ' ' + toSize(resource.diskkbswrite) }}</a-tag><br/>
             <a-tag style="margin-bottom: 5px;">{{ $t('label.read.io') + ' ' + resource.diskioread }}</a-tag>
             <a-tag>{{ $t('label.writeio') + ' ' + resource.diskiowrite }}</a-tag>
+          </div>
+        </div>
+        <div class="resource-detail-item" v-else-if="$route.meta.name === 'imagestore' && resource.disksizetotal">
+          <div class="resource-detail-item__label">{{ $t('label.disksize') }}</div>
+          <div class="resource-detail-item__details">
+            <hdd-outlined />
+            {{ $bytesToHumanReadableSize(resource.disksizeused || 0) }} / {{ $bytesToHumanReadableSize(resource.disksizetotal) }}
+          </div>
+          <div>
+            <a-progress
+              class="progress-bar"
+              size="small"
+              status="active"
+              :percent="imageStoreUsagePercent"
+              :format="(percent, successPercent) => parseFloat(percent).toFixed(2) + '% ' + $t('label.used')" />
           </div>
         </div>
         <div class="resource-detail-item" v-else-if="resource.disksizetotalgb">
@@ -919,21 +1009,13 @@
         </a-spin>
       </div>
     </a-card>
-    <div
+    <ResourceContextMenu
       v-if="showContextQuickView"
-      ref="contextQuickViewMenu"
-      class="quickview-context-menu"
-      :style="{ top: contextQuickViewPosition.y + 'px', left: contextQuickViewPosition.x + 'px' }"
-      @click.stop
-      @contextmenu.stop.prevent>
-      <ActionButton
-        :actions="contextMenuActions"
-        :resource="resource"
-        :dataView="true"
-        :show-resource-title="true"
-        size="default"
-        @exec-action="handleContextAction" />
-    </div>
+      :actions="contextMenuActions"
+      :resource="resource"
+      :position="contextQuickViewPosition"
+      @close="closeContextQuickView"
+      @exec-action="handleContextAction" />
   </a-spin>
 </template>
 
@@ -950,7 +1032,7 @@ import UploadResourceIcon from '@/components/view/UploadResourceIcon'
 import eventBus from '@/config/eventBus'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import ResourceLabel from '@/components/widgets/ResourceLabel'
-import ActionButton from '@/components/view/ActionButton'
+import ResourceContextMenu from '@/components/view/ResourceContextMenu'
 
 export default {
   name: 'InfoCard',
@@ -963,7 +1045,7 @@ export default {
     UploadResourceIcon,
     ResourceIcon,
     ResourceLabel,
-    ActionButton
+    ResourceContextMenu
   },
   props: {
     resource: {
@@ -1020,8 +1102,7 @@ export default {
       contextQuickViewPosition: {
         x: 0,
         y: 0
-      },
-      contextMenuListenerRegistered: false
+      }
     }
   },
   watch: {
@@ -1057,9 +1138,6 @@ export default {
     })
     this.updateResourceAdditionalData()
   },
-  beforeUnmount () {
-    this.removeContextMenuListeners()
-  },
   computed: {
     tagsSupportingResourceTypes () {
       return ['UserVm', 'Template', 'ISO', 'Volume', 'RbdImages', 'Snapshot', 'Backup', 'Network',
@@ -1093,6 +1171,31 @@ export default {
         }
       }
       return null
+    },
+    bucketQuotaKB () {
+      const quotaGiB = Number(this.resource?.quota)
+      if (!Number.isFinite(quotaGiB) || quotaGiB <= 0) {
+        return 0
+      }
+      return quotaGiB * 1024 * 1024
+    },
+    bucketUsagePercent () {
+      if (this.bucketQuotaKB <= 0) {
+        return 0
+      }
+      const sizeKB = Number(this.resource?.size || 0)
+      if (!Number.isFinite(sizeKB) || sizeKB <= 0) {
+        return 0
+      }
+      return Math.min(Number(((sizeKB / this.bucketQuotaKB) * 100).toFixed(2)), 100)
+    },
+    imageStoreUsagePercent () {
+      const total = Number(this.resource?.disksizetotal)
+      const used = Number(this.resource?.disksizeused || 0)
+      if (!Number.isFinite(total) || total <= 0 || !Number.isFinite(used) || used <= 0) {
+        return 0
+      }
+      return Math.min(Number(((used / total) * 100).toFixed(2)), 100)
     },
     routeFromResourceType () {
       return this.$getRouteFromResourceType(this.resource.resourcetype)
@@ -1128,6 +1231,78 @@ export default {
         }
       }
       this.getIcons()
+    },
+    getCloneFastStatus (record) {
+      return String(record?.clonefaststatus || record?.details?.['clone.fast.status'] || '').toLowerCase()
+    },
+    isFastCloneFlattenActive (record) {
+      return ['pending', 'running'].includes(this.getCloneFastStatus(record))
+    },
+    hasCloneFastFlattenVolumeInfo (record) {
+      return [
+        record?.clonefastflattenvolumetype,
+        record?.clonefastflattenvolumename,
+        record?.clonefastflattendeviceid
+      ].some(value => value !== undefined && value !== null && value !== '')
+    },
+    isFastCloneFlattenVisible (record) {
+      return this.isFastCloneFlattenActive(record) && this.hasCloneFastFlattenVolumeInfo(record)
+    },
+    isFastCloneSourceFlattenActive (record) {
+      return this.isFastCloneFlattenActive(record) && !this.hasCloneFastFlattenVolumeInfo(record)
+    },
+    getCloneFastStatusLabel (record) {
+      const status = this.getCloneFastStatus(record)
+      if (status === 'running') {
+        return this.$t('label.sharedmountpoint.clone.flatten.running')
+      }
+      if (status === 'pending') {
+        return this.$t('label.sharedmountpoint.clone.flatten.pending')
+      }
+      return ''
+    },
+    getCloneFastSourceTooltipTitle (record) {
+      const status = this.getCloneFastStatus(record)
+      if (status === 'pending') {
+        return this.$t('message.sharedmountpoint.clone.source.flatten.pending.summary')
+      }
+      return this.$t('message.sharedmountpoint.clone.source.flatten.running.summary')
+    },
+    getCloneFastSourceTooltipDescription (record) {
+      const status = this.getCloneFastStatus(record)
+      if (status === 'pending') {
+        return this.$t('message.sharedmountpoint.clone.source.flatten.pending')
+      }
+      return this.$t('message.sharedmountpoint.clone.source.flatten.running')
+    },
+    getCloneFastStatusTagColor (record) {
+      return this.getCloneFastStatus(record) === 'running' ? 'processing' : 'default'
+    },
+    hasCloneFastFlattenProgress (record) {
+      return this.getCloneFastFlattenProgress(record) !== null
+    },
+    getCloneFastFlattenProgress (record) {
+      const rawProgress = record?.clonefastflattenprogress || record?.details?.['clone.fast.flatten.progress']
+      const progress = Number.parseFloat(rawProgress)
+      if (!Number.isFinite(progress)) {
+        return null
+      }
+      return Math.min(Math.max(progress, 0), 100)
+    },
+    formatCloneFastFlattenProgress (record) {
+      const progress = this.getCloneFastFlattenProgress(record)
+      return progress === null ? '' : progress.toFixed(2) + '%'
+    },
+    getCloneFastFlattenVolumeTypeLabel (record) {
+      const volumeType = record?.clonefastflattenvolumetype
+      return volumeType ? volumeType + ' ' + this.$t('label.volume') : ''
+    },
+    getCloneFastFlattenTooltipItems (record) {
+      return [
+        { label: this.$t('label.type'), value: this.getCloneFastFlattenVolumeTypeLabel(record) },
+        { label: this.$t('label.name'), value: record?.clonefastflattenvolumename },
+        { label: this.$t('label.deviceid'), value: record?.clonefastflattendeviceid }
+      ].filter(item => item.value !== undefined && item.value !== null && item.value !== '')
     },
     showUploadModal (show) {
       if (show) {
@@ -1220,7 +1395,7 @@ export default {
     },
     setData () {
       if (this.resource.nic && this.resource.nic.length > 0) {
-        this.ipaddress = this.resource.nic.filter(e => { return e.ipaddress }).map(e => { return e.ipaddress }).join(', ')
+        this.ipaddress = this.resource.nic.filter(e => e.linkstate !== false && e.ipaddress).map(e => e.ipaddress).join(', ')
       } else {
         this.ipaddress = this.resource.ipaddress
       }
@@ -1354,52 +1529,10 @@ export default {
         y: event.clientY
       }
       this.contextQuickViewVisible = true
-      this.$nextTick(() => {
-        this.adjustContextMenuPosition()
-      })
-      this.addContextMenuListeners()
-    },
-    addContextMenuListeners () {
-      if (this.contextMenuListenerRegistered) {
-        return
-      }
-      document.addEventListener('click', this.closeContextQuickView)
-      this.contextMenuListenerRegistered = true
-    },
-    removeContextMenuListeners () {
-      if (!this.contextMenuListenerRegistered) {
-        return
-      }
-      document.removeEventListener('click', this.closeContextQuickView)
-      this.contextMenuListenerRegistered = false
     },
     closeContextQuickView () {
       this.contextQuickViewVisible = false
       this.contextQuickViewPosition = { x: 0, y: 0 }
-      this.removeContextMenuListeners()
-    },
-    adjustContextMenuPosition () {
-      const padding = 8
-      const menu = this.$refs.contextQuickViewMenu
-      if (!menu) {
-        return
-      }
-      const rect = menu.getBoundingClientRect()
-      let x = this.contextQuickViewPosition.x
-      let y = this.contextQuickViewPosition.y
-      const maxX = window.innerWidth - rect.width - padding
-      const maxY = window.innerHeight - rect.height - padding
-      if (x > maxX) {
-        x = Math.max(padding, maxX)
-      }
-      if (y > maxY) {
-        y = Math.max(padding, maxY)
-      }
-      x = Math.max(padding, x)
-      y = Math.max(padding, y)
-      if (x !== this.contextQuickViewPosition.x || y !== this.contextQuickViewPosition.y) {
-        this.contextQuickViewPosition = { x, y }
-      }
     },
     handleContextAction (action) {
       this.closeContextQuickView()
@@ -1461,6 +1594,11 @@ export default {
 
     }
 
+    &--column {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
   }
 
   .anticon {
@@ -1511,6 +1649,95 @@ export default {
   width: 100%;
 }
 
+.clone-fast-flatten-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  max-width: 320px;
+  width: 100%;
+  min-width: 0;
+}
+
+.clone-fast-flatten-status {
+  flex: 0 0 auto;
+  margin-right: 0;
+}
+
+.clone-fast-flatten-tooltip-area {
+  cursor: default;
+  display: inline-flex;
+  flex-direction: column;
+  max-width: 320px;
+  width: 100%;
+}
+
+.clone-fast-flatten-tooltip {
+  min-width: 220px;
+}
+
+.clone-fast-flatten-tooltip-row {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: max-content minmax(0, 1fr);
+  line-height: 20px;
+}
+
+.clone-fast-flatten-tooltip-label {
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+}
+
+.clone-fast-flatten-tooltip-value {
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+
+.clone-fast-flatten-source-tooltip {
+  max-width: 280px;
+}
+
+.clone-fast-flatten-source-tooltip-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.clone-fast-flatten-source-tooltip-description {
+  line-height: 20px;
+}
+
+.clone-fast-flatten-source-status-area {
+  align-items: center;
+  cursor: default;
+  display: inline-flex;
+  gap: 6px;
+  max-width: 320px;
+  min-width: 0;
+}
+
+.clone-fast-flatten-percent {
+  color: #606266;
+  flex: 0 0 auto;
+  font-size: 12px;
+  line-height: 22px;
+  white-space: nowrap;
+}
+
+.clone-fast-flatten-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 320px;
+  width: 100%;
+}
+
+.clone-fast-flatten-progress {
+  flex: 1 1 auto;
+  max-width: none;
+  min-width: 0;
+  padding-right: 0;
+}
+
 .upload-icon {
   position: absolute;
   top: 70px;
@@ -1523,13 +1750,4 @@ export default {
   border: 1px solid rgba(177, 177, 177, 0.788);
 }
 
-.quickview-context-menu {
-  position: fixed;
-  z-index: 2000;
-  background-color: #fff;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  padding: 10px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-}
 </style>

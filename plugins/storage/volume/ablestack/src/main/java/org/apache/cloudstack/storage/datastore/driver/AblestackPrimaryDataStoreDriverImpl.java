@@ -358,6 +358,7 @@ public class AblestackPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriv
             if (payload != null && payload instanceof CreateSnapshotPayload) {
                 CreateSnapshotPayload snapshotPayload = (CreateSnapshotPayload) payload;
                 snapshotTO.setQuiescevm(snapshotPayload.getQuiescevm());
+                snapshotTO.setPath(snapshotPayload.getSnapshotPath());
             }
 
             snapshotTO.setVmSnapshotName(snapshot.getVmSnapshotName());

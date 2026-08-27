@@ -135,12 +135,9 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
 
             dm = conn.domainLookupByName(vmName);
             /*
-                We replace the private IP address with the address of the destination host.
-                This is because the VNC listens on the private IP address of the hypervisor,
-                but that address is of course different on the target host.
-
-                MigrateCommand.getDestinationIp() returns the private IP address of the target
-                hypervisor. So it's safe to use.
+                We replace the VNC graphics listen address with the VNC address configured for
+                the target host. This is typically the private IP address of the destination
+                hypervisor, but it must remain independent from the migration transport IP.
 
                 The Domain.migrate method from libvirt supports passing a different XML
                 description for the instance to be used on the target host.
@@ -156,6 +153,7 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
             final int xmlFlag = conn.getLibVirVersion() >= 1000000 ? 8 : 1; // 1000000 equals v1.0.0
 
             final String target = command.getDestinationIp();
+            final String vncTarget = StringUtils.defaultIfBlank(to.getVncAddr(), target);
             xmlDesc = dm.getXMLDesc(xmlFlag);
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("VM [%s] with XML configuration [%s] will be migrated to host [%s].", vmName, xmlDesc, target));
@@ -164,7 +162,7 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
             // Limit the VNC password in case the length is greater than 8 characters
             // Since libvirt version 8 VNC passwords are limited to 8 characters
             String vncPassword = org.apache.commons.lang3.StringUtils.truncate(to.getVncPassword(), 8);
-            xmlDesc = replaceIpForVNCInDescFileAndNormalizePassword(xmlDesc, target, vncPassword, vmName);
+            xmlDesc = replaceIpForVNCInDescFileAndNormalizePassword(xmlDesc, vncTarget, vncPassword, vmName);
 
             // Replace Config Drive ISO path
             String oldIsoVolumePath = getOldVolumePath(disks, vmName);

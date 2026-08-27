@@ -320,7 +320,7 @@ public class HypervisorTemplateAdapter extends TemplateAdapterBase {
     }
 
     protected List<DataStore> getImageStoresThrowsExceptionIfNotFound(long zoneId, TemplateProfile profile) {
-        List<DataStore> imageStores = storeMgr.getImageStoresByZoneIds(zoneId);
+        List<DataStore> imageStores = storeMgr.getImageStoresByScopeExcludingReadOnly(new ZoneScope(zoneId));
         if (imageStores == null || imageStores.size() == 0) {
             throw new CloudRuntimeException(String.format("Unable to find image store to download the template [%s].", profile.getTemplate()));
         }
@@ -334,7 +334,13 @@ public class HypervisorTemplateAdapter extends TemplateAdapterBase {
         } else {
             heuristicType = HeuristicType.TEMPLATE;
         }
-        return heuristicRuleHelper.getImageStoreIfThereIsHeuristicRule(zoneId, heuristicType, template);
+        DataStore imageStore = heuristicRuleHelper.getImageStoreIfThereIsHeuristicRule(zoneId, heuristicType, template);
+        if (imageStore == null || isWritableImageStore(imageStore, zoneId)) {
+            return imageStore;
+        }
+
+        logger.info("Heuristic rule selected readonly image store [{}] in zone [{}]; skipping it for template upload.", imageStore, zoneId);
+        return null;
     }
 
     protected void standardImageStoreAllocation(List<DataStore> imageStores, VMTemplateVO template) {
@@ -377,6 +383,11 @@ public class HypervisorTemplateAdapter extends TemplateAdapterBase {
             return false;
         }
 
+        if (!isWritableImageStore(imageStore, zoneId)) {
+            logger.info("Image store [{}] is readonly. Skip downloading template to this image store.", imageStore);
+            return false;
+        }
+
         if (!_statsCollector.imageStoreHasEnoughCapacity(imageStore)) {
             logger.info("Image store doesn't have enough capacity. Skip downloading template to this image store [{}].", imageStore);
             return false;
@@ -396,6 +407,16 @@ public class HypervisorTemplateAdapter extends TemplateAdapterBase {
         logger.info(String.format("Private template will be allocated in image store [%s] in zone [%s].", imageStore, zone));
         zoneSet.add(zoneId);
         return true;
+    }
+
+    protected boolean isWritableImageStore(DataStore imageStore, Long zoneId) {
+        if (imageStore == null || zoneId == null) {
+            return false;
+        }
+
+        List<DataStore> writableImageStores = storeMgr.getImageStoresByScopeExcludingReadOnly(new ZoneScope(zoneId));
+        return CollectionUtils.isNotEmpty(writableImageStores) &&
+                writableImageStores.stream().anyMatch(store -> store.getId() == imageStore.getId());
     }
 
     @Override

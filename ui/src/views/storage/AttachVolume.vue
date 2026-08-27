@@ -33,11 +33,11 @@
           </template>
         </a-alert>
       </div>
-      <a-form-item :label="$t('label.virtualmachineid')" name="virtualmachineid" ref="virtualmachineid">
+      <a-form-item :label="$t('label.virtualmachinename')" name="virtualmachineid" ref="virtualmachineid">
         <a-select
           v-focus="true"
           v-model:value="form.virtualmachineid"
-          :placeholder="apiParams.virtualmachineid.description"
+          :placeholder="$t('label.virtualmachinename')"
           showSearch
           optionFilterProp="label"
           :filterOption="(input, option) => {

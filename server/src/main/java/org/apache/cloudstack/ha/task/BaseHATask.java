@@ -20,9 +20,11 @@ package org.apache.cloudstack.ha.task;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import com.cloud.utils.concurrency.NamedThreadFactory;
 
 import org.apache.cloudstack.ha.HAConfig;
 import org.apache.cloudstack.ha.HAResource;
@@ -36,6 +38,7 @@ import org.joda.time.DateTime;
 
 public abstract class BaseHATask implements Callable<Boolean> {
     protected Logger logger = LogManager.getLogger(getClass());
+    private static final ExecutorService innerExecutor = Executors.newCachedThreadPool(new NamedThreadFactory("HA-InnerTask"));
 
     private final HAResource resource;
     private final HAProvider<HAResource> haProvider;
@@ -81,7 +84,7 @@ public abstract class BaseHATask implements Callable<Boolean> {
         if (new DateTime().minusHours(1).isAfter(getCreated())) {
             return false;
         }
-        final Future<Boolean> future = executor.submit(new Callable<Boolean>() {
+        final Future<Boolean> future = innerExecutor.submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws HACheckerException, HAFenceException, HARecoveryException {
                 return performAction();
@@ -101,6 +104,7 @@ public abstract class BaseHATask implements Callable<Boolean> {
             throwable = e.getCause();
         } catch (TimeoutException e) {
             logger.trace("{} operation timed out for resource: {}", getTaskType(), resource);
+            future.cancel(true);
         }
         processResult(result, throwable);
         return result;

@@ -56,26 +56,26 @@ public class StoragePoolMetricsResponse extends StoragePoolResponse {
 
     public void setDiskSizeUsedGB(final Long diskSizeUsed) {
         if (diskSizeUsed != null) {
-            this.diskSizeUsedGB = String.format("%.2f GB", diskSizeUsed / (1024.0 * 1024.0 * 1024.0));
+            this.diskSizeUsedGB = String.format("%.2f GiB", diskSizeUsed / (1024.0 * 1024.0 * 1024.0));
         }
     }
 
     public void setDiskSizeTotalGB(final Long totalDiskSize, final String overProvisionFactor) {
         if (totalDiskSize != null && overProvisionFactor != null) {
-            this.diskSizeTotalGB = String.format("%.2f GB (x%s)", totalDiskSize / (1024.0 * 1024.0 * 1024.0), overProvisionFactor);
+            this.diskSizeTotalGB = String.format("%.2f GiB (x%s)", totalDiskSize / (1024.0 * 1024.0 * 1024.0), overProvisionFactor);
         }
     }
 
     public void setDiskSizeAllocatedGB(final Long diskSizeAllocated) {
         if (diskSizeAllocated != null) {
-            this.diskSizeAllocatedGB = String.format("%.2f GB", diskSizeAllocated / (1024.0 * 1024.0 * 1024.0));
+            this.diskSizeAllocatedGB = String.format("%.2f GiB", diskSizeAllocated / (1024.0 * 1024.0 * 1024.0));
 
         }
     }
 
     public void setDiskSizeUnallocatedGB(final Long totalDiskSize, final Long diskSizeAllocated, final String overProvisionFactor) {
         if (totalDiskSize != null && diskSizeAllocated != null && overProvisionFactor != null) {
-            this.diskSizeUnallocatedGB = String.format("%.2f GB", ((Double.valueOf(overProvisionFactor) * totalDiskSize) - diskSizeAllocated) / (1024.0 * 1024.0 * 1024.0));
+            this.diskSizeUnallocatedGB = String.format("%.2f GiB", ((Double.valueOf(overProvisionFactor) * totalDiskSize) - diskSizeAllocated) / (1024.0 * 1024.0 * 1024.0));
         }
     }
 

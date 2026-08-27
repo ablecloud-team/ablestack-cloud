@@ -52,6 +52,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import com.cloud.alert.dao.AlertDao;
 import com.cloud.api.ApiDBUtils;
@@ -85,6 +86,7 @@ import com.cloud.service.ServiceOfferingVO;
 import com.cloud.service.dao.ServiceOfferingDao;
 import com.cloud.storage.StorageManager;
 import com.cloud.utils.Pair;
+import com.cloud.utils.component.ComponentContext;
 import com.cloud.utils.component.ManagerBase;
 import com.cloud.utils.concurrency.NamedThreadFactory;
 import com.cloud.utils.db.SearchCriteria;
@@ -758,7 +760,7 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
         sendPersistentAlert(alertType, zone, pod, cluster, subject, body);
     }
 
-    // ---------- 아래는 private 헬퍼(전용 Persist Only) ----------
+    // ---------- 아래는 private 헬퍼(전용 Persistent Alert 처리) ----------
     private void sendPersistentAlert(final AlertType alertType,
                                      final com.cloud.dc.DataCenter dataCenter,
                                      final com.cloud.dc.Pod pod,
@@ -771,9 +773,7 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
             final Long podId   = (pod == null ? null : pod.getId());
             final Long clusterId = (cluster == null ? null : cluster.getId());
 
-            // 이벤트 버스 전파
-            com.cloud.event.AlertGenerator.publishAlertOnEventBus(
-                    alertType.getName(), zoneId, podId, subject, content);
+            publishAlertOnEventBus(alertType, zoneId, podId, subject, content);
 
             // 마지막 알림 조회(항상 zoneId를 사용해 NPE 방지)
             com.cloud.alert.AlertVO last =
@@ -790,6 +790,7 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
                 if (logger.isDebugEnabled()) {
                     logger.debug("Duplicate persist suppressed for subject='" + subject + "', only bumped lastSent/sentCount.");
                 }
+                sendAlertDeliveries(alertType, zoneId, podId, clusterId, subject, content);
                 return;
             }
 
@@ -806,9 +807,17 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
             newAlert.setName(alertType.getName());
             _alertDao.persist(newAlert);
 
-            // persist-only: 이메일 송신 없음
+            sendAlertDeliveries(alertType, zoneId, podId, clusterId, subject, content);
         } catch (Throwable t) {
             logger.warn("sendPersistentAlert failed: " + String.valueOf(t.getMessage()), t);
+        }
+    }
+
+    protected void publishAlertOnEventBus(AlertType alertType, long dataCenterId, Long podId, String subject, String content) {
+        try {
+            AlertGenerator.publishAlertOnEventBus(alertType.getName(), dataCenterId, podId, subject, content);
+        } catch (Exception e) {
+            logger.warn(String.format("Failed to publish alert on event bus for type [%s] and subject [%s]", alertType, subject), e);
         }
     }
 
@@ -896,9 +905,21 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
             _alertDao.persist(newAlert);
         } else {
             logger.debug("Have already sent: " + alert.getSentCount() + " emails for alert type '" + alertType + "' -- skipping send email");
+            logger.info(String.format("Skipping external alert delivery due to duplicate unresolved alert [alertType=%s, subject=%s, alertId=%s, sentCount=%s].",
+                    alertType, subject, alert.getId(), alert.getSentCount()));
             return;
         }
 
+        sendAlertDeliveries(alertType, dcId, podId, clusterId, subject, content);
+    }
+
+    protected void sendAlertDeliveries(AlertType alertType, long dataCenterId, Long podId, Long clusterId, String subject, String content) {
+        _executor.execute(() -> sendExternalAlertDeliveries(alertType, dataCenterId, podId, clusterId, subject, content));
+
+        if (mailSender == null) {
+            logger.warn(String.format("No mail sender configured, skipping sending alert with subject [%s] and content [%s].", subject, content));
+            return;
+        }
         if (ArrayUtils.isEmpty(recipients)) {
             logger.warn(String.format("No recipients set in global setting 'alert.email.addresses', "
                     + "skipping sending alert with subject [%s] and content [%s].", subject, content));
@@ -909,7 +930,7 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
         mailProps.setSender(new MailAddress(senderAddress));
         mailProps.setSubject(subject);
         mailProps.setContent(content);
-        mailProps.setContentType("text/plain");
+        mailProps.setContentType("text/plain; charset=UTF-8");
 
         Set<MailAddress> addresses = new HashSet<>();
         for (String recipient : recipients) {
@@ -923,12 +944,19 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager, Confi
     }
 
     protected void sendMessage(SMTPMailProperties mailProps) {
-        _executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                mailSender.sendMail(mailProps);
-            }
-        });
+        _executor.execute(() -> mailSender.sendMail(mailProps));
+    }
+
+    protected void sendExternalAlertDeliveries(AlertType alertType, long dataCenterId, Long podId, Long clusterId, String subject, String content) {
+        try {
+            // logger.debug(String.format("Dispatching external alert delivery [alertType=%s, dataCenterId=%s, podId=%s, clusterId=%s, subject=%s].", alertType, dataCenterId, podId, clusterId, subject));
+            AlertDeliveryHelper alertDeliveryHelper = ComponentContext.getDelegateComponentOfType(AlertDeliveryHelper.class);
+            alertDeliveryHelper.sendAlert(alertType, dataCenterId, podId, clusterId, subject, content);
+        } catch (NoSuchBeanDefinitionException ignored) {
+            logger.debug("No AlertDeliveryHelper bean found");
+        } catch (Exception e) {
+            logger.warn(String.format("Failed to deliver alert via external helper for type [%s] and subject [%s]", alertType, subject), e);
+        }
     }
 
     private static String formatPercent(double percentage) {

@@ -50,6 +50,7 @@ public class FenceTask extends BaseHATask {
             haManager.transitionHAState(HAConfig.Event.Fenced, haConfig);
             getHaProvider().fenceSubResources(getResource());
             getHaProvider().enableMaintenance(getResource());
+            haManager.disableHA(haConfig.getResourceId(), haConfig.getResourceType());
         }
         getHaProvider().sendAlert(getResource(), HAConfig.HAState.Fencing);
     }

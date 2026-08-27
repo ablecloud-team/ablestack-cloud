@@ -19,7 +19,7 @@ under the License.
 
 # Introduction
 
-This is used to build appliances for use with CloudStack. Currently two
+This is used to build appliances for use with ABLESTACK. Currently two
 build profiles are available for building systemvmtemplate (Debian based) and
 CentOS based built-in user VM template.
 
@@ -27,7 +27,8 @@ CentOS based built-in user VM template.
 
 - Install packer (v1.8.x, v1.9.x tested) and latest KVM, qemu on a Linux x86
   machine (Ubuntu 20.04 tested)
-- Install tools for exporting appliances: qemu-img, ovftool, faketime, sharutils
+- Install `qemu-img`, the other KVM/QEMU tools used by `build.sh`, and
+  `sharutils` for packaging the System VM scripts.
 - Build and install `vhd-util` as described in build.sh or use pre-built
   binaries at:
 
@@ -39,12 +40,15 @@ CentOS based built-in user VM template.
 
 # How to build appliances
 
-Just run build.sh, it will export archived appliances for KVM, XenServer,
-VMWare and HyperV in `dist` directory:
+The active System VM release path exports only a compressed KVM QCOW2 image in
+the `dist` directory. VMware OVA/VMDK, XenServer, OVM, and Hyper-V exports are
+not part of the ABLESTACK release build.
 
-    bash build.sh <name> <version> <arch>
-    bash build.sh systemvmtemplate 4.19.1.0 x86_64
-    bash build.sh systemvmtemplate 4.19.1.0 aarch64
+Run `build.sh` with the template name, version, architecture, and optional build
+number:
+
+    bash build.sh <name> <version> <arch> [build-number]
+    bash build.sh systemvmtemplate 4.22.0.0 x86_64 123
 
 For building builtin x86_64 template run:
 

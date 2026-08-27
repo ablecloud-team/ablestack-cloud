@@ -107,6 +107,7 @@
         <a-alert style="margin-bottom: 5px" type="info" show-icon>
           <template #message>
             <span v-html="$t('message.network.addvm.desc')" />
+            <div class="network-add-ip-description" v-html="$t('message.network.addvm.ip.desc')" />
           </template>
         </a-alert><br>
         <a-form-item name="networkid">
@@ -118,6 +119,7 @@
             v-focus="true"
             showSearch
             optionFilterProp="label"
+            @change="onAddNetworkChange"
             :filterOption="(input, option) => {
               return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }" >
@@ -138,7 +140,21 @@
           <template #label>
             <tooltip-label :title="$t('label.ipaddress')"/>
           </template>
-          <a-input v-model:value="addNetworkData.ip"></a-input>
+          <a-select
+            v-model:value="addNetworkData.ip"
+            :loading="listIps.loading"
+            allowClear
+            showSearch
+            optionFilterProp="value"
+            :disabled="isSelectedAddNetworkL2"
+            :placeholder="$t('label.ipaddress')"
+            :filterOption="(input, option) => {
+              return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }">
+            <a-select-option v-for="ip in listIps.opts" :key="ip.ipaddress" :value="ip.ipaddress">
+              {{ ip.ipaddress }}
+            </a-select-option>
+          </a-select>
         </a-form-item>
         <a-form-item name="makedefault">
           <a-checkbox v-model:checked="addNetworkData.makedefault">
@@ -178,16 +194,16 @@
             <tooltip-label :title="$t('label.ipaddress')"/>
           </template>
           <a-select
-            v-if="editNicResource.type==='Shared'"
+            v-if="editNicResource.type === 'Shared' || canListEditNicAvailableGuestIps"
             v-model:value="form.ipaddress"
             :loading="listIps.loading"
-            v-focus="editNicResource.type==='Shared'"
+            v-focus="editNicResource.type === 'Shared' || canListEditNicAvailableGuestIps"
             showSearch
             optionFilterProp="value"
             :filterOption="(input, option) => {
               return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }">
-            <a-select-option v-for="ip in listIps.opts" :key="ip.ipaddress">
+            <a-select-option v-for="ip in listIps.opts" :key="ip.ipaddress" :value="ip.ipaddress">
               {{ ip.ipaddress }}
             </a-select-option>
           </a-select>
@@ -354,6 +370,30 @@ export default {
   created () {
     this.vm = this.resource
   },
+  computed: {
+    selectedAddNetwork () {
+      return this.addNetworkData.allNetworks.find(network => network.id === this.addNetworkData.network) || {}
+    },
+    selectedAddNetworkType () {
+      const networkType = this.selectedAddNetwork.type || this.selectedAddNetwork.guesttype
+      return String(networkType).toLowerCase()
+    },
+    isSelectedAddNetworkL2 () {
+      return this.selectedAddNetworkType === 'l2'
+    },
+    isSelectedAddNetworkShared () {
+      return this.selectedAddNetworkType === 'shared'
+    },
+    isSelectedAddNetworkIsolated () {
+      return this.selectedAddNetworkType === 'isolated'
+    },
+    canListAvailableGuestIps () {
+      return this.isSelectedAddNetworkIsolated
+    },
+    canListEditNicAvailableGuestIps () {
+      return this.editNicResource.type === 'Isolated'
+    }
+  },
   methods: {
     listNetworks () {
       api('listNetworks', {
@@ -362,8 +402,19 @@ export default {
         zoneid: this.vm.zoneid
       }).then(response => {
         this.addNetworkData.allNetworks = response.listnetworksresponse.network.filter(network => !this.vm.nic.map(nic => nic.networkid).includes(network.id))
-        this.addNetworkData.network = this.addNetworkData.allNetworks[0].id
+        this.addNetworkData.network = this.addNetworkData.allNetworks[0]?.id || ''
+        this.onAddNetworkChange()
       })
+    },
+    onAddNetworkChange () {
+      this.addNetworkData.ip = ''
+      if (this.isSelectedAddNetworkShared) {
+        this.fetchPublicIps(this.addNetworkData.network)
+      } else if (this.canListAvailableGuestIps) {
+        this.fetchAvailableGuestIps(this.addNetworkData.network)
+      } else {
+        this.listIps.opts = []
+      }
     },
     fetchSecondaryIPs (nicId) {
       this.showSecondaryIpModal = true
@@ -403,6 +454,30 @@ export default {
         this.listIps.loading = false
       })
     },
+    fetchAvailableGuestIps (networkid, selectedIp) {
+      this.listIps.loading = true
+      this.listIps.opts = []
+      api('listAvailableGuestIps', {
+        networkid: networkid,
+        pagesize: -1
+      }).then(json => {
+        const listAvailableGuestIps = json.listavailableguestipsresponse.availableguestip || []
+        listAvailableGuestIps.forEach(item => {
+          this.listIps.opts.push({
+            ipaddress: item.ipaddress
+          })
+        })
+        if (selectedIp && !this.listIps.opts.some(ip => ip.ipaddress === selectedIp)) {
+          this.listIps.opts.unshift({
+            ipaddress: selectedIp
+          })
+        }
+      }).catch(error => {
+        this.$notifyError(error)
+      }).finally(() => {
+        this.listIps.loading = false
+      })
+    },
     showAddNicModal () {
       this.showAddNetworkModal = true
       this.listNetworks()
@@ -421,6 +496,7 @@ export default {
       this.formRef = 'updateNicForm'
       this.rules = {}
       this.newSecondaryIp = ''
+      this.listIps.opts = []
     },
     onChangeIPAddress (record) {
       this.formRef = ref()
@@ -434,6 +510,10 @@ export default {
       this.showUpdateIpMacModal = true
       if (record.nic.type === 'Shared') {
         this.fetchPublicIps(record.nic.networkid)
+      } else if (this.canListEditNicAvailableGuestIps) {
+        this.fetchAvailableGuestIps(record.nic.networkid, record.nic.ipaddress)
+      } else {
+        this.listIps.opts = []
       }
     },
     onAcquireSecondaryIPAddress (record) {
@@ -452,7 +532,7 @@ export default {
       const params = {}
       params.virtualmachineid = this.vm.id
       params.networkid = this.addNetworkData.network
-      if (this.addNetworkData.ip) {
+      if (!this.isSelectedAddNetworkL2 && this.addNetworkData.ip) {
         params.ipaddress = this.addNetworkData.ip
       }
       this.showAddNetworkModal = false
@@ -706,6 +786,11 @@ export default {
 </script>
 
 <style scoped>
+.network-add-ip-description {
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
 .form-layout {
   width: 80vw;
 

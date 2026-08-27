@@ -798,6 +798,71 @@ class firewallConfigBase(serviceCfgBase):
         self.serviceName = "Firewall"
         self.rules = []
 
+    def hasSystemctl(self):
+        return bash("command -v systemctl >/dev/null 2>&1").isSuccess()
+
+    def systemdServiceExists(self, servicename):
+        if not self.hasSystemctl():
+            return False
+
+        result = bash("systemctl list-unit-files %s.service" % servicename)
+        return result.isSuccess() and "%s.service" % servicename in result.getStdout()
+
+    def isFirewalldAvailable(self):
+        firewallCmdExists = bash("command -v firewall-cmd >/dev/null 2>&1").isSuccess()
+        firewalldServiceExists = self.systemdServiceExists("firewalld")
+        available = firewallCmdExists and firewalldServiceExists
+        logging.debug("Firewall configuration: self.isFirewalldAvailable()=%s, firewall-cmd exists=%s, firewalld.service exists=%s" % (
+            available, firewallCmdExists, firewalldServiceExists))
+        return available
+
+    def stopLegacyIptablesServices(self):
+        for service in ["iptables", "ip6tables"]:
+            if self.systemdServiceExists(service):
+                logging.debug("Firewall configuration: stopping legacy %s service before starting firewalld" % service)
+                bash("systemctl stop %s || true" % service)
+                bash("systemctl disable %s || true" % service)
+
+    def startFirewalld(self):
+        self.stopLegacyIptablesServices()
+
+        result = bash("systemctl enable firewalld")
+        if not result.isSuccess():
+            raise CloudInternalException("Failed to enable firewalld: %s" % result.getErrMsg())
+
+        result = bash("systemctl start firewalld")
+        if not result.isSuccess():
+            raise CloudInternalException("Failed to start firewalld: %s" % result.getErrMsg())
+
+        if bash("firewall-cmd --state || true").getStdout() != "running":
+            raise CloudInternalException("firewalld is not running")
+
+    def getFirewalldPort(self, port):
+        return "%s/tcp" % port.replace(":", "-")
+
+    def isFirewalldPortAllowed(self, port, permanent=False):
+        permanentOption = " --permanent" if permanent else ""
+        return bash("firewall-cmd%s --query-port=%s || true" % (permanentOption, port)).getStdout() == "yes"
+
+    def allowFirewalldPort(self, port):
+        firewalldPort = self.getFirewalldPort(port)
+        if not self.isFirewalldPortAllowed(firewalldPort):
+            result = bash("firewall-cmd --add-port=%s" % firewalldPort)
+            if not result.isSuccess():
+                raise CloudInternalException("Failed to add firewalld runtime port %s: %s" % (firewalldPort, result.getErrMsg()))
+
+        if not self.isFirewalldPortAllowed(firewalldPort, True):
+            result = bash("firewall-cmd --permanent --add-port=%s" % firewalldPort)
+            if not result.isSuccess():
+                raise CloudInternalException("Failed to add firewalld permanent port %s: %s" % (firewalldPort, result.getErrMsg()))
+
+    def configFirewalld(self):
+        logging.debug("Firewall configuration: using firewalld")
+        self.startFirewalld()
+        for port in self.ports:
+            self.allowFirewalldPort(port)
+        return True
+
     def allowPort(self, port):
         status = False
         try:
@@ -819,6 +884,10 @@ class firewallConfigBase(serviceCfgBase):
 
     def config(self):
         try:
+            if self.isFirewalldAvailable():
+                return self.configFirewalld()
+
+            logging.debug("Firewall configuration: using iptables")
             for port in self.ports:
                 self.allowPort(port)
 

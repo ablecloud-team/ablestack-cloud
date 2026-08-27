@@ -138,6 +138,8 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.cloud.agent.AgentManager;
+import com.cloud.agent.api.Answer;
+import com.cloud.agent.api.ModifyStoragePoolCommand;
 import com.cloud.alert.AlertManager;
 import com.cloud.api.ApiDBUtils;
 import com.cloud.api.query.dao.NetworkOfferingJoinDao;
@@ -196,6 +198,7 @@ import com.cloud.exception.PermissionDeniedException;
 import com.cloud.exception.ResourceAllocationException;
 import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.gpu.GPU;
+import com.cloud.ha.HighAvailabilityManager;
 import com.cloud.host.HostTagVO;
 import com.cloud.host.HostVO;
 import com.cloud.host.dao.HostDao;
@@ -263,6 +266,7 @@ import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeApiServiceImpl;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.DiskOfferingDao;
+import com.cloud.storage.dao.StoragePoolHostDao;
 import com.cloud.storage.dao.StoragePoolTagsDao;
 import com.cloud.storage.dao.VMTemplateZoneDao;
 import com.cloud.storage.dao.VolumeDao;
@@ -461,6 +465,8 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     HostTagsDao hostTagDao;
     @Inject
     StoragePoolTagsDao storagePoolTagDao;
+    @Inject
+    StoragePoolHostDao storagePoolHostDao;
     @Inject
     private AnnotationDao annotationDao;
     @Inject
@@ -768,8 +774,10 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                     List<StoragePoolVO> childDataStores = _storagePoolDao.listChildStoragePoolsInDatastoreCluster(resourceId);
                     for (StoragePoolVO childDataStore: childDataStores) {
                         _storagePoolDetailsDao.addDetail(childDataStore.getId(), name, value, true);
+                        syncKvmStoragePoolHeartbeatSettingWithHosts(childDataStore, name);
                     }
                 }
+                syncKvmStoragePoolHeartbeatSettingWithHosts(pool, name);
 
                 break;
 
@@ -917,6 +925,29 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         txn.commit();
         messageBus.publish(_name, EventTypes.EVENT_CONFIGURATION_VALUE_EDIT, PublishScope.GLOBAL, name);
         return _configDao.getValue(name);
+    }
+
+    protected void syncKvmStoragePoolHeartbeatSettingWithHosts(StoragePoolVO pool, String name) {
+        if (!HighAvailabilityManager.KvmHACheckOnStorage.key().equals(name)) {
+            return;
+        }
+
+        List<Long> poolIds = new ArrayList<>();
+        poolIds.add(pool.getId());
+        List<Long> hostIds = storagePoolHostDao.findHostsConnectedToPools(poolIds);
+        Map<String, String> details = _storagePoolDetailsDao.listDetailsKeyPairs(pool.getId());
+
+        for (Long hostId : hostIds) {
+            logger.info("Syncing KVM HA storage heartbeat setting [{}={}] for pool [{}] with host [{}].",
+                    name, details.get(name), pool, _hostDao.findById(hostId));
+            ModifyStoragePoolCommand command = new ModifyStoragePoolCommand(true, pool, details);
+            Answer answer = _agentManager.easySend(hostId, command);
+            if (answer == null) {
+                logger.warn("Unable to sync KVM HA storage heartbeat setting for pool [{}] on host [{}] because the agent returned no answer.", pool, _hostDao.findById(hostId));
+            } else if (!answer.getResult()) {
+                logger.warn("Unable to sync KVM HA storage heartbeat setting for pool [{}] on host [{}] due to [{}].", pool, _hostDao.findById(hostId), answer.getDetails());
+            }
+        }
     }
 
     private boolean shouldEncryptValue(String category) {

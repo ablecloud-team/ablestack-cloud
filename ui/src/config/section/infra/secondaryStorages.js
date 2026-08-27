@@ -26,7 +26,7 @@ export default {
   permission: ['listImageStores'],
   searchFilters: ['name', 'zoneid', 'provider'],
   columns: () => {
-    var fields = ['name', 'url', 'protocol', 'scope', 'zonename']
+    var fields = ['name', 'url', 'disksizetotal', 'disksizeused', 'protocol', 'scope', 'zonename']
     if (store.getters.apis.listImageStores.params.filter(x => x.name === 'readonly').length > 0) {
       fields.push({
         field: 'readonly',
@@ -36,7 +36,7 @@ export default {
     return fields
   },
   details: () => {
-    var fields = ['name', 'id', 'url', 'protocol', 'provider', 'scope', 'zonename']
+    var fields = ['name', 'id', 'url', 'disksizetotal', 'disksizeused', 'protocol', 'provider', 'scope', 'zonename']
     if (store.getters.apis.listImageStores.params.filter(x => x.name === 'readonly').length > 0) {
       fields.push('readonly')
     }

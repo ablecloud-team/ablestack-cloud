@@ -29,6 +29,7 @@ OP=""
 VM=""
 BACKUP_DIR=""
 DISK_PATHS=""
+VOLUME_UUIDS=""
 QUIESCE=""
 logFile="/var/log/cloudstack/agent/agent.log"
 
@@ -88,40 +89,62 @@ sanity_checks() {
 ### Operation methods ###
 
 backup_running_vm() {
+  log -ne "Starting Commvault backup staging for running VM [$VM] to [$BACKUP_DIR]"
   mkdir -p "$dest" || { echo "Failed to create backup directory $dest"; exit 1; }
 
+  local -a volume_uuid_arr=()
+  if [[ -n "$VOLUME_UUIDS" ]]; then
+    read -r -a volume_uuid_arr <<< "${VOLUME_UUIDS//,/ }"
+  fi
+
   name="root"
+  local disk_index=0
   echo "<domainbackup mode='push'><disks>" > $dest/backup.xml
   for disk in $(virsh -c qemu:///system domblklist $VM --details 2>/dev/null | awk '/disk/{print$3}'); do
     volpath=$(virsh -c qemu:///system domblklist $VM --details | awk "/$disk/{print $4}" | sed 's/.*\///')
-    echo "<disk name='$disk' backup='yes' type='file' backupmode='full'><driver type='qcow2'/><target file='$dest/$name.$volpath.qcow2' /></disk>" >> $dest/backup.xml
+    volid="$volpath"
+    if [[ ${#volume_uuid_arr[@]} -gt $disk_index && -n "${volume_uuid_arr[$disk_index]}" ]]; then
+      volid="${volume_uuid_arr[$disk_index]}"
+    fi
+    echo "<disk name='$disk' backup='yes' type='file' backupmode='full'><driver type='qcow2'/><target file='$dest/$name.$volid.qcow2' /></disk>" >> $dest/backup.xml
+    log -ne "Prepared Commvault backup disk [$disk] source [$volpath] target [$dest/$name.$volid.qcow2]"
     name="datadisk"
+    ((disk_index+=1))
   done
   echo "</disks></domainbackup>" >> $dest/backup.xml
 
   local thaw=0
   if [[ ${QUIESCE} == "true" ]]; then
     log -ne "Pause option is enabled on a running virtual machine"
+    log -ne "Attempting filesystem freeze for VM [$VM]"
     if virsh -c qemu:///system qemu-agent-command "$VM" '{"execute":"guest-fsfreeze-freeze"}' > /dev/null 2>/dev/null; then
       thaw=1
+      log -ne "Filesystem freeze completed for VM [$VM]"
+    else
+      log -ne "Filesystem freeze skipped or failed for VM [$VM]"
     fi
   fi
 
   # Start push backup
   local backup_begin=0
-  if virsh -c qemu:///system backup-begin --domain $VM --backupxml $dest/backup.xml 2>&1 > /dev/null; then
+  log -ne "Starting libvirt backup job for VM [$VM] using [$dest/backup.xml]"
+  if backup_begin_output=$(virsh -c qemu:///system backup-begin --domain $VM --backupxml $dest/backup.xml 2>&1); then
     backup_begin=1;
+    log -ne "Libvirt backup job started for VM [$VM]"
   fi
 
   if [[ $thaw -eq 1 ]]; then
+    log -ne "Attempting filesystem thaw for VM [$VM]"
     if ! response=$(virsh -c qemu:///system qemu-agent-command "$VM" '{"execute":"guest-fsfreeze-thaw"}' 2>&1 > /dev/null); then
       echo "Failed to thaw the filesystem for vm $VM: $response"
       cleanup
       exit 1
     fi
+    log -ne "Filesystem thaw completed for VM [$VM]"
   fi
 
   if [[ $backup_begin -ne 1 ]]; then
+    echo "Failed to start libvirt backup for VM [$VM]: ${backup_begin_output:-Unknown error}"
     cleanup
     exit 1
   fi
@@ -136,6 +159,7 @@ backup_running_vm() {
     status=$(virsh -c qemu:///system domjobinfo $VM --completed --keep-completed | awk '/Job type:/ {print $3}')
     case "$status" in
       Completed)
+        log -ne "Libvirt backup job completed for VM [$VM]"
         break ;;
       Failed)
         echo "Virsh backup job failed"
@@ -144,17 +168,26 @@ backup_running_vm() {
     sleep 5
   done
   sync
+  log -ne "Finished Commvault backup staging for running VM [$VM] to [$BACKUP_DIR]"
 
 }
 
 backup_stopped_vm() {
+  log -ne "Starting Commvault backup staging for stopped VM [$VM] to [$BACKUP_DIR] with disk paths [$DISK_PATHS]"
   mkdir -p "$dest" || { echo "Failed to create backup directory $dest"; exit 1; }
 
   IFS=","
+  local -a volume_uuid_arr=()
+  if [[ -n "$VOLUME_UUIDS" ]]; then
+    IFS=',' read -r -a volume_uuid_arr <<< "$VOLUME_UUIDS"
+  fi
 
   name="root"
+  local disk_index=0
   for disk in $DISK_PATHS; do
-    if [[ "$disk" == rbd:* ]]; then
+    if [[ ${#volume_uuid_arr[@]} -gt $disk_index && -n "${volume_uuid_arr[$disk_index]}" ]]; then
+      volUuid="${volume_uuid_arr[$disk_index]}"
+    elif [[ "$disk" == rbd:* ]]; then
       # disk for rbd => rbd:<pool>/<uuid>:mon_host=<monitor_host>...
       # sample: rbd:cloudstack/53d5c355-d726-4d3e-9422-046a503a0b12:mon_host=10.0.1.2...
       beforeUuid="${disk#*/}"     # Remove up to first slash after rbd:
@@ -168,8 +201,10 @@ backup_stopped_vm() {
       cleanup
     fi
     name="datadisk"
+    ((disk_index+=1))
   done
   sync
+  log -ne "Finished Commvault backup staging for stopped VM [$VM] to [$BACKUP_DIR]"
 
 }
 
@@ -218,6 +253,11 @@ while [[ $# -gt 0 ]]; do
       shift
       shift
       ;;
+    -u|--volumeuuids)
+      VOLUME_UUIDS="$2"
+      shift
+      shift
+      ;;
     -h|--help)
       usage
       shift
@@ -238,6 +278,8 @@ dest="$BACKUP_DIR"
 
 # Perform Initial sanity checks
 sanity_checks
+
+log -ne "cvtbackup.sh start op=[$OP] vm=[$VM] backupDir=[$BACKUP_DIR] quiesce=[$QUIESCE] diskPaths=[$DISK_PATHS] volumeUuids=[$VOLUME_UUIDS]"
 
 if [[ "$OP" != "backup" ]]; then
   echo "Unsupported operation: $OP"

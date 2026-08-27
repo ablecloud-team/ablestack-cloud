@@ -30,6 +30,7 @@
       :compute-items="offerings"
       :loading="loading"
       :rowCount="total"
+      :value="resource.serviceofferingid"
       size="small"
       @select-compute-item="($event) => updateComputeOffering($event)"
       @handle-search-filter="($event) => fetchData($event)" />
@@ -138,6 +139,7 @@ export default {
       this.total = 0
       this.offerings = []
       this.offeringsMap = []
+      this.fixedOfferingKvm = false
       api('listServiceOfferings', {
         virtualmachineid: this.resource.id,
         keyword: options.keyword,
@@ -148,21 +150,56 @@ export default {
         response: 'json'
       }).then(response => {
         this.total = response.listserviceofferingsresponse.count
+        this.offerings = response.listserviceofferingsresponse.serviceoffering || []
+        if (this.resource.state === 'Running' && this.resource.hypervisor === 'KVM') {
+          return this.applyRunningKvmOfferingFilter()
+        }
         if (this.total === 0) {
           return
         }
-        this.offerings = response.listserviceofferingsresponse.serviceoffering || []
-        if (this.resource.state === 'Running' && this.resource.hypervisor === 'KVM') {
-          this.offerings = this.offerings.filter(offering => offering.id === this.resource.serviceofferingid)
-          this.currentOffer = this.offerings[0]
-          if (this.currentOffer === undefined) {
-            this.fixedOfferingKvm = true
-          }
-        }
-        this.offerings.map(i => { this.offeringsMap[i.id] = i })
+        this.setOfferingsMap()
       }).finally(() => {
         this.loading = false
       })
+    },
+    applyRunningKvmOfferingFilter () {
+      const currentOffer = this.offerings.find(offering => offering.id === this.resource.serviceofferingid)
+      if (currentOffer) {
+        this.offerings = [currentOffer]
+        this.total = this.offerings.length
+        this.setOfferingsMap()
+        return Promise.resolve()
+      }
+
+      return this.fetchCurrentServiceOffering().then(offering => {
+        if (offering?.iscustomized) {
+          this.offerings = [offering]
+          this.total = this.offerings.length
+        } else {
+          this.offerings = []
+          this.total = 0
+          this.fixedOfferingKvm = true
+        }
+        this.setOfferingsMap()
+      }).catch(error => {
+        this.offerings = []
+        this.total = 0
+        this.fixedOfferingKvm = true
+        this.$notifyError(error)
+      })
+    },
+    fetchCurrentServiceOffering () {
+      return api('listServiceOfferings', {
+        id: this.resource.serviceofferingid,
+        details: 'min',
+        response: 'json'
+      }).then(response => {
+        return response.listserviceofferingsresponse.serviceoffering?.[0]
+      })
+    },
+    setOfferingsMap () {
+      this.offeringsMap = []
+      this.offerings.map(i => { this.offeringsMap[i.id] = i })
     },
     getMinCpu () {
       // We can only scale up while a VM is running

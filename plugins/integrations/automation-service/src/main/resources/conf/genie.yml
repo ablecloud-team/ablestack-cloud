@@ -26,7 +26,32 @@ write_files:
     {{ genie_encode }}
 
 runcmd:
-  - wget https://raw.githubusercontent.com/ablecloud-team/ablestack-genie/master/genie-shell/automation_controller_template/deploy_automation_controller.yml -P /root/
-  - ansible-playbook /root/deploy_automation_controller.yml
-#  - cp -r /genie/deploy_automation_controller.yml /root/
-#  - ansible-playbook /root/deploy_automation_controller.yml
+  - |
+      install -d -m 0755 /var/lib/genie
+      rm -f /var/lib/genie/bootstrap-complete /var/lib/genie/bootstrap-failed
+      echo "[genie] downloading deploy_automation_controller.yml to /root" | tee -a /var/log/genie-bootstrap.log
+      wget --tries=10 --waitretry=5 --retry-connrefused --timeout=30 https://raw.githubusercontent.com/ablecloud-team/ablestack-genie/master/genie-shell/automation_controller_template/deploy_automation_controller.yml -O /root/deploy_automation_controller.yml.tmp
+      status=$?
+      echo "[genie] wget exit code: ${status}" | tee -a /var/log/genie-bootstrap.log
+      if [ ${status} -ne 0 ] || [ ! -s /root/deploy_automation_controller.yml.tmp ]; then
+        touch /var/lib/genie/bootstrap-failed
+        exit 1
+      fi
+      bash -o pipefail -c 'ansible-playbook --syntax-check /root/deploy_automation_controller.yml.tmp 2>&1 | tee -a /var/log/genie-bootstrap.log'
+      status=$?
+      if [ ${status} -ne 0 ]; then
+        touch /var/lib/genie/bootstrap-failed
+        exit ${status}
+      fi
+      mv -f /root/deploy_automation_controller.yml.tmp /root/deploy_automation_controller.yml
+      ls -l /root/deploy_automation_controller.yml | tee -a /var/log/genie-bootstrap.log
+  - |
+      echo "[genie] running ansible-playbook /root/deploy_automation_controller.yml" | tee -a /var/log/genie-bootstrap.log
+      bash -o pipefail -c 'ansible-playbook /root/deploy_automation_controller.yml 2>&1 | tee -a /var/log/genie-bootstrap.log'
+      status=$?
+      echo "[genie] ansible-playbook exit code: ${status}" | tee -a /var/log/genie-bootstrap.log
+      if [ ${status} -ne 0 ]; then
+        touch /var/lib/genie/bootstrap-failed
+        exit ${status}
+      fi
+      touch /var/lib/genie/bootstrap-complete

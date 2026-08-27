@@ -43,16 +43,16 @@
       <a-list-item v-if="record.traffictype">
         <strong>{{ $t('label.traffictype') }}</strong> : {{ record.traffictype }}
       </a-list-item>
-      <a-list-item v-if="record.secondaryip && record.secondaryip.length > 0 && record.type !== 'L2'">
+      <a-list-item v-if="record.linkstate !== false && record.secondaryip && record.secondaryip.length > 0 && record.type !== 'L2'">
         <strong>{{ $t('label.secondaryips') }}</strong> : {{ record.secondaryip.map(x => x.ipaddress).join(', ') }}
       </a-list-item>
-      <a-list-item v-if="record.ip6address">
+      <a-list-item v-if="record.linkstate !== false && record.ip6address">
         <strong>{{ $t('label.ip6address') }}</strong> : {{ record.ip6address }}
       </a-list-item>
-      <a-list-item v-if="record.ip6address">
+      <a-list-item v-if="record.linkstate !== false && record.ip6address">
         <strong>{{ $t('label.ip6gateway') }}</strong> : {{ record.ip6gateway }}
       </a-list-item>
-      <a-list-item v-if="record.ip6address">
+      <a-list-item v-if="record.linkstate !== false && record.ip6address">
         <strong>{{ $t('label.ip6cidr') }}</strong> : {{ record.ip6cidr }}
       </a-list-item >
       <a-list-item v-if="['Admin', 'DomainAdmin'].includes($store.getters.userInfo.roletype) && record.broadcasturi">
@@ -117,15 +117,24 @@ export default {
         },
         {
           title: this.$t('label.ipaddress'),
-          dataIndex: 'ipaddress'
+          dataIndex: 'ipaddress',
+          customRender: ({ record, text }) => {
+            return record.linkstate !== false ? text : ''
+          }
         },
         {
           title: this.$t('label.netmask'),
-          dataIndex: 'netmask'
+          dataIndex: 'netmask',
+          customRender: ({ record, text }) => {
+            return record.linkstate !== false ? text : ''
+          }
         },
         {
           title: this.$t('label.gateway'),
-          dataIndex: 'gateway'
+          dataIndex: 'gateway',
+          customRender: ({ record, text }) => {
+            return record.linkstate !== false ? text : ''
+          }
         }
       ],
       networkicon: {},

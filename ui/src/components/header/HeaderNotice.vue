@@ -57,6 +57,12 @@
               </template>
             </a-list-item-meta>
           </a-list-item>
+          <a-list-item v-if="canOpenActivityPanel" class="header-notice-activity-link">
+            <a-button type="link" block @click="openActivityPanel">
+              <template #icon><calendar-outlined /></template>
+              {{ $t('label.recent.events') }} / {{ $t('label.alerts') }}
+            </a-button>
+          </a-list-item>
         </a-list>
       </a-spin>
     </template>
@@ -86,6 +92,11 @@ export default {
       }
     }
   },
+  computed: {
+    canOpenActivityPanel () {
+      return 'listEvents' in this.$store.getters.apis || 'listAlerts' in this.$store.getters.apis
+    }
+  },
   methods: {
     showNotifications () {
       this.visible = !this.visible
@@ -93,6 +104,10 @@ export default {
     clearJobs () {
       this.notices = this.notices.filter(x => x.status === 'progress')
       this.$store.commit('SET_HEADER_NOTICES', this.notices)
+    },
+    openActivityPanel () {
+      this.visible = false
+      this.$emit('open-activity-panel')
     },
     getResourceName (description, data) {
       if (description) {
@@ -139,6 +154,19 @@ export default {
     &-icon {
       font-size: 18px;
       padding: 4px;
+    }
+  }
+
+  .header-notice-activity-link {
+    padding: 4px 8px 0;
+
+    .ant-btn {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      padding: 0 8px;
+      text-align: left;
     }
   }
 </style>

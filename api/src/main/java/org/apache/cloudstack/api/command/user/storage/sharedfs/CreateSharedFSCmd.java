@@ -44,6 +44,7 @@ import org.apache.cloudstack.api.response.SharedFSResponse;
 import org.apache.cloudstack.api.response.NetworkResponse;
 import org.apache.cloudstack.api.response.ProjectResponse;
 import org.apache.cloudstack.api.response.ServiceOfferingResponse;
+import org.apache.cloudstack.api.response.StoragePoolResponse;
 import org.apache.cloudstack.api.response.ZoneResponse;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.storage.sharedfs.SharedFS;
@@ -116,6 +117,12 @@ public class CreateSharedFSCmd extends BaseAsyncCreateCmd implements UserCmd {
             description = "the disk offering to use for the underlying storage. This will define the size and other specifications like encryption and qos for the shared filesystem.")
     private Long diskOfferingId;
 
+    @Parameter(name = ApiConstants.STORAGE_ID,
+            type = CommandType.UUID,
+            entityType = StoragePoolResponse.class,
+            description = "the primary storage selected for the initial shared filesystem backing volume.")
+    private Long storageId;
+
     @Parameter(name = ApiConstants.MIN_IOPS,
             type = CommandType.LONG,
             description = "min iops")
@@ -150,6 +157,31 @@ public class CreateSharedFSCmd extends BaseAsyncCreateCmd implements UserCmd {
             entityType = NetworkResponse.class,
             description = "network to attach the shared filesystem to")
     private Long networkId;
+
+    @Parameter(name = "networkmode",
+            type = CommandType.STRING,
+            description = "network addressing mode for an L2 SharedFS network: DHCP or STATIC")
+    private String networkMode;
+
+    @Parameter(name = "ipcidr",
+            type = CommandType.STRING,
+            description = "static IPv4 address and prefix for the SharedFS VM, for example 10.10.1.211/24")
+    private String ipCidr;
+
+    @Parameter(name = ApiConstants.GATEWAY,
+            type = CommandType.STRING,
+            description = "optional static IPv4 default gateway")
+    private String gateway;
+
+    @Parameter(name = ApiConstants.DNS1,
+            type = CommandType.STRING,
+            description = "optional primary IPv4 DNS server")
+    private String dns1;
+
+    @Parameter(name = ApiConstants.DNS2,
+            type = CommandType.STRING,
+            description = "optional secondary IPv4 DNS server")
+    private String dns2;
 
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
@@ -187,6 +219,10 @@ public class CreateSharedFSCmd extends BaseAsyncCreateCmd implements UserCmd {
         return diskOfferingId;
     }
 
+    public Long getStorageId() {
+        return storageId;
+    }
+
     public Long getServiceOfferingId() {
         return serviceOfferingId;
     }
@@ -205,6 +241,33 @@ public class CreateSharedFSCmd extends BaseAsyncCreateCmd implements UserCmd {
 
     public Long getNetworkId() {
         return networkId;
+    }
+
+    public SharedFS.NetworkMode getNetworkMode() {
+        if (networkMode == null) {
+            return SharedFS.NetworkMode.DHCP;
+        }
+        try {
+            return SharedFS.NetworkMode.valueOf(networkMode.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "Invalid network mode. Supported values are DHCP and STATIC.");
+        }
+    }
+
+    public String getIpCidr() {
+        return ipCidr;
+    }
+
+    public String getGateway() {
+        return gateway;
+    }
+
+    public String getDns1() {
+        return dns1;
+    }
+
+    public String getDns2() {
+        return dns2;
     }
 
     public String getSharedFSProviderName() {

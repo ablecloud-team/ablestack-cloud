@@ -1,0 +1,199 @@
+#!/bin/bash
+
+set -euo pipefail
+
+CACHE_DIR="${ABLESTACK_STORAGE_MONITOR_CACHE_DIR:-/run/ablestack-storage/monitor}"
+INTERVAL="${ABLESTACK_STORAGE_MONITOR_INTERVAL:-10}"
+STALE_AFTER="${ABLESTACK_STORAGE_MONITOR_STALE_AFTER:-30}"
+STORAGECTL="${ABLESTACK_STORAGECTL:-/usr/local/bin/ablestack-storagectl}"
+
+write_json() {
+  local scope="$1"
+  local tmp
+  local input
+  input="$(mktemp "${CACHE_DIR}/.${scope}.input.XXXXXX")"
+  tmp="$(mktemp "${CACHE_DIR}/.${scope}.XXXXXX")"
+  cat > "$input"
+  python3 - "$scope" "$STALE_AFTER" "$tmp" "$input" <<'PY'
+import json
+import sys
+import time
+
+scope, stale_after, output, input_path = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4]
+try:
+    with open(input_path, "r", encoding="utf-8") as handle:
+        payload = json.load(handle)
+except Exception as exc:
+    payload = {
+        "success": False,
+        "status": "error",
+        "errors": [{"collector": scope, "message": str(exc)}],
+    }
+
+SENSITIVE_KEYS = {
+    "secrets",
+    "secret",
+    "password",
+    "passwords",
+    "key",
+    "keys",
+    "dhChapKey",
+    "dhChapCtrlKey",
+    "chapSecret",
+    "mutualChapSecret",
+}
+
+def redact_sensitive(value):
+    if isinstance(value, list):
+        return [redact_sensitive(item) for item in value]
+    if isinstance(value, dict):
+        redacted = {}
+        for key, item in value.items():
+            lower_key = str(key).lower()
+            if key in SENSITIVE_KEYS or "secret" in lower_key or "password" in lower_key or lower_key.endswith("key"):
+                continue
+            redacted[key] = redact_sensitive(item)
+        return redacted
+    return value
+
+payload = redact_sensitive(payload)
+payload.setdefault("schemaVersion", 1)
+payload.setdefault("collector", scope)
+payload.setdefault("generatedAt", time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
+payload["generatedEpoch"] = time.time()
+payload["staleAfterSeconds"] = stale_after
+with open(output, "w", encoding="utf-8") as handle:
+    json.dump(payload, handle, sort_keys=True)
+    handle.write("\n")
+PY
+  rm -f "$input"
+  mv "$tmp" "${CACHE_DIR}/${scope}.json"
+}
+
+reconcile_network_endpoints() {
+  "$STORAGECTL" network endpoints reconcile >/dev/null 2>&1 || true
+}
+
+collect_scope() {
+  local scope="$1"
+  if ABLESTACK_STORAGECTL_CACHE=0 "$STORAGECTL" "$scope" 2>/dev/null | write_json "$scope"; then
+    return 0
+  fi
+  printf '{"success":false,"status":"error","errors":[{"collector":"%s","message":"collector failed"}]}\n' "$scope" | write_json "$scope" || true
+}
+
+collect_capacity() {
+  python3 - <<'PY' | write_json capacity
+import json
+import os
+import subprocess
+
+def run(args):
+    try:
+        return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=8)
+    except Exception as exc:
+        return type("Result", (), {"returncode": 1, "stdout": "", "stderr": str(exc)})()
+
+mounts = []
+metadata = {}
+
+def add_target(path, role=None, export_name=None, peer_path=None):
+    if not path or not os.path.exists(path):
+        return
+    metadata.setdefault(path, {})
+    if role:
+        metadata[path]["role"] = role
+    if export_name:
+        metadata[path]["exportName"] = export_name
+    if peer_path:
+        metadata[path]["peerPath"] = peer_path
+
+def flatten_mounts(items):
+    for item in items or []:
+        yield item
+        for child in flatten_mounts(item.get("children") or []):
+            yield child
+
+for root in ("/srv/ablestack-storage", "/export"):
+    add_target(root, "root")
+    result = run(["findmnt", "-J", "-R", root])
+    if result.returncode == 0 and result.stdout.strip():
+        try:
+            mounts.extend(flatten_mounts(json.loads(result.stdout).get("filesystems", [])))
+        except Exception:
+            pass
+
+alias_state_path = "/etc/ablestack-storage/nfs-export-aliases.json"
+try:
+    with open(alias_state_path, "r", encoding="utf-8") as alias_fp:
+        aliases = json.load(alias_fp)
+except Exception:
+    aliases = {}
+
+for alias in aliases.values() if isinstance(aliases, dict) else []:
+    if not isinstance(alias, dict):
+        continue
+    alias_path = alias.get("aliasPath")
+    backing_path = alias.get("backingPath")
+    export_name = alias.get("name")
+    add_target(backing_path, "backing", export_name, alias_path)
+    add_target(alias_path, "alias", export_name, backing_path)
+    for target in (backing_path, alias_path):
+        if not target or not os.path.exists(target):
+            continue
+        result = run(["findmnt", "-J", "--mountpoint", target])
+        if result.returncode == 0 and result.stdout.strip():
+            try:
+                mounts.extend(flatten_mounts(json.loads(result.stdout).get("filesystems", [])))
+            except Exception:
+                pass
+
+usage = []
+seen_targets = set()
+for mount in mounts:
+    target = mount.get("target")
+    if not target or target in seen_targets:
+        continue
+    seen_targets.add(target)
+    df = run(["df", "-B1", "--output=source,size,used,avail,pcent,target", target])
+    lines = [line for line in df.stdout.splitlines() if line.strip()]
+    if len(lines) >= 2:
+        parts = lines[-1].split()
+        if len(parts) >= 6:
+            item = {
+                "source": parts[0],
+                "sizeBytes": int(parts[1]),
+                "usedBytes": int(parts[2]),
+                "availableBytes": int(parts[3]),
+                "usedPercent": parts[4],
+                "target": parts[5],
+            }
+            item.update(metadata.get(target, {}))
+            if mount.get("source"):
+                item["runtimeSource"] = mount.get("source")
+            if mount.get("fstype"):
+                item["filesystem"] = mount.get("fstype")
+            usage.append(item)
+
+print(json.dumps({"success": True, "status": "ok", "capacity": usage, "count": len(usage)}, sort_keys=True))
+PY
+}
+
+collect_once() {
+  mkdir -p "$CACHE_DIR"
+  reconcile_network_endpoints
+  collect_scope health || true
+  collect_scope inventory || true
+  collect_scope sessions || true
+  collect_capacity || printf '{"success":false,"status":"error","errors":[{"collector":"capacity","message":"collector failed"}]}\n' | write_json capacity || true
+}
+
+if [[ "${1:-}" == "--once" ]]; then
+  collect_once
+  exit 0
+fi
+
+while true; do
+  collect_once
+  sleep "$INTERVAL"
+done

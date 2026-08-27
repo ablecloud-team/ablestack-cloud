@@ -22,41 +22,6 @@ export default {
   icon: 'AppstoreAddOutlined',
   children: [
     {
-      name: 'automationtemplate',
-      title: 'title.automation.controller.template',
-      icon: 'shop-outlined',
-      docHelp: '',
-      permission: ['listAutomationControllerVersion'],
-      columns: ['name', 'state', 'templatestate', 'version', 'zonename'],
-      details: ['name', 'description', 'version', 'templatestate', 'templatename', 'created'],
-      actions: [
-        {
-          api: 'addAutomationControllerVersion',
-          icon: 'plus-outlined',
-          label: 'label.automation.controller.template.version.create',
-          docHelp: '',
-          listView: true,
-          popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/automation/AddAutomationControllerVersion.vue')))
-        },
-        {
-          api: 'updateAutomationControllerVersion',
-          icon: 'edit-outlined',
-          label: 'label.automation.controller.version.manage',
-          dataView: true,
-          popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/automation/UpdateAutomationControllerVersion.vue')))
-        },
-        {
-          api: 'deleteAutomationControllerVersion',
-          icon: 'delete-outlined',
-          label: 'label.automation.controller.version.delete',
-          message: 'message.automation.controller.version.delete',
-          dataView: true
-        }
-      ]
-    },
-    {
       name: 'automationcontroller',
       title: 'title.automation.controller',
       icon: 'RocketOutlined',
@@ -112,6 +77,41 @@ export default {
           groupAction: true,
           popup: true,
           groupMap: (selection) => { return selection.map(x => { return { id: x } }) }
+        }
+      ]
+    },
+    {
+      name: 'automationtemplate',
+      title: 'title.automation.controller.template',
+      icon: 'shop-outlined',
+      docHelp: '',
+      permission: ['listAutomationControllerVersion'],
+      columns: ['name', 'state', 'templatestate', 'version', 'zonename'],
+      details: ['name', 'description', 'version', 'templatestate', 'templatename', 'created'],
+      actions: [
+        {
+          api: 'addAutomationControllerVersion',
+          icon: 'plus-outlined',
+          label: 'label.automation.controller.template.version.create',
+          docHelp: '',
+          listView: true,
+          popup: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/automation/AddAutomationControllerVersion.vue')))
+        },
+        {
+          api: 'updateAutomationControllerVersion',
+          icon: 'edit-outlined',
+          label: 'label.automation.controller.version.manage',
+          dataView: true,
+          popup: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/automation/UpdateAutomationControllerVersion.vue')))
+        },
+        {
+          api: 'deleteAutomationControllerVersion',
+          icon: 'delete-outlined',
+          label: 'label.automation.controller.version.delete',
+          message: 'message.automation.controller.version.delete',
+          dataView: true
         }
       ]
     },

@@ -367,6 +367,10 @@ public class CommandSetupHelper {
             final LoadBalancerTO lb = new LoadBalancerTO(uuid, srcIp, srcPort, protocol, algorithm, revoked, false, inline, destinations, stickinessPolicies);
             lb.setCidrList(rule.getCidrList());
             lb.setLbProtocol(lb_protocol);
+            lb.setLbSslCert(rule.getLbSslCert());
+            lb.setBackendSsl(rule.isBackendSsl());
+            logger.info("Preparing load balancer command for router {}: ruleId={}, uuid={}, source={}:{}, protocol={}, lbProtocol={}, backendSsl={}, destinations={}",
+                    router.getInstanceName(), rule.getId(), uuid, srcIp, srcPort, protocol, lb_protocol, rule.isBackendSsl(), destinations == null ? 0 : destinations.size());
             lbs[i++] = lb;
         }
         String routerPublicIp = null;
@@ -398,6 +402,9 @@ public class CommandSetupHelper {
         cmd.lbStatsUri = _configDao.getValue(Config.NetworkLBHaproxyStatsUri.key());
         cmd.lbStatsAuth = _configDao.getValue(Config.NetworkLBHaproxyStatsAuth.key());
         cmd.lbStatsPort = _configDao.getValue(Config.NetworkLBHaproxyStatsPort.key());
+        cmd.lbConnectTimeout = VirtualNetworkApplianceManager.NetworkLBHaproxyConnectTimeout.value().toString();
+        cmd.lbClientTimeout = VirtualNetworkApplianceManager.NetworkLBHaproxyClientTimeout.value().toString();
+        cmd.lbServerTimeout = VirtualNetworkApplianceManager.NetworkLBHaproxyServerTimeout.value().toString();
 
         cmd.setAccessDetail(NetworkElementCommand.ROUTER_IP, _routerControlHelper.getRouterControlIp(router.getId()));
         cmd.setAccessDetail(NetworkElementCommand.ROUTER_GUEST_IP, _routerControlHelper.getRouterIpInNetwork(guestNetworkId, router.getId()));

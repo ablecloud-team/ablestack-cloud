@@ -30,6 +30,7 @@ import org.apache.cloudstack.api.command.user.address.RemoveQuarantinedIpCmd;
 import org.apache.cloudstack.api.command.user.address.UpdateQuarantinedIpCmd;
 import org.apache.cloudstack.api.command.user.network.CreateNetworkCmd;
 import org.apache.cloudstack.api.command.user.network.CreateNetworkPermissionsCmd;
+import org.apache.cloudstack.api.command.user.network.ListAvailableGuestIpsCmd;
 import org.apache.cloudstack.api.command.user.network.ListNetworkPermissionsCmd;
 import org.apache.cloudstack.api.command.user.network.ListNetworksCmd;
 import org.apache.cloudstack.api.command.user.network.RemoveNetworkPermissionsCmd;
@@ -38,6 +39,8 @@ import org.apache.cloudstack.api.command.user.network.RestartNetworkCmd;
 import org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd;
 import org.apache.cloudstack.api.command.user.vm.ListNicsCmd;
 import org.apache.cloudstack.api.response.AcquirePodIpCmdResponse;
+import org.apache.cloudstack.api.response.AvailableGuestIpResponse;
+import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.framework.config.ConfigKey;
 
 import com.cloud.exception.ConcurrentOperationException;
@@ -108,6 +111,8 @@ public interface NetworkService {
             InsufficientCapacityException, ConcurrentOperationException, ResourceAllocationException;
 
     Pair<List<? extends Network>, Integer> searchForNetworks(ListNetworksCmd cmd);
+
+    ListResponse<AvailableGuestIpResponse> listAvailableGuestIps(ListAvailableGuestIpsCmd cmd);
 
     boolean deleteNetwork(long networkId, boolean forced);
 

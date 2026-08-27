@@ -116,11 +116,54 @@
       </template>
 
       <template v-if="column.key === 'schedule'">
+        <div v-if="['/snapshotpolicy', '/backupschedule'].some(path => $route.path.endsWith(path))">
+          <label class="interval-content">
+            <span v-if="record.intervaltype===0 || record.intervaltype==='HOURLY'">{{ record.schedule + $t('label.min.past.hour') }}</span>
+            <span v-else>{{ record.schedule.split(':')[1] + ':' + record.schedule.split(':')[0] }}</span>
+          </label>
+          <span v-if="record.intervaltype===2 || record.intervaltype==='WEEKLY'">
+            {{ ` ${$t('label.every')} ${$t(listDayOfWeek[record.schedule.split(':')[2] - 1])}` }}
+          </span>
+          <span v-else-if="record.intervaltype===3 || record.intervaltype==='MONTHLY'">
+            {{ ` ${$t('label.day')} ${record.schedule.split(':')[2]} ${$t('label.of.month')}` }}
+          </span>
+        </div>
+        <div v-else>
           {{ text }}
-          <br/>
+          <br />
           ({{ generateHumanReadableSchedule(text) }})
+        </div>
+      </template>
+      <template v-if="column.key === 'intervaltype' && ['/snapshotpolicy', '/backupschedule'].some(path => $route.path.endsWith(path))">
+        <QuickView
+          style="margin-right: 8px"
+          :actions="actions"
+          :resource="record"
+          :enabled="quickViewEnabled(actions, columns, column.key)"
+          @exec-action="$parent.execAction"
+        />
+        <span v-if="record.intervaltype===0">
+          <clock-circle-outlined />
+        </span>
+        <span class="custom-icon icon-daily" v-else-if="record.intervaltype===1">
+          <calendar-outlined />
+        </span>
+        <span class="custom-icon icon-weekly" v-else-if="record.intervaltype===2">
+          <calendar-outlined />
+        </span>
+        <span class="custom-icon icon-monthly" v-else-if="record.intervaltype===3">
+          <calendar-outlined />
+        </span>
+        {{ getIntervalTypeText(record.intervaltype) }}
+      </template>
+      <template v-if="column.key === 'timezone'">
+        <label>{{ getTimeZone(record.timezone) }}</label>
       </template>
       <template v-if="column.key === 'displayname'">
+        <span v-if="$route.path.split('/')[1] === 'vm'" style="margin-right: 5px">
+          <resource-icon v-if="record.icon && record.icon.base64image" :image="record.icon.base64image" size="2x"/>
+          <os-logo v-else :osId="record.ostypeid" :osName="record.ostypename || record.osdisplayname" size="xl" />
+        </span>
         <router-link :to="{ path: $route.path + '/' + record.id }">{{ text }}</router-link>
       </template>
       <template v-if="column.key === 'username'">
@@ -143,9 +186,9 @@
         <a-checkbox :checked="record.adminsonly" disabled v-else />
       </template>
       <template v-if="column.key === 'ipaddress'" href="javascript:;">
-        <router-link v-if="['/publicip', '/privategw'].includes($route.path)" :to="{ path: $route.path + '/' + record.id }">{{ text }}</router-link>
+        <router-link v-if="['/publicip', '/privategw'].includes($route.path)" :to="{ path: $route.path + '/' + record.id }">{{ ipAddress(text, record) }}</router-link>
         <span v-else>
-          <copy-label :label="text" />
+          <copy-label v-if="ipAddress(text, record)" :label="ipAddress(text, record)" />
         </span>
         <span v-if="record.issourcenat">
           &nbsp;
@@ -185,16 +228,27 @@
         <span>{{ text <= 0 || !text ? 'N/A' : text }}</span>
       </template>
       <template v-else-if="['size', 'virtualsize'].includes(column.key)">
-        <span v-if="text && $route.path === '/kubernetes'">
+        <span v-if="$route.meta.name === 'buckets' && text !== undefined && text !== null">
+          {{ convertKB(text) }}
+        </span>
+        <span v-else-if="text && $route.path === '/kubernetes'">
           {{ text }}
         </span>
         <span v-else-if="text">
           {{ parseFloat(parseFloat(text) / 1024.0 / 1024.0 / 1024.0).toFixed(2) }} GiB
         </span>
       </template>
+      <template v-if="$route.meta.name === 'buckets' && column.key === 'quota' && text !== undefined && text !== null">
+        <span>{{ text }} GiB</span>
+      </template>
       <template v-if="column.key === 'physicalsize'">
         <span v-if="text">
           {{ isNaN(text) ? text : (parseFloat(parseFloat(text) / 1024.0 / 1024.0 / 1024.0).toFixed(2) + ' GiB') }}
+        </span>
+      </template>
+      <template v-if="['disksizetotal', 'disksizeused'].includes(column.key)">
+        <span v-if="text !== undefined && text !== null">
+          {{ $bytesToHumanReadableSize(text) }}
         </span>
       </template>
       <template v-if="column.key === 'physicalnetworkname'">
@@ -202,6 +256,9 @@
       </template>
       <template v-if="column.key === 'serviceofferingname'">
         <router-link :to="{ path: '/computeoffering/' + record.serviceofferingid }">{{ text }}</router-link>
+      </template>
+      <template v-if="column.key === 'backupofferingname'">
+        <router-link :to="{ path: '/backupoffering/' + record.backupofferingid }">{{ text }}</router-link>
       </template>
       <template v-if="column.key === 'hypervisor'">
         <span v-if="$route.name === 'hypervisorcapability'">
@@ -220,10 +277,38 @@
       </template>
       <template v-if="column.key === 'state'">
         <status v-if="$route.path.startsWith('/host')" :text="getHostState(record)" displayText />
+        <status v-else-if="isFastCloneFlattenVisible(record)" :text="text ? text : ''" displayText :styles="{ 'min-width': '80px' }">
+          <template #tooltip>
+            <div class="clone-fast-flatten-list-tooltip">
+              <div class="clone-fast-flatten-list-tooltip-title">{{ getCloneFastListTooltipTitle(record) }}</div>
+              <div
+                v-for="item in getCloneFastFlattenTooltipItems(record)"
+                :key="item.label"
+                class="clone-fast-flatten-list-tooltip-row">
+                <span class="clone-fast-flatten-list-tooltip-label">{{ item.label }} :</span>
+                <span class="clone-fast-flatten-list-tooltip-value">{{ item.value }}</span>
+              </div>
+            </div>
+          </template>
+        </status>
+        <status v-else-if="isFastCloneSourceFlattenActive(record)" :text="text ? text : ''" displayText :styles="{ 'min-width': '80px' }">
+          <template #tooltip>
+            <div class="clone-fast-flatten-list-tooltip">
+              <div class="clone-fast-flatten-list-tooltip-title">{{ getCloneFastSourceTooltipTitle(record) }}</div>
+              <div class="clone-fast-flatten-list-tooltip-description">{{ getCloneFastSourceTooltipDescription(record) }}</div>
+            </div>
+          </template>
+        </status>
         <status v-else :text="text ? text : ''" displayText :styles="{ 'min-width': '80px' }" />
       </template>
       <template v-if="column.key === 'status'">
         <status :text="text ? text : ''" displayText />
+      </template>
+      <template v-if="column.key === 'clonefaststatus'">
+        <a-tag v-if="isFastCloneFlattenVisible(record)" color="processing">
+          {{ getCloneFastStatusLabel(record) }}
+        </a-tag>
+        <span v-else>-</span>
       </template>
       <template v-if="column.key === 'allocationstate'">
         <status :text="text ? text : ''" displayText />
@@ -252,6 +337,24 @@
       <template v-if="column.key === 'qemuagentversion'">
         <a-tag v-if="text === 'Not Installed'" color="error">{{ this.$t('label.state.qemuagentversion.notinstalled') }}</a-tag>
         <a-tag v-else-if="text" color="success">{{ text }}</a-tag>
+      </template>
+      <template v-if="column.key === 'resources'">
+        <div v-if="hasValue(record.cpunumber) || hasValue(record.memory)" class="resource-summary">
+          <span v-if="hasValue(record.cpunumber)" class="resource-item resource-item--cpu">
+            <a-tooltip>
+              <template #title>{{ $t('label.cpu') }}</template>
+              <font-awesome-icon :icon="['fa-solid', 'fa-microchip']" class="resource-icon" />
+            </a-tooltip>
+            {{ record.cpunumber }} CPU
+          </span>
+          <span v-if="hasValue(record.memory)" class="resource-item resource-item--memory">
+            <a-tooltip>
+              <template #title>{{ $t('label.memory') }}</template>
+              <font-awesome-icon :icon="['fa-solid', 'fa-memory']" class="resource-icon" />
+            </a-tooltip>
+            {{ record.memory }} MB
+          </span>
+        </div>
       </template>
       <template v-if="column.key === 'mirroringagentstatus'">
         <status :text="text ? text : ''" displayText />
@@ -604,29 +707,21 @@
     </template>
     </a-table>
   </div>
-  <div
+  <ResourceContextMenu
     v-if="showContextQuickView"
-    ref="contextQuickViewMenu"
-    class="quickview-context-menu"
-    :style="{ top: contextQuickViewPosition.y + 'px', left: contextQuickViewPosition.x + 'px' }"
-    @click.stop
-    @contextmenu.stop.prevent>
-    <ActionButton
-      :actions="contextMenuActions"
-      :resource="contextQuickViewRecord"
-      :dataView="true"
-      :selectedRowKeys="selectedRowKeys"
-      :selectedItems="selectedItems"
-      :show-resource-title="true"
-      :titleOverride="contextMenuTitle"
-      size="default"
-      @exec-action="handleContextAction" />
-  </div>
+    :actions="contextMenuActions"
+    :resource="contextQuickViewRecord"
+    :position="contextQuickViewPosition"
+    :selectedRowKeys="selectedRowKeys"
+    :selectedItems="selectedItems"
+    :titleOverride="contextMenuTitle"
+    @close="closeContextQuickView"
+    @exec-action="handleContextAction" />
 </template>
 
 <script>
 import { api } from '@/api'
-import ActionButton from '@/components/view/ActionButton'
+import ResourceContextMenu from '@/components/view/ResourceContextMenu'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import CopyLabel from '@/components/widgets/CopyLabel'
 import OsLogo from '@/components/widgets/OsLogo'
@@ -637,13 +732,14 @@ import { createPathBasedOnVmType } from '@/utils/plugins'
 import { validateLinks } from '@/utils/links'
 import cronstrue from 'cronstrue/i18n'
 import moment from 'moment-timezone'
+import { timeZoneName } from '@/utils/timezone'
 
 export default {
   name: 'ListView',
   components: {
     OsLogo,
     Status,
-    ActionButton,
+    ResourceContextMenu,
     CopyLabel,
     TooltipButton,
     ResourceIcon,
@@ -736,13 +832,13 @@ export default {
       },
       usageTypeMap: {},
       resourceIdToValidLinksMap: {},
+      listDayOfWeek: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
       contextQuickViewVisible: false,
       contextQuickViewRecord: null,
       contextQuickViewPosition: {
         x: 0,
         y: 0
-      },
-      contextMenuListenerRegistered: false
+      }
     }
   },
   watch: {
@@ -770,9 +866,6 @@ export default {
   },
   created () {
     this.getUsageTypes()
-  },
-  beforeUnmount () {
-    this.removeContextMenuListeners()
   },
   computed: {
     hasSelected () {
@@ -815,6 +908,13 @@ export default {
     }
   },
   methods: {
+    convertKB (val) {
+      if (val < 1024) return `${Number(val).toFixed(2)} KB`
+      if (val < 1024 * 1024) return `${(val / 1024).toFixed(2)} MB`
+      if (val < 1024 * 1024 * 1024) return `${(val / 1024 / 1024).toFixed(2)} GB`
+      if (val < 1024 * 1024 * 1024 * 1024) return `${(val / 1024 / 1024 / 1024).toFixed(2)} TB`
+      return val
+    },
     getFirstSelectedItem () {
       const list = this.selectionList || []
       if (list.length > 0) {
@@ -865,56 +965,14 @@ export default {
         return
       }
       this.contextQuickViewVisible = true
-      this.$nextTick(() => {
-        this.adjustContextMenuPosition()
-      })
-      this.addContextMenuListeners()
-    },
-    addContextMenuListeners () {
-      if (this.contextMenuListenerRegistered) {
-        return
-      }
-      document.addEventListener('click', this.closeContextQuickView)
-      this.contextMenuListenerRegistered = true
-    },
-    removeContextMenuListeners () {
-      if (!this.contextMenuListenerRegistered) {
-        return
-      }
-      document.removeEventListener('click', this.closeContextQuickView)
-      this.contextMenuListenerRegistered = false
     },
     closeContextQuickView () {
       this.contextQuickViewVisible = false
       this.contextQuickViewRecord = null
-      this.removeContextMenuListeners()
-    },
-    adjustContextMenuPosition () {
-      const padding = 8
-      const menu = this.$refs.contextQuickViewMenu
-      if (!menu) {
-        return
-      }
-      const rect = menu.getBoundingClientRect()
-      let x = this.contextQuickViewPosition.x
-      let y = this.contextQuickViewPosition.y
-      const maxX = window.innerWidth - rect.width - padding
-      const maxY = window.innerHeight - rect.height - padding
-      if (x > maxX) {
-        x = Math.max(padding, maxX)
-      }
-      if (y > maxY) {
-        y = Math.max(padding, maxY)
-      }
-      x = Math.max(padding, x)
-      y = Math.max(padding, y)
-      if (x !== this.contextQuickViewPosition.x || y !== this.contextQuickViewPosition.y) {
-        this.contextQuickViewPosition = { x, y }
-      }
     },
     handleContextAction (action) {
       this.closeContextQuickView()
-      this.$parent.execAction(action)
+      this.$parent.execAction(action, action.groupAction && this.selectedRowKeys.length > 1)
     },
     generateRowKeyValue (record) {
       return record.uid || (record.metadata && record.metadata.rule_uid) || record.id || record.name || record.usageType
@@ -933,7 +991,7 @@ export default {
         '/zone', '/pod', '/cluster', '/host', '/storagepool', '/imagestore', '/systemvm', '/router', '/ilbvm', '/annotation',
         '/computeoffering', '/systemoffering', '/diskoffering', '/backupoffering', '/networkoffering', '/vpcoffering',
         '/tungstenfabric', '/oauthsetting', '/guestos', '/guestoshypervisormapping', '/webhook', 'webhookdeliveries', '/quotatariff', '/sharedfs',
-        '/ipv4subnets', '/disasterrecoverycluster', '/alertRules', '/managementserver', '/alert', ''].join('|'))
+        '/ipv4subnets', '/disasterrecoverycluster', '/backupschedule', '/alertRules', '/managementserver', '/alert', ''].join('|'))
         .test(this.$route.path)
     },
     enableGroupAction () {
@@ -946,6 +1004,13 @@ export default {
     },
     getDateAtTimeZone (date, timezone) {
       return date ? moment(date).tz(timezone).format('YYYY-MM-DD HH:mm:ss') : null
+    },
+    getIntervalTypeText (intervaltype) {
+      const types = { 0: 'HOURLY', 1: 'DAILY', 2: 'WEEKLY', 3: 'MONTHLY' }
+      return types[intervaltype] || intervaltype
+    },
+    getTimeZone (timeZone) {
+      return timeZoneName(timeZone)
     },
     fetchColumns () {
       if (this.isOrderUpdatable()) {
@@ -1117,12 +1182,19 @@ export default {
     removeVMSchedule (record) {
       this.$emit('remove-vm-schedule', record)
     },
+    ipAddress (text, record) {
+      if (!record || !record.nic || record.nic.length === 0) {
+        return text
+      }
+
+      return record.nic.filter(e => e.linkstate !== false && e.ipaddress).map(e => e.ipaddress).join(', ')
+    },
     ipV6Address (text, record) {
       if (!record || !record.nic || record.nic.length === 0) {
         return ''
       }
 
-      return record.nic.filter(e => { return e.ip6address }).map(e => { return e.ip6address }).join(', ') || text
+      return record.nic.filter(e => e.linkstate !== false && e.ip6address).map(e => e.ip6address).join(', ') || text
     },
     generateCommentsPath (record) {
       if (this.entityTypeToPath(record.entitytype) === 'ssh') {
@@ -1212,6 +1284,83 @@ export default {
       }
       return host.state
     },
+    getCloneFastStatus (record) {
+      return String(record?.clonefaststatus || record?.details?.['clone.fast.status'] || '').toLowerCase()
+    },
+    isFastCloneFlattenActive (record) {
+      return ['pending', 'running'].includes(this.getCloneFastStatus(record))
+    },
+    hasCloneFastFlattenVolumeInfo (record) {
+      return [
+        record?.clonefastflattenvolumetype,
+        record?.clonefastflattenvolumename,
+        record?.clonefastflattendeviceid
+      ].some(value => value !== undefined && value !== null && value !== '')
+    },
+    isFastCloneFlattenVisible (record) {
+      return this.isFastCloneFlattenActive(record) && this.hasCloneFastFlattenVolumeInfo(record)
+    },
+    isFastCloneSourceFlattenActive (record) {
+      return this.isFastCloneFlattenActive(record) && !this.hasCloneFastFlattenVolumeInfo(record)
+    },
+    getCloneFastStatusLabel (record) {
+      const status = this.getCloneFastStatus(record)
+      if (status === 'running') {
+        return this.$t('label.sharedmountpoint.clone.flatten.running')
+      }
+      if (status === 'pending') {
+        return this.$t('label.sharedmountpoint.clone.flatten.pending')
+      }
+      return ''
+    },
+    getCloneFastSourceTooltipTitle (record) {
+      const status = this.getCloneFastStatus(record)
+      if (status === 'pending') {
+        return this.$t('message.sharedmountpoint.clone.source.flatten.pending.summary')
+      }
+      return this.$t('message.sharedmountpoint.clone.source.flatten.running.summary')
+    },
+    getCloneFastSourceTooltipDescription (record) {
+      const status = this.getCloneFastStatus(record)
+      if (status === 'pending') {
+        return this.$t('message.sharedmountpoint.clone.source.flatten.pending')
+      }
+      return this.$t('message.sharedmountpoint.clone.source.flatten.running')
+    },
+    getCloneFastListTooltipTitle (record) {
+      const status = this.getCloneFastStatus(record)
+      if (status === 'running') {
+        return this.$t('message.sharedmountpoint.clone.flatten.running.summary')
+      }
+      if (status === 'pending') {
+        return this.$t('message.sharedmountpoint.clone.flatten.pending.summary')
+      }
+      return this.$t('label.sharedmountpoint.clone.flatten.status')
+    },
+    getCloneFastFlattenVolumeTypeLabel (record) {
+      const volumeType = record?.clonefastflattenvolumetype
+      return volumeType ? volumeType + ' ' + this.$t('label.volume') : ''
+    },
+    getCloneFastFlattenProgress (record) {
+      const rawProgress = record?.clonefastflattenprogress ?? record?.details?.['clone.fast.flatten.progress']
+      const progress = Number.parseFloat(rawProgress)
+      if (!Number.isFinite(progress)) {
+        return null
+      }
+      return Math.min(Math.max(progress, 0), 100)
+    },
+    formatCloneFastFlattenProgress (record) {
+      const progress = this.getCloneFastFlattenProgress(record)
+      return progress === null ? '' : progress.toFixed(2) + '%'
+    },
+    getCloneFastFlattenTooltipItems (record) {
+      return [
+        { label: this.$t('label.type'), value: this.getCloneFastFlattenVolumeTypeLabel(record) },
+        { label: this.$t('label.name'), value: record?.clonefastflattenvolumename },
+        { label: this.$t('label.deviceid'), value: record?.clonefastflattendeviceid },
+        { label: this.$t('label.progress'), value: this.formatCloneFastFlattenProgress(record) }
+      ].filter(item => item.value !== undefined && item.value !== null && item.value !== '')
+    },
     getColumnKey (name) {
       if (typeof name === 'object') {
         name = Object.keys(name).includes('field') ? name.field : name.customTitle
@@ -1250,6 +1399,9 @@ export default {
       }
       var duration = Date.parse(enddate) - Date.parse(startdate)
       return (duration > 0 ? duration / 1000.0 : 0) + ''
+    },
+    hasValue (value) {
+      return value !== undefined && value !== null && value !== ''
     },
     getUsageTypes () {
       if (this.$route.path.split('/')[1] === 'usage') {
@@ -1346,6 +1498,36 @@ export default {
 .filter-dropdown .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
   background-color: transparent;
 }
+
+.clone-fast-flatten-list-tooltip {
+  min-width: 220px;
+}
+
+.clone-fast-flatten-list-tooltip-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.clone-fast-flatten-list-tooltip-description {
+  line-height: 20px;
+}
+
+.clone-fast-flatten-list-tooltip-row {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: max-content minmax(0, 1fr);
+  line-height: 20px;
+}
+
+.clone-fast-flatten-list-tooltip-label {
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+}
+
+.clone-fast-flatten-list-tooltip-value {
+  color: #fff;
+  overflow-wrap: anywhere;
+}
 </style>
 
 <style scoped lang="scss">
@@ -1383,13 +1565,31 @@ export default {
     padding: 10%;
   }
 
-  .quickview-context-menu {
-    position: fixed;
-    z-index: 2000;
-    background-color: #fff;
-    border: 1px solid #d9d9d9;
-    border-radius: 4px;
-    padding: 10px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  .resource-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 20px;
+    white-space: nowrap;
+    color: inherit;
+
+    .resource-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .resource-icon {
+      font-size: 13px;
+    }
+
+    .resource-item--cpu .resource-icon {
+      color: #5b6b84;
+    }
+
+    .resource-item--memory .resource-icon {
+      color: #68758a;
+    }
   }
+
 </style>

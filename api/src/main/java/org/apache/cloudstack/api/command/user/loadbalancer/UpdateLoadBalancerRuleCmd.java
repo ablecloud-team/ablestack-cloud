@@ -61,8 +61,12 @@ public class UpdateLoadBalancerRuleCmd extends BaseAsyncCustomIdCmd {
     @Parameter(name = ApiConstants.FOR_DISPLAY, type = CommandType.BOOLEAN, description = "an optional field, whether to the display the rule to the end user or not", since = "4.4", authorized = {RoleType.Admin})
     private Boolean display;
 
-    @Parameter(name = ApiConstants.PROTOCOL, type = CommandType.STRING, description = "The protocol for the LB")
+    @Parameter(name = ApiConstants.PROTOCOL, type = CommandType.STRING, description = "The protocol for the LB such as tcp, udp, tcp-proxy, ssl or http")
     private String lbProtocol;
+
+    @Parameter(name = ApiConstants.BACKEND_SSL, type = CommandType.BOOLEAN, since = "4.21.0.0",
+            description = "use SSL when connecting from the load balancer to backend instances; valid only when protocol is ssl")
+    private Boolean backendSsl;
 
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
@@ -90,6 +94,10 @@ public class UpdateLoadBalancerRuleCmd extends BaseAsyncCustomIdCmd {
 
     public String getLbProtocol() {
        return lbProtocol;
+    }
+
+    public Boolean getBackendSsl() {
+        return backendSsl;
     }
 
     /////////////////////////////////////////////////////

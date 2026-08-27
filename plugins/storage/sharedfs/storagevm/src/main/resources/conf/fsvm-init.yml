@@ -59,74 +59,7 @@ write_files:
 
       source /usr/local/bin/sharedfs/common
 
-      log "Running add script"
-
-      DISK_SIZE_DIR="/usr/local/var/sharedfs"
-      DISK_SIZE_FILE="$DISK_SIZE_DIR/previous_disk_size"
-
-      PARTITION="$1"
-      EXPORT_DIR={{ fsvm.exportpath }}
-      PERMISSIONS="rw,sync,no_subtree_check,no_root_squash"
-
-      mkdir -p "$EXPORT_DIR"
-
-      FS_TYPE=$(lsblk -no FSTYPE "$PARTITION")
-
-      if [ -z "$FS_TYPE" ]; then
-        FILESYSTEM={{ fsvm.filesystem }}
-        if [ "$FILESYSTEM" == "xfs" ]; then
-          mkfs.xfs "$PARTITION"
-          log "Formatted Partition $PARTITION with XFS Filesystem."
-        elif [ "$FILESYSTEM" == "ext4" ]; then
-          mkfs.ext4 "$PARTITION"
-          log "Formatted Partition $PARTITION with EXT4 Filesystem."
-        else
-          log "Invalid filesystem type specified. Use 'xfs' or 'ext4'."
-          exit 1
-        fi
-      else
-        log "Partition $PARTITION already has a filesystem of type $FS_TYPE. Skipping format."
-      fi
-
-      FS_INFO=$(blkid "$PARTITION")
-      UUID=$(echo "$FS_INFO" | grep -oP "UUID=\"\K[^\"]+")
-      TYPE=$(echo "$FS_INFO" | grep -oP "TYPE=\"\K[^\"]+")
-
-      if [ -z "$UUID" ] || [ -z "$TYPE" ]; then
-        log "Failed to retrieve UUID or TYPE for $PARTITION"
-        exit 1
-      fi
-
-      echo "UUID=$UUID $EXPORT_DIR $TYPE defaults 0 2" >> /etc/fstab
-      log "Added fstab entry."
-
-      mount -a
-
-      if mountpoint -q "$EXPORT_DIR"; then
-        log "$PARTITION is successfully mounted on $EXPORT_DIR"
-      else
-        log "Failed to mount $PARTITION on $EXPORT_DIR"
-        exit 1
-      fi
-
-      log "Configuring NFS export..."
-      EXPORT_ENTRY="$EXPORT_DIR *($PERMISSIONS)"
-      if ! grep -qF "$EXPORT_ENTRY" /etc/exports; then
-        echo "$EXPORT_ENTRY" | tee -a /etc/exports > /dev/null
-      fi
-      exportfs -ra
-
-      log "Enable and restart NFS server..."
-      systemctl enable nfs-kernel-server
-      systemctl restart nfs-kernel-server
-
-      CURRENT_DISK_SIZE=$(blockdev --getsz "$PARTITION")
-
-      mkdir -p "$DISK_SIZE_DIR"
-      echo "$CURRENT_DISK_SIZE" > "$DISK_SIZE_FILE"
-
-      log "NFS share created successfully."
-      log "Finished running add script."
+      log "Skipping legacy SharedFS data disk mount. Storage Service QGA commands prepare backing volumes and exports."
 
   - path: /usr/local/bin/sharedfs/resize-filesystem
     permissions: '0700'
@@ -135,24 +68,10 @@ write_files:
       #!/bin/bash -e
 
       source /usr/local/bin/sharedfs/common
-      log "Running resize script."
-
-      FILESYSTEM={{ fsvm.filesystem }}
-      if [ "$FILESYSTEM" == "xfs" ]; then
-        EXPORT_DIR={{ fsvm.exportpath }}
-        xfs_growfs "$EXPORT_DIR"
-      elif [ "$FILESYSTEM" == "ext4" ]; then
-        PARTITION="/dev/$1"
-        resize2fs "$PARTITION"
-      else
-        log "Invalid filesystem type specified. Use 'xfs' or 'ext4'."
-        exit 1
-      fi
-
-      log "Finished running resize script."
+      log "Skipping legacy SharedFS resize. Storage Service QGA commands resize backing volumes and filesystems."
 
   - path: /etc/systemd/system/resize-sharedfs@.service
-    permissions: '0700'
+    permissions: '0644'
     owner: root:root
     content: |
       [Unit]
@@ -166,19 +85,54 @@ write_files:
       ExecStart=/usr/local/bin/sharedfs/resize-filesystem %I
 
   - path: /etc/systemd/system/cloud-dhclient@.service
-    permissions: '0700'
+    permissions: '0644'
     owner: root:root
     content: |
       [Unit]
-      Description=CloudStack service to start dhclient
+      Description=ABLESTACK DHCP client for %i
+      After=network-pre.target
+      Wants=network-pre.target
 
       [Install]
       WantedBy=multi-user.target
 
       [Service]
-      Type=oneshot
-      ExecStart=/usr/sbin/dhclient %I
-      Restart=on-failure
+      Type=simple
+      ExecStartPre=/bin/mkdir -p /var/lib/dhcp
+      ExecStartPre=/bin/sh -c '/usr/sbin/dhclient -x -pf /run/dhclient.%i.pid %i 2>/dev/null || true'
+      ExecStart=/usr/sbin/dhclient -4 -d -v -pf /run/dhclient.%i.pid -lf /var/lib/dhcp/dhclient.%i.leases %i
+      ExecStop=/usr/sbin/dhclient -x -pf /run/dhclient.%i.pid %i
+      Restart=always
+      RestartSec=5
+
+  - path: /usr/local/bin/sharedfs/configure-network-ownership
+    permissions: '0700'
+    owner: root:root
+    content: |
+      #!/bin/bash -e
+
+      source /usr/local/bin/sharedfs/common
+
+      primary_interface="${1:-eth0}"
+      for attempt in $(seq 1 30); do
+        if ip -4 -o addr show dev "$primary_interface" scope global | grep -q ' inet '; then
+          break
+        fi
+        sleep 1
+      done
+      if ! ip -4 -o addr show dev "$primary_interface" scope global | grep -q ' inet '; then
+        log "Persistent DHCP did not configure a global IPv4 on $primary_interface"
+        exit 1
+      fi
+
+      cat > /etc/network/interfaces <<'EOF'
+      # Managed by ABLESTACK Storage Service. NICs are owned by cloud-dhclient@.service.
+      auto lo
+      iface lo inet loopback
+      EOF
+      systemctl disable networking.service >/dev/null 2>&1 || true
+      systemctl reset-failed networking.service >/dev/null 2>&1 || true
+      log "Persistent DHCP owns Storage Service NICs; legacy networking.service disabled"
 
   - path: /usr/local/bin/sharedfs/fsvm-setup
     permissions: '0700'
@@ -188,30 +142,18 @@ write_files:
 
       source /usr/local/bin/sharedfs/common
 
-      HYPERVISOR={{ fsvm.hypervisor }}
-      BLOCK_DEVICE=$(get_block_device "$HYPERVISOR")
-
-      PARTITION="/dev/$BLOCK_DEVICE"
-      ADD_PARTITION_FILE="/usr/local/bin/sharedfs/create-shared-filesystem"
-      RESIZE_PARTITION_FILE="/usr/local/bin/sharedfs/resize-filesystem"
-
       for interface in $(ls /sys/class/net/ | grep '^eth'); do
-        echo "Starting cloud-dhclient service for interface: $interface"
-        sudo systemctl start cloud-dhclient@$interface.service
+        echo "Starting persistent cloud-dhclient service for interface: $interface"
+        sudo systemctl enable --now cloud-dhclient@$interface.service
       done
       log "Existing network interfaces configured"
 
-      UDEV_RESIZE_RULE="KERNEL==\"$BLOCK_DEVICE\", ACTION==\"add|change\", SUBSYSTEM==\"block\", ENV{SYSTEMD_WANTS}=\"resize-sharedfs@%k.service\""
+      /usr/local/bin/sharedfs/configure-network-ownership eth0
+
       UDEV_ADD_NIC_RULE="ACTION==\"add\", SUBSYSTEM==\"net\", DRIVERS==\"?*\", ENV{SYSTEMD_WANTS}=\"cloud-dhclient@%k.service\""
 
       # Add udev rules
-      echo "$UDEV_RESIZE_RULE" > /etc/udev/rules.d/99-resize-filesystem.rules
       echo "$UDEV_ADD_NIC_RULE" > /etc/udev/rules.d/99-add-nic.rules
-
-      if [ -b "$PARTITION" ]; then
-        log "Partition $PARTITION exists. Running the $ADD_PARTITION_FILE script"
-        $ADD_PARTITION_FILE "$PARTITION"
-      fi
 
       log "Udev rules added."
 

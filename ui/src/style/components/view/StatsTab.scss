@@ -15,6 +15,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
+.stats-tab-container {
+  min-height: 100%;
+  padding: 0 0 16px;
+  color: var(--ui-text-secondary);
+  background: var(--ui-bg-surface);
+}
+
+.stats-empty-state {
+  padding-top: 12px;
+  background: var(--ui-bg-surface);
+}
+
+.stats-empty-alert {
+  color: var(--ui-warning-text);
+  background: var(--ui-warning-bg);
+  border: 1px solid var(--ui-warning-border);
+  border-radius: 4px;
+}
+
+.stats-empty-alert :deep(.ant-alert-message) {
+  color: var(--ui-warning-text);
+}
+
 .ant-tag {
   padding: 0 7px 0 0;
 }

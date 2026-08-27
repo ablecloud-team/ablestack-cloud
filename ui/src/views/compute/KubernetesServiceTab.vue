@@ -146,10 +146,16 @@
         </a-table>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.firewall')" key="firewall" v-if="publicIpAddress">
-        <FirewallRules :resource="publicIpAddress" :loading="networkLoading" />
+        <FirewallRules
+          :resource="publicIpAddress"
+          :loading="networkLoading"
+          :protected-management-ports="kubernetesManagementPorts" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.portforwarding')" key="portforwarding" v-if="publicIpAddress">
-        <PortForwarding :resource="publicIpAddress" :loading="networkLoading" />
+        <PortForwarding
+          :resource="publicIpAddress"
+          :loading="networkLoading"
+          :protected-management-ports="kubernetesManagementPorts" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.loadbalancing')" key="loadbalancing" v-if="publicIpAddress">
         <LoadBalancing :resource="publicIpAddress" :loading="networkLoading" />
@@ -281,6 +287,13 @@ export default {
     },
     '$route.fullPath': function () {
       this.setCurrentTab()
+    }
+  },
+  computed: {
+    kubernetesManagementPorts () {
+      const sshPorts = this.virtualmachines
+        .map((vm, index) => this.cksSshStartingPort + index)
+      return [...new Set([6443, ...sshPorts])]
     }
   },
   mounted () {

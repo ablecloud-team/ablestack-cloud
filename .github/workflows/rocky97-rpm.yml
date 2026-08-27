@@ -1,0 +1,261 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+name: Rocky 9.7 RPM Packaging
+
+on:
+  push:
+    branches:
+      - ablestack-europa
+    paths:
+      - '.github/workflows/rocky97-rpm.yml'
+      - 'packaging/**'
+      - 'tools/build/rocky97-rpm-build.sh'
+      - 'ui/**'
+      - 'pom.xml'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to build
+        required: false
+        default: ''
+        type: string
+      pack:
+        description: Package variant
+        required: false
+        default: noredist
+        type: choice
+        options:
+          - noredist
+          - oss
+      simulator:
+        description: Include simulator packaging
+        required: false
+        default: default
+        type: choice
+        options:
+          - default
+          - simulator
+      release:
+        description: Optional package release override
+        required: false
+        default: ''
+        type: string
+      brand:
+        description: Optional package branding override
+        required: false
+        default: ''
+        type: string
+      package_version:
+        description: Optional numeric package version override (for example 4.22.0.0)
+        required: false
+        default: ''
+        type: string
+      use_timestamp:
+        description: Use a timestamped release suffix
+        required: false
+        default: false
+        type: boolean
+      timestamp_value:
+        description: Optional fixed timestamp in YYYYMMDDHHMM format
+        required: false
+        default: ''
+        type: string
+      build_srpm:
+        description: Build SRPM alongside RPMs
+        required: false
+        default: false
+        type: boolean
+      templates:
+        description: Optional template list (for example kvm,xen,vmware)
+        required: false
+        default: ''
+        type: string
+      node_version:
+        description: Node.js version injected into the Rocky build container
+        required: false
+        default: 14.21.3
+        type: string
+  workflow_call:
+    inputs:
+      ref:
+        required: false
+        type: string
+      pack:
+        required: false
+        default: noredist
+        type: string
+      simulator:
+        required: false
+        default: default
+        type: string
+      release:
+        required: false
+        default: ''
+        type: string
+      brand:
+        required: false
+        default: ''
+        type: string
+      package_version:
+        required: false
+        default: ''
+        type: string
+      use_timestamp:
+        required: false
+        default: false
+        type: boolean
+      timestamp_value:
+        required: false
+        default: ''
+        type: string
+      build_srpm:
+        required: false
+        default: false
+        type: boolean
+      templates:
+        required: false
+        default: ''
+        type: string
+      node_version:
+        required: false
+        default: 14.21.3
+        type: string
+      artifact_name:
+        required: false
+        default: ''
+        type: string
+  pull_request:
+    paths:
+      - '.github/workflows/rocky97-rpm.yml'
+      - 'packaging/**'
+      - 'tools/build/rocky97-rpm-build.sh'
+      - 'ui/**'
+      - 'pom.xml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  rpm-rocky97:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    defaults:
+      run:
+        shell: bash
+    env:
+      ROCKY97_URL: https://download.rockylinux.org/vault/rocky/9.7/images/x86_64/Rocky-9-Container-Base.latest.x86_64.tar.xz
+      ROCKY97_SHA256: 2213bb44c0f1bfd0bbef16118ab5a1ec6875362c5ad6c6dafdecf28d14151ad2
+      BUILD_REF: ${{ inputs.ref || github.event.inputs.ref || github.ref }}
+      BUILD_PACK: ${{ inputs.pack || github.event.inputs.pack || 'noredist' }}
+      BUILD_SIMULATOR: ${{ inputs.simulator || github.event.inputs.simulator || 'default' }}
+      BUILD_RELEASE: ${{ inputs.release || github.event.inputs.release || '' }}
+      BUILD_BRAND: ${{ inputs.brand || github.event.inputs.brand || '' }}
+      BUILD_PACKAGE_VERSION: ${{ inputs.package_version || github.event.inputs.package_version || '' }}
+      BUILD_USE_TIMESTAMP: ${{ inputs.use_timestamp || github.event.inputs.use_timestamp || 'false' }}
+      BUILD_TIMESTAMP_VALUE: ${{ inputs.timestamp_value || github.event.inputs.timestamp_value || '' }}
+      BUILD_SRPM: ${{ inputs.build_srpm || github.event.inputs.build_srpm || 'false' }}
+      BUILD_TEMPLATES: ${{ inputs.templates || github.event.inputs.templates || '' }}
+      BUILD_NODE_VERSION: ${{ inputs.node_version || github.event.inputs.node_version || '14.21.3' }}
+      BUILD_ARTIFACT_NAME: ${{ inputs.artifact_name || format('rocky97-rpm-{0}', github.run_id) }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.BUILD_REF }}
+          fetch-depth: 0
+
+      - name: Install host prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo xz-utils
+
+      - name: Download Rocky 9.7 container archive
+        run: |
+          curl -fsSL -o /tmp/rocky97.tar.xz "$ROCKY97_URL"
+          echo "$ROCKY97_SHA256  /tmp/rocky97.tar.xz" | sha256sum -c -
+
+      - name: Convert Rocky 9.7 OCI archive for Docker
+        run: |
+          xz -dc /tmp/rocky97.tar.xz > /tmp/rocky97.oci.tar
+          skopeo copy \
+            oci-archive:/tmp/rocky97.oci.tar \
+            docker-archive:/tmp/rocky97.docker.tar:ablestack/rocky97-build:latest
+          docker load -i /tmp/rocky97.docker.tar
+          docker image inspect ablestack/rocky97-build:latest >/dev/null
+
+      - name: Build RPM packages inside Rocky 9.7
+        run: |
+          mkdir -p dist/rocky97-build
+          set -o pipefail
+          docker run --rm \
+            --workdir /workspace \
+            -e PACK="$BUILD_PACK" \
+            -e SIMULATOR="$BUILD_SIMULATOR" \
+            -e RELEASE="$BUILD_RELEASE" \
+            -e BRAND="$BUILD_BRAND" \
+            -e PACKAGE_VERSION="$BUILD_PACKAGE_VERSION" \
+            -e USE_TIMESTAMP="$BUILD_USE_TIMESTAMP" \
+            -e TIMESTAMP_VALUE="$BUILD_TIMESTAMP_VALUE" \
+            -e BUILD_SRPM="$BUILD_SRPM" \
+            -e TEMPLATES="$BUILD_TEMPLATES" \
+            -e DISTRO="rocky9" \
+            -e NODE_VERSION="$BUILD_NODE_VERSION" \
+            -v "$GITHUB_WORKSPACE":/workspace \
+            ablestack/rocky97-build:latest \
+            bash -lc './tools/build/rocky97-rpm-build.sh' | tee dist/rocky97-build/build.log
+
+      - name: Summarize RPM artifacts
+        run: |
+          {
+            echo "## Rocky 9.7 RPM Packaging"
+            echo
+            echo "- Ref: \`$BUILD_REF\`"
+            echo "- Pack: \`$BUILD_PACK\`"
+            echo "- Simulator: \`$BUILD_SIMULATOR\`"
+            echo "- Release: \`${BUILD_RELEASE:-default}\`"
+            echo "- Brand: \`${BUILD_BRAND:-default}\`"
+            echo "- Package version: \`${BUILD_PACKAGE_VERSION:-maven}\`"
+            echo "- Use timestamp: \`$BUILD_USE_TIMESTAMP\`"
+            echo "- Timestamp value: \`${BUILD_TIMESTAMP_VALUE:-generated}\`"
+            echo "- Build SRPM: \`$BUILD_SRPM\`"
+            echo "- Templates: \`${BUILD_TEMPLATES:-none}\`"
+            echo "- Node.js: \`$BUILD_NODE_VERSION\`"
+            echo
+            echo "### Artifacts"
+            if [ -f dist/rocky97-build/artifacts.txt ]; then
+              while IFS= read -r artifact; do
+                echo "- \`$artifact\`"
+              done < dist/rocky97-build/artifacts.txt
+            else
+              echo "- No artifact manifest was generated"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Rocky 9.7 build outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.BUILD_ARTIFACT_NAME }}
+          if-no-files-found: error
+          path: |
+            dist/rocky97-build/**
+            dist/rpmbuild/RPMS/**/*.rpm
+            dist/rpmbuild/SRPMS/**/*.rpm

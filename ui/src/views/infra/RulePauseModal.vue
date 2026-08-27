@@ -1,5 +1,5 @@
 <template>
-  <div class="form-layout" v-ctrl-enter="$refs.submit?.$el?.click()">
+  <div class="form-layout">
     <a-spin :spinning="loading">
       <a-form layout="vertical">
         <a-alert

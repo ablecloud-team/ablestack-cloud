@@ -36,6 +36,9 @@ public class LoadBalancerConfigCommand extends NetworkElementCommand {
     public String lbStatsAuth = "admin1:AdMiN123";
     public String lbStatsUri = "/admin?stats";
     public String maxconn = "";
+    public String lbConnectTimeout = "5000";
+    public String lbClientTimeout = "50000";
+    public String lbServerTimeout = "50000";
     public String lbProtocol;
     public boolean keepAliveEnabled = false;
     NicTO nic;

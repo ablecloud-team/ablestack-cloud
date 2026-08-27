@@ -20,10 +20,23 @@
     <div :class="['mask', visible ? 'open' : 'close']" @click="close"></div>
     <div :class="['drawer', placement, visible ? 'open' : 'close']">
       <div ref="drawer" class="content">
-        <slot name="drawer"></slot>
+        <header v-if="title || closable" class="drawer-header">
+          <span class="drawer-title">{{ title }}</span>
+          <a-button
+            v-if="closable"
+            type="text"
+            :aria-label="$t('label.close')"
+            @click.stop="close">
+            <close-outlined />
+          </a-button>
+        </header>
+        <div class="drawer-body">
+          <slot name="drawer"></slot>
+        </div>
       </div>
 
       <div
+        v-if="showHandler && $slots.handler"
         :class="['handler-container', placement, visible ? 'open' : 'close']"
         ref="handler"
         @click="toggle">
@@ -59,6 +72,16 @@ export default {
       type: Boolean,
       required: false,
       default: true
+    },
+    closable: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+    title: {
+      type: String,
+      required: false,
+      default: ''
     }
   },
   inject: ['parentToggleSetting'],
@@ -123,9 +146,39 @@ export default {
 .content {
   display: inline-block;
   height: 100vh;
-  overflow-y: auto;
+  overflow: hidden;
   width: 300px;
-  background-color: #FFFFFF;
+  color: var(--ui-text-primary, rgba(0, 0, 0, 0.85));
+  background-color: var(--ui-bg-surface, #fff);
+}
+
+.drawer-header {
+  height: 52px;
+  padding: 0 12px 0 20px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--ui-border, #f0f0f0);
+}
+
+.drawer-title {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  color: var(--ui-text-primary, rgba(0, 0, 0, 0.85));
+  font-size: 15px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drawer-header .ant-btn {
+  flex: 0 0 auto;
+  color: var(--ui-text-muted, rgba(0, 0, 0, 0.45));
+}
+
+.drawer-body {
+  height: calc(100vh - 52px);
+  overflow-y: auto;
 }
 
 .handler-container {

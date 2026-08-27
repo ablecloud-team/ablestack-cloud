@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +49,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -100,8 +102,6 @@ import com.cloud.agent.api.VmStatsEntry;
 import com.cloud.agent.api.VmStatsEntryBase;
 import com.cloud.agent.api.VolumeStatsEntry;
 import com.cloud.api.ApiSessionListener;
-import com.cloud.api.query.dao.UserVmJoinDao;
-import com.cloud.api.query.vo.UserVmJoinVO;
 import com.cloud.capacity.CapacityManager;
 import com.cloud.cluster.ClusterManager;
 import com.cloud.cluster.ClusterManagerListener;
@@ -127,6 +127,8 @@ import com.cloud.hypervisor.Hypervisor;
 import com.cloud.hypervisor.Hypervisor.HypervisorType;
 import com.cloud.network.Network;
 import com.cloud.network.as.AutoScaleManager;
+import com.cloud.network.dao.NetworkDao;
+import com.cloud.network.dao.NetworkVO;
 import com.cloud.org.Cluster;
 import com.cloud.resource.ResourceManager;
 import com.cloud.resource.ResourceState;
@@ -163,6 +165,7 @@ import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.net.MacAddress;
 import com.cloud.utils.script.Script;
 import com.cloud.vm.NicVO;
+import com.cloud.vm.dao.NicSecondaryIpVO;
 import com.cloud.vm.UserVmManager;
 import com.cloud.vm.UserVmVO;
 import com.cloud.vm.VMInstanceVO;
@@ -173,6 +176,7 @@ import com.cloud.vm.VmNetworkStats;
 import com.cloud.vm.VmStats;
 import com.cloud.vm.VmStatsVO;
 import com.cloud.vm.dao.NicDao;
+import com.cloud.vm.dao.NicSecondaryIpDao;
 import com.cloud.vm.dao.UserVmDao;
 import com.cloud.vm.dao.VMInstanceDao;
 import com.cloud.vm.dao.VmStatsDao;
@@ -362,6 +366,10 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
     @Inject
     private NicDao _nicDao;
     @Inject
+    private NetworkDao _networkDao;
+    @Inject
+    private NicSecondaryIpDao _nicSecondaryIpDao;
+    @Inject
     private VlanDao _vlanDao;
     @Inject
     private AutoScaleManager _asManager;
@@ -384,8 +392,6 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
     VirtualMachineManager virtualMachineManager;
     @Inject
     AlertManager _alertMgr;
-    @Inject
-    protected UserVmJoinDao userVmJoinDao;
 
 
     private final ConcurrentHashMap<String, ManagementServerHostStats> managementServerHostStats = new ConcurrentHashMap<>();
@@ -1433,6 +1439,43 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
         }
     }
 
+    protected void reconcileObservedNicAddresses(final NicVO nic, final List<String> observedAddresses) {
+        final List<String> observed = observedAddresses == null ? Collections.emptyList() : observedAddresses.stream()
+                .filter(StringUtils::isNotBlank)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+        if (observed.isEmpty()) {
+            return;
+        }
+
+        final String currentPrimary = nic.getIPv4Address();
+        if (StringUtils.isNotBlank(currentPrimary)) {
+            if (!observed.contains(currentPrimary)) {
+                logger.warn("Observed IPv4 addresses [{}] for NIC [{}] do not contain its persisted primary IPv4 [{}]; preserving the DB identity",
+                        observed, nic.getUuid(), currentPrimary);
+            }
+            return;
+        }
+
+        final Set<String> persistedAliases = _nicSecondaryIpDao.listByNicId(nic.getId()).stream()
+                .map(NicSecondaryIpVO::getIp4Address)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toSet());
+        final List<String> primaryCandidates = observed.stream()
+                .filter(address -> !persistedAliases.contains(address))
+                .collect(Collectors.toList());
+        if (primaryCandidates.size() != 1) {
+            logger.warn("Cannot infer one primary IPv4 for NIC [{}] from observed addresses [{}] after excluding aliases [{}]; skipping DB update",
+                    nic.getUuid(), observed, persistedAliases);
+            return;
+        }
+        if (!_nicDao.updatePrimaryIpAddress(nic.getId(), primaryCandidates.get(0), currentPrimary)) {
+            logger.warn("NIC [{}] changed while populating its initially empty primary IPv4; skipping stale observation [{}]",
+                    nic.getUuid(), primaryCandidates.get(0));
+        }
+    }
+
     class VmStatsCollector extends AbstractStatsCollector {
         @Override
         protected void runInContext() {
@@ -1441,15 +1484,6 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
                 List<HostVO> hosts = _hostDao.search(sc, null);
                 logger.debug(String.format("VmStatsCollector is running to process VMs across %d UP hosts", hosts.size()));
 
-                List<UserVmJoinVO> listL2netVMs = userVmJoinDao.listGuestTypeVMs(Network.GuestType.L2);
-                ArrayList<String> listL2NicMacAddr = new ArrayList<String>();
-
-                for (UserVmJoinVO vm : listL2netVMs) {
-                    if(!listL2NicMacAddr.contains(vm.getMacAddress())){
-                        listL2NicMacAddr.add(vm.getMacAddress());
-                    }
-                }
-
                 Map<Object, Object> metrics = new HashMap<>();
                 for (HostVO host : hosts) {
                     Date timestamp = new Date();
@@ -1457,78 +1491,95 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
                     try {
                         Map<Long, ? extends VmStats> vmStatsById = virtualMachineManager.getVirtualMachineStatistics(host.getId(), host.getName(), vmMap);
 
-                        if (vmStatsById != null) {
-                            Set<Long> vmIdSet = vmStatsById.keySet();
-                            for (Long vmId : vmIdSet) {
-                                VmStatsEntry statsForCurrentIteration = (VmStatsEntry)vmStatsById.get(vmId);
-                                statsForCurrentIteration.setVmId(vmId);
-                                VMInstanceVO vm = vmMap.get(vmId);
-                                statsForCurrentIteration.setVmUuid(vm.getUuid());
-                                if(statsForCurrentIteration.getQemuAgentVersion() != null && !"".equals(statsForCurrentIteration.getQemuAgentVersion())){
-                                    VMInstanceVO vmVO = _vmInstance.findById(vmId);
-                                    vmVO.setQemuAgentVersion(statsForCurrentIteration.getQemuAgentVersion());
-                                    _vmInstance.update(vmId, vmVO);
-                                }
-
-                                Map<String, String> agentNicMap = statsForCurrentIteration.getNicAddrMap();
-                                if (agentNicMap != null) {
-                                    for (String key : agentNicMap.keySet()) {
-                                        NicVO nicVO = _nicDao.findByMacAddress(key);
-                                        if (listL2NicMacAddr.contains(key)) {
-                                            nicVO.setIPv4Address(agentNicMap.get(key));
-                                            _nicDao.update(nicVO.getId(), nicVO);
-                                        }
-                                    }
-                                }
-
-                                SearchCriteria<VolumeVO> sc_volume = _volsDao.createSearchCriteria();
-                                sc_volume.addAnd("removed", SearchCriteria.Op.NULL);
-                                sc_volume.addAnd("path", SearchCriteria.Op.NNULL);
-                                Map<String, Long> fsUsageMap = statsForCurrentIteration.getFsUsageMap();
-                                if (fsUsageMap != null) {
-                                    List<VolumeVO> volumes = _volsDao.search(sc_volume, null);
-                                    for (String key : fsUsageMap.keySet()) {
-                                        for (VolumeVO volVo : volumes){
-                                            if (volVo.getPath().contains(key)) {
-                                                volVo.setUsedFsBytes(fsUsageMap.get(key));
-                                                _volsDao.update(volVo.getId(), volVo);
-                                            }
-                                        }
-                                    }
-                                }
-
-                                Map<String, Long> rbdDuMap = statsForCurrentIteration.getRbdDuMap();
-                                if (rbdDuMap != null) {
-                                    List<VolumeVO> volumes = _volsDao.search(sc_volume, null);
-                                    for (String rbdUuid : rbdDuMap.keySet()) {
-                                        for (VolumeVO volVo : volumes){
-                                            if (volVo.getPath().contains(rbdUuid)) {
-                                                volVo.setUsedPhysicalSize(rbdDuMap.get(rbdUuid));
-                                                _volsDao.update(volVo.getId(), volVo);
-                                            }
-                                        }
-                                    }
-                                }
-
-                                persistVirtualMachineStats(statsForCurrentIteration, timestamp);
-
-                                if (externalStatsType == ExternalStatsProtocol.GRAPHITE) {
-                                    prepareVmMetricsForGraphite(metrics, statsForCurrentIteration);
-                                } else {
-                                    metrics.put(statsForCurrentIteration.getVmId(), statsForCurrentIteration);
-                                }
-                            }
-
-                            if (!metrics.isEmpty()) {
-                                if (externalStatsType == ExternalStatsProtocol.GRAPHITE) {
-                                    sendVmMetricsToGraphiteHost(metrics, host);
-                                } else if (externalStatsType == ExternalStatsProtocol.INFLUXDB) {
-                                    sendMetricsToInfluxdb(metrics);
-                                }
-                            }
-
-                            metrics.clear();
+                        if (MapUtils.isEmpty(vmStatsById)) {
+                            continue;
                         }
+
+                        Set<Long> vmIdSet = vmStatsById.keySet();
+                        for (Long vmId : vmIdSet) {
+                            VmStatsEntry statsForCurrentIteration = (VmStatsEntry)vmStatsById.get(vmId);
+                            statsForCurrentIteration.setVmId(vmId);
+                            VMInstanceVO vm = vmMap.get(vmId);
+                            statsForCurrentIteration.setVmUuid(vm.getUuid());
+                            if(statsForCurrentIteration.getQemuAgentVersion() != null && !"".equals(statsForCurrentIteration.getQemuAgentVersion())){
+                                VMInstanceVO vmVO = _vmInstance.findById(vmId);
+                                vmVO.setQemuAgentVersion(statsForCurrentIteration.getQemuAgentVersion());
+                                _vmInstance.update(vmId, vmVO);
+                            }
+
+                            Map<String, String> agentNicMap = statsForCurrentIteration.getNicAddrMap();
+                            if (MapUtils.isNotEmpty(agentNicMap)) {
+                                Map<String, String> normalizedAgentNicMap = new HashMap<>();
+                                for (Map.Entry<String, String> entry : agentNicMap.entrySet()) {
+                                    if (StringUtils.isNotBlank(entry.getKey())) {
+                                        normalizedAgentNicMap.put(StringUtils.lowerCase(entry.getKey()), entry.getValue());
+                                    }
+                                }
+
+                                List<NicVO> nics = _nicDao.listByVmId(vmId);
+                                if (CollectionUtils.isNotEmpty(nics)) {
+                                    for (NicVO nicVO : nics) {
+                                        NetworkVO network = _networkDao.findById(nicVO.getNetworkId());
+                                        if (network == null || network.getGuestType() != Network.GuestType.L2) {
+                                            continue;
+                                        }
+                                        String macAddress = StringUtils.lowerCase(nicVO.getMacAddress());
+                                        if (StringUtils.isBlank(macAddress)) {
+                                            continue;
+                                        }
+                                        reconcileObservedNicAddresses(nicVO,
+                                                Collections.singletonList(normalizedAgentNicMap.get(macAddress)));
+                                    }
+                                }
+                            }
+
+                            SearchCriteria<VolumeVO> scVolume = _volsDao.createSearchCriteria();
+                            scVolume.addAnd("removed", SearchCriteria.Op.NULL);
+                            scVolume.addAnd("path", SearchCriteria.Op.NNULL);
+                            Map<String, Long> fsUsageMap = statsForCurrentIteration.getFsUsageMap();
+                            if (fsUsageMap != null) {
+                                List<VolumeVO> volumes = _volsDao.search(scVolume, null);
+                                for (String key : fsUsageMap.keySet()) {
+                                    for (VolumeVO volVo : volumes) {
+                                        if (volVo.getPath().contains(key)) {
+                                            volVo.setUsedFsBytes(fsUsageMap.get(key));
+                                            _volsDao.update(volVo.getId(), volVo);
+                                        }
+                                    }
+                                }
+                            }
+
+                            Map<String, Long> rbdDuMap = statsForCurrentIteration.getRbdDuMap();
+                            if (rbdDuMap != null) {
+                                List<VolumeVO> volumes = _volsDao.search(scVolume, null);
+                                for (String rbdUuid : rbdDuMap.keySet()) {
+                                    for (VolumeVO volVo : volumes) {
+                                        if (volVo.getPath().contains(rbdUuid)) {
+                                            volVo.setUsedPhysicalSize(rbdDuMap.get(rbdUuid));
+                                            _volsDao.update(volVo.getId(), volVo);
+                                        }
+                                    }
+                                }
+                            }
+
+                            persistVirtualMachineStats(statsForCurrentIteration, timestamp);
+
+                            if (externalStatsType == ExternalStatsProtocol.GRAPHITE) {
+                                prepareVmMetricsForGraphite(metrics, statsForCurrentIteration);
+                            } else {
+                                metrics.put(statsForCurrentIteration.getVmId(), statsForCurrentIteration);
+                            }
+                        }
+
+                        if (!metrics.isEmpty()) {
+                            if (externalStatsType == ExternalStatsProtocol.GRAPHITE) {
+                                sendVmMetricsToGraphiteHost(metrics, host);
+                            } else if (externalStatsType == ExternalStatsProtocol.INFLUXDB) {
+                                sendMetricsToInfluxdb(metrics);
+                            }
+                        }
+
+                        metrics.clear();
                     } catch (Exception e) {
                         logger.debug("Failed to get VM stats for host: {}", host);
                         continue;

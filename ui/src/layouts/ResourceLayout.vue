@@ -16,13 +16,15 @@
 // under the License.
 
 <template>
-  <div class="page-header-index-wide page-header-wrapper-grid-content-main">
+  <div
+    class="page-header-index-wide page-header-wrapper-grid-content-main"
+    :class="{ 'page-header-wrapper-grid-content-main--wide': wide }">
     <a-row :gutter="12">
-      <a-col :md="24" :lg="device === 'desktop' ? 7 : 8" style="margin-bottom: 12px">
+      <a-col v-if="!wide" :md="24" :lg="device === 'desktop' ? 7 : 8" style="margin-bottom: 12px">
         <slot name="left">
         </slot>
       </a-col>
-      <a-col :md="24" :lg="device === 'desktop' ? 17 : 16">
+      <a-col :md="24" :lg="wide ? 24 : (device === 'desktop' ? 17 : 16)">
         <slot name="right">
         </slot>
       </a-col>
@@ -35,7 +37,13 @@ import { mixinDevice } from '@/utils/mixin.js'
 
 export default {
   name: 'ResourceLayout',
-  mixins: [mixinDevice]
+  mixins: [mixinDevice],
+  props: {
+    wide: {
+      type: Boolean,
+      default: false
+    }
+  }
 }
 </script>
 
@@ -45,5 +53,8 @@ export default {
   height: 100%;
   min-height: 100%;
   transition: 0.3s;
+}
+.page-header-wrapper-grid-content-main--wide {
+  max-width: none;
 }
 </style>

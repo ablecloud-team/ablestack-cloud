@@ -87,6 +87,25 @@ public class SharedFSVO implements SharedFS {
     @Column(name = "service_offering_id")
     private Long serviceOfferingId;
 
+    @Column(name = "network_mode")
+    @Enumerated(value = EnumType.STRING)
+    private NetworkMode networkMode = NetworkMode.DHCP;
+
+    @Column(name = "ip_address")
+    private String ipAddress;
+
+    @Column(name = "cidr")
+    private String cidr;
+
+    @Column(name = "gateway")
+    private String gateway;
+
+    @Column(name = "dns1")
+    private String dns1;
+
+    @Column(name = "dns2")
+    private String dns2;
+
     @Column(name = "updated")
     @Temporal(value = TemporalType.TIMESTAMP)
     Date updated;
@@ -226,6 +245,66 @@ public class SharedFSVO implements SharedFS {
     @Override
     public void setServiceOfferingId(Long serviceOfferingId) {
         this.serviceOfferingId = serviceOfferingId;
+    }
+
+    @Override
+    public NetworkMode getNetworkMode() {
+        return networkMode == null ? NetworkMode.DHCP : networkMode;
+    }
+
+    @Override
+    public void setNetworkMode(NetworkMode networkMode) {
+        this.networkMode = networkMode;
+    }
+
+    @Override
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    @Override
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    @Override
+    public String getCidr() {
+        return cidr;
+    }
+
+    @Override
+    public void setCidr(String cidr) {
+        this.cidr = cidr;
+    }
+
+    @Override
+    public String getGateway() {
+        return gateway;
+    }
+
+    @Override
+    public void setGateway(String gateway) {
+        this.gateway = gateway;
+    }
+
+    @Override
+    public String getDns1() {
+        return dns1;
+    }
+
+    @Override
+    public void setDns1(String dns1) {
+        this.dns1 = dns1;
+    }
+
+    @Override
+    public String getDns2() {
+        return dns2;
+    }
+
+    @Override
+    public void setDns2(String dns2) {
+        this.dns2 = dns2;
     }
 
     @Override

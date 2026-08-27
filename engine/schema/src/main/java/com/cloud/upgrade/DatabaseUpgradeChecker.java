@@ -506,18 +506,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
         try {
             final Connection conn = txn.getConnection();
 
-            // 0) DB 최신버전 == 코드버전이면 삭제/삽입 모두 스킵
-            final boolean sameAsCode = (dbLatestVersion != null
-                    && currentVersion != null
-                    && dbLatestVersion.compareTo(currentVersion) == 0);
-            if (sameAsCode) {
-                LOGGER.info("DB latest version equals code version (db={}, code={}). Skipping baseline insert and deletion.",
-                        dbLatestVersion, currentVersion);
-                txn.commit();
-                return;
-            }
-
-            // 1) sameAsCode == false 인 경우에만 베이스라인 보장 (없으면 삽입)
+            // 1) 베이스라인 보장 (없으면 삽입)
             final String insertIfMissingSql =
                     "INSERT INTO `cloud`.`version` (`version`, `step`, `updated`) " +
                     "SELECT ?, 'Complete', NOW() FROM DUAL " +
@@ -534,9 +523,8 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
             }
 
             // 2) 삭제 대상: dbLatestVersion 의 최신 1건 (단, 베이스라인이면 삭제 금지)
+            //    DB 최신 버전과 코드 버전이 같아도 최신 버전 row를 삭제해 동일 버전 업그레이드를 재실행한다.
             if (dbLatestVersion != null
-                    && currentVersion != null
-                    && dbLatestVersion.compareTo(currentVersion) != 0
                     && !BASELINE_VERSION.equals(dbLatestVersion.toString())) {
 
                 final String deleteLatestOneSql =
@@ -554,7 +542,8 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                     delLatest.setString(1, dbLatestVersion.toString());
                     int deleted = delLatest.executeUpdate();
                     if (deleted > 0) {
-                        LOGGER.warn("Deleted {} latest row for version {}", deleted, dbLatestVersion.toString());
+                        LOGGER.warn("Deleted {} latest row for DB version {} before upgrade check with code version {}",
+                                deleted, dbLatestVersion.toString(), currentVersion);
                         txn.commit();
                         return;
                     } else {

@@ -32,6 +32,7 @@ public class TakeBackupCommand extends Command {
     private String backupRepoAddress;
     private List<PrimaryDataStoreTO> volumePools;
     private List<String> volumePaths;
+    private List<String> volumeUuids;
     private Boolean quiesce;
     @LogLevel(LogLevel.Log4jLevel.Off)
     private String mountOptions;
@@ -96,6 +97,14 @@ public class TakeBackupCommand extends Command {
 
     public void setVolumePaths(List<String> volumePaths) {
         this.volumePaths = volumePaths;
+    }
+
+    public List<String> getVolumeUuids() {
+        return volumeUuids;
+    }
+
+    public void setVolumeUuids(List<String> volumeUuids) {
+        this.volumeUuids = volumeUuids;
     }
 
     public Boolean getQuiesce() {

@@ -138,7 +138,7 @@ public class CephObjectStoreDriverImpl extends BaseObjectStoreDriverImpl {
                     .withAllowedHeaders(Arrays.asList("*"))
                     .withAllowedOrigins(Arrays.asList("*"))
                     .withMaxAgeSeconds(3000)
-                    .withExposedHeaders(Arrays.asList("x-amz-server-side-encryption", "x-amz-request-id", "x-amz-id-2"));
+                    .withExposedHeaders(Arrays.asList("ETag", "x-amz-server-side-encryption", "x-amz-request-id", "x-amz-id-2"));
 
                     List<CORSRule> rules = new ArrayList<CORSRule>();
             rules.add(rule);

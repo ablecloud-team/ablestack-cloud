@@ -45,7 +45,7 @@ store = common.createMockStore(state)
 i18n = common.createMockI18n('en', mockData.messages)
 
 const factory = (opts = {}) => {
-  router = opts.router || router
+  router = opts.router || router || common.createMockRouter()
   store = opts.store || store
   i18n = opts.i18n || i18n
 
@@ -89,16 +89,16 @@ describe('Components > View > ActionButton.vue', () => {
         }
       })
 
-      const expected = '<span role="img" aria-label="plus" class="anticon anticon-plus">'
+      const expected = '<span role="img" aria-label="plus" class="anticon anticon-plus action-button-item__icon">'
       const received = wrapper.html()
       expect(received).toContain(expected)
     })
 
-    it('The action button badge  is displayed', (done) => {
+    it('The action button badge is displayed in the data view menu', async () => {
       mockAxios.mockImplementation(() => Promise.resolve({
         testapinameresponse: {
-          count: 0,
-          testapiname: []
+          count: 1,
+          testapiname: [{ id: 'test-badge-id' }]
         }
       }))
       const wrapper = factory({
@@ -112,21 +112,75 @@ describe('Components > View > ActionButton.vue', () => {
               dataView: true
             }
           ],
-          dataView: true
+          dataView: true,
+          resource: {
+            id: 'test-resource-id'
+          }
         }
       })
 
+      await flushPromises()
       const wrapperHtml = wrapper.html()
       const received = common.decodeHtml(wrapperHtml)
-      const expected = '<span class="ant-badge button-action-badge" disabled="false">'
+      const expected = 'resource-action-menu__badge'
 
       expect(received).toContain(expected)
+    })
 
-      done()
+    it('wraps data view icons in a fixed alignment slot', () => {
+      const wrapper = factory({
+        props: {
+          actions: [{
+            label: 'label.action',
+            api: 'test-api-case-2',
+            icon: ['fas', 'camera-retro'],
+            dataView: true
+          }],
+          dataView: true,
+          resource: {
+            id: 'test-resource-id'
+          }
+        }
+      })
+
+      const iconSlot = wrapper.find('.resource-action-menu__item-icon')
+      expect(iconSlot.exists()).toBe(true)
+      expect(iconSlot.attributes('aria-hidden')).toBe('true')
     })
   })
 
   describe('Method', () => {
+    describe('openConsole()', () => {
+      it('uses an external console URL without requesting a console endpoint', () => {
+        const externalUrl = 'https://console.example.test/session'
+        const openSpy = jest.spyOn(window, 'open').mockImplementation(() => {})
+        const wrapper = factory({
+          props: {
+            resource: {
+              id: 'test-resource-id',
+              details: {
+                'External:console_url': externalUrl
+              }
+            }
+          }
+        })
+
+        wrapper.vm.openConsole(false)
+
+        expect(openSpy).toHaveBeenCalledWith(externalUrl, '_blank')
+        expect(mockAxios).not.toHaveBeenCalled()
+        openSpy.mockRestore()
+      })
+
+      it('falls back to the route name when route metadata has no name', () => {
+        const routeName = ActionButton.computed.routeName.call({
+          $route: { meta: {}, name: 'host' }
+        })
+
+        expect(routeName).toBe('host')
+      })
+    })
+
     describe('handleShowBadge()', () => {
       it('API should be called and return not empty', async (done) => {
         const postData = new URLSearchParams()
@@ -142,7 +196,10 @@ describe('Components > View > ActionButton.vue', () => {
                 dataView: true
               }
             ],
-            dataView: true
+            dataView: true,
+            resource: {
+              id: 'test-resource-id'
+            }
           }
         })
         const expected = { 'test-api-case-3': { badgeNum: 2 } }
@@ -177,7 +234,10 @@ describe('Components > View > ActionButton.vue', () => {
                 dataView: true
               }
             ],
-            dataView: true
+            dataView: true,
+            resource: {
+              id: 'test-resource-id'
+            }
           }
         })
         const expected = { 'test-api-case-4': { badgeNum: 0 } }
@@ -212,7 +272,10 @@ describe('Components > View > ActionButton.vue', () => {
                 dataView: true
               }
             ],
-            dataView: true
+            dataView: true,
+            resource: {
+              id: 'test-resource-id'
+            }
           }
         })
 
@@ -265,7 +328,7 @@ describe('Components > View > ActionButton.vue', () => {
           }
         }
 
-        await wrapper.find('button').trigger('click')
+        await wrapper.find('.ant-menu-item').trigger('click')
         await flushPromises()
 
         expect(wrapper.emitted()['exec-action'][0]).toEqual([expected])

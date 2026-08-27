@@ -65,7 +65,8 @@ public class LoadBalancingRules extends RuleApplier {
             final List<LbHealthCheckPolicy> hcPolicyList = lbMgr.getHealthCheckPolicies(lb.getId());
             final LbSslCert sslCert = lbMgr.getLbSslCert(lb.getId());
             final Ip sourceIp = networkModel.getPublicIpAddress(lb.getSourceIpAddressId()).getAddress();
-            final LoadBalancingRule loadBalancing = new LoadBalancingRule(lb, dstList, policyList, hcPolicyList, sourceIp, sslCert, lb.getLbProtocol());
+            final LoadBalancingRule loadBalancing = new LoadBalancingRule(lb, dstList, policyList, hcPolicyList, sourceIp, sslCert,
+                    lb.getLbProtocol(), lbMgr.isBackendSslEnabled(lb.getId()));
 
             _rules.add(loadBalancing);
         }

@@ -68,16 +68,19 @@ public interface AutomationController extends ControlledEntity, com.cloud.utils.
 
         static {
             s_fsm.addTransition(State.Created, Event.StartRequested, State.Starting);
+            s_fsm.addTransition(State.Created, Event.DestroyRequested, State.Destroying);
 
             s_fsm.addTransition(State.Starting, Event.OperationSucceeded, State.Running);
             s_fsm.addTransition(State.Starting, Event.OperationFailed, State.Alert);
             s_fsm.addTransition(State.Starting, Event.CreateFailed, State.Error);
             s_fsm.addTransition(State.Starting, Event.StopRequested, State.Stopping);
+            s_fsm.addTransition(State.Starting, Event.DestroyRequested, State.Destroying);
 
             s_fsm.addTransition(State.Running, Event.StopRequested, State.Stopping);
             s_fsm.addTransition(State.Alert, Event.StopRequested, State.Stopping);
             s_fsm.addTransition(State.Stopping, Event.OperationSucceeded, State.Stopped);
             s_fsm.addTransition(State.Stopping, Event.OperationFailed, State.Alert);
+            s_fsm.addTransition(State.Stopping, Event.DestroyRequested, State.Destroying);
 
             s_fsm.addTransition(State.Stopped, Event.StartRequested, State.Starting);
 
@@ -87,19 +90,23 @@ public interface AutomationController extends ControlledEntity, com.cloud.utils.
             s_fsm.addTransition(State.Running, Event.ScaleDownRequested, State.Scaling);
             s_fsm.addTransition(State.Scaling, Event.OperationSucceeded, State.Running);
             s_fsm.addTransition(State.Scaling, Event.OperationFailed, State.Alert);
+            s_fsm.addTransition(State.Scaling, Event.DestroyRequested, State.Destroying);
 
             s_fsm.addTransition(State.Running, Event.UpgradeRequested, State.Upgrading);
             s_fsm.addTransition(State.Upgrading, Event.OperationSucceeded, State.Running);
             s_fsm.addTransition(State.Upgrading, Event.OperationFailed, State.Alert);
+            s_fsm.addTransition(State.Upgrading, Event.DestroyRequested, State.Destroying);
 
             s_fsm.addTransition(State.Alert, Event.RecoveryRequested, State.Recovering);
             s_fsm.addTransition(State.Recovering, Event.OperationSucceeded, State.Running);
             s_fsm.addTransition(State.Recovering, Event.OperationFailed, State.Alert);
+            s_fsm.addTransition(State.Recovering, Event.DestroyRequested, State.Destroying);
 
             s_fsm.addTransition(State.Running, Event.DestroyRequested, State.Destroying);
             s_fsm.addTransition(State.Stopped, Event.DestroyRequested, State.Destroying);
             s_fsm.addTransition(State.Alert, Event.DestroyRequested, State.Destroying);
             s_fsm.addTransition(State.Error, Event.DestroyRequested, State.Destroying);
+            s_fsm.addTransition(State.Destroying, Event.DestroyRequested, State.Destroying);
 
             s_fsm.addTransition(State.Destroying, Event.OperationSucceeded, State.Destroyed);
 

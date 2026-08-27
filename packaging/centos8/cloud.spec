@@ -197,14 +197,16 @@ if [ "%{_sim}" == "SIMULATOR" -o "%{_sim}" == "simulator" ] ; then
    FLAGS="$FLAGS -Dsimulator"
 fi
 
-if [ \"%{_temp}\" != "" ]; then
+if [ -n "%{?_temp}" ]; then
     echo "Adding flags to package requested templates"
-    FLAGS="$FLAGS `rpm --eval %{?_temp}`"
+    FLAGS="$FLAGS %{?_temp}"
 fi
 
 mvn -T 2C -Psystemvm,developer -DskipTests $FLAGS clean package
-# cd ui && npm install && node build.js && npm run build && cd ..
-cd ui && npm install && node build.js && npm run build && cd ..
+cd ui
+env -u NODE_OPTIONS %{_node_bindir}/npm ci --no-audit --no-fund
+env -u NODE_OPTIONS %{_node_bindir}/npm run build
+cd ..
 
 %install
 [ ${RPM_BUILD_ROOT} != "/" ] && rm -rf ${RPM_BUILD_ROOT}
@@ -419,8 +421,10 @@ if [ ! -z $python_dir ];then
 fi
 
 %preun management
-/usr/bin/systemctl stop mold || true
-/usr/bin/systemctl disable mold || true
+if [ "$1" == "0" ] ; then
+    /usr/bin/systemctl stop mold || true
+    /usr/bin/systemctl disable mold || true
+fi
 
 %pre management
 id cloud > /dev/null 2>&1 || /usr/sbin/useradd -M -U -c "CloudStack unprivileged user" \
@@ -483,11 +487,17 @@ if [ -f "/usr/share/cloudstack-common/scripts/installer/cloudstack-help-text" ];
     sed -i "s,^ACS_VERSION=.*,ACS_VERSION=%{_maventag},g" /usr/share/cloudstack-common/scripts/installer/cloudstack-help-text
     /usr/share/cloudstack-common/scripts/installer/cloudstack-help-text management
 fi
+/usr/bin/systemctl daemon-reload
 /usr/bin/systemctl enable mold > /dev/null 2>&1 || true
+if /usr/bin/systemctl is-active --quiet mold; then
+    /usr/bin/systemctl restart mold || true
+else
+    /usr/bin/systemctl start mold || true
+fi
 
 %preun agent
-/sbin/service mold-agent stop || true
 if [ "$1" == "0" ] ; then
+    /sbin/service mold-agent stop || true
     /sbin/chkconfig --del mold-agent > /dev/null 2>&1 || true
 fi
 
@@ -512,6 +522,11 @@ cp -a ${RPM_BUILD_ROOT}%{_datadir}/%{name}-agent/lib/libvirtqemuhook %{_sysconfd
 mkdir -m 0755 -p /usr/share/cloudstack-agent/tmp
 /usr/bin/systemctl restart libvirtd
 /usr/bin/systemctl enable mold-agent > /dev/null 2>&1 || true
+if /usr/bin/systemctl is-active --quiet mold-agent; then
+    /usr/bin/systemctl restart mold-agent || true
+else
+    /usr/bin/systemctl start mold-agent || true
+fi
 /usr/bin/systemctl enable cloudstack-rolling-maintenance@p > /dev/null 2>&1 || true
 /usr/bin/systemctl enable --now rngd > /dev/null 2>&1 || true
 
@@ -540,8 +555,8 @@ id cloud > /dev/null 2>&1 || /usr/sbin/useradd -M -U -c "CloudStack unprivileged
      -r -s /bin/sh -d %{_localstatedir}/cloudstack/management cloud|| true
 
 %preun usage
-/sbin/service mold-usage stop || true
 if [ "$1" == "0" ] ; then
+    /sbin/service mold-usage stop || true
     /sbin/chkconfig --del mold-usage > /dev/null 2>&1 || true
 fi
 
@@ -574,6 +589,15 @@ chown cloud:cloud /usr/local/libexec/sanity-check-last-id
 if [ -f "/usr/share/cloudstack-common/scripts/installer/cloudstack-help-text" ];then
     sed -i "s,^ACS_VERSION=.*,ACS_VERSION=%{_maventag},g" /usr/share/cloudstack-common/scripts/installer/cloudstack-help-text
     /usr/share/cloudstack-common/scripts/installer/cloudstack-help-text usage
+fi
+if [ -f "%{_sysconfdir}/%{name}/management/db.properties" ]; then
+    /usr/bin/systemctl daemon-reload
+    /usr/bin/systemctl enable mold-usage > /dev/null 2>&1 || true
+    if /usr/bin/systemctl is-active --quiet mold-usage; then
+        /usr/bin/systemctl restart mold-usage || true
+    else
+        /usr/bin/systemctl start mold-usage || true
+    fi
 fi
 
 %post marvin
