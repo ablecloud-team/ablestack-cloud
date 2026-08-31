@@ -34,7 +34,7 @@ DISK_PATHS=""
 VOLUME_UUIDS=""
 QUIESCE=""
 logFile="/var/log/cloudstack/agent/agent.log"
-
+UNMOUNT_TIMEOUT=60
 EXIT_CLEANUP_FAILED=20
 
 log() {
@@ -165,7 +165,8 @@ backup_running_vm() {
         break ;;
       Failed)
         echo "Virsh backup job failed"
-        cleanup ;;
+        cleanup
+        exit 1 ;;
     esac
     sleep 5
   done
@@ -175,10 +176,10 @@ backup_running_vm() {
 
   # Print statistics
   virsh -c qemu:///system domjobinfo $VM --completed
-  du -sb $dest | cut -f1
-
-  umount $mount_point
-  rmdir $mount_point
+  backup_size=$(du -sb "$dest" 2>>"$logFile" | cut -f1) || { log -ne "WARNING: du failed for $dest, reporting size as 0"; backup_size=0; }
+  timeout "$UNMOUNT_TIMEOUT" umount "$mount_point" 2>>"$logFile" || { log "WARNING: umount of $mount_point failed or timed out"; true; }
+  rmdir "$mount_point" 2>>"$logFile" || { log "WARNING: rmdir of $mount_point failed"; true; }
+  echo "$backup_size"
   log -ne "Finished NAS backup for running VM [$VM] to [$BACKUP_DIR]"
 }
 
@@ -207,16 +208,17 @@ backup_stopped_vm() {
       volUuid="${disk##*/}"
     fi
     output="$dest/$name.$volUuid.qcow2"
-    if ! qemu-img convert -O qcow2 "$disk" "$output" > "$logFile" 2> >(cat >&2); then
+    if ! qemu-img convert -O qcow2 "$disk" "$output" >> "$logFile" 2> >(cat >&2); then
       echo "qemu-img convert failed for $disk $output"
       cleanup
+      exit 1
     fi
     name="datadisk"
     ((disk_index+=1))
   done
   sync
 
-  ls -l --numeric-uid-gid $dest | awk '{print $5}'
+  find "$dest" -type f -exec stat -c '%s' {} +
   log -ne "Finished NAS backup for stopped VM [$VM] to [$BACKUP_DIR]"
 }
 
@@ -255,6 +257,19 @@ mount_operation() {
 
 cleanup() {
   local status=0
+
+  # Resume the VM if it was paused during backup to prevent it from
+  # remaining indefinitely paused when the backup job fails (e.g. due
+  # to storage full or I/O errors on the backup target)
+  local vm_state
+  vm_state=$(virsh -c qemu:///system domstate "$VM" 2>/dev/null || true)
+  if [[ "$vm_state" == "paused" ]]; then
+    log -ne "Resuming paused VM $VM during backup cleanup"
+    if ! virsh -c qemu:///system resume "$VM" > /dev/null 2>&1; then
+      echo "Failed to resume VM $VM"
+      status=1
+    fi
+  fi
 
   rm -rf "$dest" || { echo "Failed to delete $dest"; status=1; }
   umount "$mount_point" || { echo "Failed to unmount $mount_point"; status=1; }
