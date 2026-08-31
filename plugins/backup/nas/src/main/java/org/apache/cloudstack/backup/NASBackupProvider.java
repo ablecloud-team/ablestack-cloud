@@ -88,7 +88,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
     ConfigKey<Integer> NASBackupRestoreMountTimeout = new ConfigKey<>("Advanced", Integer.class,
             "nas.backup.restore.mount.timeout",
             "30",
-            "Timeout in seconds after which backup repository mount for restore fails.",
+            "Timeout in seconds after which backup repository mount fails.",
             true,
             BackupFrameworkEnabled.key());
 
@@ -224,6 +224,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         command.setBackupRepoType(backupRepository.getType());
         command.setBackupRepoAddress(backupRepository.getAddress());
         command.setMountOptions(backupRepository.getMountOptions());
+        command.setMountTimeout(NASBackupRestoreMountTimeout.value());
         command.setQuiesce(quiesceVM);
         List<VolumeVO> vmVolumes = volumeDao.findByInstance(vm.getId());
         vmVolumes.sort(Comparator.comparing(Volume::getDeviceId));
@@ -489,6 +490,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
 
         DeleteBackupCommand command = new DeleteBackupCommand(backup.getExternalId(), backupRepository.getType(),
                 backupRepository.getAddress(), backupRepository.getMountOptions());
+        command.setMountTimeout(NASBackupRestoreMountTimeout.value());
 
         BackupAnswer answer;
         try {
@@ -579,6 +581,7 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
         }
         for (final BackupRepository repository : repositories) {
             GetBackupStorageStatsCommand command = new GetBackupStorageStatsCommand(repository.getType(), repository.getAddress(), repository.getMountOptions());
+            command.setMountTimeout(NASBackupRestoreMountTimeout.value());
             BackupStorageStatsAnswer answer;
             try {
                 answer = (BackupStorageStatsAnswer) agentManager.send(host.getId(), command);

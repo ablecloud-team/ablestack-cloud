@@ -29,12 +29,13 @@ VM=""
 NAS_TYPE=""
 NAS_ADDRESS=""
 MOUNT_OPTS=""
+MOUNT_TIMEOUT=0
 BACKUP_DIR=""
 DISK_PATHS=""
 VOLUME_UUIDS=""
 QUIESCE=""
 logFile="/var/log/cloudstack/agent/agent.log"
-
+UNMOUNT_TIMEOUT=60
 EXIT_CLEANUP_FAILED=20
 
 log() {
@@ -165,7 +166,8 @@ backup_running_vm() {
         break ;;
       Failed)
         echo "Virsh backup job failed"
-        cleanup ;;
+        cleanup
+        exit 1 ;;
     esac
     sleep 5
   done
@@ -175,10 +177,10 @@ backup_running_vm() {
 
   # Print statistics
   virsh -c qemu:///system domjobinfo $VM --completed
-  du -sb $dest | cut -f1
-
-  umount $mount_point
-  rmdir $mount_point
+  backup_size=$(du -sb "$dest" 2>>"$logFile" | cut -f1) || { log -ne "WARNING: du failed for $dest, reporting size as 0"; backup_size=0; }
+  timeout "$UNMOUNT_TIMEOUT" umount "$mount_point" 2>>"$logFile" || { log "WARNING: umount of $mount_point failed or timed out"; true; }
+  rmdir "$mount_point" 2>>"$logFile" || { log "WARNING: rmdir of $mount_point failed"; true; }
+  echo "$backup_size"
   log -ne "Finished NAS backup for running VM [$VM] to [$BACKUP_DIR]"
 }
 
@@ -207,16 +209,19 @@ backup_stopped_vm() {
       volUuid="${disk##*/}"
     fi
     output="$dest/$name.$volUuid.qcow2"
-    if ! qemu-img convert -O qcow2 "$disk" "$output" > "$logFile" 2> >(cat >&2); then
+    if ! qemu-img convert -O qcow2 "$disk" "$output" >> "$logFile" 2> >(cat >&2); then
       echo "qemu-img convert failed for $disk $output"
       cleanup
+      exit 1
     fi
     name="datadisk"
     ((disk_index+=1))
   done
   sync
 
-  ls -l --numeric-uid-gid $dest | awk '{print $5}'
+  find "$dest" -type f -exec stat -c '%s' {} +
+  timeout "$UNMOUNT_TIMEOUT" umount "$mount_point" 2>>"$logFile" || { log "WARNING: umount of $mount_point failed or timed out"; true; }
+  rmdir "$mount_point" 2>>"$logFile" || { log "WARNING: rmdir of $mount_point failed"; true; }
   log -ne "Finished NAS backup for stopped VM [$VM] to [$BACKUP_DIR]"
 }
 
@@ -241,20 +246,42 @@ get_backup_stats() {
 mount_operation() {
   mount_point=$(mktemp -d -t csbackup.XXXXX)
   dest="$mount_point/${BACKUP_DIR}"
+  log -ne "Mounting ${NAS_TYPE} store [${NAS_ADDRESS}] at [${mount_point}] with timeout [${MOUNT_TIMEOUT}]"
   if [ ${NAS_TYPE} == "cifs" ]; then
     MOUNT_OPTS="${MOUNT_OPTS},nobrl"
   fi
-  mount -t ${NAS_TYPE} ${NAS_ADDRESS} ${mount_point} $([[ ! -z "${MOUNT_OPTS}" ]] && echo -o ${MOUNT_OPTS}) 2>&1 | tee -a "$logFile"
-  if [ $? -eq 0 ]; then
-      log -ne "Successfully mounted ${NAS_TYPE} store"
+  set +e
+  if [[ "$MOUNT_TIMEOUT" -gt 0 ]]; then
+    timeout -k 5s "${MOUNT_TIMEOUT}s" mount -t ${NAS_TYPE} ${NAS_ADDRESS} ${mount_point} $([[ ! -z "${MOUNT_OPTS}" ]] && echo -o ${MOUNT_OPTS}) 2>&1 | tee -a "$logFile"
   else
-      echo "Failed to mount ${NAS_TYPE} store"
-      exit 1
+    mount -t ${NAS_TYPE} ${NAS_ADDRESS} ${mount_point} $([[ ! -z "${MOUNT_OPTS}" ]] && echo -o ${MOUNT_OPTS}) 2>&1 | tee -a "$logFile"
+  fi
+  mount_status=${PIPESTATUS[0]}
+  set -e
+  if [ $mount_status -eq 0 ]; then
+      log -ne "Successfully mounted ${NAS_TYPE} store [${NAS_ADDRESS}] at [${mount_point}]"
+  else
+      echo "Failed to mount ${NAS_TYPE} store at ${mount_point}"
+      rmdir "$mount_point" 2>>"$logFile" || { log "WARNING: rmdir of $mount_point failed after mount failure"; true; }
+      exit $mount_status
   fi
 }
 
 cleanup() {
   local status=0
+
+  # Resume the VM if it was paused during backup to prevent it from
+  # remaining indefinitely paused when the backup job fails (e.g. due
+  # to storage full or I/O errors on the backup target)
+  local vm_state
+  vm_state=$(virsh -c qemu:///system domstate "$VM" 2>/dev/null || true)
+  if [[ "$vm_state" == "paused" ]]; then
+    log -ne "Resuming paused VM $VM during backup cleanup"
+    if ! virsh -c qemu:///system resume "$VM" > /dev/null 2>&1; then
+      echo "Failed to resume VM $VM"
+      status=1
+    fi
+  fi
 
   rm -rf "$dest" || { echo "Failed to delete $dest"; status=1; }
   umount "$mount_point" || { echo "Failed to unmount $mount_point"; status=1; }
@@ -268,7 +295,7 @@ cleanup() {
 
 function usage {
   echo ""
-  echo "Usage: $0 -o <operation> -v|--vm <domain name> -t <storage type> -s <storage address> -m <mount options> -p <backup path> -d <disks path> -q|--quiesce <true|false>"
+  echo "Usage: $0 -o <operation> -v|--vm <domain name> -t <storage type> -s <storage address> -m <mount options> -w <mount timeout seconds> -p <backup path> -d <disks path> -q|--quiesce <true|false>"
   echo ""
   exit 1
 }
@@ -297,6 +324,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     -m|--mount)
       MOUNT_OPTS="$2"
+      shift
+      shift
+      ;;
+    -w|--mount-timeout)
+      MOUNT_TIMEOUT="$2"
       shift
       shift
       ;;
@@ -334,8 +366,9 @@ done
 # Perform Initial sanity checks
 sanity_checks
 
+log -ne "nasbackup.sh start op=[$OP] vm=[$VM] backupDir=[$BACKUP_DIR] nasType=[$NAS_TYPE] nasAddress=[$NAS_ADDRESS] mountTimeout=[$MOUNT_TIMEOUT] quiesce=[$QUIESCE] diskPaths=[$DISK_PATHS] volumeUuids=[$VOLUME_UUIDS]"
+
 if [ "$OP" = "backup" ]; then
-  log -ne "nasbackup.sh start op=[$OP] vm=[$VM] backupDir=[$BACKUP_DIR] nasType=[$NAS_TYPE] nasAddress=[$NAS_ADDRESS] quiesce=[$QUIESCE] diskPaths=[$DISK_PATHS] volumeUuids=[$VOLUME_UUIDS]"
   STATE=$(virsh -c qemu:///system list | awk -v vm="$VM" '$2 == vm {print $3}')
   if [ -n "$STATE" ] && [ "$STATE" = "running" ]; then
     backup_running_vm

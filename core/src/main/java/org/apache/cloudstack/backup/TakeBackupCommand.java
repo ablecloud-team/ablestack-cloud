@@ -34,6 +34,7 @@ public class TakeBackupCommand extends Command {
     private List<String> volumePaths;
     private List<String> volumeUuids;
     private Boolean quiesce;
+    private Integer mountTimeout;
     @LogLevel(LogLevel.Log4jLevel.Off)
     private String mountOptions;
 
@@ -113,6 +114,14 @@ public class TakeBackupCommand extends Command {
 
     public void setQuiesce(Boolean quiesce) {
         this.quiesce = quiesce;
+    }
+
+    public Integer getMountTimeout() {
+        return this.mountTimeout == null ? 0 : this.mountTimeout;
+    }
+
+    public void setMountTimeout(Integer mountTimeout) {
+        this.mountTimeout = mountTimeout;
     }
 
     @Override

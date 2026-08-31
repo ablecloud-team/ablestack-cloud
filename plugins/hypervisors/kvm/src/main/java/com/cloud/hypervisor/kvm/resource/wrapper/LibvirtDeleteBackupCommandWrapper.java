@@ -39,6 +39,7 @@ public class LibvirtDeleteBackupCommandWrapper extends CommandWrapper<DeleteBack
         final String backupRepoType = command.getBackupRepoType();
         final String backupRepoAddress = command.getBackupRepoAddress();
         final String mountOptions = command.getMountOptions();
+        final Integer mountTimeout = command.getMountTimeout();
 
         List<String[]> commands = new ArrayList<>();
         commands.add(new String[]{
@@ -47,6 +48,7 @@ public class LibvirtDeleteBackupCommandWrapper extends CommandWrapper<DeleteBack
                 "-t", backupRepoType,
                 "-s", backupRepoAddress,
                 "-m", mountOptions,
+                "-w", mountTimeout.toString(),
                 "-p", backupPath
         });
 
