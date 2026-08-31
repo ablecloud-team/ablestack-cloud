@@ -220,6 +220,8 @@ backup_stopped_vm() {
   sync
 
   find "$dest" -type f -exec stat -c '%s' {} +
+  timeout "$UNMOUNT_TIMEOUT" umount "$mount_point" 2>>"$logFile" || { log "WARNING: umount of $mount_point failed or timed out"; true; }
+  rmdir "$mount_point" 2>>"$logFile" || { log "WARNING: rmdir of $mount_point failed"; true; }
   log -ne "Finished NAS backup for stopped VM [$VM] to [$BACKUP_DIR]"
 }
 
