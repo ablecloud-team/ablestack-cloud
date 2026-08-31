@@ -246,6 +246,7 @@ get_backup_stats() {
 mount_operation() {
   mount_point=$(mktemp -d -t csbackup.XXXXX)
   dest="$mount_point/${BACKUP_DIR}"
+  log -ne "Mounting ${NAS_TYPE} store [${NAS_ADDRESS}] at [${mount_point}] with timeout [${MOUNT_TIMEOUT}]"
   if [ ${NAS_TYPE} == "cifs" ]; then
     MOUNT_OPTS="${MOUNT_OPTS},nobrl"
   fi
@@ -258,9 +259,9 @@ mount_operation() {
   mount_status=${PIPESTATUS[0]}
   set -e
   if [ $mount_status -eq 0 ]; then
-      log -ne "Successfully mounted ${NAS_TYPE} store"
+      log -ne "Successfully mounted ${NAS_TYPE} store [${NAS_ADDRESS}] at [${mount_point}]"
   else
-      echo "Failed to mount ${NAS_TYPE} store"
+      echo "Failed to mount ${NAS_TYPE} store at ${mount_point}"
       rmdir "$mount_point" 2>>"$logFile" || { log "WARNING: rmdir of $mount_point failed after mount failure"; true; }
       exit $mount_status
   fi
@@ -365,8 +366,9 @@ done
 # Perform Initial sanity checks
 sanity_checks
 
+log -ne "nasbackup.sh start op=[$OP] vm=[$VM] backupDir=[$BACKUP_DIR] nasType=[$NAS_TYPE] nasAddress=[$NAS_ADDRESS] mountTimeout=[$MOUNT_TIMEOUT] quiesce=[$QUIESCE] diskPaths=[$DISK_PATHS] volumeUuids=[$VOLUME_UUIDS]"
+
 if [ "$OP" = "backup" ]; then
-  log -ne "nasbackup.sh start op=[$OP] vm=[$VM] backupDir=[$BACKUP_DIR] nasType=[$NAS_TYPE] nasAddress=[$NAS_ADDRESS] quiesce=[$QUIESCE] diskPaths=[$DISK_PATHS] volumeUuids=[$VOLUME_UUIDS]"
   STATE=$(virsh -c qemu:///system list | awk -v vm="$VM" '$2 == vm {print $3}')
   if [ -n "$STATE" ] && [ "$STATE" = "running" ]; then
     backup_running_vm
