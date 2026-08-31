@@ -49,6 +49,7 @@ public class LibvirtTakeBackupCommandWrapper extends CommandWrapper<TakeBackupCo
         final String backupRepoType = command.getBackupRepoType();
         final String backupRepoAddress = command.getBackupRepoAddress();
         final String mountOptions = command.getMountOptions();
+        final Integer mountTimeout = command.getMountTimeout();
         List<PrimaryDataStoreTO> volumePools = command.getVolumePools();
         final List<String> volumePaths = command.getVolumePaths();
         final List<String> volumeUuids = command.getVolumeUuids();
@@ -78,6 +79,7 @@ public class LibvirtTakeBackupCommandWrapper extends CommandWrapper<TakeBackupCo
                 "-t", backupRepoType,
                 "-s", backupRepoAddress,
                 "-m", Objects.nonNull(mountOptions) ? mountOptions : "",
+                "-w", mountTimeout.toString(),
                 "-p", backupPath,
                 "-q", command.getQuiesce() != null && command.getQuiesce() ? "true" : "false",
                 "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths),

@@ -26,6 +26,7 @@ public class DeleteBackupCommand extends Command {
     private String backupPath;
     private String backupRepoType;
     private String backupRepoAddress;
+    private Integer mountTimeout;
     @LogLevel(LogLevel.Log4jLevel.Off)
     private String mountOptions;
 
@@ -67,6 +68,14 @@ public class DeleteBackupCommand extends Command {
 
     public void setMountOptions(String mountOptions) {
         this.mountOptions = mountOptions;
+    }
+
+    public Integer getMountTimeout() {
+        return this.mountTimeout == null ? 0 : this.mountTimeout;
+    }
+
+    public void setMountTimeout(Integer mountTimeout) {
+        this.mountTimeout = mountTimeout;
     }
 
     @Override

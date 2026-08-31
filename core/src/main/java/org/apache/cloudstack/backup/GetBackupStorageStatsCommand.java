@@ -25,6 +25,7 @@ import com.cloud.agent.api.LogLevel;
 public class GetBackupStorageStatsCommand extends Command {
     private String backupRepoType;
     private String backupRepoAddress;
+    private Integer mountTimeout;
     @LogLevel(LogLevel.Log4jLevel.Off)
     private String mountOptions;
 
@@ -57,6 +58,14 @@ public class GetBackupStorageStatsCommand extends Command {
 
     public void setMountOptions(String mountOptions) {
         this.mountOptions = mountOptions;
+    }
+
+    public Integer getMountTimeout() {
+        return this.mountTimeout == null ? 0 : this.mountTimeout;
+    }
+
+    public void setMountTimeout(Integer mountTimeout) {
+        this.mountTimeout = mountTimeout;
     }
 
     @Override

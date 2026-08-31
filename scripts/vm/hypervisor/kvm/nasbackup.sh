@@ -29,6 +29,7 @@ VM=""
 NAS_TYPE=""
 NAS_ADDRESS=""
 MOUNT_OPTS=""
+MOUNT_TIMEOUT=0
 BACKUP_DIR=""
 DISK_PATHS=""
 VOLUME_UUIDS=""
@@ -246,8 +247,13 @@ mount_operation() {
   if [ ${NAS_TYPE} == "cifs" ]; then
     MOUNT_OPTS="${MOUNT_OPTS},nobrl"
   fi
-  mount -t ${NAS_TYPE} ${NAS_ADDRESS} ${mount_point} $([[ ! -z "${MOUNT_OPTS}" ]] && echo -o ${MOUNT_OPTS}) 2>&1 | tee -a "$logFile"
-  if [ $? -eq 0 ]; then
+  if [[ "$MOUNT_TIMEOUT" -gt 0 ]]; then
+    timeout -k 5s "${MOUNT_TIMEOUT}s" mount -t ${NAS_TYPE} ${NAS_ADDRESS} ${mount_point} $([[ ! -z "${MOUNT_OPTS}" ]] && echo -o ${MOUNT_OPTS}) 2>&1 | tee -a "$logFile"
+  else
+    mount -t ${NAS_TYPE} ${NAS_ADDRESS} ${mount_point} $([[ ! -z "${MOUNT_OPTS}" ]] && echo -o ${MOUNT_OPTS}) 2>&1 | tee -a "$logFile"
+  fi
+  mount_status=${PIPESTATUS[0]}
+  if [ $mount_status -eq 0 ]; then
       log -ne "Successfully mounted ${NAS_TYPE} store"
   else
       echo "Failed to mount ${NAS_TYPE} store"
@@ -283,7 +289,7 @@ cleanup() {
 
 function usage {
   echo ""
-  echo "Usage: $0 -o <operation> -v|--vm <domain name> -t <storage type> -s <storage address> -m <mount options> -p <backup path> -d <disks path> -q|--quiesce <true|false>"
+  echo "Usage: $0 -o <operation> -v|--vm <domain name> -t <storage type> -s <storage address> -m <mount options> -w <mount timeout seconds> -p <backup path> -d <disks path> -q|--quiesce <true|false>"
   echo ""
   exit 1
 }
@@ -312,6 +318,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     -m|--mount)
       MOUNT_OPTS="$2"
+      shift
+      shift
+      ;;
+    -w|--mount-timeout)
+      MOUNT_TIMEOUT="$2"
       shift
       shift
       ;;
