@@ -106,6 +106,8 @@ export default {
   data () {
     return {
       actionBadge: {},
+      cubePortalPort: '9090',
+      cubePortalPortLoaded: false,
       wallLinkUrl: '',
       wallLinkReady: false
     }
@@ -168,6 +170,7 @@ export default {
     },
     routeName () {
       this.updateWallLinkUrl()
+      this.updateCubePortalPort()
     }
   },
   computed: {
@@ -305,7 +308,7 @@ export default {
       if (!this.showCubeButton) {
         return ''
       }
-      return `https://${this.resource.ipaddress}:9090`
+      return `https://${this.resource.ipaddress}:${this.cubePortalPort}`
     }
   },
   methods: {
@@ -357,6 +360,7 @@ export default {
       }
       this.handleShowBadge()
       this.updateWallLinkUrl()
+      this.updateCubePortalPort()
     },
     execAction (action) {
       if (this.isActionDisabled(action)) {
@@ -456,6 +460,21 @@ export default {
         this.wallLinkReady = !!finalUrl
       }).catch(() => {
         this.wallLinkReady = false
+      })
+    },
+    updateCubePortalPort () {
+      if (!this.showCubeButton || this.cubePortalPortLoaded) {
+        return
+      }
+      this.cubePortalPortLoaded = true
+      api('listConfigurations', { name: 'cube.portal.port' }).then(json => {
+        const value = json?.listconfigurationsresponse?.configuration?.[0]?.value
+        const port = Number(value)
+        if (Number.isInteger(port) && port >= 1 && port <= 65535) {
+          this.cubePortalPort = String(port)
+        }
+      }).catch(() => {
+        this.cubePortalPort = '9090'
       })
     },
     handleShowBadge () {
