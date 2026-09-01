@@ -42,6 +42,8 @@ public class ApiServiceConfiguration implements Configurable {public static fina
             "/d/Q3Jkjf54zs?kiosk", "Monitoring Service Wall Portal Host Uri.(ex:/d/Q3Jkjf54zs?kiosk)", true);
     public static final ConfigKey<String> MonitoringWallPortalClusterUri = new ConfigKey<String>("Advanced", String.class, "monitoring.wall.portal.cluster.uri",
             "/d/fasdasdasdw?kiosk", "Monitoring Service Wall Portal Cluster Uri.(ex:/d/fasdasdasdw?kiosk)", true);
+    public static final ConfigKey<Integer> CubePortalPort = new ConfigKey<Integer>("Advanced", Integer.class, "cube.portal.port",
+            "9090", "Cube Portal port used by the host action link.", true, ConfigKey.Scope.Global);
     public static final ConfigKey<Boolean> EventDeleteEnabled = new ConfigKey<>("Advanced", Boolean.class, "event.delete.enabled",
             "false", "true if Event Delete Button is enabled, false otherwise)", false);
 
@@ -52,7 +54,7 @@ public class ApiServiceConfiguration implements Configurable {public static fina
 
     @Override
     public ConfigKey<?>[] getConfigKeys() {
-        return new ConfigKey<?>[] {ManagementServerAddresses, ApiServletPath, DefaultUIPageSize, ApiSourceCidrChecksEnabled, ApiAllowedSourceIp, ApiAllowedSourceCidr, MonitoringWallPortalProtocol, MonitoringWallPortalDomain, MonitoringWallPortalPort, MonitoringWallPortalVmUri, MonitoringWallPortalHostUri, MonitoringWallPortalClusterUri, EventDeleteEnabled};
+        return new ConfigKey<?>[] {ManagementServerAddresses, ApiServletPath, DefaultUIPageSize, ApiSourceCidrChecksEnabled, ApiAllowedSourceIp, ApiAllowedSourceCidr, MonitoringWallPortalProtocol, MonitoringWallPortalDomain, MonitoringWallPortalPort, MonitoringWallPortalVmUri, MonitoringWallPortalHostUri, MonitoringWallPortalClusterUri, CubePortalPort, EventDeleteEnabled};
     }
 
 }

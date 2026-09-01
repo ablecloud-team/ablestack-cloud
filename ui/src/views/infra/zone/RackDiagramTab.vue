@@ -3295,6 +3295,17 @@ const fetchHostById = async (hostId) => {
   return host
 }
 
+const fetchCubePortalPort = async () => {
+  try {
+    const json = await api('listConfigurations', { name: 'cube.portal.port' })
+    const value = json?.listconfigurationsresponse?.configuration?.[0]?.value
+    const port = Number(value)
+    return Number.isInteger(port) && port >= 1 && port <= 65535 ? String(port) : '9090'
+  } catch (e) {
+    return '9090'
+  }
+}
+
 const goToLinkedHost = (item) => {
   const hostId = getLinkedHostId(item)
   if (!hostId) return
@@ -3323,13 +3334,16 @@ const openLinkedHostCube = async (item) => {
   const hostId = getLinkedHostId(item)
   if (!hostId) return
   try {
-    const host = await fetchHostById(hostId)
+    const [host, cubePortalPort] = await Promise.all([
+      fetchHostById(hostId),
+      fetchCubePortalPort()
+    ])
     const ip = host?.ipaddress
     if (!ip) {
       message.warning(t('rackDiagram.msg.hostIpNotFound'))
       return
     }
-    window.open(`https://${ip}:9090`, '_blank')
+    window.open(`https://${ip}:${cubePortalPort}`, '_blank')
   } catch (e) {
     message.error(t('rackDiagram.msg.cubeLoadFailed'))
   }

@@ -150,6 +150,47 @@ describe('Components > View > ActionButton.vue', () => {
   })
 
   describe('Method', () => {
+    describe('updateCubePortalPort()', () => {
+      it('uses the configured Cube portal port for the host action URL', async () => {
+        mockAxios.mockResolvedValue({
+          listconfigurationsresponse: {
+            configuration: [{ name: 'cube.portal.port', value: '9443' }]
+          }
+        })
+        const hostRouter = common.createMockRouter([{
+          path: '/host',
+          name: 'host',
+          meta: { name: 'host' },
+          component: {}
+        }])
+        await hostRouter.push({ name: 'host' }).catch(() => {})
+        const wrapper = factory({
+          router: hostRouter,
+          props: {
+            resource: {
+              id: 'test-host-id',
+              ipaddress: '192.0.2.10'
+            }
+          }
+        })
+
+        await flushPromises()
+
+        expect(wrapper.vm.cubeUrl).toBe('https://192.0.2.10:9443')
+        router = common.createMockRouter()
+      })
+
+      it('uses port 9090 as the default host action URL port', () => {
+        const cubeUrl = ActionButton.computed.cubeUrl.call({
+          showCubeButton: true,
+          resource: { ipaddress: '192.0.2.10' },
+          cubePortalPort: '9090'
+        })
+
+        expect(cubeUrl).toBe('https://192.0.2.10:9090')
+      })
+    })
+
     describe('openConsole()', () => {
       it('uses an external console URL without requesting a console endpoint', () => {
         const externalUrl = 'https://console.example.test/session'
