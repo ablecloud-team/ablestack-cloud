@@ -2569,7 +2569,7 @@ export default {
       }
 
       try {
-        const params = { includeStatus: true, includestatus: true, listAll: true, listall: true, state: '', kind: '', name: '', page: 1, pageSize: 200, pagesize: 200 }
+        const params = { includestatus: true, page: 1, pagesize: 200 }
         const resp = await api('listWallAlertRules', params)
         rules.value = extractRules(resp)
 
