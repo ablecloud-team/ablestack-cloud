@@ -475,6 +475,36 @@ public class ConfigurationManagerImplTest {
     }
 
     @Test
+    public void validateDrServiceToggleDoesNotQueryStorage() {
+        Mockito.doReturn(Boolean.class).when(configurationManagerImplSpy)
+                .getConfigurationTypeWrapperClass("cloud.dr.service.enabled");
+        // No pools are required, including an unconfigured or qcow2-only site.
+        for (String value : List.of("true", "false")) {
+            Assert.assertNull(configurationManagerImplSpy.validateConfigurationValue(
+                    "cloud.dr.service.enabled", value, ConfigKey.Scope.Global));
+        }
+        Mockito.verify(storagePoolDao, Mockito.never()).listAll();
+    }
+
+    @Test
+    public void validateDrServiceTogglePreservesBooleanValidation() {
+        Mockito.doReturn(Boolean.class).when(configurationManagerImplSpy)
+                .getConfigurationTypeWrapperClass("cloud.dr.service.enabled");
+        for (String value : List.of("yes", "1", "TRUE")) {
+            Assert.assertTrue(configurationManagerImplSpy.validateConfigurationValue(
+                    "cloud.dr.service.enabled", value, ConfigKey.Scope.Global).contains("is not a valid"));
+        }
+        Mockito.verify(storagePoolDao, Mockito.never()).listAll();
+    }
+
+    @Test
+    public void validateDrServiceTogglePreservesScopeValidation() {
+        Assert.assertTrue(configurationManagerImplSpy.validateConfigurationValue(
+                "cloud.dr.service.enabled", "true", ConfigKey.Scope.Domain).contains("Invalid scope"));
+        Mockito.verify(storagePoolDao, Mockito.never()).listAll();
+    }
+
+    @Test
     public void testValidateInvalidConfiguration() {
         Mockito.doReturn(null).when(configDao).findByName(Mockito.anyString());
         String msg = configurationManagerImplSpy.validateConfigurationValue("test.config.name", "testvalue", ConfigKey.Scope.Global);
