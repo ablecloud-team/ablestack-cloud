@@ -126,4 +126,6 @@
     <bean id="disasterRecoveryHelper" class="com.cloud.dr.cluster.DisasterRecoveryHelperImpl" >
         <property name="name" value="DisasterRecoveryHelper" />
     </bean>
+    <bean id="drTestBootValidationStore" class="com.cloud.dr.DrTestBootValidationStore"/>
+    <bean id="drTestBootValidationService" class="com.cloud.dr.DrTestBootValidationService"/>
 </beans>

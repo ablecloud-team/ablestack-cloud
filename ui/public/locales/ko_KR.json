@@ -1,4 +1,6 @@
 {
+  "label.dr.boot.validation.mode": "부팅 검증 모드",
+  "label.dr.boot.validation.result": "부팅 검증 결과",
   "label.sharedfs.network.mode": "네트워크 설정 방식",
   "label.sharedfs.ip.cidr": "IP 주소 / 프리픽스",
   "label.static.ip": "고정 IP",

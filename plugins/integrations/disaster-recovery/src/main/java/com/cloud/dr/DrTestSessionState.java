@@ -12,6 +12,7 @@ public final class DrTestSessionState {
     public static final String CLOUD_VOLUMES_IMPORTING = "CLOUD_VOLUMES_IMPORTING";
     public static final String CLOUD_VM_CREATING = "CLOUD_VM_CREATING";
     public static final String CLOUD_VM_STARTING = "CLOUD_VM_STARTING";
+    public static final String CLOUD_VM_VALIDATING = "CLOUD_VM_VALIDATING";
     public static final String ACTIVE = "ACTIVE";
     public static final String FAILED = "FAILED";
     public static final String CLOUD_CLEANUP_RUNNING = "CLOUD_CLEANUP_RUNNING";
@@ -23,7 +24,7 @@ public final class DrTestSessionState {
     }
 
     public static String projectEngineState(String currentState, String runtimeState) {
-        if (StringUtils.equalsAny(currentState, ACTIVE, CLOUD_CLEANUP_RUNNING,
+        if (StringUtils.equalsAny(currentState, ACTIVE, CLOUD_VM_VALIDATING, FAILED, CLOUD_CLEANUP_RUNNING,
                 CLOUD_RESOURCES_REMOVED, CLEANED, CLEANUP_FAILED)) {
             return currentState;
         }
@@ -41,7 +42,7 @@ public final class DrTestSessionState {
 
     public static boolean isMaterializationPending(String state) {
         return StringUtils.equalsAny(state, ARTIFACTS_READY, CLOUD_VOLUMES_IMPORTING,
-                CLOUD_VM_CREATING, CLOUD_VM_STARTING);
+                CLOUD_VM_CREATING, CLOUD_VM_STARTING, CLOUD_VM_VALIDATING);
     }
 
     public static boolean blocksNewTest(DrTestSessionVO session) {

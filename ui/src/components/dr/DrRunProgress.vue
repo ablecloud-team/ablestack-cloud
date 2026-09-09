@@ -151,6 +151,8 @@ export default {
         { label: this.$t('label.dr.current.step'), value: this.currentStepText },
         { label: this.$t('label.dr.runtime.state'), value: this.run.runtimestate },
         { label: this.$t('label.dr.test.session.state'), value: this.run.testsessionstate },
+        { label: this.$t('label.dr.boot.validation.mode'), value: this.run.testbootvalidationmode },
+        { label: this.$t('label.dr.boot.validation.result'), value: this.run.testbootvalidationstate },
         { label: this.$t('label.dr.worker.state'), value: this.run.workerstate },
         { label: this.$t('label.dr.external.job'), value: this.run.externaljobref },
         { label: this.$t('label.dr.retry'), value: this.retryMeta },
@@ -159,6 +161,7 @@ export default {
       ].filter(item => item.value)
     },
     currentStepText () {
+      if (this.run.testsessionstate === 'CLOUD_VM_VALIDATING') return this.$t('message.dr.test.failover.boot.validating')
       const step = String(this.run.runtimestep || this.run.currentstep || '')
       const normalized = step.trim().toUpperCase().replace(/_/g, '-')
       if (normalized.includes('REMOTE-SOURCE-PROTECTION-RESUME')) {
@@ -167,6 +170,7 @@ export default {
       return step
     },
     retryMeta () {
+      if (this.run.testsessionstate === 'CLOUD_VM_VALIDATING') return ''
       if (!this.run.retryable && String(this.run.state || '').toUpperCase() !== 'RETRYING') {
         return ''
       }
@@ -183,6 +187,7 @@ export default {
       return fields.join(' / ') || 'scheduled'
     },
     retryNotice () {
+      if (this.run.testsessionstate === 'CLOUD_VM_VALIDATING') return ''
       if (!this.run.retryable && String(this.run.state || '').toUpperCase() !== 'RETRYING') {
         return ''
       }
@@ -231,7 +236,7 @@ export default {
       if (this.testFailoverActive) return this.$t('message.dr.test.failover.active')
       if (String(this.run.state || '').toUpperCase() === 'FAILED') return ''
       const sessionState = String(this.run.testsessionstate || '').toUpperCase()
-      if (sessionState === 'CLOUD_VM_STARTING') return this.$t('message.dr.test.failover.boot.validating')
+      if (['CLOUD_VM_STARTING', 'CLOUD_VM_VALIDATING'].includes(sessionState)) return this.$t('message.dr.test.failover.boot.validating')
       if (sessionState === 'CLOUD_VM_CREATING') return this.$t('message.dr.test.failover.vm.creating')
       if (sessionState === 'CLOUD_VOLUMES_IMPORTING') return this.$t('message.dr.test.failover.disks.importing')
       if (sessionState === 'ARTIFACTS_READY') return this.$t('message.dr.test.failover.artifacts.ready')

@@ -247,6 +247,7 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
 
     private final Set<Long> inFlightPlans = ConcurrentHashMap.newKeySet();
     private final Set<Long> inFlightTestRuns = ConcurrentHashMap.newKeySet();
+    @Inject private DrTestBootValidationService bootValidation;
     private ExecutorService executor;
 
     @Override
@@ -305,7 +306,9 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             return false;
         }
         UserVmVO vm = userVmDao.findById(session.getTargetVmId());
-        return vm != null && vm.getRemoved() == null && vm.getState() == VirtualMachine.State.Running;
+        return vm != null && vm.getRemoved() == null && vm.getState() == VirtualMachine.State.Running
+                && (DrTestBootValidationService.requiresQga(session) ? bootValidation.satisfied(session)
+                    : "POWER_STATE_VALIDATED".equals(session.getBootValidationState()));
     }
 
     @Override
@@ -518,6 +521,16 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             return;
         }
         DrTestSessionVO session = drTestSessionDao.findActiveByRunId(runId);
+        if (session != null && session.getCleanupRunId() != null) { return; }
+        if (session != null && StringUtils.equals(session.getState(), DrTestSessionState.FAILED)
+                && StringUtils.startsWith(session.getErrorCode(), "DR_TEST_QGA_")) {
+            failTestMaterializationRun(plan, run, runtimeStatusJson, session.getErrorCode(), session.getErrorMessage());
+            return;
+        }
+        if (session != null && StringUtils.equals(session.getState(), DrTestSessionState.CLOUD_VM_VALIDATING)) {
+            reconcileTestBootValidation(plan, run, session, runtimeStatusJson);
+            return;
+        }
         if (session != null && StringUtils.equals(session.getState(), DrTestSessionState.ACTIVE)) {
             completeTestFailoverRunIfReady(plan, run, session, runtimeStatusJson);
             return;
@@ -614,6 +627,7 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             session.setState(DrTestSessionState.CLOUD_VM_STARTING);
             session.markUpdated();
             drTestSessionDao.update(session.getId(), session);
+            if (DrTestBootValidationService.requiresQga(session)) { bootValidation.begin(session); }
             if (testVm.getState() != VirtualMachine.State.Running) {
                 userVmManager.startVirtualMachine(testVm.getId(), placement.getWorkerHostId(),
                         new HashMap<VirtualMachineProfile.Param, Object>(), null);
@@ -622,8 +636,9 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             if (running == null || running.getState() != VirtualMachine.State.Running) {
                 throw new CloudRuntimeException("DR_TEST_VM_BOOT_FAILED: Cloud test VM did not reach Running");
             }
-            session.setState(DrTestSessionState.ACTIVE);
-            session.setBootValidationState("POWER_STATE_VALIDATED");
+            session.setState(DrTestBootValidationService.requiresQga(session)
+                    ? DrTestSessionState.CLOUD_VM_VALIDATING : DrTestSessionState.ACTIVE);
+            session.setBootValidationState(DrTestBootValidationService.requiresQga(session) ? "QGA_PENDING" : "POWER_STATE_VALIDATED");
             session.setArtifactManifest(GSON.toJson(records));
             session.setErrorCode(null);
             session.setErrorMessage(null);
@@ -642,11 +657,35 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
         }
     }
 
+    private void reconcileTestBootValidation(DrPlanVO plan, DrRunVO run, DrTestSessionVO session, String runtime) {
+        String state = bootValidation.state(session);
+        if ("PENDING".equals(state)) {
+            upsertRunStep(run, "target-materialization", STEP_ORDER_TARGET_MATERIALIZATION,
+                    DrConstants.STEP_STATE_SUCCEEDED, 100, runtime, null, null);
+            upsertRunStep(run, "boot-validation", STEP_ORDER_BOOT_VALIDATION,
+                    DrConstants.STEP_STATE_RUNNING, 90, runtime, null, null);
+            return;
+        }
+        if ("QGA_VALIDATED".equals(state)) {
+            if (bootValidation.transition(session, DrTestSessionState.ACTIVE, state, null)) {
+                completeTestFailoverRunIfReady(plan, run, drTestSessionDao.findById(session.getId()), runtime);
+            }
+            return;
+        }
+        String error = "DR_TEST_" + ("MISSING".equals(state) ? "QGA_EVIDENCE_MISSING" : state);
+        if (bootValidation.transition(session, DrTestSessionState.FAILED, state, error)) {
+            upsertRunStep(run, "boot-validation", STEP_ORDER_BOOT_VALIDATION,
+                    DrConstants.STEP_STATE_FAILED, 100, runtime, error, "Required guest-agent validation failed: " + state);
+            failTestMaterializationRun(plan, run, runtime, error, "Required guest-agent validation failed: " + state);
+        }
+    }
+
     private void completeTestFailoverRunIfReady(DrPlanVO plan, DrRunVO run, DrTestSessionVO session, String runtimeStatusJson) {
         DrRunVO latestRun = drRunDao.findById(run.getId());
         if (latestRun == null || latestRun.getRemoved() != null || latestRun.getCompleted() != null
                 || !StringUtils.equals(session.getState(), DrTestSessionState.ACTIVE)
-                || session.getTargetVmId() == null) {
+                || session.getTargetVmId() == null
+                || (DrTestBootValidationService.requiresQga(session) && !bootValidation.satisfied(session))) {
             return;
         }
         UserVmVO testVm = userVmDao.findById(session.getTargetVmId());
@@ -775,11 +814,13 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
         }
         String message = StringUtils.defaultIfBlank(errorMessage, "Cloud-managed DR test VM materialization failed");
         String details = failureDetailsJson(runtimeStatusJson, errorCode, message);
-        upsertRunStep(latestRun, "target-materialization", STEP_ORDER_TARGET_MATERIALIZATION,
+        boolean bootFailure = StringUtils.startsWith(errorCode, "DR_TEST_QGA_");
+        String failedStep = bootFailure ? "boot-validation" : "target-materialization";
+        upsertRunStep(latestRun, failedStep, bootFailure ? STEP_ORDER_BOOT_VALIDATION : STEP_ORDER_TARGET_MATERIALIZATION,
                 DrConstants.STEP_STATE_FAILED, 100, details, errorCode, message);
         latestRun.setState(DrConstants.RUN_STATE_FAILED);
         latestRun.setCompleted(new Date());
-        latestRun.setCurrentStepName("target-materialization");
+        latestRun.setCurrentStepName(failedStep);
         latestRun.setProjectionState("failed");
         latestRun.setProjectionChecked(new Date());
         latestRun.setRetryable(false);

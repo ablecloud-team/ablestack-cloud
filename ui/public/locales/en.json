@@ -1,4 +1,6 @@
 {
+  "label.dr.boot.validation.mode": "Boot validation mode",
+  "label.dr.boot.validation.result": "Boot validation result",
   "label.dr.protection.group.action": "Protection group action",
   "label.dr.protection.group.default.name": "DR protection group",
   "label.dr.protection.group.max.parallel": "Maximum parallel plans",

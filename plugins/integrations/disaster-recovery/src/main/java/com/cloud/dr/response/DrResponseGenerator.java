@@ -707,7 +707,10 @@ public class DrResponseGenerator extends ManagerBase {
             response.setTestVmId(testSession.getTargetVmUuid());
             response.setTestVmName(testSession.getTargetVmName());
             response.setTestNetworkMode(testSession.getNetworkMode());
-            response.setTestBootValidationState(testSession.getBootValidationState());
+            response.setTestBootValidationMode(testSession.getValidationMode());
+            response.setTestBootValidationState("QGA_REQUIRED".equalsIgnoreCase(testSession.getValidationMode())
+                    && "POWER_STATE_VALIDATED".equals(testSession.getBootValidationState())
+                    ? "LEGACY_QGA_UNVERIFIED" : testSession.getBootValidationState());
         }
         return response;
     }

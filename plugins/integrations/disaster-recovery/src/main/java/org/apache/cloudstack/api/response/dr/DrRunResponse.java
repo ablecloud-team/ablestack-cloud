@@ -28,6 +28,9 @@ import com.google.gson.annotations.SerializedName;
 
 @EntityReference(value = DrRunVO.class)
 public class DrRunResponse extends BaseResponse {
+    @com.google.gson.annotations.SerializedName("testbootvalidationmode")
+    private String testBootValidationMode;
+    public void setTestBootValidationMode(String value) { testBootValidationMode = value; }
     @SerializedName("id")
     @Param(description = "the DR run ID")
     private String id;

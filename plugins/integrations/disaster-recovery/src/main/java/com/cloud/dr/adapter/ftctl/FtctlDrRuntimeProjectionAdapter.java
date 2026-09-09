@@ -2371,7 +2371,7 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
                     return;
                 }
                 session = restoredSession;
-            } else {
+            } else if (!StringUtils.equals(session.getState(), DrTestSessionState.CLOUD_VM_VALIDATING)) {
                 drTestSessionDao.update(session.getId(), session);
             }
             materializationPending = DrTestSessionState.isMaterializationPending(session.getState());

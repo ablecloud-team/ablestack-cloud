@@ -1303,3 +1303,20 @@ CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'previous
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'runtime_state', 'varchar(32) DEFAULT NULL COMMENT "Current Storage Service runtime state"');
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'runtime_verified_at', 'datetime DEFAULT NULL COMMENT "Last verified Storage Service runtime time"');
 -- END Storage Service runtime in-place upgrade (#911)
+
+-- DR test guest-agent validation survives runtime projection and process restart.
+CREATE TABLE IF NOT EXISTS `dr_test_boot_validation` (
+ `session_id` bigint unsigned NOT NULL,
+ `run_id` bigint unsigned NOT NULL,
+ `vm_id` bigint unsigned NOT NULL,
+ `state` varchar(32) NOT NULL,
+ `started_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `deadline_at` datetime NOT NULL,
+ `next_attempt_at` datetime NOT NULL,
+ `attempt_count` int unsigned NOT NULL DEFAULT 0,
+ `lease_token` varchar(40) DEFAULT NULL,
+ `lease_until` datetime DEFAULT NULL,
+ `validated_at` datetime DEFAULT NULL,
+ `evidence_json` text,
+ PRIMARY KEY (`session_id`), KEY `i_dr_boot_due` (`state`,`next_attempt_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

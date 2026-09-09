@@ -3351,3 +3351,20 @@ CREATE TABLE `cloud`.`dr_group_run` (
   KEY `idx_dr_group_run_group` (`group_uuid`, `created`),
   KEY `idx_dr_group_run_state` (`state`, `updated`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- DR test guest-agent validation survives runtime projection and process restart.
+CREATE TABLE IF NOT EXISTS `dr_test_boot_validation` (
+ `session_id` bigint unsigned NOT NULL,
+ `run_id` bigint unsigned NOT NULL,
+ `vm_id` bigint unsigned NOT NULL,
+ `state` varchar(32) NOT NULL,
+ `started_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `deadline_at` datetime NOT NULL,
+ `next_attempt_at` datetime NOT NULL,
+ `attempt_count` int unsigned NOT NULL DEFAULT 0,
+ `lease_token` varchar(40) DEFAULT NULL,
+ `lease_until` datetime DEFAULT NULL,
+ `validated_at` datetime DEFAULT NULL,
+ `evidence_json` text,
+ PRIMARY KEY (`session_id`), KEY `i_dr_boot_due` (`state`,`next_attempt_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
