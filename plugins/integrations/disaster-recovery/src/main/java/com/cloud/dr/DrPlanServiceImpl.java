@@ -44,6 +44,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
+    @Inject private DrTestCleanupRecoveryStore testCleanupRecovery;
+
     private static final DrPlanActionAvailabilityEvaluator ACTION_AVAILABILITY_EVALUATOR =
             new DrPlanActionAvailabilityEvaluator();
     @Inject
@@ -329,8 +331,8 @@ public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
                 && ftctlDrPlan && ftctlDrControlReady && syncPausable);
         eligibility.put("resumeSync", enabled && !activeRun && hasEngine && sourceAuthority
                 && ftctlDrPlan && ftctlDrControlReady && syncPaused);
-        eligibility.put("testFailover", enabled && !activeRun && hasEngine && ftctlDrPlan && ftctlDrControlReady
-                && sourceAuthority && targetReady && normalCutoverReady);
+        eligibility.put("testFailover", (testCleanupRecovery == null || !testCleanupRecovery.pending(plan.getId())) && enabled && !activeRun && hasEngine && ftctlDrPlan && ftctlDrControlReady
+                && sourceAuthority && targetReady && (normalCutoverReady || syncPaused));
         eligibility.put("stopTestFailover", enabled && !activeRun && hasEngine && ftctlDrPlan && ftctlDrControlReady && testRunning);
         eligibility.put("failover", enabled && !activeRun && hasEngine
                 && sourceAuthority

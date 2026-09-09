@@ -88,6 +88,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplicationEngine {
+    @Inject private com.cloud.dr.DrTestCleanupRecoveryStore testCleanupRecovery;
+    @Inject private com.cloud.dr.dao.DrRunDao cleanupRecoveryRunDao;
+
     private static final Logger LOGGER = LogManager.getLogger(FtctlDrUnifiedActionAdapter.class);
     private static final Gson GSON = new Gson();
     private static final int AGENT_ACCEPT_TIMEOUT_SECONDS = 30;
@@ -234,8 +237,6 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
         boolean testCheckpointBarrier = action == FtctlDrActionCommand.Action.TEST_PREPARE
                 && requiresTestCheckpointBarrier(context.getPlan());
         boolean testCheckpointBarrierAcquired = false;
-        boolean testCheckpointCleanup = action == FtctlDrActionCommand.Action.TEST_ARTIFACT_CLEANUP
-                && requiresTestCheckpointBarrier(context.getPlan());
         boolean plannedRemoteKvmIsolationRequired = requiresPlannedRemoteKvmIsolation(context, action);
         boolean plannedRemoteKvmIsolated = false;
         if (action == null) {
@@ -326,9 +327,9 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
                 compensateTestCheckpointBarrier(context, true);
             } else if (plannedRemoteKvmIsolated && !result.isSuccess()) {
                 compensatePlannedRemoteKvmIsolation(context);
-            } else if (testCheckpointCleanup && result.isSuccess()) {
-                resumeTestCheckpointProtection(context);
             }
+            // Cleanup acceptance is not artifact completion. The terminal projection
+            // durably schedules protection restoration after all test writers are gone.
             return result;
         } catch (OperationTimedoutException e) {
             LOGGER.warn("Unable to dispatch FTCTL_DR run {} to host {}: {}", context.getRun().getId(), coordinatorHostId, e.getMessage());
@@ -595,6 +596,11 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
             FtctlDrActionCommand command) {
         DrPlanVO plan = context.getPlan();
         boolean immutableFileCheckpoint = isSharedMountPointFilePlan(plan);
+        if (testCleanupRecovery != null) {
+            DrPlanRuntimeVO previous = drPlanRuntimeDao.findByPlanId(plan.getId());
+            testCleanupRecovery.capture(plan.getId(), context.getRun().getId(),
+                    preTestReplicationIntent(plan, previous));
+        }
         FtctlDrActionAnswer pause = transitionTestCheckpointScheduler(context,
                 FtctlDrActionCommand.Action.PAUSE_SYNC, command.getProfileJson());
         if (pause == null || !pause.getResult()) {
@@ -634,15 +640,49 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
         try {
             resumeTestCheckpointProtection(context);
         } catch (RuntimeException compensationFailure) {
+            if (testCleanupRecovery != null) {
+                testCleanupRecovery.arm(context.getPlan().getId(), context.getRun().getId(), context.getRun().getId());
+            }
             LOGGER.error("Unable to restore FILE DR protection after Test Failover preparation failed for Plan {}: {}",
                     context.getPlan().getUuid(), compensationFailure.getMessage(), compensationFailure);
         }
     }
 
+    private String preTestReplicationIntent(DrPlanVO plan, DrPlanRuntimeVO runtime) {
+        // The scheduler process stays RUNNING while its replication loop is paused.
+        // Operator pause/protection state therefore takes precedence over process intent.
+        if (StringUtils.equalsIgnoreCase(plan.getState(), "PAUSED")
+                || runtime != null && (StringUtils.equalsIgnoreCase(runtime.getProtectionState(), "PAUSED")
+                || StringUtils.equalsIgnoreCase(runtime.getReplicationActivityState(), "PAUSED"))) {
+            return "PAUSED";
+        }
+        String desired = runtime != null ? runtime.getSchedulerDesiredState() : null;
+        return StringUtils.equalsIgnoreCase(StringUtils.defaultIfBlank(desired, "RUNNING"), "RUNNING")
+                ? "RUNNING" : "PAUSED";
+    }
+
     private void resumeTestCheckpointProtection(DrExecutionContext context) {
+        com.cloud.dr.DrTestCleanupRecoveryStore.Intent intent = testCleanupRecovery != null
+                ? testCleanupRecovery.find(context.getRun().getId()) : null;
+        if (intent != null && !"RUNNING".equals(intent.desiredState)) return;
+        restoreTestCheckpointProtection(context.getPlan(), context.getRun());
+    }
+
+    public void restoreTestCheckpointProtection(DrPlanVO plan, DrRunVO run) {
+        DrExecutionContext context = new DrExecutionContext(plan, run);
+        String profile = buildProfileJson(plan, run, redactJson(requestJson(run)).getAsJsonObject());
+        if (drPlanOwnedTransportService.supports(plan)) {
+            profile = withPlanOwnedExports(profile,
+                    drPlanOwnedTransportService.startForwardTargetExport(plan, run, profile));
+        }
+        // Recheck after the bounded target RPC: a newer operator intent wins.
+        DrRunVO latest = cleanupRecoveryRunDao != null ? cleanupRecoveryRunDao.findLatestByPlanId(plan.getId()) : null;
+        if (latest != null && latest.getId() > run.getId()
+                && StringUtils.equalsAnyIgnoreCase(latest.getRunType(), "PAUSE_SYNC", "RELEASE", "FAILOVER")) {
+            throw new CloudRuntimeException("Newer operator intent supersedes test protection restore");
+        }
         FtctlDrActionAnswer resume = transitionTestCheckpointScheduler(context,
-                FtctlDrActionCommand.Action.RESUME_SYNC, buildProfileJson(
-                        context.getPlan(), context.getRun(), redactJson(requestJson(context.getRun())).getAsJsonObject()));
+                FtctlDrActionCommand.Action.RESUME_SYNC, profile);
         if (resume == null || !resume.getResult()) {
             throw new CloudRuntimeException("Protection scheduler did not acknowledge Test Failover cleanup resume");
         }
@@ -780,6 +820,9 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
         redactedRequest.remove("restorePointId");
         String transitionScope = DrFailoverExecutionPolicy.schedulerTransitionScope(plan, run,
                 isRemoteKvmToKvmPlan(plan));
+        if (action == FtctlDrActionCommand.Action.TEST_ARTIFACT_CLEANUP && requiresTestCheckpointBarrier(plan)) {
+            transitionScope = "REMOTE_SOURCE"; // Cloud owns post-cleanup restore, including local FILE sources.
+        }
         if (StringUtils.isNotBlank(transitionScope)) {
             redactedRequest.addProperty("schedulerTransitionScope", transitionScope);
         }

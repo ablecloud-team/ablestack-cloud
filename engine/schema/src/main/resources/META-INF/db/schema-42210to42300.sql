@@ -1320,3 +1320,21 @@ CREATE TABLE IF NOT EXISTS `dr_test_boot_validation` (
  `evidence_json` text,
  PRIMARY KEY (`session_id`), KEY `i_dr_boot_due` (`state`,`next_attempt_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Durable test cleanup protection restoration; separate from removed test resources.
+CREATE TABLE IF NOT EXISTS `dr_test_cleanup_recovery` (
+  `test_run_id` bigint unsigned NOT NULL,
+  `plan_id` bigint unsigned NOT NULL,
+  `cleanup_run_id` bigint unsigned DEFAULT NULL,
+  `desired_state` varchar(32) NOT NULL,
+  `state` varchar(32) NOT NULL,
+  `next_attempt_at` datetime NOT NULL,
+  `lease_token` varchar(40) DEFAULT NULL,
+  `lease_until` datetime DEFAULT NULL,
+  `attempt_count` int NOT NULL DEFAULT 0,
+  `last_error` varchar(1024) DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`test_run_id`),
+  KEY `i_dr_test_cleanup_due` (`state`,`next_attempt_at`),
+  KEY `i_dr_test_cleanup_plan` (`plan_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

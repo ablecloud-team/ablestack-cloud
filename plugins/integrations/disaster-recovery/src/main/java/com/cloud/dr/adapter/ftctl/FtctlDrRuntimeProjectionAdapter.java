@@ -105,6 +105,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrProjectionAdapter {
+    @Inject private com.cloud.dr.DrTestCleanupRecoveryStore testCleanupRecovery;
+
     private static final Logger LOGGER = LogManager.getLogger(FtctlDrRuntimeProjectionAdapter.class);
     private static final int CYCLE_EVIDENCE_MAX_RETRIES = 3;
     private static final Gson GSON = new Gson();
@@ -3054,6 +3056,11 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
         }
         if (isRunSatisfiedByRuntime(plan, run, status, runtime)) {
             if (StringUtils.equalsIgnoreCase(run.getRunType(), DrConstants.RUN_TYPE_TEST_CLEANUP)) {
+                DrTestSessionVO cleanedSession = drTestSessionDao.findActiveByPlanId(plan.getId());
+                if (testCleanupRecovery != null && cleanedSession != null
+                        && testCleanupRecovery.find(cleanedSession.getRunId()) != null) {
+                    testCleanupRecovery.arm(plan.getId(), cleanedSession.getRunId(), run.getId());
+                }
                 drTargetMaterializationService.completeTestCleanup(plan.getId());
             }
             completeRunFromProjection(plan, run, status);
@@ -3621,6 +3628,8 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
         }
         if (StringUtils.equals(runType, DrConstants.RUN_TYPE_TEST_CLEANUP)) {
             return drTargetMaterializationService.isTestTargetCleaned(plan.getId())
+                    && runtimeBelongsToRun(runtime, run)
+                    && StringUtils.equalsIgnoreCase(stringValue(runtime, "test_cleanup_state"), "CLEANED")
                     && StringUtils.equalsAny(runtimeState, "READY", "PAUSED");
         }
         return StringUtils.equalsAny(runType, DrConstants.RUN_TYPE_PAUSE_SYNC,

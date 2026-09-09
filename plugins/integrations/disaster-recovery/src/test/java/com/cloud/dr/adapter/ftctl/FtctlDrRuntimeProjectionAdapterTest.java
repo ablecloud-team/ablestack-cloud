@@ -3963,4 +3963,18 @@ public class FtctlDrRuntimeProjectionAdapterTest {
         Assert.assertEquals(686L, cycle.getSequence());
         Assert.assertEquals(246L, cycle.getCheckpointSequence());
     }
+
+    @Test
+    public void cleanupRequiresMatchingRunAndCleanedArtifactsBeforeRestoration() {
+        DrPlanVO plan=new DrPlanVO("cleanup-proof",1L,2L,DrConstants.DIRECTION_KVM_TO_KVM);
+        DrRunVO run=new DrRunVO(plan.getId(),DrConstants.RUN_TYPE_TEST_CLEANUP);
+        FtctlDrStatusAnswer status=new FtctlDrStatusAnswer(new FtctlDrStatusCommand(plan.getUuid(),run.getUuid()),true,"ok");
+        JsonObject runtime=new JsonObject();runtime.addProperty("state","READY");runtime.addProperty("run_uuid",run.getUuid());
+        Mockito.when(drTargetMaterializationService.isTestTargetCleaned(plan.getId())).thenReturn(true);
+        Assert.assertFalse((Boolean) ReflectionTestUtils.invokeMethod(adapter,"isRunSatisfiedByRuntime",plan,run,status,runtime));
+        runtime.addProperty("test_cleanup_state","CLEANED"); runtime.addProperty("run_uuid","another-run");
+        Assert.assertFalse((Boolean) ReflectionTestUtils.invokeMethod(adapter,"isRunSatisfiedByRuntime",plan,run,status,runtime));
+        runtime.addProperty("run_uuid",run.getUuid());
+        Assert.assertTrue((Boolean) ReflectionTestUtils.invokeMethod(adapter,"isRunSatisfiedByRuntime",plan,run,status,runtime));
+    }
 }

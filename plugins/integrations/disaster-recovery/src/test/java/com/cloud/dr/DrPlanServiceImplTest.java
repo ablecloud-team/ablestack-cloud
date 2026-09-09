@@ -178,6 +178,29 @@ public class DrPlanServiceImplTest {
     }
 
     @Test
+    public void pausedPlanAllowsCheckpointTestButNotPlannedCutover() {
+        DrPlanVO plan = new DrPlanVO("ftctl-dr", 1L, 2L, DrConstants.DIRECTION_VMWARE_TO_KVM);
+        plan.setAdminState(DrConstants.ADMIN_STATE_ENABLED);
+        plan.setEngineType(DrConstants.ENGINE_TYPE_FTCTL_DR);
+        plan.setEngineBindingType(DrConstants.ENGINE_BINDING_TYPE_FTCTL_DR);
+        plan.setState(DrConstants.PLAN_STATE_PAUSED);
+        plan.setTargetReadyAt(new Date());
+        Mockito.when(drPlanDao.findById(plan.getId())).thenReturn(plan);
+        Mockito.when(drAdapterRegistry.getReplicationEngine(DrConstants.ENGINE_TYPE_FTCTL_DR, DrConstants.ENGINE_BINDING_TYPE_FTCTL_DR))
+                .thenReturn(replicationEngine);
+        Mockito.when(drRunDao.findLatestByPlanId(plan.getId())).thenReturn(controlReadyRun(plan));
+        Mockito.when(drPlanReadinessValidator.validateForRelease(plan)).thenReturn(releaseReady());
+        Mockito.when(drProtectionAuthorityService.getAuthority(plan.getId()))
+                .thenReturn(new DrProtectionAuthoritySnapshot(new DrPlanRuntimeVO(plan.getId()), false));
+
+        Map<String, Boolean> eligibility = service.getActionEligibility(plan.getId());
+
+        Assert.assertTrue(eligibility.get("testFailover"));
+        Assert.assertFalse(eligibility.get("failover"));
+        Assert.assertTrue(eligibility.get("resumeSync"));
+    }
+
+    @Test
     public void ftctlDrEligibilityExposesContinuousDrActionsWhenTargetReady() {
         DrPlanVO plan = new DrPlanVO("ftctl-dr", 1L, 2L, DrConstants.DIRECTION_VMWARE_TO_KVM);
         plan.setAdminState(DrConstants.ADMIN_STATE_ENABLED);

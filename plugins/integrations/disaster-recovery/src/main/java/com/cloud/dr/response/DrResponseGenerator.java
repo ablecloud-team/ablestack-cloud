@@ -88,6 +88,8 @@ public class DrResponseGenerator extends ManagerBase {
     private static final int MAX_DETAILS_STRING_LENGTH = 1024;
 
     @Inject
+    private com.cloud.dr.DrTestCleanupRecoveryStore testCleanupRecovery;
+    @Inject
     private DrSiteDao drSiteDao;
     @Inject
     private DrPlanDao drPlanDao;
@@ -339,6 +341,12 @@ public class DrResponseGenerator extends ManagerBase {
             if (authority == null || authority.getRuntime() == null) {
                 response.setEffectiveState(resolveEffectivePlanState(plan, activeRun, currentRuntime, null));
             }
+        }
+        if (testCleanupRecovery != null && activeRun == null && testCleanupRecovery.pending(plan.getId())) {
+            response.setSchedulerRecoveryState("PENDING");
+            response.setSchedulerRecoveryTrigger("TEST_CLEANUP");
+            response.setReadinessReasonCode("DR_TEST_PROTECTION_RESTORE_PENDING");
+            response.setReadinessMessage("Protection restoration is pending; automatic retries wait for test cleanup and current operations to finish.");
         }
         response.setInitialSyncInProgress(isInitialSyncInProgress(activeRun, currentRuntime));
         response.setTargetMaterializationState(resolveTargetMaterializationState(activeRun, currentRuntime, readiness));
