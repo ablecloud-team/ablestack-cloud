@@ -91,6 +91,19 @@ import com.google.gson.JsonParser;
 public class FtctlDrRuntimeProjectionAdapterTest {
 
     @Test
+    public void bootProfileEvidenceAllowsPerformanceDriftButRejectsFirmwareDrift() {
+        DrPlanVO plan = new DrPlanVO("boot-contract", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        plan.setMappingJson("{\"source\":{\"hardware\":{\"firmware\":\"uefi\",\"cpuCount\":8,"
+                + "\"vmDetails\":{\"UEFI\":\"LEGACY\",\"iothreads\":\"true\"}}}}");
+        JsonObject runtime = JsonParser.parseString("{\"source_hardware_fingerprint\":\"old-snapshot\","
+                + "\"source_boot_hardware\":{\"firmware\":\"UEFI\",\"vmDetails\":{\"UEFI\":\"legacy\"}}}").getAsJsonObject();
+        runtime.addProperty("source_boot_hardware_version", 1);
+        Assert.assertTrue((Boolean) ReflectionTestUtils.invokeMethod(adapter, "hardwareContractMatches", plan, runtime));
+        runtime.getAsJsonObject("source_boot_hardware").addProperty("firmware", "bios");
+        Assert.assertFalse((Boolean) ReflectionTestUtils.invokeMethod(adapter, "hardwareContractMatches", plan, runtime));
+    }
+
+    @Test
     public void versionTwoHardwareContractIgnoresLegacyPlacementFingerprint() {
         DrPlanVO plan = new DrPlanVO("hardware-placement", 1L, 2L,
                 DrConstants.DIRECTION_KVM_TO_KVM);

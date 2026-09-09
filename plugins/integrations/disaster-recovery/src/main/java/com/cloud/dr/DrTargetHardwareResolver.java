@@ -351,17 +351,15 @@ public class DrTargetHardwareResolver {
             if (element == null || element.isJsonNull() || !element.isJsonPrimitive()) {
                 continue;
             }
-            try {
-                return element.getAsBoolean();
-            } catch (RuntimeException ignored) {
-                String value = StringUtils.trimToNull(element.getAsString());
-                if (StringUtils.equalsAnyIgnoreCase(value, "true", "yes", "enabled", "1")) {
-                    return true;
-                }
-                if (StringUtils.equalsAnyIgnoreCase(value, "false", "no", "disabled", "0")) {
-                    return false;
-                }
+            String value = StringUtils.trimToNull(element.getAsString());
+            if (StringUtils.equalsAnyIgnoreCase(value, "true", "yes", "enabled", "1")) {
+                return true;
             }
+            if (StringUtils.equalsAnyIgnoreCase(value, "false", "no", "disabled", "0")) {
+                return false;
+            }
+            throw new com.cloud.utils.exception.CloudRuntimeException(
+                    "TARGET_TUNING_INVALID: " + key + " must be a Boolean");
         }
         return null;
     }

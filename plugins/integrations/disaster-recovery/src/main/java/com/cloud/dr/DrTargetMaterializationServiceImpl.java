@@ -972,6 +972,7 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
                 targetResourceOwnershipService.claimVm(plan, replica, run, existing);
                 reconcileSourceVmDetails(plan, existing);
                 verifyTargetVmHardware(plan, existing);
+                recordTargetTuningDifferences(plan, run, existing);
                 observeReplicaPowerState(replica, existing);
                 List<DrReplicaDiskVO> existingDisks = drReplicaDiskDao.listActiveByReplicaId(replica.getId());
                 for (DrReplicaDiskVO disk : existingDisks) {
@@ -1448,10 +1449,14 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             details.put(ApiConstants.BootType.UEFI.toString(), hardware.getBootMode().toString());
         }
         if (hardware != null && hardware.getIoPolicy() != null) {
-            details.putIfAbsent(VmDetailConstants.IO_POLICY, hardware.getIoPolicy().toString());
+            details.put(VmDetailConstants.IO_POLICY, hardware.getIoPolicy().toString());
         }
-        if (hardware != null && Boolean.TRUE.equals(hardware.getIoThreadsEnabled())) {
-            details.putIfAbsent(VmDetailConstants.IOTHREADS, "true");
+        if (hardware != null && hardware.getIoThreadsEnabled() != null) {
+            // The Agent currently enables iothreads by key presence, including the string "false".
+            details.remove(VmDetailConstants.IOTHREADS);
+            if (Boolean.TRUE.equals(hardware.getIoThreadsEnabled())) {
+                details.put(VmDetailConstants.IOTHREADS, "true");
+            }
         }
         putDynamicVmDetail(details, VmDetailConstants.CPU_NUMBER, serviceOffering != null ? serviceOffering.getCpu() : null,
                 placement != null ? placement.getTargetCpuNumber() : null);
@@ -1478,12 +1483,16 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
         actual = actual != null ? actual : new HashMap<String, String>();
         Map<String, String> expectedSourceDetails = DrVmDetailReplicationPolicy.copyableSourceDetails(
                 plan.getDirection(), sourceVmDetails(plan));
-        for (Map.Entry<String, String> expected : expectedSourceDetails.entrySet()) {
-            if (!StringUtils.equals(expected.getValue(), actual.get(expected.getKey()))) {
-                throw new CloudRuntimeException("TARGET_VM_DETAIL_MISMATCH: key=" + expected.getKey()
-                        + " expected=" + expected.getValue() + " actual="
-                        + StringUtils.defaultString(actual.get(expected.getKey()), "<absent>"));
+        if (sourceHardware.has("vmDetails")) {
+            for (String key : new String[] {VmDetailConstants.ROOT_DISK_CONTROLLER, VmDetailConstants.DATA_DISK_CONTROLLER}) {
+                String controller = firstString(sourceHardware, key);
+                if (StringUtils.isNotBlank(controller)) {
+                    expectedSourceDetails.putIfAbsent(key, controller);
+                }
             }
+            DrHardwareCompatibilityPolicy.verifyDetails(expectedSourceDetails, actual);
+        } else if (StringUtils.isBlank(firstString(sourceHardware, "firmware"))) {
+            throw new CloudRuntimeException("TARGET_BOOT_EVIDENCE_REQUIRED: source boot snapshot is unavailable");
         }
         String expectedUefiMode = expectedSourceDetails.get(ApiConstants.BootType.UEFI.toString());
         if (StringUtils.isBlank(expectedUefiMode)
@@ -1498,20 +1507,39 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
                     + StringUtils.defaultString(expectedUefiMode, "<absent>") + " but target VM has "
                     + StringUtils.defaultString(actual.get(ApiConstants.BootType.UEFI.toString()), "<absent>"));
         }
-        String expectedFingerprint = firstString(sourceHardware, "fingerprint");
-        String actualFingerprint = actual.get("dr.source.hardware.fingerprint");
-        if (StringUtils.isNotBlank(expectedFingerprint) && !StringUtils.equals(expectedFingerprint, actualFingerprint)) {
-            throw new CloudRuntimeException("TARGET_VM_HARDWARE_MISMATCH: source hardware fingerprint differs");
+        String actualPolicy = actual.get(VmDetailConstants.IO_POLICY);
+        boolean supportedPolicy = StringUtils.isBlank(actualPolicy);
+        for (ApiConstants.IoDriverPolicy policy : ApiConstants.IoDriverPolicy.values()) {
+            supportedPolicy |= StringUtils.equalsIgnoreCase(policy.toString(), actualPolicy);
         }
-        String expectedIoPolicy = firstString(targetHardware, "ioPolicy", "io.policy");
-        if (StringUtils.isNotBlank(expectedIoPolicy)
-                && !StringUtils.equalsIgnoreCase(expectedIoPolicy, actual.get(VmDetailConstants.IO_POLICY))) {
-            throw new CloudRuntimeException("TARGET_VM_HARDWARE_MISMATCH: target io.policy differs");
+        if (!supportedPolicy) {
+            throw new CloudRuntimeException("TARGET_TUNING_INVALID: io.policy is unsupported");
         }
-        Boolean expectedIoThreads = firstBoolean(targetHardware, "ioThreadsEnabled", "iothreadsEnabled");
-        if (Boolean.TRUE.equals(expectedIoThreads)
-                && !StringUtils.equalsIgnoreCase("true", actual.get(VmDetailConstants.IOTHREADS))) {
-            throw new CloudRuntimeException("TARGET_VM_HARDWARE_MISMATCH: target iothreads differs");
+    }
+
+    private void recordTargetTuningDifferences(DrPlanVO plan, DrRunVO run, UserVmVO targetVm) {
+        JsonObject targetHardware = objectAt(objectAt(parseObject(plan.getMappingJson()), "target"), "hardware");
+        Map<String, String> actual = vmInstanceDetailsDao.listDetailsKeyPairs(targetVm.getId());
+        if (actual == null) {
+            actual = new HashMap<String, String>();
+        }
+        Boolean requestedThreads = firstBoolean(targetHardware, "ioThreadsEnabled", "iothreadsEnabled");
+        String requestedPolicy = firstString(targetHardware, "ioPolicy", "io.policy");
+        // Agent key-presence semantics are intentional until the Agent contract changes.
+        boolean effectiveThreads = actual.containsKey(VmDetailConstants.IOTHREADS);
+        if ((requestedThreads != null && requestedThreads != effectiveThreads)
+                || (StringUtils.isNotBlank(requestedPolicy)
+                && !StringUtils.equalsIgnoreCase(requestedPolicy, actual.get(VmDetailConstants.IO_POLICY)))) {
+            JsonObject finding = new JsonObject();
+            finding.addProperty("code", "TARGET_TUNING_DIFFERENCE");
+            finding.addProperty("targetVmId", targetVm.getUuid());
+            finding.addProperty("requestedIoThreads", requestedThreads);
+            finding.addProperty("effectiveIoThreadsByAgentContract", effectiveThreads);
+            finding.addProperty("requestedIoPolicy", requestedPolicy);
+            finding.addProperty("storedIoPolicy", actual.get(VmDetailConstants.IO_POLICY));
+            finding.addProperty("valueSource", "EXISTING_TARGET");
+            recordEvent(plan.getId(), run != null ? run.getId() : null, "TARGET_TUNING_DIFFERENCE", "WARN",
+                    "Target performance settings differ; existing target settings were preserved", GSON.toJson(finding));
         }
     }
 
@@ -1555,36 +1583,14 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
                 || !StringUtils.equalsIgnoreCase(plan.getDirection(), DrConstants.DIRECTION_KVM_TO_KVM)) {
             return;
         }
-        Map<String, String> expected = DrVmDetailReplicationPolicy.copyableSourceDetails(
-                plan.getDirection(), sourceVmDetails(plan));
-        Map<String, String> actual = vmInstanceDetailsDao.listDetailsKeyPairs(targetVm.getId());
-        String previousManifest = actual != null ? actual.get(DrVmDetailReplicationPolicy.REPLICATED_KEYS_DETAIL) : null;
-        if (StringUtils.isNotBlank(previousManifest)) {
-            for (String key : StringUtils.split(previousManifest, ',')) {
-                if (StringUtils.isNotBlank(key) && !expected.containsKey(key)) {
-                    vmInstanceDetailsDao.removeDetail(targetVm.getId(), key);
-                }
-            }
-        }
-        vmInstanceDetailsDao.removeDetail(targetVm.getId(), "boot.mode");
-        for (Map.Entry<String, String> entry : expected.entrySet()) {
-            if (actual == null || !StringUtils.equals(entry.getValue(), actual.get(entry.getKey()))) {
-                vmInstanceDetailsDao.removeDetail(targetVm.getId(), entry.getKey());
-                vmInstanceDetailsDao.addDetail(targetVm.getId(), entry.getKey(), entry.getValue(), true);
-            }
-        }
-        String expectedFingerprint = firstString(sourceHardware(plan), "fingerprint");
-        String actualFingerprint = actual != null ? actual.get("dr.source.hardware.fingerprint") : null;
-        if (!StringUtils.equals(expectedFingerprint, actualFingerprint)) {
+        // SYNC must not rewrite boot configuration or target-owned performance details.
+        // Validate before advancing diagnostic metadata; old copy manifests are not deletion authority.
+        verifyTargetVmHardware(plan, targetVm);
+        String fingerprint = firstString(sourceHardware(plan), "fingerprint");
+        if (StringUtils.isNotBlank(fingerprint)) {
             vmInstanceDetailsDao.removeDetail(targetVm.getId(), "dr.source.hardware.fingerprint");
-            if (StringUtils.isNotBlank(expectedFingerprint)) {
-                vmInstanceDetailsDao.addDetail(targetVm.getId(), "dr.source.hardware.fingerprint",
-                        expectedFingerprint, false);
-            }
+            vmInstanceDetailsDao.addDetail(targetVm.getId(), "dr.source.hardware.fingerprint", fingerprint, false);
         }
-        vmInstanceDetailsDao.removeDetail(targetVm.getId(), DrVmDetailReplicationPolicy.REPLICATED_KEYS_DETAIL);
-        vmInstanceDetailsDao.addDetail(targetVm.getId(), DrVmDetailReplicationPolicy.REPLICATED_KEYS_DETAIL,
-                StringUtils.join(new TreeSet<String>(expected.keySet()), ","), false);
     }
 
     private void putDynamicVmDetail(Map<String, String> details, String key, Integer offeringValue, Integer resolvedValue) {

@@ -2782,6 +2782,14 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
     private boolean hardwareContractMatches(DrPlanVO plan, JsonObject runtime) {
         JsonObject mapping = parseObject(plan != null ? plan.getMappingJson() : null);
         JsonObject hardware = firstObject(objectValue(mapping, "source"), "hardware", "sourceHardware");
+        JsonObject bootEvidence = objectValue(runtime, "source_boot_hardware");
+        if (!bootEvidence.entrySet().isEmpty()) {
+            if (!StringUtils.equals("1", stringValue(runtime, "source_boot_hardware_version"))) {
+                return false;
+            }
+            return com.cloud.dr.DrHardwareCompatibilityPolicy.bootSnapshot(hardware).equals(
+                    com.cloud.dr.DrHardwareCompatibilityPolicy.bootSnapshot(bootEvidence));
+        }
         String expected = stringValue(hardware, "fingerprint");
         String actual = stringValue(runtime, "source_hardware_fingerprint");
         if (StringUtils.isBlank(expected) || StringUtils.isBlank(actual) || StringUtils.equals(expected, actual)) {
@@ -4936,6 +4944,8 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
         copyJsonProperty(runtime, compact, "target_external_ref");
         copyJsonProperty(runtime, compact, "source_firmware");
         copyJsonProperty(runtime, compact, "source_secure_boot");
+        copyJsonProperty(runtime, compact, "source_boot_hardware");
+        copyJsonProperty(runtime, compact, "source_boot_hardware_version");
         copyJsonProperty(runtime, compact, "source_hardware_fingerprint");
         copyJsonProperty(runtime, compact, "source_hardware_fingerprint_version");
         copyJsonProperty(runtime, compact, "source_runtime_quiesce_state");

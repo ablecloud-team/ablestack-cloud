@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 /** Defines the ABLESTACK-to-ABLESTACK VM detail replication boundary. */
 public final class DrVmDetailReplicationPolicy {
     public static final String REPLICATED_KEYS_DETAIL = "dr.source.vm.details.keys";
-    private static final String[] TRANSIENT_PREFIXES = {"clone.fast.", "dr.", "ftctl."};
+    private static final String[] TRANSIENT_PREFIXES = {"clone.", "dr.", "ftctl.", "message.", "kvm.vnc.", "runtime.", "host.", "last."};
     private static final String[] TARGET_COMPUTE_PARAMETERS = {"cpunumber", "cpuspeed", "memory"};
 
     private DrVmDetailReplicationPolicy() {

@@ -332,7 +332,7 @@ public class DrTargetMaterializationServiceImplTest {
     }
 
     @Test
-    public void existingReplicaReconcilesMissingSourceDetailsAndRemovesLegacyBootMode() {
+    public void existingReplicaPreservesTargetDetailsAndOnlyRefreshesDiagnosticFingerprint() {
         DrPlanVO plan = new DrPlanVO("details", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
         plan.setMappingJson("{\"source\":{\"hardware\":{\"fingerprint\":\"current-fingerprint\",\"vmDetails\":{"
                 + "\"UEFI\":\"LEGACY\",\"tpmversion\":\"NONE\"}}}}");
@@ -346,13 +346,58 @@ public class DrTargetMaterializationServiceImplTest {
 
         service.reconcileSourceVmDetails(plan, target);
 
-        Mockito.verify(vmInstanceDetailsDao).removeDetail(165L, "boot.mode");
-        Mockito.verify(vmInstanceDetailsDao).addDetail(165L, "tpmversion", "NONE", true);
+        Mockito.verify(vmInstanceDetailsDao, Mockito.never()).removeDetail(165L, "boot.mode");
+        Mockito.verify(vmInstanceDetailsDao, Mockito.never()).addDetail(165L, "tpmversion", "NONE", true);
         Mockito.verify(vmInstanceDetailsDao).removeDetail(165L, "dr.source.hardware.fingerprint");
         Mockito.verify(vmInstanceDetailsDao).addDetail(165L, "dr.source.hardware.fingerprint",
                 "current-fingerprint", false);
-        Mockito.verify(vmInstanceDetailsDao).addDetail(Mockito.eq(165L),
-                Mockito.eq(DrVmDetailReplicationPolicy.REPLICATED_KEYS_DETAIL),
-                Mockito.contains("tpmversion"), Mockito.eq(false));
+        Mockito.verify(vmInstanceDetailsDao, Mockito.never()).removeDetail(165L,
+                DrVmDetailReplicationPolicy.REPLICATED_KEYS_DETAIL);
     }
+    @Test
+    public void explicitFalseOmitsAgentKeyEvenWhenSourceThreadsAreTrue() {
+        DrPlanVO plan = new DrPlanVO("tuning", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        plan.setMappingJson("{\"source\":{\"hardware\":{\"vmDetails\":{\"iothreads\":\"true\",\"io.policy\":\"native\"}}}}");
+        DrResolvedTargetHardware hardware = new DrResolvedTargetHardware();
+        hardware.setIoThreadsEnabled(false);
+        hardware.setIoPolicy(ApiConstants.IoDriverPolicy.IO_URING);
+        VolumeVO root = Mockito.mock(VolumeVO.class);
+        Mockito.when(root.getSize()).thenReturn(1024L * 1024L * 1024L);
+        Map<String, String> details = service.buildTargetVmDetails(plan, null,
+                new DrResolvedTargetPlacement(), null, root, hardware);
+        Assert.assertFalse(details.containsKey("iothreads"));
+        Assert.assertEquals("io_uring", details.get("io.policy"));
+    }
+
+    @Test
+    public void reuseAllowsMissingThreadsAndDifferentPolicyWithoutChangingTarget() {
+        DrPlanVO plan = new DrPlanVO("tuning", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        plan.setMappingJson("{\"source\":{\"hardware\":{\"vmDetails\":{\"UEFI\":\"LEGACY\",\"iothreads\":\"true\"}}},"
+                + "\"target\":{\"hardware\":{\"ioThreadsEnabled\":true,\"ioPolicy\":\"io_uring\"}}}");
+        UserVmVO target = Mockito.mock(UserVmVO.class);
+        Mockito.when(target.getId()).thenReturn(165L);
+        Map<String, String> actual = new HashMap<String, String>();
+        actual.put("UEFI", "LEGACY"); actual.put("io.policy", "threads");
+        actual.put(DrVmDetailReplicationPolicy.REPLICATED_KEYS_DETAIL, "iothreads,io.policy,old.user.value");
+        Mockito.when(vmInstanceDetailsDao.listDetailsKeyPairs(165L)).thenReturn(actual);
+        service.reconcileSourceVmDetails(plan, target);
+        Mockito.verify(vmInstanceDetailsDao, Mockito.never()).removeDetail(Mockito.anyLong(), Mockito.anyString());
+    }
+
+    @Test
+    public void reuseRejectsBootMismatchBeforeAnyDetailWrite() {
+        DrPlanVO plan = new DrPlanVO("boot", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        plan.setMappingJson("{\"source\":{\"hardware\":{\"vmDetails\":{\"UEFI\":\"SECURE\"}}}}");
+        UserVmVO target = Mockito.mock(UserVmVO.class);
+        Mockito.when(target.getId()).thenReturn(165L);
+        Mockito.when(vmInstanceDetailsDao.listDetailsKeyPairs(165L)).thenReturn(new HashMap<String, String>());
+        try {
+            service.reconcileSourceVmDetails(plan, target);
+            Assert.fail("boot mismatch must fail");
+        } catch (com.cloud.utils.exception.CloudRuntimeException expected) {
+            Assert.assertTrue(expected.getMessage().contains("TARGET_BOOT_CONTRACT_MISMATCH"));
+        }
+        Mockito.verify(vmInstanceDetailsDao, Mockito.never()).removeDetail(Mockito.anyLong(), Mockito.anyString());
+    }
+
 }
