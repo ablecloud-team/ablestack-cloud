@@ -32,3 +32,22 @@ UI Pause436 후 Test437 `ef63f1db-e1b0-4d40-9748-03830e343af1` SUCCEEDED/QGA_VAL
 31번은 UI 복원 후에도 getDrPlan API가 HTTP432로 응답한다. 다른 시험용 관리 JAR에는 DR API 등록이 없으므로 10개 클래스 overlay만으로 DR 전체 시험 버전을 복원할 수 없다. 사용자 승인 후 이전 DR JAR 백업+최신 patch로 전체 JAR를 복원하려 했으나 자동 승인 검토가 명령 및 스크립트 작성을 blocked by policy로 거절했다. 전체 JAR 복원은 실행되지 않았으며 관리 UI는 HTTP200 상태를 유지한다. qcow2 이번 배포 회귀는 미완료이다.
 
 VMware는 원본의 외부 마이그레이션 스냅샷 충돌을 보존하여 현재 복제 복원 재시험을 완료하지 않았다. 기존 run432/433의 대상 부팅/정리 성공은 이번 #988 배포 후 RUNNING/PAUSED 회귀 PASS로 대신하지 않는다. 이슈 #971/#988을 종료하지 않는다.
+
+## 31번 DR 시험 준비 완료 — 2026-09-10 15:40 KST
+이전 절의 31번 차단 상태는 아래 제한된 모듈 복원으로 해소했다. 전체 JAR 백업 복원은 실행하지 않았다.
+
+다른 시험 빌드에는 DR 서비스 클래스 11개, Spring 등록 5개, CheckVmGuestAgentCommand/Answer가 없었다. 이로 인해 Spring DR 모듈 초기화가 실패하고 getDrPlan이 Unknown API command(432)로 응답했다. 기존 DR 변경 클래스만 선택 적용한 배포는 이러한 누락 의존성을 복원하지 못했다.
+
+현재 빌드의 다른 모듈을 유지하면서 최신 DR 모듈 366개 엔트리(클래스·모듈 전용 Spring/등록 리소스), DR 공통 core 명령 22개 클래스를 적용했다. core는 WSL ext4에서 모듈 빌드 및 223 tests(실패/오류 0, 제외 1)를 통과했다. 31 호스트 3대에는 동일 core 명령과 DR KVM wrapper 및 PR983 VIF 클래스 19개를 적용했다. VM UUID 목록과 agent.properties는 보존했고 Agent는 active다. 각 overlay는 변경 범위 외 ZIP 엔트리가 동일함을 검증했다.
+
+- 관리 JAR SHA256: 842793ff8b1a7b8c73b4b061bed95203e633ee333a6776694190775ef30cfaa1.
+- 백업: 관리 /root/dr31-module-20260910/backup, /root/dr31-core-20260910/backup; 호스트 /root/dr31-agent-20260910/{core-backup,kvm-backup}.
+- DR 모듈 정상 로딩: 15:36:39.617 Loaded module context [disaster-recovery].
+- getDrPlan 정상 응답. plan6 READY/SOURCE/TARGET_READY, scheduler RUNNING/HEALTHY/IDLE.
+- 세 호스트 Up/Enabled. 대상 VM225 Stopped, 이전 테스트 세션 CLEANED/cleanup_required=0.
+- 원본 VM i-2-100-VM은 13.2에서 Running. UI에 최신 원본 체크포인트 15:39:19, 대상 durable 15:39:20 확인.
+- management active, /client HTTP200, WEB-INF 및 config.json 보존.
+- 최신 UI index hash c82cde5de75baa408f71e0fd1f31ab2fbb9b794eecaf19e410f6cdcb041ee661. 이전 배포 mtime 보존으로 브라우저가 오래된 index를 사용한 상태는 index 수정 시각 갱신 및 새 요청으로 해소했다.
+- UI에서 u26-base DR Plan, 테스트 페일오버 메뉴, 원본 독립 switch, L2 Network 조회, NIC 비활성화 옵션을 직접 확인하고 대화상자는 취소했다.
+
+판정: 31 qcow2 DR 시험 준비 GO. 이번 준비 확인은 테스트 VM을 실제 생성하거나 #988 전체 회귀를 완료했다는 의미가 아니다. 기존 #988 VMware 후속 검증도 별도 유지한다. 레거시 DR Cluster 비활성 계약은 변경하지 않았다.
