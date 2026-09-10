@@ -11,7 +11,7 @@ DrTargetMaterializationServiceImpl.ensureTestVm이 NO_NIC를 빈 networkIds로 �
 - UI는 `네트워크 어댑터 비활성화` / `NIC_DISABLED`를 제공하고 연결할 네트워크를 명시적으로 선택한다.
 - 과거 NO_NIC 요청은 호환용 별칭으로만 받아 어댑터 비활성화로 정규화한다. 네트워크 생성을 생략하지 않는다.
 - DrReplicaDeployVMVolumeCmd.getIpToNetworkMap에서 기존 `IpAddresses(..., linkState=false)` 계약을 사용한다. 서버 공통 VM 생성 코드는 수정하지 않는다.
-- 시험 VM은 Stopped로 생성한다. 최초 start 전에 NIC가 존재하고 모든 link_state가 false인지 확인하며, 조건 불충족 시 부팅하지 않는다.
+- 시험 VM은 Stopped로 생성한다. 기존 Cloud `updateVmNic(enabled=false)` API를 호출해 모든 어댑터를 비활성화한다. 최초 start 전에 NIC 존재 및 enabled=false / link_state=false를 재확인하고 조건 불충족 시 부팅하지 않는다. 단순 link_state만으로는 현재 BridgeVifDriver가 up으로 덮어쓰므로 충분하지 않다(#982).
 - QGA는 직렬 통신 채널로 확인한다. Cloud NIC 행과 실행 중 libvirt XML의 link down을 함께 검증한다.
 
 ## 수용 조건

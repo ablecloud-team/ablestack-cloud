@@ -24,3 +24,8 @@
 - RBD 및 qcow2: 정상 UI 시험으로 유효 봉인본 준비, 원래 PAUSED 의도 유지 후 source 관리망 실제 차단. source-independent UI Test/QGA/cleanup 실행, 원본 연결 복구 후 PAUSED 유지 및 RUNNING recovery를 분리 확인.
 - source 단절 disaster UI 전환은 명시적 격리 근거와 target-only 경로로 검증. 원본 VM이 통신 단절만으로 중지됐다고 주장하지 않는다. 테스트 VM 네트워크는 격리/NIC_DISABLED 사용.
 - 실행한 네트워크 차단/프로세스 중단과 실제 전원 장애, VMware/혼합 미실행 경로는 구분해 보고한다.
+### 실환경 검증으로 보완한 실행 가능 여부 검사
+
+원본 Mold TCP 8080 연결을 차단한 UI 테스트에서 작업 생성 전에 `DR_ACTION_CAPABILITY_UNAVAILABLE`가 발생했다. `DrFtctlActionCapabilityServiceImpl`이 모든 작업에 원본 capability 결과를 공유했던 것이 원인이다. 테스트 페일오버, 테스트 정리, 페일오버는 TARGET 역할로 현재 대상 작업자를 선택해 capability를 검증한다. 동기화, 일시 중지/재개, 페일백 등은 기존 검사 경로를 유지한다. 대상 capability 조회 실패 시에도 차단을 유지한다. 원본이 응답하지 않더라도 대상 복구 기능은 사용 가능하고 원본 의존 동기화는 차단되는 회귀 테스트를 추가했다.
+
+네트워크 어댑터 비활성화는 NIC가 연결된 Stopped VM을 생성한 뒤 Cloud의 `updateVirtualMachineNic(enabled=false)` API를 통해 적용한다. DB의 enabled/link_state가 모두 false임을 재확인한 뒤 시작한다. NIC 미생성이나 NIC 삭제는 사용하지 않는다.

@@ -45,10 +45,31 @@ public class DrFtctlActionCapabilityServiceImpl extends ManagerBase implements D
         }
         try {
             FtctlDrCapabilitiesAnswer capabilities = capabilities(plan);
-            return evaluate(capabilities);
+            return mergeRecoveryCapabilities(plan, evaluate(capabilities));
         } catch (RuntimeException e) {
-            return unavailableSnapshot(e.getClass().getSimpleName());
+            return mergeRecoveryCapabilities(plan, unavailableSnapshot(e.getClass().getSimpleName()));
         }
+    }
+
+    private DrFtctlActionCapabilitySnapshot mergeRecoveryCapabilities(DrPlanVO plan,
+            DrFtctlActionCapabilitySnapshot source) {
+        DrFtctlActionCapabilitySnapshot target;
+        try {
+            target = evaluate(capabilities(plan, true));
+        } catch (RuntimeException e) {
+            target = unavailableSnapshot(e.getClass().getSimpleName());
+        }
+        Map<String, String> reasons = new LinkedHashMap<String, String>();
+        Map<String, Map<String, String>> args = new LinkedHashMap<String, Map<String, String>>();
+        for (String action : ACTIONS.keySet()) {
+            boolean recovery = Arrays.asList("testFailover", "stopTestFailover", "failover").contains(action);
+            DrFtctlActionCapabilitySnapshot selected = recovery ? target : source;
+            if (selected.getBlockingReason(action) != null) {
+                reasons.put(action, selected.getBlockingReason(action));
+                args.put(action, selected.getReasonArgs(action));
+            }
+        }
+        return new DrFtctlActionCapabilitySnapshot(reasons, args);
     }
 
     DrFtctlActionCapabilitySnapshot evaluate(FtctlDrCapabilitiesAnswer capabilities) {
@@ -76,8 +97,12 @@ public class DrFtctlActionCapabilityServiceImpl extends ManagerBase implements D
     }
 
     private FtctlDrCapabilitiesAnswer capabilities(DrPlanVO plan) {
-        boolean remoteSource = usesRemoteSource(plan);
-        DrWorkerRole role = StringUtils.startsWithIgnoreCase(plan.getDirection(), "VMWARE_")
+        return capabilities(plan, false);
+    }
+
+    private FtctlDrCapabilitiesAnswer capabilities(DrPlanVO plan, boolean targetOnly) {
+        boolean remoteSource = !targetOnly && usesRemoteSource(plan);
+        DrWorkerRole role = targetOnly ? DrWorkerRole.TARGET : StringUtils.startsWithIgnoreCase(plan.getDirection(), "VMWARE_")
                 ? DrWorkerRole.VDDK_DATA_PLANE : DrWorkerRole.COORDINATOR;
         Long hostId = drWorkerPlacementService != null
                 ? drWorkerPlacementService.resolveWorkerHostId(plan, role) : null;

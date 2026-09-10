@@ -55,6 +55,32 @@ public class DrFtctlActionCapabilityServiceImplTest {
         Assert.assertNull(snapshot.getBlockingReason("failover"));
     }
 
+    @Test
+    public void sourceOutageDoesNotBlockTargetRecoveryCapabilities() throws Exception {
+        com.cloud.agent.AgentManager agents = org.mockito.Mockito.mock(com.cloud.agent.AgentManager.class);
+        com.cloud.dr.adapter.ftctl.DrRemoteAgentClient remote =
+                org.mockito.Mockito.mock(com.cloud.dr.adapter.ftctl.DrRemoteAgentClient.class);
+        DrWorkerPlacementService placement = org.mockito.Mockito.mock(DrWorkerPlacementService.class);
+        org.apache.commons.lang3.reflect.FieldUtils.writeField(service, "agentManager", agents, true);
+        org.apache.commons.lang3.reflect.FieldUtils.writeField(service, "drRemoteAgentClient", remote, true);
+        org.apache.commons.lang3.reflect.FieldUtils.writeField(service, "drWorkerPlacementService", placement, true);
+        DrPlanVO plan = org.mockito.Mockito.mock(DrPlanVO.class);
+        org.mockito.Mockito.when(plan.getDirection()).thenReturn(DrConstants.DIRECTION_KVM_TO_KVM);
+        org.mockito.Mockito.when(plan.getSourceVmId()).thenReturn(null);
+        org.mockito.Mockito.when(plan.getSourceExternalRef()).thenReturn("remote-vm");
+        org.mockito.Mockito.when(plan.getActiveSide()).thenReturn("SOURCE");
+        org.mockito.Mockito.when(placement.resolveWorkerHostId(plan, DrWorkerRole.TARGET)).thenReturn(7L);
+        org.mockito.Mockito.when(agents.easySend(org.mockito.ArgumentMatchers.eq(7L),
+                org.mockito.ArgumentMatchers.any(FtctlDrCapabilitiesCommand.class))).thenReturn(completeAnswer());
+        DrFtctlActionCapabilitySnapshot snapshot = service.evaluate(plan);
+        Assert.assertEquals(DrFtctlActionCapabilityServiceImpl.CAPABILITY_UNAVAILABLE,
+                snapshot.getBlockingReason("sync"));
+        Assert.assertNull(snapshot.getBlockingReason("testFailover"));
+        Assert.assertNull(snapshot.getBlockingReason("stopTestFailover"));
+        Assert.assertNull(snapshot.getBlockingReason("failover"));
+        org.mockito.Mockito.verify(placement).resolveWorkerHostId(plan, DrWorkerRole.TARGET);
+    }
+
     private FtctlDrCapabilitiesAnswer completeAnswer() {
         FtctlDrCapabilitiesCommand command = new FtctlDrCapabilitiesCommand("plan", "availability");
         FtctlDrCapabilitiesAnswer answer = new FtctlDrCapabilitiesAnswer(command, true, "ok", "plan",
