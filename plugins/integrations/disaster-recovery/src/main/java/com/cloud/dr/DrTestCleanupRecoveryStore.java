@@ -64,6 +64,24 @@ public class DrTestCleanupRecoveryStore {
             return rows;
         } catch (SQLException e) { throw new CloudRuntimeException("DR test cleanup intent read failed", e); }
     }
+    public String pendingOwnershipReason(long planId) {
+        try (PreparedStatement ps = TransactionLegacy.currentTxn().prepareAutoCloseStatement(
+                "SELECT last_error FROM dr_test_cleanup_recovery WHERE plan_id=? AND state='PENDING' ORDER BY test_run_id DESC LIMIT 1")) {
+            ps.setLong(1, planId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String error = rs.getString(1);
+                    if (error != null && error.startsWith("DR_EXPORT_OWNERSHIP_PENDING:")) {
+                        // Expose only our worker/generation context, not nested Agent diagnostics.
+                        int end = error.indexOf(":", "DR_EXPORT_OWNERSHIP_PENDING:".length());
+                        return end >= 0 ? error.substring(0, end) : error;
+                    }
+                }
+            }
+            return null;
+        } catch (SQLException e) { throw new CloudRuntimeException("DR export recovery status read failed", e); }
+    }
+
     public Intent find(long testRunId) {
         List<Intent> rows=query("WHERE test_run_id=?", testRunId);
         return rows.isEmpty() ? null : rows.get(0);

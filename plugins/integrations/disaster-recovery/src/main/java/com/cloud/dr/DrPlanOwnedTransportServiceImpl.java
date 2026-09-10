@@ -4,6 +4,8 @@
 package com.cloud.dr;
 
 import java.util.HashSet;
+import java.util.TreeSet;
+import com.cloud.hypervisor.Hypervisor.HypervisorType;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -30,6 +32,7 @@ public class DrPlanOwnedTransportServiceImpl extends ManagerBase implements DrPl
     private static final int TRANSITION_WAIT_SECONDS = 45;
 
     @Inject private AgentManager agentManager;
+    @Inject private DrExportOwnershipStore exportOwnershipStore;
     @Inject private HostDao hostDao;
     @Inject private DrRemoteAgentClient drRemoteAgentClient;
     @Inject private DrWorkerPlacementService drWorkerPlacementService;
@@ -47,9 +50,12 @@ public class DrPlanOwnedTransportServiceImpl extends ManagerBase implements DrPl
             return new JsonArray();
         }
         HostVO targetHost = targetHost(plan);
+        long generation = exportOwnershipStore.nextGeneration(plan.getId());
+        revokeForwardExports(plan, run, profileJson, targetHost, generation, null);
         FtctlDrActionCommand command = command(plan, run, FtctlDrActionCommand.Action.TARGET_EXPORT_START,
-                "target", targetHost.getUuid(), profileJson);
+                "target", targetHost.getUuid(), ownershipProfile(profileJson, generation + 1));
         Answer answer = agentManager.easySend(targetHost.getId(), command);
+        requireOwnership(answer, generation + 1, targetHost.getId());
         return requireExports(answer, "Target Agent did not prepare the Plan-owned RBD export",
                 plan, profileJson);
     }
@@ -77,16 +83,57 @@ public class DrPlanOwnedTransportServiceImpl extends ManagerBase implements DrPl
             return;
         }
         HostVO targetHost = targetHost(plan);
-        FtctlDrActionCommand command = command(plan, run, FtctlDrActionCommand.Action.TARGET_EXPORT_STOP,
-                "target", targetHost.getUuid(), profileJson);
-        // Test Failover drains the mutable FILE writer before sealing the
-        // selected checkpoint. It must not ask FTCTL to create the reverse
-        // cutover baseline that is owned exclusively by a real Failover.
-        if (!StringUtils.equalsIgnoreCase(run.getRunType(), DrConstants.RUN_TYPE_TEST_FAILOVER)) {
-            command.setCutoverCheckpointSequence(checkpointSequence);
+        long generation = exportOwnershipStore.nextGeneration(plan.getId());
+        revokeForwardExports(plan, run, profileJson, targetHost, generation,
+                StringUtils.equalsIgnoreCase(run.getRunType(), DrConstants.RUN_TYPE_TEST_FAILOVER)
+                        ? null : checkpointSequence);
+    }
+
+    private String ownershipProfile(String profileJson, long generation) {
+        JsonObject profile = parseObject(profileJson);
+        objectAt(profile, "request").addProperty("exportGeneration", generation);
+        return GSON.toJson(profile);
+    }
+
+    private void revokeForwardExports(DrPlanVO plan, DrRunVO run, String profileJson,
+            HostVO selected, long generation, Long checkpointSequence) {
+        Set<Long> hosts = new TreeSet<>();
+        for (HostVO host : hostDao.listAllHostsByZoneAndHypervisorType(
+                selected.getDataCenterId(), HypervisorType.KVM)) {
+            hosts.add(host.getId());
         }
-        requireSuccess(agentManager.easySend(targetHost.getId(), command),
-                "Target Agent did not stop the Plan-owned RBD export");
+        hosts.add(selected.getId());
+        hosts = new TreeSet<>(exportOwnershipStore.rememberHosts(plan.getId(), hosts));
+        for (Long hostId : hosts) {
+            HostVO host = hostDao.findById(hostId);
+            if (host == null) {
+                throw new CloudRuntimeException("DR_EXPORT_OWNERSHIP_PENDING: historical worker "
+                        + hostId + " requires verified fencing before export transfer");
+            }
+            FtctlDrActionCommand stop = command(plan, run, FtctlDrActionCommand.Action.TARGET_EXPORT_STOP,
+                    "target", host.getUuid(), ownershipProfile(profileJson, generation));
+            requireOwnership(agentManager.easySend(hostId, stop), generation, hostId);
+        }
+        // Only after every writer is drained may a real cutover seal its reverse baseline.
+        if (checkpointSequence != null) {
+            FtctlDrActionCommand stop = command(plan, run, FtctlDrActionCommand.Action.TARGET_EXPORT_STOP,
+                    "target", selected.getUuid(), ownershipProfile(profileJson, generation));
+            stop.setCutoverCheckpointSequence(checkpointSequence);
+            requireOwnership(agentManager.easySend(selected.getId(), stop), generation, selected.getId());
+        }
+    }
+
+    private void requireOwnership(Answer answer, long generation, long hostId) {
+        if (answer instanceof FtctlDrActionAnswer && answer.getResult()) {
+            JsonObject status = parseObject(((FtctlDrActionAnswer) answer).getStatusJson());
+            if ("1".equals(firstString(status, "ownershipProtocol"))
+                    && Long.toString(generation).equals(firstString(status, "exportGeneration"))) {
+                return;
+            }
+        }
+        throw new CloudRuntimeException("DR_EXPORT_OWNERSHIP_PENDING: worker " + hostId
+                + " did not confirm generation " + generation + ": "
+                + (answer != null ? answer.getDetails() : "Agent unavailable"));
     }
 
     @Override

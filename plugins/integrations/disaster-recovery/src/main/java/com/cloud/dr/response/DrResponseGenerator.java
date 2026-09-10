@@ -346,7 +346,10 @@ public class DrResponseGenerator extends ManagerBase {
             response.setSchedulerRecoveryState("PENDING");
             response.setSchedulerRecoveryTrigger("TEST_CLEANUP");
             response.setReadinessReasonCode("DR_TEST_PROTECTION_RESTORE_PENDING");
-            response.setReadinessMessage("Protection restoration is pending; automatic retries wait for test cleanup and current operations to finish.");
+            String ownershipReason = testCleanupRecovery.pendingOwnershipReason(plan.getId());
+            response.setReadinessMessage(ownershipReason != null ? ownershipReason
+                    : "Protection restoration is pending; automatic retries wait for test cleanup and current operations to finish.");
+            if (ownershipReason != null) { response.setReadinessReasonCode("DR_EXPORT_OWNERSHIP_PENDING"); }
         }
         response.setInitialSyncInProgress(isInitialSyncInProgress(activeRun, currentRuntime));
         response.setTargetMaterializationState(resolveTargetMaterializationState(activeRun, currentRuntime, readiness));

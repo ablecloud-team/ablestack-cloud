@@ -130,4 +130,5 @@
     <bean id="drTestBootValidationService" class="com.cloud.dr.DrTestBootValidationService"/>
   <bean id="drTestCleanupRecoveryStore" class="com.cloud.dr.DrTestCleanupRecoveryStore" />
   <bean id="drTestCleanupRecoveryService" class="com.cloud.dr.DrTestCleanupRecoveryService" />
+  <bean id="drExportOwnershipStore" class="com.cloud.dr.DrExportOwnershipStore"/>
 </beans>

@@ -1414,3 +1414,15 @@ CREATE TABLE IF NOT EXISTS `dr_test_cleanup_recovery` (
   KEY `i_dr_test_cleanup_due` (`state`,`next_attempt_at`),
   KEY `i_dr_test_cleanup_plan` (`plan_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Plan-owned export fencing and historical revocation obligations (#968).
+CREATE TABLE IF NOT EXISTS `dr_export_transition` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `plan_id` BIGINT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `dr_export_host_history` (
+  `plan_id` BIGINT UNSIGNED NOT NULL,
+  `host_id` BIGINT UNSIGNED NOT NULL,
+  PRIMARY KEY (`plan_id`,`host_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
