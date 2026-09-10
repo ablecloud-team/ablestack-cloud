@@ -109,6 +109,18 @@ public class DrReplicaDeployVMVolumeCmd extends DeployVMVolumeCmdByAdmin {
     }
 
     @Override
+    public Map<Long, com.cloud.network.Network.IpAddresses> getIpToNetworkMap() {
+        if (!"true".equals(details.get("dr.test.nic.disabled"))) {
+            return super.getIpToNetworkMap();
+        }
+        Map<Long, com.cloud.network.Network.IpAddresses> addresses = new HashMap<>();
+        for (Long networkId : networkIds) {
+            addresses.put(networkId, new com.cloud.network.Network.IpAddresses(null, null, null, false));
+        }
+        return addresses;
+    }
+
+    @Override
     public Long getHostId() {
         return hostId;
     }

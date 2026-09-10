@@ -99,6 +99,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class DrTargetMaterializationServiceImpl extends ManagerBase implements DrTargetMaterializationService {
+    @Inject private com.cloud.vm.dao.NicDao testNicDao;
+
     private static final Logger LOGGER = LogManager.getLogger(DrTargetMaterializationServiceImpl.class);
     private static final Gson GSON = new Gson();
     private static final int STEP_ORDER_RUNTIME_PROJECTION = 30;
@@ -631,6 +633,12 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             session.markUpdated();
             drTestSessionDao.update(session.getId(), session);
             if (DrTestBootValidationService.requiresQga(session)) { bootValidation.begin(session); }
+            if ("NIC_DISABLED".equals(networkMode)) {
+                List<com.cloud.vm.NicVO> nics = testNicDao.listByVmId(testVm.getId());
+                if (nics.isEmpty() || nics.stream().anyMatch(com.cloud.vm.NicVO::getLinkState)) {
+                    throw new CloudRuntimeException("DR_TEST_NIC_NOT_DISABLED: all test adapters must be disabled before boot");
+                }
+            }
             if (testVm.getState() != VirtualMachine.State.Running) {
                 userVmManager.startVirtualMachine(testVm.getId(), placement.getWorkerHostId(),
                         new HashMap<VirtualMachineProfile.Param, Object>(), null);
@@ -749,7 +757,8 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
         Map<String, String> details = buildTargetVmDetails(plan, placement, offering, rootVolume, hardware);
         details.put("dr.replica.vm", "false");
         details.put("dr.test.vm", "true");
-        List<Long> networks = StringUtils.equals(networkMode, "NO_NIC") ? new ArrayList<Long>() : networkIds(placement);
+        details.put("dr.test.nic.disabled", String.valueOf(StringUtils.equals(networkMode, "NIC_DISABLED")));
+        List<Long> networks = networkIds(placement);
         DrReplicaDeployVMVolumeCmd cmd = new DrReplicaDeployVMVolumeCmd(owner.getId(), owner.getAccountName(), owner.getDomainId(),
                 placement.getZoneId(), offering.getId(), vmName, vmName, networks, targetHost.getId(), HypervisorType.KVM,
                 rootVolume.getId(), details, hardware);
@@ -770,10 +779,6 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
     }
 
     Long applyTestNetwork(DrResolvedTargetPlacement placement, String networkMode, Long networkId) {
-        if (StringUtils.equals(networkMode, "NO_NIC")) {
-            placement.getNetworks().clear();
-            return null;
-        }
         DrResolvedNetworkMapping selected = null;
         if (networkId != null) {
             selected = new DrResolvedNetworkMapping();
@@ -880,9 +885,10 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
 
     private String normalizeTestNetworkMode(String value) {
         String normalized = StringUtils.upperCase(StringUtils.defaultIfBlank(value, "ISOLATED_NETWORK"));
+        if (StringUtils.equals(normalized, "NO_NIC")) return "NIC_DISABLED"; // Legacy API intent means disconnected adapters.
         if (StringUtils.equals(normalized, "ISOLATED")) return "ISOLATED_NETWORK";
         if (StringUtils.equals(normalized, "PRODUCTION")) return "PRODUCTION_NETWORK";
-        if (!StringUtils.equalsAny(normalized, "ISOLATED_NETWORK", "PRODUCTION_NETWORK", "NO_NIC")) {
+        if (!StringUtils.equalsAny(normalized, "ISOLATED_NETWORK", "PRODUCTION_NETWORK", "NIC_DISABLED")) {
             throw new CloudRuntimeException("Unsupported DR test network mode: " + value);
         }
         return normalized;

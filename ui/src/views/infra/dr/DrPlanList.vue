@@ -906,7 +906,10 @@
         <a-form-item v-if="isTestFailoverAction" :label="$t('label.dr.test.source.independent')">
           <a-switch v-model:checked="actionForm.sourceindependent" />
         </a-form-item>
-        <a-alert v-if="isTestFailoverAction && actionForm.sourceindependent" type="info" show-icon
+        <a-alert
+          v-if="isTestFailoverAction && actionForm.sourceindependent"
+          type="info"
+          show-icon
           :message="$t('message.dr.test.source.independent')" />
         <a-form-item
           v-if="isFailoverAction"
@@ -958,11 +961,10 @@
             <a-select v-model:value="actionForm.networkmode">
               <a-select-option value="ISOLATED_NETWORK">{{ $t('label.dr.test.network.isolated') }}</a-select-option>
               <a-select-option value="PRODUCTION_NETWORK">{{ $t('label.dr.test.network.production') }}</a-select-option>
-              <a-select-option value="NO_NIC">{{ $t('label.dr.test.network.none') }}</a-select-option>
+              <a-select-option value="NIC_DISABLED">{{ $t('label.dr.test.network.none') }}</a-select-option>
             </a-select>
           </a-form-item>
           <a-form-item
-            v-if="actionForm.networkmode !== 'NO_NIC'"
             :label="$t('label.dr.test.network')"
             required>
             <a-select
@@ -3348,7 +3350,7 @@ export default {
       this.actionForm = this.defaultActionForm()
     },
     submitActionModal () {
-      if (this.isTestFailoverAction && this.actionForm.networkmode !== 'NO_NIC' && !this.actionForm.networkid) {
+      if (this.isTestFailoverAction && !this.actionForm.networkid) {
         notification.error({
           message: this.$t('label.dr.test.network'),
           description: this.$t('message.dr.test.network.required')
@@ -3396,7 +3398,7 @@ export default {
       if (this.isTestFailoverAction) {
         payload.sourceindependent = this.actionForm.sourceindependent
         payload.networkmode = this.actionForm.networkmode
-        payload.networkid = this.actionForm.networkmode === 'NO_NIC' ? undefined : this.actionForm.networkid
+        payload.networkid = this.actionForm.networkid
         payload.bootvalidationmode = this.actionForm.bootvalidationmode
         payload.boottimeoutseconds = this.actionForm.boottimeoutseconds
       }

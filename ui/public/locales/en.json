@@ -7046,7 +7046,7 @@
   "message.dr.plan.validation.test.boot.timeout": "Test boot timeout must be between 30 and 1800 seconds.",
   "label.dr.test.network.isolated": "Isolated",
   "label.dr.test.network.production": "Production",
-  "label.dr.test.network.none": "No network adapter",
+  "label.dr.test.network.none": "Network adapters disabled",
   "label.dr.test.network": "Test VM network",
   "label.dr.failover.power.on": "Power on after failover",
   "label.dr.replica": "Replica",
@@ -7473,5 +7473,5 @@
   "message.storage.service.runtime.rollback.success": "The previous runtime was restored.",
   "message.storage.service.runtime.rollback.failed": "Runtime rollback failed. Manual recovery is required.",
   "label.dr.test.source.independent": "Use sealed checkpoint without source access",
-  "message.dr.test.source.independent": "Uses an existing sealed target checkpoint. Missing or mismatched seals are rejected. Select an isolated network or NO_NIC."
+  "message.dr.test.source.independent": "Uses an existing sealed target checkpoint. Missing or mismatched seals are rejected. Select an isolated network or disable the network adapters."
 }
