@@ -52,11 +52,20 @@ import com.google.gson.Gson;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FtctlDrSiteAgentBrokerServiceImplTest {
+    @Mock private FtctlDrReverseExportCoordinator reverseExportCoordinator;
     @Mock private AgentManager agentManager;
     @Mock private HostDao hostDao;
     @Mock private DataCenterDao dataCenterDao;
     @Mock private UserVmDao userVmDao;
     @InjectMocks private FtctlDrSiteAgentBrokerServiceImpl brokerService;
+
+    @Test public void reverseExportAlwaysUsesOwnershipCoordinator() {
+        FtctlDrActionCommand command = new FtctlDrActionCommand(FtctlDrActionCommand.Action.TARGET_EXPORT_STOP, "plan", "run");
+        command.setRole("reverse-target");
+        brokerService.execute("ACTION", new Gson().toJson(command), null);
+        Mockito.verify(reverseExportCoordinator).execute(Mockito.any(FtctlDrActionCommand.class));
+        Mockito.verifyNoInteractions(agentManager);
+    }
 
     @Test
     public void executesAllowListedStatusCommandOnResolvedKvmHost() throws Exception {
@@ -118,7 +127,7 @@ public class FtctlDrSiteAgentBrokerServiceImplTest {
 
         FtctlDrActionCommand requested = new FtctlDrActionCommand(
                 FtctlDrActionCommand.Action.TARGET_EXPORT_START, "plan-uuid", "run-uuid");
-        requested.setRole("reverse-target");
+        requested.setRole("target");
         requested.setProfileJson("{\"transport\":{\"targetHostUuid\":\"target-host-uuid\"," +
                 "\"targetHostAddress\":\"10.10.32.3\",\"remoteNbdExportAddress\":\"10.10.32.3\"," +
                 "\"exports\":[{\"host\":\"10.10.32.3\"}]}}");

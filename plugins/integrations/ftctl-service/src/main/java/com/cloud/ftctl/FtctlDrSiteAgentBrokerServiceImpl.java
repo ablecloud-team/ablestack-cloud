@@ -60,6 +60,7 @@ public class FtctlDrSiteAgentBrokerServiceImpl extends ManagerBase implements Ft
     private static final Gson GSON = new Gson();
 
     @Inject private AgentManager agentManager;
+    @Inject private FtctlDrReverseExportCoordinator reverseExportCoordinator;
     @Inject private HostDao hostDao;
     @Inject private DataCenterDao dataCenterDao;
     @Inject private UserVmDao userVmDao;
@@ -68,6 +69,14 @@ public class FtctlDrSiteAgentBrokerServiceImpl extends ManagerBase implements Ft
     public FtctlDrSiteAgentCommandResponse execute(String commandType, String commandJson, String workerHostUuid) {
         String normalizedType = StringUtils.upperCase(StringUtils.trim(commandType), Locale.ROOT);
         Command command = deserialize(normalizedType, commandJson);
+        if (command instanceof FtctlDrActionCommand) {
+            FtctlDrActionCommand action = (FtctlDrActionCommand) command;
+            if ((action.getAction() == FtctlDrActionCommand.Action.TARGET_EXPORT_START
+                    || action.getAction() == FtctlDrActionCommand.Action.TARGET_EXPORT_STOP)
+                    && "reverse-target".equals(action.getRole())) {
+                return reverseExportCoordinator.execute(action);
+            }
+        }
         List<HostVO> candidates = eligibleWorkers();
         preferCurrentVmHost(command, candidates);
         preferOperationRuntimeOwner(command, candidates);

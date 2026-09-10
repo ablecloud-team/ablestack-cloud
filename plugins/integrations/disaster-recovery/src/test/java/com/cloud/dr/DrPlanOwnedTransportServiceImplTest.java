@@ -75,7 +75,7 @@ public class DrPlanOwnedTransportServiceImplTest {
 
     @Test
     public void reverseExportUsesOriginalSiteWorkerAndAuxiliaryRole() {
-        FtctlDrActionAnswer answer = answer(
+        FtctlDrActionAnswer answer = reverseAnswer(
                 "{\"result\":\"ok\",\"exports\":[{\"device\":\"sda\",\"port\":11834}]}");
         Mockito.when(drRemoteAgentClient.execute(Mockito.eq(plan), Mockito.eq("ACTION"),
                 Mockito.any(FtctlDrActionCommand.class), Mockito.isNull(),
@@ -95,7 +95,7 @@ public class DrPlanOwnedTransportServiceImplTest {
     public void reverseExportRejectsPartialMultiDiskContract() {
         String profileJson = "{\"request\":{},\"mapping\":{\"disks\":["
                 + "{\"device\":\"disk-0\"},{\"device\":\"disk-1\"}]}}";
-        FtctlDrActionAnswer answer = answer(
+        FtctlDrActionAnswer answer = reverseAnswer(
                 "{\"result\":\"ok\",\"exports\":[{\"device\":\"disk-1\",\"port\":11834}]}");
         Mockito.when(drRemoteAgentClient.execute(Mockito.eq(plan), Mockito.eq("ACTION"),
                 Mockito.any(FtctlDrActionCommand.class), Mockito.isNull(),
@@ -196,6 +196,19 @@ public class DrPlanOwnedTransportServiceImplTest {
         order.verify(agentManager).easySend(Mockito.eq(22L), Mockito.argThat(
                 (FtctlDrActionCommand command) -> command.getAction() == FtctlDrActionCommand.Action.TARGET_EXPORT_START
                         && command.getProfileJson().contains("\"exportGeneration\":3")));
+    }
+
+    private FtctlDrActionAnswer reverseAnswer(String statusJson) {
+        com.google.gson.JsonObject json = com.google.gson.JsonParser.parseString(statusJson).getAsJsonObject();
+        json.addProperty("ownershipProtocol", 2);
+        json.addProperty("ownershipBrokerProtocol", 1);
+        json.addProperty("exportGeneration", 3);
+        json.addProperty("exportAuthorityScope", plan.getUuid());
+        json.addProperty("exportDirection", "REVERSE");
+        FtctlDrActionAnswer answer = Mockito.mock(FtctlDrActionAnswer.class);
+        Mockito.when(answer.getResult()).thenReturn(true);
+        Mockito.when(answer.getStatusJson()).thenReturn(json.toString());
+        return answer;
     }
 
     private FtctlDrActionAnswer answer(String statusJson) {

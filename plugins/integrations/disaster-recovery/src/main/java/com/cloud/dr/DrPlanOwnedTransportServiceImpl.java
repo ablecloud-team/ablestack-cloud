@@ -67,11 +67,13 @@ public class DrPlanOwnedTransportServiceImpl extends ManagerBase implements DrPl
         }
         String workerUuid = null;
         JsonObject profile = parseObject(profileJson);
-        objectAt(profile, "request").addProperty("reverseTargetExport", true);
+        long generation = exportOwnershipStore.nextGeneration(plan.getId()) + 1;
+        reverseOwnership(profile, plan, generation);
         FtctlDrActionCommand command = command(plan, run, FtctlDrActionCommand.Action.TARGET_EXPORT_START,
                 "reverse-target", workerUuid, GSON.toJson(profile));
         Answer answer = drRemoteAgentClient.execute(plan, "ACTION", command,
                 workerUuid, FtctlDrActionAnswer.class);
+        requireReverseOwnership(answer, plan, generation);
         return requireExports(answer, "Original-site Agent did not prepare the reverse RBD export",
                 plan, profileJson);
     }
@@ -141,12 +143,35 @@ public class DrPlanOwnedTransportServiceImpl extends ManagerBase implements DrPl
         if (!supports(plan)) {
             return;
         }
-        String workerUuid = null;
+        long generation = exportOwnershipStore.nextGeneration(plan.getId());
+        JsonObject profile = new JsonObject();
+        reverseOwnership(profile, plan, generation);
         FtctlDrActionCommand command = command(plan, run, FtctlDrActionCommand.Action.TARGET_EXPORT_STOP,
-                "reverse-target", workerUuid, null);
-        requireSuccess(drRemoteAgentClient.execute(plan, "ACTION", command,
-                workerUuid, FtctlDrActionAnswer.class),
-                "Original-site Agent did not drain the reverse RBD export");
+                "reverse-target", null, GSON.toJson(profile));
+        requireReverseOwnership(drRemoteAgentClient.execute(plan, "ACTION", command,
+                null, FtctlDrActionAnswer.class), plan, generation);
+    }
+
+    private void reverseOwnership(JsonObject profile, DrPlanVO plan, long generation) {
+        JsonObject request = objectAt(profile, "request");
+        request.addProperty("reverseTargetExport", true);
+        request.addProperty("exportGeneration", generation);
+        request.addProperty("exportAuthorityScope", plan.getUuid());
+        request.addProperty("exportDirection", "REVERSE");
+    }
+
+    private void requireReverseOwnership(Answer answer, DrPlanVO plan, long generation) {
+        if (answer instanceof FtctlDrActionAnswer && answer.getResult()) {
+            JsonObject status = parseObject(((FtctlDrActionAnswer) answer).getStatusJson());
+            if ("2".equals(firstString(status, "ownershipProtocol"))
+                    && "1".equals(firstString(status, "ownershipBrokerProtocol"))
+                    && Long.toString(generation).equals(firstString(status, "exportGeneration"))
+                    && plan.getUuid().equals(firstString(status, "exportAuthorityScope"))
+                    && "REVERSE".equals(firstString(status, "exportDirection"))) {
+                return;
+            }
+        }
+        throw new CloudRuntimeException("DR_EXPORT_OWNERSHIP_PENDING: original site did not confirm scoped reverse export generation " + generation);
     }
 
     private FtctlDrActionCommand command(DrPlanVO plan, DrRunVO run,

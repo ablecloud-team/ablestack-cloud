@@ -1426,3 +1426,10 @@ CREATE TABLE IF NOT EXISTS `dr_export_host_history` (
   `host_id` BIGINT UNSIGNED NOT NULL,
   PRIMARY KEY (`plan_id`,`host_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- #970: remote site journal keyed by globally unique owning Plan, not local plan id.
+CREATE TABLE IF NOT EXISTS `ftctl_dr_reverse_export` (
+  `plan_uuid` varchar(40) NOT NULL,
+  `journal_json` mediumtext NOT NULL,
+  PRIMARY KEY (`plan_uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
