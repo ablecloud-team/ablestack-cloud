@@ -138,7 +138,7 @@ public class DrSchedulerRecoveryScheduler extends ManagerBase implements Configu
                 break;
             }
             try {
-                if (!isSourceSiteStable(plan)) {
+                if (!hasReplicationIntent(plan) || !isSourceSiteStable(plan)) {
                     continue;
                 }
                 Map<String, Boolean> eligibility = drPlanService.getActionEligibility(plan.getId());
@@ -147,15 +147,23 @@ public class DrSchedulerRecoveryScheduler extends ManagerBase implements Configu
                 }
                 DrPlanRuntimeVO runtime = drPlanRuntimeDao.findByPlanId(plan.getId());
                 DrRunVO latestRun = drRunDao.findLatestByPlanId(plan.getId());
-                if (!isAutomaticRetryAllowed(runtime, latestRun)) {
+                if (!isAutomaticRetryAllowed(runtime, latestRun)
+                        || !retryDelayElapsed(latestRun, System.currentTimeMillis())) {
                     continue;
                 }
-                long authoritySequence = runtime != null ? runtime.getAuthoritySequence() : 0L;
+                // Re-read after readiness RPCs; never resume an intent superseded by an operator.
+                DrRunVO current = drRunDao.findLatestByPlanId(plan.getId());
+                if ((current == null ? 0L : current.getId()) != (latestRun == null ? 0L : latestRun.getId())) {
+                    continue;
+                }
+                if (!hasReplicationIntent(drPlanDao.findById(plan.getId()))) {
+                    continue;
+                }
                 JsonObject request = new JsonObject();
                 request.addProperty("trigger", "AUTO_CONTROLLER");
                 request.addProperty("forceFullReseed", false);
                 drRunService.startRun(plan.getId(), DrConstants.RUN_TYPE_RECOVER_SYNC,
-                        String.format("scheduler-recovery:%s:%s", plan.getUuid(), authoritySequence),
+                        recoveryKey(plan, runtime, latestRun),
                         null, null, request.toString());
                 remaining--;
             } catch (RuntimeException e) {
@@ -164,7 +172,37 @@ public class DrSchedulerRecoveryScheduler extends ManagerBase implements Configu
         }
     }
 
+    static String recoveryKey(DrPlanVO plan, DrPlanRuntimeVO runtime, DrRunVO latestRun) {
+        // A terminal attempt must not consume every future recovery in this authority epoch.
+        return String.format("scheduler-recovery:%s:%s:%s", plan.getUuid(),
+                runtime != null ? runtime.getAuthoritySequence() : 0L,
+                latestRun != null ? latestRun.getId() : 0L);
+    }
+
+    static boolean retryDelayElapsed(DrRunVO latestRun, long now) {
+        return latestRun == null
+                || !StringUtils.equalsIgnoreCase(latestRun.getRunType(), DrConstants.RUN_TYPE_RECOVER_SYNC)
+                || latestRun.getCompleted() != null && now - latestRun.getCompleted().getTime() >= 60_000L;
+    }
+
+    private boolean hasReplicationIntent(DrPlanVO plan) {
+        return plan != null && plan.getRemoved() == null
+                && !StringUtils.equalsIgnoreCase(plan.getAdminState(), "DISABLED")
+                && !StringUtils.equalsIgnoreCase(plan.getActiveSide(), "TARGET")
+                && StringUtils.equalsAnyIgnoreCase(plan.getState(), "READY", "SYNCING", "ERROR", "DEGRADED");
+    }
+
     private boolean isAutomaticRetryAllowed(DrPlanRuntimeVO runtime, DrRunVO latestRun) {
+        if (latestRun != null && (latestRun.getCompleted() == null
+                || StringUtils.equalsAnyIgnoreCase(latestRun.getRunType(), "PAUSE_SYNC", "RELEASE")
+                || !StringUtils.equalsIgnoreCase(latestRun.getState(), "SUCCEEDED")
+                    && StringUtils.equalsAnyIgnoreCase(latestRun.getRunType(),
+                        "FAILOVER", "FAILBACK", "REPROTECT", "TEST_FAILOVER", "TEST_CLEANUP"))) {
+            return false;
+        }
+        if (runtime != null && StringUtils.equalsAnyIgnoreCase(runtime.getSchedulerDesiredState(), "PAUSED", "STOPPED")) {
+            return false;
+        }
         if (latestRun != null
                 && StringUtils.equalsIgnoreCase(latestRun.getRunType(), DrConstants.RUN_TYPE_SYNC)
                 && StringUtils.equalsIgnoreCase(latestRun.getState(), DrConstants.RUN_STATE_CANCELED)) {
@@ -194,11 +232,11 @@ public class DrSchedulerRecoveryScheduler extends ManagerBase implements Configu
         }
         if (StringUtils.equalsIgnoreCase(runtime.getSchedulerRecoveryState(), DrConstants.SCHEDULER_RECOVERY_FAILED)) {
             return StringUtils.equalsAny(errorCode, "DR_SOURCE_SITE_UNAVAILABLE", "DR_VMWARE_VDDK_CONNECT_INVALID",
-                    "DR_TARGET_EXPORT_UNAVAILABLE", "DR_QCOW2_SOURCE_RUNTIME_UNAVAILABLE",
+                    "DR_TARGET_EXPORT_UNAVAILABLE", "DR_EXPORT_OWNERSHIP_PENDING", "DR_QCOW2_SOURCE_RUNTIME_UNAVAILABLE",
                     "DR_QCOW2_OFFLINE_SOURCE_BUSY")
                     || StringUtils.equalsAny(recoveryErrorCode,
                             "DR_SOURCE_SITE_UNAVAILABLE", "DR_VMWARE_VDDK_CONNECT_INVALID",
-                            "DR_TARGET_EXPORT_UNAVAILABLE", "DR_QCOW2_SOURCE_RUNTIME_UNAVAILABLE",
+                            "DR_TARGET_EXPORT_UNAVAILABLE", "DR_EXPORT_OWNERSHIP_PENDING", "DR_QCOW2_SOURCE_RUNTIME_UNAVAILABLE",
                             "DR_QCOW2_OFFLINE_SOURCE_BUSY");
         }
         return true;

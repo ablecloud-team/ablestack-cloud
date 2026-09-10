@@ -119,6 +119,63 @@ public class DrSchedulerRecoverySchedulerTest {
         Assert.assertTrue(ReflectionTestUtils.invokeMethod(scheduler, "isAutomaticRetryAllowed", runtime, null));
     }
 
+    @Test
+    public void completedAttemptGetsNewKeyButSameObservationIsIdempotent() {
+        DrPlanVO plan = new DrPlanVO("plan", 11L, 12L, DrConstants.DIRECTION_KVM_TO_KVM);
+        DrPlanRuntimeVO runtime = new DrPlanRuntimeVO(42L);
+        DrRunVO first = new DrRunVO(42L, "RECOVER_SYNC");
+        ReflectionTestUtils.setField(first, "id", 100L);
+        String key = DrSchedulerRecoveryScheduler.recoveryKey(plan, runtime, first);
+        Assert.assertEquals(key, DrSchedulerRecoveryScheduler.recoveryKey(plan, runtime, first));
+        DrRunVO next = new DrRunVO(42L, "RECOVER_SYNC");
+        ReflectionTestUtils.setField(next, "id", 101L);
+        Assert.assertNotEquals(key, DrSchedulerRecoveryScheduler.recoveryKey(plan, runtime, next));
+    }
+
+    @Test
+    public void retryBackoffSurvivesControllerRestartAndRejectsActiveAttempt() {
+        DrRunVO run = new DrRunVO(42L, "RECOVER_SYNC");
+        Assert.assertFalse(DrSchedulerRecoveryScheduler.retryDelayElapsed(run, 100_000L));
+        run.setCompleted(new Date(10_000L));
+        Assert.assertFalse(DrSchedulerRecoveryScheduler.retryDelayElapsed(run, 69_999L));
+        Assert.assertTrue(DrSchedulerRecoveryScheduler.retryDelayElapsed(run, 70_000L));
+    }
+
+    @Test
+    public void latestOperatorIntentOverridesStaleRecoveryProjection() {
+        DrPlanRuntimeVO runtime = new DrPlanRuntimeVO(42L);
+        runtime.setSchedulerRecoveryState("REQUIRED");
+        for (String type : Arrays.asList("PAUSE_SYNC", "RELEASE", "FAILOVER", "FAILBACK", "REPROTECT", "TEST_FAILOVER")) {
+            DrRunVO run = new DrRunVO(42L, type);
+            run.setState("FAILED");
+            run.setCompleted(new Date());
+            Assert.assertFalse(type, ReflectionTestUtils.invokeMethod(scheduler, "isAutomaticRetryAllowed", runtime, run));
+        }
+    }
+
+    @Test
+    public void completedCleanupDoesNotPreventLaterMaintenanceRecovery() {
+        DrRunVO run = new DrRunVO(42L, "TEST_CLEANUP");
+        run.setState("SUCCEEDED");
+        run.setCompleted(new Date());
+        Assert.assertTrue(ReflectionTestUtils.invokeMethod(scheduler, "isAutomaticRetryAllowed", new DrPlanRuntimeVO(42L), run));
+    }
+
+    @Test
+    public void pausedRuntimeRemainsPaused() {
+        DrPlanRuntimeVO runtime = new DrPlanRuntimeVO(42L);
+        runtime.setSchedulerDesiredState("PAUSED");
+        Assert.assertFalse(ReflectionTestUtils.invokeMethod(scheduler, "isAutomaticRetryAllowed", runtime, null));
+    }
+
+    @Test
+    public void pendingOwnershipIsRetriedAfterWorkerReturns() {
+        DrPlanRuntimeVO runtime = new DrPlanRuntimeVO(42L);
+        runtime.setSchedulerRecoveryState("FAILED");
+        runtime.setSchedulerRecoveryErrorCode("DR_EXPORT_OWNERSHIP_PENDING");
+        Assert.assertTrue(ReflectionTestUtils.invokeMethod(scheduler, "isAutomaticRetryAllowed", runtime, null));
+    }
+
     private DrSiteVO connectedSite(long id) {
         DrSiteVO site = new DrSiteVO("source", "VMWARE_DIRECT", "VMWARE");
         ReflectionTestUtils.setField(site, "id", id);
