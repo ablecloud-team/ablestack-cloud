@@ -212,6 +212,16 @@ public class DrSchedulerRecoverySchedulerTest {
                 eq(DrSchedulerRecoveryScheduler.recoveryKey(plan, runtime, previous)), isNull(), isNull(), any(String.class));
     }
 
+    @Test
+    public void unavailableAgentAndDispatchTimeoutRemainAutomaticallyRetryable() {
+        for (String code : Arrays.asList(DrConstants.ERROR_AGENT_UNAVAILABLE,
+                DrConstants.ERROR_AGENT_DISPATCH_TIMEOUT, DrConstants.ERROR_ENGINE_UNAVAILABLE)) {
+            DrPlanRuntimeVO runtime = new DrPlanRuntimeVO(42L);
+            runtime.setSchedulerRecoveryState("FAILED");
+            runtime.setSchedulerRecoveryErrorCode(code);
+            Assert.assertTrue(code, ReflectionTestUtils.invokeMethod(scheduler, "isAutomaticRetryAllowed", runtime, null));
+        }
+    }
     private DrSiteVO connectedSite(long id) {
         DrSiteVO site = new DrSiteVO("source", "VMWARE_DIRECT", "VMWARE");
         ReflectionTestUtils.setField(site, "id", id);

@@ -233,11 +233,13 @@ public class DrSchedulerRecoveryScheduler extends ManagerBase implements Configu
         if (StringUtils.equalsIgnoreCase(runtime.getSchedulerRecoveryState(), DrConstants.SCHEDULER_RECOVERY_FAILED)) {
             return StringUtils.equalsAny(errorCode, "DR_SOURCE_SITE_UNAVAILABLE", "DR_VMWARE_VDDK_CONNECT_INVALID",
                     "DR_TARGET_EXPORT_UNAVAILABLE", "DR_EXPORT_OWNERSHIP_PENDING", "DR_QCOW2_SOURCE_RUNTIME_UNAVAILABLE",
-                    "DR_QCOW2_OFFLINE_SOURCE_BUSY")
+                    "DR_QCOW2_OFFLINE_SOURCE_BUSY", DrConstants.ERROR_AGENT_UNAVAILABLE,
+                    DrConstants.ERROR_AGENT_DISPATCH_TIMEOUT, DrConstants.ERROR_ENGINE_UNAVAILABLE)
                     || StringUtils.equalsAny(recoveryErrorCode,
                             "DR_SOURCE_SITE_UNAVAILABLE", "DR_VMWARE_VDDK_CONNECT_INVALID",
                             "DR_TARGET_EXPORT_UNAVAILABLE", "DR_EXPORT_OWNERSHIP_PENDING", "DR_QCOW2_SOURCE_RUNTIME_UNAVAILABLE",
-                            "DR_QCOW2_OFFLINE_SOURCE_BUSY");
+                            "DR_QCOW2_OFFLINE_SOURCE_BUSY", DrConstants.ERROR_AGENT_UNAVAILABLE,
+                            DrConstants.ERROR_AGENT_DISPATCH_TIMEOUT, DrConstants.ERROR_ENGINE_UNAVAILABLE);
         }
         return true;
     }
