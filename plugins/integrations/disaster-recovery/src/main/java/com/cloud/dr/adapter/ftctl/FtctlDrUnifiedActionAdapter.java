@@ -580,10 +580,14 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
                     sourceCommand.getProfileJson(), null);
             return;
         }
-        if (isRemoteKvmToKvmPlan(plan)
-                && action == FtctlDrActionCommand.Action.FAILOVER
+        if (action == FtctlDrActionCommand.Action.FAILOVER
                 && DrFailoverExecutionPolicy.isDisaster(context.getRun())) {
             DrRestorePointVO checkpoint = drRestorePointDao.findLatestTargetReadyByPlanId(plan.getId());
+            drPlanOwnedTransportService.stopForwardTargetExport(plan, context.getRun(),
+                    sourceCommand.getProfileJson(), null);
+            if (isImmutableCheckpoint(checkpoint)) {
+                restoreDurableCheckpoint(context, checkpoint);
+            }
             drPlanOwnedTransportService.stopForwardTargetExport(plan, context.getRun(),
                     sourceCommand.getProfileJson(), checkpoint != null ? checkpoint.getCheckpointSequence() : null);
             return;
@@ -629,14 +633,14 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
             drPlanOwnedTransportService.stopForwardTargetExport(plan, context.getRun(),
                     command.getProfileJson(), checkpointSequence);
             request.addProperty("checkpointWriterState", "DRAINED");
-            request.addProperty("checkpointExistingSealRequired", independent);
+            request.addProperty("checkpointExistingSealRequired", independent || isImmutableCheckpoint(checkpoint));
             request.addProperty("checkpointImmutableRequired", immutableFileCheckpoint);
             command.setRequestJson(GSON.toJson(request));
             JsonObject profile = parseObject(command.getProfileJson());
             JsonObject profileRequest = objectAt(profile, "request");
             addControllerCheckpointEvidence(profileRequest, plan, checkpoint);
             profileRequest.addProperty("checkpointWriterState", "DRAINED");
-            profileRequest.addProperty("checkpointExistingSealRequired", independent);
+            profileRequest.addProperty("checkpointExistingSealRequired", independent || isImmutableCheckpoint(checkpoint));
             profileRequest.addProperty("checkpointImmutableRequired", immutableFileCheckpoint);
             command.setProfileJson(GSON.toJson(profile));
             command.setCheckpointRef(checkpoint.getSourceSnapshotRef());
@@ -923,6 +927,54 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
             floor = Math.max(floor, latestCompleted.getAuthoritySequence());
         }
         return floor > 0L ? floor : null;
+    }
+
+    private boolean isImmutableCheckpoint(DrRestorePointVO checkpoint) {
+        return checkpoint != null && "FTCTL_DR_IMMUTABLE_CHECKPOINT".equals(checkpoint.getRestorePointType());
+    }
+
+    private void restoreDurableCheckpoint(DrExecutionContext context, DrRestorePointVO checkpoint) {
+        DrPlanVO plan = context.getPlan();
+        JsonObject spec = parseObject(buildTestArtifactSpec(plan, context.getRun(), checkpoint));
+        JsonObject request = new JsonObject();
+        String ref = checkpoint.getSourceSnapshotRef();
+        String prefix = "ftctl:" + plan.getUuid() + ":";
+        if (!ref.startsWith(prefix) || ref.lastIndexOf(':') <= prefix.length()) {
+            throw new CloudRuntimeException("DR_CHECKPOINT_IDENTITY_INVALID: unexpected checkpoint reference");
+        }
+        request.addProperty("planUuid", plan.getUuid());
+        request.addProperty("producerRunUuid", ref.substring(prefix.length(), ref.lastIndexOf(':')));
+        request.addProperty("checkpointSequence", checkpoint.getCheckpointSequence());
+        request.addProperty("checkpointRef", ref);
+        JsonArray disks = new JsonArray();
+        for (JsonElement element : spec.getAsJsonArray("disks")) {
+            JsonObject disk = element.getAsJsonObject();
+            JsonObject target = new JsonObject();
+            target.addProperty("device", firstString(disk, "device"));
+            target.addProperty("provider", firstString(disk, "provider"));
+            String locator = firstString(disk, "canonicalLocator");
+            target.addProperty("canonicalLocator", locator);
+            if ("FILE".equals(firstString(disk, "provider"))) {
+                target.addProperty("storageRoot", locator.substring(5, locator.lastIndexOf('/')));
+            }
+            disks.add(target);
+        }
+        request.add("disks", disks);
+        Long hostId = drWorkerPlacementService.resolveWorkerHostId(plan, DrWorkerRole.TARGET);
+        if (hostId == null) {
+            throw new CloudRuntimeException("DR_CHECKPOINT_TARGET_UNAVAILABLE");
+        }
+        FtctlDrActionCommand restore = new FtctlDrActionCommand(
+                FtctlDrActionCommand.Action.CHECKPOINT_RESTORE, plan.getUuid(), context.getRun().getUuid());
+        restore.setArtifactSpecJson(GSON.toJson(request));
+        restore.setWaitForCompletion(true);
+        restore.setWait(300);
+        Answer answer = agentManager.easySend(hostId, restore);
+        if (!(answer instanceof FtctlDrActionAnswer) || !answer.getResult()
+                || !"RESTORED".equals(firstString(parseObject(((FtctlDrActionAnswer) answer).getStatusJson()), "restoreState"))) {
+            throw new CloudRuntimeException("DR_CHECKPOINT_RESTORE_FAILED: "
+                    + (answer != null ? answer.getDetails() : "target Agent unavailable"));
+        }
     }
 
     private String buildTestArtifactSpec(DrPlanVO plan, DrRunVO run, DrRestorePointVO checkpoint) {
@@ -1490,6 +1542,9 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
         }
         profile.add("schedule", schedule);
         profile.add("quiescePolicy", parseObject(plan.getQuiescePolicyJson()));
+        if ("ABLESTACK".equalsIgnoreCase(firstString(profile.getAsJsonObject("target"), "provider"))) {
+            request.addProperty("durableCheckpointProtocol", 1);
+        }
         profile.add("request", request);
         return GSON.toJson(profile);
     }

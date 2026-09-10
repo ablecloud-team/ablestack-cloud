@@ -211,6 +211,15 @@ public class DrPlanOwnedTransportServiceImpl extends ManagerBase implements DrPl
             throw new CloudRuntimeException(fallback + ": Agent returned no structured export status");
         }
         JsonArray exports = firstArray(parseObject(((FtctlDrActionAnswer) answer).getStatusJson()), "exports");
+        String exportGeneration = firstString(parseObject(((FtctlDrActionAnswer) answer).getStatusJson()), "exportGeneration");
+        if (StringUtils.isNumeric(exportGeneration)) {
+            for (JsonElement element : exports) {
+                if (element.isJsonObject()) {
+                    element.getAsJsonObject().addProperty("exportGeneration", Long.valueOf(exportGeneration));
+                }
+            }
+        }
+
         if (exports.size() == 0) {
             throw new CloudRuntimeException(fallback + ": Agent returned no RBD export endpoints");
         }

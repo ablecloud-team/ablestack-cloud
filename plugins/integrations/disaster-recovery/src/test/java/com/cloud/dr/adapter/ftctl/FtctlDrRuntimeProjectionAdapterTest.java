@@ -89,6 +89,60 @@ import com.google.gson.JsonParser;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FtctlDrRuntimeProjectionAdapterTest {
+    @Test
+    public void checkpointAckRequiresMatchingCommittedTargetSet() {
+        DrPlanVO plan = new DrPlanVO("checkpoint", 1L, 2L, DrConstants.DIRECTION_VMWARE_TO_KVM);
+        plan.setActiveSide("SOURCE");
+        JsonObject request = new JsonObject();
+        request.addProperty("planUuid", plan.getUuid());
+        request.addProperty("producerRunUuid", "producer");
+        request.addProperty("checkpointSequence", 9);
+        request.add("disks", new com.google.gson.JsonArray());
+        JsonObject pending = new JsonObject();
+        pending.add("request", request);
+        JsonObject runtime = new JsonObject();
+        runtime.addProperty("checkpoint_publication_pending", pending.toString());
+        Mockito.when(drWorkerPlacementService.resolveWorkerHostId(plan, com.cloud.dr.DrWorkerRole.TARGET))
+                .thenReturn(22L);
+        FtctlDrActionAnswer answer = new FtctlDrActionAnswer(
+                new FtctlDrActionCommand(FtctlDrActionCommand.Action.CHECKPOINT_PUBLISH, plan.getUuid(), "producer"),
+                true, "ok");
+        JsonObject proof = new JsonObject();
+        proof.addProperty("state", "COMMITTED");
+        proof.add("contract", request);
+        proof.addProperty("manifestSha256", "proof-digest");
+        ReflectionTestUtils.setField(answer, "statusJson", proof.toString());
+        Mockito.when(agentManager.easySend(Mockito.eq(22L), Mockito.any(FtctlDrActionCommand.class)))
+                .thenReturn(answer);
+        adapter.reconcileCheckpointPublication(plan, null, runtime, 11L);
+        Mockito.verify(agentManager).easySend(Mockito.eq(11L), Mockito.argThat(
+                (FtctlDrActionCommand action) -> action.getAction() == FtctlDrActionCommand.Action.CHECKPOINT_ACK
+                        && action.getArtifactSpecJson().contains("proof-digest")));
+        Mockito.clearInvocations(agentManager);
+        proof.getAsJsonObject("contract").addProperty("checkpointSequence", 8);
+        ReflectionTestUtils.setField(answer, "statusJson", proof.toString());
+        try {
+            adapter.reconcileCheckpointPublication(plan, null, runtime, 11L);
+            Assert.fail("mismatched target proof must be rejected");
+        } catch (com.cloud.utils.exception.CloudRuntimeException expected) {
+            Assert.assertTrue(expected.getMessage().contains("ACK_IDENTITY_MISMATCH"));
+        }
+        Mockito.verify(agentManager, Mockito.never()).easySend(Mockito.eq(11L), Mockito.any(FtctlDrActionCommand.class));
+    }
+
+    @Test
+    public void checkpointPublicationDoesNotGateDisasterOrRelease() {
+        DrPlanVO plan = new DrPlanVO("checkpoint", 1L, 2L, DrConstants.DIRECTION_VMWARE_TO_KVM);
+        JsonObject runtime = new JsonObject();
+        runtime.addProperty("checkpoint_publication_pending", "invalid stale data");
+        for (String type : new String[] {DrConstants.RUN_TYPE_FAILOVER, DrConstants.RUN_TYPE_FAILBACK,
+                DrConstants.RUN_TYPE_RELEASE, DrConstants.RUN_TYPE_TEST_FAILOVER, DrConstants.RUN_TYPE_TEST_CLEANUP}) {
+            adapter.reconcileCheckpointPublication(plan, new DrRunVO(plan.getId(), type), runtime, 11L);
+        }
+        Mockito.verifyNoInteractions(agentManager);
+    }
+
+
     @Mock
     private com.cloud.dr.DrTestCleanupRecoveryStore testCleanupRecovery;
 

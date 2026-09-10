@@ -106,6 +106,7 @@ import com.google.gson.JsonParser;
 
 public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrProjectionAdapter {
     @Inject private com.cloud.dr.DrTestCleanupRecoveryStore testCleanupRecovery;
+    @Inject private com.cloud.host.dao.HostDao checkpointHostDao;
 
     private static final Logger LOGGER = LogManager.getLogger(FtctlDrRuntimeProjectionAdapter.class);
     private static final int CYCLE_EVIDENCE_MAX_RETRIES = 3;
@@ -215,6 +216,88 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
         return DrAdapterResult.success("FTCTL_DR release terminal projection committed", GSON.toJson(runtime));
     }
 
+    void reconcileCheckpointPublication(DrPlanVO plan, DrRunVO projectionRun,
+            JsonObject runtime, Long sourceHostId) {
+        if ((projectionRun != null && !StringUtils.equalsAnyIgnoreCase(projectionRun.getRunType(),
+                DrConstants.RUN_TYPE_SYNC, "RESUME_SYNC", "PAUSE_SYNC"))
+                || StringUtils.equalsIgnoreCase(plan.getActiveSide(), "TARGET")) {
+            return;
+        }
+        String pendingJson = stringValue(runtime, "checkpoint_publication_pending");
+        if (StringUtils.isBlank(pendingJson)) {
+            return;
+        }
+        JsonObject pending = parseObject(pendingJson);
+        JsonObject request = pending.has("request") && pending.get("request").isJsonObject() ? pending.getAsJsonObject("request") : new JsonObject();
+        String producer = stringValue(request, "producerRunUuid");
+        if (!plan.getUuid().equals(stringValue(request, "planUuid")) || StringUtils.isBlank(producer)
+                || longValue(request, "checkpointSequence") == null || !request.has("disks")) {
+            throw new CloudRuntimeException("DR_CHECKPOINT_IDENTITY_INVALID: source publication identity is incomplete");
+        }
+        Long targetHostId = drWorkerPlacementService.resolveWorkerHostId(plan, DrWorkerRole.TARGET);
+        if (targetHostId == null) {
+            return;
+        }
+        String exporter = stringValue(pending, "targetExporterAddress");
+        if (StringUtils.isNotBlank(exporter)) {
+            com.cloud.host.HostVO selected = checkpointHostDao.findById(targetHostId);
+            Long exporterHostId = null;
+            if (selected != null) {
+                for (com.cloud.host.HostVO host : checkpointHostDao.listAllHostsByZoneAndHypervisorType(
+                        selected.getDataCenterId(), com.cloud.hypervisor.Hypervisor.HypervisorType.KVM)) {
+                    if (exporter.equals(host.getPrivateIpAddress())) {
+                        exporterHostId = host.getId();
+                        break;
+                    }
+                }
+            }
+            if (exporterHostId == null) {
+                return;
+            }
+            // The address is an observation of this cycle's export lease.
+            // The target still validates its current export generation.
+            targetHostId = exporterHostId;
+        }
+        FtctlDrActionCommand publish = checkpointCommand(plan, producer,
+                FtctlDrActionCommand.Action.CHECKPOINT_PUBLISH, pending);
+        Answer answer = agentManager.easySend(targetHostId, publish);
+        if (!(answer instanceof FtctlDrActionAnswer) || !answer.getResult()) {
+            LOGGER.warn("DR checkpoint publication remains pending for plan {}: {}", plan.getUuid(),
+                    answer != null ? answer.getDetails() : "target Agent unavailable");
+            return;
+        }
+        JsonObject proof = parseObject(((FtctlDrActionAnswer) answer).getStatusJson());
+        if ("PREPARING".equals(stringValue(proof, "state"))) {
+            return;
+        }
+        if (!"COMMITTED".equals(stringValue(proof, "state"))
+                || !request.equals(proof.get("contract"))
+                || StringUtils.isBlank(stringValue(proof, "manifestSha256"))) {
+            throw new CloudRuntimeException("DR_CHECKPOINT_ACK_IDENTITY_MISMATCH: target returned a different disk set");
+        }
+        FtctlDrActionCommand ack = checkpointCommand(plan, producer,
+                FtctlDrActionCommand.Action.CHECKPOINT_ACK, proof);
+        if (isRemoteKvmToKvmPlan(plan)) {
+            drRemoteAgentClient.execute(plan, "ACTION", ack, null, FtctlDrActionAnswer.class);
+        } else {
+            agentManager.easySend(sourceHostId, ack);
+        }
+    }
+
+    private FtctlDrActionCommand checkpointCommand(DrPlanVO plan, String producer,
+            FtctlDrActionCommand.Action action, JsonObject artifact) {
+        FtctlDrActionCommand command = new FtctlDrActionCommand(action, plan.getUuid(), producer);
+        command.setActionName(action.name());
+        command.setCliCommand(action.getCliCommand());
+        command.setArtifactSpecJson(GSON.toJson(artifact));
+        command.setDirection(plan.getDirection());
+        command.setRunType(DrConstants.RUN_TYPE_SYNC);
+        command.setActionIntent(DrConstants.RUN_TYPE_SYNC);
+        command.setWaitForCompletion(true);
+        command.setWait(30);
+        return command;
+    }
+
     @Override
     public DrAdapterResult refreshPlanProjection(DrPlanVO plan) {
         DrRunVO projectionRun = resolveRefreshProjectionRun(plan);
@@ -287,6 +370,7 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
             return DrAdapterResult.success("FTCTL_DR release terminal projection committed",
                     GSON.toJson(authorityDetails));
         }
+        reconcileCheckpointPublication(plan, projectionRun, authorityRuntime, hostId);
         FtctlDrCycleSnapshot latestCompletedCycle = latestCompletedCycle(authorityStatus);
         if (!isCoherentCycleSnapshot(plan, authorityStatus, latestCompletedCycle)) {
             markProjectionIntegrityFailure(plan, latestCompletedCycle, "DR_STATUS_CYCLE_SNAPSHOT_INCOHERENT");
@@ -4733,7 +4817,10 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
                 restorePoint = drRestorePointDao.findByPlanIdAndSourceSnapshotRef(plan.getId(), sourceSnapshotRef);
             }
             if (restorePoint == null) {
-                restorePoint = new DrRestorePointVO(plan.getId(), "FTCTL_DR_CHECKPOINT");
+                restorePoint = new DrRestorePointVO(plan.getId(),
+                        sourceSnapshotRef.equals(stringValue(runtime, "immutable_checkpoint_ref"))
+                                && StringUtils.isNotBlank(stringValue(runtime, "immutable_checkpoint_manifest_sha256"))
+                                ? "FTCTL_DR_IMMUTABLE_CHECKPOINT" : "FTCTL_DR_CHECKPOINT");
                 restorePoint.setSourceSnapshotRef(sourceSnapshotRef);
                 restorePoint.setCheckpointRefHash(checkpointRefHash);
                 restorePoint.setConsistencyLevel("CRASH_CONSISTENT");
