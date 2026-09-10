@@ -26,3 +26,6 @@ KVM `LibvirtFtctlDrReversePreflightCommandWrapper`는 전달된 profileJson을 �
 - qemu 수정 파일 직접 배포, RPM/전체 빌드 없음. Cloud는 core 명령 클래스만 기존 JAR 엔트리를 보존하며 배포. 사전 백업 및 파일/class 해시 검증.
 - 실환경: VMware 원본 독립 테스트 → cleanup → 원본 정지/연결 차단 → 재해 전환 → 연결 복구 → runtime에 원본 자격 정보가 없는 상태에서 UI 페일백 사전 점검 READY → 페일백 성공 → 원본 Running/대상 Stopped/정상 복제 재발행.
 - 자격 정보 수동 복구를 하면 자동 체인 PASS로 인정하지 않는다. 비밀 값은 문서/로그/저장소에 기록하지 않는다. 기존 RBD/qcow2 핵심 복제 정상 유지 확인.
+
+## 최종 UI 검증에서 보완한 내부 worker 계약 (2026-09-10)
+외부 reverse preflight 요청은 현재 요청의 credentials를 우선하며 빈/무효/target-only 요청으로 runtime 캐시를 되살리지 않는다. 실제 failback worker는 마스킹된 저장 profile을 사용하므로 내부 전용 여섯 번째 인자로 owner-only credentials 파일을 명시한다. 이 인자는 Cloud API/CLI 사용자 옵션으로 노출하지 않는다. 외부 마스킹 요청 거절과 내부 마스킹 profile 실행 성공을 별도로 시험한다. #1011 후속 브랜치에서 이 누락을 함께 보완했다.

@@ -52,3 +52,14 @@ VMware plan `a85874ae-d1bd-470b-97c5-7c48a39486dd`:
 4. 복제 재개 및 새 checkpoint 발행.
 
 증거 디렉터리: `/home/ablecloud/work/issue1008-evidence` (비밀 값은 문서에 포함하지 않음).
+
+## 최종 UI 재검증 및 #1008 보완 (2026-09-10)
+
+- 런타임 credentials는 source 없음/target 있음, mode0600이었다. UI 페일백 사전 점검이 READY가 된 전후 SHA256 `edc70ec4c8bd88f379adcd5797c4be7b96d53cd9129c5a91352d69ca5e802f19`가 동일했다. 캐시 수동 복원 없음.
+- 실제 내부 worker의 저장 reverse profile은 credentials가 마스킹되어 있어 run479가 쓰기 전에 실패했다. 내부 worker만 owner-only credential 파일을 명시하는 여섯 번째 인자를 사용하도록 보완했다. 외부 빈/무효/target-only/마스킹 요청의 캐시 fallback 금지는 유지한다.
+- 인증 테스트는 기존6개+내부 호출 성공/외부 마스킹 거절2개=8개 PASS. 설치된32.2 스크립트에서도8개 PASS. 전체 DR lifecycle71 및 release tombstone PASS.
+- 최종 run480 `c02ea9e0-3ee2-4579-b71c-9c91db1f8a03` 역복제55: REVERSE_FINAL, 84,623,360 bytes written/verified, writeVerified=true. 원본 vm-4486 정상 콘솔 로그인, 대상 작성 파일 SHA256 일치, XFS / 및 /boot rw, 실패 서비스0, XFS kernel error/corrupt/CRC/shutdown 검색 결과 없음. VMware 원본/대상 QGA 미사용.
+- Cloud 체크포인트 publication이 FAILBACK 전체를 제외해 보호 재개95%에 남는 별도 blocker #1015를 발견/등록/수정했다. 변경 DR Maven 모듈451tests PASS. 배포 후 run480은 DB 수동 수정 없이 UI SUCCEEDED/100%로 수렴(21:41:21 KST), post-failback checkpoint57 READY, scheduler RUNNING/HEALTHY, target306 Stopped.
+- 사전 점검 management command 로그3건에서 profileJson/password/credentials 필드 노출0. Agent 해당 로그레벨에는 명령 레코드가 없어 Agent 원문 관찰을 PASS 근거로 사용하지 않았다. 별도 logger/wire 테스트5개 PASS 유지.
+- 최초 손상 복구와 run474 FULL_RESEED의 UI95% 잔류에 대한 UI 취소는 시험 준비 복구로 기록한다. run479 실패와 #1015 배포 재기동도 포함되어 있으므로 이번 결과를 무중단/무개입 전체 체인 PASS라고 표현하지 않는다. 해당 수정 후 기능별 성공과 실제 원본 데이터/부팅 검증 완료이다.
+- 다음 별도 과제: #1012 원본 단독 변경의 최초 역복제 기준점, #1013 전체 재동기화 UI 완료 잔류. 두 이슈는 아직 해결했다고 판정하지 않는다.
