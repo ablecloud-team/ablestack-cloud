@@ -40,6 +40,7 @@ import com.cloud.vm.dao.VMInstanceDetailsDao;
 @RunWith(MockitoJUnitRunner.class)
 public class DrTargetMaterializationServiceImplTest {
     @Mock private DrPlanDao drPlanDao;
+    @Mock private com.cloud.service.dao.ServiceOfferingDao serviceOfferingDao;
     @Mock private DrReplicaDao drReplicaDao;
     @Mock private DrReplicaDiskDao drReplicaDiskDao;
     @Mock private DrTestSessionDao drTestSessionDao;
@@ -54,6 +55,34 @@ public class DrTargetMaterializationServiceImplTest {
     @Mock private DrTargetResourceOwnershipService targetResourceOwnershipService;
     @Mock private VMInstanceDetailsDao vmInstanceDetailsDao;
     @InjectMocks private DrTargetMaterializationServiceImpl service;
+
+    @Test public void missingDynamicDetailsUseExplicitTargetNotSource() {
+        DrPlanVO plan = new DrPlanVO("dynamic", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        plan.setMappingJson("{\"target\":{\"cpuNumber\":4,\"cpuSpeed\":2100,\"memory\":8192},\"source\":{\"cpuNumber\":16,\"memory\":65536}}");
+        UserVmVO vm = Mockito.mock(UserVmVO.class);
+        Mockito.when(vm.getServiceOfferingId()).thenReturn(11L); Mockito.when(vm.getId()).thenReturn(287L);
+        ServiceOfferingVO dynamic = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(dynamic.getCpu()).thenReturn(null); Mockito.when(dynamic.getSpeed()).thenReturn(null); Mockito.when(dynamic.getRamSize()).thenReturn(null);
+        Mockito.when(serviceOfferingDao.findById(11L)).thenReturn(dynamic);
+        Map<String,String> actual = new HashMap<>(); actual.put("cpuNumber", "6");
+        Mockito.when(vmInstanceDetailsDao.listDetailsKeyPairs(287L)).thenReturn(actual);
+        service.ensureTargetComputeDetails(plan, vm);
+        Mockito.verify(vmInstanceDetailsDao).addDetail(287L,"cpuSpeed","2100",false);
+        Mockito.verify(vmInstanceDetailsDao).addDetail(287L,"memory","8192",false);
+        Mockito.verify(vmInstanceDetailsDao,Mockito.never()).addDetail(Mockito.anyLong(),Mockito.eq("cpuNumber"),Mockito.anyString(),Mockito.anyBoolean());
+    }
+
+    @Test public void incompleteDynamicTargetSpecWritesNothing() {
+        DrPlanVO plan = new DrPlanVO("dynamic", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        plan.setMappingJson("{\"target\":{\"cpuNumber\":4}}");
+        UserVmVO vm = Mockito.mock(UserVmVO.class);
+        Mockito.when(vm.getServiceOfferingId()).thenReturn(11L);
+        ServiceOfferingVO dynamic = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(dynamic.getCpu()).thenReturn(null); Mockito.when(dynamic.getSpeed()).thenReturn(null); Mockito.when(dynamic.getRamSize()).thenReturn(null);
+        Mockito.when(serviceOfferingDao.findById(11L)).thenReturn(dynamic);
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class, () -> service.ensureTargetComputeDetails(plan,vm));
+        Mockito.verify(vmInstanceDetailsDao,Mockito.never()).addDetail(Mockito.anyLong(),Mockito.anyString(),Mockito.anyString(),Mockito.anyBoolean());
+    }
 
     @Test
     public void retainOperationalVmDoesNotMutateCloudResources() {

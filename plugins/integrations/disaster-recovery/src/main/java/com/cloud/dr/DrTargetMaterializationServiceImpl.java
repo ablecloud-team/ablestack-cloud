@@ -189,6 +189,7 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
         if (targetVm.getState() != VirtualMachine.State.Stopped) {
             throw new CloudRuntimeException("DR target VM is not startable from state " + targetVm.getState());
         }
+        ensureTargetComputeDetails(plan, targetVm);
         try {
             Long targetHostId = drWorkerPlacementService != null
                     ? drWorkerPlacementService.resolveWorkerHostId(plan, DrWorkerRole.TARGET) : null;
@@ -1631,6 +1632,30 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
         if (StringUtils.isNotBlank(fingerprint)) {
             vmInstanceDetailsDao.removeDetail(targetVm.getId(), "dr.source.hardware.fingerprint");
             vmInstanceDetailsDao.addDetail(targetVm.getId(), "dr.source.hardware.fingerprint", fingerprint, false);
+        }
+    }
+
+    // #975: historical replicas can lack dynamic offering details even when the Plan has an explicit target spec.
+    void ensureTargetComputeDetails(DrPlanVO plan, UserVmVO vm) {
+        ServiceOfferingVO offering = serviceOfferingDao != null ? serviceOfferingDao.findById(vm.getServiceOfferingId()) : null;
+        if (offering == null || vmInstanceDetailsDao == null) { return; }
+        Map<String, String> actual = vmInstanceDetailsDao.listDetailsKeyPairs(vm.getId());
+        actual = actual != null ? actual : new HashMap<>();
+        DrPlanGuidedSpec spec = guidedSpecFromMapping(plan);
+        String[] keys = {VmDetailConstants.CPU_NUMBER, VmDetailConstants.CPU_SPEED, VmDetailConstants.MEMORY};
+        Integer[] fixed = {offering.getCpu(), offering.getSpeed(), offering.getRamSize()};
+        Integer[] requested = {spec.getTargetCpuNumber(), spec.getTargetCpuSpeed(), spec.getTargetMemory()};
+        Map<String, String> missing = new HashMap<>();
+        for (int i = 0; i < keys.length; i++) {
+            if (fixed[i] != null || StringUtils.isNotBlank(actual.get(keys[i]))) { continue; }
+            if (requested[i] == null || requested[i] <= 0) {
+                throw new CloudRuntimeException("TARGET_COMPUTE_SPEC_REQUIRED: missing explicit target " + keys[i]);
+            }
+            missing.put(keys[i], requested[i].toString());
+        }
+        // Validate the complete missing set before persisting; never overwrite an existing target value.
+        for (Map.Entry<String, String> entry : missing.entrySet()) {
+            vmInstanceDetailsDao.addDetail(vm.getId(), entry.getKey(), entry.getValue(), false);
         }
     }
 
