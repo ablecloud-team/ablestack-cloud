@@ -25,3 +25,8 @@ qemu: dr_export_ownership.py, dr_ablestack.sh ACK, ownership smoke 및 branch re
 - 설치 버전·백업·DB schema 확인 후 원본/대상 관리 모듈과 qemu 배포. UI 정적 파일 수정 없음.
 - RBD와 qcow2 UI failover→reverse sync→failback→reprotect를 통해 journal, tombstone, unit/PID/listener, authority, 신규 checkpoint 및 실제 게스트 데이터 확인. 실제 실행한 장애 주입/경로와 자동화 모의 시험을 구분해서 결과 기록. 혼합/VMware 경로 미확인 시 PASS로 집계하지 않는다.
 - 발견한 별도 결함은 이슈로 추적한다. 레거시 DR Cluster 활성화 금지.
+## 구현 후 계약 보완 및 결과
+- DB journal은 독립 autocommit connection으로 RPC 전에 durable grant를 남긴다. ACK는 protocol2뿐 아니라 START READY/STOP STOPPED를 확인한다.
+- 동일 generation START의 디스크 mapping fingerprint가 달라지면 거절한다. export 재시작용 profile은 reverse 변환 전 원래 요청을 저장해 이중 변환과 fingerprint 충돌을 방지한다.
+- #975 target dynamic compute 누락, #976 resume poll의 반복 export 교체, #977 checkpoint와 authority generation 혼용을 별도 이슈/commit으로 수정했다.
+- 최종 RBD/qcow2 UI planned failover→failback→자동 보호 재개 및 반환 데이터 검증은 [검증 기록](issue-970-validation-20260910.md)에 정리했다. 혼합 경로/물리 장기 장애 미실행 항목은 전체 PASS로 간주하지 않는다.
