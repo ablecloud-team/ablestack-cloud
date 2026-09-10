@@ -634,8 +634,9 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             drTestSessionDao.update(session.getId(), session);
             if (DrTestBootValidationService.requiresQga(session)) { bootValidation.begin(session); }
             if ("NIC_DISABLED".equals(networkMode)) {
+                disableTestNics(testVm);
                 List<com.cloud.vm.NicVO> nics = testNicDao.listByVmId(testVm.getId());
-                if (nics.isEmpty() || nics.stream().anyMatch(com.cloud.vm.NicVO::getLinkState)) {
+                if (nics.isEmpty() || nics.stream().anyMatch(nic -> nic.isEnabled() || nic.getLinkState())) {
                     throw new CloudRuntimeException("DR_TEST_NIC_NOT_DISABLED: all test adapters must be disabled before boot");
                 }
             }
@@ -736,6 +737,29 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             LOGGER.warn("Cloud-managed DR test VM is active, but run {} terminal convergence will retry: {}",
                     latestRun.getUuid(), e.getMessage(), e);
         }
+    }
+
+    private void disableTestNics(UserVmVO vm) {
+        if (vm.getState() != VirtualMachine.State.Stopped) {
+            throw new CloudRuntimeException("DR_TEST_NIC_NOT_DISABLED: test adapters must be disabled before initial boot");
+        }
+        try {
+            CallContext.registerSystemCallContextOnceOnly();
+            for (com.cloud.vm.NicVO nic : testNicDao.listByVmId(vm.getId())) {
+                if (nic.isEnabled()) {
+                    userVmService.updateVirtualMachineNic(new DisableTestNicCmd(nic.getId()));
+                }
+            }
+        } finally {
+            CallContext.unregister();
+        }
+    }
+
+    static class DisableTestNicCmd extends org.apache.cloudstack.api.command.user.vm.UpdateVmNicCmd {
+        private final Long nicId;
+        DisableTestNicCmd(Long nicId) { this.nicId = nicId; }
+        @Override public Long getNicId() { return nicId; }
+        @Override public Boolean isEnabled() { return Boolean.FALSE; }
     }
 
     private UserVmVO ensureTestVm(DrPlanVO plan, DrResolvedTargetPlacement placement, AccountVO owner,
