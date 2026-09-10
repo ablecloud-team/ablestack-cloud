@@ -29,6 +29,11 @@ public class StopDrTestFailoverCmd extends AbstractDrPlanActionCmd {
     public static final String APINAME = "stopDrTestFailover";
 
     @Override
+    protected boolean validatesCapabilitiesAtTargetDispatch() {
+        return true;
+    }
+
+    @Override
     protected String getRunType() {
         return "TEST_CLEANUP";
     }

@@ -29,3 +29,6 @@
 원본 Mold TCP 8080 연결을 차단한 UI 테스트에서 작업 생성 전에 `DR_ACTION_CAPABILITY_UNAVAILABLE`가 발생했다. `DrFtctlActionCapabilityServiceImpl`이 모든 작업에 원본 capability 결과를 공유했던 것이 원인이다. 테스트 페일오버, 테스트 정리, 페일오버는 TARGET 역할로 현재 대상 작업자를 선택해 capability를 검증한다. 동기화, 일시 중지/재개, 페일백 등은 기존 검사 경로를 유지한다. 대상 capability 조회 실패 시에도 차단을 유지한다. 원본이 응답하지 않더라도 대상 복구 기능은 사용 가능하고 원본 의존 동기화는 차단되는 회귀 테스트를 추가했다.
 
 네트워크 어댑터 비활성화는 NIC가 연결된 Stopped VM을 생성한 뒤 Cloud의 `updateVirtualMachineNic(enabled=false)` API를 통해 적용한다. DB의 enabled/link_state가 모두 false임을 재확인한 뒤 시작한다. NIC 미생성이나 NIC 삭제는 사용하지 않는다.
+### 대상 복구 결과 투영과 시작 검사 보완
+
+실환경 source Mold 단절에서 대상 아티팩트 준비는 성공했지만 PLAN_AUTHORITY 조회가 원본으로 라우팅되어 테스트 VM 생성이 지연되는 것을 확인했다. 원본 독립 Test Failover, Test Cleanup, Disaster Failover는 대상 역할로 작업자를 선택하고 대상 상태/작업 결과를 조회한다. 테스트 작업의 대상 관측 결과로 원본 복제 authority와 restore point를 갱신하지 않는다. API 사전 검사는 해당 작업에 대해 DB 기반 readiness와 blockers를 적용하고 실제 capability 검증은 기존 대상 dispatch 경로에서 수행하여, 관련 없는 원본 capability RPC와 timeout을 기다리지 않는다. Planned Failover와 원본 동기화의 검증 조건은 유지한다.

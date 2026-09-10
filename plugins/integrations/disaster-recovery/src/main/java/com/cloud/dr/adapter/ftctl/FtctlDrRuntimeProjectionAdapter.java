@@ -225,7 +225,9 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
             return DrAdapterResult.success("FTCTL_DR runtime is pending the initial synchronization",
                     GSON.toJson(details));
         }
-        Long hostId = resolveCoordinatorHostId(plan);
+        Long hostId = isTargetRecoveryRun(projectionRun) && drWorkerPlacementService != null
+                ? drWorkerPlacementService.resolveWorkerHostId(plan, DrWorkerRole.TARGET)
+                : resolveCoordinatorHostId(plan);
         if (hostId == null) {
             String message = "FTCTL_DR projection requires a coordinator, source, or target worker host";
             return DrAdapterResult.failure(DrConstants.ERROR_TARGET_MAPPING_INVALID, message, GSON.toJson(buildDetails(plan, null, null)));
@@ -293,10 +295,12 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
                     GSON.toJson(authorityDetails), STATUS_REFRESH_WAIT_SECONDS);
         }
         DrRunVO protectionProducerRun = resolveProtectionProducerRun(plan, authorityStatus, authorityRuntime);
+        if (!isTargetRecoveryRun(projectionRun) || DrFailoverExecutionPolicy.isDisaster(projectionRun)) {
         projectProtectionAuthority(plan, protectionProducerRun, authorityStatus, authorityRuntime);
         upsertRestorePointFromStatus(plan, protectionProducerRun, authorityStatus, authorityRuntime);
         reconcileDurableTargetMaterialization(plan, protectionProducerRun,
                 authorityStatus, authorityRuntime);
+        }
 
         FtctlDrStatusAnswer status = authorityStatus;
         if (projectionRun != null) {
@@ -399,12 +403,20 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
 
     private Answer sendStatusCommand(DrPlanVO plan, DrRunVO run, FtctlDrStatusCommand command, Long localHostId) {
         DrRunVO routingRun = command != null
-                && command.getStatusScope() == FtctlDrStatusCommand.StatusScope.PLAN_AUTHORITY ? null : run;
+                && command.getStatusScope() == FtctlDrStatusCommand.StatusScope.PLAN_AUTHORITY
+                && !isTargetRecoveryRun(run) ? null : run;
         if (pollsRemoteSource(plan, routingRun)) {
             return drRemoteAgentClient.execute(plan, "STATUS", command,
                     null, FtctlDrStatusAnswer.class);
         }
         return agentManager.easySend(localHostId, command);
+    }
+
+    private boolean isTargetRecoveryRun(DrRunVO run) {
+        return run != null && (DrFailoverExecutionPolicy.isDisaster(run)
+                || StringUtils.equalsIgnoreCase(run.getRunType(), DrConstants.RUN_TYPE_TEST_CLEANUP)
+                || StringUtils.equalsIgnoreCase(run.getRunType(), DrConstants.RUN_TYPE_TEST_FAILOVER)
+                && "true".equalsIgnoreCase(stringValue(parseObject(run.getRequestJson()), "sourceIndependent")));
     }
 
     private boolean pollsRemoteSource(DrPlanVO plan, DrRunVO run) {
@@ -2258,7 +2270,9 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
 
     private Answer sendCutoverCommit(DrPlanVO plan, DrRunVO run, DrCutoverSessionVO session,
             DrTargetPowerOnResult powerOnResult, JsonObject runtime, long generation) {
-        Long hostId = resolveCoordinatorHostId(plan);
+        Long hostId = isTargetRecoveryRun(run) && drWorkerPlacementService != null
+                ? drWorkerPlacementService.resolveWorkerHostId(plan, DrWorkerRole.TARGET)
+                : resolveCoordinatorHostId(plan);
         if (hostId == null) {
             return null;
         }

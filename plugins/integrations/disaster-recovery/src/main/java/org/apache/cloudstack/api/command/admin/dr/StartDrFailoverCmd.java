@@ -83,13 +83,18 @@ public class StartDrFailoverCmd extends AbstractDrPlanActionCmd {
     }
 
     @Override
+    protected boolean validatesCapabilitiesAtTargetDispatch() {
+        return Boolean.TRUE.equals(disaster);
+    }
+
+    @Override
     protected void validateActionAllowed() {
         if (Boolean.TRUE.equals(disaster)) {
-            Map<String, DrActionAvailability> availability = drPlanService.getActionAvailability(getPlanId());
+            Map<String, DrActionAvailability> availability = actionAvailabilityForValidation();
             DrActionAvailability failover = availability != null ? availability.get(getActionEligibilityKey()) : null;
             if (failover != null && failover.isApplicable() && !failover.isEnabled()
                     && DrConstants.ACTION_REASON_CUTOVER_NOT_READY.equals(failover.getReasonCode())
-                    && Boolean.TRUE.equals(drPlanService.getActionEligibility(getPlanId()).get("disasterFailover"))) {
+                    && Boolean.TRUE.equals(drPlanService.getDatabaseActionEvaluation(getPlanId()).getEligibility().get("disasterFailover"))) {
                 return;
             }
         }

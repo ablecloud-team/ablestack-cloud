@@ -155,9 +155,21 @@ public abstract class AbstractDrPlanActionCmd extends BaseAsyncCmd {
         }
     }
 
+    protected boolean validatesCapabilitiesAtTargetDispatch() {
+        return false;
+    }
+
+    protected Map<String, DrActionAvailability> actionAvailabilityForValidation() {
+        // Target-only recovery validates the live target capability in its adapter.
+        // Do not probe unrelated source capabilities before dispatching that action.
+        return validatesCapabilitiesAtTargetDispatch()
+                ? drPlanService.getDatabaseActionEvaluation(planId).getAvailability()
+                : drPlanService.getActionAvailability(planId);
+    }
+
     protected void validateActionAllowed() {
         String actionKey = getActionEligibilityKey();
-        Map<String, DrActionAvailability> availability = drPlanService.getActionAvailability(planId);
+        Map<String, DrActionAvailability> availability = actionAvailabilityForValidation();
         if (availability == null || !availability.containsKey(actionKey)) {
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR,
                     String.format("DR action %s is not supported by the current plan engine", getApiName()));

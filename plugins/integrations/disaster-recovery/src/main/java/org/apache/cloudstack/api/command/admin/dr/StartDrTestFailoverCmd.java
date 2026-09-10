@@ -60,6 +60,11 @@ public class StartDrTestFailoverCmd extends AbstractDrPlanActionCmd {
     private Boolean sourceIndependent;
 
     @Override
+    protected boolean validatesCapabilitiesAtTargetDispatch() {
+        return Boolean.TRUE.equals(sourceIndependent);
+    }
+
+    @Override
     protected String getRunType() {
         return "TEST_FAILOVER";
     }

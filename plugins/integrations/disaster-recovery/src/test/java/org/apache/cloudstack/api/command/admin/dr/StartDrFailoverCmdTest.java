@@ -24,6 +24,7 @@ public class StartDrFailoverCmdTest {
                 unavailable(DrConstants.ACTION_REASON_CUTOVER_NOT_READY));
 
         command.validateActionAllowed();
+        Mockito.verify(command.drPlanService, Mockito.never()).getActionAvailability(Mockito.anyLong());
     }
 
     @Test(expected = ServerApiException.class)
@@ -62,6 +63,9 @@ public class StartDrFailoverCmdTest {
                 .thenReturn(Collections.singletonMap("failover", availability));
         Mockito.when(service.getActionEligibility(41L))
                 .thenReturn(Collections.singletonMap("disasterFailover", disasterFailoverEligible));
+        Mockito.when(service.getDatabaseActionEvaluation(41L)).thenReturn(new com.cloud.dr.DrPlanActionEvaluation(
+                Collections.singletonMap("disasterFailover", disasterFailoverEligible),
+                Collections.singletonMap("failover", availability)));
         ReflectionTestUtils.setField(command, "planId", 41L);
         ReflectionTestUtils.setField(command, "disaster", disaster);
         ReflectionTestUtils.setField(command, "drPlanService", service);
