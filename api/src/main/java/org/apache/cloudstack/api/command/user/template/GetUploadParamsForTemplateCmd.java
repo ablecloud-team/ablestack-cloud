@@ -177,7 +177,7 @@ public class GetUploadParamsForTemplateCmd extends AbstractGetUploadParamsCmd {
     }
 
     public Boolean isKvdoEnable() {
-        return kvdoEnable;
+        return kvdoEnable == null ? Boolean.FALSE : kvdoEnable;
     }
 
     public boolean isDeployAsIs() {
@@ -211,7 +211,7 @@ public class GetUploadParamsForTemplateCmd extends AbstractGetUploadParamsCmd {
     }
 
     private void validateRequest() {
-        if (getZoneId() <= 0) {
+        if (getZoneId() <= 0 && getZoneId() != -1L) {
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "Invalid zoneid");
         }
         if (!isDeployAsIs() && osTypeId == null) {

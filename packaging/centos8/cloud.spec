@@ -211,8 +211,8 @@ fi
 
 mvn -T 2C -Psystemvm,developer -DskipTests $FLAGS clean package
 cd ui
-env -u NODE_OPTIONS %{_node_bindir}/npm ci --no-audit --no-fund
-env -u NODE_OPTIONS %{_node_bindir}/npm run build
+env NODE_OPTIONS="--max_old_space_size=8192" %{_node_bindir}/npm ci --no-audit --no-fund
+env NODE_OPTIONS="--max_old_space_size=8192" %{_node_bindir}/npm run build
 %{_node_bindir}/node build.js || true
 cd ..
 

@@ -11756,15 +11756,16 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         String macAddress = null;
         IpAddresses addr = new IpAddresses(null, ipv6Address, macAddress);
         long serviceOfferingId = curVm.getServiceOfferingId();
-        ServiceOffering serviceOffering = serviceOfferingDao.findById(curVm.getId(), serviceOfferingId);
+        ServiceOfferingVO serviceOffering = serviceOfferingDao.findById(curVm.getId(), serviceOfferingId);
+        ServiceOfferingVO baseOffering = serviceOfferingDao.findById(serviceOfferingId);
 
-        if (serviceOffering.getCpu() != null) {
+        if (!baseOffering.isDynamic() || baseOffering.getCpu() != null) {
             customParameters.remove(UsageEventVO.DynamicParameters.cpuNumber.name());
         }
-        if (serviceOffering.getSpeed() != null) {
+        if (!baseOffering.isCustomCpuSpeedSupported()) {
             customParameters.remove(UsageEventVO.DynamicParameters.cpuSpeed.name());
         }
-        if (serviceOffering.getRamSize() != null) {
+        if (!baseOffering.isDynamic() || baseOffering.getRamSize() != null) {
             customParameters.remove(UsageEventVO.DynamicParameters.memory.name());
         }
 

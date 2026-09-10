@@ -155,7 +155,7 @@ public class GetUploadParamsForIsoCmd extends AbstractGetUploadParamsCmd {
     }
 
     private void validateRequest() {
-        if (getZoneId() <= 0) {
+        if (getZoneId() <= 0 && getZoneId() != -1L) {
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "Invalid zoneid");
         }
     }

@@ -181,6 +181,12 @@ public class OvsVifDriver extends VifDriverBase {
             String storageBrName = nic.getName() == null ? _bridges.get("private") : nic.getName();
             intf.defBridgeNet(storageBrName, null, nic.getMac(), getGuestNicModel(guestOsType, nicAdapter));
         }
+
+        if (nic.getPxeDisable()) {
+            intf.setPxeDisable(true);
+        }
+        intf.setLinkStateUp(nic.getLinkState());
+
         return intf;
     }
 

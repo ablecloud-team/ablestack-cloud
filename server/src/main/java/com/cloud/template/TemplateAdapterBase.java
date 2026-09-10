@@ -497,8 +497,10 @@ public abstract class TemplateAdapterBase extends AdapterBase implements Templat
         // ignore passed zoneId if we are using region wide image store
         List<ImageStoreVO> stores = _imgStoreDao.findRegionImageStores();
         if (!(stores != null && stores.size() > 0)) {
-            zoneList = new ArrayList<>();
-            zoneList.add(params.getZoneId());
+            if (params.getZoneId() != -1L) {
+                zoneList = new ArrayList<>();
+                zoneList.add(params.getZoneId());
+            }
         }
 
         if(!params.isIso() && params.getHypervisorType() == HypervisorType.None) {
@@ -509,7 +511,7 @@ public abstract class TemplateAdapterBase extends AdapterBase implements Templat
         }
 
         TemplateType templateType = templateMgr.validateTemplateType(cmd, _accountMgr.isAdmin(caller.getAccountId()),
-                false, params.getHypervisorType());
+                params.getZoneId() == -1, params.getHypervisorType());
 
         return prepare(params.isIso(), params.getUserId(), params.getName(), params.getDisplayText(), params.getArch(), params.getBits(),
                 params.isPasswordEnabled(), params.requiresHVM(), params.getUrl(), params.isPublic(), params.isFeatured(),

@@ -57,12 +57,12 @@ const createWrapper = () => {
         'a-select': { template: '<select><slot /></select>' },
         'a-select-option': { template: '<option><slot /></option>' },
         'a-input': { template: '<input />' },
-      'a-alert': { template: '<div />' },
-      'a-checkbox': { template: '<input type="checkbox" />' },
-      'a-input-password': { template: '<input />' },
-      'a-radio-button': { template: '<button><slot /></button>' },
-      'a-radio-group': { template: '<div><slot /></div>' },
-      'a-button': { template: '<button><slot /></button>' }
+        'a-alert': { template: '<div />' },
+        'a-checkbox': { template: '<input type="checkbox" />' },
+        'a-input-password': { template: '<input />' },
+        'a-radio-button': { template: '<button><slot /></button>' },
+        'a-radio-group': { template: '<div><slot /></div>' },
+        'a-button': { template: '<button><slot /></button>' }
       }
     }
   })

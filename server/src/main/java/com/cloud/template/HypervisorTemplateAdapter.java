@@ -372,13 +372,21 @@ public class HypervisorTemplateAdapter extends TemplateAdapterBase {
                 }
 
                 List<Long> zoneIdList = profile.getZoneIdList();
+                Long uploadZoneId;
 
                 if (zoneIdList == null) {
-                    throw new CloudRuntimeException("Zone ID is null, cannot upload ISO/template.");
+                    // It's a cross-zone local upload. Pick the first available zone as the pivot for the initial upload.
+                    List<DataCenterVO> dcs = _dcDao.listAll();
+                    if (dcs.isEmpty()) {
+                        throw new CloudRuntimeException("No zones are present in the system, cannot upload template.");
+                    }
+                    uploadZoneId = dcs.get(0).getId();
+                } else {
+                    if (zoneIdList.size() > 1) {
+                        throw new CloudRuntimeException("Operation is not supported for more than one zone id at a time.");
+                    }
+                    uploadZoneId = zoneIdList.get(0);
                 }
-
-                if (zoneIdList.size() > 1)
-                    throw new CloudRuntimeException("Operation is not supported for more than one zone id at a time.");
 
                 // Set Event Details for Template/ISO Upload
                 String eventType = template.getFormat().equals(ImageFormat.ISO) ? "Iso" : "Template";
@@ -390,7 +398,7 @@ public class HypervisorTemplateAdapter extends TemplateAdapterBase {
                     CallContext.current().setEventResourceId(template.getId());
                 }
 
-                Long zoneId = zoneIdList.get(0);
+                Long zoneId = uploadZoneId;
                 DataStore imageStore = templateMgr.verifyHeuristicRulesForZone(template, zoneId);
                 List<TemplateOrVolumePostUploadCommand> payloads = new LinkedList<>();
 
