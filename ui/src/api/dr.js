@@ -258,8 +258,8 @@ export function updateDrPlan (id, params) {
   return submitDrMutation('updateDrPlan', Object.assign({ id }, params))
 }
 
-export function deleteDrPlan (id) {
-  return postAPI('deleteDrPlan', { id }).then(response => ({
+export function deleteDrPlan (id, force = false) {
+  return postAPI('deleteDrPlan', { id, ...(force ? { force: true } : {}) }).then(response => ({
     jobid: extractJobId(response, 'deleteDrPlan'),
     raw: response
   }))

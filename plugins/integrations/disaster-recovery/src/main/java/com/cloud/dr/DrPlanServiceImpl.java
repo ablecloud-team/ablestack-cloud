@@ -216,22 +216,35 @@ public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
 
     @Override
     public boolean deletePlan(long planId) {
+        return deletePlan(planId, false);
+    }
+
+    @Override
+    public boolean deletePlan(long planId, boolean force) {
         DrPlanVO plan = requirePlan(planId);
         if (drRunDao.findActiveByPlanId(planId) != null) {
             throw new InvalidParameterValueException(DrConstants.ERROR_ACTIVE_RUN_EXISTS + ": active run exists for plan " + planId);
         }
-        if (hasRuntimeResources(planId, plan) || isProtectedPlanState(plan)) {
+        if (!force && (hasRuntimeResources(planId, plan) || isProtectedPlanState(plan))) {
             throw new InvalidParameterValueException(DrConstants.ERROR_RUNTIME_RESOURCE_EXISTS
                     + ": release DR protection and cleanup runtime resources before deleting plan " + planId);
+        }
+        if (force) {
+            // Unregister only. Preserve runtime/history evidence for manual remote cleanup.
+            plan.setAdminState(DrConstants.ADMIN_STATE_DISABLED);
+            plan.markUpdated();
+            drPlanDao.update(planId, plan);
+            if (testCleanupRecovery != null) testCleanupRecovery.supersedePlan(planId);
+            logger.warn("Force unregistering DR plan {} ({}); remote resources may require manual cleanup", planId, plan.getUuid());
         }
         DrPlanViewCacheVO cache = drPlanViewCacheDao != null ? drPlanViewCacheDao.findByPlanId(planId) : null;
         if (cache != null && !drPlanViewCacheDao.remove(cache.getId())) {
             throw new CloudRuntimeException("Failed to delete DR protection view cache for plan " + planId);
         }
-        if (drSyncCycleDao != null) {
+        if (!force && drSyncCycleDao != null) {
             drSyncCycleDao.removeByPlanId(planId);
         }
-        if (drPlanRuntimeDao != null) {
+        if (!force && drPlanRuntimeDao != null) {
             drPlanRuntimeDao.removeByPlanId(planId);
         }
         if (!drPlanDao.remove(planId)) {

@@ -7473,5 +7473,6 @@
   "message.storage.service.runtime.rollback.success": "The previous runtime was restored.",
   "message.storage.service.runtime.rollback.failed": "Runtime rollback failed. Manual recovery is required.",
   "label.dr.test.source.independent": "Use sealed checkpoint without source access",
-  "message.dr.test.source.independent": "Uses an existing sealed target checkpoint. Missing or mismatched seals are rejected. Select an isolated network or disable the network adapters."
+  "message.dr.test.source.independent": "Uses an existing sealed target checkpoint. Missing or mismatched seals are rejected. Select an isolated network or disable the network adapters.",
+  "message.dr.confirm.force.delete.plan": "Force deletes the DR plan registration only. Virtual machines and volumes are preserved. Remote replication jobs and test resources may remain and require manual stop and cleanup on their hosts."
 }

@@ -1166,7 +1166,8 @@
 </template>
 
 <script>
-import { notification } from 'ant-design-vue'
+import { h } from 'vue'
+import { Checkbox, notification } from 'ant-design-vue'
 import ActionButton from '@/components/view/ActionButton'
 import Breadcrumb from '@/components/widgets/Breadcrumb'
 import DrEventsTab from '@/views/infra/dr/DrEventsTab.vue'
@@ -3540,14 +3541,23 @@ export default {
       if (!plan?.id) {
         return
       }
+      let force = false
       this.$confirm({
         title: this.$t('label.dr.plan.delete'),
-        content: this.$t('message.dr.confirm.delete.plan'),
+        content: () => h('div', [
+          h('p', this.$t('message.dr.confirm.delete.plan')),
+          h(Checkbox, {
+            defaultChecked: false,
+            onChange: event => { force = event.target.checked }
+          }, { default: () => this.$t('label.dr.action.force') }),
+          h('p', { style: 'margin-top: 12px' }, this.$t('message.dr.confirm.force.delete.plan')),
+          h('p', plan.id)
+        ]),
         okType: 'danger',
         okText: this.$t('label.yes'),
         cancelText: this.$t('label.no'),
         onOk: () => {
-          return deleteDrPlan(plan.id).then(result => this.waitForDeleteJob(result?.jobid, {
+          return deleteDrPlan(plan.id, force).then(result => this.waitForDeleteJob(result?.jobid, {
             title: this.$t('label.dr.plan.delete'),
             description: plan.name || plan.id || ''
           })).then(() => {

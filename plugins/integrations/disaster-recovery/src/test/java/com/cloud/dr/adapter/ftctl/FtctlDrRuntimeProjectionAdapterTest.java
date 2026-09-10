@@ -89,6 +89,45 @@ import com.google.gson.JsonParser;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FtctlDrRuntimeProjectionAdapterTest {
+    @Mock
+    private com.cloud.dr.DrTestCleanupRecoveryStore testCleanupRecovery;
+
+    @Test
+    public void failedTestRestoresIntentOnlyAfterActualCleanupOfLatestRun() {
+        DrPlanVO plan = new DrPlanVO("failed-test", 1L, 2L, DrConstants.DIRECTION_VMWARE_TO_KVM);
+        DrRunVO run = new DrRunVO(plan.getId(), DrConstants.RUN_TYPE_TEST_FAILOVER);
+        run.setState(DrConstants.RUN_STATE_FAILED);
+        DrTestSessionVO session = new DrTestSessionVO(plan.getId(), run.getId(), "FAILED");
+        session.setCleanupRequired(false);
+        FtctlDrStatusCommand command = new FtctlDrStatusCommand(plan.getUuid(), run.getUuid());
+        FtctlDrStatusAnswer status = new FtctlDrStatusAnswer(command, true, "ok");
+        status.setTestSessionState("CLEANED");
+        status.setTestArtifactsState("CLEANED");
+        status.setTestCleanupState("CLEANED");
+        status.setCheckpointLeaseState("RELEASED");
+        status.setCleanupRequired(false);
+        JsonObject runtime = new JsonObject();
+        runtime.addProperty("run_uuid", run.getUuid());
+        Mockito.when(drRunDao.findLatestByPlanId(plan.getId())).thenReturn(run);
+        Mockito.when(drTestSessionDao.findByRunIdIncludingRemoved(run.getId())).thenReturn(session);
+        adapter.restoreAfterFailedTestCleanup(plan, run, status, runtime);
+        Mockito.verify(testCleanupRecovery).arm(plan.getId(), run.getId(), run.getId());
+        Mockito.clearInvocations(testCleanupRecovery);
+
+        session.setCleanupRequired(true);
+        adapter.restoreAfterFailedTestCleanup(plan, run, status, runtime);
+        session.setCleanupRequired(false);
+        session.setTargetVmId(99L);
+        adapter.restoreAfterFailedTestCleanup(plan, run, status, runtime);
+        session.setTargetVmId(null);
+        status.setCleanupRequired(true);
+        adapter.restoreAfterFailedTestCleanup(plan, run, status, runtime);
+        status.setCleanupRequired(false);
+        runtime.addProperty("run_uuid", "other-run");
+        adapter.restoreAfterFailedTestCleanup(plan, run, status, runtime);
+        Mockito.verifyNoInteractions(testCleanupRecovery);
+    }
+
 
     @Test
     public void bootProfileEvidenceAllowsPerformanceDriftButRejectsFirmwareDrift() {

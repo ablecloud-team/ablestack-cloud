@@ -37,6 +37,7 @@ public interface DrPlanService {
     DrPlanVO disablePlan(long planId);
 
     boolean deletePlan(long planId);
+    boolean deletePlan(long planId, boolean force);
 
     Map<String, Boolean> getActionEligibility(long planId);
 

@@ -4,6 +4,7 @@
 // regarding copyright ownership. The ASF licenses this file
 // to you under the Apache License, Version 2.0.
 
+import { resolveDrActionAvailability } from '@/utils/dr/actionAvailability'
 import { buildDrPlanActions } from '@/utils/dr/resourceActions'
 
 function actionFor (key, currentRun = {}) {
@@ -117,4 +118,19 @@ describe('DR plan resource actions', () => {
     expect(action.modal).toBe(true)
     expect(action.intent).toBe('SYNC')
   })
+  it.each([
+    {},
+    { state: 'ERROR', actioneligibility: { delete: false } },
+    { state: 'RUNNING', actionavailability: { delete: { applicable: false, enabled: false } } },
+    { state: 'UNPROTECTED', adminstate: 'DISABLED' }
+  ])('always opens the single delete dialog for plan %j', resource => {
+    const actions = buildDrPlanActions({ id: 'active-run', state: 'RUNNING' })
+    const deletes = actions.filter(action => action.api === 'deleteDrPlan')
+    expect(deletes).toHaveLength(1)
+    expect(deletes[0].key).toBe('delete')
+    expect(deletes[0].show(resource)).toBe(true)
+    expect(deletes[0].disabled(resource)).toBe(false)
+    expect(resolveDrActionAvailability(deletes[0], resource, { state: 'RUNNING' })).toEqual({ applicable: true, enabled: true, reasonCode: '' })
+  })
+
 })

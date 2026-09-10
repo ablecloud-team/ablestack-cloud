@@ -3787,6 +3787,7 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
                 || StringUtils.equalsIgnoreCase(run.getTerminalSource(), "ENGINE_TERMINAL"));
         run.markUpdated();
         drRunDao.update(run.getId(), run);
+        restoreAfterFailedTestCleanup(plan, run, status, runtime);
         boolean finiteOperationFailed = isFiniteOperationRun(run);
         boolean failoverPreparationAborted = !finiteOperationFailed
                 && abortFailedFailoverPreparation(plan, run, runtime, errorCode, message);
@@ -3805,6 +3806,17 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
         }
         persistRunProjectionEvent(plan, run, DrConstants.EVENT_RUN_FAILED, DrConstants.EVENT_SEVERITY_ERROR,
                 message, compactStatusJson);
+    }
+
+    void restoreAfterFailedTestCleanup(DrPlanVO plan, DrRunVO run, FtctlDrStatusAnswer status, JsonObject runtime) {
+        if (!StringUtils.equals(run.getRunType(), DrConstants.RUN_TYPE_TEST_FAILOVER)
+                || testCleanupRecovery == null || !hasTerminalTestCleanupProof(status, runtime)
+                || !runtimeBelongsToRun(runtime, run)) return;
+        DrRunVO latest = drRunDao.findLatestByPlanId(plan.getId());
+        if (latest == null || latest.getId() != run.getId()) return;
+        DrTestSessionVO session = drTestSessionDao.findByRunIdIncludingRemoved(run.getId());
+        if (session == null || session.getTargetVmId() != null || session.isCleanupRequired()) return;
+        testCleanupRecovery.arm(plan.getId(), run.getId(), run.getId());
     }
 
     private boolean abortFailedFailoverPreparation(DrPlanVO plan, DrRunVO run, JsonObject runtime,

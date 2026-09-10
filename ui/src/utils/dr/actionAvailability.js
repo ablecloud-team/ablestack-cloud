@@ -119,6 +119,10 @@ export function resolveDrActionAvailability (action, resource = {}, currentRun =
   }
 
   const key = String(action.key).toLowerCase()
+  // Deletion opens a dialog with a force option; the API validates execution.
+  if (key === 'delete') {
+    return { applicable: true, enabled: true, reasonCode: '' }
+  }
   if (key === 'cancelrun' && !isActiveDrRun(currentRun)) {
     return { applicable: false, enabled: false, reasonCode: '' }
   }

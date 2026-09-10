@@ -39,6 +39,10 @@ public class DrTestCleanupRecoveryStore {
             return ps.executeUpdate();
         } catch (SQLException e) { throw new CloudRuntimeException("DR test cleanup intent persistence failed", e); }
     }
+    public void supersedePlan(long planId) {
+        update("UPDATE dr_test_cleanup_recovery SET state='SUPERSEDED',lease_until=NULL,updated_at=UTC_TIMESTAMP() "
+                + "WHERE plan_id=? AND state IN ('HELD','PENDING')", planId);
+    }
     public void capture(long planId, long testRunId, String desired) {
         update("INSERT IGNORE INTO dr_test_cleanup_recovery (test_run_id,plan_id,desired_state,state,next_attempt_at) "
                 + "VALUES (?,?,?,'HELD',UTC_TIMESTAMP())", testRunId, planId, desired);
