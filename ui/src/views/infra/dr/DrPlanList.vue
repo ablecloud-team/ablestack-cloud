@@ -2590,7 +2590,7 @@ export default {
         this.protectionSnapshot = {}
         return this.fetchRuns()
       }
-      return getDrProtectionView(this.detailId).then(view => {
+      return Promise.all([getDrProtectionView(this.detailId), getDrPlan(this.detailId)]).then(([view, livePlan]) => {
         this.protectionView = view || {}
         let snapshot = view?.snapshot || {}
         if (typeof snapshot === 'string') {
@@ -2610,6 +2610,8 @@ export default {
         const cachedPlan = this.normalizeCachedRecord(
           authoritativeProjection ? snapshot.planProjection : snapshot.plan)
         this.applyCachedPlan(cachedPlan, { authoritative: authoritativeProjection })
+        // A source outage can leave the projection snapshot older than completed target actions.
+        this.detailPlan = reconcileDrPlanProjection(this.detailPlan, livePlan)
         const sourceSite = this.normalizeCachedRecord(snapshot.sourceSite)
         const targetSite = this.normalizeCachedRecord(snapshot.targetSite)
         if (sourceSite.uuid) sourceSite.id = sourceSite.uuid
