@@ -131,6 +131,57 @@ public class FtctlDrRuntimeProjectionAdapterTest {
     }
 
     @Test
+    public void checkpointPublicationResumesOnlyAfterMatchingFailbackCommit() {
+        DrPlanVO plan = new DrPlanVO("failback-checkpoint", 1L, 2L, DrConstants.DIRECTION_VMWARE_TO_KVM);
+        ReflectionTestUtils.setField(plan, "id", 44L);
+        // Projection may still contain the previous active side on this poll.
+        plan.setActiveSide("TARGET");
+        DrRunVO run = new DrRunVO(plan.getId(), DrConstants.RUN_TYPE_FAILBACK);
+        ReflectionTestUtils.setField(run, "id", 71L);
+        DrFailbackSessionVO session = new DrFailbackSessionVO(plan.getId(), run.getId(),
+                "session", "PROTECTION_RESUMING");
+        session.setCommitOutcome("ACKNOWLEDGED");
+        session.setEngineAckState("ACKNOWLEDGED");
+        session.setTargetPowerState("POWERED_OFF");
+        session.setSourcePowerState("POWERED_ON");
+        Mockito.when(drFailbackSessionDao.findActiveByRunId(run.getId())).thenReturn(session);
+        JsonObject request = new JsonObject();
+        request.addProperty("planUuid", plan.getUuid());
+        request.addProperty("producerRunUuid", "producer");
+        request.addProperty("checkpointSequence", 56);
+        request.add("disks", new com.google.gson.JsonArray());
+        JsonObject pending = new JsonObject();
+        pending.add("request", request);
+        JsonObject runtime = new JsonObject();
+        runtime.addProperty("checkpoint_publication_pending", pending.toString());
+        Mockito.when(drWorkerPlacementService.resolveWorkerHostId(plan, com.cloud.dr.DrWorkerRole.TARGET)).thenReturn(22L);
+        FtctlDrActionAnswer answer = new FtctlDrActionAnswer(new FtctlDrActionCommand(
+                FtctlDrActionCommand.Action.CHECKPOINT_PUBLISH, plan.getUuid(), "producer"), true, "ok");
+        JsonObject proof = new JsonObject();
+        proof.addProperty("state", "COMMITTED");
+        proof.add("contract", request);
+        proof.addProperty("manifestSha256", "proof-digest");
+        ReflectionTestUtils.setField(answer, "statusJson", proof.toString());
+        Mockito.when(agentManager.easySend(Mockito.eq(22L), Mockito.any(FtctlDrActionCommand.class))).thenReturn(answer);
+        adapter.reconcileCheckpointPublication(plan, run, runtime, 11L);
+        Mockito.verify(agentManager).easySend(Mockito.eq(11L), Mockito.argThat(
+                (FtctlDrActionCommand action) -> action.getAction() == FtctlDrActionCommand.Action.CHECKPOINT_ACK));
+        Mockito.clearInvocations(agentManager);
+        session.setEngineAckState("PENDING");
+        adapter.reconcileCheckpointPublication(plan, run, runtime, 11L);
+        session.setEngineAckState("ACKNOWLEDGED");
+        session.setTargetPowerState("POWERED_ON");
+        adapter.reconcileCheckpointPublication(plan, run, runtime, 11L);
+        session.setTargetPowerState("POWERED_OFF");
+        session.setSourcePowerState("POWERED_OFF");
+        adapter.reconcileCheckpointPublication(plan, run, runtime, 11L);
+        session.setSourcePowerState("POWERED_ON");
+        session.setState("COMMIT_VERIFYING");
+        adapter.reconcileCheckpointPublication(plan, run, runtime, 11L);
+        Mockito.verifyNoInteractions(agentManager);
+    }
+
+    @Test
     public void checkpointPublicationDoesNotGateDisasterOrRelease() {
         DrPlanVO plan = new DrPlanVO("checkpoint", 1L, 2L, DrConstants.DIRECTION_VMWARE_TO_KVM);
         JsonObject runtime = new JsonObject();

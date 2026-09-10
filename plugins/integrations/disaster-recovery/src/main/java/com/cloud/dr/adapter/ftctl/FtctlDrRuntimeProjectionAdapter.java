@@ -218,9 +218,15 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
 
     void reconcileCheckpointPublication(DrPlanVO plan, DrRunVO projectionRun,
             JsonObject runtime, Long sourceHostId) {
-        if ((projectionRun != null && !StringUtils.equalsAnyIgnoreCase(projectionRun.getRunType(),
+        // The first forward checkpoint is required to finish an acknowledged
+        // failback. Do not exclude that publication while waiting for it.
+        boolean sourceRestored = projectionRun != null
+                && StringUtils.equalsIgnoreCase(projectionRun.getRunType(), DrConstants.RUN_TYPE_FAILBACK)
+                && drFailbackSessionDao != null
+                && isCommittedSourceFailbackSession(drFailbackSessionDao.findActiveByRunId(projectionRun.getId()));
+        if (!sourceRestored && ((projectionRun != null && !StringUtils.equalsAnyIgnoreCase(projectionRun.getRunType(),
                 DrConstants.RUN_TYPE_SYNC, "RESUME_SYNC", "PAUSE_SYNC"))
-                || StringUtils.equalsIgnoreCase(plan.getActiveSide(), "TARGET")) {
+                || StringUtils.equalsIgnoreCase(plan.getActiveSide(), "TARGET"))) {
             return;
         }
         String pendingJson = stringValue(runtime, "checkpoint_publication_pending");
@@ -1811,14 +1817,18 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
         reconcileAcceptedRunFromStatus(plan, status, runtime);
     }
 
+    private boolean isCommittedSourceFailbackSession(DrFailbackSessionVO session) {
+        return session != null
+                && StringUtils.equalsIgnoreCase(session.getState(), "PROTECTION_RESUMING")
+                && StringUtils.equalsIgnoreCase(session.getCommitOutcome(), "ACKNOWLEDGED")
+                && StringUtils.equalsIgnoreCase(session.getEngineAckState(), "ACKNOWLEDGED")
+                && StringUtils.equalsIgnoreCase(session.getTargetPowerState(), "POWERED_OFF")
+                && StringUtils.equalsIgnoreCase(session.getSourcePowerState(), "POWERED_ON");
+    }
+
     private boolean preserveCommittedSourceAuthorityDuringFailback(DrPlanVO plan,
             FtctlDrStatusAnswer status, JsonObject runtime, DrFailbackSessionVO session) {
-        if (plan == null || session == null
-                || !StringUtils.equalsIgnoreCase(session.getState(), "PROTECTION_RESUMING")
-                || !StringUtils.equalsIgnoreCase(session.getCommitOutcome(), "ACKNOWLEDGED")
-                || !StringUtils.equalsIgnoreCase(session.getEngineAckState(), "ACKNOWLEDGED")
-                || !StringUtils.equalsIgnoreCase(session.getTargetPowerState(), "POWERED_OFF")
-                || !StringUtils.equalsIgnoreCase(session.getSourcePowerState(), "POWERED_ON")) {
+        if (plan == null || !isCommittedSourceFailbackSession(session)) {
             return false;
         }
         boolean changed = false;
