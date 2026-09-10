@@ -17,8 +17,10 @@
 
 package com.cloud.agent.api;
 
+
 public class FtctlDrReversePreflightCommand extends Command {
     private String planUuid;
+    @LogLevel(LogLevel.Log4jLevel.Off)
     private String profileJson;
     private String operationIntent;
     private String requestedMode;

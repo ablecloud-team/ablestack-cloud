@@ -18,8 +18,13 @@
 package com.cloud.serializer;
 
 import com.cloud.agent.api.to.NfsTO;
+import com.cloud.agent.api.FtctlDrReversePreflightCommand;
 import com.cloud.storage.DataStoreRole;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.cloud.agent.transport.LoggingExclusionStrategy;
+import org.apache.logging.log4j.Logger;
+import org.mockito.Mockito;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -77,5 +82,22 @@ public class GsonHelperTest {
         assertNotNull(deserializedNfsTO);
         assertEquals("http://example.com", deserializedNfsTO.getUrl());
         assertEquals(DataStoreRole.Primary, deserializedNfsTO.getRole());
+    }
+    @Test
+    public void testReversePreflightCredentialsAreWireOnly() {
+        String profile = "{\"credentials\":{\"source\":{\"auth\":{\"password\":\"test-preflight-secret\"}}}}";
+        FtctlDrReversePreflightCommand command = new FtctlDrReversePreflightCommand(
+                "test-plan", profile, "FAILBACK_FINAL", "AUTO");
+        String wire = gson.toJson(command);
+        FtctlDrReversePreflightCommand restored = gson.fromJson(wire, FtctlDrReversePreflightCommand.class);
+        assertEquals(profile, restored.getProfileJson());
+        Logger debugLogger = Mockito.mock(Logger.class);
+        Mockito.when(debugLogger.isEnabled(org.apache.logging.log4j.Level.DEBUG)).thenReturn(true);
+        Gson activeLogger = GsonHelper.setDefaultGsonConfig(new GsonBuilder()
+                .setExclusionStrategies(new LoggingExclusionStrategy(debugLogger)));
+        String logged = activeLogger.toJson(new com.cloud.agent.api.Command[] {command});
+        assertTrue(logged.contains("test-plan"));
+        assertTrue(!logged.contains("test-preflight-secret"));
+        assertTrue(!logged.contains("credentials"));
     }
 }
