@@ -234,8 +234,7 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
     @Override
     public DrAdapterResult execute(DrExecutionContext context) {
         FtctlDrActionCommand.Action action = resolveAction(context.getRun());
-        boolean testCheckpointBarrier = action == FtctlDrActionCommand.Action.TEST_PREPARE
-                && (requiresTestCheckpointBarrier(context.getPlan()) || sourceIndependentTest(context.getRun()));
+        boolean testCheckpointBarrier = action == FtctlDrActionCommand.Action.TEST_PREPARE;
         boolean testCheckpointBarrierAcquired = false;
         boolean plannedRemoteKvmIsolationRequired = requiresPlannedRemoteKvmIsolation(context, action);
         boolean plannedRemoteKvmIsolated = false;
@@ -569,6 +568,9 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
     private void preparePlanOwnedTransport(DrExecutionContext context, FtctlDrActionCommand.Action action,
             FtctlDrActionCommand sourceCommand) {
         DrPlanVO plan = context.getPlan();
+        if (action == FtctlDrActionCommand.Action.TEST_PREPARE) {
+            captureTestReplicationIntent(context);
+        }
         if (action == FtctlDrActionCommand.Action.TEST_PREPARE && (requiresTestCheckpointBarrier(plan) || sourceIndependentTest(context.getRun()))) {
             prepareTestCheckpointBarrier(context, sourceCommand);
             return;
@@ -608,11 +610,6 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
             FtctlDrActionCommand command) {
         DrPlanVO plan = context.getPlan();
         boolean immutableFileCheckpoint = isSharedMountPointFilePlan(plan);
-        if (testCleanupRecovery != null) {
-            DrPlanRuntimeVO previous = drPlanRuntimeDao.findByPlanId(plan.getId());
-            testCleanupRecovery.capture(plan.getId(), context.getRun().getId(),
-                    preTestReplicationIntent(plan, previous));
-        }
         boolean independent = sourceIndependentTest(context.getRun());
         if (!independent) {
             FtctlDrActionAnswer pause = transitionTestCheckpointScheduler(context,
@@ -666,6 +663,15 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
             }
             LOGGER.error("Unable to restore FILE DR protection after Test Failover preparation failed for Plan {}: {}",
                     context.getPlan().getUuid(), compensationFailure.getMessage(), compensationFailure);
+        }
+    }
+
+    private void captureTestReplicationIntent(DrExecutionContext context) {
+        if (testCleanupRecovery != null) {
+            DrPlanVO plan = context.getPlan();
+            DrPlanRuntimeVO previous = drPlanRuntimeDao.findByPlanId(plan.getId());
+            testCleanupRecovery.capture(plan.getId(), context.getRun().getId(),
+                    preTestReplicationIntent(plan, previous));
         }
     }
 
@@ -845,6 +851,10 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
         DrRunVO run = context.getRun();
         JsonObject request = requestJson(run);
         JsonObject redactedRequest = redactJson(request).getAsJsonObject();
+        if (action == FtctlDrActionCommand.Action.TEST_PREPARE
+                || action == FtctlDrActionCommand.Action.TEST_ARTIFACT_CLEANUP) {
+            redactedRequest.addProperty("sourceSchedulerRestoreManagedByCloud", true);
+        }
         DrRestorePointVO latestCheckpoint = usesLatestCheckpointEvidence(action)
                 ? drRestorePointDao.findLatestTargetReadyByPlanId(plan.getId()) : null;
         redactedRequest.remove("restorePointId");
@@ -1119,6 +1129,10 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
         command.setRequiredCliCommands(requiredCliCommands);
         List<String> requiredFeatures = new ArrayList<String>();
         if (sourceIndependentTest(context.getRun())) requiredFeatures.add("dr-source-independent-test-v1");
+        if (action == FtctlDrActionCommand.Action.TEST_PREPARE
+                || action == FtctlDrActionCommand.Action.TEST_ARTIFACT_CLEANUP) {
+            requiredFeatures.add("dr-cloud-test-recovery-v1");
+        }
         if (action == FtctlDrActionCommand.Action.FAILBACK
                 || action == FtctlDrActionCommand.Action.REPROTECT) {
             requiredFeatures.add("dr-transition-preflight-v2");

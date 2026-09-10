@@ -82,6 +82,41 @@ public class FtctlDrUnifiedActionAdapterTest {
     }
 
     @Test
+    public void vmwareTestCapturesPausedIntentBeforeLocalRuntimeQuiesce() {
+        DrPlanVO plan = ftctlDrPlan();
+        plan.setState("PAUSED");
+        DrRunVO run = run(DrConstants.RUN_TYPE_TEST_FAILOVER, "{}");
+        org.springframework.test.util.ReflectionTestUtils.invokeMethod(adapter,
+                "captureTestReplicationIntent", new DrExecutionContext(plan, run));
+        Mockito.verify(testCleanupRecovery).capture(plan.getId(), run.getId(), "PAUSED");
+    }
+
+    @Test
+    public void vmwareTestCapturesRunningIntentForDurableCleanupRecovery() {
+        DrPlanVO plan = ftctlDrPlan();
+        plan.setState("READY");
+        DrRunVO run = run(DrConstants.RUN_TYPE_TEST_FAILOVER, "{}");
+        org.springframework.test.util.ReflectionTestUtils.invokeMethod(adapter,
+                "captureTestReplicationIntent", new DrExecutionContext(plan, run));
+        Mockito.verify(testCleanupRecovery).capture(plan.getId(), run.getId(), "RUNNING");
+    }
+
+    @Test
+    public void vmwareCleanupDelegatesSourceRestoreToCloud() {
+        DrPlanVO plan = ftctlDrPlan();
+        DrRunVO run = run(DrConstants.RUN_TYPE_TEST_CLEANUP, "{}");
+        FtctlDrActionCommand command = org.springframework.test.util.ReflectionTestUtils.invokeMethod(adapter,
+                "buildActionCommand", new DrExecutionContext(plan, run),
+                FtctlDrActionCommand.Action.TEST_ARTIFACT_CLEANUP);
+        Assert.assertTrue(JsonParser.parseString(command.getRequestJson()).getAsJsonObject()
+                .get("sourceSchedulerRestoreManagedByCloud").getAsBoolean());
+        Assert.assertTrue(JsonParser.parseString(command.getProfileJson()).getAsJsonObject()
+                .getAsJsonObject("request").get("sourceSchedulerRestoreManagedByCloud").getAsBoolean());
+        Mockito.verify(drRemoteAgentClient).isRemoteKvmSource(plan);
+        Mockito.verifyNoMoreInteractions(drRemoteAgentClient);
+    }
+
+    @Test
     public void automaticVmwareThumbprintsAreRefreshableButOperatorPinsAreNot() {
         Assert.assertTrue(FtctlDrUnifiedActionAdapter.shouldRefreshAutoThumbprint("backend-auto"));
         Assert.assertTrue(FtctlDrUnifiedActionAdapter.shouldRefreshAutoThumbprint("backend-auto-refreshed"));
@@ -90,6 +125,8 @@ public class FtctlDrUnifiedActionAdapterTest {
         Assert.assertFalse(FtctlDrUnifiedActionAdapter.shouldRefreshAutoThumbprint(null));
     }
 
+    @Mock
+    private com.cloud.dr.DrTestCleanupRecoveryStore testCleanupRecovery;
     @Mock
     private AgentManager agentManager;
     @Mock

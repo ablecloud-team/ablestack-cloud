@@ -32,3 +32,13 @@
 ### 대상 복구 결과 투영과 시작 검사 보완
 
 실환경 source Mold 단절에서 대상 아티팩트 준비는 성공했지만 PLAN_AUTHORITY 조회가 원본으로 라우팅되어 테스트 VM 생성이 지연되는 것을 확인했다. 원본 독립 Test Failover, Test Cleanup, Disaster Failover는 대상 역할로 작업자를 선택하고 대상 상태/작업 결과를 조회한다. 테스트 작업의 대상 관측 결과로 원본 복제 authority와 restore point를 갱신하지 않는다. API 사전 검사는 해당 작업에 대해 DB 기반 readiness와 blockers를 적용하고 실제 capability 검증은 기존 대상 dispatch 경로에서 수행하여, 관련 없는 원본 capability RPC와 timeout을 기다리지 않는다. Planned Failover와 원본 동기화의 검증 조건은 유지한다.
+
+## VMware 원본·대상 QGA 검증 제외 (2026-09-10 사용자 요구)
+
+VMware에서 복제한 VM은 VMware 원본과 ABLESTACK 대상 모두 QGA 검증 대상에서 제외한다. 대상이 KVM으로 실행되더라도 QGA 필수 옵션이나 guest-ping 성공을 조건으로 사용하지 않는다. 대상 OS 부팅 및 필수 드라이버 동작을 확인하며 QGA 미설치를 제품 실패로 판정하지 않는다. 정상/원본 독립 테스트 페일오버와 재해 전환 검증에 동일하게 적용한다. KVM 원본 경로의 QGA 검증과 구분한다.
+
+## #988: Cloud 관리 테스트의 복제 복원 소유권
+
+모든 TEST_PREPARE에서 이전 RUNNING/PAUSED 의도를 durable store에 저장한다. Cloud 요청은 TEST_PREPARE/TEST_ARTIFACT_CLEANUP에 `sourceSchedulerRestoreManagedByCloud=true`를 포함하고 `dr-cloud-test-recovery-v1` capability를 요구한다. qemu는 이 계약이 있는 cleanup/실패 rollback에서 source scheduler를 직접 재개하지 않는다. 로컬 transition 종료와 checkpoint lease/테스트 아티팩트 정리는 유지한다. 직접 CLI와 계약 없는 요청은 기존 재개 동작을 유지한다.
+
+Cloud 복구 worker가 정상 source profile을 다시 구성한 뒤 RUNNING 의도일 때만 RESUME한다. PAUSED 의도는 재개하지 않는다. 따라서 VMware의 source mover와 target 작업이 같은 host에서 실행되어도 source credential이 없는 target-only profile로 복제를 시작하지 않는다. 대상 정리는 원본의 QGA/연결/자격 증명에 의존하지 않는다. 새 capability가 없는 host에는 이 변경을 보내지 않는다.
