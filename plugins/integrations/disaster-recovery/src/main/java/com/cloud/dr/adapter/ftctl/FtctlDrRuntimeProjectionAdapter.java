@@ -2001,7 +2001,9 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
         long floor = resolveAuthoritySequenceFloor(plan, longValue(runtime, "cloud_authority_generation"),
                 drPlanRuntimeDao != null ? drPlanRuntimeDao.findByPlanId(plan.getId()) : null);
         floor = Math.max(floor, session.getCheckpointSequence() != null ? session.getCheckpointSequence() : run.getId());
-        boolean rejectedStale = StringUtils.contains(plan.getLastErrorMessage(), "DR_CUTOVER_GENERATION_STALE");
+        Long committedGeneration = longValue(runtime, "cloud_authority_generation");
+        boolean rejectedStale = StringUtils.contains(plan.getLastErrorMessage(), "DR_CUTOVER_GENERATION_STALE")
+                || (previousGeneration != null && committedGeneration != null && previousGeneration < committedGeneration);
         long generation = cutoverGeneration(previousGeneration, floor, session.getEngineSessionId(),
                 stringValue(runtime, "cloud_cutover_session_id"), rejectedStale);
         if (previousGeneration != null && previousGeneration != generation) {
