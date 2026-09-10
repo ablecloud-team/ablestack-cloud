@@ -15,9 +15,9 @@
 # specific language governing permissions and limitations
 # under the License.
 code	issue	url	title	source_count	gate_dependencies	status
-S1	#989	https://github.com/ablecloud-team/ablestack-cloud/issues/989	[Europa][4.23][S1] 원본 커밋 추적표·merge 해결 내역·의존성 기준 확정	0		IN_PROGRESS
-S2	#990	https://github.com/ablecloud-team/ablestack-cloud/issues/990	[Europa][4.23][S2] Rocky 9.8 검증 기반·빌드 의존성·CI 및 라이선스 정비	77	S1	WAITING
-S3	#991	https://github.com/ablecloud-team/ablestack-cloud/issues/991	[Europa][4.23][S3] 인증·권한·보안 및 API 기반 변경 통합	66	S1;S2	WAITING
+S1	#989	https://github.com/ablecloud-team/ablestack-cloud/issues/989	[Europa][4.23][S1] 원본 커밋 추적표·merge 해결 내역·의존성 기준 확정	0		DONE
+S2	#990	https://github.com/ablecloud-team/ablestack-cloud/issues/990	[Europa][4.23][S2] Rocky 9.8 검증 기반·빌드 의존성·CI 및 라이선스 정비	77	S1	BASELINE_READY
+S3	#991	https://github.com/ablecloud-team/ablestack-cloud/issues/991	[Europa][4.23][S3] 인증·권한·보안 및 API 기반 변경 통합	66	S1;S2	NEXT
 S4	#992	https://github.com/ablecloud-team/ablestack-cloud/issues/992	[Europa][4.23][S4] 동일 버전 DB 업그레이드·자원 할당·Usage 및 Quota 통합	38	S1;S2	WAITING
 S5A	#993	https://github.com/ablecloud-team/ablestack-cloud/issues/993	[Europa][4.23][S5A] VM 수명주기·KVM·migration·import·오퍼링 변경 통합	28	S1;S2	WAITING
 S5B	#994	https://github.com/ablecloud-team/ablestack-cloud/issues/994	[Europa][4.23][S5B] 스토리지·증분 NAS 백업·provider·템플릿 업로드 통합	47	S1;S2	WAITING

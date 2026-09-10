@@ -416,7 +416,7 @@ install cloud-cli/cloudapis/cloud.py ${RPM_BUILD_ROOT}%{python_sitearch}/cloudap
 
 # Marvin
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-marvin
-cp tools/marvin/dist/Marvin-*.tar.gz ${RPM_BUILD_ROOT}%{_datadir}/%{name}-marvin/
+cp tools/marvin/dist/[Mm]arvin-*.tar.gz ${RPM_BUILD_ROOT}%{_datadir}/%{name}-marvin/
 
 # integration-tests
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-integration-tests
@@ -621,8 +621,8 @@ fi
 
 %post marvin
 pip install --upgrade https://files.pythonhosted.org/packages/ca/ea/1e2553b088bad2f9fa8120c2624f797b2d7450d3b61bb492d29c72e3d3c2/mysql_connector_python-8.0.20-cp27-cp27mu-manylinux1_x86_64.whl
-pip install --upgrade /usr/share/cloudstack-marvin/Marvin-*.tar.gz
-pip3 install --upgrade /usr/share/cloudstack-marvin/Marvin-*.tar.gz
+pip install --upgrade /usr/share/cloudstack-marvin/[Mm]arvin-*.tar.gz
+pip3 install --upgrade /usr/share/cloudstack-marvin/[Mm]arvin-*.tar.gz
 pip3 install --upgrade nose
 pip3 install --upgrade urllib3
 
@@ -742,7 +742,7 @@ pip3 install --upgrade urllib3
 %{_defaultdocdir}/%{name}-cli-%{version}/NOTICE
 
 %files marvin
-%attr(0644,root,root) %{_datadir}/%{name}-marvin/Marvin*.tar.gz
+%attr(0644,root,root) %{_datadir}/%{name}-marvin/[Mm]arvin*.tar.gz
 %{_defaultdocdir}/%{name}-marvin-%{version}/LICENSE
 %{_defaultdocdir}/%{name}-marvin-%{version}/NOTICE
 

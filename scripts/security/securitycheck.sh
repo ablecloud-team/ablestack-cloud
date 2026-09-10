@@ -41,7 +41,7 @@ else
 fi
 
 # encrypt(ras) 유틸리티 
-encrypt_ras_result=$(java -classpath $cmd:${jarfile}bcprov-jdk15on-1.70.jar org.junit.runner.JUnitCore com.cloud.utils.crypto.RSAHelperTest | grep -i OK)
+encrypt_ras_result=$(java -classpath $cmd:${jarfile}bcprov-jdk18on-1.83.jar org.junit.runner.JUnitCore com.cloud.utils.crypto.RSAHelperTest | grep -i OK)
 if [ -n "$encrypt_ras_result" ]; then
     echo "encrypt(rsa),true"
 else
@@ -49,7 +49,7 @@ else
 fi
 
 # password 유틸리티 
-password_result=$(java -classpath $cmd:${jarfile}bcprov-jdk15on-1.70.jar org.junit.runner.JUnitCore com.cloud.utils.PasswordGeneratorTest | grep -i OK)
+password_result=$(java -classpath $cmd:${jarfile}bcprov-jdk18on-1.83.jar org.junit.runner.JUnitCore com.cloud.utils.PasswordGeneratorTest | grep -i OK)
 if [ -n "$password_result" ]; then
     echo "password,true"
 else

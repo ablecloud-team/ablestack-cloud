@@ -1,0 +1,339 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+name: Rocky 9.8 RPM Packaging
+
+on:
+  push:
+    branches:
+      - ablestack-europa
+    paths:
+      - '.github/workflows/rocky98-rpm.yml'
+      - 'packaging/**'
+      - 'tools/build/rocky98-*.sh'
+      - 'tools/build/ManagementRuntimeSmoke.java'
+      - 'ui/**'
+      - '**/pom.xml'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to build
+        required: false
+        default: ''
+        type: string
+      pack:
+        description: Package variant
+        required: false
+        default: noredist
+        type: choice
+        options:
+          - noredist
+          - oss
+      simulator:
+        description: Include simulator packaging
+        required: false
+        default: default
+        type: choice
+        options:
+          - default
+          - simulator
+      release:
+        description: Optional package release override
+        required: false
+        default: ''
+        type: string
+      brand:
+        description: Optional package branding override
+        required: false
+        default: ''
+        type: string
+      package_version:
+        description: Optional numeric package version override (for example 4.22.0.0)
+        required: false
+        default: ''
+        type: string
+      ui_build_version:
+        description: Optional ABLESTACK display version embedded in the UI config
+        required: false
+        default: ''
+        type: string
+      use_timestamp:
+        description: Use a timestamped release suffix
+        required: false
+        default: false
+        type: boolean
+      timestamp_value:
+        description: Optional fixed timestamp in YYYYMMDDHHMM format
+        required: false
+        default: ''
+        type: string
+      build_srpm:
+        description: Build SRPM alongside RPMs
+        required: false
+        default: false
+        type: boolean
+      templates:
+        description: Optional template list (for example kvm,xen,vmware)
+        required: false
+        default: ''
+        type: string
+      node_version:
+        description: Node.js version injected into the Rocky build container
+        required: false
+        default: 14.21.3
+        type: string
+  workflow_call:
+    inputs:
+      ref:
+        required: false
+        type: string
+      pack:
+        required: false
+        default: noredist
+        type: string
+      simulator:
+        required: false
+        default: default
+        type: string
+      release:
+        required: false
+        default: ''
+        type: string
+      brand:
+        required: false
+        default: ''
+        type: string
+      package_version:
+        required: false
+        default: ''
+        type: string
+      ui_build_version:
+        required: false
+        default: ''
+        type: string
+      use_timestamp:
+        required: false
+        default: false
+        type: boolean
+      timestamp_value:
+        required: false
+        default: ''
+        type: string
+      build_srpm:
+        required: false
+        default: false
+        type: boolean
+      templates:
+        required: false
+        default: ''
+        type: string
+      node_version:
+        required: false
+        default: 14.21.3
+        type: string
+      artifact_name:
+        required: false
+        default: ''
+        type: string
+      storage_runtime_public_key_artifact:
+        required: false
+        default: ''
+        type: string
+      storage_runtime_signing_key_id:
+        required: false
+        default: ''
+        type: string
+  pull_request:
+    paths:
+      - '.github/workflows/rocky98-rpm.yml'
+      - 'packaging/**'
+      - 'tools/build/rocky98-*.sh'
+      - 'tools/build/ManagementRuntimeSmoke.java'
+      - 'ui/**'
+      - '**/pom.xml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  rpm-rocky98:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    defaults:
+      run:
+        shell: bash
+    env:
+      ROCKY98_URL: https://download.rockylinux.org/pub/rocky/9.8/images/x86_64/Rocky-9-Container-Base-9.8-20260525.0.x86_64.oci.tar.xz
+      ROCKY98_SHA256: 1210df99dcf0ef4d73940244e6d703935175629598b09c0e430da20e76768402
+      BUILD_REF: ${{ inputs.ref || github.event.inputs.ref || github.ref }}
+      BUILD_PACK: ${{ inputs.pack || github.event.inputs.pack || 'noredist' }}
+      BUILD_SIMULATOR: ${{ inputs.simulator || github.event.inputs.simulator || 'default' }}
+      BUILD_RELEASE: ${{ inputs.release || github.event.inputs.release || '' }}
+      BUILD_BRAND: ${{ inputs.brand || github.event.inputs.brand || '' }}
+      BUILD_PACKAGE_VERSION: ${{ inputs.package_version || github.event.inputs.package_version || '' }}
+      BUILD_UI_VERSION: ${{ inputs.ui_build_version || github.event.inputs.ui_build_version || '' }}
+      BUILD_USE_TIMESTAMP: ${{ inputs.use_timestamp || github.event.inputs.use_timestamp || 'false' }}
+      BUILD_TIMESTAMP_VALUE: ${{ inputs.timestamp_value || github.event.inputs.timestamp_value || '' }}
+      BUILD_SRPM: ${{ inputs.build_srpm || github.event.inputs.build_srpm || 'false' }}
+      BUILD_TEMPLATES: ${{ inputs.templates || github.event.inputs.templates || '' }}
+      BUILD_NODE_VERSION: ${{ inputs.node_version || github.event.inputs.node_version || '14.21.3' }}
+      BUILD_ARTIFACT_NAME: ${{ inputs.artifact_name || format('rocky98-rpm-{0}', github.run_id) }}
+      BUILD_STORAGE_RUNTIME_PUBLIC_KEY_ARTIFACT: ${{ inputs.storage_runtime_public_key_artifact || '' }}
+      BUILD_STORAGE_RUNTIME_SIGNING_KEY_ID: ${{ inputs.storage_runtime_signing_key_id || '' }}
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ env.BUILD_REF }}
+          fetch-depth: 0
+
+      - name: Download Storage Service runtime public key
+        if: ${{ env.BUILD_STORAGE_RUNTIME_PUBLIC_KEY_ARTIFACT != '' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ${{ env.BUILD_STORAGE_RUNTIME_PUBLIC_KEY_ARTIFACT }}
+          path: ${{ runner.temp }}/storage-runtime-public-key
+
+      - name: Inject Storage Service runtime public key
+        if: ${{ env.BUILD_STORAGE_RUNTIME_PUBLIC_KEY_ARTIFACT != '' }}
+        run: |
+          if [ -z "$BUILD_STORAGE_RUNTIME_SIGNING_KEY_ID" ]; then
+            echo "::error::Storage Service runtime signing key ID is required"
+            exit 1
+          fi
+          mapfile -t public_keys < <(
+            find "$RUNNER_TEMP/storage-runtime-public-key" -type f \
+              -name "${BUILD_STORAGE_RUNTIME_SIGNING_KEY_ID}.pem" -print
+          )
+          if [ "${#public_keys[@]}" -ne 1 ]; then
+            echo "::error::Expected exactly one Storage Service runtime public key, found ${#public_keys[@]}"
+            printf '%s\n' "${public_keys[@]}"
+            exit 1
+          fi
+          openssl pkey -pubin -in "${public_keys[0]}" -noout
+          public_key_path="systemvm/debian/etc/ablestack-storage/runtime-trusted-keys/${BUILD_STORAGE_RUNTIME_SIGNING_KEY_ID}.pem"
+          install -m 0644 "${public_keys[0]}" "$public_key_path"
+          if git ls-files --error-unmatch "$public_key_path" >/dev/null 2>&1; then
+            git update-index --assume-unchanged "$public_key_path"
+          else
+            exclude_file=$(git rev-parse --git-path info/exclude)
+            mkdir -p "$(dirname "$exclude_file")"
+            printf '/%s\n' "$public_key_path" >> "$exclude_file"
+          fi
+          sha256sum "$public_key_path"
+          if [ -n "$(git status --porcelain --untracked-files=all)" ]; then
+            echo "::error::Storage Service runtime public key injection left unrelated worktree changes"
+            git status --short
+            exit 1
+          fi
+
+      - name: Cache Maven and npm downloads
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: |
+            ${{ runner.temp }}/rocky98-m2
+            ${{ runner.temp }}/rocky98-npm
+          key: rocky98-amd64-${{ hashFiles('**/pom.xml', 'ui/package-lock.json', 'tools/build/rocky98-prepare.sh') }}
+          restore-keys: rocky98-amd64-
+
+      - name: Install host prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo xz-utils
+
+      - name: Download Rocky 9.8 container archive
+        run: |
+          curl -fsSL -o /tmp/rocky98.tar.xz "$ROCKY98_URL"
+          echo "$ROCKY98_SHA256  /tmp/rocky98.tar.xz" | sha256sum -c -
+
+      - name: Convert Rocky 9.8 OCI archive for Docker
+        run: |
+          xz -dc /tmp/rocky98.tar.xz > /tmp/rocky98.oci.tar
+          skopeo copy \
+            oci-archive:/tmp/rocky98.oci.tar \
+            docker-archive:/tmp/rocky98.docker.tar:ablestack/rocky98-build:latest
+          docker load -i /tmp/rocky98.docker.tar
+          docker image inspect ablestack/rocky98-build:latest >/dev/null
+
+      - name: Build RPM packages inside Rocky 9.8
+        run: |
+          mkdir -p dist/rocky98-build "$RUNNER_TEMP/rocky98-m2" "$RUNNER_TEMP/rocky98-npm"
+          set -o pipefail
+          docker run --rm --platform linux/amd64 \
+            --workdir /workspace \
+            -e PACK="$BUILD_PACK" \
+            -e SIMULATOR="$BUILD_SIMULATOR" \
+            -e RELEASE="$BUILD_RELEASE" \
+            -e BRAND="$BUILD_BRAND" \
+            -e PACKAGE_VERSION="$BUILD_PACKAGE_VERSION" \
+            -e ABLESTACK_UI_BUILD_VERSION="$BUILD_UI_VERSION" \
+            -e USE_TIMESTAMP="$BUILD_USE_TIMESTAMP" \
+            -e TIMESTAMP_VALUE="$BUILD_TIMESTAMP_VALUE" \
+            -e BUILD_SRPM="$BUILD_SRPM" \
+            -e TEMPLATES="$BUILD_TEMPLATES" \
+            -e DISTRO="rocky9" \
+            -e NODE_VERSION="$BUILD_NODE_VERSION" \
+            -v "$RUNNER_TEMP/rocky98-m2":/root/.m2 \
+            -v "$RUNNER_TEMP/rocky98-npm":/root/.npm \
+            -v "$GITHUB_WORKSPACE":/workspace \
+            ablestack/rocky98-build:latest \
+            bash -lc './tools/build/rocky98-rpm-build.sh' | tee dist/rocky98-build/build.log
+
+      - name: Summarize RPM artifacts
+        if: always()
+        run: |
+          {
+            echo "## Rocky 9.8 RPM Packaging"
+            echo
+            echo "- Workflow run: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "- Source SHA: $(git rev-parse HEAD)"
+            echo "- Ref: \`$BUILD_REF\`"
+            echo "- Pack: \`$BUILD_PACK\`"
+            echo "- Simulator: \`$BUILD_SIMULATOR\`"
+            echo "- Release: \`${BUILD_RELEASE:-default}\`"
+            echo "- Brand: \`${BUILD_BRAND:-default}\`"
+            echo "- Package version: \`${BUILD_PACKAGE_VERSION:-maven}\`"
+            echo "- Use timestamp: \`$BUILD_USE_TIMESTAMP\`"
+            echo "- Timestamp value: \`${BUILD_TIMESTAMP_VALUE:-generated}\`"
+            echo "- Build SRPM: \`$BUILD_SRPM\`"
+            echo "- Templates: \`${BUILD_TEMPLATES:-none}\`"
+            echo "- Node.js: \`$BUILD_NODE_VERSION\`"
+            echo
+            echo "### Artifacts"
+            if [ -f dist/rocky98-build/artifacts.txt ]; then
+              while IFS= read -r artifact; do
+                echo "- \`$artifact\`"
+              done < dist/rocky98-build/artifacts.txt
+            else
+              echo "- No artifact manifest was generated"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Rocky 9.8 build outputs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ env.BUILD_ARTIFACT_NAME }}
+          if-no-files-found: error
+          path: |
+            dist/rocky98-build/**
+            dist/rpmbuild/RPMS/**/*.rpm
+            dist/rpmbuild/SRPMS/**/*.rpm

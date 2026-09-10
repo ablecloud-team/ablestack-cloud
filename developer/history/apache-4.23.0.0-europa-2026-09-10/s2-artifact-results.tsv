@@ -1,0 +1,52 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+item	value	result	sha256
+Actions run	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34459707809	PASS	-
+artifact	rocky98-rpm-34459707809	downloaded and verified	-
+source_sha	7db9b8115e83a9200ab98280a390de9bf6705d86	recorded/checked	-
+architecture	x86_64	recorded/checked	-
+os_release	"NAME=""Rocky Linux"" VERSION=""9.8 (Blue Onyx)"" RELEASE_TYPE=""stable"" ID=""rocky"" ID_LIKE=""rhel centos fedora"" VERSION_ID=""9.8"" PLATFORM_ID=""platform:el9"" PRETTY_NAME=""Rocky Linux 9.8 (Blue Onyx)"" ANSI_COLOR=""0;32"" LOGO=""fedora-logo-icon"" CPE_NAME=""cpe:/o:rocky:rocky:9::baseos"" HOME_URL=""https://rockylinux.org/"" VENDOR_NAME=""RESF"" VENDOR_URL=""https://resf.org/"" BUG_REPORT_URL=""https://bugs.rockylinux.org/"" SUPPORT_END=""2032-05-31"" ROCKY_SUPPORT_PRODUCT=""Rocky-Linux-9"" ROCKY_SUPPORT_PRODUCT_VERSION=""9.8"" REDHAT_SUPPORT_PRODUCT=""Rocky Linux"" REDHAT_SUPPORT_PRODUCT_VERSION=""9.8"" "	recorded/checked	-
+java_version	"openjdk version ""17.0.20.1"" 2026-08-18 LTS OpenJDK Runtime Environment (Red_Hat-17.0.20.1.1-1) (build 17.0.20.1+1-LTS) OpenJDK 64-Bit Server VM (Red_Hat-17.0.20.1.1-1) (build 17.0.20.1+1-LTS, mixed mode, sharing) "	recorded/checked	-
+maven_version	Apache Maven 3.9.10 (5f519b97e944483d878815739f519b2eade0a91d)	recorded/checked	-
+python_version	Python 3.10.21	recorded/checked	-
+node_version	v14.21.3	recorded/checked	-
+npm_version	6.14.18	recorded/checked	-
+nonoss_sha	f94b5cfcd12e7ce50f9e732ff0e12affa9030640	recorded/checked	-
+pack	noredist	recorded/checked	-
+simulator	default	recorded/checked	-
+distro	rocky9	recorded/checked	-
+local_fast	false	recorded/checked	-
+build_srpm	false	recorded/checked	-
+ui_build_version	<source-config>	recorded/checked	-
+runtime-smoke.txt	PASS packaged BC: RSA and X.509 signing/verification; PASS packaged OkHttp 5.1.0: MinIO list/upload and InfluxDB ping/write	PASS	33d9943ff4411787b4fe7ef7cfa82b4c5ea6488d89fee80476db0a4adc94eebf
+cloudstack-agent-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-agent 4.23.0.0-SNAPSHOT x86_64	SHA256 PASS	d2fcb478ac701517997d6db564880dcb8f77ea6adc22f2287088bba2acf7b8ae
+cloudstack-baremetal-agent-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-baremetal-agent 4.23.0.0-SNAPSHOT x86_64	SHA256 PASS	a872886739c9bbc299fc80f3d641d986b49473626196c5fc6147034ff29e29ff
+cloudstack-common-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-common 4.23.0.0-SNAPSHOT x86_64	SHA256 PASS	76905bc1ed0fa10eb89b42b2d852621ff7618612c4b70dd3344f65bcf9bf274b
+cloudstack-integration-tests-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-integration-tests 4.23.0.0-SNAPSHOT x86_64	SHA256 PASS	6d5a5e89c7821f625da6ee50e95f57f57ad557a59342421c68f3220eb05725bd
+cloudstack-management-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-management 4.23.0.0-SNAPSHOT x86_64	SHA256 PASS	740b32a99c2237c7d6b9f4395c7e4f1e81399e2eb498a3666c4777b00bc2e733
+cloudstack-marvin-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-marvin 4.23.0.0-SNAPSHOT x86_64	SHA256 PASS	49144d95bfb0f51c1c692a9e1f64940d7743866f4e30f3fc4def029dd80d208e
+cloudstack-mysql-ha-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-mysql-ha 4.23.0.0-SNAPSHOT x86_64	SHA256 PASS	fb2ffd0f6cdf53790f2e2d277275ac151a6204499ed9bbde167ea51ca6cd0b7a
+cloudstack-ui-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-ui 4.23.0.0-SNAPSHOT x86_64	SHA256 PASS	9b67f800959d942f59c9a1533e3d43f739e86c4f5c4a4fb09d74004337828c00
+cloudstack-usage-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-usage 4.23.0.0-SNAPSHOT x86_64	SHA256 PASS	28696169c4156cbbbbfdab1cc5293893885f89a149dbcd8f5b7e2bbebb31cc7d
+dependency-inputs.sha256	176 tracked POM/package-lock hashes match checkout	PASS	143f0268a5ca6c767a72d8da5746fa30d62393eb96e8d55872bc7ce8f733992f
+environment.txt	rocky98-build/environment.txt	recorded	19d753cf3fdca8d6618ea2b83e7a16a0162349b3f57797c606423317b06bcdf7
+rpm-dependencies.txt	rocky98-build/rpm-dependencies.txt	recorded	ffd2e250b7fd8522a9573065b559282b2f7362b00785ce80446542c5af1e011f
+SHA256SUMS	rocky98-build/SHA256SUMS	recorded	c718ec899e19c062c8d17f4130fa859c5d373863c52cf631f8fcb46c35846544
+build.log	rocky98-build/build.log	recorded	e47f952add5e9a3f38294ebab0bd4c050fb5bacdc516d8da4b292bbdd1386c52
+artifact URL	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34459707809/artifacts/10146134512	available until 2026-12-09T09:16:15Z	467dd49d33adb1be5077302708526b042b1c98e953e609023af874f4cf4a579b
+UI RPM buildVersion	V4.0-4.0.15 equals source0725e2c585 config; optional workflow override unset	independent extracted RPM check PASS	-
+Marvin RPM file list	/usr/share/cloudstack-marvin/marvin-4.23.0.0.tar.gz	rpm -qlp PASS	-

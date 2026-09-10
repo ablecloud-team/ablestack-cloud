@@ -60,6 +60,12 @@ echo "USE_TIMESTAMP=$USE_TIMESTAMP"
 echo "LOCAL_FAST=$LOCAL_FAST"
 echo "ABLESTACK_UI_BUILD_VERSION=${ABLESTACK_UI_BUILD_VERSION:-<source-config>}"
 
+source /etc/os-release
+if [[ "$ID" != rocky || "$VERSION_ID" != 9.7 ]]; then
+    echo "This legacy helper requires Rocky 9.7; use rocky98-rpm-build.sh for 9.8" >&2
+    exit 1
+fi
+
 configure_rocky_vault_repositories() {
     local repo
 

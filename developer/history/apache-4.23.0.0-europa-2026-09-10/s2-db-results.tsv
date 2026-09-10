@@ -1,0 +1,19 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+variant	source_sha	mysql_version	connector_version	init_exit_code	sql_error_count	failing_sql_sha256	cloud_tables	cloud_views	usage_tables	usage_views	simulator_tables	latest_version	version_step	simulator_exit_code	simulator_error
+baseline	014895d8f3dc2f062f379b51ee62d36a0adae88a	8.0.46	8.0.33	0	99	14b0dcd61f8b40e8a299bba47d08381e140a8e88f172ce4a68c62cb4aecc5348	382	35	31	1	8	4.23.0.0	Complete	1	fk_template_store_ref__template_id
+candidate	b7dd4539e394b8dd1cfba74a476af19883c9af3e	8.0.46	8.4.0	0	99	14b0dcd61f8b40e8a299bba47d08381e140a8e88f172ce4a68c62cb4aecc5348	382	35	31	1	8	4.23.0.0	Complete	1	fk_template_store_ref__template_id

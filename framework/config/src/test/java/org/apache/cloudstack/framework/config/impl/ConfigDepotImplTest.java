@@ -18,6 +18,8 @@
 //
 package org.apache.cloudstack.framework.config.impl;
 
+import java.sql.Connection;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +40,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.cloud.utils.Pair;
+import com.cloud.utils.Ternary;
+import com.cloud.utils.db.TransactionLegacy;
+import com.cloud.utils.exception.CloudRuntimeException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigDepotImplTest {
@@ -192,4 +197,48 @@ public class ConfigDepotImplTest {
         Assert.assertEquals(parentScope, result.first());
         Assert.assertEquals(parentId, result.second());
     }
+    @Test
+    public void scopedConfigReadClosesConnection() throws Exception {
+        verifyScopedConfigConnectionCleanup(false);
+    }
+
+    @Test
+    public void scopedConfigReadFailureClosesConnection() throws Exception {
+        verifyScopedConfigConnectionCleanup(true);
+    }
+
+    private void verifyScopedConfigConnectionCleanup(boolean failRead) throws Exception {
+        ScopedConfigStorage storage = Mockito.mock(ScopedConfigStorage.class);
+        Connection connection = Mockito.mock(Connection.class);
+        AtomicReference<TransactionLegacy> transaction = new AtomicReference<>();
+        Mockito.when(storage.getScope()).thenReturn(ConfigKey.Scope.Zone);
+        Mockito.when(storage.getConfigValue(42L, "scoped.key")).thenAnswer(invocation -> {
+            TransactionLegacy txn = TransactionLegacy.currentTxn();
+            Assert.assertNotNull("Scoped reads must own a transaction", txn);
+            transaction.set(txn);
+            // Simulate the connection borrowed by the DAO, without a real database.
+            ReflectionTestUtils.setField(txn, "_conn", connection);
+            if (failRead) {
+                throw new CloudRuntimeException("simulated scoped storage failure");
+            }
+            return "configured";
+        });
+        configDepotImpl.setScopedStorages(Collections.singletonList(storage));
+        try {
+            try {
+                String value = configDepotImpl.getConfigStringValueInternal(new Ternary<>("scoped.key", ConfigKey.Scope.Zone, 42L));
+                Assert.assertFalse("Storage error must propagate", failRead);
+                Assert.assertEquals("configured", value);
+            } catch (CloudRuntimeException e) {
+                Assert.assertTrue(failRead);
+                Assert.assertEquals("simulated scoped storage failure", e.getMessage());
+            }
+            Mockito.verify(connection).close();
+        } finally {
+            if (transaction.get() != null) {
+                transaction.get().close();
+            }
+        }
+    }
+
 }

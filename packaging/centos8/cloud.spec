@@ -397,7 +397,7 @@ install -D usage/target/transformed/cloudstack-usage.logrotate ${RPM_BUILD_ROOT}
 # Marvin and integration tests are excluded from local-fast builds.
 %if 0%{?_localfast} == 0
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-marvin
-cp tools/marvin/dist/Marvin-*.tar.gz ${RPM_BUILD_ROOT}%{_datadir}/%{name}-marvin/
+cp tools/marvin/dist/[Mm]arvin-*.tar.gz ${RPM_BUILD_ROOT}%{_datadir}/%{name}-marvin/
 
 # integration-tests
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}-integration-tests
@@ -622,7 +622,7 @@ fi
 %if 0%{?_localfast} == 0
 %post marvin
 pip3 install --upgrade https://files.pythonhosted.org/packages/08/1f/42d74bae9dd6dcfec67c9ed0f3fa482b1ae5ac5f117ca82ab589ecb3ca19/mysql_connector_python-8.0.31-py2.py3-none-any.whl
-pip3 install --upgrade /usr/share/cloudstack-marvin/Marvin-*.tar.gz
+pip3 install --upgrade /usr/share/cloudstack-marvin/[Mm]arvin-*.tar.gz
 %endif
 
 #No default permission as the permission setup is complex
@@ -735,7 +735,7 @@ pip3 install --upgrade /usr/share/cloudstack-marvin/Marvin-*.tar.gz
 
 %if 0%{?_localfast} == 0
 %files marvin
-%attr(0644,root,root) %{_datadir}/%{name}-marvin/Marvin*.tar.gz
+%attr(0644,root,root) %{_datadir}/%{name}-marvin/[Mm]arvin*.tar.gz
 %{_defaultdocdir}/%{name}-marvin-%{version}/LICENSE
 %{_defaultdocdir}/%{name}-marvin-%{version}/NOTICE
 
