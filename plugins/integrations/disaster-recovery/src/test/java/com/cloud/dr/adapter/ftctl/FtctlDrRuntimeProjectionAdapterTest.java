@@ -3977,4 +3977,12 @@ public class FtctlDrRuntimeProjectionAdapterTest {
         runtime.addProperty("run_uuid",run.getUuid());
         Assert.assertTrue((Boolean) ReflectionTestUtils.invokeMethod(adapter,"isRunSatisfiedByRuntime",plan,run,status,runtime));
     }
+    @Test
+    public void authorityGenerationDoesNotUseResetCheckpointSequence() {
+        Assert.assertEquals(374L, FtctlDrRuntimeProjectionAdapter.cutoverGeneration(null, 373L, "new", "old", false));
+        Assert.assertEquals(374L, FtctlDrRuntimeProjectionAdapter.cutoverGeneration(374L, 500L, "new", "old", false));
+        Assert.assertEquals(374L, FtctlDrRuntimeProjectionAdapter.cutoverGeneration(64L, 373L, "new", "old", true));
+        Assert.assertEquals(64L, FtctlDrRuntimeProjectionAdapter.cutoverGeneration(64L, 373L, "same", "same", true));
+    }
+
 }

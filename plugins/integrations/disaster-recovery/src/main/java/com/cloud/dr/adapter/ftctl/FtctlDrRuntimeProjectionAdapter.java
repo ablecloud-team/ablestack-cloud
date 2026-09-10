@@ -1978,6 +1978,14 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
         return session;
     }
 
+    // Replication checkpoint counters are not authority generations (#977).
+    static long cutoverGeneration(Long issued, long floor, String sessionId, String observedSession, boolean rejectedStale) {
+        if (issued != null && (!rejectedStale || StringUtils.equals(sessionId, observedSession))) {
+            return issued;
+        }
+        return Math.addExact(Math.max(issued != null ? issued : 0L, floor), 1L);
+    }
+
     private boolean commitCloudOwnedCutover(DrPlanVO plan, DrRunVO run, DrCutoverSessionVO session,
             FtctlDrStatusAnswer status, JsonObject runtime, DrTargetPowerOnResult powerOnResult) {
         if (run == null || session == null || powerOnResult == null || !powerOnResult.isReady()) {
@@ -1989,9 +1997,16 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
         recordRunStep(run, "boot-validation", STEP_ORDER_BOOT_VALIDATION, DrConstants.STEP_STATE_SUCCEEDED,
                 100, compactStatusJson, null, null);
 
-        long generation = session.getCloudAuthorityGeneration() != null
-                ? session.getCloudAuthorityGeneration()
-                : session.getCheckpointSequence() != null ? session.getCheckpointSequence() : run.getId();
+        Long previousGeneration = session.getCloudAuthorityGeneration();
+        long floor = resolveAuthoritySequenceFloor(plan, longValue(runtime, "cloud_authority_generation"),
+                drPlanRuntimeDao != null ? drPlanRuntimeDao.findByPlanId(plan.getId()) : null);
+        floor = Math.max(floor, session.getCheckpointSequence() != null ? session.getCheckpointSequence() : run.getId());
+        boolean rejectedStale = StringUtils.contains(plan.getLastErrorMessage(), "DR_CUTOVER_GENERATION_STALE");
+        long generation = cutoverGeneration(previousGeneration, floor, session.getEngineSessionId(),
+                stringValue(runtime, "cloud_cutover_session_id"), rejectedStale);
+        if (previousGeneration != null && previousGeneration != generation) {
+            session.setCommitAttemptId(null);
+        }
         String engineSessionId = StringUtils.defaultIfBlank(session.getEngineSessionId(),
                 stringValue(runtime, "failover_session_id"));
         String sourceFenceState = StringUtils.defaultIfBlank(session.getSourceFenceState(),
@@ -2099,6 +2114,9 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
     private void prepareCutoverCommitSessionFields(DrPlanVO plan, DrRunVO run, DrCutoverSessionVO session,
             DrTargetPowerOnResult powerOnResult, long generation, String engineSessionId,
             String sourceFenceState, String sourcePowerState) {
+        if (session.getCloudAuthorityGeneration() != null && session.getCloudAuthorityGeneration() != generation) {
+            session.setCommitAttemptId(null);
+        }
         session.setCloudAuthorityGeneration(generation);
         session.setCommitContractVersion(DrCutoverCommitEnvelope.CONTRACT_VERSION);
         session.setEngineSessionId(engineSessionId);
