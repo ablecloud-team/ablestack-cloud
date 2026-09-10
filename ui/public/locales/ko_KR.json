@@ -7472,5 +7472,7 @@
   "message.dr.action.target.authority": "현재 DR 대상 측이 운영 권한을 보유하므로 이 작업을 실행할 수 없습니다.",
   "label.dr.state.waiting_source_recovery": "원본 사이트 복구 대기",
   "label.dr.state.recovering_baseline": "복제 기준선 재구성 중",
-  "message.dr.error.dr.source.site.unavailable": "원본 사이트에 일시적으로 연결할 수 없습니다. 마지막 내구성 기준선은 보존되며 연속 상태 점검이 정상화되면 증분 보호를 자동으로 재개합니다."
+  "message.dr.error.dr.source.site.unavailable": "원본 사이트에 일시적으로 연결할 수 없습니다. 마지막 내구성 기준선은 보존되며 연속 상태 점검이 정상화되면 증분 보호를 자동으로 재개합니다.",
+  "label.dr.test.source.independent": "원본 연결 없이 봉인 체크포인트 사용",
+  "message.dr.test.source.independent": "대상에 이미 봉인된 체크포인트만 사용합니다. 봉인본이 없거나 일치하지 않으면 중단합니다. 격리망 또는 NIC 없음 모드를 선택하세요."
 }

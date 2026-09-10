@@ -55,6 +55,10 @@ public class StartDrTestFailoverCmd extends AbstractDrPlanActionCmd {
     @Parameter(name = "boottimeoutseconds", type = CommandType.INTEGER, description = "test boot validation timeout in seconds")
     private Integer bootTimeoutSeconds;
 
+    @Parameter(name = "sourceindependent", type = CommandType.BOOLEAN,
+            description = "use an existing sealed target checkpoint without contacting the source")
+    private Boolean sourceIndependent;
+
     @Override
     protected String getRunType() {
         return "TEST_FAILOVER";
@@ -72,6 +76,10 @@ public class StartDrTestFailoverCmd extends AbstractDrPlanActionCmd {
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR,
                     "networkid is required for Cloud-managed DR test failover unless networkmode is NO_NIC");
         }
+        if (Boolean.TRUE.equals(sourceIndependent) && "PRODUCTION_NETWORK".equals(normalizedNetworkMode)) {
+            throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "Source-independent tests require an isolated network or NO_NIC");
+        }
+        request.addProperty("sourceIndependent", Boolean.TRUE.equals(sourceIndependent));
         addProperty(request, "networkMode", normalizedNetworkMode);
         addProperty(request, "networkId", networkId);
         addProperty(request, "testBootValidationMode", StringUtils.upperCase(bootValidationMode));

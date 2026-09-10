@@ -559,7 +559,9 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
                 DrConstants.STEP_STATE_RUNNING, 85, runtimeStatusJson, null, null);
 
         try {
-            refreshSourceHardwareSnapshot(plan);
+            if (!request.has("sourceIndependent") || !request.get("sourceIndependent").getAsBoolean()) {
+                refreshSourceHardwareSnapshot(plan);
+            }
             DrResolvedTargetPlacement placement = resolvePlacement(plan, runtime);
             if (placement == null || !placement.getBlockingReasons().isEmpty()) {
                 throw new CloudRuntimeException("DR test target placement is not ready");

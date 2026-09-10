@@ -332,7 +332,7 @@ public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
         eligibility.put("resumeSync", enabled && !activeRun && hasEngine && sourceAuthority
                 && ftctlDrPlan && ftctlDrControlReady && syncPaused);
         eligibility.put("testFailover", (testCleanupRecovery == null || !testCleanupRecovery.pending(plan.getId())) && enabled && !activeRun && hasEngine && ftctlDrPlan && ftctlDrControlReady
-                && sourceAuthority && targetReady && (normalCutoverReady || syncPaused));
+                && sourceAuthority && targetReady);
         eligibility.put("stopTestFailover", enabled && !activeRun && hasEngine && ftctlDrPlan && ftctlDrControlReady && testRunning);
         eligibility.put("failover", enabled && !activeRun && hasEngine
                 && sourceAuthority

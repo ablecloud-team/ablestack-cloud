@@ -903,6 +903,11 @@
           :label="$t('label.dr.action.force')">
           <a-switch v-model:checked="actionForm.force" />
         </a-form-item>
+        <a-form-item v-if="isTestFailoverAction" :label="$t('label.dr.test.source.independent')">
+          <a-switch v-model:checked="actionForm.sourceindependent" />
+        </a-form-item>
+        <a-alert v-if="isTestFailoverAction && actionForm.sourceindependent" type="info" show-icon
+          :message="$t('message.dr.test.source.independent')" />
         <a-form-item
           v-if="isFailoverAction"
           :label="$t('label.dr.action.disaster')">
@@ -1898,6 +1903,7 @@ export default {
         acknowledgement: '',
         force: true,
         disaster: false,
+        sourceindependent: false,
         finalsync: true,
         skipsourcefencerequest: false,
         sourceisolationacknowledged: false,
@@ -3388,6 +3394,7 @@ export default {
         payload.resourcedisposition = this.actionForm.resourcedisposition
       }
       if (this.isTestFailoverAction) {
+        payload.sourceindependent = this.actionForm.sourceindependent
         payload.networkmode = this.actionForm.networkmode
         payload.networkid = this.actionForm.networkmode === 'NO_NIC' ? undefined : this.actionForm.networkid
         payload.bootvalidationmode = this.actionForm.bootvalidationmode

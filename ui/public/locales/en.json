@@ -7348,7 +7348,6 @@
   "label.dr.vm.authority.unknown": "Authority unknown",
   "label.dr.test.vm": "Test virtual machine",
   "label.dr.target.pending": "Target not created",
-  "label.dr.replication.activity": "Replication activity",
   "label.dr.last.target.durable.at": "Last durable target",
   "label.dr.freshness": "Freshness",
   "label.dr.latest.operation": "Latest operation",
@@ -7472,5 +7471,7 @@
   "message.storage.service.runtime.upgrade.success": "Runtime upgrade and verification completed.",
   "message.storage.service.runtime.upgrade.failed": "Runtime upgrade failed.",
   "message.storage.service.runtime.rollback.success": "The previous runtime was restored.",
-  "message.storage.service.runtime.rollback.failed": "Runtime rollback failed. Manual recovery is required."
+  "message.storage.service.runtime.rollback.failed": "Runtime rollback failed. Manual recovery is required.",
+  "label.dr.test.source.independent": "Use sealed checkpoint without source access",
+  "message.dr.test.source.independent": "Uses an existing sealed target checkpoint. Missing or mismatched seals are rejected. Select an isolated network or NO_NIC."
 }
