@@ -76,7 +76,7 @@ public class StartDrTestFailoverCmd extends AbstractDrPlanActionCmd {
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR,
                     "networkid is required for Cloud-managed DR test failover unless networkmode is NO_NIC");
         }
-        if (Boolean.TRUE.equals(sourceIndependent) && "PRODUCTION_NETWORK".equals(normalizedNetworkMode)) {
+        if (Boolean.TRUE.equals(sourceIndependent) && !StringUtils.equalsAny(normalizedNetworkMode, "ISOLATED_NETWORK", "ISOLATED", "NO_NIC")) {
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, "Source-independent tests require an isolated network or NO_NIC");
         }
         request.addProperty("sourceIndependent", Boolean.TRUE.equals(sourceIndependent));
