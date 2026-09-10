@@ -40,6 +40,7 @@ public class AblestackCommvaultTakeBackupCommand extends Command {
     private String parentCheckpointXml;
     private Map<String, String> parentCheckpointXmlChain;
     private List<String> backupFiles;
+    private Integer bandwidthLimitMbps;
 
     public AblestackCommvaultTakeBackupCommand(String vmName, String backupPath) {
         super();
@@ -149,6 +150,14 @@ public class AblestackCommvaultTakeBackupCommand extends Command {
 
     public void setBackupFiles(List<String> backupFiles) {
         this.backupFiles = backupFiles;
+    }
+
+    public Integer getBandwidthLimitMbps() {
+        return bandwidthLimitMbps == null ? 0 : bandwidthLimitMbps;
+    }
+
+    public void setBandwidthLimitMbps(Integer bandwidthLimitMbps) {
+        this.bandwidthLimitMbps = bandwidthLimitMbps;
     }
 
     @Override

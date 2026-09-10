@@ -41,6 +41,7 @@ public class AblestackNetBackupTakeBackupCommand extends Command {
     private Map<String, String> parentCheckpointXmlChain;
     private List<String> backupFiles;
     private String policyId;
+    private Integer bandwidthLimitMbps;
 
     public AblestackNetBackupTakeBackupCommand(final String vmName, final String backupPath) {
         super();
@@ -158,6 +159,14 @@ public class AblestackNetBackupTakeBackupCommand extends Command {
 
     public void setPolicyId(final String policyId) {
         this.policyId = policyId;
+    }
+
+    public Integer getBandwidthLimitMbps() {
+        return bandwidthLimitMbps == null ? 0 : bandwidthLimitMbps;
+    }
+
+    public void setBandwidthLimitMbps(final Integer bandwidthLimitMbps) {
+        this.bandwidthLimitMbps = bandwidthLimitMbps;
     }
 
     @Override

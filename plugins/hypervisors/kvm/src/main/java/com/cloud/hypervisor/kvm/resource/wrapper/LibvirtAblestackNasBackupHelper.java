@@ -190,7 +190,8 @@ class LibvirtAblestackNasBackupHelper {
                 "-j", Objects.nonNull(command.getParentCheckpointPath()) ? command.getParentCheckpointPath() : "",
                 "-q", command.getQuiesce() != null && command.getQuiesce() ? "true" : "false",
                 "-f", CollectionUtils.isNullOrEmpty(command.getBackupFiles()) ? "" : String.join(",", command.getBackupFiles()),
-                "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths)
+                "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths),
+                "--bandwidth-limit-mbps", String.valueOf(command.getBandwidthLimitMbps())
         };
     }
 

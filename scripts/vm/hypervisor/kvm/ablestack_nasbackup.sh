@@ -40,6 +40,7 @@ PARENT_CHECKPOINT_PATH=""
 BACKUP_FILES=""
 DISK_PATHS=""
 QUIESCE=""
+BACKUP_BANDWIDTH_LIMIT_MBPS=0
 FORCED="false"
 CLEANUP_CHECKPOINT_NAMES=""
 logFile="/var/log/cloudstack/agent/agent.log"
@@ -115,6 +116,39 @@ resume_vm_if_paused() {
   fi
 }
 
+apply_backup_bandwidth_limit() {
+  local bandwidth_limit_mbps="${BACKUP_BANDWIDTH_LIMIT_MBPS:-0}"
+
+  if ! [[ "$bandwidth_limit_mbps" =~ ^[0-9]+$ ]] || [[ "$bandwidth_limit_mbps" -le 0 ]]; then
+    return 0
+  fi
+
+  local bandwidth_limit_mibps=$(( (bandwidth_limit_mbps + 7) / 8 ))
+  [[ "$bandwidth_limit_mibps" -lt 1 ]] && bandwidth_limit_mibps=1
+
+  while IFS='|' read -r disk target; do
+    [[ -z "$disk" ]] && continue
+
+    local attempt
+    local blockjob_output=""
+    local bandwidth_applied=0
+    for attempt in 1 2 3 4 5; do
+      if blockjob_output=$(virsh -c qemu:///system blockjob "$VM" "$disk" --bandwidth "$bandwidth_limit_mibps" 2>&1); then
+        log -ne "Applied backup bandwidth limit vm=[$VM] disk=[$disk] limitMbps=[$bandwidth_limit_mbps] virshLimitMiBps=[$bandwidth_limit_mibps] attempt=[$attempt]"
+        bandwidth_applied=1
+        break
+      fi
+      sleep 1
+    done
+
+    if [[ "$bandwidth_applied" -ne 1 ]] && [[ "$blockjob_output" == *"does not have an active block job"* || "$blockjob_output" == *"No current block job"* ]]; then
+      log -ne "Skipped backup bandwidth limit vm=[$VM] disk=[$disk] limitMbps=[$bandwidth_limit_mbps] virshLimitMiBps=[$bandwidth_limit_mibps] reason=[No active block job; backup may have already completed]"
+    elif [[ "$bandwidth_applied" -ne 1 ]]; then
+      log -ne "WARNING failed to apply backup bandwidth limit vm=[$VM] disk=[$disk] limitMbps=[$bandwidth_limit_mbps] virshLimitMiBps=[$bandwidth_limit_mibps] output=[${blockjob_output:-Unknown error}]"
+    fi
+  done < <(virsh -c qemu:///system domblklist "$VM" --details 2>/dev/null | awk '/disk/ {print $3 "|" $4}')
+}
+
 ### Operation methods ###
 
 backup_running_vm() {
@@ -181,6 +215,8 @@ backup_running_vm() {
     exit 1
   fi
 
+  apply_backup_bandwidth_limit
+
   backup_domain_information "$VM"
 
   local wait_count=0
@@ -197,7 +233,7 @@ backup_running_vm() {
         exit 1 ;;
     esac
     wait_count=$((wait_count + 1))
-    if (( wait_count % 12 == 0 )); then
+    if (( wait_count == 12 || wait_count % 120 == 0 )); then
       log -ne "WAIT libvirt backup job pending vm=[$VM] checkpoint=[$CHECKPOINT_NAME] elapsedSeconds=[$((wait_count * 5))] status=[${status:-unknown}]"
     fi
     sleep 5
@@ -882,7 +918,7 @@ EOF
 
 function usage {
   echo ""
-  echo "Usage: $0 -o <operation> -v|--vm <domain name> -t <storage type> -s <storage address> -m <mount options> -w <mount timeout seconds> -p <backup path> -b <FULL|INCREMENTAL> -c <checkpoint name> -r <parent backup path> -i <parent checkpoint name> -j <parent checkpoint path> -f <backup files> -d <disks path> -q|--quiesce <true|false> -x|--forced <true|false>"
+  echo "Usage: $0 -o <operation> -v|--vm <domain name> -t <storage type> -s <storage address> -m <mount options> -w <mount timeout seconds> -p <backup path> -b <FULL|INCREMENTAL> -c <checkpoint name> -r <parent backup path> -i <parent checkpoint name> -j <parent checkpoint path> -f <backup files> -d <disks path> -q|--quiesce <true|false> --bandwidth-limit-mbps <mbps> -x|--forced <true|false>"
   echo ""
   exit 1
 }
@@ -959,6 +995,11 @@ while [[ $# -gt 0 ]]; do
       shift
       shift
       ;;
+    --bandwidth-limit-mbps)
+      BACKUP_BANDWIDTH_LIMIT_MBPS="$2"
+      shift
+      shift
+      ;;
     -x|--forced)
       FORCED="$2"
       shift
@@ -988,7 +1029,7 @@ done
 # Perform Initial sanity checks
 sanity_checks
 
-log -ne "nasbackup.sh start op=[$OP] vm=[$VM] backupDir=[$BACKUP_DIR] nasType=[$NAS_TYPE] nasAddress=[$NAS_ADDRESS] mountTimeout=[$MOUNT_TIMEOUT] backupType=[$BACKUP_TYPE] checkpoint=[$CHECKPOINT_NAME] parentBackup=[$PARENT_BACKUP_DIR] parentCheckpoint=[$PARENT_CHECKPOINT_NAME] diskPaths=[$DISK_PATHS] backupFiles=[$BACKUP_FILES]"
+log -ne "nasbackup.sh start op=[$OP] vm=[$VM] backupDir=[$BACKUP_DIR] nasType=[$NAS_TYPE] nasAddress=[$NAS_ADDRESS] mountTimeout=[$MOUNT_TIMEOUT] backupType=[$BACKUP_TYPE] checkpoint=[$CHECKPOINT_NAME] parentBackup=[$PARENT_BACKUP_DIR] parentCheckpoint=[$PARENT_CHECKPOINT_NAME] diskPaths=[$DISK_PATHS] backupFiles=[$BACKUP_FILES] bandwidthLimitMbps=[$BACKUP_BANDWIDTH_LIMIT_MBPS]"
 
 if [ "$OP" = "backup-running" ]; then
   backup_running_vm

@@ -82,6 +82,13 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
             true,
             BackupFrameworkEnabled.key());
 
+    ConfigKey<Integer> BackupQosBandwidthLimitMbps = new ConfigKey<>("Advanced", Integer.class,
+            "backup.qos.bandwidth.limit.mbps",
+            "0",
+            "Limits the bandwidth of running VM KVM backup block jobs in Mbps. A value of 0 means unlimited.",
+            true,
+            BackupFrameworkEnabled.key());
+
     ConfigKey<Boolean> BackupEnableAttachDetachVolumes = new ConfigKey<>("Advanced", Boolean.class,
             "backup.enable.attach.detach.of.volumes",
             "false",

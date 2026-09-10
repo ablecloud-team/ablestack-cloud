@@ -90,6 +90,7 @@ import static org.apache.cloudstack.backup.BackupManager.BackupChainSize;
 import static org.apache.cloudstack.backup.BackupManager.BackupCommandTimeout;
 import static org.apache.cloudstack.backup.BackupManager.BackupRestoreTimeout;
 import static org.apache.cloudstack.backup.BackupManager.BackupFrameworkEnabled;
+import static org.apache.cloudstack.backup.BackupManager.BackupQosBandwidthLimitMbps;
 import static org.apache.cloudstack.backup.BackupManager.KvmIncrementalBackup;
 
 public class AblestackNasBackupProvider extends AdapterBase implements BackupProvider, Configurable {
@@ -325,6 +326,7 @@ public class AblestackNasBackupProvider extends AdapterBase implements BackupPro
         command.setMountOptions(backupRepository.getMountOptions());
         command.setMountTimeout(NASBackupRestoreMountTimeout.value());
         command.setQuiesce(quiesceVM);
+        command.setBandwidthLimitMbps(BackupQosBandwidthLimitMbps.value());
 
         BackupAnswer answer;
         final long backupStartTime = System.currentTimeMillis();

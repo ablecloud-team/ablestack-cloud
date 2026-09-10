@@ -42,6 +42,7 @@ public class AblestackNasTakeBackupCommand extends Command {
     @LogLevel(LogLevel.Log4jLevel.Off)
     private String mountOptions;
     private Integer mountTimeout;
+    private Integer bandwidthLimitMbps;
 
     public AblestackNasTakeBackupCommand(String vmName, String backupPath) {
         super();
@@ -167,6 +168,14 @@ public class AblestackNasTakeBackupCommand extends Command {
 
     public void setQuiesce(Boolean quiesce) {
         this.quiesce = quiesce;
+    }
+
+    public Integer getBandwidthLimitMbps() {
+        return bandwidthLimitMbps == null ? 0 : bandwidthLimitMbps;
+    }
+
+    public void setBandwidthLimitMbps(Integer bandwidthLimitMbps) {
+        this.bandwidthLimitMbps = bandwidthLimitMbps;
     }
 
     @Override

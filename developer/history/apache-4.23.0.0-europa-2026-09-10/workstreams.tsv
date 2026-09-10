@@ -1,0 +1,27 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+code	issue	url	title	source_count	gate_dependencies	status
+S1	#989	https://github.com/ablecloud-team/ablestack-cloud/issues/989	[Europa][4.23][S1] 원본 커밋 추적표·merge 해결 내역·의존성 기준 확정	0		IN_PROGRESS
+S2	#990	https://github.com/ablecloud-team/ablestack-cloud/issues/990	[Europa][4.23][S2] Rocky 9.8 검증 기반·빌드 의존성·CI 및 라이선스 정비	77	S1	WAITING
+S3	#991	https://github.com/ablecloud-team/ablestack-cloud/issues/991	[Europa][4.23][S3] 인증·권한·보안 및 API 기반 변경 통합	66	S1;S2	WAITING
+S4	#992	https://github.com/ablecloud-team/ablestack-cloud/issues/992	[Europa][4.23][S4] 동일 버전 DB 업그레이드·자원 할당·Usage 및 Quota 통합	38	S1;S2	WAITING
+S5A	#993	https://github.com/ablecloud-team/ablestack-cloud/issues/993	[Europa][4.23][S5A] VM 수명주기·KVM·migration·import·오퍼링 변경 통합	28	S1;S2	WAITING
+S5B	#994	https://github.com/ablecloud-team/ablestack-cloud/issues/994	[Europa][4.23][S5B] 스토리지·증분 NAS 백업·provider·템플릿 업로드 통합	47	S1;S2	WAITING
+S5C	#996	https://github.com/ablecloud-team/ablestack-cloud/issues/996	[Europa][4.23][S5C] KMS·암호화 및 Usage 키 의존성 통합	3	S1;S2	WAITING
+S6	#997	https://github.com/ablecloud-team/ablestack-cloud/issues/997	[Europa][4.23][S6] DNS·Network Extension·VR/SystemVM·VPC 및 CKS 통합	32	S1;S2	WAITING
+S7	#998	https://github.com/ablecloud-team/ablestack-cloud/issues/998	[Europa][4.23][S7] UI·브랜딩·한국어 및 릴리즈 문서 통합	8	S1;S2	WAITING
+S8	#999	https://github.com/ablecloud-team/ablestack-cloud/issues/999	[Europa][4.23][S8] 최종 병합 SHA 통합 검증·RC 및 복구 절차 확정	0	S2;S3;S4;S5A;S5B;S5C;S6;S7	WAITING

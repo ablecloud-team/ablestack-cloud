@@ -2852,6 +2852,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 BackupSyncPollingInterval,
                 BackupCommandTimeout,
                 BackupRestoreTimeout,
+                BackupQosBandwidthLimitMbps,
                 BackupEnableAttachDetachVolumes,
                 KvmIncrementalBackup,
                 BackupChainSize,

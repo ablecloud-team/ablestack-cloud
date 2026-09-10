@@ -1,0 +1,54 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+prerequisite	dependent	kind	owner_issue	reason
+europa:1a367f0dd59b3d8475d8498f5cd98ee57949aadb	3c1f03144feee985404b0be0d65a25288d219d70	baseline_contract	#991	기존 API key pair 모델의 null 처리 후속
+europa:1a367f0dd59b3d8475d8498f5cd98ee57949aadb	8ef036e717524396ae790a502f0e01a0b63a0cb1	baseline_contract	#991	기존 key pair 모델에 대한 관리 UI
+europa:1a367f0dd59b3d8475d8498f5cd98ee57949aadb	2b78432edf3974ad24a1768d79e50aca81f46de7	baseline_contract	#991	registerUserKeys 최종 동기 API 계약
+europa:1a367f0dd59b3d8475d8498f5cd98ee57949aadb	4bfeb96c96fab6e0fdca00bb4039a7fa09433497	baseline_contract	#991	ApiKeyPairPermission 및 ACL 후속
+2b78432edf3974ad24a1768d79e50aca81f46de7	4bfeb96c96fab6e0fdca00bb4039a7fa09433497	review_order	#991	동기 API 복귀와 후속 key pair ACL을 함께 검증
+c2c855b9b18cf238e8fa22a9c010691f6a867f3b	33c3967b6b636ff50a644be8f445c558b5076051	review_order	#991	Keycloak 및 per-domain OAuth provider 모델 호환성 대조
+33c3967b6b636ff50a644be8f445c558b5076051	b98e1f568c6ff8f817a44de67a97f67220397600	review_order	#991	domain OAuth 모델 위 Google flow 보안 수정
+33c3967b6b636ff50a644be8f445c558b5076051	aa77259f4815bade194ada7ff4ee63a75b1cbec8	review_order	#991	domain OAuth 모델 위 list-provider 권한 수정
+d2c8aa7dff735a8ed91cb858c91293dd7c4037b2	600201a46bf9001d4eb8ec46bf168d9f6064bac2	code_dependency	#996	Usage spring 설정의 KMSWrappedKeyDaoImpl 빈 의존
+d2c8aa7dff735a8ed91cb858c91293dd7c4037b2	1400616e7129e854173a1e1481e2f1525e8599f3	code_dependency	#996	KMS UI 메뉴/아이콘 후속
+42322a59c7d68247db03a538582e4c9ea1b259d5	ba837fb8a801a4175b49533318a6e7533f59edb4	review_order	#994	증분 NAS 백업 기능과 후속 수정
+42322a59c7d68247db03a538582e4c9ea1b259d5	0da37409cc2831de01b09962313370b4b2800a01	review_order	#994	정지 VM 증분 백업 스크립트 최종 동작
+42322a59c7d68247db03a538582e4c9ea1b259d5	424f0dfdf5d6126485339a3a2470e7f16136dfa2	review_order	#994	백업 스크립트 로그 보존 후속
+a1959f2dc2e93badc5f3e04a85922f9d391c8ba0	a6b31286f061d0e2b71233ac9136730b6ce5285e	review_order	#994	Veeam KVM 통합과 EL9 dirty context 후속
+3327e1449c5b1681b5483ac28ea65070d225e498	028e1ef8eaefcaeb80ac9f313cd8b2ae04d672d5	review_order	#994	ONTAP provider 최초 기능과 후속 수정
+66132f83eaec000e3cb0ca94539aaa93bd6ba2bc	3b53e8c4cb5353613cf4fb885d8cc2a515d8e93b	review_order	#994	KBOSS 모델과 타 provider 응답 격리
+66132f83eaec000e3cb0ca94539aaa93bd6ba2bc	4f117071c9397b1e4714c8fb61c384883c872842	review_order	#994	KBOSS 체인 구조 후속
+66132f83eaec000e3cb0ca94539aaa93bd6ba2bc	d45d48180ae438a72db21589b6c6fa118380e719	review_order	#994	KBOSS 생성 edge case 후속
+66132f83eaec000e3cb0ca94539aaa93bd6ba2bc	5e5ae0c51cd01387ae50e74f430c14b241edf636	review_order	#994	backup service job API 타입 계약 후속
+167eb0af75950ecd054b62c8ee51a3b2f1495006	4e4a26b49ef19e892a4b695b6291b21f2117c70b	review_order	#997	DNS 최초 기능과 tenant 충돌 차단
+167eb0af75950ecd054b62c8ee51a3b2f1495006	158fe4fad5328d5a6f42fabf30b9b2e0738d3949	review_order	#997	DNS provider 모델과 URL 검증
+236e01aad8d75cc84c9c05737984be501ff15d5f	13822b1ac1f8295c12fb82acd4b74a1b5726196c	review_order	#997	VPC firewall 규칙 soft-delete 수명주기 검증
+6b831f5196c3cfcc2d7aaf3fc2150c069d125fdc	5c4bc486d29362a6aac530d0534fe78b4b84a77b	review_order	#997	KVM live scaling과 CKS offering 확장 계약 대조
+a73cc9a22c09954c1631c36d2a11064764cc8355	2fd83e13b1879ba5df18204d595c563fc2b10c33	review_order	#992	Quota statement 및 resource statement API 계약
+3f6866d70a6e4eb8a12dd257d33bde5aae79aacf	f2a1f839a7bb605302652992e9eeca99501980e7	review_order	#992	Quota balance 모델과 최종 UI
+2fd83e13b1879ba5df18204d595c563fc2b10c33	f2a1f839a7bb605302652992e9eeca99501980e7	review_order	#992	Quota resource statement API와 최종 UI
+7bc458ff85eb950b84a350a00c7a6d5ffe376b8e	75748a5cb8524d8453d2544d1c5ffe065f1e4d0b	code_dependency	#992	usage event 수정의 DB 변경을 4.22.1->4.23 경로에도 포함
+cd801b8561580f5a867b5900b16597451abab133	ba67a627f7a25ca63a8128d28183c5f47f7eeb69	review_order	#992	usage_volume 키와 quota 집계의 최종 레코드 의미
+ce9793c0bef6e33034a1c23bbbca95d7adcccbd7	4d54125bb62de999cba3b3b05622a391fc564985	review_order	#994	CLVM 초기 기능과 disk path mapping 후속
+ce9793c0bef6e33034a1c23bbbca95d7adcccbd7	8a42d17cf26ed9099543bf71edcfb1fff8fc9f88	review_order	#994	CLVM/ISO volume 배치 후속
+ff9ee24d1250c9d394ae60af8c70120416045691	c7e2c748f74619e3b0454d6f2904b89abaf39003	merge_followup	#990	업로드 인증서/API async 호출 merge 해결과 대조
+de3656c8193c5cf96f4bf39a22b0f285a8e88265	846803db0766e95e618d0675186268c4d31fefb0	merge_followup	#990	DHCP timeout와 throttling config 합성
+78d9cb5abd633ff740352637dce417346b0b8a80	846803db0766e95e618d0675186268c4d31fefb0	merge_followup	#990	VM network throttling과 DHCP config 합성
+ec2d3ea1e6d186964760c8d2ab33d3164715e1b5	17e5947a6d2cea3ced8d892e13d04b4e838f8d8e	review_order	#990	migration host 조회 후속 테스트 복원
+17e5947a6d2cea3ced8d892e13d04b4e838f8d8e	fe3df6b660d3757797235cf4cbd3f96716feffbe	merge_followup	#990	management server mock 중복 해결
+efa58cc52fca2c58840b8c83b583e3e36f0f5577	d7b4f35825a13fd77369b58c842e9a7d5a681ce9	merge_followup	#990	보안 forward merge 후속 수정
+02182a1572a12a89fc2f429f57bcec6f9e6ad7c0	8b72a16d61f669ad1141a4c2aefcc331fc90e453	merge_followup	#990	최종 4.23 forward merge 뒤 build 수정

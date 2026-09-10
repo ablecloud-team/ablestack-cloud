@@ -111,6 +111,7 @@ import javax.inject.Inject;
 
 import static org.apache.cloudstack.backup.BackupManager.BackupChainSize;
 import static org.apache.cloudstack.backup.BackupManager.BackupCommandTimeout;
+import static org.apache.cloudstack.backup.BackupManager.BackupQosBandwidthLimitMbps;
 import static org.apache.cloudstack.backup.BackupManager.BackupRestoreTimeout;
 import static org.apache.cloudstack.backup.BackupManager.KvmIncrementalBackup;
 
@@ -692,6 +693,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         command.setBackupType(requestedBackupType);
         command.setCheckpointName(checkpointName);
         command.setBackupFiles(backupFiles);
+        command.setBandwidthLimitMbps(BackupQosBandwidthLimitMbps.value());
         if (incrementalBackup && latestBackup != null) {
             command.setParentBackupPath(getBackupPathFromExternalId(latestBackup));
             command.setParentCheckpointName(getBackupDetail(latestBackup, DETAIL_CHECKPOINT_NAME));

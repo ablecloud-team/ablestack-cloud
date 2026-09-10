@@ -103,6 +103,7 @@ import java.util.stream.Collectors;
 
 import static org.apache.cloudstack.backup.BackupManager.BackupChainSize;
 import static org.apache.cloudstack.backup.BackupManager.BackupCommandTimeout;
+import static org.apache.cloudstack.backup.BackupManager.BackupQosBandwidthLimitMbps;
 import static org.apache.cloudstack.backup.BackupManager.BackupFrameworkEnabled;
 import static org.apache.cloudstack.backup.BackupManager.BackupRestoreTimeout;
 import static org.apache.cloudstack.backup.BackupManager.KvmIncrementalBackup;
@@ -293,6 +294,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         command.setCheckpointName(checkpointName);
         command.setBackupFiles(backupFiles);
         command.setPolicyId(backupDetails.get(DETAIL_POLICY_NAME));
+        command.setBandwidthLimitMbps(BackupQosBandwidthLimitMbps.value());
         if (incrementalBackup && latestBackup != null) {
             command.setParentBackupPath(getBackupDetail(latestBackup, DETAIL_PARENT_BACKUP_PATH,
                     latestBackup.getExternalId()));

@@ -49,6 +49,7 @@ public class LibvirtAblestackNetBackupTakeBackupCommandWrapper extends CommandWr
         delegate.setParentCheckpointXml(command.getParentCheckpointXml());
         delegate.setParentCheckpointXmlChain(command.getParentCheckpointXmlChain());
         delegate.setBackupFiles(command.getBackupFiles());
+        delegate.setBandwidthLimitMbps(command.getBandwidthLimitMbps());
 
         final LibvirtAblestackNetBackupHelper backupHelper = new LibvirtAblestackNetBackupHelper(libvirtComputingResource);
         final Pair<Integer, String> result = backupHelper.executeBackup(delegate);
