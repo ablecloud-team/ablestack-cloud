@@ -44,6 +44,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
+    @Inject
+    private DrCheckpointCleanupService checkpointCleanup;
     @Inject private DrTestCleanupRecoveryStore testCleanupRecovery;
 
     private static final DrPlanActionAvailabilityEvaluator ACTION_AVAILABILITY_EVALUATOR =
@@ -230,6 +232,7 @@ public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
                     + ": release DR protection and cleanup runtime resources before deleting plan " + planId);
         }
         if (force) {
+            if (checkpointCleanup != null) checkpointCleanup.preserveUnregistered(plan);
             // Unregister only. Preserve runtime/history evidence for manual remote cleanup.
             plan.setAdminState(DrConstants.ADMIN_STATE_DISABLED);
             plan.markUpdated();

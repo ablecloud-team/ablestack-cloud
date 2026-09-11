@@ -3329,6 +3329,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
         cmdList.add(CancelDrRunCmd.class);
         cmdList.add(ListDrRestorePointsCmd.class);
         cmdList.add(ListDrSyncCheckpointsCmd.class);
+        cmdList.add(org.apache.cloudstack.api.command.admin.dr.ManageDrCheckpointsCmd.class);
         cmdList.add(ListDrReplicasCmd.class);
         cmdList.add(ListDrRunsCmd.class);
         cmdList.add(GetDrRunCmd.class);

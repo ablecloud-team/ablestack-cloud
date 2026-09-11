@@ -988,6 +988,10 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
         }
     }
 
+    public String buildCheckpointInventorySpec(DrPlanVO plan) {
+        return buildTestArtifactSpec(plan, null, null);
+    }
+
     private String buildTestArtifactSpec(DrPlanVO plan, DrRunVO run, DrRestorePointVO checkpoint) {
         JsonObject mapping = parseObject(plan.getMappingJson());
         JsonObject mappingTarget = objectAt(mapping, "target");
@@ -1029,7 +1033,7 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
         JsonObject spec = new JsonObject();
         spec.addProperty("contractVersion", TEST_ARTIFACT_CONTRACT_VERSION);
         spec.addProperty("planUuid", plan.getUuid());
-        spec.addProperty("runUuid", run.getUuid());
+        spec.addProperty("runUuid", run != null ? run.getUuid() : "");
         spec.addProperty("checkpointImmutableRequired", isSharedMountPointFilePlan(plan));
         if (checkpoint != null) {
             addControllerCheckpointEvidence(spec, plan, checkpoint);

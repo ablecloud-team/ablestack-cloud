@@ -18,6 +18,7 @@
 -->
 <template>
   <div class="cross-dr-page cross-dr-standard-page">
+    <dr-checkpoint-manager v-if="!detailId" style="margin-bottom: 12px" />
     <a-affix
       :key="'affix-' + showSearchFilters"
       :offsetTop="this.$store.getters.maintenanceInitiated || this.$store.getters.shutdownTriggered ? 103 : 78">
@@ -1181,6 +1182,7 @@
 </template>
 
 <script>
+import DrCheckpointManager from '@/components/dr/DrCheckpointManager.vue'
 import { h } from 'vue'
 import { Checkbox, notification } from 'ant-design-vue'
 import ActionButton from '@/components/view/ActionButton'
@@ -1211,6 +1213,7 @@ import { ApartmentOutlined, BranchesOutlined, ClockCircleOutlined, DesktopOutlin
 export default {
   name: 'DrPlanList',
   components: {
+    DrCheckpointManager,
     ActionButton,
     Breadcrumb,
     DrEventsTab,
