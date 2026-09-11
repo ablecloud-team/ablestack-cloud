@@ -119,6 +119,12 @@ public class FtctlDrRuntimeProjectionAdapterTest {
                 (FtctlDrActionCommand action) -> action.getAction() == FtctlDrActionCommand.Action.CHECKPOINT_ACK
                         && action.getArtifactSpecJson().contains("proof-digest")));
         Mockito.clearInvocations(agentManager);
+        // A relocated/recovered producer must publish without a separate SYNC.
+        adapter.reconcileCheckpointPublication(plan,
+                new DrRunVO(plan.getId(), DrConstants.RUN_TYPE_RECOVER_SYNC), runtime, 11L);
+        Mockito.verify(agentManager).easySend(Mockito.eq(11L), Mockito.argThat(
+                (FtctlDrActionCommand action) -> action.getAction() == FtctlDrActionCommand.Action.CHECKPOINT_ACK));
+        Mockito.clearInvocations(agentManager);
         proof.getAsJsonObject("contract").addProperty("checkpointSequence", 8);
         ReflectionTestUtils.setField(answer, "statusJson", proof.toString());
         try {

@@ -225,7 +225,7 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
                 && drFailbackSessionDao != null
                 && isCommittedSourceFailbackSession(drFailbackSessionDao.findActiveByRunId(projectionRun.getId()));
         if (!sourceRestored && ((projectionRun != null && !StringUtils.equalsAnyIgnoreCase(projectionRun.getRunType(),
-                DrConstants.RUN_TYPE_SYNC, "RESUME_SYNC", "PAUSE_SYNC"))
+                DrConstants.RUN_TYPE_SYNC, DrConstants.RUN_TYPE_RECOVER_SYNC, "RESUME_SYNC", "PAUSE_SYNC"))
                 || StringUtils.equalsIgnoreCase(plan.getActiveSide(), "TARGET"))) {
             return;
         }

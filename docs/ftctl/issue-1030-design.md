@@ -20,4 +20,6 @@ producer identity는 plan/Run/sequence만 사용하며 host UUID, PID, VM 배치
 
 ## #1031 / #1032 실행 중 발견 사항 반영
 - #1031: Cloud status_json에는 reconciliation_required가 필터링되어 빠질 수 있다. 따라서 typed reconciliationState=LIVE를 필수로 검증하고, raw flag가 있을 때는 false도 확인한다. worker PID와 scheduler/active PID 일치, count1, MATCHED/ALIVE/active/RUNNING 조건은 유지한다. 실제 저장 형식 회귀 포함 DR456 tests/package PASS.
-- #1032: 실제13.2→13.1 이동 후 새 source worker가 과거 remote-source-target-suppressed STOP 때문에 종료됨을 확인했다. dr-sync-start에 새 profile과 role=source 또는 원본 Mold가 사용하는 coordinator가 명시된 경우만 plan lock 아래 exact reason/빈 owner STOP을 다음 generation RUN으로 바꾼다. 사용자 pause/stop 및 lifecycle stop은 그대로 보존한다. 평범한 daemon 재시작에서는 변경하지 않는다. 호스트/PID를 미래 계획의 실행 권한으로 저장하지 않는다.
+- #1032: 실제13.2→13.1 이동 후 새 source worker가 과거 remote-source-target-suppressed STOP 때문에 종료됨을 확인했다. dr-sync-start/dr-sync-recover에 새 profile과 role=source 또는 원본 Mold가 사용하는 coordinator가 명시된 경우만 plan lock 아래 exact reason/빈 owner STOP을 다음 generation RUN으로 바꾼다. 사용자 pause/stop 및 lifecycle stop은 그대로 보존한다. 평범한 daemon 재시작에서는 변경하지 않는다. 호스트/PID를 미래 계획의 실행 권한으로 저장하지 않는다.
+
+- #1032 추가: FtctlDrRuntimeProjectionAdapter.reconcileCheckpointPublication의 복제 Run 허용 목록에 RECOVER_SYNC가 빠져 새 worker의 올바른 candidate가 ACK되지 않았다. 기존 plan activeSide/target durable 검증을 유지하면서 RECOVER_SYNC만 포함한다. 기존 publication 검증 테스트에 실제 RECOVER_SYNC Run을 추가해 수정 전 ACK 누락 실패를 재현했고, 수정 후 DR456 tests/package PASS. 재해 페일오버/해제 경로에 원본 접근 조건은 추가하지 않는다.
