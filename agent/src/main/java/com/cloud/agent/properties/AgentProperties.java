@@ -334,6 +334,15 @@ public class AgentProperties{
     public static final Property<String> NETWORK_BRIDGE_TYPE = new Property<>("network.bridge.type", "native");
 
     /**
+     * Sets the VXLAN networking mode used by the BridgeVifDriver.<br>
+     * Possible values: multicast | evpn <br>
+     * When set to <code>evpn</code>, the driver will use modifyvxlan-evpn.sh instead of modifyvxlan.sh.<br>
+     * Data type: String.<br>
+     * Default value: <code>multicast</code>
+     */
+    public static final Property<String> NETWORK_VXLAN_MODE = new Property<>("network.vxlan.mode", "multicast");
+
+    /**
      * Sets the driver used to plug and unplug NICs from the bridges.<br>
      * A sensible default value will be selected based on the network.bridge.type but can be overridden here.<br>
      * Value for native = com.cloud.hypervisor.kvm.resource.BridgeVifDriver<br>
@@ -963,6 +972,21 @@ public class AgentProperties{
      * Time, in seconds, to wait before retrying to rebase during the incremental snapshot process.
      * */
     public static final Property<Integer> INCREMENTAL_SNAPSHOT_RETRY_REBASE_WAIT = new Property<>("incremental.snapshot.retry.rebase.wait", 60);
+
+    /**
+     * When set to <code>true</code>, executes <code>modifymacip.sh</code> (resolved via the
+     * network scripts directory) on VM NIC plug (VM start) and unplug (VM stop) to manage static
+     * ARP/NDP entries and host routes for VM interfaces.<br>
+     * The script is invoked with:<br>
+     * &nbsp;&nbsp;add:    <code>-o add -b &lt;bridge&gt; -m &lt;mac&gt; [-4 &lt;ipv4&gt;] [-6 &lt;ipv6&gt;]</code><br>
+     * &nbsp;&nbsp;delete: <code>-o delete -b &lt;bridge&gt; -m &lt;mac&gt;</code><br>
+     * A bundled reference implementation is available at
+     * <code>scripts/vm/network/vnet/modifymacip.sh</code>.<br>
+     * Set to <code>false</code> or leave unset to disable this feature.<br>
+     * Data type: Boolean.<br>
+     * Default value: <code>false</code>
+     */
+    public static final Property<Boolean> VM_NETWORK_MACIP_STATIC = new Property<>("vm.network.macip.static", false, Boolean.class);
 
 
     /**

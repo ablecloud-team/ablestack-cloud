@@ -1387,3 +1387,4 @@ WHERE NOT EXISTS (SELECT 1 FROM `cloud`.`configuration` WHERE `name` = 'kvm.cpu.
 
 -- Schedule table changes are applied by the retry-safe Europa S5A named phase.
 -- Storage/backup changes are applied by the retry-safe Europa S5B named phase.
+-- Network/DNS changes are applied by the retry-safe Europa S6 named phase.

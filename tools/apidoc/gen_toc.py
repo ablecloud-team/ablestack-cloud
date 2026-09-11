@@ -347,7 +347,8 @@ known_categories = {
     'StorageNvmeOf': 'Shared FileSystem',
     'StorageFileShare': 'Shared FileSystem',
     'StorageVolumeToFileShare': 'Shared FileSystem',
-    'downloadValidationScreenshot': 'Backup and Recovery'
+    'downloadValidationScreenshot': 'Backup and Recovery',
+    'Dns': 'DNS'
 }
 
 

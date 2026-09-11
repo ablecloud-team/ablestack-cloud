@@ -1,0 +1,129 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+package com.cloud.upgrade.dao;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.Statement;
+import java.util.concurrent.atomic.AtomicInteger;
+
+/** Runs only on the task-owned disposable MySQL fixture. */
+public class EuropaNetworkDdlReplay {
+    static void execute(Connection c, String sql) throws SQLException {
+        try (Statement s = c.createStatement()) { s.execute(sql); }
+    }
+    static void reset(Connection c) throws Exception {
+        execute(c, "DROP DATABASE IF EXISTS cloud");
+        execute(c, "CREATE DATABASE cloud");
+        execute(c, "USE cloud");
+        for (String table : new String[]{"account", "domain", "networks", "vpc"}) {
+            execute(c, "CREATE TABLE " + table + "(id BIGINT UNSIGNED PRIMARY KEY) ENGINE=InnoDB");
+            execute(c, "INSERT INTO " + table + " VALUES(1)");
+        }
+        for (String table : new String[]{"extension_details", "extension_resource_map_details"}) {
+            execute(c, "CREATE TABLE " + table + "(id BIGINT PRIMARY KEY, value VARCHAR(255))");
+            execute(c, "INSERT INTO " + table + " VALUES(1,'existing-provider-setting')");
+        }
+        execute(c, "CREATE TABLE physical_network_service_providers(id BIGINT PRIMARY KEY, networkacl_service_provided TINYINT)");
+        execute(c, "CREATE TABLE nic_secondary_ips(id BIGINT PRIMARY KEY)");
+        execute(c, "INSERT INTO nic_secondary_ips VALUES(1)");
+        for (String table : new String[]{"service_offering", "network_offerings"}) {
+            execute(c, "CREATE TABLE " + table + "(id BIGINT PRIMARY KEY, nw_rate SMALLINT UNSIGNED, mc_rate SMALLINT UNSIGNED)");
+            execute(c, "INSERT INTO " + table + " VALUES(1,10000,10)");
+        }
+        execute(c, "CREATE TABLE firewall_rules(id BIGINT PRIMARY KEY, network_id BIGINT UNSIGNED NOT NULL)");
+        execute(c, "INSERT INTO firewall_rules VALUES(1,1)");
+        for (String table : new String[]{"load_balancer_cert_map", "load_balancer_healthcheck_policies", "load_balancer_stickiness_policies", "elastic_lb_vm_map", "tungsten_lb_health_monitor", "global_load_balancing_rules"}) {
+            execute(c, "CREATE TABLE " + table + "(id BIGINT PRIMARY KEY)");
+            execute(c, "INSERT INTO " + table + " VALUES(1)");
+        }
+        execute(c, "CREATE TABLE load_balancer_vm_map(id BIGINT PRIMARY KEY, load_balancer_id BIGINT, instance_id BIGINT, instance_ip VARCHAR(40), UNIQUE KEY load_balancer_id(load_balancer_id,instance_id,instance_ip))");
+        execute(c, "INSERT INTO load_balancer_vm_map VALUES(1,1,1,'10.0.0.1')");
+        execute(c, "CREATE TABLE global_load_balancer_lb_rule_map(id BIGINT PRIMARY KEY, gslb_rule_id BIGINT, lb_rule_id BIGINT, UNIQUE KEY gslb_rule_id(gslb_rule_id,lb_rule_id))");
+        execute(c, "INSERT INTO global_load_balancer_lb_rule_map VALUES(1,1,1)");
+        execute(c, "CREATE TABLE ablestack_schema_migration(name VARCHAR(255) PRIMARY KEY,state VARCHAR(255),updated DATETIME)");
+        execute(c, "INSERT INTO ablestack_schema_migration VALUES('europa-4.23-s4-v1','Complete','2026-01-01'),('europa-4.23-s5a-v1','Complete','2026-01-02'),('europa-4.23-s5b-v1','Complete','2026-01-03'),('europa-4.23-s5c-v1','Complete','2026-01-04')");
+        for (String name : new String[]{"add_column", "change_column"}) {
+            String procedure = Files.readString(Path.of("engine/schema/src/main/resources/META-INF/db/procedures/cloud.idempotent_" + name + ".sql"));
+            execute(c, procedure.substring(procedure.indexOf("CREATE PROCEDURE"), procedure.indexOf("END$$") + 3));
+        }
+    }
+    static Connection faultAfter(Connection c, int failAt, AtomicInteger count) {
+        return (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(), new Class[]{Connection.class}, (proxy, method, args) -> {
+            try {
+                Object result = method.invoke(c, args);
+                if (!method.getName().equals("createStatement")) return result;
+                Statement statement = (Statement) result;
+                return Proxy.newProxyInstance(Statement.class.getClassLoader(), new Class[]{Statement.class}, (sp, sm, sa) -> {
+                    try {
+                        Object sr = sm.invoke(statement, sa);
+                        if (sm.getName().equals("execute") && count.incrementAndGet() == failAt) {
+                            throw new SQLException("Injected interruption AFTER committed DDL " + failAt);
+                        }
+                        return sr;
+                    } catch (InvocationTargetException e) { throw e.getCause(); }
+                });
+            } catch (InvocationTargetException e) { throw e.getCause(); }
+        });
+    }
+    static long scalar(Connection c, String sql) throws SQLException {
+        try (Statement st=c.createStatement(); ResultSet r=st.executeQuery(sql)) {r.next(); return r.getLong(1);}
+    }
+    static void verify(Connection c) throws SQLException {
+        if (scalar(c,"SELECT COUNT(*) FROM ablestack_schema_migration WHERE state='Complete' AND updated BETWEEN '2026-01-01' AND '2026-01-04'")!=4) throw new AssertionError("Old checkpoints changed");
+        if (scalar(c,"SELECT COUNT(*) FROM firewall_rules WHERE id=1 AND network_id=1 AND removed IS NULL")!=1) throw new AssertionError("Firewall data changed");
+        if (scalar(c,"SELECT COUNT(*) FROM networks WHERE id=1 AND keep_mac_address_on_public_nic=1")!=1) throw new AssertionError("MAC reuse default lost");
+        if (scalar(c,"SELECT COUNT(*) FROM load_balancer_vm_map WHERE id=1 AND instance_ip='10.0.0.1' AND removed IS NULL")!=1) throw new AssertionError("LB reference lost");
+        if (scalar(c,"SELECT COUNT(*) FROM extension_details WHERE value='existing-provider-setting'")!=1) throw new AssertionError("Extension detail lost");
+        if (scalar(c,"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='cloud' AND table_name IN ('dns_server','dns_server_details','dns_zone','dns_zone_network_map')")!=4) throw new AssertionError("DNS table missing");
+        execute(c,"INSERT INTO service_offering VALUES(2,100000,100000)");
+        execute(c,"DELETE FROM service_offering WHERE id=2");
+        execute(c,"INSERT INTO firewall_rules VALUES(2,NULL,NULL)");
+        execute(c,"DELETE FROM firewall_rules WHERE id=2");
+    }
+
+    public static void main(String[] args) throws Exception {
+        if (args.length!=1 || !args[0].equals("epic997-mysql-ddl")) throw new IllegalArgumentException("Task-owned fixture only");
+        try (Connection c = DriverManager.getConnection("jdbc:mysql://"+args[0]+":3306/?allowPublicKeyRetrieval=true&useSSL=false", "root", "epic997-fixture-dummy")) {
+            reset(c);
+            AtomicInteger count = new AtomicInteger();
+            EuropaNetworkSchemaUpgrade.migrate(faultAfter(c, -1, count));
+            int steps = count.get(); verify(c);
+            for (int i=1;i<=steps;i++) {
+                reset(c);
+                EuropaSchemaUpgrade.begin(c, EuropaSchemaUpgrade.S6);
+                try { EuropaNetworkSchemaUpgrade.migrate(faultAfter(c,i,new AtomicInteger())); throw new AssertionError("Failure not injected"); }
+                catch (com.cloud.utils.exception.CloudRuntimeException expected) {
+                    if (expected.getCause()==null || !expected.getCause().getMessage().startsWith("Injected")) throw expected;
+                }
+                if (!EuropaSchemaUpgrade.hasState(c, EuropaSchemaUpgrade.S6,"Pending")) throw new AssertionError("False completed checkpoint");
+                EuropaNetworkSchemaUpgrade.migrate(c);
+                EuropaSchemaUpgrade.complete(c, EuropaSchemaUpgrade.S6);
+                EuropaNetworkSchemaUpgrade.migrate(c);
+                verify(c);
+            }
+            System.out.println("PASS: S6 interruption/replay after all " + steps + " SQL boundaries, repeat, existing network/firewall/LB/provider rows, old checkpoints, high rates and nullable VPC network references");
+        }
+    }
+}

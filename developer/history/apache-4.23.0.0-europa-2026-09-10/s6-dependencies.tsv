@@ -1,0 +1,25 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+contract	owner	requirement	validation
+DB	S7/S8	S6 journal europa-4.23-s6-v1; do not edit earlier Complete phases	New DNS tables before DNS views; existing same-version data preserved
+Storage Service	S7/S8	Keep StorageService registration, service map and existing Europa FTCTL/DR/KVDO/KMS contracts	Network Extension is an additional provider; OS or storage runtime migration not introduced in S6
+DNS	S7/S8	Root-admin provider registration, public suffix and cross-tenant conflicts, URL validation, NIC/VM lifecycle events	Real API + HTTP fixture passed; real DNS propagation/outage/failover NOT_RUN #1025
+Network Extension	S7/S8	Provider capabilities/defaults, physical-network extensionenabledproviders, JSON file/script argument/error handling	13742921 removes incorrect forVpc inference; native script contract tests; external provider NOT_RUN #1025
+VR/SystemVM	S8	DHCP timeout/lease cleanup retains owner and mode; IPv6 established/related and redundant VPC radvd	No base OS/package recipe update in S6; real DHCP/VR failover/IPv6 behavior NOT_RUN #1025
+VPN/VXLAN/CKS	S8	Curve25519 only when allowed, existing edited algorithms unchanged, Europa throttle default10000, KVM scaling contract	Existing compute ACL precedes scale path; actual switch/VPN/CKS traffic NOT_RUN #1025
+Shared merges	S7 #998 / S2 #990	fb5e24fa0868 waits 8e933b735e21; b3b9caddc191 waits a951ac61d090	Other ten shared merges closed only after remerge and side source review
+S2 residual	S7/S8 / #990	a7f9756d6267 realhostip cleanup; 463f8d029470 final release versions	Keep Pending until consumer/branding and final RC decisions; S6 does not silently exclude sources

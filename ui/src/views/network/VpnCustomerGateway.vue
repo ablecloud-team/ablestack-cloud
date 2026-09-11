@@ -372,9 +372,13 @@ export default {
         'Group 15': 'modp3072',
         'Group 16': 'modp4096',
         'Group 17': 'modp6144',
-        'Group 18': 'modp8192'
+        'Group 18': 'modp8192',
+        'Group 22': 'modp1024s160',
+        'Group 23': 'modp2048s224',
+        'Group 24': 'modp2048s256',
+        'Group 31': 'curve25519'
       },
-      ikeDhGroupInitialKey: 'Group 5',
+      ikeDhGroupInitialKey: 'Group 31',
       isSubmitted: false,
       ikeversion: 'ike',
       allowedEncryptionAlgos: [],
@@ -516,11 +520,11 @@ export default {
         .filter(([key, value]) => this.allowedDhGroupValues.includes(value))
         .map(([key]) => key)
 
-      this.form.ikeEncryption = this.form.ikeEncryption || this.allowedEncryptionAlgos[0]
+      this.form.ikeEncryption = this.form.ikeEncryption || (this.allowedEncryptionAlgos.includes('aes256') ? 'aes256' : this.allowedEncryptionAlgos[0])
       this.form.ikeHash = this.form.ikeHash || this.allowedHashingAlgos[0]
       this.form.ikeversion = this.form.ikeversion || this.allowedIkeVersions[0]
-      this.form.espEncryption = this.form.espEncryption || this.allowedEncryptionAlgos[0]
-      this.form.espHash = this.form.espHash || this.allowedHashingAlgos[0]
+      this.form.espEncryption = this.form.espEncryption || (this.allowedEncryptionAlgos.includes('aes256') ? 'aes256' : this.allowedEncryptionAlgos[0])
+      this.form.espHash = this.form.espHash || (this.allowedHashingAlgos.includes('sha256') ? 'sha256' : this.allowedHashingAlgos[0])
       if (!this.initialValues.ikeDh) {
         if (this.allowedDhGroupKeys.includes(this.ikeDhGroupInitialKey)) {
           this.form.ikeDh = this.ikeDhGroupInitialKey + '(' + this.DHGroups[this.ikeDhGroupInitialKey] + ')'

@@ -434,4 +434,8 @@
     <bean id="backupCompressionService" class="org.apache.cloudstack.backup.BackupCompressionServiceJobController" />
     <bean id="backupValidationService" class="org.apache.cloudstack.backup.BackupValidationServiceJobController" />
 
+
+    <bean id="dnsProviderManager" class="org.apache.cloudstack.dns.DnsProviderManagerImpl" >
+        <property name="dnsProviders" value="#{dnsProvidersRegistry.registered}" />
+    </bean>
 </beans>

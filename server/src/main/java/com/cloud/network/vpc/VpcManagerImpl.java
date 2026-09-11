@@ -87,6 +87,8 @@ import org.apache.cloudstack.api.command.user.vpc.RestartVPCCmd;
 import org.apache.cloudstack.api.command.user.vpc.UpdateVPCCmd;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.engine.orchestration.service.NetworkOrchestrationService;
+import org.apache.cloudstack.extension.Extension;
+import org.apache.cloudstack.extension.ExtensionHelper;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
 import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
@@ -328,10 +330,12 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
     Site2SiteVpnConnectionDao site2SiteVpnConnectionDao;
     @Inject
     Site2SiteCustomerGatewayDao site2SiteCustomerGatewayDao;
+    @Inject
+    ExtensionHelper extensionHelper;
 
     private final ScheduledExecutorService _executor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("VpcChecker"));
     private List<VpcProvider> vpcElements = null;
-    private final List<Service> nonSupportedServices = Arrays.asList(Service.SecurityGroup, Service.Firewall);
+    private final List<Service> nonSupportedServices = Arrays.asList(Service.SecurityGroup);
     private final List<Provider> supportedProviders = Arrays.asList(Provider.VPCVirtualRouter, Provider.NiciraNvp, Provider.InternalLbVm, Provider.Netscaler,
             Provider.JuniperContrailVpcRouter, Provider.Ovs, Provider.BigSwitchBcf, Provider.ConfigDrive, Provider.Nsx, Provider.Netris);
 
@@ -700,7 +704,7 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
                     final Set<Provider> providers = new HashSet<Provider>();
                     for (final String prvNameStr : serviceEntry.getValue()) {
                         // check if provider is supported
-                        final Network.Provider provider = Network.Provider.getProvider(prvNameStr);
+                        final Network.Provider provider = _ntwkModel.resolveProvider(prvNameStr);
                         if (provider == null) {
                             throw new InvalidParameterValueException("Invalid service provider: " + prvNameStr);
                         }
@@ -1247,12 +1251,18 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
 
         for (final VpcOfferingServiceMapVO instance : map) {
             final Service service = Service.getService(instance.getService());
+            if (service == null) {
+                continue;
+            }
             Set<Provider> providers;
             providers = serviceProviderMap.get(service);
             if (providers == null) {
                 providers = new HashSet<Provider>();
             }
-            providers.add(Provider.getProvider(instance.getProvider()));
+            final Provider provider = _ntwkModel.resolveProvider(instance.getProvider());
+            if (provider != null) {
+                providers.add(provider);
+            }
             serviceProviderMap.put(service, providers);
         }
 
@@ -1567,7 +1577,7 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
     @ActionEvent(eventType = EventTypes.EVENT_VPC_CREATE, eventDescription = "creating vpc", create = true)
     public Vpc createVpc(final long zoneId, final long vpcOffId, final long vpcOwnerId, final String vpcName, final String displayText, final String cidr, String networkDomain,
                          final String ip4Dns1, final String ip4Dns2, final String ip6Dns1, final String ip6Dns2, final Boolean displayVpc, Integer publicMtu,
-                         final Integer cidrSize, final Long asNumber, final List<Long> bgpPeerIds, Boolean useVrIpResolver) throws ResourceAllocationException {
+                         final Integer cidrSize, final Long asNumber, final List<Long> bgpPeerIds, Boolean useVrIpResolver, boolean keepMacAddressOnPublicNic) throws ResourceAllocationException {
         final Account caller = CallContext.current().getCallingAccount();
         final Account owner = _accountMgr.getAccount(vpcOwnerId);
 
@@ -1670,6 +1680,7 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
         vpc.setPublicMtu(publicMtu);
         vpc.setDisplay(Boolean.TRUE.equals(displayVpc));
         vpc.setUseRouterIpResolver(Boolean.TRUE.equals(useVrIpResolver));
+        vpc.setKeepMacAddressOnPublicNic(keepMacAddressOnPublicNic);
 
         try (CheckedReservation vpcReservation = new CheckedReservation(owner, ResourceType.vpc, null, null, 1L, reservationDao, _resourceLimitMgr)) {
         if (vpc.getCidr() == null && cidrSize != null) {
@@ -1730,7 +1741,8 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
         List<Long> bgpPeerIds = (cmd instanceof CreateVPCCmdByAdmin) ? ((CreateVPCCmdByAdmin)cmd).getBgpPeerIds() : null;
         Vpc vpc = createVpc(cmd.getZoneId(), cmd.getVpcOffering(), cmd.getEntityOwnerId(), cmd.getVpcName(), cmd.getDisplayText(),
             cmd.getCidr(), cmd.getNetworkDomain(), cmd.getIp4Dns1(), cmd.getIp4Dns2(), cmd.getIp6Dns1(),
-            cmd.getIp6Dns2(), cmd.isDisplay(), cmd.getPublicMtu(), cmd.getCidrSize(), cmd.getAsNumber(), bgpPeerIds, cmd.getUseVrIpResolver());
+            cmd.getIp6Dns2(), cmd.isDisplay(), cmd.getPublicMtu(), cmd.getCidrSize(), cmd.getAsNumber(), bgpPeerIds,
+            cmd.getUseVrIpResolver(), cmd.getKeepMacAddressOnPublicNic());
 
         String sourceNatIP = cmd.getSourceNatIP();
         boolean forNsx = isVpcForProvider(Provider.Nsx, vpc);
@@ -1846,6 +1858,12 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
             if (provider == null) {
                 // Default to VPCVirtualRouter
                 provider = Provider.VPCVirtualRouter.getName();
+            } else {
+                final Provider resolvedProvider = _ntwkModel.resolveProvider(provider);
+                if (resolvedProvider == null) {
+                    throw new InvalidParameterValueException("Invalid provider " + provider + " configured for service " + service);
+                }
+                provider = resolvedProvider.getName();
             }
 
             if (!_ntwkModel.isProviderEnabledInZone(zoneId, provider)) {
@@ -1942,12 +1960,14 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
 
     @Override
     public Vpc updateVpc(UpdateVPCCmd cmd) throws ResourceUnavailableException, InsufficientCapacityException {
-        return updateVpc(cmd.getId(), cmd.getVpcName(), cmd.getDisplayText(), cmd.getCustomId(), cmd.isDisplayVpc(), cmd.getPublicMtu(), cmd.getSourceNatIP());
+        return updateVpc(cmd.getId(), cmd.getVpcName(), cmd.getDisplayText(), cmd.getCustomId(),
+                cmd.isDisplayVpc(), cmd.getPublicMtu(), cmd.getSourceNatIP(), cmd.getKeepMacAddressOnPublicNic());
     }
 
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VPC_UPDATE, eventDescription = "updating vpc")
-    public Vpc updateVpc(final long vpcId, final String vpcName, final String displayText, final String customId, final Boolean displayVpc, Integer mtu, String sourceNatIp) throws ResourceUnavailableException, InsufficientCapacityException {
+    public Vpc updateVpc(final long vpcId, final String vpcName, final String displayText, final String customId,
+                         final Boolean displayVpc, Integer mtu, String sourceNatIp, Boolean keepMacAddressOnPublicNic) throws ResourceUnavailableException, InsufficientCapacityException {
         final Account caller = CallContext.current().getCallingAccount();
 
         // Verify input parameters
@@ -1977,6 +1997,10 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
 
         if (displayVpc != null) {
             vpc.setDisplay(displayVpc);
+        }
+
+        if (keepMacAddressOnPublicNic != null) {
+            vpc.setKeepMacAddressOnPublicNic(keepMacAddressOnPublicNic);
         }
 
         mtu = validateMtu(vpcToUpdate, mtu);
@@ -2029,9 +2053,12 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
         if (! userIps.isEmpty()) {
             try {
                 _ipAddrMgr.updateSourceNatIpAddress(requestedIp, userIps);
-                if (isVpcForProvider(Provider.Nsx, vpc) || isVpcForProvider(Provider.Netris, vpc)) {
+                if (isVpcForProvider(Provider.Nsx, vpc) || isVpcForProvider(Provider.Netris, vpc)
+                        || isVpcForProvider(Provider.NetworkExtension, vpc)) {
                     boolean isForNsx = _vpcOffSvcMapDao.isProviderForVpcOffering(Provider.Nsx, vpc.getVpcOfferingId());
-                    String providerName = isForNsx ? Provider.Nsx.getName() : Provider.Netris.getName();
+                    boolean isForNetris = _vpcOffSvcMapDao.isProviderForVpcOffering(Provider.Netris, vpc.getVpcOfferingId());
+                    String providerName = isForNsx ? Provider.Nsx.getName()
+                            : (isForNetris ? Provider.Netris.getName() : Provider.NetworkExtension.getName());
                     VpcProvider providerElement = (VpcProvider) _ntwkModel.getElementImplementingProvider(providerName);
                     if (Objects.nonNull(providerElement)) {
                         providerElement.updateVpcSourceNatIp(vpc, requestedIp);
@@ -2506,7 +2533,8 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
         // 1) in current release, only vpc provider is supported by Vpc offering
         final List<Provider> providers = _ntwkModel.getNtwkOffDistinctProviders(guestNtwkOff.getId());
         for (final Provider provider : providers) {
-            if (!supportedProviders.contains(provider)) {
+            if (!supportedProviders.contains(provider)
+                    && !extensionHelper.isNetworkExtensionProvider(provider.getName())) {
                 throw new InvalidParameterValueException("Provider of type " + provider.getName() + " is not supported for network offerings that can be used in VPC");
             }
         }
@@ -2613,17 +2641,32 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
     }
 
     public List<VpcProvider> getVpcElements() {
+        // Static providers (VPCVirtualRouter, JuniperContrailVpcRouter) are initialized once.
         if (vpcElements == null) {
             vpcElements = new ArrayList<VpcProvider>();
-            vpcElements.add((VpcProvider) _ntwkModel.getElementImplementingProvider(Provider.VPCVirtualRouter.getName()));
-            vpcElements.add((VpcProvider) _ntwkModel.getElementImplementingProvider(Provider.JuniperContrailVpcRouter.getName()));
+            final NetworkElement vpcVirtualRouter = _ntwkModel.getElementImplementingProvider(Provider.VPCVirtualRouter.getName());
+            if (vpcVirtualRouter instanceof VpcProvider) {
+                vpcElements.add((VpcProvider) vpcVirtualRouter);
+            }
+
+            final NetworkElement contrailVpcRouter = _ntwkModel.getElementImplementingProvider(Provider.JuniperContrailVpcRouter.getName());
+            if (contrailVpcRouter instanceof VpcProvider) {
+                vpcElements.add((VpcProvider) contrailVpcRouter);
+            }
         }
 
-        if (vpcElements == null) {
-            throw new CloudRuntimeException("Failed to initialize vpc elements");
+        // Extension-backed providers are re-fetched every call so that dynamically
+        // registered extensions are picked up without requiring a server restart.
+        final List<VpcProvider> result = new ArrayList<>(vpcElements);
+        for (final Extension extension : extensionHelper.listExtensionsByType(Extension.Type.NetworkOrchestrator)) {
+            final String providerName = extension.getName();
+            final NetworkElement element = _ntwkModel.getElementImplementingProvider(providerName);
+            if (element instanceof VpcProvider) {
+                result.add((VpcProvider) element);
+            }
         }
 
-        return vpcElements;
+        return result;
     }
 
     @Override
@@ -3932,7 +3975,7 @@ public class VpcManagerImpl extends ManagerBase implements VpcManager, VpcProvis
         final Map<String, Provider> providers = new HashMap<String, Provider>();
         for (final String providerName : providerNames) {
             if (!providers.containsKey(providerName)) {
-                providers.put(providerName, Network.Provider.getProvider(providerName));
+                providers.put(providerName, _ntwkModel.resolveProvider(providerName));
             }
         }
 

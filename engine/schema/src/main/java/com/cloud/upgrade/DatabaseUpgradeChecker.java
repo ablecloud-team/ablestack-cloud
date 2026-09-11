@@ -100,6 +100,7 @@ import com.cloud.upgrade.dao.EuropaSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaComputeSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaStorageSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaKmsSchemaUpgrade;
+import com.cloud.upgrade.dao.EuropaNetworkSchemaUpgrade;
 import com.cloud.upgrade.dao.Upgrade420to421;
 import com.cloud.upgrade.dao.Upgrade421to430;
 import com.cloud.upgrade.dao.Upgrade430to440;
@@ -456,6 +457,16 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
             for (String filePath : filesPathUnderViewsDirectory) {
                 LOGGER.debug(String.format("Executing VIEW script [%s].", filePath));
 
+                // Earlier checkpoints run before S6 creates the DNS tables.
+                if (filePath.endsWith("/cloud.dns_server_view.sql") || filePath.endsWith("/cloud.dns_zone_view.sql")
+                        || filePath.endsWith("/cloud.nic_dns_view.sql")) {
+                    try (java.sql.ResultSet tables = conn.getMetaData().getTables("cloud", null, "dns_zone_network_map", new String[]{"TABLE"})) {
+                        if (!tables.next()) {
+                            continue;
+                        }
+                    }
+                }
+
                 // Earlier same-version phases must remain executable before KMS columns exist.
                 String resourcePath = filePath;
                 if (filePath.endsWith("/cloud.volume_view.sql")) {
@@ -534,6 +545,10 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                 });
                 runEuropaPhase(conn, EuropaSchemaUpgrade.S5C, () -> {
                     EuropaKmsSchemaUpgrade.migrate(conn);
+                    executeViewScripts();
+                });
+                runEuropaPhase(conn, EuropaSchemaUpgrade.S6, () -> {
+                    EuropaNetworkSchemaUpgrade.migrate(conn);
                     executeViewScripts();
                 });
             } catch (SQLException e) {

@@ -179,3 +179,14 @@ S2 잔여 16개(merge 12 + 일반 4)는 그대로 유지하고 다음 코드 통
 [검증 보고](s5c-verification.ko.md), [원본 판정](s5c-review.tsv), [DB 결과](s5c-db-results.tsv),
 [Java 테스트](s5c-local-tests.tsv), [후속 계약](s5c-dependencies.tsv), [fixture](s5c-fixtures/README.ko.md)를 참조한다.
 실물 KMS·암호화 스토리지 테스트는 #1025에서 인수해 전체 코드 병합 후 S8 #999가 실행한다.
+
+## S6 네트워크 통합 완료
+
+PR [#1037](https://github.com/ablecloud-team/ablestack-cloud/pull/1037), 기능 #997.
+직접 원본32개와 S2 후속2개, 공유 merge10개를 완료했다.
+전체299개는 Applied97 / Adapted102 / Already Satisfied60 / Excluded28 / Pending12다.
+남은 코드는 S7 8개와 S2 4개(공유 merge2·realhostip 정리·최종 릴리즈 버전)다.
+[검증 보고](s6-verification.ko.md), [원본별 판정](s6-review.tsv), [공유 merge](s6-merge-review.tsv),
+[DB](s6-db-results.tsv), [후속 계약](s6-dependencies.tsv), [재현 fixture](s6-fixtures/README.ko.md)를 참조한다.
+새 DB 단계 europa-4.23-s6-v1을 사용하며 이전 Complete 단계와 Europa Storage Service·KMS·FTCTL/DR를 보존한다.
+실물 검증은 #1025에 NOT_RUN으로 누적했고 코드 병합의 선행 조건이 아니다. 다음 기능 작업은 #998이다.

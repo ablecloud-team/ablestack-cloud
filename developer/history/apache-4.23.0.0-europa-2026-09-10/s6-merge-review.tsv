@@ -1,0 +1,29 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+source_sha	decision	remerge_sha256	remerge_files	remerge_hunks	pending_side_sources	review	reviewed_code_sha	validation
+856d83a15eeef23806c896fa4fddbec136b28613	Already Satisfied	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855	0	0		: Empty remerge; NSX NAT getter/name match and regression already present. All in-scope side sources resolved.	1159774943e6b8a9542260ed7a154121ef0cf480	s6-verification.ko.md
+8906aa1d460166044feb11f5a511a140ca776281	Adapted	a7f2a9b4adc97775cc8a9eedff0c94a1852b40d7c13b4301bf4e70abe46a2072	2	3		: DH groups22/23/24/31 and preferred AES256/SHA256/Curve25519 integrated into shared VpnCustomerGateway. Preserve allowlist exclusions, existing edit values and parent form composition; three UI regressions.	1159774943e6b8a9542260ed7a154121ef0cf480	s6-verification.ko.md
+21b2025c5055d4580e828f708d406510853f0060	Already Satisfied	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855	0	0		: Empty remerge; provider, public IP selection and VPC offering side changes are complete.	1159774943e6b8a9542260ed7a154121ef0cf480	s6-verification.ko.md
+67b849f3efd16f5c353501d176a42e45d87acb44	Already Satisfied	41e1a87b0e805d26f0ba9ed66ec04a2ea09f05e39cb3bef9c28bcca30f8d62eb	168	174		: S1 original remerge SHA256 verified (regeneration has a missing synthetic blob); 168 paths reviewed. Keep 4.23 snapshot version instead of older release POM/Docker/Marvin versions; unique StatsCollector injection/test mocks preserved. Earlier S2/S5A/S5B reviews retained; S6 VNF/statistics additions and pt_BR keys do not undo resolutions.	1159774943e6b8a9542260ed7a154121ef0cf480	s6-verification.ko.md
+fb5e24fa086880b0b3058278c0878ef404af0e59	Pending	ce72bf40de518329c17c8b06b51a77869bfd54a9ec3f529f81ae879eb177db4a	3	3	8e933b735e21d1b6bda95425fe76994499ec308d	 integrated; remaining in-scope sources: 8e933b735e21:S7	1159774943e6b8a9542260ed7a154121ef0cf480	s6-verification.ko.md
+b3b9caddc191da6842b99ee6b2f2d5f92cb70145	Pending	cba30a2c95ff55f6712837b65ff81b6fd2db8e8ad5ec99f7992c3c48f6e2b983	2	7	a951ac61d0900764a4ec85df8e1250c0dcd24af4	 integrated; remaining in-scope sources: a951ac61d090:S7	1159774943e6b8a9542260ed7a154121ef0cf480	s6-verification.ko.md
+c7e2c748f74619e3b0454d6f2904b89abaf39003	Already Satisfied	8c47d3db5d883f05f9590a9d1e3b6c4e469bc90990ea61371a58a4c9edf3387b	9	16		: Retain S3 JSONContentType, S4/S5A upgrade chain and batched DRS lookup (Europa UserVmDetailsDao), S5B asynchronous upload validation. S6 adds independent journal phase and VNF template change without reverting these contracts. All in-scope side sources resolved.	1159774943e6b8a9542260ed7a154121ef0cf480	s6-verification.ko.md
+846803db0766e95e618d0675186268c4d31fefb0	Already Satisfied	36816c65fb4912e7f02eb2ede835920252d9c64ec5f27e430b8cf8d0e79fc18b	2	2		: NetworkOrchestrator registers DHCP timeout plus VM/network throttling together, retaining Europa default10000 and Netris/HAProxy parameters. Backup offering rejection message matches selected instance; S5B authorization/restore contracts retained.	1159774943e6b8a9542260ed7a154121ef0cf480	s6-verification.ko.md
+e1cf0f335a7f2e4b6cd71c3147ef64bcd89d486e	Already Satisfied	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855	0	0		: Empty remerge; VNF Other OS blank handling now applied, other side source resolved in earlier batch.	1159774943e6b8a9542260ed7a154121ef0cf480	s6-verification.ko.md
+7fd56e573b8d6055b2d560babc9ad1f6c25d5d32	Already Satisfied	59041f3665f188f238da62485b9577d260f9dac13b87bfc521c0bebcb8f8f0db	12	26		: S3/S5A/S5B resolution reviews retained: unique DeployVM fields, LDAP response, duplicate-host check, reservation/userdata, backup wrapper and mocks. Those paths remain unchanged from S5C except DNS entity handling in AccountManager. DHCP source now complete; whole side set resolved.	1159774943e6b8a9542260ed7a154121ef0cf480	s6-verification.ko.md
+efa58cc52fca2c58840b8c83b583e3e36f0f5577	Already Satisfied	7ce6ba6c92cd604d13ab1a736ef4ea13a0e2558eba967f19b84414c7c953c76a	19	88		: Retain reviewed S3 APIChecker/API-key intersection, webhook ACL/redirect/future, OAuth domain fallback/secret masking and S5B backup/LINSTOR implementation. S6 only adds DNS ACL entity handling and Network Extension/VR routes at resolution paths; no previous resolution undone. All in-scope side sources complete.	1159774943e6b8a9542260ed7a154121ef0cf480	s6-verification.ko.md
+02182a1572a12a89fc2f429f57bcec6f9e6ad7c0	Already Satisfied	db13b37e7fa30bdd00961dfcf93c0a3ef5ef4ec9c42467b53b694546486ed1d4	2	4		: AccountManager public privilege methods and API-key/role checker intersections retained, MockAccountManager method boundaries compile. Prior S3 tests retained; nested forward merges and DHCP source now resolved.	1159774943e6b8a9542260ed7a154121ef0cf480	s6-verification.ko.md

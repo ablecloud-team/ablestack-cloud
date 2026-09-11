@@ -306,15 +306,6 @@ public enum Config {
             "cloud-public",
             "Default network label to be used when fetching interface for GRE endpoints",
             null),
-    VmNetworkThrottlingRate(
-            "Network",
-            ManagementServer.class,
-            Integer.class,
-            "vm.network.throttling.rate",
-            "10000",
-            "Default data transfer rate in megabits per second allowed in User vm's default network.",
-            null),
-
     SecurityGroupWorkCleanupInterval(
             "Network",
             ManagementServer.class,

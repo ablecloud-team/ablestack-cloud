@@ -2524,7 +2524,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         validateHostIdParameter(hostId, callerAccount);
 
         if (vm.getBackupOfferingId() != null && !BackupEnableAttachDetachVolumes.value()) {
-            throw new CloudRuntimeException("The selected Instance has backups, cannot restore and attach Volume to the Instance.");
+            throw new CloudRuntimeException("The selected VM is attached to a backup offering and, thus, it is not possible to restore and attach volumes from backups to the instance.");
         }
 
         if (backup.getZoneId() != vm.getDataCenterId()) {
