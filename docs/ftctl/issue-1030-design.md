@@ -25,3 +25,12 @@ producer identity는 plan/Run/sequence만 사용하며 host UUID, PID, VM 배치
 - #1032 추가: FtctlDrRuntimeProjectionAdapter.reconcileCheckpointPublication의 복제 Run 허용 목록에 RECOVER_SYNC가 빠져 새 worker의 올바른 candidate가 ACK되지 않았다. 기존 plan activeSide/target durable 검증을 유지하면서 RECOVER_SYNC만 포함한다. 기존 publication 검증 테스트에 실제 RECOVER_SYNC Run을 추가해 수정 전 ACK 누락 실패를 재현했고, 수정 후 DR456 tests/package PASS. 재해 페일오버/해제 경로에 원본 접근 조건은 추가하지 않는다.
 
 - #1032 broker: 마이그레이션 이전 worker가 DR_QCOW2_SOURCE_RUNTIME_UNAVAILABLE/ERROR이며 scheduler PID가 죽은 경우에 한해, HEALTHY이며 살아 있는 READY/SYNCING/PAUSED 복제 worker를 로컬 authoritySequence보다 우선한다. 요청 Run 일치, lifecycle authority, 일반 sequence 비교는 유지한다. RELEASED/FAILED_OVER/CUTOVER_READY/FAILBACK_READY/PAUSED의 상위 authority 회귀를 추가했다.
+
+## 새 호스트의 Agent 상태 검증 실패 추가 원인
+
+실제 이동 후 새 worker는 실행 중이지만 Agent가 DR_STATUS_CYCLE_EVIDENCE_CONFLICT로 상태를 거절했습니다.
+
+1. qemu save_profile의 포괄적인 token 비식별화가 비밀이 아닌 checkpointCycleToken을 REDACTED로 변경했습니다. 정확히 정의된 cycle 식별자 필드만 보존하고 password/secret/accessToken/API credential 비식별화는 유지합니다.
+2. controller에서 전달받은 과거 durable checkpoint에는 새 호스트의 NBD drain 증거가 없습니다. 그런데 seed_relocated_baseline이 incrementalVerified=true를 그대로 복사했습니다. 해당 imported reference는 durable 정보만 유지하고 로컬 incremental verification은 unknown으로 둡니다. 다음 실제 cycle의 검증 결과는 기존대로 기록합니다. DRAINED를 임의 생성하지 않습니다.
+
+이전 NO_CHANGE만 다룬 relocation 회귀를 CBT_INCREMENTAL로 바꾸고 실제 profile 비식별화까지 검사합니다. 실제 UI 복구 및 재마이그레이션 검증을 이어갑니다.
