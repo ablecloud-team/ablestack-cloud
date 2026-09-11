@@ -5200,6 +5200,9 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
         copyJsonProperty(runtime, compact, "transfer_sample_sequence");
         copyJsonProperty(runtime, compact, "transfer_phase");
         copyJsonProperty(runtime, compact, "transfer_mode");
+        copyJsonProperty(runtime, compact, "transfer_plan_uuid");
+        copyJsonProperty(runtime, compact, "transfer_run_uuid");
+        copyJsonProperty(runtime, compact, "transfer_direction");
         copyJsonProperty(runtime, compact, "transfer_bytes_total");
         copyJsonProperty(runtime, compact, "transfer_bytes_processed");
         copyJsonProperty(runtime, compact, "transfer_source_read_bytes");

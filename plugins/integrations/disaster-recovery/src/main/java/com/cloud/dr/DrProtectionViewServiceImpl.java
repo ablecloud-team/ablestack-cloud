@@ -141,7 +141,7 @@ public class DrProtectionViewServiceImpl extends ManagerBase implements DrProtec
         snapshot.add("sourceSite", siteJson(drSiteDao.findById(plan.getSourceSiteId())));
         snapshot.add("targetSite", siteJson(drSiteDao.findById(plan.getTargetSiteId())));
         snapshot.add("currentProtectionRuntime",
-                protectionRuntimeJson(authority, currentSyncCycle, latestCompletedSyncCycle));
+                protectionRuntimeJson(authority, currentSyncCycle, latestCompletedSyncCycle, activeRun));
         DrFailbackSessionVO failbackSession = drFailbackSessionDao.findLatestActiveByPlanId(planId);
         snapshot.add("failbackSession", failbackSession == null ? JsonNull.INSTANCE
                 : failbackSessionJson(failbackSession));
@@ -257,7 +257,7 @@ public class DrProtectionViewServiceImpl extends ManagerBase implements DrProtec
     }
 
     private JsonElement protectionRuntimeJson(DrProtectionAuthoritySnapshot authority,
-            DrSyncCycleVO currentSyncCycle, DrSyncCycleVO latestCompletedSyncCycle) {
+            DrSyncCycleVO currentSyncCycle, DrSyncCycleVO latestCompletedSyncCycle, DrRunVO activeRun) {
         if (authority == null || authority.getRuntime() == null) {
             return JsonNull.INSTANCE;
         }
@@ -324,7 +324,7 @@ public class DrProtectionViewServiceImpl extends ManagerBase implements DrProtec
         json.addProperty("schedulerExecutionBudgetSeconds", runtime.getSchedulerExecutionBudgetSeconds());
         json.addProperty("schedulerCycleWallDurationSeconds", runtime.getSchedulerCycleWallDurationSeconds());
         copyRuntimeFields(runtime.getStatusJson(), json);
-        if (shouldProjectLatestCompletedCycle(runtime, currentSyncCycle, latestCompletedSyncCycle)) {
+        if (activeRun == null && shouldProjectLatestCompletedCycle(runtime, currentSyncCycle, latestCompletedSyncCycle)) {
             projectLatestCompletedCycle(json, latestCompletedSyncCycle);
         }
         return json;
@@ -347,7 +347,7 @@ public class DrProtectionViewServiceImpl extends ManagerBase implements DrProtec
         json.addProperty("transferBytesProcessed", cycle.getTransferPayloadBytes());
         json.addProperty("transferSourceReadBytes", cycle.getSourceReadBytes());
         json.addProperty("transferTargetWrittenBytes", cycle.getTargetWrittenBytes());
-        json.addProperty("transferVerifiedBytes", cycle.getTargetWrittenBytes());
+        json.addProperty("transferVerifiedBytes", 0L); // A durable write is not readback evidence.
         json.addProperty("transferPayloadBytes", cycle.getTransferPayloadBytes());
         json.addProperty("transferPercent", 100);
         json.addProperty("transferThroughputBps", cycle.getThroughputBps());
@@ -373,6 +373,9 @@ public class DrProtectionViewServiceImpl extends ManagerBase implements DrProtec
         }
         try {
             JsonObject source = JsonParser.parseString(statusJson).getAsJsonObject();
+            copyField(source, target, "transfer_plan_uuid", "transferPlanUuid");
+            copyField(source, target, "transfer_run_uuid", "transferRunUuid");
+            copyField(source, target, "transfer_direction", "transferDirection");
             copyField(source, target, "control_protocol_version", "runtimeControlProtocolVersion");
             copyField(source, target, "control_generation", "runtimeControlGeneration");
             copyField(source, target, "control_ack_generation", "runtimeControlAckGeneration");

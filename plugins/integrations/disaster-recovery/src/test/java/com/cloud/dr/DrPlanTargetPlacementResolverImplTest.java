@@ -19,7 +19,8 @@ package com.cloud.dr;
 
 import org.junit.Test;
 import org.junit.Assert;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import com.cloud.service.ServiceOfferingVO;
 
 public class DrPlanTargetPlacementResolverImplTest {

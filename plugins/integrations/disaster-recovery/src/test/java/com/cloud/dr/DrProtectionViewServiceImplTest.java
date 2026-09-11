@@ -184,4 +184,29 @@ public class DrProtectionViewServiceImplTest {
         Assert.assertFalse(snapshot.getAsJsonObject("failbackSession").has("errorMessage"));
         Assert.assertEquals(snapshot.get("latestOperationRun"), snapshot.get("latestRun"));
     }
+    @Test
+    public void activeOperationDoesNotInheritCompletedForwardTransfer() throws Exception {
+        DrPlanRuntimeVO runtime = new DrPlanRuntimeVO(PLAN_ID);
+        runtime.setLatestCompletedCycleSequence(999L);
+        runtime.setReplicationActivityState("IDLE");
+        runtime.setTransferBytesProcessed(512L);
+        runtime.setTransferPercent(25.0);
+        runtime.setStatusJson("{\"transfer_run_uuid\":\"current-run\",\"transfer_direction\":\"KVM_TO_VMWARE\"}");
+        DrSyncCycleVO completed = new DrSyncCycleVO(PLAN_ID, "old-run", 999L);
+        completed.setVirtualBytes(4096L);
+        completed.setTransferPayloadBytes(4096L);
+        completed.setTargetWrittenBytes(4096L);
+        java.lang.reflect.Method method = DrProtectionViewServiceImpl.class.getDeclaredMethod(
+                "protectionRuntimeJson", DrProtectionAuthoritySnapshot.class, DrSyncCycleVO.class, DrSyncCycleVO.class, DrRunVO.class);
+        method.setAccessible(true);
+        JsonObject result = (JsonObject) method.invoke(service, new DrProtectionAuthoritySnapshot(runtime, true),
+                null, completed, Mockito.mock(DrRunVO.class));
+        Assert.assertFalse(result.has("completedCycleProjected"));
+        Assert.assertEquals(25, result.get("transferPercent").getAsInt());
+        Assert.assertEquals("current-run", result.get("transferRunUuid").getAsString());
+        JsonObject idle = (JsonObject) method.invoke(service, new DrProtectionAuthoritySnapshot(runtime, true), null, completed, null);
+        Assert.assertTrue(idle.get("completedCycleProjected").getAsBoolean());
+        Assert.assertEquals(0L, idle.get("transferVerifiedBytes").getAsLong());
+    }
+
 }

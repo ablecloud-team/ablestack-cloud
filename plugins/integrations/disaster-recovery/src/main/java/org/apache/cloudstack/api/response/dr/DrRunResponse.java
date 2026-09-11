@@ -555,6 +555,12 @@ public class DrRunResponse extends BaseResponse {
     public void setWorkerLivenessState(String value) { this.workerLivenessState = value; }
     public void setTransferActivityState(String value) { this.transferActivityState = value; }
     public void setTransferPayloadBytes(Long value) { this.transferPayloadBytes = value; }
+    @SerializedName("transferplanuuid") @Param(description = "the transfer sample plan identity") private String transferPlanUuid;
+    public void setTransferPlanUuid(String value) { this.transferPlanUuid = value; }
+    @SerializedName("transferrunuuid") @Param(description = "the transfer sample operation identity") private String transferRunUuid;
+    public void setTransferRunUuid(String value) { this.transferRunUuid = value; }
+    @SerializedName("transferdirection") @Param(description = "the transfer sample direction") private String transferDirection;
+    public void setTransferDirection(String value) { this.transferDirection = value; }
     public void setTransferProgressSchemaVersion(Integer value) { this.transferProgressSchemaVersion = value; }
     public void setTransferCycleSequence(Long value) { this.transferCycleSequence = value; }
     public void setTransferSampleSequence(Long value) { this.transferSampleSequence = value; }

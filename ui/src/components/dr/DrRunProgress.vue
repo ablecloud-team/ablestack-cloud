@@ -247,8 +247,7 @@ export default {
       const state = String(this.run.state || '').toUpperCase()
       if (runType !== 'FAILBACK' || ['SUCCEEDED', 'FAILED', 'CANCELED'].includes(state)) return ''
       const step = String(this.run.runtimestep || this.run.currentstep || '').toUpperCase().replace(/_/g, '-')
-      if (step.includes('REMOTE-SOURCE-PROTECTION-RESUME') ||
-        (this.transferPercent >= 100 && this.progress >= 95)) {
+      if (step.includes('REMOTE-SOURCE-PROTECTION-RESUME') || step === 'PROTECTION-RESUMING') {
         return this.$t('message.dr.failback.protection.resume.verifying')
       }
       return ''
@@ -296,13 +295,13 @@ export default {
       const runValue = this.run || {}
       const runtimeValue = this.runtime || {}
       const runValid = this.isValidTransferValue(runValue)
-      const runtimeValid = this.isValidTransferValue(runtimeValue)
+      const runtimeValid = this.isValidTransferValue(runtimeValue, true)
       if (runValid && runtimeValid) {
         return this.compareTransferValues(runtimeValue, runValue) >= 0 ? runtimeValue : runValue
       }
       if (runtimeValid) return runtimeValue
       if (runValid) return runValue
-      return Object.assign({}, runtimeValue, runValue)
+      return {}
     },
     hasTransferProgress () {
       return hasDrTransferProgress(this.transferValue)
@@ -335,7 +334,8 @@ export default {
     transferMode () { return this.transferValue.transfermode || '' },
     transferProgressStale () { return this.transferValue.transferprogressstale === true || this.transferValue.transferprogressstale === 'true' },
     transferProgressStatus () {
-      return this.transferProgressStale ? 'exception' : (this.transferPercent >= 100 ? 'success' : 'active')
+      const complete = ['COMPLETE', 'COMPLETED'].includes(String(this.transferValue.transferactivitystate || '').toUpperCase())
+      return this.transferProgressStale ? 'exception' : (complete && this.transferPercent >= 100 ? 'success' : 'active')
     },
     normalizedSteps () {
       return this.steps.length ? this.steps : (this.run.steps || [])
@@ -356,9 +356,19 @@ export default {
       const key = `message.dr.error.${String(code).toLowerCase().replace(/_/g, '.')}`
       return this.$te && this.$te(key) ? this.$t(key) : (step.errormessage || code)
     },
-    isValidTransferValue (value) {
-      return Number(value && value.transferprogressschemaversion || 0) >= 2 &&
-        Number(value && value.transferbytestotal || 0) > 0
+    isValidTransferValue (value, planScoped = false) {
+      if (!hasDrTransferProgress(value) || value.completedcycleprojected) return false
+      const runId = this.run.id || this.run.uuid || ''
+      const owner = value.transferrunuuid || ''
+      const reverse = String(this.run.runtype || this.run.runType || '').toUpperCase() === 'FAILBACK'
+      // Plan samples belong to a scheduler cycle, not necessarily this operation.
+      // Never compare sequence numbers from unrelated producers to select a winner.
+      if ((planScoped || reverse || owner) && (!runId || owner !== runId)) return false
+      if (this.run.planid && value.transferplanuuid && this.run.planid !== value.transferplanuuid) return false
+      if (reverse && String(value.transferdirection || '').toUpperCase() === 'VMWARE_TO_KVM') return false
+      if (planScoped && reverse && Number(this.run.transfercyclesequence || 0) > 0 &&
+        Number(value.transfercyclesequence || 0) !== Number(this.run.transfercyclesequence)) return false
+      return true
     },
     compareTransferValues (left, right) {
       const leftCycle = Number(left && left.transfercyclesequence || 0)

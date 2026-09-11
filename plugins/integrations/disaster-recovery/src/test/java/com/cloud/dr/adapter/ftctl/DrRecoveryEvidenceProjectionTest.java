@@ -43,4 +43,18 @@ public class DrRecoveryEvidenceProjectionTest {
         Assert.assertEquals("QEMU_BACKUP_COMPLETION", result.get("reverse_verification_method").getAsString());
         Assert.assertFalse(result.has("credentials"));
     }
+    @Test
+    public void compactionKeepsTransferIdentity() throws Exception {
+        Method method = FtctlDrRuntimeProjectionAdapter.class.getDeclaredMethod("compactRuntimeStatusJson", String.class);
+        method.setAccessible(true);
+        JsonObject input = new JsonObject();
+        input.addProperty("transfer_plan_uuid", "plan");
+        input.addProperty("transfer_run_uuid", "parent-run");
+        input.addProperty("transfer_direction", "KVM_TO_VMWARE");
+        JsonObject result = JsonParser.parseString((String) method.invoke(new FtctlDrRuntimeProjectionAdapter(), input.toString())).getAsJsonObject();
+        for (String key : new String[] {"transfer_plan_uuid", "transfer_run_uuid", "transfer_direction"}) {
+            Assert.assertEquals(input.get(key), result.get(key));
+        }
+    }
+
 }

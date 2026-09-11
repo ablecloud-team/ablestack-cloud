@@ -668,6 +668,9 @@ public class DrResponseGenerator extends ManagerBase {
         response.setTransferActivityState(firstString(runtime, "transfer_activity_state"));
         response.setTransferPayloadBytes(firstLong(runtime, "transfer_payload_bytes"));
         response.setTransferProgressSchemaVersion(firstInteger(runtime, "transfer_progress_schema_version"));
+        response.setTransferPlanUuid(firstString(runtime, "transfer_plan_uuid"));
+        response.setTransferRunUuid(firstString(runtime, "transfer_run_uuid"));
+        response.setTransferDirection(firstString(runtime, "transfer_direction"));
         response.setTransferCycleSequence(firstLong(runtime, "transfer_cycle_sequence"));
         response.setTransferSampleSequence(firstLong(runtime, "transfer_sample_sequence"));
         response.setTransferPhase(firstString(runtime, "transfer_phase"));
