@@ -101,6 +101,7 @@ import com.cloud.upgrade.dao.EuropaComputeSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaStorageSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaKmsSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaNetworkSchemaUpgrade;
+import com.cloud.upgrade.dao.EuropaGuiThemeSchemaUpgrade;
 import com.cloud.upgrade.dao.Upgrade420to421;
 import com.cloud.upgrade.dao.Upgrade421to430;
 import com.cloud.upgrade.dao.Upgrade430to440;
@@ -476,6 +477,14 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                         }
                     }
                 }
+                // Existing checkpoints refresh views before S7 installs the theme domain column.
+                if (filePath.endsWith("/cloud.gui_themes_view.sql")) {
+                    try (java.sql.ResultSet columns = conn.getMetaData().getColumns("cloud", null, "gui_themes", "login_base_domain")) {
+                        if (!columns.next()) {
+                            resourcePath = "META-INF/db/europa/pre-s7-cloud.gui_themes_view.sql";
+                        }
+                    }
+                }
                 InputStream viewScript = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourcePath);
                 runScript(conn, viewScript);
             }
@@ -549,6 +558,10 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                 });
                 runEuropaPhase(conn, EuropaSchemaUpgrade.S6, () -> {
                     EuropaNetworkSchemaUpgrade.migrate(conn);
+                    executeViewScripts();
+                });
+                runEuropaPhase(conn, EuropaSchemaUpgrade.S7, () -> {
+                    EuropaGuiThemeSchemaUpgrade.migrate(conn);
                     executeViewScripts();
                 });
             } catch (SQLException e) {

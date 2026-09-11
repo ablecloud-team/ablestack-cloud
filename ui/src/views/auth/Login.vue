@@ -177,7 +177,7 @@
         <div
           v-if="(oauthGithubProvider || oauthGoogleProvider || oauthKeycloakProvider) && !form.oauthDomain"
           style="text-align: center; color: #999; font-size: 12px; margin-bottom: 8px;">
-          Enter your domain to see domain-specific providers
+          {{ $t('message.oauth.domain.providers.hint') }}
         </div>
         <div class="center" v-if="oauthGithubProvider || oauthGoogleProvider || oauthKeycloakProvider">
           <div class="social-auth" v-if="oauthGithubProvider">
@@ -221,8 +221,8 @@
           <a-spin />
         </div>
         <div v-else style="text-align: center; color: #999; padding: 20px 0;">
-          <span v-if="oauthDomainQueried && form.oauthDomain">No OAuth providers configured for this domain</span>
-          <span v-else>Enter your domain to see available providers</span>
+          <span v-if="oauthDomainQueried && form.oauthDomain">{{ $t('message.oauth.domain.providers.empty') }}</span>
+          <span v-else>{{ $t('message.oauth.domain.providers.prompt') }}</span>
         </div>
       </a-tab-pane>
     </a-tabs>
@@ -438,8 +438,8 @@ export default {
     },
     fetchOauthProviders (domain) {
       const params = {}
-      if (domain) {
-        params.domain = domain
+      if (domain || this.$config.loginBaseDomain) {
+        params.domain = this.getLoginDomain(domain)
         this.oauthLoading = true
       }
       getAPI('listOauthProvider', params).then(response => {
@@ -639,10 +639,7 @@ export default {
           delete loginParams.username
           loginParams[!this.state.loginType ? 'email' : 'username'] = values.username
           loginParams.password = values.password
-          loginParams.domain = values.domain
-          if (!loginParams.domain) {
-            loginParams.domain = '/'
-          }
+          loginParams.domain = this.getLoginDomain(values.domain)
           this.Login(loginParams)
             .then((res) => this.loginSuccess(res))
             .catch(() => {
@@ -671,10 +668,7 @@ export default {
         loginParams.email = this.email
         loginParams.provider = provider
         loginParams.secretcode = this.secretcode
-        loginParams.domain = values.domain
-        if (!loginParams.domain) {
-          loginParams.domain = '/'
-        }
+        loginParams.domain = this.getLoginDomain(this.customActiveKey === 'oauth' ? values.oauthDomain : values.domain)
         this.OauthLogin(loginParams)
           .then((res) => this.loginSuccess(res))
           .catch(err => {

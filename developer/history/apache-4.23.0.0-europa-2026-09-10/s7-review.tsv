@@ -1,0 +1,27 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+source_sha	subject	decision	initial_europa_sha	reviewed_code_sha	pr	review	validation
+72b99a3f8ce2265d51dd42526afaf1b399f378f3	Make resource deletion safer with name confirmation (#13104)	Adapted	d4e63e4e790e6b2470cdb34d2b8b346e08502d9c	df859ac8cb4a2cd6b06fdd11f3a074d49083f563	https://github.com/ablecloud-team/ablestack-cloud/pull/1039	Project deletion name confirmation; preserve Europa CSV modal/detail actions and invokedAsGroupAction. Typed-name guard also blocks keyboard submission and stale selected rows. Reset on close/new action; Korean prompt.	s7-verification.ko.md
+94d911be9aebc4c2a56a1a0c17aeaf163515cfbe	Translation of missing labels to Portuguese (#12947)	Adapted	4f68f34d5e83c9df53cb8b12a3713d5ffddd0d41	df859ac8cb4a2cd6b06fdd11f3a074d49083f563	https://github.com/ablecloud-team/ablestack-cloud/pull/1039	Apply 1232 source translation deltas without removing Europa-only or later S6 keys. Restore ABLESTACK in 13 translated values; preserve every baseline locale key.	s7-verification.ko.md
+a47091431a9c8bfe4f66bd2ab9ee544e779ed070	Fix select search icon orientation in dropdown menu (#13170)	Applied	530359adcaa5a484105efcbb3f852996706bd52a	df859ac8cb4a2cd6b06fdd11f3a074d49083f563	https://github.com/ablecloud-team/ablestack-cloud/pull/1039	Exclude search suffix icon from open-select rotation; retain ordinary select arrow rotation.	s7-verification.ko.md
+8e933b735e21d1b6bda95425fe76994499ec308d	ui: do not show deploy instance button for not ready images (#13161)	Applied	03e218d148796b0011899cc0b2821cf67c5889f9	df859ac8cb4a2cd6b06fdd11f3a074d49083f563	https://github.com/ablecloud-team/ablestack-cloud/pull/1039	Show deploy only for ready templates or ready bootable ISOs; skip image lookup when unavailable. Mounted component regression covers readiness changes and zone loading.	s7-verification.ko.md
+6f30b0d58374505021ec62820bccfad58d6db9c5	Custom login base domain using GUI whitelabel themes (#13412)	Adapted	b6ba6031aed08b7b107873120fb19395cb762cf9	df859ac8cb4a2cd6b06fdd11f3a074d49083f563	https://github.com/ablecloud-team/ablestack-cloud/pull/1039	API/VO/view loginbasedomain, independent S7 journal DDL and pre-S7 view. Preserve Europa JSON validator, static loginBaseDomain fallback and separate OAuth input; apply base domain to provider discovery and login. Actual API/DB and UI regression.	s7-verification.ko.md
+a951ac61d0900764a4ec85df8e1250c0dcd24af4	UI: Don't set management server ID if cookie isn't set (#13404)	Applied	fdec7d805627bb15abc1b99d9c04377909e87c21	df859ac8cb4a2cd6b06fdd11f3a074d49083f563	https://github.com/ablecloud-team/ablestack-cloud/pull/1039	SAML path commits SET_MS_ID only for a present cookie; real router guard tests cover undefined, empty and defined cookie.	s7-verification.ko.md
+4d006b5f85ff3bd678b01134e67f326adf8905b8	UI: Fix missing label.allocated key in Status widget test mock (#13546)	Applied	4ca1761df432e23caa01d2ff888964a47209443d	df859ac8cb4a2cd6b06fdd11f3a074d49083f563	https://github.com/ablecloud-team/ablestack-cloud/pull/1039	Correct allocated-label status fixture and include existing Status tests in full UI regression.	s7-verification.ko.md
+cddd3835c4ebca9329792325f54a16297c4f59ee	fix(ui): restore Account column hyperlink routing in list views (#13642)	Adapted	ea79cf39c51508f91bb760a0bedd8a7c0451e3ad	df859ac8cb4a2cd6b06fdd11f3a074d49083f563	https://github.com/ablecloud-team/ablestack-cloud/pull/1039	Account ID links, administrator name/domain fallback and quota-specific routing. Restore project account label outside quota; regular-user missing-ID remains plain text. Mounted slot regression.	s7-verification.ko.md
+fb5e24fa086880b0b3058278c0878ef404af0e59	Merge branch '4.22'	Already Satisfied	df859ac8cb4a2cd6b06fdd11f3a074d49083f563	df859ac8cb4a2cd6b06fdd11f3a074d49083f563	https://github.com/ablecloud-team/ablestack-cloud/pull/1039	Rule matchingPattern wildcard/case normalization retained; MinIO 8.6.0 plus OpenTelemetry 1.51.0/2.16.0 coexist; ApiServer imports and tracing retained. Last side source 8e933b735e21 is now applied and tested.	s7-verification.ko.md
+b3b9caddc191da6842b99ee6b2f2d5f92cb70145	Merge remote-tracking branch 'apache/4.22'	Already Satisfied	df859ac8cb4a2cd6b06fdd11f3a074d49083f563	df859ac8cb4a2cd6b06fdd11f3a074d49083f563	https://github.com/ablecloud-team/ablestack-cloud/pull/1039	Host response retains guest OS, hypervisor/architecture and storage access groups. VolumeApiServiceImplTest retains CLVM lightweight migration and VMware power-state-lag tests with nonduplicated imports/braces. Last side source a951ac61d090 is now applied and tested.	s7-verification.ko.md

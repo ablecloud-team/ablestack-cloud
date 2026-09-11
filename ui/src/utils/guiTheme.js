@@ -63,6 +63,9 @@ async function applyDynamicCustomization (response) {
     jsonConfig = JSON.parse(response?.jsonconfiguration)
   }
 
+  // config.json is reloaded for every theme selection; retain its default when no override exists.
+  vueProps.$config.loginBaseDomain = response?.loginbasedomain ?? vueProps.$config.loginBaseDomain ?? ''
+
   // Sets custom GUI fields only if is not nullish.
   vueProps.$config.appTitle = jsonConfig?.appTitle ?? vueProps.$config.appTitle
   vueProps.$config.footer = jsonConfig?.footer ?? vueProps.$config.footer

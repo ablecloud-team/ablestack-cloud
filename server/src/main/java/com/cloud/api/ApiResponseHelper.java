@@ -5777,6 +5777,7 @@ protected Map<String, ResourceIcon> getResourceIconsUsingOsCategory(List<Templat
 
         guiThemeResponse.setJsonConfiguration(guiThemeJoin.getJsonConfiguration());
         guiThemeResponse.setCss(guiThemeJoin.getCss());
+        guiThemeResponse.setLoginBaseDomain(guiThemeJoin.getLoginBaseDomain());
         guiThemeResponse.setResponseName("guithemes");
 
         return guiThemeResponse;

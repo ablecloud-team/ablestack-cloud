@@ -1,0 +1,748 @@
+{
+  "addDnsServer": {
+    "params": [
+      "dnsusername",
+      "name",
+      "publicdomainsuffix",
+      "ispublic",
+      "dnsapikey",
+      "provider",
+      "port",
+      "nameservers",
+      "details",
+      "url"
+    ],
+    "response": [
+      "publicdomainsuffix",
+      "url",
+      "nameservers",
+      "ispublic",
+      "jobstatus",
+      "provider",
+      "state",
+      "domain",
+      "account",
+      "id",
+      "domainid",
+      "port",
+      "jobid",
+      "name"
+    ]
+  },
+  "associateDnsZoneToNetwork": {
+    "params": [
+      "networkid",
+      "subdomain",
+      "dnszoneid"
+    ],
+    "response": [
+      "dnszoneid",
+      "networkid",
+      "jobid",
+      "jobstatus",
+      "id",
+      "subdomain"
+    ]
+  },
+  "createDnsRecord": {
+    "params": [
+      "contents",
+      "dnszoneid",
+      "ttl",
+      "type",
+      "name"
+    ],
+    "response": [
+      "name",
+      "contents",
+      "jobid",
+      "jobstatus",
+      "ttl",
+      "type"
+    ]
+  },
+  "createDnsZone": {
+    "params": [
+      "name",
+      "description",
+      "dnsserverid",
+      "type",
+      "existing"
+    ],
+    "response": [
+      "account",
+      "state",
+      "domain",
+      "jobid",
+      "id",
+      "dnsservername",
+      "networkid",
+      "type",
+      "domainid",
+      "name",
+      "dnsserverid",
+      "dnsserveraccount",
+      "networkname",
+      "description",
+      "jobstatus"
+    ]
+  },
+  "createKMSKey": {
+    "params": [
+      "account",
+      "description",
+      "name",
+      "projectid",
+      "keybits",
+      "zoneid",
+      "domainid",
+      "hsmprofileid"
+    ],
+    "response": [
+      "jobstatus",
+      "projectid",
+      "domainid",
+      "algorithm",
+      "jobid",
+      "keybits",
+      "domain",
+      "hsmprofile",
+      "enabled",
+      "name",
+      "created",
+      "description",
+      "domainpath",
+      "account",
+      "zoneid",
+      "keklabel",
+      "zonename",
+      "version",
+      "hsmprofileid",
+      "accountid",
+      "id",
+      "project"
+    ]
+  },
+  "deleteDnsRecord": {
+    "params": [
+      "type",
+      "dnszoneid",
+      "name"
+    ],
+    "response": [
+      "jobid",
+      "jobstatus",
+      "success",
+      "displaytext"
+    ]
+  },
+  "deleteDnsServer": {
+    "params": [
+      "id",
+      "unmanage",
+      "cleanup"
+    ],
+    "response": [
+      "success",
+      "jobid",
+      "displaytext",
+      "jobstatus"
+    ]
+  },
+  "deleteDnsZone": {
+    "params": [
+      "unmanage",
+      "id"
+    ],
+    "response": [
+      "jobstatus",
+      "displaytext",
+      "jobid",
+      "success"
+    ]
+  },
+  "deleteKMSKey": {
+    "params": [
+      "id"
+    ],
+    "response": [
+      "success",
+      "displaytext",
+      "jobid",
+      "jobstatus"
+    ]
+  },
+  "listDnsProviders": {
+    "params": [
+      "page",
+      "keyword",
+      "pagesize"
+    ],
+    "response": [
+      "jobid",
+      "jobstatus",
+      "name"
+    ]
+  },
+  "listDnsRecords": {
+    "params": [
+      "page",
+      "dnszoneid",
+      "pagesize",
+      "keyword"
+    ],
+    "response": [
+      "jobid",
+      "name",
+      "contents",
+      "jobstatus",
+      "ttl",
+      "type"
+    ]
+  },
+  "listDnsServers": {
+    "params": [
+      "pagesize",
+      "domainid",
+      "account",
+      "listall",
+      "providertype",
+      "keyword",
+      "isrecursive",
+      "page",
+      "id"
+    ],
+    "response": [
+      "domainid",
+      "domain",
+      "nameservers",
+      "port",
+      "publicdomainsuffix",
+      "id",
+      "name",
+      "url",
+      "state",
+      "jobstatus",
+      "account",
+      "provider",
+      "jobid",
+      "ispublic"
+    ]
+  },
+  "listDnsZones": {
+    "params": [
+      "pagesize",
+      "dnsserverid",
+      "id",
+      "page",
+      "name",
+      "keyword"
+    ],
+    "response": [
+      "description",
+      "account",
+      "domainid",
+      "networkname",
+      "networkid",
+      "dnsserveraccount",
+      "name",
+      "dnsservername",
+      "id",
+      "type",
+      "jobid",
+      "domain",
+      "jobstatus",
+      "state",
+      "dnsserverid"
+    ]
+  },
+  "listHSMProfiles": {
+    "params": [
+      "account",
+      "protocol",
+      "pagesize",
+      "enabled",
+      "ispublic",
+      "isrecursive",
+      "listall",
+      "zoneid",
+      "keyword",
+      "projectid",
+      "id",
+      "domainid",
+      "page"
+    ],
+    "response": [
+      "domainpath",
+      "enabled",
+      "name",
+      "zonename",
+      "account",
+      "ispublic",
+      "accountid",
+      "id",
+      "jobid",
+      "jobstatus",
+      "vendor",
+      "domain",
+      "protocol",
+      "projectid",
+      "created",
+      "details",
+      "domainid",
+      "project",
+      "zoneid",
+      "state"
+    ]
+  },
+  "listKMSKeys": {
+    "params": [
+      "projectid",
+      "page",
+      "account",
+      "keyword",
+      "id",
+      "enabled",
+      "isrecursive",
+      "pagesize",
+      "listall",
+      "hsmprofileid",
+      "domainid",
+      "zoneid"
+    ],
+    "response": [
+      "projectid",
+      "domainid",
+      "keybits",
+      "jobid",
+      "created",
+      "project",
+      "id",
+      "zonename",
+      "hsmprofile",
+      "description",
+      "jobstatus",
+      "domain",
+      "algorithm",
+      "name",
+      "account",
+      "accountid",
+      "domainpath",
+      "enabled",
+      "keklabel",
+      "zoneid",
+      "version",
+      "hsmprofileid"
+    ]
+  },
+  "listUserKeyRules": {
+    "params": [
+      "keypairid"
+    ],
+    "response": [
+      "description",
+      "rule",
+      "permission",
+      "jobstatus",
+      "jobid"
+    ]
+  },
+  "listUsers": {
+    "params": [
+      "listall",
+      "username",
+      "isrecursive",
+      "id",
+      "accounttype",
+      "showicon",
+      "domainid",
+      "usersource",
+      "keyword",
+      "state",
+      "account",
+      "apikeyaccess",
+      "pagesize",
+      "page"
+    ],
+    "response": [
+      "domain",
+      "lastname",
+      "is2faenabled",
+      "created",
+      "iscallerchilddomain",
+      "jobid",
+      "rolename",
+      "secretkey",
+      "icon",
+      "usersource",
+      "domainid",
+      "roleid",
+      "state",
+      "firstname",
+      "timezone",
+      "apikeyaccess",
+      "isdefault",
+      "username",
+      "id",
+      "account",
+      "apikey",
+      "accountid",
+      "email",
+      "roletype",
+      "jobstatus",
+      "accounttype",
+      "is2famandated"
+    ]
+  },
+  "migrateVolumesToKMS": {
+    "params": [
+      "volumeids",
+      "kmskeyid",
+      "domainid",
+      "account"
+    ],
+    "response": [
+      "displaytext",
+      "jobstatus",
+      "success",
+      "jobid"
+    ]
+  },
+  "quotaBalance": {
+    "params": [
+      "projectid",
+      "startdate",
+      "account",
+      "enddate",
+      "accountid",
+      "domainid"
+    ],
+    "response": [
+      "currency",
+      "jobstatus",
+      "date",
+      "jobid",
+      "balance",
+      "balances"
+    ]
+  },
+  "quotaCredits": {
+    "params": [
+      "account",
+      "domainid",
+      "value",
+      "projectid",
+      "min_balance",
+      "quota_enforce",
+      "accountid"
+    ],
+    "response": [
+      "credit",
+      "creditedon",
+      "creditorusername",
+      "jobstatus",
+      "creditoruserid",
+      "jobid",
+      "currency"
+    ]
+  },
+  "quotaCreditsList": {
+    "params": [
+      "enddate",
+      "isrecursive",
+      "startdate",
+      "accountid",
+      "projectid",
+      "domainid"
+    ],
+    "response": [
+      "creditedon",
+      "jobid",
+      "creditoruserid",
+      "jobstatus",
+      "credit",
+      "currency",
+      "creditorusername"
+    ]
+  },
+  "quotaEmailTemplateUpdate": {
+    "params": [
+      "templatesubject",
+      "templatebody",
+      "locale",
+      "templatetype"
+    ],
+    "response": [
+      "success",
+      "jobid",
+      "jobstatus",
+      "displaytext"
+    ]
+  },
+  "quotaResourceStatement": {
+    "params": [
+      "domainid",
+      "id",
+      "accountid",
+      "startdate",
+      "isrecursive",
+      "usagetype",
+      "projectid",
+      "enddate"
+    ],
+    "response": [
+      "jobstatus",
+      "usagename",
+      "unit",
+      "totalquota",
+      "jobid",
+      "items"
+    ]
+  },
+  "quotaStatement": {
+    "params": [
+      "enddate",
+      "account",
+      "domainid",
+      "accountid",
+      "showresources",
+      "projectid",
+      "type",
+      "startdate",
+      "isrecursive"
+    ],
+    "response": [
+      "jobid",
+      "name",
+      "resources",
+      "jobstatus",
+      "type",
+      "history",
+      "unit",
+      "quota"
+    ]
+  },
+  "quotaTariffCreate": {
+    "params": [
+      "activationrule",
+      "usagetype",
+      "value",
+      "startdate",
+      "position",
+      "enddate",
+      "description",
+      "name"
+    ],
+    "response": [
+      "usageUnit",
+      "activationRule",
+      "description",
+      "usageName",
+      "effectiveDate",
+      "currency",
+      "jobid",
+      "usageDiscriminator",
+      "name",
+      "tariffValue",
+      "id",
+      "position",
+      "usageType",
+      "jobstatus",
+      "usageTypeDescription",
+      "removed",
+      "endDate"
+    ]
+  },
+  "quotaTariffUpdate": {
+    "params": [
+      "activationrule",
+      "name",
+      "description",
+      "value",
+      "enddate",
+      "position",
+      "usagetype",
+      "startdate"
+    ],
+    "response": [
+      "currency",
+      "activationRule",
+      "id",
+      "position",
+      "tariffValue",
+      "description",
+      "usageName",
+      "usageDiscriminator",
+      "endDate",
+      "usageTypeDescription",
+      "usageUnit",
+      "name",
+      "jobstatus",
+      "usageType",
+      "jobid",
+      "effectiveDate",
+      "removed"
+    ]
+  },
+  "quotaValidateActivationRule": {
+    "params": [
+      "usagetype",
+      "activationrule"
+    ],
+    "response": [
+      "jobid",
+      "activationrule",
+      "jobstatus",
+      "isvalid",
+      "quotatype",
+      "message"
+    ]
+  },
+  "registerUserKeys": {
+    "params": [
+      "rules",
+      "name",
+      "id",
+      "description",
+      "startdate",
+      "enddate"
+    ],
+    "response": [
+      "userid",
+      "name",
+      "jobstatus",
+      "roletype",
+      "username",
+      "enddate",
+      "secretkey",
+      "domain",
+      "apikey",
+      "state",
+      "roleid",
+      "rolename",
+      "domainpath",
+      "created",
+      "permissions",
+      "id",
+      "jobid",
+      "accounttype",
+      "hasannotations",
+      "description",
+      "accountid",
+      "startdate",
+      "domainid",
+      "accountname"
+    ]
+  },
+  "rotateKMSKey": {
+    "params": [
+      "hsmprofileid",
+      "id",
+      "keybits"
+    ],
+    "response": [
+      "jobresulttype",
+      "account",
+      "accountid",
+      "userid",
+      "jobid",
+      "jobresultcode",
+      "cmd",
+      "jobresult",
+      "jobinstancetype",
+      "jobstatus",
+      "managementserverid",
+      "created",
+      "domainid",
+      "domainpath",
+      "jobinstanceid",
+      "completed",
+      "jobprocstatus",
+      "managementservername"
+    ]
+  },
+  "updateDnsServer": {
+    "params": [
+      "dnsapikey",
+      "url",
+      "publicdomainsuffix",
+      "nameservers",
+      "name",
+      "port",
+      "state",
+      "id",
+      "ispublic"
+    ],
+    "response": [
+      "jobstatus",
+      "provider",
+      "port",
+      "ispublic",
+      "nameservers",
+      "domainid",
+      "id",
+      "jobid",
+      "state",
+      "name",
+      "account",
+      "url",
+      "publicdomainsuffix",
+      "domain"
+    ]
+  },
+  "updateDnsZone": {
+    "params": [
+      "description",
+      "id"
+    ],
+    "response": [
+      "domain",
+      "networkname",
+      "jobstatus",
+      "id",
+      "networkid",
+      "type",
+      "dnsserverid",
+      "description",
+      "domainid",
+      "name",
+      "dnsservername",
+      "jobid",
+      "account",
+      "dnsserveraccount",
+      "state"
+    ]
+  },
+  "updateKMSKey": {
+    "params": [
+      "name",
+      "id",
+      "enabled",
+      "description"
+    ],
+    "response": [
+      "name",
+      "keklabel",
+      "created",
+      "domain",
+      "id",
+      "hsmprofile",
+      "project",
+      "enabled",
+      "jobid",
+      "domainid",
+      "domainpath",
+      "projectid",
+      "zoneid",
+      "hsmprofileid",
+      "accountid",
+      "description",
+      "zonename",
+      "version",
+      "keybits",
+      "jobstatus",
+      "account",
+      "algorithm"
+    ]
+  }
+}
