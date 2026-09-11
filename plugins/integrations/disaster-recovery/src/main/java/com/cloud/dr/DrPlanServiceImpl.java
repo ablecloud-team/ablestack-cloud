@@ -318,6 +318,7 @@ public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
                 && (StringUtils.equalsAnyIgnoreCase(planRuntime.getReconciliationState(),
                         "RECONCILING", "DEAD_CONFIRMING")
                         || planRuntime.getOwnedProcessCount() > 0
+                        && !isOnlyLiveReplicationScheduler(planRuntime)
                         && !StringUtils.equalsIgnoreCase(planRuntime.getReconciliationState(), "TERMINAL"));
         DrProtectionAuthoritySnapshot authority = ftctlDrPlan && drProtectionAuthorityService != null
                 ? drProtectionAuthorityService.getAuthority(planId) : null;
@@ -426,6 +427,29 @@ public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
         }
         return new DrPlanActionEvaluation(eligibility,
                 ACTION_AVAILABILITY_EVALUATOR.evaluate(eligibility, context));
+    }
+
+    // A persistent scheduler is expected to survive a completed control Run.
+    // Other owned processes still require reconciliation before new actions.
+    static boolean isOnlyLiveReplicationScheduler(DrPlanRuntimeVO runtime) {
+        if (runtime == null || runtime.getOwnedProcessCount() != 1
+                || !StringUtils.equalsIgnoreCase(runtime.getSchedulerState(), "RUNNING")
+                || !StringUtils.equalsIgnoreCase(runtime.getSchedulerUnitActiveState(), "active")
+                || !StringUtils.equalsIgnoreCase(runtime.getWorkerIdentityState(), "MATCHED")
+                || !StringUtils.equalsIgnoreCase(runtime.getWorkerLivenessState(), "ALIVE")
+                || runtime.getSchedulerUnitMainPid() == null || runtime.getSchedulerUnitMainPid() <= 0
+                || !runtime.getSchedulerUnitMainPid().equals(runtime.getActiveWorkerPid())) {
+            return false;
+        }
+        try {
+            JsonObject status = JsonParser.parseString(runtime.getStatusJson()).getAsJsonObject();
+            return status.has("worker_pid") && !status.get("worker_pid").isJsonNull()
+                    && status.get("worker_pid").getAsLong() == runtime.getSchedulerUnitMainPid()
+                    && status.has("reconciliation_required")
+                    && !status.get("reconciliation_required").getAsBoolean();
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     private boolean hasCommittedTargetAuthority(DrPlanVO plan) {
