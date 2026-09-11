@@ -17,3 +17,7 @@ ABLESTACK replication_cycle은 scheduler가 전달한 producer Run으로 파일�
 
 ## 마이그레이션 계약 추가
 producer identity는 plan/Run/sequence만 사용하며 host UUID, PID, VM 배치를 포함하지 않는다. 기존 profile을 통한 현재 디스크/실행 호스트 재해결을 유지한다. 원본 VM 이동 때문에 migration을 금지하는 guard를 추가하지 않는다. 실행 중 QMP는 현재 VM 호스트에서 수행하고 공유 저장소 file transfer worker는 별도 선정한다. 기존 relocated-baseline 및 source-outage 회귀와 실제 VM 이동 후 체크포인트를 추가 확인한다.
+
+## #1031 / #1032 실행 중 발견 사항 반영
+- #1031: Cloud status_json에는 reconciliation_required가 필터링되어 빠질 수 있다. 따라서 typed reconciliationState=LIVE를 필수로 검증하고, raw flag가 있을 때는 false도 확인한다. worker PID와 scheduler/active PID 일치, count1, MATCHED/ALIVE/active/RUNNING 조건은 유지한다. 실제 저장 형식 회귀 포함 DR456 tests/package PASS.
+- #1032: 실제13.2→13.1 이동 후 새 source worker가 과거 remote-source-target-suppressed STOP 때문에 종료됨을 확인했다. dr-sync-start에 새 profile과 role=source 또는 원본 Mold가 사용하는 coordinator가 명시된 경우만 plan lock 아래 exact reason/빈 owner STOP을 다음 generation RUN으로 바꾼다. 사용자 pause/stop 및 lifecycle stop은 그대로 보존한다. 평범한 daemon 재시작에서는 변경하지 않는다. 호스트/PID를 미래 계획의 실행 권한으로 저장하지 않는다.

@@ -23,6 +23,7 @@ public class DrSchedulerMenuOwnershipTest {
     private DrPlanRuntimeVO runtime() {
         DrPlanRuntimeVO runtime = new DrPlanRuntimeVO();
         runtime.setOwnedProcessCount(1);
+        runtime.setReconciliationState("LIVE");
         runtime.setSchedulerState("RUNNING");
         runtime.setSchedulerUnitActiveState("active");
         runtime.setWorkerIdentityState("MATCHED");
@@ -34,6 +35,12 @@ public class DrSchedulerMenuOwnershipTest {
     }
     @Test public void liveSchedulerIsNotAnOrphan() {
         Assert.assertTrue(DrPlanServiceImpl.isOnlyLiveReplicationScheduler(runtime()));
+    }
+    @Test public void projectedStatusWithoutRawReconciliationFlagUsesLiveState() {
+        DrPlanRuntimeVO r = runtime(); r.setStatusJson("{\"worker_pid\":100}");
+        Assert.assertTrue(DrPlanServiceImpl.isOnlyLiveReplicationScheduler(r));
+        r.setReconciliationState("DEAD_CONFIRMING");
+        Assert.assertFalse(DrPlanServiceImpl.isOnlyLiveReplicationScheduler(r));
     }
     @Test public void otherOwnedProcessRemainsBlocked() {
         DrPlanRuntimeVO r = runtime(); r.setOwnedProcessCount(2);

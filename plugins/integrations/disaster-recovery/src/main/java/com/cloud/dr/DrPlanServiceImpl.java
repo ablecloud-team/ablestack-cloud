@@ -433,6 +433,7 @@ public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
     // Other owned processes still require reconciliation before new actions.
     static boolean isOnlyLiveReplicationScheduler(DrPlanRuntimeVO runtime) {
         if (runtime == null || runtime.getOwnedProcessCount() != 1
+                || !StringUtils.equalsIgnoreCase(runtime.getReconciliationState(), "LIVE")
                 || !StringUtils.equalsIgnoreCase(runtime.getSchedulerState(), "RUNNING")
                 || !StringUtils.equalsIgnoreCase(runtime.getSchedulerUnitActiveState(), "active")
                 || !StringUtils.equalsIgnoreCase(runtime.getWorkerIdentityState(), "MATCHED")
@@ -445,8 +446,8 @@ public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
             JsonObject status = JsonParser.parseString(runtime.getStatusJson()).getAsJsonObject();
             return status.has("worker_pid") && !status.get("worker_pid").isJsonNull()
                     && status.get("worker_pid").getAsLong() == runtime.getSchedulerUnitMainPid()
-                    && status.has("reconciliation_required")
-                    && !status.get("reconciliation_required").getAsBoolean();
+                    && (!status.has("reconciliation_required")
+                        || !status.get("reconciliation_required").getAsBoolean());
         } catch (RuntimeException e) {
             return false;
         }
