@@ -42,11 +42,17 @@ describe('VPN defaults with Europa parameter policy', () => {
   })
 
   test('excluded preferred algorithms fall back to allowed choices', async () => {
-    getAPI.mockResolvedValue({ listcapabilitiesresponse: { capability: { vpncustomergatewayparameters: {
-      excludedencryptionalgorithms: 'aes256',
-      excludedhashingalgorithms: 'sha256',
-      excludeddhgroups: 'curve25519, modp1024, modp1536'
-    } } } })
+    getAPI.mockResolvedValue({
+      listcapabilitiesresponse: {
+        capability: {
+          vpncustomergatewayparameters: {
+            excludedencryptionalgorithms: 'aes256',
+            excludedhashingalgorithms: 'sha256',
+            excludeddhgroups: 'curve25519, modp1024, modp1536'
+          }
+        }
+      }
+    })
     const context = formContext()
     await VpnCustomerGateway.methods.fetchVpnCustomerGatewayParameters.call(context)
     expect(context.form.ikeEncryption).toBe('aes128')
