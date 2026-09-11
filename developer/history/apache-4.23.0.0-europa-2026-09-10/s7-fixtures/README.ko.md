@@ -22,7 +22,7 @@ under the License.
 이 fixture는 실제 개발 DB·운영 호스트에 연결하지 않는다. 소스/의존성/실행은 Rocky9.8 amd64 Docker 안에서만 수행한다.
 고정 도구는 JDK17, Maven3.9.10, Node14/npm6, Python3.10 및 MySQL8이다.
 
-- `EuropaGuiThemeDdlReplay.java`: 호스트 인수가 정확히 epic998-mysql-ddl인 임시 MySQL만 허용한다. **해당 fixture의 cloud DB를 삭제하고 생성**한다. S7 SQL 커밋 직후 실패 주입, Pending/재시도/Complete/재실행과 기존 theme/journal 보존을 검사한다. dummy 비밀번호는 epic998-fixture-dummy이며 개발용 설정 파일과 무관하다.
+- `EuropaGuiThemeDdlReplay.java.fixture`: 호스트 인수가 정확히 epic998-mysql-ddl인 임시 MySQL만 허용한다. **해당 fixture의 cloud DB를 삭제하고 생성**한다. 실행할 때 임시 폴더의 EuropaGuiThemeDdlReplay.java로 복사해 schema 모듈 classpath로 javac 컴파일한다. S7 SQL 커밋 직후 실패 주입, Pending/재시도/Complete/재실행과 기존 theme/journal 보존을 검사한다. dummy 비밀번호는 epic998-fixture-dummy이며 개발용 설정 파일과 무관하다.
 - 전체 DB 경로는 이전 S4/S6 fixture의 014895d8f3 및 S6 dump와 새 DatabaseCreator를 사용했다. 신규/014/S6별 실행 뒤 전체 DB의 테이블·view DDL과 모든 행을 snapshot으로 저장하고 DatabaseUpgradeChecker 재실행 결과를 바이트 단위 비교했다. `s7-db-results.tsv`에 해시/객체/행 수를 기록한다. 원본 데이터 dump나 개발 DB 비밀번호는 커밋하지 않는다.
 - S6에서 S7로 넘어갈 때 바뀌는 객체는 gui_themes, gui_themes_view, ablestack_schema_migration 3개다. 이전 journal 행과 시간은 그대로이며 S7 행 하나만 추가된다.
 - `api-theme.py`: /tmp/epic998에 작업 디렉터리를 준비하고, 조립된 client JAR와 lib 디렉터리로 관리 서버를 loopback18998에서 시작한다. DB 설정은 위 임시 DB만 사용한다. 실제 HTTP login/createGuiTheme/updateGuiTheme/listGuiThemes/removeGuiTheme와 일반 사용자 접근 거부를 검증한다. 새 시험 계정만 만들며 기본 fixture 인증 정보는 운영용이 아니다.
