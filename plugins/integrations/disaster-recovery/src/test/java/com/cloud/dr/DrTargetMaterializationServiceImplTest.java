@@ -68,7 +68,53 @@ public class DrTargetMaterializationServiceImplTest {
     @Mock private PrimaryDataStoreDao primaryDataStoreDao;
     @Mock private DrTargetResourceOwnershipService targetResourceOwnershipService;
     @Mock private VMInstanceDetailsDao vmInstanceDetailsDao;
+    @Mock private com.cloud.dr.dao.DrRunDao drRunDao;
+    @Mock private com.cloud.dr.dao.DrRunStepDao drRunStepDao;
+    @Mock private com.cloud.dr.dao.DrEventDao drEventDao;
     @InjectMocks private DrTargetMaterializationServiceImpl service;
+
+    @Test
+    public void targetReadinessDoesNotCompleteRequestedFullReseed() throws Exception {
+        DrRunVO run = materializationCallback("FULL_RESEED", null);
+        Assert.assertEquals(DrConstants.RUN_STATE_RUNNING, run.getState());
+        Assert.assertNull(run.getCompleted());
+        Mockito.verify(drRunDao, Mockito.never()).update(Mockito.anyLong(), Mockito.any());
+        Mockito.verify(drRunStepDao).persist(Mockito.argThat(step ->
+                "target-materialization".equals(step.getStepName())
+                && DrConstants.STEP_STATE_SUCCEEDED.equals(step.getState())));
+    }
+
+    @Test
+    public void ordinarySyncStillCompletesAfterTargetMaterialization() throws Exception {
+        DrRunVO run = materializationCallback("INCREMENTAL", null);
+        Assert.assertEquals(DrConstants.RUN_STATE_SUCCEEDED, run.getState());
+        Assert.assertNotNull(run.getCompleted());
+    }
+
+    @Test
+    public void lateMaterializationPreservesFailedFullReseed() throws Exception {
+        DrRunVO run = materializationCallback("FULL_RESEED", DrConstants.RUN_STATE_FAILED);
+        Assert.assertEquals(DrConstants.RUN_STATE_FAILED, run.getState());
+        Mockito.verify(drRunDao, Mockito.never()).update(Mockito.anyLong(), Mockito.any());
+    }
+
+    private DrRunVO materializationCallback(String mode, String terminal) throws Exception {
+        DrPlanVO plan = new DrPlanVO("materialization", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        DrRunVO run = new DrRunVO(0L, DrConstants.RUN_TYPE_SYNC);
+        run.setState(terminal == null ? DrConstants.RUN_STATE_RUNNING : terminal);
+        run.setRequestJson("{\"mode\":\"" + mode + "\"}");
+        if (terminal != null) { run.setCompleted(new java.util.Date()); }
+        Mockito.when(drPlanDao.findById(0L)).thenReturn(plan);
+        Mockito.when(drRunDao.findById(0L)).thenReturn(run);
+        Class<?> resultType = Class.forName(DrTargetMaterializationServiceImpl.class.getName() + "$MaterializationResult");
+        java.lang.reflect.Constructor<?> constructor = resultType.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        java.lang.reflect.Method callback = DrTargetMaterializationServiceImpl.class.getDeclaredMethod(
+                "completeMaterialization", long.class, long.class, resultType, String.class);
+        callback.setAccessible(true);
+        callback.invoke(service, 0L, 0L, constructor.newInstance(), "{}");
+        return run;
+    }
 
     @Test public void missingDynamicDetailsUseExplicitTargetNotSource() {
         DrPlanVO plan = new DrPlanVO("dynamic", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);

@@ -3893,6 +3893,42 @@ public class FtctlDrRuntimeProjectionAdapterTest {
     }
 
     @Test
+    public void requestedFullReseedRejectsPendingFailedUnrelatedAndNonDurableCycles() {
+        DrRunVO run = new DrRunVO(42L, DrConstants.RUN_TYPE_SYNC);
+        ReflectionTestUtils.setField(run, "id", 189L);
+        run.setRequestJson("{\"mode\":\"FULL_RESEED\"}");
+        run.setAcceptedCycleSequence(1141L);
+        run.setAcceptedCycleToken("plan-42:1141");
+        DrSyncCycleVO cycle = new DrSyncCycleVO(42L, "scheduler", 1141L);
+        cycle.setRunId(run.getId());
+        cycle.setCycleToken(run.getAcceptedCycleToken());
+        cycle.setRequestedMode("FULL_RESEED");
+        cycle.setCommitState("COMMITTED");
+        Mockito.when(drSyncCycleDao.findByPlanSequence(42L, 1141L)).thenReturn(cycle);
+        FtctlDrStatusAnswer status = new FtctlDrStatusAnswer(new FtctlDrStatusCommand(
+                "plan-42", run.getUuid(), FtctlDrStatusCommand.StatusScope.OPERATION), true, "ok");
+        JsonObject runtime = new JsonObject();
+        for (String state : new String[]{"PENDING", "RUNNING", "FAILED", "CANCELED"}) {
+            cycle.setState(state);
+            Assert.assertFalse(state, adapter.isAcceptedFullReseedCycleSatisfied(run, status, runtime));
+        }
+        cycle.setState("TARGET_READY");
+        Assert.assertFalse(adapter.isAcceptedFullReseedCycleSatisfied(run, status, runtime));
+        cycle.setCompleted(new Date());
+        Assert.assertTrue(adapter.isAcceptedFullReseedCycleSatisfied(run, status, runtime));
+        cycle.setRunId(188L);
+        Assert.assertFalse(adapter.isAcceptedFullReseedCycleSatisfied(run, status, runtime));
+        cycle.setRunId(run.getId());
+        for (String mode : new String[]{"CBT_INCREMENTAL", "NO_CHANGE"}) {
+            cycle.setRequestedMode(mode);
+            Assert.assertFalse(mode, adapter.isAcceptedFullReseedCycleSatisfied(run, status, runtime));
+        }
+        cycle.setRequestedMode("FULL_RESEED");
+        cycle.setCommitState("PENDING");
+        Assert.assertFalse(adapter.isAcceptedFullReseedCycleSatisfied(run, status, runtime));
+    }
+
+    @Test
     public void acceptedFullReseedCycleCompletesAfterSchedulerAdvancesToNextIncrementalProducer() {
         DrPlanVO plan = new DrPlanVO("plan-41", 1L, 2L, DrConstants.DIRECTION_VMWARE_TO_KVM);
         ReflectionTestUtils.setField(plan, "id", 41L);

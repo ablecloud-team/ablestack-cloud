@@ -1997,6 +1997,18 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             return;
         }
         String details = materializationDetailsJson(result, runtimeStatusJson);
+        if (StringUtils.equalsIgnoreCase(run.getRunType(), DrConstants.RUN_TYPE_SYNC)
+                && StringUtils.equalsIgnoreCase(firstString(parseObject(run.getRequestJson()), "mode"), "FULL_RESEED")) {
+            // Target readiness can belong to an older checkpoint. Only runtime
+            // projection may complete the requested, owned durable reseed cycle.
+            // Do not save the Run here: a concurrent terminal result must survive.
+            upsertRunStep(run, "target-materialization", STEP_ORDER_TARGET_MATERIALIZATION,
+                    DrConstants.STEP_STATE_SUCCEEDED, 100, details, null, null);
+            recordEvent(plan.getId(), run.getId(), DrConstants.EVENT_TARGET_MATERIALIZED,
+                    DrConstants.EVENT_SEVERITY_INFO,
+                    "DR target VM is ready; requested full reseed completion is verified separately", details);
+            return;
+        }
         upsertRunStep(run, "runtime-projection", STEP_ORDER_RUNTIME_PROJECTION, DrConstants.STEP_STATE_SUCCEEDED, 100, details, null, null);
         upsertRunStep(run, "target-materialization", STEP_ORDER_TARGET_MATERIALIZATION, DrConstants.STEP_STATE_SUCCEEDED, 100, details, null, null);
         run.setState(DrConstants.RUN_STATE_SUCCEEDED);
