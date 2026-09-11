@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -274,7 +275,8 @@ public class LibvirtRestoreBackupCommandWrapperTest {
             filesMock.when(() -> Files.createTempDirectory(anyString())).thenReturn(tempPath);
 
             try (MockedStatic<Script> scriptMock = mockStatic(Script.class)) {
-                scriptMock.when(() -> Script.executeCommandForExitValue(anyLong(), any(String[].class)))
+                String mountCommand = "sudo mount -t nfs 192.168.1.100:/backup /tmp/csbackup.abc123 -o rw";
+                scriptMock.when(() -> Script.runSimpleBashScriptForExitValue(mountCommand, 30000, false))
                         .thenReturn(1); // Mount failure
 
                 Answer result = wrapper.execute(command, libvirtComputingResource);
@@ -284,6 +286,8 @@ public class LibvirtRestoreBackupCommandWrapperTest {
                 BackupAnswer backupAnswer = (BackupAnswer) result;
                 Assert.assertFalse(backupAnswer.getResult());
                 Assert.assertTrue(backupAnswer.getDetails().contains("Failed to mount the backup repository"));
+                scriptMock.verify(() -> Script.runSimpleBashScriptForExitValue(mountCommand, 30000, false));
+                filesMock.verify(() -> Files.deleteIfExists(Paths.get("/tmp/csbackup.abc123")));
             }
         }
     }
