@@ -1,0 +1,20 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+path	tables_views	version_rows	journal_rows	repeat_snapshot_sha256	result
+fresh	473	52	16	192d99ab58f0eda8b674fa48955f151edd75f618db75e7e23ebfc24f0a06c8ec	PASS
+upgrade	473	51	7	baa4a70e489b43d5fcb76d1da132bb8d2f5da84b0f466720d147ba4c3b11d090	PASS
+s7	473	52	16	4c3eafaa050c87d141f1e5495bfa10d32504122e2acdcdd9005df318cefc455a	PASS

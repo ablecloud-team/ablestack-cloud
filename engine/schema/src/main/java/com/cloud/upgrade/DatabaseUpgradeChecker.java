@@ -102,6 +102,7 @@ import com.cloud.upgrade.dao.EuropaStorageSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaKmsSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaNetworkSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaGuiThemeSchemaUpgrade;
+import com.cloud.upgrade.dao.EuropaSystemVmSchemaUpgrade;
 import com.cloud.upgrade.dao.Upgrade420to421;
 import com.cloud.upgrade.dao.Upgrade421to430;
 import com.cloud.upgrade.dao.Upgrade430to440;
@@ -564,6 +565,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                     EuropaGuiThemeSchemaUpgrade.migrate(conn);
                     executeViewScripts();
                 });
+                runEuropaPhase(conn, EuropaSchemaUpgrade.S8, () -> EuropaSystemVmSchemaUpgrade.migrate(conn));
             } catch (SQLException e) {
                 throw new CloudRuntimeException("Unable to record Europa schema migration", e);
             }

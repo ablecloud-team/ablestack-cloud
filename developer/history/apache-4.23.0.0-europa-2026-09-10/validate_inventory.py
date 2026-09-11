@@ -21,6 +21,7 @@ Read-only: does not checkout branches, apply patches, or modify a database.
 Run from anywhere inside the container repository. No third-party packages.
 """
 
+import argparse
 import collections
 import csv
 import io
@@ -54,6 +55,9 @@ def require(condition, message):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--final", action="store_true", help="Reject unresolved source rows and unreachable applied commits")
+    args = parser.parse_args()
     source = git("rev-list", "--reverse", "--topo-order", BASE + ".." + TARGET).splitlines()
     rows = read_tsv("inventory.tsv")
     merges = read_tsv("merges.tsv")
@@ -138,6 +142,12 @@ def main():
     for stream in streams:
         require(int(stream["source_count"]) == counts[stream["code"]], "Workstream count mismatch")
         require(set(split(stream["gate_dependencies"])) <= set(by_code), "Unknown gate dependency")
+    if args.final:
+        require(all(row["decision"] in {"Applied", "Adapted", "Already Satisfied", "Excluded"} for row in rows),
+                "Final inventory contains unresolved source commits")
+        for sha in {row["europa_sha"] for row in rows if row["decision"] in {"Applied", "Adapted"}}:
+            subprocess.run(["git", "merge-base", "--is-ancestor", sha, "HEAD"], cwd=DIRECTORY, check=True)
+        print("PASS: final source decisions complete; all applied commits reachable from HEAD")
     print("PASS: 299 unique source SHAs; 280 commits; 19 merges; all parent edges topologically valid")
     print("PASS: 280 evidence rows; 19 merge analyses; " + str(len(deps)) + " dependency edges; 10 linked workstreams")
     print("Source allocation:", dict(sorted(counts.items())))
