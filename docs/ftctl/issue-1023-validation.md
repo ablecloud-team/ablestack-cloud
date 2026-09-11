@@ -40,3 +40,8 @@ qcow2 다음1555에서 candidate.runUuid(새 Resume)와 pending.producerRunUuid(
 
 ## 범위
 이번 DB 반환 PASS는 확인된 HA 주기 누수, 단위 예외/timeout 정리, 변경 모듈 및 API/UI 제어 검증이다. 모든 유형의 연결 누수 제거 또는 장시간 물리 호스트 장애/HA fencing 전체 시험을 의미하지 않는다. 추가 #1027/#1028/#1029/#1030은 별도 후속이다. Cloud PR #1022의 기존 upstream 충돌도 별도 통합 범위다.
+
+## 운영자 복구 최종 확인
+해당 scheduler만 수동 종료하고 UI 전체 재동기화 Run `562a81d3-1ce4-4e6c-a0a1-90d64a6fb751`를 실행한 결과 checkpoint1557이 FULL_SEED / READY로 확정됐다. UI 동기화 이력에서 원본 시각09:40:44, 대상 준비09:42:02, 읽기/쓰기/전송150GiB를 확인했고 runtime도 READY / HEALTHY / IDLE, pending 없음으로 확인했다. 증거는 `qcow2-recovery.json`이다. 이는 운영자 복구 성공이며 #1030 수정 완료 또는 무개입 자동 복원 PASS가 아니다.
+
+반복 오류의 원인은 기존 worker의 producerRunUuid와 새 Resume가 기록한 profile Run의 수명이 다른데 candidate 생성에서 이를 혼용하는 경로다. 이전 #1007/#972의 worker 소실 후 Resume 시험은 새 worker와 profile ID가 일치하므로 이 결함을 검출하지 못했다. 살아 있는 worker의 Pause/Resume 후 다음 변경 체크포인트까지의 검증이 누락됐다. 후속 #1030에서는 제어 작업 ID와 복제 생산자 ID를 분리하고, 기존 worker 유지/소실 각각에서 변경 데이터 확정 및 실패 후 UI 복구를 수용 기준으로 검증해야 한다. 작업 이력 SUCCEEDED만으로 복제 완료를 판단하지 않는다.
