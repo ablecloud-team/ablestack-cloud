@@ -80,4 +80,25 @@ public class DrPlanTargetPlacementResolverImplTest {
         new DrPlanTargetPlacementResolverImpl().resolveComputeSizing(offering, spec, result);
         Assert.assertTrue(result.getBlockingReasons().toString().contains(DrPlanReadinessValidator.REASON_TARGET_COMPUTE_SIZE_INVALID));
     }
+    @Test public void partialSizingEditPreservesOfferingSpeedDisksAndPolicies() {
+        DrPlanVO current = new DrPlanVO();
+        current.setMappingJson("{\"target\":{\"serviceOfferingId\":\"dynamic\",\"cpuNumber\":1,\"cpuSpeed\":2000,\"memory\":2048,\"networks\":[{\"networkId\":\"net-1\"}]},\"disks\":[{\"sourceDiskId\":\"2000\"}]}");
+        current.setScheduleJson("{\"intervalSeconds\":600,\"retentionCount\":12}");
+        current.setPolicyJson("{\"testBootTimeoutSeconds\":240,\"failover\":{\"powerOn\":false}}");
+        DrPlanGuidedSpec changes = new DrPlanGuidedSpec();
+        changes.setTargetCpuNumber(4); changes.setTargetMemory(8192);
+        DrPlanGuidedSpec merged = new DrPlanGuidedSpecBuilder().mergeForUpdate(current, changes);
+        Assert.assertEquals(Integer.valueOf(4), merged.getTargetCpuNumber());
+        Assert.assertEquals(Integer.valueOf(8192), merged.getTargetMemory());
+        Assert.assertEquals(Integer.valueOf(2000), merged.getTargetCpuSpeed());
+        Assert.assertEquals("dynamic", merged.getTargetComputeRef());
+        Assert.assertEquals("net-1", merged.getTargetNetworkRef());
+        Assert.assertTrue(merged.getDiskMappingsJson().contains("2000"));
+        Assert.assertEquals(Integer.valueOf(600), merged.getSyncIntervalSeconds());
+        Assert.assertEquals(Boolean.FALSE, merged.getFailoverPowerOn());
+        String json = new DrPlanGuidedSpecBuilder().preserveUnchangedJson(
+                "{\"target\":{\"cpuNumber\":1,\"customEvidence\":\"keep\"}}", "{\"target\":{\"cpuNumber\":4}}");
+        Assert.assertTrue(json.contains("customEvidence"));
+        Assert.assertTrue(json.contains("\"cpuNumber\":4"));
+    }
 }

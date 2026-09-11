@@ -85,6 +85,53 @@ public class DrPlanGuidedSpecBuilder extends ManagerBase {
         plan.setQuiescePolicyJson(generated.getQuiescePolicyJson());
     }
 
+    public DrPlanGuidedSpec mergeForUpdate(DrPlanVO current, DrPlanGuidedSpec changes) {
+        JsonObject fields = GSON.toJsonTree(new DrPlanReadinessValidator()
+                .buildGuidedSpecFromMapping(savedObject(current.getMappingJson()))).getAsJsonObject();
+        JsonObject schedule = savedObject(current.getScheduleJson());
+        copyField(fields, "syncIntervalSeconds", schedule, "intervalSeconds");
+        copyField(fields, "retentionCount", schedule, "retentionCount");
+        JsonObject policy = savedObject(current.getPolicyJson());
+        for (String name : new String[] {"consistencyMode", "testNetworkMode", "testBootValidationMode",
+                "testBootTimeoutSeconds", "bandwidthLimitMbps"}) {
+            copyField(fields, name, policy, name);
+        }
+        if (policy.has("failover") && policy.get("failover").isJsonObject()) {
+            copyField(fields, "failoverPowerOn", policy.getAsJsonObject("failover"), "powerOn");
+        }
+        if (policy.has("retry") && policy.get("retry").isJsonObject()) {
+            copyField(fields, "retryCount", policy.getAsJsonObject("retry"), "maxAttempts");
+        }
+        for (java.util.Map.Entry<String, JsonElement> field : GSON.toJsonTree(changes).getAsJsonObject().entrySet()) {
+            fields.add(field.getKey(), field.getValue());
+        }
+        return GSON.fromJson(fields, DrPlanGuidedSpec.class);
+    }
+
+    private void copyField(JsonObject destination, String key, JsonObject source, String sourceKey) {
+        if (source.has(sourceKey) && !source.get(sourceKey).isJsonNull()) destination.add(key, source.get(sourceKey));
+    }
+
+    private JsonObject savedObject(String value) {
+        return StringUtils.isBlank(value) ? new JsonObject() : new JsonParser().parse(value).getAsJsonObject();
+    }
+
+    public String preserveUnchangedJson(String existing, String generated) {
+        JsonObject result = savedObject(existing);
+        overlayJson(result, savedObject(generated));
+        return GSON.toJson(result);
+    }
+
+    private void overlayJson(JsonObject target, JsonObject changes) {
+        for (java.util.Map.Entry<String, JsonElement> field : changes.entrySet()) {
+            if (field.getValue().isJsonObject() && target.has(field.getKey()) && target.get(field.getKey()).isJsonObject()) {
+                overlayJson(target.getAsJsonObject(field.getKey()), field.getValue().getAsJsonObject());
+            } else {
+                target.add(field.getKey(), field.getValue());
+            }
+        }
+    }
+
     private DrResolvedTargetPlacement resolvePlacement(DrPlanVO plan, DrPlanGuidedSpec spec) {
         return drPlanTargetPlacementResolver != null ? drPlanTargetPlacementResolver.resolve(plan, spec) : null;
     }

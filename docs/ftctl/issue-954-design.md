@@ -10,3 +10,14 @@
 
 ## 검증
 UI helper 정수/범위/부분 고정/오퍼링 전환/원본 재조회 회귀 및 DR Maven 모듈 빌드를 WSL ext4에서 수행한다. 31/32 기존 WEB-INF를 보존하여 UI static만 배포하고 필요한 관리 클래스만 교체한다. 실제 UI에서 고정 및 사용자 정의 오퍼링의 값 표시, 잘못된 입력 거부, 원본보다 작은/큰 값 저장·재조회·편집을 검증한다. VMware 원본 전원/QGA 조건을 추가하지 않는다. 실행별 override 및 기존 replica 재사이징은 #955 범위로 유지한다.
+
+## 구현 중 확정한 API/운영 정책
+- `DrPlanGuidedSpecBuilder.applyIfRequested`는 명시적인 비정상 값/범위 오류(`TARGET_COMPUTE_SIZE_INVALID`)를 저장 전에 거절한다. 미입력 값만 있는 기존 초안의 보완 가능성은 유지하며, 실행은 기존 readiness 조건을 통과해야 한다.
+- 사양 API의 정수형 및 resolver min/max 검증을 재사용한다. 고정 사양은 입력값보다 오퍼링의 값이 우선이다.
+- UI 배포는 WEB-INF뿐 아니라 `/etc/cloudstack/management/config.json`으로 연결된 기존 config.json 심볼릭 링크도 보존한다. 이전 시험 JAR 백업의 별도 보관은 SHA256 검증 후 수행하고 현재 동작 JAR는 삭제하지 않는다.
+
+## #954 실제 UI 편집에서 발견한 설정 유실 및 추가 수정
+
+32번 UI에서 정지된 VMware R10-EFI-LEGACY-01(vm-4366)을 대상으로 사용자 정의 오퍼링의 1 CPU / 2000 MHz / 2048 MiB 계획 생성은 성공했다. 그러나 CPU=4, 메모리=8192만 편집 저장하면 변경되지 않은 CPU speed와 offering/disk/network 필드가 빠졌다. 최초 시험 Plan54는 실패 재현이며 PASS에 합산하지 않는다. UI 일반 삭제로 시험 초안을 정리했다.
+
+원인은 UpdateDrPlanCmd.applyGuidedSpec가 변경 필드만 포함된 spec으로 전체 mapping/schedule/policy를 재생성하는 경로다. 기존 저장 spec에 명시된 변경값을 합치고, generated JSON과 기존 JSON을 병합하여 비변경 확장 필드도 보존하도록 수정했다. DrPlanReadinessValidator의 기존 mapping→spec 해석을 재사용하며, 사양 편집 때문에 기존 디스크/네트워크/정책을 잃지 않는 회귀를 추가했다. #954의 저장·재조회·편집 보존 범위에서 처리하며 별도 중복 이슈로 유예하지 않는다. 최종 배포 후 UI 재검증 결과를 이어서 기록한다.
