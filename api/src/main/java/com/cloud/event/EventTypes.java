@@ -140,6 +140,10 @@ public class EventTypes {
     public static final String EVENT_VM_SCHEDULE_REBOOT = "VM.SCHEDULE.REBOOT";
     public static final String EVENT_VM_SCHEDULE_FORCE_STOP = "VM.SCHEDULE.FORCE.STOP";
     public static final String EVENT_VM_SCHEDULE_FORCE_REBOOT = "VM.SCHEDULE.FORCE.REBOOT";
+    // Compatibility aliases for leftover VMScheduleManagerImpl CRUD events.
+    public static final String EVENT_VM_SCHEDULE_CREATE = "VM.SCHEDULE.CREATE";
+    public static final String EVENT_VM_SCHEDULE_UPDATE = "VM.SCHEDULE.UPDATE";
+    public static final String EVENT_VM_SCHEDULE_DELETE = "VM.SCHEDULE.DELETE";
 
     // Generic Resource Schedule CRUD events (apply to all resource types).
     public static final String EVENT_SCHEDULE_CREATE = "SCHEDULE.CREATE";
@@ -959,6 +963,9 @@ public class EventTypes {
         entityEventDetails.put(EVENT_VM_SCHEDULE_REBOOT, ResourceSchedule.class);
         entityEventDetails.put(EVENT_VM_SCHEDULE_FORCE_STOP, ResourceSchedule.class);
         entityEventDetails.put(EVENT_VM_SCHEDULE_FORCE_REBOOT, ResourceSchedule.class);
+        entityEventDetails.put(EVENT_VM_SCHEDULE_CREATE, ResourceSchedule.class);
+        entityEventDetails.put(EVENT_VM_SCHEDULE_UPDATE, ResourceSchedule.class);
+        entityEventDetails.put(EVENT_VM_SCHEDULE_DELETE, ResourceSchedule.class);
         entityEventDetails.put(EVENT_AUTOSCALEVMGROUP_SCHEDULE_UPDATE, ResourceSchedule.class);
 
         // Generic Resource Schedule

@@ -1,0 +1,9 @@
+[Unit]
+Description=Mold Veeam catalog sync (Remove from Disk → MS syncAblestackVeeamBackups for VM_INCLUDE)
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/etc/ablestack/veeam/mold-veeam-catalog-sync.sh
+Nice=10
+TimeoutStartSec=300

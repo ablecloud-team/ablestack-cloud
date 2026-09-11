@@ -101,6 +101,32 @@ public class LibvirtAblestackDeleteBackupCommandWrapper extends CommandWrapper<A
                 deleteCommand.add(diskPaths);
             }
             commands.add(deleteCommand.toArray(new String[0]));
+        } else if ("ablestack-veeam".equalsIgnoreCase(backupProvider) || "veeam".equalsIgnoreCase(backupProvider)) {
+            List<String> deleteCommand = new ArrayList<>();
+            deleteCommand.add(libvirtComputingResource.getAbleVeeamPath());
+            deleteCommand.add("-o");
+            deleteCommand.add("delete");
+            deleteCommand.add("-p");
+            deleteCommand.add(backupPath);
+            if (StringUtils.isNotBlank(vmName)) {
+                deleteCommand.add("-v");
+                deleteCommand.add(vmName);
+            }
+            deleteCommand.add("-x");
+            deleteCommand.add(Boolean.toString(forced));
+            if (StringUtils.isNotBlank(checkpointName)) {
+                deleteCommand.add("-c");
+                deleteCommand.add(checkpointName);
+            }
+            if (StringUtils.isNotBlank(cleanupCheckpointNames)) {
+                deleteCommand.add("-C");
+                deleteCommand.add(cleanupCheckpointNames);
+            }
+            if (StringUtils.isNotBlank(diskPaths)) {
+                deleteCommand.add("-d");
+                deleteCommand.add(diskPaths);
+            }
+            commands.add(deleteCommand.toArray(new String[0]));
         } else {
             List<String> deleteCommand = new ArrayList<>();
             deleteCommand.add(libvirtComputingResource.getAbleNasBackupPath());

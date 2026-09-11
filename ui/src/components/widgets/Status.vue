@@ -96,6 +96,9 @@ export default {
           case 'error':
             state = this.$t('state.error')
             break
+          case 'failed':
+            state = this.$t('state.failed')
+            break
           case 'readonly':
             state = this.$t('state.readonly')
             break
@@ -215,9 +218,6 @@ export default {
             break
           case 'restoring':
             state = this.$t('label.restoring')
-            break
-          case 'failed':
-            state = this.$t('label.failed')
             break
         }
         return state.charAt(0).toUpperCase() + state.slice(1)

@@ -95,6 +95,7 @@ public interface Backup extends ControlledEntity, InternalIdentity, Identity {
         private String type;
         private Long backupSize = 0L;
         private Long dataSize = 0L;
+        private String jobName;
 
         public RestorePoint(String id, Date created, String type) {
             this.id = id;
@@ -146,6 +147,14 @@ public interface Backup extends ControlledEntity, InternalIdentity, Identity {
 
         public void setDataSize(Long dataSize) {
             this.dataSize = dataSize;
+        }
+
+        public String getJobName() {
+            return jobName;
+        }
+
+        public void setJobName(String jobName) {
+            this.jobName = jobName;
         }
     }
 

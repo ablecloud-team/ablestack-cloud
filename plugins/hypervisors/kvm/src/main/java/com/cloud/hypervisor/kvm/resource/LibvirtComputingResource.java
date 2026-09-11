@@ -479,6 +479,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
     private String ableNasBackupPath;
     private String ableCvtBackupPath;
     private String ableNetBackupPath;
+    private String ableVeeamPath;
     private String imageServerPath;
     private boolean imageServerTlsEnabled = false;
     private String imageServerListenAddress;
@@ -1079,6 +1080,10 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return ableNetBackupPath;
     }
 
+    public String getAbleVeeamPath() {
+        return ableVeeamPath;
+    }
+
     public String getImageServerPath() {
         return imageServerPath;
     }
@@ -1494,6 +1499,11 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             throw new ConfigurationException("Unable to find imageserver package");
         }
         imageServerPath = new File(imageServerMain).getParent();
+
+        ableVeeamPath = Script.findScript(kvmScriptsDir, "ablestack_veeam.sh");
+        if (ableVeeamPath == null) {
+            throw new ConfigurationException("Unable to find ablestack_veeam.sh");
+        }
 
         createTmplPath = Script.findScript(storageScriptsDir, "createtmplt.sh");
         if (createTmplPath == null) {

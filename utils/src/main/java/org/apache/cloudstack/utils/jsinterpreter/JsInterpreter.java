@@ -86,6 +86,14 @@ public class JsInterpreter implements Closeable {
      */
     protected JsInterpreter() { }
 
+    /**
+     * Compatibility constructor for callers that only pass a timeout,
+     * such as leftover TagAsRuleHelper from pre-GenericRuleHelper sources.
+     */
+    public JsInterpreter(long timeout) {
+        this(timeout, "js.interpreter.timeout");
+    }
+
     public JsInterpreter(long timeout, String configName) {
         this.timeout = timeout;
         this.timeoutDefaultMessage = String.format("Timeout (in milliseconds) defined in the global setting [%s]: [%s].",

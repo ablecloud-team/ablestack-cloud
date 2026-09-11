@@ -1,0 +1,13 @@
+[Unit]
+Description=Poll Veeam restore-point catalog and sync deletes to Mold every 2 minutes
+
+[Timer]
+OnBootSec=90s
+OnCalendar=*:0/2
+OnUnitActiveSec=2min
+AccuracySec=15s
+Persistent=true
+Unit=mold-veeam-catalog-sync.service
+
+[Install]
+WantedBy=timers.target

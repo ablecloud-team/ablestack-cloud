@@ -200,32 +200,15 @@ public class LibvirtRestoreBackupCommandWrapper extends CommandWrapper<RestoreBa
             logger.error(String.format("Failed to create the tmp mount directory {} for restore", mountDirectory), e);
             throw new CloudRuntimeException("Failed to create the tmp mount directory for restore on the KVM host");
         }
-        try {
-            String mountPath = Script.getExecutableAbsolutePath("mount");
-            List<String> mountCmd = new ArrayList<>();
-            mountCmd.add("sudo");
-            mountCmd.add(mountPath);
-            mountCmd.add("-t");
-            mountCmd.add(backupRepoType);
-            mountCmd.add(backupRepoAddress);
-            mountCmd.add(mountDirectory);
-            if ("cifs".equals(backupRepoType)) {
-                if (StringUtils.isBlank(mountOptions)) {
-                    mountOptions = "nobrl";
-                } else {
-                    mountOptions += ",nobrl";
-                }
-            }
-            if (StringUtils.isNotBlank(mountOptions)) {
-                mountCmd.add("-o");
-                mountCmd.add(mountOptions);
-            }
-            if (Script.executeCommandForExitValue(mountTimeout, mountCmd.toArray(new String[0])) != 0) {
-                throw new CloudRuntimeException("Mount command failed");
-            }
-        } catch (Exception e) {
+
+        final String mount = LibvirtBackupRepositoryMountHelper.buildMountCommand(
+                backupRepoAddress, backupRepoType, mountOptions, mountDirectory);
+
+        int exitValue = Script.runSimpleBashScriptForExitValue(mount, mountTimeout, false);
+        if (exitValue != 0) {
             deleteTemporaryDirectory(mountDirectory);
-            logger.error("Failed to mount repository {} of type {} to the directory {}", backupRepoAddress, backupRepoType, mountDirectory, e);
+            logger.error("Failed to mount repository {} of type {} to the directory {}",
+                    backupRepoAddress, backupRepoType, mountDirectory);
             throw new CloudRuntimeException("Failed to mount the backup repository on the KVM host");
         }
         return mountDirectory;

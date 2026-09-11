@@ -64,8 +64,16 @@ import org.apache.cloudstack.api.command.admin.backup.UpdateBackupOfferingCmd;
 import org.apache.cloudstack.api.command.admin.backup.UpdateNetBackupCmd;
 import org.apache.cloudstack.api.command.admin.vm.CreateVMFromBackupCmdByAdmin;
 import org.apache.cloudstack.api.command.user.backup.AssignVirtualMachineToBackupOfferingCmd;
+import org.apache.cloudstack.api.command.user.backup.CreateAblestackVeeamBackupCmd;
+import org.apache.cloudstack.api.command.user.backup.UpdateAblestackVeeamBackupCmd;
+import org.apache.cloudstack.api.command.user.backup.SyncAblestackVeeamBackupsCmd;
 import org.apache.cloudstack.api.command.user.backup.CreateBackupCmd;
 import org.apache.cloudstack.api.command.user.backup.CreateNetBackupCmd;
+import org.apache.cloudstack.api.command.user.backup.ImportAblestackVeeamBackupSeedCmd;
+import org.apache.cloudstack.api.command.user.backup.ListAblestackVeeamBackupsCmd;
+import org.apache.cloudstack.api.command.user.backup.ListVeeamRestorePointsCmd;
+import org.apache.cloudstack.api.command.user.backup.RestoreAblestackVeeamBackupCmd;
+import org.apache.cloudstack.api.response.BackupRestorePointResponse;
 import org.apache.cloudstack.api.command.user.backup.CreateBackupScheduleCmd;
 import org.apache.cloudstack.api.command.user.backup.DeleteBackupCmd;
 import org.apache.cloudstack.api.command.user.backup.DeleteBackupScheduleCmd;
@@ -329,7 +337,11 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         final String canonicalProviderName = BackupProviderNameUtils.canonicalize(providerName);
 
         for (BackupProvider provider : providers) {
-            if (provider.getName().equalsIgnoreCase(canonicalProviderName)) {
+            final boolean nameMatch = provider.getName().equalsIgnoreCase(providerName)
+                    || provider.getName().equalsIgnoreCase(canonicalProviderName)
+                    || (BackupProviderNameUtils.isVeeamFamily(providerName)
+                        && BackupProviderNameUtils.isVeeamFamily(provider.getName()));
+            if (nameMatch) {
                 try {
                     logger.debug("Listing external backup offerings for provider {} in zone {}", provider.getName(), zoneId);
                     List<BackupOffering> offerings = provider.listBackupOfferings(zoneId);
@@ -355,11 +367,40 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
 
         List<BackupProvider> zoneProviders = getBackupProvidersForZone(cmd.getZoneId());
-        boolean providerFound = zoneProviders.stream().anyMatch(p -> p.getName().equalsIgnoreCase(providerName));
-
-        if (!providerFound) {
-            throw new CloudRuntimeException("Provider " + providerName + " is not enabled for zone " + cmd.getZoneId());
+        BackupProvider matchedProvider = null;
+        BackupProvider familyFallback = null;
+        for (BackupProvider p : zoneProviders) {
+            // Prefer exact API provider name first (ablestack-veeam ≠ veeam/NAS-hybrid).
+            if (p.getName().equalsIgnoreCase(cmd.getProvider())) {
+                matchedProvider = p;
+                break;
+            }
+            if (matchedProvider == null && p.getName().equalsIgnoreCase(providerName)) {
+                matchedProvider = p;
+            }
+            if (familyFallback == null
+                    && BackupProviderNameUtils.isVeeamFamily(cmd.getProvider())
+                    && BackupProviderNameUtils.isVeeamFamily(p.getName())) {
+                familyFallback = p;
+            }
         }
+        if (matchedProvider == null) {
+            matchedProvider = familyFallback;
+        }
+        // Veeam family: prefer standalone ablestack-veeam over display-name veeam when both loaded.
+        if (matchedProvider != null && BackupProviderNameUtils.isVeeamFamily(cmd.getProvider())) {
+            for (BackupProvider p : zoneProviders) {
+                if (BackupProviderNameUtils.ABLESTACK_VEEAM.equalsIgnoreCase(p.getName())) {
+                    matchedProvider = p;
+                    break;
+                }
+            }
+        }
+        if (matchedProvider == null) {
+            throw new CloudRuntimeException("Provider " + cmd.getProvider() + " is not enabled for zone " + cmd.getZoneId());
+        }
+        // Persist / use the actually loaded plugin name (veeam vs ablestack-veeam).
+        providerName = matchedProvider.getName();
 
         final BackupOffering existingOffering = backupOfferingDao.findByExternalId(cmd.getExternalId(), cmd.getZoneId());
         if (existingOffering != null) {
@@ -383,7 +424,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             filteredDomainIds = domainHelper.filterChildSubDomains(filteredDomainIds);
         }
 
-        final BackupProvider provider = getBackupProvider(providerName);
+        final BackupProvider provider = matchedProvider;
         if (!provider.isValidProviderOffering(cmd.getZoneId(), cmd.getExternalId())) {
             throw new CloudRuntimeException("Backup offering '" + cmd.getExternalId() + "' does not exist on provider " + provider.getName() + " on zone " + cmd.getZoneId());
         }
@@ -907,9 +948,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
         if (!BackupProviderNameUtils.isNasFamily(offering.getProvider()) &&
                 !BackupProviderNameUtils.isCommvaultFamily(offering.getProvider()) &&
+                !BackupProviderNameUtils.isVeeamFamily(offering.getProvider()) &&
                 !KBOSS_BACKUP_PROVIDER.equals(offering.getProvider()) &&
                 cmd.getQuiesceVM() != null) {
-            throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS, Commvault and KBOSS backup providers");
+            throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS, Commvault, Ablestack Veeam, and KBOSS backup providers");
         }
 
         final String timezoneId = timeZone.getID();
@@ -1114,9 +1156,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
         if (!BackupProviderNameUtils.isNasFamily(offering.getProvider()) &&
                 !BackupProviderNameUtils.isCommvaultFamily(offering.getProvider()) &&
+                !BackupProviderNameUtils.isVeeamFamily(offering.getProvider()) &&
                 !KBOSS_BACKUP_PROVIDER.equals(offering.getProvider()) &&
                 cmd.getQuiesceVM() != null) {
-            throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS, Commvault and KBOSS backup providers");
+            throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS, Commvault, Ablestack Veeam, and KBOSS backup providers");
         }
 
         Long backupScheduleId = getBackupScheduleId(job);
@@ -1148,6 +1191,272 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         logger.info("Completed VM backup request [vmId: {}, vmUuid: {}, vmName: {}, provider: {}, offeringId: {}, scheduleId: {}, elapsedMs: {}]",
                 vm.getId(), vm.getUuid(), vm.getInstanceName(), offering.getProvider(), offering.getId(), backupScheduleId, System.currentTimeMillis() - backupStartTime);
         return true;
+    }
+
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_CREATE, eventDescription = "importing Ablestack Veeam backup seed", async = true)
+    public Backup importAblestackVeeamBackupSeed(ImportAblestackVeeamBackupSeedCmd cmd) throws ResourceAllocationException {
+        final VMInstanceVO vm = findVmById(cmd.getVmId());
+        validateBackupForZone(vm.getDataCenterId());
+        final Account caller = CallContext.current().getCallingAccount();
+        accountManager.checkAccess(caller, null, true, vm);
+
+        if (vm.getBackupOfferingId() == null) {
+            throw new CloudRuntimeException("VM must be assigned to an Ablestack Veeam backup offering before importing a seed");
+        }
+
+        final BackupOffering offering = backupOfferingDao.findById(vm.getBackupOfferingId());
+        if (offering == null || !BackupProviderNameUtils.isVeeamFamily(offering.getProvider())) {
+            throw new CloudRuntimeException("VM backup offering must use the ablestack-veeam provider");
+        }
+
+        // Seed import must use standalone ablestack-veeam (not veeam/NAS-hybrid which requires a repository).
+        final BackupProvider backupProvider = getAblestackVeeamBackupProvider(offering.getProvider());
+
+        List<String> stagingPaths = null;
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(cmd.getStagingDiskPaths())) {
+            stagingPaths = Arrays.stream(cmd.getStagingDiskPaths().split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+        }
+
+        final Pair<Boolean, Backup> result = backupProvider.importAblestackVeeamBackupSeed(
+                vm, cmd.getVeeamRestorePointId(), stagingPaths, cmd.getSourceDiskFormat(), cmd.getBootstrapCheckpoint());
+
+        if (!result.first() || result.second() == null) {
+            throw new CloudRuntimeException("Failed to import Ablestack Veeam backup seed");
+        }
+
+        BackupVO backupVO = backupDao.findById(result.second().getId());
+        if (cmd.getName() != null) {
+            backupVO.setName(cmd.getName());
+            backupDao.update(backupVO.getId(), backupVO);
+        }
+
+        resourceLimitMgr.incrementResourceCount(vm.getAccountId(), Resource.ResourceType.backup);
+        if (result.second().getSize() != null) {
+            resourceLimitMgr.incrementResourceCount(vm.getAccountId(), Resource.ResourceType.backup_storage, result.second().getSize());
+        }
+        return backupVO;
+    }
+
+    private BackupOffering validateVmAblestackVeeamOffering(final VMInstanceVO vm) {
+        if (vm.getBackupOfferingId() == null) {
+            throw new CloudRuntimeException("VM must be assigned to an Ablestack Veeam backup offering");
+        }
+        final BackupOffering offering = backupOfferingDao.findById(vm.getBackupOfferingId());
+        if (offering == null || !BackupProviderNameUtils.isVeeamFamily(offering.getProvider())) {
+            throw new CloudRuntimeException("VM backup offering must use the ablestack-veeam provider");
+        }
+        return offering;
+    }
+
+    @Override
+    public List<Backup.RestorePoint> listVeeamRestorePoints(final ListVeeamRestorePointsCmd cmd) {
+        final VMInstanceVO vm = findVmById(cmd.getVmId());
+        validateBackupForZone(vm.getDataCenterId());
+        final Account caller = CallContext.current().getCallingAccount();
+        accountManager.checkAccess(caller, null, true, vm);
+        validateVmAblestackVeeamOffering(vm);
+        final BackupOffering offering = backupOfferingDao.findById(vm.getBackupOfferingId());
+        final BackupProvider backupProvider = getBackupProvider(offering.getProvider());
+        return backupProvider.listCatalogRestorePoints(vm);
+    }
+
+    @Override
+    public List<BackupRestorePointResponse> createVeeamRestorePointResponses(final List<Backup.RestorePoint> points) {
+        final List<BackupRestorePointResponse> responses = new ArrayList<>();
+        if (points == null) {
+            return responses;
+        }
+        for (final Backup.RestorePoint point : points) {
+            final BackupRestorePointResponse response = new BackupRestorePointResponse();
+            response.setId(point.getId());
+            response.setCreated(point.getCreated());
+            response.setType(point.getType());
+            response.setObjectName(point.getId());
+            responses.add(response);
+        }
+        return responses;
+    }
+
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_CREATE, eventDescription = "creating Ablestack Veeam backup", async = true)
+    public boolean createAblestackVeeamBackup(final CreateAblestackVeeamBackupCmd cmd, final Object job)
+            throws ResourceAllocationException {
+        final Long vmId = cmd.getVmId();
+        final Account caller = CallContext.current().getCallingAccount();
+        final VMInstanceVO vm = findVmById(vmId);
+        validateBackupForZone(vm.getDataCenterId());
+        accountManager.checkAccess(caller, null, true, vm);
+        final BackupOffering offering = validateVmAblestackVeeamOffering(vm);
+        final BackupProvider backupProvider = getBackupProvider(offering.getProvider());
+        final Account owner = accountManager.getAccount(vm.getAccountId());
+        Long backupSize = 0L;
+        for (final Volume volume : volumeDao.findByInstance(vmId)) {
+            if (Volume.State.Ready.equals(volume.getState())) {
+                Long volumeSize = volumeApiService.getVolumePhysicalSize(volume.getFormat(), volume.getPath(), volume.getChainInfo());
+                if (volumeSize == null) {
+                    volumeSize = volume.getSize();
+                }
+                backupSize += volumeSize;
+            }
+        }
+        createCheckedBackupVeeam(vm, vmId, backupProvider, cmd.getQuiesceVM(), backupSize, owner, getBackupScheduleId(job),
+                cmd.getName(), cmd.getIntervalType(), cmd.getVeeamJobName());
+        return true;
+    }
+
+    @Override
+    public boolean updateAblestackVeeamBackup(final UpdateAblestackVeeamBackupCmd cmd) {
+        final Account caller = CallContext.current().getCallingAccount();
+        final BackupVO backup = backupDao.findById(cmd.getId());
+        if (backup == null) {
+            throw new CloudRuntimeException(String.format("Backup [%s] was not found", cmd.getId()));
+        }
+        final VMInstanceVO vm = vmInstanceDao.findByIdIncludingRemoved(backup.getVmId());
+        if (vm != null) {
+            accountManager.checkAccess(caller, null, true, vm);
+            validateBackupForZone(vm.getDataCenterId());
+        }
+        final BackupOfferingVO offering = backupOfferingDao.findById(backup.getBackupOfferingId());
+        if (offering == null || !BackupProviderNameUtils.isVeeamFamily(offering.getProvider())) {
+            throw new CloudRuntimeException(String.format("Backup [%s] is not an ablestack-veeam backup", backup.getUuid()));
+        }
+        if (StringUtils.isNotBlank(cmd.getVeeamRestorePointId())) {
+            backupDetailsDao.removeDetail(backup.getId(), "ablestack.veeam.restore.point.id");
+            backupDetailsDao.addDetail(backup.getId(), "ablestack.veeam.restore.point.id",
+                    cmd.getVeeamRestorePointId().trim(), false);
+        }
+        if (StringUtils.isNotBlank(cmd.getVeeamJobName())) {
+            backupDetailsDao.removeDetail(backup.getId(), "ablestack.veeam.job.name");
+            backupDetailsDao.addDetail(backup.getId(), "ablestack.veeam.job.name",
+                    cmd.getVeeamJobName().trim(), false);
+        }
+        logger.info("Updated Ablestack Veeam backup [{}] metadata restorePointId=[{}] jobName=[{}]",
+                backup.getUuid(), cmd.getVeeamRestorePointId(), cmd.getVeeamJobName());
+        return true;
+    }
+
+    @Override
+    public boolean syncAblestackVeeamBackups(final SyncAblestackVeeamBackupsCmd cmd) {
+        final Account caller = CallContext.current().getCallingAccount();
+        final VMInstanceVO vm = vmInstanceDao.findById(cmd.getVmId());
+        if (vm == null) {
+            throw new CloudRuntimeException(String.format("VM [%s] was not found", cmd.getVmId()));
+        }
+        accountManager.checkAccess(caller, null, true, vm);
+        validateBackupForZone(vm.getDataCenterId());
+        if (vm.getBackupOfferingId() == null) {
+            throw new CloudRuntimeException(String.format("VM [%s] is not assigned to a backup offering", vm.getUuid()));
+        }
+        final BackupOfferingVO offering = backupOfferingDao.findById(vm.getBackupOfferingId());
+        if (offering == null || !BackupProviderNameUtils.isVeeamFamily(offering.getProvider())) {
+            throw new CloudRuntimeException(String.format("VM [%s] is not assigned to an Ablestack Veeam backup offering",
+                    vm.getUuid()));
+        }
+        final BackupProvider backupProvider = getBackupProvider(offering.getProvider());
+        logger.info("Syncing Ablestack Veeam backups for VM [{}] via provider [{}]",
+                vm.getInstanceName(), offering.getProvider());
+        backupProvider.syncBackups(vm);
+        return true;
+    }
+
+    private static final String ABLESTACK_VEEAM_INTERVAL_TYPE_DETAIL = "ablestack.veeam.interval.type";
+
+    private void createCheckedBackupVeeam(final VMInstanceVO vm, final Long vmId, final BackupProvider backupProvider,
+            final Boolean quiesceVM, final Long backupSize, final Account owner, final Long backupScheduleId,
+            final String backupName, final String intervalType, final String veeamJobName)
+            throws ResourceAllocationException {
+        try (CheckedReservation backupReservation = new CheckedReservation(owner, Resource.ResourceType.backup,
+                1L, reservationDao, resourceLimitMgr);
+             CheckedReservation backupStorageReservation = new CheckedReservation(owner,
+                     Resource.ResourceType.backup_storage, backupSize, reservationDao, resourceLimitMgr)) {
+
+            ActionEventUtils.onStartedActionEvent(User.UID_SYSTEM, vm.getAccountId(),
+                    EventTypes.EVENT_VM_BACKUP_CREATE, "creating Ablestack Veeam backup for VM ID:" + vm.getUuid(),
+                    vmId, ApiCommandResourceType.VirtualMachine.toString(), true, 0);
+
+            final Pair<Boolean, Backup> result = backupProvider.takeBackup(vm, quiesceVM, backupScheduleId, veeamJobName);
+            if (!result.first()) {
+                throw new CloudRuntimeException("Failed to create Ablestack Veeam VM backup");
+            }
+            final Backup backup = result.second();
+            if (backup != null) {
+                final BackupVO vmBackup = backupDao.findById(backup.getId());
+                vmBackup.setBackupScheduleId(backupScheduleId);
+                if (backupName != null) {
+                    vmBackup.setName(backupName);
+                }
+                backupDao.update(vmBackup.getId(), vmBackup);
+                // Veeam-server-triggered backups (no Mold schedule) always show EXTERNAL in UI.
+                // Ignore host-script DAILY/HOURLY leftovers — those are Veeam Job schedules, not Mold schedules.
+                final String normalizedInterval = backupScheduleId == null
+                        ? "EXTERNAL"
+                        : normalizeVeeamBackupIntervalType(intervalType);
+                if (StringUtils.isNotBlank(normalizedInterval) && backupScheduleId == null) {
+                    backupDetailsDao.removeDetail(vmBackup.getId(), ABLESTACK_VEEAM_INTERVAL_TYPE_DETAIL);
+                    backupDetailsDao.addDetail(vmBackup.getId(), ABLESTACK_VEEAM_INTERVAL_TYPE_DETAIL, normalizedInterval, true);
+                }
+                if (StringUtils.isNotBlank(veeamJobName)) {
+                    backupDetailsDao.removeDetail(vmBackup.getId(), "ablestack.veeam.job.name");
+                    backupDetailsDao.addDetail(vmBackup.getId(), "ablestack.veeam.job.name", veeamJobName.trim(), false);
+                }
+                resourceLimitMgr.incrementResourceCount(vm.getAccountId(), Resource.ResourceType.backup);
+                resourceLimitMgr.incrementResourceCount(vm.getAccountId(), Resource.ResourceType.backup_storage, backup.getSize());
+            }
+        }
+    }
+
+    private String normalizeVeeamBackupIntervalType(final String intervalType) {
+        if (StringUtils.isBlank(intervalType)) {
+            return null;
+        }
+        final String trimmed = intervalType.trim();
+        if ("EXTERNAL".equalsIgnoreCase(trimmed)) {
+            return "EXTERNAL";
+        }
+        if ("MANUAL".equalsIgnoreCase(trimmed)) {
+            return "MANUAL";
+        }
+        final DateUtil.IntervalType parsed = DateUtil.IntervalType.getIntervalType(trimmed);
+        if (parsed != null) {
+            return parsed.name();
+        }
+        logger.warn("Ignoring unsupported Ablestack Veeam backup interval type [{}]", intervalType);
+        return null;
+    }
+
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_RESTORE, eventDescription = "restoring VM from Ablestack Veeam backup", async = true)
+    public boolean restoreAblestackVeeamBackup(final Long backupId) {
+        BackupVO backup = backupDao.findById(backupId);
+        if (backup == null) {
+            backup = backupDao.findByIdIncludingRemoved(backupId);
+            if (backup != null && backup.getRemoved() != null) {
+                throw new CloudRuntimeException(String.format(
+                        "Backup %s (%s) was removed and cannot be restored. Use an active backup for this VM.",
+                        backup.getUuid(), backupId));
+            }
+            throw new CloudRuntimeException("Backup " + backupId + " does not exist");
+        }
+        final BackupOffering backupOffering = backupOfferingDao.findByIdIncludingRemoved(backup.getBackupOfferingId());
+        if (backupOffering == null || !BackupProviderNameUtils.isVeeamFamily(backupOffering.getProvider())) {
+            throw new CloudRuntimeException("Backup is not from an ablestack-veeam offering");
+        }
+        return restoreBackup(backupId, false, null);
+    }
+
+    @Override
+    public Pair<List<Backup>, Integer> listAblestackVeeamBackups(final ListAblestackVeeamBackupsCmd cmd) {
+        final VMInstanceVO vm = findVmById(cmd.getVmId());
+        validateBackupForZone(vm.getDataCenterId());
+        final Account caller = CallContext.current().getCallingAccount();
+        accountManager.checkAccess(caller, null, true, vm);
+        final BackupOffering offering = validateVmAblestackVeeamOffering(vm);
+        final List<Backup> backups = backupDao.listByVmIdAndOffering(vm.getDataCenterId(), vm.getId(), offering.getId());
+        return new Pair<>(backups, backups.size());
     }
 
     private void createCheckedBackup(CreateBackupCmd cmd, Account owner, boolean isScheduledBackup, Long backupSize,
@@ -2466,6 +2775,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             String dataStore = null;
             if (!BackupProviderNameUtils.isNasFamily(offering.getProvider()) &&
                     !BackupProviderNameUtils.isCommvaultFamily(offering.getProvider()) &&
+                    !BackupProviderNameUtils.isVeeamFamily(offering.getProvider()) &&
                     !KBOSS_BACKUP_PROVIDER.equals(offering.getProvider())) {
                 Pair<HostVO, StoragePoolVO> restoreInfo = getRestoreVolumeHostAndDatastore(vm);
                 host = restoreInfo.first().getPrivateIpAddress();
@@ -2983,11 +3293,36 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (StringUtils.isEmpty(name)) {
             throw new CloudRuntimeException("Invalid backup provider name provided");
         }
-        final String canonicalName = BackupProviderNameUtils.canonicalize(name);
-        if (!backupProvidersMap.containsKey(canonicalName)) {
-            throw new CloudRuntimeException("Failed to find backup provider by the name: " + canonicalName);
+        // Prefer exact registered name first (stock plugin registers as "veeam";
+        // ablestack-veeam registers as "ablestack-veeam"). Canonicalize is only a fallback.
+        if (backupProvidersMap.containsKey(name)) {
+            return backupProvidersMap.get(name);
         }
-        return backupProvidersMap.get(canonicalName);
+        final String canonicalName = BackupProviderNameUtils.canonicalize(name);
+        if (backupProvidersMap.containsKey(canonicalName)) {
+            return backupProvidersMap.get(canonicalName);
+        }
+        // Alias: ablestack-veeam ↔ veeam when only one is loaded
+        if (BackupProviderNameUtils.isVeeamFamily(name)) {
+            for (final String alias : new String[] {"ablestack-veeam", "veeam"}) {
+                if (backupProvidersMap.containsKey(alias)) {
+                    return backupProvidersMap.get(alias);
+                }
+            }
+        }
+        throw new CloudRuntimeException("Failed to find backup provider by the name: " + name);
+    }
+
+    /**
+     * Resolve the standalone Ablestack Veeam KVM provider for seed import APIs.
+     * When both "ablestack-veeam" and display-name "veeam" (often NAS-hybrid) are loaded,
+     * prefer ablestack-veeam so host staging import does not require a Mold backup repository.
+     */
+    private BackupProvider getAblestackVeeamBackupProvider(final String offeringProviderName) {
+        if (backupProvidersMap.containsKey(BackupProviderNameUtils.ABLESTACK_VEEAM)) {
+            return backupProvidersMap.get(BackupProviderNameUtils.ABLESTACK_VEEAM);
+        }
+        return getBackupProvider(offeringProviderName);
     }
 
     @Override
@@ -3018,6 +3353,13 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         // Operations
         cmdList.add(CreateBackupCmd.class);
         cmdList.add(CreateNetBackupCmd.class);
+        cmdList.add(ImportAblestackVeeamBackupSeedCmd.class);
+        cmdList.add(ListVeeamRestorePointsCmd.class);
+        cmdList.add(CreateAblestackVeeamBackupCmd.class);
+        cmdList.add(UpdateAblestackVeeamBackupCmd.class);
+        cmdList.add(SyncAblestackVeeamBackupsCmd.class);
+        cmdList.add(RestoreAblestackVeeamBackupCmd.class);
+        cmdList.add(ListAblestackVeeamBackupsCmd.class);
         cmdList.add(ListBackupsCmd.class);
         cmdList.add(RestoreBackupCmd.class);
         cmdList.add(PrepareNetBackupRestoreCmd.class);
@@ -3589,13 +3931,15 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     continue;
                 }
                 final BackupOffering offering = backupOfferingDao.findById(backup.getBackupOfferingId());
-                if (offering != null && BackupProviderNameUtils.isNetBackupFamily(offering.getProvider())) {
-                    if (Backup.Status.BackingUp.equals(backup.getStatus())) {
-                        logger.debug("Skipping removal of NetBackup backup [{}] for VM [{}] because it is still BackingUp.",
+                if (offering != null) {
+                    final boolean netBackupFamily = BackupProviderNameUtils.isNetBackupFamily(offering.getProvider());
+                    final boolean veeamFamily = BackupProviderNameUtils.isVeeamFamily(offering.getProvider());
+                    if ((netBackupFamily || veeamFamily) && Backup.Status.BackingUp.equals(backup.getStatus())) {
+                        logger.debug("Skipping removal of backup [{}] for VM [{}] because it is still BackingUp.",
                                 backup.getId(), vm.getInstanceName());
                         continue;
                     }
-                    if (Backup.Status.Error.equals(backup.getStatus()) || Backup.Status.Failed.equals(backup.getStatus())) {
+                    if (netBackupFamily && (Backup.Status.Error.equals(backup.getStatus()) || Backup.Status.Failed.equals(backup.getStatus()))) {
                         logger.warn("Skipping removal of NetBackup backup [{}] for VM [{}] because it is in [{}] state and requires explicit delete.",
                                 backup.getId(), vm.getInstanceName(), backup.getStatus());
                         continue;
@@ -3819,7 +4163,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         response.setSize(backup.getSize());
         response.setProtectedSize(backup.getProtectedSize());
         response.setStatus(backup.getStatus());
-        response.setIntervalType(offering != null && BackupProviderNameUtils.isNetBackupFamily(offering.getProvider()) ? "EXTERNAL" : "MANUAL");
+        final boolean externalProvider = offering != null
+                && (BackupProviderNameUtils.isNetBackupFamily(offering.getProvider())
+                || BackupProviderNameUtils.isVeeamFamily(offering.getProvider()));
+        response.setIntervalType(externalProvider ? "EXTERNAL" : "MANUAL");
         if (backup.getCompressionStatus() != null) {
             response.setCompressionStatus(backup.getCompressionStatus());
             if (backup.getUncompressedSize() != null && backup.getUncompressedSize() > 0) {
@@ -3833,6 +4180,12 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             BackupScheduleVO scheduleVO = backupScheduleDao.findById(backup.getBackupScheduleId());
             if (scheduleVO != null) {
                 response.setIntervalType(scheduleVO.getScheduleType().toString());
+            }
+        } else if (offering != null && BackupProviderNameUtils.isVeeamFamily(offering.getProvider())) {
+            final Map<String, String> veeamDetails = getDetailsFromBackupDetails(backup.getId());
+            final String veeamInterval = veeamDetails.get(ABLESTACK_VEEAM_INTERVAL_TYPE_DETAIL);
+            if (StringUtils.isNotBlank(veeamInterval)) {
+                response.setIntervalType(veeamInterval);
             }
         }
         // ACS 4.20: For backups taken prior this release the backup.backed_volumes column would be empty hence use vm_instance.backup_volumes

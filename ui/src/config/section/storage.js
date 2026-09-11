@@ -625,7 +625,8 @@ export default {
           dataView: true,
           show: (record) => {
             const provider = (record.provider || '').toLowerCase()
-            return record.state !== 'Destroyed' && provider !== 'netbackup' && provider !== 'ablestack-netbackup'
+            return record.state !== 'Destroyed' && provider !== 'netbackup' && provider !== 'ablestack-netbackup' &&
+              provider !== 'ablestack-veeam' && provider !== 'veeam'
           },
           groupAction: true,
           popup: true,
