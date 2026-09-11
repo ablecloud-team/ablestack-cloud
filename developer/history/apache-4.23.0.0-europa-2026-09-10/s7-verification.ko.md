@@ -72,8 +72,12 @@ S6→S7은 theme table/view와 migration journal 3개만 바뀐다. 기존 journ
 
 모든 소스/Git/설치/검증은 Rocky9.8 amd64 Docker에서 JDK17·Maven3.9.10·Node14/npm6·Python3.10·MySQL8로 실행한다.
 기존 개발 DB/볼륨은 초기화하지 않는다. 로컬 developer/systemvm/simulator/noredist 전체 install은 통과했다.
-UI 전체35 suite / 380 tests, 전체 lint와 최종 변경 경로 lint가 통과했다.
+UI 전체36 suite / 382 tests, 전체 lint와 최종 변경 경로 lint가 통과했다.
 실제 관리 서버 theme API8개 계약(생성·commonname 조회·수정·생략값 보존·빈 값·commonname 필수·일반 사용자 변경 거부·삭제)이 통과했다.
+
+Chromium 연속 화면 이동에서 Axios 0.31의 취소 오류가 네트워크 장애로 처리돼 로그아웃되는 회귀를 발견했다.
+request interceptor의 오류 처리에서 명시적 요청 취소를 구분하고 호출자에게 그대로 반환한다.
+실제 Axios 취소 객체의 기존 실패를 재현했으며, 취소 시 세션 유지와 실제 네트워크 오류 시 기존 로그아웃 동작을 단위 테스트2개로 검증한다.
 
 추가 단위 회귀는 AutogenView, GuiTheme, ImageDeployInstanceButton, ListViewAccounts, Permission에 있다.
 최종 Java 전체 회귀와 Chromium의 실제 관리자/일반 사용자 로그인·역할 메뉴·삭제 확인·한국어/테마 결과는 PR #1039의 최종 검증 기록에 연결한다.
