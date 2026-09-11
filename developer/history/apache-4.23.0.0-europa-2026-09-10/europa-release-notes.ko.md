@@ -76,7 +76,6 @@ S7 이후 Pending 2개는 S2 #990 / S8 #999가 마무리한다.
 자동 테스트·Docker의 실제 관리 API/MySQL·Chromium 검증은 실물 환경 시험의 통과를 의미하지 않는다.
 코드 PR은 자동 검증 후 정상 병합하며, [#1025](https://github.com/ablecloud-team/ablestack-cloud/issues/1025)에 남긴 시험은 모든 코드 통합 후 수행한다.
 
-
 ## S8 최종 코드 확정
 
 Maven/Docker 버전을4.23.0.0으로 확정하고 폐기된 realhostip 도메인 기본값을 독립 DB 단계로 제거했다. 사용자 지정 도메인을 보존하며 SystemVM 인증서 파일 이름과 참조를 함께 전환했다. 고정299개는 최종 판정 완료(Pending0)다. 실물 검증 및 RPM 설치/복구/릴리즈 승인은 #1025에 NOT_RUN으로 남긴다. 일반 사용자 관리자 API 탐색/Promise 정리는 #1042에서 후속 추적한다. [S8 검증](s8-verification.ko.md)과 [복구·인수 문서](s8-recovery-and-handoff.ko.md)를 참조한다.
