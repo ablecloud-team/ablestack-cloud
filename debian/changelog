@@ -1,8 +1,8 @@
 cloudstack (4.23.0.0) unstable; urgency=low
 
-  * Integrate Apache CloudStack 4.23.0.0 for ABLESTACK Europa.
+  * Update the version to 4.23.0.0
 
- -- ABLESTACK developers <dev@ablecloud.io>  Fri, 11 Sep 2026 12:00:00 +0900
+ -- the Apache CloudStack project <dev@cloudstack.apache.org>  Tue, 25 Aug 2026 14:22:31 +0200
 
 cloudstack (4.22.0.0-SNAPSHOT) unstable; urgency=low
 
