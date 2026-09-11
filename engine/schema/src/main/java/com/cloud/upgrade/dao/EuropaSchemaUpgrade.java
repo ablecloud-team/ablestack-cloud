@@ -38,6 +38,7 @@ public final class EuropaSchemaUpgrade {
     public static final String S5B = "europa-4.23-s5b-v1";
     public static final String S5C = "europa-4.23-s5c-v1";
     public static final String S6 = "europa-4.23-s6-v1";
+    public static final String S7 = "europa-4.23-s7-v1";
 
     private EuropaSchemaUpgrade() {
     }

@@ -438,8 +438,8 @@ export default {
     },
     fetchOauthProviders (domain) {
       const params = {}
-      if (domain) {
-        params.domain = domain
+      if (domain || this.$config.loginBaseDomain) {
+        params.domain = this.getLoginDomain(domain)
         this.oauthLoading = true
       }
       getAPI('listOauthProvider', params).then(response => {
@@ -668,7 +668,7 @@ export default {
         loginParams.email = this.email
         loginParams.provider = provider
         loginParams.secretcode = this.secretcode
-        loginParams.domain = this.getLoginDomain(values.domain)
+        loginParams.domain = this.getLoginDomain(this.customActiveKey === 'oauth' ? values.oauthDomain : values.domain)
         this.OauthLogin(loginParams)
           .then((res) => this.loginSuccess(res))
           .catch(err => {

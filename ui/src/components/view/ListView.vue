@@ -780,6 +780,7 @@
               {{ (record.projectname || record.account).concat(' (').concat($t('label.project')).concat(')') }}
             </router-link>
           </template>
+          <span v-else>{{ (record.projectname || record.account).concat(' (').concat($t('label.project')).concat(')') }}</span>
         </template>
       </template>
       <template v-if="column.key === 'resource'">
