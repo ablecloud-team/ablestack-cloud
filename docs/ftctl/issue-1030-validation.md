@@ -44,3 +44,8 @@ Cloud ed40c8b74d, qemu 091a8da에서 각각 codex/fix-1030-checkpoint-producer�
 추가 최종 회귀: rc110 재시작 반복 방지 테스트(old baseline 실패/수정 PASS), lifecycle 71, release tombstone, maintenance PASS. #1034(P1: 기존 손상 증거 UI 복구), #1033(P2: 배포 의존성/스키마/공간 사전 점검)는 별도 후속이다.
 
 최종 상태 조회에서 RBD 4656, VMware 226 모두 CBT_INCREMENTAL/READY/HEALTHY/IDLE를 확인했다. 22 DR projection이 참조하는 DrHardwareCompatibilityPolicy도 기존 JAR에 없어 v10에서 추가했다(별도 Spring bean이 필요 없는 static helper).
+
+## 최종 서비스/API 검증
+13/22/31/32 모두 mold active, /client/ HTTP 200, WEB-INF 보존, 최종 배포 기동 이후 module start failure 없음. 22/31/32 인증 listDrPlans 정상 응답. 13은 원본 broker 기능으로 실제 자동 복구를 수행했지만 listDrPlans는 Unknown API command(432)이며 관리형 DR API 전체 지원을 검증한 서버가 아니다. 역할별 API 등록 검증은 #1033에 반영했다.
+
+PR 반영은 기존 head의 조상 관계 확인 후 fast-forward push로 수행했다. Cloud PR #1022는 기존 upstream 충돌(CONFLICTING), qemu PR #56은 MERGEABLE이며 병합하지 않았다.
