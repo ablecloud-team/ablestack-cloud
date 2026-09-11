@@ -34,10 +34,11 @@ S2 77개 전체 최종 근거는 [s2-final-review.tsv](s2-final-review.tsv)에 �
 | 원본 | 판정 | Europa 적응과 근거 |
 | --- | --- | --- |
 | a7f9756d6267869b96a9209af58c0335835a773d | Adapted | 원본19개 변경 경로 검토. 완료된 schema-42210to42300.sql 대신 독립 S8 단계. 두 폐기 도메인만 NULL 처리. 인증서4개 내용 동일, 이름과 모든 소비 경로 변경. HTTP/HTTPS 사용자 도메인/IP fallback 회귀3 tests. |
-| 463f8d0294702a920e8020b62ae3b67f52ae1473 | Adapted | 원본172개 버전 변경 검토. Europa 추가 모듈을 포함한 Maven/Docker183개 파일의 SNAPSHOT 제거와 공식 changelog 반영. UI package 4.22.0 및 제품 표시 V4.0-4.0.15는 기존 계약 유지. |
+| 463f8d0294702a920e8020b62ae3b67f52ae1473 | Adapted | 원본172개 버전 변경 검토. Europa 추가 모듈을 포함한 Maven/Docker185개 파일의 SNAPSHOT 제거와 공식 changelog 반영. UI package 4.22.0 및 제품 표시 V4.0-4.0.15는 기존 계약 유지. |
 
 적용 코드 fa426a86b3, 회귀 테스트/검토 b594ba4c40. 버전 확정은 정식 태그/릴리즈 게시가 아니다.
-실행 코드의 4.23.0.0-SNAPSHOT 잔여0개. realhostip 문자열은 과거 DB 이력과 S8 정리 조건에만 남는다.
+실행 코드의 4.23.0.0-SNAPSHOT 잔여0개. 개발 Dockerfile 두 곳에 남아 있던4.22 SNAPSHOT 라벨/Marvin 패키지명도4.23.0.0으로 맞췄다.
+SystemVM template.version4.22.0.0은 별도 배포 템플릿 계약이며 이번 원본 version-stamping이 수정한 값이 아니므로 보존한다. realhostip 문자열은 과거 DB 이력과 S8 정리 조건에만 남는다.
 인증서4개는 이전 blob과 바이트 단위 동일하고 셸5개 bash -n 통과했다.
 전체 원본 집합/의존성/적용 SHA/최종 상태 검증은 아래 최종 결과에서 구분한다.
 
