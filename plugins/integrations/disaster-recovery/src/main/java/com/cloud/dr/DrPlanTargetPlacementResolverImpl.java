@@ -65,6 +65,8 @@ public class DrPlanTargetPlacementResolverImpl extends ManagerBase implements Dr
     private DiskOfferingDao diskOfferingDao;
     @Inject
     private NetworkDao networkDao;
+    @Inject
+    private com.cloud.user.AccountManager accountManager;
 
     @Override
     public DrResolvedTargetPlacement resolve(DrPlanVO plan, DrPlanGuidedSpec spec) {
@@ -204,23 +206,31 @@ public class DrPlanTargetPlacementResolverImpl extends ManagerBase implements Dr
             placement.addBlockingReason(DrPlanReadinessValidator.REASON_TARGET_SERVICE_OFFERING_REQUIRED + ":" + serviceOfferingRef);
             return;
         }
+        com.cloud.user.Account caller = org.apache.cloudstack.context.CallContext.current().getCallingAccount();
+        if (caller != null && placement.getZoneId() != null) {
+            accountManager.checkAccess(caller, offering, dataCenterDao.findById(placement.getZoneId()));
+        }
         placement.setServiceOfferingId(serviceOfferingRef);
         placement.setServiceOfferingLocalId(String.valueOf(offering.getId()));
         resolveComputeSizing(offering, guided, placement);
     }
 
-    private void resolveComputeSizing(ServiceOfferingVO offering, DrPlanGuidedSpec guided, DrResolvedTargetPlacement placement) {
-        Integer cpuNumber = firstNonNull(positiveInteger(guided != null ? guided.getTargetCpuNumber() : null), positiveInteger(offering.getCpu()));
-        Integer cpuSpeed = firstNonNull(positiveInteger(guided != null ? guided.getTargetCpuSpeed() : null), positiveInteger(offering.getSpeed()));
-        Integer memory = firstNonNull(positiveInteger(guided != null ? guided.getTargetMemory() : null), positiveInteger(offering.getRamSize()));
+    void resolveComputeSizing(ServiceOfferingVO offering, DrPlanGuidedSpec guided, DrResolvedTargetPlacement placement) {
+        Integer cpuNumber = firstNonNull(positiveInteger(offering.getCpu()), positiveInteger(guided != null ? guided.getTargetCpuNumber() : null));
+        Integer cpuSpeed = firstNonNull(positiveInteger(offering.getSpeed()), positiveInteger(guided != null ? guided.getTargetCpuSpeed() : null));
+        Integer memory = firstNonNull(positiveInteger(offering.getRamSize()), positiveInteger(guided != null ? guided.getTargetMemory() : null));
         if (offering.isDynamic()) {
+            if (guided != null) {
+                validateExplicitComputeValue(offering.getCpu(), guided.getTargetCpuNumber(), "cpuNumber", placement);
+                validateExplicitComputeValue(offering.getSpeed(), guided.getTargetCpuSpeed(), "cpuSpeed", placement);
+                validateExplicitComputeValue(offering.getRamSize(), guided.getTargetMemory(), "memory", placement);
+            }
             if (offering.getCpu() == null) {
                 validateRequiredComputeValue(cpuNumber, "cpuNumber", placement);
                 validateRange(cpuNumber, detailInteger(offering, ApiConstants.MIN_CPU_NUMBER),
                         detailInteger(offering, ApiConstants.MAX_CPU_NUMBER), "cpuNumber", placement);
             }
             if (offering.getSpeed() == null) {
-                cpuSpeed = firstNonNull(cpuSpeed, hostCpuSpeed(placement.getWorkerHostId()));
                 validateRequiredComputeValue(cpuSpeed, "cpuSpeed", placement);
             }
             if (offering.getRamSize() == null) {
@@ -232,6 +242,12 @@ public class DrPlanTargetPlacementResolverImpl extends ManagerBase implements Dr
         placement.setTargetCpuNumber(cpuNumber);
         placement.setTargetCpuSpeed(cpuSpeed);
         placement.setTargetMemory(memory);
+    }
+
+    private void validateExplicitComputeValue(Integer fixed, Integer requested, String field, DrResolvedTargetPlacement placement) {
+        if (fixed == null && requested != null && requested <= 0) {
+            placement.addBlockingReason(DrPlanReadinessValidator.REASON_TARGET_COMPUTE_SIZE_INVALID + ":" + field);
+        }
     }
 
     private void validateRequiredComputeValue(Integer value, String field, DrResolvedTargetPlacement placement) {
@@ -257,14 +273,6 @@ public class DrPlanTargetPlacementResolverImpl extends ManagerBase implements Dr
             return null;
         }
         return positiveInteger(serviceOfferingDetailsDao.getDetail(offering.getId(), key));
-    }
-
-    private Integer hostCpuSpeed(Long hostId) {
-        HostVO host = hostId != null && hostDao != null ? hostDao.findById(hostId) : null;
-        if (host == null || host.getSpeed() == null || host.getSpeed() <= 0L || host.getSpeed() > Integer.MAX_VALUE) {
-            return null;
-        }
-        return host.getSpeed().intValue();
     }
 
     private void resolveNetworks(String networkRefs, Long zoneId, DrResolvedTargetPlacement placement) {

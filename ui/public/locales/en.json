@@ -7474,5 +7474,10 @@
   "message.storage.service.runtime.rollback.failed": "Runtime rollback failed. Manual recovery is required.",
   "label.dr.test.source.independent": "Use sealed checkpoint without source access",
   "message.dr.test.source.independent": "Uses an existing sealed target checkpoint. Missing or mismatched seals are rejected. Select an isolated network or disable the network adapters.",
-  "message.dr.confirm.force.delete.plan": "Force deletes the DR plan registration only. Virtual machines and volumes are preserved. Remote replication jobs and test resources may remain and require manual stop and cleanup on their hosts."
+  "message.dr.confirm.force.delete.plan": "Force deletes the DR plan registration only. Virtual machines and volumes are preserved. Remote replication jobs and test resources may remain and require manual stop and cleanup on their hosts.",
+  "label.dr.target.cpu.number": "Target CPU count",
+  "label.dr.target.cpu.speed": "Target CPU speed (MHz)",
+  "label.dr.target.memory.mib": "Target memory (MiB)",
+  "message.dr.target.compute.range": "Range: {min}–{max} (integer)",
+  "message.dr.target.compute.invalid": "{field}: enter an integer between {min} and {max}."
 }

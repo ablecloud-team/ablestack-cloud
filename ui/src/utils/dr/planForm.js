@@ -44,9 +44,8 @@ const DR_PLAN_STRUCTURAL_EDIT_FIELDS = new Set([
 ])
 
 export function resolveTargetComputeSizingValue (resolvedValue, existingValue, preserveExisting) {
-  const resolved = positiveInteger(resolvedValue)
-  if (resolved) return resolved
-  return preserveExisting ? positiveInteger(existingValue) : undefined
+  if (preserveExisting && existingValue !== undefined) return existingValue
+  return positiveInteger(resolvedValue)
 }
 
 export function resolveDrSourceDiskType (details = {}, path = '') {
@@ -131,4 +130,20 @@ export function buildActiveDrRunQuery (planId) {
     page: 1,
     pagesize: 20
   }
+}
+
+export function targetComputeFields (details = {}) {
+  return [
+    { key: 'targetcpunumber', label: 'label.dr.target.cpu.number', fixed: details.cpu, min: details.mincpunumber, max: details.maxcpunumber },
+    { key: 'targetcpuspeed', label: 'label.dr.target.cpu.speed', fixed: details.speed },
+    { key: 'targetmemory', label: 'label.dr.target.memory.mib', fixed: details.memoryMb, min: details.minmemory, max: details.maxmemory }
+  ].map(field => ({ ...field, fixed: positiveInteger(field.fixed), min: positiveInteger(field.min) || 1, max: positiveInteger(field.max) || 2147483647 }))
+}
+
+export function invalidTargetComputeField (fields, form) {
+  return fields.find(field => {
+    if (field.fixed) return false
+    const value = positiveInteger(form[field.key])
+    return !value || value < field.min || value > field.max
+  })
 }

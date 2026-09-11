@@ -74,6 +74,11 @@ public class DrPlanGuidedSpecBuilder extends ManagerBase {
             return;
         }
         DrPlanGeneratedSpec generated = build(plan, spec);
+        for (String reason : generated.getBlockingReasons()) {
+            if (reason.startsWith(DrPlanReadinessValidator.REASON_TARGET_COMPUTE_SIZE_INVALID)) {
+                throw new com.cloud.exception.InvalidParameterValueException(reason);
+            }
+        }
         plan.setMappingJson(generated.getMappingJson());
         plan.setScheduleJson(generated.getScheduleJson());
         plan.setPolicyJson(generated.getPolicyJson());
