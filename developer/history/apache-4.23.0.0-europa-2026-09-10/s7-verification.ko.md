@@ -93,7 +93,6 @@ S7은 릴리즈 태그나 배포를 수행하지 않으며, 현재 Snapshot과 �
 실물 호스트/HSM/IdP/DNS/백업 provider 및 운영 규모 복구는 NOT_RUN이며 코드 병합 조건으로 삼지 않는다.
 코드 PR은 자동 검증 후 정상 병합하고 최종 RC/실물 시험 판정은 S8 #999에서 수행한다.
 
-
 ## 동시 upstream 병합의 호환성 확인
 
 S7 PR #1039의 실제 병합 SHA는 88d3be1090af51fcb5daec77fc8de3a83926dcf9다.
