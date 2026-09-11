@@ -59,6 +59,50 @@ public class FtctlDrSiteAgentBrokerServiceImplTest {
     @Mock private UserVmDao userVmDao;
     @InjectMocks private FtctlDrSiteAgentBrokerServiceImpl brokerService;
 
+    @Test
+    public void transportsPublicationErrorWithoutPromotingItToAuthority() throws Exception {
+        HostVO old = host(41L, "old-worker");
+        HostVO current = host(42L, "candidate-worker");
+        eligible(old, current);
+        FtctlDrStatusCommand command = new FtctlDrStatusCommand("plan-uuid", null,
+                FtctlDrStatusCommand.StatusScope.PLAN_AUTHORITY);
+        com.cloud.agent.api.FtctlDrStatusAnswer recovery = new com.cloud.agent.api.FtctlDrStatusAnswer(command,
+                false, "history invalid", "plan-uuid", null, "error", "UNKNOWN", "status-validation", 0,
+                null, null, null, null, "DR_STATUS_CYCLE_EVIDENCE_CONFLICT", 0, "",
+                "{\"plan_uuid\":\"plan-uuid\",\"checkpoint_publication_recovery_only\":true,\"checkpoint_publication_pending\":\"{}\"}");
+        com.cloud.agent.api.FtctlDrStatusAnswer stale = statusAnswer(command, "READY", "old");
+        stale.setLatestCompletedCycleSequence(999L);
+        Mockito.when(agentManager.send(Mockito.eq(41L), Mockito.any(Command.class))).thenReturn(stale);
+        Mockito.when(agentManager.send(Mockito.eq(42L), Mockito.any(Command.class))).thenReturn(recovery);
+        FtctlDrSiteAgentCommandResponse response = brokerService.execute("STATUS", new Gson().toJson(command), null);
+        Assert.assertEquals("candidate-worker", response.getWorkerHostUuid());
+        Assert.assertFalse(response.getResult());
+        for (String state : new String[] {"RELEASED", "UNPROTECTED", "FAILED_OVER", "CUTOVER_READY", "FAILBACK_READY"}) {
+            Mockito.when(agentManager.send(Mockito.eq(41L), Mockito.any(Command.class))).thenReturn(statusAnswer(command, state, "authority"));
+            Assert.assertEquals(state, "old-worker", brokerService.execute("STATUS", new Gson().toJson(command), null).getWorkerHostUuid());
+        }
+    }
+
+    @Test
+    public void historicalErrorWithoutPendingDoesNotReviveRetiredWorker() throws Exception {
+        eligible(host(41L, "retired-worker"), host(42L, "damaged-worker"));
+        FtctlDrStatusCommand command = new FtctlDrStatusCommand("plan-uuid", null,
+                FtctlDrStatusCommand.StatusScope.PLAN_AUTHORITY);
+        com.cloud.agent.api.FtctlDrStatusAnswer failure = new com.cloud.agent.api.FtctlDrStatusAnswer(command,
+                false, "history invalid", "plan-uuid", null, "error", "UNKNOWN", "status-validation", 0,
+                null, null, null, null, "DR_STATUS_CYCLE_EVIDENCE_CONFLICT", 0, "",
+                "{\"plan_uuid\":\"plan-uuid\"}");
+        com.cloud.agent.api.FtctlDrStatusAnswer other = statusAnswer(command, "READY", "old");
+        Mockito.when(agentManager.send(Mockito.eq(41L), Mockito.any(Command.class))).thenReturn(other);
+        Mockito.when(agentManager.send(Mockito.eq(42L), Mockito.any(Command.class))).thenReturn(failure);
+        FtctlDrSiteAgentCommandResponse response = brokerService.execute("STATUS", new Gson().toJson(command), null);
+        Assert.assertEquals("damaged-worker", response.getWorkerHostUuid());
+        Assert.assertFalse(response.getResult());
+        other.setSchedulerPidAlive(true);
+        other.setSchedulerHealth("HEALTHY");
+        Assert.assertEquals("retired-worker", brokerService.execute("STATUS", new Gson().toJson(command), null).getWorkerHostUuid());
+    }
+
     @Test public void reverseExportAlwaysUsesOwnershipCoordinator() {
         FtctlDrActionCommand command = new FtctlDrActionCommand(FtctlDrActionCommand.Action.TARGET_EXPORT_STOP, "plan", "run");
         command.setRole("reverse-target");

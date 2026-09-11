@@ -288,7 +288,8 @@ public class LibvirtFtctlDrStatusCommandWrapper extends CommandWrapper<FtctlDrSt
             String message = StringUtils.equals(cycleEvidenceState, "INCOMPLETE")
                     ? "FTCTL_DR latest completed cycle evidence is incomplete and may be retried"
                     : "FTCTL_DR latest completed cycle identity/generation conflicts with Plan authority";
-            return validationAnswer(command, errorCode, message, exitValue, cycleEvidenceState);
+            return validationAnswer(command, errorCode, message, exitValue, cycleEvidenceState,
+                    publicationRecoveryEvidence(command, payload, exitValue));
         }
         answer.setCycleContractVersion(1);
         answer.setCycleEvidenceState("COMPLETE");
@@ -520,6 +521,36 @@ public class LibvirtFtctlDrStatusCommandWrapper extends CommandWrapper<FtctlDrSt
         return "COMPLETE";
     }
 
+    private JsonObject publicationRecoveryEvidence(FtctlDrStatusCommand command, JsonObject payload, int exitValue) {
+        String activeSide = LibvirtFtctlDrCommandHelper.getString(payload, "active_side");
+        // Legacy remote source profiles omit active_side. This is only a
+        // publication transport hint; Cloud still requires Plan SOURCE authority.
+        if (exitValue != 0 || command.getStatusScope() != FtctlDrStatusCommand.StatusScope.PLAN_AUTHORITY
+                || (StringUtils.isNotBlank(activeSide) && !StringUtils.equalsIgnoreCase("SOURCE", activeSide))
+                || !StringUtils.equalsAnyIgnoreCase(LibvirtFtctlDrCommandHelper.getString(payload, "state"),
+                        "READY", "SYNCING", "PAUSED")) {
+            return null;
+        }
+        try {
+            String encoded = LibvirtFtctlDrCommandHelper.getString(payload, "checkpoint_publication_pending");
+            JsonObject pending = LibvirtFtctlWrapperHelper.parseSingleJsonObject(encoded);
+            if (pending == null || !pending.has("request") || !pending.get("request").isJsonObject()) return null;
+            JsonObject request = pending.getAsJsonObject("request");
+            Long sequence = LibvirtFtctlDrCommandHelper.getLong(request, "checkpointSequence");
+            if (!StringUtils.equals(command.getPlanUuid(), LibvirtFtctlDrCommandHelper.getString(request, "planUuid"))
+                    || StringUtils.isBlank(LibvirtFtctlDrCommandHelper.getString(request, "producerRunUuid"))
+                    || sequence == null || sequence <= 0 || !request.has("disks")
+                    || !request.get("disks").isJsonArray() || request.getAsJsonArray("disks").size() == 0) return null;
+            JsonObject evidence = new JsonObject();
+            evidence.addProperty("checkpoint_publication_recovery_only", true);
+            evidence.addProperty("checkpoint_publication_pending", encoded);
+            evidence.addProperty("active_side", "SOURCE");
+            return evidence;
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
     private boolean hasValidStatusTypes(JsonObject payload) {
         String[] booleans = {"accepted", "target_materialized", "target_vm_present", "target_storage_present",
                 "target_network_present", "restore_point_present", "data_copied", "metadata_committed",
@@ -575,6 +606,11 @@ public class LibvirtFtctlDrStatusCommandWrapper extends CommandWrapper<FtctlDrSt
 
     private Answer validationAnswer(FtctlDrStatusCommand command, String errorCode, String message, int exitValue,
             String cycleEvidenceState) {
+        return validationAnswer(command, errorCode, message, exitValue, cycleEvidenceState, null);
+    }
+
+    private Answer validationAnswer(FtctlDrStatusCommand command, String errorCode, String message, int exitValue,
+            String cycleEvidenceState, JsonObject publicationEvidence) {
         JsonObject payload = new JsonObject();
         payload.addProperty("command", "dr-status");
         payload.addProperty("result", "error");
@@ -590,6 +626,9 @@ public class LibvirtFtctlDrStatusCommandWrapper extends CommandWrapper<FtctlDrSt
         payload.addProperty("error_message", message);
         if (StringUtils.isNotBlank(cycleEvidenceState)) {
             payload.addProperty("cycle_evidence_state", cycleEvidenceState);
+        }
+        if (publicationEvidence != null) {
+            publicationEvidence.entrySet().forEach(entry -> payload.add(entry.getKey(), entry.getValue()));
         }
         FtctlDrStatusAnswer answer = new FtctlDrStatusAnswer(command, false, message, command.getPlanUuid(), command.getRunUuid(),
                 "error", "UNKNOWN", "status-validation", 0, null, null, null, command.getEventsOffset(),

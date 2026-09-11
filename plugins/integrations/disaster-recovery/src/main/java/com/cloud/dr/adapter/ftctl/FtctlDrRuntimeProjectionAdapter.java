@@ -360,6 +360,15 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
                     GSON.toJson(authorityDetails));
         }
         if (!authorityStatus.getResult() && isStatusBoundaryFailure(authorityStatus)) {
+            if (StringUtils.equalsAny(authorityStatus.getErrorCode(),
+                    "DR_STATUS_CYCLE_EVIDENCE_CONFLICT", "DR_STATUS_CYCLE_EVIDENCE_INCOMPLETE")
+                    && Boolean.TRUE.equals(booleanValue(authorityRuntime, "checkpoint_publication_recovery_only"))
+                    && StringUtils.equalsIgnoreCase(plan.getActiveSide(), "SOURCE")
+                    && StringUtils.equalsIgnoreCase(stringValue(authorityRuntime, "active_side"), "SOURCE")) {
+                // This validates a new candidate at the target; it does not trust,
+                // project or mark success from the rejected historical snapshot.
+                reconcileCheckpointPublication(plan, projectionRun, authorityRuntime, hostId);
+            }
             return handleStatusBoundaryFailure(plan, projectionRun, authorityStatus, authorityDetails,
                     "FTCTL_DR authority status failed validation; last-good projection was retained");
         }
@@ -4651,6 +4660,7 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
                 "DR_STATUS_PAYLOAD_TOO_LARGE",
                 "DR_STATUS_TYPE_MISMATCH",
                 "DR_STATUS_CYCLE_EVIDENCE_INCOMPLETE",
+                "DR_STATUS_CYCLE_EVIDENCE_CONFLICT",
                 "DR_STATUS_CYCLE_SNAPSHOT_INCOHERENT");
     }
 

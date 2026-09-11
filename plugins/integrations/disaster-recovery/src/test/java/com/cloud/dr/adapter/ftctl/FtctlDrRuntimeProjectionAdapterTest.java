@@ -90,6 +90,52 @@ import com.google.gson.JsonParser;
 @RunWith(MockitoJUnitRunner.class)
 public class FtctlDrRuntimeProjectionAdapterTest {
     @Test
+    public void damagedHistoryPublishesNewCandidateButRetainsLastGoodProjection() {
+        DrPlanVO plan = new DrPlanVO("damaged-history", 1L, 2L, DrConstants.DIRECTION_VMWARE_TO_KVM);
+        plan.setEngineType(DrConstants.ENGINE_TYPE_FTCTL_DR);
+        plan.setEngineBindingType(DrConstants.ENGINE_BINDING_TYPE_FTCTL_DR);
+        plan.setActiveSide("SOURCE");
+        JsonObject request = new JsonObject();
+        request.addProperty("planUuid", plan.getUuid());
+        request.addProperty("producerRunUuid", "new-producer");
+        request.addProperty("checkpointSequence", 8);
+        request.add("disks", new com.google.gson.JsonArray());
+        JsonObject pending = new JsonObject(); pending.add("request", request);
+        JsonObject raw = new JsonObject();
+        raw.addProperty("plan_uuid", plan.getUuid());
+        raw.addProperty("active_side", "SOURCE");
+        raw.addProperty("checkpoint_publication_recovery_only", true);
+        raw.addProperty("checkpoint_publication_pending", pending.toString());
+        Mockito.when(agentManager.easySend(Mockito.eq(103L), Mockito.any(FtctlDrStatusCommand.class)))
+                .thenAnswer(invocation -> new FtctlDrStatusAnswer(invocation.getArgument(1), false,
+                        "invalid history", plan.getUuid(), null, "error", "UNKNOWN", "status-validation", 0,
+                        null, null, null, null, "DR_STATUS_CYCLE_EVIDENCE_CONFLICT", 0, "", raw.toString()));
+        JsonObject proof = new JsonObject(); proof.addProperty("state", "COMMITTED");
+        proof.add("contract", request); proof.addProperty("manifestSha256", "target-digest");
+        FtctlDrActionAnswer published = new FtctlDrActionAnswer(new FtctlDrActionCommand(
+                FtctlDrActionCommand.Action.CHECKPOINT_PUBLISH, plan.getUuid(), "new-producer"), true, "ok");
+        ReflectionTestUtils.setField(published, "statusJson", proof.toString());
+        Mockito.when(agentManager.easySend(Mockito.eq(102L), Mockito.any(FtctlDrActionCommand.class))).thenReturn(published);
+        DrAdapterResult result = adapter.refreshPlanProjection(plan);
+        Assert.assertFalse(result.isSuccess());
+        Assert.assertEquals("DR_STATUS_CYCLE_EVIDENCE_CONFLICT", result.getErrorCode());
+        Mockito.verify(agentManager).easySend(Mockito.eq(103L), Mockito.argThat(
+                (com.cloud.agent.api.Command action) -> action instanceof FtctlDrActionCommand
+                        && ((FtctlDrActionCommand) action).getAction() == FtctlDrActionCommand.Action.CHECKPOINT_ACK));
+        Mockito.verify(drPlanRuntimeDao, Mockito.never()).update(Mockito.anyLong(), Mockito.any());
+        Mockito.verify(drRestorePointDao, Mockito.never()).persist(Mockito.any());
+        Mockito.clearInvocations(agentManager);
+        plan.setActiveSide("TARGET");
+        adapter.refreshPlanProjection(plan);
+        Mockito.verify(agentManager, Mockito.never()).easySend(Mockito.anyLong(), Mockito.any(FtctlDrActionCommand.class));
+        Mockito.clearInvocations(agentManager);
+        plan.setActiveSide("SOURCE");
+        raw.remove("checkpoint_publication_recovery_only");
+        adapter.refreshPlanProjection(plan);
+        Mockito.verify(agentManager, Mockito.never()).easySend(Mockito.anyLong(), Mockito.any(FtctlDrActionCommand.class));
+    }
+
+    @Test
     public void checkpointAckRequiresMatchingCommittedTargetSet() {
         DrPlanVO plan = new DrPlanVO("checkpoint", 1L, 2L, DrConstants.DIRECTION_VMWARE_TO_KVM);
         plan.setActiveSide("SOURCE");

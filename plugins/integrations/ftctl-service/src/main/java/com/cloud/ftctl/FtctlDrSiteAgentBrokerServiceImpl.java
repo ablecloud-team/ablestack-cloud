@@ -149,7 +149,7 @@ public class FtctlDrSiteAgentBrokerServiceImpl extends ManagerBase implements Ft
 
     private boolean meaningful(Answer answer) {
         if (!answer.getResult()) {
-            return false;
+            return answer instanceof FtctlDrStatusAnswer && isHistoricalEvidenceFailure((FtctlDrStatusAnswer) answer);
         }
         if (answer instanceof com.cloud.agent.api.FtctlDrStatusAnswer) {
             com.cloud.agent.api.FtctlDrStatusAnswer status = (com.cloud.agent.api.FtctlDrStatusAnswer) answer;
@@ -164,6 +164,26 @@ public class FtctlDrSiteAgentBrokerServiceImpl extends ManagerBase implements Ft
 
     private int compareStatusAuthority(FtctlDrStatusAnswer candidate, FtctlDrStatusAnswer selected,
             Command command) {
+        // Do not fall back to a retired worker's old READY snapshot while the
+        // current worker reports invalid historical evidence. Keep the error
+        // envelope; lifecycle authority and a healthy live worker still win.
+        if (command instanceof FtctlDrStatusCommand
+                && ((FtctlDrStatusCommand) command).getStatusScope() == FtctlDrStatusCommand.StatusScope.PLAN_AUTHORITY
+                && isHistoricalEvidenceFailure(candidate) != isHistoricalEvidenceFailure(selected)) {
+            boolean candidateFailed = isHistoricalEvidenceFailure(candidate);
+            FtctlDrStatusAnswer failed = candidateFailed ? candidate : selected;
+            FtctlDrStatusAnswer other = candidateFailed ? selected : candidate;
+            boolean otherPreferred = StringUtils.equalsAnyIgnoreCase(other.getState(),
+                    "RELEASED", "UNPROTECTED", "FAILED_OVER", "CUTOVER_READY", "FAILBACK_READY")
+                    || (!isPublicationRecovery(failed) && isHealthyReplication(other));
+            return candidateFailed != otherPreferred ? 1 : -1;
+        }
+        if (isHistoricalEvidenceFailure(candidate) && isHistoricalEvidenceFailure(selected)) {
+            int pending = Boolean.compare(isPublicationRecovery(candidate), isPublicationRecovery(selected));
+            if (pending != 0) {
+                return pending;
+            }
+        }
         String requestedRunUuid = command instanceof FtctlDrStatusCommand
                 ? ((FtctlDrStatusCommand) command).getRunUuid() : null;
         int compared = Boolean.compare(runMatches(candidate, requestedRunUuid), runMatches(selected, requestedRunUuid));
@@ -193,6 +213,32 @@ public class FtctlDrSiteAgentBrokerServiceImpl extends ManagerBase implements Ft
             return compared;
         }
         return Integer.compare(stateRank(candidate.getState()), stateRank(selected.getState()));
+    }
+
+    private boolean isHistoricalEvidenceFailure(FtctlDrStatusAnswer status) {
+        if (status == null || status.getResult() || !StringUtils.equalsAny(status.getErrorCode(),
+                "DR_STATUS_CYCLE_EVIDENCE_CONFLICT", "DR_STATUS_CYCLE_EVIDENCE_INCOMPLETE")) {
+            return false;
+        }
+        try {
+            JsonObject raw = new JsonParser().parse(status.getStatusJson()).getAsJsonObject();
+            return StringUtils.isNotBlank(status.getPlanUuid())
+                    && StringUtils.equals(status.getPlanUuid(), raw.get("plan_uuid").getAsString());
+        } catch (RuntimeException e) {
+            return false;
+        }
+    }
+
+    private boolean isPublicationRecovery(FtctlDrStatusAnswer status) {
+        if (status == null || status.getResult() || !StringUtils.equalsAny(status.getErrorCode(),
+                "DR_STATUS_CYCLE_EVIDENCE_CONFLICT", "DR_STATUS_CYCLE_EVIDENCE_INCOMPLETE")) return false;
+        try {
+            JsonObject raw = new JsonParser().parse(status.getStatusJson()).getAsJsonObject();
+            return raw.has("checkpoint_publication_recovery_only")
+                    && raw.get("checkpoint_publication_recovery_only").getAsBoolean()
+                    && raw.has("checkpoint_publication_pending")
+                    && StringUtils.equals(status.getPlanUuid(), raw.get("plan_uuid").getAsString());
+        } catch (RuntimeException e) { return false; }
     }
 
     private boolean isHealthyReplication(FtctlDrStatusAnswer status) {
