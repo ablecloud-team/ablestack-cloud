@@ -41,3 +41,6 @@ WSL rocky ext4 `/home/ablecloud/work/dhslove/ablestack-cloud-issue971`에서 변
 실제 실패/취소/재시작의 모든 타이밍을 운영 VM에서 새로 장애 주입한 시험은 아니다. 조기 성공 원인 callback 재현과 실패/미완료 거부는 모듈 회귀로, 실제 요청·전송·대상 게시·UI 완료는 qcow2/RBD에서 검증했다. 기존 failover/failback/placement 계약 변경 없음. 전체 물리 장애·마이그레이션 재시험이나 전체 릴리즈 완료로 확대 해석하지 않는다.
 
 로컬 상세 증거: `/home/ablecloud/work/issue967-evidence`의 baseline-reproduction.log, module-final-build.log, qemu-*.log, deploy-*.log, installed-verification.json, qcow2/rbd-monitor.log, *-runtime-*.json, *-target-commit.json, *-proof-verified.json.
+
+## 최종 자동 증분 복귀
+추가 UI 조작/복제 worker 재시작/DB 수정 없이 qcow2 1932, RBD 4690, VMware 258 CBT_INCREMENTAL까지 전진했다. 모두 READY / HEALTHY / IDLE, scheduler PID는 배포 전과 동일(qcow2 707219, RBD 3152656, VMware 1476442). 전체 재동기화 완료 후 qcow2 UI의 테스트 페일오버 메뉴 재활성도 확인했다. `final-auto-complete-*.json`에 기록했다.
