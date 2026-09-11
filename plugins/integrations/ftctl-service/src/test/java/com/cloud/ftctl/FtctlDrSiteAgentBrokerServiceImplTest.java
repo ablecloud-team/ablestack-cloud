@@ -306,8 +306,8 @@ public class FtctlDrSiteAgentBrokerServiceImplTest {
         eligible(stale, current);
         FtctlDrStatusCommand command = new FtctlDrStatusCommand("plan-uuid", null,
                 FtctlDrStatusCommand.StatusScope.PLAN_AUTHORITY);
-        com.cloud.agent.api.FtctlDrStatusAnswer staleError = statusAnswer(command, "ERROR", "old error");
-        staleError.setSchedulerPidAlive(false);
+        com.cloud.agent.api.FtctlDrStatusAnswer staleError = statusAnswer(command, "WAITING_SOURCE", "old error");
+        staleError.setSchedulerPidAlive(true);
         staleError.setAuthoritySequence(14000L);
         Field errorCode = staleError.getClass().getDeclaredField("errorCode");
         errorCode.setAccessible(true);

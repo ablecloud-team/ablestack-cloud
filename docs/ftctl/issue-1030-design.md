@@ -34,3 +34,6 @@ producer identity는 plan/Run/sequence만 사용하며 host UUID, PID, VM 배치
 2. controller에서 전달받은 과거 durable checkpoint에는 새 호스트의 NBD drain 증거가 없습니다. 그런데 seed_relocated_baseline이 incrementalVerified=true를 그대로 복사했습니다. 해당 imported reference는 durable 정보만 유지하고 로컬 incremental verification은 unknown으로 둡니다. 다음 실제 cycle의 검증 결과는 기존대로 기록합니다. DRAINED를 임의 생성하지 않습니다.
 
 이전 NO_CHANGE만 다룬 relocation 회귀를 CBT_INCREMENTAL로 바꾸고 실제 profile 비식별화까지 검사합니다. 실제 UI 복구 및 재마이그레이션 검증을 이어갑니다.
+
+## #1032 재마이그레이션 추가 회귀
+VM 부재 rc110이 generic failure로 종료되어 systemd가 재시작하고 RECOVERING을 반복했다. 새 오류를 유지하지 못해 Cloud 자동 복구 eligibility가 영구 false가 되는 실환경 실패를 확인했다. rc110은 bounded source retry로 전환하며 같은 sequence/producer를 보존하고 scheduler_recovery_state=REQUIRED로 현재 배치 재해결을 요청한다. VMware rc98의 PENDING 대기는 유지한다. 사용자 pause/stop은 기존 sleep/control 경계를 그대로 따른다. broker는 해당 명시적 source-runtime 오류에 한해 살아 있지만 VM을 실행할 수 없는 WAITING_SOURCE worker도 정상 새 worker보다 낮게 선택한다. lifecycle authority 비교는 변경하지 않는다.

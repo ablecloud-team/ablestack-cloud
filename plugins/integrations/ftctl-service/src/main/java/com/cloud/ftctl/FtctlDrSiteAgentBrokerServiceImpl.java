@@ -202,8 +202,7 @@ public class FtctlDrSiteAgentBrokerServiceImpl extends ManagerBase implements Ft
     }
 
     private boolean isRetiredSourceRuntime(FtctlDrStatusAnswer status) {
-        return Boolean.FALSE.equals(status.getSchedulerPidAlive())
-                && StringUtils.equalsIgnoreCase(status.getState(), "ERROR")
+        return StringUtils.equalsAnyIgnoreCase(status.getState(), "ERROR", "WAITING_SOURCE")
                 && StringUtils.equals(status.getErrorCode(), "DR_QCOW2_SOURCE_RUNTIME_UNAVAILABLE");
     }
 
