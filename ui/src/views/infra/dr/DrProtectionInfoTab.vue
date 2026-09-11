@@ -386,6 +386,27 @@
     </section>
 
     <section class="cross-dr-protection-info__section">
+      <h3>{{ $t('label.dr.reverse.evidence') }}</h3>
+      <a-descriptions size="small" :column="2" bordered>
+        <a-descriptions-item :label="$t('label.dr.reverse.origin.checkpoint')">
+          {{ protectionPlan.reverseorigincheckpointsequence || '-' }}
+        </a-descriptions-item>
+        <a-descriptions-item :label="$t('label.dr.reverse.origin.ref')">
+          {{ protectionPlan.reverseorigincheckpointref || '-' }}
+        </a-descriptions-item>
+        <a-descriptions-item :label="$t('label.dr.reverse.verification.method')">
+          {{ protectionPlan.reverseverificationmethod || $t('label.dr.evidence.unavailable') }}
+        </a-descriptions-item>
+        <a-descriptions-item :label="$t('label.dr.reverse.readback')">
+          {{ protectionPlan.reversereadbackverified === true ? $t('label.yes') : protectionPlan.reversereadbackverified === false ? $t('label.dr.readback.not.performed') : $t('label.dr.evidence.unavailable') }}
+        </a-descriptions-item>
+        <a-descriptions-item :label="$t('label.dr.reverse.readback.bytes')">
+          {{ protectionPlan.reversereadbackverifiedbytes == null ? '-' : protectionPlan.reversereadbackverifiedbytes }}
+        </a-descriptions-item>
+      </a-descriptions>
+    </section>
+
+    <section class="cross-dr-protection-info__section">
       <h3>{{ $t('label.dr.latest.durable.checkpoint') }}</h3>
       <a-descriptions v-if="latestCompletedCheckpoint && latestCompletedCheckpoint.id" size="small" :column="2" bordered>
         <a-descriptions-item :label="$t('label.dr.engine.checkpoint.sequence')">

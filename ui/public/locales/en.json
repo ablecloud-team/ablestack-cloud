@@ -7479,5 +7479,13 @@
   "label.dr.target.cpu.speed": "Target CPU speed (MHz)",
   "label.dr.target.memory.mib": "Target memory (MiB)",
   "message.dr.target.compute.range": "Range: {min}–{max} (integer)",
-  "message.dr.target.compute.invalid": "{field}: enter an integer between {min} and {max}."
+  "message.dr.target.compute.invalid": "{field}: enter an integer between {min} and {max}.",
+  "label.dr.reverse.evidence": "Reverse recovery evidence",
+  "label.dr.reverse.origin.checkpoint": "Cutover source checkpoint",
+  "label.dr.reverse.origin.ref": "Cutover restore point reference",
+  "label.dr.reverse.verification.method": "Transfer verification method",
+  "label.dr.reverse.readback": "Data readback comparison",
+  "label.dr.reverse.readback.bytes": "Readback compared bytes",
+  "label.dr.evidence.unavailable": "No recorded evidence",
+  "label.dr.readback.not.performed": "Not performed"
 }

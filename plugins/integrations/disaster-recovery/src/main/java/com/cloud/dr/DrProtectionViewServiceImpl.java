@@ -394,6 +394,11 @@ public class DrProtectionViewServiceImpl extends ManagerBase implements DrProtec
             copyField(source, target, "writer_state", "reverseWriterState");
             copyField(source, target, "target_written", "reverseTargetWritten");
             copyField(source, target, "write_verified", "reverseWriteVerified");
+            copyField(source, target, "reverse_verification_method", "reverseVerificationMethod");
+            copyField(source, target, "reverse_readback_verified", "reverseReadbackVerified");
+            copyField(source, target, "reverse_readback_verified_bytes", "reverseReadbackVerifiedBytes");
+            copyField(source, target, "reverse_origin_checkpoint_sequence", "reverseOriginCheckpointSequence");
+            copyField(source, target, "reverse_origin_checkpoint_ref", "reverseOriginCheckpointRef");
             copyField(source, target, "reverse_guest_compatibility_state", "reverseGuestCompatibilityState");
         } catch (RuntimeException e) {
             logger.warn("Ignoring malformed DR plan runtime status JSON while building protection view", e);

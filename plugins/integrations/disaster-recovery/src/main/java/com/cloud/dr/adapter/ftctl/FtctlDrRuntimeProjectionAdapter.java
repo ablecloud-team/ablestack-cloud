@@ -5084,6 +5084,11 @@ public class FtctlDrRuntimeProjectionAdapter extends ManagerBase implements DrPr
         JsonObject compact = new JsonObject();
         copyJsonProperty(runtime, compact, "command");
         copyJsonProperty(runtime, compact, "result");
+        copyJsonProperty(runtime, compact, "reverse_verification_method");
+        copyJsonProperty(runtime, compact, "reverse_readback_verified");
+        copyJsonProperty(runtime, compact, "reverse_readback_verified_bytes");
+        copyJsonProperty(runtime, compact, "reverse_origin_checkpoint_sequence");
+        copyJsonProperty(runtime, compact, "reverse_origin_checkpoint_ref");
         copyJsonProperty(runtime, compact, "plan_uuid");
         copyJsonProperty(runtime, compact, "run_uuid");
         copyJsonProperty(runtime, compact, "action");
