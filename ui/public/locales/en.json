@@ -7650,5 +7650,8 @@
   "label.networkorchestrator": "Network Orchestrator",
   "message.action.update.extension.resource": "Update the extension resource registration details",
   "message.success.update.extension.resource": "Successfully updated extension resource registration",
-  "label.delete.confirmation": "Enter the exact resource name to proceed with deletion"
+  "label.delete.confirmation": "Enter the exact resource name to proceed with deletion",
+  "message.oauth.domain.providers.hint": "Enter your domain to see domain-specific providers",
+  "message.oauth.domain.providers.empty": "No OAuth providers configured for this domain",
+  "message.oauth.domain.providers.prompt": "Enter your domain to see available providers"
 }

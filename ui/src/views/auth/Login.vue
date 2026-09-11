@@ -177,7 +177,7 @@
         <div
           v-if="(oauthGithubProvider || oauthGoogleProvider || oauthKeycloakProvider) && !form.oauthDomain"
           style="text-align: center; color: #999; font-size: 12px; margin-bottom: 8px;">
-          Enter your domain to see domain-specific providers
+          {{ $t('message.oauth.domain.providers.hint') }}
         </div>
         <div class="center" v-if="oauthGithubProvider || oauthGoogleProvider || oauthKeycloakProvider">
           <div class="social-auth" v-if="oauthGithubProvider">
@@ -221,8 +221,8 @@
           <a-spin />
         </div>
         <div v-else style="text-align: center; color: #999; padding: 20px 0;">
-          <span v-if="oauthDomainQueried && form.oauthDomain">No OAuth providers configured for this domain</span>
-          <span v-else>Enter your domain to see available providers</span>
+          <span v-if="oauthDomainQueried && form.oauthDomain">{{ $t('message.oauth.domain.providers.empty') }}</span>
+          <span v-else>{{ $t('message.oauth.domain.providers.prompt') }}</span>
         </div>
       </a-tab-pane>
     </a-tabs>
