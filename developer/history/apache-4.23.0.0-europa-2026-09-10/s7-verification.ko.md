@@ -92,3 +92,27 @@ S7은 릴리즈 태그나 배포를 수행하지 않으며, 현재 Snapshot과 �
 [s7-dependencies.tsv](s7-dependencies.tsv)와 [#1025](https://github.com/ablecloud-team/ablestack-cloud/issues/1025)에 최종 실물 시험을 인수한다.
 실물 호스트/HSM/IdP/DNS/백업 provider 및 운영 규모 복구는 NOT_RUN이며 코드 병합 조건으로 삼지 않는다.
 코드 PR은 자동 검증 후 정상 병합하고 최종 RC/실물 시험 판정은 S8 #999에서 수행한다.
+
+## 동시 upstream 병합의 호환성 확인
+
+S7 PR #1039의 실제 병합 SHA는 88d3be1090af51fcb5daec77fc8de3a83926dcf9다.
+병합 시 별도 Veeam PR #1038이 먼저 반영되어 첫 부모는 03a26033ef096c75c5143bf48bcf05702973aba6다.
+실제 tree는 두 부모의 자동 merge-tree와 일치한다. 공유 경로는 ApiConstants.java 하나이며 상수 추가 위치가 겹치지 않는다.
+그 외 S7 변경 파일은 최종 PR HEAD fe4a198eea6161790e2ba3ce48097de53ac1524e와 동일하고, 합쳐진 UI36 suite/382 tests도 통과했다.
+
+별도 PR에서 추가한 ablestack-veeam 모듈의 부모 POM이 4.22.0.0-SNAPSHOT에 남아 reactor 구성이 실패했다.
+기존 4.23 reactor에 맞도록 부모 버전을 수정한다.
+Veeam noredist 프로파일이 compiler configuration 전체를 비워 부모의 Java 11 source/target 설정을 지우던 문제도 수정한다.
+VMware provider의 소스/테스트 제외 목록만 해제하고, 부모의 source/target 등 컴파일 설정은 상속한다. Veeam 기능 구현과 실물 검증 범위를 추가하지 않는다.
+후속 호환 PR의 최종 전체 컴파일/CI·동기화 결과는 #998 완료 기록에서 확인한다.
+이는 Apache 고정299개 원본 판정을 바꾸지 않으며, 실물 검증은 #1025에 인수한다.
+
+후속 CI에서 별도 Veeam 변경의 라이선스 헤더 누락16개도 발견했다.
+스크립트·설정·문서15개에 저장소의 Apache 헤더를 추가하고, 헤더를 제외한 원문 바이트가 동일한지 확인했다.
+주석을 넣을 수 없는 ablestack.key.default는 기존 *.key 데이터 제외와 동일한 취지로 RAT에 정확한 경로만 추가했다.
+키의 내용과 형식은 변경하지 않는다. 셸10개의 bash -n 및 tracked-source RAT 검사를 수행한다.
+
+전체 CI에서 mount helper 변경 후 구형 Script API를 mock하던 복원 실패 테스트1개를 발견했다.
+새 마운트 실행 함수에 exit1을 주입하고, 30초 timeout·기존 실패 응답·임시 디렉터리 정리를 확인하도록 테스트를 수정했다.
+실패 조건을 완화하거나 실제 복원 코드를 변경하지 않는다. 해당 복원 테스트14개가 통과했다.
+KVM 전체972 tests와 이전 CI에서 건너뛴 의존 모듈223 tests도 실패/오류0으로 확인했다.
