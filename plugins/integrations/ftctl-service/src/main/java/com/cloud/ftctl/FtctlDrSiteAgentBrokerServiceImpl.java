@@ -170,6 +170,14 @@ public class FtctlDrSiteAgentBrokerServiceImpl extends ManagerBase implements Ft
         if (compared != 0) {
             return compared;
         }
+        // A retired source can keep increasing its local sequence after VM relocation.
+        // This exception applies only to source-runtime absence, never lifecycle authority.
+        if (isHealthyReplication(candidate) && isRetiredSourceRuntime(selected)) {
+            return 1;
+        }
+        if (isHealthyReplication(selected) && isRetiredSourceRuntime(candidate)) {
+            return -1;
+        }
         compared = Long.compare(statusSequence(candidate), statusSequence(selected));
         if (compared != 0) {
             return compared;
@@ -185,6 +193,18 @@ public class FtctlDrSiteAgentBrokerServiceImpl extends ManagerBase implements Ft
             return compared;
         }
         return Integer.compare(stateRank(candidate.getState()), stateRank(selected.getState()));
+    }
+
+    private boolean isHealthyReplication(FtctlDrStatusAnswer status) {
+        return Boolean.TRUE.equals(status.getSchedulerPidAlive())
+                && StringUtils.equalsIgnoreCase(status.getSchedulerHealth(), "HEALTHY")
+                && StringUtils.equalsAnyIgnoreCase(status.getState(), "READY", "SYNCING", "PAUSED");
+    }
+
+    private boolean isRetiredSourceRuntime(FtctlDrStatusAnswer status) {
+        return Boolean.FALSE.equals(status.getSchedulerPidAlive())
+                && StringUtils.equalsIgnoreCase(status.getState(), "ERROR")
+                && StringUtils.equals(status.getErrorCode(), "DR_QCOW2_SOURCE_RUNTIME_UNAVAILABLE");
     }
 
     private boolean runMatches(FtctlDrStatusAnswer status, String requestedRunUuid) {

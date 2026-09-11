@@ -308,8 +308,14 @@ public class FtctlDrSiteAgentBrokerServiceImplTest {
                 FtctlDrStatusCommand.StatusScope.PLAN_AUTHORITY);
         com.cloud.agent.api.FtctlDrStatusAnswer staleError = statusAnswer(command, "ERROR", "old error");
         staleError.setSchedulerPidAlive(false);
+        staleError.setAuthoritySequence(14000L);
+        Field errorCode = staleError.getClass().getDeclaredField("errorCode");
+        errorCode.setAccessible(true);
+        errorCode.set(staleError, "DR_QCOW2_SOURCE_RUNTIME_UNAVAILABLE");
         com.cloud.agent.api.FtctlDrStatusAnswer ready = statusAnswer(command, "READY", "ready");
         ready.setSchedulerPidAlive(true);
+        ready.setSchedulerHealth("HEALTHY");
+        ready.setAuthoritySequence(13000L);
         Mockito.when(agentManager.send(Mockito.eq(41L), Mockito.any(Command.class))).thenReturn(staleError);
         Mockito.when(agentManager.send(Mockito.eq(42L), Mockito.any(Command.class))).thenReturn(ready);
 
@@ -352,6 +358,25 @@ public class FtctlDrSiteAgentBrokerServiceImplTest {
     @Test
     public void registersBrokerApiWithAlwaysOnFtctlService() {
         Assert.assertTrue(new FtctlServiceImpl().getCommands().contains(ExecuteFtctlDrSiteAgentCommandCmd.class));
+    }
+
+    @Test
+    public void replicationLivenessDoesNotOverrideLifecycleAuthority() throws Exception {
+        FtctlDrStatusCommand command = new FtctlDrStatusCommand("plan-uuid", null,
+                FtctlDrStatusCommand.StatusScope.PLAN_AUTHORITY);
+        com.cloud.agent.api.FtctlDrStatusAnswer ready = statusAnswer(command, "READY", "replication");
+        ready.setSchedulerPidAlive(true);
+        ready.setSchedulerHealth("HEALTHY");
+        ready.setAuthoritySequence(10L);
+        java.lang.reflect.Method compare = brokerService.getClass().getDeclaredMethod("compareStatusAuthority",
+                ready.getClass(), ready.getClass(), Command.class);
+        compare.setAccessible(true);
+        for (String state : Arrays.asList("RELEASED", "FAILED_OVER", "CUTOVER_READY", "FAILBACK_READY", "PAUSED")) {
+            com.cloud.agent.api.FtctlDrStatusAnswer authority = statusAnswer(command, state, "authority");
+            authority.setSchedulerPidAlive(false);
+            authority.setAuthoritySequence(20L);
+            Assert.assertTrue(state, (Integer) compare.invoke(brokerService, ready, authority, command) < 0);
+        }
     }
 
     private HostVO host(long id, String uuid) {
