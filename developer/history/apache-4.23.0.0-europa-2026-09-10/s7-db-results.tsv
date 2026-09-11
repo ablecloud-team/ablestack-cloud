@@ -1,0 +1,21 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+scenario	table_views	version_rows	journal_rows	result	snapshot_sha256	evidence
+fresh	473	52	15	PASS	55a0577e97347ea4f283ce8e828b23e7149b55bb188924670e8d9c036343adf5	Actual DatabaseCreator/DatabaseUpgradeChecker; repeat schema, all rows and journal timestamps identical
+upgrade	473	51	6	PASS	a1b359066ebe0865e2c27eabf5d43d8616875927a576b4e775117c66328510ec	Actual DatabaseCreator/DatabaseUpgradeChecker; repeat schema, all rows and journal timestamps identical
+s6	473	52	15	PASS	67b1cebcb14bd9d9451ff0e744d9102fbdbf8431dbc44fefe7f93f6e031ee33e	Actual DatabaseCreator/DatabaseUpgradeChecker; repeat schema, all rows and journal timestamps identical
+committed-ddl-retry				PASS		Failure after S7 DDL commit; Pending/replay/Complete/repeat; existing theme/domain and S6 Complete timestamp preserved
