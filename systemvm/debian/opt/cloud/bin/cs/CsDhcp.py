@@ -215,6 +215,10 @@ class CsDhcp(CsDataBag):
 
             try:
                 with os.fdopen(fd, "w") as tmp:
+                    # Keep dnsmasq's ownership and access mode when replacing its lease file.
+                    original = os.fstat(fp.fileno())
+                    os.fchown(tmp.fileno(), original.st_uid, original.st_gid)
+                    os.fchmod(tmp.fileno(), original.st_mode & 0o7777)
                     for line in lines:
                         fields = line.split()
 
@@ -235,6 +239,8 @@ class CsDhcp(CsDataBag):
                 else:
                     os.remove(tmp_path)
             finally:
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
                 fcntl.flock(fp.fileno(), fcntl.LOCK_UN)
 
         return removed
