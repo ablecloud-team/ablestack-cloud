@@ -1433,3 +1433,14 @@ CREATE TABLE IF NOT EXISTS `ftctl_dr_reverse_export` (
   `journal_json` mediumtext NOT NULL,
   PRIMARY KEY (`plan_uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- #980: durable cleanup export phase, not a VM placement binding.
+CREATE TABLE IF NOT EXISTS `dr_cleanup_export_resume` (
+  `cleanup_run_id` BIGINT UNSIGNED NOT NULL,
+  `plan_id` BIGINT UNSIGNED NOT NULL,
+  `revoke_generation` BIGINT UNSIGNED NOT NULL,
+  `observed_worker_uuid` VARCHAR(40) NOT NULL,
+  `disk_fingerprint` CHAR(64) NOT NULL,
+  `drained` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`cleanup_run_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -71,6 +71,62 @@ public class DrPlanOwnedTransportServiceImplTest {
     }
 
     @Test
+    public void recoveryRetriesAndRestartReuseDrainedGenerationWithoutStop() {
+        DrExportOwnershipStore.RecoveryExport prepared = new DrExportOwnershipStore.RecoveryExport();
+        prepared.planId=plan.getId(); prepared.generation=2L; prepared.workerUuid=targetHost.getUuid();
+        prepared.fingerprint=org.apache.commons.codec.digest.DigestUtils.sha256Hex("[]");
+        Mockito.when(exportOwnershipStore.prepareRecoveryExport(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(prepared);
+        Mockito.doAnswer(invocation -> { prepared.drained=true; return null; })
+                .when(exportOwnershipStore).markRecoveryExportDrained(run.getId(), 2L);
+        Mockito.when(agentManager.easySend(Mockito.eq(22L), Mockito.any(FtctlDrActionCommand.class)))
+                .thenAnswer(invocation -> answer(((FtctlDrActionCommand) invocation.getArgument(1)).getAction()
+                        == FtctlDrActionCommand.Action.TARGET_EXPORT_STOP ? "{\"result\":\"ok\"}"
+                        : "{\"result\":\"ok\",\"exports\":[{\"device\":\"sda\",\"port\":11833}]}"));
+        for (int attempt=0; attempt<4; attempt++) {
+            service.restoreForwardTargetExport(plan, run, "{}");
+        }
+        // A newly constructed service has no in-memory recovery state.
+        DrPlanOwnedTransportServiceImpl restarted = new DrPlanOwnedTransportServiceImpl();
+        org.springframework.test.util.ReflectionTestUtils.setField(restarted,"agentManager",agentManager);
+        org.springframework.test.util.ReflectionTestUtils.setField(restarted,"exportOwnershipStore",exportOwnershipStore);
+        org.springframework.test.util.ReflectionTestUtils.setField(restarted,"hostDao",hostDao);
+        org.springframework.test.util.ReflectionTestUtils.setField(restarted,"drRemoteAgentClient",drRemoteAgentClient);
+        org.springframework.test.util.ReflectionTestUtils.setField(restarted,"drWorkerPlacementService",drWorkerPlacementService);
+        restarted.restoreForwardTargetExport(plan,run,"{}");
+        ArgumentCaptor<FtctlDrActionCommand> commands=ArgumentCaptor.forClass(FtctlDrActionCommand.class);
+        Mockito.verify(agentManager,Mockito.times(6)).easySend(Mockito.eq(22L),commands.capture());
+        Assert.assertEquals(1L,commands.getAllValues().stream().filter(c -> c.getAction()==FtctlDrActionCommand.Action.TARGET_EXPORT_STOP).count());
+        Mockito.verify(exportOwnershipStore,Mockito.times(1)).markRecoveryExportDrained(run.getId(),2L);
+        Assert.assertTrue(commands.getAllValues().stream().filter(c -> c.getAction()==FtctlDrActionCommand.Action.TARGET_EXPORT_START)
+                .allMatch(c -> c.getProfileJson().contains("\"exportGeneration\":3")));
+    }
+
+    @Test
+    public void lostStartReplyDoesNotRepeatDrainOnRetry() {
+        DrExportOwnershipStore.RecoveryExport prepared=new DrExportOwnershipStore.RecoveryExport();
+        prepared.planId=plan.getId(); prepared.generation=2L; prepared.workerUuid=targetHost.getUuid();
+        prepared.fingerprint=org.apache.commons.codec.digest.DigestUtils.sha256Hex("[]");
+        Mockito.when(exportOwnershipStore.prepareRecoveryExport(Mockito.anyLong(),Mockito.anyLong(),Mockito.anyString(),Mockito.anyString()))
+                .thenReturn(prepared);
+        Mockito.doAnswer(invocation -> { prepared.drained=true; return null; })
+                .when(exportOwnershipStore).markRecoveryExportDrained(run.getId(),2L);
+        FtctlDrActionAnswer stopped=answer("{}");
+        FtctlDrActionAnswer started=answer("{\"exports\":[{\"device\":\"sda\",\"port\":11833}]}");
+        Mockito.when(agentManager.easySend(Mockito.eq(22L),Mockito.any(FtctlDrActionCommand.class)))
+                .thenReturn(stopped,null,started);
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,
+                () -> service.restoreForwardTargetExport(plan,run,"{}"));
+        Assert.assertTrue(prepared.drained);
+        service.restoreForwardTargetExport(plan,run,"{}");
+        ArgumentCaptor<FtctlDrActionCommand> commands=ArgumentCaptor.forClass(FtctlDrActionCommand.class);
+        Mockito.verify(agentManager,Mockito.times(3)).easySend(Mockito.eq(22L),commands.capture());
+        Assert.assertEquals(FtctlDrActionCommand.Action.TARGET_EXPORT_STOP,commands.getAllValues().get(0).getAction());
+        Assert.assertEquals(FtctlDrActionCommand.Action.TARGET_EXPORT_START,commands.getAllValues().get(1).getAction());
+        Assert.assertEquals(FtctlDrActionCommand.Action.TARGET_EXPORT_START,commands.getAllValues().get(2).getAction());
+    }
+
+    @Test
     public void forwardExportUsesTargetWorkerAndReturnsEndpoints() {
         FtctlDrActionAnswer answer = answer("{\"result\":\"ok\",\"exports\":[{\"device\":\"sda\",\"port\":11833}]}");
         FtctlDrActionAnswer stopped = answer("{\"result\":\"ok\"}");

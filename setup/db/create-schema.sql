@@ -3398,3 +3398,14 @@ CREATE TABLE IF NOT EXISTS `dr_export_host_history` (
   `host_id` BIGINT UNSIGNED NOT NULL,
   PRIMARY KEY (`plan_id`,`host_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- #980: durable cleanup export phase, not a VM placement binding.
+CREATE TABLE IF NOT EXISTS `dr_cleanup_export_resume` (
+  `cleanup_run_id` BIGINT UNSIGNED NOT NULL,
+  `plan_id` BIGINT UNSIGNED NOT NULL,
+  `revoke_generation` BIGINT UNSIGNED NOT NULL,
+  `observed_worker_uuid` VARCHAR(40) NOT NULL,
+  `disk_fingerprint` CHAR(64) NOT NULL,
+  `drained` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`cleanup_run_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

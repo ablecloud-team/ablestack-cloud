@@ -90,6 +90,7 @@ import com.google.gson.JsonParser;
 public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplicationEngine {
     @Inject private com.cloud.dr.DrTestCleanupRecoveryStore testCleanupRecovery;
     @Inject private com.cloud.dr.dao.DrRunDao cleanupRecoveryRunDao;
+    @Inject private com.cloud.dr.dao.DrPlanDao cleanupRecoveryPlanDao;
 
     private static final Logger LOGGER = LogManager.getLogger(FtctlDrUnifiedActionAdapter.class);
     private static final Gson GSON = new Gson();
@@ -700,6 +701,7 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
     }
 
     public void restoreTestCheckpointProtection(DrPlanVO plan, DrRunVO run) {
+        requireCurrentCleanupIntent(plan, run);
         DrExecutionContext context = new DrExecutionContext(plan, run);
         // Probe only in the asynchronous recovery worker, never in artifact cleanup.
         // A disconnected source must not cause a new export generation every retry.
@@ -713,18 +715,27 @@ public class FtctlDrUnifiedActionAdapter extends ManagerBase implements DrReplic
         String profile = buildProfileJson(plan, run, redactJson(requestJson(run)).getAsJsonObject(), null, true);
         if (drPlanOwnedTransportService.supports(plan)) {
             profile = withPlanOwnedExports(profile,
-                    drPlanOwnedTransportService.startForwardTargetExport(plan, run, profile));
+                    drPlanOwnedTransportService.restoreForwardTargetExport(plan, run, profile));
         }
         // Recheck after the bounded target RPC: a newer operator intent wins.
-        DrRunVO latest = cleanupRecoveryRunDao != null ? cleanupRecoveryRunDao.findLatestByPlanId(plan.getId()) : null;
-        if (latest != null && latest.getId() > run.getId()
-                && StringUtils.equalsAnyIgnoreCase(latest.getRunType(), "PAUSE_SYNC", "RELEASE", "FAILOVER")) {
-            throw new CloudRuntimeException("Newer operator intent supersedes test protection restore");
-        }
+        requireCurrentCleanupIntent(plan, run);
         FtctlDrActionAnswer resume = transitionTestCheckpointScheduler(context,
                 FtctlDrActionCommand.Action.RESUME_SYNC, profile);
         if (resume == null || !resume.getResult()) {
             throw new CloudRuntimeException("Protection scheduler did not acknowledge Test Failover cleanup resume");
+        }
+    }
+
+    private void requireCurrentCleanupIntent(DrPlanVO plan, DrRunVO run) {
+        DrPlanVO current = cleanupRecoveryPlanDao != null ? cleanupRecoveryPlanDao.findById(plan.getId()) : plan;
+        DrRunVO latest = cleanupRecoveryRunDao != null ? cleanupRecoveryRunDao.findLatestByPlanId(plan.getId()) : null;
+        if (current == null || current.getRemoved() != null
+                || StringUtils.equalsIgnoreCase(current.getAdminState(), "DISABLED")
+                || StringUtils.equalsIgnoreCase(current.getActiveSide(), "TARGET")
+                || StringUtils.equalsAnyIgnoreCase(current.getState(), "UNPROTECTED", "DISABLED", "FAILED_OVER")
+                || (latest != null && latest.getId() > run.getId()
+                && StringUtils.equalsAnyIgnoreCase(latest.getRunType(), "PAUSE_SYNC", "RELEASE", "FAILOVER"))) {
+            throw new CloudRuntimeException("Newer operator intent supersedes test protection restore");
         }
     }
 

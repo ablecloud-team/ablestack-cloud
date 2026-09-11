@@ -75,6 +75,30 @@ public class DrPlanOwnedTransportServiceImpl extends ManagerBase implements DrPl
     }
 
     @Override
+    public JsonArray restoreForwardTargetExport(DrPlanVO plan, DrRunVO run, String profileJson) {
+        if (!supports(plan)) { return new JsonArray(); }
+        // This is a live placement observation, never a saved execution binding.
+        HostVO targetHost = targetHost(plan);
+        String fingerprint = org.apache.commons.codec.digest.DigestUtils.sha256Hex(
+                GSON.toJson(firstArray(objectAt(parseObject(profileJson), "mapping"), "disks")));
+        DrExportOwnershipStore.RecoveryExport prepared = exportOwnershipStore.prepareRecoveryExport(
+                plan.getId(), run.getId(), targetHost.getUuid(), fingerprint);
+        if (!targetHost.getUuid().equals(prepared.workerUuid) || !fingerprint.equals(prepared.fingerprint)) {
+            throw new CloudRuntimeException("DR cleanup export placement changed; retry with live inventory");
+        }
+        if (!prepared.drained) {
+            revokeForwardExports(plan, run, profileJson, targetHost, prepared.generation, null);
+            // Persist before START: a lost START or RESUME reply must never repeat STOP.
+            exportOwnershipStore.markRecoveryExportDrained(run.getId(), prepared.generation);
+        }
+        FtctlDrActionCommand start = command(plan, run, FtctlDrActionCommand.Action.TARGET_EXPORT_START,
+                "target", targetHost.getUuid(), ownershipProfile(profileJson, prepared.generation + 1));
+        Answer answer = agentManager.easySend(targetHost.getId(), start);
+        requireOwnership(answer, prepared.generation + 1, targetHost.getId());
+        return requireExports(answer, "Target Agent did not restore the Plan-owned export", plan, profileJson);
+    }
+
+    @Override
     public JsonArray startReverseTargetExport(DrPlanVO plan, DrRunVO run, String profileJson) {
         if (!supports(plan)) {
             return new JsonArray();

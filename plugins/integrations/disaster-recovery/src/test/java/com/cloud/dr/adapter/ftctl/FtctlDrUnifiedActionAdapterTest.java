@@ -1457,10 +1457,35 @@ public class FtctlDrUnifiedActionAdapterTest {
     }
 
     @Test
+    public void newerPauseBlocksRestoreBeforeExportPreparation() throws Exception {
+        DrPlanVO plan=ftctlDrPlan(); DrRunVO run=run(DrConstants.RUN_TYPE_TEST_CLEANUP,"{}");
+        Mockito.when(drPlanDao.findById(plan.getId())).thenReturn(plan);
+        com.cloud.dr.dao.DrRunDao dao=Mockito.mock(com.cloud.dr.dao.DrRunDao.class);
+        org.springframework.test.util.ReflectionTestUtils.setField(adapter,"cleanupRecoveryRunDao",dao);
+        DrRunVO pause=run(DrConstants.RUN_TYPE_PAUSE_SYNC,"{}");
+        org.springframework.test.util.ReflectionTestUtils.setField(pause,"id",run.getId()+1);
+        Mockito.when(dao.findLatestByPlanId(plan.getId())).thenReturn(pause);
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,
+                () -> adapter.restoreTestCheckpointProtection(plan,run));
+        Mockito.verifyNoInteractions(drPlanOwnedTransportService);
+    }
+
+    @Test
+    public void changedTargetAuthorityBlocksRestoreBeforeExportPreparation() {
+        DrPlanVO plan=ftctlDrPlan(); DrRunVO run=run(DrConstants.RUN_TYPE_TEST_CLEANUP,"{}");
+        Mockito.when(drPlanDao.findById(plan.getId())).thenReturn(plan);
+        plan.setActiveSide("TARGET");
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,
+                () -> adapter.restoreTestCheckpointProtection(plan,run));
+        Mockito.verifyNoInteractions(drPlanOwnedTransportService);
+    }
+
+    @Test
     public void restoreCreatesExportBeforeResumingAndInjectsFreshEndpoints() throws Exception {
         DrPlanVO plan=ftctlDrPlan(); org.apache.commons.lang3.reflect.FieldUtils.writeField(plan,"direction",DrConstants.DIRECTION_KVM_TO_KVM,true);
         plan.setSourceExternalRef("source-vm-uuid"); plan.setSourceVmId(null);
         DrRunVO run=run(DrConstants.RUN_TYPE_TEST_CLEANUP,"{}");
+        Mockito.when(drPlanDao.findById(plan.getId())).thenReturn(plan);
         Mockito.when(drRemoteAgentClient.isRemoteKvmSource(plan)).thenReturn(true);
         Mockito.when(drRemoteAgentClient.fetchSourceStatus(Mockito.eq(plan), Mockito.anyString(), Mockito.any()))
                 .thenAnswer(invocation -> new com.cloud.agent.api.FtctlDrStatusAnswer(
@@ -1468,13 +1493,13 @@ public class FtctlDrUnifiedActionAdapterTest {
         Mockito.when(drPlanOwnedTransportService.supports(plan)).thenReturn(true);
         com.google.gson.JsonArray exports=new com.google.gson.JsonArray();
         com.google.gson.JsonObject endpoint=new com.google.gson.JsonObject(); endpoint.addProperty("host","fresh-worker"); exports.add(endpoint);
-        Mockito.when(drPlanOwnedTransportService.startForwardTargetExport(Mockito.eq(plan),Mockito.eq(run),Mockito.anyString())).thenReturn(exports);
+        Mockito.when(drPlanOwnedTransportService.restoreForwardTargetExport(Mockito.eq(plan),Mockito.eq(run),Mockito.anyString())).thenReturn(exports);
         Mockito.when(drRemoteAgentClient.transitionSourceScheduler(Mockito.eq(plan),Mockito.eq(FtctlDrActionCommand.Action.RESUME_SYNC),
                 Mockito.eq(run.getUuid()),Mockito.contains("fresh-worker"))).thenAnswer(invocation ->
                 new FtctlDrActionAnswer(new FtctlDrActionCommand(FtctlDrActionCommand.Action.RESUME_SYNC,plan.getUuid(),run.getUuid()),true,"resumed"));
         adapter.restoreTestCheckpointProtection(plan,run);
         org.mockito.InOrder order=Mockito.inOrder(drPlanOwnedTransportService,drRemoteAgentClient);
-        order.verify(drPlanOwnedTransportService).startForwardTargetExport(Mockito.eq(plan),Mockito.eq(run),Mockito.anyString());
+        order.verify(drPlanOwnedTransportService).restoreForwardTargetExport(Mockito.eq(plan),Mockito.eq(run),Mockito.anyString());
         order.verify(drRemoteAgentClient).transitionSourceScheduler(Mockito.eq(plan),Mockito.eq(FtctlDrActionCommand.Action.RESUME_SYNC),
                 Mockito.eq(run.getUuid()),Mockito.contains("fresh-worker"));
     }
@@ -1482,11 +1507,12 @@ public class FtctlDrUnifiedActionAdapterTest {
     @Test
     public void unavailableExportMustNotResumeSource() {
         DrPlanVO plan=ftctlDrPlan(); DrRunVO run=run(DrConstants.RUN_TYPE_TEST_CLEANUP,"{}");
+        Mockito.when(drPlanDao.findById(plan.getId())).thenReturn(plan);
         Mockito.when(drRemoteAgentClient.fetchSourceStatus(Mockito.eq(plan), Mockito.anyString(), Mockito.any()))
                 .thenAnswer(invocation -> new com.cloud.agent.api.FtctlDrStatusAnswer(
                         new com.cloud.agent.api.FtctlDrStatusCommand(), true, "available"));
         Mockito.when(drPlanOwnedTransportService.supports(plan)).thenReturn(true);
-        Mockito.when(drPlanOwnedTransportService.startForwardTargetExport(Mockito.eq(plan),Mockito.eq(run),Mockito.anyString()))
+        Mockito.when(drPlanOwnedTransportService.restoreForwardTargetExport(Mockito.eq(plan),Mockito.eq(run),Mockito.anyString()))
                 .thenThrow(new com.cloud.utils.exception.CloudRuntimeException("export unavailable"));
         try { adapter.restoreTestCheckpointProtection(plan,run); Assert.fail("Export failure must propagate"); }
         catch(com.cloud.utils.exception.CloudRuntimeException expected) { Assert.assertEquals("export unavailable",expected.getMessage()); }
@@ -1497,13 +1523,14 @@ public class FtctlDrUnifiedActionAdapterTest {
         DrPlanVO plan = ftctlDrPlan();
         Mockito.when(drPlanOwnedTransportService.supports(plan)).thenReturn(true);
         DrRunVO run = run(DrConstants.RUN_TYPE_TEST_CLEANUP, "{}");
+        Mockito.when(drPlanDao.findById(plan.getId())).thenReturn(plan);
         try {
             adapter.restoreTestCheckpointProtection(plan, run);
             Assert.fail("Unavailable source must remain pending");
         } catch (com.cloud.utils.exception.CloudRuntimeException expected) {
             Assert.assertTrue(expected.getMessage().contains("remains pending"));
         }
-        Mockito.verify(drPlanOwnedTransportService, Mockito.never()).startForwardTargetExport(Mockito.any(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(drPlanOwnedTransportService, Mockito.never()).restoreForwardTargetExport(Mockito.any(), Mockito.any(), Mockito.anyString());
     }
 
 }
