@@ -107,3 +107,8 @@ Veeam noredist 프로파일이 compiler configuration 전체를 비워 부모의
 VMware provider의 소스/테스트 제외 목록만 해제하고, 부모의 source/target 등 컴파일 설정은 상속한다. Veeam 기능 구현과 실물 검증 범위를 추가하지 않는다.
 후속 호환 PR의 최종 전체 컴파일/CI·동기화 결과는 #998 완료 기록에서 확인한다.
 이는 Apache 고정299개 원본 판정을 바꾸지 않으며, 실물 검증은 #1025에 인수한다.
+
+후속 CI에서 별도 Veeam 변경의 라이선스 헤더 누락16개도 발견했다.
+스크립트·설정·문서15개에 저장소의 Apache 헤더를 추가하고, 헤더를 제외한 원문 바이트가 동일한지 확인했다.
+주석을 넣을 수 없는 ablestack.key.default는 기존 *.key 데이터 제외와 동일한 취지로 RAT에 정확한 경로만 추가했다.
+키의 내용과 형식은 변경하지 않는다. 셸10개의 bash -n 및 tracked-source RAT 검사를 수행한다.
