@@ -99,6 +99,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class DrTargetMaterializationServiceImpl extends ManagerBase implements DrTargetMaterializationService {
+    @Inject private com.cloud.vm.dao.NicDao testNicDao;
+
     private static final Logger LOGGER = LogManager.getLogger(DrTargetMaterializationServiceImpl.class);
     private static final Gson GSON = new Gson();
     private static final int STEP_ORDER_RUNTIME_PROJECTION = 30;
@@ -189,6 +191,7 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
         if (targetVm.getState() != VirtualMachine.State.Stopped) {
             throw new CloudRuntimeException("DR target VM is not startable from state " + targetVm.getState());
         }
+        ensureTargetComputeDetails(plan, targetVm);
         try {
             Long targetHostId = drWorkerPlacementService != null
                     ? drWorkerPlacementService.resolveWorkerHostId(plan, DrWorkerRole.TARGET) : null;
@@ -247,6 +250,7 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
 
     private final Set<Long> inFlightPlans = ConcurrentHashMap.newKeySet();
     private final Set<Long> inFlightTestRuns = ConcurrentHashMap.newKeySet();
+    @Inject private DrTestBootValidationService bootValidation;
     private ExecutorService executor;
 
     @Override
@@ -305,7 +309,9 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             return false;
         }
         UserVmVO vm = userVmDao.findById(session.getTargetVmId());
-        return vm != null && vm.getRemoved() == null && vm.getState() == VirtualMachine.State.Running;
+        return vm != null && vm.getRemoved() == null && vm.getState() == VirtualMachine.State.Running
+                && (DrTestBootValidationService.requiresQga(session) ? bootValidation.satisfied(session)
+                    : "POWER_STATE_VALIDATED".equals(session.getBootValidationState()));
     }
 
     @Override
@@ -518,6 +524,16 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             return;
         }
         DrTestSessionVO session = drTestSessionDao.findActiveByRunId(runId);
+        if (session != null && session.getCleanupRunId() != null) { return; }
+        if (session != null && StringUtils.equals(session.getState(), DrTestSessionState.FAILED)
+                && StringUtils.startsWith(session.getErrorCode(), "DR_TEST_QGA_")) {
+            failTestMaterializationRun(plan, run, runtimeStatusJson, session.getErrorCode(), session.getErrorMessage());
+            return;
+        }
+        if (session != null && StringUtils.equals(session.getState(), DrTestSessionState.CLOUD_VM_VALIDATING)) {
+            reconcileTestBootValidation(plan, run, session, runtimeStatusJson);
+            return;
+        }
         if (session != null && StringUtils.equals(session.getState(), DrTestSessionState.ACTIVE)) {
             completeTestFailoverRunIfReady(plan, run, session, runtimeStatusJson);
             return;
@@ -545,7 +561,9 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
                 DrConstants.STEP_STATE_RUNNING, 85, runtimeStatusJson, null, null);
 
         try {
-            refreshSourceHardwareSnapshot(plan);
+            if (!request.has("sourceIndependent") || !request.get("sourceIndependent").getAsBoolean()) {
+                refreshSourceHardwareSnapshot(plan);
+            }
             DrResolvedTargetPlacement placement = resolvePlacement(plan, runtime);
             if (placement == null || !placement.getBlockingReasons().isEmpty()) {
                 throw new CloudRuntimeException("DR test target placement is not ready");
@@ -614,6 +632,14 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             session.setState(DrTestSessionState.CLOUD_VM_STARTING);
             session.markUpdated();
             drTestSessionDao.update(session.getId(), session);
+            if (DrTestBootValidationService.requiresQga(session)) { bootValidation.begin(session); }
+            if ("NIC_DISABLED".equals(networkMode)) {
+                disableTestNics(testVm);
+                List<com.cloud.vm.NicVO> nics = testNicDao.listByVmId(testVm.getId());
+                if (nics.isEmpty() || nics.stream().anyMatch(nic -> nic.isEnabled() || nic.getLinkState())) {
+                    throw new CloudRuntimeException("DR_TEST_NIC_NOT_DISABLED: all test adapters must be disabled before boot");
+                }
+            }
             if (testVm.getState() != VirtualMachine.State.Running) {
                 userVmManager.startVirtualMachine(testVm.getId(), placement.getWorkerHostId(),
                         new HashMap<VirtualMachineProfile.Param, Object>(), null);
@@ -622,8 +648,9 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             if (running == null || running.getState() != VirtualMachine.State.Running) {
                 throw new CloudRuntimeException("DR_TEST_VM_BOOT_FAILED: Cloud test VM did not reach Running");
             }
-            session.setState(DrTestSessionState.ACTIVE);
-            session.setBootValidationState("POWER_STATE_VALIDATED");
+            session.setState(DrTestBootValidationService.requiresQga(session)
+                    ? DrTestSessionState.CLOUD_VM_VALIDATING : DrTestSessionState.ACTIVE);
+            session.setBootValidationState(DrTestBootValidationService.requiresQga(session) ? "QGA_PENDING" : "POWER_STATE_VALIDATED");
             session.setArtifactManifest(GSON.toJson(records));
             session.setErrorCode(null);
             session.setErrorMessage(null);
@@ -642,11 +669,35 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
         }
     }
 
+    private void reconcileTestBootValidation(DrPlanVO plan, DrRunVO run, DrTestSessionVO session, String runtime) {
+        String state = bootValidation.state(session);
+        if ("PENDING".equals(state)) {
+            upsertRunStep(run, "target-materialization", STEP_ORDER_TARGET_MATERIALIZATION,
+                    DrConstants.STEP_STATE_SUCCEEDED, 100, runtime, null, null);
+            upsertRunStep(run, "boot-validation", STEP_ORDER_BOOT_VALIDATION,
+                    DrConstants.STEP_STATE_RUNNING, 90, runtime, null, null);
+            return;
+        }
+        if ("QGA_VALIDATED".equals(state)) {
+            if (bootValidation.transition(session, DrTestSessionState.ACTIVE, state, null)) {
+                completeTestFailoverRunIfReady(plan, run, drTestSessionDao.findById(session.getId()), runtime);
+            }
+            return;
+        }
+        String error = "DR_TEST_" + ("MISSING".equals(state) ? "QGA_EVIDENCE_MISSING" : state);
+        if (bootValidation.transition(session, DrTestSessionState.FAILED, state, error)) {
+            upsertRunStep(run, "boot-validation", STEP_ORDER_BOOT_VALIDATION,
+                    DrConstants.STEP_STATE_FAILED, 100, runtime, error, "Required guest-agent validation failed: " + state);
+            failTestMaterializationRun(plan, run, runtime, error, "Required guest-agent validation failed: " + state);
+        }
+    }
+
     private void completeTestFailoverRunIfReady(DrPlanVO plan, DrRunVO run, DrTestSessionVO session, String runtimeStatusJson) {
         DrRunVO latestRun = drRunDao.findById(run.getId());
         if (latestRun == null || latestRun.getRemoved() != null || latestRun.getCompleted() != null
                 || !StringUtils.equals(session.getState(), DrTestSessionState.ACTIVE)
-                || session.getTargetVmId() == null) {
+                || session.getTargetVmId() == null
+                || (DrTestBootValidationService.requiresQga(session) && !bootValidation.satisfied(session))) {
             return;
         }
         UserVmVO testVm = userVmDao.findById(session.getTargetVmId());
@@ -688,6 +739,29 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
         }
     }
 
+    private void disableTestNics(UserVmVO vm) {
+        if (vm.getState() != VirtualMachine.State.Stopped) {
+            throw new CloudRuntimeException("DR_TEST_NIC_NOT_DISABLED: test adapters must be disabled before initial boot");
+        }
+        try {
+            CallContext.registerSystemCallContextOnceOnly();
+            for (com.cloud.vm.NicVO nic : testNicDao.listByVmId(vm.getId())) {
+                if (nic.isEnabled()) {
+                    userVmService.updateVirtualMachineNic(new DisableTestNicCmd(nic.getId()));
+                }
+            }
+        } finally {
+            CallContext.unregister();
+        }
+    }
+
+    static class DisableTestNicCmd extends org.apache.cloudstack.api.command.user.vm.UpdateVmNicCmd {
+        private final Long nicId;
+        DisableTestNicCmd(Long nicId) { this.nicId = nicId; }
+        @Override public Long getNicId() { return nicId; }
+        @Override public Boolean isEnabled() { return Boolean.FALSE; }
+    }
+
     private UserVmVO ensureTestVm(DrPlanVO plan, DrResolvedTargetPlacement placement, AccountVO owner,
             VolumeVO rootVolume, JsonObject runtime, String networkMode) {
         String vmName = placement.getTargetVmName();
@@ -707,7 +781,8 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
         Map<String, String> details = buildTargetVmDetails(plan, placement, offering, rootVolume, hardware);
         details.put("dr.replica.vm", "false");
         details.put("dr.test.vm", "true");
-        List<Long> networks = StringUtils.equals(networkMode, "NO_NIC") ? new ArrayList<Long>() : networkIds(placement);
+        details.put("dr.test.nic.disabled", String.valueOf(StringUtils.equals(networkMode, "NIC_DISABLED")));
+        List<Long> networks = networkIds(placement);
         DrReplicaDeployVMVolumeCmd cmd = new DrReplicaDeployVMVolumeCmd(owner.getId(), owner.getAccountName(), owner.getDomainId(),
                 placement.getZoneId(), offering.getId(), vmName, vmName, networks, targetHost.getId(), HypervisorType.KVM,
                 rootVolume.getId(), details, hardware);
@@ -728,10 +803,6 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
     }
 
     Long applyTestNetwork(DrResolvedTargetPlacement placement, String networkMode, Long networkId) {
-        if (StringUtils.equals(networkMode, "NO_NIC")) {
-            placement.getNetworks().clear();
-            return null;
-        }
         DrResolvedNetworkMapping selected = null;
         if (networkId != null) {
             selected = new DrResolvedNetworkMapping();
@@ -775,11 +846,13 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
         }
         String message = StringUtils.defaultIfBlank(errorMessage, "Cloud-managed DR test VM materialization failed");
         String details = failureDetailsJson(runtimeStatusJson, errorCode, message);
-        upsertRunStep(latestRun, "target-materialization", STEP_ORDER_TARGET_MATERIALIZATION,
+        boolean bootFailure = StringUtils.startsWith(errorCode, "DR_TEST_QGA_");
+        String failedStep = bootFailure ? "boot-validation" : "target-materialization";
+        upsertRunStep(latestRun, failedStep, bootFailure ? STEP_ORDER_BOOT_VALIDATION : STEP_ORDER_TARGET_MATERIALIZATION,
                 DrConstants.STEP_STATE_FAILED, 100, details, errorCode, message);
         latestRun.setState(DrConstants.RUN_STATE_FAILED);
         latestRun.setCompleted(new Date());
-        latestRun.setCurrentStepName("target-materialization");
+        latestRun.setCurrentStepName(failedStep);
         latestRun.setProjectionState("failed");
         latestRun.setProjectionChecked(new Date());
         latestRun.setRetryable(false);
@@ -836,9 +909,10 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
 
     private String normalizeTestNetworkMode(String value) {
         String normalized = StringUtils.upperCase(StringUtils.defaultIfBlank(value, "ISOLATED_NETWORK"));
+        if (StringUtils.equals(normalized, "NO_NIC")) return "NIC_DISABLED"; // Legacy API intent means disconnected adapters.
         if (StringUtils.equals(normalized, "ISOLATED")) return "ISOLATED_NETWORK";
         if (StringUtils.equals(normalized, "PRODUCTION")) return "PRODUCTION_NETWORK";
-        if (!StringUtils.equalsAny(normalized, "ISOLATED_NETWORK", "PRODUCTION_NETWORK", "NO_NIC")) {
+        if (!StringUtils.equalsAny(normalized, "ISOLATED_NETWORK", "PRODUCTION_NETWORK", "NIC_DISABLED")) {
             throw new CloudRuntimeException("Unsupported DR test network mode: " + value);
         }
         return normalized;
@@ -972,6 +1046,7 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
                 targetResourceOwnershipService.claimVm(plan, replica, run, existing);
                 reconcileSourceVmDetails(plan, existing);
                 verifyTargetVmHardware(plan, existing);
+                recordTargetTuningDifferences(plan, run, existing);
                 observeReplicaPowerState(replica, existing);
                 List<DrReplicaDiskVO> existingDisks = drReplicaDiskDao.listActiveByReplicaId(replica.getId());
                 for (DrReplicaDiskVO disk : existingDisks) {
@@ -1448,10 +1523,14 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             details.put(ApiConstants.BootType.UEFI.toString(), hardware.getBootMode().toString());
         }
         if (hardware != null && hardware.getIoPolicy() != null) {
-            details.putIfAbsent(VmDetailConstants.IO_POLICY, hardware.getIoPolicy().toString());
+            details.put(VmDetailConstants.IO_POLICY, hardware.getIoPolicy().toString());
         }
-        if (hardware != null && Boolean.TRUE.equals(hardware.getIoThreadsEnabled())) {
-            details.putIfAbsent(VmDetailConstants.IOTHREADS, "true");
+        if (hardware != null && hardware.getIoThreadsEnabled() != null) {
+            // The Agent currently enables iothreads by key presence, including the string "false".
+            details.remove(VmDetailConstants.IOTHREADS);
+            if (Boolean.TRUE.equals(hardware.getIoThreadsEnabled())) {
+                details.put(VmDetailConstants.IOTHREADS, "true");
+            }
         }
         putDynamicVmDetail(details, VmDetailConstants.CPU_NUMBER, serviceOffering != null ? serviceOffering.getCpu() : null,
                 placement != null ? placement.getTargetCpuNumber() : null);
@@ -1478,12 +1557,16 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
         actual = actual != null ? actual : new HashMap<String, String>();
         Map<String, String> expectedSourceDetails = DrVmDetailReplicationPolicy.copyableSourceDetails(
                 plan.getDirection(), sourceVmDetails(plan));
-        for (Map.Entry<String, String> expected : expectedSourceDetails.entrySet()) {
-            if (!StringUtils.equals(expected.getValue(), actual.get(expected.getKey()))) {
-                throw new CloudRuntimeException("TARGET_VM_DETAIL_MISMATCH: key=" + expected.getKey()
-                        + " expected=" + expected.getValue() + " actual="
-                        + StringUtils.defaultString(actual.get(expected.getKey()), "<absent>"));
+        if (sourceHardware.has("vmDetails")) {
+            for (String key : new String[] {VmDetailConstants.ROOT_DISK_CONTROLLER, VmDetailConstants.DATA_DISK_CONTROLLER}) {
+                String controller = firstString(sourceHardware, key);
+                if (StringUtils.isNotBlank(controller)) {
+                    expectedSourceDetails.putIfAbsent(key, controller);
+                }
             }
+            DrHardwareCompatibilityPolicy.verifyDetails(expectedSourceDetails, actual);
+        } else if (StringUtils.isBlank(firstString(sourceHardware, "firmware"))) {
+            throw new CloudRuntimeException("TARGET_BOOT_EVIDENCE_REQUIRED: source boot snapshot is unavailable");
         }
         String expectedUefiMode = expectedSourceDetails.get(ApiConstants.BootType.UEFI.toString());
         if (StringUtils.isBlank(expectedUefiMode)
@@ -1498,20 +1581,39 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
                     + StringUtils.defaultString(expectedUefiMode, "<absent>") + " but target VM has "
                     + StringUtils.defaultString(actual.get(ApiConstants.BootType.UEFI.toString()), "<absent>"));
         }
-        String expectedFingerprint = firstString(sourceHardware, "fingerprint");
-        String actualFingerprint = actual.get("dr.source.hardware.fingerprint");
-        if (StringUtils.isNotBlank(expectedFingerprint) && !StringUtils.equals(expectedFingerprint, actualFingerprint)) {
-            throw new CloudRuntimeException("TARGET_VM_HARDWARE_MISMATCH: source hardware fingerprint differs");
+        String actualPolicy = actual.get(VmDetailConstants.IO_POLICY);
+        boolean supportedPolicy = StringUtils.isBlank(actualPolicy);
+        for (ApiConstants.IoDriverPolicy policy : ApiConstants.IoDriverPolicy.values()) {
+            supportedPolicy |= StringUtils.equalsIgnoreCase(policy.toString(), actualPolicy);
         }
-        String expectedIoPolicy = firstString(targetHardware, "ioPolicy", "io.policy");
-        if (StringUtils.isNotBlank(expectedIoPolicy)
-                && !StringUtils.equalsIgnoreCase(expectedIoPolicy, actual.get(VmDetailConstants.IO_POLICY))) {
-            throw new CloudRuntimeException("TARGET_VM_HARDWARE_MISMATCH: target io.policy differs");
+        if (!supportedPolicy) {
+            throw new CloudRuntimeException("TARGET_TUNING_INVALID: io.policy is unsupported");
         }
-        Boolean expectedIoThreads = firstBoolean(targetHardware, "ioThreadsEnabled", "iothreadsEnabled");
-        if (Boolean.TRUE.equals(expectedIoThreads)
-                && !StringUtils.equalsIgnoreCase("true", actual.get(VmDetailConstants.IOTHREADS))) {
-            throw new CloudRuntimeException("TARGET_VM_HARDWARE_MISMATCH: target iothreads differs");
+    }
+
+    private void recordTargetTuningDifferences(DrPlanVO plan, DrRunVO run, UserVmVO targetVm) {
+        JsonObject targetHardware = objectAt(objectAt(parseObject(plan.getMappingJson()), "target"), "hardware");
+        Map<String, String> actual = vmInstanceDetailsDao.listDetailsKeyPairs(targetVm.getId());
+        if (actual == null) {
+            actual = new HashMap<String, String>();
+        }
+        Boolean requestedThreads = firstBoolean(targetHardware, "ioThreadsEnabled", "iothreadsEnabled");
+        String requestedPolicy = firstString(targetHardware, "ioPolicy", "io.policy");
+        // Agent key-presence semantics are intentional until the Agent contract changes.
+        boolean effectiveThreads = actual.containsKey(VmDetailConstants.IOTHREADS);
+        if ((requestedThreads != null && requestedThreads != effectiveThreads)
+                || (StringUtils.isNotBlank(requestedPolicy)
+                && !StringUtils.equalsIgnoreCase(requestedPolicy, actual.get(VmDetailConstants.IO_POLICY)))) {
+            JsonObject finding = new JsonObject();
+            finding.addProperty("code", "TARGET_TUNING_DIFFERENCE");
+            finding.addProperty("targetVmId", targetVm.getUuid());
+            finding.addProperty("requestedIoThreads", requestedThreads);
+            finding.addProperty("effectiveIoThreadsByAgentContract", effectiveThreads);
+            finding.addProperty("requestedIoPolicy", requestedPolicy);
+            finding.addProperty("storedIoPolicy", actual.get(VmDetailConstants.IO_POLICY));
+            finding.addProperty("valueSource", "EXISTING_TARGET");
+            recordEvent(plan.getId(), run != null ? run.getId() : null, "TARGET_TUNING_DIFFERENCE", "WARN",
+                    "Target performance settings differ; existing target settings were preserved", GSON.toJson(finding));
         }
     }
 
@@ -1555,36 +1657,38 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
                 || !StringUtils.equalsIgnoreCase(plan.getDirection(), DrConstants.DIRECTION_KVM_TO_KVM)) {
             return;
         }
-        Map<String, String> expected = DrVmDetailReplicationPolicy.copyableSourceDetails(
-                plan.getDirection(), sourceVmDetails(plan));
-        Map<String, String> actual = vmInstanceDetailsDao.listDetailsKeyPairs(targetVm.getId());
-        String previousManifest = actual != null ? actual.get(DrVmDetailReplicationPolicy.REPLICATED_KEYS_DETAIL) : null;
-        if (StringUtils.isNotBlank(previousManifest)) {
-            for (String key : StringUtils.split(previousManifest, ',')) {
-                if (StringUtils.isNotBlank(key) && !expected.containsKey(key)) {
-                    vmInstanceDetailsDao.removeDetail(targetVm.getId(), key);
-                }
-            }
-        }
-        vmInstanceDetailsDao.removeDetail(targetVm.getId(), "boot.mode");
-        for (Map.Entry<String, String> entry : expected.entrySet()) {
-            if (actual == null || !StringUtils.equals(entry.getValue(), actual.get(entry.getKey()))) {
-                vmInstanceDetailsDao.removeDetail(targetVm.getId(), entry.getKey());
-                vmInstanceDetailsDao.addDetail(targetVm.getId(), entry.getKey(), entry.getValue(), true);
-            }
-        }
-        String expectedFingerprint = firstString(sourceHardware(plan), "fingerprint");
-        String actualFingerprint = actual != null ? actual.get("dr.source.hardware.fingerprint") : null;
-        if (!StringUtils.equals(expectedFingerprint, actualFingerprint)) {
+        // SYNC must not rewrite boot configuration or target-owned performance details.
+        // Validate before advancing diagnostic metadata; old copy manifests are not deletion authority.
+        verifyTargetVmHardware(plan, targetVm);
+        String fingerprint = firstString(sourceHardware(plan), "fingerprint");
+        if (StringUtils.isNotBlank(fingerprint)) {
             vmInstanceDetailsDao.removeDetail(targetVm.getId(), "dr.source.hardware.fingerprint");
-            if (StringUtils.isNotBlank(expectedFingerprint)) {
-                vmInstanceDetailsDao.addDetail(targetVm.getId(), "dr.source.hardware.fingerprint",
-                        expectedFingerprint, false);
-            }
+            vmInstanceDetailsDao.addDetail(targetVm.getId(), "dr.source.hardware.fingerprint", fingerprint, false);
         }
-        vmInstanceDetailsDao.removeDetail(targetVm.getId(), DrVmDetailReplicationPolicy.REPLICATED_KEYS_DETAIL);
-        vmInstanceDetailsDao.addDetail(targetVm.getId(), DrVmDetailReplicationPolicy.REPLICATED_KEYS_DETAIL,
-                StringUtils.join(new TreeSet<String>(expected.keySet()), ","), false);
+    }
+
+    // #975: historical replicas can lack dynamic offering details even when the Plan has an explicit target spec.
+    void ensureTargetComputeDetails(DrPlanVO plan, UserVmVO vm) {
+        ServiceOfferingVO offering = serviceOfferingDao != null ? serviceOfferingDao.findById(vm.getServiceOfferingId()) : null;
+        if (offering == null || vmInstanceDetailsDao == null) { return; }
+        Map<String, String> actual = vmInstanceDetailsDao.listDetailsKeyPairs(vm.getId());
+        actual = actual != null ? actual : new HashMap<>();
+        DrPlanGuidedSpec spec = guidedSpecFromMapping(plan);
+        String[] keys = {VmDetailConstants.CPU_NUMBER, VmDetailConstants.CPU_SPEED, VmDetailConstants.MEMORY};
+        Integer[] fixed = {offering.getCpu(), offering.getSpeed(), offering.getRamSize()};
+        Integer[] requested = {spec.getTargetCpuNumber(), spec.getTargetCpuSpeed(), spec.getTargetMemory()};
+        Map<String, String> missing = new HashMap<>();
+        for (int i = 0; i < keys.length; i++) {
+            if (fixed[i] != null || StringUtils.isNotBlank(actual.get(keys[i]))) { continue; }
+            if (requested[i] == null || requested[i] <= 0) {
+                throw new CloudRuntimeException("TARGET_COMPUTE_SPEC_REQUIRED: missing explicit target " + keys[i]);
+            }
+            missing.put(keys[i], requested[i].toString());
+        }
+        // Validate the complete missing set before persisting; never overwrite an existing target value.
+        for (Map.Entry<String, String> entry : missing.entrySet()) {
+            vmInstanceDetailsDao.addDetail(vm.getId(), entry.getKey(), entry.getValue(), false);
+        }
     }
 
     private void putDynamicVmDetail(Map<String, String> details, String key, Integer offeringValue, Integer resolvedValue) {
@@ -1893,6 +1997,18 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             return;
         }
         String details = materializationDetailsJson(result, runtimeStatusJson);
+        if (StringUtils.equalsIgnoreCase(run.getRunType(), DrConstants.RUN_TYPE_SYNC)
+                && StringUtils.equalsIgnoreCase(firstString(parseObject(run.getRequestJson()), "mode"), "FULL_RESEED")) {
+            // Target readiness can belong to an older checkpoint. Only runtime
+            // projection may complete the requested, owned durable reseed cycle.
+            // Do not save the Run here: a concurrent terminal result must survive.
+            upsertRunStep(run, "target-materialization", STEP_ORDER_TARGET_MATERIALIZATION,
+                    DrConstants.STEP_STATE_SUCCEEDED, 100, details, null, null);
+            recordEvent(plan.getId(), run.getId(), DrConstants.EVENT_TARGET_MATERIALIZED,
+                    DrConstants.EVENT_SEVERITY_INFO,
+                    "DR target VM is ready; requested full reseed completion is verified separately", details);
+            return;
+        }
         upsertRunStep(run, "runtime-projection", STEP_ORDER_RUNTIME_PROJECTION, DrConstants.STEP_STATE_SUCCEEDED, 100, details, null, null);
         upsertRunStep(run, "target-materialization", STEP_ORDER_TARGET_MATERIALIZATION, DrConstants.STEP_STATE_SUCCEEDED, 100, details, null, null);
         run.setState(DrConstants.RUN_STATE_SUCCEEDED);

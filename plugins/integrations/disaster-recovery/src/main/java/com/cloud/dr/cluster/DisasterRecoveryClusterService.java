@@ -51,7 +51,7 @@ public interface DisasterRecoveryClusterService extends PluggableService, Config
     static final ConfigKey<Boolean> DisasterRecoveryServiceEnabled = new ConfigKey<Boolean>("Advanced", Boolean.class,
             "cloud.dr.service.enabled",
             "false",
-            "Indicates whether Disaster Recovery Service plugin is enabled or not. Management server restart needed on change",
+            "Enables DR Site and DR Plan services. Legacy DR cluster APIs remain unavailable. Management server restart required after change.",
             false);
 
     ListResponse<ScvmIpAddressResponse> listScvmIpAddressResponse(ListScvmIpAddressCmd cmd);

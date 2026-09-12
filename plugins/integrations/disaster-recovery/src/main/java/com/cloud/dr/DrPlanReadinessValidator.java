@@ -544,7 +544,7 @@ public class DrPlanReadinessValidator extends ManagerBase {
                 || StringUtils.equalsIgnoreCase(DrConstants.ENGINE_BINDING_TYPE_FTCTL_DR, plan.getEngineBindingType());
     }
 
-    private DrPlanGuidedSpec buildGuidedSpecFromMapping(JsonObject mapping) {
+    DrPlanGuidedSpec buildGuidedSpecFromMapping(JsonObject mapping) {
         DrPlanGuidedSpec spec = new DrPlanGuidedSpec();
         spec.setGuidedPlan(true);
         JsonObject target = objectAt(mapping, "target");

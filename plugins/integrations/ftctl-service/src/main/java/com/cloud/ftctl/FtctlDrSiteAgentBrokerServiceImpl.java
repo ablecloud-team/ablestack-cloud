@@ -60,6 +60,7 @@ public class FtctlDrSiteAgentBrokerServiceImpl extends ManagerBase implements Ft
     private static final Gson GSON = new Gson();
 
     @Inject private AgentManager agentManager;
+    @Inject private FtctlDrReverseExportCoordinator reverseExportCoordinator;
     @Inject private HostDao hostDao;
     @Inject private DataCenterDao dataCenterDao;
     @Inject private UserVmDao userVmDao;
@@ -68,6 +69,14 @@ public class FtctlDrSiteAgentBrokerServiceImpl extends ManagerBase implements Ft
     public FtctlDrSiteAgentCommandResponse execute(String commandType, String commandJson, String workerHostUuid) {
         String normalizedType = StringUtils.upperCase(StringUtils.trim(commandType), Locale.ROOT);
         Command command = deserialize(normalizedType, commandJson);
+        if (command instanceof FtctlDrActionCommand) {
+            FtctlDrActionCommand action = (FtctlDrActionCommand) command;
+            if ((action.getAction() == FtctlDrActionCommand.Action.TARGET_EXPORT_START
+                    || action.getAction() == FtctlDrActionCommand.Action.TARGET_EXPORT_STOP)
+                    && "reverse-target".equals(action.getRole())) {
+                return reverseExportCoordinator.execute(action);
+            }
+        }
         List<HostVO> candidates = eligibleWorkers();
         preferCurrentVmHost(command, candidates);
         preferOperationRuntimeOwner(command, candidates);
@@ -140,7 +149,7 @@ public class FtctlDrSiteAgentBrokerServiceImpl extends ManagerBase implements Ft
 
     private boolean meaningful(Answer answer) {
         if (!answer.getResult()) {
-            return false;
+            return answer instanceof FtctlDrStatusAnswer && isHistoricalEvidenceFailure((FtctlDrStatusAnswer) answer);
         }
         if (answer instanceof com.cloud.agent.api.FtctlDrStatusAnswer) {
             com.cloud.agent.api.FtctlDrStatusAnswer status = (com.cloud.agent.api.FtctlDrStatusAnswer) answer;
@@ -155,11 +164,39 @@ public class FtctlDrSiteAgentBrokerServiceImpl extends ManagerBase implements Ft
 
     private int compareStatusAuthority(FtctlDrStatusAnswer candidate, FtctlDrStatusAnswer selected,
             Command command) {
+        // Do not fall back to a retired worker's old READY snapshot while the
+        // current worker reports invalid historical evidence. Keep the error
+        // envelope; lifecycle authority and a healthy live worker still win.
+        if (command instanceof FtctlDrStatusCommand
+                && ((FtctlDrStatusCommand) command).getStatusScope() == FtctlDrStatusCommand.StatusScope.PLAN_AUTHORITY
+                && isHistoricalEvidenceFailure(candidate) != isHistoricalEvidenceFailure(selected)) {
+            boolean candidateFailed = isHistoricalEvidenceFailure(candidate);
+            FtctlDrStatusAnswer failed = candidateFailed ? candidate : selected;
+            FtctlDrStatusAnswer other = candidateFailed ? selected : candidate;
+            boolean otherPreferred = StringUtils.equalsAnyIgnoreCase(other.getState(),
+                    "RELEASED", "UNPROTECTED", "FAILED_OVER", "CUTOVER_READY", "FAILBACK_READY")
+                    || (!isPublicationRecovery(failed) && isHealthyReplication(other));
+            return candidateFailed != otherPreferred ? 1 : -1;
+        }
+        if (isHistoricalEvidenceFailure(candidate) && isHistoricalEvidenceFailure(selected)) {
+            int pending = Boolean.compare(isPublicationRecovery(candidate), isPublicationRecovery(selected));
+            if (pending != 0) {
+                return pending;
+            }
+        }
         String requestedRunUuid = command instanceof FtctlDrStatusCommand
                 ? ((FtctlDrStatusCommand) command).getRunUuid() : null;
         int compared = Boolean.compare(runMatches(candidate, requestedRunUuid), runMatches(selected, requestedRunUuid));
         if (compared != 0) {
             return compared;
+        }
+        // A retired source can keep increasing its local sequence after VM relocation.
+        // This exception applies only to source-runtime absence, never lifecycle authority.
+        if (isHealthyReplication(candidate) && isRetiredSourceRuntime(selected)) {
+            return 1;
+        }
+        if (isHealthyReplication(selected) && isRetiredSourceRuntime(candidate)) {
+            return -1;
         }
         compared = Long.compare(statusSequence(candidate), statusSequence(selected));
         if (compared != 0) {
@@ -176,6 +213,43 @@ public class FtctlDrSiteAgentBrokerServiceImpl extends ManagerBase implements Ft
             return compared;
         }
         return Integer.compare(stateRank(candidate.getState()), stateRank(selected.getState()));
+    }
+
+    private boolean isHistoricalEvidenceFailure(FtctlDrStatusAnswer status) {
+        if (status == null || status.getResult() || !StringUtils.equalsAny(status.getErrorCode(),
+                "DR_STATUS_CYCLE_EVIDENCE_CONFLICT", "DR_STATUS_CYCLE_EVIDENCE_INCOMPLETE")) {
+            return false;
+        }
+        try {
+            JsonObject raw = new JsonParser().parse(status.getStatusJson()).getAsJsonObject();
+            return StringUtils.isNotBlank(status.getPlanUuid())
+                    && StringUtils.equals(status.getPlanUuid(), raw.get("plan_uuid").getAsString());
+        } catch (RuntimeException e) {
+            return false;
+        }
+    }
+
+    private boolean isPublicationRecovery(FtctlDrStatusAnswer status) {
+        if (status == null || status.getResult() || !StringUtils.equalsAny(status.getErrorCode(),
+                "DR_STATUS_CYCLE_EVIDENCE_CONFLICT", "DR_STATUS_CYCLE_EVIDENCE_INCOMPLETE")) return false;
+        try {
+            JsonObject raw = new JsonParser().parse(status.getStatusJson()).getAsJsonObject();
+            return raw.has("checkpoint_publication_recovery_only")
+                    && raw.get("checkpoint_publication_recovery_only").getAsBoolean()
+                    && raw.has("checkpoint_publication_pending")
+                    && StringUtils.equals(status.getPlanUuid(), raw.get("plan_uuid").getAsString());
+        } catch (RuntimeException e) { return false; }
+    }
+
+    private boolean isHealthyReplication(FtctlDrStatusAnswer status) {
+        return Boolean.TRUE.equals(status.getSchedulerPidAlive())
+                && StringUtils.equalsIgnoreCase(status.getSchedulerHealth(), "HEALTHY")
+                && StringUtils.equalsAnyIgnoreCase(status.getState(), "READY", "SYNCING", "PAUSED");
+    }
+
+    private boolean isRetiredSourceRuntime(FtctlDrStatusAnswer status) {
+        return StringUtils.equalsAnyIgnoreCase(status.getState(), "ERROR", "WAITING_SOURCE")
+                && StringUtils.equals(status.getErrorCode(), "DR_QCOW2_SOURCE_RUNTIME_UNAVAILABLE");
     }
 
     private boolean runMatches(FtctlDrStatusAnswer status, String requestedRunUuid) {

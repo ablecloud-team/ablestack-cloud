@@ -69,6 +69,54 @@ import com.google.gson.JsonParser;
 public class FtctlDrUnifiedActionAdapterTest {
 
     @Test
+    public void pausedReplicationWinsOverRunningSchedulerProcess() {
+        com.cloud.dr.DrPlanVO plan = new com.cloud.dr.DrPlanVO("paused", 1L, 2L, "KVM_TO_KVM");
+        com.cloud.dr.DrPlanRuntimeVO runtime = new com.cloud.dr.DrPlanRuntimeVO(plan.getId());
+        runtime.setSchedulerDesiredState("RUNNING");
+        runtime.setReplicationActivityState("PAUSED");
+        Assert.assertEquals("PAUSED", org.springframework.test.util.ReflectionTestUtils.invokeMethod(adapter,
+                "preTestReplicationIntent", plan, runtime));
+        runtime.setReplicationActivityState("IDLE");
+        Assert.assertEquals("RUNNING", org.springframework.test.util.ReflectionTestUtils.invokeMethod(adapter,
+                "preTestReplicationIntent", plan, runtime));
+    }
+
+    @Test
+    public void vmwareTestCapturesPausedIntentBeforeLocalRuntimeQuiesce() {
+        DrPlanVO plan = ftctlDrPlan();
+        plan.setState("PAUSED");
+        DrRunVO run = run(DrConstants.RUN_TYPE_TEST_FAILOVER, "{}");
+        org.springframework.test.util.ReflectionTestUtils.invokeMethod(adapter,
+                "captureTestReplicationIntent", new DrExecutionContext(plan, run));
+        Mockito.verify(testCleanupRecovery).capture(plan.getId(), run.getId(), "PAUSED");
+    }
+
+    @Test
+    public void vmwareTestCapturesRunningIntentForDurableCleanupRecovery() {
+        DrPlanVO plan = ftctlDrPlan();
+        plan.setState("READY");
+        DrRunVO run = run(DrConstants.RUN_TYPE_TEST_FAILOVER, "{}");
+        org.springframework.test.util.ReflectionTestUtils.invokeMethod(adapter,
+                "captureTestReplicationIntent", new DrExecutionContext(plan, run));
+        Mockito.verify(testCleanupRecovery).capture(plan.getId(), run.getId(), "RUNNING");
+    }
+
+    @Test
+    public void vmwareCleanupDelegatesSourceRestoreToCloud() {
+        DrPlanVO plan = ftctlDrPlan();
+        DrRunVO run = run(DrConstants.RUN_TYPE_TEST_CLEANUP, "{}");
+        FtctlDrActionCommand command = org.springframework.test.util.ReflectionTestUtils.invokeMethod(adapter,
+                "buildActionCommand", new DrExecutionContext(plan, run),
+                FtctlDrActionCommand.Action.TEST_ARTIFACT_CLEANUP);
+        Assert.assertTrue(JsonParser.parseString(command.getRequestJson()).getAsJsonObject()
+                .get("sourceSchedulerRestoreManagedByCloud").getAsBoolean());
+        Assert.assertTrue(JsonParser.parseString(command.getProfileJson()).getAsJsonObject()
+                .getAsJsonObject("request").get("sourceSchedulerRestoreManagedByCloud").getAsBoolean());
+        Mockito.verify(drRemoteAgentClient).isRemoteKvmSource(plan);
+        Mockito.verifyNoMoreInteractions(drRemoteAgentClient);
+    }
+
+    @Test
     public void automaticVmwareThumbprintsAreRefreshableButOperatorPinsAreNot() {
         Assert.assertTrue(FtctlDrUnifiedActionAdapter.shouldRefreshAutoThumbprint("backend-auto"));
         Assert.assertTrue(FtctlDrUnifiedActionAdapter.shouldRefreshAutoThumbprint("backend-auto-refreshed"));
@@ -77,6 +125,8 @@ public class FtctlDrUnifiedActionAdapterTest {
         Assert.assertFalse(FtctlDrUnifiedActionAdapter.shouldRefreshAutoThumbprint(null));
     }
 
+    @Mock
+    private com.cloud.dr.DrTestCleanupRecoveryStore testCleanupRecovery;
     @Mock
     private AgentManager agentManager;
     @Mock
@@ -946,7 +996,7 @@ public class FtctlDrUnifiedActionAdapterTest {
     }
 
     @Test
-    public void vmwareSharedMountPointTestCleanupResumesLocalProtectionScheduler() throws Exception {
+    public void vmwareSharedMountPointTestCleanupDoesNotResumeBeforeProjection() throws Exception {
         DrPlanVO plan = ftctlDrPlan();
         plan.setMappingJson("{\"target\":{\"storagePoolType\":\"SharedMountPoint\",\"storagePath\":\"/mnt/glue-gfs\"},"
                 + "\"disks\":[{\"device\":\"sda\",\"target\":{\"path\":\"windows-dr-disk-0\","
@@ -958,15 +1008,12 @@ public class FtctlDrUnifiedActionAdapterTest {
                         FtctlDrActionCommand.Action.TEST_ARTIFACT_CLEANUP, plan.getUuid(), run.getUuid(),
                         "success", true, "READY", "test-cleanup-completed", 100, run.getUuid(), 0L,
                         null, 0, "{\"result\":\"success\"}", "{\"state\":\"READY\"}"));
-        Mockito.when(agentManager.easySend(Mockito.eq(103L), Mockito.argThat(command ->
-                command instanceof FtctlDrActionCommand
-                        && ((FtctlDrActionCommand) command).getAction() == FtctlDrActionCommand.Action.RESUME_SYNC)))
-                .thenAnswer(invocation -> new FtctlDrActionAnswer(invocation.getArgument(1), true, "resumed"));
+
 
         DrAdapterResult result = adapter.execute(new DrExecutionContext(plan, run));
 
         Assert.assertTrue(result.isSuccess());
-        Mockito.verify(agentManager).easySend(Mockito.eq(103L), Mockito.argThat(command ->
+        Mockito.verify(agentManager, Mockito.never()).easySend(Mockito.eq(103L), Mockito.argThat(command ->
                 command instanceof FtctlDrActionCommand
                         && ((FtctlDrActionCommand) command).getAction() == FtctlDrActionCommand.Action.RESUME_SYNC));
         Mockito.verify(drRemoteAgentClient, Mockito.never()).transitionSourceScheduler(
@@ -1026,6 +1073,49 @@ public class FtctlDrUnifiedActionAdapterTest {
         order.verify(drPlanOwnedTransportService).stopForwardTargetExport(Mockito.eq(plan), Mockito.eq(run),
                 Mockito.anyString(), Mockito.eq(2L));
         order.verify(agentManager).send(Mockito.eq(103L), Mockito.isA(FtctlDrActionCommand.class));
+    }
+
+    @Test
+    public void sourceIndependentTestDoesNotContactSourceAndRequiresExistingSeal() throws Exception {
+        DrPlanVO plan = new DrPlanVO("remote-file-test", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        plan.setEngineType(DrConstants.ENGINE_TYPE_FTCTL_DR);
+        plan.setEngineBindingType(DrConstants.ENGINE_BINDING_TYPE_FTCTL_DR);
+        plan.setSourceExternalRef("source-vm-uuid");
+        plan.setActiveSide("SOURCE");
+        plan.setTargetWorkerHostId(102L);
+        plan.setCoordinatorWorkerHostId(103L);
+        plan.setMappingJson("{\"source\":{\"hardware\":{\"sourceHostUuid\":\"source-host-uuid\","
+                + "\"instanceName\":\"i-2-13-VM\"}},\"target\":{\"storagePoolType\":\"SharedMountPoint\","
+                + "\"storagePath\":\"/mnt/glue-gfs\"},\"disks\":[{\"device\":\"sda\","
+                + "\"targetStorageRef\":\"target-pool-uuid\",\"target\":{\"storageRef\":\"target-pool-uuid\","
+                + "\"path\":\"rocky9-vm-dr-disk-0\",\"storagePoolType\":\"SharedMountPoint\","
+                + "\"storagePath\":\"/mnt/glue-gfs\",\"format\":\"qcow2\"}}]}");
+        DrRunVO run = run(DrConstants.RUN_TYPE_TEST_FAILOVER, "{\"sourceIndependent\":true}");
+        DrRestorePointVO checkpoint = checkpoint(plan, "ftctl:" + plan.getUuid() + ":run-sync:2");
+        Mockito.when(drRestorePointDao.findLatestTargetReadyByPlanId(plan.getId())).thenReturn(checkpoint);
+        Mockito.when(drRemoteAgentClient.isRemoteKvmSource(plan)).thenReturn(true);
+        Mockito.when(drPlanOwnedTransportService.supports(plan)).thenReturn(true);
+        mockCapabilities();
+        ArgumentCaptor<FtctlDrActionCommand> actionCaptor = ArgumentCaptor.forClass(FtctlDrActionCommand.class);
+        Mockito.when(agentManager.send(Mockito.eq(103L), actionCaptor.capture())).thenAnswer(invocation -> {
+            FtctlDrActionCommand command = invocation.getArgument(1);
+            return new FtctlDrActionAnswer(command, true, "accepted", FtctlDrActionCommand.Action.TEST_PREPARE,
+                    plan.getUuid(), run.getUuid(), "accepted", true, "TESTING", "test-artifact-prepare-accepted",
+                    70, run.getUuid(), 0L, null, 0, "{\"result\":\"accepted\"}",
+                    "{\"state\":\"TESTING\"}");
+        });
+
+        DrAdapterResult result = adapter.execute(new DrExecutionContext(plan, run));
+
+        Assert.assertTrue(result.isSuccess());
+        FtctlDrActionCommand action = actionCaptor.getValue();
+        Assert.assertTrue(action.getRequestJson().contains("\"checkpointWriterState\":\"DRAINED\""));
+        Assert.assertTrue(action.getRequestJson().contains("\"checkpointImmutableRequired\":true"));
+        Assert.assertTrue(action.getArtifactSpecJson().contains("\"checkpointImmutableRequired\":true"));
+        Assert.assertTrue(action.getRequestJson().contains("\"checkpointExistingSealRequired\":true"));
+        Mockito.verify(drSourceHardwareInventoryService, Mockito.never()).resolve(Mockito.any());
+        Mockito.verify(drRemoteAgentClient, Mockito.never()).transitionSourceScheduler(Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(drPlanOwnedTransportService).stopForwardTargetExport(Mockito.eq(plan), Mockito.eq(run), Mockito.anyString(), Mockito.eq(2L));
     }
 
     @Test
@@ -1361,8 +1451,86 @@ public class FtctlDrUnifiedActionAdapterTest {
                     DrReprotectAuthoritySpec.CONTRACT_VERSION));
             answer.setSupportedFeatures(java.util.Arrays.asList("control-protocol-v2", "guest-preparation-v2",
                     "test-artifact-lifecycle-v2", "test-domain-lifecycle-v1", "file-checkpoint-invariance-v1", "cutover-ready-v1",
-                    "cutover-manifest-v2", "cutover-preflight-v1"));
+                    "cutover-manifest-v2", "cutover-preflight-v1", "dr-source-independent-test-v1"));
             return answer;
         });
     }
+
+    @Test
+    public void newerPauseBlocksRestoreBeforeExportPreparation() throws Exception {
+        DrPlanVO plan=ftctlDrPlan(); DrRunVO run=run(DrConstants.RUN_TYPE_TEST_CLEANUP,"{}");
+        Mockito.when(drPlanDao.findById(plan.getId())).thenReturn(plan);
+        com.cloud.dr.dao.DrRunDao dao=Mockito.mock(com.cloud.dr.dao.DrRunDao.class);
+        org.springframework.test.util.ReflectionTestUtils.setField(adapter,"cleanupRecoveryRunDao",dao);
+        DrRunVO pause=run(DrConstants.RUN_TYPE_PAUSE_SYNC,"{}");
+        org.springframework.test.util.ReflectionTestUtils.setField(pause,"id",run.getId()+1);
+        Mockito.when(dao.findLatestByPlanId(plan.getId())).thenReturn(pause);
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,
+                () -> adapter.restoreTestCheckpointProtection(plan,run));
+        Mockito.verifyNoInteractions(drPlanOwnedTransportService);
+    }
+
+    @Test
+    public void changedTargetAuthorityBlocksRestoreBeforeExportPreparation() {
+        DrPlanVO plan=ftctlDrPlan(); DrRunVO run=run(DrConstants.RUN_TYPE_TEST_CLEANUP,"{}");
+        Mockito.when(drPlanDao.findById(plan.getId())).thenReturn(plan);
+        plan.setActiveSide("TARGET");
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,
+                () -> adapter.restoreTestCheckpointProtection(plan,run));
+        Mockito.verifyNoInteractions(drPlanOwnedTransportService);
+    }
+
+    @Test
+    public void restoreCreatesExportBeforeResumingAndInjectsFreshEndpoints() throws Exception {
+        DrPlanVO plan=ftctlDrPlan(); org.apache.commons.lang3.reflect.FieldUtils.writeField(plan,"direction",DrConstants.DIRECTION_KVM_TO_KVM,true);
+        plan.setSourceExternalRef("source-vm-uuid"); plan.setSourceVmId(null);
+        DrRunVO run=run(DrConstants.RUN_TYPE_TEST_CLEANUP,"{}");
+        Mockito.when(drPlanDao.findById(plan.getId())).thenReturn(plan);
+        Mockito.when(drRemoteAgentClient.isRemoteKvmSource(plan)).thenReturn(true);
+        Mockito.when(drRemoteAgentClient.fetchSourceStatus(Mockito.eq(plan), Mockito.anyString(), Mockito.any()))
+                .thenAnswer(invocation -> new com.cloud.agent.api.FtctlDrStatusAnswer(
+                        new com.cloud.agent.api.FtctlDrStatusCommand(), true, "available"));
+        Mockito.when(drPlanOwnedTransportService.supports(plan)).thenReturn(true);
+        com.google.gson.JsonArray exports=new com.google.gson.JsonArray();
+        com.google.gson.JsonObject endpoint=new com.google.gson.JsonObject(); endpoint.addProperty("host","fresh-worker"); exports.add(endpoint);
+        Mockito.when(drPlanOwnedTransportService.restoreForwardTargetExport(Mockito.eq(plan),Mockito.eq(run),Mockito.anyString())).thenReturn(exports);
+        Mockito.when(drRemoteAgentClient.transitionSourceScheduler(Mockito.eq(plan),Mockito.eq(FtctlDrActionCommand.Action.RESUME_SYNC),
+                Mockito.eq(run.getUuid()),Mockito.contains("fresh-worker"))).thenAnswer(invocation ->
+                new FtctlDrActionAnswer(new FtctlDrActionCommand(FtctlDrActionCommand.Action.RESUME_SYNC,plan.getUuid(),run.getUuid()),true,"resumed"));
+        adapter.restoreTestCheckpointProtection(plan,run);
+        org.mockito.InOrder order=Mockito.inOrder(drPlanOwnedTransportService,drRemoteAgentClient);
+        order.verify(drPlanOwnedTransportService).restoreForwardTargetExport(Mockito.eq(plan),Mockito.eq(run),Mockito.anyString());
+        order.verify(drRemoteAgentClient).transitionSourceScheduler(Mockito.eq(plan),Mockito.eq(FtctlDrActionCommand.Action.RESUME_SYNC),
+                Mockito.eq(run.getUuid()),Mockito.contains("fresh-worker"));
+    }
+
+    @Test
+    public void unavailableExportMustNotResumeSource() {
+        DrPlanVO plan=ftctlDrPlan(); DrRunVO run=run(DrConstants.RUN_TYPE_TEST_CLEANUP,"{}");
+        Mockito.when(drPlanDao.findById(plan.getId())).thenReturn(plan);
+        Mockito.when(drRemoteAgentClient.fetchSourceStatus(Mockito.eq(plan), Mockito.anyString(), Mockito.any()))
+                .thenAnswer(invocation -> new com.cloud.agent.api.FtctlDrStatusAnswer(
+                        new com.cloud.agent.api.FtctlDrStatusCommand(), true, "available"));
+        Mockito.when(drPlanOwnedTransportService.supports(plan)).thenReturn(true);
+        Mockito.when(drPlanOwnedTransportService.restoreForwardTargetExport(Mockito.eq(plan),Mockito.eq(run),Mockito.anyString()))
+                .thenThrow(new com.cloud.utils.exception.CloudRuntimeException("export unavailable"));
+        try { adapter.restoreTestCheckpointProtection(plan,run); Assert.fail("Export failure must propagate"); }
+        catch(com.cloud.utils.exception.CloudRuntimeException expected) { Assert.assertEquals("export unavailable",expected.getMessage()); }
+        Mockito.verify(drRemoteAgentClient,Mockito.never()).transitionSourceScheduler(Mockito.any(),Mockito.any(),Mockito.anyString(),Mockito.anyString());
+    }
+    @Test
+    public void sourceUnavailableRestoreDoesNotRotateTargetExports() {
+        DrPlanVO plan = ftctlDrPlan();
+        Mockito.when(drPlanOwnedTransportService.supports(plan)).thenReturn(true);
+        DrRunVO run = run(DrConstants.RUN_TYPE_TEST_CLEANUP, "{}");
+        Mockito.when(drPlanDao.findById(plan.getId())).thenReturn(plan);
+        try {
+            adapter.restoreTestCheckpointProtection(plan, run);
+            Assert.fail("Unavailable source must remain pending");
+        } catch (com.cloud.utils.exception.CloudRuntimeException expected) {
+            Assert.assertTrue(expected.getMessage().contains("remains pending"));
+        }
+        Mockito.verify(drPlanOwnedTransportService, Mockito.never()).restoreForwardTargetExport(Mockito.any(), Mockito.any(), Mockito.anyString());
+    }
+
 }

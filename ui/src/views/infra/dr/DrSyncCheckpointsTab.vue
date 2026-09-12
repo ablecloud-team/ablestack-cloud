@@ -19,6 +19,7 @@
 <template>
   <a-spin :spinning="loading">
     <div class="cross-dr-tab-toolbar">
+      <dr-checkpoint-manager :planId="planId" />
       <a-button size="small" @click="fetchData">
         <template #icon><ReloadOutlined /></template>
         {{ $t('label.refresh') }}
@@ -67,12 +68,13 @@
 </template>
 
 <script>
+import DrCheckpointManager from '@/components/dr/DrCheckpointManager.vue'
 import DrStatusPill from '@/components/dr/DrStatusPill.vue'
 import { listDrRestorePoints, listDrSyncCheckpoints } from '@/api/dr'
 
 export default {
   name: 'DrSyncCheckpointsTab',
-  components: { DrStatusPill },
+  components: { DrStatusPill, DrCheckpointManager },
   props: {
     planId: { type: String, required: true }
   },

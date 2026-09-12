@@ -77,12 +77,23 @@ public class ApiResponseSerializer {
     private static final Pattern s_unicodeEscapePattern = Pattern.compile("\\\\u([0-9A-Fa-f]{4})");
 
     public static String unescape(String escaped) {
-        String str = escaped;
-        Matcher matcher = s_unicodeEscapePattern.matcher(str);
+        Matcher matcher = s_unicodeEscapePattern.matcher(escaped);
+        StringBuffer result = new StringBuffer();
         while (matcher.find()) {
-            str = str.replaceAll("\\" + matcher.group(0), Character.toString((char)Integer.parseInt(matcher.group(1), 16)));
+            int precedingSlashes = 0;
+            for (int i = matcher.start() - 1; i >= 0 && escaped.charAt(i) == '\\'; i--) {
+                precedingSlashes++;
+            }
+            char value = (char) Integer.parseInt(matcher.group(1), 16);
+            // A literal \\u sequence inside a JSON string is not a JSON Unicode escape.
+            // Quotes, backslashes and controls must remain escaped to preserve valid JSON.
+            boolean preserve = precedingSlashes % 2 != 0 || value < 0x20 || value == '"'
+                    || value == '\\' || Character.isSurrogate(value);
+            matcher.appendReplacement(result, Matcher.quoteReplacement(
+                    preserve ? matcher.group(0) : Character.toString(value)));
         }
-        return str;
+        matcher.appendTail(result);
+        return result.toString();
     }
 
     public static String toJSONSerializedString(ResponseObject result, StringBuilder log) {

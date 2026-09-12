@@ -98,6 +98,8 @@ public class DrRunExecutorImpl extends ManagerBase implements DrRunExecutor {
     @Inject
     private DrTestSessionDao drTestSessionDao;
     @Inject
+    private com.cloud.dr.DrTestCleanupRecoveryStore testCleanupRecovery;
+    @Inject
     private DrFailbackSessionDao drFailbackSessionDao;
 
     private ExecutorService dispatchExecutor;
@@ -193,6 +195,19 @@ public class DrRunExecutorImpl extends ManagerBase implements DrRunExecutor {
         }
     }
 
+    private void armTestCleanupRecovery(DrPlanVO plan, DrRunVO run) {
+        if (testCleanupRecovery == null || drTestSessionDao == null
+                || !DrConstants.RUN_TYPE_TEST_CLEANUP.equals(run.getRunType())) {
+            return;
+        }
+        DrTestSessionVO session = drTestSessionDao.findActiveByPlanId(plan.getId());
+        if (session != null && testCleanupRecovery.find(session.getRunId()) != null) {
+            // Persist before dispatch: synchronous and asynchronous completion share this intent.
+            // The recovery worker waits until artifacts are CLEANED and the Run is terminal.
+            testCleanupRecovery.arm(plan.getId(), session.getRunId(), run.getId());
+        }
+    }
+
     private boolean retainAdmissionLeaseUntilGroupTerminal(DrRunVO run) {
         if (run == null || StringUtils.isBlank(run.getRequestJson())) {
             return false;
@@ -208,6 +223,7 @@ public class DrRunExecutorImpl extends ManagerBase implements DrRunExecutor {
 
     private void executeAdmittedRun(DrPlanVO plan, DrRunVO latestRun) {
         LOGGER.debug("Executing DR run {} of type {} for plan {}", latestRun.getId(), latestRun.getRunType(), latestRun.getPlanId());
+        armTestCleanupRecovery(plan, latestRun);
         markRunPreparing(latestRun);
         recordEvent(plan.getId(), latestRun.getId(), DrConstants.EVENT_RUN_STARTED, DrConstants.EVENT_SEVERITY_INFO,
                 "DR run started", latestRun.getRequestJson());

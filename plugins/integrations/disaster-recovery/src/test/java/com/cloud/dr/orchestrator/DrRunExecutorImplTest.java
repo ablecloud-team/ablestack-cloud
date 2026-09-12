@@ -53,6 +53,7 @@ import com.cloud.dr.dao.DrTestSessionDao;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DrRunExecutorImplTest {
+    @Mock private com.cloud.dr.DrTestCleanupRecoveryStore testCleanupRecovery;
     @Mock
     private DrPlanDao drPlanDao;
     @Mock
@@ -78,6 +79,17 @@ public class DrRunExecutorImplTest {
 
     @InjectMocks
     private DrRunExecutorImpl executor;
+
+    @Test
+    public void cleanupPersistsRecoveryBeforeEitherCompletionPath() {
+        DrPlanVO plan = ftctlDrPlan();
+        DrRunVO run = run(DrConstants.RUN_TYPE_TEST_CLEANUP);
+        DrTestSessionVO session = new DrTestSessionVO(plan.getId(), 123L, DrTestSessionState.REQUESTED);
+        Mockito.when(drTestSessionDao.findActiveByPlanId(plan.getId())).thenReturn(session);
+        Mockito.when(testCleanupRecovery.find(123L)).thenReturn(new com.cloud.dr.DrTestCleanupRecoveryStore.Intent());
+        ReflectionTestUtils.invokeMethod(executor, "armTestCleanupRecovery", plan, run);
+        Mockito.verify(testCleanupRecovery).arm(plan.getId(), 123L, run.getId());
+    }
 
     @Test
     public void successfulKvmFtctlRunRecordsTerminalStepAndRefreshesProjection() {

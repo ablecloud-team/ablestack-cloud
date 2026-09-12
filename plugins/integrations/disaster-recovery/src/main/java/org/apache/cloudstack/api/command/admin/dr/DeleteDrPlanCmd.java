@@ -42,10 +42,13 @@ public class DeleteDrPlanCmd extends BaseAsyncCmd {
     @Parameter(name = "id", type = CommandType.UUID, entityType = DrPlanResponse.class, required = true, description = "the DR plan ID")
     private Long id;
 
+    @Parameter(name = "force", type = CommandType.BOOLEAN, description = "Unregister the plan while preserving VM, volumes and remote resources for manual cleanup")
+    private Boolean force;
+
     @Override
     public void execute() throws ServerApiException {
         try {
-            if (!drPlanService.deletePlan(id)) {
+            if (!(Boolean.TRUE.equals(force) ? drPlanService.deletePlan(id, true) : drPlanService.deletePlan(id))) {
                 throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to delete DR plan " + id);
             }
             setResponseObject(new SuccessResponse(getCommandName()));
@@ -71,7 +74,7 @@ public class DeleteDrPlanCmd extends BaseAsyncCmd {
 
     @Override
     public String getEventDescription() {
-        return "Deleting DR plan " + id;
+        return (Boolean.TRUE.equals(force) ? "Force unregistering DR plan (remote resources preserved) " : "Deleting DR plan ") + id;
     }
 
     @Override

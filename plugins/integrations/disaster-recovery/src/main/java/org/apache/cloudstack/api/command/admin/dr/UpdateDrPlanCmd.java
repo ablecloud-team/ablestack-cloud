@@ -291,6 +291,7 @@ public class UpdateDrPlanCmd extends BaseAsyncCmd {
             return;
         }
         DrPlanVO current = drPlanService.getPlan(id);
+        spec = guidedSpecBuilder().mergeForUpdate(current, spec);
         DrPlanVO merged = new DrPlanVO(current.getName(), current.getSourceSiteId(), current.getTargetSiteId(), current.getDirection());
         merged.setSourceVmId(current.getSourceVmId());
         merged.setSourceExternalRef(current.getSourceExternalRef());
@@ -300,10 +301,10 @@ public class UpdateDrPlanCmd extends BaseAsyncCmd {
         merged.setTargetWorkerHostId(update.getTargetWorkerHostId() != null ? update.getTargetWorkerHostId() : current.getTargetWorkerHostId());
         merged.setCoordinatorWorkerHostId(update.getCoordinatorWorkerHostId() != null ? update.getCoordinatorWorkerHostId() : current.getCoordinatorWorkerHostId());
         guidedSpecBuilder().applyIfRequested(merged, spec);
-        update.setMappingJson(merged.getMappingJson());
-        update.setScheduleJson(merged.getScheduleJson());
-        update.setPolicyJson(merged.getPolicyJson());
-        update.setQuiescePolicyJson(merged.getQuiescePolicyJson());
+        update.setMappingJson(guidedSpecBuilder().preserveUnchangedJson(current.getMappingJson(), merged.getMappingJson()));
+        update.setScheduleJson(guidedSpecBuilder().preserveUnchangedJson(current.getScheduleJson(), merged.getScheduleJson()));
+        update.setPolicyJson(guidedSpecBuilder().preserveUnchangedJson(current.getPolicyJson(), merged.getPolicyJson()));
+        update.setQuiescePolicyJson(guidedSpecBuilder().preserveUnchangedJson(current.getQuiescePolicyJson(), merged.getQuiescePolicyJson()));
     }
 
     private void validateDraftPolicy(DrPlanVO update) {

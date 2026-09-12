@@ -76,6 +76,9 @@ public class DrPlanServiceImplTest {
     @Mock
     private DrFtctlActionCapabilityService drFtctlActionCapabilityService;
 
+    @Mock
+    private DrTestCleanupRecoveryStore testCleanupRecovery;
+
     @InjectMocks
     private DrPlanServiceImpl service;
 
@@ -175,6 +178,29 @@ public class DrPlanServiceImplTest {
         Assert.assertFalse(eligibility.get("reprotect"));
         Assert.assertFalse(eligibility.get("adoptReplica"));
         Assert.assertTrue(eligibility.get("migrationOnly"));
+    }
+
+    @Test
+    public void pausedPlanAllowsCheckpointTestButNotPlannedCutover() {
+        DrPlanVO plan = new DrPlanVO("ftctl-dr", 1L, 2L, DrConstants.DIRECTION_VMWARE_TO_KVM);
+        plan.setAdminState(DrConstants.ADMIN_STATE_ENABLED);
+        plan.setEngineType(DrConstants.ENGINE_TYPE_FTCTL_DR);
+        plan.setEngineBindingType(DrConstants.ENGINE_BINDING_TYPE_FTCTL_DR);
+        plan.setState(DrConstants.PLAN_STATE_PAUSED);
+        plan.setTargetReadyAt(new Date());
+        Mockito.when(drPlanDao.findById(plan.getId())).thenReturn(plan);
+        Mockito.when(drAdapterRegistry.getReplicationEngine(DrConstants.ENGINE_TYPE_FTCTL_DR, DrConstants.ENGINE_BINDING_TYPE_FTCTL_DR))
+                .thenReturn(replicationEngine);
+        Mockito.when(drRunDao.findLatestByPlanId(plan.getId())).thenReturn(controlReadyRun(plan));
+        Mockito.when(drPlanReadinessValidator.validateForRelease(plan)).thenReturn(releaseReady());
+        Mockito.when(drProtectionAuthorityService.getAuthority(plan.getId()))
+                .thenReturn(new DrProtectionAuthoritySnapshot(new DrPlanRuntimeVO(plan.getId()), false));
+
+        Map<String, Boolean> eligibility = service.getActionEligibility(plan.getId());
+
+        Assert.assertTrue(eligibility.get("testFailover"));
+        Assert.assertFalse(eligibility.get("failover"));
+        Assert.assertTrue(eligibility.get("resumeSync"));
     }
 
     @Test
@@ -541,4 +567,39 @@ public class DrPlanServiceImplTest {
         readiness.setReleaseReady(true);
         return readiness;
     }
+    @Test
+    public void forceDeleteUnregistersProtectedPlanAndPreservesRemoteEvidence() {
+        DrPlanVO plan = new DrPlanVO("force-delete", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        plan.setState("READY");
+        plan.setAdminState(DrConstants.ADMIN_STATE_ENABLED);
+        DrPlanVO removed = new DrPlanVO("force-delete", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        removed.markRemoved();
+        Mockito.when(drPlanDao.findById(plan.getId())).thenReturn(plan);
+        Mockito.when(drPlanDao.remove(plan.getId())).thenReturn(true);
+        Mockito.when(drPlanDao.findByIdIncludingRemoved(plan.getId())).thenReturn(removed);
+
+        Assert.assertTrue(service.deletePlan(plan.getId(), true));
+
+        Assert.assertEquals(DrConstants.ADMIN_STATE_DISABLED, plan.getAdminState());
+        Mockito.verify(testCleanupRecovery).supersedePlan(plan.getId());
+        Mockito.verify(drPlanRuntimeDao, Mockito.never()).removeByPlanId(Mockito.anyLong());
+        Mockito.verify(drSyncCycleDao, Mockito.never()).removeByPlanId(Mockito.anyLong());
+        Mockito.verifyNoInteractions(replicationEngine);
+    }
+
+    @Test
+    public void forceDeleteRequiresActiveOperationToFinishOrCancel() {
+        DrPlanVO plan = new DrPlanVO("active-delete", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        Mockito.when(drPlanDao.findById(plan.getId())).thenReturn(plan);
+        Mockito.when(drRunDao.findActiveByPlanId(plan.getId())).thenReturn(new DrRunVO(plan.getId(), DrConstants.RUN_TYPE_SYNC));
+        try {
+            service.deletePlan(plan.getId(), true);
+            Assert.fail("active operation must not be orphaned");
+        } catch (com.cloud.exception.InvalidParameterValueException expected) {
+            Assert.assertTrue(expected.getMessage().contains(DrConstants.ERROR_ACTIVE_RUN_EXISTS));
+        }
+        Mockito.verify(drPlanDao, Mockito.never()).remove(Mockito.anyLong());
+        Mockito.verifyNoInteractions(testCleanupRecovery);
+    }
+
 }

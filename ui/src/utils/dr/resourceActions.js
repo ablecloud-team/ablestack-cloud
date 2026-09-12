@@ -216,8 +216,8 @@ export function buildDrPlanActions (currentRun = {}) {
       api: 'deleteDrPlan',
       icon: 'delete-outlined',
       label: 'label.dr.plan.delete',
-      show: resource => resolveDrActionAvailability({ key: 'delete' }, resource, currentRun).applicable,
-      disabled: resource => !resolveDrActionAvailability({ key: 'delete' }, resource, currentRun).enabled,
+      show: () => true,
+      disabled: () => false,
       currentRun
     }),
     ...runtimeActions

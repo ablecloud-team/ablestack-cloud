@@ -1429,8 +1429,6 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
 
         validateSpecificConfigurationValues(name, value, type);
 
-        validateDisasterRecoveryValues(name, value, type);
-
         boolean isTypeValid = validateValueType(value, type);
         if (!isTypeValid) {
             return String.format("Value [%s] is not a valid [%s].", value, type);
@@ -1641,22 +1639,6 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                     logger.error(validationResult.second());
                     throw new InvalidParameterValueException(errMsg);
                 }
-            }
-        }
-    }
-
-    protected void validateDisasterRecoveryValues(String name, String value, Class<?> type) {
-        if (name.equals("cloud.dr.service.enabled") && value.equals("true")) {
-            boolean rbd = false;
-            List<StoragePoolVO> pools = _storagePoolDao.listAll();
-            for (StoragePoolVO pool : pools) {
-                if (pool.getPoolType() == Storage.StoragePoolType.RBD) {
-                    rbd = true;
-                    break;
-                }
-            }
-            if (!rbd) {
-                throw new InvalidParameterValueException("Disaster recovery service can only be activated if you have rbd type storage.");
             }
         }
     }

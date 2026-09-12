@@ -1327,6 +1327,71 @@ CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'runtime_
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'runtime_verified_at', 'datetime DEFAULT NULL COMMENT "Last verified Storage Service runtime time"');
 -- END Storage Service runtime in-place upgrade (#911)
 
+-- DR test guest-agent validation survives runtime projection and process restart.
+CREATE TABLE IF NOT EXISTS `dr_test_boot_validation` (
+ `session_id` bigint unsigned NOT NULL,
+ `run_id` bigint unsigned NOT NULL,
+ `vm_id` bigint unsigned NOT NULL,
+ `state` varchar(32) NOT NULL,
+ `started_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `deadline_at` datetime NOT NULL,
+ `next_attempt_at` datetime NOT NULL,
+ `attempt_count` int unsigned NOT NULL DEFAULT 0,
+ `lease_token` varchar(40) DEFAULT NULL,
+ `lease_until` datetime DEFAULT NULL,
+ `validated_at` datetime DEFAULT NULL,
+ `evidence_json` text,
+ PRIMARY KEY (`session_id`), KEY `i_dr_boot_due` (`state`,`next_attempt_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Durable test cleanup protection restoration; separate from removed test resources.
+CREATE TABLE IF NOT EXISTS `dr_test_cleanup_recovery` (
+  `test_run_id` bigint unsigned NOT NULL,
+  `plan_id` bigint unsigned NOT NULL,
+  `cleanup_run_id` bigint unsigned DEFAULT NULL,
+  `desired_state` varchar(32) NOT NULL,
+  `state` varchar(32) NOT NULL,
+  `next_attempt_at` datetime NOT NULL,
+  `lease_token` varchar(40) DEFAULT NULL,
+  `lease_until` datetime DEFAULT NULL,
+  `attempt_count` int NOT NULL DEFAULT 0,
+  `last_error` varchar(1024) DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`test_run_id`),
+  KEY `i_dr_test_cleanup_due` (`state`,`next_attempt_at`),
+  KEY `i_dr_test_cleanup_plan` (`plan_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Plan-owned export fencing and historical revocation obligations (#968).
+CREATE TABLE IF NOT EXISTS `dr_export_transition` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `plan_id` BIGINT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `dr_export_host_history` (
+  `plan_id` BIGINT UNSIGNED NOT NULL,
+  `host_id` BIGINT UNSIGNED NOT NULL,
+  PRIMARY KEY (`plan_id`,`host_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- #970: remote site journal keyed by globally unique owning Plan, not local plan id.
+CREATE TABLE IF NOT EXISTS `ftctl_dr_reverse_export` (
+  `plan_uuid` varchar(40) NOT NULL,
+  `journal_json` mediumtext NOT NULL,
+  PRIMARY KEY (`plan_uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- #980: durable cleanup export phase, not a VM placement binding.
+CREATE TABLE IF NOT EXISTS `dr_cleanup_export_resume` (
+  `cleanup_run_id` BIGINT UNSIGNED NOT NULL,
+  `plan_id` BIGINT UNSIGNED NOT NULL,
+  `revoke_generation` BIGINT UNSIGNED NOT NULL,
+  `observed_worker_uuid` VARCHAR(40) NOT NULL,
+  `disk_fingerprint` CHAR(64) NOT NULL,
+  `drained` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`cleanup_run_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 -- Add URLs for OAuth provider
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.oauth_provider','authorize_url', 'VARCHAR(255) DEFAULT NULL COMMENT ''Authorize URL for OAuth initialization'' ');
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.oauth_provider','token_url', 'VARCHAR(255) DEFAULT NULL COMMENT ''Token URL for OAuth finalization'' ');

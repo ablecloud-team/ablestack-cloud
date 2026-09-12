@@ -82,6 +82,26 @@ public class DrFailbackLifecycleServiceImplTest {
         Mockito.when(drReplicaDao.listActiveByPlanId(plan.getId())).thenReturn(java.util.Collections.emptyList());
     }
 
+    @Test public void liveResumeWorkerIsObservedWithoutRecreatingTransport() {
+        DrPlanVO plan = new DrPlanVO("resume", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        plan.setActiveSide("SOURCE");
+        DrRunVO run = new DrRunVO(plan.getId(), DrConstants.RUN_TYPE_FAILBACK);
+        String worker = java.util.UUID.nameUUIDFromBytes((plan.getUuid()+":"+run.getUuid()+":RESUME_SYNC")
+                .getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+        JsonObject runtime = new JsonObject();
+        runtime.addProperty("active_worker_run_uuid",worker); runtime.addProperty("scheduler_pid_alive",true);
+        runtime.addProperty("control_state","RUNNING"); runtime.addProperty("scheduler_state","RUNNING");
+        runtime.addProperty("scheduler_health","HEALTHY");
+        Assert.assertTrue(service.ownedResumeWorkerActive(plan,run,runtime));
+        runtime.addProperty("control_state","PAUSED"); Assert.assertFalse(service.ownedResumeWorkerActive(plan,run,runtime));
+        runtime.addProperty("control_state","RUNNING"); runtime.addProperty("scheduler_pid_alive",false);
+        Assert.assertFalse(service.ownedResumeWorkerActive(plan,run,runtime));
+        runtime.addProperty("scheduler_pid_alive",true); runtime.addProperty("active_worker_run_uuid","stale");
+        Assert.assertFalse(service.ownedResumeWorkerActive(plan,run,runtime));
+        runtime.addProperty("active_worker_run_uuid",worker); runtime.addProperty("active_side","TARGET");
+        Assert.assertFalse(service.ownedResumeWorkerActive(plan,run,runtime));
+    }
+
     @Test
     public void acknowledgedRuntimeConvergesWithoutRollback() {
         Mockito.doReturn(true).when(service).cloudPowerStatesMatch(plan);

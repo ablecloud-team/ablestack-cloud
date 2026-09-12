@@ -36,6 +36,7 @@ describe('DrRunProgress transfer authority', () => {
   it('keeps a valid run sample when plan runtime is schema zero', () => {
     const wrapper = mountProgress({
       run: {
+        id: 'current-run', transferrunuuid: 'current-run',
         transferprogressschemaversion: 2,
         transfercyclesequence: 8,
         transfersamplesequence: 3,
@@ -44,6 +45,7 @@ describe('DrRunProgress transfer authority', () => {
         transferpercent: 25
       },
       runtime: {
+        transferrunuuid: 'current-run',
         transferprogressschemaversion: 0,
         transferbytestotal: 0,
         transferbytesprocessed: 0,
@@ -57,18 +59,21 @@ describe('DrRunProgress transfer authority', () => {
 
   it('separates accepted test failover from VM creation and final boot success', async () => {
     const wrapper = mountProgress({
-      run: { runtype: 'TEST_FAILOVER', state: 'ACCEPTED', testsessionstate: 'PREPARING' }
+      run: {
+        id: 'current-run', transferrunuuid: 'current-run', runtype: 'TEST_FAILOVER', state: 'ACCEPTED', testsessionstate: 'PREPARING' }
     })
     expect(wrapper.vm.testLifecycleNotice).toBe('message.dr.test.failover.accepted')
     expect(wrapper.vm.testFailoverActive).toBe(false)
 
     await wrapper.setProps({
-      run: { runtype: 'TEST_FAILOVER', state: 'RUNNING', testsessionstate: 'CLOUD_VM_CREATING' }
+      run: {
+        id: 'current-run', transferrunuuid: 'current-run', runtype: 'TEST_FAILOVER', state: 'RUNNING', testsessionstate: 'CLOUD_VM_CREATING' }
     })
     expect(wrapper.vm.testLifecycleNotice).toBe('message.dr.test.failover.vm.creating')
 
     await wrapper.setProps({
-      run: { runtype: 'TEST_FAILOVER', state: 'SUCCEEDED', testsessionstate: 'ACTIVE' }
+      run: {
+        id: 'current-run', transferrunuuid: 'current-run', runtype: 'TEST_FAILOVER', state: 'SUCCEEDED', testsessionstate: 'ACTIVE' }
     })
     expect(wrapper.vm.testLifecycleNotice).toBe('message.dr.test.failover.active')
     expect(wrapper.vm.testFailoverActive).toBe(true)
@@ -77,6 +82,7 @@ describe('DrRunProgress transfer authority', () => {
   it('selects the newer valid runtime sample and suppresses transient busy noise', () => {
     const wrapper = mountProgress({
       run: {
+        id: 'current-run', transferrunuuid: 'current-run',
         retryable: true,
         errormessage: 'FTCTL engine is busy',
         transferprogressschemaversion: 2,
@@ -87,6 +93,7 @@ describe('DrRunProgress transfer authority', () => {
         transferpercent: 25
       },
       runtime: {
+        transferrunuuid: 'current-run',
         transferprogressschemaversion: 2,
         transfercyclesequence: 8,
         transfersamplesequence: 4,
@@ -105,6 +112,7 @@ describe('DrRunProgress transfer authority', () => {
   it('keeps whole-operation progress consistent with a live transfer sample', () => {
     const wrapper = mountProgress({
       run: {
+        id: 'current-run', transferrunuuid: 'current-run',
         runtype: 'SYNC',
         state: 'RUNNING',
         progresspercent: 1,
@@ -124,6 +132,7 @@ describe('DrRunProgress transfer authority', () => {
   it('does not let an older transfer sample reduce backend workflow progress', () => {
     const wrapper = mountProgress({
       run: {
+        id: 'current-run', transferrunuuid: 'current-run',
         runtype: 'SYNC',
         state: 'RUNNING',
         progresspercent: 90,
@@ -140,6 +149,7 @@ describe('DrRunProgress transfer authority', () => {
   it('does not report a running failback as complete while data is still transferring', () => {
     const wrapper = mountProgress({
       run: {
+        id: 'current-run', transferrunuuid: 'current-run',
         runtype: 'FAILBACK',
         state: 'RUNNING',
         currentstep: 'runtime-transfer',
@@ -159,6 +169,7 @@ describe('DrRunProgress transfer authority', () => {
   it('explains the final failback protection-resume gate and localizes its step', () => {
     const wrapper = mountProgress({
       run: {
+        id: 'current-run', transferrunuuid: 'current-run',
         runtype: 'FAILBACK',
         state: 'RUNNING',
         currentstep: 'remote-source-protection-resume-pending',
@@ -178,6 +189,7 @@ describe('DrRunProgress transfer authority', () => {
   it('clamps a malformed historical disk index to the declared disk count', () => {
     const wrapper = mountProgress({
       run: {
+        id: 'current-run', transferrunuuid: 'current-run',
         transferprogressschemaversion: 2,
         transferbytestotal: 150,
         transferbytesprocessed: 150,
@@ -194,11 +206,13 @@ describe('DrRunProgress transfer authority', () => {
     const wrapper = shallowMount(DrRunProgress, {
       props: {
         run: {
+        id: 'current-run', transferrunuuid: 'current-run',
           state: 'FAILED',
           errorcode: 'DR_GUEST_PREP_V2K_RUNTIME_MISSING',
           errormessage: 'generic backend message'
         },
-        runtime: {}
+        runtime: {
+        transferrunuuid: 'current-run',}
       },
       global: {
         mocks: {
@@ -219,12 +233,14 @@ describe('DrRunProgress transfer authority', () => {
     const wrapper = shallowMount(DrRunProgress, {
       props: {
         run: {
+        id: 'current-run', transferrunuuid: 'current-run',
           runtype: 'TEST_FAILOVER',
           state: 'FAILED',
           errorcode: 'DR_TARGET_DISK_LOCATOR_INVALID',
           errormessage: 'unsupported test artifact type: qcow2-copy'
         },
-        runtime: {}
+        runtime: {
+        transferrunuuid: 'current-run',}
       },
       global: {
         mocks: {
@@ -236,5 +252,42 @@ describe('DrRunProgress transfer authority', () => {
 
     expect(wrapper.vm.failureText).toBe('translated:message.dr.error.dr.target.disk.locator.invalid')
     expect(wrapper.vm.testFailoverActive).toBe(false)
+  })
+})
+
+
+describe('DrRunProgress reverse operation isolation', () => {
+  const live = {
+    id: 'new-run', planid: 'plan', runtype: 'FAILBACK', state: 'RUNNING', currentstep: 'failback-transfer',
+    transferprogressschemaversion: 2, transferrunuuid: 'new-run', transferplanuuid: 'plan',
+    transferdirection: 'KVM_TO_VMWARE', transferbytestotal: 1000, transferpercent: 50,
+    transfercyclesequence: 185, transfersamplesequence: 1, transferactivitystate: 'COPYING'
+  }
+  it('rejects a larger completed forward cycle from another run', () => {
+    const wrapper = mountProgress({ run: live, runtime: { ...live, transferrunuuid: 'old-run',
+      transfercyclesequence: 999, transferpercent: 100, transferdirection: 'VMWARE_TO_KVM' } })
+    expect(wrapper.vm.transferPercent).toBe(50)
+    expect(wrapper.vm.failbackLifecycleNotice).toBe('')
+  })
+  it('rejects a different cycle even with the same operation owner', () => {
+    const wrapper = mountProgress({ run: live, runtime: { ...live, transfercyclesequence: 999, transferpercent: 100 } })
+    expect(wrapper.vm.transferPercent).toBe(50)
+  })
+  it('shows preparation instead of reusing identity-free or completed-cycle evidence', () => {
+    const wrapper = mountProgress({ run: { ...live, transferrunuuid: '' },
+      runtime: { ...live, completedcycleprojected: true, transferpercent: 100 } })
+    expect(wrapper.vm.hasTransferProgress).toBe(false)
+    expect(wrapper.vm.failbackLifecycleNotice).toBe('')
+  })
+  it('does not turn completed copy or verifying 100 percent into source recovery', async () => {
+    const wrapper = mountProgress({ run: { ...live, progresspercent: 95,
+      transferpercent: 100, transferactivitystate: 'VERIFYING' } })
+    expect(wrapper.vm.failbackLifecycleNotice).toBe('')
+    expect(wrapper.vm.transferProgressStatus).toBe('active')
+    await wrapper.setProps({ run: { ...live, progresspercent: 95, transferpercent: 100,
+      transferactivitystate: 'COMPLETE' } })
+    expect(wrapper.vm.failbackLifecycleNotice).toBe('')
+    await wrapper.setProps({ run: { ...live, currentstep: 'protection-resuming' } })
+    expect(wrapper.vm.failbackLifecycleNotice).toBe('message.dr.failback.protection.resume.verifying')
   })
 })

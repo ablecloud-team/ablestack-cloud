@@ -206,8 +206,19 @@ public class DrOrchestratorImpl extends ManagerBase implements DrOrchestrator {
         session.setNetworkMode(stringValue(request, "networkMode"));
         session.setNetworkId(longValue(request, "networkId"));
         session.setRestorePointRef(stringValue(request, "restorePointRef"));
-        session.setValidationMode(firstString(request, "testBootValidationMode", "validationMode"));
-        session.setBootTimeoutSeconds(firstInteger(request, "testBootTimeoutSeconds", "bootTimeoutSeconds"));
+        JsonObject policy = parseRequest(plan.getPolicyJson());
+        String mode = StringUtils.upperCase(StringUtils.defaultIfBlank(
+                firstString(request, "testBootValidationMode", "validationMode"),
+                StringUtils.defaultIfBlank(firstString(policy, "testBootValidationMode"), "POWER_STATE_ONLY")));
+        if (!StringUtils.equalsAny(mode, "POWER_STATE_ONLY", "QGA_REQUIRED")) {
+            throw new InvalidParameterValueException("Unsupported test boot validation mode: " + mode);
+        }
+        session.setValidationMode(mode);
+        Integer timeout = firstInteger(request, "testBootTimeoutSeconds", "bootTimeoutSeconds");
+        if (timeout == null) { timeout = firstInteger(policy, "testBootTimeoutSeconds"); }
+        if (timeout == null) { timeout = 180; }
+        if (timeout < 1 || timeout > 3600) { throw new InvalidParameterValueException("Boot timeout must be 1..3600 seconds"); }
+        session.setBootTimeoutSeconds(timeout);
         session.setArtifactContractVersion("3");
         session.setCleanupRequired(false);
         session.setDetailsJson(requestJson);

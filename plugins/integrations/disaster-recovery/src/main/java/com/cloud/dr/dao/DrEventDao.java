@@ -23,6 +23,8 @@ import com.cloud.utils.Pair;
 import com.cloud.utils.db.GenericDao;
 
 public interface DrEventDao extends GenericDao<DrEventVO, Long> {
+    List<DrEventVO> listCleanupRecords();
+
     List<DrEventVO> listByPlanId(long planId);
 
     List<DrEventVO> listRecentByPlanId(long planId, int limit, boolean includeProjectionRefresh);

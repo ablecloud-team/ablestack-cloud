@@ -209,6 +209,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_TEST_CONNECT, eventDescription = "disaster recovery cluster connection testing", resourceType = "DisasterRecoveryCluster")
     public boolean connectivityTestsDisasterRecovery(final ConnectivityTestsDisasterRecoveryClusterCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("connectivityTestsDisasterRecovery");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -244,6 +245,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
 
     @Override
     public ListResponse<ScvmIpAddressResponse> listScvmIpAddressResponse(ListScvmIpAddressCmd cmd) {
+        rejectDeprecatedLegacyDrClusterOperation("listScvmIpAddressResponse");
         List<ScvmIpAddressResponse> responses = new ArrayList<>();
         ScvmIpAddressResponse response = new ScvmIpAddressResponse();
         String ipList = Script.runSimpleBashScript("cat /etc/hosts | grep -E 'scvm.*-mngt' | awk '{print $1}' | tr '\n' ','");
@@ -260,6 +262,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
 
     @Override
     public ListResponse<GetDisasterRecoveryClusterListResponse> listDisasterRecoveryClusterResponse(GetDisasterRecoveryClusterListCmd cmd) {
+        rejectDeprecatedLegacyDrClusterOperation("listDisasterRecoveryClusterResponse");
         Long id = cmd.getId();
         String name = cmd.getName();
         String drClusterType = cmd.getDrClusterType();
@@ -574,6 +577,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_UPDATE, eventDescription = "updating disaster recovery cluster", resourceType = "DisasterRecoveryCluster")
     public GetDisasterRecoveryClusterListResponse updateDisasterRecoveryCluster(UpdateDisasterRecoveryClusterCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("updateDisasterRecoveryCluster");
         if (!DisasterRecoveryClusterService.DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery plugin is disabled");
         }
@@ -704,6 +708,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_VM_UPDATE, eventDescription = "updating disaster recovery cluster vm map", resourceType = "DisasterRecoveryCluster")
     public GetDisasterRecoveryClusterVmListResponse updateDisasterRecoveryClusterVm(UpdateDisasterRecoveryClusterVmCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("updateDisasterRecoveryClusterVm");
         // primary cluster 에서 미러링 가상머신을 추가한 경우 secondary cluster의 vm map DB 업데이트를 위한 코드
         DisasterRecoveryClusterVO drcluster = null;
         Long drClusterId = cmd.getId();
@@ -729,6 +734,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
 
     @Override
     public DisasterRecoveryCluster createDisasterRecoveryCluster(CreateDisasterRecoveryClusterCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("createDisasterRecoveryCluster");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -764,6 +770,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_CREATE, eventDescription = "creating disaster recovery cluster", async = true, resourceType = "DisasterRecoveryCluster")
     public boolean setupDisasterRecoveryCluster(long clusterId) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("setupDisasterRecoveryCluster");
         DisasterRecoveryClusterVO drCluster = disasterRecoveryClusterDao.findById(clusterId);
         String drName = drCluster.getName();
         String drDescription = drCluster.getDescription();
@@ -905,6 +912,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
 
     @Override
     public GetDisasterRecoveryClusterListResponse createDisasterRecoveryClusterResponse(long clusterId) {
+        rejectDeprecatedLegacyDrClusterOperation("createDisasterRecoveryClusterResponse");
         DisasterRecoveryClusterVO drcluster = disasterRecoveryClusterDao.findById(clusterId);
         GetDisasterRecoveryClusterListResponse response = new GetDisasterRecoveryClusterListResponse();
         response.setObjectName("disasterrecoverycluster");
@@ -927,6 +935,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_DELETE, eventDescription = "deleting disaster recovery cluster", async = true, resourceType = "DisasterRecoveryCluster")
     public boolean deleteDisasterRecoveryCluster(DeleteDisasterRecoveryClusterCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("deleteDisasterRecoveryCluster");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -1072,6 +1081,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_ENABLE, eventDescription = "enabling disaster recovery cluster", async = true, resourceType = "DisasterRecoveryCluster")
     public boolean enableDisasterRecoveryCluster(EnableDisasterRecoveryClusterCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("enableDisasterRecoveryCluster");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -1163,6 +1173,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_DISABLE, eventDescription = "disabling disaster recovery cluster", async = true, resourceType = "DisasterRecoveryCluster")
     public boolean disableDisasterRecoveryCluster(DisableDisasterRecoveryClusterCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("disableDisasterRecoveryCluster");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -1260,6 +1271,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_PROMOTE, eventDescription = "promoting disaster recovery cluster", async = true, resourceType = "DisasterRecoveryCluster")
     public boolean promoteDisasterRecoveryCluster(PromoteDisasterRecoveryClusterCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("promoteDisasterRecoveryCluster");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -1337,6 +1349,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_DEMOTE, eventDescription = "demoting disaster recovery cluster", async = true, resourceType = "DisasterRecoveryCluster")
     public boolean demoteDisasterRecoveryCluster(DemoteDisasterRecoveryClusterCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("demoteDisasterRecoveryCluster");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -1481,6 +1494,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_RESYNC, eventDescription = "resyncing disaster recovery cluster", async = true, resourceType = "DisasterRecoveryCluster")
     public boolean resyncDisasterRecoveryCluster(ResyncDisasterRecoveryClusterCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("resyncDisasterRecoveryCluster");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -1597,6 +1611,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_CLEAR, eventDescription = "clearing disaster recovery cluster", async = true, resourceType = "DisasterRecoveryCluster")
     public boolean clearDisasterRecoveryCluster(ClearDisasterRecoveryClusterCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("clearDisasterRecoveryCluster");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -1661,6 +1676,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_VM_CREATE, async = true, eventDescription = "creating disaster recovery virtual machine", resourceType = "DisasterRecoveryCluster")
     public boolean setupDisasterRecoveryClusterVm(CreateDisasterRecoveryClusterVmCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("setupDisasterRecoveryClusterVm");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -1968,6 +1984,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_VM_DELETE, async = true, eventDescription = "deleting disaster recovery cluster virtual machine", resourceType = "DisasterRecoveryCluster")
     public boolean deleteDisasterRecoveryClusterVm(DeleteDisasterRecoveryClusterVmCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("deleteDisasterRecoveryClusterVm");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -2083,6 +2100,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_VM_START, eventDescription = "starting disaster recovery cluster virtual machine", resourceType = "DisasterRecoveryCluster")
     public boolean startDisasterRecoveryClusterVm(StartDisasterRecoveryClusterVmCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("startDisasterRecoveryClusterVm");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -2181,6 +2199,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_VM_STOP, eventDescription = "stopping disaster recovery cluster virtual machine", resourceType = "DisasterRecoveryCluster")
     public boolean stopDisasterRecoveryClusterVm(StopDisasterRecoveryClusterVmCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("stopDisasterRecoveryClusterVm");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -2221,6 +2240,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_VM_PROMOTE, eventDescription = "promoting disaster recovery cluster virtual machine", resourceType = "DisasterRecoveryCluster")
     public boolean promoteDisasterRecoveryClusterVm(PromoteDisasterRecoveryClusterVmCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("promoteDisasterRecoveryClusterVm");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -2301,6 +2321,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_VM_DEMOTE, eventDescription = "demoting disaster recovery cluster virtual machine", resourceType = "DisasterRecoveryCluster")
     public boolean demoteDisasterRecoveryClusterVm(DemoteDisasterRecoveryClusterVmCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("demoteDisasterRecoveryClusterVm");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -2413,6 +2434,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
     @Override
     @ActionEvent(eventType = DisasterRecoveryClusterEventTypes.EVENT_DR_VM_SNAPSHOT, eventDescription = "taking snapshot disaster recovery cluster virtual machine", resourceType = "DisasterRecoveryCluster")
     public boolean takeSnapshotDisasterRecoveryClusterVm(TakeSnapshotDisasterRecoveryClusterVmCmd cmd) throws CloudRuntimeException {
+        rejectDeprecatedLegacyDrClusterOperation("takeSnapshotDisasterRecoveryClusterVm");
         if (!DisasterRecoveryServiceEnabled.value()) {
             throw new CloudRuntimeException("Disaster Recovery Service plugin is disabled");
         }
@@ -3255,32 +3277,18 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
         }
     }
 
+    private void rejectDeprecatedLegacyDrClusterOperation(String operation) {
+        throw new InvalidParameterValueException("LEGACY_DR_CLUSTER_DEPRECATED: " + operation
+                + " is unavailable; use DR Site and DR Plan APIs");
+    }
+
     @Override
     public List<Class<?>> getCommands() {
         List<Class<?>> cmdList = new ArrayList<Class<?>>();
         if (!DisasterRecoveryServiceEnabled.value()) {
             return cmdList;
         }
-        cmdList.add(ListScvmIpAddressCmd.class);
-        cmdList.add(ConnectivityTestsDisasterRecoveryClusterCmd.class);
-        cmdList.add(GetDisasterRecoveryClusterListCmd.class);
-        cmdList.add(UpdateDisasterRecoveryClusterCmd.class);
-        cmdList.add(CreateDisasterRecoveryClusterCmd.class);
-        cmdList.add(DeleteDisasterRecoveryClusterCmd.class);
-        cmdList.add(EnableDisasterRecoveryClusterCmd.class);
-        cmdList.add(DisableDisasterRecoveryClusterCmd.class);
-        cmdList.add(PromoteDisasterRecoveryClusterCmd.class);
-        cmdList.add(DemoteDisasterRecoveryClusterCmd.class);
-        cmdList.add(CreateDisasterRecoveryClusterVmCmd.class);
-        cmdList.add(UpdateDisasterRecoveryClusterVmCmd.class);
-        cmdList.add(DeleteDisasterRecoveryClusterVmCmd.class);
-        cmdList.add(StartDisasterRecoveryClusterVmCmd.class);
-        cmdList.add(StopDisasterRecoveryClusterVmCmd.class);
-        cmdList.add(PromoteDisasterRecoveryClusterVmCmd.class);
-        cmdList.add(DemoteDisasterRecoveryClusterVmCmd.class);
-        cmdList.add(ResyncDisasterRecoveryClusterCmd.class);
-        cmdList.add(ClearDisasterRecoveryClusterCmd.class);
-        cmdList.add(TakeSnapshotDisasterRecoveryClusterVmCmd.class);
+        // Only the current DR Site/Plan APIs are supported. Legacy cluster APIs stay disabled.
         cmdList.add(CreateDrSiteCmd.class);
         cmdList.add(ListDrSitesCmd.class);
         cmdList.add(GetDrSiteCmd.class);
@@ -3321,6 +3329,7 @@ public class DisasterRecoveryClusterServiceImpl extends ManagerBase implements D
         cmdList.add(CancelDrRunCmd.class);
         cmdList.add(ListDrRestorePointsCmd.class);
         cmdList.add(ListDrSyncCheckpointsCmd.class);
+        cmdList.add(org.apache.cloudstack.api.command.admin.dr.ManageDrCheckpointsCmd.class);
         cmdList.add(ListDrReplicasCmd.class);
         cmdList.add(ListDrRunsCmd.class);
         cmdList.add(GetDrRunCmd.class);

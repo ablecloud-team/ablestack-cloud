@@ -18,6 +18,8 @@
 package com.cloud.dr;
 
 import java.util.HashSet;
+import java.util.TreeSet;
+import com.cloud.hypervisor.Hypervisor.HypervisorType;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -44,6 +46,7 @@ public class DrPlanOwnedTransportServiceImpl extends ManagerBase implements DrPl
     private static final int TRANSITION_WAIT_SECONDS = 45;
 
     @Inject private AgentManager agentManager;
+    @Inject private DrExportOwnershipStore exportOwnershipStore;
     @Inject private HostDao hostDao;
     @Inject private DrRemoteAgentClient drRemoteAgentClient;
     @Inject private DrWorkerPlacementService drWorkerPlacementService;
@@ -61,11 +64,38 @@ public class DrPlanOwnedTransportServiceImpl extends ManagerBase implements DrPl
             return new JsonArray();
         }
         HostVO targetHost = targetHost(plan);
+        long generation = exportOwnershipStore.nextGeneration(plan.getId());
+        revokeForwardExports(plan, run, profileJson, targetHost, generation, null);
         FtctlDrActionCommand command = command(plan, run, FtctlDrActionCommand.Action.TARGET_EXPORT_START,
-                "target", targetHost.getUuid(), profileJson);
+                "target", targetHost.getUuid(), ownershipProfile(profileJson, generation + 1));
         Answer answer = agentManager.easySend(targetHost.getId(), command);
+        requireOwnership(answer, generation + 1, targetHost.getId());
         return requireExports(answer, "Target Agent did not prepare the Plan-owned RBD export",
                 plan, profileJson);
+    }
+
+    @Override
+    public JsonArray restoreForwardTargetExport(DrPlanVO plan, DrRunVO run, String profileJson) {
+        if (!supports(plan)) { return new JsonArray(); }
+        // This is a live placement observation, never a saved execution binding.
+        HostVO targetHost = targetHost(plan);
+        String fingerprint = org.apache.commons.codec.digest.DigestUtils.sha256Hex(
+                GSON.toJson(firstArray(objectAt(parseObject(profileJson), "mapping"), "disks")));
+        DrExportOwnershipStore.RecoveryExport prepared = exportOwnershipStore.prepareRecoveryExport(
+                plan.getId(), run.getId(), targetHost.getUuid(), fingerprint);
+        if (!targetHost.getUuid().equals(prepared.workerUuid) || !fingerprint.equals(prepared.fingerprint)) {
+            throw new CloudRuntimeException("DR cleanup export placement changed; retry with live inventory");
+        }
+        if (!prepared.drained) {
+            revokeForwardExports(plan, run, profileJson, targetHost, prepared.generation, null);
+            // Persist before START: a lost START or RESUME reply must never repeat STOP.
+            exportOwnershipStore.markRecoveryExportDrained(run.getId(), prepared.generation);
+        }
+        FtctlDrActionCommand start = command(plan, run, FtctlDrActionCommand.Action.TARGET_EXPORT_START,
+                "target", targetHost.getUuid(), ownershipProfile(profileJson, prepared.generation + 1));
+        Answer answer = agentManager.easySend(targetHost.getId(), start);
+        requireOwnership(answer, prepared.generation + 1, targetHost.getId());
+        return requireExports(answer, "Target Agent did not restore the Plan-owned export", plan, profileJson);
     }
 
     @Override
@@ -75,11 +105,13 @@ public class DrPlanOwnedTransportServiceImpl extends ManagerBase implements DrPl
         }
         String workerUuid = null;
         JsonObject profile = parseObject(profileJson);
-        objectAt(profile, "request").addProperty("reverseTargetExport", true);
+        long generation = exportOwnershipStore.nextGeneration(plan.getId()) + 1;
+        reverseOwnership(profile, plan, generation);
         FtctlDrActionCommand command = command(plan, run, FtctlDrActionCommand.Action.TARGET_EXPORT_START,
                 "reverse-target", workerUuid, GSON.toJson(profile));
         Answer answer = drRemoteAgentClient.execute(plan, "ACTION", command,
                 workerUuid, FtctlDrActionAnswer.class);
+        requireReverseOwnership(answer, plan, generation);
         return requireExports(answer, "Original-site Agent did not prepare the reverse RBD export",
                 plan, profileJson);
     }
@@ -91,16 +123,57 @@ public class DrPlanOwnedTransportServiceImpl extends ManagerBase implements DrPl
             return;
         }
         HostVO targetHost = targetHost(plan);
-        FtctlDrActionCommand command = command(plan, run, FtctlDrActionCommand.Action.TARGET_EXPORT_STOP,
-                "target", targetHost.getUuid(), profileJson);
-        // Test Failover drains the mutable FILE writer before sealing the
-        // selected checkpoint. It must not ask FTCTL to create the reverse
-        // cutover baseline that is owned exclusively by a real Failover.
-        if (!StringUtils.equalsIgnoreCase(run.getRunType(), DrConstants.RUN_TYPE_TEST_FAILOVER)) {
-            command.setCutoverCheckpointSequence(checkpointSequence);
+        long generation = exportOwnershipStore.nextGeneration(plan.getId());
+        revokeForwardExports(plan, run, profileJson, targetHost, generation,
+                StringUtils.equalsIgnoreCase(run.getRunType(), DrConstants.RUN_TYPE_TEST_FAILOVER)
+                        ? null : checkpointSequence);
+    }
+
+    private String ownershipProfile(String profileJson, long generation) {
+        JsonObject profile = parseObject(profileJson);
+        objectAt(profile, "request").addProperty("exportGeneration", generation);
+        return GSON.toJson(profile);
+    }
+
+    private void revokeForwardExports(DrPlanVO plan, DrRunVO run, String profileJson,
+            HostVO selected, long generation, Long checkpointSequence) {
+        Set<Long> hosts = new TreeSet<>();
+        for (HostVO host : hostDao.listAllHostsByZoneAndHypervisorType(
+                selected.getDataCenterId(), HypervisorType.KVM)) {
+            hosts.add(host.getId());
         }
-        requireSuccess(agentManager.easySend(targetHost.getId(), command),
-                "Target Agent did not stop the Plan-owned RBD export");
+        hosts.add(selected.getId());
+        hosts = new TreeSet<>(exportOwnershipStore.rememberHosts(plan.getId(), hosts));
+        for (Long hostId : hosts) {
+            HostVO host = hostDao.findById(hostId);
+            if (host == null) {
+                throw new CloudRuntimeException("DR_EXPORT_OWNERSHIP_PENDING: historical worker "
+                        + hostId + " requires verified fencing before export transfer");
+            }
+            FtctlDrActionCommand stop = command(plan, run, FtctlDrActionCommand.Action.TARGET_EXPORT_STOP,
+                    "target", host.getUuid(), ownershipProfile(profileJson, generation));
+            requireOwnership(agentManager.easySend(hostId, stop), generation, hostId);
+        }
+        // Only after every writer is drained may a real cutover seal its reverse baseline.
+        if (checkpointSequence != null) {
+            FtctlDrActionCommand stop = command(plan, run, FtctlDrActionCommand.Action.TARGET_EXPORT_STOP,
+                    "target", selected.getUuid(), ownershipProfile(profileJson, generation));
+            stop.setCutoverCheckpointSequence(checkpointSequence);
+            requireOwnership(agentManager.easySend(selected.getId(), stop), generation, selected.getId());
+        }
+    }
+
+    private void requireOwnership(Answer answer, long generation, long hostId) {
+        if (answer instanceof FtctlDrActionAnswer && answer.getResult()) {
+            JsonObject status = parseObject(((FtctlDrActionAnswer) answer).getStatusJson());
+            if ("1".equals(firstString(status, "ownershipProtocol"))
+                    && Long.toString(generation).equals(firstString(status, "exportGeneration"))) {
+                return;
+            }
+        }
+        throw new CloudRuntimeException("DR_EXPORT_OWNERSHIP_PENDING: worker " + hostId
+                + " did not confirm generation " + generation + ": "
+                + (answer != null ? answer.getDetails() : "Agent unavailable"));
     }
 
     @Override
@@ -108,12 +181,35 @@ public class DrPlanOwnedTransportServiceImpl extends ManagerBase implements DrPl
         if (!supports(plan)) {
             return;
         }
-        String workerUuid = null;
+        long generation = exportOwnershipStore.nextGeneration(plan.getId());
+        JsonObject profile = new JsonObject();
+        reverseOwnership(profile, plan, generation);
         FtctlDrActionCommand command = command(plan, run, FtctlDrActionCommand.Action.TARGET_EXPORT_STOP,
-                "reverse-target", workerUuid, null);
-        requireSuccess(drRemoteAgentClient.execute(plan, "ACTION", command,
-                workerUuid, FtctlDrActionAnswer.class),
-                "Original-site Agent did not drain the reverse RBD export");
+                "reverse-target", null, GSON.toJson(profile));
+        requireReverseOwnership(drRemoteAgentClient.execute(plan, "ACTION", command,
+                null, FtctlDrActionAnswer.class), plan, generation);
+    }
+
+    private void reverseOwnership(JsonObject profile, DrPlanVO plan, long generation) {
+        JsonObject request = objectAt(profile, "request");
+        request.addProperty("reverseTargetExport", true);
+        request.addProperty("exportGeneration", generation);
+        request.addProperty("exportAuthorityScope", plan.getUuid());
+        request.addProperty("exportDirection", "REVERSE");
+    }
+
+    private void requireReverseOwnership(Answer answer, DrPlanVO plan, long generation) {
+        if (answer instanceof FtctlDrActionAnswer && answer.getResult()) {
+            JsonObject status = parseObject(((FtctlDrActionAnswer) answer).getStatusJson());
+            if ("2".equals(firstString(status, "ownershipProtocol"))
+                    && "1".equals(firstString(status, "ownershipBrokerProtocol"))
+                    && Long.toString(generation).equals(firstString(status, "exportGeneration"))
+                    && plan.getUuid().equals(firstString(status, "exportAuthorityScope"))
+                    && "REVERSE".equals(firstString(status, "exportDirection"))) {
+                return;
+            }
+        }
+        throw new CloudRuntimeException("DR_EXPORT_OWNERSHIP_PENDING: original site did not confirm scoped reverse export generation " + generation);
     }
 
     private FtctlDrActionCommand command(DrPlanVO plan, DrRunVO run,
@@ -153,6 +249,15 @@ public class DrPlanOwnedTransportServiceImpl extends ManagerBase implements DrPl
             throw new CloudRuntimeException(fallback + ": Agent returned no structured export status");
         }
         JsonArray exports = firstArray(parseObject(((FtctlDrActionAnswer) answer).getStatusJson()), "exports");
+        String exportGeneration = firstString(parseObject(((FtctlDrActionAnswer) answer).getStatusJson()), "exportGeneration");
+        if (StringUtils.isNumeric(exportGeneration)) {
+            for (JsonElement element : exports) {
+                if (element.isJsonObject()) {
+                    element.getAsJsonObject().addProperty("exportGeneration", Long.valueOf(exportGeneration));
+                }
+            }
+        }
+
         if (exports.size() == 0) {
             throw new CloudRuntimeException(fallback + ": Agent returned no RBD export endpoints");
         }

@@ -826,6 +826,51 @@ public class LibvirtFtctlCommandWrappersTest {
     }
 
     @Test
+    public void testDamagedHistoryPreservesOnlyIndependentPublicationEvidence() {
+        for (String variant : new String[] {"valid", "incomplete", "wrong-plan", "target", "exit-failure",
+                "empty-disks", "bad-identity", "bad-type", "operation", "legacy-side", "terminal"}) {
+            com.google.gson.JsonObject payload = new com.google.gson.JsonObject();
+            payload.addProperty("plan_uuid", "bad-identity".equals(variant) ? "another-plan" : "plan-a");
+            payload.addProperty("run_uuid", "run-a");
+            payload.addProperty("state", "terminal".equals(variant) ? "FAILED_OVER" : "READY");
+            payload.addProperty("active_side", "target".equals(variant) ? "TARGET" : "legacy-side".equals(variant) ? "" : "SOURCE");
+            payload.addProperty("latest_completed_checkpoint_sequence", 7);
+            payload.addProperty("latest_completed_checkpoint_state", "READY");
+            payload.addProperty("latest_completed_cycle_token", "incomplete".equals(variant) ? "plan-a:7" : "REDACTED");
+            payload.addProperty("latest_completed_effective_mode", "CBT_INCREMENTAL");
+            payload.addProperty("latest_completed_incremental_verified", true);
+            if ("bad-type".equals(variant)) payload.addProperty("latest_completed_incremental_verified", "invalid");
+            com.google.gson.JsonObject request = new com.google.gson.JsonObject();
+            request.addProperty("planUuid", "wrong-plan".equals(variant) ? "another-plan" : "plan-a");
+            request.addProperty("producerRunUuid", "new-producer");
+            request.addProperty("checkpointSequence", 8);
+            com.google.gson.JsonArray disks = new com.google.gson.JsonArray();
+            if (!"empty-disks".equals(variant)) disks.add(new com.google.gson.JsonObject());
+            request.add("disks", disks);
+            com.google.gson.JsonObject pending = new com.google.gson.JsonObject();
+            pending.add("request", request);
+            payload.addProperty("checkpoint_publication_pending", pending.toString());
+            FtctlDrStatusCommand command = new FtctlDrStatusCommand("plan-a", "run-a",
+                    "operation".equals(variant) ? FtctlDrStatusCommand.StatusScope.OPERATION
+                            : FtctlDrStatusCommand.StatusScope.PLAN_AUTHORITY);
+            try (MockedConstruction<Script> scripts = Mockito.mockConstruction(Script.class, (mock, context) -> {
+                Mockito.when(mock.execute(Mockito.any())).thenReturn(payload.toString());
+                Mockito.when(mock.getExitValue()).thenReturn("exit-failure".equals(variant) ? 1 : 0);
+            })) {
+                FtctlDrStatusAnswer answer = (FtctlDrStatusAnswer) new LibvirtFtctlDrStatusCommandWrapper().execute(command, resource);
+                Assert.assertFalse(variant, answer.getResult());
+                com.google.gson.JsonObject raw = new com.google.gson.JsonParser().parse(answer.getStatusJson()).getAsJsonObject();
+                boolean allowed = "valid".equals(variant) || "incomplete".equals(variant) || "legacy-side".equals(variant);
+                Assert.assertEquals(variant, allowed, raw.has("checkpoint_publication_recovery_only"));
+                Assert.assertEquals(variant, allowed, raw.has("checkpoint_publication_pending"));
+                Assert.assertFalse(raw.has("latest_completed_cycle_token"));
+                Assert.assertNull(answer.getLatestCompletedCycle());
+                if (allowed) Assert.assertEquals(pending.toString(), raw.get("checkpoint_publication_pending").getAsString());
+            }
+        }
+    }
+
+    @Test
     public void testDrStatusWrapperRejectsMixedCompletedCycleGeneration() {
         LibvirtFtctlDrStatusCommandWrapper wrapper = new LibvirtFtctlDrStatusCommandWrapper();
         FtctlDrStatusCommand command = new FtctlDrStatusCommand("plan-a", "run-a");

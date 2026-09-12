@@ -88,6 +88,8 @@ public class DrResponseGenerator extends ManagerBase {
     private static final int MAX_DETAILS_STRING_LENGTH = 1024;
 
     @Inject
+    private com.cloud.dr.DrTestCleanupRecoveryStore testCleanupRecovery;
+    @Inject
     private DrSiteDao drSiteDao;
     @Inject
     private DrPlanDao drPlanDao;
@@ -339,6 +341,15 @@ public class DrResponseGenerator extends ManagerBase {
             if (authority == null || authority.getRuntime() == null) {
                 response.setEffectiveState(resolveEffectivePlanState(plan, activeRun, currentRuntime, null));
             }
+        }
+        if (testCleanupRecovery != null && activeRun == null && testCleanupRecovery.pending(plan.getId())) {
+            response.setSchedulerRecoveryState("PENDING");
+            response.setSchedulerRecoveryTrigger("TEST_CLEANUP");
+            response.setReadinessReasonCode("DR_TEST_PROTECTION_RESTORE_PENDING");
+            String ownershipReason = testCleanupRecovery.pendingOwnershipReason(plan.getId());
+            response.setReadinessMessage(ownershipReason != null ? ownershipReason
+                    : "Protection restoration is pending; automatic retries wait for test cleanup and current operations to finish.");
+            if (ownershipReason != null) { response.setReadinessReasonCode("DR_EXPORT_OWNERSHIP_PENDING"); }
         }
         response.setInitialSyncInProgress(isInitialSyncInProgress(activeRun, currentRuntime));
         response.setTargetMaterializationState(resolveTargetMaterializationState(activeRun, currentRuntime, readiness));
@@ -657,6 +668,9 @@ public class DrResponseGenerator extends ManagerBase {
         response.setTransferActivityState(firstString(runtime, "transfer_activity_state"));
         response.setTransferPayloadBytes(firstLong(runtime, "transfer_payload_bytes"));
         response.setTransferProgressSchemaVersion(firstInteger(runtime, "transfer_progress_schema_version"));
+        response.setTransferPlanUuid(firstString(runtime, "transfer_plan_uuid"));
+        response.setTransferRunUuid(firstString(runtime, "transfer_run_uuid"));
+        response.setTransferDirection(firstString(runtime, "transfer_direction"));
         response.setTransferCycleSequence(firstLong(runtime, "transfer_cycle_sequence"));
         response.setTransferSampleSequence(firstLong(runtime, "transfer_sample_sequence"));
         response.setTransferPhase(firstString(runtime, "transfer_phase"));
@@ -707,7 +721,10 @@ public class DrResponseGenerator extends ManagerBase {
             response.setTestVmId(testSession.getTargetVmUuid());
             response.setTestVmName(testSession.getTargetVmName());
             response.setTestNetworkMode(testSession.getNetworkMode());
-            response.setTestBootValidationState(testSession.getBootValidationState());
+            response.setTestBootValidationMode(testSession.getValidationMode());
+            response.setTestBootValidationState("QGA_REQUIRED".equalsIgnoreCase(testSession.getValidationMode())
+                    && "POWER_STATE_VALIDATED".equals(testSession.getBootValidationState())
+                    ? "LEGACY_QGA_UNVERIFIED" : testSession.getBootValidationState());
         }
         return response;
     }

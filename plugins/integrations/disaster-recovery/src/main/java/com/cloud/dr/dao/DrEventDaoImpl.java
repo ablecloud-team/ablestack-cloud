@@ -55,6 +55,13 @@ public class DrEventDaoImpl extends GenericDaoBase<DrEventVO, Long> implements D
     }
 
     @Override
+    public List<DrEventVO> listCleanupRecords() {
+        SearchCriteria<DrEventVO> sc = createSearchCriteria();
+        sc.addAnd("eventType", SearchCriteria.Op.EQ, "DR_UNREGISTERED_RESOURCES");
+        return listBy(sc, new Filter(DrEventVO.class, "created", false, 0L, 500L));
+    }
+
+    @Override
     public List<DrEventVO> listByPlanId(long planId) {
         SearchCriteria<DrEventVO> sc = byPlanSearch.create();
         sc.setParameters("planId", planId);

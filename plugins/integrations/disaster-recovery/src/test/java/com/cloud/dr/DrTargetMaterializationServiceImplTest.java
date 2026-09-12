@@ -54,6 +54,7 @@ import com.cloud.vm.dao.VMInstanceDetailsDao;
 @RunWith(MockitoJUnitRunner.class)
 public class DrTargetMaterializationServiceImplTest {
     @Mock private DrPlanDao drPlanDao;
+    @Mock private com.cloud.service.dao.ServiceOfferingDao serviceOfferingDao;
     @Mock private DrReplicaDao drReplicaDao;
     @Mock private DrReplicaDiskDao drReplicaDiskDao;
     @Mock private DrTestSessionDao drTestSessionDao;
@@ -67,7 +68,81 @@ public class DrTargetMaterializationServiceImplTest {
     @Mock private PrimaryDataStoreDao primaryDataStoreDao;
     @Mock private DrTargetResourceOwnershipService targetResourceOwnershipService;
     @Mock private VMInstanceDetailsDao vmInstanceDetailsDao;
+    @Mock private com.cloud.dr.dao.DrRunDao drRunDao;
+    @Mock private com.cloud.dr.dao.DrRunStepDao drRunStepDao;
+    @Mock private com.cloud.dr.dao.DrEventDao drEventDao;
     @InjectMocks private DrTargetMaterializationServiceImpl service;
+
+    @Test
+    public void targetReadinessDoesNotCompleteRequestedFullReseed() throws Exception {
+        DrRunVO run = materializationCallback("FULL_RESEED", null);
+        Assert.assertEquals(DrConstants.RUN_STATE_RUNNING, run.getState());
+        Assert.assertNull(run.getCompleted());
+        Mockito.verify(drRunDao, Mockito.never()).update(Mockito.anyLong(), Mockito.any());
+        Mockito.verify(drRunStepDao).persist(Mockito.argThat(step ->
+                "target-materialization".equals(step.getStepName())
+                && DrConstants.STEP_STATE_SUCCEEDED.equals(step.getState())));
+    }
+
+    @Test
+    public void ordinarySyncStillCompletesAfterTargetMaterialization() throws Exception {
+        DrRunVO run = materializationCallback("INCREMENTAL", null);
+        Assert.assertEquals(DrConstants.RUN_STATE_SUCCEEDED, run.getState());
+        Assert.assertNotNull(run.getCompleted());
+    }
+
+    @Test
+    public void lateMaterializationPreservesFailedFullReseed() throws Exception {
+        DrRunVO run = materializationCallback("FULL_RESEED", DrConstants.RUN_STATE_FAILED);
+        Assert.assertEquals(DrConstants.RUN_STATE_FAILED, run.getState());
+        Mockito.verify(drRunDao, Mockito.never()).update(Mockito.anyLong(), Mockito.any());
+    }
+
+    private DrRunVO materializationCallback(String mode, String terminal) throws Exception {
+        DrPlanVO plan = new DrPlanVO("materialization", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        DrRunVO run = new DrRunVO(0L, DrConstants.RUN_TYPE_SYNC);
+        run.setState(terminal == null ? DrConstants.RUN_STATE_RUNNING : terminal);
+        run.setRequestJson("{\"mode\":\"" + mode + "\"}");
+        if (terminal != null) { run.setCompleted(new java.util.Date()); }
+        Mockito.when(drPlanDao.findById(0L)).thenReturn(plan);
+        Mockito.when(drRunDao.findById(0L)).thenReturn(run);
+        Class<?> resultType = Class.forName(DrTargetMaterializationServiceImpl.class.getName() + "$MaterializationResult");
+        java.lang.reflect.Constructor<?> constructor = resultType.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        java.lang.reflect.Method callback = DrTargetMaterializationServiceImpl.class.getDeclaredMethod(
+                "completeMaterialization", long.class, long.class, resultType, String.class);
+        callback.setAccessible(true);
+        callback.invoke(service, 0L, 0L, constructor.newInstance(), "{}");
+        return run;
+    }
+
+    @Test public void missingDynamicDetailsUseExplicitTargetNotSource() {
+        DrPlanVO plan = new DrPlanVO("dynamic", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        plan.setMappingJson("{\"target\":{\"cpuNumber\":4,\"cpuSpeed\":2100,\"memory\":8192},\"source\":{\"cpuNumber\":16,\"memory\":65536}}");
+        UserVmVO vm = Mockito.mock(UserVmVO.class);
+        Mockito.when(vm.getServiceOfferingId()).thenReturn(11L); Mockito.when(vm.getId()).thenReturn(287L);
+        ServiceOfferingVO dynamic = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(dynamic.getCpu()).thenReturn(null); Mockito.when(dynamic.getSpeed()).thenReturn(null); Mockito.when(dynamic.getRamSize()).thenReturn(null);
+        Mockito.when(serviceOfferingDao.findById(11L)).thenReturn(dynamic);
+        Map<String,String> actual = new HashMap<>(); actual.put("cpuNumber", "6");
+        Mockito.when(vmInstanceDetailsDao.listDetailsKeyPairs(287L)).thenReturn(actual);
+        service.ensureTargetComputeDetails(plan, vm);
+        Mockito.verify(vmInstanceDetailsDao).addDetail(287L,"cpuSpeed","2100",false);
+        Mockito.verify(vmInstanceDetailsDao).addDetail(287L,"memory","8192",false);
+        Mockito.verify(vmInstanceDetailsDao,Mockito.never()).addDetail(Mockito.anyLong(),Mockito.eq("cpuNumber"),Mockito.anyString(),Mockito.anyBoolean());
+    }
+
+    @Test public void incompleteDynamicTargetSpecWritesNothing() {
+        DrPlanVO plan = new DrPlanVO("dynamic", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        plan.setMappingJson("{\"target\":{\"cpuNumber\":4}}");
+        UserVmVO vm = Mockito.mock(UserVmVO.class);
+        Mockito.when(vm.getServiceOfferingId()).thenReturn(11L);
+        ServiceOfferingVO dynamic = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(dynamic.getCpu()).thenReturn(null); Mockito.when(dynamic.getSpeed()).thenReturn(null); Mockito.when(dynamic.getRamSize()).thenReturn(null);
+        Mockito.when(serviceOfferingDao.findById(11L)).thenReturn(dynamic);
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class, () -> service.ensureTargetComputeDetails(plan,vm));
+        Mockito.verify(vmInstanceDetailsDao,Mockito.never()).addDetail(Mockito.anyLong(),Mockito.anyString(),Mockito.anyString(),Mockito.anyBoolean());
+    }
 
     @Test
     public void retainOperationalVmDoesNotMutateCloudResources() {
@@ -346,7 +421,7 @@ public class DrTargetMaterializationServiceImplTest {
     }
 
     @Test
-    public void existingReplicaReconcilesMissingSourceDetailsAndRemovesLegacyBootMode() {
+    public void existingReplicaPreservesTargetDetailsAndOnlyRefreshesDiagnosticFingerprint() {
         DrPlanVO plan = new DrPlanVO("details", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
         plan.setMappingJson("{\"source\":{\"hardware\":{\"fingerprint\":\"current-fingerprint\",\"vmDetails\":{"
                 + "\"UEFI\":\"LEGACY\",\"tpmversion\":\"NONE\"}}}}");
@@ -360,13 +435,58 @@ public class DrTargetMaterializationServiceImplTest {
 
         service.reconcileSourceVmDetails(plan, target);
 
-        Mockito.verify(vmInstanceDetailsDao).removeDetail(165L, "boot.mode");
-        Mockito.verify(vmInstanceDetailsDao).addDetail(165L, "tpmversion", "NONE", true);
+        Mockito.verify(vmInstanceDetailsDao, Mockito.never()).removeDetail(165L, "boot.mode");
+        Mockito.verify(vmInstanceDetailsDao, Mockito.never()).addDetail(165L, "tpmversion", "NONE", true);
         Mockito.verify(vmInstanceDetailsDao).removeDetail(165L, "dr.source.hardware.fingerprint");
         Mockito.verify(vmInstanceDetailsDao).addDetail(165L, "dr.source.hardware.fingerprint",
                 "current-fingerprint", false);
-        Mockito.verify(vmInstanceDetailsDao).addDetail(Mockito.eq(165L),
-                Mockito.eq(DrVmDetailReplicationPolicy.REPLICATED_KEYS_DETAIL),
-                Mockito.contains("tpmversion"), Mockito.eq(false));
+        Mockito.verify(vmInstanceDetailsDao, Mockito.never()).removeDetail(165L,
+                DrVmDetailReplicationPolicy.REPLICATED_KEYS_DETAIL);
     }
+    @Test
+    public void explicitFalseOmitsAgentKeyEvenWhenSourceThreadsAreTrue() {
+        DrPlanVO plan = new DrPlanVO("tuning", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        plan.setMappingJson("{\"source\":{\"hardware\":{\"vmDetails\":{\"iothreads\":\"true\",\"io.policy\":\"native\"}}}}");
+        DrResolvedTargetHardware hardware = new DrResolvedTargetHardware();
+        hardware.setIoThreadsEnabled(false);
+        hardware.setIoPolicy(ApiConstants.IoDriverPolicy.IO_URING);
+        VolumeVO root = Mockito.mock(VolumeVO.class);
+        Mockito.when(root.getSize()).thenReturn(1024L * 1024L * 1024L);
+        Map<String, String> details = service.buildTargetVmDetails(plan, null,
+                new DrResolvedTargetPlacement(), null, root, hardware);
+        Assert.assertFalse(details.containsKey("iothreads"));
+        Assert.assertEquals("io_uring", details.get("io.policy"));
+    }
+
+    @Test
+    public void reuseAllowsMissingThreadsAndDifferentPolicyWithoutChangingTarget() {
+        DrPlanVO plan = new DrPlanVO("tuning", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        plan.setMappingJson("{\"source\":{\"hardware\":{\"vmDetails\":{\"UEFI\":\"LEGACY\",\"iothreads\":\"true\"}}},"
+                + "\"target\":{\"hardware\":{\"ioThreadsEnabled\":true,\"ioPolicy\":\"io_uring\"}}}");
+        UserVmVO target = Mockito.mock(UserVmVO.class);
+        Mockito.when(target.getId()).thenReturn(165L);
+        Map<String, String> actual = new HashMap<String, String>();
+        actual.put("UEFI", "LEGACY"); actual.put("io.policy", "threads");
+        actual.put(DrVmDetailReplicationPolicy.REPLICATED_KEYS_DETAIL, "iothreads,io.policy,old.user.value");
+        Mockito.when(vmInstanceDetailsDao.listDetailsKeyPairs(165L)).thenReturn(actual);
+        service.reconcileSourceVmDetails(plan, target);
+        Mockito.verify(vmInstanceDetailsDao, Mockito.never()).removeDetail(Mockito.anyLong(), Mockito.anyString());
+    }
+
+    @Test
+    public void reuseRejectsBootMismatchBeforeAnyDetailWrite() {
+        DrPlanVO plan = new DrPlanVO("boot", 1L, 2L, DrConstants.DIRECTION_KVM_TO_KVM);
+        plan.setMappingJson("{\"source\":{\"hardware\":{\"vmDetails\":{\"UEFI\":\"SECURE\"}}}}");
+        UserVmVO target = Mockito.mock(UserVmVO.class);
+        Mockito.when(target.getId()).thenReturn(165L);
+        Mockito.when(vmInstanceDetailsDao.listDetailsKeyPairs(165L)).thenReturn(new HashMap<String, String>());
+        try {
+            service.reconcileSourceVmDetails(plan, target);
+            Assert.fail("boot mismatch must fail");
+        } catch (com.cloud.utils.exception.CloudRuntimeException expected) {
+            Assert.assertTrue(expected.getMessage().contains("TARGET_BOOT_CONTRACT_MISMATCH"));
+        }
+        Mockito.verify(vmInstanceDetailsDao, Mockito.never()).removeDetail(Mockito.anyLong(), Mockito.anyString());
+    }
+
 }

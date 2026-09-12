@@ -44,6 +44,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
+    @Inject
+    private DrCheckpointCleanupService checkpointCleanup;
+    @Inject private DrTestCleanupRecoveryStore testCleanupRecovery;
+
     private static final DrPlanActionAvailabilityEvaluator ACTION_AVAILABILITY_EVALUATOR =
             new DrPlanActionAvailabilityEvaluator();
     @Inject
@@ -214,22 +218,36 @@ public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
 
     @Override
     public boolean deletePlan(long planId) {
+        return deletePlan(planId, false);
+    }
+
+    @Override
+    public boolean deletePlan(long planId, boolean force) {
         DrPlanVO plan = requirePlan(planId);
         if (drRunDao.findActiveByPlanId(planId) != null) {
             throw new InvalidParameterValueException(DrConstants.ERROR_ACTIVE_RUN_EXISTS + ": active run exists for plan " + planId);
         }
-        if (hasRuntimeResources(planId, plan) || isProtectedPlanState(plan)) {
+        if (!force && (hasRuntimeResources(planId, plan) || isProtectedPlanState(plan))) {
             throw new InvalidParameterValueException(DrConstants.ERROR_RUNTIME_RESOURCE_EXISTS
                     + ": release DR protection and cleanup runtime resources before deleting plan " + planId);
+        }
+        if (force) {
+            if (checkpointCleanup != null) checkpointCleanup.preserveUnregistered(plan);
+            // Unregister only. Preserve runtime/history evidence for manual remote cleanup.
+            plan.setAdminState(DrConstants.ADMIN_STATE_DISABLED);
+            plan.markUpdated();
+            drPlanDao.update(planId, plan);
+            if (testCleanupRecovery != null) testCleanupRecovery.supersedePlan(planId);
+            logger.warn("Force unregistering DR plan {} ({}); remote resources may require manual cleanup", planId, plan.getUuid());
         }
         DrPlanViewCacheVO cache = drPlanViewCacheDao != null ? drPlanViewCacheDao.findByPlanId(planId) : null;
         if (cache != null && !drPlanViewCacheDao.remove(cache.getId())) {
             throw new CloudRuntimeException("Failed to delete DR protection view cache for plan " + planId);
         }
-        if (drSyncCycleDao != null) {
+        if (!force && drSyncCycleDao != null) {
             drSyncCycleDao.removeByPlanId(planId);
         }
-        if (drPlanRuntimeDao != null) {
+        if (!force && drPlanRuntimeDao != null) {
             drPlanRuntimeDao.removeByPlanId(planId);
         }
         if (!drPlanDao.remove(planId)) {
@@ -303,6 +321,7 @@ public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
                 && (StringUtils.equalsAnyIgnoreCase(planRuntime.getReconciliationState(),
                         "RECONCILING", "DEAD_CONFIRMING")
                         || planRuntime.getOwnedProcessCount() > 0
+                        && !isOnlyLiveReplicationScheduler(planRuntime)
                         && !StringUtils.equalsIgnoreCase(planRuntime.getReconciliationState(), "TERMINAL"));
         DrProtectionAuthoritySnapshot authority = ftctlDrPlan && drProtectionAuthorityService != null
                 ? drProtectionAuthorityService.getAuthority(planId) : null;
@@ -329,8 +348,8 @@ public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
                 && ftctlDrPlan && ftctlDrControlReady && syncPausable);
         eligibility.put("resumeSync", enabled && !activeRun && hasEngine && sourceAuthority
                 && ftctlDrPlan && ftctlDrControlReady && syncPaused);
-        eligibility.put("testFailover", enabled && !activeRun && hasEngine && ftctlDrPlan && ftctlDrControlReady
-                && sourceAuthority && targetReady && normalCutoverReady);
+        eligibility.put("testFailover", (testCleanupRecovery == null || !testCleanupRecovery.pending(plan.getId())) && enabled && !activeRun && hasEngine && ftctlDrPlan && ftctlDrControlReady
+                && sourceAuthority && targetReady);
         eligibility.put("stopTestFailover", enabled && !activeRun && hasEngine && ftctlDrPlan && ftctlDrControlReady && testRunning);
         eligibility.put("failover", enabled && !activeRun && hasEngine
                 && sourceAuthority
@@ -411,6 +430,30 @@ public class DrPlanServiceImpl extends ManagerBase implements DrPlanService {
         }
         return new DrPlanActionEvaluation(eligibility,
                 ACTION_AVAILABILITY_EVALUATOR.evaluate(eligibility, context));
+    }
+
+    // A persistent scheduler is expected to survive a completed control Run.
+    // Other owned processes still require reconciliation before new actions.
+    static boolean isOnlyLiveReplicationScheduler(DrPlanRuntimeVO runtime) {
+        if (runtime == null || runtime.getOwnedProcessCount() != 1
+                || !StringUtils.equalsIgnoreCase(runtime.getReconciliationState(), "LIVE")
+                || !StringUtils.equalsIgnoreCase(runtime.getSchedulerState(), "RUNNING")
+                || !StringUtils.equalsIgnoreCase(runtime.getSchedulerUnitActiveState(), "active")
+                || !StringUtils.equalsIgnoreCase(runtime.getWorkerIdentityState(), "MATCHED")
+                || !StringUtils.equalsIgnoreCase(runtime.getWorkerLivenessState(), "ALIVE")
+                || runtime.getSchedulerUnitMainPid() == null || runtime.getSchedulerUnitMainPid() <= 0
+                || !runtime.getSchedulerUnitMainPid().equals(runtime.getActiveWorkerPid())) {
+            return false;
+        }
+        try {
+            JsonObject status = JsonParser.parseString(runtime.getStatusJson()).getAsJsonObject();
+            return status.has("worker_pid") && !status.get("worker_pid").isJsonNull()
+                    && status.get("worker_pid").getAsLong() == runtime.getSchedulerUnitMainPid()
+                    && (!status.has("reconciliation_required")
+                        || !status.get("reconciliation_required").getAsBoolean());
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     private boolean hasCommittedTargetAuthority(DrPlanVO plan) {

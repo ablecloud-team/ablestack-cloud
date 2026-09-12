@@ -24,6 +24,8 @@ public interface DrPlanOwnedTransportService {
 
     JsonArray startForwardTargetExport(DrPlanVO plan, DrRunVO run, String profileJson);
 
+    JsonArray restoreForwardTargetExport(DrPlanVO plan, DrRunVO run, String profileJson);
+
     JsonArray startReverseTargetExport(DrPlanVO plan, DrRunVO run, String profileJson);
 
     void stopForwardTargetExport(DrPlanVO plan, DrRunVO run, String profileJson,
