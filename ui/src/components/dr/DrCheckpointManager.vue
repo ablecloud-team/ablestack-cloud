@@ -20,7 +20,7 @@ under the License.
 <!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file. -->
 <template>
   <div>
-  <a-button v-if="'manageDrCheckpoints' in $store.getters.apis" size="small" @click="open">
+  <a-button v-if="'manageDrCheckpoints' in $store.getters.apis" :size="toolbar ? undefined : 'small'" :shape="toolbar ? 'round' : undefined" @click="open">
     {{ planId ? '체크포인트 관리' : '미정리 자원' }}
   </a-button>
   <a-modal v-model:visible="visible" :title="planId ? '체크포인트 보존 및 수동 정리' : '등록 해제 후 미정리 자원'" :width="1100" :footer="null">
@@ -69,7 +69,10 @@ rowKey="checkpointRef"
 import { getAPI, postAPI } from '@/api'
 export default {
   name: 'DrCheckpointManager',
-  props: { planId: { type: String, default: '' } },
+  props: {
+    planId: { type: String, default: '' },
+    toolbar: { type: Boolean, default: false }
+  },
   data () {
     return {
       visible: false,

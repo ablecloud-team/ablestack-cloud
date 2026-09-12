@@ -18,7 +18,6 @@
 -->
 <template>
   <div class="cross-dr-page cross-dr-standard-page">
-    <dr-checkpoint-manager v-if="!detailId" style="margin-bottom: 12px" />
     <a-affix
       :key="'affix-' + showSearchFilters"
       :offsetTop="this.$store.getters.maintenanceInitiated || this.$store.getters.shutdownTriggered ? 103 : 78">
@@ -78,6 +77,10 @@
               :resource="detailPlan"
               :triggerStyle="{ float: device === 'mobile' ? 'left' : 'right' }"
               @exec-action="runPlanAction" />
+            <dr-checkpoint-manager
+              v-if="!detailId"
+              toolbar
+              style="display: inline-flex; margin-right: 10px; vertical-align: middle" />
             <span
               v-if="!detailId && selectedRowKeys.length > 0 && 'startDrProtectionGroupAction' in $store.getters.apis"
               class="row-action-button"
