@@ -24,7 +24,11 @@ import stat
 from pathlib import Path
 
 
-REQUIRED = ("HyperV/hyperv.py", "MaaS/maas.py", "Proxmox/proxmox.sh")
+REQUIRED = (
+    "HyperV/hyperv.py", "MaaS/maas.py", "Proxmox/proxmox.sh",
+    "network-namespace/network-namespace.sh",
+    "network-namespace/network-namespace-wrapper.sh",
+)
 
 
 def verify_payload(source_root, payload_root):
