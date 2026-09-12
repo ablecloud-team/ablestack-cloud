@@ -212,6 +212,11 @@ verify_management_schema_resources() {
         rpm2cpio "$ROOT_DIR/$management_rpm" | cpio -idm --quiet
     )
 
+    if ! python3 "$ROOT_DIR/tools/build/verify_extensions_payload.py" "$ROOT_DIR" "$extract_dir"; then
+        rm -rf "$extract_dir"
+        return 1
+    fi
+
     mapfile -t packaged_jars < <(find "$extract_dir/usr/share/cloudstack-management/lib" -maxdepth 1 -type f -name 'cloudstack-*.jar' | sort)
     if [ "${#packaged_jars[@]}" -ne 1 ]; then
         echo "Expected exactly one packaged cloudstack application jar, found ${#packaged_jars[@]}" >&2
