@@ -25,6 +25,11 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.naming.ConfigurationException;
 
+import com.cloud.agent.api.to.OVFInformationTO;
+import com.cloud.resourcelimit.CheckedReservation;
+import com.cloud.user.Account;
+import com.cloud.user.dao.AccountDao;
+import com.cloud.user.AccountManager;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStore;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStoreManager;
 import org.apache.cloudstack.engine.subsystem.api.storage.EndPoint;
@@ -36,6 +41,7 @@ import org.apache.cloudstack.engine.subsystem.api.storage.TemplateService;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
 import org.apache.cloudstack.managed.context.ManagedContextRunnable;
+import org.apache.cloudstack.reservation.dao.ReservationDao;
 import org.apache.cloudstack.storage.command.UploadStatusAnswer;
 import org.apache.cloudstack.storage.command.UploadStatusAnswer.UploadStatus;
 import org.apache.cloudstack.storage.command.UploadStatusCommand;
@@ -54,7 +60,6 @@ import com.cloud.agent.api.AgentControlCommand;
 import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.Command;
 import com.cloud.agent.api.StartupCommand;
-import com.cloud.agent.api.to.OVFInformationTO;
 import com.cloud.alert.AlertManager;
 import com.cloud.api.query.dao.TemplateJoinDao;
 import com.cloud.api.query.vo.TemplateJoinVO;
@@ -79,11 +84,6 @@ import com.cloud.utils.db.TransactionStatus;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.fsm.NoTransitionException;
 import com.cloud.utils.fsm.StateMachine2;
-import com.cloud.resourcelimit.CheckedReservation;
-import com.cloud.user.Account;
-import com.cloud.user.AccountManager;
-import com.cloud.user.dao.AccountDao;
-import org.apache.cloudstack.reservation.dao.ReservationDao;
 
 /**
  * Monitors the progress of upload.
@@ -556,6 +556,12 @@ public class ImageStoreUploadMonitorImpl extends ManagerBase implements ImageSto
 
                             if (logger.isDebugEnabled()) {
                                 logger.debug("Template {} uploaded successfully", tmpTemplate);
+                            }
+                            try {
+                                templateService.replicateTemplateUpToCap(tmpTemplate.getId(), vo.getDataCenterId());
+                            } catch (Exception e) {
+                                logger.warn("Failed to schedule additional copies for uploaded template [{}] in zone [{}]: {}",
+                                        tmpTemplate.getUuid(), vo.getDataCenterId(), e.getMessage());
                             }
                             break;
                         case IN_PROGRESS:

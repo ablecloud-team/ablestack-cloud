@@ -522,23 +522,21 @@ CREATE TABLE IF NOT EXISTS `cloud`.`dr_run_step` (
     CONSTRAINT `fk_dr_run_step__run_id` FOREIGN KEY (`run_id`) REFERENCES `dr_run` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `cloud`.`dr_run`
-    ADD COLUMN IF NOT EXISTS `engine_accepted` tinyint(1) NOT NULL DEFAULT 0 AFTER `external_job_ref`,
-    ADD COLUMN IF NOT EXISTS `accepted_at` datetime NULL AFTER `engine_accepted`,
-    ADD COLUMN IF NOT EXISTS `dispatch_started` datetime NULL AFTER `accepted_at`,
-    ADD COLUMN IF NOT EXISTS `dispatch_completed` datetime NULL AFTER `dispatch_started`,
-    ADD COLUMN IF NOT EXISTS `projection_state` varchar(64) NULL AFTER `dispatch_completed`,
-    ADD COLUMN IF NOT EXISTS `projection_checked` datetime NULL AFTER `projection_state`,
-    ADD COLUMN IF NOT EXISTS `retryable` tinyint(1) NOT NULL DEFAULT 0 AFTER `projection_checked`,
-    ADD COLUMN IF NOT EXISTS `retry_count` int NOT NULL DEFAULT 0 AFTER `retryable`,
-    ADD COLUMN IF NOT EXISTS `retry_after_seconds` int NULL AFTER `retry_count`,
-    ADD COLUMN IF NOT EXISTS `next_retry_at` datetime NULL AFTER `retry_after_seconds`,
-    ADD COLUMN IF NOT EXISTS `last_status_json` mediumtext NULL AFTER `next_retry_at`,
-    ADD INDEX IF NOT EXISTS `i_dr_run__plan_created` (`plan_id`, `created`),
-    ADD INDEX IF NOT EXISTS `i_dr_run__plan_state_completed` (`plan_id`, `state`, `completed`);
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_run', 'engine_accepted', 'tinyint(1) NOT NULL DEFAULT 0 AFTER `external_job_ref`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_run', 'accepted_at', 'datetime NULL AFTER `engine_accepted`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_run', 'dispatch_started', 'datetime NULL AFTER `accepted_at`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_run', 'dispatch_completed', 'datetime NULL AFTER `dispatch_started`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_run', 'projection_state', 'varchar(64) NULL AFTER `dispatch_completed`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_run', 'projection_checked', 'datetime NULL AFTER `projection_state`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_run', 'retryable', 'tinyint(1) NOT NULL DEFAULT 0 AFTER `projection_checked`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_run', 'retry_count', 'int NOT NULL DEFAULT 0 AFTER `retryable`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_run', 'retry_after_seconds', 'int NULL AFTER `retry_count`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_run', 'next_retry_at', 'datetime NULL AFTER `retry_after_seconds`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_run', 'last_status_json', 'mediumtext NULL AFTER `next_retry_at`');
+CALL `cloud`.`IDEMPOTENT_ADD_KEY`('i_dr_run__plan_created', 'cloud.dr_run', '(`plan_id`, `created`)');
+CALL `cloud`.`IDEMPOTENT_ADD_KEY`('i_dr_run__plan_state_completed', 'cloud.dr_run', '(`plan_id`, `state`, `completed`)');
 
-ALTER TABLE `cloud`.`dr_run_step`
-    ADD INDEX IF NOT EXISTS `i_dr_run_step__run_order` (`run_id`, `step_order`);
+CALL `cloud`.`IDEMPOTENT_ADD_KEY`('i_dr_run_step__run_order', 'cloud.dr_run_step', '(`run_id`, `step_order`)');
 
 CREATE TABLE IF NOT EXISTS `cloud`.`dr_event` (
     `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -742,15 +740,13 @@ CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_sync_cycle', 'scheduler_lease_epo
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_sync_cycle', 'authority_sequence', 'bigint unsigned NULL AFTER `scheduler_lease_epoch`');
 
 
-ALTER TABLE `cloud`.`dr_plan_view_cache`
-    ADD COLUMN IF NOT EXISTS `last_refresh_error_code` varchar(255) DEFAULT NULL AFTER `last_error`,
-    ADD COLUMN IF NOT EXISTS `last_refresh_error_message` varchar(4096) DEFAULT NULL AFTER `last_refresh_error_code`,
-    ADD COLUMN IF NOT EXISTS `last_refresh_failed_at` datetime DEFAULT NULL AFTER `last_refresh_error_message`;
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_plan_view_cache', 'last_refresh_error_code', 'varchar(255) DEFAULT NULL AFTER `last_error`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_plan_view_cache', 'last_refresh_error_message', 'varchar(4096) DEFAULT NULL AFTER `last_refresh_error_code`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_plan_view_cache', 'last_refresh_failed_at', 'datetime DEFAULT NULL AFTER `last_refresh_error_message`');
 
 CALL `cloud`.`IDEMPOTENT_ADD_KEY`('i_dr_plan_runtime__nbd_teardown_state', 'cloud.dr_plan_runtime', '(`nbd_teardown_state`, `updated`)');
 
-ALTER TABLE `cloud`.`dr_event`
-    ADD INDEX IF NOT EXISTS `i_dr_event__plan_created_id` (`plan_id`, `created`, `id`);
+CALL `cloud`.`IDEMPOTENT_ADD_KEY`('i_dr_event__plan_created_id', 'cloud.dr_event', '(`plan_id`, `created`, `id`)');
 
 UPDATE `cloud`.`volumes` v
 JOIN `cloud`.`dr_replica_disk` d ON d.target_volume_id = v.id AND d.removed IS NULL
@@ -909,12 +905,11 @@ CREATE TABLE IF NOT EXISTS `cloud`.`dr_cutover_disk` (
   KEY `idx_dr_cutover_disk_session_active` (`session_id`,`removed`),
   KEY `idx_dr_cutover_disk_target_volume` (`target_volume_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-ALTER TABLE `cloud`.`dr_cutover_disk`
-  ADD COLUMN IF NOT EXISTS `target_volume_id` bigint unsigned DEFAULT NULL AFTER `state`,
-  ADD COLUMN IF NOT EXISTS `target_volume_uuid` varchar(40) DEFAULT NULL AFTER `target_volume_id`,
-  ADD COLUMN IF NOT EXISTS `checkpoint_sequence` bigint unsigned DEFAULT NULL AFTER `target_volume_uuid`,
-  ADD COLUMN IF NOT EXISTS `manifest_sha256` varchar(64) DEFAULT NULL AFTER `checkpoint_sequence`,
-  ADD KEY IF NOT EXISTS `idx_dr_cutover_disk_target_volume` (`target_volume_id`);
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_cutover_disk', 'target_volume_id', 'bigint unsigned DEFAULT NULL AFTER `state`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_cutover_disk', 'target_volume_uuid', 'varchar(40) DEFAULT NULL AFTER `target_volume_id`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_cutover_disk', 'checkpoint_sequence', 'bigint unsigned DEFAULT NULL AFTER `target_volume_uuid`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_cutover_disk', 'manifest_sha256', 'varchar(64) DEFAULT NULL AFTER `checkpoint_sequence`');
+CALL `cloud`.`IDEMPOTENT_ADD_KEY`('idx_dr_cutover_disk_target_volume', 'cloud.dr_cutover_disk', '(`target_volume_id`)');
 CREATE TABLE IF NOT EXISTS `cloud`.`dr_test_session` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `uuid` varchar(40) NOT NULL,
@@ -1023,25 +1018,24 @@ CREATE TABLE IF NOT EXISTS `cloud`.`dr_failback_session` (
   KEY `idx_dr_failback_session_reconcile` (`state`,`last_probe_at`,`removed`,`plan_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-ALTER TABLE `cloud`.`dr_failback_session`
-  ADD COLUMN `commit_attempt_id` varchar(64) DEFAULT NULL AFTER `engine_ack_state`,
-  ADD COLUMN `commit_outcome` varchar(32) DEFAULT NULL AFTER `commit_attempt_id`,
-  ADD COLUMN `scheduler_generation` bigint unsigned DEFAULT NULL AFTER `commit_outcome`,
-  ADD COLUMN `scheduler_ack_generation` bigint unsigned DEFAULT NULL AFTER `scheduler_generation`,
-  ADD COLUMN `scheduler_state` varchar(32) DEFAULT NULL AFTER `scheduler_ack_generation`,
-  ADD COLUMN `rollback_state` varchar(32) DEFAULT NULL AFTER `scheduler_state`,
-  ADD COLUMN `rollback_generation` bigint unsigned DEFAULT NULL AFTER `rollback_state`,
-  ADD COLUMN `lifecycle_version` bigint unsigned NOT NULL DEFAULT 0 AFTER `rollback_generation`,
-  ADD COLUMN `resume_baseline_checkpoint_sequence` bigint unsigned DEFAULT NULL AFTER `lifecycle_version`,
-  ADD COLUMN `required_post_failback_checkpoint_sequence` bigint unsigned DEFAULT NULL AFTER `resume_baseline_checkpoint_sequence`,
-  ADD COLUMN `commit_requested_at` datetime DEFAULT NULL AFTER `engine_ack_at`,
-  ADD COLUMN `commit_verified_at` datetime DEFAULT NULL AFTER `commit_requested_at`,
-  ADD COLUMN `protection_resume_requested_at` datetime DEFAULT NULL AFTER `commit_verified_at`,
-  ADD COLUMN `protection_resume_verified_at` datetime DEFAULT NULL AFTER `protection_resume_requested_at`,
-  ADD COLUMN `rollback_requested_at` datetime DEFAULT NULL AFTER `commit_verified_at`,
-  ADD COLUMN `rollback_verified_at` datetime DEFAULT NULL AFTER `rollback_requested_at`,
-  ADD COLUMN `last_probe_at` datetime DEFAULT NULL AFTER `rollback_verified_at`,
-  ADD INDEX `idx_dr_failback_session_reconcile` (`state`,`last_probe_at`,`removed`,`plan_id`);
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'commit_attempt_id', 'varchar(64) DEFAULT NULL AFTER `engine_ack_state`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'commit_outcome', 'varchar(32) DEFAULT NULL AFTER `commit_attempt_id`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'scheduler_generation', 'bigint unsigned DEFAULT NULL AFTER `commit_outcome`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'scheduler_ack_generation', 'bigint unsigned DEFAULT NULL AFTER `scheduler_generation`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'scheduler_state', 'varchar(32) DEFAULT NULL AFTER `scheduler_ack_generation`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'rollback_state', 'varchar(32) DEFAULT NULL AFTER `scheduler_state`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'rollback_generation', 'bigint unsigned DEFAULT NULL AFTER `rollback_state`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'lifecycle_version', 'bigint unsigned NOT NULL DEFAULT 0 AFTER `rollback_generation`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'resume_baseline_checkpoint_sequence', 'bigint unsigned DEFAULT NULL AFTER `lifecycle_version`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'required_post_failback_checkpoint_sequence', 'bigint unsigned DEFAULT NULL AFTER `resume_baseline_checkpoint_sequence`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'commit_requested_at', 'datetime DEFAULT NULL AFTER `engine_ack_at`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'commit_verified_at', 'datetime DEFAULT NULL AFTER `commit_requested_at`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'protection_resume_requested_at', 'datetime DEFAULT NULL AFTER `commit_verified_at`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'protection_resume_verified_at', 'datetime DEFAULT NULL AFTER `protection_resume_requested_at`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'rollback_requested_at', 'datetime DEFAULT NULL AFTER `commit_verified_at`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'rollback_verified_at', 'datetime DEFAULT NULL AFTER `rollback_requested_at`');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'last_probe_at', 'datetime DEFAULT NULL AFTER `rollback_verified_at`');
+CALL `cloud`.`IDEMPOTENT_ADD_KEY`('idx_dr_failback_session_reconcile', 'cloud.dr_failback_session', '(`state`,`last_probe_at`,`removed`,`plan_id`)');
 
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'replication_direction', 'varchar(32) NULL AFTER `post_failback_checkpoint_sequence`');
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_failback_session', 'provider_pair', 'varchar(64) NULL AFTER `replication_direction`');

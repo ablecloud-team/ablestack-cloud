@@ -1,0 +1,61 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+item	value	result	sha256
+Actions run	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34472435525	PASS	-
+artifact	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34472435525/artifacts/10151049217	downloaded; 9 RPM SHA256 checks passed	-
+source_sha	e6dc42759bf6d61b9210c8b5d062632838f139be	recorded/checked	-
+architecture	x86_64	recorded/checked	-
+python_version	Python 3.10.21	recorded/checked	-
+date	2026-09-10T11:46:14Z	recorded/checked	-
+os_release	"NAME=""Rocky Linux"" VERSION=""9.8 (Blue Onyx)"" RELEASE_TYPE=""stable"" ID=""rocky"" ID_LIKE=""rhel centos fedora"" VERSION_ID=""9.8"" PLATFORM_ID=""platform:el9"" PRETTY_NAME=""Rocky Linux 9.8 (Blue Onyx)"" ANSI_COLOR=""0;32"" LOGO=""fedora-logo-icon"" CPE_NAME=""cpe:/o:rocky:rocky:9::baseos"" HOME_URL=""https://rockylinux.org/"" VENDOR_NAME=""RESF"" VENDOR_URL=""https://resf.org/"" BUG_REPORT_URL=""https://bugs.rockylinux.org/"" SUPPORT_END=""2032-05-31"" ROCKY_SUPPORT_PRODUCT=""Rocky-Linux-9"" ROCKY_SUPPORT_PRODUCT_VERSION=""9.8"" REDHAT_SUPPORT_PRODUCT=""Rocky Linux"" REDHAT_SUPPORT_PRODUCT_VERSION=""9.8"" "	recorded/checked	-
+java_version	"openjdk version ""17.0.20.1"" 2026-08-18 LTS OpenJDK Runtime Environment (Red_Hat-17.0.20.1.1-1) (build 17.0.20.1+1-LTS) OpenJDK 64-Bit Server VM (Red_Hat-17.0.20.1.1-1) (build 17.0.20.1+1-LTS, mixed mode, sharing) "	recorded/checked	-
+maven_version	Apache Maven 3.9.10 (5f519b97e944483d878815739f519b2eade0a91d)	recorded/checked	-
+maven_opts	-Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true --add-opens=java.base/java.lang=ALL-UNNAMED	recorded/checked	-
+node_version	v14.21.3	recorded/checked	-
+npm_version	6.14.18	recorded/checked	-
+nonoss_sha	f94b5cfcd12e7ce50f9e732ff0e12affa9030640	recorded/checked	-
+pack	noredist	recorded/checked	-
+simulator	default	recorded/checked	-
+distro	rocky9	recorded/checked	-
+release	<default>	recorded/checked	-
+templates	<none>	recorded/checked	-
+brand	<default>	recorded/checked	-
+package_version	<maven>	recorded/checked	-
+timestamp_value	<generated>	recorded/checked	-
+build_srpm	false	recorded/checked	-
+use_timestamp	false	recorded/checked	-
+local_fast	false	recorded/checked	-
+ui_build_version	<source-config>	recorded/checked	-
+RPM	dist/rpmbuild/RPMS/x86_64/cloudstack-agent-4.23.0.0-SNAPSHOT.x86_64.rpm	downloaded checksum matches Actions manifest	fc14eb215fc65d1e0638f6bf369b039dd5fb8ec1d546e1cffd7407fd98c7dd32
+RPM	dist/rpmbuild/RPMS/x86_64/cloudstack-baremetal-agent-4.23.0.0-SNAPSHOT.x86_64.rpm	downloaded checksum matches Actions manifest	197bed2ac62f7ff5cdd51a4364da6bd20044405a5ce7659ac636b8a27e92b140
+RPM	dist/rpmbuild/RPMS/x86_64/cloudstack-common-4.23.0.0-SNAPSHOT.x86_64.rpm	downloaded checksum matches Actions manifest	1027e35a1e875aea3e2008f3dcc9841ff217e69ae7b753edf95fce8dae34e78a
+RPM	dist/rpmbuild/RPMS/x86_64/cloudstack-integration-tests-4.23.0.0-SNAPSHOT.x86_64.rpm	downloaded checksum matches Actions manifest	103b67a6c0887219fdf3c9da602cacbd174cd20ddbbb6efcc42bd0ef7cd02919
+RPM	dist/rpmbuild/RPMS/x86_64/cloudstack-management-4.23.0.0-SNAPSHOT.x86_64.rpm	downloaded checksum matches Actions manifest	0495356beeecf0eb2c64243fab589a03346273a08c82af5435284b78108ca6bd
+RPM	dist/rpmbuild/RPMS/x86_64/cloudstack-marvin-4.23.0.0-SNAPSHOT.x86_64.rpm	downloaded checksum matches Actions manifest	37f650a5f934eb18eac671483399f007d1bab753f975e47f43219f015dc600b3
+RPM	dist/rpmbuild/RPMS/x86_64/cloudstack-mysql-ha-4.23.0.0-SNAPSHOT.x86_64.rpm	downloaded checksum matches Actions manifest	aedfcaa59f10643158f32b07598d04b9ff7415f8110e53947b531a34c840b10b
+RPM	dist/rpmbuild/RPMS/x86_64/cloudstack-ui-4.23.0.0-SNAPSHOT.x86_64.rpm	downloaded checksum matches Actions manifest	c0a7374903dc35e56eb5534c3419a16270cc2c6786f7a6454d424c947595ec40
+RPM	dist/rpmbuild/RPMS/x86_64/cloudstack-usage-4.23.0.0-SNAPSHOT.x86_64.rpm	downloaded checksum matches Actions manifest	f3145e32ce147aabab8f1efdffc1cf4ed5b59a550896008665c73500bd97c0b3
+evidence	environment.txt	recorded/checked	0fae228fc09edcd027ff590e43456c33cd4efcefde29662ec1e21555b91fde8b
+evidence	SHA256SUMS	recorded/checked	73e6bc8c473530f44d393c2a8ed4450350ee600657733339ec1e00d2cc870856
+evidence	dependency-inputs.sha256	recorded/checked	93386550da19af79c6858b43394c24bab5e1213ace51cd1c0225699b78404d1e
+evidence	rpm-dependencies.txt	recorded/checked	cb9672c9cfce47a7c4d9f865dacb638f0526375da52d8627af6845974bd4487b
+evidence	runtime-smoke.txt	PASS; runtime output	33d9943ff4411787b4fe7ef7cfa82b4c5ea6488d89fee80476db0a4adc94eebf
+runtime-smoke	PASS packaged BC: RSA and X.509 signing/verification; PASS packaged OkHttp 5.1.0: MinIO list/upload and InfluxDB ping/write	PASS	-
+dependency-inputs	176 source files	all hashes match merged product source	-
+RPM metadata	cloudstack-management 4.23.0.0 SNAPSHOT x86_64	queried from downloaded RPM	-
+RPM metadata	cloudstack-ui 4.23.0.0 SNAPSHOT x86_64	queried from downloaded RPM	-
+RPM metadata	cloudstack-agent 4.23.0.0 SNAPSHOT x86_64	queried from downloaded RPM	-

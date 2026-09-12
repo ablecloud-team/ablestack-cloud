@@ -730,7 +730,7 @@ public class UnmanagedVMsManagerImplTest {
         DeployDestination mockDest = Mockito.mock(DeployDestination.class);
         when(deploymentPlanningManager.planDeployment(any(), any(), any(), any())).thenReturn(mockDest);
         DiskProfile diskProfile = Mockito.mock(DiskProfile.class);
-        when(volumeManager.allocateRawVolume(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
+        when(volumeManager.allocateRawVolume(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
                 .thenReturn(diskProfile);
         Map<Volume, StoragePool> storage = new HashMap<>();
         VolumeVO volume = Mockito.mock(VolumeVO.class);
@@ -1054,7 +1054,7 @@ public class UnmanagedVMsManagerImplTest {
         DeployDestination mockDest = Mockito.mock(DeployDestination.class);
         when(deploymentPlanningManager.planDeployment(any(), any(), any(), any())).thenReturn(mockDest);
         DiskProfile diskProfile = Mockito.mock(DiskProfile.class);
-        when(volumeManager.allocateRawVolume(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
+        when(volumeManager.allocateRawVolume(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
                         .thenReturn(diskProfile);
         Map<Volume, StoragePool> storage = new HashMap<>();
         VolumeVO volume = Mockito.mock(VolumeVO.class);
@@ -1478,42 +1478,6 @@ public class UnmanagedVMsManagerImplTest {
 
         HostVO returnedHost = unmanagedVMsManager.selectKVMHostForConversionInCluster(cluster, null, true);
         Assert.assertEquals(hostWithVddk, returnedHost);
-    }
-
-    @Test
-    public void testCheckUnmanagedDiskLimits() {
-        Account owner = Mockito.mock(Account.class);
-        UnmanagedInstanceTO.Disk disk = Mockito.mock(UnmanagedInstanceTO.Disk.class);
-        Mockito.when(disk.getDiskId()).thenReturn("disk1");
-        Mockito.when(disk.getCapacity()).thenReturn(100L);
-        ServiceOffering serviceOffering = Mockito.mock(ServiceOffering.class);
-        Mockito.when(serviceOffering.getDiskOfferingId()).thenReturn(1L);
-        UnmanagedInstanceTO.Disk dataDisk = Mockito.mock(UnmanagedInstanceTO.Disk.class);
-        Mockito.when(dataDisk.getDiskId()).thenReturn("disk2");
-        Mockito.when(dataDisk.getCapacity()).thenReturn(1000L);
-        Map<String, Long> dataDiskMap = new HashMap<>();
-        dataDiskMap.put("disk2", 2L);
-        DiskOfferingVO offering1 = Mockito.mock(DiskOfferingVO.class);
-        Mockito.when(diskOfferingDao.findById(1L)).thenReturn(offering1);
-        String tag1 = "tag1";
-        Mockito.when(resourceLimitService.getResourceLimitStorageTags(offering1)).thenReturn(List.of(tag1));
-        DiskOfferingVO offering2 = Mockito.mock(DiskOfferingVO.class);
-        Mockito.when(diskOfferingDao.findById(2L)).thenReturn(offering2);
-        String tag2 = "tag2";
-        Mockito.when(resourceLimitService.getResourceLimitStorageTags(offering2)).thenReturn(List.of(tag2));
-        try {
-            Mockito.doNothing().when(resourceLimitService).checkResourceLimit(any(), any(), any());
-            Mockito.doNothing().when(resourceLimitService).checkResourceLimitWithTag(any(), any(), any(), any());
-            unmanagedVMsManager.checkUnmanagedDiskLimits(owner, disk, serviceOffering, List.of(dataDisk), dataDiskMap);
-            Mockito.verify(resourceLimitService, Mockito.times(1)).checkResourceLimit(owner, Resource.ResourceType.volume, 2);
-            Mockito.verify(resourceLimitService, Mockito.times(1)).checkResourceLimit(owner, Resource.ResourceType.primary_storage, 1100L);
-            Mockito.verify(resourceLimitService, Mockito.times(1)).checkResourceLimitWithTag(owner, Resource.ResourceType.volume, tag1,1);
-            Mockito.verify(resourceLimitService, Mockito.times(1)).checkResourceLimitWithTag(owner, Resource.ResourceType.volume, tag2,1);
-            Mockito.verify(resourceLimitService, Mockito.times(1)).checkResourceLimitWithTag(owner, Resource.ResourceType.primary_storage, tag1,100L);
-            Mockito.verify(resourceLimitService, Mockito.times(1)).checkResourceLimitWithTag(owner, Resource.ResourceType.primary_storage, tag2,1000L);
-        } catch (ResourceAllocationException e) {
-            Assert.fail("Exception encountered: " + e.getMessage());
-        }
     }
 
     @Test

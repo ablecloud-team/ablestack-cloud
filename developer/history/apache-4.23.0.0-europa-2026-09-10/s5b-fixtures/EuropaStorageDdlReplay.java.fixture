@@ -1,0 +1,132 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+package com.cloud.upgrade.dao;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.Statement;
+import java.util.concurrent.atomic.AtomicInteger;
+
+/** Runs only on the task-owned disposable MySQL fixture. */
+public class EuropaStorageDdlReplay {
+    static void execute(Connection c, String sql) throws SQLException {
+        try (Statement s = c.createStatement()) { s.execute(sql); }
+    }
+    static void reset(Connection c) throws Exception {
+        execute(c, "DROP DATABASE IF EXISTS cloud");
+        execute(c, "CREATE DATABASE cloud");
+        execute(c, "USE cloud");
+        for (String table : new String[]{"mshost", "account", "host", "data_center", "volumes", "storage_pool", "vm_instance", "backup_schedule"}) {
+            execute(c, "CREATE TABLE " + table + "(id BIGINT UNSIGNED NOT NULL PRIMARY KEY)");
+            execute(c, "INSERT INTO " + table + " VALUES(1)");
+        }
+        execute(c, "CREATE TABLE backups(id BIGINT UNSIGNED NOT NULL PRIMARY KEY, uuid VARCHAR(40), vm_id BIGINT, backed_volumes TEXT, type VARCHAR(40), date DATETIME, status VARCHAR(40), backup_offering_id BIGINT, size BIGINT, protected_size BIGINT, zone_id BIGINT)");
+        execute(c, "INSERT INTO backups VALUES(1,'preserved-backup',1,'[]','FULL','2026-01-01','BackedUp',1,1024,4096,1)");
+        execute(c, "CREATE TABLE backup_details(id BIGINT PRIMARY KEY, backup_id BIGINT, name VARCHAR(255), value VARCHAR(255))");
+        execute(c, "INSERT INTO backup_details VALUES(1,1,'existing-detail','keep-me')");
+        execute(c, "CREATE TABLE backup_offering(id BIGINT PRIMARY KEY, provider VARCHAR(255))");
+        execute(c, "INSERT INTO backup_offering VALUES(1,'kboss')");
+        execute(c, "CREATE TABLE configuration(name VARCHAR(255) PRIMARY KEY, value TEXT)");
+        execute(c, "INSERT INTO configuration VALUES('user.vm.readonly.details','existing, backupValidationBootTimeout'),('other','keep-me')");
+        EuropaSchemaUpgrade.initialize(c);
+        execute(c, "INSERT INTO ablestack_schema_migration VALUES('europa-4.23-s4-v1','Complete','2026-01-01'),('europa-4.23-s5a-v1','Complete','2026-01-02')");
+        String procedure = Files.readString(Path.of("engine/schema/src/main/resources/META-INF/db/procedures/cloud.idempotent_add_column.sql"));
+        execute(c, procedure.substring(procedure.indexOf("CREATE PROCEDURE"), procedure.indexOf("END$$") + 3));
+    }
+    static Connection faultAfter(Connection c, int failAt, AtomicInteger count) {
+        return (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(), new Class[]{Connection.class}, (proxy, method, args) -> {
+            try {
+                Object result = method.invoke(c, args);
+                if (!method.getName().equals("createStatement")) return result;
+                Statement statement = (Statement) result;
+                return Proxy.newProxyInstance(Statement.class.getClassLoader(), new Class[]{Statement.class}, (sp, sm, sa) -> {
+                    try {
+                        Object sr = sm.invoke(statement, sa);
+                        if (sm.getName().equals("execute") && count.incrementAndGet() == failAt) {
+                            throw new SQLException("Injected interruption AFTER committed DDL " + failAt);
+                        }
+                        return sr;
+                    } catch (InvocationTargetException e) { throw e.getCause(); }
+                });
+            } catch (InvocationTargetException e) { throw e.getCause(); }
+        });
+    }
+    static void verify(Connection c) throws SQLException {
+        try (Statement st = c.createStatement(); ResultSet r = st.executeQuery("SELECT uuid, size, protected_size, from_checkpoint_id, compression_status FROM backups")) {
+            if (!r.next() || !"preserved-backup".equals(r.getString(1)) || r.getLong(2)!=1024 || r.getLong(3)!=4096 || r.getString(4)!=null || r.getString(5)!=null || r.next()) {
+                throw new AssertionError("Backup data changed");
+            }
+        }
+        try (Statement st = c.createStatement(); ResultSet r = st.executeQuery("SELECT value FROM configuration WHERE name='user.vm.readonly.details'")) {
+            r.next();
+            String expected = "existing, backupValidationBootTimeout, backupValidationCommandTimeout, backupValidationScreenshotWait";
+            if (!expected.equals(r.getString(1))) throw new AssertionError("Configuration lost or duplicated: " + r.getString(1));
+        }
+        try (Statement st = c.createStatement(); ResultSet r = st.executeQuery("SELECT COUNT(*) FROM internal_backup_view WHERE uuid='preserved-backup'")) {
+            r.next(); if (r.getInt(1)!=1) throw new AssertionError("KBOSS view missing backup");
+        }
+        try (Statement st = c.createStatement(); ResultSet r = st.executeQuery("SELECT COUNT(*) FROM ablestack_schema_migration WHERE state='Complete' AND updated IN ('2026-01-01','2026-01-02')")) {
+            r.next(); if (r.getInt(1)!=2) throw new AssertionError("Prior checkpoint timestamps changed");
+        }
+        execute(c, "INSERT INTO internal_backup_store_ref(backup_id,volume_id,path) VALUES(1,1,'preserved.qcow2')");
+        execute(c, "INSERT INTO volumes VALUES(2)");
+        execute(c, "INSERT INTO internal_backup_store_ref(backup_id,volume_id,path) VALUES(1,2,'data.qcow2')");
+        try (Statement st = c.createStatement(); ResultSet r = st.executeQuery("SELECT volume_id,image_store_path FROM internal_backup_view ORDER BY volume_id")) {
+            if (!r.next() || r.getLong(1)!=1 || !"preserved.qcow2".equals(r.getString(2)) ||
+                    !r.next() || r.getLong(1)!=2 || !"data.qcow2".equals(r.getString(2)) || r.next()) {
+                throw new AssertionError("Backup view lost per-volume identity/path without primary delta refs");
+            }
+        }
+        try {
+            execute(c, "INSERT INTO internal_backup_store_ref(backup_id,volume_id,path) VALUES(999,1,'invalid.qcow2')");
+            throw new AssertionError("Foreign key accepted nonexistent backup");
+        } catch (SQLIntegrityConstraintViolationException expected) { }
+        execute(c, "DELETE FROM internal_backup_store_ref");
+        execute(c, "DELETE FROM volumes WHERE id=2");
+    }
+
+    public static void main(String[] args) throws Exception {
+        if (args.length!=1 || !args[0].equals("epic994-mysql-ddl")) throw new IllegalArgumentException("Task-owned fixture only");
+        try (Connection c = DriverManager.getConnection("jdbc:mysql://"+args[0]+":3306/?allowPublicKeyRetrieval=true&useSSL=false", "root", "epic994-fixture-dummy")) {
+            reset(c);
+            AtomicInteger count = new AtomicInteger();
+            EuropaStorageSchemaUpgrade.migrate(faultAfter(c, -1, count));
+            int steps = count.get(); verify(c);
+            for (int i=1;i<=steps;i++) {
+                reset(c);
+                EuropaSchemaUpgrade.begin(c, EuropaSchemaUpgrade.S5B);
+                try { EuropaStorageSchemaUpgrade.migrate(faultAfter(c,i,new AtomicInteger())); throw new AssertionError("Failure not injected"); }
+                catch (com.cloud.utils.exception.CloudRuntimeException expected) {
+                    if (expected.getCause()==null || !expected.getCause().getMessage().startsWith("Injected")) throw expected;
+                }
+                if (!EuropaSchemaUpgrade.hasState(c, EuropaSchemaUpgrade.S5B,"Pending")) throw new AssertionError("False completed checkpoint");
+                EuropaStorageSchemaUpgrade.migrate(c);
+                EuropaSchemaUpgrade.complete(c, EuropaSchemaUpgrade.S5B);
+                EuropaStorageSchemaUpgrade.migrate(c);
+                verify(c);
+            }
+            System.out.println("PASS: S5B interruption/replay after all " + steps + " SQL boundaries, repeat, backup/config preservation, old journal timestamps, view and foreign keys");
+        }
+    }
+}

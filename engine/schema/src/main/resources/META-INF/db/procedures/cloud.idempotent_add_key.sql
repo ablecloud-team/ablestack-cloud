@@ -17,6 +17,7 @@
 
 DROP PROCEDURE IF EXISTS `cloud`.`IDEMPOTENT_ADD_KEY`;
 
+DELIMITER $$
 CREATE PROCEDURE `cloud`.`IDEMPOTENT_ADD_KEY` (
 		IN in_index_name VARCHAR(200)
     , IN in_table_name VARCHAR(200)
@@ -24,4 +25,5 @@ CREATE PROCEDURE `cloud`.`IDEMPOTENT_ADD_KEY` (
 )
 BEGIN
 
-    DECLARE CONTINUE HANDLER FOR 1061 BEGIN END; SET @ddl = CONCAT('ALTER TABLE ', in_table_name); SET @ddl = CONCAT(@ddl, ' ', ' ADD KEY ') ; SET @ddl = CONCAT(@ddl, ' ', in_index_name); SET @ddl = CONCAT(@ddl, ' ', in_key_definition); PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt; END;
+    DECLARE CONTINUE HANDLER FOR 1061 BEGIN END; SET @ddl = CONCAT('ALTER TABLE ', in_table_name); SET @ddl = CONCAT(@ddl, ' ', ' ADD KEY ') ; SET @ddl = CONCAT(@ddl, ' ', in_index_name); SET @ddl = CONCAT(@ddl, ' ', in_key_definition); PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt; END$$
+DELIMITER ;

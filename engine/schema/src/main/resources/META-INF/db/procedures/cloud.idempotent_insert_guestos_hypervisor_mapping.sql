@@ -17,6 +17,7 @@
 
 DROP PROCEDURE IF EXISTS `cloud`.`IDEMPOTENT_INSERT_GUESTOS_HYPERVISOR_MAPPING`;
 
+DELIMITER $$
 CREATE PROCEDURE `cloud`.`IDEMPOTENT_INSERT_GUESTOS_HYPERVISOR_MAPPING`(
                             IN in_hypervisor_type VARCHAR(32),
                             IN in_hypervisor_version VARCHAR(32),
@@ -45,4 +46,5 @@ BEGIN
                             in_guest_os_id,
                             utc_timestamp(),
                             is_user_defined
-                        ); END IF; END;;
+                        ); END IF; END$$
+DELIMITER ;

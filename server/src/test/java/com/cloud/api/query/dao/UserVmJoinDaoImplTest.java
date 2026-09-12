@@ -16,6 +16,7 @@
 // under the License.
 package com.cloud.api.query.dao;
 
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.MockitoAnnotations.openMocks;
 
@@ -52,10 +53,12 @@ import com.cloud.user.AccountManager;
 import com.cloud.user.UserStatisticsVO;
 import com.cloud.user.dao.UserDao;
 import com.cloud.user.dao.UserStatisticsDao;
+import com.cloud.host.dao.HostDetailsDao;
 import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
 import com.cloud.vm.dao.VMInstanceDetailsDao;
 import com.cloud.vm.dao.VbmcDao;
+import com.cloud.vm.dao.VmIsoMapDao;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserVmJoinDaoImplTest extends GenericDaoBaseWithTagInformationBaseTest<UserVmJoinVO, UserVmResponse> {
@@ -95,6 +98,11 @@ public class UserVmJoinDaoImplTest extends GenericDaoBaseWithTagInformationBaseT
     @Mock
     private BackupDao backupDao;
 
+    @Mock
+    private VmIsoMapDao vmIsoMapDao;
+    @Mock
+    private HostDetailsDao hostDetailsDao;
+
     private UserVmJoinVO userVm = new UserVmJoinVO();
     private UserVmResponse userVmResponse = new UserVmResponse();
 
@@ -112,6 +120,7 @@ public class UserVmJoinDaoImplTest extends GenericDaoBaseWithTagInformationBaseT
     @Before
     public void setup() {
         closeable = openMocks(this);
+        Mockito.lenient().when(vmIsoMapDao.listByVmId(anyLong())).thenReturn(Collections.emptyList());
         prepareSetup();
     }
 
@@ -178,5 +187,40 @@ public class UserVmJoinDaoImplTest extends GenericDaoBaseWithTagInformationBaseT
 
         Assert.assertEquals(2, response.getVnfNics().size());
         Assert.assertEquals(3, response.getVnfDetails().size());
+    }
+
+    @Test
+    public void advertisedCdromCapReturnsDefaultWhenHostIdNull() {
+        Assert.assertEquals(com.cloud.template.TemplateManager.DEFAULT_CDROM_MAX_PER_VM,
+                _userVmJoinDaoImpl.advertisedCdromCap(null));
+    }
+
+    @Test
+    public void advertisedCdromCapReturnsParsedValue() {
+        com.cloud.host.DetailVO detail = Mockito.mock(com.cloud.host.DetailVO.class);
+        Mockito.when(detail.getValue()).thenReturn("2");
+        Mockito.when(hostDetailsDao.findDetail(7L, com.cloud.host.Host.HOST_CDROM_MAX_COUNT)).thenReturn(detail);
+        Assert.assertEquals(2, _userVmJoinDaoImpl.advertisedCdromCap(7L));
+    }
+
+    @Test
+    public void advertisedCdromCapFallsBackOnInvalidValue() {
+        com.cloud.host.DetailVO detail = Mockito.mock(com.cloud.host.DetailVO.class);
+        Mockito.when(detail.getValue()).thenReturn("xyz");
+        Mockito.when(hostDetailsDao.findDetail(7L, com.cloud.host.Host.HOST_CDROM_MAX_COUNT)).thenReturn(detail);
+        Assert.assertEquals(com.cloud.template.TemplateManager.DEFAULT_CDROM_MAX_PER_VM,
+                _userVmJoinDaoImpl.advertisedCdromCap(7L));
+    }
+
+    @Test
+    public void effectiveCdromMaxCountClampsToHypervisorCap() {
+        UserVmJoinVO userVm = Mockito.mock(UserVmJoinVO.class);
+        Mockito.when(userVm.getHostId()).thenReturn(7L);
+        Mockito.when(userVm.getClusterId()).thenReturn(5L);
+        com.cloud.host.DetailVO detail = Mockito.mock(com.cloud.host.DetailVO.class);
+        Mockito.when(detail.getValue()).thenReturn("2");
+        Mockito.when(hostDetailsDao.findDetail(7L, com.cloud.host.Host.HOST_CDROM_MAX_COUNT)).thenReturn(detail);
+        // Configured cap defaults to 1 (no cluster override mocked); host advertises 2; clamps to 1.
+        Assert.assertEquals(1, _userVmJoinDaoImpl.effectiveCdromMaxCount(userVm));
     }
 }

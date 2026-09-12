@@ -16,6 +16,7 @@
 -- under the License.
 
 DROP PROCEDURE IF EXISTS `cloud`.`INSERT_EXTENSION_IF_NOT_EXISTS`;
+DELIMITER $$
 CREATE PROCEDURE `cloud`.`INSERT_EXTENSION_IF_NOT_EXISTS`(
     IN ext_name VARCHAR(255),
     IN ext_desc VARCHAR(255),
@@ -35,4 +36,5 @@ BEGIN
             ext_path, 1, 0, 'Enabled', NOW(), NULL
         )
 ;   END IF
-;END;
+;END$$
+DELIMITER ;

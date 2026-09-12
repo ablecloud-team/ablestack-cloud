@@ -35,6 +35,7 @@ import org.apache.cloudstack.engine.orchestration.service.VolumeOrchestrationSer
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStoreProviderManager;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
+import org.apache.cloudstack.ha.dao.HAConfigDao;
 import org.apache.cloudstack.managed.context.ManagedContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -120,6 +121,8 @@ public class HighAvailabilityManagerImplTest {
     ManagementServer _msServer;
     @Mock
     ConfigurationDao _configDao;
+    @Mock
+    HAConfigDao _haConfigDao;
     @Mock
     VolumeOrchestrationService volumeMgr;
     @Mock
@@ -365,7 +368,7 @@ public class HighAvailabilityManagerImplTest {
         investigators.add(investigator);
         highAvailabilityManager.setInvestigators(investigators);
         // Mock isAgentAlive to return host status as Down
-        Mockito.when(investigator.isAgentAlive(hostVO)).thenReturn(Status.Down);
+        Mockito.when(investigator.getHostAgentStatus(hostVO)).thenReturn(Status.Down);
 
         ConfigKey<Boolean> haEnabled = Mockito.mock(ConfigKey.class);
         highAvailabilityManager.VmHaEnabled = haEnabled;
@@ -477,5 +480,34 @@ public class HighAvailabilityManagerImplTest {
         boolean result = highAvailabilityManagerSpy.checkAndCancelWorkIfNeeded(mockWork);
         assertFalse(result);
         Mockito.verify(mockWork, Mockito.never()).setStep(Mockito.any());
+    }
+    @Test
+    public void hostInspectionDefersVmWorkCancellationUntilAgentRecovers() {
+        for (org.apache.cloudstack.ha.HAConfig.HAState state : new org.apache.cloudstack.ha.HAConfig.HAState[]{
+                org.apache.cloudstack.ha.HAConfig.HAState.Suspect, org.apache.cloudstack.ha.HAConfig.HAState.Checking,
+                org.apache.cloudstack.ha.HAConfig.HAState.Recovered, org.apache.cloudstack.ha.HAConfig.HAState.Available}) {
+            HaWorkVO work = Mockito.mock(HaWorkVO.class);
+            Mockito.when(work.getStep()).thenReturn(Step.Investigating);
+            Mockito.when(work.getReasonType()).thenReturn(HighAvailabilityManager.ReasonType.HostDown);
+            Mockito.when(work.getHostId()).thenReturn(993L);
+            org.apache.cloudstack.ha.HAConfig config = Mockito.mock(org.apache.cloudstack.ha.HAConfig.class);
+            Mockito.when(config.isEnabled()).thenReturn(true);
+            Mockito.when(config.getState()).thenReturn(state);
+            Mockito.when(_haConfigDao.findHAResource(993L, org.apache.cloudstack.ha.HAResource.ResourceType.Host)).thenReturn(config);
+            HostVO host = Mockito.mock(HostVO.class);
+            boolean recovered = state == org.apache.cloudstack.ha.HAConfig.HAState.Recovered || state == org.apache.cloudstack.ha.HAConfig.HAState.Available;
+            if (recovered) {
+                Mockito.when(_hostDao.findById(993L)).thenReturn(host);
+                Mockito.when(host.getStatus()).thenReturn(Status.Disconnected);
+            }
+            assertFalse(highAvailabilityManagerSpy.checkAndCancelWorkIfNeeded(work));
+            Mockito.verify(work, Mockito.never()).setStep(Step.Cancelled);
+            if (recovered) {
+                Mockito.when(host.getStatus()).thenReturn(Status.Up);
+                Mockito.doReturn(Status.Up).when(highAvailabilityManagerSpy).investigate(993L);
+                assertTrue(highAvailabilityManagerSpy.checkAndCancelWorkIfNeeded(work));
+                Mockito.verify(work).setStep(Step.Cancelled);
+            }
+        }
     }
 }

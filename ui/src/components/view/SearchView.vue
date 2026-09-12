@@ -275,6 +275,12 @@ export default {
       if (fieldName === 'groupid') {
         fieldName = 'group'
       }
+      if (fieldName === 'hsmprofileid') {
+        fieldName = 'hsm.profile'
+      }
+      if (fieldName === 'kmskeyid') {
+        fieldName = 'kms.key'
+      }
       if (fieldName === 'keyword') {
         if ('listAnnotations' in this.$store.getters.apis) {
           return this.$t('label.annotation')
@@ -320,12 +326,18 @@ export default {
         if (item === 'backupofferingid' && !('listBackupOfferings' in this.$store.getters.apis)) {
           return true
         }
+        if (item === 'hsmprofileid' && !('listHSMProfiles' in this.$store.getters.apis)) {
+          return true
+        }
+        if (item === 'kmskeyid' && !('listKMSKeys' in this.$store.getters.apis)) {
+          return true
+        }
         if (['zoneid', 'domainid', 'imagestoreid', 'storageid', 'state', 'account', 'hypervisor', 'level',
           'clusterid', 'podid', 'groupid', 'entitytype', 'accounttype', 'systemvmtype', 'scope', 'provider',
           'type', 'scope', 'managementserverid', 'serviceofferingid',
           'diskofferingid', 'networkid', 'usagetype', 'restartrequired', 'gpuenabled',
           'displaynetwork', 'guestiptype', 'usersource', 'arch', 'oscategoryid', 'templatetype', 'gpucardid', 'vgpuprofileid',
-          'extensionid', 'backupoffering', 'volumeid', 'virtualmachineid'].includes(item)
+          'extensionid', 'backupoffering', 'volumeid', 'virtualmachineid', 'hsmprofileid', 'kmskeyid'].includes(item) || (item === 'status' && this.apiName === 'listBackups')
         ) {
           type = 'list'
         } else if (item === 'tags') {
@@ -517,6 +529,9 @@ export default {
       let gpuCardIndex = -1
       let vgpuProfileIndex = -1
       let extensionIndex = -1
+      let backupStatusIndex = -1
+      let hsmProfileIndex = -1
+      let kmsKeyIndex = -1
 
       if (arrayField.includes('type')) {
         if (this.$route.path === '/alert') {
@@ -660,6 +675,23 @@ export default {
         volumeIndex = this.fields.findIndex(item => item.name === 'volumeid')
         this.fields[volumeIndex].loading = true
         promises.push(await this.fetchVolumes(searchKeyword))
+      }
+
+      if (this.apiName === 'listBackups' && arrayField.includes('status')) {
+        backupStatusIndex = this.fields.findIndex(item => item.name === 'status')
+        this.fields[backupStatusIndex].opts = this.fetchAvailableBackupStatus()
+      }
+
+      if (arrayField.includes('hsmprofileid')) {
+        hsmProfileIndex = this.fields.findIndex(item => item.name === 'hsmprofileid')
+        this.fields[hsmProfileIndex].loading = true
+        promises.push(await this.fetchHSMProfiles(searchKeyword))
+      }
+
+      if (arrayField.includes('kmskeyid')) {
+        kmsKeyIndex = this.fields.findIndex(item => item.name === 'kmskeyid')
+        this.fields[kmsKeyIndex].loading = true
+        promises.push(await this.fetchKMSKeys(searchKeyword))
       }
 
       Promise.all(promises).then(response => {
@@ -806,6 +838,20 @@ export default {
             this.fields[virtualmachineIndex].opts = this.sortArray(virtualMachines[0].data)
           }
         }
+
+        if (hsmProfileIndex > -1) {
+          const hsmProfiles = response.filter(item => item.type === 'hsmprofileid')
+          if (hsmProfiles && hsmProfiles.length > 0) {
+            this.fields[hsmProfileIndex].opts = this.sortArray(hsmProfiles[0].data)
+          }
+        }
+
+        if (kmsKeyIndex > -1) {
+          const kmsKeys = response.filter(item => item.type === 'kmskeyid')
+          if (kmsKeys && kmsKeys.length > 0) {
+            this.fields[kmsKeyIndex].opts = this.sortArray(kmsKeys[0].data)
+          }
+        }
       }).finally(() => {
         if (typeIndex > -1) {
           this.fields[typeIndex].loading = false
@@ -872,6 +918,12 @@ export default {
         }
         if (virtualmachineIndex > -1) {
           this.fields[virtualmachineIndex].loading = false
+        }
+        if (hsmProfileIndex > -1) {
+          this.fields[hsmProfileIndex].loading = false
+        }
+        if (kmsKeyIndex > -1) {
+          this.fields[kmsKeyIndex].loading = false
         }
         if (Array.isArray(arrayField)) {
           this.fillFormFieldValues()
@@ -1598,6 +1650,64 @@ export default {
           resolve({
             type: 'vgpuprofileid',
             data: vgpuProfiles
+          })
+        }).catch(error => {
+          reject(error.response.headers['x-description'])
+        })
+      })
+    },
+    fetchAvailableBackupStatus () {
+      return [
+        {
+          id: 'Allocated',
+          name: 'label.allocated'
+        },
+        {
+          id: 'Queued',
+          name: 'label.queued'
+        },
+        {
+          id: 'BackingUp',
+          name: 'label.backingup'
+        },
+        {
+          id: 'BackedUp',
+          name: 'label.backedup'
+        },
+        {
+          id: 'Error',
+          name: 'label.error'
+        },
+        {
+          id: 'Failed',
+          name: 'label.failed'
+        },
+        {
+          id: 'Restoring',
+          name: 'label.restoring'
+        }
+      ]
+    },
+    fetchHSMProfiles (searchKeyword) {
+      return new Promise((resolve, reject) => {
+        getAPI('listHSMProfiles', { listAll: true, keyword: searchKeyword }).then(json => {
+          const hsmProfiles = json.listhsmprofilesresponse.hsmprofile
+          resolve({
+            type: 'hsmprofileid',
+            data: hsmProfiles || []
+          })
+        }).catch(error => {
+          reject(error.response.headers['x-description'])
+        })
+      })
+    },
+    fetchKMSKeys (searchKeyword) {
+      return new Promise((resolve, reject) => {
+        getAPI('listKMSKeys', { listAll: true, keyword: searchKeyword }).then(json => {
+          const kmsKeys = json.listkmskeysresponse.kmskey
+          resolve({
+            type: 'kmskeyid',
+            data: kmsKeys || []
           })
         }).catch(error => {
           reject(error.response.headers['x-description'])

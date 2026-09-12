@@ -29,6 +29,9 @@ import java.util.Objects;
 import javax.inject.Inject;
 import javax.naming.ConfigurationException;
 
+import com.cloud.agent.api.to.DiskTO;
+import com.cloud.storage.clvm.ClvmPoolManager;
+import com.cloud.storage.Storage;
 import org.apache.cloudstack.engine.subsystem.api.storage.ClusterScope;
 import org.apache.cloudstack.engine.subsystem.api.storage.CopyCommandResult;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataMotionStrategy;
@@ -68,7 +71,6 @@ import com.cloud.agent.api.storage.MigrateVolumeCommand;
 import com.cloud.agent.api.to.DataObjectType;
 import com.cloud.agent.api.to.DataStoreTO;
 import com.cloud.agent.api.to.DataTO;
-import com.cloud.agent.api.to.DiskTO;
 import com.cloud.agent.api.to.NfsTO;
 import com.cloud.agent.api.to.VirtualMachineTO;
 import com.cloud.configuration.Config;
@@ -78,9 +80,9 @@ import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.ScopeType;
 import com.cloud.storage.Snapshot.Type;
 import com.cloud.storage.SnapshotVO;
-import com.cloud.storage.Storage;
-import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.StorageManager;
+import com.cloud.storage.Storage.ImageFormat;
+import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.StoragePool;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.SnapshotDao;
@@ -120,6 +122,8 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
     StorageCacheManager cacheMgr;
     @Inject
     VolumeDataStoreDao volumeDataStoreDao;
+    @Inject
+    ClvmPoolManager clvmPoolManager;
 
     @Inject
     StorageManager storageManager;
@@ -201,7 +205,7 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
                 srcForCopy = cacheData = cacheMgr.createCacheObject(srcData, destScope);
             }
 
-            CopyCommand cmd = new CopyCommand(srcForCopy.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnVMwareDest(destData.getTO()), primaryStorageDownloadWait,
+            CopyCommand cmd = new CopyCommand(srcForCopy.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnDest(destData.getTO()), primaryStorageDownloadWait,
                     VirtualMachineManager.ExecuteInSequence.value());
             EndPoint ep = destHost != null ? RemoteHostEndPoint.getHypervisorHostEndPoint(destHost) : selector.select(srcForCopy, destData);
             if (ep == null) {
@@ -275,6 +279,43 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
         return dataTO;
     }
 
+    /**
+     * Adds {@code 'xenserver.create.full.clone'} value for a given primary storage, whose HV is XenServer, on datastore's {@code fullCloneFlag} field
+     * @param dataTO Dest data store TO
+     * @return dataTO including fullCloneFlag, if provided
+     */
+    protected DataTO addFullCloneAndDiskprovisiongStrictnessFlagOnXenServerDest(DataTO dataTO) {
+        if (dataTO != null && dataTO.getHypervisorType().equals(Hypervisor.HypervisorType.XenServer)){
+            DataStoreTO dataStoreTO = dataTO.getDataStore();
+            if (dataStoreTO != null && dataStoreTO instanceof PrimaryDataStoreTO){
+                PrimaryDataStoreTO primaryDataStoreTO = (PrimaryDataStoreTO) dataStoreTO;
+                primaryDataStoreTO.setFullCloneFlag(StorageManager.XenserverCreateCloneFull.valueIn(primaryDataStoreTO.getId()));
+            }
+        }
+        return dataTO;
+    }
+
+    /**
+     * Dispatches to the per-hypervisor {@code addFullCloneAndDiskprovisiongStrictnessFlagOn*Dest} helper
+     * based on {@code dataTO.getHypervisorType()}. Returns {@code dataTO} unchanged for hypervisors
+     * that do not have a full-clone toggle.
+     * @param dataTO Dest data store TO
+     * @return dataTO including fullCloneFlag, if provided
+     */
+    protected DataTO addFullCloneAndDiskprovisiongStrictnessFlagOnDest(DataTO dataTO) {
+        if (dataTO == null) {
+            return dataTO;
+        }
+        Hypervisor.HypervisorType hypervisorType = dataTO.getHypervisorType();
+        if (Hypervisor.HypervisorType.VMware.equals(hypervisorType)) {
+            return addFullCloneAndDiskprovisiongStrictnessFlagOnVMwareDest(dataTO);
+        }
+        if (Hypervisor.HypervisorType.XenServer.equals(hypervisorType)) {
+            return addFullCloneAndDiskprovisiongStrictnessFlagOnXenServerDest(dataTO);
+        }
+        return dataTO;
+    }
+
     protected Answer copyObject(DataObject srcData, DataObject destData) {
         return copyObject(srcData, destData, null);
     }
@@ -331,7 +372,8 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
                 ep = selector.select(srcData, volObj);
             }
 
-            CopyCommand cmd = new CopyCommand(srcData.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnVMwareDest(volObj.getTO()), _createVolumeFromSnapshotWait, VirtualMachineManager.ExecuteInSequence.value());
+            updateLockHostForVolume(ep, volObj);
+            CopyCommand cmd = new CopyCommand(srcData.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnDest(volObj.getTO()), _createVolumeFromSnapshotWait, VirtualMachineManager.ExecuteInSequence.value());
             Map<String, String> options = getCloneVolumeFromSnapshotOptions(snapshot, volObj);
             if (!options.isEmpty()) {
                 cmd.setOptions(options);
@@ -421,8 +463,31 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
         return sanitized.isEmpty() ? "unknown" : sanitized;
     }
 
+    private void updateLockHostForVolume(EndPoint ep, DataObject volObj) {
+        if (ep == null || !(volObj instanceof VolumeInfo)) {
+            return;
+        }
+        VolumeInfo volumeInfo = (VolumeInfo) volObj;
+        StoragePool destPool = (StoragePool) volObj.getDataStore();
+        if (destPool == null || !ClvmPoolManager.isClvmPoolType(destPool.getPoolType())) {
+            return;
+        }
+        Long hostId = ep.getId();
+        Long existingHostId = clvmPoolManager.getClvmLockHostId(
+                volumeInfo.getId(),
+                volumeInfo.getUuid(),
+                volumeInfo.getPath(),
+                destPool,
+                true
+        );
+        if (existingHostId == null) {
+            clvmPoolManager.setClvmLockHostId(volumeInfo.getId(), hostId);
+            logger.debug("Set lock host ID {} for CLVM volume {} being created from snapshot", hostId, volumeInfo.getId());
+        }
+    }
+
     protected Answer cloneVolume(DataObject template, DataObject volume) {
-        CopyCommand cmd = new CopyCommand(template.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnVMwareDest(volume.getTO()), 0, VirtualMachineManager.ExecuteInSequence.value());
+        CopyCommand cmd = new CopyCommand(template.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnDest(volume.getTO()), 0, VirtualMachineManager.ExecuteInSequence.value());
         try {
             EndPoint ep = selector.select(volume, anyVolumeRequiresEncryption(volume));
             Answer answer = null;
@@ -469,6 +534,9 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
                     answer = new Answer(cmd, false, errMsg);
                 } else {
                     answer = ep.sendMessage(cmd);
+                    if (answer != null && answer.getResult()) {
+                        setClvmLockHostIdIfApplicable(destData, ep);
+                    }
                 }
                 return answer;
             }
@@ -506,7 +574,7 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
 
                 objOnImageStore.processEvent(Event.CopyingRequested);
 
-                CopyCommand cmd = new CopyCommand(objOnImageStore.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnVMwareDest(destData.getTO()), _copyvolumewait, VirtualMachineManager.ExecuteInSequence.value());
+                CopyCommand cmd = new CopyCommand(objOnImageStore.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnDest(destData.getTO()), _copyvolumewait, VirtualMachineManager.ExecuteInSequence.value());
                 EndPoint ep = selector.select(objOnImageStore, destData, encryptionRequired);
                 if (ep == null) {
                     String errMsg = String.format(NO_REMOTE_ENDPOINT_WITH_ENCRYPTION, encryptionRequired);
@@ -524,6 +592,7 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
                     imageStore.delete(objOnImageStore);
                     return answer;
                 }
+                setClvmLockHostIdIfApplicable(destData, ep);
             } catch (Exception e) {
                 if (imageStore.exists(objOnImageStore)) {
                     objOnImageStore.processEvent(Event.OperationFailed);
@@ -547,12 +616,26 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
                 answer = new Answer(cmd, false, errMsg);
             } else {
                 answer = ep.sendMessage(cmd);
+                if (answer != null && answer.getResult()) {
+                    setClvmLockHostIdIfApplicable(destData, ep);
+                }
             }
             // delete volume on cache store
             if (cacheData != null) {
                 cacheMgr.deleteCacheObject(cacheData);
             }
             return answer;
+        }
+    }
+
+    private void setClvmLockHostIdIfApplicable(DataObject destData, EndPoint ep) {
+        if (ep == null || !(destData instanceof VolumeInfo)) {
+            return;
+        }
+        VolumeInfo destVolume = (VolumeInfo) destData;
+        if (ClvmPoolManager.isClvmPoolType(destVolume.getStoragePoolType())) {
+            clvmPoolManager.setClvmLockHostId(destVolume.getId(), ep.getId());
+            logger.debug("Set CLVM lock host {} for migrated volume {}", ep.getId(), destVolume.getUuid());
         }
     }
 
@@ -671,6 +754,12 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
             volumeVo.setPoolId(destPool.getId());
             volumeVo.setPoolType(destPool.getPoolType());
             volumeVo.setLastPoolId(oldPoolId);
+            if (destPool.getPoolType() == StoragePoolType.CLVM) {
+                volumeVo.setFormat(ImageFormat.RAW);
+            }
+            if (ClvmPoolManager.isClvmPoolType(destPool.getPoolType())) {
+                clvmPoolManager.setClvmLockHostId(volume.getId(), ep.getId());
+            }
             // For SMB, pool credentials are also stored in the uri query string.  We trim the query string
             // part  here to make sure the credentials do not get stored in the db unencrypted.
             String folder = destPool.getPath();
@@ -793,7 +882,7 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
             ep = selector.select(srcData, destData);
         }
 
-        CopyCommand cmd = new CopyCommand(srcData.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnVMwareDest(destData.getTO()), _createprivatetemplatefromsnapshotwait, VirtualMachineManager.ExecuteInSequence.value());
+        CopyCommand cmd = new CopyCommand(srcData.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnDest(destData.getTO()), _createprivatetemplatefromsnapshotwait, VirtualMachineManager.ExecuteInSequence.value());
         Answer answer = null;
         if (ep == null) {
             logger.error(NO_REMOTE_ENDPOINT_SSVM);
@@ -843,7 +932,7 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
                 Scope selectedScope = pickCacheScopeForCopy(srcData, destData);
                 cacheData = cacheMgr.getCacheObject(srcData, selectedScope);
 
-                CopyCommand cmd = new CopyCommand(srcData.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnVMwareDest(destData.getTO()), _backupsnapshotwait, VirtualMachineManager.ExecuteInSequence.value());
+                CopyCommand cmd = new CopyCommand(srcData.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnDest(destData.getTO()), _backupsnapshotwait, VirtualMachineManager.ExecuteInSequence.value());
                 cmd.setCacheTO(cacheData.getTO());
                 cmd.setOptions(options);
                 EndPoint ep = selector.select(srcData, destData, encryptionRequired);
@@ -854,7 +943,7 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
                     answer = ep.sendMessage(cmd);
                 }
             } else {
-                addFullCloneAndDiskprovisiongStrictnessFlagOnVMwareDest(destData.getTO());
+                addFullCloneAndDiskprovisiongStrictnessFlagOnDest(destData.getTO());
                 CopyCommand cmd = new CopyCommand(srcData.getTO(), destData.getTO(), _backupsnapshotwait, VirtualMachineManager.ExecuteInSequence.value());
                 cmd.setOptions(options);
                 EndPoint ep = selector.select(srcData, destData, StorageAction.BACKUPSNAPSHOT, encryptionRequired);
@@ -903,9 +992,9 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
     private boolean anyVolumeRequiresEncryption(DataObject ... objects) {
         for (DataObject o : objects) {
             // this fails code smell for returning true twice, but it is more readable than combining all tests into one statement
-            if (o instanceof VolumeInfo && ((VolumeInfo) o).getPassphraseId() != null) {
+            if (o instanceof VolumeInfo && (((VolumeInfo) o).getPassphraseId() != null || ((VolumeInfo) o).getKmsKeyId() != null)) {
                 return true;
-            } else if (o instanceof SnapshotInfo && ((SnapshotInfo) o).getBaseVolume().getPassphraseId() != null) {
+            } else if (o instanceof SnapshotInfo && (((SnapshotInfo) o).getBaseVolume().getPassphraseId() != null || ((SnapshotInfo) o).getBaseVolume().getKmsKeyId() != null)) {
                 return true;
             }
         }
@@ -931,7 +1020,7 @@ public class AncientDataMotionStrategy implements DataMotionStrategy {
                 ep = selector.select(srcData, volObj);
             }
 
-            CopyCommand cmd = new CopyCommand(srcData.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnVMwareDest(volObj.getTO()), _createVolumeFromSnapshotWait, VirtualMachineManager.ExecuteInSequence.value());
+            CopyCommand cmd = new CopyCommand(srcData.getTO(), addFullCloneAndDiskprovisiongStrictnessFlagOnDest(volObj.getTO()), _createVolumeFromSnapshotWait, VirtualMachineManager.ExecuteInSequence.value());
             Map<String, String> options = getCloneVolumeFromSnapshotOptions(snapshot, volObj);
             if (!options.isEmpty()) {
                 cmd.setOptions(options);

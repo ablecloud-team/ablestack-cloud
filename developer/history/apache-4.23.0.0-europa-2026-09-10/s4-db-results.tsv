@@ -1,0 +1,29 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+case	baseline	candidate	result	evidence
+Fresh full JDBC	014895d8f3: SQL99 errors / exit0 / versionComplete	551a19f7ca: SQL0 errors / exit0 / 10 checkpointsComplete	PASS	Actual DatabaseCreator + DatabaseUpgradeChecker + ScriptRunner, MySQL8.0.46
+Simulator JDBC	S2 baseline template111 FK failure	exit0; template100/111 and template-store reference	PASS	Missing template111 INSERT restored to upstream form
+Full baseline data	449 tables/views; 11271 original rows; version51 rows	452 tables/views; original values preserved except60 permission sort orders; version51 identical	PASS	Full mysqldump clone; original-column row multiset comparison, API/OAuth key and DENY/credit/config fixtures
+Schema parity	Fresh candidate	5717 column contracts / 1698 index entries / 525 foreign keys identical	PASS	information_schema compares types/nullability/default/extra/collation, index uniqueness/order, FK cascade actions
+Injected DDL failure	ALTER revoked on cloud_usage	exit1 / Pending / version51 unchanged; existing keys retained	PASS	Real JDBC failure; original index remains on failed ALTER
+Concurrent recovery	Pending phase after DDL failure	Two independent JVMs exit0 / one Complete	PASS	Actual database-backed upgrade lock; ALTER restored before retry
+Repeated startup checker	Post-upgrade snapshot	Two restarts: full data/DDL/journal timestamps identical	PASS	Snapshot SHA256 7734139f5145a9b48ed6b478455396830611a0cbaf6372d5525d9f5b0f7395f6
+Usage indexes	Old volume_id/created key and VM event key	Cumulative/per-VM rows coexist; duplicate same VM rejected; VM event duplicates accepted	PASS	Real MySQL inserts and rollback after assertions
+Reservation concurrency	One CPU fixture limit; no prior reservation	8 threads: accepted1 / rejected7 / remaining0	PASS	Real ReservationDaoImpl + MySQL GlobalLock; only limit policy is a mock
+Quota aggregation	IP tariffs744+372 per January; 1GiB volume; attached-volume record; credit100	IP3 + volume24 + attached0 / 3 mappings / balance73; repeat unchanged	PASS	Real QuotaManager + DAOs + MySQL; usage-account and quota-balance fixture seeded like normal jobs/APIs
+Usage Spring	Missing required usage schedule settings	Missing settings exits1; valid settings + Quota enabled starts	PASS	Actual UsageServer startup; current context does not require KMS DAO
+Management startup and two restarts	Full upgraded baseline; final assembled JAR; disposable administrator	Login and quotaCreditsList credit123.4567 / KRW PASS each time; original keys, DENY, version51, journal, credit and index unchanged	PASS	Actual ServerDaemon + HTTP API + MySQL invariants; background fixture limitations documented in s4-verification.ko.md

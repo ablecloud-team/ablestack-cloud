@@ -20,14 +20,23 @@ package org.apache.cloudstack.backup;
 import java.util.List;
 import java.util.Map;
 
+import com.cloud.storage.Volume;
+import com.cloud.vm.VirtualMachine;
 import com.cloud.capacity.Capacity;
 import com.cloud.exception.ResourceAllocationException;
 import org.apache.cloudstack.api.command.admin.backup.CloneBackupOfferingCmd;
 import org.apache.cloudstack.api.command.admin.backup.ImportBackupOfferingCmd;
 import org.apache.cloudstack.api.command.admin.backup.UpdateNetBackupCmd;
 import org.apache.cloudstack.api.command.admin.backup.UpdateBackupOfferingCmd;
+import org.apache.cloudstack.api.command.user.backup.CreateAblestackVeeamBackupCmd;
+import org.apache.cloudstack.api.command.user.backup.UpdateAblestackVeeamBackupCmd;
+import org.apache.cloudstack.api.command.user.backup.SyncAblestackVeeamBackupsCmd;
 import org.apache.cloudstack.api.command.user.backup.CreateBackupCmd;
 import org.apache.cloudstack.api.command.user.backup.CreateNetBackupCmd;
+import org.apache.cloudstack.api.command.user.backup.ImportAblestackVeeamBackupSeedCmd;
+import org.apache.cloudstack.api.command.user.backup.ListAblestackVeeamBackupsCmd;
+import org.apache.cloudstack.api.command.user.backup.ListVeeamRestorePointsCmd;
+import org.apache.cloudstack.api.response.BackupRestorePointResponse;
 import org.apache.cloudstack.api.command.user.backup.CreateBackupScheduleCmd;
 import org.apache.cloudstack.api.command.user.backup.DeleteBackupScheduleCmd;
 import org.apache.cloudstack.api.command.user.backup.ListBackupOfferingsCmd;
@@ -35,17 +44,16 @@ import org.apache.cloudstack.api.command.user.backup.ListBackupScheduleCmd;
 import org.apache.cloudstack.api.command.user.backup.ListBackupsCmd;
 import org.apache.cloudstack.api.command.user.backup.PrepareNetBackupRestoreCmd;
 import org.apache.cloudstack.api.command.user.backup.RestoreNetBackupCmd;
+import org.apache.cloudstack.api.command.user.backup.CreateBackupOfferingCmd;
 import org.apache.cloudstack.api.response.BackupResponse;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
 
 import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.network.Network;
-import com.cloud.storage.Volume;
 import com.cloud.utils.Pair;
 import com.cloud.utils.component.Manager;
 import com.cloud.utils.component.PluggableService;
-import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.VmDiskInfo;
 
 /**
@@ -180,6 +188,12 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
      */
     BackupOffering importBackupOffering(final ImportBackupOfferingCmd cmd);
 
+    /**
+     * Create a new Backup and Recovery policy to CloudStack. Currently only supported for KBOSS.
+     * @param cmd create backup offering cmd
+     */
+    BackupOffering createBackupOffering(final CreateBackupOfferingCmd cmd);
+
     List<Long> getBackupOfferingDomains(final Long offeringId);
 
     /**
@@ -259,6 +273,33 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
     boolean createBackup(CreateBackupCmd cmd, Object job) throws ResourceAllocationException;
 
     /**
+     * Import a Veeam restore point as NAS seed for Ablestack Veeam incremental backups.
+     */
+    Backup importAblestackVeeamBackupSeed(ImportAblestackVeeamBackupSeedCmd cmd) throws ResourceAllocationException;
+
+    List<Backup.RestorePoint> listVeeamRestorePoints(ListVeeamRestorePointsCmd cmd);
+
+    List<BackupRestorePointResponse> createVeeamRestorePointResponses(List<Backup.RestorePoint> points);
+
+    boolean createAblestackVeeamBackup(CreateAblestackVeeamBackupCmd cmd, Object job) throws ResourceAllocationException;
+
+    /**
+     * Stamp Veeam restore-point / job metadata onto an existing Ablestack Veeam backup row
+     * so out-of-band catalog sync can remove Mold history when Veeam deletes the restore point.
+     */
+    boolean updateAblestackVeeamBackup(UpdateAblestackVeeamBackupCmd cmd);
+
+    /**
+     * Sync Mold Ablestack Veeam backup rows with the Veeam catalog for one VM
+     * (catalog-driven delete, same model as NetBackup / BackupSyncTask).
+     */
+    boolean syncAblestackVeeamBackups(SyncAblestackVeeamBackupsCmd cmd);
+
+    boolean restoreAblestackVeeamBackup(Long backupId);
+
+    Pair<List<Backup>, Integer> listAblestackVeeamBackups(ListAblestackVeeamBackupsCmd cmd);
+
+    /**
      * List existing backups for a VM
      */
     Pair<List<Backup>, Integer> listBackups(final ListBackupsCmd cmd);
@@ -266,7 +307,14 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
     /**
      * Restore a full VM from backup
      */
-    boolean restoreBackup(final Long backupId);
+    boolean restoreBackup(final Long backupId, boolean quickRestore, Long hostId);
+
+    /**
+     * Compatibility for leftover callers that still pass only backupId.
+     */
+    default boolean restoreBackup(final Long backupId) {
+        return restoreBackup(backupId, false, null);
+    }
 
     /**
      * Restore a VM from NetBackup using a restore pathname.
@@ -287,12 +335,12 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
     /**
      * Restore a backup to a new Instance
      */
-    boolean restoreBackupToVM(Long backupId, Long vmId) throws ResourceUnavailableException;
+    boolean restoreBackupToVM(Long backupId, Long vmId, boolean quickrestore) throws ResourceUnavailableException;
 
     /**
      * Restore a backed up volume and attach it to a VM
      */
-    boolean restoreBackupVolumeAndAttachToVM(final String backedUpVolumeUuid, final Long backupId, final Long vmId) throws Exception;
+    boolean restoreBackupVolumeAndAttachToVM(final String backedUpVolumeUuid, final Long backupId, final Long vmId, boolean isQuickRestore, Long hostId) throws Exception;
 
     /**
      * Deletes a backup

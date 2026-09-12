@@ -341,6 +341,18 @@ public class VolumeResponse extends BaseResponseWithTagInformation implements Co
     @Param(description = "Disk Physical actual usage (qemu-guest-agnet must be installed on virtual machine)", since = "4.20")
     private String savingsRate;
 
+    @SerializedName(ApiConstants.KMS_KEY)
+    @Param(description = "KMS key name of the volume", since = "4.23.0")
+    private String kmsKey;
+
+    @SerializedName(ApiConstants.KMS_KEY_ID)
+    @Param(description = "KMS key id of the volume", since = "4.23.0")
+    private String kmsKeyId;
+
+    @SerializedName(ApiConstants.KMS_KEY_VERSION)
+    @Param(description = "Version number of the KMS key used for disk encryption if applicable", since = "4.23.0")
+    private Integer kmsKeyVersion;
+
     public String getPath() {
         return path;
     }
@@ -912,6 +924,10 @@ public class VolumeResponse extends BaseResponseWithTagInformation implements Co
         this.volumeRepairResult = volumeRepairResult;
     }
 
+    public String getEncryptionFormat() {
+        return encryptionFormat;
+    }
+
     public void setEncryptionFormat(String encryptionFormat) {
         this.encryptionFormat = encryptionFormat;
     }
@@ -962,5 +978,29 @@ public class VolumeResponse extends BaseResponseWithTagInformation implements Co
 
     public void setSavingsRate(String savingsRate) {
         this.savingsRate = savingsRate;
+    }
+
+    public String getKmsKey() {
+        return kmsKey;
+    }
+
+    public void setKmsKey(String kmsKey) {
+        this.kmsKey = kmsKey;
+    }
+
+    public String getKmsKeyId() {
+        return kmsKeyId;
+    }
+
+    public void setKmsKeyId(String kmsKeyId) {
+        this.kmsKeyId = kmsKeyId;
+    }
+
+    public Integer getKmsKeyVersion() {
+        return kmsKeyVersion;
+    }
+
+    public void setKmsKeyVersion(Integer kmsKeyVersion) {
+        this.kmsKeyVersion = kmsKeyVersion;
     }
 }

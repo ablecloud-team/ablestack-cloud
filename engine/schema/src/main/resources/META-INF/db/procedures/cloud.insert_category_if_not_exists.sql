@@ -17,6 +17,7 @@
 
 -- Add new OS categories if not present
 DROP PROCEDURE IF EXISTS `cloud`.`INSERT_CATEGORY_IF_NOT_EXIST`;
+DELIMITER $$
 CREATE PROCEDURE `cloud`.`INSERT_CATEGORY_IF_NOT_EXIST`(IN os_name VARCHAR(255))
 BEGIN
     IF NOT EXISTS ((SELECT 1 FROM `cloud`.`guest_os_category` WHERE name = os_name))
@@ -24,4 +25,5 @@ BEGIN
         INSERT INTO `cloud`.`guest_os_category` (name, uuid)
             VALUES (os_name, UUID())
 ;   END IF
-; END;
+; END$$
+DELIMITER ;

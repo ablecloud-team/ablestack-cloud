@@ -12,7 +12,7 @@
 -- software distributed under the License is distributed on an
 -- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 -- KIND, either express or implied.  See the License for the
--- specific language govening permissions and limitations
+-- specific language governing permissions and limitations
 -- under the License.
 
 --;
@@ -74,7 +74,7 @@ CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.host', 'migration_ip', 'VARCHAR(45)'
 -- backup offering table update
 CALL `cloud`.`ADD_COL`('backup_offering', 'retention_period', 'VARCHAR(255) DEFAULT null');
 CALL `cloud`.`ADD_COL`('backups', 'snapshot_id', 'VARCHAR(255) DEFAULT null');
-ALTER TABLE `cloud`.`backups` MODIFY COLUMN `extenal_id` varchar(4096) DEFAULT NULL COMMENT 'extenal ID';
+ALTER TABLE `cloud`.`backups` MODIFY COLUMN `external_id` varchar(4096) DEFAULT NULL COMMENT 'external ID';
 
 CREATE TABLE IF NOT EXISTS `cloud`.`storage_service_instance` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,

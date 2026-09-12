@@ -116,6 +116,16 @@ public class DatabaseCreator {
     }
 
     public static void main(String[] args) {
+        try {
+            createDatabase(args);
+        } catch (RuntimeException e) {
+            System.err.println("Database initialization or upgrade failed: " + e.getMessage());
+            e.printStackTrace(System.err);
+            System.exit(1);
+        }
+    }
+
+    private static void createDatabase(String[] args) {
         String dbPropsFile = "";
         List<String> sqlFiles = new ArrayList<String>();
         List<String> upgradeClasses = new ArrayList<String>();

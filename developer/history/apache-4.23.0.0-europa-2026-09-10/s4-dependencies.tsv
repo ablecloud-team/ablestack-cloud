@@ -1,0 +1,49 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+source_sha	owner	relationship	status	review
+96ca1b2a7c1c80bc5b284e008e9c96d49a276b4a	#997	Add option to control MAC address reuse for VR public NICs (#13001)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+e1521f139b026e1459a4993b75d9425ac508956d	#994	systemvmtemplate-register: correctly update existing template name in config (#12703)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+6b831f5196c3cfcc2d7aaf3fc2150c069d125fdc	#993	Live scaling for VMs with fixed service offerings on KVM (#12975)	Pending in owner workstream	S5A live scaling 기능은 예약 handle API·GPU offering 증감 계약과 함께 통합.
+a1959f2dc2e93badc5f3e04a85922f9d391c8ba0	#994	backup: veeam kvm integration (#12991)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+a7f9756d6267869b96a9209af58c0335835a773d	#990	Remove realhostip references from the code (#12856)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+2081ac4666e2763755f4c34806a783d0f13f03fd	#993	Guest OS rules (#10098)	Pending in owner workstream	Guest OS rules와 새 JsInterpreter 생성자는 S5A에서 함께 적용. S4는 현재 timeout 생성자를 사용하여 계산 기능 유지.
+02bb5de4de4bf305afb08a5906d81ab2413187a3	#997	Addition of description field for NIC's secondary IP addresses (#12864)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+8ef036e717524396ae790a502f0e01a0b63a0cb1	#991	UI for API Key Pair Management (#13225)	Previously completed in S3	S3 API key 관리/인증 DDL을 유지; 전체 기준 DB 키 값과 S4 UI 회귀 확인.
+c2c855b9b18cf238e8fa22a9c010691f6a867f3b	#991	Add keycloak OAuth provider (#13033)	Previously completed in S3	S3 Keycloak 인증 코드를 유지; S4 전체 회귀에 OAuth 포함.
+ea6cbada9b2faf7e55bbd6273af4e86ef68b363d	#993	Multiple CD-ROM / ISO Support Per VM (#13101)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+82986f6cff9d1debdf63f3d47a04fc9ccf6e3319	#993	Refactors VM Schedule to make it more generic & add option to schedule min & max for autoscaling groups (#13148)	Pending in owner workstream	S5A schedule 확장 적용 시 Europa vmScheduleActions 및 S4 Quota 화면의 공유 Autogen 슬롯 모두 보존.
+ce52b9dae0cef57394967346247914a47cb04da4	#990	Merge branch '4.20' into 20.3.0-sec	Pending in owner workstream	S4 예약/DB 해결 부분 공동 검토. 남은 side commit/소유 기능을 완료하기 전에는 전체 merge를 Pending으로 유지.
+d5101b0c905a818a83c5048dc37447162040089e	#990	Merge branch '4.20' into 4.22	Pending in owner workstream	S4 예약/DB 해결 부분 공동 검토. 남은 side commit/소유 기능을 완료하기 전에는 전체 merge를 Pending으로 유지.
+236e01aad8d75cc84c9c05737984be501ff15d5f	#997	Soft delete port forwarding, load balancing and firewall rules (#13015)	Pending in owner workstream	S6 soft-delete 모델 도입 후 Quota의 LB/port-forward removed metadata 연결. 현재 모델은 해당 삭제 메타데이터가 없어 null.
+d2c8aa7dff735a8ed91cb858c91293dd7c4037b2	#996	Feature: Key Management Service (KMS) (#12711)	Pending in owner workstream	KMS 기능과 600201a46bf9 Usage bean 이동을 S5C에서 함께 적용. 현재 KMS DAO 미존재; 실제 Usage/Quota Spring 시작·집계 통과로 현행 S4의 선행 조건이 아님을 확인.
+6f30b0d58374505021ec62820bccfad58d6db9c5	#998	Custom login base domain using GUI whitelabel themes (#13412)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+e63b7da74cea0c38cf50b9784f625f76a0c86925	#997	Update nw_rate & mc_rate to int unsigned to allow rates > 65Gbps (#13380)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+167eb0af75950ecd054b62c8ee51a3b2f1495006	#997	CloudStack DNS framework - Integrate PowerDNS as first plugin (#12737)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+b3b9caddc191da6842b99ee6b2f2d5f92cb70145	#990	Merge remote-tracking branch 'apache/4.22'	Pending in owner workstream	S4 예약/DB 해결 부분 공동 검토. 남은 side commit/소유 기능을 완료하기 전에는 전체 merge를 Pending으로 유지.
+f07b7d8c078a7cbca5eb25b08cc4936b688fdfb2	#993	Add Guest OS mapping for windows server 2025 on VMware (#12358)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+33c3967b6b636ff50a644be8f445c558b5076051	#991	Add per-domain OAuth (Google, GitHub) provider support (#12702)	Previously completed in S3	S3 도메인 OAuth를 유지하고 새/기존 FK CASCADE 계약을 통일; 기존secret/DENY 보존.
+8996286a95ce9dc8c9648f8f07909b9d289d0e50	#997	Network Extension: Orchestrate external Network devices (#13032)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+c7e2c748f74619e3b0454d6f2904b89abaf39003	#990	Merge remote-tracking branch 'apache/4.20' into 4.22	Pending in owner workstream	S4 예약/DB 해결 부분 공동 검토. 남은 side commit/소유 기능을 완료하기 전에는 전체 merge를 Pending으로 유지.
+265b554d608ef42d7c77de0eab088a46f8c4fd81	#990	Fix 4.22 build failures after forward-merge and rename 42010to42100 to 42040to42100	S4 completed	S4에서 upgrade 계층의4.20.4 이름/경로 반영 및 fresh JDBC/경로 테스트 통과.
+13822b1ac1f8295c12fb82acd4b74a1b5726196c	#997	Support Firewall for public IPs in VPC (#12706)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+66132f83eaec000e3cb0ca94539aaa93bd6ba2bc	#994	Introduce new backup provider (KBOSS) (#12758)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+4f117071c9397b1e4714c8fb61c384883c872842	#994	KBOSS - Remove backup chain separation (#13680)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+64178ead02d18ec565ede449754bfad98799e857	#991	Add missing project cleanups while deleting/moving user (#13817)	Previously completed in S3	S3 프로젝트 소유자/초대 정리를 유지하고 예약/카운트 변경과 함께 검증.
+158fe4fad5328d5a6f42fabf30b9b2e0738d3949	#997	DNS Provider URL Validation (#13821)	Pending in owner workstream	소유 작업에서 기능/API/DDL을 함께 통합. S4에 무관한 부모 문맥을 일괄 가져오지 않음; 현행 S4 전체 컴파일·회귀·DB 계약 검증과 구분.
+600201a46bf9001d4eb8ec46bf168d9f6064bac2	#996	Usage KMS bean placement	Pending with KMS	d2c8aa7dff73과 함께 적용. 현재없는 KMS 빈을 단독 추가하지 않음.
+449d3c7cb1df75867a3e1a9c3648fc3675c6b39e	#992	Pre-checkpoint QuotaCreditsList dependency	Adapted in S4; outside fixed299	f2a1f839a7bb의 실제 누락 의존성. 응답/등록/권한/단위 테스트 보완; 별도 보충 기록이며 원본299집합은 유지.
+64ac0822b439d71796108f0f41485b61e3b8b395	#990 / #993	VM import reservation forward-merge context	S4 portion reviewed; overall Pending	S3의 현재 UnmanagedVM import/typed cleanup/placement/GPU를 유지하고 필요한 볼륨 예약 handle만 연결. 다른 VDDK/agent 변경은 소유 작업에서 검증.

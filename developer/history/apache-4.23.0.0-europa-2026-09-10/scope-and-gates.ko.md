@@ -61,6 +61,7 @@ under the License.
 
 - S1: PR #1000 병합과 #989 종료. 고정299개 집합/부모, 280개 근거, merge19개 분석, 단계·의존성·출발점 확정 완료.
 - S2: PR #1002 병합으로 baseline_ready 완료. 기준/후보 전체 빌드·테스트, RAT269개 헤더 수정, 실제 DB 오류 비교, Rocky9.8 Actions RPM/환경/의존성/체크섬/실행 classpath 검증 완료. 상세 결과와 skip/실패는 [S2 보고](s2-verification.ko.md)를 참조한다.
-- 원본 최종 판정: S2 41개 확정/36개 Pending, 전체299개 중41개 확정/258개 Pending. S2 전체 DONE 및 Epic 완료가 아니다.
-- 다음 작업: S3 #991. 공통 DB 실패는 S4 #992, 기능·merge 공동 검증은 각 소유 단계, 실제 서비스/최종 RC 설치·업그레이드·복구는 S8 #999에서 완료한다.
+- S3: 구현 PR #1009에서 직접 배정66개와 S2 연계6개를 최종 판정했다. [S3 보고](s3-verification.ko.md)의 제품 SHA/Actions/DB·인증 검증 범위를 인수한다.
+- 원본 최종 판정: S2 47개 확정/30개 Pending, 전체299개 중113개 확정/186개 Pending. S2 전체 DONE 및 Epic 완료가 아니다.
+- 다음 작업: S4 #992. 공통 DB 실패는 S4 #992, 기능·merge 공동 검증은 각 소유 단계, 실제 서비스/최종 RC 설치·업그레이드·복구는 S8 #999에서 완료한다.
 - S8의 최종 version stamping은 S2의 공동 마감 항목이다. S2 전체 DONE을 stamping 착수의 선행 조건으로 두지 않는다.

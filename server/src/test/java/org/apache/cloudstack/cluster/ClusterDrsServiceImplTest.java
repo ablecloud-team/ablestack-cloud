@@ -42,7 +42,10 @@ import com.cloud.utils.Ternary;
 import com.cloud.utils.db.GlobalLock;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.VMInstanceVO;
+import com.cloud.vm.VMInstanceDetailVO;
+import com.cloud.vm.dao.VMInstanceDetailsDao;
 import com.cloud.vm.VirtualMachine;
+import com.cloud.vm.VmDetailConstants;
 import com.cloud.vm.dao.VMInstanceDao;
 import org.apache.cloudstack.api.command.admin.cluster.GenerateClusterDrsPlanCmd;
 import org.apache.cloudstack.api.response.ClusterDrsPlanMigrationResponse;
@@ -118,6 +121,9 @@ public class ClusterDrsServiceImplTest {
     private VMInstanceDao vmInstanceDao;
     @Mock
     private VolumeDao volumeDao;
+
+    @Mock
+    private VMInstanceDetailsDao userVmDetailsDao;
 
     @Spy
     @InjectMocks
@@ -366,13 +372,11 @@ public class ClusterDrsServiceImplTest {
         Mockito.when(vm1.getId()).thenReturn(1L);
         Mockito.when(vm1.getType()).thenReturn(VirtualMachine.Type.User);
         Mockito.when(vm1.getState()).thenReturn(VirtualMachine.State.Running);
-        Mockito.when(vm1.getDetails()).thenReturn(Collections.emptyMap());
 
         VMInstanceVO vm2 = Mockito.mock(VMInstanceVO.class);
         Mockito.when(vm2.getId()).thenReturn(2L);
         Mockito.when(vm2.getType()).thenReturn(VirtualMachine.Type.User);
         Mockito.when(vm2.getState()).thenReturn(VirtualMachine.State.Running);
-        Mockito.when(vm2.getDetails()).thenReturn(Collections.emptyMap());
 
         List<VirtualMachine> vmList = new ArrayList<>();
         vmList.add(vm1);
@@ -423,13 +427,11 @@ public class ClusterDrsServiceImplTest {
         Mockito.when(vm1.getId()).thenReturn(1L);
         Mockito.when(vm1.getType()).thenReturn(VirtualMachine.Type.User);
         Mockito.when(vm1.getState()).thenReturn(VirtualMachine.State.Running);
-        Mockito.when(vm1.getDetails()).thenReturn(Collections.emptyMap());
 
         VMInstanceVO vm2 = Mockito.mock(VMInstanceVO.class);
         Mockito.when(vm2.getId()).thenReturn(2L);
         Mockito.when(vm2.getType()).thenReturn(VirtualMachine.Type.User);
         Mockito.when(vm2.getState()).thenReturn(VirtualMachine.State.Running);
-        Mockito.when(vm2.getDetails()).thenReturn(Collections.emptyMap());
 
         List<VirtualMachine> vmList = new ArrayList<>();
         vmList.add(vm1);
@@ -487,5 +489,20 @@ public class ClusterDrsServiceImplTest {
         clusterDrsService.processPlans();
 
         Mockito.verify(clusterDrsService, Mockito.times(2)).executeDrsPlan(Mockito.any(ClusterDrsPlanVO.class));
+    }
+
+    @Test
+    public void skipDrsReadsPersistedDetailBeforeHostLookup() throws ConfigurationException {
+        VirtualMachine vm = Mockito.mock(VirtualMachine.class);
+        Mockito.when(vm.getId()).thenReturn(123L);
+        Mockito.when(vm.getType()).thenReturn(VirtualMachine.Type.User);
+        Mockito.when(vm.getState()).thenReturn(VirtualMachine.State.Running);
+        Mockito.when(userVmDetailsDao.listDetailsForResourceIdsAndKey(List.of(123L), VmDetailConstants.SKIP_DRS))
+                .thenReturn(List.of(new VMInstanceDetailVO(123L, VmDetailConstants.SKIP_DRS, "TrUe", true)));
+        Pair<VirtualMachine, Host> result = clusterDrsService.getBestMigration(
+                Mockito.mock(Cluster.class), balancedAlgorithm, List.of(vm), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        assertEquals(null, result.first());
+        Mockito.verifyNoInteractions(managementServer);
+        Mockito.verify(vm, Mockito.never()).getDetails();
     }
 }

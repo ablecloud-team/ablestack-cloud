@@ -16,32 +16,49 @@
 //under the License.
 package org.apache.cloudstack.oauth2.github;
 
-import com.cloud.utils.component.AdapterBase;
-import com.cloud.utils.exception.CloudRuntimeException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.cloudstack.auth.UserOAuth2Authenticator;
-import org.apache.cloudstack.oauth2.dao.OauthProviderDao;
-import org.apache.cloudstack.oauth2.vo.OauthProviderVO;
-import org.apache.commons.lang3.StringUtils;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.inject.Inject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.apache.cloudstack.auth.UserOAuth2Authenticator;
+import org.apache.cloudstack.oauth2.OAuth2FlowCache;
+import org.apache.cloudstack.oauth2.dao.OauthProviderDao;
+import org.apache.cloudstack.oauth2.vo.OauthProviderVO;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+
+import com.cloud.exception.CloudAuthenticationException;
+import com.cloud.utils.component.AdapterBase;
+import com.cloud.utils.exception.CloudRuntimeException;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class GithubOAuth2Provider extends AdapterBase implements UserOAuth2Authenticator {
-
     @Inject
     OauthProviderDao _oauthProviderDao;
 
-    private String accessToken = null;
+    private final OAuth2FlowCache flowCache = new OAuth2FlowCache();
+    private final CloseableHttpClient httpClient;
+
+    public GithubOAuth2Provider() {
+        this(HttpClients.custom().useSystemProperties().disableRedirectHandling()
+                .setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(10000)
+                        .setConnectionRequestTimeout(10000).setSocketTimeout(20000).build()).build());
+    }
+
+    public GithubOAuth2Provider(CloseableHttpClient httpClient) {
+        this.httpClient = httpClient;
+    }
 
     @Override
     public String getName() {
@@ -54,126 +71,78 @@ public class GithubOAuth2Provider extends AdapterBase implements UserOAuth2Authe
     }
 
     @Override
-    public boolean verifyUser(String email, String secretCode) {
-        if (StringUtils.isAnyEmpty(email, secretCode)) {
-            throw new CloudRuntimeException(String.format("Either email or secretcode should not be null/empty"));
+    public boolean verifyUser(String email, String code) {
+        return verifyUser(email, code, null);
+    }
+
+    @Override
+    public String verifySecretCodeAndFetchEmail(String code) {
+        return verifySecretCodeAndFetchEmail(code, null);
+    }
+
+    @Override
+    public boolean verifyUser(String email, String code, Long domainId) {
+        if (StringUtils.isAnyBlank(email, code)) {
+            throw new CloudAuthenticationException("Email and authorization code are required");
         }
-
-        OauthProviderVO providerVO = _oauthProviderDao.findByProvider(getName());
-        if (providerVO == null) {
-            throw new CloudRuntimeException("Github provider is not registered, so user cannot be verified");
+        OauthProviderVO provider = _oauthProviderDao.findByProviderAndDomainWithGlobalFallback(getName(), domainId);
+        String verifiedEmail = flowCache.consume(provider, domainId, code, () -> exchangeCode(code, provider));
+        if (!email.equals(verifiedEmail)) {
+            throw new CloudAuthenticationException("Unable to verify the email address with the provided secret");
         }
-
-        String verifiedEmail = getUserEmailAddress();
-        if (verifiedEmail == null || !email.equals(verifiedEmail)) {
-            throw new CloudRuntimeException("Unable to verify the email address with the provided secret");
-        }
-
-        clearAccessToken();
-
         return true;
     }
 
     @Override
-    public String verifyCodeAndFetchEmail(String secretCode) {
-        String accessToken = getAccessToken(secretCode);
-        if (accessToken == null) {
-            return null;
-        }
-        return getUserEmailAddress();
+    public String verifySecretCodeAndFetchEmail(String code, Long domainId) {
+        OauthProviderVO provider = _oauthProviderDao.findByProviderAndDomainWithGlobalFallback(getName(), domainId);
+        return flowCache.discover(provider, domainId, code, () -> exchangeCode(code, provider));
     }
 
-    protected String getAccessToken(String secretCode) throws CloudRuntimeException {
-        OauthProviderVO githubProvider = _oauthProviderDao.findByProvider(getName());
-        String tokenUrl = "https://github.com/login/oauth/access_token";
-        String generatedAccessToken = null;
-        try {
-            URL url = new URL(tokenUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setDoOutput(true);
-
-            String jsonParams = "{\"client_id\":\"" + githubProvider.getClientId() + "\",\"client_secret\":\"" + githubProvider.getSecretKey() + "\",\"code\":\"" + secretCode + "\"}";
-
-            try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonParams.getBytes("utf-8");
-                os.write(input, 0, input.length);
+    protected String exchangeCode(String code, OauthProviderVO provider) {
+        JsonObject request = new JsonObject();
+        request.addProperty("client_id", provider.getClientId());
+        request.addProperty("client_secret", provider.getSecretKey());
+        request.addProperty("code", code);
+        request.addProperty("redirect_uri", provider.getRedirectUri());
+        HttpPost post = new HttpPost("https://github.com/login/oauth/access_token");
+        post.setHeader("Accept", "application/json");
+        post.setEntity(new StringEntity(request.toString(), ContentType.APPLICATION_JSON));
+        String token;
+        try (CloseableHttpResponse response = httpClient.execute(post)) {
+            if (response.getStatusLine().getStatusCode() != 200) {
+                throw new CloudAuthenticationException("GitHub rejected the authorization code");
             }
-
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                    String inputLine;
-                    StringBuilder response = new StringBuilder();
-                    while ((inputLine = in.readLine()) != null) {
-                        response.append(inputLine);
-                    }
-                    String regexPattern = "access_token=([^&]+)";
-                    Pattern pattern = Pattern.compile(regexPattern);
-                    Matcher matcher = pattern.matcher(response);
-                    if (matcher.find()) {
-                        generatedAccessToken = matcher.group(1);
-                    } else {
-                        throw new CloudRuntimeException("Could not fetch access token from the given code");
-                    }
+            JsonObject json = JsonParser.parseString(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8)).getAsJsonObject();
+            if (!json.has("access_token") || StringUtils.isBlank(json.get("access_token").getAsString())) {
+                throw new CloudAuthenticationException("GitHub did not return an access token");
+            }
+            token = json.get("access_token").getAsString();
+        } catch (IOException | IllegalArgumentException e) {
+            throw new CloudAuthenticationException("Unable to verify the GitHub authorization response");
+        }
+        HttpGet get = new HttpGet("https://api.github.com/user/emails");
+        get.setHeader("Authorization", "Bearer " + token);
+        get.setHeader("Accept", "application/vnd.github+json");
+        try (CloseableHttpResponse response = httpClient.execute(get)) {
+            if (response.getStatusLine().getStatusCode() != 200) {
+                throw new CloudAuthenticationException("Unable to fetch the GitHub email address");
+            }
+            for (JsonElement entry : JsonParser.parseString(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8)).getAsJsonArray()) {
+                JsonObject email = entry.getAsJsonObject();
+                if (email.has("verified") && email.get("verified").getAsBoolean()
+                        && email.has("primary") && email.get("primary").getAsBoolean() && email.has("email")) {
+                    return email.get("email").getAsString();
                 }
-            } else {
-                throw new CloudRuntimeException("HTTP Request while fetching access token from github failed with error code: " + responseCode);
             }
-        } catch (IOException e) {
-            throw new CloudRuntimeException(String.format("Error while trying to fetch the github access token : %s", e.getMessage()));
+            throw new CloudAuthenticationException("GitHub did not return a verified primary email address");
+        } catch (IOException | IllegalArgumentException e) {
+            throw new CloudAuthenticationException("Unable to verify the GitHub email response");
         }
-
-        accessToken = generatedAccessToken;
-        return accessToken;
     }
 
+    @Override
     public String getUserEmailAddress() throws CloudRuntimeException {
-        if (accessToken == null) {
-            throw new CloudRuntimeException("Access Token not found to fetch the email address");
-        }
-
-        String apiUrl = "https://api.github.com/user/emails";
-        String email = null;
-        try {
-            URL url = new URL(apiUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Authorization", "token " + accessToken);
-
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                    String inputLine;
-                    StringBuilder response = new StringBuilder();
-                    while ((inputLine = in.readLine()) != null) {
-                        response.append(inputLine);
-                    }
-
-                    try {
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        JsonNode jsonNode = objectMapper.readTree(response.toString());
-                        if (jsonNode != null  && jsonNode.isArray()) {
-                            JsonNode firstObject = jsonNode.get(0);
-                            email = firstObject.get("email").asText();
-                        } else {
-                            throw new CloudRuntimeException("Invalid JSON format found while accessing email from github");
-                        }
-                    } catch (Exception e) {
-                        throw new CloudRuntimeException(String.format("Error occurred while accessing email from github: %s", e.getMessage()));
-                    }                }
-            } else {
-                throw new CloudRuntimeException(String.format("HTTP Request Failed with error code: %s", responseCode));
-            }
-        } catch (IOException e) {
-            throw new CloudRuntimeException(String.format("Error while trying to fetch email from github : %s", e.getMessage()));
-        }
-
-        return email;
-    }
-
-    private void clearAccessToken() {
-        accessToken = null;
+        return null;
     }
 }

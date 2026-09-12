@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
+import com.cloud.dc.DataCenter;
 import com.cloud.exception.ResourceAllocationException;
 import com.cloud.exception.StorageUnavailableException;
 import com.cloud.offering.DiskOffering;
@@ -72,6 +73,10 @@ public interface VolumeApiService {
      */
     Volume allocVolume(CreateVolumeCmd cmd) throws ResourceAllocationException;
 
+    Volume allocVolume(long ownerId, Long zoneId, Long diskOfferingId, Long vmId, Long snapshotId, String name,
+           Long cmdSize, Boolean displayVolume, Long cmdMinIops, Long cmdMaxIops, String customId, Long kmsKeyId)
+            throws ResourceAllocationException;
+
     /**
      * Creates the volume based on the given criteria
      *
@@ -81,6 +86,8 @@ public interface VolumeApiService {
      * @return the volume object
      */
     Volume createVolume(CreateVolumeCmd cmd);
+
+    Volume createVolume(long volumeId, Long vmId, Long snapshotId, Long storageId, Boolean display);
 
     /**
      * Resizes the volume based on the given criteria
@@ -109,7 +116,11 @@ public interface VolumeApiService {
 
     Volume attachVolumeToVM(AttachVolumeCmd command);
 
-    Volume attachVolumeToVM(Long vmId, Long volumeId, Long deviceId, Boolean allowAttachForSharedFS);
+    Volume attachVolumeToVM(Long vmId, Long volumeId, Long deviceId, Boolean allowAttachForSharedFS, boolean allowAttachOnRestoring);
+
+    default Volume attachVolumeToVM(Long vmId, Long volumeId, Long deviceId, Boolean allowAttachForSharedFS) {
+        return attachVolumeToVM(vmId, volumeId, deviceId, allowAttachForSharedFS, false);
+    }
 
     Volume detachVolumeViaDestroyVM(long vmId, long volumeId);
 
@@ -187,7 +198,11 @@ public interface VolumeApiService {
 
     boolean validateConditionsToReplaceDiskOfferingOfVolume(Volume volume, DiskOffering newDiskOffering, StoragePool destPool);
 
-    Volume destroyVolume(long volumeId, Account caller, boolean expunge, boolean forceExpunge);
+    Volume destroyVolume(long volumeId, Account caller, boolean expunge, boolean forceExpunge, Boolean countDisplayFalseInResourceCount);
+
+    default Volume destroyVolume(long volumeId, Account caller, boolean expunge, boolean forceExpunge) {
+        return destroyVolume(volumeId, caller, expunge, forceExpunge, null);
+    }
 
     void destroyVolume(long volumeId);
 
@@ -212,4 +227,12 @@ public interface VolumeApiService {
     Volume updateCompressDedupVolume(UpdateCompressDedupCmd cmd);
 
     Long getVolumePhysicalSize(Storage.ImageFormat format, String path, String chainInfo);
+
+    Long getCustomDiskOfferingIdForVolumeUpload(Account owner, DataCenter zone, boolean encryptEnabledOnly);
+
+    /** Preserve pre-KMS Europa callers without selecting a KMS key. */
+    default Volume allocVolume(long ownerId, Long zoneId, Long diskOfferingId, Long vmId, Long snapshotId, String name, Long cmdSize, Boolean displayVolume, Long cmdMinIops,
+            Long cmdMaxIops, String customId) throws ResourceAllocationException {
+        return allocVolume(ownerId, zoneId, diskOfferingId, vmId, snapshotId, name, cmdSize, displayVolume, cmdMinIops, cmdMaxIops, customId, null);
+    }
 }

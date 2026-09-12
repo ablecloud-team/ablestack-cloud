@@ -74,17 +74,18 @@ public final class KVMHAProvider extends HAAbstractHostProvider implements HAPro
 
     @Override
     public boolean recover(Host r) throws HARecoveryException {
+        logger.debug("Recover the host {}", r);
         try {
             if (outOfBandManagementService.isOutOfBandManagementEnabled(r)){
-                logger.warn("OOBM recover operation skiped for the host " + r.getName());
+                logger.warn("OOBM recover operation skipped for the host " + r.getName());
                 return false;
             } else {
                 logger.warn("OOBM recover operation failed for the host {}", r);
                 return false;
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.warn("OOBM service is not configured or enabled for this host {} error is {}", r, e.getMessage());
-            throw new HARecoveryException(String.format(" OOBM service is not configured or enabled for this host %s", r), e);
+            throw new HARecoveryException(String.format("OOBM service is not configured or enabled for this host %s", r), e);
         }
     }
 

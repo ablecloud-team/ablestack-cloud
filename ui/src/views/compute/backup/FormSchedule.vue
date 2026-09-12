@@ -149,6 +149,15 @@
                   <tooltip-label :title="$t('label.quiescevm')" :tooltip="apiParams.quiescevm.description"/>
                 </template>
               </a-form-item>
+              <a-form-item name="isolated" ref="isolated">
+                <template #label>
+                  <tooltip-label
+                    :title="$t('label.isolated')"
+                    :tooltip="apiParams.isolated?.description"
+                  />
+                </template>
+                <a-switch v-model:checked="form.isolated" />
+              </a-form-item>
             </a-col>
           </a-row>
           <div :span="24" class="action-button">
@@ -306,7 +315,8 @@ export default {
         'day-of-month': null,
         maxbackups: null,
         timezone: null,
-        quiescevm: false
+        quiescevm: false,
+        isolated: false
       })
       this.rules = {
         time: [{ type: 'number', required: true, message: this.$t('message.error.required.input') }],
@@ -459,6 +469,7 @@ export default {
         if (values.quiescevm) {
           params.quiescevm = values.quiescevm
         }
+        params.isolated = values.isolated
         switch (values.intervaltype) {
           case 'hourly':
             params.schedule = values.time

@@ -49,10 +49,5 @@ WHERE so.default_use = 1
 
 
 -- fix erronous commas in guest_os names
-UPDATE `cloud`.`guest_os_hypervisor` SET guest_os_name = 'rhel9_64Guest' WHERE guest_os_name = 'rhel9_64Guest,'
-  AND EXISTS (
-    SELECT 1
-    FROM `cloud`.`guest_os_hypervisor`
-    WHERE guest_os_name = 'rhel9_64Guest,'
-);
+UPDATE `cloud`.`guest_os_hypervisor` SET guest_os_name = 'rhel9_64Guest' WHERE guest_os_name = 'rhel9_64Guest,';
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.guest_os', 'display', 'tinyint(1) DEFAULT ''1'' COMMENT ''should this guest_os be shown to the end user'' ');

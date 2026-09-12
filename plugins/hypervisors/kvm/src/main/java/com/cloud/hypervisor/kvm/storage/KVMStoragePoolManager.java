@@ -73,7 +73,9 @@ public class KVMStoragePoolManager {
 
     private void addStoragePool(String uuid, StoragePoolInformation pool) {
         synchronized (_storagePools) {
-            if (!_storagePools.containsKey(uuid)) {
+            // Insert on first registration; on subsequent calls (e.g. ModifyStoragePoolCommand)
+            // overwrite when new details are present so config changes are reflected
+            if (!_storagePools.containsKey(uuid) || MapUtils.isNotEmpty(pool.getDetails())) {
                 _storagePools.put(uuid, pool);
             }
         }
@@ -82,6 +84,10 @@ public class KVMStoragePoolManager {
     public KVMStoragePoolManager(StorageLayer storagelayer, KVMHAMonitor monitor) {
         this._haMonitor = monitor;
         this._storageMapper.put("libvirt", new LibvirtStorageAdaptor(storagelayer));
+        // Register CLVM/CLVM_NG adaptor explicitly for both types (one shared instance)
+        ClvmStorageAdaptor clvmAdaptor = new ClvmStorageAdaptor(storagelayer);
+        this._storageMapper.put(StoragePoolType.CLVM.toString(), clvmAdaptor);
+        this._storageMapper.put(StoragePoolType.CLVM_NG.toString(), clvmAdaptor);
         // add other storage adaptors manually here
 
         // add any adaptors that wish to register themselves via call to adaptor.getStoragePoolType()
@@ -93,8 +99,8 @@ public class KVMStoragePoolManager {
                 logger.debug("Skipping registration of abstract class / interface " + storageAdaptorClass.getName());
                 continue;
             }
-            if (storageAdaptorClass.isAssignableFrom(LibvirtStorageAdaptor.class)) {
-                logger.debug("Skipping re-registration of LibvirtStorageAdaptor");
+            if (storageAdaptorClass == LibvirtStorageAdaptor.class || storageAdaptorClass == ClvmStorageAdaptor.class) {
+                logger.debug("Skipping re-registration of explicitly registered adaptor: {}", storageAdaptorClass.getSimpleName());
                 continue;
             }
             try {
@@ -269,11 +275,20 @@ public class KVMStoragePoolManager {
         return result;
     }
 
-    public KVMStoragePool getStoragePool(StoragePoolType type, String uuid) {
-        return this.getStoragePool(type, uuid, false);
+    /** Resolve the registered provider without changing an RBD pool into an NFS pool. */
+    public KVMStoragePool getStoragePoolByUuid(String uuid) {
+        StoragePoolInformation info = _storagePools.get(uuid);
+        if (info == null) {
+            throw new CloudRuntimeException("Storage pool is not registered: " + uuid);
+        }
+        return getStoragePool(info.getPoolType(), uuid);
     }
 
-    public KVMStoragePool getStoragePool(StoragePoolType type, String uuid, boolean refreshInfo) {
+    public KVMStoragePool getStoragePool(StoragePoolType type, String uuid) {
+        return this.getStoragePool(type, uuid, false, true);
+    }
+
+    public synchronized KVMStoragePool getStoragePool(StoragePoolType type, String uuid, boolean refreshInfo, boolean addDetails) {
 
         StorageAdaptor adaptor = getStorageAdaptor(type);
         KVMStoragePool pool = null;
@@ -288,12 +303,33 @@ public class KVMStoragePoolManager {
             }
         }
 
-        if (pool instanceof LibvirtStoragePool) {
-            addPoolDetails(uuid, (LibvirtStoragePool) pool);
+        if (pool instanceof LibvirtStoragePool && addDetails) {
+            LibvirtStoragePool libvirtPool = (LibvirtStoragePool) pool;
+            addPoolDetails(uuid, libvirtPool);
             ((LibvirtStoragePool) pool).setType(type);
+            updatePoolTypeIfApplicable(libvirtPool, pool, type, uuid);
         }
 
         return pool;
+    }
+
+    private void updatePoolTypeIfApplicable(LibvirtStoragePool libvirtPool, KVMStoragePool pool,
+                                            StoragePoolType type, String uuid) {
+        StoragePoolType correctType = type;
+        if (correctType == null || correctType == StoragePoolType.CLVM) {
+            StoragePoolInformation info = _storagePools.get(uuid);
+            if (info != null && info.getPoolType() != null) {
+                correctType = info.getPoolType();
+            }
+        }
+
+        if (correctType != null && correctType != pool.getType() &&
+                (correctType == StoragePoolType.CLVM || correctType == StoragePoolType.CLVM_NG) &&
+                (pool.getType() == StoragePoolType.CLVM || pool.getType() == StoragePoolType.CLVM_NG)) {
+            logger.debug("Correcting pool type from {} to {} for pool {} based on caller/cached information",
+                    pool.getType(), correctType, uuid);
+            libvirtPool.setType(correctType);
+        }
     }
 
     /**
@@ -302,6 +338,10 @@ public class KVMStoragePoolManager {
      */
     private void addPoolDetails(String uuid, LibvirtStoragePool pool) {
         StoragePoolInformation storagePoolInformation = _storagePools.get(uuid);
+        if (storagePoolInformation == null) {
+            logger.warn("No cached StoragePoolInformation found for pool UUID {}, pool details will not be set.", uuid);
+            return;
+        }
         Map<String, String> details = storagePoolInformation.getDetails();
 
         if (MapUtils.isNotEmpty(details)) {
@@ -439,7 +479,7 @@ public class KVMStoragePoolManager {
         return adaptor.disconnectPhysicalDisk(volPath, pool);
     }
 
-    public boolean deleteStoragePool(StoragePoolType type, String uuid) {
+    public synchronized boolean deleteStoragePool(StoragePoolType type, String uuid) {
         StorageAdaptor adaptor = getStorageAdaptor(type);
         if (type == StoragePoolType.NetworkFilesystem) {
             _haMonitor.removeStoragePool(uuid);
@@ -481,6 +521,10 @@ public class KVMStoragePoolManager {
             return adaptor.createDiskFromTemplate(template, name,
                     PhysicalDiskFormat.RAW, provisioningType,
                     size, destPool, timeout, passphrase);
+        } else if (destPool.getType() == StoragePoolType.CLVM_NG) {
+            return adaptor.createDiskFromTemplate(template, name,
+                    PhysicalDiskFormat.QCOW2, provisioningType,
+                    size, destPool, timeout, passphrase);
         } else if (template.getFormat() == PhysicalDiskFormat.DIR) {
             return adaptor.createDiskFromTemplate(template, name,
                     PhysicalDiskFormat.DIR, provisioningType,
@@ -520,6 +564,11 @@ public class KVMStoragePoolManager {
     public KVMPhysicalDisk createPhysicalDiskFromDirectDownloadTemplate(String templateFilePath, String destTemplatePath, KVMStoragePool destPool, Storage.ImageFormat format, int timeout) {
         StorageAdaptor adaptor = getStorageAdaptor(destPool.getType());
         return adaptor.createTemplateFromDirectDownloadFile(templateFilePath, destTemplatePath, destPool, format, timeout);
+    }
+
+    public void createTemplateOnClvmNg(String templatePath, String templateUuid, int timeout, KVMStoragePool pool) {
+        StorageAdaptor adaptor = getStorageAdaptor(pool.getType());
+        adaptor.createTemplate(templatePath, templateUuid, timeout, pool);
     }
 
     public Ternary<Boolean, Map<String, String>, String> prepareStorageClient(StoragePoolType type, String uuid, Map<String, String> details) {

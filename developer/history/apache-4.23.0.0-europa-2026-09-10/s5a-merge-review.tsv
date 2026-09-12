@@ -1,0 +1,26 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+source_sha	decision	remaining_side_sources	review	verified_source_sha	pr
+856d83a15eeef23806c896fa4fddbec136b28613	Pending	4df32ae79fb21e9f11df5c1235bc504a8e284ae7	S5A code reviewed in #1024; remaining in-scope sources: 4df32ae79fb2:S6. Shared merge remains Pending.	8a4f0b5fec734cbe5d8c28cbffc1a599cfb0b19d	https://github.com/ablecloud-team/ablestack-cloud/pull/1024
+3e688b0197863bd35635d7e0999b91a35b692ac6	Already Satisfied		All in-scope side commits are resolved. Actual remerge diff preserves running/disk snapshot guard, selective custom offering restoration, import optional NIC argument and per-import cleanup. Europa already contains these choices; retain current CheckedReservation and S3 API-key ownership behavior.	8a4f0b5fec734cbe5d8c28cbffc1a599cfb0b19d	https://github.com/ablecloud-team/ablestack-cloud/pull/1024
+a4a52c96659d9f94fd080096aa673916ae221ef2	Pending	ddcc0c889d723651d0072f8736865577d5315601;5b9a3d7d320e2dd5bf58d517007d80ce347d89a8	S5A code reviewed in #1024; remaining in-scope sources: ddcc0c889d72:S5B,5b9a3d7d320e:S5B. Shared merge remains Pending.	8a4f0b5fec734cbe5d8c28cbffc1a599cfb0b19d	https://github.com/ablecloud-team/ablestack-cloud/pull/1024
+67b849f3efd16f5c353501d176a42e45d87acb44	Pending	21b2025c5055d4580e828f708d406510853f0060;35ac91e58b83d50dc71784cad9c41044926986e6;c267ad39bcdaa07e42c73cb29b1c4b51bccfe54e;c165806d3b8262c58821e04c622da176c935b46b;3285e2fad8747d3a02cf135616ee220a34a8da4e;08b1d38755727b615fda6a668ba9ac035f3b8002;9f96c9d5eb97f1836103918cf520d72cc3395c51	S5A code reviewed in #1024; remaining in-scope sources: 21b2025c5055:S2,35ac91e58b83:S5B,c267ad39bcda:S5B,c165806d3b82:S6,3285e2fad874:S6,08b1d3875572:S5B,9f96c9d5eb97:S6. Shared merge remains Pending.	8a4f0b5fec734cbe5d8c28cbffc1a599cfb0b19d	https://github.com/ablecloud-team/ablestack-cloud/pull/1024
+b3b9caddc191da6842b99ee6b2f2d5f92cb70145	Pending	a951ac61d0900764a4ec85df8e1250c0dcd24af4;daa2e61eefb1f81ad0e65b341cdee3aa40b23fa4;006831daafbda30ae415a3908f165c56b396db75;097a57967b607c970ef270ca6dc53288cf6575c0;0231e67b9d9adf1ac0b4a4bd7a9acbf654e09cbc;2ba02c1a4a3974cfddf28697cfe56d95cf5f7360;4625a43672204a6a7b7d9fe0ba8d21ff21df91e7	S5A code reviewed in #1024; remaining in-scope sources: a951ac61d090:S7,daa2e61eefb1:S5B,006831daafbd:S6,097a57967b60:S6,0231e67b9d9a:S5B,2ba02c1a4a39:S6,4625a4367220:S6. Shared merge remains Pending.	8a4f0b5fec734cbe5d8c28cbffc1a599cfb0b19d	https://github.com/ablecloud-team/ablestack-cloud/pull/1024
+c7e2c748f74619e3b0454d6f2904b89abaf39003	Pending	b36f06482fad3c5fa15cae02df0d696b4f659fc7;78d9cb5abd633ff740352637dce417346b0b8a80;4244c2cc102cc7decfb166147adf5161c8e29f1f;b26b70c40d60afe2606aca2a59945e3aec707539;a3970bb15301f421305f375d37ed5cd61db578b6;357186d64d0819fc8321b734b69b691ef09e4412;ff9ee24d1250c9d394ae60af8c70120416045691	S5A code reviewed in #1024; remaining in-scope sources: b36f06482fad:S6,78d9cb5abd63:S6,4244c2cc102c:S6,b26b70c40d60:S6,a3970bb15301:S5B,357186d64d08:S5B,ff9ee24d1250:S5B. Shared merge remains Pending.	8a4f0b5fec734cbe5d8c28cbffc1a599cfb0b19d	https://github.com/ablecloud-team/ablestack-cloud/pull/1024
+76a4bc8c9dea970f829772fdb8419013974797f9	Pending	e8df87e89be3a1834e163c01ef395fe220a72027	S5A code reviewed in #1024; remaining in-scope sources: e8df87e89be3:S5B. Shared merge remains Pending.	8a4f0b5fec734cbe5d8c28cbffc1a599cfb0b19d	https://github.com/ablecloud-team/ablestack-cloud/pull/1024
+fe3df6b660d3757797235cf4cbd3f96716feffbe	Pending	76a4bc8c9dea970f829772fdb8419013974797f9;63c142be261753314bb8d33446f20ab553aefec9;e8df87e89be3a1834e163c01ef395fe220a72027;8225668688d15b776182d3849cd2c94167678bbe	S5A code reviewed in #1024; remaining in-scope sources: 76a4bc8c9dea:S2,63c142be2617:S5B,e8df87e89be3:S5B,8225668688d1:S5B. Shared merge remains Pending.	8a4f0b5fec734cbe5d8c28cbffc1a599cfb0b19d	https://github.com/ablecloud-team/ablestack-cloud/pull/1024
+7fd56e573b8d6055b2d560babc9ad1f6c25d5d32	Pending	5432a04ae6e053658ae58c12867408cef9d12935	S5A code reviewed in #1024; remaining in-scope sources: 5432a04ae6e0:S6. Shared merge remains Pending.	8a4f0b5fec734cbe5d8c28cbffc1a599cfb0b19d	https://github.com/ablecloud-team/ablestack-cloud/pull/1024

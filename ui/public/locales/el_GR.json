@@ -3685,7 +3685,6 @@
   "message.error.zone.name": "Πληκτρολογήστε το όνομα της ζώνης",
   "message.error.zone.type": "Επιλέξτε τύπο ζώνης",
   "message.error.linstor.resourcegroup": "Παρακαλώ εισάγετε το Linstor Resource-Group.",
-  "message.error.fixed.offering.kvm": "Δεν είναι εφικτή η κλιμάκωση προς τα πάνω της εικονικής μηχανής ενώ ανήκει σε μία σταθερή προσφορά νέφους.",
   "message.error.create.webhook.local.account": "Account must be provided for creating a Webhook with Local scope.",
   "message.error.create.webhook.name": "Name must be provided for creating a Webhook.",
   "message.error.create.webhook.payloadurl": "Payload URL must be provided for creating a Webhook.",

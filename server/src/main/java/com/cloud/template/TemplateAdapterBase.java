@@ -20,11 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -170,7 +168,11 @@ public abstract class TemplateAdapterBase extends AdapterBase implements Templat
         return heuristicRuleHelper.getImageStoreIfThereIsHeuristicRule(zoneId, heuristicType, template);
     }
 
-    protected boolean isZoneAndImageStoreAvailable(DataStore imageStore, Long zoneId, Set<Long> zoneSet, boolean isTemplatePrivate) {
+    protected int getSecStorageCopyLimit(VMTemplateVO template, long zoneId) {
+        return templateMgr.getSecStorageCopyLimit(template, zoneId);
+    }
+
+    protected boolean isZoneAndImageStoreAvailable(DataStore imageStore, Long zoneId, Map<Long, Integer> zoneCopyCount, int copyLimit) {
         if (zoneId == null) {
             logger.warn(String.format("Zone ID is null, cannot allocate ISO/template in image store [%s].", imageStore));
             return false;
@@ -197,19 +199,13 @@ public abstract class TemplateAdapterBase extends AdapterBase implements Templat
             return false;
         }
 
-        if (zoneSet == null) {
-            logger.info(String.format("Zone set is null; therefore, the ISO/template should be allocated in every secondary storage of zone [%s].", zone));
-            return true;
-        }
-
-        if (isTemplatePrivate && zoneSet.contains(zoneId)) {
-            logger.info(String.format("The template is private and it is already allocated in a secondary storage in zone [%s]; therefore, image store [%s] will be skipped.",
-                    zone, imageStore));
+        int currentCount = zoneCopyCount.getOrDefault(zoneId, 0);
+        if (copyLimit > 0 && currentCount >= copyLimit) {
+            logger.info("Copy limit of {} reached for zone [{}]; skipping image store [{}].", copyLimit, zone, imageStore);
             return false;
         }
 
-        logger.info(String.format("Private template will be allocated in image store [%s] in zone [%s].", imageStore, zone));
-        zoneSet.add(zoneId);
+        zoneCopyCount.put(zoneId, currentCount + 1);
         return true;
     }
 
@@ -224,31 +220,31 @@ public abstract class TemplateAdapterBase extends AdapterBase implements Templat
     }
 
     /**
-     * If the template/ISO is marked as private, then it is allocated to a random secondary storage; otherwise, allocates to every storage pool in every zone given by the
-     * {@link TemplateProfile#getZoneIdList()}.
+     * Allocates the template/ISO to a single image store - the one the file will be uploaded to. The upload can only
+     * target one secondary store, so additional copies (up to the configured secstorage.public/private.template.copy.max)
+     * are propagated later by template sync instead of being pre-allocated here as empty placeholder entries that never
+     * receive the data.
      */
     protected void postUploadAllocation(List<DataStore> imageStores, VMTemplateVO template, List<TemplateOrVolumePostUploadCommand> payloads) {
-        Set<Long> zoneSet = new HashSet<>();
+        Map<Long, Integer> zoneCopyCount = new HashMap<>();
         Collections.shuffle(imageStores);
         for (DataStore imageStore : imageStores) {
             Long zoneId_is = imageStore.getScope().getScopeId();
+            int copyLimit = zoneId_is == null ? 0 : getSecStorageCopyLimit(template, zoneId_is);
 
-            if (!isZoneAndImageStoreAvailable(imageStore, zoneId_is, zoneSet, isPrivateTemplate(template))) {
+            if (!isZoneAndImageStoreAvailable(imageStore, zoneId_is, zoneCopyCount, copyLimit)) {
                 continue;
             }
 
-            TemplateInfo tmpl = imageFactory.getTemplate(template.getId(), imageStore);
-
-            // persist template_store_ref entry
-            DataObject templateOnStore = imageStore.create(tmpl);
-
-            // update template_store_ref and template state
-            EndPoint ep = _epSelector.select(templateOnStore);
-            if (ep == null) {
-                String errMsg = String.format("There is no secondary storage VM for downloading template to image store %s", imageStore);
-                logger.warn(errMsg);
-                throw new CloudRuntimeException(errMsg);
+            // Select the SSVM before creating any store reference, so an unavailable candidate leaves no placeholder.
+            EndPoint ep = _epSelector.select(imageStore);
+            if (ep == null || StringUtils.isBlank(ep.getPublicAddr())) {
+                logger.info("No public SSVM endpoint for upload to image store [{}]; trying another candidate.", imageStore);
+                zoneCopyCount.computeIfPresent(zoneId_is, (id, count) -> count - 1);
+                continue;
             }
+            TemplateInfo tmpl = imageFactory.getTemplate(template.getId(), imageStore);
+            DataObject templateOnStore = imageStore.create(tmpl);
 
             TemplateOrVolumePostUploadCommand payload = new TemplateOrVolumePostUploadCommand(template.getId(),
                     template.getUuid(), tmpl.getInstallPath(), tmpl.getChecksum(), tmpl.getType().toString(),
@@ -267,15 +263,11 @@ public abstract class TemplateAdapterBase extends AdapterBase implements Templat
             payload.setRequiresHvm(template.requiresHvm());
             payload.setDescription(template.getDisplayText());
             payloads.add(payload);
-        }
-    }
 
-    protected boolean isPrivateTemplate(VMTemplateVO template){
-        // if public OR featured OR system template
-        if (template.isPublicTemplate() || template.isFeatured() || template.getTemplateType() == TemplateType.SYSTEM) {
-            return false;
-        } else {
-            return true;
+            // The file can only be uploaded to a single secondary store. Allocate just this one; additional copies
+            // up to the configured secondary storage copy limit are propagated afterwards by template sync, so we do
+            // not create empty placeholder template_store_ref rows on the other stores.
+            break;
         }
     }
 
@@ -379,8 +371,6 @@ public abstract class TemplateAdapterBase extends AdapterBase implements Templat
         if (user == null) {
             throw new IllegalArgumentException("Unable to find user with id " + userId);
         }
-
-        _resourceLimitMgr.checkResourceLimit(templateOwner, ResourceType.template);
 
         // If a zoneId is specified, make sure it is valid
         if (zoneIdList != null) {

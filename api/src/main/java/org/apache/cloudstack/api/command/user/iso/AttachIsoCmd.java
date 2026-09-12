@@ -129,4 +129,13 @@ public class AttachIsoCmd extends BaseAsyncCmd implements UserCmd {
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to attach ISO");
         }
     }
+    @Override
+    public String getSyncObjType() {
+        return BaseAsyncCmd.vmIsoSyncObject;
+    }
+
+    @Override
+    public Long getSyncObjId() {
+        return getVirtualMachineId();
+    }
 }

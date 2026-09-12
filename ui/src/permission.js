@@ -101,7 +101,10 @@ router.beforeEach((to, from, next) => {
           return
         }
         store.commit('SET_LOGIN_FLAG', true)
-        store.commit('SET_MS_ID', Cookies.get('managementserverid'))
+        const MS_ID = Cookies.get('managementserverid')
+        if (MS_ID) {
+          store.commit('SET_MS_ID', MS_ID)
+        }
       }
       if (Cookies.get('firstlogin') === 'true' && to.path !== '/firstlogin') {
         store.dispatch('Logout').then(() => {
@@ -183,7 +186,7 @@ router.beforeEach((to, from, next) => {
       }
     }
   } else {
-    if (window.location.href.includes('verifyOauth') && to.name === undefined) {
+    if (window.location.search.includes('verifyOauth') && to.name !== 'VerifyOauth') {
       currentURL = new URL(window.location.href)
       urlParams = new URLSearchParams(currentURL.search)
       code = urlParams.get('code')

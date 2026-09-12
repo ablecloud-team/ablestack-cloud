@@ -17,6 +17,7 @@
 
 DROP PROCEDURE IF EXISTS `cloud`.`IDEMPOTENT_UPDATE_API_PERMISSION`;
 
+DELIMITER $$
 CREATE PROCEDURE `cloud`.`IDEMPOTENT_UPDATE_API_PERMISSION` (
     IN role VARCHAR(255),
     IN rule VARCHAR(255),
@@ -49,4 +50,5 @@ BEGIN
             (uuid, role_id, rule, permission, sort_order)
         VALUES (uuid(), role_id, rule, permission, max_sort_order)
 ;   END IF
-;END;
+;END$$
+DELIMITER ;

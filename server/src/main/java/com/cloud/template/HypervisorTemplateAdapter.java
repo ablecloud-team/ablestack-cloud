@@ -19,10 +19,10 @@ package com.cloud.template;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -34,10 +34,8 @@ import org.apache.cloudstack.annotation.AnnotationService;
 import org.apache.cloudstack.annotation.dao.AnnotationDao;
 import org.apache.cloudstack.api.ApiCommandResourceType;
 import org.apache.cloudstack.api.command.user.iso.DeleteIsoCmd;
-import org.apache.cloudstack.api.command.user.iso.GetUploadParamsForIsoCmd;
 import org.apache.cloudstack.api.command.user.iso.RegisterIsoCmd;
 import org.apache.cloudstack.api.command.user.template.DeleteTemplateCmd;
-import org.apache.cloudstack.api.command.user.template.GetUploadParamsForTemplateCmd;
 import org.apache.cloudstack.api.command.user.template.RegisterTemplateCmd;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.direct.download.DirectDownloadManager;
@@ -199,19 +197,6 @@ public class HypervisorTemplateAdapter extends TemplateAdapterBase {
             profile.setSize(templateSize);
         }
         profile.setUrl(url);
-        // Check that the resource limit for secondary storage won't be exceeded
-        _resourceLimitMgr.checkResourceLimit(_accountMgr.getAccount(cmd.getEntityOwnerId()),
-                ResourceType.secondary_storage,
-                UriUtils.getRemoteSize(url, followRedirects));
-        return profile;
-    }
-
-    @Override
-    public TemplateProfile prepare(GetUploadParamsForIsoCmd cmd) throws ResourceAllocationException {
-        TemplateProfile profile = super.prepare(cmd);
-
-        // Check that the resource limit for secondary storage won't be exceeded
-        _resourceLimitMgr.checkResourceLimit(_accountMgr.getAccount(cmd.getEntityOwnerId()), ResourceType.secondary_storage);
         return profile;
     }
 
@@ -230,19 +215,7 @@ public class HypervisorTemplateAdapter extends TemplateAdapterBase {
             profile.setForCks(cmd.isForCks());
         }
         profile.setUrl(url);
-        // Check that the resource limit for secondary storage won't be exceeded
-        _resourceLimitMgr.checkResourceLimit(_accountMgr.getAccount(cmd.getEntityOwnerId()),
-                ResourceType.secondary_storage,
-                UriUtils.getRemoteSize(url, followRedirects));
-        return profile;
-    }
 
-    @Override
-    public TemplateProfile prepare(GetUploadParamsForTemplateCmd cmd) throws ResourceAllocationException {
-        TemplateProfile profile = super.prepare(cmd);
-
-        // Check that the resource limit for secondary storage won't be exceeded
-        _resourceLimitMgr.checkResourceLimit(_accountMgr.getAccount(cmd.getEntityOwnerId()), ResourceType.secondary_storage);
         return profile;
     }
 
@@ -270,7 +243,6 @@ public class HypervisorTemplateAdapter extends TemplateAdapterBase {
             persistDirectDownloadTemplate(template.getId(), profile.getSize());
         }
 
-        _resourceLimitMgr.incrementResourceCount(profile.getAccountId(), ResourceType.template);
         return template;
     }
 
@@ -294,9 +266,10 @@ public class HypervisorTemplateAdapter extends TemplateAdapterBase {
 
             if (imageStore == null) {
                 List<DataStore> imageStores = getImageStoresThrowsExceptionIfNotFound(zoneId, profile);
-                standardImageStoreAllocation(imageStores, template);
+                standardImageStoreAllocation(imageStores, template, zoneId);
             } else {
-                validateSecondaryStorageAndCreateTemplate(List.of(imageStore), template, null);
+                int copyLimit = getSecStorageCopyLimit(template, zoneId);
+                validateSecondaryStorageAndCreateTemplate(List.of(imageStore), template, new HashMap<>(), copyLimit);
             }
         }
     }
@@ -334,17 +307,17 @@ public class HypervisorTemplateAdapter extends TemplateAdapterBase {
         return !imageStoreVO.isReadonly();
     }
 
-    protected void standardImageStoreAllocation(List<DataStore> imageStores, VMTemplateVO template) {
-        Set<Long> zoneSet = new HashSet<Long>();
+    protected void standardImageStoreAllocation(List<DataStore> imageStores, VMTemplateVO template, long zoneId) {
+        int copyLimit = getSecStorageCopyLimit(template, zoneId);
         Collections.shuffle(imageStores);
-        validateSecondaryStorageAndCreateTemplate(imageStores, template, zoneSet);
+        validateSecondaryStorageAndCreateTemplate(imageStores, template, new HashMap<>(), copyLimit);
     }
 
-    protected void validateSecondaryStorageAndCreateTemplate(List<DataStore> imageStores, VMTemplateVO template, Set<Long> zoneSet) {
+    protected void validateSecondaryStorageAndCreateTemplate(List<DataStore> imageStores, VMTemplateVO template, Map<Long, Integer> zoneCopyCount, int copyLimit) {
         for (DataStore imageStore : imageStores) {
             Long zoneId = imageStore.getScope().getScopeId();
 
-            if (!isZoneAndImageStoreAvailable(imageStore, zoneId, zoneSet, isPrivateTemplate(template))) {
+            if (!isZoneAndImageStoreAvailable(imageStore, zoneId, zoneCopyCount, copyLimit)) {
                 continue;
             }
 
@@ -371,23 +344,6 @@ public class HypervisorTemplateAdapter extends TemplateAdapterBase {
                     throw new CloudRuntimeException("Unable to persist the template " + profile.getTemplate());
                 }
 
-                List<Long> zoneIdList = profile.getZoneIdList();
-                Long uploadZoneId;
-
-                if (zoneIdList == null) {
-                    // It's a cross-zone local upload. Pick the first available zone as the pivot for the initial upload.
-                    List<DataCenterVO> dcs = _dcDao.listAll();
-                    if (dcs.isEmpty()) {
-                        throw new CloudRuntimeException("No zones are present in the system, cannot upload template.");
-                    }
-                    uploadZoneId = dcs.get(0).getId();
-                } else {
-                    if (zoneIdList.size() > 1) {
-                        throw new CloudRuntimeException("Operation is not supported for more than one zone id at a time.");
-                    }
-                    uploadZoneId = zoneIdList.get(0);
-                }
-
                 // Set Event Details for Template/ISO Upload
                 String eventType = template.getFormat().equals(ImageFormat.ISO) ? "Iso" : "Template";
                 String eventResourceId = template.getUuid();
@@ -398,24 +354,35 @@ public class HypervisorTemplateAdapter extends TemplateAdapterBase {
                     CallContext.current().setEventResourceId(template.getId());
                 }
 
-                Long zoneId = uploadZoneId;
-                DataStore imageStore = templateMgr.verifyHeuristicRulesForZone(template, zoneId);
-                List<TemplateOrVolumePostUploadCommand> payloads = new LinkedList<>();
+                List<TemplateOrVolumePostUploadCommand> payloads = allocatePostUpload(profile, template);
 
-                if (imageStore == null) {
-                    List<DataStore> imageStores = getImageStoresThrowsExceptionIfNotFound(zoneId, profile);
-                    postUploadAllocation(imageStores, template, payloads);
-                } else {
-                    postUploadAllocation(List.of(imageStore), template, payloads);
-                }
-
-                if(payloads.isEmpty()) {
-                    throw new CloudRuntimeException("unable to find zone or an image store with enough capacity");
-                }
-                _resourceLimitMgr.incrementResourceCount(profile.getAccountId(), ResourceType.template);
                 return payloads;
             }
         });
+    }
+
+    protected List<TemplateOrVolumePostUploadCommand> allocatePostUpload(TemplateProfile profile, VMTemplateVO template) {
+        List<Long> zoneIds = profile.getZoneIdList();
+        boolean crossZone = zoneIds == null;
+        if (crossZone) {
+            zoneIds = _dcDao.listAll().stream().map(DataCenterVO::getId).collect(Collectors.toList());
+        } else if (zoneIds.size() != 1) {
+            throw new CloudRuntimeException("Upload requires exactly one zone ID or the all-zone option.");
+        }
+        List<TemplateOrVolumePostUploadCommand> payloads = new LinkedList<>();
+        for (Long zoneId : zoneIds) {
+            DataStore selected = verifyHeuristicRulesForZone(template, zoneId);
+            List<DataStore> stores = selected == null ? storeMgr.getImageStoresByZoneIds(zoneId) : List.of(selected);
+            if (CollectionUtils.isEmpty(stores)) {
+                continue;
+            }
+            // Only the successful pivot gets a template_store_ref; cross-zone visibility is retained on the template.
+            postUploadAllocation(new ArrayList<>(stores), template, payloads);
+            if (!payloads.isEmpty()) {
+                return payloads;
+            }
+        }
+        throw new CloudRuntimeException("Unable to find an available zone with writable secondary storage, enough capacity and an SSVM for upload.");
     }
 
     private class CreateTemplateContext<T> extends AsyncRpcContext<T> {

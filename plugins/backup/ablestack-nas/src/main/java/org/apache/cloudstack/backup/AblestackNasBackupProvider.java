@@ -267,7 +267,7 @@ public class AblestackNasBackupProvider extends AdapterBase implements BackupPro
     }
 
     @Override
-    public Pair<Boolean, Backup> takeBackup(final VirtualMachine vm, Boolean quiesceVM, Long backupScheduleId) {
+    public Pair<Boolean, Backup> takeBackup(final VirtualMachine vm, Boolean quiesceVM, boolean isolated, Long backupScheduleId) {
         final Host host = getVMHypervisorHostForBackup(vm);
 
         final BackupRepository backupRepository = backupRepositoryDao.findByBackupOfferingId(vm.getBackupOfferingId());
@@ -530,28 +530,54 @@ public class AblestackNasBackupProvider extends AdapterBase implements BackupPro
 
     private boolean shouldUseIncrementalBackup(VirtualMachine vm, Backup latestBackup, List<VolumeVO> vmVolumes, Long backupScheduleId) {
         if (latestBackup == null) {
+            LOG.debug("NAS backup for VM [{}] will be FULL: no previous BackedUp backup.", vm.getInstanceName());
+            return false;
+        }
+        loadBackupDetailsIfNeeded(latestBackup);
+
+        if (Boolean.parseBoolean(getBackupDetail(latestBackup, DETAIL_CHAIN_SEALED))) {
+            LOG.info("NAS backup for VM [{}] will be FULL: backup chain [{}] is sealed ({})",
+                    vm.getInstanceName(), latestBackup.getUuid(), getBackupDetail(latestBackup, DETAIL_CHAIN_SEAL_REASON));
+            return false;
+        }
+
+        if (backupScheduleId != null && !hasBackedUpBackupForSchedule(backupScheduleId)) {
+            LOG.debug("NAS backup for VM [{}] will be FULL: no BackedUp backup for schedule [{}].", vm.getInstanceName(), backupScheduleId);
             return false;
         }
 
         final Long clusterId = getClusterIdFromRootVolume(vm);
         if (clusterId == null) {
-            LOG.debug("Unable to resolve cluster for VM [{}], fallback to full backup.", vm);
+            LOG.info("NAS backup for VM [{}] will be FULL: unable to resolve cluster from root volume.", vm.getInstanceName());
             return false;
         }
 
-        if (!KvmIncrementalBackup.valueIn(clusterId)) {
+        if (!Boolean.TRUE.equals(KvmIncrementalBackup.valueIn(clusterId))) {
+            LOG.info("NAS backup for VM [{}] will be FULL: kvm.incremental.backup is disabled for cluster [{}].",
+                    vm.getInstanceName(), clusterId);
             return false;
         }
 
         if (!hasHealthyIncrementalSource(latestBackup)) {
             markVolumeFallbackAndSeal(latestBackup, "unhealthy-chain");
+            LOG.info("NAS backup for VM [{}] will be FULL: latest backup [{}] has an unhealthy volume chain.",
+                    vm.getInstanceName(), latestBackup.getUuid());
             return false;
         }
         if (getBackupChainSize(vm, latestBackup) >= BackupChainSize.value()) {
             sealBackupChain(latestBackup, "chain-size-limit");
+            LOG.info("NAS backup for VM [{}] will be FULL: incremental chain size limit reached for backup [{}].",
+                    vm.getInstanceName(), latestBackup.getUuid());
             return false;
         }
+        LOG.info("NAS incremental backup selected for VM [{}] using parent backup [{}].",
+                vm.getInstanceName(), latestBackup.getUuid());
         return true;
+    }
+
+    private boolean hasBackedUpBackupForSchedule(Long backupScheduleId) {
+        return backupDao.listBySchedule(backupScheduleId).stream()
+                .anyMatch(backup -> Backup.Status.BackedUp.equals(backup.getStatus()));
     }
 
     private int getBackupChainSize(VirtualMachine vm, Backup latestBackup) {
@@ -722,12 +748,12 @@ public class AblestackNasBackupProvider extends AdapterBase implements BackupPro
     }
 
     @Override
-    public Pair<Boolean, String> restoreBackupToVM(VirtualMachine vm, Backup backup, String hostIp, String dataStoreUuid) {
+    public Pair<Boolean, String> restoreBackupToVM(VirtualMachine vm, Backup backup, String hostIp, String dataStoreUuid, boolean quickRestore) {
         return restoreVMBackup(vm, backup);
     }
 
     @Override
-    public boolean restoreVMFromBackup(VirtualMachine vm, Backup backup) {
+    public boolean restoreVMFromBackup(VirtualMachine vm, Backup backup, boolean quickRestore, Long hostId) {
         return restoreVMBackup(vm, backup).first();
     }
 
@@ -1035,7 +1061,7 @@ public class AblestackNasBackupProvider extends AdapterBase implements BackupPro
     }
 
     @Override
-    public Pair<Boolean, String> restoreBackedUpVolume(Backup backup, Backup.VolumeInfo backupVolumeInfo, String hostIp, String dataStoreUuid, Pair<String, VirtualMachine.State> vmNameAndState) {
+    public Pair<Boolean, String> restoreBackedUpVolume(Backup backup, Backup.VolumeInfo backupVolumeInfo, String hostIp, String dataStoreUuid, Pair<String, VirtualMachine.State> vmNameAndState, VirtualMachine targetVm, boolean quickRestore) {
         validateRestoreChainIntegrity(backup);
         final VolumeVO volume = volumeDao.findByUuid(backupVolumeInfo.getUuid());
         final DiskOffering diskOffering = diskOfferingDao.findByUuid(backupVolumeInfo.getDiskOfferingId());

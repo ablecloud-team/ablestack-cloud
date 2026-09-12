@@ -18,6 +18,7 @@
 import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
 import { isZoneCreated } from '@/utils/zone'
+import { isAdmin } from '@/role'
 
 const activeFastCloneFlattenStatuses = ['pending', 'running']
 const runningFastCloneFlattenStatuses = ['running']
@@ -80,7 +81,7 @@ export default {
 
         return fields
       },
-      details: ['name', 'id', 'type', 'storagetype', 'diskofferingdisplaytext', 'deviceid', 'sizegb', 'physicalsize', 'provisioningtype', 'cachemode', 'utilization', 'usedfsbytes', 'kvdoenable', 'compress', 'dedup', 'savingrate', 'diskkbsread', 'diskkbswrite', 'diskioread', 'diskiowrite', 'diskiopstotal', 'miniops', 'maxiops', 'path', 'deleteprotection'],
+      details: ['name', 'id', 'type', 'storagetype', 'diskofferingdisplaytext', 'kmskey', 'deviceid', 'sizegb', 'physicalsize', 'provisioningtype', 'cachemode', 'utilization', 'usedfsbytes', 'kvdoenable', 'compress', 'dedup', 'savingrate', 'diskkbsread', 'diskkbswrite', 'diskioread', 'diskiowrite', 'diskiopstotal', 'miniops', 'maxiops', 'path', 'deleteprotection'],
       related: [{
         name: 'snapshot',
         title: 'label.snapshots',
@@ -109,7 +110,7 @@ export default {
         }
       ],
       searchFilters: () => {
-        const filters = ['name', 'zoneid', 'domainid', 'account', 'state', 'tags', 'serviceofferingid', 'diskofferingid', 'isencrypted']
+        const filters = ['name', 'zoneid', 'domainid', 'account', 'state', 'tags', 'serviceofferingid', 'diskofferingid', 'kmskeyid', 'isencrypted']
         if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
           filters.push('storageid')
         }
@@ -259,6 +260,25 @@ export default {
           tooltip: (record) => isFastCloneFlattenActive(record) ? 'message.sharedmountpoint.clone.flatten.in.progress' : 'label.migrate.volume',
           popup: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/storage/MigrateVolume.vue')))
+        },
+        {
+          api: 'migrateVolumesToKMS',
+          icon: 'lock-outlined',
+          docHelp: 'adminguide/kms.html#migrating-existing-volumes-to-kms',
+          label: 'label.migrate.volume.to.kms',
+          message: 'message.action.migrate.volume.to.kms',
+          dataView: true,
+          popup: true,
+          show: (record, store) => {
+            return record.encryptformat && !record.kmskeyid &&
+              ['Ready', 'Allocated'].includes(record.state)
+          },
+          args: ['kmskeyid'],
+          mapping: {
+            volumeids: {
+              value: (record) => { return record.id }
+            }
+          }
         },
         {
           api: 'changeOfferingForVolume',
@@ -526,10 +546,10 @@ export default {
       icon: 'cloud-upload-outlined',
       permission: ['listBackups'],
       params: { listvmdetails: 'true' },
-      columns: ['name', 'status', 'size', 'virtualsize', 'virtualmachinename', 'backupofferingname', 'intervaltype', 'type', 'created', 'account', 'domain', 'zone'],
+      columns: ['name', 'status', 'compressionstatus', 'validationstatus', 'size', 'virtualsize', 'virtualmachinename', 'backupofferingname', 'intervaltype', 'type', 'created', 'account', 'domain', 'zone'],
       details: ['name', 'description', 'virtualmachinename', 'id', 'intervaltype', 'type', 'externalid', 'size', 'virtualsize', 'volumes', 'backupofferingname', 'zone', 'account', 'domain', 'created'],
       searchFilters: () => {
-        var filters = ['name', 'zoneid', 'domainid', 'account', 'backupofferingname']
+        var filters = ['name', 'zoneid', 'domainid', 'account', 'backupofferingname', 'status']
         return filters
       },
       tabs: [
@@ -550,7 +570,14 @@ export default {
           label: 'label.backup.restore',
           message: 'message.backup.restore',
           dataView: true,
-          show: (record) => { return record.status === 'BackedUp' }
+          show: (record) => { return record.status === 'BackedUp' },
+          args: () => {
+            const fields = ['quickrestore']
+            if (isAdmin()) {
+              fields.push('hostid')
+            }
+            return fields
+          }
         },
         {
           api: 'restoreVolumeFromBackupAndAttachToVM',
@@ -598,7 +625,8 @@ export default {
           dataView: true,
           show: (record) => {
             const provider = (record.provider || '').toLowerCase()
-            return record.state !== 'Destroyed' && provider !== 'netbackup' && provider !== 'ablestack-netbackup'
+            return record.state !== 'Destroyed' && provider !== 'netbackup' && provider !== 'ablestack-netbackup' &&
+              provider !== 'ablestack-veeam' && provider !== 'veeam'
           },
           groupAction: true,
           popup: true,

@@ -1,0 +1,23 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+area	owner	contract	status
+same-version-db	#997,#998	S4/S5A/S5B/S5C Complete checkpoints remain immutable; future DDL needs a new named phase. Pre-S5C volume view is used until KMS columns exist.	Handoff
+storage-encryption	#994,#996	S5B SharedMountPoint/LINSTOR/QEMU changes now have KMS API/provider/key references. Keep per-pool token/TLS/auth.json and original DEK on migration.	Code integrated
+legacy-interfaces	#997	Pre-KMS alloc/createVM signatures forward null KMS IDs; keep customParameters, KVDO and CheckedReservation. VM start bool/quickRestore contracts stay as S5B.	Handoff
+kms-ui	#998	Preserve KMS lock icon/order, role visibility, masked HSM secrets, existing DR/Desktop/Automation menus and Korean translations.	Handoff
+s2-ledger	#990	No S5C source occurs in in-scope side_commits of shared merges. All 12 Pending merge plus 4 general S2 rows remain Pending.	Unchanged
+physical-kms	#999,#1025	Final SHA/RPM: hardware PKCS11, encrypted SharedMountPoint migration/LINSTOR backup restore, multi-management failure/concurrency and key retention/data checksums.	NOT_RUN; physical deferred

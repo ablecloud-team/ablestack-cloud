@@ -115,11 +115,12 @@ CREATE TABLE IF NOT EXISTS `automation_deployed_resources_group_details` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- Event that changes the service state by checking the automation controller state
+DELIMITER $$
 CREATE EVENT IF NOT EXISTS `cloud`.`automation_service_checker`
-ON SCHEDULE EVERY 1 MINUTE 
+ON SCHEDULE EVERY 1 MINUTE
 COMMENT 'Check the status of the automation controller in 1 minute'
 DO
-BEGIN 
+BEGIN
 	-- If the status of the Automation Controller is not Running, change the service group status to Disconnected
 	UPDATE automation_deployed_resources_group adrg
 	SET adrg.state = 'Disconnected'
@@ -135,10 +136,12 @@ BEGIN
 	WHERE adrgd.deployed_group_id IN (
 		SELECT id FROM automation_deployed_resources_group WHERE state = 'Disconnected'
 	)
-;END;
+;END$$
+DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `cloud`.`ADD_COL`;
 
+DELIMITER $$
 CREATE PROCEDURE `cloud`.`ADD_COL`(
   IN tb_name VarChar(200),
   IN col_name VarChar(200),
@@ -146,7 +149,8 @@ CREATE PROCEDURE `cloud`.`ADD_COL`(
 )
 BEGIN
 
-    IF NOT EXISTS ( SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = tb_name AND TABLE_SCHEMA = 'cloud' AND COLUMN_NAME = col_name ) THEN SET @ddl = CONCAT(' ALTER TABLE ', tb_name,' ADD COLUMN ', col_name, ' ', col_type); PREPARE STMT FROM @ddl; EXECUTE STMT; END IF; END;
+    IF NOT EXISTS ( SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = tb_name AND TABLE_SCHEMA = 'cloud' AND COLUMN_NAME = col_name ) THEN SET @ddl = CONCAT(' ALTER TABLE ', tb_name,' ADD COLUMN ', col_name, ' ', col_type); PREPARE STMT FROM @ddl; EXECUTE STMT; END IF; END$$
+DELIMITER ;
 
 CALL `cloud`.`ADD_COL`('storage_pool', 'krbd_path', 'VARCHAR(255) DEFAULT null');
 

@@ -17,11 +17,11 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-# Apache 4.23.0.0 → Europa: S1 추적 기준
+# Apache 4.23.0.0 → Europa: 통합 추적표
 
 부모: [Epic #987](https://github.com/ablecloud-team/ablestack-cloud/issues/987). 기준일: 2026-09-10.
 
-**범위 추출·작업 배정·사전분류를 완료한 초기 추적표다. 제품 코드를 반영하거나 299개 변경의 기능 검증을 완료한 결과가 아니다.**
+S1에서 확정한 범위를 유지하고 후속 통합 결과를 갱신하는 추적표다. **S8 코드 판정299개, Pending0개다. 최종 자동 검증/병합 상태는 [S8 보고](s8-verification.ko.md)를 따른다. 실물/정식 릴리즈 승인은 #1025로 분리한다.** 초기 사전분류는 아래에 보존한다.
 
 ## 고정 기준
 
@@ -134,6 +134,66 @@ git show --remerge-diff --format= --no-ext-diff MERGE_SHA
 
 ## S2 진행 자료
 
-S1은 PR #1000으로 완료했다. S2 구현 PR #1002를 병합하여 baseline_ready를 완료했다. S2 원본77개 중 최종 판정41개(Applied5/Adapted8/Already Satisfied1/Excluded27), Pending36개이며 전체299개 중 Pending258개다. 다음 작업은 S3 #991이다. 최신 결과는 [S2 검증 보고](s2-verification.ko.md), [77개 검토표](s2-review.tsv), [테스트 결과](s2-test-results.tsv), [라이선스 변경](s2-license-headers.tsv)에 기록한다. 초기 299개 Pending 설명은 S1 시작 상태이며 현재 상태는 inventory.tsv의 decision을 기준으로 한다.
+S1은 PR #1000으로 완료했다. S2 구현 PR #1002를 병합하여 baseline_ready를 완료했다. S2 원본77개 중 최종 판정41개(Applied5/Adapted8/Already Satisfied1/Excluded27), Pending36개이며 전체299개 중 Pending258개다. 이 시점의 다음 작업은 S3 #991이었다. S2 기준 결과는 [S2 검증 보고](s2-verification.ko.md), [77개 검토표](s2-review.tsv), [테스트 결과](s2-test-results.tsv), [라이선스 변경](s2-license-headers.tsv)에 기록한다. 초기 299개 Pending 설명은 S1 시작 상태이며 현재 상태는 inventory.tsv의 decision을 기준으로 한다.
 
 S2에서 19개 remerge diff 해시를 다시 확인했다. 기존 요약의 13/6 집계는 잘못되어 실제 원본 표와 일치하는 14/5로 정정했다. SHA 집합과 개별 diff 해시는 변경하지 않았다.
+
+## S3 완료 자료
+
+S3 #991 구현 PR #1009에서 직접 배정66개와 S2 연계 일반 커밋6개를 최종 판정했다. S3 검토72개는 Applied28 / Adapted22 / Already Satisfied22다. 전체299개는 Applied33 / Adapted30 / Already Satisfied23 / Excluded27 / Pending186이다. S2 공동 마감은30개가 남아 #990을 OPEN으로 유지한다. 다른 기능이 남은 공유 merge는 Pending이며 S3 해결 부분의 검증 근거만 추가했다. 다음 작업은 S4 #992다.
+
+- [S3 검증 보고](s3-verification.ko.md): 제품 소스 SHA, DB/API/인증 검증 범위, 공식 Actions, 남은 게이트.
+- [원본별 판정](s3-review.tsv): 최초 적용 SHA, 적응 근거, 중복 peer, 최종 검증 SHA.
+- [로컬 Java 결과](s3-local-tests.tsv) / [공식 Java 결과](s3-ci-tests.tsv) / [Actions 기록](s3-ci-results.tsv) / [Rocky 9.8 산출물](s3-artifact-results.tsv).
+
+## S4 완료 자료
+
+S4 #992 구현 PR #1016에서 직접 배정38개와 S2 연계2개를 최종 판정했다. 40개는 Applied6 / Adapted19 / Already Satisfied14 / Excluded1이다. 고정299개 전체는 Applied39 / Adapted49 / Already Satisfied37 / Excluded28 / Pending146이다. 범위 이전 Apache #9590의 실제 Quota UI 의존성은 별도 보충 목록으로 반영했다. 고정 inventory와 사전 증거를 늘리거나 바꾸지 않았다. 남은 side commit이 있는 공유 merge는 Pending을 유지한다. 다음 작업은 S5A #993이다.
+
+- [S4 검증 보고](s4-verification.ko.md): 동일 버전 migration, 실제014 DB 전체 복제본·신규·실패 복구·동시/반복 시작·관리 서버 API·예약·Quota 결과.
+- [원본40개 판정](s4-review.tsv) / [연관 의존성 검토](s4-dependencies.tsv).
+- [로컬 Java](s4-local-tests.tsv) / [공식 Java](s4-ci-tests.tsv) / [Actions](s4-ci-results.tsv) / [DB 및 runtime](s4-db-results.tsv) / [Rocky9.8 산출물](s4-artifact-results.tsv).
+- [격리 fixture 실행 조건](s4-fixtures/README.ko.md). S2의 기존 SQL99 오류와 simulator template111 FK 인수 사항을 해결했다. 다른 기능의 S2 공동 마감과 실제 운영 규모/물리 환경의 S8 검증은 남는다.
+
+## 기능 코드 병합과 실물 검증의 분리 (2026-09-11)
+
+사용자 확정: S3~S7은 Apache 변경을 Europa 코드에 안전하게 반영하고 코드 검토·자동 테스트·CI를 통과하면 정상 병합한다. 실물 테스트 미실행을 이유로 기능 PR을 Draft로 유지하거나 기능 이슈를 미완료 처리하지 않는다. 이 지침은 이전 개별 기능 이슈의 실물 선행 조건보다 우선한다.
+
+각 배치의 실물 시험은 [#1025](https://github.com/ablecloud-team/ablestack-cloud/issues/1025)에 시나리오·기대 결과를 누적하고, 모든 코드 병합이 끝난 최종 SHA에서 S8 #999가 실행·판정한다. 미실행을 PASS로 표시하지 않으며 최종 RC/릴리즈 승인은 별도 게이트다.
+
+## S5B 코드 통합 판정 (2026-09-11)
+
+S5B #994 / PR #1035는 직접 원본47개와 S2 일반1개·공유 merge6개를 판정했다. 이 배치54개는 Applied27 / Adapted20 / Already Satisfied7이다. 고정299개 전체는 Applied77 / Adapted86 / Already Satisfied49 / Excluded28 / Pending59이며 원본 범위를 늘리지 않았다. S2는61개 판정/16개 Pending(merge12 + 일반4)으로 #990을 OPEN 유지한다. 다음 코드 통합은 S5C #996이다.
+
+Apache #12617 CLVM 및 migration/ISO 후속2개를 포함한다. 증분 NAS·KBOSS·Veeam·ONTAP/LINSTOR/FlashArray 및 template/SSVM 업로드를 기존 Europa provider, FTCTL/DR, 자원 예약·비밀값/ACL 계약과 합성했다. 신규 same-version 단계는 `europa-4.23-s5b-v1`이다. 실물 시험은 #1025에서 인수하며 이 코드 PR의 Draft 유지 조건이 아니다.
+
+- [S5B 검증 보고](s5b-verification.ko.md) / [원본54개 판정](s5b-review.tsv) / [공유 merge 검토](s5b-merge-review.tsv).
+- [로컬 Java 결과](s5b-local-tests.tsv) / [DB·API 결과](s5b-db-results.tsv) / [검증 fixture](s5b-fixtures/README.ko.md) / [후속 의존성](s5b-dependencies.tsv).
+- S6 기능이 남은 공유 merge는 Pending이다. `e2012133599a`는 ONTAP README 부분만 반영했으며 Network Extension README를 #997에서 검토하기 전까지 전체 원본을 완료로 계산하지 않는다.
+
+## S5C 코드 통합 판정 (2026-09-11)
+
+S5C #996 / PR #1036은 KMS 원본 3개를 Applied 1 / Adapted 2로 판정했다.
+고정 299개 전체는 Applied 78 / Adapted 88 / Already Satisfied 49 / Excluded 28 / Pending 56이다.
+S2 잔여 16개(merge 12 + 일반 4)는 그대로 유지하고 다음 코드 통합은 S6 #997이다.
+[검증 보고](s5c-verification.ko.md), [원본 판정](s5c-review.tsv), [DB 결과](s5c-db-results.tsv),
+[Java 테스트](s5c-local-tests.tsv), [후속 계약](s5c-dependencies.tsv), [fixture](s5c-fixtures/README.ko.md)를 참조한다.
+실물 KMS·암호화 스토리지 테스트는 #1025에서 인수해 전체 코드 병합 후 S8 #999가 실행한다.
+
+## S6 네트워크 통합 완료
+
+PR [#1037](https://github.com/ablecloud-team/ablestack-cloud/pull/1037), 기능 #997.
+직접 원본32개와 S2 후속2개, 공유 merge10개를 완료했다.
+전체299개는 Applied97 / Adapted102 / Already Satisfied60 / Excluded28 / Pending12다.
+남은 코드는 S7 8개와 S2 4개(공유 merge2·realhostip 정리·최종 릴리즈 버전)다.
+[검증 보고](s6-verification.ko.md), [원본별 판정](s6-review.tsv), [공유 merge](s6-merge-review.tsv),
+[DB](s6-db-results.tsv), [후속 계약](s6-dependencies.tsv), [재현 fixture](s6-fixtures/README.ko.md)를 참조한다.
+새 DB 단계 europa-4.23-s6-v1을 사용하며 이전 Complete 단계와 Europa Storage Service·KMS·FTCTL/DR를 보존한다.
+실물 검증은 #1025에 NOT_RUN으로 누적했고 코드 병합의 선행 조건이 아니다. 다음 기능 작업은 #998이다.
+
+## S7 UI·테마·한국어·릴리즈 문서
+
+S7 #998 / PR #1039: 직접8개와 공유 merge2개를 확정했다. 전체299개는 Applied101 / Adapted106 / Already Satisfied62 / Excluded28 / Pending2다.
+[검증 보고](s7-verification.ko.md) · [원본10행](s7-review.tsv) · [merge 해결](s7-merge-review.tsv) · [DB 결과](s7-db-results.tsv) · [후속 계약](s7-dependencies.tsv) · [릴리즈 노트](europa-release-notes.ko.md).
+독립 S7 DB 단계와 pre-S7 view를 추가하고, 삭제·계정 링크·로그인/OAuth·브랜딩·한국어 계약을 보존했다.
+다음은 S8 #999이며, S2의 realhostip 제거와 최종 버전2개를 함께 마무리한다. 실물 시험은 #1025에 NOT_RUN으로 인수한다.

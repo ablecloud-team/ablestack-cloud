@@ -19,6 +19,7 @@
 DROP PROCEDURE IF EXISTS `cloud`.`ADD_GUEST_OS_AND_HYPERVISOR_MAPPING`;
 
 -- PR#4699 Create the procedure `ADD_GUEST_OS_AND_HYPERVISOR_MAPPING` to add guest_os and guest_os_hypervisor mapping.
+DELIMITER $$
 CREATE PROCEDURE `cloud`.`ADD_GUEST_OS_AND_HYPERVISOR_MAPPING` (
     IN guest_os_category_id bigint(20) unsigned,
     IN guest_os_display_name VARCHAR(255),
@@ -52,4 +53,5 @@ BEGIN
         VALUES (UUID(), guest_os_hypervisor_hypervisor_type, guest_os_hypervisor_hypervisor_version,
                 guest_os_hypervisor_guest_os_name, existing_guest_os_id, now());
     END IF;
-END;
+END$$
+DELIMITER ;

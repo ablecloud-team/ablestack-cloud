@@ -17,6 +17,7 @@
 
 DROP PROCEDURE IF EXISTS `cloud`.`IDEMPOTENT_CREATE_UNIQUE_INDEX`;
 
+DELIMITER $$
 CREATE PROCEDURE `cloud`.`IDEMPOTENT_CREATE_UNIQUE_INDEX` (
 		IN in_index_name VARCHAR(200)
     , IN in_table_name VARCHAR(200)
@@ -24,4 +25,5 @@ CREATE PROCEDURE `cloud`.`IDEMPOTENT_CREATE_UNIQUE_INDEX` (
 )
 BEGIN
 
-    DECLARE CONTINUE HANDLER FOR 1061 BEGIN END; SET @ddl = CONCAT('CREATE UNIQUE INDEX ', in_index_name); SET @ddl = CONCAT(@ddl, ' ', ' ON ') ; SET @ddl = CONCAT(@ddl, ' ', in_table_name); SET @ddl = CONCAT(@ddl, ' ', in_index_definition); PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt; END;
+    DECLARE CONTINUE HANDLER FOR 1061 BEGIN END; SET @ddl = CONCAT('CREATE UNIQUE INDEX ', in_index_name); SET @ddl = CONCAT(@ddl, ' ', ' ON ') ; SET @ddl = CONCAT(@ddl, ' ', in_table_name); SET @ddl = CONCAT(@ddl, ' ', in_index_definition); PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt; END$$
+DELIMITER ;

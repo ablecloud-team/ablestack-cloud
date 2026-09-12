@@ -517,6 +517,12 @@
             </div>
             <br v-if="currentAction.paramFields.length > 0" />
           </span>
+          <div v-if="requiresNameConfirmation" style="margin-bottom: 5px">
+            <a-form-item>
+              <a-input v-model:value="actionConfirmText" :placeholder="resource.name" />
+            </a-form-item>
+            <a-alert type="info" :message="$t('label.delete.confirmation')" />
+          </div>
           <a-form
             :ref="formRef"
             :model="form"
@@ -538,6 +544,11 @@
                   <tooltip-label
                     v-if="['domain', 'guestcidraddress'].includes(field.name) && ['createZone', 'updateZone'].includes(currentAction.api)"
                     :title="$t('label.default.network.' + field.name + '.isolated.network')"
+                    :tooltip="field.description"
+                  />
+                  <tooltip-label
+                    v-else-if="field.name === 'keepmacaddressonpublicnic' && currentAction.api === 'updateVPC'"
+                    :title="$t('label.keep.mac.address.on.public.nic')"
                     :tooltip="field.description"
                   />
                   <tooltip-label
@@ -583,6 +594,7 @@
                   showSearch
                   optionFilterProp="label"
                   v-model:value="form[field.name]"
+                  @change="val => handleSelectChange(field.name, val)"
                   :loading="field.loading"
                   :placeholder="field.description"
                   :filterOption="(input, option) => {
@@ -607,6 +619,7 @@
                   showSearch
                   optionFilterProp="label"
                   v-model:value="form[field.name]"
+                  @change="val => handleSelectChange(field.name, val)"
                   :loading="field.loading"
                   :placeholder="field.description"
                   :filterOption="(input, option) => {
@@ -714,6 +727,7 @@
                   :loading="field.loading"
                   mode="multiple"
                   v-model:value="form[field.name]"
+                  @change="val => handleSelectChange(field.name, val)"
                   :placeholder="field.description"
                   v-focus="fieldIndex === firstIndex"
                   showSearch
@@ -732,7 +746,8 @@
                 </a-select>
                 <details-input
                   v-else-if="field.type==='map'"
-                  v-model:value="form[field.name]" />
+                  v-model:value="form[field.name]"
+                  :optionalKeys="currentAction.mapping?.[field.name]?.optionalKeys || []" />
                 <a-input-number
                   v-else-if="field.type==='long'"
                   v-focus="fieldIndex === firstIndex"
@@ -741,7 +756,7 @@
                   :placeholder="field.description"
                 />
                 <a-input-password
-                  v-else-if="field.name==='password' || field.name==='currentpassword' || field.name==='confirmpassword'"
+                  v-else-if="field.name==='password' || field.name==='currentpassword' || field.name==='confirmpassword' || field.name==='secretkey'"
                   v-model:value="form[field.name]"
                   :placeholder="field.description"
                   @blur="($event) => handleConfirmBlur($event, field.name)"
@@ -771,6 +786,7 @@
               <a-button
                 type="primary"
                 @click="handleSubmit"
+                :disabled="isSubmitDisabled"
                 ref="submit"
               >{{ $t('label.ok') }}</a-button>
             </div>
@@ -786,7 +802,7 @@
       <div v-if="dataView">
         <slot
           name="resource"
-          v-if="$route.path.startsWith('/quotasummary') || $route.path.startsWith('/publicip')"
+          v-if="$route.path.startsWith('/publicip')"
         ></slot>
         <resource-view
           v-else
@@ -937,6 +953,7 @@ export default {
       confirmDirty: false,
       firstIndex: 0,
       modalWidth: '30vw',
+      actionConfirmText: '',
       promises: [],
       detailActionsVisible: false,
       autoRefreshTimer: null,
@@ -1233,6 +1250,14 @@ export default {
           ('groupShow' in action ? action.groupShow(this.selectedItems, this.$store.getters) : true)
         return showOnList || showOnGroup
       })
+    },
+    requiresNameConfirmation () {
+      return !!this.currentAction?.requireNameConfirmation &&
+        !(this.currentAction.invokedAsGroupAction && this.selectedRowKeys.length > 0)
+    },
+    isSubmitDisabled () {
+      return this.requiresNameConfirmation &&
+        (!this.resource?.name || this.actionConfirmText.trim() !== this.resource.name.trim())
     }
   },
   methods: {
@@ -1434,7 +1459,7 @@ export default {
       this.projectView = Boolean(store.getters.project && store.getters.project.id)
       this.hasProjectId = ['vm', 'vmgroup', 'ssh', 'affinitygroup', 'userdata', 'volume', 'snapshot', 'buckets', 'vmsnapshot', 'guestnetwork',
         'vpc', 'securitygroups', 'publicip', 'vpncustomergateway', 'template', 'iso', 'event', 'kubernetes', 'sharedfs',
-        'autoscalevmgroup', 'vnfapp', 'webhook'].includes(this.$route.name)
+        'autoscalevmgroup', 'vnfapp', 'webhook', 'kmskey', 'hsmprofile'].includes(this.$route.name)
 
       if (this.dataView && !refreshed) {
         this.resource = {}
@@ -1494,7 +1519,7 @@ export default {
       // [CHANGE] 컬럼 루프 안전화
       for (const columnKey of asArray(this.columnKeys)) {
         let key = columnKey
-        let title = columnKey === 'cidr' && this.columnKeys.includes('ip6cidr') ? 'ipv4.cidr' : columnKey
+        let title = columnKey === 'cidr' && this.columnKeys.includes('ip6cidr') ? 'ipv4.cidr' : key
         if (typeof columnKey === 'object') {
           if ('customTitle' in columnKey && 'field' in columnKey) {
             key = columnKey.field
@@ -1502,7 +1527,7 @@ export default {
             customRender[key] = columnKey[key]
           } else {
             key = Object.keys(columnKey)[0]
-            title = Object.keys(columnKey)[0]
+            title = (typeof title === 'object') ? key : title
             customRender[key] = columnKey[key]
           }
         }
@@ -1556,9 +1581,16 @@ export default {
         params.details = 'group,nics,secgrp,tmpl,servoff,diskoff,iso,volume,affgrp,backoff,guestnetwork'
       }
 
+      if (this.apiName === 'quotaTariffList' && !('quotaTariffCreate' in store.getters.apis || 'quotaTariffUpdate' in store.getters.apis)) {
+        const index = this.columns.findIndex(col => col.dataIndex === 'hasActivationRule')
+        if (index >= 0) {
+          this.columns.splice(index, 1)
+        }
+      }
+
+      this.loading = true
       if (this.$route.path.startsWith('/cniconfiguration')) {
         params.forcks = true
-        console.log('here')
       }
       if (!(refreshed && isAutoScheduled)) {
         this.loading = true
@@ -1575,6 +1607,10 @@ export default {
           }
           params.account = this.$route.query.account
           params.domainid = this.$route.query.domainid
+        }
+        if (['listUserKeys'].includes(this.apiName)) {
+          delete params.listall
+          params.keypairid = this.$route.params.id
         }
         if (['listPublicIpAddresses'].includes(this.apiName)) {
           params.allocatedonly = false
@@ -1596,6 +1632,14 @@ export default {
         }
         if (this.$route.path.startsWith('/tungstenfirewallpolicy/')) {
           params.firewallpolicyuuid = this.$route.params.id
+        }
+        if (this.apiName === 'quotaSummary' && params.id) {
+          params.accountid = params.id
+          delete params.id
+        }
+        if (this.apiName === 'quotaEmailTemplateList' && params.id) {
+          params.templatetype = params.id
+          delete params.id
         }
       }
 
@@ -1643,7 +1687,11 @@ export default {
           break
         }
 
-        if ('id' in this.$route.params && this.$route.params.id !== params.id && !['listSSHKeyPairs'].includes(this.apiName)) {
+        const idFromRouteMatchesApiParameter = this.$route.params.id === params.id ||
+          this.apiName === 'quotaSummary' && this.$route.params.id === params.accountid ||
+          this.apiName === 'quotaEmailTemplateList' && this.$route.params.id === params.templatetype
+
+        if ('id' in this.$route.params && !idFromRouteMatchesApiParameter && !['listSSHKeyPairs'].includes(this.apiName)) {
           console.log('DEBUG - Discarding API response as its `id` does not match the uuid on the browser path')
           return
         }
@@ -1685,6 +1733,16 @@ export default {
           })
         }
 
+        if (this.apiName === 'listBackups') {
+          const kbossFields = ['compressionstatus', 'validationstatus']
+          const hasKbossData = this.items.some(backup => kbossFields.some(field => backup[field]))
+          if (!hasKbossData) {
+            this.columns = this.columns.filter(col => !kbossFields.includes(col.dataIndex))
+            this.allColumns = this.allColumns.filter(col => !kbossFields.includes(col.dataIndex))
+            this.selectedColumns = this.selectedColumns.filter(key => !kbossFields.includes(key))
+          }
+        }
+
         for (let idx = 0; idx < this.items.length; idx += 1) {
           this.items[idx].key = idx
           for (const key in customRender) {
@@ -1697,7 +1755,7 @@ export default {
         if (this.items.length <= 0 && this.dataView) {
           this.$router.push({ path: '/exception/404' })
         }
-        if (!this.showAction || this.dataView) {
+        if (!this.showAction || this.dataView || (this.items.length === 1 && this.apiName === 'getUserKeys')) {
           this.resource = this.items?.[0] || {}
           this.$emit('change-resource', this.resource)
         }
@@ -1754,6 +1812,7 @@ export default {
       this.actionLoading = false
       this.showAction = false
       this.currentAction = {}
+      this.actionConfirmText = ''
     },
     cancelAction () {
       eventBus.emit('action-closing', { action: this.currentAction })
@@ -1819,6 +1878,7 @@ export default {
         invokedAsGroupAction: !!isGroupAction
       }
       this.currentAction.params = store.getters.apis[this.currentAction.api].params
+      this.actionConfirmText = ''
       this.resource = action.resource
       this.$emit('change-resource', this.resource)
       var paramFields = this.currentAction.params
@@ -1910,6 +1970,21 @@ export default {
         }
       }
     },
+    handleSelectChange (name, val) {
+      if (name === 'domainid') {
+        const accountField = this.currentAction.paramFields.find(f => f.name === 'account')
+        if (accountField) {
+          this.form.account = null
+          this.listUuidOpts(accountField, { domainid: val })
+        }
+      } else if (name === 'account') {
+        const volumeField = this.currentAction.paramFields.find(f => f.name === 'volumeids')
+        if (volumeField) {
+          this.form.volumeids = null
+          this.listUuidOpts(volumeField, { domainid: this.form.domainid, account: val })
+        }
+      }
+    },
     listUuidOpts (param, filters) {
       if (this.currentAction.mapping && param.name in this.currentAction.mapping && !this.currentAction.mapping[param.name].api) {
         return
@@ -1961,6 +2036,10 @@ export default {
         params.isofilter = 'executable'
       } else if (possibleApi === 'listHosts') {
         params.type = 'routing'
+        if (this.currentAction?.api === 'restoreBackup') {
+          params.resourcestate = 'enabled'
+          params.state = 'up'
+        }
       } else if (possibleApi === 'listNetworkOfferings' && this.resource) {
         if (this.resource.type) {
           params.guestiptype = this.resource.type
@@ -2102,7 +2181,7 @@ export default {
       this.message = {}
     },
     handleSubmit (e) {
-      if (this.actionLoading) return
+      if (this.actionLoading || this.isSubmitDisabled) return
       this.promises = []
       if (!this.dataView && this.currentAction.invokedAsGroupAction && this.selectedRowKeys.length > 0) {
         if (this.selectedRowKeys.length > 0) {

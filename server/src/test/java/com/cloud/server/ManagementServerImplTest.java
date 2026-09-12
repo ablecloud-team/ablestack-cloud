@@ -16,12 +16,33 @@
 // under the License.
 package com.cloud.server;
 
+import com.cloud.api.ApiDBUtils;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import com.cloud.deploy.DataCenterDeployment;
+import com.cloud.deploy.DeploymentPlanner;
+import com.cloud.deploy.DeploymentPlanningManager;
+import com.cloud.vm.VirtualMachineProfile;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -52,20 +73,6 @@ import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
 import org.apache.cloudstack.framework.config.impl.ConfigurationVO;
 import org.apache.cloudstack.framework.extensions.manager.ExtensionsManager;
 import org.apache.cloudstack.userdata.UserDataManager;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.cloud.cpu.CPU;
 import com.cloud.dc.Vlan.VlanType;
@@ -73,6 +80,7 @@ import com.cloud.domain.dao.DomainDao;
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.host.DetailVO;
 import com.cloud.host.Host;
+import com.cloud.agent.manager.allocator.HostAllocator;
 import com.cloud.host.HostVO;
 import com.cloud.host.dao.HostDetailsDao;
 import com.cloud.network.IpAddress;
@@ -174,6 +182,27 @@ public class ManagementServerImplTest {
     @Spy
     @InjectMocks
     ManagementServerImpl spy = new ManagementServerImpl();
+
+    @Mock
+    HostAllocator hostAllocator;
+
+    @Mock
+    VirtualMachine virtualMachineMock;
+
+    @Mock
+    VirtualMachineProfile virtualMachineProfileMock;
+
+    @Mock
+    DataCenterDeployment dataCenterDeploymentMock;
+
+    @Mock
+    DeploymentPlanner.ExcludeList excludeListMock;
+
+    @Mock
+    Host hostMock;
+
+    @Mock
+    DeploymentPlanningManager deploymentPlanningManagerMock;
 
     private AutoCloseable closeable;
 
@@ -741,6 +770,7 @@ public class ManagementServerImplTest {
         Mockito.when(cmd.getAccountId()).thenReturn(null);
         Mockito.when(cmd.getDomainId()).thenReturn(null);
         Mockito.when(cmd.getImageStoreId()).thenReturn(null);
+        Mockito.when(cmd.getManagementServerId()).thenReturn(null);
 
         SearchCriteria<ConfigurationVO> sc = Mockito.mock(SearchCriteria.class);
         Mockito.when(configDao.createSearchCriteria()).thenReturn(sc);
@@ -1028,11 +1058,23 @@ public class ManagementServerImplTest {
 
     @Test
     public void testGetExternalVmConsole() {
-        VirtualMachine virtualMachine = Mockito.mock(VirtualMachine.class);
         Host host = Mockito.mock(Host.class);
-        Mockito.when(extensionManager.getInstanceConsole(virtualMachine, host)).thenReturn(Mockito.mock(com.cloud.agent.api.Answer.class));
-        Assert.assertNotNull(spy.getExternalVmConsole(virtualMachine, host));
-        Mockito.verify(extensionManager).getInstanceConsole(virtualMachine, host);
+        Mockito.when(extensionManager.getInstanceConsole(virtualMachineMock, host)).thenReturn(Mockito.mock(com.cloud.agent.api.Answer.class));
+        Assert.assertNotNull(spy.getExternalVmConsole(virtualMachineMock, host));
+        Mockito.verify(extensionManager).getInstanceConsole(virtualMachineMock, host);
+    }
+
+    @Test
+    public void getCapableSuitableHostsTestHostArchIsNotFilteredWhenNoSuitableHostsAreFound() {
+        List<Host> compatibleHosts = List.of(hostMock);
+        Mockito.doReturn(null).when(hostAllocator).allocateTo(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyList(), Mockito.anyInt(), Mockito.anyBoolean());
+
+        ReflectionTestUtils.setField(spy, "hostAllocators", List.of(hostAllocator));
+        try (MockedStatic<ApiDBUtils> apiDBUtilsMock = Mockito.mockStatic(ApiDBUtils.class)) {
+            Assert.assertTrue(spy.getCapableSuitableHosts(virtualMachineMock, virtualMachineProfileMock,
+                    dataCenterDeploymentMock, compatibleHosts, excludeListMock, hostMock).isEmpty());
+            apiDBUtilsMock.verify(() -> ApiDBUtils.listZoneClustersArchs(Mockito.anyLong()), Mockito.never());
+        }
     }
 
     @Test

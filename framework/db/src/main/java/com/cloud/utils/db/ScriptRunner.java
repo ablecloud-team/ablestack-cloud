@@ -28,6 +28,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -112,90 +115,153 @@ public class ScriptRunner {
      *             if there is an error reading from the Reader
      */
     private void runScript(Connection conn, Reader reader) throws IOException, SQLException {
-        StringBuffer command = null;
         try {
-            LineNumberReader lineReader = new LineNumberReader(reader);
-            String line = null;
-            while ((line = lineReader.readLine()) != null) {
-                if (command == null) {
-                    command = new StringBuffer();
-                }
-                String trimmedLine = line.trim();
-                if (trimmedLine.startsWith("--")) {
-                    println(trimmedLine);
-                } else if (trimmedLine.length() < 1 || trimmedLine.startsWith("//")) {
-                    // Do nothing
-                } else if (trimmedLine.length() < 1 || trimmedLine.startsWith("--")) {
-                    // Do nothing
-                } else if (trimmedLine.length() < 1 || trimmedLine.startsWith("#")) {
-                    // Do nothing
-                } else if (!fullLineDelimiter && trimmedLine.endsWith(getDelimiter()) || fullLineDelimiter && trimmedLine.equals(getDelimiter())) {
-                    command.append(line.substring(0, line.lastIndexOf(getDelimiter())));
-                    command.append(" ");
-                    try (Statement statement = conn.createStatement();) {
-                        println(command);
-                        boolean hasResults = false;
+            for (String command : parseStatements(reader)) {
+                try (Statement statement = conn.createStatement()) {
+                    println(command);
+                    boolean hasResults;
+                    try {
+                        hasResults = statement.execute(command);
+                    } catch (SQLException e) {
+                        printlnError("Error executing: " + command);
                         if (stopOnError) {
-                            hasResults = statement.execute(command.toString());
-                        } else {
-                            try {
-                                statement.execute(command.toString());
-                            } catch (SQLException e) {
-                                e.fillInStackTrace();
-                                printlnError("Error executing: " + command);
-                                printlnError(e);
-                            }
+                            throw e;
                         }
-                        if (autoCommit && !conn.getAutoCommit()) {
-                            conn.commit();
-                        }
-                        try(ResultSet rs = statement.getResultSet();) {
-                            if (hasResults && rs != null) {
+                        printlnError(e);
+                        continue;
+                    }
+                    if (hasResults) {
+                        try (ResultSet rs = statement.getResultSet()) {
+                            if (rs != null) {
                                 ResultSetMetaData md = rs.getMetaData();
-                                int cols = md.getColumnCount();
-                                for (int i = 0; i < cols; i++) {
-                                    String name = md.getColumnLabel(i);
-                                    print(name + "\t");
+                                int columns = md.getColumnCount();
+                                for (int i = 1; i <= columns; i++) {
+                                    print(md.getColumnLabel(i) + "\t");
                                 }
                                 println("");
                                 while (rs.next()) {
-                                    for (int i = 1; i <= cols; i++) {
-                                        String value = rs.getString(i);
-                                        print(value + "\t");
+                                    for (int i = 1; i <= columns; i++) {
+                                        print(rs.getString(i) + "\t");
                                     }
                                     println("");
                                 }
                             }
-                            command = null;
-                            Thread.yield();
                         }
                     }
-                } else {
-                    int idx = line.indexOf("--");
-                    if (idx != -1)
-                        command.append(line.substring(0, idx));
-                    else
-                        command.append(line);
-                    command.append(" ");
                 }
             }
             if (!autoCommit) {
                 conn.commit();
             }
-        } catch (SQLException e) {
-            e.fillInStackTrace();
-            printlnError("Error executing: " + command);
-            printlnError(e);
-            throw e;
-        } catch (IOException e) {
-            e.fillInStackTrace();
-            printlnError("Error executing: " + command);
-            printlnError(e);
+        } catch (SQLException | IOException e) {
+            if (!conn.getAutoCommit()) {
+                conn.rollback();
+            }
             throw e;
         } finally {
-            conn.rollback();
             flush();
         }
+    }
+
+    /** Split SQL outside quoted values and comments, honoring MySQL DELIMITER directives. */
+    List<String> parseStatements(Reader reader) throws IOException, SQLException {
+        List<String> statements = new ArrayList<>();
+        StringBuilder command = new StringBuilder();
+        LineNumberReader lines = new LineNumberReader(reader);
+        String activeDelimiter = getDelimiter();
+        char quote = 0;
+        boolean blockComment = false;
+        String line;
+        while ((line = lines.readLine()) != null) {
+            String trimmed = line.trim();
+            if (quote == 0 && !blockComment) {
+                if (trimmed.startsWith("//") || trimmed.startsWith("--") || trimmed.startsWith("#")) {
+                    continue;
+                }
+                if (trimmed.toUpperCase(Locale.ROOT).startsWith("DELIMITER ")) {
+                    if (!command.toString().trim().isEmpty()) {
+                        throw new SQLException("DELIMITER inside an unfinished statement at line " + lines.getLineNumber());
+                    }
+                    activeDelimiter = trimmed.substring("DELIMITER ".length()).trim();
+                    if (activeDelimiter.isEmpty()) {
+                        throw new SQLException("Empty SQL delimiter");
+                    }
+                    continue;
+                }
+                if (fullLineDelimiter && trimmed.equals(activeDelimiter)) {
+                    addStatement(statements, command);
+                    continue;
+                }
+            }
+            for (int i = 0; i < line.length(); i++) {
+                char c = line.charAt(i);
+                char next = i + 1 < line.length() ? line.charAt(i + 1) : 0;
+                if (blockComment) {
+                    if (c == '*' && next == '/') {
+                        blockComment = false;
+                        i++;
+                        command.append(' ');
+                    }
+                    continue;
+                }
+                if (quote != 0) {
+                    command.append(c);
+                    if (c == '\\' && next != 0) {
+                        command.append(next);
+                        i++;
+                    } else if (c == quote) {
+                        if (next == quote) {
+                            command.append(next);
+                            i++;
+                        } else {
+                            quote = 0;
+                        }
+                    }
+                    continue;
+                }
+                if (c == '-' && next == '-' || c == '#') {
+                    break;
+                }
+                if (c == '/' && next == '*') {
+                    // Versioned MySQL comments contain executable SQL and must not be discarded.
+                    if (i + 2 < line.length() && line.charAt(i + 2) == '!') {
+                        int end = line.indexOf("*/", i + 3);
+                        if (end < 0) {
+                            throw new SQLException("Unterminated executable SQL comment at line " + lines.getLineNumber());
+                        }
+                        command.append(line, i, end + 2);
+                        i = end + 1;
+                    } else {
+                        blockComment = true;
+                        i++;
+                    }
+                    continue;
+                }
+                if (c == '\'' || c == '"' || c == '`') {
+                    quote = c;
+                    command.append(c);
+                } else if (!fullLineDelimiter && line.startsWith(activeDelimiter, i)) {
+                    addStatement(statements, command);
+                    i += activeDelimiter.length() - 1;
+                } else {
+                    command.append(c);
+                }
+            }
+            command.append('\n');
+        }
+        if (quote != 0 || blockComment) {
+            throw new SQLException("Unterminated SQL quote or comment at line " + lines.getLineNumber());
+        }
+        addStatement(statements, command);
+        return statements;
+    }
+
+    private void addStatement(List<String> statements, StringBuilder command) {
+        String sql = command.toString().trim();
+        if (!sql.isEmpty()) {
+            statements.add(sql);
+        }
+        command.setLength(0);
     }
 
     private String getDelimiter() {

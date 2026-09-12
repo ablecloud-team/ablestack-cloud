@@ -17,6 +17,7 @@
 
 -- Move existing guest OS to new categories
 DROP PROCEDURE IF EXISTS `cloud`.`UPDATE_CATEGORY_FOR_GUEST_OSES`;
+DELIMITER $$
 CREATE PROCEDURE `cloud`.`UPDATE_CATEGORY_FOR_GUEST_OSES`(IN category_name VARCHAR(255), IN os_name VARCHAR(255))
 BEGIN
     DECLARE category_id BIGINT
@@ -30,4 +31,5 @@ BEGIN
 ;   UPDATE `cloud`.`guest_os`
     SET `category_id` = category_id
     WHERE `display_name` LIKE CONCAT('%', os_name, '%')
-; END;
+; END$$
+DELIMITER ;

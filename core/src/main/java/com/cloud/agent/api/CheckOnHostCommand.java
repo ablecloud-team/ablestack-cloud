@@ -19,6 +19,8 @@
 
 package com.cloud.agent.api;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 import com.cloud.agent.api.to.HostTO;
@@ -27,7 +29,8 @@ import com.cloud.storage.Volume;
 
 public class CheckOnHostCommand extends Command {
     HostTO host;
-    boolean reportCheckFailureIfOneStorageIsDown;
+    @SerializedName(value = "reportCheckFailureIfOneStorageIsDown", alternate = {"reportIfHeartBeatFailedForOneStoragePool"})
+    boolean reportIfHeartBeatFailedForOneStoragePool;
     private String volumeList;
 
     protected CheckOnHostCommand() {
@@ -38,29 +41,27 @@ public class CheckOnHostCommand extends Command {
         setWait(20);
     }
 
-    public CheckOnHostCommand(Host host, boolean reportCheckFailureIfOneStorageIsDown) {
+    public CheckOnHostCommand(Host host, boolean reportIfHeartBeatFailedForOneStoragePool) {
         this(host);
-        this.reportCheckFailureIfOneStorageIsDown = reportCheckFailureIfOneStorageIsDown;
+        this.reportIfHeartBeatFailedForOneStoragePool = reportIfHeartBeatFailedForOneStoragePool;
     }
 
-    public CheckOnHostCommand(Host host, boolean reportCheckFailureIfOneStorageIsDown, final List<Volume> volumeList) {
-        super();
-        this.host = new HostTO(host);
-        this.reportCheckFailureIfOneStorageIsDown = reportCheckFailureIfOneStorageIsDown;
+    public CheckOnHostCommand(Host host, boolean reportIfHeartBeatFailedForOneStoragePool, final List<Volume> volumeList) {
+        this(host, reportIfHeartBeatFailedForOneStoragePool);
         final StringBuilder stringBuilder = new StringBuilder();
         for (final Volume v : volumeList) {
             stringBuilder.append(v.getPath()).append(",");
         }
 
-        this.volumeList = stringBuilder.deleteCharAt(stringBuilder.length() - 1).toString();
+        this.volumeList = stringBuilder.length() == 0 ? "" : stringBuilder.substring(0, stringBuilder.length() - 1);
     }
 
     public HostTO getHost() {
         return host;
     }
 
-    public boolean isCheckFailedOnOneStorage() {
-        return reportCheckFailureIfOneStorageIsDown;
+    public boolean shouldReportIfHeartBeatFailedForOneStoragePool() {
+        return reportIfHeartBeatFailedForOneStoragePool;
     }
 
     public String getVolumeList() {

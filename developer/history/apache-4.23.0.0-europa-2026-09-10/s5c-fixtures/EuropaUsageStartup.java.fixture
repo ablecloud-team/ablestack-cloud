@@ -1,0 +1,59 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+import java.io.FileInputStream;
+import java.util.Properties;
+import java.lang.reflect.Field;
+import com.cloud.utils.db.DbProperties;
+import com.cloud.usage.UsageServer;
+import com.cloud.storage.dao.VolumeDao;
+import org.apache.cloudstack.kms.dao.KMSWrappedKeyDao;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+/** Starts the real UsageServer lifecycle with the S5C common DAO context. */
+public class EuropaUsageStartup {
+    public static void main(String[] args) throws Exception {
+        Properties properties = new Properties();
+        try (FileInputStream stream = new FileInputStream(args[0])) {
+            properties.load(stream);
+        }
+        if (!properties.getProperty("db.cloud.host", "").startsWith("epic996-mysql-")) {
+            throw new IllegalArgumentException("Task-owned database only");
+        }
+        DbProperties.setDbProperties(properties);
+        UsageServer server = new UsageServer();
+        try {
+            server.start();
+            Field field = UsageServer.class.getDeclaredField("appContext");
+            field.setAccessible(true);
+            ClassPathXmlApplicationContext context = (ClassPathXmlApplicationContext) field.get(server);
+            KMSWrappedKeyDao keys = context.getBean(KMSWrappedKeyDao.class);
+            VolumeDao volumes = context.getBean(VolumeDao.class);
+            if (keys == null || volumes == null) {
+                throw new AssertionError("Usage DAO injection failed");
+            }
+            try (com.cloud.utils.db.TransactionLegacy transaction =
+                    com.cloud.utils.db.TransactionLegacy.open(com.cloud.utils.db.TransactionLegacy.CLOUD_DB)) {
+                keys.countByKmsKeyId(1L);
+                volumes.findByKmsWrappedKeyId(1L);
+            }
+            System.out.println("PASS: actual UsageServer.start, KMSWrappedKeyDao and VolumeDao injection and SQL queries");
+        } finally {
+            server.stop();
+        }
+        System.exit(0);
+    }
+}

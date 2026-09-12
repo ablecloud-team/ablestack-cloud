@@ -78,11 +78,16 @@ public interface HAManager extends HAConfigManager, Configurable {
             "Indicates whether the dynamic balancing service plugin is enabled. Management server restart required on change", false);
 
     boolean transitionHAState(final HAConfig.Event event, final HAConfig haConfig);
+
     HAProvider getHAProvider(final String name);
+
     HAResourceCounter getHACounter(final Long resourceId, final HAResource.ResourceType resourceType);
+
     void purgeHACounter(final Long resourceId, final HAResource.ResourceType resourceType);
 
     boolean isHAEligible(final HAResource resource);
+
     Boolean isVMAliveOnHost(final Host host) throws Investigator.UnknownVM;
-    Status getHostStatus(final Host host);
+
+    Status getHostStatusFromHAConfig(final Host host);
 }

@@ -226,7 +226,7 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
             if (result != null) {
                 logger.warn(String.format("Write heartbeat for pool [%s] failed: %s; try: %s of %s.", uuid, result, i, _heartBeatUpdateMaxTries));
                 try {
-                    Thread.sleep(_heartBeatUpdateRetrySleep);
+                    Thread.sleep(_heartBeatUpdateRetrySleepInMs);
                 } catch (InterruptedException e) {
                     logger.debug("[IGNORED] Interrupted between heartbeat retries.", e);
                 }
@@ -295,7 +295,7 @@ public class KVMHAMonitor extends KVMHABase implements Runnable {
             runHeartBeat(storageClvmPool);
 
             try {
-                Thread.sleep(_heartBeatUpdateFreq);
+                Thread.sleep(_heartBeatUpdateFreqInMs);
             } catch (InterruptedException e) {
                 logger.debug("[IGNORED] Interrupted between heartbeats.", e);
             }

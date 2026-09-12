@@ -128,3 +128,28 @@ CREATE TABLE IF NOT EXISTS `disaster_recovery_cluster_details` (
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_disaster_recovery_cluster_details__dr_cluster_id` FOREIGN KEY (`dr_cluster_id`) REFERENCES `disaster_recovery_cluster` (`id`) ON DELETE CASCADE
     ) ENGINE=InnoDB CHARSET=utf8mb3;
+
+-- Required by the upstream 4.23 storage runtime column migration.
+CREATE TABLE IF NOT EXISTS `cloud`.`storage_service_instance` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `uuid` varchar(40) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` varchar(4096) DEFAULT NULL,
+  `domain_id` bigint unsigned NOT NULL,
+  `account_id` bigint unsigned NOT NULL,
+  `data_center_id` bigint unsigned NOT NULL,
+  `vm_id` bigint unsigned DEFAULT NULL,
+  `service_offering_id` bigint unsigned DEFAULT NULL,
+  `provider` varchar(255) NOT NULL,
+  `state` varchar(32) NOT NULL,
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` datetime DEFAULT NULL,
+  `removed` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_storage_service_instance__uuid` (`uuid`),
+  KEY `idx_storage_service_instance__account_id` (`account_id`),
+  KEY `idx_storage_service_instance__domain_id` (`domain_id`),
+  KEY `idx_storage_service_instance__data_center_id` (`data_center_id`),
+  KEY `idx_storage_service_instance__vm_id` (`vm_id`),
+  KEY `idx_storage_service_instance__state` (`state`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;

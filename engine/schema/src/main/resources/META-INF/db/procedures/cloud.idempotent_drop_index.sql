@@ -18,10 +18,12 @@
 -- in cloud
 DROP PROCEDURE IF EXISTS `cloud`.`IDEMPOTENT_DROP_INDEX`;
 
+DELIMITER $$
 CREATE PROCEDURE `cloud`.`IDEMPOTENT_DROP_INDEX` (
 		IN in_index_name VARCHAR(200)
     , IN in_table_name VARCHAR(200)
 )
 BEGIN
 
-    DECLARE CONTINUE HANDLER FOR 1091 BEGIN END; SET @ddl = CONCAT('DROP INDEX ', in_index_name); SET @ddl = CONCAT(@ddl, ' ', ' ON ') ; SET @ddl = CONCAT(@ddl, ' ', in_table_name); PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt; END;
+    DECLARE CONTINUE HANDLER FOR 1091 BEGIN END; SET @ddl = CONCAT('DROP INDEX ', in_index_name); SET @ddl = CONCAT(@ddl, ' ', ' ON ') ; SET @ddl = CONCAT(@ddl, ' ', in_table_name); PREPARE stmt FROM @ddl; EXECUTE stmt; DEALLOCATE PREPARE stmt; END$$
+DELIMITER ;

@@ -98,4 +98,8 @@ public interface StorageProcessor {
     default Answer prepareSharedMountPointClone(PrepareSharedMountPointCloneCommand cmd) {
         return new Answer(cmd, false, "not implemented yet");
     }
+
+    default Answer deleteBackup(DeleteCommand cmd) {
+        return new Answer(cmd, false, "Operation not implemented");
+    }
 }

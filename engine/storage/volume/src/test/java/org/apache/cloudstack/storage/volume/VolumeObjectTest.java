@@ -584,4 +584,28 @@ public class VolumeObjectTest extends TestCase{
 
         Mockito.verify(volumeObjectSpy, Mockito.times(1)).handleProcessEventAnswer(copyCmdAnswer, true, true);
     }
+
+    @Test
+    public void kmsSecretUsesOneBase64EncodingAndClearsUnwrappedBytes() {
+        org.apache.cloudstack.kms.KMSManager kms = Mockito.mock(org.apache.cloudstack.kms.KMSManager.class);
+        volumeObjectSpy.kmsManager = kms;
+        byte[] raw = new byte[48];
+        Arrays.fill(raw, (byte) 23);
+        byte[] expected = java.util.Base64.getEncoder().encode(raw);
+        Mockito.when(volumeVoMock.getKmsWrappedKeyId()).thenReturn(8L);
+        Mockito.when(kms.unwrapKey(8L)).thenReturn(raw);
+        Assert.assertArrayEquals(expected, volumeObjectSpy.getPassphrase());
+        Assert.assertArrayEquals(new byte[48], raw);
+    }
+
+    @Test
+    public void kmsFailureNeverFallsBackToLegacySecret() {
+        org.apache.cloudstack.kms.KMSManager kms = Mockito.mock(org.apache.cloudstack.kms.KMSManager.class);
+        volumeObjectSpy.kmsManager = kms;
+        volumeObjectSpy.passphraseDao = Mockito.mock(org.apache.cloudstack.secret.dao.PassphraseDao.class);
+        Mockito.when(volumeVoMock.getKmsWrappedKeyId()).thenReturn(8L);
+        Mockito.when(kms.unwrapKey(8L)).thenThrow(org.apache.cloudstack.framework.kms.KMSException.kekNotFound("offline"));
+        Assert.assertThrows(org.apache.cloudstack.framework.kms.KMSException.class, () -> volumeObjectSpy.getPassphrase());
+        Mockito.verifyNoInteractions(volumeObjectSpy.passphraseDao);
+    }
 }

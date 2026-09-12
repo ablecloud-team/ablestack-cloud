@@ -122,12 +122,12 @@ public interface VolumeOrchestrationService {
     void destroyVolume(Volume volume);
 
     DiskProfile allocateRawVolume(Type type, String name, DiskOffering offering, Long size, Long minIops, Long maxIops, VirtualMachine vm, VirtualMachineTemplate template,
-            Account owner, Long deviceId, boolean incrementResourceCount);
+            Account owner, Long deviceId, Long kmsKeyId, boolean incrementResourceCount);
 
     DiskProfile allocateRawVolumes(Type type, String name, DiskOffering offering, Long size, Long minIops, Long maxIops, VirtualMachine vm, VirtualMachineTemplate template,
             Account owner, Long deviceId, Map<String, String> customParameters);
 
-    VolumeInfo createVolumeOnPrimaryStorage(VirtualMachine vm, VolumeInfo volume, HypervisorType rootDiskHyperType, StoragePool storagePool) throws NoTransitionException;
+    VolumeInfo createVolumeOnPrimaryStorage(VirtualMachine vm, VolumeInfo volume, HypervisorType rootDiskHyperType, StoragePool storagePool, Long clusterId, Long podId) throws NoTransitionException;
 
     void release(VirtualMachineProfile profile);
 
@@ -155,7 +155,7 @@ public interface VolumeOrchestrationService {
      * Allocate a volume or multiple volumes in case of template is registered with the 'deploy-as-is' option, allowing multiple disks
      */
     List<DiskProfile> allocateTemplatedVolumes(Type type, String name, DiskOffering offering, Long rootDisksize, Long minIops, Long maxIops, VirtualMachineTemplate template, VirtualMachine vm,
-                                               Account owner, Volume volume, Snapshot snapshot);
+                                               Account owner, Long kmsKeyId, Volume volume, Snapshot snapshot);
 
     String getVmNameFromVolumeId(long volumeId);
 
@@ -202,4 +202,16 @@ public interface VolumeOrchestrationService {
      * Retrieves the volume's checkpoints paths to be used in the KVM processor. If there are no checkpoints, it will return an empty list.
      */
     Pair<List<String>, Set<String>> getVolumeCheckpointPathsAndImageStoreUrls(long volumeId, HypervisorType hypervisorType);
+
+    /** Preserve pre-KMS Europa callers without selecting a KMS key. */
+    default DiskProfile allocateRawVolume(Type type, String name, DiskOffering offering, Long size, Long minIops, Long maxIops, VirtualMachine vm, VirtualMachineTemplate template,
+            Account owner, Long deviceId, boolean incrementResourceCount) {
+        return allocateRawVolume(type, name, offering, size, minIops, maxIops, vm, template, owner, deviceId, null, incrementResourceCount);
+    }
+
+    /** Preserve pre-KMS Europa callers without selecting a KMS key. */
+    default List<DiskProfile> allocateTemplatedVolumes(Type type, String name, DiskOffering offering, Long rootDisksize, Long minIops, Long maxIops,
+            VirtualMachineTemplate template, VirtualMachine vm, Account owner, Volume volume, Snapshot snapshot) {
+        return allocateTemplatedVolumes(type, name, offering, rootDisksize, minIops, maxIops, template, vm, owner, null, volume, snapshot);
+    }
 }

@@ -1,0 +1,107 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+package com.cloud.upgrade.dao;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.Statement;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+/** Runs only on the task-owned disposable MySQL fixture. */
+public class EuropaComputeDdlReplay {
+    static String ddl;
+    static void execute(Connection c, String sql) throws SQLException {
+        try (Statement s = c.createStatement()) { s.execute(sql); }
+    }
+    static void reset(Connection c) throws Exception {
+        execute(c, "DROP DATABASE IF EXISTS cloud");
+        execute(c, "CREATE DATABASE cloud");
+        execute(c, "USE cloud");
+        execute(c, "CREATE TABLE vm_instance(id BIGINT UNSIGNED NOT NULL PRIMARY KEY)");
+        execute(c, "INSERT INTO vm_instance VALUES(993)");
+        for (String sql : ddl.split(";")) { if (!sql.trim().isEmpty()) execute(c, sql); }
+        execute(c, "INSERT INTO vm_schedule(id,vm_id,uuid,schedule,timezone,action,enabled,start_date,created) VALUES(1,993,'schedule-uuid','0 0 12 * * ?','Asia/Seoul','START',1,'2026-01-01','2026-01-01')");
+        execute(c, "INSERT INTO vm_scheduled_job(id,vm_id,vm_schedule_id,uuid,action,scheduled_timestamp,async_job_id) VALUES(2,993,1,'job-uuid','START','2026-02-01 12:00:00',123)");
+    }
+    static Connection faultAfter(Connection c, int failAt, AtomicInteger count) {
+        return (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(), new Class[]{Connection.class}, (proxy, method, args) -> {
+            try {
+                Object result = method.invoke(c, args);
+                if (!method.getName().equals("createStatement")) return result;
+                Statement statement = (Statement) result;
+                return Proxy.newProxyInstance(Statement.class.getClassLoader(), new Class[]{Statement.class}, (sp, sm, sa) -> {
+                    try {
+                        Object sr = sm.invoke(statement, sa);
+                        if (sm.getName().equals("execute") && count.incrementAndGet() == failAt) {
+                            throw new SQLException("Injected interruption AFTER committed DDL " + failAt);
+                        }
+                        return sr;
+                    } catch (InvocationTargetException e) { throw e.getCause(); }
+                });
+            } catch (InvocationTargetException e) { throw e.getCause(); }
+        });
+    }
+    static void verify(Connection c) throws SQLException {
+        try (Statement s = c.createStatement(); ResultSet r = s.executeQuery("SELECT j.resource_id,j.schedule_id,j.resource_type,j.uuid,j.action,j.scheduled_timestamp,j.async_job_id,s.timezone,s.schedule FROM resource_scheduled_job j JOIN resource_schedule s ON s.id=j.schedule_id")) {
+            if (!r.next() || r.getLong(1)!=993 || r.getLong(2)!=1 || !r.getString(3).equals("VirtualMachine")
+                    || !r.getString(4).equals("job-uuid") || !r.getString(5).equals("START") || r.getLong(7)!=123
+                    || !r.getString(8).equals("Asia/Seoul") || !r.getString(9).equals("0 0 12 * * ?") || r.next()) {
+                throw new AssertionError("Schedule history changed");
+            }
+        }
+        try {
+            execute(c, "INSERT INTO resource_scheduled_job(resource_id,schedule_id,uuid,action,scheduled_timestamp) VALUES(993,1,'duplicate','START','2026-02-01 12:00:00')");
+            throw new AssertionError("Duplicate job accepted");
+        } catch (SQLIntegrityConstraintViolationException expected) { }
+        execute(c, "DELETE FROM resource_schedule WHERE id=1");
+        try (Statement s = c.createStatement(); ResultSet r = s.executeQuery("SELECT COUNT(*) FROM resource_scheduled_job")) {
+            r.next(); if (r.getInt(1)!=0) throw new AssertionError("Schedule deletion did not cascade");
+        }
+    }
+    public static void main(String[] args) throws Exception {
+        if (args.length!=1 || !args[0].equals("epic993-mysql-ddl")) throw new IllegalArgumentException("Task-owned fixture only");
+        ddl = Files.readAllLines(Path.of("/tmp/epic993/legacy-schedule-tables.sql")).stream()
+                .filter(line -> !line.stripLeading().startsWith("--")).collect(Collectors.joining("\n"));
+        try (Connection c = DriverManager.getConnection("jdbc:mysql://"+args[0]+":3306/?allowPublicKeyRetrieval=true&useSSL=false", "root", "epic993-fixture-dummy")) {
+            reset(c);
+            AtomicInteger count = new AtomicInteger();
+            EuropaComputeSchemaUpgrade.migrateSchedules(faultAfter(c, -1, count));
+            int steps = count.get(); verify(c);
+            for (int i=1;i<=steps;i++) {
+                reset(c);
+                try { EuropaComputeSchemaUpgrade.migrateSchedules(faultAfter(c,i,new AtomicInteger())); throw new AssertionError("Failure not injected"); }
+                catch (SQLException expected) { if (!expected.getMessage().startsWith("Injected")) throw expected; }
+                EuropaComputeSchemaUpgrade.migrateSchedules(c);
+                EuropaComputeSchemaUpgrade.migrateSchedules(c);
+                verify(c);
+            }
+            reset(c);
+            execute(c,"CREATE TABLE resource_schedule(id BIGINT)");
+            try { EuropaComputeSchemaUpgrade.migrateSchedules(c); throw new AssertionError("Ambiguous old/new tables accepted"); }
+            catch (SQLException expected) { if (!expected.getMessage().contains("Both")) throw expected; }
+            System.out.println("PASS: committed DDL interruption/replay at all " + steps + " boundaries, repeated migration, row preservation, unique job, cascade and ambiguous-table rejection");
+        }
+    }
+}

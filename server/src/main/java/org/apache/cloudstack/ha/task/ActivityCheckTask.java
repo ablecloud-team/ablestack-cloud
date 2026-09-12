@@ -68,6 +68,8 @@ public class ActivityCheckTask extends BaseHATask {
             return;
         }
 
+        long activityCounter = counter.getActivityCheckCounter();
+        logger.debug("Activity check #{}, result: {} for the resource {}. Max activity checks configured is {}", activityCounter + 1, result, getResource(), maxActivityChecks);
         counter.incrActivityCounter(!result);
 
         long requiredFailures = (long) Math.floor(maxActivityChecks * activityCheckFailureRatio) + 1;

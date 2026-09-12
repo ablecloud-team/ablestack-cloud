@@ -23,11 +23,12 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseResponse;
 import org.apache.cloudstack.api.EntityReference;
-import org.apache.cloudstack.vm.schedule.VMSchedule;
+import org.apache.cloudstack.schedule.ResourceSchedule;
+import org.apache.cloudstack.schedule.vm.VMScheduleAction;
 
 import java.util.Date;
 
-@EntityReference(value = VMSchedule.class)
+@EntityReference(value = ResourceSchedule.class)
 public class VMScheduleResponse extends BaseResponse {
     @SerializedName(ApiConstants.ID)
     @Param(description = "The ID of Instance schedule")
@@ -51,7 +52,7 @@ public class VMScheduleResponse extends BaseResponse {
 
     @SerializedName(ApiConstants.ACTION)
     @Param(description = "Action")
-    private VMSchedule.Action action;
+    private ResourceSchedule.Action action;
 
     @SerializedName(ApiConstants.ENABLED)
     @Param(description = "VM schedule is enabled")
@@ -68,6 +69,24 @@ public class VMScheduleResponse extends BaseResponse {
     @SerializedName(ApiConstants.CREATED)
     @Param(description = "Date when the schedule was created")
     private Date created;
+
+    public VMScheduleResponse() {
+        super("vmschedule");
+    }
+
+    public VMScheduleResponse(ResourceScheduleResponse scheduleResponse) {
+        super("vmschedule");
+        this.id = scheduleResponse.getId();
+        this.vmId = scheduleResponse.getResourceId();
+        this.description = scheduleResponse.getDescription();
+        this.schedule = scheduleResponse.getSchedule();
+        this.timeZone = scheduleResponse.getTimeZone();
+        this.action = scheduleResponse.getAction();
+        this.enabled = scheduleResponse.getEnabled();
+        this.startDate = scheduleResponse.getStartDate();
+        this.endDate = scheduleResponse.getEndDate();
+        this.created = scheduleResponse.getCreated();
+    }
 
     public void setId(String id) {
         this.id = id;
@@ -89,8 +108,23 @@ public class VMScheduleResponse extends BaseResponse {
         this.timeZone = timeZone;
     }
 
-    public void setAction(VMSchedule.Action action) {
+    public void setAction(ResourceSchedule.Action action) {
         this.action = action;
+    }
+
+    /**
+     * Compatibility for leftover VMScheduleManagerImpl, which still passes VMSchedule.Action.
+     */
+    public void setAction(Object action) {
+        if (action == null) {
+            this.action = null;
+            return;
+        }
+        if (action instanceof ResourceSchedule.Action) {
+            this.action = (ResourceSchedule.Action) action;
+            return;
+        }
+        this.action = VMScheduleAction.valueOf(String.valueOf(action));
     }
 
     public void setEnabled(boolean enabled) {
@@ -105,5 +139,7 @@ public class VMScheduleResponse extends BaseResponse {
         this.endDate = endDate;
     }
 
-    public void setCreated(Date created) {this.created = created;}
+    public void setCreated(Date created) {
+        this.created = created;
+    }
 }

@@ -4605,7 +4605,7 @@ public class VmwareResource extends ServerResourceBase implements StoragePoolRes
                     vmMo.mountToolsInstaller();
                     logger.debug(String.format("Successfully re-mounted VMware tools installer for :[%s].", cmd.getVmName()));
                 } catch (Exception e) {
-                    logger.error(String.format("Unabled to re-mount VMware tools installer for: [%s].", cmd.getVmName()), e);
+                    logger.error(String.format("Unable to re-mount VMware tools installer for: [%s].", cmd.getVmName()), e);
                 }
             }
         }
@@ -5807,7 +5807,7 @@ public class VmwareResource extends ServerResourceBase implements StoragePoolRes
     }
 
     protected Answer execute(CheckOnHostCommand cmd) {
-        return new CheckOnHostAnswer(cmd, null, "Not Implmeneted");
+        return new CheckOnHostAnswer(cmd, null, "Not Implemented");
     }
 
     protected Answer execute(ModifySshKeysCommand cmd) {

@@ -1889,35 +1889,45 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
             _dpMgr.checkForNonDedicatedResources(vmProfile, dc, excludes);
         }
 
+        suitableHosts = getCapableSuitableHosts(vm, vmProfile, plan, filteredHosts, excludes, srcHost);
+
+        return new Ternary<>(otherHosts, suitableHosts, requiresStorageMotion);
+    }
+
+    protected List<Host> getCapableSuitableHosts(
+            final VirtualMachine vm,
+            final VirtualMachineProfile vmProfile,
+            final DataCenterDeployment plan,
+            final List<? extends Host> compatibleHosts,
+            final ExcludeList excludes,
+            final Host srcHost) {
+
+        List<Host> suitableHosts = new ArrayList<>();
+
         for (final HostAllocator allocator : hostAllocators) {
-            if (CollectionUtils.isNotEmpty(filteredHosts)) {
-                suitableHosts = allocator.allocateTo(vmProfile, plan, Host.Type.Routing, excludes, filteredHosts, HostAllocator.RETURN_UPTO_ALL, false);
-            } else {
-                suitableHosts = allocator.allocateTo(vmProfile, plan, Host.Type.Routing, excludes, HostAllocator.RETURN_UPTO_ALL, false);
-            }
+            suitableHosts = allocator.allocateTo(vmProfile, plan, Host.Type.Routing, excludes, compatibleHosts, HostAllocator.RETURN_UPTO_ALL, false);
 
             if (CollectionUtils.isNotEmpty(suitableHosts)) {
                 break;
             }
         }
 
+        if (CollectionUtils.isEmpty(suitableHosts)) {
+            logger.warn("No suitable hosts found.");
+            return Collections.emptyList();
+        }
+
         _dpMgr.reorderHostsByPriority(plan.getHostPriorities(), suitableHosts);
 
-        if (suitableHosts.isEmpty()) {
-            logger.warn("No suitable hosts found.");
-        } else {
-            logger.debug("Hosts having capacity and suitable for migration: {}", suitableHosts);
-        }
+        logger.debug("Hosts having capacity and are suitable for migration: {}", suitableHosts);
 
         // Only list hosts of the same architecture as the source Host in a multi-arch zone
-        if (!suitableHosts.isEmpty()) {
-            List<CPU.CPUArch> clusterArchs = ApiDBUtils.listZoneClustersArchs(vm.getDataCenterId());
-            if (CollectionUtils.isNotEmpty(clusterArchs) && clusterArchs.size() > 1) {
-                suitableHosts = suitableHosts.stream().filter(h -> h.getArch() == srcHost.getArch()).collect(Collectors.toList());
-            }
+        List<CPU.CPUArch> clusterArchs = ApiDBUtils.listZoneClustersArchs(vm.getDataCenterId());
+        if (CollectionUtils.isNotEmpty(clusterArchs) && clusterArchs.size() > 1) {
+            suitableHosts = suitableHosts.stream().filter(h -> h.getArch() == srcHost.getArch()).collect(Collectors.toList());
         }
 
-        return new Ternary<>(otherHosts, suitableHosts, requiresStorageMotion);
+        return suitableHosts;
     }
 
     private void validateVgpuProfileForVmMigration(final VirtualMachineProfile vmProfile) {
@@ -5049,6 +5059,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
         final Long clusterId = cmd.getClusterId();
         final Long storagepoolId = cmd.getStoragepoolId();
         final Long imageStoreId = cmd.getImageStoreId();
+        final Long managementServerId = cmd.getManagementServerId();
         Long accountId = cmd.getAccountId();
         Long domainId = cmd.getDomainId();
         final String groupName = cmd.getGroupName();
@@ -5100,6 +5111,11 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
         if (imageStoreId != null) {
             scope = ConfigKey.Scope.ImageStore;
             id = imageStoreId;
+            paramCountCheck++;
+        }
+        if (managementServerId != null) {
+            scope = ConfigKey.Scope.ManagementServer;
+            id = managementServerId;
             paramCountCheck++;
         }
 
@@ -5172,7 +5188,14 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
                 if (configVo != null) {
                     final ConfigKey<?> key = _configDepot.get(param.getName());
                     if (key != null) {
-                        Object value = key.valueInScope(scope, id);
+                        boolean useStrictLookup = key.isStrictScope()
+                                && scope == ConfigKey.Scope.Domain
+                                && id != null
+                                && id.longValue() != Domain.ROOT_DOMAIN;
+                        Object value = key.valueInScope(scope, id, useStrictLookup);
+                        if (value == null && useStrictLookup) {
+                            value = key.defaultValue();
+                        }
                         configVo.setValue(value == null ? null : value.toString());
                         configVOList.add(configVo);
                     } else {
@@ -5727,7 +5750,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
         final String hypervisor = cmd.getHypervisor();
         final String hypervisorVersion = cmd.getHypervisorVersion();
 
-        //throw exception if hypervisor name is not passed, but version is
+        //throw exception if hypervisor name is not passed, but a version is
         if (hypervisorVersion != null && (hypervisor == null || hypervisor.isEmpty())) {
             throw new InvalidParameterValueException("Hypervisor version parameter cannot be used without specifying a hypervisor : XenServer, KVM or VMware");
         }
@@ -5745,7 +5768,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
         final SearchCriteria<GuestOSHypervisorVO> sc = sb.create();
 
         if (id != null) {
-            sc.setParameters("id", SearchCriteria.Op.EQ, id);
+            sc.setParameters("id", id);
         }
 
         if (osTypeId != null) {

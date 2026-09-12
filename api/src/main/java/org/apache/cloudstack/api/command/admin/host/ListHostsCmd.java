@@ -253,7 +253,7 @@ public class ListHostsCmd extends BaseListCmd {
                 HostResponse hostResponse = _responseGenerator.createHostResponse(host, getDetails());
                 OutOfBandManagement hostOobmResponse = _responseGenerator.createHostOobmResponse(host);
                 Boolean suitableForMigration = false;
-                if (hostsWithCapacity.contains(host)) {
+                if (hostsWithCapacity != null && hostsWithCapacity.contains(host)) {
                     suitableForMigration = true;
                 }
                 hostResponse.setSuitableForMigration(suitableForMigration);

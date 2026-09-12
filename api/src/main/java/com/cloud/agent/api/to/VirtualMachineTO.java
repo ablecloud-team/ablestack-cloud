@@ -51,6 +51,7 @@ public class VirtualMachineTO {
 
     private long minRam;
     private long maxRam;
+    private long requestedRam;
     private String hostName;
     private String arch;
     private String os;
@@ -208,13 +209,19 @@ public class VirtualMachineTO {
         return minRam;
     }
 
-    public void setRam(long minRam, long maxRam) {
+    public void setRam(long minRam, long maxRam, long requestedRam) {
         this.minRam = minRam;
         this.maxRam = maxRam;
+        this.requestedRam = requestedRam;
     }
 
     public long getMaxRam() {
         return maxRam;
+    }
+
+    public long getRequestedRam() {
+        // Older management servers do not send requestedRam.
+        return requestedRam > 0 ? requestedRam : maxRam;
     }
 
     public String getHostName() {

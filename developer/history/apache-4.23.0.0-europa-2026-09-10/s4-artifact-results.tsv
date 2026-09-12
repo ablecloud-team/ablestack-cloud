@@ -1,0 +1,54 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+item	value	result	sha256
+Actions run	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34486486328	PASS	-
+artifact	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34486486328/artifacts/10157331479	downloaded; RPM SHA256 verified	-
+artifact ZIP digest	sha256:8043352ce63c17f3d17fa9496a3183ec4aa433ae59e6129b017200d10aa4ab34	GitHub metadata; individual extracted RPMs verified below	-
+source_sha	c25e8bcabf12999afb676a5d05ed791a4e669b78	recorded/checked	-
+architecture	x86_64	recorded/checked	-
+python_version	Python 3.10.21	recorded/checked	-
+date	2026-09-10T14:13:02Z	recorded/checked	-
+os_release	"NAME=""Rocky Linux"" VERSION=""9.8 (Blue Onyx)"" RELEASE_TYPE=""stable"" ID=""rocky"" ID_LIKE=""rhel centos fedora"" VERSION_ID=""9.8"" PLATFORM_ID=""platform:el9"" PRETTY_NAME=""Rocky Linux 9.8 (Blue Onyx)"" ANSI_COLOR=""0;32"" LOGO=""fedora-logo-icon"" CPE_NAME=""cpe:/o:rocky:rocky:9::baseos"" HOME_URL=""https://rockylinux.org/"" VENDOR_NAME=""RESF"" VENDOR_URL=""https://resf.org/"" BUG_REPORT_URL=""https://bugs.rockylinux.org/"" SUPPORT_END=""2032-05-31"" ROCKY_SUPPORT_PRODUCT=""Rocky-Linux-9"" ROCKY_SUPPORT_PRODUCT_VERSION=""9.8"" REDHAT_SUPPORT_PRODUCT=""Rocky Linux"" REDHAT_SUPPORT_PRODUCT_VERSION=""9.8"" "	recorded/checked	-
+java_version	"openjdk version ""17.0.20.1"" 2026-08-18 LTS OpenJDK Runtime Environment (Red_Hat-17.0.20.1.1-1) (build 17.0.20.1+1-LTS) OpenJDK 64-Bit Server VM (Red_Hat-17.0.20.1.1-1) (build 17.0.20.1+1-LTS, mixed mode, sharing) "	recorded/checked	-
+maven_version	Apache Maven 3.9.10 (5f519b97e944483d878815739f519b2eade0a91d)	recorded/checked	-
+maven_opts	-Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true --add-opens=java.base/java.lang=ALL-UNNAMED	recorded/checked	-
+node_version	v14.21.3	recorded/checked	-
+npm_version	6.14.18	recorded/checked	-
+nonoss_sha	f94b5cfcd12e7ce50f9e732ff0e12affa9030640	recorded/checked	-
+pack	noredist	recorded/checked	-
+simulator	default	recorded/checked	-
+distro	rocky9	recorded/checked	-
+release	<default>	recorded/checked	-
+templates	<none>	recorded/checked	-
+brand	<default>	recorded/checked	-
+package_version	<maven>	recorded/checked	-
+timestamp_value	<generated>	recorded/checked	-
+build_srpm	false	recorded/checked	-
+use_timestamp	false	recorded/checked	-
+local_fast	false	recorded/checked	-
+ui_build_version	<source-config>	recorded/checked	-
+cloudstack-agent-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-agent 4.23.0.0 SNAPSHOT x86_64	SHA256 and RPM metadata PASS	ab4dd8c2a6449826c8a909f25407011919eb3b7b08851c115fb2b50146a906bb
+cloudstack-baremetal-agent-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-baremetal-agent 4.23.0.0 SNAPSHOT x86_64	SHA256 and RPM metadata PASS	ae97444d1a252c1f6806857aa15f312bdbaba9f493906e5239c368bb95f80af4
+cloudstack-common-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-common 4.23.0.0 SNAPSHOT x86_64	SHA256 and RPM metadata PASS	9e16f271ecddbfa4f059dff5ba54202d6f7cb27de9228759699d1078d905fa43
+cloudstack-integration-tests-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-integration-tests 4.23.0.0 SNAPSHOT x86_64	SHA256 and RPM metadata PASS	52cceba9392ba515d2b645df75c605cd290ac559ddd689b5adfc389524d47809
+cloudstack-management-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-management 4.23.0.0 SNAPSHOT x86_64	SHA256 and RPM metadata PASS	2d968f260d88985ae13b30ffac636d4395a37a42a1c16ed4cb177ca0a867643d
+cloudstack-marvin-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-marvin 4.23.0.0 SNAPSHOT x86_64	SHA256 and RPM metadata PASS	19093ea1d61a849560a6a40d8ad5a5d001615cfc739c7a9ff13dea260662afcd
+cloudstack-mysql-ha-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-mysql-ha 4.23.0.0 SNAPSHOT x86_64	SHA256 and RPM metadata PASS	4e8d4582f4efbab670b15b44e5e06aca02d1f364a5a2d88ce3327884cef9a924
+cloudstack-ui-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-ui 4.23.0.0 SNAPSHOT x86_64	SHA256 and RPM metadata PASS	2f55e67d521de2b3482a0b8a96658d084b569f3309ed1458c66ad2ce4e61112d
+cloudstack-usage-4.23.0.0-SNAPSHOT.x86_64.rpm	cloudstack-usage 4.23.0.0 SNAPSHOT x86_64	SHA256 and RPM metadata PASS	18d74eb7e92b008a441e3ecceae999de92a6715813e6d0ac9f492a202b3cf8fe
+packaged runtime smoke	PASS packaged BC: RSA and X.509 signing/verification	PASS	-
+packaged runtime smoke	PASS packaged OkHttp 5.1.0: MinIO list/upload and InfluxDB ping/write	PASS	-

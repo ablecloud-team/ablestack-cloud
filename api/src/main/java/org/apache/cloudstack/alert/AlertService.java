@@ -89,6 +89,9 @@ public interface AlertService {
         public static final AlertType ALERT_TYPE_OBJECT_STORAGE = new AlertType(Capacity.CAPACITY_TYPE_OBJECT_STORAGE, "ALERT.STORAGE.OBJECT", true);
         public static final AlertType ALERT_TYPE_WALL_RULE = new AlertType((short)90, "ALERT.WALL.RULE", true);
 
+        public static final AlertType ALERT_TYPE_BACKUP_VALIDATION_FAILED = new AlertType((short)35, "ALERT.BACKUP.VALIDATION.FAILED", true, true);
+        public static final AlertType ALERT_TYPE_BACKUP_VALIDATION_UNABLE_TO_VALIDATE = new AlertType((short)36, "ALERT.BACKUP.VALIDATION.UNABLE.TO.VALIDATE", true, true);
+        public static final AlertType ALERT_TYPE_BACKUP_VALIDATION_CLEANUP_FAILED = new AlertType((short)37, "ALERT.BACKUP.VALIDATION.CLEANUP_FAILED", true, true);
 
         public short getType() {
             return type;

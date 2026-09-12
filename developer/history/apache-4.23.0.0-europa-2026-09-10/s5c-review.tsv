@@ -1,0 +1,20 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+source_sha	subject	decision	initial_europa_sha	reviewed_code_sha	pr	review	validation
+d2c8aa7dff735a8ed91cb858c91293dd7c4037b2	Feature: Key Management Service (KMS) (#12711)	Adapted	2967f19b8ff2da7bdd9ecaf036134b6dab9b6cdd	c093862fb1c52ce74b5b2ab4a32cc1ce7acc34ba	https://github.com/ablecloud-team/ablestack-cloud/pull/1036	Preserve Europa KVDO/KBOSS/reservations and legacy FTCTL/DR signatures; new S5C DB phase and pre-KMS view; decode legacy DEK once; transactional migration and failure response; shared key lock and HSM masking. Follow-up implementation c093862fb1c52ce74b5b2ab4a32cc1ce7acc34ba	s5c-verification.ko.md
+600201a46bf9001d4eb8ec46bf168d9f6064bac2	Add KMSWrappedKeyDao as a dependency for the Usage server (#13535)	Applied	46154d154f33b55abb940ee4f2d985c6ec6e9050	c093862fb1c52ce74b5b2ab4a32cc1ce7acc34ba	https://github.com/ablecloud-team/ablestack-cloud/pull/1036	Move KMSWrappedKeyDao to common management/usage context; real UsageServer lifecycle and CLOUD_DB DAO queries passed.	s5c-verification.ko.md
+1400616e7129e854173a1e1481e2f1525e8599f3	UI: Fix icon for KMS & ordering in the left side menu (#13568)	Adapted	326a7ca06f2a109f85ed18e21cdd40fe885e250e	c093862fb1c52ce74b5b2ab4a32cc1ce7acc34ba	https://github.com/ablecloud-team/ablestack-cloud/pull/1036	Use lock icon and place KMS after Images while preserving Europa Disaster Recovery/Desktop/Automation routes.	s5c-verification.ko.md

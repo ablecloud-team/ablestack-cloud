@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.cloudstack</groupId>
         <artifactId>cloudstack</artifactId>
-        <version>4.23.0.0-SNAPSHOT</version>
+        <version>4.23.0.0</version>
     </parent>
     <build>
         <plugins>
@@ -66,7 +66,10 @@
         <module>backup/ablestack-nas</module>
         <module>backup/ablestack-commvault</module>
         <module>backup/ablestack-netbackup</module>
+        <module>backup/veeam</module>
+        <module>backup/ablestack-veeam</module>
         <module>backup/bx</module>
+        <module>backup/kboss</module>
 
         <module>ca/root-ca</module>
 
@@ -88,8 +91,6 @@
 
         <module>ha-planners/skip-heurestics</module>
 
-        <module>host-allocators/random</module>
-
         <module>hypervisors/baremetal</module>
         <module>hypervisors/external</module>
         <module>hypervisors/hyperv</module>
@@ -107,6 +108,10 @@
         <module>integrations/automation-service</module>
         <module>integrations/disaster-recovery</module>
         <module>integrations/rack-management</module>
+        <module>integrations/veeam-control-service</module>
+
+        <module>kms</module>
+
         <module>metrics</module>
 
         <module>network-elements/bigswitch</module>
@@ -167,6 +172,7 @@
 
         <module>user-two-factor-authenticators/totp</module>
         <module>user-two-factor-authenticators/static-pin</module>
+        <module>dns/powerdns</module>
 
     </modules>
     <dependencies>
@@ -242,7 +248,6 @@
             </activation>
             <modules>
                 <module>api/vmware-sioc</module>
-                <module>backup/veeam</module>
                 <module>hypervisors/vmware</module>
                 <module>network-elements/cisco-vnmc</module>
                 <module>network-elements/nsx</module>

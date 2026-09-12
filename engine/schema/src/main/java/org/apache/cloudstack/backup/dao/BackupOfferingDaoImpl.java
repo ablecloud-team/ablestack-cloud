@@ -22,9 +22,11 @@ import javax.inject.Inject;
 
 import com.cloud.domain.DomainVO;
 import com.cloud.domain.dao.DomainDao;
+import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.response.BackupOfferingResponse;
 import org.apache.cloudstack.backup.BackupOffering;
 import org.apache.cloudstack.backup.BackupProviderNameUtils;
+import org.apache.cloudstack.backup.BackupOfferingDetailsVO;
 import org.apache.cloudstack.backup.BackupOfferingVO;
 
 import com.cloud.dc.DataCenterVO;
@@ -33,7 +35,9 @@ import com.cloud.utils.db.GenericDaoBase;
 import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BackupOfferingDaoImpl extends GenericDaoBase<BackupOfferingVO, Long> implements BackupOfferingDao {
 
@@ -63,6 +67,7 @@ public class BackupOfferingDaoImpl extends GenericDaoBase<BackupOfferingVO, Long
 
         DataCenterVO zone = dataCenterDao.findById(offering.getZoneId());
         List<Long> domainIds = backupOfferingDetailsDao.findDomainIds(offering.getId());
+        List<BackupOfferingDetailsVO> details = backupOfferingDetailsDao.listDetails(offering.getId());
         BackupOfferingResponse response = new BackupOfferingResponse();
         response.setId(offering.getUuid());
         response.setName(offering.getName());
@@ -93,6 +98,14 @@ public class BackupOfferingDaoImpl extends GenericDaoBase<BackupOfferingVO, Long
             response.setRetentionPeriod(offering.getRetentionPeriod());
         }
         response.setProvider(BackupProviderNameUtils.toDisplayName(offering.getProvider()));
+        details.removeIf(backupOfferingDetailsVO -> ApiConstants.DOMAIN_ID.equals(backupOfferingDetailsVO.getName()));
+        Map<String, String> detailString = new HashMap<>();
+        for (BackupOfferingDetailsVO detail : details) {
+            detailString.put(detail.getName(), detail.getValue());
+        }
+        if (!detailString.isEmpty()) {
+            response.setDetails(detailString);
+        }
         response.setCreated(offering.getCreated());
         response.setObjectName("backupoffering");
         return response;

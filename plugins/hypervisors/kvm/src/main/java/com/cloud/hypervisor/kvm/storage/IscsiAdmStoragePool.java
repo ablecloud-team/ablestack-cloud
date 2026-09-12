@@ -208,7 +208,7 @@ public class IscsiAdmStoragePool implements KVMStoragePool {
     }
 
     @Override
-    public Boolean checkingHeartBeat(HAStoragePool pool, HostTO host) {
+    public Boolean hasHeartBeat(HAStoragePool pool, HostTO host) {
         return null;
     }
 
@@ -218,7 +218,7 @@ public class IscsiAdmStoragePool implements KVMStoragePool {
     }
 
     @Override
-    public Boolean vmActivityCheck(HAStoragePool pool, HostTO host, Duration activityScriptTimeout, String volumeUUIDListString, String vmActivityCheckPath, long duration) {
+    public Boolean hasVmActivity(HAStoragePool pool, HostTO host, Duration activityScriptTimeout, String volumeUUIDListString, String vmActivityCheckPath, long duration) {
         return null;
     }
 

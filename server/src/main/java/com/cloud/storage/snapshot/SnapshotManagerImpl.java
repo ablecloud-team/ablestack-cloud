@@ -172,6 +172,7 @@ import com.cloud.utils.DateUtil;
 import com.cloud.utils.DateUtil.IntervalType;
 import com.cloud.utils.NumbersUtil;
 import com.cloud.utils.Pair;
+import com.cloud.storage.clvm.ClvmPoolManager;
 import com.cloud.utils.Ternary;
 import com.cloud.utils.concurrency.NamedThreadFactory;
 import com.cloud.utils.db.DB;
@@ -1742,6 +1743,8 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         boolean isKvmAndFileBasedStorage = isHypervisorKvmAndFileBasedStorage(volume, storagePool);
         boolean backupSnapToSecondary = isBackupSnapshotToSecondaryForZone(volume.getDataCenterId());
 
+        StoragePoolType poolType = volume.getStoragePoolType();
+
         if (isKvmAndFileBasedStorage && backupSnapToSecondary) {
             DataStore imageStore = snapshotSrv.findSnapshotImageStore(snapshot);
             if (imageStore == null) {
@@ -1750,7 +1753,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             snapshot.setImageStore(imageStore);
         }
 
-        updateSnapshotPayload(volume.getPoolId(), payload, isKvmAndFileBasedStorage, clusterId);
+        updateSnapshotPayload(volume.getPoolId(), payload, isKvmAndFileBasedStorage, poolType, clusterId);
 
         snapshot.addPayload(payload);
         try {
@@ -1769,6 +1772,9 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                 if (backupSnapToSecondary) {
                     if (!isKvmAndFileBasedStorage) {
                         backupSnapshotToSecondary(payload.getAsyncBackup(), snapshotStrategy, snapshotOnPrimary, payload.getZoneIds(), payload.getStoragePoolIds());
+                        if (!payload.getAsyncBackup() && ClvmPoolManager.isClvmPoolType(storagePool.getPoolType())) {
+                            _snapshotStoreDao.removeBySnapshotStore(snapshotId, snapshotOnPrimary.getDataStore().getId(), snapshotOnPrimary.getDataStore().getRole());
+                        }
                     } else {
                         postSnapshotDirectlyToSecondary(snapshot, snapshotOnPrimary, snapshotId);
                     }
@@ -1799,7 +1805,13 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                 postCreateSnapshot(volume.getId(), snapshotId, payload.getSnapshotPolicyId(), clusterId);
                 snapshotZoneDao.addSnapshotToZone(snapshotId, snapshot.getDataCenterId());
 
-                DataStoreRole dataStoreRole = backupSnapToSecondary ? snapshotHelper.getDataStoreRole(snapshot) : DataStoreRole.Primary;
+                DataStoreRole dataStoreRole;
+                if (payload.getAsyncBackup() && backupSnapToSecondary && !isKvmAndFileBasedStorage) {
+                    dataStoreRole = DataStoreRole.Primary;
+                } else {
+                    dataStoreRole = backupSnapToSecondary ? snapshotHelper.getDataStoreRole(snapshot) : DataStoreRole.Primary;
+                }
+
                 List<SnapshotDataStoreVO> snapshotStoreRefs = _snapshotStoreDao.listReadyBySnapshot(snapshotId, dataStoreRole);
                 if (CollectionUtils.isEmpty(snapshotStoreRefs)) {
                     throw new CloudRuntimeException(String.format("Could not find snapshot %s on [%s]", snapshot.getSnapshotVO(), snapshot.getLocationType()));
@@ -1941,6 +1953,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
                     if (backupedSnapshot != null) {
                         snapshotStrategy.postSnapshotCreation(snapshotOnPrimary);
+                        removeClvmPrimarySnapshotStoreRefIfNeeded(snapshotOnPrimary);
                         copyNewSnapshotToZones(snapshotOnPrimary.getId(), snapshotOnPrimary.getDataCenterId(), zoneIds);
                     }
                 }
@@ -1972,7 +1985,15 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         }
     }
 
-    private void updateSnapshotPayload(long storagePoolId, CreateSnapshotPayload payload, boolean isKvmAndFileBasedStorage, Long clusterId) {
+    void removeClvmPrimarySnapshotStoreRefIfNeeded(SnapshotInfo snapshotOnPrimary) {
+        DataStore dataStore = snapshotOnPrimary.getDataStore();
+        StoragePoolVO pool = _storagePoolDao.findById(dataStore.getId());
+        if (pool != null && ClvmPoolManager.isClvmPoolType(pool.getPoolType())) {
+            _snapshotStoreDao.removeBySnapshotStore(snapshotOnPrimary.getId(), dataStore.getId(), dataStore.getRole());
+        }
+    }
+
+    private void updateSnapshotPayload(long storagePoolId, CreateSnapshotPayload payload, boolean isKvmAndFileBasedStorage, StoragePoolType poolType, Long clusterId) {
         StoragePoolVO storagePoolVO = _storagePoolDao.findById(storagePoolId);
 
         if (storagePoolVO.isManaged()) {
@@ -2142,19 +2163,6 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         Account owner = _accountMgr.getAccount(volume.getAccountId());
 
         ResourceType storeResourceType = getStoreResourceType(volume.getDataCenterId(), locationType);
-        try {
-            _resourceLimitMgr.checkResourceLimit(owner, ResourceType.snapshot);
-            _resourceLimitMgr.checkResourceLimit(owner, ResourceType.secondary_storage, new Long(volume.getSize()).longValue());
-        } catch (ResourceAllocationException e) {
-            if (snapshotType != Type.MANUAL) {
-                String msg = String.format("Snapshot resource limit exceeded for account %s. Failed to create recurring snapshots", owner);
-                logger.warn(msg);
-                _alertMgr.sendAlert(AlertManager.AlertType.ALERT_TYPE_UPDATE_RESOURCE_COUNT, 0L, 0L, msg, "Snapshot resource limit exceeded for account id : " + owner.getId()
-                        + ". Failed to create recurring snapshots; please use updateResourceLimit to increase the limit");
-            }
-            throw e;
-        }
-
         // Determine the name for this snapshot
         // Snapshot Name: VMInstancename + volumeName + timeString
         String timeString = DateUtil.getDateDisplayString(DateUtil.GMT_TIMEZONE, new Date(), DateUtil.YYYYMMDD_FORMAT);

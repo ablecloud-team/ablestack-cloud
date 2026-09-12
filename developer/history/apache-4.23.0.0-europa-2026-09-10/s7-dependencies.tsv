@@ -1,0 +1,23 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+contract	owner	requirement	validation
+DB	S8 #999	Keep independent S7 checkpoint; do not rewrite Complete phases	Fresh/014/S6 and repeat plus committed-DDL retry passed; real operating DB and restore NOT_RUN #1025
+UI/API	S8 #999	Preserve API keys/RBAC/KMS/Quota/DNS contract and Europa Storage Service/FTCTL/DR/Desktop/Automation menus	UI380; real API metadata and theme lifecycle; final Chromium/Actions in PR #1039
+Authentication	S8 #999	Theme/static login domain and independent password/OAuth inputs; no missing MS cookie overwrite	External IdP, custom hostnames/TLS, multi-node login and real tenant configuration NOT_RUN #1025
+UI physical workflows	S8 #999	Ready image deploy, single/bulk deletion, account/project links, Korean light/dark, volume/template/network flows	Software regressions and fixture browser; real resources and provider failures NOT_RUN #1025
+Certificates	S2 #990 / S8 #999	a7f9756d6267 realhostip cleanup remains Pending	Review certificate resources, SystemVM consumers and existing settings together before final release
+Release	S2 #990 / S8 #999	463f8d029470 final version numbers remain Pending	Keep Snapshot and current buildVersion until final version/stamping/artifact/restore gates are fixed

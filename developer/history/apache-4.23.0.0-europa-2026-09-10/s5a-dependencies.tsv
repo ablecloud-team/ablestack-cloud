@@ -1,0 +1,23 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+source_or_contract	owner	status	handoff
+ce9793c0bef6e33034a1c23bbbca95d7adcccbd7	#994	Pending	CLVM enhancements Apache #12617 remain S5B; preserve S5A four-family opt-in heartbeat, mapped ISO slots and provider-aware import cleanup.
+4d54125bb62de999cba3b3b05622a391fc564985	#994	Pending	CLVM migration volume mapping/disk path matching must compose with retained Europa migration candidate and data-preservation rules.
+8a42d17cf26ed9099543bf71edcfb1fff8fc9f88	#994	Pending	CLVM/ISO same-host volume creation must compose with S5A primary ISO compatibility and ConfigDrive slot guard.
+5c4bc486d29362a6aac530d0534fe78b4b84a77b	#997	Pending	CKS dynamic live offering support consumes S5A requested RAM, fixed offering reachability and capacity/constraint validation.
+europa-4.23-s5a-v1	#994,#996,#997	Handoff	Future same-version DB changes require a new checkpoint; do not modify completed S5A SQL expecting it to replay.
+hardware-scenarios	#1025,#999	Deferred to final integration	Run S5A physical KVM/Ceph/FTCTL/VMware matrix after all code merges; this is not a feature PR merge prerequisite.

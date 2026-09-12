@@ -43,4 +43,5 @@ public interface BackupDao extends GenericDao<BackupVO, Long> {
     void loadDetails(BackupVO backup);
     void saveDetails(BackupVO backup);
     List<BackupVO> listBySchedule(Long backupScheduleId);
+    BackupVO findLatestByStatusAndVmId(Backup.Status status, long vmId);
 }

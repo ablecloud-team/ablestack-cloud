@@ -1,0 +1,27 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+workflow	run_id	head_sha	tested_merge_sha	conclusion	url	evidence
+PR Merge Conflict Check	34472435406	e086c2433302499068ccfea6ae41b3e642554297	-	success	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34472435406	No conflicts
+Coverage Check	34472435550	e086c2433302499068ccfea6ae41b3e642554297	-	skipped	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34472435550	Skipped by existing workflow conditions; not counted as PASS
+Sonar Quality Check	34472435325	e086c2433302499068ccfea6ae41b3e642554297	-	skipped	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34472435325	Skipped by existing workflow conditions; not counted as PASS
+Simulator CI	34472435442	e086c2433302499068ccfea6ae41b3e642554297	-	skipped	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34472435442	Skipped by existing workflow conditions; not counted as PASS
+License Check	34472435328	e086c2433302499068ccfea6ae41b3e642554297	e6dc42759bf6d61b9210c8b5d062632838f139be	success	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34472435328	RAT passed
+Lint	34472435625	e086c2433302499068ccfea6ae41b3e642554297	e6dc42759bf6d61b9210c8b5d062632838f139be	failure	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34472435625	14 baseline failure categories; 0 new-path diagnostics
+UI Build	34472435576	e086c2433302499068ccfea6ae41b3e642554297	e6dc42759bf6d61b9210c8b5d062632838f139be	success	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34472435576	Official UI lint/test/production build passed
+Build	34472435417	e086c2433302499068ccfea6ae41b3e642554297	e6dc42759bf6d61b9210c8b5d062632838f139be	success	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34472435417	172 reactors; 12485 tests / 0 failures / 0 errors / 17 skipped
+Rocky 9.7 RPM Packaging	34472435569	e086c2433302499068ccfea6ae41b3e642554297	e6dc42759bf6d61b9210c8b5d062632838f139be	success	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34472435569	Compatibility packaging passed; artifact 10150969736
+Rocky 9.8 RPM Packaging	34472435525	e086c2433302499068ccfea6ae41b3e642554297	e6dc42759bf6d61b9210c8b5d062632838f139be	success	https://github.com/ablecloud-team/ablestack-cloud/actions/runs/34472435525	noredist x86_64 packaging passed; s3-artifact-results.tsv

@@ -17,11 +17,42 @@
 package com.cloud.upgrade.dao;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
+
+import com.cloud.utils.exception.CloudRuntimeException;
 
 public class DbUpgradeUtils {
 
     private static DatabaseAccessObject dao = new DatabaseAccessObject();
+
+    public static void dropIndexIfExists(Connection conn, String schema, String table, String index) {
+        for (String identifier : new String[]{schema, table, index}) {
+            if (!identifier.matches("[A-Za-z0-9_]+")) {
+                throw new IllegalArgumentException("Invalid SQL identifier");
+            }
+        }
+        try (PreparedStatement query = conn.prepareStatement("SELECT 1 FROM information_schema.statistics " +
+                "WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND INDEX_NAME = ? LIMIT 1")) {
+            query.setString(1, schema);
+            query.setString(2, table);
+            query.setString(3, index);
+            try (ResultSet result = query.executeQuery()) {
+                if (!result.next()) {
+                    return;
+                }
+            }
+            try (Statement statement = conn.createStatement()) {
+                statement.execute("ALTER TABLE `" + schema + "`.`" + table + "` DROP INDEX `" + index + "`");
+            }
+        } catch (SQLException e) {
+            throw new CloudRuntimeException("Unable to drop index " + schema + "." + table + "." + index, e);
+        }
+    }
+
 
     public static void addIndexIfNeeded(Connection conn, String tableName, String... columnNames) {
         String indexName = dao.generateIndexName(tableName, columnNames);

@@ -75,7 +75,7 @@ public interface HighAvailabilityManager extends Manager {
         + " which are registered for the HA event that were successful and are now ready to be purged.",
         true, Cluster);
 
-    public static final ConfigKey<Boolean> KvmHAFenceHostIfHeartbeatFailsOnStorage = new ConfigKey<>("Advanced", Boolean.class, "kvm.ha.fence.on.storage.heartbeat.failure", "false",
+    ConfigKey<Boolean> KvmHAFenceHostIfHeartbeatFailsOnStorage = new ConfigKey<>("Advanced", Boolean.class, "kvm.ha.fence.on.storage.heartbeat.failure", "false",
             "Proceed fencing the host even the heartbeat failed for only one storage pool", false, ConfigKey.Scope.Zone);
 
     public static final ConfigKey<Boolean> KvmHACheckOnStorage = new ConfigKey<>("Advanced", Boolean.class, "kvm.ha.on.storage.heartbeat", "false",

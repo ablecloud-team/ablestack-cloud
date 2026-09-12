@@ -23,6 +23,7 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -39,6 +40,10 @@ import org.apache.cloudstack.util.HypervisorTypeConverter;
 @Entity
 @Table(name = "volume_view")
 public class VolumeJoinVO extends BaseViewWithTagInformationVO implements ControlledViewEntity {
+
+    @Id
+    @Column(name = "id", updatable = false, nullable = false)
+    private long id;
 
     @Column(name = "uuid")
     private String uuid;
@@ -294,6 +299,18 @@ public class VolumeJoinVO extends BaseViewWithTagInformationVO implements Contro
 
     @Column(name = "used_physical_size")
     private Long usedPhysicalSize;
+
+    @Column(name = "kms_key_id")
+    private Long kmsKeyId;
+
+    @Column(name = "kms_key_uuid")
+    private String kmsKeyUuid;
+
+    @Column(name = "kms_key_name")
+    private String kmsKeyName;
+
+    @Column(name = "kms_wrapped_key_id")
+    private Long kmsWrappedKeyId;
 
     @Column(name = "delete_protection")
     protected Boolean deleteProtection;
@@ -655,6 +672,22 @@ public class VolumeJoinVO extends BaseViewWithTagInformationVO implements Contro
 
     public Long getUsedPhysicalSize() {
         return usedPhysicalSize;
+    }
+
+    public Long getKmsKeyId() {
+        return kmsKeyId;
+    }
+
+    public String getKmsKeyName() {
+        return kmsKeyName;
+    }
+
+    public String getKmsKeyUuid() {
+        return kmsKeyUuid;
+    }
+
+    public Long getKmsWrappedKeyId() {
+        return kmsWrappedKeyId;
     }
 
     public Boolean getDeleteProtection() {

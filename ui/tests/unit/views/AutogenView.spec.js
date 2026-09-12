@@ -195,6 +195,46 @@ const { ResizeObserver, ls } = window
 router.push('/')
 
 describe('Views > AutogenView.vue', () => {
+  describe('resource name confirmation', () => {
+    const confirmation = {
+      api: 'deleteProject',
+      requireNameConfirmation: true,
+      groupAction: true,
+      invokedAsGroupAction: false,
+      label: 'label.delete'
+    }
+
+    it('blocks a single deletion even when unrelated rows remain selected', async () => {
+      await wrapper.setData({ currentAction: confirmation, resource: { name: 'Europa' }, selectedRowKeys: ['other'] })
+      expect(wrapper.vm.requiresNameConfirmation).toBe(true)
+      expect(wrapper.vm.isSubmitDisabled).toBe(true)
+      const submit = jest.spyOn(wrapper.vm, 'execSubmit').mockImplementation(() => {})
+      await wrapper.vm.handleSubmit({ preventDefault: jest.fn() })
+      expect(submit).not.toHaveBeenCalled()
+      await wrapper.setData({ actionConfirmText: 'europa' })
+      expect(wrapper.vm.isSubmitDisabled).toBe(true)
+      await wrapper.setData({ actionConfirmText: ' Europa ' })
+      expect(wrapper.vm.isSubmitDisabled).toBe(false)
+      submit.mockRestore()
+    })
+
+    it('uses the existing bulk confirmation only for an actual group invocation', async () => {
+      await wrapper.setData({ currentAction: { ...confirmation, invokedAsGroupAction: true }, selectedRowKeys: ['id'], resource: {} })
+      expect(wrapper.vm.requiresNameConfirmation).toBe(false)
+      expect(wrapper.vm.isSubmitDisabled).toBe(false)
+      await wrapper.setData({ selectedRowKeys: [] })
+      expect(wrapper.vm.isSubmitDisabled).toBe(true)
+    })
+
+    it('clears the typed name when closing and does not affect other actions', async () => {
+      await wrapper.setData({ currentAction: confirmation, actionConfirmText: 'Europa', resource: { name: 'Europa' } })
+      wrapper.vm.closeAction()
+      expect(wrapper.vm.actionConfirmText).toBe('')
+      await wrapper.setData({ currentAction: { api: 'startVirtualMachine' } })
+      expect(wrapper.vm.isSubmitDisabled).toBe(false)
+    })
+  })
+
   beforeEach(async () => {
     jest.clearAllMocks()
     jest.spyOn(console, 'warn').mockImplementation(() => {})

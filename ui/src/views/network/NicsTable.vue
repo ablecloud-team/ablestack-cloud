@@ -44,7 +44,7 @@
         <strong>{{ $t('label.traffictype') }}</strong> : {{ record.traffictype }}
       </a-list-item>
       <a-list-item v-if="record.linkstate !== false && record.secondaryip && record.secondaryip.length > 0 && record.type !== 'L2'">
-        <strong>{{ $t('label.secondaryips') }}</strong> : {{ record.secondaryip.map(x => x.ipaddress).join(', ') }}
+        <strong>{{ $t('label.secondaryips') }}</strong> : {{ record.secondaryip.map(secondaryIp => secondaryIp.description ? (secondaryIp.ipaddress + ': ' + secondaryIp.description) : secondaryIp.ipaddress).join(', ') }}
       </a-list-item>
       <a-list-item v-if="record.linkstate !== false && record.ip6address">
         <strong>{{ $t('label.ip6address') }}</strong> : {{ record.ip6address }}
@@ -60,6 +60,9 @@
       </a-list-item>
       <a-list-item v-if="record.isolationuri">
         <strong>{{ $t('label.isolationuri') }}</strong> : {{ record.isolationuri }}
+      </a-list-item>
+      <a-list-item v-if="record.nicdnsname">
+        <strong>{{ $t('label.dns.name') }}</strong> : {{ record.nicdnsname }}
       </a-list-item>
     </a-list>
     </template>

@@ -1,0 +1,25 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+dependency	owner_issue	handoff	status
+same-version-schema	#996,#997,#998	Preserve Complete S4/S5A/S5B journals. Add a new named phase for later same-4.23 DDL; keep KBOSS view after its table dependencies.	Pending future features
+provider-api	#995,#996	Canonical takeBackup(vm,quiesce,isolated,scheduleId) plus legacy overloads; retain NAS/Commvault/NetBackup/BX dispatch, EXTERNAL schedules, retention capabilities and persistent NetBackup restore state.	Handoff
+vm-start-interface	#996,#997	Legacy VM start four/six parameters remain compatible; seven-argument bool keeps isExplicitHost, quickRestore is separate. FTCTL/DR must never accidentally enable quick restore.	Handoff
+storage-encryption	#996	Integrate remaining KMS/encryption policy on top of current SharedMountPoint/LINSTOR snapshot/migration, QEMU10.1 format handling, per-pool API token/TLS, key-file lifecycle and RBD parent/thin safety.	Pending S5C
+resources-and-acl	#996,#997	Keep S4 CheckedReservation, domain/account usage, legacy provider resource counts, S3 API key/user/project ACL and async secret encryption. KBOSS validation resource counting is explicitly scoped by its configuration.	Handoff
+e2012133599af9e2866e1cd58cc3d70081710a46	#990,#997	ONTAP README table portion applied in S5B. Network Extension README and source8996286a95ce are not present yet; whole source remains Pending until that part is reviewed with its feature.	Partial; Pending
+template-upload-and-replicas	#999,#1025	All-zone single pivot fallback is automated. Test actual cross-zone use, SSVM certificate retry, concurrent cap convergence and final Ready copy retention after all code merges.	Physical deferred
+veeam-kboss-clvm-providers	#999,#1025	Run supported product/version matrix, backup-chain data checksums, lock/migration/ISO and failure cleanup against final Actions RPM. No hardware PASS claimed in S5B.	Physical deferred

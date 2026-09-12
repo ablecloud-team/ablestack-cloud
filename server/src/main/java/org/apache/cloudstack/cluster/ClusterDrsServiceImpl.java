@@ -54,6 +54,8 @@ import com.cloud.utils.db.Transaction;
 import com.cloud.utils.db.TransactionCallback;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.VMInstanceVO;
+import com.cloud.vm.VMInstanceDetailVO;
+import com.cloud.vm.dao.VMInstanceDetailsDao;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.VmDetailConstants;
 import com.cloud.vm.dao.VMInstanceDao;
@@ -75,7 +77,6 @@ import org.apache.cloudstack.framework.jobs.AsyncJobManager;
 import org.apache.cloudstack.framework.jobs.impl.AsyncJobVO;
 import org.apache.cloudstack.jobs.JobInfo;
 import org.apache.cloudstack.managed.context.ManagedContextTimerTask;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
 import javax.inject.Inject;
@@ -86,6 +87,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -125,6 +127,9 @@ public class ClusterDrsServiceImpl extends ManagerBase implements ClusterDrsServ
 
     @Inject
     ServiceOfferingDao serviceOfferingDao;
+
+    @Inject
+    VMInstanceDetailsDao userVmDetailsDao;
 
     @Inject
     ManagementServer managementServer;
@@ -452,10 +457,14 @@ public class ClusterDrsServiceImpl extends ManagerBase implements ClusterDrsServ
         double improvement = 0;
         Pair<VirtualMachine, Host> bestMigration = new Pair<>(null, null);
 
+        List<Long> vmIds = vmList.stream().map(VirtualMachine::getId).collect(Collectors.toList());
+        Set<Long> skipDrsVmIds = userVmDetailsDao.listDetailsForResourceIdsAndKey(vmIds, VmDetailConstants.SKIP_DRS)
+                .stream().filter(d -> "true".equalsIgnoreCase(d.getValue()))
+                .map(VMInstanceDetailVO::getResourceId).collect(Collectors.toSet());
+
         for (VirtualMachine vm : vmList) {
             if (vm.getType().isUsedBySystem() || vm.getState() != VirtualMachine.State.Running ||
-                    (MapUtils.isNotEmpty(vm.getDetails()) &&
-                            vm.getDetails().get(VmDetailConstants.SKIP_DRS).equalsIgnoreCase("true"))
+                    skipDrsVmIds.contains(vm.getId())
             ) {
                 continue;
             }

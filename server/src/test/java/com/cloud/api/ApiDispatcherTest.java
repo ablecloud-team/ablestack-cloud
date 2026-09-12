@@ -63,6 +63,23 @@ public class ApiDispatcherTest {
         Assert.assertEquals(CallContext.current().getEventResourceType(), resourceType);
     }
 
+    @Test
+    public void isoAttachAndDetachShareOneJobSlotPerVm() throws Exception {
+        org.apache.cloudstack.framework.jobs.AsyncJobManager jobs = Mockito.mock(org.apache.cloudstack.framework.jobs.AsyncJobManager.class);
+        ReflectionTestUtils.setField(apiDispatcher, "_asyncMgr", jobs);
+        for (org.apache.cloudstack.api.BaseAsyncCmd command : new org.apache.cloudstack.api.BaseAsyncCmd[]{
+                new org.apache.cloudstack.api.command.user.iso.AttachIsoCmd(),
+                new org.apache.cloudstack.api.command.user.iso.DetachIsoCmd()}) {
+            org.apache.cloudstack.api.BaseAsyncCmd spy = Mockito.spy(command);
+            org.apache.cloudstack.framework.jobs.AsyncJob job = Mockito.mock(org.apache.cloudstack.framework.jobs.AsyncJob.class);
+            spy.setJob(job);
+            ReflectionTestUtils.setField(spy, "virtualMachineId", 993L);
+            apiDispatcher.dispatch(spy, java.util.Map.of(org.apache.cloudstack.api.ApiConstants.CTX_START_EVENT_ID, "1"), false);
+            Mockito.verify(jobs).syncAsyncJobExecution(job, org.apache.cloudstack.api.BaseAsyncCmd.vmIsoSyncObject, 993L, 1L);
+            Mockito.verify(spy, Mockito.never()).execute();
+        }
+    }
+
     protected class TesBaseCmd extends BaseCmd {
 
         @Override

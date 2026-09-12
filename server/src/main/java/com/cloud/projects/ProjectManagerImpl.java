@@ -541,7 +541,7 @@ public class ProjectManagerImpl extends ManagerBase implements ProjectManager, C
 
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_PROJECT_USER_ADD, eventDescription = "adding user to project", async = true)
-    public boolean addUserToProject(Long projectId, String username, String email, Long projectRoleId, Role projectRole) {
+    public boolean addUserToProject(Long projectId, String username, String email, Long projectRoleId, Role projectRole) throws ResourceAllocationException {
         Account caller = CallContext.current().getCallingAccount();
 
         Project project = getProject(projectId);
@@ -617,6 +617,37 @@ public class ProjectManagerImpl extends ManagerBase implements ProjectManager, C
             }
             logger.warn("Failed to add user to project: {}", project);
             return false;
+        }
+    }
+
+    /**
+     * Transfers all project associations and project invitations from one user to another.
+     *
+     * @param oldUser the user whose project associations are being transferred
+     * @param newUser the user to whom the project associations are being transferred
+     * @throws ResourceAllocationException if there is an issue with allocating the required project resources to the new user
+     */
+    @Override
+    public void moveProjectAssociationsToUser(User oldUser, User newUser) throws ResourceAllocationException {
+        _projectInvitationDao.move(oldUser, newUser);
+
+        List<ProjectAccountVO> projectAccounts = _projectAccountDao.listBy(null, oldUser.getAccountId(), oldUser.getId());
+        if (projectAccounts.isEmpty()) {
+            return;
+        }
+
+        Account oldAccount = _accountDao.findById(oldUser.getAccountId());
+        Account newAccount = _accountDao.findById(newUser.getAccountId());
+        long requiredProjectsAmount = oldAccount.getId() != newAccount.getId()
+                ? projectAccounts.stream().filter(pa -> pa.getAccountRole() == ProjectAccount.Role.Admin).count()
+                : 0L;
+
+        try (CheckedReservation projectReservation = new CheckedReservation(newAccount, ResourceType.project, null, null, requiredProjectsAmount, reservationDao, _resourceLimitMgr)) {
+            _projectAccountDao.move(oldUser, newUser);
+            if (requiredProjectsAmount > 0) {
+                _resourceLimitMgr.incrementResourceCount(newAccount.getId(), ResourceType.project, requiredProjectsAmount);
+                _resourceLimitMgr.decrementResourceCount(oldAccount.getId(), ResourceType.project, requiredProjectsAmount);
+            }
         }
     }
 
@@ -807,7 +838,7 @@ public class ProjectManagerImpl extends ManagerBase implements ProjectManager, C
 
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_PROJECT_ACCOUNT_ADD, eventDescription = "adding account to project", async = true)
-    public boolean addAccountToProject(long projectId, String accountName, String email, Long projectRoleId, Role projectRoleType) {
+    public boolean addAccountToProject(long projectId, String accountName, String email, Long projectRoleId, Role projectRoleType) throws ResourceAllocationException {
         Account caller = CallContext.current().getCallingAccount();
 
         //check that the project exists
@@ -1025,48 +1056,41 @@ public class ProjectManagerImpl extends ManagerBase implements ProjectManager, C
         //verify permissions
         _accountMgr.checkAccess(caller, AccessType.ModifyProject, true, _accountMgr.getAccount(project.getProjectAccountId()));
 
-        //Check if the user exists in the project
-        ProjectAccount projectUser =  _projectAccountDao.findByProjectIdUserId(projectId, user.getAccountId(), user.getId());
-        if (projectUser == null) {
-            deletePendingInvite(projectId, user);
+        boolean success = cleanupProjectsForUser(project, user);
+        if (!success) {
             InvalidParameterValueException ex = new InvalidParameterValueException("User " + user.getUsername() + " is not assigned to the project with specified id");
-            // Use the projectVO object and not the projectAccount object to inject the projectId.
             ex.addProxyObject(project.getUuid(), "projectId");
             throw ex;
         }
-        return deleteUserFromProject(projectId, user);
+        return true;
     }
 
-    private void deletePendingInvite(Long projectId, User user) {
-        ProjectInvitation invite = _projectInvitationDao.findByUserIdProjectId(user.getId(), user.getAccountId(),  projectId);
-        if (invite != null) {
-            boolean success = _projectInvitationDao.remove(invite.getId());
-            if (success){
-                logger.info("Successfully deleted invite pending for the user : {}", user);
-            } else {
-                logger.info("Failed to delete project invite for user: {}", user);
-            }
-        }
-    }
+    /**
+     * Cleans up project associations and invitations for a specified user in a given project.
+     *
+     * @param project the project from which the user is being cleaned up; if null, cleanup applies to all projects associated with the user
+     * @param user the user whose project associations and invitations are being cleaned up
+     * @return true if any project accounts associated with the user were removed, false otherwise
+     */
+    @Override
+    public boolean cleanupProjectsForUser(Project project, User user) {
+        return Transaction.execute((TransactionCallback<Boolean>) status -> {
+            Long projectId = project != null ? project.getId() : null;
+            long userId = user.getId();
+            long accountId = user.getAccountId();
 
-    @DB
-    private boolean deleteUserFromProject(Long projectId, User user) {
-        return Transaction.execute(new TransactionCallback<Boolean>() {
-            @Override
-            public Boolean doInTransaction(TransactionStatus status) {
-                boolean success = true;
-                ProjectAccountVO projectAccount = _projectAccountDao.findByProjectIdUserId(projectId, user.getAccountId(), user.getId());
-                success = _projectAccountDao.remove(projectAccount.getId());
+            _projectInvitationDao.removeBy(projectId, accountId, userId);
 
-                if (success) {
-                    logger.debug("Removed user {} from project. Removing any invite sent to the user", user);
-                    ProjectInvitation invite = _projectInvitationDao.findByUserIdProjectId(user.getId(), user.getAccountId(),  projectId);
-                    if (invite != null) {
-                        success = success && _projectInvitationDao.remove(invite.getId());
-                    }
+            List<ProjectAccountVO> projectAccounts = _projectAccountDao.listBy(projectId, accountId, userId);
+            for (ProjectAccountVO projectAccount : projectAccounts) {
+                _projectAccountDao.remove(projectAccount.getId());
+                if (projectAccount.getAccountRole() == Role.Admin) {
+                    _resourceLimitMgr.decrementResourceCount(accountId, ResourceType.project);
                 }
-                return success;
+                logger.debug("Removed user [{}] from project [{}].", user, projectAccount.getProjectId());
             }
+
+            return !projectAccounts.isEmpty();
         });
     }
 

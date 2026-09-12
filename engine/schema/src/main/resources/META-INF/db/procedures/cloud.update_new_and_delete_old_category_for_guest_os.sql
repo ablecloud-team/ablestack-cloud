@@ -17,6 +17,7 @@
 
 -- Move existing guest OS whose category will be deleted to Other category
 DROP PROCEDURE IF EXISTS `cloud`.`UPDATE_NEW_AND_DELETE_OLD_CATEGORY_FOR_GUEST_OS`;
+DELIMITER $$
 CREATE PROCEDURE `cloud`.`UPDATE_NEW_AND_DELETE_OLD_CATEGORY_FOR_GUEST_OS`(IN to_category_name VARCHAR(255), IN from_category_name VARCHAR(255))
 BEGIN
     DECLARE done INT DEFAULT 0
@@ -32,4 +33,5 @@ BEGIN
     SET `category_id` = to_category_id
     WHERE `category_id` = (SELECT `id` FROM `cloud`.`guest_os_category` WHERE `name` = from_category_name)
 ;   UPDATE `cloud`.`guest_os_category` SET `removed`=now() WHERE `name` = from_category_name
-; END;
+; END$$
+DELIMITER ;

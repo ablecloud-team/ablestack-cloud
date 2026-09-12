@@ -72,7 +72,7 @@ public interface OrchestrationService {
                                               @QueryParam("network-nic-map") Map<String, List<NicProfile>> networkNicMap, @QueryParam("deploymentplan") DeploymentPlan plan,
                                               @QueryParam("root-disk-size") Long rootDiskSize, @QueryParam("extra-dhcp-option-map") Map<String, Map<Integer, String>> extraDhcpOptionMap,
                                               @QueryParam("datadisktemplate-diskoffering-map") Map<Long, DiskOffering> datadiskTemplateToDiskOfferingMap, @QueryParam("disk-offering-id") Long diskOfferingId,
-                                              @QueryParam("root-disk-offering-id") Long rootDiskOfferingId, List<VmDiskInfo> dataDiskInfoList, Volume volume, Snapshot snapshot) throws InsufficientCapacityException;
+                                              @QueryParam("root-disk-offering-id") Long rootDiskOfferingId, @QueryParam("root-disk-kms-key-id") Long rootDiskKmsKeyId, List<VmDiskInfo> dataDiskInfoList, Volume volume, Snapshot snapshot) throws InsufficientCapacityException;
 
     @POST
     VirtualMachineEntity createVirtualMachineFromScratch(@QueryParam("id") String id, @QueryParam("owner") String owner, @QueryParam("iso-id") String isoId,
@@ -82,7 +82,7 @@ public interface OrchestrationService {
                                                          @QueryParam("compute-tags") List<String> computeTags, @QueryParam("root-disk-tags") List<String> rootDiskTags,
                                                          @QueryParam("network-nic-map") Map<String, List<NicProfile>> networkNicMap, @QueryParam("deploymentplan") DeploymentPlan plan,
                                                          @QueryParam("extra-dhcp-option-map") Map<String,  Map<Integer, String>> extraDhcpOptionMap, @QueryParam("disk-offering-id") Long diskOfferingId,
-                                                         @QueryParam("data-disks-offering-info") List<VmDiskInfo> dataDiskInfoList, Volume volume, Snapshot snapshot) throws InsufficientCapacityException;
+                                                         @QueryParam("root-disk-kms-key-id") Long rootDiskKmsKeyId, @QueryParam("data-disks-offering-info") List<VmDiskInfo> dataDiskInfoList, Volume volume, Snapshot snapshot) throws InsufficientCapacityException;
 
     @POST
     NetworkEntity createNetwork(String id, String name, String domainName, String cidr, String gateway);
@@ -100,4 +100,22 @@ public interface OrchestrationService {
     TemplateEntity registerTemplate(String name, URL path, String os, Hypervisor hypervisor);
 
     VirtualMachineEntity getVirtualMachine(@QueryParam("id") String id);
+
+    /** Preserve pre-KMS Europa callers without selecting a KMS key. */
+    default VirtualMachineEntity createVirtualMachine(String id, String owner, String templateId, String hostName, String displayName, String hypervisor, int cpu, int speed,
+            long memory, Map<String, String> customParameters, Long diskSize, List<String> computeTags, List<String> rootDiskTags, Map<String, List<NicProfile>> networkNicMap,
+            DeploymentPlan plan, Long rootDiskSize, Map<String, Map<Integer, String>> extraDhcpOptionMap, Map<Long, DiskOffering> datadiskTemplateToDiskOfferingMap,
+            Long diskOfferingId, Long rootDiskOfferingId, List<VmDiskInfo> dataDiskInfoList, Volume volume, Snapshot snapshot) throws InsufficientCapacityException {
+        return createVirtualMachine(id, owner, templateId, hostName, displayName, hypervisor, cpu, speed, memory, customParameters, diskSize, computeTags, rootDiskTags,
+            networkNicMap, plan, rootDiskSize, extraDhcpOptionMap, datadiskTemplateToDiskOfferingMap, diskOfferingId, rootDiskOfferingId, null, dataDiskInfoList, volume, snapshot);
+    }
+
+    /** Preserve pre-KMS Europa callers without selecting a KMS key. */
+    default VirtualMachineEntity createVirtualMachineFromScratch(String id, String owner, String isoId, String hostName, String displayName, String hypervisor, String os, int cpu,
+            int speed, long memory, Map<String, String> customParameters, Long diskSize, List<String> computeTags, List<String> rootDiskTags, Map<String,
+            List<NicProfile>> networkNicMap, DeploymentPlan plan, Map<String,  Map<Integer, String>> extraDhcpOptionMap, Long diskOfferingId, List<VmDiskInfo> dataDiskInfoList,
+            Volume volume, Snapshot snapshot) throws InsufficientCapacityException {
+        return createVirtualMachineFromScratch(id, owner, isoId, hostName, displayName, hypervisor, os, cpu, speed, memory, customParameters, diskSize, computeTags, rootDiskTags,
+            networkNicMap, plan, extraDhcpOptionMap, diskOfferingId, null, dataDiskInfoList, volume, snapshot);
+    }
 }
