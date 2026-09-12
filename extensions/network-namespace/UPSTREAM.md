@@ -489,6 +489,7 @@ chains: `CS_EXTNET_42_PR` (nat PREROUTING), `CS_EXTNET_42_POST` (nat
 POSTROUTING), and `CS_EXTNET_FWD_42` (filter FORWARD).
 
 > **Note on iptables chains:**
+>
 > | Chain | Table | Purpose |
 > |-------|-------|---------|
 > | `CS_EXTNET_<id>_PR`         | `nat`    | PREROUTING DNAT (port-forward, static-NAT) |
