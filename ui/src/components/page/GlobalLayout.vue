@@ -18,7 +18,7 @@
 <template>
   <div>
     <announcement-banner ref="announceRef" />
-    <AutoAlertBanner ref="autoRef" />
+    <AutoAlertBanner v-if="canDiscoverWallAlerts" :key="$store.state.user.discoveryGeneration" ref="autoRef" />
 
     <a-affix v-if="isShutdown" :offsetTop="0">
       <a-alert
@@ -166,6 +166,7 @@ import Setting from '@/components/view/Setting.vue'
 import EventSidebar from '@/components/view/EventSidebar.vue'
 import AnnouncementBanner from '@/components/header/AnnouncementBanner.vue'
 import AutoAlertBanner from '@/components/header/AutoAlertBanner.vue'
+import { hasDiscoveryApi } from '@/utils/optionalDiscovery'
 
 const HEADER_FIXED_PX = 78
 
@@ -200,6 +201,7 @@ export default {
     }
   },
   computed: {
+    canDiscoverWallAlerts () { return hasDiscoveryApi(this.$store.getters.apis, 'listWallAlertRules') },
     ...mapState({
       mainMenu: state => state.permission.addRouters
     }),

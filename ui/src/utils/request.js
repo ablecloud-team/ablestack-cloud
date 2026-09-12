@@ -36,6 +36,11 @@ const err = (error) => {
   }
 
   const response = error.response
+  // Optional discovery must not log out a valid session on transport/service
+  // failures. An actual authentication failure still follows the normal path.
+  if (error.config?.optionalDiscovery && response?.status !== 401) {
+    return Promise.reject(error)
+  }
   let countNotify = store.getters.countNotify
   if (response) {
     console.log(response)

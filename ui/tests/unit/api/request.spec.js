@@ -51,3 +51,23 @@ describe('request failure session handling', () => {
     expect(router.push).toHaveBeenCalledWith({ path: '/user/login', query: { redirect: '/volume' } })
   })
 })
+
+describe('optional discovery failure isolation', () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  it.each([undefined, 432, 404, 503])('keeps session and route on optional failure %s', async status => {
+    const error = new axios.AxiosError('Optional discovery failed', 'ERR_NETWORK', { optionalDiscovery: true })
+    if (status) error.response = { status, data: {} }
+    await expect(rejectResponse(error)).rejects.toBe(error)
+    expect(store.dispatch).not.toHaveBeenCalled()
+    expect(router.push).not.toHaveBeenCalled()
+    expect(notification.error).not.toHaveBeenCalled()
+  })
+
+  it('does not suppress real authentication failures', async () => {
+    const error = new axios.AxiosError('Session expired', 'ERR_BAD_REQUEST', { optionalDiscovery: true })
+    error.response = { status: 401, data: { errorresponse: { errortext: 'Session expired' } } }
+    await expect(rejectResponse(error)).rejects.toBe(error)
+    expect(store.dispatch).toHaveBeenCalledWith('Logout')
+  })
+})
