@@ -7626,5 +7626,9 @@
   "placeholder.dns.record.contents": "값을 입력하고 Enter 키를 누르세요.",
   "message.oauth.domain.providers.hint": "도메인별 인증 공급자를 확인하려면 도메인을 입력하세요.",
   "message.oauth.domain.providers.empty": "이 도메인에 구성된 OAuth 공급자가 없습니다.",
-  "message.oauth.domain.providers.prompt": "사용 가능한 인증 공급자를 확인하려면 도메인을 입력하세요."
+  "message.oauth.domain.providers.prompt": "사용 가능한 인증 공급자를 확인하려면 도메인을 입력하세요.",
+  "label.scheduleactions": "작업",
+  "label.update.members": "멤버 수 변경",
+  "message.success.config.resource.schedule": "자원 스케줄을 설정했습니다.",
+  "message.error.remove.resource.schedule": "자원 스케줄을 삭제하지 못했습니다."
 }
