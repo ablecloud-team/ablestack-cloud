@@ -77,10 +77,12 @@ export async function validateLinksAsync (router, isStatic, resource) {
   }
 
   if (resource.templateid) {
-    const templatePath = (resource.templateformat === 'ISO' ? '/iso/' : '/template/') + resource.templateid
+    const isIso = resource.templateformat === 'ISO'
+    const templatePath = (isIso ? '/iso/' : '/template/') + resource.templateid
     if (router.resolve(templatePath).matched[0].redirect !== '/exception/404') {
       pendingChecks.push(
-        isValidObject('listTemplates', resource.templateid, { templatefilter: 'executable' }).then(result => {
+        isValidObject(isIso ? 'listIsos' : 'listTemplates', resource.templateid,
+          isIso ? { isofilter: 'executable' } : { templatefilter: 'executable' }).then(result => {
           validLinks.template = result
         })
       )

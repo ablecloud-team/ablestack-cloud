@@ -162,7 +162,16 @@ public class QemuGuestNetworkStateParser {
                 routeSource == RouteSource.LINUX ? "dst" : "destination",
                 "destination-prefix", "DestinationPrefix", "network");
         String destination = destinationWithPrefix;
-        Integer prefix = readAnyInteger(source, "prefix", "prefix-length", "PrefixLength");
+        Integer prefix = readAnyInteger(source, "prefix", "prefix-length", "PrefixLength", "desprefixlen");
+        if (prefix == null) {
+            String mask = readString(source, "mask");
+            if (NetUtils.isValidIp4(mask)) {
+                int maskPrefix = (int) NetUtils.getCidrSize(mask);
+                if (mask.equals(NetUtils.getCidrNetmask(maskPrefix))) {
+                    prefix = maskPrefix;
+                }
+            }
+        }
         if (destinationWithPrefix != null && destinationWithPrefix.contains("/")) {
             String[] parts = destinationWithPrefix.split("/", 2);
             destination = parts[0];
@@ -172,11 +181,11 @@ public class QemuGuestNetworkStateParser {
         }
         String gateway = readAnyString(source,
                 routeSource == RouteSource.LINUX ? "gateway" : "gateway",
-                "next-hop", "NextHop");
+                "next-hop", "NextHop", "nexthop");
         String family = forcedFamily;
         if (family == null) {
             family = normalizeRouteFamily(readAnyString(source,
-                    "family", "type", "ip-address-type", "AddressFamily"), destination, gateway);
+                    "family", "type", "ip-address-type", "AddressFamily", "version"), destination, gateway);
         }
         if (family == null) {
             return null;
@@ -199,7 +208,7 @@ public class QemuGuestNetworkStateParser {
         route.setGateway(normalizeGateway(gateway));
         route.setInterfaceName(readAnyString(source,
                 routeSource == RouteSource.LINUX ? "dev" : "interface",
-                "ifname", "interface-name", "InterfaceAlias", "InterfaceIndex"));
+                "ifname", "interface-name", "InterfaceAlias", "InterfaceIndex", "iface"));
         route.setMetric(readAnyInteger(source, "metric", "RouteMetric"));
         route.setTable(readAnyString(source, "table", "PolicyStore", "Store"));
         route.setProtocol(readAnyString(source, "protocol", "proto", "Protocol"));
@@ -211,10 +220,10 @@ public class QemuGuestNetworkStateParser {
     private String normalizeRouteFamily(String family, String destination, String gateway) {
         if (family != null) {
             String normalized = family.toLowerCase(Locale.ROOT);
-            if ("ipv4".equals(normalized) || "inet".equals(normalized) || "2".equals(normalized)) {
+            if ("ipv4".equals(normalized) || "inet".equals(normalized) || "2".equals(normalized) || "4".equals(normalized)) {
                 return "ipv4";
             }
-            if ("ipv6".equals(normalized) || "inet6".equals(normalized) || "23".equals(normalized)) {
+            if ("ipv6".equals(normalized) || "inet6".equals(normalized) || "23".equals(normalized) || "6".equals(normalized)) {
                 return "ipv6";
             }
         }
