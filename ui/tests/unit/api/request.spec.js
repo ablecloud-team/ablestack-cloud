@@ -22,7 +22,7 @@ import store from '@/store'
 import notification from 'ant-design-vue/es/notification'
 
 jest.mock('@/router', () => ({ currentRoute: { value: { path: '/volume', fullPath: '/volume' } }, push: jest.fn() }))
-jest.mock('@/store', () => ({ getters: { countNotify: 0 }, commit: jest.fn(), dispatch: jest.fn(() => Promise.resolve()) }))
+jest.mock('@/store', () => ({ state: { user: { discoveryGeneration: 1 } }, getters: { countNotify: 0 }, commit: jest.fn(), dispatch: jest.fn(() => Promise.resolve()) }))
 jest.mock('ant-design-vue/es/notification', () => ({ error: jest.fn() }))
 jest.mock('@/locales', () => ({ i18n: { global: { t: key => key } } }))
 jest.mock('@/vue-app', () => ({ vueProps: { $localStorage: { get: () => undefined } } }))
@@ -69,5 +69,68 @@ describe('optional discovery failure isolation', () => {
     error.response = { status: 401, data: { errorresponse: { errortext: 'Session expired' } } }
     await expect(rejectResponse(error)).rejects.toBe(error)
     expect(store.dispatch).toHaveBeenCalledWith('Logout')
+  })
+})
+
+describe('optional discovery login generation boundary', () => {
+  const prepareRequest = service.interceptors.request.handlers[0].fulfilled
+  beforeEach(() => {
+    jest.clearAllMocks()
+    store.state.user.discoveryGeneration = 1
+  })
+
+  it('tags optional requests locally without changing wire parameters', () => {
+    const params = { command: 'listConfigurations' }
+    const config = prepareRequest({ optionalDiscovery: true, params })
+    expect(config.discoveryGeneration).toBe(1)
+    expect(params).toEqual({ command: 'listConfigurations', response: 'json' })
+    expect(prepareRequest({ params: { command: 'listVirtualMachines' } }).discoveryGeneration).toBeUndefined()
+  })
+
+  it.each([0, 1])('ignores a delayed 401 from previous generation %s', async generation => {
+    const config = { optionalDiscovery: true, discoveryGeneration: generation }
+    const error = new axios.AxiosError('Session expired', 'ERR_BAD_REQUEST', config)
+    error.response = { status: 401, data: { errorresponse: { errortext: 'Session expired' } } }
+    store.state.user.discoveryGeneration = 2
+    await expect(rejectResponse(error)).rejects.toBe(error)
+    expect(store.dispatch).not.toHaveBeenCalled()
+    expect(store.commit).not.toHaveBeenCalled()
+    expect(router.push).not.toHaveBeenCalled()
+    expect(notification.error).not.toHaveBeenCalled()
+  })
+
+  it.each([true, false])('preserves current authentication failure handling, optional=%s', async optionalDiscovery => {
+    const error = new axios.AxiosError('Session expired', 'ERR_BAD_REQUEST', { optionalDiscovery, discoveryGeneration: optionalDiscovery ? 1 : 0 })
+    error.response = { status: 401, data: { errorresponse: { errortext: 'Session expired' } } }
+    await expect(rejectResponse(error)).rejects.toBe(error)
+    expect(store.dispatch).toHaveBeenCalledWith('Logout')
+    expect(router.push).toHaveBeenCalledWith({ path: '/user/login', query: { redirect: '/volume' } })
+  })
+
+  it('ignores an old 401 travelling through the actual Axios request/response chain', async () => {
+    let deliver
+    const received = new Promise(resolve => { deliver = resolve })
+    let rejectAdapter
+    const request = service({
+      optionalDiscovery: true,
+      params: { command: 'listConfigurations' },
+      adapter: config => new Promise((resolve, reject) => {
+        rejectAdapter = () => {
+          const error = new axios.AxiosError('Old session expired', 'ERR_BAD_REQUEST', config)
+          error.response = { status: 401, data: { errorresponse: { errortext: 'Old session expired' } } }
+          reject(error)
+        }
+        deliver(config)
+      })
+    })
+    const config = await received
+    expect(config.params.discoveryGeneration).toBeUndefined()
+    store.state.user.discoveryGeneration = 2
+    const rejection = expect(request).rejects.toThrow('Old session expired')
+    rejectAdapter()
+    await rejection
+    expect(store.dispatch).not.toHaveBeenCalled()
+    expect(notification.error).not.toHaveBeenCalled()
+    expect(router.push).not.toHaveBeenCalled()
   })
 })

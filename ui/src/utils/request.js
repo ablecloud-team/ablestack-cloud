@@ -35,6 +35,12 @@ const err = (error) => {
     return Promise.reject(error)
   }
 
+  // Responses from a previous login must not affect the current session.
+  if (error.config?.optionalDiscovery && error.config.discoveryGeneration !== undefined &&
+      error.config.discoveryGeneration !== store.state?.user?.discoveryGeneration) {
+    return Promise.reject(error)
+  }
+
   const response = error.response
   // Optional discovery must not log out a valid session on transport/service
   // failures. An actual authentication failure still follows the normal path.
@@ -191,6 +197,10 @@ const err = (error) => {
 service.interceptors.request.use(config => {
   source = sourceToken.getSource()
   config.cancelToken = source.token
+
+  if (config.optionalDiscovery) {
+    config.discoveryGeneration = store.state?.user?.discoveryGeneration
+  }
 
   handleGetRequestParams(config)
 
