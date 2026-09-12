@@ -20,9 +20,16 @@ under the License.
 <!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file. -->
 <template>
   <div>
-  <a-button v-if="'manageDrCheckpoints' in $store.getters.apis" size="small" @click="open">
-    {{ planId ? '체크포인트 관리' : '미정리 자원' }}
-  </a-button>
+  <template v-if="'manageDrCheckpoints' in $store.getters.apis">
+    <a-tooltip v-if="toolbar" title="미정리 자원">
+      <a-button shape="circle" class="action-button-item" aria-label="미정리 자원" @click="open">
+        <template #icon><FolderOpenOutlined /></template>
+      </a-button>
+    </a-tooltip>
+    <a-button v-else size="small" @click="open">
+      {{ planId ? '체크포인트 관리' : '미정리 자원' }}
+    </a-button>
+  </template>
   <a-modal v-model:visible="visible" :title="planId ? '체크포인트 보존 및 수동 정리' : '등록 해제 후 미정리 자원'" :width="1100" :footer="null">
     <a-alert type="info" show-icon :message="planId ? '최신·사용 중 복구 지점은 보존합니다. 아래 정책은 수동 정리 후보를 계산하며 자동 삭제하지 않습니다.' : '계획 등록은 해제됐지만 원격 자원 정리는 확인되지 않았습니다. VM과 볼륨은 보존됩니다.'" />
     <a-space v-if="planId" style="margin: 16px 0">
@@ -67,9 +74,14 @@ rowKey="checkpointRef"
 
 <script>
 import { getAPI, postAPI } from '@/api'
+import { FolderOpenOutlined } from '@ant-design/icons-vue'
 export default {
   name: 'DrCheckpointManager',
-  props: { planId: { type: String, default: '' } },
+  components: { FolderOpenOutlined },
+  props: {
+    planId: { type: String, default: '' },
+    toolbar: { type: Boolean, default: false }
+  },
   data () {
     return {
       visible: false,

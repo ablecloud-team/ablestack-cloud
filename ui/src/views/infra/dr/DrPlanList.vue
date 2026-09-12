@@ -18,7 +18,6 @@
 -->
 <template>
   <div class="cross-dr-page cross-dr-standard-page">
-    <dr-checkpoint-manager v-if="!detailId" style="margin-bottom: 12px" />
     <a-affix
       :key="'affix-' + showSearchFilters"
       :offsetTop="this.$store.getters.maintenanceInitiated || this.$store.getters.shutdownTriggered ? 103 : 78">
@@ -71,7 +70,7 @@
           </a-col>
           <a-col
             :span="device === 'mobile' ? 24 : 12"
-            :style="device === 'mobile' ? { float: 'right', 'margin-top': '12px', 'margin-bottom': '-6px', display: 'table' } : { float: 'right', display: 'table', 'margin-top': '6px' }">
+            :style="!detailId ? { display: 'flex', alignItems: 'center', flexWrap: 'wrap', rowGap: '8px', marginTop: device === 'mobile' ? '12px' : '6px' } : (device === 'mobile' ? { float: 'right', 'margin-top': '12px', 'margin-bottom': '-6px', display: 'table' } : { float: 'right', display: 'table', 'margin-top': '6px' })">
             <dr-resource-action-menu
               v-if="detailId && detailPlan.id"
               :actions="planActions"
@@ -102,8 +101,13 @@
               :dataView="false"
               :resource="{}"
               @exec-action="openCreateModal" />
+            <dr-checkpoint-manager
+              v-if="!detailId"
+              toolbar
+              style="display: inline-flex; flex-shrink: 0; margin-right: 10px" />
             <search-view
               v-if="!detailId"
+              style="flex: 1 1 180px; width: auto; min-width: 0"
               :searchFilters="searchFilters"
               :searchParams="searchParams"
               apiName="listDrPlans"
