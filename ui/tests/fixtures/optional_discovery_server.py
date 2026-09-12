@@ -25,7 +25,11 @@ BASE = ['listApis', 'listUsers', 'listZones', 'listCapabilities', 'listVirtualMa
 EXTRA = ['listConfigurations', 'listNetworkServiceProviders', 'listWallAlertRules', 'listHostsMetrics', 'listHosts', 'listClusters', 'listPods', 'listStoragePools', 'listDomains', 'listLdapConfigurations', 'cloudianIsEnabled', 'listHSMProfiles']
 
 def user(role):
-    return dict(id=role, userid=role, username=role, account=role, accountid=role, domainid='domain1', domain='ROOT', firstname=role.title(), lastname='Tester', type={'user': '0', 'domain': '2', 'admin': '1'}.get(role, '0'), roletype={'user': 'User', 'domain': 'DomainAdmin', 'admin': 'Admin'}.get(role, 'User'), rolename={'user': 'User', 'domain': 'Domain Admin', 'admin': 'Admin'}.get(role, 'User'), state='enabled', timezone='Asia/Seoul', timezoneoffset='9.0', sessionkey=role, firstlogin=False, is2faenabled='false')
+    result = dict(id=role, userid=role, username=role, account=role, accountid=role, domainid='domain1', domain='ROOT', firstname=role.title(), lastname='Tester', type={'user': '0', 'domain': '2', 'admin': '1'}.get(role, '0'), roletype={'user': 'User', 'domain': 'DomainAdmin', 'admin': 'Admin'}.get(role, 'User'), rolename={'user': 'User', 'domain': 'Domain Admin', 'admin': 'Admin'}.get(role, 'User'), state='enabled', timezone='Asia/Seoul', timezoneoffset='9.0', sessionkey=role, firstlogin=False, is2faenabled='false')
+
+    for resource in ['vm', 'cpu', 'memory', 'gpu', 'volume', 'snapshot', 'template', 'primarystorage', 'secondarystorage', 'backup', 'backupstorage', 'bucket', 'objectstorage', 'ip', 'network', 'vpc']:
+        result.update({resource + 'total': 0, resource + 'limit': 10, resource + 'available': 10})
+    return result
 
 class Handler(BaseHTTPRequestHandler):
 
@@ -77,7 +81,7 @@ class Handler(BaseHTTPRequestHandler):
             if cmd == 'listUsers':
                 return self.send({'listusersresponse': {'count': 1, 'user': [user(role)]}})
             if cmd == 'listCapabilities':
-                return self.send({'listcapabilitiesresponse': {'capability': {'securitygroupsenabled': False, 'customhypervisordisplayname': 'Custom', 'defaultuipagesize': 20, 'version': '4.20.0.0', 'userpublictemplateenabled': True}}})
+                return self.send({'listcapabilitiesresponse': {'capability': {'securitygroupsenabled': False, 'customhypervisordisplayname': 'Custom', 'defaultuipagesize': 20, 'version': '4.20.0.0', 'cloudstackversion': '4.20.0.0', 'userpublictemplateenabled': True}}})
             if cmd == 'listAccounts':
                 return self.send({'listaccountsresponse': {'count': 1, 'account': [dict(user(role), name=role)]}})
             if cmd == 'listConfigurations':

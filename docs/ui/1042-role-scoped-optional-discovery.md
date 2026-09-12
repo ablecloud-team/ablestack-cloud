@@ -1,3 +1,22 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
 # #1042 역할별 선택 API 탐색과 헤더 수명주기
 
 ## 문제와 범위
@@ -29,7 +48,22 @@
 - `npm ci --no-audit --no-fund`: PASS. Node 20.20.2, npm 10.8.2, Axios 0.31.1. 공용 기존 node_modules의 Axios 0.21.4 불일치를 발견해 분리 설치 후 다시 검증했다. lockfile/의존성 버전을 수정하지 않았다.
 - 관련 Jest 6개 suite / 30개 test: PASS. 추가 API metadata 격리, 선택 오류 432/404/503/네트워크 및 실제 401 구분, 기존 Permission/API/request 회귀를 포함한다.
 - 변경 JS/Vue/test 파일 lint 및 `git diff --check`: PASS.
-- production UI 빌드와 브라우저 검증은 아래에 완료 결과를 기록한다.
+- `NODE_OPTIONS=--openssl-legacy-provider npm run build`: PASS. 기존 Browserslist/번들 크기 경고는 남아 있다. 빌드가 생성한 `public/config.json` 변경은 postbuild 후 원상복귀됐음을 확인했다.
+- CI와 같은 `org.apache.rat:apache-rat-plugin:0.12:check`: tracked source 전용 검증 복사본에서 PASS (Unapproved 0, unknown 0). 최초 PR의 새 문서 license 헤더 누락을 보완한 결과이다.
+- 실제 production 번들 + 로컬 모의 API + Codex in-app Chromium에서 UI 로그인, 메뉴, 로그아웃 및 동일 브라우저 계정 전환을 확인했다.
+
+| 역할/전환 | 설정/provider/Wall 조회 | UI 결과 |
+| --- | --- | --- |
+| 일반 사용자 | 모두 0회 | 대시보드·일반 메뉴·로그아웃 정상 |
+| 도메인 관리자 | 모두 0회 | 대시보드 정상, 루트 페이지 스타일/Wall 메뉴 없음 |
+| 루트 관리자 | 설정 3회(빈 배열), provider 1회(432), Wall 1회(432) | 로그인 유지, 초기 안내 화면과 페이지 스타일/Wall 메뉴 유지 |
+| 루트 → 도메인 → 일반 사용자 | 축소 후 관리자 조회 0회 | 이전 관리자 메뉴/배너 제거, 재로그인 후 73초 이상 관리자 polling 없음 |
+
+최초 fixture에서 `cloudstackversion` 및 자원 수치 필드가 빠진 문제를 보완하고 다시 검증했다. 보완 이후(2026-09-12 04:32:54 UTC 이후) 신규 console error 및 error/unhandledrejection 이벤트는 0건이다. 이는 시험 데이터 수정이며 production 소스의 추가 수정이 아니다. 실제 Cloud/Wall 서비스, 동적 역할 변경 API, 물리 클러스터 검증은 이 결과에 포함되지 않는다. 세션 중 generation 변경과 늦은 응답은 단위 테스트로 검증했다.
+
+## PR/CI 판정
+
+PR #1050. 최초 CI의 새 문서 RAT 오류는 수정했다. 전체 pre-commit의 기존 경로 오류 및 `GuestOSDaoConnectionTest.java` wildcard import 2건의 noredist Checkstyle 실패는 별도 #1044에 근거를 추가했다. 해당 Java 파일은 기준 upstream과 이번 HEAD의 blob `c54556b1bd1d4af9bab8bc0f08309fd819f938ac`가 동일하다. 전체 CI를 PASS로 표시하지 않으며, 최종 head의 GitHub 검사 상태를 병합 전에 확인해야 한다.
 
 ## Diplo 후속
 
