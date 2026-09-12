@@ -40,7 +40,6 @@ qemu는 기존 export start/stop, endpoint manifest, REMOTE_SOURCE transition �
 - 13→31 qcow2 UI 테스트→정리→수동 Full Sync 없이 새 durable incremental/NO_CHANGE checkpoint 확인을 반복. UI PAUSED 계획의 테스트/정리 후 PAUSED 유지 확인.
 - VM/volume/domain/NBD/DB/runtime 증거를 함께 확인. #967 Full Seed 조기 성공 문제와 혼동하지 않으며 full reseed를 우회책으로 사용하지 않음.
 
-
 ### 구현 검증 중 보완
 
 첫 UI Run 273/cleanup 274는 immediate terminal 경로로 성공하여 projection-only 예약의 누락을 드러냈습니다. 이 시도는 PASS가 아닙니다. `DrRunExecutorImpl.armTestCleanupRecovery()`를 dispatch 이전에 추가했습니다. 예약 후에도 test session cleanupRequired 및 active Run gate가 재개를 막습니다. Run 275의 UI 동기화 재개로 다음 시험 기준 상태를 복원했습니다. DB 직접 수정은 하지 않았습니다.
@@ -54,7 +53,6 @@ qemu는 기존 export start/stop, endpoint manifest, REMOTE_SOURCE transition �
 - 백업: `/root/issue964/backup` (배포 전), `/root/issue964/backup-v2` (첫 구현).
 - mold 기동 및 /client/ HTTP200, WEB-INF 유지. 레거시 DR cluster API 미등록/직접 호출432, 새 DR Site/Plan API 정상 스모크 PASS.
 - UI/Agent/qemu 소스 변경 없음. 기존 #963 배포 사용. Cloud 전체 빌드는 수행하지 않았습니다.
-
 
 ### PAUSED 및 관측성 설계 보완
 

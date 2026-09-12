@@ -1,3 +1,22 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
 # #969 코드 수준 설계 — 유지보수 후 자동 복제 복원
 
 ## 기준과 범위
@@ -32,7 +51,7 @@ DrSchedulerRecoveryScheduler:
 - 기존 test/cleanup 및 PAUSED 유지 UI 회귀, source-unreachable disaster routing/권한 및 역방향 action contract 회귀를 수행한다. 전체 물리 페일오버/페일백 시험과 자동 회귀 결과를 구분해 보고한다.
 
 ## 후속 범위 경계
-#969의 첫 구현은 정상 호스트 복귀 후 무인 수렴에 집중한다. 영구 폐기 호스트 fencing 증거 UI나 전체 ownership journal 재설계는 구현하지 않은 채 완료했다고 주장하지 않는다. #970/#971의 별도 기능 확장은 선행 조건이 아니며 기존 동작의 회귀 가드를 유지한다.
+\#969의 첫 구현은 정상 호스트 복귀 후 무인 수렴에 집중한다. 영구 폐기 호스트 fencing 증거 UI나 전체 ownership journal 재설계는 구현하지 않은 채 완료했다고 주장하지 않는다. #970/#971의 별도 기능 확장은 선행 조건이 아니며 기존 동작의 회귀 가드를 유지한다.
 ## 설계 보완 — Agent 단절 오류 분류
 
 추가 코드 확인: FtctlDrUnifiedActionAdapter는 AgentUnavailableException을 DR_AGENT_UNAVAILABLE, dispatch timeout을 DR_AGENT_DISPATCH_TIMEOUT으로 반환하고 remote transport 준비 실패는 retryable DR_ENGINE_UNAVAILABLE로 반환한다. 정상 유지보수 중 이런 오류로 복구가 FAILED가 된 뒤에도 다시 시도할 수 있도록 DrSchedulerRecoveryScheduler의 허용 오류에 세 코드를 추가한다. 기존 CBT/재시드 실행/사용자 PAUSE·전환 의도 가드는 앞에서 우선 적용한다. 오류별 회귀 시험을 추가하며 변경 DR 모듈 전체를 다시 검증한다.

@@ -17,6 +17,7 @@ Cloud `efc2799265`와 qemu `03a16af4`에서 `codex/fix-1007-972-scheduler-resume
 - 이번 시험 Plan의 persistent worker를 재시작했다. 다른 Plan의 이미 실행 중인 프로세스까지 새 코드를 적재했다고 주장하지 않는다.
 
 ## UI 및 실제 runtime 검증
+
 | 경로 | Plan | PAUSED 재시작 | worker 소실 후 UI Resume |
 |---|---|---|---|
 | RBD → RBD | 7ec74483-8554-415d-ac56-f62f8b17fbd0 | 4622 / PAUSED 유지 | 4623 CBT_INCREMENTAL, READY/RUNNING/HEALTHY |

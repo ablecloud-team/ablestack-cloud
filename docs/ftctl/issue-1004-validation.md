@@ -1,3 +1,22 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
 # #1004 구현 및 모듈 검증 결과 — 2026-09-10
 
 ## 구현
@@ -16,6 +35,7 @@
 - qemu RPM/Actions 빌드 없이 수정 셸 파일을 직접 배포했다.
 
 ## 실제 UI/실행 증거
+
 | 항목 | 증거 | 결과 |
 | --- | --- | --- |
 | 준비 실패 후 실제 rollback 및 자동 RUNNING 복원 | run452 `8058ddea-9bf7-4e94-a338-2fb139737a15`; clone rbd info ENOENT(rc2), 로그 보존, recovery RUNNING/RESTORED | PASS |

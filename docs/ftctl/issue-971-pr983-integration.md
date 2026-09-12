@@ -1,10 +1,29 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
 # #971 / PR #983 통합 검증
 
 ## 병합과 중복 방지
 
 PR #983은 2026-09-10 13:32:21 KST에 ablestack-europa로 병합되었다. 실제 병합 커밋은 `014895d8f3dc2f062f379b51ee62d36a0adae88a`이다. 현재 작업 브랜치와 git merge-tree 검사 및 실제 병합 모두 충돌 없이 완료했다. 통합 커밋은 `10f9e78019`이다.
 
-#971은 DR 모듈/API/UI를 수정한다. #983의 5개 KVM VIF 드라이버 수정은 원본 커밋을 병합하여 사용하며 재구현하지 않았다. #982는 이 PR로 코드 수정이 병합되어 종료했다. #981은 DR 테스트 VM 생성 시 NIC 유지와 명시적 비활성화라는 별도 역할이므로 유지한다. 두 값(enabled/link_state)을 false로 맞춘 뒤 시작하므로 #983의 linkState 기준 동작과 일치한다.
+\#971은 DR 모듈/API/UI를 수정한다. #983의 5개 KVM VIF 드라이버 수정은 원본 커밋을 병합하여 사용하며 재구현하지 않았다. #982는 이 PR로 코드 수정이 병합되어 종료했다. #981은 DR 테스트 VM 생성 시 NIC 유지와 명시적 비활성화라는 별도 역할이므로 유지한다. 두 값(enabled/link_state)을 false로 맞춘 뒤 시작하므로 #983의 linkState 기준 동작과 일치한다.
 
 ## 빌드와 배포
 

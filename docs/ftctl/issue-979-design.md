@@ -1,3 +1,22 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
 ## #979 코드 수준 상세 설계 — 증분 쓰기와 복구 지점 발행 분리
 
 ### 기준 및 작업 브랜치
@@ -59,7 +78,6 @@
 - 시험용 RBD 이미지 2개와 GFS2 시험 디렉터리는 정리했다. 기존 VM 디스크를 이 스모크에 사용하지 않았다.
 
 최종 배포 및 핵심 흐름 검증 결과는 [검증 기록](issue-979-validation.md)에 기록한다.
-
 
 ## 최종 원본 발행 증거 보존
 - 원본 pending/COMMITTED ACK와 후보 manifest/checkpoint JSON을 `/var/lib/ablestack-vm-ftctl/dr-checkpoints/<plan>/`에 보존한다. `/run`의 전송 산출물이 없어져도 동일 후보를 재조회할 수 있다.

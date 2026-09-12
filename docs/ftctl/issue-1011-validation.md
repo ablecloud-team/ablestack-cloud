@@ -1,7 +1,7 @@
 # #1011 검증 기록 — 기능 검증 완료
 
 ## 확인된 원인과 수정
-#1003 순방향 수정 90aeb149에서 역방향 writer의 single-link=true가 누락됐다. 기존 옵션의 writable snapshot 부분 쓰기에서 비수정 인접 섹터가 손상됨을 별도 VM(vm-62880, 64MiB, poweredOff)으로 재현했다. 1MiB 0x5a→snapshot→offset512 512B 0x6b 쓰기 후 offset0 패턴 실패. false 대조 및 설치 FTCTL writer 함수에서는 수정 구간과 인접 64KiB 영역 모두 일치했다.
+\#1003 순방향 수정 90aeb149에서 역방향 writer의 single-link=true가 누락됐다. 기존 옵션의 writable snapshot 부분 쓰기에서 비수정 인접 섹터가 손상됨을 별도 VM(vm-62880, 64MiB, poweredOff)으로 재현했다. 1MiB 0x5a→snapshot→offset512 512B 0x6b 쓰기 후 offset0 패턴 실패. false 대조 및 설치 FTCTL writer 함수에서는 수정 구간과 인접 64KiB 영역 모두 일치했다.
 
 ## 회귀/배포
 - writer chain shell smoke PASS, lifecycle71 PASS, #1008 credential6 PASS, tombstone PASS.
@@ -28,7 +28,7 @@
 - run479 내부 인증 profile 처리 누락은 #1008에 기록하고 수정. run480 실제 역복제와 원본 건강 검사 성공. UI 완료를 막던 별도 #1015도 수정 후 정상 수렴(아래 참조).
 
 ## 별도 후속
-#1012 P1: 첫 역복제 기준점에서 원본 단독 변경까지 반영되는지 별도 검증. 이번 부분 쓰기 손상의 실증 원인과 구분한다.
+\#1012 P1: 첫 역복제 기준점에서 원본 단독 변경까지 반영되는지 별도 검증. 이번 부분 쓰기 손상의 실증 원인과 구분한다.
 
 ## 최종 UI 재검증 및 #1008 보완 (2026-09-10)
 

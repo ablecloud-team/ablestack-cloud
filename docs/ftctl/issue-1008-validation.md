@@ -43,7 +43,7 @@ VMware plan `a85874ae-d1bd-470b-97c5-7c48a39486dd`:
 ## 중단 원인과 남은 수용 기준
 새 재해 전환/페일백 전에 원본 VMware 콘솔에서 XFS `Metadata CRC error`, `xfs_agi_read_verify`, block `0x80002`, error74, emergency mode를 확인했다. Tools가 없어 정상 guest shutdown도 실패했다. 원본 강제 종료, xfs_repair, 외부 snapshot 삭제, 신규 failover/failback 및 방화벽 차단은 하지 않았다.
 
-#1011 P1에 증거와 원인 조사/OS 복귀 검증 보완을 등록했다. 기존 #979 failback470의 poweredOn 확인은 OS 정상 복귀 증거가 아니며 원본 OS 성공으로 해석해서는 안 된다. 손상 원인은 아직 미확정이다.
+\#1011 P1에 증거와 원인 조사/OS 복귀 검증 보완을 등록했다. 기존 #979 failback470의 poweredOn 확인은 OS 정상 복귀 증거가 아니며 원본 OS 성공으로 해석해서는 안 된다. 손상 원인은 아직 미확정이다.
 
 원본 디스크를 다시 쓰면 조사 증거가 변경되므로 계획을 PAUSED로 유지한다. #1011 조사와 정상 시험 원본 확보 후 다음을 완료해야 한다:
 1. 원본 독립 재해 전환 → 원본 연결 복구 → UI preflight READY.

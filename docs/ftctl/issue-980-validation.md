@@ -34,4 +34,4 @@ VMware는 양단 QGA 없이 기존 scheduler PID1476442, READY/HEALTHY, CBT_INCR
 ## 증거 및 후속
 로컬 증거 `/home/ablecloud/work/issue980-evidence`: dr-build-final.log, baseline-reproduction.log, schema-idempotence-smoke.log, installed-verification.json, qcow2-monitor.log, qcow2-after-restart-sample-0.json, rbd-monitor.log, rbd-sample-24.json. 인증정보 포함 가능성이 있는 원시 로그는 PR에 업로드하지 않는다.
 
-#980 구현·위 명시 범위 검증 완료, upstream 병합 대기. 다음 P1 #954, Diplo #1029는 별도 트랙. Nutanix 제외 개발/분석/잔여 보완 22건(Cloud21+qemu1), 구현/핵심 검증 및 병합·잔여 검증 트랙33건. 상세 우선순위는 Epic #950에서 관리한다. 기존 PR #1022 upstream 충돌은 별도 병합 준비 항목이며 이번 작업에서 병합하지 않았다.
+\#980 구현·위 명시 범위 검증 완료, upstream 병합 대기. 다음 P1 #954, Diplo #1029는 별도 트랙. Nutanix 제외 개발/분석/잔여 보완 22건(Cloud21+qemu1), 구현/핵심 검증 및 병합·잔여 검증 트랙33건. 상세 우선순위는 Epic #950에서 관리한다. 기존 PR #1022 upstream 충돌은 별도 병합 준비 항목이며 이번 작업에서 병합하지 않았다.

@@ -14,7 +14,6 @@
 
 VMware 양단 QGA 제외. NIC 존재/비활성화 유지. 이번 VMware 장애 주입은 vCenter21.10의 정확한 IP 차단이며 ESXi 전체 전원 장애나 모든 혼합 경로 검증으로 확대 해석하지 않는다. #1004 비동기 준비 실패의 잔여 clone/HELD intent 문제는 미수정 P1 후속이다. 따라서 실패경로를 포함한 모든 DR 계약 및 이슈 전체가 무조건 해결됐다는 판정은 하지 않는다.
 
-
 ## 수정
 Cloud 커밋 fea20ef949: 모든 테스트의 기존 RUNNING/PAUSED 의도를 기록하고 Cloud durable recovery가 원본 정상 프로필 복원과 재개를 소유한다. qemu 커밋 50b7424(구현 220c7e9): Cloud-managed cleanup/rollback은 직접 RUN을 보내지 않는다. 새 capability dr-cloud-test-recovery-v1로 이전 런타임과의 혼합을 차단한다.
 
@@ -86,7 +85,6 @@ cycle9 증분 331 extents/93,046,898,688 bytes, durable15:55:15 후 Test440 `b7a
 - P1 #1004: 비동기 TEST_PREPARE 실패가 active session 발행 전 run session artifacts를 누락하여 cleanup 성공 오판, 원래 RUNNING 의도 HELD/실제 PAUSED 잔류. UI 정리 메뉴 누락과 상세 로그/원래 종료 코드 누락 포함.
 - 실패한 RBD clone과 seal은 진단 증거로 남아 있다. 새 전체 재동기화 UI Run441은 기준 복구 시험이며 run440 자동 복구 성공으로 취급하지 않는다.
 
-
 ## VMware RUNNING 정리 및 자동 복원 PASS (#1003 수정 후)
 실측 원인은 nbdkit VDDK single-link=true의 부모 체인 읽기 누락이었다. 같은 snapshot62747/path의 첫1MiB 비교에서 true는0, false는 정상GPT. qemu 90aeb14로 양 full/CBT read를 false로 수정했다. 사용자 지시에 따라 Actions34449382529는 취소하고 32.1/2/3에 변경 sh 한 파일을 직접 배포했다. RPM 전체 릴리즈 완료가 아니다. 설치 mover SHA256 0892274ffff79add112b8e27d56655599cd640eabb7cd768d44dc7c555b4005a, VMware snapshot/TLS 모듈 스모크 PASS. 나머지 #988 runtime 코드는 기존 검증된 배포와 같다.
 
@@ -96,11 +94,9 @@ UI Full-reseed443 `8b6e3ed5-0c77-4988-a6f1-4e9ea73785d8` 완료 후 Test444 `946
 
 모든 시험 규칙과 timer 제거 후 수동Resume/API/DB수정 없이 RESTORED, READY/SOURCE, RUNNING/HEALTHY/IDLE. 새 cycle12 CBT_INCREMENTAL/LOCAL_DURABLE,39extents/2,883,584bytes, sourceReadBytes=targetWrittenBytes, targetdurable16:34:47 확인. UI에서도 같은 새 체크포인트/주기 완료를 확인했다. 전체seed수동재실행은 #1003 이전 데이터 복구를 위한 fixture 작업이며 이 cleanup445 자동 복원에는 사용하지 않았다.
 
-
 ## VMware PAUSED 보존 / 증분 복제본 부팅 PASS
 UI Pause446 `f743ce09-92ac-476e-9976-b746eb548d9b` 후 Test447 `67d3dd21-78c8-462a-b688-e7b98b326d81` SUCCEEDED/POWER_STATE_VALIDATED. VM312의 실제 Rocky Linux10.1 로그인 화면과 virtio-scsi DRIVER_OK 확인. 전체seed뿐 아니라 cycle12의 CBT 증분 적용 복제본도 부팅 검증했다.
 Cleanup448 `8ec52402-a038-4b96-9cad-63f56af1bcd8` SUCCEEDED, 세션45 CLEANED, desired PAUSED/RESTORED. UI 복제 작업/재개 상태 PAUSED 유지. QGA는 어느 쪽에도 호출하지 않았다.
-
 
 ## VMware 원본 독립 테스트 PASS / 종료 상태
 32 관리·호스트4대에21.10/32 차단을 먼저 적용하고 UI source-independent switch를 켠 Test449 `35ae8cba-0fee-4014-abe9-3adc69bfaacc` 16:40:01–16:41:38 SUCCEEDED. VM313 NIC enabled/link_state=0, 실제 Rocky Linux10.1 로그인 화면 및 virtio-scsi DRIVER_OK 확인. 최초 콘솔은 커널 시작 화면이었으므로 OS 준비 후 다시 확인했다. 부팅 이후에도 vCenter HTTP000으로 단절 유지 확인.

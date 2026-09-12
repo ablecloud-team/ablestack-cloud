@@ -1,7 +1,7 @@
 # #979 모듈 배포 및 핵심 흐름 검증 (2026-09-10)
 
 ## 판정
-#979의 불변 체크포인트 발행, 이전 세트 보존, 테스트 복구 및 실제 재해 전환 복원 핵심 흐름 PASS. 전체 릴리즈/모든 장애 조합 PASS를 의미하지 않는다. VMware 페일백 사전 점검의 자격 정보 재해결 결함은 #1008(P1)로 분리했으며 수동 복구 후 운영 방향을 원복했다.
+\#979의 불변 체크포인트 발행, 이전 세트 보존, 테스트 복구 및 실제 재해 전환 복원 핵심 흐름 PASS. 전체 릴리즈/모든 장애 조합 PASS를 의미하지 않는다. VMware 페일백 사전 점검의 자격 정보 재해결 결함은 #1008(P1)로 분리했으며 수동 복구 후 운영 방향을 원복했다.
 
 ## 소스 / 빌드
 - Cloud, qemu: `codex/fix-979-durable-checkpoint`.
@@ -18,6 +18,7 @@
 - ACK identity 불일치 거절, ACK 재전송, manifest 훼손/누락 거절, volatile 원본 산출물 삭제 후 영속 후보 재시도, 역방향 제외 및 페일백 후 stale activeSide 처리 회귀 PASS.
 
 ## UI 중심 시험
+
 | 경로 | 계획 / 새 체크포인트 | UI 실행 및 실제 부팅 | 정리 및 복제 복귀 |
 |---|---|---|---|
 | VMware → RBD | plan52 a85874ae-d1bd-470b-97c5-7c48a39486dd / 45 | TEST_FAILOVER465 ea04418e-ae32-4e56-bda3-601378c1ba46 SUCCEEDED. 대상 mutable 디스크 첫 64KiB를 0으로 덮어쓴 뒤 불변 스냅샷에서 VM314 생성, Rocky Linux10.1 로그인 화면 확인. QGA 미사용 | TEST_CLEANUP466 SUCCEEDED, 기존 PAUSED 유지 |
@@ -35,7 +36,7 @@
 6. 동일 vCenter의 유효한 자격 정보를 해당 런타임에 수동으로 다시 제공한 뒤 UI 페일백470 (`543841d8-c98b-4a4c-8de4-a1b083a2f9a5`) SUCCEEDED.
 7. 최종 원본 vm-4486 poweredOn, 대상 VM306 Stopped, plan52 READY/SOURCE. 페일백 후 stale profile activeSide를 역방향으로 오인하던 #979 발행 조건을 request.reverse로 수정하고 새 불변 체크포인트48 생성 확인.
 
-#1008 수동 자격 정보 복구가 있었으므로 자동 페일백 전체 체인 PASS로 보고하지 않는다. #979 재해 복원은 그 수동 복구 이전에 성공했다.
+\#1008 수동 자격 정보 복구가 있었으므로 자동 페일백 전체 체인 PASS로 보고하지 않는다. #979 재해 복원은 그 수동 복구 이전에 성공했다.
 
 ## 배포
 - 13/22/31/32 클러스터 각3개 compute, 총12개: core command 클래스와 qemu 변경7파일. mold-agent active 및 최종 파일 SHA 일치 확인.

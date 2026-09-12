@@ -1,3 +1,22 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
 ## #971 코드 수준 설계
 
 기준 Cloud f616359046 / qemu7a0880d (#970 실측 검증 완료), 별도 WSL ext4 worktree와 `codex/fix-971-source-independent-recovery` 생성. 기존 브랜치 병합·수정 없음.
@@ -44,4 +63,4 @@ VMware에서 복제한 VM은 VMware 원본과 ABLESTACK 대상 모두 QGA 검증
 Cloud 복구 worker가 정상 source profile을 다시 구성한 뒤 RUNNING 의도일 때만 RESUME한다. PAUSED 의도는 재개하지 않는다. 따라서 VMware의 source mover와 target 작업이 같은 host에서 실행되어도 source credential이 없는 target-only profile로 복제를 시작하지 않는다. 대상 정리는 원본의 QGA/연결/자격 증명에 의존하지 않는다. 새 capability가 없는 host에는 이 변경을 보내지 않는다.
 
 ## VMware 전체 snapshot chain 읽기 보완 (#1003, 2026-09-10)
-#971 후속 검증에서 single-link=true VDDK 연결이 부모 snapshot의 guest sector를0으로 반환함을 동일 snapshot 읽기 비교로 확인했다. qemu 후속 브랜치 codex/fix-971-vmware-snapshot-chain/90aeb14에서 full/CBT source read를 single-link=false로 변경한다. Cloud API/authority/profile 계약 변경은 없다. 전체 체인 읽기는 원본이 연결된 복제 시점의 데이터 정확성 계약이고, 이미 봉인된 대상 checkpoint의 source-independent 복구를 원본 조회에 다시 의존시키지 않는다. VMware QGA는 양단 제외한다.
+\#971 후속 검증에서 single-link=true VDDK 연결이 부모 snapshot의 guest sector를0으로 반환함을 동일 snapshot 읽기 비교로 확인했다. qemu 후속 브랜치 codex/fix-971-vmware-snapshot-chain/90aeb14에서 full/CBT source read를 single-link=false로 변경한다. Cloud API/authority/profile 계약 변경은 없다. 전체 체인 읽기는 원본이 연결된 복제 시점의 데이터 정확성 계약이고, 이미 봉인된 대상 checkpoint의 source-independent 복구를 원본 조회에 다시 의존시키지 않는다. VMware QGA는 양단 제외한다.

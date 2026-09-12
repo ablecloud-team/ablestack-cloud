@@ -1,3 +1,22 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
 # #1021 / #1018 검증 기록 — 2026-09-11
 
 ## 기준과 구현
@@ -44,7 +63,7 @@ Cloud `2e3d3168643` (#954 포함), qemu `fb6df9b`를 보존한 양쪽 `codex/fix
 - UI Failback Run `93a89a1c-5be7-411a-a80a-d8fd6b39b49e` 실행. 최종 결과는 아래에 이어 기록한다.
 
 ## 발견한 별도 기존 문제
-#1020 진행 식별자 누락이 재현되어 댓글에 현재 Run/시각/표시를 추가했다. 실제 역복제 worker가 COPYING 중인데 UI가 과거100%/192KiB 및 원본 복구 완료 안내를 섞어 표시했다. 이를 실제 완료로 계산하지 않는다. 현재 Run과 무관한 완료 안내를 배제하는 조건을 #1020에 추가했으며 후속 P2 우선순위를 앞당긴다.
+\#1020 진행 식별자 누락이 재현되어 댓글에 현재 Run/시각/표시를 추가했다. 실제 역복제 worker가 COPYING 중인데 UI가 과거100%/192KiB 및 원본 복구 완료 안내를 섞어 표시했다. 이를 실제 완료로 계산하지 않는다. 현재 Run과 무관한 완료 안내를 배제하는 조건을 #1020에 추가했으며 후속 P2 우선순위를 앞당긴다.
 
 증거 폴더: `/home/ablecloud/work/issue1021-evidence`. 비밀번호/자격 증명은 기록하지 않는다. 이번 검증은 물리 장애/모든 VM 배치/모든 OS 및 전체 릴리즈 검증이 아니다.
 
@@ -58,4 +77,4 @@ Cloud `2e3d3168643` (#954 포함), qemu `fb6df9b`를 보존한 양쪽 `codex/fix
 - qcow2 전체 UI failback 체인을 새로 수행한 것은 아니다. qcow2는 실제 데이터 모듈 full/incremental fixture 및 QMP 회귀, 기존 UI 정상/증거 없음 표시를 검증했다. 물리 장애·전체 배치·OS 조합의 완전 검증으로 확대 해석하지 않는다.
 
 ## 후속 관리
-#1021/#1018 핵심 구현·명시 범위 검증 완료, upstream 병합 대기. 다음 DR P2는 재현된 #1020 진행/완료 안내 오류, 이어 #962 확장+#1006이다. Diplo #1029는 별도 P1. Nutanix 제외 잔여19건(Cloud18+qemu1), 핵심 구현·검증/병합·잔여 시험36건이다.
+\#1021/#1018 핵심 구현·명시 범위 검증 완료, upstream 병합 대기. 다음 DR P2는 재현된 #1020 진행/완료 안내 오류, 이어 #962 확장+#1006이다. Diplo #1029는 별도 P1. Nutanix 제외 잔여19건(Cloud18+qemu1), 핵심 구현·검증/병합·잔여 시험36건이다.

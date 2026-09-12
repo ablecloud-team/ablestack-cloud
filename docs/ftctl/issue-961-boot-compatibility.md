@@ -1,3 +1,22 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
 # #961: boot compatibility and target tuning
 
 Source observation identity is separate from target boot compatibility. DrHardwareCompatibilityPolicy selects boot/security/controller details rather than treating every copied source detail as an immutable target contract. Materialization reuse validates first and never overwrites/removes existing target details based on a legacy copy manifest. Only diagnostic source fingerprint metadata advances after successful validation.
@@ -25,7 +44,6 @@ Cluster evidence below distinguishes automated regression coverage from the phys
 The reason text containing `io.policy=threads` exposed an existing ApiResponseSerializer.unescape defect: Unicode escapes in nested JSON strings were decoded twice, yielding invalid outer JSON with a backslash followed by equals. listDrRuns and embedded plan history became unreadable. Preserve escaped literal sequences and JSON-special/control characters while unescaping ordinary Unicode characters. Three server tests cover nested equals, literal Unicode sequences and escaped controls/quotes/backslashes. The server module package passed. Historical Run data remains intact.
 
 Initial physical test uses u26-base DR Plan on source site 13 and target site 31. The live worker was resolved to 10.10.13.2 (SSH 10022), not inferred from old profile copies on 31.1/13.1. Current full-seed checkpoint 2026-09-09 22:29:26 and durable target 22:30:13 were observed there. Target VM 225 retains missing iothreads and io.policy=threads; Plan requests true/io_uring. SYNC Run f2edefe7-7980-47b5-89f0-8d00580d8f44 succeeded and emitted TARGET_TUNING_DIFFERENCE WARN. Subsequent UI results follow below.
-
 
 ## 2026-09-09 physical UI validation (KST)
 
