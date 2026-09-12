@@ -90,7 +90,11 @@ java --add-opens=java.base/java.lang=ALL-UNNAMED \
 배포 후 브라우저에서 재로그인, 호스트 목록 3대, ablecube1 상세 및 HA 상태,
 해당 호스트의 VM 목록 6대, Mold-Theme-UI-TEST VM 상세(Running, HA=true)를 확인했다.
 DB 대조에서도 배포 전후 전체 VM 상태가 Running 49 / Stopped 8로 동일하며 호스트 3대가 Up이다.
-WEB-INF 보존과 `/client/` HTTP 200, 관리 서비스 정상 시작을 확인한다.
+WEB-INF 보존과 `/client/` HTTP 200, 관리 서비스 정상 시작을 확인했다.
+
+관리 JVM의 풀 로그는 2026-09-12 15:27:32부터 2026-09-12 15:31:32까지 9개 표본에서
+Active 1~2로 관찰됐다. 15:31:25의 로컬 JMX에서는 DB 연결을 보유한 Transaction이 0건이었다.
+이는 정상 운영·UI 조회 중 짧은 관찰이며 장시간 누수 시험의 대체 근거는 아니다.
 
 세 호스트는 배포 전후 모두 `Ineligible`이다. 따라서 실제 Eligible 호스트 장애·복구·fencing의
 자동 HA 전환과 장시간 부하 누수 검증은 수행하지 않았다. 이 결과는 연결 반환 결함의
