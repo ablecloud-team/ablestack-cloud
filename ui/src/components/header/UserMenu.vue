@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import { api } from '@/api'
+import { discoverOptional, hasDiscoveryApi } from '@/utils/optionalDiscovery'
 import CreateMenu from './CreateMenu'
 import ExternalLink from './ExternalLink'
 import HeaderNotice from './HeaderNotice'
@@ -117,6 +117,11 @@ export default {
   },
   data () {
     return {
+      disposed: false,
+      hostStateTimer: null,
+      settingsGeneration: 0,
+      stopNotifyWatch: null,
+      refreshHeader: null,
       image: '',
       userInitials: '',
       countNotify: 0,
@@ -129,12 +134,11 @@ export default {
   created () {
     this.userInitials = (this.$store.getters.userInfo.firstname.toUpperCase().charAt(0) || '') +
       (this.$store.getters.userInfo.lastname.toUpperCase().charAt(0) || '')
-    this.getIcon()
+    this.getIcon().catch(() => {})
     this.fetchConfigurationSwitch()
-    eventBus.on('refresh-header', () => {
-      this.getIcon()
-    })
-    this.$store.watch(
+    this.refreshHeader = () => { this.getIcon().catch(() => {}) }
+    eventBus.on('refresh-header', this.refreshHeader)
+    this.stopNotifyWatch = this.$store.watch(
       (state, getters) => getters.countNotify,
       (newValue, oldValue) => {
         this.countNotify = newValue
@@ -142,15 +146,26 @@ export default {
     )
     this.faviconSetting()
   },
+  beforeUnmount () {
+    this.disposed = true
+    this.settingsGeneration += 1
+    clearInterval(this.hostStateTimer)
+    if (this.stopNotifyWatch) this.stopNotifyWatch()
+    eventBus.off('refresh-header', this.refreshHeader)
+  },
   watch: {
+    discoveryContext () { this.fetchConfigurationSwitch() },
     image () {
-      this.getIcon()
+      this.getIcon().catch(() => {})
     },
     faviconState () {
       this.faviconSetting()
     }
   },
   computed: {
+    discoveryContext () {
+      return [this.$store.state.user.discoveryGeneration, this.$store.getters.apis]
+    },
     canOpenDisplaySettings () {
       return isAdmin() && (process.env.NODE_ENV === 'development' || this.$config.allowSettingTheme)
     },
@@ -167,21 +182,17 @@ export default {
     async getIcon () {
       await this.fetchResourceIcon(this.$store.getters.userInfo.id)
     },
-    fetchResourceIcon (id) {
-      return new Promise((resolve, reject) => {
-        api('listUsers', {
-          id: id,
-          showicon: true
-        }).then(json => {
-          const response = json.listusersresponse.user || []
-          if (response?.[0]) {
-            this.image = response[0]?.icon?.base64image || ''
-            resolve(this.image)
-          }
-        }).catch(error => {
-          reject(error)
-        })
-      })
+    async fetchResourceIcon (id) {
+      const generation = this.$store.state.user.discoveryGeneration
+      if (this.$store.getters.avatar) {
+        this.image = this.$store.getters.avatar
+        return this.image
+      }
+      const json = await discoverOptional(this.$store.getters.apis, 'listUsers', { id, showicon: true })
+      if (this.disposed || generation !== this.$store.state.user.discoveryGeneration) return
+      this.image = json?.listusersresponse?.user?.[0]?.icon?.base64image || ''
+      this.$store.commit('SET_AVATAR', this.image)
+      return this.image
     },
     handleClickMenu (item) {
       switch (item.key) {
@@ -219,100 +230,63 @@ export default {
       this.$store.commit('SET_COUNT_NOTIFY', 0)
       this.$notification.destroy()
     },
-    wallPortalLink () {
-      api('listConfigurations', { keyword: 'monitoring.wall.portal' }).then(json => {
-        const items = json.listconfigurationsresponse.configuration
-        const wallPortalProtocol = items.filter(x => x.name === 'monitoring.wall.portal.protocol')[0]?.value
-        const wallPortalPort = items.filter(x => x.name === 'monitoring.wall.portal.port')[0]?.value
-        var wallPortalDomain = items.filter(x => x.name === 'monitoring.wall.portal.domain')[0]?.value
-        if (wallPortalDomain === null || wallPortalDomain === '') {
-          wallPortalDomain = this.$store.getters.features.host
-        }
-        const uri = wallPortalProtocol + '://' + wallPortalDomain + ':' + wallPortalPort
-        this.uriInfo = uri
-        window.open(this.uriInfo, '_blank')
-      })
+    async wallPortalLink () {
+      const generation = this.settingsGeneration
+      const json = await discoverOptional(this.$store.getters.apis, 'listConfigurations', { keyword: 'monitoring.wall.portal' })
+      if (generation !== this.settingsGeneration) return
+      const items = json?.listconfigurationsresponse?.configuration || []
+      const value = name => items.find(x => x.name === name)?.value
+      const protocol = value('monitoring.wall.portal.protocol')
+      const port = value('monitoring.wall.portal.port')
+      const domain = value('monitoring.wall.portal.domain') || this.$store.getters.features.host
+      if (protocol && domain && port) window.open(protocol + '://' + domain + ':' + port, '_blank', 'noopener')
     },
     async fetchConfigurationSwitch () {
-      await this.fetchFaviconStateInterval()
-      await this.fetchFaviconStateYellowCapacity()
-      await this.fetchFaviconStateRedCapacity()
-      if (!this.$store.getters.features.securityfeaturesenabled) {
-        await this.fetchHostState()
-      }
+      const generation = ++this.settingsGeneration
+      clearInterval(this.hostStateTimer)
+      this.hostStateTimer = null
+      this.faviconStateInterval = 60000
+      this.faviconStateYellowCapacity = '0.75'
+      this.faviconStateRedCapacity = '0.55'
+      this.faviconState = '#008000'
+      await Promise.all([
+        this.fetchFaviconStateInterval(),
+        this.fetchFaviconStateYellowCapacity(),
+        this.fetchFaviconStateRedCapacity()
+      ])
+      if (generation !== this.settingsGeneration) return
+      if (!this.$store.getters.features.securityfeaturesenabled) this.fetchHostState()
+    },
+    async fetchFaviconConfiguration (name, field, multiplier = 1) {
+      const generation = this.settingsGeneration
+      const json = await discoverOptional(this.$store.getters.apis, 'listConfigurations', { name })
+      if (generation !== this.settingsGeneration) return
+      const value = Number(json?.listconfigurationsresponse?.configuration?.[0]?.value)
+      if (Number.isFinite(value) && value > 0) this[field] = value * multiplier
+      return this[field]
     },
     fetchFaviconStateInterval () {
-      return new Promise((resolve, reject) => {
-        api('listConfigurations', {
-          name: 'favicon.state.interval'
-        }).then(json => {
-          const response = json.listconfigurationsresponse.configuration || []
-          if (response?.[0]) {
-            this.faviconStateInterval = json.listconfigurationsresponse.configuration[0].value * 1000
-            resolve(this.faviconStateInterval)
-          }
-        }).catch(error => {
-          reject(error)
-        })
-      })
+      return this.fetchFaviconConfiguration('favicon.state.interval', 'faviconStateInterval', 1000)
     },
     fetchFaviconStateYellowCapacity () {
-      return new Promise((resolve, reject) => {
-        api('listConfigurations', {
-          name: 'favicon.state.yellow.capacity'
-        }).then(json => {
-          const response = json.listconfigurationsresponse.configuration || []
-          if (response?.[0]) {
-            this.faviconStateYellowCapacity = json.listconfigurationsresponse.configuration[0].value
-          }
-          resolve(this.faviconStateYellowCapacity)
-        }).catch(error => {
-          reject(error)
-        })
-      })
+      return this.fetchFaviconConfiguration('favicon.state.yellow.capacity', 'faviconStateYellowCapacity')
     },
     fetchFaviconStateRedCapacity () {
-      return new Promise((resolve, reject) => {
-        api('listConfigurations', {
-          name: 'favicon.state.red.capacity'
-        }).then(json => {
-          const response = json.listconfigurationsresponse.configuration || []
-          if (response?.[0]) {
-            this.faviconStateRedCapacity = json.listconfigurationsresponse.configuration[0].value
-          }
-          resolve(this.faviconStateRedCapacity)
-        }).catch(error => {
-          reject(error)
-        })
-      })
+      return this.fetchFaviconConfiguration('favicon.state.red.capacity', 'faviconStateRedCapacity')
     },
-    async fetchHostState () {
-      return new Promise((resolve, reject) => {
-        setInterval(() => {
-          api('listHostsMetrics', {}).then(async json => {
-            const hosts = json.listhostsmetricsresponse.host || []
-            const totalHostCount = json.listhostsmetricsresponse.count
-            let errorHostCount = 0
-            hosts.forEach((host) => {
-              if (host.state !== 'Up' || host.resourcestate !== 'Enabled') {
-                errorHostCount = errorHostCount + 1
-              }
-            })
-            if (errorHostCount !== 0) {
-              const ratio = 1 - (errorHostCount / totalHostCount)
-              if (ratio <= 0.70) {
-                this.faviconState = '#FFA500'
-                if (ratio <= 0.40) {
-                  this.faviconState = '#FF0000'
-                }
-              }
-            }
-            resolve(this.faviconState)
-          }).catch(error => {
-            reject(error)
-          })
-        }, this.faviconStateInterval)
-      })
+    fetchHostState () {
+      clearInterval(this.hostStateTimer)
+      if (!hasDiscoveryApi(this.$store.getters.apis, 'listHostsMetrics')) return
+      const generation = this.settingsGeneration
+      this.hostStateTimer = setInterval(async () => {
+        if (generation !== this.settingsGeneration) return
+        const json = await discoverOptional(this.$store.getters.apis, 'listHostsMetrics')
+        if (generation !== this.settingsGeneration || !json) return
+        const hosts = json.listhostsmetricsresponse?.host || []
+        const errors = hosts.filter(host => host.state !== 'Up' || host.resourcestate !== 'Enabled').length
+        const ratio = hosts.length ? 1 - errors / hosts.length : 1
+        this.faviconState = ratio <= 0.40 ? '#FF0000' : ratio <= 0.70 ? '#FFA500' : '#008000'
+      }, this.faviconStateInterval)
     },
     faviconSetting () {
       const faviconSize = 16

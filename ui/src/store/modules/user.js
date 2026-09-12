@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { discoverOptional } from '@/utils/optionalDiscovery'
 import Cookies from 'js-cookie'
 import message from 'ant-design-vue/es/message'
 import notification from 'ant-design-vue/es/notification'
@@ -48,6 +49,7 @@ import {
 
 const user = {
   state: {
+    discoveryGeneration: 0,
     token: '',
     name: '',
     avatar: '',
@@ -78,6 +80,22 @@ const user = {
   },
 
   mutations: {
+    RESET_DISCOVERY: (state) => {
+      state.discoveryGeneration += 1
+      state.apis = {}
+      state.info = {}
+      state.avatar = ''
+      state.name = ''
+      state.features = {}
+      state.isLdapEnabled = false
+      state.cloudian = {}
+      state.zones = {}
+      state.showSecurityGroups = false
+      state.customHypervisorName = 'Custom'
+      state.defaultListViewPageSize = 20
+      for (const key of [APIS, ZONES, SHOW_SECURTIY_GROUPS]) vueProps.$localStorage.remove(key)
+    },
+
     SET_TOKEN: (state, token) => {
       state.token = token
     },
@@ -194,6 +212,7 @@ const user = {
       commit('SET_PROJECT', project)
     },
     Login ({ commit }, userInfo) {
+      commit('RESET_DISCOVERY')
       return new Promise((resolve, reject) => {
         login(userInfo).then(response => {
           const result = response.loginresponse || {}
@@ -245,6 +264,8 @@ const user = {
     },
 
     OauthLogin ({ commit }, userInfo) {
+      commit('RESET_DISCOVERY')
+      commit('RESET_DISCOVERY')
       return new Promise((resolve, reject) => {
         oauthlogin(userInfo).then(response => {
           const result = response.loginresponse || {}
@@ -293,7 +314,12 @@ const user = {
       })
     },
 
-    GetInfo ({ commit }, switchDomain) {
+    GetInfo ({ commit, state }, switchDomain) {
+      if (switchDomain) commit('RESET_DISCOVERY')
+      const generation = state.discoveryGeneration
+      const originalCommit = commit
+      const current = () => state.discoveryGeneration === generation
+      commit = (...args) => { if (current()) originalCommit(...args) }
       return new Promise((resolve, reject) => {
         const cachedApis = switchDomain ? {} : vueProps.$localStorage.get(APIS, {})
         const cachedZones = vueProps.$localStorage.get(ZONES, [])
@@ -309,6 +335,36 @@ const user = {
         commit('SET_DOMAIN_STORE', domainStore)
         commit('SET_DARK_MODE', darkMode)
         commit('SET_LATEST_VERSION', latestVersion)
+        const loadFeatures = async (apis) => {
+          if (!current()) return
+          const response = await discoverOptional(apis, 'listCapabilities')
+          if (!current()) return
+          const result = response?.listcapabilitiesresponse?.capability || {}
+          commit('SET_FEATURES', result)
+          commit('SET_DEFAULT_LISTVIEW_PAGE_SIZE', result.defaultuipagesize || 20)
+          commit('SET_CUSTOM_HYPERVISOR_NAME', result.customhypervisordisplayname || 'Custom')
+          commit('SET_SHOW_SECURITY_GROUPS', !!result.securitygroupsenabled)
+          // Optional integrations must not delay login or route creation.
+          Promise.all([
+            ['listNetworkServiceProviders', { name: 'SecurityGroupProvider', state: 'Enabled' }, json => {
+              commit('SET_SHOW_SECURITY_GROUPS', json.listnetworkserviceprovidersresponse?.count > 0)
+            }],
+            ['cloudianIsEnabled', {}, json => {
+              commit('SET_CLOUDIAN', json.cloudianisenabledresponse?.cloudianisenabled || {})
+            }],
+            ['listNetworks', { restartrequired: true, forvpc: false }, json => {
+              if (json.listnetworksresponse?.count > 0) store.dispatch('AddHeaderNotice', { key: 'NETWORK_RESTART_REQUIRED', title: i18n.global.t('label.network.restart.required'), description: i18n.global.t('message.network.restart.required'), path: '/guestnetwork/', query: { restartrequired: true, forvpc: false }, status: 'done', timestamp: new Date() })
+            }],
+            ['listVPCs', { restartrequired: true }, json => {
+              if (json.listvpcsresponse?.count > 0) store.dispatch('AddHeaderNotice', { key: 'VPC_RESTART_REQUIRED', title: i18n.global.t('label.vpc.restart.required'), description: i18n.global.t('message.vpc.restart.required'), path: '/vpc/', query: { restartrequired: true }, status: 'done', timestamp: new Date() })
+            }]
+          ].map(async ([name, params, apply]) => {
+            if (!current()) return
+            const json = await discoverOptional(apis, name, params)
+            if (current() && json) apply(json)
+          })).catch(() => {})
+        }
+
         if (hasAuth) {
           console.log('Login detected, using cached APIs')
           commit('SET_ZONES', cachedZones)
@@ -324,7 +380,7 @@ const user = {
             commit('SET_INFO', result)
             commit('SET_NAME', result.firstname + ' ' + result.lastname)
             // store.dispatch('SetCsLatestVersion', result.rolename)
-            resolve(cachedApis)
+            loadFeatures(cachedApis).then(() => resolve(current() ? cachedApis : {}))
           }).catch(error => {
             reject(error)
           })
@@ -337,6 +393,7 @@ const user = {
             reject(error)
           })
           api('listApis').then(response => {
+            if (!current()) { hide(); resolve({}); return }
             const apis = {}
             const apiList = response.listapisresponse.api
             for (var idx = 0; idx < apiList.length; idx++) {
@@ -351,45 +408,19 @@ const user = {
               }
             }
             commit('SET_APIS', apis)
-            resolve(apis)
-            store.dispatch('GenerateRoutes', { apis }).then(() => {
-              store.getters.addRouters.map(route => {
-                router.addRoute(route)
-              })
+            loadFeatures(apis).then(() => {
+              resolve(current() ? apis : {})
+              if (!current()) { hide(); return }
+              store.dispatch('GenerateRoutes', { apis }).then(() => {
+                if (!current()) return
+                store.getters.addRouters.map(route => router.addRoute(route))
+              }).catch(() => {})
+              hide()
+              message.success(i18n.global.t('message.sussess.discovering.feature'))
             })
-            hide()
-            message.success(i18n.global.t('message.sussess.discovering.feature'))
           }).catch(error => {
             reject(error)
           })
-
-          api('listNetworks', { restartrequired: true, forvpc: false }).then(response => {
-            if (response.listnetworksresponse.count > 0) {
-              store.dispatch('AddHeaderNotice', {
-                key: 'NETWORK_RESTART_REQUIRED',
-                title: i18n.global.t('label.network.restart.required'),
-                description: i18n.global.t('message.network.restart.required'),
-                path: '/guestnetwork/',
-                query: { restartrequired: true, forvpc: false },
-                status: 'done',
-                timestamp: new Date()
-              })
-            }
-          }).catch(ignored => {})
-
-          api('listVPCs', { restartrequired: true }).then(response => {
-            if (response.listvpcsresponse.count > 0) {
-              store.dispatch('AddHeaderNotice', {
-                key: 'VPC_RESTART_REQUIRED',
-                title: i18n.global.t('label.vpc.restart.required'),
-                description: i18n.global.t('message.vpc.restart.required'),
-                path: '/vpc/',
-                query: { restartrequired: true },
-                status: 'done',
-                timestamp: new Date()
-              })
-            }
-          }).catch(ignored => {})
         }
 
         api('listUsers', { username: Cookies.get('username') }).then(response => {
@@ -400,46 +431,6 @@ const user = {
         }).catch(error => {
           reject(error)
         })
-
-        api(
-          'listNetworkServiceProviders',
-          { name: 'SecurityGroupProvider', state: 'Enabled' }
-        ).then(response => {
-          const showSecurityGroups = response.listnetworkserviceprovidersresponse.count > 0
-          commit('SET_SHOW_SECURITY_GROUPS', showSecurityGroups)
-        }).catch(ignored => {
-        })
-
-        api('listCapabilities').then(response => {
-          const result = response.listcapabilitiesresponse.capability
-          commit('SET_FEATURES', result)
-          if (result && result.defaultuipagesize) {
-            commit('SET_DEFAULT_LISTVIEW_PAGE_SIZE', result.defaultuipagesize)
-          }
-          if (result && result.customhypervisordisplayname) {
-            commit('SET_CUSTOM_HYPERVISOR_NAME', result.customhypervisordisplayname)
-          }
-          if (result && result.securitygroupsenabled) {
-            commit('SET_SHOW_SECURITY_GROUPS', result.securitygroupsenabled)
-          }
-        }).catch(error => {
-          reject(error)
-        })
-
-        // api('listLdapConfigurations').then(response => {
-        //   const ldapEnable = (response.ldapconfigurationresponse.count > 0)
-        //   commit('SET_LDAP', ldapEnable)
-        // }).catch(error => {
-        //   reject(error)
-        // })
-
-        api('cloudianIsEnabled').then(response => {
-          const cloudian = response.cloudianisenabledresponse.cloudianisenabled || {}
-          commit('SET_CLOUDIAN', cloudian)
-        }).catch(ignored => {
-        })
-      }).catch(error => {
-        console.error(error)
       })
     },
 
@@ -455,6 +446,7 @@ const user = {
           window.location.href = payload.apiBase + '?command=samlSlo&ssoLogin=false&username=' + Cookies.get('username') + '&idpid=' + Cookies.get('idpid')
         }
 
+        commit('RESET_DISCOVERY')
         commit('SET_TOKEN', '')
         commit('SET_APIS', {})
         commit('SET_PROJECT', {})
@@ -533,35 +525,26 @@ const user = {
         })
       })
     },
-    RefreshFeatures ({ commit }) {
-      return new Promise((resolve, reject) => {
-        api('listCapabilities').then(response => {
-          const result = response.listcapabilitiesresponse.capability
-          resolve(result)
-          commit('SET_FEATURES', result)
-        }).catch(error => {
-          reject(error)
-        })
-
-        api('listConfigurations', { name: 'hypervisor.custom.display.name' }).then(json => {
-          if (json.listconfigurationsresponse.configuration !== null) {
-            const config = json.listconfigurationsresponse.configuration[0]
-            commit('SET_CUSTOM_HYPERVISOR_NAME', config.value)
-          }
-        }).catch(error => {
-          reject(error)
-        })
-      })
+    async RefreshFeatures ({ commit, state }) {
+      const generation = state.discoveryGeneration
+      const apis = state.apis
+      const response = await discoverOptional(apis, 'listCapabilities')
+      if (state.discoveryGeneration !== generation || state.apis !== apis) return
+      const result = response?.listcapabilitiesresponse?.capability
+      if (result) {
+        commit('SET_FEATURES', { ...state.features, ...result })
+        commit('SET_CUSTOM_HYPERVISOR_NAME', result.customhypervisordisplayname || 'Custom')
+      }
+      const json = await discoverOptional(apis, 'listConfigurations', { name: 'hypervisor.custom.display.name' })
+      if (state.discoveryGeneration !== generation || state.apis !== apis) return
+      const value = json?.listconfigurationsresponse?.configuration?.[0]?.value
+      if (value) commit('SET_CUSTOM_HYPERVISOR_NAME', value)
+      return result
     },
-    UpdateConfiguration ({ commit }) {
-      return new Promise((resolve, reject) => {
-        api('listLdapConfigurations').then(response => {
-          const ldapEnable = (response.ldapconfigurationresponse.count > 0)
-          commit('SET_LDAP', ldapEnable)
-        }).catch(error => {
-          reject(error)
-        })
-      })
+    async UpdateConfiguration ({ commit, state }) {
+      const generation = state.discoveryGeneration
+      const json = await discoverOptional(state.apis, 'listLdapConfigurations')
+      if (state.discoveryGeneration === generation) commit('SET_LDAP', json?.ldapconfigurationresponse?.count > 0)
     },
     SetDomainStore ({ commit }, domainStore) {
       commit('SET_DOMAIN_STORE', domainStore)
