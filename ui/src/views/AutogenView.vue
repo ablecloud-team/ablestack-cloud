@@ -1877,7 +1877,12 @@ export default {
         ...action,
         invokedAsGroupAction: !!isGroupAction
       }
-      this.currentAction.params = store.getters.apis[this.currentAction.api].params
+      const apiParams = store.getters.apis[this.currentAction.api]?.params
+      if (!Array.isArray(apiParams)) {
+        this.rejectActionSchema(action.api, ['*'])
+        return
+      }
+      this.currentAction.params = apiParams
       this.actionConfirmText = ''
       this.resource = action.resource
       this.$emit('change-resource', this.resource)
@@ -1899,7 +1904,11 @@ export default {
         }
         this.currentAction.message = Array.isArray(message) ? this.$t(...message) : this.$t(message)
       }
-      this.getArgs(action, isGroupAction, paramFields)
+      const missingArgs = this.getArgs(action, isGroupAction, paramFields)
+      if (missingArgs.length > 0) {
+        this.rejectActionSchema(action.api, missingArgs)
+        return
+      }
       this.getFilters(action, isGroupAction, paramFields)
       this.getFirstIndexFocus()
 
@@ -1919,8 +1928,13 @@ export default {
         this.fillEditFormFieldValues()
       }
     },
+    rejectActionSchema (api, missingArgs) {
+      this.closeAction()
+      this.$message.error(this.$t('message.api.schema.mismatch', { api, parameters: missingArgs.join(', ') }))
+    },
     getArgs (action, isGroupAction, paramFields) {
       const self = this
+      const missingArgs = []
       if ('args' in action) {
         var args = action.args
         if (typeof action.args === 'function') {
@@ -1944,12 +1958,17 @@ export default {
                 description: self.$t('label.select.guest.os.type')
               }
             }
-            return paramFields.filter(function (param) {
+            const field = paramFields.find(function (param) {
               return param.name.toLowerCase() === arg.toLowerCase()
-            })[0]
+            })
+            if (!field) {
+              missingArgs.push(arg)
+            }
+            return field
           })
         }
       }
+      return missingArgs
     },
     getFilters (action, isGroupAction, paramFields) {
       if ('filters' in action) {

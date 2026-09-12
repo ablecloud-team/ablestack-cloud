@@ -1,4 +1,5 @@
 {
+  "message.api.schema.mismatch": "UI와 서버 API 구성이 일치하지 않습니다. {api}의 누락 매개변수: {parameters}. 화면을 새로 고친 후에도 계속되면 관리자에게 배포 모듈 확인을 요청하세요.",
   "label.dr.boot.validation.mode": "부팅 검증 모드",
   "label.dr.boot.validation.result": "부팅 검증 결과",
   "label.sharedfs.network.mode": "네트워크 설정 방식",
