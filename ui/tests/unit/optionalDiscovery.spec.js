@@ -23,7 +23,7 @@ import { vueProps } from '@/vue-app'
 import UserMenu from '@/components/header/UserMenu.vue'
 import GlobalLayout from '@/components/page/GlobalLayout.vue'
 
-jest.mock('@/api', () => { const request = jest.fn(); return { getAPI: request, api: request, logout: jest.fn(() => Promise.resolve({})) } })
+jest.mock('@/api', () => { const request = jest.fn(); return { getAPI: request, api: request, login: jest.fn(() => Promise.resolve({ loginresponse: { sessionkey: 'new-session', firstname: 'Test', lastname: 'User' } })), logout: jest.fn(() => Promise.resolve({})) } })
 jest.mock('@/vue-app', () => ({ vueProps: { $localStorage: { get: jest.fn((key, fallback) => fallback), set: jest.fn(), remove: jest.fn() } } }))
 jest.mock('@/store', () => ({ getters: { loginFlag: true, addRouters: [] }, dispatch: jest.fn(() => Promise.resolve()) }))
 jest.mock('@/router', () => ({ addRoute: jest.fn() }))
@@ -211,4 +211,12 @@ test('shutdown notice discovery ignores an old session and permission denial', a
   finish({ readyforshutdownresponse: { readyforshutdown: { shutdowntriggered: true } } })
   await pending
   expect(dispatch).not.toHaveBeenCalled()
+})
+
+test('login keeps dormant LDAP disabled after resetting optional state', async () => {
+  const ctx = context()
+  ctx.state.isLdapEnabled = true
+  await user.actions.Login(ctx, {})
+  expect(ctx.state.isLdapEnabled).toBe(false)
+  expect(ctx.state.discoveryGeneration).toBe(1)
 })

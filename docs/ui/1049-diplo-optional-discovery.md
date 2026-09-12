@@ -50,7 +50,7 @@ Europa #1042 / PR #1050의 확정 구현을 참고하되 Diplo API와 초기화 
 이전 generation의 401은 무시했다. Europa의 같은 잔여 경합은 별도 [#1052](https://github.com/ablecloud-team/ablestack-cloud/issues/1052)로 등록했다.
 
 Diplo package-lock으로 `npm ci`를 수행했으며 Axios 0.21.4를 사용한다.
-선택 요청 35건과 기존 API 테스트 1건, **총 36건 PASS**. 변경 파일 lint PASS.
+선택 요청 36건과 기존 API 테스트 1건, **총 37건 PASS**. 변경 파일 lint PASS.
 권한별 조회, 미확정/상속 API 차단, 빈 설정/432, timeout/cancel/401, 늦은 응답,
 재로그인 generation, 타이머 해제, 기존 Diplo GET/POST 계약을 검증했다.
 
