@@ -77,10 +77,6 @@
               :resource="detailPlan"
               :triggerStyle="{ float: device === 'mobile' ? 'left' : 'right' }"
               @exec-action="runPlanAction" />
-            <dr-checkpoint-manager
-              v-if="!detailId"
-              toolbar
-              style="display: inline-flex; flex-shrink: 0; margin-right: 10px" />
             <span
               v-if="!detailId && selectedRowKeys.length > 0 && 'startDrProtectionGroupAction' in $store.getters.apis"
               class="row-action-button"
@@ -105,6 +101,10 @@
               :dataView="false"
               :resource="{}"
               @exec-action="openCreateModal" />
+            <dr-checkpoint-manager
+              v-if="!detailId"
+              toolbar
+              style="display: inline-flex; flex-shrink: 0; margin-right: 10px" />
             <search-view
               v-if="!detailId"
               style="flex: 1 1 180px; width: auto; min-width: 0"
