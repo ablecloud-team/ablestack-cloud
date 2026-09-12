@@ -70,7 +70,7 @@
           </a-col>
           <a-col
             :span="device === 'mobile' ? 24 : 12"
-            :style="device === 'mobile' ? { float: 'right', 'margin-top': '12px', 'margin-bottom': '-6px', display: 'table' } : { float: 'right', display: 'table', 'margin-top': '6px' }">
+            :style="!detailId ? { display: 'flex', alignItems: 'center', flexWrap: 'wrap', rowGap: '8px', marginTop: device === 'mobile' ? '12px' : '6px' } : { float: 'right', display: 'table', marginTop: '6px' }">
             <dr-resource-action-menu
               v-if="detailId && detailPlan.id"
               :actions="planActions"
@@ -80,7 +80,7 @@
             <dr-checkpoint-manager
               v-if="!detailId"
               toolbar
-              style="display: inline-flex; margin-right: 10px; vertical-align: middle" />
+              style="display: inline-flex; flex-shrink: 0; margin-right: 10px" />
             <span
               v-if="!detailId && selectedRowKeys.length > 0 && 'startDrProtectionGroupAction' in $store.getters.apis"
               class="row-action-button"
@@ -107,6 +107,7 @@
               @exec-action="openCreateModal" />
             <search-view
               v-if="!detailId"
+              style="flex: 1 1 180px; width: auto; min-width: 0"
               :searchFilters="searchFilters"
               :searchParams="searchParams"
               apiName="listDrPlans"
