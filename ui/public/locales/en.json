@@ -1,4 +1,5 @@
 {
+  "message.api.schema.mismatch": "The UI and server API do not match. Missing parameters for {api}: {parameters}. Refresh the page; if this persists, ask an administrator to verify the deployed modules.",
   "label.dr.boot.validation.mode": "Boot validation mode",
   "label.dr.boot.validation.result": "Boot validation result",
   "label.dr.protection.group.action": "Protection group action",
