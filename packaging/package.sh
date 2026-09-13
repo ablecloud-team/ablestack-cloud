@@ -216,6 +216,9 @@ function packaging() {
     (cd $PWD/../; tar -c --exclude .git --exclude dist . | tar -C "$RPMDIR/SOURCES/$PACK_PROJECT-$VERSION" -x )
     (cd "$RPMDIR/SOURCES/"; tar -czf "$PACK_PROJECT-$VERSION.tgz" "$PACK_PROJECT-$VERSION")
 
+    # Build the host runtime into the same artifact tree before Cloud packages.
+    bash "$PWD/network-runtime/build.sh" "$RPMDIR" || exit 3
+
     echo ". executing rpmbuild"
     cp "$PWD/$SPECDISTRO/cloud.spec" "$RPMDIR/SPECS"
 

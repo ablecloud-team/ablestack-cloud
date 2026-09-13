@@ -51,6 +51,7 @@ CloudStack is a highly-scalable elastic, open source,
 intelligent IaaS cloud implementation.
 
 %package management
+Requires: sshpass
 Summary:   CloudStack management server UI
 Requires: java-17-openjdk
 Requires: (tzdata-java or timezone-java)
@@ -96,6 +97,7 @@ The Apache CloudStack files shared between agent and management server
 %global __requires_exclude ^(libuuid\\.so\\.1|/usr/bin/python)$
 
 %package agent
+Requires: cloudstack-network-runtime >= 1.0.0
 Summary: CloudStack Agent for KVM hypervisors
 Requires: (openssh-clients or openssh)
 Requires: java-17-openjdk
@@ -682,6 +684,7 @@ pip3 install --upgrade /usr/share/cloudstack-marvin/[Mm]arvin-*.tar.gz
 %{_datadir}/%{name}-management/setup/wheel/*.whl
 %dir %attr(0755,cloud,cloud) %{_sysconfdir}/%{name}/extensions
 %attr(0755,cloud,cloud) %{_sysconfdir}/%{name}/extensions/*
+%exclude %{_sysconfdir}/%{name}/extensions/network-namespace/network-namespace-wrapper.sh
 
 %files agent
 %attr(0755,root,root) %{_bindir}/%{name}-setup-agent
