@@ -138,6 +138,7 @@
 
 <script>
 import { getAPI, postAPI } from '@/api'
+import axios from 'axios'
 import TooltipButton from '@/components/widgets/TooltipButton'
 
 export default {
@@ -160,6 +161,7 @@ export default {
       loading: false,
       resourceType: 'UserVm',
       deployasistemplate: false,
+      resourceRequest: 0,
       error: false,
       videoHardwareCount: '1'
     }
@@ -198,11 +200,6 @@ export default {
       })
     },
     displayedDetails () {
-      // 모든 details 표시 (이미 updateResource에서 정렬됨)
-      console.log('=== DISPLAYED DETAILS ===')
-      this.details.forEach((d, idx) => {
-        console.log(`  Display[${idx}] ${d.name} = ${d.value}`)
-      })
       return this.details
     },
     videoHardwareOptions () {
@@ -214,6 +211,9 @@ export default {
   },
   created () {
     this.updateResource(this.resource)
+  },
+  beforeUnmount () {
+    this.resourceRequest++
   },
   methods: {
     filterOption (input, option, filterType) {
@@ -227,7 +227,10 @@ export default {
       )
     },
     updateResource (resource) {
+      const request = ++this.resourceRequest
       this.details = []
+      this.detailOptions = {}
+      this.deployasistemplate = false
       if (!resource) {
         return
       }
@@ -257,19 +260,33 @@ export default {
         // video.hardware, video.ram, 기타 순서로 배열 생성
         const orderedKeys = [...videoHardwareKeys, ...videoRamKeys, ...otherKeys]
 
-        console.log('Ordered keys:', orderedKeys)
-
         this.details = orderedKeys.map(k => {
           return { name: k, value: resource.details[k], edit: false }
         })
       }
       getAPI('listDetailOptions', { resourcetype: this.resourceType, resourceid: resource.id }).then(json => {
-        this.detailOptions = json.listdetailoptionsresponse.detailoptions.details
+        if (request === this.resourceRequest) {
+          this.detailOptions = json?.listdetailoptionsresponse?.detailoptions?.details || {}
+        }
+      }).catch(error => {
+        if (request === this.resourceRequest && !axios.isCancel(error)) {
+          this.$notifyError(error)
+        }
       })
       this.disableSettings = (this.$route.meta.name === 'vm' && resource.state !== 'Stopped')
-      if (this.$route.meta.name === 'vm') {
+      // ISO-based VMs do not have template deploy-as-is restrictions.
+      if (this.$route.meta.name === 'vm' && resource.templateid && resource.templateformat !== 'ISO') {
+        this.disableSettings = true
         getAPI('listTemplates', { templatefilter: 'all', id: resource.templateid }).then(json => {
-          this.deployasistemplate = json.listtemplatesresponse.template[0].deployasis
+          if (request !== this.resourceRequest) return
+          const template = json?.listtemplatesresponse?.template?.[0]
+          if (!template) return
+          this.deployasistemplate = !!template.deployasis
+          this.disableSettings = resource.state !== 'Stopped'
+        }).catch(error => {
+          if (request === this.resourceRequest && !axios.isCancel(error)) {
+            this.$notifyError(error)
+          }
         })
       }
     },

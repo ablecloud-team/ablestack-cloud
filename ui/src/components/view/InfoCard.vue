@@ -1186,6 +1186,7 @@
 
 <script>
 import { getAPI, postAPI } from '@/api'
+import axios from 'axios'
 import { createPathBasedOnVmType } from '@/utils/plugins'
 import { validateLinksAsync } from '@/utils/links'
 import Console from '@/components/widgets/Console'
@@ -1628,6 +1629,8 @@ export default {
         if (json.listtagsresponse && json.listtagsresponse.tag) {
           this.tags = json.listtagsresponse.tag
         }
+      }).catch(error => {
+        if (!axios.isCancel(error)) this.$notifyError(error)
       }).finally(() => {
         this.loadingTags = false
       })
