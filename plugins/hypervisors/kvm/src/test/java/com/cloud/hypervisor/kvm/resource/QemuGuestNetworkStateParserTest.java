@@ -40,6 +40,49 @@ public class QemuGuestNetworkStateParserTest {
     private final QemuGuestNetworkStateParser parser = new QemuGuestNetworkStateParser();
 
     @Test
+    public void testWindowsQgaRouteMaskAndInterfaceAliases() {
+        String json = "{\"return\":["
+                + "{\"version\":4,\"iface\":\"Ethernet Instance 0\",\"destination\":\"0.0.0.0\","
+                + "\"gateway\":\"10.10.0.1\",\"mask\":\"0.0.0.0\",\"metric\":15},"
+                + "{\"version\":4,\"iface\":\"Ethernet Instance 0\",\"destination\":\"10.10.0.0\","
+                + "\"gateway\":\"0.0.0.0\",\"mask\":\"255.255.0.0\"}]}";
+        List<VmGuestRoute> routes = parser.parseRoutes(json).getRoutes();
+        assertEquals(2, routes.size());
+        assertEquals(Integer.valueOf(0), routes.get(0).getPrefix());
+        assertTrue(routes.get(0).isDefaultRoute());
+        assertEquals("Ethernet Instance 0", routes.get(0).getInterfaceName());
+        assertEquals("10.10.0.1", routes.get(0).getGateway());
+        assertEquals(Integer.valueOf(16), routes.get(1).getPrefix());
+        assertFalse(routes.get(1).isDefaultRoute());
+        assertNull(routes.get(1).getGateway());
+    }
+
+    @Test
+    public void testWindowsQgaIpv6RoutePrefixAndNextHopAliases() {
+        String json = "{\"return\":[{\"version\":6,\"iface\":\"Ethernet Instance 0\","
+                + "\"destination\":\"::\",\"desprefixlen\":\"0\",\"nexthop\":\"fe80::1\"},"
+                + "{\"version\":6,\"destination\":\"fd12::\",\"desprefixlen\":\"64\",\"nexthop\":\"::\"}]}";
+        List<VmGuestRoute> routes = parser.parseRoutes(json).getRoutes();
+        assertEquals("ipv6", routes.get(0).getFamily());
+        assertTrue(routes.get(0).isDefaultRoute());
+        assertEquals(Integer.valueOf(0), routes.get(0).getPrefix());
+        assertEquals("fe80::1", routes.get(0).getGateway());
+        assertEquals("Ethernet Instance 0", routes.get(0).getInterfaceName());
+        assertEquals(Integer.valueOf(64), routes.get(1).getPrefix());
+        assertNull(routes.get(1).getGateway());
+    }
+
+    @Test
+    public void testInvalidMaskDoesNotInventPrefixOrDefaultRoute() {
+        for (String mask : new String[] {"invalid", "255.0.255.0"}) {
+            VmGuestRoute route = parser.parseRoutes("{\"return\":[{\"destination\":\"0.0.0.0\",\"mask\":\""
+                    + mask + "\"}]}").getRoutes().get(0);
+            assertNull(route.getPrefix());
+            assertFalse(route.isDefaultRoute());
+        }
+    }
+
+    @Test
     public void testCapabilitiesRespectEnabledFlag() throws IOException {
         VmGuestNetworkState state = new VmGuestNetworkState("vm-1");
 
