@@ -655,7 +655,9 @@ import {
 } from 'vue'
 import { ExclamationCircleFilled, SoundOutlined, PauseCircleOutlined, LinkOutlined, CloseOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
-import { api } from '@/api'
+import { api as requestAPI } from '@/api'
+import store from '@/store'
+import { hasDiscoveryApi } from '@/utils/optionalDiscovery'
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'dompurify'
 
@@ -833,6 +835,16 @@ export default {
     }
   },
   setup () {
+    let disposed = false
+    const generation = store.state.user.discoveryGeneration
+    const current = () => !disposed && generation === store.state.user.discoveryGeneration
+    const allowed = name => current() && hasDiscoveryApi(store.getters.apis, name)
+    const api = async (name, params) => {
+      if (!allowed(name)) return {}
+      const response = await requestAPI(name, params, 'GET', {}, { optionalDiscovery: true })
+      if (!current()) throw new Error('Alert discovery session expired')
+      return response
+    }
     const ORIGIN = typeof window !== 'undefined' ? window.location.origin : ''
     const HOST_BASE = ''
     const VM_BASE = '/client'
@@ -939,6 +951,7 @@ export default {
     let pollBusy = false
 
     function scheduleNextPoll () {
+      if (!allowed('listWallAlertRules')) return
       if (pollHandle) {
         clearTimeout(pollHandle)
         pollHandle = null
@@ -966,6 +979,7 @@ export default {
     }
 
     function startPoll () {
+      if (!allowed('listWallAlertRules')) return
       stopPoll()
       let delay = POLL_MS - (Date.now() % POLL_MS)
       if (delay < MIN_DELAY_MS) {
@@ -997,7 +1011,7 @@ export default {
     }
 
     // ===== 사일런스 캐시 =====
-    const LS_KEY = 'autoAlertBanner.silencedByUid'
+    const LS_KEY = 'autoAlertBanner.silencedByUid.' + (store.getters.userInfo?.id || 'anonymous')
     const localSilenced = ref(loadLocalSilences())
     const remoteSilenced = ref({})
     const remoteSilencedLoaded = ref(false)
@@ -2557,6 +2571,7 @@ export default {
 
     // ===== 데이터 갱신 =====
     const refresh = async () => {
+      if (!allowed('listWallAlertRules')) { rules.value = []; return }
       if (refreshInFlight.value) { return }
       refreshInFlight.value = true
 
@@ -2571,6 +2586,7 @@ export default {
       try {
         const params = { includestatus: true, page: 1, pagesize: 200 }
         const resp = await api('listWallAlertRules', params)
+        if (!allowed('listWallAlertRules')) return
         rules.value = extractRules(resp)
 
         await Promise.all([ensureHostIndex(), ensureVmIndex()])
@@ -2583,10 +2599,14 @@ export default {
 
         cleanupLocalSilences()
         pruneClosed()
+      } catch (_) {
+        if (current()) rules.value = []
       } finally {
         refreshInFlight.value = false
-        hideTimer = setTimeout(() => { keepShowing.value = false }, HIDE_GRACE_MS)
-        measureAndNotifyHeight()
+        if (current()) {
+          hideTimer = setTimeout(() => { keepShowing.value = false }, HIDE_GRACE_MS)
+          measureAndNotifyHeight()
+        }
       }
     }
 
@@ -2836,6 +2856,7 @@ export default {
       }, 300)
 
       await refresh()
+      if (!current()) return
       startPoll()
       document.addEventListener('visibilitychange', onVisibility)
       window.addEventListener('focus', onFocus)
@@ -2857,6 +2878,7 @@ export default {
     })
 
     onBeforeUnmount(() => {
+      disposed = true
       document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('focus', onFocus)
       stopPoll()

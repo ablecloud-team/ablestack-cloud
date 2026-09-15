@@ -32,7 +32,7 @@ export function appendApiData (params, data = {}) {
   return params
 }
 
-export function api (command, args = {}, method = 'GET', data = {}) {
+export function api (command, args = {}, method = 'GET', data = {}, options = {}) {
   let params = {}
   args.command = command
   args.response = 'json'
@@ -53,12 +53,13 @@ export function api (command, args = {}, method = 'GET', data = {}) {
     },
     url: '/',
     method,
-    data: params || {}
+    data: params || {},
+    ...(options.optionalDiscovery ? { optionalDiscovery: true, timeout: 15000 } : {})
   })
 }
 
-export function getAPI (command, args = {}) {
-  return api(command, args)
+export function getAPI (command, args = {}, options = {}) {
+  return api(command, args, 'GET', {}, options)
 }
 
 export function postAPI (command, data = {}) {

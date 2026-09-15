@@ -99,10 +99,9 @@ public class GuestOSDaoImpl extends GenericDaoBase<GuestOSVO, Long> implements G
     public Set<String> findDoubleNames() {
         String selectSql = "SELECT display_name FROM (SELECT display_name, count(1) AS count FROM guest_os go1 WHERE removed IS NULL GROUP BY display_name HAVING count > 1) tab0";
         Set<String> names = new HashSet<>();
-        Connection conn = TransactionLegacy.getStandaloneConnection();
-        try {
-            PreparedStatement stmt = conn.prepareStatement(selectSql);
-            ResultSet rs = stmt.executeQuery();
+        try (Connection conn = TransactionLegacy.getStandaloneConnectionWithException();
+                PreparedStatement stmt = conn.prepareStatement(selectSql);
+                ResultSet rs = stmt.executeQuery()) {
             while (rs != null && rs.next()) {
                 names.add(rs.getString(1));
             }
