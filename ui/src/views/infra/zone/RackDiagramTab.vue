@@ -95,7 +95,11 @@
                     </a-button>
                   </a-tooltip>
                   <a-tooltip arrowPointAtCenter placement="bottomRight" :title="t('rackDiagram.capture')">
-                    <a-button class="action-button-item action-button-item--dataview" type="text" @click="exportToImage">
+                    <a-button
+                      class="action-button-item action-button-item--dataview"
+                      type="text"
+                      :disabled="showRackList"
+                      @click="exportToImage">
                       <CameraOutlined class="action-button-item__icon" />
                       <span class="action-button-item__label">{{ t('rackDiagram.capture') }}</span>
                     </a-button>
@@ -275,9 +279,19 @@
                   </div>
                 </div>
                 <div class="rack-list-card-footer">
-                  <span><CalendarOutlined /> {{ t('label.created') }} {{ getRackCreatedDate(rack) }}</span>
+                  <span>
+                    <CalendarOutlined />
+                    <span>{{ t('label.created') }}</span>
+                    <span class="rack-list-meta-separator" aria-hidden="true">|</span>
+                    <span>{{ getRackCreatedDate(rack) }}</span>
+                  </span>
                   <a-tooltip :title="`${t('rackDiagram.rackLocation')} ${getRackLocation(rack)}`">
-                    <span class="rack-list-card-location"><EnvironmentOutlined /> {{ t('rackDiagram.rackLocation') }} {{ getRackLocation(rack) }}</span>
+                    <span class="rack-list-card-location">
+                      <EnvironmentOutlined />
+                      <span>{{ t('rackDiagram.rackLocation') }}</span>
+                      <span class="rack-list-meta-separator" aria-hidden="true">|</span>
+                      <span>{{ getRackLocation(rack) }}</span>
+                    </span>
                   </a-tooltip>
                 </div>
               </div>
@@ -314,9 +328,19 @@
                   </a-tag>
                 </div>
                 <div class="rack-list-row-meta">
-                  <span><CalendarOutlined /> {{ t('label.created') }} {{ getRackCreatedDate(rack) }}</span>
+                  <span>
+                    <CalendarOutlined />
+                    <span>{{ t('label.created') }}</span>
+                    <span class="rack-list-meta-separator" aria-hidden="true">|</span>
+                    <span>{{ getRackCreatedDate(rack) }}</span>
+                  </span>
                   <a-tooltip :title="`${t('rackDiagram.rackLocation')} ${getRackLocation(rack)}`">
-                    <span class="rack-list-row-location"><EnvironmentOutlined /> {{ t('rackDiagram.rackLocation') }} {{ getRackLocation(rack) }}</span>
+                    <span class="rack-list-row-location">
+                      <EnvironmentOutlined />
+                      <span>{{ t('rackDiagram.rackLocation') }}</span>
+                      <span class="rack-list-meta-separator" aria-hidden="true">|</span>
+                      <span>{{ getRackLocation(rack) }}</span>
+                    </span>
                   </a-tooltip>
                 </div>
               </div>
@@ -435,14 +459,18 @@
                   <span class="rack-header-meta-divider">·</span>
                   <span class="rack-header-meta-item">
                     <CalendarOutlined />
-                    <span>{{ t('label.created') }} {{ getRackCreatedDate(rack) }}</span>
+                    <span>{{ t('label.created') }}</span>
+                    <span class="rack-header-meta-value-divider" aria-hidden="true">|</span>
+                    <span>{{ getRackCreatedDate(rack) }}</span>
                   </span>
                   <span class="rack-header-meta-divider">·</span>
                   <span class="rack-header-meta-item rack-header-meta-location">
                     <EnvironmentOutlined />
-                    <a-tooltip :title="`${t('rackDiagram.rackLocation')} ${getRackLocation(rack)}`">
+                    <a-tooltip :title="`${t('rackDiagram.rackLocation')} | ${getRackLocation(rack)}`">
                       <span class="rack-header-meta-ellipsis">
-                        {{ t('rackDiagram.rackLocation') }} {{ getRackLocation(rack) }}
+                        {{ t('rackDiagram.rackLocation') }}
+                        <span class="rack-header-meta-value-divider" aria-hidden="true">|</span>
+                        {{ getRackLocation(rack) }}
                       </span>
                     </a-tooltip>
                   </span>
@@ -2422,6 +2450,8 @@ const closeRackModal = () => {
 
 // 랙 전체를 이미지로 저장하는 함수
 const exportToImage = async () => {
+  if (showRackList.value) return
+
   const element = document.querySelector('.rack-container')
   if (!element) {
     message.warning(t('rackDiagram.msg.noRackToSaveImage'))
@@ -4681,8 +4711,8 @@ onBeforeUnmount(() => {
   font-weight: 700;
   line-height: 1.4;
   flex: 0 0 auto;
-  padding-right: 30px;
-  margin-right: 16px;
+  padding-right: 18px;
+  margin-right: 0;
   border-right: 1px solid #eef2f7;
 }
 
@@ -4690,25 +4720,25 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
+  flex-wrap: nowrap;
+  gap: 0;
   min-width: 0;
   width: 100%;
 }
 
 .rack-list-summary-metric {
-  min-width: 140px;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 26px;
-  flex: 1 1 150px;
+  gap: 10px;
+  padding: 0 16px;
+  flex: 1 1 0;
 }
 
 .rack-list-summary-metric:nth-of-type(4),
 .rack-list-summary-metric:nth-of-type(5) {
-  flex-basis: 180px;
-  min-width: 170px;
+  flex: 1.2 1 0;
+  min-width: 0;
 }
 
 .rack-list-summary-metric + .rack-list-summary-metric {
@@ -5014,6 +5044,10 @@ onBeforeUnmount(() => {
 
 .rack-list-card-footer > span:first-child {
   flex: 0 0 auto;
+}
+
+.rack-list-meta-separator {
+  color: #cbd5e1;
 }
 
 .rack-list-card-location {
@@ -6210,6 +6244,11 @@ onBeforeUnmount(() => {
   color: #9ca3af;
   font-weight: 600;
   line-height: 1;
+}
+
+.rack-header-meta-value-divider {
+  color: #cbd5e1;
+  margin: 0 2px;
 }
 
 .rack-header-meta-location {
@@ -7478,36 +7517,30 @@ onBeforeUnmount(() => {
   }
 
   .rack-list-summary-metrics {
-    display: grid;
-    grid-template-columns: 100px repeat(2, minmax(180px, 1fr));
+    display: flex;
     align-items: center;
-    gap: 16px 20px;
+    gap: 0;
   }
 
   .rack-list-summary-title {
-    grid-row: 1 / span 3;
-    align-self: stretch;
+    grid-row: auto;
+    align-self: auto;
     display: inline-flex;
     align-items: center;
     min-width: 0;
-    padding-right: 18px;
+    padding-right: 14px;
     margin-right: 0;
   }
 
   .rack-list-summary-metric {
     min-width: 0;
-    width: 100%;
-    padding: 0;
-    border-left: 0 !important;
+    width: auto;
+    padding: 0 12px;
   }
 
   .rack-list-summary-metric:nth-of-type(4),
   .rack-list-summary-metric:nth-of-type(5) {
     min-width: 0;
-  }
-
-  .rack-list-summary-metric:nth-of-type(6) {
-    grid-column: 2 / 3;
   }
 
   .rack-list-card-footer {
@@ -7567,25 +7600,21 @@ onBeforeUnmount(() => {
 
   .rack-list-summary-metrics {
     display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    row-gap: 8px;
+    flex-wrap: nowrap;
+    align-items: center;
+    row-gap: 0;
   }
 
   .rack-list-summary-title {
     grid-row: auto;
-    flex: 1 0 100%;
-    border-right: 0;
-    padding-right: 0;
+    flex: 0 0 auto;
+    border-right: 1px solid #eef2f7;
+    padding-right: 10px;
     margin-right: 0;
   }
 
   .rack-list-summary-metric {
-    padding: 0 14px 0 0;
-  }
-
-  .rack-list-summary-metric + .rack-list-summary-metric {
-    border-left: 0;
+    padding: 0 8px;
   }
 
   .rack-list-card-progress-row {
@@ -7627,6 +7656,32 @@ onBeforeUnmount(() => {
   .rack-side-pane-slot {
     width: 280px;
     flex: 0 0 280px;
+  }
+}
+
+@media (max-width: 720px) {
+  .rack-list-summary-metrics {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px 0;
+  }
+
+  .rack-list-summary-title {
+    flex: 1 0 100%;
+    border-right: 0;
+    padding-right: 0;
+  }
+
+  .rack-list-summary-metric,
+  .rack-list-summary-metric:nth-of-type(4),
+  .rack-list-summary-metric:nth-of-type(5) {
+    flex: 1 1 140px;
+    min-width: 140px;
+    padding: 0 10px 0 0;
+  }
+
+  .rack-list-summary-metric + .rack-list-summary-metric {
+    border-left: 0;
   }
 }
 
