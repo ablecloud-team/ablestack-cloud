@@ -23,6 +23,7 @@ import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.hypervisor.kvm.resource.LibvirtDomainXMLParser;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef;
 import com.cloud.hypervisor.kvm.resource.wrapper.LibvirtUtilitiesHelper;
+import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.template.TemplateConstants;
 import com.cloud.utils.Pair;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -31,6 +32,7 @@ import org.apache.cloudstack.storage.to.SnapshotObjectTO;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
 import org.apache.cloudstack.utils.qemu.QemuImageOptions;
 import org.apache.cloudstack.utils.qemu.QemuImg;
+import org.apache.cloudstack.utils.qemu.QemuImg.PhysicalDiskFormat;
 import org.apache.cloudstack.utils.qemu.QemuImgException;
 import org.apache.cloudstack.utils.qemu.QemuImgFile;
 import org.junit.After;
@@ -370,6 +372,32 @@ public class KVMStorageProcessorTest {
 
         Assert.assertTrue(probe.waitDetachOverloadCalled);
         Assert.assertEquals(0L, probe.waitDetachDevice);
+    }
+
+    @Test
+    public void attachFileBackedQcow2AppliesFullMetadataCacheBeforeLiveAttach() throws Exception {
+        final KVMPhysicalDisk physicalDisk = Mockito.mock(KVMPhysicalDisk.class);
+        final KVMStoragePool pool = Mockito.mock(KVMStoragePool.class);
+        final KVMStorageProcessor processor = Mockito.spy(new KVMStorageProcessor(storagePoolManager, resource));
+        Mockito.when(physicalDisk.getPool()).thenReturn(pool);
+        Mockito.when(physicalDisk.getFormat()).thenReturn(PhysicalDiskFormat.QCOW2);
+        Mockito.when(physicalDisk.getPath()).thenReturn("/mnt/glue-gfs/volume.qcow2");
+        Mockito.when(pool.getType()).thenReturn(StoragePoolType.SharedMountPoint);
+        Mockito.when(connectMock.domainLookupByName("vm")).thenReturn(domainMock);
+        Mockito.when(domainMock.getXMLDesc(0)).thenReturn("<domain/>");
+        Mockito.doNothing().when(processor).attachOrDetachDevice(Mockito.eq(connectMock), Mockito.eq(true), Mockito.eq("vm"), Mockito.any(LibvirtVMDef.DiskDef.class), Mockito.eq(0L));
+
+        try (MockedConstruction<LibvirtDomainXMLParser> ignored = Mockito.mockConstruction(
+                LibvirtDomainXMLParser.class, (mock, context) -> {
+                    Mockito.when(mock.parseDomainXML(Mockito.anyString())).thenReturn(true);
+                    Mockito.when(mock.getDisks()).thenReturn(new ArrayList<>());
+                })) {
+            processor.attachOrDetachDisk(connectMock, true, "vm", physicalDisk, 1, "serial",
+                    null, null, null, null, null, null, null, null, null, null, null, null,
+                    null, null, null, null, false, false, null);
+        }
+
+        Mockito.verify(resource).setQcow2FullMetadataCache(Mockito.any(LibvirtVMDef.DiskDef.class), Mockito.eq(physicalDisk));
     }
 
     private static class AttachOrDetachDiskOverloadProbe extends KVMStorageProcessor {

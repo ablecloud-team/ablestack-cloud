@@ -71,6 +71,7 @@ import org.apache.cloudstack.utils.hypervisor.HypervisorUtils;
 import org.apache.cloudstack.utils.linux.CPUStat;
 import org.apache.cloudstack.utils.linux.KVMHostInfo;
 import org.apache.cloudstack.utils.linux.MemStat;
+import org.apache.cloudstack.utils.qemu.Qcow2MetadataCache;
 import org.apache.cloudstack.utils.qemu.QemuCommand;
 import org.apache.cloudstack.utils.qemu.QemuImg;
 import org.apache.cloudstack.utils.qemu.QemuImg.PhysicalDiskFormat;
@@ -414,6 +415,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
     public final static String CONFIG_DIR = "config";
     private boolean enableIoUring;
+    protected String qcow2MetadataCachePolicy = "full";
 
     public static final String BASH_SCRIPT_PATH = "/bin/bash";
 
@@ -1375,6 +1377,9 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         stopTimeout = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.STOP_SCRIPT_TIMEOUT) * 1000;
 
         cmdsTimeout = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.CMDS_TIMEOUT) * 1000;
+
+        qcow2MetadataCachePolicy = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.QCOW2_METADATA_CACHE_POLICY);
+        LOGGER.info("QCOW2 metadata cache policy: " + qcow2MetadataCachePolicy);
 
         noMemBalloon = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.VM_MEMBALLOON_DISABLE);
 
@@ -3829,6 +3834,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                     disk.setLibvirtDiskEncryptDetails(encryptDetails);
                 }
             }
+            setQcow2FullMetadataCache(disk, physicalDisk);
             if (vm.getDevices() == null) {
                 LOGGER.error("There is no devices for" + vm);
                 throw new RuntimeException("There is no devices for" + vm);
@@ -3921,6 +3927,22 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             } else if (enableIoUring) {
                 disk.setIoDriver(IoDriverPolicy.IO_URING);
             }
+        }
+    }
+
+    public void setQcow2FullMetadataCache(final DiskDef disk, final KVMPhysicalDisk physicalDisk) {
+        if (!"full".equalsIgnoreCase(qcow2MetadataCachePolicy) || disk == null || physicalDisk == null || disk.getDiskType() != DiskDef.DiskType.FILE
+                || disk.getDiskFormatType() != DiskDef.DiskFmtType.QCOW2) {
+            return;
+        }
+        try {
+            final long metadataCacheSize = Qcow2MetadataCache.calculateFullSize(physicalDisk.getPath(), cmdsTimeout);
+            disk.setMetadataCacheMaxSizeBytes(metadataCacheSize);
+            LOGGER.debug(String.format("Configured full QCOW2 metadata cache [%s] bytes for disk [%s]",
+                    metadataCacheSize, physicalDisk.getPath()));
+        } catch (LibvirtException | QemuImgException | RuntimeException e) {
+            throw new CloudRuntimeException(String.format("Unable to calculate full QCOW2 metadata cache for disk [%s]: %s",
+                    physicalDisk.getPath(), e.getMessage()), e);
         }
     }
 

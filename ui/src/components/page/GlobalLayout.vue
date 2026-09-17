@@ -1,7 +1,24 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 <template>
   <div>
     <announcement-banner ref="announceRef" />
-    <AutoAlertBanner ref="autoRef" />
+    <AutoAlertBanner v-if="canDiscoverWallAlerts" :key="$store.state.user.discoveryGeneration" ref="autoRef" />
 
     <a-affix v-if="isShutdown" :offsetTop="0">
       <a-alert
@@ -142,12 +159,12 @@ import { triggerWindowResizeEvent } from '@/utils/util'
 import { mapState, mapActions } from 'vuex'
 import { mixin, mixinDevice } from '@/utils/mixin.js'
 import { isAdmin } from '@/role'
-import { api } from '@/api'
 import Drawer from '@/components/widgets/Drawer'
 import Setting from '@/components/view/Setting.vue'
 import EventSidebar from '@/components/view/EventSidebar.vue'
 import AnnouncementBanner from '@/components/header/AnnouncementBanner.vue'
 import AutoAlertBanner from '@/components/header/AutoAlertBanner.vue'
+import { discoverOptional, hasDiscoveryApi } from '@/utils/optionalDiscovery'
 
 const HEADER_FIXED_PX = 78
 
@@ -182,6 +199,7 @@ export default {
     }
   },
   computed: {
+    canDiscoverWallAlerts () { return hasDiscoveryApi(this.$store.getters.apis, 'listWallAlertRules') },
     ...mapState({
       mainMenu: state => state.permission.addRouters
     }),
@@ -357,15 +375,12 @@ export default {
       this.$notification.destroy()
       this.$store.commit('SET_COUNT_NOTIFY', 0)
     },
-    checkShutdown () {
-      if (!this.$store.getters.features.securityfeaturesenabled) {
-        api('readyForShutdown', {}).then(json => {
-          this.$store.dispatch(
-            'SetShutdownTriggered',
-            json.readyforshutdownresponse.readyforshutdown.shutdowntriggered || false
-          )
-        })
-      }
+    async checkShutdown () {
+      if (this.$store.getters.features.securityfeaturesenabled) return
+      const generation = this.$store.state.user.discoveryGeneration
+      const json = await discoverOptional(this.$store.getters.apis, 'readyForShutdown')
+      if (generation !== this.$store.state.user.discoveryGeneration || !json) return
+      this.$store.dispatch('SetShutdownTriggered', json.readyforshutdownresponse?.readyforshutdown?.shutdowntriggered || false)
     }
   }
 }

@@ -71,6 +71,10 @@ public class VRouterVifDriver extends VifDriverBase {
         }
 
         final LibvirtVMDef.InterfaceDef intf = new LibvirtVMDef.InterfaceDef();
+        if (nic.getPxeDisable()) {
+            intf.setPxeDisable(true);
+        }
+        intf.setLinkStateUp(nic.getLinkState());
         intf.defEthernet(tapDeviceName, nic.getMac(), getGuestNicModel(guestOsType, nicAdapter));
 
         return intf;

@@ -841,7 +841,15 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
         for (int i = 0; i < amountOfBackupsToDelete; i++) {
             BackupVO backup = backups.get(i);
-            if (deleteBackup(backup.getId(), false)) {
+            boolean backupDeleted;
+            try {
+                backupDeleted = deleteBackup(backup.getId(), false);
+            } catch (RuntimeException e) {
+                logger.warn("Failed to delete backup [ID: {}] for VM [ID: {}] while applying retention for backup schedule [ID: {}]. " +
+                        "The backup creation flow will not be failed by this cleanup error.", backup.getId(), backup.getVmId(), backupScheduleId, e);
+                continue;
+            }
+            if (backupDeleted) {
                 String eventDescription = String.format("Successfully deleted backup for VM [ID: %s], suiting the retention specified in the backup schedule [ID: %s]", backup.getVmId(), backupScheduleId);
                 logger.info(eventDescription);
                 ActionEventUtils.onCompletedActionEvent(

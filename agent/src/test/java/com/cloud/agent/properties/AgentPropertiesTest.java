@@ -27,6 +27,11 @@ import java.lang.reflect.Field;
 public class AgentPropertiesTest {
 
     @Test
+    public void qcow2MetadataCachePolicyDefaultsToFull() {
+        Assert.assertEquals("full", AgentProperties.QCOW2_METADATA_CACHE_POLICY.getDefaultValue());
+    }
+
+    @Test
     public void initTestBlockInstanceWithNullValueAndWithoutType() throws IllegalAccessException {
         AgentProperties agentProperties = new AgentProperties();
         Field[] fields = agentProperties.getClass().getDeclaredFields();

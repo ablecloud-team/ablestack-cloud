@@ -159,6 +159,8 @@ export default {
           dataView: true,
           popup: true,
           show: (record) => { return record.vmtype !== 'sharedfsvm' },
+          disabled: disableDuringFastCloneFlatten,
+          tooltip: (record, store, selectedItems) => getFastCloneOperationTooltip(record, store, selectedItems, 'label.action.edit.instance'),
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/EditVM.vue')))
         },
         {
@@ -261,7 +263,8 @@ export default {
               ((record.hypervisor !== 'KVM' && record.hypervisor !== 'LXC') ||
               (record.hypervisor === 'KVM' && record.pooltype === 'PowerFlex' || record.pooltype === 'RBD')))) && record.vmtype !== 'sharedfsvm')
           },
-          disabled: (record) => { return record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM' },
+          disabled: (record, store, selectedItems) => { return (record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM') || disableDuringFastCloneFlatten(record, store, selectedItems) },
+          tooltip: (record, store, selectedItems) => getFastCloneOperationTooltip(record, store, selectedItems, 'label.action.vmsnapshot.create'),
           mapping: {
             virtualmachineid: {
               value: (record, params) => { return record.id }
@@ -279,7 +282,8 @@ export default {
             return ((['Running'].includes(record.state) && record.hypervisor !== 'LXC') ||
               (['Stopped'].includes(record.state) && !['KVM', 'LXC'].includes(record.hypervisor)))
           },
-          disabled: (record) => { return record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM' },
+          disabled: (record, store, selectedItems) => { return (record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM') || disableDuringFastCloneFlatten(record, store, selectedItems) },
+          tooltip: (record, store, selectedItems) => getFastCloneOperationTooltip(record, store, selectedItems, 'label.action.vmstoragesnapshot.create'),
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/CreateSnapshotWizard.vue')))
         },
         {
@@ -385,6 +389,8 @@ export default {
           dataView: true,
           args: ['affinitygroupids'],
           show: (record) => { return ['Stopped'].includes(record.state) && record.vmtype !== 'sharedfsvm' },
+          disabled: disableDuringFastCloneFlatten,
+          tooltip: (record, store, selectedItems) => getFastCloneOperationTooltip(record, store, selectedItems, 'label.change.affinity'),
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/ChangeAffinity'))),
           popup: true
         },
@@ -395,7 +401,8 @@ export default {
           docHelp: 'adminguide/virtual_machines.html#how-to-dynamically-scale-cpu-and-ram',
           dataView: true,
           show: (record) => { return (['Stopped'].includes(record.state) || (['Running'].includes(record.state) && record.hypervisor !== 'LXC')) && record.vmtype !== 'sharedfsvm' },
-          disabled: (record) => { return record.state === 'Running' && !record.isdynamicallyscalable },
+          disabled: (record, store, selectedItems) => { return (record.state === 'Running' && !record.isdynamicallyscalable) || disableDuringFastCloneFlatten(record, store, selectedItems) },
+          tooltip: (record, store, selectedItems) => getFastCloneOperationTooltip(record, store, selectedItems, 'label.scale.vm'),
           popup: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/ScaleVM.vue')))
         },
@@ -408,10 +415,13 @@ export default {
           show: (record, store) => {
             return ['Running'].includes(record.state) && ['Admin'].includes(store.userInfo.roletype) && !record.kvdoinuse
           },
-          // disabled: (record) => {
-          //   return record.details && 'extraconfig-1' in record.details
-          // },
-          tooltip: (record) => {
+          disabled: (record, store, selectedItems) => {
+            return (record.details && 'extraconfig-1' in record.details) || disableDuringFastCloneFlatten(record, store, selectedItems)
+          },
+          tooltip: (record, store, selectedItems) => {
+            if (disableDuringFastCloneFlatten(record, store, selectedItems)) {
+              return fastCloneOperationBlockedLabel
+            }
             if (record.details && 'extraconfig-1' in record.details) {
               return 'label.enable.host'
             } else {
@@ -431,10 +441,13 @@ export default {
           show: (record, store) => {
             return ['Stopped'].includes(record.state) && ['Admin'].includes(store.userInfo.roletype) && !record.kvdoinuse
           },
-          disabled: (record) => {
-            return record.hostcontrolstate === 'Offline' || (record.details && 'extraconfig-1' in record.details)
+          disabled: (record, store, selectedItems) => {
+            return record.hostcontrolstate === 'Offline' || (record.details && 'extraconfig-1' in record.details) || disableDuringFastCloneFlatten(record, store, selectedItems)
           },
-          tooltip: (record) => {
+          tooltip: (record, store, selectedItems) => {
+            if (disableDuringFastCloneFlatten(record, store, selectedItems)) {
+              return fastCloneOperationBlockedLabel
+            }
             if (record.hostcontrolstate === 'Offline' || (record.details && 'extraconfig-1' in record.details)) {
               return 'label.enable.host'
             } else {
@@ -560,8 +573,8 @@ export default {
           },
           popup: true,
           groupMap: (selection, values) => { return selection.map(x => { return { id: x, expunge: values.expunge } }) },
-          disabled: disableDuringFastCloneFlatten,
-          tooltip: (record, store, selectedItems) => getFastCloneOperationTooltip(record, store, selectedItems, 'label.action.destroy.instance'),
+          disabled: disableDuringFastCloneFlattenRunning,
+          tooltip: (record, store, selectedItems) => getFastCloneRunningOperationTooltip(record, store, selectedItems, 'label.action.destroy.instance'),
           show: (record) => {
             var controlVm = []
             var genieVm = []

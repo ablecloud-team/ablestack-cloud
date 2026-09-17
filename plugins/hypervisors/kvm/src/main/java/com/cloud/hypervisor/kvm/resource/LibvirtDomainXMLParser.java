@@ -137,6 +137,14 @@ public class LibvirtDomainXMLParser {
                     }
                 }
 
+                NodeList metadataCache = disk.getElementsByTagName("metadata_cache");
+                if (metadataCache != null && metadataCache.getLength() != 0) {
+                    String maxSize = getTagValue("max_size", (Element)metadataCache.item(0));
+                    if (StringUtils.isNotBlank(maxSize)) {
+                        def.setMetadataCacheMaxSizeBytes(Long.parseLong(maxSize));
+                    }
+                }
+
                 NodeList iotune = disk.getElementsByTagName("iotune");
                 if ((iotune != null) && (iotune.getLength() != 0)) {
                     String bytesReadRateStr = getTagValue("read_bytes_sec", (Element)iotune.item(0));

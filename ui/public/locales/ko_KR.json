@@ -5145,7 +5145,7 @@
 "rackDiagram.hostCubePortal": "Cube \ud3ec\ud138 \uc811\uc18d",
 "rackDiagram.delete": "\uc0ad\uc81c",
 "rackDiagram.editRack": "\ub799 \uc124\uc815 \uc218\uc815",
-"rackDiagram.rackName": "\ub799 \uc774\ub984 (Name)",
+"rackDiagram.rackName": "\ub799 \uc774\ub984",
 "rackDiagram.rackNamePlaceholder": "\uc608: Server Rack 1",
 "rackDiagram.rackLocation": "\ub799 \uc704\uce58",
 "rackDiagram.rackLocationPlaceholder": "\uc608: 3F / Server Room A",

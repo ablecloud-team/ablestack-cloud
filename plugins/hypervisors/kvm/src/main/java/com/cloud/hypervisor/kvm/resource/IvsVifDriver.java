@@ -131,6 +131,7 @@ public class IvsVifDriver extends VifDriverBase {
         if (nic.getPxeDisable() == true) {
             intf.setPxeDisable(true);
         }
+        intf.setLinkStateUp(nic.getLinkState());
         return intf;
     }
 

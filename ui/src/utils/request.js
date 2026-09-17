@@ -31,6 +31,16 @@ const service = axios.create({
 })
 
 const err = (error) => {
+  if (axios.isCancel(error)) return Promise.reject(error)
+  // A response from an earlier login must not expire the current session.
+  if (error.config?.optionalDiscovery && error.config.discoveryGeneration !== undefined &&
+      error.config.discoveryGeneration !== store.state?.user?.discoveryGeneration) {
+    return Promise.reject(error)
+  }
+  // Optional transport/service failures do not invalidate authentication.
+  if (error.config?.optionalDiscovery && error.response?.status !== 401) {
+    return Promise.reject(error)
+  }
   const response = error.response
   let countNotify = store.getters.countNotify
   if (response) {
@@ -180,6 +190,7 @@ const err = (error) => {
 
 // request interceptor
 service.interceptors.request.use(config => {
+  if (config.optionalDiscovery) config.discoveryGeneration = store.state?.user?.discoveryGeneration
   source = sourceToken.getSource()
   config.cancelToken = source.token
   if (config && config.params) {

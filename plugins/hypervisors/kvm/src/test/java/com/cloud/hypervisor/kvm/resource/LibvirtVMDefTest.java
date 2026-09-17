@@ -263,6 +263,35 @@ public class LibvirtVMDefTest extends TestCase {
     }
 
     @Test
+    public void testQcow2DiskDefWithFullMetadataCache() {
+        DiskDef disk = new DiskDef();
+        disk.defFileBasedDisk("/var/lib/libvirt/images/disk.qcow2", "vda", DiskDef.DiskBus.VIRTIO, DiskDef.DiskFmtType.QCOW2);
+        disk.setMetadataCacheMaxSizeBytes(32768000L);
+
+        String expectedXml = "<disk  device='disk' type='file'>\n" +
+                "<driver name='qemu' type='qcow2' cache='none' >\n" +
+                "<metadata_cache>\n" +
+                "<max_size unit='bytes'>32768000</max_size>\n" +
+                "</metadata_cache>\n" +
+                "</driver>\n" +
+                "<source file='/var/lib/libvirt/images/disk.qcow2'/>\n" +
+                "<target dev='vda' bus='virtio'/>\n" +
+                "</disk>\n";
+
+        assertEquals(Long.valueOf(32768000L), disk.getMetadataCacheMaxSizeBytes());
+        assertEquals(expectedXml, disk.toString());
+    }
+
+    @Test
+    public void testRawDiskDefDoesNotRenderMetadataCache() {
+        DiskDef disk = new DiskDef();
+        disk.defBlockBasedDisk("/dev/mapper/data", 1, DiskDef.DiskBus.VIRTIO);
+        disk.setMetadataCacheMaxSizeBytes(32768000L);
+
+        assertFalse(disk.toString().contains("metadata_cache"));
+    }
+
+    @Test
     public void testDiskDefWithEncryption() {
         String passphraseUuid = UUID.randomUUID().toString();
         DiskDef disk = new DiskDef();

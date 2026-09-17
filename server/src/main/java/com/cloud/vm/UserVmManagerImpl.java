@@ -10331,9 +10331,6 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if (FAST_CLONE_FLATTEN_RUNNING.equalsIgnoreCase(detail.getValue())) {
             throw new CloudRuntimeException(String.format("Unable to %s VM while SharedMountPoint clone flatten is running.", operation));
         }
-        if (FAST_CLONE_FLATTEN_PENDING.equalsIgnoreCase(detail.getValue()) && !"start".equals(operation)) {
-            throw new CloudRuntimeException(String.format("Unable to %s VM while SharedMountPoint clone flatten is pending.", operation));
-        }
     }
 
     protected void cleanupFailedFastCloneVolumes(List<VolumeVO> cloneVolumes) {
@@ -10371,13 +10368,15 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     }
 
     protected boolean flattenOneSharedMountPointFastCloneVolume() {
+        boolean recovered = recoverFastCloneSourceOverlayCommit();
+
         if (checkOneRunningSharedMountPointFastCloneVolume()) {
             return true;
         }
 
         List<VolumeDetailVO> pendingDetails = volumeDetailsDao.findDetails(FAST_CLONE_FLATTEN_STATUS, FAST_CLONE_FLATTEN_PENDING, false);
         if (CollectionUtils.isEmpty(pendingDetails)) {
-            return recoverFastCloneSourceOverlayCommit();
+            return recovered;
         }
 
         for (VolumeDetailVO pendingDetail : pendingDetails) {
@@ -10445,13 +10444,14 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             }
         }
 
+        boolean recovered = false;
         for (String operationId : operationIds) {
             logger.info("Recovering SharedMountPoint clone source overlay commit for operation [{}].", operationId);
             tryCommitFastCloneSourceOverlay(operationId);
-            return true;
+            recovered = true;
         }
 
-        return false;
+        return recovered;
     }
 
     protected boolean checkOneRunningSharedMountPointFastCloneVolume() {
@@ -10622,6 +10622,17 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             VolumeDetailVO status = volumeDetailsDao.findDetail(volumeId, FAST_CLONE_FLATTEN_STATUS);
             if (role != null && FAST_CLONE_ROLE_CLONE.equals(role.getValue()) && status != null &&
                     (FAST_CLONE_FLATTEN_PENDING.equals(status.getValue()) || FAST_CLONE_FLATTEN_RUNNING.equals(status.getValue()))) {
+                VolumeVO volume = _volsDao.findById(volumeId);
+                if (volume == null) {
+                    volumeDetailsDao.removeDetail(volumeId, FAST_CLONE_FLATTEN_STATUS);
+                    continue;
+                }
+                Long vmId = volume.getInstanceId();
+                UserVmVO vm = vmId != null ? _vmDao.findById(vmId) : null;
+                if (vm == null || vm.getRemoved() != null || vm.getState() == State.Destroyed || vm.getState() == State.Expunging) {
+                    volumeDetailsDao.removeDetail(volumeId, FAST_CLONE_FLATTEN_STATUS);
+                    continue;
+                }
                 return true;
             }
         }
@@ -10694,6 +10705,18 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         IpAddresses addr = new IpAddresses(null, ipv6Address, macAddress);
         long serviceOfferingId = curVm.getServiceOfferingId();
         ServiceOffering serviceOffering = serviceOfferingDao.findById(curVm.getId(), serviceOfferingId);
+        ServiceOfferingVO baseOffering = serviceOfferingDao.findById(serviceOfferingId);
+
+        if (!baseOffering.isDynamic() || baseOffering.getCpu() != null) {
+            customParameters.remove(UsageEventVO.DynamicParameters.cpuNumber.name());
+        }
+        if (!baseOffering.isCustomCpuSpeedSupported()) {
+            customParameters.remove(UsageEventVO.DynamicParameters.cpuSpeed.name());
+        }
+        if (!baseOffering.isDynamic() || baseOffering.getRamSize() != null) {
+            customParameters.remove(UsageEventVO.DynamicParameters.memory.name());
+        }
+
         List<SecurityGroupVO> securityGroupList = _securityGroupMgr.getSecurityGroupsForVm(curVm.getId());
         List<Long> securityGroupIdList = securityGroupList.stream().map(SecurityGroupVO::getId).collect(Collectors.toList());
         String name = cmd.getName();

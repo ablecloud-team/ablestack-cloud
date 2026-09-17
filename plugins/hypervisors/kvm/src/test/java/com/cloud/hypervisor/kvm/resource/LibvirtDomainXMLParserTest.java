@@ -93,7 +93,9 @@ public class LibvirtDomainXMLParserTest extends TestCase {
                      "<devices>" +
                      "<emulator>/usr/bin/kvm-spice</emulator>" +
                      "<disk type='" + diskType.toString() + "' device='" + deviceType.toString() + "'>" +
-                     "<driver name='qemu' type='" + diskFormat.toString() + "' cache='" + diskCache.toString() + "'/>" +
+                     "<driver name='qemu' type='" + diskFormat.toString() + "' cache='" + diskCache.toString() + "'>" +
+                     "<metadata_cache><max_size unit='bytes'>32768000</max_size></metadata_cache>" +
+                     "</driver>" +
                      "<source file='" + diskPath + "'/>" +
                      "<target dev='" + diskLabel + "' bus='" + diskBus.toString() + "'/>" +
                      "<alias name='virtio-disk0'/>" +
@@ -222,6 +224,7 @@ public class LibvirtDomainXMLParserTest extends TestCase {
         assertEquals(diskType, disks.get(diskId).getDiskType());
         assertEquals(deviceType, disks.get(diskId).getDeviceType());
         assertEquals(diskFormat, disks.get(diskId).getDiskFormatType());
+        assertEquals(Long.valueOf(32768000L), disks.get(diskId).getMetadataCacheMaxSizeBytes());
 
         DiskDef.LibvirtDiskEncryptDetails encryptDetails = disks.get(1).getLibvirtDiskEncryptDetails();
         assertNotNull(encryptDetails);

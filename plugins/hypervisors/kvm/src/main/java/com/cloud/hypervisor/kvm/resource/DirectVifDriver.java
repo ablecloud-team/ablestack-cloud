@@ -53,6 +53,11 @@ public class DirectVifDriver extends VifDriverBase {
                 _libvirtComputingResource.getNetworkDirectSourceMode(), networkRateKBps);
         }
 
+        if (nic.getPxeDisable()) {
+            intf.setPxeDisable(true);
+        }
+        intf.setLinkStateUp(nic.getLinkState());
+
         return intf;
     }
 

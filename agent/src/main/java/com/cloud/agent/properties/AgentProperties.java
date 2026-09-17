@@ -430,6 +430,15 @@ public class AgentProperties{
     public static final Property<Boolean> VM_DISKACTIVITY_CHECKENABLED = new Property<>("vm.diskactivity.checkenabled", false);
 
     /**
+     * Defines the metadata cache policy for file-backed QCOW2 disks.<br>
+     * Possible values: default | full.<br>
+     * The full policy sizes the cache to cover all L2 and refcount metadata for the virtual disk.<br>
+     * Data type: String.<br>
+     * Default value: <code>full</code>
+     */
+    public static final Property<String> QCOW2_METADATA_CACHE_POLICY = new Property<>("qcow2.metadata.cache.policy", "full", String.class);
+
+    /**
      * Timeout (in seconds) for giving up on waiting for VM's disk files to become inactive.<br>
      * Hitting this timeout will result in failure to start VM.<br>
      * Value must be greater than 0 (zero), otherwise the default value will be used.<br>

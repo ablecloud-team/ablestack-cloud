@@ -25,6 +25,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import com.cloud.utils.concurrency.NamedThreadFactory;
+import com.cloud.utils.db.TransactionLegacy;
 
 import org.apache.cloudstack.ha.HAConfig;
 import org.apache.cloudstack.ha.HAResource;
@@ -81,13 +82,23 @@ public abstract class BaseHATask implements Callable<Boolean> {
 
     @Override
     public Boolean call() {
+        // HA tasks run outside ManagedContextRunnable. Each executor thread
+        // owns its context through result processing and exceptional exits.
+        try (TransactionLegacy txn = TransactionLegacy.open("HA-task-" + getTaskType())) {
+            return callWithDatabaseContext();
+        }
+    }
+
+    private Boolean callWithDatabaseContext() {
         if (new DateTime().minusHours(1).isAfter(getCreated())) {
             return false;
         }
         final Future<Boolean> future = innerExecutor.submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws HACheckerException, HAFenceException, HARecoveryException {
-                return performAction();
+                try (TransactionLegacy txn = TransactionLegacy.open("HA-action-" + getTaskType())) {
+                    return performAction();
+                }
             }
         });
 

@@ -490,13 +490,17 @@ public class NASBackupProvider extends AdapterBase implements BackupProvider, Co
 
         DeleteBackupCommand command = new DeleteBackupCommand(backup.getExternalId(), backupRepository.getType(),
                 backupRepository.getAddress(), backupRepository.getMountOptions());
+        final int commandTimeout = BackupCommandTimeout.value();
+        if (commandTimeout > 0) {
+            command.setWait(commandTimeout);
+        }
         command.setMountTimeout(NASBackupRestoreMountTimeout.value());
 
         BackupAnswer answer;
         try {
             answer = (BackupAnswer) agentManager.send(host.getId(), command);
         } catch (AgentUnavailableException e) {
-            throw new CloudRuntimeException("Unable to contact backend control plane to initiate backup");
+            throw new CloudRuntimeException("Unable to contact backend control plane to delete backup");
         } catch (OperationTimedoutException e) {
             throw new CloudRuntimeException("Operation to delete backup timed out, please try again");
         }
