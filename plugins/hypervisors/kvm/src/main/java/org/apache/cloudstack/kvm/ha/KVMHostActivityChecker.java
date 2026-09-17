@@ -29,6 +29,7 @@ import com.cloud.host.Host;
 import com.cloud.host.HostVO;
 import com.cloud.host.Status;
 import com.cloud.hypervisor.Hypervisor;
+import com.cloud.offering.DiskOffering;
 import com.cloud.resource.ResourceManager;
 import com.cloud.storage.StorageManager;
 import com.cloud.storage.StoragePool;
@@ -36,6 +37,7 @@ import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.dao.VolumeDao;
+import com.cloud.storage.dao.DiskOfferingDao;
 import com.cloud.utils.component.AdapterBase;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
@@ -54,6 +56,7 @@ import java.util.ArrayList;
 import org.joda.time.DateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class KVMHostActivityChecker extends AdapterBase implements ActivityCheckerInterface<Host>, HealthCheckerInterface<Host> {
 
@@ -61,6 +64,8 @@ public class KVMHostActivityChecker extends AdapterBase implements ActivityCheck
     private ClusterDao clusterDao;
     @Inject
     private VolumeDao volumeDao;
+    @Inject
+    private DiskOfferingDao diskOfferingDao;
     @Inject
     private VMInstanceDao vmInstanceDao;
     @Inject
@@ -222,7 +227,7 @@ public class KVMHostActivityChecker extends AdapterBase implements ActivityCheck
     }
 
     protected boolean verifyActivityOfStorageOnHost(HashMap<StoragePool, List<Volume>> poolVolMap, StoragePool pool, Host agent, DateTime suspectTime, boolean activityStatus) throws HACheckerException, IllegalStateException {
-        List<Volume> volume_list = poolVolMap.get(pool);
+        List<Volume> volume_list = getActivityVolumes(pool, poolVolMap.get(pool));
         final CheckVMActivityOnStoragePoolCommand cmd = new CheckVMActivityOnStoragePoolCommand(agent, pool, volume_list, suspectTime);
 
         logger.debug("Checking VM activity for {} on storage pool [{}].", agent.toString(), pool);
@@ -243,6 +248,48 @@ public class KVMHostActivityChecker extends AdapterBase implements ActivityCheck
             throw new HACheckerException(message, e);
         }
         return activityStatus;
+    }
+
+    protected List<Volume> getActivityVolumes(StoragePool pool, List<Volume> volumes) {
+        if (pool.getPoolType() != StoragePoolType.RBD) {
+            return volumes;
+        }
+        // Filter only the Activity command. Keep the pool and the original list
+        // for heartbeat checks, HA eligibility and post-fencing cleanup.
+        List<Volume> activityVolumes = new ArrayList<>();
+        for (Volume volume : volumes) {
+            if (isSharedActivityVolume(pool, volume)) {
+                logger.debug("Excluding shared RBD volume {} (image {}, pool {}) from VM Activity checks",
+                        volume.getId(), volume.getPath(), pool.getId());
+            } else {
+                activityVolumes.add(volume);
+            }
+        }
+        // An empty list still reaches the agent: retain its existing HB-based verdict.
+        return activityVolumes;
+    }
+
+    private boolean isSharedActivityVolume(StoragePool pool, Volume volume) {
+        if (volume.getVolumeType() == Volume.Type.DATADISK && volume.getDiskOfferingId() != null) {
+            DiskOffering offering = diskOfferingDao.findByIdIncludingRemoved(volume.getDiskOfferingId());
+            if (offering != null && offering.getShareable()) {
+                return true;
+            }
+        }
+        if (volume.getPath() == null || volume.getPath().isEmpty()) {
+            return false;
+        }
+        // Shared images can have separate volume records for different VMs.
+        // Detached or deleted references alone do not establish shared usage.
+        for (VolumeVO reference : volumeDao.findBySharedVolume(pool.getId(), volume.getPath())) {
+            if (reference.getId() != volume.getId() && reference.getRemoved() == null && reference.getInstanceId() != null
+                    && !Objects.equals(reference.getInstanceId(), volume.getInstanceId())
+                    && reference.getState() != Volume.State.Destroy && reference.getState() != Volume.State.Destroying
+                    && reference.getState() != Volume.State.Expunging && reference.getState() != Volume.State.Expunged) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private HashMap<StoragePool, List<Volume>> getVolumeUuidOnHost(Host agent) {
