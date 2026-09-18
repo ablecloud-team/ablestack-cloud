@@ -775,7 +775,53 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
 
         Pair<List<BackupScheduleVO>, Integer> result = backupScheduleDao.searchAndCount(sc, searchFilter);
-        return new ArrayList<>(result.first());
+        List<BackupSchedule> schedules = new ArrayList<>(result.first());
+        schedules.sort(this::compareBackupSchedules);
+        return schedules;
+    }
+
+    protected int compareBackupSchedules(BackupSchedule first, BackupSchedule second) {
+        int comparison = Comparator.nullsLast(Comparator.<DateUtil.IntervalType>naturalOrder())
+                .compare(first.getScheduleType(), second.getScheduleType());
+        if (comparison != 0) {
+            return comparison;
+        }
+
+        int[] firstSortValues = getScheduleSortValues(first);
+        int[] secondSortValues = getScheduleSortValues(second);
+        for (int index = 0; index < Math.min(firstSortValues.length, secondSortValues.length); index++) {
+            comparison = Integer.compare(firstSortValues[index], secondSortValues[index]);
+            if (comparison != 0) {
+                return comparison;
+            }
+        }
+        comparison = Integer.compare(firstSortValues.length, secondSortValues.length);
+        return comparison != 0 ? comparison : Long.compare(first.getId(), second.getId());
+    }
+
+    protected int[] getScheduleSortValues(BackupSchedule backupSchedule) {
+        String[] scheduleParts = StringUtils.split(backupSchedule.getSchedule(), ':');
+        if (scheduleParts == null) {
+            return new int[0];
+        }
+
+        try {
+            int minute = Integer.parseInt(scheduleParts[0]);
+            if (backupSchedule.getScheduleType() == DateUtil.IntervalType.HOURLY || scheduleParts.length == 1) {
+                return new int[] { minute };
+            }
+
+            int hour = Integer.parseInt(scheduleParts[1]);
+            if (backupSchedule.getScheduleType() == DateUtil.IntervalType.DAILY || scheduleParts.length == 2) {
+                return new int[] { hour, minute };
+            }
+
+            int day = Integer.parseInt(scheduleParts[2]);
+            return new int[] { day, hour, minute };
+        } catch (NumberFormatException e) {
+            logger.warn("Unable to sort backup schedule [{}] with value [{}]", backupSchedule.getId(), backupSchedule.getSchedule());
+            return new int[0];
+        }
     }
 
     /**

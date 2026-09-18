@@ -1033,6 +1033,40 @@ public class BackupManagerTest {
     }
 
     @Test
+    public void testCompareBackupSchedulesSortsWeeklySchedulesByDayAndTime() {
+        BackupScheduleVO saturdayAtSixFirst = createBackupSchedule(5L, DateUtil.IntervalType.WEEKLY, "00:18:7");
+        BackupScheduleVO sundayAtSix = createBackupSchedule(2L, DateUtil.IntervalType.WEEKLY, "00:18:1");
+        BackupScheduleVO saturdayAtFive = createBackupSchedule(4L, DateUtil.IntervalType.WEEKLY, "00:17:7");
+        BackupScheduleVO saturdayAtSixSecond = createBackupSchedule(6L, DateUtil.IntervalType.WEEKLY, "00:18:7");
+
+        List<BackupSchedule> schedules = new ArrayList<>(List.of(
+                saturdayAtSixFirst, sundayAtSix, saturdayAtFive, saturdayAtSixSecond));
+        schedules.sort(backupManager::compareBackupSchedules);
+
+        assertEquals(List.of(sundayAtSix, saturdayAtFive, saturdayAtSixFirst, saturdayAtSixSecond), schedules);
+    }
+
+    @Test
+    public void testCompareBackupSchedulesSortsDailySchedulesByHourAndMinute() {
+        BackupScheduleVO sixThirty = createBackupSchedule(1L, DateUtil.IntervalType.DAILY, "30:06");
+        BackupScheduleVO six = createBackupSchedule(2L, DateUtil.IntervalType.DAILY, "00:06");
+        BackupScheduleVO midnightThirty = createBackupSchedule(3L, DateUtil.IntervalType.DAILY, "30:00");
+
+        List<BackupSchedule> schedules = new ArrayList<>(List.of(sixThirty, six, midnightThirty));
+        schedules.sort(backupManager::compareBackupSchedules);
+
+        assertEquals(List.of(midnightThirty, six, sixThirty), schedules);
+    }
+
+    private BackupScheduleVO createBackupSchedule(long id, DateUtil.IntervalType intervalType, String schedule) {
+        BackupScheduleVO backupSchedule = new BackupScheduleVO();
+        ReflectionTestUtils.setField(backupSchedule, "id", id);
+        backupSchedule.setScheduleType((short) intervalType.ordinal());
+        backupSchedule.setSchedule(schedule);
+        return backupSchedule;
+    }
+
+    @Test
     public void testGetBackupStorageUsedStats() {
         Long zoneId = 1L;
         overrideBackupFrameworkConfigValue();
