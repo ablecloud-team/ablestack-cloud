@@ -1,0 +1,1856 @@
+[
+  {
+    "label": "create-isolated-dark-top",
+    "body": {
+      "clientWidth": 750,
+      "height": 721,
+      "overflow": "auto",
+      "scrollHeight": 1157,
+      "scrollTop": 0,
+      "scrollWidth": 750,
+      "width": 760,
+      "x": 455,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 455,
+      "y": 800
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 453
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 521
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 589
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 657
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 725
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 833
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 901
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 969
+      },
+      {
+        "height": 32,
+        "width": 345,
+        "x": 479,
+        "y": 1037
+      },
+      {
+        "height": 32,
+        "width": 345,
+        "x": 836,
+        "y": 1037
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 1106
+      }
+    ],
+    "modal": {
+      "height": 833,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "생성 및 연결",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "create-isolated-dark-bottom",
+    "body": {
+      "clientWidth": 750,
+      "height": 721,
+      "overflow": "auto",
+      "scrollHeight": 1157,
+      "scrollTop": 436,
+      "scrollWidth": 750,
+      "width": 760,
+      "x": 455,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 455,
+      "y": 800
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 17
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 85
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 153
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 221
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 289
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 397
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 465
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 533
+      },
+      {
+        "height": 32,
+        "width": 345,
+        "x": 479,
+        "y": 601
+      },
+      {
+        "height": 32,
+        "width": 345,
+        "x": 836,
+        "y": 601
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 670
+      }
+    ],
+    "modal": {
+      "height": 833,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "생성 및 연결",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "create-l2-dark",
+    "body": {
+      "clientWidth": 750,
+      "height": 721,
+      "overflow": "auto",
+      "scrollHeight": 844,
+      "scrollTop": 0,
+      "scrollWidth": 750,
+      "width": 760,
+      "x": 455,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 455,
+      "y": 800
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 453
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 521
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 589
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 657
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 725
+      }
+    ],
+    "modal": {
+      "height": 833,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "생성 및 연결",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "create-shared-dark",
+    "body": {
+      "clientWidth": 750,
+      "height": 721,
+      "overflow": "auto",
+      "scrollHeight": 1754,
+      "scrollTop": 0,
+      "scrollWidth": 750,
+      "width": 760,
+      "x": 455,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 455,
+      "y": 800
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 453
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 521
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 589
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 657
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 725
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 929
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 492,
+        "y": 1057
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 836,
+        "y": 1057
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 492,
+        "y": 1125
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 836,
+        "y": 1125
+      },
+      {
+        "height": 32,
+        "width": 676,
+        "x": 492,
+        "y": 1193
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 492,
+        "y": 1261
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 836,
+        "y": 1261
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 492,
+        "y": 1408
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 836,
+        "y": 1408
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 492,
+        "y": 1476
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 836,
+        "y": 1476
+      },
+      {
+        "height": 32,
+        "width": 676,
+        "x": 492,
+        "y": 1544
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 492,
+        "y": 1612
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 836,
+        "y": 1612
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 1703
+      }
+    ],
+    "modal": {
+      "height": 833,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "생성 및 연결",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "progress-dark",
+    "body": {
+      "clientWidth": 520,
+      "height": 280,
+      "overflow": "auto",
+      "scrollHeight": 280,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 359
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [],
+    "modal": {
+      "height": 392,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "네트워크 작업 진행",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "address-running-dark",
+    "body": {
+      "clientWidth": 520,
+      "height": 566,
+      "overflow": "auto",
+      "scrollHeight": 566,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 645
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [
+      {
+        "color": "rgb(197, 204, 212)",
+        "text": "MAC만 변경할 때 기존 IP를 유지합니다."
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "text": "MAC 주소는 VM을 정지한 후 변경하세요. 기존 API는 실행 중 NIC에 MAC 변경을 즉시 반영하지 않습니다."
+      }
+    ],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 472,
+        "x": 599,
+        "y": 341
+      },
+      {
+        "height": 32,
+        "width": 472,
+        "x": 599,
+        "y": 433
+      }
+    ],
+    "modal": {
+      "height": 678,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "IP 주소 또는 MAC 주소 변경",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "attach-dark",
+    "body": {
+      "clientWidth": 520,
+      "height": 488,
+      "overflow": "auto",
+      "scrollHeight": 488,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 567
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [
+      {
+        "color": "rgb(197, 204, 212)",
+        "text": "비우면 자동 할당합니다."
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "text": "비우면 자동 생성합니다."
+      }
+    ],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 472,
+        "x": 599,
+        "y": 287
+      },
+      {
+        "height": 32,
+        "width": 472,
+        "x": 599,
+        "y": 355
+      },
+      {
+        "height": 32,
+        "width": 472,
+        "x": 599,
+        "y": 447
+      }
+    ],
+    "modal": {
+      "height": 600,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "기존 네트워크 연결",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "secondary-dark",
+    "body": {
+      "clientWidth": 520,
+      "height": 508,
+      "overflow": "auto",
+      "scrollHeight": 508,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 587
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [
+      {
+        "color": "rgb(197, 204, 212)",
+        "text": "비우면 자동 할당합니다."
+      }
+    ],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 472,
+        "x": 599,
+        "y": 167
+      },
+      {
+        "height": 32,
+        "width": 472,
+        "x": 599,
+        "y": 259
+      }
+    ],
+    "modal": {
+      "height": 620,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "보조 IP 편집",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "details-dark",
+    "body": {
+      "clientWidth": 520,
+      "height": 567,
+      "overflow": "auto",
+      "scrollHeight": 567,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 646
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [],
+    "modal": {
+      "height": 679,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "상세",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "create-isolated-light",
+    "body": {
+      "clientWidth": 750,
+      "height": 721,
+      "overflow": "auto",
+      "scrollHeight": 1157,
+      "scrollTop": 0,
+      "scrollWidth": 750,
+      "width": 760,
+      "x": 455,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 455,
+      "y": 800
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 453
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 521
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 589
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 657
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 725
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 833
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 901
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 969
+      },
+      {
+        "height": 32,
+        "width": 345,
+        "x": 479,
+        "y": 1037
+      },
+      {
+        "height": 32,
+        "width": 345,
+        "x": 836,
+        "y": 1037
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 1106
+      }
+    ],
+    "modal": {
+      "height": 833,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "생성 및 연결",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "create-light-1024x600-scrolled",
+    "body": {
+      "clientWidth": 750,
+      "height": 440,
+      "overflow": "auto",
+      "scrollHeight": 1157,
+      "scrollTop": 436,
+      "scrollWidth": 750,
+      "width": 760,
+      "x": 127,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 127,
+      "y": 519
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 127,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 702,
+        "x": 151,
+        "y": 17
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 151,
+        "y": 85
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 151,
+        "y": 153
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 151,
+        "y": 221
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 151,
+        "y": 289
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 151,
+        "y": 397
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 151,
+        "y": 465
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 151,
+        "y": 533
+      },
+      {
+        "height": 32,
+        "width": 345,
+        "x": 151,
+        "y": 601
+      },
+      {
+        "height": 32,
+        "width": 345,
+        "x": 508,
+        "y": 601
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 151,
+        "y": 670
+      }
+    ],
+    "modal": {
+      "height": 552,
+      "width": 760,
+      "x": 127,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "생성 및 연결",
+    "viewport": [
+      1024,
+      600
+    ]
+  },
+  {
+    "label": "create-light-480x640",
+    "body": {
+      "clientWidth": 446,
+      "height": 504,
+      "overflow": "auto",
+      "scrollHeight": 1193,
+      "scrollTop": 436,
+      "scrollWidth": 446,
+      "width": 456,
+      "x": 7,
+      "y": 67
+    },
+    "footer": {
+      "height": 57,
+      "width": 456,
+      "x": 7,
+      "y": 571
+    },
+    "header": {
+      "height": 55,
+      "width": 456,
+      "x": 7,
+      "y": 12
+    },
+    "help": [],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 414,
+        "x": 23,
+        "y": 23
+      },
+      {
+        "height": 32,
+        "width": 414,
+        "x": 23,
+        "y": 91
+      },
+      {
+        "height": 32,
+        "width": 414,
+        "x": 23,
+        "y": 159
+      },
+      {
+        "height": 32,
+        "width": 414,
+        "x": 23,
+        "y": 227
+      },
+      {
+        "height": 32,
+        "width": 414,
+        "x": 23,
+        "y": 295
+      },
+      {
+        "height": 32,
+        "width": 414,
+        "x": 23,
+        "y": 425
+      },
+      {
+        "height": 32,
+        "width": 414,
+        "x": 23,
+        "y": 493
+      },
+      {
+        "height": 32,
+        "width": 414,
+        "x": 23,
+        "y": 561
+      },
+      {
+        "height": 32,
+        "width": 183,
+        "x": 23,
+        "y": 629
+      },
+      {
+        "height": 32,
+        "width": 183,
+        "x": 218,
+        "y": 629
+      },
+      {
+        "height": 32,
+        "width": 414,
+        "x": 23,
+        "y": 698
+      }
+    ],
+    "modal": {
+      "height": 616,
+      "width": 456,
+      "x": 7,
+      "y": 12
+    },
+    "rawKeys": [],
+    "title": "생성 및 연결",
+    "viewport": [
+      480,
+      640
+    ]
+  },
+  {
+    "label": "create-l2-light",
+    "body": {
+      "clientWidth": 750,
+      "height": 721,
+      "overflow": "auto",
+      "scrollHeight": 844,
+      "scrollTop": 0,
+      "scrollWidth": 750,
+      "width": 760,
+      "x": 455,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 455,
+      "y": 800
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 453
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 521
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 589
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 657
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 725
+      }
+    ],
+    "modal": {
+      "height": 833,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "생성 및 연결",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "create-shared-light",
+    "body": {
+      "clientWidth": 750,
+      "height": 721,
+      "overflow": "auto",
+      "scrollHeight": 1754,
+      "scrollTop": 0,
+      "scrollWidth": 750,
+      "width": 760,
+      "x": 455,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 455,
+      "y": 800
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 453
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 521
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 589
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 657
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 725
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 929
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 492,
+        "y": 1057
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 836,
+        "y": 1057
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 492,
+        "y": 1125
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 836,
+        "y": 1125
+      },
+      {
+        "height": 32,
+        "width": 676,
+        "x": 492,
+        "y": 1193
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 492,
+        "y": 1261
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 836,
+        "y": 1261
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 492,
+        "y": 1408
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 836,
+        "y": 1408
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 492,
+        "y": 1476
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 836,
+        "y": 1476
+      },
+      {
+        "height": 32,
+        "width": 676,
+        "x": 492,
+        "y": 1544
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 492,
+        "y": 1612
+      },
+      {
+        "height": 32,
+        "width": 332,
+        "x": 836,
+        "y": 1612
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 1703
+      }
+    ],
+    "modal": {
+      "height": 833,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "생성 및 연결",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "attach-light",
+    "body": {
+      "clientWidth": 520,
+      "height": 488,
+      "overflow": "auto",
+      "scrollHeight": 488,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 567
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "비우면 자동 할당합니다."
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "비우면 자동 생성합니다."
+      }
+    ],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 472,
+        "x": 599,
+        "y": 287
+      },
+      {
+        "height": 32,
+        "width": 472,
+        "x": 599,
+        "y": 355
+      },
+      {
+        "height": 32,
+        "width": 472,
+        "x": 599,
+        "y": 447
+      }
+    ],
+    "modal": {
+      "height": 600,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "기존 네트워크 연결",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "progress-light",
+    "body": {
+      "clientWidth": 520,
+      "height": 232,
+      "overflow": "auto",
+      "scrollHeight": 232,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 311
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [],
+    "modal": {
+      "height": 344,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "네트워크 작업 진행",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "default-light",
+    "body": {
+      "clientWidth": 520,
+      "height": 352,
+      "overflow": "auto",
+      "scrollHeight": 352,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 431
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [],
+    "modal": {
+      "height": 464,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "기본 NIC 설정",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "disable-light",
+    "body": {
+      "clientWidth": 520,
+      "height": 352,
+      "overflow": "auto",
+      "scrollHeight": 352,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 431
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [],
+    "modal": {
+      "height": 464,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "NIC 비활성화",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "enable-light",
+    "body": {
+      "clientWidth": 520,
+      "height": 352,
+      "overflow": "auto",
+      "scrollHeight": 352,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 431
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [],
+    "modal": {
+      "height": 464,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "NIC 활성화",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "secondary-light",
+    "body": {
+      "clientWidth": 520,
+      "height": 508,
+      "overflow": "auto",
+      "scrollHeight": 508,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 587
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "비우면 자동 할당합니다."
+      }
+    ],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 472,
+        "x": 599,
+        "y": 167
+      },
+      {
+        "height": 32,
+        "width": 472,
+        "x": 599,
+        "y": 259
+      }
+    ],
+    "modal": {
+      "height": 620,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "보조 IP 편집",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "release-secondary-light-final",
+    "body": {
+      "clientWidth": 520,
+      "height": 352,
+      "overflow": "auto",
+      "scrollHeight": 352,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 431
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [],
+    "modal": {
+      "height": 464,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "IP 주소 해제",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "address-light-final",
+    "body": {
+      "clientWidth": 520,
+      "height": 566,
+      "overflow": "auto",
+      "scrollHeight": 566,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 645
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "MAC만 변경할 때 기존 IP를 유지합니다."
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "MAC 주소는 VM을 정지한 후 변경하세요. 기존 API는 실행 중 NIC에 MAC 변경을 즉시 반영하지 않습니다."
+      }
+    ],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 472,
+        "x": 599,
+        "y": 341
+      },
+      {
+        "height": 32,
+        "width": 472,
+        "x": 599,
+        "y": 433
+      }
+    ],
+    "modal": {
+      "height": 678,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "IP 주소 또는 MAC 주소 변경",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "failure-light-final",
+    "body": {
+      "clientWidth": 520,
+      "height": 297.140625,
+      "overflow": "auto",
+      "scrollHeight": 297,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 376.140625
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [],
+    "modal": {
+      "height": 409.140625,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "네트워크 작업 진행",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "detach-light-final",
+    "body": {
+      "clientWidth": 520,
+      "height": 352,
+      "overflow": "auto",
+      "scrollHeight": 352,
+      "scrollTop": 0,
+      "scrollWidth": 520,
+      "width": 520,
+      "x": 575,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 520,
+      "x": 575,
+      "y": 431
+    },
+    "header": {
+      "height": 55,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [],
+    "modal": {
+      "height": 464,
+      "width": 520,
+      "x": 575,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "연결 해제",
+    "viewport": [
+      1680,
+      881
+    ]
+  },
+  {
+    "label": "create-dark-final",
+    "body": {
+      "clientWidth": 750,
+      "height": 721,
+      "overflow": "auto",
+      "scrollHeight": 1157,
+      "scrollTop": 0,
+      "scrollWidth": 750,
+      "width": 760,
+      "x": 455,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 455,
+      "y": 800
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "help": [],
+    "inputs": [
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 453
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 521
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 589
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 657
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 725
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 833
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 901
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 969
+      },
+      {
+        "height": 32,
+        "width": 345,
+        "x": 479,
+        "y": 1037
+      },
+      {
+        "height": 32,
+        "width": 345,
+        "x": 836,
+        "y": 1037
+      },
+      {
+        "height": 32,
+        "width": 702,
+        "x": 479,
+        "y": 1106
+      }
+    ],
+    "modal": {
+      "height": 833,
+      "width": 760,
+      "x": 455,
+      "y": 24
+    },
+    "rawKeys": [],
+    "title": "생성 및 연결",
+    "viewport": [
+      1680,
+      881
+    ]
+  }
+]

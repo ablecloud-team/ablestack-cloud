@@ -17,6 +17,11 @@
 package com.cloud.vm;
 
 public interface VmStats {
+    /** Last persisted successful sample. Zero means unavailable on older producers. */
+    default long getSampledAt() { return 0; }
+
+    default String getCollectionStatus() { return "UNKNOWN"; }
+
     // vm related stats
     public double getCPUUtilization();
 

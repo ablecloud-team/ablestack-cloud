@@ -347,34 +347,6 @@ CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_restore_point', 'duration_ms', 'b
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_restore_point', 'throughput_bps', 'bigint unsigned NULL AFTER `duration_ms`');
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_restore_point', 'baseline_generation', 'bigint unsigned NULL AFTER `throughput_bps`');
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_restore_point', 'cycle_token', 'varchar(255) NULL AFTER `baseline_generation`');
-UPDATE `cloud`.`dr_restore_point` rp
-JOIN (SELECT `plan_id`, MAX(`id`) AS `run_id` FROM `cloud`.`dr_run` WHERE `removed` IS NULL GROUP BY `plan_id`) latest_run
-  ON latest_run.`plan_id` = rp.`plan_id`
-SET rp.`run_id` = latest_run.`run_id`
-WHERE rp.`removed` IS NULL AND rp.`run_id` IS NULL;
-UPDATE `cloud`.`dr_restore_point`
-SET `checkpoint_sequence` = CAST(SUBSTRING_INDEX(`source_snapshot_ref`, ':', -1) AS UNSIGNED),
-    `checkpoint_cycle_type` = IF(CAST(SUBSTRING_INDEX(`source_snapshot_ref`, ':', -1) AS UNSIGNED) = 1, 'full-seed', 'incremental')
-WHERE `removed` IS NULL AND `checkpoint_sequence` IS NULL
-  AND `source_snapshot_ref` LIKE 'ftctl:%'
-  AND SUBSTRING_INDEX(`source_snapshot_ref`, ':', -1) REGEXP '^[0-9]+$';
-UPDATE `cloud`.`dr_restore_point`
-SET `checkpoint_ref_hash` = UNHEX(SHA2(`source_snapshot_ref`, 256))
-WHERE `removed` IS NULL AND `source_snapshot_ref` IS NOT NULL AND `checkpoint_ref_hash` IS NULL;
-UPDATE `cloud`.`dr_restore_point` rp
-JOIN (
-    SELECT `plan_id`, `checkpoint_ref_hash`, MAX(`id`) AS `keep_id`
-    FROM `cloud`.`dr_restore_point`
-    WHERE `removed` IS NULL AND `checkpoint_ref_hash` IS NOT NULL
-    GROUP BY `plan_id`, `checkpoint_ref_hash`
-    HAVING COUNT(*) > 1
-) duplicate_checkpoint
-  ON duplicate_checkpoint.`plan_id` = rp.`plan_id`
- AND duplicate_checkpoint.`checkpoint_ref_hash` = rp.`checkpoint_ref_hash`
-SET rp.`removed` = COALESCE(rp.`removed`, NOW()), rp.`checkpoint_ref_hash` = NULL, rp.`updated` = NOW()
-WHERE rp.`id` <> duplicate_checkpoint.`keep_id`;
-CALL `cloud`.`IDEMPOTENT_ADD_UNIQUE_KEY`('cloud.dr_restore_point', 'uk_dr_restore_point__plan_checkpoint_hash', '(`plan_id`, `checkpoint_ref_hash`)');
-CALL `cloud`.`IDEMPOTENT_ADD_KEY`('i_dr_restore_point__plan_ready_removed', 'cloud.dr_restore_point', '(`plan_id`, `target_ready_at`, `removed`)');
 
 CREATE TABLE IF NOT EXISTS `cloud`.`dr_restore_point_artifact` (
     `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -537,6 +509,36 @@ CALL `cloud`.`IDEMPOTENT_ADD_KEY`('i_dr_run__plan_created', 'cloud.dr_run', '(`p
 CALL `cloud`.`IDEMPOTENT_ADD_KEY`('i_dr_run__plan_state_completed', 'cloud.dr_run', '(`plan_id`, `state`, `completed`)');
 
 CALL `cloud`.`IDEMPOTENT_ADD_KEY`('i_dr_run_step__run_order', 'cloud.dr_run_step', '(`run_id`, `step_order`)');
+
+-- Backfill restore points only after the run table and its columns exist.
+UPDATE `cloud`.`dr_restore_point` rp
+JOIN (SELECT `plan_id`, MAX(`id`) AS `run_id` FROM `cloud`.`dr_run` WHERE `removed` IS NULL GROUP BY `plan_id`) latest_run
+  ON latest_run.`plan_id` = rp.`plan_id`
+SET rp.`run_id` = latest_run.`run_id`
+WHERE rp.`removed` IS NULL AND rp.`run_id` IS NULL;
+UPDATE `cloud`.`dr_restore_point`
+SET `checkpoint_sequence` = CAST(SUBSTRING_INDEX(`source_snapshot_ref`, ':', -1) AS UNSIGNED),
+    `checkpoint_cycle_type` = IF(CAST(SUBSTRING_INDEX(`source_snapshot_ref`, ':', -1) AS UNSIGNED) = 1, 'full-seed', 'incremental')
+WHERE `removed` IS NULL AND `checkpoint_sequence` IS NULL
+  AND `source_snapshot_ref` LIKE 'ftctl:%'
+  AND SUBSTRING_INDEX(`source_snapshot_ref`, ':', -1) REGEXP '^[0-9]+$';
+UPDATE `cloud`.`dr_restore_point`
+SET `checkpoint_ref_hash` = UNHEX(SHA2(`source_snapshot_ref`, 256))
+WHERE `removed` IS NULL AND `source_snapshot_ref` IS NOT NULL AND `checkpoint_ref_hash` IS NULL;
+UPDATE `cloud`.`dr_restore_point` rp
+JOIN (
+    SELECT `plan_id`, `checkpoint_ref_hash`, MAX(`id`) AS `keep_id`
+    FROM `cloud`.`dr_restore_point`
+    WHERE `removed` IS NULL AND `checkpoint_ref_hash` IS NOT NULL
+    GROUP BY `plan_id`, `checkpoint_ref_hash`
+    HAVING COUNT(*) > 1
+) duplicate_checkpoint
+  ON duplicate_checkpoint.`plan_id` = rp.`plan_id`
+ AND duplicate_checkpoint.`checkpoint_ref_hash` = rp.`checkpoint_ref_hash`
+SET rp.`removed` = COALESCE(rp.`removed`, NOW()), rp.`checkpoint_ref_hash` = NULL, rp.`updated` = NOW()
+WHERE rp.`id` <> duplicate_checkpoint.`keep_id`;
+CALL `cloud`.`IDEMPOTENT_ADD_UNIQUE_KEY`('cloud.dr_restore_point', 'uk_dr_restore_point__plan_checkpoint_hash', '(`plan_id`, `checkpoint_ref_hash`)');
+CALL `cloud`.`IDEMPOTENT_ADD_KEY`('i_dr_restore_point__plan_ready_removed', 'cloud.dr_restore_point', '(`plan_id`, `target_ready_at`, `removed`)');
 
 CREATE TABLE IF NOT EXISTS `cloud`.`dr_event` (
     `id` bigint unsigned NOT NULL AUTO_INCREMENT,

@@ -42,15 +42,7 @@
         </div>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.volumes')" key="volumes" v-if="'listVolumes' in $store.getters.apis">
-        <a-button
-          type="primary"
-          style="width: 100%; margin-bottom: 10px"
-          @click="showAddVolModal"
-          :loading="loading"
-          :disabled="!('createVolume' in $store.getters.apis) || this.vm.state === 'Error' || resource.hypervisor === 'External'">
-          <template #icon><plus-outlined /></template> {{ $t('label.action.create.volume.add') }}
-        </a-button>
-        <volumes-tab :resource="vm" :loading="loading" />
+        <VmVolumesTab :resource="vm" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.gpu')" key="gpu" v-if="dataResource.gpucardname">
         <GPUTab
@@ -71,12 +63,7 @@
         <GuestNetworkTab :resource="vm"/>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.vm.snapshots')" key="vmsnapshots" v-if="'listVMSnapshot' in $store.getters.apis">
-        <ListResourceTable
-          apiName="listVMSnapshot"
-          :resource="dataResource"
-          :params="{virtualmachineid: dataResource.id}"
-          :columns="['displayname', 'state', 'type', 'created']"
-          :routerlinks="(record) => { return { displayname: '/vmsnapshot/' + record.id } }"/>
+        <VmSnapshotsTab :resource="vm" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.dr.plans')" key="drplans" v-if="'getDrVmProtectionView' in $store.getters.apis">
         <DrPlanVmTab :resource="vm" :loading="loading" />
@@ -228,16 +215,6 @@
         @select-security-group-item="($event) => updateSecurityGroupsSelection($event)"></security-group-selection>
     </a-modal>
 
-    <a-modal
-      :visible="showAddVolumeModal"
-      :title="$t('label.action.create.volume.add')"
-      :maskClosable="false"
-      :closable="true"
-      :footer="null"
-      @cancel="closeModals">
-      <CreateVolume :resource="resource" @close-action="closeModals" />
-    </a-modal>
-
   </a-spin>
 </template>
 
@@ -252,18 +229,18 @@ import DetailsTab from '@/components/view/DetailsTab'
 import StatsTab from '@/components/view/StatsTab'
 import EventsTab from '@/components/view/EventsTab'
 import DetailSettings from '@/components/view/DetailSettings'
-import CreateVolume from '@/views/storage/CreateVolume'
-import NicsTab from '@/views/network/NicsTab'
+import NicsTab from '@/views/compute/VmNicsTab.vue'
 import GuestNetworkTab from '@/views/compute/GuestNetworkTab'
 import ResourceSchedules from '@/views/compute/ResourceSchedules.vue'
 import ListResourceTable from '@/components/view/ListResourceTable'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import AnnotationsTab from '@/components/view/AnnotationsTab'
-import VolumesTab from '@/components/view/VolumesTab.vue'
+import VmVolumesTab from '@/views/compute/VmVolumesTab.vue'
 import SecurityGroupSelection from '@views/compute/wizard/SecurityGroupSelection'
 import DrPlanVmTab from '@/views/compute/dr/DrPlanVmTab.vue'
 import GPUTab from '@/components/view/GPUTab.vue'
 import FtctlTab from '@/views/compute/FtctlTab.vue'
+import VmSnapshotsTab from '@/views/compute/VmSnapshotsTab.vue'
 
 export default {
   name: 'InstanceTab',
@@ -273,18 +250,18 @@ export default {
     StatsTab,
     EventsTab,
     DetailSettings,
-    CreateVolume,
     NicsTab,
     GuestNetworkTab,
     DrPlanVmTab,
     GPUTab,
     FtctlTab,
+    VmSnapshotsTab,
     ResourceSchedules,
     ListResourceTable,
     SecurityGroupSelection,
     ResourceIcon,
     AnnotationsTab,
-    VolumesTab
+    VmVolumesTab
   },
   mixins: [listRefreshMixin(['loadDevicesFromDb'], { active: vm => !!vm.vm?.id && vm.currentTab === 'hostdevices' }), mixinDevice],
   props: {
@@ -304,7 +281,6 @@ export default {
       totalStorage: 0,
       currentTab: this.resolveCurrentTabFromRoute(),
       showUpdateSecurityGroupsModal: false,
-      showAddVolumeModal: false,
       diskOfferings: [],
       annotations: [],
       dataResource: {},
@@ -589,7 +565,6 @@ export default {
       this.loadingSG = false
     },
     closeModals () {
-      this.showAddVolumeModal = false
       this.showUpdateSecurityGroupsModal = false
     },
     updateSecurityGroupsSelection (securitygroupids) {

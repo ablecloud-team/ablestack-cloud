@@ -44,6 +44,8 @@ import com.cloud.hypervisor.kvm.resource.BoundedQgaGuestExec;
 import com.cloud.hypervisor.kvm.resource.BoundedQgaGuestExec.GuestExecFailure;
 import com.cloud.hypervisor.kvm.resource.BoundedQgaGuestExec.Operation;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
+import com.cloud.hypervisor.kvm.resource.KvmVmOperationGuard;
+import com.cloud.hypervisor.kvm.resource.KvmBoundedStats;
 import com.cloud.hypervisor.kvm.resource.QemuGuestAddressRoleFallback;
 import com.cloud.hypervisor.kvm.resource.QemuGuestDnsFallback;
 import com.cloud.hypervisor.kvm.resource.QemuGuestDnsParser;
@@ -112,7 +114,17 @@ public final class LibvirtGetVmGuestNetworkStateCommandWrapper
         Map<String, String> errors = new LinkedHashMap<>();
 
         for (String vmName : command.getVmNames()) {
-            collectVmState(command, resource, vmName, states, errors);
+            try {
+                Connect conn = resource.getLibvirtUtilitiesHelper().getConnectionByVmName(vmName);
+                Map<String, String> localErrors = new LinkedHashMap<>();
+                Map<String, VmGuestNetworkState> completed = KvmVmOperationGuard.collect(conn, vmName, () -> {
+                    Map<String, VmGuestNetworkState> localStates = new LinkedHashMap<>();
+                    collectVmState(command, resource, vmName, localStates, localErrors);
+                    return localStates;
+                });
+                if (completed != null) { states.putAll(completed); errors.putAll(localErrors); }
+                else errors.put(vmName, "Monitoring deferred: operation active, unknown, or collection budget exceeded");
+            } catch (Exception e) { errors.put(vmName, "Monitoring deferred: connection unavailable"); }
         }
         return new GetVmGuestNetworkStateAnswer(command, states, errors);
     }
@@ -152,7 +164,7 @@ public final class LibvirtGetVmGuestNetworkStateCommandWrapper
                         "VM domain was not found");
                 return;
             }
-            DomainState domainState = domain.getInfo().state;
+            DomainState domainState = KvmBoundedStats.info(domain).state;
             if (domainState != DomainState.VIR_DOMAIN_RUNNING) {
                 recordFailure(state, errors, vmName, collectInterfaces, collectRoutes, collectDns,
                         collectReadiness,
@@ -167,8 +179,8 @@ public final class LibvirtGetVmGuestNetworkStateCommandWrapper
                     || (collectDns && command.isExecFallbackEnabled())
                     || (collectInterfaces && !interfaceCapabilityEnabled);
             if (capabilitiesRequired) {
-                String guestInfo = domain.qemuAgentCommand(
-                        QemuCommand.buildQemuCommand(QemuCommand.AGENT_INFO, null), command.getTimeoutSeconds(), 0);
+                String guestInfo = KvmVmOperationGuard.guestCommand(domain,
+                        QemuCommand.buildQemuCommand(QemuCommand.AGENT_INFO, null), command.getTimeoutSeconds());
                 interfaceCapabilityEnabled = parser.parseCapabilities(guestInfo, state);
                 state.setAgentConnected(true);
             }
@@ -226,9 +238,9 @@ public final class LibvirtGetVmGuestNetworkStateCommandWrapper
             return;
         }
         try {
-            String interfacesJson = domain.qemuAgentCommand(
+            String interfacesJson = KvmVmOperationGuard.guestCommand(domain,
                     QemuCommand.buildQemuCommand(QemuCommand.AGENT_NETWORK_GET_INTERFACES, null),
-                    command.getTimeoutSeconds(), 0);
+                    command.getTimeoutSeconds());
             state.setAgentConnected(true);
             List<VmGuestNetworkInterface> interfaces = parser.parseInterfaces(
                     interfacesJson, command.getCloudNicIdsForVm(vmName));
@@ -268,9 +280,9 @@ public final class LibvirtGetVmGuestNetworkStateCommandWrapper
         try {
             if (!state.getCapabilities().containsKey(QemuCommand.AGENT_EXEC)
                     || !state.getCapabilities().containsKey(QemuCommand.AGENT_GET_OSINFO)) {
-                String guestInfo = domain.qemuAgentCommand(
+                String guestInfo = KvmVmOperationGuard.guestCommand(domain,
                         QemuCommand.buildQemuCommand(QemuCommand.AGENT_INFO, null),
-                        command.getTimeoutSeconds(), 0);
+                        command.getTimeoutSeconds());
                 parser.parseCapabilities(guestInfo, state);
                 state.setAgentConnected(true);
             }
@@ -291,7 +303,7 @@ public final class LibvirtGetVmGuestNetworkStateCommandWrapper
                 }
             }
             String source = addressRoleFallback.collect(
-                    (request, timeout) -> domain.qemuAgentCommand(request, timeout, 0),
+                    (request, timeout) -> KvmVmOperationGuard.guestCommand(domain, request, timeout),
                     getOsFamily(command, domain, guestContext), interfaces,
                     command.getTimeoutSeconds(), command.getMaxExecOutputBytes());
             state.setAgentConnected(true);
@@ -318,9 +330,9 @@ public final class LibvirtGetVmGuestNetworkStateCommandWrapper
         Exception standardFailure = null;
         if (standardRoute) {
             try {
-                String routesJson = domain.qemuAgentCommand(
+                String routesJson = KvmVmOperationGuard.guestCommand(domain,
                         QemuCommand.buildQemuCommand(QemuCommand.AGENT_NETWORK_GET_ROUTE, null),
-                        command.getTimeoutSeconds(), 0);
+                        command.getTimeoutSeconds());
                 ensureOutputLimit(routesJson, command.getMaxExecOutputBytes());
                 RouteParseResult result = parser.parseRoutes(routesJson);
                 state.setAgentConnected(true);
@@ -349,7 +361,7 @@ public final class LibvirtGetVmGuestNetworkStateCommandWrapper
         }
         try {
             FallbackResult result = routeFallback.collect(
-                    (request, timeout) -> domain.qemuAgentCommand(request, timeout, 0),
+                    (request, timeout) -> KvmVmOperationGuard.guestCommand(domain, request, timeout),
                     getOsFamily(command, domain, guestContext),
                     command.getTimeoutSeconds(), command.getMaxExecOutputBytes());
             state.setAgentConnected(true);
@@ -392,7 +404,7 @@ public final class LibvirtGetVmGuestNetworkStateCommandWrapper
         }
         try {
             DnsParseResult result = dnsFallback.collect(
-                    (request, timeout) -> domain.qemuAgentCommand(request, timeout, 0),
+                    (request, timeout) -> KvmVmOperationGuard.guestCommand(domain, request, timeout),
                     getOsFamily(command, domain, guestContext),
                     command.getTimeoutSeconds(), command.getMaxExecOutputBytes());
             VmGuestDnsState dns = result.getState();
@@ -444,7 +456,7 @@ public final class LibvirtGetVmGuestNetworkStateCommandWrapper
         }
         try {
             String output = boundedGuestExec.execute(
-                    (request, timeout) -> domain.qemuAgentCommand(request, timeout, 0),
+                    (request, timeout) -> KvmVmOperationGuard.guestCommand(domain, request, timeout),
                     Operation.ABLESTACK_NETWORK_SNAPSHOT,
                     command.getTimeoutSeconds(), command.getMaxExecOutputBytes());
             context.helperSnapshot = QemuGuestToolsSnapshot.parse(output);
@@ -514,9 +526,9 @@ public final class LibvirtGetVmGuestNetworkStateCommandWrapper
     private QemuGuestOsFamilyResolution getOsFamily(GetVmGuestNetworkStateCommand command, Domain domain,
             GuestContext context) throws LibvirtException {
         if (context.osFamily == null) {
-            String osInfoJson = domain.qemuAgentCommand(
+            String osInfoJson = KvmVmOperationGuard.guestCommand(domain,
                     QemuCommand.buildQemuCommand(QemuCommand.AGENT_GET_OSINFO, null),
-                    command.getTimeoutSeconds(), 0);
+                    command.getTimeoutSeconds());
             context.osFamily = osFamilyResolver.resolve(parser.parseOsInfo(osInfoJson));
             logger.debug("Resolved QGA guest OS family [{}] from [{}]",
                     context.osFamily.getFamily(), context.osFamily.getSource());

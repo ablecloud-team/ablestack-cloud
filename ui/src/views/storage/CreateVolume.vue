@@ -17,7 +17,7 @@
 
 <template>
   <a-spin :spinning="loading">
-    <div v-if="!isNormalUserOrProject">
+    <div v-if="!isNormalUserOrProject && !submitHandler">
       <ownership-selection @fetch-owner="fetchOwnerOptions" />
     </div>
     <a-form
@@ -219,6 +219,9 @@
           />
         </a-form-item>
       </span>
+      <a-form-item v-if="submitHandler" class="volume-device-hint" ref="deviceid" name="deviceid" :label="$t('label.vmvolume.deviceid')" :extra="$t('message.vmvolume.device.auto')" :rules="[{ validator: validateDeviceId }]">
+        <a-input-number v-model:value="form.deviceid" :min="1" :precision="0" :placeholder="$t('label.vmvolume.device.auto')" style="width: 100%" />
+      </a-form-item>
       <div :span="24" class="action-button">
         <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
         <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
@@ -230,6 +233,7 @@
 <script>
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
+import { volumeDeviceIdReason } from '@/utils/vmVolumeActions'
 import { mixinForm } from '@/utils/mixin'
 import { isAdmin } from '@/role'
 import ResourceIcon from '@/components/view/ResourceIcon'
@@ -246,6 +250,7 @@ export default {
     TooltipLabel
   },
   props: {
+    submitHandler: { type: Function, default: null },
     resource: {
       type: Object,
       default: () => {}
@@ -299,10 +304,15 @@ export default {
     this.apiParams = this.$getApiParams('createVolume')
   },
   created () {
+    if (this.submitHandler) this.owner = { account: this.resource.account, domainid: this.resource.domainid, projectid: this.resource.projectid }
     this.initForm()
     this.fetchData()
   },
   methods: {
+    validateDeviceId (rule, value) {
+      const reason = volumeDeviceIdReason(value)
+      return reason ? Promise.reject(new Error(this.$t(reason))) : Promise.resolve()
+    },
     initForm () {
       this.formRef = ref()
       this.form = reactive({})
@@ -521,6 +531,7 @@ export default {
         } else {
           values.account = this.owner.account
         }
+        if (this.submitHandler) return this.submitHandler(values)
         this.loading = true
         postAPI('createVolume', values).then(response => {
           this.$pollJob({
@@ -563,7 +574,8 @@ export default {
           this.loading = false
         })
       }).catch((error) => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
+        if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else this.$notifyError(error)
       })
     },
     closeModal () {
@@ -628,6 +640,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.volume-device-hint :deep(.ant-form-item-extra) {
+  margin-top: 8px;
+  color: var(--ui-text-secondary);
+}
 .form {
   width: 80vw;
 

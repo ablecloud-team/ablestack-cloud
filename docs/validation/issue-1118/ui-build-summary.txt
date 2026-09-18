@@ -1,0 +1,16 @@
+  dist/css/chunk-40c2f2e1.a89ddab2.css    0.06 KiB          0.07 KiB
+  dist/css/chunk-76164dea.0ee2ad71.css    0.06 KiB          0.07 KiB
+  dist/css/chunk-f8c1fd06.bccd434d.css    0.06 KiB          0.08 KiB
+  dist/css/chunk-275a37c6.b5ab1173.css    0.04 KiB          0.06 KiB
+
+  Images and other types of assets omitted.
+
+ DONE  Build complete. The dist directory is ready to be deployed.
+ INFO  Check out deployment instructions at https://cli.vuejs.org/guide/deployment.html
+
+
+> cloudstack-ui@4.22.0 postbuild /home/ablecloud/work/dhslove/ablestack-cloud-europa-release/ui
+> ./postbuild.sh
+
+Post-build: removing all docHelp suffixes in ./public/config.json
+[SKIP] ABLESTACK_UI_BUILD_VERSION is not set; keeping buildVersion: V4.0-4.0.15

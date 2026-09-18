@@ -131,7 +131,7 @@
               v-model:value="form.isolatedpvlan"
               :placeholder="apiParams.isolatedpvlan.description"/>
           </a-form-item>
-          <a-form-item :label="$t('label.scope')" name="scope" ref="scope">
+          <a-form-item v-if="!submitHandler" :label="$t('label.scope')" name="scope" ref="scope">
             <a-radio-group
               v-model:value="form.scope"
               buttonStyle="solid"
@@ -463,7 +463,7 @@
             </template>
             <a-switch v-model:checked="form.hideipaddressusage" />
           </a-form-item>
-          <div :span="24" class="action-button">
+          <div v-if="!submitHandler" :span="24" class="action-button">
             <a-button
               :loading="actionLoading"
               @click="closeAction">
@@ -499,6 +499,7 @@ export default {
     ResourceIcon
   },
   props: {
+    submitHandler: { type: Function, default: null },
     loading: {
       type: Boolean,
       default: false
@@ -578,7 +579,7 @@ export default {
   methods: {
     initForm () {
       this.formRef = ref()
-      if (isAdmin()) {
+      if (this.submitHandler || isAdmin()) {
         this.scopeType = 'all'
       } else if (isAdminOrDomainAdmin()) {
         this.scopeType = 'domain'
@@ -640,7 +641,7 @@ export default {
         }
       } else {
         const params = {}
-        if (this.resource.zoneid && (this.$route.name === 'deployVirtualMachine' || this.$route.path.startsWith('/backup'))) {
+        if (this.resource.zoneid && (this.submitHandler || this.$route.name === 'deployVirtualMachine' || this.$route.path.startsWith('/backup'))) {
           params.id = this.resource.zoneid
         }
         params.showicon = true
@@ -790,6 +791,7 @@ export default {
       // Network tab in Guest Traffic Type in Infrastructure menu is only available when it's under Advanced zone.
       // zone dropdown in add guest network dialog includes only Advanced zones.
       params.guestiptype = 'Shared'
+      if (this.submitHandler) params.domainid = this.resource.domainid
       if (this.scopeType === 'domain') {
         params.domainid = this.selectedDomain.id
       }
@@ -1079,6 +1081,11 @@ export default {
         }
         if (this.isValidTextValueForKey(values, 'privatemtu')) {
           params.privatemtu = values.privatemtu
+        }
+        if (this.submitHandler) {
+          this.submitHandler(params)
+          this.actionLoading = false
+          return
         }
         postAPI('createNetwork', params).then(json => {
           this.$notification.success({

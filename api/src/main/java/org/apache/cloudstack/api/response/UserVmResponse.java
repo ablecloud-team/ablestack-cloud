@@ -258,6 +258,17 @@ public class UserVmResponse extends BaseResponseWithTagInformation implements Co
     @Param(description = "The vGPU type used by the Instance", since = "4.4")
     private String vgpu;
 
+    @SerializedName("statslastsampled")
+    @Param(description = "Unix epoch milliseconds of the last successful persisted VM statistics sample")
+    private Long statsLastSampled;
+
+    @SerializedName("statscollectionstatus")
+    @Param(description = "Statistics freshness: FRESH, STALE or UNKNOWN. STALE is not a VM power state.")
+    private String statsCollectionStatus;
+
+    public void setStatsLastSampled(Long value) { statsLastSampled = value; }
+    public void setStatsCollectionStatus(String value) { statsCollectionStatus = value; }
+
     @SerializedName("cpuused")
     @Param(description = "The amount of the Instance's CPU currently used")
     private String cpuUsed;

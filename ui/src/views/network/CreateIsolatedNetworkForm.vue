@@ -66,7 +66,7 @@
               </a-select-option>
             </a-select>
           </a-form-item>
-          <ownership-selection v-if="isAdminOrDomainAdmin()" @fetch-owner="fetchOwnerOptions"/>
+          <ownership-selection v-if="!submitHandler && isAdminOrDomainAdmin()" @fetch-owner="fetchOwnerOptions"/>
           <a-form-item
             ref="networkdomain"
             name="networkdomain"
@@ -308,7 +308,7 @@
             </template>
             <a-switch v-model:checked="form.keepMacAddressOnPublicNic" />
           </a-form-item>
-          <div :span="24" class="action-button">
+          <div v-if="!submitHandler" :span="24" class="action-button">
             <a-button
               :loading="actionLoading"
               @click="closeAction">
@@ -347,6 +347,7 @@ export default {
     OwnershipSelection
   },
   props: {
+    submitHandler: { type: Function, default: null },
     loading: {
       type: Boolean,
       default: false
@@ -400,6 +401,7 @@ export default {
   },
   created () {
     this.initForm()
+    if (this.submitHandler) this.owner = { account: this.resource.projectid ? null : this.resource.account, domainid: this.resource.domainid, projectid: this.resource.projectid }
     this.fetchData()
   },
   computed: {
@@ -460,7 +462,7 @@ export default {
     fetchZoneData () {
       this.zones = []
       const params = {}
-      if (this.resource.zoneid && (this.$route.name === 'deployVirtualMachine' || this.$route.path.startsWith('/backup'))) {
+      if (this.resource.zoneid && (this.submitHandler || this.$route.name === 'deployVirtualMachine' || this.$route.path.startsWith('/backup'))) {
         params.id = this.resource.zoneid
       }
       params.showicon = true
@@ -656,6 +658,11 @@ export default {
           params.asnumber = values.asnumber
         }
 
+        if (this.submitHandler) {
+          this.submitHandler(params)
+          this.actionLoading = false
+          return
+        }
         postAPI('createNetwork', params).then(json => {
           this.$notification.success({
             message: 'Network',

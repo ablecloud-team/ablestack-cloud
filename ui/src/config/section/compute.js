@@ -17,6 +17,7 @@
 
 import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
+import { snapshotBusy, snapshotActionReason } from '@/utils/vmSnapshotActions'
 import { isZoneCreated } from '@/utils/zone'
 import { escapeHtml } from '@/utils/util'
 import { getAPI, postAPI, getBaseUrl } from '@/api'
@@ -327,7 +328,7 @@ export default {
               (['Stopped'].includes(record.state) && (!['KVM', 'LXC'].includes(record.hypervisor) ||
               (record.hypervisor === 'KVM' && ['PowerFlex', 'Filesystem', 'NetworkFilesystem', 'SharedMountPoint'].includes(record.pooltype))))) && record.vmtype !== 'sharedfsvm')
           },
-          disabled: (record, store, selectedItems) => { return (record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM') || disableDuringFastCloneFlatten(record, store, selectedItems) },
+          disabled: (record, store, selectedItems) => { return snapshotBusy(record.id) || (record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM') || disableDuringFastCloneFlatten(record, store, selectedItems) },
           tooltip: (record, store, selectedItems) => getFastCloneOperationTooltip(record, store, selectedItems, 'label.action.vmsnapshot.create'),
           mapping: {
             virtualmachineid: {
@@ -717,6 +718,8 @@ export default {
       actions: [
         {
           api: 'createSnapshotFromVMSnapshot',
+          disabled: record => !!snapshotActionReason('createSnapshotFromVMSnapshot', record, null, snapshotBusy(record.virtualmachineid)),
+          tooltip: record => snapshotActionReason('createSnapshotFromVMSnapshot', record, null, snapshotBusy(record.virtualmachineid)),
           icon: 'camera-outlined',
           label: 'label.action.create.snapshot.from.vmsnapshot',
           message: 'message.action.create.snapshot.from.vmsnapshot',
@@ -727,6 +730,8 @@ export default {
         },
         {
           api: 'revertToVMSnapshot',
+          disabled: record => !!snapshotActionReason('revertToVMSnapshot', record, null, snapshotBusy(record.virtualmachineid)),
+          tooltip: record => snapshotActionReason('revertToVMSnapshot', record, null, snapshotBusy(record.virtualmachineid)),
           icon: 'sync-outlined',
           label: 'label.action.vmsnapshot.revert',
           message: 'label.action.vmsnapshot.revert',
@@ -741,6 +746,8 @@ export default {
         },
         {
           api: 'deleteVMSnapshot',
+          disabled: record => !!snapshotActionReason('deleteVMSnapshot', record, null, snapshotBusy(record.virtualmachineid)),
+          tooltip: record => snapshotActionReason('deleteVMSnapshot', record, null, snapshotBusy(record.virtualmachineid)),
           icon: 'delete-outlined',
           label: 'label.action.vmsnapshot.delete',
           message: (record) => {

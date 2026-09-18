@@ -459,6 +459,22 @@ public class StatsCollectorTest {
     }
 
     @Test
+    public void vmStatsFreshnessUsesPersistedTimeAndDoesNotInventASample() {
+        java.util.Date oldTime = new java.util.Date(System.currentTimeMillis() - 600000);
+        Mockito.doReturn(Arrays.asList(vmStatsVoMock1)).when(vmStatsDaoMock).findByVmIdOrderByTimestampDesc(Mockito.anyLong());
+        Mockito.doReturn(oldTime).when(vmStatsVoMock1).getTimestamp();
+        VmStatsEntry sample = new VmStatsEntry();
+        Mockito.doReturn(sample).when(statsCollector).getLatestOrAccumulatedVmMetricsStats(Mockito.anyList(), Mockito.anyBoolean());
+        VmStats result = statsCollector.getVmStats(1L, false);
+        Assert.assertEquals(oldTime.getTime(), result.getSampledAt());
+        Assert.assertEquals("STALE", result.getCollectionStatus());
+        Mockito.verify(vmStatsDaoMock, Mockito.never()).persist(Mockito.any());
+        java.util.Date freshTime = new java.util.Date();
+        Mockito.doReturn(freshTime).when(vmStatsVoMock1).getTimestamp();
+        Assert.assertEquals("FRESH", statsCollector.getVmStats(1L, false).getCollectionStatus());
+    }
+
+    @Test
     public void getVmStatsTestWithAccumulateNotNull() {
         Mockito.doReturn(Arrays.asList(vmStatsVoMock1)).when(vmStatsDaoMock).findByVmIdOrderByTimestampDesc(Mockito.anyLong());
         Mockito.doReturn(vmStatsEntryMock).when(statsCollector).getLatestOrAccumulatedVmMetricsStats(Mockito.anyList(), Mockito.anyBoolean());

@@ -16,6 +16,10 @@
 // under the License.
 package com.cloud.hypervisor.kvm.resource.wrapper;
 
+import com.cloud.hypervisor.kvm.resource.KvmVmOperationGuard;
+import com.cloud.hypervisor.kvm.resource.KvmBoundedStats;
+import org.junit.After;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -73,6 +77,35 @@ public class LibvirtGetVmGuestNetworkStateCommandWrapperTest {
     private Domain domainTwo;
 
     private LibvirtGetVmGuestNetworkStateCommandWrapper wrapper;
+
+    // These tests retain the existing libvirt fixtures; OS locking and bounded CLI
+    // transport are exercised separately by KvmVmOperationGuardTest/KvmBoundedStatsTest.
+    private org.mockito.MockedStatic<KvmVmOperationGuard> operationGuard;
+    private org.mockito.MockedStatic<KvmBoundedStats> boundedStats;
+
+    @Before
+    public void mockMonitoringTransport() throws Exception {
+        operationGuard = org.mockito.Mockito.mockStatic(KvmVmOperationGuard.class);
+        operationGuard.when(() -> KvmVmOperationGuard.begin(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString()))
+                .thenReturn(org.mockito.Mockito.mock(KvmVmOperationGuard.class));
+        operationGuard.when(() -> KvmVmOperationGuard.collect(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any()))
+                .thenAnswer(call -> ((java.util.concurrent.Callable<?>) call.getArgument(2)).call());
+        operationGuard.when(() -> KvmVmOperationGuard.guestCommand(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyInt()))
+                .thenAnswer(call -> ((org.libvirt.Domain) call.getArgument(0)).qemuAgentCommand(call.getArgument(1), call.getArgument(2), 0));
+        boundedStats = org.mockito.Mockito.mockStatic(KvmBoundedStats.class);
+        boundedStats.when(() -> KvmBoundedStats.info(org.mockito.ArgumentMatchers.any()))
+                .thenAnswer(call -> ((org.libvirt.Domain) call.getArgument(0)).getInfo());
+        boundedStats.when(() -> KvmBoundedStats.block(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString()))
+                .thenAnswer(call -> ((org.libvirt.Domain) call.getArgument(0)).blockStats(call.getArgument(1)));
+        boundedStats.when(() -> KvmBoundedStats.network(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString()))
+                .thenAnswer(call -> ((org.libvirt.Domain) call.getArgument(0)).interfaceStats(call.getArgument(1)));
+    }
+
+    @After
+    public void closeMonitoringTransport() {
+        boundedStats.close();
+        operationGuard.close();
+    }
 
     @Before
     public void setUp() throws LibvirtException {

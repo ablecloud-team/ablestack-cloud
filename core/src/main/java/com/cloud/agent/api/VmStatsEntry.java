@@ -23,6 +23,14 @@ public class VmStatsEntry extends VmStatsEntryBase {
 
     private String vmUuid;
 
+    private long sampledAt;
+    private String collectionStatus;
+
+    @Override public long getSampledAt() { return sampledAt; }
+    public void setSampledAt(long value) { sampledAt = value; }
+    @Override public String getCollectionStatus() { return collectionStatus == null ? "UNKNOWN" : collectionStatus; }
+    public void setCollectionStatus(String value) { collectionStatus = value; }
+
     public VmStatsEntry() {
 
     }

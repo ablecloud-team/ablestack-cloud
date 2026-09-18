@@ -22,6 +22,7 @@ package com.cloud.hypervisor.kvm.resource.wrapper;
 import java.util.List;
 
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
+import com.cloud.hypervisor.kvm.resource.KvmVmOperationGuard;
 import org.libvirt.Connect;
 import org.libvirt.Domain;
 import org.libvirt.DomainSnapshot;
@@ -48,6 +49,7 @@ public final class LibvirtRevertToVMSnapshotCommandWrapper extends CommandWrappe
         Boolean snapshotMemory = vmSnapshotType == VMSnapshot.Type.DiskAndMemory;
         VirtualMachine.PowerState vmState = null;
 
+        KvmVmOperationGuard protection = null;
         Domain dm = null;
         try {
             final LibvirtUtilitiesHelper libvirtUtilitiesHelper = libvirtComputingResource.getLibvirtUtilitiesHelper();
@@ -59,6 +61,7 @@ public final class LibvirtRevertToVMSnapshotCommandWrapper extends CommandWrappe
                         "Revert to Instance Snapshot Failed due to can not find Instance: " + vmName);
             }
 
+            protection = KvmVmOperationGuard.begin(dm, "revertto-vm-snapshot");
             DomainSnapshot snapshot = dm.snapshotLookupByName(cmd.getTarget().getSnapshotName());
             if (snapshot == null)
                 return new RevertToVMSnapshotAnswer(cmd, false, "Cannot find vmSnapshot with name: " + cmd.getTarget().getSnapshotName());
@@ -76,11 +79,13 @@ public final class LibvirtRevertToVMSnapshotCommandWrapper extends CommandWrappe
             }
 
             return new RevertToVMSnapshotAnswer(cmd, listVolumeTo, vmState);
-        } catch (LibvirtException e) {
+        } catch (Exception e) {
+            if (protection != null) protection.uncertain();
             String msg = " Revert to Instance Snapshot failed due to " + e.toString();
             logger.warn(msg, e);
             return new RevertToVMSnapshotAnswer(cmd, false, msg);
         } finally {
+            if (protection != null) protection.close();
             if (dm != null) {
                 try {
                     dm.free();

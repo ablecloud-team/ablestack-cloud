@@ -343,6 +343,12 @@
             </a-tag>
           </div>
           <div>
+            <a-tooltip v-if="resource.statslastsampled" :title="new Date(resource.statslastsampled).toLocaleString()">
+              <a-tag :color="resource.statscollectionstatus === 'STALE' ? 'orange' : 'default'">
+                {{ $t(resource.statscollectionstatus === 'STALE' ? 'label.stats.stale' : 'label.stats.last.sample') }}
+                {{ new Date(resource.statslastsampled).toLocaleTimeString() }}
+              </a-tag>
+            </a-tooltip>
             <span v-if="resource.cpuused">
               <a-progress
                 v-if="resource.cpuused"

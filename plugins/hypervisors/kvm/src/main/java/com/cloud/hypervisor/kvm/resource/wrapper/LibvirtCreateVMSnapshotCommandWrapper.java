@@ -19,6 +19,7 @@
 
 package com.cloud.hypervisor.kvm.resource.wrapper;
 
+import com.cloud.hypervisor.kvm.resource.KvmVmOperationGuard;
 import org.libvirt.Connect;
 import org.libvirt.Domain;
 import org.libvirt.DomainInfo.DomainState;
@@ -40,6 +41,7 @@ public final class LibvirtCreateVMSnapshotCommandWrapper extends CommandWrapper<
         String vmName = cmd.getVmName();
         String vmSnapshotName = cmd.getTarget().getSnapshotName();
 
+        KvmVmOperationGuard protection = null;
         Domain dm = null;
         try {
             final LibvirtUtilitiesHelper libvirtUtilitiesHelper = libvirtComputingResource.getLibvirtUtilitiesHelper();
@@ -51,6 +53,7 @@ public final class LibvirtCreateVMSnapshotCommandWrapper extends CommandWrapper<
                         "Create Instance Snapshot Failed due to can not find Instance: " + vmName);
             }
 
+            protection = KvmVmOperationGuard.begin(dm, "create-vm-snapshot");
             DomainState domainState = dm.getInfo().state ;
             if (domainState != DomainState.VIR_DOMAIN_RUNNING) {
                 return new CreateVMSnapshotAnswer(cmd, false,
@@ -63,11 +66,13 @@ public final class LibvirtCreateVMSnapshotCommandWrapper extends CommandWrapper<
             dm.snapshotCreateXML(vmSnapshotXML);
 
             return new CreateVMSnapshotAnswer(cmd, cmd.getTarget(), cmd.getVolumeTOs());
-        } catch (LibvirtException e) {
+        } catch (Exception e) {
+            if (protection != null) protection.uncertain();
             String msg = " Create Instance Snapshot failed due to " + e.toString();
             logger.warn(msg, e);
             return new CreateVMSnapshotAnswer(cmd, false, msg);
         } finally {
+            if (protection != null) protection.close();
             if (dm != null) {
                 try {
                     dm.free();

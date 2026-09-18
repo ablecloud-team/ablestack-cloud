@@ -20,24 +20,30 @@
     <a-tabs v-model:activeKey="defaultNetworkTypeTabKey" :animated="false" v-if="!loading">
       <a-tab-pane :tab="$t('label.isolated')" key="1" v-if="isAdvancedZoneWithoutSGAvailable">
         <CreateIsolatedNetworkForm
+          ref="isolated"
           :loading="loading"
           :resource="resource"
+          :submit-handler="submitHandler"
           @close-action="closeAction"
           @refresh-data="refreshParent"
           @refresh="handleRefresh"/>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.l2')" key="3">
         <CreateL2NetworkForm
+          ref="l2"
           :loading="loading"
           :resource="resource"
+          :submit-handler="submitHandler"
           @close-action="closeAction"
           @refresh-data="refreshParent"
           @refresh="handleRefresh"/>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.shared')" key="2">
         <CreateSharedNetworkForm
+          ref="shared"
           :loading="loading"
           :resource="resource"
+          :submit-handler="submitHandler"
           @close-action="closeAction"
           @refresh-data="refreshParent"
           @refresh="handleRefresh"/>
@@ -60,6 +66,7 @@ export default {
     CreateSharedNetworkForm
   },
   props: {
+    submitHandler: { type: Function, default: null },
     resource: {
       type: Object,
       required: true
@@ -86,6 +93,10 @@ export default {
     this.fetchData()
   },
   methods: {
+    submit () {
+      const form = { 1: 'isolated', 2: 'shared', 3: 'l2' }[this.defaultNetworkTypeTabKey]
+      if (this.$refs[form]) this.$refs[form].handleSubmit()
+    },
     fetchData () {
       const promises = []
       promises.push(this.fetchActionZoneData())
@@ -106,7 +117,7 @@ export default {
     fetchActionZoneData () {
       this.loading = true
       const params = {}
-      if (this.resource?.zoneid && (this.$route.name === 'deployVirtualMachine' || this.$route.path.startsWith('/backup'))) {
+      if (this.resource?.zoneid && (this.submitHandler || this.$route.name === 'deployVirtualMachine' || this.$route.path.startsWith('/backup'))) {
         params.id = this.resource.zoneid
       }
       this.actionZoneLoading = true

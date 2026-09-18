@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
+import com.cloud.hypervisor.kvm.resource.KvmVmOperationGuard;
 import org.libvirt.Connect;
 import org.libvirt.Domain;
 import org.libvirt.LibvirtException;
@@ -46,6 +47,7 @@ public final class LibvirtRestoreVMSnapshotCommandWrapper extends CommandWrapper
         List<VolumeObjectTO> listVolumeTo = cmd.getVolumeTOs();
         VirtualMachine.PowerState vmState = VirtualMachine.PowerState.PowerOn;
 
+        KvmVmOperationGuard protection = null;
         Domain dm = null;
         try {
             final LibvirtUtilitiesHelper libvirtUtilitiesHelper = libvirtComputingResource.getLibvirtUtilitiesHelper();
@@ -56,6 +58,7 @@ public final class LibvirtRestoreVMSnapshotCommandWrapper extends CommandWrapper
                 return new RestoreVMSnapshotAnswer(cmd, false,
                         "Restore Instance Snapshot Failed due to can not find Instance: " + vmName);
             }
+            protection = KvmVmOperationGuard.begin(dm, "restore-vm-snapshot");
             final int XML_SECURE = 1; // Domain.XML_SECURE
             String xmlDesc = dm.getXMLDesc(XML_SECURE);  // SECURE XML 사용 (graphics passwd 포함)
 
@@ -71,18 +74,21 @@ public final class LibvirtRestoreVMSnapshotCommandWrapper extends CommandWrapper
                         flags += 2; // VIR_DOMAIN_SNAPSHOT_CREATE_CURRENT = 2
                     }
                     dm.snapshotCreateXML(vmSnapshotXML, flags);
-                } catch (LibvirtException e) {
+                } catch (Exception e) {
+            if (protection != null) protection.uncertain();
                     logger.debug("Failed to restore Instance Snapshot " + snapshot.getSnapshotName() + " on " + vmName);
                     return new RestoreVMSnapshotAnswer(cmd, false, e.toString());
                 }
             }
 
             return new RestoreVMSnapshotAnswer(cmd, listVolumeTo, vmState);
-        } catch (LibvirtException e) {
+        } catch (Exception e) {
+            if (protection != null) protection.uncertain();
             String msg = " Restore snapshot failed due to " + e.toString();
             logger.warn(msg, e);
             return new RestoreVMSnapshotAnswer(cmd, false, msg);
         } finally {
+            if (protection != null) protection.close();
             if (dm != null) {
                 try {
                     dm.free();

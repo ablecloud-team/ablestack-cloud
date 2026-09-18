@@ -74,6 +74,26 @@ public class DrSchemaContractTest {
         assertTrue(europaUpgrade.contains("uk_dr_sync_cycle__plan_sequence"));
     }
 
+    @Test
+    public void testRestorePointBackfillFollowsRunSchemaCreation() throws IOException {
+        Path directory = findRepositoryRoot().resolve("engine/schema/src/main/resources/META-INF/db");
+        for (String script : new String[]{"schema-42200to42210.sql", "schema-42210to42300.sql",
+                "schema-Europa-After.sql"}) {
+            String schema = read(directory.resolve(script));
+            int backfill = schema.indexOf("JOIN (SELECT `plan_id`, MAX(`id`) AS `run_id` FROM `cloud`.`dr_run`");
+            assertTrue(script + " is missing the restore point backfill", backfill >= 0);
+            for (String table : new String[]{"dr_restore_point", "dr_run"}) {
+                int create = schema.indexOf("CREATE TABLE IF NOT EXISTS `cloud`.`" + table + "`");
+                int end = schema.indexOf(";", create);
+                assertTrue(script + " must create " + table + " before backfilling restore points",
+                        create >= 0 && end > create && end < backfill);
+            }
+            int runColumn = schema.indexOf("CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.dr_restore_point', 'run_id'");
+            assertTrue(script + " must add run_id before backfilling legacy restore points",
+                    runColumn >= 0 && runColumn < backfill);
+        }
+    }
+
     private void assertContainsTable(String schema, String table) {
         assertTrue("Schema is missing table " + table,
                 schema.contains("CREATE TABLE `cloud`.`" + table + "`")

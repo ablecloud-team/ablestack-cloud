@@ -100,6 +100,7 @@ import com.cloud.upgrade.dao.EuropaSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaComputeSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaStorageSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaKmsSchemaUpgrade;
+import com.cloud.upgrade.dao.EuropaVolumeViewReconciler;
 import com.cloud.upgrade.dao.EuropaNetworkSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaGuiThemeSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaSystemVmSchemaUpgrade;
@@ -566,6 +567,12 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                     executeViewScripts();
                 });
                 runEuropaPhase(conn, EuropaSchemaUpgrade.S8, () -> EuropaSystemVmSchemaUpgrade.migrate(conn));
+                // Completed phase markers do not guarantee views match the running binary.
+                try {
+                    EuropaVolumeViewReconciler.reconcile(conn);
+                } catch (Exception e) {
+                    throw new CloudRuntimeException("Unable to reconcile Europa volume_view", e);
+                }
             } catch (SQLException e) {
                 throw new CloudRuntimeException("Unable to record Europa schema migration", e);
             }

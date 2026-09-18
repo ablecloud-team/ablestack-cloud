@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
+import com.cloud.hypervisor.kvm.resource.KvmVmOperationGuard;
 import org.libvirt.Connect;
 import org.libvirt.Domain;
 import org.libvirt.DomainInfo;
@@ -52,6 +53,7 @@ public final class LibvirtDeleteVMSnapshotCommandWrapper extends CommandWrapper<
         String vmName = cmd.getVmName();
 
         final KVMStoragePoolManager storagePoolMgr = libvirtComputingResource.getStoragePoolMgr();
+        KvmVmOperationGuard protection = null;
         Domain dm = null;
         DomainSnapshot snapshot = null;
         DomainInfo.DomainState oldState = null;
@@ -62,6 +64,7 @@ public final class LibvirtDeleteVMSnapshotCommandWrapper extends CommandWrapper<
             conn = libvirtUtilitiesHelper.getConnection();
             dm = libvirtComputingResource.getDomain(conn, vmName);
 
+            protection = KvmVmOperationGuard.begin(dm, "delete-vm-snapshot");
             snapshot = dm.snapshotLookupByName(cmd.getTarget().getSnapshotName());
 
             oldState = dm.getInfo().state;
@@ -82,7 +85,10 @@ public final class LibvirtDeleteVMSnapshotCommandWrapper extends CommandWrapper<
             }
 
             return new DeleteVMSnapshotAnswer(cmd, cmd.getVolumeTOs());
+        } catch (com.cloud.utils.exception.CloudRuntimeException e) {
+            return new DeleteVMSnapshotAnswer(cmd, false, e.getMessage());
         } catch (LibvirtException e) {
+            if (protection != null && snapshot != null) protection.uncertain();
             String msg = " Delete Instance Snapshot failed due to " + e.toString();
 
             if (dm == null) {
@@ -130,6 +136,7 @@ public final class LibvirtDeleteVMSnapshotCommandWrapper extends CommandWrapper<
             logger.warn(msg, e);
             return new DeleteVMSnapshotAnswer(cmd, false, msg);
         } finally {
+            try {
             if (dm != null) {
                 // Make sure if the VM is paused, then resume it, in case we got an exception during our delete() and didn't have the chance before
                 try {
@@ -142,6 +149,9 @@ public final class LibvirtDeleteVMSnapshotCommandWrapper extends CommandWrapper<
                 } catch (LibvirtException e) {
                     logger.error("Failed to resume Instance after delete Snapshot " + cmd.getTarget().getSnapshotName() + " on vm: " + vmName + " return true : " + e);
                 }
+            }
+            } finally {
+                if (protection != null) protection.close();
             }
         }
     }

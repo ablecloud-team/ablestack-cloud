@@ -1,0 +1,15 @@
+mysql: [Warning] Using a password on the command line interface can be insecure.
+181	Running	8
+b10ee5ed-16d1-4356-b879-ba9f8bf44e09	02:01:00:cc:00:7c	1	1	1	0
+0
+running
+
+ Interface   Type     Source    Model    MAC
+------------------------------------------------------------
+ vnet127     bridge   bridge0   virtio   02:01:00:cc:00:7c
+
+02:01:00:cc:00:7c up
+WEB_INF_PRESENT
+active
+MainPID=2917769
+HTTP 200

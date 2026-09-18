@@ -15,6 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { clearNicOperations } from '@/utils/vmNicActions'
+import { clearVolumeOperations } from '@/utils/vmVolumeActions'
+import { trackSnapshotJob, finishSnapshotJob, clearSnapshotJobs } from '@/utils/vmSnapshotActions'
 import _ from 'lodash'
 import { i18n } from '@/locales'
 import { getAPI } from '@/api'
@@ -54,6 +57,7 @@ export const pollJobPlugin = {
       query: jobId => getAPI('queryAsyncJobResult', { jobId }, { timeout: 15000, backgroundJob: true }).then(json => json.queryasyncjobresultresponse),
       onState: (jobId, result, meta) => {
         const { options, router, originalPage, path } = meta
+        finishSnapshotJob(jobId, result)
         const {
           title = '', description = '', name = '', action = null, bulkAction = false,
           showLoading = true, showSuccessMessage = true,
@@ -107,13 +111,15 @@ export const pollJobPlugin = {
       }
     })
     // A route change may cancel one query; retry it. A security scope change must stop tracking.
-    store.watch(() => [store.state.user.token, store.getters.userInfo?.id, store.getters.project?.id].join('|'), () => tracker.clear())
+    store.watch(() => [store.state.user.token, store.getters.userInfo?.id, store.getters.project?.id].join('|'), () => { tracker.clear(); clearSnapshotJobs(); clearVolumeOperations(); clearNicOperations() })
     app.config.globalProperties.$pollJob = function (options) {
       if (options.retry) options = { ...tracker.metadata(options.jobId)?.options, ...options }
       const originalPage = normalizePath(options.originalPage || this.$router.currentRoute.value.path)
       options = { ...options, originalPage }
+      trackSnapshotJob(options)
       const meta = { options, router: this.$router, originalPage, path: this.$route.fullPath, context: this }
       return tracker.track(options.jobId, meta, options.retry).then(result => {
+        finishSnapshotJob(options.jobId, result)
         if (result.jobstatus === 1) safe(() => options.successMethod?.(result))
         else if (result.jobstatus === 2) safe(() => options.errorMethod?.(result))
         else safe(() => options.catchMethod?.(result))

@@ -19,6 +19,7 @@
   <a-spin :spinning="loading">
     <a-form
       class="form"
+      :class="{ 'form--full-width': fullWidth }"
       :ref="formRef"
       :model="form"
       :rules="rules"
@@ -51,7 +52,7 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <div :span="24" class="action-button">
+      <div class="action-button">
         <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
         <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
       </div>
@@ -66,6 +67,7 @@ import { getAPI, postAPI } from '@/api'
 export default {
   name: 'CreateSnapshotFromVMSnapshot',
   props: {
+    fullWidth: { type: Boolean, default: false },
     resource: {
       type: Object,
       required: true
@@ -115,6 +117,7 @@ export default {
           this.$pollJob({
             jobId: response.createsnapshotfromvmsnapshotresponse.jobid,
             title: this.$t('message.success.create.snapshot.from.vmsnapshot'),
+            action: { api: 'createSnapshotFromVMSnapshot', resource: this.resource },
             description: values.name,
             successMessage: this.$t('message.success.create.snapshot.from.vmsnapshot'),
             errorMessage: this.$t('message.create.snapshot.from.vmsnapshot.failed'),
@@ -144,6 +147,22 @@ export default {
 
   @media (min-width: 500px) {
     width: 400px;
+  }
+}
+.form.form--full-width {
+  width: 100%;
+  min-width: 0;
+
+  .ant-form-item { margin-bottom: 20px; }
+  .action-button {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--ui-border);
+
+    button { margin: 0; }
   }
 }
 </style>

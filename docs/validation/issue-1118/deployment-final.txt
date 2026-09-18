@@ -1,0 +1,7 @@
+d9fd7d8cdda09d709fd606aad741820d1cc81dd39ddc48af7bb863a558c7576e  /home/ablecloud/work/nic-ux-design-20260917/nic-ui-94389eb04b4.tgz
+HTTP before: 200
+/usr/share/cloudstack-management/webapp/config.json: OK
+active
+HTTP after: 200
+STATIC_HASHES_PASS 829
+BACKUP=/root/nic-ui-backup-20260917-b9759782c86

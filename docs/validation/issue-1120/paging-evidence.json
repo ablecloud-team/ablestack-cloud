@@ -1,0 +1,971 @@
+[
+  {
+    "label": "before-dark-empty-snapshots",
+    "pagination": [
+      {
+        "class": "ant-pagination snapshot-pagination",
+        "items": [
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(62, 70, 80)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1411.890625,
+              "y": 294
+            },
+            "text": ""
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(217, 217, 217)",
+            "class": "ant-pagination-item ant-pagination-item-1 ant-pagination-item-disabled",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1451.890625,
+              "y": 294
+            },
+            "text": "1"
+          },
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(62, 70, 80)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1491.890625,
+              "y": 294
+            },
+            "text": ""
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgb(67, 67, 67)",
+            "class": "ant-select-selector",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 32,
+              "width": 83.109375,
+              "x": 1539.890625,
+              "y": 294
+            },
+            "text": "10 / 쪽"
+          }
+        ],
+        "text": "110 / 쪽"
+      }
+    ]
+  },
+  {
+    "label": "dev-light-empty-snapshots",
+    "pagination": [
+      {
+        "class": "ant-pagination snapshot-pagination",
+        "items": [
+          {
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(217, 223, 231)",
+            "class": "ant-pagination-item-link",
+            "color": "rgb(75, 85, 99)",
+            "disabled": true,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1411.890625,
+              "y": 266
+            },
+            "text": ""
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(217, 217, 217)",
+            "class": "ant-pagination-item ant-pagination-item-1 ant-pagination-item-disabled",
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1451.890625,
+              "y": 266
+            },
+            "text": "1"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(217, 223, 231)",
+            "class": "ant-pagination-item-link",
+            "color": "rgb(75, 85, 99)",
+            "disabled": true,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1491.890625,
+              "y": 266
+            },
+            "text": ""
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(217, 223, 231)",
+            "class": "ant-select-selector",
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "rect": {
+              "height": 32,
+              "width": 83.109375,
+              "x": 1539.890625,
+              "y": 266
+            },
+            "text": "10 / 쪽"
+          }
+        ],
+        "text": "110 / 쪽"
+      }
+    ]
+  },
+  {
+    "label": "dev-dark-empty-snapshots",
+    "pagination": [
+      {
+        "class": "ant-pagination snapshot-pagination",
+        "items": [
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(62, 70, 80)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1411.890625,
+              "y": 266
+            },
+            "text": ""
+          },
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(67, 67, 67)",
+            "class": "ant-pagination-item ant-pagination-item-1 ant-pagination-item-disabled",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1451.890625,
+              "y": 266
+            },
+            "text": "1"
+          },
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(62, 70, 80)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1491.890625,
+              "y": 266
+            },
+            "text": ""
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgb(67, 67, 67)",
+            "class": "ant-select-selector",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 32,
+              "width": 83.109375,
+              "x": 1539.890625,
+              "y": 266
+            },
+            "text": "10 / 쪽"
+          }
+        ],
+        "text": "110 / 쪽"
+      }
+    ]
+  },
+  {
+    "label": "dev-dark-vm-list-page1",
+    "pagination": [
+      {
+        "class": "ant-pagination mini row-element",
+        "items": [
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 445.390625,
+              "y": 1650.5
+            },
+            "text": ""
+          },
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(24, 144, 255)",
+            "class": "ant-pagination-item ant-pagination-item-1 ant-pagination-item-active",
+            "color": "rgb(24, 144, 255)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 469.390625,
+              "y": 1650.5
+            },
+            "text": "1"
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item ant-pagination-item-2",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 493.390625,
+              "y": 1650.5
+            },
+            "text": "2"
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 517.390625,
+              "y": 1650.5
+            },
+            "text": ""
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgb(67, 67, 67)",
+            "class": "ant-select-selector",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 78.109375,
+              "x": 543.390625,
+              "y": 1650.5
+            },
+            "text": "20 / 쪽"
+          }
+        ],
+        "text": "전체 35 개 항목 중 1-20 표시1220 / 쪽이동하기"
+      }
+    ]
+  },
+  {
+    "label": "dev-dark-vm-list-final",
+    "pagination": [
+      {
+        "class": "ant-pagination mini row-element",
+        "items": [
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 445.390625,
+              "y": 1650.5
+            },
+            "text": ""
+          },
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(24, 144, 255)",
+            "class": "ant-pagination-item ant-pagination-item-1 ant-pagination-item-active",
+            "color": "rgb(24, 144, 255)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 469.390625,
+              "y": 1650.5
+            },
+            "text": "1"
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item ant-pagination-item-2",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 493.390625,
+              "y": 1650.5
+            },
+            "text": "2"
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 517.390625,
+              "y": 1650.5
+            },
+            "text": ""
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgb(67, 67, 67)",
+            "class": "ant-select-selector",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 78.109375,
+              "x": 543.390625,
+              "y": 1650.5
+            },
+            "text": "20 / 쪽"
+          }
+        ],
+        "text": "전체 35 개 항목 중 1-20 표시1220 / 쪽이동하기"
+      }
+    ]
+  },
+  {
+    "label": "deployed-dark-empty-snapshots",
+    "pagination": [
+      {
+        "class": "ant-pagination snapshot-pagination",
+        "items": [
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(62, 70, 80)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1411.890625,
+              "y": 380
+            },
+            "text": ""
+          },
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(67, 67, 67)",
+            "class": "ant-pagination-item ant-pagination-item-1 ant-pagination-item-disabled",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1451.890625,
+              "y": 380
+            },
+            "text": "1"
+          },
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(62, 70, 80)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1491.890625,
+              "y": 380
+            },
+            "text": ""
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgb(67, 67, 67)",
+            "class": "ant-select-selector",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 32,
+              "width": 83.109375,
+              "x": 1539.890625,
+              "y": 380
+            },
+            "text": "10 / 쪽"
+          }
+        ],
+        "text": "110 / 쪽"
+      }
+    ]
+  },
+  {
+    "label": "deployed-dark-empty-page-size20",
+    "pagination": [
+      {
+        "class": "ant-pagination snapshot-pagination",
+        "items": [
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(62, 70, 80)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1411.890625,
+              "y": 380
+            },
+            "text": ""
+          },
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(67, 67, 67)",
+            "class": "ant-pagination-item ant-pagination-item-1 ant-pagination-item-disabled",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1451.890625,
+              "y": 380
+            },
+            "text": "1"
+          },
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(62, 70, 80)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1491.890625,
+              "y": 380
+            },
+            "text": ""
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgb(64, 169, 255)",
+            "class": "ant-select-selector",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 32,
+              "width": 83.109375,
+              "x": 1539.890625,
+              "y": 380
+            },
+            "text": "20 / 쪽"
+          }
+        ],
+        "text": "12020 / 쪽10205010 / 쪽20 / 쪽50 / 쪽100 / 쪽"
+      }
+    ]
+  },
+  {
+    "label": "deployed-light-empty-snapshots",
+    "pagination": [
+      {
+        "class": "ant-pagination snapshot-pagination",
+        "items": [
+          {
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(217, 223, 231)",
+            "class": "ant-pagination-item-link",
+            "color": "rgb(75, 85, 99)",
+            "disabled": true,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1411.890625,
+              "y": 380
+            },
+            "text": ""
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(217, 217, 217)",
+            "class": "ant-pagination-item ant-pagination-item-1 ant-pagination-item-disabled",
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1451.890625,
+              "y": 380
+            },
+            "text": "1"
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(217, 223, 231)",
+            "class": "ant-pagination-item-link",
+            "color": "rgb(75, 85, 99)",
+            "disabled": true,
+            "rect": {
+              "height": 32,
+              "width": 32,
+              "x": 1491.890625,
+              "y": 380
+            },
+            "text": ""
+          },
+          {
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(217, 223, 231)",
+            "class": "ant-select-selector",
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "rect": {
+              "height": 32,
+              "width": 83.109375,
+              "x": 1539.890625,
+              "y": 380
+            },
+            "text": "10 / 쪽"
+          }
+        ],
+        "text": "110 / 쪽102010 / 쪽20 / 쪽50 / 쪽100 / 쪽"
+      }
+    ]
+  },
+  {
+    "label": "deployed-dark-vm-list-page1",
+    "pagination": [
+      {
+        "class": "ant-pagination mini row-element",
+        "items": [
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 445.390625,
+              "y": 1650.5
+            },
+            "text": ""
+          },
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(24, 144, 255)",
+            "class": "ant-pagination-item ant-pagination-item-1 ant-pagination-item-active",
+            "color": "rgb(24, 144, 255)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 469.390625,
+              "y": 1650.5
+            },
+            "text": "1"
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item ant-pagination-item-2",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 493.390625,
+              "y": 1650.5
+            },
+            "text": "2"
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 517.390625,
+              "y": 1650.5
+            },
+            "text": ""
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgb(67, 67, 67)",
+            "class": "ant-select-selector",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 78.109375,
+              "x": 543.390625,
+              "y": 1650.5
+            },
+            "text": "20 / 쪽"
+          }
+        ],
+        "text": "전체 35 개 항목 중 1-20 표시1220 / 쪽이동하기"
+      }
+    ]
+  },
+  {
+    "label": "deployed-dark-vm-list-page2",
+    "pagination": [
+      {
+        "class": "ant-pagination mini row-element",
+        "items": [
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 452.9375,
+              "y": 774.5
+            },
+            "text": ""
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item ant-pagination-item-1",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 476.9375,
+              "y": 774.5
+            },
+            "text": "1"
+          },
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(24, 144, 255)",
+            "class": "ant-pagination-item ant-pagination-item-2 ant-pagination-item-active",
+            "color": "rgb(24, 144, 255)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 500.9375,
+              "y": 774.5
+            },
+            "text": "2"
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 524.9375,
+              "y": 774.5
+            },
+            "text": ""
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgb(67, 67, 67)",
+            "class": "ant-select-selector",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 78.109375,
+              "x": 550.9375,
+              "y": 774.5
+            },
+            "text": "20 / 쪽"
+          }
+        ],
+        "text": "전체 35 개 항목 중 21-35 표시1220 / 쪽이동하기"
+      }
+    ]
+  },
+  {
+    "label": "deployed-dark-vm-list-keyboard-focus",
+    "pagination": [
+      {
+        "class": "ant-pagination mini row-element",
+        "items": [
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 452.9375,
+              "y": 774.5
+            },
+            "text": ""
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgb(24, 144, 255)",
+            "class": "ant-pagination-item ant-pagination-item-1",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 476.9375,
+              "y": 774.5
+            },
+            "text": "1"
+          },
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(24, 144, 255)",
+            "class": "ant-pagination-item ant-pagination-item-2 ant-pagination-item-active",
+            "color": "rgb(24, 144, 255)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 500.9375,
+              "y": 774.5
+            },
+            "text": "2"
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 524.9375,
+              "y": 774.5
+            },
+            "text": ""
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgb(67, 67, 67)",
+            "class": "ant-select-selector",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 78.109375,
+              "x": 550.9375,
+              "y": 774.5
+            },
+            "text": "20 / 쪽"
+          }
+        ],
+        "text": "전체 35 개 항목 중 21-35 표시1220 / 쪽이동하기"
+      }
+    ]
+  },
+  {
+    "label": "deployed-dark-vm-list-hover-attempt-offscreen",
+    "pagination": [
+      {
+        "class": "ant-pagination mini row-element",
+        "items": [
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 445.390625,
+              "y": 1119.5
+            },
+            "text": ""
+          },
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(24, 144, 255)",
+            "class": "ant-pagination-item ant-pagination-item-1 ant-pagination-item-active",
+            "color": "rgb(24, 144, 255)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 469.390625,
+              "y": 1119.5
+            },
+            "text": "1"
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item ant-pagination-item-2",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 493.390625,
+              "y": 1119.5
+            },
+            "text": "2"
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 517.390625,
+              "y": 1119.5
+            },
+            "text": ""
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgb(67, 67, 67)",
+            "class": "ant-select-selector",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 78.109375,
+              "x": 543.390625,
+              "y": 1119.5
+            },
+            "text": "20 / 쪽"
+          }
+        ],
+        "text": "전체 35 개 항목 중 1-20 표시1220 / 쪽이동하기"
+      }
+    ]
+  },
+  {
+    "label": "deployed-dark-vm-list-hover-visible",
+    "pagination": [
+      {
+        "class": "ant-pagination mini row-element",
+        "items": [
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.25)",
+            "disabled": true,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 445.390625,
+              "y": 774.5
+            },
+            "text": ""
+          },
+          {
+            "background": "rgb(34, 40, 47)",
+            "border": "rgb(24, 144, 255)",
+            "class": "ant-pagination-item ant-pagination-item-1 ant-pagination-item-active",
+            "color": "rgb(24, 144, 255)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 469.390625,
+              "y": 774.5
+            },
+            "text": "1"
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgb(24, 144, 255)",
+            "class": "ant-pagination-item ant-pagination-item-2",
+            "color": "rgb(24, 144, 255)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 493.390625,
+              "y": 774.5
+            },
+            "text": "2"
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgba(0, 0, 0, 0)",
+            "class": "ant-pagination-item-link",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 24,
+              "x": 517.390625,
+              "y": 774.5
+            },
+            "text": ""
+          },
+          {
+            "background": "rgba(0, 0, 0, 0)",
+            "border": "rgb(67, 67, 67)",
+            "class": "ant-select-selector",
+            "color": "rgba(255, 255, 255, 0.65)",
+            "disabled": false,
+            "rect": {
+              "height": 24,
+              "width": 78.109375,
+              "x": 543.390625,
+              "y": 774.5
+            },
+            "text": "20 / 쪽"
+          }
+        ],
+        "text": "전체 35 개 항목 중 1-20 표시1220 / 쪽이동하기"
+      }
+    ]
+  }
+]

@@ -146,6 +146,7 @@ import com.cloud.exception.InternalErrorException;
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.hypervisor.Hypervisor;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
+import com.cloud.hypervisor.kvm.resource.KvmVmOperationGuard;
 import com.cloud.hypervisor.kvm.resource.LibvirtConnection;
 import com.cloud.hypervisor.kvm.resource.LibvirtDomainXMLParser;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.DiskDef;
@@ -2090,7 +2091,9 @@ public class KVMStorageProcessor implements StorageProcessor {
         String disksToAvoid = diskToSnapshotAndDisksToAvoid.second().stream().map(label -> String.format(TAG_AVOID_DISK_FROM_SNAPSHOT, label)).collect(Collectors.joining());
         String snapshotName = "clone-overlay-" + operationId + "-" + diskLabel;
         String snapshotXml = String.format(XML_CREATE_DISK_SNAPSHOT, snapshotName, diskLabel, overlayPath, disksToAvoid);
-        vm.snapshotCreateXML(snapshotXml, VIR_DOMAIN_SNAPSHOT_CREATE_DISK_ONLY | VIR_DOMAIN_SNAPSHOT_CREATE_NO_METADATA);
+        try (KvmVmOperationGuard protection = KvmVmOperationGuard.begin(vm, "volume-snapshot")) {
+            vm.snapshotCreateXML(snapshotXml, VIR_DOMAIN_SNAPSHOT_CREATE_DISK_ONLY | VIR_DOMAIN_SNAPSHOT_CREATE_NO_METADATA);
+        }
         logger.info("Created running source overlay [{}] for VM [{}] disk [{}] with backing [{}].", overlayPath, vmName, diskLabel, sourcePath);
         return diskLabel;
     }
@@ -3012,7 +3015,9 @@ public class KVMStorageProcessor implements StorageProcessor {
         String vmUuid = vm.getUUIDString();
 
         long start = System.currentTimeMillis();
-        vm.snapshotCreateXML(String.format(XML_CREATE_FULL_VM_SNAPSHOT, snapshotName, vmUuid));
+        try (KvmVmOperationGuard protection = KvmVmOperationGuard.begin(vm, "volume-snapshot")) {
+            vm.snapshotCreateXML(String.format(XML_CREATE_FULL_VM_SNAPSHOT, snapshotName, vmUuid));
+        }
         logger.debug(String.format("Full Instance Snapshot [%s] of Instance [%s] took [%s] seconds to finish.", snapshotName, vmName, (System.currentTimeMillis() - start)/1000));
     }
 
@@ -3141,7 +3146,9 @@ public class KVMStorageProcessor implements StorageProcessor {
         String createSnapshotXmlFormated = String.format(XML_CREATE_DISK_SNAPSHOT, snapshotName, diskLabelToSnapshot, snapshotTemporaryPath, disksToAvoidsOnSnapshot);
 
         long start = System.currentTimeMillis();
-        vm.snapshotCreateXML(createSnapshotXmlFormated, VIR_DOMAIN_SNAPSHOT_CREATE_DISK_ONLY);
+        try (KvmVmOperationGuard protection = KvmVmOperationGuard.begin(vm, "volume-snapshot")) {
+            vm.snapshotCreateXML(createSnapshotXmlFormated, VIR_DOMAIN_SNAPSHOT_CREATE_DISK_ONLY);
+        }
         logger.debug(String.format("Snapshot [%s] took [%s] seconds to finish.", snapshotName, (System.currentTimeMillis() - start)/1000));
 
         return diskLabelToSnapshot;

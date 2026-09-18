@@ -1679,10 +1679,17 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
             return null;
         }
 
-        if (accumulate != null) {
-            return getLatestOrAccumulatedVmMetricsStats(vmStatsVOList, accumulate.booleanValue());
+        // Use the persisted sample time, never the time of this API request.
+        // Missing iterations remain gaps; they are not inserted as zero samples.
+        Date sampledAt = vmStatsVOList.get(0).getTimestamp();
+        VmStatsEntry result = getLatestOrAccumulatedVmMetricsStats(vmStatsVOList,
+                accumulate != null ? accumulate.booleanValue() : BooleanUtils.toBoolean(vmStatsIncrementMetrics.value()));
+        if (sampledAt != null) {
+            result.setSampledAt(sampledAt.getTime());
+            long staleAfter = Math.max(ONE_MINUTE_IN_MILLISCONDS, vmStatsInterval) * 2;
+            result.setCollectionStatus(System.currentTimeMillis() - sampledAt.getTime() > staleAfter ? "STALE" : "FRESH");
         }
-        return getLatestOrAccumulatedVmMetricsStats(vmStatsVOList, BooleanUtils.toBoolean(vmStatsIncrementMetrics.value()));
+        return result;
     }
 
     /**

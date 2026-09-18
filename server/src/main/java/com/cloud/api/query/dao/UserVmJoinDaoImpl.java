@@ -423,6 +423,8 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
             // stats calculation
             VmStats vmStats = ApiDBUtils.getVmStatistics(userVm.getId(), accumulateStats);
             if (vmStats != null) {
+                if (vmStats.getSampledAt() > 0) userVmResponse.setStatsLastSampled(vmStats.getSampledAt());
+                userVmResponse.setStatsCollectionStatus(vmStats.getCollectionStatus());
                 userVmResponse.setCpuUsed(new DecimalFormat("#.##").format(vmStats.getCPUUtilization()) + "%");
                 userVmResponse.setNetworkKbsRead((long)vmStats.getNetworkReadKBs());
                 userVmResponse.setNetworkKbsWrite((long)vmStats.getNetworkWriteKBs());

@@ -32,13 +32,9 @@ import com.cloud.agent.api.VmStatsEntry;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.resource.CommandWrapper;
 import com.cloud.resource.ResourceWrapper;
-import com.cloud.utils.script.Script;
 
 @ResourceWrapper(handles =  GetVmStatsCommand.class)
 public final class LibvirtGetVmStatsCommandWrapper extends CommandWrapper<GetVmStatsCommand, Answer, LibvirtComputingResource> {
-    private static final int DOM_JOB_INFO_TIMEOUT_MS = 10000;
-    private static final String JOB_TYPE_PREFIX = "Job type:";
-    private static final String JOB_TYPE_NONE = "None";
 
 
     @Override
@@ -47,11 +43,6 @@ public final class LibvirtGetVmStatsCommandWrapper extends CommandWrapper<GetVmS
         try {
             final HashMap<String, VmStatsEntry> vmStatsNameMap = new HashMap<String, VmStatsEntry>();
             for (final String vmName : vmNames) {
-                if (!isVmStatsCollectable(vmName)) {
-                    logger.debug("Skipping VM stats collection for [{}] because a libvirt job is currently active.", vmName);
-                    continue;
-                }
-
                 final LibvirtUtilitiesHelper libvirtUtilitiesHelper = libvirtComputingResource.getLibvirtUtilitiesHelper();
 
                 final Connect conn = libvirtUtilitiesHelper.getConnectionByVmName(vmName);
@@ -73,25 +64,4 @@ public final class LibvirtGetVmStatsCommandWrapper extends CommandWrapper<GetVmS
         }
     }
 
-    private boolean isVmStatsCollectable(final String vmName) {
-        final String output = Script.runSimpleBashScript(String.format(
-                "virsh -c qemu:///system domjobinfo %s 2>&1", vmName), DOM_JOB_INFO_TIMEOUT_MS);
-        if (output == null) {
-            logger.debug("Skipping VM stats collection for [{}] because domjobinfo returned null output.", vmName);
-            return false;
-        }
-
-        for (final String line : output.split("\\R")) {
-            final String trimmedLine = line.trim();
-            if (!trimmedLine.startsWith(JOB_TYPE_PREFIX)) {
-                continue;
-            }
-
-            final String jobType = trimmedLine.substring(JOB_TYPE_PREFIX.length()).trim();
-            return JOB_TYPE_NONE.equals(jobType);
-        }
-
-        logger.debug("Skipping VM stats collection for [{}] because domjobinfo output did not include a job type. Output: {}", vmName, output);
-        return false;
-    }
 }

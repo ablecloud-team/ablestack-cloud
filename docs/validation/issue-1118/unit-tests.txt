@@ -1,0 +1,17 @@
+
+> cloudstack-ui@4.22.0 test:unit /home/ablecloud/work/dhslove/ablestack-cloud-europa-release/ui
+> vue-cli-service test:unit "--runTestsByPath" "tests/unit/views/compute/VmNicsLocale.spec.js" "tests/unit/views/compute/VmNicsTab.spec.js" "tests/unit/utils/vmNicActions.spec.js" "tests/unit/utils/vmVolumeActions.spec.js" "tests/unit/views/compute/VmVolumesTab.spec.js" "--runInBand" "--coverage=false" "--silent"
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/views/compute/VmNicsTab.spec.js
+PASS tests/unit/views/compute/VmVolumesTab.spec.js
+PASS tests/unit/utils/vmNicActions.spec.js
+PASS tests/unit/utils/vmVolumeActions.spec.js
+PASS tests/unit/views/compute/VmNicsLocale.spec.js
+
+Test Suites: 5 passed, 5 total
+Tests:       38 passed, 38 total
+Snapshots:   0 total
+Time:        10.072s
