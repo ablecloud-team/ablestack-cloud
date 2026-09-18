@@ -80,6 +80,8 @@ RESTORE_SOURCE="mold-only"
 
 KVM_HOSTNAME=""
 RESTORE_WATCH_TRIGGER_MOLD="true"
+# Ignore restore sessions that already exist when the watcher is enabled for the first time.
+RESTORE_WATCH_SKIP_EXISTING_ON_START="true"
 VEEAM_UI_RESTORE_SOURCE="mold-only"
 RESTORE_LOCK_DIR=""
 VEEAM_RESTORE_WATCH_WINDOW_MIN="10"

@@ -31,7 +31,6 @@ import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.ZoneResponse;
 import org.apache.cloudstack.backup.BackupManager;
 import org.apache.cloudstack.backup.BackupProvider;
-import org.apache.cloudstack.backup.BackupProviderNameUtils;
 
 import com.cloud.user.Account;
 
@@ -76,7 +75,7 @@ public class ListBackupProvidersForZoneCmd extends BaseCmd {
                 continue;
             }
             final BackupProviderResponse backupProviderResponse = new BackupProviderResponse();
-            backupProviderResponse.setName(BackupProviderNameUtils.toDisplayName(provider.getName()));
+            backupProviderResponse.setName(provider.getName());
             backupProviderResponse.setDescription(provider.getDescription());
             backupProviderResponse.setObjectName("providers");
             responses.add(backupProviderResponse);

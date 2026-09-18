@@ -27,6 +27,7 @@ SECRET_HELPER_DEFAULT="/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/ne
 SECRET_SUBDIR_DEFAULT="secrets"
 BACKUP_STAGING_ROOT_DEFAULT="/tmp/mold/netbackup"
 NETBACKUP_STAGE_ROOT_CONFIG_NAME="backup.plugin.netbackup.stage.root.path"
+BACKUP_DATA_OPERATION_TIMEOUT_CONFIG_NAME="backup.data.operation.timeout"
 
 CONFIG_ROOT="${CONFIG_ROOT:-$CONFIG_ROOT_DEFAULT}"
 STATE_ROOT="${STATE_ROOT:-$STATE_ROOT_DEFAULT}"
@@ -45,11 +46,15 @@ MOLD_CREATE_BACKUP_API_URL="${MOLD_CREATE_BACKUP_API_URL:-}"
 MOLD_CREATE_BACKUP_API_METHOD="${MOLD_CREATE_BACKUP_API_METHOD:-POST}"
 MOLD_LIST_VMS_API_URL="${MOLD_LIST_VMS_API_URL:-}"
 MOLD_LIST_VMS_API_METHOD="${MOLD_LIST_VMS_API_METHOD:-GET}"
+MOLD_LIST_NETBACKUP_CANDIDATES_API_URL="${MOLD_LIST_NETBACKUP_CANDIDATES_API_URL:-}"
+MOLD_LIST_NETBACKUP_CANDIDATES_API_METHOD="${MOLD_LIST_NETBACKUP_CANDIDATES_API_METHOD:-GET}"
 MOLD_QUERY_ASYNC_JOB_API_URL="${MOLD_QUERY_ASYNC_JOB_API_URL:-}"
 MOLD_API_RESPONSE_FORMAT="${MOLD_API_RESPONSE_FORMAT:-json}"
 MOLD_API_SKIP_TLS_VERIFY="${MOLD_API_SKIP_TLS_VERIFY:-false}"
 MOLD_ASYNC_JOB_POLL_INTERVAL="${MOLD_ASYNC_JOB_POLL_INTERVAL:-5}"
 MOLD_ASYNC_JOB_TIMEOUT="${MOLD_ASYNC_JOB_TIMEOUT:-7200}"
+NETBACKUP_STAGING_POLL_INTERVAL="${NETBACKUP_STAGING_POLL_INTERVAL:-${MOLD_ASYNC_JOB_POLL_INTERVAL}}"
+NETBACKUP_STAGING_TIMEOUT="${NETBACKUP_STAGING_TIMEOUT:-43800}"
 NETBACKUP_TRANSIENT_STATE_RETENTION_MINUTES="${NETBACKUP_TRANSIENT_STATE_RETENTION_MINUTES:-1440}"
 NETBACKUP_RUNTIME_MAX_FILES="${NETBACKUP_RUNTIME_MAX_FILES:-14}"
 
@@ -386,6 +391,82 @@ print(candidates[0][1], end="")
 PY
 }
 
+discover_completed_vm_backup_path() {
+  local vm_name="$1"
+  local min_epoch="${2:-0}"
+  local vm_root="${BACKUP_STAGING_ROOT}/${vm_name}"
+  [[ -d "${vm_root}" ]] || return 1
+
+  python3 - "${vm_root}" "${min_epoch}" <<'PY'
+import os
+import sys
+
+root = sys.argv[1]
+try:
+    min_epoch = int(sys.argv[2])
+except Exception:
+    min_epoch = 0
+
+candidates = []
+threshold = max(0, min_epoch - 5)
+for entry in os.scandir(root):
+    if not entry.is_dir(follow_symlinks=False):
+        continue
+    complete_marker = os.path.join(entry.path, ".staging.complete")
+    inprogress_marker = os.path.join(entry.path, ".staging.inprogress")
+    if not os.path.isfile(complete_marker):
+        continue
+    try:
+        marker_mtime = os.stat(complete_marker).st_mtime
+        dir_mtime = entry.stat().st_mtime
+    except OSError:
+        continue
+    if marker_mtime < threshold and dir_mtime < threshold:
+        continue
+    if os.path.exists(inprogress_marker):
+        continue
+    candidates.append((marker_mtime, dir_mtime, entry.path))
+
+if not candidates:
+    sys.exit(1)
+
+candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
+print(candidates[0][2], end="")
+PY
+}
+
+wait_for_vm_staging_complete() {
+  local vm_name="$1"
+  local stage_start_epoch="$2"
+  local wait_start_epoch
+  local last_log_epoch
+  local backup_path=""
+
+  wait_start_epoch="$(date +%s)"
+  last_log_epoch=0
+
+  while true; do
+    backup_path="$(discover_completed_vm_backup_path "${vm_name}" "${stage_start_epoch}" 2>/dev/null || true)"
+    if [[ -n "${backup_path}" ]]; then
+      printf '%s' "${backup_path}"
+      return 0
+    fi
+
+    local now_epoch
+    now_epoch="$(date +%s)"
+    if (( now_epoch - wait_start_epoch >= NETBACKUP_STAGING_TIMEOUT )); then
+      fail "Timed out waiting for NetBackup staging complete marker for vm=${vm_name} under ${BACKUP_STAGING_ROOT}/${vm_name} after ${NETBACKUP_STAGING_TIMEOUT}s"
+    fi
+
+    if (( last_log_epoch == 0 || now_epoch - last_log_epoch >= 60 )); then
+      log -ne "Waiting for NetBackup staging complete marker vm=${vm_name} root=${BACKUP_STAGING_ROOT}/${vm_name} elapsedSeconds=$((now_epoch - wait_start_epoch))"
+      last_log_epoch="${now_epoch}"
+    fi
+
+    sleep "${NETBACKUP_STAGING_POLL_INTERVAL}"
+  done
+}
+
 policy_config_file_path() {
   builtin echo "${CONFIG_ROOT}/netbackup-host-${POLICY_SAFE}.conf"
 }
@@ -445,6 +526,30 @@ load_backup_staging_root_from_mold() {
   log -ne "Loaded ${NETBACKUP_STAGE_ROOT_CONFIG_NAME}=${BACKUP_STAGING_ROOT}"
 }
 
+load_staging_timeout_from_data_operation_config() {
+  local response
+  local configured_timeout
+
+  response="$(invoke_mold_api \
+    "${MOLD_LIST_VMS_API_METHOD}" \
+    "${MOLD_LIST_VMS_API_URL}" \
+    "listConfigurations" \
+    "name" "${BACKUP_DATA_OPERATION_TIMEOUT_CONFIG_NAME}")" || \
+    fail "Failed to query Mold global configuration ${BACKUP_DATA_OPERATION_TIMEOUT_CONFIG_NAME}"
+
+  configured_timeout="$(extract_json_value_by_key "${response}" "value" || true)"
+  if [[ -z "${configured_timeout}" ]]; then
+    log -ne "Mold global configuration ${BACKUP_DATA_OPERATION_TIMEOUT_CONFIG_NAME} is blank; using staging timeout ${NETBACKUP_STAGING_TIMEOUT}s"
+    return 0
+  fi
+  if [[ ! "${configured_timeout}" =~ ^[1-9][0-9]*$ ]]; then
+    fail "Invalid ${BACKUP_DATA_OPERATION_TIMEOUT_CONFIG_NAME}=${configured_timeout}. It must be a positive integer."
+  fi
+
+  NETBACKUP_STAGING_TIMEOUT="$((configured_timeout + 600))"
+  log -ne "Loaded ${BACKUP_DATA_OPERATION_TIMEOUT_CONFIG_NAME}=${configured_timeout}; stagingTimeout=${NETBACKUP_STAGING_TIMEOUT}"
+}
+
 load_policy_schedule_config() {
   local config_file
   config_file="$(resolve_config_file_path)"
@@ -466,17 +571,22 @@ load_policy_schedule_config() {
   VM_EXCLUDE="${VM_EXCLUDE:-}"
   MOLD_CREATE_BACKUP_API_URL="${MOLD_CREATE_BACKUP_API_URL:-${MOLD_URL}}"
   MOLD_LIST_VMS_API_URL="${MOLD_LIST_VMS_API_URL:-${MOLD_URL}}"
+  MOLD_LIST_NETBACKUP_CANDIDATES_API_URL="${MOLD_LIST_NETBACKUP_CANDIDATES_API_URL:-${MOLD_LIST_VMS_API_URL}}"
   MOLD_QUERY_ASYNC_JOB_API_URL="${MOLD_QUERY_ASYNC_JOB_API_URL:-${MOLD_URL}}"
 
   [[ -n "${MOLD_CREATE_BACKUP_API_URL}" ]] || fail "MOLD_URL or MOLD_CREATE_BACKUP_API_URL must be configured."
   [[ -n "${MOLD_LIST_VMS_API_URL}" ]] || fail "MOLD_URL or MOLD_LIST_VMS_API_URL must be configured."
+  [[ -n "${MOLD_LIST_NETBACKUP_CANDIDATES_API_URL}" ]] || fail "MOLD_URL or MOLD_LIST_NETBACKUP_CANDIDATES_API_URL must be configured."
   [[ -n "${MOLD_QUERY_ASYNC_JOB_API_URL}" ]] || fail "MOLD_URL or MOLD_QUERY_ASYNC_JOB_API_URL must be configured."
   [[ -n "${ADMIN_APIKEY}" ]] || fail "ADMIN_APIKEY must be configured."
   [[ "${MOLD_ASYNC_JOB_POLL_INTERVAL}" =~ ^[1-9][0-9]*$ ]] || fail "Invalid MOLD_ASYNC_JOB_POLL_INTERVAL=${MOLD_ASYNC_JOB_POLL_INTERVAL}. It must be a positive integer."
   [[ "${MOLD_ASYNC_JOB_TIMEOUT}" =~ ^[1-9][0-9]*$ ]] || fail "Invalid MOLD_ASYNC_JOB_TIMEOUT=${MOLD_ASYNC_JOB_TIMEOUT}. It must be a positive integer."
+  [[ "${NETBACKUP_STAGING_POLL_INTERVAL}" =~ ^[1-9][0-9]*$ ]] || fail "Invalid NETBACKUP_STAGING_POLL_INTERVAL=${NETBACKUP_STAGING_POLL_INTERVAL}. It must be a positive integer."
+  [[ "${NETBACKUP_STAGING_TIMEOUT}" =~ ^[1-9][0-9]*$ ]] || fail "Invalid NETBACKUP_STAGING_TIMEOUT=${NETBACKUP_STAGING_TIMEOUT}. It must be a positive integer."
 
   load_admin_secretkey
   load_backup_staging_root_from_mold
+  load_staging_timeout_from_data_operation_config
 
   log -ne "VM selection include=${VM_INCLUDE} exclude=${VM_EXCLUDE}"
 }
@@ -818,12 +928,14 @@ cache_mold_virtual_machines() {
     return 0
   fi
 
-  log -ne "Calling Mold listVirtualMachines API url=${MOLD_LIST_VMS_API_URL} listAll=true pagesize=500 page=1"
+  log -ne "Calling Mold listNetBackupBackupCandidates API url=${MOLD_LIST_NETBACKUP_CANDIDATES_API_URL} host=${CLIENT_NAME} policy=${POLICY_NAME} claim=true"
   invoke_mold_api \
-    "${MOLD_LIST_VMS_API_METHOD}" \
-    "${MOLD_LIST_VMS_API_URL}" \
-    "listVirtualMachines" \
-    "listAll" "true" \
+    "${MOLD_LIST_NETBACKUP_CANDIDATES_API_METHOD}" \
+    "${MOLD_LIST_NETBACKUP_CANDIDATES_API_URL}" \
+    "listNetBackupBackupCandidates" \
+    "hostname" "${CLIENT_NAME}" \
+    "policyid" "${POLICY_NAME}" \
+    "claim" "true" \
     "pagesize" "500" \
     "page" "1" > "${MOLD_VM_CACHE_FILE}"
 }
@@ -848,6 +960,8 @@ def walk(node):
     if isinstance(node, dict):
         if str(node.get("instancename", "")) == vm_name and "id" in node:
             matches.append(str(node["id"]))
+        elif str(node.get("instancename", "")) == vm_name and "virtualmachineid" in node:
+            matches.append(str(node["virtualmachineid"]))
         for value in node.values():
             walk(value)
     elif isinstance(node, list):
@@ -861,50 +975,46 @@ if matches:
 PY
 }
 
-invoke_mold_create_backup() {
+lookup_mold_vm_schedule_id() {
   local vm_name="$1"
-  local vm_id="$2"
-  local initial_response=""
-  local final_response=""
-  local job_id=""
-  local -a api_args=(
-    "virtualmachineid" "${vm_id}"
-    "policyid" "${POLICY_NAME}"
-  )
+  [[ -f "${MOLD_VM_CACHE_FILE}" ]] || fail "Mold VM cache file not found: ${MOLD_VM_CACHE_FILE}"
 
-  log -ne "Calling Mold createNetBackup API for vm=${vm_name} vmId=${vm_id} url=${MOLD_CREATE_BACKUP_API_URL}"
+  python3 - "$MOLD_VM_CACHE_FILE" "$vm_name" <<'PY'
+import json
+import sys
 
-  initial_response="$(invoke_mold_api \
-    "${MOLD_CREATE_BACKUP_API_METHOD}" \
-    "${MOLD_CREATE_BACKUP_API_URL}" \
-    "createNetBackup" \
-    "${api_args[@]}")" || fail "Mold createNetBackup API call failed for vm=${vm_name}"
+cache_path = sys.argv[1]
+vm_name = sys.argv[2]
 
-  job_id="$(extract_json_value_by_key "${initial_response}" "jobid" 2>/dev/null || true)"
-  [[ -n "${job_id}" ]] || fail "Mold createNetBackup API did not return jobid for vm=${vm_name}"
-  LAST_MOLD_JOB_ID="${job_id}"
+with open(cache_path, "r", encoding="utf-8") as fh:
+    data = json.load(fh)
 
-  log -ne "Waiting for Mold createNetBackup async job vm=${vm_name} jobId=${job_id}"
-  final_response="$(wait_for_mold_async_job "createNetBackup" "${job_id}")"
-  [[ -n "${final_response}" ]] || fail "Mold createNetBackup async job returned empty response for vm=${vm_name}"
-  LAST_MOLD_FINAL_RESPONSE="${final_response}"
-}
+matches = []
 
-stage_vm_backup() {
-  local vm_name="$1"
-  local vm_id=""
+def walk(node):
+    if isinstance(node, dict):
+        if str(node.get("instancename", "")) == vm_name and "scheduleid" in node:
+            matches.append(str(node["scheduleid"]))
+        for value in node.values():
+            walk(value)
+    elif isinstance(node, list):
+        for item in node:
+            walk(item)
 
-  vm_id="$(lookup_mold_vm_id "${vm_name}")"
-  [[ -n "${vm_id}" ]] || fail "Unable to resolve Mold VM id for instance name ${vm_name}"
+walk(data)
 
-  invoke_mold_create_backup "${vm_name}" "${vm_id}"
+if matches:
+    print(matches[0], end="")
+PY
 }
 
 run_stage_vm_backup() {
   local vm_name="$1"
   local vm_id=""
+  local schedule_id=""
   local job_id=""
   local backup_path=""
+  local stage_start_epoch=""
   local initial_response=""
   local final_response=""
   local error_text=""
@@ -916,12 +1026,18 @@ run_stage_vm_backup() {
     return 1
   fi
 
+  schedule_id="$(lookup_mold_vm_schedule_id "${vm_name}" 2>/dev/null || true)"
+
   api_args=(
     "virtualmachineid" "${vm_id}"
     "policyid" "${POLICY_NAME}"
   )
+  if [[ -n "${schedule_id}" ]]; then
+    api_args+=("scheduleid" "${schedule_id}")
+  fi
 
-  log -ne "Calling Mold createNetBackup API for vm=${vm_name} vmId=${vm_id} url=${MOLD_CREATE_BACKUP_API_URL}"
+  log -ne "Calling Mold createNetBackup API for vm=${vm_name} vmId=${vm_id} scheduleId=${schedule_id} url=${MOLD_CREATE_BACKUP_API_URL}"
+  stage_start_epoch="$(date +%s)"
   if ! initial_response="$(invoke_mold_api \
     "${MOLD_CREATE_BACKUP_API_METHOD}" \
     "${MOLD_CREATE_BACKUP_API_URL}" \
@@ -944,9 +1060,14 @@ run_stage_vm_backup() {
     return 1
   fi
 
-  backup_path="$(discover_vm_backup_path "${vm_name}" 2>/dev/null || true)"
+  log -ne "Waiting for NetBackup staging completion vm=${vm_name} vmId=${vm_id} jobId=${job_id}"
+  if ! backup_path="$(wait_for_vm_staging_complete "${vm_name}" "${stage_start_epoch}" 2>&1)"; then
+    error_text="${backup_path}"
+    printf 'FAILED\t%s\t%s\t\t%s\n' "${vm_id}" "${job_id}" "$(tsv_escape "${error_text}")"
+    return 1
+  fi
   if [[ -z "${backup_path}" ]]; then
-    printf 'FAILED\t%s\t%s\t\t%s\n' "${vm_id}" "${job_id}" "$(tsv_escape "No backup path found under ${BACKUP_STAGING_ROOT}/${vm_name} for vm=${vm_name}")"
+    printf 'FAILED\t%s\t%s\t\t%s\n' "${vm_id}" "${job_id}" "$(tsv_escape "No completed backup path found under ${BACKUP_STAGING_ROOT}/${vm_name} for vm=${vm_name}")"
     return 1
   fi
 

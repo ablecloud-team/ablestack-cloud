@@ -41,6 +41,8 @@ public class AblestackNetBackupRestoreBackupCommand extends Command {
     private VirtualMachine.State vmState;
     private Integer timeout;
     private String cacheMode;
+    private String restoreJobId;
+    private boolean waitForCompletion = true;
 
     protected AblestackNetBackupRestoreBackupCommand() {
         super();
@@ -165,6 +167,22 @@ public class AblestackNetBackupRestoreBackupCommand extends Command {
 
     public void setCacheMode(final String cacheMode) {
         this.cacheMode = cacheMode;
+    }
+
+    public String getRestoreJobId() {
+        return restoreJobId;
+    }
+
+    public void setRestoreJobId(final String restoreJobId) {
+        this.restoreJobId = restoreJobId;
+    }
+
+    public boolean isWaitForCompletion() {
+        return waitForCompletion;
+    }
+
+    public void setWaitForCompletion(final boolean waitForCompletion) {
+        this.waitForCompletion = waitForCompletion;
     }
 
     @Override

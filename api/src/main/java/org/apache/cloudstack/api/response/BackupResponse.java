@@ -103,6 +103,10 @@ public class BackupResponse extends BaseResponse {
     @Param(description = "Backup provider name")
     private String provider;
 
+    @SerializedName(ApiConstants.BACKUP_ENGINE)
+    @Param(description = "Backup engine used by the provider")
+    private String backupEngine;
+
     @SerializedName(ApiConstants.ACCOUNT_ID)
     @Param(description = "Account id")
     private String accountId;
@@ -157,6 +161,22 @@ public class BackupResponse extends BaseResponse {
     @SerializedName(ApiConstants.HOST_ID)
     @Param(description = "Host ID where the backup is running", since = "4.23.0")
     private String hostId;
+
+    @SerializedName(ApiConstants.RESTORE_JOB_ID)
+    @Param(description = "Host-side restore job ID for the latest tracked restore", since = "4.23.0")
+    private String restoreJobId;
+
+    @SerializedName(ApiConstants.RESTORE_JOB_STATE)
+    @Param(description = "Host-side restore job state for the latest tracked restore", since = "4.23.0")
+    private String restoreJobState;
+
+    @SerializedName(ApiConstants.RESTORE_JOB_DETAILS)
+    @Param(description = "Failure details for the latest restore job", since = "4.23.0")
+    private String restoreJobDetails;
+
+    @SerializedName(ApiConstants.RESTORE_JOB_LOG_PATH)
+    @Param(description = "Host-side restore job log path for the latest tracked restore", since = "4.23.0")
+    private String restoreJobLogPath;
 
     public String getId() {
         return id;
@@ -302,6 +322,14 @@ public class BackupResponse extends BaseResponse {
         this.provider = provider;
     }
 
+    public String getBackupEngine() {
+        return backupEngine;
+    }
+
+    public void setBackupEngine(final String backupEngine) {
+        this.backupEngine = backupEngine;
+    }
+
     public String getAccountId() {
         return accountId;
     }
@@ -408,5 +436,37 @@ public class BackupResponse extends BaseResponse {
 
     public String getHostId() {
         return this.hostId;
+    }
+
+    public void setRestoreJobId(String restoreJobId) {
+        this.restoreJobId = restoreJobId;
+    }
+
+    public String getRestoreJobId() {
+        return restoreJobId;
+    }
+
+    public void setRestoreJobState(String restoreJobState) {
+        this.restoreJobState = restoreJobState;
+    }
+
+    public String getRestoreJobState() {
+        return restoreJobState;
+    }
+
+    public void setRestoreJobDetails(String restoreJobDetails) {
+        this.restoreJobDetails = restoreJobDetails;
+    }
+
+    public String getRestoreJobDetails() {
+        return restoreJobDetails;
+    }
+
+    public void setRestoreJobLogPath(String restoreJobLogPath) {
+        this.restoreJobLogPath = restoreJobLogPath;
+    }
+
+    public String getRestoreJobLogPath() {
+        return restoreJobLogPath;
     }
 }

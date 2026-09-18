@@ -30,7 +30,6 @@ import org.apache.cloudstack.api.response.BackupProviderResponse;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.backup.BackupManager;
 import org.apache.cloudstack.backup.BackupProvider;
-import org.apache.cloudstack.backup.BackupProviderNameUtils;
 
 import com.cloud.user.Account;
 
@@ -71,7 +70,7 @@ public class ListBackupProvidersCmd extends BaseCmd {
         final ListResponse<BackupProviderResponse> response = new ListResponse<>();
         final List<BackupProviderResponse> responses = new ArrayList<>();
         for (final BackupProvider provider : providers) {
-            final String displayName = provider == null ? null : BackupProviderNameUtils.toDisplayName(provider.getName());
+            final String displayName = provider == null ? null : provider.getName();
             if (provider == null || (getName() != null && !displayName.equalsIgnoreCase(getName()))) {
                 continue;
             }

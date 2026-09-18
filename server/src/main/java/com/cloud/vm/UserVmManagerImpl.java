@@ -10657,7 +10657,18 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 _vmDao.update(vm.getId(), vmVO);
             }
 
-            backupManager.restoreBackupToVM(cmd.getBackupId(), vmId, cmd.getQuickRestore());
+            Account owner = _accountService.getActiveAccountById(cmd.getEntityOwnerId());
+            UserVmVO userVm = _vmDao.findById(vmId);
+            List<String> sshKeyPairNames = cmd.getSSHKeyPairNames();
+            if (sshKeyPairNames != null && !sshKeyPairNames.isEmpty()) {
+                vm = resetVMSSHKeyInternal(userVm, owner, sshKeyPairNames);
+            }
+
+            BackupManager.RestoreRequestStatus restoreStatus = backupManager.requestRestoreBackupToVM(
+                    cmd.getBackupId(), vmId, cmd.getQuickRestore(), cmd.getStartVm());
+            if (BackupManager.RestoreRequestStatus.ACCEPTED.equals(restoreStatus)) {
+                return _vmDao.findById(vmId);
+            }
 
         } catch (CloudRuntimeException | ResourceUnavailableException | ResourceAllocationException | InsufficientCapacityException  e) {
             UserVmVO vmVO = _vmDao.findById(vmId);
@@ -10668,14 +10679,6 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 logger.debug("Failed to cleanup Instance {} after create Instance from backup failed", vmId, cleanupException);
             }
             throw e;
-        }
-
-        Account owner = _accountService.getActiveAccountById(cmd.getEntityOwnerId());
-        UserVmVO userVm = _vmDao.findById(vmId);
-
-        List<String> sshKeyPairNames = cmd.getSSHKeyPairNames();
-        if (sshKeyPairNames != null && !sshKeyPairNames.isEmpty()) {
-            vm = resetVMSSHKeyInternal(userVm, owner, sshKeyPairNames);
         }
 
         if (cmd.getStartVm() && !cmd.getQuickRestore()) {

@@ -30,6 +30,7 @@ VM=""
 BACKUP_DIR=""
 DISK_PATHS=""
 QUIESCE=""
+DATA_OPERATION_TIMEOUT_SECONDS=43200
 BACKUP_TYPE="FULL"
 CHECKPOINT_NAME=""
 PARENT_BACKUP_DIR=""
@@ -519,6 +520,13 @@ backup_running_vm() {
         echo "Virsh backup job failed"; cleanup ;;
     esac
     wait_count=$((wait_count + 1))
+    if (( wait_count * 5 >= DATA_OPERATION_TIMEOUT_SECONDS )); then
+      log -ne "FAILED libvirt backup job timed out vm=[$VM] checkpoint=[$CHECKPOINT_NAME] timeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS]"
+      virsh -c qemu:///system domjobabort --domain "$VM" >> "$logFile" 2>&1 || true
+      resume_vm_if_paused
+      cleanup
+      exit 1
+    fi
     if (( wait_count % 12 == 0 )); then
       log -ne "WAIT libvirt backup job pending vm=[$VM] checkpoint=[$CHECKPOINT_NAME] elapsedSeconds=[$((wait_count * 5))] status=[${status:-unknown}]"
     fi
@@ -574,8 +582,8 @@ backup_rbd_volumes() {
     if [[ "$BACKUP_TYPE" == "INCREMENTAL" && -n "$PARENT_CHECKPOINT_NAME" ]]; then
       local export_start
       export_start=$(date +%s)
-      if ! timeout 6h "${RBD_CMD[@]}" export-diff --from-snap "$PARENT_CHECKPOINT_NAME" "${RBD_IMAGE}@${CHECKPOINT_NAME}" "$output_file" >> "$logFile" 2>&1; then
-        log -ne "FAILED RBD export-diff image=[$RBD_IMAGE] snapshot=[$CHECKPOINT_NAME] output=[$output_file] elapsedSeconds=[$(($(date +%s) - export_start))] timeout=[6h]"
+      if ! timeout "${DATA_OPERATION_TIMEOUT_SECONDS}s" "${RBD_CMD[@]}" export-diff --from-snap "$PARENT_CHECKPOINT_NAME" "${RBD_IMAGE}@${CHECKPOINT_NAME}" "$output_file" >> "$logFile" 2>&1; then
+        log -ne "FAILED RBD export-diff image=[$RBD_IMAGE] snapshot=[$CHECKPOINT_NAME] output=[$output_file] elapsedSeconds=[$(($(date +%s) - export_start))] timeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS]"
         echo "Failed to export incremental RBD diff for ${RBD_IMAGE}@${CHECKPOINT_NAME}"
         cleanup_created_rbd_snapshots
         cleanup
@@ -583,8 +591,8 @@ backup_rbd_volumes() {
     else
       local export_start
       export_start=$(date +%s)
-      if ! timeout 6h "${RBD_CMD[@]}" export "${RBD_IMAGE}@${CHECKPOINT_NAME}" "$output_file" >> "$logFile" 2>&1; then
-        log -ne "FAILED RBD export image=[$RBD_IMAGE] snapshot=[$CHECKPOINT_NAME] output=[$output_file] elapsedSeconds=[$(($(date +%s) - export_start))] timeout=[6h]"
+      if ! timeout "${DATA_OPERATION_TIMEOUT_SECONDS}s" "${RBD_CMD[@]}" export "${RBD_IMAGE}@${CHECKPOINT_NAME}" "$output_file" >> "$logFile" 2>&1; then
+        log -ne "FAILED RBD export image=[$RBD_IMAGE] snapshot=[$CHECKPOINT_NAME] output=[$output_file] elapsedSeconds=[$(($(date +%s) - export_start))] timeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS]"
         echo "Failed to export full RBD snapshot ${RBD_IMAGE}@${CHECKPOINT_NAME}"
         cleanup_created_rbd_snapshots
         cleanup
@@ -1047,6 +1055,7 @@ while [[ $# -gt 0 ]]; do
     -f|--backupfiles) BACKUP_FILES="$2"; shift; shift ;;
     -q|--quiesce) QUIESCE="$2"; shift; shift ;;
     -d|--diskpaths) DISK_PATHS="$2"; shift; shift ;;
+    --data-operation-timeout-seconds) DATA_OPERATION_TIMEOUT_SECONDS="$2"; shift; shift ;;
     -C|--cleanupcheckpoints) CLEANUP_CHECKPOINT_NAMES="$2"; shift; shift ;;
     -x|--forced) FORCED="$2"; shift; shift ;;
     --staging-disks) STAGING_DISK_PATHS="$2"; shift; shift ;;
@@ -1058,6 +1067,11 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+if ! [[ "$DATA_OPERATION_TIMEOUT_SECONDS" =~ ^[1-9][0-9]*$ ]]; then
+  echo "Data operation timeout must be a positive number of seconds"
+  exit 1
+fi
+
 if [[ -z "$BACKUP_DIR" ]]; then
   echo "Backup path (-p|--path) is required"
   exit 1
@@ -1066,7 +1080,7 @@ fi
 dest="$BACKUP_DIR"
 sanity_checks
 
-log -ne "ablestack_veeam.sh start op=[$OP] vm=[$VM] backupDir=[$BACKUP_DIR] backupType=[$BACKUP_TYPE] checkpoint=[$CHECKPOINT_NAME] parentBackup=[$PARENT_BACKUP_DIR] parentCheckpoint=[$PARENT_CHECKPOINT_NAME] diskPaths=[$DISK_PATHS] backupFiles=[$BACKUP_FILES]"
+log -ne "ablestack_veeam.sh start op=[$OP] vm=[$VM] backupDir=[$BACKUP_DIR] backupType=[$BACKUP_TYPE] checkpoint=[$CHECKPOINT_NAME] parentBackup=[$PARENT_BACKUP_DIR] parentCheckpoint=[$PARENT_CHECKPOINT_NAME] diskPaths=[$DISK_PATHS] backupFiles=[$BACKUP_FILES] dataOperationTimeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS]"
 
 if [[ "$OP" == "backup-running" ]]; then
   backup_running_vm

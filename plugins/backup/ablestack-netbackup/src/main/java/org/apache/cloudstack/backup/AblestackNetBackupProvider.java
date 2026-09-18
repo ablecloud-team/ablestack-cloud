@@ -18,6 +18,7 @@ package org.apache.cloudstack.backup;
 
 import com.cloud.agent.AgentManager;
 import com.cloud.agent.api.Answer;
+import com.cloud.agent.api.Command;
 import com.cloud.exception.AgentUnavailableException;
 import com.cloud.exception.OperationTimedoutException;
 import com.cloud.host.Host;
@@ -102,15 +103,15 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.apache.cloudstack.backup.BackupManager.BackupChainSize;
-import static org.apache.cloudstack.backup.BackupManager.BackupCommandTimeout;
+import static org.apache.cloudstack.backup.BackupManager.BackupDataOperationTimeout;
 import static org.apache.cloudstack.backup.BackupManager.BackupQosBandwidthLimitMbps;
 import static org.apache.cloudstack.backup.BackupManager.BackupFrameworkEnabled;
-import static org.apache.cloudstack.backup.BackupManager.BackupRestoreTimeout;
 import static org.apache.cloudstack.backup.BackupManager.KvmIncrementalBackup;
 
 public class AblestackNetBackupProvider extends AdapterBase implements BackupProvider, Configurable {
 
     private static final Logger LOG = LogManager.getLogger(AblestackNetBackupProvider.class);
+    private final ThreadLocal<Boolean> detachedRestoreStart = ThreadLocal.withInitial(() -> false);
 
     private static final String BACKUP_TYPE_FULL = "FULL";
     private static final String BACKUP_TYPE_INCREMENTAL = "INCREMENTAL";
@@ -130,15 +131,17 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
     private static final String DETAIL_POLICY_NAME = "netbackup.policy.name";
     private static final String DETAIL_RESTORE_ROOT_JOB_ID = "netbackup.restore.root.job.id";
     private static final String DETAIL_RESTORE_CHAIN_JOB_ID = "netbackup.restore.chain.job.id";
+    private static final String DETAIL_STAGING_METADATA_SYNCED = "netbackup.staging.metadata.synced";
     private static final String DETAIL_FAILURE_PHASE = "netbackup.failure.phase";
     private static final String DETAIL_FAILURE_REASON = "netbackup.failure.reason";
+    private static final String DETAIL_CHAIN_SEALED = "netbackup.chain.sealed";
+    private static final String DETAIL_CHAIN_SEAL_REASON = "netbackup.chain.seal.reason";
     private static final String MISSING_PARENT_RBD_SNAPSHOT_ERROR = "Parent RBD snapshot";
     private static final String MISSING_PARENT_QCOW2_BITMAP_ERROR = "Parent qcow2 bitmap";
-    private static final String BACKUP_TRACE = "[ABLESTACK_NETBACKUP_BACKUP_TRACE]";
-    private static final String RESTORE_TRACE = "[ABLESTACK_NETBACKUP_RESTORE_TRACE]";
+    private static final String BACKUP_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("netbackup", AblestackBackupFrameworkUtils.OPERATION_BACKUP);
+    private static final String RESTORE_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("netbackup", AblestackBackupFrameworkUtils.OPERATION_RESTORE);
     private static final long STAGE_SPACE_BUFFER_BYTES = 10L * 1024L * 1024L * 1024L;
     private static final int INCREMENTAL_BACKUP_CAPACITY_ESTIMATE_PERCENT = 10;
-    private static final long STALE_BACKUP_THRESHOLD_MS = 24L * 60L * 60L * 1000L;
     private static final long NETBACKUP_SYNC_DELETE_GRACE_MS = 10L * 60L * 1000L;
     private static final String NETBACKUP_OFFERING_NAME = "netbackup";
     private static final String NETBACKUP_OFFERING_EXTERNAL_ID = "netbackup";
@@ -219,7 +222,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         final Pair<List<PrimaryDataStoreTO>, List<String>> volumePoolsAndPaths = getVolumePoolsAndPaths(vmVolumes);
         validateVolumePoolTypes(volumePoolsAndPaths.first());
 
-        final BackupVO latestBackup = getLatestBackedUpBackup(vm);
+        final BackupVO latestBackup = getLatestBackedUpBackup(vm, backupScheduleId);
         final boolean incrementalBackup = shouldUseIncrementalBackup(vm, latestBackup, backupScheduleId);
         BackupExecutionResult result = executeBackup(vm, quiesceVM, host, vmVolumes, volumePoolsAndPaths, latestBackup,
                 incrementalBackup, null);
@@ -241,6 +244,11 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
 
     @Override
     public Pair<Boolean, Backup> takeNetBackup(final VirtualMachine vm, final String policyName) {
+        return takeNetBackup(vm, policyName, null);
+    }
+
+    @Override
+    public Pair<Boolean, Backup> takeNetBackup(final VirtualMachine vm, final String policyName, final Long backupScheduleId) {
         final Host host = getVMHypervisorHostForBackup(vm);
         validateVmSnapshotCoexistenceForBackup(vm);
 
@@ -249,7 +257,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         final Pair<List<PrimaryDataStoreTO>, List<String>> volumePoolsAndPaths = getVolumePoolsAndPaths(vmVolumes);
         validateVolumePoolTypes(volumePoolsAndPaths.first());
 
-        final BackupVO latestBackup = getLatestBackedUpBackup(vm);
+        final BackupVO latestBackup = getLatestBackedUpBackup(vm, backupScheduleId);
         final boolean incrementalBackup = shouldUseIncrementalBackupForNetBackup(vm, latestBackup);
         BackupExecutionResult result = executeBackup(vm, null, host, vmVolumes, volumePoolsAndPaths, latestBackup,
                 incrementalBackup, policyName);
@@ -281,12 +289,10 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         final Map<String, String> backupDetails = getBackupDetails(vm, backupPath, checkpointName, backupEngine, latestBackup,
                 incrementalBackup, policyName);
 
-        final BackupVO backupVO = createBackupObject(vm, backupPath, requestedBackupType, backupDetails);
+        final BackupVO backupVO = createBackupObject(vm, vmHost.getId(), backupPath, requestedBackupType, backupDetails);
         AblestackNetBackupTakeBackupCommand command = new AblestackNetBackupTakeBackupCommand(vm.getInstanceName(), backupPath);
-        final int commandTimeout = BackupCommandTimeout.value();
-        if (commandTimeout > 0) {
-            command.setWait(commandTimeout);
-        }
+        command.setWait(BackupDataOperationTimeout.value());
+        command.setBackupJobId(backupVO.getUuid());
         command.setQuiesce(quiesceVM);
         command.setVolumePools(volumePoolsAndPaths.first());
         command.setVolumePaths(volumePoolsAndPaths.second());
@@ -294,6 +300,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         command.setCheckpointName(checkpointName);
         command.setBackupFiles(backupFiles);
         command.setPolicyId(backupDetails.get(DETAIL_POLICY_NAME));
+        command.setWaitForCompletion(false);
         command.setBandwidthLimitMbps(BackupQosBandwidthLimitMbps.value());
         if (incrementalBackup && latestBackup != null) {
             command.setParentBackupPath(getBackupDetail(latestBackup, DETAIL_PARENT_BACKUP_PATH,
@@ -314,35 +321,10 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         try {
             final BackupAnswer answer = (BackupAnswer) agentManager.send(vmHost.getId(), command);
             if (answer != null && answer.getResult()) {
-                if (BACKUP_ENGINE_QCOW2.equals(backupEngine)) {
-                    final String checkpointXml = readFileContentsOnHost(vmHost.getId(), getCheckpointPath(backupPath, checkpointName, backupEngine));
-                    if (StringUtils.isNotBlank(checkpointXml)) {
-                        final String checkpointXmlToStore = incrementalBackup ? checkpointXml : removeParentFromCheckpointXml(checkpointXml);
-                        backupDetails.put(DETAIL_CHECKPOINT_XML, checkpointXmlToStore);
-                        backupDetailsDao.removeDetail(backupVO.getId(), DETAIL_CHECKPOINT_XML);
-                        backupDetailsDao.addDetail(backupVO.getId(), DETAIL_CHECKPOINT_XML, checkpointXmlToStore, false);
-                    }
-                }
-
-                backupVO.setDate(new Date());
-                backupVO.setSize(answer.getSize() != null ? answer.getSize() : backupVO.getProtectedSize());
-                backupVO.setDetails(backupDetails);
-                backupVO.setBackedUpVolumes(createVolumeInfoFromVolumes(vmVolumes, backupFiles));
-                if (backupDao.update(backupVO.getId(), backupVO)) {
-                    LOG.info("{} phase=[DONE], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], backupPath=[{}], size=[{}], elapsedMs=[{}]",
-                            BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType, backupEngine,
-                            backupPath, backupVO.getSize(), System.currentTimeMillis() - backupStartTime);
-                    return BackupExecutionResult.success(backupVO);
-                }
-                LOG.error("NetBackup staging completed for VM [{}], but backup [{}] metadata update failed. Leaving it in Error state.",
-                        vm.getInstanceName(), backupVO.getUuid());
-                LOG.error("{} phase=[FAILED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], backupPath=[{}], elapsedMs=[{}], reason=[{}]",
+                LOG.info("{} phase=[STAGING_STARTED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], backupPath=[{}], elapsedMs=[{}]",
                         BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType, backupEngine,
-                        backupPath, System.currentTimeMillis() - backupStartTime, "Failed to update NetBackup backup metadata");
-                markBackupFailure(backupVO, "metadata-update", "Failed to update NetBackup backup metadata");
-                backupVO.setStatus(Backup.Status.Error);
-                backupDao.update(backupVO.getId(), backupVO);
-                return BackupExecutionResult.failure("Failed to update NetBackup backup metadata", backupVO);
+                        backupPath, System.currentTimeMillis() - backupStartTime);
+                return BackupExecutionResult.success(backupVO);
             }
 
             final String details = answer != null ? answer.getDetails() : "No answer received";
@@ -405,6 +387,11 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         }
 
         if (!hasHealthyIncrementalSource(latestBackup)) {
+            return false;
+        }
+        if (Boolean.parseBoolean(getBackupDetail(latestBackup, DETAIL_CHAIN_SEALED))) {
+            LOG.warn("Skipping NetBackup incremental backup because parent backup chain [{}] is sealed. reason=[{}]",
+                    latestBackup.getUuid(), getBackupDetail(latestBackup, DETAIL_CHAIN_SEAL_REASON));
             return false;
         }
 
@@ -499,9 +486,9 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
                 && StringUtils.isNotBlank(getBackupDetail(backup, DETAIL_CHECKPOINT_NAME))
                 && StringUtils.isNotBlank(getBackupDetail(backup, DETAIL_RBD_DISK_PATHS))) {
             final AblestackDeleteBackupCommand command = new AblestackDeleteBackupCommand(backup.getExternalId(), null, null, null, true);
-            final int commandTimeout = BackupCommandTimeout.value();
-            if (commandTimeout > 0) {
-                command.setWait(commandTimeout);
+            final int deleteTimeout = BackupDataOperationTimeout.value();
+            if (deleteTimeout > 0) {
+                command.setWait(deleteTimeout);
             }
             command.setBackupProvider(getName());
             final VMInstanceVO vm = vmInstanceDao.findByIdIncludingRemoved(backup.getVmId());
@@ -540,9 +527,10 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         }
     }
 
-    private BackupVO createBackupObject(final VirtualMachine vm, final String backupPath, final String backupType, final Map<String, String> details) {
+    private BackupVO createBackupObject(final VirtualMachine vm, final Long hostId, final String backupPath, final String backupType, final Map<String, String> details) {
         final BackupVO backup = new BackupVO();
         backup.setVmId(vm.getId());
+        backup.setHostId(hostId);
         backup.setExternalId(backupPath);
         backup.setType(backupType);
         backup.setDate(new Date());
@@ -560,7 +548,11 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         backup.setZoneId(vm.getDataCenterId());
         backup.setName(backupManager.getBackupNameFromVM(vm));
         backup.setDetails(details);
-        return backupDao.persist(backup);
+        final BackupVO persistedBackup = backupDao.persist(backup);
+        persistedBackup.setHostId(hostId);
+        backupDao.update(persistedBackup.getId(), persistedBackup);
+        backupDao.saveDetails(persistedBackup);
+        return persistedBackup;
     }
 
     private Map<String, String> getBackupDetails(final VirtualMachine vm, final String backupPath, final String checkpointName, final String backupEngine,
@@ -781,10 +773,15 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
     }
 
     private BackupVO getLatestBackedUpBackup(final VirtualMachine vm) {
+        return getLatestBackedUpBackup(vm, null);
+    }
+
+    private BackupVO getLatestBackedUpBackup(final VirtualMachine vm, final Long backupScheduleId) {
         return backupDao.listByVmIdAndOffering(vm.getDataCenterId(), vm.getId(), vm.getBackupOfferingId()).stream()
                 .filter(BackupVO.class::isInstance)
                 .map(BackupVO.class::cast)
                 .filter(backup -> Backup.Status.BackedUp.equals(backup.getStatus()))
+                .filter(backup -> backupScheduleId == null || Objects.equals(backup.getBackupScheduleId(), backupScheduleId))
                 .peek(this::loadBackupDetailsIfNeeded)
                 .filter(backup -> getBackupDetail(backup, DETAIL_CHECKPOINT_NAME) != null)
                 .max(Comparator.comparing(BackupVO::getDate))
@@ -903,6 +900,30 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         if (backup instanceof BackupVO) {
             backupDao.loadDetails((BackupVO) backup);
         }
+    }
+
+    private void trackRestoreJob(final Backup backup, final String restoreJobId, final Host host) {
+        updateBackupDetail(backup, AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL, restoreJobId);
+        updateBackupDetail(backup, AblestackBackupFrameworkUtils.RESTORE_HOST_ID_DETAIL, host != null ? String.valueOf(host.getId()) : null);
+        updateBackupDetail(backup, AblestackBackupFrameworkUtils.RESTORE_HOST_NAME_DETAIL, host != null ? host.getName() : null);
+        updateBackupDetail(backup, AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, "STARTING");
+        updateBackupDetail(backup, AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL, "QUEUED");
+        updateBackupDetail(backup, AblestackBackupFrameworkUtils.RESTORE_JOB_PROGRESS_DETAIL, "10");
+        updateBackupDetail(backup, AblestackBackupFrameworkUtils.RESTORE_JOB_TRACKED_AT_DETAIL, String.valueOf(System.currentTimeMillis()));
+    }
+
+    private BackupAnswer sendAndWaitForRestore(final Long hostId, final Command restoreCommand, final String restoreJobId)
+            throws AgentUnavailableException, OperationTimedoutException {
+        final Answer startAnswer = agentManager.send(hostId, restoreCommand);
+        if (!(startAnswer instanceof BackupAnswer) || !startAnswer.getResult()) {
+            return startAnswer instanceof BackupAnswer ? (BackupAnswer) startAnswer
+                    : new BackupAnswer(restoreCommand, false, "Unexpected restore start response");
+        }
+        if (Boolean.TRUE.equals(detachedRestoreStart.get())) {
+            return (BackupAnswer) startAnswer;
+        }
+        return AblestackRestoreJobPoller.waitForCompletion(restoreJobId, BackupDataOperationTimeout.value(),
+                () -> agentManager.send(hostId, new AblestackRestoreJobStatusCommand(restoreJobId, null, 5)));
     }
 
     private void markBackupFailure(final Backup backup, final String phase, final String reason) {
@@ -1093,7 +1114,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         throw new CloudRuntimeException("NetBackup backups are managed by backup ID groups and cannot be deleted individually from Mold.");
     }
 
-    private void cleanupFailedOrErrorBackupArtifacts(final Backup backup, final boolean forced) {
+    private boolean cleanupFailedOrErrorBackupArtifacts(final Backup backup, final boolean forced) {
         Host cleanupHost = null;
         try {
             cleanupHost = resolveBackupCleanupHost(backup);
@@ -1104,18 +1125,35 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         if (cleanupHost == null) {
             LOG.warn("Skipping artifact cleanup for NetBackup backup [{}] in [{}] state before explicit delete because cleanup host could not be resolved. forced=[{}]",
                     backup.getUuid(), backup.getStatus(), forced);
-            return;
+            return false;
         }
         final boolean cleanupSuccessful = cleanupFailedBackupArtifacts(cleanupHost, backup);
         if (!cleanupSuccessful) {
             LOG.warn("Artifact cleanup failed for NetBackup backup [{}] in [{}] state before explicit delete. Metadata deletion will continue. forced=[{}]",
                     backup.getUuid(), backup.getStatus(), forced);
         }
+        return cleanupSuccessful;
     }
 
     @Override
     public Pair<Boolean, String> restoreBackupToVM(final VirtualMachine vm, final Backup backup, final String hostIp, final String dataStoreUuid, boolean quickRestore) {
         return restoreVirtualMachine(vm, backup, hostIp);
+    }
+
+    @Override
+    public boolean supportsDetachedRestoreOrchestration() {
+        return true;
+    }
+
+    @Override
+    public Pair<Boolean, String> startRestoreBackupToVM(final VirtualMachine vm, final Backup backup,
+            final String hostIp, final String dataStoreUuid, final boolean quickRestore) {
+        detachedRestoreStart.set(true);
+        try {
+            return restoreBackupToVM(vm, backup, hostIp, dataStoreUuid, quickRestore);
+        } finally {
+            detachedRestoreStart.remove();
+        }
     }
 
     @Override
@@ -1136,6 +1174,17 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
     @Override
     public boolean restoreVMFromBackup(final VirtualMachine vm, final Backup backup, boolean quickRestore, Long hostId) {
         return restoreVirtualMachine(vm, backup, null, false).first();
+    }
+
+    @Override
+    public boolean startRestoreVMFromBackup(final VirtualMachine vm, final Backup backup, final boolean quickRestore,
+            final Long hostId) {
+        detachedRestoreStart.set(true);
+        try {
+            return restoreVMFromBackup(vm, backup, quickRestore, hostId);
+        } finally {
+            detachedRestoreStart.remove();
+        }
     }
 
     public boolean restoreVMFromPreparedBackup(final VirtualMachine vm, final Backup backup, final String restoreHostIp) {
@@ -1217,7 +1266,9 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
                         vm.getInstanceName(), backup.getUuid(), backupVolumes.size(), restoreVolumes.size()));
             }
 
+            final String restoreJobId = AblestackBackupFrameworkUtils.createRestoreJobId(getName(), backup.getUuid(), vm.getInstanceName(), null);
             final AblestackNetBackupRestoreBackupCommand restoreCommand = new AblestackNetBackupRestoreBackupCommand();
+            restoreCommand.setRestoreJobId(restoreJobId);
             restoreCommand.setBackupPath(backup.getExternalId());
             restoreCommand.setVmName(vm.getName());
             restoreCommand.setBackupVolumesUUIDs(backedVolumesUUIDs);
@@ -1230,11 +1281,17 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
             restoreCommand.setVmExists(vm.getRemoved() == null);
             restoreCommand.setVmState(vm.getState());
             restoreCommand.setRestorePlan(createRestorePlan(false));
-            restoreCommand.setTimeout(BackupRestoreTimeout.value());
+            restoreCommand.setTimeout(BackupDataOperationTimeout.value());
+            restoreCommand.setWaitForCompletion(false);
+            trackRestoreJob(backup, restoreJobId, host);
 
             final BackupAnswer answer;
             try {
-                answer = (BackupAnswer) agentManager.send(host.getId(), restoreCommand);
+                LOG.info("{} phase=[RESTORE_COMMAND_SEND], restoreJobId=[{}], jobLog=[{}], vmId=[{}], vmName=[{}], "
+                                + "backupId=[{}], backupUuid=[{}], restoreHostId=[{}], restoreHostName=[{}], backupPath=[{}]",
+                        RESTORE_TRACE, restoreJobId, AblestackBackupFrameworkUtils.getAsyncRestoreJobLogPath(restoreJobId),
+                        vm.getId(), vm.getInstanceName(), backup.getId(), backup.getUuid(), host.getId(), host.getName(), backup.getExternalId());
+                answer = sendAndWaitForRestore(host.getId(), restoreCommand, restoreJobId);
             } catch (final AgentUnavailableException e) {
                 LOG.error("{} phase=[PROVIDER_FAILED], vmId=[{}], vmName=[{}], backupId=[{}], backupUuid=[{}], restoreHost=[{}], reason=[{}]",
                         RESTORE_TRACE, vm.getId(), vm.getInstanceName(), backup.getId(), backup.getUuid(), host.getName(),
@@ -1249,9 +1306,15 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
             LOG.info("{} phase=[PROVIDER_DONE], vmId=[{}], vmName=[{}], backupId=[{}], backupUuid=[{}], restoreHost=[{}], result=[{}], details=[{}]",
                     RESTORE_TRACE, vm.getId(), vm.getInstanceName(), backup.getId(), backup.getUuid(), host.getName(),
                     answer != null && answer.getResult(), answer != null ? answer.getDetails() : null);
+            LOG.info("{} phase=[RESTORE_COMMAND_DONE], restoreJobId=[{}], vmId=[{}], vmName=[{}], backupId=[{}], "
+                            + "backupUuid=[{}], restoreHostId=[{}], restoreHostName=[{}], result=[{}], details=[{}]",
+                    RESTORE_TRACE, restoreJobId, vm.getId(), vm.getInstanceName(), backup.getId(), backup.getUuid(),
+                    host.getId(), host.getName(), answer != null && answer.getResult(), answer != null ? answer.getDetails() : null);
             return new Pair<>(answer != null && answer.getResult(), answer != null ? answer.getDetails() : null);
         } finally {
-            cleanupRestoreSourcesOnStageHosts(vm.getDataCenterId(), host.getName(), restoreSourcesToPrepare);
+            if (!Boolean.TRUE.equals(detachedRestoreStart.get())) {
+                cleanupRestoreSourcesOnStageHosts(vm.getDataCenterId(), host.getName(), restoreSourcesToPrepare);
+            }
         }
     }
 
@@ -1354,7 +1417,10 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
             restoredVolume.setDiskOfferingId(diskOffering.getId());
             restoredVolume.setFormat(pool.getPoolType() != Storage.StoragePoolType.RBD ? Storage.ImageFormat.QCOW2 : Storage.ImageFormat.RAW);
 
+            final String restoreJobId = AblestackBackupFrameworkUtils.createRestoreJobId(getName(), backup.getUuid(),
+                    vmNameAndState.first(), volumeUuid);
             final AblestackNetBackupRestoreBackupCommand restoreCommand = new AblestackNetBackupRestoreBackupCommand();
+            restoreCommand.setRestoreJobId(restoreJobId);
             restoreCommand.setBackupPath(backup.getExternalId());
             restoreCommand.setVmName(vmNameAndState.first());
             restoreCommand.setBackupFiles(Collections.singletonList(isLegacyBackup(backup) ? getLegacyBackupFileName(matchingVolume) : matchingVolume.getPath()));
@@ -1375,12 +1441,20 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
             restoreCommand.setVmState(vmNameAndState.second());
             restoreCommand.setRestoreVolumeUUID(backupVolumeInfo.getUuid());
             restoreCommand.setRestorePlan(createRestorePlan(AblestackBackupFrameworkUtils.requiresRunningVmAttach(vmNameAndState.second())));
-            restoreCommand.setTimeout(BackupRestoreTimeout.value());
+            restoreCommand.setTimeout(BackupDataOperationTimeout.value());
             restoreCommand.setCacheMode(cacheMode);
+            restoreCommand.setWaitForCompletion(false);
+            trackRestoreJob(backup, restoreJobId, restoreHost);
 
             final BackupAnswer answer;
             try {
-                answer = (BackupAnswer) agentManager.send(restoreHost.getId(), restoreCommand);
+                LOG.info("{} phase=[RESTORE_VOLUME_COMMAND_SEND], restoreJobId=[{}], jobLog=[{}], vmName=[{}], backupId=[{}], "
+                                + "backupUuid=[{}], backupVolumeUuid=[{}], restoredVolumeUuid=[{}], restoreHostId=[{}], "
+                                + "restoreHostName=[{}], backupPath=[{}]",
+                        RESTORE_TRACE, restoreJobId, AblestackBackupFrameworkUtils.getAsyncRestoreJobLogPath(restoreJobId),
+                        vmNameAndState.first(), backup.getId(), backup.getUuid(), backupVolumeInfo.getUuid(), volumeUuid,
+                        restoreHost.getId(), restoreHost.getName(), backup.getExternalId());
+                answer = sendAndWaitForRestore(restoreHost.getId(), restoreCommand, restoreJobId);
             } catch (AgentUnavailableException e) {
                 LOG.error("{} phase=[PROVIDER_FAILED], vmName=[{}], backupId=[{}], backupUuid=[{}], backupVolumeUuid=[{}], restoreHost=[{}], reason=[{}]",
                         RESTORE_TRACE, vmNameAndState.first(), backup.getId(), backup.getUuid(), backupVolumeInfo.getUuid(), restoreHost.getName(),
@@ -1401,15 +1475,39 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
                 }
                 LOG.info("{} phase=[PROVIDER_DONE], vmName=[{}], backupId=[{}], backupUuid=[{}], backupVolumeUuid=[{}], restoreHost=[{}], restoredVolumeUuid=[{}]",
                         RESTORE_TRACE, vmNameAndState.first(), backup.getId(), backup.getUuid(), backupVolumeInfo.getUuid(), restoreHost.getName(), restoredVolume.getUuid());
+                LOG.info("{} phase=[RESTORE_VOLUME_COMMAND_DONE], restoreJobId=[{}], vmName=[{}], backupId=[{}], backupUuid=[{}], "
+                                + "backupVolumeUuid=[{}], restoredVolumeUuid=[{}], restoreHostId=[{}], restoreHostName=[{}], result=[{}], details=[{}]",
+                        RESTORE_TRACE, restoreJobId, vmNameAndState.first(), backup.getId(), backup.getUuid(), backupVolumeInfo.getUuid(),
+                        volumeUuid, restoreHost.getId(), restoreHost.getName(), true, answer.getDetails());
                 return new Pair<>(true, restoredVolume.getUuid());
             }
 
             LOG.error("{} phase=[PROVIDER_FAILED], vmName=[{}], backupId=[{}], backupUuid=[{}], backupVolumeUuid=[{}], restoreHost=[{}], reason=[{}]",
                     RESTORE_TRACE, vmNameAndState.first(), backup.getId(), backup.getUuid(), backupVolumeInfo.getUuid(), restoreHost.getName(),
                     answer != null ? answer.getDetails() : "NetBackup restore agent returned no response");
+            LOG.warn("{} phase=[RESTORE_VOLUME_COMMAND_FAILED], restoreJobId=[{}], vmName=[{}], backupId=[{}], backupUuid=[{}], "
+                            + "backupVolumeUuid=[{}], restoredVolumeUuid=[{}], restoreHostId=[{}], restoreHostName=[{}], result=[{}], details=[{}]",
+                    RESTORE_TRACE, restoreJobId, vmNameAndState.first(), backup.getId(), backup.getUuid(), backupVolumeInfo.getUuid(),
+                    volumeUuid, restoreHost.getId(), restoreHost.getName(), false, answer != null ? answer.getDetails() : null);
             return new Pair<>(false, answer != null ? answer.getDetails() : "NetBackup restore agent returned no response");
         } finally {
-            cleanupRestoreSourcesOnStageHosts(backup.getZoneId(), restoreHost.getName(), restoreSourcesToPrepare);
+            if (!Boolean.TRUE.equals(detachedRestoreStart.get())) {
+                cleanupRestoreSourcesOnStageHosts(backup.getZoneId(), restoreHost.getName(), restoreSourcesToPrepare);
+            }
+        }
+    }
+
+    @Override
+    public Pair<Boolean, String> startRestoreBackedUpVolume(final Backup backup,
+            final Backup.VolumeInfo backupVolumeInfo, final String hostIp, final String dataStoreUuid,
+            final Pair<String, VirtualMachine.State> vmNameAndState, final VirtualMachine targetVm,
+            final boolean quickRestore) {
+        detachedRestoreStart.set(true);
+        try {
+            return restoreBackedUpVolume(backup, backupVolumeInfo, hostIp, dataStoreUuid, vmNameAndState,
+                    targetVm, quickRestore);
+        } finally {
+            detachedRestoreStart.remove();
         }
     }
 
@@ -1508,6 +1606,10 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         loadBackupDetailsIfNeeded(backup);
         final List<BackupVolumeChainState> chainStates = getVolumeChainStates(backup.getBackedUpVolumes(), backup);
         AblestackBackupFrameworkUtils.validateVolumeChainStates(chainStates);
+        final String restoreHostName = getBackupDetail(backup, AblestackBackupFrameworkUtils.RESTORE_HOST_NAME_DETAIL);
+        if (StringUtils.isNotBlank(restoreHostName)) {
+            cleanupRestoreSourcesOnStageHosts(backup.getZoneId(), restoreHostName, getStagedRestoreChainForBackup(backup));
+        }
         LOG.debug("Completed NetBackup post-restore maintenance for VM [{}], backup [{}], volumeOnly=[{}]",
                 vm != null ? vm.getInstanceName() : null, backup.getUuid(), volumeOnly);
     }
@@ -1572,17 +1674,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
     }
 
     private List<String> getBackupFiles(final List<Backup.VolumeInfo> backedVolumes, final Backup backup) {
-        final List<String> backupFiles = new ArrayList<>();
-        final List<Backup.VolumeInfo> sortedVolumes = new ArrayList<>(backedVolumes);
-        sortedVolumes.sort(Comparator.comparingLong(Backup.VolumeInfo::getDeviceId));
-        for (final Backup.VolumeInfo backedVolume : sortedVolumes) {
-            if (isLegacyBackup(backup)) {
-                backupFiles.add(getLegacyBackupFileName(backedVolume));
-            } else {
-                backupFiles.add(backedVolume.getPath());
-            }
-        }
-        return backupFiles;
+        return AblestackBackupFrameworkUtils.buildRestoreBackupFiles(backedVolumes, isLegacyBackup(backup), this::getLegacyBackupFileName);
     }
 
     private BackupRestorePlan createRestorePlan(final boolean attachRequired) {
@@ -1590,27 +1682,18 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
     }
 
     private List<String> getBackupFileChains(final List<Backup.VolumeInfo> backupVolumes, final Backup backup) {
-        return backupVolumes.stream()
-                .sorted(Comparator.comparingLong(Backup.VolumeInfo::getDeviceId))
-                .map(volume -> getBackupFileChain(volume, backup))
-                .collect(Collectors.toList());
+        return AblestackBackupFrameworkUtils.buildRestoreBackupFileChains(backupVolumes, volume -> getBackupChain(volume, backup));
     }
 
     private String getBackupFileChain(final Backup.VolumeInfo backupVolume, final Backup backup) {
         loadBackupDetailsIfNeeded(backup);
-        final List<String> chain = getBackupChain(backupVolume, backup);
-        return String.join(";", chain);
+        return AblestackBackupFrameworkUtils.buildRestoreBackupFileChain(backupVolume, volume -> getBackupChain(volume, backup));
     }
 
     private List<BackupVolumeChainState> getVolumeChainStates(final List<Backup.VolumeInfo> backupVolumes, final Backup backup) {
         final String backupEngine = getBackupDetail(backup, DETAIL_BACKUP_ENGINE);
-        final List<BackupVolumeChainState> volumeChainStates = backupVolumes.stream()
-                .sorted(Comparator.comparingLong(Backup.VolumeInfo::getDeviceId))
-                .map(volume -> new BackupVolumeChainState(volume.getUuid(), backupEngine,
-                        AblestackBackupFrameworkUtils.sanitizeChainFiles(getBackupChain(volume, backup))))
-                .collect(Collectors.toList());
-        AblestackBackupFrameworkUtils.validateVolumeChainStates(volumeChainStates);
-        return volumeChainStates;
+        return AblestackBackupFrameworkUtils.buildRestoreVolumeChainStates(backupVolumes, backupEngine,
+                volume -> getBackupChain(volume, backup));
     }
 
     private List<String> getBackupChain(final Backup.VolumeInfo backupVolume, final Backup backup) {
@@ -1982,18 +2065,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
             if (removedBackupIds.contains(backup.getId())) {
                 continue;
             }
-            if (Backup.Status.BackingUp.equals(backup.getStatus())) {
-                if (backup.getDate() == null || backup.getDate().getTime() > System.currentTimeMillis() - STALE_BACKUP_THRESHOLD_MS) {
-                    continue;
-                }
-                loadBackupDetailsIfNeeded(backup);
-                LOG.warn("Removing stale NetBackup backup [{}] for VM [{}] stuck in BackingUp for over one day. "
-                                + "NetBackup post notify may have failed before updateNetBackup finalized the backup metadata. "
-                                + "Check NetBackup runtime JSON/context files and catalog before removal if recovery is required. "
-                                + "externalId=[{}], backupId=[{}], policyName=[{}], status=[{}], date=[{}].",
-                        backup.getUuid(), vm.getInstanceName(), backup.getExternalId(), getBackupDetail(backup, DETAIL_BACKUP_ID),
-                        getBackupDetail(backup, DETAIL_POLICY_NAME), backup.getStatus(), backup.getDate());
-                removeBackupWithDetails(backup.getId());
+            if (reconcileBackingUpBackup(vm, backup)) {
                 continue;
             }
 
@@ -2025,6 +2097,208 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
             removedBackupIds.addAll(removedIds);
             LOG.warn("Removed NetBackup backup group identified by backupId [{}] for VM [{}] because the catalog image no longer exists in NetBackup. Removed backup row ids={}",
                     backupId, vm.getInstanceName(), removedIds);
+        }
+    }
+
+    @Override
+    public boolean reconcileBackingUpBackup(final VirtualMachine vm, final Backup backup) {
+        if (syncCompletedStagingMetadata(vm, backup)) {
+            return true;
+        }
+        if (!AblestackBackupFrameworkUtils.isStaleBackingUp(backup)) {
+            return false;
+        }
+        loadBackupDetailsIfNeeded(backup);
+        LOG.warn("Removing stale NetBackup backup [{}] for VM [{}] stuck in BackingUp for over one day. "
+                        + "NetBackup post notify may have failed before updateNetBackup finalized the backup metadata. "
+                        + "Check NetBackup runtime JSON/context files and catalog before removal if recovery is required. "
+                        + "externalId=[{}], backupId=[{}], policyName=[{}], status=[{}], date=[{}].",
+                backup.getUuid(), vm.getInstanceName(), backup.getExternalId(), getBackupDetail(backup, DETAIL_BACKUP_ID),
+                getBackupDetail(backup, DETAIL_POLICY_NAME), backup.getStatus(), backup.getDate());
+        if (!cleanupFailedOrErrorBackupArtifacts(backup, true)) {
+            BackupVO backupVO = backupDao.findById(backup.getId());
+            if (backupVO != null) {
+                sealParentBackupChainIfIncremental(backupVO, "failed-stale-child");
+                markBackupFailure(backupVO, "stale-cleanup", "Stale NetBackup artifact cleanup failed; cleanup host may be unavailable");
+                backupVO.setStatus(Backup.Status.Failed);
+                backupDao.update(backupVO.getId(), backupVO);
+                LOG.warn("Marked stale NetBackup backup [{}] for VM [{}] as Failed because artifact cleanup could not be completed. "
+                                + "The backup metadata is retained for later forced cleanup.",
+                        backup.getUuid(), vm.getInstanceName());
+                return true;
+            }
+        }
+        removeBackupWithDetails(backup.getId());
+        return true;
+    }
+
+    private void sealParentBackupChainIfIncremental(final Backup backup, final String reason) {
+        if (backup == null || !BACKUP_TYPE_INCREMENTAL.equalsIgnoreCase(backup.getType())) {
+            return;
+        }
+        loadBackupDetailsIfNeeded(backup);
+        final String parentBackupUuid = getBackupDetail(backup, DETAIL_PARENT_BACKUP_UUID);
+        if (StringUtils.isBlank(parentBackupUuid)) {
+            return;
+        }
+        final Backup parentBackup = backupDao.findByUuid(parentBackupUuid);
+        if (parentBackup == null) {
+            return;
+        }
+        updateBackupDetail(parentBackup, DETAIL_CHAIN_SEALED, Boolean.TRUE.toString());
+        updateBackupDetail(parentBackup, DETAIL_CHAIN_SEAL_REASON, reason);
+        LOG.warn("Sealed NetBackup parent backup chain [{}] because incremental child backup [{}] failed. reason=[{}]",
+                parentBackupUuid, backup.getUuid(), reason);
+    }
+
+    private boolean syncCompletedStagingMetadata(final VirtualMachine vm, final Backup backup) {
+        if (!Backup.Status.BackingUp.equals(backup.getStatus()) || Boolean.parseBoolean(getBackupDetail(backup, DETAIL_STAGING_METADATA_SYNCED))) {
+            return false;
+        }
+        final Host host = findBackupJobHost(backup, vm);
+        if (host == null) {
+            LOG.debug("Skipping NetBackup staging metadata sync for backup [{}] because backup job host is unavailable",
+                    backup.getUuid());
+            return false;
+        }
+        final String jobState = getHostBackupJobState(host.getId(), backup.getUuid());
+        final String jobLogPath = AblestackBackupFrameworkUtils.getAsyncBackupJobLogPath(backup.getUuid());
+        LOG.info("{} phase=[STAGING_STATUS], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], hostId=[{}], "
+                        + "hostName=[{}], backupPath=[{}], jobState=[{}], jobLog=[{}]",
+                BACKUP_TRACE, backup.getId(), backup.getUuid(), vm.getId(), vm.getInstanceName(), host.getId(), host.getName(),
+                backup.getExternalId(), jobState, jobLogPath);
+        if ("FAILED".equals(jobState)) {
+            final BackupVO backupVO = backupDao.findById(backup.getId());
+            if (backupVO != null) {
+                sealParentBackupChainIfIncremental(backupVO, "failed-async-child");
+                markBackupFailure(backupVO, "host-job", "Host NetBackup staging job failed");
+                backupVO.setStatus(Backup.Status.Failed);
+                backupDao.update(backupVO.getId(), backupVO);
+            }
+            LOG.warn("{} phase=[STAGING_FAILED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], hostId=[{}], "
+                            + "hostName=[{}], backupPath=[{}], jobLog=[{}]",
+                    BACKUP_TRACE, backup.getId(), backup.getUuid(), vm.getId(), vm.getInstanceName(), host.getId(), host.getName(),
+                    backup.getExternalId(), jobLogPath);
+            return true;
+        } else if ("INTERRUPTED".equals(jobState)) {
+            LOG.warn("{} phase=[STAGING_INTERRUPTED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], hostId=[{}], "
+                            + "hostName=[{}], backupPath=[{}], jobLog=[{}]",
+                    BACKUP_TRACE, backup.getId(), backup.getUuid(), vm.getId(), vm.getInstanceName(), host.getId(), host.getName(),
+                    backup.getExternalId(), jobLogPath);
+        } else if ("CANCELED".equals(jobState)) {
+            cleanupBackupJobFiles(host.getId(), backup.getUuid());
+            final BackupVO backupVO = backupDao.findById(backup.getId());
+            if (backupVO != null) {
+                backupVO.setStatus(Backup.Status.Canceled);
+                backupDao.update(backupVO.getId(), backupVO);
+            }
+            LOG.warn("{} phase=[STAGING_CANCELED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], hostId=[{}], "
+                            + "hostName=[{}], backupPath=[{}], jobLog=[{}]",
+                    BACKUP_TRACE, backup.getId(), backup.getUuid(), vm.getId(), vm.getInstanceName(), host.getId(), host.getName(),
+                    backup.getExternalId(), jobLogPath);
+            return true;
+        }
+        final String completeMarker = readFileContentsOnHost(host.getId(), backup.getExternalId() + "/" + AblestackBackupFrameworkUtils.STAGING_COMPLETE_MARKER);
+        if (StringUtils.isBlank(completeMarker)) {
+            LOG.info("{} phase=[STAGING_MARKER_NOT_READY], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], hostId=[{}], "
+                            + "hostName=[{}], markerPath=[{}]",
+                    BACKUP_TRACE, backup.getId(), backup.getUuid(), vm.getId(), vm.getInstanceName(), host.getId(), host.getName(),
+                    backup.getExternalId() + "/" + AblestackBackupFrameworkUtils.STAGING_COMPLETE_MARKER);
+            return false;
+        }
+
+        final BackupVO backupVO = backupDao.findById(backup.getId());
+        if (backupVO == null) {
+            return true;
+        }
+        backupDao.loadDetails(backupVO);
+        final String backupEngine = getBackupDetail(backupVO, DETAIL_BACKUP_ENGINE, BACKUP_ENGINE_QCOW2);
+        final String checkpointName = getBackupDetail(backupVO, DETAIL_CHECKPOINT_NAME);
+        if (BACKUP_ENGINE_QCOW2.equals(backupEngine)) {
+            final String checkpointXml = readFileContentsOnHost(host.getId(), getCheckpointPath(backup.getExternalId(), checkpointName, backupEngine));
+            if (StringUtils.isNotBlank(checkpointXml)) {
+                final boolean incrementalBackup = BACKUP_TYPE_INCREMENTAL.equalsIgnoreCase(backupVO.getType());
+                final String checkpointXmlToStore = incrementalBackup ? checkpointXml : removeParentFromCheckpointXml(checkpointXml);
+                backupVO.getDetails().put(DETAIL_CHECKPOINT_XML, checkpointXmlToStore);
+                backupDetailsDao.removeDetail(backupVO.getId(), DETAIL_CHECKPOINT_XML);
+                backupDetailsDao.addDetail(backupVO.getId(), DETAIL_CHECKPOINT_XML, checkpointXmlToStore, false);
+            }
+        }
+
+        final List<VolumeVO> vmVolumes = volumeDao.findByInstance(vm.getId());
+        vmVolumes.sort(Comparator.comparing(Volume::getDeviceId));
+        final boolean incrementalBackup = BACKUP_TYPE_INCREMENTAL.equalsIgnoreCase(backupVO.getType());
+        final List<String> backupFiles = buildBackupFileNames(vmVolumes, backupEngine, incrementalBackup);
+        backupVO.setSize(backupVO.getProtectedSize());
+        backupVO.setBackedUpVolumes(createVolumeInfoFromVolumes(vmVolumes, backupFiles));
+        backupDetailsDao.removeDetail(backupVO.getId(), DETAIL_STAGING_METADATA_SYNCED);
+        backupDetailsDao.addDetail(backupVO.getId(), DETAIL_STAGING_METADATA_SYNCED, Boolean.TRUE.toString(), false);
+        backupDao.update(backupVO.getId(), backupVO);
+        LOG.info("{} phase=[STAGING_METADATA_SYNCED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupPath=[{}]",
+                BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), backup.getExternalId());
+        return true;
+    }
+
+    private String getHostBackupJobState(final Long hostId, final String backupJobId) {
+        try {
+            final BackupAnswer answer = (BackupAnswer) agentManager.send(hostId, new AblestackBackupJobStatusCommand(backupJobId));
+            return answer != null && answer.getResult() ? answer.getDetails() : null;
+        } catch (final AgentUnavailableException | OperationTimedoutException e) {
+            LOG.debug("Failed to query NetBackup backup job state for job [{}] on host [{}]", backupJobId, hostId, e);
+            return null;
+        }
+    }
+
+    private void cleanupBackupJobFiles(final Long hostId, final String backupJobId) {
+        try {
+            final Answer answer = agentManager.send(hostId, new AblestackBackupJobCleanupCommand(backupJobId));
+            if (answer == null || !answer.getResult()) {
+                LOG.warn("Failed to cleanup NetBackup backup job files [jobId: {}, hostId: {}]: {}",
+                        backupJobId, hostId, answer != null ? answer.getDetails() : null);
+            }
+        } catch (final AgentUnavailableException | OperationTimedoutException e) {
+            LOG.warn("Failed to send NetBackup backup job cleanup command [jobId: {}, hostId: {}]", backupJobId, hostId, e);
+        }
+    }
+
+    private Host findBackupJobHost(final Backup backup, final VirtualMachine vm) {
+        final Long backupJobHostId = getBackupJobHostId(backup);
+        if (backupJobHostId != null) {
+            final HostVO host = hostDao.findById(backupJobHostId);
+            if (host != null) {
+                return host;
+            }
+        }
+        try {
+            return getVMHypervisorHostForBackup(vm);
+        } catch (CloudRuntimeException e) {
+            return null;
+        }
+    }
+
+    private Long getBackupJobHostId(final Backup backup) {
+        if (backup == null) {
+            return null;
+        }
+        return backup.getHostId();
+    }
+
+    @Override
+    public boolean cancelBackup(final VirtualMachine vm, final Backup backup) {
+        final Host host = findBackupJobHost(backup, vm);
+        if (host == null) {
+            LOG.warn("Failed to cancel NetBackup backup [{}] for VM [{}]: backup job host was not found",
+                    backup.getUuid(), vm.getInstanceName());
+            return false;
+        }
+        try {
+            final StopBackupAnswer answer = (StopBackupAnswer) agentManager.send(host.getId(),
+                    new AblestackStopBackupCommand(vm.getInstanceName(), vm.getId(), backup.getId(), backup.getUuid()));
+            return answer != null && answer.getResult();
+        } catch (final AgentUnavailableException | OperationTimedoutException e) {
+            LOG.warn("Failed to cancel NetBackup backup [{}] for VM [{}] on host [{}]",
+                    backup.getUuid(), vm.getInstanceName(), host.getName(), e);
+            return false;
         }
     }
 
@@ -2103,9 +2377,9 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         }
 
         final AblestackDeleteBackupCommand command = new AblestackDeleteBackupCommand(backup.getExternalId(), null, null, null, true);
-        final int commandTimeout = BackupCommandTimeout.value();
-        if (commandTimeout > 0) {
-            command.setWait(commandTimeout);
+        final int deleteTimeout = BackupDataOperationTimeout.value();
+        if (deleteTimeout > 0) {
+            command.setWait(deleteTimeout);
         }
         command.setBackupProvider(getName());
         final VMInstanceVO vm = vmInstanceDao.findByIdIncludingRemoved(backup.getVmId());

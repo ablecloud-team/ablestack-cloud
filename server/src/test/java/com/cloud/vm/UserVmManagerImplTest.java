@@ -3643,7 +3643,8 @@ public class UserVmManagerImplTest {
         when(vm.getState()).thenReturn(VirtualMachine.State.Running);
         when(vm.getTemplateId()).thenReturn(templateId);
 
-        when(backupManager.restoreBackupToVM(backupId, vmId, false)).thenReturn(true);
+        when(backupManager.requestRestoreBackupToVM(backupId, vmId, false, true))
+                .thenReturn(BackupManager.RestoreRequestStatus.COMPLETED);
 
         Map<VirtualMachineProfile.Param, Object> params = new HashMap<>();
         Pair<UserVmVO, Map<VirtualMachineProfile.Param, Object>> vmPair = new Pair<>(vm, params);
@@ -3656,7 +3657,35 @@ public class UserVmManagerImplTest {
 
         assertNotNull(result);
         assertEquals(vm, result);
-        Mockito.verify(backupManager).restoreBackupToVM(backupId, vmId, false);
+        Mockito.verify(backupManager).requestRestoreBackupToVM(backupId, vmId, false, true);
+    }
+
+    @Test
+    public void testRestoreVMFromBackupReturnsAfterDetachedRestoreIsAccepted() throws ResourceUnavailableException,
+            InsufficientCapacityException, ResourceAllocationException {
+        Long backupId = 5L;
+
+        CreateVMFromBackupCmd cmd = mock(CreateVMFromBackupCmd.class);
+        when(cmd.getBackupId()).thenReturn(backupId);
+        when(cmd.getStartVm()).thenReturn(true);
+        when(cmd.getEntityId()).thenReturn(vmId);
+
+        UserVmVO vm = mock(UserVmVO.class);
+        when(vm.getId()).thenReturn(vmId);
+
+        Map<VirtualMachineProfile.Param, Object> params = new HashMap<>();
+        Pair<UserVmVO, Map<VirtualMachineProfile.Param, Object>> vmPair = new Pair<>(vm, params);
+        doReturn(vmPair).when(userVmManagerImpl).startVirtualMachine(anyLong(), isNull(), isNull(), isNull(), anyMap(), isNull());
+        when(userVmDao.findById(vmId)).thenReturn(vm);
+        when(backupManager.requestRestoreBackupToVM(backupId, vmId, false, true))
+                .thenReturn(BackupManager.RestoreRequestStatus.ACCEPTED);
+
+        UserVm result = userVmManagerImpl.restoreVMFromBackup(cmd);
+
+        assertEquals(vm, result);
+        Mockito.verify(backupManager).requestRestoreBackupToVM(backupId, vmId, false, true);
+        Mockito.verify(userVmManagerImpl, times(1))
+                .startVirtualMachine(anyLong(), isNull(), isNull(), isNull(), anyMap(), isNull());
     }
 
     @Test

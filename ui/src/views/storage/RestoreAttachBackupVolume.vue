@@ -69,13 +69,13 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item name="quickRestore" ref="quickRestore" >
+      <a-form-item v-if="apiParams.quickrestore" name="quickRestore" ref="quickRestore" >
         <template #label>
           <tooltip-label :title="$t('label.quickrestore')" :tooltip="apiParams.quickrestore?.description"/>
         </template>
         <a-switch v-model:checked="form.quickRestore" />
       </a-form-item>
-      <a-form-item name="hostId" ref="hostId" v-if="isAdmin()">
+      <a-form-item name="hostId" ref="hostId" v-if="isAdmin() && apiParams.hostid">
         <template #label>
           <tooltip-label :title="$t('label.hostid')" :tooltip="apiParams.hostid?.description"/>
         </template>
@@ -219,18 +219,24 @@ export default {
         params.backupid = this.resource.id
         params.volumeid = values.volumeid
         params.virtualmachineid = this.virtualMachineOptions.opts.filter(opt => opt.name === values.virtualmachineid)[0].id || null
-        params.quickrestore = values.quickRestore
-        params.hostid = values.hostId
+        if (this.apiParams.quickrestore) {
+          params.quickrestore = values.quickRestore
+        }
+        if (this.apiParams.hostid) {
+          params.hostid = values.hostId
+        }
 
         this.actionLoading = true
         const title = this.$t('label.restore.volume.attach')
         postAPI('restoreVolumeFromBackupAndAttachToVM', params).then(json => {
           const jobId = json.restorevolumefrombackupandattachtovmresponse.jobid || null
           if (jobId) {
+            this.$emit('restore-started', this.resource)
             this.$pollJob({
               jobId,
               title,
               description: values.volumeid,
+              successMessage: this.$t('label.backup.attach.restore.requested'),
               loadingMessage: `${title} ${this.$t('label.in.progress.for')} ${this.resource.id}`,
               catchMessage: this.$t('error.fetching.async.job.result')
             })

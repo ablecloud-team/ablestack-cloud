@@ -249,6 +249,7 @@ mold_backup_load_config() {
   VM_TARGETS="${VM_TARGETS:-}"
   KVM_HOSTNAME="${KVM_HOSTNAME:-}"
   RESTORE_WATCH_TRIGGER_MOLD="${RESTORE_WATCH_TRIGGER_MOLD:-false}"
+  RESTORE_WATCH_SKIP_EXISTING_ON_START="${RESTORE_WATCH_SKIP_EXISTING_ON_START:-true}"
   VEEAM_UI_RESTORE_SOURCE="${VEEAM_UI_RESTORE_SOURCE:-mold-only}"
   RESTORE_LOCK_DIR="${RESTORE_LOCK_DIR:-}"
   VEEAM_RESTORE_WATCH_WINDOW_MIN="${VEEAM_RESTORE_WATCH_WINDOW_MIN:-60}"
@@ -902,6 +903,7 @@ mold_backup_run_local_incremental_on_mount() {
     -q "${quiesce}" \
     -f "${backup_files}" \
     -d "${disk_paths}" \
+    --data-operation-timeout-seconds "$(mold_backup_api_data_operation_timeout)" \
     || mold_backup_die "ablestack_veeam_nasbackup.sh ${op} failed"
 }
 
@@ -1098,6 +1100,7 @@ mold_backup_run_local_seed_import() {
     --source-format "${source_format}" \
     --veeam-restore-point "${VEEAM_RESTORE_POINT_ID}" \
     --bootstrap-checkpoint "${BOOTSTRAP_CHECKPOINT}" \
+    --data-operation-timeout-seconds "$(mold_backup_api_data_operation_timeout)" \
     || mold_backup_die "ablestack_veeam_nasbackup.sh import-veeam-seed failed"
 }
 
@@ -1126,16 +1129,26 @@ mold_backup_api_create_backup() {
 mold_backup_api_restore() {
   mold_backup_require_var BACKUP_ID
   local json job_id
+  MOLD_RESTORE_ASYNC_JOB_ID=""
+  MOLD_RESTORE_ASYNC_SUBMITTED=false
   # Existing-VM restore requires Stopped; FLR→Mold auto-stops unless RESTORE_AUTO_STOP=false.
   if [[ -n "${VM_NAME:-}" ]]; then
     mold_backup_api_ensure_vm_stopped_for_restore "$VM_NAME" || return 1
   fi
-  json=$(mold_backup_cmk_run restoreAblestackVeeamBackup "id=${BACKUP_ID}" 2>/dev/null) \
+  local restore_args=("id=${BACKUP_ID}")
+  [[ -n "${VEEAM_RESTORE_SESSION_ID:-}" ]] && restore_args+=("sessionid=${VEEAM_RESTORE_SESSION_ID}")
+  json=$(mold_backup_cmk_run restoreAblestackVeeamBackup "${restore_args[@]}" 2>/dev/null) \
     || json=$(mold_backup_cmk_run restoreBackup "id=${BACKUP_ID}" 2>/dev/null) \
     || return 1
   job_id="$(mold_backup_api_json_field "$json" "restoreablestackveeambackupresponse.jobid")"
   [[ -z "$job_id" ]] && job_id="$(mold_backup_api_json_field "$json" "restorebackupresponse.jobid")"
   if [[ -n "$job_id" ]]; then
+    MOLD_RESTORE_ASYNC_JOB_ID="$job_id"
+    if [[ "${MOLD_RESTORE_ASYNC_DETACH:-false}" == "true" ]]; then
+      MOLD_RESTORE_ASYNC_SUBMITTED=true
+      mold_backup_notify_log info "Restore async job submitted: ${job_id}; host restore will continue independently"
+      return 0
+    fi
     mold_backup_notify_log info "restoreAblestackVeeamBackup job=${job_id}; waiting for MS/agent restore"
     mold_backup_api_wait_async_job "$job_id" 3600 || return 1
     mold_backup_notify_log info "Restore async job completed: ${job_id}"
@@ -1448,6 +1461,22 @@ except Exception:
     print('')
 " 2>/dev/null)
   echo "$val"
+}
+
+mold_backup_api_external_stage_timeout() {
+  local operation_timeout
+  operation_timeout="$(mold_backup_api_data_operation_timeout)"
+  echo "${VEEAM_EXTERNAL_STAGE_TIMEOUT:-$((operation_timeout + 600))}"
+}
+
+mold_backup_api_data_operation_timeout() {
+  local configured
+  configured="$(mold_backup_api_list_config_value "backup.data.operation.timeout" 2>/dev/null || true)"
+  if [[ "$configured" =~ ^[1-9][0-9]*$ ]]; then
+    echo "$configured"
+    return 0
+  fi
+  echo "${VEEAM_DATA_OPERATION_TIMEOUT:-43200}"
 }
 
 mold_backup_api_update_config_if_needed() {
@@ -2411,6 +2440,10 @@ mold_backup_api_ensure_vm_stopped_for_restore() {
 mold_backup_api_create_veeam_and_wait() {
   local vm_id="$1" vm_label="${2:-}"
   local json job_id backup_id backup_type backup_name ids_before interval_type veeam_job
+  local stage_timeout stage_started_at remaining_timeout
+  stage_timeout="$(mold_backup_api_external_stage_timeout)"
+  [[ "$stage_timeout" =~ ^[1-9][0-9]*$ ]] || stage_timeout=43200
+  stage_started_at="$(date +%s)"
   backup_name="$(mold_backup_api_build_backup_name_for_vm "$vm_id" "$vm_label")"
   ids_before="$(mold_backup_api_list_backup_ids "$vm_id" 2>/dev/null || true)"
   interval_type="$(mold_backup_resolve_veeam_interval_type "${VEEAM_SCHEDULE_NAME:-${SCHEDULE:-default}}")"
@@ -2429,14 +2462,16 @@ mold_backup_api_create_veeam_and_wait() {
   job_id="$(mold_backup_api_json_field "$json" "createablestackveeambackupresponse.jobid")"
   [[ -z "$job_id" ]] && job_id="$(mold_backup_api_json_field "$json" "createbackupresponse.jobid")"
   if [[ -n "$job_id" ]]; then
-    mold_backup_notify_log info "createAblestackVeeamBackup job=${job_id}; waiting for MS/NAS backup"
-    json=$(mold_backup_api_wait_async_job "$job_id" 1200) || return 1
+    mold_backup_notify_log info "createAblestackVeeamBackup job=${job_id}; waiting for MS/NAS backup timeout=${stage_timeout}s"
+    json=$(mold_backup_api_wait_async_job "$job_id" "$stage_timeout") || return 1
     backup_id="$(mold_backup_api_json_field "$json" "queryasyncjobresultresponse.jobresult.backup.id")"
     backup_type="$(mold_backup_api_json_field "$json" "queryasyncjobresultresponse.jobresult.backup.type")"
     if [[ -z "$backup_id" ]]; then
       local latest
       # Wait for a NEW backup id (not in ids_before) to reach BackedUp — do not reuse older FULL.
-      latest="$(mold_backup_api_wait_new_backup_for_vm "$vm_id" "$ids_before" 900 2>/dev/null || true)"
+      remaining_timeout=$((stage_timeout - ($(date +%s) - stage_started_at)))
+      [[ "$remaining_timeout" -gt 0 ]] || return 1
+      latest="$(mold_backup_api_wait_new_backup_for_vm "$vm_id" "$ids_before" "$remaining_timeout" 2>/dev/null || true)"
       if [[ -z "$latest" ]]; then
         latest="$(mold_backup_api_find_latest_backup_for_vm "$vm_id" "backedup" 2>/dev/null || true)"
       fi
@@ -3313,6 +3348,7 @@ mold_backup_run_host_export() {
     -f "${backup_files}" \
     -d "${disk_paths}" \
     -q "${QUIESCE_VM:-false}" \
+    --data-operation-timeout-seconds "$(mold_backup_api_data_operation_timeout)" \
     >"$export_log" 2>&1; then
     mold_backup_notify_log err "Host export failed (${HOST_EXPORT_SCRIPT}): $(tail -5 "$export_log" | tr '\n' ' ')"
     rm -f "$export_log"
@@ -4004,6 +4040,33 @@ mold_backup_restore_session_mark_seen() {
   if [[ -f "$f" ]] && (( $(wc -l <"$f" 2>/dev/null || echo 0) > 2000 )); then
     tail -n 1000 "$f" > "${f}.tmp" 2>/dev/null && mv -f "${f}.tmp" "$f" 2>/dev/null || true
   fi
+}
+
+mold_backup_restore_watch_baseline_marker() {
+  local state_file
+  state_file="$(mold_backup_restore_watch_state)"
+  echo "${state_file}.baseline-complete"
+}
+
+mold_backup_initialize_restore_watch_baseline() {
+  local since_min="${1:-${VEEAM_RESTORE_WATCH_WINDOW_MIN:-60}}"
+  local marker sid _rest marked=0
+  [[ "${RESTORE_WATCH_SKIP_EXISTING_ON_START:-true}" == "true" ]] || return 0
+  marker="$(mold_backup_restore_watch_baseline_marker)"
+  [[ -f "$marker" ]] && return 0
+
+  while IFS='|' read -r sid _rest; do
+    [[ -n "$sid" ]] || continue
+    if [[ "$sid" =~ ^[0-9a-fA-F-]{8,}$ || "$sid" == local-flr-* ]]; then
+      mold_backup_restore_session_mark_seen "$sid"
+      marked=$((marked+1))
+    fi
+  done < <(
+    mold_backup_query_veeam_restores "$since_min" 2>/dev/null || true
+    mold_backup_query_local_host_flr "$since_min" 2>/dev/null || true
+  )
+  date -u +%FT%TZ > "$marker" 2>/dev/null || true
+  mold_backup_notify_log info "Veeam restore watcher initial baseline completed sessions=${marked}"
 }
 
 # Query Veeam for restore sessions that completed within the last N minutes.
@@ -5225,7 +5288,7 @@ mold_backup_handle_veeam_restore_session() {
     mold_backup_restore_lock_release
     return 1
   fi
-  export BACKUP_ID="$backup_id" VM_NAME="$vm"
+  export BACKUP_ID="$backup_id" VM_NAME="$vm" VEEAM_RESTORE_SESSION_ID="$sid"
   [[ -n "$rp_id" ]] && export VEEAM_RESTORE_POINT_ID="$rp_id"
   export RESTORE_SOURCE="${RESTORE_SOURCE:-${VEEAM_UI_RESTORE_SOURCE:-mold-only}}"
   mold_backup_notify_log info "Veeam UI restore session=${sid} vm=${vm} rp=${rp_id:-n/a} ckpt=${ckpt:-n/a} → Mold datadisk restore backup_id=${backup_id} (RESTORE_SOURCE=${RESTORE_SOURCE})"
@@ -5234,9 +5297,16 @@ mold_backup_handle_veeam_restore_session() {
   mold_backup_trigger_mark "mold-restore-active" "$vm"
   mold_backup_trigger_mark "veeam-restore-active" "$vm"
   if mold_backup_restore_notify "$(hostname -s)" "$job"; then
-    mold_backup_registry_save_restore "$job" "$vm" "veeam" "$sid" "${detail};backup_id=${backup_id}" "mold-restored"
     mold_backup_restore_session_mark_seen "$sid"
-    mold_backup_emit_restore_event "mold.restore.completed" "$vm" "session=${sid};backup_id=${backup_id}"
+    if [[ "${MOLD_RESTORE_ASYNC_SUBMITTED:-false}" == "true" ]]; then
+      mold_backup_registry_save_restore "$job" "$vm" "veeam" "$sid" \
+        "${detail};backup_id=${backup_id};async_job_id=${MOLD_RESTORE_ASYNC_JOB_ID:-}" "mold-submitted"
+      mold_backup_emit_restore_event "mold.restore.submitted" "$vm" \
+        "session=${sid};backup_id=${backup_id};async_job_id=${MOLD_RESTORE_ASYNC_JOB_ID:-}"
+    else
+      mold_backup_registry_save_restore "$job" "$vm" "veeam" "$sid" "${detail};backup_id=${backup_id}" "mold-restored"
+      mold_backup_emit_restore_event "mold.restore.completed" "$vm" "session=${sid};backup_id=${backup_id}"
+    fi
   else
     # Always mark seen on failure so restore-watch does not re-stop the same VM every 3min.
     # Set RESTORE_WATCH_RETRY_FAILED=true to allow retries of failed sessions.
@@ -5276,6 +5346,7 @@ mold_backup_watch_veeam_restores() {
   }
   [[ "${trigger_mold}" == "true" ]] && mold_backup_restore_preflight
   mold_backup_notify_log info "=== restore-watch job=${job} window=${since_min}min trigger_mold=${trigger_mold} host=$(mold_backup_local_kvm_name) ==="
+  mold_backup_initialize_restore_watch_baseline "$since_min"
   local sid sip et result nm bn rp_id rp_epoch matched_ip vm
   local processed=0 handled=0
   while IFS='|' read -r sid sip et result nm bn rp_id rp_epoch; do
@@ -6598,14 +6669,9 @@ mold_backup_registry_cleanup_for_backup() {
 # (NetBackup-style catalog delete). Never calls deleteBackup from the host.
 mold_backup_catalog_delete_sync() {
   local job="${1:-${VEEAM_JOB_NAME:-}}"
-  local enable="${VEEAM_CATALOG_DELETE_SYNC:-true}"
   local state_dir state_f live_file prev_file live_ids deleted_id vm bid epoch
   local -a vms=()
   local -A sync_vms=()
-  [[ "$enable" == "true" ]] || {
-    mold_backup_notify_log info "catalog-sync: disabled (VEEAM_CATALOG_DELETE_SYNC=false)"
-    return 0
-  }
   [[ -n "$job" ]] || return 0
   mold_backup_load_config 2>/dev/null || true
   mold_backup_resolve_api_secret 2>/dev/null || true

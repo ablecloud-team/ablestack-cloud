@@ -44,6 +44,8 @@ public class AblestackCommvaultRestoreBackupCommand extends Command  {
     private String cacheMode;
     private String hostName;
     private List<String> backupSourceHosts;
+    private String restoreJobId;
+    private boolean waitForCompletion = true;
 
     protected AblestackCommvaultRestoreBackupCommand() {
         super();
@@ -192,5 +194,21 @@ public class AblestackCommvaultRestoreBackupCommand extends Command  {
 
     public void setBackupSourceHosts(List<String> backupSourceHosts) {
         this.backupSourceHosts = backupSourceHosts;
+    }
+
+    public String getRestoreJobId() {
+        return restoreJobId;
+    }
+
+    public void setRestoreJobId(String restoreJobId) {
+        this.restoreJobId = restoreJobId;
+    }
+
+    public boolean isWaitForCompletion() {
+        return waitForCompletion;
+    }
+
+    public void setWaitForCompletion(boolean waitForCompletion) {
+        this.waitForCompletion = waitForCompletion;
     }
 }

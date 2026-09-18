@@ -2060,6 +2060,7 @@ export default {
         postAPI('createVMFromBackup', deployVmData, 'GET', {}).then(response => {
           const jobId = response.deployvirtualmachineresponse.jobid
           if (jobId) {
+            this.$emit('restore-started')
             this.$pollJob({
               jobId,
               title,

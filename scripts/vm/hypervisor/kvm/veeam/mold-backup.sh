@@ -307,7 +307,6 @@ run_catalog_sync() {
     echo "[DRY-RUN] mold_backup_catalog_delete_sync ${JOB_NAME}"
     return 0
   fi
-  export VEEAM_CATALOG_DELETE_SYNC="${VEEAM_CATALOG_DELETE_SYNC:-true}"
   mold_backup_catalog_delete_sync "$JOB_NAME"
 }
 

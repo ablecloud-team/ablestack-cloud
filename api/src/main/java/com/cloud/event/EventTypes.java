@@ -670,6 +670,8 @@ public class EventTypes {
     public static final String EVENT_VM_BACKUP_OFFERING_ASSIGN = "BACKUP.OFFERING.ASSIGN";
     public static final String EVENT_VM_BACKUP_OFFERING_REMOVE = "BACKUP.OFFERING.REMOVE";
     public static final String EVENT_VM_BACKUP_CREATE = "BACKUP.CREATE";
+    public static final String EVENT_VM_BACKUP_CANCEL = "BACKUP.CANCEL";
+    public static final String EVENT_VM_BACKUP_BANDWIDTH_UPDATE = "BACKUP.BANDWIDTH.UPDATE";
     public static final String EVENT_VM_BACKUP_RESTORE = "BACKUP.RESTORE";
     public static final String EVENT_VM_BACKUP_DELETE = "BACKUP.DELETE";
     public static final String EVENT_VM_BACKUP_OFFERING_REMOVED_AND_BACKUPS_DELETED = "BACKUP.OFFERING.BACKUPS.DEL";

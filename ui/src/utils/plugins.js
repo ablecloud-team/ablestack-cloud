@@ -76,9 +76,14 @@ export const pollJobPlugin = {
           return
         }
         const status = result.jobstatus === 1 ? 'done' : result.jobstatus === 2 ? 'failed' : interrupted ? 'unknown' : 'progress'
-        safe(() => store.dispatch('AddHeaderNotice', {
-          key: jobId, title, description, path, status, timestamp: new Date()
-        }))
+        const suppressFailedNotice = result.jobstatus === 2 && action?.suppressErrorNotification
+        if (suppressFailedNotice) {
+          safe(() => store.commit('SET_HEADER_NOTICES', store.getters.headerNotices.filter(notice => notice.key !== jobId)))
+        } else {
+          safe(() => store.dispatch('AddHeaderNotice', {
+            key: jobId, title, description, path, status, timestamp: new Date()
+          }))
+        }
         if (result.jobstatus === 0) {
           if (showLoading) message.loading({ content: loadingMessage, key: jobId, duration: 0 })
           return
@@ -101,8 +106,10 @@ export const pollJobPlugin = {
         if (result.jobstatus === 1) {
           if (showSuccessMessage || options.retry) message.success({ content: name ? `${successMessage} - ${name}` : successMessage, key: jobId, duration: 2 })
         } else if (result.jobstatus === 2) {
-          if (!bulkAction) message.error({ content: errorMessage, key: jobId, duration: 1 })
-          safe(() => notifyError({ key: jobId, message: action?.label ? i18n.global.t(action.label) : errorMessage, description: result.jobresult?.errortext }))
+          if (!action?.suppressErrorNotification) {
+            if (!bulkAction) message.error({ content: errorMessage, key: jobId, duration: 1 })
+            safe(() => notifyError({ key: jobId, message: action?.label ? i18n.global.t(action.label) : errorMessage, description: result.jobresult?.errortext }))
+          }
         }
         safe(() => eventBus.emit('update-job-details', { jobId, resourceId: options.resourceId }))
         const samePage = normalizePath(router.currentRoute.value.path) === originalPage
@@ -524,7 +531,7 @@ export const backupUtilPlugin = {
       if (!provider && typeof provider !== 'string') {
         return false
       }
-      return ['nas', 'commvault', 'ablestack-nas', 'ablestack-commvault'].includes(provider.toLowerCase())
+      return ['ablestack-nas', 'ablestack-commvault'].includes(provider.toLowerCase())
     }
   }
 }

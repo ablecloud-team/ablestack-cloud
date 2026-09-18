@@ -42,10 +42,13 @@ import org.apache.cloudstack.api.command.user.backup.DeleteBackupScheduleCmd;
 import org.apache.cloudstack.api.command.user.backup.ListBackupOfferingsCmd;
 import org.apache.cloudstack.api.command.user.backup.ListBackupScheduleCmd;
 import org.apache.cloudstack.api.command.user.backup.ListBackupsCmd;
+import org.apache.cloudstack.api.command.user.backup.ListNetBackupBackupCandidatesCmd;
 import org.apache.cloudstack.api.command.user.backup.PrepareNetBackupRestoreCmd;
 import org.apache.cloudstack.api.command.user.backup.RestoreNetBackupCmd;
 import org.apache.cloudstack.api.command.user.backup.CreateBackupOfferingCmd;
+import org.apache.cloudstack.api.response.BackupJobStatusResponse;
 import org.apache.cloudstack.api.response.BackupResponse;
+import org.apache.cloudstack.api.response.NetBackupBackupCandidateResponse;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
 
@@ -61,6 +64,11 @@ import com.cloud.vm.VmDiskInfo;
  */
 public interface BackupManager extends BackupService, Configurable, PluggableService, Manager {
 
+    enum RestoreRequestStatus {
+        ACCEPTED,
+        COMPLETED
+    }
+
     ConfigKey<Boolean> BackupFrameworkEnabled = new ConfigKey<>("Advanced", Boolean.class,
             "backup.framework.enabled",
             "false",
@@ -68,25 +76,24 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
 
     ConfigKey<String> BackupProviderPlugin = new ConfigKey<>("Advanced", String.class,
             "backup.framework.provider.plugin",
-            "dummy",
-            "The backup and recovery provider plugin (comma-separated). Example: dummy, veeam, networker, nas, commvault, netbackup", true, ConfigKey.Scope.Zone, BackupFrameworkEnabled.key());
+            "ablestack-nas",
+            "The backup and recovery provider plugin (comma-separated). Use provider names explicitly. " +
+                    "Example: ablestack-nas, ablestack-commvault, ablestack-netbackup, ablestack-veeam, networker etc.", true, ConfigKey.Scope.Zone, BackupFrameworkEnabled.key());
 
     ConfigKey<Long> BackupSyncPollingInterval = new ConfigKey<>("Advanced", Long.class,
             "backup.framework.sync.interval",
             "300",
             "The backup and recovery background sync task polling interval in seconds.", true, BackupFrameworkEnabled.key());
 
-    ConfigKey<Integer> BackupCommandTimeout = new ConfigKey<>("Advanced", Integer.class,
-            "backup.command.timeout",
-            "7200",
-            "Timeout in seconds for KVM backup commands. A value of 0 uses the global command wait timeout.",
-            true,
-            BackupFrameworkEnabled.key());
+    ConfigKey<Long> BackupActiveJobSyncPollingInterval = new ConfigKey<>("Advanced", Long.class,
+            "backup.framework.active.job.sync.interval",
+            "10",
+            "The backup and recovery active backup/restore job status reconciliation interval in seconds.", true, BackupFrameworkEnabled.key());
 
-    ConfigKey<Integer> BackupRestoreTimeout = new ConfigKey<>("Advanced", Integer.class,
-            "backup.restore.timeout",
-            "7200",
-            "Timeout in seconds for KVM backup restore commands. A value of 0 uses the global command wait timeout.",
+    ConfigKey<Integer> BackupDataOperationTimeout = new ConfigKey<>("Advanced", Integer.class,
+            "backup.data.operation.timeout",
+            "43200",
+            "Maximum execution time in seconds for host-side KVM backup and restore data operations, external staging, and backup data cleanup.",
             true,
             BackupFrameworkEnabled.key());
 
@@ -257,6 +264,10 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
      */
     boolean createNetBackup(CreateNetBackupCmd cmd) throws ResourceAllocationException;
 
+    List<NetBackupBackupCandidateResponse> listNetBackupBackupCandidates(ListNetBackupBackupCandidatesCmd cmd);
+
+    boolean cancelBackup(Long backupId);
+
     /**
      * Updates NetBackup-specific backup metadata for a VM backup row.
      * @param cmd UpdateNetBackupCmd
@@ -295,7 +306,7 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
      */
     boolean syncAblestackVeeamBackups(SyncAblestackVeeamBackupsCmd cmd);
 
-    boolean restoreAblestackVeeamBackup(Long backupId);
+    boolean restoreAblestackVeeamBackup(Long backupId, String sessionId);
 
     Pair<List<Backup>, Integer> listAblestackVeeamBackups(ListAblestackVeeamBackupsCmd cmd);
 
@@ -338,6 +349,14 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
     boolean restoreBackupToVM(Long backupId, Long vmId, boolean quickrestore) throws ResourceUnavailableException;
 
     /**
+     * Starts restoring a backup to a newly allocated Instance. Providers with detached restore
+     * orchestration return {@link RestoreRequestStatus#ACCEPTED}; other providers complete the
+     * restore before returning {@link RestoreRequestStatus#COMPLETED}.
+     */
+    RestoreRequestStatus requestRestoreBackupToVM(Long backupId, Long vmId, boolean quickrestore,
+            boolean startVmAfterRestore) throws ResourceUnavailableException;
+
+    /**
      * Restore a backed up volume and attach it to a VM
      */
     boolean restoreBackupVolumeAndAttachToVM(final String backedUpVolumeUuid, final Long backupId, final Long vmId, boolean isQuickRestore, Long hostId) throws Exception;
@@ -367,6 +386,12 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
     String getBackupNameFromVM(VirtualMachine vm);
 
     BackupResponse createBackupResponse(Backup backup, Boolean listVmDetails);
+
+    BackupJobStatusResponse getBackupJobStatus(Long backupId, Long eventsOffset, Integer eventsLimit);
+
+    BackupJobStatusResponse getBackupRestoreJobStatus(Long backupId, Long eventsOffset, Integer eventsLimit);
+
+    boolean updateBackupJobBandwidth(Long backupId, Integer bandwidthLimitMbps);
 
     Capacity getBackupStorageUsedStats(Long zoneId);
 

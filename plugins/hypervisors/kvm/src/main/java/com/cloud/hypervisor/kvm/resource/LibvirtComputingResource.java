@@ -830,6 +830,29 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return storagePoolManager;
     }
 
+    public boolean configureForDetachedBackupJob() throws ConfigurationException {
+        cmdsTimeout = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.CMDS_TIMEOUT) * 1000;
+        final String cpuArchOverride = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.GUEST_CPU_ARCH);
+        if (StringUtils.isNotEmpty(cpuArchOverride)) {
+            guestCpuArch = cpuArchOverride;
+        }
+        try {
+            hypervisorPath = getHypervisorPath(LibvirtConnection.getConnection());
+        } catch (LibvirtException e) {
+            final ConfigurationException configurationException =
+                    new ConfigurationException("Unable to resolve the KVM emulator for detached backup job");
+            configurationException.initCause(e);
+            throw configurationException;
+        }
+        storageLayer = new JavaStorageLayer();
+        if (!storageLayer.configure("StorageLayer", new HashMap<>())) {
+            return false;
+        }
+        kvmhaMonitor = new KVMHAMonitor(null, null, null, null, null, null);
+        storagePoolManager = new KVMStoragePoolManager(storageLayer, kvmhaMonitor);
+        return true;
+    }
+
     @Override
     public void disconnected() {
         cleanupUnavailableSecondaryNfsIsoMountsSafely("management server disconnect");

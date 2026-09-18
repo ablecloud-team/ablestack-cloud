@@ -35,7 +35,7 @@
             <tooltip-label :title="$t('label.use.backup.ip.address')" :tooltip="$t('label.use.backup.ip.address.tooltip')"/>
           </template>
         </a-form-item>
-        <a-form-item name="quickRestore" ref="quickRestore" >
+        <a-form-item v-if="apiParams.quickrestore" name="quickRestore" ref="quickRestore" >
           <template #label>
             <tooltip-label :title="$t('label.quickrestore')" :tooltip="apiParams.quickrestore?.description"/>
           </template>
@@ -57,6 +57,7 @@
     <div v-else class="form">
       <DeployVMFromBackup
         :preFillContent="dataPreFill"
+        @restore-started="$emit('restore-started', resource)"
         @close-action="closeAction"/>
     </div>
   </div>
@@ -260,7 +261,9 @@ export default {
         args.name = this.form.name
         args.displayname = this.form.name
       }
-      args.quickRestore = this.form.quickRestore
+      if (this.apiParams.quickrestore) {
+        args.quickrestore = this.form.quickRestore
+      }
       if (this.form.preserveIpAddresses) {
         args.preserveip = this.form.preserveIpAddresses
       }
@@ -301,10 +304,12 @@ export default {
       postAPI('createVMFromBackup', args, 'GET', null).then(response => {
         const jobId = response.deployvirtualmachineresponse.jobid
         if (jobId) {
+          this.$emit('restore-started', this.resource)
           this.$pollJob({
             jobId,
             title,
             description,
+            successMessage: this.$t('label.create.instance.from.backup.requested'),
             successMethod: result => {
               const vm = result.jobresult.virtualmachine
               const name = vm.displayname || vm.name || vm.id
@@ -332,6 +337,7 @@ export default {
               isFetchData: false
             }
           })
+          this.closeAction()
         }
         // Sending a refresh in case it hasn't picked up the new VM
         new Promise(resolve => setTimeout(resolve, 3000)).then(() => {
@@ -344,7 +350,6 @@ export default {
         this.form.stayonpage = false
         this.loading = false
       })
-      this.$emit('close-action')
     }
   }
 }
