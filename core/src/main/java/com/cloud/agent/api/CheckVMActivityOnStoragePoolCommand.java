@@ -44,7 +44,7 @@ public final class CheckVMActivityOnStoragePoolCommand extends Command {
             stringBuilder.append(v.getPath()).append(",");
         }
 
-        this.volumeList = stringBuilder.deleteCharAt(stringBuilder.length() - 1).toString();
+        this.volumeList = stringBuilder.length() == 0 ? "" : stringBuilder.deleteCharAt(stringBuilder.length() - 1).toString();
     }
 
     public String getVolumeList() {
