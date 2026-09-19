@@ -7849,5 +7849,7 @@
   "message.schedule.enable.confirm": "Enable this schedule? Actions will run according to the schedule.",
   "message.schedule.operation.failed": "The schedule operation failed. Check the values and try again.",
   "label.schedule.no.end": "No end date",
-  "label.schedule.period": "Validity period"
+  "label.schedule.period": "Validity period",
+  "label.enable": "Enable",
+  "label.disable": "Disable"
 }

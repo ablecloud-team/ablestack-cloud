@@ -7810,5 +7810,7 @@
   "message.schedule.enable.confirm": "이 스케줄을 활성화하시겠습니까? 설정된 일정에 따라 작업이 실행됩니다.",
   "message.schedule.operation.failed": "스케줄 작업에 실패했습니다. 입력값을 확인하고 다시 시도하세요.",
   "label.schedule.no.end": "종료일 없음",
-  "label.schedule.period": "유효 기간"
+  "label.schedule.period": "유효 기간",
+  "label.enable": "활성화",
+  "label.disable": "비활성화"
 }
