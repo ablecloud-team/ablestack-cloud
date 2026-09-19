@@ -257,6 +257,8 @@ export default {
   .device-actions { display: flex; gap: 8px; align-items: center; white-space: nowrap; }
   small { display: block; color: var(--ui-text-secondary); margin-top: 6px; overflow-wrap: anywhere; }
   .device-pagination { display: flex; justify-content: flex-end; margin-top: 20px; }
+  .ant-pagination-item-link { background: var(--ui-bg-surface) !important; border-color: var(--ui-border) !important; color: var(--ui-text-primary) !important; }
+  .ant-pagination-disabled .ant-pagination-item-link { color: var(--ui-text-secondary) !important; opacity: 0.55; }
   .ant-alert { margin: 12px 0; }
 }
 .device-help { color: var(--ui-text-secondary); margin: 10px 0; line-height: 1.6; }
