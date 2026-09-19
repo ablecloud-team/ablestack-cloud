@@ -265,9 +265,9 @@ export default {
   .ant-modal-body { overflow-y: auto; min-height: 0; }
   .ant-form { margin-top: 20px; }
   .ant-descriptions { margin-bottom: 20px; }
-  .ant-descriptions-item-label { background: var(--ui-bg-page); color: var(--ui-text-primary); }
-  .ant-descriptions-item-content { background: var(--ui-bg-surface); color: var(--ui-text-secondary); overflow-wrap: anywhere; }
-  .ant-descriptions-view, .ant-descriptions-row, .ant-descriptions-item-label, .ant-descriptions-item-content { border-color: var(--ui-border); }
+  .ant-descriptions-bordered .ant-descriptions-item-label { background: var(--ui-bg-page) !important; color: var(--ui-text-primary) !important; }
+  .ant-descriptions-bordered .ant-descriptions-item-content { background: var(--ui-bg-surface) !important; color: var(--ui-text-secondary) !important; overflow-wrap: anywhere; }
+  .ant-descriptions-bordered .ant-descriptions-view, .ant-descriptions-bordered .ant-descriptions-row, .ant-descriptions-bordered .ant-descriptions-item-label, .ant-descriptions-bordered .ant-descriptions-item-content { border-color: var(--ui-border) !important; }
   .ant-alert { margin: 16px 0; }
   .ant-select { width: 100%; }
 }
