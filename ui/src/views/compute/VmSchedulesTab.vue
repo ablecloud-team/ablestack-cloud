@@ -18,7 +18,7 @@
 <template>
   <div class="vm-schedules">
     <div class="schedule-toolbar">
-      <a-button type="primary" :disabled="!allowed('create') || loading" @click="open('create')"><template #icon><plus-outlined /></template>{{ $t('label.schedule.add') }}</a-button>
+      <a-button ref="createTrigger" type="primary" :disabled="!allowed('create') || loading" @click="open('create')"><template #icon><plus-outlined /></template>{{ $t('label.schedule.add') }}</a-button>
       <a-button :loading="busy" @click="fetchSchedules"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
       <a-input-search v-model:value="search" :placeholder="$t('label.search')" allow-clear @search="current = 1" @change="current = 1" />
     </div>
@@ -35,7 +35,7 @@
           <div class="schedule-actions">
             <a-button type="link" size="small" :disabled="!allowed('edit')" @click="open('edit', record)">{{ $t('label.edit') }}</a-button>
             <a-dropdown :trigger="['click']">
-              <a-button size="small" :aria-label="$t('label.actions')"><down-outlined /></a-button>
+              <a-button :data-schedule-trigger="record.id" size="small" :aria-label="$t('label.actions')"><down-outlined /></a-button>
               <template #overlay><a-menu>
                 <a-menu-item key="toggle" :disabled="!allowed('toggle')" @click="open('toggle', record)">{{ $t(record.enabled ? 'label.disable' : 'label.enable') }}</a-menu-item>
                 <a-menu-item key="delete" danger :disabled="!allowed('delete')" @click="open('delete', record)">{{ $t('label.delete') }}</a-menu-item>
@@ -56,6 +56,7 @@
 :width="720"
 centered
 wrap-class-name="vm-schedule-modal"
+:after-close="restoreFocus"
 :mask-closable="false"
 :closable="!submitting"
 :keyboard="!submitting"
@@ -120,6 +121,7 @@ export default {
   props: { resource: { type: Object, required: true }, loading: Boolean },
   data () {
     return {
+      focusTarget: null,
       rows: [],
       busy: false,
       current: 1,
@@ -258,6 +260,7 @@ export default {
     },
     open (mode, row = null) {
       if (!this.allowed(mode) || this.submitting) return
+      this.focusTarget = mode === 'create' ? this.$refs.createTrigger?.$el : Array.from(this.$el.querySelectorAll('[data-schedule-trigger]')).find(element => element.getAttribute('data-schedule-trigger') === row?.id)
       this.submitError = ''
       this.selected = row ? { ...row } : null
       this.form = {
@@ -273,6 +276,7 @@ export default {
       }
       this.mode = mode
     },
+    restoreFocus () { if (this.focusTarget?.isConnected) this.focusTarget.focus() },
     close () { if (!this.submitting) { this.mode = ''; this.selected = null; this.submitError = '' } },
     async submit () {
       const mode = this.mode
@@ -355,5 +359,13 @@ export default {
   .ant-picker-cell:hover .ant-picker-cell-inner, .ant-picker-time-panel-cell:hover .ant-picker-time-panel-cell-inner { background: var(--ui-bg-hover); }
   .ant-picker-cell-selected .ant-picker-cell-inner, .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner { color: var(--ui-text-primary); background: var(--ui-bg-selected); }
   .ant-picker-header button:hover { color: var(--ui-link) !important; }
+  @media (max-width: 600px) {
+    .ant-picker-panel-container { max-height: calc(100vh - 48px); max-height: calc(100dvh - 48px); overflow-y: auto; }
+    .ant-picker-panel, .ant-picker-datetime-panel { width: 280px; max-width: calc(100vw - 32px); }
+    .ant-picker-datetime-panel { flex-direction: column; }
+    .ant-picker-time-panel { width: 100%; border-left: 0; border-top: 1px solid var(--ui-border); }
+    .ant-picker-time-panel .ant-picker-content { height: 112px; }
+    .ant-picker-time-panel-column { flex: 1; }
+  }
 }
 </style>
