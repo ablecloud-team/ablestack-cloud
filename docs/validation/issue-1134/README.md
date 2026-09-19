@@ -78,3 +78,38 @@ WSL ext4 작업 트리에서 변경된 `api`, `server`, `core` 모듈과 UI만 �
 - 모든 장치 종류의 실제 할당이나 재시작 지속성을 검증한 것은 아니다. USB/물리 HBA/FC LUN 후보는 관리 또는 공용 스토리지에 사용 중이므로 제외했다. PCI 실제 할당도 이번 검증 범위에 포함하지 않았다.
 - vHBA의 실제 SAN LUN 할당 성공은 별도 zoning/mapping 환경에서 추가 검증이 필요하다. 생성·부분 실패·미할당 삭제 경로와 SCSI 실장치 왕복 테스트를 구분해 보고한다.
 - GitHub Actions 라이선스 검사는 통과했다. 저장소 전체 pre-commit 검사에는 기존 문서/라이선스 등 실패가 있으며, 실패 경로 118개가 기준 커밋과 동일한 blob임을 확인했다. 이번 변경의 이미지 확장자와 문서 라이선스 서식 문제는 정리했다. 전체 CI 통과로 보고하지 않는다.
+
+## LUN/SCSI 사용 중 장치 보호 추가 검증 (2026-09-20)
+
+기존 `haspartitions` 응답을 선택 화면에서 사용하지 않았고, 실제 호스트 검사에서도 SCSI 경로의 파티션 여부가 false로 반환되는 사례가 있었다. 기존 교차 유형 중복 검사도 XML 문자열 검색에 의존해 별칭이나 동일 유형 연결을 놓칠 수 있었다.
+
+- 기존 LUN/SCSI 목록 API에 `deviceusagestatus` 맵을 추가한다. 새 API/DB 스키마는 만들지 않는다.
+- lsblk의 파티션·파일시스템·마운트·LVM 관계와 WWN을 이용해 원본 경로, multipath, 하위 볼륨을 같은 사용 관계로 검사한다. 비어 있는 multipath 매핑 자체는 사용 중 볼륨으로 간주하지 않는다.
+- 현재 호스트의 모든 libvirt VM에 대해 실행 XML과 영구 설정의 block disk/SCSI hostdev를 확인한다. `/dev/sg*`, by-id, block, SCSI 주소 별칭을 실제 블록 장치로 해석한다.
+- 사용 중이거나 사용 여부를 확인할 수 없는 후보는 숨기지 않고 선택을 막는다. 한국어/영어 사유와 전체 내용 툴팁을 제공한다. 구버전 에이전트가 검사 상태를 반환하지 않는 경우도 선택할 수 없다.
+- 화면을 열 때의 상태를 신뢰하지 않고 제출 전 목록을 다시 조회한다. 에이전트는 LUN/SCSI 및 같은 SCSI XML을 사용하는 HBA/vHBA 연결 직전에 실제 XML source를 다시 검사한다. 해제는 사용 중 검사로 막지 않는다.
+
+### 빌드와 서버 검증
+
+- 변경 api/core/server 모듈 및 UI를 WSL ext4에서 빌드했다. UI 단위 테스트 10개, 장치 안전 검사 7개, 기존 vHBA 직렬화 테스트 1개가 통과했다.
+- 안전 검사 테스트는 빈 디스크, 파티션, 파일시스템/LVM/swap/마운트, multipath 별칭, 실행/영구 VM 연결, 검사 실패와 잘못된 XML을 포함한다.
+- Apache RAT: 미승인 0, 알 수 없음 0. 검사 오류를 사용 가능으로 처리하지 않는다.
+- 31번 관리 서버와 호스트 3대에 변경 클래스를 배포하고 기존 JAR 백업을 보존했다. 모든 호스트가 Up이며 VM 실행 목록이 유지됐다.
+- 31-2의 `/dev/sdb`·`/dev/sg1`은 available, 파티션이 있는 `/dev/sdc`는 partitioned, GFS2 `/dev/mapper/mpatha`는 mounted, VM 볼륨이 있는 `/dev/mapper/mpathb`는 vm-connected로 검증됐다.
+- 파티션이 있는 로컬 SCSI 후보를 직접 API로 요청하면 `Block device allocation denied: partitioned`로 거부되며 할당 기록은 변경되지 않았다. 사용 중인 FC LUN을 실제로 연결하는 테스트는 하지 않았다.
+
+검사는 해당 호스트의 block/libvirt 상태를 기준으로 한다. 관리 경로 밖에서 다른 SAN 호스트가 사용하는, 서명도 없는 raw LUN의 전역 소유권까지 증명하는 분산 SAN 예약 기능은 아니다.
+
+### 배포 UI와 실장치 왕복 검증
+
+- 다크모드에서 파티션 후보를 클릭해도 선택 값이 비어 있고 할당 버튼이 비활성임을 확인했다. 후보 전체 이름과 제한 사유를 hover 툴팁으로 확인했다.
+- multipath LUN 3개가 목록에서 사라지지 않고 모두 비활성 상태임을 DOM과 화면으로 확인했다.
+- 빈 `/dev/sg1`을 UI로 연결한 뒤 상태가 `available → vm-connected`로 바뀌고 재선택이 차단됐다. 같은 디스크를 `/dev/sdb` LUN source로 바꾸어 API 요청해도 `vm-connected` 사유로 거부됐다.
+- UI 해제 후 다시 `available`로 돌아왔다. libvirt hostdev가 없고 기존 볼륨 XML이 테스트 전과 동일했다. QGA 게스트 디스크 수는 연결 시 9개 → 해제 후 8개로 복원됐다.
+- 다크모드 비활성 옵션은 배경 `rgb(31,31,31)`, 글자 `rgba(255,255,255,0.65)`이며 라이트모드는 흰 배경과 `rgb(75,85,99)` 글자를 사용한다. 양쪽 모드의 목록/툴팁 가독성을 실제 화면에서 확인했다.
+- 기존 서버 가드 6개를 다시 실행해 통과했다. 이번 재검증의 자동 테스트 합계는 24개다.
+- UI 정적 파일 829개의 해시가 일치하고 WEB-INF/config.json/서비스 PID가 보존됐다. HTTP 200 및 모든 호스트 Up을 확인했다.
+
+![파티션 SCSI 선택 차단 및 사유 툴팁](images/safety-scsi-dark.jpg)
+![사용 중 LUN 목록 유지 및 선택 차단](images/safety-lun-dark.jpg)
+![라이트모드 비활성 후보](images/safety-scsi-light.jpg)
