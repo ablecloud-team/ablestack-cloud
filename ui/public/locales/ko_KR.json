@@ -7843,5 +7843,6 @@
   "label.vmdevice.created": "vHBA 생성 완료",
   "label.vmdevice.allocated": "VM 할당 완료",
   "label.vmdevice.failed": "작업에 실패했습니다. 상태를 다시 확인하세요.",
-  "label.vmdevice.addressUnverified": "장치 주소를 확인할 수 없어 작업을 중단했습니다. 호스트의 장치 정보를 확인하세요."
+  "label.vmdevice.addressUnverified": "장치 주소를 확인할 수 없어 작업을 중단했습니다. 호스트의 장치 정보를 확인하세요.",
+  "label.vmdevice.protected": "호스트 관리용 장치 · 선택 불가"
 }

@@ -60,7 +60,7 @@ wrap-class-name="vm-device-dialog"
           <a-form-item v-if="mode === 'existing'" :label="d('type')"><a-select v-model:value="type" :disabled="busy" @change="fetchCandidates"><a-select-option v-for="t in types.filter(allowed)" :key="t" :value="t">{{ t.toUpperCase() }}</a-select-option></a-select></a-form-item>
           <a-form-item v-if="type === 'lun' && mode === 'existing'" :label="d('pathMode')"><a-select v-model:value="pathMode" :disabled="busy" @change="fetchCandidates"><a-select-option value="single">{{ d('single') }}</a-select-option><a-select-option value="multipath">{{ d('multipath') }}</a-select-option></a-select></a-form-item>
           <a-alert v-if="operationReason" type="warning" show-icon :message="operationReason" />
-          <a-form-item :label="mode === 'create' ? d('parentHba') : d('device')"><a-select v-model:value="choice" :loading="candidateLoading" :disabled="busy || !hostId" show-search option-filter-prop="label"><a-select-option v-for="item in candidates" :key="item.name" :value="item.name" :label="item.name + ' ' + item.text" :disabled="!!item.allocation">{{ item.name }} — {{ item.text }}{{ item.allocation ? ' · ' + d('occupied') : '' }}</a-select-option></a-select><p class="device-help">{{ d('candidateHelp') }}</p></a-form-item>
+          <a-form-item :label="mode === 'create' ? d('parentHba') : d('device')"><a-select v-model:value="choice" :loading="candidateLoading" :disabled="busy || !hostId" show-search option-filter-prop="label"><a-select-option v-for="item in candidates" :key="item.name" :value="item.name" :label="item.name + ' ' + item.text" :disabled="!!item.allocation || item.protected">{{ item.name }} — {{ item.text }}{{ item.protected ? ' · ' + d('protected') : (item.allocation ? ' · ' + d('occupied') : '') }}</a-select-option></a-select><p class="device-help">{{ d('candidateHelp') }}</p></a-form-item>
           <a-form-item v-if="mode === 'create'" :label="d('vhbaName')"><a-input v-model:value="vhbaName" :maxlength="80" :disabled="busy" /><p class="device-help">{{ d('vhbaHelp') }}</p></a-form-item>
           <a-form-item v-if="['hba', 'vhba'].includes(type) && mode === 'existing'" :label="d('scsiAddress')"><a-select v-model:value="address" :disabled="busy" :options="scsiChoices" /><p class="device-help">{{ d('scsiHelp') }}</p></a-form-item>
           <a-alert v-if="['lun', 'scsi', 'hba', 'vhba'].includes(type)" type="warning" show-icon :message="d('storageWarning')" />
@@ -211,13 +211,13 @@ export default {
           this.steps.push(this.d('created') + ': ' + this.createdDevice)
           const candidates = await this.loadCandidates('vhba', this.hostId)
           const device = candidates.find(c => c.name === this.createdDevice)
-          if (!device || device.allocation) throw new Error(this.d('verifyFirst'))
+          if (!device || device.allocation || device.protected) throw new Error(this.d('verifyFirst'))
           await postAPI(deviceTypes.vhba[1], { hostid: this.hostId, virtualmachineid: this.vm.id, hostdevicesname: device.name, hostdevicestext: device.text, xmlconfig: deviceXml(device) })
           this.steps.push(this.d('allocated')); this.createdDevice = ''; this.dialog = 'result'
         } else {
           const candidates = await this.loadCandidates(this.type, this.hostId)
           const device = candidates.find(c => c.name === this.choice)
-          if (!device || device.allocation) throw new Error(this.d('occupied'))
+          if (!device || device.allocation || device.protected) throw new Error(this.d('occupied'))
           const xml = deviceXml({ ...device, address: this.address })
           await postAPI(deviceTypes[this.type][1], { hostid: this.hostId, hostdevicesname: device.name, hostdevicestext: device.text, virtualmachineid: this.vm.id, xmlconfig: xml })
           this.dialog = ''; this.$message.success(this.d('complete'))

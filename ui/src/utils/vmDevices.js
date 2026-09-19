@@ -34,7 +34,8 @@ export function deviceCandidates (response, type) {
     parent: asArray(group.parenthbanames)[i] || group.parenthbaname,
     wwnn: asArray(group.wwnns)[i],
     type
-  })))
+  }))).filter(device => type !== 'vhba' || /^scsi_host\d+$/.test(device.parent || ''))
+    .map(device => ({ ...device, protected: type === 'usb' && /hub|idrac|integrated.*(nic|keyboard|mouse)/i.test(device.text) }))
 }
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c]))
 export function deviceXml (device) {
@@ -53,7 +54,7 @@ export function deviceXml (device) {
     const path = byid ? '/dev/disk/by-id/' + byid : base
     if (/^\/dev\/[\w/.:+-]+$/.test(path)) return `<disk type='block' device='lun'><driver name='qemu' type='raw' io='native' cache='none'/><source dev='${escape(path)}'/><target bus='scsi'/></disk>`
   } else {
-    const m = (device.address || text || name).match(/(?:\[|SCSI_ADDRESS:\s*|^)(\d+):(\d+):(\d+):(\d+)(?:\]|\s|$)/)
+    const m = (device.address || text || name).match(/(?:\[|SCSI_ADDRESS:\s*|^)(\d+):(\d+):(\d+):(\d+)(?:\]|\s|$)/i)
     if (m) return `<hostdev mode='subsystem' type='scsi'><source><adapter name='scsi_host${m[1]}'/><address bus='${m[2]}' target='${m[3]}' unit='${m[4]}'/></source></hostdev>`
   }
   throw new Error('device-address-unverified')

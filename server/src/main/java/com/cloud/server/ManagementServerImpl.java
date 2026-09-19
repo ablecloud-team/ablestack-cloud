@@ -4993,6 +4993,22 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
 
     @Override
     public ListResponse<DeleteVhbaDeviceResponse> deleteVhbaDevice(DeleteVhbaDeviceCmd cmd) {
+        GlobalLock lock = GlobalLock.getInternLock("vm-host-devices-" + cmd.getHostId());
+        try {
+            if (!lock.lock(10)) {
+                throw new CloudRuntimeException("Another device operation is in progress on this host");
+            }
+            try {
+                return deleteVhbaDeviceInternal(cmd);
+            } finally {
+                lock.unlock();
+            }
+        } finally {
+            lock.releaseRef();
+        }
+    }
+
+    private ListResponse<DeleteVhbaDeviceResponse> deleteVhbaDeviceInternal(DeleteVhbaDeviceCmd cmd) {
         Long hostId = cmd.getHostId();
         String hostDeviceName = cmd.getHostDeviceName();
         String wwnn = cmd.getWwnn();
