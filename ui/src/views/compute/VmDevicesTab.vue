@@ -231,8 +231,9 @@ export default {
           const device = candidates.find(c => c.name === this.choice)
           if (!device || device.allocation || device.protected) throw new Error(this.d('occupied'))
           const xml = deviceXml({ ...device, address: this.address })
+          const detail = ['hba', 'vhba'].includes(this.type) ? `${device.text} SCSI_Address: [${this.address}]` : device.text
           if (this.resource.id !== vmId) throw new Error(this.d('verifyFirst'))
-          await postAPI(deviceTypes[this.type][1], { hostid: hostId, hostdevicesname: device.name, hostdevicestext: device.text, virtualmachineid: vmId, xmlconfig: xml })
+          await postAPI(deviceTypes[this.type][1], { hostid: hostId, hostdevicesname: device.name, hostdevicestext: detail, virtualmachineid: vmId, xmlconfig: xml })
           this.dialog = ''; this.$message.success(this.d('complete'))
         }
       } catch (e) {
