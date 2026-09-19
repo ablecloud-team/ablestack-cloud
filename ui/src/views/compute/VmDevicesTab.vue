@@ -150,7 +150,7 @@ export default {
       } catch (e) { if (version === this.revision) { this.error = this.d('loadFailed'); this.snapshots = null } } finally { if (version === this.revision) this.loading = false }
     },
     async openAllocate () {
-      this.mode = 'existing'; this.type = this.vm.state === 'Stopped' ? 'pci' : this.types.find(t => t !== 'pci' && this.allowed(t)); this.dialog = 'allocate'; this.dialogError = ''; this.ack = false; this.createdDevice = ''; this.hostId = this.vm.hostid
+      this.selected = null; this.mode = 'existing'; this.type = this.vm.state === 'Stopped' ? 'pci' : this.types.find(t => t !== 'pci' && this.allowed(t)); this.dialog = 'allocate'; this.dialogError = ''; this.ack = false; this.createdDevice = ''; this.hostId = this.vm.hostid
       if (!this.hostId) {
         try { const r = await getAPI('listHosts', { zoneid: this.vm.zoneid, type: 'Routing' }); this.hosts = asArray(r.listhostsresponse?.host).filter(h => h.hypervisor === 'KVM' && h.state === 'Up'); this.hostId = this.rows.find(r => r.hostuuid)?.hostuuid } catch (e) { this.dialogError = this.d('loadFailed') }
       }
@@ -224,14 +224,17 @@ export default {
           const candidates = await this.loadCandidates('vhba', this.hostId)
           const device = candidates.find(c => c.name === this.createdDevice)
           if (!device || device.allocation || device.protected) throw new Error(this.d('verifyFirst'))
-          await postAPI(deviceTypes.vhba[1], { hostid: hostId, virtualmachineid: vmId, hostdevicesname: device.name, hostdevicestext: device.text, xmlconfig: deviceXml(device) })
+          const children = (await this.loadCandidates('scsi', hostId)).filter(c => c.text.includes('[' + device.name.replace('scsi_host', '') + ':'))
+          if (children.length !== 1) throw new Error('device-address-unverified')
+          const detail = children[0].text + ' ' + device.text
+          await postAPI(deviceTypes.vhba[1], { hostid: hostId, virtualmachineid: vmId, hostdevicesname: device.name, hostdevicestext: detail, xmlconfig: deviceXml({ ...device, text: detail }) })
           this.steps.push(this.d('allocated')); this.createdDevice = ''; this.dialog = 'result'
         } else {
           const candidates = await this.loadCandidates(this.type, this.hostId)
           const device = candidates.find(c => c.name === this.choice)
           if (!device || device.allocation || device.protected) throw new Error(this.d('occupied'))
           const xml = deviceXml({ ...device, address: this.address })
-          const detail = ['hba', 'vhba'].includes(this.type) ? `${device.text} SCSI_Address: [${this.address}]` : device.text
+          const detail = ['hba', 'vhba'].includes(this.type) ? `SCSI_Address: [${this.address}] ${device.text}` : device.text
           if (this.resource.id !== vmId) throw new Error(this.d('verifyFirst'))
           await postAPI(deviceTypes[this.type][1], { hostid: hostId, hostdevicesname: device.name, hostdevicestext: detail, virtualmachineid: vmId, xmlconfig: xml })
           this.dialog = ''; this.$message.success(this.d('complete'))
