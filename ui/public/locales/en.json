@@ -7847,5 +7847,7 @@
   "message.schedule.delete.confirm": "Delete this schedule? The virtual machine will not be deleted.",
   "message.schedule.disable.confirm": "Disable this schedule? Scheduled actions will not run.",
   "message.schedule.enable.confirm": "Enable this schedule? Actions will run according to the schedule.",
-  "message.schedule.operation.failed": "The schedule operation failed. Check the values and try again."
+  "message.schedule.operation.failed": "The schedule operation failed. Check the values and try again.",
+  "label.schedule.no.end": "No end date",
+  "label.schedule.period": "Validity period"
 }

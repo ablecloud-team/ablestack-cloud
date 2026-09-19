@@ -29,7 +29,8 @@
         <template v-if="column.key === 'action'">{{ actionName(record.action) }}</template>
         <template v-else-if="column.key === 'enabled'"><a-tag :color="record.enabled ? 'green' : undefined">{{ $t(record.enabled ? 'label.enabled' : 'label.disabled') }}</a-tag></template>
         <template v-else-if="column.key === 'description'"><span class="schedule-wrap">{{ record.description || '—' }}</span></template>
-        <template v-else-if="column.key === 'schedule'"><span class="schedule-wrap">{{ human(record.schedule) }}</span><code class="schedule-note">{{ record.schedule }}</code></template>
+        <template v-else-if="column.key === 'schedule'"><span class="schedule-wrap">{{ human(record.schedule) }}</span><span class="schedule-note">{{ record.timezone }}</span></template>
+        <template v-else-if="column.key === 'period'"><span class="schedule-note">{{ formatDate(record.startdate, record.timezone) || '—' }}</span><span class="schedule-note">{{ record.enddate ? formatDate(record.enddate, record.timezone) : $t('label.schedule.no.end') }}</span></template>
         <template v-else-if="column.key === 'actions'">
           <div class="schedule-actions">
             <a-button type="link" size="small" :disabled="!allowed('edit')" @click="open('edit', record)">{{ $t('label.edit') }}</a-button>
@@ -164,7 +165,7 @@ export default {
         { key: 'action', title: this.$t('label.action'), width: 120 },
         { key: 'enabled', title: this.$t('label.state'), width: 100 },
         { key: 'schedule', title: this.$t('label.schedule'), width: 240 },
-        { key: 'timezone', dataIndex: 'timezone', title: this.$t('label.timezone'), width: 140 },
+        { key: 'period', title: this.$t('label.schedule.period'), width: 180 },
         { key: 'actions', title: this.$t('label.actions'), fixed: 'right', width: 120 }
       ]
     },
