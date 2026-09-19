@@ -23,7 +23,7 @@
       <a-input-search v-model:value="search" :placeholder="$t('label.search')" allow-clear @search="current = 1" @change="current = 1" />
     </div>
     <a-alert v-if="listRefreshFailed" class="schedule-spacing" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
-    <a-table :columns="columns" :data-source="visibleRows" row-key="id" :pagination="false" :loading="busy && !rows.length" :scroll="{ x: 850 }" size="small">
+    <a-table :columns="columns" :data-source="visibleRows" row-key="id" :pagination="false" :loading="busy && !rows.length" :scroll="{ x: 960 }" size="small">
       <template #emptyText>{{ $t(search ? 'message.schedule.search.empty' : 'message.schedule.empty') }}</template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">{{ actionName(record.action) }}</template>
@@ -77,8 +77,8 @@ wrap-class-name="vm-schedule-modal"
           <span class="schedule-note">{{ $t('message.schedule.timezone') }}</span>
         </a-form-item>
         <div class="schedule-dates">
-          <a-form-item :label="$t('label.start.date.and.time')" name="startDate"><a-date-picker v-model:value="form.startDate" show-time format="YYYY-MM-DD HH:mm:ss" :allow-clear="mode !== 'edit'" :placeholder="$t('message.select.start.date.and.time')" /></a-form-item>
-          <a-form-item :label="$t('label.end.date.and.time')" name="endDate"><a-date-picker v-model:value="form.endDate" show-time format="YYYY-MM-DD HH:mm:ss" :allow-clear="!selected?.enddate" :placeholder="$t('message.select.end.date.and.time')" /></a-form-item>
+          <a-form-item :label="$t('label.start.date.and.time')" name="startDate"><a-date-picker :locale="datePickerLocale" popup-class-name="vm-schedule-picker" v-model:value="form.startDate" show-time format="YYYY-MM-DD HH:mm:ss" :allow-clear="mode !== 'edit'" :placeholder="$t('message.select.start.date.and.time')" /></a-form-item>
+          <a-form-item :label="$t('label.end.date.and.time')" name="endDate"><a-date-picker :locale="datePickerLocale" popup-class-name="vm-schedule-picker" v-model:value="form.endDate" show-time format="YYYY-MM-DD HH:mm:ss" :allow-clear="!selected?.enddate" :placeholder="$t('message.select.end.date.and.time')" /></a-form-item>
         </div>
         <p v-if="selected?.enddate" class="schedule-note schedule-spacing">{{ $t('message.schedule.enddate.keep') }}</p>
         <a-form-item :label="$t('label.schedule')" name="schedule">
@@ -106,6 +106,9 @@ import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { timeZone } from '@/utils/timezone'
 import cronstrue from 'cronstrue/i18n'
 import dayjs from 'dayjs'
+import 'dayjs/locale/ko'
+import koKR from 'ant-design-vue/es/date-picker/locale/ko_KR'
+import enUS from 'ant-design-vue/es/date-picker/locale/en_US'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 dayjs.extend(utc)
@@ -139,6 +142,7 @@ export default {
   },
   computed: {
     scopeKey () { return JSON.stringify([this.resource.id, this.$store.getters.project?.id, this.$store.getters.userInfo?.id, this.$store.state?.user?.token]) },
+    datePickerLocale () { return this.$i18n.locale === 'ko_KR' ? koKR : enUS },
     cronLocale () {
       if (this.$i18n.locale !== 'ko_KR') return undefined
       return {
@@ -312,6 +316,8 @@ export default {
 .schedule-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
 .schedule-toolbar :deep(.ant-input-search) { margin-left: auto; width: 280px; }
 .schedule-actions { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+.vm-schedules :deep(.ant-table-cell-fix-right) { background: var(--ui-bg-surface); }
+.schedule-pagination :deep(.ant-pagination-item-link) { background: var(--ui-bg-surface); color: var(--ui-text-secondary); border-color: var(--ui-border); }
 .schedule-pagination { margin-top: 20px; text-align: right; }
 .schedule-wrap { overflow-wrap: anywhere; }
 @media (max-width: 768px) { .schedule-toolbar :deep(.ant-input-search) { width: 100%; } }
@@ -334,7 +340,19 @@ export default {
   .ant-descriptions-bordered .ant-descriptions-item-label { width: 160px; background: var(--ui-bg-page); color: var(--ui-text-secondary); }
   .ant-descriptions-bordered .ant-descriptions-view, .ant-descriptions-bordered .ant-descriptions-row, .ant-descriptions-bordered .ant-descriptions-item-label, .ant-descriptions-bordered .ant-descriptions-item-content { border-color: var(--ui-border); }
   label, .ant-form-item-label > label, .vcron { color: var(--ui-text-primary); }
-  input::placeholder { color: var(--ui-text-secondary); }
+  .ant-picker-input > input::placeholder, .ant-input::placeholder, .ant-select-selection-placeholder { color: var(--ui-text-secondary) !important; }
   @media (max-width: 600px) { .ant-modal-body { padding: 16px; } .ant-modal-footer { padding: 12px 16px; } .schedule-dates { grid-template-columns: 1fr; gap: 0; } }
+}
+</style>
+
+<style lang="scss">
+.vm-schedule-picker {
+  .ant-picker-panel-container, .ant-picker-panel { background: var(--ui-bg-elevated); color: var(--ui-text-primary); }
+  .ant-picker-header, .ant-picker-footer, .ant-picker-content, .ant-picker-time-panel, .ant-picker-time-panel-column { border-color: var(--ui-border); }
+  .ant-picker-header button, .ant-picker-content th, .ant-picker-cell-in-view, .ant-picker-time-panel-cell-inner { color: var(--ui-text-primary) !important; }
+  .ant-picker-cell { color: var(--ui-text-muted); }
+  .ant-picker-cell:hover .ant-picker-cell-inner, .ant-picker-time-panel-cell:hover .ant-picker-time-panel-cell-inner { background: var(--ui-bg-hover); }
+  .ant-picker-cell-selected .ant-picker-cell-inner, .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner { color: var(--ui-text-primary); background: var(--ui-bg-selected); }
+  .ant-picker-header button:hover { color: var(--ui-link) !important; }
 }
 </style>
