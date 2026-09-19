@@ -26,7 +26,7 @@ const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve()
 function mount (apis = { createResourceSchedule: {}, updateResourceSchedule: {}, deleteResourceSchedule: {} }) {
   return shallowMount(VmSchedulesTab, {
     props: { resource: { id: 'v1' } },
-    global: { mocks: { $store: { getters: { apis, project: {}, userInfo: {} }, state: { user: {} } }, $route: {}, $i18n: { locale: 'ko_KR' }, $t: x => x, $toLocaleDate: x => x, $message: { success: jest.fn() }, $notifyError: jest.fn() } }
+    global: { stubs: { AModal: { template: '<div><slot /></div>' } }, mocks: { $store: { getters: { apis, project: {}, userInfo: {} }, state: { user: {} } }, $route: {}, $i18n: { locale: 'ko_KR' }, $t: x => x, $toLocaleDate: x => x, $message: { success: jest.fn() }, $notifyError: jest.fn() } }
   })
 }
 beforeEach(() => { jest.useFakeTimers(); jest.clearAllMocks(); getAPI.mockResolvedValue(response([row])); postAPI.mockResolvedValue({}) })
@@ -81,5 +81,25 @@ test('editing preserves raw cron and displays dates in the schedule timezone', a
   wrapper.vm.close(); wrapper.vm.open('create')
   expect(wrapper.vm.selected).toBeNull()
   expect(wrapper.vm.form.action).toBe('START')
+  wrapper.unmount()
+})
+test('edit omits unchanged historical dates and retains the original cron', async () => {
+  const wrapper = mount(); await flush()
+  wrapper.vm.open('edit', row); await wrapper.vm.$nextTick()
+  wrapper.vm.$refs.editor.validate = jest.fn().mockResolvedValue()
+  await wrapper.vm.submit()
+  expect(postAPI).toHaveBeenCalledWith('updateResourceSchedule', { id: 's1', description: 'test', schedule: '5 3 * * *', timezone: 'Asia/Seoul', enabled: false })
+  wrapper.unmount()
+})
+test('failed save preserves the form for correction', async () => {
+  const wrapper = mount(); await flush()
+  wrapper.vm.open('edit', row); await wrapper.vm.$nextTick()
+  wrapper.vm.$refs.editor.validate = jest.fn().mockResolvedValue()
+  wrapper.vm.form.description = 'unsaved edit'
+  postAPI.mockRejectedValue(new Error('server validation'))
+  await wrapper.vm.submit()
+  expect(wrapper.vm.mode).toBe('edit')
+  expect(wrapper.vm.form.description).toBe('unsaved edit')
+  expect(wrapper.vm.submitError).toBe('server validation')
   wrapper.unmount()
 })
