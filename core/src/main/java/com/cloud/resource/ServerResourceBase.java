@@ -296,6 +296,7 @@ public abstract class ServerResourceBase implements ServerResource {
         try {
             ListHostLunDeviceAnswer fast = listHostLunDevicesFast(lunPathMode);
             if (fast != null && fast.getResult()) {
+                fast.setDeviceUsageStatus(new HostBlockDeviceSafety().inspect().statuses(fast.getHostDevicesNames()));
                 return fast;
             }
 
@@ -334,7 +335,9 @@ public abstract class ServerResourceBase implements ServerResource {
                 collectMultipathDevicesUnified(hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses, scsiAddressCache, addedDevices, mppSlow);
             }
 
-            return new ListHostLunDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses);
+            ListHostLunDeviceAnswer resultAnswer = new ListHostLunDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses);
+            resultAnswer.setDeviceUsageStatus(new HostBlockDeviceSafety().inspect().statuses(resultAnswer.getHostDevicesNames()));
+            return resultAnswer;
 
         } catch (Exception e) {
             return new ListHostLunDeviceAnswer(false, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
@@ -2356,6 +2359,7 @@ public abstract class ServerResourceBase implements ServerResource {
         try {
             ListHostScsiDeviceAnswer fast = listHostScsiDevicesFast();
             if (fast != null && fast.getResult()) {
+                fast.setDeviceUsageStatus(new HostBlockDeviceSafety().inspect().statuses(fast.getHostDevicesNames()));
                 return fast;
             }
             Map<Path, String> realToById = buildByIdReverseMap();
@@ -2399,7 +2403,9 @@ public abstract class ServerResourceBase implements ServerResource {
                 hasPartitions.add(false);
             }
 
-            return new ListHostScsiDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions);
+            ListHostScsiDeviceAnswer resultAnswer = new ListHostScsiDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions);
+            resultAnswer.setDeviceUsageStatus(new HostBlockDeviceSafety().inspect().statuses(resultAnswer.getHostDevicesNames()));
+            return resultAnswer;
         } catch (Exception e) {
             return new ListHostScsiDeviceAnswer(false, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         }
@@ -3791,6 +3797,13 @@ public abstract class ServerResourceBase implements ServerResource {
                 writer.write(xmlConfig);
             }
 
+            if (isAttach) {
+                String usage = new HostBlockDeviceSafety().inspect().attachmentStatus(xmlConfig, false);
+                if (!"available".equals(usage)) {
+                    return new UpdateHostLunDeviceAnswer(false, "Block device allocation denied: " + usage);
+                }
+            }
+
             Script virshCmd = new Script("virsh");
             if (isAttach) {
                 virshCmd.add("attach-device", vmName, lunXmlPath);
@@ -3859,6 +3872,13 @@ public abstract class ServerResourceBase implements ServerResource {
                 writer.write(xmlConfig);
             }
 
+            if (isAttach) {
+                String usage = new HostBlockDeviceSafety().inspect().attachmentStatus(xmlConfig, true);
+                if (!"available".equals(usage)) {
+                    return new UpdateHostHbaDeviceAnswer(false, vmName, xmlConfig, isAttach);
+                }
+            }
+
             Script virshCmd = new Script("virsh");
             if (isAttach) {
                 virshCmd.add("attach-device", vmName, hbaXmlPath);
@@ -3897,6 +3917,13 @@ public abstract class ServerResourceBase implements ServerResource {
         try {
             try (PrintWriter writer = new PrintWriter(vhbaXmlPath)) {
                 writer.write(xmlConfig);
+            }
+
+            if (isAttach) {
+                String usage = new HostBlockDeviceSafety().inspect().attachmentStatus(xmlConfig, true);
+                if (!"available".equals(usage)) {
+                    return new UpdateHostVhbaDeviceAnswer(false, vhbaDeviceName, vmName, xmlConfig, isAttach);
+                }
             }
 
             Script virshCmd = new Script("virsh");
@@ -3949,6 +3976,13 @@ public abstract class ServerResourceBase implements ServerResource {
 
             try (PrintWriter writer = new PrintWriter(scsiXmlPath)) {
                 writer.write(xmlConfig);
+            }
+
+            if (isAttach) {
+                String usage = new HostBlockDeviceSafety().inspect().attachmentStatus(xmlConfig, true);
+                if (!"available".equals(usage)) {
+                    return new UpdateHostScsiDeviceAnswer(false, "Block device allocation denied: " + usage);
+                }
             }
 
             Script virshCmd = new Script("virsh");

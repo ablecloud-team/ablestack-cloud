@@ -60,7 +60,7 @@ wrap-class-name="vm-device-dialog"
           <a-form-item v-if="mode === 'existing'" :label="d('type')"><a-select v-model:value="type" :disabled="submitting" @change="fetchCandidates"><a-select-option v-for="t in types.filter(allowed)" :key="t" :value="t">{{ t.toUpperCase() }}</a-select-option></a-select></a-form-item>
           <a-form-item v-if="type === 'lun' && mode === 'existing'" :label="d('pathMode')"><a-select v-model:value="pathMode" :disabled="submitting" @change="fetchCandidates"><a-select-option value="single">{{ d('single') }}</a-select-option><a-select-option value="multipath">{{ d('multipath') }}</a-select-option></a-select></a-form-item>
           <a-alert v-if="operationReason" type="warning" show-icon :message="operationReason" />
-          <a-form-item :label="mode === 'create' ? d('parentHba') : d('device')"><a-select v-model:value="choice" :loading="candidateLoading" :disabled="busy || !hostId" show-search option-filter-prop="label"><a-select-option v-for="item in candidates" :key="item.name" :value="item.name" :label="item.name + ' ' + item.text" :disabled="!!item.allocation || item.protected"><a-tooltip :title="candidateLabel(item)" placement="topLeft" overlay-class-name="vm-device-option-tooltip"><span class="vm-device-option-label">{{ candidateLabel(item) }}</span></a-tooltip></a-select-option></a-select><p class="device-help">{{ d('candidateHelp') }}</p></a-form-item>
+          <a-form-item :label="mode === 'create' ? d('parentHba') : d('device')"><a-select v-model:value="choice" :loading="candidateLoading" :disabled="busy || !hostId" show-search option-filter-prop="label"><a-select-option v-for="item in candidates" :key="item.name" :value="item.name" :label="item.name + ' ' + item.text" :disabled="!!item.allocation || item.protected || item.usage !== 'available'"><a-tooltip :title="candidateLabel(item)" placement="topLeft" overlay-class-name="vm-device-option-tooltip"><span class="vm-device-option-label">{{ candidateLabel(item) }}</span></a-tooltip></a-select-option></a-select><p class="device-help">{{ d('candidateHelp') }}</p></a-form-item>
           <a-button v-if="mode === 'existing' && type === 'vhba' && choice && api('deleteVhbaDevice')" :disabled="submitting" @click="openDeleteCandidate">{{ d('deleteVhba') }}</a-button>
           <a-form-item v-if="mode === 'create'" :label="d('vhbaName')"><a-input v-model:value="vhbaName" :maxlength="80" :disabled="submitting" /><p class="device-help">{{ d('vhbaHelp') }}</p></a-form-item>
           <a-form-item v-if="['hba', 'vhba'].includes(type) && mode === 'existing'" :label="d('scsiAddress')"><a-select v-model:value="address" :disabled="submitting" :options="scsiChoices" /><p class="device-help">{{ d('scsiHelp') }}</p></a-form-item>
@@ -113,7 +113,7 @@ export default {
     visibleRows () { return this.filteredRows.slice((this.page - 1) * this.pageSize, this.page * this.pageSize) },
     dialogTitle () { return this.dialog === 'details' ? this.$t('label.details') : this.d({ allocate: this.mode === 'create' ? 'createVhba' : 'allocate', release: this.selected?.devicetype === 'pci' ? 'releasePci' : 'release', inspect: 'inspect', result: 'result', deleteVhba: 'deleteVhba' }[this.dialog] || 'device') },
     submitDisabled () { return this.submitting || this.busy || !this.ack || (this.dialog === 'allocate' && (!!this.operationReason || this.candidateLoading || !this.choice || !this.hostId || (this.mode === 'create' && !/^[\w-]{1,80}$/.test(this.vhbaName)))) || (this.dialog === 'release' && !!this.reason(this.selected?.devicetype, this.selected)) },
-    scsiChoices () { return this.scsiDevices.filter(d => (d.text || '').includes('[' + (this.choice || '').replace('scsi_host', '') + ':')).map(d => ({ value: (d.text.match(/\[(\d+:\d+:\d+:\d+)\]/) || [])[1], label: d.name + ' — ' + d.text })).filter(d => d.value) }
+    scsiChoices () { return this.scsiDevices.filter(d => (d.text || '').includes('[' + (this.choice || '').replace('scsi_host', '') + ':')).map(d => ({ value: (d.text.match(/\[(\d+:\d+:\d+:\d+)\]/) || [])[1], label: this.candidateLabel(d), disabled: !!d.allocation || d.usage !== 'available' })).filter(d => d.value) }
   },
   watch: {
     active: { immediate: true, handler (value) { if (value) this.refresh() } },
@@ -126,7 +126,7 @@ export default {
     d (key) { return this.$t('label.vmdevice.' + key) },
     api (name) { return name in this.$store.getters.apis },
     allowed (type) { return !!deviceTypes[type] && this.api(deviceTypes[type][1]) },
-    candidateLabel (item) { return item.name + ' — ' + item.text + (item.protected ? ' · ' + this.d('protected') : (item.allocation ? ' · ' + this.d('occupied') : '')) },
+    candidateLabel (item) { return item.name + ' — ' + item.text + (item.protected ? ' · ' + this.d('protected') : (item.allocation ? ' · ' + this.d('occupied') : (item.usage !== 'available' ? ' · ' + this.d('usage.' + item.usage) : ''))) },
     rowKey (r) { return [r.hostid, r.devicetype, r.hostdevicesname].join(':') },
     reason (type, row) {
       if (this.blockReason) return this.blockReason
@@ -224,16 +224,21 @@ export default {
           this.steps.push(this.d('created') + ': ' + this.createdDevice)
           const candidates = await this.loadCandidates('vhba', this.hostId)
           const device = candidates.find(c => c.name === this.createdDevice)
-          if (!device || device.allocation || device.protected) throw new Error(this.d('verifyFirst'))
+          if (!device || device.allocation || device.protected || device.usage !== 'available') throw new Error(this.d('verifyFirst'))
           const children = (await this.loadCandidates('scsi', hostId)).filter(c => c.text.includes('[' + device.name.replace('scsi_host', '') + ':'))
-          if (children.length !== 1) throw new Error('device-address-unverified')
+          if (children.length !== 1 || children[0].allocation || children[0].usage !== 'available') throw new Error('device-address-unverified')
           const detail = children[0].text + ' ' + device.text
           await postAPI(deviceTypes.vhba[1], { hostid: hostId, virtualmachineid: vmId, hostdevicesname: device.name, hostdevicestext: detail, xmlconfig: deviceXml({ ...device, text: detail }) })
           this.steps.push(this.d('allocated')); this.createdDevice = ''; this.dialog = 'result'
         } else {
           const candidates = await this.loadCandidates(this.type, this.hostId)
           const device = candidates.find(c => c.name === this.choice)
-          if (!device || device.allocation || device.protected) throw new Error(this.d('occupied'))
+          if (!device || device.allocation || device.protected || device.usage !== 'available') throw new Error(this.d('occupied'))
+          if (['hba', 'vhba'].includes(this.type)) {
+            const children = await this.loadCandidates('scsi', hostId)
+            const child = children.find(c => c.text.includes('[' + this.address + ']'))
+            if (!child || child.allocation || child.usage !== 'available') throw new Error(this.d('occupied'))
+          }
           const xml = deviceXml({ ...device, address: this.address })
           const detail = ['hba', 'vhba'].includes(this.type) ? `SCSI_Address: [${this.address}] ${device.text}` : device.text
           if (this.resource.id !== vmId) throw new Error(this.d('verifyFirst'))

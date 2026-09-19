@@ -30,6 +30,12 @@ import org.apache.cloudstack.api.EntityReference;
 @EntityReference(value = Host.class)
 public class ListHostLunDevicesResponse extends BaseResponse {
 
+    @SerializedName("deviceusagestatus")
+    @Param(description = "Verified host block-device usage: available, partitioned, filesystem, mounted, host-volume, vm-connected, or unknown")
+    private Map<String, String> deviceUsageStatus;
+
+    public void setDeviceUsageStatus(Map<String, String> status) { this.deviceUsageStatus = status; }
+
     @SerializedName(ApiConstants.HOSTDEVICES_NAME)
     @Param(description = "Device names")
     private List<String> hostDevicesName;

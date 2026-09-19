@@ -31,6 +31,7 @@ export function deviceCandidates (response, type) {
     name,
     text: group.devicedetails?.[name] || asArray(group.hostdevicestext)[i] || '',
     allocation: group.vmallocations?.[name],
+    usage: ['lun', 'scsi'].includes(type) ? (group.haspartitions?.[name] ? 'partitioned' : group.deviceusagestatus?.[name] || 'unknown') : 'available',
     parent: asArray(group.parenthbanames)[i] || group.parenthbaname,
     wwnn: asArray(group.wwnns)[i],
     type

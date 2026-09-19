@@ -2542,6 +2542,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
 
     private ListHostLunDevicesResponse createResponse(ListHostLunDeviceAnswer lunAnswer, Long hostId) {
         ListHostLunDevicesResponse response = new ListHostLunDevicesResponse();
+        response.setDeviceUsageStatus(lunAnswer.getDeviceUsageStatus());
 
         List<String> deviceNames = lunAnswer.getHostDevicesNames();
         List<String> deviceDescriptions = lunAnswer.getHostDevicesTexts();
@@ -2653,6 +2654,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
 
     private ListHostScsiDevicesResponse createResponse(ListHostScsiDeviceAnswer scsiAnswer, Long hostId) {
         ListHostScsiDevicesResponse response = new ListHostScsiDevicesResponse();
+        response.setDeviceUsageStatus(scsiAnswer.getDeviceUsageStatus());
 
         List<String> deviceNames = scsiAnswer.getHostDevicesNames();
         List<String> deviceDescriptions = scsiAnswer.getHostDevicesTexts();

@@ -7885,5 +7885,11 @@
   "label.vmdevice.addressUnverified": "Device address could not be verified. Check host device information.",
   "label.vmdevice.protected": "Host management device · unavailable",
   "label.vmdevice.viewHost": "View host",
-  "label.vmdevice.released": "VM allocation released"
+  "label.vmdevice.released": "VM allocation released",
+  "label.vmdevice.usage.filesystem": "Device contains a filesystem or storage volume",
+  "label.vmdevice.usage.host-volume": "Used as a host volume",
+  "label.vmdevice.usage.mounted": "Mounted on the host",
+  "label.vmdevice.usage.partitioned": "Device contains partitions",
+  "label.vmdevice.usage.unknown": "Usage could not be verified — selection unavailable",
+  "label.vmdevice.usage.vm-connected": "Connected to a virtual machine"
 }

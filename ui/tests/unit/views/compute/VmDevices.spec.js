@@ -41,3 +41,13 @@ test('multipath LUN leaves target selection to backend and preserves source', ()
   expect(xml).toContain("dev='/dev/mapper/mpatha'")
   expect(xml).toContain("<target bus='scsi'/>")
 })
+
+test('LUN and SCSI keep used and unknown devices visible with blocking usage', () => {
+  for (const type of ['lun', 'scsi']) {
+    const key = 'listhost' + type + 'devices'
+    const group = { hostdevicesname: ['free', 'partition', 'vm', 'unverified'], haspartitions: { partition: true }, deviceusagestatus: { free: 'available', partition: 'available', vm: 'vm-connected' } }
+    const candidates = deviceCandidates({ [key + 'response']: { [key]: [group] } }, type)
+    expect(candidates.map(d => d.name)).toEqual(group.hostdevicesname)
+    expect(candidates.map(d => d.usage)).toEqual(['available', 'partitioned', 'vm-connected', 'unknown'])
+  }
+})
