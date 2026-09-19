@@ -1,18 +1,18 @@
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements. See the NOTICE file
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
-regarding copyright ownership. The ASF licenses this file
+regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
-with the License. You may obtain a copy of the License at
+with the License.  You may obtain a copy of the License at
 
   http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied. See the License for the
+KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
@@ -57,6 +57,7 @@ WSL ext4 작업 트리에서 변경된 `api`, `server`, `core` 모듈과 UI만 �
 
 - 다크모드 정보 표의 흰 배경을 수정하고 실제 화면에서 테마 배경·레이블·값을 확인했다.
 - 이전/다음 페이지 화살표의 기본 흰 배경을 제거하고 버튼의 배경·테두리·비활성 색상을 테마에 맞췄다.
+- 최종 배포 화면에서 화살표 배경 `rgb(34,40,47)`, 테두리 `rgb(62,70,80)`을 확인했다. 장치 선택 옵션에 실제 마우스 hover를 수행해 이름·주소·모델·전체 경로가 600px 폭의 줄바꿈 툴팁으로 표시됨을 확인했다.
 - 1000×600 화면에서 대화상자는 y=24, 높이=552px. 본문 scrollTop 0→102px 이동 시 제목 y=24, 하단 버튼 y=523이 유지됐다.
 - 대표 작업은 할당 해제, 나머지는 드롭다운이며 상세는 마지막이다. VM 스냅샷이 있는 대상에서는 할당 버튼 비활성화와 사유를 확인했다.
 - 다크/라이트 대화상자, 긴 장치명, 부분 실패 결과, 본문 스크롤을 실제 배포 UI에서 확인했다.
@@ -66,6 +67,8 @@ WSL ext4 작업 트리에서 변경된 `api`, `server`, `core` 모듈과 UI만 �
 ![본문 스크롤](images/dialog-scroll.jpg)
 ![상세 대화상자](images/details-dark.jpg)
 ![vHBA 부분 실패](images/vhba-partial.jpg)
+![긴 장치명 툴팁](images/device-tooltip.jpg)
+![다크모드 페이지 화살표](images/pagination-dark.jpg)
 
 ## 배포 및 검증 경계
 
@@ -74,3 +77,4 @@ WSL ext4 작업 트리에서 변경된 `api`, `server`, `core` 모듈과 UI만 �
 - 정적 파일만 갱신하고 `WEB-INF`, `config.json`을 보존한다. 배포 후 파일 해시, 서비스 상태 및 `/client/` HTTP 200을 확인한다.
 - 모든 장치 종류의 실제 할당이나 재시작 지속성을 검증한 것은 아니다. USB/물리 HBA/FC LUN 후보는 관리 또는 공용 스토리지에 사용 중이므로 제외했다. PCI 실제 할당도 이번 검증 범위에 포함하지 않았다.
 - vHBA의 실제 SAN LUN 할당 성공은 별도 zoning/mapping 환경에서 추가 검증이 필요하다. 생성·부분 실패·미할당 삭제 경로와 SCSI 실장치 왕복 테스트를 구분해 보고한다.
+- GitHub Actions 라이선스 검사는 통과했다. 저장소 전체 pre-commit 검사에는 기존 문서/라이선스 등 실패가 있으며, 실패 경로 118개가 기준 커밋과 동일한 blob임을 확인했다. 이번 변경의 이미지 확장자와 문서 라이선스 서식 문제는 정리했다. 전체 CI 통과로 보고하지 않는다.
