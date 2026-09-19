@@ -49,7 +49,17 @@
     <a-pagination v-model:current="current" v-model:pageSize="size" :total="filteredRows.length" :page-size-options="['10', '20', '50', '100']" show-size-changer class="schedule-pagination" @change="clampPage">
       <template #buildOptionText="props">{{ props.value }} / {{ $t('label.page') }}</template>
     </a-pagination>
-    <a-modal :visible="!!mode" :title="modalTitle" :width="720" centered wrap-class-name="vm-schedule-modal" :mask-closable="false" :closable="!submitting" :keyboard="!submitting" :destroy-on-close="true" @cancel="close">
+    <a-modal
+:visible="!!mode"
+:title="modalTitle"
+:width="720"
+centered
+wrap-class-name="vm-schedule-modal"
+:mask-closable="false"
+:closable="!submitting"
+:keyboard="!submitting"
+:destroy-on-close="true"
+@cancel="close">
       <template #footer>
         <a-button :disabled="submitting" @click="close">{{ $t(mode === 'details' ? 'label.close' : 'label.cancel') }}</a-button>
         <a-button v-if="mode !== 'details'" type="primary" :danger="mode === 'delete'" :loading="submitting" @click="submit">{{ $t(mode === 'delete' ? 'label.delete' : 'label.ok') }}</a-button>
@@ -72,7 +82,7 @@
         <p v-if="selected?.enddate" class="schedule-note schedule-spacing">{{ $t('message.schedule.enddate.keep') }}</p>
         <a-form-item :label="$t('label.schedule')" name="schedule">
           <div class="schedule-mode"><span>{{ $t('label.cron.mode') }}</span><a-switch v-model:checked="form.rawCron" :aria-label="$t('label.cron.mode')" /></div>
-          <cron-ant v-if="!form.rawCron" v-model="form.schedule" :periods="periods" :button-props="{ type: 'default', size: 'small' }" />
+          <cron-ant v-if="!form.rawCron" v-model="form.schedule" :periods="periods" :locale="$i18n.locale.replace('_', '-')" :custom-locale="cronLocale" :button-props="{ type: 'default', size: 'small' }" />
           <a-input v-else v-model:value="form.schedule" :aria-label="$t('label.cron')" />
           <span class="schedule-note">{{ human(form.schedule) }}</span>
           <span class="schedule-note">{{ $t('message.schedule.cron.help') }}</span>
@@ -106,7 +116,17 @@ export default {
   props: { resource: { type: Object, required: true }, loading: Boolean },
   data () {
     return {
-      rows: [], busy: false, current: 1, size: 10, search: '', mode: '', selected: null, submitting: false, submitError: '', form: {}, zones: [],
+      rows: [],
+      busy: false,
+      current: 1,
+      size: 10,
+      search: '',
+      mode: '',
+      selected: null,
+      submitting: false,
+      submitError: '',
+      form: {},
+      zones: [],
       actions: ['START', 'STOP', 'REBOOT', 'FORCE_STOP', 'FORCE_REBOOT'],
       periods: [
         { id: 'year', value: ['month', 'day', 'dayOfWeek', 'hour', 'minute'] },
@@ -118,6 +138,26 @@ export default {
   },
   computed: {
     scopeKey () { return JSON.stringify([this.resource.id, this.$store.getters.project?.id, this.$store.getters.userInfo?.id, this.$store.state?.user?.token]) },
+    cronLocale () {
+      if (this.$i18n.locale !== 'ko_KR') return undefined
+      return {
+        '*': {
+          prefix: '매',
+          suffix: '',
+          text: '',
+          '*': { empty: { text: '매번' }, value: { text: '{{val.text}}' }, range: { text: '{{start.text}}–{{end.text}}' }, everyX: { text: '{{every.value}}마다' } },
+          month: { '*': { prefix: '' }, empty: { text: '매월' }, value: { text: '{{val.alt}}' }, range: { text: '{{start.alt}}–{{end.alt}}' } },
+          day: { '*': { prefix: '' }, empty: { text: '매일' }, value: { text: '{{val.text}}일' } },
+          dayOfWeek: { '*': { prefix: '' }, empty: { text: '모든 요일' }, value: { text: '{{val.alt}}' }, range: { text: '{{start.alt}}–{{end.alt}}' } },
+          hour: { '*': { prefix: '' }, empty: { text: '매시' }, value: { text: '{{val.text}}시' } },
+          minute: { '*': { prefix: '' }, empty: { text: '매분' }, value: { text: '{{val.text}}분' } }
+        },
+        year: { text: '년', dayOfWeek: { '*': { prefix: '' } } },
+        month: { text: '월', dayOfWeek: { '*': { prefix: '' } } },
+        week: { text: '주' },
+        day: { text: '일' }
+      }
+    },
     columns () {
       return [
         { key: 'description', dataIndex: 'description', title: this.$t('label.description'), width: 200 },
@@ -141,13 +181,17 @@ export default {
       return {
         action: [{ required: true, message: this.$t('message.error.required.input') }],
         timezone: [{ required: true, message: this.$t('message.error.required.input') }],
-        schedule: [{ validator: async (_, value) => {
-          if (!value || value.trim().split(/\s+/).length !== 5) throw new Error(this.$t('message.schedule.cron.invalid'))
-          try { cronstrue.toString(value) } catch (_) { throw new Error(this.$t('message.schedule.cron.invalid')) }
-        } }],
-        endDate: [{ validator: async () => {
-          if (this.form.startDate && this.form.endDate && !this.form.endDate.isAfter(this.form.startDate)) throw new Error(this.$t('message.schedule.date.invalid'))
-        } }]
+        schedule: [{
+          validator: async (_, value) => {
+            if (!value || value.trim().split(/\s+/).length !== 5) throw new Error(this.$t('message.schedule.cron.invalid'))
+            try { cronstrue.toString(value) } catch (_) { throw new Error(this.$t('message.schedule.cron.invalid')) }
+          }
+        }],
+        endDate: [{
+          validator: async () => {
+            if (this.form.startDate && this.form.endDate && !this.form.endDate.isAfter(this.form.startDate)) throw new Error(this.$t('message.schedule.date.invalid'))
+          }
+        }]
       }
     },
     details () {
@@ -212,8 +256,12 @@ export default {
       this.submitError = ''
       this.selected = row ? { ...row } : null
       this.form = {
-        description: row?.description || '', action: row?.action || 'START', schedule: row?.schedule || '0 0 * * *', timezone: row?.timezone || 'UTC',
-        enabled: row ? row.enabled : true, rawCron: !!row,
+        description: row?.description || '',
+        action: row?.action || 'START',
+        schedule: row?.schedule || '0 0 * * *',
+        timezone: row?.timezone || 'UTC',
+        enabled: row ? row.enabled : true,
+        rawCron: !!row,
         // API dates represent instants; date pickers represent wall clock time in the schedule's timezone.
         startDate: row?.startdate ? dayjs(this.formatDate(row.startdate, row.timezone)) : null,
         endDate: row?.enddate ? dayjs(this.formatDate(row.enddate, row.timezone)) : null
@@ -251,7 +299,7 @@ export default {
         await this.fetchSchedules()
       } catch (error) {
         if (scope !== this.scopeKey) return
-        if (error.errorFields) this.$refs.editor?.scrollToField(error.errorFields[0].name)
+        if (error.errorFields && this.$refs.editor) this.$refs.editor.scrollToField(error.errorFields[0].name)
         else { this.submitError = error?.response?.data?.errorresponse?.errortext || error.message || this.$t('message.schedule.operation.failed'); this.$notifyError(error) }
       } finally { this.submitting = false }
     }

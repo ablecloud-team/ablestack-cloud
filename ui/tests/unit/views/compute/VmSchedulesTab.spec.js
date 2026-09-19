@@ -48,12 +48,12 @@ test('failed refresh preserves rows and shows stale warning', async () => {
   wrapper.unmount()
 })
 test('ignores a response belonging to a previous VM', async () => {
-  let resolve
-  getAPI.mockReturnValueOnce(new Promise(r => { resolve = r }))
+  let resolveRequest
+  getAPI.mockReturnValueOnce(new Promise(resolve => { resolveRequest = resolve }))
   const wrapper = mount()
   getAPI.mockResolvedValue(response([{ ...row, id: 's2' }]))
   await wrapper.setProps({ resource: { id: 'v2' } }); await flush()
-  resolve(response([row])); await flush()
+  resolveRequest(response([row])); await flush()
   expect(wrapper.vm.rows[0].id).toBe('s2')
   wrapper.unmount()
 })
