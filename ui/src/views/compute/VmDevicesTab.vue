@@ -34,7 +34,7 @@
         <template v-if="column.key === 'actions'">
           <div class="device-actions">
             <a-tooltip v-if="allowed(record.devicetype)" :title="reason(record.devicetype, record)"><span><a-button type="link" size="small" :disabled="!!reason(record.devicetype, record)" @click="openRecord('release', record)">{{ d(record.devicetype === 'pci' ? 'releasePci' : 'release') }}</a-button></span></a-tooltip>
-            <a-dropdown :trigger="['click']" placement="bottomRight"><a-button size="small" :aria-label="$t('label.actions')"><down-outlined /></a-button><template #overlay><a-menu @click="({ key }) => openRecord(key, record)"><a-menu-item key="inspect">{{ d('inspect') }}</a-menu-item><a-menu-divider /><a-menu-item key="details">{{ $t('label.details') }}</a-menu-item></a-menu></template></a-dropdown>
+            <a-dropdown :trigger="['click']" placement="bottomRight"><a-button size="small" :aria-label="$t('label.actions')"><down-outlined /></a-button><template #overlay><a-menu @click="({ key }) => openRecord(key, record)"><a-menu-item key="inspect">{{ d('inspect') }}</a-menu-item><a-menu-item v-if="record.hostuuid" key="host">{{ d('viewHost') }}</a-menu-item><a-menu-divider /><a-menu-item key="details">{{ $t('label.details') }}</a-menu-item></a-menu></template></a-dropdown>
           </div>
         </template>
       </template>
@@ -61,6 +61,7 @@ wrap-class-name="vm-device-dialog"
           <a-form-item v-if="type === 'lun' && mode === 'existing'" :label="d('pathMode')"><a-select v-model:value="pathMode" :disabled="submitting" @change="fetchCandidates"><a-select-option value="single">{{ d('single') }}</a-select-option><a-select-option value="multipath">{{ d('multipath') }}</a-select-option></a-select></a-form-item>
           <a-alert v-if="operationReason" type="warning" show-icon :message="operationReason" />
           <a-form-item :label="mode === 'create' ? d('parentHba') : d('device')"><a-select v-model:value="choice" :loading="candidateLoading" :disabled="busy || !hostId" show-search option-filter-prop="label"><a-select-option v-for="item in candidates" :key="item.name" :value="item.name" :label="item.name + ' ' + item.text" :disabled="!!item.allocation || item.protected">{{ item.name }} — {{ item.text }}{{ item.protected ? ' · ' + d('protected') : (item.allocation ? ' · ' + d('occupied') : '') }}</a-select-option></a-select><p class="device-help">{{ d('candidateHelp') }}</p></a-form-item>
+          <a-button v-if="mode === 'existing' && type === 'vhba' && choice && api('deleteVhbaDevice')" :disabled="submitting" @click="openDeleteCandidate">{{ d('deleteVhba') }}</a-button>
           <a-form-item v-if="mode === 'create'" :label="d('vhbaName')"><a-input v-model:value="vhbaName" :maxlength="80" :disabled="submitting" /><p class="device-help">{{ d('vhbaHelp') }}</p></a-form-item>
           <a-form-item v-if="['hba', 'vhba'].includes(type) && mode === 'existing'" :label="d('scsiAddress')"><a-select v-model:value="address" :disabled="submitting" :options="scsiChoices" /><p class="device-help">{{ d('scsiHelp') }}</p></a-form-item>
           <a-alert v-if="['lun', 'scsi', 'hba', 'vhba'].includes(type)" type="warning" show-icon :message="d('storageWarning')" />
@@ -76,7 +77,7 @@ wrap-class-name="vm-device-dialog"
         <a-alert :type="resultFailed ? 'warning' : 'success'" show-icon :message="d(resultFailed ? 'partial' : 'complete')" />
         <p v-for="step in steps" :key="step">{{ step }}</p>
         <p v-if="createdDevice" class="device-help">{{ d('retained') }}: {{ createdDevice }}</p>
-        <a-button v-if="createdDevice && resultFailed && api('deleteVhbaDevice')" @click="dialog = 'deleteVhba'; ack = false">{{ d('deleteVhba') }}</a-button>
+        <a-button v-if="createdDevice && api('deleteVhbaDevice')" @click="dialog = 'deleteVhba'; ack = false">{{ d('deleteVhba') }}</a-button>
       </template>
       <template v-if="dialog === 'deleteVhba'"><p>{{ createdDevice }}</p><a-alert type="warning" show-icon :message="d('deleteWarning')" /><a-checkbox v-model:checked="ack">{{ d('ackRelease') }}</a-checkbox></template>
       <template #footer>
@@ -155,7 +156,12 @@ export default {
       }
       await this.fetchCandidates()
     },
-    openRecord (dialog, record) { this.selected = record; this.dialog = dialog; this.dialogError = ''; this.ack = false },
+    openRecord (dialog, record) { if (dialog === 'host') { this.$router.push('/host/' + record.hostuuid); return } this.selected = record; this.dialog = dialog; this.dialogError = ''; this.ack = false },
+    openDeleteCandidate () {
+      const item = this.candidates.find(c => c.name === this.choice && !c.allocation)
+      if (!item) return
+      this.createdDevice = item.name; this.createdHost = this.hostId; this.dialog = 'deleteVhba'; this.ack = false; this.dialogError = ''
+    },
     close () { if (!this.submitting) { this.dialog = ''; this.candidateRevision++ } },
     changeMode () { this.type = this.mode === 'create' ? 'vhba' : 'usb'; this.fetchCandidates() },
     async loadCandidates (type, hostId) {
@@ -201,7 +207,9 @@ export default {
           if (!row) throw new Error(this.d('verifyFirst'))
           const xml = deviceXml({ ...row, type: row.devicetype })
           await postAPI(deviceTypes[row.devicetype][1], { hostid: row.hostuuid, hostdevicesname: row.hostdevicesname, currentvmid: vmId, xmlconfig: xml })
-          this.dialog = ''; this.$message.success(this.d('complete'))
+          if (row.devicetype === 'vhba') {
+            this.createdDevice = row.hostdevicesname; this.createdHost = row.hostuuid; this.resultFailed = false; this.steps = [this.d('released')]; this.dialog = 'result'
+          } else { this.dialog = ''; this.$message.success(this.d('complete')) }
         } else if (this.mode === 'create') {
           this.steps = []; this.resultFailed = false; this.createdHost = this.hostId
           const parents = await this.loadCandidates('hba', this.hostId)
@@ -228,7 +236,7 @@ export default {
           this.dialog = ''; this.$message.success(this.d('complete'))
         }
       } catch (e) {
-        this.dialogError = e.message === 'device-address-unverified' ? this.d('addressUnverified') : (e.response?.data?.errorresponse?.errortext || e.message || this.d('failed'))
+        this.dialogError = e.message === 'device-address-unverified' ? this.d('addressUnverified') : (Object.values(e.response?.data || {}).find(v => v?.errortext)?.errortext || e.message || this.d('failed'))
         if (this.createdDevice && action === 'allocate') { this.resultFailed = true; this.dialog = 'result'; this.steps.push(this.d('failed')) }
       } finally { this.busy = false; this.submitting = false; await this.refresh() }
     }

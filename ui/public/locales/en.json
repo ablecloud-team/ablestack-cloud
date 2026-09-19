@@ -7883,5 +7883,7 @@
   "label.vmdevice.allocated": "VM allocation completed",
   "label.vmdevice.failed": "Operation failed. Verify current state.",
   "label.vmdevice.addressUnverified": "Device address could not be verified. Check host device information.",
-  "label.vmdevice.protected": "Host management device · unavailable"
+  "label.vmdevice.protected": "Host management device · unavailable",
+  "label.vmdevice.viewHost": "View host",
+  "label.vmdevice.released": "VM allocation released"
 }
