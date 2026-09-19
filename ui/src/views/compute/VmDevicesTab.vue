@@ -86,7 +86,7 @@ export default {
   name: 'VmDevicesTab',
   props: { resource: { type: Object, required: true }, active: Boolean },
   data () {
-    return { vm: this.resource, rows: [], loading: false, busy: false, error: '', snapshots: null, search: '', filter: '', page: 1, pageSize: 10, dialog: '', selected: null, ack: false, dialogError: '', mode: 'existing', type: 'usb', pathMode: 'multipath', candidates: [], candidateLoading: false, choice: undefined, hostId: this.resource.hostid, hosts: [], address: undefined, scsiDevices: [], vhbaName: '', createdDevice: '', createdHost: '', resultFailed: false, steps: [], revision: 0, candidateRevision: 0 }
+    return { vm: this.resource, rows: [], loading: false, busy: false, submitting: false, error: '', snapshots: null, search: '', filter: '', page: 1, pageSize: 10, dialog: '', selected: null, ack: false, dialogError: '', mode: 'existing', type: 'usb', pathMode: 'multipath', candidates: [], candidateLoading: false, choice: undefined, hostId: this.resource.hostid, hosts: [], address: undefined, scsiDevices: [], vhbaName: '', createdDevice: '', createdHost: '', resultFailed: false, steps: [], revision: 0, candidateRevision: 0 }
   },
   computed: {
     types () { return Object.keys(deviceTypes) },
@@ -102,11 +102,13 @@ export default {
     filteredRows () { const q = this.search.toLowerCase(); return this.rows.filter(r => (!this.filter || r.devicetype === this.filter) && [r.hostdevicesname, r.hostdevicestext, r.hostname].join(' ').toLowerCase().includes(q)) },
     visibleRows () { return this.filteredRows.slice((this.page - 1) * this.pageSize, this.page * this.pageSize) },
     dialogTitle () { return this.dialog === 'details' ? this.$t('label.details') : this.d({ allocate: this.mode === 'create' ? 'createVhba' : 'allocate', release: this.selected?.devicetype === 'pci' ? 'releasePci' : 'release', inspect: 'inspect', result: 'result', deleteVhba: 'deleteVhba' }[this.dialog] || 'device') },
-    submitDisabled () { return this.busy || !this.ack || (this.dialog === 'allocate' && (!!this.operationReason || this.candidateLoading || !this.choice || !this.hostId || (this.mode === 'create' && !/^[\w-]{1,80}$/.test(this.vhbaName)))) || (this.dialog === 'release' && !!this.reason(this.selected?.devicetype, this.selected)) },
+    submitDisabled () { return this.submitting || this.busy || !this.ack || (this.dialog === 'allocate' && (!!this.operationReason || this.candidateLoading || !this.choice || !this.hostId || (this.mode === 'create' && !/^[\w-]{1,80}$/.test(this.vhbaName)))) || (this.dialog === 'release' && !!this.reason(this.selected?.devicetype, this.selected)) },
     scsiChoices () { return this.scsiDevices.filter(d => (d.text || '').includes('[' + (this.choice || '').replace('scsi_host', '') + ':')).map(d => ({ value: (d.text.match(/\[(\d+:\d+:\d+:\d+)\]/) || [])[1], label: d.name + ' — ' + d.text })).filter(d => d.value) }
   },
   watch: {
     active: { immediate: true, handler (value) { if (value) this.refresh() } },
+    'resource.state' () { if (this.active) this.refresh() },
+    'resource.hostid' () { if (this.active) this.refresh() },
     'resource.id' () { this.revision++; this.candidateRevision++; this.dialog = ''; this.rows = []; this.snapshots = null; if (this.active) this.refresh() }
   },
   beforeUnmount () { this.revision++; this.candidateRevision++ },
@@ -168,11 +170,12 @@ export default {
     },
     async submit () {
       if (this.submitDisabled) return
+      this.submitting = true
       const action = this.dialog
       this.dialogError = ''
       await this.refresh()
       const reason = action === 'release' ? this.reason(this.selected.devicetype, this.selected) : this.operationReason
-      if (action !== 'deleteVhba' && reason) { this.dialogError = reason; return }
+      if (action !== 'deleteVhba' && reason) { this.dialogError = reason; this.submitting = false; return }
       this.busy = true
       try {
         if (action === 'deleteVhba') {
@@ -213,7 +216,7 @@ export default {
       } catch (e) {
         this.dialogError = e.message === 'device-address-unverified' ? this.d('addressUnverified') : (e.response?.data?.errorresponse?.errortext || e.message || this.d('failed'))
         if (this.createdDevice && action === 'allocate') { this.resultFailed = true; this.dialog = 'result'; this.steps.push(this.d('failed')) }
-      } finally { this.busy = false; await this.refresh() }
+      } finally { this.busy = false; this.submitting = false; await this.refresh() }
     }
   }
 }
@@ -236,7 +239,7 @@ export default {
   .ant-modal-content { display: flex; flex-direction: column; max-height: calc(100dvh - 48px); background: var(--ui-bg-surface); color: var(--ui-text-primary); }
   .ant-modal-header, .ant-modal-footer { flex: none; background: var(--ui-bg-surface); border-color: var(--ui-border); }
   .ant-modal-title, .ant-modal-close, .ant-form-item-label > label, .ant-checkbox-wrapper { color: var(--ui-text-primary); }
-  .ant-modal-body { overflow-y: auto; min-height: 0; color-scheme: dark; }
+  .ant-modal-body { overflow-y: auto; min-height: 0; color-scheme: normal; }
   .ant-form { margin-top: 20px; }
   .ant-descriptions { margin-bottom: 20px; }
   .ant-descriptions-item-label { background: var(--ui-bg-page); color: var(--ui-text-primary); }

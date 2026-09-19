@@ -141,9 +141,7 @@
 
 <script>
 
-import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { getAPI, postAPI } from '@/api'
-import { h } from 'vue'
 import { mixinDevice } from '@/utils/mixin.js'
 import ResourceLayout from '@/layouts/ResourceLayout'
 import DetailsTab from '@/components/view/DetailsTab'
@@ -214,76 +212,7 @@ export default {
       dataPreFill: {},
       securitygroupids: [],
       securityGroupNetworkProviderUseThisVM: false,
-      usbDevices: [],
-      lunDevices: [],
-      pciDevices: [],
-      hbaDevices: [],
-      vhbaDevices: [],
-      scsiDevices: [],
-      // 디바이스 데이터 캐싱을 위한 플래그들
-      devicesLoaded: false,
-      deviceLoadingStates: {
-        pci: false,
-        usb: false,
-        lun: false,
-        hba: false,
-        vhba: false,
-        scsi: false,
-        fetching: false
-      },
-      deviceAssignmentsPromise: null,
-      deviceColumns: [
-        {
-          title: this.$t('label.name'),
-          dataIndex: 'hostDevicesName',
-          key: 'hostDevicesName',
-          fixed: 'left',
-          width: 250,
-          customRender: ({ text }) => {
-            return h('div', { style: 'white-space: pre-line; line-height: 1.4; min-height: 50px; padding-top: 8px;' }, this.formatDeviceName(text))
-          }
-        },
-        {
-          title: this.$t('label.details'),
-          dataIndex: 'hostDevicesText',
-          key: 'hostDevicesText',
-          width: 500,
-          customRender: ({ text }) => {
-            return h('div', {
-              style: 'white-space: pre-wrap; word-break: break-word; min-height: 40px;',
-              innerHTML: this.formatHostDevicesText(text)
-            })
-          }
-        }
-      ],
-      scsiDeviceColumns: [
-        {
-          title: this.$t('label.name'),
-          dataIndex: 'hostDevicesName',
-          key: 'hostDevicesName',
-          fixed: 'left',
-          width: 250,
-          customRender: ({ record }) => {
-            return h(
-              'div',
-              { style: 'white-space: pre-line; line-height: 1.4; min-height: 50px; padding-top: 8px;' },
-              this.formatDeviceName(record.scsiDisplayName || record.hostDevicesName)
-            )
-          }
-        },
-        {
-          title: this.$t('label.details'),
-          dataIndex: 'hostDevicesText',
-          key: 'hostDevicesText',
-          width: 500,
-          customRender: ({ text }) => {
-            return h('div', {
-              style: 'white-space: pre-wrap; word-break: break-word; min-height: 40px;',
-              innerHTML: this.formatScsiHostDevicesText(text)
-            })
-          }
-        }
-      ]
+
     }
   },
   created () {
@@ -310,8 +239,7 @@ export default {
 
           // 호스트가 변경되었거나, VM 상태가 변경되면 디바이스 캐시 초기화
           if (oldHostId !== newHostId || oldState !== newState) {
-            this.resetDeviceCache()
-            // 디바이스 탭이 열려있으면 즉시 새로고침
+                // 디바이스 탭이 열려있으면 즉시 새로고침
             if (this.currentTab === 'hostdevices') {
               this.fetchData()
             }
@@ -460,10 +388,7 @@ export default {
         }
       })
 
-      if (!this.devicesLoaded) {
-        await /* Device refresh is owned by VmDevicesTab. */
-        this.devicesLoaded = true
-      }
+
     },
     listDiskOfferings () {
       getAPI('listDiskOfferings', {
@@ -506,7 +431,6 @@ export default {
     async handleChangeTab (activeKey) {
       // Load host device data only when the device tab is selected.
       if (activeKey === 'hostdevices') {
-        this.resetDeviceCache()
         await this.fetchData()
       }
 
@@ -534,200 +458,7 @@ export default {
       }
       this.currentTab = activeKey
     },
-    resetDeviceCache () {
-      this.devicesLoaded = false
-      this.deviceLoadingStates = {
-        pci: false,
-        usb: false,
-        lun: false,
-        hba: false,
-        vhba: false,
-        scsi: false,
-        fetching: false
-      }
-      this.deviceAssignmentsPromise = null
-      // 장치 데이터 초기화
-      this.pciDevices = []
-      this.usbDevices = []
-      this.lunDevices = []
-      this.hbaDevices = []
-      this.vhbaDevices = []
-      this.scsiDevices = []
-    },
-    async loadDevicesFromDb () {
-      const request = this.listRequestToken('loadDevicesFromDb')
 
-      const deviceTypes = ['pci', 'usb', 'lun', 'hba', 'vhba', 'scsi']
-      this.deviceAssignmentsPromise = (async () => {
-        this.deviceLoadingStates.fetching = !request.loaded
-        deviceTypes.forEach(type => { this.deviceLoadingStates[type] = !request.loaded })
-
-        try {
-          const response = await getAPI('listVmDeviceAssignments', { virtualmachineid: this.vm.id })
-          if (!this.isListRequestCurrent('loadDevicesFromDb', request)) return
-          const assignments = response?.listvmdeviceassignmentsresponse?.vmdeviceassignment
-          const assignmentList = Array.isArray(assignments)
-            ? assignments
-            : assignments
-              ? [assignments]
-              : []
-
-          const categorized = {
-            pci: [],
-            usb: [],
-            lun: [],
-            hba: [],
-            vhba: [],
-            scsi: []
-          }
-
-          const addUnique = (list, device) => {
-            if (!list.some(existing =>
-              existing.hostDevicesName === device.hostDevicesName &&
-              existing.hostId === device.hostId)) {
-              list.push(device)
-            }
-          }
-
-          assignmentList.forEach(item => {
-            const type = (item.devicetype || '').toLowerCase()
-            if (!['pci', 'usb', 'lun', 'hba', 'vhba', 'scsi'].includes(type)) {
-              return
-            }
-            const device = {
-              key: `${item.hostid || 'na'}-${item.hostdevicesname}`,
-              hostDevicesName: item.hostdevicesname,
-              hostDevicesText: item.hostdevicestext || '',
-              hostId: item.hostid
-            }
-            if (type === 'scsi') {
-              const devMatch = String(device.hostDevicesText).match(/Device:\s*(\S+)/i)
-              device.scsiDisplayName = devMatch ? devMatch[1] : device.hostDevicesName
-            }
-
-            switch (type) {
-              case 'pci':
-                addUnique(categorized.pci, device)
-                break
-              case 'usb':
-                addUnique(categorized.usb, device)
-                break
-              case 'lun':
-                addUnique(categorized.lun, device)
-                break
-              case 'hba':
-                addUnique(categorized.hba, device)
-                break
-              case 'vhba':
-                addUnique(categorized.vhba, device)
-                break
-              case 'scsi':
-                addUnique(categorized.scsi, device)
-                break
-            }
-          })
-
-          const hostId = this.vm?.hostid || categorized.lun?.[0]?.hostId
-          if (hostId && categorized.lun.length > 0) {
-            const lunDetailMap = (request.loaded ? Object.fromEntries(this.lunDevices.map(device => [device.hostDevicesName, device.hostDevicesText])) : await this.fetchLunDetailMap(hostId))
-            categorized.lun = categorized.lun.map(device => {
-              if (device.hostDevicesText && String(device.hostDevicesText).trim().length > 0) {
-                return device
-              }
-              const detail = lunDetailMap[device.hostDevicesName]
-              if (detail) {
-                return { ...device, hostDevicesText: detail }
-              }
-              return device
-            })
-          }
-
-          if (!this.isListRequestCurrent('loadDevicesFromDb', request)) return
-          this.pciDevices = categorized.pci
-          this.usbDevices = categorized.usb
-          this.lunDevices = categorized.lun
-          this.hbaDevices = categorized.hba
-          this.vhbaDevices = categorized.vhba
-          this.scsiDevices = categorized.scsi
-        } catch (error) {
-          if (!this.isListRequestCurrent('loadDevicesFromDb', request)) return
-          request.failed = true
-          this.listRefreshFailed = true
-          if (request.loaded) return
-          console.error('Failed to load VM device assignments', error)
-          this.pciDevices = []
-          this.usbDevices = []
-          this.lunDevices = []
-          this.hbaDevices = []
-          this.vhbaDevices = []
-          this.scsiDevices = []
-        } finally {
-          if (this.isListRequestCurrent('loadDevicesFromDb', request)) {
-            deviceTypes.forEach(type => { this.deviceLoadingStates[type] = false })
-            this.deviceLoadingStates.fetching = false
-            this.deviceAssignmentsPromise = null
-          }
-        }
-      })()
-
-      return this.deviceAssignmentsPromise
-    },
-    async fetchLunDetailMap (hostId) {
-      const detailMap = {}
-      try {
-        const [singleSettled, multiSettled] = await Promise.allSettled([
-          getAPI('listHostLunDevices', { id: hostId, lunpathmode: 'single', lunPathMode: 'single' }),
-          getAPI('listHostLunDevices', { id: hostId, lunpathmode: 'multipath', lunPathMode: 'multipath' })
-        ])
-
-        const sources = []
-        if (singleSettled.status === 'fulfilled') {
-          sources.push(singleSettled.value?.listhostlundevicesresponse?.listhostlundevices?.[0])
-        }
-        if (multiSettled.status === 'fulfilled') {
-          sources.push(multiSettled.value?.listhostlundevicesresponse?.listhostlundevices?.[0])
-        }
-
-        sources.forEach(src => {
-          if (!src) return
-          if (src.devicedetails && typeof src.devicedetails === 'object') {
-            Object.entries(src.devicedetails).forEach(([name, text]) => {
-              if (name && text && !detailMap[name]) {
-                detailMap[name] = text
-              }
-            })
-          }
-          const names = Array.isArray(src.hostdevicesname) ? src.hostdevicesname : []
-          const texts = Array.isArray(src.hostdevicestext) ? src.hostdevicestext : []
-          names.forEach((name, idx) => {
-            const text = texts[idx]
-            if (name && text && !detailMap[name]) {
-              detailMap[name] = text
-            }
-          })
-        })
-      } catch (e) {
-      }
-      return detailMap
-    },
-    async fetchPciDevices () {
-      await /* Device refresh is owned by VmDevicesTab. */
-    },
-    async fetchUsbDevices () {
-      await /* Device refresh is owned by VmDevicesTab. */
-    },
-    async fetchLunDevices () {
-      await /* Device refresh is owned by VmDevicesTab. */
-    },
-    async fetchHbaDevices () {
-      await /* Device refresh is owned by VmDevicesTab. */
-    },
-    async fetchVhbaDevices () {
-      await /* Device refresh is owned by VmDevicesTab. */
-    },
-    async fetchScsiDevices () {
-      await /* Device refresh is owned by VmDevicesTab. */
-    }
   }
 }
 </script>
