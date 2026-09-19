@@ -7851,5 +7851,6 @@
   "label.schedule.no.end": "No end date",
   "label.schedule.period": "Validity period",
   "label.enable": "Enable",
-  "label.disable": "Disable"
+  "label.disable": "Disable",
+  "label.cloud": "Cloud"
 }

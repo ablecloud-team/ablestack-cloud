@@ -7812,5 +7812,6 @@
   "label.schedule.no.end": "종료일 없음",
   "label.schedule.period": "유효 기간",
   "label.enable": "활성화",
-  "label.disable": "비활성화"
+  "label.disable": "비활성화",
+  "label.cloud": "클라우드"
 }
