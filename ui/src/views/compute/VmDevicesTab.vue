@@ -48,8 +48,8 @@
 centered
 wrap-class-name="vm-device-dialog"
 :mask-closable="false"
-:closable="!busy"
-:keyboard="!busy"
+:closable="!submitting"
+:keyboard="!submitting"
 @cancel="close">
       <a-descriptions :column="2" size="small" bordered><a-descriptions-item :label="$t('label.virtualmachine')">{{ vm.displayname || vm.name }}</a-descriptions-item><a-descriptions-item :label="$t('label.state')">{{ vm.state }}</a-descriptions-item><a-descriptions-item :label="$t('label.host')">{{ vm.hostname || hostId || d('unknown') }}</a-descriptions-item><a-descriptions-item :label="$t('label.account')">{{ vm.account }}</a-descriptions-item></a-descriptions>
       <a-alert v-if="dialogError" type="error" show-icon :message="dialogError" />
@@ -80,7 +80,7 @@ wrap-class-name="vm-device-dialog"
       </template>
       <template v-if="dialog === 'deleteVhba'"><p>{{ createdDevice }}</p><a-alert type="warning" show-icon :message="d('deleteWarning')" /><a-checkbox v-model:checked="ack">{{ d('ackRelease') }}</a-checkbox></template>
       <template #footer>
-        <a-button :disabled="busy" @click="close">{{ $t(['details', 'inspect', 'result'].includes(dialog) ? 'label.close' : 'label.cancel') }}</a-button>
+        <a-button :disabled="submitting" @click="close">{{ $t(['details', 'inspect', 'result'].includes(dialog) ? 'label.close' : 'label.cancel') }}</a-button>
         <a-button v-if="dialog === 'inspect'" disabled>{{ d('cleanup') }}</a-button>
         <a-button v-if="['allocate', 'release', 'deleteVhba'].includes(dialog)" type="primary" :danger="dialog !== 'allocate'" :loading="busy" :disabled="submitDisabled" @click="submit">{{ dialogTitle }}</a-button>
       </template>
@@ -156,7 +156,7 @@ export default {
       await this.fetchCandidates()
     },
     openRecord (dialog, record) { this.selected = record; this.dialog = dialog; this.dialogError = ''; this.ack = false },
-    close () { if (!this.busy) { this.dialog = ''; this.candidateRevision++ } },
+    close () { if (!this.submitting) { this.dialog = ''; this.candidateRevision++ } },
     changeMode () { this.type = this.mode === 'create' ? 'vhba' : 'usb'; this.fetchCandidates() },
     async loadCandidates (type, hostId) {
       const name = deviceTypes[type][0]
@@ -181,8 +181,11 @@ export default {
       if (this.submitDisabled) return
       this.submitting = true
       const action = this.dialog
+      const vmId = this.resource.id
+      const hostId = this.hostId
       this.dialogError = ''
       await this.refresh()
+      if (this.resource.id !== vmId || this.dialog !== action) { this.submitting = false; return }
       const reason = action === 'release' ? this.reason(this.selected.devicetype, this.selected) : this.operationReason
       if (action !== 'deleteVhba' && reason) { this.dialogError = reason; this.submitting = false; return }
       this.busy = true
@@ -197,12 +200,13 @@ export default {
           const row = this.rows.find(r => this.rowKey(r) === this.rowKey(this.selected))
           if (!row) throw new Error(this.d('verifyFirst'))
           const xml = deviceXml({ ...row, type: row.devicetype })
-          await postAPI(deviceTypes[row.devicetype][1], { hostid: row.hostuuid, hostdevicesname: row.hostdevicesname, currentvmid: this.vm.id, xmlconfig: xml })
+          await postAPI(deviceTypes[row.devicetype][1], { hostid: row.hostuuid, hostdevicesname: row.hostdevicesname, currentvmid: vmId, xmlconfig: xml })
           this.dialog = ''; this.$message.success(this.d('complete'))
         } else if (this.mode === 'create') {
           this.steps = []; this.resultFailed = false; this.createdHost = this.hostId
           const parents = await this.loadCandidates('hba', this.hostId)
           if (!parents.some(c => c.name === this.choice && !c.allocation)) throw new Error(this.d('verifyFirst'))
+          if (this.resource.id !== vmId) throw new Error(this.d('verifyFirst'))
           const r = await postAPI('createVhbaDevice', { hostid: this.hostId, parenthbaname: this.choice, vhbaname: this.vhbaName, xmlconfig: vhbaXml(this.choice) })
           const body = r.createvhbadeviceresponse || r
           const result = asArray(body.createvhbadevice)[0] || body
@@ -212,14 +216,15 @@ export default {
           const candidates = await this.loadCandidates('vhba', this.hostId)
           const device = candidates.find(c => c.name === this.createdDevice)
           if (!device || device.allocation || device.protected) throw new Error(this.d('verifyFirst'))
-          await postAPI(deviceTypes.vhba[1], { hostid: this.hostId, virtualmachineid: this.vm.id, hostdevicesname: device.name, hostdevicestext: device.text, xmlconfig: deviceXml(device) })
+          await postAPI(deviceTypes.vhba[1], { hostid: hostId, virtualmachineid: vmId, hostdevicesname: device.name, hostdevicestext: device.text, xmlconfig: deviceXml(device) })
           this.steps.push(this.d('allocated')); this.createdDevice = ''; this.dialog = 'result'
         } else {
           const candidates = await this.loadCandidates(this.type, this.hostId)
           const device = candidates.find(c => c.name === this.choice)
           if (!device || device.allocation || device.protected) throw new Error(this.d('occupied'))
           const xml = deviceXml({ ...device, address: this.address })
-          await postAPI(deviceTypes[this.type][1], { hostid: this.hostId, hostdevicesname: device.name, hostdevicestext: device.text, virtualmachineid: this.vm.id, xmlconfig: xml })
+          if (this.resource.id !== vmId) throw new Error(this.d('verifyFirst'))
+          await postAPI(deviceTypes[this.type][1], { hostid: hostId, hostdevicesname: device.name, hostdevicestext: device.text, virtualmachineid: vmId, xmlconfig: xml })
           this.dialog = ''; this.$message.success(this.d('complete'))
         }
       } catch (e) {
