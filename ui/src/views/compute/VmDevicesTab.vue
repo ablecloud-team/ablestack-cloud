@@ -60,7 +60,7 @@ wrap-class-name="vm-device-dialog"
           <a-form-item v-if="mode === 'existing'" :label="d('type')"><a-select v-model:value="type" :disabled="submitting" @change="fetchCandidates"><a-select-option v-for="t in types.filter(allowed)" :key="t" :value="t">{{ t.toUpperCase() }}</a-select-option></a-select></a-form-item>
           <a-form-item v-if="type === 'lun' && mode === 'existing'" :label="d('pathMode')"><a-select v-model:value="pathMode" :disabled="submitting" @change="fetchCandidates"><a-select-option value="single">{{ d('single') }}</a-select-option><a-select-option value="multipath">{{ d('multipath') }}</a-select-option></a-select></a-form-item>
           <a-alert v-if="operationReason" type="warning" show-icon :message="operationReason" />
-          <a-form-item :label="mode === 'create' ? d('parentHba') : d('device')"><a-select v-model:value="choice" :loading="candidateLoading" :disabled="busy || !hostId" show-search option-filter-prop="label"><a-select-option v-for="item in candidates" :key="item.name" :value="item.name" :label="item.name + ' ' + item.text" :disabled="!!item.allocation || item.protected">{{ item.name }} — {{ item.text }}{{ item.protected ? ' · ' + d('protected') : (item.allocation ? ' · ' + d('occupied') : '') }}</a-select-option></a-select><p class="device-help">{{ d('candidateHelp') }}</p></a-form-item>
+          <a-form-item :label="mode === 'create' ? d('parentHba') : d('device')"><a-select v-model:value="choice" :loading="candidateLoading" :disabled="busy || !hostId" show-search option-filter-prop="label"><a-select-option v-for="item in candidates" :key="item.name" :value="item.name" :label="item.name + ' ' + item.text" :disabled="!!item.allocation || item.protected"><a-tooltip :title="candidateLabel(item)" placement="topLeft" overlay-class-name="vm-device-option-tooltip"><span class="vm-device-option-label">{{ candidateLabel(item) }}</span></a-tooltip></a-select-option></a-select><p class="device-help">{{ d('candidateHelp') }}</p></a-form-item>
           <a-button v-if="mode === 'existing' && type === 'vhba' && choice && api('deleteVhbaDevice')" :disabled="submitting" @click="openDeleteCandidate">{{ d('deleteVhba') }}</a-button>
           <a-form-item v-if="mode === 'create'" :label="d('vhbaName')"><a-input v-model:value="vhbaName" :maxlength="80" :disabled="submitting" /><p class="device-help">{{ d('vhbaHelp') }}</p></a-form-item>
           <a-form-item v-if="['hba', 'vhba'].includes(type) && mode === 'existing'" :label="d('scsiAddress')"><a-select v-model:value="address" :disabled="submitting" :options="scsiChoices" /><p class="device-help">{{ d('scsiHelp') }}</p></a-form-item>
@@ -126,6 +126,7 @@ export default {
     d (key) { return this.$t('label.vmdevice.' + key) },
     api (name) { return name in this.$store.getters.apis },
     allowed (type) { return !!deviceTypes[type] && this.api(deviceTypes[type][1]) },
+    candidateLabel (item) { return item.name + ' — ' + item.text + (item.protected ? ' · ' + this.d('protected') : (item.allocation ? ' · ' + this.d('occupied') : '')) },
     rowKey (r) { return [r.hostid, r.devicetype, r.hostdevicesname].join(':') },
     reason (type, row) {
       if (this.blockReason) return this.blockReason
@@ -249,6 +250,8 @@ export default {
 </script>
 
 <style lang="scss">
+.vm-device-option-label { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vm-device-option-tooltip { max-width: min(600px, calc(100vw - 32px)); .ant-tooltip-inner { white-space: normal; overflow-wrap: anywhere; } }
 .vm-devices {
   color: var(--ui-text-primary);
   .device-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; align-items: center; }
