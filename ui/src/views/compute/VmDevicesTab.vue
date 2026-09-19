@@ -253,7 +253,7 @@ export default {
   .ant-modal-content { display: flex; flex-direction: column; max-height: calc(100dvh - 48px); background: var(--ui-bg-surface); color: var(--ui-text-primary); }
   .ant-modal-header, .ant-modal-footer { flex: none; background: var(--ui-bg-surface); border-color: var(--ui-border); }
   .ant-modal-title, .ant-modal-close, .ant-form-item-label > label, .ant-checkbox-wrapper { color: var(--ui-text-primary); }
-  .ant-modal-body { overflow-y: auto; min-height: 0; color-scheme: normal; }
+  .ant-modal-body { overflow-y: auto; min-height: 0; }
   .ant-form { margin-top: 20px; }
   .ant-descriptions { margin-bottom: 20px; }
   .ant-descriptions-item-label { background: var(--ui-bg-page); color: var(--ui-text-primary); }
