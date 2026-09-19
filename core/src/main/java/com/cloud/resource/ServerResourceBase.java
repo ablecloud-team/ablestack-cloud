@@ -296,6 +296,7 @@ public abstract class ServerResourceBase implements ServerResource {
         try {
             ListHostLunDeviceAnswer fast = listHostLunDevicesFast(lunPathMode);
             if (fast != null && fast.getResult()) {
+                fast.setDeviceUsageStatus(new HostBlockDeviceSafety().inspect().statuses(fast.getHostDevicesNames()));
                 return fast;
             }
 
@@ -334,7 +335,9 @@ public abstract class ServerResourceBase implements ServerResource {
                 collectMultipathDevicesUnified(hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses, scsiAddressCache, addedDevices, mppSlow);
             }
 
-            return new ListHostLunDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses);
+            ListHostLunDeviceAnswer resultAnswer = new ListHostLunDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses);
+            resultAnswer.setDeviceUsageStatus(new HostBlockDeviceSafety().inspect().statuses(resultAnswer.getHostDevicesNames()));
+            return resultAnswer;
 
         } catch (Exception e) {
             return new ListHostLunDeviceAnswer(false, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
@@ -2356,6 +2359,7 @@ public abstract class ServerResourceBase implements ServerResource {
         try {
             ListHostScsiDeviceAnswer fast = listHostScsiDevicesFast();
             if (fast != null && fast.getResult()) {
+                fast.setDeviceUsageStatus(new HostBlockDeviceSafety().inspect().statuses(fast.getHostDevicesNames()));
                 return fast;
             }
             Map<Path, String> realToById = buildByIdReverseMap();
@@ -2399,7 +2403,9 @@ public abstract class ServerResourceBase implements ServerResource {
                 hasPartitions.add(false);
             }
 
-            return new ListHostScsiDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions);
+            ListHostScsiDeviceAnswer resultAnswer = new ListHostScsiDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions);
+            resultAnswer.setDeviceUsageStatus(new HostBlockDeviceSafety().inspect().statuses(resultAnswer.getHostDevicesNames()));
+            return resultAnswer;
         } catch (Exception e) {
             return new ListHostScsiDeviceAnswer(false, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         }
@@ -2833,6 +2839,13 @@ public abstract class ServerResourceBase implements ServerResource {
                 return new DeleteVhbaDeviceAnswer(command, false, "vHBA가 VM에 할당되어 있어 삭제할 수 없습니다. 먼저 할당을 해제해주세요.");
             }
 
+            // Creation stores the XML by WWNN, even when deletion is requested by name.
+            // Resolve this identity before nodedev-destroy removes the live XML.
+            String backupWwnn = extractWwnnFromXml(getVhbaDumpXml(targetDeviceName));
+            if (backupWwnn != null && !backupWwnn.matches("[0-9a-fA-F]{16}")) {
+                backupWwnn = null;
+            }
+
             Script destroyCommand = new Script("/bin/bash");
             destroyCommand.add("-c");
             destroyCommand.add("/usr/bin/virsh nodedev-destroy " + targetDeviceName);
@@ -2844,8 +2857,8 @@ public abstract class ServerResourceBase implements ServerResource {
             }
 
             String backupFilePath;
-            if (wwnn != null && !wwnn.trim().isEmpty()) {
-                backupFilePath = String.format("/etc/vhba/vhba_%s.xml", wwnn);
+            if (backupWwnn != null) {
+                backupFilePath = String.format("/etc/vhba/vhba_%s.xml", backupWwnn);
             } else {
                 backupFilePath = String.format("/etc/vhba/%s.xml", targetDeviceName);
             }
@@ -3784,6 +3797,13 @@ public abstract class ServerResourceBase implements ServerResource {
                 writer.write(xmlConfig);
             }
 
+            if (isAttach) {
+                String usage = new HostBlockDeviceSafety().inspect().attachmentStatus(xmlConfig, false);
+                if (!"available".equals(usage)) {
+                    return new UpdateHostLunDeviceAnswer(false, "Block device allocation denied: " + usage);
+                }
+            }
+
             Script virshCmd = new Script("virsh");
             if (isAttach) {
                 virshCmd.add("attach-device", vmName, lunXmlPath);
@@ -3852,6 +3872,13 @@ public abstract class ServerResourceBase implements ServerResource {
                 writer.write(xmlConfig);
             }
 
+            if (isAttach) {
+                String usage = new HostBlockDeviceSafety().inspect().attachmentStatus(xmlConfig, true);
+                if (!"available".equals(usage)) {
+                    return new UpdateHostHbaDeviceAnswer(false, vmName, xmlConfig, isAttach);
+                }
+            }
+
             Script virshCmd = new Script("virsh");
             if (isAttach) {
                 virshCmd.add("attach-device", vmName, hbaXmlPath);
@@ -3890,6 +3917,13 @@ public abstract class ServerResourceBase implements ServerResource {
         try {
             try (PrintWriter writer = new PrintWriter(vhbaXmlPath)) {
                 writer.write(xmlConfig);
+            }
+
+            if (isAttach) {
+                String usage = new HostBlockDeviceSafety().inspect().attachmentStatus(xmlConfig, true);
+                if (!"available".equals(usage)) {
+                    return new UpdateHostVhbaDeviceAnswer(false, vhbaDeviceName, vmName, xmlConfig, isAttach);
+                }
             }
 
             Script virshCmd = new Script("virsh");
@@ -3942,6 +3976,13 @@ public abstract class ServerResourceBase implements ServerResource {
 
             try (PrintWriter writer = new PrintWriter(scsiXmlPath)) {
                 writer.write(xmlConfig);
+            }
+
+            if (isAttach) {
+                String usage = new HostBlockDeviceSafety().inspect().attachmentStatus(xmlConfig, true);
+                if (!"available".equals(usage)) {
+                    return new UpdateHostScsiDeviceAnswer(false, "Block device allocation denied: " + usage);
+                }
             }
 
             Script virshCmd = new Script("virsh");
