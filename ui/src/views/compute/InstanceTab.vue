@@ -17,7 +17,6 @@
 
 <template>
   <a-spin :spinning="loading">
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <a-alert v-if="vm.qemuagentversion === 'Not Installed'" :message="$t('message.alert.qemuagentversion')" type="error" show-icon />
     <br/>
     <a-tabs
@@ -202,6 +201,7 @@ export default {
     return {
       vm: {},
       totalStorage: 0,
+      listRefreshDisposed: false,
       currentTab: this.resolveCurrentTabFromRoute(),
       showUpdateSecurityGroupsModal: false,
       diskOfferings: [],
@@ -251,6 +251,7 @@ export default {
       this.setCurrentTab()
     }
   },
+  beforeUnmount () { this.listRefreshDisposed = true },
   mounted () {
     this.setCurrentTab()
   },
