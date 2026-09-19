@@ -42,6 +42,7 @@
           apiName="listGpuDevices"
           :resource="dataResource"
           :params="{virtualmachineid: dataResource.id}"
+          resourceType="VirtualMachine"
           :columns="['gpucardname', 'vgpuprofilename', 'state'].concat($store.getters.userInfo.roletype === 'Admin' ? ['id', 'hostname'] : [])"
           :routerlinks="(record) => { return { displayname: '/gpudevice/' + record.id } }"/>
       </a-tab-pane>
