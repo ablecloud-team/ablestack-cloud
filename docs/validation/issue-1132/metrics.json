@@ -1,0 +1,106 @@
+{
+  "attach": [
+    {
+      "clientHeight": 364,
+      "height": 364,
+      "s": ".vm-volume-modal .ant-modal-content",
+      "scrollHeight": 364,
+      "width": 520,
+      "x": 535,
+      "y": 318
+    },
+    {
+      "clientHeight": 54,
+      "height": 55,
+      "s": ".vm-volume-modal .ant-modal-header",
+      "scrollHeight": 54,
+      "width": 520,
+      "x": 535,
+      "y": 318
+    },
+    {
+      "clientHeight": 256,
+      "height": 256,
+      "s": ".vm-volume-modal .ant-modal-body",
+      "scrollHeight": 256,
+      "width": 520,
+      "x": 535,
+      "y": 373
+    },
+    {
+      "clientHeight": 52,
+      "height": 53,
+      "s": ".vm-volume-modal .ant-modal-footer",
+      "scrollHeight": 52,
+      "width": 520,
+      "x": 535,
+      "y": 629
+    }
+  ],
+  "shortBefore": [
+    {
+      "class": "ant-modal-content",
+      "height": 432,
+      "scrollHeight": 432,
+      "scrollTop": 0,
+      "width": 520,
+      "x": 185,
+      "y": 24
+    },
+    {
+      "class": "ant-modal-header",
+      "height": 55,
+      "scrollHeight": 54,
+      "scrollTop": 0,
+      "width": 520,
+      "x": 185,
+      "y": 24
+    },
+    {
+      "class": "ant-modal-body",
+      "height": 324,
+      "scrollHeight": 576,
+      "scrollTop": 0,
+      "width": 520,
+      "x": 185,
+      "y": 79
+    },
+    {
+      "class": "ant-modal-footer",
+      "height": 53,
+      "scrollHeight": 52,
+      "scrollTop": 0,
+      "width": 520,
+      "x": 185,
+      "y": 403
+    }
+  ],
+  "shortAfter": [
+    {
+      "class": "ant-modal-header",
+      "height": 55,
+      "scrollTop": 0,
+      "y": 24
+    },
+    {
+      "class": "ant-modal-body",
+      "height": 324,
+      "scrollTop": 252,
+      "y": 79
+    },
+    {
+      "class": "ant-modal-footer",
+      "height": 53,
+      "scrollTop": 0,
+      "y": 403
+    }
+  ],
+  "createDark": [
+    {
+      "height": 684,
+      "width": 520,
+      "x": 535,
+      "y": 158
+    }
+  ]
+}
