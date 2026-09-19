@@ -78,8 +78,8 @@ wrap-class-name="vm-schedule-modal"
           <span class="schedule-note">{{ $t('message.schedule.timezone') }}</span>
         </a-form-item>
         <div class="schedule-dates">
-          <a-form-item :label="$t('label.start.date.and.time')" name="startDate"><a-date-picker :locale="datePickerLocale" popup-class-name="vm-schedule-picker" v-model:value="form.startDate" show-time format="YYYY-MM-DD HH:mm:ss" :allow-clear="mode !== 'edit'" :placeholder="$t('message.select.start.date.and.time')" /></a-form-item>
-          <a-form-item :label="$t('label.end.date.and.time')" name="endDate"><a-date-picker :locale="datePickerLocale" popup-class-name="vm-schedule-picker" v-model:value="form.endDate" show-time format="YYYY-MM-DD HH:mm:ss" :allow-clear="!selected?.enddate" :placeholder="$t('message.select.end.date.and.time')" /></a-form-item>
+          <a-form-item :label="$t('label.start.date.and.time')" name="startDate"><a-date-picker :locale="datePickerLocale" dropdown-class-name="vm-schedule-picker" v-model:value="form.startDate" show-time format="YYYY-MM-DD HH:mm:ss" :allow-clear="mode !== 'edit'" :placeholder="$t('message.select.start.date.and.time')" /></a-form-item>
+          <a-form-item :label="$t('label.end.date.and.time')" name="endDate"><a-date-picker :locale="datePickerLocale" dropdown-class-name="vm-schedule-picker" v-model:value="form.endDate" show-time format="YYYY-MM-DD HH:mm:ss" :allow-clear="!selected?.enddate" :placeholder="$t('message.select.end.date.and.time')" /></a-form-item>
         </div>
         <p v-if="selected?.enddate" class="schedule-note schedule-spacing">{{ $t('message.schedule.enddate.keep') }}</p>
         <a-form-item :label="$t('label.schedule')" name="schedule">
