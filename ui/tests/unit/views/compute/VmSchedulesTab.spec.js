@@ -103,3 +103,10 @@ test('failed save preserves the form for correction', async () => {
   expect(wrapper.vm.submitError).toBe('server validation')
   wrapper.unmount()
 })
+
+test('delete includes the resource type and VM scope required by the API', async () => {
+  const wrapper = mount(); await flush()
+  wrapper.vm.open('delete', row); await wrapper.vm.submit()
+  expect(postAPI).toHaveBeenCalledWith('deleteResourceSchedule', { id: 's1', resourceid: 'v1', resourcetype: 'VirtualMachine' })
+  wrapper.unmount()
+})

@@ -296,6 +296,7 @@ export default {
         } else {
           params = { id: this.selected.id }
           if (mode === 'toggle') params.enabled = !this.selected.enabled
+          else Object.assign(params, { resourceid: this.resource.id, resourcetype: 'VirtualMachine' })
         }
         await postAPI(commands[mode], params)
         if (scope !== this.scopeKey) return
