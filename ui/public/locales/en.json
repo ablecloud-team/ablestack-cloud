@@ -7830,5 +7830,22 @@
   "message.vmiso.detach.help": "Detach the selected media from the VM without deleting ISO files. Check that installation or driver loading is not using the media.",
   "message.vmiso.results.help": "Only explicitly failed ISOs can be retried. Check uncertain jobs without resubmitting them. If no job ID is available, ask an administrator to verify the attachment state.",
   "message.vmiso.changed": "The ISO attachment state changed. Refresh the list before continuing.",
-  "message.vmiso.summary": "Succeeded {success} · Failed {failed} · Unknown {unknown} · Not submitted {pending} · Running {running}"
+  "message.vmiso.summary": "Succeeded {success} · Failed {failed} · Unknown {unknown} · Not submitted {pending} · Running {running}",
+  "label.schedule.edit": "Edit schedule",
+  "label.schedule.delete": "Delete schedule",
+  "label.schedule.details": "Schedule details",
+  "label.schedule.enable": "Enable schedule",
+  "label.schedule.disable": "Disable schedule",
+  "message.schedule.empty": "This virtual machine has no schedules.",
+  "message.schedule.search.empty": "No matching schedules.",
+  "message.schedule.force": "Forced operations may cause data loss because the guest is not shut down gracefully.",
+  "message.schedule.timezone": "Recurrence and start/end dates use the selected timezone.",
+  "message.schedule.enddate.keep": "The existing API cannot clear an end date. You can change it to another date.",
+  "message.schedule.cron.help": "Cron format: minute hour day month weekday (5 fields). Basic mode supports yearly, monthly, weekly and daily recurrence.",
+  "message.schedule.cron.invalid": "Enter a valid five-field Cron expression.",
+  "message.schedule.date.invalid": "End date must be after start date.",
+  "message.schedule.delete.confirm": "Delete this schedule? The virtual machine will not be deleted.",
+  "message.schedule.disable.confirm": "Disable this schedule? Scheduled actions will not run.",
+  "message.schedule.enable.confirm": "Enable this schedule? Actions will run according to the schedule.",
+  "message.schedule.operation.failed": "The schedule operation failed. Check the values and try again."
 }
