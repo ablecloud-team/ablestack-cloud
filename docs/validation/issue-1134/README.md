@@ -61,11 +61,11 @@ WSL ext4 작업 트리에서 변경된 `api`, `server`, `core` 모듈과 UI만 �
 - 대표 작업은 할당 해제, 나머지는 드롭다운이며 상세는 마지막이다. VM 스냅샷이 있는 대상에서는 할당 버튼 비활성화와 사유를 확인했다.
 - 다크/라이트 대화상자, 긴 장치명, 부분 실패 결과, 본문 스크롤을 실제 배포 UI에서 확인했다.
 
-![다크모드 대화상자](images/dialog-dark.png)
-![라이트모드 대화상자](images/dialog-light.png)
-![본문 스크롤](images/dialog-scroll.png)
-![상세 대화상자](images/details-dark.png)
-![vHBA 부분 실패](images/vhba-partial.png)
+![다크모드 대화상자](images/dialog-dark.jpg)
+![라이트모드 대화상자](images/dialog-light.jpg)
+![본문 스크롤](images/dialog-scroll.jpg)
+![상세 대화상자](images/details-dark.jpg)
+![vHBA 부분 실패](images/vhba-partial.jpg)
 
 ## 배포 및 검증 경계
 
