@@ -2833,6 +2833,13 @@ public abstract class ServerResourceBase implements ServerResource {
                 return new DeleteVhbaDeviceAnswer(command, false, "vHBA가 VM에 할당되어 있어 삭제할 수 없습니다. 먼저 할당을 해제해주세요.");
             }
 
+            // Creation stores the XML by WWNN, even when deletion is requested by name.
+            // Resolve this identity before nodedev-destroy removes the live XML.
+            String backupWwnn = extractWwnnFromXml(getVhbaDumpXml(targetDeviceName));
+            if (backupWwnn != null && !backupWwnn.matches("[0-9a-fA-F]{16}")) {
+                backupWwnn = null;
+            }
+
             Script destroyCommand = new Script("/bin/bash");
             destroyCommand.add("-c");
             destroyCommand.add("/usr/bin/virsh nodedev-destroy " + targetDeviceName);
@@ -2844,8 +2851,8 @@ public abstract class ServerResourceBase implements ServerResource {
             }
 
             String backupFilePath;
-            if (wwnn != null && !wwnn.trim().isEmpty()) {
-                backupFilePath = String.format("/etc/vhba/vhba_%s.xml", wwnn);
+            if (backupWwnn != null) {
+                backupFilePath = String.format("/etc/vhba/vhba_%s.xml", backupWwnn);
             } else {
                 backupFilePath = String.format("/etc/vhba/%s.xml", targetDeviceName);
             }

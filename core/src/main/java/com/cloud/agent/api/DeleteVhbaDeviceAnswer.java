@@ -20,7 +20,6 @@ package com.cloud.agent.api;
 
 public class DeleteVhbaDeviceAnswer extends Answer {
     private String vhbaName;
-    private String details;
 
     public DeleteVhbaDeviceAnswer() {
     }
