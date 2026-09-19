@@ -41,7 +41,16 @@
     </a-table>
     <div class="device-pagination"><a-pagination v-model:current="page" v-model:page-size="pageSize" :total="filteredRows.length" show-size-changer :page-size-options="['10', '20', '50']" /></div>
     <p class="device-help">{{ d('recordHelp') }}</p>
-    <a-modal :visible="!!dialog" :title="dialogTitle" :width="720" centered wrap-class-name="vm-device-dialog" :mask-closable="false" :closable="!busy" :keyboard="!busy" @cancel="close">
+    <a-modal
+:visible="!!dialog"
+:title="dialogTitle"
+:width="720"
+centered
+wrap-class-name="vm-device-dialog"
+:mask-closable="false"
+:closable="!busy"
+:keyboard="!busy"
+@cancel="close">
       <a-descriptions :column="2" size="small" bordered><a-descriptions-item :label="$t('label.virtualmachine')">{{ vm.displayname || vm.name }}</a-descriptions-item><a-descriptions-item :label="$t('label.state')">{{ vm.state }}</a-descriptions-item><a-descriptions-item :label="$t('label.host')">{{ vm.hostname || hostId || d('unknown') }}</a-descriptions-item><a-descriptions-item :label="$t('label.account')">{{ vm.account }}</a-descriptions-item></a-descriptions>
       <a-alert v-if="dialogError" type="error" show-icon :message="dialogError" />
       <template v-if="dialog === 'allocate'">

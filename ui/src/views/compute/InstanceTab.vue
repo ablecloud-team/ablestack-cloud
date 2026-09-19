@@ -211,7 +211,7 @@ export default {
       editNicLinkStat: '',
       dataPreFill: {},
       securitygroupids: [],
-      securityGroupNetworkProviderUseThisVM: false,
+      securityGroupNetworkProviderUseThisVM: false
 
     }
   },
@@ -239,7 +239,7 @@ export default {
 
           // 호스트가 변경되었거나, VM 상태가 변경되면 디바이스 캐시 초기화
           if (oldHostId !== newHostId || oldState !== newState) {
-                // 디바이스 탭이 열려있으면 즉시 새로고침
+            // 디바이스 탭이 열려있으면 즉시 새로고침
             if (this.currentTab === 'hostdevices') {
               this.fetchData()
             }
@@ -387,8 +387,6 @@ export default {
           }
         }
       })
-
-
     },
     listDiskOfferings () {
       getAPI('listDiskOfferings', {
@@ -457,7 +455,7 @@ export default {
         history.pushState({}, null, '#' + this.$route.path + '?' + queryString)
       }
       this.currentTab = activeKey
-    },
+    }
 
   }
 }
