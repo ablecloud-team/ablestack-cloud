@@ -105,79 +105,7 @@
         :tab="$t('label.listhostdevices')"
         key="hostdevices"
       >
-        <div class="host-devices-container">
-          <!-- 기타 장치 (PCI) -->
-          <div class="device-section">
-            <h3 class="section-title">{{ $t('label.other.devices') }}</h3>
-            <a-table
-              :columns="deviceColumns"
-              :dataSource="pciDevices"
-              :pagination="false"
-              :scroll="{ x: 'max-content' }"
-              size="small"
-              :loading="loading" />
-          </div>
-
-          <!-- HBA 디바이스 -->
-          <div class="device-section">
-            <h3 class="section-title">{{ $t('label.hba.devices') }}</h3>
-            <a-table
-              :columns="deviceColumns"
-              :dataSource="hbaDevices"
-              :pagination="false"
-              :scroll="{ x: 'max-content' }"
-              size="small"
-              :loading="loading" />
-          </div>
-
-          <!-- VHBA 디바이스 -->
-          <div class="device-section">
-            <h3 class="section-title">{{ $t('label.vhba.devices') }}</h3>
-            <a-table
-              :columns="deviceColumns"
-              :dataSource="vhbaDevices"
-              :pagination="false"
-              :scroll="{ x: 'max-content' }"
-              size="small"
-              :loading="loading" />
-          </div>
-
-          <!-- USB 디바이스 -->
-          <div class="device-section">
-            <h3 class="section-title">{{ $t('label.usb.devices') }}</h3>
-            <a-table
-              :columns="deviceColumns"
-              :dataSource="usbDevices"
-              :pagination="false"
-              :scroll="{ x: 'max-content' }"
-              size="small"
-              :loading="loading" />
-          </div>
-
-          <!-- LUN 디바이스 -->
-          <div class="device-section">
-            <h3 class="section-title">{{ $t('label.lun.devices') }}</h3>
-            <a-table
-              :columns="deviceColumns"
-              :dataSource="lunDevices"
-              :pagination="false"
-              :scroll="{ x: 'max-content' }"
-              size="small"
-              :loading="loading" />
-          </div>
-
-          <!-- SCSI 디바이스 -->
-          <div class="device-section">
-            <h3 class="section-title">{{ $t('label.scsi.devices') }}</h3>
-            <a-table
-              :columns="scsiDeviceColumns"
-              :dataSource="scsiDevices"
-              :pagination="false"
-              :scroll="{ x: 'max-content' }"
-              size="small"
-              :loading="loading" />
-          </div>
-        </div>
+        <VmDevicesTab :resource="vm" :active="currentTab === 'hostdevices'" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.settings')" key="settings">
         <DetailSettings :resource="dataResource" :loading="loading" />
@@ -228,6 +156,7 @@ import ResourceSchedules from '@/views/compute/ResourceSchedules.vue'
 import ListResourceTable from '@/components/view/ListResourceTable'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import AnnotationsTab from '@/components/view/AnnotationsTab'
+import VmDevicesTab from '@/views/compute/VmDevicesTab.vue'
 import VmIsoTab from '@/views/compute/VmIsoTab.vue'
 import VmVolumesTab from '@/views/compute/VmVolumesTab.vue'
 import SecurityGroupSelection from '@views/compute/wizard/SecurityGroupSelection'
@@ -239,6 +168,7 @@ import VmSnapshotsTab from '@/views/compute/VmSnapshotsTab.vue'
 export default {
   name: 'InstanceTab',
   components: {
+    VmDevicesTab,
     ResourceLayout,
     DetailsTab,
     StatsTab,
@@ -258,7 +188,7 @@ export default {
     VmVolumesTab,
     VmIsoTab
   },
-  mixins: [listRefreshMixin(['loadDevicesFromDb'], { active: vm => !!vm.vm?.id && vm.currentTab === 'hostdevices' }), mixinDevice],
+  mixins: [mixinDevice],
   props: {
     resource: {
       type: Object,
@@ -531,7 +461,7 @@ export default {
       })
 
       if (!this.devicesLoaded) {
-        await this.loadDevicesFromDb()
+        await /* Device refresh is owned by VmDevicesTab. */
         this.devicesLoaded = true
       }
     },
@@ -781,22 +711,22 @@ export default {
       return detailMap
     },
     async fetchPciDevices () {
-      await this.loadDevicesFromDb()
+      await /* Device refresh is owned by VmDevicesTab. */
     },
     async fetchUsbDevices () {
-      await this.loadDevicesFromDb()
+      await /* Device refresh is owned by VmDevicesTab. */
     },
     async fetchLunDevices () {
-      await this.loadDevicesFromDb()
+      await /* Device refresh is owned by VmDevicesTab. */
     },
     async fetchHbaDevices () {
-      await this.loadDevicesFromDb()
+      await /* Device refresh is owned by VmDevicesTab. */
     },
     async fetchVhbaDevices () {
-      await this.loadDevicesFromDb()
+      await /* Device refresh is owned by VmDevicesTab. */
     },
     async fetchScsiDevices () {
-      await this.loadDevicesFromDb()
+      await /* Device refresh is owned by VmDevicesTab. */
     }
   }
 }
