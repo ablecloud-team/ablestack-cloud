@@ -55,7 +55,15 @@
       </a-form>
       <a-alert v-if="candidateError" class="volume-alert" type="error" :message="candidateError" />
     </a-modal>
-    <a-modal centered wrap-class-name="vm-volume-modal" :visible="!!selected" :title="$t('label.vmvolume.detach')" :ok-text="$t(mode === 'preserve' ? 'label.action.detach.disk' : 'label.vmvolume.' + mode)" :ok-button-props="{ danger: mode !== 'preserve', disabled: busy || !!reason('detachVolume', selected) }" @ok="detach" @cancel="selected = null">
+    <a-modal
+centered
+wrap-class-name="vm-volume-modal"
+:visible="!!selected"
+:title="$t('label.vmvolume.detach')"
+:ok-text="$t(mode === 'preserve' ? 'label.action.detach.disk' : 'label.vmvolume.' + mode)"
+:ok-button-props="{ danger: mode !== 'preserve', disabled: busy || !!reason('detachVolume', selected) }"
+@ok="detach"
+@cancel="selected = null">
       <template v-if="selected">
         <a-alert v-if="snapshotReason" type="info" show-icon :message="$t(snapshotReason)" class="volume-alert" />
         <a-descriptions bordered :column="1" size="small" class="volume-description"><a-descriptions-item :label="$t('label.vm')">{{ resource.displayname || resource.name }}</a-descriptions-item><a-descriptions-item :label="$t('label.volumes')">{{ selected.name }}</a-descriptions-item><a-descriptions-item :label="$t('label.id')">{{ selected.id }}</a-descriptions-item><a-descriptions-item :label="$t('label.type')">{{ selected.type }}</a-descriptions-item><a-descriptions-item :label="$t('label.size')">{{ (selected.size / 1073741824).toFixed(2) }} GB</a-descriptions-item></a-descriptions>

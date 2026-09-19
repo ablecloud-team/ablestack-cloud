@@ -95,7 +95,6 @@ test.each(['existing', 'create'])('passes chosen device ID only to attachVolume 
   wrapper.unmount()
 })
 
-
 test.each(['createVolume', 'attachVolume', 'detachVolume'])('snapshots block %s before any mutation', async api => {
   getAPI.mockImplementation(name => Promise.resolve(name === 'listVMSnapshot' ? snapshots(2) : name === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : response([row])))
   const wrapper = mount({ listVolumes: {}, createVolume: {}, attachVolume: {}, detachVolume: {} }); await flush()
