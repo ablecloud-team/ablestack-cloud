@@ -20,7 +20,7 @@
     <div class="device-toolbar">
       <a-tooltip :title="blockReason"><span v-if="canManage"><a-button type="primary" :disabled="!!blockReason" @click="openAllocate"><template #icon><plus-outlined /></template>{{ d('allocate') }}</a-button></span></a-tooltip>
       <a-button :loading="loading" @click="refresh"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
-      <a-select v-model:value="filter" :aria-label="d('type')" @change="page = 1"><a-select-option value="">{{ d('all') }}</a-select-option><a-select-option v-for="type in types" :key="type" :value="type">{{ type.toUpperCase() }}</a-select-option></a-select>
+      <a-select v-model:value="filter" :aria-label="d('type')" @change="page = 1"><a-select-option value="">{{ d('all') }}</a-select-option><a-select-option v-for="type in types" :key="type" :value="type">{{ typeLabel(type) }}</a-select-option></a-select>
       <a-input-search v-model:value="search" :placeholder="$t('label.search')" @change="page = 1" />
     </div>
     <a-alert v-if="error" type="warning" show-icon :message="error" />
@@ -28,8 +28,8 @@
     <a-table :columns="columns" :data-source="visibleRows" :row-key="rowKey" :loading="loading" :pagination="false" :scroll="{ x: 760 }" size="small">
       <template #emptyText>{{ d('empty') }}</template>
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'type'"><a-tag>{{ (record.devicetype || '').toUpperCase() }}</a-tag></template>
-        <template v-if="column.key === 'name'"><span>{{ record.hostdevicesname }}</span><small>{{ record.hostdevicestext }}</small></template>
+        <template v-if="column.key === 'type'"><a-tag>{{ typeLabel(record.devicetype) }}</a-tag></template>
+        <template v-if="column.key === 'name'"><span>{{ deviceSummary(record) }}</span><small>{{ record.hostdevicestext }}</small></template>
         <template v-if="column.key === 'state'">{{ d('record') }}<small>{{ d('unverified') }}</small></template>
         <template v-if="column.key === 'actions'">
           <div class="device-actions">
@@ -57,10 +57,10 @@ wrap-class-name="vm-device-dialog"
         <a-form layout="vertical">
           <a-form-item :label="d('mode')"><a-select v-model:value="mode" :disabled="submitting" @change="changeMode"><a-select-option value="existing">{{ d('existing') }}</a-select-option><a-select-option v-if="api('createVhbaDevice') && allowed('vhba')" value="create">{{ d('createVhba') }}</a-select-option></a-select></a-form-item>
           <a-form-item v-if="!vm.hostid" :label="$t('label.host')"><a-select v-model:value="hostId" :disabled="submitting" @change="fetchCandidates"><a-select-option v-for="host in hosts" :key="host.id" :value="host.id">{{ host.name }}</a-select-option></a-select><p class="device-help">{{ d('hostHelp') }}</p></a-form-item>
-          <a-form-item v-if="mode === 'existing'" :label="d('type')"><a-select v-model:value="type" :disabled="submitting" @change="fetchCandidates"><a-select-option v-for="t in types.filter(allowed)" :key="t" :value="t">{{ t.toUpperCase() }}</a-select-option></a-select></a-form-item>
+          <a-form-item v-if="mode === 'existing'" :label="d('type')"><a-select v-model:value="type" :disabled="submitting" @change="fetchCandidates"><a-select-option v-for="t in types.filter(allowed)" :key="t" :value="t">{{ typeLabel(t) }}</a-select-option></a-select></a-form-item>
           <a-form-item v-if="type === 'lun' && mode === 'existing'" :label="d('pathMode')"><a-select v-model:value="pathMode" :disabled="submitting" @change="fetchCandidates"><a-select-option value="single">{{ d('single') }}</a-select-option><a-select-option value="multipath">{{ d('multipath') }}</a-select-option></a-select></a-form-item>
           <a-alert v-if="operationReason" type="warning" show-icon :message="operationReason" />
-          <a-form-item :label="mode === 'create' ? d('parentHba') : d('device')"><a-select v-model:value="choice" :loading="candidateLoading" :disabled="busy || !hostId" show-search option-filter-prop="label"><a-select-option v-for="item in candidates" :key="item.name" :value="item.name" :label="item.name + ' ' + item.text" :disabled="!!item.allocation || item.protected || item.usage !== 'available'"><a-tooltip :title="candidateLabel(item)" placement="topLeft" overlay-class-name="vm-device-option-tooltip"><span class="vm-device-option-label">{{ candidateLabel(item) }}</span></a-tooltip></a-select-option></a-select><p class="device-help">{{ d('candidateHelp') }}</p></a-form-item>
+          <a-form-item :label="mode === 'create' ? d('parentHba') : d('device')"><a-select v-model:value="choice" :loading="candidateLoading" :disabled="busy || !hostId" show-search option-filter-prop="label" option-label-prop="label"><a-select-option v-for="item in candidates" :key="item.name" :value="item.name" :label="deviceSummary(item) + ' · ' + item.name" :disabled="!!item.allocation || item.protected || item.usage !== 'available'"><a-tooltip :title="candidateLabel(item)" placement="topLeft" overlay-class-name="vm-device-option-tooltip"><span><span class="vm-device-option-label">{{ deviceSummary(item) }}</span><small class="vm-device-option-meta">{{ item.name }}<span v-if="candidateReason(item)"> · {{ candidateReason(item) }}</span></small></span></a-tooltip></a-select-option></a-select><p class="device-help">{{ d(type === 'scsi' ? 'diskHelp' : type === 'lun' ? 'lunHelp' : 'candidateHelp') }}</p></a-form-item>
           <a-button v-if="mode === 'existing' && type === 'vhba' && choice && api('deleteVhbaDevice')" :disabled="submitting" @click="openDeleteCandidate">{{ d('deleteVhba') }}</a-button>
           <a-form-item v-if="mode === 'create'" :label="d('vhbaName')"><a-input v-model:value="vhbaName" :maxlength="80" :disabled="submitting" /><p class="device-help">{{ d('vhbaHelp') }}</p></a-form-item>
           <a-form-item v-if="['hba', 'vhba'].includes(type) && mode === 'existing'" :label="d('scsiAddress')"><a-select v-model:value="address" :disabled="submitting" :options="scsiChoices" /><p class="device-help">{{ d('scsiHelp') }}</p></a-form-item>
@@ -69,7 +69,7 @@ wrap-class-name="vm-device-dialog"
         </a-form>
       </template>
       <template v-else-if="selected">
-        <a-descriptions :column="1" size="small" bordered><a-descriptions-item :label="d('type')">{{ selected.devicetype.toUpperCase() }}</a-descriptions-item><a-descriptions-item :label="d('device')">{{ selected.hostdevicesname }}</a-descriptions-item><a-descriptions-item :label="$t('label.details')">{{ selected.hostdevicestext || '—' }}</a-descriptions-item><a-descriptions-item :label="$t('label.host')">{{ selected.hostname }}</a-descriptions-item><a-descriptions-item :label="d('state')">{{ d('unverified') }}</a-descriptions-item></a-descriptions>
+        <a-descriptions :column="1" size="small" bordered><a-descriptions-item :label="d('type')">{{ typeLabel(selected.devicetype) }}</a-descriptions-item><a-descriptions-item :label="d('device')">{{ selected.hostdevicesname }}</a-descriptions-item><a-descriptions-item :label="$t('label.details')">{{ selected.hostdevicestext || '—' }}</a-descriptions-item><a-descriptions-item :label="$t('label.host')">{{ selected.hostname }}</a-descriptions-item><a-descriptions-item :label="d('state')">{{ d('unverified') }}</a-descriptions-item></a-descriptions>
         <template v-if="dialog === 'release'"><a-alert type="warning" show-icon :message="d(selected.devicetype === 'pci' ? 'pciWarning' : 'releaseWarning')" /><a-checkbox v-model:checked="ack" :disabled="submitting">{{ d('ackRelease') }}</a-checkbox></template>
         <a-alert v-if="dialog === 'inspect'" type="warning" show-icon :message="d('cleanupBlocked')" />
       </template>
@@ -91,7 +91,7 @@ wrap-class-name="vm-device-dialog"
 
 <script>
 import { getAPI, postAPI } from '@/api'
-import { deviceTypes, asArray, deviceCandidates, deviceXml, vhbaXml } from '@/utils/vmDevices'
+import { deviceTypes, asArray, deviceCandidates, deviceSummary, deviceXml, vhbaXml } from '@/utils/vmDevices'
 export default {
   name: 'VmDevicesTab',
   props: { resource: { type: Object, required: true }, active: Boolean },
@@ -108,7 +108,7 @@ export default {
       return ''
     },
     operationReason () { return this.reason(this.mode === 'create' ? 'vhba' : this.type) },
-    columns () { return [{ key: 'type', title: this.d('type'), width: 80 }, { key: 'name', title: this.d('device') }, { key: 'host', dataIndex: 'hostname', title: this.$t('label.host'), width: 120 }, { key: 'state', title: this.d('state'), width: 170 }, { key: 'actions', title: this.$t('label.actions'), width: 170 }] },
+    columns () { return [{ key: 'type', title: this.d('type'), width: 160 }, { key: 'name', title: this.d('device') }, { key: 'host', dataIndex: 'hostname', title: this.$t('label.host'), width: 120 }, { key: 'state', title: this.d('state'), width: 170 }, { key: 'actions', title: this.$t('label.actions'), width: 170 }] },
     filteredRows () { const q = this.search.toLowerCase(); return this.rows.filter(r => (!this.filter || r.devicetype === this.filter) && [r.hostdevicesname, r.hostdevicestext, r.hostname].join(' ').toLowerCase().includes(q)) },
     visibleRows () { return this.filteredRows.slice((this.page - 1) * this.pageSize, this.page * this.pageSize) },
     dialogTitle () { return this.dialog === 'details' ? this.$t('label.details') : this.d({ allocate: this.mode === 'create' ? 'createVhba' : 'allocate', release: this.selected?.devicetype === 'pci' ? 'releasePci' : 'release', inspect: 'inspect', result: 'result', deleteVhba: 'deleteVhba' }[this.dialog] || 'device') },
@@ -126,7 +126,10 @@ export default {
     d (key) { return this.$t('label.vmdevice.' + key) },
     api (name) { return name in this.$store.getters.apis },
     allowed (type) { return !!deviceTypes[type] && this.api(deviceTypes[type][1]) },
-    candidateLabel (item) { return item.name + ' — ' + item.text + (item.protected ? ' · ' + this.d('protected') : (item.allocation ? ' · ' + this.d('occupied') : (item.usage !== 'available' ? ' · ' + this.d('usage.' + item.usage) : ''))) },
+    deviceSummary,
+    typeLabel (type) { return ['scsi', 'lun'].includes(type) ? this.d('type.' + type) : (type || '').toUpperCase() },
+    candidateReason (item) { return item.protected ? this.d('protected') : item.allocation ? this.d('occupied') : item.usage !== 'available' ? this.d('usage.' + item.usage) : '' },
+    candidateLabel (item) { return [deviceSummary(item), item.name, item.text, this.candidateReason(item)].filter(Boolean).join(' — ') },
     rowKey (r) { return [r.hostid, r.devicetype, r.hostdevicesname].join(':') },
     reason (type, row) {
       if (this.blockReason) return this.blockReason
@@ -255,6 +258,7 @@ export default {
 </script>
 
 <style lang="scss">
+.vm-device-option-meta { display: block; color: inherit; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .vm-device-option-label { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .vm-device-option-tooltip { max-width: min(600px, calc(100vw - 32px)); .ant-tooltip-inner { white-space: normal; overflow-wrap: anywhere; } }
 .vm-devices {

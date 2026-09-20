@@ -7891,5 +7891,9 @@
   "label.vmdevice.usage.mounted": "Mounted on the host",
   "label.vmdevice.usage.partitioned": "Device contains partitions",
   "label.vmdevice.usage.unknown": "Usage could not be verified — selection unavailable",
-  "label.vmdevice.usage.vm-connected": "Connected to a virtual machine"
+  "label.vmdevice.usage.vm-connected": "Connected to a virtual machine",
+  "label.vmdevice.diskHelp": "Disks on the VM host are shown by lsblk path, capacity and model, followed by the attachment identifier. External SCSI devices may also appear. Native NVMe attachment is not supported.",
+  "label.vmdevice.lunHelp": "FC/iSCSI external storage LUNs are shown here. Select local SATA/SAS disks under Local disks.",
+  "label.vmdevice.type.lun": "External LUNs (FC/iSCSI)",
+  "label.vmdevice.type.scsi": "Local disks (SATA/SAS/SCSI)"
 }

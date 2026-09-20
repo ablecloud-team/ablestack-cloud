@@ -7852,5 +7852,9 @@
   "label.vmdevice.usage.mounted": "호스트에서 마운트하여 사용 중",
   "label.vmdevice.usage.partitioned": "파티션이 있는 장치",
   "label.vmdevice.usage.unknown": "사용 여부 확인 불가 — 선택할 수 없음",
-  "label.vmdevice.usage.vm-connected": "가상머신에 연결된 장치"
+  "label.vmdevice.usage.vm-connected": "가상머신에 연결된 장치",
+  "label.vmdevice.diskHelp": "현재 VM 호스트의 일반 디스크를 표시합니다. 앞쪽은 lsblk 경로 · 용량 · 모델이며, 아래쪽은 연결에 사용하는 장치 식별자입니다. 외부 SCSI 장치도 포함될 수 있습니다. NVMe 전용 연결은 지원하지 않습니다.",
+  "label.vmdevice.lunHelp": "FC/iSCSI 외부 스토리지 LUN을 표시합니다. 로컬 SATA/SAS 디스크는 일반 디스크 유형에서 선택하세요.",
+  "label.vmdevice.type.lun": "외부 LUN(FC/iSCSI)",
+  "label.vmdevice.type.scsi": "일반 디스크(SATA/SAS·SCSI)"
 }

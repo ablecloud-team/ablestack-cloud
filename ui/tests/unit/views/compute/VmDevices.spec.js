@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { deviceCandidates, deviceXml } from '@/utils/vmDevices'
+import { deviceCandidates, deviceSummary, deviceXml } from '@/utils/vmDevices'
 
 test('does not present physical FC ports as virtual HBAs even when API type is wrong', () => {
   const response = { listvhbadevicesresponse: { listvhbadevices: [{ hostdevicesname: ['scsi_host2', 'scsi_host9'], parenthbanames: ['pci_0000_a0_00_0', 'scsi_host2'], devicetypes: ['virtual', 'virtual'] }] } }
@@ -50,4 +50,14 @@ test('LUN and SCSI keep used and unknown devices visible with blocking usage', (
     expect(candidates.map(d => d.name)).toEqual(group.hostdevicesname)
     expect(candidates.map(d => d.usage)).toEqual(['available', 'partitioned', 'vm-connected', 'unknown'])
   }
+})
+
+test('disk display uses lsblk path, capacity and model without changing attachment identity', () => {
+  const disk = { type: 'scsi', name: '/dev/sg1 (wwn-123)', text: 'SCSI_Address: [0:0:275:0] Type: disk SIZE: 3.50T Vendor: ATA Model: Model With Spaces Revision: V1 Device: /dev/sdb BY_ID: /dev/disk/by-id/wwn-123' }
+  const xml = deviceXml(disk)
+  expect(deviceSummary(disk)).toBe('/dev/sdb · 3.50T · Model With Spaces')
+  expect(deviceXml(disk)).toBe(xml)
+  expect(disk.name).toBe('/dev/sg1 (wwn-123)')
+  expect(deviceSummary({ devicetype: 'lun', hostdevicesname: '/dev/mapper/mpatha (wwn-123)', hostdevicestext: 'TYPE: multipath SIZE: 7.3T' })).toBe('/dev/mapper/mpatha · 7.3T')
+  expect(deviceSummary({ type: 'scsi', name: '/dev/sg1', text: 'Device: /dev/sdb' })).toBe('/dev/sdb')
 })

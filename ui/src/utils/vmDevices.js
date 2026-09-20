@@ -64,3 +64,15 @@ export function vhbaXml (parent) {
   if (!/^scsi_host\d+$/.test(parent)) throw new Error('device-address-unverified')
   return `<device><parent>${parent}</parent><capability type='scsi_host'><capability type='fc_host'/></capability></device>`
 }
+
+// Presentation only: preserve the original API identifier and XML source.
+export function deviceSummary (device) {
+  const name = device.name || device.hostdevicesname || ''
+  const text = device.text || device.hostdevicestext || ''
+  const type = device.type || device.devicetype
+  if (!['scsi', 'lun'].includes(type)) return name
+  const path = text.match(/\bDevice:\s*(\/dev\/\S+)/i)?.[1] || name.split(' (')[0]
+  const size = text.match(/\bSIZE:\s*(\S+)/i)?.[1]
+  const model = text.match(/\bModel:\s*(.*?)(?=\s+(?:Revision|Serial|Device|BY_ID|TRANSPORT|SIZE):|$)/i)?.[1]
+  return [path, size, model].filter(Boolean).join(' · ')
+}

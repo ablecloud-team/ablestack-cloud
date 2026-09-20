@@ -2536,6 +2536,8 @@ public abstract class ServerResourceBase implements ServerResource {
                     StringBuilder text = new StringBuilder();
                     text.append("SCSI_Address: ").append(scsiAddress != null ? ("[" + scsiAddress + "]") : "");
                     text.append(" Type: disk");
+                    String size = sysGetSizeHuman(e);
+                    if (size != null) text.append(" SIZE: ").append(size);
                     if (vendor != null) text.append(" Vendor: ").append(vendor);
                     if (model != null) text.append(" Model: ").append(model);
                     if (rev != null) text.append(" Revision: ").append(rev);
@@ -2569,6 +2571,8 @@ public abstract class ServerResourceBase implements ServerResource {
                     StringBuilder text = new StringBuilder();
                     text.append("SCSI_Address: [nvme]");
                     text.append(" Type: nvme");
+                    String size = sysGetSizeHuman(e);
+                    if (size != null) text.append(" SIZE: ").append(size);
                     if (model != null) text.append(" Model: ").append(model);
                     if (serial != null) text.append(" Serial: ").append(serial);
                     text.append(" Device: ").append(dev);
