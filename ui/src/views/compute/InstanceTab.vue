@@ -28,8 +28,24 @@
       <a-tab-pane :tab="$t('label.details')" key="details">
         <DetailsTab :resource="dataResource" :loading="loading" />
       </a-tab-pane>
+      <a-tab-pane
+        :tab="$t('label.vm.ip.configuration')"
+        key="guestnetwork"
+        v-if="resource.hypervisor === 'KVM' && 'getVirtualMachineGuestNetworkState' in $store.getters.apis">
+        <GuestNetworkTab :resource="vm"/>
+      </a-tab-pane>
       <a-tab-pane :tab="$t('label.metrics')" key="stats">
         <StatsTab :resource="resource"/>
+      </a-tab-pane>
+      <a-tab-pane
+        :tab="$t('label.schedules')"
+        key="schedules"
+        v-if="'listResourceSchedule' in $store.getters.apis && !dataResource.autoscalevmgroupid"
+      >
+        <ResourceSchedules
+          :resource="vm"
+          resourceType="VirtualMachine"
+          :loading="loading"/>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.iso')" key="cdrom" v-if="'listIsos' in $store.getters.apis && vm.hypervisor !== 'External'">
         <VmIsoTab :resource="vm" />
@@ -37,43 +53,8 @@
       <a-tab-pane :tab="$t('label.volumes')" key="volumes" v-if="'listVolumes' in $store.getters.apis">
         <VmVolumesTab :resource="vm" />
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.gpu')" key="gpu" v-if="dataResource.gpucardname">
-        <GPUTab
-          apiName="listGpuDevices"
-          :resource="dataResource"
-          :params="{virtualmachineid: dataResource.id}"
-          resourceType="VirtualMachine"
-          :columns="['gpucardname', 'vgpuprofilename', 'state'].concat($store.getters.userInfo.roletype === 'Admin' ? ['id', 'hostname'] : [])"
-          :routerlinks="(record) => { return { displayname: '/gpudevice/' + record.id } }"/>
-      </a-tab-pane>
       <a-tab-pane :tab="$t('label.nics')" key="nics" v-if="'listNics' in $store.getters.apis">
         <NicsTab :resource="vm"/>
-      </a-tab-pane>
-      <a-tab-pane
-        :tab="$t('label.vm.ip.configuration')"
-        key="guestnetwork"
-        v-if="resource.hypervisor === 'KVM' && 'getVirtualMachineGuestNetworkState' in $store.getters.apis">
-        <GuestNetworkTab :resource="vm"/>
-      </a-tab-pane>
-      <a-tab-pane :tab="$t('label.vm.snapshots')" key="vmsnapshots" v-if="'listVMSnapshot' in $store.getters.apis">
-        <VmSnapshotsTab :resource="vm" />
-      </a-tab-pane>
-      <a-tab-pane :tab="$t('label.dr.plans')" key="drplans" v-if="'getDrVmProtectionView' in $store.getters.apis">
-        <DrPlanVmTab :resource="vm" :loading="loading" />
-      </a-tab-pane>
-      <a-tab-pane :tab="$t('label.backup')" key="backups" v-if="'listBackups' in $store.getters.apis">
-        <ListResourceTable
-          apiName="listBackups"
-          :resource="resource"
-          :params="{virtualmachineid: dataResource.id}"
-          :columns="dataResource.backupprovider === 'kboss'
-            ? ['name', 'status', 'compressionstatus', 'validationstatus', 'size', 'virtualsize', 'type', 'intervaltype', 'created']
-            : ['name', 'status', 'size', 'virtualsize', 'type', 'intervaltype', 'created']"
-          :routerlinks="(record) => { return { name: '/backup/' + record.id } }"
-          :showSearch="false"/>
-      </a-tab-pane>
-      <a-tab-pane :tab="$t('label.ftctl.fault.protection')" key="ftctl" v-if="'getFtctlProtection' in $store.getters.apis">
-        <FtctlTab :resource="vm" :loading="loading" @keep-current-tab="keepCurrentTab" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.securitygroups')" key="securitygroups" v-if="(dataResource.securitygroup && dataResource.securitygroup.length > 0) || ($store.getters.showSecurityGroups && securityGroupNetworkProviderUseThisVM)">
         <a-button
@@ -91,15 +72,8 @@
           :routerlinks="(record) => { return { name: '/securitygroups/' + record.id } }"
           :showSearch="false"/>
       </a-tab-pane>
-      <a-tab-pane
-        :tab="$t('label.schedules')"
-        key="schedules"
-        v-if="'listResourceSchedule' in $store.getters.apis && !dataResource.autoscalevmgroupid"
-      >
-        <ResourceSchedules
-          :resource="vm"
-          resourceType="VirtualMachine"
-          :loading="loading"/>
+      <a-tab-pane :tab="$t('label.settings')" key="settings">
+        <DetailSettings :resource="dataResource" :loading="loading" />
       </a-tab-pane>
       <a-tab-pane
         :tab="$t('label.listhostdevices')"
@@ -179,8 +153,34 @@
           </div>
         </div>
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.settings')" key="settings">
-        <DetailSettings :resource="dataResource" :loading="loading" />
+      <a-tab-pane :tab="$t('label.gpu')" key="gpu" v-if="dataResource.gpucardname">
+        <GPUTab
+          apiName="listGpuDevices"
+          :resource="dataResource"
+          :params="{virtualmachineid: dataResource.id}"
+          resourceType="VirtualMachine"
+          :columns="['gpucardname', 'vgpuprofilename', 'state'].concat($store.getters.userInfo.roletype === 'Admin' ? ['id', 'hostname'] : [])"
+          :routerlinks="(record) => { return { displayname: '/gpudevice/' + record.id } }"/>
+      </a-tab-pane>
+      <a-tab-pane :tab="$t('label.vm.snapshots')" key="vmsnapshots" v-if="'listVMSnapshot' in $store.getters.apis">
+        <VmSnapshotsTab :resource="vm" />
+      </a-tab-pane>
+      <a-tab-pane :tab="$t('label.backup')" key="backups" v-if="'listBackups' in $store.getters.apis">
+        <ListResourceTable
+          apiName="listBackups"
+          :resource="resource"
+          :params="{virtualmachineid: dataResource.id}"
+          :columns="dataResource.backupprovider === 'kboss'
+            ? ['name', 'status', 'compressionstatus', 'validationstatus', 'size', 'virtualsize', 'type', 'intervaltype', 'created']
+            : ['name', 'status', 'size', 'virtualsize', 'type', 'intervaltype', 'created']"
+          :routerlinks="(record) => { return { name: '/backup/' + record.id } }"
+          :showSearch="false"/>
+      </a-tab-pane>
+      <a-tab-pane :tab="$t('label.ftctl.fault.protection')" key="ftctl" v-if="'getFtctlProtection' in $store.getters.apis">
+        <FtctlTab :resource="vm" :loading="loading" @keep-current-tab="keepCurrentTab" />
+      </a-tab-pane>
+      <a-tab-pane :tab="$t('label.dr.plans')" key="drplans" v-if="'getDrVmProtectionView' in $store.getters.apis">
+        <DrPlanVmTab :resource="vm" :loading="loading" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.events')" key="events" v-if="'listEvents' in $store.getters.apis">
         <events-tab :resource="dataResource" resourceType="VirtualMachine" :loading="loading" />
