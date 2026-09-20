@@ -82,9 +82,25 @@ describe('VM settings submission lifecycle', () => {
     const value = context(); value.fetchState = jest.fn().mockImplementation(async () => { value.resource.id = 'other'; value.revision++; return { vm: vm({ a: '1' }) } })
     await value.submit(); expect(postAPI).not.toHaveBeenCalled()
   })
-  it('skips template lookup for ISO and fails closed on missing template', async () => {
+  it('skips template lookup for ISO', async () => {
     const value = context()
     getAPI.mockImplementation(async name => name === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [{ ...vm(), templateid: 'iso', templateformat: 'ISO' }] } } : { listdetailoptionsresponse: { detailoptions: { details: {} } } })
     await value.fetchState('vm'); expect(getAPI).not.toHaveBeenCalledWith('listTemplates', expect.anything())
   })
+  it('fails closed when a disk template lookup is empty', async () => {
+    const value = context()
+    getAPI.mockImplementation(async name => name === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [{ ...vm(), templateid: 'image', templateformat: 'QCOW2' }] } } : name === 'listDetailOptions' ? { listdetailoptionsresponse: { detailoptions: { details: {} } } } : { listtemplatesresponse: {} })
+    await expect(value.fetchState('vm')).rejects.toThrow('loadFailed')
+  })
+  it('retains the old list and blocks edits when refresh fails', async () => {
+    const value = context(); value.fetchState = jest.fn().mockRejectedValue(new Error('network'))
+    await value.refresh(); expect(value.vm.details.a).toBe('1'); expect(value.blockReason).toContain('verify')
+  })
+  it('refreshes after a successful save and prevents a second concurrent submit', async () => {
+    const value = context(); value.fetchState = jest.fn().mockResolvedValue({ vm: vm({ a: '1' }), template: null, options: {} }); value.refresh = jest.fn().mockResolvedValue()
+    postAPI.mockResolvedValue({ updatevirtualmachineresponse: { virtualmachine: vm({ a: '2' }) } })
+    const first = value.submit(); await value.submit(); await first
+    expect(postAPI).toHaveBeenCalledTimes(1); expect(value.refresh).toHaveBeenCalledTimes(1); expect(value.dialog).toBe('')
+  })
+
 })
