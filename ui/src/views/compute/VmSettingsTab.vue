@@ -40,7 +40,14 @@
     </a-table>
     <div class="settings-pagination"><a-pagination v-model:current="page" v-model:page-size="pageSize" :total="rows.length" show-size-changer :page-size-options="['10', '20', '50']" /></div>
     <p class="settings-help">{{ s('help') }}</p>
-    <a-modal :visible="!!dialog" :title="s(dialog || 'details')" :width="720" centered wrap-class-name="vm-settings-dialog" :mask-closable="false" :closable="!submitting" 
+    <a-modal
+      :visible="!!dialog"
+      :title="s(dialog || 'details')"
+      :width="720"
+      centered
+      wrap-class-name="vm-settings-dialog"
+      :mask-closable="false"
+      :closable="!submitting"
       :keyboard="!submitting"
       @cancel="close">
       <a-descriptions :column="2" bordered size="small"><a-descriptions-item :label="$t('label.virtualmachine')">{{ vm.displayname || vm.name }}</a-descriptions-item><a-descriptions-item :label="$t('label.state')">{{ vm.state }}</a-descriptions-item></a-descriptions>
