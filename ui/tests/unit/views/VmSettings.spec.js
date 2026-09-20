@@ -102,5 +102,4 @@ describe('VM settings submission lifecycle', () => {
     const first = value.submit(); await value.submit(); await first
     expect(postAPI).toHaveBeenCalledTimes(1); expect(value.refresh).toHaveBeenCalledTimes(1); expect(value.dialog).toBe('')
   })
-
 })
