@@ -27,7 +27,7 @@
       <template #emptyText>{{ s(error ? 'loadFailed' : search ? 'noResults' : 'empty') }}</template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name' || column.key === 'value'"><a-tooltip :title="record[column.key]"><span class="setting-value">{{ record[column.key] }}</span></a-tooltip></template>
-        <template v-if="column.key === 'access'"><a-tooltip :title="reason(record.name)"><span>{{ s(reason(record.name) ? 'readonly' : 'editable') }}</span></a-tooltip></template>
+        <template v-if="column.key === 'access'"><a-tooltip :title="reason(record.name)"><span>{{ s(reason(record.name) ? 'unavailable' : 'editable') }}</span></a-tooltip></template>
         <template v-if="column.key === 'actions'"><div class="settings-actions">
           <a-tooltip v-if="canEdit" :title="reason(record.name)"><span><a-button type="link" size="small" :disabled="!!reason(record.name)" @click="open('edit', record)">{{ $t('label.edit') }}</a-button></span></a-tooltip>
           <a-dropdown :trigger="['click']" placement="bottomRight"><a-button size="small" :aria-label="$t('label.actions')"><down-outlined /></a-button><template #overlay><a-menu>
@@ -40,7 +40,9 @@
     </a-table>
     <div class="settings-pagination"><a-pagination v-model:current="page" v-model:page-size="pageSize" :total="rows.length" show-size-changer :page-size-options="['10', '20', '50']" /></div>
     <p class="settings-help">{{ s('help') }}</p>
-    <a-modal :visible="!!dialog" :title="s(dialog || 'details')" :width="720" centered wrap-class-name="vm-settings-dialog" :mask-closable="false" :closable="!submitting" :keyboard="!submitting" @cancel="close">
+    <a-modal :visible="!!dialog" :title="s(dialog || 'details')" :width="720" centered wrap-class-name="vm-settings-dialog" :mask-closable="false" :closable="!submitting" 
+      :keyboard="!submitting"
+      @cancel="close">
       <a-descriptions :column="2" bordered size="small"><a-descriptions-item :label="$t('label.virtualmachine')">{{ vm.displayname || vm.name }}</a-descriptions-item><a-descriptions-item :label="$t('label.state')">{{ vm.state }}</a-descriptions-item></a-descriptions>
       <a-alert v-if="dialogError" type="error" show-icon :message="dialogError" />
       <template v-if="dialog === 'add' || dialog === 'edit'">

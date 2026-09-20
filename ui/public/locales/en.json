@@ -7831,6 +7831,7 @@
   "message.vmiso.results.help": "Only explicitly failed ISOs can be retried. Check uncertain jobs without resubmitting them. If no job ID is available, ask an administrator to verify the attachment state.",
   "message.vmiso.changed": "The ISO attachment state changed. Refresh the list before continuing.",
   "message.vmiso.summary": "Succeeded {success} · Failed {failed} · Unknown {unknown} · Not submitted {pending} · Running {running}",
+  "label.vmsettings.unavailable": "Unavailable",
   "label.vmsettings.add": "Add setting",
   "label.vmsettings.edit": "Edit setting",
   "label.vmsettings.delete": "Delete setting",

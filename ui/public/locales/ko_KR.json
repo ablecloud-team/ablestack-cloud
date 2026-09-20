@@ -7792,6 +7792,7 @@
   "message.vmiso.results.help": "명시적으로 실패한 ISO만 재시도합니다. 결과 미확인 작업은 다시 제출하지 않고 상태를 조회합니다. 작업 ID가 없는 경우 관리자에게 실제 연결 상태 확인을 요청해 주세요.",
   "message.vmiso.changed": "ISO 연결 상태가 변경되었습니다. 최신 목록을 확인해 주세요.",
   "message.vmiso.summary": "성공 {success} · 실패 {failed} · 결과 미확인 {unknown} · 미제출 {pending} · 진행 중 {running}",
+  "label.vmsettings.unavailable": "변경 불가",
   "label.vmsettings.add": "설정 추가",
   "label.vmsettings.edit": "설정 편집",
   "label.vmsettings.delete": "설정 삭제",
