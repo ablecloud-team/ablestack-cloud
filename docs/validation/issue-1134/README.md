@@ -135,3 +135,19 @@ WSL ext4 작업 트리에서 변경된 `api`, `server`, `core` 모듈과 UI만 �
 ![lsblk 경로 검색 및 전체 내용 툴팁](images/disk-label-search-tooltip.jpg)
 ![일반 디스크 라이트모드 목록](images/disk-label-light.jpg)
 ![제목 및 하단 버튼 고정과 본문 스크롤](images/disk-label-scroll.jpg)
+
+## 호스트 장치 용어 및 배치 검증 (2026-09-20)
+
+- 소스 커밋: `6ef5c6fb303`. 탭은 `호스트 장치`, 주요 버튼/할당 대화상자는 `호스트 장치 할당`으로 표시한다. 표/선택 필드/빈 상태/안내 문구와 영어 번역도 함께 정리했다.
+- UI ESLint, 기존 UI 테스트 11개, WSL ext4 UI 모듈 빌드가 통과했다. 소스 커밋의 GitHub License Check 및 로컬 RAT가 통과했다.
+- 31번 관리 서버에 정적 UI 파일 829개를 배포하고 전체 파일 해시 일치를 확인했다. WEB-INF/config.json/관리 서비스 PID(273539)가 보존됐으며 서비스 active 및 HTTP 200을 확인했다.
+- 실제 브라우저의 다크/라이트 모드에서 탭, 버튼, 표와 할당 대화상자 문구의 가독성과 정렬을 확인했다. 주요 버튼과 업데이트 버튼은 동일 높이 32px, 간격 8px이며 텍스트 잘림이 없다.
+- 1000×600 화면에서 대화상자는 y=24, 높이 552px로 중앙에 배치됐다. 본문 scrollTop 0→82 동안 제목 y=24, 하단 버튼 y=523이 유지됐다.
+- 이번 추가 변경은 표시/배치에 한정되며 장치 할당 API와 런타임 처리를 바꾸지 않았다. 실제 장치 연결/해제 결과는 앞선 검증 항목을 참조한다.
+- 전체 저장소 GitHub Lint는 실패 상태이며 변경 UI 파일 ESLint 및 License Check 통과와 구분한다.
+
+![호스트 장치 탭 다크모드](images/host-device-tab-dark.jpg)
+![호스트 장치 할당 다크모드](images/host-device-dialog-dark.jpg)
+![작은 화면의 본문 스크롤](images/host-device-scroll-dark.jpg)
+![호스트 장치 탭 라이트모드](images/host-device-tab-light.jpg)
+![호스트 장치 할당 라이트모드](images/host-device-dialog-light.jpg)
