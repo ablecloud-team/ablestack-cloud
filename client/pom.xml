@@ -1027,6 +1027,13 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.bouncycastle</groupId>
+                                    <artifactId>bcutil-jdk18on</artifactId>
+                                    <version>${cs.bcprov.version}</version>
+                                    <overWrite>false</overWrite>
+                                    <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.bouncycastle</groupId>
                                     <artifactId>bctls-jdk18on</artifactId>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}/lib</outputDirectory>
@@ -1065,6 +1072,7 @@
                                     <exclude>org.bouncycastle:bcprov-jdk18on</exclude>
                                     <exclude>org.bouncycastle:bcpkix-jdk18on</exclude>
                                     <exclude>org.bouncycastle:bctls-jdk18on</exclude>
+                                    <exclude>org.bouncycastle:bcutil-jdk18on</exclude>
                                     <exclude>com.mysql:mysql-connector-j</exclude>
                                     <exclude>org.apache.cloudstack:cloud-plugin-storage-volume-storpool</exclude>
                                     <exclude>org.apache.cloudstack:cloud-plugin-storage-volume-linstor</exclude>
@@ -1113,6 +1121,15 @@
                                 </transformer>
                             </transformers>
                             <filters>
+                                <!-- The SDK bundles older BC classes; use the signed, version-aligned jars in lib instead. -->
+                                <filter>
+                                    <artifact>io.netris:netris-java-sdk</artifact>
+                                    <excludes>
+                                        <exclude>org/bouncycastle/**</exclude>
+                                        <exclude>META-INF/versions/**/org/bouncycastle/**</exclude>
+                                        <exclude>META-INF/services/java.security.Provider</exclude>
+                                    </excludes>
+                                </filter>
                                 <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>

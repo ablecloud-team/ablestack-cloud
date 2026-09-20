@@ -896,12 +896,57 @@ public class TemplateManagerImplTest {
         Mockito.when(iso.getId()).thenReturn(42L);
         Mockito.when(vm.getIsoId()).thenReturn(null);
 
-        boolean result = templateManager.attachISOToVM(1L, 1L, 42L, true, false, false);
+        com.cloud.utils.db.GlobalLock lock = mock(com.cloud.utils.db.GlobalLock.class);
+        when(lock.lock(Mockito.anyInt())).thenReturn(true);
+        boolean result;
+        try (org.mockito.MockedStatic<com.cloud.utils.db.GlobalLock> locks = Mockito.mockStatic(com.cloud.utils.db.GlobalLock.class)) {
+            locks.when(() -> com.cloud.utils.db.GlobalLock.getInternLock("vm-iso-1")).thenReturn(lock);
+            result = templateManager.attachISOToVM(1L, 1L, 42L, true, false, false);
+        }
+        Mockito.verify(lock).unlock();
+        Mockito.verify(lock).releaseRef();
 
         Assert.assertTrue(result);
         Mockito.verify(vm).setIsoId(42L);
         Mockito.verify(_userVmDao).update(eq(1L), eq(vm));
         Mockito.verify(_vmIsoMapDao, Mockito.never()).persist(any(VmIsoMapVO.class));
+    }
+
+    @Test
+    public void isoLockTimeoutDoesNotReadOrModifyTheVm() {
+        com.cloud.utils.db.GlobalLock lock = mock(com.cloud.utils.db.GlobalLock.class);
+        when(lock.lock(Mockito.anyInt())).thenReturn(false);
+        try (org.mockito.MockedStatic<com.cloud.utils.db.GlobalLock> locks = Mockito.mockStatic(com.cloud.utils.db.GlobalLock.class)) {
+            locks.when(() -> com.cloud.utils.db.GlobalLock.getInternLock("vm-iso-1")).thenReturn(lock);
+            try {
+                templateManager.attachISOToVM(1L, 1L, 42L, true, false, false);
+                Assert.fail("Lock timeout must reject the operation");
+            } catch (com.cloud.utils.exception.CloudRuntimeException expected) {
+                Mockito.verify(_userVmDao, Mockito.never()).findById(1L);
+            }
+        }
+        Mockito.verify(lock, Mockito.never()).unlock();
+        Mockito.verify(lock).releaseRef();
+    }
+
+    @Test
+    public void staleIsoDetachCannotRemoveAnotherIsoAndReleasesLock() {
+        UserVmVO vm = Mockito.mock(UserVmVO.class);
+        when(_userVmDao.findById(1L)).thenReturn(vm);
+        when(vm.getIsoId()).thenReturn(99L);
+        com.cloud.utils.db.GlobalLock lock = mock(com.cloud.utils.db.GlobalLock.class);
+        when(lock.lock(Mockito.anyInt())).thenReturn(true);
+        try (org.mockito.MockedStatic<com.cloud.utils.db.GlobalLock> locks = Mockito.mockStatic(com.cloud.utils.db.GlobalLock.class)) {
+            locks.when(() -> com.cloud.utils.db.GlobalLock.getInternLock("vm-iso-1")).thenReturn(lock);
+            try {
+                templateManager.attachISOToVM(1L, 1L, 42L, false, false, false);
+                Assert.fail("A detached ISO must not target another slot");
+            } catch (InvalidParameterValueException expected) {
+                Mockito.verify(_userVmDao, Mockito.never()).update(eq(1L), any(UserVmVO.class));
+            }
+        }
+        Mockito.verify(lock).unlock();
+        Mockito.verify(lock).releaseRef();
     }
 
     @Test
@@ -960,7 +1005,19 @@ public class TemplateManagerImplTest {
         Mockito.when(vm.getIsoId()).thenReturn(99L);
         Mockito.when(_vmIsoMapDao.listByVmId(1L)).thenReturn(new ArrayList<>());
 
-        boolean result = templateManager.attachISOToVM(1L, 1L, 42L, true, false, false);
+        com.cloud.utils.db.GlobalLock lock = mock(com.cloud.utils.db.GlobalLock.class);
+        when(lock.lock(Mockito.anyInt())).thenReturn(true);
+        Mockito.when(vm.getHostId()).thenReturn(7L);
+        DetailVO capacity = Mockito.mock(DetailVO.class);
+        Mockito.when(capacity.getValue()).thenReturn("2");
+        Mockito.when(_hostDetailsDao.findDetail(7L, Host.HOST_CDROM_MAX_COUNT)).thenReturn(capacity);
+        boolean result;
+        try (org.mockito.MockedStatic<com.cloud.utils.db.GlobalLock> locks = Mockito.mockStatic(com.cloud.utils.db.GlobalLock.class)) {
+            locks.when(() -> com.cloud.utils.db.GlobalLock.getInternLock("vm-iso-1")).thenReturn(lock);
+            result = templateManager.attachISOToVM(1L, 1L, 42L, true, false, false);
+        }
+        Mockito.verify(lock).unlock();
+        Mockito.verify(lock).releaseRef();
 
         Assert.assertTrue(result);
         Mockito.verify(_vmIsoMapDao).persist(Mockito.argThat(row ->

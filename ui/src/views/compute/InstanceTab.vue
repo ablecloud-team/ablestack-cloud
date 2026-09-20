@@ -31,15 +31,8 @@
       <a-tab-pane :tab="$t('label.metrics')" key="stats">
         <StatsTab :resource="resource"/>
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.iso')" key="cdrom" v-if="attachedIsos.length > 0">
-        <div v-for="iso in attachedIsos" :key="iso.id" style="margin-bottom: 12px;">
-          <usb-outlined />
-          <router-link :to="{ path: '/iso/' + iso.id }">{{ iso.displaytext || iso.name }}</router-link>
-          <a-tag style="margin-left: 8px;">{{ slotLabel(iso.deviceseq) }}</a-tag>
-          <a-tag v-if="iso.bootable" color="blue" style="margin-left: 4px;">{{ $t('label.bootable') }}</a-tag>
-          <br/>
-          <barcode-outlined /> {{ iso.id }}
-        </div>
+      <a-tab-pane :tab="$t('label.iso')" key="cdrom" v-if="'listIsos' in $store.getters.apis && vm.hypervisor !== 'External'">
+        <VmIsoTab :resource="vm" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.volumes')" key="volumes" v-if="'listVolumes' in $store.getters.apis">
         <VmVolumesTab :resource="vm" />
@@ -235,6 +228,7 @@ import ResourceSchedules from '@/views/compute/ResourceSchedules.vue'
 import ListResourceTable from '@/components/view/ListResourceTable'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import AnnotationsTab from '@/components/view/AnnotationsTab'
+import VmIsoTab from '@/views/compute/VmIsoTab.vue'
 import VmVolumesTab from '@/views/compute/VmVolumesTab.vue'
 import SecurityGroupSelection from '@views/compute/wizard/SecurityGroupSelection'
 import DrPlanVmTab from '@/views/compute/dr/DrPlanVmTab.vue'
@@ -261,7 +255,8 @@ export default {
     SecurityGroupSelection,
     ResourceIcon,
     AnnotationsTab,
-    VmVolumesTab
+    VmVolumesTab,
+    VmIsoTab
   },
   mixins: [listRefreshMixin(['loadDevicesFromDb'], { active: vm => !!vm.vm?.id && vm.currentTab === 'hostdevices' }), mixinDevice],
   props: {

@@ -1,0 +1,1693 @@
+{
+  "detailsDark": {
+    "body": {
+      "height": 378,
+      "width": 760,
+      "x": 415,
+      "y": 260
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 415,
+      "y": 638
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 415,
+      "y": 205
+    },
+    "labels": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 440,
+          "y": 285
+        },
+        "text": "VM"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 440,
+          "y": 323.5
+        },
+        "text": "Zone"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 440,
+          "y": 362.5
+        },
+        "text": "계정"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 440,
+          "y": 419
+        },
+        "text": "이름"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 440,
+          "y": 457.5
+        },
+        "text": "아이디"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 440,
+          "y": 496.5
+        },
+        "text": "장치 슬롯"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 440,
+          "y": 535.5
+        },
+        "text": "상태"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 440,
+          "y": 574.5
+        },
+        "text": "미디어 속성"
+      }
+    ],
+    "modal": {
+      "height": 490,
+      "width": 760,
+      "x": 415,
+      "y": 205
+    },
+    "scroll": {
+      "client": 378,
+      "height": 378,
+      "overflow": "auto",
+      "top": 0
+    },
+    "texts": [],
+    "viewport": {
+      "height": 900,
+      "width": 1600
+    }
+  },
+  "detachDark": {
+    "body": {
+      "height": 354,
+      "width": 760,
+      "x": 415,
+      "y": 272
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 415,
+      "y": 626
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 415,
+      "y": 217
+    },
+    "labels": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 440,
+          "y": 297
+        },
+        "text": "VM"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 440,
+          "y": 335.5
+        },
+        "text": "Zone"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 440,
+          "y": 374.5
+        },
+        "text": "계정"
+      }
+    ],
+    "modal": {
+      "height": 466,
+      "width": 760,
+      "x": 415,
+      "y": 217
+    },
+    "scroll": {
+      "client": 354,
+      "height": 354,
+      "overflow": "auto",
+      "top": 0
+    },
+    "texts": [],
+    "viewport": {
+      "height": 900,
+      "width": 1600
+    }
+  },
+  "resultsDark": {
+    "body": {
+      "height": 438,
+      "width": 760,
+      "x": 415,
+      "y": 230
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 415,
+      "y": 668
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 415,
+      "y": 175
+    },
+    "labels": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 440,
+          "y": 255
+        },
+        "text": "VM"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 440,
+          "y": 293.5
+        },
+        "text": "Zone"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 440,
+          "y": 332.5
+        },
+        "text": "계정"
+      }
+    ],
+    "modal": {
+      "height": 550,
+      "width": 760,
+      "x": 415,
+      "y": 175
+    },
+    "scroll": {
+      "client": 438,
+      "height": 438,
+      "overflow": "auto",
+      "top": 0
+    },
+    "texts": [
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "작업 ID: 9dc0c8aa-4e78-4d64-8247-a276c47f701f"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "작업 ID: 3bfcbec8-9872-4671-b541-744bf1afa3d7"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "명시적으로 실패한 ISO만 재시도합니다. 결과 미확인 작업은 다시 제출하지 않고 상태를 조회합니다. 작업 ID가 없는 경우 관리자에게 실제 연결 상태 확인을 요청해 주세요."
+      }
+    ],
+    "viewport": {
+      "height": 900,
+      "width": 1600
+    }
+  },
+  "attachDark": {
+    "body": {
+      "height": 740,
+      "width": 760,
+      "x": 415,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 415,
+      "y": 819
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 415,
+      "y": 24
+    },
+    "labels": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 440,
+          "y": 104
+        },
+        "text": "VM"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 440,
+          "y": 142.5
+        },
+        "text": "Zone"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 440,
+          "y": 181.5
+        },
+        "text": "계정"
+      }
+    ],
+    "modal": {
+      "height": 852,
+      "width": 760,
+      "x": 415,
+      "y": 24
+    },
+    "scroll": {
+      "client": 740,
+      "height": 1234,
+      "overflow": "auto",
+      "top": 0
+    },
+    "texts": [
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "VMware Tools Installer ISO"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "vmware-tools.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "XenServer Tools Installer ISO (xen-pv-drv-iso)"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "xs-tools.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Windows10.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Windows10.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Rocky-9.6-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Rocky-9.6-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Windows Server 2025 x86_64 DVD"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Windows Server 2025 x86_64 DVD"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Virtio Windows Driver 0.1.302"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Virtio Windows Driver 0.1.302"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Rocky-9.8-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Rocky-9.8-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "ubuntu-26.04-live-server-amd64.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "ubuntu-26.04-live-server-amd64.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "ISO별 완료를 확인한 후 다음 ISO를 연결합니다. 부팅 가능 속성은 현재 VM의 부팅 순서를 의미하지 않습니다."
+      }
+    ],
+    "viewport": {
+      "height": 900,
+      "width": 1600
+    }
+  },
+  "lowBefore": {
+    "body": {
+      "height": 380,
+      "width": 760,
+      "x": 65,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 65,
+      "y": 459
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 65,
+      "y": 24
+    },
+    "labels": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 90,
+          "y": 104
+        },
+        "text": "VM"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 90,
+          "y": 142.5
+        },
+        "text": "Zone"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 90,
+          "y": 181.5
+        },
+        "text": "계정"
+      }
+    ],
+    "modal": {
+      "height": 492,
+      "width": 760,
+      "x": 65,
+      "y": 24
+    },
+    "scroll": {
+      "client": 380,
+      "height": 1234,
+      "overflow": "auto",
+      "top": 0
+    },
+    "texts": [
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "VMware Tools Installer ISO"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "vmware-tools.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "XenServer Tools Installer ISO (xen-pv-drv-iso)"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "xs-tools.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Windows10.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Windows10.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Rocky-9.6-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Rocky-9.6-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Windows Server 2025 x86_64 DVD"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Windows Server 2025 x86_64 DVD"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Virtio Windows Driver 0.1.302"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Virtio Windows Driver 0.1.302"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Rocky-9.8-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Rocky-9.8-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "ubuntu-26.04-live-server-amd64.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "ubuntu-26.04-live-server-amd64.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "ISO별 완료를 확인한 후 다음 ISO를 연결합니다. 부팅 가능 속성은 현재 VM의 부팅 순서를 의미하지 않습니다."
+      }
+    ],
+    "viewport": {
+      "height": 540,
+      "width": 900
+    }
+  },
+  "lowAfter": {
+    "body": {
+      "height": 380,
+      "width": 760,
+      "x": 65,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 65,
+      "y": 459
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 65,
+      "y": 24
+    },
+    "labels": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 90,
+          "y": -750
+        },
+        "text": "VM"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 90,
+          "y": -711.5
+        },
+        "text": "Zone"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 90,
+          "y": -672.5
+        },
+        "text": "계정"
+      }
+    ],
+    "modal": {
+      "height": 492,
+      "width": 760,
+      "x": 65,
+      "y": 24
+    },
+    "scroll": {
+      "client": 380,
+      "height": 1234,
+      "overflow": "auto",
+      "top": 854
+    },
+    "texts": [
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "VMware Tools Installer ISO"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "vmware-tools.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "XenServer Tools Installer ISO (xen-pv-drv-iso)"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "xs-tools.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Windows10.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Windows10.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Rocky-9.6-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Rocky-9.6-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Windows Server 2025 x86_64 DVD"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Windows Server 2025 x86_64 DVD"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Virtio Windows Driver 0.1.302"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Virtio Windows Driver 0.1.302"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Rocky-9.8-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Rocky-9.8-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "ubuntu-26.04-live-server-amd64.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "ubuntu-26.04-live-server-amd64.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "ISO별 완료를 확인한 후 다음 ISO를 연결합니다. 부팅 가능 속성은 현재 VM의 부팅 순서를 의미하지 않습니다."
+      }
+    ],
+    "viewport": {
+      "height": 540,
+      "width": 900
+    }
+  },
+  "selectedDark": {
+    "body": {
+      "height": 380,
+      "width": 760,
+      "x": 65,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 65,
+      "y": 459
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 65,
+      "y": 24
+    },
+    "labels": [
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 90,
+          "y": -690
+        },
+        "text": "VM"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 90,
+          "y": -651.5
+        },
+        "text": "Zone"
+      },
+      {
+        "background": "rgb(22, 27, 34)",
+        "color": "rgb(197, 204, 212)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 90,
+          "y": -612.5
+        },
+        "text": "계정"
+      }
+    ],
+    "modal": {
+      "height": 492,
+      "width": 760,
+      "x": 65,
+      "y": 24
+    },
+    "scroll": {
+      "client": 380,
+      "height": 1234,
+      "overflow": "auto",
+      "top": 794
+    },
+    "texts": [
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "VMware Tools Installer ISO"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "vmware-tools.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "XenServer Tools Installer ISO (xen-pv-drv-iso)"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "xs-tools.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Windows10.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Windows10.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Rocky-9.6-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Rocky-9.6-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Windows Server 2025 x86_64 DVD"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Windows Server 2025 x86_64 DVD"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Virtio Windows Driver 0.1.302"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Virtio Windows Driver 0.1.302"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "Rocky-9.8-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "Rocky-9.8-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(240, 243, 246)",
+        "opacity": "1",
+        "text": "ubuntu-26.04-live-server-amd64.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "ubuntu-26.04-live-server-amd64.iso"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(197, 204, 212)",
+        "opacity": "1",
+        "text": "ISO별 완료를 확인한 후 다음 ISO를 연결합니다. 부팅 가능 속성은 현재 VM의 부팅 순서를 의미하지 않습니다."
+      }
+    ],
+    "viewport": {
+      "height": 540,
+      "width": 900
+    }
+  },
+  "attachLight": {
+    "body": {
+      "height": 560,
+      "width": 760,
+      "x": 255,
+      "y": 79
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 255,
+      "y": 639
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 255,
+      "y": 24
+    },
+    "labels": [
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 280,
+          "y": 104
+        },
+        "text": "VM"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 280,
+          "y": 142.5
+        },
+        "text": "Zone"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 280,
+          "y": 181.5
+        },
+        "text": "계정"
+      }
+    ],
+    "modal": {
+      "height": 672,
+      "width": 760,
+      "x": 255,
+      "y": 24
+    },
+    "scroll": {
+      "client": 560,
+      "height": 1234,
+      "overflow": "auto",
+      "top": 0
+    },
+    "texts": [
+      {
+        "color": "rgb(31, 41, 55)",
+        "opacity": "1",
+        "text": "VMware Tools Installer ISO"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "vmware-tools.iso"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(31, 41, 55)",
+        "opacity": "1",
+        "text": "XenServer Tools Installer ISO (xen-pv-drv-iso)"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "xs-tools.iso"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(31, 41, 55)",
+        "opacity": "1",
+        "text": "Windows10.iso"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "Windows10.iso"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(31, 41, 55)",
+        "opacity": "1",
+        "text": "Rocky-9.6-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "Rocky-9.6-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(31, 41, 55)",
+        "opacity": "1",
+        "text": "Windows Server 2025 x86_64 DVD"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "Windows Server 2025 x86_64 DVD"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(31, 41, 55)",
+        "opacity": "1",
+        "text": "Virtio Windows Driver 0.1.302"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "Virtio Windows Driver 0.1.302"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "zone · 데이터 미디어"
+      },
+      {
+        "color": "rgb(31, 41, 55)",
+        "opacity": "1",
+        "text": "Rocky-9.8-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "Rocky-9.8-x86_64-dvd.iso"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(31, 41, 55)",
+        "opacity": "1",
+        "text": "ubuntu-26.04-live-server-amd64.iso"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "ubuntu-26.04-live-server-amd64.iso"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "zone · 부팅 가능"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "ISO별 완료를 확인한 후 다음 ISO를 연결합니다. 부팅 가능 속성은 현재 VM의 부팅 순서를 의미하지 않습니다."
+      }
+    ],
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "resultsLight": {
+    "body": {
+      "height": 438,
+      "width": 760,
+      "x": 255,
+      "y": 140
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 255,
+      "y": 578
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 255,
+      "y": 85
+    },
+    "labels": [
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 280,
+          "y": 165
+        },
+        "text": "VM"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 280,
+          "y": 203.5
+        },
+        "text": "Zone"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 280,
+          "y": 242.5
+        },
+        "text": "계정"
+      }
+    ],
+    "modal": {
+      "height": 550,
+      "width": 760,
+      "x": 255,
+      "y": 85
+    },
+    "scroll": {
+      "client": 438,
+      "height": 438,
+      "overflow": "auto",
+      "top": 0
+    },
+    "texts": [
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "작업 ID: 57aae73b-b168-4ddf-9d28-5fd7683d0570"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "작업 ID: d6e7cf07-777a-4710-9ea2-3ac0929083fa"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "opacity": "1",
+        "text": "명시적으로 실패한 ISO만 재시도합니다. 결과 미확인 작업은 다시 제출하지 않고 상태를 조회합니다. 작업 ID가 없는 경우 관리자에게 실제 연결 상태 확인을 요청해 주세요."
+      }
+    ],
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "detailsLight": {
+    "body": {
+      "height": 378,
+      "width": 760,
+      "x": 255,
+      "y": 170
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 255,
+      "y": 548
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 255,
+      "y": 115
+    },
+    "labels": [
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 280,
+          "y": 195
+        },
+        "text": "VM"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 280,
+          "y": 233.5
+        },
+        "text": "Zone"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 280,
+          "y": 272.5
+        },
+        "text": "계정"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 280,
+          "y": 329
+        },
+        "text": "이름"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 280,
+          "y": 367.5
+        },
+        "text": "아이디"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 280,
+          "y": 406.5
+        },
+        "text": "장치 슬롯"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 280,
+          "y": 445.5
+        },
+        "text": "상태"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 280,
+          "y": 484.5
+        },
+        "text": "미디어 속성"
+      }
+    ],
+    "modal": {
+      "height": 490,
+      "width": 760,
+      "x": 255,
+      "y": 115
+    },
+    "scroll": {
+      "client": 378,
+      "height": 378,
+      "overflow": "auto",
+      "top": 0
+    },
+    "texts": [],
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "narrowDetails": {
+    "body": {
+      "height": 384,
+      "width": 568,
+      "x": 11,
+      "y": 107
+    },
+    "footer": {
+      "height": 57,
+      "width": 568,
+      "x": 11,
+      "y": 491
+    },
+    "header": {
+      "height": 55,
+      "width": 568,
+      "x": 11,
+      "y": 52
+    },
+    "labels": [
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 38.5,
+          "width": 96,
+          "x": 28,
+          "y": 124
+        },
+        "text": "VM"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 39,
+          "width": 96,
+          "x": 28,
+          "y": 162.5
+        },
+        "text": "Zone"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 38.5,
+          "width": 96,
+          "x": 28,
+          "y": 201.5
+        },
+        "text": "계정"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 38.5,
+          "width": 96,
+          "x": 28,
+          "y": 258
+        },
+        "text": "이름"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 39,
+          "width": 96,
+          "x": 28,
+          "y": 296.5
+        },
+        "text": "아이디"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 39,
+          "width": 96,
+          "x": 28,
+          "y": 335.5
+        },
+        "text": "장치 슬롯"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 39,
+          "width": 96,
+          "x": 28,
+          "y": 374.5
+        },
+        "text": "상태"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 60.5,
+          "width": 96,
+          "x": 28,
+          "y": 413.5
+        },
+        "text": "미디어 속성"
+      }
+    ],
+    "modal": {
+      "height": 496,
+      "width": 568,
+      "x": 11,
+      "y": 52
+    },
+    "scroll": {
+      "client": 384,
+      "height": 384,
+      "overflow": "auto",
+      "top": 0
+    },
+    "texts": [],
+    "viewport": {
+      "height": 600,
+      "width": 600
+    }
+  },
+  "detachLight": {
+    "body": {
+      "height": 354,
+      "width": 760,
+      "x": 255,
+      "y": 182
+    },
+    "footer": {
+      "height": 57,
+      "width": 760,
+      "x": 255,
+      "y": 536
+    },
+    "header": {
+      "height": 55,
+      "width": 760,
+      "x": 255,
+      "y": 127
+    },
+    "labels": [
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 280,
+          "y": 207
+        },
+        "text": "VM"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 39,
+          "width": 128,
+          "x": 280,
+          "y": 245.5
+        },
+        "text": "Zone"
+      },
+      {
+        "background": "rgb(245, 247, 250)",
+        "color": "rgb(75, 85, 99)",
+        "rect": {
+          "height": 38.5,
+          "width": 128,
+          "x": 280,
+          "y": 284.5
+        },
+        "text": "계정"
+      }
+    ],
+    "modal": {
+      "height": 466,
+      "width": 760,
+      "x": 255,
+      "y": 127
+    },
+    "scroll": {
+      "client": 354,
+      "height": 354,
+      "overflow": "auto",
+      "top": 0
+    },
+    "texts": [],
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  }
+}

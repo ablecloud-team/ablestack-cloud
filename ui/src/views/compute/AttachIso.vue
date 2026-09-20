@@ -72,6 +72,8 @@
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import _ from 'lodash'
+import { detachIsoBatch } from '@/utils/detachIsoBatch'
+import { attachedIsos } from '@/utils/vmIsoActions'
 
 export default {
   name: 'AttachIso',
@@ -132,7 +134,7 @@ export default {
         promises.push(this.fetchIsos(filter))
       })
       Promise.all(promises).then(() => {
-        this.isos = _.uniqBy(this.isos, 'id')
+        this.isos = _.uniqBy(this.isos, 'id').filter(iso => !attachedIsos(this.resource).some(row => row.id === iso.id))
       }).catch((error) => {
         console.log(error)
       }).finally(() => {
@@ -159,50 +161,33 @@ export default {
     closeAction () {
       this.$emit('close-action')
     },
-    handleSubmit (e) {
-      e.preventDefault()
+    async handleSubmit (e) {
+      if (e && typeof e.preventDefault === 'function') e.preventDefault()
       if (this.loading) return
-      this.formRef.value.validate().then(() => {
-        const values = toRaw(this.form)
-        const ids = values.ids || []
-        if (ids.length === 0) return
-
-        this.loading = true
-        const title = this.$t('label.action.attach.iso')
-        // attachIso is single-ISO server-side; fan out one call per selection.
-        const sendOne = (isoId) => {
-          const params = {
-            id: isoId,
-            virtualmachineid: this.resource.id
-          }
-          if (values.forced) {
-            params.forced = values.forced
-          }
-          return new Promise((resolve, reject) => {
-            postAPI('attachIso', params).then(json => {
-              const jobId = json.attachisoresponse && json.attachisoresponse.jobid
-              if (jobId) {
-                this.$pollJob({
-                  jobId,
-                  title,
-                  description: isoId,
-                  successMessage: `${this.$t('label.action.attach.iso')} ${this.$t('label.success')}`,
-                  loadingMessage: `${title} ${this.$t('label.in.progress')}`,
-                  catchMessage: this.$t('error.fetching.async.job.result')
-                })
-              }
-              resolve()
-            }).catch(reject)
-          })
-        }
-
-        ids.reduce((p, id) => p.then(() => sendOne(id)), Promise.resolve())
-          .then(() => { this.closeAction() })
-          .catch(error => { this.$notifyError(error) })
-          .finally(() => { this.loading = false })
-      }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
-      })
+      try { await this.formRef.value.validate() } catch (error) { if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name); return }
+      const values = toRaw(this.form); const ids = [...values.ids]
+      const vmId = this.resource.id
+      const scope = () => [this.$store.state.user.token, this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.resource.id].join('|')
+      const original = scope()
+      this.loading = true
+      try {
+        const results = await detachIsoBatch({
+          ids,
+          isCurrent: () => scope() === original,
+          submit: id => postAPI('attachIso', { id, virtualmachineid: vmId, ...(values.forced ? { forced: true } : {}) }).then(r => r.attachisoresponse),
+          poll: (jobId, id) => this.$pollJob({ jobId, title: this.$t('label.action.attach.iso'), description: this.isos.find(i => i.id === id)?.name || id, resourceId: vmId, action: { api: 'attachIso', isFetchData: true } }),
+          onProgress: () => this.$emit('refresh-data')
+        })
+        if (scope() !== original) return
+        const success = results.filter(i => i.jobstatus === 1).length
+        const failed = results.filter(i => i.jobstatus === 2).length
+        const unknown = results.filter(i => i.trackingStatus).length
+        this.$notification.info({ message: this.$t('label.vmiso.progress'), description: this.$t('message.vmiso.summary', { success, failed, unknown, pending: ids.length - results.length, running: 0 }), duration: 0 })
+        this.form.ids = results.filter(i => i.jobstatus === 2).map(i => i.id)
+        this.computeMaxSelections()
+        this.$emit('refresh-data')
+        if (success === ids.length || unknown) this.closeAction()
+      } finally { this.loading = false }
     }
   }
 }

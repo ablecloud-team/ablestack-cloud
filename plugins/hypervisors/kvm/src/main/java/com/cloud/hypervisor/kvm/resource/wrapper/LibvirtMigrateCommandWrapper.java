@@ -81,6 +81,8 @@ import com.cloud.agent.properties.AgentProperties;
 import com.cloud.agent.properties.AgentPropertiesFileHandler;
 import com.cloud.hypervisor.kvm.resource.disconnecthook.MigrationCancelHook;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
+import com.cloud.hypervisor.kvm.resource.ConfigDriveDiskUtil;
+import com.cloud.exception.InternalErrorException;
 import com.cloud.hypervisor.kvm.resource.LibvirtConnection;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.DiskDef;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef.InterfaceDef;
@@ -170,11 +172,11 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
             xmlDesc = replaceIpForVNCInDescFileAndNormalizePassword(xmlDesc, vncTarget, vncPassword, vmName);
 
             // Replace Config Drive ISO path
-            String oldIsoVolumePath = getOldVolumePath(disks, vmName);
+            String oldIsoVolumePath = libvirtComputingResource.getConfigDrivePath(conn, vmName);
             String newIsoVolumePath = getNewVolumePathIfDatastoreHasChanged(libvirtComputingResource, conn, to);
             if (newIsoVolumePath != null && !newIsoVolumePath.equals(oldIsoVolumePath)) {
                 logger.debug(String.format("Editing mount path of ISO from %s to %s", oldIsoVolumePath, newIsoVolumePath));
-                xmlDesc = replaceDiskSourceFile(xmlDesc, newIsoVolumePath, vmName);
+                xmlDesc = replaceDiskSourceFile(xmlDesc, newIsoVolumePath, oldIsoVolumePath);
                 if (logger.isDebugEnabled()) {
                     logger.debug("Replaced disk mount point {} with {} in Instance {} XML configuration. New XML configuration is {}.", oldIsoVolumePath, newIsoVolumePath, vmName, maskSensitiveInfoInXML(xmlDesc));
                 }
@@ -362,7 +364,8 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
             | ParserConfigurationException
             | SAXException
             | TransformerException
-            | URISyntaxException e) {
+            | URISyntaxException
+            | InternalErrorException e) {
             logger.error(String.format("Can't migrate domain [%s] due to: [%s].", vmName, e.getMessage()), e);
             if (result == null) {
                 result = "Exception during migrate: " + e.getMessage();
@@ -864,25 +867,8 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
         return LibvirtXMLParser.getXml(doc);
     }
 
-    private  String getOldVolumePath(List<DiskDef> disks, String vmName) {
-        String oldIsoVolumePath = null;
-        for (DiskDef disk : disks) {
-            if (disk.getDiskPath() != null && disk.getDiskPath().contains(vmName)) {
-                oldIsoVolumePath = disk.getDiskPath();
-                break;
-            }
-        }
-        return oldIsoVolumePath;
-    }
-
-    private String getNewVolumePathIfDatastoreHasChanged(LibvirtComputingResource libvirtComputingResource, Connect conn, VirtualMachineTO to) throws LibvirtException, URISyntaxException {
-        DiskTO newDisk = null;
-        for (DiskTO disk : to.getDisks()) {
-            if (disk.getPath() != null && disk.getPath().contains("configdrive")) {
-                newDisk = disk;
-                break;
-            }
-        }
+    private String getNewVolumePathIfDatastoreHasChanged(LibvirtComputingResource libvirtComputingResource, Connect conn, VirtualMachineTO to) throws LibvirtException, URISyntaxException, InternalErrorException {
+        DiskTO newDisk = ConfigDriveDiskUtil.findDisk(to, to.getName());
 
         String newIsoVolumePath = null;
         if (newDisk != null) {
@@ -1018,7 +1004,7 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
         return null;
     }
 
-    private String replaceDiskSourceFile(String xmlDesc, String isoPath, String vmName) throws IOException, SAXException, ParserConfigurationException, TransformerException {
+    private String replaceDiskSourceFile(String xmlDesc, String isoPath, String oldIsoPath) throws IOException, SAXException, ParserConfigurationException, TransformerException {
         InputStream in = IOUtils.toInputStream(xmlDesc);
 
         DocumentBuilderFactory docFactory = ParserUtils.getSaferDocumentBuilderFactory();
@@ -1035,7 +1021,7 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
 
             if ("devices".equals(domainChildNode.getNodeName())) {
                 NodeList devicesChildNodes = domainChildNode.getChildNodes();
-                if (findDiskNode(doc, devicesChildNodes, vmName, isoPath)) {
+                if (findDiskNode(doc, devicesChildNodes, oldIsoPath, isoPath)) {
                     break;
                 }
             }
@@ -1043,12 +1029,13 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
         return LibvirtXMLParser.getXml(doc);
     }
 
-    private boolean findDiskNode(Document doc, NodeList devicesChildNodes, String vmName, String isoPath) {
+    private boolean findDiskNode(Document doc, NodeList devicesChildNodes, String oldIsoPath, String isoPath) {
         for (int x = 0; x < devicesChildNodes.getLength(); x++) {
             Node deviceChildNode = devicesChildNodes.item(x);
-            if ("disk".equals(deviceChildNode.getNodeName())) {
+            if ("disk".equals(deviceChildNode.getNodeName())
+                    && "cdrom".equals(((Element) deviceChildNode).getAttribute("device"))) {
                 Node diskNode = deviceChildNode;
-                if (findSourceNode(doc, diskNode, vmName, isoPath)) {
+                if (findSourceNode(doc, diskNode, oldIsoPath, isoPath)) {
                     return true;
                 }
             }
@@ -1056,7 +1043,7 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
         return false;
     }
 
-    private boolean findSourceNode(Document doc, Node diskNode, String vmName, String isoPath) {
+    private boolean findSourceNode(Document doc, Node diskNode, String oldIsoPath, String isoPath) {
         NodeList diskChildNodes = diskNode.getChildNodes();
         for (int z = 0; z < diskChildNodes.getLength(); z++) {
             Node diskChildNode = diskChildNodes.item(z);
@@ -1064,11 +1051,8 @@ public final class LibvirtMigrateCommandWrapper extends CommandWrapper<MigrateCo
                 Node sourceNode = diskChildNode;
                 NamedNodeMap sourceNodeAttributes = sourceNode.getAttributes();
                 Node sourceNodeAttribute = sourceNodeAttributes.getNamedItem("file");
-                if (sourceNodeAttribute != null && sourceNodeAttribute.getNodeValue().contains(vmName)) {
-                    diskNode.removeChild(diskChildNode);
-                    Element newChildSourceNode = doc.createElement("source");
-                    newChildSourceNode.setAttribute("file", isoPath);
-                    diskNode.appendChild(newChildSourceNode);
+                if (sourceNodeAttribute != null && sourceNodeAttribute.getNodeValue().equals(oldIsoPath)) {
+                    sourceNodeAttribute.setNodeValue(isoPath);
                     return true;
                 }
             }

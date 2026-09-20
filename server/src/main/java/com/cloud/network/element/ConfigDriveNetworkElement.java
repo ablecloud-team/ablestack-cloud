@@ -345,6 +345,11 @@ public class ConfigDriveNetworkElement extends AdapterBase implements NetworkEle
 
     @Override
     public boolean prepareMigration(NicProfile nic, Network network, VirtualMachineProfile vm, DeployDestination dest, ReservationContext context) {
+        // ConfigDrive creation/recreation is owned by the default NIC. A secondary
+        // ConfigDrive-enabled network must not introduce media during migration.
+        if (!nic.isDefaultNic()) {
+            return true;
+        }
         final UserDataServiceProvider userDataUpdateProvider = _networkModel.getUserDataUpdateProvider(network);
         if (userDataUpdateProvider == null) {
             logger.warn("Failed to prepare for migration, can't get user data provider");
@@ -776,32 +781,32 @@ public class ConfigDriveNetworkElement extends AdapterBase implements NetworkEle
         return true;
     }
 
-    private void addConfigDriveDisk(final VirtualMachineProfile profile, final DataStore dataStore) throws ResourceUnavailableException {
-        boolean isoAvailable = false;
+    void addConfigDriveDisk(final VirtualMachineProfile profile, final DataStore dataStore) throws ResourceUnavailableException {
         final String isoPath = ConfigDrive.createConfigDrivePath(profile.getInstanceName());
-        for (DiskTO dataTo : profile.getDisks()) {
-            if (dataTo.getPath().equals(isoPath)) {
-                isoAvailable = true;
-                break;
+        if (dataStore == null && !isConfigDriveIsoOnHostCache(profile.getId())) {
+            throw new ResourceUnavailableException("Config drive disk add failed, datastore not available",
+                    ConfigDriveNetworkElement.class, 0L);
+        }
+        for (DiskTO disk : profile.getDisks()) {
+            if (disk != null && Long.valueOf(CONFIGDRIVEDISKSEQ).equals(disk.getDiskSeq())
+                    && !isoPath.equals(disk.getPath())
+                    && (disk.getType() != Volume.Type.ISO || org.apache.commons.lang3.StringUtils.isNotBlank(disk.getPath())
+                        || (disk.getData() != null && org.apache.commons.lang3.StringUtils.isNotBlank(disk.getData().getPath())))) {
+                throw new ResourceUnavailableException("Config drive CD-ROM slot is occupied by another disk",
+                        ConfigDriveNetworkElement.class, profile.getId());
             }
         }
-        if (!isoAvailable) {
-            TemplateObjectTO dataTO = new TemplateObjectTO();
-            if (dataStore == null && !isConfigDriveIsoOnHostCache(profile.getId())) {
-                throw new ResourceUnavailableException("Config drive disk add failed, datastore not available",
-                        ConfigDriveNetworkElement.class, 0L);
-            } else if (dataStore != null) {
-                dataTO.setDataStore(dataStore.getTO());
-            }
-
-            dataTO.setUuid(profile.getUuid());
-            dataTO.setPath(isoPath);
-            dataTO.setFormat(Storage.ImageFormat.ISO);
-
-            profile.addDisk(new DiskTO(dataTO, CONFIGDRIVEDISKSEQ.longValue(), isoPath, Volume.Type.ISO));
-        } else {
-            logger.warn("Config drive ISO already is in Instance profile.");
+        TemplateObjectTO dataTO = new TemplateObjectTO();
+        if (dataStore != null) {
+            dataTO.setDataStore(dataStore.getTO());
         }
+        dataTO.setUuid(profile.getUuid());
+        dataTO.setPath(isoPath);
+        dataTO.setFormat(Storage.ImageFormat.ISO);
+        // Replace stale ConfigDrive data and its empty reserved slot, preserving user ISO media.
+        profile.getDisks().removeIf(disk -> disk != null && (isoPath.equals(disk.getPath())
+                || (disk.getType() == Volume.Type.ISO && Long.valueOf(CONFIGDRIVEDISKSEQ).equals(disk.getDiskSeq()))));
+        profile.addDisk(new DiskTO(dataTO, CONFIGDRIVEDISKSEQ.longValue(), isoPath, Volume.Type.ISO));
     }
 
     private boolean configureConfigDriveData(final VirtualMachineProfile profile, final NicProfile nic, final DeployDestination dest) {

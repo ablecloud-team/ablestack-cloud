@@ -784,7 +784,7 @@
               </span>
             </div>
             <div class="resource-detail-item" v-if="resource.templateid">
-              <div class="resource-detail-item__label">{{ resource.templateformat === 'ISO'? $t('label.iso') : $t('label.templatename') }}</div>
+              <div class="resource-detail-item__label">{{ resource.templateformat === 'ISO'? $t('label.vmiso.source') : $t('label.templatename') }}</div>
               <div class="resource-detail-item__details">
                 <resource-icon v-if="images.template || images.guestoscategory" :image="images.template || images.guestoscategory" size="1x" style="margin-right: 5px"/>
                 <SaveOutlined v-else />
@@ -792,13 +792,11 @@
                 <span v-else>{{ resource.templatedisplaytext || resource.templatename || resource.templateid }}</span>
               </div>
             </div>
-            <div class="resource-detail-item" v-if="resource.isoid">
+            <div class="resource-detail-item" v-if="attachedIsoRows.length">
               <div class="resource-detail-item__label">{{ $t('label.isoname') }}</div>
-              <div class="resource-detail-item__details">
-                <resource-icon v-if="images.iso || (resource.isoid === resource.templateid && images.guestoscategory)" :image="images.iso || images.guestoscategory" size="1x" style="margin-right: 5px"/>
-                <UsbOutlined v-else />
-                <router-link v-if="validLinks.iso" :to="{ path: '/iso/' + resource.isoid }">{{ resource.isodisplaytext || resource.isoname || resource.isoid }} </router-link>
-                <span v-else>{{ resource.isodisplaytext || resource.isoname || resource.isoid }}</span>
+              <div class="resource-detail-item__details" v-for="iso in attachedIsoRows" :key="iso.id">
+                <router-link v-if="'listIsos' in $store.getters.apis" :to="{ path: '/iso/' + iso.id }">{{ iso.displaytext || iso.name || iso.id }}</router-link>
+                <span v-else>{{ iso.displaytext || iso.name || iso.id }}</span>
               </div>
             </div>
             <div class="resource-detail-item" v-if="resource.serviceofferingname && resource.serviceofferingid">
@@ -1158,6 +1156,7 @@
 </template>
 
 <script>
+import { attachedIsos } from '@/utils/vmIsoActions'
 import { getAPI, postAPI } from '@/api'
 import axios from 'axios'
 import { createPathBasedOnVmType } from '@/utils/plugins'
@@ -1290,6 +1289,7 @@ export default {
     this.updateResourceAdditionalData()
   },
   computed: {
+    attachedIsoRows () { return attachedIsos(this.resource) },
     tagsSupportingResourceTypes () {
       return ['UserVm', 'Template', 'ISO', 'Volume', 'RbdImages', 'Snapshot', 'Backup', 'Network',
         'LoadBalancer', 'PortForwardingRule', 'FirewallRule', 'SecurityGroup', 'SecurityGroupRule',
