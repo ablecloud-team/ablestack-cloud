@@ -111,7 +111,7 @@ export default {
     columns () { return [{ key: 'type', title: this.d('type'), width: 160 }, { key: 'name', title: this.d('device') }, { key: 'host', dataIndex: 'hostname', title: this.$t('label.host'), width: 120 }, { key: 'state', title: this.d('state'), width: 170 }, { key: 'actions', title: this.$t('label.actions'), width: 170 }] },
     filteredRows () { const q = this.search.toLowerCase(); return this.rows.filter(r => (!this.filter || r.devicetype === this.filter) && [r.hostdevicesname, r.hostdevicestext, r.hostname].join(' ').toLowerCase().includes(q)) },
     visibleRows () { return this.filteredRows.slice((this.page - 1) * this.pageSize, this.page * this.pageSize) },
-    dialogTitle () { return this.dialog === 'details' ? this.$t('label.details') : this.d({ allocate: this.mode === 'create' ? 'createVhba' : 'allocate', release: this.selected?.devicetype === 'pci' ? 'releasePci' : 'release', inspect: 'inspect', result: 'result', deleteVhba: 'deleteVhba' }[this.dialog] || 'device') },
+    dialogTitle () { return this.dialog === 'details' ? this.d('details') : this.d({ allocate: this.mode === 'create' ? 'createVhba' : 'allocate', release: this.selected?.devicetype === 'pci' ? 'releasePci' : 'release', inspect: 'inspect', result: 'result', deleteVhba: 'deleteVhba' }[this.dialog] || 'device') },
     submitDisabled () { return this.submitting || this.busy || !this.ack || (this.dialog === 'allocate' && (!!this.operationReason || this.candidateLoading || !this.choice || !this.hostId || (this.mode === 'create' && !/^[\w-]{1,80}$/.test(this.vhbaName)))) || (this.dialog === 'release' && !!this.reason(this.selected?.devicetype, this.selected)) },
     scsiChoices () { return this.scsiDevices.filter(d => (d.text || '').includes('[' + (this.choice || '').replace('scsi_host', '') + ':')).map(d => ({ value: (d.text.match(/\[(\d+:\d+:\d+:\d+)\]/) || [])[1], label: this.candidateLabel(d), disabled: !!d.allocation || d.usage !== 'available' })).filter(d => d.value) }
   },
@@ -264,8 +264,9 @@ export default {
 .vm-devices {
   color: var(--ui-text-primary);
   .device-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; align-items: center; }
+  .device-toolbar > span, .device-toolbar > .ant-btn { flex-shrink: 0; }
   .device-toolbar .ant-select { min-width: 120px; margin-left: auto; }
-  .device-toolbar .ant-input-search { width: 240px; }
+  .device-toolbar .ant-input-search { width: 240px; max-width: 100%; }
   .device-actions { display: flex; gap: 8px; align-items: center; white-space: nowrap; }
   small { display: block; color: var(--ui-text-secondary); margin-top: 6px; overflow-wrap: anywhere; }
   .device-pagination { display: flex; justify-content: flex-end; margin-top: 20px; }
@@ -278,6 +279,7 @@ export default {
   .ant-modal { padding-bottom: 0; max-width: calc(100vw - 32px); }
   .ant-modal-content { display: flex; flex-direction: column; max-height: calc(100dvh - 48px); background: var(--ui-bg-surface); color: var(--ui-text-primary); }
   .ant-modal-header, .ant-modal-footer { flex: none; background: var(--ui-bg-surface); border-color: var(--ui-border); }
+  .ant-modal-title { padding-right: 24px; overflow-wrap: anywhere; }
   .ant-modal-title, .ant-modal-close, .ant-form-item-label > label, .ant-checkbox-wrapper { color: var(--ui-text-primary); }
   .ant-modal-body { overflow-y: auto; min-height: 0; }
   .ant-form { margin-top: 20px; }
