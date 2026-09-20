@@ -180,7 +180,7 @@
         </div>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.settings')" key="settings">
-        <DetailSettings :resource="dataResource" :loading="loading" />
+        <VmSettingsTab :resource="dataResource" :active="currentTab === 'settings'" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.events')" key="events" v-if="'listEvents' in $store.getters.apis">
         <events-tab :resource="dataResource" resourceType="VirtualMachine" :loading="loading" />
@@ -221,7 +221,7 @@ import ResourceLayout from '@/layouts/ResourceLayout'
 import DetailsTab from '@/components/view/DetailsTab'
 import StatsTab from '@/components/view/StatsTab'
 import EventsTab from '@/components/view/EventsTab'
-import DetailSettings from '@/components/view/DetailSettings'
+import VmSettingsTab from '@/views/compute/VmSettingsTab.vue'
 import NicsTab from '@/views/compute/VmNicsTab.vue'
 import GuestNetworkTab from '@/views/compute/GuestNetworkTab'
 import ResourceSchedules from '@/views/compute/ResourceSchedules.vue'
@@ -243,7 +243,7 @@ export default {
     DetailsTab,
     StatsTab,
     EventsTab,
-    DetailSettings,
+    VmSettingsTab,
     NicsTab,
     GuestNetworkTab,
     DrPlanVmTab,
