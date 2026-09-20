@@ -54,7 +54,7 @@
       <a-alert v-if="dialogError" type="error" show-icon :message="dialogError" />
       <template v-if="dialog === 'add' || dialog === 'edit'">
         <a-form layout="vertical">
-          <a-form-item :label="s('name')" required><a-auto-complete v-if="dialog === 'add'" v-model:value="draftName" :options="keyOptions" :filter-option="filterOption" :disabled="submitting" /><a-input v-else :value="draftName" disabled /></a-form-item>
+          <a-form-item :label="s('name')" required><a-auto-complete v-if="dialog === 'add'" v-model:value="draftName" :options="keyOptions" :filter-option="filterOption" :disabled="submitting" /><a-input v-else :value="draftName" readonly /></a-form-item>
           <a-form-item :label="$t('label.value')" required><a-auto-complete v-model:value="draftValue" :options="valueOptions" :filter-option="filterOption" :disabled="submitting" /></a-form-item>
           <p v-if="dialog === 'edit'" class="settings-help">{{ s('previous') }}: {{ selected.value }}</p>
           <template v-if="dialog === 'add' && draftName === 'video.hardware'">
@@ -186,6 +186,7 @@ export default {
   .ant-modal-body { overflow-y: auto; min-height: 0; }
   .ant-form, .ant-alert { margin-top: 20px; }
   .ant-select, .ant-input-number { width: 100%; }
+  .ant-input[readonly], .ant-input[disabled], .ant-input-number-disabled { background: var(--ui-bg-page) !important; color: var(--ui-text-secondary) !important; border-color: var(--ui-border) !important; opacity: 1; }
   .ant-descriptions { margin-bottom: 20px; }
   .ant-descriptions-item-label { background: var(--ui-bg-page) !important; color: var(--ui-text-primary) !important; }
   .ant-descriptions-item-content { background: var(--ui-bg-surface) !important; color: var(--ui-text-secondary) !important; overflow-wrap: anywhere; white-space: pre-wrap; }
