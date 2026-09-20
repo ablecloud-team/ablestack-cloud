@@ -113,3 +113,25 @@ WSL ext4 작업 트리에서 변경된 `api`, `server`, `core` 모듈과 UI만 �
 ![파티션 SCSI 선택 차단 및 사유 툴팁](images/safety-scsi-dark.jpg)
 ![사용 중 LUN 목록 유지 및 선택 차단](images/safety-lun-dark.jpg)
 ![라이트모드 비활성 후보](images/safety-scsi-light.jpg)
+
+## 일반 디스크 식별 개선 (2026-09-20)
+
+- 유형 선택/필터/행/상세에서 SCSI를 `일반 디스크(SATA/SAS·SCSI)`, LUN을 `외부 LUN(FC/iSCSI)`로 표시한다.
+- 일반 디스크 후보는 `lsblk 경로 · 용량 · 모델`을 첫 줄에 표시하고, 기존 sg/WWN 식별자와 제한 사유는 다음 줄에 표시한다. 상세 내용은 툴팁에서 확인한다.
+- 기존 API 유형, 제출 식별자, XML source는 변경하지 않는다. USB/PCI/HBA 후보의 기존 설명도 유지한다.
+- 기존 SCSI 목록 설명에 SIZE를 추가했다. 31-2의 sdb/sdg/sdh/sdi에서 API의 3576.98G 값과 lsblk 바이트 용량 환산값이 일치했다.
+- 변경 Core 모듈 빌드와 Core 테스트 8개, UI ESLint와 UI 테스트 11개가 통과했다. 표시 함수가 연결 식별자/XML을 바꾸지 않는 테스트를 포함한다.
+- 호스트 3대의 Core 변경 배포 전후 VM 목록/마운트 목록이 동일하고 모두 Up 상태임을 확인했다.
+
+### 최종 UI 배포 및 검증
+
+- UI 빌드 버전 `v4.10.0-Europa-20260918`. 정적 파일 829개 해시 일치, WEB-INF/config.json 보존, 관리 서비스 PID 유지 및 HTTP 200을 확인했다.
+- 실제 다크/라이트 화면에서 경로·용량·모델과 둘째 줄 식별자·차단 사유가 읽히고 겹치지 않음을 확인했다.
+- `/dev/sdb` 검색으로 `/dev/sg1` 후보를 찾고 전체 내용 hover 툴팁을 확인했다. UI 연결 후 libvirt source는 기존 `scsi_host0`, `0:275:0`으로 일치했다.
+- UI 해제 후 hostdev 없음, 기존 disk XML 일치, QGA guest-ping 정상으로 복구를 확인했다.
+- 1000×600 화면에서 대화상자 y=24, 높이=552px로 중앙 정렬됐다. 본문 scrollTop 0→82 이동 시 제목 y=24, 하단 버튼 영역 y=523이 유지됐다.
+
+![일반 디스크 다크모드 목록](images/disk-label-dark.jpg)
+![lsblk 경로 검색 및 전체 내용 툴팁](images/disk-label-search-tooltip.jpg)
+![일반 디스크 라이트모드 목록](images/disk-label-light.jpg)
+![제목 및 하단 버튼 고정과 본문 스크롤](images/disk-label-scroll.jpg)
