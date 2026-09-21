@@ -39,3 +39,14 @@ under the License.
 2026-09-21 사용자가 13번 클러스터 유지보수 중이므로 **구현·모듈 빌드까지만 수행하고 대기**하도록 요청했다. 13번/31번 배포, 실제 브라우저 UI 검증, PR 생성은 유지보수 완료 통보 후 진행한다. 현재 단계에서 실서버 기능 통과를 주장하지 않는다.
 
 재개 시 동일 UI 산출물을 양 서버에 배포하며 config.json 및 WEB-INF 백엔드 파일은 보존한다. 각 서버에서 실제 백업 데이터/권한/오퍼링 상태, 생성 및 복원·삭제 확인창, 스케줄, 다크/라이트 배치, 60초 이상 자동 갱신과 네트워크/콘솔 오류를 검증한다. 기존 백업 복원·삭제를 UI 관측만을 위해 실행하지 않는다. 검증 범위와 한계는 PR에 명시한다.
+
+## 2026-09-21 빌드 완료
+
+- 전체 UI 테스트: 71 suites / 640 tests PASS (신규 11개 포함).
+- 전체 UI lint PASS. 신규 테스트 형식 오류 수정 후 전체 재검사 완료.
+- Docker Rocky Linux 9.8 amd64 UI-only production build PASS. 기존 Browserslist 데이터 갱신 안내 및 번들 크기 경고는 남아 있음.
+- 빌드 소스: 922eab5d720118a15729890c760a24597f79f839
+- UI archive SHA256: 7344478455e55cd06b75ccc004a1862100ec19b612adf4ef6a5ddfbcaab5a618
+- Docker 볼륨 보관: `/workspaces/artifacts/issue-1142/ui.tar.gz` 및 manifest.json/build.log/tests-all.log/lint-all-final.log.
+- 배포용 archive는 config.json/WEB-INF/META-INF 제외. 기존 로컬 config.json 변경도 원본 Git blob과 동일함을 확인.
+- 배포, UI 실물 검증, PR 생성: 사용자 유지보수 완료 통보 대기.
