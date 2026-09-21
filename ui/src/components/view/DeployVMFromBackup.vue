@@ -761,7 +761,7 @@
           </a-form>
         </a-card>
       </div>
-      <div class="backup-deploy-summary">
+      <div class="backup-deploy-summary vm-info-card">
           <info-card :resource="vm" :title="$t('label.yourinstance')" @change-resource="(data) => resource = data" />
       </div>
     </div></div>
