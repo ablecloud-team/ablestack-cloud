@@ -53,6 +53,13 @@ public class VmDeviceAssignmentResponse extends BaseResponse {
         this.deviceDetail = deviceDetail;
     }
 
+    @SerializedName("hostuuid")
+    private String hostUuid;
+
+    public void setHostUuid(String hostUuid) {
+        this.hostUuid = hostUuid;
+    }
+
     public void setHostId(Long hostId) {
         this.hostId = hostId;
     }
