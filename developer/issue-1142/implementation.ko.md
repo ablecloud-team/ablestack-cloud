@@ -71,3 +71,14 @@ under the License.
 - 31번: 최종 UI 및 VM 상세 로드 확인. 현재 관리자 화면에 백업 탭이 없고 전역 백업 경로도 대시보드로 이동. 원인을 단정하지 않으며 API/설정/권한 점검 필요.
 - 기존/신규 번들 초기 로딩에서 GUI theme 조회 오류가 관측됨. 이번 백업 탭의 자동 갱신 오류와 구분.
 - 공급자별 실데이터 생성/스케줄/복원/볼륨 복원/새 VM/삭제 및 31번 기능 노출 점검은 후속 이슈 #1143에 기록: https://github.com/ablecloud-team/ablestack-cloud/issues/1143
+
+
+## 페이징 및 한국어 레이블 후속 보완
+
+- VM 백업 탭의 이전/다음 버튼은 전역 다크 스타일에서 글자색만 변경되어 흰 배경과 겹쳤다. VM 스냅샷 탭과 동일하게 배경/테두리/글자 테마 토큰을 적용했다. 비활성 상태와 페이지 전환 로직은 유지.
+- 전체 백업 목록 `/backup`의 `label.compressionstatus`, `label.validationstatus` 한국어 누락을 보완하여 압축 상태/검증 상태로 표시. 연결된 폼의 빠른 복원/독립 백업 번역도 추가.
+- Vue lint PASS, Docker UI production build PASS, 산출물 한국어 JSON과 소스 일치 확인.
+- 소스 `931f7b4e7aa18f76d1537b538c73eb10df47c281`, archive SHA256 `05ca0e2438cab4f7f736b358067c85ff9c344a6db083ab954a2f8a04cd0400bd`.
+- 13/31 재배포 완료, config.json 및 WEB-INF 보존. 롤백 파일은 각각 `/var/tmp/issue1142-13-20260921-092120/ui-before.tar.gz`, `/var/tmp/issue1142-31-20260921-092145/ui-before.tar.gz`.
+- 13번 실제 화면에서 전체 백업 목록의 압축 상태/검증 상태 열 제목 확인. 이번 확인 시 새 백업 1개가 표시됨(이전 0개 관측 이후 변경). 백업 생성/삭제/복원은 실행하지 않음.
+- VM 백업 탭의 양쪽 화살표 표시 확인. 버튼 배경은 흰색에서 rgb(34,40,47), 테두리는 rgb(62,70,80)로 변경. 빈 목록의 비활성 화살표 상태 유지.
