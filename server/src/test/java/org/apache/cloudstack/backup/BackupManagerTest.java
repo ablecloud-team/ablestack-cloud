@@ -159,6 +159,9 @@ public class BackupManagerTest {
     BackupManagerImpl backupManager = new BackupManagerImpl();
 
     @Mock
+    private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
+
+    @Mock
     BackupOfferingDao backupOfferingDao;
 
     @Mock

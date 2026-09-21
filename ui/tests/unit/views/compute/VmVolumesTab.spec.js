@@ -22,7 +22,7 @@ import { clearVolumeOperations } from '@/utils/vmVolumeActions'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 jest.mock('@/views/storage/CreateVolume.vue', () => ({ render: () => null }))
 jest.mock('@/utils/listRefresh', () => ({ ...jest.requireActual('@/utils/listRefresh'), canRefreshList: () => true }))
-const vm = { id: 'vm', name: 'VM', state: 'Running', zoneid: 'zone', account: 'admin', domainid: 'domain' }
+const vm = { volumemutationblockedreason: '', id: 'vm', name: 'VM', state: 'Running', zoneid: 'zone', account: 'admin', domainid: 'domain' }
 const row = { id: 'volume', name: 'data', type: 'DATADISK', state: 'Ready', virtualmachineid: 'vm', size: 1073741824 }
 const snapshots = count => ({ listvmsnapshotresponse: { count } })
 const response = rows => ({ listvolumesresponse: { volume: rows } })
@@ -36,14 +36,14 @@ function mount (apis = { listVolumes: {}, detachVolume: {}, destroyVolume: {} })
 beforeEach(() => {
   jest.useFakeTimers(); jest.clearAllMocks(); clearVolumeOperations()
   Object.defineProperty(document, 'hidden', { configurable: true, value: false })
-  getAPI.mockImplementation(api => Promise.resolve(api === 'listVMSnapshot' ? snapshots(0) : response([row])))
+  getAPI.mockImplementation(api => Promise.resolve(api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : api === 'listVMSnapshot' ? snapshots(0) : response([row])))
 })
 afterEach(() => jest.useRealTimers())
 test('periodic refresh preserves rows and columns while pending and after failure', async () => {
   const wrapper = mount(); await flush()
   const columns = wrapper.vm.columns
   let rejectRequest
-  getAPI.mockImplementation(api => api === 'listVMSnapshot' ? Promise.resolve(snapshots(0)) : new Promise((resolve, reject) => { rejectRequest = reject }))
+  getAPI.mockImplementation(api => api === 'listVirtualMachines' ? Promise.resolve({ listvirtualmachinesresponse: { virtualmachine: [vm] } }) : api === 'listVMSnapshot' ? Promise.resolve(snapshots(0)) : new Promise((resolve, reject) => { rejectRequest = reject }))
   jest.advanceTimersByTime(10000); await flush()
   expect(wrapper.vm.loading).toBe(false); expect(wrapper.vm.rows).toHaveLength(1); expect(wrapper.vm.columns).toEqual(columns)
   rejectRequest(new Error('offline')); await flush()
@@ -53,14 +53,14 @@ test('periodic refresh preserves rows and columns while pending and after failur
 test('same VM parent update does not reset data or refresh presentation', async () => {
   const wrapper = mount(); await flush()
   await wrapper.setProps({ resource: { ...vm, cpuused: '1%' } }); await flush()
-  expect(wrapper.vm.rows).toHaveLength(1); expect(getAPI).toHaveBeenCalledTimes(2)
+  expect(wrapper.vm.rows).toHaveLength(1); expect(getAPI).toHaveBeenCalledTimes(3)
   wrapper.unmount()
 })
 test('rejects stale response after VM switch', async () => {
   let resolveOld
-  getAPI.mockImplementation(api => api === 'listVMSnapshot' ? Promise.resolve(snapshots(0)) : new Promise(resolve => { resolveOld = resolve }))
+  getAPI.mockImplementation(api => api === 'listVirtualMachines' ? Promise.resolve({ listvirtualmachinesresponse: { virtualmachine: [vm] } }) : api === 'listVMSnapshot' ? Promise.resolve(snapshots(0)) : new Promise(resolve => { resolveOld = resolve }))
   const wrapper = mount()
-  getAPI.mockImplementation(api => Promise.resolve(api === 'listVMSnapshot' ? snapshots(0) : response([{ ...row, id: 'new-volume', virtualmachineid: 'new-vm' }])))
+  getAPI.mockImplementation(api => Promise.resolve(api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : api === 'listVMSnapshot' ? snapshots(0) : response([{ ...row, id: 'new-volume', virtualmachineid: 'new-vm' }])))
   await wrapper.setProps({ resource: { ...vm, id: 'new-vm' } }); await flush()
   resolveOld(response([row])); await flush()
   expect(wrapper.vm.rows[0].id).toBe('new-volume'); wrapper.unmount()
@@ -73,7 +73,7 @@ test('permission is rechecked before mutation and detach defaults to preserve', 
 })
 test('changed attachment prevents detach and subsequent deletion', async () => {
   const wrapper = mount(); await flush()
-  getAPI.mockImplementation(api => Promise.resolve(api === 'listVMSnapshot' ? snapshots(0) : api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : response([{ ...row, virtualmachineid: 'other' }])))
+  getAPI.mockImplementation(api => Promise.resolve(api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : api === 'listVMSnapshot' ? snapshots(0) : api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : response([{ ...row, virtualmachineid: 'other' }])))
   await wrapper.vm.openDetach(row); wrapper.vm.mode = 'expunge'; wrapper.vm.detach(); await flush()
   expect(postAPI).not.toHaveBeenCalled(); expect(wrapper.vm.operation.status).toBe('failed')
   wrapper.unmount()
@@ -82,7 +82,7 @@ test('changed attachment prevents detach and subsequent deletion', async () => {
 test.each(['existing', 'create'])('passes chosen device ID only to attachVolume (%s)', async flow => {
   const wrapper = mount({ listVolumes: {}, createVolume: {}, attachVolume: {} }); await flush()
   const available = { ...row, virtualmachineid: undefined, zoneid: vm.zoneid, account: vm.account, domainid: vm.domainid }
-  getAPI.mockImplementation((api, params) => Promise.resolve(api === 'listVMSnapshot' ? snapshots(0) : api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : response(params.id ? [available] : [{ ...row, deviceid: 1 }])))
+  getAPI.mockImplementation((api, params) => Promise.resolve(api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : api === 'listVMSnapshot' ? snapshots(0) : api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : response(params.id ? [available] : [{ ...row, deviceid: 1 }])))
   postAPI.mockImplementation(api => Promise.resolve({ [api.toLowerCase() + 'response']: { jobid: api } }))
   wrapper.vm.$pollJob.mockResolvedValue({ jobstatus: 1, jobresult: { volume: available } })
   if (flow === 'existing') {
@@ -120,7 +120,7 @@ test('unknown snapshots fail closed for missing permission and failed refresh', 
 
 test('pending snapshot request blocks actions and an old VM response cannot unlock new VM', async () => {
   let resolveOld
-  getAPI.mockImplementation((api, params) => api === 'listVMSnapshot' && params.virtualmachineid === 'vm' ? new Promise(resolve => { resolveOld = resolve }) : Promise.resolve(api === 'listVMSnapshot' ? snapshots(2) : response([])))
+  getAPI.mockImplementation((api, params) => api === 'listVMSnapshot' && params.virtualmachineid === 'vm' ? new Promise(resolve => { resolveOld = resolve }) : Promise.resolve(api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : api === 'listVMSnapshot' ? snapshots(2) : response([])))
   const wrapper = mount()
   expect(wrapper.vm.snapshotReason).toBe('message.vmvolume.snapshots.unknown')
   await wrapper.setProps({ resource: { ...vm, id: 'new-vm' } }); await flush()
@@ -131,10 +131,10 @@ test('pending snapshot request blocks actions and an old VM response cannot unlo
 
 test('opening a dialog rechecks snapshots and refresh after last removal restores eligibility', async () => {
   const wrapper = mount({ listVolumes: {}, createVolume: {}, attachVolume: {} }); await flush()
-  getAPI.mockImplementation(api => Promise.resolve(api === 'listVMSnapshot' ? snapshots(1) : response([])))
+  getAPI.mockImplementation(api => Promise.resolve(api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : api === 'listVMSnapshot' ? snapshots(1) : response([])))
   await wrapper.vm.openCreate()
   expect(wrapper.vm.form).toBe('')
-  getAPI.mockImplementation(api => Promise.resolve(api === 'listVMSnapshot' ? snapshots(0) : response([])))
+  getAPI.mockImplementation(api => Promise.resolve(api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : api === 'listVMSnapshot' ? snapshots(0) : response([])))
   await wrapper.vm.fetchData()
   await wrapper.vm.openCreate()
   expect(wrapper.vm.form).toBe('create')
@@ -144,7 +144,7 @@ test('opening a dialog rechecks snapshots and refresh after last removal restore
 test('snapshot created after volume creation blocks attach and retry reuses the created volume', async () => {
   let count = 0
   const available = { ...row, virtualmachineid: undefined, zoneid: vm.zoneid, account: vm.account, domainid: vm.domainid }
-  getAPI.mockImplementation(api => Promise.resolve(api === 'listVMSnapshot' ? snapshots(count) : api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : response([available])))
+  getAPI.mockImplementation(api => Promise.resolve(api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : api === 'listVMSnapshot' ? snapshots(count) : api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : response([available])))
   const wrapper = mount({ listVolumes: {}, createVolume: {}, attachVolume: {} }); await flush()
   postAPI.mockImplementation(api => Promise.resolve({ [api.toLowerCase() + 'response']: { jobid: api } }))
   wrapper.vm.$pollJob.mockImplementation(() => { count = 1; return Promise.resolve({ jobstatus: 1, jobresult: { volume: available } }) })
@@ -155,6 +155,34 @@ test('snapshot created after volume creation blocks attach and retry reuses the 
   wrapper.vm.operation.resume(); await flush()
   expect(postAPI).toHaveBeenCalledTimes(1)
   count = 0
+  wrapper.vm.operation.resume(); await flush(); await flush()
+  expect(postAPI.mock.calls.map(call => call[0])).toEqual(['createVolume', 'attachVolume'])
+  wrapper.unmount()
+})
+
+test.each(['BACKUP_EXISTS', 'BACKUP_SCHEDULE_EXISTS'])('backup guard prevents creation before allocating a disk (%s)', async reason => {
+  getAPI.mockImplementation(api => Promise.resolve(api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [{ ...vm, volumemutationblockedreason: reason }] } } : api === 'listVMSnapshot' ? snapshots(0) : response([row])))
+  const wrapper = mount({ listVolumes: {}, createVolume: {}, attachVolume: {} }); await flush()
+  expect(wrapper.vm.reason('createVolume')).toBe('message.vmvolume.backup.blocked')
+  wrapper.vm.createAndAttach({ name: 'must-not-create' }); await flush()
+  expect(postAPI).not.toHaveBeenCalled()
+  wrapper.unmount()
+})
+
+test('backup protection appearing after creation preserves the disk and retries only attach', async () => {
+  let protectedVm = false
+  const available = { ...row, virtualmachineid: undefined, zoneid: vm.zoneid, account: vm.account, domainid: vm.domainid }
+  getAPI.mockImplementation(api => Promise.resolve(api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [{ ...vm, volumemutationblockedreason: protectedVm ? 'BACKUP_SCHEDULE_EXISTS' : '' }] } } : api === 'listVMSnapshot' ? snapshots(0) : response([available])))
+  const wrapper = mount({ listVolumes: {}, createVolume: {}, attachVolume: {} }); await flush()
+  postAPI.mockImplementation(api => Promise.resolve({ [api.toLowerCase() + 'response']: { jobid: api } }))
+  wrapper.vm.$pollJob.mockImplementation(() => { protectedVm = true; return Promise.resolve({ jobstatus: 1, jobresult: { volume: available } }) })
+  wrapper.vm.createAndAttach({ name: 'new' }); await flush(); await flush()
+  expect(postAPI.mock.calls.map(call => call[0])).toEqual(['createVolume'])
+  expect(wrapper.vm.operation.volume.id).toBe(available.id)
+  expect(wrapper.vm.operation.status).toBe('failed')
+  wrapper.vm.operation.resume(); await flush()
+  expect(postAPI).toHaveBeenCalledTimes(1)
+  protectedVm = false
   wrapper.vm.operation.resume(); await flush(); await flush()
   expect(postAPI.mock.calls.map(call => call[0])).toEqual(['createVolume', 'attachVolume'])
   wrapper.unmount()

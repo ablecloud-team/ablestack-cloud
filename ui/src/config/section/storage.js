@@ -158,6 +158,8 @@ export default {
         },
         {
           api: 'detachVolume',
+          disabled: record => typeof record.volumemutationblockedreason !== 'string' || !!record.volumemutationblockedreason,
+          tooltip: record => typeof record.volumemutationblockedreason !== 'string' ? 'message.vmvolume.backup.unknown' : record.volumemutationblockedreason ? 'message.vmvolume.backup.blocked' : 'label.action.detach.disk',
           icon: 'link-outlined',
           label: 'label.action.detach.disk',
           message: 'message.detach.disk',

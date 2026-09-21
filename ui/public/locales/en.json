@@ -7955,5 +7955,8 @@
   "label.vmsettings.cleanupBlocked": "Cleanup is blocked to preserve other protected settings.",
   "label.vmsettings.changed": "Settings have changed. Close the dialog, review the latest values and try again.",
   "label.vmsettings.success": "Settings saved.",
-  "label.vmsettings.failed": "Unable to save settings. Check the inputs and try again."
+  "label.vmsettings.failed": "Unable to save settings. Check the inputs and try again.",
+  "message.vmvolume.backup.blocked": "Volumes cannot be created and attached, attached or detached while backups or backup schedules protect this VM. Changing storage topology requires changing backup topology. Check protection in the Backup tab.",
+  "message.vmvolume.backup.unknown": "Volume configuration is blocked until backup protection can be verified. Refresh and try again.",
+  "message.vmvolume.backup.unattached": "The volume was created but could not be attached. It has been preserved; retry uses this existing volume."
 }
