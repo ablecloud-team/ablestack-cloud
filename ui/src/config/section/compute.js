@@ -23,6 +23,7 @@ import { escapeHtml } from '@/utils/util'
 import { getAPI, postAPI, getBaseUrl } from '@/api'
 import { getLatestKubernetesIsoParams } from '@/utils/acsrepo'
 import { isFastClonePowerOperationBlocked, getFastClonePowerBlockedLabel, getFastClonePhase } from '@/utils/fastClone'
+import { isCloneBlockedByExtraConfigDisk } from '@/utils/vmClone'
 import kubernetesIcon from '@/assets/icons/kubernetes.svg?inline'
 
 const activeFastCloneStatuses = ['pending', 'running']
@@ -88,6 +89,7 @@ const getBackupOperationTooltip = (record, store, selectedItems, fallbackLabel) 
 }
 
 const getCloneOperationTooltip = (record, store, selectedItems) => {
+  if (isCloneBlockedByExtraConfigDisk(record, selectedItems)) return 'message.clone.extraconfig.disk.blocked'
   return getBackupOperationTooltip(
     record,
     store,
@@ -291,7 +293,8 @@ export default {
           popup: true,
           show: (record) => { return ['Running', 'Stopped'].includes(record.state) && record.vmtype !== 'sharedfsvm' },
           disabled: (record, store, selectedItems) => {
-            return (record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM') ||
+            return isCloneBlockedByExtraConfigDisk(record, selectedItems) ||
+              (record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM') ||
               disableDuringFastCloneFlatten(record, store, selectedItems) ||
               disableDuringBackup(record, store, selectedItems)
           },

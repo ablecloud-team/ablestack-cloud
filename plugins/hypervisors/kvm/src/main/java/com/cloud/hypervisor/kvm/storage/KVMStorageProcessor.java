@@ -3611,6 +3611,10 @@ public class KVMStorageProcessor implements StorageProcessor {
         String vmName = cmd.getOptions() != null ? cmd.getOptions().get("vmName") : null;
 
         try {
+            if ("checkUnpreparedCloneSource".equals(operation)) {
+                verifyUnpreparedCloneSource(pool, volumePath, vmName, cmd.getOptions().get("sourceVmState"), cmd.getOptions().get("absentPaths"));
+                return new FlattenCmdAnswer(volume, cmd, true, "unpreparedSourceVerified");
+            }
             if ("checkSourceOverlay".equals(operation)) {
                 String backingPath = cmd.getOptions().get("backingPath");
                 String overlayPath = cmd.getOptions().get("overlayPath");
@@ -3842,6 +3846,41 @@ public class KVMStorageProcessor implements StorageProcessor {
         } catch (RuntimeException | LibvirtException e) {
             vm.free();
             throw e;
+        }
+    }
+
+    protected void verifyUnpreparedCloneSource(KVMStoragePool pool, Path sourcePath, String vmName, String expectedState,
+            String absentPathsJson) throws IOException, LibvirtException {
+        if (!Files.isRegularFile(sourcePath) || StringUtils.isBlank(absentPathsJson)) {
+            throw new CloudRuntimeException("Original source disk or preparation file list is unavailable.");
+        }
+        JsonNode paths = new ObjectMapper().readTree(absentPathsJson);
+        if (paths == null || !paths.isArray() || paths.size() < 2) {
+            throw new CloudRuntimeException("Incomplete preparation file list.");
+        }
+        for (JsonNode entry : paths) {
+            if (!entry.isTextual() || StringUtils.isBlank(entry.asText())) {
+                throw new CloudRuntimeException("Invalid preparation file path.");
+            }
+            Path path = resolveSharedMountPointPath(pool, entry.asText());
+            // notExists also rejects inaccessible paths; do not confuse an I/O error with absence.
+            if (!Files.notExists(path, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
+                throw new CloudRuntimeException("Clone or overlay file remains, or its absence cannot be verified: " + path);
+            }
+        }
+        Domain vm = getSourceDomainForFinalization(vmName, expectedState);
+        try {
+            if ("Running".equals(expectedState)) {
+                Connect conn = LibvirtConnection.getConnectionByVmName(vmName);
+                String label = getDiskLabelForPath(conn, vm, vmName, sourcePath.toString());
+                if (StringUtils.isBlank(label) || hasActiveSourceBlockJob(vmName, label)) {
+                    throw new CloudRuntimeException("Original source disk is not active or a block job is still running.");
+                }
+            }
+        } finally {
+            if (vm != null) {
+                vm.free();
+            }
         }
     }
 
