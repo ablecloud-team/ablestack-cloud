@@ -3611,6 +3611,16 @@ public class KVMStorageProcessor implements StorageProcessor {
         String vmName = cmd.getOptions() != null ? cmd.getOptions().get("vmName") : null;
 
         try {
+            if ("checkSourceOverlay".equals(operation)) {
+                String backingPath = cmd.getOptions().get("backingPath");
+                String overlayPath = cmd.getOptions().get("overlayPath");
+                if (StringUtils.isBlank(backingPath) || StringUtils.isBlank(overlayPath)) {
+                    throw new CloudRuntimeException("Source backing and overlay paths are required for verification.");
+                }
+                String verification = checkSourceOverlay(pool, volumePath, resolveSharedMountPointPath(pool, overlayPath),
+                        resolveSharedMountPointPath(pool, backingPath), vmName, cmd.getOptions().get("sourceVmState"));
+                return new FlattenCmdAnswer(volume, cmd, true, verification);
+            }
             // A distinct operation prevents older agents from deleting the overlay before the DB update.
             if ("commitSourceOverlayPreserveOverlay".equals(operation)) {
                 String backingPath = cmd.getOptions().get("backingPath");
@@ -3832,6 +3842,38 @@ public class KVMStorageProcessor implements StorageProcessor {
         } catch (RuntimeException | LibvirtException e) {
             vm.free();
             throw e;
+        }
+    }
+
+    protected String checkSourceOverlay(KVMStoragePool pool, Path volumePath, Path overlayPath, Path backingPath,
+            String vmName, String expectedState) throws IOException, LibvirtException {
+        validateSourceOverlayPaths(pool, overlayPath, backingPath);
+        if (!volumePath.equals(overlayPath) && !volumePath.equals(backingPath)) {
+            throw new CloudRuntimeException("Source disk path does not match the recorded clone operation.");
+        }
+        Domain vm = getSourceDomainForFinalization(vmName, expectedState);
+        try {
+            if ("Running".equals(expectedState)) {
+                Connect conn = LibvirtConnection.getConnectionByVmName(vmName);
+                String diskLabel = getDiskLabelForPath(conn, vm, vmName, volumePath.toString());
+                if (StringUtils.isBlank(diskLabel) && volumePath.equals(overlayPath)) {
+                    String baseLabel = getDiskLabelForPath(conn, vm, vmName, backingPath.toString());
+                    if (StringUtils.isNotBlank(baseLabel) && !hasActiveSourceBlockJob(vmName, baseLabel)) {
+                        return "sourceCommitted"; // Pivot succeeded but its answer or DB update was lost.
+                    }
+                }
+                if (StringUtils.isBlank(diskLabel) || hasActiveSourceBlockJob(vmName, diskLabel)) {
+                    throw new CloudRuntimeException("Source disk path is unconfirmed or a block job is still active.");
+                }
+            }
+            if (volumePath.equals(overlayPath) && !validateManagedCloneImage(pool, overlayPath, backingPath.toString())) {
+                throw new CloudRuntimeException("Source overlay no longer has its recorded backing dependency.");
+            }
+            return "sourceVerified";
+        } finally {
+            if (vm != null) {
+                vm.free();
+            }
         }
     }
 
