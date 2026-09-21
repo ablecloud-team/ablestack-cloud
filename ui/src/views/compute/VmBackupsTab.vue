@@ -198,6 +198,7 @@ export default {
 .backup-actions > span { display: inline-flex; }
 .backup-actions :deep(.ant-btn) { height: 24px; display: inline-flex; align-items: center; justify-content: center; margin: 0; }
 .backup-pagination { margin-top: 20px; text-align: right; }
+.backup-pagination :deep(.ant-pagination-item-link) { background: var(--ui-bg-surface); color: var(--ui-text-secondary); border-color: var(--ui-border); }
 .backup-form { margin-top: 20px; }
 .backup-form :deep(.ant-form-item-extra) { margin-top: 8px; color: var(--ui-text-secondary); }
 .backup-description :deep(.ant-descriptions-item-label) { background: var(--ui-bg-page); color: var(--ui-text-primary); }
