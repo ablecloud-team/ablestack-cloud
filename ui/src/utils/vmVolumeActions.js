@@ -18,6 +18,11 @@
 import { reactive } from 'vue'
 export const volumeOperations = reactive({})
 export function clearVolumeOperations () { Object.keys(volumeOperations).forEach(key => delete volumeOperations[key]) }
+export function volumeSnapshotReason (snapshots) {
+  if (snapshots == null) return 'message.vmvolume.snapshots.unknown'
+  return snapshots > 0 ? 'message.vmvolume.snapshots.present' : ''
+}
+
 export function volumeActionReason (api, volume, vm) {
   if (!vm || !['Running', 'Stopped'].includes(vm.state) || vm.hypervisor === 'External') return 'message.vmvolume.unavailable'
   const flatten = String(volume?.clonefastflattenstatus || volume?.details?.['clone.fast.flatten.status'] || '').toLowerCase()

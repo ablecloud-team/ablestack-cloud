@@ -11351,6 +11351,26 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_CLONE, eventDescription = "VM CLONE", async = true)
     public Optional<UserVm> cloneVirtualMachine(CloneVMCmd cmd) throws ResourceAllocationException, ResourceUnavailableException, InsufficientCapacityException {
+        try {
+            return performCloneVirtualMachine(cmd);
+        } catch (ResourceAllocationException | ResourceUnavailableException | InsufficientCapacityException | RuntimeException e) {
+            // The event interceptor records context details, not the thrown exception.
+            CallContext context = CallContext.current();
+            context.setEventType(EventTypes.EVENT_VM_CLONE);
+            context.setEventDescription("cloning VM " + cmd.getId());
+            context.setEventResourceId(cmd.getId());
+            context.setEventResourceType(ApiCommandResourceType.VirtualMachine);
+            context.setEventDetails("Failure: " + getCloneFailureMessage(e));
+            throw e;
+        }
+    }
+
+    protected String getCloneFailureMessage(Throwable failure) {
+        return StringUtils.abbreviate(StringUtils.defaultIfBlank(failure.getMessage(), failure.getClass().getSimpleName())
+                .replaceAll("[\\r\\n\\t]+", " "), 800);
+    }
+
+    protected Optional<UserVm> performCloneVirtualMachine(CloneVMCmd cmd) throws ResourceAllocationException, ResourceUnavailableException, InsufficientCapacityException {
         UserVmVO curVm = _vmDao.findById(cmd.getId());
         checkNoActiveBackupForClone(curVm.getId());
         Account curVmAccount = _accountDao.findById(curVm.getAccountId());
@@ -11647,6 +11667,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         List<VolumeVO> cloneVolumesToCleanup = new ArrayList<>();
         List<VolumeCloneSpec> volumeCloneSpecs = new ArrayList<>();
         boolean preparationSubmitted = false;
+        String stage = "allocate clone volumes";
 
         try {
             for (int cnt = 1; cnt <= countOfCloneVM; cnt++) {
@@ -11672,6 +11693,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             }
 
             preparationSubmitted = true;
+            stage = "prepare source disks";
             prepareFastCloneThroughVmJobQueue(curVm.getId(), storagePool.getId(), operationId, volumeCloneSpecs);
             hostId = getFastCloneHostId(_vmDao.findById(curVm.getId()));
 
@@ -11683,6 +11705,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                     throw new CloudRuntimeException("Unable to find root volume for SharedMountPoint linked clone.");
                 }
 
+                stage = "create clone VM " + cmd.getName();
                 UserVm cloneVM = createCloneVM(cmd, rootVolume.getId());
                 if (cloneVM == null) {
                     throw new CloudRuntimeException("Unable to record the VM to DB!");
@@ -11703,6 +11726,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 vmInstance.setGuestOSId(cmd.getTargetVM().getGuestOSId());
                 _vmInstanceDao.update(cloneVM.getId(), vmInstance);
 
+                stage = "attach clone disks to VM " + cloneVM.getUuid();
                 attachFastCloneDataVolumes(cmd, cloneVolumes);
                 setFastCloneClonePhase(cloneVM.getId(), VmDetailConstants.FAST_CLONE_CLONE_READY);
 
@@ -11710,9 +11734,11 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 Long clusterId = null;
                 Map<VirtualMachineProfile.Param, Object> additonalParams = getCloneVmAdditionalParams(curVm);
                 Map<Long, DiskOffering> diskOfferingMap = new HashMap<>();
+                stage = "start or retrieve clone VM " + cloneVM.getUuid();
                 lastCloneVm = cmd.getStartVm() ? startVirtualMachine(cmd.getEntityId(), podId, clusterId, hostId, diskOfferingMap, additonalParams, null) : getUserVm(cmd.getEntityId());
                 cloneVolumesToCleanup.removeAll(cloneVolumes);
             }
+            stage = "complete source preparation";
             if (!FAST_CLONE_SOURCE_PREPARED.equals(getFastCloneSourcePhase(curVm.getId()))) {
                 throw new CloudRuntimeException("Source clone preparation is no longer in the prepared phase.");
             }
@@ -11727,7 +11753,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 setFastCloneSourcePhase(curVm.getId(), FAST_CLONE_SOURCE_FAILED);
                 logger.error("SharedMountPoint clone [{}] requires recovery. Preserve source and clone volumes; preparation or VM creation did not complete.", operationId, e);
             }
-            throw new CloudRuntimeException("Failed to create SharedMountPoint linked clone: " + e.getMessage(), e);
+            throw new CloudRuntimeException("SharedMountPoint clone failed at " + stage + " (operation " + operationId + "): " + getCloneFailureMessage(e), e);
         }
 
         return Optional.ofNullable(lastCloneVm);
@@ -11802,8 +11828,26 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
         AsyncJob result = fastCloneJobManager.getAsyncJob(job.getId());
         if (result == null || result.getStatus() != JobInfo.Status.SUCCEEDED) {
-            throw new CloudRuntimeException("SharedMountPoint clone " + work.getOperation() + " job did not succeed: " + job.getId());
+            throw getFastCloneWorkFailure(work, job.getId(), result);
         }
+    }
+
+    protected CloudRuntimeException getFastCloneWorkFailure(VmWorkSharedMountPointClone work, long jobId, AsyncJob result) {
+        String description = "SharedMountPoint clone " + work.getOperation() + " job failed (job " + jobId + ")";
+        if (result == null || StringUtils.isBlank(result.getResult())) {
+            return new CloudRuntimeException(description + ": no failure details returned");
+        }
+        Object failure;
+        try {
+            failure = fastCloneJobManager.unmarshallResultObject(result);
+        } catch (RuntimeException e) {
+            // Dispatcher failures can also return plain text instead of a serialized exception.
+            return new CloudRuntimeException(description + ": " + StringUtils.abbreviate(result.getResult(), 800));
+        }
+        if (failure instanceof Throwable) {
+            return new CloudRuntimeException(description + ": " + getCloneFailureMessage((Throwable) failure), (Throwable) failure);
+        }
+        return new CloudRuntimeException(description + ": " + StringUtils.abbreviate(String.valueOf(failure), 800));
     }
 
     @Override
@@ -11822,6 +11866,12 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         } else if (work.getOperation() == VmWorkSharedMountPointClone.Operation.Bandwidth) {
             orchestrateFastCloneBandwidth(work);
         } else if (work.getOperation() == VmWorkSharedMountPointClone.Operation.Recover) {
+            reconcileFastCloneSource(work.getVmId(), work.getOperationId());
+            VMInstanceDetailVO sourceOperation = vmInstanceDetailsDao.findDetail(work.getVmId(), FAST_CLONE_OPERATION_ID);
+            if (sourceOperation != null && work.getOperationId().equals(sourceOperation.getValue())
+                    && FAST_CLONE_SOURCE_FAILED.equals(getFastCloneSourcePhase(work.getVmId()))) {
+                throw new CloudRuntimeException("Source recovery remains blocked: source disk metadata or agent verification is incomplete.");
+            }
             VMInstanceDetailVO operation = vmInstanceDetailsDao.findDetail(work.getVmId(), FAST_CLONE_OPERATION_ID);
             VMInstanceDetailVO bandwidthStatus = vmInstanceDetailsDao.findDetail(work.getVmId(), VmDetailConstants.FAST_CLONE_BANDWIDTH_STATUS);
             if (operation != null && work.getOperationId().equals(operation.getValue()) && bandwidthStatus != null
@@ -12315,6 +12365,15 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     }
 
     protected boolean recoverFastCloneSourceOverlayCommit() {
+        for (VMInstanceDetailVO detail : vmInstanceDetailsDao.findDetails(VmDetailConstants.FAST_CLONE_SOURCE_PHASE, FAST_CLONE_SOURCE_FAILED, false)) {
+            long vmId = detail.getResourceId();
+            VMInstanceDetailVO operation = vmInstanceDetailsDao.findDetail(vmId, FAST_CLONE_OPERATION_ID);
+            if (operation != null && StringUtils.isNotBlank(operation.getValue())
+                    && CollectionUtils.isEmpty(fastCloneWorkJobDao.listPendingWorkJobs(VirtualMachine.Type.Instance, vmId))) {
+                submitFastCloneVmWork(new VmWorkSharedMountPointClone(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, vmId,
+                        VM_WORK_JOB_HANDLER, VmWorkSharedMountPointClone.Operation.Recover, operation.getValue(), null, null));
+            }
+        }
         List<VolumeDetailVO> sourceDetails = volumeDetailsDao.findDetails(FAST_CLONE_ROLE, FAST_CLONE_ROLE_SOURCE, false);
         if (CollectionUtils.isEmpty(sourceDetails)) {
             return false;
@@ -12543,10 +12602,16 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     }
 
     protected Answer sendSharedMountPointFlattenCommand(VolumeVO volume, String operation, String backingPath, String overlayPath) throws Exception {
+        return sendSharedMountPointFlattenCommand(volume, operation, backingPath, overlayPath, Collections.emptyMap());
+    }
+
+    protected Answer sendSharedMountPointFlattenCommand(VolumeVO volume, String operation, String backingPath, String overlayPath,
+            Map<String, String> verificationOptions) throws Exception {
         VolumeInfo volumeInfo = volFactory.getVolume(volume.getId());
         VolumeObjectTO volumeTO = new VolumeObjectTO(volumeInfo);
         FlattenSharedMountPointCommand flattenCommand = new FlattenSharedMountPointCommand(volumeTO);
         Map<String, String> options = new HashMap<>();
+        options.putAll(verificationOptions);
         options.put("operation", operation);
         options.put("bandwidth", String.valueOf(FlattenSharedMountPointBandwidth.value()));
         if (StringUtils.isNotBlank(backingPath)) {
@@ -12578,7 +12643,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             VolumeDetailVO hostDetail = volumeDetailsDao.findDetail(volume.getId(), FAST_CLONE_HOST_ID);
             hostId = hostDetail != null ? Long.valueOf(hostDetail.getValue()) : null;
         }
-        boolean sourceOperation = "commitSourceOverlayPreserveOverlay".equals(operation) || "cleanupSourceOverlay".equals(operation);
+        boolean sourceOperation = "commitSourceOverlayPreserveOverlay".equals(operation) || "cleanupSourceOverlay".equals(operation)
+                || "checkSourceOverlay".equals(operation) || "checkUnpreparedCloneSource".equals(operation)
+                || "checkLegacyUnpreparedCloneSource".equals(operation);
         if (sourceOperation && (vm == null || (vm.getState() != State.Running && vm.getState() != State.Stopped)
                 || (vm.getState() == State.Running && vm.getHostId() == null))) {
             throw new CloudRuntimeException("Source VM must be Running or Stopped before overlay finalization.");
@@ -12594,6 +12661,199 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
         flattenCommand.setOptions(options);
         return _agentMgr.send(hostId, flattenCommand);
+    }
+
+    protected void reconcileFastCloneSource(long vmId, String operationId) throws Exception {
+        VMInstanceDetailVO operation = vmInstanceDetailsDao.findDetail(vmId, FAST_CLONE_OPERATION_ID);
+        UserVmVO vm = _vmDao.findById(vmId);
+        if (operation == null || !operationId.equals(operation.getValue()) || vm == null || vm.getRemoved() != null
+                || !FAST_CLONE_SOURCE_FAILED.equals(getFastCloneSourcePhase(vmId))
+                || (vm.getState() != State.Running && vm.getState() != State.Stopped)) {
+            return;
+        }
+        List<VolumeVO> sources = getSharedMountPointCloneSourceVolumes(vmId);
+        if (sources.isEmpty()) {
+            return;
+        }
+        if (sources.stream().allMatch(volume -> volumeDetailsDao.findDetail(volume.getId(), FAST_CLONE_ROLE) == null)) {
+            reconcileUnpreparedFastCloneSource(vm, operationId, sources);
+            return;
+        }
+        boolean pendingClones = hasPendingFastCloneVolumes(operationId);
+        Map<VolumeVO, String> committedSources = new HashMap<>();
+        for (VolumeVO volume : sources) {
+            VolumeDetailVO role = volumeDetailsDao.findDetail(volume.getId(), FAST_CLONE_ROLE);
+            VolumeDetailVO diskOperation = volumeDetailsDao.findDetail(volume.getId(), FAST_CLONE_OPERATION_ID);
+            VolumeDetailVO backing = volumeDetailsDao.findDetail(volume.getId(), FAST_CLONE_BACKING_PATH);
+            VolumeDetailVO overlay = volumeDetailsDao.findDetail(volume.getId(), FAST_CLONE_OVERLAY_PATH);
+            // Missing preparation metadata cannot prove which disk contains the latest writes.
+            if (!isSharedMountPointQcow2Volume(volume) || volume.getState() != Volume.State.Ready
+                    || role == null || !FAST_CLONE_ROLE_SOURCE.equals(role.getValue())
+                    || diskOperation == null || !operationId.equals(diskOperation.getValue())
+                    || backing == null || StringUtils.isBlank(backing.getValue())
+                    || overlay == null || StringUtils.isBlank(overlay.getValue())
+                    || (!Objects.equals(volume.getPath(), overlay.getValue())
+                        && (pendingClones || !Objects.equals(volume.getPath(), backing.getValue())))) {
+                return;
+            }
+            Answer answer = sendSharedMountPointFlattenCommand(volume, "checkSourceOverlay", backing.getValue(), overlay.getValue());
+            // Require an explicit read-only verification result, including with older agents.
+            if (answer == null || !answer.getResult()) {
+                return;
+            }
+            if ("sourceCommitted".equals(answer.getDetails()) && !pendingClones) {
+                committedSources.put(volume, backing.getValue());
+            } else if (!"sourceVerified".equals(answer.getDetails())) {
+                return;
+            }
+        }
+        // Reconcile lost pivot acknowledgements only after every source disk has been verified.
+        for (Map.Entry<VolumeVO, String> entry : committedSources.entrySet()) {
+            entry.getKey().setPath(entry.getValue());
+            if (!_volsDao.update(entry.getKey().getId(), entry.getKey())) {
+                throw new CloudRuntimeException("Unable to reconcile committed source disk " + entry.getKey().getId());
+            }
+        }
+        setFastCloneSourcePhase(vmId, VmDetailConstants.FAST_CLONE_SOURCE_PHASE_READY);
+        logger.info("Verified all source disks for clone operation [{}] on VM [{}]; restored the ready phase.", operationId, vmId);
+    }
+
+    protected void reconcileUnpreparedFastCloneSource(UserVmVO vm, String operationId, List<VolumeVO> sources) throws Exception {
+        // Prefer the original preparation manifest; old failed operations may predate durable jobs.
+        SearchCriteria<VmWorkJobVO> criteria = fastCloneWorkJobDao.createSearchCriteria();
+        criteria.addAnd("vmInstanceId", SearchCriteria.Op.EQ, vm.getId());
+        criteria.addAnd("cmd", SearchCriteria.Op.EQ, VmWorkSharedMountPointClone.class.getName());
+        VmWorkSharedMountPointClone preparation = null;
+        for (VmWorkJobVO job : fastCloneWorkJobDao.search(criteria, null)) {
+            VmWorkSharedMountPointClone work = VmWorkSerializer.deserialize(VmWorkSharedMountPointClone.class, job.getCmdInfo());
+            if (work != null && operationId.equals(work.getOperationId()) && work.getOperation() == VmWorkSharedMountPointClone.Operation.Prepare) {
+                if (job.getStatus() == JobInfo.Status.IN_PROGRESS || preparation != null) {
+                    throw new CloudRuntimeException("Clone preparation is still running or multiple preparation jobs exist.");
+                }
+                preparation = work;
+            }
+        }
+        boolean legacyRecovery = preparation == null || CollectionUtils.isEmpty(preparation.getVolumeCloneSpecs());
+        if (legacyRecovery) {
+            preparation = reconstructUnpreparedFastCloneSource(vm, operationId, sources);
+        }
+        if (CollectionUtils.isNotEmpty(volumeDetailsDao.findDetails(FAST_CLONE_OPERATION_ID, operationId, false))) {
+            throw new CloudRuntimeException("Clone volume metadata still exists for operation " + operationId);
+        }
+        Set<Long> sourceIds = sources.stream().map(VolumeVO::getId).collect(Collectors.toSet());
+        Set<Long> plannedIds = preparation.getVolumeCloneSpecs().stream().map(VolumeCloneSpec::getSourceVolumeId).collect(Collectors.toSet());
+        if (!sourceIds.equals(plannedIds)) {
+            throw new CloudRuntimeException("Source disk set differs from the clone preparation manifest.");
+        }
+        for (VolumeVO source : sources) {
+            if (!isSharedMountPointQcow2Volume(source) || source.getState() != Volume.State.Ready
+                    || !Objects.equals(source.getPoolId(), preparation.getPoolId())
+                    || volumeDetailsDao.listDetails(source.getId()).stream().anyMatch(detail -> detail.getName().startsWith("clone.fast."))) {
+                throw new CloudRuntimeException("Source disk metadata is not safe for recovery: " + source.getId());
+            }
+            List<String> absentPaths = new ArrayList<>();
+            for (VolumeCloneSpec spec : preparation.getVolumeCloneSpecs()) {
+                if (spec.getSourceVolumeId() != source.getId()) {
+                    continue;
+                }
+                VolumeVO clone = _volsDao.findByIdIncludingRemoved(spec.getCloneVolumeId());
+                if (!Objects.equals(source.getPath(), spec.getSourceVolumePath())
+                        || !getFastCloneSourceOverlayPath(source, operationId).equals(spec.getSourceOverlayPath())
+                        || clone == null || clone.getInstanceId() != null
+                        || !Objects.equals(clone.getUuid(), spec.getCloneVolumePath())) {
+                    throw new CloudRuntimeException("Clone preparation paths or ownership changed for volume " + spec.getCloneVolumeId());
+                }
+                absentPaths.add(spec.getSourceOverlayPath());
+                absentPaths.add(spec.getCloneVolumePath());
+            }
+            String verificationCommand = legacyRecovery ? "checkLegacyUnpreparedCloneSource" : "checkUnpreparedCloneSource";
+            String expectedAnswer = legacyRecovery ? "legacyUnpreparedSourceVerified" : "unpreparedSourceVerified";
+            Answer answer = sendSharedMountPointFlattenCommand(source, verificationCommand, null, null,
+                    Collections.singletonMap("absentPaths", new Gson().toJson(absentPaths)));
+            if (answer == null || !answer.getResult() || !expectedAnswer.equals(answer.getDetails())) {
+                logger.warn("Clone operation [{}], source volume [{}] remains blocked: [{}].", operationId, source.getId(),
+                        answer == null ? "No agent answer" : answer.getDetails());
+                throw new CloudRuntimeException("Source verification failed for volume " + source.getId() + ": "
+                        + (answer == null ? "No agent answer" : answer.getDetails()));
+            }
+        }
+        // All commands are read-only. Preserve files and allocated clone records for separate cleanup.
+        final VmWorkSharedMountPointClone verifiedPreparation = preparation;
+        Transaction.execute(new TransactionCallbackNoReturn() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus status) {
+                UserVmVO current = _vmDao.lockRow(vm.getId(), true);
+                VMInstanceDetailVO operation = vmInstanceDetailsDao.findDetail(vm.getId(), FAST_CLONE_OPERATION_ID);
+                if (current == null || current.getRemoved() != null || current.getState() != vm.getState()
+                        || !Objects.equals(current.getHostId(), vm.getHostId())
+                        || operation == null || !operationId.equals(operation.getValue())
+                        || !FAST_CLONE_SOURCE_FAILED.equals(getFastCloneSourcePhase(vm.getId()))) {
+                    throw new CloudRuntimeException("Source VM changed during failed clone verification.");
+                }
+                if (legacyRecovery) {
+                    VolumeCloneSpec spec = verifiedPreparation.getVolumeCloneSpecs().get(0);
+                    _volsDao.lockRow(spec.getSourceVolumeId(), true);
+                    _volsDao.lockRow(spec.getCloneVolumeId(), true);
+                    List<VolumeVO> currentSources = getSharedMountPointCloneSourceVolumes(vm.getId());
+                    VmWorkSharedMountPointClone checked = reconstructUnpreparedFastCloneSource(current, operationId, currentSources);
+                    VolumeCloneSpec currentSpec = checked.getVolumeCloneSpecs().get(0);
+                    if (currentSpec.getSourceVolumeId() != spec.getSourceVolumeId()
+                            || currentSpec.getCloneVolumeId() != spec.getCloneVolumeId()
+                            || !Objects.equals(checked.getPoolId(), verifiedPreparation.getPoolId())
+                            || !Objects.equals(currentSpec.getSourceVolumePath(), spec.getSourceVolumePath())
+                            || !Objects.equals(currentSpec.getCloneVolumePath(), spec.getCloneVolumePath())
+                            || currentSources.get(0).getState() != Volume.State.Ready
+                            || CollectionUtils.isNotEmpty(volumeDetailsDao.findDetails(FAST_CLONE_OPERATION_ID, operationId, false))
+                            || volumeDetailsDao.listDetails(spec.getSourceVolumeId()).stream()
+                                    .anyMatch(detail -> detail.getName().startsWith("clone.fast."))) {
+                        throw new CloudRuntimeException("Legacy clone metadata changed during source verification.");
+                    }
+                }
+                clearFastCloneVmStatus(vm.getId());
+            }
+        });
+        logger.info("Cleared failed clone state for VM [{}], operation [{}]: original disks verified and all planned clone files absent.", vm.getId(), operationId);
+    }
+
+    /** Conservative recovery for legacy single-ROOT allocations without a durable preparation manifest. */
+    protected VmWorkSharedMountPointClone reconstructUnpreparedFastCloneSource(UserVmVO vm, String operationId,
+            List<VolumeVO> sources) {
+        if (vm.getState() != State.Running || sources.size() != 1 || sources.get(0).getVolumeType() != Volume.Type.ROOT) {
+            throw new CloudRuntimeException("Missing preparation manifest: legacy recovery requires a running VM with exactly one ROOT volume.");
+        }
+        VolumeVO source = sources.get(0);
+        if (!Objects.equals(source.getPath(), source.getUuid()) || source.getPoolId() == null
+                || StringUtils.isBlank(source.getName())) {
+            throw new CloudRuntimeException("Missing preparation manifest: original ROOT path cannot be verified.");
+        }
+        // Names identify candidates only. Every candidate must still be an untouched allocation,
+        // and the agent must independently prove both its UUID file and the overlay are absent.
+        SearchCriteria<VolumeVO> criteria = _volsDao.createSearchCriteria();
+        criteria.addAnd("accountId", SearchCriteria.Op.EQ, source.getAccountId());
+        criteria.addAnd("dataCenterId", SearchCriteria.Op.EQ, source.getDataCenterId());
+        List<VolumeVO> candidates = _volsDao.searchIncludingRemoved(criteria, null, null, false).stream()
+                .filter(volume -> volume.getId() != source.getId() && volume.getName() != null
+                        && volume.getName().endsWith("-" + source.getName()))
+                .collect(Collectors.toList());
+        if (candidates.size() != 1) {
+            throw new CloudRuntimeException("Missing preparation manifest: expected one unambiguous clone allocation, found " + candidates.size());
+        }
+        VolumeVO clone = candidates.get(0);
+        if (clone.getState() != Volume.State.Allocated || clone.getRemoved() != null || clone.getInstanceId() != null
+                || clone.getPoolId() != null || clone.getPath() != null || StringUtils.isBlank(clone.getUuid())
+                || clone.getVolumeType() != source.getVolumeType() || !Objects.equals(clone.getSize(), source.getSize())
+                || !Objects.equals(clone.getDiskOfferingId(), source.getDiskOfferingId())
+                || clone.getCreated() == null || source.getCreated() == null || !clone.getCreated().after(source.getCreated())
+                || volumeDetailsDao.listDetails(clone.getId()).stream().anyMatch(detail -> detail.getName().startsWith("clone.fast."))
+                || CollectionUtils.isNotEmpty(vmInstanceDetailsDao.findDetails(FAST_CLONE_SOURCE_VM_ID, String.valueOf(vm.getId()), false))) {
+            throw new CloudRuntimeException("Missing preparation manifest: clone candidate is not an untouched allocation: " + clone.getId());
+        }
+        logger.info("Verifying legacy failed clone [{}] for VM [{}] using source [{}] and allocated candidate [{}].",
+                operationId, vm.getId(), source.getId(), clone.getId());
+        return new VmWorkSharedMountPointClone(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, vm.getId(), VM_WORK_JOB_HANDLER,
+                VmWorkSharedMountPointClone.Operation.Prepare, operationId, source.getPoolId(), Collections.singletonList(
+                        new VolumeCloneSpec(source.getId(), source.getPath(), getFastCloneSourceOverlayPath(source, operationId),
+                                clone.getId(), clone.getUuid(), source.getSize())));
     }
 
     protected boolean tryCommitFastCloneSourceOverlay(String operationId) {
@@ -12688,7 +12948,21 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         } catch (Exception e) {
             setFastCloneSourcePhase(vmId, FAST_CLONE_SOURCE_FAILED);
             logger.error("Source overlay finalization failed for VM [{}], operation [{}]. Power operations remain blocked; reconcile the disk state before retrying.", vmId, operationId, e);
+            recordFastCloneSourceCommitFailure(vm, operationId, e);
             throw e;
+        }
+    }
+
+    protected void recordFastCloneSourceCommitFailure(UserVmVO vm, String operationId, Exception failure) {
+        // Finalization runs after the clone API completes, outside its action-event interceptor.
+        try {
+            ActionEventUtils.onCompletedActionEvent(User.UID_SYSTEM, vm.getAccountId(), com.cloud.event.EventVO.LEVEL_ERROR,
+                    EventTypes.EVENT_VM_CLONE, true,
+                    StringUtils.abbreviate("Clone source disk finalization failed for VM " + vm.getUuid()
+                            + " (operation " + operationId + "): " + getCloneFailureMessage(failure), 1024),
+                    vm.getId(), ApiCommandResourceType.VirtualMachine.toString(), 0);
+        } catch (RuntimeException eventFailure) {
+            logger.warn("Unable to record clone finalization failure event for VM [{}].", vm.getId(), eventFailure);
         }
     }
 

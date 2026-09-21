@@ -16,6 +16,9 @@
 // under the License.
 package com.cloud.hypervisor.kvm.storage;
 
+import com.ceph.rados.Rados;
+import com.ceph.rados.exceptions.RadosException;
+import com.ceph.rados.exceptions.RadosNotFoundException;
 import com.cloud.utils.exception.CloudRuntimeException;
 import org.apache.cloudstack.storage.formatinspector.Qcow2Inspector;
 import org.apache.cloudstack.utils.imagestore.ImageStoreUtil;
@@ -53,10 +56,9 @@ public class KVMPhysicalDisk {
         String rbdOpts = "rbd:" + image;
         rbdOpts += ":mon_host=" + composeOptionForMonHosts(monHost, monPort);
 
-        if (authUserName == null) {
-            rbdOpts += ":auth_supported=none";
-        } else {
-            rbdOpts += ":auth_supported=cephx";
+        String authMode = authUserName == null ? "none" : "cephx";
+        rbdOpts += ":" + resolveRbdAuthOption(authMode) + "=" + authMode;
+        if (authUserName != null) {
             rbdOpts += ":id=" + authUserName;
             rbdOpts += ":key=" + authSecret;
         }
@@ -69,6 +71,24 @@ public class KVMPhysicalDisk {
         rbdOpts += ":client_mount_timeout=30";
 
         return rbdOpts;
+    }
+
+    private static String resolveRbdAuthOption(String authMode) {
+        // Probe local librados only: never retry a disk write or weaken authentication.
+        Rados probe = new Rados(null);
+        try {
+            try {
+                probe.confSet("auth_client_required", authMode);
+                return "auth_client_required";
+            } catch (RadosNotFoundException e) {
+                probe.confSet("auth_supported", authMode);
+                return "auth_supported";
+            }
+        } catch (RadosException e) {
+            throw new CloudRuntimeException("Unable to select a supported Ceph client authentication option", e);
+        } finally {
+            probe.shutDown();
+        }
     }
 
     private static String composeOptionForMonHosts(String monHost, int monPort) {
