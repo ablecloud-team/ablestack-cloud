@@ -7955,5 +7955,9 @@
   "label.vmsettings.cleanupBlocked": "Cleanup is blocked to preserve other protected settings.",
   "label.vmsettings.changed": "Settings have changed. Close the dialog, review the latest values and try again.",
   "label.vmsettings.success": "Settings saved.",
-  "label.vmsettings.failed": "Unable to save settings. Check the inputs and try again."
+  "label.vmsettings.failed": "Unable to save settings. Check the inputs and try again.",
+  "label.dr.vm.protection.status": "DR protection status",
+  "message.dr.vm.local.scope": "DR relationships stored on this management server only. Plan changes and recovery actions are available on the DR plan page. Check the last update and freshness before relying on this information.",
+  "message.vm.protection.lookup.failed": "Unable to verify fault protection or DR relationships. Previously confirmed DR information may be outdated. Refresh to retry.",
+  "message.vm.protection.lookup.pending": "Checking whether this VM has an available protection tab."
 }

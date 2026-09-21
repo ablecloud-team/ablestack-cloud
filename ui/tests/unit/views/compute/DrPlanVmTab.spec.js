@@ -32,9 +32,10 @@ const translations = {
   'label.dr.direction.kvm.to.kvm': 'ABLESTACK to ABLESTACK'
 }
 
-const createWrapper = () => shallowMount(DrPlanVmTab, {
+const createWrapper = (view, loadError = false) => shallowMount(DrPlanVmTab, {
   props: {
-    resource: { id: 'viewed-vm-uuid', name: 'viewed-vm' },
+    view: view || { configured: false, association: [] },
+    loadError,
     loading: false
   },
   global: {
@@ -59,7 +60,7 @@ describe('DrPlanVmTab local DB projection', () => {
   beforeEach(() => jest.clearAllMocks())
 
   test('loads and renders the local recovery-target relationship', async () => {
-    getDrVmProtectionView.mockResolvedValue({
+    const view = {
       configured: true,
       relationconflict: false,
       association: [{
@@ -77,8 +78,9 @@ describe('DrPlanVmTab local DB projection', () => {
     const wrapper = createWrapper()
     await flushPromises()
 
-    expect(getDrVmProtectionView).toHaveBeenCalledTimes(1)
-    expect(getDrVmProtectionView).toHaveBeenCalledWith('viewed-vm-uuid')
+    expect(getDrVmProtectionView).not.toHaveBeenCalled()
+    await wrapper.findAll('button')[1].trigger('click')
+    expect(wrapper.emitted('refresh')).toHaveLength(1)
     expect(wrapper.text()).toContain('Recovery target')
     expect(wrapper.text()).toContain('u26-base')
     expect(wrapper.text()).toContain('dr-u26-base')
@@ -87,7 +89,7 @@ describe('DrPlanVmTab local DB projection', () => {
   })
 
   test('shows a local-scope empty state when no relationship exists', async () => {
-    getDrVmProtectionView.mockResolvedValue({ configured: false, association: [] })
+    const view = { configured: false, association: [] }
 
     const wrapper = createWrapper()
     await flushPromises()
@@ -98,7 +100,7 @@ describe('DrPlanVmTab local DB projection', () => {
   })
 
   test('does not mislabel an API failure as an unconfigured VM', async () => {
-    getDrVmProtectionView.mockRejectedValue(new Error('request failed'))
+    // Failed refresh retains previously confirmed data.
 
     const wrapper = createWrapper()
     await flushPromises()
