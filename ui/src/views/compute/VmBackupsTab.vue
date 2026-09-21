@@ -27,7 +27,7 @@
     </div>
     <p class="backup-secondary">{{ $t('label.backupofferingname') }}: {{ resource.backupofferingname || $t('label.none') }} <template v-if="resource.backupprovider"> · {{ resource.backupprovider }}</template></p>
     <a-alert v-if="!resource.backupofferingid" class="backup-alert" type="info" show-icon :message="$t('message.vmbackup.assign')">
-      <template #action><a-button v-if="visible('assignVirtualMachineToBackupOffering')" :disabled="disabled('assignVirtualMachineToBackupOffering')" @click="openAction('assignVirtualMachineToBackupOffering')">{{ $t('label.backup.offering.assign') }}</a-button></template>
+      <template #description><a-button v-if="visible('assignVirtualMachineToBackupOffering')" :disabled="disabled('assignVirtualMachineToBackupOffering')" @click="openAction('assignVirtualMachineToBackupOffering')">{{ $t('label.backup.offering.assign') }}</a-button></template>
     </a-alert>
     <a-alert v-if="listRefreshFailed" class="backup-alert" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
     <a-alert v-if="pending || unknown" class="backup-alert" :type="unknown ? 'warning' : 'info'" show-icon :message="$t(unknown ? 'message.job.result.unknown' : 'message.vmbackup.busy')" />
