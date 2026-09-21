@@ -104,6 +104,7 @@ import com.cloud.upgrade.dao.EuropaVolumeViewReconciler;
 import com.cloud.upgrade.dao.EuropaNetworkSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaGuiThemeSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaSystemVmSchemaUpgrade;
+import com.cloud.upgrade.dao.EuropaDrRecoverySchemaUpgrade;
 import com.cloud.upgrade.dao.Upgrade420to421;
 import com.cloud.upgrade.dao.Upgrade421to430;
 import com.cloud.upgrade.dao.Upgrade430to440;
@@ -567,6 +568,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                     executeViewScripts();
                 });
                 runEuropaPhase(conn, EuropaSchemaUpgrade.S8, () -> EuropaSystemVmSchemaUpgrade.migrate(conn));
+                runEuropaPhase(conn, EuropaSchemaUpgrade.S9, () -> EuropaDrRecoverySchemaUpgrade.migrate(conn));
                 // Completed phase markers do not guarantee views match the running binary.
                 try {
                     EuropaVolumeViewReconciler.reconcile(conn);
