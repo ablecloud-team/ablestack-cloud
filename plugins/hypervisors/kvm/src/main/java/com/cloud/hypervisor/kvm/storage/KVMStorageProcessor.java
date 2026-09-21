@@ -3611,6 +3611,13 @@ public class KVMStorageProcessor implements StorageProcessor {
         String vmName = cmd.getOptions() != null ? cmd.getOptions().get("vmName") : null;
 
         try {
+            if ("checkLegacyUnpreparedCloneSource".equals(operation)) {
+                verifyUnpreparedCloneSource(pool, volumePath, vmName, cmd.getOptions().get("sourceVmState"), cmd.getOptions().get("absentPaths"));
+                verifyNoLegacyCloneDependents(pool, volumePath);
+                // Recheck live disk/job state after the storage scan before returning the acknowledgement.
+                verifyUnpreparedCloneSource(pool, volumePath, vmName, cmd.getOptions().get("sourceVmState"), cmd.getOptions().get("absentPaths"));
+                return new FlattenCmdAnswer(volume, cmd, true, "legacyUnpreparedSourceVerified");
+            }
             if ("checkUnpreparedCloneSource".equals(operation)) {
                 verifyUnpreparedCloneSource(pool, volumePath, vmName, cmd.getOptions().get("sourceVmState"), cmd.getOptions().get("absentPaths"));
                 return new FlattenCmdAnswer(volume, cmd, true, "unpreparedSourceVerified");
@@ -3847,6 +3854,65 @@ public class KVMStorageProcessor implements StorageProcessor {
             vm.free();
             throw e;
         }
+    }
+
+    /** Inspect QCOW headers without opening images for writing or bypassing QEMU image locks. */
+    protected void verifyNoLegacyCloneDependents(KVMStoragePool pool, Path sourcePath) throws IOException {
+        Path root = Paths.get(pool.getLocalPath()).toRealPath();
+        Path original = sourcePath.toRealPath();
+        if (!original.startsWith(root)) {
+            throw new IOException("Original source disk is outside its storage pool.");
+        }
+        final int[] visited = {0};
+        final long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(30);
+        Files.walkFileTree(root, new java.nio.file.SimpleFileVisitor<Path>() {
+            @Override
+            public java.nio.file.FileVisitResult visitFile(Path file, java.nio.file.attribute.BasicFileAttributes attrs) throws IOException {
+                if (++visited[0] > 100000 || System.nanoTime() > deadline) {
+                    throw new IOException("Legacy recovery storage scan exceeded its entry/time limit.");
+                }
+                if (!attrs.isRegularFile()) {
+                    throw new IOException("Cannot verify non-regular storage entry: " + file);
+                }
+                // Every direct QCOW dependent is checked, including files absent from the database.
+                try (java.io.RandomAccessFile image = new java.io.RandomAccessFile(file.toFile(), "r")) {
+                    if (image.length() < 4 || image.readInt() != 0x514649fb) {
+                        if (file.equals(original)) {
+                            throw new IOException("Original source is not a readable QCOW image: " + file);
+                        }
+                        return java.nio.file.FileVisitResult.CONTINUE;
+                    }
+                    int version = image.readInt();
+                    long offset = image.readLong();
+                    int length = image.readInt();
+                    if ((version != 2 && version != 3) || offset < 0 || length < 0 || length > 1023
+                            || (offset == 0) != (length == 0) || (offset != 0 && offset < 20)
+                            || offset > image.length() - length) {
+                        throw new IOException("Cannot verify QCOW backing header: " + file);
+                    }
+                    if (length > 0) {
+                        byte[] name = new byte[length];
+                        image.seek(offset);
+                        image.readFully(name);
+                        String backingName = new String(name, java.nio.charset.StandardCharsets.UTF_8);
+                        // Protocol/JSON backing names cannot be proven to be local file dependencies.
+                        if (backingName.contains(":")) {
+                            throw new IOException("Cannot verify non-local backing path: " + file);
+                        }
+                        Path backing = file.getParent().resolve(backingName).normalize();
+                        if (Files.exists(backing)) {
+                            backing = backing.toRealPath();
+                        } else {
+                            throw new IOException("Backing path is missing or cannot be inspected: " + backing);
+                        }
+                        if (backing.equals(original)) {
+                            throw new IOException("A disk still depends on the original source: " + file);
+                        }
+                    }
+                }
+                return java.nio.file.FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     protected void verifyUnpreparedCloneSource(KVMStoragePool pool, Path sourcePath, String vmName, String expectedState,
