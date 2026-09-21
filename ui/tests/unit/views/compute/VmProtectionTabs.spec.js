@@ -152,4 +152,3 @@ test('unmounted and superseded requests cannot apply their results', async () =>
   pending.resolve(related('a')); await refresh
   expect(w.vm.drView.configured).toBe(false)
 })
-
