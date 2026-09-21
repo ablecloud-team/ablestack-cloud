@@ -136,9 +136,6 @@ public class LibvirtAblestackVeeamRestoreBackupCommandWrapper extends CommandWra
             final BackupRestorePlan restorePlan, final String checkpointName) {
         try {
             validateChainStatePlan(volumeChainStates, restorePlan);
-            if (tryRestoreVolumesWithRbdSnapRollback(storagePoolMgr, restoreVolumePools, restoreVolumePaths, checkpointName, timeout)) {
-                return;
-            }
             final List<List<String>> localBackupPathsByVolume = getLocalBackupPathsForVolumes(backupPath, backupFiles, backupFileChains, volumeChainStates,
                     restoreVolumePaths, backedVolumesUUIDs);
             validatePrimaryStorageSpaceForFileRestorePlan(restoreVolumePaths, localBackupPathsByVolume, restoreVolumePools);
@@ -221,56 +218,6 @@ public class LibvirtAblestackVeeamRestoreBackupCommandWrapper extends CommandWra
         } finally {
             cleanupBackupDirectory(backupPath, restorePlan);
         }
-    }
-
-    private boolean tryRestoreVolumesWithRbdSnapRollback(final KVMStoragePoolManager storagePoolMgr,
-            final List<PrimaryDataStoreTO> restoreVolumePools, final List<String> restoreVolumePaths, final String checkpointName,
-            final int timeout) {
-        if (StringUtils.isBlank(checkpointName) || CollectionUtils.isEmpty(restoreVolumePools) || CollectionUtils.isEmpty(restoreVolumePaths)
-                || restoreVolumePools.size() != restoreVolumePaths.size()) {
-            return false;
-        }
-        for (final PrimaryDataStoreTO pool : restoreVolumePools) {
-            if (pool == null || pool.getPoolType() != Storage.StoragePoolType.RBD) {
-                return false;
-            }
-        }
-        for (int idx = 0; idx < restoreVolumePaths.size(); idx++) {
-            final PrimaryDataStoreTO volumePool = restoreVolumePools.get(idx);
-            final KVMStoragePool volumeStoragePool = storagePoolMgr.getStoragePool(volumePool.getPoolType(), volumePool.getUuid());
-            final String normalizedVolumePath = normalizeRbdVolumePath(restoreVolumePaths.get(idx), volumeStoragePool);
-            if (!rbdSnapshotExists(volumeStoragePool, normalizedVolumePath, checkpointName, timeout)) {
-                logger.info("{} phase=[RBD_SNAP_ROLLBACK_SKIP], reason=[checkpoint_missing], volume=[{}], checkpoint=[{}]",
-                        RESTORE_TRACE, normalizedVolumePath, checkpointName);
-                return false;
-            }
-        }
-        for (int idx = 0; idx < restoreVolumePaths.size(); idx++) {
-            final PrimaryDataStoreTO volumePool = restoreVolumePools.get(idx);
-            final KVMStoragePool volumeStoragePool = storagePoolMgr.getStoragePool(volumePool.getPoolType(), volumePool.getUuid());
-            final String normalizedVolumePath = normalizeRbdVolumePath(restoreVolumePaths.get(idx), volumeStoragePool);
-            if (!rollbackRbdVolumeToCheckpoint(volumeStoragePool, normalizedVolumePath, checkpointName, timeout)) {
-                throw new CloudRuntimeException(String.format(
-                        "Failed to rollback RBD volume [%s] to checkpoint snapshot [%s]", normalizedVolumePath, checkpointName));
-            }
-        }
-        logger.info("{} phase=[RBD_SNAP_ROLLBACK_DONE], checkpoint=[{}], volumeCount=[{}]",
-                RESTORE_TRACE, checkpointName, restoreVolumePaths.size());
-        return true;
-    }
-
-    private boolean rollbackRbdVolumeToCheckpoint(final KVMStoragePool volumeStoragePool, final String volumePath,
-            final String checkpointName, final int timeout) {
-        logger.info("{} phase=[RBD_SNAP_ROLLBACK_BEGIN], volume=[{}], checkpoint=[{}]",
-                RESTORE_TRACE, volumePath, checkpointName);
-        final String rollbackCommand = buildRbdSnapshotCommand(volumeStoragePool, "snap rollback", volumePath + "@" + checkpointName);
-        final CommandExecutionResult rollbackResult = executeBashCommandWithResult(rollbackCommand, timeout, "Rollback RBD volume to checkpoint");
-        if (rollbackResult.exitCode != 0) {
-            logger.error("{} phase=[RBD_SNAP_ROLLBACK_FAILED], volume=[{}], checkpoint=[{}], exit=[{}], output=[{}]",
-                    RESTORE_TRACE, volumePath, checkpointName, rollbackResult.exitCode, rollbackResult.output);
-            return false;
-        }
-        return true;
     }
 
     private void deleteBackupDirectory(final String backupDirectory) {

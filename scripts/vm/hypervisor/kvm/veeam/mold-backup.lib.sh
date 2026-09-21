@@ -3107,8 +3107,9 @@ mold_backup_process_vm_pre_notify() {
   chain_count="$(mold_backup_api_veeam_backup_count "$vm_id")"
 
   # Host Agent file-level:
-  #  - RBD (any chain): Mold-native createAblestackVeeamBackup (snap + export/diff for Mold
-  #    restore). Veeam Agent gets a tiny marker only — never SyncDirs sparse .raw/.rbdiff.
+  #  - RBD (any chain): Mold-native createAblestackVeeamBackup creates the Ceph
+  #    checkpoint and exports .raw/.rbdiff files. Veeam must back up those files;
+  #    the snapshot/meta alone is not a valid backup chain.
   #  - qcow2 first (no BackedUp): host export → importSeed → FULL (BackedUp)
   #  - qcow2 next: createAblestackVeeamBackup → agent TakeBackup → INCREMENTAL
   #    Do NOT call importSeed again (always FULL) and do NOT race a second host export.
@@ -3122,7 +3123,7 @@ mold_backup_process_vm_pre_notify() {
       mold_backup_state_write_line "$state_file" "vm=${vm_name} id=${vm_id} status=fail reason=offering-repo-mismatch"
       return 1
     }
-    mold_backup_notify_log info "File-level RBD: Mold-native createAblestackVeeamBackup (snap/diff; Veeam marker only; chain=${chain_count})"
+    mold_backup_notify_log info "File-level RBD: Mold-native createAblestackVeeamBackup (export .raw/.rbdiff; chain=${chain_count})"
     backup_result="$(mold_backup_api_create_veeam_and_wait "$vm_id" "$vm_name" || true)"
     if [[ -z "$backup_result" ]]; then
       mold_backup_notify_log err "Mold RBD backup failed for ${vm_name} (agent TakeBackup / BackedUp wait)"
@@ -3133,10 +3134,15 @@ mold_backup_process_vm_pre_notify() {
     backup_type="${backup_result#*|}"
     host_path="$(mold_backup_api_backup_external_id "$vm_id" "$backup_id" 2>/dev/null || true)"
     [[ -z "$host_path" ]] && host_path="${VEEAM_HOST_BACKUP_PATH}/${vm_name}"
+    if ! mold_backup_host_path_has_rbd_payload "$host_path"; then
+      mold_backup_notify_log err "File-level RBD: ${vm_name} backup_id=${backup_id} has no .raw/.rbdiff payload under ${host_path}; refusing backup without file-chain payload"
+      mold_backup_state_write_line "$state_file" "vm=${vm_name} id=${vm_id} backup_id=${backup_id} type=${backup_type} path=${host_path} status=fail reason=rbd-payload-missing"
+      return 1
+    fi
     mold_backup_state_write_line "$state_file" \
       "vm=${vm_name} id=${vm_id} backup_id=${backup_id} type=${backup_type} path=${host_path} status=success"
-    mold_backup_publish_for_veeam_agent "$vm_name" "$host_path"
-    mold_backup_notify_log info "Pre-notify OK vm=${vm_name} backup_id=${backup_id} type=${backup_type} path=${host_path} (mold-native RBD)"
+    mold_backup_publish_for_veeam_agent "$vm_name" "$host_path" "$backup_id"
+    mold_backup_notify_log info "Pre-notify OK vm=${vm_name} backup_id=${backup_id} type=${backup_type} path=${host_path} (mold-native RBD file-chain)"
     return 0
   fi
 
@@ -3359,20 +3365,26 @@ mold_backup_run_host_export() {
   echo "${backup_subdir}"
 }
 
-# True if host_path looks like an RBD Mold stage (must not be SyncDirs'd as sparse .raw).
+mold_backup_host_path_has_rbd_payload() {
+  local host_path="${1:-}"
+  [[ -n "$host_path" && -d "$host_path" ]] || return 1
+  find "$host_path" -maxdepth 1 -type f \( -name '*.raw' -o -name '*.rbdiff' \) -print -quit 2>/dev/null | grep -q .
+}
+
+# True if host_path looks like an RBD Mold stage.
 mold_backup_host_path_is_rbd() {
   local host_path="${1:-}"
   [[ -n "$host_path" && -d "$host_path" ]] || return 1
   [[ -f "${host_path}/rbd-backup.meta" ]] && return 0
-  find "$host_path" -maxdepth 1 -type f \( -name '*.raw' -o -name '*.rbdiff' \) -print -quit 2>/dev/null | grep -q .
+  mold_backup_host_path_has_rbd_payload "$host_path"
 }
 
 # Publish Mold backup artifacts for Veeam Agent SyncDirs under VEEAM_AGENT_PAYLOAD_PATH.
-# RBD: marker + tiny meta only (Mold keeps .raw/.rbdiff under VEEAM_HOST_BACKUP_PATH for restore).
+# RBD: publish .raw/.rbdiff file-chain just like qcow2; metadata-only payload is refused by pre-notify.
 # QCOW2: hardlink/copy disk files into <vm>/current so Agent sees a stable tree.
 mold_backup_publish_for_veeam_agent() {
-  local vm_name="$1" host_path="$2"
-  local publish legacy meta_f
+  local vm_name="$1" host_path="$2" backup_id="${3:-}"
+  local publish legacy ckpt=""
   [[ "${VEEAM_BACKUP_MODE:-}" == "filelevel" ]] || return 0
   [[ -n "$vm_name" && -n "$host_path" && -d "$host_path" ]] || return 0
 
@@ -3388,26 +3400,20 @@ mold_backup_publish_for_veeam_agent() {
   fi
 
   if mold_backup_host_path_is_rbd "$host_path"; then
-    cat > "${publish}/mold-rbd-native.marker" <<EOF
-vm=${vm_name}
-mode=mold-native-rbd
-stage_path=${host_path}
-published_at=$(date -Iseconds)
-EOF
-    for meta_f in rbd-backup.meta domain-config.xml domain.xml veeam-seed.meta staging.complete; do
-      [[ -f "${host_path}/${meta_f}" ]] || continue
-      cp -a "${host_path}/${meta_f}" "${publish}/" 2>/dev/null || true
-    done
-    # FLR watch ignores agent-payload mtime changes shortly after our own publish.
-    date +%s > "${publish}/.mold-agent-publish" 2>/dev/null || true
-    chmod -R a+rX "$publish" 2>/dev/null || true
-    mold_backup_notify_log info "Published RBD native marker for Veeam Agent (no .raw/.rbdiff SyncDirs): ${host_path} -> ${publish}"
-    # Do NOT Start-VBR/Active Full here — we are already inside the Veeam job
-    # that invoked pre-notify. Auto-start caused a second backup after one UI Start.
-    return 0
+    ckpt="$(mold_backup_meta_field "${host_path}/rbd-backup.meta" checkpoint_name 2>/dev/null || true)"
+    [[ -z "$ckpt" ]] && ckpt="$(basename "$host_path")"
+    [[ "$ckpt" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}\. ]] || ckpt=""
+    if [[ -n "$backup_id" && -n "$ckpt" ]]; then
+      mold_backup_registry_index_checkpoint_backup "$vm_name" "$ckpt" "$backup_id"
+      mold_backup_registry_set_vm_backup_id "$vm_name" "$backup_id" "" "${VEEAM_JOB_NAME:-}"
+    fi
+    if ! mold_backup_host_path_has_rbd_payload "$host_path"; then
+      mold_backup_notify_log err "RBD stage has no .raw/.rbdiff payload; not publishing metadata-only backup: ${host_path}"
+      return 1
+    fi
   fi
 
-  # QCOW2 / file-backed: prefer hardlinks over a full copy before Veeam SnapshotRequired.
+  # QCOW2 / RBD file-chain: prefer hardlinks over a full copy before Veeam SnapshotRequired.
   if command -v cp >/dev/null 2>&1 && cp -al "${host_path}/." "$publish/" 2>/dev/null; then
     mold_backup_notify_log info "Published staging (hardlink) for Veeam Agent: ${host_path} -> ${publish}"
   elif command -v rsync >/dev/null 2>&1; then
