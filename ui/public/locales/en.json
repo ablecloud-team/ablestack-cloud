@@ -7955,5 +7955,15 @@
   "label.vmsettings.cleanupBlocked": "Cleanup is blocked to preserve other protected settings.",
   "label.vmsettings.changed": "Settings have changed. Close the dialog, review the latest values and try again.",
   "label.vmsettings.success": "Settings saved.",
-  "label.vmsettings.failed": "Unable to save settings. Check the inputs and try again."
+  "label.vmsettings.failed": "Unable to save settings. Check the inputs and try again.",
+  "label.vmbackup.settings": "Backup settings",
+  "label.vmbackup.automatic": "Automatic",
+  "label.vmbackup.sizes": "Size / virtual size",
+  "label.vmbackup.types": "Type / interval",
+  "message.vmbackup.assign": "Assign a backup offering to create backups and configure schedules.",
+  "message.vmbackup.busy": "A backup operation is in progress. The list updates automatically after completion.",
+  "message.vmbackup.unavailable": "This operation is unavailable because permissions, backup state or VM state changed.",
+  "message.vmbackup.force": "Forced deletion can remove the entire backup chain while keeping the VM in its backup offering. Disabled by default.",
+  "message.vmbackup.delete": "Delete this backup? Scope and recoverability depend on the provider. Forced deletion can remove the entire chain.",
+  "message.vmbackup.restore": "Restoring can discard subsequent VM changes and interrupt service. Verify the target VM and backup."
 }
