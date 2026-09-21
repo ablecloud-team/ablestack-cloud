@@ -7813,5 +7813,7 @@
   "label.schedule.period": "유효 기간",
   "label.enable": "활성화",
   "label.disable": "비활성화",
-  "label.cloud": "클라우드"
+  "label.cloud": "클라우드",
+  "message.vmvolume.snapshots.unknown": "VM 스냅샷 상태를 확인할 수 없어 볼륨 생성 및 연결·기존 볼륨 연결·분리를 사용할 수 없습니다. 권한을 확인하거나 새로고침해 주세요.",
+  "message.vmvolume.snapshots.present": "VM 스냅샷이 있어 볼륨 생성 및 연결·기존 볼륨 연결·분리를 사용할 수 없습니다. 디스크 구성을 변경하려면 VM 스냅샷을 먼저 삭제해야 합니다."
 }

@@ -7852,5 +7852,7 @@
   "label.schedule.period": "Validity period",
   "label.enable": "Enable",
   "label.disable": "Disable",
-  "label.cloud": "Cloud"
+  "label.cloud": "Cloud",
+  "message.vmvolume.snapshots.unknown": "Unable to confirm VM snapshots. Volume creation and attachment, attachment of existing volumes, and detachment are unavailable. Check permissions or refresh to retry.",
+  "message.vmvolume.snapshots.present": "This VM has VM snapshots. Volume creation and attachment, attachment of existing volumes, and detachment are unavailable. Remove the VM snapshots before changing its disks."
 }
