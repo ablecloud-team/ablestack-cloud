@@ -27,21 +27,32 @@ SHARE_DIR="${MOLD_BACKUP_SHARE_DIR:-/usr/share/mold/backup/veeam}"
 LOG_DIR="/var/log/mold"
 ABLESTACK_SECRET_KEY_FILE="${ABLESTACK_SECRET_KEY_FILE:-/root/.ssh/ablestack.key}"
 
+# Running from /etc/ablestack/veeam itself: src==dst. GNU install errors on that.
+safe_install() {
+  local mode="$1" src="$2" dst="$3"
+  [[ -f "$src" ]] || return 0
+  if [[ -e "$dst" ]] && [[ "$(stat -c '%d:%i' "$src" 2>/dev/null)" == "$(stat -c '%d:%i' "$dst" 2>/dev/null)" ]]; then
+    chmod "$mode" "$dst" 2>/dev/null || true
+    return 0
+  fi
+  install -m "$mode" "$src" "$dst"
+}
+
 install -d -m 0755 "${SHARE_DIR}" "${ETC_DIR}" "${ETC_DIR}/secrets" "${ETC_DIR}/state" "${ETC_DIR}/hooks" "${ETC_DIR}/registry" "${LOG_DIR}"
 
 ABLESTACK_SECRET_KEY_FILE="${ABLESTACK_SECRET_KEY_FILE}" bash "${SCRIPT_DIR}/install-ablestack-secret-key.sh"
 if [[ -f "${SCRIPT_DIR}/ablestack.key.default" ]]; then
-  install -m 0644 "${SCRIPT_DIR}/ablestack.key.default" "${SHARE_DIR}/ablestack.key.default"
-  install -m 0644 "${SCRIPT_DIR}/ablestack.key.default" "${ETC_DIR}/ablestack.key.default"
+  safe_install 0644 "${SCRIPT_DIR}/ablestack.key.default" "${SHARE_DIR}/ablestack.key.default"
+  safe_install 0644 "${SCRIPT_DIR}/ablestack.key.default" "${ETC_DIR}/ablestack.key.default"
 fi
 
 for f in install.sh install-ablestack-secret-key.sh mold-backup.lib.sh mold-backup-secret.sh mold-backup.sh veeam_config.sh \
-  bootstrap-host-veeam-env.sh diagnose-mold-veeam-offering.sh \
+  bootstrap-host-veeam-env.sh setup-ablestack-veeam.sh diagnose-mold-veeam-offering.sh \
   ablestack_veeam_pre_notify.sh ablestack_veeam_post_notify.sh ablestack_veeam_restore_notify.sh ablestack_veeam_restore_event.sh \
   mold-veeam-trigger-hook.sh; do
   [[ -f "${SCRIPT_DIR}/${f}" ]] || continue
-  install -m 0755 "${SCRIPT_DIR}/${f}" "${ETC_DIR}/${f}"
-  install -m 0755 "${SCRIPT_DIR}/${f}" "${SHARE_DIR}/${f}" 2>/dev/null || true
+  safe_install 0755 "${SCRIPT_DIR}/${f}" "${ETC_DIR}/${f}"
+  safe_install 0755 "${SCRIPT_DIR}/${f}" "${SHARE_DIR}/${f}"
 done
 
 EXPORT_SRC=""
@@ -54,13 +65,13 @@ for _export_candidate in \
 done
 if [[ -n "${EXPORT_SRC}" ]]; then
   # Veeam-only copies. Never overwrite Commvault's kvm/ablestack_cvtbackup.sh.
-  install -m 0755 "${EXPORT_SRC}" "${ETC_DIR}/ablestack_veeam_host_export.sh"
-  install -m 0755 "${EXPORT_SRC}" "${ETC_DIR}/ablestack_cvtbackup.sh"
-  install -m 0755 "${EXPORT_SRC}" "${SHARE_DIR}/ablestack_veeam_host_export.sh"
-  install -m 0755 "${EXPORT_SRC}" "${SHARE_DIR}/ablestack_cvtbackup.sh"
+  safe_install 0755 "${EXPORT_SRC}" "${ETC_DIR}/ablestack_veeam_host_export.sh"
+  safe_install 0755 "${EXPORT_SRC}" "${ETC_DIR}/ablestack_cvtbackup.sh"
+  safe_install 0755 "${EXPORT_SRC}" "${SHARE_DIR}/ablestack_veeam_host_export.sh"
+  safe_install 0755 "${EXPORT_SRC}" "${SHARE_DIR}/ablestack_cvtbackup.sh"
   CS_KVM_DIR="/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm"
   if [[ -d "${CS_KVM_DIR}" ]]; then
-    install -m 0755 "${EXPORT_SRC}" "${CS_KVM_DIR}/ablestack_veeam_host_export.sh"
+    safe_install 0755 "${EXPORT_SRC}" "${CS_KVM_DIR}/ablestack_veeam_host_export.sh"
   fi
   echo "Installed host export script: ${ETC_DIR}/ablestack_veeam_host_export.sh (from ${EXPORT_SRC})"
 else
@@ -79,36 +90,37 @@ for _nas_candidate in \
   break
 done
 if [[ -n "${NAS_SRC}" ]]; then
-  install -m 0755 "${NAS_SRC}" "${ETC_DIR}/ablestack_veeam_nasbackup.sh"
-  install -m 0755 "${NAS_SRC}" "${SHARE_DIR}/ablestack_veeam_nasbackup.sh"
+  safe_install 0755 "${NAS_SRC}" "${ETC_DIR}/ablestack_veeam_nasbackup.sh"
+  safe_install 0755 "${NAS_SRC}" "${SHARE_DIR}/ablestack_veeam_nasbackup.sh"
   CS_KVM_DIR="/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm"
   install -d -m 0755 "${CS_KVM_DIR}"
-  install -m 0755 "${NAS_SRC}" "${CS_KVM_DIR}/ablestack_veeam_nasbackup.sh"
+  safe_install 0755 "${NAS_SRC}" "${CS_KVM_DIR}/ablestack_veeam_nasbackup.sh"
   echo "Installed Veeam NAS backup script: ${ETC_DIR}/ablestack_veeam_nasbackup.sh (from ${NAS_SRC})"
 else
   echo "WARN: ablestack_veeam_nasbackup.sh not found — import-veeam-seed requires agent + this script" >&2
 fi
 
-install -m 0644 "${SCRIPT_DIR}/mold-ms-backup-schema-fix.sql" "${SHARE_DIR}/mold-ms-backup-schema-fix.sql" 2>/dev/null || true
-install -m 0644 "${SCRIPT_DIR}/mold-ms-backup-schema-fix.sql" "${ETC_DIR}/mold-ms-backup-schema-fix.sql" 2>/dev/null || true
+safe_install 0644 "${SCRIPT_DIR}/mold-ms-backup-schema-fix.sql" "${SHARE_DIR}/mold-ms-backup-schema-fix.sql"
+safe_install 0644 "${SCRIPT_DIR}/mold-ms-backup-schema-fix.sql" "${ETC_DIR}/mold-ms-backup-schema-fix.sql"
 
-install -m 0644 "${SCRIPT_DIR}/mold-backup.conf.default" "${SHARE_DIR}/mold-backup.conf.default"
-install -m 0644 "${SCRIPT_DIR}/mold-backup.env.example" "${SHARE_DIR}/mold-backup.env.example"
+safe_install 0644 "${SCRIPT_DIR}/mold-backup.conf.default" "${SHARE_DIR}/mold-backup.conf.default"
+safe_install 0644 "${SCRIPT_DIR}/mold-backup.env.example" "${SHARE_DIR}/mold-backup.env.example"
 if [[ ! -f "${ETC_DIR}/mold-backup.env" ]]; then
-  install -m 0600 "${SCRIPT_DIR}/mold-backup.env.example" "${ETC_DIR}/mold-backup.env"
+  safe_install 0600 "${SCRIPT_DIR}/mold-backup.env.example" "${ETC_DIR}/mold-backup.env"
   echo "Created ${ETC_DIR}/mold-backup.env — set MOLD_API_KEY / MOLD_API_SECRET, then veeam_config.sh --job-name ..."
 else
   echo "Keeping existing ${ETC_DIR}/mold-backup.env"
 fi
-install -m 0755 "${SCRIPT_DIR}/setup-datadisk-veeam-backup.sh" "${ETC_DIR}/setup-datadisk-veeam-backup.sh" 2>/dev/null || true
-install -m 0755 "${SCRIPT_DIR}/mold-guest-common.sh" "${ETC_DIR}/mold-guest-common.sh"
+safe_install 0755 "${SCRIPT_DIR}/setup-datadisk-veeam-backup.sh" "${ETC_DIR}/setup-datadisk-veeam-backup.sh"
+safe_install 0755 "${SCRIPT_DIR}/setup-ablestack-veeam.sh" "${ETC_DIR}/setup-ablestack-veeam.sh"
+safe_install 0755 "${SCRIPT_DIR}/mold-guest-common.sh" "${ETC_DIR}/mold-guest-common.sh"
 
 if [[ -f "${SCRIPT_DIR}/README.ko.md" ]]; then
-  install -m 0644 "${SCRIPT_DIR}/README.ko.md" "${SHARE_DIR}/README.ko.md"
+  safe_install 0644 "${SCRIPT_DIR}/README.ko.md" "${SHARE_DIR}/README.ko.md"
 fi
 
 if [[ ! -f "${ETC_DIR}/mold-backup.conf" ]]; then
-  install -m 0600 "${SCRIPT_DIR}/mold-backup.conf.default" "${ETC_DIR}/mold-backup.conf"
+  safe_install 0600 "${SCRIPT_DIR}/mold-backup.conf.default" "${ETC_DIR}/mold-backup.conf"
   echo "Created ${ETC_DIR}/mold-backup.conf — run veeam_config.sh for job-based setup."
 else
   echo "Keeping existing ${ETC_DIR}/mold-backup.conf"
@@ -126,16 +138,16 @@ install_restore_agent_units() {
   [[ -f "${SCRIPT_DIR}/mold-veeam-restore-agent.service" ]] || return 0
   for f in mold-veeam-restore-agent.sh enable-veeam-mold-restore.sh; do
     [[ -f "${SCRIPT_DIR}/${f}" ]] || continue
-    install -m 0755 "${SCRIPT_DIR}/${f}" "${ETC_DIR}/${f}"
-    install -m 0755 "${SCRIPT_DIR}/${f}" "${SHARE_DIR}/${f}" 2>/dev/null || true
+    safe_install 0755 "${SCRIPT_DIR}/${f}" "${ETC_DIR}/${f}"
+    safe_install 0755 "${SCRIPT_DIR}/${f}" "${SHARE_DIR}/${f}"
   done
   for f in mold-veeam-restore-agent.service mold-veeam-restore-agent.timer; do
     [[ -f "${SCRIPT_DIR}/${f}" ]] || continue
-    install -m 0644 "${SCRIPT_DIR}/${f}" "${ETC_DIR}/${f}"
-    install -m 0644 "${SCRIPT_DIR}/${f}" "${SHARE_DIR}/${f}" 2>/dev/null || true
+    safe_install 0644 "${SCRIPT_DIR}/${f}" "${ETC_DIR}/${f}"
+    safe_install 0644 "${SCRIPT_DIR}/${f}" "${SHARE_DIR}/${f}"
   done
-  install -m 0644 "${SCRIPT_DIR}/mold-veeam-restore-agent.service" "${unit_dir}/mold-veeam-restore-agent.service"
-  install -m 0644 "${SCRIPT_DIR}/mold-veeam-restore-agent.timer" "${unit_dir}/mold-veeam-restore-agent.timer"
+  safe_install 0644 "${SCRIPT_DIR}/mold-veeam-restore-agent.service" "${unit_dir}/mold-veeam-restore-agent.service"
+  safe_install 0644 "${SCRIPT_DIR}/mold-veeam-restore-agent.timer" "${unit_dir}/mold-veeam-restore-agent.timer"
   if command -v systemctl >/dev/null 2>&1; then
     systemctl daemon-reload 2>/dev/null || true
     systemctl disable mold-veeam-restore-watch.timer 2>/dev/null || true
@@ -153,6 +165,7 @@ echo "  Active: ${ETC_DIR}/"
 echo "  Reference: ${SHARE_DIR}/"
 echo "  Secret key: ${ABLESTACK_SECRET_KEY_FILE}"
 echo "  Host backup path: /tmp/mold/veeam"
+echo "  One-shot setup: ${ETC_DIR}/setup-ablestack-veeam.sh --api-key ... --api-secret ... --veeam-host ... --veeam-password ..."
 echo "  Configure: veeam_config.sh --job-name ... --install"
 echo "  Datadisk setup: ${ETC_DIR}/setup-datadisk-veeam-backup.sh"
 echo "  FLR→Mold: ${ETC_DIR}/enable-veeam-mold-restore.sh"

@@ -210,6 +210,7 @@ mold_backup_load_config() {
   BACKUP_OPERATION="${BACKUP_OPERATION:-seed-import}"
   CLEANUP_STAGING_AFTER_BACKUP="${CLEANUP_STAGING_AFTER_BACKUP:-false}"
   CLEANUP_STAGING_ON_ERROR="${CLEANUP_STAGING_ON_ERROR:-false}"
+  CLEANUP_DURABLE_STAGE_FORCE="${CLEANUP_DURABLE_STAGE_FORCE:-false}"
   BACKUP_OFFERING_NAME="${BACKUP_OFFERING_NAME:-VeeamBackup}"
   BACKUP_REPO_TYPE="${BACKUP_REPO_TYPE:-local}"
   BACKUP_REPO_NAME="${BACKUP_REPO_NAME:-Ablestack Data Disk}"
@@ -3423,6 +3424,11 @@ EOF
 
 mold_backup_cleanup_host_path() {
   [[ -d "${VEEAM_HOST_BACKUP_PATH}" ]] || return 0
+  # Datadisk mode keeps restore/export data here. Prune it only by explicit opt-in.
+  if mold_backup_is_datadisk_mode && [[ "${CLEANUP_DURABLE_STAGE_FORCE:-false}" != "true" ]]; then
+    mold_backup_notify_log info "Skip host-path wipe (datadisk durable stage; set CLEANUP_DURABLE_STAGE_FORCE=true to prune)"
+    return 0
+  fi
   # File-level Veeam Agent jobs track /tmp/mold/veeam via SyncDirs CBT.
   # Wiping the whole tree (or racing deletes) causes:
   #   "Failed to delete directory [...]; Failed to backup files /tmp/mold/veeam"
@@ -4146,8 +4152,9 @@ function Get-RpInfoFromSession {
       } catch {}
     }
   } catch {}
-  if (-not \$rpId) {
-    \$opt = [string]\$Session.Options
+  # Agent Host FLR may expose the restore point only through Options.FlrInfo.
+  \$opt = [string]\$Session.Options
+  if (-not \$rpId -and \$opt) {
     foreach (\$pat in @(
       'RestorePointId="([^"]+)"',
       'ObjectRestorePointId="([^"]+)"',
@@ -4159,6 +4166,24 @@ function Get-RpInfoFromSession {
     )) {
       \$m = [regex]::Match(\$opt, \$pat)
       if (\$m.Success) { \$rpId = \$m.Groups[1].Value; break }
+    }
+  }
+  if (-not \$rpEpoch -and \$opt) {
+    foreach (\$pat in @(
+      'OibCreationTimeUtc="([^"]+)"',
+      'OibDT="([^"]+)"',
+      'CreationTimeUtc="([^"]+)"'
+    )) {
+      \$m = [regex]::Match(\$opt, \$pat)
+      if (-not \$m.Success) { continue }
+      try {
+        \$ct = [datetime]::Parse(\$m.Groups[1].Value, [System.Globalization.CultureInfo]::InvariantCulture)
+        if (\$ct.Kind -eq [DateTimeKind]::Unspecified) {
+          \$ct = [DateTime]::SpecifyKind(\$ct, [DateTimeKind]::Utc)
+        }
+        \$rpEpoch = Rp-ToEpoch \$ct
+        if (\$rpEpoch) { break }
+      } catch {}
     }
   }
   if (-not \$rpId -and \$null -ne \$Session.RestorePointId) {
@@ -4214,6 +4239,18 @@ function Get-RpInfoFromSession {
           }
         }
         if (\$rpEpoch) { break }
+      }
+      if (-not \$rpEpoch) {
+        foreach (\$cand in @(Get-VBRObjectRestorePoint -ErrorAction SilentlyContinue)) {
+          \$id = \$cand.Id; if (\$id -is [guid]) { \$id = \$id.Guid }
+          if (([string]\$id).Trim('{}').ToLower() -eq \$want) {
+            \$ct = \$null
+            try { if (\$null -ne \$cand.CreationTimeUTC) { \$ct = \$cand.CreationTimeUTC } } catch {}
+            if (\$null -eq \$ct) { try { \$ct = \$cand.CreationTime } catch {} }
+            \$rpEpoch = Rp-ToEpoch \$ct
+            if (\$rpEpoch) { break }
+          }
+        }
       }
     } catch {}
   }
@@ -5260,10 +5297,8 @@ mold_backup_handle_veeam_restore_session() {
     return 0
   fi
   if mold_backup_trigger_active "mold-restore-active" "$vm"; then
-    mold_backup_trigger_clear "mold-restore-active" "$vm"
-    mold_backup_restore_session_mark_seen "$sid"
-    mold_backup_emit_restore_event "mold.restore.skipped.mold-active" "$vm" "session=${sid}"
-    return 0
+    mold_backup_notify_log warn "restore-watch: clearing stale mold-restore-active for ${vm} and continuing"
+    mold_backup_trigger_clear "mold-restore-active" "$vm" || true
   fi
   if [[ "$trigger_mold" != "true" ]]; then
     mold_backup_reflect_one_restore "$job" "$vm" "$sid" "$detail"
@@ -5282,13 +5317,26 @@ mold_backup_handle_veeam_restore_session() {
     return 0
   fi
   local backup_id rc=0
+  unset BACKUP_ID VM_UUID || true
   backup_id="$(mold_backup_resolve_backup_id_for_vm "$vm" "$job" "$rp_id" "$ckpt" "$rp_epoch" 2>/dev/null || true)"
   if [[ -z "$backup_id" ]]; then
     mold_backup_emit_restore_event "mold.restore.failed" "$vm" "session=${sid};reason=no-backup-id;rp=${rp_id:-n/a};ckpt=${ckpt:-n/a};rp_epoch=${rp_epoch:-n/a}"
-    mold_backup_restore_lock_release
+    mold_backup_restore_lock_release || true
     return 1
   fi
-  export BACKUP_ID="$backup_id" VM_NAME="$vm" VEEAM_RESTORE_SESSION_ID="$sid"
+  export BACKUP_ID="$backup_id" VM_NAME="$vm" VEEAM_RESTORE_SESSION_ID="${sid%%#*}"
+  VM_UUID="$(mold_backup_api_get_vm_id "$vm" 2>/dev/null || true)"
+  export VM_UUID
+  if [[ -z "$VM_UUID" ]]; then
+    mold_backup_notify_log err "restore-watch: cannot resolve Mold UUID for ${vm}"
+    mold_backup_restore_lock_release || true
+    return 1
+  fi
+  if ! mold_backup_api_verify_backup_for_vm "$backup_id" "$VM_UUID" 2>/dev/null; then
+    mold_backup_emit_restore_event "mold.restore.failed" "$vm" "session=${sid};reason=backup-owner-mismatch;backup_id=${backup_id}"
+    mold_backup_restore_lock_release || true
+    return 1
+  fi
   [[ -n "$rp_id" ]] && export VEEAM_RESTORE_POINT_ID="$rp_id"
   export RESTORE_SOURCE="${RESTORE_SOURCE:-${VEEAM_UI_RESTORE_SOURCE:-mold-only}}"
   mold_backup_notify_log info "Veeam UI restore session=${sid} vm=${vm} rp=${rp_id:-n/a} ckpt=${ckpt:-n/a} → Mold datadisk restore backup_id=${backup_id} (RESTORE_SOURCE=${RESTORE_SOURCE})"
@@ -5316,9 +5364,9 @@ mold_backup_handle_veeam_restore_session() {
     mold_backup_emit_restore_event "mold.restore.failed" "$vm" "session=${sid};backup_id=${backup_id}"
     rc=1
   fi
-  mold_backup_trigger_clear "mold-restore-active" "$vm"
-  mold_backup_trigger_clear "veeam-restore-active" "$vm"
-  mold_backup_restore_lock_release
+  mold_backup_trigger_clear "mold-restore-active" "$vm" || true
+  mold_backup_trigger_clear "veeam-restore-active" "$vm" || true
+  mold_backup_restore_lock_release || true
   return "$rc"
 }
 
@@ -6014,7 +6062,7 @@ mold_backup_pre_notify() {
   local saved_include=""
   [[ -n "$job" ]] || mold_backup_die "VEEAM_JOB_NAME is required for pre-notify"
   VEEAM_JOB_NAME="$job"
-  mold_backup_load_config || exit 1
+  mold_backup_load_config || return 1
   VEEAM_JOB_NAME="$(mold_backup_normalize_job_name "${VEEAM_JOB_NAME:-$job}")"
   job="$VEEAM_JOB_NAME"
 
@@ -6304,12 +6352,18 @@ mold_backup_restore_notify() {
     RESTORE_SOURCE="mold-only"
   fi
   mold_backup_notify_log info "=== restore-notify client=${client} job=${job} backup_id=${BACKUP_ID:-} vm=${VM_NAME:-} source=${restore_source} ==="
-  mold_backup_require_var BACKUP_ID
+  [[ -n "${BACKUP_ID:-}" ]] || {
+    mold_backup_notify_log err "restore-notify: BACKUP_ID required"
+    return 1
+  }
   [[ -n "${VM_UUID:-}" ]] || {
     [[ -n "${VM_NAME:-}" ]] && VM_UUID="$(mold_backup_api_get_vm_id "$VM_NAME" 2>/dev/null || true)"
   }
-  [[ -n "${VM_UUID:-}" ]] || mold_backup_die "restore requires VM_NAME or VM_UUID (individual VM restore)"
-  mold_backup_api_verify_backup_for_vm "$BACKUP_ID" "$VM_UUID" || exit 1
+  [[ -n "${VM_UUID:-}" ]] || {
+    mold_backup_notify_log err "restore requires VM_NAME or VM_UUID (individual VM restore)"
+    return 1
+  }
+  mold_backup_api_verify_backup_for_vm "$BACKUP_ID" "$VM_UUID" || return 1
 
   # Loop guard for reverse restore-sync: mark this VM so the Veeam->Mold restore
   # watcher skips reflecting a restore that Mold itself initiated.
@@ -6335,6 +6389,7 @@ mold_backup_restore_notify() {
   fi
 
   mold_backup_notify_log info "=== restore-notify done ==="
+  return 0
 }
 
 # Start Veeam Guest Files (FLR) for the restore point mapped to this VM/backup.

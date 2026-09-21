@@ -39,16 +39,16 @@ MS URL·KVM IP·hostname·zone은 agent/API에서 조회합니다. API key/secre
 
 ```bash
 # Mold UI → Accounts → API Keys (현재 MS 192.168.1.30 용)
-bash /etc/ablestack/veeam/bootstrap-host-veeam-env.sh \
+# 한 번에: install + env/conf + datadisk + restore-agent.timer
+bash /etc/ablestack/veeam/setup-ablestack-veeam.sh \
   --api-key KEY --api-secret 'SECRET' \
   --job-name 'Agent Backup Job 1' \
   --veeam-host 192.168.1.240 \
   --veeam-password 'Ablecloud1!'
 
-# 또는 수동:
-# /etc/ablestack/veeam/veeam_config.sh --job-name "..." --vm-include "*" --backup-mode host --install
-
-bash /etc/ablestack/veeam/setup-datadisk-veeam-backup.sh --env-file /etc/ablestack/veeam/mold-backup.env
+# 또는 단계별:
+# bash /etc/ablestack/veeam/bootstrap-host-veeam-env.sh --api-key ... --api-secret ... --job-name ... --veeam-host ... --veeam-password ...
+# bash /etc/ablestack/veeam/setup-datadisk-veeam-backup.sh --env-file /etc/ablestack/veeam/mold-backup.env
 ```
 
 ## Veeam UI
@@ -64,5 +64,6 @@ bash /etc/ablestack/veeam/setup-datadisk-veeam-backup.sh --env-file /etc/ablesta
 | 목적 | 스크립트 |
 |------|----------|
 | KVM 훅 설치 | `push-to-kvm.sh` → `install.sh` |
+| 최초 구성(권장) | `setup-ablestack-veeam.sh` |
 | 설정 | `veeam_config.sh` / `setup-datadisk-veeam-backup.sh` |
 | UI FLR→Mold | `enable-veeam-mold-restore.sh` |

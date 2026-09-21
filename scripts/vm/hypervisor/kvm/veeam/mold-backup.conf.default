@@ -87,7 +87,6 @@ RESTORE_LOCK_DIR=""
 VEEAM_RESTORE_WATCH_WINDOW_MIN="10"
 # Host job FLR: explicit libvirt VM to restore when VM_INCLUDE has multiple VMs
 VEEAM_RESTORE_VM=""
-
 # guest = Veeam Agent on VM; pre/post SSH to KVM for Mold datadisk backup
 # host  = Veeam Linux Agent ON KVM (10.10.31.2) — one job per hypervisor
 BACKUP_MODE="host"
@@ -95,6 +94,8 @@ IMPORT_MODE="auto"
 
 # Must stay false when STAGING_PATH == VEEAM_HOST_BACKUP_PATH (durable Mold RBD/qcow2 stage).
 CLEANUP_STAGING_AFTER_BACKUP="false"
+# Durable qcow2/raw/rbdiff restore/export stage is protected unless this is true.
+CLEANUP_DURABLE_STAGE_FORCE="false"
 NAS_BACKUP_SCRIPT="/etc/ablestack/veeam/ablestack_veeam_nasbackup.sh"
 CVT_BACKUP_SCRIPT="/etc/ablestack/veeam/ablestack_veeam_host_export.sh"
 LOG_FILE="/var/log/mold/veeam-hook.log"
