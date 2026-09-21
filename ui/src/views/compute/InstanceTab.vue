@@ -95,9 +95,8 @@
         key="schedules"
         v-if="'listResourceSchedule' in $store.getters.apis && !dataResource.autoscalevmgroupid"
       >
-        <ResourceSchedules
+        <VmSchedulesTab
           :resource="vm"
-          resourceType="VirtualMachine"
           :loading="loading"/>
       </a-tab-pane>
       <a-tab-pane
@@ -149,7 +148,7 @@ import EventsTab from '@/components/view/EventsTab'
 import DetailSettings from '@/components/view/DetailSettings'
 import NicsTab from '@/views/compute/VmNicsTab.vue'
 import GuestNetworkTab from '@/views/compute/GuestNetworkTab'
-import ResourceSchedules from '@/views/compute/ResourceSchedules.vue'
+import VmSchedulesTab from '@/views/compute/VmSchedulesTab.vue'
 import ListResourceTable from '@/components/view/ListResourceTable'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import AnnotationsTab from '@/components/view/AnnotationsTab'
@@ -177,7 +176,7 @@ export default {
     GPUTab,
     FtctlTab,
     VmSnapshotsTab,
-    ResourceSchedules,
+    VmSchedulesTab,
     ListResourceTable,
     SecurityGroupSelection,
     ResourceIcon,

@@ -1,0 +1,87 @@
+{
+  "desktop": [
+    {
+      "clientHeight": 684,
+      "height": 684,
+      "scrollHeight": 684,
+      "selector": ".ant-modal-content",
+      "width": 720,
+      "x": 595,
+      "y": 198
+    },
+    {
+      "clientHeight": 54,
+      "height": 55,
+      "scrollHeight": 54,
+      "selector": ".ant-modal-header",
+      "width": 720,
+      "x": 595,
+      "y": 198
+    },
+    {
+      "clientHeight": 572,
+      "height": 572,
+      "scrollHeight": 572,
+      "selector": ".ant-modal-body",
+      "width": 720,
+      "x": 595,
+      "y": 253
+    },
+    {
+      "clientHeight": 56,
+      "height": 57,
+      "scrollHeight": 56,
+      "selector": ".ant-modal-footer",
+      "width": 720,
+      "x": 595,
+      "y": 825
+    }
+  ],
+  "mobile": [
+    {
+      "clientHeight": 552,
+      "height": 552,
+      "scrollHeight": 552,
+      "selector": ".ant-modal-content",
+      "width": 358,
+      "x": 11,
+      "y": 24
+    },
+    {
+      "clientHeight": 54,
+      "height": 55,
+      "scrollHeight": 54,
+      "selector": ".ant-modal-header",
+      "width": 358,
+      "x": 11,
+      "y": 24
+    },
+    {
+      "clientHeight": 440,
+      "height": 440,
+      "scrollHeight": 668,
+      "selector": ".ant-modal-body",
+      "width": 358,
+      "x": 11,
+      "y": 79
+    },
+    {
+      "clientHeight": 56,
+      "height": 57,
+      "scrollHeight": 56,
+      "selector": ".ant-modal-footer",
+      "width": 358,
+      "x": 11,
+      "y": 519
+    },
+    {
+      "clientHeight": 468,
+      "height": 468,
+      "scrollHeight": 468,
+      "selector": ".vm-schedule-picker",
+      "width": 280,
+      "x": 109,
+      "y": 0
+    }
+  ]
+}
