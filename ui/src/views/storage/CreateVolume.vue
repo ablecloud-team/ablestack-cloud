@@ -222,7 +222,7 @@
       <a-form-item v-if="submitHandler" class="volume-device-hint" ref="deviceid" name="deviceid" :label="$t('label.vmvolume.deviceid')" :extra="$t('message.vmvolume.device.auto')" :rules="[{ validator: validateDeviceId }]">
         <a-input-number v-model:value="form.deviceid" :min="1" :precision="0" :placeholder="$t('label.vmvolume.device.auto')" style="width: 100%" />
       </a-form-item>
-      <div :span="24" class="action-button">
+      <div v-if="!hideActions" :span="24" class="action-button">
         <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
         <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
       </div>
@@ -250,6 +250,7 @@ export default {
     TooltipLabel
   },
   props: {
+    hideActions: { type: Boolean, default: false },
     submitHandler: { type: Function, default: null },
     resource: {
       type: Object,

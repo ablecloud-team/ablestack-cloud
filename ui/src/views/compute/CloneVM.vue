@@ -17,6 +17,12 @@
 
 <template>
   <a-spin :spinning="loading">
+    <a-alert
+      v-if="extraConfigDiskAttached"
+      type="warning"
+      show-icon
+      :message="$t('message.clone.extraconfig.disk.blocked')"
+      style="margin-bottom: 16px" />
     <a-form
       class="form-layout"
       layout="vertical"
@@ -57,7 +63,7 @@
 
       <div :span="24" class="action-button">
         <a-button :loading="loading" @click="closeAction">{{ $t('label.cancel') }}</a-button>
-        <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+        <a-button :loading="loading" :disabled="extraConfigDiskAttached" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
       </div>
     </a-form>
   </a-spin>
@@ -65,6 +71,7 @@
 <script>
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI } from '@/api'
+import { hasExtraConfigDisk } from '@/utils/vmClone'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
@@ -81,6 +88,11 @@ export default {
   data () {
     return {
       loading: false
+    }
+  },
+  computed: {
+    extraConfigDiskAttached () {
+      return hasExtraConfigDisk(this.resource)
     }
   },
   beforeCreate () {
@@ -102,9 +114,10 @@ export default {
       })
     },
     handleSubmit (e) {
-      e.preventDefault()
-      if (this.loading) return
+      if (e) e.preventDefault()
+      if (this.loading || this.extraConfigDiskAttached) return
       this.formRef.value.validate().then(() => {
+        if (this.extraConfigDiskAttached) return
         const values = toRaw(this.form)
 
         this.loading = true
