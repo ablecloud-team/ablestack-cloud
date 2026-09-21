@@ -17,7 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-# #1142 구현 및 배포 대기 기록
+# #1142 구현 및 검증 기록
 
 ## 범위와 변경 사유
 
@@ -34,7 +34,7 @@ under the License.
 
 신규 테스트: 주기 갱신과 동일 행 보존, 갱신 오류, VM 전환 후 이전 응답 무시, 실제 공급자별 삭제 정책, 제출 전 권한 소실, 서버 상태 변경, 일반 사용자 host 파라미터 차단, 불확정 mutation 재전송 방지, VM/백업 문맥 분리, 검색 파라미터, polling 중단 및 완료 복구.
 
-## 사용자 요청에 따른 대기 범위
+## 유지보수 대기 당시 기록 (이후 재개)
 
 2026-09-21 사용자가 13번 클러스터 유지보수 중이므로 **구현·모듈 빌드까지만 수행하고 대기**하도록 요청했다. 13번/31번 배포, 실제 브라우저 UI 검증, PR 생성은 유지보수 완료 통보 후 진행한다. 현재 단계에서 실서버 기능 통과를 주장하지 않는다.
 
@@ -49,4 +49,25 @@ under the License.
 - UI archive SHA256: 7344478455e55cd06b75ccc004a1862100ec19b612adf4ef6a5ddfbcaab5a618
 - Docker 볼륨 보관: `/workspaces/artifacts/issue-1142/ui.tar.gz` 및 manifest.json/build.log/tests-all.log/lint-all-final.log.
 - 배포용 archive는 config.json/WEB-INF/META-INF 제외. 기존 로컬 config.json 변경도 원본 Git blob과 동일함을 확인.
-- 배포, UI 실물 검증, PR 생성: 사용자 유지보수 완료 통보 대기.
+- 최초 빌드 당시 유지보수 통보 대기. 이후 배포 결과는 아래 참조.
+
+
+## 2026-09-21 재개 및 최종 배포
+
+- 사용자 재개 요청 및 31번 재설치 확인에 따라 SSH 호스트 키를 갱신하고 양 서버에 UI 배포 완료.
+- 실화면에서 오퍼링 할당 버튼이 표시되지 않는 슬롯 호환 문제를 확인하여 `action` 대신 지원되는 `description` 슬롯으로 수정.
+- 수정 후 대상 11개 테스트 및 Vue lint PASS, Docker UI-only production 재빌드 PASS.
+- 최종 배포 소스: `8eef88051c6756595ed46602c7eb1d20bf6cb818`.
+- 최종 archive SHA256: `f3b0268381620b51c8419d96e0f48e1ca1c2c5b9cff023ee87c72d45b56bd0f2` (위 최초 산출물 대체).
+- 양 서버 config.json 및 WEB-INF 체크섬 보존. 백엔드/DB 변경 및 관리 서버 재시작 없음.
+- 롤백 파일: 13번 `/var/tmp/issue1142-13-20260921-090356/ui-before.tar.gz`, 31번 `/var/tmp/issue1142-31-20260921-090420/ui-before.tar.gz`.
+
+### 브라우저 검증과 제한
+
+- 13번: 빈 목록, 오퍼링 미지정 안내, 생성 비활성, 설정 메뉴 및 할당 대화상자 표시 확인. 할당 제출은 하지 않음.
+- 13번: 70,364ms 관측 중 listBackups 약 10.01초 간격 호출, 백업 영역 DOM 변경 0회. 관측기는 제거.
+- 다크/라이트 안내 및 보조 글자 색상 확인, 툴바 버튼 높이 32px 및 8px 간격 확인. 검증 후 다크 테마 복원.
+- 13번 등록 백업은 0개이므로 실데이터 행 작업과 실제 생성·복원·삭제는 미검증.
+- 31번: 최종 UI 및 VM 상세 로드 확인. 현재 관리자 화면에 백업 탭이 없고 전역 백업 경로도 대시보드로 이동. 원인을 단정하지 않으며 API/설정/권한 점검 필요.
+- 기존/신규 번들 초기 로딩에서 GUI theme 조회 오류가 관측됨. 이번 백업 탭의 자동 갱신 오류와 구분.
+- 공급자별 실데이터 생성/스케줄/복원/볼륨 복원/새 VM/삭제 및 31번 기능 노출 점검은 후속 이슈 #1143에 기록: https://github.com/ablecloud-team/ablestack-cloud/issues/1143
