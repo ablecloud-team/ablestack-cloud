@@ -56,7 +56,9 @@
         </a-button>
       </div>
     </template>
-      <DeployVMFromBackup v-else :key="resource.id"
+    <DeployVMFromBackup
+      v-else
+      :key="resource.id"
         :preFillContent="dataPreFill"
         @close-action="closeAction"/>
   </div>
