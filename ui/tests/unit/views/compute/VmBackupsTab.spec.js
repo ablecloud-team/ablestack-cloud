@@ -29,11 +29,21 @@ const response = rows => ({ listbackupsresponse: { backup: rows, count: rows.len
 const flush = async () => { for (let i = 0; i < 30; i++) await Promise.resolve() }
 const apis = Object.fromEntries(['listBackups', 'listVirtualMachines', 'restoreBackup', 'deleteBackup', 'createBackup', 'assignVirtualMachineToBackupOffering', 'createBackupSchedule', 'removeVirtualMachineFromBackupOffering', 'createVMFromBackup', 'restoreVolumeFromBackupAndAttachToVM'].map(api => [api, {}]))
 function mount (overrides = {}) {
-  return shallowMount(VmBackupsTab, { props: { resource: { ...vm } }, global: { stubs: { RouterLink: true, AInputSearch: { template: '<input />' } }, mocks: {
-    $store: reactive({ getters: { apis: { ...apis }, features: {}, project: {}, userInfo: { id: 'user', roletype: 'Admin' } }, state: { user: { token: 'token' } } }),
-    $route: { path: '/vm/vm', fullPath: '/vm/vm?tab=backups' }, $t: key => key, $toLocaleDate: value => value,
-    $notifyError: jest.fn(), $pollJob: jest.fn().mockResolvedValue({ jobstatus: 1 }), ...overrides
-  } } })
+  return shallowMount(VmBackupsTab, {
+    props: { resource: { ...vm } },
+    global: {
+      stubs: { RouterLink: true, AInputSearch: { template: '<input />' } },
+      mocks: {
+        $store: reactive({ getters: { apis: { ...apis }, features: {}, project: {}, userInfo: { id: 'user', roletype: 'Admin' } }, state: { user: { token: 'token' } } }),
+        $route: { path: '/vm/vm', fullPath: '/vm/vm?tab=backups' },
+        $t: key => key,
+        $toLocaleDate: value => value,
+        $notifyError: jest.fn(),
+        $pollJob: jest.fn().mockResolvedValue({ jobstatus: 1 }),
+        ...overrides
+      }
+    }
+  })
 }
 beforeEach(() => {
   jest.useFakeTimers(); jest.clearAllMocks()
