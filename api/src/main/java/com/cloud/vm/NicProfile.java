@@ -42,7 +42,6 @@ public class NicProfile implements InternalIdentity, Serializable {
     String uuid;
 
     String macAddress;
-    boolean linkState = true;
     BroadcastDomainType broadcastType;
     Mode mode;
     AddressFormat format;
@@ -53,7 +52,7 @@ public class NicProfile implements InternalIdentity, Serializable {
     boolean defaultNic;
     Integer networkRate;
     boolean isSecurityGroupEnabled;
-    boolean enabled;
+    boolean enabled = true;
 
     Integer orderIndex;
 
@@ -104,7 +103,6 @@ public class NicProfile implements InternalIdentity, Serializable {
         strategy = nic.getReservationStrategy();
         deviceId = nic.getDeviceId();
         defaultNic = nic.isDefaultNic();
-        linkState = nic.getLinkState();
         this.broadcastUri = broadcastUri;
         this.isolationUri = isolationUri;
 
@@ -410,12 +408,16 @@ public class NicProfile implements InternalIdentity, Serializable {
         this.mtu = mtu;
     }
 
+    /** @deprecated NIC state is stored exclusively in enabled. */
+    @Deprecated
     public boolean getLinkState() {
-        return linkState;
+        return enabled;
     }
 
+    /** @deprecated NIC state is stored exclusively in enabled. */
+    @Deprecated
     public void setLinkState(boolean linkState) {
-        this.linkState = linkState;
+        this.enabled = linkState;
     }
 
     public boolean getIpv4AllocationRaceCheck() {

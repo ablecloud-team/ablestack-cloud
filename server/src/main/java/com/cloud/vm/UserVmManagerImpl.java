@@ -119,7 +119,6 @@ import org.apache.cloudstack.api.command.user.vm.UpdateDefaultNicForVMCmd;
 import org.apache.cloudstack.api.command.user.vm.UpdateVMCmd;
 import org.apache.cloudstack.api.command.user.vm.UpdateVmNicCmd;
 import org.apache.cloudstack.api.command.user.vm.UpdateVmNicIpCmd;
-import org.apache.cloudstack.api.command.user.vm.UpdateVmNicLinkStateCmd;
 import org.apache.cloudstack.api.command.user.vm.UpgradeVMCmd;
 import org.apache.cloudstack.api.command.user.vmgroup.CreateVMGroupCmd;
 import org.apache.cloudstack.api.command.user.vmgroup.DeleteVMGroupCmd;
@@ -220,7 +219,6 @@ import com.cloud.agent.api.GetVmNetworkStatsCommand;
 import com.cloud.agent.api.GetVolumeStatsAnswer;
 import com.cloud.agent.api.GetVolumeStatsCommand;
 import com.cloud.agent.api.ModifyTargetsCommand;
-import com.cloud.agent.api.NicLinkStateCommand;
 import com.cloud.agent.api.PvlanSetupCommand;
 import com.cloud.agent.api.RestoreVMSnapshotAnswer;
 import com.cloud.agent.api.RestoreVMSnapshotCommand;
@@ -5134,7 +5132,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                     profile.setDefaultNic(true);
                     validateUserdataSupport(userData, vmType, template, network, sshPublicKeys);
                 }
-                profile.setLinkState(requestedIpPair.getLinkState());
+                profile.setEnabled(requestedIpPair.isEnabled());
                 if (_networkModel.isSecurityGroupSupportedInNetwork(network)) {
                     securityGroupEnabled = true;
                 }
@@ -11170,72 +11168,6 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
 
         return startVirtualMachine(vmId, podId, clusterId, hostId, diskOfferingMap, additionalParams, cmd.getDeploymentPlanner());
-    }
-
-    @ActionEvent(eventType = EventTypes.EVENT_NIC_UPDATE, eventDescription = "UPDATE NIC LINK STATE TO VM", async = true)
-    public UserVm updateVmNicLinkState(UpdateVmNicLinkStateCmd cmd){
-        Long vmId = cmd.getVmId();
-        Long nicId = cmd.getNicId();
-        Account caller = CallContext.current().getCallingAccount();
-
-        UserVmVO vmInstance = _vmDao.findById(vmId);
-        if (vmInstance == null) {
-            throw new InvalidParameterValueException("unable to find a virtual machine with id " + vmId);
-        }
-
-        NicVO nic = _nicDao.findById(nicId);
-        if (nic == null) {
-            throw new InvalidParameterValueException("unable to find a nic with id " + nicId);
-        }
-        NetworkVO network = _networkDao.findById(nic.getNetworkId());
-        if (network == null) {
-            throw new InvalidParameterValueException("unable to find a network with id " + nic.getNetworkId());
-        }
-
-        // Perform permission check on VM
-        _accountMgr.checkAccess(caller, null, true, vmInstance);
-
-        // Verify that zone is not Basic
-        DataCenterVO dc = _dcDao.findById(vmInstance.getDataCenterId());
-        if (dc.getNetworkType() == DataCenter.NetworkType.Basic) {
-            throw new CloudRuntimeException("Zone " + vmInstance.getDataCenterId() + ", has a NetworkType of Basic. Can't change default NIC on a Basic Network");
-        }
-
-        //check to see if nic is attached to VM
-        if (nic.getInstanceId() != vmId) {
-            throw new InvalidParameterValueException(nic + " is not a nic on  " + vmInstance);
-        }
-
-        final NicProfile nicProfile = new NicProfile(nic, network, nic.getBroadcastUri(), nic.getIsolationUri(), _networkModel.getNetworkRate(network.getId(), vmInstance.getId()),
-                _networkModel.isSecurityGroupSupportedInNetwork(network), _networkModel.getNetworkTag(vmInstance.getHypervisorType(), network));
-
-        nic.setLinkState(cmd.getLinkState());
-        _nicDao.update(nicId, nic);
-
-        if (vmInstance.getState() == State.Running) {
-            VirtualMachineProfile vmProfile = new VirtualMachineProfileImpl(vmInstance);
-            final HypervisorGuru hvGuru = _hvGuruMgr.getGuru(vmProfile.getVirtualMachine().getHypervisorType());
-            final NicTO nicTO = hvGuru.toNicTO(nicProfile);
-
-            Long hostId = vmInstance.getHostId() != null ? vmInstance.getHostId() : vmInstance.getLastHostId();
-            NicLinkStateCommand nlscmd = new NicLinkStateCommand(nicTO, vmInstance.getInstanceName(), cmd.getLinkState());
-
-            try {
-                Answer answer = _agentMgr.send(hostId, nlscmd);
-                if (answer == null || !answer.getResult()) {
-                    throw new InvalidParameterValueException(String.format("Failed to Update Nic Link State : %s", caller.getUuid()));
-                }
-            } catch (Exception ex) {
-                nic.setLinkState(!cmd.getLinkState());
-                _nicDao.update(nicId, nic);
-                throw new CloudRuntimeException(ex.getMessage());
-            }
-        }
-        if (!cmd.getLinkState() && network.getGuestType() == Network.GuestType.L2 && nic.getIPv4Address() != null) {
-            nic.setIPv4Address(null);
-            _nicDao.update(nicId, nic);
-        }
-        return _vmDao.findById(vmInstance.getId());
     }
 
     @Override

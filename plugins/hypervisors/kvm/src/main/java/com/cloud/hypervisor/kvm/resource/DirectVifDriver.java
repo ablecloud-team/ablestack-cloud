@@ -56,7 +56,7 @@ public class DirectVifDriver extends VifDriverBase {
         if (nic.getPxeDisable()) {
             intf.setPxeDisable(true);
         }
-        intf.setLinkStateUp(nic.getLinkState());
+        intf.setLinkStateUp(nic.isEnabled());
 
         return intf;
     }

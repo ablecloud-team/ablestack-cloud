@@ -183,7 +183,7 @@ public class DeployVMVolumeCmd extends BaseAsyncCreateCustomIdCmd implements Sec
     private List<String> securityGroupNameList;
 
     @Parameter(name = ApiConstants.IP_NETWORK_LIST, type = CommandType.MAP, description = "ip to network mapping. Can't be specified with networkIds parameter."
-            + " Example: iptonetworklist[0].ip=10.10.10.11&iptonetworklist[0].ipv6=fc00:1234:5678::abcd&iptonetworklist[0].networkid=uuid&iptonetworklist[0].mac=aa:bb:cc:dd:ee::ff - requests to use ip 10.10.10.11 in network id=uuid")
+            + " Example: iptonetworklist[0].ip=10.10.10.11&iptonetworklist[0].ipv6=fc00:1234:5678::abcd&iptonetworklist[0].enabled=false&iptonetworklist[0].networkid=uuid&iptonetworklist[0].mac=aa:bb:cc:dd:ee::ff - requests to use ip 10.10.10.11 in network id=uuid")
     private Map ipToNetworkList;
 
     @Parameter(name = ApiConstants.IP_ADDRESS, type = CommandType.STRING, description = "the ip address for default vm's network")
@@ -592,7 +592,14 @@ public class DeployVMVolumeCmd extends BaseAsyncCreateCustomIdCmd implements Sec
             }
             requestedMac = NetUtils.standardizeMacAddress(requestedMac);
         }
-        return new IpAddresses(requestedIp, requestedIpv6, requestedMac);
+        if (ips.containsKey("linkstate")) {
+            throw new InvalidParameterValueException("iptonetworklist.linkstate is no longer supported; use enabled.");
+        }
+        String enabled = ips.get(ApiConstants.ENABLED);
+        if (enabled != null && !"true".equalsIgnoreCase(enabled) && !"false".equalsIgnoreCase(enabled)) {
+            throw new InvalidParameterValueException("iptonetworklist.enabled must be true or false.");
+        }
+        return new IpAddresses(requestedIp, requestedIpv6, requestedMac, enabled == null || Boolean.parseBoolean(enabled));
     }
 
     @Nonnull

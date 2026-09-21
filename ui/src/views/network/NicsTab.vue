@@ -67,19 +67,6 @@
           :disabled="(!('updateVmNic' in $store.getters.apis))"
           @onClick="onUpdateNic(record)" />
         <a-popconfirm
-          :title="`${record.nic.linkstate ? $t('label.action.nic.linkstate.down') : $t('label.action.nic.linkstate.up')}`"
-          @confirm="onChangeNicLinkState(record)"
-          :okText="$t('label.yes')"
-          :cancelText="$t('label.no')">
-          <tooltip-button
-            class="action-button"
-            :shape="'round'"
-            tooltipPlacement="bottom"
-            :tooltip="$t('label.action.nic.linkstate')"
-            :type="record.nic.linkstate ? 'primary' : ''"
-            icon="wifi-outlined" />
-        </a-popconfirm>
-        <a-popconfirm
           :title="$t('message.network.removenic')"
           @confirm="removeNIC(record.nic)"
           :okText="$t('label.yes')"
@@ -328,7 +315,7 @@
       <a-form
         @finish="submitUpdateNic"
         v-ctrl-enter="submitUpdateNic">
-        <a-form-item name="linkstate" ref="linkstate">
+        <a-form-item name="enabled" ref="enabled">
           <p class="modal-form__label">{{ $t('state.enabled') }}:</p>
           <a-switch v-model:checked="editNicStateValue" @change="val => { editNicStateValue = val }" />
         </a-form-item>
@@ -799,36 +786,7 @@ export default {
         this.fetchSecondaryIPs(this.selectedNicId)
       })
     },
-    onChangeNicLinkState (record) {
-      const params = {}
-      params.virtualmachineid = this.vm.id
-      params.nicid = record.nic.id
-      params.linkstate = !record.nic.linkstate
-      getAPI('UpdateVmNicLinkState', params).then(response => {
-        this.$pollJob({
-          jobId: response.updatevmniclinkstateresponse.jobid,
-          successMessage: this.$t('message.success.update.nic.linkstate'),
-          successMethod: () => {
-            this.loadingNic = false
-            this.parentFetchData()
-          },
-          errorMessage: this.$t('label.error'),
-          errorMethod: () => {
-            this.loadingNic = false
-          },
-          loadingMessage: this.$t('message.update.nic.linkstate.processing'),
-          catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => {
-            this.loadingNic = false
-            this.parentFetchData()
-          }
-        })
-      })
-        .catch(error => {
-          this.$notifyError(error)
-          this.loadingNic = false
-        })
-    },
+
     submitUpdateNic () {
       if (this.loadingNic) return
       this.loadingNic = true

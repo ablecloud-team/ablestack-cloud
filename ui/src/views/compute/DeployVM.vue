@@ -2346,14 +2346,14 @@ export default {
           networks.forEach(el2 => {
             if (el.id === el2.key) {
               console.log('::값바꾼 net::>> ', el2.key)
-              this.networks[idx].linkState = el2.linkstate ? el2.linkState : false
+              this.networks[idx].enabled = el2.enabled === undefined ? true : el2.enabled
               this.networks[idx].ipAddress = el2.ipAddress ? el2.ipAddress : ''
               this.networks[idx].macAddress = el2.macAddress ? el2.macAddress : ''
             }
           })
         })
-        // this.networks[0].linkstate = true
-        // console.log(this.networks[0].linkstate)
+        // this.networks[0].enabled = true
+        // console.log(this.networks[0].enabled)
       }
     },
     updateSshKeyPairs (names) {
@@ -2694,7 +2694,7 @@ export default {
                 if (networkConfig && networkConfig.length > 0) {
                   deployVmData['iptonetworklist[' + j + '].ip'] = networkConfig[0].ipAddress ? networkConfig[0].ipAddress : undefined
                   deployVmData['iptonetworklist[' + j + '].mac'] = networkConfig[0].macAddress ? networkConfig[0].macAddress : undefined
-                  deployVmData['iptonetworklist[' + j + '].linkstate'] = networkConfig[0].linkstate === undefined ? true : networkConfig[0].linkstate
+                  deployVmData['iptonetworklist[' + j + '].enabled'] = networkConfig[0].enabled === undefined ? true : networkConfig[0].enabled
                 }
               }
             }

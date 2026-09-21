@@ -636,7 +636,7 @@ public class DrTargetMaterializationServiceImpl extends ManagerBase implements D
             if ("NIC_DISABLED".equals(networkMode)) {
                 disableTestNics(testVm);
                 List<com.cloud.vm.NicVO> nics = testNicDao.listByVmId(testVm.getId());
-                if (nics.isEmpty() || nics.stream().anyMatch(nic -> nic.isEnabled() || nic.getLinkState())) {
+                if (nics.isEmpty() || nics.stream().anyMatch(nic -> nic.isEnabled())) {
                     throw new CloudRuntimeException("DR_TEST_NIC_NOT_DISABLED: all test adapters must be disabled before boot");
                 }
             }

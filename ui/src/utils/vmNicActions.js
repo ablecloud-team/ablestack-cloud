@@ -18,8 +18,8 @@ import { reactive } from 'vue'
 export const nicOperations = reactive({})
 export const clearNicOperations = () => Object.keys(nicOperations).forEach(key => delete nicOperations[key])
 export const nicOwner = vm => vm.projectid ? { projectid: vm.projectid } : { account: vm.account, domainid: vm.domainid }
-// Both commands change the KVM interface link. Offer one state action, not two.
-export const nicStateAction = (vm, apis) => vm.hypervisor === 'KVM' && 'updateVmNic' in apis ? 'updateVmNic' : 'UpdateVmNicLinkState' in apis ? 'UpdateVmNicLinkState' : null
+// NIC state has a single API and persisted value: enabled.
+export const nicStateAction = (vm, apis) => vm.hypervisor === 'KVM' && 'updateVmNic' in apis ? 'updateVmNic' : null
 const topology = ['createNetwork', 'addNicToVirtualMachine', 'removeNicFromVirtualMachine', 'updateDefaultNicForVirtualMachine']
 
 export function nicActionReason (api, nic, vm, context = {}) {
@@ -33,7 +33,6 @@ export function nicActionReason (api, nic, vm, context = {}) {
   if (!nic?.id) return 'message.vmnic.context'
   if (['removeNicFromVirtualMachine', 'updateDefaultNicForVirtualMachine'].includes(api) && nic.isdefault) return 'message.vmnic.default'
   if (api === 'updateVmNic' && vm.hypervisor !== 'KVM') return 'message.vmnic.kvm'
-  if (api === 'UpdateVmNicLinkState' && (!context.zone || context.zone.networktype === 'Basic' || typeof nic.linkstate !== 'boolean')) return 'message.vmnic.context'
   if (api === 'updateVmNic' && typeof nic.enabled !== 'boolean') return 'message.vmnic.context'
   if (['addIpToNic', 'removeIpFromNic'].includes(api) && nic.type === 'L2') return 'message.vmnic.l2'
   if (api === 'updateVmNicIp' && vm.state !== 'Stopped' && nic.type === 'L2') return 'message.vmnic.mac.stop'

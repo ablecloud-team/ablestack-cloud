@@ -43,7 +43,7 @@ public class NetworkTO {
     protected String ip6cidr;
     protected String ip6Dns1;
     protected String ip6Dns2;
-    protected boolean linkState = true;
+    protected boolean enabled = true;
     protected boolean nwfilter = false;
 
     public NetworkTO() {
@@ -234,12 +234,16 @@ public class NetworkTO {
         this.ip6Dns2 = ip6Dns2;
     }
 
+    /** @deprecated NIC state is stored exclusively in enabled. */
+    @Deprecated
     public boolean getLinkState() {
-        return linkState;
+        return enabled;
     }
 
+    /** @deprecated NIC state is stored exclusively in enabled. */
+    @Deprecated
     public void setLinkState(boolean linkState) {
-        this.linkState = linkState;
+        this.enabled = linkState;
     }
 
     public boolean getNwfilter() {
