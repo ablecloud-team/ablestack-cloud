@@ -2662,6 +2662,40 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         }
     }
 
+    @Override
+    public boolean cleanupCanceledBackup(final VirtualMachine vm, final Backup backup) {
+        if (backup == null || StringUtils.isBlank(backup.getExternalId())) {
+            return backup == null;
+        }
+        loadBackupDetailsIfNeeded(backup);
+        final Host host = findBackupJobHost(backup, vm);
+        final String stageHostName = StringUtils.defaultIfBlank(getBackupDetail(backup, DETAIL_STAGE_HOST),
+                host != null ? host.getName() : null);
+        if (StringUtils.isBlank(stageHostName)) {
+            LOG.warn("Unable to resolve stage host while cleaning canceled Commvault backup [{}]", backup.getUuid());
+            return false;
+        }
+        String backupPath = backup.getExternalId();
+        if (backupPath.contains(",")) {
+            try {
+                backupPath = parseExternalId(backupPath).first();
+            } catch (CloudRuntimeException e) {
+                LOG.warn("Unable to resolve staging path while cleaning canceled Commvault backup [{}]: {}",
+                        backup.getUuid(), e.getMessage());
+                return false;
+            }
+        }
+        try {
+            cleanupBackupPathOnStageHost(stageHostName, backupPath, true, vm != null ? vm.getInstanceName() : null,
+                    getBackupDetail(backup, DETAIL_CHECKPOINT_NAME), getUnreferencedQcow2CheckpointNamesAfterDelete(backup),
+                    getBackupDetail(backup, DETAIL_RBD_DISK_PATHS));
+            return true;
+        } catch (CloudRuntimeException e) {
+            LOG.warn("Failed to cleanup canceled Commvault backup [{}]: {}", backup.getUuid(), e.getMessage(), e);
+            return false;
+        }
+    }
+
     private boolean isWithinBackingUpSyncGracePeriod(Backup backup) {
         if (backup == null || backup.getDate() == null) {
             return true;

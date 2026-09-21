@@ -34,6 +34,7 @@ public final class AblestackBackupFrameworkUtils {
     public static final String INCREMENTAL_FALLBACK_REASON_DETAIL = "ablestack.incremental.fallback.reason";
     public static final String INCREMENTAL_FALLBACK_BACKUP_UUID_DETAIL = "ablestack.incremental.fallback.backup.uuid";
     public static final String BACKUP_QUIESCE_DETAIL = "ablestack.backup.quiesce";
+    public static final String BACKUP_CANCELLATION_DETAIL = "ablestack.backup.cancellation.details";
     public static final String BACKUP_IN_PROGRESS_MARKER = ".backup.inprogress";
     public static final String BACKUP_COMPLETE_MARKER = ".backup.complete";
     public static final String STAGING_IN_PROGRESS_MARKER = ".staging.inprogress";

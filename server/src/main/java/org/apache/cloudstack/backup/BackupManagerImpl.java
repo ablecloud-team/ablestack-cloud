@@ -1756,11 +1756,19 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (!cancelled) {
             throw new CloudRuntimeException("Failed to cancel running VM backup");
         }
-        backup.setStatus(Backup.Status.Canceled);
+        final boolean cleanupSuccessful = backupProvider.cleanupCanceledBackup(vm, backup);
+        backup.setStatus(cleanupSuccessful ? Backup.Status.Canceled : Backup.Status.Error);
         backupDao.update(backup.getId(), backup);
+        backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.BACKUP_CANCELLATION_DETAIL,
+                cleanupSuccessful ? "Backup canceled and artifacts cleaned" : "Backup canceled but artifact cleanup failed", false);
         backupDetailsDao.removeDetail(backup.getId(), AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL);
         cleanupBackupJobFiles(backup.getHostId(), backup.getUuid(), offering.getProvider());
-        logger.info("Cancelled BackingUp backup [{}] for VM [{}] using provider [{}].",
+        if (!cleanupSuccessful) {
+            logger.error("Cancelled backup [{}] for VM [{}] using provider [{}], but artifact cleanup failed. Backup remains in Error state.",
+                    backup.getUuid(), vm.getInstanceName(), offering.getProvider());
+            return false;
+        }
+        logger.info("Cancelled and cleaned BackingUp backup [{}] for VM [{}] using provider [{}].",
                 backup.getUuid(), vm.getInstanceName(), offering.getProvider());
         return true;
     }

@@ -515,40 +515,40 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     }
 
     private boolean cleanupFailedBackupArtifacts(final Host host, final Backup backup) {
-        if (backup == null || host == null || StringUtils.isBlank(backup.getExternalId())) {
+        if (backup == null) {
             return true;
+        }
+        if (host == null || StringUtils.isBlank(backup.getExternalId())) {
+            return false;
         }
         loadBackupDetailsIfNeeded(backup);
 
-        if (BACKUP_ENGINE_RBD_DIFF.equals(getBackupDetail(backup, DETAIL_BACKUP_ENGINE))
-                && StringUtils.isNotBlank(getBackupDetail(backup, DETAIL_CHECKPOINT_NAME))
-                && StringUtils.isNotBlank(getBackupDetail(backup, DETAIL_RBD_DISK_PATHS))) {
-            final AblestackDeleteBackupCommand command = new AblestackDeleteBackupCommand(backup.getExternalId(), null, null, null, true);
-            final int deleteTimeout = BackupDataOperationTimeout.value();
-            if (deleteTimeout > 0) {
-                command.setWait(deleteTimeout);
-            }
-            command.setBackupProvider(getName());
-            final VMInstanceVO vm = vmInstanceDao.findByIdIncludingRemoved(backup.getVmId());
-            command.setVmName(vm != null ? vm.getInstanceName() : null);
-            command.setCheckpointName(getBackupDetail(backup, DETAIL_CHECKPOINT_NAME));
+        final AblestackDeleteBackupCommand command = new AblestackDeleteBackupCommand(backup.getExternalId(), null, null, null, true);
+        final int deleteTimeout = BackupDataOperationTimeout.value();
+        if (deleteTimeout > 0) {
+            command.setWait(deleteTimeout);
+        }
+        command.setBackupProvider(getName());
+        final VMInstanceVO vm = vmInstanceDao.findByIdIncludingRemoved(backup.getVmId());
+        command.setVmName(vm != null ? vm.getInstanceName() : null);
+        command.setCheckpointName(getBackupDetail(backup, DETAIL_CHECKPOINT_NAME));
+        command.setCleanupCheckpointNames(getUnreferencedQcow2CheckpointNamesAfterDelete(backup, Collections.singleton(backup.getId())));
+        if (BACKUP_ENGINE_RBD_DIFF.equals(getBackupDetail(backup, DETAIL_BACKUP_ENGINE))) {
             command.setDiskPaths(getBackupDetail(backup, DETAIL_RBD_DISK_PATHS));
-            try {
-                final BackupAnswer answer = (BackupAnswer) agentManager.send(host.getId(), command);
-                if (answer == null || !answer.getResult()) {
-                    LOG.warn("Failed to cleanup RBD snapshots for failed Veeam backup [{}] on host [{}]: {}",
-                            backup.getUuid(), host.getName(), answer != null ? answer.getDetails() : "no answer received");
-                    return false;
-                }
-            } catch (final AgentUnavailableException | OperationTimedoutException e) {
-                LOG.warn("Unable to cleanup RBD snapshots for failed Veeam backup [{}] on host [{}]: {}",
-                        backup.getUuid(), host.getName(), e.getMessage(), e);
+        }
+        try {
+            final BackupAnswer answer = (BackupAnswer) agentManager.send(host.getId(), command);
+            if (answer == null || !answer.getResult()) {
+                LOG.warn("Failed to cleanup artifacts for Veeam backup [{}] on host [{}]: {}",
+                        backup.getUuid(), host.getName(), answer != null ? answer.getDetails() : "no answer received");
                 return false;
             }
             return true;
+        } catch (final AgentUnavailableException | OperationTimedoutException e) {
+            LOG.warn("Unable to cleanup artifacts for Veeam backup [{}] on host [{}]: {}",
+                    backup.getUuid(), host.getName(), e.getMessage(), e);
+            return false;
         }
-
-        return cleanupBackupPathsOnHost(backup.getZoneId(), host.getName(), List.of(backup.getExternalId()));
     }
 
     private void removeFailedBackupAfterSuccessfulFullRetry(final Backup backup) {
@@ -2401,6 +2401,11 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
                     backup.getUuid(), vm.getInstanceName(), host.getName(), e);
             return false;
         }
+    }
+
+    @Override
+    public boolean cleanupCanceledBackup(final VirtualMachine vm, final Backup backup) {
+        return cleanupFailedBackupArtifacts(findBackupJobHost(backup, vm), backup);
     }
 
     private void removeStaleBackingUpBackups(final VirtualMachine vm) {

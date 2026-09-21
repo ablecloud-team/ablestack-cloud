@@ -1886,6 +1886,11 @@ public class AblestackNasBackupProvider extends AdapterBase implements BackupPro
         }
     }
 
+    @Override
+    public boolean cleanupCanceledBackup(final VirtualMachine vm, final Backup backup) {
+        return cleanupFailedBackupArtifacts(backup);
+    }
+
     private String getBackupDetail(Backup backup, String key, String defaultValue) {
         String value = getBackupDetail(backup, key);
         return value == null ? defaultValue : value;

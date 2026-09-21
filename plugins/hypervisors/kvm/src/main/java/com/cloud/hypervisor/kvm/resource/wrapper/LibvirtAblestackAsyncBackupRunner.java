@@ -66,6 +66,8 @@ final class LibvirtAblestackAsyncBackupRunner {
     private static final int MAX_EVENTS_LIMIT = 200;
     private static final int LIVE_PROGRESS_MINIMUM = 10;
     private static final int LIVE_PROGRESS_MAXIMUM = 95;
+    private static final int CANCEL_WAIT_MILLIS = 30000;
+    private static final int CANCEL_POLL_MILLIS = 250;
     private static final Set<String> ACTIVE_JOBS = ConcurrentHashMap.newKeySet();
 
     private LibvirtAblestackAsyncBackupRunner() {
@@ -296,6 +298,10 @@ final class LibvirtAblestackAsyncBackupRunner {
         if (STATE_COMPLETED.equals(state) || STATE_FAILED.equals(state) || STATE_CANCELED.equals(state)) {
             return new StopBackupAnswer(command, false, operation + " job is already " + state);
         }
+        if (!safeValue(unitName).isBlank() && !isSystemdUnitActive(unitName, logger)) {
+            final String resolvedState = resolveDetachedState(jobId, properties, logger);
+            return new StopBackupAnswer(command, false, operation + " job is already " + resolvedState);
+        }
         properties.setProperty("cancelRequested", Boolean.TRUE.toString());
         storeJobProperties(logger, jobId, properties);
         if (!safeValue(unitName).isBlank()) {
@@ -312,10 +318,32 @@ final class LibvirtAblestackAsyncBackupRunner {
                 details.append(virshResult.second()).append(" ");
             }
         }
+        if (!safeValue(unitName).isBlank() && !waitForSystemdUnitToStop(unitName, logger)) {
+            properties.remove("cancelRequested");
+            storeJobProperties(logger, jobId, properties);
+            details.append("systemd unit is still active after cancellation timeout");
+            return new StopBackupAnswer(command, false, details.toString().trim());
+        }
         ACTIVE_JOBS.remove(jobId);
         final String message = operation + " job cancel requested";
         writeJobState(logger, jobId, provider, vmName, backupPath, backupType, STATE_CANCELED, message);
         return new StopBackupAnswer(command, true, details.length() > 0 ? details.toString().trim() : message);
+    }
+
+    private static boolean waitForSystemdUnitToStop(final String unitName, final Logger logger) {
+        final long deadline = System.currentTimeMillis() + CANCEL_WAIT_MILLIS;
+        while (System.currentTimeMillis() < deadline) {
+            if (!isSystemdUnitActive(unitName, logger)) {
+                return true;
+            }
+            try {
+                Thread.sleep(CANCEL_POLL_MILLIS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+        return !isSystemdUnitActive(unitName, logger);
     }
 
     static BackupAnswer updateBandwidthLimit(final Command command, final String jobId, final Integer bandwidthLimitMbps, final Logger logger) {

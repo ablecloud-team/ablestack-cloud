@@ -111,6 +111,10 @@ public interface BackupProvider {
         throw new UnsupportedOperationException("Backup cancellation is not supported by provider " + getName());
     }
 
+    default boolean cleanupCanceledBackup(VirtualMachine vm, Backup backup) {
+        return true;
+    }
+
     default String getCatalogBackupTime(Long zoneId, String backupId) {
         return null;
     }
