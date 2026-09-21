@@ -2784,7 +2784,7 @@ export default {
 .backup-deploy-form :deep(.ant-card-body) { padding: 16px; }
 .backup-deploy-form :deep(.ant-steps-item-content) { min-width: 0; }
 .backup-deploy-form :deep(.ant-table-wrapper) { max-width: 100%; overflow-x: auto; }
-.backup-deploy-summary :deep(.resource-detail-item__details a) { color: var(--ui-text); }
+.backup-deploy-summary :deep(.resource-detail-item__details a) { color: var(--ui-text-primary); }
 .backup-deploy-summary :deep(.ant-card-body) { max-height: none !important; overflow: visible !important; }
 @container (max-width: 900px) {
   .backup-deploy-grid { grid-template-columns: minmax(0, 1fr); }

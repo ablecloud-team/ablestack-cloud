@@ -386,7 +386,7 @@ export default {
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  color: var(--ui-text);
+  color: var(--ui-text-primary);
   .backup-create-scroll { min-height: 0; overflow: auto; padding: 24px; }
   .backup-create-footer {
     flex: none;
