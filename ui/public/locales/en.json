@@ -2339,6 +2339,7 @@
   "message.clone.flatten.bandwidth.failed": "Bandwidth update is unconfirmed. Some jobs may not have changed. Reapply the saved value to retry.",
   "message.clone.flatten.bandwidth.saved": "Flatten bandwidth setting saved",
   "message.clone.flatten.refresh.failed": "Unable to refresh the flatten state.",
+  "message.clone.extraconfig.disk.blocked": "Cloning is unavailable while an additional disk, such as a LUN, is attached through extra configuration. Detach the disk before cloning.",
   "message.clone.phase.recovery": "The operation result is uncertain. Power operations are restricted and disk files are preserved. Administrator verification is required.",
   "message.clone.phase.source.ready": "Clone disks are flattening. The source VM can be started, stopped or rebooted.",
   "message.clone.phase.clone.ready": "Start, stop and reboot are available. Flatten is paused before power changes and resumes after disk verification on the running VM.",
