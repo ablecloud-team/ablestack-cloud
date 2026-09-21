@@ -24,11 +24,12 @@ jest.mock('@/api/dr', () => ({ getDrVmProtectionView: jest.fn() }))
 const empty = id => ({ virtualmachineid: id, configured: false, association: [] })
 const related = (id, role = 'SOURCE') => ({ virtualmachineid: id, configured: true, association: [{ planid: 'plan', relationshiprole: role }] })
 const machine = value => ({ 'kvm.guest.os.machine.type': value })
-const deferred = () => { let resolve; let reject; const promise = new Promise((a, b) => { resolve = a; reject = b }); return { promise, resolve, reject } }
+const deferred = () => { const d = {}; d.promise = new Promise((resolve, reject) => { d.resolve = resolve; d.reject = reject }); return d }
 function mount (resource = { id: 'a', details: machine('q35') }, tab = 'details', apis = { getFtctlProtection: {}, getDrVmProtectionView: {} }) {
   window.history.replaceState({}, '', '/#/vm/' + resource.id + '?tab=' + tab + '&keep=1')
   return shallowMount({
-    mixins: [tabs], props: ['resource'],
+    mixins: [tabs],
+    props: ['resource'],
     data: () => ({ currentTab: tab }),
     methods: { resolveCurrentTabFromRoute () { return this.currentTab } },
     template: '<div><span v-if="showFtTab">FT</span><span v-if="showDrTab">DR</span><p>{{ visibleCurrentTab }}</p></div>'
@@ -151,3 +152,4 @@ test('unmounted and superseded requests cannot apply their results', async () =>
   pending.resolve(related('a')); await refresh
   expect(w.vm.drView.configured).toBe(false)
 })
+

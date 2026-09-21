@@ -27,7 +27,9 @@
     </a-alert>
     <a-alert
       v-else-if="protectionLookupPending && ['ftctl', 'drplans'].includes(currentTab)"
-      type="info" show-icon class="protection-tab-notice"
+      type="info"
+      show-icon
+      class="protection-tab-notice"
       :message="$t('message.vm.protection.lookup.pending')" />
     <a-tabs
       :activeKey="visibleCurrentTab"

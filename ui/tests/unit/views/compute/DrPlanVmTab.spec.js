@@ -73,9 +73,9 @@ describe('DrPlanVmTab local DB projection', () => {
         protectionstate: 'READY',
         direction: 'KVM_TO_KVM'
       }]
-    })
+    }
 
-    const wrapper = createWrapper()
+    const wrapper = createWrapper(view)
     await flushPromises()
 
     expect(getDrVmProtectionView).not.toHaveBeenCalled()
@@ -91,7 +91,7 @@ describe('DrPlanVmTab local DB projection', () => {
   test('shows a local-scope empty state when no relationship exists', async () => {
     const view = { configured: false, association: [] }
 
-    const wrapper = createWrapper()
+    const wrapper = createWrapper(view)
     await flushPromises()
 
     expect(wrapper.text()).toContain('Not managed here')
@@ -102,10 +102,11 @@ describe('DrPlanVmTab local DB projection', () => {
   test('does not mislabel an API failure as an unconfigured VM', async () => {
     // Failed refresh retains previously confirmed data.
 
-    const wrapper = createWrapper()
+    const wrapper = createWrapper({ configured: true, association: [{ planid: 'p', sourcevmname: 'original' }] }, true)
     await flushPromises()
 
     expect(wrapper.text()).toContain('Local view failed')
+    expect(wrapper.text()).toContain('original')
     expect(wrapper.text()).not.toContain('Not managed here')
   })
 })
