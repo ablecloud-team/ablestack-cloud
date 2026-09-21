@@ -92,6 +92,7 @@
         <VmSnapshotsTab :resource="vm" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.backup')" key="backups" v-if="'listBackups' in $store.getters.apis">
+        <a-alert v-if="vm.backupblockedreason" type="warning" show-icon :message="$t('message.backup.snapshot.backup.blocked')" style="margin-bottom: 16px" />
         <ListResourceTable
           apiName="listBackups"
           :resource="resource"

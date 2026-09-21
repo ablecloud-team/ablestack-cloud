@@ -7916,5 +7916,7 @@
   "label.vmsettings.cleanupBlocked": "다른 보호 설정이 삭제될 수 있어 정리를 차단했습니다.",
   "label.vmsettings.changed": "설정이 변경되었습니다. 대화상자를 닫고 최신 내용을 확인한 뒤 다시 시도하세요.",
   "label.vmsettings.success": "설정이 저장되었습니다.",
-  "label.vmsettings.failed": "저장하지 못했습니다. 입력값을 확인하고 다시 시도하세요."
+  "label.vmsettings.failed": "저장하지 못했습니다. 입력값을 확인하고 다시 시도하세요.",
+  "message.backup.snapshot.snapshot.blocked": "백업 또는 백업 스케줄이 있어 VM 스냅샷을 생성하거나 복원할 수 없습니다. 디스크 전용·메모리 포함 모두 해당하며, 기존 복구 지점은 유지됩니다.",
+  "message.backup.snapshot.backup.blocked": "VM 스냅샷이 있어 백업 생성·예약 실행·새 백업 스케줄 설정을 사용할 수 없습니다. 디스크 전용·메모리 포함 모두 해당하며, 기존 복구 지점은 유지됩니다."
 }

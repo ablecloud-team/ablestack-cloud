@@ -18,6 +18,11 @@
 import { snapshotActionReason, snapshotBusy, trackSnapshotJob, finishSnapshotJob, clearSnapshotJobs } from '@/utils/vmSnapshotActions'
 const disk = { id: 's', virtualmachineid: 'v', state: 'Ready', type: 'Disk', hypervisor: 'KVM' }
 beforeEach(clearSnapshotJobs)
+test.each(['Disk', 'DiskAndMemory'])('backup conflict blocks %s restore but preserves cleanup', type => {
+  const vm = { id: 'v', state: 'Running', vmsnapshotblockedreason: 'BACKUP_EXISTS' }
+  expect(snapshotActionReason('revertToVMSnapshot', { ...disk, type }, vm)).toBe('message.backup.snapshot.snapshot.blocked')
+  expect(snapshotActionReason('deleteVMSnapshot', { ...disk, type }, vm)).toBe('')
+})
 test.each([
   ['Stopped', 'Disk', ''], ['Running', 'Disk', 'message.vmsnapshot.stop.first'],
   ['Running', 'DiskAndMemory', ''], ['Stopped', 'DiskAndMemory', 'message.vmsnapshot.start.first'],

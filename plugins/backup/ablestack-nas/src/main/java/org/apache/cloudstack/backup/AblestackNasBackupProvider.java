@@ -1263,24 +1263,18 @@ public class AblestackNasBackupProvider extends AdapterBase implements BackupPro
 
     @Override
     public boolean assignVMToBackupOffering(VirtualMachine vm, BackupOffering backupOffering) {
-        if (hasDiskAndMemoryVmSnapshots(vm)) {
-            logger.warn("NAS backup offering assignment is not allowed for VM [{}] with disk-and-memory VM snapshots.", vm);
+        if (CollectionUtils.isNotEmpty(vmSnapshotDao.findByVm(vm.getId()))) {
+            logger.warn("NAS backup offering assignment is not allowed for VM [{}] with VM snapshots.", vm);
             return false;
-        }
-        if (hasKvmFileBasedVmSnapshots(vm)) {
-            logger.warn("Allowing NAS backup offering assignment for VM [{}] with KVM file-based VM snapshots for snapshot coexistence testing.", vm);
         }
 
         return Hypervisor.HypervisorType.KVM.equals(vm.getHypervisorType());
     }
 
     private void validateNoKvmFileBasedVmSnapshots(VirtualMachine vm) {
-        if (hasDiskAndMemoryVmSnapshots(vm)) {
-            logger.warn("NAS backup operation is not allowed for VM [{}] with disk-and-memory VM snapshots.", vm);
-            throw new CloudRuntimeException(String.format("Cannot take backup of VM [%s] as it has disk-and-memory VM snapshots.", vm.getUuid()));
-        }
-        if (hasKvmFileBasedVmSnapshots(vm)) {
-            logger.warn("Allowing NAS backup operation for VM [{}] with KVM file-based VM snapshots for snapshot coexistence testing.", vm);
+        if (CollectionUtils.isNotEmpty(vmSnapshotDao.findByVm(vm.getId()))) {
+            logger.warn("NAS backup operation is not allowed for VM [{}] with VM snapshots.", vm);
+            throw new CloudRuntimeException(String.format("Cannot take backup of VM [%s] as it has VM snapshots.", vm.getUuid()));
         }
     }
 

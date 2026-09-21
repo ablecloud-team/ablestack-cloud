@@ -212,6 +212,9 @@ import com.google.gson.Gson;
 public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
     @Inject
+    private BackupSnapshotGuard backupSnapshotGuard;
+
+    @Inject
     private BackupDao backupDao;
     @Inject
     private BackupDetailsDao backupDetailsDao;
@@ -785,36 +788,39 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_OFFERING_ASSIGN, eventDescription = "assign Instance to Backup Offering", async = true)
     public boolean assignVMToBackupOffering(Long vmId, Long offeringId) {
-        final VMInstanceVO vm = findVmById(vmId);
+        try (BackupSnapshotGuard.Lease guard = backupSnapshotGuard.acquire(vmId)) {
+            final VMInstanceVO vm = findVmById(vmId);
 
-        if (!Arrays.asList(VirtualMachine.State.Running, VirtualMachine.State.Stopped, VirtualMachine.State.Shutdown).contains(vm.getState())) {
-            throw new CloudRuntimeException("Instance is not in running or stopped state");
+            if (!Arrays.asList(VirtualMachine.State.Running, VirtualMachine.State.Stopped, VirtualMachine.State.Shutdown).contains(vm.getState())) {
+                throw new CloudRuntimeException("Instance is not in running or stopped state");
+            }
+
+            validateBackupForZone(vm.getDataCenterId());
+            accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
+            backupSnapshotGuard.checkBackup(vmId);
+
+            if (vm.getBackupOfferingId() != null) {
+                throw new CloudRuntimeException("Instance already is assigned to a backup offering, please remove the Instance from its previous offering");
+            }
+
+            final BackupOfferingVO offering = backupOfferingDao.findById(offeringId);
+            if (offering == null) {
+                throw new CloudRuntimeException("Provided backup offering does not exist");
+            }
+
+            Account owner = accountManager.getAccount(vm.getAccountId());
+            if (owner == null) {
+                throw new CloudRuntimeException("Unable to find the owner of the VM");
+            }
+            accountManager.checkAccess(owner, offering);
+
+            final BackupProvider backupProvider = getBackupProvider(offering.getProvider());
+            if (backupProvider == null) {
+                throw new CloudRuntimeException("Failed to get the backup provider for the zone, please contact the administrator");
+            }
+
+            return transactionAssignVMToBackupOffering(vm, offering, backupProvider) != null;
         }
-
-        validateBackupForZone(vm.getDataCenterId());
-        accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
-
-        if (vm.getBackupOfferingId() != null) {
-            throw new CloudRuntimeException("Instance already is assigned to a backup offering, please remove the Instance from its previous offering");
-        }
-
-        final BackupOfferingVO offering = backupOfferingDao.findById(offeringId);
-        if (offering == null) {
-            throw new CloudRuntimeException("Provided backup offering does not exist");
-        }
-
-        Account owner = accountManager.getAccount(vm.getAccountId());
-        if (owner == null) {
-            throw new CloudRuntimeException("Unable to find the owner of the VM");
-        }
-        accountManager.checkAccess(owner, offering);
-
-        final BackupProvider backupProvider = getBackupProvider(offering.getProvider());
-        if (backupProvider == null) {
-            throw new CloudRuntimeException("Failed to get the backup provider for the zone, please contact the administrator");
-        }
-
-        return transactionAssignVMToBackupOffering(vm, offering, backupProvider) != null;
     }
 
     private VMInstanceVO transactionAssignVMToBackupOffering(VMInstanceVO vm, BackupOfferingVO offering, BackupProvider backupProvider) {
@@ -917,70 +923,73 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_SCHEDULE_CONFIGURE, eventDescription = "configuring Instance Backup Schedule")
     public BackupSchedule configureBackupSchedule(CreateBackupScheduleCmd cmd) {
-        final Long vmId = cmd.getVmId();
-        final DateUtil.IntervalType intervalType = cmd.getIntervalType();
-        final String scheduleString = cmd.getSchedule();
-        final TimeZone timeZone = TimeZone.getTimeZone(cmd.getTimezone());
-        boolean isolated = cmd.isIsolated();
+        try (BackupSnapshotGuard.Lease guard = backupSnapshotGuard.acquire(cmd.getVmId())) {
+            final Long vmId = cmd.getVmId();
+            final DateUtil.IntervalType intervalType = cmd.getIntervalType();
+            final String scheduleString = cmd.getSchedule();
+            final TimeZone timeZone = TimeZone.getTimeZone(cmd.getTimezone());
+            boolean isolated = cmd.isIsolated();
 
-        if (intervalType == null) {
-            throw new CloudRuntimeException("Invalid interval type provided");
+            if (intervalType == null) {
+                throw new CloudRuntimeException("Invalid interval type provided");
+            }
+
+            final VMInstanceVO vm = findVmById(vmId);
+            validateBackupForZone(vm.getDataCenterId());
+            accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
+            backupSnapshotGuard.checkBackup(vmId);
+
+            if (vm.getBackupOfferingId() == null) {
+                throw new CloudRuntimeException("Cannot configure Backup Schedule for the Instance as it is not assigned any Backup Offering");
+            }
+
+            final BackupOffering offering = backupOfferingDao.findById(vm.getBackupOfferingId());
+            if (offering == null || !offering.isUserDrivenBackupAllowed()) {
+                throw new CloudRuntimeException("The selected backup offering does not allow user-defined backup schedule");
+            }
+
+            final int maxBackups = validateAndGetDefaultBackupRetentionIfRequired(cmd.getMaxBackups(), offering, vm);
+
+            if (isolated && !KBOSS_BACKUP_PROVIDER.equals(offering.getProvider())) {
+                throw new InvalidParameterValueException("Isolated backups are only supported by KBOSS backup provider.");
+            }
+
+            if (!BackupProviderNameUtils.isNasFamily(offering.getProvider()) &&
+                    !BackupProviderNameUtils.isCommvaultFamily(offering.getProvider()) &&
+                    !BackupProviderNameUtils.isVeeamFamily(offering.getProvider()) &&
+                    !KBOSS_BACKUP_PROVIDER.equals(offering.getProvider()) &&
+                    cmd.getQuiesceVM() != null) {
+                throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS, Commvault, Ablestack Veeam, and KBOSS backup providers");
+            }
+
+            final String timezoneId = timeZone.getID();
+            if (!timezoneId.equals(cmd.getTimezone())) {
+                logger.warn("Using timezone: " + timezoneId + " for running this snapshot policy as an equivalent of " + cmd.getTimezone());
+            }
+
+            Date nextDateTime = null;
+            try {
+                nextDateTime = DateUtil.getNextRunTime(intervalType, cmd.getSchedule(), timezoneId, null);
+            } catch (Exception e) {
+                throw new InvalidParameterValueException("Invalid schedule: " + cmd.getSchedule() + " for interval type: " + cmd.getIntervalType());
+            }
+
+            final BackupScheduleVO schedule = backupScheduleDao.findByVMAndIntervalType(vmId, intervalType);
+            if (schedule == null) {
+                return backupScheduleDao.persist(new BackupScheduleVO(vmId, intervalType, scheduleString, timezoneId, nextDateTime, maxBackups, cmd.getQuiesceVM(), vm.getAccountId(),
+                        vm.getDomainId(), isolated));
+            }
+
+            schedule.setScheduleType((short) intervalType.ordinal());
+            schedule.setSchedule(scheduleString);
+            schedule.setTimezone(timezoneId);
+            schedule.setScheduledTimestamp(nextDateTime);
+            schedule.setMaxBackups(maxBackups);
+            schedule.setQuiesceVM(cmd.getQuiesceVM());
+            schedule.setIsolated(isolated);
+            backupScheduleDao.update(schedule.getId(), schedule);
+            return backupScheduleDao.findById(schedule.getId());
         }
-
-        final VMInstanceVO vm = findVmById(vmId);
-        validateBackupForZone(vm.getDataCenterId());
-        accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
-
-        if (vm.getBackupOfferingId() == null) {
-            throw new CloudRuntimeException("Cannot configure Backup Schedule for the Instance as it is not assigned any Backup Offering");
-        }
-
-        final BackupOffering offering = backupOfferingDao.findById(vm.getBackupOfferingId());
-        if (offering == null || !offering.isUserDrivenBackupAllowed()) {
-            throw new CloudRuntimeException("The selected backup offering does not allow user-defined backup schedule");
-        }
-
-        final int maxBackups = validateAndGetDefaultBackupRetentionIfRequired(cmd.getMaxBackups(), offering, vm);
-
-        if (isolated && !KBOSS_BACKUP_PROVIDER.equals(offering.getProvider())) {
-            throw new InvalidParameterValueException("Isolated backups are only supported by KBOSS backup provider.");
-        }
-
-        if (!BackupProviderNameUtils.isNasFamily(offering.getProvider()) &&
-                !BackupProviderNameUtils.isCommvaultFamily(offering.getProvider()) &&
-                !BackupProviderNameUtils.isVeeamFamily(offering.getProvider()) &&
-                !KBOSS_BACKUP_PROVIDER.equals(offering.getProvider()) &&
-                cmd.getQuiesceVM() != null) {
-            throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS, Commvault, Ablestack Veeam, and KBOSS backup providers");
-        }
-
-        final String timezoneId = timeZone.getID();
-        if (!timezoneId.equals(cmd.getTimezone())) {
-            logger.warn("Using timezone: " + timezoneId + " for running this snapshot policy as an equivalent of " + cmd.getTimezone());
-        }
-
-        Date nextDateTime = null;
-        try {
-            nextDateTime = DateUtil.getNextRunTime(intervalType, cmd.getSchedule(), timezoneId, null);
-        } catch (Exception e) {
-            throw new InvalidParameterValueException("Invalid schedule: " + cmd.getSchedule() + " for interval type: " + cmd.getIntervalType());
-        }
-
-        final BackupScheduleVO schedule = backupScheduleDao.findByVMAndIntervalType(vmId, intervalType);
-        if (schedule == null) {
-            return backupScheduleDao.persist(new BackupScheduleVO(vmId, intervalType, scheduleString, timezoneId, nextDateTime, maxBackups, cmd.getQuiesceVM(), vm.getAccountId(),
-                    vm.getDomainId(), isolated));
-        }
-
-        schedule.setScheduleType((short) intervalType.ordinal());
-        schedule.setSchedule(scheduleString);
-        schedule.setTimezone(timezoneId);
-        schedule.setScheduledTimestamp(nextDateTime);
-        schedule.setMaxBackups(maxBackups);
-        schedule.setQuiesceVM(cmd.getQuiesceVM());
-        schedule.setIsolated(isolated);
-        backupScheduleDao.update(schedule.getId(), schedule);
-        return backupScheduleDao.findById(schedule.getId());
     }
 
     /**
@@ -1129,68 +1138,71 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_CREATE, eventDescription = "creating Instance Backup", async = true)
     public boolean createBackup(CreateBackupCmd cmd, Object job) throws ResourceAllocationException {
-        final long backupStartTime = System.currentTimeMillis();
-        Long vmId = cmd.getVmId();
-        Account caller = CallContext.current().getCallingAccount();
-        final VMInstanceVO vm = findVmById(vmId);
-        validateBackupForZone(vm.getDataCenterId());
-        accountManager.checkAccess(caller, null, true, vm);
+        try (BackupSnapshotGuard.Lease guard = backupSnapshotGuard.acquire(cmd.getVmId())) {
+            final long backupStartTime = System.currentTimeMillis();
+            Long vmId = cmd.getVmId();
+            Account caller = CallContext.current().getCallingAccount();
+            final VMInstanceVO vm = findVmById(vmId);
+            validateBackupForZone(vm.getDataCenterId());
+            accountManager.checkAccess(caller, null, true, vm);
+            backupSnapshotGuard.checkBackup(vmId);
 
-        if (vm.getBackupOfferingId() == null) {
-            throw new CloudRuntimeException("Cannot create backup as the Instance doesn't have a Backup Offering assigned");
-        }
+            if (vm.getBackupOfferingId() == null) {
+                throw new CloudRuntimeException("Cannot create backup as the Instance doesn't have a Backup Offering assigned");
+            }
 
-        final BackupOffering offering = backupOfferingDao.findById(vm.getBackupOfferingId());
-        if (offering == null) {
-            throw new CloudRuntimeException("Instance Backup Offering not found");
-        }
+            final BackupOffering offering = backupOfferingDao.findById(vm.getBackupOfferingId());
+            if (offering == null) {
+                throw new CloudRuntimeException("Instance Backup Offering not found");
+            }
 
-        final BackupProvider backupProvider = getBackupProvider(offering.getProvider());
-        if (backupProvider == null) {
-            throw new CloudRuntimeException("Instance backup provider not found for the Offering");
-        }
+            final BackupProvider backupProvider = getBackupProvider(offering.getProvider());
+            if (backupProvider == null) {
+                throw new CloudRuntimeException("Instance backup provider not found for the Offering");
+            }
 
-        if (!offering.isUserDrivenBackupAllowed()) {
-            throw new CloudRuntimeException("The assigned backup offering does not allow ad-hoc user backup");
-        }
+            if (!offering.isUserDrivenBackupAllowed()) {
+                throw new CloudRuntimeException("The assigned backup offering does not allow ad-hoc user backup");
+            }
 
-        if (!BackupProviderNameUtils.isNasFamily(offering.getProvider()) &&
-                !BackupProviderNameUtils.isCommvaultFamily(offering.getProvider()) &&
-                !BackupProviderNameUtils.isVeeamFamily(offering.getProvider()) &&
-                !KBOSS_BACKUP_PROVIDER.equals(offering.getProvider()) &&
-                cmd.getQuiesceVM() != null) {
-            throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS, Commvault, Ablestack Veeam, and KBOSS backup providers");
-        }
+            if (!BackupProviderNameUtils.isNasFamily(offering.getProvider()) &&
+                    !BackupProviderNameUtils.isCommvaultFamily(offering.getProvider()) &&
+                    !BackupProviderNameUtils.isVeeamFamily(offering.getProvider()) &&
+                    !KBOSS_BACKUP_PROVIDER.equals(offering.getProvider()) &&
+                    cmd.getQuiesceVM() != null) {
+                throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS, Commvault, Ablestack Veeam, and KBOSS backup providers");
+            }
 
-        Long backupScheduleId = getBackupScheduleId(job);
-        boolean isScheduledBackup = backupScheduleId != null;
-        logger.info("Starting VM backup request [vmId: {}, vmUuid: {}, vmName: {}, provider: {}, offeringId: {}, scheduleId: {}, scheduled: {}]",
-                vm.getId(), vm.getUuid(), vm.getInstanceName(), offering.getProvider(), offering.getId(), backupScheduleId, isScheduledBackup);
-        checkNoActiveFastCloneFlattenForBackup(vmId);
-        Account owner = accountManager.getAccount(vm.getAccountId());
+            Long backupScheduleId = getBackupScheduleId(job);
+            boolean isScheduledBackup = backupScheduleId != null;
+            logger.info("Starting VM backup request [vmId: {}, vmUuid: {}, vmName: {}, provider: {}, offeringId: {}, scheduleId: {}, scheduled: {}]",
+                    vm.getId(), vm.getUuid(), vm.getInstanceName(), offering.getProvider(), offering.getId(), backupScheduleId, isScheduledBackup);
+            checkNoActiveFastCloneFlattenForBackup(vmId);
+            Account owner = accountManager.getAccount(vm.getAccountId());
 
-        Long backupSize = 0L;
-        for (final Volume volume: volumeDao.findByInstance(vmId)) {
-            if (Volume.State.Ready.equals(volume.getState())) {
-                Long volumeSize = volumeApiService.getVolumePhysicalSize(volume.getFormat(), volume.getPath(), volume.getChainInfo());
-                if (volumeSize == null) {
-                    volumeSize = volume.getSize();
+            Long backupSize = 0L;
+            for (final Volume volume: volumeDao.findByInstance(vmId)) {
+                if (Volume.State.Ready.equals(volume.getState())) {
+                    Long volumeSize = volumeApiService.getVolumePhysicalSize(volume.getFormat(), volume.getPath(), volume.getChainInfo());
+                    if (volumeSize == null) {
+                        volumeSize = volume.getSize();
+                    }
+                    backupSize += volumeSize;
                 }
-                backupSize += volumeSize;
             }
-        }
-        createCheckedBackup(cmd, owner, isScheduledBackup, backupSize, vm, vmId, backupProvider, backupScheduleId);
-        if (isScheduledBackup) {
-            try {
-                deleteOldestBackupFromScheduleIfRequired(vmId, backupScheduleId);
-            } catch (RuntimeException e) {
-                logger.warn("Failed to apply backup retention cleanup after creating scheduled backup for VM [ID: {}], schedule [ID: {}]. " +
-                        "The backup creation flow will not be failed by this cleanup error.", vmId, backupScheduleId, e);
+            createCheckedBackup(cmd, owner, isScheduledBackup, backupSize, vm, vmId, backupProvider, backupScheduleId);
+            if (isScheduledBackup) {
+                try {
+                    deleteOldestBackupFromScheduleIfRequired(vmId, backupScheduleId);
+                } catch (RuntimeException e) {
+                    logger.warn("Failed to apply backup retention cleanup after creating scheduled backup for VM [ID: {}], schedule [ID: {}]. " +
+                            "The backup creation flow will not be failed by this cleanup error.", vmId, backupScheduleId, e);
+                }
             }
+            logger.info("Completed VM backup request [vmId: {}, vmUuid: {}, vmName: {}, provider: {}, offeringId: {}, scheduleId: {}, elapsedMs: {}]",
+                    vm.getId(), vm.getUuid(), vm.getInstanceName(), offering.getProvider(), offering.getId(), backupScheduleId, System.currentTimeMillis() - backupStartTime);
+            return true;
         }
-        logger.info("Completed VM backup request [vmId: {}, vmUuid: {}, vmName: {}, provider: {}, offeringId: {}, scheduleId: {}, elapsedMs: {}]",
-                vm.getId(), vm.getUuid(), vm.getInstanceName(), offering.getProvider(), offering.getId(), backupScheduleId, System.currentTimeMillis() - backupStartTime);
-        return true;
     }
 
     @Override
