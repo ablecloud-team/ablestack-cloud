@@ -94,7 +94,7 @@ wrap-class-name="vm-nic-modal"
       <a-alert class="nic-alert" type="info" :message="$t('message.network.secondaryip')" />
       <template #footer><a-button @click="closeForm">{{ $t('label.cancel') }}</a-button><a-button v-if="allowed('addIpToNic')" type="primary" :disabled="busy || !!reason('addIpToNic', selected)" @click="addSecondary">{{ $t('label.add.secondary.ip') }}</a-button></template>
     </a-modal>
-    <a-modal centered wrap-class-name="vm-nic-modal" :visible="form === 'details'" :title="$t('label.details')" @cancel="closeForm"><a-descriptions v-if="selected" bordered :column="1" size="small" class="nic-description"><a-descriptions-item v-for="key in detailKeys" :key="key" :label="$t('label.' + key)">{{ selected[key] ?? '—' }}</a-descriptions-item></a-descriptions><p>{{ $t('label.vmnic.enabled') }}: {{ booleanText(selected?.enabled) }} / {{ $t('label.vmnic.link') }}: {{ selected?.linkstate === true ? 'UP' : selected?.linkstate === false ? 'DOWN' : $t('label.vmnic.unknown') }}</p><template #footer><a-button @click="closeForm">{{ $t('label.close') }}</a-button></template></a-modal>
+    <a-modal centered wrap-class-name="vm-nic-modal" :visible="form === 'details'" :title="$t('label.details')" @cancel="closeForm"><a-descriptions v-if="selected" bordered :column="1" size="small" class="nic-description"><a-descriptions-item v-for="key in detailKeys" :key="key" :label="$t('label.' + key)">{{ selected[key] ?? '—' }}</a-descriptions-item></a-descriptions><p>{{ $t('label.vmnic.enabled') }}: {{ booleanText(selected?.enabled) }}</p><template #footer><a-button @click="closeForm">{{ $t('label.close') }}</a-button></template></a-modal>
     <a-modal centered wrap-class-name="vm-nic-modal" :visible="progressVisible && !!operation" :title="$t('label.vmnic.progress')" @cancel="progressVisible = false">
       <template v-if="operation"><p>{{ operation.vm.displayname || operation.vm.name }}</p><p v-if="operation.network?.id"><router-link :to="'/guestnetwork/' + operation.network.id">{{ operation.network.name || operation.network.id }}</router-link></p>
         <a-steps direction="vertical" size="small" :current="operation.stage" :status="operation.status === 'failed' ? 'error' : 'process'"><a-step v-for="step in operation.steps" :key="step" :title="actionTitle(step, operation.nic)" /></a-steps>
@@ -158,9 +158,9 @@ export default {
     allowed (api) { return api in this.$store.getters.apis },
     translateError (error) { return /^(message|label)\./.test(error) ? this.$t(error) : error },
     booleanText (v) { return this.$t(v === true ? 'state.enabled' : v === false ? 'state.disabled' : 'label.vmnic.unknown') },
-    nicState (nic) { return this.stateAction === 'UpdateVmNicLinkState' ? nic.linkstate : nic.enabled },
+    nicState (nic) { return nic.enabled },
     actionTitle (api, nic) {
-      const labels = { createNetwork: 'label.vmnic.create', addNicToVirtualMachine: 'label.vmnic.attach', removeNicFromVirtualMachine: 'label.vmnic.detach', updateDefaultNicForVirtualMachine: 'label.set.default.nic', updateVmNicIp: 'label.change.ipaddress.or.macaddress', addIpToNic: 'label.add.secondary.ip', removeIpFromNic: 'label.action.release.ip', updateVmNic: nic?.enabled ? 'label.vmnic.disable' : 'label.vmnic.enable', UpdateVmNicLinkState: nic?.linkstate ? 'label.vmnic.disable' : 'label.vmnic.enable' }
+      const labels = { createNetwork: 'label.vmnic.create', addNicToVirtualMachine: 'label.vmnic.attach', removeNicFromVirtualMachine: 'label.vmnic.detach', updateDefaultNicForVirtualMachine: 'label.set.default.nic', updateVmNicIp: 'label.change.ipaddress.or.macaddress', addIpToNic: 'label.add.secondary.ip', removeIpFromNic: 'label.action.release.ip', updateVmNic: nic?.enabled ? 'label.vmnic.disable' : 'label.vmnic.enable' }
       return this.$t(labels[api] || 'label.details')
     },
     reason (api, nic) { if (this.listRefreshFailed) return this.$t('message.list.refresh.stale'); const key = nicActionReason(api, nic, this.vm, { ...this.context, rows: this.rows, network: this.networks[nic?.networkid] }); return key ? this.$t(key) : '' },
@@ -172,8 +172,7 @@ export default {
       ])
       const fresh = a.listvirtualmachinesresponse.virtualmachine?.find(v => v.id === vm.id)
       if (!fresh) throw new Error(this.$t('message.vmnic.context'))
-      // listNics does not populate linkstate on this server; VM NIC responses do.
-      const rows = (b.listnicsresponse.nic || []).map(nic => ({ ...nic, linkstate: fresh.nic?.find(item => item.id === nic.id)?.linkstate }))
+      const rows = b.listnicsresponse.nic || []
       return { vm: fresh, rows, zone: z.listzonesresponse?.zone?.[0], snapshots: s.listvmsnapshotresponse ? (s.listvmsnapshotresponse.count || s.listvmsnapshotresponse.vmSnapshot?.length || 0) : null }
     },
     async fetchData () {
@@ -216,7 +215,7 @@ export default {
     },
     createAndAttach (params) { this.begin(['createNetwork', 'addNicToVirtualMachine', ...(this.makeDefault ? ['updateDefaultNicForVirtualMachine'] : [])], null, null, { create: params }) },
     attach () { if (!this.candidate || !this.validAddresses()) return; this.begin(['addNicToVirtualMachine', ...(this.makeDefault ? ['updateDefaultNicForVirtualMachine'] : [])], null, this.candidate, { ...this.values }) },
-    submitAction () { if (!this.ack || !this.validAddresses()) return; this.begin([this.action], this.selected, this.networks[this.selected.networkid], { ...this.values, enabled: !this.selected.enabled, linkstate: !this.selected.linkstate }) },
+    submitAction () { if (!this.ack || !this.validAddresses()) return; this.begin([this.action], this.selected, this.networks[this.selected.networkid], { ...this.values, enabled: !this.selected.enabled }) },
     addSecondary () { this.begin(['addIpToNic'], this.selected, this.networks[this.selected.networkid], { ...this.values, previousSecondary: (this.selected.secondaryip || []).map(ip => ip.id) }) },
     removeSecondary (ip) { const nic = this.selected; this.openAction('removeIpFromNic', nic); this.values = { secondaryId: ip.id, secondaryAddress: ip.ipaddress } },
     begin (steps, nic, network, values) {
@@ -258,7 +257,6 @@ export default {
             if (op.values.macaddress) params.macaddress = op.values.macaddress.trim()
           } else if (api === 'updateVmNicIp') params = nicAddressParams(op.nic, op.values)
           else if (api === 'updateVmNic') params = { nicid: op.nic.id, enabled: op.values.enabled }
-          else if (api === 'UpdateVmNicLinkState') params = { virtualmachineid: vm.id, nicid: op.nic.id, linkstate: op.values.linkstate }
           else if (api === 'addIpToNic') params = { nicid: op.nic.id, ...(op.values.ipaddress ? { ipaddress: op.values.ipaddress.trim() } : {}), description: op.values.description }
           else if (api === 'removeIpFromNic') params = { id: op.values.secondaryId }
           else params = { virtualmachineid: vm.id, nicid: op.nic.id }
@@ -275,10 +273,6 @@ export default {
           if (!found) return false
           if (api === 'updateDefaultNicForVirtualMachine') return found.isdefault === true
           if (api === 'updateVmNic') return found.enabled === op.values.enabled
-          if (api === 'UpdateVmNicLinkState') {
-            const response = await getAPI('listVirtualMachines', { id: vm.id })
-            return response.listvirtualmachinesresponse.virtualmachine?.[0]?.nic?.find(nic => nic.id === found.id)?.linkstate === op.values.linkstate
-          }
           if (api === 'updateVmNicIp') return (!op.values.macaddress || found.macaddress?.toLowerCase() === op.values.macaddress.trim().toLowerCase()) && (found.type === 'L2' || found.ipaddress === nicAddressParams(op.nic, op.values).ipaddress)
           if (api === 'removeIpFromNic') return !(found.secondaryip || []).some(ip => ip.id === op.values.secondaryId)
           if (api === 'addIpToNic') return (found.secondaryip || []).some(ip => op.values.ipaddress ? ip.ipaddress === op.values.ipaddress.trim() : !op.values.previousSecondary.includes(ip.id)) && op.accepted

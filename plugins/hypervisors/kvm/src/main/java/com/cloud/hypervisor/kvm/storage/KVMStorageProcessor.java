@@ -3900,10 +3900,22 @@ public class KVMStorageProcessor implements StorageProcessor {
                             throw new IOException("Cannot verify non-local backing path: " + file);
                         }
                         Path backing = file.getParent().resolve(backingName).normalize();
-                        if (Files.exists(backing)) {
+                        if (backing.equals(original)) {
+                            throw new IOException("A disk still depends on the original source: " + file);
+                        }
+                        try {
                             backing = backing.toRealPath();
-                        } else {
-                            throw new IOException("Backing path is missing or cannot be inspected: " + backing);
+                        } catch (java.nio.file.NoSuchFileException missing) {
+                            if (file.equals(original)) {
+                                throw new IOException("Original source backing path is missing: " + backing, missing);
+                            }
+                            // All existing images are scanned for direct dependencies. A missing,
+                            // different backing file cannot refer to the existing original disk.
+                            // Do not turn this source-specific check into a pool-wide health check.
+                            // Other I/O errors (including denied access) must still block recovery.
+                            logger.debug("Ignoring missing backing [{}] of unrelated image [{}] while verifying source [{}].",
+                                    backing, file, original);
+                            return java.nio.file.FileVisitResult.CONTINUE;
                         }
                         if (backing.equals(original)) {
                             throw new IOException("A disk still depends on the original source: " + file);

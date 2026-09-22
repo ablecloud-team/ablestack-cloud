@@ -131,8 +131,6 @@ public class NicVO implements Nic {
     @Column(name = "mtu")
     Integer mtu;
 
-    @Column(name = "link_state")
-    private boolean linkState = true;
     @Column(name = "enabled")
     boolean enabled;
 
@@ -430,11 +428,15 @@ public class NicVO implements Nic {
     }
 
     @Override
+    /** @deprecated NIC state is stored exclusively in enabled. */
+    @Deprecated
     public boolean getLinkState() {
-        return linkState;
+        return enabled;
     }
 
+    /** @deprecated NIC state is stored exclusively in enabled. */
+    @Deprecated
     public void setLinkState(boolean linkState) {
-        this.linkState = linkState;
+        this.enabled = linkState;
     }
 }

@@ -274,8 +274,6 @@ public class DomainRouterJoinVO extends BaseViewVO implements ControlledViewEnti
     @Column(name = "mtu")
     private Integer mtu;
 
-    @Column(name = "link_state")
-    private boolean linkState;
     @Column(name = "is_nic_enabled")
     private boolean isNicEnabled;
 
@@ -583,8 +581,10 @@ public class DomainRouterJoinVO extends BaseViewVO implements ControlledViewEnti
         return mtu;
     }
 
+    /** @deprecated NIC state is stored exclusively in enabled. */
+    @Deprecated
     public boolean getLinkState() {
-        return linkState;
+        return isNicEnabled;
     }
 
     public boolean isNicEnabled() {

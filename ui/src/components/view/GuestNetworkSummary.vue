@@ -112,7 +112,7 @@ export default {
       }))
     },
     cloudPrimaryAddress () {
-      const active = (this.cloudNics || []).filter(nic => nic.linkstate !== false)
+      const active = (this.cloudNics || []).filter(nic => nic.enabled !== false)
       const defaultNic = active.find(nic => nic.isdefault) || active[0]
       if (defaultNic) {
         return defaultNic.ipaddress || defaultNic.ip6address || ''

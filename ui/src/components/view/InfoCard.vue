@@ -1533,7 +1533,7 @@ export default {
         this.ipaddress = summary.representativeaddress
         this.ipaddressSource = 'QGA'
       } else if (this.resource.nic && this.resource.nic.length > 0) {
-        const activeNics = this.resource.nic.filter(e => e.linkstate !== false)
+        const activeNics = this.resource.nic.filter(e => e.enabled !== false)
         const defaultNic = activeNics.find(e => e.isdefault) || activeNics[0]
         this.ipaddress = defaultNic
           ? (defaultNic.ipaddress || defaultNic.ip6address || '')

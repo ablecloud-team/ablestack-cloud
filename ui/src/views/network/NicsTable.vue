@@ -29,7 +29,7 @@
     <a-list size="small">
       <a-list-item />
       <a-list-item>
-        <strong>{{ $t('label.nic.linkstate') }}</strong> : {{ record.linkstate ? 'UP' : 'DOWN' }}
+        <strong>{{ $t('label.vmnic.enabled') }}</strong> : {{ record.enabled ? 'UP' : 'DOWN' }}
       </a-list-item>
       <a-list-item>
         <strong>{{ $t('label.id') }}</strong> : {{ record.id }}
@@ -43,16 +43,16 @@
       <a-list-item v-if="record.traffictype">
         <strong>{{ $t('label.traffictype') }}</strong> : {{ record.traffictype }}
       </a-list-item>
-      <a-list-item v-if="record.linkstate !== false && record.secondaryip && record.secondaryip.length > 0 && record.type !== 'L2'">
+      <a-list-item v-if="record.enabled !== false && record.secondaryip && record.secondaryip.length > 0 && record.type !== 'L2'">
         <strong>{{ $t('label.secondaryips') }}</strong> : {{ record.secondaryip.map(secondaryIp => secondaryIp.description ? (secondaryIp.ipaddress + ': ' + secondaryIp.description) : secondaryIp.ipaddress).join(', ') }}
       </a-list-item>
-      <a-list-item v-if="record.linkstate !== false && record.ip6address">
+      <a-list-item v-if="record.enabled !== false && record.ip6address">
         <strong>{{ $t('label.ip6address') }}</strong> : {{ record.ip6address }}
       </a-list-item>
-      <a-list-item v-if="record.linkstate !== false && record.ip6address">
+      <a-list-item v-if="record.enabled !== false && record.ip6address">
         <strong>{{ $t('label.ip6gateway') }}</strong> : {{ record.ip6gateway }}
       </a-list-item>
-      <a-list-item v-if="record.linkstate !== false && record.ip6address">
+      <a-list-item v-if="record.enabled !== false && record.ip6address">
         <strong>{{ $t('label.ip6cidr') }}</strong> : {{ record.ip6cidr }}
       </a-list-item >
       <a-list-item v-if="['Admin', 'DomainAdmin'].includes($store.getters.userInfo.roletype) && record.broadcasturi">
@@ -127,21 +127,21 @@ export default {
           title: this.$t('label.ipaddress'),
           dataIndex: 'ipaddress',
           customRender: ({ record, text }) => {
-            return record.linkstate !== false ? text : ''
+            return record.enabled !== false ? text : ''
           }
         },
         {
           title: this.$t('label.netmask'),
           dataIndex: 'netmask',
           customRender: ({ record, text }) => {
-            return record.linkstate !== false ? text : ''
+            return record.enabled !== false ? text : ''
           }
         },
         {
           title: this.$t('label.gateway'),
           dataIndex: 'gateway',
           customRender: ({ record, text }) => {
-            return record.linkstate !== false ? text : ''
+            return record.enabled !== false ? text : ''
           }
         },
         {
