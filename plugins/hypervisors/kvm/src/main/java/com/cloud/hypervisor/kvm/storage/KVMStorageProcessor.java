@@ -35,6 +35,7 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -3611,6 +3612,14 @@ public class KVMStorageProcessor implements StorageProcessor {
         String vmName = cmd.getOptions() != null ? cmd.getOptions().get("vmName") : null;
 
         try {
+            if ("checkLegacyCloneSourceWithCandidates".equals(operation)) {
+                verifyUnpreparedCloneSource(pool, volumePath, vmName, cmd.getOptions().get("sourceVmState"), cmd.getOptions().get("absentPaths"), 1);
+                verifyDetachedLegacyCloneCandidates(pool, volumePath, cmd.getOptions().get("independentPaths"));
+                verifyNoLegacyCloneDependents(pool, volumePath);
+                verifyDetachedLegacyCloneCandidates(pool, volumePath, cmd.getOptions().get("independentPaths"));
+                verifyUnpreparedCloneSource(pool, volumePath, vmName, cmd.getOptions().get("sourceVmState"), cmd.getOptions().get("absentPaths"), 1);
+                return new FlattenCmdAnswer(volume, cmd, true, "legacySourceCandidatesVerified");
+            }
             if ("checkLegacyUnpreparedCloneSource".equals(operation)) {
                 verifyUnpreparedCloneSource(pool, volumePath, vmName, cmd.getOptions().get("sourceVmState"), cmd.getOptions().get("absentPaths"));
                 verifyNoLegacyCloneDependents(pool, volumePath);
@@ -3917,8 +3926,14 @@ public class KVMStorageProcessor implements StorageProcessor {
                                     backing, file, original);
                             return java.nio.file.FileVisitResult.CONTINUE;
                         }
-                        if (backing.equals(original)) {
+                        if (Files.isSameFile(backing, original)) {
                             throw new IOException("A disk still depends on the original source: " + file);
+                        }
+                        if (!backing.startsWith(root) && !Files.isSameFile(file, original)) {
+                            // The directory walk cannot inspect an external base. Follow that entire chain
+                            // instead of assuming a different immediate backing path means independence.
+                            verifyDetachedLegacyCloneCandidates(pool, original,
+                                    new ObjectMapper().writeValueAsString(Collections.singletonList(root.relativize(file).toString())));
                         }
                     }
                 }
@@ -3927,13 +3942,77 @@ public class KVMStorageProcessor implements StorageProcessor {
         });
     }
 
+    protected void verifyDetachedLegacyCloneCandidates(KVMStoragePool pool, Path sourcePath, String independentPathsJson) throws IOException {
+        JsonNode paths = new ObjectMapper().readTree(StringUtils.defaultString(independentPathsJson));
+        if (paths == null || !paths.isArray() || paths.size() == 0) {
+            throw new IOException("Detached candidate file list is unavailable.");
+        }
+        for (JsonNode entry : paths) {
+            if (!entry.isTextual() || StringUtils.isBlank(entry.asText())) {
+                throw new IOException("Invalid detached candidate path.");
+            }
+            Path candidate = resolveSharedMountPointPath(pool, entry.asText());
+            if (!Files.isRegularFile(candidate) || Files.isSameFile(candidate, sourcePath)) {
+                throw new IOException("Detached candidate is missing or aliases the original source: " + candidate);
+            }
+            // Read-only inspection follows the complete backing chain, including bases outside this pool.
+            Pair<Integer, String> result = runBashCommand("qemu-img info --backing-chain --output=json -U " + shellQuote(candidate.toString()));
+            if (result.first() != 0) {
+                throw new IOException("Cannot inspect detached candidate backing chain: " + candidate + ": " + result.second());
+            }
+            JsonNode chain = new ObjectMapper().readTree(result.second());
+            if (chain == null || !chain.isArray() || chain.size() == 0 || chain.size() > 128
+                    || !"qcow2".equals(chain.get(0).path("format").asText())) {
+                throw new IOException("Invalid detached candidate backing chain: " + candidate);
+            }
+            Path expected = candidate;
+            Set<Path> visited = new HashSet<>();
+            for (JsonNode image : chain) {
+                String filename = image.path("filename").asText();
+                String format = image.path("format").asText();
+                if (StringUtils.isBlank(filename) || (!"qcow2".equals(format) && !"raw".equals(format))) {
+                    throw new IOException("Unverifiable backing chain entry for detached candidate: " + candidate);
+                }
+                Path actual = Paths.get(filename);
+                if (!actual.isAbsolute()) {
+                    actual = expected.getParent().resolve(actual);
+                }
+                actual = actual.toRealPath();
+                if (!Files.isRegularFile(actual) || !Files.isSameFile(actual, expected) || !visited.add(actual)
+                        || Files.isSameFile(actual, sourcePath)) {
+                    throw new IOException("Detached candidate depends on the original source or has an inconsistent backing chain: " + candidate);
+                }
+                String backing = image.path("full-backing-filename").asText(image.path("backing-filename").asText());
+                if (StringUtils.isBlank(backing)) {
+                    if (visited.size() != chain.size()) {
+                        throw new IOException("Unexpected backing chain entries for detached candidate: " + candidate);
+                    }
+                    expected = null;
+                } else {
+                    if (backing.contains(":")) {
+                        throw new IOException("Non-local backing path for detached candidate: " + candidate);
+                    }
+                    expected = actual.getParent().resolve(backing).normalize();
+                }
+            }
+            if (expected != null) {
+                throw new IOException("Incomplete backing chain for detached candidate: " + candidate);
+            }
+        }
+    }
+
     protected void verifyUnpreparedCloneSource(KVMStoragePool pool, Path sourcePath, String vmName, String expectedState,
             String absentPathsJson) throws IOException, LibvirtException {
+        verifyUnpreparedCloneSource(pool, sourcePath, vmName, expectedState, absentPathsJson, 2);
+    }
+
+    protected void verifyUnpreparedCloneSource(KVMStoragePool pool, Path sourcePath, String vmName, String expectedState,
+            String absentPathsJson, int minimumPaths) throws IOException, LibvirtException {
         if (!Files.isRegularFile(sourcePath) || StringUtils.isBlank(absentPathsJson)) {
             throw new CloudRuntimeException("Original source disk or preparation file list is unavailable.");
         }
         JsonNode paths = new ObjectMapper().readTree(absentPathsJson);
-        if (paths == null || !paths.isArray() || paths.size() < 2) {
+        if (paths == null || !paths.isArray() || paths.size() < minimumPaths) {
             throw new CloudRuntimeException("Incomplete preparation file list.");
         }
         for (JsonNode entry : paths) {
