@@ -62,10 +62,6 @@
               <span>{{ $t('label.failure.reason') }} :</span>
               <span>{{ restoreFailureDetails }}</span>
             </div>
-            <div class="backup-progress-tooltip-row">
-              <span>{{ $t('label.backup') }} {{ $t('label.status') }} :</span>
-              <span>{{ $t('label.success') }}</span>
-            </div>
             <div class="backup-progress-tooltip-note">{{ $t('message.restore.failure.backup.unaffected') }}</div>
           </div>
         </template>
