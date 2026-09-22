@@ -180,6 +180,7 @@
                         <disk-size-selection
                           v-if="showRootDiskSizeChanger"
                           input-decorator="rootdisksize"
+                          :value="form.rootdisksize"
                           :preFillContent="dataPreFill"
                           :isCustomized="true"
                           :minDiskSize="dataPreFill.minrootdisksize"
@@ -358,6 +359,7 @@
                             <disk-size-selection
                               v-if="(overrideDiskOffering && (overrideDiskOffering.iscustomized || overrideDiskOffering.iscustomizediops || overrideDiskOffering.encrypt)) || (serviceOffering && serviceOffering.encryptroot)"
                               input-decorator="rootdisksize"
+                              :value="form.rootdisksize"
                               :preFillContent="dataPreFill"
                               :minDiskSize="dataPreFill.minrootdisksize"
                               :rootDiskSelected="overrideDiskOffering"
@@ -3576,7 +3578,7 @@ export default {
       }
     },
     resetFromTemplateConfiguration () {
-      this.deleteFrom(this.instanceConfig, ['disksize', 'rootdisksize'])
+      this.deleteFrom(this.form, ['disksize', 'rootdisksize'])
       this.deleteFrom(this.params.serviceOfferings.options, ['templateid', 'cpuspeed', 'cpunumber', 'memory'])
       this.deleteFrom(this.dataPreFill, ['cpuspeed', 'cpunumber', 'memory'])
       this.handleSearchFilter('serviceOfferings', {
