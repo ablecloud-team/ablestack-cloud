@@ -1662,14 +1662,14 @@ export default {
         return text
       }
 
-      return record.nic.filter(e => e.linkstate !== false && e.ipaddress).map(e => e.ipaddress).join(', ')
+      return record.nic.filter(e => e.enabled !== false && e.ipaddress).map(e => e.ipaddress).join(', ')
     },
     ipV6Address (text, record) {
       if (!record || !record.nic || record.nic.length === 0) {
         return ''
       }
 
-      return record.nic.filter(e => e.linkstate !== false && e.ip6address).map(e => e.ip6address).join(', ') || text
+      return record.nic.filter(e => e.enabled !== false && e.ip6address).map(e => e.ip6address).join(', ') || text
     },
     generateCommentsPath (record) {
       if (this.entityTypeToPath(record.entitytype) === 'ssh') {

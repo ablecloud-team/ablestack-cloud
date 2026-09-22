@@ -83,7 +83,7 @@ public final class LibvirtReplugNicCommandWrapper extends CommandWrapper<ReplugN
             logger.debug("ReplugNic: Attaching interface" + interfaceDef);
             vm.attachDevice(interfaceDef.toString());
 
-            interfaceDef.setLinkStateUp(true);
+            interfaceDef.setLinkStateUp(nic.isEnabled());
             logger.debug("ReplugNic: Updating interface" + interfaceDef);
             vm.updateDeviceFlags(interfaceDef.toString(), DomainAffect.LIVE.getValue());
 

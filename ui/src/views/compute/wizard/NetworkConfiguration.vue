@@ -82,9 +82,9 @@
               </a-input>
             </a-form-item>
           </template>
-          <template v-if="column.key === 'linkState'">
-            <a-form-item v-if="record.type === 'L2'" :name="'linkState' + record.id">
-              <a-switch v-model:checked="form[`linkState` + record.id]" @change="($event) => updateNetworkData('linkstate', record.id, $event)" style="margin-bottom: 30px"/>
+          <template v-if="column.key === 'enabled'">
+            <a-form-item v-if="record.type === 'L2'" :name="'enabled' + record.id">
+              <a-switch v-model:checked="form[`enabled` + record.id]" @change="($event) => updateNetworkData('enabled', record.id, $event)" style="margin-bottom: 30px"/>
             </a-form-item>
           </template>
         </template>
@@ -152,9 +152,9 @@ export default {
           width: '25%'
         },
         {
-          key: 'linkState',
-          dataIndex: 'linkState',
-          title: this.$t('label.nic.linkstate')
+          key: 'enabled',
+          dataIndex: 'enabled',
+          title: this.$t('label.vmnic.enabled')
         }
       ],
       selectedRowKeys: [],
@@ -227,7 +227,7 @@ export default {
       this.dataItems.forEach(record => {
         const ipAddressKey = 'ipAddress' + record.id
         const macAddressKey = 'macAddress' + record.id
-        const linkState = 'linkState' + record.id
+        const enabled = 'enabled' + record.id
         rules[ipAddressKey] = [{
           validator: this.validatorIpAddress,
           cidr: record.cidr,
@@ -243,9 +243,7 @@ export default {
           form[macAddressKey] = this.preFillContent.macAddressArray[presetMacAddressIndex]
           presetMacAddressIndex++
         }
-        form[linkState] = record.linkstate === undefined
-          ? (record.linkState === undefined ? true : record.linkState)
-          : record.linkstate
+        form[enabled] = record.enabled === undefined ? true : record.enabled
       })
       this.form = reactive(form)
       this.rules = reactive(rules)

@@ -104,15 +104,7 @@
         <VmSnapshotsTab :resource="vm" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.backup')" key="backups" v-if="'listBackups' in $store.getters.apis">
-        <ListResourceTable
-          apiName="listBackups"
-          :resource="resource"
-          :params="{virtualmachineid: dataResource.id}"
-          :columns="dataResource.backupprovider === 'kboss'
-            ? ['name', 'status', 'compressionstatus', 'validationstatus', 'size', 'virtualsize', 'type', 'intervaltype', 'created']
-            : ['name', 'status', 'size', 'virtualsize', 'type', 'intervaltype', 'created']"
-          :routerlinks="(record) => { return { name: '/backup/' + record.id } }"
-          :showSearch="false"/>
+        <VmBackupsTab :resource="vm" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.ftctl.fault.protection')" key="ftctl" v-if="showFtTab">
         <FtctlTab v-if="visibleCurrentTab === 'ftctl'" :resource="vm" :loading="loading" @keep-current-tab="keepCurrentTab" />
@@ -171,6 +163,7 @@ import SecurityGroupSelection from '@views/compute/wizard/SecurityGroupSelection
 import DrPlanVmTab from '@/views/compute/dr/DrPlanVmTab.vue'
 import GPUTab from '@/components/view/GPUTab.vue'
 import FtctlTab from '@/views/compute/FtctlTab.vue'
+import VmBackupsTab from '@/views/compute/VmBackupsTab.vue'
 import VmSnapshotsTab from '@/views/compute/VmSnapshotsTab.vue'
 import vmProtectionTabs from '@/utils/vmProtectionTabs'
 
@@ -189,6 +182,7 @@ export default {
     GPUTab,
     FtctlTab,
     VmSnapshotsTab,
+    VmBackupsTab,
     VmSchedulesTab,
     ListResourceTable,
     SecurityGroupSelection,

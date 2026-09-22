@@ -74,7 +74,7 @@ public class VRouterVifDriver extends VifDriverBase {
         if (nic.getPxeDisable()) {
             intf.setPxeDisable(true);
         }
-        intf.setLinkStateUp(nic.getLinkState());
+        intf.setLinkStateUp(nic.isEnabled());
         intf.defEthernet(tapDeviceName, nic.getMac(), getGuestNicModel(guestOsType, nicAdapter));
 
         return intf;
