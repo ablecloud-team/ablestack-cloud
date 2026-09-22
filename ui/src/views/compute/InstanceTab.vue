@@ -19,8 +19,20 @@
   <a-spin :spinning="loading">
     <a-alert v-if="vm.qemuagentversion === 'Not Installed'" :message="$t('message.alert.qemuagentversion')" type="error" show-icon />
     <br/>
+    <a-alert v-if="protectionLookupFailed" type="warning" show-icon class="protection-tab-notice">
+      <template #message>{{ $t('message.vm.protection.lookup.failed') }}</template>
+      <template #action>
+        <a-button size="small" :loading="protectionLookupPending" @click="refreshProtectionTabs">{{ $t('label.refresh') }}</a-button>
+      </template>
+    </a-alert>
+    <a-alert
+      v-else-if="protectionLookupPending && ['ftctl', 'drplans'].includes(currentTab)"
+      type="info"
+      show-icon
+      class="protection-tab-notice"
+      :message="$t('message.vm.protection.lookup.pending')" />
     <a-tabs
-      :activeKey="currentTab"
+      :activeKey="visibleCurrentTab"
       :tabPosition="device === 'mobile' ? 'top' : 'left'"
       :animated="false"
       @change="handleChangeTab">
@@ -92,21 +104,14 @@
         <VmSnapshotsTab :resource="vm" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.backup')" key="backups" v-if="'listBackups' in $store.getters.apis">
-        <ListResourceTable
-          apiName="listBackups"
-          :resource="resource"
-          :params="{virtualmachineid: dataResource.id}"
-          :columns="dataResource.backupprovider === 'kboss'
-            ? ['name', 'status', 'compressionstatus', 'validationstatus', 'size', 'virtualsize', 'type', 'intervaltype', 'created']
-            : ['name', 'status', 'size', 'virtualsize', 'type', 'intervaltype', 'created']"
-          :routerlinks="(record) => { return { name: '/backup/' + record.id } }"
-          :showSearch="false"/>
+        <a-alert v-if="vm.backupblockedreason" type="warning" show-icon :message="$t('message.backup.snapshot.backup.blocked')" style="margin-bottom: 16px" />
+        <VmBackupsTab :resource="vm" />
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.ftctl.fault.protection')" key="ftctl" v-if="'getFtctlProtection' in $store.getters.apis">
-        <FtctlTab :resource="vm" :loading="loading" @keep-current-tab="keepCurrentTab" />
+      <a-tab-pane :tab="$t('label.ftctl.fault.protection')" key="ftctl" v-if="showFtTab">
+        <FtctlTab v-if="visibleCurrentTab === 'ftctl'" :resource="vm" :loading="loading" @keep-current-tab="keepCurrentTab" />
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.dr.plans')" key="drplans" v-if="'getDrVmProtectionView' in $store.getters.apis">
-        <DrPlanVmTab :resource="vm" :loading="loading" />
+      <a-tab-pane :tab="$t('label.dr.vm.protection.status')" key="drplans" v-if="showDrTab">
+        <DrPlanVmTab :view="drView" :loading="drEligibility === 'pending'" :loadError="drEligibility === 'error'" @refresh="refreshProtectionTabs" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.events')" key="events" v-if="'listEvents' in $store.getters.apis">
         <events-tab :resource="dataResource" resourceType="VirtualMachine" :loading="loading" />
@@ -159,7 +164,9 @@ import SecurityGroupSelection from '@views/compute/wizard/SecurityGroupSelection
 import DrPlanVmTab from '@/views/compute/dr/DrPlanVmTab.vue'
 import GPUTab from '@/components/view/GPUTab.vue'
 import FtctlTab from '@/views/compute/FtctlTab.vue'
+import VmBackupsTab from '@/views/compute/VmBackupsTab.vue'
 import VmSnapshotsTab from '@/views/compute/VmSnapshotsTab.vue'
+import vmProtectionTabs from '@/utils/vmProtectionTabs'
 
 export default {
   name: 'InstanceTab',
@@ -176,6 +183,7 @@ export default {
     GPUTab,
     FtctlTab,
     VmSnapshotsTab,
+    VmBackupsTab,
     VmSchedulesTab,
     ListResourceTable,
     SecurityGroupSelection,
@@ -184,7 +192,7 @@ export default {
     VmVolumesTab,
     VmIsoTab
   },
-  mixins: [mixinDevice],
+  mixins: [mixinDevice, vmProtectionTabs],
   props: {
     resource: {
       type: Object,
@@ -215,13 +223,10 @@ export default {
     }
   },
   created () {
-    const self = this
     this.dataResource = this.resource
     this.vm = this.dataResource
     this.fetchData()
-    window.addEventListener('popstate', function () {
-      self.setCurrentTab()
-    })
+    window.addEventListener('popstate', this.setCurrentTab)
   },
   watch: {
     resource: {
@@ -250,7 +255,10 @@ export default {
       this.setCurrentTab()
     }
   },
-  beforeUnmount () { this.listRefreshDisposed = true },
+  beforeUnmount () {
+    this.listRefreshDisposed = true
+    window.removeEventListener('popstate', this.setCurrentTab)
+  },
   mounted () {
     this.setCurrentTab()
   },
@@ -340,22 +348,24 @@ export default {
       return 'hd' + String.fromCharCode('a'.charCodeAt(0) + deviceseq - 1)
     },
     setCurrentTab () {
+      if (this.$route?.path !== '/vm/' + this.resource?.id) return
       const routeTab = this.resolveCurrentTabFromRoute()
       if (this.currentTab !== routeTab) {
         this.currentTab = routeTab
       }
+      this.normalizeProtectionTab()
     },
     resolveCurrentTabFromRoute () {
       let tab = null
       if (this.$route?.query?.tab) {
         tab = this.$route.query.tab
       }
-      if (!tab && typeof window !== 'undefined' && window.location?.hash) {
+      if (typeof window !== 'undefined' && window.location?.hash?.split('?')[0] === '#' + this.$route?.path) {
         const queryString = window.location.hash.split('?')[1] || ''
         tab = new URLSearchParams(queryString).get('tab')
       }
       if (tab === 'disasterrecoverycluster') {
-        return 'getDrVmProtectionView' in this.$store.getters.apis ? 'drplans' : 'details'
+        return 'drplans'
       }
       return tab || 'details'
     },
@@ -427,6 +437,7 @@ export default {
       })
     },
     async handleChangeTab (activeKey) {
+      if ((activeKey === 'ftctl' && !this.showFtTab) || (activeKey === 'drplans' && !this.showDrTab)) return
       // Load host device data only when the device tab is selected.
       if (activeKey === 'hostdevices') {
         await this.fetchData()
@@ -446,6 +457,7 @@ export default {
       }
     },
     keepCurrentTab (activeKey = 'ftctl') {
+      if (activeKey === 'ftctl' && !this.showFtTab) return
       const query = Object.assign({}, this.$route.query)
       if (query.tab !== activeKey) {
         query.tab = activeKey
@@ -462,6 +474,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .protection-tab-notice {
+    margin-bottom: 12px;
+  }
   .page-header-wrapper-grid-content-main {
     width: 100%;
     height: 100%;

@@ -617,7 +617,6 @@ import org.apache.cloudstack.api.command.user.vm.UpdateVMCmd;
 import org.apache.cloudstack.api.command.user.vm.UpdateVmCloneFlattenBandwidthCmd;
 import org.apache.cloudstack.api.command.user.vm.UpdateVmNicCmd;
 import org.apache.cloudstack.api.command.user.vm.UpdateVmNicIpCmd;
-import org.apache.cloudstack.api.command.user.vm.UpdateVmNicLinkStateCmd;
 import org.apache.cloudstack.api.command.user.vm.UpgradeVMCmd;
 import org.apache.cloudstack.api.command.user.vmgroup.CreateVMGroupCmd;
 import org.apache.cloudstack.api.command.user.vmgroup.DeleteVMGroupCmd;
@@ -7350,9 +7349,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
         cmdList.add(ListHostRedfishDataCmd.class);
         cmdList.add(DownloadEventsCmd.class);
         cmdList.add(UpdateCompressDedupCmd.class);
-        cmdList.add(UpdateVmNicLinkStateCmd.class);
         cmdList.add(CloneVMCmd.class);
-        cmdList.add(UpdateVmNicLinkStateCmd.class);
 
         return cmdList;
     }

@@ -485,7 +485,7 @@ public class UserVmData {
         private String type;
         private Boolean isDefault;
         private String macAddress;
-        private Boolean linkState;
+        private Boolean enabled;
 
         public String getObjectName() {
             return objectName;
@@ -583,12 +583,12 @@ public class UserVmData {
             this.macAddress = macAddress;
         }
 
-        public Boolean getLinkState() {
-            return linkState;
+        public Boolean getEnabled() {
+            return enabled;
         }
 
-        public void setLinkState(Boolean linkState) {
-            this.linkState = linkState;
+        public void setEnabled(Boolean enabled) {
+            this.enabled = enabled;
         }
 
         @Override

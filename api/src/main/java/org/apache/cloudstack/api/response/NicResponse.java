@@ -146,9 +146,6 @@ public class NicResponse extends BaseResponse {
     @Param(description = "Public IP address associated with this NIC via Static NAT rule")
     private String publicIp;
 
-    @SerializedName(ApiConstants.LINK_STATE)
-    @Param(description = "nic link state")
-    private boolean linkState;
     @SerializedName(ApiConstants.ENABLED)
     @Param(description = "whether the NIC is enabled or not")
     private Boolean isEnabled;
@@ -428,12 +425,16 @@ public class NicResponse extends BaseResponse {
         this.publicIp = publicIp;
     }
 
+    /** @deprecated NIC state is stored exclusively in enabled. */
+    @Deprecated
     public boolean getLinkState() {
-        return linkState;
+        return Boolean.TRUE.equals(isEnabled);
     }
 
+    /** @deprecated NIC state is stored exclusively in enabled. */
+    @Deprecated
     public void setLinkState(boolean linkState) {
-        this.linkState = linkState;
+        this.isEnabled = linkState;
     }
 
     public Boolean getEnabled() {

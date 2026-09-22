@@ -16,13 +16,14 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="loading">
+  <a-spin :spinning="loading" class="backup-schedule-form">
     <div class="form-layout">
       <label>
         {{ $t('label.header.backup.schedule') }}
       </label>
       <div class="form" v-ctrl-enter="handleSubmit">
-        <a-form
+        <a-alert v-if="resource.backupblockedreason" type="warning" show-icon :message="$t('message.backup.snapshot.backup.blocked')" style="margin-bottom: 16px" />
+      <a-form
           :ref="formRef"
           :model="form"
           :rules="rules"
@@ -169,6 +170,7 @@
             <a-button
               :loading="actionLoading"
               ref="submit"
+              :disabled="!!resource.backupblockedreason"
               type="primary"
               htmlType="submit">
               {{ $t('label.ok') }}
@@ -457,6 +459,7 @@ export default {
       return false
     },
     handleSubmit (e) {
+      if (this.resource.backupblockedreason) return
       if (this.actionLoading) return
       this.formRef.value.validate().then(() => {
         const formRaw = toRaw(this.form)

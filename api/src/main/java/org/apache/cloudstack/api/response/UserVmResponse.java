@@ -410,6 +410,17 @@ public class UserVmResponse extends BaseResponseWithTagInformation implements Co
     @Param(description = "device ID of the volume currently being flattened by SharedMountPoint fast clone.")
     private Long cloneFastFlattenDeviceId;
 
+    @SerializedName("vmsnapshotblockedreason")
+    @Param(description = "Reason VM snapshot creation and restore are blocked")
+    private String vmSnapshotBlockedReason;
+    @SerializedName("backupblockedreason")
+    @Param(description = "Reason backup creation and scheduling are blocked")
+    private String backupBlockedReason;
+    public void setVmSnapshotBlockedReason(String value) { vmSnapshotBlockedReason = value; }
+    public void setBackupBlockedReason(String value) { backupBlockedReason = value; }
+    public String getVmSnapshotBlockedReason() { return vmSnapshotBlockedReason; }
+    public String getBackupBlockedReason() { return backupBlockedReason; }
+
     @SerializedName("activebackupstatus")
     @Param(description = "Active backup status of the virtual machine.")
     private String activeBackupStatus;

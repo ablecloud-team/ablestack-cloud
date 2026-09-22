@@ -82,6 +82,10 @@ export default {
       type: String,
       default: ''
     },
+    value: {
+      type: Number,
+      default: undefined
+    },
     preFillContent: {
       type: Object,
       default: () => {}
@@ -116,6 +120,14 @@ export default {
     }
   },
   watch: {
+    value (value) {
+      if (value == null) {
+        // The deployment form can reset while this component remains mounted.
+        this.fillValue()
+      } else {
+        this.inputValue = value
+      }
+    },
     minDiskSize (newItem) {
       if (newItem && newItem > 0) {
         this.inputValue = newItem
@@ -162,6 +174,9 @@ export default {
         this.inputValue = this.preFillContent?.rootdisksize ? this.preFillContent.rootdisksize : this.minDiskSize
       } else if (this.inputDecorator === 'size') {
         this.inputValue = this.preFillContent?.size ? this.preFillContent.size : this.minDiskSize
+      }
+      if (this.value != null) {
+        this.inputValue = this.value
       }
       this.$emit('update-disk-size', this.inputDecorator, this.inputValue)
     },

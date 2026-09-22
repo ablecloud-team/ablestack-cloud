@@ -16,6 +16,7 @@
 // under the License.
 package com.cloud.api.query.dao;
 
+import org.apache.cloudstack.backup.BackupSnapshotGuard;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -125,6 +126,9 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
     private static final String FAST_CLONE_FLATTEN_RUNNING = "running";
     private static final String FAST_CLONE_FLATTEN_PENDING = "pending";
     private static final String FAST_CLONE_FLATTEN_PROGRESS = "clone.fast.flatten.progress";
+
+    @Inject
+    private BackupSnapshotGuard backupSnapshotGuard;
 
     @Inject
     private ConfigurationDao _configDao;
@@ -288,6 +292,8 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
             setFastCloneFlattenVolume(userVmResponse, userVm.getId());
         }
         setActiveBackupStatus(userVmResponse, userVm.getId());
+        userVmResponse.setVmSnapshotBlockedReason(backupSnapshotGuard.snapshotReason(userVm.getId()));
+        userVmResponse.setBackupBlockedReason(backupSnapshotGuard.backupReason(userVm.getId()));
 
         User user = _userDao.getUser(userVm.getUserId());
         if (user != null) {
@@ -518,7 +524,6 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
                     nicResponse.setPublicIpId(publicIp.getUuid());
                     nicResponse.setPublicIp(publicIp.getAddress().toString());
                 }
-                nicResponse.setLinkState(userVm.getLinkState());
 
                 nicResponse.setObjectName("nic");
 
@@ -882,7 +887,6 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
                 nicResponse.setPublicIpId(publicIp.getUuid());
                 nicResponse.setPublicIp(publicIp.getAddress().toString());
             }
-            nicResponse.setLinkState(uvo.getLinkState());
 
             /* 18: extra dhcp options */
             nicResponse.setObjectName("nic");

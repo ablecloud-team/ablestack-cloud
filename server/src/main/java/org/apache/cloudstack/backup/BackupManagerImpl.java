@@ -215,6 +215,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
 
     @Inject
+    private BackupSnapshotGuard backupSnapshotGuard;
+
+    @Inject
     private BackupDao backupDao;
     @Inject
     private BackupDetailsDao backupDetailsDao;
@@ -788,7 +791,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_OFFERING_ASSIGN, eventDescription = "assign Instance to Backup Offering", async = true)
     public boolean assignVMToBackupOffering(Long vmId, Long offeringId) {
-        try (BackupVolumeGuard.Lease volumeGuard = backupVolumeGuard.acquire(vmId)) {
+        try (BackupVolumeGuard.Lease volumeGuard = backupVolumeGuard.acquire(vmId);
+                BackupSnapshotGuard.Lease guard = backupSnapshotGuard.acquire(vmId)) {
             final VMInstanceVO vm = findVmById(vmId);
 
             if (!Arrays.asList(VirtualMachine.State.Running, VirtualMachine.State.Stopped, VirtualMachine.State.Shutdown).contains(vm.getState())) {
@@ -797,6 +801,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
             validateBackupForZone(vm.getDataCenterId());
             accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
+            backupSnapshotGuard.checkBackup(vmId);
 
             if (vm.getBackupOfferingId() != null) {
                 throw new CloudRuntimeException("Instance already is assigned to a backup offering, please remove the Instance from its previous offering");
@@ -819,7 +824,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             }
 
             return transactionAssignVMToBackupOffering(vm, offering, backupProvider) != null;
-
         }
     }
 
@@ -923,7 +927,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_SCHEDULE_CONFIGURE, eventDescription = "configuring Instance Backup Schedule")
     public BackupSchedule configureBackupSchedule(CreateBackupScheduleCmd cmd) {
-        try (BackupVolumeGuard.Lease volumeGuard = backupVolumeGuard.acquire(cmd.getVmId())) {
+        try (BackupVolumeGuard.Lease volumeGuard = backupVolumeGuard.acquire(cmd.getVmId());
+                BackupSnapshotGuard.Lease guard = backupSnapshotGuard.acquire(cmd.getVmId())) {
             final Long vmId = cmd.getVmId();
             final DateUtil.IntervalType intervalType = cmd.getIntervalType();
             final String scheduleString = cmd.getSchedule();
@@ -937,6 +942,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             final VMInstanceVO vm = findVmById(vmId);
             validateBackupForZone(vm.getDataCenterId());
             accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
+            backupSnapshotGuard.checkBackup(vmId);
 
             if (vm.getBackupOfferingId() == null) {
                 throw new CloudRuntimeException("Cannot configure Backup Schedule for the Instance as it is not assigned any Backup Offering");
@@ -988,7 +994,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             schedule.setIsolated(isolated);
             backupScheduleDao.update(schedule.getId(), schedule);
             return backupScheduleDao.findById(schedule.getId());
-
         }
     }
 
@@ -1138,13 +1143,15 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_CREATE, eventDescription = "creating Instance Backup", async = true)
     public boolean createBackup(CreateBackupCmd cmd, Object job) throws ResourceAllocationException {
-        try (BackupVolumeGuard.Lease volumeGuard = backupVolumeGuard.acquire(cmd.getVmId())) {
+        try (BackupVolumeGuard.Lease volumeGuard = backupVolumeGuard.acquire(cmd.getVmId());
+                BackupSnapshotGuard.Lease guard = backupSnapshotGuard.acquire(cmd.getVmId())) {
             final long backupStartTime = System.currentTimeMillis();
             Long vmId = cmd.getVmId();
             Account caller = CallContext.current().getCallingAccount();
             final VMInstanceVO vm = findVmById(vmId);
             validateBackupForZone(vm.getDataCenterId());
             accountManager.checkAccess(caller, null, true, vm);
+            backupSnapshotGuard.checkBackup(vmId);
 
             if (vm.getBackupOfferingId() == null) {
                 throw new CloudRuntimeException("Cannot create backup as the Instance doesn't have a Backup Offering assigned");
@@ -1201,7 +1208,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             logger.info("Completed VM backup request [vmId: {}, vmUuid: {}, vmName: {}, provider: {}, offeringId: {}, scheduleId: {}, elapsedMs: {}]",
                     vm.getId(), vm.getUuid(), vm.getInstanceName(), offering.getProvider(), offering.getId(), backupScheduleId, System.currentTimeMillis() - backupStartTime);
             return true;
-
         }
     }
 

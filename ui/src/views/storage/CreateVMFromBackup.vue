@@ -16,8 +16,9 @@
 // under the License.
 
 <template>
-  <div class="form">
-    <div v-if="!configure">
+  <div class="backup-create-dialog" :class="{ 'backup-create-dialog--configure': configure }">
+    <template v-if="!configure">
+      <div class="backup-create-scroll">
       <div style="margin-bottom: 10px">
         <a-alert type="warning">
           <template #message>
@@ -42,7 +43,8 @@
           <a-switch v-model:checked="form.quickRestore" />
         </a-form-item>
       </a-form>
-      <div class="card-footer">
+      </div>
+      <div class="backup-create-footer">
         <a-button @click="closeAction">
           {{ $t('label.cancel') }}
         </a-button>
@@ -53,12 +55,12 @@
           {{ $t('label.ok') }}
         </a-button>
       </div>
-  </div>
-    <div v-else class="form">
-      <DeployVMFromBackup
+    </template>
+    <DeployVMFromBackup
+      v-else
+      :key="resource.id"
         :preFillContent="dataPreFill"
         @close-action="closeAction"/>
-    </div>
   </div>
 </template>
 
@@ -97,6 +99,10 @@ export default {
       type: Object,
       required: true
     }
+  },
+  activated () { this.configure = false },
+  watch: {
+    'resource.id' () { this.configure = false }
   },
   beforeCreate () {
     this.apiParams = this.$getApiParams('createVMFromBackup')
@@ -246,6 +252,7 @@ export default {
       }
     },
     closeAction () {
+      this.configure = false
       this.$emit('close-action')
     },
     handleSubmit (e) {
@@ -351,22 +358,48 @@ export default {
 
 </script>
 
-<style lang="scss" scoped>
-  .card-footer {
-    text-align: right;
-    margin-top: 2rem;
-
-    button + button {
-      margin-left: 8px;
-    }
+<style lang="scss">
+// Both the VM tab and the generic backup action host this component. Scope the
+// modal contract to its content so cached/other action dialogs remain unchanged.
+.ant-modal-wrap:has(.backup-create-dialog) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: hidden;
+  &::before { display: none; }
+  .ant-modal {
+    top: 0 !important;
+    margin: 0;
+    padding: 0;
+    width: 680px !important;
+    max-width: 100%;
   }
-
-.form {
-  width: 80vw;
-
-  @media (min-width: 500px) {
-    min-width: 400px;
-    width: 100%;
+  .ant-modal:has(.backup-create-dialog--configure) { width: 1200px !important; }
+  .ant-modal-content { display: flex; flex-direction: column; max-height: calc(100dvh - 32px); }
+  .ant-modal-header { flex: none; }
+  .ant-modal-body { display: flex; flex-direction: column; min-height: 0; padding: 0; overflow: hidden; }
+  .backup-dialog { display: flex; flex-direction: column; min-height: 0; }
+}
+.backup-create-dialog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  color: var(--ui-text-primary);
+  .backup-create-scroll { min-height: 0; overflow: auto; padding: 24px; }
+  .backup-create-footer {
+    flex: none;
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--ui-border);
+    margin: 0;
+    .ant-btn { margin: 0 !important; }
   }
 }
 </style>

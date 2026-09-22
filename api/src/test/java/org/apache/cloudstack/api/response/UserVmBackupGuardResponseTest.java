@@ -1,4 +1,3 @@
-//
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -15,15 +14,23 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-//
+package org.apache.cloudstack.api.response;
 
-package com.cloud.agent.api;
+import org.apache.commons.beanutils.BeanUtils;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-public class NicLinkStateAnswer extends Answer {
-    public NicLinkStateAnswer() {
-    }
-
-    public NicLinkStateAnswer(NicLinkStateCommand cmd, boolean success, String result) {
-        super(cmd, success, result);
+public class UserVmBackupGuardResponseTest {
+    @Test
+    public void metricsBeanCopyPreservesBackupGuardReasons() throws Exception {
+        UserVmResponse source = new UserVmResponse();
+        source.setKvdoEnable(false);
+        source.setKvdoInUse(false);
+        source.setVmSnapshotBlockedReason("BACKUP_EXISTS");
+        source.setBackupBlockedReason("VM_SNAPSHOT_EXISTS");
+        UserVmResponse metrics = new UserVmResponse();
+        BeanUtils.copyProperties(metrics, source);
+        assertEquals("BACKUP_EXISTS", metrics.getVmSnapshotBlockedReason());
+        assertEquals("VM_SNAPSHOT_EXISTS", metrics.getBackupBlockedReason());
     }
 }

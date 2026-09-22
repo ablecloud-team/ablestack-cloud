@@ -7958,5 +7958,21 @@
   "label.vmsettings.failed": "Unable to save settings. Check the inputs and try again.",
   "message.vmvolume.backup.blocked": "Volumes cannot be created and attached, attached or detached while backups or backup schedules protect this VM. Changing storage topology requires changing backup topology. Check protection in the Backup tab.",
   "message.vmvolume.backup.unknown": "Volume configuration is blocked until backup protection can be verified. Refresh and try again.",
-  "message.vmvolume.backup.unattached": "The volume was created but could not be attached. It has been preserved; retry uses this existing volume."
+  "message.vmvolume.backup.unattached": "The volume was created but could not be attached. It has been preserved; retry uses this existing volume.",
+  "message.backup.snapshot.snapshot.blocked": "VM snapshots cannot be created or restored while backups or backup schedules exist. This applies to disk-only and memory snapshots. Existing recovery points are preserved.",
+  "message.backup.snapshot.backup.blocked": "VM snapshots exist. Backup creation, scheduled execution and new schedules are unavailable in Europa. Existing recovery points are preserved.",
+  "label.dr.vm.protection.status": "DR protection status",
+  "message.dr.vm.local.scope": "DR relationships stored on this management server only. Plan changes and recovery actions are available on the DR plan page. Check the last update and freshness before relying on this information.",
+  "message.vm.protection.lookup.failed": "Unable to verify fault protection or DR relationships. Previously confirmed DR information may be outdated. Refresh to retry.",
+  "message.vm.protection.lookup.pending": "Checking whether this VM has an available protection tab.",
+  "label.vmbackup.settings": "Backup settings",
+  "label.vmbackup.automatic": "Automatic",
+  "label.vmbackup.sizes": "Size / virtual size",
+  "label.vmbackup.types": "Type / interval",
+  "message.vmbackup.assign": "Assign a backup offering to create backups and configure schedules.",
+  "message.vmbackup.busy": "A backup operation is in progress. The list updates automatically after completion.",
+  "message.vmbackup.unavailable": "This operation is unavailable because permissions, backup state or VM state changed.",
+  "message.vmbackup.force": "Forced deletion can remove the entire backup chain while keeping the VM in its backup offering. Disabled by default.",
+  "message.vmbackup.delete": "Delete this backup? Scope and recoverability depend on the provider. Forced deletion can remove the entire chain.",
+  "message.vmbackup.restore": "Restoring can discard subsequent VM changes and interrupt service. Verify the target VM and backup."
 }
