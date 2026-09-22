@@ -245,11 +245,11 @@ public class BridgeVifDriver extends VifDriverBase {
                     logger.debug("creating a vNet dev and bridge for guest traffic per traffic label " + trafficLabel);
                     String brName = createVnetBr(vNetId, trafficLabel, protocol);
                     intf.defBridgeNet(brName, null, nic.getMac(), getGuestNicModel(guestOsType, nicAdapter), networkRateKBps);
-                    intf.setLinkStateUp(nic.getLinkState());
+                    intf.setLinkStateUp(nic.isEnabled());
                 } else {
                     String brName = createVnetBr(vNetId, _bridges.get("private"), protocol);
                     intf.defBridgeNet(brName, null, nic.getMac(), getGuestNicModel(guestOsType, nicAdapter), networkRateKBps);
-                    intf.setLinkStateUp(nic.getLinkState());
+                    intf.setLinkStateUp(nic.isEnabled());
                 }
             } else {
                 String brname = "";
@@ -259,7 +259,7 @@ public class BridgeVifDriver extends VifDriverBase {
                     brname = _bridges.get("guest");
                 }
                 intf.defBridgeNet(brname, null, nic.getMac(), getGuestNicModel(guestOsType, nicAdapter), networkRateKBps);
-                intf.setLinkStateUp(nic.getLinkState());
+                intf.setLinkStateUp(nic.isEnabled());
             }
         } else if (nic.getType() == Networks.TrafficType.Control) {
             /* Make sure the network is still there */
@@ -288,7 +288,7 @@ public class BridgeVifDriver extends VifDriverBase {
         if (nic.getPxeDisable()) {
             intf.setPxeDisable(true);
         }
-        intf.setLinkStateUp(nic.getLinkState());
+        intf.setLinkStateUp(nic.isEnabled());
 
         if (!nic.isSecurityGroupEnabled() && nic.getNwfilter()) {
             intf.setFilterrefFilterTag();

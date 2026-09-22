@@ -520,7 +520,6 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
                     nicResponse.setPublicIpId(publicIp.getUuid());
                     nicResponse.setPublicIp(publicIp.getAddress().toString());
                 }
-                nicResponse.setLinkState(userVm.getLinkState());
 
                 nicResponse.setObjectName("nic");
 
@@ -884,7 +883,6 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
                 nicResponse.setPublicIpId(publicIp.getUuid());
                 nicResponse.setPublicIp(publicIp.getAddress().toString());
             }
-            nicResponse.setLinkState(uvo.getLinkState());
 
             /* 18: extra dhcp options */
             nicResponse.setObjectName("nic");

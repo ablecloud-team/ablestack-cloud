@@ -17,7 +17,7 @@
   under the License.
 -->
 <template>
-  <a-spin :spinning="loading || localLoading">
+  <a-spin :spinning="loading">
     <div class="cross-dr-page cross-dr-vm-plan-view">
       <div class="cross-dr-tab-toolbar">
         <router-link
@@ -34,11 +34,12 @@
             {{ $t('label.dr.plan.list.open') }}
           </a-button>
         </router-link>
-        <a-button size="small" @click="fetchData">
+        <a-button size="small" :loading="loading" @click="$emit('refresh')">
           <template #icon><ReloadOutlined /></template>
           {{ $t('label.refresh') }}
         </a-button>
       </div>
+      <a-alert type="info" show-icon :message="$t('message.dr.vm.local.scope')" />
 
       <a-alert
         v-if="view.relationconflict"
@@ -52,7 +53,7 @@
         show-icon
         :message="$t('message.dr.vm.view.load.failed')" />
 
-      <div v-else-if="!view.configured" class="cross-dr-vm-empty">
+      <div v-if="!view.configured" class="cross-dr-vm-empty">
         <a-alert
           type="info"
           show-icon
@@ -110,7 +111,7 @@
           <div class="cross-dr-kpi">
             <div class="cross-dr-kpi__label">{{ $t('label.dr.last.target.durable.at') }}</div>
             <div class="cross-dr-kpi__value cross-dr-kpi__value--small">{{ association.lasttargetdurableat || '-' }}</div>
-            <div class="cross-dr-kpi__meta">{{ $t('label.dr.freshness') }}: {{ association.freshnessstate || 'UNKNOWN' }}</div>
+            <div class="cross-dr-kpi__meta">{{ $t('label.dr.freshness') }}: <dr-status-pill :status="association.freshnessstate || 'UNKNOWN'" /></div>
           </div>
         </div>
 
@@ -132,33 +133,26 @@
 <script>
 import DrRpoKpi from '@/components/dr/DrRpoKpi.vue'
 import DrStatusPill from '@/components/dr/DrStatusPill.vue'
-import { getDrVmProtectionView } from '@/api/dr'
 
 export default {
   name: 'DrPlanVmTab',
+  emits: ['refresh'],
   components: {
     DrRpoKpi,
     DrStatusPill
   },
   props: {
-    resource: {
+    view: {
       type: Object,
       required: true
     },
     loading: {
       type: Boolean,
       default: false
-    }
-  },
-  data () {
-    return {
-      localLoading: false,
-      loadError: false,
-      view: {
-        configured: false,
-        relationconflict: false,
-        association: []
-      }
+    },
+    loadError: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -166,36 +160,7 @@ export default {
       return this.view.association || []
     }
   },
-  watch: {
-    'resource.id': function () {
-      this.fetchData()
-    }
-  },
-  created () {
-    this.fetchData()
-  },
   methods: {
-    fetchData () {
-      if (!this.resource?.id || !('getDrVmProtectionView' in this.$store.getters.apis)) {
-        this.resetView()
-        return Promise.resolve()
-      }
-      this.localLoading = true
-      return getDrVmProtectionView(this.resource.id).then(view => {
-        this.loadError = false
-        this.view = Object.assign({ configured: false, relationconflict: false, association: [] }, view)
-      }).catch(() => {
-        this.resetView()
-        this.loadError = true
-      }).finally(() => {
-        this.localLoading = false
-      })
-    },
-    resetView () {
-      this.view = { configured: false, relationconflict: false, association: [] }
-      this.loadError = false
-      this.localLoading = false
-    },
     relationshipLabel (role) {
       const labels = {
         SOURCE: 'label.dr.vm.role.source',

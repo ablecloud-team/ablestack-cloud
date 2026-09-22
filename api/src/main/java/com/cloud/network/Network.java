@@ -403,7 +403,7 @@ public interface Network extends ControlledEntity, StateObject<Network.State>, I
         private String ip4Address;
         private String ip6Address;
         private String macAddress;
-        private boolean linkState = true;
+        private boolean enabled = true;
 
         public String getMacAddress() {
             return macAddress;
@@ -423,10 +423,10 @@ public interface Network extends ControlledEntity, StateObject<Network.State>, I
             setMacAddress(macAddress);
         }
 
-        public IpAddresses(String ipAddress, String ip6Address, String macAddress, boolean linkState) {
+        public IpAddresses(String ipAddress, String ip6Address, String macAddress, boolean enabled) {
             this(ipAddress, ip6Address);
             setMacAddress(macAddress);
-            setLinkState(linkState);
+            setEnabled(enabled);
         }
 
         public String getIp4Address() {
@@ -445,12 +445,18 @@ public interface Network extends ControlledEntity, StateObject<Network.State>, I
             this.ip6Address = ip6Address;
         }
 
-        public void setLinkState(boolean linkState) {
-            this.linkState = linkState;
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
         }
 
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        /** @deprecated Source compatibility only; there is no separate link state. */
+        @Deprecated
         public boolean getLinkState() {
-            return linkState;
+            return enabled;
         }
 
     }

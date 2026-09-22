@@ -16,9 +16,9 @@
 // under the License.
 
 <template>
-  <div style="width: 80vw;">
-    <a-row :gutter="12">
-      <a-col :md="24" :lg="17">
+  <div class="backup-deploy-layout">
+    <div class="backup-create-scroll"><div class="backup-deploy-grid">
+      <div class="backup-deploy-form">
         <a-alert>
           <template #message>
             <div v-html="$t('message.create.instance.from.backup.prefill')"></div>
@@ -758,7 +758,14 @@
                 </template>
               </a-step>
             </a-steps>
-            <div class="card-footer">
+          </a-form>
+        </a-card>
+      </div>
+      <div class="backup-deploy-summary vm-info-card">
+          <info-card :resource="vm" :title="$t('label.yourinstance')" @change-resource="(data) => resource = data" />
+      </div>
+    </div></div>
+            <div class="backup-create-footer">
               <a-button @click="closeAction" :disabled="loading.deploy">
                 {{ $t('label.cancel') }}
               </a-button>
@@ -766,15 +773,7 @@
                 {{ $t('label.create') }}
               </a-button>
             </div>
-          </a-form>
-        </a-card>
-      </a-col>
-      <a-col :md="24" :lg="7" v-if="!isMobile()">
-        <a-affix :offsetTop="75" class="vm-info-card">
-          <info-card :resource="vm" :title="$t('label.yourinstance')" @change-resource="(data) => resource = data" />
-        </a-affix>
-      </a-col>
-    </a-row>
+
   </div>
 </template>
 
@@ -2775,4 +2774,23 @@ export default {
   .form-item-hidden {
     display: none;
   }
+</style>
+
+<style lang="scss" scoped>
+.backup-deploy-layout { display: flex; flex-direction: column; min-height: 0; width: 100%; overflow: hidden; }
+.backup-create-scroll { container-type: inline-size; }
+.backup-deploy-grid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; align-items: start; }
+.backup-deploy-form, .backup-deploy-summary { min-width: 0; }
+.backup-deploy-form :deep(.ant-card-body) { padding: 16px; }
+.backup-deploy-form :deep(.ant-steps-item-content) { min-width: 0; }
+.backup-deploy-form :deep(.ant-table-wrapper) { max-width: 100%; overflow-x: auto; }
+.backup-deploy-summary :deep(.resource-detail-item__details a) { color: var(--ui-text-primary); }
+.backup-deploy-summary :deep(.ant-card-body) { max-height: none !important; overflow: visible !important; }
+@container (max-width: 900px) {
+  .backup-deploy-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .backup-deploy-form :deep(.ant-card-body) { padding: 8px; }
+  .backup-deploy-form :deep(.zone-radio-button) { min-width: 0; }
+}
 </style>
