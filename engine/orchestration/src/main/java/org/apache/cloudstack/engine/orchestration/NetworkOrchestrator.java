@@ -1169,6 +1169,9 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
             if (profile == null) {
                 return null;
             }
+            if (requested != null) {
+                profile.setEnabled(requested.isEnabled());
+            }
 
             if (isNicAllocatedForProviderPublicNetworkOnVR(network, profile, vm, Provider.Nsx)) {
                 String guruName = "NsxPublicNetworkGuru";
@@ -1444,7 +1447,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
         vo.setIPv6Address(profile.getIPv6Address());
         vo.setIPv6Gateway(profile.getIPv6Gateway());
         vo.setIPv6Cidr(profile.getIPv6Cidr());
-        vo.setLinkState(profile.getLinkState());
+        vo.setEnabled(profile.isEnabled());
 
         return deviceId;
     }
@@ -1472,6 +1475,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
 
     protected NicTO toNicTO(final NicVO nic, final NicProfile profile, final NetworkVO config) {
         final NicTO to = new NicTO();
+        to.setEnabled(nic.isEnabled());
         to.setDeviceId(nic.getDeviceId());
         to.setBroadcastType(config.getBroadcastDomainType());
         to.setType(config.getTrafficType());
@@ -2290,7 +2294,7 @@ public class NetworkOrchestrator extends ManagerBase implements NetworkOrchestra
             nic.setState(Nic.State.Reserved);
             nic.setIPv4Netmask(profile.getIPv4Netmask());
             nic.setIPv4Gateway(profile.getIPv4Gateway());
-            nic.setLinkState(profile.getLinkState());
+            nic.setEnabled(profile.isEnabled());
 
             if (profile.getReservationStrategy() != null) {
                 nic.setReservationStrategy(profile.getReservationStrategy());

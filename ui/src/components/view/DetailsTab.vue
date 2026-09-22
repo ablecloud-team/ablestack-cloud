@@ -463,7 +463,7 @@ export default {
         }
         const managementIps = []
         for (const nic of this.resource.nic) {
-          if (managementDeviceIds.includes(parseInt(nic.deviceid)) && nic.linkstate !== false && nic.ipaddress) {
+          if (managementDeviceIds.includes(parseInt(nic.deviceid)) && nic.enabled !== false && nic.ipaddress) {
             managementIps.push(nic.ipaddress)
             if (nic.publicip) {
               managementIps.push(nic.publicip)
@@ -507,7 +507,7 @@ export default {
     },
     ipV6Address () {
       if (this.dataResource.nic && this.dataResource.nic.length > 0) {
-        return this.dataResource.nic.filter(e => e.linkstate !== false && e.ip6address).map(e => e.ip6address).join(', ')
+        return this.dataResource.nic.filter(e => e.enabled !== false && e.ip6address).map(e => e.ip6address).join(', ')
       }
       return null
     },
@@ -627,7 +627,7 @@ export default {
         return this.dataResource[field]
       }
 
-      return this.dataResource.nic.filter(e => e.linkstate !== false && e[field]).map(e => e[field]).join(', ')
+      return this.dataResource.nic.filter(e => e.enabled !== false && e[field]).map(e => e[field]).join(', ')
     },
     getUserSourceLabel (source) {
       if (source === 'saml2') {
