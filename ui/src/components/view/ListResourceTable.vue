@@ -44,7 +44,15 @@
           </template>
 
           <template v-else-if="['state', 'status'].includes(column.key)">
-            <status :text="text ? text : ''" />{{ text }}
+            <backup-progress
+              v-if="isBackupStatusColumn(column.key)"
+              :record="record"
+              :statusText="text ? text : ''"
+              @capabilities-change="record.capabilities = $event"
+              @restore-finished="record.restoreoperationpending = false; record.restorejobstate = $event" />
+            <template v-else>
+              <status :text="text ? text : ''" />{{ text }}
+            </template>
           </template>
 
           <template v-else-if="column.key === 'created'">
@@ -87,11 +95,13 @@ import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI } from '@/api'
 import { mixinDevice } from '@/utils/mixin.js'
+import BackupProgress from '@/components/view/BackupProgress'
 import Status from '@/components/widgets/Status'
 
 export default {
   name: 'ListResourceTable',
   components: {
+    BackupProgress,
     Status
   },
   mixins: [listRefreshMixin(['fetchData']), mixinDevice],
@@ -228,6 +238,9 @@ export default {
         })
       }
       return columns
+    },
+    isBackupStatusColumn (key) {
+      return this.apiName === 'listBackups' && key === 'status'
     },
     handleSearch (value) {
       this.filter = value

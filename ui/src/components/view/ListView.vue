@@ -494,7 +494,14 @@
         </span>
       </template>
       <template v-if="column.key === 'status'">
+        <backup-progress
+          v-if="isBackupStatusColumn()"
+          :record="record"
+          :statusText="text ? text : ''"
+          @capabilities-change="record.capabilities = $event"
+          @restore-finished="record.restoreoperationpending = false; record.restorejobstate = $event" />
         <status
+          v-else
           :text="text ? text : ''"
           displayText
         />
@@ -1170,6 +1177,7 @@
 <script>
 import { listRowKey } from '@/utils/listRefresh'
 import { getAPI, postAPI } from '@/api'
+import BackupProgress from '@/components/view/BackupProgress'
 import OsLogo from '@/components/widgets/OsLogo'
 import Status from '@/components/widgets/Status'
 import CloneFlattenControl from '@/components/widgets/CloneFlattenControl'
@@ -1190,6 +1198,7 @@ import { FileTextOutlined } from '@ant-design/icons-vue'
 export default {
   name: 'ListView',
   components: {
+    BackupProgress,
     OsLogo,
     Status,
     CloneFlattenControl,
@@ -1790,6 +1799,9 @@ export default {
         return name
       }
       return name.customTitle ?? name.field ?? Object.keys(name)[0]
+    },
+    isBackupStatusColumn () {
+      return this.$route.path.split('/')[1] === 'backup'
     },
     handleResizeColumn (w, col) {
       col.width = w

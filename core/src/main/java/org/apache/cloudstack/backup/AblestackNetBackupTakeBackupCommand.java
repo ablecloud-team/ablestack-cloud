@@ -28,6 +28,7 @@ import java.util.Map;
 
 public class AblestackNetBackupTakeBackupCommand extends Command {
     private String vmName;
+    private String backupJobId;
     private String backupPath;
     private List<PrimaryDataStoreTO> volumePools;
     private List<String> volumePaths;
@@ -41,6 +42,7 @@ public class AblestackNetBackupTakeBackupCommand extends Command {
     private Map<String, String> parentCheckpointXmlChain;
     private List<String> backupFiles;
     private String policyId;
+    private boolean waitForCompletion = true;
     private Integer bandwidthLimitMbps;
 
     public AblestackNetBackupTakeBackupCommand(final String vmName, final String backupPath) {
@@ -55,6 +57,14 @@ public class AblestackNetBackupTakeBackupCommand extends Command {
 
     public void setVmName(final String vmName) {
         this.vmName = vmName;
+    }
+
+    public String getBackupJobId() {
+        return backupJobId;
+    }
+
+    public void setBackupJobId(final String backupJobId) {
+        this.backupJobId = backupJobId;
     }
 
     public String getBackupPath() {
@@ -159,6 +169,14 @@ public class AblestackNetBackupTakeBackupCommand extends Command {
 
     public void setPolicyId(final String policyId) {
         this.policyId = policyId;
+    }
+
+    public boolean isWaitForCompletion() {
+        return waitForCompletion;
+    }
+
+    public void setWaitForCompletion(final boolean waitForCompletion) {
+        this.waitForCompletion = waitForCompletion;
     }
 
     public Integer getBandwidthLimitMbps() {

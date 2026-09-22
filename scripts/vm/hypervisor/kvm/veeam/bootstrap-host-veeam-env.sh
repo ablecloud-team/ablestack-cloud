@@ -51,7 +51,7 @@ VEEAM_SSH_USER="${VEEAM_SSH_USER:-administrator}"
 # unless VM_AUTO_EXCLUDE=false. --vm-exclude adds to that list (exact or glob, e.g. scvm*).
 VM_EXCLUDE="${VM_EXCLUDE:-}"
 VM_AUTO_EXCLUDE="${VM_AUTO_EXCLUDE:-true}"
-# Mold Global backup.chain.size (+ host hook VEEAM_MAX_CHAIN). Mold default is 10.
+# Mold Global kvm.backup.chain.size (+ host hook VEEAM_MAX_CHAIN). Mold default is 10.
 BACKUP_CHAIN_SIZE="${BACKUP_CHAIN_SIZE:-10}"
 VEEAM_HOST_BACKUP_PATH="${VEEAM_HOST_BACKUP_PATH:-/tmp/mold/veeam}"
 VEEAM_AGENT_PAYLOAD_PATH="${VEEAM_AGENT_PAYLOAD_PATH:-/tmp/mold/veeam-agent}"
@@ -158,7 +158,7 @@ VM_AUTO_EXCLUDE='$(_q "${VM_AUTO_EXCLUDE:-true}")'
 VM_NAME=''
 VM_UUID=''
 
-# Mold Global backup.chain.size + Job conf VEEAM_MAX_CHAIN (same value)
+# Mold Global kvm.backup.chain.size + Job conf VEEAM_MAX_CHAIN (same value)
 BACKUP_CHAIN_SIZE='$(_q "${BACKUP_CHAIN_SIZE}")'
 VEEAM_MAX_CHAIN='$(_q "${BACKUP_CHAIN_SIZE}")'
 MAX_CHAIN='$(_q "${BACKUP_CHAIN_SIZE}")'
@@ -217,7 +217,7 @@ echo "  KVM_HOSTNAME=${KVM_HOSTNAME} KVM_IP=${KVM_IP}"
 echo "  JOB_NAME=${JOB_NAME}"
 echo "  VM_INCLUDE=* (host-wide running domains)"
 echo "  VM_EXCLUDE=${VM_EXCLUDE:-"(none extra)"} (auto-exclude scvm*/systemVM/router/ablestack-template: ${VM_AUTO_EXCLUDE:-true})"
-echo "  BACKUP_CHAIN_SIZE=${BACKUP_CHAIN_SIZE} (Mold backup.chain.size + VEEAM_MAX_CHAIN)"
+echo "  BACKUP_CHAIN_SIZE=${BACKUP_CHAIN_SIZE} (Mold kvm.backup.chain.size + VEEAM_MAX_CHAIN)"
 echo "  VEEAM=${VEEAM_HOST}"
 echo "  env → ${ENV_OUT}"
 

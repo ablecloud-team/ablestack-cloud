@@ -21,7 +21,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.Assert;
-import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.apache.cloudstack.context.CallContext;
 import com.cloud.host.HostVO;
@@ -40,7 +39,11 @@ import com.cloud.vm.VirtualMachine.State;
 import com.cloud.vm.dao.VMInstanceDao;
 import com.cloud.vm.snapshot.VMSnapshotVO;
 import com.cloud.vm.snapshot.dao.VMSnapshotDao;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class VmDeviceMutationTest {
     private ManagementServerImpl manager;

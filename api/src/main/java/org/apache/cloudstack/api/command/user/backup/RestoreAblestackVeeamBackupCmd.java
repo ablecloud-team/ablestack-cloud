@@ -56,15 +56,25 @@ public class RestoreAblestackVeeamBackupCmd extends BaseAsyncCmd {
             description = "Backup ID")
     private Long backupId;
 
+    @Parameter(name = "sessionid",
+            type = CommandType.STRING,
+            required = false,
+            description = "Veeam restore session ID that triggered this restore request")
+    private String sessionId;
+
     public Long getBackupId() {
         return backupId;
+    }
+
+    public String getSessionId() {
+        return sessionId;
     }
 
     @Override
     public void execute() throws ResourceUnavailableException, InsufficientCapacityException, ServerApiException,
             ConcurrentOperationException, ResourceAllocationException, NetworkRuleConflictException {
         try {
-            boolean result = backupManager.restoreAblestackVeeamBackup(backupId);
+            boolean result = backupManager.restoreAblestackVeeamBackup(backupId, sessionId);
             if (result) {
                 SuccessResponse response = new SuccessResponse(getCommandName());
                 response.setResponseName(getCommandName());

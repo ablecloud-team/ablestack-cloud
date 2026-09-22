@@ -34,7 +34,7 @@ under the License.
 MS URL·KVM IP·hostname·zone은 agent/API에서 조회합니다. API key/secret만 넘기면 됩니다.
 스크립트가 없으면 이전 배포 패키지입니다 → `veeam-host-deploy/deploy-from-ms.sh` 재실행.
 
-`veeam_config.sh` / pre-notify가 **VeeamBackup offering을 자동 등록**합니다  
+`veeam_config.sh` / pre-notify가 **VeeamBackup offering을 자동 등록**합니다
 (`importBackupOffering` provider=`ablestack-veeam`, externalid=`veeam`). NAS repository는 만들지 않습니다.
 
 ```bash

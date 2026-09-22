@@ -22,13 +22,11 @@ package com.cloud.hypervisor.kvm.resource.wrapper;
 import com.amazonaws.util.CollectionUtils;
 import com.cloud.hypervisor.kvm.resource.LibvirtConnection;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
-import com.cloud.hypervisor.kvm.storage.KVMPhysicalDisk;
-import com.cloud.hypervisor.kvm.storage.KVMStoragePool;
-import com.cloud.hypervisor.kvm.storage.KVMStoragePoolManager;
 import com.cloud.storage.Storage;
 import com.cloud.utils.Pair;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.script.Script;
+import org.apache.cloudstack.backup.AblestackBackupFrameworkUtils;
 import org.apache.cloudstack.backup.AblestackNasTakeBackupCommand;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.utils.security.ParserUtils;
@@ -61,15 +59,16 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import static org.apache.cloudstack.backup.AblestackBackupFrameworkUtils.BACKUP_COMPLETE_MARKER;
+import static org.apache.cloudstack.backup.AblestackBackupFrameworkUtils.BACKUP_IN_PROGRESS_MARKER;
+
 class LibvirtAblestackNasBackupHelper {
     protected Logger LOGGER = LogManager.getLogger(LibvirtAblestackNasBackupHelper.class);
     static final Integer EXIT_CLEANUP_FAILED = 20;
     private static final int BACKUP_JOB_POLL_INTERVAL_MS = 10000;
     private static final int UNMOUNT_TIMEOUT_SECONDS = 60;
     private static final DateTimeFormatter SCRIPT_LOG_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss>");
-    private static final String IN_PROGRESS_MARKER = ".backup.inprogress";
-    private static final String COMPLETE_MARKER = ".backup.complete";
-    private static final String BACKUP_TRACE = "[ABLESTACK_NAS_BACKUP_TRACE]";
+    private static final String BACKUP_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("nas", AblestackBackupFrameworkUtils.OPERATION_BACKUP);
 
     enum BackupExecutionMode {
         RUNNING("backup-running"),
@@ -125,26 +124,18 @@ class LibvirtAblestackNasBackupHelper {
         return result;
     }
 
+    String[] buildDetachedBackupScriptCommand(AblestackNasTakeBackupCommand command) {
+        List<String> diskPaths = resolveDiskPaths(command.getVolumePools(), command.getVolumePaths());
+        BackupExecutionMode executionMode = determineExecutionMode(command.getVmName(), command.getVolumePools());
+        if (BackupExecutionMode.STOPPED.equals(executionMode)) {
+            LOGGER.info("NAS detached backup is skipped for stopped VM [{}]. Java helper execution is required.", command.getVmName());
+            return null;
+        }
+        return buildBackupScriptCommand(command, diskPaths, executionMode);
+    }
+
     List<String> resolveDiskPaths(List<PrimaryDataStoreTO> volumePools, List<String> volumePaths) {
-        List<String> diskPaths = new ArrayList<>();
-        if (Objects.isNull(volumePaths)) {
-            return diskPaths;
-        }
-
-        KVMStoragePoolManager storagePoolMgr = resource.getStoragePoolMgr();
-        for (int idx = 0; idx < volumePaths.size(); idx++) {
-            PrimaryDataStoreTO volumePool = volumePools.get(idx);
-            String volumePath = volumePaths.get(idx);
-            if (volumePool.getPoolType() != Storage.StoragePoolType.RBD) {
-                diskPaths.add(volumePath);
-                continue;
-            }
-
-            KVMStoragePool volumeStoragePool = storagePoolMgr.getStoragePool(volumePool.getPoolType(), volumePool.getUuid());
-            diskPaths.add(KVMPhysicalDisk.RBDStringBuilder(volumeStoragePool, volumePath));
-        }
-
-        return diskPaths;
+        return LibvirtAblestackTakeBackupCommandHelper.resolveDiskPaths(resource, volumePools, volumePaths);
     }
 
     long parseBackupSize(String output, List<String> diskPaths) {
@@ -192,6 +183,7 @@ class LibvirtAblestackNasBackupHelper {
                 "-q", command.getQuiesce() != null && command.getQuiesce() ? "true" : "false",
                 "-f", CollectionUtils.isNullOrEmpty(command.getBackupFiles()) ? "" : String.join(",", command.getBackupFiles()),
                 "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths),
+                "--data-operation-timeout-seconds", String.valueOf(command.getWait()),
                 "--bandwidth-limit-mbps", String.valueOf(command.getBandwidthLimitMbps())
         };
     }
@@ -365,20 +357,20 @@ class LibvirtAblestackNasBackupHelper {
     }
 
     private void markBackupInProgress(Path dest, AblestackNasTakeBackupCommand command) throws IOException {
-        Files.deleteIfExists(dest.resolve(COMPLETE_MARKER));
-        Files.writeString(dest.resolve(IN_PROGRESS_MARKER),
+        Files.deleteIfExists(dest.resolve(BACKUP_COMPLETE_MARKER));
+        Files.writeString(dest.resolve(BACKUP_IN_PROGRESS_MARKER),
                 String.format("vm=%s%ncheckpoint=%s%n", command.getVmName(), command.getCheckpointName()),
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     private void markBackupComplete(Path dest, AblestackNasTakeBackupCommand command) throws IOException {
-        Path completeMarker = dest.resolve(COMPLETE_MARKER);
-        Path tmpMarker = dest.resolve(COMPLETE_MARKER + ".tmp");
+        Path completeMarker = dest.resolve(BACKUP_COMPLETE_MARKER);
+        Path tmpMarker = dest.resolve(BACKUP_COMPLETE_MARKER + ".tmp");
         Files.writeString(tmpMarker,
                 String.format("vm=%s%ncheckpoint=%s%n", command.getVmName(), command.getCheckpointName()),
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         Files.move(tmpMarker, completeMarker, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-        Files.deleteIfExists(dest.resolve(IN_PROGRESS_MARKER));
+        Files.deleteIfExists(dest.resolve(BACKUP_IN_PROGRESS_MARKER));
     }
 
     private boolean unmountRepository(AblestackNasTakeBackupCommand command, Path mountPoint) {

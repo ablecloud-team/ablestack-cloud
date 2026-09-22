@@ -31,6 +31,7 @@ BACKUP_DIR=""
 DISK_PATHS=""
 QUIESCE=""
 BACKUP_BANDWIDTH_LIMIT_MBPS=0
+DATA_OPERATION_TIMEOUT_SECONDS=43200
 BACKUP_TYPE="FULL"
 CHECKPOINT_NAME=""
 PARENT_BACKUP_DIR=""
@@ -45,6 +46,7 @@ CREATED_RBD_SNAPSHOTS=()
 EXIT_CLEANUP_FAILED=20
 STAGING_IN_PROGRESS_MARKER=".staging.inprogress"
 STAGING_COMPLETE_MARKER=".staging.complete"
+RBD_PROGRESS_FILE="${ABLESTACK_BACKUP_JOB_DIR:-}/rbd-progress.properties"
 
 log() {
   [[ "$verb" -eq 1 ]] && builtin echo "$@"
@@ -139,6 +141,67 @@ apply_backup_bandwidth_limit() {
       log -ne "WARNING failed to apply backup bandwidth limit vm=[$VM] disk=[$disk] limitMbps=[$bandwidth_limit_mbps] virshLimitMiBps=[$bandwidth_limit_mibps] output=[${blockjob_output:-Unknown error}]"
     fi
   done < <(virsh -c qemu:///system domblklist "$VM" --details 2>/dev/null | awk '/disk/ {print $3 "|" $4}')
+}
+
+count_csv_values() {
+  local count=0
+  while IFS= read -r value; do
+    [[ -z "$value" ]] && continue
+    count=$((count + 1))
+  done < <(split_csv "$1")
+  echo "$count"
+}
+
+get_rbd_image_size_bytes() {
+  "${RBD_CMD[@]}" info "$RBD_IMAGE" --format json 2>/dev/null | python3 -c '
+import json, sys
+try:
+    print(int(json.load(sys.stdin).get("size") or 0))
+except Exception:
+    print(0)
+' 2>/dev/null || echo 0
+}
+
+write_rbd_progress() {
+  [[ -z "$RBD_PROGRESS_FILE" ]] && return 0
+  local output_file="$1"
+  local total_bytes="${2:-0}"
+  local disk_index="${3:-1}"
+  local disk_count="${4:-1}"
+  local step="${5:-RBD_EXPORT}"
+  local processed_bytes=0
+  processed_bytes=$(stat -c %s "$output_file" 2>/dev/null || echo 0)
+  cat > "$RBD_PROGRESS_FILE.tmp" <<EOF
+engine=RBD_DIFF
+step=$step
+outputFile=$output_file
+processedBytes=$processed_bytes
+totalBytes=$total_bytes
+diskIndex=$disk_index
+diskCount=$disk_count
+updated=$(date +%s)
+EOF
+  mv -f "$RBD_PROGRESS_FILE.tmp" "$RBD_PROGRESS_FILE"
+}
+
+run_rbd_export_with_progress() {
+  local total_bytes="$1"
+  local output_file="$2"
+  local disk_index="$3"
+  local disk_count="$4"
+  local step="$5"
+  shift 5
+  write_rbd_progress "$output_file" "$total_bytes" "$disk_index" "$disk_count" "$step"
+  "$@" &
+  local export_pid=$!
+  while kill -0 "$export_pid" 2>/dev/null; do
+    write_rbd_progress "$output_file" "$total_bytes" "$disk_index" "$disk_count" "$step"
+    sleep 5
+  done
+  wait "$export_pid"
+  local rc=$?
+  write_rbd_progress "$output_file" "$total_bytes" "$disk_index" "$disk_count" "$step"
+  return "$rc"
 }
 
 cleanup() {
@@ -347,7 +410,8 @@ parse_rbd_uri() {
     if [[ "$payload" == *":mon_host="* ]]; then
       RBD_IMAGE="${payload%%:mon_host=*}"
       local mon_part="${payload#*:mon_host=}"
-      RBD_MON_HOST="${mon_part%%:auth_supported=*}"
+      RBD_MON_HOST="${mon_part%%:auth_client_required=*}"
+      RBD_MON_HOST="${RBD_MON_HOST%%:auth_supported=*}"
       RBD_MON_HOST="${RBD_MON_HOST//\\;/,}"
       RBD_MON_HOST="${RBD_MON_HOST//\\:/:}"
     else
@@ -574,6 +638,13 @@ backup_running_vm() {
         echo "Virsh backup job failed"; resume_vm_if_paused; cleanup; exit 1 ;;
     esac
     wait_count=$((wait_count + 1))
+    if (( wait_count * 5 >= DATA_OPERATION_TIMEOUT_SECONDS )); then
+      log -ne "FAILED libvirt backup job timed out vm=[$VM] checkpoint=[$CHECKPOINT_NAME] timeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS]"
+      virsh -c qemu:///system domjobabort --domain "$VM" >> "$logFile" 2>&1 || true
+      resume_vm_if_paused
+      cleanup
+      exit 1
+    fi
     if (( wait_count == 12 || wait_count % 120 == 0 )); then
       log -ne "WAIT libvirt backup job pending vm=[$VM] checkpoint=[$CHECKPOINT_NAME] elapsedSeconds=[$((wait_count * 5))] status=[${status:-unknown}]"
     fi
@@ -594,6 +665,9 @@ backup_rbd_volumes() {
   trap 'log -ne "FAILED RBD backup unexpected error line=[$LINENO] op=[$OP] vm=[$VM] checkpoint=[$CHECKPOINT_NAME]"; cleanup_created_rbd_snapshots' ERR
   trap 'log -ne "FAILED RBD backup interrupted op=[$OP] vm=[$VM] checkpoint=[$CHECKPOINT_NAME]"; cleanup_created_rbd_snapshots; exit 1' INT TERM
   local index=0
+  local disk_count
+  disk_count=$(count_csv_values "$DISK_PATHS")
+  [[ "$disk_count" -lt 1 ]] && disk_count=1
   while IFS= read -r disk_path; do
     [[ -z "$disk_path" ]] && continue
     log -ne "Loop disk raw value=[$disk_path]"
@@ -602,6 +676,7 @@ backup_rbd_volumes() {
     log -ne "Built RBD command: ${RBD_CMD[*]}"
 
     local output_file="$dest/$(get_backup_file_by_index "$index" "${RBD_IMAGE##*/}.raw")"
+    local disk_number=$((index + 1))
     log -ne "Starting RBD backup for disk path [$disk_path], resolved image [$RBD_IMAGE], output [$output_file]"
 
   if ! timeout 30s "${RBD_CMD[@]}" info "$RBD_IMAGE" >> "$logFile" 2>&1; then
@@ -634,8 +709,8 @@ backup_rbd_volumes() {
     if [[ "$BACKUP_TYPE" == "INCREMENTAL" && -n "$PARENT_CHECKPOINT_NAME" ]]; then
       local export_start
       export_start=$(date +%s)
-      if ! timeout 6h "${RBD_CMD[@]}" export-diff --from-snap "$PARENT_CHECKPOINT_NAME" "${RBD_IMAGE}@${CHECKPOINT_NAME}" "$output_file" >> "$logFile" 2>&1; then
-        log -ne "FAILED RBD export-diff image=[$RBD_IMAGE] snapshot=[$CHECKPOINT_NAME] output=[$output_file] elapsedSeconds=[$(($(date +%s) - export_start))] timeout=[6h]"
+      if ! run_rbd_export_with_progress 0 "$output_file" "$disk_number" "$disk_count" RBD_EXPORT_DIFF timeout "${DATA_OPERATION_TIMEOUT_SECONDS}s" "${RBD_CMD[@]}" export-diff --from-snap "$PARENT_CHECKPOINT_NAME" "${RBD_IMAGE}@${CHECKPOINT_NAME}" "$output_file" >> "$logFile" 2>&1; then
+        log -ne "FAILED RBD export-diff image=[$RBD_IMAGE] snapshot=[$CHECKPOINT_NAME] output=[$output_file] elapsedSeconds=[$(($(date +%s) - export_start))] timeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS]"
         echo "Failed to export incremental RBD diff for ${RBD_IMAGE}@${CHECKPOINT_NAME}"
         cleanup_created_rbd_snapshots
         cleanup
@@ -643,9 +718,11 @@ backup_rbd_volumes() {
       fi
     else
       local export_start
+      local total_bytes
       export_start=$(date +%s)
-      if ! timeout 6h "${RBD_CMD[@]}" export "${RBD_IMAGE}@${CHECKPOINT_NAME}" "$output_file" >> "$logFile" 2>&1; then
-        log -ne "FAILED RBD export image=[$RBD_IMAGE] snapshot=[$CHECKPOINT_NAME] output=[$output_file] elapsedSeconds=[$(($(date +%s) - export_start))] timeout=[6h]"
+      total_bytes=$(get_rbd_image_size_bytes)
+      if ! run_rbd_export_with_progress "$total_bytes" "$output_file" "$disk_number" "$disk_count" RBD_EXPORT timeout "${DATA_OPERATION_TIMEOUT_SECONDS}s" "${RBD_CMD[@]}" export "${RBD_IMAGE}@${CHECKPOINT_NAME}" "$output_file" >> "$logFile" 2>&1; then
+        log -ne "FAILED RBD export image=[$RBD_IMAGE] snapshot=[$CHECKPOINT_NAME] output=[$output_file] elapsedSeconds=[$(($(date +%s) - export_start))] timeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS]"
         echo "Failed to export full RBD snapshot ${RBD_IMAGE}@${CHECKPOINT_NAME}"
         cleanup_created_rbd_snapshots
         cleanup
@@ -851,12 +928,18 @@ while [[ $# -gt 0 ]]; do
     -q|--quiesce) QUIESCE="$2"; shift; shift ;;
     -d|--diskpaths) DISK_PATHS="$2"; shift; shift ;;
     --bandwidth-limit-mbps) BACKUP_BANDWIDTH_LIMIT_MBPS="$2"; shift; shift ;;
+    --data-operation-timeout-seconds) DATA_OPERATION_TIMEOUT_SECONDS="$2"; shift; shift ;;
     -C|--cleanupcheckpoints) CLEANUP_CHECKPOINT_NAMES="$2"; shift; shift ;;
     -x|--forced) FORCED="$2"; shift; shift ;;
     -h|--help) usage ;;
     *) echo "Invalid option: $1"; usage ;;
   esac
 done
+
+if ! [[ "$DATA_OPERATION_TIMEOUT_SECONDS" =~ ^[1-9][0-9]*$ ]]; then
+  echo "Data operation timeout must be a positive number of seconds"
+  exit 1
+fi
 
 if [[ -z "$BACKUP_DIR" ]]; then
   echo "Backup path (-p|--path) is required"
@@ -866,7 +949,7 @@ fi
 dest="$BACKUP_DIR"
 sanity_checks
 
-log -ne "ablestack_netbackup.sh start op=[$OP] vm=[$VM] backupDir=[$BACKUP_DIR] backupType=[$BACKUP_TYPE] checkpoint=[$CHECKPOINT_NAME] parentBackup=[$PARENT_BACKUP_DIR] parentCheckpoint=[$PARENT_CHECKPOINT_NAME] diskPaths=[$DISK_PATHS] backupFiles=[$BACKUP_FILES] bandwidthLimitMbps=[$BACKUP_BANDWIDTH_LIMIT_MBPS]"
+log -ne "ablestack_netbackup.sh start op=[$OP] vm=[$VM] backupDir=[$BACKUP_DIR] backupType=[$BACKUP_TYPE] checkpoint=[$CHECKPOINT_NAME] parentBackup=[$PARENT_BACKUP_DIR] parentCheckpoint=[$PARENT_CHECKPOINT_NAME] diskPaths=[$DISK_PATHS] backupFiles=[$BACKUP_FILES] bandwidthLimitMbps=[$BACKUP_BANDWIDTH_LIMIT_MBPS] dataOperationTimeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS]"
 
 if [[ "$OP" == "backup-running" ]]; then
   backup_running_vm

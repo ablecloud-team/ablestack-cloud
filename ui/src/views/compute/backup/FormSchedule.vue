@@ -364,7 +364,7 @@ export default {
         incrementalBackupParams.clusterid = clusterId
       }
       const backupChainSizeParams = {
-        name: 'backup.chain.size'
+        name: 'kvm.backup.chain.size'
       }
 
       Promise.all([

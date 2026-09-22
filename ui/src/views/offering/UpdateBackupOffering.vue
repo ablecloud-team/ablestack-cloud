@@ -44,7 +44,7 @@
         </template>
         <a-switch v-model:checked="form.allowuserdrivenbackups"/>
       </a-form-item>
-      <a-form-item name="retentionperiod" ref="retentionperiod" v-if="resource.provider==='commvault'">
+      <a-form-item name="retentionperiod" ref="retentionperiod" v-if="resource.provider==='ablestack-commvault'">
         <template #label>
           <tooltip-label :title="$t('label.retentionperiod')" :tooltip="apiParams.retentionperiod.description"/>
         </template>
@@ -107,7 +107,7 @@ export default {
   computed: {
     showUserDrivenBackupsField () {
       const provider = (this.resource.provider || '').toLowerCase()
-      return provider !== 'commvault' && provider !== 'ablestack-commvault' && provider !== 'netbackup' && provider !== 'ablestack-netbackup'
+      return provider !== 'ablestack-commvault' && provider !== 'ablestack-netbackup'
     },
     retentionPeriodInDays () {
       const value = parseInt(this.form.retentionPeriodValue)
@@ -167,7 +167,7 @@ export default {
           const input = values[key]
           params[key] = input
         }
-        if (this.resource.provider === 'commvault') {
+        if (this.resource.provider === 'ablestack-commvault') {
           params.retentionperiod = this.retentionPeriodInDays
         }
         params.id = this.resource.id

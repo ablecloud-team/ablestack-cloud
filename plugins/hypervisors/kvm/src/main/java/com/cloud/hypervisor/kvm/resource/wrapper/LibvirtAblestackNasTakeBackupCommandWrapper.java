@@ -23,54 +23,27 @@ import com.cloud.agent.api.Answer;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.resource.CommandWrapper;
 import com.cloud.resource.ResourceWrapper;
-import com.cloud.utils.Pair;
-import org.apache.cloudstack.backup.BackupAnswer;
+import org.apache.cloudstack.backup.AblestackBackupFrameworkUtils;
 import org.apache.cloudstack.backup.AblestackNasTakeBackupCommand;
 
 import java.util.List;
 
 @ResourceWrapper(handles = AblestackNasTakeBackupCommand.class)
 public class LibvirtAblestackNasTakeBackupCommandWrapper extends CommandWrapper<AblestackNasTakeBackupCommand, Answer, LibvirtComputingResource> {
-    private static final String BACKUP_TRACE = "[ABLESTACK_NAS_BACKUP_TRACE]";
+    private static final String BACKUP_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("nas", AblestackBackupFrameworkUtils.OPERATION_BACKUP);
 
     @Override
     public Answer execute(AblestackNasTakeBackupCommand command, LibvirtComputingResource libvirtComputingResource) {
-        logger.info("{} phase=[AGENT_ENTER], vm=[{}], backupPath=[{}], backupType=[{}]",
-                BACKUP_TRACE, command.getVmName(), command.getBackupPath(), command.getBackupType());
-        logger.info("LibvirtTakeBackupCommandWrapper entering execute for vm=[{}], backupPath=[{}], backupType=[{}]",
-                command.getVmName(), command.getBackupPath(), command.getBackupType());
         LibvirtAblestackNasBackupHelper backupHelper = new LibvirtAblestackNasBackupHelper(libvirtComputingResource);
         List<String> diskPaths = backupHelper.resolveDiskPaths(command.getVolumePools(), command.getVolumePaths());
-        logger.info("LibvirtTakeBackupCommandWrapper invoking helper for vm=[{}], diskPaths=[{}]",
-                command.getVmName(), diskPaths);
-        Pair<Integer, String> result = backupHelper.executeBackup(command);
-        if (result.first() == 0) {
-            logger.info("{} phase=[AGENT_DONE], vm=[{}], backupPath=[{}], backupType=[{}]",
-                    BACKUP_TRACE, command.getVmName(), command.getBackupPath(), command.getBackupType());
-        } else {
-            logger.warn("{} phase=[AGENT_FAILED], vm=[{}], backupPath=[{}], backupType=[{}], resultCode=[{}], reason=[{}]",
-                    BACKUP_TRACE, command.getVmName(), command.getBackupPath(), command.getBackupType(), result.first(), result.second());
-        }
-        logger.info("LibvirtTakeBackupCommandWrapper helper returned for vm=[{}], resultCode=[{}], details=[{}]",
-                command.getVmName(), result.first(), result.second());
-
-        if (result.first() != 0) {
-            logger.debug("Failed to take VM backup: " + result.second());
-            BackupAnswer answer = new BackupAnswer(command, false, result.second().trim());
-            if (result.first() == LibvirtAblestackNasBackupHelper.EXIT_CLEANUP_FAILED) {
-                logger.debug("Backup cleanup failed");
-                answer.setNeedsCleanup(true);
-            }
-            return answer;
-        }
-
-        BackupAnswer answer = new BackupAnswer(command, true, result.second().trim());
-        try {
-            answer.setSize(backupHelper.parseBackupSize(result.second(), diskPaths));
-        } catch (RuntimeException e) {
-            logger.warn("Failed to parse NAS backup size for vm=[{}], details=[{}]",
-                    command.getVmName(), result.second(), e);
-        }
-        return answer;
+        return LibvirtAblestackTakeBackupCommandHelper.execute(command, logger, BACKUP_TRACE, "NAS",
+                new LibvirtAblestackTakeBackupCommandHelper.BackupCommandContext(command.getBackupJobId(), command.getVmName(),
+                        command.getBackupPath(), command.getBackupType(), command.isWaitForCompletion()),
+                () -> backupHelper.buildDetachedBackupScriptCommand(command),
+                () -> backupHelper.executeBackup(command),
+                LibvirtAblestackNasBackupHelper.EXIT_CLEANUP_FAILED,
+                "NAS backup helper returned failure without details",
+                true,
+                result -> backupHelper.parseBackupSize(result.second(), diskPaths));
     }
 }

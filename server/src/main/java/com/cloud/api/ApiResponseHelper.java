@@ -131,7 +131,6 @@ import org.apache.cloudstack.api.response.LBHealthCheckResponse;
 import org.apache.cloudstack.api.response.LBStickinessPolicyResponse;
 import org.apache.cloudstack.api.response.LBStickinessResponse;
 import org.apache.cloudstack.api.response.ListResponse;
-import org.apache.cloudstack.backup.BackupProviderNameUtils;
 import org.apache.cloudstack.api.response.LoadBalancerResponse;
 import org.apache.cloudstack.api.response.ManagementServerResponse;
 import org.apache.cloudstack.api.response.NetworkACLItemResponse;
@@ -5702,7 +5701,7 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
         response.setId(backupRepository.getUuid());
         response.setCreated(backupRepository.getCreated());
         response.setAddress(backupRepository.getAddress());
-        response.setProviderName(BackupProviderNameUtils.toDisplayName(backupRepository.getProvider()));
+        response.setProviderName(backupRepository.getProvider());
         response.setType(backupRepository.getType());
         if (StringUtils.isNotBlank(backupRepository.getMountOptions())) {
             response.setMountOptions(backupRepository.getMountOptions());

@@ -103,6 +103,18 @@ public interface BackupProvider {
         throw new UnsupportedOperationException("NetBackup is not supported by provider " + getName());
     }
 
+    default Pair<Boolean, Backup> takeNetBackup(VirtualMachine vm, String policyName, Long backupScheduleId) {
+        return takeNetBackup(vm, policyName);
+    }
+
+    default boolean cancelBackup(VirtualMachine vm, Backup backup) {
+        throw new UnsupportedOperationException("Backup cancellation is not supported by provider " + getName());
+    }
+
+    default boolean cleanupCanceledBackup(VirtualMachine vm, Backup backup) {
+        return true;
+    }
+
     default String getCatalogBackupTime(Long zoneId, String backupId) {
         return null;
     }
@@ -137,6 +149,15 @@ public interface BackupProvider {
 
     Pair<Boolean, String> restoreBackupToVM(VirtualMachine vm, Backup backup, String hostIp, String dataStoreUuid, boolean quickrestore);
 
+    default boolean supportsDetachedRestoreOrchestration() {
+        return false;
+    }
+
+    default Pair<Boolean, String> startRestoreBackupToVM(VirtualMachine vm, Backup backup, String hostIp,
+            String dataStoreUuid, boolean quickrestore) {
+        return restoreBackupToVM(vm, backup, hostIp, dataStoreUuid, quickrestore);
+    }
+
     /**
      * Restore VM from BX backup
      */
@@ -148,6 +169,10 @@ public interface BackupProvider {
      * Restore VM from backup
      */
     boolean restoreVMFromBackup(VirtualMachine vm, Backup backup, boolean quickRestore, Long hostId);
+
+    default boolean startRestoreVMFromBackup(VirtualMachine vm, Backup backup, boolean quickRestore, Long hostId) {
+        return restoreVMFromBackup(vm, backup, quickRestore, hostId);
+    }
 
     default boolean restoreVMFromBackup(VirtualMachine vm, Backup backup) {
         return restoreVMFromBackup(vm, backup, false, null);
@@ -170,6 +195,11 @@ public interface BackupProvider {
      */
     Pair<Boolean, String> restoreBackedUpVolume(Backup backup, Backup.VolumeInfo backupVolumeInfo, String hostIp, String dataStoreUuid,
             Pair<String, VirtualMachine.State> vmNameAndState, VirtualMachine vm, boolean quickRestore);
+
+    default Pair<Boolean, String> startRestoreBackedUpVolume(Backup backup, Backup.VolumeInfo backupVolumeInfo, String hostIp,
+            String dataStoreUuid, Pair<String, VirtualMachine.State> vmNameAndState, VirtualMachine vm, boolean quickRestore) {
+        return restoreBackedUpVolume(backup, backupVolumeInfo, hostIp, dataStoreUuid, vmNameAndState, vm, quickRestore);
+    }
 
     /**
      * Syncs backup metrics (backup size, protected size) from the plugin and stores it within the provider
@@ -228,6 +258,10 @@ public interface BackupProvider {
      */
     default void syncBackups(VirtualMachine vm) {
 
+    }
+
+    default boolean reconcileBackingUpBackup(VirtualMachine vm, Backup backup) {
+        return false;
     }
 
     /**
@@ -299,6 +333,9 @@ public interface BackupProvider {
     }
 
     default void runPostRestoreMaintenance(VirtualMachine vm, Backup backup, boolean volumeOnly) {
+    }
+
+    default void onVmRestoreCompleted(VirtualMachine vm, Backup backup) {
     }
 
     default boolean supportsBackgroundChainValidation() {
