@@ -178,6 +178,9 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
     ExtensionHelper extensionHelper;
     @Inject
     BackupDao backupDao;
+
+    @Inject
+    private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
     @Inject
     private BackupOfferingDao backupOfferingDao;
 
@@ -238,6 +241,7 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
     public UserVmResponse newUserVmResponse(ResponseView view, String objectName, UserVmJoinVO userVm, Set<VMDetails> details, Boolean accumulateStats, Boolean showUserData,
             Account caller) {
         UserVmResponse userVmResponse = new UserVmResponse();
+        userVmResponse.setVolumeMutationBlockedReason(backupVolumeGuard.reason(userVm.getId()));
 
         if (userVm.getHypervisorType() != null) {
             userVmResponse.setHypervisor(userVm.getHypervisorType().getHypervisorDisplayName());

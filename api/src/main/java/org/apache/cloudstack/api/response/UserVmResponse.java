@@ -230,6 +230,13 @@ public class UserVmResponse extends BaseResponseWithTagInformation implements Co
     @Param(description = "The ID of the backup offering of the Instance", since = "4.14")
     private String backupOfferingId;
 
+    @SerializedName("volumemutationblockedreason")
+    @Param(description = "Reason why disk topology changes are blocked by backup protection")
+    private String volumeMutationBlockedReason = "";
+
+    public String getVolumeMutationBlockedReason() { return volumeMutationBlockedReason; }
+    public void setVolumeMutationBlockedReason(String reason) { volumeMutationBlockedReason = reason == null ? "" : reason; }
+
     @SerializedName(ApiConstants.BACKUP_OFFERING_NAME)
     @Param(description = "The name of the backup offering of the Instance", since = "4.14")
     private String backupOfferingName;

@@ -210,6 +210,9 @@ import com.cloud.vm.snapshot.dao.VMSnapshotDao;
 import com.google.gson.Gson;
 
 public class BackupManagerImpl extends ManagerBase implements BackupManager {
+    @Inject
+    private BackupVolumeGuard backupVolumeGuard;
+
 
     @Inject
     private BackupSnapshotGuard backupSnapshotGuard;
@@ -788,7 +791,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_OFFERING_ASSIGN, eventDescription = "assign Instance to Backup Offering", async = true)
     public boolean assignVMToBackupOffering(Long vmId, Long offeringId) {
-        try (BackupSnapshotGuard.Lease guard = backupSnapshotGuard.acquire(vmId)) {
+        try (BackupVolumeGuard.Lease volumeGuard = backupVolumeGuard.acquire(vmId);
+                BackupSnapshotGuard.Lease guard = backupSnapshotGuard.acquire(vmId)) {
             final VMInstanceVO vm = findVmById(vmId);
 
             if (!Arrays.asList(VirtualMachine.State.Running, VirtualMachine.State.Stopped, VirtualMachine.State.Shutdown).contains(vm.getState())) {
@@ -923,7 +927,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_SCHEDULE_CONFIGURE, eventDescription = "configuring Instance Backup Schedule")
     public BackupSchedule configureBackupSchedule(CreateBackupScheduleCmd cmd) {
-        try (BackupSnapshotGuard.Lease guard = backupSnapshotGuard.acquire(cmd.getVmId())) {
+        try (BackupVolumeGuard.Lease volumeGuard = backupVolumeGuard.acquire(cmd.getVmId());
+                BackupSnapshotGuard.Lease guard = backupSnapshotGuard.acquire(cmd.getVmId())) {
             final Long vmId = cmd.getVmId();
             final DateUtil.IntervalType intervalType = cmd.getIntervalType();
             final String scheduleString = cmd.getSchedule();
@@ -1138,7 +1143,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_CREATE, eventDescription = "creating Instance Backup", async = true)
     public boolean createBackup(CreateBackupCmd cmd, Object job) throws ResourceAllocationException {
-        try (BackupSnapshotGuard.Lease guard = backupSnapshotGuard.acquire(cmd.getVmId())) {
+        try (BackupVolumeGuard.Lease volumeGuard = backupVolumeGuard.acquire(cmd.getVmId());
+                BackupSnapshotGuard.Lease guard = backupSnapshotGuard.acquire(cmd.getVmId())) {
             final long backupStartTime = System.currentTimeMillis();
             Long vmId = cmd.getVmId();
             Account caller = CallContext.current().getCallingAccount();

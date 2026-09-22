@@ -101,6 +101,9 @@ public class UserVmJoinDaoImplTest extends GenericDaoBaseWithTagInformationBaseT
     private BackupDao backupDao;
 
     @Mock
+    private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
+
+    @Mock
     private VmIsoMapDao vmIsoMapDao;
     @Mock
     private HostDetailsDao hostDetailsDao;

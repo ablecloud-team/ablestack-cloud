@@ -17,7 +17,7 @@
 
 import { startVolumeOperation, volumeActionReason, volumeDeviceIdReason, clearVolumeOperations } from '@/utils/vmVolumeActions'
 const flush = async () => { for (let i = 0; i < 60; i++) await Promise.resolve() }
-const vm = { id: 'vm', state: 'Running', zoneid: 'zone', account: 'account', domainid: 'domain' }
+const vm = { volumemutationblockedreason: '', id: 'vm', state: 'Running', zoneid: 'zone', account: 'account', domainid: 'domain' }
 const volume = { id: 'volume', type: 'DATADISK', state: 'Ready', zoneid: 'zone', account: 'account', domainid: 'domain' }
 function dependencies () {
   return { current: () => true, refresh: jest.fn(), validate: jest.fn().mockResolvedValue(), submit: jest.fn().mockImplementation(operation => Promise.resolve({ [operation.steps[operation.stage].toLowerCase() + 'response']: { jobid: 'job-' + operation.stage } })), poll: jest.fn().mockResolvedValue({ jobstatus: 1 }) }
@@ -87,4 +87,13 @@ test('device ID supports automatic assignment and rejects reserved or occupied s
   for (const value of [0, -1, 3, 1.5, 'abc']) expect(volumeDeviceIdReason(value)).toBeTruthy()
   expect(volumeDeviceIdReason(6, [{ deviceid: 6 }])).toBe('message.vmvolume.device.used')
   expect(volumeDeviceIdReason('6', [{ deviceid: 1 }])).toBe('')
+})
+
+test.each(['createVolume', 'attachVolume', 'detachVolume'])('backup topology blocks %s', api => {
+  expect(volumeActionReason(api, volume, { ...vm, volumemutationblockedreason: 'BACKUP_EXISTS' })).toBe('message.vmvolume.backup.blocked')
+  expect(volumeActionReason(api, volume, { ...vm, volumemutationblockedreason: 'BACKUP_SCHEDULE_EXISTS' })).toBe('message.vmvolume.backup.blocked')
+  expect(volumeActionReason(api, volume, { ...vm, volumemutationblockedreason: undefined })).toBe('message.vmvolume.backup.unknown')
+})
+test('independent volume deletion is not blocked by a different VM backup', () => {
+  expect(volumeActionReason('destroyVolume', volume, { ...vm, volumemutationblockedreason: 'BACKUP_EXISTS' })).toBe('')
 })

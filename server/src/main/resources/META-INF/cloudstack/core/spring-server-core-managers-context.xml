@@ -359,6 +359,8 @@
 
     <bean id="DiagnosticsService" class="org.apache.cloudstack.diagnostics.DiagnosticsServiceImpl" />
 
+    <bean id="backupVolumeGuard" class="org.apache.cloudstack.backup.BackupVolumeGuard" />
+
     <bean id="backupManager" class="org.apache.cloudstack.backup.BackupManagerImpl">
         <property name="backupProviders" value="#{backupProvidersRegistry.registered}" />
         <property name="asyncJobDispatcher" ref="ApiAsyncJobDispatcher" />
