@@ -5090,6 +5090,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (!Backup.Status.BackingUp.equals(backup.getStatus())) {
             response.setState(backup.getStatus() != null ? backup.getStatus().toString() : null);
             response.setProgress(getTerminalBackupProgress(backup.getStatus()));
+            response.setDetails(getBackupFailureReason(backup));
             return response;
         }
 
@@ -5119,6 +5120,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             response.setBandwidthLimitMbps(backupAnswer.getBandwidthLimitMbps());
             response.setBandwidthStatus(backupAnswer.getBandwidthStatus());
             if (!backupAnswer.getResult()) {
+                response.setDetails(backupAnswer.getDetails());
                 response.setStep(StringUtils.defaultIfBlank(backupAnswer.getDetails(), response.getStep()));
             }
             return response;
@@ -5721,6 +5723,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         response.setSize(backup.getSize());
         response.setProtectedSize(backup.getProtectedSize());
         response.setStatus(backup.getStatus());
+        response.setBackupJobDetails(getBackupFailureReason(backup));
         final boolean externalProvider = offering != null
                 && (BackupProviderNameUtils.isNetBackupFamily(offering.getProvider())
                 || BackupProviderNameUtils.isVeeamFamily(offering.getProvider()));
@@ -5811,12 +5814,35 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 .orElse(null);
     }
 
+    private String getBackupFailureReason(final Backup backup) {
+        if (backup == null) {
+            return null;
+        }
+        Map<String, String> details = backup.getDetails();
+        if ((details == null || details.isEmpty()) && backup.getId() > 0) {
+            details = backupDetailsDao.listDetailsKeyPairs(backup.getId(), true);
+        }
+        if (details == null || details.isEmpty()) {
+            return null;
+        }
+        return details.entrySet().stream()
+                .filter(entry -> StringUtils.endsWith(entry.getKey(), ".failure.reason"))
+                .filter(entry -> !AblestackBackupFrameworkUtils.RESTORE_JOB_FAILURE_REASON_DETAIL.equals(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .filter(StringUtils::isNotBlank)
+                .findFirst()
+                .orElse(null);
+    }
+
     private void populateRestoreJobResponseFields(final Backup backup, final BackupResponse response) {
         if (backup == null) {
             return;
         }
         if (backup instanceof BackupVO) {
             backupDao.loadDetails((BackupVO) backup);
+        }
+        if (backup.getDetails() == null || backup.getDetails().isEmpty()) {
+            return;
         }
         final String restoreJobId = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL);
         final String storedRestoreState = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL);

@@ -72,6 +72,7 @@ public class ApiConstants {
     public static final String BACKUP_JOB_CAPABILITIES = "capabilities";
     public static final String BACKUP_JOB_BANDWIDTH_LIMIT_MBPS = "bandwidthlimitmbps";
     public static final String BACKUP_JOB_BANDWIDTH_STATUS = "bandwidthstatus";
+    public static final String BACKUP_JOB_DETAILS = "backupjobdetails";
     public static final String BACKUP_ENGINE = "backupengine";
     public static final String RESTORE_JOB_ID = "restorejobid";
     public static final String RESTORE_JOB_STATE = "restorejobstate";

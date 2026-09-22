@@ -410,22 +410,38 @@ backup_rbd_volumes() {
 
     if [[ "$BACKUP_TYPE" == "INCREMENTAL" && -n "$PARENT_CHECKPOINT_NAME" ]]; then
       local export_start
+      local export_rc=0
+      local export_elapsed
       export_start=$(date +%s)
-      if ! run_rbd_export_with_progress 0 "$output" "$disk_number" "$disk_count" RBD_EXPORT_DIFF timeout "${DATA_OPERATION_TIMEOUT_SECONDS}s" "${RBD_CMD[@]}" export-diff --from-snap "$PARENT_CHECKPOINT_NAME" "${RBD_IMAGE}@${current_snapshot}" "$output" >> "$logFile" 2>&1; then
-        log -ne "FAILED RBD export-diff image=[$RBD_IMAGE] snapshot=[$current_snapshot] output=[$output] elapsedSeconds=[$(($(date +%s) - export_start))] timeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS]"
-        echo "Failed to export incremental RBD diff for ${RBD_IMAGE}@${current_snapshot}"
+      run_rbd_export_with_progress 0 "$output" "$disk_number" "$disk_count" RBD_EXPORT_DIFF timeout "${DATA_OPERATION_TIMEOUT_SECONDS}s" "${RBD_CMD[@]}" export-diff --from-snap "$PARENT_CHECKPOINT_NAME" "${RBD_IMAGE}@${current_snapshot}" "$output" >> "$logFile" 2>&1 || export_rc=$?
+      if [[ "$export_rc" -ne 0 ]]; then
+        export_elapsed=$(($(date +%s) - export_start))
+        log -ne "FAILED RBD export-diff image=[$RBD_IMAGE] snapshot=[$current_snapshot] output=[$output] elapsedSeconds=[$export_elapsed] timeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS] exitCode=[$export_rc]"
+        if [[ "$export_rc" -eq 124 ]]; then
+          echo "Timed out exporting incremental RBD diff for ${RBD_IMAGE}@${current_snapshot} (timeoutSeconds=${DATA_OPERATION_TIMEOUT_SECONDS})"
+        else
+          echo "Failed to export incremental RBD diff for ${RBD_IMAGE}@${current_snapshot} (exitCode=${export_rc})"
+        fi
         cleanup_created_rbd_snapshots
         cleanup
         exit 1
       fi
     else
       local export_start
+      local export_rc=0
+      local export_elapsed
       local total_bytes
       export_start=$(date +%s)
       total_bytes=$(get_rbd_image_size_bytes)
-      if ! run_rbd_export_with_progress "$total_bytes" "$output" "$disk_number" "$disk_count" RBD_EXPORT timeout "${DATA_OPERATION_TIMEOUT_SECONDS}s" "${RBD_CMD[@]}" export "${RBD_IMAGE}@${current_snapshot}" "$output" >> "$logFile" 2>&1; then
-        log -ne "FAILED RBD export image=[$RBD_IMAGE] snapshot=[$current_snapshot] output=[$output] elapsedSeconds=[$(($(date +%s) - export_start))] timeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS]"
-        echo "Failed to export full RBD snapshot ${RBD_IMAGE}@${current_snapshot}"
+      run_rbd_export_with_progress "$total_bytes" "$output" "$disk_number" "$disk_count" RBD_EXPORT timeout "${DATA_OPERATION_TIMEOUT_SECONDS}s" "${RBD_CMD[@]}" export "${RBD_IMAGE}@${current_snapshot}" "$output" >> "$logFile" 2>&1 || export_rc=$?
+      if [[ "$export_rc" -ne 0 ]]; then
+        export_elapsed=$(($(date +%s) - export_start))
+        log -ne "FAILED RBD export image=[$RBD_IMAGE] snapshot=[$current_snapshot] output=[$output] elapsedSeconds=[$export_elapsed] timeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS] exitCode=[$export_rc]"
+        if [[ "$export_rc" -eq 124 ]]; then
+          echo "Timed out exporting full RBD snapshot ${RBD_IMAGE}@${current_snapshot} (timeoutSeconds=${DATA_OPERATION_TIMEOUT_SECONDS})"
+        else
+          echo "Failed to export full RBD snapshot ${RBD_IMAGE}@${current_snapshot} (exitCode=${export_rc})"
+        fi
         cleanup_created_rbd_snapshots
         cleanup
         exit 1

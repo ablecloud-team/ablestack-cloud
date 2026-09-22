@@ -42,6 +42,10 @@
             <span>{{ $t('label.status') }} :</span>
             <span>{{ bandwidthStatusLabel }}</span>
           </div>
+          <div v-if="failureDetails" class="backup-progress-tooltip-row backup-progress-tooltip-error">
+            <span>{{ $t('label.reason') }} :</span>
+            <span>{{ failureDetails }}</span>
+          </div>
         </div>
       </template>
     </status>
@@ -88,6 +92,7 @@ export default {
       logPath: this.record?.backupjoblogpath || this.record?.restorejoblogpath || '',
       bandwidthLimitMbps: this.normalizeBandwidth(this.record?.bandwidthlimitmbps),
       bandwidthStatus: this.record?.bandwidthstatus || '',
+      failureDetails: this.getFailureDetails(this.record),
       restoreJobId: this.record?.restorejobid || '',
       restoreFinished: this.isTerminalJobState(this.record?.restorejobstate),
       restorePending: this.isRestoreJobPending(this.record)
@@ -158,8 +163,8 @@ export default {
       return this.$t('message.backup.bandwidth.' + this.bandwidthStatus)
     },
     showJobDetails () {
-      return this.isActive && (this.showProgress || !!this.jobState || !!this.displayStep || !!this.logPath ||
-        this.bandwidthLimitMbps !== null || !!this.bandwidthStatus)
+      return !!this.failureDetails || (this.isActive && (this.showProgress || !!this.jobState || !!this.displayStep || !!this.logPath ||
+        this.bandwidthLimitMbps !== null || !!this.bandwidthStatus))
     }
   },
   watch: {
@@ -218,6 +223,7 @@ export default {
         this.bandwidthLimitMbps = bandwidthLimitMbps
       }
       this.bandwidthStatus = this.record?.bandwidthstatus || this.bandwidthStatus
+      this.failureDetails = this.getFailureDetails(this.record)
       if (!this.isActive) {
         this.progress = null
         this.jobState = ''
@@ -279,6 +285,9 @@ export default {
         this.$emit('capabilities-change', response.capabilities || '')
       }
       this.bandwidthStatus = response.bandwidthstatus || this.bandwidthStatus
+      if (Object.prototype.hasOwnProperty.call(response, 'details')) {
+        this.failureDetails = response.details || ''
+      }
       if (this.isTerminalJobState(response.state)) {
         this.restoreFinished = true
         this.restorePending = false
@@ -315,6 +324,26 @@ export default {
         return null
       }
       return Math.max(bandwidth, 0)
+    },
+    getFailureDetails (record) {
+      if (!record || typeof record !== 'object') {
+        return ''
+      }
+      if (record.backupjobdetails) {
+        return record.backupjobdetails
+      }
+      if (record.restorejobdetails && this.isFailedJobState(record.restorejobstate)) {
+        return record.restorejobdetails
+      }
+      const details = record.vmdetails
+      if (!details || typeof details !== 'object') {
+        return ''
+      }
+      const failureKey = Object.keys(details).find(key => key.endsWith('.failure.reason') && !key.includes('.restore.'))
+      return failureKey ? details[failureKey] : ''
+    },
+    isFailedJobState (state) {
+      return ['failed', 'error', 'canceled', 'cancelled', 'interrupted'].includes(String(state || '').toLowerCase())
     }
   }
 }
@@ -358,6 +387,14 @@ export default {
 .backup-progress-tooltip-row {
   display: flex;
   gap: 6px;
+}
+
+.backup-progress-tooltip-row span:first-child {
+  flex: 0 0 auto;
+}
+
+.backup-progress-tooltip-row span:last-child {
+  overflow-wrap: anywhere;
 }
 
 .backup-progress-tooltip-error span:last-child {
