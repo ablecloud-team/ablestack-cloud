@@ -160,6 +160,8 @@ public class BackupManagerTest {
 
     @Mock
     private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
+    @Mock
+    private BackupSnapshotGuard backupSnapshotGuard;
 
     @Mock
     BackupOfferingDao backupOfferingDao;
