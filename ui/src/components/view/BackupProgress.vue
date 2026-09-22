@@ -18,37 +18,60 @@
 -->
 <template>
   <div class="backup-progress">
-    <status :text="displayStatus" displayText :styles="{ 'min-width': '80px' }">
-      <template v-if="showJobDetails" #tooltip>
-        <div class="backup-progress-tooltip">
-          <div class="backup-progress-tooltip-title">{{ displayStatus }}</div>
-          <div v-if="showProgress" class="backup-progress-tooltip-row">
-            <span>{{ $t('label.progress') }} :</span>
-            <span>{{ progress }}%</span>
+    <div class="backup-progress-status">
+      <status :text="displayStatus" displayText :styles="{ 'min-width': '80px' }">
+        <template v-if="showJobDetails" #tooltip>
+          <div class="backup-progress-tooltip">
+            <div class="backup-progress-tooltip-title">{{ displayStatus }}</div>
+            <div v-if="showProgress" class="backup-progress-tooltip-row">
+              <span>{{ $t('label.progress') }} :</span>
+              <span>{{ progress }}%</span>
+            </div>
+            <div v-if="jobState" class="backup-progress-tooltip-row">
+              <span>{{ $t('label.state') }} :</span>
+              <span>{{ jobState }}</span>
+            </div>
+            <div v-if="displayStep" class="backup-progress-tooltip-row">
+              <span>{{ $t('label.step') }} :</span>
+              <span>{{ displayStep }}</span>
+            </div>
+            <div v-if="bandwidthLimitMbps !== null" class="backup-progress-tooltip-row">
+              <span>{{ $t('label.bandwidth') }} :</span>
+              <span>{{ bandwidthLimitMbps === 0 ? $t('label.unlimited') : bandwidthLimitMbps + ' Mbps' }}</span>
+            </div>
+            <div v-if="bandwidthStatusLabel" class="backup-progress-tooltip-row" :class="{ 'backup-progress-tooltip-error': bandwidthStatus === 'failed' }">
+              <span>{{ $t('label.status') }} :</span>
+              <span>{{ bandwidthStatusLabel }}</span>
+            </div>
+            <div v-if="failureDetails" class="backup-progress-tooltip-row backup-progress-tooltip-error">
+              <span>{{ $t('label.failure.reason') }} :</span>
+              <span>{{ failureDetails }}</span>
+            </div>
           </div>
-          <div v-if="jobState" class="backup-progress-tooltip-row">
-            <span>{{ $t('label.state') }} :</span>
-            <span>{{ jobState }}</span>
+        </template>
+      </status>
+      <a-tooltip v-if="showRestoreFailure" placement="top">
+        <template #title>
+          <div class="backup-progress-tooltip">
+            <div class="backup-progress-tooltip-title">{{ $t('label.restore.failed') }}</div>
+            <div class="backup-progress-tooltip-row">
+              <span>{{ $t('label.latest.restore.result') }} :</span>
+              <span>{{ $t('label.failed') }}</span>
+            </div>
+            <div class="backup-progress-tooltip-row backup-progress-tooltip-error">
+              <span>{{ $t('label.failure.reason') }} :</span>
+              <span>{{ restoreFailureDetails }}</span>
+            </div>
+            <div class="backup-progress-tooltip-row">
+              <span>{{ $t('label.backup') }} {{ $t('label.status') }} :</span>
+              <span>{{ $t('label.success') }}</span>
+            </div>
+            <div class="backup-progress-tooltip-note">{{ $t('message.restore.failure.backup.unaffected') }}</div>
           </div>
-          <div v-if="displayStep" class="backup-progress-tooltip-row">
-            <span>{{ $t('label.step') }} :</span>
-            <span>{{ displayStep }}</span>
-          </div>
-          <div v-if="bandwidthLimitMbps !== null" class="backup-progress-tooltip-row">
-            <span>{{ $t('label.bandwidth') }} :</span>
-            <span>{{ bandwidthLimitMbps === 0 ? $t('label.unlimited') : bandwidthLimitMbps + ' Mbps' }}</span>
-          </div>
-          <div v-if="bandwidthStatusLabel" class="backup-progress-tooltip-row" :class="{ 'backup-progress-tooltip-error': bandwidthStatus === 'failed' }">
-            <span>{{ $t('label.status') }} :</span>
-            <span>{{ bandwidthStatusLabel }}</span>
-          </div>
-          <div v-if="failureDetails" class="backup-progress-tooltip-row backup-progress-tooltip-error">
-            <span>{{ $t('label.reason') }} :</span>
-            <span>{{ failureDetails }}</span>
-          </div>
-        </div>
-      </template>
-    </status>
+        </template>
+        <info-circle-outlined class="backup-progress-restore-info" />
+      </a-tooltip>
+    </div>
     <div v-if="showProgress && isActive" class="backup-progress-line">
       <a-progress
         :percent="progress"
@@ -93,6 +116,8 @@ export default {
       bandwidthLimitMbps: this.normalizeBandwidth(this.record?.bandwidthlimitmbps),
       bandwidthStatus: this.record?.bandwidthstatus || '',
       failureDetails: this.getFailureDetails(this.record),
+      restoreFailureDetails: this.getRestoreFailureDetails(this.record),
+      restoreJobState: this.record?.restorejobstate || '',
       restoreJobId: this.record?.restorejobid || '',
       restoreFinished: this.isTerminalJobState(this.record?.restorejobstate),
       restorePending: this.isRestoreJobPending(this.record)
@@ -165,6 +190,10 @@ export default {
     showJobDetails () {
       return !!this.failureDetails || (this.isActive && (this.showProgress || !!this.jobState || !!this.displayStep || !!this.logPath ||
         this.bandwidthLimitMbps !== null || !!this.bandwidthStatus))
+    },
+    showRestoreFailure () {
+      return String(this.localStatus || this.record?.status || '').toLowerCase() === 'backedup' &&
+        this.isFailedJobState(this.restoreJobState) && !!this.restoreFailureDetails
     }
   },
   watch: {
@@ -224,6 +253,8 @@ export default {
       }
       this.bandwidthStatus = this.record?.bandwidthstatus || this.bandwidthStatus
       this.failureDetails = this.getFailureDetails(this.record)
+      this.restoreJobState = this.record?.restorejobstate || ''
+      this.restoreFailureDetails = this.getRestoreFailureDetails(this.record)
       if (!this.isActive) {
         this.progress = null
         this.jobState = ''
@@ -286,7 +317,14 @@ export default {
       }
       this.bandwidthStatus = response.bandwidthstatus || this.bandwidthStatus
       if (Object.prototype.hasOwnProperty.call(response, 'details')) {
-        this.failureDetails = response.details || ''
+        const status = String(this.localStatus || '').toLowerCase()
+        this.failureDetails = ['failed', 'error'].includes(status) ? (response.details || '') : ''
+        if (wasRestoring && this.isFailedJobState(response.state)) {
+          this.restoreFailureDetails = response.details || ''
+        }
+      }
+      if (wasRestoring && response.state) {
+        this.restoreJobState = response.state
       }
       if (this.isTerminalJobState(response.state)) {
         this.restoreFinished = true
@@ -329,11 +367,12 @@ export default {
       if (!record || typeof record !== 'object') {
         return ''
       }
+      const status = String(record.status || '').toLowerCase()
+      if (!['failed', 'error'].includes(status)) {
+        return ''
+      }
       if (record.backupjobdetails) {
         return record.backupjobdetails
-      }
-      if (record.restorejobdetails && this.isFailedJobState(record.restorejobstate)) {
-        return record.restorejobdetails
       }
       const details = record.vmdetails
       if (!details || typeof details !== 'object') {
@@ -341,6 +380,12 @@ export default {
       }
       const failureKey = Object.keys(details).find(key => key.endsWith('.failure.reason') && !key.includes('.restore.'))
       return failureKey ? details[failureKey] : ''
+    },
+    getRestoreFailureDetails (record) {
+      if (!record || !this.isFailedJobState(record.restorejobstate)) {
+        return ''
+      }
+      return record.restorejobdetails || ''
     },
     isFailedJobState (state) {
       return ['failed', 'error', 'canceled', 'cancelled', 'interrupted'].includes(String(state || '').toLowerCase())
@@ -352,6 +397,18 @@ export default {
 <style scoped>
 .backup-progress {
   min-width: 120px;
+}
+
+.backup-progress-status {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+}
+
+.backup-progress-restore-info {
+  color: rgba(0, 0, 0, 0.45);
+  cursor: help;
+  font-size: 14px;
 }
 
 .backup-progress-line {
@@ -398,7 +455,13 @@ export default {
 }
 
 .backup-progress-tooltip-error span:last-child {
-  color: #cf1322;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.backup-progress-tooltip-note {
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  margin-top: 6px;
+  padding-top: 6px;
 }
 
 </style>

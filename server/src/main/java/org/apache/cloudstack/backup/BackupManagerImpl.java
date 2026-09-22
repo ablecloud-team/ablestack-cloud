@@ -5815,7 +5815,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     private String getBackupFailureReason(final Backup backup) {
-        if (backup == null) {
+        if (backup == null || (!Backup.Status.Failed.equals(backup.getStatus()) && !Backup.Status.Error.equals(backup.getStatus()))) {
             return null;
         }
         Map<String, String> details = backup.getDetails();
@@ -5827,7 +5827,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         return details.entrySet().stream()
                 .filter(entry -> StringUtils.endsWith(entry.getKey(), ".failure.reason"))
-                .filter(entry -> !AblestackBackupFrameworkUtils.RESTORE_JOB_FAILURE_REASON_DETAIL.equals(entry.getKey()))
+                .filter(entry -> !StringUtils.contains(entry.getKey(), ".restore."))
                 .map(Map.Entry::getValue)
                 .filter(StringUtils::isNotBlank)
                 .findFirst()
@@ -5846,18 +5846,47 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         final String restoreJobId = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL);
         final String storedRestoreState = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL);
-        if (StringUtils.isBlank(restoreJobId) && StringUtils.isBlank(storedRestoreState)) {
+        final String providerRestoreState = getProviderRestoreState(backup);
+        final String restoreFailureReason = getRestoreFailureReason(backup);
+        if (StringUtils.isBlank(restoreJobId) && StringUtils.isBlank(storedRestoreState)
+                && StringUtils.isBlank(providerRestoreState) && StringUtils.isBlank(restoreFailureReason)) {
             return;
         }
         if (StringUtils.isNotBlank(restoreJobId)) {
             response.setRestoreJobId(restoreJobId);
             response.setRestoreJobLogPath(AblestackBackupFrameworkUtils.getAsyncRestoreJobLogPath(restoreJobId));
         }
-        final String restoreJobState = getRestoreJobStateForResponse(backup);
+        final String restoreJobState = StringUtils.defaultIfBlank(storedRestoreState,
+                StringUtils.defaultIfBlank(providerRestoreState, getRestoreJobStateForResponse(backup)));
         if (StringUtils.isNotBlank(restoreJobState)) {
             response.setRestoreJobState(restoreJobState);
         }
-        response.setRestoreJobDetails(backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_FAILURE_REASON_DETAIL));
+        response.setRestoreJobDetails(restoreFailureReason);
+    }
+
+    private String getProviderRestoreState(final Backup backup) {
+        final String veeamRestorePhase = backup.getDetail(VEEAM_RESTORE_PHASE);
+        if (StringUtils.isNotBlank(veeamRestorePhase)) {
+            return veeamRestorePhase;
+        }
+        if (backup instanceof BackupVO) {
+            return netBackupRestoreCoordinator.getRestorePhase((BackupVO) backup);
+        }
+        return null;
+    }
+
+    private String getRestoreFailureReason(final Backup backup) {
+        final String commonFailureReason = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_FAILURE_REASON_DETAIL);
+        if (StringUtils.isNotBlank(commonFailureReason)) {
+            return commonFailureReason;
+        }
+        return backup.getDetails().entrySet().stream()
+                .filter(entry -> StringUtils.contains(entry.getKey(), ".restore."))
+                .filter(entry -> StringUtils.endsWith(entry.getKey(), ".failure.reason"))
+                .map(Map.Entry::getValue)
+                .filter(StringUtils::isNotBlank)
+                .findFirst()
+                .orElse(null);
     }
 
     private String getRestoreJobStateForResponse(final Backup backup) {
@@ -5865,14 +5894,12 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (StringUtils.isNotBlank(storedState)) {
             return storedState;
         }
+        final String providerRestoreState = getProviderRestoreState(backup);
+        if (StringUtils.isNotBlank(providerRestoreState)) {
+            return providerRestoreState;
+        }
         if (!isBackupRestoreStatePending(backup)) {
             return "COMPLETED";
-        }
-        if (backup instanceof BackupVO) {
-            final String netBackupRestorePhase = netBackupRestoreCoordinator.getRestorePhase((BackupVO) backup);
-            if (StringUtils.isNotBlank(netBackupRestorePhase)) {
-                return netBackupRestorePhase;
-            }
         }
         return isBackupRestoreStatePending(backup) ? null : "COMPLETED";
     }
