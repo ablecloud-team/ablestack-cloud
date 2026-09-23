@@ -1,0 +1,1231 @@
+[
+  {
+    "name": "capability-ready",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "observedAt": "2026-09-24T03:00:00Z",
+      "os": {
+        "family": "linux",
+        "id": "rocky",
+        "version": "9.7",
+        "arch": "x86_64"
+      },
+      "qgaVersion": "8.2.0",
+      "hostToolsVersion": "fixture-only",
+      "guestAdapterVersion": "fixture-only",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "ENABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "ENABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "ENABLED"
+      },
+      "readiness": "READY",
+      "allowedActions": [
+        "process.list",
+        "process.terminate",
+        "process.kill",
+        "service.restart"
+      ],
+      "error": null
+    }
+  },
+  {
+    "name": "capability-rpc_disabled",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "observedAt": "2026-09-24T03:00:00Z",
+      "os": {
+        "family": "linux",
+        "id": "rocky",
+        "version": "9.7",
+        "arch": "x86_64"
+      },
+      "qgaVersion": "8.2.0",
+      "hostToolsVersion": "fixture-only",
+      "guestAdapterVersion": "fixture-only",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "DISABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "ENABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "ENABLED"
+      },
+      "readiness": "RPC_DISABLED",
+      "allowedActions": [],
+      "error": {
+        "code": "RPC_DISABLED",
+        "message": "fixture diagnostic",
+        "retryMode": "READ_ONLY"
+      }
+    }
+  },
+  {
+    "name": "capability-rpc_unsupported",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "observedAt": "2026-09-24T03:00:00Z",
+      "os": {
+        "family": "linux",
+        "id": "rocky",
+        "version": "9.7",
+        "arch": "x86_64"
+      },
+      "qgaVersion": "8.2.0",
+      "hostToolsVersion": "fixture-only",
+      "guestAdapterVersion": "fixture-only",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "ENABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "ENABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "UNSUPPORTED"
+      },
+      "readiness": "RPC_UNSUPPORTED",
+      "allowedActions": [],
+      "error": {
+        "code": "RPC_UNSUPPORTED",
+        "message": "fixture diagnostic",
+        "retryMode": "READ_ONLY"
+      }
+    }
+  },
+  {
+    "name": "capability-qga_unreachable",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "observedAt": "2026-09-24T03:00:00Z",
+      "os": {
+        "family": "linux",
+        "id": "rocky",
+        "version": "9.7",
+        "arch": "x86_64"
+      },
+      "qgaVersion": "8.2.0",
+      "hostToolsVersion": "fixture-only",
+      "guestAdapterVersion": "fixture-only",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "UNKNOWN",
+        "guest-exec-status": "UNKNOWN",
+        "guest-file-open": "UNKNOWN",
+        "guest-file-close": "UNKNOWN",
+        "guest-file-read": "UNKNOWN",
+        "guest-file-write": "UNKNOWN",
+        "guest-file-seek": "UNKNOWN",
+        "guest-file-flush": "UNKNOWN"
+      },
+      "readiness": "QGA_UNREACHABLE",
+      "allowedActions": [],
+      "error": {
+        "code": "QGA_UNREACHABLE",
+        "message": "fixture diagnostic",
+        "retryMode": "READ_ONLY"
+      }
+    }
+  },
+  {
+    "name": "snapshot-linux",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "snapshot",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "snapshotId": "55555555-5555-4555-8555-555555555555",
+      "bootId": "linux:66666666-6666-4666-8666-666666666666",
+      "observedAt": "2026-09-24T03:00:00Z",
+      "expiresAt": "2026-09-24T03:00:10Z",
+      "status": "OK",
+      "truncated": false,
+      "totalKnown": 1,
+      "processes": [
+        {
+          "identity": {
+            "vmUuid": "11111111-1111-4111-8111-111111111111",
+            "bootId": "linux:66666666-6666-4666-8666-666666666666",
+            "pid": 1200,
+            "startTicks": "9223372036854770000"
+          },
+          "ppid": 1,
+          "name": "테스트 worker",
+          "owner": "demo",
+          "state": "sleeping",
+          "memoryBytes": 10485760,
+          "cpuPercent": null,
+          "services": [
+            {
+              "manager": "systemd",
+              "name": "demo.service",
+              "configurationHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "allowedActions": [
+            "process.terminate",
+            "process.kill",
+            "service.restart"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "snapshot-windows",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "snapshot",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "snapshotId": "55555555-5555-4555-8555-555555555555",
+      "bootId": "windows:134030700000000000",
+      "observedAt": "2026-09-24T03:00:00Z",
+      "expiresAt": "2026-09-24T03:00:10Z",
+      "status": "OK",
+      "truncated": false,
+      "totalKnown": 1,
+      "processes": [
+        {
+          "identity": {
+            "vmUuid": "11111111-1111-4111-8111-111111111111",
+            "bootId": "windows:134030700000000000",
+            "pid": 1200,
+            "startTicks": "134030700000010000"
+          },
+          "ppid": 1,
+          "name": "테스트 worker",
+          "owner": "demo",
+          "state": "sleeping",
+          "memoryBytes": 10485760,
+          "cpuPercent": null,
+          "services": [
+            {
+              "manager": "scm",
+              "name": "DemoSvc",
+              "configurationHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            }
+          ],
+          "allowedActions": [
+            "process.kill",
+            "service.restart"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "snapshot-partial",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "snapshot",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "snapshotId": "55555555-5555-4555-8555-555555555555",
+      "bootId": "linux:66666666-6666-4666-8666-666666666666",
+      "observedAt": "2026-09-24T03:00:00Z",
+      "expiresAt": "2026-09-24T03:00:10Z",
+      "status": "PARTIAL",
+      "truncated": true,
+      "totalKnown": null,
+      "processes": [
+        {
+          "identity": {
+            "vmUuid": "11111111-1111-4111-8111-111111111111",
+            "bootId": "linux:66666666-6666-4666-8666-666666666666",
+            "pid": 1200,
+            "startTicks": "9223372036854770000"
+          },
+          "ppid": 1,
+          "name": "테스트 worker",
+          "owner": "demo",
+          "state": "sleeping",
+          "memoryBytes": 10485760,
+          "cpuPercent": null,
+          "services": [
+            {
+              "manager": "systemd",
+              "name": "demo.service",
+              "configurationHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "allowedActions": [
+            "process.terminate",
+            "process.kill",
+            "service.restart"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "read-list",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "readRequest",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operation": "process.list",
+      "operationId": null,
+      "budgetMs": 10000
+    }
+  },
+  {
+    "name": "read-reconcile",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "readRequest",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operation": "operation.get",
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "budgetMs": 5000
+    }
+  },
+  {
+    "name": "request-kill",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionRequest",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "process.kill",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "snapshotId": "55555555-5555-4555-8555-555555555555",
+      "observedAt": "2026-09-24T03:00:00Z",
+      "service": null,
+      "budgetMs": 15000
+    }
+  },
+  {
+    "name": "request-service-restart",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionRequest",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "service.restart",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "snapshotId": "55555555-5555-4555-8555-555555555555",
+      "observedAt": "2026-09-24T03:00:00Z",
+      "service": {
+        "manager": "systemd",
+        "name": "demo.service",
+        "configurationHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "budgetMs": 90000
+    }
+  },
+  {
+    "name": "result-target-exited",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionResult",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "process.kill",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "service": null,
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "submittedAt": "2026-09-24T03:00:00Z",
+      "completedAt": "2026-09-24T03:00:02Z",
+      "guestExecPid": 3300,
+      "guestExitCode": 0,
+      "postcondition": "TARGET_EXITED",
+      "error": null
+    }
+  },
+  {
+    "name": "result-service-restarted",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionResult",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "service.restart",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "service": {
+        "manager": "systemd",
+        "name": "demo.service",
+        "configurationHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "submittedAt": "2026-09-24T03:00:00Z",
+      "completedAt": "2026-09-24T03:00:02Z",
+      "guestExecPid": 3300,
+      "guestExitCode": 0,
+      "postcondition": "SERVICE_RESTART_VERIFIED",
+      "error": null
+    }
+  },
+  {
+    "name": "result-accepted",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionResult",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "process.kill",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "service": null,
+      "state": "ACCEPTED",
+      "effect": "NOT_STARTED",
+      "submittedAt": "2026-09-24T03:00:00Z",
+      "completedAt": null,
+      "guestExecPid": 3300,
+      "guestExitCode": null,
+      "postcondition": "NOT_CHECKED",
+      "error": null
+    }
+  },
+  {
+    "name": "result-running",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionResult",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "process.kill",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "service": null,
+      "state": "RUNNING",
+      "effect": "MAY_HAVE_RUN",
+      "submittedAt": "2026-09-24T03:00:00Z",
+      "completedAt": null,
+      "guestExecPid": 3300,
+      "guestExitCode": null,
+      "postcondition": "NOT_CHECKED",
+      "error": null
+    }
+  },
+  {
+    "name": "result-unknown",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionResult",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "process.kill",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "service": null,
+      "state": "UNKNOWN",
+      "effect": "MAY_HAVE_RUN",
+      "submittedAt": "2026-09-24T03:00:00Z",
+      "completedAt": null,
+      "guestExecPid": 3300,
+      "guestExitCode": null,
+      "postcondition": "NOT_CHECKED",
+      "error": {
+        "code": "RESULT_UNKNOWN",
+        "message": "lost response after dispatch; query only",
+        "retryMode": "READ_ONLY"
+      }
+    }
+  },
+  {
+    "name": "result-rejected",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionResult",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "process.kill",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "service": null,
+      "state": "FAILED",
+      "effect": "NOT_STARTED",
+      "submittedAt": "2026-09-24T03:00:00Z",
+      "completedAt": "2026-09-24T03:00:02Z",
+      "guestExecPid": null,
+      "guestExitCode": null,
+      "postcondition": "NOT_CHECKED",
+      "error": {
+        "code": "PROTECTED_TARGET",
+        "message": "protected process",
+        "retryMode": "NONE"
+      }
+    }
+  },
+  {
+    "name": "failure-unsupported_version",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "failure",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "error": {
+        "code": "UNSUPPORTED_VERSION",
+        "message": "fixture diagnostic",
+        "retryMode": "NONE"
+      }
+    }
+  },
+  {
+    "name": "failure-permission_denied",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "failure",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "error": {
+        "code": "PERMISSION_DENIED",
+        "message": "fixture diagnostic",
+        "retryMode": "NONE"
+      }
+    }
+  },
+  {
+    "name": "failure-stale_authority",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "failure",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "error": {
+        "code": "STALE_AUTHORITY",
+        "message": "fixture diagnostic",
+        "retryMode": "NONE"
+      }
+    }
+  },
+  {
+    "name": "failure-stale_identity",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "failure",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "error": {
+        "code": "STALE_IDENTITY",
+        "message": "fixture diagnostic",
+        "retryMode": "NONE"
+      }
+    }
+  },
+  {
+    "name": "failure-stale_snapshot",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "failure",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "error": {
+        "code": "STALE_SNAPSHOT",
+        "message": "fixture diagnostic",
+        "retryMode": "NONE"
+      }
+    }
+  },
+  {
+    "name": "failure-request_conflict",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "failure",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "error": {
+        "code": "REQUEST_CONFLICT",
+        "message": "fixture diagnostic",
+        "retryMode": "NONE"
+      }
+    }
+  },
+  {
+    "name": "failure-busy",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "failure",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "error": {
+        "code": "BUSY",
+        "message": "fixture diagnostic",
+        "retryMode": "READ_ONLY"
+      }
+    }
+  },
+  {
+    "name": "failure-not_found",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "failure",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "fixture diagnostic",
+        "retryMode": "NONE"
+      }
+    }
+  },
+  {
+    "name": "failure-qga_unreachable",
+    "valid": true,
+    "reason": "",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "failure",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "error": {
+        "code": "QGA_UNREACHABLE",
+        "message": "fixture diagnostic",
+        "retryMode": "READ_ONLY"
+      }
+    }
+  },
+  {
+    "name": "reject-ready-with-disabled-rpc",
+    "valid": false,
+    "reason": "READY requires all eight RPCs",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "observedAt": "2026-09-24T03:00:00Z",
+      "os": {
+        "family": "linux",
+        "id": "rocky",
+        "version": "9.7",
+        "arch": "x86_64"
+      },
+      "qgaVersion": "8.2.0",
+      "hostToolsVersion": "fixture-only",
+      "guestAdapterVersion": "fixture-only",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "ENABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "DISABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "ENABLED"
+      },
+      "readiness": "READY",
+      "allowedActions": [
+        "process.list",
+        "process.terminate",
+        "process.kill",
+        "service.restart"
+      ],
+      "error": null
+    }
+  },
+  {
+    "name": "reject-cross-vm-identity",
+    "valid": false,
+    "reason": "identity must belong to authority VM",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionRequest",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "process.kill",
+      "identity": {
+        "vmUuid": "22222222-2222-4222-8222-222222222222",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "snapshotId": "55555555-5555-4555-8555-555555555555",
+      "observedAt": "2026-09-24T03:00:00Z",
+      "service": null,
+      "budgetMs": 15000
+    }
+  },
+  {
+    "name": "reject-arbitrary-command",
+    "valid": false,
+    "reason": "unknown input field",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionRequest",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "process.kill",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "snapshotId": "55555555-5555-4555-8555-555555555555",
+      "observedAt": "2026-09-24T03:00:00Z",
+      "service": null,
+      "budgetMs": 15000,
+      "command": "rm -rf /"
+    }
+  },
+  {
+    "name": "reject-lossy-ticks",
+    "valid": false,
+    "reason": "ticks must be decimal string",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionRequest",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "process.kill",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": 9223372036854770000
+      },
+      "snapshotId": "55555555-5555-4555-8555-555555555555",
+      "observedAt": "2026-09-24T03:00:00Z",
+      "service": null,
+      "budgetMs": 15000
+    }
+  },
+  {
+    "name": "reject-version",
+    "valid": false,
+    "reason": "unsupported negotiated schema",
+    "payload": {
+      "schemaVersion": "2.0",
+      "kind": "actionRequest",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "process.kill",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "snapshotId": "55555555-5555-4555-8555-555555555555",
+      "observedAt": "2026-09-24T03:00:00Z",
+      "service": null,
+      "budgetMs": 15000
+    }
+  },
+  {
+    "name": "reject-restart-without-service",
+    "valid": false,
+    "reason": "restart requires service target",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionRequest",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "service.restart",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "snapshotId": "55555555-5555-4555-8555-555555555555",
+      "observedAt": "2026-09-24T03:00:00Z",
+      "service": null,
+      "budgetMs": 90000
+    }
+  },
+  {
+    "name": "reject-unverified-success",
+    "valid": false,
+    "reason": "success requires action-specific postcondition",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionResult",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "process.kill",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "service": null,
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "submittedAt": "2026-09-24T03:00:00Z",
+      "completedAt": "2026-09-24T03:00:02Z",
+      "guestExecPid": 3300,
+      "guestExitCode": 0,
+      "postcondition": "NOT_CHECKED",
+      "error": null
+    }
+  },
+  {
+    "name": "reject-unknown-replay",
+    "valid": false,
+    "reason": "UNKNOWN only permits read",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionResult",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "process.kill",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "service": null,
+      "state": "UNKNOWN",
+      "effect": "MAY_HAVE_RUN",
+      "submittedAt": "2026-09-24T03:00:00Z",
+      "completedAt": null,
+      "guestExecPid": 3300,
+      "guestExitCode": null,
+      "postcondition": "NOT_CHECKED",
+      "error": {
+        "code": "RESULT_UNKNOWN",
+        "message": "lost response after dispatch; query only",
+        "retryMode": "NEW_REQUEST_AFTER_REVALIDATION"
+      }
+    }
+  },
+  {
+    "name": "reject-cross-boot-snapshot",
+    "valid": false,
+    "reason": "all rows belong to snapshot boot",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "snapshot",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "snapshotId": "55555555-5555-4555-8555-555555555555",
+      "bootId": "linux:66666666-6666-4666-8666-666666666666",
+      "observedAt": "2026-09-24T03:00:00Z",
+      "expiresAt": "2026-09-24T03:00:10Z",
+      "status": "OK",
+      "truncated": false,
+      "totalKnown": 1,
+      "processes": [
+        {
+          "identity": {
+            "vmUuid": "11111111-1111-4111-8111-111111111111",
+            "bootId": "other-boot",
+            "pid": 1200,
+            "startTicks": "9223372036854770000"
+          },
+          "ppid": 1,
+          "name": "테스트 worker",
+          "owner": "demo",
+          "state": "sleeping",
+          "memoryBytes": 10485760,
+          "cpuPercent": null,
+          "services": [
+            {
+              "manager": "systemd",
+              "name": "demo.service",
+              "configurationHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "allowedActions": [
+            "process.terminate",
+            "process.kill",
+            "service.restart"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "reject-duplicate-identity",
+    "valid": false,
+    "reason": "duplicate identity in snapshot",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "snapshot",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "snapshotId": "55555555-5555-4555-8555-555555555555",
+      "bootId": "linux:66666666-6666-4666-8666-666666666666",
+      "observedAt": "2026-09-24T03:00:00Z",
+      "expiresAt": "2026-09-24T03:00:10Z",
+      "status": "OK",
+      "truncated": false,
+      "totalKnown": 1,
+      "processes": [
+        {
+          "identity": {
+            "vmUuid": "11111111-1111-4111-8111-111111111111",
+            "bootId": "linux:66666666-6666-4666-8666-666666666666",
+            "pid": 1200,
+            "startTicks": "9223372036854770000"
+          },
+          "ppid": 1,
+          "name": "테스트 worker",
+          "owner": "demo",
+          "state": "sleeping",
+          "memoryBytes": 10485760,
+          "cpuPercent": null,
+          "services": [
+            {
+              "manager": "systemd",
+              "name": "demo.service",
+              "configurationHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "allowedActions": [
+            "process.terminate",
+            "process.kill",
+            "service.restart"
+          ]
+        },
+        {
+          "identity": {
+            "vmUuid": "11111111-1111-4111-8111-111111111111",
+            "bootId": "linux:66666666-6666-4666-8666-666666666666",
+            "pid": 1200,
+            "startTicks": "9223372036854770000"
+          },
+          "ppid": 1,
+          "name": "테스트 worker",
+          "owner": "demo",
+          "state": "sleeping",
+          "memoryBytes": 10485760,
+          "cpuPercent": null,
+          "services": [
+            {
+              "manager": "systemd",
+              "name": "demo.service",
+              "configurationHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "allowedActions": [
+            "process.terminate",
+            "process.kill",
+            "service.restart"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "reject-budget-overflow",
+    "valid": false,
+    "reason": "budget exceeds hard cap",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "actionRequest",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operationId": "44444444-4444-4444-8444-444444444444",
+      "action": "process.kill",
+      "identity": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "bootId": "linux:66666666-6666-4666-8666-666666666666",
+        "pid": 1200,
+        "startTicks": "9223372036854770000"
+      },
+      "snapshotId": "55555555-5555-4555-8555-555555555555",
+      "observedAt": "2026-09-24T03:00:00Z",
+      "service": null,
+      "budgetMs": 90001
+    }
+  },
+  {
+    "name": "reject-reconcile-without-operation",
+    "valid": false,
+    "reason": "lookup requires operationId",
+    "payload": {
+      "schemaVersion": "1.0",
+      "kind": "readRequest",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "authority": {
+        "vmUuid": "11111111-1111-4111-8111-111111111111",
+        "hostUuid": "22222222-2222-4222-8222-222222222222",
+        "placementGeneration": "42"
+      },
+      "operation": "operation.get",
+      "operationId": null,
+      "budgetMs": 5000
+    }
+  }
+]

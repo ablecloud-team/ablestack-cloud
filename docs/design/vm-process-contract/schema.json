@@ -1,0 +1,816 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ablestack:vm-process-contract:1.0",
+  "title": "ABLESTACK VM process contract 1.0",
+  "description": "Issue 1171. Normative constraints also apply in verify.py and README. No runtime implementation.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/capability"
+    },
+    {
+      "$ref": "#/$defs/snapshot"
+    },
+    {
+      "$ref": "#/$defs/readRequest"
+    },
+    {
+      "$ref": "#/$defs/actionRequest"
+    },
+    {
+      "$ref": "#/$defs/actionResult"
+    },
+    {
+      "$ref": "#/$defs/failure"
+    }
+  ],
+  "$defs": {
+    "authority": {
+      "type": "object",
+      "properties": {
+        "vmUuid": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f-]{36}$"
+        },
+        "hostUuid": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f-]{36}$"
+        },
+        "placementGeneration": {
+          "type": "string",
+          "pattern": "^[0-9]{1,20}$"
+        }
+      },
+      "required": [
+        "vmUuid",
+        "hostUuid",
+        "placementGeneration"
+      ],
+      "additionalProperties": false
+    },
+    "identity": {
+      "type": "object",
+      "properties": {
+        "vmUuid": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f-]{36}$"
+        },
+        "bootId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "pid": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "startTicks": {
+          "type": "string",
+          "pattern": "^[0-9]{1,20}$"
+        }
+      },
+      "required": [
+        "vmUuid",
+        "bootId",
+        "pid",
+        "startTicks"
+      ],
+      "additionalProperties": false
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "manager": {
+          "enum": [
+            "systemd",
+            "scm"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "configurationHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "manager",
+        "name",
+        "configurationHash"
+      ],
+      "additionalProperties": false
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "enum": [
+            "UNSUPPORTED_VERSION",
+            "QGA_UNREACHABLE",
+            "RPC_DISABLED",
+            "RPC_UNSUPPORTED",
+            "TOOLS_REQUIRED",
+            "HOST_TOOL_MISSING",
+            "UNSUPPORTED_OS",
+            "UNSUPPORTED_HYPERVISOR",
+            "VM_NOT_RUNNING",
+            "CHECK_FAILED",
+            "PERMISSION_DENIED",
+            "BUSY",
+            "STALE_AUTHORITY",
+            "STALE_IDENTITY",
+            "STALE_SNAPSHOT",
+            "PROTECTED_TARGET",
+            "UNSUPPORTED_ACTION",
+            "REQUEST_CONFLICT",
+            "OUTPUT_LIMIT",
+            "EXEC_FAILED",
+            "DEADLINE_EXCEEDED",
+            "RESULT_UNKNOWN",
+            "NOT_FOUND"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "retryMode": {
+          "enum": [
+            "NONE",
+            "READ_ONLY",
+            "NEW_REQUEST_AFTER_REVALIDATION"
+          ]
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryMode"
+      ],
+      "additionalProperties": false
+    },
+    "process": {
+      "type": "object",
+      "properties": {
+        "identity": {
+          "$ref": "#/$defs/identity"
+        },
+        "ppid": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "owner": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 256
+        },
+        "state": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "memoryBytes": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "cpuPercent": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/service"
+          },
+          "maxItems": 128
+        },
+        "allowedActions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "process.terminate",
+              "process.kill",
+              "service.restart"
+            ]
+          },
+          "maxItems": 3,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "identity",
+        "ppid",
+        "name",
+        "owner",
+        "state",
+        "memoryBytes",
+        "cpuPercent",
+        "services",
+        "allowedActions"
+      ],
+      "additionalProperties": false
+    },
+    "capability": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "kind": {
+          "const": "capability"
+        },
+        "requestId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f-]{36}$"
+        },
+        "authority": {
+          "$ref": "#/$defs/authority"
+        },
+        "observedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$"
+        },
+        "os": {
+          "type": "object",
+          "properties": {
+            "family": {
+              "enum": [
+                "linux",
+                "windows",
+                "unknown"
+              ]
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "arch": {
+              "enum": [
+                "x86_64",
+                "unsupported"
+              ]
+            }
+          },
+          "required": [
+            "family",
+            "id",
+            "version",
+            "arch"
+          ],
+          "additionalProperties": false
+        },
+        "qgaVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "hostToolsVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "guestAdapterVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "supportedSchemaVersions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+$"
+          },
+          "maxItems": 16,
+          "uniqueItems": true
+        },
+        "rpcs": {
+          "type": "object",
+          "properties": {
+            "guest-exec": {
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "UNSUPPORTED",
+                "UNKNOWN"
+              ]
+            },
+            "guest-exec-status": {
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "UNSUPPORTED",
+                "UNKNOWN"
+              ]
+            },
+            "guest-file-open": {
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "UNSUPPORTED",
+                "UNKNOWN"
+              ]
+            },
+            "guest-file-close": {
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "UNSUPPORTED",
+                "UNKNOWN"
+              ]
+            },
+            "guest-file-read": {
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "UNSUPPORTED",
+                "UNKNOWN"
+              ]
+            },
+            "guest-file-write": {
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "UNSUPPORTED",
+                "UNKNOWN"
+              ]
+            },
+            "guest-file-seek": {
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "UNSUPPORTED",
+                "UNKNOWN"
+              ]
+            },
+            "guest-file-flush": {
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "UNSUPPORTED",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "required": [
+            "guest-exec",
+            "guest-exec-status",
+            "guest-file-open",
+            "guest-file-close",
+            "guest-file-read",
+            "guest-file-write",
+            "guest-file-seek",
+            "guest-file-flush"
+          ],
+          "additionalProperties": false
+        },
+        "readiness": {
+          "enum": [
+            "READY",
+            "RPC_DISABLED",
+            "RPC_UNSUPPORTED",
+            "QGA_UNREACHABLE",
+            "TOOLS_REQUIRED",
+            "HOST_TOOL_MISSING",
+            "UNSUPPORTED_OS",
+            "UNSUPPORTED_HYPERVISOR",
+            "VM_NOT_RUNNING",
+            "CHECK_FAILED"
+          ]
+        },
+        "allowedActions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "process.list",
+              "process.terminate",
+              "process.kill",
+              "service.restart"
+            ]
+          },
+          "maxItems": 4,
+          "uniqueItems": true
+        },
+        "error": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/error"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "kind",
+        "requestId",
+        "authority",
+        "observedAt",
+        "os",
+        "qgaVersion",
+        "hostToolsVersion",
+        "guestAdapterVersion",
+        "supportedSchemaVersions",
+        "rpcs",
+        "readiness",
+        "allowedActions",
+        "error"
+      ],
+      "additionalProperties": false
+    },
+    "snapshot": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "kind": {
+          "const": "snapshot"
+        },
+        "requestId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f-]{36}$"
+        },
+        "authority": {
+          "$ref": "#/$defs/authority"
+        },
+        "snapshotId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f-]{36}$"
+        },
+        "bootId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "observedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$"
+        },
+        "status": {
+          "enum": [
+            "OK",
+            "PARTIAL"
+          ]
+        },
+        "truncated": {
+          "type": "boolean"
+        },
+        "totalKnown": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "processes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/process"
+          },
+          "maxItems": 10000
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "kind",
+        "requestId",
+        "authority",
+        "snapshotId",
+        "bootId",
+        "observedAt",
+        "expiresAt",
+        "status",
+        "truncated",
+        "totalKnown",
+        "processes"
+      ],
+      "additionalProperties": false
+    },
+    "readRequest": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "kind": {
+          "const": "readRequest"
+        },
+        "requestId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f-]{36}$"
+        },
+        "authority": {
+          "$ref": "#/$defs/authority"
+        },
+        "operation": {
+          "enum": [
+            "capability.get",
+            "process.list",
+            "operation.get"
+          ]
+        },
+        "operationId": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f-]{36}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "budgetMs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "kind",
+        "requestId",
+        "authority",
+        "operation",
+        "operationId",
+        "budgetMs"
+      ],
+      "additionalProperties": false
+    },
+    "actionRequest": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "kind": {
+          "const": "actionRequest"
+        },
+        "requestId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f-]{36}$"
+        },
+        "authority": {
+          "$ref": "#/$defs/authority"
+        },
+        "operationId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f-]{36}$"
+        },
+        "action": {
+          "enum": [
+            "process.terminate",
+            "process.kill",
+            "service.restart"
+          ]
+        },
+        "identity": {
+          "$ref": "#/$defs/identity"
+        },
+        "snapshotId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f-]{36}$"
+        },
+        "observedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$"
+        },
+        "service": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/service"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "budgetMs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 90000
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "kind",
+        "requestId",
+        "authority",
+        "operationId",
+        "action",
+        "identity",
+        "snapshotId",
+        "observedAt",
+        "service",
+        "budgetMs"
+      ],
+      "additionalProperties": false
+    },
+    "actionResult": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "kind": {
+          "const": "actionResult"
+        },
+        "requestId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f-]{36}$"
+        },
+        "authority": {
+          "$ref": "#/$defs/authority"
+        },
+        "operationId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f-]{36}$"
+        },
+        "action": {
+          "enum": [
+            "process.terminate",
+            "process.kill",
+            "service.restart"
+          ]
+        },
+        "identity": {
+          "$ref": "#/$defs/identity"
+        },
+        "service": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/service"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state": {
+          "enum": [
+            "ACCEPTED",
+            "RUNNING",
+            "SUCCEEDED",
+            "FAILED",
+            "UNKNOWN"
+          ]
+        },
+        "effect": {
+          "enum": [
+            "NOT_STARTED",
+            "MAY_HAVE_RUN",
+            "VERIFIED"
+          ]
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$"
+        },
+        "completedAt": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "Z$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "guestExecPid": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "guestExitCode": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "postcondition": {
+          "enum": [
+            "NOT_CHECKED",
+            "TARGET_EXITED",
+            "SERVICE_RESTART_VERIFIED"
+          ]
+        },
+        "error": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/error"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "kind",
+        "requestId",
+        "authority",
+        "operationId",
+        "action",
+        "identity",
+        "service",
+        "state",
+        "effect",
+        "submittedAt",
+        "completedAt",
+        "guestExecPid",
+        "guestExitCode",
+        "postcondition",
+        "error"
+      ],
+      "additionalProperties": false
+    },
+    "failure": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "kind": {
+          "const": "failure"
+        },
+        "requestId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f-]{36}$"
+        },
+        "authority": {
+          "$ref": "#/$defs/authority"
+        },
+        "error": {
+          "$ref": "#/$defs/error"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "kind",
+        "requestId",
+        "authority",
+        "error"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
