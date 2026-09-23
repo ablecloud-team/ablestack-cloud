@@ -16,7 +16,6 @@
 // under the License.
 
 <template>
-  <VmVbmcManager v-if="vbmcOpen && $route.meta.name === 'vm'" :resource="resource" @close-action="vbmcOpen = false" />
   <a-alert type="error" v-if="['vm', 'systemvm', 'router', 'ilbvm'].includes($route.meta.name) && 'hostcontrolstate' in resource && resource.hostcontrolstate !== 'Enabled'">
     <template #message>
       <div class="title">
@@ -59,7 +58,6 @@
           <a-tooltip v-if="['volume', 'snapshot', 'template', 'iso'].includes($route.meta.name) && item === 'savingrate'"><template #title>{{ $t('message.savingrate') }}</template><QuestionCircleOutlined style="margin-left: 8px;"/></a-tooltip>
           <br/>
           <div v-if="$route.meta.name === 'vm' && item === 'vbmcport'">
-            <a-button type="link" @click="vbmcOpen = true">{{ $t('label.vbmc.manage') }}</a-button>
             <span>{{ dataResource[item] === 'None' ? $t('label.vbmc.Unallocated') : dataResource[item] }}</span>
           </div>
           <div v-else-if="Array.isArray(dataResource[item]) && item === 'service'">
@@ -342,7 +340,6 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from 'vue'
 import DedicateData from './DedicateData'
 import HostInfo from '@/views/infra/HostInfo'
 import VmwareData from './VmwareData'
@@ -357,7 +354,6 @@ import 'vue-code-highlight/themes/prism-okaidia.css'
 export default {
   name: 'DetailsTab',
   components: {
-    VmVbmcManager: defineAsyncComponent(() => import('@/views/compute/VmVbmcManager.vue')),
     DedicateData,
     HostInfo,
     VmwareData,
@@ -390,7 +386,6 @@ export default {
   },
   data () {
     return {
-      vbmcOpen: false,
       dedicatedRoutes: ['zone', 'pod', 'cluster', 'host'],
       dedicatedSectionActive: false,
       projectname: '',
