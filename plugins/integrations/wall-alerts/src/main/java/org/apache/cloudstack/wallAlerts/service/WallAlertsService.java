@@ -34,6 +34,8 @@ import org.apache.cloudstack.api.command.admin.wall.alerts.ExpireWallAlertSilenc
 
 
 public interface WallAlertsService extends Manager, PluggableService, Configurable {
+    org.apache.cloudstack.api.response.WallAvailabilityResponse getAvailability();
+
     ListResponse<WallAlertRuleResponse> listWallAlertRules(ListWallAlertRulesCmd cmd);
     WallAlertRuleResponse updateWallAlertRuleThreshold(UpdateWallAlertRuleThresholdCmd cmd);
     /**

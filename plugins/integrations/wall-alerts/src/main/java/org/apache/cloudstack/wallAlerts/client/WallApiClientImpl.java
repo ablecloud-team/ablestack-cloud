@@ -31,11 +31,8 @@ import org.apache.cloudstack.wallAlerts.exception.WallApiException;
 import org.apache.cloudstack.wallAlerts.model.SilenceDto;
 import org.apache.log4j.Logger;
 
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
@@ -56,7 +53,7 @@ public class WallApiClientImpl implements WallApiClient {
 
     private static final Logger LOG = Logger.getLogger(WallApiClientImpl.class);
 
-    private final HttpClient http;
+    private final WallHttpClient http;
     private final ObjectMapper om;
     private final String baseUrl;
     private final String bearer;      // null 가능
@@ -81,10 +78,7 @@ public class WallApiClientImpl implements WallApiClient {
         this.connectTimeoutMs = Math.max(1000, connectTimeoutMs);
         this.readTimeoutMs = Math.max(1000, readTimeoutMs);
 
-        this.http = HttpClient.newBuilder()
-                .cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_NONE))
-                .connectTimeout(Duration.ofMillis(this.connectTimeoutMs))
-                .build();
+        this.http = new WallHttpClient(Duration.ofMillis(this.connectTimeoutMs));
 
         this.om = new ObjectMapper()
                 .registerModule(new JavaTimeModule()) // OffsetDateTime
@@ -166,7 +160,7 @@ public class WallApiClientImpl implements WallApiClient {
                         .header("Cache-Control", "no-cache")
                         .header("Authorization", "Bearer " + b);
 
-                final HttpResponse<String> who = http.send(rbUser.GET().build(), HttpResponse.BodyHandlers.ofString());
+                final HttpResponse<String> who = http.get(Boolean.TRUE.equals(WallConfigKeys.WALL_TLS_VERIFY.value())).send(rbUser.GET().build(), HttpResponse.BodyHandlers.ofString());
                 if (who.statusCode() != 200) {
                     throw new WallApiException("Wall /api/user returned " + who.statusCode() + " (invalid API token?)");
                 }
@@ -183,18 +177,19 @@ public class WallApiClientImpl implements WallApiClient {
                     .header("Accept", "application/json");
             if (b != null) rb.header("Authorization", "Bearer " + b);
 
-            final HttpResponse<String> res = http.send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
+            final HttpResponse<String> res = http.get(Boolean.TRUE.equals(WallConfigKeys.WALL_TLS_VERIFY.value())).send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
             if (res.statusCode() >= 200 && res.statusCode() < 300) {
                 return om.readValue(res.body(), GrafanaRulesResponse.class);
             }
 
             throw new WallApiException("Wall Rules API returned HTTP " + res.statusCode()
-                    + " (preview: " + trimBody(res.body(), 600) + ")");
+                    + " (response body omitted)");
         } catch (WallApiException e) {
             throw e;
         } catch (Exception e) {
-            LOG.warn("[Rules] fetchRules failed: " + e.getMessage(), e);
-            throw new WallApiException("Failed to fetch or parse Wall Rules API response: " + e.getMessage(), e);
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            LOG.warn("[Rules] Wall request failed (" + WallAvailability.classify(e) + ", " + e.getClass().getSimpleName() + ")");
+            throw new WallApiException("Wall request failed: " + WallAvailability.classify(e), e);
         }
     }
 
@@ -217,7 +212,7 @@ public class WallApiClientImpl implements WallApiClient {
                 final String b = bearerNow();
                 if (b != null) rb.header("Authorization", "Bearer " + b);
 
-                final HttpResponse<String> res = http.send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
+                final HttpResponse<String> res = http.get(Boolean.TRUE.equals(WallConfigKeys.WALL_TLS_VERIFY.value())).send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
                 if (res.statusCode() < 200 || res.statusCode() >= 300) {
                     LOG.warn("[Ruler] GET " + url + " -> " + res.statusCode());
                     continue;
@@ -934,7 +929,7 @@ public class WallApiClientImpl implements WallApiClient {
                     .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8))
                     .build();
 
-            final HttpResponse<String> res = http.send(httpReq, HttpResponse.BodyHandlers.ofString());
+            final HttpResponse<String> res = http.get(Boolean.TRUE.equals(WallConfigKeys.WALL_TLS_VERIFY.value())).send(httpReq, HttpResponse.BodyHandlers.ofString());
             final int sc = res.statusCode();
             if (sc < 200 || sc >= 300) {
                 final String preview = res.body() == null ? "null" : trimBody(res.body(), 300);
@@ -1011,7 +1006,7 @@ public class WallApiClientImpl implements WallApiClient {
             }
 
             final HttpResponse<String> res =
-                    http.send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
+                    http.get(Boolean.TRUE.equals(WallConfigKeys.WALL_TLS_VERIFY.value())).send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
             final int sc = res.statusCode();
             if (sc >= 200 && sc < 300) {
                 return res.body();
@@ -1273,7 +1268,7 @@ public class WallApiClientImpl implements WallApiClient {
             if (b != null) rb.header("Authorization", "Bearer " + b);
 
             final java.net.http.HttpResponse<String> res =
-                    http.send(rb.GET().build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+                    http.get(Boolean.TRUE.equals(WallConfigKeys.WALL_TLS_VERIFY.value())).send(rb.GET().build(), java.net.http.HttpResponse.BodyHandlers.ofString());
             if (res.statusCode() < 200 || res.statusCode() >= 300) {
                 LOG.warn("[Folders] GET " + url + " -> " + res.statusCode());
                 return null;
@@ -1513,7 +1508,7 @@ public class WallApiClientImpl implements WallApiClient {
                         .header("Accept", "application/json");
                 final String b = bearerNow();
                 if (b != null) rb.header("Authorization", "Bearer " + b);
-                final HttpResponse<String> res = http.send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
+                final HttpResponse<String> res = http.get(Boolean.TRUE.equals(WallConfigKeys.WALL_TLS_VERIFY.value())).send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
                 if (res.statusCode() < 200 || res.statusCode() >= 300) {
                     LOG.warn("[Ruler] GET " + url + " -> " + res.statusCode());
                     continue;
@@ -1576,7 +1571,7 @@ public class WallApiClientImpl implements WallApiClient {
                 rb.GET();
             }
 
-            final HttpResponse<String> res = http.send(rb.build(), HttpResponse.BodyHandlers.ofString());
+            final HttpResponse<String> res = http.get(Boolean.TRUE.equals(WallConfigKeys.WALL_TLS_VERIFY.value())).send(rb.build(), HttpResponse.BodyHandlers.ofString());
             final int sc = res.statusCode();
             if (sc >= 200 && sc < 300) {
                 // 200/202 모두 성공 처리
@@ -1584,7 +1579,7 @@ public class WallApiClientImpl implements WallApiClient {
                 return true;
             }
             LOG.warn("[Ruler][send] " + method + " " + url + " -> " + sc
-                    + " (preview: " + trimBody(res.body(), 600) + ")");
+                    + " (response body omitted)");
             return false;
 
         } catch (IllegalArgumentException iae) { // URI.create 등
@@ -1613,7 +1608,7 @@ public class WallApiClientImpl implements WallApiClient {
                 rb.header("Authorization", "Bearer " + b);
             }
 
-            final HttpResponse<String> res = http.send(rb.DELETE().build(), HttpResponse.BodyHandlers.ofString());
+            final HttpResponse<String> res = http.get(Boolean.TRUE.equals(WallConfigKeys.WALL_TLS_VERIFY.value())).send(rb.DELETE().build(), HttpResponse.BodyHandlers.ofString());
             final int sc = res.statusCode();
             if (sc >= 200 && sc < 300) { // 200/202 모두 성공 처리
                 LOG.info("[Ruler][delete] {} -> {}");
@@ -1683,7 +1678,7 @@ public class WallApiClientImpl implements WallApiClient {
                     final String b = bearerNow();
                     if (b != null) rb.header("Authorization", "Bearer " + b);
 
-                    final HttpResponse<String> res = http.send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
+                    final HttpResponse<String> res = http.get(Boolean.TRUE.equals(WallConfigKeys.WALL_TLS_VERIFY.value())).send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
                     final int sc = res.statusCode();
                     if (sc < 200 || sc >= 300) {
                         LOG.debug("[Ruler][RAW] GET " + url + " -> " + sc);
@@ -1770,7 +1765,7 @@ public class WallApiClientImpl implements WallApiClient {
             final String b = bearerNow();
             if (b != null) rb.header("Authorization", "Bearer " + b);
             final HttpRequest req = rb.GET().build();
-            final HttpResponse<String> res = http.send(req, HttpResponse.BodyHandlers.ofString());
+            final HttpResponse<String> res = http.get(Boolean.TRUE.equals(WallConfigKeys.WALL_TLS_VERIFY.value())).send(req, HttpResponse.BodyHandlers.ofString());
 
             if (res.statusCode() / 100 == 2) {
                 final JsonNode root = om.readTree(res.body());
@@ -2045,7 +2040,7 @@ public class WallApiClientImpl implements WallApiClient {
                 rb.header("Authorization", "Bearer " + b);
             }
 
-            final HttpResponse<String> res = http.send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
+            final HttpResponse<String> res = http.get(Boolean.TRUE.equals(WallConfigKeys.WALL_TLS_VERIFY.value())).send(rb.GET().build(), HttpResponse.BodyHandlers.ofString());
             if (res.statusCode() >= 200 && res.statusCode() < 300) {
                 return om.readTree(res.body());
             }
@@ -2086,7 +2081,7 @@ public class WallApiClientImpl implements WallApiClient {
             }
 
             final HttpRequest req = rb.POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8)).build();
-            final HttpResponse<String> res = http.send(req, HttpResponse.BodyHandlers.ofString());
+            final HttpResponse<String> res = http.get(Boolean.TRUE.equals(WallConfigKeys.WALL_TLS_VERIFY.value())).send(req, HttpResponse.BodyHandlers.ofString());
 
             if (res.statusCode() >= 200 && res.statusCode() < 300) {
                 return om.readTree(res.body());

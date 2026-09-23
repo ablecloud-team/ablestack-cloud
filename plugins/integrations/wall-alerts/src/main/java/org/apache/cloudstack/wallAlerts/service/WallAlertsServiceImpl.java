@@ -91,6 +91,24 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
     @Inject
     private WallApiClient wallApiClient;
     private ScheduledExecutorService wallAlertPollExecutor;
+    private final org.apache.cloudstack.wallAlerts.client.WallAvailability availability =
+            new org.apache.cloudstack.wallAlerts.client.WallAvailability(
+                    () -> WallConfigKeys.WALL_ALERT_ENABLED.value(), () -> WallConfigKeys.WALL_BASE_URL.value(), this::wallTokenNow,
+                    () -> WallConfigKeys.WALL_TLS_VERIFY.value());
+
+    @Override
+    public org.apache.cloudstack.api.response.WallAvailabilityResponse getAvailability() {
+        return new org.apache.cloudstack.api.response.WallAvailabilityResponse(availability.state(), availability.checkedAt());
+    }
+
+    private void requireWallAvailable() {
+        String state = availability.state();
+        if (!"Ready".equals(state)) {
+            throw new ServerApiException(org.apache.cloudstack.api.ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR,
+                    "Wall service is not available: " + state);
+        }
+    }
+
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter KST_YMD_HM = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -176,7 +194,18 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
     @Override
     public ListResponse<WallAlertRuleResponse> listWallAlertRules(final ListWallAlertRulesCmd cmd) {
 
-        // 설정 검증 (토큰 유무)
+        requireWallAvailable();
+        try {
+            return queryWallAlertRules(cmd);
+        } catch (RuntimeException e) {
+            availability.failed(e);
+            invalidateRulesCache();
+            throw new ServerApiException(org.apache.cloudstack.api.ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR,
+                    "Wall alert query failed; availability checks will resume before alert queries");
+        }
+    }
+
+    private ListResponse<WallAlertRuleResponse> queryWallAlertRules(final ListWallAlertRulesCmd cmd) {
         ensureWallConfiguredForRules();
 
         // ★ UID 전용 필터
@@ -881,6 +910,17 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
 
     @Override
     public ListResponse<WallSilenceResponse> listWallAlertSilences(final ListWallAlertSilencesCmd cmd) {
+        requireWallAvailable();
+        try {
+            return queryWallAlertSilences(cmd);
+        } catch (RuntimeException e) {
+            availability.failed(e);
+            throw new ServerApiException(org.apache.cloudstack.api.ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR,
+                    "Wall silence query failed; check Wall service availability");
+        }
+    }
+
+    private ListResponse<WallSilenceResponse> queryWallAlertSilences(final ListWallAlertSilencesCmd cmd) {
         final Map<String, String> rawLabels = cmd.getLabels();
         final Map<String, String> labels = normalizeLabels(rawLabels);
         final String stateFilter = cmd.getState();
@@ -1868,6 +1908,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
     @Override
     public List<Class<?>> getCommands() {
         final List<Class<?>> cmds = new ArrayList<>();
+        cmds.add(org.apache.cloudstack.api.command.admin.wall.alerts.GetWallAlertAvailabilityCmd.class);
         // 기능이 꺼져 있으면 어떤 API도 등록하지 않습니다.
         if (!WallConfigKeys.WALL_ALERT_ENABLED.value()) {
             return cmds;
@@ -1890,6 +1931,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         return new ConfigKey<?>[] {
                 WallConfigKeys.WALL_ALERT_ENABLED,
                 WallConfigKeys.WALL_BASE_URL,
+                WallConfigKeys.WALL_TLS_VERIFY,
                 WallConfigKeys.WALL_API_TOKEN,
                 WallConfigKeys.CONNECT_TIMEOUT_MS,
                 WallConfigKeys.READ_TIMEOUT_MS,
