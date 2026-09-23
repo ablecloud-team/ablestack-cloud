@@ -449,7 +449,8 @@ export default {
           popup: true,
           show: (record) => isoActionAvailable(record) && attachedIsoCount(record) < isoMaxCount(record),
           disabled: (record) => { return record.hostcontrolstate === 'Offline' || record.hostcontrolstate === 'Maintenance' },
-          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/AttachIso.vue')))
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/VmIsoManager.vue')))
         },
         {
           api: 'detachIso',
@@ -459,7 +460,8 @@ export default {
           popup: true,
           show: (record) => isoActionAvailable(record) && attachedIsoCount(record) > 0,
           disabled: (record) => { return record.hostcontrolstate === 'Offline' || record.hostcontrolstate === 'Maintenance' },
-          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/DetachIso.vue')))
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/VmIsoManager.vue')))
         },
         {
           api: 'updateVMAffinityGroup',
