@@ -20,7 +20,6 @@ package org.apache.cloudstack.wallAlerts.client;
 import java.net.ConnectException;
 import java.net.URI;
 import java.net.UnknownHostException;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpTimeoutException;
@@ -33,7 +32,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /** Shared, bounded availability probe. Never retrieves alert rules or exposes credentials. */
 public class WallAvailability {
-    private final HttpClient http;
+    private final WallHttpClient http;
+    private final Supplier<Boolean> verifyTls;
+    private boolean lastVerifyTls;
     private final Supplier<Boolean> enabled;
     private final Supplier<String> url;
     private final Supplier<String> token;
@@ -47,26 +48,38 @@ public class WallAvailability {
     private long checked;
 
     public WallAvailability(Supplier<Boolean> enabled, Supplier<String> url, Supplier<String> token) {
-        this(enabled, url, token, System::currentTimeMillis);
+        this(enabled, url, token, () -> false, System::currentTimeMillis);
+    }
+
+    public WallAvailability(Supplier<Boolean> enabled, Supplier<String> url, Supplier<String> token, Supplier<Boolean> verifyTls) {
+        this(enabled, url, token, verifyTls, System::currentTimeMillis);
     }
 
     WallAvailability(Supplier<Boolean> enabled, Supplier<String> url, Supplier<String> token, java.util.function.LongSupplier clock) {
+        this(enabled, url, token, () -> false, clock);
+    }
+
+    WallAvailability(Supplier<Boolean> enabled, Supplier<String> url, Supplier<String> token, Supplier<Boolean> verifyTls,
+            java.util.function.LongSupplier clock) {
+        this.verifyTls = verifyTls;
         this.clock = clock;
         this.enabled = enabled;
         this.url = url;
         this.token = token;
-        this.http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build();
+        this.http = new WallHttpClient(Duration.ofSeconds(2));
     }
 
     public synchronized String state() {
         String endpoint = url.get();
         String credential = token.get();
         boolean active = Boolean.TRUE.equals(enabled.get());
-        if (active == lastEnabled && Objects.equals(endpoint, lastUrl) && Objects.equals(credential, lastToken)
+        boolean verify = Boolean.TRUE.equals(verifyTls.get());
+        if (active == lastEnabled && verify == lastVerifyTls && Objects.equals(endpoint, lastUrl) && Objects.equals(credential, lastToken)
                 && clock.getAsLong() < expires) return state;
         lastUrl = endpoint;
         lastToken = credential;
         lastEnabled = active;
+        lastVerifyTls = verify;
         if (!active) return save("Disabled", 30000);
         if (endpoint == null || endpoint.isBlank() || credential == null || credential.isBlank()) return save("NotConfigured", 30000);
         try {
@@ -107,7 +120,7 @@ public class WallAvailability {
         HttpRequest.Builder request = HttpRequest.newBuilder(URI.create(address)).timeout(Duration.ofSeconds(3))
                 .header("Accept", "application/json");
         if (credential != null) request.header("Authorization", "Bearer " + credential);
-        return http.send(request.GET().build(), HttpResponse.BodyHandlers.ofString());
+        return http.get(lastVerifyTls).send(request.GET().build(), HttpResponse.BodyHandlers.ofString());
     }
 
     public synchronized void failed(RuntimeException error) {

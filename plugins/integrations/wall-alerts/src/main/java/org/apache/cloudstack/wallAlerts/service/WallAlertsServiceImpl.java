@@ -93,7 +93,8 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
     private ScheduledExecutorService wallAlertPollExecutor;
     private final org.apache.cloudstack.wallAlerts.client.WallAvailability availability =
             new org.apache.cloudstack.wallAlerts.client.WallAvailability(
-                    () -> WallConfigKeys.WALL_ALERT_ENABLED.value(), () -> WallConfigKeys.WALL_BASE_URL.value(), this::wallTokenNow);
+                    () -> WallConfigKeys.WALL_ALERT_ENABLED.value(), () -> WallConfigKeys.WALL_BASE_URL.value(), this::wallTokenNow,
+                    () -> WallConfigKeys.WALL_TLS_VERIFY.value());
 
     @Override
     public org.apache.cloudstack.api.response.WallAvailabilityResponse getAvailability() {
@@ -1930,6 +1931,7 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         return new ConfigKey<?>[] {
                 WallConfigKeys.WALL_ALERT_ENABLED,
                 WallConfigKeys.WALL_BASE_URL,
+                WallConfigKeys.WALL_TLS_VERIFY,
                 WallConfigKeys.WALL_API_TOKEN,
                 WallConfigKeys.CONNECT_TIMEOUT_MS,
                 WallConfigKeys.READ_TIMEOUT_MS,
