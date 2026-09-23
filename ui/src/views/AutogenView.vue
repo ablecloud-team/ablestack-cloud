@@ -166,7 +166,15 @@
     </a-affix>
 
     <div v-show="showAction">
-      <keep-alive v-if="currentAction.component && (!currentAction.invokedAsGroupAction || currentAction.api === 'destroyVirtualMachine')">
+      <component
+        v-if="showAction && currentAction.selfManagedDialog"
+        :is="currentAction.component"
+        :resource="resource"
+        :current-action="currentAction"
+        dialog-only
+        @close-action="closeAction"
+      />
+      <keep-alive v-else-if="currentAction.component && (!currentAction.invokedAsGroupAction || currentAction.api === 'destroyVirtualMachine')">
         <a-modal
           :visible="showAction"
           :closable="true"
