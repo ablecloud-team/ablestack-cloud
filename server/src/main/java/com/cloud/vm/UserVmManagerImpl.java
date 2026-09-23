@@ -10904,8 +10904,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if (!com.cloud.utils.net.NetUtils.isValidIp4Cidr(cidr)) {
             throw new InvalidParameterValueException("allowedcidr must be an IPv4 CIDR");
         }
-        if (cmd.getPassword() == null || cmd.getPassword().contains("%") || !cmd.getPassword().matches("[!-~]{16,20}")) {
-            throw new InvalidParameterValueException("IPMI password must contain 16-20 printable ASCII characters without spaces or percent signs");
+        if (cmd.getPassword() == null || cmd.getPassword().contains("%") || !cmd.getPassword().matches("[!-~]{8,20}")) {
+            throw new InvalidParameterValueException("IPMI password must contain 8-20 printable ASCII characters without spaces or percent signs");
         }
         GlobalLock lock = GlobalLock.getInternLock("cloud-vbmc-allocation");
         try {

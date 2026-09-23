@@ -49,7 +49,7 @@ public class AllocateVbmcToVMCmd extends BaseAsyncCmd implements UserCmd {
     private Long vmId;
 
     @Parameter(name = "password", type = CommandType.STRING, required = true,
-            description = "IPMI password (16-20 printable ASCII characters, excluding spaces and percent signs); never returned by the API")
+            description = "IPMI password (8-20 printable ASCII characters, excluding spaces and percent signs); never returned by the API")
     private String password;
 
     @Parameter(name = "allowedcidr", type = CommandType.STRING,

@@ -8002,7 +8002,7 @@
   "label.vbmc.Allocating": "Allocating",
   "label.vbmc.Removing": "Removing",
   "label.vbmc.CleanupRequired": "Cleanup required",
-  "message.vbmc.password": "Use 16–20 printable ASCII characters, excluding spaces and %. Passwords cannot be retrieved.",
+  "message.vbmc.password": "Use 8–20 printable ASCII characters, excluding spaces and %. Passwords cannot be retrieved.",
   "message.vbmc.cidr": "Enter the source IPv4 CIDR of connecting clients, not the VBMC destination address.",
   "message.vbmc.dynamic": "Changing client IPs are allowed within the specified range. Host-only access uses 127.0.0.1/32.",
   "message.vbmc.command": "Enter the password at the command prompt. Agent health checks do not guarantee external network reachability.",

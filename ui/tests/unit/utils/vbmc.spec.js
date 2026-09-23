@@ -26,7 +26,8 @@ test('allocation restrictions do not erase existing allocations', () => {
   expect(allocationReason({ state: 'Running', hypervisor: 'KVM', hostid: 'h' })).toBe('')
 })
 test('password and IPv4 CIDR contract', () => {
-  expect(validPassword('1234567890123456')).toBe(true)
+  for (const value of ['12345678', '1234567890123456', '12345678901234567890']) expect(validPassword(value)).toBe(true)
+  for (const value of ['1234567', '123456789012345678901']) expect(validPassword(value)).toBe(false)
   for (const value of ['short', '123456789012345%', '123456789012345 ', '한글1234567890123456']) expect(validPassword(value)).toBe(false)
   for (const value of ['10.10.0.0/16', '127.0.0.1/32', '0.0.0.0/0']) expect(validCidr(value)).toBe(true)
   for (const value of ['10.0.0.0/33', '256.0.0.1/24', '10.0.0.1', '::1/128', '10.0.0.0/-1']) expect(validCidr(value)).toBe(false)
