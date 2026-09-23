@@ -189,12 +189,13 @@ public class WallApiClientImpl implements WallApiClient {
             }
 
             throw new WallApiException("Wall Rules API returned HTTP " + res.statusCode()
-                    + " (preview: " + trimBody(res.body(), 600) + ")");
+                    + " (response body omitted)");
         } catch (WallApiException e) {
             throw e;
         } catch (Exception e) {
-            LOG.warn("[Rules] fetchRules failed: " + e.getMessage(), e);
-            throw new WallApiException("Failed to fetch or parse Wall Rules API response: " + e.getMessage(), e);
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            LOG.warn("[Rules] Wall request failed (" + WallAvailability.classify(e) + ", " + e.getClass().getSimpleName() + ")");
+            throw new WallApiException("Wall request failed: " + WallAvailability.classify(e), e);
         }
     }
 
@@ -1584,7 +1585,7 @@ public class WallApiClientImpl implements WallApiClient {
                 return true;
             }
             LOG.warn("[Ruler][send] " + method + " " + url + " -> " + sc
-                    + " (preview: " + trimBody(res.body(), 600) + ")");
+                    + " (response body omitted)");
             return false;
 
         } catch (IllegalArgumentException iae) { // URI.create 등

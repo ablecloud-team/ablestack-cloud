@@ -8023,5 +8023,16 @@
   "message.vbmc.Unallocated": "Allocate an endpoint for external IPMI clients to inspect and control VM power.",
   "message.vbmc.Allocating": "The server is allocating the endpoint. Duplicate operations are blocked.",
   "message.vbmc.Removing": "Cleaning up the endpoint and access rules on its original host.",
-  "message.vbmc.CleanupRequired": "The port remains reserved. Check host connectivity and retry cleanup. Legacy allocations may require administrator cleanup."
+  "message.vbmc.CleanupRequired": "The port remains reserved. Check host connectivity and retry cleanup. Legacy allocations may require administrator cleanup.",
+  "message.wall.availability.unavailable": "Wall monitoring is unavailable. Alerts may be outdated; Mold remains available.",
+  "label.wall.availability.Disabled": "Disabled",
+  "label.wall.availability.NotConfigured": "Not configured",
+  "label.wall.availability.Unavailable": "Unavailable",
+  "label.wall.availability.ConnectionFailed": "Connection failed",
+  "label.wall.availability.DnsError": "DNS failure",
+  "label.wall.availability.TlsError": "TLS verification failed",
+  "label.wall.availability.Timeout": "Timed out",
+  "label.wall.availability.AuthenticationFailed": "Authentication failed",
+  "label.wall.availability.InvalidResponse": "Invalid response",
+  "label.wall.availability.Degraded": "Alert query unavailable"
 }

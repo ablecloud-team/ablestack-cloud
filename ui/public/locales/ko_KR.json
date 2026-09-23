@@ -7988,5 +7988,16 @@
   "message.vbmc.Unallocated": "외부 IPMI 클라이언트에서 VM 전원 상태를 조회하고 제어하는 접속점을 할당합니다.",
   "message.vbmc.Allocating": "서버에서 가상 BMC를 할당하고 있습니다. 중복 요청은 제한됩니다.",
   "message.vbmc.Removing": "원래 호스트의 접속점과 접근 규칙을 정리하고 있습니다.",
-  "message.vbmc.CleanupRequired": "포트를 유지하고 있습니다. 호스트 연결을 확인한 뒤 정리를 재시도하세요. 이전 버전의 할당은 관리자 수동 정리가 필요할 수 있습니다."
+  "message.vbmc.CleanupRequired": "포트를 유지하고 있습니다. 호스트 연결을 확인한 뒤 정리를 재시도하세요. 이전 버전의 할당은 관리자 수동 정리가 필요할 수 있습니다.",
+  "message.wall.availability.unavailable": "Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다.",
+  "label.wall.availability.Disabled": "비활성",
+  "label.wall.availability.NotConfigured": "미설정",
+  "label.wall.availability.Unavailable": "연결 불가",
+  "label.wall.availability.ConnectionFailed": "연결 실패",
+  "label.wall.availability.DnsError": "주소 해석 실패",
+  "label.wall.availability.TlsError": "TLS 검증 실패",
+  "label.wall.availability.Timeout": "응답 시간 초과",
+  "label.wall.availability.AuthenticationFailed": "인증 실패",
+  "label.wall.availability.InvalidResponse": "응답 형식 오류",
+  "label.wall.availability.Degraded": "알림 조회 불가"
 }
