@@ -637,8 +637,14 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
         List<VbmcVO> vbmcPortVo = vbmcDao.listByVmId(userVm.getId());
         if(vbmcPortVo.size() > 0) {
             userVmResponse.setVbmcPort(Integer.toString(vbmcPortVo.get(0).getPort()));
+            VbmcVO endpoint = vbmcPortVo.get(0);
+            userVmResponse.setVbmcStatus(endpoint.getStatus());
+            userVmResponse.setVbmcAddress(endpoint.getAddress());
+            userVmResponse.setVbmcAllowedCidr(endpoint.getAllowedCidr());
+            userVmResponse.setVbmcLastError(endpoint.getLastError());
         } else {
             userVmResponse.setVbmcPort("None");
+            userVmResponse.setVbmcStatus("Unallocated");
         }
         if (userVm.getUserDataId() != null) {
             userVmResponse.setUserDataId(userVm.getUserDataUuid());

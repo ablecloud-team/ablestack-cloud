@@ -36,8 +36,8 @@ import com.cloud.user.Account;
 import com.cloud.uservm.UserVm;
 import com.cloud.vm.VirtualMachine;
 
-@APICommand(name = "allocateVbmcToVM", description = "Adds VM to specified network by creating a NIC", responseObject = UserVmResponse.class, responseView = ResponseView.Restricted, entityType = {VirtualMachine.class},
-        requestHasSensitiveInfo = false, responseHasSensitiveInfo = true)
+@APICommand(name = "allocateVbmcToVM", description = "Allocates a restricted Virtual BMC endpoint to a running non-HA KVM VM", responseObject = UserVmResponse.class, responseView = ResponseView.Restricted, entityType = {VirtualMachine.class},
+        requestHasSensitiveInfo = true, responseHasSensitiveInfo = true)
 public class AllocateVbmcToVMCmd extends BaseAsyncCmd implements UserCmd {
 
     /////////////////////////////////////////////////////
@@ -47,6 +47,18 @@ public class AllocateVbmcToVMCmd extends BaseAsyncCmd implements UserCmd {
     @Parameter(name=ApiConstants.VIRTUAL_MACHINE_ID, type=CommandType.UUID, entityType=UserVmResponse.class,
             required=true, description="Virtual Machine ID")
     private Long vmId;
+
+    @Parameter(name = "password", type = CommandType.STRING, required = true,
+            description = "IPMI password (16-20 printable ASCII characters, excluding spaces and percent signs); never returned by the API")
+    private String password;
+
+    @Parameter(name = "allowedcidr", type = CommandType.STRING,
+            description = "Allowed IPv4 source CIDR; defaults to loopback-only access")
+    private String allowedCidr;
+
+    public String getPassword() { return password; }
+    public String getAllowedCidr() { return allowedCidr == null ? "127.0.0.1/32" : allowedCidr; }
+
 
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
@@ -103,7 +115,7 @@ public class AllocateVbmcToVMCmd extends BaseAsyncCmd implements UserCmd {
             response.setResponseName(getCommandName());
             setResponseObject(response);
         } else {
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to restore vm " + getVmId());
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to allocate Virtual BMC for VM " + getVmId());
         }
     }
 }

@@ -24,6 +24,26 @@ public class VbmcCommand extends Command {
     String action;
     String vmName;
     String port;
+    private String token;
+    private String address;
+    private String allowedCidr;
+    @LogLevel(LogLevel.Log4jLevel.Off)
+    private String password;
+
+    public VbmcCommand(String action, String vmName, String port, String token, String address,
+            String allowedCidr, String password) {
+        this(action, vmName, port);
+        this.token = token;
+        this.address = address;
+        this.allowedCidr = allowedCidr;
+        this.password = password;
+    }
+
+    public String getToken() { return token; }
+    public String getAddress() { return address; }
+    public String getAllowedCidr() { return allowedCidr; }
+    public String getPassword() { return password; }
+
 
     public VbmcCommand(String action, String vmName, String port) {
         this.action = action;
@@ -33,7 +53,7 @@ public class VbmcCommand extends Command {
 
     @Override
     public boolean executeInSequence() {
-        return false;
+        return true;
     }
 
     public String getAction() {

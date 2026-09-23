@@ -226,6 +226,9 @@ public class UserVmManagerImplTest {
     private ServiceOfferingDao _serviceOfferingDao;
 
     @Mock
+    private com.cloud.vm.dao.VbmcDao vbmcDao;
+
+    @Mock
     private DiskOfferingDao diskOfferingDao;
 
     @Mock

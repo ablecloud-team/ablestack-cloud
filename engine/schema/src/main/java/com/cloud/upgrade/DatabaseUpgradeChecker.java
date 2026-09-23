@@ -569,6 +569,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                 });
                 runEuropaPhase(conn, EuropaSchemaUpgrade.S8, () -> EuropaSystemVmSchemaUpgrade.migrate(conn));
                 runEuropaPhase(conn, EuropaSchemaUpgrade.S9, () -> EuropaDrRecoverySchemaUpgrade.migrate(conn));
+                runEuropaPhase(conn, "europa-4.23-s10-vbmc-v1", () -> com.cloud.upgrade.dao.EuropaVbmcSchemaUpgrade.migrate(conn));
                 // Completed phase markers do not guarantee views match the running binary.
                 try {
                     EuropaVolumeViewReconciler.reconcile(conn);
