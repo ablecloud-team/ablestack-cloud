@@ -621,34 +621,14 @@ export default {
           show: (record, store) => { return ['Destroyed', 'Expunging'].includes(record.state) && store.features.allowuserexpungerecovervm && record.vmtype !== 'sharedfsvm' }
         },
         {
-          api: 'allocateVbmcToVM',
+          api: 'listVirtualMachines',
           icon: 'heart-filled',
-          label: 'label.vbmcport.allocate',
-          message: 'message.action.vbmcport.allocate.instance',
+          label: 'label.vbmc.manage',
           dataView: true,
           popup: true,
-          args: ['virtualmachineid', 'password', 'allowedcidr'],
-          show: (record) => { return record.state === 'Running' && record.hypervisor === 'KVM' && !record.haenable && record.vbmcport === 'None' && record.vmtype !== 'sharedfsvm' },
-          mapping: {
-            virtualmachineid: {
-              value: (record, params) => { return record.id }
-            }
-          }
-        },
-        {
-          api: 'removeVbmcToVM',
-          icon: 'heart-filled',
-          label: 'label.vbmcport.remove',
-          message: 'message.action.vbmcport.remove.instance',
-          dataView: true,
-          popup: true,
-          args: ['virtualmachineid'],
-          show: (record) => { return record.vbmcport !== 'None' && record.vmtype !== 'sharedfsvm' },
-          mapping: {
-            virtualmachineid: {
-              value: (record, params) => { return record.id }
-            }
-          }
+          selfManagedDialog: true,
+          show: record => record.vmtype !== 'sharedfsvm',
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/VmVbmcManager.vue')))
         },
         {
           api: 'destroyVirtualMachine',
