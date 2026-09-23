@@ -1,4 +1,5 @@
 {
+  "label.allowedcidr": "Allowed IPMI client IPv4 CIDR",
   "label.job.check.result": "Check result",
   "message.iso.detach.summary": "ISO detach: succeeded {success}, failed {failed}, result unknown {unknown}, not submitted {pending}.",
   "message.job.result.unknown": "The task result could not be confirmed. This does not mean the task failed. Click this notification to check again.",

@@ -36,9 +36,9 @@ import com.cloud.user.Account;
 import com.cloud.uservm.UserVm;
 import com.cloud.vm.VirtualMachine;
 
-@APICommand(name = "removeVbmcToVM", description = "Removes the Virtual BMC endpoint and releases its port after confirmed cleanup", responseObject = UserVmResponse.class, responseView = ResponseView.Restricted, entityType = {VirtualMachine.class},
+@APICommand(name = "checkVbmcToVM", description = "Checks Virtual BMC endpoint health without changing power state", responseObject = UserVmResponse.class, responseView = ResponseView.Restricted, entityType = {VirtualMachine.class},
         requestHasSensitiveInfo = false, responseHasSensitiveInfo = true)
-public class RemoveVbmcToVMCmd extends BaseAsyncCmd implements UserCmd {
+public class CheckVbmcToVMCmd extends BaseAsyncCmd implements UserCmd {
 
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////
@@ -66,12 +66,12 @@ public class RemoveVbmcToVMCmd extends BaseAsyncCmd implements UserCmd {
 
     @Override
     public String getEventType() {
-        return EventTypes.EVENT_VM_VBMC_REMOVE;
+        return EventTypes.EVENT_VM_VBMC_CHECK;
     }
 
     @Override
     public String getEventDescription() {
-        return  "Remove VBMC Port to user vm: " + this._uuidMgr.getUuid(VirtualMachine.class, getVmId());
+        return  "Check Virtual BMC to user vm: " + this._uuidMgr.getUuid(VirtualMachine.class, getVmId());
     }
 
     @Override
@@ -97,13 +97,13 @@ public class RemoveVbmcToVMCmd extends BaseAsyncCmd implements UserCmd {
     public void execute() {
         UserVm result;
         CallContext.current().setEventDetails("Vm Id: " + this._uuidMgr.getUuid(VirtualMachine.class, getVmId()));
-        result = _userVmService.removeVbmcToVM(this);
+        result = _userVmService.checkVbmcToVM(this);
         if (result != null) {
             UserVmResponse response = _responseGenerator.createUserVmResponse(getResponseView(), "virtualmachine", result).get(0);
             response.setResponseName(getCommandName());
             setResponseObject(response);
         } else {
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to remove Virtual BMC for VM " + getVmId());
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to check Virtual BMC for VM " + getVmId());
         }
     }
 }

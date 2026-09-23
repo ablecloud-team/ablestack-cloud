@@ -7329,6 +7329,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
         cmdList.add(DeployVMVolumeCmdByAdmin.class);
         cmdList.add(DeployVMVolumeCmd.class);
         cmdList.add(AllocateVbmcToVMCmd.class);
+        cmdList.add(org.apache.cloudstack.api.command.user.vm.CheckVbmcToVMCmd.class);
         cmdList.add(RemoveVbmcToVMCmd.class);
         cmdList.add(ListHostDevicesCmd.class);
         cmdList.add(UpdateHostDevicesCmd.class);

@@ -627,8 +627,8 @@ export default {
           message: 'message.action.vbmcport.allocate.instance',
           dataView: true,
           popup: true,
-          args: ['virtualmachineid'],
-          show: (record) => { return ['Running', 'Stopped'].includes(record.state) && record.vbmcport === 'None' && record.vmtype !== 'sharedfsvm' },
+          args: ['virtualmachineid', 'password', 'allowedcidr'],
+          show: (record) => { return record.state === 'Running' && record.hypervisor === 'KVM' && !record.haenable && record.vbmcport === 'None' && record.vmtype !== 'sharedfsvm' },
           mapping: {
             virtualmachineid: {
               value: (record, params) => { return record.id }

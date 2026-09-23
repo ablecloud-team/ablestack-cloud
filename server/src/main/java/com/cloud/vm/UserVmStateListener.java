@@ -56,11 +56,13 @@ public class UserVmStateListener implements StateListener<State, VirtualMachine.
     @Inject protected UserVmDao _userVmDao;
     @Inject protected UserVmManager _userVmMgr;
     @Inject protected ConfigurationDao _configDao;
+    private final com.cloud.vm.dao.VbmcDao vbmcDao;
     private EventDistributor eventDistributor;
     protected Logger logger = LogManager.getLogger(getClass());
 
     public UserVmStateListener(UsageEventDao usageEventDao, NetworkDao networkDao, NicDao nicDao, ServiceOfferingDao offeringDao, UserVmDao userVmDao, UserVmManager userVmMgr,
-            ConfigurationDao configDao) {
+            ConfigurationDao configDao, com.cloud.vm.dao.VbmcDao vbmcDao) {
+        this.vbmcDao = vbmcDao;
         this._usageEventDao = usageEventDao;
         this._networkDao = networkDao;
         this._nicDao = nicDao;
@@ -72,6 +74,13 @@ public class UserVmStateListener implements StateListener<State, VirtualMachine.
 
     @Override
     public boolean preStateTransitionEvent(State oldState, Event event, State newState, VirtualMachine vo, boolean status, Object opaque) {
+        if (vo.getType() == VirtualMachine.Type.User && java.util.EnumSet.of(Event.StopRequested,
+                Event.DestroyRequested, Event.MigrationRequested, Event.StorageMigrationRequested,
+                Event.ExpungeOperation, Event.RestoringRequested).contains(event)
+                && !vbmcDao.listByVmId(vo.getId()).isEmpty()) {
+            // StateMachine2 does not use listener return values as a veto.
+            throw new com.cloud.utils.exception.CloudRuntimeException("Remove Virtual BMC before changing VM lifecycle or host");
+        }
         pubishOnEventBus(event.name(), "preStateTransitionEvent", vo, oldState, newState);
         return true;
     }
