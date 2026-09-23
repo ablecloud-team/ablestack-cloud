@@ -7967,7 +7967,7 @@
   "label.vbmc.Allocating": "할당 중",
   "label.vbmc.Removing": "해제 중",
   "label.vbmc.CleanupRequired": "정리 필요",
-  "message.vbmc.password": "16~20자 ASCII 문자. 공백과 %는 사용할 수 없습니다. 저장 후 비밀번호를 조회할 수 없습니다.",
+  "message.vbmc.password": "8~20자 ASCII 문자. 공백과 %는 사용할 수 없습니다. 저장 후 비밀번호를 조회할 수 없습니다.",
   "message.vbmc.cidr": "접속해 오는 클라이언트의 IPv4 CIDR을 입력하세요. VBMC 접속 대상 주소가 아닙니다.",
   "message.vbmc.dynamic": "클라이언트 IP가 바뀌어도 지정 범위 안이면 허용됩니다. 호스트 내부만 선택하면 127.0.0.1/32로 제한됩니다.",
   "message.vbmc.command": "비밀번호는 명령 실행 시 입력합니다. 상태 검사는 Agent 기준이며 외부 클라이언트의 네트워크 도달성을 보장하지 않습니다.",

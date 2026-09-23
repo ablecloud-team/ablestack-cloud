@@ -30,7 +30,7 @@ export function validCidr (value) {
   const parts = value.split('/')
   return parts.length === 2 && /^(0|[1-9]\d?)$/.test(parts[1]) && Number(parts[1]) <= 32 && parts[0].split('.').length === 4 && parts[0].split('.').every(v => /^(0|[1-9]\d{0,2})$/.test(v) && Number(v) <= 255)
 }
-export const validPassword = value => /^[\x21-\x7e]{16,20}$/.test(value) && !value.includes('%')
+export const validPassword = value => /^[\x21-\x7e]{8,20}$/.test(value) && !value.includes('%')
 // Keep only operation metadata across dialog closes, never credentials or raw errors.
 export async function runVbmc (key, api, params) {
   if (['pending', 'unknown'].includes(vbmcOperations[key]?.state)) return

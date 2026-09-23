@@ -36,7 +36,7 @@ under the License.
 
 ## API 및 자격 증명
 
-- `allocateVbmcToVM`: virtualmachineid, 필수 password, 선택 allowedcidr. 사용자 이름은 `vbmc`. 비밀번호는 16~20자 인쇄 가능한 ASCII이며 공백·퍼센트 기호는 제외한다.
+- `allocateVbmcToVM`: virtualmachineid, 필수 password, 선택 allowedcidr. 사용자 이름은 `vbmc`. 비밀번호는 8~20자 인쇄 가능한 ASCII이며 공백·퍼센트 기호는 제외한다.
 - `checkVbmcToVM`: 현재 호스트/VM 상태, 소유 토큰, 방화벽 runtime/permanent 규칙, 인증된 IPMI chassis power status를 확인한다. 전원을 변경하지 않는다.
 - `removeVbmcToVM`: 원래 기록된 호스트에서 반복 가능한 삭제를 실행한다.
 - VM 응답: vbmcstatus, vbmcaddress, vbmcallowedcidr, vbmclasterror. 비밀번호를 반환하지 않는다.

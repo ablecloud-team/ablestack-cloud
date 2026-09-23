@@ -195,7 +195,7 @@ def execute(action, name, port, token, address, cidr, password):
             raise RuntimeError('unowned endpoint requires manual reconciliation')
         return
     if action == 'start':
-        if not password or '%' in password or not re.fullmatch(r'[!-~]{16,20}', password):
+        if not password or '%' in password or not re.fullmatch(r'[!-~]{8,20}', password):
             raise RuntimeError('invalid credential')
         if item is None:
             if (ROOT / 'instances' / name / 'config').exists() or run(['ss', '-H', '-lun', 'sport', '=', str(port)]).stdout.strip():
