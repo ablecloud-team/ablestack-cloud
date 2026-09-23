@@ -2860,7 +2860,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
         _itMgr.registerGuru(VirtualMachine.Type.User, this);
 
-        VirtualMachine.State.getStateMachine().registerListener(new UserVmStateListener(_usageEventDao, _networkDao, _nicDao, serviceOfferingDao, _vmDao, this, _configDao));
+        VirtualMachine.State.getStateMachine().registerListener(new UserVmStateListener(_usageEventDao, _networkDao, _nicDao, serviceOfferingDao, _vmDao, this, _configDao, vbmcDao));
 
         String value = _configDao.getValue(Config.SetVmInternalNameUsingDisplayName.key());
         _instanceNameFlag = (value == null) ? false : Boolean.parseBoolean(value);
@@ -3658,6 +3658,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                                        String instanceName, List<Long> securityGroupIdList,
                                        Map<String, Map<Integer, String>> extraDhcpOptionsMap
     ) throws ResourceUnavailableException, InsufficientCapacityException {
+        if (Boolean.TRUE.equals(ha) || instanceName != null) {
+            checkVbmcOperationAllowed(id);
+        }
         UserVmVO vm = _vmDao.findById(id);
         if (vm == null) {
             throw new CloudRuntimeException("Unable to find virtual machine with id " + id);
@@ -10846,81 +10849,174 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         return DestroyRootVolumeOnVmDestruction.valueIn(domainId);
     }
 
-    @Override
-    @ActionEvent(eventType = EventTypes.EVENT_VM_VBMC_ALLOCATE, eventDescription = "ALLOCATE VBMC PORT TO VM", async = true)
-    public UserVm allocateVbmcToVM(AllocateVbmcToVMCmd cmd) {
-        // Input validation
-        Account caller = CallContext.current().getCallingAccount();
-
-        long vmId = cmd.getVmId();
+    private UserVmVO requireVbmcVm(long vmId) {
         UserVmVO vm = _vmDao.findById(vmId);
         if (vm == null) {
-            InvalidParameterValueException ex = new InvalidParameterValueException("Cannot find VM with ID " + vmId);
-            ex.addProxyObject(String.valueOf(vmId), "vmId");
-            throw ex;
+            throw new InvalidParameterValueException("Cannot find virtual machine");
         }
-
-        _accountMgr.checkAccess(caller, null, true, vm);
-
-        List<VbmcVO> vbmcAblePortList = vbmcDao.findAblePort();
-
-        if(vbmcAblePortList.size() > 0) {
-            VbmcVO vbmcVo = vbmcDao.findById(vbmcAblePortList.get(0).getId());
-            vbmcVo.setVmId(vmId);
-            vbmcDao.update(vbmcVo.getId(), vbmcVo);
-
-            Long hostId = vm.getHostId() != null ? vm.getHostId() : vm.getLastHostId();
-
-            VbmcCommand vbmcCmd = new VbmcCommand("start", vm.getInstanceName(), Integer.toString(vbmcVo.getPort()));
-            try {
-                Answer answer = _agentMgr.send(hostId, vbmcCmd);
-                if (answer == null || !answer.getResult()) {
-                    vbmcVo.setVmId(0);
-                    vbmcDao.update(vbmcVo.getId(), vbmcVo);
-                    throw new InvalidParameterValueException(String.format("Failed to release vbmc port : %s", caller.getUuid()));
-                }
-            } catch (Exception ex) {
-                vbmcVo.setVmId(0);
-                vbmcDao.update(vbmcVo.getId(), vbmcVo);
-                throw new CloudRuntimeException(ex.getMessage());
-            }
-        } else {
-            throw new InvalidParameterValueException(String.format("There are not enough vbmc ports to allocate.: %s", caller.getUuid()));
-        }
+        _accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
         return vm;
     }
 
-    @Override
-    @ActionEvent(eventType = EventTypes.EVENT_VM_VBMC_REMOVE, eventDescription = "REMOVE VBMC PORT TO VM", async = true)
-    public UserVm removeVbmcToVM(RemoveVbmcToVMCmd cmd) {
-        // Input validation
-        Account caller = CallContext.current().getCallingAccount();
-        long vmId = cmd.getVmId();
-        UserVmVO vm = _vmDao.findById(vmId);
-        if (vm == null) {
-            InvalidParameterValueException ex = new InvalidParameterValueException("Cannot find VM with ID " + vmId);
-            ex.addProxyObject(String.valueOf(vmId), "vmId");
-            throw ex;
+    private void saveVbmc(VbmcVO endpoint, String status, String error) {
+        endpoint.setStatus(status);
+        endpoint.setLastError(error);
+        endpoint.setLastChecked(new java.util.Date());
+        if (!vbmcDao.update(endpoint.getId(), endpoint)) {
+            throw new CloudRuntimeException("Unable to persist Virtual BMC state; port must remain reserved");
         }
-        _accountMgr.checkAccess(caller, null, true, vm);
-        List<VbmcVO> vbmcVo = vbmcDao.listByVmId(vmId);
-        if (vbmcVo.size() > 0) {
-            VbmcVO vo = vbmcDao.findById(vbmcVo.get(0).getId());
-            vo.setVmId(0);
-            vbmcDao.update(vbmcVo.get(0).getId(), vo);
+    }
 
-            Long hostId = vm.getHostId() != null ? vm.getHostId() : vm.getLastHostId();
-            VbmcCommand vbmcCmd = new VbmcCommand("delete", vm.getInstanceName(), Integer.toString(vo.getPort()));
-            try {
-                Answer answer = _agentMgr.send(hostId, vbmcCmd);
-                if (answer == null || !answer.getResult()) {
-                    throw new InvalidParameterValueException(String.format("Failed to release vbmc port : %s", caller.getUuid()));
-                }
-            } catch (Exception ex) {
-                throw new CloudRuntimeException(ex.getMessage());
-            }
+    private boolean sendVbmc(VbmcVO endpoint, String action, String password) {
+        if (endpoint.getHostId() == null || endpoint.getToken() == null) {
+            return false;
         }
-        return vm;
+        try {
+            Answer answer = _agentMgr.send(endpoint.getHostId(), new VbmcCommand(action,
+                    endpoint.getInstanceName(), Integer.toString(endpoint.getPort()), endpoint.getToken(),
+                    endpoint.getAddress(), endpoint.getAllowedCidr(), password));
+            return answer != null && answer.getResult();
+        } catch (Exception e) {
+            // Agent diagnostics may contain sensitive library messages. Return a fixed diagnostic.
+            logger.warn("Virtual BMC {} could not be confirmed for allocation {}", action, endpoint.getId());
+            return false;
+        }
+    }
+
+    private void requireVbmcReadyVm(UserVmVO vm) {
+        if (vm.getHypervisorType() != HypervisorType.KVM || vm.getState() != State.Running || vm.getHostId() == null) {
+            throw new InvalidParameterValueException("Virtual BMC requires a running KVM VM on an assigned host");
+        }
+        if (vm.isHaEnabled()) {
+            throw new InvalidParameterValueException("Disable VM HA before allocating Virtual BMC; external power control conflicts with HA");
+        }
+        HostVO host = _hostDao.findById(vm.getHostId());
+        if (host == null || host.getStatus() != Status.Up || host.getResourceState() != ResourceState.Enabled) {
+            throw new InvalidParameterValueException("Virtual BMC requires an enabled, connected host");
+        }
+    }
+
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_VM_VBMC_ALLOCATE, eventDescription = "Allocate Virtual BMC", async = true)
+    public UserVm allocateVbmcToVM(AllocateVbmcToVMCmd cmd) {
+        requireVbmcVm(cmd.getVmId());
+        String cidr = cmd.getAllowedCidr();
+        if (!com.cloud.utils.net.NetUtils.isValidIp4Cidr(cidr)) {
+            throw new InvalidParameterValueException("allowedcidr must be an IPv4 CIDR");
+        }
+        if (cmd.getPassword() == null || cmd.getPassword().contains("%") || !cmd.getPassword().matches("[!-~]{16,20}")) {
+            throw new InvalidParameterValueException("IPMI password must contain 16-20 printable ASCII characters without spaces or percent signs");
+        }
+        GlobalLock lock = GlobalLock.getInternLock("cloud-vbmc-allocation");
+        try {
+            if (!lock.lock(30)) {
+                throw new CloudRuntimeException("Virtual BMC operation in progress; retry later");
+            }
+            try {
+                UserVmVO vm = requireVbmcVm(cmd.getVmId());
+                requireVbmcReadyVm(vm);
+                List<VbmcVO> existing = vbmcDao.listByVmId(vm.getId());
+                if (!existing.isEmpty()) {
+                    VbmcVO endpoint = existing.get(0);
+                    if (existing.size() == 1 && "Ready".equals(endpoint.getStatus()) && sendVbmc(endpoint, "check", null)) {
+                        saveVbmc(endpoint, "Ready", null);
+                        return vm;
+                    }
+                    throw new InvalidParameterValueException("Virtual BMC is already reserved; check or remove it before allocating again");
+                }
+                List<VbmcVO> available = vbmcDao.findAblePort();
+                if (available.isEmpty()) {
+                    throw new InvalidParameterValueException("No Virtual BMC ports are available");
+                }
+                VbmcVO endpoint = available.get(0);
+                endpoint.setVmId(vm.getId());
+                endpoint.setHostId(vm.getHostId());
+                endpoint.setInstanceName(vm.getInstanceName());
+                endpoint.setToken(java.util.UUID.randomUUID().toString());
+                endpoint.setAddress("127.0.0.1/32".equals(cidr) ? "127.0.0.1" : _hostDao.findById(vm.getHostId()).getPrivateIpAddress());
+                endpoint.setAllowedCidr(cidr);
+                saveVbmc(endpoint, "Allocating", null);
+                if (!sendVbmc(endpoint, "start", cmd.getPassword())) {
+                    saveVbmc(endpoint, "CleanupRequired", "Allocation could not be confirmed; remove to reconcile before retrying");
+                    throw new CloudRuntimeException(endpoint.getLastError());
+                }
+                UserVmVO current = _vmDao.findById(vm.getId());
+                if (current.getState() != State.Running || !endpoint.getHostId().equals(current.getHostId()) || current.isHaEnabled()) {
+                    sendVbmc(endpoint, "delete", null);
+                    saveVbmc(endpoint, "CleanupRequired", "VM changed during allocation; remove to confirm cleanup");
+                    throw new CloudRuntimeException(endpoint.getLastError());
+                }
+                saveVbmc(endpoint, "Ready", null);
+                return current;
+            } finally {
+                lock.unlock();
+            }
+        } finally {
+            lock.releaseRef();
+        }
+    }
+
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_VM_VBMC_REMOVE, eventDescription = "Remove Virtual BMC", async = true)
+    public UserVm removeVbmcToVM(RemoveVbmcToVMCmd cmd) {
+        UserVmVO vm = requireVbmcVm(cmd.getVmId());
+        GlobalLock lock = GlobalLock.getInternLock("cloud-vbmc-allocation");
+        try {
+            if (!lock.lock(30)) {
+                throw new CloudRuntimeException("Virtual BMC operation in progress; retry later");
+            }
+            try {
+                for (VbmcVO endpoint : vbmcDao.listByVmId(vm.getId())) {
+                    saveVbmc(endpoint, "Removing", null);
+                    if (!sendVbmc(endpoint, "delete", null)) {
+                        saveVbmc(endpoint, "CleanupRequired", "Cleanup not confirmed on the original host; port remains reserved");
+                        throw new CloudRuntimeException(endpoint.getLastError());
+                    }
+                    endpoint.setVmId(0);
+                    endpoint.setHostId(null);
+                    endpoint.setInstanceName(null);
+                    endpoint.setToken(null);
+                    endpoint.setAddress(null);
+                    endpoint.setAllowedCidr(null);
+                    saveVbmc(endpoint, "Unallocated", null);
+                }
+                return vm; // Repeated removal is idempotent.
+            } finally {
+                lock.unlock();
+            }
+        } finally {
+            lock.releaseRef();
+        }
+    }
+
+    @Override
+    public UserVm checkVbmcToVM(org.apache.cloudstack.api.command.user.vm.CheckVbmcToVMCmd cmd) {
+        UserVmVO vm = requireVbmcVm(cmd.getVmId());
+        GlobalLock lock = GlobalLock.getInternLock("cloud-vbmc-allocation");
+        try {
+            if (!lock.lock(30)) {
+                throw new CloudRuntimeException("Virtual BMC operation in progress; retry later");
+            }
+            try {
+                for (VbmcVO endpoint : vbmcDao.listByVmId(vm.getId())) {
+                    boolean ready = vm.getState() == State.Running && java.util.Objects.equals(vm.getHostId(), endpoint.getHostId())
+                            && sendVbmc(endpoint, "check", null);
+                    saveVbmc(endpoint, ready ? "Ready" : "CleanupRequired",
+                            ready ? null : "Endpoint health could not be confirmed; remove and reallocate");
+                }
+                return vm;
+            } finally {
+                lock.unlock();
+            }
+        } finally {
+            lock.releaseRef();
+        }
+    }
+
+    private void checkVbmcOperationAllowed(long vmId) {
+        if (!vbmcDao.listByVmId(vmId).isEmpty()) {
+            throw new InvalidParameterValueException("Remove Virtual BMC before changing VM lifecycle, host, HA or instance name");
+        }
     }
 
     public boolean isVMPartOfAnyCKSCluster(VMInstanceVO vm) {
@@ -12007,6 +12103,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     }
 
     protected void checkFastCloneOperationAllowed(long vmId, String operation) {
+        checkVbmcOperationAllowed(vmId);
         VMInstanceDetailVO sourcePhase = vmInstanceDetailsDao.findDetail(vmId, VmDetailConstants.FAST_CLONE_SOURCE_PHASE);
         if (sourcePhase != null) {
             boolean powerOperation = Arrays.asList("start", "stop", "reboot").contains(operation);

@@ -2564,22 +2564,23 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return "0".equals(command.execute(null));
     }
 
-    public boolean ablestackVbmcCmdLine(final String action, final String domid, final String port) throws InternalErrorException {
-        if (action == null || domid == null || port == null) {
-            return false;
+    public boolean ablestackVbmcCmdLine(final com.cloud.agent.api.VbmcCommand request) throws InternalErrorException {
+        if (request.getToken() == null || request.getAddress() == null || request.getAllowedCidr() == null) {
+            return false; // Fail closed with an older management server.
         }
-
-        final Script command = new Script("/bin/sh", timeout);
+        final Script command = new Script("/bin/bash", timeout);
         command.add(ablestackVbmcPath);
-        command.add(action);
-        command.add(domid);
-        command.add(port);
-        LOGGER.info(command);
-        String result = command.execute();
-        if (result != null) {
-            return false;
+        command.add(request.getAction());
+        command.add(request.getVmName());
+        command.add(request.getPort());
+        command.add(request.getToken());
+        command.add(request.getAddress());
+        command.add(request.getAllowedCidr());
+        final java.util.Map<String, String> environment = new java.util.HashMap<>();
+        if (request.getPassword() != null) {
+            environment.put("CLOUD_VBMC_PASSWORD", request.getPassword());
         }
-        return true;
+        return command.execute(new com.cloud.utils.script.OutputInterpreter.AllLinesParser(), environment) == null;
     }
 
     public boolean createKvdoCmdLine(final String poolName, final String poolUsername, final String imageName, final String imageSize) throws InternalErrorException {

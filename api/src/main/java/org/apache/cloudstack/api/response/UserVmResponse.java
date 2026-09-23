@@ -1532,6 +1532,30 @@ public class UserVmResponse extends BaseResponseWithTagInformation implements Co
         this.vnfDetails.put(key,value);
     }
 
+    @SerializedName("vbmcstatus")
+    @Param(description = "Virtual BMC Status")
+    private String vbmcStatus;
+
+    public void setVbmcStatus(String value) { vbmcStatus = value; }
+
+    @SerializedName("vbmcaddress")
+    @Param(description = "Virtual BMC Address")
+    private String vbmcAddress;
+
+    public void setVbmcAddress(String value) { vbmcAddress = value; }
+
+    @SerializedName("vbmcallowedcidr")
+    @Param(description = "Virtual BMC AllowedCidr")
+    private String vbmcAllowedCidr;
+
+    public void setVbmcAllowedCidr(String value) { vbmcAllowedCidr = value; }
+
+    @SerializedName("vbmclasterror")
+    @Param(description = "Virtual BMC LastError")
+    private String vbmcLastError;
+
+    public void setVbmcLastError(String value) { vbmcLastError = value; }
+
     public void setVbmcPort(String vbmcPort) {
         this.vbmcPort = vbmcPort;
     }
