@@ -125,7 +125,7 @@ QGA/Tools 실제 검증 버전·ISO SHA는 Q6 보고서에 채워야 하며 아�
 
 | 게스트 | 아키텍처 | adapter 필수 환경 | 조회 | 정상 종료 | 강제 종료 | 재시작 |
 |---|---|---|---|---|---|---|
-| Rocky Linux 9.6/9.7/9.8 | x86_64 | Python >=3.9, /proc, systemd, pidfd_open + pidfd_send_signal | 지원 목표 | TERM | KILL | systemd 서비스 |
+| Rocky Linux 9.6/9.7/9.8 및 10.2 | x86_64 | Python >=3.9, /proc, systemd, pidfd_open + pidfd_send_signal | 지원 목표 | TERM | KILL | systemd 서비스 |
 | Ubuntu 22.04/24.04 | x86_64 | Python >=3.9, /proc, systemd, pidfd_open + pidfd_send_signal | 지원 목표 | TERM | KILL | systemd 서비스 |
 | Windows Server 2022/2025 | x86_64 | Windows PowerShell 5.1, CIM, .NET/native handle helper, SCM | 지원 목표 | 미지원 | TerminateProcess | SCM 서비스 |
 
@@ -347,3 +347,7 @@ failure-STALE_* 예시는 wire 응답 예시일 뿐 실제 경쟁 상태 테스�
 C1 완료는 규범 문서·schema·양 consumer 공용 fixtures·validator의 게시 및 정적 검증이다.
 실제 API/VM 동작·guest journal·권한 설정·lifecycle gate 추가는 후속 이슈이며 C1에서 구현하지 않는다.
 서비스 재시작은 MVP, 일반 프로세스 재시작은 후속으로 고정한다.
+
+### 2026-09-25 지원 목표 추가
+
+사용자 승인으로 Rocky Linux 10.2 x86_64를 지원 목표에 추가했다. 지정 VM의 QGA 8개 RPC와 Q1 transport 실행은 확인했으나 프로세스 어댑터·pidfd·서비스 변경의 전체 지원 승인은 Q6/C7 gate에 남아 있다. C2는 10.2에서도 어댑터 검증 전 TOOLS_REQUIRED를 반환하며 READY를 광고하지 않는다. JSON 계약 구조와 버전 1.0은 변경하지 않는다.
