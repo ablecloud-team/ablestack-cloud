@@ -126,7 +126,7 @@ QGA/Tools 실제 검증 버전·ISO SHA는 Q6 보고서에 채워야 하며 아�
 | 게스트 | 아키텍처 | adapter 필수 환경 | 조회 | 정상 종료 | 강제 종료 | 재시작 |
 |---|---|---|---|---|---|---|
 | Rocky Linux 9.6/9.7/9.8 및 10.2 | x86_64 | Python >=3.9, /proc, systemd, pidfd_open + pidfd_send_signal | 지원 목표 | TERM | KILL | systemd 서비스 |
-| Ubuntu 22.04/24.04 | x86_64 | Python >=3.9, /proc, systemd, pidfd_open + pidfd_send_signal | 지원 목표 | TERM | KILL | systemd 서비스 |
+| Ubuntu 22.04/24.04/26.04 | x86_64 | Python >=3.9, /proc, systemd, pidfd_open + pidfd_send_signal | 지원 목표 | TERM | KILL | systemd 서비스 |
 | Windows Server 2022/2025 | x86_64 | Windows PowerShell 5.1, CIM, .NET/native handle helper, SCM | 지원 목표 | 미지원 | TerminateProcess | SCM 서비스 |
 
 Rocky minor별 ISO는 일치하는 것을 사용한다. ARM/32-bit/다른 OS/컨테이너 init/비systemd 환경은 1.0 밖이다.
@@ -351,3 +351,5 @@ C1 완료는 규범 문서·schema·양 consumer 공용 fixtures·validator의 �
 ### 2026-09-25 지원 목표 추가
 
 사용자 승인으로 Rocky Linux 10.2 x86_64를 지원 목표에 추가했다. 지정 VM의 QGA 8개 RPC와 Q1 transport 실행은 확인했으나 프로세스 어댑터·pidfd·서비스 변경의 전체 지원 승인은 Q6/C7 gate에 남아 있다. C2는 10.2에서도 어댑터 검증 전 TOOLS_REQUIRED를 반환하며 READY를 광고하지 않는다. JSON 계약 구조와 버전 1.0은 변경하지 않는다.
+
+사용자가 추가 지정한 VM 4cb71960-fc75-43e1-9830-8f4ee198def7의 QGA 실제 OS는 Ubuntu 26.04 LTS x86_64이다(Cloud 등록 OS 표시는 24.04). Ubuntu 26.04도 지원 목표에 추가하며 지원 승인 및 READY gate는 위와 동일하다.
