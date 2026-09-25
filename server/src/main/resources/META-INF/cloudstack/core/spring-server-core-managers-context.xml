@@ -284,6 +284,7 @@
 
     <bean id="statsCollector" class="com.cloud.server.StatsCollector" />
 
+    <bean id="vmProcessCapabilityServiceImpl" class="com.cloud.vm.process.VmProcessCapabilityServiceImpl" />
     <bean id="vmGuestNetworkApiServiceImpl" class="com.cloud.vm.guestnetwork.VmGuestNetworkApiServiceImpl" />
 
     <bean id="vmGuestNetworkStateServiceImpl" class="com.cloud.vm.guestnetwork.VmGuestNetworkStateServiceImpl" />
