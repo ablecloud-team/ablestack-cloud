@@ -149,9 +149,9 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
     private static final String ERROR_REASON_METADATA_FINALIZE = "metadata-finalize";
     private static final String COMMVAULT_PERMANENT_INSTALL_FAILURE_MESSAGE = "Commvault backup agent automatic installation cannot continue because required install media is missing in the Commvault Software Cache.";
     private static final int BASE_MAJOR = 11;
-    private static final int BASE_FR = 32;
-    private static final int BASE_MT = 89;
-    private static final Pattern VERSION_PATTERN = Pattern.compile("^(\\d+)\\s*SP\\s*(\\d+)(?:\\.(\\d+))?$", Pattern.CASE_INSENSITIVE);
+    private static final int BASE_FR = 44;
+    private static final int BASE_MT = 20;
+    private static final Pattern VERSION_PATTERN = Pattern.compile("^(\\d+)\\s*SP\\s*(\\d+)\\.(\\d+)$", Pattern.CASE_INSENSITIVE);
     private static final long STAGE_SPACE_BUFFER_BYTES = 10L * 1024L * 1024L * 1024L;
     private static final int INCREMENTAL_BACKUP_CAPACITY_ESTIMATE_PERCENT = 10;
     private static final long BACKING_UP_SYNC_GRACE_PERIOD_MS = 24L * 60L * 60L * 1000L;
@@ -1300,9 +1300,10 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             throw new CloudRuntimeException("Failed to restore Full VM commvault api");
         }
 
-        String jobStatus = client.getJobStatus(restoreJobId);
-        if (!jobStatus.equalsIgnoreCase("Completed")) {
-            throw new CloudRuntimeException("Failed to restore Full VM commvault api resulted in " + jobStatus);
+        final AblestackCommvaultClient.JobStatusResult jobResult = client.getJobStatusResult(restoreJobId);
+        if (!isCommvaultJobCompleted(jobResult)) {
+            throw new CloudRuntimeException("Failed to restore Full VM commvault api. "
+                    + formatCommvaultJobResult(restoreJobId, jobResult));
         }
     }
 
@@ -1473,8 +1474,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             ensureStageHostHasCapacityForRestore(backup, clientName, restoreSourcePaths);
             String jobId2 = client.restoreFullVM(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, restoreSourcePaths);
             if (jobId2 != null) {
-                String jobStatus = client.getJobStatus(jobId2);
-                if (jobStatus.equalsIgnoreCase("Completed")) {
+                final AblestackCommvaultClient.JobStatusResult jobResult = client.getJobStatusResult(jobId2);
+                if (isCommvaultJobCompleted(jobResult)) {
                 List<String> backedVolumesUUIDs = backup.getBackedUpVolumes().stream()
                         .sorted(Comparator.comparingLong(Backup.VolumeInfo::getDeviceId))
                         .map(Backup.VolumeInfo::getUuid)
@@ -1542,7 +1543,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                         restoreHost.getId(), restoreHost.getName(), answer != null && answer.getResult(), answer != null ? answer.getDetails() : null);
                 return new Pair<>(answer.getResult(), answer.getDetails());
                 } else {
-                    throw new CloudRuntimeException("Failed to restore Full VM commvault api resulted in " + jobStatus);
+                    throw new CloudRuntimeException("Failed to restore Full VM commvault api. "
+                            + formatCommvaultJobResult(jobId2, jobResult));
                 }
             } else {
                 throw new CloudRuntimeException("Failed to restore Full VM commvault api");
@@ -1638,8 +1640,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             ensureStageHostHasCapacityForRestore(backup, clientName, restoreSourcePaths);
             String jobId2 = client.restoreFullVM(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName, applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, restoreSourcePaths);
             if (jobId2 != null) {
-                String jobStatus = client.getJobStatus(jobId2);
-                if (jobStatus.equalsIgnoreCase("Completed")) {
+                final AblestackCommvaultClient.JobStatusResult jobResult = client.getJobStatusResult(jobId2);
+                if (isCommvaultJobCompleted(jobResult)) {
                     final VolumeVO volume = volumeDao.findByUuid(backupVolumeInfo.getUuid());
                     final DiskOffering diskOffering = diskOfferingDao.findByUuid(backupVolumeInfo.getDiskOfferingId());
                     if (diskOffering == null) {
@@ -1786,7 +1788,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                                 String.format("Restore agent returned failure for volume [%s] on host [%s]", backupVolumeInfo.getUuid(), restoreHost.getName())));
                     }
                 } else {
-                    String errorMessage = "Failed to restore backup for VM " + vmNameAndState.first() + " to restore backup job status is " + jobStatus;
+                    String errorMessage = "Failed to restore backup for VM " + vmNameAndState.first() + ". "
+                            + formatCommvaultJobResult(jobId2, jobResult);
                     LOG.error(errorMessage);
                     return new Pair<>(false, errorMessage);
                 }
@@ -2258,10 +2261,9 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             if (jobDetails != null) {
                 JSONObject jsonObject = new JSONObject(jobDetails);
                 String retainedUntil = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("retainedUntil"));
-                String storagePolicyId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("storagePolicy").get("storagePolicyId"));
                 BackupOfferingVO vmBackupOffering = new BackupOfferingDaoImpl().findById(vm.getBackupOfferingId());
                 BackupOfferingVO offering = backupOfferingDao.createForUpdate(vmBackupOffering.getId());
-                String retentionDay = client.getRetentionPeriod(storagePolicyId);
+                String retentionDay = client.getPrimaryBackupDestinationRetention(vmBackupOffering.getExternalId());
                 offering.setRetentionPeriod(retentionDay);
                 backupOfferingDao.update(offering.getId(), offering);
                 long timestamp = Long.parseLong(retainedUntil) * 1000L;
@@ -2273,7 +2275,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                     String clientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientId"));
                     String clientName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientName"));
                     String backupsetId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetId"));
-                    boolean result = client.deleteBackup(subclientId, applicationId, applicationId, clientId, clientName, backupsetId, path);
+                    boolean result = client.deleteBackup(subclientId, applicationId, instanceId, clientId, clientName, backupsetId, path);
                     if (result) {
                         cleanupBackupPathOnStageHost(clientName, path, false, vm.getInstanceName(),
                                 getBackupDetail(backup, DETAIL_CHECKPOINT_NAME), getUnreferencedQcow2CheckpointNamesAfterDelete(backup),
@@ -2482,7 +2484,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         String backupContentPath = Path.of(backupPath).getParent().toString();
         addBackupSetHostDetailsIfDifferent(backupDetails, stageHost.getName(), clientName);
 
-        if (!client.updateBackupSet(backupContentPath, subclientId, clientId, planId, applicationId, backupsetId, instanceId, subclientName, backupsetName)) {
+        if (!client.updateBackupSet(backupContentPath, subclientId, clientId, applicationId, backupsetId, instanceId, subclientName, backupsetName)) {
             markBackupFailure(backupVO, "commvault-update-backupset", "Failed to update Commvault backupset content path");
             return false;
         }
@@ -2900,10 +2902,12 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                     String jobId = client.installAgent(host.getPrivateIpAddress(), commCellId, commServeHostName, credentials.first(), credentials.second());
                     if (jobId != null) {
                         LOG.info("Created Commvault backup agent install job [{}] for host [{}]. Waiting for completion.", jobId, host.getPrivateIpAddress());
-                        String jobStatus = client.getJobStatus(jobId, COMMVAULT_INSTALL_JOB_WAIT_TIMEOUT_MS);
-                        if (!"Completed".equalsIgnoreCase(jobStatus)) {
-                            String failureReason = client.getLastJobFailureReason();
-                            LOG.error("installing agent on the Commvault Backup Provider failed jogId : {} , jobStatus : {}, reason=[{}]",
+                        final AblestackCommvaultClient.JobStatusResult jobResult =
+                                client.getJobStatusResult(jobId, COMMVAULT_INSTALL_JOB_WAIT_TIMEOUT_MS);
+                        final String jobStatus = jobResult.getStatus();
+                        final String failureReason = jobResult.getFailureReason();
+                        if (!isCommvaultJobCompleted(jobResult)) {
+                            LOG.error("Installing agent on the Commvault Backup Provider failed. jobId=[{}], jobStatus=[{}], reason=[{}]",
                                     jobId, jobStatus, failureReason);
                             publishBackupAgentInstallFailureEventIfNeeded(host);
                             if (isPermanentCommvaultInstallFailure(failureReason)) {
@@ -2968,6 +2972,20 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         return client.getInstallActiveJob(host.getName()) || client.getInstallActiveJob(host.getPrivateIpAddress());
     }
 
+    private boolean isCommvaultJobCompleted(final AblestackCommvaultClient.JobStatusResult jobResult) {
+        return jobResult != null && "Completed".equalsIgnoreCase(jobResult.getStatus());
+    }
+
+    private String formatCommvaultJobResult(final String jobId, final AblestackCommvaultClient.JobStatusResult jobResult) {
+        if (jobResult == null) {
+            return String.format("jobId=[%s], status=[unknown], reason=[unknown]", jobId);
+        }
+
+        final String status = StringUtils.defaultIfBlank(jobResult.getStatus(), "unknown");
+        final String failureReason = StringUtils.defaultIfBlank(jobResult.getFailureReason(), "unknown");
+        return String.format("jobId=[%s], status=[%s], reason=[%s]", jobId, status, failureReason);
+    }
+
     private boolean isPermanentCommvaultInstallFailure(String failureReason) {
         if (StringUtils.isBlank(failureReason)) {
             return false;
@@ -2995,20 +3013,22 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         // 선택한 백업 정책의 RPO 편집 Commvault API 호출
         String type = "deleteRpo";
         String taskId = client.getScheduleTaskId(type, externalId);
-        if (taskId != null) {
-            String subTaskId = client.getSubTaskId(taskId);
-            if (subTaskId != null) {
-                boolean result = client.deleteSchedulePolicy(taskId, subTaskId);
-                if (!result) {
-                    throw new CloudRuntimeException("Failed to delete schedule policy commvault api");
-                }
-            }
-        } else {
+        if (taskId == null) {
             throw new CloudRuntimeException("Failed to get plan details schedule task id commvault api");
+        }
+        String subTaskId = client.getSubTaskId(taskId);
+        if (subTaskId != null) {
+            boolean result = client.deleteSchedulePolicy(taskId,subTaskId);
+            if (!result) {
+                throw new CloudRuntimeException("Failed to delete schedule policy commvault api");
+            }
         }
         // 선택한 백업 정책의 보존 기간 변경 Commvault API 호출
         type = "updateRpo";
         String planEntity = client.getScheduleTaskId(type, externalId);
+        if (planEntity == null) {
+            throw new CloudRuntimeException("Failed to get plan details commvault api");
+        }
         JSONObject jsonObject = new JSONObject(planEntity);
         String planType = String.valueOf(jsonObject.get("planType"));
         String planName = String.valueOf(jsonObject.get("planName"));
@@ -3016,27 +3036,23 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         String planId = String.valueOf(jsonObject.get("planId"));
         JSONObject entityInfo = jsonObject.getJSONObject("entityInfo");
         String companyId = String.valueOf(entityInfo.get("companyId"));
-        String storagePolicyId = client.getStoragePolicyId(planName);
-        if (storagePolicyId == null) {
-            throw new CloudRuntimeException("Failed to get plan storage policy id commvault api");
+        // 선택한 백업 정책의 Primary Backup Destination retention period 변경
+        boolean result = client.updatePrimaryBackupDestinationRetention(planId, retentionPeriod);
+        if (!result) {
+            throw new CloudRuntimeException("Failed to update primary backup destination retention period commvault api");
         }
-        boolean result = client.getStoragePolicyDetails(planId, storagePolicyId, retentionPeriod);
-        if (result) {
-            // 호스트에 선택한 백업 정책 설정 Commvault API 호출
-            String path = "/";
-            List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
-            for (final HostVO host : Hosts) {
-                String backupSetId = client.getDefaultBackupSetId(host.getName());
-                if (backupSetId != null) {
-                    if (!client.setBackupSet(path, planType, planName, planSubtype, planId, companyId, backupSetId)) {
-                        throw new CloudRuntimeException("Failed to setting backup plan for client commvault api");
-                    }
+        // 호스트에 선택한 백업 정책 설정 Commvault API 호출
+        String path = "/";
+        List<HostVO> Hosts = hostDao.findByDataCenterId(zoneId);
+        for (final HostVO host : Hosts) {
+            String backupSetId = client.getDefaultBackupSetId(host.getName());
+            if (backupSetId != null) {
+                if (!client.setBackupSet(path, planType, planName, planSubtype, planId, companyId, backupSetId)) {
+                    throw new CloudRuntimeException("Failed to setting backup plan for client commvault api");
                 }
             }
-            return true;
-        } else {
-            throw new CloudRuntimeException("Failed to edit plan schedule retention period commvault api");
         }
+        return true;
     }
 
     @Override
@@ -3051,11 +3067,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         String planId = String.valueOf(jsonObject.get("planId"));
         JSONObject entityInfo = jsonObject.getJSONObject("entityInfo");
         String companyId = String.valueOf(entityInfo.get("companyId"));
-        String storagePolicyId = client.getStoragePolicyId(planName);
-        if (storagePolicyId == null) {
-            throw new CloudRuntimeException("Failed to get plan storage policy id commvault api");
-        }
-        return client.getStoragePolicyDetails(planId, storagePolicyId, retentionPeriod);
+        return client.updatePrimaryBackupDestinationRetention(planId, retentionPeriod);
     }
 
     private static String getUrlDomain(String url) throws URISyntaxException {
@@ -3143,27 +3155,20 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
     }
 
     public static boolean versionCheck(String csVersionInfo) {
-        // 버전 체크 기준 : 11 SP32.89
-        if (csVersionInfo == null) {
-            throw new CloudRuntimeException("commvault version must not be null.");
+        // 버전 체크 기준 : 11 SP44.20
+        if (StringUtils.isBlank(csVersionInfo)) {
+            throw new CloudRuntimeException("Commvault version must not be null or empty.");
         }
-        String v = csVersionInfo.trim();
-        if (v.startsWith("\"") && v.endsWith("\"") && v.length() > 1) {
-            v = v.substring(1, v.length() - 1);
+        String version = csVersionInfo.trim();
+        Matcher matcher = VERSION_PATTERN.matcher(version);
+        if (!matcher.matches()) {
+            throw new CloudRuntimeException("Unexpected Commvault version format: " + csVersionInfo);
         }
-        Matcher m = VERSION_PATTERN.matcher(v);
-        if (!m.matches()) {
-            throw new CloudRuntimeException("Unexpected commvault version format: " + csVersionInfo);
-        }
-        int major = Integer.parseInt(m.group(1));
-        int fr = Integer.parseInt(m.group(2));
-        int mt = Integer.parseInt(m.group(3));
-        if (major < BASE_MAJOR) {
-            throw new CloudRuntimeException("The major version of the commvault you are trying to connect to is low. Supports versions 11.32.89 and higher.");
-        } else if (major == BASE_MAJOR && fr < BASE_FR) {
-            throw new CloudRuntimeException("The feature release version of the commvault you are trying to connect to is low. Supports versions 11.32.89 and higher.");
-        } else if (major == BASE_MAJOR && fr == BASE_FR && mt < BASE_MT) {
-            throw new CloudRuntimeException("The maintenance version of the commvault you are trying to connect to is low. Supports versions 11.32.89 and higher.");
+        int major = Integer.parseInt(matcher.group(1));
+        int featureRelease = Integer.parseInt(matcher.group(2));
+        int maintenance = Integer.parseInt(matcher.group(3));
+        if (major < BASE_MAJOR || (major == BASE_MAJOR && featureRelease < BASE_FR) || (major == BASE_MAJOR && featureRelease == BASE_FR && maintenance < BASE_MT)) {
+            throw new CloudRuntimeException(String.format("The Commvault version is too low. Supports versions %d SP%d.%d and higher. Current version: %s", BASE_MAJOR, BASE_FR, BASE_MT, csVersionInfo));
         }
         return true;
     }
