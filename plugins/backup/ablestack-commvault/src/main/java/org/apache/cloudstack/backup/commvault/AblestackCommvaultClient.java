@@ -557,22 +557,27 @@ public class AblestackCommvaultClient {
     public boolean updateRetentionPeriod(String planId, String backupDestinationId, String retentionPeriod) {
         final String path = "/V5/ServerPlan/" + planId + "/BackupDestination/" + backupDestinationId;
         try {
-            final ObjectNode retentionRules = OBJECT_MAPPER.createObjectNode();
-            retentionRules.put("enableDataAging", true);
-            retentionRules.put("overrideRetentionSettings", true);
-            retentionRules.put("retentionRuleType", "RETENTION_PERIOD");
-            retentionRules.put("retentionPeriodDays", Integer.parseInt(retentionPeriod));
-            retentionRules.put("useExtendedRetentionRules", false);
-
-            final ObjectNode requestBody = OBJECT_MAPPER.createObjectNode();
-            requestBody.set("retentionRules", retentionRules);
-
-            final HttpJsonResponse response = executeJsonRequest("PUT", path, requestBody);
-            if (!response.isSuccessful()) {
-                LOG.warn("Failed to update Commvault retention period. statusCode=[{}], responseBody=[{}]",
-                        response.statusCode, response.body);
+            final HttpResponse getResponse = get(path);
+            checkResponseOK(getResponse);
+            final String responseBody = EntityUtils.toString(getResponse.getEntity(), StandardCharsets.UTF_8);
+            final JsonNode root = OBJECT_MAPPER.readTree(responseBody);
+            final JsonNode currentRetentionRules = root.path("retentionRules");
+            if (!currentRetentionRules.isObject()) {
+                LOG.warn("Commvault retentionRules not found. planId=[{}], backupDestinationId=[{}]", planId, backupDestinationId);
                 return false;
             }
+            final ObjectNode retentionRules = ((ObjectNode) currentRetentionRules).deepCopy();
+            retentionRules.put("retentionPeriodDays", Integer.parseInt(retentionPeriod));
+            retentionRules.put("retentionRuleType", "RETENTION_PERIOD");
+            retentionRules.put("fullBackupTypesToBeRetained", "FIRST");
+            final ObjectNode requestBody = OBJECT_MAPPER.createObjectNode();
+            requestBody.set("retentionRules", retentionRules);
+            final HttpJsonResponse response = executeJsonRequest("PUT", path, requestBody);
+            if (!response.isSuccessful()) {
+                LOG.warn("Failed to update Commvault retention period. statusCode=[{}], responseBody=[{}]", response.statusCode, response.body);
+                return false;
+            }
+            LOG.info("Updated Commvault retention period. planId=[{}], backupDestinationId=[{}], retentionPeriodDays=[{}]", planId, backupDestinationId, retentionPeriod);
             return true;
         } catch (final IOException e) {
             LOG.error("Failed to request updateRetentionPeriod commvault api due to : ", e);
