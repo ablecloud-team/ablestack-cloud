@@ -340,7 +340,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             throw new CloudRuntimeException("There are backup jobs running on the virtual machine. Please try again later.");
         }
 
-        BackupOfferingVO vmBackupOffering = new BackupOfferingDaoImpl().findById(vm.getBackupOfferingId());
+        BackupOfferingVO vmBackupOffering = backupOfferingDao.findById(vm.getBackupOfferingId());
         String planId = vmBackupOffering.getExternalId();
 
         // 클라이언트의 백업세트 조회하여 호스트 정의
@@ -2228,12 +2228,13 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
     @Override
     public void syncBackups(VirtualMachine vm) {
         try {
-            String commvaultServer = getUrlDomain(CommvaultUrl.value());
+            getUrlDomain(CommvaultUrl.value());
         } catch (URISyntaxException e) {
             return;
         }
         final AblestackCommvaultClient client = getClient(vm.getDataCenterId());
-        for (final Backup backup: backupDao.listByVmId(vm.getDataCenterId(), vm.getId())) {
+        final Map<String, String> primaryCopyIdsByStoragePolicy = new HashMap<>();
+        for (final Backup backup : backupDao.listByVmId(vm.getDataCenterId(), vm.getId())) {
             if (!isBackupManagedByThisProvider(backup)) {
                 continue;
             }
@@ -2246,9 +2247,10 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             try {
                 externalIdParts = parseExternalId(externalId);
             } catch (CloudRuntimeException e) {
-                LOG.warn("Skipping Commvault backup sync for backup [{}] due to invalid externalId [{}]", backup.getUuid(), externalId);
+                LOG.warn("Skipping Commvault backup sync for backup [{}] due to invalid externalId [{}].", backup.getUuid(), externalId);
                 continue;
             }
+            final String path = externalIdParts.first();
             final String jobId = externalIdParts.second();
             if (reconcileBackingUpBackup(vm, backup, client)) {
                 continue;
@@ -2256,36 +2258,73 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             if (Backup.Status.Error.equals(backup.getStatus()) && reconcileErrorBackupWithCompletedJob(vm, backup, client, jobId)) {
                 continue;
             }
-            final String path = externalIdParts.first();
-            String jobDetails = client.getJobDetails(jobId);
-            if (jobDetails != null) {
-                JSONObject jsonObject = new JSONObject(jobDetails);
-                String retainedUntil = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").get("retainedUntil"));
-                BackupOfferingVO vmBackupOffering = new BackupOfferingDaoImpl().findById(vm.getBackupOfferingId());
-                BackupOfferingVO offering = backupOfferingDao.createForUpdate(vmBackupOffering.getId());
-                String retentionDay = client.getPrimaryBackupDestinationRetention(vmBackupOffering.getExternalId());
-                offering.setRetentionPeriod(retentionDay);
-                backupOfferingDao.update(offering.getId(), offering);
-                long timestamp = Long.parseLong(retainedUntil) * 1000L;
-                boolean isExpired = isRetentionExpired(retainedUntil);
-                if (isExpired) {
-                    String subclientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("subclientId"));
-                    String applicationId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("applicationId"));
-                    String instanceId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("instanceId"));
-                    String clientId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientId"));
-                    String clientName = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("clientName"));
-                    String backupsetId = String.valueOf(jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo").getJSONObject("subclient").get("backupsetId"));
-                    boolean result = client.deleteBackup(subclientId, applicationId, instanceId, clientId, clientName, backupsetId, path);
-                    if (result) {
-                        cleanupBackupPathOnStageHost(clientName, path, false, vm.getInstanceName(),
-                                getBackupDetail(backup, DETAIL_CHECKPOINT_NAME), getUnreferencedQcow2CheckpointNamesAfterDelete(backup),
-                                getBackupDetail(backup, DETAIL_RBD_DISK_PATHS));
-                        removeBackupWithDetails(backup.getId());
-                    }
+
+            final String jobDetails = client.getJobDetails(jobId);
+            if (StringUtils.isBlank(jobDetails)) {
+                LOG.warn("Unable to get Commvault JobDetails. jobId=[{}], backup=[{}].", jobId,backup.getUuid());
+                continue;
+            }
+            try {
+                final JSONObject jsonObject = new JSONObject(jobDetails);
+                final JSONObject generalInfo = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo");
+                final JSONObject storagePolicy = generalInfo.optJSONObject("storagePolicy");
+                if (storagePolicy == null) {
+                    LOG.warn("Storage Policy information not found in Commvault JobDetails. jobId=[{}], backup=[{}].", jobId, backup.getUuid());
+                    continue;
                 }
+                final long storagePolicyIdValue = storagePolicy.optLong("storagePolicyId", 0L);
+                if (storagePolicyIdValue <= 0L) {
+                    LOG.warn("Invalid Storage Policy ID in Commvault JobDetails. jobId=[{}], backup=[{}].", jobId, backup.getUuid());
+                    continue;
+                }
+
+                final String storagePolicyId = String.valueOf(storagePolicyIdValue);
+                String primaryStoragePolicyCopyId = primaryCopyIdsByStoragePolicy.get(storagePolicyId);
+                if (StringUtils.isBlank(primaryStoragePolicyCopyId)) {
+                    primaryStoragePolicyCopyId = client.getPrimaryStoragePolicyCopyId(jobId, storagePolicyId);
+                    if (StringUtils.isBlank(primaryStoragePolicyCopyId)) {
+                        LOG.warn("Unable to determine Primary Storage Policy Copy. " + "storagePolicyId=[{}], " + "jobId=[{}], backup=[{}]. "
+                                + "Skipping retention expiration check.", storagePolicyId, jobId, backup.getUuid());
+                        continue;
+                    }
+                    primaryCopyIdsByStoragePolicy.put(storagePolicyId, primaryStoragePolicyCopyId);
+                    LOG.debug("Cached Commvault Primary Storage Policy Copy. " + "storagePolicyId=[{}], copyId=[{}].", storagePolicyId, primaryStoragePolicyCopyId);
+                }
+
+                final String retainedUntil = client.getJobRetainedUntil(jobId, storagePolicyId, primaryStoragePolicyCopyId);
+                if (StringUtils.isBlank(retainedUntil)) {
+                    LOG.warn("Unable to determine retention expiration for " + "Commvault job [{}], backup [{}]. " + "Skipping expiration cleanup.",
+                            jobId, backup.getUuid());
+                    continue;
+                }
+                if (!isRetentionExpired(retainedUntil)) {
+                    continue;
+                }
+
+                final JSONObject subclient = generalInfo.getJSONObject("subclient");
+                final String subclientId =String.valueOf(subclient.get("subclientId"));
+                final String applicationId =String.valueOf(subclient.get("applicationId"));
+                final String instanceId = String.valueOf(subclient.get("instanceId"));
+                final String clientId =String.valueOf(subclient.get("clientId"));
+                final String clientName =String.valueOf(subclient.get("clientName"));
+                final String backupsetId =String.valueOf(subclient.get("backupsetId"));
+                final boolean result = client.deleteBackup(subclientId, applicationId, instanceId, clientId, clientName, backupsetId, path);
+                if (!result) {
+                    LOG.warn("Failed to delete expired Commvault backup. " + "jobId=[{}], backup=[{}], " + "storagePolicyId=[{}], copyId=[{}], " + "path=[{}].",
+                            jobId, backup.getUuid(), storagePolicyId, primaryStoragePolicyCopyId, path);
+                    continue;
+                }
+                cleanupBackupPathOnStageHost(clientName, path, false, vm.getInstanceName(),
+                        getBackupDetail(backup, DETAIL_CHECKPOINT_NAME), getUnreferencedQcow2CheckpointNamesAfterDelete(backup),
+                        getBackupDetail(backup,DETAIL_RBD_DISK_PATHS));
+                removeBackupWithDetails(backup.getId());
+                LOG.info("Removed expired Commvault backup. " + "jobId=[{}], backup=[{}], " + "storagePolicyId=[{}], copyId=[{}], "
+                                + "retainedUntil=[{}], path=[{}].", jobId, backup.getUuid(), storagePolicyId, primaryStoragePolicyCopyId, retainedUntil, path);
+            } catch (JSONException e) {
+                LOG.warn("Failed to parse Commvault JobDetails while " + "synchronizing backup [{}], jobId=[{}]: {}",
+                        backup.getUuid(), jobId, e.getMessage());
             }
         }
-        return;
     }
 
     @Override

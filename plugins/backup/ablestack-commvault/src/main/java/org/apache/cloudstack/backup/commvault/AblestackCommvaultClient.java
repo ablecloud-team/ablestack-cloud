@@ -846,7 +846,6 @@ public class AblestackCommvaultClient {
         try {
             final ObjectNode requestBody = OBJECT_MAPPER.createObjectNode();
             final ObjectNode backupSetInfo = requestBody.putObject("backupSetInfo");
-
             final ObjectNode backupSetEntity = backupSetInfo.putObject("backupSetEntity");
             backupSetEntity.put("backupsetName", vmName);
             backupSetEntity.put("applicationId", Integer.parseInt(applicationId));
@@ -1007,6 +1006,135 @@ public class AblestackCommvaultClient {
             checkResponseTimeOut(e);
         }
         return false;
+    }
+
+    // GET https://<commserveIp>/commandcenter/api/V2/StoragePolicy/<storagePolicyId>/Copy/<copyId>
+    // 해당 Storage Policy Copy가 일반 Primary Copy인지 확인
+    public boolean isPrimaryStoragePolicyCopy(String storagePolicyId, String storagePolicyCopyId) {
+        if (StringUtils.isAnyBlank(storagePolicyId, storagePolicyCopyId)) {
+            return false;
+        }
+        try {
+            final HttpResponse response = get("/V2/StoragePolicy/" + storagePolicyId + "/Copy/" + storagePolicyCopyId);
+            checkResponseOK(response);
+            if (response.getEntity() == null) {
+                return false;
+            }
+            final String jsonString = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+            final JsonNode root = OBJECT_MAPPER.readTree(jsonString);
+            if (root.path("error").path("errorCode").asInt(0) != 0) {
+                return false;
+            }
+            final JsonNode copy = root.path("copy");
+            if (!copy.isObject()) {
+                return false;
+            }
+            final String responseCopyId = copy.path("StoragePolicyCopy").path("copyId").asText(null);
+            if (!StringUtils.equals(storagePolicyCopyId, responseCopyId)) {
+                return false;
+            }
+            final boolean isDefault = copy.path("isDefault").asInt(0) == 1;
+            final boolean isSnapCopy = copy.path("isSnapCopy").asInt(0) == 1;
+            return isDefault && !isSnapCopy;
+        } catch (final IOException e) {
+            LOG.error("Failed to request Commvault Storage Policy Copy. " + "storagePolicyId=[{}], copyId=[{}]: ",
+                    storagePolicyId, storagePolicyCopyId, e);
+            checkResponseTimeOut(e);
+        }
+        return false;
+    }
+
+    // GET https://<commserveIp>/commandcenter/api/Job/<jobId>/AdvancedDetails?infoType=1
+    // Job의 retention 정보에 포함된 Copy들을 확인하여 일반 Primary Storage Policy Copy ID를 찾음
+    public String getPrimaryStoragePolicyCopyId(String jobId, String storagePolicyId) {
+        if (StringUtils.isAnyBlank(jobId, storagePolicyId)) {
+            return null;
+        }
+
+        try {
+            final HttpResponse response = get("/Job/" + jobId + "/AdvancedDetails?infoType=1");
+            checkResponseOK(response);
+            if (response.getEntity() == null) {
+                return null;
+            }
+            final String jsonString = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+            final JsonNode root = OBJECT_MAPPER.readTree(jsonString);
+            final JsonNode policyList = root.path("jobRetention").path("storagePolicyRetentionInfoList");
+            if (!policyList.isArray() || policyList.isEmpty()) {
+                return null;
+            }
+
+            for (JsonNode policy : policyList) {
+                final String jobStoragePolicyId = policy.path("storagePolicyId").asText(null);
+                if (!StringUtils.equals(storagePolicyId, jobStoragePolicyId)) {
+                    continue;
+                }
+                final JsonNode copyList = policy.path("copyRetentionInfoList");
+                if (!copyList.isArray()) {
+                    continue;
+                }
+                for (JsonNode copy : copyList) {
+                    final String copyId = copy.path("storagePolicyCopyId").asText(null);
+                    if (StringUtils.isBlank(copyId)) {
+                        continue;
+                    }
+                    if (isPrimaryStoragePolicyCopy(storagePolicyId, copyId)) {
+                        return copyId;
+                    }
+                }
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to request Commvault job retention information while resolving Primary Copy. jobId=[{}], storagePolicyId=[{}]: ", jobId, storagePolicyId, e);
+            checkResponseTimeOut(e);
+        }
+        return null;
+    }
+
+    /// GET https://<commserveIp>/commandcenter/api/Job/<jobId>/AdvancedDetails?infoType=1
+    // Job의 일반 Primary Storage Policy Copy 기준 실제 retention 만료 시간을 조회
+    public String getJobRetainedUntil(String jobId, String storagePolicyId, String primaryStoragePolicyCopyId) {
+        if (StringUtils.isAnyBlank(jobId, storagePolicyId, primaryStoragePolicyCopyId)) {
+            return null;
+        }
+        try {
+            final HttpResponse response = get("/Job/" + jobId + "/AdvancedDetails?infoType=1");
+            checkResponseOK(response);
+            if (response.getEntity() == null) {
+                return null;
+            }
+            final String jsonString = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+            final JsonNode root = OBJECT_MAPPER.readTree(jsonString);
+            final JsonNode policyList = root.path("jobRetention").path("storagePolicyRetentionInfoList");
+            if (!policyList.isArray() || policyList.isEmpty()) {
+                return null;
+            }
+            for (JsonNode policy : policyList) {
+                final String jobStoragePolicyId = policy.path("storagePolicyId").asText(null);
+                if (!StringUtils.equals(storagePolicyId, jobStoragePolicyId)) {
+                    continue;
+                }
+                final JsonNode copyList = policy.path("copyRetentionInfoList");
+                if (!copyList.isArray()) {
+                    continue;
+                }
+                for (JsonNode copy : copyList) {
+                    final String copyId = copy.path("storagePolicyCopyId").asText(null);
+                    if (!StringUtils.equals(primaryStoragePolicyCopyId, copyId)) {
+                        continue;
+                    }
+
+                    final long retainedUntil = copy.path("retentionDays").asLong(0L);
+                    if (retainedUntil <= 0L) {
+                        return null;
+                    }
+                    return String.valueOf(retainedUntil);
+                }
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to request Commvault job retention information. " + "jobId=[{}]: ", jobId, e);
+            checkResponseTimeOut(e);
+        }
+        return null;
     }
 
     // POST https://<commserveIp>/commandcenter/api/subclient/<subclientId>/action/backup 테스트 시 Incremental 백업으로 반환되어 사용 x
